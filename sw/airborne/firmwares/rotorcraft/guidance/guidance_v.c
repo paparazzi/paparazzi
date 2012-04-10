@@ -108,7 +108,7 @@ void guidance_v_init(void) {
   guidance_v_z_sum_err = 0;
 
 #ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
-  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
+  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE * MAX_PPRZ;
 #endif
 
   gv_adapt_init();

@@ -114,5 +114,9 @@ extern void guidance_v_run(bool_t in_flight);
     guidance_v_z_sum_err = 0;			\
   }
 
+#define guidance_v_SetNominalHoverThrottle(_throttle_percent) { \
+    guidance_v_nominal_throttle = _throttle_percent * MAX_PPRZ; \
+  }
+
 
 #endif /* GUIDANCE_V */
