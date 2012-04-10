@@ -30,6 +30,8 @@ uint16_t max1168_values[MAX1168_NB_CHAN];
 struct spi_transaction max1168_req_trans;
 struct spi_transaction max1168_read_trans;
 
+uint16_t max1168_conv_req;
+
 /* callback function to lock the spi fifo
  * after the first transaction
  */
@@ -49,8 +51,11 @@ extern void max1168_init( void ) {
   max1168_req_trans.cpha = SPICphaEdge1;
   max1168_req_trans.dss = SPIDss16bit;
   max1168_req_trans.select = SPISelect;
-  max1168_req_trans.length = 1;
-  max1168_req_trans.output_buf[0] = MAX1168_CONF_CR << 8;
+  max1168_conv_req = MAX1168_CONF_CR << 8;
+  max1168_req_trans.output_buf = (uint8_t*)(&max1168_conv_req);
+  max1168_req_trans.output_length = 1;
+  max1168_req_trans.input_buf = 0;
+  max1168_req_trans.input_length = 0;
   max1168_req_trans.after_cb = max1168_lock_cb;
 
   max1168_read_trans.slave_idx = MAX1168_SLAVE_IDX;
@@ -58,9 +63,12 @@ extern void max1168_init( void ) {
   max1168_read_trans.cpha = SPICphaEdge1;
   max1168_read_trans.dss = SPIDss16bit;
   max1168_read_trans.select = SPIUnselect;
-  // read 8 frames
+  // read 8 16bit frames
   // FIXME should be function of control register options
-  max1168_read_trans.length = 8;
+  max1168_read_trans.output_buf = 0;
+  max1168_read_trans.output_length = 0;
+  max1168_read_trans.input_buf = (uint8_t*)max1168_values;
+  max1168_read_trans.input_length = 8;
 
   max1168_status = MAX1168_IDLE;
 }
@@ -96,14 +104,14 @@ void max1168_event( void ) {
   if (max1168_read_trans.status == SPITransSuccess) {
     if (max1168_status == MAX1168_READING_RES) {
       // store values
-      max1168_values[0] = max1168_read_trans.input_buf[0];
-      max1168_values[1] = max1168_read_trans.input_buf[1];
-      max1168_values[2] = max1168_read_trans.input_buf[2];
-      max1168_values[3] = max1168_read_trans.input_buf[3];
-      max1168_values[4] = max1168_read_trans.input_buf[4];
-      max1168_values[5] = max1168_read_trans.input_buf[5];
-      max1168_values[6] = max1168_read_trans.input_buf[6];
-      max1168_values[7] = max1168_read_trans.input_buf[7];
+      //max1168_values[0] = max1168_read_trans.input_buf[0];
+      //max1168_values[1] = max1168_read_trans.input_buf[1];
+      //max1168_values[2] = max1168_read_trans.input_buf[2];
+      //max1168_values[3] = max1168_read_trans.input_buf[3];
+      //max1168_values[4] = max1168_read_trans.input_buf[4];
+      //max1168_values[5] = max1168_read_trans.input_buf[5];
+      //max1168_values[6] = max1168_read_trans.input_buf[6];
+      //max1168_values[7] = max1168_read_trans.input_buf[7];
       max1168_status = MAX1168_DATA_AVAILABLE;
       max1168_read_trans.status = SPITransDone;
     }

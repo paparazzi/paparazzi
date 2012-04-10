@@ -99,20 +99,26 @@ enum SPIStatus {
 };
 
 /** SPI Callback function.
- * if not NULL, can execute a function before or after transaction
+ * if not NULL (or 0), can execute a function before or after transaction
  * allow to execute some hardware very specific actions
  */
 typedef void (*SPICallback)(void);
 
 
-#ifndef SPI_BUF_LEN
-#define SPI_BUF_LEN 32
-#endif
-
+/** SPI transaction structure.
+ * - Use this structure to store a request of SPI transaction
+ *   and submit it using spi_submit function
+ * - The input/output buffers needs to be created separately
+ * - Take care of pointing input_buf/ouput_buf correctly
+ * - input_length and output_length can be different, the number
+ *   of exchange bytes is the greatest of the two, 0 is send if input_length
+ *   is bigger than output_length
+ */
 struct spi_transaction {
-  volatile uint16_t input_buf[SPI_BUF_LEN];
-  volatile uint16_t output_buf[SPI_BUF_LEN];
-  uint8_t length;
+  volatile uint8_t* input_buf;
+  volatile uint8_t* output_buf;
+  uint8_t input_length;
+  uint8_t output_length;
   uint8_t slave_idx;
   enum SPISlaveSelect select;
   enum SPIClockPolarity cpol;

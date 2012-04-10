@@ -33,7 +33,6 @@
 #include "interrupt_hw.h"
 #include "armVIC.h"
 #include BOARD_CONFIG
-#include "led.h"
 
 // FIXME
 // current implementation only works for SPI1 (SSP)
@@ -169,21 +168,42 @@ __attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p,
 }
 
 __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph* p, struct spi_transaction* t) {
-  while (p->tx_idx_buf < t->length && bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, TNF)) {
-    SpiSend(p, t->output_buf[p->tx_idx_buf]);
+  // when all byte are sent, continue until tx_idx reach input_length
+  // needed when input_length is bigger than output_length
+  uint8_t max_idx = Max(t->output_length, t->input_length);
+  while (p->tx_idx_buf < max_idx && bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, TNF)) {
+    if (p->tx_idx_buf < t->output_length) {
+      if (t->dss == SPIDss8bit) {
+        SpiSend(p, t->output_buf[p->tx_idx_buf]);
+      }
+      else if (t->dss == SPIDss16bit) {
+        uint16_t tmp1 = t->output_buf[2*p->tx_idx_buf]; // LSB
+        uint16_t tmp2 = t->output_buf[2*p->tx_idx_buf+1]<<8; // MSB
+        SpiSend(p, tmp1 | tmp2);
+      }
+    }
+    else {
+      SpiSend(p, 0);
+    }
     p->tx_idx_buf++;
   }
-  if (p->tx_idx_buf == t->length) {
+  if (p->tx_idx_buf == max_idx) {
     SpiDisableTxi(p);
   }
 }
 
 __attribute__ ((always_inline)) static inline void SpiReceive(struct spi_periph* p, struct spi_transaction* t) {
   while (bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, RNE)) {
-    if (p->rx_idx_buf < t->length) {
+    if (p->rx_idx_buf < t->input_length) {
       uint16_t r;
       SpiRead(p, &r);
-      t->input_buf[p->rx_idx_buf] = r;
+      if (t->dss == SPIDss8bit) {
+        t->input_buf[p->rx_idx_buf] = (uint8_t)r;
+      }
+      else if (t->dss == SPIDss16bit) {
+        t->input_buf[2*p->rx_idx_buf] = (uint8_t)r;
+        t->input_buf[2*p->rx_idx_buf+1] = (uint8_t)(r>>8);
+      }
       p->rx_idx_buf++;
     }
     else {
@@ -225,6 +245,7 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   SpiEnable(p);
   SpiInitBuf(p,t);
   SpiEnableTxi(p); // enable tx fifo half empty interrupt
+  SpiEnableRti(p); // enable rx timeout interrupt
 }
 
 __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct spi_periph* p, struct spi_transaction* t) {
@@ -236,7 +257,6 @@ __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct sp
     SpiSlaveUnselect(t->slave_idx);
   }
 
-  SpiClearRti(p);                /* clear interrupt */
   SpiDisable(p);
   // end transaction with success
   t->status = SPITransSuccess;
@@ -262,13 +282,16 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
   if (bit_is_set(((sspRegs_t *)(p->reg_addr))->mis, TXMIS)) {
     SpiTransmit(p, trans);
     SpiReceive(p, trans);
-    if (p->tx_idx_buf == trans->length && p->rx_idx_buf == trans->length) {
-      SpiDisableRti(p);
-      SpiClearRti(p);                /* clear interrupt */
-      SpiEndOfTransaction(p, trans);
-    }
-    else {
-      SpiEnableRti(p);
+    // tx_idx can be greater than output_length (when input_length > output_length)
+    if (p->tx_idx_buf >= trans->output_length && p->rx_idx_buf == trans->input_length) {
+      if (bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, BSY)) {
+        SpiEnableTxi(p); // FIXME in case Rti is not called
+      }
+      else {
+        SpiDisableRti(p);
+        SpiClearRti(p);                /* clear interrupt */
+        SpiEndOfTransaction(p, trans);
+      }
     }
   }
 
@@ -419,7 +442,6 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
   cpsr = disableIRQ();                                // disable global interrupts
   VICIntEnable = VIC_BIT(*vic);
   restoreIRQ(cpsr);                                   // restore global interrupts
-
   return TRUE;
 }
 

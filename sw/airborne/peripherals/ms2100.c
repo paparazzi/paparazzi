@@ -36,6 +36,9 @@ volatile uint8_t ms2100_cur_axe;
 
 struct spi_transaction ms2100_trans;
 
+uint8_t ms2100_control_byte;
+uint8_t ms2100_val[2];
+
 
 void ms2100_init( void ) {
 
@@ -60,10 +63,12 @@ void ms2100_init( void ) {
 void ms2100_read( void ) {
 
   /* set SPI transaction */
-  ms2100_trans.length = 1;
-  uint8_t control_byte = (ms2100_cur_axe+1) << 0 | MS2100_DIVISOR << 4;
+  ms2100_control_byte = (ms2100_cur_axe+1) << 0 | MS2100_DIVISOR << 4;
+  ms2100_trans.output_buf = &ms2100_control_byte;
+  ms2100_trans.output_length = 1;
+  ms2100_trans.input_buf = 0;
+  ms2100_trans.input_length = 0;
   ms2100_trans.before_cb = ms2100_reset_cb; // implemented in ms2100_arch.c
-  ms2100_trans.output_buf[0] = (uint16_t)control_byte;
 
   spi_submit(&(MS2100_SPI_DEV),&ms2100_trans);
 
@@ -75,8 +80,10 @@ void ms2100_event( void ) {
     if (ms2100_status == MS2100_GOT_EOC) {
       // eoc occurs, submit reading req
       // read 2 bytes
-      ms2100_trans.output_buf[0] = 0; // FIXME really needed ?
-      ms2100_trans.length = 2;
+      ms2100_trans.output_buf = 0;
+      ms2100_trans.output_length = 0;
+      ms2100_trans.input_buf = ms2100_val;
+      ms2100_trans.input_length = 2;
       ms2100_trans.before_cb = 0; // no reset when reading values
       spi_submit(&(MS2100_SPI_DEV),&ms2100_trans);
 
