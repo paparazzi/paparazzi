@@ -1,5 +1,5 @@
-<!-- this is a synerani vehicle equiped with Lisa/M and generic china pwm motor controllers -->
-<!-- Copyright (C) 2012, Pranay Sinha, the Quadshot Project -->
+<!-- this is a quadshot vehicle equiped with Lisa/M and generic pwm motor controllers -->
+<!-- Copyright (C) 2012, Pranay Sinha, Greg Horn, Transition Robotics, Inc. -->
 
 <airframe name="qs4_lisam2">
 
@@ -84,8 +84,6 @@
     <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right - 2400"/-->
 
     <!-- mode aerobatic -->
-    <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
-    <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
     <let var="aerobatic_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
     <let var="aerobatic_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
@@ -119,8 +117,8 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <!--include href="conf/airframes/esden/calib/imu_lisam_033.xml"/-->
-  <include href="conf/airframes/esden/calib/asp21-default.xml"/>
+  <include href="conf/airframes/esden/calib/imu_lisam_033.xml"/>
+
 
   <section name="IMU" prefix="IMU_">
     
@@ -247,7 +245,6 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="pwm_supervision"/>
       <subsystem name="telemetry"     type="transparent"/>
@@ -265,12 +262,9 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <!--subsystem name="imu"           type="aspirin_v1.0"/-->
-    <subsystem name="imu"           type="aspirin_v2.0"/>
+    <subsystem name="imu"           type="aspirin_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
-    <!--subsystem name="ahrs"          type="float_dcm"/-->
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <!--define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/-->
     <subsystem name="stabilization" type="quaternion"/>
     <subsystem name="toytronics"    type="default"/>
     <subsystem name="camera_mount"  type="default"/>

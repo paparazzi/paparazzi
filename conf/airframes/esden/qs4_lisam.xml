@@ -1,5 +1,5 @@
-<!-- this is a synerani vehicle equiped with Lisa/M and generic china pwm motor controllers -->
-<!-- Copyright (C) 2011, Pranay Sinha, the Quadshot Project -->
+<!-- this is a quadshot vehicle equiped with Lisa/M and generic pwm motor controllers -->
+<!-- Copyright (C) 2012, Pranay Sinha, Greg Horn, Transition Robotics, Inc. -->
 
 <airframe name="qs4_lisam">
 
@@ -84,8 +84,6 @@
     <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right - 2400"/-->
 
     <!-- mode aerobatic -->
-    <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
-    <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
     <let var="aerobatic_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
     <let var="aerobatic_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
