@@ -15,6 +15,7 @@
       <define name="ACTUATORS_START_DELAY" value="3"/>
       <define name="USE_INS_NAV_INIT"/>
       <configure name="AHRS_ALIGNER_LED" value="3"/>
+      <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
@@ -107,39 +108,38 @@
 
   <section name="AHRS" prefix="AHRS_">
     <define name="PROPAGATE_FREQUENCY" value="512"/>
-    <define name="MAG_UPDATE_YAW_ONLY"/>
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="3.3" integer="16"/>
+    <define name="BARO_SENS" value="22.3" integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
     <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000" />
-    <define name="SP_MAX_Q" value="10000" />
-    <define name="SP_MAX_R" value="10000" />
-    <define name="DEADBAND_P" value="0" />
-    <define name="DEADBAND_Q" value="0" />
-    <define name="DEADBAND_R" value="200" />
-    <define name="REF_TAU" value="4" />
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+    <define name="DEADBAND_P" value="0"/>
+    <define name="DEADBAND_Q" value="0"/>
+    <define name="DEADBAND_R" value="200"/>
+    <define name="REF_TAU" value="4"/>
 
     <!-- feedback -->
-    <define name="GAIN_P" value="400" />
-    <define name="GAIN_Q" value="400" />
-    <define name="GAIN_R" value="350" />
+    <define name="GAIN_P" value="400"/>
+    <define name="GAIN_Q" value="400"/>
+    <define name="GAIN_R" value="350"/>
 
-    <define name="IGAIN_P" value="75" />
-    <define name="IGAIN_Q" value="75" />
-    <define name="IGAIN_R" value="50" />
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
 
     <!-- feedforward -->
-    <define name="DDGAIN_P" value="300" />
-    <define name="DDGAIN_Q" value="300" />
-    <define name="DDGAIN_R" value="300" />
+    <define name="DDGAIN_P" value="300"/>
+    <define name="DDGAIN_Q" value="300"/>
+    <define name="DDGAIN_R" value="300"/>
   </section>
 
 
@@ -203,7 +203,7 @@
     <define name="RC_CLIMB_COEF" value ="163"/>
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
     <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-    <!--define name="INV_M" value ="0.21"/-->
+    <!--define name="NOMINAL_HOVER_THROTTLE" value="0.5"/-->
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">

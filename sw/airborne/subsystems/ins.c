@@ -141,32 +141,33 @@ void ins_realign_v(float z) {
 
 void ins_propagate() {
   /* untilt accels */
-  struct Int32Vect3 accel_body;
-  INT32_RMAT_TRANSP_VMULT(accel_body, imu.body_to_imu_rmat, imu.accel);
-  struct Int32Vect3 accel_ltp;
-  INT32_RMAT_TRANSP_VMULT(accel_ltp, ahrs.ltp_to_body_rmat, accel_body);
-  float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
+  struct Int32Vect3 accel_meas_body;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+  struct Int32Vect3 accel_meas_ltp;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, ahrs.ltp_to_body_rmat, accel_meas_body);
 
 #if USE_VFF
+  float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
   if (baro.status == BS_RUNNING && ins_baro_initialised) {
-    vff_propagate(z_accel_float);
+    vff_propagate(z_accel_meas_float);
     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
     ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
     ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
   }
   else { // feed accel from the sensors
-    ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
+    // subtract -9.81m/s2 (acceleration measured due to gravity, but vehivle not accelerating in ltp)
+    ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
   }
 #else
-  ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
+  ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
 #endif /* USE_VFF */
 
 #if USE_HFF
   /* propagate horizontal filter */
   b2_hff_propagate();
 #else
-  ins_ltp_accel.x = accel_ltp.x;
-  ins_ltp_accel.y = accel_ltp.y;
+  ins_ltp_accel.x = accel_meas_ltp.x;
+  ins_ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
   INT32_VECT3_ENU_OF_NED(ins_enu_pos, ins_ltp_pos);

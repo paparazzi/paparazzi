@@ -147,11 +147,11 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
     /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
     for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
       supervision.commands[i] = SUPERVISION_MIN_MOTOR +
-        (float)(thrust_coef[i] * in_cmd[COMMAND_THRUST] +
-                roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
-                pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
-                yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
-                supervision.trim[i]) / SUPERVISION_SCALE *
+        (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+         roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+         pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+         yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+         supervision.trim[i]) / SUPERVISION_SCALE *
         (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ;
       if (supervision.commands[i] < min_cmd)
         min_cmd = supervision.commands[i];
