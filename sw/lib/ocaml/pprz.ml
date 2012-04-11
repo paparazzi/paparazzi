@@ -390,7 +390,7 @@ let join_messages_of_type = fun xml _type final_class ->
 	try
 		let version = Xml.attrib xml "version" in
 		match version with 
-			| "1.0" ->
+			| "2.0" ->
 				let classes = List.map (fun _class -> {class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }) (Xml.children xml) in
 				let sel_classes = List.filter (fun _class -> 
 					if (_class.class_type = _type) || (_class.class_type = "datalink") then true else false
@@ -415,30 +415,6 @@ let get_downlink_messages_in_one_class = fun xml ->
 
 let get_uplink_messages_in_one_class = fun xml ->
 	join_messages_of_type xml "uplink" "datalink"	
-
-let old_classes_info = [("telemetry",["common_telemetry";"0";"downlink"]);("datalink",["common_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
-
-let convert_to_new_xml = fun xml ->
-	try
-		let classes = List.map (fun _class ->
-			let new_info = List.assoc (ExtXml.attrib _class "name") old_classes_info in
-			{class_id = int_of_string(List.nth new_info 1) ; class_name = List.nth new_info 0 ; class_type = List.nth new_info 2 ; class_xml = _class }) (Xml.children xml) in
-		let class_nodes = List.map (fun cls ->
-			let param_list = ["id",string_of_int(cls.class_id);"name",cls.class_name;"type",cls.class_type] in
-			Xml.Element("class",param_list,Xml.children cls.class_xml)
-				) classes in
-		let node_protocol = Xml.Element("protocol",["version","1.0"],class_nodes) in 
-		node_protocol
-	with
-		| Not_found -> failwith ("Pprz.convert_to_new_xml New info for old class not defined")
-
-let to_new_xml_format = fun xml ->
-	try
-		let version = Xml.attrib xml "version" in
-		match version with
-			| "1.0" -> xml
-			| v -> failwith (sprintf "Pprz.to_new_xml_format Version not handled (Version: %s)" v)
-	with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); (convert_to_new_xml xml)
 			
 exception Unknown_msg_name of string * string
 
@@ -553,6 +529,9 @@ let semicolon = Str.regexp "[;\t]+"
 let coma = Str.regexp "[,\t]+"
 
 module type MESSAGES = sig
+	val xml_version : string
+	val formated_xml : Xml.xml
+	
   val messages : (msg_and_class_id, message) Hashtbl.t
 	val message_of_id : ?class_id:int -> message_id -> message
   val message_of_name : string ->  message_id * message
@@ -602,6 +581,37 @@ end
 
 
 module MessagesOfXml(Class:CLASS_Xml) = struct
+	
+	(* ________________________________ XML VERSION CONTROL ____________________________________________ *)
+	let old_classes_info = [("telemetry",["common_telemetry";"0";"downlink"]);("datalink",["common_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
+	
+	let convert_to_new_xml = fun xml ->
+		try
+			let classes = List.map (fun _class ->
+				let new_info = List.assoc (ExtXml.attrib _class "name") old_classes_info in
+				{class_id = int_of_string(List.nth new_info 1) ; class_name = List.nth new_info 0 ; class_type = List.nth new_info 2 ; class_xml = _class }) (Xml.children xml) in
+			let class_nodes = List.map (fun cls ->
+				let param_list = ["id",string_of_int(cls.class_id);"name",cls.class_name;"type",cls.class_type] in
+				Xml.Element("class",param_list,Xml.children cls.class_xml)
+					) classes in
+			let node_protocol = Xml.Element("protocol",["version","1.0"],class_nodes) in 
+			node_protocol
+		with
+			| Not_found -> failwith ("Pprz.convert_to_new_xml New info for old class not defined")
+	
+	let to_new_xml_format = fun xml ->
+		try
+			let version = Xml.attrib xml "version" in
+			match version with
+				| "2.0" -> ("2.0",xml)
+				| v -> failwith (sprintf "Pprz.to_new_xml_format Version not handled (Version: %s)" v)
+		with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); ("1.0",convert_to_new_xml xml)
+	
+	(** Stores the original version of the xml file and converts the xml file to the 2.0 version format *)
+	let (xml_version,formated_xml) = to_new_xml_format Class.xml 
+	
+	(* _____________________ FROM HERE THE XML FILE IS 2.0 VERSION (formated_xml) _______________________ *)
+
   let max_length = 256
 
 	type _class = {
@@ -649,7 +659,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 				| Type -> 
 					let class_structs = List.map (fun _class -> 
 						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
-						) (Xml.children Class.xml) in
+						) (Xml.children formated_xml) in
 					let selected_classes = ref [] in
 					ignore (List.map (fun struc -> match struc.class_type with
 						| "datalink" -> if (Class.selection = "uplink"||Class.selection = "downlink") then  selected_classes := List.append !selected_classes [struc];
@@ -663,7 +673,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 				| Name ->
 					let class_structs = List.map (fun _class -> 
 						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
-						) (Xml.children Class.xml) in
+						) (Xml.children formated_xml) in
 					let selected_classes = ref [] in
 					ignore (List.map (fun struc -> if struc.class_name = Class.selection then selected_classes := List.append !selected_classes [struc];
 						) class_structs);	
@@ -711,7 +721,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	
 	let class_id_of_msg = fun msg -> 
 		try
-			let classes = Xml.children Class.xml in
+			let classes = Xml.children formated_xml in
 			let classes_with = List.map (get_id_and_messages msg) classes in
 			let result = List.filter (fun x -> if(x>(-1))then true else false) classes_with in
 			match result with

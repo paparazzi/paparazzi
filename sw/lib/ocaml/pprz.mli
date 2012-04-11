@@ -111,16 +111,12 @@ val alt_unit_coef_of_xml : Xml.xml -> string
 val get_downlink_messages_in_one_class : Xml.xml -> Xml.xml
 (** Messages.xml version handler. For those functions that are using stored messages.xml files. 
  *  If the message is of the old version it returns the same file,
- *  if it's of the new version (1.0) it returns a 'protocol' xml element with one class called 'telemetry' including all downlink and datalink messages *)
+ *  if it's of the new version (2.0) it returns a 'protocol' xml element with one class called 'telemetry' including all downlink and datalink messages *)
 
 val get_uplink_messages_in_one_class : Xml.xml -> Xml.xml
 (** Messages.xml version handler. For those functions that are using stored messages.xml files. 
  *  If the message is of the old version it returns the same file,
- *  if it's of the new version (1.0) it returns a 'protocol' xml element with one class called 'datalink' including all uplink and datalink messages *)
-
-val to_new_xml_format : Xml.xml -> Xml.xml
-(** Converts old format xml messages file to the new format. Use it before generating the module MessagesOfXml without going through the functors. 
- *  Returns the xml with the new format (v1.0). *)
+ *  if it's of the new version (2.0) it returns a 'protocol' xml element with one class called 'datalink' including all uplink and datalink messages *)
 
 exception Unknown_msg_name of string * string
 (** [Unknown_msg_name (name, class_name)] Raised if message [name] is not
@@ -175,6 +171,9 @@ type msg_and_class_id = {
 }
 
 module type MESSAGES = sig
+	val xml_version : string
+	val formated_xml : Xml.xml
+	
   val messages : (msg_and_class_id, message) Hashtbl.t
 	val message_of_id : ?class_id:int -> message_id -> message
   val message_of_name : string ->  message_id * message

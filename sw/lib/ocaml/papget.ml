@@ -56,7 +56,7 @@ let base_and_index =
       (field_descr, 0)
 
 
-class message_field = fun ?sender ?(class_type="downlink") msg_name field_descr -> (* XGGDEBUG:DYNMOD: No one is using it with the class_name so maybe the best idea is to change it by type and pus downlink *)
+class message_field = fun ?sender ?(class_type="downlink") msg_name field_descr ->
   object
     val mutable callbacks = []
     val mutable last_value = "0."

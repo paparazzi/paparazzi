@@ -136,8 +136,7 @@ let log = fun ?timestamp logging ac_name msg_name values ->
 
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
-	let _messages_xml = Pprz.to_new_xml_format messages_xml in
-  let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = _messages_xml let selection = "downlink" and mode = Pprz.Type and sel_class_id = None end) in 
+  let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let selection = "downlink" and mode = Pprz.Type and sel_class_id = None end) in 
   fun ts m ->
     try
       let timestamp = try Some (float_of_string ts) with _ -> None in

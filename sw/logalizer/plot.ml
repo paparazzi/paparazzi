@@ -675,14 +675,14 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
   Debug.call 'p' (fun f ->  fprintf f "data_file: %s\n" data_file);
 
-  let protocol = ExtXml.child xml "protocol" in
-	let _protocol = Pprz.to_new_xml_format protocol in
+  let _protocol = ExtXml.child xml "protocol" in
 	
 	let class_type = "downlink" in
 	Debug.call 'p' (fun f ->  fprintf f "class_type: %s\n" class_type);
 	
 	let module M = struct let selection = class_type and mode = Pprz.Type and sel_class_id = None let xml = _protocol end in
   let module P = Pprz.MessagesOfXml(M) in
+	let protocol = P.formated_xml in
   let f =
     try
       Ocaml_tools.find_file [Filename.dirname xml_file] data_file
@@ -773,10 +773,8 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		  sorted_fields in
 	      (msg_ids, field_values_assoc))
 	      msgs in
-
 	  (* Store data for other windows *)
 	  logs_menus :=  !logs_menus @ [(ac, menu_name, (msgs, raw_msgs), protocol)];
-
 	  add_ac_submenu ?export protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
 	acs
