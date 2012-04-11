@@ -174,19 +174,19 @@ type msg_and_class_id = {
 	cls_id : int;
 }
 
-val class_id_of_msg : message_name -> class_id
-(** [class_id_of_msg msg_name] returns the class id containing the given message *)
-
-val class_id_of_msg_args : string -> class_id
-(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
-
-val class_id_of_msg_args_unsorted : string -> class_id
-(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
-
 module type MESSAGES = sig
   val messages : (msg_and_class_id, message) Hashtbl.t
 	val message_of_id : ?class_id:int -> message_id -> message
   val message_of_name : string ->  message_id * message
+	
+	val class_id_of_msg : message_name -> class_id
+	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
+	
+	val class_id_of_msg_args : string -> class_id
+	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
+	
+	val class_id_of_msg_args_unsorted : string -> class_id
+	(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
 
   val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the

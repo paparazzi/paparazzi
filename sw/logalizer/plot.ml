@@ -710,7 +710,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
 	    (*Elements of [acs] are assoc lists of [fields] indexed by msg id*)
 	    let msg_id, vs = P.values_of_string m in
-			let cls_id = Pprz.class_id_of_msg_args m in
+			let cls_id = P.class_id_of_msg_args m in
 			let ids_of_msg = { msg_id = msg_id; cls_id = cls_id} in
 
 			if not (Hashtbl.mem msgs ids_of_msg) then

@@ -167,7 +167,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let get_message = fun name link_mode _sender vs ->
     let set = fun () ->
       let msg_id, _ = Dl_Pprz.message_of_name name in
-      let s = Dl_Pprz.payload_of_values ground_id ~class_id:(Pprz.class_id_of_msg name) msg_id vs in
+      let s = Dl_Pprz.payload_of_values ground_id ~class_id:(Dl_Pprz.class_id_of_msg name) msg_id vs in
       set_message (Serial.string_of_payload s) in
     let ac_id = Pprz.int_assoc "ac_id" vs in
     match link_mode with

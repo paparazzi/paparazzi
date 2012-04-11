@@ -57,7 +57,7 @@ let () =
     try
       let (msg_id, vs) = Dl_Pprz.values_of_string args.(0) in
       let ac_id = Pprz.int_assoc "ac_id" vs in
-      let payload = Dl_Pprz.payload_of_values ac_id ~class_id:(Pprz.class_id_of_msg_args args.(0)) msg_id vs in
+      let payload = Dl_Pprz.payload_of_values ac_id ~class_id:(Dl_Pprz.class_id_of_msg_args args.(0)) msg_id vs in
       let buf = Pprz.Transport.packet payload in
       fprintf o "%s%!" buf
     with exc -> prerr_endline (Printexc.to_string exc) in

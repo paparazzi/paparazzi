@@ -142,7 +142,7 @@ let ac_msg = fun messages_xml logging ac_name ac ->
     try
       let timestamp = try Some (float_of_string ts) with _ -> None in
       let (msg_id, values) = Tele_Pprz.values_of_string m in
-			let cls_id = Pprz.class_id_of_msg_args m in 
+			let cls_id = Tele_Pprz.class_id_of_msg_args m in
 			let msg = Tele_Pprz.message_of_id ~class_id:cls_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
       Fw_server.log_and_parse ac_name ac msg values;
@@ -680,7 +680,7 @@ let raw_datalink = fun logging _sender vs ->
 	let ac_id = Pprz.string_assoc "ac_id" vs 
 	and m = Pprz.string_assoc "message" vs in
 	let msg_id, vs = Dl_Pprz.values_of_string_unsorted m in
-	let cls_id = Pprz.class_id_of_msg_args_unsorted m in 
+	let cls_id = Dl_Pprz.class_id_of_msg_args_unsorted m in 
 	let msg = Dl_Pprz.message_of_id ~class_id:cls_id msg_id in
 	Dl_Pprz.message_send dl_id msg.Pprz.name vs;
   log logging ac_id msg.Pprz.name vs
