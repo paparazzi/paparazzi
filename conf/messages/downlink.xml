@@ -240,21 +240,21 @@
 		<field name="q1"            type="double" />
 		<field name="q2"            type="double" />
 		<field name="q3"            type="double" />
-		<field name="phi"           type="double" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="theta"         type="double" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="psi"           type="double" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="phi"           type="double" unit="rad" alt_unit="deg"/>
+		<field name="theta"         type="double" unit="rad" alt_unit="deg"/>
+		<field name="psi"           type="double" unit="rad" alt_unit="deg"/>
 		<field name="north"         type="double" unit="m"  />
 		<field name="east"          type="double" unit="m"  />
 		<field name="down"          type="double" unit="m"  />
 		<field name="v_north"       type="double" unit="m/s"/>
 		<field name="v_east"        type="double" unit="m/s"/>
 		<field name="v_down"        type="double" unit="m/s"/>
-		<field name="est_p"         type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="est_q"         type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="est_r"         type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="gyroBias_x"    type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="gyroBias_y"    type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="gyroBias_z"    type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
+		<field name="est_p"         type="double" unit="rad/s" alt_unit="deg/s"/>
+		<field name="est_q"         type="double" unit="rad/s" alt_unit="deg/s"/>
+		<field name="est_r"         type="double" unit="rad/s" alt_unit="deg/s"/>
+		<field name="gyroBias_x"    type="double" unit="rad/s" alt_unit="deg/s"/>
+		<field name="gyroBias_y"    type="double" unit="rad/s" alt_unit="deg/s"/>
+		<field name="gyroBias_z"    type="double" unit="rad/s" alt_unit="deg/s"/>
 		<field name="imuCallbacks"  type="uint32" />
 		<field name="gpsCallbacks"  type="uint32" />
 		<field name="baroCallbacks" type="uint32" />
@@ -322,9 +322,9 @@
 
 <!-- IMU Messages: Inertial Measurement Unit -->
 	<message name="IMU_GYRO" id="200"><!-- MAIN -->
-		<field name="gp" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="gq" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="gr" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="gp" type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="gq" type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="gr" type="float" unit="rad/s" alt_unit="deg/s"/>
 	</message>
 
 	<message name="IMU_MAG" id="201"><!-- MAIN -->
@@ -395,17 +395,17 @@
 	</message>
 
 	<message name="AHRS_EULER" id="173">
-		<field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
-		<field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
-		<field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+		<field name="phi"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="theta" type="float" unit="rad" alt_unit="deg"/>
+		<field name="psi"   type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
 	<!-- Missing AHRS_EULER_INT -->
 
 	<message name="AHRS_MEASUREMENT_EULER" id="174">
-		<field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
-		<field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
-		<field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578" />
+		<field name="phi"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="theta" type="float" unit="rad" alt_unit="deg"/>
+		<field name="psi"   type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
 	<message name="AHRS_DEBUG_QUAT" id="185">
@@ -424,16 +424,16 @@
 	</message>
 
 	<message name="AHRS_LKF" id="193">
-		<field name="phi"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-		<field name="theta" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-		<field name="psi"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
+		<field name="phi"   type="float" unit="rad"   alt_unit="deg"/>
+		<field name="theta" type="float" unit="rad"   alt_unit="deg"/>
+		<field name="psi"   type="float" unit="rad"   alt_unit="deg"/>
 		<field name="qi"    type="float" />
 		<field name="qx"    type="float" />
 		<field name="qy"    type="float" />
 		<field name="qz"    type="float" />
-		<field name="p"     type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="q"     type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="r"     type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+		<field name="p"     type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="q"     type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="r"     type="float" unit="rad/s" alt_unit="deg/s"/>
 		<field name="ax"    type="float" />
 		<field name="ay"    type="float" />
 		<field name="az"    type="float" />
@@ -443,15 +443,15 @@
 	</message>
 
 	<message name="AHRS_LKF_DEBUG" id="194">
-		<field name="phi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-		<field name="theta_err" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-		<field name="psi_err"   type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-		<field name="bp"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="bq"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="br"        type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+		<field name="phi_err"   type="float" unit="rad"   alt_unit="deg"/>
+		<field name="theta_err" type="float" unit="rad"   alt_unit="deg"/>
+		<field name="psi_err"   type="float" unit="rad"   alt_unit="deg"/>
+		<field name="bp"        type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="bq"        type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="br"        type="float" unit="rad/s" alt_unit="deg/s"/>
 		<field name="quat_norm" type="float" />
-		<field name="phi_accel" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
-		<field name="theta_accel" type="float" unit="rad"   alt_unit="degres"   alt_unit_coef="57.29578" />
+		<field name="phi_accel" type="float" unit="rad"   alt_unit="deg"/>
+		<field name="theta_accel" type="float" unit="rad"   alt_unit="deg"/>
 		<field name="phi_cov"   type="float" />
 		<field name="theta_cov" type="float" />
 		<field name="psi_cov"   type="float" />
@@ -465,9 +465,9 @@
 		<field name="qx_err"    type="float" />
 		<field name="qy_err"    type="float" />
 		<field name="qz_err"    type="float" />
-		<field name="bp_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+		<field name="bp_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="bq_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
 	</message>
 
 	<message name="AHRS_LKF_MAG_DBG" id="196">
@@ -475,9 +475,9 @@
 		<field name="qx_err"    type="float" />
 		<field name="qy_err"    type="float" />
 		<field name="qz_err"    type="float" />
-		<field name="bp_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="bq_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
-		<field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
+		<field name="bp_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="bq_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
 	</message>
 
 
@@ -569,35 +569,29 @@
 		<field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>
 		<field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
 		<field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
-		<field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/>
-		<field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/>
-	</message>
-
-	<!-- Change the name to FIXEDWING_STATUS (previous SYSTEM_STATUS) -->
-	<message name="FIXEDWING_STATUS" id="187">
-		<field name="csc1_loop_count"  type="uint32"/>
-		<field name="csc1_msg_count"   type="uint32"/>
-		<field name="csc2_loop_count"  type="uint32"/>
-		<field name="csc2_msg_count"   type="uint32"/>
-		<field name="can_rx_err"         type="uint32"/>
-		<field name="can_tx_err"         type="uint32"/>
-		<field name="rc_parser_err"    type="uint32"/>
-		<field name="system_fault"     type="uint8"/>
+		<!-- add ap_kill_throttle (energy) -->
+		<field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/><!-- DELETE -->
+		<field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/><!-- DELETE -->
 	</message>
 
 	<message name="ROTORCRAFT_STATUS" id="231">
-		<field name="link_imu_nb_err" type="uint32"/>
-		<field name="blmc_nb_err"  type="uint8"/>
+		<field name="link_imu_nb_err" type="uint32"/><!-- DELETE -->
+		<field name="blmc_nb_err"  type="uint8"/><!-- DELETE -->
 		<field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
 		<field name="frame_rate"   type="uint8" unit="Hz"/>
-		<field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
+		<field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/><!-- move to new MISION_STATUS -->
 		<field name="ap_mode"      type="uint8" values="FAILSAFE|KILL|RATE_DIRECT|ATTITUDE_DIRECT|RATE_RC_CLIMB|ATTITUDE_RC_CLIMB|ATTITUDE_CLIMB|RATE_Z_HOLD|ATTITUDE_Z_HOLD|HOVER_DIRECT|HOVER_CLIMB|HOVER_Z_HOLD|NAV"/>
 		<field name="ap_in_flight" type="uint8" values="ON_GROUND|IN_FLIGHT"/>
 		<field name="ap_motors_on" type="uint8" values="MOTORS_OFF|MOTORS_ON"/>
 		<field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
 		<field name="ap_v_mode"    type="uint8" values="KILL|RC_DIRECT|RC_CLIMB|CLIMB|HOVER|NAV"/>
-		<field name="vsupply"      type="uint8" unit="decivolt"/>
-		<field name="cpu_time"     type="uint16" unit="s"></field>
+		<field name="vsupply"      type="uint8" unit="decivolt"/><!-- delete -->
+		<field name="cpu_time"     type="uint16" unit="s"></field><!-- move to new MISION_STATUS -->
+	</message>
+
+	<message name="STATE_FILTER_STATUS" id="232"><!-- MERGE WITH STATUS MESSAGES -->
+		<field name="state_filter_mode" type="uint8" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
+		<field name="value" type="uint16" />
 	</message>
 
 	<message name="FBW_STATUS" id="103">
@@ -617,7 +611,7 @@
 		<field name="nb_err" type="uint32"/>
 	</message>
 
-	<message name="ANTENNA_STATUS" id="93"><!-- MAIN: here or in GEN:SENSORS? -->
+	<message name="ANTENNA_STATUS" id="93">
 		<field name="azim_sp" type="float"/>
 		<field name="elev_sp" type="float"/>
 		<field name="id_sp" type="uint8"/>
@@ -685,9 +679,9 @@
 
 <!-- ___________________________________________ CONTROL __________________________________________ -->
 	<message name="DESIRED" id="16"><!-- MAIN -->
-		<field name="roll" type="float" format="%.2f" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="pitch" type="float" format="%.2f" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="course" type="float" format="%.1f" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="roll" type="float" format="%.2f" unit="rad" alt_unit="deg"/>
+		<field name="pitch" type="float" format="%.2f" unit="rad" alt_unit="deg"/>
+		<field name="course" type="float" format="%.1f" unit="rad" alt_unit="deg"/>
 		<field name="x" type="float" format="%.0f"  unit="m"/>
 		<field name="y" type="float" format="%.0f" unit="m"/>
 		<field name="altitude" type="float" format="%.0f"  unit="m"/>
@@ -831,30 +825,30 @@
 	</message>
 
 	<message name="STAB_ATTITUDE_REF_FLOAT" id="142">
-		<field name="sp_phi"    type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
-		<field name="sp_theta"  type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
-		<field name="sp_psi"    type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
-		<field name="ref_phi"   type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
-		<field name="ref_theta" type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
-		<field name="ref_psi"   type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
-		<field name="ref_p"     type="float" alt_unit="degres/s"  alt_unit_coef="57.29578"/>
-		<field name="ref_q"     type="float" alt_unit="degres/s"  alt_unit_coef="57.29578"/>
-		<field name="ref_r"     type="float" alt_unit="degres/s"  alt_unit_coef="57.29578"/>
-		<field name="ref_pd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>
-		<field name="ref_qd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>
-		<field name="ref_rd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>
+		<field name="sp_phi"    type="float" unit="rad" alt_unit="deg"/>
+		<field name="sp_theta"  type="float" unit="rad" alt_unit="deg"/>
+		<field name="sp_psi"    type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_phi"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_theta" type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_psi"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_p"     type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="ref_q"     type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="ref_r"     type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="ref_pd"    type="float" unit="rad/s2" alt_unit="deg/s2"/>
+		<field name="ref_qd"    type="float" unit="rad/s2" alt_unit="deg/s2"/>
+		<field name="ref_rd"    type="float" unit="rad/s2" alt_unit="deg/s2"/>
 	</message>
 
 	<message name="STAB_ATTITUDE_FLOAT" id="130">
-		<field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="est_q"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="est_r"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
-		<field name="est_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>
-		<field name="est_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>
-		<field name="est_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>
-		<field name="ref_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>
-		<field name="ref_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>
-		<field name="ref_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>
+		<field name="est_p"         type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="est_q"         type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="est_r"         type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="est_phi"       type="float" unit="rad" alt_unit="deg"/>
+		<field name="est_theta"     type="float" unit="rad" alt_unit="deg"/>
+		<field name="est_psi"       type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_phi"       type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_theta"     type="float" unit="rad" alt_unit="deg"/>
+		<field name="ref_psi"       type="float" unit="rad" alt_unit="deg"/>
 		<field name="sum_err_phi"   type="float"/>
 		<field name="sum_err_theta" type="float"/>
 		<field name="sum_err_psi"   type="float"/>
@@ -867,9 +861,9 @@
 		<field name="delta_a"       type="int32"/>
 		<field name="delta_e"       type="int32"/>
 		<field name="delta_r"       type="int32"/>
-		<field name="est_p_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>
-		<field name="est_q_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>
-		<field name="est_r_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>
+		<field name="est_p_d"       type="float" unit="rad/s2" alt_unit="deg/s2"/>
+		<field name="est_q_d"       type="float" unit="rad/s2" alt_unit="deg/s2"/>
+		<field name="est_r_d"       type="float" unit="rad/s2" alt_unit="deg/s2"/>
 	</message>
 
 	<!-- Missing STAB_ATTITUDE_REF -->
@@ -881,23 +875,23 @@
 		<field name="utm_zone" type="uint8"/>
 	</message>
 
-	<message name="NAVIGATION" id="10"><!-- MAIN -->
-		<field name="cur_block" type="uint8"/>
-		<field name="cur_stage" type="uint8"/>
-		<field name="pos_x" type="float" unit="m" format="%.1f"/>
-		<field name="pos_y" type="float" unit="m" format="%.1f"/>
-		<field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
-		<field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
-		<field name="circle_count" type="uint8"/>
-		<field name="oval_count" type="uint8"/>
+	<message name="NAVIGATION" id="10"><!-- MOVE TO MISSION AND MERGE -->
+		<field name="cur_block" type="uint8"/><!-- move to new MISION_STATUS -->
+		<field name="cur_stage" type="uint8"/><!-- move to new MISION_STATUS -->
+		<field name="pos_x" type="float" unit="m" format="%.1f"/> <!-- REMOVE -->
+		<field name="pos_y" type="float" unit="m" format="%.1f"/><!-- REMOVE -->
+		<field name="dist2_wp" type="float" format="%.1f" unit="m^2"/><!-- move to new MISION_STATUS -->
+		<field name="dist2_home" type="float" format="%.1f" unit="m^2"/><!-- move to new MISION_STATUS -->
+		<field name="circle_count" type="uint8"/><!-- move to new MISION_STATUS -->
+		<field name="oval_count" type="uint8"/><!-- move to new MISION_STATUS -->
 	</message>
 
-	<message name="ROTORCRAFT_NAV_STATUS" id="159"><!-- MAIN -->
-		<field name="block_time" type="uint16" unit="s"/>
-		<field name="stage_time" type="uint16" unit="s"/>
-		<field name="cur_block" type="uint8"/>
-		<field name="cur_stage" type="uint8"/>
-		<field name="horizontal_mode" type="uint8"/>
+	<message name="ROTORCRAFT_NAV_STATUS" id="159"><!-- MOVE TO MISSION AND MERGE -->
+		<field name="block_time" type="uint16" unit="s"/><!-- delete -->
+		<field name="stage_time" type="uint16" unit="s"/><!-- delete -->
+		<field name="cur_block" type="uint8"/><!-- delete -->
+		<field name="cur_stage" type="uint8"/><!-- delete -->
+		<field name="horizontal_mode" type="uint8"/><!-- MISSION_STATUS and remove ap_lateral from PPRZ_MODE -->
 	</message>
 
 	<message name="CROSS_TRACK_ERROR" id="80"><!-- nav -->
@@ -906,13 +900,14 @@
 	</message>
 
 <!-- GUIDANCE Messages -->
-	<message name="GUIDANCE" id="144">
+
+<!--	<message name="GUIDANCE" id="144"> 
 		<field name="pos_n"    type="int32"/>
 		<field name="pos_e"    type="int32"/>
 		<field name="sp_pos_n" type="int32"/>
 		<field name="sp_pos_e" type="int32"/>
 	</message>
-
+-->
 	<message name="GUIDANCE_H_REF_INT" id="149">
 		<field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
 		<field name="ref_x"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
@@ -1016,104 +1011,7 @@
 		<field name="tau" type="float"/>
 	</message>
 
-
-<!-- _________________________________________ GEN. SENSORS _______________________________________ -->
-
-
-	<message name="OPTICFLOW" id="234"><!-- sensor in MAIN -->
-		<field name="flow" type="uint16"></field>
-		<field name="ref_alt" type="float"></field>
-	</message>
-
-	<message name="XSENS" id="55">
-		<field name="counter" type="int16" unit=""/>
-
-		<field name="p" type="float" unit="deg/s"/>
-		<field name="q" type="float" unit="deg/s"/>
-		<field name="r" type="float" unit="deg/s"/>
-
-		<field name="phi" type="float" unit="deg"/>
-		<field name="theta" type="float" unit="deg"/>
-		<field name="psi" type="float" unit="deg"/>
-
-		<field name="ax" type="float" unit="m/s2"/>
-		<field name="ay" type="float" unit="m/s2"/>
-		<field name="az" type="float" unit="m/s2"/>
-
-		<field name="vx" type="float" unit="m/s"/>
-		<field name="vy" type="float" unit="m/s"/>
-		<field name="vz" type="float" unit="m/s"/>
-
-		<field name="lat" type="float" unit="deg"/>
-		<field name="lon" type="float" unit="deg"/>
-		<field name="alt" type="float" unit="m"/>
-
-		<field name="status" type="uint8" unit=""/>
-
-		<field name="hour" type="uint8" unit=""/>
-		<field name="min" type="uint8" unit=""/>
-		<field name="sec" type="uint8" unit=""/>
-		<field name="nanosec" type="uint32" unit=""/>
-		<field name="year" type="uint16" unit=""/>
-		<field name="month" type="uint8" unit=""/>
-		<field name="day" type="uint8" unit=""/>
-	</message>
-
-<!-- ____________________________________________ DEBUG ___________________________________________ -->
-
-<!-- DEBUG Messages -->
-	<message name="DEBUG" id="26">
-		<field name="msg" type="uint8[]"/>
-	</message>
-
-	<message name="PPRZ_DEBUG" id="247">
-		<field name="module"   type="uint8"/>
-		<field name="errno"   type="uint8"/>
-	</message>
-
-	<message name="ACTUATORS" id="105">
-		<field name="values" type="uint16[]" unit="none"/>
-	</message>
-
-	<message name="SYS_MON" id="33">
-		<field name="periodic_time" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
-		<field name="periodic_cycle" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
-		<field name="periodic_cycle_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
-		<field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
-		<field name="event_number" type="uint16"/>
-		<field name="cpu_load" type="uint8" unit="%"/>
-	</message>
-
-
-	<message name="TEST_FORMAT" id="19">
-		<field name="val1" type="double"/>
-		<field name="val2" type="float"/>
-	</message>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<!-- ___________________________________________________________________________________________ -->
 
 <!-- FILTER Messages -->
 	<message name="FILTER" id="134">
@@ -1171,11 +1069,6 @@
 		<field name="qz"  type="int32"/>
 	</message>
 
-	<message name="STATE_FILTER_STATUS" id="232">
-		<field name="state_filter_mode" type="uint8" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
-		<field name="value" type="uint16" />
-	</message>
-
 
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
@@ -1208,9 +1101,9 @@
 
 	<message name="H_CTL_A" id="60">
 		<field name="roll_sum_err" type="float"/>
-		<field name="ref_roll_angle" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="ref_roll_angle" type="float" unit="rad" alt_unit="deg"/>
 		<field name="pitch_sum_err" type="float"/>
-		<field name="ref_pitch_angle" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="ref_pitch_angle" type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
 	<message name="FLIGHT_BENCHMARK" id="67">

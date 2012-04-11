@@ -1,5 +1,45 @@
 <?xml version="1.0"?>
 <class type="downlink">
+
+	<message name="OPTICFLOW" id="234"><!-- SENSORS FILE -->
+		<field name="flow" type="uint16"></field>
+		<field name="ref_alt" type="float"></field>
+	</message>
+
+	<message name="XSENS" id="55"><!-- SENSORS FILE -->
+		<field name="counter" type="int16" unit=""/>
+
+		<field name="p" type="float" unit="deg/s"/>
+		<field name="q" type="float" unit="deg/s"/>
+		<field name="r" type="float" unit="deg/s"/>
+
+		<field name="phi" type="float" unit="deg"/>
+		<field name="theta" type="float" unit="deg"/>
+		<field name="psi" type="float" unit="deg"/>
+
+		<field name="ax" type="float" unit="m/s2"/>
+		<field name="ay" type="float" unit="m/s2"/>
+		<field name="az" type="float" unit="m/s2"/>
+
+		<field name="vx" type="float" unit="m/s"/>
+		<field name="vy" type="float" unit="m/s"/>
+		<field name="vz" type="float" unit="m/s"/>
+
+		<field name="lat" type="float" unit="deg"/>
+		<field name="lon" type="float" unit="deg"/>
+		<field name="alt" type="float" unit="m"/>
+
+		<field name="status" type="uint8" unit=""/>
+
+		<field name="hour" type="uint8" unit=""/>
+		<field name="min" type="uint8" unit=""/>
+		<field name="sec" type="uint8" unit=""/>
+		<field name="nanosec" type="uint32" unit=""/>
+		<field name="year" type="uint16" unit=""/>
+		<field name="month" type="uint8" unit=""/>
+		<field name="day" type="uint8" unit=""/>
+	</message>
+
 	<message name="WINDTURBINE_STATUS_" id="50">
 		<field name="ac_id" type="uint8"/>
 		<field name="tb_id" type="uint8"/>

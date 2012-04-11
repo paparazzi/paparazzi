@@ -102,9 +102,9 @@
 		<field name="s1"  type="float"/>
 		<field name="s2"  type="float"/>
 		<field name="s3"  type="float"/>
-		<field name="p"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="q"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="r"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="p"   type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="q"   type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="r"   type="float" unit="rad/s" alt_unit="deg/s"/>
 		<field name="bp"  type="float"/>
 		<field name="bq"  type="float"/>
 		<field name="br"  type="float"/>
@@ -118,9 +118,9 @@
 		<field name="m1"  type="float"/>
 		<field name="m2"  type="float"/>
 		<field name="m3"  type="float"/>
-		<field name="p"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="q"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="r"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="p"   type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="q"   type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="r"   type="float" unit="rad/s" alt_unit="deg/s"/>
 	</message>
 
 	<message name="EKF7_P_DIAG" id="172">
@@ -202,12 +202,12 @@
 	</message>
 
 	<message name="BETH_ESTIMATOR" id="107">
-		<field name="tilt" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="tilt_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="elevation" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="elevation_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="azimuth" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="azimuth_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="tilt" type="float" unit="rad" alt_unit="deg"/>
+		<field name="tilt_dot" type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="elevation" type="float" unit="rad" alt_unit="deg"/>
+		<field name="elevation_dot" type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="azimuth" type="float" unit="rad" alt_unit="deg"/>
+		<field name="azimuth_dot" type="float" unit="rad/s" alt_unit="deg/s"/>
 	</message>
 
 	<message name="BETH_CONTROLLER" id="108">
@@ -217,13 +217,13 @@
 		<field name="pitch_fb" type="float"/>
 		<field name="thrust_ff" type="float"/>
 		<field name="thrust_fb" type="float"/>
-		<field name="tilt_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="tilt_ref" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="tilt_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="elevation_sp " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="elevation_ref " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="elevation_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
-		<field name="azimuth_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="tilt_sp" type="float" unit="rad" alt_unit="deg"/>
+		<field name="tilt_ref" type="float" unit="rad" alt_unit="deg"/>
+		<field name="tilt_dot_ref" type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="elevation_sp " type="float" unit="rad" alt_unit="deg"/>
+		<field name="elevation_ref " type="float" unit="rad" alt_unit="deg"/>
+		<field name="elevation_dot_ref" type="float" unit="rad/s" alt_unit="deg/s"/>
+		<field name="azimuth_sp" type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
 	<message name="BETH_CONTROLLER_TWIST" id="109">
@@ -300,16 +300,16 @@
 	</message>
 
 	<message name="VANE_SENSOR" id="191">
-		<field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="alpha_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="alpha_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="alpha2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="beta_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="beta_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="beta_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-		<field name="beta2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="alpha"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="alpha_filtered"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="alpha_target"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg"/>
+		<field name="alpha2"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="beta"    type="float" unit="rad" alt_unit="deg"/>
+		<field name="beta_filtered"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="beta_target"   type="float" unit="rad" alt_unit="deg"/>
+		<field name="beta_vane_error" type="float" unit="rad" alt_unit="deg"/>
+		<field name="beta2"   type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
 	<message name="WEATHER" id="219">
@@ -493,9 +493,9 @@
 	</message>
 
 	<message name="RDYB_TRAJECTORY" id="254">
-		<field name="commanded_phi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="commanded_theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="commanded_psi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="commanded_phi" type="float" unit="rad" alt_unit="deg"/>
+		<field name="commanded_theta" type="float" unit="rad" alt_unit="deg"/>
+		<field name="commanded_psi" type="float" unit="rad" alt_unit="deg"/>
 		<field name="setpoint_x" type="float" unit="m N"/>
 		<field name="setpoint_y" type="float" unit="m E"/>
 		<field name="setpoint_z" type="float" unit="m D"/>
@@ -505,8 +505,8 @@
 		<field name="last_imu_update" type="uint32"/>
 		<field name="GPS_time" type="double"/>
 		<field name="GPS_solution_valid" type="uint8"/>
-		<field name="latitude" type="double" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
-		<field name="longitude" type="double" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="latitude" type="double" unit="rad" alt_unit="deg"/>
+		<field name="longitude" type="double" unit="rad" alt_unit="deg"/>
 		<field name="altitude" type="double" />
 		<field name="North" type="double" />
 		<field name="East" type="double" />

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<class type="downlink">
+<!-- DEBUG Messages -->
+	<message name="DEBUG" id="26">
+		<field name="msg" type="uint8[]"/>
+	</message>
+
+	<message name="PPRZ_DEBUG" id="247">
+		<field name="module"   type="uint8"/>
+		<field name="errno"   type="uint8"/>
+	</message>
+
+	<message name="ACTUATORS" id="105">
+		<field name="values" type="uint16[]" unit="none"/>
+	</message>
+
+	<message name="SYS_MON" id="33">
+		<field name="periodic_time" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+		<field name="periodic_cycle" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+		<field name="periodic_cycle_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+		<field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+		<field name="event_number" type="uint16"/>
+		<field name="cpu_load" type="uint8" unit="%"/>
+	</message>
+
+	<message name="TEST_FORMAT" id="19">
+		<field name="val1" type="double"/>
+		<field name="val2" type="float"/>
+	</message>
+
+</class>
