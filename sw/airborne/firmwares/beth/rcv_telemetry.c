@@ -85,12 +85,12 @@ void dl_parse_msg(void) {
       theta = DL_ATTITUDE_theta(dl_buffer);
       printf("Attitude: %f %f %f\n", phi, psi, theta);
   }
-  if (msg_id == DL_BAT) {
-      throttle = DL_BAT_throttle(dl_buffer);
-      voltage = DL_BAT_voltage(dl_buffer);
-      amps = DL_BAT_amps(dl_buffer);
-      energy = DL_BAT_energy(dl_buffer);
-      printf("BAT: %d %d %d %d\n", throttle,voltage,amps,energy);
+  if (msg_id == DL_ENERGY) {
+      throttle = DL_ENERGY_throttle(dl_buffer);
+      voltage = DL_ENERGY_voltage(dl_buffer);
+      amps = DL_ENERGY_current(dl_buffer);
+      energy = DL_ENERGY_energy(dl_buffer);
+      printf("ENERGY: %d %d %d %d\n", throttle,voltage,amps,energy);
   }
   if (msg_id == DL_ADC_GENERIC) {
       adc1 = DL_ADC_GENERIC_val1(dl_buffer);

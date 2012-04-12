@@ -85,29 +85,20 @@
 
 
 <!-- _________________________________ BATTERY / ENERGY / MOTOR ___________________________________ -->
-	<message name="BAT" id="12"><!-- MAIN -->
-		<field name="throttle" type="int16" unit="pprz"/>
-		<field name="voltage" type="uint8" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
-		<field name="amps" type="int16" unit="1e-2A" alt_unit="A" alt_unit_coef="0.01"/>
-		<field name="flight_time" type="uint16" unit="s"/>
-		<field name="kill_auto_throttle" type="uint8" unit="bool"/>
-		<field name="block_time" type="uint16" unit="s"/>
-		<field name="stage_time" type="uint16" unit="s"/>
+
+	<message name="ENERGY" id="37">
+		<field name="voltage" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
+		<field name="current" type="int16" unit="1e-2A" alt_unit="A" alt_unit_coef="0.01"/>
+		<field name="power"   type="int16" unit="mW"/>
 		<field name="energy" type="int16" unit="mAh"/>
+		<field name="throttle" type="int16" unit="pprz"/>
 	</message>
 
-	<message name="ENERGY" id="37"><!-- MAIN -->
-		<field name="bat"      type="float" unit="V"/>
-		<field name="amp"      type="float" unit="A"/>
-		<field name="energy"   type="uint16" unit="mAh"/>
-		<field name="power"   type="float" unit="W"/>
-	</message>
-
-	<message name="MPPT" id="52"><!-- ENERGY,bat -->
+	<message name="MPPT" id="52">
 		<field name="values" type="int16[]" alt_unit_coef="1e-3"/>
 	</message>
 
-	<message name="MOTOR" id="34"><!-- bat ?merge -->
+	<message name="MOTOR" id="34">
 		<field name="rpm" type="uint16" unit="Hz"/>
 		<field name="current" type="int32" unit="mA"/>
 	</message>
@@ -566,27 +557,17 @@
 
 	<message name="PPRZ_MODE" id="11"><!-- MAIN -->
 		<field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
-		<field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>
-		<field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
-		<field name="ap_horizontal" type="uint8" values="WAYPOINT|ROUTE|CIRCLE"/>
-		<!-- add ap_kill_throttle (energy) -->
-		<field name="if_calib_mode" type="uint8" values="NONE|DOWN|UP"/><!-- DELETE -->
-		<field name="mcu1_status" type="uint8" values="LOST|OK|REALLY_LOST"/><!-- DELETE -->
+		<field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>		<field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
+		<field name="kill_auto_throttle" type="uint8" unit="bool"/>
 	</message>
 
 	<message name="ROTORCRAFT_STATUS" id="231">
-		<field name="link_imu_nb_err" type="uint32"/><!-- DELETE -->
-		<field name="blmc_nb_err"  type="uint8"/><!-- DELETE -->
 		<field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
 		<field name="frame_rate"   type="uint8" unit="Hz"/>
-		<field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/><!-- move to new MISION_STATUS -->
 		<field name="ap_mode"      type="uint8" values="FAILSAFE|KILL|RATE_DIRECT|ATTITUDE_DIRECT|RATE_RC_CLIMB|ATTITUDE_RC_CLIMB|ATTITUDE_CLIMB|RATE_Z_HOLD|ATTITUDE_Z_HOLD|HOVER_DIRECT|HOVER_CLIMB|HOVER_Z_HOLD|NAV"/>
 		<field name="ap_in_flight" type="uint8" values="ON_GROUND|IN_FLIGHT"/>
 		<field name="ap_motors_on" type="uint8" values="MOTORS_OFF|MOTORS_ON"/>
-		<field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
 		<field name="ap_v_mode"    type="uint8" values="KILL|RC_DIRECT|RC_CLIMB|CLIMB|HOVER|NAV"/>
-		<field name="vsupply"      type="uint8" unit="decivolt"/><!-- delete -->
-		<field name="cpu_time"     type="uint16" unit="s"></field><!-- move to new MISION_STATUS -->
 	</message>
 
 	<message name="STATE_FILTER_STATUS" id="232"><!-- MERGE WITH STATUS MESSAGES -->
@@ -621,6 +602,21 @@
 <!-- ___________________________________________ MISION ___________________________________________ -->
 
 <!-- MISSION Messages -->
+	<message name="MISSION_STATUS" id="5">
+		<field name="flight_time" type="uint16" unit="s"/>
+		<field name="cur_block" type="uint8"/>
+		<field name="block_time" type="uint16" unit="s"/>
+		<field name="cur_stage" type="uint8"/>
+		<field name="stage_time" type="uint16" unit="s"/>
+		<field name="cpu_time"     type="uint16" unit="s"></field>
+		<field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
+		<field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
+		<field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+		<field name="circle_count" type="uint8"/>
+		<field name="oval_count" type="uint8"/>
+		<field name="horizontal_mode" type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
+	</message>	
+
 	<message name="BOOT" id="1"><!-- MAIN -->
 		<field name="version" type="uint16"/>
 	</message>
@@ -873,25 +869,6 @@
 		<field name="utm_east"  type="int32" unit="m"/>
 		<field name="utm_north" type="int32" unit="m"/>
 		<field name="utm_zone" type="uint8"/>
-	</message>
-
-	<message name="NAVIGATION" id="10"><!-- MOVE TO MISSION AND MERGE -->
-		<field name="cur_block" type="uint8"/><!-- move to new MISION_STATUS -->
-		<field name="cur_stage" type="uint8"/><!-- move to new MISION_STATUS -->
-		<field name="pos_x" type="float" unit="m" format="%.1f"/> <!-- REMOVE -->
-		<field name="pos_y" type="float" unit="m" format="%.1f"/><!-- REMOVE -->
-		<field name="dist2_wp" type="float" format="%.1f" unit="m^2"/><!-- move to new MISION_STATUS -->
-		<field name="dist2_home" type="float" format="%.1f" unit="m^2"/><!-- move to new MISION_STATUS -->
-		<field name="circle_count" type="uint8"/><!-- move to new MISION_STATUS -->
-		<field name="oval_count" type="uint8"/><!-- move to new MISION_STATUS -->
-	</message>
-
-	<message name="ROTORCRAFT_NAV_STATUS" id="159"><!-- MOVE TO MISSION AND MERGE -->
-		<field name="block_time" type="uint16" unit="s"/><!-- delete -->
-		<field name="stage_time" type="uint16" unit="s"/><!-- delete -->
-		<field name="cur_block" type="uint8"/><!-- delete -->
-		<field name="cur_stage" type="uint8"/><!-- delete -->
-		<field name="horizontal_mode" type="uint8"/><!-- MISSION_STATUS and remove ap_lateral from PPRZ_MODE -->
 	</message>
 
 	<message name="CROSS_TRACK_ERROR" id="80"><!-- nav -->

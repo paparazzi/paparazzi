@@ -138,7 +138,7 @@ let _ =
   let get_navigation = fun _ values ->
     let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
     draw da !desired_course !course distance in
-  ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
+  ignore (Tm_Pprz.message_bind "MISSION_STATUS" get_navigation); (* XGGDEBUG:NEWMESS: Changed NAVIGATION for MISSION_STATUS, seems that something more has to change but lets see if works *)
   let get_gps = fun _ values ->
     (* if speed < 1m/s, the course information is not relevant *)
     course :=

@@ -48,7 +48,7 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
-SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml server.cmo
+SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml ac_server.ml server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 $(VAR)/boa.conf :$(CONF)/boa.conf

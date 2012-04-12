@@ -62,20 +62,22 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev)  DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
 
-#define PERIODIC_SEND_BAT(_trans, _dev) {                      \
-    int16_t amps = (int16_t) (current/10);				\
-    Downlink({ int16_t e = energy;                      \
-        DOWNLINK_SEND_BAT(_trans, _dev,                        \
-                          &v_ctl_throttle_slewed,       \
-                          &vsupply,                     \
-                          &amps,                        \
-                          &estimator_flight_time,       \
-                          &kill_throttle,				\
-                          &block_time,					\
-                          &stage_time,					\
-                          &e);                          \
-      });                                               \
-  }
+#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
+	uint16_t vsup = vsupply; \
+	int16_t amps = (int16_t) (current/10); \
+	int16_t pwr = (int16_t) (vsup*amps); \
+	int16_t e = energy; \
+	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
+})
+/* XGGDEBUG:NEWMESS: if is rotorcraft in rotorcraft_status was sending &electrical.vsupply */
+
+#define SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
+	uint8_t _circle_count = NavCircleCount(); \
+	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &sys_time.nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
+})
+/* XGGDEBUG:NEWMESS: if is rotorcraft horizontal_mode should be &guidance_h_mode */
+
+#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) SEND_MISSION_STATUS(_trans, _dev) 
 
 #ifdef MCU_SPI_LINK
 #define PERIODIC_SEND_DEBUG_MCU_LINK(_trans, _dev) DOWNLINK_SEND_DEBUG_MCU_LINK(_trans, _dev, &link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);
@@ -125,12 +127,11 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "rc_settings.h"
-#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
+#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle);
 #define PERIODIC_SEND_SETTINGS(_trans, _dev) if (!RcSettingsOff()) DOWNLINK_SEND_SETTINGS(_trans, _dev, &slider_1_val, &slider_2_val);
 #else
 #define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) {                         \
-    uint8_t rc_settings_mode_none = 0;                                  \
-    DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode_none, &mcu1_status); \
+    DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle); \
   }
 #define PERIODIC_SEND_SETTINGS(_trans, _dev) {}
 #endif
@@ -189,11 +190,6 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #define PERIODIC_SEND_ESTIMATOR(_trans, _dev) DOWNLINK_SEND_ESTIMATOR(_trans, _dev, &estimator_z, &estimator_z_dot)
-
-#define SEND_NAVIGATION(_trans, _dev) Downlink({ uint8_t _circle_count = NavCircleCount(); DOWNLINK_SEND_NAVIGATION(_trans, _dev, &nav_block, &nav_stage, &estimator_x, &estimator_y, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count);})
-
-#define PERIODIC_SEND_NAVIGATION(_trans, _dev) SEND_NAVIGATION(_trans, _dev)
-
 
 #if defined CAM || defined MOBILE_CAM
 #define SEND_CAM(_trans, _dev) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int16_t phi = DegOfRad(cam_phi_c); int16_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_trans, _dev, &phi, &theta, &x, &y);})
@@ -264,9 +260,6 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #else
 #define PERIODIC_SEND_AIRSPEED(_trans, _dev) {}
 #endif
-
-#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ const int16_t e = energy; const float vsup = ((float)vsupply) / 10.0f; const float curs = ((float) current)/1000.0f;  const float power = vsup * curs; DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &curs, &e, &power); })
-
 
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #define PERIODIC_SEND_H_CTL_A(_trans, _dev) DOWNLINK_SEND_H_CTL_A(_trans, _dev, &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)

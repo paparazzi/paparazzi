@@ -11,8 +11,9 @@
 	<include file="DIA.xml"			class_name="DIA"		class_id="6" />
 	<include file="sensors.xml"		class_name="sensors"		class_id="7" />
 	<include file="simulator.xml"		class_name="simulator"		class_id="8" />
+	<include file="debug.xml"		class_name="debug"		class_id="9" />
 <!-- CUSTOM CLASSES -->
-	<include file="custom_downlink.xml"	class_name="custom_telemetry"	class_id="9" />
-	<include file="custom_uplink.xml"	class_name="custom_commands"	class_id="10" />
-	<include file="custom_datalink.xml"	class_name="custom_datalink"	class_id="11" />
+	<include file="custom_downlink.xml"	class_name="custom_telemetry"	class_id="10" />
+	<include file="custom_uplink.xml"	class_name="custom_commands"	class_id="11" />
+	<include file="custom_datalink.xml"	class_name="custom_datalink"	class_id="12" />
 </includes>

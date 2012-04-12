@@ -10,7 +10,7 @@
       <message name="PPRZ_MODE"      period="5."/>
       <message name="DL_VALUE"       period="1.5"/>
       <message name="GPS_SOL"        period="5.0"/>
-      <message name="NAVIGATION"     period="1.0"/>
+      <message name="MISSION_STATUS" period="1.0"/>
     </mode>
     <mode name="debug">
       <message name="DEBUG_MCU_LINK" period="5."/>

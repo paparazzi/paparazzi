@@ -55,46 +55,31 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
-#if USE_GPS
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
-    uint32_t imu_nb_err = 0;						\
-    uint8_t _twi_blmc_nb_err = 0;					\
-    DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,				\
-                    &imu_nb_err,			\
-                    &_twi_blmc_nb_err,			\
-                    &radio_control.status,		\
-                    &radio_control.frame_rate,		\
-                    &gps.fix,		\
-                    &autopilot_mode,			\
-                    &autopilot_in_flight,		\
-                    &autopilot_motors_on,		\
-                    &guidance_h_mode,			\
-                    &guidance_v_mode,			\
-                    &electrical.vsupply,		\
-                    &sys_time.nb_sec			\
-                    );					\
-  }
-#else /* !USE_GPS */
-#define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
-    uint32_t imu_nb_err = 0;						\
-    uint8_t twi_blmc_nb_err = 0;					\
-    uint8_t  fix = GPS_FIX_NONE;					\
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
-                  &imu_nb_err,				\
-                  &twi_blmc_nb_err,				\
                   &radio_control.status,			\
                   &radio_control.frame_rate,			\
-                  &fix,					\
                   &autopilot_mode,			\
                   &autopilot_in_flight,		\
                   &autopilot_motors_on,		\
-                  &guidance_h_mode,			\
-                  &guidance_v_mode,			\
-                  &electrical.vsupply,		\
-                  &sys_time.nb_sec    \
+                  &guidance_v_mode			\
                   );					\
   }
-#endif /* USE_GPS */
+
+#ifdef USE_GPS
+#define SEND_MISSION_STATUS(_trans, _dev) { \
+	uint8_t _circle_count = NavCircleCount(); \
+	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, 0, &nav_block, &block_time, &nav_stage, &stage_time, &sys_time.nb_sec, &gps.fix, 0, 0, &_circle_count, 0, &guidance_h_mode);\
+}
+#else /* !USE_GPS */
+#define SEND_MISSION_STATUS(_trans, _dev) { \
+	uint8_t _circle_count = NavCircleCount(); \
+	uint8_t fix = GPS_FIX_NONE; \
+	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, 0, &nav_block, &block_time, &nav_stage, &stage_time, &sys_time.nb_sec, &fix, 0, 0, &_circle_count, 0, &guidance_h_mode);\
+}
+#endif /*USE_GPS */
+
+#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) SEND_MISSION_STATUS(_trans, _dev) 
 
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_trans, _dev) DOWNLINK_SEND_RC(_trans, _dev, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
@@ -680,28 +665,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_GPS_INT(_trans, _dev) {}
 #endif
 
+/* Used for old ROTORCRAFT_NAV_STATUS, maybe is not used anymore */
 #include "firmwares/rotorcraft/navigation.h"
-#define PERIODIC_SEND_ROTORCRAFT_NAV_STATUS(_trans, _dev) {				\
-    DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(_trans, _dev,                      \
-                   &block_time,				\
-                   &stage_time,				\
-                   &nav_block,				\
-                   &nav_stage,				\
-                   &horizontal_mode);			\
-    if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {			\
-      float sx = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].x);	\
-      float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);	\
-      float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);	\
-      float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);	\
-      DOWNLINK_SEND_SEGMENT(_trans, _dev, &sx, &sy, &ex, &ey);			\
-    }									\
-    else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {			\
-      float cx = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].x);	\
-      float cy = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].y);	\
-      float r = POS_FLOAT_OF_BFP(nav_circle_radius); \
-      DOWNLINK_SEND_CIRCLE(_trans, _dev, &cx, &cy, &r);			\
-    }									\
-  }
 
 #define PERIODIC_SEND_WP_MOVED(_trans, _dev) {					\
     static uint8_t i;							\

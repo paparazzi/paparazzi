@@ -280,9 +280,7 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 pprz_mode,
                 0, // ap_gaz
                 0, // ap_lateral
-                0, // ap_horizontal
-                0, // if_calib_mode
-                0); // mcu1_status
+                0); // kill_auto_throttle
 
 /*
   <message name="AIRSPEED" id="54">
@@ -300,27 +298,21 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0); // groundspeed_sp
 
 /*
-   <message name="BAT" id="12">
-     <field name="throttle" type="int16" unit="pprz"/>
-     <field name="voltage" type="uint8" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
-     <field name="amps" type="int16" unit="A" alt_unit="A" />
-     <field name="flight_time" type="uint16" unit="s"/>
-     <field name="kill_auto_throttle" type="uint8" unit="bool"/>
-     <field name="block_time" type="uint16" unit="s"/>
-     <field name="stage_time" type="uint16" unit="s"/>
-     <field name="energy" type="int16" unit="mAh"/>
-   </message>
+	<message name="ENERGY" id="37">
+		<field name="voltage" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
+		<field name="current" type="int16" unit="1e-2A" alt_unit="A" alt_unit_coef="0.01"/>
+		<field name="power"   type="int16" unit="mW"/>
+		<field name="energy" type="int16" unit="mAh"/>
+		<field name="throttle" type="int16" unit="pprz"/>
+	</message>
 */
-      IvySendMsg("%d BAT %d %d %d %d %d %d %d %d",
+      IvySendMsg("%d ENERGY %d %d %d %d %d %d %d %d",
                 AC_ID,
-                throttle * MAX_PPRZ / 100,
                 electrical_vsupply,
-                0, // amps
-                estimator_flight_time,
-                0, // kill_auto_throttle
-                0, // block_time
-                0, // stage_time
-                energy);
+                0, // current
+                0, // mW
+		energy,
+                throttle * MAX_PPRZ / 100);
 
 /*
    <message name="NAVIGATION" id="10">
@@ -334,16 +326,20 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
      <field name="oval_count" type="uint8"/>
    </message>
 */
-      IvySendMsg("%d NAVIGATION %d %d %d %d %d %d %d %d",
+      IvySendMsg("%d MISSION_STATUS %d %d %d %d %d %d %d %d %d %d %d %d",
                 AC_ID,
+		0, //flight_time
                 nav_block,
+                0, // block_time
                 0, // cur_stage
-                0, // pos_x
-                0, // pos_y
+                0, // stage_time
+                0, // cpu_time
+                0, // gps_status
                 0, // dist2_wp
                 0, // dist2_home
                 0, // circle_count
-                0); // oval_count
+                0, // oval_count
+                0); // horizontal mode
 
 /*
   <message name="ESTIMATOR" id="42">

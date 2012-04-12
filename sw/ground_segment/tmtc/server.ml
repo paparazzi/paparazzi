@@ -144,8 +144,12 @@ let ac_msg = fun messages_xml logging ac_name ac ->
 			let cls_id = Tele_Pprz.class_id_of_msg_args m in
 			let msg = Tele_Pprz.message_of_id ~class_id:cls_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
-      Fw_server.log_and_parse ac_name ac msg values;
-      Rotorcraft_server.log_and_parse ac_name ac msg values
+			match Tele_Pprz.xml_version with
+				| "1.0" ->
+					Fw_server.log_and_parse ac_name ac msg values;
+      		Rotorcraft_server.log_and_parse ac_name ac msg values
+				| _ -> Ac_server.log_and_parse ac_name ac msg values
+      
     with
       Telemetry_error (ac_name, msg) ->
 	Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
