@@ -97,6 +97,12 @@ else
 OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
 endif
 
+ifndef NO_LUFTBOOT
+OOCD_START_SECTOR = 4
+else
+OOCD_START_SECTOR = 0
+endif
+
 # input files
 SRCS = $($(TARGET).srcs)
 #ASRC =
@@ -254,7 +260,7 @@ upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)
 ifeq ($(BMP_PORT),)
-upload: $(OBJDIR)/$(TARGET).elf
+upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Using OOCD = $(OOCD)"
 	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
@@ -262,7 +268,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 		-c init \
 		-c "reset halt" \
 		-c "reset init" \
-		-c "stm32x mass_erase 0" \
+		-c "flash erase_sector 0 $(OOCD_START_SECTOR) last" \
 		-c "flash write_image $<" \
 		-c reset \
 		-c shutdown
