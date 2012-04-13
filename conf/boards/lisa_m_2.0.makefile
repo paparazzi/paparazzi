@@ -22,6 +22,10 @@ FLASH_MODE = JTAG
 #FLASH_MODE = SERIAL
 endif
 
+ifndef NO_LUFTBOOT
+$(TARGET).LDSCRIPT = $(SRC_ARCH)/lisa_m_2.0_luftboot.ld
+endif
+
 #
 #
 # some default values shared between different firmwares
