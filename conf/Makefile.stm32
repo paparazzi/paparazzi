@@ -73,6 +73,10 @@ endif
 LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
 LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
 
+ifndef $(PYTHON)
+PYTHON = $(shell which python)
+endif
+
 #first try to find OpenOCD in the path
 OOCD = $(shell which openocd)
 #if OpenOCD could not be found in the path, try the toolchain dir
@@ -258,7 +262,11 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(AFLAGS) $< -o $@
 
-ifeq ($(FLASH_MODE),SERIAL)
+ifeq ($(FLASH_MODE),DFU)
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using stm32 mem dfu loader"
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
+else ifeq ($(FLASH_MODE),SERIAL)
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)

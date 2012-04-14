@@ -18,7 +18,8 @@ $(TARGET).OOCD_INTERFACE=flossjtag
 # -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
-FLASH_MODE = JTAG
+FLASH_MODE = DFU
+#FLASH_MODE = JTAG
 #FLASH_MODE = SERIAL
 endif
 
