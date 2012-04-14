@@ -1,8 +1,7 @@
-# Hey Emacs, this is a -*- makefile -*-
 #
-# lisa_m_2.0.makefile
+# lisa_m_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lisa/M_v20
+# http://paparazzi.enac.fr/wiki/User/LisaM
 #
 
 BOARD=lisa_m
@@ -33,40 +32,11 @@ endif
 #
 #
 
+SYS_TIME_LED       = 1
 
-#
-# default LED configuration
-#
-ifndef RADIO_CONTROL_LED
-RADIO_CONTROL_LED  = none
-endif
-
-ifndef BARO_LED
-BARO_LED = none
-endif
-
-ifndef AHRS_ALIGNER_LED
-AHRS_ALIGNER_LED = none
-endif
-
-ifndef GPS_LED
-GPS_LED = none
-endif
-
-ifndef SYS_TIME_LED
-SYS_TIME_LED = 1
-endif
-
-#
-# default uart configuration
-#
-ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART1
-endif
-
-ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
-endif
+RADIO_CONTROL_LED  = none
 
 ifndef MODEM_PORT
 MODEM_PORT=UART2
@@ -75,6 +45,7 @@ ifndef MODEM_BAUD
 MODEM_BAUD=B57600
 endif
 
+AHRS_ALIGNER_LED = 2
 
 ifndef GPS_PORT
 GPS_PORT=UART3
@@ -82,6 +53,17 @@ endif
 ifndef GPS_BAUD
 GPS_BAUD=B38400
 endif
+GPS_LED = none
+
+#
+# this is the DRDY pin of a max1168 on a booz IMU
+#
+# v 1.0
+#
+MAX_1168_DRDY_PORT = _GPIOD
+MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOD
+# v1.1
+#MAX_1168_DRDY_PORT = GPIOB
 
 
 
