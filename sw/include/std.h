@@ -86,7 +86,9 @@ typedef uint8_t unit_t;
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
 
+#ifndef ABS
 #define ABS(val) ((val) < 0 ? -(val) : (val))
+#endif
 
 #define Bound(_x, _min, _max) { if (_x > _max) _x = _max; else if (_x < _min) _x = _min; }
 #define BoundAbs(_x, _max) Bound(_x, -(_max), (_max))

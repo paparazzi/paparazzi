@@ -73,6 +73,10 @@ endif
 LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
 LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
 
+ifndef $(PYTHON)
+PYTHON = $(shell which python)
+endif
+
 #first try to find OpenOCD in the path
 OOCD = $(shell which openocd)
 #if OpenOCD could not be found in the path, try the toolchain dir
@@ -98,6 +102,12 @@ ifndef $(TARGET).OOCD_BOARD
 OOCD_BOARD = lisa-l
 else
 OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
+
+ifndef NO_LUFTBOOT
+OOCD_START_SECTOR = 4
+else
+OOCD_START_SECTOR = 0
 endif
 
 # input files
@@ -252,12 +262,16 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(AFLAGS) $< -o $@
 
-ifeq ($(FLASH_MODE),SERIAL)
+ifeq ($(FLASH_MODE),DFU)
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using stm32 mem dfu loader"
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
+else ifeq ($(FLASH_MODE),SERIAL)
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)
 ifeq ($(BMP_PORT),)
-upload: $(OBJDIR)/$(TARGET).elf
+upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Using OOCD = $(OOCD)"
 	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
@@ -265,7 +279,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 		-c init \
 		-c "reset halt" \
 		-c "reset init" \
-		-c "stm32f1x mass_erase 0" \
+		-c "flash erase_sector 0 $(OOCD_START_SECTOR) last" \
 		-c "flash write_image $<" \
 		-c reset \
 		-c shutdown
