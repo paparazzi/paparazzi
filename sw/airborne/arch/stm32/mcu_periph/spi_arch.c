@@ -105,6 +105,13 @@ struct spi_transaction* slave0;
 
 void spi_rw(struct spi_transaction  * _trans) 
 {
+  /* Make sure that there is no transaction running. */
+  if ((slave0->status == SPITransPending) ||
+      (slave0->status == SPITransRunning) ||
+      (*(slave0->ready) == 1)) {
+          return;
+  }
+
   // Store local copy to notify of the results
   slave0 = _trans;
   slave0->status = SPITransRunning;
