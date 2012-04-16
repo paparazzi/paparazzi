@@ -78,8 +78,9 @@ static inline void mpu_set(uint8_t _reg, uint8_t _val)
 {
   aspirin2_mpu60x0.mosi_buf[0] = _reg;
   aspirin2_mpu60x0.mosi_buf[1] = _val;
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+  while (spi_rw(&aspirin2_mpu60x0));
+  while(aspirin2_mpu60x0.status != SPITransSuccess);
+  imu_aspirin2.imu_available = FALSE;
 }
 
 static inline void mpu_wait_slave4_ready(void)
@@ -89,8 +90,9 @@ static inline void mpu_wait_slave4_ready(void)
   {
     aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
     aspirin2_mpu60x0.mosi_buf[1] = 0;
-    spi_rw(&aspirin2_mpu60x0);
-      while(aspirin2_mpu60x0.status != SPITransSuccess);
+    while (spi_rw(&aspirin2_mpu60x0));
+    while(aspirin2_mpu60x0.status != SPITransSuccess);
+    imu_aspirin2.imu_available = FALSE;
 
     ret = aspirin2_mpu60x0.miso_buf[1];
   }
