@@ -23,10 +23,10 @@
  */
 
 #include <inttypes.h>
-#include "subsystems/datalink/pprz_transport.h"
+#include "subsystems/datalink/mavlink_transport.h"
 #include "mcu_periph/uart.h"
 
-uint8_t ck_a, ck_b, pprz_down_packet_seq = 1;
+uint8_t ck_a, ck_b, mavlink_down_packet_seq = 1;
 uint16_t checksum;
 
-struct pprz_transport pprz_tp;
+struct mavlink_transport mavlink_tp;

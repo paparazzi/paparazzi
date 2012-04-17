@@ -22,7 +22,7 @@
  *
  */
 
-#include "firmwares/fixedwing/ap_downlink.h"
+#include "firmwares/fixedwing/mavlink_downlink.h"
 #include "generated/airframe.h"
 
 #ifdef AP

@@ -13,6 +13,7 @@ extern char* ivy_p;
 #define IvyTransportTrailer(_dev) { *ivy_p = '\0'; IvySendMsg("%s",ivy_buf); }
 
 #define IvyTransportPutUint8(_dev,x) { ivy_p += sprintf(ivy_p, "%u ", x); }
+#define IvyTransportPutAcId(_dev,x) { ivy_p += sprintf(ivy_p, "%u ", x); }
 #define IvyTransportPutNamedUint8(_dev,_name, _x) { ivy_p += sprintf(ivy_p, "%s ", _name); }
 #define IvyTransportPutClassUint8(_dev,_name, _x)
 

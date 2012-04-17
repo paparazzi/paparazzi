@@ -1259,7 +1259,7 @@ let get_ts = fun _sender vs ->
 
 
 let listen_telemetry_status = fun () ->
-  safe_bind "TELEMETRY_STATUS" get_ts (* XGGDEBUG:LINK: why is calling the function without parameters? *)
+  safe_bind "TELEMETRY_STATUS" get_ts
 
 
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->

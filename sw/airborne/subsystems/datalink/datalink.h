@@ -47,6 +47,7 @@
 /** Datalink kinds */
 #define PPRZ 1
 #define XBEE 2
+#define MAV 3
 
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
@@ -78,6 +79,13 @@ EXTERN void dl_parse_msg(void);
 
 #define DatalinkEvent() {			            \
   XBeeCheckAndParse(XBEE_UART, xbee_tp);  \
+  DlCheckAndParse();                      \
+}
+
+#elif DATALINK == MAV
+
+#define DatalinkEvent() {			            \
+  MavlinkCheckAndParse(MAV_UART, mavlink_tp);  \
   DlCheckAndParse();                      \
 }
 

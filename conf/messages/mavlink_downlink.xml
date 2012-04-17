@@ -1,53 +1,31 @@
 <?xml version="1.0"?>
 <class type="downlink">
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot). --> 
 	<message id="0" name="HEARTBEAT">
 		<!-- Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM) -->
-		<field name="type" type="uint8_t" values="MAV_TYPE_GENERIC|MAV_TYPE_FIXED_WING|MAV_TYPE_QUADROTOR|MAV_TYPE_COAXIAL|MAV_TYPE_HELICOPTER|MAV_TYPE_ANTENNA_TRACKER|MAV_TYPE_GCS|MAV_TYPE_AIRSHIP|MAV_TYPE_FREE_BALLOON|MAV_TYPE_ROCKET|MAV_TYPE_GROUND_ROVER|MAV_TYPE_SURFACE_BOAT|MAV_TYPE_SUBMARINE|MAV_TYPE_HEXAROTOR|MAV_TYPE_OCTOROTOR|MAV_TYPE_TRICOPTER|MAV_TYPE_FLAPPING_WING"/>
+		<field name="type" type="uint8" values="MAV_TYPE_GENERIC|MAV_TYPE_FIXED_WING|MAV_TYPE_QUADROTOR|MAV_TYPE_COAXIAL|MAV_TYPE_HELICOPTER|MAV_TYPE_ANTENNA_TRACKER|MAV_TYPE_GCS|MAV_TYPE_AIRSHIP|MAV_TYPE_FREE_BALLOON|MAV_TYPE_ROCKET|MAV_TYPE_GROUND_ROVER|MAV_TYPE_SURFACE_BOAT|MAV_TYPE_SUBMARINE|MAV_TYPE_HEXAROTOR|MAV_TYPE_OCTOROTOR|MAV_TYPE_TRICOPTER|MAV_TYPE_FLAPPING_WING"/>
 		<!-- Autopilot type / class. defined in MAV_CLASS ENUM. This identifies the individual model. MAV_AUTOPILOT_PPZ for paparazzi -->
-		<field name="autopilot" type="uint8_t" values="MAV_AUTOPILOT_GENERIC|MAV_AUTOPILOT_PIXHAWK|MAV_AUTOPILOT_SLUGS|MAV_AUTOPILOT_ARDUPILOTMEGA|MAV_AUTOPILOT_OPENPILOT|MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY|MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY|MAV_AUTOPILOT_GENERIC_MISSION_FULL|MAV_AUTOPILOT_INVALID|MAV_AUTOPILOT_PPZ|MAV_AUTOPILOT_UDB|MAV_AUTOPILOT_FP"/>
-
-
-		XGGDEBUG: MAV_MODE_FLAG  
+		<field name="autopilot" type="uint8" values="MAV_AUTOPILOT_GENERIC|MAV_AUTOPILOT_PIXHAWK|MAV_AUTOPILOT_SLUGS|MAV_AUTOPILOT_ARDUPILOTMEGA|MAV_AUTOPILOT_OPENPILOT|MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY|MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY|MAV_AUTOPILOT_GENERIC_MISSION_FULL|MAV_AUTOPILOT_INVALID|MAV_AUTOPILOT_PPZ|MAV_AUTOPILOT_UDB|MAV_AUTOPILOT_FP"/> 
 		<!-- System mode bitfield, see MAV_MODE_FLAGS ENUM in mavlink/include/mavlink_types.h -->
-		<field name="base_mode" type="uint8_t" values="||||||||"/>
-
-		
-		XGGDEBUG: look for paparazzi MODES in custom messages
+		<field name="base_mode" type="uint8"/>
 		<!-- Navigation mode bitfield, see MAV_AUTOPILOT_CUSTOM_MODE ENUM for some examples. This field is autopilot-specific. -->
-		<field name="custom_mode" type="uint32_t" values="||||||||"/>
-		 
-
-		XGGDEBUG: MAV STATUS (struct in mavlink_types.h) or MAV STATE (Enum)?
+		<field name="custom_mode" type="uint32"/>
 		<!-- System status flag, see MAV_STATUS ENUM -->
-		<field name="system_status" type="uint8_t" values="||||"/>
-
-		
-		XGGDEBUG: uint8_t_mavlink_version is a special type read-only field auto-filled by MAVLink when the message is sent. Current PROTOCOL VERSION, allows the receiver to decode the message
+		<field name="system_status" type="uint8"/>
 		<!-- MAVLink version -->
-		<field name="mavlink_version" type="uint8_t_mavlink_version"/>
+		<field name="mavlink_version" type="uint8"/>
 	</message> 
 
 
-
-
-
-
-
-
-
-		XGGDEBUG: print_format of bitmasks, maybe is like units_scale or something like that.
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- The general system state. If the system is following the MAVLink standard, the system state is mainly defined by three orthogonal states/modes: The system mode, which is either LOCKED (motors shut down and locked), MANUAL (system under RC control), GUIDED (system with autonomous position control, position setpoint controlled manually) or AUTO (system guided by path/waypoint planner). The NAV_MODE defined the current flight state: LIFTOFF (often an open-loop maneuver), LANDING, WAYPOINTS or VECTOR. This represents the internal navigation state machine. The system status shows wether the system is currently active or not and if an emergency occured. During the CRITICAL and EMERGENCY states the MAV is still considered to be active, but should start emergency procedures autonomously. After a failure occured it should first move from active to critical to allow manual intervention and then move to emergency after a certain timeout. -->
 	<message id="1" name="SYS_STATUS">
 		<!-- Bitmask showing which onboard controllers and sensors are present. Value of 0: not present. Value of 1: present. Indices: 0: 3D gyro, 1: 3D acc, 2: 3D mag, 3: absolute pressure, 4: differential pressure, 5: GPS, 6: optical flow, 7: computer vision position, 8: laser based position, 9: external ground-truth (Vicon or Leica). Controllers: 10: 3D angular rate control 11: attitude stabilization, 12: yaw position, 13: z/altitude control, 14: x/y position control, 15: motor outputs / control -->
-		<field name="onboard_control_sensors_present" print_format="0x%04x" type="uint32"/>
+		<field name="onboard_control_sensors_present" type="uint32"/>
 		<!-- Bitmask showing which onboard controllers and sensors are enabled:  Value of 0: not enabled. Value of 1: enabled. Indices: 0: 3D gyro, 1: 3D acc, 2: 3D mag, 3: absolute pressure, 4: differential pressure, 5: GPS, 6: optical flow, 7: computer vision position, 8: laser based position, 9: external ground-truth (Vicon or Leica). Controllers: 10: 3D angular rate control 11: attitude stabilization, 12: yaw position, 13: z/altitude control, 14: x/y position control, 15: motor outputs / control -->
-		<field name="onboard_control_sensors_enabled" print_format="0x%04x" type="uint32"/>
+		<field name="onboard_control_sensors_enabled" type="uint32"/>
 		<!-- Bitmask showing which onboard controllers and sensors are operational or have an error:  Value of 0: not enabled. Value of 1: enabled. Indices: 0: 3D gyro, 1: 3D acc, 2: 3D mag, 3: absolute pressure, 4: differential pressure, 5: GPS, 6: optical flow, 7: computer vision position, 8: laser based position, 9: external ground-truth (Vicon or Leica). Controllers: 10: 3D angular rate control 11: attitude stabilization, 12: yaw position, 13: z/altitude control, 14: x/y position control, 15: motor outputs / control -->
-		<field name="onboard_control_sensors_health" print_format="0x%04x" type="uint32"/>
+		<field name="onboard_control_sensors_health" type="uint32"/>
 		<!-- Maximum usage in percent of the mainloop time, (0%: 0, 100%: 1000) should be always below 1000 -->
 		<field name="load" type="uint16"/>
 		<!-- Battery voltage, in millivolts (1 = 1 millivolt) -->
@@ -70,13 +48,6 @@
 		<field name="errors_count4" type="uint16"/>
 	</message>
 
-
-
-
-
-
-		XGGDEBUG: define int64,uint64,char and defined length arrays
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- The system time is the time of the master clock, typically the computer clock of the main onboard computer. -->
 	<message id="2" name="SYSTEM_TIME">
 		<!-- Timestamp of the master clock in microseconds since UNIX epoch. -->
@@ -89,8 +60,6 @@
 	<!-- ID=3 FREE MAVLINK -->
 	<!-- ID=4 DEPRECATED (PING). to be merged with SYSTEM_TIME -->
 	<!-- ID=5 DATALINK (CHANGE_OPERATOR_CONTROL) -->
-	XGGDEBUG what happens if QGControl receives a command message?
-
 
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Accept / deny control of this MAV -->
@@ -103,12 +72,10 @@
 		<field name="ack" type="uint8"/>
 	</message>
 
-
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Emit an encrypted signature / key identifying this system. PLEASE NOTE: This protocol has been kept simple, so transmitting the key requires an encrypted channel for true safety. -->
 	<message id="7" name="AUTH_KEY">
 		<!-- key -->
-		<field name="key" type="char[32]"/>
+		<field name="key" type="char[]"/><!-- Length = 32 -->
 	</message>
 
 
@@ -128,21 +95,21 @@
 	<!-- ID=21 DATALINK (PARAM_REQUEST_LIST) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD -->
 	<!-- Emit the value of a onboard parameter. The inclusion of param_count and param_index in the message allows the recipient to keep track of received parameters and allows him to re-request missing parameters after a loss or timeout. -->
-	<message id="22" name="PARAM_VALUE">
+<!--	<message id="22" name="PARAM_VALUE">
 		<!-- Onboard parameter id -->
-		<field name="param_id" type="char[16]"/>
+<!--		<field name="param_id" type="char[]"/>--><!-- length = 16 -->
 		<!-- Onboard parameter value -->
-		<field  name="param_value" type="float"/>
+<!--		<field  name="param_value" type="float"/>-->
 		<!-- Onboard parameter type -->
-		<field  name="param_type" type="uint8" values="MAV_VAR_FLOAT|MAV_VAR_UINT8|MAV_VAR_INT8|MAV_VAR_UINT16|MAV_VAR_INT16|MAV_VAR_UINT32|MAV_VAR_INT32"/>
+<!--		<field  name="param_type" type="uint8" values="MAV_VAR_FLOAT|MAV_VAR_UINT8|MAV_VAR_INT8|MAV_VAR_UINT16|MAV_VAR_INT16|MAV_VAR_UINT32|MAV_VAR_INT32"/>-->
 		<!-- Total number of onboard parameters -->
-		<field  name="param_count" type="uint16"/>
+<!--		<field  name="param_count" type="uint16"/>-->
 		<!-- Index of this onboard parameter -->
-		<field  name="param_index" type="uint16"/>
+<!--		<field  name="param_index" type="uint16"/>
 	</message>
-
+-->
 
 	<!-- ID=23 DATALINK (PARAM_SET) -->
 
@@ -173,24 +140,24 @@
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! NO MORE THEN ONE ARRAY ALLOWED -->
 	<!-- {HEAVY->only for mavlink mode}
 The positioning status, as reported by GPS. This message is intended to display status information about each satellite visible to the receiver. See message GLOBAL_POSITION for the global position estimate. This message can contain information for up to 20 satellites. -->
-	<message id="25" name="GPS_STATUS">
+<!--	<message id="25" name="GPS_STATUS">-->
 		<!-- Number of satellites visible -->
-		<field name="satellites_visible" type="uint8"/>
+<!--		<field name="satellites_visible" type="uint8"/>-->
 		<!-- Global satellite ID -->
-		<field name="satellite_prn" type="uint8[20]"/>
+<!--		<field name="satellite_prn" type="uint8[]"/>--><!-- length = 20 -->
 		<!-- 0: Satellite not used, 1: used for localization -->
-		<field name="satellite_used" type="uint8[20]"/>
+<!--		<field name="satellite_used" type="uint8[]"/>--><!-- length = 20 -->
 		<!-- Elevation (0: right on top of receiver, 90: on the horizon) of satellite -->
-		<field name="satellite_elevation" type="uint8[20]"/>
+<!--		<field name="satellite_elevation" type="uint8[]"/>--><!-- length = 20 -->
 		<!-- Direction of satellite, 0: 0 deg, 255: 360 deg. -->
-		<field name="satellite_azimuth" type="uint8[20]"/>
+<!--		<field name="satellite_azimuth" type="uint8[]"/>--><!-- length = 20 -->
 		<!-- Signal to noise ratio of satellite -->
-		<field name="satellite_snr" type="uint8[20]"/>
-	</message>
-
+<!--		<field name="satellite_snr" type="uint8[]"/>--><!-- length = 20 -->
+<!--	</message>
+-->
 
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- The RAW IMU readings for the usual 9DOF sensor setup. This message should contain the scaled values to the described units -->
@@ -274,10 +241,9 @@ The positioning status, as reported by GPS. This message is intended to display 
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- {OLD: ATTITUDE(6) sent: phi,psi,theta}
 The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right). -->
-	<message id="30" name="ATTITUDE">
+	<message id="30" name="MAV_ATTITUDE">
 		<!-- Timestamp (milliseconds since system boot) -->
 		<field name="time_boot_ms" type="uint32"/>
 		<!-- Roll angle (rad) -->
@@ -317,7 +283,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- The filtered local position (e.g. fused computer vision and accelerometers). Coordinate frame is right-handed, Z-axis down (aeronautical frame, NED / north-east-down convention) -->
 	<message id="32" name="LOCAL_POSITION_NED">
 		<!-- Timestamp (milliseconds since system boot) -->
@@ -337,7 +302,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- The filtered global position (e.g. fused GPS and accelerometers). The position is in GPS-frame (right-handed, Z-up). It is designed as scaled integer message since the resolution of float is not sufficient. -->
 	<message id="33" name="GLOBAL_POSITION_INT">
 		<!-- Timestamp (milliseconds since system boot) -->
@@ -385,7 +349,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 		<!-- RC channel 8 value scaled, (-100%) -10000, (0%) 0, (100%) 10000 -->
 		<field name="chan8_scaled" type="int16"/>
 		<!-- Receive signal strength indicator, 0: 0%, 255: 100% -->
-		<field name="uint8" type="rssi"/>
+		<field name="rssi" type="uint8"/>
 	</message>
 
 
@@ -446,11 +410,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 
 	<!-- ID=37 DATALINK (MISSION_REQUEST_PARTIAL_LIST) -->
 	<!-- ID=38 DATALINK (MISSION_WRITE_PARTIAL_LIST) -->
-
-
-	//XGGDEBUG: MAV_CMD values: must define the string with error phrases, Would be any problem due to the values string length?¿?¿
-
-
 
 	<!-- ID=39 DATALINK (MISSION_ITEM) -->
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
@@ -592,7 +551,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=54 DATALINK (SAFETY_SET_ALLOWED_AREA) -->
 
 
-		XGGDEBUG: I'm not sure about the MAV_FRAME values. Which one of them is the GPS for example?¿?
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Read out the safety zone the MAV currently assumes. -->
 	<message id="55" name="SAFETY_ALLOWED_AREA">
@@ -701,7 +659,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=73 FREE MAVLINK -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Metrics typically displayed on a HUD for fixed wing aircraft -->
 	<message id="74" name="VFR_HUD">
 		<!-- Current airspeed in m/s -->
@@ -723,7 +680,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=76 DATALINK (COMMAND_LONG) -->
 
 
-		XGGDEBUG: MAV_CMD values
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Report status of a command. Includes feedback wether the command was executed -->
 	<message id="77" name="COMMAND_ACK">
@@ -749,8 +705,6 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=90 DATALINK (HIL_STATE) -->
 
 
-		XGGDEBUG: MAV_MODE
-		XGGDEBUG: cannot find MAV_NAV_MODE enums
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Sent from autopilot to simulation. Hardware in the loop control outputs -->
 	<message id="91" name="HIL_CONTROLS">
@@ -952,49 +906,49 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 		<!-- Type code of the memory variables. for ver = 1: 0=16 x int16_t, 1=16 x uint16_t, 2=16 x Q15, 3=16 x 1Q14 -->
 		<field name="type" type="uint8"/>
 		<!-- Memory contents at specified address -->
-		<field name="value" type="int8[32]"/>
+		<field name="value" type="int8[]"/><!-- length = 32 -->
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET !!! ARRAY MUST BE THE LAST FIELD *|::. -->
 	<!-- NO DESCRIPTION -->
-	<message id="250" name="DEBUG_VECT">
+<!--	<message id="250" name="DEBUG_VECT"> -->
 		<!-- Name -->
-		<field name="name" type="char[10]"/>
+<!--		<field name="name" type="char[]"/>--><!-- length = 10 -->
 		<!-- Timestamp -->
-		<field name="time_usec" type="uint64"/>
+<!--		<field name="time_usec" type="uint64"/>-->
 		<!-- x -->
-		<field name="x" type="float"/>
+<!--		<field name="x" type="float"/>-->
 		<!-- y -->
-		<field name="y" type="float"/>
+<!--		<field name="y" type="float"/>-->
 		<!-- z -->
-		<field name="z" type="float"/>
+<!--		<field name="z" type="float"/>
 	</message>
+-->
 
-
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD -->
 	<!-- Send a key-value pair as float. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output. -->
-	<message id="251" name="NAMED_VALUE_FLOAT">
+<!--	<message id="251" name="NAMED_VALUE_FLOAT">-->
 		<!-- Timestamp (milliseconds since system boot) -->
-		<field name="time_boot_ms" type="uint32"/>
+<!--		<field name="time_boot_ms" type="uint32"/>-->
 		<!-- Name of the debug variable -->
-		<field name="name" type="char[10]"/>
+<!--		<field name="name" type="char[]"/>--><!-- length = 10 -->
 		<!-- Floating point value -->
-		<field name="value" type="float"/>
+<!--		<field name="value" type="float"/>
 	</message>
+-->
 
-
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD -->
 	<!-- Send a key-value pair as integer. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output. -->
-	<message id="252" name="NAMED_VALUE_INT">
+<!--	<message id="252" name="NAMED_VALUE_INT">-->
 		<!-- Timestamp (milliseconds since system boot) -->
-		<field name="time_boot_ms" type="uint32"/>
+<!--		<field name="time_boot_ms" type="uint32"/>-->
 		<!-- Name of the debug variable -->
-		<field name="name" type="char[10]"/>
+<!--		<field name="name" type="char[]"/>--><!-- length = 10 -->
 		<!-- Signed integer value -->
-		<field name="value" type="int32"/>
+<!--		<field name="value" type="int32"/>
 	</message>
-
+-->
 
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Status text message. These messages are printed in yellow in the COMM console of QGroundControl. WARNING: They consume quite some bandwidth, so use only for important status and error messages. If implemented wisely, these messages are buffered on the MCU and sent only at a limited rate (e.g. 10 Hz). -->
@@ -1002,14 +956,14 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 		<!-- Severity of status, 0 = info message, 255 = critical fault -->
 		<field name="severity" type="uint8"/>
 		<!-- Status text message, without null termination character -->
-		<field name="text" type="char[50]"/>
+		<field name="text" type="char[]"/><!-- length = 50 -->
 	</message>
 
 
 
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Send a debug value. The index is used to discriminate between values. These values show up in the plot of QGroundControl as DEBUG N. -->
-	<message id="254" name="DEBUG">
+	<message id="254" name="MAV_DEBUG">
 		<!-- Timestamp (milliseconds since system boot) -->
 		<field name="time_boot_ms" type="uint32"/>
 		<!-- index of debug variable -->
