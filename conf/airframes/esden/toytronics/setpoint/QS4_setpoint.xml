@@ -27,7 +27,7 @@
     <define name="LOBATT_WING_WAGGLE_DT"  value="0.3"/>
 
     <define name="AEROBATIC_DECAY_TIME_X" value="0.2"/>
-    <define name="AEROBATIC_DECAY_TIME_y" value="0.3"/>
+    <define name="AEROBATIC_DECAY_TIME_Y" value="0.3"/>
     <define name="AEROBATIC_DECAY_TIME_Z" value="0.2"/>
   </section>
 </airframe>
