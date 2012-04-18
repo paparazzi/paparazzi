@@ -320,12 +320,12 @@ static inline void autopilot_check_motors_on( void ) {
 		  RunOnceEvery(1024,{autopilot_first_boot = FALSE;})
 		  }
 		else
-		  autopilot_motors_on=!THROTTLE_STICK_DOWN() && radio_control.values[RADIO_MODE] < 0 && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
+		  autopilot_motors_on=!THROTTLE_STICK_DOWN() && radio_control.values[RADIO_MODE] > 100 && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
 		}
 	else{ 
 		autopilot_motors_on=!THROTTLE_STICK_DOWN() && ahrs_is_aligned() && autopilot_rc_unkilled_startup == FALSE;
 		if(autopilot_motors_on == TRUE)
-		  autopilot_mode1_kill = radio_control.values[RADIO_MODE]<0;
+		  autopilot_mode1_kill = radio_control.values[RADIO_MODE]>100;
 		}
 	}
 #elif defined AUTOPILOT_INSTANT_START
