@@ -27,10 +27,10 @@
 
   <section name="AUTOPILOT">
     <!-- <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/> -->
-    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
+    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_AEROBATIC"/>
     <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
     <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
-    <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
     <define name="AUTOPILOT_THROTTLE_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
@@ -118,6 +118,7 @@
   </section>
 
   <include href="conf/airframes/esden/calib/imu_lisam_033.xml"/>
+
 
   <section name="IMU" prefix="IMU_">
     
@@ -234,7 +235,7 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
- <include href="conf/airframes/esden/toytronics/gains/QS4_inner_8x4_5.xml"/>
+ <include href="conf/airframes/esden/toytronics/gains/QS4M2_inner_8x4_5.xml"/>
  <include href="conf/airframes/esden/toytronics/setpoint/QS4_setpoint.xml"/>
  <include href="conf/airframes/esden/camera_mount.xml"/>
 
