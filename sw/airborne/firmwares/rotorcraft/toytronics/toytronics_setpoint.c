@@ -117,7 +117,7 @@ discrete_exponential_decay( double * state, const double tau, const double ts )
 static void
 rc_sensitizer( double * state, const double sens )
 {
-  *state = pow(*state,sens);
+  *state = copysign(pow(*state,sens),*state);
 }
 
 // get "heading" from attitude quat q_n2b:
