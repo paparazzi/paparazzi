@@ -25,5 +25,9 @@
     <define name="LOBATT_WING_WAGGLE_DEG"  value="30.0"/>
     <define name="LOBATT_WING_WAGGLE_MAX"  value="10.0"/>
     <define name="LOBATT_WING_WAGGLE_DT"  value="0.3"/>
+
+    <define name="AEROBATIC_DECAY_TIME_X" value="0.2"/>
+    <define name="AEROBATIC_DECAY_TIME_y" value="0.3"/>
+    <define name="AEROBATIC_DECAY_TIME_Z" value="0.2"/>
   </section>
 </airframe>
