@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (C) 2012, Christophe De Wagter
+ * Copyright (C) 2012  Thomas Kolb
  *
  * This file is part of paparazzi.
  *
@@ -18,30 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/**
- * @file module/nav/nav_catapult.h
- * @brief catapult launch timing system
- */
+#ifndef BAT_CHECKER_H
+#define BAT_CHECKER_H
 
-#ifndef NAV_CATAPULT_H
-#define NAV_CATAPULT_H
+void init_bat_checker(void);
+void bat_checker_periodic(void);
 
-#include "std.h"
-#include "paparazzi.h"
-
-// Module Code
-void nav_catapult_highrate_module(void);
-
-// Flightplan Code
-extern bool_t nav_catapult_init(void);
-
-extern bool_t nav_catapult_arm(void);
-extern bool_t nav_catapult(uint8_t _to, uint8_t _climb);
-extern bool_t nav_catapult_disarm(void);
-
-extern bool_t nav_select_touch_down(uint8_t _td);
-
-#endif
+#endif // BAT_CHECKER_H

@@ -30,12 +30,15 @@
 #ifdef PROC_LPCH2148
 #define BOARD_LPCH2148
 #endif
+#ifdef PROC_LOGGER
+#define BOARD_LOGGER
+#endif
 
 #ifdef BOARD_TINYJ
 /* TINY Jeremy old    MOSI P0.19 */
 /* .set  BOOT_PIN,  0x00080000 */
 /* TINY Jeremy old    SCK P0.17 */
-.set BOOT_PIN, 0x00020000
+.set BOOT_PIN,   0x00020000
 #else
 #ifdef BOARD_TINY
 /* TINY old    LPC_SSEL P0.20 */
@@ -49,8 +52,13 @@
 /* Olimex LPC-H2148 P1.24 */
 .set  BOOT_PIN,  0x04000000
 #else
+#ifdef BOARD_LOGGER
+/* SD-Logger P0.29 */
+.set  BOOT_PIN,  0x20000000
+#else
 /* Vbus P0.23 */
 .set  BOOT_PIN,  0x00800000
+#endif
 #endif
 #endif
 #endif
@@ -114,6 +122,7 @@ AppS_Addr:      .word   APP_START
 
 Reset_Handler:  
 #ifndef BOARD_LPCH2148
+#ifndef BOARD_LOGGER
     			/* check status of the USB in P0.xx */
     			ldr   r0, =IOPIN0   /* load gpio addr */
     			ldr   r1,[r0]       /* get data */
@@ -122,6 +131,16 @@ Reset_Handler:
     			cmp   r1, r2        /* compare bits */ 
     			beq   Bootloader    /* beq */
     			ldr   PC, AppS_Addr
+#else
+    			/* check status of the USB in P0.xx */
+    			ldr   r0, =IOPIN0   /* load gpio addr */
+    			ldr   r1,[r0]       /* get data */
+    			ldr   r2, =BOOT_PIN /* get boot pin */
+    			and   r1, r1, r2    /* clear all other bits */
+    			cmp   r1, r2        /* compare bits */ 
+    			bne   Bootloader    /* beq */
+    			ldr   PC, AppS_Addr
+#endif
 #else
     			/* check status of the USB in P1.24 */
     			ldr   r0, =PINSEL2  /* load mode addr */
