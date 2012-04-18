@@ -29,5 +29,9 @@
     <define name="AEROBATIC_DECAY_TIME_X" value="0.2"/>
     <define name="AEROBATIC_DECAY_TIME_Y" value="0.3"/>
     <define name="AEROBATIC_DECAY_TIME_Z" value="0.2"/>
+
+    <define name="RC_SENSITIVITY_X" value="1.0"/>
+    <define name="RC_SENSITIVITY_Y" value="1.0"/>
+    <define name="RC_SENSITIVITY_Z" value="1.0"/>
   </section>
 </airframe>
