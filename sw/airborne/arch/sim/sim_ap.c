@@ -22,7 +22,6 @@
 #include "commands.h"
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
-//#include "mavlink_downlink.h"
 #include "sim_uart.h"
 #include "subsystems/datalink/datalink.h"
 #include "generated/flight_plan.h"
