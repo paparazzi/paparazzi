@@ -63,7 +63,7 @@
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #include "ap_downlink.h"
-#include "mavlink_downlink.h"
+//#include "mavlink_downlink.h"
 
 #define MOfCm(_x) (((float)(_x))/100.)
 

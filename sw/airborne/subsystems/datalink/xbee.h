@@ -61,15 +61,14 @@ void xbee_init( void );
 #define XBeeTransportPut1Byte(_dev, x) TransportLink(_dev, Transmit(x))
 #define XBeeTransportSendMessage(_dev) TransportLink(_dev, SendMessage())
 
-#define XBeeTransportPutAcId(_dev, _x) { \
-  XBeeTransportPut1Byte(_dev, _x); \
-}
-
 #define XBeeTransportPutUint8(_dev, _x) { \
   xbee_cs += _x; \
   XBeeTransportPut1Byte(_dev, _x); \
 }
 
+#define XBeeTransportPutAcId(_dev, _x) { \
+  XBeeTransportPutUint8(_dev, _x); \
+}
 
 #define XBeeTransportPutPacketSequence(_dev) { \
     xbee_down_packet_seq++;	\

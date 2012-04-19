@@ -70,14 +70,14 @@ extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
   PprzTransportSendMessage(_dev) \
 } 
 
-#define PprzTransportPutAcId(_dev, _byte) { \
-    PprzTransportPut1Byte(_dev, _byte);		  \
- }
-
 #define PprzTransportPutUint8(_dev, _byte) { \
     ck_a += _byte;			  \
     ck_b += ck_a;			  \
     PprzTransportPut1Byte(_dev, _byte);		  \
+ }
+
+#define PprzTransportPutAcId(_dev, _byte) { \
+    PprzTransportPutUint8(_dev, _byte);		  \
  }
 
 #define PprzTransportPutPacketSequence(_dev) { \

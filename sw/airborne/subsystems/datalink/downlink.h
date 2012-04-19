@@ -40,7 +40,7 @@
 #ifdef SIM_UART
 #include "sim_uart.h"
 #include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/mavlink_transport.h"
+//#include "subsystems/datalink/mavlink_transport.h"
 #include "subsystems/datalink/xbee.h"
 #else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
@@ -49,7 +49,7 @@
 
 #else /** SITL */
 #include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/mavlink_transport.h"
+//#include "subsystems/datalink/mavlink_transport.h"
 #include "subsystems/datalink/xbee.h"
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"
@@ -93,6 +93,7 @@ extern uint16_t downlink_nb_msgs;
 #define DownlinkCheckFreeSpace(_trans, _dev, _x) Transport(_trans, CheckFreeSpace(_dev, (uint8_t)(_x)))
 
 #define DownlinkPutUint8(_trans, _dev, _x) Transport(_trans, PutUint8(_dev, _x))
+#define DownlinkPutAcId(_trans, _dev, _x) Transport(_trans, PutAcId(_dev, _x))
 
 #define DownlinkPutInt8ByAddr(_trans, _dev, _x) Transport(_trans, PutInt8ByAddr(_dev, _x))
 #define DownlinkPutUint8ByAddr(_trans, _dev, _x) Transport(_trans, PutUint8ByAddr(_dev, _x))

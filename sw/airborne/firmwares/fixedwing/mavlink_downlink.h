@@ -55,24 +55,26 @@
 #define Mavlink(x) {}
 #endif
 
+
 #ifdef AP
 /** Telemetry mode for AP process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Ap_DefaultChannel;
+#include "ap_downlink.h"
+//extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 /* _type: 1 for FIXEDWING, 2 for QUADROTOR, 4 for HELICOPTER */
-#define PERIODIC_SEND_HEARTBEAT(_trans,_dev) {	\
+#define PERIODIC_SEND_HEARTBEAT(_trans,_dev) Mavlink ({	\
 	uint8_t _type = 1;	\
 	uint8_t autopilot = 9;	\
 	uint8_t base_mode = 220; \
 	uint32_t custom_mode = 0; \
 	uint8_t system_status = 0; \
 	uint8_t mavlink_version = 3; \
-	Mavlink ({ \
 DOWNLINK_SEND_HEARTBEAT(_trans, _dev, &_type, &autopilot, &base_mode, &custom_mode, &system_status, &mavlink_version); \
-		}); \
-}
+		})
 
+
+/*
 #define PERIODIC_SEND_SYS_STATUS(_trans,_dev) { \
 	uint32_t _bitmask = (uint32_t) 0b11100100001111111; \
 	uint32_t load_cpu = 5000; \
@@ -93,9 +95,9 @@ DOWNLINK_SEND_SYS_STATUS(_trans, _dev, &_bitmask, &_bitmask, &_bitmask, &load_cp
 DOWNLINK_SEND_SYSTEM_TIME(_trans, _dev, &time_unix_usec, &time_boot_ms); \
 		}); \
 }
-
+*/
 /* CHANGE_OPERATOR_CONTROL_ACK */
-
+/*
 #define PERIODIC_SEND_AUTH_KEY(_trans, _dev) { \
 	uint8_t key_length = 32; \
 	char[32] key = {'0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','*','+'};\
@@ -103,7 +105,7 @@ DOWNLINK_SEND_SYSTEM_TIME(_trans, _dev, &time_unix_usec, &time_boot_ms); \
 DOWNLINK_SEND_AUTH_KEY(_trans, _dev, key_length, key); \
 		}); \
 }
-
+*/
 /* PARAM_VALUE */
 
 /* GPS_RAW_INT */
@@ -117,7 +119,7 @@ DOWNLINK_SEND_AUTH_KEY(_trans, _dev, key_length, key); \
 /* RAW_PRESSURE */
 
 /* SCALED_PRESSURE */
-
+/*
 #define PERIODIC_SEND_MAV_ATTITUDE(_trans, _dev) { \
 	uint32_t time_boot_ms = estimator_flight_time*1000; \
 	float roll = estimator_phi; \
@@ -130,9 +132,9 @@ DOWNLINK_SEND_AUTH_KEY(_trans, _dev, key_length, key); \
 DOWNLINK_SEND_MAV_ATTITUDE(_trans, _dev, &time_boot_ms, &roll, &pitch, &yaw, &rollspeed, &pitchspeed, &yawspeed); \
 		}); \
 }
-
+*/
 /* ATTITUDE_QUATERNION */
-
+/*
 #define PERIODIC_SEND_LOCAL_POSITION_NED(_trans, _dev) { \
 	uint32_t time_boot_ms = estimator_flight_time*1000; \
 	float x = estimator_x ; \
@@ -160,7 +162,7 @@ DOWNLINK_SEND_LOCAL_POSITION_NED(_trans, _dev, &time_boot_ms, &x, &y, &z, &vx, &
 DOWNLINK_SEND_GLOBAL_POSITION_INT(_trans, _dev, &time_boot_ms, &lat, &lon, &alt, &relative_alt, &vx, &vy, &vz, &hdg); \
 		}); \
 }
-
+*/
 /* RC_CHANNELS_SCALED */
 
 /* RC_CHANNELS_RAW */
@@ -192,7 +194,7 @@ DOWNLINK_SEND_GLOBAL_POSITION_INT(_trans, _dev, &time_boot_ms, &lat, &lon, &alt,
 /* NAV_CONTROLLER_OUTPUT */
 
 /* DATA_STREAM */
-
+/*
 #define PERIODIC_SEND_VFR_HUD(_trans, _dev) { \
 	float airspeed = estimator_airspeed; \
 	float groundspeed = (float) (gps.gspeed / 100); \
@@ -204,7 +206,7 @@ DOWNLINK_SEND_GLOBAL_POSITION_INT(_trans, _dev, &time_boot_ms, &lat, &lon, &alt,
 DOWNLINK_SEND_VFR_HUD(_trans, _dev, &airspeed, &groundspeed, &heading, &throttle, &alt_msl, &climb); \
 		}); \
 }
-
+*/
 /* COMMAND_ACK */
 
 /* HIL_CONTROLS */
