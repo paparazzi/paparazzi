@@ -17,8 +17,8 @@ $(TARGET).OOCD_INTERFACE=flossjtag
 # -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
-FLASH_MODE = DFU
-#FLASH_MODE = JTAG
+#FLASH_MODE = DFU
+FLASH_MODE = JTAG
 #FLASH_MODE = SERIAL
 endif
 
@@ -45,7 +45,7 @@ ifndef MODEM_BAUD
 MODEM_BAUD=B57600
 endif
 
-AHRS_ALIGNER_LED = 2
+AHRS_ALIGNER_LED = 6
 
 ifndef GPS_PORT
 GPS_PORT=UART3
