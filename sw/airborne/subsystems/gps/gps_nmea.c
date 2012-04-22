@@ -93,8 +93,8 @@ void parse_nmea_GPGSA(void) {
   // get 2D/3D-fix
   // set gps_mode=3=3d, 2=2d, 1=no fix or 0
   gps.fix = atoi(&gps_nmea.msg_buf[i]);
-  //if (gps.fix == 1)
-  //  gps.fix = 0;
+  if (gps.fix == 1)
+    gps.fix = 0;
   NMEA_PRINT("p_GPGSA() - gps.fix=%i (3=3D)\n\r", gps.fix);
   while(gps_nmea.msg_buf[i++] != ',') {              // next field:satellite-number-0
     if (i >= gps_nmea.msg_len) {
