@@ -304,6 +304,10 @@ void parse_nmea_GPGGA(void) {
       return;
     }
   }
+  // we use HDOP here, as the PDOP is not in the message
+  float hdop = strtof(&gps_nmea.msg_buf[i], &endptr);
+  gps.pdop = hdop * 100;
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: altitude
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r");
