@@ -13,8 +13,7 @@
   </header>
   <init fun="init_bat_checker()"/>
   <periodic fun="bat_checker_periodic()" freq="2" autorun="TRUE"/>
-  <makefile>
-    <define name="bat_checker_periodic_FREQ" value="2"/>
+  <makefile target="ap">
     <file name="bat_checker.c"/>
   </makefile>
 </module>

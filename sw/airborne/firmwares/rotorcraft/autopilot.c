@@ -113,6 +113,10 @@ void autopilot_periodic(void) {
 
 void autopilot_set_mode(uint8_t new_autopilot_mode) {
 
+  /* force kill mode as long as AHRS is not aligned */
+  if (!ahrs_is_aligned())
+    new_autopilot_mode = AP_MODE_KILL;
+
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */
     switch (new_autopilot_mode) {
@@ -234,24 +238,24 @@ void autopilot_set_motors_on(bool_t motors_on) {
 
 void autopilot_on_rc_frame(void) {
 
-  uint8_t new_autopilot_mode = 0;
-  AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
-  autopilot_set_mode(new_autopilot_mode);
-
   if (kill_switch_is_on())
     autopilot_set_mode(AP_MODE_KILL);
+  else {
+    uint8_t new_autopilot_mode = 0;
+    AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
+    autopilot_set_mode(new_autopilot_mode);
+  }
 
-  if (!ahrs_is_aligned())
-    autopilot_set_mode(AP_MODE_KILL);
+  /* if not in FAILSAFE or KILL mode, check motor and in_flight status, read RC */
+  if (autopilot_mode > AP_MODE_KILL) {
 
-  // an arming sequence is used to start/stop motors
-  autopilot_arming_check_motors_on();
+    /* an arming sequence is used to start/stop motors */
+    autopilot_arming_check_motors_on();
 
-  kill_throttle = ! autopilot_motors_on;
+    kill_throttle = ! autopilot_motors_on;
 
-  autopilot_check_in_flight(autopilot_motors_on);
+    autopilot_check_in_flight(autopilot_motors_on);
 
-  if (autopilot_mode > AP_MODE_FAILSAFE) {
     guidance_v_read_rc();
     guidance_h_read_rc(autopilot_in_flight);
   }

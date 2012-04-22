@@ -26,9 +26,6 @@
   <define name="MAG_X_SENS" value="3.17378921476" integer="16"/>
   <define name="MAG_Y_SENS" value="3.14663275967" integer="16"/>
   <define name="MAG_Z_SENS" value="3.26531022727" integer="16"/>
-  <define name="MAG_XY_SENS" value="0.0" integer="16"/>
-  <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
-  <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
 
 </section>
 </airframe>

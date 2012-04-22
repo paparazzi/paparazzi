@@ -22,10 +22,8 @@
  */
 
 /**
- * file gps_nmea.c
- * brief Parser for the NMEA protocol
- *
- * This file is a drop-in replacement for gps_ubx.c
+ * @file gps_nmea.c
+ * Parser for the NMEA protocol.
  *
  * TODO: THIS NMEA-PARSER IS NOT WELL TESTED AND INCOMPLETE!!!
  * Status:
@@ -37,7 +35,10 @@
 
 #include "led.h"
 
+#if GPS_USE_LATLONG
+/* currently needed to get nav_utm_zone0 */
 #include "subsystems/navigation/common_nav.h"
+#endif
 #include "math/pprz_geodetic_float.h"
 
 #include <inttypes.h>
@@ -181,7 +182,7 @@ void parse_nmea_GPRMC(void) {
     }
   }
   double course = strtod(&gps_nmea.msg_buf[i], &endptr);
-  gps.course=course*10; //FIXME should be GPS heading in rad*1e7
+  gps.course = RadOfDeg(course) * 1e7;
   NMEA_PRINT("COURSE: %d \n\r",gps_course);
 }
 
@@ -222,7 +223,7 @@ void parse_nmea_GPGGA(void) {
   lat = degrees + (minutesfrac*100)/60;
   // convert to radians
   //GpsInfo.PosLLA.lat.f *= (M_PI/180);
-  lla_f.lat = RadOfDeg(lat);
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: N/S indicator
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r");
@@ -233,16 +234,18 @@ void parse_nmea_GPGGA(void) {
   // correct latitute for N/S
   if(gps_nmea.msg_buf[i] == 'S')
     lat = -lat;
-  while(gps_nmea.msg_buf[i++] != ',') {              // next field: longitude
-    if (i >= gps_nmea.msg_len)
-      return;
-  }
 
   // convert to radians
   lla_f.lat = RadOfDeg(lat);
 
-  gps.lla_pos.lat =lla_f.lat * 1e7; // convert to fixed-point
+  gps.lla_pos.lat = lla_f.lat * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GPGGA() - lat=%d gps_lat=%i\n\r", (lat*1000), lla_f.lat);
+
+
+  while(gps_nmea.msg_buf[i++] != ',') {              // next field: longitude
+    if (i >= gps_nmea.msg_len)
+      return;
+  }
 
   // get longitude [ddmm.mmmmm]
   double lon = strtod(&gps_nmea.msg_buf[i], &endptr);
@@ -259,64 +262,64 @@ void parse_nmea_GPGGA(void) {
   // correct latitute for E/W
   if(gps_nmea.msg_buf[i] == 'W')
     lon = -lon;
-  while(gps_nmea.msg_buf[i++] != ',') {              // next field: position fix status
-    if (i >= gps_nmea.msg_len)
-      return;
-  }
+
+  // convert to radians
+  lla_f.lon = RadOfDeg(lon);
 
   gps.lla_pos.lon = lla_f.lon * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GPGGA() - lon=%d gps_lon=%i time=%u\n\r", (lon*1000), lla_f.lon, gps.tow);
 
-  /* convert to utm */
-  struct UtmCoor_f utm_f;
-  utm_f.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm_f, &lla_f);
 
-  /* copy results of utm conversion */
-  gps.utm_pos.east = utm_f.east*100;
-  gps.utm_pos.north = utm_f.north*100;
-  gps.utm_pos.alt = utm_f.alt*1000;
-  gps.utm_pos.zone = nav_utm_zone0;
-
-
+  while(gps_nmea.msg_buf[i++] != ',') {              // next field: position fix status
+    if (i >= gps_nmea.msg_len)
+      return;
+  }
 
   // position fix status
   // 0 = Invalid, 1 = Valid SPS, 2 = Valid DGPS, 3 = Valid PPS
   // check for good position fix
   if( (gps_nmea.msg_buf[i] != '0') && (gps_nmea.msg_buf[i] != ',') )  {
     gps_nmea.pos_available = TRUE;
+    //gps.fix = GPS_FIX_3D;
     NMEA_PRINT("p_GPGGA() - POS_AVAILABLE == TRUE\n\r");
   } else {
     gps_nmea.pos_available = FALSE;
+    //gps.fix = GPS_FIX_NONE;
     NMEA_PRINT("p_GPGGA() - gps_pos_available == false\n\r");
   }
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: satellites used
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r\r");
       return;
     }
   }
-
   // get number of satellites used in GPS solution
   gps.num_sv = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GPGGA() - gps_numSatlitesUsed=%i\n\r", gps.num_sv);
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: HDOP (horizontal dilution of precision)
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r");
       return;
     }
   }
+  // we use HDOP here, as the PDOP is not in the message
+  float hdop = strtof(&gps_nmea.msg_buf[i], &endptr);
+  gps.pdop = hdop * 100;
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: altitude
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r");
       return;
     }
   }
-
-  // get altitude (in meters)
-  // FIXME alt above ellipsoid or geoid (MSL) ???
-  double alt = strtod(&gps_nmea.msg_buf[i], &endptr);
-  gps.hmsl = alt * 100;
+  // get altitude (in meters) above geoid (MSL)
+  // lla_f.alt should actuall be height above ellipsoid,
+  // but since we don't get that, use hmsl instead
+  lla_f.alt = strtof(&gps_nmea.msg_buf[i], &endptr);
+  gps.hmsl = lla_f.alt * 1000;
+  gps.lla_pos.alt = gps.hmsl;
   NMEA_PRINT("p_GPGGA() - gps_alt=%i\n\r", gps.hmsl);
 
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: altitude units, always 'M'
@@ -340,6 +343,26 @@ void parse_nmea_GPGGA(void) {
       return;
   }
   //while(gps_nmea.msg_buf[i++] != '*');              // next field: checksum
+
+#if GPS_USE_LATLONG
+  /* convert to utm */
+  struct UtmCoor_f utm_f;
+  utm_f.zone = nav_utm_zone0;
+  utm_of_lla_f(&utm_f, &lla_f);
+
+  /* copy results of utm conversion */
+  gps.utm_pos.east = utm_f.east*100;
+  gps.utm_pos.north = utm_f.north*100;
+  gps.utm_pos.alt = gps.lla_pos.alt;
+  gps.utm_pos.zone = nav_utm_zone0;
+#endif
+
+  /* convert to ECEF */
+  struct EcefCoor_f ecef_f;
+  ecef_of_lla_f(&ecef_f, &lla_f);
+  gps.ecef_pos.x = ecef_f.x * 100;
+  gps.ecef_pos.y = ecef_f.y * 100;
+  gps.ecef_pos.z = ecef_f.z * 100;
 }
 
 /**

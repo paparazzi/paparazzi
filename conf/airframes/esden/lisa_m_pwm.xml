@@ -79,9 +79,6 @@
     <define name="MAG_X_SENS" value="1." integer="16"/>
     <define name="MAG_Y_SENS" value="1." integer="16"/>
     <define name="MAG_Z_SENS" value="1." integer="16"/>
-    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
-    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
-    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0. " unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0. " unit="deg"/>
