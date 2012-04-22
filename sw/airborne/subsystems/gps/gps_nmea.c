@@ -66,13 +66,12 @@ void gps_impl_init( void ) {
 }
 
 
-
 /**
  * parse GPGSA-nmea-messages stored in
  * nmea_msg_buf .
  */
 void parse_nmea_GPGSA(void) {
-  int i = 8;     // current position in the message
+  int i = 6;     // current position in the message, start after: GPGSA,
   //      char* endptr;  // end of parsed substrings
 
   // attempt to reject empty packets right away
@@ -113,7 +112,7 @@ void parse_nmea_GPGSA(void) {
  * gps_nmea.msg_buf .
  */
 void parse_nmea_GPRMC(void) {
-  int i = 8;     // current position in the message
+  int i = 6;     // current position in the message, start after: GPRMC,
   char* endptr;  // end of parsed substrings
 
   // attempt to reject empty packets right away
@@ -192,7 +191,7 @@ void parse_nmea_GPRMC(void) {
  * gps_nmea.msg_buf .
  */
 void parse_nmea_GPGGA(void) {
-  int i = 8;     // current position in the message
+  int i = 6;     // current position in the message, start after: GPGGA,
   char* endptr;  // end of parsed substrings
   double degrees, minutesfrac;
   struct LlaCoor_f lla_f;
@@ -205,6 +204,7 @@ void parse_nmea_GPGGA(void) {
 
   // get UTC time [hhmmss.sss]
   // ignored GpsInfo.PosLLA.TimeOfFix.f = strtod(&packet[i], &endptr);
+  // FIXME: parse UTC time correctly
   double time = strtod(&gps_nmea.msg_buf[i],&endptr);
   gps.tow = (uint32_t)((time+1)*1000);
 
@@ -280,11 +280,9 @@ void parse_nmea_GPGGA(void) {
   // check for good position fix
   if( (gps_nmea.msg_buf[i] != '0') && (gps_nmea.msg_buf[i] != ',') )  {
     gps_nmea.pos_available = TRUE;
-    //gps.fix = GPS_FIX_3D;
     NMEA_PRINT("p_GPGGA() - POS_AVAILABLE == TRUE\n\r");
   } else {
     gps_nmea.pos_available = FALSE;
-    //gps.fix = GPS_FIX_NONE;
     NMEA_PRINT("p_GPGGA() - gps_pos_available == false\n\r");
   }
 
@@ -377,22 +375,26 @@ void nmea_parse_msg( void ) {
     NMEA_PRINT("parsing RMC: \"%s\" \n\r",gps_nmea.msg_buf);
     NMEA_PRINT("RMC");
     parse_nmea_GPRMC();
-  } else
+  }
+  else {
     if(gps_nmea.msg_len > 5 && !strncmp(gps_nmea.msg_buf , "GPGGA", 5)) {
       gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
       NMEA_PRINT("parse_gps_msg() - parsing GGA gps-message \"%s\" \n\r",gps_nmea.msg_buf);
       NMEA_PRINT("GGA");
       parse_nmea_GPGGA();
-    } else
+    }
+    else {
       if(gps_nmea.msg_len > 5 && !strncmp(gps_nmea.msg_buf , "GPGSA", 5)) {
-	gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-	NMEA_PRINT("GSA: \"%s\" \n\r",gps_nmea.msg_buf);
-	NMEA_PRINT("GSA");
-	parse_nmea_GPGSA();
+        gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
+        NMEA_PRINT("GSA: \"%s\" \n\r",gps_nmea.msg_buf);
+        NMEA_PRINT("GSA");
+        parse_nmea_GPGSA();
       } else {
-	gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
-	NMEA_PRINT("ignoring: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
+        gps_nmea.msg_buf[gps_nmea.msg_len] = 0;
+        NMEA_PRINT("ignoring: len=%i \n\r \"%s\" \n\r", gps_nmea.msg_len, gps_nmea.msg_buf);
       }
+    }
+  }
 
   // reset message-buffer
   gps_nmea.msg_len = 0;
