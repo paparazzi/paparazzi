@@ -287,16 +287,17 @@ void parse_nmea_GPGGA(void) {
     //gps.fix = GPS_FIX_NONE;
     NMEA_PRINT("p_GPGGA() - gps_pos_available == false\n\r");
   }
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: satellites used
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r\r");
       return;
     }
   }
-
   // get number of satellites used in GPS solution
   gps.num_sv = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GPGGA() - gps_numSatlitesUsed=%i\n\r", gps.num_sv);
+
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: HDOP (horizontal dilution of precision)
     if (i >= gps_nmea.msg_len) {
       NMEA_PRINT("p_GPGGA() - skipping incomplete message\n\r");
@@ -309,13 +310,12 @@ void parse_nmea_GPGGA(void) {
       return;
     }
   }
-
-  // get altitude (in meters)
-  // alt above geoid (MSL)
-  double alt = strtod(&gps_nmea.msg_buf[i], &endptr);
-  lla_f.alt = alt;
+  // get altitude (in meters) above geoid (MSL)
+  // lla_f.alt should actuall be height above ellipsoid,
+  // but since we don't get that, use hmsl instead
+  lla_f.alt = strtof(&gps_nmea.msg_buf[i], &endptr);
   gps.hmsl = lla_f.alt * 1000;
-  gps.lla_pos.alt = lla_f.alt * 1000;
+  gps.lla_pos.alt = gps.hmsl;
   NMEA_PRINT("p_GPGGA() - gps_alt=%i\n\r", gps.hmsl);
 
   while(gps_nmea.msg_buf[i++] != ',') {              // next field: altitude units, always 'M'
@@ -349,7 +349,7 @@ void parse_nmea_GPGGA(void) {
   /* copy results of utm conversion */
   gps.utm_pos.east = utm_f.east*100;
   gps.utm_pos.north = utm_f.north*100;
-  gps.utm_pos.alt = utm_f.alt*1000;
+  gps.utm_pos.alt = gps.lla_pos.alt;
   gps.utm_pos.zone = nav_utm_zone0;
 #endif
 
