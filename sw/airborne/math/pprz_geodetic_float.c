@@ -274,6 +274,9 @@ void utm_of_lla_f(struct UtmCoor_f* utm, struct LlaCoor_f* lla) {
   CScal(N, z_);
   utm->east = DELTA_EAST + z_.im;
   utm->north = DELTA_NORTH + z_.re;
+
+  // copy alt above reference ellipsoid
+  utm->alt = lla->alt;
 }
 
 void lla_of_utm_f(struct LlaCoor_f* lla, struct UtmCoor_f* utm) {
