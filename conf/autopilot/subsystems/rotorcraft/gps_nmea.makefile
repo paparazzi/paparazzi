@@ -3,7 +3,7 @@
 # NMEA GPS unit
 
 
-ap.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+ap.CFLAGS += -DUSE_GPS
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
 ap.CFLAGS += -DUSE_$(GPS_PORT)
 ap.CFLAGS += -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
@@ -17,9 +17,7 @@ ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_nmea.c
 
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
 
-sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+sim.CFLAGS += -DUSE_GPS
 sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
-sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
+sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
 
-jsbsim.CFLAGS += -DUSE_GPS -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
-jsbsim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
