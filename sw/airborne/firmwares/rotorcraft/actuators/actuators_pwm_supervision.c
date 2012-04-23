@@ -24,6 +24,11 @@
  */
 
 #include "generated/airframe.h"
+
+#ifdef USE_TOYTRONICS
+#include "firmwares/rotorcraft/autopilot.h" // for mode dependent control laws
+#endif
+
 #include "firmwares/rotorcraft/actuators.h"
 #include "firmwares/rotorcraft/commands.h"
 #include "subsystems/radio_control.h"
