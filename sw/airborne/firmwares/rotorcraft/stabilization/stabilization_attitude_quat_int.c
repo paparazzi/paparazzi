@@ -43,6 +43,8 @@ struct Int32AttitudeGains stabilization_gains = {
   {STABILIZATION_ATTITUDE_PHI_IGAIN, STABILIZATION_ATTITUDE_THETA_IGAIN, STABILIZATION_ATTITUDE_PSI_IGAIN }
 };
 
+struct Int32AttitudeGains * current_stabilization_gains = &stabilization_gains;
+
 /* warn if some gains are still negative */
 #if (STABILIZATION_ATTITUDE_PHI_PGAIN < 0) ||   \
   (STABILIZATION_ATTITUDE_THETA_PGAIN < 0) ||   \
@@ -163,10 +165,10 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   }
 
   /* compute the feed forward command */
-  attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &stab_att_ref_accel);
+  attitude_run_ff(stabilization_att_ff_cmd, current_stabilization_gains, &stab_att_ref_accel);
 
   /* compute the feed back command */
-  attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
+  attitude_run_fb(stabilization_att_fb_cmd, current_stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
 
   /* sum feedforward and feedback */
   stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
