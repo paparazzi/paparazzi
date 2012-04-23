@@ -28,7 +28,7 @@
 #include "generated/airframe.h"
 #include "camera_mount.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void camera_mount_init(void) {
   commands[COMMAND_CAMERA] = CAMERA_MOUNT_HOVER;
