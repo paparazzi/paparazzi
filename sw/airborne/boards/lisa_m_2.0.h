@@ -3,43 +3,45 @@
 
 #define BOARD_LISA_M
 
+/* Lisa/M has a 12MHz external clock and 72MHz internal. */
+#define EXT_CLK 12000000
 #define AHB_CLK 72000000
 
 /* Onboard LEDs */
 #define LED_1_BANK
 #define LED_1_GPIO GPIOB
-#define LED_1_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
-#define LED_1_GPIO_PIN GPIO_Pin_4
-#define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
+#define LED_1_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+#define LED_1_GPIO_PIN GPIO4
+#define LED_1_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
 
 /* shared with ADC15 */
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
-#define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_2_GPIO_PIN GPIO_Pin_5
+#define LED_2_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_2_GPIO_PIN GPIO5
 #define LED_2_AFIO_REMAP ((void)0)
 
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
-#define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_3_GPIO_PIN GPIO_Pin_2
+#define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_3_GPIO_PIN GPIO2
 #define LED_3_AFIO_REMAP ((void)0)
 
 #define LED_4_BANK
 #define LED_4_GPIO GPIOC
-#define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_4_GPIO_PIN GPIO_Pin_12
+#define LED_4_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_4_GPIO_PIN GPIO12
 #define LED_4_AFIO_REMAP ((void)0)
 
 #define LED_5_BANK
 #define LED_5_GPIO GPIOC
-#define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_5_GPIO_PIN GPIO_Pin_10
+#define LED_5_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_5_GPIO_PIN GPIO10
 #define LED_5_AFIO_REMAP ((void)0)
 
 
 /* configuration for aspirin - and more generaly IMUs */
-#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2Periph_GPIOB
+#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2ENR_IOPBEN
 #define IMU_ACC_DRDY_GPIO             GPIOB
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
 
