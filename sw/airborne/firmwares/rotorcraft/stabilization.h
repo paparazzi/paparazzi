@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,6 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firmwares/rotorcraft/stabilization.h
+ *  General stabilization interface for rotorcrafts.
+ */
+
 #ifndef STABILIZATION_H
 #define STABILIZATION_H
 
@@ -28,11 +30,18 @@
 
 #include "generated/airframe.h"
 
+#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
+
 extern void stabilization_init(void);
 
+/** Stabilization commands.
+ *  Contains the resulting stabilization commands,
+ *  regardless of whether rate or attitude is currently used.
+ *  Range -MAX_PPRZ:MAX_PPRZ
+ */
 extern int32_t stabilization_cmd[COMMANDS_NB];
 
 #endif /* STABILIZATION_H */

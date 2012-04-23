@@ -19,6 +19,12 @@
     <file name="sonar_maxbotix.c"/>
   </makefile>
   <makefile target="ap">
+    <raw>
+# set ADC_SONAR to ADC_0 as default
+ifeq ($(ADC_SONAR),)
+ADC_SONAR = ADC_0
+endif
+    </raw>
     <define name="ADC_CHANNEL_SONAR" value="$(ADC_SONAR)"/>
     <define name="USE_$(ADC_SONAR)"/>
     <define name="USE_SONAR"/>

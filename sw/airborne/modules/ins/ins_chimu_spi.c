@@ -14,6 +14,7 @@
 
 // For centripedal corrections
 #include "subsystems/gps.h"
+#include "subsystems/ahrs.h"
 
 // Telemetry
 #ifndef DOWNLINK_DEVICE
@@ -26,8 +27,6 @@
 
 #include "ins_module.h"
 #include "imu_chimu.h"
-
-#include "subsystems/gps.h"
 
 
 CHIMU_PARSER_DATA CHIMU_DATA;

@@ -80,15 +80,15 @@ extern bool_t gps_configuring;
       if (gps_mtk.msg_class == MTK_DIY14_ID &&      \
           gps_mtk.msg_id == MTK_DIY14_NAV_ID) {     \
         if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_time = cpu_time_sec;         \
+          gps.last_fix_time = sys_time.nb_sec;      \
         }                                           \
         _sol_available_callback();                  \
       }                                             \
       if (gps_mtk.msg_class == MTK_DIY16_ID &&      \
           gps_mtk.msg_id == MTK_DIY16_NAV_ID) {     \
         if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_ticks = cpu_time_ticks;      \
-          gps.last_fix_time = cpu_time_sec;         \
+          gps.last_fix_ticks = sys_time.nb_sec_rem; \
+          gps.last_fix_time = sys_time.nb_sec;      \
         }                                           \
         _sol_available_callback();                  \
       }                                             \
@@ -105,31 +105,10 @@ extern bool_t gps_configuring;
 extern void gps_mtk_read_message(void);
 extern void gps_mtk_parse(uint8_t c);
 
-#define MTK_DIY_FIX_3D      3
-#define MTK_DIY_FIX_2D      2
-#define MTK_DIY_FIX_NONE    1
-
 /*
  * dynamic GPS configuration
  */
 #ifdef GPS_CONFIGURE
-#define MTK_DIY_SET_BINARY  "$PGCMD,16,0,0,0,0,0*6A\r\n"
-#define MTK_DIY_SET_NMEA    "$PGCMD,16,1,1,1,1,1*6B\r\n"
-
-#define MTK_DIY_OUTPUT_1HZ  "$PMTK220,1000*1F\r\n"
-#define MTK_DIY_OUTPUT_2HZ  "$PMTK220,500*2B\r\n"
-#define MTK_DIY_OUTPUT_4HZ  "$PMTK220,250*29\r\n"
-#define MTK_DIY_OTUPUT_5HZ  "$PMTK220,200*2C\r\n"
-#define MTK_DIY_OUTPUT_10HZ "$PMTK220,100*2F\r\n"
-
-#define MTK_BAUD_RATE_38400 "$PMTK251,38400*27\r\n"
-
-#define MTK_DIY_SBAS_ON     "$PMTK313,1*2E\r\n"
-#define MTK_DIY_SBAS_OFF    "$PMTK313,0*2F\r\n"
-
-#define MTK_DIY_WAAS_ON     "$PSRF151,1*3F\r\n"
-#define MTK_DIY_WAAS_OFF    "$PSRF151,0*3E\r\n"
-
 extern void gps_configure(void);
 extern void gps_configure_uart(void);
 #endif

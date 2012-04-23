@@ -363,6 +363,11 @@ struct Int64Vect3 {
     (_vb).z = ( (_m_b2a).m[2]*(_va).x + (_m_b2a).m[5]*(_va).y + (_m_b2a).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
   }
 
+#define INT32_RMAT_RATEMULT(_vb, _m_a2b, _va) {                  \
+    (_vb).p = ( (_m_a2b).m[0]*(_va).p + (_m_a2b).m[1]*(_va).q + (_m_a2b).m[2]*(_va).r)>>INT32_TRIG_FRAC; \
+    (_vb).q = ( (_m_a2b).m[3]*(_va).p + (_m_a2b).m[4]*(_va).q + (_m_a2b).m[5]*(_va).r)>>INT32_TRIG_FRAC; \
+    (_vb).r = ( (_m_a2b).m[6]*(_va).p + (_m_a2b).m[7]*(_va).q + (_m_a2b).m[8]*(_va).r)>>INT32_TRIG_FRAC; \
+  }
 
 #define INT32_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {				                         \
     (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r)>>INT32_TRIG_FRAC; \
@@ -584,6 +589,13 @@ struct Int64Vect3 {
     (_b2c).qz = ((_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi)>>INT32_QUAT_FRAC; \
   }
 
+/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+#define INT32_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {   \
+    INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c);                      \
+    INT32_QUAT_WRAP_SHORTEST(_b2c);                             \
+    INT32_QUAT_NORMALIZE(_b2c);                                 \
+  }
+
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 #define INT32_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {		\
     INT32_QUAT_COMP(_a2c, _a2b, _b2c);					\
@@ -599,6 +611,32 @@ struct Int64Vect3 {
     (_qd).qy = (-1*(-(_r).q*(_q).qi/2 + (_r).r*(_q).qx - (_r).p*(_q).qz))>>INT32_RATE_FRAC; \
     (_qd).qz = (-1*(-(_r).r*(_q).qi/2 - (_r).q*(_q).qx + (_r).p*(_q).qy))>>INT32_RATE_FRAC; \
   }
+
+/** in place quaternion first order integration with constant rotational velocity. */
+#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) {              \
+    _hr.qi += -_omega.p*_q.qx - _omega.q*_q.qy - _omega.r*_q.qz;    \
+    _hr.qx +=  _omega.p*_q.qi + _omega.r*_q.qy - _omega.q*_q.qz;    \
+    _hr.qy +=  _omega.q*_q.qi - _omega.r*_q.qx + _omega.p*_q.qz;    \
+    _hr.qz +=  _omega.r*_q.qi + _omega.q*_q.qx - _omega.p*_q.qy;    \
+                                                                    \
+    ldiv_t _div = ldiv(_hr.qi, ((1<<INT32_RATE_FRAC)*_f*2));        \
+    _q.qi+= _div.quot;                                              \
+    _hr.qi = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qx, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qx+= _div.quot;                                              \
+    _hr.qx = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qy, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qy+= _div.quot;                                              \
+    _hr.qy = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qz, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qz+= _div.quot;                                              \
+    _hr.qz = _div.rem;                                              \
+                                                                    \
+  }
+
 
 #ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
 #define INT32_QUAT_VMULT(v_out, q, v_in) {				\
@@ -837,9 +875,17 @@ struct Int64Vect3 {
     									\
   }
 
+#define INT32_EULERS_LSHIFT(_o, _i, _r) {  \
+    (_o).phi   = ((_i).phi   << (_r));     \
+    (_o).theta = ((_i).theta << (_r));     \
+    (_o).psi   = ((_i).psi   << (_r));     \
+  }
 
-
-
+#define INT32_EULERS_RSHIFT(_o, _i, _r) {  \
+    (_o).phi   = ((_i).phi   >> (_r));     \
+    (_o).theta = ((_i).theta >> (_r));     \
+    (_o).psi   = ((_i).psi   >> (_r));     \
+  }
 
 
 /*

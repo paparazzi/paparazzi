@@ -1,3 +1,28 @@
+/*
+ * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/** @file actuators_asctec.c
+ *  Actuators driver for Asctec motor controllers.
+ */
+
 #include "firmwares/rotorcraft/actuators.h"
 #include "firmwares/rotorcraft/actuators/actuators_asctec.h"
 
@@ -111,7 +136,13 @@ void actuators_set(bool_t motors_on) {
 }
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
 void actuators_set(bool_t motors_on) {
-  if (!cpu_time_sec) return; // FIXME
+#if defined ACTUATORS_START_DELAY && ! defined SITL
+  if (!actuators_delay_done) {
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
+    else actuators_delay_done = TRUE;
+  }
+#endif
+
   supervision_run(motors_on, FALSE, commands);
 #ifdef KILL_MOTORS
   actuators_asctec.i2c_trans.buf[0] = 0;

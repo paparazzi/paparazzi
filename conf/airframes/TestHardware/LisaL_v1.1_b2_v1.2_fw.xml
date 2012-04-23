@@ -1,2 +1,60 @@
+<!--
+ This airframe is connected to the build server and is used for hardware testing.
+ The hardware configuration is
+ Powered via a plug 12V pack
+ Lisa/L v1.1 board
+ XBee connected to UART2 configured at 38400
+ Booz2 v1.2
+ GPS connected to UART1 (Since this is inside in a metal box it won't ever get a solution)
+ -->
 <airframe name="TestConfig">
+    <firmware name="fixedwing">
+        <target name="sim"          board="pc"/>
+        <target name="ap"           board="lisa_l_1.1"/>
+
+        <subsystem name="radio_control" type="ppm"/>
+        <subsystem name="telemetry"     type="xbee_api">
+            <configure name="MODEM_BAUD" value="B38400"/>
+        </subsystem>
+        <subsystem name="control"/>
+        <subsystem name="gps"       type="ublox"/>
+        <subsystem name="navigation"/>
+    </firmware>
+
+    <servos>
+        <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
+        <servo name="AILEVON_LEFT"  no="1" min="1900" neutral="1534" max="1100"/>
+        <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1468" max="1900"/>
+    </servos>
+
+    <commands>
+        <axis name="THROTTLE" failsafe_value="0"/>
+        <axis name="ROLL"     failsafe_value="0"/>
+        <axis name="PITCH"    failsafe_value="0"/>
+    </commands>
+
+    <rc_commands>
+        <set command="THROTTLE" value="@THROTTLE"/>
+        <set command="ROLL"     value="@ROLL"/>
+        <set command="PITCH"    value="@PITCH"/>
+    </rc_commands>
+
+    <section name="MIXER">
+        <define name="AILEVON_AILERON_RATE" value="0.45"/>
+        <define name="AILEVON_ELEVATOR_RATE" value="0.8"/>
+    </section>
+
+    <command_laws>
+        <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+        <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+        <set servo="MOTOR"           value="@THROTTLE"/>
+        <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+        <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    </command_laws>
+
+    <section name="AUTO1" prefix="AUTO1_">
+        <define name="MAX_ROLL" value="50" unit="deg"/>
+        <define name="MAX_PITCH" value="35" unit="deg"/>
+    </section>
+
 </airframe>

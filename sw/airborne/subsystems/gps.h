@@ -69,19 +69,20 @@ struct GpsState {
   int16_t gspeed;                ///< norm of 2d ground speed in cm/s
   int16_t speed_3d;              ///< norm of 3d speed in cm/s
   int32_t course;                ///< GPS heading in rad*1e7 (CW/north)
-  uint32_t pacc;                 ///< position accuracy
-  uint32_t sacc;                 ///< speed accuracy
-  uint16_t pdop;                 ///< dilution of precision
+  uint32_t pacc;                 ///< position accuracy in cm
+  uint32_t sacc;                 ///< speed accuracy in cm/s
+  uint32_t cacc;                 ///< course accuracy in rad*1e7
+  uint16_t pdop;                 ///< position dilution of precision scaled by 100
   uint8_t num_sv;                ///< number of sat in fix
   uint8_t fix;                   ///< status of fix
   int16_t week;                  ///< GPS week
-  uint32_t tow;                  ///< time of week in ms
+  uint32_t tow;                  ///< GPS time of week in ms
 
   uint8_t nb_channels;           ///< Number of scanned satellites
   struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellites)
 
   uint32_t last_fix_ticks;       ///< cpu time in ticks at last valid fix
-  uint16_t last_fix_time;        ///< cpu time in sec at last valid fix
+  uint32_t last_fix_time;        ///< cpu time in sec at last valid fix
   uint16_t reset;                ///< hotstart, warmstart, coldstart
 };
 
@@ -106,7 +107,7 @@ extern void gps_impl_init(void);
 #ifndef GPS_TIMEOUT
 #define GPS_TIMEOUT 5
 #endif
-#define GpsIsLost() (cpu_time_sec - gps.last_fix_time > GPS_TIMEOUT)
+#define GpsIsLost() (sys_time.nb_sec - gps.last_fix_time > GPS_TIMEOUT)
 
 
 //TODO

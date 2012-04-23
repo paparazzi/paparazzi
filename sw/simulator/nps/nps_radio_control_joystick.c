@@ -64,7 +64,7 @@ static gboolean on_js_data_received(GIOChannel *source,
         //printf("joystick throttle %d\n",js.value);
         break;
       case JS_ROLL:
-        nps_joystick.roll = (float)js.value/-32767.;
+        nps_joystick.roll = (float)js.value/32767.;
         //printf("joystick roll %d %f\n",js.value, nps_joystick.roll);
         break;
       case JS_PITCH:
@@ -73,7 +73,7 @@ static gboolean on_js_data_received(GIOChannel *source,
         break;
       case JS_YAW:
         //nps_joystick.yaw = 0.;
-        nps_joystick.yaw = (float)js.value/-32767.;
+        nps_joystick.yaw = (float)js.value/32767.;
         //printf("joystick yaw %d %f\n",js.value, nps_joystick.yaw);
         break;
       }

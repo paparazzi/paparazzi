@@ -17,7 +17,6 @@
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
       </dl_setting>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Ap" shortname="tele_AP"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps.reset" module="subsystems/gps" handler="Reset" shortname="GPS reset"/>
     </dl_settings>
 
@@ -38,19 +37,19 @@
 
       <dl_settings NAME="attitude">
         <dl_setting MAX="1" MIN="0" STEP="0.05" VAR="h_ctl_roll_max_setpoint" shortname="max_roll" module="stabilization/stabilization_attitude"/>
-        <dl_setting MAX="000" MIN="-25000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
+        <dl_setting MAX="25000" MIN="0" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
         <dl_setting MAX="2" MIN="0." STEP="0.1" VAR="h_ctl_pitch_dgain" shortname="pitch_dgain"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_elevator_of_roll" shortname="elevator_of_roll"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle"/>
 
 
-        <dl_setting MAX="0" MIN="-10000" STEP="50" VAR="h_ctl_roll_attitude_gain" shortname="roll attitude pgain"/>
-        <dl_setting MAX="0" MIN="-1500" STEP="5" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain"/>
+        <dl_setting MAX="10000" MIN="0" STEP="50" VAR="h_ctl_roll_attitude_gain" shortname="roll attitude pgain"/>
+        <dl_setting MAX="15000" MIN="0" STEP="5" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain"/>
 
       </dl_settings>
 
       <dl_settings name="alt">
-        <dl_setting MAX="0" MIN="-0.2" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain"/>
+        <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain"/>
       </dl_settings>
 
       <dl_settings name="auto_throttle">
@@ -61,7 +60,7 @@
       </dl_setting>
 
 
-        <dl_setting MAX="0.00" MIN="-0.05" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
+        <dl_setting MAX="0.05" MIN="0.00" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"/>
         <dl_setting MAX="2" MIN="0.0" STEP="0.1" VAR="v_ctl_auto_throttle_dgain" shortname="throttle_dgain"/>
         <dl_setting MAX="0" MIN="-4000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim"/>
@@ -73,7 +72,7 @@
 
 
       <dl_settings name="nav">
-        <dl_setting MAX="-0.1" MIN="-3" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain"/>
+        <dl_setting MAX="3" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain"/>
         <dl_setting MAX="2" MIN="0" STEP="0.1" VAR="h_ctl_course_dgain" shortname="course dgain"/>
         <dl_setting MAX="2" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pre_bank_correction" shortname="pre bank cor"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="nav_glide_pitch_trim" shortname="glide pitch trim"/>
@@ -84,7 +83,7 @@
         <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="subsystems/nav" handler="IncreaseShift" shortname="inc. shift">
 	</dl_setting>
 	<dl_setting MAX="20" MIN="10" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
-	<dl_setting MAX="0." MIN="-0.05" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
+	<dl_setting MAX="0.05" MIN="0" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
       </dl_settings>
     </dl_settings>

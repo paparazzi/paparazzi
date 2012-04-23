@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+
+  <process name="Main">
+    <mode name="default">
+    </mode>
+  </process>
+
+  <process name="Ap">
+    <mode name="default">
+    </mode>
+  </process>
+
+  <process name="Fbw">
+    <mode name="default">
+    </mode>
+  </process>
+
+</telemetry>

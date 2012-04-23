@@ -149,7 +149,7 @@
 
     <!-- define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/ -->
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.04"/>
+    <define name="ALTITUDE_PGAIN" value="0.04"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
@@ -160,12 +160,12 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.007"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.007"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.067"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.11"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.05"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.05"/>
     <define name="AUTO_PITCH_IGAIN" value="0.075"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
@@ -175,23 +175,23 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.9"/>
+    <define name="COURSE_PGAIN" value="0.9"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.805000007153" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="PITCH_PGAIN" value="-14255.3193359"/>
+    <define name="PITCH_PGAIN" value="14255.3193359"/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2000."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-2600"/>
-    <define name="ROLL_RATE_GAIN" value="-850"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="2600"/>
+    <define name="ROLL_RATE_GAIN" value="850"/>
 
     <define name="ROLL_KFF" value="-500"/>
-    <define name="ROLL_IGAIN" value="-00"/>
-    <define name="PITCH_IGAIN" value="-500"/>
+    <define name="ROLL_IGAIN" value="00"/>
+    <define name="PITCH_IGAIN" value="500"/>
   </section>
 
   <section name="NAV">

@@ -11,6 +11,7 @@ BOARD_VERSION=1.0
 
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
+
 ifndef FLASH_MODE
 FLASH_MODE = IAP
 endif
@@ -44,7 +45,9 @@ SYS_TIME_LED = none
 endif
 
 
-### default settings
+#
+# default uart settings
+#
 ifndef GPS_PORT
 GPS_PORT	= UART0
 endif
@@ -59,9 +62,18 @@ ifndef MODEM_BAUD
 MODEM_BAUD 	= B57600
 endif
 
+
+
 ADC_GENERIC_NB_SAMPLES = 16
+
+#
+# you can use different actuators by adding a configure option to your firmware section
+# e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+#
+ifndef ACTUATORS
+ACTUATORS = actuators_4017
+endif
+
 
 # All targets on the Umarim board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)
-
-ACTUATORS = actuators_4017

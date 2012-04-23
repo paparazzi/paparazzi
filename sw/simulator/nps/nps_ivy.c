@@ -8,6 +8,7 @@
 #include "math/pprz_algebra_double.h"
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
+#include "nps_sensors.h"
 
 #include NPS_SENSORS_PARAMS
 

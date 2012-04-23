@@ -2,11 +2,6 @@
 
 <settings>
   <dl_settings>
-    <dl_settings NAME="Misc">
-
-      <dl_setting var="telemetry_mode_Main_DefaultChannel" min="0" step="1" max="1" shortname ="telemetry" values="Default|Other" module="fms/fms_gs_com"/>
-
-    </dl_settings>
 
     <dl_settings NAME="Servos">
       <dl_setting var="otp.servos_outputs_usecs[0]" min="1000" step="1" max="2000" shortname ="S1" module="fms/overo_test_passthrough"/>

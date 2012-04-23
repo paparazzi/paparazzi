@@ -111,7 +111,7 @@ void nav_run(void) {
   /* saturate it */
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
 
-#if GUIDANCE_H_USE_REF
+#if !GUIDANCE_H_USE_REF
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 

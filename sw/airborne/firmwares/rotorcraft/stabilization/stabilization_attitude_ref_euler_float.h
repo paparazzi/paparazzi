@@ -49,14 +49,12 @@
 
 #define STABILIZATION_ATTITUDE_FLOAT_READ_RC(_sp, _inflight) {          \
                                                                         \
-    _sp.phi =                                                           \
-      (-radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);     \
-    _sp.theta =                                                         \
-      ( radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);   \
+    _sp.phi = (radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ); \
+    _sp.theta = (radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ); \
     if (_inflight) {                                                    \
       if (YAW_DEADBAND_EXCEEDED()) {                                    \
         _sp.psi +=                                                      \
-          (-radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ); \
+          (radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ); \
         FLOAT_ANGLE_NORMALIZE(_sp.psi);                                 \
       }                                                                 \
     }                                                                   \

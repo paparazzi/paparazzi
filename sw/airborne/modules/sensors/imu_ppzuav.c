@@ -117,9 +117,9 @@ void imu_impl_init(void)
   ppzuavimu_adxl345.type = I2CTransTx;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_BW_RATE;
 #if PERIODIC_FREQUENCY == 60
-  ppzuavimu_adxl345.buf[1] = 0x09;  // normal power and 50Hz sampling, 50Hz BW
+  ppzuavimu_adxl345.buf[1] = ADXL345_RATE_50;  // normal power and 50Hz sampling, 25Hz BW
 #else
-  ppzuavimu_adxl345.buf[1] = 0x0a;  // normal power and 100Hz sampling, 50Hz BW
+  ppzuavimu_adxl345.buf[1] = ADXL345_RATE_100;  // normal power and 100Hz sampling, 50Hz BW
 #endif
   ppzuavimu_adxl345.len_w = 2;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
@@ -136,8 +136,7 @@ void imu_impl_init(void)
   /* Set range to 16g but keeping full resolution of 3.9 mV/g */
   ppzuavimu_adxl345.type = I2CTransTx;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_DATA_FORMAT;
-  ppzuavimu_adxl345.buf[1] = 1<<3 | 0<<2 | 0x03;  // bit 3 is full resolution bit, bit 2 is left justify bit 0,1 are range: 00=2g 01=4g 10=8g 11=16g
-  ppzuavimu_adxl345.len_w = 2;
+  ppzuavimu_adxl345.buf[1] = ADXL345_FULL_RES | ADXL345_RANGE_16G;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
 

@@ -19,6 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file actuators_skiron.c
+ *  Skiron motor speed controller by Michel.
+ */
+
 #include "firmwares/rotorcraft/actuators.h"
 #include "firmwares/rotorcraft/actuators/actuators_skiron.h"
 

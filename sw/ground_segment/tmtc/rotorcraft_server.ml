@@ -173,7 +173,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.heading <- norm_course (foi32value "psi" /. angle_frac);
       a.roll    <- foi32value "phi" /. angle_frac;
       a.pitch   <- foi32value "theta" /. angle_frac;
-      a.throttle <- foi32value "thrust" /. 2.; (* thrust / 200 * 100 *)
+      a.throttle <- foi32value "thrust" /. 9600. *. 100.;
       a.flight_time   <- ivalue "flight_time";
       (*if a.gspeed > 3. && a.ap_mode = _AUTO2 then
           Wind.update ac_name a.gspeed a.course*)

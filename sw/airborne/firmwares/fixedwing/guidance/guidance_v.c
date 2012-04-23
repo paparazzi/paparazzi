@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
@@ -19,12 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- *  \file v_ctl_ctl
- *  \brief Vertical control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/guidance_v.c
+ *  Vertical control for fixed wing vehicles.
  *
  */
 
@@ -42,15 +39,23 @@ float v_ctl_altitude_setpoint;
 float v_ctl_altitude_pre_climb;
 float v_ctl_altitude_pgain;
 float v_ctl_altitude_error;
+float v_ctl_altitude_pre_climb_correction;
+float v_ctl_altitude_max_climb;
 
 /* inner loop */
 float v_ctl_climb_setpoint;
 uint8_t v_ctl_climb_mode;
 uint8_t v_ctl_auto_throttle_submode;
 
+#ifndef V_CTL_AUTO_THROTTLE_DGAIN
+#define V_CTL_AUTO_THROTTLE_DGAIN 0.
+#endif
+
 /* "auto throttle" inner loop parameters */
 float v_ctl_auto_throttle_cruise_throttle;
 float v_ctl_auto_throttle_nominal_cruise_throttle;
+float v_ctl_auto_throttle_min_cruise_throttle;
+float v_ctl_auto_throttle_max_cruise_throttle;
 float v_ctl_auto_throttle_climb_throttle_increment;
 float v_ctl_auto_throttle_pgain;
 float v_ctl_auto_throttle_igain;
@@ -104,6 +109,12 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_AUTO_AGR_CLIMB_GAIN 2.0 // altitude gain multiplier while in aggressive climb mode
 #endif
 
+#pragma message "CAUTION! ALL control gains have to be positive now!"
+
+#ifndef V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION
+#define V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION 1.0f
+#endif
+
 
 void v_ctl_init( void ) {
   /* mode */
@@ -114,6 +125,8 @@ void v_ctl_init( void ) {
   v_ctl_altitude_pre_climb = 0.;
   v_ctl_altitude_pgain = V_CTL_ALTITUDE_PGAIN;
   v_ctl_altitude_error = 0.;
+  v_ctl_altitude_pre_climb_correction = V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION;
+  v_ctl_altitude_max_climb = V_CTL_ALTITUDE_MAX_CLIMB;
 
   /* inner loops */
   v_ctl_climb_setpoint = 0.;
@@ -122,12 +135,13 @@ void v_ctl_init( void ) {
 
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+  v_ctl_auto_throttle_min_cruise_throttle = V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE;
+  v_ctl_auto_throttle_max_cruise_throttle = V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE;
   v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
-  v_ctl_auto_throttle_climb_throttle_increment =
-    V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
+  v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
-  v_ctl_auto_throttle_dgain = 0.;
+  v_ctl_auto_throttle_dgain = V_CTL_AUTO_THROTTLE_DGAIN;
   v_ctl_auto_throttle_sum_err = 0.;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
   v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN;
@@ -193,10 +207,10 @@ void v_ctl_altitude_loop( void ) {
   }
 #endif
 
-  v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
+  v_ctl_altitude_error = v_ctl_altitude_setpoint - estimator_z;
   v_ctl_climb_setpoint = altitude_pgain_boost * v_ctl_altitude_pgain * v_ctl_altitude_error
-    + v_ctl_altitude_pre_climb;
-  BoundAbs(v_ctl_climb_setpoint, V_CTL_ALTITUDE_MAX_CLIMB);
+    + v_ctl_altitude_pre_climb * v_ctl_altitude_pre_climb_correction;
+  BoundAbs(v_ctl_climb_setpoint, v_ctl_altitude_max_climb);
 
 #ifdef AGR_CLIMB
   if ( v_ctl_climb_mode == V_CTL_CLIMB_MODE_AUTO_THROTTLE) {
@@ -244,7 +258,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   last_err = err;
   float controlled_throttle = v_ctl_auto_throttle_cruise_throttle
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
-    + v_ctl_auto_throttle_pgain *
+    - v_ctl_auto_throttle_pgain *
     (err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
      + v_ctl_auto_throttle_dgain * d_err);
 
@@ -271,7 +285,8 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     nav_pitch = (1-ratio) * v_ctl_pitch_of_vz;
     v_ctl_auto_throttle_sum_err += (1-ratio) * err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
-    if (v_ctl_altitude_error < 0) {
+    /* positive error -> too low */
+    if (v_ctl_altitude_error > 0) {
       f_throttle +=  ratio * AGR_CLIMB_THROTTLE;
       nav_pitch += ratio * AGR_CLIMB_PITCH;
     } else {
@@ -314,7 +329,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  v_ctl_pitch_of_vz = v_ctl_auto_pitch_pgain *
+  v_ctl_pitch_of_vz = -v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
 
   // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
@@ -336,7 +351,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   controlled_throttle = (err_airspeed + v_ctl_auto_airspeed_sum_err * v_ctl_auto_airspeed_igain) * v_ctl_auto_airspeed_pgain;
 
   // Done, set outputs
-  Bound(controlled_throttle, 0, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
+  Bound(controlled_throttle, 0, v_ctl_auto_throttle_max_cruise_throttle);
   f_throttle = controlled_throttle;
   nav_pitch = v_ctl_pitch_of_vz;
   v_ctl_throttle_setpoint = TRIM_UPPRZ(f_throttle * MAX_PPRZ);
@@ -356,7 +371,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
   v_ctl_throttle_setpoint = nav_throttle_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  nav_pitch = v_ctl_auto_pitch_pgain *
+  nav_pitch = -v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
   Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }

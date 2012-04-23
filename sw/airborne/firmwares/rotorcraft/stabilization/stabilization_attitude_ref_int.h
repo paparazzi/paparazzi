@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -20,17 +18,25 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef BOOZ_STABILISATION_ATTITUDE_REF_INT_H
-#define BOOZ_STABILISATION_ATTITUDE_REF_INT_H
 
-extern struct Int32Eulers stab_att_sp_vi_euler; /* vehicle interface */
-extern struct Int32Eulers stab_att_sp_rc_euler; /* radio control     */
-extern struct Int32Eulers stab_att_sp_euler;    /* sum of the above  */
-extern struct Int32Quat   stab_att_sp_quat;
-extern struct Int32Eulers stab_att_ref_euler;
-extern struct Int32Quat   stab_att_ref_quat;
-extern struct Int32Rates  stab_att_ref_rate;
-extern struct Int32Rates  stab_att_ref_accel;
+/** @file stabilization_attitude_ref_int.h
+ *  Rotorcraft attitude reference generation API.
+ *  Common to all fixed-point reference generators (euler and quaternion)
+ */
+
+#ifndef STABILISATION_ATTITUDE_REF_INT_H
+#define STABILISATION_ATTITUDE_REF_INT_H
+
+#include "math/pprz_algebra_int.h"
+
+#include "subsystems/ahrs.h"
+
+extern struct Int32Eulers stab_att_sp_euler;  ///< with #INT32_ANGLE_FRAC
+extern struct Int32Quat   stab_att_sp_quat;   ///< with #INT32_QUAT_FRAC
+extern struct Int32Eulers stab_att_ref_euler; ///< with #REF_ANGLE_FRAC
+extern struct Int32Quat   stab_att_ref_quat;  ///< with #INT32_QUAT_FRAC
+extern struct Int32Rates  stab_att_ref_rate;  ///< with #REF_RATE_FRAC
+extern struct Int32Rates  stab_att_ref_accel; ///< with #REF_ACCEL_FRAC
 
 struct Int32RefModel {
   struct Int32Rates omega;
@@ -39,4 +45,22 @@ struct Int32RefModel {
 
 extern struct Int32RefModel stab_att_ref_model;
 
-#endif /* BOOZ_STABILISATION_ATTITUDE_REF_INT_H */
+#define REF_ACCEL_FRAC 12
+#define REF_RATE_FRAC  16
+#define REF_ANGLE_FRAC 20
+
+#define REF_ANGLE_PI      BFP_OF_REAL(3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
+#define REF_ANGLE_TWO_PI  BFP_OF_REAL(2.*3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
+#define ANGLE_REF_NORMALIZE(_a) {                       \
+    while (_a >  REF_ANGLE_PI)  _a -= REF_ANGLE_TWO_PI; \
+    while (_a < -REF_ANGLE_PI)  _a += REF_ANGLE_TWO_PI; \
+  }
+
+
+static inline void reset_psi_ref_from_body(void) {
+  stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+  stab_att_ref_rate.r = 0;
+  stab_att_ref_accel.r = 0;
+}
+
+#endif /* STABILISATION_ATTITUDE_REF_INT_H */

@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -19,7 +17,12 @@
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/** @file supervision.c
+ *  Supervision.
+ *  Handles the mapping of roll/pitch/yaw commands
+ *  to actual motor commands.
  */
 
 #include "firmwares/rotorcraft/actuators/supervision.h"
@@ -32,6 +35,10 @@
 
 #ifndef INT32_MAX
 #define INT32_MAX (2147483647)
+#endif
+
+#ifndef SUPERVISION_STOP_MOTOR
+#define SUPERVISION_STOP_MOTOR 0
 #endif
 
 #ifndef SUPERVISION_MIN_MOTOR_STARTUP
@@ -67,7 +74,7 @@ void supervision_init(void) {
       pitch_coef[i] * SUPERVISION_TRIM_E +
       yaw_coef[i]   * SUPERVISION_TRIM_R;
     supervision.override_enabled[i] = FALSE;
-    supervision.override_value[i] = SUPERVISION_MIN_MOTOR;
+    supervision.override_value[i] = SUPERVISION_STOP_MOTOR;
   }
   supervision.nb_failure = 0;
 }
@@ -137,13 +144,15 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
   if (motors_on) {
     int32_t min_cmd = INT32_MAX;
     int32_t max_cmd = INT32_MIN;
+    /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
     for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
-      supervision.commands[i] =
+      supervision.commands[i] = SUPERVISION_MIN_MOTOR +
         (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
-         supervision.trim[i]) / SUPERVISION_SCALE;
+         supervision.trim[i]) / SUPERVISION_SCALE *
+        (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ;
       if (supervision.commands[i] < min_cmd)
         min_cmd = supervision.commands[i];
       if (supervision.commands[i] > max_cmd)
@@ -159,14 +168,16 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
     /* For testing motor failure */
     if (motors_on && override_on) {
       for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {
-	if (supervision.override_enabled[i])
-	  supervision.commands[i] = supervision.override_value[i];
+        if (supervision.override_enabled[i])
+          supervision.commands[i] = supervision.override_value[i];
       }
     }
     bound_commands();
     bound_commands_step();
   }
-  else
-    for (i=0; i<SUPERVISION_NB_MOTOR; i++)
-      supervision.commands[i] = 0;
+  else {
+    for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
+      supervision.commands[i] = SUPERVISION_STOP_MOTOR;
+    }
+  }
 }

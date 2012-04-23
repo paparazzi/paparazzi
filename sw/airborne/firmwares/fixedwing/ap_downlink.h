@@ -45,19 +45,12 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "downlink_msg.h"
-#include "generated/periodic.h"
-
-//#include "generated/modules.h"
+#include "generated/periodic_telemetry.h"
 
 #if defined DOWNLINK
 #define Downlink(x) x
 #else
 #define Downlink(x) {}
-#endif
-
-#ifdef AP
-/** Telemetry mode for AP process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev)  DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
@@ -88,7 +81,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
 #define PERIODIC_SEND_DOWNLINK(_trans, _dev) { \
   static uint16_t last; \
-  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_DefaultChannel_0; \
+  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_0; \
   last = downlink_nb_bytes; \
   DOWNLINK_SEND_DOWNLINK(_trans, _dev, &downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
 }
@@ -226,6 +219,45 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
     }                                                                   \
     i++;                                                                \
 }
+
+#if USE_GPS
+#define PERIODIC_SEND_GPS_INT(_trans, _dev) {   \
+  DOWNLINK_SEND_GPS_INT( _trans, _dev,          \
+                         &gps.ecef_pos.x,       \
+                         &gps.ecef_pos.y,       \
+                         &gps.ecef_pos.z,       \
+                         &gps.lla_pos.lat,      \
+                         &gps.lla_pos.lon,      \
+                         &gps.lla_pos.alt,      \
+                         &gps.hmsl,             \
+                         &gps.ecef_vel.x,       \
+                         &gps.ecef_vel.y,       \
+                         &gps.ecef_vel.z,       \
+                         &gps.pacc,             \
+                         &gps.sacc,             \
+                         &gps.tow,              \
+                         &gps.pdop,             \
+                         &gps.num_sv,           \
+                         &gps.fix);             \
+  }
+
+#define PERIODIC_SEND_GPS_LLA(_trans, _dev) {               \
+    int16_t climb = -gps.ned_vel.z;                         \
+    int16_t course = (DegOfRad(gps.course)/((int32_t)1e6)); \
+    DOWNLINK_SEND_GPS_LLA( _trans, _dev,                    \
+                           &gps.lla_pos.lat,                \
+                           &gps.lla_pos.lon,                \
+                           &gps.lla_pos.alt,                \
+                           &gps.hmsl,                       \
+                           &course,                         \
+                           &gps.gspeed,                     \
+                           &climb,                          \
+                           &gps.week,                       \
+                           &gps.tow,                        \
+                           &gps.fix,                        \
+                           &gps.fix);                       \
+  }
+#endif
 
 #if USE_BARO_MS5534A
 //#include "baro_MS5534A.h"

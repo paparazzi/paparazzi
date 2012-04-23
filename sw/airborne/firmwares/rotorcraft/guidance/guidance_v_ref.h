@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firwmares/rotorcraft/guidance/guidance_v_ref.h
+ *  Reference generation for vertical guidance.
+ *
+ */
+
 #ifndef GUIDANCE_V_REF_H
 #define GUIDANCE_V_REF_H
 
@@ -29,24 +32,35 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
 
-/* update frequency                               */
+/* update frequency  */
 #define GV_FREQ_FRAC 9
 #define GV_FREQ (1<<GV_FREQ_FRAC)
 
-/* reference model vaccel in meters/sec2 (output) */
-/* Q23.8 : accuracy 0.0039 , range 8388km/s2      */
-/* int32_4_8_t */
+/** reference model vertical accel in meters/s^2 (output)
+ *  fixed point representation with #GV_ZDD_REF_FRAC
+ *  Q23.8 : accuracy 0.0039 , range 8388km/s^2
+ */
 extern int32_t gv_zdd_ref;
+
+/** number of bits for the fractional part of #gv_zdd_ref */
 #define GV_ZDD_REF_FRAC 8
 
-/* reference model vspeed in meters/sec (output)  */
-/* Q14.17 : accuracy 0.0000076 , range 16384m/s2  */
+/** reference model vertical speed in meters/sec (output)
+ *  fixed point representation with #GV_ZD_REF_FRAC
+ *  Q14.17 : accuracy 0.0000076 , range 16384m/s2
+ */
 extern int32_t gv_zd_ref;
+
+/** number of bits for the fractional part of #gv_zd_ref */
 #define GV_ZD_REF_FRAC (GV_ZDD_REF_FRAC + GV_FREQ_FRAC)
 
-/* reference model altitude in meters (output)    */
-/* Q37.26 :                                       */
+/** reference model altitude in meters (output)
+ *  fixed point representation with #GV_Z_REF_FRAC
+ *  Q37.26 :
+ */
 extern int64_t gv_z_ref;
+
+/** number of bits for the fractional part of #gv_z_ref */
 #define GV_Z_REF_FRAC (GV_ZD_REF_FRAC + GV_FREQ_FRAC)
 
 /* Saturations definition */

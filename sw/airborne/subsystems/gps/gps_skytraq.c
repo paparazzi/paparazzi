@@ -20,6 +20,13 @@
  */
 
 #include "subsystems/gps.h"
+#include "led.h"
+
+#if GPS_USE_LATLONG
+/* currently needed to get nav_utm_zone0 */
+#include "subsystems/navigation/common_nav.h"
+#include "math/pprz_geodetic_float.h"
+#endif
 
 struct GpsSkytraq gps_skytraq;
 
@@ -34,8 +41,12 @@ struct GpsSkytraq gps_skytraq;
 #define GOT_CHECKSUM  7
 #define GOT_SYNC3     8
 
+#define SKYTRAQ_FIX_NONE    0x00
+#define SKYTRAQ_FIX_2D      0x01
+#define SKYTRAQ_FIX_3D      0x02
+#define SKYTRAQ_FIX_3D_DGPS 0x03
+
 //#include "my_debug_servo.h"
-#include "led.h"
 
 void gps_impl_init(void) {
 
@@ -58,16 +69,44 @@ void gps_skytraq_read_message(void) {
     gps.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
     gps.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
     gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
-    gps.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
-    gps.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
-    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf);
-    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf);
+    gps.lla_pos.lat = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf));
+    gps.lla_pos.lon = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf));
+    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf)/10;
+    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf)/10;
     //   pacc;
     //   sacc;
     //     gps.pdop       = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
     gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
-    gps.fix         = SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf);
     gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)/10;
+
+    switch (SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf)) {
+    case SKYTRAQ_FIX_3D_DGPS:
+    case SKYTRAQ_FIX_3D:
+      gps.fix = GPS_FIX_3D;
+      break;
+    case SKYTRAQ_FIX_2D:
+      gps.fix = GPS_FIX_2D;
+      break;
+    default:
+      gps.fix = GPS_FIX_NONE;
+    }
+
+#if GPS_USE_LATLONG
+    /* Computes from (lat, long) in the referenced UTM zone */
+    struct LlaCoor_f lla_f;
+    lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
+    lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+    struct UtmCoor_f utm_f;
+    utm_f.zone = nav_utm_zone0;
+    /* convert to utm */
+    utm_of_lla_f(&utm_f, &lla_f);
+    /* copy results of utm conversion */
+    gps.utm_pos.east = utm_f.east*100;
+    gps.utm_pos.north = utm_f.north*100;
+    gps.utm_pos.alt = gps.lla_pos.alt;
+    gps.utm_pos.zone = nav_utm_zone0;
+#endif
+
     //DEBUG_S2_TOGGLE();
 
 #ifdef GPS_LED

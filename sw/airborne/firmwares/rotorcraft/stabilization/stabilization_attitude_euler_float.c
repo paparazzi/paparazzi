@@ -31,6 +31,20 @@
 
 
 struct FloatAttitudeGains stabilization_gains;
+
+/* warn if some gains are still negative */
+#if (STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN  < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 struct FloatEulers stabilization_att_sum_err;
 
 float stabilization_att_fb_cmd[COMMANDS_NB];
@@ -42,24 +56,24 @@ void stabilization_attitude_init(void) {
   stabilization_attitude_ref_init();
 
   VECT3_ASSIGN(stabilization_gains.p,
-           STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN);
+               STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN);
 
   VECT3_ASSIGN(stabilization_gains.d,
-           STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN);
+               STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN);
 
   VECT3_ASSIGN(stabilization_gains.i,
-           STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN);
+               STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN);
 
   VECT3_ASSIGN(stabilization_gains.dd,
-           STABILIZATION_ATTITUDE_FLOAT_PHI_DDGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_THETA_DDGAIN,
-           STABILIZATION_ATTITUDE_FLOAT_PSI_DDGAIN);
+               STABILIZATION_ATTITUDE_FLOAT_PHI_DDGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_THETA_DDGAIN,
+               STABILIZATION_ATTITUDE_FLOAT_PSI_DDGAIN);
 
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
@@ -100,7 +114,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
   struct FloatEulers att_float;
   EULERS_FLOAT_OF_BFP(att_float, ahrs.ltp_to_body_euler);
   struct FloatEulers att_err;
-  EULERS_DIFF(att_err, att_float, stab_att_ref_euler);
+  EULERS_DIFF(att_err, stab_att_ref_euler, att_float);
   FLOAT_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -116,7 +130,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
   struct FloatRates rate_float;
   RATES_FLOAT_OF_BFP(rate_float, ahrs.body_rate);
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, rate_float, stab_att_ref_rate);
+  RATES_DIFF(rate_err, stab_att_ref_rate, rate_float);
 
   /*  PID                  */
 

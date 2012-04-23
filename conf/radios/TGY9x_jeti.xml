@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- $Id$
+--
+-- (c) 2006 Pascal Brisset, Antoine Drouin
+--
+-- This file is part of paparazzi.
+--
+-- paparazzi is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+--
+-- paparazzi is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with paparazzi; see the file COPYING.  If not, write to
+-- the Free Software Foundation, 59 Temple Place - Suite 330,
+-- Boston, MA 02111-1307, USA.
+-->
+
+<!--
+-- Attributes of root (Radio) tag :
+-- name: name of RC
+-- data_min: min width of a pulse to be considered as a data pulse
+-- data_max: max width of a pulse to be considered as a data pulse
+-- sync_min: min width of a pulse to be considered as a synchro pulse
+-- sync_max: max width of a pulse to be considered as a synchro pulse
+-- min, max and sync are expressed in micro-seconds
+-->
+
+<!--
+-- Attributes of channel tag :
+-- ctl: name of the command on the transmitter - only for displaying
+-- function: logical command
+-- average: (boolean) channel filtered through several frames (for discrete commands)
+-- min: minimum pulse length (micro-seconds)
+-- max: maximum pulse length (micro-seconds)
+-- neutral: neutral pulse length (micro-seconds)
+-- Note: a command may be reversed by exchanging min and max values
+-->
+
+<!DOCTYPE radio SYSTEM "radio.dtd">
+<radio name="Turnigy 9x with Jeti module" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
+ <channel ctl="1" function="YAW"         min="1000" neutral="1500" max="2000" average="0"/>
+ <channel ctl="2" function="PITCH"       min="2000" neutral="1500" max="1000" average="0"/>
+ <channel ctl="3" function="THROTTLE"    min="1000" neutral="1000" max="2000" average="0"/>
+ <channel ctl="4" function="ROLL"        min="1000" neutral="1500" max="2000" average="0"/>
+ <channel ctl="5" function="KILL_SWITCH" min="2000" neutral="1500" max="1000" average="1"/>
+ <channel ctl="6" function="MODE"        min="1000" neutral="1500" max="2000" average="1"/>
+ <channel ctl="7" function="FOO"         min="1000" neutral="1500" max="2000" average="1"/>
+ <channel ctl="8" function="BAR"         min="1000" neutral="1500" max="2000" average="1"/>
+</radio>

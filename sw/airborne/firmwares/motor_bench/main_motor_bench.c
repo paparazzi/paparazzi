@@ -82,7 +82,8 @@ static inline void main_periodic_task( void ) {
       DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
       PeriodicSendDlValue(DefaultChannel);
     });
-  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, DefaultDevice, &cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
+  uint16_t time_secs = sys_time.nb_sec;
+  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, DefaultDevice, &sys_time.nb_sec_rem, &throttle, &rpm, &amps , &thrust, &torque, &time_secs, &mb_modes_mode);
 
 
 

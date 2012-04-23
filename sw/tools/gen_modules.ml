@@ -64,6 +64,41 @@ let get_status_shortname = fun f ->
   let func = (Xml.attrib f "fun") in
   String.sub func 0 (try String.index func '(' with _ -> (String.length func))
 
+let get_period_and_freq = fun f max_freq ->
+  let period = try Some (float_of_string (Xml.attrib f "period")) with _ -> None
+  and freq = try Some (float_of_string (Xml.attrib f "freq")) with _ -> None in
+  match period, freq with
+  | None, None -> (1. /. max_freq, max_freq)
+  | Some _p, None -> (_p, 1. /. _p)
+  | None, Some _f -> (1. /. _f, _f)
+  | Some _p, Some _ ->
+      fprintf stderr "Warning: both period and freq are defined but only period is used for function %s\n" (ExtXml.attrib f "fun");
+      (_p, 1. /. _p)
+
+(* Extract function name and return in capital letters *)
+let get_cap_name = fun f ->
+  let name = Str.full_split (Str.regexp "[()]") f in
+  match name with
+  | [Str.Text t]
+  | [Str.Text t; Str.Delim "("; Str.Delim ")"]
+  | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> String.uppercase t
+  | _ -> failwith "Gen_modules: not a valid function name"
+
+let print_function_freq = fun modules ->
+  let max_freq = float !freq in
+  nl ();
+  List.iter (fun m ->
+    List.iter (fun i ->
+      match Xml.tag i with
+        "periodic" ->
+          let fname = get_cap_name (Xml.attrib i "fun") in
+          let p, f = get_period_and_freq i max_freq in
+          lprintf out_h "#define %s_PERIOD %f\n" fname p;
+          lprintf out_h "#define %s_FREQ %f\n" fname f;
+      | _ -> ())
+    (Xml.children m))
+  modules
+
 let is_status_lock = fun p ->
   let mode = ExtXml.attrib_or_default p "autorun" "LOCK" in
   mode = "LOCK"
@@ -115,19 +150,13 @@ let print_periodic_functions = fun modules ->
     let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m) in
     let module_name = ExtXml.attrib m "name" in
     List.map (fun x ->
-      try
-        let p = float_of_string (Xml.attrib x "period") in
-        let _ = try let _ = Xml.attrib x "freq" in fprintf stderr "Warning: both period and freq are defined but only period is used for function %s\n" (ExtXml.attrib x "fun") with _ -> () in
-        if p < min_period || p > max_period then
-          fprintf stderr "Warning: period is bound between %.3fs and %.3fs for function %s\n%!" min_period max_period (ExtXml.attrib x "fun");
-        ((x, module_name), min 65535 (max 1 (int_of_float (p *. float_of_int !freq))))
-      with _ ->
-        let f = float_of_string (ExtXml.attrib_or_default x "freq" (string_of_float max_freq)) in
-        if f < min_freq || f > max_freq then
-          fprintf stderr "Warning: frequency is bound between %fHz and %.1fHz for function %s\n%!" min_freq max_freq (ExtXml.attrib x "fun");
-        ((x, module_name), min 65535 (max 1 (int_of_float (float_of_int !freq /. f))))
-      )
-    periodic) modules) in
+      let p, _ = get_period_and_freq x max_freq in
+      if p < min_period || p > max_period then
+        fprintf stderr "Warning: period is bound between %.3fs and %.3fs (%fHz and %.1fHz) for function %s\n%!"
+        min_period max_period max_freq min_freq (ExtXml.attrib x "fun");
+      ((x, module_name), min 65535 (max 1 (int_of_float (p *. float_of_int !freq))))
+      ) periodic)
+    modules) in
   let modulos = GC.singletonize (List.map snd functions_modulo) in
   (** Print modulos *)
   List.iter (fun modulo ->
@@ -244,6 +273,7 @@ let print_datalink_functions = fun modules ->
 
 let parse_modules modules =
   print_headers modules;
+  print_function_freq modules;
   print_status modules;
   nl ();
   fprintf out_h "#ifdef MODULES_C\n";

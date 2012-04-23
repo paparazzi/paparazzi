@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  * Copyright (C) 2010 Felix Ruess <felix.ruess@gmail.com>
  *
@@ -22,6 +20,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file stabilization_rate.c
+ *  Rate stabilization for rotorcrafts.
+ *
+ *  Control loops for angular velocity.
+ */
+
 #include "firmwares/rotorcraft/stabilization.h"
 
 #include "subsystems/ahrs.h"
@@ -36,6 +40,12 @@
 
 #define MAX_SUM_ERR 4000000
 
+#if (STABILIZATION_RATE_GAIN_P < 0) || \
+  (STABILIZATION_RATE_GAIN_Q < 0)   || \
+  (STABILIZATION_RATE_GAIN_R < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 #ifndef STABILIZATION_RATE_DDGAIN_P
 #define STABILIZATION_RATE_DDGAIN_P 0
 #endif
@@ -45,15 +55,29 @@
 #ifndef STABILIZATION_RATE_DDGAIN_R
 #define STABILIZATION_RATE_DDGAIN_R 0
 #endif
+
 #ifndef STABILIZATION_RATE_IGAIN_P
 #define STABILIZATION_RATE_IGAIN_P 0
+#else
+#if (STABILIZATION_RATE_IGAIN_P < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 #ifndef STABILIZATION_RATE_IGAIN_Q
 #define STABILIZATION_RATE_IGAIN_Q 0
+#else
+#if (STABILIZATION_RATE_IGAIN_Q < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 #ifndef STABILIZATION_RATE_IGAIN_R
 #define STABILIZATION_RATE_IGAIN_R 0
+#else
+#if (STABILIZATION_RATE_IGAIN_R < 0)
+#warning "ALL control gains are now positive!!!"
 #endif
+#endif
+
 #ifndef STABILIZATION_RATE_REF_TAU
 #define STABILIZATION_RATE_REF_TAU 4
 #endif
@@ -122,7 +146,7 @@ void stabilization_rate_init(void) {
 void stabilization_rate_read_rc( void ) {
 
   if(ROLL_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.p = (int32_t)-radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
   else
     stabilization_rate_sp.p = 0;
 
@@ -132,7 +156,7 @@ void stabilization_rate_read_rc( void ) {
     stabilization_rate_sp.q = 0;
 
   if(YAW_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.r = (int32_t)-radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+    stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
   else
     stabilization_rate_sp.r = 0;
 
@@ -159,7 +183,7 @@ void stabilization_rate_run(bool_t in_flight) {
   RATES_ADD(stabilization_rate_ref, _delta_ref);
 
   /* compute feed-forward command */
-  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 14);
+  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 9);
 
 
   /* compute feed-back command */
@@ -169,7 +193,7 @@ void stabilization_rate_run(bool_t in_flight) {
     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates _error;
-  RATES_DIFF(_error, ahrs.body_rate, _ref_scaled);
+  RATES_DIFF(_error, _ref_scaled, ahrs.body_rate);
   if (in_flight) {
     /* update integrator */
     RATES_ADD(stabilization_rate_sum_err, _error);
@@ -189,13 +213,18 @@ void stabilization_rate_run(bool_t in_flight) {
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
     OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
 
-  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 16;
-  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 16;
-  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 16;
+  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
+  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
+  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
 
   /* sum to final command */
   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_ff_cmd.q + stabilization_rate_fb_cmd.q;
   stabilization_cmd[COMMAND_YAW]   = stabilization_rate_ff_cmd.r + stabilization_rate_fb_cmd.r;
+
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 
 }

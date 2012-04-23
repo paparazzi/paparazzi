@@ -34,6 +34,8 @@ struct AhrsFloatCmplRmat {
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
 
+  bool_t heading_aligned;
+
   /*
      Holds float version of IMU alignement
      in order to be able to run against the fixed point
@@ -45,7 +47,19 @@ struct AhrsFloatCmplRmat {
 
 extern struct AhrsFloatCmplRmat ahrs_impl;
 
+
+/** Update yaw based on a heading measurement.
+ * e.g. from GPS course
+ * @param heading Heading in body frame, radians (CW/north)
+ */
 void ahrs_update_heading(float heading);
+
+/** Hard reset yaw to a heading.
+ * Doesn't affect the bias.
+ * Sets ahrs_impl.heading_aligned to TRUE.
+ * @param heading Heading in body frame, radians (CW/north)
+ */
+void ahrs_realign_heading(float heading);
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // TODO copy ahrs to state instead of estimator

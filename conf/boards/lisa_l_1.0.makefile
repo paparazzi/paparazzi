@@ -8,6 +8,7 @@
 BOARD=lisa_l
 BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
+NO_LUFTBOOT=1
 
 # -----------------------------------------------------------------------
 ifeq ($(BOARD_PROCESSOR),'omap')
@@ -59,8 +60,16 @@ ifndef SYS_TIME_LED
 SYS_TIME_LED = 1
 endif
 
+
+#
+# default uart configuration
+#
+ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
+endif
+ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
+endif
 
 ifndef MODEM_PORT
 MODEM_PORT=UART2

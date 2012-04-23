@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,12 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firmwares/rotorcraft/stabilization.c
+ *  General stabilization interface for rotorcrafts.
+ */
+
 #include "firmwares/rotorcraft/stabilization.h"
 
 int32_t stabilization_cmd[COMMANDS_NB];
 
 void stabilization_init(void) {
 #ifndef STABILIZATION_SKIP_RATE
+  stabilization_none_init();
   stabilization_rate_init();
 #endif
   stabilization_attitude_init();

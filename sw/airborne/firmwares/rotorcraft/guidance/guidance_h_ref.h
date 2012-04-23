@@ -1,6 +1,4 @@
 /*
- * $Id: guidance_v_ref.h 4173 2009-09-18 11:57:21Z flixr $
- *
  * Copyright (C) 2008-2009 ENAC <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -19,6 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file firmware/rotorcraft/guidance/guidance_h_ref.h
+ *  Reference generation for horizontal guidance.
+ *
  */
 
 #ifndef GUIDANCE_H_REF_H
