@@ -1,7 +1,8 @@
 /*
- * Paparazzi mcu0 $Id$
+ * Paparazzi mcu0 $Id: pprz_transport.c 929 2006-06-02 12:11:37Z poine $
  *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010  ENAC
  *
  * This file is part of paparazzi.
  *
@@ -22,11 +23,6 @@
  *
  */
 
-#include <inttypes.h>
-#include "subsystems/datalink/mavlink_transport.h"
-#include "mcu_periph/uart.h"
+#define PERIODIC_C_MAVLINK
 
-uint8_t ck_a, ck_b, mavlink_down_packet_seq = 1;
-uint16_t checksum;
-
-struct mavlink_transport mavlink_tp;
+#include "generated/periodic_telemetry.h"

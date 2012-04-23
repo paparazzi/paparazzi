@@ -1,7 +1,7 @@
 /*
- * Paparazzi $Id$
+ * Paparazzi mcu0 $Id$
  *
- * Copyright (C) 2011 Gautier Hattenberger
+ * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -22,14 +22,11 @@
  *
  */
 
-#include "firmwares/fixedwing/mavlink_downlink.h"
-#include "generated/airframe.h"
+#include <inttypes.h>
+#include "modules/mavlink/mavlink_transport.h"
+#include "mcu_periph/uart.h"
 
-#ifdef AP
-#ifndef TELEMETRY_MODE_AP
-#define TELEMETRY_MODE_AP 0
-#endif
-uint8_t telemetry_mode_Ap_DefaultChannel = TELEMETRY_MODE_AP;
-#endif /** AP */
+uint8_t mavlink_down_packet_seq = 1;
+uint16_t checksum;
 
-
+struct mavlink_transport mavlink_tp;

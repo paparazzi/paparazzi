@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE telemetry SYSTEM "telemetry.dtd">
 <telemetry>
-  <process name="Ap">
+  <process name="Ap"><mode name="default"/></process>
+  <process name="Mavlink">
     <mode name="default">
       <message name="HEARTBEAT"                period="5"/>
       <!--<message name="SYS_STATUS"               period="1"/>

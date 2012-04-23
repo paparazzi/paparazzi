@@ -66,7 +66,8 @@
 
 #define SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
 	uint8_t _circle_count = NavCircleCount(); \
-	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &sys_time.nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
+	uint32_t nb_sec = sys_time.nb_sec; \
+	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
 })
 /* XGGDEBUG:NEWMESS: if is rotorcraft horizontal_mode should be &guidance_h_mode */
 

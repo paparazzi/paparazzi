@@ -99,11 +99,11 @@ extern uint16_t checksum;
   crc_init(&checksum);			\
 }
 
-#define MavlinkTransportPutAcId(_dev, _byte) { \			  \
+#define MavlinkTransportPutAcId(_dev, _byte) { \
     MavlinkTransportPut1Byte(_dev, _byte);		  \
  }
 
-#define MavlinkTransportPutUint8(_dev, _byte) { \			  \
+#define MavlinkTransportPutUint8(_dev, _byte) { \
     MavlinkTransportPut1Byte(_dev, _byte);		  \
     crc_accumulate(_byte, &checksum); \
  }

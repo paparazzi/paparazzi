@@ -40,7 +40,6 @@
 #ifdef SIM_UART
 #include "sim_uart.h"
 #include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/mavlink_transport.h"
 #include "subsystems/datalink/xbee.h"
 #else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
@@ -49,7 +48,6 @@
 
 #else /** SITL */
 #include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/mavlink_transport.h"
 #include "subsystems/datalink/xbee.h"
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"

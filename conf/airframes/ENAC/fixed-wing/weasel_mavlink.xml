@@ -12,6 +12,7 @@
     <load name="baro_board.xml"/>
     <load name="airspeed_ads1114.xml"/>
     <!--load name="mcp355x.xml"/-->
+    <load name="mavlink.xml"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -31,7 +32,7 @@
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="mavlink"/>
+    <subsystem name="telemetry" type="dummy"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="umarim"/>

@@ -39,15 +39,10 @@
 
 #include "generated/airframe.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_MAV_DEVICE
-#endif
 #include "subsystems/datalink/downlink.h"
 
 #include "downlink_msg.h"
-#include "generated/periodic.h"
-
-//#include "generated/modules.h"
+#include "generated/periodic_telemetry.h"
 
 #if defined DOWNLINK
 #define Mavlink(x) x
@@ -55,24 +50,16 @@
 #define Mavlink(x) {}
 #endif
 
-
-#ifdef AP
-/** Telemetry mode for AP process: index in the telemetry.xml file */
-#include "ap_downlink.h"
-//extern uint8_t telemetry_mode_Ap_DefaultChannel;
-#endif
-
 /* _type: 1 for FIXEDWING, 2 for QUADROTOR, 4 for HELICOPTER */
-#define PERIODIC_SEND_HEARTBEAT(_trans,_dev) Mavlink ({	\
-	uint8_t _type = 1;	\
-	uint8_t autopilot = 9;	\
-	uint8_t base_mode = 220; \
-	uint32_t custom_mode = 0; \
-	uint8_t system_status = 0; \
-	uint8_t mavlink_version = 3; \
-DOWNLINK_SEND_HEARTBEAT(_trans, _dev, &_type, &autopilot, &base_mode, &custom_mode, &system_status, &mavlink_version); \
-		})
-
+#define PERIODIC_SEND_HEARTBEAT(_trans,_dev) { \
+  uint8_t _type = 1;\
+  uint8_t autopilot = 9;\
+  uint8_t base_mode = 220;\
+  uint32_t custom_mode = 0;\
+  uint8_t system_status = 0;\
+  uint8_t mavlink_version = 3;\
+  DOWNLINK_SEND_HEARTBEAT(MavlinkTransport, UART1, &_type, &autopilot, &base_mode, &custom_mode, &system_status, &mavlink_version);\
+ }
 
 /*
 #define PERIODIC_SEND_SYS_STATUS(_trans,_dev) { \

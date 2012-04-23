@@ -53,9 +53,19 @@ extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
 /** 4 = STX + len + ck_a + ck_b */
 #define PprzTransportSizeOf(_dev, _payload) (_payload+4)
 
+#ifndef USE_PPRZ_TRANSPORT
+#define USE_PPRZ_TRANSPORT 1
+#endif
+
+#if USE_PPRZ_TRANSPORT
 #define PprzTransportCheckFreeSpace(_dev, _x) TransportLink(_dev, CheckFreeSpace(_x))
 #define PprzTransportPut1Byte(_dev, _x) TransportLink(_dev, Transmit(_x))
 #define PprzTransportSendMessage(_dev) TransportLink(_dev, SendMessage())
+#else
+#define PprzTransportCheckFreeSpace(_dev, _x) TRUE
+#define PprzTransportPut1Byte(_dev, _x) {}
+#define PprzTransportSendMessage(_dev) {}
+#endif
 
 #define PprzTransportHeader(_dev, payload_len) { \
   PprzTransportPut1Byte(_dev, STX);				\
