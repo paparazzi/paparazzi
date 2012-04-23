@@ -222,7 +222,7 @@ extern struct mavlink_transport mavlink_tp;
 
 static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
   switch (t->status) {
-  case UNINIT:
+  case MAV_UNINIT:
     if (c == STXMAV)
       t->status++;
     break;
