@@ -8,7 +8,8 @@
 
 #include "toytronics_types.h"
 
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h" // for RC_UPDATE_FREQ
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_int.h"
+
 #include "firmwares/rotorcraft/guidance/guidance_h.h" // for mode #defines
 
 const quat_t * get_q_n2b(void);

@@ -11,6 +11,8 @@
 
 #include "generated/airframe.h" // for aircraft constants
 
+#define RC_UPDATE_FREQ 40
+
 setpoint_t setpoint;
 
 xyz_t setpoint_incremental_bounds_deg = { SETPOINT_MODE_2_BOUND_QUAT_DEG_X,
