@@ -2,11 +2,11 @@
 #
 # lisa_m_2.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lisa/M
+# http://paparazzi.enac.fr/wiki/Lisa/M_v20
 #
 
 BOARD=lisa_m
-BOARD_VERSION=1.0
+BOARD_VERSION=2.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ARCH=stm32
@@ -18,8 +18,13 @@ $(TARGET).OOCD_INTERFACE=flossjtag
 # -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
-FLASH_MODE = JTAG
+FLASH_MODE = DFU
+#FLASH_MODE = JTAG
 #FLASH_MODE = SERIAL
+endif
+
+ifndef NO_LUFTBOOT
+$(TARGET).LDSCRIPT = $(SRC_ARCH)/lisa_m_2.0_luftboot.ld
 endif
 
 #

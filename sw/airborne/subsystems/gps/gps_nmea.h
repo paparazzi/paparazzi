@@ -20,8 +20,8 @@
  *
  */
 
-/** \file gps_nmea.h
- * \brief NMEA protocol specific code
+/** @file gps_nmea.h
+ * NMEA protocol specific code.
  *
 */
 

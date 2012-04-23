@@ -43,7 +43,8 @@
 void mcu_arch_init(void) {
 #if USE_OPENCM3
   rcc_clock_setup_in_hse_12mhz_out_72mhz();
-  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+  /* Don't mess around with this as the address is set by luftboot. Otherwise the default should be ok. */
+  /*NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);*/
   return;
 #else // !USE_OPENCM3
 #ifdef HSE_TYPE_EXT_CLK
@@ -88,8 +89,9 @@ void mcu_arch_init(void) {
 #pragma message "Using normal system clock setup."
   SystemInit();
 #endif /* HSE_TYPE_EXT_CLK */
-   /* Set the Vector Table base location at 0x08000000 */
-  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+  /* Set the Vector Table base location at 0x08000000 */
+  /* Don't mess around with this as the address is set by luftboot. Otherwise the default should be ok. */
+  /*NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);*/
 
 #ifdef STM32_FORCE_ALL_CLOCK_ON
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |

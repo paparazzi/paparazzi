@@ -11,7 +11,6 @@
 
   <firmware name="rotorcraft">
     <define name="USE_INS_NAV_INIT"/>
-    <define name="USE_ADAPT_HOVER"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
     <target name="ap" board="booz_1.0">

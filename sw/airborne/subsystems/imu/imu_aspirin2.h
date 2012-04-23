@@ -194,6 +194,7 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 
     _gyro_handler();
     _accel_handler();
+    _mag_handler();
   }
   // imu_aspirin2_arch_int_enable();
 

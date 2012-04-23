@@ -529,6 +529,7 @@ void parse_ins_msg( void ) {
         ins_y = utm_f.north;
         ins_z = XSENS_DATA_Position_alt(xsens_msg_buf,offset);//TODO is this hms or above ellipsoid?
         gps.hmsl = ins_z * 1000;
+        // what about gps.lla_pos.alt and gps.utm_pos.alt ?
 #endif
         offset += XSENS_DATA_Position_LENGTH;
       }
