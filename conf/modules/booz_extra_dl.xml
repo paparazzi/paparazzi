@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="core">
+  <doc>
+    <description>Extra datalink channel (PPRZ transport)</description>
+  </doc>
   <header>
     <file name="extra_pprz_dl.h"/>
   </header>

@@ -8,6 +8,11 @@
      @define BAT_CHECKER_LED   The LED to use for the warning signal.
      -->
 <module name="bat_checker">
+  <doc>
+    <description>Battery checker module</description>
+    <define name="BAT_CHECKER_DELAY" value="delay" description="number of seconds the battery voltage has to below LOW_BAT_LEVEL before warning signal is activated"/>
+    <define name="BAT_CHECKER_LED" value="X" description="led number to use for the warning signal"/>
+  </doc>
   <header>
     <file name="bat_checker.h"/>
   </header>

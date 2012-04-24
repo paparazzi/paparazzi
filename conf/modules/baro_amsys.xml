@@ -6,6 +6,10 @@
      -->
 
 <module name="baro_amsys" dir="sensors">
+  <doc>
+    <description>Baro ETS module (I2C)</description>
+    <define name="BARO_ETS_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+  </doc>
 
   <header>
     <file name="baro_amsys.h"/>

@@ -7,6 +7,9 @@ For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN
  -->
 
 <module name="ins">
+  <doc>
+    <description>CHimu (UART)</description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_module.h"/>

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="humdid_pcap01" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="humid_pcap01.h"/>
   </header>

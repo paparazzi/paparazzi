@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="cartography">
+  <doc>
+    <description>Cartography sweeping pattern for navigation</description>
+  </doc>
   <header>
     <file name="cartography.h"/>
   </header>

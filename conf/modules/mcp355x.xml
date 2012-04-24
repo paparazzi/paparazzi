@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="mcp355x" dir="adcs">
+  <doc>
+    <description>MCP355X ADC driver (SPI)</description>
+  </doc>
   <header>
     <file name="mcp355x.h"/>
   </header>

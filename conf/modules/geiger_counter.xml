@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="geiger_counter" dir="meteo">
+  <doc>
+    <description>Geifer counter sensor</description>
+  </doc>
   <header>
     <file name="geiger_counter.h"/>
   </header>

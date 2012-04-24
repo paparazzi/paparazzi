@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="poles">
+  <doc>
+    <description>Navigate around two poles</description>
+  </doc>
   <header>
     <file name="nav_poles.h"/>
   </header>
