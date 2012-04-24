@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="potential" dir="multi">
+  <doc>
+    <description>Collision avoidance using potential fields</description>
+  </doc>
   <header>
     <file name="potential.h"/>
   </header>

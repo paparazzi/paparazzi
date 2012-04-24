@@ -20,6 +20,10 @@
 -->
 
 <module name="digital_cam">
+  <doc>
+    <description>Digital camera control (trigger using led)</description>
+  </doc>
+
   <header>
     <file name="led_cam_ctrl.h"/>
   </header>

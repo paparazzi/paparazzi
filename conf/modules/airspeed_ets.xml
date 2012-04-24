@@ -10,6 +10,14 @@
      -->
 
 <module name="airspeed_ets" dir="sensors">
+  <doc>
+    <description>Airspeed ETS module (I2C)</description>
+    <define name="AIRSPEED_ETS_I2C_DEV" value="i2cX" description="change default i2c peripheral"/>
+    <define name="AIRSPEED_ETS_OFFSET" value="sensor offset"/>
+    <define name="AIRSPEED_ETS_SCALE" value="sensor scale factor"/>
+    <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
+    <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+  </doc>
 
   <header>
     <file name="airspeed_ets.h"/>

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="dust_gp2y" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="dust_gp2y.h"/>
   </header>

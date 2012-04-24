@@ -4,6 +4,11 @@
     - ARDUIMU_SYNC_SEND: downlink imu gyro and accels
 -->
 <module name="ins_ArduIMU" dir="ins">
+  <doc>
+    <description>ArduIMU v2</description>
+    <define name="USE_HIGH_ACCEL_FLAG" description="flag to disable accelerometers on high acceleration detection (low speed, high thrust)"/>
+    <define name="ARDUIMU_SYNC_SEND" description="flag to downlink raw gyro and accels values"/>
+  </doc>
   <header>
     <file name="ins_arduimu_basic.h"/>
   </header>

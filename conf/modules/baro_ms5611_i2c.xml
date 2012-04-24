@@ -6,6 +6,10 @@
      -->
 
 <module name="baro_ms5611_i2c" dir="sensors">
+  <doc>
+    <description>Measurement Specialties MS5611-01BA pressure sensor (I2C)</description>
+    <define name="MS5611_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+  </doc>
   <header>
     <file name="baro_ms5611_i2c.h"/>
   </header>

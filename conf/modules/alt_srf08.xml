@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="alt_srf08" dir="sensors">
+  <doc>
+    <description>Range meter based on srf08 ultrasonic sensor</description>
+  </doc>
   <header>
     <file name="alt_srf08.h"/>
   </header>

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ir_mlx" dir="meteo">
+  <doc>
+    <description>Infrared MLX sensor</description>
+  </doc>
   <header>
     <file name="ir_mlx.h"/>
   </header>

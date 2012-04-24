@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="tcas" dir="multi">
+  <doc>
+    <description>Collision avoidance system based on TCAS logic</description>
+  </doc>
   <header>
     <file name="tcas.h"/>
   </header>

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="humid_dpicco" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="humid_dpicco.h"/>
   </header>

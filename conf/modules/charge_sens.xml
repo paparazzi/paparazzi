@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="charge_sens" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="charge_sens.h"/>
   </header>
