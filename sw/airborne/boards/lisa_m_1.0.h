@@ -41,7 +41,7 @@
 
 
 /* configuration for aspirin - and more generaly IMUs */
-#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2Periph_GPIOB
+#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2ENR_IOPBEN
 #define IMU_ACC_DRDY_GPIO             GPIOB
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
 
@@ -77,17 +77,15 @@
 #define ADC_CHANNEL_VSUPPLY 3
 #endif
 
-#if 0 //FIXME, adapt for libopencm3
 /* GPIO mapping for ADC1 pins, overwrites the default in arch/stm32/mcu_periph/adc_arch.c */
 // FIXME, this is not very nice, is also stm lib specific
 #ifdef USE_AD1
 #define ADC1_GPIO_INIT(gpio) {                  \
-    (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;           \
-    GPIO_Init(GPIOC, (&gpio));                  \
+  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,         \
+		GPIO_CNF_INPUT_ANALOG,          \
+		GPIO3 | GPIO0 | GPIO1 | GPIO4); \
   }
 #endif // USE_AD1
-#endif
 
 #define BOARD_HAS_BARO 1
 

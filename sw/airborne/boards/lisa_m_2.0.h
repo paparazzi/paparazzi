@@ -81,9 +81,9 @@
 // FIXME, this is not very nice, is also stm lib specific
 #ifdef USE_AD1
 #define ADC1_GPIO_INIT(gpio) {                                          \
-    (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;                                   \
-    GPIO_Init(GPIOC, (&gpio));                                          \
+    gpio_set_mode(GPIOC, GPIO_MODE_INPUT,                               \
+		  GPIO_CNF_INPUT_ANALOG,                                \
+		  GPIO3 | GPIO0 | GPIO1 | GPIO4);                       \
   }
 #endif // USE_AD1
 
@@ -99,11 +99,11 @@
 //#define STM32_PLL_MULT RCC_PLLMul_6
 
 #define PWM_5AND6_TIMER TIM5
-#define PWM_5AND6_RCC RCC_APB1Periph_TIM5
+#define PWM_5AND6_RCC RCC_APB1ENR_TIM5EN
 #define PWM5_OC 1
 #define PWM6_OC 2
 #define PWM_5AND6_GPIO GPIOA
-#define PWM5_Pin GPIO_Pin_0
-#define PWM6_Pin GPIO_Pin_1
+#define PWM5_Pin GPIO0
+#define PWM6_Pin GPIO1
 
 #endif /* CONFIG_LISA_M_2_0_H */
