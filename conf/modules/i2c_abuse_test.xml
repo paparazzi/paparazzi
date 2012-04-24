@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="benchmark">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="i2c_abuse_test.h"/>
   </header>

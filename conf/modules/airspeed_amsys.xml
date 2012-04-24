@@ -10,6 +10,14 @@ Airspeed AMSYS module (I2C)
 -->
 
 <module name="airspeed_amsys" dir="sensors">
+  <doc>
+    <description>Airspeed AMSYS module (I2C)</description>
+    <define name="AIRSPEED_AMSYS_I2C_DEV" value="i2cX" description="change default i2c peripheral"/>
+    <define name="AIRSPEED_AMSYS_OFFSET" value="sensor offset"/>
+    <define name="AIRSPEED_AMSYS_SCALE" value="sensor scale factor"/>
+    <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
+    <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+  </doc>
 
   <header>
     <file name="airspeed_amsys.h"/>

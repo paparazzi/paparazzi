@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="cartography">
+  <doc>
+    <description>Photogrammetry navigation functions</description>
+  </doc>
   <header>
     <file name="photogrammetry_calculator.h"/>
   </header>

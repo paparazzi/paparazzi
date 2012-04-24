@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ins_aspirin_via_i2c" dir="ins">
+  <doc>
+    <description></description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_ppzuavimu.h"/>

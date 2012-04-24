@@ -1,6 +1,12 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="servo_switch">
+  <doc>
+    <description>Servo switch</description>
+    <define name="SERVO_SWITCH_ON_VALUE"  value="pwm" description="servo value in usec"/>
+    <define name="SERVO_SWITCH_OFF_VALUE" value="pwm" description="servo value in usec"/>
+    <define name="SERVO_SWITCH_SERVO"     value="nb" description="Id of the servo to use"/>
+  </doc>
   <header>
     <file name="servo_switch.h"/>
   </header>

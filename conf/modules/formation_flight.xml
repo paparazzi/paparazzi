@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="formation_flight" dir="multi">
+  <doc>
+    <description>Formation flight control</description>
+  </doc>
   <header>
     <file name="formation.h"/>
   </header>

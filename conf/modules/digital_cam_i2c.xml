@@ -1,6 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="atmega_i2c_cam_ctrl" dir="digital_cam">
+  <doc>
+    <description></description>
+  </doc>
+
   <header>
     <file name="atmega_i2c_cam_ctrl.h"/>
   </header>

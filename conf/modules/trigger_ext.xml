@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="trigger_ext" dir="sensors">
+  <doc>
+    <description>External trigger (lpc only)</description>
+  </doc>
   <header>
     <file name="trig_ext_hw.h"/>
     <file name="trigger_ext.h"/>

@@ -1,6 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ins_ppzuavimu" dir="ins">
+  <doc>
+    <description></description>
+  </doc>
+
   <header>
     <file name="imu_ppzuav.h"/>
   </header>

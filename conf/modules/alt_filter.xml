@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="alt_filter" dir="ins">
+  <doc>
+    <description>Altitude filter (not used for A/C estimation and control, only debug)</description>
+  </doc>
   <header>
     <file name="alt_filter.h"/>
   </header>
