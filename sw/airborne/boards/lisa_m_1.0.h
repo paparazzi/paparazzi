@@ -58,11 +58,11 @@
    ADC_6 PC2/ADC12
    BATT  PC4/ADC14
 */
-#define BOARD_ADC_CHANNEL_1 ADC_Channel_13
-#define BOARD_ADC_CHANNEL_2 ADC_Channel_10
-#define BOARD_ADC_CHANNEL_3 ADC_Channel_11
+#define BOARD_ADC_CHANNEL_1 13
+#define BOARD_ADC_CHANNEL_2 10
+#define BOARD_ADC_CHANNEL_3 11
 // we can only use ADC1,2,3; the last channel is for bat monitoring
-#define BOARD_ADC_CHANNEL_4 ADC_Channel_14
+#define BOARD_ADC_CHANNEL_4 14
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above
