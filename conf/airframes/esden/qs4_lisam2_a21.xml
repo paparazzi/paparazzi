@@ -26,13 +26,9 @@
   </commands>
 
   <section name="AUTOPILOT">
-    <!-- <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/> -->
-    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_AEROBATIC"/>
+    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
     <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
-    <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
-    <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
-    <!--define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/-->
-    <!--define name="AUTOPILOT_THROTTLE_INSTANT_START_WITH_SAFETIES"  value="TRUE"/-->
+    <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
     <!--define name="AUTOPILOT_LOBATT_WING_WAGGLE"/>
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/-->
@@ -79,13 +75,7 @@
     <let var="forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
     <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
-    <!-- mode forward HIGH LIFT >
-    <let var="forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left  + 2400"/>
-    <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right - 2400"/-->
-
     <!-- mode aerobatic -->
-    <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
-    <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
     <let var="aerobatic_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
     <let var="aerobatic_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
@@ -125,9 +115,9 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="BODY_TO_IMU_PHI"   value="0."  unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="90." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0."  unit="deg"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
 
   </section>
 
@@ -256,10 +246,11 @@
       <define name="SERVO_HZ" value="400"/>
       <define name="SERVO_HZ_SECONDARY" value="40"/>
       <define name="RADIO_MODE" value="RADIO_FLAP"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <!--define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/-->
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value="UART5"/>
       <define name="OVERRIDE_UART5_IRQ_HANDLER"/>
+      <define name="USE_THROTTLE_FOR_MOTOR_ARMING"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>

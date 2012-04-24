@@ -1,6 +1,6 @@
 // toytronics_setpoint.c
 // Copyright (C) 2011, Greg Horn, Joby Robotics, LLC.
-// Copyright (C) 2011, Pranay Sinha, the Quadshot Project.
+// Copyright (C) 2011, Pranay Sinha, Transition Robotics, Inc.
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -19,7 +19,11 @@ xyz_t setpoint_incremental_bounds_deg = { SETPOINT_MODE_2_BOUND_QUAT_DEG_X,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Z};
 
-xyz_t setpoint_aerobatic_decay_time = {0.2, 0.3, 0.2};
+xyz_t setpoint_aerobatic_decay_time = {
+   SETPOINT_AEROBATIC_DECAY_TIME_X, SETPOINT_AEROBATIC_DECAY_TIME_Y, SETPOINT_AEROBATIC_DECAY_TIME_Z};
+
+xyz_t setpoint_rc_sensitivity = {
+   SETPOINT_RC_SENSITIVITY_X, SETPOINT_RC_SENSITIVITY_Y, SETPOINT_RC_SENSITIVITY_Z};
 
 double setpoint_absolute_heading_bound_deg = SETPOINT_BOUND_ERROR_HEADING_DEG;
 double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
@@ -107,8 +111,15 @@ wrap_to_pi(double * angle){
 static void
 discrete_exponential_decay( double * state, const double tau, const double ts )
 {
-  *state *= exp(-ts/tau);
-//  if tau <= 0.01*ts
+  if(fabs(*state)>0.08)
+    {*state *= exp(-ts/tau);}
+}
+
+// rc sticks power sensitivity function
+static void
+rc_sensitizer( double * state, const double sens )
+{
+  *state = copysign(pow(*state,sens),*state);
 }
 
 // get "heading" from attitude quat q_n2b:
@@ -385,6 +396,13 @@ toytronics_set_sp_hover_forward_from_rc()
   double rcr = rc->roll;
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
+  //****************rc sticks sensitivity adjustment****************
+  rc_sensitizer(&rcr, setpoint_rc_sensitivity.x);
+  rc_sensitizer(&rcp, setpoint_rc_sensitivity.y);
+  rc_sensitizer(&rcy, setpoint_rc_sensitivity.z);
+  //****************rc sticks sensitivity adjustment****************
+
+
   // set pitch/yaw from stick
   double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg + (fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90) * fabs(rcp * SETPOINT_MAX_STICK_ANGLE_DEG)*(1/90)))*M_PI/180.0;
 
@@ -427,7 +445,7 @@ toytronics_set_sp_hover_forward_from_rc()
   wrap_to_pi(&heading_error);
   BOUND(heading_error, -1.0, 1.0);
   //********heading error decay*****************
-  heading_error = 0.999*heading_error; // - 0.2*M_PI/180;
+  discrete_exponential_decay( &heading_error, setpoint_aerobatic_decay_time.x, dt );
   //********************************************
   setpoint.setpoint_heading = setpoint.estimated_heading + heading_error;
   wrap_to_pi(&setpoint.setpoint_heading);
@@ -499,6 +517,12 @@ toytronics_set_sp_absolute_forward_from_rc()
   double rcr = apply_deadband(rc->roll, SETPOINT_DEADBAND);
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
+  //****************rc sticks sensitivity adjustment****************
+  rc_sensitizer(&rcr, setpoint_rc_sensitivity.x);
+  rc_sensitizer(&rcp, setpoint_rc_sensitivity.y);
+  rc_sensitizer(&rcy, setpoint_rc_sensitivity.z);
+  //****************rc sticks sensitivity adjustment****************
+
   #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
     if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
       if (setpoint_lobatt_wing_waggle_left==TRUE){
@@ -568,6 +592,12 @@ toytronics_set_sp_incremental_from_rc()
   double rcr = apply_deadband(rc->roll, SETPOINT_DEADBAND);
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
+  //****************rc sticks sensitivity adjustment****************
+  rc_sensitizer(&rcr, setpoint_rc_sensitivity.x);
+  rc_sensitizer(&rcp, setpoint_rc_sensitivity.y);
+  rc_sensitizer(&rcy, setpoint_rc_sensitivity.z);
+  //****************rc sticks sensitivity adjustment****************
+
   #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
     if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
       if (setpoint_lobatt_wing_waggle_left==TRUE){
@@ -599,14 +629,21 @@ toytronics_set_sp_incremental_from_rc()
   rot_vec_by_quat_a2b( &w_dt_sp, &(setpoint.q_b2sp), &w_dt_body);
 
   // form diff quat
-  double total_angle = sqrt( w_dt_sp.x*w_dt_sp.x
-                             + w_dt_sp.y*w_dt_sp.y
-                             + w_dt_sp.z*w_dt_sp.z
-                             + 1e-9);
-  quat_t diff_quat = {cos(total_angle/2.0),
-                      sin(total_angle/2.0)*w_dt_sp.x/total_angle,
-                      sin(total_angle/2.0)*w_dt_sp.y/total_angle,
-                      sin(total_angle/2.0)*w_dt_sp.z/total_angle};
+  double total_angle = sqrt( w_dt_sp.x*w_dt_sp.x 
+                           + w_dt_sp.y*w_dt_sp.y 
+                           + w_dt_sp.z*w_dt_sp.z);
+  quat_t diff_quat;
+  if (total_angle < 1e-12){
+    diff_quat.q0 = 1;
+    diff_quat.q1 = 0;
+    diff_quat.q2 = 0;
+    diff_quat.q3 = 0;
+  } else {
+    diff_quat.q0 = cos(total_angle/2.0);
+    diff_quat.q1 = sin(total_angle/2.0)*w_dt_sp.x/total_angle;
+    diff_quat.q2 = sin(total_angle/2.0)*w_dt_sp.y/total_angle;
+    diff_quat.q3 = sin(total_angle/2.0)*w_dt_sp.z/total_angle;
+  }
 
   // use diff quat to update setpoint quat
   setpoint.q_n2sp = quat_mult_ret(setpoint.q_n2sp, diff_quat);

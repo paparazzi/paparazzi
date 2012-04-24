@@ -153,7 +153,7 @@ static inline void adc_init_irq( void );
 #ifdef USE_AD1_3
 #pragma message "Info: ADC1 Channel 3 enabled"
 #define ADC1_GPIO_3_INIT(gpio) {		\
-    (gpio).GPIO_Pin  = GPIO_Pin_5;		\
+    (gpio).GPIO_Pin  = GPIO_Pin_4;		\
     GPIO_Init(GPIOC, (&gpio));			\
 }
 #else

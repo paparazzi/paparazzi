@@ -103,8 +103,16 @@ void spi_clear_rx_buf(void) {
 
 struct spi_transaction* slave0;
 
-void spi_rw(struct spi_transaction  * _trans)
+int spi_rw(struct spi_transaction  * _trans) 
 {
+  /* Make sure that there is no transaction running. */
+  if ((slave0->status == SPITransPending) ||
+      (slave0->status == SPITransRunning) ||
+      (*(slave0->ready) == 1)) {
+  	  // Transaction submission failed
+          return 1;
+  }
+
   // Store local copy to notify of the results
   slave0 = _trans;
   slave0->status = SPITransRunning;
@@ -157,6 +165,9 @@ void spi_rw(struct spi_transaction  * _trans)
 
   // Enable DMA1 Channel4 Transfer Complete interrupt
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
+
+  // Transaction submission successfull
+  return 0;
 }
 
 

@@ -40,6 +40,7 @@ extern struct Int32AttitudeGains toytronics_hover_gains;
 extern struct Int32AttitudeGains toytronics_forward_gains;
 extern struct Int32AttitudeGains toytronics_aerobatic_gains;
 extern xyz_t setpoint_aerobatic_decay_time;
+extern xyz_t setpoint_rc_sensitivity;
 extern double tc_fading_upper_deg;
 extern double tc_fading_lower_deg;
 
