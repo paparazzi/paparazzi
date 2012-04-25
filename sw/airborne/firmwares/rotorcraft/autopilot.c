@@ -251,11 +251,9 @@ void autopilot_on_rc_frame(void) {
   /* if not in FAILSAFE mode check motor and in_flight status, read RC */
   if (autopilot_mode > AP_MODE_FAILSAFE) {
 
-    if (autopilot_mode > AP_MODE_KILL) {
-      /* an arming sequence is used to start/stop motors */
-      autopilot_arming_check_motors_on();
-      kill_throttle = ! autopilot_motors_on;
-    }
+    /* an arming sequence is used to start/stop motors */
+    autopilot_arming_check_motors_on();
+    kill_throttle = ! autopilot_motors_on;
 
     autopilot_check_in_flight(autopilot_motors_on);
 
