@@ -37,6 +37,7 @@ enum arming_throttle_state {
 
 enum arming_throttle_state autopilot_arming_state;
 uint8_t autopilot_arming_delay_counter;
+bool_t autopilot_unarming_mode_auto = FALSE;
 
 static inline void autopilot_arming_init(void) {
   autopilot_arming_state = STATE_UNINIT;
@@ -91,7 +92,7 @@ static inline void autopilot_arming_check_motors_on( void ) {
     autopilot_arming_delay_counter++;
     if (THROTTLE_STICK_DOWN() ||
         !rc_attitude_sticks_centered() ||
-        autopilot_mode != MODE_MANUAL) {
+        autopilot_mode != MODE_MANUAL || !autopilot_unarming_mode_auto) {
       autopilot_arming_state = STATE_MOTORS_OFF_READY;
     }
     else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY)
@@ -110,6 +111,10 @@ static inline void autopilot_arming_check_motors_on( void ) {
       autopilot_arming_state = STATE_MOTORS_ON;
     else if (autopilot_arming_delay_counter == 0)
       autopilot_arming_state = STATE_MOTORS_OFF_READY;
+      if (autopilot_mode != MODE_MANUAL)
+         autopilot_unarming_mode_auto = TRUE;
+      else 
+         autopilot_unarming_mode_auto = FALSE; 
     break;
   default:
     break;
