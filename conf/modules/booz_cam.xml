@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="booz_cam" dir="cam_control">
+  <doc>
+    <description>Camera control for BOOZ board</description>
+  </doc>
   <!-- depend require="booz_pwm|led" -->
   <header>
     <file name="booz_cam.h"/>

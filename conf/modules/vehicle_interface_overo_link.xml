@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="vi_overo_link" dir="vehicle_interface">
+  <doc>
+    <description>Vehicule Interface linked to Overo board</description>
+  </doc>
   <header>
     <file name="vi_overo_link.h"/>
   </header>

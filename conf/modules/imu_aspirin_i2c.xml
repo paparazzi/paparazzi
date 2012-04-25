@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="imu_aspirin_i2c" dir="sensors">
+  <doc>
+    <description>Aspirin IMU (all I2C version)</description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="imu_ppzuav.h"/>

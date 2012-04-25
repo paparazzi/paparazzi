@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="baro_board" dir="sensors">
+  <doc>
+    <description>Temporary hack to use baro interface on fixedwing</description>
+  </doc>
   <header>
     <file name="baro_board_module.h"/>
   </header>

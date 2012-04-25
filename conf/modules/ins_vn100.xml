@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="vn100" dir="ins">
+  <doc>
+    <description>VectorNav VN100 (SPI)</description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_vn100.h"/>

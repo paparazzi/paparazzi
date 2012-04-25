@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="sensors">
+  <doc>
+    <description>standalone hmc5843 magnetometer</description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="mag_hmc5843.h"/>

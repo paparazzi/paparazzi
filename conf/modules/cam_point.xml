@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="cam_point" dir="cam_control">
+  <doc>
+    <description>Camera control for fixedwing</description>
+  </doc>
   <header>
     <file name="cam.h"/>
     <file name="point.h"/>

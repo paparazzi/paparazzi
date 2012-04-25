@@ -49,7 +49,7 @@ static inline void autopilot_arming_set(bool_t motors_on) {
   }
   else {
     if (autopilot_arming_state == STATE_MOTORS_ON)
-      autopilot_arming_state = STATE_MOTORS_OFF_READY;
+      autopilot_arming_state = STATE_WAITING;
   }
 }
 
@@ -82,8 +82,7 @@ static inline void autopilot_arming_check_motors_on( void ) {
     autopilot_arming_delay_counter = 0;
     if (!THROTTLE_STICK_DOWN() &&
         rc_attitude_sticks_centered() &&
-        autopilot_mode == MODE_MANUAL &&
-        ahrs_is_aligned()) {
+        autopilot_mode == MODE_MANUAL) {
       autopilot_arming_state = STATE_ARMING;
     }
     break;
@@ -92,8 +91,7 @@ static inline void autopilot_arming_check_motors_on( void ) {
     autopilot_arming_delay_counter++;
     if (THROTTLE_STICK_DOWN() ||
         !rc_attitude_sticks_centered() ||
-        autopilot_mode != MODE_MANUAL ||
-        !ahrs_is_aligned()) {
+        autopilot_mode != MODE_MANUAL) {
       autopilot_arming_state = STATE_MOTORS_OFF_READY;
     }
     else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY)

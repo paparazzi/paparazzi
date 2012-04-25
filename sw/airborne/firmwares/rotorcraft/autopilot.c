@@ -148,30 +148,32 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 	  guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
 	  break;
 #endif
-	case AP_MODE_KILL:
-	  autopilot_set_motors_on(FALSE);
-	  guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
-	  break;
-	case AP_MODE_RC_DIRECT:
-	  guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
-	  break;
-	case AP_MODE_RATE_DIRECT:
-	case AP_MODE_RATE_Z_HOLD:
-	  guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
-	  break;
-	case AP_MODE_ATTITUDE_DIRECT:
-	case AP_MODE_ATTITUDE_CLIMB:
-	case AP_MODE_ATTITUDE_Z_HOLD:
-	  guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-	  break;
-	case AP_MODE_HOVER_DIRECT:
-	case AP_MODE_HOVER_CLIMB:
-	case AP_MODE_HOVER_Z_HOLD:
-	  guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
-	  break;
-	case AP_MODE_NAV:
-	  guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
-	  break;
+    case AP_MODE_KILL:
+      autopilot_set_motors_on(FALSE);
+      autopilot_in_flight = FALSE;
+      autopilot_in_flight_counter = 0;
+      guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
+      break;
+    case AP_MODE_RC_DIRECT:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+      break;
+    case AP_MODE_RATE_DIRECT:
+    case AP_MODE_RATE_Z_HOLD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+      break;
+    case AP_MODE_ATTITUDE_DIRECT:
+    case AP_MODE_ATTITUDE_CLIMB:
+    case AP_MODE_ATTITUDE_Z_HOLD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+      break;
+    case AP_MODE_HOVER_DIRECT:
+    case AP_MODE_HOVER_CLIMB:
+    case AP_MODE_HOVER_Z_HOLD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
+      break;
+    case AP_MODE_NAV:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
+      break;
 	case AP_MODE_TOYTRONICS_HOVER:
 	  guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_HOVER);
 	  break;
@@ -184,12 +186,12 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 	case AP_MODE_TOYTRONICS_AEROBATIC:
 	  guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC);
 	  break;
-	default:
-	  break;
-	}
-	/* vertical mode */
-	switch (new_autopilot_mode) {
-	case AP_MODE_FAILSAFE:
+    default:
+      break;
+    }
+    /* vertical mode */
+    switch (new_autopilot_mode) {
+    case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
 	  guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
 	  guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
@@ -283,13 +285,14 @@ void autopilot_on_rc_frame(void) {
     autopilot_set_mode(new_autopilot_mode);
   }
 
-  /* if not in FAILSAFE or KILL mode, check motor and in_flight status, read RC */
-  if (autopilot_mode > AP_MODE_KILL) {
+  /* if not in FAILSAFE mode check motor and in_flight status, read RC */
+  if (autopilot_mode > AP_MODE_FAILSAFE) {
 
-    /* an arming sequence is used to start/stop motors */
-    autopilot_arming_check_motors_on();
-
-    kill_throttle = ! autopilot_motors_on;
+    if (autopilot_mode > AP_MODE_KILL) {
+      /* an arming sequence is used to start/stop motors */
+      autopilot_arming_check_motors_on();
+      kill_throttle = ! autopilot_motors_on;
+    }
 
     autopilot_check_in_flight(autopilot_motors_on);
 

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="flight_benchmark" dir="benchmark">
+  <doc>
+    <description>Flight benchmark</description>
+  </doc>
   <header>
     <file name="flight_benchmark.h"/>
   </header>

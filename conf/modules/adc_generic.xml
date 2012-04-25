@@ -7,6 +7,11 @@
      -->
 
 <module name="adc_generic" dir="adcs">
+  <doc>
+    <description>Generic ADC</description>
+    <configure name="ADC_CHANNEL_GENERIC1" value="ADCX" description="choose which ADC is used for input 1"/>
+    <configure name="ADC_CHANNEL_GENERIC2" value="ADCX" description="choose which ADC is used for input 2"/>
+  </doc>
   <header>
     <file name="adc_generic.h"/>
   </header>

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="deploy_sonar_buoy">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="deploy_sonar_buoy.h"/>
   </header>

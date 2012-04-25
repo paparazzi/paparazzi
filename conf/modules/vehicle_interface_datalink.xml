@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="vi_datalink" dir="vehicle_interface">
+  <doc>
+    <description>Vehicule Interface over Datalink</description>
+  </doc>
   <header>
     <file name="vi_datalink.h"/>
   </header>
