@@ -93,11 +93,14 @@ void autopilot_periodic(void) {
     autopilot_detect_ground = FALSE;
   }
 #endif
-  if ( !autopilot_motors_on ||
+
+  /* set failsafe commands, if in FAILSAFE or KILL mode */
 #ifndef FAILSAFE_GROUND_DETECT
-       autopilot_mode == AP_MODE_FAILSAFE ||
+  if (autopilot_mode == AP_MODE_KILL ||
+      autopilot_mode == AP_MODE_FAILSAFE) {
+#else
+  if (autopilot_mode == AP_MODE_KILL) {
 #endif
-       autopilot_mode == AP_MODE_KILL ) {
     SetCommands(commands_failsafe,
 		autopilot_in_flight, autopilot_motors_on);
   }
