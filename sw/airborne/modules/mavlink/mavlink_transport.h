@@ -46,10 +46,12 @@
 /* MAVLINK Transport
  * downlink macros
  */
-extern uint8_t mavlink_down_packet_seq;
+extern uint8_t mavlink_down_packet_seq, temp_msg_id;
 extern uint16_t checksum;
 
-#define STXMAV  0x55
+extern uint8_t crc_extra[256];
+
+#define STXMAV  0xFE
 
 /** 4 = STXMAV + len + { packet_seq + AC/ID + COMPONENT/ID + MSG/ID } + ck_a + ck_b */
 #define MavlinkTransportSizeOf(_dev, _payload) (_payload-4)
@@ -68,12 +70,10 @@ extern uint16_t checksum;
  **/
 #define crc_accumulate(_data, _crcAccum)\
 {\
-	uint16_t *crcAccum = _crcAccum;\
-	uint8_t data = _data;\
-        uint8_t tmp;\
-        tmp=data ^ (uint8_t)(*crcAccum &0xff);\
-        tmp^= (tmp<<4);\
-        *crcAccum = (*crcAccum>>8) ^ (tmp<<8) ^ (tmp <<3) ^ (tmp>>4);\
+  uint8_t tmp;\
+  tmp = _data ^ (uint8_t)(_crcAccum &0xff);\
+  tmp ^= (tmp<<4);\
+  _crcAccum = (_crcAccum>>8) ^ (tmp<<8) ^ (tmp <<3) ^ (tmp>>4);\
 }
 
 /**
@@ -83,8 +83,7 @@ extern uint16_t checksum;
  */
 #define crc_init(_crcAccum)\
 {\
-	uint16_t* crcAccum = _crcAccum;\
-        *crcAccum = X25_INIT_CRC;\
+	_crcAccum = X25_INIT_CRC;\
 }
 
 
@@ -92,30 +91,30 @@ extern uint16_t checksum;
 #define MavlinkTransportPut1Byte(_dev, _x) TransportLink(_dev, Transmit(_x))
 #define MavlinkTransportSendMessage(_dev) TransportLink(_dev, SendMessage())
 
+#define MavlinkTransportPutUint8(_dev, _byte) { \
+    MavlinkTransportPut1Byte(_dev, _byte);		  \
+    crc_accumulate(_byte, checksum); \
+ }
+
 #define MavlinkTransportHeader(_dev, payload_len) { \
   MavlinkTransportPut1Byte(_dev, STXMAV);				\
   uint8_t msg_len = MavlinkTransportSizeOf(_dev, payload_len);	\
-  MavlinkTransportPut1Byte(_dev, msg_len);			\
-  crc_init(&checksum);			\
+  crc_init(checksum);			\
+  MavlinkTransportPutUint8(_dev, msg_len);			\
 }
 
 #define MavlinkTransportPutAcId(_dev, _byte) { \
-    MavlinkTransportPut1Byte(_dev, _byte);		  \
- }
-
-#define MavlinkTransportPutUint8(_dev, _byte) { \
-    MavlinkTransportPut1Byte(_dev, _byte);		  \
-    crc_accumulate(_byte, &checksum); \
+    MavlinkTransportPutUint8(_dev, _byte);		  \
  }
 
 #define MavlinkTransportPutPacketSequence(_dev) { \
     mavlink_down_packet_seq++;	\
     if(mavlink_down_packet_seq==0){ mavlink_down_packet_seq++; } \
-    MavlinkTransportPut1Byte(_dev, mavlink_down_packet_seq); \
+    MavlinkTransportPutUint8(_dev, mavlink_down_packet_seq); \
 }
 
-#define MavlinkTransportPutNamedUint8(_dev, _name, _byte) MavlinkTransportPut1Byte(_dev, _byte)
-#define MavlinkTransportPutClassUint8(_dev, _name, _byte) MavlinkTransportPut1Byte(_dev, _byte)
+#define MavlinkTransportPutNamedUint8(_dev, _name, _byte) { MavlinkTransportPutUint8(_dev, _byte); temp_msg_id=_byte;}
+#define MavlinkTransportPutClassUint8(_dev, _name, _byte) MavlinkTransportPutUint8(_dev, _byte)
 
 #define MavlinkTransportPut1ByteByAddr(_dev, _byte) {	 \
     uint8_t _x = *(_byte);		 \
@@ -128,7 +127,12 @@ extern uint16_t checksum;
   }
 
 #define MavlinkTransportTrailer(_dev) { \
-  MavlinkTransportPut2ByteByAddr(_dev, &checksum);	\
+  uint8_t extra_crc = crc_extra[temp_msg_id] ;\
+  crc_accumulate(extra_crc, checksum); \
+  uint8_t low = (uint8_t)checksum;\
+  uint8_t high = (uint8_t)(checksum>>8);\
+  MavlinkTransportPut1Byte(_dev, low);	\
+  MavlinkTransportPut1Byte(_dev, high);	\
   MavlinkTransportSendMessage(_dev) \
 } 
 

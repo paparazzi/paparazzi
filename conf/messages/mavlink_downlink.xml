@@ -3,14 +3,14 @@
 
 	<!-- The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot). --> 
 	<message id="0" name="HEARTBEAT">
+		<!-- Navigation mode bitfield, see MAV_AUTOPILOT_CUSTOM_MODE ENUM for some examples. This field is autopilot-specific. -->
+		<field name="custom_mode" type="uint32"/>
 		<!-- Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM) -->
 		<field name="type" type="uint8" values="MAV_TYPE_GENERIC|MAV_TYPE_FIXED_WING|MAV_TYPE_QUADROTOR|MAV_TYPE_COAXIAL|MAV_TYPE_HELICOPTER|MAV_TYPE_ANTENNA_TRACKER|MAV_TYPE_GCS|MAV_TYPE_AIRSHIP|MAV_TYPE_FREE_BALLOON|MAV_TYPE_ROCKET|MAV_TYPE_GROUND_ROVER|MAV_TYPE_SURFACE_BOAT|MAV_TYPE_SUBMARINE|MAV_TYPE_HEXAROTOR|MAV_TYPE_OCTOROTOR|MAV_TYPE_TRICOPTER|MAV_TYPE_FLAPPING_WING"/>
 		<!-- Autopilot type / class. defined in MAV_CLASS ENUM. This identifies the individual model. MAV_AUTOPILOT_PPZ for paparazzi -->
 		<field name="autopilot" type="uint8" values="MAV_AUTOPILOT_GENERIC|MAV_AUTOPILOT_PIXHAWK|MAV_AUTOPILOT_SLUGS|MAV_AUTOPILOT_ARDUPILOTMEGA|MAV_AUTOPILOT_OPENPILOT|MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY|MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY|MAV_AUTOPILOT_GENERIC_MISSION_FULL|MAV_AUTOPILOT_INVALID|MAV_AUTOPILOT_PPZ|MAV_AUTOPILOT_UDB|MAV_AUTOPILOT_FP"/> 
 		<!-- System mode bitfield, see MAV_MODE_FLAGS ENUM in mavlink/include/mavlink_types.h -->
 		<field name="base_mode" type="uint8"/>
-		<!-- Navigation mode bitfield, see MAV_AUTOPILOT_CUSTOM_MODE ENUM for some examples. This field is autopilot-specific. -->
-		<field name="custom_mode" type="uint32"/>
 		<!-- System status flag, see MAV_STATUS ENUM -->
 		<field name="system_status" type="uint8"/>
 		<!-- MAVLink version -->
@@ -32,8 +32,6 @@
 		<field name="voltage_battery" type="uint16"/>
 		<!-- Battery current, in 10*milliamperes (1 = 10 milliampere), -1: autopilot does not measure the current -->
 		<field name="current_battery" type="int16"/>
-		<!-- Remaining battery energy: (0%: 0, 100%: 100), -1: autopilot estimate the remaining battery -->
-		<field name="battery_remaining" type="int8"/>
 		<!-- Communication drops in percent, (0%: 0, 100%: 10'000), (UART, I2C, SPI, CAN), dropped packets on all links (packets that were corrupted on reception on the MAV) -->
 		<field name="drop_rate_comm" type="uint16"/>
 		<!-- Communication errors (UART, I2C, SPI, CAN), dropped packets on all links (packets that were corrupted on reception on the MAV) -->
@@ -46,6 +44,8 @@
 		<field name="errors_count3" type="uint16"/>
 		<!-- Autopilot-specific errors -->
 		<field name="errors_count4" type="uint16"/>
+		<!-- Remaining battery energy: (0%: 0, 100%: 100), -1: autopilot estimate the remaining battery -->
+		<field name="battery_remaining" type="int8"/>
 	</message>
 
 	<!-- The system time is the time of the master clock, typically the computer clock of the main onboard computer. -->
@@ -95,7 +95,7 @@
 	<!-- ID=21 DATALINK (PARAM_REQUEST_LIST) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD, SORT FIELDS BY LENGTH -->
 	<!-- Emit the value of a onboard parameter. The inclusion of param_count and param_index in the message allows the recipient to keep track of received parameters and allows him to re-request missing parameters after a loss or timeout. -->
 <!--	<message id="22" name="PARAM_VALUE">
 		<!-- Onboard parameter id -->
@@ -114,7 +114,7 @@
 	<!-- ID=23 DATALINK (PARAM_SET) -->
 
 	
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- The global position, as returned by the Global Positioning System (GPS). This is NOT the global position estimate of the sytem, but rather a RAW sensor value. See message GLOBAL_POSITION for the global position estimate. Coordinate frame is right-handed, Z-axis up (GPS frame) -->
 	<message id="24" name="GPS_RAW_INT">
 		<!-- Timestamp (microseconds since UNIX epoch or microseconds since system boot) -->
@@ -325,7 +325,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH-->
 	<!-- The scaled values of the RC channels received. (-100%) -10000, (0%) 0, (100%) 10000 -->
 	<message id="34" name="RC_CHANNELS_SCALED">
 		<!-- Timestamp (milliseconds since system boot) -->
@@ -353,7 +353,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- The RAW values of the RC channels received. The standard PPM modulation is as follows: 1000 microseconds: 0%, 2000 microseconds: 100%. Individual receivers/transmitters might violate this specification. -->
 	<message id="35" name="RC_CHANNELS_RAW">
 		<!-- Timestamp (milliseconds since system boot) -->
@@ -381,7 +381,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- The RAW values of the servo outputs (for RC input from the remote, use the RC_CHANNELS messages). The standard PPM modulation is as follows: 1000 microseconds: 0%, 2000 microseconds: 100%. -->
 	<message id="36" name="SERVO_OUTPUT_RAW">
 		<!-- Timestamp (since UNIX epoch or microseconds since system boot) -->
@@ -411,7 +411,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=37 DATALINK (MISSION_REQUEST_PARTIAL_LIST) -->
 	<!-- ID=38 DATALINK (MISSION_WRITE_PARTIAL_LIST) -->
 
-	<!-- ID=39 DATALINK (MISSION_ITEM) -->
+	<!-- ID=39 DATALINK (MISSION_ITEM)  SORT FIELDS BY LENGTH-->
 	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Message encoding a mission item. This message is emitted to announce the presence of a mission item and to set a mission item on the system. The mission item can be either in x, y, z meters (type: LOCAL) or x:lat, y:lon, z:altitude. Local frame is Z-down, right handed (NED), global frame is Z-up, right handed (ENU). http://qgroundcontrol.org/mavlink/waypoint_protocol -->
 	<message id="39" name="MISSION_ITEM">
@@ -461,7 +461,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=43 DATALINK (MISSION_REQUEST_LIST) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::.  SORT FIELDS BY LENGTH -->
 	<!-- This message is emitted as response to MISSION_REQUEST_LIST by the MAV and to initiate a write transaction. The GCS can then request the individual mission item based on the knowledge of the total number of MISSIONs. -->
 	<message id="44" name="MISSION_COUNT">
 		<!-- System ID -->
@@ -515,11 +515,8 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=50 DATALINK (SET_LOCAL_POSITION_SETPOINT) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
 	<!-- Transmit the current local setpoint of the controller to other MAVs (collision avoidance) and to the GCS. -->
 	<message id="51" name="LOCAL_POSITION_SETPOINT">
-		<!-- Coordinate frame - valid values are only MAV_FRAME_LOCAL_NED or MAV_FRAME_LOCAL_ENU -->
-		<field name="coordinate_frame" type="uint8" values="MAV_FRAME_GLOBAL|MAV_FRAME_LOCAL_NED|MAV_FRAME_MISSION|MAV_FRAME_GLOBAL_RELATIVE_ALT|MAV_FRAME_LOCAL_ENU"/>
 		<!-- x position -->
 		<field name="x" type="float"/>
 		<!-- y position -->
@@ -528,10 +525,12 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 		<field name="z" type="float"/>
 		<!-- Desired yaw angle -->
 		<field name="yaw" type="float"/>
+		<!-- Coordinate frame - valid values are only MAV_FRAME_LOCAL_NED or MAV_FRAME_LOCAL_ENU -->
+		<field name="coordinate_frame" type="uint8" values="MAV_FRAME_GLOBAL|MAV_FRAME_LOCAL_NED|MAV_FRAME_MISSION|MAV_FRAME_GLOBAL_RELATIVE_ALT|MAV_FRAME_LOCAL_ENU"/>
 	</message>
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- Transmit the current local setpoint of the controller to other MAVs (collision avoidance) and to the GCS. -->
 	<message id="52" name="GLOBAL_POSITION_SETPOINT_INT">
 		<!-- Coordinate frame - valid values are only MAV_FRAME_GLOBAL or MAV_FRAME_GLOBAL_RELATIVE_ALT -->
@@ -551,7 +550,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=54 DATALINK (SAFETY_SET_ALLOWED_AREA) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- Read out the safety zone the MAV currently assumes. -->
 	<message id="55" name="SAFETY_ALLOWED_AREA">
 		<!-- Coordinate frame, as defined by MAV_FRAME enum in mavlink_types.h. Can be either global, GPS, right-handed with Z axis up or local, right handed, Z axis down. -->
@@ -611,7 +610,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=61 DATALINK (SET_QUAD_SWARM_ROLL_PITCH_YAW_THRUST) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- Outputs of the APM navigation controller. The primary use of this message is to check the response and signs of the controller before actual flight and to assist with tuning controller parameters -->
 	<message id="62" name="NAV_CONTROLLER_OUTPUT">
 		<!-- Current desired roll in degrees -->
@@ -639,7 +638,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=66 DATALINK (REQUEST_DATA_STREAM) -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- NO DESCRIPTION -->
 	<message id="67" name="DATA_STREAM">
 		<!-- The ID of the requested data stream -->
@@ -665,14 +664,14 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 		<field name="airspeed" type="float"/>
 		<!-- Current ground speed in m/s -->
 		<field name="groundspeed" type="float"/>
-		<!-- Current heading in degrees, in compass units (0..360, 0=north) -->
-		<field name="heading" type="int16"/>
-		<!-- Current throttle setting in integer percent, 0 to 100 -->
-		<field name="throttle" type="uint16"/>
 		<!-- Current altitude (MSL), in meters -->
 		<field name="alt" type="float"/>
 		<!-- Current climb rate in meters/second -->
 		<field name="climb" type="float"/>
+		<!-- Current heading in degrees, in compass units (0..360, 0=north) -->
+		<field name="heading" type="int16"/>
+		<!-- Current throttle setting in integer percent, 0 to 100 -->
+		<field name="throttle" type="uint16"/>
 	</message>
 
 
@@ -743,7 +742,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	<!-- ID=99 FREE MAVLINK -->
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- Optical flow from a flow sensor (e.g. optical mouse sensor) -->
 	<message id="100" name="OPTICAL_FLOW">
 		<!-- Timestamp (UNIX) -->
@@ -926,7 +925,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 -->
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD, SORT FIELDS BY LENGTH -->
 	<!-- Send a key-value pair as float. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output. -->
 <!--	<message id="251" name="NAMED_VALUE_FLOAT">-->
 		<!-- Timestamp (milliseconds since system boot) -->
@@ -938,7 +937,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 	</message>
 -->
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD, SORT FIELDS BY LENGTH -->
 	<!-- Send a key-value pair as integer. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output. -->
 <!--	<message id="252" name="NAMED_VALUE_INT">-->
 		<!-- Timestamp (milliseconds since system boot) -->
@@ -961,7 +960,7 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 
 
 
-	<!-- .::|* NOT IMPLEMENTED YET *|::. -->
+	<!-- .::|* NOT IMPLEMENTED YET *|::. SORT FIELDS BY LENGTH -->
 	<!-- Send a debug value. The index is used to discriminate between values. These values show up in the plot of QGroundControl as DEBUG N. -->
 	<message id="254" name="MAV_DEBUG">
 		<!-- Timestamp (milliseconds since system boot) -->

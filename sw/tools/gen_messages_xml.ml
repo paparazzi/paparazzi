@@ -64,7 +64,6 @@ module Includes = struct
 	exception Duplicated_class_id of string
 	exception Duplicated_class_name of string
 	exception Repeated_element of string
-	exception Class_id_out_of_range of int
 		
 	(** Translates an "include" XML element into a value of the 'include' type  *)
 	let struct_of_xml_include = fun conf_xml ->
@@ -91,7 +90,7 @@ module Includes = struct
 			| e -> raise e
 	
 	let check_single_ids = fun xml_includes ->
-		let ids = List.map (fun inc -> if (inc.class_id > 15 || inc.class_id < 0) then raise (Class_id_out_of_range inc.class_id) else (string_of_int inc.class_id)) xml_includes in
+		let ids = List.map (fun inc -> string_of_int inc.class_id) xml_includes in
 		try
 			check_repeated_elements ids;
 		with 
@@ -108,7 +107,6 @@ module Includes = struct
 			xml_includes
 		with
 			| Duplicated_class_id ii -> raise (Duplicated_class_id ii)
-			| Class_id_out_of_range i -> raise (Class_id_out_of_range i)
 			| Duplicated_class_name n -> raise (Duplicated_class_name n)
 			| Invalid_include_structure exc -> raise (Invalid_include_structure exc)
 			| e -> raise e
@@ -122,6 +120,7 @@ module Classes = struct
 	exception Invalid_class_type of string
 	exception XML_parsing_error of string * string * string
 	exception Invalid_class_xml_node of string
+	exception Class_id_out_of_range of int
 	
 	(** Checks if the class type is one of the allowed ones *)
 	let check_class_type = fun attribute ->
@@ -151,6 +150,7 @@ module Classes = struct
 			let spread_xml = Xml.parse_file file in
 			(** Get class type *)
 			let class_type = struct_of_xml_class spread_xml in
+			if((class_type<>"ground")&&(class_id > 31 || class_id < 0)) then raise (Class_id_out_of_range class_id) else
 			(** Get messages piece of xml *)
 			let xml_piece_messages = Xml.children spread_xml in
 			(** Build the parameters list for the XML node *)
@@ -160,6 +160,7 @@ module Classes = struct
 		with
 			| Invalid_class_type t -> raise (Invalid_class_type t)
 			| Invalid_class_structure exc -> raise (Invalid_class_structure exc)
+			| Class_id_out_of_range i -> raise (Class_id_out_of_range i)
 			| Xml.Error (msg, pos) -> raise (XML_parsing_error (file,(Xml.error_msg msg),(string_of_int (Xml.line pos)))) 
 			| e -> raise e
 
@@ -219,7 +220,7 @@ module SpreadMessages = struct
 		with
 			| Includes.Invalid_include_structure exc -> failwith (sprintf "Invalid <include> structure (Exception: %s)" exc)
 			| Includes.Duplicated_class_id ii -> failwith (sprintf "Duplicated class id (%s) at includes file" ii)
-			| Includes.Class_id_out_of_range i -> failwith (sprintf "Class id (%d) out of range [0->15] at includes file" i)
+			| Classes.Class_id_out_of_range i -> failwith (sprintf "Class id (%d) out of range [0->31] at includes file. Only ground type classes can exceed 31" i)
 			| Includes.Duplicated_class_name n -> failwith (sprintf "Duplicated class name (%s) at includes file" n)
 			|	Classes.Invalid_class_structure exc -> failwith (sprintf "Invalid <class> structure (Exception: %s)" exc)
 			|	Classes.Invalid_class_type typ -> failwith (sprintf "Invalid class type: %s" typ)

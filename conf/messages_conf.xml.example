@@ -1,11 +1,6 @@
 <!-- MESSAGES CONFIGURATION FILE: Include the desired messages classes -->
-<!-- Maximum included files: 16   ids from 0 to 15. No repeated ids or names. -->
-
-<!-- To use mavlink telemetry messages and to be compatible with qgroundcontrol you must choose:
-	mavlink messages in telemetry file,
-	"mavlink" as telemetry protocol in Airframe file and
-	"mavlink_downlink" instead of "ap_downlink" in settings file.
--->
+<!-- Ids from 0 to 31. No repeated ids or names. -->
+<!-- Only ground type classes can exceed Id=31 -->
 <includes>
 <!-- MAIN CLASSES -->
 	<include file="downlink.xml"		class_name="common_telemetry"	class_id="0" />

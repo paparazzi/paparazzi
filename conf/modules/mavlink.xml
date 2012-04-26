@@ -4,7 +4,7 @@
   <header>
     <file name="mavlink.h"/>
   </header>
-  <periodic fun="PeriodicSendMavlink(MavlinkTransport, UART1)" freq="60"/>
+  <periodic fun="PeriodicSendMavlink(MavlinkTransport, DefaultDevice)" freq="60"/>
   <event fun="MavlinkDatalinkEvent()"/>
   <makefile>
     <file name="mavlink.c"/>
