@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009  Gautier Hattenberger
+ * Copyright (C) 2011  Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -29,8 +29,8 @@
 struct i2c_transaction i2c_test1;
 struct i2c_transaction i2c_test2;
 
-uint8_t i2c_abuse_test_counter = 0;
-uint16_t i2c_abuse_test_bitrate = 1000;
+volatile uint8_t i2c_abuse_test_counter = 0;
+volatile uint32_t i2c_abuse_test_bitrate = 1000;
 
 void init_i2c_abuse_test(void) {
   //LED_INIT(DEMO_MODULE_LED);
@@ -62,59 +62,59 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.buf[2] = 0x01<<5;
     i2c_test1.buf[3] = 0x00;
     i2c_test1.len_w = 4;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
     break;
   case 2:
     i2c_test1.type = I2CTransTx;
     i2c_test1.buf[0] = 0x01;  // set to gain to 1 Gauss
     i2c_test1.buf[1] = 0x01<<5;
     i2c_test1.len_w = 2;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 3:
     i2c_test1.type = I2CTransTx;
     i2c_test1.buf[0] = 0x00;  // set to continuous mode
     i2c_test1.len_w = 1;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 4:
     i2c_test1.type = I2CTransRx;
     i2c_test1.len_r = 1;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 5:
     i2c_test1.type = I2CTransRx;
     i2c_test1.len_r = 2;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 6:
     i2c_test1.type = I2CTransRx;
     i2c_test1.len_r = 3;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 7:
     i2c_test1.type = I2CTransRx;
     i2c_test1.len_r = 4;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 8:
     i2c_test1.type = I2CTransRx;
     i2c_test1.len_r = 5;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 9:
     // bad addr
     i2c_test1.slave_addr = 0x3C + 2;
     i2c_test1.type = I2CTransTx;
     i2c_test1.len_w = 1;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 10:
     // 2 consecutive
     i2c_test1.type = I2CTransTx;
     i2c_test1.buf[0] = 0x00;  // set to continuous mode
     i2c_test1.len_w = 1;
-    i2c_submit(&i2c2,&i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT,&i2c_test1);
   break;
   case 11:
     i2c_test1.slave_addr = 0x3C;
@@ -122,7 +122,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.len_r = 1;
     i2c_test1.len_w = 1;
     i2c_test1.buf[0] = 0x03;
-    i2c_submit(&i2c2, &i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT, &i2c_test1);
   break;
   case 12:
     i2c_test1.slave_addr = 0x3C;
@@ -130,7 +130,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.len_r = 2;
     i2c_test1.len_w = 1;
     i2c_test1.buf[0] = 0x03;
-    i2c_submit(&i2c2, &i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT, &i2c_test1);
   break;
   case 13:
     i2c_test1.slave_addr = 0x3C;
@@ -138,7 +138,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.len_r = 3;
     i2c_test1.len_w = 1;
     i2c_test1.buf[0] = 0x03;
-    i2c_submit(&i2c2, &i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT, &i2c_test1);
   break;
   case 14:
     i2c_test1.slave_addr = 0x3C;
@@ -146,7 +146,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.len_r = 4;
     i2c_test1.len_w = 1;
     i2c_test1.buf[0] = 0x03;
-    i2c_submit(&i2c2, &i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT, &i2c_test1);
   break;
   case 15:
     i2c_test1.slave_addr = 0x3C;
@@ -154,7 +154,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.len_r = 4;
     i2c_test1.len_w = 2;
     i2c_test1.buf[0] = 0x03;
-    i2c_submit(&i2c2, &i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT, &i2c_test1);
   break;
   default:
     i2c_test1.slave_addr = 0x3C;
@@ -162,25 +162,14 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.len_r = 5;
     i2c_test1.len_w = 1;
     i2c_test1.buf[0] = 0x03;
-    i2c_submit(&i2c2, &i2c_test1);
+    i2c_submit(&I2C_ABUSE_PORT, &i2c_test1);
   }
 }
 
 
 void event_i2c_abuse_test(void)
 {
-  if (i2c_idle(&i2c1))
-  {
-    LED_ON(7);	// green = idle
-    LED_OFF(6);
-  }
-  else
-  {
-    LED_ON(6); // red = busy
-    LED_OFF(7);
-  }
-
-  if (i2c_idle(&i2c2))
+  if (i2c_idle(&I2C_ABUSE_PORT))
   {
     LED_ON(5);	// green = idle
     LED_OFF(4);
@@ -200,7 +189,7 @@ void event_i2c_abuse_test(void)
 		  i2c_test2.type = I2CTransRx;
 		  i2c_test2.slave_addr = 0x92;
 		  i2c_test2.len_r = 2;
-	    i2c_submit(&i2c2,&i2c_test2);
+	    i2c_submit(&I2C_ABUSE_PORT,&i2c_test2);
 	  }
   }
 
@@ -214,31 +203,29 @@ void event_i2c_abuse_test(void)
 	    else
 	    {
 		// wait until ready:
-		if (i2c_idle(&i2c2))
+		if (i2c_idle(&I2C_ABUSE_PORT))
 		{
 			      i2c_abuse_test_counter = 1;
 
-			      i2c_setbitrate(&i2c2, i2c_abuse_test_bitrate);
+			      i2c_setbitrate(&I2C_ABUSE_PORT, i2c_abuse_test_bitrate);
 
 			      i2c_abuse_test_bitrate += 17000;
-			      if (i2c_abuse_test_bitrate > 500000)
+			      if (i2c_abuse_test_bitrate > 410000)
 			      {
-				i2c_abuse_test_bitrate -= 500000;
+				i2c_abuse_test_bitrate -= 410000;
 			      }
-		  	      LED_TOGGLE(4);
 			    }
 		}
 
 	    if (i2c_abuse_test_counter < 16)
 	    {
+	      RunOnceEvery(100,LED_TOGGLE(I2C_ABUSE_LED));
 	      i2c_abuse_send_transaction( i2c_abuse_test_counter );
-  	      LED_TOGGLE(5);
 	    }
   }
 }
 
 void periodic_50Hz_i2c_abuse_test(void) {
-  // LED_TOGGLE(DEMO_MODULE_LED);
 }
 
 

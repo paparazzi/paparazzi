@@ -583,6 +583,10 @@ void monitor_task( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
+#ifndef SINGLE_MCU
+  i2c_event();
+#endif
+
 #if USE_AHRS
 #if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);

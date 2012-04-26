@@ -216,7 +216,7 @@
      <define name="FAILSAFE_GROUND_DETECT"/>
      <define name="USE_GPS_ACC4R"/>
      <target name="ap" board="lisa_l_1.0">
-      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="asctec"/>
     </target>
     <target name="sim" board="pc">

@@ -31,6 +31,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
+#include "mcu_periph/i2c.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
@@ -82,18 +83,18 @@ static inline void main_periodic_task( void ) {
 #ifdef USE_I2C2
   RunOnceEvery(111, {
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-                   &i2c2_errors.ack_fail_cnt,
-                   &i2c2_errors.miss_start_stop_cnt,
-                   &i2c2_errors.arb_lost_cnt,
-                   &i2c2_errors.over_under_cnt,
-                   &i2c2_errors.pec_recep_cnt,
-                   &i2c2_errors.timeout_tlow_cnt,
-                   &i2c2_errors.smbus_alert_cnt,
-                   &i2c2_errors.unexpected_event_cnt,
-                   &i2c2_errors.last_unexpected_event);
+                   &i2c2.errors->ack_fail_cnt,
+                   &i2c2.errors->miss_start_stop_cnt,
+                   &i2c2.errors->arb_lost_cnt,
+                   &i2c2.errors->over_under_cnt,
+                   &i2c2.errors->pec_recep_cnt,
+                   &i2c2.errors->timeout_tlow_cnt,
+                   &i2c2.errors->smbus_alert_cnt,
+                   &i2c2.errors->unexpected_event_cnt,
+                   &i2c2.errors->last_unexpected_event);
     });
 #endif
-  if (cpu_time_sec > 1) imu_periodic();
+  if (sys_time.nb_sec > 1) imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
 }
 

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -31,6 +29,7 @@
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/uart.h"
+#include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
@@ -157,15 +156,15 @@ static void test_baro_periodic(void) {
   RunOnceEvery(2, {baro_periodic();});
   RunOnceEvery(100,{
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-                   &i2c2_errors.ack_fail_cnt,
-                   &i2c2_errors.miss_start_stop_cnt,
-                   &i2c2_errors.arb_lost_cnt,
-                   &i2c2_errors.over_under_cnt,
-                   &i2c2_errors.pec_recep_cnt,
-                   &i2c2_errors.timeout_tlow_cnt,
-                   &i2c2_errors.smbus_alert_cnt,
-                   &i2c2_errors.unexpected_event_cnt,
-                   &i2c2_errors.last_unexpected_event);
+                   &i2c2.errors->ack_fail_cnt,
+                   &i2c2.errors->miss_start_stop_cnt,
+                   &i2c2.errors->arb_lost_cnt,
+                   &i2c2.errors->over_under_cnt,
+                   &i2c2.errors->pec_recep_cnt,
+                   &i2c2.errors->timeout_tlow_cnt,
+                   &i2c2.errors->smbus_alert_cnt,
+                   &i2c2.errors->unexpected_event_cnt,
+                   &i2c2.errors->last_unexpected_event);
     });
 }
 static void test_baro_event(void) {BaroEvent(test_baro_on_baro_abs, test_baro_on_baro_diff);}
@@ -191,15 +190,15 @@ static void test_bldc_periodic(void) {
 
   RunOnceEvery(100,{
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-                   &i2c1_errors.ack_fail_cnt,
-                   &i2c1_errors.miss_start_stop_cnt,
-                   &i2c1_errors.arb_lost_cnt,
-                   &i2c1_errors.over_under_cnt,
-                   &i2c1_errors.pec_recep_cnt,
-                   &i2c1_errors.timeout_tlow_cnt,
-                   &i2c1_errors.smbus_alert_cnt,
-                   &i2c1_errors.unexpected_event_cnt,
-                   &i2c1_errors.last_unexpected_event);
+                   &i2c1.errors->ack_fail_cnt,
+                   &i2c1.errors->miss_start_stop_cnt,
+                   &i2c1.errors->arb_lost_cnt,
+                   &i2c1.errors->over_under_cnt,
+                   &i2c1.errors->pec_recep_cnt,
+                   &i2c1.errors->timeout_tlow_cnt,
+                   &i2c1.errors->smbus_alert_cnt,
+                   &i2c1.errors->unexpected_event_cnt,
+                   &i2c1.errors->last_unexpected_event);
     });
 }
 

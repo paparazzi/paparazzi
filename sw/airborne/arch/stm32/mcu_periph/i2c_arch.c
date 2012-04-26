@@ -287,9 +287,11 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
   }
 }
 
+void i2c_event(void)
+{
+}
 
-
-static inline void i2c_event(struct i2c_periph *p, uint32_t event)
+static inline void i2c_driver_event(struct i2c_periph *p, uint32_t event)
 {
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
   switch (p->status) {
@@ -509,7 +511,7 @@ void i2c1_hw_init(void) {
 void i2c1_ev_irq_handler(void) {
 
   uint32_t event = I2C_GetLastEvent(I2C1);
-  i2c_event(&i2c1, event);
+  i2c_driver_event(&i2c1, event);
 
 }
 
@@ -586,7 +588,7 @@ void i2c2_hw_init(void) {
 
 void i2c2_ev_irq_handler(void) {
   uint32_t event = I2C_GetLastEvent(I2C2);
-  i2c_event(&i2c2, event);
+  i2c_driver_event(&i2c2, event);
 }
 
 void i2c2_er_irq_handler(void) {
