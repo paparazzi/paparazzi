@@ -62,14 +62,12 @@
 	int16_t e = energy; \
 	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
 })
-/* XGGDEBUG:NEWMESS: if is rotorcraft in rotorcraft_status was sending &electrical.vsupply */
 
 #define SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
 	uint8_t _circle_count = NavCircleCount(); \
 	uint32_t nb_sec = sys_time.nb_sec; \
 	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
 })
-/* XGGDEBUG:NEWMESS: if is rotorcraft horizontal_mode should be &guidance_h_mode */
 
 #define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) SEND_MISSION_STATUS(_trans, _dev) 
 

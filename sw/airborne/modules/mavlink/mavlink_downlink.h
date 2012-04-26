@@ -197,7 +197,7 @@ DOWNLINK_SEND_GLOBAL_POSITION_INT(_trans, _dev, &time_boot_ms, &lat, &lon, &alt,
 	float alt_msl = estimator_z; \
 	float climb = (float) (gps.ned_vel.z/100); \
 	int16_t heading = (int16_t) ((gps.course/1e7)*57.32); \
-	uint16_t throttle = (uint16_t) ((v_ctl_throttle_slewed*100)/96); \
+	uint16_t throttle = (uint16_t) (v_ctl_throttle_slewed/96); \
 	Mavlink({ \
 DOWNLINK_SEND_VFR_HUD(_trans, _dev, &airspeed, &groundspeed, &alt_msl, &climb, &heading, &throttle); \
 		}); \

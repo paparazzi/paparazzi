@@ -53,6 +53,14 @@
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
+#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
+	uint16_t vsup = electrical.vsupply; \
+	int16_t amps = (int16_t) (electrical.current/10); \
+	int16_t pwr = (int16_t) (vsup*amps); \
+	int16_t e = energy; \
+	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
+})
+
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
                   &radio_control.status,			\

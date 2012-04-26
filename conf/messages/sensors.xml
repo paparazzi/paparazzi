@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <class type="downlink">
 
-	<message name="OPTICFLOW" id="234"><!-- SENSORS FILE -->
+	<message name="OPTICFLOW" id="234">
 		<field name="flow" type="uint16"></field>
 		<field name="ref_alt" type="float"></field>
 	</message>
 
-	<message name="XSENS" id="55"><!-- SENSORS FILE -->
+	<message name="XSENS" id="55">
 		<field name="counter" type="int16" unit=""/>
 
 		<field name="p" type="float" unit="deg/s"/>
@@ -130,7 +130,7 @@
 		<field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
 	</message>
 
-	<message name="TEST_PASSTHROUGH_STATUS" id="212"><!-- custom -->
+	<message name="TEST_PASSTHROUGH_STATUS" id="212">
 		<field name="io_proc_msg_cnt" type="uint32"/>
 		<field name="io_proc_err_cnt" type="uint32"/>
 		<field name="io_link_msg_cnt" type="uint32"/>

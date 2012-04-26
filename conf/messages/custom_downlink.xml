@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 <class type="downlink">
 <!-- IMU Messages: Inertial Measurement Unit -->
-	<message name="IMU_GYRO_INT" id="131"><!-- scaleds rename int and to custom -->
+	<message name="IMU_GYRO_INT" id="131">
 		<field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
 		<field name="gq"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
 		<field name="gr"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
 	</message>
 
-	<message name="IMU_ACCEL_INT" id="132"><!-- scaleds rename int and to custom -->
+	<message name="IMU_ACCEL_INT" id="132">
 		<field name="ax"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
 		<field name="ay"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
 		<field name="az"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
 	</message>
 
-	<message name="IMU_MAG_INT" id="133"><!-- scaleds rename int and to custom -->
+	<message name="IMU_MAG_INT" id="133">
 		<field name="mx"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
 		<field name="my"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
 		<field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
 	</message>
 
-	<message name="IMU_TURNTABLE" id="220"> <!-- custom -->
+	<message name="IMU_TURNTABLE" id="220">
 		<field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
 	</message>
 
@@ -36,10 +36,9 @@
 		<field name="busvolts"	type="uint16[]"/>
 	</message>
 
-<!-- XGGDEBUG: MOTOR PPZ Messages -->
+<!-- MOTOR Messages -->
 
-
-	<message name="MOTOR_BENCH_STATUS" id="94"><!-- custom -->
+	<message name="MOTOR_BENCH_STATUS" id="94">
 		<field name="time_ticks" type="uint32"/>
 		<field name="throttle" type="float" format="%.3f"/>
 		<field name="rpm" type="float"/>
@@ -50,14 +49,14 @@
 		<field name="mode" type="uint8"/>
 	</message>
 
-	<message name="MOTOR_BENCH_STATIC" id="95"><!-- custom -->
+	<message name="MOTOR_BENCH_STATIC" id="95">
 		<field name="av_rpm"     type="float"/>
 		<field name="av_thrust"  type="float"/>
 		<field name="av_current" type="float"/>
 		<field name="throttle"   type="uint16"/>
 	</message>
 
-	<message name="TURB_PRESSURE_RAW" id="61"><!-- custom Whith WINDTURBINE_STATUS? -->
+	<message name="TURB_PRESSURE_RAW" id="61">
 		<field name="ch_0" type="int32" unit="adc"/>
 		<field name="ch_1" type="int32" unit="adc"/>
 		<field name="ch_2" type="int32" unit="adc"/>
@@ -76,7 +75,7 @@
 		<field name="ch_15" type="int32" unit="adc"/>
 	</message>
 
-	<message name="TURB_PRESSURE_VOLTAGE" id="62"><!-- custom Whith WINDTURBINE_STATUS? -->
+	<message name="TURB_PRESSURE_VOLTAGE" id="62">
 		<field name="ch_1_p" type="float"/>
 		<field name="ch_1_t" type="float"/>
 		<field name="ch_2_p" type="float"/>
@@ -184,7 +183,7 @@
 		<field name="snapshot_image_number" type="uint16"/>
 	</message>
 
-	<message name="BOOZ2_CAM" id="168"><!-- custom cam -->
+	<message name="BOOZ2_CAM" id="168">
 		<field name="tilt" type="int16" unit="us"/>
 		<field name="pan" type="int16" unit="2^12rad" alt_unit="degres" alt_unit_coef="0.0139882"/>
 	</message>
@@ -238,7 +237,7 @@
 	</message>
 
 <!-- UNTYPICAL MEASUREMENTS Messages -->
-	<message name="TEMP_TCOUPLE" id="126"><!-- custom -->
+	<message name="TEMP_TCOUPLE" id="126">
 		<field name="fval0" type="float"/>
 		<field name="fval1" type="float"/>
 		<field name="fval2" type="float"/>
@@ -386,22 +385,13 @@
 		<field name="last_unexpected_event"       type="uint32"/>
 	</message>
 
-	<message name="BOOZ_DEBUG_FOO" id="245"><!-- custom -->
+	<message name="BOOZ_DEBUG_FOO" id="245">
 		<field name="ami_stat"   type="uint8"/>
 	</message>
 
-	<message name="BOOZ_MAX1167_ERR" id="246"><!-- custom -->
+	<message name="BOOZ_MAX1167_ERR" id="246">
 		<field name="erno"   type="uint8"/>
 	</message>
-
-
-
-
-
-
-
-
-
 
 	<message name="SHT_I2C_SERIAL" id="99"><!-- custom -->
 		<field name="serial0" type="uint32"/>
@@ -424,13 +414,9 @@
 		<field name="c7" type="uint16"/>
 	</message>
 
+<!-- HFF PPZ Messages -->
 
-
-
-
-<!-- XGGDEBUG: HFF PPZ Messages -->
-
-	<message name="HFF" id="164"><!-- custom -->
+	<message name="HFF" id="164">
 		<field name="x"              type="float"/>
 		<field name="y"              type="float"/>
 		<field name="xd"             type="float"/>
@@ -439,7 +425,7 @@
 		<field name="ydd"            type="float"/>
 	</message>
 
-	<message name="HFF_DBG" id="165"><!-- custom -->
+	<message name="HFF_DBG" id="165">
 		<field name="x_measure"      type="float"/>
 		<field name="y_measure"      type="float"/>
 		<field name="yd_measure"     type="float"/>
@@ -450,7 +436,7 @@
 		<field name="Pydyd"          type="float"/>
 	</message>
 
-	<message name="HFF_GPS" id="166"><!-- custom -->
+	<message name="HFF_GPS" id="166">
 		<field name="lag_cnt"     type="uint16"/>
 		<field name="lag_cnt_err" type="int16"/>
 		<field name="save_cnt"    type="int16"/>
@@ -460,10 +446,9 @@
 
 	<message name="LOADCELL" id="181">
 		<field name="load" type="int32"/>
-	</message><!-- custom -->
+	</message>
 
-
-	<message name="CONTROLLER_GAINS" id="192"><!-- custom  from here-->
+	<message name="CONTROLLER_GAINS" id="192">
 		<field name="roll_gamma_p"     type="float" />
 		<field name="roll_gamma_d"     type="float" />
 		<field name="roll_gamma_i"     type="float" />
@@ -501,7 +486,7 @@
 		<field name="setpoint_z" type="float" unit="m D"/>
 	</message>
 
-	<message name="HENRY_GNSS" id="255"> <!-- custom to here-->
+	<message name="HENRY_GNSS" id="255">
 		<field name="last_imu_update" type="uint32"/>
 		<field name="GPS_time" type="double"/>
 		<field name="GPS_solution_valid" type="uint8"/>
@@ -518,25 +503,24 @@
 		<field name="V_Down" type="double"/>
 	</message>
 
-
-	<message name="FMS_TIME" id="180"><!-- custom -->
+	<message name="FMS_TIME" id="180">
 		<field name="tv_sec"   type="uint32"/>
 		<field name="tv_nsec"  type="uint32"/>
 		<field name="delay_ns" type="uint32"/>
 	</message>
 
-	<message name="WT" id="175"><!-- custom -->
+	<message name="WT" id="175">
 		<field name="rpm"      type="float"/>
 	</message>
 
-	<message name="CSC_CAN_MSG" id="177"><!-- custom -->
+	<message name="CSC_CAN_MSG" id="177">
 		<field name="frame"   type="uint32"/>
 		<field name="id"      type="uint32"/>
 		<field name="data_a"  type="uint32"/>
 		<field name="data_b"  type="uint32"/>
 	</message>
 
-	<message name="DYNAMIXEL" id="188"><!-- custom -->
+	<message name="DYNAMIXEL" id="188">
 		<field name="left_wing"    type="uint16"/>
 		<field name="right_wing"   type="uint16"/>
 		<field name="left_wing_flag"    type="uint8"/>
@@ -547,7 +531,5 @@
 		<field name="fuse_rotation_angle"  type="float"/>
 		<field name="fuse_rotation_rate"   type="float"/>
 	</message>
-
-
 
 </class>
