@@ -416,7 +416,7 @@
 #define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {}
 #endif
 
-
+#if defined STABILISATION_ATTITUDE_TYPE_QUAT && defined STABILISATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {				\
     DOWNLINK_SEND_AHRS_REF_QUAT(_trans, _dev,				\
                   &stab_att_ref_quat.qi,	\
@@ -428,6 +428,9 @@
                   &ahrs.ltp_to_body_quat.qy,	\
                   &ahrs.ltp_to_body_quat.qz);	\
   }
+#else
+#define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {}
+#endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
 
 #define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {				\
     DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,				\
