@@ -7,6 +7,6 @@ SRC_BOOZ_TEST=$(SRC_BOOZ)/test
 
 SRC_BOOZ_PRIV=booz_priv
 
-CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
+CFG_BOOZ=$(PAPARAZZI_SRC)/conf/firmwares/
 
 BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)

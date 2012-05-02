@@ -4,8 +4,8 @@
 #
 
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
-#CFG_SETUP=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/setup
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
+#CFG_SETUP=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/setup
 
 SRC_ARCH=arch/$(ARCH)
 SRC_FIRMWARE=firmwares/setup

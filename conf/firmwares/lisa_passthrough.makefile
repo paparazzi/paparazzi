@@ -16,7 +16,7 @@ SRC_SUBSYSTEMS=subsystems
 SRC_ROTOR_ARCH=$(SRC_FIRMWARE)/actuators/arch/$(ARCH)
 SRC_IMU_ARCH=$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
 
-CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
+CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/firmwares/subsystems/lisa_passthrough
 
 
 stm_passthrough.ARCHDIR = stm32

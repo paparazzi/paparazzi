@@ -195,7 +195,7 @@
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 FLASH_MODE=IAP
 
@@ -239,7 +239,7 @@ ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c subsystems/navigation/nav_surv
 
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
 

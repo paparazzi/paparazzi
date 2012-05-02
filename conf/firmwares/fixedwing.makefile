@@ -5,8 +5,8 @@
 #
 
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
-CFG_FIXEDWING=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/fixedwing
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
+CFG_FIXEDWING=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/fixedwing
 
 
 SRC_FIXEDWING=.
