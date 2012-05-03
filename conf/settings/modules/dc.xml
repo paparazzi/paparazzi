@@ -1,4 +1,4 @@
-<!DOCTYPE settings SYSTEM "settings.dtd">
+<!DOCTYPE settings SYSTEM "../settings.dtd">
 
 <settings>
   <dl_settings name="control">
