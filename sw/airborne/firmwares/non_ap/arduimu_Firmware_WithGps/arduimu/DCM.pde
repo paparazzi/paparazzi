@@ -214,6 +214,7 @@ void Drift_correction(void)
 /**************************************************/
 void Accel_adjust(void)
 {
+ Accel_Vector[0] += Accel_Scale(speed_3d_diff);      // GPS Speed change on  Acc_x = GPS_speed'
  Accel_Vector[1] += Accel_Scale(speed_3d*Omega[2]);  // Centrifugal force on Acc_y = GPS_speed*GyroZ
  Accel_Vector[2] -= Accel_Scale(speed_3d*Omega[1]);  // Centrifugal force on Acc_z = GPS_speed*GyroY 
 }

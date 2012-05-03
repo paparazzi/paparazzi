@@ -188,12 +188,15 @@ long alt_MSL=0; //This is the altitude in millimeters
 long iTOW=0; //GPS Millisecond Time of Week
 long alt=0;  //Height above Ellipsoid in millimeters
 float speed_3d=0; //Speed (3-D)
+float speed_3d_prev=0; //Speed (3-D) on last measurement
+float speed_3d_diff=0; //Speed (3-D) derivated
 float ground_speed=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
 float ground_course=90;//This is the runaway direction of you "plane" in degrees
 float gc_offset = 0; // Force yaw output to ground course when fresh data available (only implemented for ublox&binary message)
 byte numSV=0; //Number of Sats used. 
 float ecefVZ=0; //Vertical Speed in m/s
 unsigned long GPS_timer=0;
+unsigned long GPS_timer_prev=0;
 
 #if GPS_PROTOCOL == 3
 // GPS UBLOX

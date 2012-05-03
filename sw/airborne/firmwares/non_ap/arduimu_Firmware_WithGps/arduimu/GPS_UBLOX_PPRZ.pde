@@ -96,6 +96,15 @@ void parse_i2c_gps(){
   Serial.print(speed_3d);
 #endif
 
+  if (((GPS_timer - GPS_timer_prev) < 270) &&
+      ((GPS_timer - GPS_timer_prev) > 230)) {
+    speed_3d_diff = (speed_3d - speed_3d_prev) *  4.;
+  }
+  else {
+    speed_3d_diff = 0;
+  }
+  GPS_timer_prev = GPS_timer;
+  speed_3d_prev = speed_3d;
 }
 
 /****************************************************************
