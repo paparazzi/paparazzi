@@ -97,6 +97,23 @@ void dl_parse_msg(void) {
   if (msg_id == DL_PING) {
     DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice)
   } else
+  if (msg_id == DL_ISSENDING) {
+    DOWNLINK_SEND_ACKISSENDING(DefaultChannel, DefaultDevice)
+  } else
+  if (msg_id == DL_TEST) {
+    uint32_t var1 = DL_TEST_var1(dl_buffer);
+    char* test = DL_TEST_test(dl_buffer);
+    uint16_t* test32 = DL_TEST_test32(dl_buffer);
+    uint16_t var2 = DL_TEST_var2(dl_buffer);
+    int32_t var3 = DL_TEST_var3(dl_buffer);
+    DOWNLINK_SEND_ACKTEST(DefaultChannel, DefaultDevice, test, test32, &var1, &var2, &var3);
+    /*uint32_t var1 = 123;
+    char test[2] = {'x','a'};
+    uint16_t test32[3] = {123,321,111};
+    uint16_t var2 = 101;
+    int32_t var3 = 555;
+    DOWNLINK_SEND_ACKTEST(DefaultChannel, DefaultDevice, test, test32, &var1, &var2, &var3);*/
+  } else
 #ifdef TRAFFIC_INFO
   if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) != AC_ID) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);

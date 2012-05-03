@@ -33,6 +33,7 @@ type format = string
 type _type =
     Basic of string
   | Array of string * string
+	| FixedArray of string * string * int
 
 type field = _type  * string * format option
 
@@ -48,11 +49,15 @@ type message = {
 module Syntax = struct
   (** Parse a type name and returns a _type value *)
   let parse_type = fun t varname ->
-    let n = String.length t in
-    if n >=2 && String.sub t (n-2) 2 = "[]" then
-      Array (String.sub t 0 (n-2), varname)
-    else
-      Basic t
+		try
+			let type_parts = Str.full_split (Str.regexp "[][]") t in
+			match type_parts with
+				| [Str.Text ty] -> Basic ty
+	  		| [Str.Text ty; Str.Delim "["; Str.Delim "]"] -> Array (ty, varname)
+	 			| [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> FixedArray (ty, varname, int_of_string len)
+	  		| _ -> failwith "Gen_messages: not a valid field type"
+		with
+			| Failure fail -> failwith("Gen_messages: not a valid array length")	
 
   let length_name = fun s -> "nb_"^s
 
@@ -66,10 +71,12 @@ module Syntax = struct
   let rec sizeof = function
       Basic t -> string_of_int (assoc_types t).Pprz.size
     | Array (t, varname) -> sprintf "1+%s*%s" (length_name varname) (sizeof (Basic t))
+		| FixedArray (t, varname, len) -> sprintf "1+%d*%s" len (sizeof (Basic t)) (* XGGDEBUG:FIXEDARRAY: no length byte *)
 
   let rec nameof = function
       Basic t -> String.capitalize t
     | Array _ -> failwith "nameof"
+		| FixedArray _ -> failwith "nameof"
 
   (** Translates a "message" XML element into a value of the 'message' type *)
   let struct_of_xml = fun xml ->
@@ -119,11 +126,15 @@ module Gen_onboard = struct
       Basic _ ->
 	fprintf h "\t  DownlinkPut%sByAddr(_trans, _dev, (%s)); \\\n" (Syntax.nameof t) name
     | Array (t, varname) ->
-	let _s = Syntax.sizeof (Basic t) in
-	fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
+			let _s = Syntax.sizeof (Basic t) in
+			fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
+	  | FixedArray (t, varname, len) -> 
+			let _s = Syntax.sizeof (Basic t) in
+			fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name (*XGGDEBUG:FIXEDARRAY: PutFixedArray *)
 
   let print_parameter h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
+		| (FixedArray _, s, _) -> fprintf h "%s" s
     | (_, s, _) -> fprintf h "%s" s
 
   let print_macro_parameters h = function
@@ -238,7 +249,7 @@ module Gen_onboard = struct
 				    for i = 1 to 7 do
 				      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
 				    done;
-						sprintf "%s" !s	
+						sprintf "%s)" !s	
 				| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
 	      (** To be an array or not to be an array: *)
@@ -259,11 +270,24 @@ module Gen_onboard = struct
 
 					  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
 					  offset := -1 (** Mark for no more fields *)
+				    (*in*)
+				| FixedArray (t, _varname, len) -> 
+					  (** The macro to access to the length of the array *)
+					  fprintf h "#define DL_%s_%s_length(_payload) (%s)\n" msg_name field_name (typed !offset (Syntax.assoc_types "uint8"));
+					  incr offset; (* XGGDEBUG:FIXEDARRAY: There's a length byte *)
+					  (** The macro to access to the array itself *)
+					  let pprz_type = Syntax.assoc_types t in
+					  if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
+					    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
+
+					  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
+					  offset := !offset + (pprz_type.Pprz.size*len) 
 				    in
-				
-				    fprintf h "\n";
-				    (** Do it for all the fields of the message *)
-				    List.iter parse_field message.fields
+
+								
+		    fprintf h "\n";
+		    (** Do it for all the fields of the message *)
+		    List.iter parse_field message.fields
 
 end (* module Gen_onboard *)
 

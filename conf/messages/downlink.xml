@@ -1,5 +1,15 @@
 <?xml version="1.0"?>
 <class type="downlink">
+	<message name="ACKTEST" id="66">
+		<field name="test" type="char[2]"/><!-- XGGDEBUG:REMOVE: -->
+		<field name="test2" type="uint16[3]"/>
+    <field name="var1" type="uint32"/>
+    <field name="var2" type="uint16"/>
+    <field name="var3" type="int32"/>
+	</message>
+
+	<message name="ACKISSENDING" id="68"><!-- XGGDEBUG:REMOVE: -->
+	</message>
 
 	<message name="ALIVE" id="2">
 		<field name="md5sum" type="uint8[]"/>

@@ -37,6 +37,7 @@ type format = string
 type _type =
     Scalar of string
   | ArrayType of string
+	| FixedArrayType of string
 type value =
     Int of int | Float of float | String of string | Int32 of int32 | Char of char | Int64 of int64
   | Array of value array
@@ -114,6 +115,21 @@ let type_of_array_type = fun s ->
   let n = String.length s in
   String.sub s 0 (n-2)
 
+let is_fixed_array_type = fun s ->
+	let type_parts = Str.full_split (Str.regexp "[][]") s in
+	match type_parts with
+		| [Str.Text _; Str.Delim "["; Str.Text _ ; Str.Delim "]"] -> true
+ 		| _ -> false
+
+let type_of_fixed_array_type = fun s ->
+	try
+		let type_parts = Str.full_split (Str.regexp "[][]") s in
+		match type_parts with
+			| [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> begin ignore( int_of_string (len)); ty end
+ 			| _ -> failwith("Pprz.type_of_fixed_array_type is not a fixed array type")
+	with
+		| Failure str -> failwith(sprintf "Pprz.type_of_fixed_array_type: length is not an integer")
+
 let int_of_string = fun x ->
   try int_of_string x with
     _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
@@ -128,6 +144,8 @@ let rec value = fun t v ->
 	| Scalar "char" -> Char v.[0] 
   | ArrayType t' ->
       Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
+	| FixedArrayType t' ->
+		  Array (Array.map (value (Scalar t')) (Array.of_list (split_array v))) (* XGGDEBUG:FIXEDARRAY: copy paste of avobe *)
   | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
 
 
@@ -154,15 +172,17 @@ let sizeof = fun f ->
   match f with
     Scalar t -> (List.assoc t types).size
   | ArrayType t -> failwith "sizeof: Array"
+	| FixedArrayType t -> failwith "sizeof: Array"
 let size_of_field = fun f -> sizeof f._type
 let default_format = function
-    Scalar x | ArrayType x ->
+    Scalar x | ArrayType x | FixedArrayType x ->
       try (List.assoc x types).format with
 	Not_found -> failwith (sprintf "Unknown format '%s'" x)
 let default_value = fun x ->
   match x with
     Scalar t -> (List.assoc t types).value
   | ArrayType t -> failwith "default_value: Array"
+	| FixedArrayType t -> failwith "default_value: Array"
 
 let payload_size_of_message = fun message ->
   List.fold_right
@@ -210,7 +230,7 @@ let alt_unit_coef_of_xml = function xml ->
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
-  let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
+  let t = if is_array_type t then ArrayType (type_of_array_type t) else if is_fixed_array_type t then FixedArrayType (type_of_fixed_array_type t) else Scalar t in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
   let auc = alt_unit_coef_of_xml xml in
   let values = try Str.split pipe_regexp (Xml.attrib xml "values") with _ -> [] in
@@ -289,6 +309,14 @@ let rec value_of_bin = fun buffer index _type ->
       let size = 1 + n * s in
       (Array (Array.init n
 	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
+	| FixedArrayType t -> (* XGGDEBUG:FIXEDARRAY: no length byte *)
+      (** First get the number of values *)
+      let n = int8_of_bytes buffer index in
+      let type_of_elt = Scalar t in
+      let s = sizeof type_of_elt in
+      let size = 1 + n * s in
+      (Array (Array.init n
+	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
   | Scalar "string" -> 
       let n = Char.code buffer.[index] in
       (String (String.sub buffer (index+1) n), (1+n))
@@ -348,6 +376,16 @@ let rec sprint_value = fun buf i _type v ->
 	ignore (sprint_value buf (i+1+j*s) type_of_elt values.(j))
       done;
       1 + n * s
+	| FixedArrayType t, Array values -> (* XGGDEBUG:FIXEDARRAY: not putting length byte *)
+      (** Put the size first, then the values *)
+      let n = Array.length values in
+      ignore (sprint_value buf i (Scalar "uint8") (Int n));
+      let type_of_elt = Scalar t in
+      let s = sizeof type_of_elt in
+      for j = 0 to n - 1 do
+	ignore (sprint_value buf (i+1+j*s) type_of_elt values.(j))
+      done;
+      1 + n * s
   | Scalar "string", String s ->
       let n = String.length s in
       assert (n < 256);
@@ -359,7 +397,7 @@ let rec sprint_value = fun buf i _type v ->
       1 + n
 	| Scalar "char", Char c ->
 			buf.[i] <- c; sizeof _type
-  | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
+  | (Scalar x|ArrayType x|FixedArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
 
 
 

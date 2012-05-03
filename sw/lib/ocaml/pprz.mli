@@ -36,6 +36,7 @@ type format = string
 type _type =
     Scalar of string
   | ArrayType of string
+	| FixedArrayType of string
 type value =
     Int of int | Float of float | String of string | Int32 of int32 | Char of char | Int64 of int64
   | Array of value array

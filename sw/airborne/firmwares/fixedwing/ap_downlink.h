@@ -53,7 +53,7 @@
 #define Downlink(x) {}
 #endif
 
-#define PERIODIC_SEND_ALIVE(_trans, _dev)  DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
+#define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
 	uint16_t vsup = vsupply; \
