@@ -88,7 +88,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
             let scale = Pprz.alt_unit_coef_of_xml f in
             let field_descr =
-              if Pprz.is_array_type type_ then
+              if Pprz.is_array_type type_ then (* XGGDEBUG:FIXARRAY: do something with fixed arrays (is_fixed_array_type)*)
                 match GToolbox.input_string ~title:"Index of value to drag" ~text:"0" "Index in the array ?" with
                     None -> field_name
                   | Some i -> sprintf "%s[%s]" field_name i

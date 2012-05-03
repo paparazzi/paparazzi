@@ -187,8 +187,10 @@ extern uint8_t crc_extra[256];
   } \
 }
 
-#define MavlinkTransportPutFloatArray(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutFloatByAddr, _n, _x)
-#define MavlinkTransportPutDoubleArray(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutDoubleByAddr, _n, _x)
+#define MavlinkTransportPutInt8Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutInt8ByAddr, _n, _x)
+#define MavlinkTransportPutUint8Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutUint8ByAddr, _n, _x)
+
+#define MavlinkTransportPutCharArray(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutCharByAddr, _n, _x)
 
 #define MavlinkTransportPutInt16Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutInt16ByAddr, _n, _x)
 #define MavlinkTransportPutUint16Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutUint16ByAddr, _n, _x)
@@ -196,12 +198,14 @@ extern uint8_t crc_extra[256];
 #define MavlinkTransportPutInt32Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutInt32ByAddr, _n, _x)
 #define MavlinkTransportPutUint32Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutUint32ByAddr, _n, _x)
 
+#define MavlinkTransportPutFloatArray(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutFloatByAddr, _n, _x)
+
 #define MavlinkTransportPutInt64Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutInt64ByAddr, _n, _x)
 #define MavlinkTransportPutUint64Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutUint64ByAddr, _n, _x)
 
-#define MavlinkTransportPutCharArray(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutCharByAddr, _n, _x)
+#define MavlinkTransportPutDoubleArray(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutDoubleByAddr, _n, _x)
 
-#define MavlinkTransportPutUint8Array(_dev, _n, _x) MavlinkTransportPutArray(_dev, MavlinkTransportPutUint8ByAddr, _n, _x)
+
 
 
 /** Receiving mavlink messages */

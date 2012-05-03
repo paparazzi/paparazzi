@@ -3,7 +3,7 @@
 	<message name="ACKTEST" id="66">
 		<field name="test" type="char[2]"/><!-- XGGDEBUG:REMOVE: -->
 		<field name="test2" type="uint16[3]"/>
-    <field name="var1" type="uint32"/>
+    <field name="var1" type="uint64"/>
     <field name="var2" type="uint16"/>
     <field name="var3" type="int32"/>
 	</message>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <class type="uplink">
 	<message name="TEST" id="14" link="forwarded"> <!-- XGGDEBUG:REMOVE: -->
-    <field name="var1" type="uint32"/>
+    <field name="var1" type="uint64"/>
 		<field name="test" type="char[2]"/>
 		<field name="test32" type="uint16[3]"/>
     <field name="var2" type="uint16"/>

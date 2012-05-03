@@ -97,11 +97,11 @@ void dl_parse_msg(void) {
   if (msg_id == DL_PING) {
     DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice)
   } else
-  if (msg_id == DL_ISSENDING) {
+  if (msg_id == DL_ISSENDING) {//XGGDEBUG:DELETE
     DOWNLINK_SEND_ACKISSENDING(DefaultChannel, DefaultDevice)
   } else
-  if (msg_id == DL_TEST) {
-    uint32_t var1 = DL_TEST_var1(dl_buffer);
+  if (msg_id == DL_TEST) {//XGGDEBUG:DELETE
+    uint64_t var1 = DL_TEST_var1(dl_buffer);
     char* test = DL_TEST_test(dl_buffer);
     uint16_t* test32 = DL_TEST_test32(dl_buffer);
     uint16_t var2 = DL_TEST_var2(dl_buffer);

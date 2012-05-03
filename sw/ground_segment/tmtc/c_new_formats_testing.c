@@ -8,15 +8,15 @@
 
 
 gboolean timeout_callback(gpointer data) {
-  IvySendMsg("ME ISSENDING 1");
-  int i1 = 123;
+  IvySendMsg("ME ISSENDING 1");//XGGDEBUG:DELETE FILE, and makefile sentence
+  unsigned long long i1 = 1234567890123456789ULL;
   char i2 = 'x';
   char i3 = 'a';
 
   int i4[3] = {1234,5432,1111};
   int i5 = 1234;
   int i6 = -1234;
-  IvySendMsg("ME TEST %d %c,%c %d,%d,%d %d %d 1", i1,i2,i3,i4[0],i4[1],i4[2],i5,i6);
+  IvySendMsg("ME TEST %llu %c,%c %d,%d,%d %d %d 1", i1,i2,i3,i4[0],i4[1],i4[2],i5,i6);
   return TRUE;
 }
 
