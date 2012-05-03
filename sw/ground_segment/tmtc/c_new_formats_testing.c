@@ -14,9 +14,8 @@ gboolean timeout_callback(gpointer data) {
   char i3 = 'a';
 
   int i4[3] = {1234,5432,1111};
-  int i5 = 1234;
   int i6 = -1234;
-  IvySendMsg("ME TEST %llu %c,%c %d,%d,%d %d %d 1", i1,i2,i3,i4[0],i4[1],i4[2],i5,i6);
+  IvySendMsg("ME TEST %llu %c,%c %d,%d,%d %d 1", i1,i2,i3,i4[0],i4[1],i4[2],i6);
   return TRUE;
 }
 
