@@ -1,6 +1,6 @@
-<!DOCTYPE settings SYSTEM "settings.dtd">
+<!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<!-- A conf to use to tune a new A/C -->
+<!-- A conf to use to tune a new A/C without airspeed -->
 
 <settings>
   <dl_settings>
@@ -37,10 +37,18 @@
       </dl_settings>
 
       <dl_settings name="climb">
+        <dl_setting MAX="2" MIN="0" STEP="1" var="v_ctl_speed_mode" shortname="speed mode" values="THROTTLE|AIRSPEED|GROUNDSPEED">
+          <strip_button name="TH" value="0" group="speed_mode"/>
+          <strip_button name="AS" value="1" group="speed_mode"/>
+          <strip_button name="GS" value="2" group="speed_mode"/>
+        </dl_setting>
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_min_cruise_throttle" shortname="min cruise thr" module="guidance/guidance_v" param="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE"/>
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_max_cruise_throttle" shortname="max cruise thr" module="guidance/guidance_v" param="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" module="guidance/guidance_v" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE"/>
 
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_pgain" shortname="pitch_p" param="V_CTL_AUTO_PITCH_PGAIN"/>
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_igain" shortname="pitch_i" param="V_CTL_AUTO_PITCH_IGAIN"/>
+        <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_dgain" shortname="pitch_d" param="V_CTL_AUTO_PITCH_DGAIN" module="guidance/guidance_v_n"/>
 
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_p" param="V_CTL_AUTO_THROTTLE_PGAIN"/>
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_igain" shortname="throttle_i" param="V_CTL_AUTO_THROTTLE_IGAIN"/>

@@ -1,4 +1,4 @@
-<!DOCTYPE settings SYSTEM "settings.dtd">
+<!DOCTYPE settings SYSTEM "../settings.dtd">
 
 <!-- A conf to use to tune a new A/C with airspeed-->
 
