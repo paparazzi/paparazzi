@@ -70,7 +70,7 @@ void Analog_Init(void)
 }
 
 //
-void Analog_Reference(uint8_t mode)
+void Analog_Reference(int mode)
 {
   analog_reference = mode;
 }

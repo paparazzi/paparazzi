@@ -9,10 +9,12 @@ void requestEvent(){
       I2C_Message_ar[1] = int(ToDeg(pitch)*100);
       I2C_Message_ar[2] = int(ToDeg(yaw)*100);
       I2C_Message_ar[3] = int(read_adc(0));
-      
+      if (groundstartDone == true) I2C_Message_ar[4] = 0x0101;
+      else I2C_Message_ar[4] = 0;
+
       byte* pointer;
       pointer = (byte*) &I2C_Message_ar;
-      Wire.send(pointer, 8);
+      Wire.send(pointer, 9);
       
 #if PRINT_DEBUG != 0
       /* for ground debug only, do not call Serial.print() from irq */

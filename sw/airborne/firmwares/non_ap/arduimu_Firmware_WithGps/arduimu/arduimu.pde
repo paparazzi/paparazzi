@@ -45,6 +45,7 @@
 
 //**********I2C Parameter ********************************************
 #define PRINT_I2C_Data 1     //Output through I2C
+#define ArduIMU_SLAVE_ADDR 0x24
 
 
 //********************************************************************
@@ -126,6 +127,9 @@ int magnetom_x;
 int magnetom_y;
 int magnetom_z;
 float MAG_Heading;
+
+boolean high_accel_flag = false; // disable update on accelerometers if true
+boolean do_ground_start = false; // ground start if true
 
 // Euler angles
 float roll;
@@ -307,11 +311,11 @@ void setup()
 
   //************Define I2C Output Handler***************************************************3
    #if PRINT_I2C_Data == 1
-      Wire.begin(17);                /* join i2c bus with address #2 */
+      Wire.begin(ArduIMU_SLAVE_ADDR>>1); /* join i2c bus with address #2 */
       Wire.onRequest(requestEvent);
    #else
      #if GPS_PROTOCOL == 5
-      Wire.begin(17);                /* join i2c bus with address #2 */
+      Wire.begin(ArduIMU_SLAVE_ADDR>>1); /* join i2c bus with address #2 */
      #endif
    #endif 
    
@@ -436,8 +440,11 @@ void loop() //Main Loop
 				
 			case(1):
 				//Here we will check if we are getting a signal to ground start
-				if(digitalRead(GROUNDSTART_PIN) == LOW && groundstartDone == false) 
+				if((digitalRead(GROUNDSTART_PIN) == LOW && groundstartDone == false) ||
+				   (do_ground_start == true && groundstartDone == false)) {
 					startup_ground();
+					do_ground_start = false;
+				}
 				break;
 				
 			case(2):

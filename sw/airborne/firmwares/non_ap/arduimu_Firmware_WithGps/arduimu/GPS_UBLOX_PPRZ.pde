@@ -68,6 +68,8 @@ void parse_i2c_gps(){
   ubGpsFix=Paparazzi_GPS_buffer[8];                                       // Status fix
   ubGpsFlags=Paparazzi_GPS_buffer[9];                                     // Status flags
   speed_3d = (float)join_4_bytes(&Paparazzi_GPS_buffer[10])/100.0;        // Speed 3D
+  if (Paparazzi_GPS_buffer[14] & 0x01) high_accel_flag = 1;
+  if (Paparazzi_GPS_buffer[14] & 0x02) do_ground_start = 1;
 
   /* let the main loop set the blue LED */
   if((ubGpsFix >= 0x03) && (ubGpsFlags & 0x01)){
