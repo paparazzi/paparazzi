@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="enose" dir="enose">
+  <doc>
+    <description>Chemical Enose sensor</description>
+  </doc>
   <header>
     <file name="enose.h"/>
     <file name="chemo_detect.h"/>

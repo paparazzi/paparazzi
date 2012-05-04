@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="cam_roll" dir="cam_control">
+  <doc>
+    <description>Camera control on roll axis only</description>
+  </doc>
   <header>
     <file name="cam.h"/>
   </header>

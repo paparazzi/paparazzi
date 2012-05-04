@@ -1,6 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ir_adc" dir="sensors">
+  <doc>
+    <description>Infrared sensor using ADC</description>
+    <configure name="ADC_IR1" value="ADCX" description="ADC for IR horizontal channel 1"/>
+    <configure name="ADC_IR2" value="ADCX" description="ADC for IR horizontal channel 2"/>
+    <configure name="ADC_IR_TOP" value="ADCX" description="ADC for IR vertical channel"/>
+    <configure name="ADC_IR_NB_SAMPLES" value="nb samples"/>
+  </doc>
   <header>
     <file name="infrared_adc.h"/>
   </header>

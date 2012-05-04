@@ -1,6 +1,7 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (depend?,header,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc?,depend?,header,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT doc (description,define*,configure*,section*)>
 <!ELEMENT depend EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
@@ -9,6 +10,8 @@
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
 <!ELEMENT makefile (configure|define|file|file_arch|raw)*>
+<!ELEMENT section (define|configure)*>
+<!ELEMENT description (#PCDATA)>
 <!ELEMENT configure EMPTY>
 <!ELEMENT define EMPTY>
 <!ELEMENT file EMPTY>
@@ -50,14 +53,20 @@ fun CDATA #REQUIRED>
 <!ATTLIST makefile
 target CDATA #IMPLIED>
 
+<!ATTLIST section
+name CDATA #REQUIRED
+prefix CDATA #IMPLIED>
+
 <!ATTLIST configure
 name CDATA #REQUIRED
-value CDATA #REQUIRED>
+value CDATA #REQUIRED
+description CDATA #IMPLIED>
 
 <!ATTLIST define
 name CDATA #REQUIRED
 value CDATA #IMPLIED
-type CDATA #IMPLIED>
+type CDATA #IMPLIED
+description CDATA #IMPLIED>
 
 <!ATTLIST file
 name CDATA #REQUIRED

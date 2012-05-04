@@ -7,6 +7,10 @@
    -->
 
 <module name="booz_pwm" dir="core">
+  <doc>
+    <description>Allow to use PWM output on booz boards, PWM0 is activated by default (PWM5 on lpc21 output)</description>
+    <define name="USE_PWM1" description="flag to activate with USE_PWM1 flag (PWM2 on lpc21 output)"/>
+  </doc>
   <header>
     <file name="booz_pwm_arch.h"/>
   </header>

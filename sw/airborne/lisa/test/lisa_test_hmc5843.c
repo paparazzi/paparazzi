@@ -41,6 +41,7 @@
 #include "led.h"
 
 #include "mcu_periph/uart.h"
+#include "mcu_periph/i2c.h"
 #include "peripherals/hmc5843.h"
 #include "my_debug_servo.h"
 #include "math/pprz_algebra_int.h"
@@ -91,15 +92,15 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(256,
     {
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-			       &i2c2_errors.ack_fail_cnt,
-			       &i2c2_errors.miss_start_stop_cnt,
-			       &i2c2_errors.arb_lost_cnt,
-			       &i2c2_errors.over_under_cnt,
-			       &i2c2_errors.pec_recep_cnt,
-			       &i2c2_errors.timeout_tlow_cnt,
-			       &i2c2_errors.smbus_alert_cnt,
-			       &i2c2_errors.unexpected_event_cnt,
-			       &i2c2_errors.last_unexpected_event);
+			       &i2c2.errors->ack_fail_cnt,
+			       &i2c2.errors->miss_start_stop_cnt,
+			       &i2c2.errors->arb_lost_cnt,
+			       &i2c2.errors->over_under_cnt,
+			       &i2c2.errors->pec_recep_cnt,
+			       &i2c2.errors->timeout_tlow_cnt,
+			       &i2c2.errors->smbus_alert_cnt,
+			       &i2c2.errors->unexpected_event_cnt,
+			       &i2c2.errors->last_unexpected_event);
     });
   if (mag_state == 2) send_config();
 

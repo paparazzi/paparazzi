@@ -7,6 +7,11 @@
      -->
 
 <module name="baro_scp_i2c" dir="sensors">
+  <doc>
+    <description>VTI SCP1000 pressure sensor (I2C)</description>
+    <define name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+  </doc>
   <header>
     <file name="baro_scp_i2c.h"/>
   </header>

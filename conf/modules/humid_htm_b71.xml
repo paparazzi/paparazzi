@@ -6,6 +6,10 @@
      -->
 
 <module name="humid_htm_b71" dir="meteo">
+  <doc>
+    <description>TronSens HTM-B71 humidity sensor (I2C)</description>
+    <define name="HTM_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+  </doc>
   <header>
     <file name="humid_htm_b71.h"/>
   </header>

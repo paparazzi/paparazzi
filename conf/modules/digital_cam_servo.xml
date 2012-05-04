@@ -20,6 +20,9 @@
 -->
 
 <module name="digital_cam_servo" dir="digital_cam">
+  <doc>
+    <description>Digital camera control (trigger using servo)</description>
+  </doc>
 
   <header>
     <file name="servo_cam_ctrl.h"/>

@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="cam_segment" dir="cam_control">
+  <doc>
+    <description>Camera control to point a segment</description>
+  </doc>
   <!--depend require="cam_point.xml"/-->
   <header>
     <file name="cam_segment.h"/>

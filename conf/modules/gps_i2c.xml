@@ -6,6 +6,9 @@ ap.CFLAGS += -DGPS_CONFIGURE -DGPS_PORT_ID=GPS_PORT_DDC
 -->
 
 <module name="gps_i2c">
+  <doc>
+    <description>U-blox gps using i2c (broken)</description>
+  </doc>
   <header>
     <file name="gps_i2c.h"/>
   </header>

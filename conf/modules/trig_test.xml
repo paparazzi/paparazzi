@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="trigger_ext" dir="core">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="trigger_ext.h"/>
   </header>

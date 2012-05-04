@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="openlog">
+  <doc>
+    <description>Openlog on-board data logger</description>
+  </doc>
   <header>
     <file name="openlog.h"/>
   </header>

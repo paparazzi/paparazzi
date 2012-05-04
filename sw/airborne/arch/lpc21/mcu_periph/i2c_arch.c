@@ -340,3 +340,34 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   return TRUE;
 }
+
+void i2c_event(void) { }
+
+void i2c_setbitrate(struct i2c_periph* p, int bitrate)
+{
+  int period = 15000000 / 2 / bitrate;
+  // Max 400kpbs
+  if (period < 19)
+    period = 19;
+  // Min 5kbps
+  if (period > 1500)
+    period = 1500;
+
+#if (PCLK == 30000000)
+  period *= 2;
+#endif
+
+#if (PCLK == 60000000)
+  period *= 4;
+#endif
+
+  /* default clock speed 37.5KHz with our 15MHz PCLK
+   * I2C_CLOCK = PCLK / (I2C_SCLL + I2C_SCLH)
+   */
+
+  /* set bitrate */
+  ((i2cRegs_t *)(p->reg_addr))->scll = period;
+  ((i2cRegs_t *)(p->reg_addr))->sclh = period;
+}
+
+

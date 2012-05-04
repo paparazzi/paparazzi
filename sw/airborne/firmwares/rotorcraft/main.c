@@ -196,6 +196,8 @@ STATIC_INLINE void failsafe_check( void ) {
 
 STATIC_INLINE void main_event( void ) {
 
+  i2c_event();
+
   DatalinkEvent();
 
   if (autopilot_rc) {

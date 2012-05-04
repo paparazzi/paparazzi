@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="airborne_ant_track" dir="airborne_ant_track">
+  <doc>
+    <description>Airborne Antenna tracker</description>
+  </doc>
   <header>
     <file name="airborne_ant_track.h"/>
   </header>

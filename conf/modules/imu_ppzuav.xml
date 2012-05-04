@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="imu_ppzuav" dir="sensors">
+  <doc>
+    <description></description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="imu_ppzuav.h"/>

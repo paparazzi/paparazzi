@@ -34,8 +34,6 @@
 
 #ifdef USE_I2C1
 
-extern struct i2c_errors i2c1_errors;
-
 extern void i2c1_hw_init(void);
 extern void i2c1_ev_irq_handler(void);
 extern void i2c1_er_irq_handler(void);
@@ -45,8 +43,6 @@ extern void i2c1_er_irq_handler(void);
 
 
 #ifdef USE_I2C2
-
-extern struct i2c_errors i2c2_errors;
 
 extern void i2c2_hw_init(void);
 extern void i2c2_ev_irq_handler(void);
