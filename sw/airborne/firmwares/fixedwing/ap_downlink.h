@@ -54,6 +54,17 @@
 #endif
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
+/*
+#include "subsystems/ins.h"
+#define PERIODIC_SEND_POSITION_SPEED_ACCEL(_trans, _dev) Downlink({ \
+  int32_t ref = 0;\
+	DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z, &ins_ltp_speed.x, &ins_ltp_speed.y, &ins_ltp_speed.z, &ins_ltp_accel.x, &ins_ltp_accel.y, &ins_ltp_accel.z, &ref, &ref, &ref);\
+})
+*/
+#include "subsystems/ahrs.h"
+#define PERIODIC_SEND_ELEV_INCLIN_HEADING(_trans, _dev) Downlink({ \
+	DOWNLINK_SEND_ELEV_INCLIN_HEADING(_trans, _dev, &ahrs_float.ltp_to_body_euler.phi, &ahrs_float.ltp_to_body_euler.theta, &ahrs_float.ltp_to_body_euler.psi, &ahrs_float.body_rate.p, &ahrs_float.body_rate.q, &ahrs_float.body_rate.r);\
+})
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
 	uint16_t vsup = vsupply; \

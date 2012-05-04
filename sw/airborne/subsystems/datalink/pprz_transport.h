@@ -274,12 +274,12 @@ static inline void pprz_parse_payload(struct pprz_transport * t) {
   dl_msg_available = TRUE;
   if((dl_buffer[0]!=t->trans.packet_seq+1)&&(dl_buffer[0]!=0)){
     	if((t->trans.packet_seq+1)<dl_buffer[0]){
-		//uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
-		//XGGDEBUG:SEQ: Do something like increment counter
-	}else{
-		//uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
-		//XGGDEBUG:SEQ: Do something like increment counter
-	}
+		    //uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
+		    //XGGDEBUG:SEQ: Do something like increment counter
+	    }else{
+		    //uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
+		    //XGGDEBUG:SEQ: Do something like increment counter
+	    }
   }
   t->trans.packet_seq = dl_buffer[0];
 }
