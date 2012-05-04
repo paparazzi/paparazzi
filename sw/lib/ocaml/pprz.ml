@@ -154,7 +154,7 @@ let rec value = fun t v ->
   | ArrayType t' ->
       Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
 	| FixedArrayType (t',l') ->
-		  Array (Array.map (value (Scalar t')) (Array.of_list (split_array v))) (* XGGDEBUG:FIXEDARRAY: copy paste of avobe *)
+		  Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
   | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
 
 
@@ -330,10 +330,8 @@ let rec value_of_bin = fun buffer index _type ->
       let size = 1 + n * s in
       (Array (Array.init n
 	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
-	| FixedArrayType (t,l) -> (* XGGDEBUG:FIXEDARRAY: no length byte *)
+	| FixedArrayType (t,l) ->
       (** First get the number of values *)
-      (*let n = int8_of_bytes buffer index in*)
-			(* XGGDEBUG:FIXEDARRAY: get num of bytes *)
 			let n = l in
       let type_of_elt = Scalar t in
       let s = sizeof type_of_elt in
@@ -399,10 +397,9 @@ let rec sprint_value = fun buf i _type v ->
 	ignore (sprint_value buf (i+1+j*s) type_of_elt values.(j))
       done;
       1 + n * s
-	| FixedArrayType (t,l), Array values -> (* XGGDEBUG:FIXEDARRAY: not putting length byte *)
+	| FixedArrayType (t,l), Array values ->
       (** Put the size first, then the values *)
       let n = Array.length values in
-      (*ignore (sprint_value buf i (Scalar "uint8") (Int n));*)
       let type_of_elt = Scalar t in
       let s = sizeof type_of_elt in
       for j = 0 to n - 1 do
@@ -456,12 +453,7 @@ let join_messages_of_type = fun xml _type final_class ->
 				let classes = List.map (fun _class -> {class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }) (Xml.children xml) in
 				let sel_classes = List.filter (fun _class -> 
 					if (_class.class_type = _type) || (_class.class_type = "datalink") then true else false
-					(*
-					match _class.class_type with 
-					| _type -> true 
-					| "datalink" -> true 
-					| _ -> false 
-					*)) classes in
+					) classes in
 				let msgs_lists = List.map (fun sel_class -> Xml.children sel_class.class_xml ) sel_classes in
 				let msgs_list = List.flatten msgs_lists in
 				let param_list = ["name",final_class] in

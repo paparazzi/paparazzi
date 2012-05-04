@@ -71,7 +71,7 @@ module Syntax = struct
   let rec sizeof = function
       Basic t -> string_of_int (assoc_types t).Pprz.size
     | Array (t, varname) -> sprintf "1+%s*%s" (length_name varname) (sizeof (Basic t))
-		| FixedArray (t, varname, len) -> sprintf "0+%d*%s" len (sizeof (Basic t)) (* XGGDEBUG:FIXEDARRAY: no length byte *)
+		| FixedArray (t, varname, len) -> sprintf "0+%d*%s" len (sizeof (Basic t))
 
   let rec nameof = function
       Basic t -> String.capitalize t
@@ -130,7 +130,7 @@ module Gen_onboard = struct
 			fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
 	  | FixedArray (t, varname, len) -> 
 			let _s = Syntax.sizeof (Basic t) in
-			fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name (*XGGDEBUG:FIXEDARRAY: PutFixedArray *)
+			fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name
 
   let print_parameter h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
@@ -270,12 +270,8 @@ module Gen_onboard = struct
 
 					  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
 					  offset := -1 (** Mark for no more fields *)
-				    (*in*)
 				| FixedArray (t, _varname, len) -> 
 					  (** The macro to access to the length of the array *)
-					  (*fprintf h "#define DL_%s_%s_length(_payload) (%s)\n" msg_name field_name (typed !offset (Syntax.assoc_types "uint8"));
-					  incr offset;*) 
-						(* XGGDEBUG:FIXEDARRAY: There's a length byte *)
 						fprintf h "#define DL_%s_%s_length(_payload) (%d)\n" msg_name field_name len;
 					  (** The macro to access to the array itself *)
 					  let pprz_type = Syntax.assoc_types t in

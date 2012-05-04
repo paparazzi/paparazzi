@@ -63,6 +63,7 @@ val separator : string
 (** Separator in array values *)
 
 val is_array_type : string -> bool
+val is_fixed_array_type : string -> bool
 
 val size_of_field : field -> int
 val string_of_value : value -> string
