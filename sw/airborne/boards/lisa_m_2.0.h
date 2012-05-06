@@ -44,9 +44,34 @@
 #define LED_5_GPIO_PIN GPIO_Pin_15
 #define LED_5_AFIO_REMAP ((void)0)
 
+/*
+ * LEDs not populated by default
+ */
+/* PC3, ADC13 on ADC_1 */
+#define LED_6_BANK
+#define LED_6_GPIO GPIOC
+#define LED_6_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_6_GPIO_PIN GPIO_Pin_3
+#define LED_6_AFIO_REMAP ((void)0)
 
-/* not actual LEDS, used as GPIOs */
+/* PC0, ADC10 on ADC_2 */
+#define LED_7_BANK
+#define LED_7_GPIO GPIOC
+#define LED_7_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_7_GPIO_PIN GPIO_Pin_0
+#define LED_7_AFIO_REMAP ((void)0)
 
+/* PC1, ADC11 on ADC_3 */
+#define LED_8_BANK
+#define LED_8_GPIO GPIOC
+#define LED_8_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_8_GPIO_PIN GPIO_Pin_1
+#define LED_8_AFIO_REMAP ((void)0)
+
+
+/*
+ * not actual LEDS, used as GPIOs
+ */
 #if 0
 // FIXME, why do we want that on UART3_TX ?
 /* PC10, shared with UART3_TX */
