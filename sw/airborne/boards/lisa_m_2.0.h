@@ -72,15 +72,6 @@
 /*
  * not actual LEDS, used as GPIOs
  */
-#if 0
-// FIXME, why do we want that on UART3_TX ?
-/* PC10, shared with UART3_TX */
-#define LED_11_BANK
-#define LED_11_GPIO GPIOC
-#define LED_11_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_11_GPIO_PIN GPIO_Pin_10
-#define LED_11_AFIO_REMAP ((void)0)
-#endif
 
 /* PC12, on GPIO connector*/
 #define LED_12_BANK
