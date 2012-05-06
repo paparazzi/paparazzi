@@ -5,37 +5,64 @@
 
 #define AHB_CLK 72000000
 
-/* Onboard LEDs */
+/*
+ * Onboard LEDs
+ */
+
+/* red, on PA8 */
 #define LED_1_BANK
-#define LED_1_GPIO GPIOB
-#define LED_1_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
-#define LED_1_GPIO_PIN GPIO_Pin_4
-#define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
+#define LED_1_GPIO GPIOA
+#define LED_1_GPIO_CLK RCC_APB2Periph_GPIOA
+#define LED_1_GPIO_PIN GPIO_Pin_8
+#define LED_1_AFIO_REMAP ((void)0)
 
-/* shared with ADC15 */
+/* green, shared with JTAG_TRST */
 #define LED_2_BANK
-#define LED_2_GPIO GPIOC
-#define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_2_GPIO_PIN GPIO_Pin_5
-#define LED_2_AFIO_REMAP ((void)0)
+#define LED_2_GPIO GPIOB
+#define LED_2_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
+#define LED_2_GPIO_PIN GPIO_Pin_4
+#define LED_2_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
+/* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_3_GPIO_PIN GPIO_Pin_2
 #define LED_3_AFIO_REMAP ((void)0)
 
+/* red, shared with ADC15 (ADC_4 on connector ANALOG2) */
 #define LED_4_BANK
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_4_GPIO_PIN GPIO_Pin_12
+#define LED_4_GPIO_PIN GPIO_Pin_5
 #define LED_4_AFIO_REMAP ((void)0)
 
+/* green, on PC15 */
 #define LED_5_BANK
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_5_GPIO_PIN GPIO_Pin_10
+#define LED_5_GPIO_PIN GPIO_Pin_15
 #define LED_5_AFIO_REMAP ((void)0)
+
+
+/* not actual LEDS, used as GPIOs */
+
+#if 0
+// FIXME, why do we want that on UART3_TX ?
+/* PC10, shared with UART3_TX */
+#define LED_11_BANK
+#define LED_11_GPIO GPIOC
+#define LED_11_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_11_GPIO_PIN GPIO_Pin_10
+#define LED_11_AFIO_REMAP ((void)0)
+#endif
+
+/* PC12, on GPIO connector*/
+#define LED_12_BANK
+#define LED_12_GPIO GPIOC
+#define LED_12_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_12_GPIO_PIN GPIO_Pin_12
+#define LED_12_AFIO_REMAP ((void)0)
 
 
 /* configuration for aspirin - and more generaly IMUs */
