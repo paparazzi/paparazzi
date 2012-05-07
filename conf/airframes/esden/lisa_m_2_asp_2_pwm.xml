@@ -200,7 +200,7 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin_v2.0"/>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization"   type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
