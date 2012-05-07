@@ -28,7 +28,7 @@
 #include "subsystems/imu.h"
 
 
-#ifdef IMU_ASPIRIN_VERSION_2_0
+#ifdef IMU_ASPIRIN_VERSION_2_1
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
 #define IMU_MAG_X_SIGN 1
 #define IMU_MAG_Y_SIGN 1
