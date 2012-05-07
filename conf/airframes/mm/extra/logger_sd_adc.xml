@@ -56,7 +56,7 @@
 
 CONFIG = \"tiny_2_1_1_usb.h\"
 
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 FLASH_MODE=IAP
 

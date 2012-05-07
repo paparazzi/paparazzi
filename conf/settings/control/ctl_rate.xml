@@ -1,0 +1,15 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+    <dl_settings NAME="control">
+          <dl_settings name="rate">
+	      <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="h_ctl_roll_rate_mode" shortname="mode" module="stabilization/stabilization_attitude"/>
+        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_hi_throttle_roll_rate_pgain" shortname="lo&hi rates pgains" module="stabilization/stabilization_attitude" handler="SetRollRatePGain"/>
+        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_hi_throttle_roll_rate_pgain" shortname="hi th pgain"/>
+        <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_lo_throttle_roll_rate_pgain" shortname="lo th pgain"/>
+        <dl_setting MAX="2" MIN="-2" STEP="0.1" VAR="h_ctl_roll_rate_dgain" shortname="dgain"/>
+        <dl_setting MAX="0" MIN="-20" STEP="1" VAR="h_ctl_roll_rate_setpoint_pgain" shortname="roll_pgain"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="h_ctl_auto1_rate" shortname="AUTO1 rate"/>
+      </dl_settings>
+  </dl_settings>
+</settings>

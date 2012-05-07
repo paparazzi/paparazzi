@@ -325,7 +325,7 @@ ap.CFLAGS += -DMODEM_BAUD=B57600
 #throttle killswitch
 ap.CFLAGS += -DRADIO_KILL_SWITCH=RADIO_CONTROL_SWITCH1
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 

@@ -174,8 +174,8 @@
 # Virtual AC
 
 # Config for HITL simulation on a V1_2_1 bi-AVR board
-include $(PAPARAZZI_SRC)/conf/autopilot/v1_2_1.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/twin_mcu_avr.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/v1_2_1.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/twin_mcu_avr.makefile
 
 # Harware In The Loop
 ap.CFLAGS += -DHITL
@@ -189,7 +189,7 @@ ap.EXTRA_SRCS += subsystems/navigation/traffic_info.c datalink.c
 ap.CFLAGS += -DDATALINK -DPPRZ_INPUT -DPPRZ_UART=Uart0
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
 sim.srcs += subsystems/navigation/nav_survey_rectangle.c
 
  </makefile>

@@ -318,7 +318,7 @@ overo_sfb.srcs    += $(SRC_BETH)/overo_sfb_controller.c
 #
 #
 #
-include $(PAPARAZZI_SRC)/conf/autopilot/obsolete/lisa_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/obsolete/lisa_test_progs.makefile
 
   </makefile>
 

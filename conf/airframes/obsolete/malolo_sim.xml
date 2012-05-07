@@ -217,7 +217,7 @@
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 
 # Config for SITL simulation with JSBSim

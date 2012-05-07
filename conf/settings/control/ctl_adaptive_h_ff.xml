@@ -1,0 +1,16 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- A conf to use to tune a new A/C -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="stabilization/stabilization_adaptive">
+      <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_roll_Kffa" module="stabilization/stabilization_adaptive" shortname="roll_Kffa"/>
+      <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_roll_Kffd" module="stabilization/stabilization_adaptive" shortname="roll_Kffd"/>
+      <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_pitch_Kffa" module="stabilization/stabilization_adaptive" shortname="pitch_Kffa"/>
+      <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_pitch_Kffd" module="stabilization/stabilization_adaptive" shortname="pitch_Kffd"/>
+      <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_roll_igain" module="stabilization/stabilization_adaptive" handler="SetRollIGain"/>
+      <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_pitch_igain" module="stabilization/stabilization_adaptive" handler="SetPitchIGain"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

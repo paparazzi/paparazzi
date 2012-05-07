@@ -79,7 +79,7 @@ TARGET_DIR  = ~
 <!--ap.CFLAGS += -DDISABLE_CAN=1-->
 ap.CFLAGS += -DTELEMETRY_MODE_DEFAULT=TELEMETRY_MODE_Main_default
 
-include $(PAPARAZZI_SRC)/conf/autopilot/whirly_ap.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/whirly_ap.makefile
 
   </makefile>
 
