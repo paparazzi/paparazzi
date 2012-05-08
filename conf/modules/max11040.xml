@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="max11040" dir="adcs">
+  <doc>
+    <description>Max11040 ADC</description>
+  </doc>
   <header>
     <file name="max11040.h"/>
   </header>

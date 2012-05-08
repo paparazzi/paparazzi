@@ -4,13 +4,13 @@
 
   <!-- booz2 -->
   <aircraft
-    name="BOOZ2_A1"
+    name="BOOZ2"
     ac_id="150"
-    airframe="airframes/Poine/booz2_a1.xml"
+    airframe="airframes/examples/booz2.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+    settings="settings/rotorcraft_basic.xml"
     gui_color="white"
     />
 
@@ -18,21 +18,21 @@
   <aircraft
     name="Hexa_LisaL"
     ac_id="153"
-    airframe="airframes/Poine/h_hex.xml"
+    airframe="airframes/examples/h_hex.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml"
+    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
     gui_color="white"
     />
   <aircraft
-    name="LISA_ASCTEC_PIOTR"
-    ac_id="161"
-    airframe="airframes/esden/lisa_asctec.xml"
+    name="Quad_LisaM"
+    ac_id="162"
+    airframe="airframes/examples/quadrotor_lisa_m_2_pwm.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+    flight_plan="flight_plans/rotorcraft_basic.xml"
+    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
     gui_color="white"
     />
 
@@ -40,41 +40,41 @@
   <aircraft
     name="Microjet"
     ac_id="5"
-    airframe="airframes/microjet_example.xml"
+    airframe="airframes/examples/microjet.xml"
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/basic.xml"
-    settings="settings/basic_infrared.xml"
+    settings="settings/fixedwing_basic.xml settings/estimation/infrared.xml"
     gui_color="#6293ba"
     />
   <aircraft
     name="Tiny_IMU"
     ac_id="7"
-    airframe="airframes/example_twog_analogimu.xml"
+    airframe="airframes/examples/twog_analogimu.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_fixedwing_imu.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning_ins.xml"
+    settings="settings/fixedwing_tuning.xml settings/estimation/ins_neutrals.xml"
     gui_color="blue"
     />
   <aircraft
     name="Twinjet"
     ac_id="6"
-    airframe="airframes/twinjet_example.xml"
+    airframe="airframes/examples/twinjet.xml"
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml settings/infrared.xml"
+    settings="settings/fixedwing_tuning.xml settings/estimation/infrared.xml"
     gui_color="#ba6293"
     />
   <aircraft
     name="EasyStar_ETS"
     ac_id="8"
-    airframe="airframes/easystar_ets_example.xml"
+    airframe="airframes/examples/easystar_ets.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml settings/infrared.xml"
+    settings="settings/fixedwing_tuning.xml settings/estimation/infrared.xml"
     gui_color="red"
     />
 
@@ -86,7 +86,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml"
+    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
     gui_color="white"
     />
   <aircraft
@@ -96,7 +96,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml"
+    settings="settings/rotorcraft_basic.xml"
     gui_color="white"
     />
 </conf>

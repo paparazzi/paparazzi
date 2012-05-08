@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="temp_tcouple_adc" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="temp_tcouple_adc.h"/>
   </header>

@@ -5,6 +5,11 @@
      -->
 
 <module name="drop">
+  <doc>
+    <description>Drop control for BOOZ board</description>
+    <define name="DROP_SERVO_OPEN" value="pwm" description="PWM value when servo is in open position in us (optional)"/>
+    <define name="DROP_SERVO_CLOSED" value="pwm" description="PWM value when servo is in closed position in us (optional)"/>
+  </doc>
   <!-- depend require="booz_pwm" -->
   <header>
     <file name="booz_drop.h"/>

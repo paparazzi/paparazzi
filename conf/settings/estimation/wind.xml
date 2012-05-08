@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- Set wind velocity -->
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="wind">
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>

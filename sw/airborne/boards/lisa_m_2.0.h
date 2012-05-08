@@ -7,37 +7,80 @@
 #define EXT_CLK 12000000
 #define AHB_CLK 72000000
 
-/* Onboard LEDs */
+/*
+ * Onboard LEDs
+ */
+
+/* red, on PA8 */
 #define LED_1_BANK
-#define LED_1_GPIO GPIOB
-#define LED_1_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
-#define LED_1_GPIO_PIN GPIO4
-#define LED_1_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
+#define LED_1_GPIO GPIOA
+#define LED_1_GPIO_CLK RCC_APB2ENR_IOPAEN
+#define LED_1_GPIO_PIN GPIO8
+#define LED_1_AFIO_REMAP ((void)0)
 
-/* shared with ADC15 */
+/* green, shared with JTAG_TRST */
 #define LED_2_BANK
-#define LED_2_GPIO GPIOC
-#define LED_2_GPIO_CLK RCC_APB2ENR_IOPCEN
-#define LED_2_GPIO_PIN GPIO5
-#define LED_2_AFIO_REMAP ((void)0)
+#define LED_2_GPIO GPIOB
+#define LED_2_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+#define LED_2_GPIO_PIN GPIO4
+#define LED_2_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
 
+/* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_3_GPIO_PIN GPIO2
 #define LED_3_AFIO_REMAP ((void)0)
 
+/* red, shared with ADC15 (ADC_4 on connector ANALOG2) */
 #define LED_4_BANK
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2ENR_IOPCEN
-#define LED_4_GPIO_PIN GPIO12
+#define LED_4_GPIO_PIN GPIO5
 #define LED_4_AFIO_REMAP ((void)0)
 
+/* green, on PC15 */
 #define LED_5_BANK
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2ENR_IOPCEN
-#define LED_5_GPIO_PIN GPIO10
+#define LED_5_GPIO_PIN GPIO15
 #define LED_5_AFIO_REMAP ((void)0)
+
+/*
+ * LEDs not populated by default
+ */
+/* PC3, ADC13 on ADC_1 */
+#define LED_6_BANK
+#define LED_6_GPIO GPIOC
+#define LED_6_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_6_GPIO_PIN GPIO3
+#define LED_6_AFIO_REMAP ((void)0)
+
+/* PC0, ADC10 on ADC_2 */
+#define LED_7_BANK
+#define LED_7_GPIO GPIOC
+#define LED_7_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_7_GPIO_PIN GPIO0
+#define LED_7_AFIO_REMAP ((void)0)
+
+/* PC1, ADC11 on ADC_3 */
+#define LED_8_BANK
+#define LED_8_GPIO GPIOC
+#define LED_8_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_8_GPIO_PIN GPIO1
+#define LED_8_AFIO_REMAP ((void)0)
+
+
+/*
+ * not actual LEDS, used as GPIOs
+ */
+
+/* PC12, on GPIO connector*/
+#define LED_12_BANK
+#define LED_12_GPIO GPIOC
+#define LED_12_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_12_GPIO_PIN GPIO12
+#define LED_12_AFIO_REMAP ((void)0)
 
 
 /* configuration for aspirin - and more generaly IMUs */

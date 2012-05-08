@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="gps_ubx" dir="gps">
+  <doc>
+    <description>Ublox gps (uart)</description>
+  </doc>
   <header>
     <file name="gps_ubx_uart.h"/>
   </header>

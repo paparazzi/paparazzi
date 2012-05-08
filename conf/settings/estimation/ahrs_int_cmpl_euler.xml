@@ -1,0 +1,11 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="Filter">
+       <dl_setting var="ahrs_impl.reinj_1" min="512" step="512" max="262144" module="subsystems/ahrs/ahrs_int_cmpl_euler" shortname="reinj_1"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>

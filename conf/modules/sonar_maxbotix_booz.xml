@@ -8,6 +8,13 @@
      -->
 
 <module name="sonar">
+  <doc>
+    <description>
+     Maxbotix Sonar driver
+     On Booz board, ADC_0 should be use by default (payload connector)
+    </description>
+    <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
+  </doc>
   <header>
     <file name="sonar_maxbotix.h"/>
     <file name="../../subsystems/ins.h"/>

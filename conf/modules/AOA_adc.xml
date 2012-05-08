@@ -5,6 +5,10 @@
      -->
 
 <module name="AOA_adc" dir="sensors">
+  <doc>
+    <description>Angle of Attack using internal ADC</description>
+    <configure name="ADC_AOA" value="ADCX" description="select the ADC channel to use"/>
+  </doc>
 
   <header>
     <file name="AOA_adc.h"/>

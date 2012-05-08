@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="gsm">
+  <doc>
+    <description>GSM module</description>
+  </doc>
   <header>
     <file name="gsm.h"/>
   </header>

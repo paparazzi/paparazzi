@@ -6,6 +6,10 @@
      -->
 
 <module name="humid_sht_i2c" dir="meteo">
+  <doc>
+    <description>Sensirion SHT25 humidity sensor (I2C)</description>
+    <define name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+  </doc>
   <header>
     <file name="humid_sht_i2c.h"/>
   </header>

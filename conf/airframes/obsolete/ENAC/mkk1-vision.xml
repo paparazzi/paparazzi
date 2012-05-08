@@ -241,7 +241,7 @@ FLASH_MODE=IAP
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT

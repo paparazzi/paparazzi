@@ -28,6 +28,14 @@
 
 #include "generated/airframe.h"
 
+#ifndef STABILIZATION_ATTITUDE_FLOAT_GAIN_NB
+#define STABILIZATION_ATTITUDE_FLOAT_GAIN_NB 1
+#endif
+
+#ifndef STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT
+#define STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT 0
+#endif
+
 struct FloatAttitudeGains {
   struct FloatVect3  p;
   struct FloatVect3  d;

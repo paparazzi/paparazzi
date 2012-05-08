@@ -1,6 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="light">
+  <doc>
+    <description>Navigation leds</description>
+    <section name="LIGHT">
+      <define name="LIGHT_LED_STROBE" value="X" description="led number"/>
+      <define name="LIGHT_LED_NAV" value="X" description="led number"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="X" description="flashing mode for strobe light"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="X" description="flashing mode for nav light"/>
+    </section>
+  </doc>
   <header>
     <file name="light.h"/>
   </header>

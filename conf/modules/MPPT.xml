@@ -1,6 +1,12 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="MPPT">
+  <doc>
+    <description>
+      Maximum Power Point Tracker
+      Solar Cells control board by Michel
+    </description>
+  </doc>
   <header>
     <file name="MPPT.h"/>
   </header>

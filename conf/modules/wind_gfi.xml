@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="wind_gfi" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="wind_gfi.h"/>
   </header>

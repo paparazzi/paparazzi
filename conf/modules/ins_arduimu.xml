@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ins_ArduIMU" dir="ins">
+  <doc>
+    <description>ArduIMU v2</description>
+  </doc>
   <header>
     <file name="ins_arduimu.h"/>
   </header>

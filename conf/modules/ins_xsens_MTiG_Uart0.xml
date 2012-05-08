@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ins">
+  <doc>
+    <description>XSens MTiG</description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <!-- <depend require="gps_xsens" -->
   <header>

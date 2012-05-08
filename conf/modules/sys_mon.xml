@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="sys_mon" dir="core">
+  <doc>
+    <description>System monitor</description>
+  </doc>
   <header>
     <file name="sys_mon.h"/>
   </header>

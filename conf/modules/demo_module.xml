@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="demo_module">
+  <doc>
+    <description>Demo module</description>
+  </doc>
   <header>
     <file name="demo_module.h"/>
   </header>

@@ -180,7 +180,7 @@
   </section>
 
  <makefile>
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 FLASH_MODE=IAP
 
@@ -234,7 +234,7 @@ ap.CFLAGS += -DUSE_ADC_6 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_6 -DADC_CH
 ap.srcs += adc_generic.c
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
 

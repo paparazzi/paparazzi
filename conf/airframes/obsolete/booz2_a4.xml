@@ -148,17 +148,17 @@ BOARD_CFG = \"boards/booz2_v1_0.h\"
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_autopilot.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_common.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_autopilot.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_test_progs.makefile
 
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_simulator.makefile
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
-include $(PAPARAZZI_SRC)/conf/autopilot/radio_control_spektrum.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_actuators_asctec.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_imu_b2v1_1.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/radio_control_spektrum.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_actuators_asctec.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_imu_b2v1_1.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 

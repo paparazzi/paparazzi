@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+    <dl_settings NAME="control">
+          <dl_settings name="baro">
+	      <dl_setting MAX="1" MIN="0" STEP="1" module="baro_MS5534A" VAR="alt_baro_enabled"/>
+	      <dl_setting MAX="103000" MIN="90000" STEP="10" module="baro_MS5534A" VAR="baro_MS5534A_ground_pressure"/>
+	      <dl_setting MAX="20" MIN="0.5" STEP="0.1" module="baro_MS5534A" VAR="baro_MS5534A_r"/>
+	      <dl_setting MAX="1" MIN="0.1" STEP="0.1" module="baro_MS5534A" VAR="baro_MS5534A_sigma2"/>
+      </dl_settings>
+  </dl_settings>
+</settings>
