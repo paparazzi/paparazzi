@@ -10,7 +10,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+    settings="settings/rotorcraft_basic.xml"
     gui_color="white"
     />
 
@@ -22,17 +22,17 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml"
+    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
     gui_color="white"
     />
   <aircraft
-    name="LISA_ASCTEC_PIOTR"
-    ac_id="161"
-    airframe="airframes/esden/lisa_asctec.xml"
+    name="Quad_LisaM"
+    ac_id="162"
+    airframe="airframes/quadrotor_lisa_m_2_pwm_example.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+    flight_plan="flight_plans/rotorcraft_basic.xml"
+    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
     gui_color="white"
     />
 
@@ -44,7 +44,7 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/basic.xml"
-    settings="settings/basic_infrared.xml"
+    settings="settings/fixedwing_basic.xml settings/estimation/infrared.xml"
     gui_color="#6293ba"
     />
   <aircraft
@@ -54,7 +54,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_fixedwing_imu.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning_ins.xml"
+    settings="settings/fixedwing_tuning.xml settings/estimation/ins_neutrals.xml"
     gui_color="blue"
     />
   <aircraft
@@ -64,7 +64,7 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml settings/infrared.xml"
+    settings="settings/fixedwing_tuning.xml settings/estimation/infrared.xml"
     gui_color="#ba6293"
     />
   <aircraft
@@ -74,7 +74,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml settings/infrared.xml"
+    settings="settings/fixedwing_tuning.xml settings/estimation/infrared.xml"
     gui_color="red"
     />
 
@@ -86,7 +86,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml"
+    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
     gui_color="white"
     />
   <aircraft
@@ -96,7 +96,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml"
+    settings="settings/rotorcraft_basic.xml"
     gui_color="white"
     />
 </conf>
