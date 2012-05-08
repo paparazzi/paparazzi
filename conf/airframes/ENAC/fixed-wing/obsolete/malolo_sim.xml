@@ -204,7 +204,7 @@
   <makefile>
 
 # Config for SITL simulation with JSBSim
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl_jsbsim.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/sitl_jsbsim.makefile
 
 sim.CFLAGS += -I/home/cocoleon/usr/include/JSBSim
 sim.LDFLAGS += -L/home/cocoleon/usr/lib/

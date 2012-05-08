@@ -199,7 +199,7 @@ BOARD_CFG = \"boards/booz2_v1_0.h\"
 #ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DMODEM_BAUD=B57600
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 

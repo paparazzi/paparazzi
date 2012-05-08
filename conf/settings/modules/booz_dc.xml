@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="DC">
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="autopilot_power_switch" module="autopilot" handler="SetPowerSwitch" shortname="Shutter">
+       <strip_button name="Photo" icon="digital-camera.png" value="1"/>
+       <strip_button name="Photo Off" icon="digital-camera-off.png" value="0"/>
+      </dl_setting>
+    </dl_settings>
+  </dl_settings>
+</settings>
