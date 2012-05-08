@@ -48,6 +48,7 @@ IMU_ASPIRIN_CFLAGS += -DUSE_SPI
 
 ifeq ($(ARCH), lpc21)
 #TODO
+$(error Not implemented for the LCP21x yet. Not hard, just needs to be done. Patches welcome!)
 else ifeq ($(ARCH), stm32)
 # IMU_ASPIRIN_CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
 IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
