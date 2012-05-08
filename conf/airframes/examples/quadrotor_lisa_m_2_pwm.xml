@@ -22,6 +22,13 @@
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
+  <servos min="0" neutral="0" max="0xff">
+    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="RIGHT"   no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="LEFT"    no="3" min="1000" neutral="1000" max="2000"/>
+  </servos>
+
   <commands>
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="PITCH"  failsafe_value="0"/>
@@ -29,7 +36,12 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <!-- for the sim -->
+  <command_laws>
+    <!-- command_laws is needed for pwm_supervision -->
+    <!-- but can be empty if no additional servos are used -->
+  </command_laws>
+
+  <!-- only for the nps sim -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
     <!-- FRONT, BACK, RIGHT, LEFT -->
@@ -45,7 +57,7 @@
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <!-- front/back turning CW, left/right CCW -->
+    <!-- front/back turning CW, right/left CCW -->
     <define name="ROLL_COEF"   value="{    0,    0, -256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
     <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
@@ -57,6 +69,7 @@
     <define name="ACCEL_Y_NEUTRAL" value="11"/>
     <define name="ACCEL_Z_NEUTRAL" value="-25"/>
 
+    <!-- replace this with your own calibration -->
     <define name="MAG_X_NEUTRAL" value="-152"/>
     <define name="MAG_Y_NEUTRAL" value="-51"/>
     <define name="MAG_Z_NEUTRAL" value="10"/>
