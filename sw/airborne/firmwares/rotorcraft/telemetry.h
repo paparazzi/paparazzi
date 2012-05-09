@@ -53,6 +53,12 @@
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
+#include "subsystems/ins.h"
+#define PERIODIC_SEND_POSITION_SPEED_ACCEL(_trans, _dev) Downlink({ \
+  int32_t ref = 0;\
+	DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z, &ins_ltp_speed.x, &ins_ltp_speed.y, &ins_ltp_speed.z, &ins_ltp_accel.x, &ins_ltp_accel.y, &ins_ltp_accel.z, &ref, &ref, &ref);\
+})
+
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
 	uint16_t vsup = electrical.vsupply; \
 	int16_t amps = (int16_t) (electrical.current/10); \

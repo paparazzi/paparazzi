@@ -23,15 +23,6 @@
 		<field name="ref_alt"    type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
 	</message>
 
-	<message name="ELEV_INCLIN_HEADING" id="6">
-		<field name="elevation"   type="float" unit="rad" alt_unit="deg"/>
-		<field name="inclination" type="float" unit="rad" alt_unit="deg"/>
-		<field name="heading"   type="float" unit="rad" alt_unit="deg"/>
-		<field name="elev_speed"     type="float" unit="rad/s" alt_unit="deg/s"/>
-		<field name="incl_speed"     type="float" unit="rad/s" alt_unit="deg/s"/>
-		<field name="head_speed"     type="float" unit="rad/s" alt_unit="deg/s"/>
-	</message>
-
 	<message name="ATTITUDE" id="7">
 		<field name="phi"   type="float" unit="rad" alt_unit="deg"/>
 		<field name="psi"   type="float" unit="rad" alt_unit="deg"/>
