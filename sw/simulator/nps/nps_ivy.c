@@ -9,6 +9,7 @@
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 #include "nps_sensors.h"
+#include "firmwares/rotorcraft/navigation.h"
 
 #include NPS_SENSORS_PARAMS
 
