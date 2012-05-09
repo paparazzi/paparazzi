@@ -6,18 +6,21 @@
 #define AHB_CLK 72000000
 
 /* Onboard LEDs */
+/* red */
 #define LED_1_BANK
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
 #define LED_1_GPIO_PIN GPIO_Pin_4
 #define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
+/* blue */
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
 
+/* blue */
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC

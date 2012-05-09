@@ -34,7 +34,7 @@ endif
 # default LED configuration
 #
 ifndef RADIO_CONTROL_LED
-RADIO_CONTROL_LED  = none
+RADIO_CONTROL_LED  = 2
 endif
 
 ifndef BARO_LED
@@ -42,7 +42,7 @@ BARO_LED = none
 endif
 
 ifndef AHRS_ALIGNER_LED
-AHRS_ALIGNER_LED = none
+AHRS_ALIGNER_LED = 3
 endif
 
 ifndef GPS_LED
