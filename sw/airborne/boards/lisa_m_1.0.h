@@ -8,18 +8,21 @@
 #define AHB_CLK 72000000
 
 /* Onboard LEDs */
+/* red */
 #define LED_1_BANK
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
 #define LED_1_GPIO_PIN GPIO4
 #define LED_1_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
 
+/* blue */
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_2_GPIO_PIN GPIO5
 #define LED_2_AFIO_REMAP ((void)0)
 
+/* blue */
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
