@@ -19,8 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "mcu_periph/spi.h"
+/**
+ * simulator plug for the aspirin2 imu arch dependant functions.
+ */
+#ifndef IMU_ASPIRIN2_ARCH_H
+#define IMU_ASPIRIN2_ARCH_H
 
-void spi_init( void ) {}
 
-void spi_rw(struct spi_transaction  * _trans __attribute__ ((unused))) {}
+extern void imu_feed_gyro_accel(void);
+extern void imu_feed_mag(void);
+
+
+#endif /* IMU_ASPIRIN2_ARCH_H */

@@ -19,8 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "mcu_periph/spi.h"
+#include "subsystems/imu.h"
 
-void spi_init( void ) {}
+#include "generated/airframe.h"
 
-void spi_rw(struct spi_transaction  * _trans __attribute__ ((unused))) {}
+
+#if USE_NPS
+#include "nps_sensors.h"
+
+void imu_feed_gyro_accel(void) {
+
+  RATES_ASSIGN(imu.gyro_unscaled, sensors.gyro.value.x, sensors.gyro.value.y, sensors.gyro.value.z);
+  VECT3_ASSIGN(imu.accel_unscaled, sensors.accel.value.x, sensors.accel.value.y, sensors.accel.value.z);
+
+  // set availability flags...
+  imu_aspirin2.imu_available = true;
+
+}
+
+
+void imu_feed_mag(void) {
+  VECT3_ASSIGN(imu.mag_unscaled, sensors.mag.value.x, sensors.mag.value.y, sensors.mag.value.z);
+  imu_aspirin2.imu_available = true;
+}
+#endif
