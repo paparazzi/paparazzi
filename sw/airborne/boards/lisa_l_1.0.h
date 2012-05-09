@@ -3,12 +3,9 @@
 
 #define BOARD_LISA_L
 
+/* Lisa/L has an 8MHZ external clock and 72MHz internal. */
+#define EXT_CLK 8000000
 #define AHB_CLK 72000000
-
-/* Lisa uses an external clock instead of a crystal */
-#define HSE_TYPE_EXT_CLK
-#define STM32_RCC_MODE RCC_HSE_Bypass
-#define STM32_PLL_MULT RCC_PLLMul_9
 
 /* Onboard LEDs */
 #define LED_1_BANK
@@ -30,12 +27,12 @@
 #endif
 #define DefaultVoltageOfAdc(adc) (0.0059*adc)
 /* Onboard ADCs */
-#define BOARD_ADC_CHANNEL_1 ADC_Channel_8
-#define BOARD_ADC_CHANNEL_2 ADC_Channel_9
+#define BOARD_ADC_CHANNEL_1 8
+#define BOARD_ADC_CHANNEL_2 9
 // FIXME - removed for now and used for battery monitoring
-//#define BOARD_ADC_CHANNEL_3 ADC_Channel_13
-#define BOARD_ADC_CHANNEL_3 ADC_Channel_0
-#define BOARD_ADC_CHANNEL_4 ADC_Channel_15
+//#define BOARD_ADC_CHANNEL_3 13
+#define BOARD_ADC_CHANNEL_3 0
+#define BOARD_ADC_CHANNEL_4 15
 
 #define BOARD_HAS_BARO 1
 

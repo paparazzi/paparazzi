@@ -200,9 +200,9 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin_v2.0"/>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="int_quat"/>
+    <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <!--subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/-->
@@ -210,8 +210,10 @@
 
 
   <firmware name="lisa_test_progs">
-    <target name="test_led"			board="lisa_m_2.0"/>
-    <target name="test_uart_lisam"		board="lisa_m_2.0"/>
+    <target name="test_led"			board="lisa_m_2.0">
+        <configure name="SYS_TIME_LED" value="none"/>
+    </target>
+    <target name="test_uart"			board="lisa_m_2.0"/>
     <target name="test_servos"			board="lisa_m_2.0"/>
     <target name="test_telemetry"		board="lisa_m_2.0"/>
     <target name="test_imu_aspirin"		board="lisa_m_2.0"/>

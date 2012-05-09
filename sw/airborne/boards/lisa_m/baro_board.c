@@ -1,6 +1,6 @@
 
 #include "subsystems/sensors/baro.h"
-#include <stm32/gpio.h>
+#include <libopencm3/stm32/f1/gpio.h>
 
 struct Baro baro;
 struct BaroBoard baro_board;
@@ -75,16 +75,14 @@ void baro_init(void) {
   bmp085_baro_read_calibration();
 
   /* STM32 specific (maybe this is a LISA/M specific driver anyway?) */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  gpio_clear(GPIOB, GPIO0);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
 }
 
 static inline int baro_eoc(void)
 {
-  return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_0);
+  return gpio_get(GPIOB, GPIO0);
 }
 
 static inline void bmp085_request_pressure(void)

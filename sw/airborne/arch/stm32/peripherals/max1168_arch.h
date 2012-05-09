@@ -30,40 +30,39 @@
  * select on PB12
  * drdy on PD2
  */
-#include <stm32/gpio.h>
+#include <libopencm3/stm32/f1/gpio.h>
 
-#define Max1168Unselect() GPIOB->BSRR = GPIO_Pin_12
-#define Max1168Select() GPIOB->BRR = GPIO_Pin_12
+#define Max1168Unselect() GPIOB_BSRR = GPIO12
+#define Max1168Select() GPIOB_BRR = GPIO12
 
 #define Max1168OnDmaIrq() {						\
     /*  ASSERT((max1168_status == STA_MAX1168_READING_RES),	\
      *          DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_DMA_IRQ);		\
      */									\
     Max1168Unselect();							\
-    DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);			\
+    dma_disable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);	\
     /* Disable SPI_2 Rx and TX request */				\
-    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);			\
-    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);			\
+    spi_disable_rx_dma(SPI2);						\
+    spi_disable_tx_dma(SPI2);						\
     /* Disable DMA1 Channel4 and 5 */					\
-    DMA_Cmd(DMA1_Channel4, DISABLE);					\
-    DMA_Cmd(DMA1_Channel5, DISABLE);					\
-                                    \
+    dma_disable_channel(DMA1, DMA_CHANNEL4);				\
+    dma_disable_channel(DMA1, DMA_CHANNEL5);				\
+    									\
     max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
 
 
 #define Max1168ConfigureSPI() {						\
-    SPI_InitTypeDef SPI_InitStructure;					\
-    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;	\
-    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;			\
-    SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;			\
-    SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;				\
-    SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;			\
-    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;				\
-    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;	\
-    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;			\
-    SPI_InitStructure.SPI_CRCPolynomial = 7;				\
-    SPI_Init(SPI2, &SPI_InitStructure);					\
+    spi_reset(SPI2);						        \
+    spi_disable(SPI2);							\
+    spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_16,		\
+		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,			\
+		    SPI_CR1_CPHA_CLK_TRANSITION_1,			\
+		    SPI_CR1_DFF_16BIT,					\
+		    SPI_CR1_MSBFIRST);					\
+    spi_enable_software_slave_management(SPI2);				\
+    spi_set_nss_high(SPI2);						\
+    spi_enable(SPI2);							\
   }
 
 #endif /* MAX1168_ARCH_H */

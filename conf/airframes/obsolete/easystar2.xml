@@ -174,7 +174,7 @@
 CONFIG = \"tiny_2_1_1.h\"
 
 # Target configuration
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 FLASH_MODE=IAP
 
@@ -226,7 +226,7 @@ ap.CFLAGS += -DUSE_AIRSPEED_ETS -DUSE_AIRSPEED -DUSE_BARO_ETS -DUSE_I2C0 -DAGR_C
 ap.srcs += airspeed.c airspeed_ets.c baro_ets.c i2c.c $(SRC_ARCH)/i2c_hw.c
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DLOITER_TRIM -DALT_KALMAN -DUSE_MODULES
 sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 sim.CFLAGS += -DUSE_AIRSPEED_ETS -DUSE_AIRSPEED -DUSE_BARO_ETS -DUSE_I2C0 -DAGR_CLIMB

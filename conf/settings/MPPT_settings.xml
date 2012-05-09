@@ -1,9 +1,0 @@
-<!DOCTYPE settings SYSTEM "settings.dtd">
-
-<settings>
-  <dl_settings>
-    <dl_settings NAME="MPPT">
-      <dl_setting MAX="3" MIN="1" STEP="1" VAR="MPPT_mode" module="MPPT"/>
-    </dl_settings>
-  </dl_settings>
-</settings>

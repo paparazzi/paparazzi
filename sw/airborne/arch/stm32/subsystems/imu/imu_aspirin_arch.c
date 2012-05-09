@@ -1,170 +1,130 @@
 #include "subsystems/imu.h"
 
-#include <stm32/gpio.h>
-#include <stm32/misc.h>
-#include <stm32/rcc.h>
-#include <stm32/exti.h>
-#include <stm32/spi.h>
-#include <stm32/dma.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/f1/dma.h>
+#include <libopencm3/stm32/nvic.h>
 
 #include "mcu_periph/i2c.h"
 
 /* gyro int handler */
-void exti15_10_irq_handler(void);
+void exti15_10_isr(void);
 /* mag int handler  */
-void exti9_5_irq_handler(void);
-/* accelerometer int handler  */
-void exti2_irq_handler(void);
+void exti9_5_isr(void);
+/* accelerometer int handler */
+void exti2_isr(void);
+/* dma1 channel 4 int handler */
+void dma1_channel4_isr(void);
 /* accelerometer SPI selection */
-#define Adxl345Unselect() GPIOB->BSRR = GPIO_Pin_12
-#define Adxl345Select()   GPIOB->BRR = GPIO_Pin_12
+#define Adxl345Unselect() GPIOB_BSRR = GPIO12
+#define Adxl345Select()   GPIOB_BRR = GPIO12
 /* accelerometer dma end of rx handler */
 void dma1_c4_irq_handler(void);
 
 void imu_aspirin_arch_int_enable(void) {
-  NVIC_InitTypeDef NVIC_InitStructure;
 
 #ifdef ASPIRIN_USE_GYRO_INT
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_set_priority(NVIC_EXTI15_10_IRQ, 0x0F);
+  nvic_enable_irq(NVIC_EXTI15_10_IRQ);
 #endif
 
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_set_priority(NVIC_EXTI2_IRQ, 0x0F);
+  nvic_enable_irq(NVIC_EXTI2_IRQ);
 
   /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
+  nvic_set_priority(NVIC_DMA1_CHANNEL4_IRQ, 0);
+  nvic_enable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 
 }
 
 void imu_aspirin_arch_int_disable(void) {
-  NVIC_InitTypeDef NVIC_InitStructure;
 
 #ifdef ASPIRIN_USE_GYRO_INT
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_disable_irq(NVIC_EXTI15_10_IRQ);
 #endif
 
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_disable_irq(NVIC_EXTI2_IRQ);
 
   /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = DISABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
-
+  nvic_disable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 }
 
 void imu_aspirin_arch_init(void) {
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  EXTI_InitTypeDef EXTI_InitStructure;
-  SPI_InitTypeDef SPI_InitStructure;
-
   /* Set "mag ss" and "mag reset" as floating inputs ------------------------*/
   /* "mag ss"    (PC12) is shorted to I2C2 SDA       */
   /* "mag reset" (PC13) is shorted to I2C2 SCL       */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12|GPIO_Pin_13;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_FLOAT, GPIO12 | GPIO13);
 
   /* Gyro --------------------------------------------------------------------*/
-  /* set "eeprom ss" as floating input (on PC14) = gyro int          ---------*/
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
   /* configure external interrupt exti15_10 on PC14( gyro int ) */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN |
+			                    RCC_APB2ENR_AFIOEN);
+  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
+	  GPIO_CNF_INPUT_FLOAT, GPIO14);
 
 #ifdef ASPIRIN_USE_GYRO_INT
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource14);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line14;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  exti_select_source(EXTI14, GPIOC);
+  exti_set_trigger(EXTI14, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI14);
 #endif
 
   /* Accel */
   /* set accel slave select as output and assert it ( on PB12) */
   Adxl345Unselect();
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
 
   /* configure external interrupt exti2 on PB2( accel int ) */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource2);
-
-  EXTI_InitStructure.EXTI_Line = EXTI_Line2;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_FLOAT, GPIO2);
+  exti_select_source(EXTI2, GPIOB);
+  exti_set_trigger(EXTI2, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI2);
 
   /* Enable SPI2 Periph clock -------------------------------------------------*/
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
 
   /* Configure GPIOs: SCK, MISO and MOSI  --------------------------------*/
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
+	                                        GPIO_SPI2_MISO |
+	                                        GPIO_SPI2_MOSI);
 
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
-  SPI_Cmd(SPI2, ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
 
-  /* configure SPI */
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(SPI2, &SPI_InitStructure);
+  // reset SPI
+  spi_reset(SPI2);
 
+  // Disable SPI peripheral
+  spi_disable(SPI2);
+
+  // configure SPI
+  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+
+  /*
+   * Set NSS management to software.
+   *
+   * Note:
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
+  spi_enable_software_slave_management(SPI2);
+  spi_set_nss_high(SPI2);
+
+  // Enable SPI2 periph.
+  spi_enable(SPI2);
 
   /* Enable SPI_2 DMA clock ---------------------------------------------------*/
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 
 }
 
@@ -172,17 +132,17 @@ void imu_aspirin_arch_init(void) {
 void adxl345_write_to_reg(uint8_t addr, uint8_t val) {
 
   Adxl345Select();
-  SPI_I2S_SendData(SPI2, addr);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  SPI_I2S_SendData(SPI2, val);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
+  SPI_DR(SPI2) = addr;
+  while ((SPI_SR(SPI2) & SPI_SR_TXE) == 0);
+  SPI_DR(SPI2) = val;
+  while ((SPI_SR(SPI2) & SPI_SR_TXE) == 0);
+  while ((SPI_SR(SPI2) & SPI_SR_BSY) != 0);
   Adxl345Unselect();
 
 }
 
 void adxl345_clear_rx_buf(void) {
-  uint8_t __attribute__ ((unused)) ret = SPI_I2S_ReceiveData(SPI2);
+  uint8_t __attribute__ ((unused)) ret = SPI_DR(SPI2);
 }
 
 void adxl345_start_reading_data(void) {
@@ -190,52 +150,45 @@ void adxl345_start_reading_data(void) {
 
    imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
 
-  /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel4);
-  DMA_InitTypeDef DMA_initStructure_4 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)imu_aspirin.accel_rx_buf,
-    .DMA_DIR = DMA_DIR_PeripheralSRC,
-    .DMA_BufferSize = 7,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_VeryHigh,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel4, &DMA_initStructure_4);
+  // SPI2_Rx_DMA_Channel configuration ------------------------------------
+  dma_channel_reset(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)imu_aspirin.accel_rx_buf);
+  dma_set_number_of_data(DMA1, DMA_CHANNEL4, 7);
+  dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);
+  //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL4);
+  dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_size(DMA1, DMA_CHANNEL4, DMA_CCR_PSIZE_8BIT);
+  dma_set_memory_size(DMA1, DMA_CHANNEL4, DMA_CCR_MSIZE_8BIT);
+  //dma_set_mode(DMA1, DMA_CHANNEL4, DMA_???_NORMAL);
+  dma_set_priority(DMA1, DMA_CHANNEL4, DMA_CCR_PL_VERY_HIGH);
 
-  /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel5);
-  DMA_InitTypeDef DMA_initStructure_5 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)imu_aspirin.accel_tx_buf,
-    .DMA_DIR = DMA_DIR_PeripheralDST,
-    .DMA_BufferSize = 7,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_Medium,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
+  // SPI2_Tx_DMA_Channel configuration ------------------------------------
+  dma_channel_reset(DMA1, DMA_CHANNEL5);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL5, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)imu_aspirin.accel_tx_buf);
+  dma_set_number_of_data(DMA1, DMA_CHANNEL5, 7);
+  dma_set_read_from_memory(DMA1, DMA_CHANNEL5);
+  //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL5);
+  dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL5);
+  dma_set_peripheral_size(DMA1, DMA_CHANNEL5, DMA_CCR_PSIZE_8BIT);
+  dma_set_memory_size(DMA1, DMA_CHANNEL5, DMA_CCR_MSIZE_8BIT);
+  //dma_set_mode(DMA1, DMA_CHANNEL5, DMA_???_NORMAL);
+  dma_set_priority(DMA1, DMA_CHANNEL5, DMA_CCR_PL_MEDIUM);
 
-  /* Enable SPI_2 Rx request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
-  /* Enable DMA1 Channel4 */
-  DMA_Cmd(DMA1_Channel4, ENABLE);
+  // Enable DMA1 Channel4
+  dma_enable_channel(DMA1, DMA_CHANNEL4);
+  // Enable SPI_2 Rx request
+  spi_enable_rx_dma(SPI2);
 
-  /* Enable SPI_2 Tx request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
-  /* Enable DMA1 Channel5 */
-  DMA_Cmd(DMA1_Channel5, ENABLE);
+  // Enable DMA1 Channel5
+  dma_enable_channel(DMA1, DMA_CHANNEL5);
+  // Enable SPI_2 Tx request
+  spi_enable_tx_dma(SPI2);
 
-  /* Enable DMA1 Channel4 Transfer Complete interrupt */
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
+  // Enable DMA1 Channel4 Transfer Complete interrupt
+  dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
+
 }
 
 /*
@@ -243,11 +196,10 @@ void adxl345_start_reading_data(void) {
  * Gyro data ready
  *
  */
-void exti15_10_irq_handler(void) {
+void exti15_10_isr(void) {
 
   /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line14) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line14);
+  exti_reset_request(EXTI14);
 
 #ifdef ASPIRIN_USE_GYRO_INT
   imu_aspirin.gyro_eoc = TRUE;
@@ -261,11 +213,10 @@ void exti15_10_irq_handler(void) {
  * Accel data ready
  *
  */
-void exti2_irq_handler(void) {
+void exti2_isr(void) {
 
   /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line2);
+  exti_reset_request(EXTI2);
 
   adxl345_start_reading_data();
 
@@ -273,26 +224,29 @@ void exti2_irq_handler(void) {
 
 /*
  *
- * Accel end of DMA transfert
+ * Accel end of DMA transferred
  *
  */
-void dma1_c4_irq_handler(void) {
+void dma1_channel4_isr(void) {
   Adxl345Unselect();
-  if (DMA_GetITStatus(DMA1_IT_TC4)) {
-		// clear int pending bit
-		DMA_ClearITPendingBit(DMA1_IT_GL4);
+
+  if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
+    // clear int pending bit
+    DMA1_IFCR |= DMA_IFCR_CTCIF4;
 
     // mark as available
     imu_aspirin.accel_available = TRUE;
-	}
+  }
 
   // disable DMA Channel
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
-  /* Disable SPI_2 Rx and TX request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
-  /* Disable DMA1 Channel4 and 5 */
-  DMA_Cmd(DMA1_Channel4, DISABLE);
-  DMA_Cmd(DMA1_Channel5, DISABLE);
+  dma_disable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
+
+  // Disable SPI_2 Rx and TX request
+  spi_disable_rx_dma(SPI2);
+  spi_disable_tx_dma(SPI2);
+
+  // Disable DMA1 Channel4 and 5
+  dma_disable_channel(DMA1, DMA_CHANNEL4);
+  dma_disable_channel(DMA1, DMA_CHANNEL5);
 
 }

@@ -69,10 +69,6 @@ TOOLCHAIN_DIR=$(shell dirname `which arm-none-eabi-gcc`)
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
 endif
 
-# Detect if we are using the new libopencm3 or the old libopenstm32
-LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
-LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
-
 ifndef $(PYTHON)
 PYTHON = $(shell which python)
 endif
@@ -124,16 +120,18 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 #   if not, use the default STM32f103re_flash.ld
 ifndef LDSCRIPT
 ifndef $(TARGET).LDSCRIPT
-LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
+LDSCRIPT = $(SRC_ARCH)/stm32default.ld
 else
 LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
 
 #UNAME = $(shell uname -s)
+ifndef MULTILIB
 MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+endif
 
-CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
+CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 ifeq ("$(MULTILIB)","yes")
@@ -154,7 +152,7 @@ CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 CFLAGS += -Wswitch-default
-CFLAGS += $(LIBOPENCM3_DEFS)
+CFLAGS += -DSTM32F1
 
 CFLAGS += $($(TARGET).CFLAGS)
 
@@ -164,13 +162,14 @@ AFLAGS += -mcpu=$(MCU) -mthumb
 endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
+LDFLAGS = -L../ext/libopencm3/lib/stm32/f1
 ifeq ("$(MULTILIB)","yes")
-LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
 else
-LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
+LDFLAGS += -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
 endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 -l$(LIBOPENCM3_LIB)
+LDLIBS  += -lc -lm -lgcc -lopencm3_stm32f1
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary
@@ -213,7 +212,7 @@ lss: $(OBJDIR)/$(TARGET).lss
 sym: $(OBJDIR)/$(TARGET).sym
 
 # Display size of file.
-ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
+ELFSIZE = $(SIZE) -A -x $(OBJDIR)/$(TARGET).elf
 sizebefore:
 	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 

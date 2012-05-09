@@ -21,7 +21,8 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   uint8_t nb_retry = 0;
   do {
     i2c_submit(&i2c2, t);
-    while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
+    while((I2C2_SR2 & I2C_SR2_BUSY));
+    //while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
     while (t->status == I2CTransPending || t->status == I2CTransRunning);
     if (t->status == I2CTransFailed)
       nb_retry++;
@@ -96,8 +97,6 @@ static void configure_gyro(void) {
   send_i2c_msg_with_retry(&t);
 
 }
-
-
 
 static void configure_accel(void) {
 

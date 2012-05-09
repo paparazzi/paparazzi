@@ -202,7 +202,9 @@
   </firmware>
 
   <firmware name="lisa_test_progs">
-    <target name="test_led"   board="lisa_l_1.1"/>
+    <target name="test_led"   board="lisa_l_1.1">
+        <configure name="SYS_TIME_LED" value="none"/>
+    </target>
     <target name="test_uart"   board="lisa_l_1.1"/>
     <target name="test_servos"   board="lisa_l_1.1"/>
     <target name="test_telemetry"   board="lisa_l_1.1"/>

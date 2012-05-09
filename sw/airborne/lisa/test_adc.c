@@ -22,9 +22,6 @@
  *
  */
 
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"

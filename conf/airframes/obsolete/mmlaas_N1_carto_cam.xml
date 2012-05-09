@@ -195,7 +195,7 @@
  </section>
 
  <makefile>
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 FLASH_MODE=IAP
 
@@ -255,7 +255,7 @@ ap.srcs +=nav_survey_losange_carto.c
 
 #################################################################################################
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DFORMATION -DTRAFFIC_INFO -DTCAS
 sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c tcas.c
 

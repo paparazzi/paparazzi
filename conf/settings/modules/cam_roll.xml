@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="Cam">
+      <dl_setting MAX="45" MIN="-45" STEP="1" VAR="cam_roll_phi" module="cam_control/cam_roll" shortname="phi" unit="rad" alt_unit="deg" auto="true">
+      </dl_setting>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="cam_roll_mode" module="cam_control/cam_roll" shortname="manual - stablzd">
+      </dl_setting>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="cam_roll_switch" module="cam_control/cam_roll" shortname="still - mobile" handler="Switch">
+      </dl_setting>
+    </dl_settings>
+  </dl_settings>
+</settings>

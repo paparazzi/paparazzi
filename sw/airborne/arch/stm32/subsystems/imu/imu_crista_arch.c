@@ -29,8 +29,6 @@
 #include <stm32/misc.h>
 #include <stm32/dma.h>
 
-#include "stm32_vector_table.h"
-
 static volatile uint8_t channel;
 static uint8_t buf_in[4];
 static uint8_t buf_out[4];

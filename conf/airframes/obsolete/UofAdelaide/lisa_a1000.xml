@@ -176,7 +176,7 @@ ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektru
 ap.CFLAGS += -DGPS_USE_LATLONG
 ap.CFLAGS += -DGPS_PORT_ID=GPS_PORT_UART1
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum.makefile
@@ -186,7 +186,7 @@ include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/lisa_test_progs.makefile
 
 
  </makefile>

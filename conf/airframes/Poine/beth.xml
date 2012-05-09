@@ -104,9 +104,7 @@ main_stm32.ARCHDIR = stm32
 #main_stm32.LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
 main_stm32.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_LISA_ARCH) -DPERIPHERALS_AUTO_INIT
 main_stm32.CFLAGS += -DBOARD_CONFIG=\"boards/lisa_l_1.0.h\"
-main_stm32.srcs = $(SRC_BETH)/main_stm32.c \
-                  $(SRC_ARCH)/stm32_exceptions.c   \
-                  $(SRC_ARCH)/stm32_vector_table.c
+main_stm32.srcs = $(SRC_BETH)/main_stm32.c
 main_stm32.CFLAGS += -DUSE_LED
 main_stm32.srcs += $(SRC_ARCH)/led_hw.c
 main_stm32.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -176,9 +174,7 @@ main_coders.OOCD_BOARD = olimex_stm32_h103
 main_coders.CFLAGS += -DBOARD_CONFIG=\"boards/beth.h\"
 
 main_coders.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-main_coders.srcs = $(SRC_BETH)/main_coders.c \
-                   $(SRC_ARCH)/stm32_exceptions.c   \
-                   $(SRC_ARCH)/stm32_vector_table.c
+main_coders.srcs = $(SRC_BETH)/main_coders.c
 main_coders.CFLAGS += -DUSE_LED
 main_coders.srcs += $(SRC_ARCH)/led_hw.c
 main_coders.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=7
@@ -318,7 +314,7 @@ overo_sfb.srcs    += $(SRC_BETH)/overo_sfb_controller.c
 #
 #
 #
-include $(PAPARAZZI_SRC)/conf/autopilot/obsolete/lisa_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/obsolete/lisa_test_progs.makefile
 
   </makefile>
 

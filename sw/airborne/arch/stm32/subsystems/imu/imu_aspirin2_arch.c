@@ -1,11 +1,10 @@
 #include "subsystems/imu.h"
 
-#include <stm32/gpio.h>
-#include <stm32/misc.h>
-#include <stm32/rcc.h>
-#include <stm32/exti.h>
-#include <stm32/spi.h>
-#include <stm32/dma.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/f1/dma.h>
 
 
 
@@ -79,14 +78,13 @@ void imu_aspirin2_arch_init(void) {
 
 
 // Gyro data ready
-void exti15_10_irq_handler(void) {
-  // clear EXTI
-  if(EXTI_GetITStatus(EXTI_Line14) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line14);
-
-/*
-  imu_aspirin.gyro_eoc = TRUE;
-  imu_aspirin.status = AspirinStatusReadingGyro;
-*/
-}
-
+//void exti15_10_isr(void) {
+//  // clear EXTI
+//
+//  exti_reset_request(EXTI14);
+//
+///*
+//  imu_aspirin.gyro_eoc = TRUE;
+//  imu_aspirin.status = AspirinStatusReadingGyro;
+//*/
+//}
