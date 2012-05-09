@@ -48,7 +48,7 @@
     gui_color="#6293ba"
     />
   <aircraft
-    name="Tiny_IMU"
+    name="Twog_IMU"
     ac_id="7"
     airframe="airframes/examples/twog_analogimu.xml"
     radio="radios/cockpitSX.xml"

@@ -75,8 +75,8 @@
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="1.0"/>
-    <define name="MAX_PITCH" value="1.0"/>
+    <define name="MAX_ROLL" value="60" unit="deg"/>
+    <define name="MAX_PITCH" value="40" unit="deg"/>
   </section>
 
   <!-- settings for the Analog IMU -->
@@ -184,10 +184,12 @@
   <firmware name="fixedwing">
     <target name="sim"          board="pc"/>
     <target name="ap"           board="twog_1.0">
-      <define name="AGR_CLIMB" />
-      <define name="LOITER_TRIM" />
-      <define name="ALT_KALMAN" />
+      <define name="AGR_CLIMB"/>
+      <define name="ALT_KALMAN"/>
     </target>
+
+    <define name="LOITER_TRIM"/>
+
     <subsystem name="radio_control"     type="ppm"/>
     <!-- Communication -->
     <subsystem name="telemetry"     type="transparent">
