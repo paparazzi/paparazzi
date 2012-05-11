@@ -1,4 +1,4 @@
-<!DOCTYPE settings SYSTEM "settings.dtd">
+<!DOCTYPE settings SYSTEM "../settings.dtd">
 
 <!-- Set dash and loiter trim -->
 
