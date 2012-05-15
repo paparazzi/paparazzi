@@ -38,6 +38,7 @@ void gps_init(void) {
   gps.fix = GPS_FIX_NONE;
   gps.cacc = 0;
 #ifdef GPS_LED
+  LED_INIT(GPS_LED);
   LED_OFF(GPS_LED);
 #endif
 #ifdef GPS_TYPE_H

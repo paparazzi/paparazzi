@@ -120,6 +120,11 @@ void sys_time_arch_init( void ) {
   _VIC_CNTL(TIMER0_VIC_SLOT) = VIC_ENABLE | VIC_TIMER0;
   /* address of the ISR      */
   _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR;
+
+  //FIXME, no hardcoded led number
+#ifdef TRIGGER_EXT
+  LED_INIT(3);
+#endif
 }
 
 

@@ -11,6 +11,20 @@ static inline void main_event( void );
 int main(void) {
 
   mcu_init();
+
+#ifdef LED_GREEN
+  LED_INIT(LED_GREEN);
+  LED_OFF(LED_GREEN);
+#endif
+#ifdef LED_BLUE
+  LED_INIT(LED_BLUE);
+  LED_OFF(LED_BLUE);
+#endif
+#ifdef LED_RED
+  LED_INIT(LED_RED);
+  LED_OFF(LED_RED);
+#endif
+
   unsigned int tmr_02 = sys_time_register_timer(0.2, NULL);
   unsigned int tmr_03 = sys_time_register_timer(0.3, NULL);
   sys_time_register_timer(0.5, main_periodic_05);

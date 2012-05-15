@@ -237,8 +237,13 @@ uint8_t humid_sht_reset( void )
 
 void humid_sht_init( void )
 {
-  /* Configure DAT/SCL pin as GPIO */
+  // FIXME, should not use hardcoded led number
+  LED_INIT(2);
+  LED_OFF(2);
 
+  // FIXME, should not contain arch dependent code here
+
+  /* Configure DAT/SCL pin as GPIO */
 #if (DAT_PIN<16)
     PINSEL0 &= ~(_BV(DAT_PIN*2)|_BV(DAT_PIN*2+1));
 #else

@@ -572,7 +572,19 @@ int main(void)
 static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
-  led_init();
+
+  LED_INIT(LED_RED);
+  LED_OFF(LED_RED);
+  LED_INIT(LED_GREEN);
+  LED_OFF(LED_GREEN);
+  LED_INIT(LED_YELLOW);
+  LED_OFF(LED_YELLOW);
+
+  //FIXME, no hardcoded led numbers
+  LED_INIT(1);
+  LED_OFF(1);
+  LED_INIT(2);
+  LED_OFF(2);
 
 #ifdef USE_MAX11040
   max11040_init_ssp();

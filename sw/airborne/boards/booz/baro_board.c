@@ -49,6 +49,7 @@ void baro_init( void ) {
   baro_board.value_filtered = 0;
   baro_board.data_available = FALSE;
 #ifdef ROTORCRAFT_BARO_LED
+  LED_INIT(ROTORCRAFT_BARO_LED);
   LED_OFF(ROTORCRAFT_BARO_LED);
 #endif
 }

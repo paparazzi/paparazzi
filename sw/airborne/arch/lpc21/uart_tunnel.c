@@ -15,8 +15,14 @@ int main (int argc, char** argv) {
   int tx=0, rx=0;
   int tx_shadow=1, rx_shadow=1;
   mcu_init();
-  led_init();
+
+  // FIXME, no hardcoded led numbers
+  LED_INIT(1);
   LED_ON(1);
+  LED_INIT(2);
+  LED_OFF(2);
+  LED_INIT(3);
+  LED_OFF(3);
 
   /* TXD0 and TXD1 output */
   SetBit(IO0DIR, TXD0_PIN);

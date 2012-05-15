@@ -36,7 +36,10 @@ int main( void ) {
 static inline void main_init( void ) {
   mcu_init();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
-  led_init();
+
+  LED_INIT(1);
+  LED_OFF(1);
+
   Uart0Init();
 
   spi_init();

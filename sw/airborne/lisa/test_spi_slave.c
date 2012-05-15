@@ -53,6 +53,8 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
+  LED_INIT(3);
+  LED_OFF(3);
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   main_spi_slave_init();
 }

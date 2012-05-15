@@ -46,6 +46,11 @@ void ahrs_aligner_init(void) {
   samples_idx = 0;
   ahrs_aligner.noise = 0;
   ahrs_aligner.low_noise_cnt = 0;
+
+#ifdef AHRS_ALIGNER_LED
+  LED_INIT(AHRS_ALIGNER_LED);
+  LED_OFF(AHRS_ALIGNER_LED);
+#endif
 }
 
 #ifndef LOW_NOISE_THRESHOLD

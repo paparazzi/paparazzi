@@ -103,6 +103,10 @@ void ADS8344_init( void ) {
   /* configure SS pin */
   SetBit( ADS8344_SS_IODIR,  ADS8344_SS_PIN);  /* pin is output  */
   ADS8344Unselect();                           /* pin low        */
+
+  // FIXME, no hardcoded led numbers
+  LED_INIT(2);
+  LED_OFF(2);
 }
 
 static inline void read_values( void ) {

@@ -101,6 +101,10 @@ void cam_waypoint_target(void);
 void cam_ac_target(void);
 
 void cam_init( void ) {
+#ifdef VIDEO_TX_SWITCH
+  LED_INIT(VIDEO_TX_SWITCH);
+#endif
+
   cam_mode = CAM_MODE0;
 }
 

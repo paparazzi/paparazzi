@@ -46,7 +46,15 @@ int main( void ) {
 
   mcu_init();
   sys_time_init();
-  led_init();
+
+  // FIXME, no hardcoded led numbers
+  LED_INIT(1);
+  LED_ON(1);
+  LED_INIT(2);
+  LED_OFF(2);
+  LED_INIT(3);
+  LED_OFF(3);
+
   VCOM_allow_linecoding(1);
 
 #ifdef USE_USB_SERIAL

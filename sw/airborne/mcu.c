@@ -60,9 +60,6 @@ void mcu_init(void) {
 
 #ifdef PERIPHERALS_AUTO_INIT
   sys_time_init();
-#ifdef USE_LED
-  led_init();
-#endif
   /* for now this means using spektrum */
 #if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
   RADIO_CONTROL_BIND_IMPL_FUNC();
