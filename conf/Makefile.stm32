@@ -219,7 +219,7 @@ lss: $(OBJDIR)/$(TARGET).lss
 sym: $(OBJDIR)/$(TARGET).sym
 
 # Display size of file.
-ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
+ELFSIZE = $(SIZE) -Ax $(OBJDIR)/$(TARGET).elf
 sizebefore:
 	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
