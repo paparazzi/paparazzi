@@ -104,10 +104,16 @@ else
 OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
 endif
 
-ifndef NO_LUFTBOOT
+# default: assume the luftboot bootloader is used
+# if luftboot is not used define NO_LUFTBOOT to a value != 0
 OOCD_START_SECTOR = 4
-else
+ASSUMING_LUFTBOOT = "yes"
+ifdef NO_LUFTBOOT
+$(shell echo luftboot: $(NO_LUFTBOOT))
+ifneq ($(NO_LUFTBOOT),0)
 OOCD_START_SECTOR = 0
+ASSUMING_LUFTBOOT = "no"
+endif
 endif
 
 # input files
@@ -272,6 +278,7 @@ upload: $(OBJDIR)/$(TARGET).bin
 else ifeq ($(FLASH_MODE),JTAG)
 ifeq ($(BMP_PORT),)
 upload: $(OBJDIR)/$(TARGET).hex
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using OOCD = $(OOCD)"
 	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
