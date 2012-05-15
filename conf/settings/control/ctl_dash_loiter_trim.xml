@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- Set dash and loiter trim -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="trim">
+      <dl_setting MAX="0" MIN="-4000" STEP="100" VAR="v_ctl_auto_throttle_dash_trim" shortname="dash trim" param="V_CTL_AUTO_THROTTLE_DASH_TRIM" module="stabilization/stabilization_attitude"/>
+      <dl_setting MIN="0" MAX="3000" STEP="100" VAR="v_ctl_auto_throttle_loiter_trim" shortname="loiter trim" param="V_CTL_AUTO_THROTTLE_LOITER_TRIM"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

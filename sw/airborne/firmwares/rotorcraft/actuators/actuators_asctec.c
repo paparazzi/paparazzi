@@ -34,6 +34,11 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
+#define ASCTEC_MIN_CMD -100
+#define ASCTEC_MAX_CMD 100
+
+#define ASCTEC_MIN_THROTTLE 0
+#define ASCTEC_MAX_THROTTLE 200
 
 struct ActuatorsAsctec actuators_asctec;
 
@@ -86,15 +91,15 @@ void actuators_set(bool_t motors_on) {
   actuators_asctec.cmds[YAW]    = 0;
   actuators_asctec.cmds[THRUST] = 0;
 #else /* ! KILL_MOTORS */
-  actuators_asctec.cmds[PITCH]  = commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E;
-  actuators_asctec.cmds[ROLL]   = commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A;
-  actuators_asctec.cmds[YAW]    = commands[COMMAND_YAW]    + SUPERVISION_TRIM_R;
-  actuators_asctec.cmds[THRUST] = commands[COMMAND_THRUST];
-  Bound(actuators_asctec.cmds[PITCH],-100, 100);
-  Bound(actuators_asctec.cmds[ROLL], -100, 100);
-  Bound(actuators_asctec.cmds[YAW],  -100, 100);
+  actuators_asctec.cmds[PITCH]  = ((commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E) * ASCTEC_MAX_CMD) / MAX_PPRZ;
+  actuators_asctec.cmds[ROLL]   = ((commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A) * ASCTEC_MAX_CMD) / MAX_PPRZ;
+  actuators_asctec.cmds[YAW]    = ((commands[COMMAND_YAW]    + SUPERVISION_TRIM_R) * ASCTEC_MAX_CMD) / MAX_PPRZ;
+  actuators_asctec.cmds[THRUST] = (commands[COMMAND_THRUST] * ASCTEC_MAX_THROTTLE) / MAX_PPRZ;
+  Bound(actuators_asctec.cmds[PITCH],ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
+  Bound(actuators_asctec.cmds[ROLL], ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
+  Bound(actuators_asctec.cmds[YAW],  ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   if (motors_on) {
-    Bound(actuators_asctec.cmds[THRUST],  1, 200);
+    Bound(actuators_asctec.cmds[THRUST],  ASCTEC_MIN_THROTTLE + 1, ASCTEC_MAX_THROTTLE);
   }
   else
     actuators_asctec.cmds[THRUST] = 0;
@@ -121,7 +126,7 @@ void actuators_set(bool_t motors_on) {
     actuators_asctec.cur_addr = actuators_asctec.new_addr;
     break;
   case NONE:
-    actuators_asctec.i2c_trans.buf[0] = 100 -  actuators_asctec.cmds[PITCH];
+    actuators_asctec.i2c_trans.buf[0] = 100 - actuators_asctec.cmds[PITCH];
     actuators_asctec.i2c_trans.buf[1] = 100 + actuators_asctec.cmds[ROLL];
     actuators_asctec.i2c_trans.buf[2] = 100 - actuators_asctec.cmds[YAW];
     actuators_asctec.i2c_trans.buf[3] = actuators_asctec.cmds[THRUST];
