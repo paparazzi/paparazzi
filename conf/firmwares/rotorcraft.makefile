@@ -167,10 +167,9 @@ ap.srcs   += subsystems/electrical.c
 ap.CFLAGS += -DUSE_DAC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 else ifeq ($(ARCH), stm32)
-#ap.CFLAGS += -DUSE_ADC
-#ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
-#ap.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+ap.CFLAGS += -DUSE_ADC
+ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
 endif
 
