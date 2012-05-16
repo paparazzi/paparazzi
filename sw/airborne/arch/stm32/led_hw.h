@@ -91,8 +91,8 @@ extern uint8_t led_status[NB_LED];
                   GPIO_MODE_OUTPUT_50_MHZ,              \
                   GPIO_CNF_OUTPUT_PUSHPULL,             \
                   GPIO15);                              \
-    for(uint8_t i=0; i<NB_LED; i++)                     \
-      led_status[i] = FALSE;                            \
+    for(uint8_t _cnt=0; _cnt<NB_LED; _cnt++)            \
+      led_status[_cnt] = FALSE;                         \
   }
 
 #define LED_ON(i)  { led_status[i] = TRUE;  }
@@ -100,8 +100,8 @@ extern uint8_t led_status[NB_LED];
 #define LED_TOGGLE(i) {led_status[i] = !led_status[i];}
 
 #define LED_PERIODIC() {                                    \
-    for (uint8_t cnt = 0; cnt < NB_LED; cnt++) {            \
-      if (led_status[cnt])                                  \
+    for (uint8_t _cnt = 0; _cnt < NB_LED; _cnt++) {         \
+      if (led_status[_cnt])                                 \
         GPIO_BSRR(GPIOC) = GPIO15;                          \
       else                                                  \
         GPIO_BRR(GPIOC) = GPIO15;                           \
