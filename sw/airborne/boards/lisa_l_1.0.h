@@ -8,7 +8,9 @@
 #define AHB_CLK 72000000
 
 /* Onboard LEDs */
-#define USE_LED_1
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_STP08
 
 // FIXME, this is just to make it compile
