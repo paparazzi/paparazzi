@@ -18,9 +18,11 @@
 #define PCLK (CCLK / PBSD_VAL)
 
 /* Onboard LEDs */
+#define USE_LED_1
 #define LED_1_BANK 1
 #define LED_1_PIN 25
 
+#define USE_LED_2
 #define LED_2_BANK 1
 #define LED_2_PIN 24
 
