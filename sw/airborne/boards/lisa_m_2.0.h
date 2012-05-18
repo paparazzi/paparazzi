@@ -10,35 +10,45 @@
  */
 
 /* red, on PA8 */
-#define USE_LED_1
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_GPIO GPIOA
 #define LED_1_GPIO_CLK RCC_APB2Periph_GPIOA
 #define LED_1_GPIO_PIN GPIO_Pin_8
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* green, shared with JTAG_TRST */
-#define USE_LED_2
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
 #define LED_2_GPIO_PIN GPIO_Pin_4
 #define LED_2_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
 /* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
-#define USE_LED_3
+#ifndef USE_LED_3
+#define USE_LED_3 1
+#endif
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_3_GPIO_PIN GPIO_Pin_2
 #define LED_3_AFIO_REMAP ((void)0)
 
 /* red, shared with ADC15 (ADC_4 on connector ANALOG2) */
-#define USE_LED_4
+#ifndef USE_LED_4
+#define USE_LED_4 1
+#endif
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_4_GPIO_PIN GPIO_Pin_5
 #define LED_4_AFIO_REMAP ((void)0)
 
 /* green, on PC15 */
-#define USE_LED_5
+#ifndef USE_LED_5
+#define USE_LED_5 1
+#endif
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_5_GPIO_PIN GPIO_Pin_15

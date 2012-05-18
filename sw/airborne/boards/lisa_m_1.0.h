@@ -7,34 +7,44 @@
 
 /* Onboard LEDs */
 /* red */
-#define USE_LED_1
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
 #define LED_1_GPIO_PIN GPIO_Pin_4
 #define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
 /* blue */
-#define USE_LED_2
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* blue */
-#define USE_LED_3
+#ifndef USE_LED_3
+#define USE_LED_3 1
+#endif
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_3_GPIO_PIN GPIO_Pin_2
 #define LED_3_AFIO_REMAP ((void)0)
 
 // GPIO pins
-#define USE_LED_4
+#ifndef USE_LED_4
+#define USE_LED_4 1
+#endif
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_4_GPIO_PIN GPIO_Pin_12
 #define LED_4_AFIO_REMAP ((void)0)
 
-#define USE_LED_5
+#ifndef USE_LED_5
+#define USE_LED_5 1
+#endif
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_5_GPIO_PIN GPIO_Pin_10

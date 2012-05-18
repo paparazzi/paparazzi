@@ -16,11 +16,15 @@
 
 
 #ifdef FBW
-#define USE_LED_1
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_BANK 1
 #define LED_1_PIN 24
 
-#define USE_LED_2
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_BANK 1
 #define LED_2_PIN 31
 
@@ -71,15 +75,21 @@
 /* sitl handles this board as a mono-processor one: unfortunately these
    definitions are already in FBW */
 
-#define USE_LED_1
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_BANK 1
 #define LED_1_PIN 18
 
-#define USE_LED_2
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_BANK 1
 #define LED_2_PIN 19
 
-#define USE_LED_3
+#ifndef USE_LED_3
+#define USE_LED_3 1
+#endif
 #define LED_3_BANK 1
 #define LED_3_PIN 20
 
