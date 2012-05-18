@@ -152,8 +152,6 @@ static uint8_t gcs_index_max;
 
 /*****************************************************************************/
 void gsm_init(void) {
-  LED_INIT(GSM_ONOFF_LED);
-
   if (gsm_status == STATUS_NONE) { /* First call */
     LED_ON(GSM_ONOFF_LED);
     gsm_status = STATUS_POWERON;

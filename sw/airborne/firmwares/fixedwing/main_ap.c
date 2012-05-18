@@ -169,15 +169,6 @@ void init_ap( void ) {
   mcu_init();
 #endif /* SINGLE_MCU */
 
-#ifdef POWER_SWITCH_LED
-  LED_INIT(POWER_SWITCH_LED);
-  LED_OFF(POWER_SWITCH_LED);
-#endif
-#ifdef AHRS_CPU_LED
-  LED_INIT(AHRS_CPU_LED);
-  LED_OFF(AHRS_CPU_LED);
-#endif
-
   /************* Sensors initialization ***************/
 #if USE_GPS
   gps_init();

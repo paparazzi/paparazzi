@@ -54,17 +54,6 @@ extern uint8_t dc_timer;
 
 static inline void led_cam_ctrl_init(void)
 {
-  LED_INIT(DC_SHUTTER_LED);
-#ifdef DC_ZOOM_IN_LED
-  LED_INIT(DC_ZOOM_IN_LED);
-#endif
-#ifdef DC_ZOOM_OUT_LED
-  LED_INIT(DC_ZOOM_OUT_LED);
-#endif
-#ifdef DC_POWER_LED
-  LED_INIT(DC_POWER_LED);
-#endif
-
   // Call common DC init
   dc_init();
 

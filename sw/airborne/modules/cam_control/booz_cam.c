@@ -73,8 +73,6 @@ int16_t booz_cam_pan;
 #endif
 
 void booz_cam_init(void) {
-  LED_INIT(CAM_SWITCH_LED);
-  LED_ON(CAM_SWITCH_LED);
   booz_cam_SetCamMode(BOOZ_CAM_DEFAULT_MODE);
 #ifdef BOOZ_CAM_USE_TILT
   booz_cam_tilt_pwm = BOOZ_CAM_TILT_NEUTRAL;

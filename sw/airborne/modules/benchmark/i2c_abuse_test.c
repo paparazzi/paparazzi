@@ -33,12 +33,8 @@ volatile uint8_t i2c_abuse_test_counter = 0;
 volatile uint32_t i2c_abuse_test_bitrate = 1000;
 
 void init_i2c_abuse_test(void) {
-  LED_INIT(4);
-  LED_OFF(4);
-  LED_INIT(5);
-  LED_OFF(5);
-  LED_INIT(I2C_ABUSE_LED);
-  LED_OFF(I2C_ABUSE_LED);
+  //LED_INIT(DEMO_MODULE_LED);
+  //LED_OFF(DEMO_MODULE_LED);
 
   i2c_test1.status = I2CTransSuccess;
   i2c_test1.slave_addr = 0x3C;
