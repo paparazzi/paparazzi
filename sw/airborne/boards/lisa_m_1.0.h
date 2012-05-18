@@ -7,34 +7,34 @@
 
 /* Onboard LEDs */
 /* red */
-#define LED_1_BANK
+#define USE_LED_1
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
 #define LED_1_GPIO_PIN GPIO_Pin_4
 #define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
 /* blue */
-#define LED_2_BANK
+#define USE_LED_2
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* blue */
-#define LED_3_BANK
+#define USE_LED_3
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_3_GPIO_PIN GPIO_Pin_2
 #define LED_3_AFIO_REMAP ((void)0)
 
 // GPIO pins
-#define LED_4_BANK
+#define USE_LED_4
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_4_GPIO_PIN GPIO_Pin_12
 #define LED_4_AFIO_REMAP ((void)0)
 
-#define LED_5_BANK
+#define USE_LED_5
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_5_GPIO_PIN GPIO_Pin_10

@@ -11,7 +11,7 @@
 #define STM32_PLL_MULT RCC_PLLMul_9
 
 /* Onboard LEDs */
-#define LED_1_BANK
+#define USE_LED_1
 #define LED_STP08
 
 // FIXME, this is just to make it compile
