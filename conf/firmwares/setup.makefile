@@ -86,6 +86,9 @@ ifeq ($(TARGET), setup_actuators)
     ifeq ($(BOARD),lisa_l)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
+    ifeq ($(BOARD),lisa_m)
+      include $(CFG_SHARED)/actuators_direct.makefile
+    endif
 
   else
     include $(CFG_SHARED)/$(ACTUATORS).makefile
@@ -94,18 +97,27 @@ endif
 
 
 # a test program to setup actuators
-ifeq ($(ARCH), lpc21)
+
 setup_actuators.CFLAGS += -DFBW -DUSE_LED -DPERIPHERALS_AUTO_INIT
-setup_actuators.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1
-setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
-setup_actuators.CFLAGS += -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
+setup_actuators.srcs   += mcu.c $(SRC_ARCH)/mcu_arch.c
+
+setup_actuators.CFLAGS += -DUSE_$(MODEM_PORT)
+setup_actuators.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+setup_actuators.srcs   += mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
+
+setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_FBW_DEVICE=$(MODEM_PORT) -DDOWNLINK_AP_DEVICE=$(MODEM_PORT) -DPPRZ_UART=$(MODEM_PORT)
+setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
+setup_actuators.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+
 ifneq ($(SYS_TIME_LED),none)
 setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 setup_actuators.CFLAGS += -DPERIODIC_FREQUENCY='60'
 setup_actuators.CFLAGS += -DUSE_SYS_TIME
-setup_actuators.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c subsystems/datalink/pprz_transport.c subsystems/datalink/downlink.c $(SRC_FIRMWARE)/setup_actuators.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c firmwares/fixedwing/main.c mcu.c $(SRC_ARCH)/mcu_arch.c
-else ifeq ($(TARGET),setup_actuators)
-$(error setup_actuators currently only implemented for the lpc21)
+setup_actuators.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c firmwares/fixedwing/main.c
+
+ifeq ($(ARCH), lpc21)
+setup_actuators.srcs += $(SRC_ARCH)/armVIC.c
 endif
