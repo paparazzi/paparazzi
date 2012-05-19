@@ -50,7 +50,7 @@
   <channel ctl="C" function="ROLL"     min="1900" neutral="1500" max="1096" average="0"/>
   <channel ctl="B" function="PITCH"    min="1900" neutral="1500" max="1096" average="0"/>
   <channel ctl="D" function="THROTTLE" min="1096" neutral="1096" max="1900" average="0"/>
-  <channel ctl="A" function="YAW"      min="1096" neutral="1500" max="1900" average="0"/>
+  <channel ctl="A" function="YAW"      min="1900" neutral="1500" max="1096" average="0"/>
   <channel ctl="H" function="MODE"     min="966"  neutral="1500" max="2025" average="1"/>
   <channel ctl="E" function="GAIN1"    min="1096" neutral="1500" max="1900" average="1"/>
   <channel ctl="F" function="CALIB"    min="1096" neutral="1500" max="1900" average="0"/>
