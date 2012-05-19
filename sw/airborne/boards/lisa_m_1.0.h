@@ -9,34 +9,44 @@
 
 /* Onboard LEDs */
 /* red */
-#define LED_1_BANK
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
 #define LED_1_GPIO_PIN GPIO4
 #define LED_1_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
 
 /* blue */
-#define LED_2_BANK
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_2_GPIO_PIN GPIO5
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* blue */
-#define LED_3_BANK
+#ifndef USE_LED_3
+#define USE_LED_3 1
+#endif
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_3_GPIO_PIN GPIO2
 #define LED_3_AFIO_REMAP ((void)0)
 
 // GPIO pins
-#define LED_4_BANK
+#ifndef USE_LED_4
+#define USE_LED_4 1
+#endif
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_4_GPIO_PIN GPIO12
 #define LED_4_AFIO_REMAP ((void)0)
 
-#define LED_5_BANK
+#ifndef USE_LED_5
+#define USE_LED_5 1
+#endif
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_5_GPIO_PIN GPIO10

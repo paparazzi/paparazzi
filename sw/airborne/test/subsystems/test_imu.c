@@ -61,11 +61,6 @@ static inline void main_init( void ) {
 
   mcu_init();
 
-#ifdef BOARD_LISA_L
-  LED_INIT(3);
-  LED_OFF(3);
-#endif
-
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
   imu_init();
@@ -76,7 +71,7 @@ static inline void main_init( void ) {
 static inline void led_toggle ( void ) {
 
 #ifdef BOARD_LISA_L
-  LED_TOGGLE(3);
+      LED_TOGGLE(3);
 #endif
 }
 

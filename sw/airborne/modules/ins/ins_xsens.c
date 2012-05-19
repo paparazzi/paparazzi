@@ -226,14 +226,6 @@ volatile int xsens_configured = 0;
 
 void ins_init( void ) {
 
-  // FIXME, don't use hardcode led number here
-  LED_INIT(3);
-
-#ifdef GPS_LED
-  LED_INIT(GPS_LED);
-  LED_OFF(GPS_LED);
-#endif
-
   xsens_status = UNINIT;
   xsens_configured = 20;
 

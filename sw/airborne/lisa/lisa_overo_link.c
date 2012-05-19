@@ -10,11 +10,6 @@ void overo_link_init(void) {
   overo_link.crc_error = FALSE;
   overo_link.timeout = FALSE;
   overo_link_arch_init();
-
-  LED_INIT(OVERO_LINK_LED_OK);
-  LED_INIT(OVERO_LINK_LED_KO);
-  LED_OFF(OVERO_LINK_LED_OK);
-  LED_OFF(OVERO_LINK_LED_KO);
 }
 
 

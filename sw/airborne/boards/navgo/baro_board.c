@@ -43,7 +43,6 @@ void baro_init( void ) {
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board */
 #ifdef ROTORCRAFT_BARO_LED
-  LED_INIT(ROTORCRAFT_BARO_LED);
   LED_OFF(ROTORCRAFT_BARO_LED);
 #endif
   startup_cnt = STARTUP_COUNTER;

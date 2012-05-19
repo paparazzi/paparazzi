@@ -21,10 +21,7 @@ static struct adc_buf buf_adc[NB_ADC];
 int main (int argc, char** argv) {
   mcu_init();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
-
-  LED_INIT(1);
-  LED_OFF(1);
-
+  led_init();
   adc_init();
 
   adc_buf_channel(ADC_0, &buf_adc[0], ADC_NB_SAMPLES);

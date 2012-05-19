@@ -55,9 +55,6 @@ int main(void) {
   mcu_init();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
-  LED_INIT(2);
-  LED_OFF(2);
-
   /* init RCC */
   RCC_APB2PeriphClockCmd(A_PERIPH , ENABLE);
   //  RCC_APB2PeriphClockCmd(B_PERIPH , ENABLE);
