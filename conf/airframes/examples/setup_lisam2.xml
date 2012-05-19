@@ -1,0 +1,21 @@
+<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+
+<airframe name="setup_lisam2">
+
+  <firmware name="setup">
+    <target name="tunnel"           board="lisa_m_2.0"/>
+    <target name="setup_actuators"  board="lisa_m_2.0"/>
+  </firmware>
+
+  <servos min="0" neutral="0" max="0xff">
+    <servo name="1"   no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="2"   no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="3"   no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="4"   no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="5"   no="4" min="1000" neutral="1000" max="2000"/>
+    <servo name="6"   no="5" min="1000" neutral="1000" max="2000"/>
+    <servo name="7"   no="6" min="1000" neutral="1000" max="2000"/>
+    <servo name="8"   no="7" min="1000" neutral="1000" max="2000"/>
+  </servos>
+
+</airframe>

@@ -1,16 +1,23 @@
+#include "generated/airframe.h"
+
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "firmwares/fixedwing/actuators.h"
 //#include "actuators.h"
-#include "generated/airframe.h"
+
+#include "firmwares/fixedwing/main_fbw.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 #define DATALINK_C
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
-#include "firmwares/fixedwing/main_fbw.h"
 
 #include "generated/settings.h"
 
