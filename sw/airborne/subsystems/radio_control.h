@@ -71,11 +71,6 @@ static inline void radio_control_init ( void ) {
   radio_control.frame_rate = 0;
   radio_control.frame_cpt = 0;
   radio_control_impl_init();
-
-#if defined RADIO_CONTROL_LED
-  LED_INIT(RADIO_CONTROL_LED);
-  LED_OFF(RADIO_CONTROL_LED);
-#endif
 }
 
 /************* PERIODIC ******************************************************/

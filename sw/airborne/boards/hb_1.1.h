@@ -19,9 +19,16 @@
 
 /* Onboard LEDs */
 /* led 1 and led 2 are not seperate leds, but leds indicating the power switch status */
+
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_BANK 1
 #define LED_1_PIN 18
 
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_BANK 1
 #define LED_2_PIN 19
 
@@ -29,9 +36,15 @@
 #define POWER_SWITCH_2_LED 2
 
 /* there are no actual leds 3 and 4, these defines are just to conveniently switch the buzzer and the cam switch */
+#ifndef USE_LED_3
+#define USE_LED_3 1
+#endif
 #define LED_3_BANK 1
 #define LED_3_PIN 20
 
+#ifndef USE_LED_4
+#define USE_LED_4 1
+#endif
 #define LED_4_BANK 1
 #define LED_4_PIN 25
 

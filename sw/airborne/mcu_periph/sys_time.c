@@ -29,7 +29,6 @@
 
 #include "mcu_periph/sys_time.h"
 #include "mcu.h"
-#include "led.h"
 
 struct sys_time sys_time;
 
@@ -69,11 +68,6 @@ void sys_time_update_timer(tid_t id, float duration) {
 
 void sys_time_init( void ) {
   sys_time_arch_init();
-
-#ifdef SYS_TIME_LED
-  LED_INIT(SYS_TIME_LED);
-  LED_OFF(SYS_TIME_LED);
-#endif
 
   sys_time.nb_sec     = 0;
   sys_time.nb_sec_rem = 0;
