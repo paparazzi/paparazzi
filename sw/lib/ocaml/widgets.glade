@@ -80,6 +80,8 @@
         <child>
           <widget class="GtkComboBoxEntry" id="comboboxentry_color">
             <property name="visible">True</property>
+            <property name="has_tooltip">True</property>
+            <property name="tooltip" translatable="yes">Colors defined in X11 rgb.txt</property>
             <property name="items" translatable="yes">green
 red
 blue

@@ -83,7 +83,7 @@ class canvas_text = fun ?(config=[]) canvas_group x y ->
 	size <- text_editor#spinbutton_size#value in
       ignore (text_editor#spinbutton_size#connect#value_changed ~callback);
       let callback = fun () ->
-	color <- text_editor#comboboxentry_color#entry#text in
+        color <- text_editor#comboboxentry_color#entry#text in
       ignore (text_editor#comboboxentry_color#connect#changed ~callback);
   end
 
