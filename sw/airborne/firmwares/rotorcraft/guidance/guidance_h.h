@@ -48,7 +48,6 @@ extern uint8_t guidance_h_mode;
  */
 extern struct Int32Vect2 guidance_h_pos_sp;
 
-extern int32_t           guidance_h_psi_sp;      ///< with #INT32_ANGLE_FRAC
 extern struct Int32Vect2 guidance_h_pos_ref;
 extern struct Int32Vect2 guidance_h_speed_ref;
 extern struct Int32Vect2 guidance_h_accel_ref;
