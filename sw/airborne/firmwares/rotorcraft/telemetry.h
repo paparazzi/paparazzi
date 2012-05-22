@@ -817,11 +817,15 @@
 #define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {}
 #endif
 
+#ifndef SITL
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) { \
     PERIODIC_SEND_I2C0_ERRORS(_trans, _dev);     \
     PERIODIC_SEND_I2C1_ERRORS(_trans, _dev);     \
     PERIODIC_SEND_I2C2_ERRORS(_trans, _dev);     \
 }
+#else
+#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {}
+#endif
 
 // FIXME: still used?? or replace by EXTRA_ADC
 #define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
