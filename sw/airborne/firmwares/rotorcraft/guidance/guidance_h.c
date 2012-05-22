@@ -214,7 +214,11 @@ void guidance_h_run(bool_t  in_flight) {
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
 
+#if GUIDANCE_H_USE_REF
         guidance_h_update_reference(TRUE);
+#else
+        guidance_h_update_reference(FALSE);
+#endif
 
         guidance_h_psi_sp = nav_heading;
         guidance_h_traj_run(in_flight);
@@ -230,7 +234,6 @@ void guidance_h_run(bool_t  in_flight) {
 
 static inline void guidance_h_update_reference(bool_t use_ref) {
   /* convert our reference to generic representation */
-#if GUIDANCE_H_USE_REF
   if (use_ref) {
     b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
@@ -241,12 +244,6 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
     INT_VECT2_ZERO(guidance_h_speed_ref);
     INT_VECT2_ZERO(guidance_h_accel_ref);
   }
-#else
-  if (use_ref) {;} // we don't have a reference... just to avoid the unused arg warning in that case
-  VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
-  INT_VECT2_ZERO(guidance_h_speed_ref);
-  INT_VECT2_ZERO(guidance_h_accel_ref);
-#endif
 }
 
 
