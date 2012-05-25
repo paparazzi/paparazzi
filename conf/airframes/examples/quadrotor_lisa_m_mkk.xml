@@ -1,4 +1,6 @@
-<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a quadrotor frame equiped with Lisa/M 1.0 and MKK motor controllers -->
 
 <airframe name="fraser">
 
