@@ -79,16 +79,25 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(256,
     {
+      uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
+      uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
+      uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
+      uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
+      uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
+      uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
+      uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
+      uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
+      uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-			       &i2c2_errors.ack_fail_cnt,
-			       &i2c2_errors.miss_start_stop_cnt,
-			       &i2c2_errors.arb_lost_cnt,
-			       &i2c2_errors.over_under_cnt,
-			       &i2c2_errors.pec_recep_cnt,
-			       &i2c2_errors.timeout_tlow_cnt,
-			       &i2c2_errors.smbus_alert_cnt,
-			       &i2c2_errors.unexpected_event_cnt,
-			       &i2c2_errors.last_unexpected_event);
+                               &i2c2_ack_fail_cnt,
+                               &i2c2_miss_start_stop_cnt,
+                               &i2c2_arb_lost_cnt,
+                               &i2c2_over_under_cnt,
+                               &i2c2_pec_recep_cnt,
+                               &i2c2_timeout_tlow_cnt,
+                               &i2c2_smbus_alert_cnt,
+                               &i2c2_unexpected_event_cnt,
+                               &i2c2_last_unexpected_event);
     });
 }
 
