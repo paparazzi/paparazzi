@@ -7,7 +7,7 @@
      Datamodems configured for 57600 baud
      MKK style speed controllers-->
 
- <servos min="0" neutral="0" max="0xff">
+ <servos>
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
     <servo name="BACK"  no="1" min="0" neutral="0" max="255"/>
     <servo name="RIGHT" no="2" min="0" neutral="0" max="255"/>

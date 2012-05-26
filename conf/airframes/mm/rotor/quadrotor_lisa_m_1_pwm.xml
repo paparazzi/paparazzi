@@ -22,7 +22,7 @@
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
     <servo name="RIGHT"   no="2" min="1000" neutral="1000" max="2000"/>

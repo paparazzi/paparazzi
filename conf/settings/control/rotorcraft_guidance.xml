@@ -19,7 +19,6 @@
       <dl_setting var="guidance_h_again" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ka" param="GUIDANCE_H_AGAIN"/>
       <dl_setting var="guidance_h_pos_sp.x" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       <dl_setting var="guidance_h_pos_sp.y" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
-      <dl_setting var="guidance_h_psi_sp" MIN="-180" MAX="180" STEP="5"  module="guidance/guidance_h" shortname="sp_psi" unit="1/2^20r" alt_unit="deg" alt_unit_coef="0.000054641513360"/>
       <dl_setting var="ins_hf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="hf_realign" values="OFF|ON"/>
    </dl_settings>
 

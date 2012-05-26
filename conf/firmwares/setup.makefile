@@ -86,7 +86,7 @@ ifeq ($(TARGET), setup_actuators)
     ifeq ($(BOARD),lisa_l)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
-    ifeq ($(BOARD),lisa_m)
+	ifeq ($(BOARD),lisa_m)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
 
@@ -97,7 +97,6 @@ endif
 
 
 # a test program to setup actuators
-
 setup_actuators.CFLAGS += -DFBW -DUSE_LED -DPERIPHERALS_AUTO_INIT
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
 setup_actuators.srcs   += mcu.c $(SRC_ARCH)/mcu_arch.c
@@ -109,7 +108,6 @@ setup_actuators.srcs   += mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_FBW_DEVICE=$(MODEM_PORT) -DDOWNLINK_AP_DEVICE=$(MODEM_PORT) -DPPRZ_UART=$(MODEM_PORT)
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
 setup_actuators.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-
 ifneq ($(SYS_TIME_LED),none)
 setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
@@ -120,4 +118,8 @@ setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c firmwares/fixedwing/
 
 ifeq ($(ARCH), lpc21)
 setup_actuators.srcs += $(SRC_ARCH)/armVIC.c
+else ifeq ($(ARCH), stm32)
+setup_actuators.ARCHDIR = $(ARCH)
+setup_actuators.CFLAGS += -I$(ARCH)
+setup_actuators.srcs   += $(SRC_ARCH)/led_hw.c
 endif

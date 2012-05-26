@@ -56,6 +56,7 @@ CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
 CFLAGS += -O2
+CFLAGS += -g
 
 ifneq ($(SIM_TYPE),JSBSIM)
 CFLAGS += -std=gnu99
@@ -63,9 +64,6 @@ endif
 
 LDFLAGS		=	-lm
 
-ifeq ($(SIM_TYPE),BOOZ)
-LDFLAGS		+= $($(TARGET).LDFLAGS)
-endif
 ifeq ($(SIM_TYPE),JSBSIM)
 LDFLAGS		+= $($(TARGET).LDFLAGS)
 endif
@@ -92,11 +90,6 @@ check_jsbsim:
 #	fi
 
 
-ifeq ($(SIM_TYPE),BOOZ)
-$(OBJDIR)/simsitl : $($(TARGET).objs)
-	@echo LD $@
-	$(Q)$(CC) -o $@ $($(TARGET).objs) $(LDFLAGS)
-else
 ifeq ($(SIM_TYPE),JSBSIM)
 $(OBJDIR)/simsitl : $($(TARGET).objs)
 	@echo LD $@
@@ -105,7 +98,6 @@ else
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
 	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) $(MYGTKINITCMO) $(SITLCMA) $(SIMSITLML)
-endif
 endif
 
 
@@ -139,9 +131,6 @@ $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
-
-avr_clean:
-	rm -rf $(OBJDIR)
 
 
 #

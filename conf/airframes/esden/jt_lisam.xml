@@ -2,7 +2,7 @@
 
 <airframe name="jt_lisam">
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="A1"            no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="A2"            no="1" min="1000" neutral="1000" max="2000"/>
     <servo name="B1"            no="2" min="1000" neutral="1000" max="2000"/>

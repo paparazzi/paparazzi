@@ -1,7 +1,7 @@
 <!-- this is a custom hexa Lisa/L#3 and mikrokopter controllers -->
 <airframe name="booz2_a6">
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="BACK_RIGHT"   no="0" min="0" neutral="0" max="255"/>
     <servo name="BACK_LEFT"    no="1" min="0" neutral="0" max="255"/>
     <servo name="CENTER_RIGHT" no="2" min="0" neutral="0" max="255"/>
