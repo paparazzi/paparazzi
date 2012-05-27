@@ -13,6 +13,12 @@ void i2c0_hw_init(void) {
   i2c0.errors = &i2c0_errors;
   ZEROS_ERR_COUNTER(i2c0_errors);
 }
+
+void i2c0_ev_isr(void) {
+}
+
+void i2c0_er_isr(void) {
+}
 #endif
 
 #ifdef USE_I2C1
@@ -22,6 +28,12 @@ void i2c1_hw_init(void) {
   i2c1.errors = &i2c1_errors;
   ZEROS_ERR_COUNTER(i2c1_errors);
 }
+
+void i2c1_ev_isr(void) {
+}
+
+void i2c1_er_isr(void) {
+}
 #endif
 
 #ifdef USE_I2C2
@@ -30,5 +42,11 @@ struct i2c_errors i2c2_errors;
 void i2c2_hw_init(void) {
   i2c2.errors = &i2c2_errors;
   ZEROS_ERR_COUNTER(i2c2_errors);
+}
+
+void i2c2_ev_isr(void) {
+}
+
+void i2c2_er_isr(void) {
 }
 #endif

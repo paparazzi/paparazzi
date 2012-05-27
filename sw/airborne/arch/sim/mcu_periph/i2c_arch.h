@@ -9,8 +9,6 @@
 #ifdef USE_I2C0
 
 extern void i2c0_hw_init(void);
-#define i2c0_ev_isr() {}
-#define i2c0_er_isr() {}
 
 #endif /* USE_I2C0 */
 
@@ -18,8 +16,6 @@ extern void i2c0_hw_init(void);
 #ifdef USE_I2C1
 
 extern void i2c1_hw_init(void);
-#define i2c1_ev_isr() {}
-#define i2c1_er_isr() {}
 
 #endif /* USE_I2C1 */
 
@@ -27,8 +23,6 @@ extern void i2c1_hw_init(void);
 #ifdef USE_I2C2
 
 extern void i2c2_hw_init(void);
-#define i2c2_ev_isr() {}
-#define i2c2_er_isr() {}
 
 #endif /* USE_I2C2 */
 
