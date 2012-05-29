@@ -14,7 +14,6 @@ static void configure_accel(void);
 #define ASPIRIN_ACCEL_RATE ADXL345_RATE_800
 #endif
 
-#if !SITL
 // FIXME: there should be no arch dependent code here!
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   uint8_t max_retry = 8;
@@ -28,9 +27,6 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   }
   while (t->status != I2CTransSuccess && nb_retry < max_retry);
 }
-#else
-static void send_i2c_msg_with_retry(struct i2c_transaction* t __attribute__ ((unused))) {}
-#endif
 
 void imu_impl_init(void) {
 
