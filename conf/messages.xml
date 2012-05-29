@@ -1048,6 +1048,7 @@
     <field name="gr"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="noise"  type="int32"/>
     <field name="cnt"    type="int32"/>
+    <field name="status" type="uint8" values="UNINIT|RUNNING|LOCKED"/>
   </message>
 
   <!-- 138 is free -->

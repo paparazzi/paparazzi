@@ -304,15 +304,16 @@
 
 #include "subsystems/ahrs/ahrs_aligner.h"
 #define PERIODIC_SEND_FILTER_ALIGNER(_trans, _dev) {			\
-    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,				\
-                       &ahrs_aligner.lp_gyro.p,	\
-                       &ahrs_aligner.lp_gyro.q,	\
-                       &ahrs_aligner.lp_gyro.r,	\
-                       &imu.gyro.p,		\
-                       &imu.gyro.q,		\
-                       &imu.gyro.r,		\
-                       &ahrs_aligner.noise,	\
-                       &ahrs_aligner.low_noise_cnt); \
+    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,                  \
+                                 &ahrs_aligner.lp_gyro.p,       \
+                                 &ahrs_aligner.lp_gyro.q,       \
+                                 &ahrs_aligner.lp_gyro.r,       \
+                                 &imu.gyro.p,                   \
+                                 &imu.gyro.q,                   \
+                                 &imu.gyro.r,                   \
+                                 &ahrs_aligner.noise,           \
+                                 &ahrs_aligner.low_noise_cnt,   \
+                                 &ahrs_aligner.status);         \
   }
 
 
