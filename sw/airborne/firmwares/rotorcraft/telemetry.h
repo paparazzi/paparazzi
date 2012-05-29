@@ -832,7 +832,7 @@
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
-#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_BOOZ_SIM_SPEED_POS(_trans, _dev, \
+#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_NPS_SPEED_POS(_trans, _dev, \
     &target_accel_ned.x, \
     &target_accel_ned.y, \
     &target_accel_ned.z, \
