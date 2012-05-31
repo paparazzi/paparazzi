@@ -273,7 +273,7 @@ struct FGNetGUI {
 #ifdef __x86_64__
 #pragma pack(push)
 #pragma pack(pop)
-#endif __x86_64__ /*__x86_64__*/
+#endif /*__x86_64__*/
 #endif /*FG_2_4*/
 
 
