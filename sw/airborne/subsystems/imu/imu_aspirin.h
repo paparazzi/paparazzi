@@ -65,12 +65,13 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 
+#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
+#ifdef IMU_ASPIRIN_VERSION_1_5
 /** default gyro sensitivy and neutral from the datasheet
  * IMU-3000 has 16.4 LSB/(deg/s) at 2000deg/s range
  * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
  * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
  */
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
 #define IMU_GYRO_P_SENS 4.359
 #define IMU_GYRO_P_SENS_NUM 4359
 #define IMU_GYRO_P_SENS_DEN 1000
@@ -80,6 +81,22 @@
 #define IMU_GYRO_R_SENS 4.359
 #define IMU_GYRO_R_SENS_NUM 4359
 #define IMU_GYRO_R_SENS_DEN 1000
+#else
+/** default gyro sensitivy and neutral from the datasheet
+ * ITG3200 has 14.375 LSB/(deg/s)
+ * sens = 1/14.375 * pi/180 * 2^INT32_RATE_FRAC
+ * sens = 1/14.375 * pi/180 * 4096 = 4.973126
+ */
+#define IMU_GYRO_P_SENS 4.973
+#define IMU_GYRO_P_SENS_NUM 4973
+#define IMU_GYRO_P_SENS_DEN 1000
+#define IMU_GYRO_Q_SENS 4.973
+#define IMU_GYRO_Q_SENS_NUM 4973
+#define IMU_GYRO_Q_SENS_DEN 1000
+#define IMU_GYRO_R_SENS 4.973
+#define IMU_GYRO_R_SENS_NUM 4973
+#define IMU_GYRO_R_SENS_DEN 1000
+#endif // IMU_ASPIRIN_VERSION_1_5
 #endif
 
 
