@@ -326,7 +326,7 @@
   }
 
 
-#if USE_AHRS_CMPL
+#if USE_AHRS_CMPL_EULER
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
 #define PERIODIC_SEND_FILTER(_trans, _dev) {					\
     DOWNLINK_SEND_FILTER(_trans, _dev,						\
