@@ -144,7 +144,7 @@ MATH_LIB = -lm
 # Linker flags.
 LDFLAGS = -n -nostartfiles -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref
 LDFLAGS += -lc
-LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
+LDFLAGS += $(MATH_LIB)
 LDFLAGS += -lc -lgcc
 LDFLAGS += $(CPLUSPLUS_LIB)
 LDFLAGS += -Wl,--gc-sections
@@ -153,14 +153,11 @@ LDFLAGS += -Wl,--gc-sections
 ifndef LDSCRIPT
 ifeq ($(FLASH_MODE),ISP)
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
-else ifeq ($(FLASH_MODE),ISP)
-LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
 else
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM-bl.ld
 endif
 endif
 LDFLAGS +=-T$(LDSCRIPT)
-#endif
 
 
 
