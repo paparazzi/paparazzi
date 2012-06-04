@@ -647,10 +647,6 @@ static inline void on_gyro_event( void ) {
 
   ahrs_timeout_counter = 0;
 
-#ifdef AHRS_CPU_LED
-  LED_ON(AHRS_CPU_LED);
-#endif
-
 #if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
   if (ahrs.status == AHRS_UNINIT) {
@@ -716,10 +712,6 @@ static inline void on_gyro_event( void ) {
 #endif
   }
 #endif //PERIODIC_FREQUENCY
-
-#ifdef AHRS_CPU_LED
-    LED_OFF(AHRS_CPU_LED);
-#endif
 
 }
 

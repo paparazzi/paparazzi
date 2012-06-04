@@ -13,7 +13,6 @@
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
       <configure name="AHRS_ALIGNER_LED" value="2"/>
-      <!--configure name="CPU_LED" value="2"/-->
       <configure name="SYS_TIME_LED" value="1"/>
       <configure name="GPS_LED" value="none"/>
       <!-- for airspeed sensor
