@@ -47,7 +47,7 @@ extern uint16_t xsens_time_stamp;
   InsEventCheckAndHandle(handle_ins_msg()) 			\
 }
 
-#if USE_GPS && USE_GPS_XSENS
+#if USE_GPS_XSENS
 extern bool_t gps_xsens_msg_available;
 #define GpsEvent(_sol_available_callback) {         \
     if (gps_xsens_msg_available) {                  \

@@ -35,7 +35,10 @@
 #include "subsystems/datalink/downlink.h"
 #include "messages.h"
 
-#if USE_GPS && USE_GPS_XSENS
+#if USE_GPS_XSENS
+#if !USE_GPS
+#error "USE_GPS needs to be 1 to use the Xsens GPS!"
+#endif
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"
@@ -218,9 +221,10 @@ void ins_init( void ) {
   xsens_output_settings = XSENS_OUTPUT_SETTINGS;
 }
 
-#if USE_GPS && USE_GPS_XSENS
+#if USE_GPS_XSENS
 void gps_impl_init(void) {
   gps.nb_channels = 0;
+  gps_xsens_msg_available = FALSE;
 }
 #endif
 
@@ -299,7 +303,7 @@ void handle_ins_msg(void) {
   EstimatorSetRate(ins_p, ins_q, ins_r);
 #endif
 
-#if USE_GPS && USE_GPS_XSENS
+#if USE_GPS_XSENS
   #ifndef ALT_KALMAN
   #warning NO_VZ
   #endif
@@ -314,7 +318,7 @@ void handle_ins_msg(void) {
 
   float fcourse = atan2f((float)ins_vy, (float)ins_vx);
   gps.course = fcourse * 1e7;
-#endif // USE_GPS && USE_GPS_XSENS
+#endif // USE_GPS_XSENS
 }
 
 void parse_ins_msg( void ) {
@@ -340,7 +344,7 @@ void parse_ins_msg( void ) {
   else if (xsens_id == XSENS_Error_ID) {
     xsens_errorcode = XSENS_Error_errorcode(xsens_msg_buf);
   }
-#if USE_GPS && USE_GPS_XSENS
+#if USE_GPS_XSENS
   else if (xsens_id == XSENS_GPSStatus_ID) {
     gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
     gps.num_sv = 0;
@@ -371,7 +375,7 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_RAWInertial_LENGTH;
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
-#if USE_GPS && USE_GPS_XSENS_RAW_DATA && USE_GPS_XSENS
+#if USE_GPS_XSENS_RAW_DATA && USE_GPS_XSENS
 
         gps.week = 0; // FIXME
         gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
@@ -480,7 +484,7 @@ void parse_ins_msg( void ) {
         offset += l * XSENS_DATA_Auxiliary_LENGTH / 2;
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
-#if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS && USE_GPS
+#if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS
         lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf,offset));
         lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens_msg_buf,offset));
         gps.lla_pos.lat = (int32_t)(lla_f.lat * 1e7);
@@ -511,7 +515,7 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Status(xsens_output_mode)) {
         xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf,offset);
-#if USE_GPS_XSENS && USE_GPS
+#if USE_GPS_XSENS
         if (bit_is_set(xsens_msg_status,2)) gps.fix = GPS_FIX_3D; // gps fix
         else if (bit_is_set(xsens_msg_status,1)) gps.fix = 0x01; // efk valid
         else gps.fix = GPS_FIX_NONE;
@@ -523,12 +527,12 @@ void parse_ins_msg( void ) {
           LED_TOGGLE(GPS_LED);
         }
 #endif // GPS_LED
-#endif //  USE_GPS_XSENS && USE_GPS
+#endif //  USE_GPS_XSENS
         offset += XSENS_DATA_Status_LENGTH;
       }
       if (XSENS_MASK_TimeStamp(xsens_output_settings)) {
         xsens_time_stamp = XSENS_DATA_TimeStamp_ts(xsens_msg_buf,offset);
-#if USE_GPS_XSENS && USE_GPS
+#if USE_GPS_XSENS
         gps.tow = xsens_time_stamp;
 #endif
         offset += XSENS_DATA_TimeStamp_LENGTH;
