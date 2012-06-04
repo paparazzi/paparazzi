@@ -47,5 +47,18 @@ extern uint16_t xsens_time_stamp;
   InsEventCheckAndHandle(handle_ins_msg()) 			\
 }
 
+#if USE_GPS && USE_GPS_XSENS
+extern bool_t gps_xsens_msg_available;
+#define GpsEvent(_sol_available_callback) {         \
+    if (gps_xsens_msg_available) {                  \
+      if (gps.fix == GPS_FIX_3D) {                  \
+        gps.last_fix_ticks = sys_time.nb_sec_rem;   \
+        gps.last_fix_time = sys_time.nb_sec;        \
+      }                                             \
+      _sol_available_callback();                    \
+      gps_xsens_msg_available = FALSE;              \
+    }                                               \
+  }
+#endif
 
 #endif

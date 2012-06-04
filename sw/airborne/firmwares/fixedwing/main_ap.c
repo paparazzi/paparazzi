@@ -601,7 +601,7 @@ void event_task_ap( void ) {
 
 #if USE_GPS
   GpsEvent(on_gps_solution);
-#endif /** USE_GPS */
+#endif /* USE_GPS */
 
 
   DatalinkEvent();

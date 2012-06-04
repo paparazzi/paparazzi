@@ -18,7 +18,6 @@ ap.CFLAGS += -DUSE_INS
 
 # AHRS Results
 ap.CFLAGS += -DINS_MODULE_H=\"modules/ins/ins_xsens.h\"
-ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
 
 ifndef XSENS_UART_BAUD
 	XSENS_UART_BAUD = B115200
@@ -51,13 +50,14 @@ endif
 #########################################
 ## GPS
 
-# ap.CFLAGS += -DGPS
-
-$(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
+ap.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
+ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
+sim.srcs += $(SRC_SUBSYSTEMS)/gps.c
 
 
 
