@@ -2,9 +2,10 @@
 
 # XSens Mti-G
 
-#    <load name="ins_xsens_MTiG_fixedwing.xml">
+#    <subsystem name="ins" type="xsens">
 #      <configure name="XSENS_UART_NR" value="0"/>
-#    </load>
+#      <configure name="XSENS_UART_BAUD" value="B115200"/>
+#    </subsystem>
 
 
 
@@ -13,35 +14,19 @@
 
 ifeq ($(TARGET), ap)
 
-#  <init fun="ins_init()"/>
-#  <periodic fun="ins_periodic_task()" freq="60"/>
-#  <event fun="InsEventCheckAndHandle(handle_ins_msg())"/>
-#  <makefile target="ap">
-#    <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_xsens.h\\\"" />
-#    <define name="INS_MODULE_H" value="\\\"modules/ins/ins_xsens.h\\\"" />
-#    <define name="USE_UART$(XSENS_UART_NR)"/>
-#    <define name="INS_LINK" value="Uart$(XSENS_UART_NR)"/>
-#    <define name="UART$(XSENS_UART_NR)_BAUD" value="B230400"/>
-#    <define name="USE_GPS_XSENS"/>
-#    <define name="USE_GPS_XSENS_RAW_DATA" />
-#    <define name="GPS_NB_CHANNELS" value="16" />
-#    <define name="XSENS_OUTPUT_MODE" value="0x1836" />
-#    <file name="ins_xsens.c"/>
-#    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
-#  </makefile>
-
-# ImuEvent -> XSensEvent
-ap.CFLAGS += -DUSE_AHRS
-ap.CFLAGS += -DIMU_TYPE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DUSE_INS
 
 # AHRS Results
-ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_xsens.h\"
 ap.CFLAGS += -DINS_MODULE_H=\"modules/ins/ins_xsens.h\"
 ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
 
+ifndef XSENS_UART_BAUD
+	XSENS_UART_BAUD = B115200
+endif
+
 ap.CFLAGS += -DUSE_UART$(XSENS_UART_NR)
 ap.CFLAGS += -DINS_LINK=Uart$(XSENS_UART_NR)
-ap.CFLAGS += -DUART$(XSENS_UART_NR)_BAUD=B230400
+ap.CFLAGS += -DUART$(XSENS_UART_NR)_BAUD=$(XSENS_UART_BAUD)
 ap.CFLAGS += -DUSE_GPS_XSENS
 ap.CFLAGS += -DUSE_GPS_XSENS_RAW_DATA
 ap.CFLAGS += -DGPS_NB_CHANNELS=16

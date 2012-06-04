@@ -1,6 +1,4 @@
 /*
- * Paparazzi mcu0 $Id$
- *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -22,8 +20,8 @@
  *
  */
 
-/** \file xsens.c
- * \brief Parser for the Xsens protocol
+/** @file xsens.c
+ * Parser for the Xsens protocol.
  */
 
 #include "ins_module.h"
@@ -70,25 +68,6 @@ INS_FORMAT ins_mz;
 
 float ins_pitch_neutral;
 float ins_roll_neutral;
-
-
-void ahrs_init(void)
-{
-  ins_init();
-}
-
-
-#include "subsystems/imu.h"
-
-void imu_init(void)
-{
-  ins_init();
-}
-
-void imu_periodic(void)
-{
-  ins_periodic_task();
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -242,65 +221,68 @@ void ins_init( void ) {
 
 void ins_periodic_task( void ) {
   if (xsens_configured > 0)
-  {
-     switch (xsens_configured)
-     {
-	case 20:
-		/* send mode and settings to MT */
-		XSENS_GoToConfig();
-		XSENS_SetOutputMode(xsens_output_mode);
-		XSENS_SetOutputSettings(xsens_output_settings);
-		break;
-	case 18:
-		// Give pulses on SyncOut
-		XSENS_SetSyncOutSettings(0,0x0002);
-		break;
-	case 17:
-		// 1 pulse every 100 samples
-		XSENS_SetSyncOutSettings(1,100);
-		break;
-	case 2:
-		XSENS_ReqLeverArmGps();
-		break;
+    {
+      switch (xsens_configured)
+        {
+        case 20:
+          /* send mode and settings to MT */
+          XSENS_GoToConfig();
+          XSENS_SetOutputMode(xsens_output_mode);
+          XSENS_SetOutputSettings(xsens_output_settings);
+          break;
+        case 18:
+          // Give pulses on SyncOut
+          XSENS_SetSyncOutSettings(0,0x0002);
+          break;
+        case 17:
+          // 1 pulse every 100 samples
+          XSENS_SetSyncOutSettings(1,100);
+          break;
+        case 2:
+          XSENS_ReqLeverArmGps();
+          break;
 
-	case 6:
-		XSENS_ReqMagneticDeclination();
-		break;
+        case 6:
+          XSENS_ReqMagneticDeclination();
+          break;
 
-	case 13:
-		#ifdef AHRS_H_X
-		#pragma message "Sending XSens Magnetic Declination."
-		xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
-		XSENS_SetMagneticDeclination(xsens_declination);
-		#endif
-		break;
-	case 12:
-		#ifdef GPS_IMU_LEVER_ARM_X
-		#pragma message "Sending XSens GPS Arm."
-		XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
-		#endif
-		break;
-	case 10:
-		{
-		uint8_t baud = 1;
-		XSENS_SetBaudrate(baud);
-		}
-		break;
+        case 13:
+#ifdef AHRS_H_X
+#pragma message "Sending XSens Magnetic Declination."
+          xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
+          XSENS_SetMagneticDeclination(xsens_declination);
+#endif
+          break;
+        case 12:
+#ifdef GPS_IMU_LEVER_ARM_X
+#pragma message "Sending XSens GPS Arm."
+          XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
+#endif
+          break;
+        case 10:
+          {
+            uint8_t baud = 1;
+            XSENS_SetBaudrate(baud);
+          }
+          break;
 
-	case 1:
-		XSENS_GoToMeasurment();
-		break;
-     }
-     xsens_configured--;
-     return;
-  }
+        case 1:
+          XSENS_GoToMeasurment();
+          break;
+
+        default:
+          break;
+        }
+      xsens_configured--;
+      return;
+    }
 
   RunOnceEvery(100,XSENS_ReqGPSStatus());
 }
 
 #include "estimator.h"
 
-void handle_ins_msg( void) {
+void handle_ins_msg(void) {
 
 
   // Send to Estimator (Control)
@@ -610,6 +592,8 @@ void parse_ins_buffer( uint8_t c ) {
       goto error;
     ins_msg_received = TRUE;
     goto restart;
+    break;
+  default:
     break;
   }
   return;

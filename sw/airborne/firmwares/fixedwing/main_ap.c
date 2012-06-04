@@ -188,6 +188,10 @@ void init_ap( void ) {
   ahrs_init();
 #endif
 
+#if USE_INS
+  ins_init();
+#endif
+
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
   link_mcu_init();
@@ -493,10 +497,8 @@ void navigation_task( void ) {
 }
 
 
-#if USE_AHRS
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 volatile uint8_t new_ins_attitude = 0;
-#endif
 #endif
 
 void attitude_loop( void ) {
@@ -532,6 +534,10 @@ void sensors_task( void ) {
     ahrs_timeout_counter ++;
 #endif // USE_AHRS
 #endif // USE_IMU
+
+#if USE_INS
+  ins_periodic_task();
+#endif
 }
 
 
@@ -589,6 +595,10 @@ void event_task_ap( void ) {
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif
 
+#if USE_INS
+  InsEvent(NULL);
+#endif
+
 #if USE_GPS
   GpsEvent(on_gps_solution);
 #endif /** USE_GPS */
@@ -624,7 +634,9 @@ void event_task_ap( void ) {
 #if USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
+#if USE_AHRS
   ahrs_update_gps();
+#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif

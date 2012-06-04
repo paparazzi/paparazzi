@@ -33,9 +33,6 @@
 
 #include "ins_module.h"
 
-#include "subsystems/ahrs.h"
-
-
 extern int8_t xsens_hour;
 extern int8_t xsens_min;
 extern int8_t xsens_sec;
@@ -46,8 +43,7 @@ extern int8_t xsens_day;
 extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
-#define AhrsEvent(_ahrs_handler) {	\
-  LED_TOGGLE(3); \
+#define InsEvent(_ins_handler) {	\
   InsEventCheckAndHandle(handle_ins_msg()) 			\
 }
 
