@@ -304,15 +304,16 @@
 
 #include "subsystems/ahrs/ahrs_aligner.h"
 #define PERIODIC_SEND_FILTER_ALIGNER(_trans, _dev) {			\
-    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,				\
-                       &ahrs_aligner.lp_gyro.p,	\
-                       &ahrs_aligner.lp_gyro.q,	\
-                       &ahrs_aligner.lp_gyro.r,	\
-                       &imu.gyro.p,		\
-                       &imu.gyro.q,		\
-                       &imu.gyro.r,		\
-                       &ahrs_aligner.noise,	\
-                       &ahrs_aligner.low_noise_cnt); \
+    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,                  \
+                                 &ahrs_aligner.lp_gyro.p,       \
+                                 &ahrs_aligner.lp_gyro.q,       \
+                                 &ahrs_aligner.lp_gyro.r,       \
+                                 &imu.gyro.p,                   \
+                                 &imu.gyro.q,                   \
+                                 &imu.gyro.r,                   \
+                                 &ahrs_aligner.noise,           \
+                                 &ahrs_aligner.low_noise_cnt,   \
+                                 &ahrs_aligner.status);         \
   }
 
 
@@ -325,7 +326,7 @@
   }
 
 
-#if USE_AHRS_CMPL
+#if USE_AHRS_CMPL_EULER
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
 #define PERIODIC_SEND_FILTER(_trans, _dev) {					\
     DOWNLINK_SEND_FILTER(_trans, _dev,						\
@@ -832,7 +833,7 @@
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
-#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_BOOZ_SIM_SPEED_POS(_trans, _dev, \
+#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_NPS_SPEED_POS(_trans, _dev, \
     &target_accel_ned.x, \
     &target_accel_ned.y, \
     &target_accel_ned.z, \

@@ -50,6 +50,10 @@
 #warning "Using magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
 #endif
 
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+
 void ahrs_update_mag_full(void);
 void ahrs_update_mag_2d(void);
 void ahrs_update_mag_2d_dumb(void);

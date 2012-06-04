@@ -1048,6 +1048,7 @@
     <field name="gr"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="noise"  type="int32"/>
     <field name="cnt"    type="int32"/>
+    <field name="status" type="uint8" values="UNINIT|RUNNING|LOCKED"/>
   </message>
 
   <!-- 138 is free -->
@@ -1643,7 +1644,7 @@
       <field name="br_err"    type="float" unit="rad/s" alt_unit="degres/s" alt_unit_coef="57.29578" />
     </message>
 
-    <message name="BOOZ_SIM_SENSORS_SCALED" id="197">
+    <message name="NPS_SENSORS_SCALED" id="197">
       <field name="acc_x"    type="float" />
       <field name="acc_y"    type="float" />
       <field name="acc_z"    type="float" />
@@ -1815,7 +1816,7 @@
  <!--236 is free -->
  <!--237 is free -->
 
-  <message name="BOOZ_SIM_POS_LLH" id="238">
+  <message name="NPS_POS_LLH" id="238">
     <field name="pprz_lat"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
     <field name="lat_geod"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
     <field name="lat_geoc"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
@@ -1827,14 +1828,14 @@
     <field name="asl"        type="float" unit="m"/>
   </message>
 
-  <message name="BOOZ_SIM_RPMS" id="239">
+  <message name="NPS_RPMS" id="239">
     <field name="front"    type="float" unit="RPM"/>
     <field name="back"     type="float" unit="RPM"/>
     <field name="right"    type="float" unit="RPM"/>
     <field name="left"     type="float" unit="RPM"/>
   </message>
 
-  <message name="BOOZ_SIM_SPEED_POS" id="240">
+  <message name="NPS_SPEED_POS" id="240">
     <field name="ltpp_xdd" type="float" unit="m/s2"/>
     <field name="ltpp_ydd" type="float" unit="m/s2"/>
     <field name="ltpp_zdd" type="float" unit="m/s2"/>
@@ -1846,7 +1847,7 @@
     <field name="ltpp_z"   type="float" unit="m"/>
   </message>
 
-  <message name="BOOZ_SIM_RATE_ATTITUDE" id="241">
+  <message name="NPS_RATE_ATTITUDE" id="241">
     <field name="p"     type="float" unit="degres/s"/>
     <field name="q"     type="float" unit="degres/s"/>
     <field name="r"     type="float" unit="degres/s"/>
@@ -1855,18 +1856,18 @@
     <field name="psi"   type="float" unit="degres"/>
   </message>
 
-  <message name="BOOZ_SIM_GYRO_BIAS" id="242">
+  <message name="NPS_GYRO_BIAS" id="242">
     <field name="bp"     type="float" unit="degres/s"/>
     <field name="bq"     type="float" unit="degres/s"/>
     <field name="br"     type="float" unit="degres/s"/>
   </message>
 
 
-  <message name="BOOZ_SIM_RANGE_METER" id="243">
+  <message name="NPS_RANGE_METER" id="243">
     <field name="dist"   type="float" unit="adc"/>
   </message>
 
-  <message name="BOOZ_SIM_WIND" id="244">
+  <message name="NPS_WIND" id="244">
     <field name="vx"   type="float" unit="m/s"/>
     <field name="vy"   type="float" unit="m/s"/>
     <field name="vz"   type="float" unit="m/s"/>
@@ -1885,7 +1886,7 @@
     <field name="errno"   type="uint8"/>
   </message>
 
-  <message name="BOOZ_SIM_ACCEL_LTP" id="248">
+  <message name="NPS_ACCEL_LTP" id="248">
     <field name="xdd"   type="float" unit="m/s2"/>
     <field name="ydd"   type="float" unit="m/s2"/>
     <field name="zdd"   type="float" unit="m/s2"/>

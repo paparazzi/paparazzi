@@ -33,17 +33,19 @@
 #
 #
 
+ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
+ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
+
+ifeq ($(ARCH), lpc21)
+
 # set default i2c timing if not already configured
 ifeq ($(MKK_I2C_SCL_TIME), )
 MKK_I2C_SCL_TIME=150
 endif
 
-ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
-ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
-
-ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
 ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SCL_TIME) -DI2C0_VIC_SLOT=11
+
 else ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
 ap.CFLAGS += -DUSE_I2C1

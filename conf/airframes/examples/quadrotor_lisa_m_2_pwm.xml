@@ -5,19 +5,15 @@
 <airframe name="fraser">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_m_2.0">
-      <subsystem name="actuators"     type="pwm_supervision">
-        <define name="SERVO_HZ" value="400"/>
-      </subsystem>
-    </target>
-    <target name="sim" board="pc">
-      <subsystem name="fdm"           type="nps"/>
-      <subsystem name="actuators"     type="mkk"/>
-    </target>
+    <target name="ap" board="lisa_m_2.0"/>
+
+    <subsystem name="actuators"     type="pwm_supervision">
+      <define name="SERVO_HZ" value="400"/>
+    </subsystem>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.0"/>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
@@ -41,13 +37,6 @@
     <!-- command_laws is needed for pwm_supervision -->
     <!-- but can be empty if no additional servos are used -->
   </command_laws>
-
-  <!-- only for the nps sim -->
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <!-- FRONT, BACK, RIGHT, LEFT -->
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-  </section>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="STOP_MOTOR" value="1000"/>
@@ -84,7 +73,6 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
@@ -184,12 +172,6 @@
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="0"/>
-  </section>
-
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_aspirin.h&quot;"/>
   </section>
 
   <section name="AUTOPILOT">

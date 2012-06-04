@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2009 Antoine Drouin
+ * Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,13 +17,13 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 #ifndef NPS_SENSORS_PARAMS_H
 #define NPS_SENSORS_PARAMS_H
 
 #include "generated/airframe.h"
+#include "subsystems/imu.h"
 
 #if 1
 #define NPS_BODY_TO_IMU_PHI    IMU_BODY_TO_IMU_PHI
@@ -104,17 +102,17 @@
 #define NPS_MAG_MIN -2047
 #define NPS_MAG_MAX  2047
 
-#define NPS_MAG_IMU_TO_SENSOR_PHI              0.
-#define NPS_MAG_IMU_TO_SENSOR_THETA            0.
-#define NPS_MAG_IMU_TO_SENSOR_PSI    RadOfDeg(45.)
+#define NPS_MAG_IMU_TO_SENSOR_PHI    0.
+#define NPS_MAG_IMU_TO_SENSOR_THETA  0.
+#define NPS_MAG_IMU_TO_SENSOR_PSI    0.
 
-#define NPS_MAG_SENSITIVITY_XX   MAG_BFP_OF_REAL(-1./4.94075530)
-#define NPS_MAG_SENSITIVITY_YY   MAG_BFP_OF_REAL( 1./5.10207664)
-#define NPS_MAG_SENSITIVITY_ZZ   MAG_BFP_OF_REAL(-1./4.90788848)
+#define NPS_MAG_SENSITIVITY_XX   IMU_MAG_X_SIGN * MAG_BFP_OF_REAL(1./IMU_MAG_X_SENS)
+#define NPS_MAG_SENSITIVITY_YY   IMU_MAG_Y_SIGN * MAG_BFP_OF_REAL(1./IMU_MAG_Y_SENS)
+#define NPS_MAG_SENSITIVITY_ZZ   IMU_MAG_Z_SIGN * MAG_BFP_OF_REAL(1./IMU_MAG_Z_SENS)
 
-#define NPS_MAG_NEUTRAL_X  2358
-#define NPS_MAG_NEUTRAL_Y  2362
-#define NPS_MAG_NEUTRAL_Z  2119
+#define NPS_MAG_NEUTRAL_X  IMU_MAG_X_NEUTRAL
+#define NPS_MAG_NEUTRAL_Y  IMU_MAG_Y_NEUTRAL
+#define NPS_MAG_NEUTRAL_Z  IMU_MAG_Z_NEUTRAL
 
 #define NPS_MAG_NOISE_STD_DEV_X  2e-3
 #define NPS_MAG_NOISE_STD_DEV_Y  2e-3

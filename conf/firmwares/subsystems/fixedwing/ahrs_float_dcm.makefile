@@ -10,7 +10,7 @@ ifeq ($(TARGET), ap)
 
 ap.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
 ap.CFLAGS += -DUSE_AHRS_ALIGNER
-ap.CFLAGS += -DUSE_AHRS
+ap.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 
 ifneq ($(USE_MAGNETOMETER),0)
 ap.CFLAGS += -DUSE_MAGNETOMETER

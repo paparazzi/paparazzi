@@ -214,8 +214,15 @@ module Make(A:Data.MISSION) = struct
 
 (* Minimum complexity *)
 (*
-   http://controls.ae.gatech.edu/papers/johnson_dasc_01.pdf
-   http://controls.ae.gatech.edu/papers/johnson_mst_01.pdf
+   Johnson, E.N., Fontaine, S.G., and Kahn, A.D.,
+   “Minimum Complexity Uninhabited Air Vehicle Guidance And Flight Control System,”
+   Proceedings of the 20th Digital Avionics Systems Conference, 2001.
+   http://www.ae.gatech.edu/~ejohnson/JohnsonFontaineKahn.pdf
+
+   Johnson, E.N. and Fontaine, S.G.,
+   “Use Of Flight Simulation To Complement Flight Testing Of Low-Cost UAVs,”
+   Proceedings of the AIAA Modeling and Simulation Technology Conference, 2001.
+   http://www.ae.gatech.edu/~ejohnson/AIAA%202001-4059.pdf
  *)
   let state_update = fun state nominal_airspeed (wx, wy, wz) agl dt ->
     let now = state.t +. dt in
