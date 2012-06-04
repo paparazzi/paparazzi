@@ -8,23 +8,6 @@
  GPS connected to UART1 (Since this is inside in a metal box it won't ever get a solution)
  -->
 <airframe name="TestConfig">
-<!--
-    <firmware name="rotorcraft">
-        <target name="sim"          board="pc"/>
-        <target name="ap"           board="lisa_l_1.1"/>
-
-        <subsystem name="radio_control"	type="ppm"/>
-        <subsystem name="telemetry"		type="xbee_api">
-            <configure name="MODEM_BAUD"	value="B38400"/>
-        </subsystem>
-        <subsystem name="control"/>
-        <subsystem name="gps"			type="ublox"/>
-        <subsystem name="imu"			type="b2_v1.2"/>
-        <subsystem name="stabilization"	type="euler"/>
-        <subsystem name="ahrs"			type="int_cmpl_quat"/>
-        <subsystem name="navigation"/>
-    </firmware>
--->
 
     <firmware name="rotorcraft">
         <target name="ap" board="lisa_l_1.1">
@@ -32,18 +15,17 @@
             <subsystem name="radio_control" type="spektrum"/>
             <define name="RADIO_MODE" value="RADIO_AUX1"/>
             <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-            <define name ="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
-            <define name ="OVERRIDE_UART5_IRQ_HANDLER"/>
-            <subsystem name="actuators"     type="mkk"/>
-            <subsystem name="telemetry"     type="transparent"/>
+            <define name="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value="UART5"/>
+            <define name="OVERRIDE_UART5_IRQ_HANDLER"/>
         </target>
 
-        <target name="sim" board="pc">
+        <target name="nps" board="pc">
             <subsystem name="fdm"           type="nps"/>
             <subsystem name="radio_control" type="ppm"/>
-            <subsystem name="actuators"     type="mkk"/>
         </target>
 
+        <subsystem name="actuators"     type="mkk"/>
+        <subsystem name="telemetry"     type="transparent"/>
         <subsystem name="imu"           type="b2_v1.2"/>
         <subsystem name="gps"           type="ublox">
             <configure name="GPS_BAUD"    value="B57600"/>

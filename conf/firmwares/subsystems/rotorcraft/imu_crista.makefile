@@ -83,12 +83,4 @@ ap.srcs += $(imu_srcs)
 #
 # Simulator
 #
-
-sim.CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\"
-sim.srcs += $(SRC_SUBSYSTEMS)/imu.c
-sim.srcs += $(SRC_SUBSYSTEMS)/imu/imu_crista.c
-sim.srcs += $(SRC_ARCH)/subsystems/imu/imu_crista_arch.c
-
-sim.CFLAGS += -DUSE_AMI601
-sim.srcs   += peripherals/ami601.c
-sim.CFLAGS += -DUSE_I2C1
+include $(CFG_SHARED)/imu_nps.makefile

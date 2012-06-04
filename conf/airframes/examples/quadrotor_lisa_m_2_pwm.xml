@@ -7,6 +7,10 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0"/>
 
+    <target name="nps" board="pc">
+      <subsystem name="fdm"           type="nps"/>
+    </target>
+
     <subsystem name="actuators"     type="pwm_supervision">
       <define name="SERVO_HZ" value="400"/>
     </subsystem>
@@ -172,6 +176,12 @@
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="0"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 
   <section name="AUTOPILOT">

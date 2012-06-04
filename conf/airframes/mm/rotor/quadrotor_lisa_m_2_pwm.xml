@@ -4,15 +4,14 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <subsystem name="actuators"     type="pwm_supervision">
-        <define name="SERVO_HZ" value="400"/>
-      </subsystem>
     </target>
-    <target name="sim" board="pc">
+    <target name="nps" board="pc">
       <subsystem name="fdm"           type="nps"/>
-      <subsystem name="actuators"     type="mkk"/>
     </target>
 
+    <subsystem name="actuators"     type="pwm_supervision">
+      <define name="SERVO_HZ" value="400"/>
+    </subsystem>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="aspirin_v2.1"/>
