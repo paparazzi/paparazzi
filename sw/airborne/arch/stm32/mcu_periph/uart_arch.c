@@ -227,7 +227,7 @@ void uart5_init( void ) {
   RCC_APB2PeriphClockCmd(UART5_PeriphRx, ENABLE);
 
   /* Enable UART5 interrupts */
-  usart_enable_irq(USART5_IRQn);
+  usart_enable_irq(UART5_IRQn);
 
   /* Init GPIOS */
   GPIO_InitTypeDef gpio;
