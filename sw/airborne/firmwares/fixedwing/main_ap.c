@@ -93,8 +93,6 @@ static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#else
-static inline void on_ahrs_event(void);
 #endif // USE_IMU
 #endif // USE_AHRS
 
@@ -587,13 +585,9 @@ void event_task_ap( void ) {
   i2c_event();
 #endif
 
-#if USE_AHRS
-#if USE_IMU
+#if USE_AHRS && USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-#else
-  AhrsEvent(on_ahrs_event);
-#endif // USE_IMU
-#endif // USE_AHRS
+#endif
 
 #if USE_GPS
   GpsEvent(on_gps_solution);
@@ -725,13 +719,6 @@ static inline void on_mag_event(void)
 #endif
 }
 
-#else // USE_IMU not defined
-static inline void on_ahrs_event(void)
-{
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ahrs_update_fw_estimator();
-#endif
-}
 #endif // USE_IMU
 
 #endif // USE_AHRS

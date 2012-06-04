@@ -37,14 +37,4 @@ extern float ins_pitch_neutral;
 
 extern void update_ahrs_from_sim(void);
 
-#define AhrsEvent(_available_callback) {        \
-    if (ahrs_sim_available) {                   \
-      update_ahrs_from_sim();               \
-      _available_callback();                    \
-      ahrs_sim_available = FALSE;               \
-    }                                           \
-  }
-
-
-
 #endif /* AHRS_SIM_H */
