@@ -54,7 +54,7 @@ import calibration_utils
 
 
 def main():
-    usage = "usage: %prog -i <ac_id> -t <tt_id> -a <axis> [options] log_filename.data"
+    usage = "usage: %prog --ac_id <ac_id> --tt_id <tt_id> --axisa <axis> [-v] log_filename.data"
     parser = OptionParser(usage)
     parser.add_option("-i", "--id", dest="ac_id",
                       action="store", type=int, default=-1,
@@ -81,9 +81,9 @@ def main():
         parser.error("Please specify a *.data log file")
 
     if options.ac_id < 0 or options.ac_id > 255:
-        parser.error("Specify a valid aircraft id!")
+        parser.error("Specify a valid aircraft id number!")
     if options.tt_id < 0 or options.tt_id > 255:
-        parser.error("Specify a valid turntable id!")
+        parser.error("Specify a valid turntable id number!")
     if options.verbose:
         print "reading file "+filename+" for aircraft "+str(options.ac_id)+" and turntable "+str(options.tt_id)
 
