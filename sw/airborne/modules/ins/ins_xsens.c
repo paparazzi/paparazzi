@@ -187,13 +187,7 @@ float xsens_gps_arm_y = 0;
 float xsens_gps_arm_z = 0;
 
 
-int8_t xsens_hour;
-int8_t xsens_min;
-int8_t xsens_sec;
-int32_t xsens_nanosec;
-int16_t xsens_year;
-int8_t xsens_month;
-int8_t xsens_day;
+struct XsensTime xsens_time;
 
 static uint8_t xsens_id;
 static uint8_t xsens_status;
@@ -538,13 +532,13 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_TimeStamp_LENGTH;
       }
       if (XSENS_MASK_UTC(xsens_output_settings)) {
-        xsens_hour = XSENS_DATA_UTC_hour(xsens_msg_buf,offset);
-        xsens_min = XSENS_DATA_UTC_min(xsens_msg_buf,offset);
-        xsens_sec = XSENS_DATA_UTC_sec(xsens_msg_buf,offset);
-        xsens_nanosec = XSENS_DATA_UTC_nanosec(xsens_msg_buf,offset);
-        xsens_year = XSENS_DATA_UTC_year(xsens_msg_buf,offset);
-        xsens_month = XSENS_DATA_UTC_month(xsens_msg_buf,offset);
-        xsens_day = XSENS_DATA_UTC_day(xsens_msg_buf,offset);
+        xsens_time.hour = XSENS_DATA_UTC_hour(xsens_msg_buf,offset);
+        xsens_time.min = XSENS_DATA_UTC_min(xsens_msg_buf,offset);
+        xsens_time.sec = XSENS_DATA_UTC_sec(xsens_msg_buf,offset);
+        xsens_time.nanosec = XSENS_DATA_UTC_nanosec(xsens_msg_buf,offset);
+        xsens_time.year = XSENS_DATA_UTC_year(xsens_msg_buf,offset);
+        xsens_time.month = XSENS_DATA_UTC_month(xsens_msg_buf,offset);
+        xsens_time.day = XSENS_DATA_UTC_day(xsens_msg_buf,offset);
 
         offset += XSENS_DATA_UTC_LENGTH;
       }

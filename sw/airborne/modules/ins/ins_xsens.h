@@ -33,13 +33,18 @@
 
 #include "ins_module.h"
 
-extern int8_t xsens_hour;
-extern int8_t xsens_min;
-extern int8_t xsens_sec;
-extern int32_t xsens_nanosec;
-extern int16_t xsens_year;
-extern int8_t xsens_month;
-extern int8_t xsens_day;
+struct XsensTime {
+  int8_t hour;
+  int8_t min;
+  int8_t sec;
+  int32_t nanosec;
+  int16_t year;
+  int8_t month;
+  int8_t day;
+};
+
+extern struct XsensTime xsens_time;
+
 extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
