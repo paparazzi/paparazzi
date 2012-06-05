@@ -17,7 +17,7 @@ ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_nmea.c
 
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
 
-sim.CFLAGS += -DUSE_GPS
-sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
-sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
+nps.CFLAGS += -DUSE_GPS
+nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c
 

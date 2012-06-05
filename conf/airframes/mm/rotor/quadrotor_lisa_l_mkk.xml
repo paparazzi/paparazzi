@@ -8,7 +8,7 @@
       <!--configure name="USE_NEW_I2C_DRIVER" value="1"/-->
     </target>
 
-    <target name="sim" board="pc">
+    <target name="nps" board="pc">
       <subsystem name="fdm"           type="nps"/>
     </target>
 

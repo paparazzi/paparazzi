@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Christophe DeWagter
  *
  * This file is part of paparazzi.
  *
@@ -21,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_ASPIRIN_H
-#define IMU_ASPIRIN_H
+#ifndef IMU_ASPIRIN_2_H
+#define IMU_ASPIRIN_2_H
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
@@ -103,34 +101,9 @@ struct ImuAspirin2 {
   volatile uint8_t imu_available;
   volatile uint8_t imu_tx_buf[64];
   volatile uint8_t imu_rx_buf[64];
-  uint32_t time_since_last_reading;
 };
 
 extern struct ImuAspirin2 imu_aspirin2;
-
-
-#define ASPIRIN2_TIMEOUT 3
-/*
-
-#define foo_handler() {}
-#define ImuMagEvent(_mag_handler) {					\
-      MagEvent(foo_handler); \
-}
-
-
-    if (hmc5843.data_available) {			\
-      imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
-      imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
-      imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];		\
-      _mag_handler();							\
-      hmc5843.data_available = FALSE;		\
-    }									\
-*/
-
-/* underlying architecture */
-#include "subsystems/imu/imu_aspirin2_arch.h"
-/* must be implemented by underlying architecture */
-extern void imu_aspirin2_arch_init(void);
 
 
 static inline void imu_from_buff(void)
@@ -165,16 +138,17 @@ static inline void imu_from_buff(void)
 #endif
 
 
+  //FIXME, remove it or use it...
+#if 0
   // Is this is new data
 #define MPU_OFFSET_STATUS 1
-  if (imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01)
-  {
+  if (imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01) {
     //gyr_valid = TRUE;
     //acc_valid = TRUE;
   }
-  else
-  {
+  else {
   }
+#endif
 }
 
 
@@ -182,11 +156,7 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 {
   if (imu_aspirin2.status == Aspirin2StatusUninit) return;
 
-  // imu_aspirin2_arch_int_disable();
-
-  if (imu_aspirin2.imu_available)
-  {
-    imu_aspirin2.time_since_last_reading = 0;
+  if (imu_aspirin2.imu_available) {
     imu_aspirin2.imu_available = FALSE;
     imu_from_buff();
 
@@ -194,18 +164,10 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
     _accel_handler();
     _mag_handler();
   }
-  // imu_aspirin2_arch_int_enable();
-
-  // Reset everything if we've been waiting too long
-  //if (imu_aspirin2.time_since_last_reading > ASPIRIN2_TIMEOUT) {
-  //  imu_aspirin2.time_since_last_reading = 0;
-  //  return;
-  //}
-
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
   imu_aspirin2_event(_gyro_handler, _accel_handler, _mag_handler); \
 }
 
-#endif /* IMU_ASPIRIN_H */
+#endif /* IMU_ASPIRIN_2_H */
