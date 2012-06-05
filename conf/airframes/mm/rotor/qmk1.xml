@@ -16,7 +16,6 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <!-- for the sim -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x58, 0x56 }"/>
@@ -191,7 +190,7 @@
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
-    <target name="sim" board="pc">
+    <target name="nps" board="pc">
       <subsystem name="fdm"           type="nps"/>
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>

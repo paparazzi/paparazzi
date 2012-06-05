@@ -13,6 +13,6 @@ endif
 
 
 # Simulator
-sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
-sim.CFLAGS += -DUSE_I2C0 -DACTUATORS_ASCTEC_DEVICE=i2c0
+nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_ASCTEC_DEVICE=i2c0
 

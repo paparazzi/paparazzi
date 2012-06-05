@@ -52,6 +52,6 @@ ap.CFLAGS += -DUSE_I2C1
 endif
 
 # Simulator
-sim.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
-sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
-sim.CFLAGS += -DUSE_I2C0 -DACTUATORS_MKK_DEVICE=i2c0
+nps.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
+nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
+nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_MKK_DEVICE=i2c0

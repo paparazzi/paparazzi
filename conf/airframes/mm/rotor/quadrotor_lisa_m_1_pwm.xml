@@ -4,16 +4,14 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">
-      <subsystem name="actuators"     type="pwm_supervision">
-        <define name="SERVO_HZ" value="400"/>
-
-      </subsystem>
     </target>
-    <target name="sim" board="pc">
+    <target name="nps" board="pc">
       <subsystem name="fdm"           type="nps"/>
-      <subsystem name="actuators"     type="mkk"/>
     </target>
 
+    <subsystem name="actuators"     type="pwm_supervision">
+      <define name="SERVO_HZ" value="400"/>
+    </subsystem>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="aspirin_v1.5"/>
@@ -40,13 +38,6 @@
     <!-- command_laws is needed for pwm_supervision -->
     <!-- but can be empty if no additional servos are used -->
   </command_laws>
-
-  <!-- only for the nps sim -->
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <!-- FRONT, BACK, RIGHT, LEFT -->
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-  </section>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="STOP_MOTOR" value="1000"/>

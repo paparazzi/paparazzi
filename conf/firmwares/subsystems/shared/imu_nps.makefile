@@ -1,10 +1,10 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Aspirin IMU v1.5
+# simulated IMU for NPS (NewPaparazziSim)
 #
-#
-# if ACCEL and GYRO SENS/NEUTRAL are not defined,
-# the defaults from the datasheet will be used
+# If ACCEL and GYRO SENS/NEUTRAL are not defined,
+# the defaults of aspirin v1.5 are used.
+# This fits the nps_sensors_params_default.h
 #
 # required xml:
 #  <section name="IMU" prefix="IMU_">
@@ -20,11 +20,5 @@
 #  </section>
 #
 
-include $(CFG_SHARED)/imu_aspirin_common.makefile
-
-IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_1_5
-
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
-ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_SRCS)
+nps.CFLAGS += -DIMU_TYPE_H=\"imu/imu_nps.h\"
+nps.srcs   += $(SRC_SUBSYSTEMS)/imu.c $(SRC_SUBSYSTEMS)/imu/imu_nps.c

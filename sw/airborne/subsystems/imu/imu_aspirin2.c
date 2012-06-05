@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2012 Christophe DeWagter
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 #include "subsystems/imu.h"
 
 #include "led.h"
@@ -15,12 +35,8 @@ struct spi_transaction aspirin2_mpu60x0;
 
 
 // initialize peripherals
-static void configure(void);
-/*
-static void configure_accel(void);
-//static void configure_mag(void);
+static void mpu_configure(void);
 
-*/
 
 void imu_impl_init(void) {
 
@@ -36,7 +52,6 @@ void imu_impl_init(void) {
   aspirin2_mpu60x0.length = 2;
   aspirin2_mpu60x0.slave_idx = 0;
 
-//  imu_aspirin2_arch_init();
 
 }
 
@@ -44,36 +59,24 @@ void imu_impl_init(void) {
 void imu_periodic(void)
 {
 
-  if (imu_aspirin2.status == Aspirin2StatusUninit)
-  {
-    configure();
+  if (imu_aspirin2.status == Aspirin2StatusUninit) {
+    mpu_configure();
     // imu_aspirin_arch_int_enable();
     imu_aspirin2.status = Aspirin2StatusIdle;
 
     aspirin2_mpu60x0.length = 22;
     aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
-    {
-      for (int i=1;i<aspirin2_mpu60x0.length;i++)
+    for (int i=1;i<aspirin2_mpu60x0.length;i++) {
         aspirin2_mpu60x0.output_buf[i] = 0;
     }
   }
-  else
-  {
+  else {
 
     // imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + MPU60X0_SPI_READ;
     // imu_aspirin2.imu_tx_buf[1] = 0x00;
 
     spi_submit(&spi2,&aspirin2_mpu60x0);
 
-/*
-    imu_aspirin.time_since_last_reading++;
-    imu_aspirin.time_since_last_accel_reading++;
-    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT)
-    {
-      configure_accel();
-      imu_aspirin.time_since_last_accel_reading=0;
-    }
-*/
   }
 }
 
@@ -84,7 +87,7 @@ static inline void mpu_set(uint8_t _reg, uint8_t _val)
   spi_submit(&spi2,&aspirin2_mpu60x0);
 
   // FIXME: no busy waiting! if really needed add a timeout!!!!
-  while(aspirin2_mpu60x0.status != SPITransSuccess);
+    while(aspirin2_mpu60x0.status != SPITransSuccess);
 }
 
 static inline void mpu_wait_slave4_ready(void)
@@ -97,7 +100,7 @@ static inline void mpu_wait_slave4_ready(void)
     spi_submit(&spi2,&aspirin2_mpu60x0);
 
     // FIXME: no busy waiting! if really needed add a timeout!!!!
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+      while(aspirin2_mpu60x0.status != SPITransSuccess);
 
     ret = aspirin2_mpu60x0.input_buf[1];
   }
@@ -105,7 +108,7 @@ static inline void mpu_wait_slave4_ready(void)
 
 
 
-static void configure(void)
+static void mpu_configure(void)
 {
   aspirin2_mpu60x0.length = 2;
 
