@@ -1,17 +1,32 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Aspirin IMU v2.0
+# Aspirin IMU v2.1
 #
-#
-# if ACCEL and GYRO SENS/NEUTRAL are not defined,
-# the defaults from the datasheet will be used
 #
 # required xml:
 #  <section name="IMU" prefix="IMU_">
 #
-#    <define name="MAG_X_NEUTRAL" value="2358"/>
-#    <define name="MAG_Y_NEUTRAL" value="2362"/>
-#    <define name="MAG_Z_NEUTRAL" value="2119"/>
+#    <!-- these gyro and accel calib values are the defaults for aspirin2.1 -->
+#    <define name="GYRO_X_NEUTRAL" value="0"/>
+#    <define name="GYRO_Y_NEUTRAL" value="0"/>
+#    <define name="GYRO_Z_NEUTRAL" value="0"/>
+#
+#    <define name="GYRO_X_SENS" value="4.359" integer="16"/>
+#    <define name="GYRO_Y_SENS" value="4.359" integer="16"/>
+#    <define name="GYRO_Z_SENS" value="4.359" integer="16"/>
+#
+#    <define name="ACCEL_X_NEUTRAL" value="0"/>
+#    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+#    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+#
+#    <define name="ACCEL_X_SENS" value="4.905" integer="16"/>
+#    <define name="ACCEL_Y_SENS" value="4.905" integer="16"/>
+#    <define name="ACCEL_Z_SENS" value="4.905" integer="16"/>
+#
+#    <!-- replace the mag calibration with your own-->
+#    <define name="MAG_X_NEUTRAL" value="-45"/>
+#    <define name="MAG_Y_NEUTRAL" value="334"/>
+#    <define name="MAG_Z_NEUTRAL" value="7"/>
 #
 #    <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
 #    <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
@@ -25,7 +40,6 @@ IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
 IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\" -DIMU_OVERRIDE_CHANNELS
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c \
-                      $(SRC_ARCH)/subsystems/imu/imu_aspirin2_arch.c \
                       $(SRC_ARCH)/mcu_periph/spi_arch.c \
                       mcu_periph/spi.c
 
@@ -33,9 +47,8 @@ IMU_ASPIRIN_CFLAGS += -DUSE_SPI
 
 ifeq ($(ARCH), lpc21)
 #TODO
-$(error Not implemented for the LCP21x yet. Not hard, just needs to be done. Patches welcome!)
+$(error Not implemented for the LCP21x yet. Needs the new SPI mcu_periph. See issue 147!)
 else ifeq ($(ARCH), stm32)
-# IMU_ASPIRIN_CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
 IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 endif
 

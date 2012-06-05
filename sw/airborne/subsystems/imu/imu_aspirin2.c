@@ -1,12 +1,32 @@
+/*
+ * Copyright (C) 2012 Christophe DeWagter
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
 #include "subsystems/imu.h"
 
 #include "led.h"
 #include "mcu_periph/spi.h"
-#include "mcu_periph/spi_arch.h"
 
 // Peripherials
-#include "../../peripherals/mpu60X0.h"
-#include "../../peripherals/hmc58xx.h"
+#include "peripherals/mpu60X0.h"
+#include "peripherals/hmc58xx.h"
 
 
 struct ImuAspirin2 imu_aspirin2;
@@ -14,14 +34,9 @@ struct ImuAspirin2 imu_aspirin2;
 struct spi_transaction aspirin2_mpu60x0;
 
 
-
 // initialize peripherals
-static void configure(void);
-/*
-static void configure_accel(void);
-//static void configure_mag(void);
+static void mpu_configure(void);
 
-*/
 
 void imu_impl_init(void) {
 
@@ -33,44 +48,30 @@ void imu_impl_init(void) {
   aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
   aspirin2_mpu60x0.length = 2;
 
-//  imu_aspirin2_arch_init();
-
 }
 
 
 void imu_periodic(void)
 {
 
-  if (imu_aspirin2.status == Aspirin2StatusUninit)
-  {
-    configure();
+  if (imu_aspirin2.status == Aspirin2StatusUninit) {
+    mpu_configure();
     // imu_aspirin_arch_int_enable();
     imu_aspirin2.status = Aspirin2StatusIdle;
 
     aspirin2_mpu60x0.length = 22;
     aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
-    {
-      for (int i=1;i<aspirin2_mpu60x0.length;i++)
-        aspirin2_mpu60x0.mosi_buf[i] = 0;
+
+    for (int i=1;i<aspirin2_mpu60x0.length;i++) {
+      aspirin2_mpu60x0.mosi_buf[i] = 0;
     }
   }
-  else
-  {
+  else {
 
     // imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + MPU60X0_SPI_READ;
     // imu_aspirin2.imu_tx_buf[1] = 0x00;
 
     spi_rw(&aspirin2_mpu60x0);
-
-/*
-    imu_aspirin.time_since_last_reading++;
-    imu_aspirin.time_since_last_accel_reading++;
-    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT)
-    {
-      configure_accel();
-      imu_aspirin.time_since_last_accel_reading=0;
-    }
-*/
   }
 }
 
@@ -79,7 +80,8 @@ static inline void mpu_set(uint8_t _reg, uint8_t _val)
   aspirin2_mpu60x0.mosi_buf[0] = _reg;
   aspirin2_mpu60x0.mosi_buf[1] = _val;
   spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+
+  while(aspirin2_mpu60x0.status != SPITransSuccess);
 }
 
 static inline void mpu_wait_slave4_ready(void)
@@ -90,7 +92,7 @@ static inline void mpu_wait_slave4_ready(void)
     aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
     aspirin2_mpu60x0.mosi_buf[1] = 0;
     spi_rw(&aspirin2_mpu60x0);
-      while(aspirin2_mpu60x0.status != SPITransSuccess);
+    while(aspirin2_mpu60x0.status != SPITransSuccess);
 
     ret = aspirin2_mpu60x0.miso_buf[1];
   }
@@ -98,7 +100,7 @@ static inline void mpu_wait_slave4_ready(void)
 
 
 
-static void configure(void)
+static void mpu_configure(void)
 {
   aspirin2_mpu60x0.length = 2;
 
@@ -174,10 +176,10 @@ static void configure(void)
   // Enable the aux i2c
   mpu_set( MPU60X0_REG_I2C_MST_CTRL,
            (0 << 7) | 		// no multimaster
-	   (0 << 6) |		// do not delay IRQ waiting for all external slaves
-	   (0 << 5) | 		// no slave 3 FIFO
-	   (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
-	   (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
+           (0 << 6) |		// do not delay IRQ waiting for all external slaves
+           (0 << 5) | 		// no slave 3 FIFO
+           (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
+           (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
 
 
   // HMC5883 Magnetometer Configuration
@@ -223,7 +225,7 @@ static void configure(void)
            (0 << 6) |		// Byte Swap
            (6 << 0) );		// Read 6 bytes
 
-	// Slave 0 Control:
+  // Slave 0 Control:
 
 
 #endif
