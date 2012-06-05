@@ -234,7 +234,7 @@
 <!--makefile>
 CONFIG = \"tiny_2_1.h\"
 
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+include $(PAPARAZZI_SRC)/conf/firmwares/tiny.makefile
 
 FLASH_MODE=IAP
 
@@ -283,7 +283,7 @@ ap.srcs += subsystems/navigation/bomb.c
 ap.srcs += subsystems/navigation/snav.c
 
 # Config for SITL simulation
-# include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+# include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
 sim.ARCHDIR = $(ARCHI)
 sim.ARCH = sitl
 sim.TARGET = autopilot

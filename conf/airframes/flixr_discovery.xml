@@ -1,10 +1,8 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 <!-- ST Model Discovery (http://www.sheng-teng.com/)
-     TWOG1  (http://paparazzi.enac.fr/wiki/index.php/)
+     TWOG1  (http://paparazzi.enac.fr/wiki/TWOG/v1.0)
      * uBlox LEA5H and Sarantel helix GPS antenna
 
-READ this first
-http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 -->
 
 <airframe name="Discovery">

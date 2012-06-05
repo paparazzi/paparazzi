@@ -359,6 +359,7 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 }
 
 void i2c_event(void) { }
+
 void i2c_setbitrate(struct i2c_periph* p, int bitrate)
 {
   int period = 15000000 / 2 / bitrate;
@@ -369,9 +370,6 @@ void i2c_setbitrate(struct i2c_periph* p, int bitrate)
   if (period > 1500)
     period = 1500;
 
-/* default clock speed 37.5KHz with our 15MHz PCLK
-   I2C1_CLOCK = PCLK / (I2C1_SCLL + I2C1_SCLH)     */
-
 #if (PCLK == 30000000)
   period *= 2;
 #endif
@@ -380,22 +378,13 @@ void i2c_setbitrate(struct i2c_periph* p, int bitrate)
   period *= 4;
 #endif
 
-#ifdef USE_I2C0
-  if (p == &i2c0)
-  {
-    /* set bitrate */
-    I2C0SCLL = period;
-    I2C0SCLH = period;
-  }
-#endif
-#ifdef USE_I2C1
-  if (p == &i2c1)
-  {
-    /* set bitrate */
-    I2C1SCLL = period;
-    I2C1SCLH = period;
-  }
-#endif
+  /* default clock speed 37.5KHz with our 15MHz PCLK
+   * I2C_CLOCK = PCLK / (I2C_SCLL + I2C_SCLH)
+   */
+
+  /* set bitrate */
+  ((i2cRegs_t *)(p->reg_addr))->scll = period;
+  ((i2cRegs_t *)(p->reg_addr))->sclh = period;
 }
 
 

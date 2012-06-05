@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="light_temt" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="light_temt.h"/>
   </header>

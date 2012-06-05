@@ -1,6 +1,6 @@
 <airframe name="TwistedLogic">
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="AILERON"  no="2" min="900" neutral="1500" max="2100"/>
     <servo name="ELEVATOR" no="1" min="900" neutral="1500" max="2100"/>
     <servo name="MOTOR_RIGHT"   no="6" min="1250" neutral="1250" max="1810"/>

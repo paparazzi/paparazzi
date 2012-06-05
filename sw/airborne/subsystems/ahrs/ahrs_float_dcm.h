@@ -37,10 +37,14 @@ struct AhrsFloatDCM {
 };
 extern struct AhrsFloatDCM ahrs_impl;
 
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 
 void ahrs_update_fw_estimator(void);
+#endif
+
 
 // DCM Parameters
 

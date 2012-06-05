@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -19,7 +17,6 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 #ifndef AUTOPILOT_H
@@ -50,8 +47,8 @@
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
-extern bool_t  autopilot_motors_on;
-extern bool_t  autopilot_in_flight;
+extern bool_t autopilot_motors_on;
+extern bool_t autopilot_in_flight;
 extern bool_t kill_throttle;
 extern bool_t autopilot_rc;
 
@@ -67,6 +64,8 @@ extern bool_t autopilot_detect_ground;
 extern bool_t autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
+
+
 
 #ifndef MODE_MANUAL
 #define MODE_MANUAL AP_MODE_RATE_DIRECT
@@ -91,10 +90,8 @@ extern uint16_t autopilot_flight_time;
       _mode = MODE_MANUAL;                          \
   }
 
-#define autopilot_KillThrottle(_v) {                            \
-    kill_throttle = _v;                                         \
-    if (kill_throttle) autopilot_motors_on = FALSE;				\
-    else autopilot_motors_on = TRUE;                            \
+#define autopilot_KillThrottle(_v) { \
+    autopilot_set_motors_on(_v);     \
   }
 
 #ifdef POWER_SWITCH_LED

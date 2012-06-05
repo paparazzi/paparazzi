@@ -31,7 +31,9 @@ exception Error of string
 let nl = print_newline
 
 let define = fun n x ->
-  printf "#define %s %s\n" n x
+  match x with
+      "" -> printf "#define %s\n" n
+    | _ -> printf "#define %s %s\n" n x
 
 let define_string = fun n x ->
   define n ("\""^x^"\"")

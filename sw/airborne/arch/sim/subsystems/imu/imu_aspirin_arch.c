@@ -26,7 +26,7 @@
 #include "generated/airframe.h"
 
 void imu_aspirin_arch_init(void) {
-
+  imu_aspirin.status = AspirinStatusIdle;
 }
 
 
@@ -35,7 +35,7 @@ void imu_aspirin_arch_init(void) {
 
 void imu_feed_gyro_accel(void) {
 
-#if 1
+#if 0
   // the high byte is in buf[0], low byte in buf[1], etc.
   imu_aspirin.i2c_trans_gyro.buf[0] = ((int16_t)sensors.gyro.value.x) >> 8;
   imu_aspirin.i2c_trans_gyro.buf[1] = ((int16_t)sensors.gyro.value.x) & 0xff;

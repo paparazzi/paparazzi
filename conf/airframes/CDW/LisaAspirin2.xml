@@ -223,7 +223,7 @@
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
     </subsystem>
     -->
-    <subsystem name="imu" type="aspirin_v2.0"/>
+    <subsystem name="imu" type="aspirin_v2.1"/>
     <subsystem name="ahrs" type="float_dcm">
       <configure name="USE_MAGNETOMETER" value="0"/>
     </subsystem>

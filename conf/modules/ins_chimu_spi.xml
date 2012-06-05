@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ins">
+  <doc>
+    <description>CHimu (SPI)</description>
+  </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_module.h"/>

@@ -26,10 +26,7 @@
 #include "subsystems/imu.h"
 
 
-#ifdef IMU_ASPIRIN_VERSION_2_0
-#define IMU_MAG_X_CHAN 2
-#define IMU_MAG_Y_CHAN 0
-#define IMU_MAG_Z_CHAN 1
+#ifdef IMU_ASPIRIN_VERSION_2_1
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
 #define IMU_MAG_X_SIGN 1
 #define IMU_MAG_Y_SIGN 1
@@ -155,12 +152,13 @@ static inline void imu_from_buff(volatile uint8_t *buf)
 #ifdef LISA_M_LONGITUDINAL_X
   RATES_ASSIGN(imu.gyro_unscaled, q, -p, r);
   VECT3_ASSIGN(imu.accel_unscaled, y, -x, z);
+  VECT3_ASSIGN(imu.mag_unscaled, -Mx, -Mz, My);
 #else
   RATES_ASSIGN(imu.gyro_unscaled, p, q, r);
   VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
+  VECT3_ASSIGN(imu.mag_unscaled, Mz, -Mx, My);
 #endif
 
-  VECT3_ASSIGN(imu.mag_unscaled, Mx, My, Mz);
 
   // Is this is new data
 #define MPU_OFFSET_STATUS 1
@@ -189,6 +187,7 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 
     _gyro_handler();
     _accel_handler();
+    _mag_handler();
   }
   // imu_aspirin2_arch_int_enable();
 

@@ -69,6 +69,10 @@ TOOLCHAIN_DIR=$(shell dirname `which arm-none-eabi-gcc`)
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
 endif
 
+ifndef $(PYTHON)
+PYTHON = $(shell which python)
+endif
+
 #first try to find OpenOCD in the path
 OOCD = $(shell which openocd)
 #if OpenOCD could not be found in the path, try the toolchain dir
@@ -94,6 +98,18 @@ ifndef $(TARGET).OOCD_BOARD
 OOCD_BOARD = lisa-l
 else
 OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
+
+# default: assume the luftboot bootloader is used
+# if luftboot is not used define NO_LUFTBOOT to a value != 0
+OOCD_START_SECTOR = 4
+ASSUMING_LUFTBOOT = "yes"
+ifdef NO_LUFTBOOT
+$(shell echo luftboot: $(NO_LUFTBOOT))
+ifneq ($(NO_LUFTBOOT),0)
+OOCD_START_SECTOR = 0
+ASSUMING_LUFTBOOT = "no"
+endif
 endif
 
 # input files
@@ -202,7 +218,7 @@ lss: $(OBJDIR)/$(TARGET).lss
 sym: $(OBJDIR)/$(TARGET).sym
 
 # Display size of file.
-ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
+ELFSIZE = $(SIZE) -A -x $(OBJDIR)/$(TARGET).elf
 sizebefore:
 	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
@@ -251,12 +267,16 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(AFLAGS) $< -o $@
 
-ifeq ($(FLASH_MODE),SERIAL)
+ifeq ($(FLASH_MODE),DFU)
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using stm32 mem dfu loader"
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
+else ifeq ($(FLASH_MODE),SERIAL)
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)
 ifeq ($(BMP_PORT),)
-upload: $(OBJDIR)/$(TARGET).elf
+upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Using OOCD = $(OOCD)"
 	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
@@ -264,7 +284,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 		-c init \
 		-c "reset halt" \
 		-c "reset init" \
-		-c "stm32f1x mass_erase 0" \
+		-c "flash erase_sector 0 $(OOCD_START_SECTOR) last" \
 		-c "flash write_image $<" \
 		-c reset \
 		-c shutdown

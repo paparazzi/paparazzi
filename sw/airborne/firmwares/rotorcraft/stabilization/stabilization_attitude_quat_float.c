@@ -32,21 +32,10 @@
 #include "math/pprz_algebra_int.h"
 #include "subsystems/ahrs.h"
 #include "generated/airframe.h"
+#include "stabilization_attitude_float.h"
+#include "stabilization_attitude_rc_setpoint.h"
 
 struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
-
-/* warn if some gains are still negative */
-#if (STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN  < 0)
-#warning "ALL control gains are now positive!!!"
-#endif
 
 struct FloatQuat stabilization_att_sum_err_quat;
 struct FloatEulers stabilization_att_sum_err_eulers;
@@ -132,6 +121,9 @@ void stabilization_attitude_enter(void) {
   FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
 }
 
+#ifndef GAIN_PRESCALER_FF
+#define GAIN_PRESCALER_FF 1
+#endif
 static void attitude_run_ff(float ff_commands[], struct FloatAttitudeGains *gains, struct FloatRates *ref_accel)
 {
   /* Compute feedforward based on reference acceleration */
@@ -144,6 +136,15 @@ static void attitude_run_ff(float ff_commands[], struct FloatAttitudeGains *gain
   ff_commands[COMMAND_YAW_SURFACE]   = GAIN_PRESCALER_FF * gains->surface_dd.z * ref_accel->r;
 }
 
+#ifndef GAIN_PRESCALER_P
+#define GAIN_PRESCALER_P 1
+#endif
+#ifndef GAIN_PRESCALER_D
+#define GAIN_PRESCALER_D 1
+#endif
+#ifndef GAIN_PRESCALER_I
+#define GAIN_PRESCALER_I 1
+#endif
 static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gains, struct FloatQuat *att_err,
     struct FloatRates *rate_err, struct FloatRates *rate_err_d, struct FloatQuat *sum_err)
 {
@@ -230,4 +231,15 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW_SURFACE; i++) {
     stabilization_cmd[i] = stabilization_att_fb_cmd[i]+stabilization_att_ff_cmd[i];
   }
+
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+}
+
+void stabilization_attitude_read_rc(bool_t in_flight) {
+
+  stabilization_attitude_read_rc_setpoint_quat_float(&stab_att_sp_quat, in_flight);
+  //FLOAT_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }

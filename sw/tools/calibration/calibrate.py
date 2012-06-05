@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-#  $Id$
 #  Copyright (C) 2010 Antoine Drouin
 #
 # This file is part of Paparazzi.
@@ -18,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 #
 
 
@@ -31,7 +30,7 @@ from scipy import optimize
 import calibration_utils
 
 def main():
-    usage = "usage: %prog [options] log_filename"
+    usage = "usage: %prog [options] log_filename.data"
     parser = OptionParser(usage)
     parser.add_option("-i", "--id", dest="ac_id",
                       action="store",
@@ -50,31 +49,45 @@ def main():
         else:
             print args[0] + " not found"
             sys.exit(1)
-    if options.sensor == "GYRO":
-        print "You can't calibate gyros with this!"
-        sys.exit(1)
     ac_ids = calibration_utils.get_ids_in_log(filename)
 #    import code; code.interact(local=locals())
     if options.ac_id == None and len(ac_ids) == 1:
         options.ac_id = ac_ids[0]
-    if options.verbose:
-        print "reading file "+filename+" for aircraft "+options.ac_id+" and sensor "+options.sensor
-    measurements = calibration_utils.read_log(options.ac_id, filename, options.sensor)
-    if options.verbose:
-       print "found "+str(len(measurements))+" records"
+
     if options.sensor == "ACCEL":
         sensor_ref = 9.81
         sensor_res = 10
         noise_window = 20;
         noise_threshold = 40;
-    else: # MAG
+    elif options.sensor == "MAG":
         sensor_ref = 1.
         sensor_res = 11
         noise_window = 10;
         noise_threshold = 1000;
+    elif options.sensor == "GYRO":
+        parser.error("You can't calibate gyros with this!")
+    else:
+        parser.error("Specify a valid sensor.")
+
+    if not filename.endswith(".data"):
+        parser.error("Please specify a *.data log file")
+    if options.verbose:
+        print "reading file "+filename+" for aircraft "+options.ac_id+" and sensor "+options.sensor
+
+    # read raw measurements from log file
+    measurements = calibration_utils.read_log(options.ac_id, filename, options.sensor)
+    if len(measurements) == 0:
+        print "Error: found zero IMU_"+options.sensor+"_RAW measurements for aircraft with id "+options.ac_id+" in log file!"
+        sys.exit(1)
+    if options.verbose:
+       print "found "+str(len(measurements))+" records"
+
+    # filter out noisy measurements
     flt_meas, flt_idx = calibration_utils.filter_meas(measurements, noise_window, noise_threshold)
     if options.verbose:
         print "remaining "+str(len(flt_meas))+" after low pass"
+
+    # get an initial min/max guess
     p0 = calibration_utils.get_min_max_guess(flt_meas, sensor_ref)
     cp0, np0 = calibration_utils.scale_measurements(flt_meas, p0)
     print "initial guess : avg "+str(np0.mean())+" std "+str(np0.std())

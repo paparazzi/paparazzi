@@ -304,15 +304,16 @@
 
 #include "subsystems/ahrs/ahrs_aligner.h"
 #define PERIODIC_SEND_FILTER_ALIGNER(_trans, _dev) {			\
-    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,				\
-                       &ahrs_aligner.lp_gyro.p,	\
-                       &ahrs_aligner.lp_gyro.q,	\
-                       &ahrs_aligner.lp_gyro.r,	\
-                       &imu.gyro.p,		\
-                       &imu.gyro.q,		\
-                       &imu.gyro.r,		\
-                       &ahrs_aligner.noise,	\
-                       &ahrs_aligner.low_noise_cnt); \
+    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,                  \
+                                 &ahrs_aligner.lp_gyro.p,       \
+                                 &ahrs_aligner.lp_gyro.q,       \
+                                 &ahrs_aligner.lp_gyro.r,       \
+                                 &imu.gyro.p,                   \
+                                 &imu.gyro.q,                   \
+                                 &imu.gyro.r,                   \
+                                 &ahrs_aligner.noise,           \
+                                 &ahrs_aligner.low_noise_cnt,   \
+                                 &ahrs_aligner.status);         \
   }
 
 
@@ -325,7 +326,7 @@
   }
 
 
-#if USE_AHRS_CMPL
+#if USE_AHRS_CMPL_EULER
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
 #define PERIODIC_SEND_FILTER(_trans, _dev) {					\
     DOWNLINK_SEND_FILTER(_trans, _dev,						\
@@ -416,7 +417,7 @@
 #define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {}
 #endif
 
-
+#if defined STABILISATION_ATTITUDE_TYPE_QUAT && defined STABILISATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {				\
     DOWNLINK_SEND_AHRS_REF_QUAT(_trans, _dev,				\
                   &stab_att_ref_quat.qi,	\
@@ -428,6 +429,9 @@
                   &ahrs.ltp_to_body_quat.qy,	\
                   &ahrs.ltp_to_body_quat.qz);	\
   }
+#else
+#define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {}
+#endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
 
 #define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {				\
     DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,				\
@@ -719,7 +723,6 @@
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
 #endif
 
-
 #define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
     DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev,                   \
                                         &radio_control.values[RADIO_ROLL], \
@@ -736,7 +739,6 @@
                                         &ahrs.ltp_to_body_euler.theta,  \
                                         &ahrs.ltp_to_body_euler.psi);   \
   }
-
 
 #ifdef USE_I2C0
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                             \
@@ -842,18 +844,22 @@
 #define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {}
 #endif
 
+#ifndef SITL
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) { \
     PERIODIC_SEND_I2C0_ERRORS(_trans, _dev);     \
     PERIODIC_SEND_I2C1_ERRORS(_trans, _dev);     \
     PERIODIC_SEND_I2C2_ERRORS(_trans, _dev);     \
 }
+#else
+#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {}
+#endif
 
 // FIXME: still used?? or replace by EXTRA_ADC
 #define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
-#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_BOOZ_SIM_SPEED_POS(_trans, _dev, \
+#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_NPS_SPEED_POS(_trans, _dev, \
     &target_accel_ned.x, \
     &target_accel_ned.y, \
     &target_accel_ned.z, \

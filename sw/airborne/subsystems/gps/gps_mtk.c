@@ -205,7 +205,7 @@ void gps_mtk_read_message(void) {
       /* copy results of utm conversion */
       gps.utm_pos.east = utm_f.east*100;
       gps.utm_pos.north = utm_f.north*100;
-      gps.utm_pos.alt = utm_f.alt*1000;
+      gps.utm_pos.alt = gps.lla_pos.alt;
       gps.utm_pos.zone = nav_utm_zone0;
 #ifdef GPS_LED
       if (gps.fix == GPS_FIX_3D) {
@@ -267,7 +267,7 @@ void gps_mtk_read_message(void) {
       /* copy results of utm conversion */
       gps.utm_pos.east = utm_f.east*100;
       gps.utm_pos.north = utm_f.north*100;
-      gps.utm_pos.alt = utm_f.alt*1000;
+      gps.utm_pos.alt = gps.lla_pos.alt;
       gps.utm_pos.zone = nav_utm_zone0;
 #ifdef GPS_LED
       if (gps.fix == GPS_FIX_3D) {

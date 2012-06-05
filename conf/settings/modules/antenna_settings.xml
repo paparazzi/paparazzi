@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- A conf for a quadrirotor -->
+
+<settings>
+  <dl_settings>
+    <dl_settings name="trim">
+      <dl_setting var="ant_track_mode" min="0" step="1" max="3" module="ant_tracker" handler="SetMode"/>
+      <dl_setting var="ant_track_azim" min="0" step="1" max="360" module="ant_tracker"/>
+      <dl_setting var="ant_track_elev" min="-90" step="1" max="90" module="ant_tracker"/>
+      <dl_setting var="ant_track_id"   min="0" step="1" max="255" module="ant_tracker" handler="SetId"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

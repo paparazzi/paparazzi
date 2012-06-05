@@ -35,27 +35,47 @@
 /* Peripheral bus clock freq. */
 #define PCLK (CCLK / PBSD_VAL)
 
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
 #define LED_1_BANK 1
 #define LED_1_PIN 16
 
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
 #define LED_2_BANK 0
 #define LED_2_PIN 2
 
+#ifndef USE_LED_3
+#define USE_LED_3 1
+#endif
 #define LED_3_BANK 0
 #define LED_3_PIN 11
 
+#ifndef USE_LED_4
+#define USE_LED_4 1
+#endif
 #define LED_4_BANK 1
 #define LED_4_PIN 17
 
 #define POWER_SWITCH_LED 4
 
+#ifndef USE_LED_5
+#define USE_LED_5 1
+#endif
 #define LED_5_BANK 1
 #define LED_5_PIN 18
 
 #define CAM_SWITCH_LED 5
 
-#define LED_GPS_RESET_BANK 1
-#define LED_GPS_RESET_PIN 19
+#ifndef USE_LED_6
+#define USE_LED_6 1
+#endif
+#define LED_6_BANK 1
+#define LED_6_PIN 19
+
+#define GPS_RESET 6
 
 #define Configure_GPS_RESET_Pin() LED_INIT(GPS_RESET)
 #define Set_GPS_RESET_Pin_LOW() LED_ON(GPS_RESET)

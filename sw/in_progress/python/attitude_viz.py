@@ -69,7 +69,7 @@ class Visualization:
       if (graph_value.message_name == data[1]):
         self.display_dirty = True
         graph_value.value = (float(data[graph_value.index + 0]) + graph_value.offset) / graph_value.scale
-  
+
   def DrawCircle(self, radius):
     glBegin(GL_TRIANGLE_FAN)
     glVertex3f(0, 0, 0)
@@ -115,14 +115,14 @@ class Visualization:
     separation = 0.7
     chord = 0.35
     thickness = 0.08
-    strutcount = 5
+    strutcount = 3
     discradius = 0.45
     discseparation = 0.01
-   
+
     #wings
     glColor3f(0.1, 0.1, 0.9)
     glPushMatrix()
-    glTranslate(0, 0, separation)
+    glTranslate(0, 0, 0.05)
     self.DrawBox(wingspan, chord, thickness)
     glColor3f(0.0, 0.0, 0.0)
     glTranslate(-wingspan, -0.2, thickness + 0.01)
@@ -131,7 +131,7 @@ class Visualization:
     glPopMatrix()
 
     glPushMatrix()
-    glTranslate(0, 0, -separation)
+    glTranslate(0, 0, -0.05)
     glColor3f(0.6, 0.6, 0.2)
     self.DrawBox(wingspan, chord, thickness)
     glColor3f(0.0, 0.0, 0.0)
@@ -147,22 +147,26 @@ class Visualization:
       # struts
       glColor3f(0.4, 0.4, 0.4)
       glPushMatrix()
-      glTranslate(-wingspan, 0, 0)
+      glTranslate(-wingspan/2, 0, separation/2)
       glRotate(90, 0, 1, 0)
-      for x in range (0, strutcount):
-        self.DrawBox(separation, chord - .01, thickness)
-        glTranslate(0, 0, 2 * wingspan/(strutcount - 1))
+      for x in range (0, strutcount-1):
+        self.DrawBox(separation/2, chord - .01, thickness)
+        glTranslate(0, 0, wingspan)
+      glTranslate(separation, 0, -5*wingspan/2)
+      for x in range (0, strutcount-1):
+        self.DrawBox(separation/2, chord - .01, thickness)
+        glTranslate(0, 0, 2*wingspan)
       glPopMatrix()
 
       #rotors
       glColor3f(0.9, 0.1, 0.1)
       glPushMatrix()
       glRotate(90, 1, 0, 0)
-      glTranslate(-wingspan, separation, -(chord + .01))
+      glTranslate(-wingspan/2, separation, -(chord + .01))
       for x in range (0, strutcount):
         if (x != strutcount/2):
           self.DrawCircle(discradius)
-        glTranslate(2 * wingspan/(strutcount - 1), 0, 0)
+        glTranslate(2 * wingspan/(strutcount + 1), 0, 0)
       glPopMatrix()
 
       glPushMatrix()
@@ -215,16 +219,13 @@ class Visualization:
     glTranslate(0, -height + (height / len(self.quats) + 1),  0)
     for telemetry_quat in self.quats:
       glPushMatrix()
-      try: 
-        telemetry_quat.qi = telemetry_quat.qi * telemetry_quat.scale
-        telemetry_quat.qx = telemetry_quat.qx * telemetry_quat.scale
-        telemetry_quat.qy = telemetry_quat.qy * telemetry_quat.scale
-        telemetry_quat.qz = telemetry_quat.qz * telemetry_quat.scale
-        glRotate(360 * math.acos(telemetry_quat.qi ) / math.pi, telemetry_quat.qy, -telemetry_quat.qz, -telemetry_quat.qx)
+      try:
+        scaled_quat = [telemetry_quat.qi * telemetry_quat.scale, telemetry_quat.qx * telemetry_quat.scale, telemetry_quat.qy * telemetry_quat.scale, telemetry_quat.qz * telemetry_quat.scale]
+        glRotate(360 * math.acos(scaled_quat[0] ) / math.pi, scaled_quat[2], -scaled_quat[3], -scaled_quat[1])
         glRotate(-90, 1, 0, 0)
         self.DrawVehicle(telemetry_quat.name)
       except Exception:
-        pass
+        raise Exception
       finally:
         glPopMatrix()
         glTranslate(0,  2 * height / (len(self.quats)), 0)
@@ -236,11 +237,11 @@ class Visualizer:
 
     # listen to Ivy
     logging.getLogger('Ivy').setLevel(logging.WARN)
-    IvyInit(_NAME, 
-      "", 
-      0, 
-      lambda x,y: y, 
-      lambda x,z: z 
+    IvyInit(_NAME,
+      "",
+      0,
+      lambda x,y: y,
+      lambda x,z: z
     )
 
     IvyStart("")
@@ -253,9 +254,9 @@ class Visualizer:
       messages.append(vehicle_quat[0])
     for bar_value in BAR_VALUES:
       messages.append(bar_value[0])
-    
+
     # bind to set of messages (ie, only bind each message once)
-    for message_name in set(messages): 
+    for message_name in set(messages):
       bind_string = "(^.*" + message_name + ".*$)"
       IvyBindMsg(self.visualization.onmsgproc, bind_string)
 
@@ -263,7 +264,7 @@ class Visualizer:
     if self.visualization.display_dirty:
       self.visualization.Draw()
       self.visualization.display_dirty = False
-  
+
   def OnClose(self):
     IvyStop()
 
@@ -287,7 +288,7 @@ def init():
   glShadeModel (GL_SMOOTH)
   glClearColor(1.0, 1.0, 1.0, 1.0)
   glClearDepth(1.0)
-    
+
   glPointSize(3.0)
 
   glMatrixMode(GL_PROJECTION)
@@ -312,7 +313,7 @@ def init():
 def run():
   global VEHICLE_QUATS, BAR_VALUES
   VEHICLE_QUATS = [ ["AHRS_REF_QUAT", 6, "Estimate", True], ["AHRS_REF_QUAT", 2, "Reference", True]]
-  BAR_VALUES = [ ["ROTORCRAFT_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100] ]
+  BAR_VALUES = [ ["ROTORCRAFT_RADIO_CONTROL", 5, "Throttle (%%) %i", 0, 100, 100] ]
   window_title = "Attitude_Viz"
   try:
     opts, args = getopt.getopt(sys.argv[1:], "t:", ["title"])
@@ -329,17 +330,22 @@ def run():
   #resize(*SCREEN_SIZE)
   init()
   visualizer = Visualizer()
-  while True:
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT:
-        visualizer.OnClose()
-        return
-      if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
-        visualizer.OnClose()
-        return
-    visualizer.Draw()
-    pygame.display.flip()
-    time.sleep(.02)
+
+  try:
+    while True:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          visualizer.OnClose()
+          return
+        if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+          visualizer.OnClose()
+          return
+      visualizer.Draw()
+      pygame.display.flip()
+      time.sleep(.02)
+  except KeyboardInterrupt:
+    visualizer.OnClose()
+    return
 
 if __name__ == "__main__":
   run()

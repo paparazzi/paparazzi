@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="windturbine" dir="meteo">
+  <doc>
+    <description></description>
+  </doc>
   <depend require="trig_test.xml"/>
   <header>
     <file name="windturbine.h"/>

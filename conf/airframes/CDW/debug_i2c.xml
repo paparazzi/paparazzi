@@ -2,7 +2,7 @@
 
 <airframe name="booz2_a7">
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
     <servo name="BACK"    no="1" min="0" neutral="0" max="255"/>
     <servo name="LEFT"    no="2" min="0" neutral="0" max="255"/>
@@ -213,7 +213,6 @@
   <firmware name="rotorcraft">
 <!--     <define name="USE_PERSISTENT_SETTINGS"/> -->
 <!--     <define name="USE_INS_NAV_INIT"/> -->
-     <define name="USE_ADAPT_HOVER"/>
      <define name="FAILSAFE_GROUND_DETECT"/>
      <define name="USE_GPS_ACC4R"/>
      <target name="ap" board="lisa_l_1.0">

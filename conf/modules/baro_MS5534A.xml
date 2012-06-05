@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="baro_MS5534A" dir="sensors">
+  <doc>
+    <description>MS5611 barometer (SPI)</description>
+  </doc>
   <header>
     <file name="baro_MS5534A.h"/>
   </header>

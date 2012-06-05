@@ -48,12 +48,18 @@
 #warning "ALL control gains are now positive!!!"
 #endif
 
+#if defined GUIDANCE_V_INV_M
+#warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
+#endif
+
 #define GUIDANCE_V_GAIN_SCALER 48
 
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
+
+int16_t guidance_v_nominal_throttle;
 
 
 /** Direct throttle from radio control.
@@ -101,6 +107,10 @@ void guidance_v_init(void) {
 
   guidance_v_z_sum_err = 0;
 
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE * MAX_PPRZ;
+#endif
+
   gv_adapt_init();
 }
 
@@ -122,10 +132,15 @@ void guidance_v_mode_changed(uint8_t new_mode) {
     return;
 
   switch (new_mode) {
+  case GUIDANCE_V_MODE_HOVER:
+    guidance_v_z_sp = ins_ltp_pos.z; // set current altitude as setpoint
+    guidance_v_z_sum_err = 0;
+    GuidanceVSetRef(ins_ltp_pos.z, 0, 0);
+    break;
 
   case GUIDANCE_V_MODE_RC_CLIMB:
   case GUIDANCE_V_MODE_CLIMB:
-  case GUIDANCE_V_MODE_HOVER:
+    guidance_v_zd_sp = 0;
   case GUIDANCE_V_MODE_NAV:
     guidance_v_z_sum_err = 0;
     GuidanceVSetRef(ins_ltp_pos.z, ins_ltp_speed.z, 0);
@@ -158,8 +173,7 @@ void guidance_v_run(bool_t in_flight) {
   switch (guidance_v_mode) {
 
   case GUIDANCE_V_MODE_RC_DIRECT:
-    guidance_v_z_sp = ins_ltp_pos.z;  // not sure why we do that
-    GuidanceVSetRef(ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
+    guidance_v_z_sp = ins_ltp_pos.z; // for display only
     stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
     break;
 
@@ -260,8 +274,8 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
     guidance_v_z_sum_err = 0;
 
   /* our nominal command : (g + zdd)*m   */
-#ifdef GUIDANCE_V_INV_M
-  const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, GV_ADAPT_X_FRAC);
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+  const int32_t inv_m = BFP_OF_REAL(9.81/guidance_v_nominal_throttle, FF_CMD_FRAC);
 #else
   const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
@@ -280,11 +294,11 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our error feed back command                   */
   /* z-axis pointing down -> positive error means we need less thrust */
-  guidance_v_fb_cmd = ((-guidance_v_kp * GUIDANCE_V_GAIN_SCALER * err_z)  >> 12) +
-                      ((-guidance_v_kd * GUIDANCE_V_GAIN_SCALER * err_zd) >> 21) +
-                      ((-guidance_v_ki * GUIDANCE_V_GAIN_SCALER * guidance_v_z_sum_err) >> 21);
+  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
+                      ((-guidance_v_kd * err_zd) >> 21) +
+                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
 
-  guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
+  guidance_v_delta_t = guidance_v_ff_cmd + (guidance_v_fb_cmd * GUIDANCE_V_GAIN_SCALER);
 
   /* bound the result */
   Bound(guidance_v_delta_t, 0, MAX_PPRZ);

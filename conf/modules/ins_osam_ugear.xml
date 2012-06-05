@@ -1,6 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="ins_osam_ugear" dir="ins">
+  <doc>
+    <description></description>
+  </doc>
   <header>
     <file name="ins_osam_ugear.h"/>
   </header>

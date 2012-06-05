@@ -1,3 +1,5 @@
+<!DOCTYPE airframe SYSTEM "airframe.dtd">
+
 <airframe name="BOOZ2_F1">
 
   <firmware name="rotorcraft">

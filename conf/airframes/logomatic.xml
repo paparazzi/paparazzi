@@ -4,7 +4,7 @@
   Sparkfun Logomatic V26 data logger
 
   http://www.sparkfun.com/products/10216
- 
+
   P1-P8 can be used as ADC_0-ADC_7
   P1    as PPM_IN
   P2    as SERV_CLK
