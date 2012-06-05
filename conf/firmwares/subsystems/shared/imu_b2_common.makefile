@@ -46,7 +46,7 @@ imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
 imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
-include $(CFG_ROTORCRAFT)/spi.makefile
+include $(CFG_SHARED)/spi.makefile
 ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DUSE_SPI1
 ap.CFLAGS += -DSPI_MASTER
