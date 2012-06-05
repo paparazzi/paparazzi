@@ -251,22 +251,8 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
 
 }
 
-#ifndef SITL
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
   imu_aspirin_event(_gyro_handler, _accel_handler, _mag_handler); \
 } while(0);
-#else
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-    if (imu_aspirin.accel_available) {                          \
-      imu_aspirin.accel_available = FALSE;                      \
-      _accel_handler();                                         \
-    }                                                           \
-    if (imu_aspirin.gyro_available_blaaa) {                     \
-      imu_aspirin.gyro_available_blaaa = FALSE;                 \
-      _gyro_handler();                                          \
-    }                                                           \
-    ImuMagEvent(_mag_handler);                                  \
-  }
-#endif
 
 #endif /* IMU_ASPIRIN_H */

@@ -47,7 +47,7 @@ ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(SKIRON_I2C_SCL_TIME) -DI2C0_SCLH=$(SKIRON_
 endif
 
 # Simulator
-sim.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
-sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_skiron.c
-sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(SKIRON_I2C_SCL_TIME) -DI2C0_SCLH=$(SKIRON_I2C_SCL_TIME) -DI2C0_VIC_SLOT=10 -DACTUATORS_MKK_DEVICE=i2c0
+nps.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
+nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_skiron.c
+nps.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(SKIRON_I2C_SCL_TIME) -DI2C0_SCLH=$(SKIRON_I2C_SCL_TIME) -DI2C0_VIC_SLOT=10 -DACTUATORS_MKK_DEVICE=i2c0
 
