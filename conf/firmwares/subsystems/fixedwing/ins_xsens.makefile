@@ -26,9 +26,6 @@ endif
 ap.CFLAGS += -DUSE_UART$(XSENS_UART_NR)
 ap.CFLAGS += -DINS_LINK=Uart$(XSENS_UART_NR)
 ap.CFLAGS += -DUART$(XSENS_UART_NR)_BAUD=$(XSENS_UART_BAUD)
-ap.CFLAGS += -DUSE_GPS_XSENS
-ap.CFLAGS += -DUSE_GPS_XSENS_RAW_DATA
-ap.CFLAGS += -DGPS_NB_CHANNELS=16
 ap.CFLAGS += -DXSENS_OUTPUT_MODE=0x1836
 ap.srcs   += $(SRC_MODULES)/ins/ins_xsens.c
 ap.CFLAGS += -DAHRS_TRIGGERED_ATTITUDE_LOOP
@@ -50,6 +47,9 @@ endif
 #########################################
 ## GPS
 
+ap.CFLAGS += -DUSE_GPS_XSENS
+ap.CFLAGS += -DUSE_GPS_XSENS_RAW_DATA
+ap.CFLAGS += -DGPS_NB_CHANNELS=16
 ap.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c

@@ -48,9 +48,44 @@ extern struct XsensTime xsens_time;
 extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
+
+/* To use Xsens to just provide IMU measurements
+ * for use with an external AHRS algorithm
+ */
+#if USE_IMU
+#include "subsystems/imu.h"
+
+struct ImuXsens {
+  bool_t gyro_available;
+  bool_t accel_available;
+  bool_t mag_available;
+};
+extern struct ImuXsens imu_xsens;
+
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
+    if (imu_xsens.accel_available) {                            \
+      imu_xsens.accel_available = FALSE;                        \
+      _accel_handler();                                         \
+    }                                                           \
+    if (imu_xsens.gyro_available) {                             \
+      imu_xsens.gyro_available = FALSE;                         \
+      _gyro_handler();                                          \
+    }                                                           \
+    if (imu_xsens.mag_available) {                              \
+      imu_xsens.mag_available = FALSE;                          \
+      _mag_handler();                                           \
+    }                                                           \
+  }
+#endif /* USE_IMU */
+
+
+/* use Xsens as a full INS solution */
+#if USE_INS
 #define InsEvent(_ins_handler) {	\
   InsEventCheckAndHandle(handle_ins_msg()) 			\
 }
+#endif
+
 
 #if USE_GPS_XSENS
 extern bool_t gps_xsens_msg_available;

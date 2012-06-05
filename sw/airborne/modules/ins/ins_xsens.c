@@ -70,8 +70,10 @@ INS_FORMAT ins_mx;
 INS_FORMAT ins_my;
 INS_FORMAT ins_mz;
 
+#if USE_INS
 float ins_pitch_neutral;
 float ins_roll_neutral;
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -181,11 +183,17 @@ uint8_t xsens_msg_status;
 uint16_t xsens_time_stamp;
 uint16_t xsens_output_mode;
 uint32_t xsens_output_settings;
+
+
 float xsens_declination = 0;
 float xsens_gps_arm_x = 0;
 float xsens_gps_arm_y = 0;
 float xsens_gps_arm_z = 0;
 
+#if USE_GPS_XSENS
+struct LlaCoor_f lla_f;
+struct UtmCoor_f utm_f;
+#endif
 
 struct XsensTime xsens_time;
 
@@ -196,9 +204,6 @@ static uint8_t xsens_msg_idx;
 static uint8_t ck;
 uint8_t send_ck;
 
-struct LlaCoor_f lla_f;
-struct UtmCoor_f utm_f;
-
 volatile int xsens_configured = 0;
 
 void ins_init( void ) {
@@ -206,14 +211,31 @@ void ins_init( void ) {
   xsens_status = UNINIT;
   xsens_configured = 20;
 
+#if USE_INS
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+#endif
 
   xsens_msg_status = 0;
   xsens_time_stamp = 0;
   xsens_output_mode = XSENS_OUTPUT_MODE;
   xsens_output_settings = XSENS_OUTPUT_SETTINGS;
 }
+
+#if USE_IMU
+struct ImuXsens imu_xsens;
+
+void imu_impl_init(void) {
+  ins_init();
+  imu_xsens.gyro_available = FALSE;
+  imu_xsens.accel_available = FALSE;
+  imu_xsens.mag_available = FALSE;
+}
+
+void imu_periodic(void) {
+  ins_periodic_task();
+}
+#endif /* USE_IMU */
 
 #if USE_GPS_XSENS
 void gps_impl_init(void) {
@@ -283,11 +305,10 @@ void ins_periodic_task( void ) {
   RunOnceEvery(100,XSENS_ReqGPSStatus());
 }
 
+#if USE_INS
 #include "estimator.h"
 
-void handle_ins_msg(void) {
-
-
+static inline void update_fw_estimator(void) {
   // Send to Estimator (Control)
 #ifdef XSENS_BACKWARDS
   EstimatorSetAtt((-ins_phi+ins_roll_neutral), (ins_psi + RadOfDeg(180)), (-ins_theta+ins_pitch_neutral));
@@ -296,6 +317,38 @@ void handle_ins_msg(void) {
   EstimatorSetAtt(ins_phi+ins_roll_neutral, ins_psi, ins_theta+ins_pitch_neutral);
   EstimatorSetRate(ins_p, ins_q, ins_r);
 #endif
+}
+#endif /* USE_INS */
+
+void handle_ins_msg(void) {
+
+#if USE_INS
+  update_fw_estimator();
+#endif
+
+#if USE_IMU
+#ifdef XSENS_BACKWARDS
+  if (imu_xsens.gyro_available) {
+    RATES_ASSIGN(imu.gyro_unscaled, -RATE_BFP_OF_REAL(ins_p), -RATE_BFP_OF_REAL(ins_q), RATE_BFP_OF_REAL(ins_r));
+  }
+  if (imu_xsens.accel_available) {
+    VECT3_ASSIGN(imu.accel_unscaled, -ACCEL_BFP_OF_REAL(ins_ax), -ACCEL_BFP_OF_REAL(ins_ay), ACCEL_BFP_OF_REAL(ins_az));
+  }
+  if (imu_xsens.mag_available) {
+    VECT3_ASSIGN(imu.mag_unscaled, -MAG_BFP_OF_REAL(ins_mx), -MAG_BFP_OF_REAL(ins_my), MAG_BFP_OF_REAL(ins_mz));
+  }
+#else
+  if (imu_xsens.gyro_available) {
+    RATES_ASSIGN(imu.gyro_unscaled, RATE_BFP_OF_REAL(ins_p), RATE_BFP_OF_REAL(ins_q), RATE_BFP_OF_REAL(ins_r));
+  }
+  if (imu_xsens.accel_available) {
+    VECT3_ASSIGN(imu.accel_unscaled, ACCEL_BFP_OF_REAL(ins_ax), ACCEL_BFP_OF_REAL(ins_ay), ACCEL_BFP_OF_REAL(ins_az));
+  }
+  if (imu_xsens.mag_available) {
+    VECT3_ASSIGN(imu.mag_unscaled, MAG_BFP_OF_REAL(ins_mx), MAG_BFP_OF_REAL(ins_my), MAG_BFP_OF_REAL(ins_mz));
+  }
+#endif /* XSENS_BACKWARDS */
+#endif /* USE_IMU */
 
 #if USE_GPS_XSENS
   #ifndef ALT_KALMAN
@@ -366,6 +419,9 @@ void parse_ins_msg( void ) {
         ins_p = XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf,offset);
         ins_q = XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf,offset);
         ins_r = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf,offset);
+#if USE_IMU
+        imu_xsens.gyro_available = TRUE;
+#endif
         offset += XSENS_DATA_RAWInertial_LENGTH;
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
@@ -424,18 +480,27 @@ void parse_ins_msg( void ) {
           ins_ax = XSENS_DATA_Calibrated_accX(xsens_msg_buf,offset);
           ins_ay = XSENS_DATA_Calibrated_accY(xsens_msg_buf,offset);
           ins_az = XSENS_DATA_Calibrated_accZ(xsens_msg_buf,offset);
+#if USE_IMU
+          imu_xsens.accel_available = TRUE;
+#endif
           l++;
         }
         if (!XSENS_MASK_GyrOut(xsens_output_settings)) {
           ins_p = XSENS_DATA_Calibrated_gyrX(xsens_msg_buf,offset);
           ins_q = XSENS_DATA_Calibrated_gyrY(xsens_msg_buf,offset);
           ins_r = XSENS_DATA_Calibrated_gyrZ(xsens_msg_buf,offset);
+#if USE_IMU
+          imu_xsens.gyro_available = TRUE;
+#endif
           l++;
         }
         if (!XSENS_MASK_MagOut(xsens_output_settings)) {
           ins_mx = XSENS_DATA_Calibrated_magX(xsens_msg_buf,offset);
           ins_my = XSENS_DATA_Calibrated_magY(xsens_msg_buf,offset);
           ins_mz = XSENS_DATA_Calibrated_magZ(xsens_msg_buf,offset);
+#if USE_IMU
+          imu_xsens.mag_available = TRUE;
+#endif
           l++;
         }
         offset += l * XSENS_DATA_Calibrated_LENGTH / 3;
