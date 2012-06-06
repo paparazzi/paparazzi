@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 #
 
 import re
@@ -128,7 +128,7 @@ def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref
     xlabel('time (s)')
     ylabel('ADC')
     title('Raw sensors')
-  
+
     subplot(3,2,3)
     plot(cp0[:,0]);
     plot(cp0[:,1]);
@@ -160,8 +160,8 @@ def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref
 #
 def read_turntable_log(ac_id, tt_id, filename, _min, _max):
     f = open(filename, 'r')
-    pattern_g = re.compile("(\S+) "+ac_id+" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
-    pattern_t = re.compile("(\S+) "+tt_id+" IMU_TURNTABLE (\S+)")
+    pattern_g = re.compile("(\S+) "+str(ac_id)+" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
+    pattern_t = re.compile("(\S+) "+str(tt_id)+" IMU_TURNTABLE (\S+)")
     last_tt = None
     list_tt = []
     while 1:
@@ -174,7 +174,7 @@ def read_turntable_log(ac_id, tt_id, filename, _min, _max):
         m=re.match(pattern_g, line)
         if m and last_tt and last_tt > _min and last_tt < _max:
             list_tt.append([last_tt, float(m.group(2)), float(m.group(3)), float(m.group(4))])
-    return scipy.array(list_tt)           
+    return scipy.array(list_tt)
 
 #
 #
