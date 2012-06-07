@@ -295,7 +295,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 	@echo "  BMP\t$<"
 	$(Q)$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
-		   -x $(TOOLCHAIN_DIR)/arm-none-eabi/share/libopencm3/scripts/black_magic_probe_flash.scr \
+		   -x $(PAPARAZZI_SRC)/sw/ext/libopencm3/scripts/black_magic_probe_flash.scr \
 		   $<
 endif
 else
