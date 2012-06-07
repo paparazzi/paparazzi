@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <conf>
-  <!-- arm7 aircrafts -->
 
   <!-- booz2 -->
   <aircraft
@@ -44,17 +43,17 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/basic.xml"
-    settings="settings/fixedwing_basic.xml settings/estimation/infrared.xml"
+    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
     gui_color="#6293ba"
     />
   <aircraft
-    name="Tiny_IMU"
+    name="Twog_IMU"
     ac_id="7"
     airframe="airframes/examples/twog_analogimu.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_fixedwing_imu.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/fixedwing_tuning.xml settings/estimation/ins_neutrals.xml"
+    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
     gui_color="blue"
     />
   <aircraft
@@ -64,7 +63,7 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default_fixedwing.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/fixedwing_tuning.xml settings/estimation/infrared.xml"
+    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
     gui_color="#ba6293"
     />
   <aircraft
@@ -73,11 +72,20 @@
     airframe="airframes/examples/easystar_ets.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_fixedwing.xml"
-    flight_plan="flight_plans/versatile.xml"
-    settings="settings/fixedwing_tuning.xml settings/estimation/infrared.xml"
+    flight_plan="flight_plans/basic.xml"
+    settings="settings/fixedwing_basic.xml settings/estimation/infrared.xml"
     gui_color="red"
     />
-
+  <aircraft
+   name="setup_lisam2"
+   ac_id="16"
+   airframe="airframes/examples/setup_lisam2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings=" settings/test_fixedwing_actuators.xml"
+   gui_color="blue"
+  />
   <!-- Hardware test Lisa/L -->
   <aircraft
     name="LisaLv11_Booz2v12_RC"

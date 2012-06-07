@@ -152,7 +152,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
   (* Print the header *)
   fprintf f "Time%sUTC" sep;
   if export_geo_pos then
-    fprintf f "%sGPS lat(deg)%sGPS long(deg)" sep sep;
+    fprintf f "%sGPS_lat(deg)%sGPS_long(deg)" sep sep;
   List.iter (fun (m,field) -> fprintf f "%s%s:%s" sep m field) !fields_to_export;
   fprintf f "\n%!";
 

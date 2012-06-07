@@ -142,10 +142,11 @@ ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), lisa_m)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
-include $(CFG_ROTORCRAFT)/spi.makefile
+ap.CFLAGS += -DUSE_SPI
 ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DSPI_NO_UNSELECT_SLAVE
 ap.CFLAGS += -DSPI_MASTER
+ap.srcs += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 ap.srcs += peripherals/mcp355x.c
 endif
 ifneq ($(BARO_LED),none)
@@ -166,10 +167,9 @@ ap.srcs   += subsystems/electrical.c
 ap.CFLAGS += -DUSE_DAC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 else ifeq ($(ARCH), stm32)
-#ap.CFLAGS += -DUSE_ADC
-#ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
-#ap.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+ap.CFLAGS += -DUSE_ADC
+ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
 endif
 

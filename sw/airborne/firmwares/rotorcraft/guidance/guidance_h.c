@@ -39,7 +39,6 @@
 uint8_t guidance_h_mode;
 
 struct Int32Vect2 guidance_h_pos_sp;
-int32_t           guidance_h_psi_sp;
 struct Int32Vect2 guidance_h_pos_ref;
 struct Int32Vect2 guidance_h_speed_ref;
 struct Int32Vect2 guidance_h_accel_ref;
@@ -95,7 +94,6 @@ static inline void guidance_h_nav_enter(void);
 void guidance_h_init(void) {
 
   guidance_h_mode = GUIDANCE_H_MODE_KILL;
-  guidance_h_psi_sp = 0;
   INT_VECT2_ZERO(guidance_h_pos_sp);
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
   INT_EULERS_ZERO(guidance_h_rc_sp);
@@ -165,7 +163,6 @@ void guidance_h_read_rc(bool_t  in_flight) {
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
-      guidance_h_rc_sp.psi = 0;
     }
     else {
       INT_EULERS_ZERO(guidance_h_rc_sp);
@@ -195,7 +192,12 @@ void guidance_h_run(bool_t  in_flight) {
 
   case GUIDANCE_H_MODE_HOVER:
     guidance_h_update_reference(FALSE);
+
+    /* set psi command */
+    guidance_h_command_body.psi = guidance_h_rc_sp.psi;
+    /* compute roll and pitch commands and set final attitude setpoint */
     guidance_h_traj_run(in_flight);
+
     stabilization_attitude_run(in_flight);
     break;
 
@@ -206,6 +208,8 @@ void guidance_h_run(bool_t  in_flight) {
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
         stab_att_sp_euler.phi = nav_roll;
         stab_att_sp_euler.theta = nav_pitch;
+        /* FIXME: heading can't be set via attitude block yet, use current heading for now */
+        stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
         INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
         INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
@@ -214,9 +218,14 @@ void guidance_h_run(bool_t  in_flight) {
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
 
+#if GUIDANCE_H_USE_REF
         guidance_h_update_reference(TRUE);
-
-        guidance_h_psi_sp = nav_heading;
+#else
+        guidance_h_update_reference(FALSE);
+#endif
+        /* set psi command */
+        guidance_h_command_body.psi = nav_heading;
+        /* compute roll and pitch commands and set final attitude setpoint */
         guidance_h_traj_run(in_flight);
       }
       stabilization_attitude_run(in_flight);
@@ -230,7 +239,6 @@ void guidance_h_run(bool_t  in_flight) {
 
 static inline void guidance_h_update_reference(bool_t use_ref) {
   /* convert our reference to generic representation */
-#if GUIDANCE_H_USE_REF
   if (use_ref) {
     b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
@@ -241,12 +249,6 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
     INT_VECT2_ZERO(guidance_h_speed_ref);
     INT_VECT2_ZERO(guidance_h_accel_ref);
   }
-#else
-  if (use_ref) {;} // we don't have a reference... just to avoid the unused arg warning in that case
-  VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
-  INT_VECT2_ZERO(guidance_h_speed_ref);
-  INT_VECT2_ZERO(guidance_h_accel_ref);
-#endif
 }
 
 
@@ -307,12 +309,10 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
   guidance_h_command_body.theta =
     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
 
-  guidance_h_command_body.psi = guidance_h_psi_sp;
 
-  /* Add RC setpoint */
-  EULERS_ADD(guidance_h_command_body, guidance_h_rc_sp);
-
-  INT32_ANGLE_NORMALIZE(guidance_h_command_body.psi);
+  /* Add RC roll and pitch setpoints for emergency corrections */
+  guidance_h_command_body.phi += guidance_h_rc_sp.phi;
+  guidance_h_command_body.theta += guidance_h_rc_sp.theta;
 
   /* Set attitude setpoint in eulers and as quaternion */
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
@@ -346,13 +346,7 @@ static inline void guidance_h_nav_enter(void) {
 
   /* reset psi reference, set psi setpoint to current psi */
   reset_psi_ref_from_body();
-  guidance_h_rc_sp.psi = ahrs.ltp_to_body_euler.psi;
-  guidance_h_psi_sp = ahrs.ltp_to_body_euler.psi;
-  nav_heading = guidance_h_psi_sp;
-
-  /* set RC heading setpoint to zero,
-   * since that is added to guidance_h_psi_sp later */
-  guidance_h_rc_sp.psi = 0;
+  nav_heading = ahrs.ltp_to_body_euler.psi;
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 

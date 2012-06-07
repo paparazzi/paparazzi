@@ -35,8 +35,6 @@
 
 #include <string.h>
 
-// FIXME this is still needed for fixedwing integration
-#include "estimator.h"
 #include "led.h"
 
 // FIXME Debugging Only
@@ -48,11 +46,22 @@
 #include "subsystems/datalink/downlink.h"
 
 
-struct AhrsFloatDCM ahrs_impl;
-
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// FIXME this is still needed for fixedwing integration
+#include "estimator.h"
 // remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
 float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+#endif /* AHRS_UPDATE_FW_ESTIMATOR */
+
+
+struct AhrsFloatDCM ahrs_impl;
 
 // Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
 // Positive pitch : nose up
@@ -78,6 +87,7 @@ float MAG_Heading_X = 1;
 float MAG_Heading_Y = 0;
 #endif
 
+static inline void compute_ahrs_representations(void);
 static inline void compute_body_orientation_and_rates(void);
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat);
 
@@ -111,54 +121,6 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
       DCM_Matrix[i][j] = RMAT_ELMT(*rmat, j, i);
     }
   }
-}
-
-
-/**************************************************/
-
-void ahrs_update_fw_estimator( void )
-{
-#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
-  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
-  ahrs_float.ltp_to_imu_euler.psi = 0;
-#else
-  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
-  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
-#endif
-
-  /* set quaternion and rotation matrix representations as well */
-  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
-  FLOAT_RMAT_OF_EULERS(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_euler);
-
-  compute_body_orientation_and_rates();
-
-  // export results to estimator
-  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
-  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
-  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
-
-  estimator_p = ahrs_float.body_rate.p;
-  estimator_q = ahrs_float.body_rate.q;
-  estimator_r = ahrs_float.body_rate.r;
-/*
-  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,
-    &(DCM_Matrix[0][0]),
-    &(DCM_Matrix[0][1]),
-    &(DCM_Matrix[0][2]),
-
-    &(DCM_Matrix[1][0]),
-    &(DCM_Matrix[1][1]),
-    &(DCM_Matrix[1][2]),
-
-    &(DCM_Matrix[2][0]),
-    &(DCM_Matrix[2][1]),
-    &(DCM_Matrix[2][2])
-
-  ));
-*/
 }
 
 
@@ -244,9 +206,10 @@ void ahrs_propagate(void)
 #endif
 
   Matrix_update();
-  // INFO, ahrs struct only updated in ahrs_update_fw_estimator
 
   Normalize();
+
+  compute_ahrs_representations();
 }
 
 void ahrs_update_accel(void)
@@ -562,3 +525,52 @@ static inline void compute_body_orientation_and_rates(void) {
   FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);
 
 }
+
+static inline void compute_ahrs_representations(void) {
+#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
+  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
+  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
+  ahrs_float.ltp_to_imu_euler.psi = 0;
+#else
+  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
+  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
+  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
+#endif
+
+  /* set quaternion and rotation matrix representations as well */
+  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
+  FLOAT_RMAT_OF_EULERS(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_euler);
+
+  compute_body_orientation_and_rates();
+
+  /*
+    RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,
+    &(DCM_Matrix[0][0]),
+    &(DCM_Matrix[0][1]),
+    &(DCM_Matrix[0][2]),
+
+    &(DCM_Matrix[1][0]),
+    &(DCM_Matrix[1][1]),
+    &(DCM_Matrix[1][2]),
+
+    &(DCM_Matrix[2][0]),
+    &(DCM_Matrix[2][1]),
+    &(DCM_Matrix[2][2])
+
+    ));
+  */
+}
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+void ahrs_update_fw_estimator( void ) {
+  // export results to estimator
+  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
+  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
+  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
+
+  estimator_p = ahrs_float.body_rate.p;
+  estimator_q = ahrs_float.body_rate.q;
+  estimator_r = ahrs_float.body_rate.r;
+}
+#endif //AHRS_UPDATE_FW_ESTIMATOR

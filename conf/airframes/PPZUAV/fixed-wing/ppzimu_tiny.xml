@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <!--
-	YAPA + XSens + XBee
+	YAPA + PPZIMU + XBee
 -->
 
 <airframe name="Yapa v1">

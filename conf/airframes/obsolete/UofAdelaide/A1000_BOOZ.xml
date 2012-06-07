@@ -1,7 +1,7 @@
 <!-- UofA Group 1000 Fixed Pitch Airframe using Booz board -->
 
 <airframe name="A1000 BOOZ">
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
 	<servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
 	<servo name="BACK" no="1" min="0" neutral="0" max="255"/>
 	<servo name="RIGHT" no="2" min="0" neutral="0" max="255"/>

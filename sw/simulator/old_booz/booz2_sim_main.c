@@ -260,13 +260,13 @@ static void booz2_sim_display(void) {
   if (sim_time >= disp_time) {
     disp_time+= DT_DISPLAY;
     //    booz_flightgear_send();
-    IvySendMsg("%d BOOZ_SIM_RPMS %f %f %f %f",
+    IvySendMsg("%d NPS_RPMS %f %f %f %f",
 	       AC_ID,
 	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_FRONT]),
 	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_BACK]),
 	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_RIGHT]),
 	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_LEFT]) );
-    IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",
+    IvySendMsg("%d NPS_RATE_ATTITUDE %f %f %f %f %f %f",
 	       AC_ID,
 	       DegOfRad(bfm.ang_rate_body->ve[AXIS_X]),
 	       DegOfRad(bfm.ang_rate_body->ve[AXIS_Y]),
@@ -274,7 +274,7 @@ static void booz2_sim_display(void) {
 	       DegOfRad(bfm.eulers->ve[AXIS_X]),
 	       DegOfRad(bfm.eulers->ve[AXIS_Y]),
 	       DegOfRad(bfm.eulers->ve[AXIS_Z]));
-    IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",
+    IvySendMsg("%d NPS_SPEED_POS %f %f %f %f %f %f",
 	       AC_ID,
 	       (bfm.speed_ltp->ve[AXIS_X]),
 	       (bfm.speed_ltp->ve[AXIS_Y]),
@@ -283,13 +283,13 @@ static void booz2_sim_display(void) {
 	       (bfm.pos_ltp->ve[AXIS_Y]),
 	       (bfm.pos_ltp->ve[AXIS_Z]));
 #if 0
-    IvySendMsg("%d BOOZ_SIM_WIND %f %f %f",
+    IvySendMsg("%d NPS_WIND %f %f %f",
     	       AC_ID,
 	       bwm.velocity->ve[AXIS_X],
     	       bwm.velocity->ve[AXIS_Y],
     	       bwm.velocity->ve[AXIS_Z]);
 #endif
-    IvySendMsg("%d BOOZ_SIM_ACCEL_LTP %f %f %f",
+    IvySendMsg("%d NPS_ACCEL_LTP %f %f %f",
     	       AC_ID,
 	       bfm.accel_ltp->ve[AXIS_X],
     	       bfm.accel_ltp->ve[AXIS_Y],

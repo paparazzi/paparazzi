@@ -38,7 +38,6 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   usart_set_parity((u32)p->reg_addr, USART_PARITY_NONE);
   usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_NONE);
   usart_set_mode((u32)p->reg_addr, USART_MODE_TX_RX);
-
   /* Enable USART1 Receive interrupts */
   USART_CR1((u32)p->reg_addr) |= USART_CR1_RXNEIE;
 
@@ -129,7 +128,6 @@ void uart1_init( void ) {
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart1, UART1_BAUD);
-
 }
 
 void usart1_isr(void) { usart_isr(&uart1); }
@@ -158,7 +156,6 @@ void uart2_init( void ) {
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart2, UART2_BAUD);
-
 }
 
 void usart2_isr(void) { usart_isr(&uart2); }
@@ -189,7 +186,6 @@ void uart3_init( void ) {
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart3, UART3_BAUD);
-
 }
 
 void usart3_isr(void) { usart_isr(&uart3); }
@@ -219,7 +215,6 @@ void uart5_init( void ) {
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart5, UART5_BAUD);
-
 }
 
 void uart5_isr(void) { usart_isr(&uart5); }

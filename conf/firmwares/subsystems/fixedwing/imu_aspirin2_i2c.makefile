@@ -18,6 +18,3 @@ endif
 
 ap.CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN2_SRCS)
-
-ap.CFLAGS += -DAHRS_MAG_UPDATE_YAW_ONLY
-

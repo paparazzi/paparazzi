@@ -48,9 +48,6 @@ SETTINGS_XML=$(ACINCLUDE)/settings.xml
 SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
 SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
-SETTINGS_FILE=$(SETTINGS:settings%=%)
-#TUNING_FILE=$(subst   ,_,$(SETTINGS:settings/%.xml=%)).h
-TUNING_H=$(AC_GENERATED)/tuning.h
 SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(AC_GENERATED)/modules.h
@@ -71,7 +68,7 @@ endif
 
 
 
-all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
+all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 	@echo "TARGET: " $(TARGET)"\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
 	@echo "CFLAGS: " $($(TARGET).CFLAGS)"\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
 	@echo "LDFLAGS: " $($(TARGET).LDFLAGS)"\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
@@ -124,11 +121,6 @@ $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELE
 	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
-
-$(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_tuning.out $(SETTINGS_XMLS) > $@
 
 $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)

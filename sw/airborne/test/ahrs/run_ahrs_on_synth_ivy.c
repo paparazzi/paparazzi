@@ -59,7 +59,7 @@ gboolean timeout_callback(gpointer data) {
 	     ahrs_float.ltp_to_imu_euler.theta,
 	     ahrs_float.ltp_to_imu_euler.psi);
 
-  IvySendMsg("183 BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",
+  IvySendMsg("183 NPS_RATE_ATTITUDE %f %f %f %f %f %f",
 	     DegOfRad(aos.imu_rates.p),
 	     DegOfRad(aos.imu_rates.q),
 	     DegOfRad(aos.imu_rates.r),
@@ -67,7 +67,7 @@ gboolean timeout_callback(gpointer data) {
 	     DegOfRad(aos.ltp_to_imu_euler.theta),
 	     DegOfRad(aos.ltp_to_imu_euler.psi));
 
-  IvySendMsg("183 BOOZ_SIM_GYRO_BIAS %f %f %f",
+  IvySendMsg("183 NPS_GYRO_BIAS %f %f %f",
 	     DegOfRad(aos.gyro_bias.p),
 	     DegOfRad(aos.gyro_bias.q),
 	     DegOfRad(aos.gyro_bias.r));

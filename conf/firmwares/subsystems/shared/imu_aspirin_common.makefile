@@ -2,25 +2,11 @@
 #
 # Common part for all Aspirin IMUs
 #
+# if ACCEL and GYRO SENS/NEUTRAL are not defined,
+# the defaults from the datasheet will be used
 #
 # required xml:
 #  <section name="IMU" prefix="IMU_">
-#
-#    <define name="GYRO_X_NEUTRAL" value="33924"/>
-#    <define name="GYRO_Y_NEUTRAL" value="33417"/>
-#    <define name="GYRO_Z_NEUTRAL" value="32809"/>
-#
-#    <define name="GYRO_X_SENS" value="1.01" integer="16"/>
-#    <define name="GYRO_Y_SENS" value="1.01" integer="16"/>
-#    <define name="GYRO_Z_SENS" value="1.01" integer="16"/>
-#
-#    <define name="ACCEL_X_NEUTRAL" value="32081"/>
-#    <define name="ACCEL_Y_NEUTRAL" value="33738"/>
-#    <define name="ACCEL_Z_NEUTRAL" value="32441"/>
-#
-#    <define name="ACCEL_X_SENS" value="2.50411474" integer="16"/>
-#    <define name="ACCEL_Y_SENS" value="2.48126183" integer="16"/>
-#    <define name="ACCEL_Z_SENS" value="2.51396167" integer="16"/>
 #
 #    <define name="MAG_X_NEUTRAL" value="2358"/>
 #    <define name="MAG_Y_NEUTRAL" value="2362"/>
@@ -33,8 +19,6 @@
 #  </section>
 #
 #
-
-# imu aspirin
 
 # for fixedwing firmware and ap only
 ifeq ($(TARGET), ap)
@@ -52,7 +36,7 @@ IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 
 ifeq ($(ARCH), lpc21)
-#TODO
+$(error The aspirin subsystem (using SPI) is currently not implemnented for the lpc21. Please use the aspirin_i2c subsystem.)
 else ifeq ($(ARCH), stm32)
 IMU_ASPIRIN_CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
 IMU_ASPIRIN_CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
@@ -60,5 +44,4 @@ IMU_ASPIRIN_CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
 IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 endif
 
-sim.CFLAGS += $(IMU_ASPIRIN_CFLAGS) -DHMC5843_NO_IRQ
-sim.srcs   += $(IMU_ASPIRIN_SRCS)
+include $(CFG_SHARED)/imu_nps.makefile

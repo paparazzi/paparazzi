@@ -7,7 +7,7 @@
      Datamodems configured for 57600 baud
      Asctec speed controllers-->
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
     <servo name="ROLL"   no="1" min="0" neutral="0" max="255"/>
     <servo name="YAW"    no="2" min="0" neutral="0" max="255"/>

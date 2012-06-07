@@ -9,7 +9,7 @@
     <child>
       <widget class="GtkTable" id="table_text_editor">
         <property name="visible">True</property>
-        <property name="n_rows">2</property>
+        <property name="n_rows">3</property>
         <property name="n_columns">2</property>
         <child>
           <widget class="GtkLabel" id="label39">
@@ -32,6 +32,20 @@
           <packing>
             <property name="top_attach">1</property>
             <property name="bottom_attach">2</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label45">
+            <property name="visible">True</property>
+            <property name="xalign">0</property>
+            <property name="label" translatable="yes">Color</property>
+            <property name="justify">right</property>
+          </widget>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
             <property name="x_options">GTK_FILL</property>
             <property name="y_options"></property>
           </packing>
@@ -60,6 +74,26 @@
             <property name="right_attach">2</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">2</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkComboBoxEntry" id="comboboxentry_color">
+            <property name="visible">True</property>
+            <property name="has_tooltip">True</property>
+            <property name="tooltip" translatable="yes">Colors defined in X11 rgb.txt</property>
+            <property name="items" translatable="yes">green
+red
+blue
+yellow
+orange
+white</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
             <property name="y_options"></property>
           </packing>
         </child>

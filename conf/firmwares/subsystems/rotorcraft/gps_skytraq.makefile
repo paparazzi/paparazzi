@@ -14,5 +14,5 @@ ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_skytraq.c
 
 
-sim.CFLAGS += -DUSE_GPS
-sim.srcs += $(SRC_SUBSYSTEMS)/gps.c
+nps.CFLAGS += -DUSE_GPS
+nps.srcs += $(SRC_SUBSYSTEMS)/gps.c

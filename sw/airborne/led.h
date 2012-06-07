@@ -36,45 +36,50 @@
 #include "led_hw.h"
 
 static inline void led_init ( void ) {
-#ifdef LED_1_BANK
+#if USE_LED_1
   LED_INIT(1);
   LED_OFF(1);
-#endif /* LED_1_BANK */
+#endif /* LED_1 */
 
-#ifdef LED_2_BANK
+#if USE_LED_2
   LED_INIT(2);
   LED_OFF(2);
-#endif /* LED_2_BANK */
+#endif /* LED_2 */
 
-#ifdef LED_3_BANK
+#if USE_LED_3
   LED_INIT(3);
   LED_OFF(3);
-#endif /* LED_3_BANK */
+#endif /* LED_3 */
 
-#ifdef LED_4_BANK
+#if USE_LED_4
   LED_INIT(4);
   LED_OFF(4);
-#endif /* LED_4_BANK */
+#endif /* LED_4 */
 
-#ifdef LED_5_BANK
+#if USE_LED_5
   LED_INIT(5);
   LED_OFF(5);
-#endif /* LED_5_BANK */
+#endif /* LED_5 */
 
-#ifdef LED_6_BANK
+#if USE_LED_6
   LED_INIT(6);
   LED_OFF(6);
-#endif /* LED_6_BANK */
+#endif /* LED_6 */
 
-#ifdef LED_7_BANK
+#if USE_LED_7
   LED_INIT(7);
   LED_OFF(7);
-#endif /* LED_7_BANK */
+#endif /* LED_7 */
 
-#ifdef LED_8_BANK
+#if USE_LED_8
   LED_INIT(8);
   LED_OFF(8);
-#endif /* LED_8_BANK */
+#endif /* LED_8 */
+
+#if USE_LED_12
+  LED_INIT(12);
+  LED_OFF(12);
+#endif /* LED_12 */
 }
 
 #else /* USE_LED */

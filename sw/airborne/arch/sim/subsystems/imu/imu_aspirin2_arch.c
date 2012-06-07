@@ -1,0 +1,45 @@
+/*
+ * Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#include "subsystems/imu.h"
+
+#include "generated/airframe.h"
+
+
+#if USE_NPS
+#include "nps_sensors.h"
+
+void imu_feed_gyro_accel(void) {
+
+  RATES_ASSIGN(imu.gyro_unscaled, sensors.gyro.value.x, sensors.gyro.value.y, sensors.gyro.value.z);
+  VECT3_ASSIGN(imu.accel_unscaled, sensors.accel.value.x, sensors.accel.value.y, sensors.accel.value.z);
+
+  // set availability flags...
+  imu_aspirin2.imu_available = true;
+
+}
+
+
+void imu_feed_mag(void) {
+  VECT3_ASSIGN(imu.mag_unscaled, sensors.mag.value.x, sensors.mag.value.y, sensors.mag.value.z);
+  imu_aspirin2.imu_available = true;
+}
+#endif

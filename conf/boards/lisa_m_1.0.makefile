@@ -8,7 +8,9 @@
 BOARD=lisa_m
 BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
+ifndef NO_LUFTBOOT
 NO_LUFTBOOT=1
+endif
 
 ARCH=stm32
 $(TARGET).ARCHDIR = $(ARCH)
@@ -35,7 +37,7 @@ endif
 # default LED configuration
 #
 ifndef RADIO_CONTROL_LED
-RADIO_CONTROL_LED  = none
+RADIO_CONTROL_LED  = 2
 endif
 
 ifndef BARO_LED
@@ -43,7 +45,7 @@ BARO_LED = none
 endif
 
 ifndef AHRS_ALIGNER_LED
-AHRS_ALIGNER_LED = none
+AHRS_ALIGNER_LED = 3
 endif
 
 ifndef GPS_LED

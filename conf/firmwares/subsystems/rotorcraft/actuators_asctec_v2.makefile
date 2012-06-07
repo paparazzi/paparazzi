@@ -29,3 +29,8 @@ ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 ap.CFLAGS += -DUSE_I2C1
 endif
+
+# Simulator
+nps.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
+nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_ASCTEC_DEVICE=i2c0

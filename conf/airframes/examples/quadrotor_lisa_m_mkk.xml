@@ -1,13 +1,14 @@
-<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a quadrotor frame equiped with Lisa/M 1.0 and MKK motor controllers -->
 
 <airframe name="fraser">
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">
       <define name="ACTUATORS_START_DELAY" value="3"/>
-      <configure name="AHRS_ALIGNER_LED" value="3"/>
     </target>
-    <target name="sim" board="pc">
+    <target name="nps" board="pc">
       <subsystem name="fdm"           type="nps"/>
     </target>
 
@@ -66,7 +67,6 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
@@ -162,7 +162,6 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="USE_REF" value="1"/>
     <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
@@ -172,7 +171,7 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
     <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_aspirin.h&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 
   <section name="AUTOPILOT">

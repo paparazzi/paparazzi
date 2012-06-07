@@ -2,7 +2,7 @@
 # Complementary filter for attitude estimation
 #
 
-stm_passthrough.CFLAGS += -DUSE_AHRS_CMPL
+stm_passthrough.CFLAGS += -DUSE_AHRS_CMPL_EULER
 ifneq ($(AHRS_ALIGNER_LED),none)
   stm_passthrough.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif

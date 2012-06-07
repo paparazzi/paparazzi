@@ -17,28 +17,28 @@ SRC_BOARD=boards/$(BOARD)
 NPSDIR = $(SIMDIR)/nps
 
 
-sim.ARCHDIR = $(ARCH)
+nps.ARCHDIR = sim
 
-sim.CFLAGS  += -DSITL -DUSE_NPS
-sim.CFLAGS  += `pkg-config glib-2.0 --cflags`
-sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lgsl -lgslcblas
-sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
+nps.CFLAGS  += -DSITL -DUSE_NPS
+nps.CFLAGS  += `pkg-config glib-2.0 --cflags`
+nps.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lgsl -lgslcblas
+nps.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
 ifndef JSBSIM_PKG
 JSBSIM_PKG = $(shell pkg-config JSBSim --exists && echo 'yes')
 endif
 ifeq ($(JSBSIM_PKG), yes)
-	sim.CFLAGS  += `pkg-config JSBSim --cflags`
-	sim.LDFLAGS += `pkg-config JSBSim --libs`
+	nps.CFLAGS  += `pkg-config JSBSim --cflags`
+	nps.LDFLAGS += `pkg-config JSBSim --libs`
 else
 	JSBSIM_PKG = no
-	sim.CFLAGS  += -I$(JSBSIM_INC)
-	sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+	nps.CFLAGS  += -I$(JSBSIM_INC)
+	nps.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 endif
 
 
-sim.srcs += $(NPSDIR)/nps_main.c                      \
+nps.srcs += $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_fdm_jsbsim.c                \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
@@ -57,53 +57,53 @@ sim.srcs += $(NPSDIR)/nps_main.c                      \
 
 
 
-sim.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
-sim.srcs   += firmwares/rotorcraft/main.c
-sim.srcs   += mcu.c
-sim.srcs   += $(SRC_ARCH)/mcu_arch.c
+nps.srcs   += firmwares/rotorcraft/main.c
+nps.srcs   += mcu.c
+nps.srcs   += $(SRC_ARCH)/mcu_arch.c
 
-ifeq ($(TARGET), sim)
+ifeq ($(TARGET), nps)
   include $(CFG_SHARED)/i2c_select.makefile
 endif
 
 
-sim.CFLAGS += -DPERIODIC_FREQUENCY=512
-#sim.CFLAGS += -DUSE_LED
-sim.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+nps.CFLAGS += -DPERIODIC_FREQUENCY=512
+#nps.CFLAGS += -DUSE_LED
+nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
-sim.srcs += subsystems/settings.c
-sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
+nps.srcs += subsystems/settings.c
+nps.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
-sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
+nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
+nps.srcs += $(SRC_FIRMWARE)/telemetry.c \
             subsystems/datalink/downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
-sim.srcs   += $(SRC_FIRMWARE)/commands.c
+nps.srcs   += $(SRC_FIRMWARE)/commands.c
 
-sim.srcs += $(SRC_FIRMWARE)/datalink.c
+nps.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
 # Math functions
 #
-sim.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+nps.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
 
-sim.CFLAGS += -DROTORCRAFT_BARO_LED=2
-sim.srcs += $(SRC_BOARD)/baro_board.c
+nps.CFLAGS += -DROTORCRAFT_BARO_LED=2
+nps.srcs += $(SRC_BOARD)/baro_board.c
 
-sim.CFLAGS += -DUSE_ADC
-sim.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-sim.srcs   += subsystems/electrical.c
+nps.CFLAGS += -DUSE_ADC
+nps.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+nps.srcs   += subsystems/electrical.c
 # baro has variable offset amplifier on booz board
-#sim.CFLAGS += -DUSE_DAC
-#sim.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
+#nps.CFLAGS += -DUSE_DAC
+#nps.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 
 
-#sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-#sim.CFLAGS += -DIMU_B2_VERSION_1_1
+#nps.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
+#nps.CFLAGS += -DIMU_B2_VERSION_1_1
 
-sim.srcs += $(SRC_FIRMWARE)/autopilot.c
+nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 #
 # in makefile section of airframe xml
@@ -112,9 +112,9 @@ sim.srcs += $(SRC_FIRMWARE)/autopilot.c
 # include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 #
 
-sim.srcs += $(SRC_FIRMWARE)/stabilization.c
-sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
-sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
+nps.srcs += $(SRC_FIRMWARE)/stabilization.c
+nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
+nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 
 
 NUM_TYPE=integer
@@ -124,39 +124,39 @@ STAB_TYPE=euler
 #STAB_TYPE=quaternion
 
 ifeq ($(NUM_TYPE), integer)
-  sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-  sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_int.h\"
+  nps.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
+  nps.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_int.h\"
   ifeq ($(STAB_TYPE), euler)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
+    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
   else ifeq ($(STAB_TYPE), quaternion)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_int.h\"
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_int.c
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_int.c
+    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_int.h\"
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_int.c
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_int.c
   endif
 else ifeq ($(NUM_TYPE), float)
-  sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
-  sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_float.h\"
+  nps.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
+  nps.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_float.h\"
   ifeq ($(STAB_TYPE), euler)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_float.h\"
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_float.c
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_float.c
+    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_float.h\"
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_float.c
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_float.c
   else ifeq ($(STAB_TYPE), quaternion)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_float.h\"
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_float.c
-    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_float.c
+    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_float.h\"
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_float.c
+    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_float.c
   endif
 endif
 
-sim.CFLAGS += -DUSE_NAVIGATION
-sim.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
-sim.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
-sim.srcs += $(SRC_SUBSYSTEMS)/ins.c
+nps.CFLAGS += -DUSE_NAVIGATION
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
+nps.srcs += $(SRC_SUBSYSTEMS)/ins.c
 
 #  vertical filter float version
-sim.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
-sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
+nps.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
+nps.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 #
 # INS choice
@@ -167,5 +167,5 @@ sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 #
 
 
-sim.srcs += $(SRC_FIRMWARE)/navigation.c
-sim.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c
+nps.srcs += $(SRC_FIRMWARE)/navigation.c
+nps.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

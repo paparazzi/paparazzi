@@ -7,7 +7,7 @@ ifndef USE_MAGNETOMETER
 USE_MAGNETOMETER = 1
 endif
 
-AHRS_CFLAGS  = -DUSE_AHRS -DUSE_AHRS_CMPL
+AHRS_CFLAGS  = -DUSE_AHRS -DUSE_AHRS_CMPL_EULER
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
 
 ifneq ($(USE_MAGNETOMETER),0)
@@ -26,5 +26,5 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
-sim.CFLAGS += $(AHRS_CFLAGS)
-sim.srcs += $(AHRS_SRCS)
+nps.CFLAGS += $(AHRS_CFLAGS)
+nps.srcs += $(AHRS_SRCS)
