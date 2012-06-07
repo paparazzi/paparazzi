@@ -40,6 +40,10 @@
 #include "modules/sensors/baro_ets.h"
 #endif
 
+#if USE_BARO_BMP
+#include "modules/sensors/baro_bmp.h"
+#endif
+
 /* position in meters, ENU frame, relative to reference */
 extern float estimator_x; ///< east position in meters
 extern float estimator_y; ///< north position in meters
@@ -92,7 +96,7 @@ extern void alt_kalman( float );
 #ifdef ALT_KALMAN
 #define EstimatorSetPosXY(x, y) { estimator_x = x; estimator_y = y; }
 
-#if USE_BARO_MS5534A || USE_BARO_ETS
+#if USE_BARO_MS5534A || USE_BARO_ETS || USE_BARO_BMP
 /* Kalman filter cannot be disabled in this mode (no z_dot) */
 #define EstimatorSetAlt(z) alt_kalman(z)
 #else /* USE_BARO_x */

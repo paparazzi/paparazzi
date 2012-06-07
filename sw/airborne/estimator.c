@@ -113,7 +113,6 @@ bool_t alt_kalman_enabled;
 #endif
 
 #define GPS_SIGMA2 1.
-
 #define GPS_DT 0.25
 #define GPS_R 2.
 
@@ -149,6 +148,12 @@ void alt_kalman(float gps_z) {
     DT = BARO_ETS_DT;
     R = baro_ets_r;
     SIGMA2 = baro_ets_sigma2;
+  } else
+#elif USE_BARO_BMP
+  if (baro_bmp_enabled) {
+    DT = BARO_BMP_DT;
+    R = baro_bmp_r;
+    SIGMA2 = baro_bmp_sigma2;
   } else
 #endif
   {
@@ -205,7 +210,7 @@ void estimator_update_state_gps( void ) {
   gps_north -= nav_utm_north0;
 
   EstimatorSetPosXY(gps_east, gps_north);
-#ifndef USE_BARO_ETS
+#if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif
@@ -217,4 +222,3 @@ void estimator_update_state_gps( void ) {
   // Heading estimation now in ahrs_infrared
 
 }
-
