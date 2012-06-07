@@ -81,7 +81,9 @@
 	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
 })
 
-#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) SEND_MISSION_STATUS(_trans, _dev) 
+#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
+  SEND_MISSION_STATUS(_trans, _dev); \
+})
 
 #ifdef MCU_SPI_LINK
 #define PERIODIC_SEND_DEBUG_MCU_LINK(_trans, _dev) DOWNLINK_SEND_DEBUG_MCU_LINK(_trans, _dev, &link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);

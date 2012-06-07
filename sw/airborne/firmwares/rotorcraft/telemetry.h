@@ -51,6 +51,12 @@
 // I2C Error counters
 #include "mcu_periph/i2c.h"
 
+#if defined DOWNLINK
+#define Downlink(x) x
+#else
+#define Downlink(x) {}
+#endif
+
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
 #include "subsystems/ins.h"
@@ -63,8 +69,8 @@
 	uint16_t vsup = electrical.vsupply; \
 	int16_t amps = (int16_t) (electrical.current/10); \
 	int16_t pwr = (int16_t) (vsup*amps); \
-	int16_t e = energy; \
-	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
+	int16_t e = 0; \
+	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, 0);\
 })
 
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
@@ -91,7 +97,10 @@
 }
 #endif /*USE_GPS */
 
-#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) SEND_MISSION_STATUS(_trans, _dev) 
+#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
+  SEND_MISSION_STATUS(_trans, _dev); \
+})
+
 
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_trans, _dev) DOWNLINK_SEND_RC(_trans, _dev, RADIO_CONTROL_NB_CHANNEL, radio_control.values)

@@ -117,7 +117,7 @@
 		<field name="yaw"       type="int16" />
 	</message>
 
-	<message name="BOOZ2_CMD" id="27">
+	<message name="ROTORCRAFT_CMD" id="27">
 		<field name="cmd_roll"   type="int32"/>
 		<field name="cmd_pitch"  type="int32"/>
 		<field name="cmd_yaw"    type="int32"/>
@@ -139,7 +139,7 @@
 		<field name="pitch" type="int8"/>
 	</message>
 
-	<message name="BOOZ2_RADIO_CONTROL" id="31">
+	<message name="ROTORCRAFT_RADIO_CONTROL" id="31">
 		<field name="roll"     type="int16" unit="pprz"/>
 		<field name="pitch"    type="int16" unit="pprz"/>
 		<field name="yaw"      type="int16" unit="pprz"/>
@@ -394,15 +394,22 @@
 		<field name="psi"   type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
-	<!-- Missing AHRS_EULER_INT -->
+	<message name="AHRS_EULER_INT" id="66">
+    <field name="imu_phi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="imu_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="imu_psi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_phi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_psi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+  </message>
 
-	<message name="AHRS_MEASUREMENT_EULER" id="66">
+	<message name="AHRS_MEASUREMENT_EULER" id="67">
 		<field name="phi"   type="float" unit="rad" alt_unit="deg"/>
 		<field name="theta" type="float" unit="rad" alt_unit="deg"/>
 		<field name="psi"   type="float" unit="rad" alt_unit="deg"/>
 	</message>
 
-	<message name="AHRS_DEBUG_QUAT" id="67">
+	<message name="AHRS_DEBUG_QUAT" id="68">
 		<field name="jqi"   type="float"/>
 		<field name="jqx"   type="float"/>
 		<field name="jqy"   type="float"/>
@@ -417,7 +424,7 @@
 		<field name="mqz"   type="float"/>
 	</message>
 
-	<message name="AHRS_LKF" id="68">
+	<message name="AHRS_LKF" id="69">
 		<field name="phi"   type="float" unit="rad"   alt_unit="deg"/>
 		<field name="theta" type="float" unit="rad"   alt_unit="deg"/>
 		<field name="psi"   type="float" unit="rad"   alt_unit="deg"/>
@@ -436,7 +443,7 @@
 		<field name="mz"    type="float" />
 	</message>
 
-	<message name="AHRS_LKF_DEBUG" id="69">
+	<message name="AHRS_LKF_DEBUG" id="70">
 		<field name="phi_err"   type="float" unit="rad"   alt_unit="deg"/>
 		<field name="theta_err" type="float" unit="rad"   alt_unit="deg"/>
 		<field name="psi_err"   type="float" unit="rad"   alt_unit="deg"/>
@@ -454,7 +461,7 @@
 		<field name="br_cov"    type="float" />
 	</message>
 
-	<message name="AHRS_LKF_ACC_DBG" id="70">
+	<message name="AHRS_LKF_ACC_DBG" id="71">
 		<field name="qi_err"    type="float" />
 		<field name="qx_err"    type="float" />
 		<field name="qy_err"    type="float" />
@@ -464,7 +471,7 @@
 		<field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
 	</message>
 
-	<message name="AHRS_LKF_MAG_DBG" id="71">
+	<message name="AHRS_LKF_MAG_DBG" id="72">
 		<field name="qi_err"    type="float" />
 		<field name="qx_err"    type="float" />
 		<field name="qy_err"    type="float" />
@@ -475,7 +482,7 @@
 	</message>
 
 
-	<message name="BOOZ2_AHRS_EULER" id="72">
+	<message name="BOOZ2_AHRS_EULER" id="73">
 		<field name="imu_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
 		<field name="imu_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
 		<field name="imu_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
@@ -484,7 +491,7 @@
 		<field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
 	</message>
 
-	<message name="BOOZ2_AHRS_QUAT" id="73">
+	<message name="BOOZ2_AHRS_QUAT" id="74">
 		<field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
 		<field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
 		<field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
@@ -495,7 +502,7 @@
 		<field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
 	</message>
 
-	<message name="BOOZ2_AHRS_RMAT" id="74">
+	<message name="BOOZ2_AHRS_RMAT" id="75">
 		<field name="imu_m00"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
 		<field name="imu_m01"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
 		<field name="imu_m02"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
@@ -517,7 +524,7 @@
 	</message>
 
 
-	<message name="BOOZ_AHRS_BIAS" id="75">
+	<message name="BOOZ_AHRS_BIAS" id="76">
 		<field name="bp"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
 		<field name="bq"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
 		<field name="br"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
@@ -1022,14 +1029,15 @@
 	</message>
 
 	<message name="FILTER_ALIGNER" id="162">
-		<field name="lp_gp"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-		<field name="lp_gq"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-		<field name="lp_gr"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-		<field name="gp"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-		<field name="gq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-		<field name="gr"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
-		<field name="noise"  type="int32"/>
-		<field name="cnt"    type="int32"/>
+    <field name="lp_gp" type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="lp_gq" type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="lp_gr" type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="gp" type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="gq" type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="gr" type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="noise" type="int32"/>
+    <field name="cnt" type="int32"/>
+    <field name="status" type="uint8" values="UNINIT|RUNNING|LOCKED"/>
 	</message>
 
 	<message name="FILTER_Q" id="163">
