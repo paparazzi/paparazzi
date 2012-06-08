@@ -330,7 +330,7 @@ let () =
 		match check_align with
 		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages; Printf.fprintf h "#endif // _VAR_MESSAGES2_%s_H_\n" u_class_name
 		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages; Printf.fprintf h "#endif // _VAR_MESSAGES2_%s_H_\n" u_class_name
-		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er ) 
+		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er )
 
   with
     Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

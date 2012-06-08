@@ -78,7 +78,7 @@ extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
   PprzTransportPut1Byte(_dev, ck_a);	\
   PprzTransportPut1Byte(_dev, ck_b);	\
   PprzTransportSendMessage(_dev) \
-} 
+}
 
 #define PprzTransportPutUint8(_dev, _byte) { \
     ck_a += _byte;			  \
@@ -150,7 +150,7 @@ extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
 #define PprzTransportPutInt32ByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define PprzTransportPutUint32ByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define PprzTransportPutFloatByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
-#define PprzTransportPutCharByAddr(_dev, _x) PprzTransportPut1ByteByAddr(_dev, (const uint8_t*)_x) 
+#define PprzTransportPutCharByAddr(_dev, _x) PprzTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
 
 #define PprzTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
@@ -225,44 +225,44 @@ extern struct pprz_transport pprz_tp;
 
 static inline void parse_pprz(struct pprz_transport * t, uint8_t c ) {
   switch (t->status) {
-  case UNINIT:
-    if (c == STX)
+    case UNINIT:
+      if (c == STX)
+        t->status++;
+      break;
+    case GOT_STX:
+      if (t->trans.msg_received) {
+        t->trans.ovrn++;
+        goto error;
+      }
+      t->trans.payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+      t->ck_a = t->ck_b = c;
       t->status++;
-    break;
-  case GOT_STX:
-    if (t->trans.msg_received) {
-      t->trans.ovrn++;
-      goto error;
-    }
-    t->trans.payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
-    t->ck_a = t->ck_b = c;
-    t->status++;
-    t->payload_idx = 0;
-    break;
-  case GOT_LENGTH:
-    t->trans.payload[t->payload_idx] = c;
-    t->ck_a += c; t->ck_b += t->ck_a;
-    t->payload_idx++;
-    if (t->payload_idx == t->trans.payload_len)
+      t->payload_idx = 0;
+      break;
+    case GOT_LENGTH:
+      t->trans.payload[t->payload_idx] = c;
+      t->ck_a += c; t->ck_b += t->ck_a;
+      t->payload_idx++;
+      if (t->payload_idx == t->trans.payload_len)
+        t->status++;
+      break;
+    case GOT_PAYLOAD:
+      if (c != t->ck_a)
+        goto error;
       t->status++;
-    break;
-  case GOT_PAYLOAD:
-    if (c != t->ck_a)
+      break;
+    case GOT_CRC1:
+      if (c != t->ck_b)
+        goto error;
+      t->trans.msg_received = TRUE;
+      goto restart;
+    default:
       goto error;
-    t->status++;
-    break;
-  case GOT_CRC1:
-    if (c != t->ck_b)
-      goto error;
-    t->trans.msg_received = TRUE;
-    goto restart;
-  default:
-    goto error;
   }
   return;
- error:
+error:
   t->trans.error++;
- restart:
+restart:
   t->status = UNINIT;
   return;
 }
@@ -273,13 +273,13 @@ static inline void pprz_parse_payload(struct pprz_transport * t) {
     dl_buffer[i] = t->trans.payload[i];
   dl_msg_available = TRUE;
   if((dl_buffer[0]!=t->trans.packet_seq+1)&&(dl_buffer[0]!=0)){
-    	if((t->trans.packet_seq+1)<dl_buffer[0]){
-		    //uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
-		    //XGGDEBUG:SEQ: Do something like increment counter
-	    }else{
-		    //uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
-		    //XGGDEBUG:SEQ: Do something like increment counter
-	    }
+    if((t->trans.packet_seq+1)<dl_buffer[0]){
+      //uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
+      //XGGDEBUG:SEQ: Do something like increment counter
+    }else{
+      //uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
+      //XGGDEBUG:SEQ: Do something like increment counter
+    }
   }
   t->trans.packet_seq = dl_buffer[0];
 }

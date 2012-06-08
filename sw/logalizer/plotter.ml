@@ -39,9 +39,9 @@ let pprz_float = function
     Pprz.Int i -> float i
   | Pprz.Float f -> f
   | Pprz.Int32 i -> Int32.to_float i
-	| Pprz.Int64 i -> Int64.to_float i 
+  | Pprz.Int64 i -> Int64.to_float i
   | Pprz.String s -> float_of_string s
-	| Pprz.Char c -> float_of_string (String.make 1 c) 
+  | Pprz.Char c -> float_of_string (String.make 1 c)
   | Pprz.Array _ -> 0.
 
 
@@ -497,7 +497,7 @@ let rec plot_window = fun window ->
       let v = float *. a +. b in
       plot#add_value name v in
 
-    let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in 
+    let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in
     let binding =
       if sender = "*" then
         P.message_bind msg_name cb

@@ -1,9 +1,8 @@
 (*
- * $Id$
- *
  * Server part for all aircrafts (version 2.0 of messages.xml)
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2012 Xavier Gibert
  *
  * This file is part of paparazzi.
  *
@@ -122,7 +121,7 @@ let heading_from_course = ref false
 
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
-	
+
   let fvalue = fun x ->
     let f = fvalue (value x) in
       match classify_float f with
@@ -271,7 +270,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
       a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
 			a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
-			
+
       (*a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
       let mcu1_status = ivalue "mcu1_status" in
       (** c.f. link_autopilot.h *)
@@ -293,7 +292,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           else "MANUAL";
       end ;
 			*)
-			
+
       if a.fbw.rc_mode = "FAILSAFE" then
         a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
       else
@@ -438,5 +437,5 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       ] in
       Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
   | _ -> ()
-	
+
 

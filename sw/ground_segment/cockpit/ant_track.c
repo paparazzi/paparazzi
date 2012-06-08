@@ -192,17 +192,17 @@ void on_NAV_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   if (mode == AUTO) {
     gps_pos_x = atof(argv[2]);
     gps_pos_y = atof(argv[3]);
-     //calculate azimuth 
+     //calculate azimuth
     ant_azim = atan2(gps_pos_x, gps_pos_y) * 180. / M_PI;
     if (ant_azim < 0) ant_azim += 360.;
-     //calculate elevation 
+     //calculate elevation
     ant_elev = atan2( (gps_alt-home_alt), sqrt(atof(argv[5])) ) * 180. / M_PI;
     if (ant_elev < 0) ant_elev = 0.;
 
     gtk_range_set_value(azim_scale, ant_azim);
     gtk_range_set_value(elev_scale, ant_elev);
   }
-   //g_message("home_alt %f gps_alt %f azim %f elev %f", home_alt, gps_alt, ant_azim, ant_elev); 
+   //g_message("home_alt %f gps_alt %f azim %f elev %f", home_alt, gps_alt, ant_azim, ant_elev);
 }
 */
 int main (int argc, char** argv) {

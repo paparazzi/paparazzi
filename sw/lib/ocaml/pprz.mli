@@ -56,7 +56,7 @@ type message = {
 
 
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
-external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes" 
+external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes"
 (** [int32_of_bytes buffer offset] *)
 
 val separator : string
@@ -86,7 +86,7 @@ val string_assoc : string -> values -> string
 
 val float_assoc : string -> values -> float
 val int_assoc : string -> values -> int
-val int32_assoc : string -> values -> Int32.t 
+val int32_assoc : string -> values -> Int32.t
 val int64_assoc : string -> values -> Int64.t
 (** May raise Not_found or Invalid_argument *)
 
@@ -111,12 +111,12 @@ val alt_unit_coef_of_xml : Xml.xml -> string
  *)
 
 val get_downlink_messages_in_one_class : Xml.xml -> Xml.xml
-(** Messages.xml version handler. For those functions that are using stored messages.xml files. 
+(** Messages.xml version handler. For those functions that are using stored messages.xml files.
  *  If the message is of the old version it returns the same file,
  *  if it's of the new version (2.0) it returns a 'protocol' xml element with one class called 'telemetry' including all downlink and datalink messages *)
 
 val get_uplink_messages_in_one_class : Xml.xml -> Xml.xml
-(** Messages.xml version handler. For those functions that are using stored messages.xml files. 
+(** Messages.xml version handler. For those functions that are using stored messages.xml files.
  *  If the message is of the old version it returns the same file,
  *  if it's of the new version (2.0) it returns a 'protocol' xml element with one class called 'datalink' including all uplink and datalink messages *)
 
@@ -175,24 +175,24 @@ type msg_and_class_id = {
 module type MESSAGES = sig
 	val xml_version : string
 	val formated_xml : Xml.xml
-	
+
   val messages : (msg_and_class_id, message) Hashtbl.t
 	val message_of_id : ?class_id:int -> message_id -> message
   val message_of_name : string ->  message_id * message
-	
+
 	val class_id_of_msg : message_name -> class_id
 	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
-	
+
 	val class_id_of_msg_args : string -> class_id
 	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
-	
+
 	val class_id_of_msg_args_unsorted : string -> class_id
 	(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
 
   val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
    the A/C id, class id, message id and the list of (field_name, value) *)
-	
+
   val payload_of_values : ?gen_packet_seq:int -> sender_id -> ?class_id:int -> message_id -> values -> Serial.payload
   (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
 

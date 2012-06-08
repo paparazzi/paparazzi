@@ -1,7 +1,5 @@
 /*
- * Paparazzi $Id$
- *
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2012 Xavier Gibert
  *
  * This file is part of paparazzi.
  *
@@ -23,16 +21,6 @@
  */
 
 /** \file mavlink_transport.h
- *  \brief Building and parsing Paparazzi frames
- *
- *  Pprz frame:
- *
- *   |STXMAV|length|... payload=(length-4) bytes ...|Checksum A|Checksum B|
- *
- *   where checksum is computed over length and payload:
- *     ck_A = ck_B = length
- *     for each byte b in payload
- *       ck_A += b; ck_b += ck_A
  */
 
 #ifndef MAVLINK_TRANSPORT_H
@@ -56,7 +44,7 @@ extern uint8_t crc_extra[256];
 /** 4 = STXMAV + len + { packet_seq + AC/ID + COMPONENT/ID + MSG/ID } + ck_a + ck_b */
 #define MavlinkTransportSizeOf(_dev, _payload) (_payload-4)
 
-/* MAVLINK CHECKSUM */	
+/* MAVLINK CHECKSUM */
 #define X25_INIT_CRC 0xffff
 #define X25_VALIDATE_CRC 0xf0b8
 /**
@@ -134,7 +122,7 @@ extern uint8_t crc_extra[256];
   MavlinkTransportPut1Byte(_dev, low);	\
   MavlinkTransportPut1Byte(_dev, high);	\
   MavlinkTransportSendMessage(_dev) \
-} 
+}
 
 #define MavlinkTransportPut4ByteByAddr(_dev, _byte) { \
     MavlinkTransportPut2ByteByAddr(_dev, _byte);	\
@@ -177,7 +165,7 @@ extern uint8_t crc_extra[256];
 #define MavlinkTransportPutInt32ByAddr(_dev, _x) MavlinkTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define MavlinkTransportPutUint32ByAddr(_dev, _x) MavlinkTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define MavlinkTransportPutFloatByAddr(_dev, _x) MavlinkTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
-#define MavlinkTransportPutCharByAddr(_dev, _x) MavlinkTransportPut1ByteByAddr(_dev, (const uint8_t*)_x) 
+#define MavlinkTransportPutCharByAddr(_dev, _x) MavlinkTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
 
 #define MavlinkTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
@@ -230,44 +218,44 @@ extern struct mavlink_transport mavlink_tp;
 
 static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
   switch (t->status) {
-  case MAV_UNINIT:
-    if (c == STXMAV)
+    case MAV_UNINIT:
+      if (c == STXMAV)
+        t->status++;
+      break;
+    case GOT_STXMAV:
+      if (t->trans.msg_received) {
+        t->trans.ovrn++;
+        goto error;
+      }
+      t->trans.payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+      t->ck_a = t->ck_b = c;
       t->status++;
-    break;
-  case GOT_STXMAV:
-    if (t->trans.msg_received) {
-      t->trans.ovrn++;
-      goto error;
-    }
-    t->trans.payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
-    t->ck_a = t->ck_b = c;
-    t->status++;
-    t->payload_idx = 0;
-    break;
-  case MAV_GOT_LENGTH:
-    t->trans.payload[t->payload_idx] = c;
-    t->ck_a += c; t->ck_b += t->ck_a;
-    t->payload_idx++;
-    if (t->payload_idx == t->trans.payload_len)
+      t->payload_idx = 0;
+      break;
+    case MAV_GOT_LENGTH:
+      t->trans.payload[t->payload_idx] = c;
+      t->ck_a += c; t->ck_b += t->ck_a;
+      t->payload_idx++;
+      if (t->payload_idx == t->trans.payload_len)
+        t->status++;
+      break;
+    case MAV_GOT_PAYLOAD:
+      if (c != t->ck_a)
+        goto error;
       t->status++;
-    break;
-  case MAV_GOT_PAYLOAD:
-    if (c != t->ck_a)
+      break;
+    case MAV_GOT_CRC1:
+      if (c != t->ck_b)
+        goto error;
+      t->trans.msg_received = TRUE;
+      goto restart;
+    default:
       goto error;
-    t->status++;
-    break;
-  case MAV_GOT_CRC1:
-    if (c != t->ck_b)
-      goto error;
-    t->trans.msg_received = TRUE;
-    goto restart;
-  default:
-    goto error;
   }
   return;
- error:
+error:
   t->trans.error++;
- restart:
+restart:
   t->status = MAV_UNINIT;
   return;
 }
@@ -278,13 +266,13 @@ static inline void mavlink_parse_payload(struct mavlink_transport * t) {
     dl_buffer[i] = t->trans.payload[i];
   dl_msg_available = TRUE;
   if((dl_buffer[0]!=t->trans.packet_seq+1)&&(dl_buffer[0]!=0)){
-    	if((t->trans.packet_seq+1)<dl_buffer[0]){
-		//uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
-		//XGGDEBUG:SEQ: Do something like increment counter
-	}else{
-		//uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
-		//XGGDEBUG:SEQ: Do something like increment counter
-	}
+    if((t->trans.packet_seq+1)<dl_buffer[0]){
+      //uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
+      //XGGDEBUG:SEQ: Do something like increment counter
+    }else{
+      //uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
+      //XGGDEBUG:SEQ: Do something like increment counter
+    }
   }
   t->trans.packet_seq = dl_buffer[0];
 }
@@ -295,11 +283,11 @@ static inline void mavlink_parse_payload(struct mavlink_transport * t) {
 #define MavlinkCheckAndParse(_dev,_trans) {  \
   if (MavlinkBuffer(_dev)) {                 \
     ReadMavlinkBuffer(_dev,_trans);          \
-    if (_trans.trans.msg_received) {      \
+    if (_trans.trans.msg_received) {         \
       mavlink_parse_payload(&(_trans));      \
-      _trans.trans.msg_received = FALSE;  \
-    }                                     \
-  }                                       \
+      _trans.trans.msg_received = FALSE;     \
+    }                                        \
+  }                                          \
 }
 
 

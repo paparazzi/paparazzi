@@ -1,7 +1,5 @@
 /*
- * Paparazzi $Id$
- *
- * Copyright (C) 2011 Gautier Hattenberger
+ * Copyright (C) 2012 Xavier Gibert
  *
  * This file is part of paparazzi.
  *
