@@ -78,6 +78,8 @@ void ahrs_init(void)
 }
 
 
+#ifdef USE_IMU
+
 #include "subsystems/imu.h"
 
 void imu_init(void)
@@ -90,6 +92,7 @@ void imu_periodic(void)
   ins_periodic_task();
 }
 
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
