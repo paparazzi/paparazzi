@@ -32,6 +32,12 @@
 #include "std.h"
 #include "paparazzi.h"
 
+extern int nav_catapult_motor_delay;
+extern float nav_catapult_acceleration_threshold;
+extern int nav_catapult_heading_delay;
+extern float nav_catapult_initial_pitch;
+extern float nav_catapult_initial_throttle;
+
 // Module Code
 void nav_catapult_highrate_module(void);
 

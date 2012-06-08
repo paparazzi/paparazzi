@@ -60,14 +60,36 @@ static bool_t nav_catapult_armed = FALSE;
 static uint16_t nav_catapult_launch = 0;
 
 #ifndef NAV_CATAPULT_ACCELERATION_THRESHOLD
-#define NAV_CATAPULT_ACCELERATION_THRESHOLD (1.5 * 9.81);
+#define NAV_CATAPULT_ACCELERATION_THRESHOLD 1.5;
 #endif
+
+float nav_catapult_acceleration_threshold = NAV_CATAPULT_ACCELERATION_THRESHOLD;
 
 #ifndef NAV_CATAPULT_MOTOR_DELAY
 #define NAV_CATAPULT_MOTOR_DELAY  45		// Main Control Loops
 #endif
 
-#define NAV_CATAPULT_HEADING_DELAY (60 * 3)
+int nav_catapult_motor_delay = NAV_CATAPULT_MOTOR_DELAY;
+
+#ifndef NAV_CATAPULT_HEADING_DELAY
+#define NAV_CATAPULT_HEADING_DELAY 180
+#endif
+
+int nav_catapult_heading_delay = NAV_CATAPULT_HEADING_DELAY;
+
+#ifndef NAV_CATAPULT_INITIAL_PITCH
+#define NAV_CATAPULT_INITIAL_PITCH RadOfDeg(10)
+#endif
+
+float nav_catapult_initial_pitch = NAV_CATAPULT_INITIAL_PITCH;
+
+#ifndef NAV_CATAPULT_INITIAL_THROTTLE
+#define NAV_CATAPULT_INITIAL_THROTTLE 1.0
+#endif
+
+float nav_catapult_initial_throttle = NAV_CATAPULT_INITIAL_THROTTLE;
+
+/////// Store Take-Off Point
 
 static float nav_catapult_x = 0;
 static float nav_catapult_y = 0;
@@ -80,7 +102,7 @@ void nav_catapult_highrate_module(void)
   // Only run when
   if (nav_catapult_armed)
   {
-    if (nav_catapult_launch < NAV_CATAPULT_HEADING_DELAY)
+    if (nav_catapult_launch < nav_catapult_heading_delay)
       nav_catapult_launch ++;
 
     // Launch detection Filter
@@ -88,7 +110,7 @@ void nav_catapult_highrate_module(void)
     {
       // Five consecutive measurements > 1.5
 #ifndef SITL
-      if (ACCEL_FLOAT_OF_BFP(imu.accel.x)  < (1.5f * 9.1))
+      if (ACCEL_FLOAT_OF_BFP(imu.accel.x)  < (nav_catapult_acceleration_threshold * 9.81))
 #else
       if (launch != 1)
 #endif
@@ -97,10 +119,10 @@ void nav_catapult_highrate_module(void)
       }
     }
     // Launch was detected: Motor Delay Counter
-    else if (nav_catapult_launch == NAV_CATAPULT_MOTOR_DELAY)
+    else if (nav_catapult_launch == nav_catapult_motor_delay)
     {
       // Turn on Motor
-      NavVerticalThrottleMode(9600*(1));
+      NavVerticalThrottleMode(9600*(nav_catapult_initial_throttle));
       launch = 1;
     }
   }
@@ -130,28 +152,14 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
 
   nav_catapult_armed = 1;
 
-/*
-
-  float nav_final_progress = ((estimator_x - WaypointX(_tod)) * final_x + (estimator_y - WaypointY(_tod)) * final_y) / final2;
-  Bound(nav_final_progress,-1,1);
-  float nav_final_length = sqrt(final2);
-
-  float pre_climb = -(WaypointAlt(_tod) - WaypointAlt(_td)) / (nav_final_length / estimator_hspeed_mod);
-  Bound(pre_climb, -5, 0.);
-
-  float start_alt = WaypointAlt(_tod);
-  float diff_alt = WaypointAlt(_td) - start_alt;
-  float alt = start_alt + nav_final_progress * diff_alt;
-  Bound(alt, WaypointAlt(_td), start_alt +(pre_climb/(v_ctl_altitude_pgain))) // to prevent climbing before intercept
-
-*/
-
   // No Roll, Climb Pitch, No motor Phase
-  if (nav_catapult_launch <= NAV_CATAPULT_MOTOR_DELAY)
+  if (nav_catapult_launch <= nav_catapult_motor_delay)
   {
     NavAttitude(RadOfDeg(0));
-    NavVerticalAutoThrottleMode(RadOfDeg(15));
+    NavVerticalAutoThrottleMode(nav_catapult_initial_pitch);
     NavVerticalThrottleMode(9600*(0));
+
+
 
     // Store take-off waypoint
     WaypointX(_to) = GetPosX();
@@ -163,17 +171,17 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
 
   }
   // No Roll, Climb Pitch, Full Power
-  else if (nav_catapult_launch < NAV_CATAPULT_HEADING_DELAY)
+  else if (nav_catapult_launch < nav_catapult_heading_delay)
   {
     NavAttitude(RadOfDeg(0));
-    NavVerticalAutoThrottleMode(RadOfDeg(15));
-    NavVerticalThrottleMode(9600*(1.0));
+    NavVerticalAutoThrottleMode(nav_catapult_initial_pitch);
+    NavVerticalThrottleMode(9600*(nav_catapult_initial_throttle));
   }
-  // Heading Lock
+  // Normal Climb: Heading Locked by Waypoint Target
   else if (nav_catapult_launch == 0xffff)
   {
     NavVerticalAltitudeMode(alt, 0);	// vertical mode (folow glideslope)
-    NavVerticalAutoThrottleMode(RadOfDeg(15));		// throttle mode
+    NavVerticalAutoThrottleMode(0);		// throttle mode
     NavGotoWaypoint(_climb);				// horizontal mode (stay on localiser)
   }
   else
