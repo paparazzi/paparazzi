@@ -41,18 +41,18 @@
   </message>
 
   <message name="NPS_RATE_ATTITUDE" id="241">
-    <field name="p"     type="float" unit="degres/s"/>
-    <field name="q"     type="float" unit="degres/s"/>
-    <field name="r"     type="float" unit="degres/s"/>
-    <field name="phi"   type="float" unit="degres"/>
-    <field name="theta" type="float" unit="degres"/>
-    <field name="psi"   type="float" unit="degres"/>
+    <field name="p"     type="float" unit="deg/s"/>
+    <field name="q"     type="float" unit="deg/s"/>
+    <field name="r"     type="float" unit="deg/s"/>
+    <field name="phi"   type="float" unit="deg"/>
+    <field name="theta" type="float" unit="deg"/>
+    <field name="psi"   type="float" unit="deg"/>
   </message>
 
   <message name="NPS_GYRO_BIAS" id="242">
-    <field name="bp"     type="float" unit="degres/s"/>
-    <field name="bq"     type="float" unit="degres/s"/>
-    <field name="br"     type="float" unit="degres/s"/>
+    <field name="bp"     type="float" unit="deg/s"/>
+    <field name="bq"     type="float" unit="deg/s"/>
+    <field name="br"     type="float" unit="deg/s"/>
   </message>
 
   <message name="NPS_RANGE_METER" id="243">

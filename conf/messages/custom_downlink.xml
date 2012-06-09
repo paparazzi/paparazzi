@@ -185,7 +185,7 @@
 
   <message name="BOOZ2_CAM" id="30">
     <field name="tilt" type="int16" unit="us"/>
-    <field name="pan" type="int16" unit="2^12rad" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="pan" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
 
 <!-- BETH Messages -->
