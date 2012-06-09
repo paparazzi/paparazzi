@@ -1088,9 +1088,9 @@
  </message>
 
  <message name="STAB_ATTITUDE_REF_INT" id="141">
-    <field name="sp_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
-    <field name="sp_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
-    <field name="sp_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
+    <field name="sp_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="sp_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="sp_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="ref_phi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
     <field name="ref_theta" type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
     <field name="ref_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
