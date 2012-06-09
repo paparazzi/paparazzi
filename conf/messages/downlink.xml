@@ -125,8 +125,8 @@
   </message>
 <!-- _________________________________________ RC / PPM ___________________________________________ -->
   <message name="PPM" id="28">
-    <field name="ppm_rate" type="uint8"></field>
-    <field name="values" type="uint16[]" unit="ticks"/>
+    <field name="ppm_rate" type="uint8">
+    <field name="values" type="uint16[]" unit="usec"/>
   </message>
 
   <message name="RC" id="29">
@@ -282,12 +282,12 @@
   </message>
 
   <message name="PBN" id="46">
-    <field name="airspeed_adc" type="uint16"></field>
-    <field name="altitude_adc" type="uint16"></field>
-    <field name="airspeed" type="float"></field>
-    <field name="altitude" type="float"></field>
-    <field name="airspeed_offset" type="uint16"></field>
-    <field name="altitude_offset" type="uint16"></field>
+    <field name="airspeed_adc" type="uint16"/>
+    <field name="altitude_adc" type="uint16"/>
+    <field name="airspeed" type="float"/>
+    <field name="altitude" type="float"/>
+    <field name="airspeed_offset" type="uint16"/>
+    <field name="altitude_offset" type="uint16"/>
   </message>
 
 <!-- _________________________________________ AIRSPEED ___________________________________________ -->
@@ -428,19 +428,19 @@
     <field name="phi"   type="float" unit="rad"   alt_unit="deg"/>
     <field name="theta" type="float" unit="rad"   alt_unit="deg"/>
     <field name="psi"   type="float" unit="rad"   alt_unit="deg"/>
-    <field name="qi"    type="float" />
-    <field name="qx"    type="float" />
-    <field name="qy"    type="float" />
-    <field name="qz"    type="float" />
+    <field name="qi"    type="float"/>
+    <field name="qx"    type="float"/>
+    <field name="qy"    type="float"/>
+    <field name="qz"    type="float"/>
     <field name="p"     type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="q"     type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="r"     type="float" unit="rad/s" alt_unit="deg/s"/>
-    <field name="ax"    type="float" />
-    <field name="ay"    type="float" />
-    <field name="az"    type="float" />
-    <field name="mx"    type="float" />
-    <field name="my"    type="float" />
-    <field name="mz"    type="float" />
+    <field name="ax"    type="float"/>
+    <field name="ay"    type="float"/>
+    <field name="az"    type="float"/>
+    <field name="mx"    type="float"/>
+    <field name="my"    type="float"/>
+    <field name="mz"    type="float"/>
   </message>
 
   <message name="AHRS_LKF_DEBUG" id="70">
@@ -450,32 +450,32 @@
     <field name="bp"        type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="bq"        type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="br"        type="float" unit="rad/s" alt_unit="deg/s"/>
-    <field name="quat_norm" type="float" />
+    <field name="quat_norm" type="float"/>
     <field name="phi_accel" type="float" unit="rad"   alt_unit="deg"/>
     <field name="theta_accel" type="float" unit="rad"   alt_unit="deg"/>
-    <field name="phi_cov"   type="float" />
-    <field name="theta_cov" type="float" />
-    <field name="psi_cov"   type="float" />
-    <field name="bp_cov"    type="float" />
-    <field name="bq_cov"    type="float" />
-    <field name="br_cov"    type="float" />
+    <field name="phi_cov"   type="float"/>
+    <field name="theta_cov" type="float"/>
+    <field name="psi_cov"   type="float"/>
+    <field name="bp_cov"    type="float"/>
+    <field name="bq_cov"    type="float"/>
+    <field name="br_cov"    type="float"/>
   </message>
 
   <message name="AHRS_LKF_ACC_DBG" id="71">
-    <field name="qi_err"    type="float" />
-    <field name="qx_err"    type="float" />
-    <field name="qy_err"    type="float" />
-    <field name="qz_err"    type="float" />
+    <field name="qi_err"    type="float"/>
+    <field name="qx_err"    type="float"/>
+    <field name="qy_err"    type="float"/>
+    <field name="qz_err"    type="float"/>
     <field name="bp_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="bq_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
   </message>
 
   <message name="AHRS_LKF_MAG_DBG" id="72">
-    <field name="qi_err"    type="float" />
-    <field name="qx_err"    type="float" />
-    <field name="qy_err"    type="float" />
-    <field name="qz_err"    type="float" />
+    <field name="qi_err"    type="float"/>
+    <field name="qx_err"    type="float"/>
+    <field name="qy_err"    type="float"/>
+    <field name="qz_err"    type="float"/>
     <field name="bp_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="bq_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
     <field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
@@ -618,7 +618,7 @@
     <field name="block_time" type="uint16" unit="s"/>
     <field name="cur_stage" type="uint8"/>
     <field name="stage_time" type="uint16" unit="s"/>
-    <field name="cpu_time"     type="uint16" unit="s"></field>
+    <field name="cpu_time"     type="uint16" unit="s"/>
     <field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
@@ -632,7 +632,7 @@
   </message>
 
   <message name="TAKEOFF" id="102">
-    <field name="cpu_time" type="uint16" unit="s"></field>
+    <field name="cpu_time" type="uint16" unit="s"/>
   </message>
 
   <message name="CIRCLE" id="103">
@@ -691,7 +691,7 @@
     <field name="x" type="float" format="%.0f"  unit="m"/>
     <field name="y" type="float" format="%.0f" unit="m"/>
     <field name="altitude" type="float" format="%.0f"  unit="m"/>
-    <field name="climb" type="float" format="%.1f"  unit="m/s"></field>
+    <field name="climb" type="float" format="%.1f"  unit="m/s"/>
   </message>
 
 <!-- ******************************* CONTROL, NAVIGATION & GUIDANCE ******************************* -->
@@ -1103,17 +1103,17 @@
   </message>
 
   <message name="FLIGHT_BENCHMARK" id="226">
-    <field name="SE_As" type="float"></field>
-    <field name="SE_Alt" type="float"></field>
-    <field name="SE_Pos" type="float"></field>
-    <field name="Err_As" type="float"></field>
-    <field name="Err_Alt" type="float"></field>
-    <field name="Err_Pos" type="float"></field>
+    <field name="SE_As" type="float"/>
+    <field name="SE_Alt" type="float"/>
+    <field name="SE_Pos" type="float"/>
+    <field name="Err_As" type="float"/>
+    <field name="Err_Alt" type="float"/>
+    <field name="Err_Pos" type="float"/>
   </message>
 
   <message name="AOA_adc" id="227">
-    <field name="adcVal" type="uint16"></field>
-    <field name="AOA" type="float" unit="rad"></field>
+    <field name="adcVal" type="uint16"/>
+    <field name="AOA" type="float" unit="rad"/>
   </message>
 
   <message name="VF_UPDATE" id="228">

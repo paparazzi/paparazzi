@@ -338,9 +338,9 @@
   </message>
 
   <message name="DEBUG_MCU_LINK" id="72">
-    <field name="i2c_nb_err" type="uint8"></field>
-    <field name="i2c_mcu1_nb_err" type="uint8"></field>
-    <field name="ppm_rate" type="uint8"></field>
+    <field name="i2c_nb_err" type="uint8"/>
+    <field name="i2c_mcu1_nb_err" type="uint8"/>
+    <field name="ppm_rate" type="uint8"/>
   </message>
 
   <message name="DEBUG_IR_I2C" id="73">
@@ -461,8 +461,8 @@
   </message>
 
   <message name="VISUALTARGET" id="153">
-    <field name="x" type="uint16"></field>
-    <field name="y" type="uint16"></field>
+    <field name="x" type="uint16"/>
+    <field name="y" type="uint16"/>
   </message>
 
   <message name="AFL_COEFFS" id="154">

@@ -130,9 +130,9 @@
 
   <message name="INFLIGH_CALIB" id="19">
     <field name="ac_id" type="string"/>
-    <field name="if_mode" type="string" values="OFF|DOWN|UP"></field>
-    <field name="if_value1" type="float"></field>
-    <field name="if_value2" type="float"></field>
+    <field name="if_mode" type="string" values="OFF|DOWN|UP"/>
+    <field name="if_value1" type="float"/>
+    <field name="if_value2" type="float"/>
   </message>
 
   <message name="WORLD_ENV" id="20">
@@ -145,12 +145,12 @@
   </message>
 
   <message name="WORLD_ENV_REQ" id="21">
-    <field name="lat"  type="float" unit="deg"></field>
-    <field name="long" type="float" unit="deg"></field>
-    <field name="alt"  type="float" unit="m"></field>
-    <field name="east" type="float" unit="m"></field> <!-- local ref. -->
-    <field name="north" type="float" unit="m"></field> <!-- local ref. -->
-    <field name="up"   type="float" unit="m"></field> <!-- local ref. -->
+    <field name="lat"  type="float" unit="deg"/>
+    <field name="long" type="float" unit="deg"/>
+    <field name="alt"  type="float" unit="m"/>
+    <field name="east" type="float" unit="m"/> <!-- local ref. -->
+    <field name="north" type="float" unit="m"/> <!-- local ref. -->
+    <field name="up"   type="float" unit="m"/> <!-- local ref. -->
   </message>
 
   <message name="CIRCLE_STATUS" id="22">
@@ -171,9 +171,9 @@
   <message name="MOVE_WAYPOINT" id="24">
     <field name="ac_id" type="string"/>
     <field name="wp_id" type="uint8"/>
-    <field name="lat"  type="float" unit="deg"></field>
-    <field name="long"  type="float" unit="deg"></field>
-    <field name="alt"    type="float" unit="m"></field>
+    <field name="lat"  type="float" unit="deg"/>
+    <field name="long"  type="float" unit="deg"/>
+    <field name="alt"    type="float" unit="m"/>
   </message>
 
   <message name="GET_DL_SETTING" id="25">
@@ -205,9 +205,9 @@
   <message name="WAYPOINT_MOVED" id="30">
     <field name="ac_id" type="string"/>
     <field name="wp_id" type="uint8"/>
-    <field name="lat"  type="float" unit="deg"></field>
-    <field name="long"  type="float" unit="deg"></field>
-    <field name="alt" type="float" unit="m"></field>
+    <field name="lat"  type="float" unit="deg"/>
+    <field name="long"  type="float" unit="deg"/>
+    <field name="alt" type="float" unit="m"/>
   </message>
 
   <message name="SURVEY_STATUS" id="31">

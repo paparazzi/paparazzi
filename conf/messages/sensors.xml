@@ -2,8 +2,8 @@
 <class type="downlink">
 
   <message name="OPTICFLOW" id="1">
-    <field name="flow" type="uint16"></field>
-    <field name="ref_alt" type="float"></field>
+    <field name="flow" type="uint16"/>
+    <field name="ref_alt" type="float"/>
   </message>
 
   <message name="XSENS" id="2">
@@ -180,21 +180,21 @@
   </message>
 
   <message name="AMSYS_BARO" id="23">
-    <field name="pBaroRaw" type="uint16"></field>
-    <field name="pBaro" type="float" unit="Pa"> </field>
-    <field name="pHomePressure" type="float" unit="Pa"></field>
-    <field name="AltOffset" type="float" unit="m"></field>
-    <field name="aktuell" type="float" unit="m"></field>
-    <field name="Over_Ground" type="float" unit="m"></field>
-    <field name="tempBaro" type="float" unit="°C"></field>
+    <field name="pBaroRaw" type="uint16"/>
+    <field name="pBaro" type="float" unit="Pa"/>
+    <field name="pHomePressure" type="float" unit="Pa"/>
+    <field name="AltOffset" type="float" unit="m"/>
+    <field name="aktuell" type="float" unit="m"/>
+    <field name="Over_Ground" type="float" unit="m"/>
+    <field name="tempBaro" type="float" unit="°C"/>
   </message>
 
   <message name="AMSYS_AIRSPEED" id="24">
-    <field name="asRaw" type="uint16"></field>
-    <field name="asPresure" type="float" unit="Pa"></field>
-    <field name="asAirspeed" type="float" unit="m/s"></field>
-    <field name="asAirsFilt" type="float" unit="m/s"></field>
-    <field name="asTemp" type="float" unit="°C"></field>
+    <field name="asRaw" type="uint16"/>
+    <field name="asPresure" type="float" unit="Pa"/>
+    <field name="asAirspeed" type="float" unit="m/s"/>
+    <field name="asAirsFilt" type="float" unit="m/s"/>
+    <field name="asTemp" type="float" unit="°C"/>
   </message>
 
   <message name="BARO_MS5611" id="25">
