@@ -240,8 +240,8 @@ class Visualizer:
     IvyInit(_NAME,
       "",
       0,
-      lambda x,y: y,
-      lambda x,z: z
+      lambda x, y: y,
+      lambda x, z: z
     )
 
     IvyStart("")
@@ -317,14 +317,14 @@ def run():
   window_title = "Attitude_Viz"
   try:
     opts, args = getopt.getopt(sys.argv[1:], "t:", ["title"])
-    for o,a in opts:
+    for o, a in opts:
       if o in ("-t", "--title"):
         window_title = a
-  except getopt.error, msg:
-    print msg
-    print """usage:
+  except getopt.error as msg:
+    print(msg)
+    print("""usage:
 -t, --title                   set window title
-"""
+""")
   pygame.init()
   screen = pygame.display.set_mode(SCREEN_SIZE, pygame.OPENGL|pygame.DOUBLEBUF)
   #resize(*SCREEN_SIZE)
