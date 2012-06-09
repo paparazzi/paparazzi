@@ -33,7 +33,7 @@ def get_ids_in_log(filename):
     f = open(filename, 'r')
     ids = []
     pattern = re.compile("\S+ (\S+)")
-    while 1:
+    while True:
         line = f.readline().strip()
         if line == '':
             break
@@ -51,7 +51,7 @@ def read_log(ac_id, filename, sensor):
     f = open(filename, 'r')
     pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW (\S+) (\S+) (\S+)")
     list_meas = []
-    while 1:
+    while True:
         line = f.readline().strip()
         if line == '':
             break
@@ -68,7 +68,7 @@ def read_log(ac_id, filename, sensor):
 def filter_meas(meas, window_size, noise_threshold):
     filtered_meas = []
     filtered_idx = []
-    for i in range(window_size,len(meas)-window_size):
+    for i in range(window_size, len(meas)-window_size):
         noise = meas[i-window_size:i+window_size,:].std(axis=0)
         if  linalg.norm(noise) < noise_threshold:
             filtered_meas.append(meas[i,:])
@@ -104,13 +104,13 @@ def scale_measurements(meas, p):
 # print xml for airframe file
 #
 def print_xml(p, sensor, res):
-    print ""
-    print "<define name=\""+sensor+"_X_NEUTRAL\" value=\""+str(int(round(p[0])))+"\"/>"
-    print "<define name=\""+sensor+"_Y_NEUTRAL\" value=\""+str(int(round(p[1])))+"\"/>"
-    print "<define name=\""+sensor+"_Z_NEUTRAL\" value=\""+str(int(round(p[2])))+"\"/>"
-    print "<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>"
-    print "<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>"
-    print "<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>"
+    print("")
+    print("<define name=\""+sensor+"_X_NEUTRAL\" value=\""+str(int(round(p[0])))+"\"/>")
+    print("<define name=\""+sensor+"_Y_NEUTRAL\" value=\""+str(int(round(p[1])))+"\"/>")
+    print("<define name=\""+sensor+"_Z_NEUTRAL\" value=\""+str(int(round(p[2])))+"\"/>")
+    print("<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>")
+    print("<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>")
+    print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
 
 
 
@@ -118,36 +118,36 @@ def print_xml(p, sensor, res):
 # plot calibration results
 #
 def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
-    subplot(3,1,1)
-    plot(measurements[:,0])
-    plot(measurements[:,1])
-    plot(measurements[:,2])
-    plot(flt_idx, flt_meas[:,0], 'ro')
-    plot(flt_idx, flt_meas[:,1], 'ro')
-    plot(flt_idx, flt_meas[:,2], 'ro')
+    subplot(3, 1, 1)
+    plot(measurements[:, 0])
+    plot(measurements[:, 1])
+    plot(measurements[:, 2])
+    plot(flt_idx, flt_meas[:, 0], 'ro')
+    plot(flt_idx, flt_meas[:, 1], 'ro')
+    plot(flt_idx, flt_meas[:, 2], 'ro')
     xlabel('time (s)')
     ylabel('ADC')
     title('Raw sensors')
 
-    subplot(3,2,3)
-    plot(cp0[:,0]);
-    plot(cp0[:,1]);
-    plot(cp0[:,2]);
+    subplot(3, 2, 3)
+    plot(cp0[:, 0]);
+    plot(cp0[:, 1]);
+    plot(cp0[:, 2]);
     plot(-sensor_ref*scipy.ones(len(flt_meas)));
     plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-    subplot(3,2,4)
+    subplot(3, 2, 4)
     plot(np0);
     plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-    subplot(3,2,5)
-    plot(cp1[:,0]);
-    plot(cp1[:,1]);
-    plot(cp1[:,2]);
+    subplot(3, 2, 5)
+    plot(cp1[:, 0]);
+    plot(cp1[:, 1]);
+    plot(cp1[:, 2]);
     plot(-sensor_ref*scipy.ones(len(flt_meas)));
     plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-    subplot(3,2,6)
+    subplot(3, 2, 6)
     plot(np1);
     plot(sensor_ref*scipy.ones(len(flt_meas)));
 
@@ -164,7 +164,7 @@ def read_turntable_log(ac_id, tt_id, filename, _min, _max):
     pattern_t = re.compile("(\S+) "+str(tt_id)+" IMU_TURNTABLE (\S+)")
     last_tt = None
     list_tt = []
-    while 1:
+    while True:
         line = f.readline().strip()
         if line == '':
             break

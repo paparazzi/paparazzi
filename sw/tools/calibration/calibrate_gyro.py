@@ -75,7 +75,7 @@ def main():
         if os.path.isfile(args[0]):
             filename = args[0]
         else:
-            print args[0] + " not found"
+            print(args[0] + " not found")
             sys.exit(1)
     if not filename.endswith(".data"):
         parser.error("Please specify a *.data log file")
@@ -85,16 +85,16 @@ def main():
     if options.tt_id < 0 or options.tt_id > 255:
         parser.error("Specify a valid turntable id number!")
     if options.verbose:
-        print "reading file "+filename+" for aircraft "+str(options.ac_id)+" and turntable "+str(options.tt_id)
+        print("reading file "+filename+" for aircraft "+str(options.ac_id)+" and turntable "+str(options.tt_id))
 
     samples =  calibration_utils.read_turntable_log(options.ac_id, options.tt_id, filename, 1, 7)
 
     if len(samples) == 0:
-        print "Error: found zero matching messages in log file!"
-        print "Was looking for IMU_TURNTABLE from id: "+str(options.tt_id)+" and IMU_GYRO_RAW from id: "+str(options.ac_id)+" in file "+filename
+        print("Error: found zero matching messages in log file!")
+        print("Was looking for IMU_TURNTABLE from id: "+str(options.tt_id)+" and IMU_GYRO_RAW from id: "+str(options.ac_id)+" in file "+filename)
         sys.exit(1)
     if options.verbose:
-       print "found "+str(len(samples))+" records"
+       print("found "+str(len(samples))+" records")
 
     if options.axis == 'p':
         axis_idx = 1
@@ -106,32 +106,32 @@ def main():
         parser.error("Specify a valid axis!")
 
     #Linear regression using stats.linregress
-    t  = samples[:,0]
-    xn = samples[:,axis_idx]
-    (a_s,b_s,r,tt,stderr)=stats.linregress(t,xn)
+    t  = samples[:, 0]
+    xn = samples[:, axis_idx]
+    (a_s, b_s, r, tt, stderr)=stats.linregress(t, xn)
     print('Linear regression using stats.linregress')
-    print('regression: a=%.2f b=%.2f, std error= %.3f' % (a_s,b_s,stderr))
-    print('<define name="GYRO_X_NEUTRAL" value="%d"/>' % (b_s));
-    print('<define name="GYRO_X_SENS" value="%f" integer="16"/>' % (pow(2,12)/a_s));
+    print(('regression: a=%.2f b=%.2f, std error= %.3f' % (a_s, b_s, stderr)))
+    print(('<define name="GYRO_X_NEUTRAL" value="%d"/>' % (b_s)));
+    print(('<define name="GYRO_X_SENS" value="%f" integer="16"/>' % (pow(2, 12)/a_s)));
 
     #
     # overlay fited value
     #
-    ovl_omega = linspace(1,7.5,10)
-    ovl_adc = polyval([a_s,b_s],ovl_omega)
+    ovl_omega = linspace(1, 7.5, 10)
+    ovl_adc = polyval([a_s, b_s], ovl_omega)
 
     title('Linear Regression Example')
-    subplot(3,1,1)
-    plot(samples[:,1])
-    plot(samples[:,2])
-    plot(samples[:,3])
-    legend(['p','q','r']);
+    subplot(3, 1, 1)
+    plot(samples[:, 1])
+    plot(samples[:, 2])
+    plot(samples[:, 3])
+    legend(['p', 'q', 'r']);
 
-    subplot(3,1,2)
-    plot(samples[:,0])
+    subplot(3, 1, 2)
+    plot(samples[:, 0])
 
-    subplot(3,1,3)
-    plot(samples[:,0], samples[:,axis_idx], 'b.')
+    subplot(3, 1, 3)
+    plot(samples[:, 0], samples[:, axis_idx], 'b.')
     plot(ovl_omega, ovl_adc, 'r')
 
     show();
