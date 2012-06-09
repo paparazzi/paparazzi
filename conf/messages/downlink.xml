@@ -482,7 +482,7 @@
   </message>
 
 
-  <message name="BOOZ2_AHRS_EULER" id="73">
+  <message name="AHRS_EULER_INT" id="73">
     <field name="imu_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="imu_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="imu_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
@@ -491,7 +491,7 @@
     <field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="BOOZ2_AHRS_QUAT" id="74">
+  <message name="AHRS_QUAT_INT" id="74">
     <field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
@@ -502,7 +502,7 @@
     <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
   </message>
 
-  <message name="BOOZ2_AHRS_RMAT" id="75">
+  <message name="AHRS_RMAT_INT" id="75">
     <field name="imu_m00"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="imu_m01"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="imu_m02"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
@@ -524,7 +524,7 @@
   </message>
 
 
-  <message name="BOOZ_AHRS_BIAS" id="76">
+  <message name="AHRS_GYRO_BIAS_INT" id="76">
     <field name="bp"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     <field name="bq"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     <field name="br"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
@@ -1129,7 +1129,7 @@
     <field name="tbd"      type="float"/>
   </message>
 
-  <message name="BOOZ2_TUNE_HOVER" id="231">
+  <message name="ROTORCRAFT_TUNE_HOVER" id="231">
     <field name="rc_roll"    type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
     <field name="rc_pitch"   type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
     <field name="rc_yaw"     type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
