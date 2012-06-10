@@ -41,6 +41,9 @@ def main():
                       action="store", default="ACCEL")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
+    parser.add_option("-p", "--plot",
+                      help="Show resulting plots",
+                      action="store_true", dest="plot")
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("incorrect number of arguments")
@@ -87,6 +90,9 @@ def main():
     flt_meas, flt_idx = calibration_utils.filter_meas(measurements, noise_window, noise_threshold)
     if options.verbose:
         print("remaining "+str(len(flt_meas))+" after low pass")
+    if len(flt_meas) == 0:
+        print("Error: found zero IMU_"+options.sensor+"_RAW measurements for aircraft with id "+options.ac_id+" in log file after low pass!")
+        sys.exit(1)
 
     # get an initial min/max guess
     p0 = calibration_utils.get_min_max_guess(flt_meas, sensor_ref)
@@ -108,7 +114,10 @@ def main():
     calibration_utils.print_xml(p1, options.sensor, sensor_res)
     print("")
 
-    calibration_utils.plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref)
+    if options.plot:
+        calibration_utils.plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref)
+        if options.sensor == "MAG":
+            calibration_utils.plot_mag_3d(flt_meas, cp1, p1)
 
 if __name__ == "__main__":
     main()

@@ -24,7 +24,7 @@ import re
 import scipy
 from scipy import linalg
 from pylab import *
-
+from mpl_toolkits.mplot3d import Axes3D
 
 #
 # returns available ac_id from a log
@@ -153,6 +153,78 @@ def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref
 
     show();
 
+#
+# plot mag measurements in 3D
+#
+def plot_mag_3d(measured, calibrated, p):
+    # set up points for sphere and ellipsoid wireframes
+    u=r_[0:2*pi:20j]
+    v=r_[0:pi:20j]
+    wx=outer(cos(u),sin(v))
+    wy=outer(sin(u),sin(v))
+    wz=outer(ones(size(u)),cos(v))
+    ex=p[0]*ones(size(u)) + outer(cos(u),sin(v))/p[3]
+    ey=p[1]*ones(size(u)) + outer(sin(u),sin(v))/p[4]
+    ez=p[2]*ones(size(u)) + outer(ones(size(u)),cos(v))/p[5]
+
+    # measurements
+    mx = measured[:, 0]
+    my = measured[:, 1]
+    mz = measured[:, 2]
+    m_max = amax(abs(measured))
+
+    # calibrated values
+    cx = calibrated[:, 0]
+    cy = calibrated[:, 1]
+    cz = calibrated[:, 2]
+
+    # axes
+    ax = []
+    ax.append(p[0] + 1/p[3])
+    ax.append(p[0] - 1/p[3])
+    ax.append(p[1])
+    ax.append(p[1])
+    ax.append(p[1])
+    ax.append(p[1])
+    ay = []
+    ay.append(p[1] + 1/p[4])
+    ay.append(p[1] - 1/p[4])
+    az = []
+    az.append(p[2] + 1/p[5])
+    az.append(p[2] - 1/p[5])
+    #print ax
+
+    fig = figure(figsize=figaspect(0.5))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    # plot measurements
+    ax.scatter(mx, my, mz)
+    hold(True)
+    # plot center
+    ax.scatter(0, 0, 0, color='r', marker='+')
+    # plot ellipsoid
+    ax.plot_wireframe(ex, ey, ez, color='grey', alpha=0.5)
+
+    title('MAG raw with fitted ellipsoid')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    ax.set_xlim3d(-m_max, m_max)
+    ax.set_ylim3d(-m_max, m_max)
+    ax.set_zlim3d(-m_max, m_max)
+
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.plot_wireframe(wx, wy, wz, color='grey', alpha=0.5)
+    hold(True)
+    ax.scatter(cx, cy, cz)
+
+    title('MAG calibrated on unit sphere')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    ax.set_xlim3d(-1, 1)
+    ax.set_ylim3d(-1, 1)
+    ax.set_zlim3d(-1, 1)
+    show()
 
 #
 # read a turntable log
