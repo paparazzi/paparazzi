@@ -30,13 +30,14 @@ from scipy import optimize
 import calibration_utils
 
 def main():
-    usage = "usage: %prog [options] log_filename.data"
+    usage = "usage: %prog [options] log_filename.data" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-i", "--id", dest="ac_id",
                       action="store",
                       help="aircraft id to use")
     parser.add_option("-s", "--sensor", dest="sensor",
-                      help="sensor to calibrate ( ACCEL or MAG)",
+                      type="choice", choices=["ACCEL", "MAG"],
+                      help="sensor to calibrate (ACCEL, MAG)",
                       action="store", default="ACCEL")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
@@ -50,9 +51,13 @@ def main():
             print(args[0] + " not found")
             sys.exit(1)
     ac_ids = calibration_utils.get_ids_in_log(filename)
-#    import code; code.interact(local=locals())
-    if options.ac_id == None and len(ac_ids) == 1:
-        options.ac_id = ac_ids[0]
+    if options.ac_id == None:
+        if len(ac_ids) == 1:
+            options.ac_id = ac_ids[0]
+        else:
+            parser.error("More than one aircraft id found in log file. Specify the id to use.")
+    if options.verbose:
+        print("Using aircraft id "+options.ac_id)
 
     if options.sensor == "ACCEL":
         sensor_ref = 9.81
@@ -64,10 +69,6 @@ def main():
         sensor_res = 11
         noise_window = 10;
         noise_threshold = 1000;
-    elif options.sensor == "GYRO":
-        parser.error("You can't calibate gyros with this!")
-    else:
-        parser.error("Specify a valid sensor.")
 
     if not filename.endswith(".data"):
         parser.error("Please specify a *.data log file")

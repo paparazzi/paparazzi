@@ -54,7 +54,7 @@ import calibration_utils
 
 
 def main():
-    usage = "usage: %prog --id <ac_id> --tt_id <tt_id> --axis <axis> [options] log_filename.data"
+    usage = "usage: %prog --id <ac_id> --tt_id <tt_id> --axis <axis> [options] log_filename.data" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-i", "--id", dest="ac_id",
                       action="store", type=int, default=-1,
