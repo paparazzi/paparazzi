@@ -12,6 +12,9 @@
 
 #include "armVIC.h"
 
+#ifndef NB_STEP
+#define NB_STEP 256
+#endif
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -40,7 +43,6 @@ static inline void main_init( void ) {
   mcu_int_enable();
 }
 
-#define NB_STEP 256
 static inline void main_periodic( void ) {
 
   RunOnceEvery(50, {
