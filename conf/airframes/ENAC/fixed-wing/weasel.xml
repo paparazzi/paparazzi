@@ -146,14 +146,14 @@
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.159999996424"/> <!-- -0.024 -->
     <!-- outer loop saturation -->
-    <define name="ALTITUDE_MAX_CLIMB" value="5."/>
+    <define name="ALTITUDE_MAX_CLIMB" value="5." unit="m/s"/>
 
     <!-- Cruise throttle + limits -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
-    <define name="AUTO_PITCH_MAX_PITCH" value="RadOfDeg(20.)"/>
-    <define name="AUTO_PITCH_MIN_PITCH" value="-RadOfDeg(20.)"/>
+    <define name="AUTO_PITCH_MAX_PITCH" value="20." unit="deg"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-20." unit="deg"/>
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
@@ -175,11 +175,11 @@
     <define name="AUTO_AIRSPEED_PITCH_PGAIN" value="0.06"/>
     <define name="AUTO_AIRSPEED_PITCH_DGAIN" value="0.0"/>
     <define name="AUTO_AIRSPEED_PITCH_IGAIN" value="0.042"/>
-    <define name="AIRSPEED_MAX" value="30"/>
-    <define name="AIRSPEED_MIN" value="10"/>
+    <define name="AIRSPEED_MAX" value="30" unit="m/s"/>
+    <define name="AIRSPEED_MIN" value="10" unit="m/s"/>
 
     <!-- groundspeed control -->
-    <define name="AUTO_GROUNDSPEED_SETPOINT" value="15"/>
+    <define name="AUTO_GROUNDSPEED_SETPOINT" value="15" unit="m/s"/>
     <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
 
