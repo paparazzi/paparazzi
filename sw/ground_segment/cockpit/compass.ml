@@ -139,6 +139,37 @@ let _ =
     let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
     draw da !desired_course !course distance in
   ignore (Tm_Pprz.message_bind "MISSION_STATUS" get_navigation); (* XGGDEBUG:NEWMESS: Changed NAVIGATION for MISSION_STATUS, seems that something more has to change but lets see if works *)
+
+	(*
+    <message name="NAVIGATION" id="10">
+     <field name="cur_block" type="uint8"/>
+     <field name="cur_stage" type="uint8"/>
+     <field name="pos_x" type="float" unit="m" format="%.1f"/>
+     <field name="pos_y" type="float" unit="m" format="%.1f"/>
+     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
+     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+     <field name="circle_count" type="uint8"/>
+     <field name="oval_count" type="uint8"/>
+   </message>
+	
+<message name="MISSION_STATUS" id="100">
+<field name="flight_time" type="uint16" unit="s"/>
+<field name="cur_block" type="uint8"/>
+<field name="block_time" type="uint16" unit="s"/>
+<field name="cur_stage" type="uint8"/>
+<field name="stage_time" type="uint16" unit="s"/>
+<field name="cpu_time" type="uint16" unit="s"></field>
+<field name="gps_status" type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
+<field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
+<field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+<field name="circle_count" type="uint8"/>
+<field name="oval_count" type="uint8"/>
+<field name="horizontal_mode" type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
+</message> 
+
+*)
+	
+	
   let get_gps = fun _ values ->
     (* if speed < 1m/s, the course information is not relevant *)
     course :=
