@@ -24,8 +24,9 @@
   </message>
 
 <!-- BLMC Messages: BrushLess Motor Controller -->
+<!--
   <message name="BLMC_FAULT_STATUS" id="7">
-    <field name="raw_fault"	type="uint16[]"/>
+    <field name="raw_fault"  type="uint16[]"/>
   </message>
 
   <message name="BLMC_SPEEDS" id="8">
@@ -33,9 +34,9 @@
   </message>
 
   <message name="BLMC_BUSVOLTS" id="9">
-    <field name="busvolts"	type="uint16[]"/>
+    <field name="busvolts"  type="uint16[]"/>
   </message>
-
+-->
 <!-- MOTOR Messages -->
 
   <message name="MOTOR_BENCH_STATUS" id="11">
@@ -319,7 +320,7 @@
   </message>
 
 <!-- SPECIFIC DEBUG Messages -->
-  <message name="ANTENNA_DEBUG" id="70">
+<!--  <message name="ANTENNA_DEBUG" id="70">
     <field name="mag_xraw" type="int32"/>
     <field name="mag_yraw" type="int32"/>
     <field name="mag_xcal" type="float"/>
@@ -330,7 +331,7 @@
     <field name="mag_distor" type="uint8"/>
     <field name="mag_cal_status" type="uint8"/>
   </message>
-
+-->
   <message name="TEST_BOARD_RESULTS" ID="71">
     <field name="uart" type="uint8"/>
     <field name="ppm" type="uint8"/>
@@ -349,19 +350,14 @@
     <field name="top" type="int16" unit="adc"/>
   </message>
 
-  <message name="CSC_CAN_DEBUG" id="74">
-    <field name="err_nb"      type="uint32"/>
-    <field name="err_code"    type="uint32"/>
-  </message>
-
-  <message name="FLA_DEBUG" id="75">
+  <message name="FLA_DEBUG" id="74">
     <field name="past_input"    type="float"/>
     <field name="imu_rate"      type="float"/>
     <field name="desired_accel" type="float"/>
     <field name="motor_command" type="float"/>
   </message>
 
-  <message name="RMAT_DEBUG" id="76">
+  <message name="RMAT_DEBUG" id="75">
     <field name="a"   type="float" />
     <field name="b"   type="float" />
     <field name="c"   type="float" />
@@ -373,7 +369,7 @@
     <field name="i"   type="float" />
   </message>
 
-  <message name="I2C_ERRORS" id="77">
+  <message name="I2C_ERRORS" id="76">
     <field name="acknowledge_failure_cnt"     type="uint16"/>
     <field name="misplaced_start_or_stop_cnt" type="uint16"/>
     <field name="arbitration_lost_cnt"        type="uint16"/>
@@ -385,25 +381,17 @@
     <field name="last_unexpected_event"       type="uint32"/>
   </message>
 
-  <message name="BOOZ_DEBUG_FOO" id="78">
-    <field name="ami_stat"   type="uint8"/>
-  </message>
-
-  <message name="BOOZ_MAX1167_ERR" id="79">
-    <field name="erno"   type="uint8"/>
-  </message>
-
-  <message name="SHT_I2C_SERIAL" id="80">
+  <message name="SHT_I2C_SERIAL" id="77">
     <field name="serial0" type="uint32"/>
     <field name="serial1" type="uint32"/>
   </message>
 
-  <message name="MLX_SERIAL" id="81">
+  <message name="MLX_SERIAL" id="78">
     <field name="serial0" type="uint32"/>
     <field name="serial1" type="uint32"/>
   </message>
 
-  <message name="MS5611_COEFF" id="82">
+  <message name="MS5611_COEFF" id="79">
     <field name="c0" type="uint16"/>
     <field name="c1" type="uint16"/>
     <field name="c2" type="uint16"/>
@@ -486,7 +474,7 @@
     <field name="setpoint_z" type="float" unit="m D"/>
   </message>
 
-  <message name="HENRY_GNSS" id="156">
+<!--  <message name="HENRY_GNSS" id="156">
     <field name="last_imu_update" type="uint32"/>
     <field name="GPS_time" type="double"/>
     <field name="GPS_solution_valid" type="uint8"/>
@@ -501,7 +489,7 @@
     <field name="V_North" type="double"/>
     <field name="V_East" type="double"/>
     <field name="V_Down" type="double"/>
-  </message>
+  </message>-->
 
   <message name="FMS_TIME" id="157">
     <field name="tv_sec"   type="uint32"/>
@@ -513,14 +501,7 @@
     <field name="rpm"      type="float"/>
   </message>
 
-  <message name="CSC_CAN_MSG" id="159">
-    <field name="frame"   type="uint32"/>
-    <field name="id"      type="uint32"/>
-    <field name="data_a"  type="uint32"/>
-    <field name="data_b"  type="uint32"/>
-  </message>
-
-  <message name="DYNAMIXEL" id="160">
+<!--  <message name="DYNAMIXEL" id="159">
     <field name="left_wing"    type="uint16"/>
     <field name="right_wing"   type="uint16"/>
     <field name="left_wing_flag"    type="uint8"/>
@@ -530,6 +511,6 @@
     <field name="checksum_errors"   type="uint32"/>
     <field name="fuse_rotation_angle"  type="float"/>
     <field name="fuse_rotation_rate"   type="float"/>
-  </message>
+  </message>-->
 
 </class>

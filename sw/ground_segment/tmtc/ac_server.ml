@@ -125,9 +125,9 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let fvalue = fun x ->
     let f = fvalue (value x) in
       match classify_float f with
-	FP_infinite | FP_nan ->
-	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
-	  raise (Telemetry_error (ac_name, format_string_field msg))
+  FP_infinite | FP_nan ->
+    let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
+    raise (Telemetry_error (ac_name, format_string_field msg))
 
       | _ -> f
   and ivalue = fun x -> ivalue (value x)
@@ -135,7 +135,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
     a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
-	"ROTORCRAFT_FP" ->
+  "ROTORCRAFT_FP" ->
       begin match a.nav_ref with
         None -> (); (* No nav_ref yet *)
         | Some nav_ref ->
@@ -181,7 +181,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.heading <- a.course;
       a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-	      Wind.update ac_name a.gspeed a.course
+        Wind.update ac_name a.gspeed a.course
       end
   | "GPS_LLA" ->
       let lat = ivalue "lat"
@@ -197,7 +197,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-	      Wind.update ac_name a.gspeed a.course
+        Wind.update ac_name a.gspeed a.course
   | "GPS_SOL" ->
       a.gps_Pacc <- ivalue "Pacc"
   | "GPS_INT" ->
@@ -218,7 +218,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       end;
       a.desired_altitude <- (try fvalue "altitude" with _ -> fvalue "desired_altitude");
       a.desired_climb <- (try fvalue "climb" with _ -> fvalue "desired_climb");
-      begin try	a.desired_course <- norm_course (fvalue "course") with _ -> () end
+      begin try  a.desired_course <- norm_course (fvalue "course") with _ -> () end
   | "NAVIGATION_REF" ->
       a.nav_ref <- Some (Utm { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" })
   | "NAVIGATION_REF_LLA" ->
@@ -240,7 +240,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       end
   | "ENERGY" ->
       a.throttle <- fvalue "throttle" /. 9600. *. 100.;
-			a.rpm <- a.throttle *. 100.;
+      a.rpm <- a.throttle *. 100.;
       (*a.kill_mode <- ivalue "kill_auto_throttle" <> 0;*)
       (*a.flight_time <- ivalue "flight_time";*)
       a.bat <- fvalue "voltage" /. 10.;
@@ -269,7 +269,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.vehicle_type <- FixedWing;
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
       a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
-			a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
+      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
 
       (*a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
       let mcu1_status = ivalue "mcu1_status" in
@@ -291,7 +291,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           then "AUTO"
           else "MANUAL";
       end ;
-			*)
+      *)
 
       if a.fbw.rc_mode = "FAILSAFE" then
         a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
@@ -305,13 +305,13 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
   | "MISSION_STATUS" ->
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
-			a.flight_time <- ivalue "flight_time";
-			a.stage_time <- ivalue "stage_time";
+      a.flight_time <- ivalue "flight_time";
+      a.stage_time <- ivalue "stage_time";
       a.block_time <- ivalue "block_time";
-			a.cur_block <- ivalue "cur_block";
+      a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
       a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
-			a.dist_to_wp <- sqrt (fvalue "dist2_wp")
+      a.dist_to_wp <- sqrt (fvalue "dist2_wp")
   | "CAM" ->
       a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
       a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
@@ -364,11 +364,11 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   | "DL_VALUE" ->
       let i = ivalue "index" in
       if i < max_nb_dl_setting_values then begin
-	a.dl_setting_values.(i) <- fvalue "value";
-	a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
+  a.dl_setting_values.(i) <- fvalue "value";
+  a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
       end else
-	failwith "Too much dl_setting values !!!"
-	| "INS_REF" ->
+  failwith "Too much dl_setting values !!!"
+  | "INS_REF" ->
       let x = foi32value "ecef_x0" /. 100.
       and y = foi32value "ecef_y0" /. 100.
       and z = foi32value "ecef_z0" /. 100.
@@ -404,7 +404,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and lon = ivalue "lon"
       and alt = ivalue "alt" in
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
-	    update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
+      update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
   | "GENERIC_COM" ->
       let flight_time = ivalue "flight_time" in
       if flight_time >= a.flight_time then begin

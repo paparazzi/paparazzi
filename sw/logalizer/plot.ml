@@ -751,7 +751,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	  (* First sort by message id *)
 	  let l = ref [] in
 
-		Hashtbl.iter (fun msg_ids fields -> l := (P.message_of_id ~class_id:msg_ids.cls_id msg_ids.msg_id, fields):: !l) msgs; 
+		Hashtbl.iter (fun msg_ids fields -> l := (P.message_of_id ~class_id:msg_ids.cls_id msg_ids.msg_id, fields):: !l) msgs;
 
 	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
 	  let msgs =

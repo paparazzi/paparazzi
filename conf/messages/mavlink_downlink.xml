@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <class type="downlink">
 
-  <!-- The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot). --> 
+  <!-- The heartbeat message shows that a system is present and responding. The type of the MAV and Autopilot hardware allow the receiving system to treat further messages from this system appropriate (e.g. by laying out the user interface based on the autopilot). -->
   <message id="0" name="HEARTBEAT">
     <!-- Navigation mode bitfield, see MAV_AUTOPILOT_CUSTOM_MODE ENUM for some examples. This field is autopilot-specific. -->
     <field name="custom_mode" type="uint32"/>
     <!-- Type of the MAV (quadrotor, helicopter, etc., up to 15 types, defined in MAV_TYPE ENUM) -->
     <field name="type" type="uint8" values="MAV_TYPE_GENERIC|MAV_TYPE_FIXED_WING|MAV_TYPE_QUADROTOR|MAV_TYPE_COAXIAL|MAV_TYPE_HELICOPTER|MAV_TYPE_ANTENNA_TRACKER|MAV_TYPE_GCS|MAV_TYPE_AIRSHIP|MAV_TYPE_FREE_BALLOON|MAV_TYPE_ROCKET|MAV_TYPE_GROUND_ROVER|MAV_TYPE_SURFACE_BOAT|MAV_TYPE_SUBMARINE|MAV_TYPE_HEXAROTOR|MAV_TYPE_OCTOROTOR|MAV_TYPE_TRICOPTER|MAV_TYPE_FLAPPING_WING"/>
     <!-- Autopilot type / class. defined in MAV_CLASS ENUM. This identifies the individual model. MAV_AUTOPILOT_PPZ for paparazzi -->
-    <field name="autopilot" type="uint8" values="MAV_AUTOPILOT_GENERIC|MAV_AUTOPILOT_PIXHAWK|MAV_AUTOPILOT_SLUGS|MAV_AUTOPILOT_ARDUPILOTMEGA|MAV_AUTOPILOT_OPENPILOT|MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY|MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY|MAV_AUTOPILOT_GENERIC_MISSION_FULL|MAV_AUTOPILOT_INVALID|MAV_AUTOPILOT_PPZ|MAV_AUTOPILOT_UDB|MAV_AUTOPILOT_FP"/> 
+    <field name="autopilot" type="uint8" values="MAV_AUTOPILOT_GENERIC|MAV_AUTOPILOT_PIXHAWK|MAV_AUTOPILOT_SLUGS|MAV_AUTOPILOT_ARDUPILOTMEGA|MAV_AUTOPILOT_OPENPILOT|MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY|MAV_AUTOPILOT_GENERIC_WAYPOINTS_AND_SIMPLE_NAVIGATION_ONLY|MAV_AUTOPILOT_GENERIC_MISSION_FULL|MAV_AUTOPILOT_INVALID|MAV_AUTOPILOT_PPZ|MAV_AUTOPILOT_UDB|MAV_AUTOPILOT_FP"/>
     <!-- System mode bitfield, see MAV_MODE_FLAGS ENUM in mavlink/include/mavlink_types.h -->
     <field name="base_mode" type="uint8"/>
     <!-- System status flag, see MAV_STATUS ENUM -->
@@ -97,17 +97,17 @@
 
   <!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD, SORT FIELDS BY LENGTH -->
   <!-- Emit the value of a onboard parameter. The inclusion of param_count and param_index in the message allows the recipient to keep track of received parameters and allows him to re-request missing parameters after a loss or timeout. -->
-<!--	<message id="22" name="PARAM_VALUE">-->
+<!--  <message id="22" name="PARAM_VALUE">-->
     <!-- Onboard parameter id -->
-<!--		<field name="param_id" type="char[]"/>--><!-- length = 16 -->
+<!--    <field name="param_id" type="char[]"/>--><!-- length = 16 -->
     <!-- Onboard parameter value -->
-<!--		<field  name="param_value" type="float"/>-->
+<!--    <field  name="param_value" type="float"/>-->
     <!-- Onboard parameter type -->
-<!--		<field  name="param_type" type="uint8" values="MAV_VAR_FLOAT|MAV_VAR_UINT8|MAV_VAR_INT8|MAV_VAR_UINT16|MAV_VAR_INT16|MAV_VAR_UINT32|MAV_VAR_INT32"/>-->
+<!--    <field  name="param_type" type="uint8" values="MAV_VAR_FLOAT|MAV_VAR_UINT8|MAV_VAR_INT8|MAV_VAR_UINT16|MAV_VAR_INT16|MAV_VAR_UINT32|MAV_VAR_INT32"/>-->
     <!-- Total number of onboard parameters -->
-<!--		<field  name="param_count" type="uint16"/>-->
+<!--    <field  name="param_count" type="uint16"/>-->
     <!-- Index of this onboard parameter -->
-<!--		<field  name="param_index" type="uint16"/>
+<!--    <field  name="param_index" type="uint16"/>
   </message>
 -->
 
@@ -143,20 +143,20 @@
   <!-- .::|* NOT IMPLEMENTED YET *|::. !!! NO MORE THEN ONE ARRAY ALLOWED -->
   <!-- {HEAVY->only for mavlink mode}
 The positioning status, as reported by GPS. This message is intended to display status information about each satellite visible to the receiver. See message GLOBAL_POSITION for the global position estimate. This message can contain information for up to 20 satellites. -->
-<!--	<message id="25" name="GPS_STATUS">-->
+<!--  <message id="25" name="GPS_STATUS">-->
     <!-- Number of satellites visible -->
-<!--		<field name="satellites_visible" type="uint8"/>-->
+<!--    <field name="satellites_visible" type="uint8"/>-->
     <!-- Global satellite ID -->
-<!--		<field name="satellite_prn" type="uint8[]"/>--><!-- length = 20 -->
+<!--    <field name="satellite_prn" type="uint8[]"/>--><!-- length = 20 -->
     <!-- 0: Satellite not used, 1: used for localization -->
-<!--		<field name="satellite_used" type="uint8[]"/>--><!-- length = 20 -->
+<!--    <field name="satellite_used" type="uint8[]"/>--><!-- length = 20 -->
     <!-- Elevation (0: right on top of receiver, 90: on the horizon) of satellite -->
-<!--		<field name="satellite_elevation" type="uint8[]"/>--><!-- length = 20 -->
+<!--    <field name="satellite_elevation" type="uint8[]"/>--><!-- length = 20 -->
     <!-- Direction of satellite, 0: 0 deg, 255: 360 deg. -->
-<!--		<field name="satellite_azimuth" type="uint8[]"/>--><!-- length = 20 -->
+<!--    <field name="satellite_azimuth" type="uint8[]"/>--><!-- length = 20 -->
     <!-- Signal to noise ratio of satellite -->
-<!--		<field name="satellite_snr" type="uint8[]"/>--><!-- length = 20 -->
-<!--	</message>
+<!--    <field name="satellite_snr" type="uint8[]"/>--><!-- length = 20 -->
+<!--  </message>
 -->
 
   <!-- .::|* NOT IMPLEMENTED YET *|::. -->
@@ -911,41 +911,41 @@ The attitude in the aeronautical frame (right-handed, Z-down, X-front, Y-right).
 
   <!-- .::|* NOT IMPLEMENTED YET !!! ARRAY MUST BE THE LAST FIELD *|::. -->
   <!-- NO DESCRIPTION -->
-<!--	<message id="250" name="DEBUG_VECT"> -->
+<!--  <message id="250" name="DEBUG_VECT"> -->
     <!-- Name -->
-<!--		<field name="name" type="char[]"/>--><!-- length = 10 -->
+<!--    <field name="name" type="char[]"/>--><!-- length = 10 -->
     <!-- Timestamp -->
-<!--		<field name="time_usec" type="uint64"/>-->
+<!--    <field name="time_usec" type="uint64"/>-->
     <!-- x -->
-<!--		<field name="x" type="float"/>-->
+<!--    <field name="x" type="float"/>-->
     <!-- y -->
-<!--		<field name="y" type="float"/>-->
+<!--    <field name="y" type="float"/>-->
     <!-- z -->
-<!--		<field name="z" type="float"/>
+<!--    <field name="z" type="float"/>
   </message>
 -->
 
   <!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD, SORT FIELDS BY LENGTH -->
   <!-- Send a key-value pair as float. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output. -->
-<!--	<message id="251" name="NAMED_VALUE_FLOAT">-->
+<!--  <message id="251" name="NAMED_VALUE_FLOAT">-->
     <!-- Timestamp (milliseconds since system boot) -->
-<!--		<field name="time_boot_ms" type="uint32"/>-->
+<!--    <field name="time_boot_ms" type="uint32"/>-->
     <!-- Name of the debug variable -->
-<!--		<field name="name" type="char[]"/>--><!-- length = 10 -->
+<!--    <field name="name" type="char[]"/>--><!-- length = 10 -->
     <!-- Floating point value -->
-<!--		<field name="value" type="float"/>
+<!--    <field name="value" type="float"/>
   </message>
 -->
 
   <!-- .::|* NOT IMPLEMENTED YET *|::. !!! ARRAY MUST BE THE LAST FIELD, SORT FIELDS BY LENGTH -->
   <!-- Send a key-value pair as integer. The use of this message is discouraged for normal packets, but a quite efficient way for testing new messages and getting experimental debug output. -->
-<!--	<message id="252" name="NAMED_VALUE_INT">-->
+<!--  <message id="252" name="NAMED_VALUE_INT">-->
     <!-- Timestamp (milliseconds since system boot) -->
-<!--		<field name="time_boot_ms" type="uint32"/>-->
+<!--    <field name="time_boot_ms" type="uint32"/>-->
     <!-- Name of the debug variable -->
-<!--		<field name="name" type="char[]"/>--><!-- length = 10 -->
+<!--    <field name="name" type="char[]"/>--><!-- length = 10 -->
     <!-- Signed integer value -->
-<!--		<field name="value" type="int32"/>
+<!--    <field name="value" type="int32"/>
   </message>
 -->
 

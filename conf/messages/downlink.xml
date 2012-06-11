@@ -111,13 +111,7 @@
     <field name="values" type="int16[]" unit="ticks"/>
   </message>
 
-  <message name="SIMPLE_COMMANDS" id="26">
-    <field name="roll"    type="int16" />
-    <field name="pitch"   type="int16" />
-    <field name="yaw"       type="int16" />
-  </message>
-
-  <message name="ROTORCRAFT_CMD" id="27">
+  <message name="ROTORCRAFT_CMD" id="26">
     <field name="cmd_roll"   type="int32"/>
     <field name="cmd_pitch"  type="int32"/>
     <field name="cmd_yaw"    type="int32"/>
@@ -270,18 +264,12 @@
     <field name="altitude" type="float" unit="m"/>
   </message>
 
-  <message name="BOOZ_BARO_RAW" id="44">
-    <field name="offset"         type="uint16"/>
-    <field name="value"          type="uint16"/>
-    <field name="value_filtered" type="uint16"/>
-  </message>
-
-  <message name="BARO_RAW" id="45">
+  <message name="BARO_RAW" id="44">
     <field name="abs"          type="int32"/>
     <field name="diff"         type="int32"/>
   </message>
 
-  <message name="PBN" id="46">
+  <message name="PBN" id="45">
     <field name="airspeed_adc" type="uint16"/>
     <field name="altitude_adc" type="uint16"/>
     <field name="airspeed" type="float"/>
@@ -359,17 +347,11 @@
     <field name="hardiron_z" type="float" />
   </message>
 
-  <message name="IMU_GYRO_LP" id="59">
-    <field name="gp" type="float" unit="rad/s"/>
-    <field name="gq" type="float" unit="rad/s"/>
-    <field name="gr" type="float" unit="rad/s"/>
-  </message>
-
-  <message name="IMU_PRESSURE" id="60">
+  <message name="IMU_PRESSURE" id="59">
     <field name="p" type="float" unit="pascal"/>
   </message>
 
-  <message name="IMU_HS_GYRO" id="61">
+  <message name="IMU_HS_GYRO" id="60">
     <field name="axis" type="uint8"/>
     <field name="samples"  type="uint32[]"/>
   </message>
@@ -567,7 +549,7 @@
 
   <message name="PPRZ_MODE" id="85">
     <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
-    <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>		<field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
+    <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>    <field name="ap_lateral" type="uint8" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
     <field name="kill_auto_throttle" type="uint8" unit="bool"/>
   </message>
 
@@ -888,7 +870,7 @@
 
 <!-- GUIDANCE Messages -->
 
-<!--	<message name="GUIDANCE" id="144">
+<!--  <message name="GUIDANCE" id="144">
     <field name="pos_n"    type="int32"/>
     <field name="pos_e"    type="int32"/>
     <field name="sp_pos_n" type="int32"/>
@@ -1061,15 +1043,9 @@
 
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
-  <message name="CALIBRATION" id="220">
+  <message name="CALIBRATION" id="221">
     <field name="climb_sum_err" type="float" format="%.1f"/>
     <field name="climb_gaz_submode" type="uint8"/>
-  </message>
-
-  <message name="GYRO_RATES" id="221">
-    <field name="roll_adc" type="int16"/>
-    <field name="roll" type="float" unit="rad/s"/>
-    <field name="pitch" type="float" unit="rad/s"/>
   </message>
 
   <message name="RANGEFINDER" id="222">
@@ -1125,11 +1101,7 @@
     <field name="accel" type="float" unit="m/s/s"/>
   </message>
 
-  <message name="BOOZ2_FMS_INFO" id="230">
-    <field name="tbd"      type="float"/>
-  </message>
-
-  <message name="ROTORCRAFT_TUNE_HOVER" id="231">
+  <message name="ROTORCRAFT_TUNE_HOVER" id="230">
     <field name="rc_roll"    type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
     <field name="rc_pitch"   type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
     <field name="rc_yaw"     type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
@@ -1143,27 +1115,6 @@
     <field name="body_phi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="body_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="body_psi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
-  </message>
-
-  <message name="BOOZ2_TUNE_FF" id="232">
-    <field name="fb_rms"         type="float"/>
-    <field name="dg"             type="float"/>
-    <field name="g"              type="float"/>
-  </message>
-
-  <message name="BOOZ_ATT_REF_MODEL" id="233">
-    <field name="omega_p" type="float" />
-    <field name="zeta_p" type="float" />
-    <field name="omega_q" type="float" />
-    <field name="zeta_q" type="float" />
-    <field name="omega_r" type="float" />
-    <field name="zeta_r" type="float" />
-  </message>
-
-  <message name="BOOZ2_FF_ADAP" id="234">
-    <field name="roll" type="float"/>
-    <field name="pitch" type="float"/>
-    <field name="yaw" type="float"/>
   </message>
 
 </class>

@@ -162,20 +162,20 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
     | Some "*" ->
       (* Waiting for a new sender in this class *)
       let get_one = fun sender _vs ->
-	    if not (Hashtbl.mem senders sender) then begin
-	      Hashtbl.add senders sender ();
-	      one_class notebook (ident,  xml_class, Some sender)
-	    end in
+      if not (Hashtbl.mem senders sender) then begin
+        Hashtbl.add senders sender ();
+        one_class notebook (ident,  xml_class, Some sender)
+      end in
       List.iter
-	    (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
-	    messages
+      (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
+      messages
     | _ ->
       let class_notebook = GPack.notebook ~tab_border:0 ~tab_pos:`LEFT () in
       let l = match sender with None -> "" | Some s -> ":"^s in
       let label = GMisc.label ~text:(ident^l) () in
       ignore (notebook#append_page ~tab_label:label#coerce class_notebook#coerce);
       let bind, sender_name = match sender with
-	      None -> (fun m cb -> (P.message_bind m cb)), "*"
+        None -> (fun m cb -> (P.message_bind m cb)), "*"
         | Some sender -> (fun m cb -> (P.message_bind ~sender m cb)), sender in
 
       (** Forall messages in the class *)
@@ -188,14 +188,14 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 (*********************** Main ************************************************)
 let _ =
   let ivy_bus = ref Defivybus.default_ivy_bus in
-	let class_names = List.map (fun _class -> if ("downlink" = ExtXml.attrib _class "type")||("datalink" = ExtXml.attrib _class "type") then ExtXml.attrib _class "name" else "" ) (Xml.children (Pprz.messages_xml ())) in
-	let classes = ref [] in
-	ignore (List.map (fun c_name -> match c_name with
-		| "" -> ()
-		| name -> classes := List.append !classes [name^":*"]
-		) class_names);
+  let class_names = List.map (fun _class -> if ("downlink" = ExtXml.attrib _class "type")||("datalink" = ExtXml.attrib _class "type") then ExtXml.attrib _class "name" else "" ) (Xml.children (Pprz.messages_xml ())) in
+  let classes = ref [] in
+  ignore (List.map (fun c_name -> match c_name with
+    | "" -> ()
+    | name -> classes := List.append !classes [name^":*"]
+    ) class_names);
 
-	Arg.parse
+  Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
@@ -218,12 +218,12 @@ let _ =
     let xml = Pprz.messages_xml () in
     let class_of = fun n ->
       try
-	    List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml)
+      List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml)
       with Not_found -> failwith (sprintf "Unknown messages class: %s" n) in
 
     List.map (fun x ->
       match Str.split (Str.regexp ":") x with
-	      [cl; s] -> (cl, class_of cl, Some s)
+        [cl; s] -> (cl, class_of cl, Some s)
         | [cl] -> (x, class_of cl, None)
         | _ -> failwith (sprintf "Wrong class '%s', class[:sender] expected" x))
       !classes in

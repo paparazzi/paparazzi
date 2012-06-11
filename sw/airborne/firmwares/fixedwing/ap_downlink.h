@@ -64,21 +64,21 @@
   int32_t pos_z = (int32_t)(estimator_z*256);\
   int32_t speed_z = (int32_t)(estimator_z_dot*526316);\
   int32_t ref = 0;\
-	DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &pos_x, &pos_y, &pos_z, &speed_x, &speed_y, &speed_z, &ref, &ref, &ref, &ref, &ref, &ref);\
+  DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &pos_x, &pos_y, &pos_z, &speed_x, &speed_y, &speed_z, &ref, &ref, &ref, &ref, &ref, &ref);\
 })
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
-	uint16_t vsup = vsupply; \
-	int16_t amps = (int16_t) (current/10); \
-	int16_t pwr = (int16_t) (vsup*amps); \
-	int16_t e = energy; \
-	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
+  uint16_t vsup = vsupply; \
+  int16_t amps = (int16_t) (current/10); \
+  int16_t pwr = (int16_t) (vsup*amps); \
+  int16_t e = energy; \
+  DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
 })
 
 #define SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
-	uint8_t _circle_count = NavCircleCount(); \
-	uint32_t nb_sec = sys_time.nb_sec; \
-	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
+  uint8_t _circle_count = NavCircleCount(); \
+  uint32_t nb_sec = sys_time.nb_sec; \
+  DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
 })
 
 #define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
