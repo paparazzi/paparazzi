@@ -221,7 +221,7 @@ let parse_input = fun input ->
     (name, value))
   (Xml.children input)
 
-(** Parse a '� la C' expression *)
+(** Parse a 'à la C' expression *)
 let parse_value = fun s ->
   Fp_proc.parse_expression s
 

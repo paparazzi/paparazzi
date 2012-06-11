@@ -50,14 +50,14 @@ module Syntax = struct
   (** Parse a type name and returns a _type value *)
   let parse_type = fun t varname ->
 		try
-			let type_parts = Str.full_split (Str.regexp "[][]") t in
-			match type_parts with
-				| [Str.Text ty] -> Basic ty
-	  		| [Str.Text ty; Str.Delim "["; Str.Delim "]"] -> Array (ty, varname)
-	 			| [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> FixedArray (ty, varname, int_of_string len)
-	  		| _ -> failwith "Gen_messages: not a valid field type"
-		with
-			| Failure fail -> failwith("Gen_messages: not a valid array length")	
+      let type_parts = Str.full_split (Str.regexp "[][]") t in
+      match type_parts with
+      | [Str.Text ty] -> Basic ty
+      | [Str.Text ty; Str.Delim "["; Str.Delim "]"] -> Array (ty, varname)
+      | [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> FixedArray (ty, varname, int_of_string len)
+      | _ -> failwith "Gen_messages: not a valid field type"
+      with
+      | Failure fail -> failwith("Gen_messages: not a valid array length")
 
   let length_name = fun s -> "nb_"^s
 
@@ -128,7 +128,7 @@ module Gen_onboard = struct
     | Array (t, varname) ->
 			let _s = Syntax.sizeof (Basic t) in
 			fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
-	  | FixedArray (t, varname, len) -> 
+	  | FixedArray (t, varname, len) ->
 			let _s = Syntax.sizeof (Basic t) in
 			fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name
 
@@ -240,16 +240,15 @@ module Gen_onboard = struct
 				    for i = 1 to 7 do
 				      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
 				    done;
-			
 				    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
 				| 4 ->
 				    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
-				| 8 -> 
+				| 8 ->
 						let s = ref (sprintf "(%s)(*((uint8_t*)_payload+%d)" pprz_type.Pprz.inttype o) in
 				    for i = 1 to 7 do
 				      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
 				    done;
-						sprintf "%s)" !s	
+						sprintf "%s)" !s
 				| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
 	      (** To be an array or not to be an array: *)
@@ -270,7 +269,7 @@ module Gen_onboard = struct
 
 					  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
 					  offset := -1 (** Mark for no more fields *)
-				| FixedArray (t, _varname, len) -> 
+				| FixedArray (t, _varname, len) ->
 					  (** The macro to access to the length of the array *)
 						fprintf h "#define DL_%s_%s_length(_payload) (%d)\n" msg_name field_name len;
 					  (** The macro to access to the array itself *)
@@ -279,10 +278,9 @@ module Gen_onboard = struct
 					    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 
 					  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
-					  offset := !offset + (pprz_type.Pprz.size*len) 
+					  offset := !offset + (pprz_type.Pprz.size*len)
 				    in
 
-								
 		    fprintf h "\n";
 		    (** Do it for all the fields of the message *)
 		    List.iter parse_field message.fields
@@ -303,9 +301,9 @@ let () =
 
   try
     let messages = Syntax.read filename class_name in
-		
+
 		let h = stdout in
-		
+
     Printf.fprintf h "/* Automatically generated from %s */\n" filename;
     Printf.fprintf h "/* Please DO NOT EDIT */\n";
     Printf.fprintf h "/* Macros to send and receive messages of class %s */\n" class_name;
@@ -318,9 +316,9 @@ let () =
 
     (** Macros for airborne datalink (receiving) *)
 		match check_align with
-		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages; Printf.fprintf h "#endif // MSG_%s_H\n" u_class_name 
-		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages; Printf.fprintf h "#endif // MSG_%s_H\n" u_class_name 
-		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er ) 
+		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages; Printf.fprintf h "#endif // MSG_%s_H\n" u_class_name
+		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages; Printf.fprintf h "#endif // MSG_%s_H\n" u_class_name
+		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er )
 
   with
     Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

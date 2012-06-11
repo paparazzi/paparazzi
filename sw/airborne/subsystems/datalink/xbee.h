@@ -74,7 +74,7 @@ void xbee_init( void );
     xbee_down_packet_seq++;	\
     if(xbee_down_packet_seq==0){ xbee_down_packet_seq++; } \
     XBeeTransportPut1Byte(_dev, xbee_down_packet_seq); \
-}		  
+}
 
 #define XBeeTransportPut1ByteByAddr(_dev, _byte) { \
   uint8_t _x = *(_byte);	\

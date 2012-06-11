@@ -89,7 +89,7 @@ let heading_from_course = ref false
 
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
-	
+
   let fvalue = fun x ->
     let f = fvalue (value x) in
       match classify_float f with
@@ -335,5 +335,5 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       ] in
       Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
   | _ -> ()
-	
+
 

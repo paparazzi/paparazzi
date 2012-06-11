@@ -365,7 +365,7 @@ void on_NAV_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]) {
 		if (ant_azim < 0)
 			ant_azim += 360.;
 
-		// calculate elevation 
+		// calculate elevation
 		ant_elev = atan2((gps_alt - home_alt), sqrt(atof(argv[5]))) * 180. / M_PI;
 			// Sanity check
 				if (ant_elev < 0){ ant_elev = 0.; }

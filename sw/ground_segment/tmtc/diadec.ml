@@ -34,7 +34,7 @@ let use_tele_message = fun buf ->
   let payload = Serial.payload_of_string buf in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
-    let (packet_seq, ac_id, class_id, msg_id, values) = Sub_Pprz.values_of_payload payload in 
+    let (packet_seq, ac_id, class_id, msg_id, values) = Sub_Pprz.values_of_payload payload in
     let msg = Sub_Pprz.message_of_id msg_id in
     printf "%d %s\n%!" ac_id (Sub_Pprz.string_of_message msg values)
   with

@@ -145,11 +145,11 @@ let ac_msg = fun messages_xml logging ac_name ac ->
 			let msg = Tele_Pprz.message_of_id ~class_id:cls_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
 			match Tele_Pprz.xml_version with
-				| "1.0" ->
+  			| "1.0" ->
 					Fw_server.log_and_parse ac_name ac msg values;
       		Rotorcraft_server.log_and_parse ac_name ac msg values
 				| _ -> Ac_server.log_and_parse ac_name ac msg values
-      
+
     with
       Telemetry_error (ac_name, msg) ->
 	Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
@@ -657,7 +657,7 @@ let setting = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = ["ac_id", Pprz.String ac_id;
 	    "index", List.assoc "index" vs;
-	    "value", List.assoc "value" vs] in 
+	    "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
   log logging ac_id "SETTING" vs
 
@@ -680,10 +680,10 @@ let jump_block = fun logging _sender vs ->
 
 (** Got a RAW_DATALINK,send its contents *)
 let raw_datalink = fun logging _sender vs ->
-	let ac_id = Pprz.string_assoc "ac_id" vs 
+	let ac_id = Pprz.string_assoc "ac_id" vs
 	and m = Pprz.string_assoc "message" vs in
 	let msg_id, vs = Dl_Pprz.values_of_string_unsorted m in
-	let cls_id = Dl_Pprz.class_id_of_msg_args_unsorted m in 
+	let cls_id = Dl_Pprz.class_id_of_msg_args_unsorted m in
 	let msg = Dl_Pprz.message_of_id ~class_id:cls_id msg_id in
 	Dl_Pprz.message_send dl_id msg.Pprz.name vs;
   log logging ac_id msg.Pprz.name vs

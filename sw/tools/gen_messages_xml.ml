@@ -1,9 +1,8 @@
 (*
- * $Id$
- *
+
  * XML generation of messages.xml for downlink protocol
  *
- * Copyright (C) 2003-2008 ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2012 Xavier Gibert
  *
  * This file is part of paparazzi.
  *
@@ -59,12 +58,12 @@ type generated_class = {
 
 (** Module to obtain the desired messages files to include in messages.xml *)
 module Includes = struct
-	
+
 	exception Invalid_include_structure of string
 	exception Duplicated_class_id of string
 	exception Duplicated_class_name of string
 	exception Repeated_element of string
-		
+
 	(** Translates an "include" XML element into a value of the 'include' type  *)
 	let struct_of_xml_include = fun conf_xml ->
 		try
@@ -73,14 +72,14 @@ module Includes = struct
 			and class_name = ExtXml.attrib conf_xml "class_name" in
 		{ file = file; class_id = class_id; class_name = class_name }
 		with e -> raise (Invalid_include_structure (Printexc.to_string e))
-		
+
 	let check_repeated_elements = fun list ->
 		let rec loop = fun list ->
 			match list with
 				| [] | [_] -> list 
-				| x::((x'::_) as xs) -> if x = x' then raise (Repeated_element x) else x::loop xs in 
+				| x::((x'::_) as xs) -> if x = x' then raise (Repeated_element x) else x::loop xs in
 		loop (List.sort compare list)
-	
+
 	let check_single_names = fun xml_includes ->
 		let names = List.map (fun inc -> inc.class_name) xml_includes in
 		try
@@ -88,15 +87,15 @@ module Includes = struct
 		with
 			| Repeated_element el -> raise (Duplicated_class_name el)
 			| e -> raise e
-	
+
 	let check_single_ids = fun xml_includes ->
 		let ids = List.map (fun inc -> string_of_int inc.class_id) xml_includes in
 		try
 			check_repeated_elements ids;
-		with 
+		with
 			| Repeated_element el -> raise (Duplicated_class_id el)
 			| e -> raise e
-	
+
 	(** Returns a list of all the includes in the messages_conf.xml file *)
 	let get_includes = fun () ->
 		let conf_xml = Xml.parse_file includes_file in
@@ -110,18 +109,18 @@ module Includes = struct
 			| Duplicated_class_name n -> raise (Duplicated_class_name n)
 			| Invalid_include_structure exc -> raise (Invalid_include_structure exc)
 			| e -> raise e
-		
+
 end
 
 (** Module to obtain the classes and their messages from the included files *)
 module Classes = struct
-	
+
 	exception Invalid_class_structure of string
 	exception Invalid_class_type of string
 	exception XML_parsing_error of string * string * string
 	exception Invalid_class_xml_node of string
 	exception Class_id_out_of_range of int
-	
+
 	(** Checks if the class type is one of the allowed ones *)
 	let check_class_type = fun attribute ->
 		match attribute with
@@ -132,11 +131,11 @@ module Classes = struct
 	let struct_of_xml_class = fun xml ->
 		try
 			let _type = ExtXml.attrib xml "type" in
-			check_class_type(_type)	
+			check_class_type(_type)
 		with
 			| Invalid_class_type t -> raise (Invalid_class_type t)
 			| e -> raise (Invalid_class_structure (Printexc.to_string e))
-		
+
 
 	type parameters_list = (string * string) list
 
@@ -174,10 +173,10 @@ end
 
 (** Module to save the generated messages file *)
 module SaveXml = struct
-	
+
 	exception Cannot_open_file of string * string
 	exception Cannot_move_file of string
-	
+
 	(** Saved the generated file with some header *)
 	let save = fun xml_code ->
 		try
@@ -193,14 +192,14 @@ module SaveXml = struct
 			close_out h;
 			let c = sprintf "mv %s %s " temp_filename generated_file in
     	let returned_code = Sys.command c in
-			if returned_code <> 0 then raise ( Cannot_move_file (string_of_int returned_code)) 
+			if returned_code <> 0 then raise ( Cannot_move_file (string_of_int returned_code))
 		with
 			| e -> raise (Cannot_open_file ("messages.xml",(Printexc.to_string e)))
 end
 
 (** MAIN MODULE: DOES ALL THE PROCEDURE TO GENERATE THE messages.xml FROM THE messages_conf.xml INCLUDES *)
 module SpreadMessages = struct
-	
+
 	(** Generates a XML file called messages.xml with all the included classes in messages_conf.xml and their messages *)
 	let generate_messages_xml = fun () ->
 		try
@@ -232,10 +231,10 @@ module SpreadMessages = struct
 end
 
 module MakeCalls = struct
-	
+
 	let make_target = "gen_messages_macros"
 	let make_options = ""
-	
+
 	let make = fun class_name class_id check_alignment ->
 		let file = Env.paparazzi_home // "Makefile" in
 		let macros_target = var_include_path // ("messages_"^(String.lowercase class_name)^".h") in
@@ -245,21 +244,21 @@ module MakeCalls = struct
 
 
 	let generate_macros = fun classes ->
-		List.map (fun clas -> match (clas.g_type) with 
+		List.map (fun clas -> match (clas.g_type) with
 			| "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1
-			| "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1 
+			| "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1
 			| "downlink" -> prerr_endline ("\t Downlink Class -> Generate macros ("^clas.g_name^")"); make clas.g_name clas.g_id 0
 			|	"ground" -> prerr_endline ("\t Ground Class   -> Do nothing ("^clas.g_name^")")
 			|	"airborne" -> prerr_endline ("\t Airborne Class -> Generate macros ("^clas.g_name^") FIXME!")
 			|	t -> failwith (sprintf "Invalid class type in generated file: %s" t)
 			) classes;
-			
-end		
+
+end
 
 module FinalMacros = struct
 	exception Cannot_open_file of string
 	exception Cannot_move_file of string * string
-	
+
 	let create_both_files = fun () ->
 		try
 			let (temp_filename_up,h_up) = Filename.open_temp_file "TEMP" "TEMP" in
@@ -267,7 +266,7 @@ module FinalMacros = struct
 			(temp_filename_up, h_up, temp_filename_down, h_down) 
 		with
 			| e -> raise (Cannot_open_file (Printexc.to_string e))
-				
+
 	let close_both_files = fun temp_filename_up h_up temp_filename_down h_down ->
 		close_out h_up;
 		close_out h_down;
@@ -279,11 +278,11 @@ module FinalMacros = struct
 		prerr_endline ("\t Downlink  -> "^downlink_msg_h);
 		if returned_code_u <> 0 then raise ( Cannot_move_file ("uplink",string_of_int returned_code_u));
 		if returned_code_d <> 0 then raise ( Cannot_move_file ("downlink",string_of_int returned_code_d))
-		
-				
+
+
   let include_in_file = fun clas h ->
 		Printf.fprintf h "#include \"messages_%s.h\" \n" clas.g_name
-		
+
 	let generate_files = fun classes ->
 		try
 			let (temp_filename_up, h_up, temp_filename_down, h_down) = create_both_files () in
@@ -298,19 +297,19 @@ module FinalMacros = struct
 		with
 			| Cannot_open_file s -> failwith (sprintf "Cannot open file to inlcude macro files (Exception: %s)" s)
 			| Cannot_move_file (f,s) -> failwith (sprintf "Cannot move file of %s macros to it's final destination (Error code for command MV: %s)" f s )
-		
-end								
-					
+
+end
+
 (********************* Main **************************************************)
 let () =
 	if Array.length Sys.argv <> 7 then
 	  failwith (sprintf "Usage: %s <messages config file> <spread messages path> <generated file> <var_include_path>" Sys.argv.(0));
 	let classes_info = SpreadMessages.generate_messages_xml () in
-	
+
 	prerr_endline ("----------- GENERATING MESSAGES MACROS (Spread) -----------");
 	ignore (MakeCalls.generate_macros classes_info);
 	prerr_endline ("-----------------------------------------------------------");
-	
+
 	prerr_endline ("----------- GENERATING MESSAGES MACROS (Global) -----------");
 	ignore (FinalMacros.generate_files classes_info);
 	prerr_endline ("-----------------------------------------------------------");

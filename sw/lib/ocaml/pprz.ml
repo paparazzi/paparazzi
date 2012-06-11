@@ -87,7 +87,7 @@ external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
 external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 external sprint_double : string -> int -> float -> unit = "c_sprint_double"
-external sprint_int64 : string -> int -> int64 -> unit = "c_sprint_int64" 
+external sprint_int64 : string -> int -> int64 -> unit = "c_sprint_int64"
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 external sprint_int16 : string -> int -> int -> unit = "c_sprint_int16"
 external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
@@ -96,15 +96,15 @@ let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
   ("uint16", { format = "%u";  glib_type = "guint16"; inttype = "uint16_t"; size = 2; value=Int 42 });
   ("uint32", { format = "%lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 });
-	("uint64", { format = "%Lu" ;  glib_type = "guint64"; inttype = "uint64_t"; size = 8; value=Int 42 }); 
+  ("uint64", { format = "%Lu" ;  glib_type = "guint64"; inttype = "uint64_t"; size = 8; value=Int 42 });
   ("int8",   { format = "%d"; glib_type = "gint8"; inttype = "int8_t";   size = 1; value= Int 42 });
   ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
   ("int32",  { format = "%ld" ;  glib_type = "gint32"; inttype = "int32_t";  size = 4; value=Int 42 });
-	("int64",  { format = "%Ld" ;  glib_type = "gint64"; inttype = "int64_t";  size = 8; value=Int 42 }); 
+  ("int64",  { format = "%Ld" ;  glib_type = "gint64"; inttype = "int64_t";  size = 8; value=Int 42 });
   ("float",  { format = "%f" ;  glib_type = "gfloat"; inttype = "float";  size = 4; value=Float 4.2 });
-  ("double",  { format = "%f" ;  glib_type = "gdouble"; inttype = "double";  size = 8; value=Float 4.2 });
-	("char",  { format = "%c" ;  glib_type = "gchar"; inttype = "char";  size = 1; value=Char '*' });
-  ("string",  { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
+  ("double", { format = "%f" ;  glib_type = "gdouble"; inttype = "double";  size = 8; value=Float 4.2 });
+  ("char",   { format = "%c" ;  glib_type = "gchar"; inttype = "char";  size = 1; value=Char '*' });
+  ("string", { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
 ]
 
 let is_array_type = fun s ->
@@ -118,7 +118,7 @@ let type_of_array_type = fun s ->
 let is_fixed_array_type = fun s ->
 	let type_parts = Str.full_split (Str.regexp "[][]") s in
 	match type_parts with
-		| [Str.Text _; Str.Delim "["; Str.Text _ ; Str.Delim "]"] -> true
+  	| [Str.Text _; Str.Delim "["; Str.Text _ ; Str.Delim "]"] -> true
  		| _ -> false
 
 let type_of_fixed_array_type = fun s ->
@@ -145,27 +145,27 @@ let int_of_string = fun x ->
 
 let rec value = fun t v ->
   match t with
-    Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v) 
-  | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
-	| Scalar ("uint64" | "int64") -> Int64 (Int64.of_string v) 
-  | Scalar ("float" | "double") -> Float (float_of_string v)
-  | Scalar "string" -> String v
-	| Scalar "char" -> Char v.[0] 
-  | ArrayType t' ->
-      Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
-	| FixedArrayType (t',l') ->
-		  Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
-  | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
+      Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v)
+    | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
+    | Scalar ("uint64" | "int64") -> Int64 (Int64.of_string v)
+    | Scalar ("float" | "double") -> Float (float_of_string v)
+    | Scalar "string" -> String v
+    | Scalar "char" -> Char v.[0]
+    | ArrayType t' ->
+        Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
+    | FixedArrayType (t',l') ->
+        Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
+    | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
 
 
 let rec string_of_value = function
-    Int x -> string_of_int x  
-  | Float x -> string_of_float x
-  | Int32 x -> Int32.to_string x
-	| Int64 x -> Int64.to_string x 
-	| Char c -> String.make 1 c 
-  | String s -> s
-  | Array a -> String.concat separator (Array.to_list (Array.map string_of_value a))
+      Int x -> string_of_int x
+    | Float x -> string_of_float x
+    | Int32 x -> Int32.to_string x
+    | Int64 x -> Int64.to_string x
+    | Char c -> String.make 1 c
+    | String s -> s
+    | Array a -> String.concat separator (Array.to_list (Array.map string_of_value a))
 
 
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
@@ -184,16 +184,10 @@ let sizeof = fun f ->
 	| FixedArrayType (t,l) -> failwith "sizeof: Array"
 let size_of_field = fun f -> sizeof f._type
 let default_format = function
-    Scalar x | ArrayType x ->
+    Scalar x | ArrayType x | FixedArrayType (x,_) ->
       try (List.assoc x types).format with
 	Not_found -> failwith (sprintf "Unknown format '%s'" x)
 
-let default_format_for_fixed = function
-    FixedArrayType (x,l) ->
-      try (List.assoc x types).format with
-	Not_found -> failwith (sprintf "Unknown format '%s'" x)
-
-		
 let default_value = fun x ->
   match x with
     Scalar t -> (List.assoc t types).value
@@ -245,14 +239,12 @@ let alt_unit_coef_of_xml = function xml ->
 
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->
-  let tt = ExtXml.attrib xml "type" in
-  let t = if is_array_type tt then ArrayType (type_of_array_type tt) else if is_fixed_array_type tt then FixedArrayType (type_of_fixed_array_type tt, int_of_string(length_of_fixed_array_type tt)) else Scalar tt in
-  let f = try Xml.attrib xml "format" with _ -> 
-	if(is_fixed_array_type tt) then
-		 default_format_for_fixed t
-	else 
-		default_format t in
-		
+  let t = ExtXml.attrib xml "type" in
+  let t = if is_array_type t then ArrayType (type_of_array_type t)
+          else if is_fixed_array_type t then FixedArrayType (type_of_fixed_array_type t, int_of_string(length_of_fixed_array_type t))
+          else Scalar t in
+  let f = try Xml.attrib xml "format" with _ -> default_format t in
+
   let auc = alt_unit_coef_of_xml xml in
   let values = try Str.split pipe_regexp (Xml.attrib xml "values") with _ -> [] in
 
@@ -265,7 +257,7 @@ let string_of_values = fun vs ->
 let assoc = fun a vs ->
   try List.assoc (String.lowercase a) vs with Not_found ->
     failwith (sprintf "Attribute '%s' not found in '%s'" a (string_of_values vs))
-		
+
 
 let float_assoc = fun (a:string) vs ->
   match assoc a vs with
@@ -273,14 +265,14 @@ let float_assoc = fun (a:string) vs ->
   | _ -> invalid_arg "Pprz.float_assoc"
 
 let int_of_value = fun value ->
-  match value with 
+  match value with
     Int x -> x
   | Int32 x ->
       let i = Int32.to_int x in
       if Int32.compare x (Int32.of_int i) <> 0 then
 	failwith "Pprz.int_assoc: Int32 too large to be converted into an int";
       i
-	| Int64 x -> 
+	| Int64 x ->
       let i = Int64.to_int x in
       if Int64.compare x (Int64.of_int i) <> 0 then
 	failwith "Pprz.int_assoc: Int64 too large to be converted into an int";
@@ -321,7 +313,7 @@ let rec value_of_bin = fun buffer index _type ->
   | Scalar "float" -> Float (float_of_bytes buffer index), sizeof _type
   | Scalar "double" -> Float (double_of_bytes buffer index), sizeof _type
   | Scalar ("int32"  | "uint32") -> Int32 (int32_of_bytes buffer index), sizeof _type
-	| Scalar ("int64"  | "uint64") -> Int64 (int64_of_bytes buffer index), sizeof _type 
+	| Scalar ("int64"  | "uint64") -> Int64 (int64_of_bytes buffer index), sizeof _type
   | ArrayType t ->
       (** First get the number of values *)
       let n = int8_of_bytes buffer index in
@@ -338,7 +330,7 @@ let rec value_of_bin = fun buffer index _type ->
       let size = 0 + n * s in
       (Array (Array.init n
 	       (fun i -> fst (value_of_bin buffer (index+0+i*s) type_of_elt))), size)
-  | Scalar "string" -> 
+  | Scalar "string" ->
       let n = Char.code buffer.[index] in
       (String (String.sub buffer (index+1) n), (1+n))
   | _ -> failwith "value_of_bin"
@@ -349,7 +341,7 @@ let value_field = fun buf index field ->
 let byte = fun x -> Char.chr (x land 0xff)
 
 (** Returns the size of outputed data *)
-let rec sprint_value = fun buf i _type v -> 
+let rec sprint_value = fun buf i _type v ->
   match _type, v with
     Scalar "uint8", Int x ->
       if x < 0 || x > 0xff then
@@ -362,7 +354,7 @@ let rec sprint_value = fun buf i _type v ->
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
   | Scalar "double", Float f -> sprint_double buf i f; sizeof _type
   | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
-	| Scalar ("int64"|"uint64"), Int64 x -> sprint_int64 buf i x; sizeof _type 
+  | Scalar ("int64"|"uint64"), Int64 x -> sprint_int64 buf i x; sizeof _type
   | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
   | Scalar ("int32" | "uint32"), Int value ->
       assert (_type <> Scalar "uint32" || value >= 0);
@@ -371,7 +363,7 @@ let rec sprint_value = fun buf i _type v ->
       buf.[i+1] <- byte (value lsr 8);
       buf.[i+0] <- byte value;
       sizeof _type
-	| Scalar ("int64" | "uint64"), Int value -> 
+	| Scalar ("int64" | "uint64"), Int value ->
       assert (_type <> Scalar "uint64" || value >= 0);
       buf.[i+7] <- byte (value asr 56);
 			buf.[i+6] <- byte (value lsr 48);
@@ -381,7 +373,7 @@ let rec sprint_value = fun buf i _type v ->
       buf.[i+2] <- byte (value lsr 16);
       buf.[i+1] <- byte (value lsr 8);
       buf.[i+0] <- byte value;
-      sizeof _type		
+      sizeof _type
   | Scalar "uint16", Int value ->
       assert (value >= 0);
       buf.[i+1] <- byte (value lsr 8);
@@ -446,30 +438,30 @@ type _class = {
 }
 
 let join_messages_of_type = fun xml _type final_class ->
-	try
-		let version = Xml.attrib xml "version" in
-		match version with 
-			| "2.0" ->
-				let classes = List.map (fun _class -> {class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }) (Xml.children xml) in
-				let sel_classes = List.filter (fun _class -> 
-					if (_class.class_type = _type) || (_class.class_type = "datalink") then true else false
-					) classes in
-				let msgs_lists = List.map (fun sel_class -> Xml.children sel_class.class_xml ) sel_classes in
-				let msgs_list = List.flatten msgs_lists in
-				let param_list = ["name",final_class] in
-				let node_class = Xml.Element("class",param_list,msgs_list) in
-				let node_protocol = Xml.Element("protocol",[],[node_class]) in 
-				node_protocol
-			| v -> failwith (sprintf "Pprz.join_messages_of_type Version not handled (Version: %s)" v)
-	with
-		| Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); xml
+  try
+    let version = Xml.attrib xml "version" in
+    match version with
+    | "2.0" ->
+        let classes = List.map (fun _class -> {class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }) (Xml.children xml) in
+        let sel_classes = List.filter (fun _class ->
+          if (_class.class_type = _type) || (_class.class_type = "datalink") then true else false
+          ) classes in
+        let msgs_lists = List.map (fun sel_class -> Xml.children sel_class.class_xml ) sel_classes in
+        let msgs_list = List.flatten msgs_lists in
+        let param_list = ["name",final_class] in
+        let node_class = Xml.Element("class",param_list,msgs_list) in
+        let node_protocol = Xml.Element("protocol",[],[node_class]) in
+        node_protocol
+    | v -> failwith (sprintf "Pprz.join_messages_of_type Version not handled (Version: %s)" v)
+    with
+    | Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); xml
 
 let get_downlink_messages_in_one_class = fun xml ->
 	join_messages_of_type xml "downlink" "telemetry"
 
 let get_uplink_messages_in_one_class = fun xml ->
-	join_messages_of_type xml "uplink" "datalink"	
-			
+	join_messages_of_type xml "uplink" "datalink"
+
 exception Unknown_msg_name of string * string
 
 module type TRANSPORT_TYPE = sig
@@ -506,7 +498,7 @@ module PprzTransportBase(SubType:TRANSPORT_TYPE) = struct
   let checksum = fun msg ->
     let l = String.length msg in
     let ck_a, ck_b = compute_checksum msg in
-    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2])); 
+    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2]));
     ck_a = Char.code msg.[l-2] && ck_b = Char.code msg.[l-1]
 
   let payload = fun msg ->
@@ -585,24 +577,24 @@ let coma = Str.regexp "[,\t]+"
 module type MESSAGES = sig
 	val xml_version : string
 	val formated_xml : Xml.xml
-	
+
   val messages : (msg_and_class_id, message) Hashtbl.t
 	val message_of_id : ?class_id:int -> message_id -> message
   val message_of_name : string ->  message_id * message
-	
+
 	val class_id_of_msg : message_name -> class_id
 	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
-	
+
 	val class_id_of_msg_args : string -> class_id
 	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
-	
+
 	val class_id_of_msg_args_unsorted : string -> class_id
 	(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
 
   val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
    the A/C id, class id, message id and the list of (field_name, value) *)
-	
+
   val payload_of_values : ?gen_packet_seq:int -> sender_id -> ?class_id:int -> message_id -> values -> Serial.payload
   (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
 
@@ -635,10 +627,10 @@ end
 
 
 module MessagesOfXml(Class:CLASS_Xml) = struct
-	
+
 	(* ________________________________ XML VERSION CONTROL ____________________________________________ *)
 	let old_classes_info = [("telemetry",["common_telemetry";"0";"downlink"]);("datalink",["common_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
-	
+
 	let convert_to_new_xml = fun xml ->
 		try
 			let classes = List.map (fun _class ->
@@ -648,11 +640,11 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 				let param_list = ["id",string_of_int(cls.class_id);"name",cls.class_name;"type",cls.class_type] in
 				Xml.Element("class",param_list,Xml.children cls.class_xml)
 					) classes in
-			let node_protocol = Xml.Element("protocol",["version","1.0"],class_nodes) in 
+			let node_protocol = Xml.Element("protocol",["version","1.0"],class_nodes) in
 			node_protocol
 		with
 			| Not_found -> failwith ("Pprz.convert_to_new_xml New info for old class not defined")
-	
+
 	let to_new_xml_format = fun xml ->
 		try
 			let version = Xml.attrib xml "version" in
@@ -660,10 +652,10 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 				| "2.0" -> ("2.0",xml)
 				| v -> failwith (sprintf "Pprz.to_new_xml_format Version not handled (Version: %s)" v)
 		with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); ("1.0",convert_to_new_xml xml)
-	
+
 	(** Stores the original version of the xml file and converts the xml file to the 2.0 version format *)
-	let (xml_version,formated_xml) = to_new_xml_format Class.xml 
-	
+	let (xml_version,formated_xml) = to_new_xml_format Class.xml
+
 	(* _____________________ FROM HERE THE XML FILE IS 2.0 VERSION (formated_xml) _______________________ *)
 
   let max_length = 256
@@ -680,8 +672,8 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	let messages_by_name = Hashtbl.create 256
 	(** messages_by_name: Hastbl{(message_id,class_id),message} *) 
 	let messages = Hashtbl.create 256
-	
-	let parse_class = fun struc -> 
+
+	let parse_class = fun struc ->
 		let xml_class = struc.class_xml in
 	  let by_id = Hashtbl.create 13 in
 	  List.iter
@@ -706,36 +698,36 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	      Hashtbl.add messages_by_name name (id, msg))
 	    (Xml.children xml_class);
 	  by_id
-	
+
   let messages_loaded =
     try
 			match Class.mode with
-				| Type -> 
-					let class_structs = List.map (fun _class -> 
+				| Type ->
+					let class_structs = List.map (fun _class ->
 						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
 						) (Xml.children formated_xml) in
 					let selected_classes = ref [] in
 					ignore (List.map (fun struc -> match struc.class_type with
 						| "datalink" -> if (Class.selection = "uplink"||Class.selection = "downlink") then  selected_classes := List.append !selected_classes [struc];
 						| other_type -> if Class.selection = other_type then selected_classes := List.append !selected_classes [struc]; 
-						) class_structs);	
+						) class_structs);
 					ignore (List.map (fun sel ->
 							let by_id = parse_class sel in
 							Hashtbl.add classes_by_id sel.class_id by_id
 						) !selected_classes);
 					true
 				| Name ->
-					let class_structs = List.map (fun _class -> 
+					let class_structs = List.map (fun _class ->
 						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
 						) (Xml.children formated_xml) in
 					let selected_classes = ref [] in
 					ignore (List.map (fun struc -> if struc.class_name = Class.selection then selected_classes := List.append !selected_classes [struc];
-						) class_structs);	
+						) class_structs);
 					ignore (List.map (fun sel ->
 							let by_id = parse_class sel in
 							Hashtbl.add classes_by_id sel.class_id by_id
 						) !selected_classes);
-					true		
+					true
     with
       | Not_found -> failwith ("Pprz->messages: error loading classes and messages (Not_found) ")
 			| e -> failwith (sprintf "Pprz->messages: error loading classes and messages (Exception: %s) " (Printexc.to_string e))
@@ -746,40 +738,40 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 			| Some cls_id -> cls_id 
 
   let message_of_id = fun ?class_id id ->
-		try 
-			let cls_id = check_mode class_id in		
+		try
+			let cls_id = check_mode class_id in
 			let sel_class = Hashtbl.find classes_by_id cls_id in
 			Hashtbl.find sel_class id
 		with Not_found -> failwith ("Pprz.Messages message not found")
-	
-	
+
+
   let message_of_name = fun name ->
     try
       Hashtbl.find messages_by_name name
     with
-      Not_found -> raise (Unknown_msg_name (name, Class.selection))	
+      Not_found -> raise (Unknown_msg_name (name, Class.selection))
 
 	let is_message_inside = fun pattern message ->
 		let msg_name = Xml.attrib message "name" in
 		if msg_name = pattern then true else false
-	
+
 	let get_id_and_messages = fun msg clas ->
 		let id = ExtXml.attrib clas "id"
 		and messages = Xml.children clas in
 		let contains = List.map (is_message_inside msg) messages in
 		let is_inside = List.mem true contains in
 		if is_inside = true then int_of_string(id) else -1
-		
+
 	exception Msg_Duplicated of string
 	exception Msg_Not_found of string
-	
-	let class_id_of_msg = fun msg -> 
+
+	let class_id_of_msg = fun msg ->
 		try
 			let classes = Xml.children formated_xml in
 			let classes_with = List.map (get_id_and_messages msg) classes in
 			let result = List.filter (fun x -> if(x>(-1))then true else false) classes_with in
 			match result with
-				| [] -> raise (Msg_Not_found msg) 
+				| [] -> raise (Msg_Not_found msg)
 				|	[x] -> x
 				|	_ -> raise (Msg_Duplicated msg)
 	with
@@ -787,17 +779,17 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 			| Msg_Not_found s -> failwith (sprintf "More than one class containing message %s" s)
 			| Not_found -> failwith (sprintf "No class attribute found for message '%s'" msg)
 			| e -> failwith (sprintf "Unhandled exception (Exception: %s)" (Printexc.to_string e))
-	   
+
 		let class_id_of_msg_args = fun s ->
 	    match Str.split space s with
 				| [] -> failwith (sprintf "Cannot obtain msg_name from arguments string '%s'" s)
-	  | msg_name::args ->	class_id_of_msg msg_name 
-	
+	  | msg_name::args ->	class_id_of_msg msg_name
+
 	(** For raw_datalink messages *)
-	let class_id_of_msg_args_unsorted = fun s -> 
+	let class_id_of_msg_args_unsorted = fun s ->
 	match Str.split semicolon s with
 			| [] -> failwith (sprintf "Cannot obtain msg_name from unsorted arguments string '%s'" s)
-	  | msg_name::args ->	class_id_of_msg msg_name 
+	  | msg_name::args ->	class_id_of_msg msg_name
 
 
   let values_of_payload = fun buffer ->
@@ -823,7 +815,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     with
       Invalid_argument("index out of bounds") ->
 	failwith (sprintf "Pprz.values_of_payload, wrong argument: %s" (Debug.xprint buffer))
-    
+
   let payload_of_values = fun ?gen_packet_seq sender_id ?class_id id values ->
 		let cls_id = check_mode class_id in
 		let message = message_of_id ~class_id:cls_id id in
@@ -869,13 +861,13 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	begin
 	  try
 	    let msg_id, msg = message_of_name msg_name in
-			
+
 			let assoc_args = ref [] in
 			for i = 0 to List.length args -1 do
 				let parts = Str.split coma (List.nth args i) in
 				assoc_args := List.append !assoc_args [((List.nth parts 0),(List.nth parts 1))] 
 			done;
-			
+
 			let values = List.map (fun (field_name, field) ->
 				let v = List.assoc field_name !assoc_args in
 				(field_name, value field._type v) ) msg.fields in
@@ -885,7 +877,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 			| e -> failwith (sprintf "Pprz.values_of_string_unsorted: Unhandled exception (Exception: %s)" (Printexc.to_string e))
 	end
     | [] -> invalid_arg (sprintf "Pprz.values_of_string_unsorted: %s" s)
-	
+
   let string_of_message = fun ?(sep=" ") msg values ->
     (** Check that the values are compatible with this message *)
     List.iter
@@ -910,7 +902,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     let s = string_of_message m values in
     let timestamp_string =
       match timestamp with
-	None -> ""
+      	None -> ""
       | Some x -> sprintf "%f " x in
     let msg = sprintf "%s%s %s" timestamp_string sender s in
     let n = String.length msg in
@@ -959,7 +951,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     let msg_name_req = msg_name ^ "_REQ" in
     let m = sprintf "%s %s %s" sender id (string_of_message (snd (message_of_name msg_name_req)) values) in
     Ivy.send m
-		
+
 end
 
 module Messages_of_type(Class:CLASS_TYPE) = struct
@@ -979,7 +971,7 @@ let class_id_of_name = fun name ->
 	try
 		let messages_xml = Xml.parse_file messages_file in
 		let classes = List.map (fun i_class -> {class_id = int_of_string (ExtXml.attrib i_class "id") ; class_name = ExtXml.attrib i_class "name"}) (Xml.children messages_xml) in
-		let sel_class = List.find (fun x -> if x.class_name = name then true else false ) classes in  
+		let sel_class = List.find (fun x -> if x.class_name = name then true else false ) classes in
 		sel_class.class_id
 	with
 		| Not_found -> failwith (sprintf "Pprz.Messages_of_name initialization error. No class with name %s" name)
@@ -992,7 +984,4 @@ module Messages_of_name(Class:CLASS_NAME) = struct
 		let sel_class_id = Some (class_id_of_name Class.class_name)
   end)
 end
-
-
-
 

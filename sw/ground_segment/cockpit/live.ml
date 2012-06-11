@@ -31,7 +31,7 @@ open Printf
 
 module Tele_Pprz = Pprz.Messages_of_type(struct let class_type = "downlink" end)
 module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
-module Alert_Pprz = Pprz.Messages_of_name(struct let class_name = "alert" end) 
+module Alert_Pprz = Pprz.Messages_of_name(struct let class_name = "alert" end)
 
 
 let (//) = Filename.concat
@@ -322,7 +322,7 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 
 (** Light display of attributes in the flight plan. *)
 let attributes_pretty_printer = fun attribs ->
-  (* Remove the optional attributes�*)
+  (* Remove the optional attributes *)
   let valid = fun a ->
     let a = String.lowercase a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"

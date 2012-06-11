@@ -3,19 +3,19 @@
 <!-- Only ground type classes can exceed Id=31 -->
 <includes>
 <!-- MAIN CLASSES -->
-	<include file="downlink.xml"		class_name="common_telemetry"	class_id="0" />
-	<include file="uplink.xml"		class_name="common_commands"	class_id="1" />
-	<include file="datalink.xml"		class_name="common_datalink"	class_id="2" />
-	<include file="ground.xml"		class_name="ground"		class_id="3" />
-	<include file="airborne.xml"		class_name="airborne"		class_id="4" />
-	<include file="alert.xml"		class_name="alert"		class_id="5" />
-	<include file="DIA.xml"			class_name="DIA"		class_id="6" />
-	<include file="sensors.xml"		class_name="sensors"		class_id="7" />
-	<include file="simulator.xml"		class_name="simulator"		class_id="8" />
-	<include file="debug.xml"		class_name="debug"		class_id="9" />
+  <include file="downlink.xml"  class_name="common_telemetry" class_id="0"/>
+  <include file="uplink.xml"    class_name="common_commands"  class_id="1"/>
+  <include file="datalink.xml"  class_name="common_datalink"  class_id="2"/>
+  <include file="ground.xml"    class_name="ground"           class_id="3"/>
+  <include file="airborne.xml"  class_name="airborne"         class_id="4"/>
+  <include file="alert.xml"     class_name="alert"            class_id="5"/>
+  <include file="DIA.xml"       class_name="DIA"              class_id="6"/>
+  <include file="sensors.xml"   class_name="sensors"          class_id="7"/>
+  <include file="simulator.xml" class_name="simulator"        class_id="8"/>
+  <include file="debug.xml"     class_name="debug"            class_id="9"/>
 <!-- CUSTOM CLASSES -->
-	<include file="custom_downlink.xml"	class_name="custom_telemetry"	class_id="10" />
-	<include file="custom_uplink.xml"	class_name="custom_commands"	class_id="11" />
-	<include file="custom_datalink.xml"	class_name="custom_datalink"	class_id="12" />
-	<include file="mavlink_downlink.xml"	class_name="mavlink_telemetry"	class_id="13" />
+  <include file="custom_downlink.xml"   class_name="custom_telemetry"   class_id="10"/>
+  <include file="custom_uplink.xml"     class_name="custom_commands"    class_id="11"/>
+  <include file="custom_datalink.xml"   class_name="custom_datalink"    class_id="12"/>
+  <include file="mavlink_downlink.xml"  class_name="mavlink_telemetry"  class_id="13"/>
 </includes>

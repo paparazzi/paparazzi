@@ -156,7 +156,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
-  let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in 
+  let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in
   let senders = Hashtbl.create 5 in
   match sender with
     | Some "*" ->
@@ -188,10 +188,6 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 (*********************** Main ************************************************)
 let _ =
   let ivy_bus = ref Defivybus.default_ivy_bus in
-	
-	
-	
-	
 	let class_names = List.map (fun _class -> if ("downlink" = ExtXml.attrib _class "type")||("datalink" = ExtXml.attrib _class "type") then ExtXml.attrib _class "name" else "" ) (Xml.children (Pprz.messages_xml ())) in
 	let classes = ref [] in
 	ignore (List.map (fun c_name -> match c_name with
@@ -216,7 +212,7 @@ let _ =
   ignore (window#connect#destroy ~callback:quit);
 
   let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in 
-	
+
   (** Get the XML description of the required classes *)
   let xml_classes =
     let xml = Pprz.messages_xml () in
