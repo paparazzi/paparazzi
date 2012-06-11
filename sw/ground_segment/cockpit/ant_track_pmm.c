@@ -712,7 +712,7 @@ int main(int argc, char** argv) {
 	IvyBindMsg(
 			on_GPS_STATUS,
 			NULL,
-			"^\\S* GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+			"^\\S* GPS_UTM (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 //	IvyBindMsg(on_NAV_STATUS, NULL,
 //			"^\\S* MISSION_STATUS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 	IvyStart("127.255.255.255");

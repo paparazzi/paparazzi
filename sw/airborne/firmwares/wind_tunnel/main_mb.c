@@ -58,7 +58,7 @@ static inline void main_periodic_task( void ) {
   //  DOWNLINK_SEND_DEBUG(3,buf_input);
 
   float rpm = mb_tacho_get_averaged();
-  DOWNLINK_SEND_WT(&rpm);
+  DOWNLINK_SEND_WIND_TUNNEL(&rpm);
 
   float throttle = (float)wt_servo_motor_power / 1000.;
   mb_twi_controller_set(throttle);

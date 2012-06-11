@@ -166,7 +166,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.flight_time   <- ivalue "flight_time";
       (*if a.gspeed > 3. && a.ap_mode = _AUTO2 then
           Wind.update ac_name a.gspeed a.course*)
-  | "GPS" ->
+  | "GPS_UTM" ->
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gps_mode = _3D then begin
       let p = { LL.utm_x = fvalue "utm_east" /. 100.;
@@ -226,7 +226,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and lon = ivalue "lon" in
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
       a.nav_ref <- Some (Geo geo)
-  | "ATTITUDE" ->
+  | "ATTITUDE_EULER" ->
       let roll = fvalue "phi"
       and pitch = fvalue "theta" in
       if (List.assoc "phi" msg.Pprz.fields).Pprz._type = Pprz.Scalar "int16" then begin (* Compatibility with old message in degrees *)
@@ -359,7 +359,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
             a.survey <- Some (p1, p2)
         | None -> ()
       end
-  | "CALIBRATION" ->
+  | "V_CTL_CALIBRATION" ->
       a.throttle_accu <- fvalue "climb_sum_err"
   | "DL_VALUE" ->
       let i = ivalue "index" in

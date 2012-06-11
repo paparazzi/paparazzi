@@ -66,9 +66,9 @@
 })
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
-	uint16_t vsup = electrical.vsupply; \
+	uint16_t vsup = electrical.vsupply*10; \
 	int16_t amps = (int16_t) (electrical.current/10); \
-	int16_t pwr = (int16_t) (vsup*amps); \
+	int16_t pwr = (int16_t) (vsup*amps*100); \
 	int16_t e = 0; \
 	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, 0);\
 })
@@ -334,8 +334,8 @@
 
 #if USE_AHRS_CMPL_EULER
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
-#define PERIODIC_SEND_FILTER(_trans, _dev) {					\
-    DOWNLINK_SEND_FILTER(_trans, _dev,						\
+#define PERIODIC_SEND_AHRS_EULER_DEBUG(_trans, _dev) {					\
+    DOWNLINK_SEND_AHRS_EULER_DEBUG(_trans, _dev,						\
              &ahrs.ltp_to_imu_euler.phi,			\
              &ahrs.ltp_to_imu_euler.theta,			\
              &ahrs.ltp_to_imu_euler.psi,			\
@@ -353,7 +353,7 @@
              &ahrs_impl.gyro_bias.r);			\
   }
 #else
-#define PERIODIC_SEND_FILTER(_trans, _dev) {}
+#define PERIODIC_SEND_AHRS_EULER_DEBUG(_trans, _dev) {}
 #endif
 
 #if USE_AHRS_LKF
@@ -487,7 +487,7 @@
 
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
-#define PERIODIC_SEND_VFF(_trans, _dev) {		\
+#define PERIODIC_SEND_VFF_DEBUG(_trans, _dev) {		\
     DOWNLINK_SEND_VFF(_trans, _dev,			\
                 &vff_z_meas,		\
                 &vff_z,			\
@@ -498,7 +498,7 @@
                 & vff_P[2][2]);		\
   }
 #else
-#define PERIODIC_SEND_VFF(_trans, _dev) {}
+#define PERIODIC_SEND_VFF_DEBUG(_trans, _dev) {}
 #endif
 
 #if USE_HFF
@@ -547,16 +547,16 @@
                  &guidance_h_held_pos.y);		\
   }
 
-#define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
-    DOWNLINK_SEND_INS_Z(_trans, _dev,					\
+#define PERIODIC_SEND_INS_Z_INT(_trans, _dev) {				\
+    DOWNLINK_SEND_INS_Z_INT(_trans, _dev,					\
                 &ins_baro_alt,				\
                 &ins_ltp_pos.z,			\
                 &ins_ltp_speed.z,			\
                 &ins_ltp_accel.z);			\
   }
 
-#define PERIODIC_SEND_INS(_trans, _dev) {			\
-    DOWNLINK_SEND_INS(_trans, _dev,				\
+#define PERIODIC_SEND_INS_INT(_trans, _dev) {			\
+    DOWNLINK_SEND_INS_INT(_trans, _dev,				\
                        &ins_ltp_pos.x,		\
                        &ins_ltp_pos.y,      \
                        &ins_ltp_pos.z,		\

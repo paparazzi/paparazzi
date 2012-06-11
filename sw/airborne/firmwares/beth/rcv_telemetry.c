@@ -79,11 +79,11 @@ void dl_parse_msg(void) {
   uint8_t msg_id = IdOfMsg(dl_buffer);
   printf("Tiny rx id: %d\n",msg_id);
 
-  if (msg_id == DL_ATTITUDE) {
+  if (msg_id == DL_ATTITUDE_EULER) {
       phi = DL_ATTITUDE_phi(dl_buffer);
       psi = DL_ATTITUDE_psi(dl_buffer);
       theta = DL_ATTITUDE_theta(dl_buffer);
-      printf("Attitude: %f %f %f\n", phi, psi, theta);
+      printf("Attitude: %f %f %f\n", phi, theta, psi);
   }
   if (msg_id == DL_ENERGY) {
       throttle = DL_ENERGY_throttle(dl_buffer);

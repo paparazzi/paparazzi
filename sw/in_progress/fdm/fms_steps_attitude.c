@@ -81,7 +81,7 @@ static gboolean periodic(gpointer data __attribute__ ((unused))) {
   int32_t unused = 0;
   if ((counter%(2*STEP_PERIOD)) >= STEP_PERIOD) roll = -roll;
 
-  IvySendMsg("dl BOOZ2_FMS_COMMAND %d %d %d %d d %d %d %d,%d,%d", aircraft_id, h_mode, v_mode, unused, unused, unused, unused, roll, pitch, yaw);
+  IvySendMsg("dl ROTORCRAFT_FMS_COMMAND %d %d %d %d d %d %d %d,%d,%d", aircraft_id, h_mode, v_mode, unused, unused, unused, unused, roll, pitch, yaw);
   return TRUE;
 }
 

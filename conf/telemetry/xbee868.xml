@@ -5,9 +5,9 @@
     <mode name="default">
       <message name="ESTIMATOR"      period="3."	phase="0."/>
       <message name="MISSION_STATUS" period="3."	phase="0."/>
-      <message name="GPS"	     period="3."	phase="0."/>
+      <message name="GPS_UTM"	       period="3."	phase="0."/>
 
-      <message name="ATTITUDE"       period="6."	phase="0"/>
+      <message name="ATTITUDE_EULER" period="6."	phase="0"/>
       <message name="DL_VALUE"       period="3."	phase="0"/>
       <message name="WP_MOVED"       period="6."	phase="3"/>
 
@@ -20,7 +20,7 @@
       <message name="ENERGY"         period="12."	phase="0"/>
 
       <message name="ALIVE"          period="18."	phase="0"/>
-      <message name="CALIBRATION"    period="18."	phase="0"/>
+      <message name="V_CTL_CALIBRATION" period="18."	phase="0"/>
       <message name="DOWNLINK"       period="18."	phase="0"/>
       <message name="GPS_SOL"        period="18."	phase="0"/>
       <message name="NAVIGATION_REF" period="18."	phase="0"/>

@@ -177,7 +177,7 @@ let _ =
 	Some (float (Pprz.int_assoc "course" values) /. 10.)
       else
 	None in
-  ignore (Tm_Pprz.message_bind "GPS" get_gps);
+  ignore (Tm_Pprz.message_bind "GPS_UTM" get_gps);
   let get_desired = fun _ values ->
     desired_course := (Rad>>Deg) (Pprz.float_assoc "course" values) in
   ignore (Tm_Pprz.message_bind "DESIRED" get_desired);

@@ -528,7 +528,7 @@ let pprz_float = function
 
 let rec select_gps_values = function
     [] -> []
-  | (m, values)::_ when m.Pprz.name = "GPS" ->
+  | (m, values)::_ when m.Pprz.name = "GPS_UTM" ->
       let xs = List.assoc "utm_east" values
       and ys = List.assoc "utm_north" values
       and zs = List.assoc "utm_zone" values

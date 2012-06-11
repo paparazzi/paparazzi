@@ -149,8 +149,8 @@ static void reset_average(void) {
 void calibrator_init(void) {
 
   IvyInit ("IrCalib", "IrCalib READY", NULL, NULL, NULL, NULL);
-  IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE (\\S*) (\\S*) (\\S*)");
-  IvyBindMsg(on_GPS, NULL, "^(\\S*) GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE_EULER (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_GPS, NULL, "^(\\S*) GPS_UTM (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_Wind, NULL, "^(\\S*) WIND (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_IrSensors, NULL, "^(\\S*) IR_SENSORS (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");

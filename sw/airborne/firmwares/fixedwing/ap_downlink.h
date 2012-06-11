@@ -68,9 +68,9 @@
 })
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
-  uint16_t vsup = vsupply; \
+  uint16_t vsup = vsupply*10; \
   int16_t amps = (int16_t) (current/10); \
-  int16_t pwr = (int16_t) (vsup*amps); \
+  int16_t pwr = (int16_t) (vsup*amps*100); \
   int16_t e = energy; \
   DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
 })
@@ -100,8 +100,8 @@
 }
 
 
-#define PERIODIC_SEND_ATTITUDE(_trans, _dev) Downlink({ \
-      DOWNLINK_SEND_ATTITUDE(_trans, _dev, &estimator_phi, &estimator_psi, &estimator_theta); \
+#define PERIODIC_SEND_ATTITUDE_EULER(_trans, _dev) Downlink({ \
+      DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &estimator_phi, &estimator_theta, &estimator_psi); \
 })
 
 
@@ -134,12 +134,12 @@
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "rc_settings.h"
 #define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle);
-#define PERIODIC_SEND_SETTINGS(_trans, _dev) if (!RcSettingsOff()) DOWNLINK_SEND_SETTINGS(_trans, _dev, &slider_1_val, &slider_2_val);
+#define PERIODIC_SEND_RC_SETTINGS(_trans, _dev) if (!RcSettingsOff()) DOWNLINK_SEND_RC_SETTINGS(_trans, _dev, &slider_1_val, &slider_2_val);
 #else
 #define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) {                         \
     DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle); \
   }
-#define PERIODIC_SEND_SETTINGS(_trans, _dev) {}
+#define PERIODIC_SEND_RC_SETTINGS(_trans, _dev) {}
 #endif
 
 #if USE_INFRARED || USE_INFRARED_TELEMETRY
@@ -152,7 +152,7 @@
 #define PERIODIC_SEND_ADC(_trans, _dev) {}
 
 
-#define PERIODIC_SEND_CALIBRATION(_trans, _dev) DOWNLINK_SEND_CALIBRATION(_trans, _dev, &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode)
+#define PERIODIC_SEND_V_CTL_CALIBRATION(_trans, _dev) DOWNLINK_SEND_V_CTL_CALIBRATION(_trans, _dev, &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode)
 
 #define PERIODIC_SEND_CIRCLE(_trans, _dev) if (nav_in_circle) { DOWNLINK_SEND_CIRCLE(_trans, _dev, &nav_circle_x, &nav_circle_y, &nav_circle_radius); }
 
@@ -299,11 +299,11 @@
 #endif
 
 #ifdef MEASURE_AIRSPEED
-#define PERIODIC_SEND_AIRSPEED(_trans, _dev) DOWNLINK_SEND_AIRSPEED (_trans, _dev, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed)
+#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) DOWNLINK_SEND_AIRSPEED_CONTROL (_trans, _dev, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed)
 #elif USE_AIRSPEED
-#define PERIODIC_SEND_AIRSPEED(_trans, _dev) DOWNLINK_SEND_AIRSPEED (_trans, _dev, &estimator_airspeed, &v_ctl_auto_airspeed_setpoint, &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint)
+#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) DOWNLINK_SEND_AIRSPEED_CONTROL (_trans, _dev, &estimator_airspeed, &v_ctl_auto_airspeed_setpoint, &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint)
 #else
-#define PERIODIC_SEND_AIRSPEED(_trans, _dev) {}
+#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) {}
 #endif
 
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"

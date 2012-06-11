@@ -203,4 +203,13 @@
     <field name="pressure" type="float" unit="hPa" format="%.2f"/>
     <field name="temp"     type="float" unit="deg_celsius" format="%.2f"/>
   </message>
+
+  <message name="PBN" id="45">
+    <field name="airspeed_adc" type="uint16"/>
+    <field name="altitude_adc" type="uint16"/>
+    <field name="airspeed" type="float"/>
+    <field name="altitude" type="float"/>
+    <field name="airspeed_offset" type="uint16"/>
+    <field name="altitude_offset" type="uint16"/>
+  </message>
 </class>

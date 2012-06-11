@@ -237,7 +237,7 @@ printf("gps_utm_north %d\n", gps_utm_north);
 printf("gps_utm_zone %d\n", gps_utm_zone);
 
 /*
-   <message name="GPS" id="8">
+   <message name="GPS_UTM" id="8">
      <field name="mode"       type="uint8"  unit="byte_mask"/>
      <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
      <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
@@ -251,7 +251,7 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
      <field name="gps_nb_err" type="uint8"/>
    </message>
 */
-      IvySendMsg("%d GPS %d %d %d %d %d %d %d %d %d %d %d",
+      IvySendMsg("%d GPS_UTM %d %d %d %d %d %d %d %d %d %d %d",
                 AC_ID,
                 3, // mode = 3D
                 gps_utm_east,
@@ -283,14 +283,14 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0); // kill_auto_throttle
 
 /*
-  <message name="AIRSPEED" id="54">
+  <message name="AIRSPEED_CONTROL" id="54">
     <field name="airspeed" type="float" unit="m/s"/>
     <field name="airspeed_sp" type="float" unit="m/s"/>
     <field name="airspeed_cnt" type="float" unit="m/s"/>
     <field name="groundspeed_sp" type="float" unit="m/s"/>
   </message>
 */
-      IvySendMsg("%d AIRSPEED %f %d %d %d",
+      IvySendMsg("%d AIRSPEED_CONTROL %f %d %d %d",
                 AC_ID,
                 (float)(estimator_airspeed / 100.),
                 0, // airspeed_sp
@@ -353,17 +353,17 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0); // z_dot
 
 /*
-   <message name="ATTITUDE" id="6">
+   <message name="ATTITUDE_EULER" id="6">
      <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
-     <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
      <field name="theta" type="float" unit="rad" alt_unit="deg"/>
+     <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
    </message>
 */
-      IvySendMsg("%d ATTITUDE %f %f %f",
+      IvySendMsg("%d ATTITUDE_EULER %f %f %f",
                 AC_ID,
                 0., // phi
-                RadOfDeg(gps_course / 10.),
-                0.); // theta
+                0.,// theta
+                RadOfDeg(gps_course / 10.)); 
 
     }
   }
