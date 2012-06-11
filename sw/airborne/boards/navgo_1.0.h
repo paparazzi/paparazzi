@@ -54,6 +54,15 @@
 
 /* ADC */
 
+/* not compatible with PWM0 */
+#define ADC_0 AdcBank1(6)
+#ifdef USE_ADC_0
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_6
+#endif
+
 /* battery */
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
@@ -80,6 +89,7 @@
 #define SPI1_DRDY_VIC_IT       VIC_EINT0
 
 /* PWM0 (internal PWM5) */
+/* not compatible with ADC_0 */
 /* P0.21 */
 #define PWM0_PINSEL PINSEL1
 #define PWM0_PINSEL_VAL 0x01
