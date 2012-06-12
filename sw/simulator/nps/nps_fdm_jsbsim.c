@@ -19,10 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file nps_fdm_jsbsim.c
+ * Flight Dynamics Model (FDM) for NPS using JSBSim.
+ *
+ * This is an FDM for NPS that uses JSBSim as the simulation engine.
+ */
+
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
+#include <models/FGAccelerations.h>
 #include <stdlib.h>
 #include "nps_fdm.h"
 #include "generated/airframe.h"
@@ -32,6 +40,7 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+/// Macro to convert from feet to metres
 #define MetersOfFeet(_f) ((_f)/3.2808399)
 
 using namespace JSBSim;
@@ -51,8 +60,12 @@ static void lla_from_jsbsim_geocentric(LlaCoor_d* fdm_lla, FGPropagate* propagat
 static void init_jsbsim(double dt);
 static void init_ltp(void);
 
+/// Holds all necessary NPS FDM state information
 struct NpsFdm fdm;
+
+/// The JSBSim executive object
 static FGFDMExec* FDMExec;
+
 static struct LtpDef_d ltpdef;
 
 void nps_fdm_init(double dt) {
@@ -77,6 +90,11 @@ void nps_fdm_run_step(double* commands) {
 
 }
 
+/**
+ * Feed JSBSim with the latest actuator commands.
+ * 
+ * @param commands   Pointer to array of doubles holding actuator commands
+ */
 static void feed_jsbsim(double* commands) {
 
   char buf[64];
@@ -89,14 +107,19 @@ static void feed_jsbsim(double* commands) {
     property = string(buf);
     FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);
   }
+
 }
 
+/**
+ * Populates the NPS fdm struct after a simulation step.
+ */
 static void fetch_state(void) {
 
   FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
   fdm.time = node->getDoubleValue();
 
   FGPropagate* propagate = FDMExec->GetPropagate();
+  FGAccelerations* accelerations = FDMExec->GetAccelerations();
 
   fdm.on_ground = FDMExec->GetGroundReactions()->GetWOW();
 
@@ -113,7 +136,7 @@ static void fetch_state(void) {
   /* in body frame */
   const FGColumnVector3& fg_body_ecef_vel = propagate->GetUVW();
   jsbsimvec_to_vec(&fdm.body_ecef_vel, &fg_body_ecef_vel);
-  const FGColumnVector3& fg_body_ecef_accel = propagate->GetUVWdot();
+  const FGColumnVector3& fg_body_ecef_accel = accelerations->GetUVWdot();
   jsbsimvec_to_vec(&fdm.body_ecef_accel,&fg_body_ecef_accel);
 
   /* in LTP frame */
@@ -162,10 +185,20 @@ static void fetch_state(void) {
    * rotational speed and accelerations
    */
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&propagate->GetPQR());
-  jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&propagate->GetPQRdot());
+  jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&accelerations->GetPQRdot());
 
 }
 
+/**
+ * Initializes JSBSim.
+ *
+ * Sets up the JSBSim executive and loads initial conditions
+ * Exits NPS with -1 if models or ICs fail to load
+ *
+ * @param dt   The desired simulation timestep
+ *
+ * @warning Needs PAPARAZZI_HOME defined to find the config files
+ */
 static void init_jsbsim(double dt) {
 
   char buf[1024];
@@ -207,6 +240,12 @@ static void init_jsbsim(double dt) {
 
 }
 
+/**
+ * Initialize the ltp from the JSBSim location.
+ *
+ * @todo The magnetic field is hardcoded, make location dependent
+ * (might be able to use JSBSim sensors)
+ */
 static void init_ltp(void) {
 
   FGPropagate* propagate = FDMExec->GetPropagate();
@@ -221,8 +260,17 @@ static void init_ltp(void) {
   fdm.ltp_h.x = 0.4912;
   fdm.ltp_h.y = 0.1225;
   fdm.ltp_h.z = 0.8624;
+
 }
 
+/**
+ * Convert JSBSim location format and struct to NPS location format and struct.
+ *
+ * JSBSim is in feet by default, NPS in metres
+ *
+ * @param fdm_location Pointer to EcefCoor_d struct
+ * @param jsb_location Pointer to FGLocation struct
+ */
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_location){
 
   fdm_location->x = MetersOfFeet(jsb_location->Entry(1));
@@ -231,6 +279,14 @@ static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_loc
 
 }
 
+/**
+ * Convert JSBSim vector format and struct to NPS vector format and struct.
+ *
+ * JSBSim is in feet by default, NPS in metres
+ *
+ * @param fdm_vector    Pointer to DoubleVect3 struct
+ * @param jsb_vector    Pointer to FGColumnVector3 struct
+ */
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector) {
 
   fdm_vector->x = MetersOfFeet(jsb_vector->Entry(1));
@@ -239,6 +295,12 @@ static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb
 
 }
 
+/**
+ * Convert JSBSim quaternion struct to NPS quaternion struct.
+ *
+ * @param fdm_quat    Pointer to DoubleQuat struct
+ * @param jsb_quat    Pointer to FGQuaternion struct
+ */
 static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, const FGQuaternion* jsb_quat){
 
   fdm_quat->qi = jsb_quat->Entry(1);
@@ -248,6 +310,12 @@ static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, const FGQuaternion* jsb_qua
 
 }
 
+/**
+ * Convert JSBSim rates vector struct to NPS rates struct.
+ *
+ * @param fdm_rate    Pointer to DoubleRates struct
+ * @param jsb_vector  Pointer to FGColumnVector3 struct
+ */
 static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_vector) {
 
   fdm_rate->p = jsb_vector->Entry(1);
@@ -256,26 +324,55 @@ static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_
 
 }
 
-//longitude and geodetic latitude in rad and height above sea level in m
+/**
+ * Convert JSBSim location to NPS LLH.
+ *
+ * Gets geodetic latitude, longitude and height above sea level in metres
+ *
+ * @param fdm_lla   Pointer to LlaCoor_d struct
+ * @param propagate Pointer to JSBSim FGPropagate object
+ */
 void llh_from_jsbsim(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+
   fdm_lla->lat = propagate->GetGeodLatitudeRad();
   fdm_lla->lon = propagate->GetLongitude();
   fdm_lla->alt = MetersOfFeet(propagate->GetAltitudeASLmeters());
   //printf("geodetic alt: %f\n", MetersOfFeet(propagate->GetGeodeticAltitude()));
   //printf("ground alt: %f\n", MetersOfFeet(propagate->GetDistanceAGL()));
   //printf("ASL alt: %f\n", MetersOfFeet(propagate->GetAltitudeASLmeters()));
+
 }
 
+/**
+ * Convert JSBSim location to NPS LLA.
+ *
+ * Gets geocentric latitude, longitude and geocentric radius
+ *
+ * @param fdm_lla   Pointer to LlaCoor_d struct
+ * @param propagate Pointer to JSBSim FGPropagate object
+ */
 void lla_from_jsbsim_geocentric(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+
   fdm_lla->lat = propagate->GetLatitude();
   fdm_lla->lon = propagate->GetLongitude();
   fdm_lla->alt = MetersOfFeet(propagate->GetRadius());
+
 }
 
+/**
+ * Convert JSBSim location to NPS LLA.
+ *
+ * Gets geodetic latitude, longitude and geodetic altitude in metres
+ *
+ * @param fdm_lla   Pointer to LlaCoor_d struct
+ * @param propagate Pointer to JSBSim FGPropagate object
+ */
 void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+
   fdm_lla->lat = propagate->GetGeodLatitudeRad();
   fdm_lla->lon = propagate->GetLongitude();
   fdm_lla->alt = MetersOfFeet(propagate->GetGeodeticAltitude());
+
 }
 
 
