@@ -215,6 +215,6 @@ void IMU_Daten_verarbeiten( void ) {
 
     {
     float psi=0;
-    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &estimator_phi, &estimator_theta, &psi));
+    RunOnceEvery(15, DOWNLINK_SEND_ATTITUDE_EULER(DefaultChannel, DefaultDevice, &estimator_phi, &estimator_theta, &psi));
     }
 }

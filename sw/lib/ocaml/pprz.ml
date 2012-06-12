@@ -607,6 +607,9 @@ module type MESSAGES = sig
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 
+  val sort_values : string -> values -> values
+  (** Sort the string of values with the xml order *)
+
   val message_send : ?timestamp:float -> string -> string -> values -> unit
   (** [message_send sender msg_name values] *)
 
@@ -896,6 +899,23 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
      default_value field._type in
      formatted_string_of_value field.fformat v)
    msg.fields)
+	
+	let sort_values = fun msg_name values ->
+		let msg = snd (message_of_name msg_name) in
+    (** Check that the values are compatible with this message *)
+    List.iter
+      (fun (k, _) ->
+        if not (List.mem_assoc k msg.fields)
+        then invalid_arg (sprintf "Pprz.sort_values: unknown field '%s' in message '%s'" k msg.name))
+    values;
+
+    List.map
+      (fun (field_name, field) ->
+        let v =
+        try List.assoc field_name values with Not_found -> default_value field._type in
+        (field_name,v))
+    msg.fields
+
 
   let message_send = fun ?timestamp sender msg_name values ->
     let m = snd (message_of_name msg_name) in

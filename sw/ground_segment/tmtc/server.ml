@@ -650,7 +650,7 @@ let move_wp = fun logging _sender vs ->
 	     "lon", deg7 "long";
 	     "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
-  log logging ac_id "MOVE_WP" vs
+  log logging ac_id "MOVE_WP" (Dl_Pprz.sort_values "MOVE_WP" vs)
 
 (** Got a DL_SETTING, and send an SETTING *)
 let setting = fun logging _sender vs ->
@@ -659,7 +659,7 @@ let setting = fun logging _sender vs ->
 	    "index", List.assoc "index" vs;
 	    "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
-  log logging ac_id "SETTING" vs
+  log logging ac_id "SETTING" (Dl_Pprz.sort_values "SETTING" vs)
 
 
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)
@@ -676,7 +676,7 @@ let jump_block = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = ["ac_id", Pprz.String ac_id; "block_id", List.assoc "block_id" vs] in
   Dl_Pprz.message_send dl_id "BLOCK" vs;
-  log logging ac_id "BLOCK" vs
+  log logging ac_id "BLOCK" (Dl_Pprz.sort_values "BLOCK" vs)
 
 (** Got a RAW_DATALINK,send its contents *)
 let raw_datalink = fun logging _sender vs ->
@@ -686,7 +686,7 @@ let raw_datalink = fun logging _sender vs ->
 	let cls_id = Dl_Pprz.class_id_of_msg_args_unsorted m in
 	let msg = Dl_Pprz.message_of_id ~class_id:cls_id msg_id in
 	Dl_Pprz.message_send dl_id msg.Pprz.name vs;
-  log logging ac_id msg.Pprz.name vs
+  log logging ac_id msg.Pprz.name (Dl_Pprz.sort_values msg.Pprz.name vs)
 
 (** Get the 'ground' uplink messages, log them and send 'datalink' messages *)
 let ground_to_uplink = fun logging ->

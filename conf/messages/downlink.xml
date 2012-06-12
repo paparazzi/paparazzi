@@ -140,7 +140,7 @@
 <!-- ___________________________________________ GPS ______________________________________________ -->
 
   <message name="GPS_UTM" id="33">
-    <field name="mode"       type="uint8"  unit="byte_mask"/>
+    <field name="fix"       type="uint8"  unit="byte_mask" values="NONE|UKN1|UKN2|3D"/>
     <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
     <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
@@ -154,16 +154,15 @@
   </message>
 
   <message name="GPS_LLA" id="34">
-    <field name="lat"        type="int32"  unit="cm" alt_unit="m"/>
-    <field name="lon"        type="int32"  unit="cm" alt_unit="m"/>
+    <field name="lat"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
+    <field name="lon"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
     <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
     <field name="week"       type="uint16" unit="weeks"/>
     <field name="itow"       type="uint32" unit="ms"/>
-    <field name="mode"       type="uint8"  unit="byte_mask"/>
-    <field name="gps_nb_err" type="uint8"/>
+    <field name="fix"       type="uint8"  unit="byte_mask" values="NONE|UKN1|UKN2|3D"/>
   </message>
 
   <message name="GPS_INT" id="35">
@@ -324,7 +323,7 @@
 <!-- ___________________________________________ AHRS _____________________________________________ -->
 
 <!-- AHRS Messages: Attitude and Heading Reference System -->
-  <message name="AHRS_REF_QUAT" id="64">
+  <message name="AHRS_REF_QUAT" id="65">
     <field name="ref_qi"  type="int32"/>
     <field name="ref_qx"  type="int32"/>
     <field name="ref_qy"  type="int32"/>
@@ -333,21 +332,6 @@
     <field name="body_qx" type="int32"/>
     <field name="body_qy" type="int32"/>
     <field name="body_qz" type="int32"/>
-  </message>
-
-  <message name="AHRS_EULER" id="65">
-    <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
-    <field name="theta" type="float" unit="rad" alt_unit="deg"/>
-    <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
-  </message>
-
-  <message name="AHRS_EULER_INT" id="66">
-    <field name="imu_phi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
-    <field name="imu_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
-    <field name="imu_psi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
-    <field name="body_phi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
-    <field name="body_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
-    <field name="body_psi" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
 
   <message name="AHRS_MEASUREMENT_EULER" id="67">

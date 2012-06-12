@@ -86,7 +86,7 @@ void parse_ins_msg( void )
       }
       else if(CHIMU_DATA.m_MsgID==0x02) {
 
-        RunOnceEvery(25,DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_sensor.rate[0], &CHIMU_DATA.m_sensor.rate[1], &CHIMU_DATA.m_sensor.rate[2]));
+        RunOnceEvery(25,DOWNLINK_SEND_ATTITUDE_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_sensor.rate[0], &CHIMU_DATA.m_sensor.rate[1], &CHIMU_DATA.m_sensor.rate[2]));
 
       }
     }
