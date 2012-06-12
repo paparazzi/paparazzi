@@ -117,7 +117,7 @@ def print_xml(p, sensor, res):
 #
 # plot calibration results
 #
-def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
+def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
     subplot(3, 1, 1)
     plot(measurements[:, 0])
     plot(measurements[:, 1])
@@ -151,7 +151,12 @@ def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref
     plot(np1);
     plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-    show();
+    # if we want to have another plot we only draw the figure (non-blocking)
+    # also in matplotlib before 1.0.0 there is only one call to show possible
+    if block:
+        show()
+    else:
+        draw()
 
 #
 # plot mag measurements in 3D
@@ -178,33 +183,28 @@ def plot_mag_3d(measured, calibrated, p):
     cy = calibrated[:, 1]
     cz = calibrated[:, 2]
 
-    # axes
-    ax = []
-    ax.append(p[0] + 1/p[3])
-    ax.append(p[0] - 1/p[3])
-    ax.append(p[1])
-    ax.append(p[1])
-    ax.append(p[1])
-    ax.append(p[1])
-    ay = []
-    ay.append(p[1] + 1/p[4])
-    ay.append(p[1] - 1/p[4])
-    az = []
-    az.append(p[2] + 1/p[5])
-    az.append(p[2] - 1/p[5])
-    #print ax
+    # axes size
+    left = 0.02
+    bottom = 0.05
+    width = 0.46
+    height = 0.9
+    rect_l = [left, bottom, width, height]
+    rect_r = [left/2+0.5, bottom, width, height]
 
     fig = figure(figsize=figaspect(0.5))
-    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    if matplotlib.__version__.startswith('0'):
+        ax = Axes3D(fig, rect=rect_l)
+    else:
+        ax = fig.add_subplot(1, 2, 1, position=rect_l, projection='3d')
     # plot measurements
     ax.scatter(mx, my, mz)
     hold(True)
-    # plot center
-    ax.scatter(0, 0, 0, color='r', marker='+')
+    # plot line from center to ellipsoid center
+    ax.plot([0.0, p[0]], [0.0, p[1]], [0.0, p[2]], color='black', marker='+')
     # plot ellipsoid
     ax.plot_wireframe(ex, ey, ez, color='grey', alpha=0.5)
 
-    title('MAG raw with fitted ellipsoid')
+    ax.set_title('MAG raw with fitted ellipsoid and center offset')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
@@ -212,12 +212,15 @@ def plot_mag_3d(measured, calibrated, p):
     ax.set_ylim3d(-m_max, m_max)
     ax.set_zlim3d(-m_max, m_max)
 
-    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    if matplotlib.__version__.startswith('0'):
+        ax = Axes3D(fig, rect=rect_r)
+    else:
+        ax = fig.add_subplot(1, 2, 2, position=rect_r, projection='3d')
     ax.plot_wireframe(wx, wy, wz, color='grey', alpha=0.5)
     hold(True)
     ax.scatter(cx, cy, cz)
 
-    title('MAG calibrated on unit sphere')
+    ax.set_title('MAG calibrated on unit sphere')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
