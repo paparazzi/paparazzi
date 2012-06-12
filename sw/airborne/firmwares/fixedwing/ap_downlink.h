@@ -261,13 +261,12 @@
                            &gps.lla_pos.lat,                \
                            &gps.lla_pos.lon,                \
                            &gps.lla_pos.alt,                \
-                           &gps.hmsl,                       \
                            &course,                         \
                            &gps.gspeed,                     \
                            &climb,                          \
                            &gps.week,                       \
                            &gps.tow,                        \
-                           &gps.fix,                        \
+                           &gps.fix)                        \
   }
 #endif
 

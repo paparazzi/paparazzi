@@ -154,8 +154,8 @@
   </message>
 
   <message name="GPS_LLA" id="34">
-    <field name="lat"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef=""/>
-    <field name="lon"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef=""/>
+    <field name="lat"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
+    <field name="lon"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
     <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
