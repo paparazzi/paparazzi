@@ -119,7 +119,7 @@
   </message>
 <!-- _________________________________________ RC / PPM ___________________________________________ -->
   <message name="PPM" id="28">
-    <field name="ppm_rate" type="uint8">
+    <field name="ppm_rate" type="uint8"/>
     <field name="values" type="uint16[]" unit="usec"/>
   </message>
 
