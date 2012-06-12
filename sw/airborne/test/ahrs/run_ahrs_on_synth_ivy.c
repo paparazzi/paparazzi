@@ -54,7 +54,7 @@ gboolean timeout_callback(gpointer data) {
 	       bias_i.r);
 #endif
 
-  IvySendMsg("183 AHRS_EULER %f %f %f",
+  IvySendMsg("183 ATTITUDE_EULER %f %f %f",
 	     ahrs_float.ltp_to_imu_euler.phi,
 	     ahrs_float.ltp_to_imu_euler.theta,
 	     ahrs_float.ltp_to_imu_euler.psi);

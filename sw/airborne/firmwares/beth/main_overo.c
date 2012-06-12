@@ -163,7 +163,7 @@ static void main_periodic(int my_sig_num) {
 			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
 				&imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
 
-  RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
+  RunOnceEvery(50, {DOWNLINK_SEND_ATTITUDE_EULER(gcs_com.udp_transport,
 			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
   RunOnceEvery(50, {DOWNLINK_SEND_IMU_ACCEL_INT(DefaultChannel,
 			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z

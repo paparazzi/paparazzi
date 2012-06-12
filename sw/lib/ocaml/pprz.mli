@@ -205,6 +205,9 @@ module type MESSAGES = sig
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 
+  val sort_values : string -> values -> values
+  (** Sort the string of values with the xml order *)
+
   val message_send : ?timestamp:float -> string -> string -> values -> unit
   (** [message_send sender msg_name values] *)
 
