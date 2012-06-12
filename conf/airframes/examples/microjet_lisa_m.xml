@@ -12,9 +12,11 @@
     <target name="sim" 	board="pc"/>
     <target name="ap"   board="lisa_m_1.0"/>
 
-    <define name="AGR_CLIMB" />
-    <define name="LOITER_TRIM" />
-    <define name="ALT_KALMAN" />
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="ALT_KALMAN"/>
+    <define name="USE_BARO_BMP"/>
+
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -32,6 +34,10 @@
 
   <modules>
     <load name="sys_mon.xml"/>
+    <load name="baro_bmp.xml">
+      <define name="BMP_I2C_DEV" value="i2c2"/>
+      <define name="USE_I2C2"/>
+    </load>
   </modules>
 
   <servos>
