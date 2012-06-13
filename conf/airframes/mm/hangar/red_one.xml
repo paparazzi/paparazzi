@@ -110,7 +110,7 @@
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
 
     <define name="TRIGGER_DELAY" value="1.5"/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="(V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN*V_CTL_ALTITUDE_MAX_CLIMB)"/>

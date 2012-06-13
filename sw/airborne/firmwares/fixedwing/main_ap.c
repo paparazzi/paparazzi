@@ -147,22 +147,6 @@ tid_t attitude_tid;    ///< id for attitude_loop() timer
 tid_t navigation_tid;  ///< id for navigation_task() timer
 tid_t monitor_tid;     ///< id for monitor_task() timer
 
-#ifndef CONTROL_FREQUENCY
-#ifdef  CONTROL_RATE
-#define CONTROL_FREQUENCY CONTROL_RATE
-//#warning "CONTROL_RATE deprecated. Renamed into CONTROL_FREQUENCY (in airframe file)"
-#else
-#define CONTROL_FREQUENCY 20
-#endif
-#endif
-
-#ifndef NAVIGATION_FREQUENCY
-#define NAVIGATION_FREQUENCY 4
-#endif
-
-#ifndef MODULES_FREQUENCY
-#define MODULES_FREQUENCY 60
-#endif
 
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */

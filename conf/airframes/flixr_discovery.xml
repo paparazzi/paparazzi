@@ -214,7 +214,7 @@
     <define name="MAXIMUM_AIRSPEED" value="22.0" unit="m/s"/>
     <define name="CARROT" value="5.0" unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
 
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->

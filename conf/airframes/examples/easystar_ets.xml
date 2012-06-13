@@ -104,7 +104,7 @@
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="4." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(2.0*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="NO_XBEE_API_INIT" value="TRUE"/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
