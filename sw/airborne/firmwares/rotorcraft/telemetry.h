@@ -751,6 +751,7 @@
     uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt;       \
     uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt;  \
     uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event; \
+    const uint8_t _bus0 = 0;                                            \
     DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
                              &i2c0_ack_fail_cnt,            \
                              &i2c0_miss_start_stop_cnt,     \
@@ -760,7 +761,8 @@
                              &i2c0_timeout_tlow_cnt,        \
                              &i2c0_smbus_alert_cnt,         \
                              &i2c0_unexpected_event_cnt,    \
-                             &i2c0_last_unexpected_event);  \
+                             &i2c0_last_unexpected_event,   \
+                             &_bus0);                       \
   }
 #else
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {}
@@ -777,6 +779,7 @@
     uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt;       \
     uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt;  \
     uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event; \
+    const uint8_t _bus1 = 1;                                            \
     DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
                              &i2c1_ack_fail_cnt,            \
                              &i2c1_miss_start_stop_cnt,     \
@@ -786,7 +789,8 @@
                              &i2c1_timeout_tlow_cnt,        \
                              &i2c1_smbus_alert_cnt,         \
                              &i2c1_unexpected_event_cnt,    \
-                             &i2c1_last_unexpected_event);  \
+                             &i2c1_last_unexpected_event,   \
+                             &_bus1);                       \
   }
 #else
 #define PERIODIC_SEND_I2C1_ERRORS(_trans, _dev) {}
@@ -803,6 +807,7 @@
     uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;       \
     uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;  \
     uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event; \
+    const uint8_t _bus2 = 2;                                            \
     DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
                              &i2c2_ack_fail_cnt,            \
                              &i2c2_miss_start_stop_cnt,     \
@@ -812,7 +817,8 @@
                              &i2c2_timeout_tlow_cnt,        \
                              &i2c2_smbus_alert_cnt,         \
                              &i2c2_unexpected_event_cnt,    \
-                             &i2c2_last_unexpected_event);  \
+                             &i2c2_last_unexpected_event,   \
+                             &_bus2);                       \
   }
 #else
 #define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {}

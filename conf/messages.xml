@@ -1963,6 +1963,7 @@
     <field name="smbus_alert_cnt"             type="uint16"/>
     <field name="unexpected_event_cnt"        type="uint16"/>
     <field name="last_unexpected_event"       type="uint32"/>
+    <field name="bus_number"                  type="uint8"/>
   </message>
 
   <message name="RDYB_TRAJECTORY" id="254">
