@@ -88,6 +88,7 @@ static inline void main_periodic_task( void ) {
       uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
       uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
       uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
+      const uint8_t _bus2 = 2;
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
                                &i2c2_ack_fail_cnt,
                                &i2c2_miss_start_stop_cnt,
@@ -97,7 +98,8 @@ static inline void main_periodic_task( void ) {
                                &i2c2_timeout_tlow_cnt,
                                &i2c2_smbus_alert_cnt,
                                &i2c2_unexpected_event_cnt,
-                               &i2c2_last_unexpected_event);
+                               &i2c2_last_unexpected_event,
+                               &_bus2);
     });
 }
 
