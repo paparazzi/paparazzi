@@ -25,9 +25,9 @@
     gui_color="white"
     />
   <aircraft
-    name="Quad_LisaM"
+    name="Quad_LisaM_2"
     ac_id="162"
-    airframe="airframes/examples/quadrotor_lisa_m_2_pwm.xml"
+    airframe="airframes/examples/quadrotor_lisa_m_2_pwm_spektrum.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/rotorcraft_basic.xml"

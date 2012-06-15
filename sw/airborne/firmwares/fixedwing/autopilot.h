@@ -35,10 +35,10 @@
 #include "mcu_periph/sys_time.h"
 #include "estimator.h"
 
-#define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
+#define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
-#define TRESHOLD1 TRESHOLD_MANUAL_PPRZ
-#define TRESHOLD2 (MAX_PPRZ/2)
+#define THRESHOLD1 THRESHOLD_MANUAL_PPRZ
+#define THRESHOLD2 (MAX_PPRZ/2)
 
 
 #define  PPRZ_MODE_MANUAL 0
@@ -49,8 +49,8 @@
 #define  PPRZ_MODE_NB 5
 
 #define PPRZ_MODE_OF_PULSE(pprz) \
-  (pprz > TRESHOLD2 ? PPRZ_MODE_AUTO2 : \
-        (pprz > TRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
+  (pprz > THRESHOLD2 ? PPRZ_MODE_AUTO2 : \
+        (pprz > THRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
 extern uint8_t pprz_mode;
 extern bool_t kill_throttle;
@@ -64,8 +64,7 @@ extern bool_t kill_throttle;
 #define LATERAL_MODE_NB        4
 extern uint8_t lateral_mode;
 
-#define STICK_PUSHED(pprz) (pprz < TRESHOLD1 || pprz > TRESHOLD2)
-
+#define STICK_PUSHED(pprz) (pprz < THRESHOLD1 || pprz > THRESHOLD2)
 #define FLOAT_OF_PPRZ(pprz, center, travel) ((float)pprz / (float)MAX_PPRZ * travel + center)
 
 #define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)

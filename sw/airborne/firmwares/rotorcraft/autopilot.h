@@ -78,13 +78,13 @@ extern uint16_t autopilot_flight_time;
 #endif
 
 
-#define TRESHOLD_1_PPRZ (MIN_PPRZ / 2)
-#define TRESHOLD_2_PPRZ (MAX_PPRZ / 2)
+#define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
+#define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
 
 #define AP_MODE_OF_PPRZ(_rc, _mode) {               \
-    if      (_rc > TRESHOLD_2_PPRZ)                 \
+    if      (_rc > THRESHOLD_2_PPRZ)                 \
       _mode = autopilot_mode_auto2;                 \
-    else if (_rc > TRESHOLD_1_PPRZ)					\
+    else if (_rc > THRESHOLD_1_PPRZ)					\
       _mode = MODE_AUTO1;                           \
     else                                            \
       _mode = MODE_MANUAL;                          \
@@ -106,13 +106,13 @@ extern uint16_t autopilot_flight_time;
   }
 #endif
 
-#ifndef TRESHOLD_GROUND_DETECT
-#define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
+#ifndef THRESHOLD_GROUND_DETECT
+#define THRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #endif
 static inline void DetectGroundEvent(void) {
   if (autopilot_mode == AP_MODE_FAILSAFE || autopilot_detect_ground_once) {
-    if (ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT ||
-        ins_ltp_accel.z > TRESHOLD_GROUND_DETECT) {
+    if (ins_ltp_accel.z < -THRESHOLD_GROUND_DETECT ||
+        ins_ltp_accel.z > THRESHOLD_GROUND_DETECT) {
       autopilot_detect_ground = TRUE;
       autopilot_detect_ground_once = FALSE;
     }

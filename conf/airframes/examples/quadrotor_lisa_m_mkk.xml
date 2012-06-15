@@ -1,8 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame equiped with Lisa/M 1.0 and MKK motor controllers -->
+<!-- this is a quadrotor frame equiped with
+     * Autopilot:   Lisa/M 1.0             http://paparazzi.enac.fr/wiki/Lisa/M_v10
+     * IMU:         Aspirin 1.5            http://paparazzi.enac.fr/wiki/AspirinIMU
+     * Actuators:   MKK motor controllers  http://paparazzi.enac.fr/wiki/Subsystem/actuators#MKK
+     * GPS:         Ublox                  http://paparazzi.enac.fr/wiki/Subsystem/gps
+     * RC:          any PPM system         http://paparazzi.enac.fr/wiki/Subsystem/radio_control#PPM
+-->
 
-<airframe name="fraser">
+<airframe name="Quadrotor LisaM_1.0 mkk">
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">

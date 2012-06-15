@@ -1,21 +1,32 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame equiped with Lisa/M 2.0 and PWM motor controllers -->
+<!-- this is a quadrotor frame equiped with
+     * Autopilot:   Lisa/M 2.0             http://paparazzi.enac.fr/wiki/Lisa/M_v20
+     * IMU:         Aspirin 2.1            http://paparazzi.enac.fr/wiki/AspirinIMU
+     * Actuators:   PWM motor controllers  http://paparazzi.enac.fr/wiki/Subsystem/actuators#PWM_Supervision
+     * GPS:         Ublox                  http://paparazzi.enac.fr/wiki/Subsystem/gps
+     * RC:          two Spektrum sats      http://paparazzi.enac.fr/wiki/Subsystem/radio_control#Spektrum
+-->
 
-<airframe name="fraser">
+<airframe name="Quadrotor LisaM_2.0 pwm">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_m_2.0"/>
+    <target name="ap" board="lisa_m_2.0">
+      <subsystem name="radio_control" type="spektrum">
+        <define name="RADIO_MODE" value="RADIO_AUX1"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      </subsystem>
+    </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="fdm" type="nps"/>
+      <subsystem name="radio_control" type="ppm"/>
     </target>
 
     <subsystem name="actuators"     type="pwm_supervision">
       <define name="SERVO_HZ" value="400"/>
     </subsystem>
 
-    <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
