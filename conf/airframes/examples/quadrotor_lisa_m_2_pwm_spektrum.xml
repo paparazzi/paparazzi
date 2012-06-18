@@ -25,6 +25,7 @@
 
     <subsystem name="actuators"     type="pwm_supervision">
       <define name="SERVO_HZ" value="400"/>
+      <define name="USE_SERVOS_7AND8"/>
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
