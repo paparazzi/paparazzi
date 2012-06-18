@@ -1,0 +1,137 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a HobbyKing Bixler equiped with
+  * Autopilot:   Lisa/M 2.0         http://paparazzi.enac.fr/wiki/Lisa/M_v20
+  * IMU:         Aspirin 2.1        http://paparazzi.enac.fr/wiki/AspirinIMU
+  * GPS:         Ublox              http://paparazzi.enac.fr/wiki/Subsystem/gps
+  * RC:          any PPM system     http://paparazzi.enac.fr/wiki/Subsystem/radio_control#PPM
+  * Modem        XBee in transparent mode at 57600 baud
+-->
+
+<airframe name="Bixler LisaM 2.0">
+
+  <firmware name="fixedwing">
+    <target name="ap" 			board="lisa_m_2.0"/>
+    <target name="sim" 			board="pc"/>
+
+    <define name="ALT_KALMAN"/>
+
+    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="control"/>
+    <subsystem name="imu" type="aspirin_v2.1"/>
+    <subsystem name="ahrs" type="float_dcm"/>
+    <subsystem name="gps" type="ublox"/>
+    <subsystem name="navigation"/>
+  </firmware>
+
+  <!-- commands section -->
+  <servos>
+    <servo name="THROTTLE"      no="1" min="1120" neutral="1120" max="1920"/>
+    <servo name="ELEVATOR"      no="2" min="1100" neutral="1515" max="1900"/>
+    <servo name="RUDDER"        no="3" min="950"  neutral="1440" max="2050"/>
+    <servo name="AILERON_RIGHT" no="4" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_LEFT"  no="5" min="1000" neutral="1500" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"      failsafe_value="2000"/>
+  </commands>
+
+  <rc_commands>
+    <set command="ROLL"      value="@ROLL"/>
+    <set command="PITCH"     value="@PITCH"/>
+    <set command="THROTTLE"  value="@THROTTLE"/>
+  </rc_commands>
+
+  <section name="MIXER">
+    <define name="COMBI_SWITCH" value="0.3"/>
+  </section>
+
+  <command_laws>
+    <set servo="THROTTLE"    value="@THROTTLE"/>
+    <set servo="ELEVATOR"    value="@PITCH"/>
+    <set servo="RUDDER"      value="@YAW + @ROLL*COMBI_SWITCH"/>
+    <set servo="AILERON_LEFT" value="@ROLL"/>
+    <set servo="AILERON_RIGHT" value="@ROLL"/>
+  </command_laws>
+
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="50" unit="deg"/>
+    <define name="MAX_PITCH" value="40" unit="deg"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT"  value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+  </section>
+
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="8.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="8.5" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="9.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.5" unit="V"/>
+  </section>
+
+  <section name="MISC">
+    <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
+    <define name="CARROT" value="4." unit="s"/>
+    <define name="KILL_MODE_DISTANCE" value="(2.0*MAX_DIST_FROM_HOME)"/>
+    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100."/>
+  </section>
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.0" unit="volt"/>
+    <!-- outer loop -->
+    <define name="ALTITUDE_PGAIN" value="0.075" unit="(m/s)/m"/>
+    <define name="ALTITUDE_MAX_CLIMB" value="4." unit="m/s"/>
+    <!-- auto throttle inner loop -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5" unit="%"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.4" unit="%"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.8" unit="%"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.02" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05" unit="rad/(m/s)"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.125"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.025"/>
+    <define name="AUTO_PITCH_MAX_PITCH" value="25" unit="deg"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-25" unit="deg"/>
+    <define name="THROTTLE_SLEW" value="1.0"/>
+  </section>
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="0.7"/>
+    <define name="ROLL_MAX_SETPOINT" value="35" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="25" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
+    <define name="PITCH_PGAIN" value="20000."/>
+    <define name="PITCH_DGAIN" value="1.5"/>
+    <define name="ELEVATOR_OF_ROLL" value="2500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7400"/>
+    <define name="ROLL_RATE_GAIN" value="200"/>
+  </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DELAY_WITHOUT_GPS" value="3" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.4" unit="%"/>
+    <define name="DEFAULT_ROLL" value="15" unit="deg"/>
+    <define name="DEFAULT_PITCH" value="0" unit="deg"/>
+    <define name="HOME_RADIUS" value="90" unit="m"/>
+  </section>
+
+</airframe>
