@@ -207,8 +207,10 @@
 
 #define PERIODIC_SEND_TUNE_ROLL(_trans, _dev) DOWNLINK_SEND_TUNE_ROLL(_trans, _dev, &estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
-#if USE_GPS || USE_GPS_XSENS || defined SITL
+#if USE_GPS || defined SITL
 #define PERIODIC_SEND_GPS_SOL(_trans, _dev) DOWNLINK_SEND_GPS_SOL(_trans, _dev, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv)
+#else
+#define PERIODIC_SEND_GPS_SOL(_trans, _dev) {}
 #endif
 
 #define PERIODIC_SEND_GPS(_trans, _dev) {                                      \

@@ -225,7 +225,6 @@
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
       <configure name="AHRS_ALIGNER_LED" value="3"/>
-      <configure name="CPU_LED" value="3"/>
     </target>
     <target name="sim" board="pc"/>
 

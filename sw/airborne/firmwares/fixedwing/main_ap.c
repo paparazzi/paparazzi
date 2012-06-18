@@ -93,8 +93,6 @@ static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#else
-static inline void on_ahrs_event(void);
 #endif // USE_IMU
 #endif // USE_AHRS
 
@@ -172,6 +170,10 @@ void init_ap( void ) {
 
 #if USE_AHRS
   ahrs_init();
+#endif
+
+#if USE_INS
+  ins_init();
 #endif
 
   /************* Links initialization ***************/
@@ -479,10 +481,8 @@ void navigation_task( void ) {
 }
 
 
-#if USE_AHRS
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 volatile uint8_t new_ins_attitude = 0;
-#endif
 #endif
 
 void attitude_loop( void ) {
@@ -518,6 +518,10 @@ void sensors_task( void ) {
     ahrs_timeout_counter ++;
 #endif // USE_AHRS
 #endif // USE_IMU
+
+#if USE_INS
+  ins_periodic_task();
+#endif
 }
 
 
@@ -571,17 +575,17 @@ void event_task_ap( void ) {
   i2c_event();
 #endif
 
-#if USE_AHRS
-#if USE_IMU
+#if USE_AHRS && USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-#else
-  AhrsEvent(on_ahrs_event);
-#endif // USE_IMU
-#endif // USE_AHRS
+#endif
+
+#if USE_INS
+  InsEvent(NULL);
+#endif
 
 #if USE_GPS
   GpsEvent(on_gps_solution);
-#endif /** USE_GPS */
+#endif /* USE_GPS */
 
 
   DatalinkEvent();
@@ -614,7 +618,9 @@ void event_task_ap( void ) {
 #if USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
+#if USE_AHRS
   ahrs_update_gps();
+#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
@@ -630,10 +636,6 @@ static inline void on_accel_event( void ) {
 static inline void on_gyro_event( void ) {
 
   ahrs_timeout_counter = 0;
-
-#ifdef AHRS_CPU_LED
-  LED_ON(AHRS_CPU_LED);
-#endif
 
 #if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
@@ -701,10 +703,6 @@ static inline void on_gyro_event( void ) {
   }
 #endif //PERIODIC_FREQUENCY
 
-#ifdef AHRS_CPU_LED
-    LED_OFF(AHRS_CPU_LED);
-#endif
-
 }
 
 static inline void on_mag_event(void)
@@ -717,13 +715,6 @@ static inline void on_mag_event(void)
 #endif
 }
 
-#else // USE_IMU not defined
-static inline void on_ahrs_event(void)
-{
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ahrs_update_fw_estimator();
-#endif
-}
 #endif // USE_IMU
 
 #endif // USE_AHRS
