@@ -77,9 +77,9 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="8.0" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="8.5" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="9.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.5" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.0" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.5" unit="V"/>
   </section>
 
@@ -99,13 +99,13 @@
     <define name="ALTITUDE_MAX_CLIMB" value="4." unit="m/s"/>
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5" unit="%"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.4" unit="%"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.8" unit="%"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.2" unit="%"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="1.0" unit="%"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500" unit="pprz_t"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000" unit="pprz_t"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="0.02" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.03"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05" unit="rad/(m/s)"/>
     <define name="AUTO_PITCH_PGAIN" value="0.125"/>
     <define name="AUTO_PITCH_IGAIN" value="0.025"/>
@@ -115,7 +115,8 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="0.7"/>
+    <define name="COURSE_PGAIN" value="1.0"/>
+    <define name="COURSE_DGAIN" value="0.4"/>
     <define name="ROLL_MAX_SETPOINT" value="35" unit="deg"/>
     <define name="PITCH_MAX_SETPOINT" value="25" unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
