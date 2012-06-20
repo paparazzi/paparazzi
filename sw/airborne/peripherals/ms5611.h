@@ -32,8 +32,8 @@
  *
  * Note: Aspirin 2.1 has CSB bound to GND.
  */
-#define MS5611_ADDR0 0x76
-#define MS5611_ADDR1 0x77
+#define MS5611_ADDR0 0x77
+#define MS5611_ADDR1 0x76
 
 /* General Registers */
 #define MS5611_REG_ADCREAD   0x00 // Read converted value
@@ -47,8 +47,8 @@
 #define MS5611_OSR4096       0x08
 
 /* D1 Register defines */
-#define MS5611_REG_D1        0x40 // Request D1 (pressure) conversion
-#define MS5611_REG_D1(_osr)  (MS5611_REG_D1 | _osr)
+#define MS5611_REG_D1R       0x40 // Request D1 (pressure) conversion
+#define MS5611_REG_D1(_osr)  (MS5611_REG_D1R | _osr)
 #define MS5611_REG_D1OSR256  MS5611_REG_D1(MS5611_ORS256)
 #define MS5611_REG_D1OSR512  MS5611_REG_D1(MS5611_OSR512)
 #define MS5611_REG_D1OSR1024 MS5611_REG_D1(MS5611_OSR1024)
@@ -56,8 +56,8 @@
 #define MS5611_REG_D1OSR4096 MS5611_REG_D1(MS5611_OSR4096)
 
 /* D2 register defines */
-#define MS5611_REG_D2        0x40 // Request D2 (temperature) conversion
-#define MS5611_REG_D2(_osr)  (MS5611_REG_D2 | _osr)
+#define MS5611_REG_D2R       0x50 // Request D2 (temperature) conversion
+#define MS5611_REG_D2(_osr)  (MS5611_REG_D2R | _osr)
 #define MS5611_REG_D2OSR256  MS5611_REG_D2(MS5611_ORS256)
 #define MS5611_REG_D2OSR512  MS5611_REG_D2(MS5611_OSR512)
 #define MS5611_REG_D2OSR1024 MS5611_REG_D2(MS5611_OSR1024)
@@ -75,8 +75,8 @@
 #define MS5611_PROM_ADDR7    0x0E // CRC-4 (Chkecksum of the PROM content)
 
 /* PROM register defines */
-#define MS5611_REG_PROM      0xA0
-#define MS5611_REG_PROM(_addr) (MS5611_REG_PROM | _addr)
+#define MS5611_REG_PROMR     0xA0
+#define MS5611_REG_PROM(_addr) (MS5611_REG_PROMR | _addr)
 #define MS5611_REG_C1        MS5611_REG_PROM(ADDR1)
 #define MS5611_REG_C2        MS5611_REG_PROM(ADDR2)
 #define MS5611_REG_C3        MS5611_REG_PROM(ADDR3)
