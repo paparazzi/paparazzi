@@ -282,7 +282,15 @@ static inline uint8_t pprz_mode_update( void ) {
       || TRUE
 #endif
       ) {
+#ifndef RADIO_AUTO_MODE
     return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]));
+#else
+    if(PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]) == PPRZ_MODE_MANUAL) {
+        return ModeUpdate(pprz_mode, PPRZ_MODE_MANUAL);
+    } else {
+        return ModeUpdate(pprz_mode, (fbw_state->channels[RADIO_AUTO_MODE] > THRESHOLD2) ? PPRZ_MODE_AUTO2 : PPRZ_MODE_AUTO1);
+    }
+#endif
   } else
     return FALSE;
 }
