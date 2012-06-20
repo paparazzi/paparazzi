@@ -43,6 +43,9 @@
 /// Macro to convert from feet to metres
 #define MetersOfFeet(_f) ((_f)/3.2808399)
 
+/// Minimum JSBSim timestep
+#define MIN_DT (1.0/10240.0)
+
 using namespace JSBSim;
 
 static void feed_jsbsim(double* commands);
@@ -68,8 +71,13 @@ static FGFDMExec* FDMExec;
 
 static struct LtpDef_d ltpdef;
 
+/// The largest distance between vehicle CG and contact point
+double vehicle_radius_max;
+
 void nps_fdm_init(double dt) {
 
+  fdm.init_dt = dt;
+  fdm.curr_dt = dt;
   init_jsbsim(dt);
 
   FDMExec->RunIC();
@@ -84,7 +92,45 @@ void nps_fdm_run_step(double* commands) {
 
   feed_jsbsim(commands);
 
-  FDMExec->Run();
+  /* To deal with ground interaction issues, we decrease the time
+     step as the vehicle is close to the ground. This is done predictively
+     to ensure no weird accelerations or oscillations. From tests with a bouncing
+     ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
+     all the dynamics. Higher might be a bit more stable, but really starting to push
+     the simulation CPU requirements, especially for more complex models.
+      - at init: get the largest radius from CG to any contact point (landing gear)
+      - if descending...
+        - find current number of timesteps to impact
+        - if impact imminent, calculate a new timestep to use (with limit)
+      - if ascending...
+        - change timestep back to init value
+      - run sim for as many steps as needed to reach init_dt amount of time
+
+     Of course, could probably be improved...
+  */
+  // If the vehicle has a downwards velocity
+  if (fdm.ltp_ecef_vel.z > 0) {
+    // Get the current number of timesteps until impact at current velocity
+    double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
+    // If impact imminent within next timestep, use high sim rate
+    if (numDT_to_impact <= 1.0) {
+      fdm.curr_dt = MIN_DT;
+    }
+  }
+  // If the vehicle is moving upwards and out of the ground, reset timestep
+  else if ((fdm.ltp_ecef_vel.z <= 0) && (fdm.agl > 0)) {
+    fdm.curr_dt = fdm.init_dt;
+  }
+
+  // Calculate the number of sim steps for correct amount of time elapsed
+  int num_steps = int(fdm.init_dt / fdm.curr_dt);
+
+  // Set the timestep then run sim
+  FDMExec->Setdt(fdm.curr_dt);
+  int i;
+  for (i = 0; i < num_steps; i++) {
+    FDMExec->Run();
+  }
 
   fetch_state();
 
@@ -167,7 +213,6 @@ static void fetch_state(void) {
   lla_of_ecef_d(&fdm.lla_pos_pprz, &fdm.ecef_pos);
   fdm.agl = MetersOfFeet(propagate->GetDistanceAGL());
 
-
   /*
    * attitude
    */
@@ -235,6 +280,16 @@ static void init_jsbsim(double dt) {
 #endif
     delete FDMExec;
     exit(-1);
+  }
+
+  // calculate vehicle max radius in m
+  vehicle_radius_max = 0.01; // specify not 0.0 in case no gear
+  int num_gear = FDMExec->GetGroundReactions()->GetNumGearUnits();
+  int i;
+  for(i = 0; i < num_gear; i++) {
+    FGColumnVector3 gear_location = FDMExec->GetGroundReactions()->GetGearUnit(i)->GetBodyLocation();
+    double radius = MetersOfFeet(gear_location.Magnitude());
+    if (radius > vehicle_radius_max) vehicle_radius_max = radius;
   }
 
 }

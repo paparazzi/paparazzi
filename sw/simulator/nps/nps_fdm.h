@@ -40,6 +40,8 @@
 struct NpsFdm {
 
   double time;
+  double init_dt;
+  double curr_dt;
   bool_t on_ground;
 
   /*  position */
