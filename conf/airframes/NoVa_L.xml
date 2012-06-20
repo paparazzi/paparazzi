@@ -252,7 +252,7 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="fdm"           type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>

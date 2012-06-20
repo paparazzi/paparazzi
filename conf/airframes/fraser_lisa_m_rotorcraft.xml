@@ -12,7 +12,7 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="fdm"           type="jsbsim"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
