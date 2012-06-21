@@ -33,7 +33,7 @@ extern struct NedCoor_i ins_gps_pos_cm_ned;
 extern struct NedCoor_i ins_gps_speed_cm_s_ned;
 
 /* barometer                   */
-#if USE_VFF
+#if USE_VFF || USE_VFF_EXTENDED
 extern int32_t ins_baro_alt;
 extern int32_t ins_qfe;
 extern bool_t  ins_baro_initialised;
