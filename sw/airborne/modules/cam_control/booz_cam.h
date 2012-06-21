@@ -47,12 +47,11 @@
 
 extern uint8_t booz_cam_mode;
 
+extern int16_t booz_cam_tilt;
+extern int16_t booz_cam_pan;
+
 #ifdef BOOZ_CAM_TILT_NEUTRAL
 extern int16_t booz_cam_tilt_pwm;
-extern int16_t booz_cam_tilt;
-#endif
-#ifdef BOOZ_CAM_PAN_NEUTRAL
-extern int16_t booz_cam_pan;
 #endif
 
 extern void booz_cam_init(void);
