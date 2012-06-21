@@ -92,7 +92,7 @@ void nps_fdm_run_step(double* commands) {
 
 /**
  * Feed JSBSim with the latest actuator commands.
- * 
+ *
  * @param commands   Pointer to array of doubles holding actuator commands
  */
 static void feed_jsbsim(double* commands) {
@@ -160,7 +160,6 @@ static void fetch_state(void) {
 
   /* llh */
   llh_from_jsbsim(&fdm.lla_pos, propagate);
-  //test123(&fdm.lla_pos, propagate);
 
   //for debug
   lla_from_jsbsim_geodetic(&fdm.lla_pos_geod, propagate);
@@ -215,10 +214,10 @@ static void init_jsbsim(double dt) {
   FDMExec->SetDebugLevel(0); // No DEBUG messages
 
   if ( ! FDMExec->LoadModel( rootdir + "aircraft",
-			     rootdir + "engine",
-			     rootdir + "systems",
-			     AIRFRAME_NAME,
-			     false)){
+                             rootdir + "engine",
+                             rootdir + "systems",
+                             AIRFRAME_NAME,
+                             false)){
 #ifdef DEBUG
     cerr << "  JSBSim could not be started" << endl << endl;
 #endif
@@ -336,10 +335,10 @@ void llh_from_jsbsim(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
 
   fdm_lla->lat = propagate->GetGeodLatitudeRad();
   fdm_lla->lon = propagate->GetLongitude();
-  fdm_lla->alt = MetersOfFeet(propagate->GetAltitudeASLmeters());
+  fdm_lla->alt = propagate->GetAltitudeASLmeters();
   //printf("geodetic alt: %f\n", MetersOfFeet(propagate->GetGeodeticAltitude()));
   //printf("ground alt: %f\n", MetersOfFeet(propagate->GetDistanceAGL()));
-  //printf("ASL alt: %f\n", MetersOfFeet(propagate->GetAltitudeASLmeters()));
+  //printf("ASL alt: %f\n", propagate->GetAltitudeASLmeters());
 
 }
 
