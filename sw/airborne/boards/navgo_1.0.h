@@ -88,18 +88,18 @@
 #define SPI1_DRDY_EINT         0
 #define SPI1_DRDY_VIC_IT       VIC_EINT0
 
-/* PWM0 (internal PWM5) */
+/* PWM0 (internal PWM2) */
+/* P0.7 */
+#define PWM0_PINSEL PINSEL0
+#define PWM0_PINSEL_VAL 0x02
+#define PWM0_PINSEL_BIT 14
+
+/* PWM1 (internal PWM5) */
 /* not compatible with ADC_0 */
 /* P0.21 */
-#define PWM0_PINSEL PINSEL1
-#define PWM0_PINSEL_VAL 0x01
-#define PWM0_PINSEL_BIT 10
-
-/* PWM1 (internal PWM2 */
-/* P0.7 */
-#define PWM1_PINSEL PINSEL0
-#define PWM1_PINSEL_VAL 0x02
-#define PWM1_PINSEL_BIT 14
+#define PWM1_PINSEL PINSEL1
+#define PWM1_PINSEL_VAL 0x01
+#define PWM1_PINSEL_BIT 10
 
 #define BOARD_HAS_BARO 1
 
