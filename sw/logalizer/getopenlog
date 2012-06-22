@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# Argument soll die zu lesende Datei sein, raus wenn es sie nicht gibt.
 if [ -z $1 ] 
 then
 	echo "usage: sw/logalizer/getopenlog <textfile from openlog>"
