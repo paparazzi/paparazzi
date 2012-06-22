@@ -43,7 +43,9 @@
 /// Macro to convert from feet to metres
 #define MetersOfFeet(_f) ((_f)/3.2808399)
 
-/// Minimum JSBSim timestep
+/** Minimum JSBSim timestep
+  * Around 1/10000 seems to be good for ground impacts
+  */
 #define MIN_DT (1.0/10240.0)
 
 using namespace JSBSim;
@@ -74,15 +76,26 @@ static struct LtpDef_d ltpdef;
 /// The largest distance between vehicle CG and contact point
 double vehicle_radius_max;
 
+/// Timestep used for higher fidelity near the ground
+double min_dt;
+
 void nps_fdm_init(double dt) {
 
   fdm.init_dt = dt;
   fdm.curr_dt = dt;
+  //Sets up the high fidelity timestep as a multiple of the normal timestep
+  for (min_dt = (1.0/dt); min_dt < (1/MIN_DT); min_dt += (1/dt)){}
+  min_dt = (1/min_dt);
+
   init_jsbsim(dt);
 
   FDMExec->RunIC();
 
   init_ltp();
+
+#if DEBUG_NPS_JSBSIM
+  printf("fdm.time,fg_body_ecef_accel1,fg_body_ecef_accel2,fg_body_ecef_accel3,fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z,fg_ltp_ecef_accel1,fg_ltp_ecef_accel2,fg_ltp_ecef_accel3,fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z,fg_ecef_ecef_accel1,fg_ecef_ecef_accel2,fg_ecef_ecef_accel3,fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z,fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z,fdm.agl\n");
+#endif
 
   fetch_state();
 
@@ -114,11 +127,11 @@ void nps_fdm_run_step(double* commands) {
     double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
     // If impact imminent within next timestep, use high sim rate
     if (numDT_to_impact <= 1.0) {
-      fdm.curr_dt = MIN_DT;
+      fdm.curr_dt = min_dt;
     }
   }
   // If the vehicle is moving upwards and out of the ground, reset timestep
-  else if ((fdm.ltp_ecef_vel.z <= 0) && (fdm.agl > 0)) {
+  else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
     fdm.curr_dt = fdm.init_dt;
   }
 
@@ -164,6 +177,10 @@ static void fetch_state(void) {
   FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
   fdm.time = node->getDoubleValue();
 
+#if DEBUG_NPS_JSBSIM
+  printf("%f,",fdm.time);
+#endif
+
   FGPropagate* propagate = FDMExec->GetPropagate();
   FGAccelerations* accelerations = FDMExec->GetAccelerations();
 
@@ -185,12 +202,20 @@ static void fetch_state(void) {
   const FGColumnVector3& fg_body_ecef_accel = accelerations->GetUVWdot();
   jsbsimvec_to_vec(&fdm.body_ecef_accel,&fg_body_ecef_accel);
 
+#if DEBUG_NPS_JSBSIM
+  printf("%f,%f,%f,%f,%f,%f,",(&fg_body_ecef_accel)->Entry(1),(&fg_body_ecef_accel)->Entry(2),(&fg_body_ecef_accel)->Entry(3),fdm.body_ecef_accel.x,fdm.body_ecef_accel.y,fdm.body_ecef_accel.z);
+#endif
+
   /* in LTP frame */
   const FGMatrix33& body_to_ltp = propagate->GetTb2l();
   const FGColumnVector3& fg_ltp_ecef_vel = body_to_ltp * fg_body_ecef_vel;
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_vel, &fg_ltp_ecef_vel);
   const FGColumnVector3& fg_ltp_ecef_accel = body_to_ltp * fg_body_ecef_accel;
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ltp_ecef_accel, &fg_ltp_ecef_accel);
+
+#if DEBUG_NPS_JSBSIM
+  printf("%f,%f,%f,%f,%f,%f,",(&fg_ltp_ecef_accel)->Entry(1),(&fg_ltp_ecef_accel)->Entry(2),(&fg_ltp_ecef_accel)->Entry(3),fdm.ltp_ecef_accel.x,fdm.ltp_ecef_accel.y,fdm.ltp_ecef_accel.z);
+#endif
 
   /* in ECEF frame */
   const FGMatrix33& body_to_ecef = propagate->GetTb2ec();
@@ -199,10 +224,18 @@ static void fetch_state(void) {
   const FGColumnVector3& fg_ecef_ecef_accel = body_to_ecef * fg_body_ecef_accel;
   jsbsimvec_to_vec((DoubleVect3*)&fdm.ecef_ecef_accel, &fg_ecef_ecef_accel);
 
+#if DEBUG_NPS_JSBSIM
+  printf("%f,%f,%f,%f,%f,%f,",(&fg_ecef_ecef_accel)->Entry(1),(&fg_ecef_ecef_accel)->Entry(2),(&fg_ecef_ecef_accel)->Entry(3),fdm.ecef_ecef_accel.x,fdm.ecef_ecef_accel.y,fdm.ecef_ecef_accel.z);
+#endif
+
   /* in LTP pprz */
   ned_of_ecef_point_d(&fdm.ltpprz_pos, &ltpdef, &fdm.ecef_pos);
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_vel, &ltpdef, &fdm.ecef_ecef_vel);
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
+
+#if DEBUG_NPS_JSBSIM
+  printf("%f,%f,%f,",fdm.ltpprz_ecef_accel.z,fdm.ltpprz_ecef_accel.y,fdm.ltpprz_ecef_accel.z);
+#endif
 
   /* llh */
   llh_from_jsbsim(&fdm.lla_pos, propagate);
@@ -212,6 +245,10 @@ static void fetch_state(void) {
   lla_from_jsbsim_geocentric(&fdm.lla_pos_geoc, propagate);
   lla_of_ecef_d(&fdm.lla_pos_pprz, &fdm.ecef_pos);
   fdm.agl = MetersOfFeet(propagate->GetDistanceAGL());
+
+#if DEBUG_NPS_JSBSIM
+  printf("%f\n",fdm.agl);
+#endif
 
   /*
    * attitude
