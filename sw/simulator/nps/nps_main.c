@@ -170,6 +170,7 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
     t2 = time_to_double(&tv_now);
     /* add the pause to initial real time */
     irt += t2 - t1;
+    nps_main.real_initial_time += t2 - t1;
     /* convert to scaled initial real time */
     nps_main.scaled_initial_time = t2 - (t2 - irt)/nps_main.host_time_factor;
     pauseSignal = 0;
