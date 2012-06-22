@@ -224,11 +224,12 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
   static const char* usage =
 "Usage: %s [options]\n"
 " Options :\n"
-"   --fg_host flight gear host\n"
-"   --fg_port flight gear port\n"
-"   -j --js_dev joystick device\n"
-"   --spektrum_dev spektrum device\n"
-"   --rc_script no\n";
+"   -h                                     Display this help\n"
+"   --fg_host <flight gear host>           e.g. 127.0.0.1\n"
+"   --fg_port <flight gear port>           e.g. 5501\n"
+"   -j --js_dev <joystick device or index> e.g. /dev/input/js0 or 0\n"
+"   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
+"   --rc_script <number>                   e.g. 0\n";
 
 
   while (1) {
@@ -242,7 +243,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       {0, 0, 0, 0}
     };
     int option_index = 0;
-    int c = getopt_long(argc, argv, "j:",
+    int c = getopt_long(argc, argv, "j:h",
                         long_options, &option_index);
     if (c == -1)
       break;
@@ -266,6 +267,10 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     case 'j':
       nps_main.js_dev = strdup(optarg);
       break;
+
+    case 'h':
+      fprintf(stderr, usage, argv[0]);
+      exit(0);
 
     default: /* ’?’ */
       printf("?? getopt returned character code 0%o ??\n", c);
