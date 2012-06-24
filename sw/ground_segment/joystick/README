@@ -1,6 +1,7 @@
 #
 #   $Id$
 #   Copyright (C) 2003 Pascal Brisset Antoine Drouin
+#   Copyright (C) 2012 The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -25,5 +26,5 @@ Tools for controlling an aircraft with a ground joystick
 
 Also used as general purpose joystick to ivybus connector.  Can generate arbitrary ivybus messages based on control input from buttons or axes.  Supports limiting, exponential and scaling on axes.
 
-
+Cross-platform support available through the Simple DirectMedia Layer library.
 

@@ -1,6 +1,7 @@
 #
 #   $Id$
 #   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
+#   Copyright (C) 2012 The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -28,16 +29,16 @@ OCAMLLIB = ../../lib/ocaml
 TOOLSDIR = ../../tools
 OCAMLINCLUDES= -I $(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
+SDLLIB= -L/$(shell sdl-config --prefix)/lib
 
 all: test_stick input2ivy
 
-test_stick: test_stick.o
-	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ usb_stick.c `pkg-config glib-2.0 --libs` -lglibivy
+test_stick: test_sdl_stick.o
+	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ sdl_stick.c `pkg-config glib-2.0 --libs` -lglibivy `sdl-config --libs`
 
-input2ivy: usb_stick.o ml_usb_stick.o input2ivy.cmo
-	$(OCAMLC) $(OCAMLINCLUDES) -custom -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^
-
-
+input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
+	$(OCAMLC) $(OCAMLINCLUDES) -custom -cclib $(SDLLIB) -cclib -lSDL -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^
+        
 %.o : %.c
 	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $<
 
@@ -46,4 +47,4 @@ input2ivy: usb_stick.o ml_usb_stick.o input2ivy.cmo
 	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $<
 
 clean:
-	rm -f *~ core *.o *.bak .depend test_stick *.cmo *.cmi input2ivy
+	rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
