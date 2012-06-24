@@ -13,11 +13,8 @@
 #include "nps_ivy.h"
 #include "nps_flightgear.h"
 
-#if SYS_TIME_RESOLUTION
+#include "mcu_periph/sys_time.h"
 #define SIM_DT     (SYS_TIME_RESOLUTION)
-#else
-#define SIM_DT     (1./(double)(PERIODIC_FREQUENCY))
-#endif /* SYS_TIME_RESOLUTION */
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
 #define HOST_TIME_FACTOR 1.
