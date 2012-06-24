@@ -29,8 +29,7 @@
 #ifndef SDL_STICK_H
 #define SDL_STICK_H
 
-//#include <SDL/SDL.h>
-#include "/opt/local/include/SDL/SDL.h"
+#include <SDL/SDL.h>
 
 /* Max number of axis and buttons */
 /*  Increased, many new controllers have pressure sensitive buttons that show up as axes */

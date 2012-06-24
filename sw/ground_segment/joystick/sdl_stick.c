@@ -30,8 +30,7 @@
 #include <math.h>
 
 //needed for joystick interface
-//#include <SDL/SDL.h>
-#include "/opt/local/include/SDL/SDL.h"
+#include <SDL/SDL.h>
 
 #ifdef STICK_DBG
 #define dbgprintf fprintf

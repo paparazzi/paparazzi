@@ -30,6 +30,7 @@ TOOLSDIR = ../../tools
 OCAMLINCLUDES= -I $(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 SDLLIB= -L/$(shell sdl-config --prefix)/lib
+INCLUDES += -I `ocamlc -where`
 
 all: test_stick input2ivy
 
@@ -40,7 +41,7 @@ input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
 	$(OCAMLC) $(OCAMLINCLUDES) -custom -cclib $(SDLLIB) -cclib -lSDL -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^
         
 %.o : %.c
-	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $<
+	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(INCLUDES) $<
 
 %.cmo : %.ml
 	@echo OC $<

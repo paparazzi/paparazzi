@@ -31,11 +31,11 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "/opt/paparazzi/lib/ocaml/caml/mlvalues.h"
-#include "/opt/paparazzi/lib/ocaml/caml/alloc.h"
-#include "/opt/paparazzi/lib/ocaml/caml/memory.h"
-#include "/opt/paparazzi/lib/ocaml/caml/callback.h"
-#include "/opt/paparazzi/lib/ocaml/caml/fail.h"
+#include <caml/mlvalues.h>
+#include <caml/alloc.h>
+#include <caml/memory.h>
+#include <caml/callback.h>
+#include <caml/fail.h>
 #include "sdl_stick.h"
 
 
