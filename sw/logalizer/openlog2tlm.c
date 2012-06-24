@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
   int nbmsg = 0;/// counter for the messages
   int nberr = 0;/// counter for the number of errors
   char err = 0;/// error flag
+  char nomsg = 0; /// if there was nom message
   if(argc != 3){
     puts("wrong number of parameters!\n"
       "usage is openlog2tlm <inuptfile> <outputfile>");
@@ -67,14 +68,18 @@ int main(int argc, char *argv[]) {
 
   temp = fgetc(in);///read the first char
   if (temp!=0x99) {/// if the first char isn't a STX, the message was broken
-	  while(fgetc(in)!=0x99){///try to find the first STX
-		  if (inlength <= ftell(in)) break;///don't shift the filedescriptor and break in case the end is reached
-	  }
+	  while(temp!=0x99){///try to find the first STX
+		  temp = fgetc(in);
+		  if(temp==EOF) {
+			  nomsg=1;///there is no message at all, set the flag to get out of here
+			  break;
+		  }
+		 }
   }
   fseek(in,-1L,SEEK_CUR);///put the filedescriptor back to read 0x99 again
 
 
-  while(!feof(in)){
+  while(!feof(in)){/// do this from the first STX (descriptor for STX is here) until the end of the file
     if(temp==0x99){/// if a message starts
       nbmsg ++;/// increment the message counter
       length=fgetc(in); /// determining the length of the message
@@ -123,16 +128,17 @@ int main(int argc, char *argv[]) {
       }
 
      }
-     if (inlength <= ftell(in)) break;///end if the file is at the end
+     if (inlength < ftell(in)+2) break;///end if the file is at the end
   }
   ///Drop the last message, since it is supspected to be corrupt, due to the power-down.
   ///In case it won't be overwritten, sd2log will crash
   ///put the file-descriptor to the end of the file
+
   fseek(out, 0L, SEEK_END);
   int end = ftell(out);//remember the offset
   ///rewind to the last STX, to find the beginning of the last package and place the filedescriptor there
   int temp2 = fgetc(out);
-  while(temp2!=0x99) {
+  while(temp2!=0x99 && nomsg==0) {/// skip the rewind in case there was no message, otherwise search for the last STX
 	  fseek(out, -2L, SEEK_CUR);
 	  temp2 = fgetc(out);
   }
@@ -143,7 +149,7 @@ int main(int argc, char *argv[]) {
   }
   ///Check, wether there was an error during the conversion and make suggestions :-)
   if (length == 0){
-	  printf("There have been no messages at all. Perhaps you misconfigured your Openlog, so it uses the wrong baudrate, or you aren't using the transparent telemetry, or this even wasn't a Paparazzi-log. For debugging you can open the logfile using a hexeditor and check there is a more or less periodic occurance of the Paparazzi STX (0x99)\n Also check you wiring and the configfile of the openlog. It should be name CONFIG.TXT and contain 57600,26,3,0 if your baudrate is 57600.");
+	  printf("\nThere have been no messages at all. Perhaps you misconfigured your Openlog, so it uses the wrong baudrate, or you aren't using the transparent telemetry, or this even wasn't a Paparazzi-log. For debugging you can open the logfile using a hexeditor and check there is a more or less periodic occurance of the Paparazzi STX (0x99)\n Also check your wiring and the configfile of the openlog. It should be named CONFIG.TXT and contain 57600,26,3,0 if your baudrate is 57600.\n\n ");
 	  return EXIT_FAILURE;
   } else if (current_timestamp == 0) {
 	  printf("There have been messages but openlog2tlm didn't find the TIMESTAMP-Message. Check the messages-tool if there is a message called \"TIMESTAMP\". Make sure the Openlog-Module was loaded and check the messages.xml, the Timestamp was really %i\n", MSG_NUMBER);
