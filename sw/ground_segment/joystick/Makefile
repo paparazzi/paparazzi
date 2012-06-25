@@ -29,7 +29,9 @@ OCAMLLIB = ../../lib/ocaml
 TOOLSDIR = ../../tools
 OCAMLINCLUDES= -I $(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
-ML_SDL_LFLAGS = $(foreach u,$(shell sdl-config --libs),-cclib $(u))
+# apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
+#ML_SDL_LFLAGS = $(foreach u,$(shell sdl-config --libs),-cclib $(u))
+ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u))
 INCLUDES += -I `ocamlc -where`
 
 all: test_stick input2ivy
