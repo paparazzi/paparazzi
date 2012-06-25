@@ -93,18 +93,6 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   handle_periodic_tasks();
 
-  /* override the commands for the first 8 seconds...
-   * start with a little bit of hovering
-   */
-  if (time < 8) {
-    int32_t init_cmd[4];
-    init_cmd[COMMAND_THRUST] = 0.253*MAX_PPRZ;
-    init_cmd[COMMAND_ROLL]   = 0;
-    init_cmd[COMMAND_PITCH]  = 0;
-    init_cmd[COMMAND_YAW]    = 0;
-    supervision_run(TRUE, FALSE, init_cmd);
-  }
-
   /* scale final motor commands to 0-1 for feeding the fdm */
   /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
   for (uint8_t i=0; i<SUPERVISION_NB_MOTOR; i++)

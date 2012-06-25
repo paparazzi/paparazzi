@@ -52,9 +52,8 @@ void nps_flightgear_send() {
   gui.num_tanks = 1;
   gui.fuel_quantity[0] = 0.;
 
-  //  gui.cur_time = 3198060679ul;
-  gui.cur_time = 3198060679ul + rint(fdm.time);
-  ///  gui.cur_time = 3198101679ul;
+  //gui.cur_time = 3198060679ul + rint(fdm.time);
+  gui.cur_time = 3198101679ul + rint(fdm.time);
   gui.warp = 1122474394ul;
 
   gui.ground_elev = 0.;

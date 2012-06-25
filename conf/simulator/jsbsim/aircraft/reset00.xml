@@ -11,10 +11,9 @@
   <!--<latitude  unit="DEG">  37.6136 </latitude> -->
   <longitude unit="DEG">-122.3569 </longitude>
 <!-- altitude is above ground level AGL -->
-<!--  <altitude  unit="M"> 0.11 </altitude> -->
+  <altitude  unit="M"> 0.15 </altitude>
 <!-- altitudeMSL is above sea level ASL -->
-  <altitudeMSL unit="M"> 2.5 </altitudeMSL>
-<!--  <altitude  unit="M">95 </altitude> -->
+<!-- <altitudeMSL unit="M"> 2.5 </altitudeMSL> -->
   <winddir unit="DEG"> 0.0 </winddir>
   <vwind unit="FT/SEC"> 0.0 </vwind>
 </initialize>
