@@ -11,7 +11,7 @@
 
 <airframe name="quady_lm2a2pwm">
 
-  <servos min="0" neutral="0" max="0xff">
+  <servos>
     <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
     <servo name="LEFT"    no="2" min="1000" neutral="1000" max="2000"/>
@@ -65,9 +65,9 @@
   <include href="conf/airframes/esden/calib/asp21-018.xml"/>
 
   <section name="IMU" prefix="IMU_">
-	  <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
-	  <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
-	  <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
+	  <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+	  <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+	  <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -96,28 +96,28 @@
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_PSI"   value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
-    <define name="SP_MAX_P"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PSI"     value="45."  unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="SP_MAX_P"       value="90." unit="deg/s"/>
     <define name="DEADBAND_R"     value="250"/>
     <define name="DEADBAND_A"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_P"    value="400." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_Q"    value="400." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_R"    value="180." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
@@ -190,7 +190,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+<!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="pwm_supervision"/>
       <subsystem name="telemetry"     type="transparent"/>
@@ -198,10 +198,9 @@
       <define name="RADIO_MODE" value="RADIO_FLAP"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <!--define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/-->
-      <!--define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/-->
     </target>
-    <target name="sim" board="pc">
-      <subsystem name="fdm"           type="nps"/>
+    <target name="nps" board="pc">
+      <subsystem name="fdm"           type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>

@@ -63,7 +63,7 @@
  *  Q13.18
  */
 extern int32_t gv_adapt_X;
-#define GV_ADAPT_X_FRAC 18
+#define GV_ADAPT_X_FRAC 24
 
 /** Covariance.
  *  fixed point representation with #GV_ADAPT_P_FRAC
@@ -84,9 +84,9 @@ int32_t gv_adapt_Xmeas;
 
 
 /* Initial State and Covariance    */
-#define GV_ADAPT_X0_F 0.15
+#define GV_ADAPT_X0_F 0.0015
 #define GV_ADAPT_X0 BFP_OF_REAL(GV_ADAPT_X0_F, GV_ADAPT_X_FRAC)
-#define GV_ADAPT_P0_F 0.5
+#define GV_ADAPT_P0_F 0.1
 #define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)
 
 /* System  noises */
@@ -94,9 +94,9 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
 /* Measuremement noises */
-#define GV_ADAPT_MEAS_NOISE_HOVER_F (8.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
+#define GV_ADAPT_MEAS_NOISE_HOVER_F (50.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 #define GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_HOVER_F, GV_ADAPT_P_FRAC)
-#define GV_ADAPT_MEAS_NOISE_OF_ZD (20.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
+#define GV_ADAPT_MEAS_NOISE_OF_ZD (100.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 
 /* Max accel */
 #define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL)
@@ -149,7 +149,7 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
     return;
   }
 
-  /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
+  /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 30 bits */
   const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
   if ( g_m_zdd > 0) {
     gv_adapt_Xmeas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
@@ -174,7 +174,7 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
   if (gv_adapt_P > GV_ADAPT_P0) gv_adapt_P = GV_ADAPT_P0;
 
   /* Update State */
-  gv_adapt_X = gv_adapt_X + ((K * residual)>>K_FRAC);
+  gv_adapt_X = gv_adapt_X + (((int64_t)(K * residual))>>K_FRAC);
 
   /* Again don't let it climb over a value that would
    * give less than zero throttle and don't let it down to zero.

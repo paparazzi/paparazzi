@@ -8,7 +8,7 @@
       <define name="USE_GPS_ACC4R"/>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="fdm"         type="nps"/>
+      <subsystem name="fdm"         type="jsbsim"/>
     </target>
     <subsystem name="radio_control" type="spektrum"/>
     <subsystem name="telemetry"     type="transparent"/>

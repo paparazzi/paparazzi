@@ -163,7 +163,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">

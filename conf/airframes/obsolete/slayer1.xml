@@ -156,7 +156,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="(V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN*V_CTL_ALTITUDE_MAX_CLIMB)"/>
   </section>
 

@@ -132,7 +132,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
     <define name="NAV_CROSS_TRACK_ERROR_IGAIN" value="0."/>
     <define name="NAV_CROSS_TRACK_ERROR_MAX" value="10." unit="deg"/>

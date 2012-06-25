@@ -97,7 +97,7 @@ sub run_program
         {
                 if ($dont_fail_on_error)
                 {
-                        warn "Error: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n" if $verbose;
+                        warn "Error: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n";
                 }
                 else
                 {
