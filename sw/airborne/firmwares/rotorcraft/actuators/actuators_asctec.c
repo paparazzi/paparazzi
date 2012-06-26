@@ -82,8 +82,10 @@ void actuators_set(bool_t motors_on) {
   }
 #endif
 
-  if (!actuators_asctec.i2c_trans.status == I2CTransSuccess)
+  if (actuators_asctec.i2c_trans.status != I2CTransSuccess) {
     actuators_asctec.nb_err++;
+    return;
+  }
 
 #ifdef KILL_MOTORS
   actuators_asctec.cmds[PITCH]  = 0;
@@ -143,10 +145,20 @@ void actuators_set(bool_t motors_on) {
 void actuators_set(bool_t motors_on) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) {
+      //Lisa-L with Asctech v2 motors only start after reflashing when a bus error was sensed on stm32-i2c.
+      //multiple re-init solves the problem.
+      i2c1_init();
+      return;
+    }
     else actuators_delay_done = TRUE;
   }
 #endif
+
+  if (actuators_asctec.i2c_trans.status != I2CTransSuccess) {
+    actuators_asctec.nb_err++;
+    return;
+  }
 
   supervision_run(motors_on, FALSE, commands);
 #ifdef KILL_MOTORS
