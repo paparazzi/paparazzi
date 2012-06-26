@@ -265,6 +265,7 @@ void vff_update_alt_conf(float z_meas, float conf) {
   Pp = Pm - K*H*Pm;
 */
 __attribute__ ((always_inline)) static inline void update_offset_conf(float offset, float conf) {
+
   const float y = offset - vff_offset;
   const float S = vff_P[3][3] + conf;
   const float K0 = vff_P[0][3] * 1/S;

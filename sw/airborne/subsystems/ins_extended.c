@@ -45,6 +45,9 @@
 #include <stdio.h>
 #endif
 
+#ifdef INS_SONAR_THROTTLE_THRESHOLD
+#include "firmwares/rotorcraft/stabilization.h"
+#endif
 
 #include "math/pprz_geodetic_int.h"
 
@@ -168,7 +171,7 @@ void ins_propagate() {
     ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
   }
 #if !USE_SONAR
-  vff_update_offset(vff_offset);
+  vff_update_offset(0.);
 #endif
 #else
   ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
@@ -197,7 +200,7 @@ void ins_update_baro() {
     }
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
-      ins_qfe = baro.absolute;
+      ins_qfe = baro_pressure;
 #if USE_SONAR
       // FIXME should use an averaged value
       //ins_sonar_offset = sonar_meas;
@@ -281,13 +284,21 @@ void ins_update_gps(void) {
 
 void ins_update_sonar() {
 #if USE_SONAR && USE_VFF_EXTENDED
-  static int32_t last_offset = 0;
+  static float last_offset = 0.;
   //static int32_t sonar_filtered = 0;
   int32_t sonar_filtered = update_median_filter(&sonar_median, sonar_meas);
   //sonar_filtered = (sm + 2*sonar_filtered) / 3;
   float sonar = (sonar_filtered - ins_sonar_offset) * INS_SONAR_SENS;
   /* update filter assuming a flat ground */
-  if (sonar < INS_SONAR_MAX_RANGE && ins_update_on_agl && baro.status == BS_RUNNING) {
+  if (sonar < INS_SONAR_MAX_RANGE
+#ifdef INS_SONAR_THROTTLE_THRESHOLD
+      && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
+#endif
+#ifdef INS_SONAR_BARO_THRESHOLD
+      && ins_baro_alt < POS_BFP_OF_REAL(INS_SONAR_BARO_THRESHOLD)
+#endif
+      && ins_update_on_agl
+      && baro.status == BS_RUNNING) {
     vff_update_alt_conf(-sonar, VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabs(sonar));
     last_offset = vff_offset;
   }
