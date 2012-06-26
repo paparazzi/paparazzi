@@ -17,7 +17,7 @@ For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN
   <init fun="ins_init()"/>
   <!--<periodic fun="ins_periodic_task()" freq="60"/>-->
   <event fun="parse_ins_msg()"/>
-  <makefile>
+  <makefile target="ap">
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
