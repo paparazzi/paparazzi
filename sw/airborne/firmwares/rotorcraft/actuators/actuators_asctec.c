@@ -143,10 +143,16 @@ void actuators_set(bool_t motors_on) {
 void actuators_set(bool_t motors_on) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) 
+{ 
+i2c1_init();
+return;
+}
     else actuators_delay_done = TRUE;
   }
 #endif
+
+  if (!i2c_idle(&ACTUATORS_ASCTEC_DEVICE)) return;
 
   supervision_run(motors_on, FALSE, commands);
 #ifdef KILL_MOTORS
