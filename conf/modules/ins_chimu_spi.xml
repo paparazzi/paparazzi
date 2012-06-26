@@ -10,11 +10,11 @@
   </header>
   <init fun="ins_init()"/>
   <event fun="parse_ins_msg()"/>
-  <makefile>
+  <makefile target="ap">
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
-    <define name="USE_SPI" />
+    <define name="USE_SPI"/>
     <define name="INS_LINK" value="SpiSlave"/>
     <define name="USE_USB_HIGH_PCLK" />
     <file name="ins_chimu_spi.c"/>
