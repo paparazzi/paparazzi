@@ -15,6 +15,7 @@
     <target name="sim" 			board="pc"/>
 
     <define name="ALT_KALMAN"/>
+    <define name="USE_MAGNETOMETER" value="FALSE"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry" type="transparent"/>
