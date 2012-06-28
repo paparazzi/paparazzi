@@ -78,6 +78,7 @@ bool_t nps_radio_control_available(double time) {
     nps_radio_control.next_update += RADIO_CONTROL_DT;
 
     if (nps_radio_control.type == JOYSTICK) {
+      nps_radio_control_joystick_update();
       nps_radio_control.throttle = nps_joystick.throttle;
       nps_radio_control.roll = nps_joystick.roll;
       nps_radio_control.pitch = nps_joystick.pitch;

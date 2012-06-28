@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -227,7 +249,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 "   -h                                     Display this help\n"
 "   --fg_host <flight gear host>           e.g. 127.0.0.1\n"
 "   --fg_port <flight gear port>           e.g. 5501\n"
-"   -j --js_dev <joystick device or index> e.g. /dev/input/js0 or 0\n"
+"   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
 "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
 "   --rc_script <number>                   e.g. 0\n";
 
@@ -237,13 +259,13 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     static struct option long_options[] = {
       {"fg_host", 1, NULL, 0},
       {"fg_port", 1, NULL, 0},
-      {"js_dev", 1, NULL, 0},
+      {"js_dev", 2, NULL, 0},
       {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
-    int c = getopt_long(argc, argv, "j:h",
+    int c = getopt_long(argc, argv, "jh",
                         long_options, &option_index);
     if (c == -1)
       break;
@@ -256,7 +278,9 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       case 1:
         nps_main.fg_port = atoi(optarg); break;
       case 2:
-        nps_main.js_dev = strdup(optarg); break;
+        if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+        else {nps_main.js_dev = strdup(optarg);}
+        break;
       case 3:
         nps_main.spektrum_dev = strdup(optarg); break;
       case 4:
@@ -265,7 +289,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       break;
 
     case 'j':
-      nps_main.js_dev = strdup(optarg);
+      if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+      else {nps_main.js_dev = strdup(optarg);}
       break;
 
     case 'h':
