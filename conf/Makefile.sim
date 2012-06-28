@@ -47,9 +47,9 @@ Q=@
 # End of configuration part.
 #
 
-ifneq ($(SIM_TYPE),JSBSIM)
+#ifneq ($(SIM_TYPE),JSBSIM)
 INCLUDES += -I `ocamlc -where`
-endif
+#endif
 
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
