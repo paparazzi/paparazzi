@@ -10,6 +10,11 @@
 #include <errno.h>
 #include <inttypes.h>
 
+//Handle IUCLC issue on OS X
+#if (!IUCLC)
+#define IUCLC 0
+#endif
+
 static int sp_fd;
 
 static gboolean on_serial_data_received(GIOChannel *source,
