@@ -76,6 +76,9 @@ struct MedianFilterInt baro_median;
 bool_t  ins_update_on_agl;
 int32_t ins_sonar_offset;
 struct MedianFilterInt sonar_median;
+#ifndef INS_SONAR_OFFSET
+#define INS_SONAR_OFFSET 0
+#endif
 #define VFF_R_SONAR_0 0.1
 #define VFF_R_SONAR_OF_M 0.2
 #endif
@@ -116,7 +119,7 @@ void ins_init() {
 #if USE_SONAR
   ins_update_on_agl = FALSE;
   init_median_filter(&sonar_median);
-  ins_sonar_offset = 0;
+  ins_sonar_offset = INS_SONAR_OFFSET;
 #endif
   vff_init(0., 0., 0., 0.);
 #endif
