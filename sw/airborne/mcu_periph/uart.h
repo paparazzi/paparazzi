@@ -46,7 +46,7 @@ struct uart_periph {
   uint16_t rx_insert_idx;
   uint16_t rx_extract_idx;
   /* Transmit buffer */
-  uint8_t tx_buf[UART_RX_BUFFER_SIZE];
+  uint8_t tx_buf[UART_TX_BUFFER_SIZE];
   uint16_t tx_insert_idx;
   uint16_t tx_extract_idx;
   uint8_t tx_running;
