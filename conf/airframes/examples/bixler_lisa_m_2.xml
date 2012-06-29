@@ -46,6 +46,7 @@
     <set command="ROLL"      value="@ROLL"/>
     <set command="PITCH"     value="@PITCH"/>
     <set command="THROTTLE"  value="@THROTTLE"/>
+    <set command="YAW"       value="@YAW"/>
   </rc_commands>
 
   <section name="MIXER">
