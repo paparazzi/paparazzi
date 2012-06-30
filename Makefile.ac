@@ -48,7 +48,6 @@ SETTINGS_XML=$(ACINCLUDE)/settings.xml
 SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
 SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
-SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(AC_GENERATED)/modules.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
@@ -58,9 +57,6 @@ Q=@
 
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
-
-demo:
-	$(SUPERVISION)
 
 ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
