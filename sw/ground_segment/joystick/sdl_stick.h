@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Basic SDL joystick lib
  *
  * based on usb_stick.h
@@ -47,7 +45,7 @@ extern int stick_axis_count, stick_button_count;
 /** Initialize a joystick with SDL.
  *
  *  @param device_index  which device index to open (SDL enumerates all available devices at init)
- * 
+ *
  *  @returns  1 if no joystick found, 0 otherwise
  */
 extern int stick_init( int device_index );

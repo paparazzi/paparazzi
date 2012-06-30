@@ -1,5 +1,4 @@
 /*
- * $Id:  $
  * Copyright (C) 2009 ENAC
  * Copyright (C) 2012 The Paparazzi Team
  *
@@ -66,17 +65,17 @@ l_help:
 
 static gboolean periodic(gpointer data __attribute__ ((unused))) {
 
-	stick_read();
+    stick_read();
 
-	return 1;
+    return 1;
 }
 
 int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   parse_args(argc, argv);
-  
+
   if (stick_init(device_index) != 0) return 1;
 
   g_timeout_add(TIMEOUT_PERIOD, periodic, NULL);

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Basic SDL joystick lib
  *
  * based on usb_stick.c
@@ -102,7 +100,7 @@ int init_sdl_device(int device_index)
 
     dbgprintf(stderr,"Axis %d : parameters = [%d,%d]\n",
         cnt,axis_min[cnt],axis_max[cnt]);
-  }  
+  }
 
   /* Get the device name */
   name = SDL_JoystickName(device_index);
@@ -142,7 +140,7 @@ int stick_read( void ) {
       case SDL_JOYAXISMOTION:
         for (cnt = 0; cnt < stick_axis_count; cnt++) {
           if (sdl_event.jaxis.axis == cnt) {
-            stick_axis_values[cnt] = (( (sdl_event.jaxis.value - axis_min[cnt]) * ABS_MAX_VALUE ) / (axis_max[cnt] - axis_min[cnt])) - ABS_MID_VALUE;    
+            stick_axis_values[cnt] = (( (sdl_event.jaxis.value - axis_min[cnt]) * ABS_MAX_VALUE ) / (axis_max[cnt] - axis_min[cnt])) - ABS_MID_VALUE;
             break;
           }
         }
