@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -26,10 +24,11 @@
 #include "subsystems/radio_control/ppm.h"
 
 #include <inttypes.h>
-#include <caml/mlvalues.h>
 
 #if USE_NPS
 #include "nps_radio_control.h"
+#else
+#include <caml/mlvalues.h>
 #endif
 
 uint8_t  ppm_cur_pulse;
@@ -43,19 +42,8 @@ void ppm_arch_init ( void ) {
   ppm_frame_available = FALSE;
 }
 
-#ifdef RADIO_CONTROL
-
-value update_rc_channel(value c, value v) {
-  ppm_pulses[Int_val(c)] = Double_val(v);
-  return Val_unit;
-}
-
-value send_ppm(value unit) {
-  ppm_frame_available = TRUE;
-  return unit;
-}
-
 #if USE_NPS
+#ifdef RADIO_CONTROL
 #define PPM_OF_NPS(_nps, _neutral, _min, _max)                          \
   ((_nps) >= 0 ? (_neutral) + (_nps) * ((_max)-(_neutral)) : (_neutral) + (_nps) * ((_neutral)- (_min)))
 
@@ -82,20 +70,25 @@ void radio_control_feed(void) {
                                           RADIO_MODE_MAX);
   ppm_frame_available = TRUE;
 }
-#endif
+#else //RADIO_CONTROL
+void radio_control_feed(void) {}
+#endif //RADIO_CONTROL
 
-#else // RADIO_CONTROL
-
-value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+#else //!USE_NPS
+#ifdef RADIO_CONTROL
+value update_rc_channel(value c, value v) {
+  ppm_pulses[Int_val(c)] = Double_val(v);
   return Val_unit;
 }
 
 value send_ppm(value unit) {
+  ppm_frame_available = TRUE;
   return unit;
 }
-
-#if USE_NPS
-void radio_control_feed(void) {}
-#endif
-
+#else // RADIO_CONTROL
+value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+  return Val_unit;
+}
+value send_ppm(value unit) {return unit;}
 #endif // RADIO_CONTROL
+#endif // USE_NPS
