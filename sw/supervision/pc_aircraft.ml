@@ -361,7 +361,8 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:s
   (* Link target to upload button *)
   Gtk_tools.combo_connect target_combo
     (fun target ->
-      gui#button_upload#misc#set_sensitive (target <> "sim"));
+      (* if target is sim or nps, deactivate the upload button *)
+      gui#button_upload#misc#set_sensitive (target <> "sim" && target <> "nps"));
 
   (* New Target button *)
   let callback = fun _ ->
