@@ -4,8 +4,6 @@
 # SITL Simulator
 #
 
-SIM_TYPE = JSBSIM
-
 JSBSIM_ROOT = /opt/jsbsim
 JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
 JSBSIM_LIB = $(JSBSIM_ROOT)/lib
@@ -18,6 +16,9 @@ NPSDIR = $(SIMDIR)/nps
 
 
 nps.ARCHDIR = sim
+
+# include Makefile.nps instead of Makefile.sim
+nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.CFLAGS  += `pkg-config glib-2.0 --cflags`
