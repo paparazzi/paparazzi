@@ -27,9 +27,6 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 			{
 				next unless scalar $airframe_config->{'firmware'}->{$process}->{'target'}->{$target}->{'board'};
 
-				# Exclude some builds on Mac as they are currently broken.
-				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LisaLv11_Booz2v12_RC|LisaLv11_Aspirinv15_Overo_RC|Quad_LisaM_2|BOOZ2#i) and ($target =~ m#nps#i) );
-
 				#warn "EXAMPLE: [$example] TARGET: [$target]\n";
 				my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
 				my $output = run_program(
@@ -46,9 +43,6 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}})
 			{
 				next unless scalar $airframe_config->{'firmware'}->{$process}->{$target}->{'board'};
-
-				# Exclude some builds on Mac as they are currently broken.
-				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LisaLv11_Booz2v12_RC|LisaLv11_Aspirinv15_Overo_RC|Quad_LisaM_2|BOOZ2#i) and ($target =~ m#nps#i) );
 
 				#warn "EXAMPLET: [$example] TARGET: [$target]\n";
 				my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
