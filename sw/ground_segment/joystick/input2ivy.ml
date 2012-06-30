@@ -64,7 +64,7 @@ let index_of_settings = Hashtbl.create 13
 let index_of_blocks = Hashtbl.create 13
 
 (** External C functions to access the input device *)
-external stick_init : string -> int = "ml_stick_init"
+external stick_init : int -> int = "ml_stick_init"
 (** [stick_init device] Return 0 on success. Search for a device if [device]
  is the empty string *)
 
@@ -551,7 +551,7 @@ let execute_kb_action = fun actions conditions ->
 (************************************* MAIN **********************************)
 let () =
   let ivy_bus = ref Defivybus.default_ivy_bus  in
-  let device_name = ref "/dev/input/js0"
+  let device_index = ref 0
   and ac_name = ref "MYAC"
   and xml_descr = ref "" in
 
@@ -559,7 +559,7 @@ let () =
   let speclist =
     [ "-b", Arg.String (fun x -> ivy_bus := x),(sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-ac",  Arg.Set_string ac_name, "<A/C name>";
-      "-d",  Arg.Set_string device_name, "<device name>";
+      "-d",  Arg.Set_int device_index, "<device index>";
       "-v",  Arg.Set verbose, "Verbose mode (useful to identify the channels of an input device)";
       "-id", Arg.Set_int joystick_id, "Joystick ID, from 0-255.  Each joystick requires a unique ID in a multiple joystick configuration.";
       "-", Arg.String anon_fun, "<xml file of actions>"
@@ -586,8 +586,8 @@ let () =
 
   let actions = parse_descr xml_descr_full trim_file_name.contents in
 
-  if stick_init !device_name <> 0 then
-    failwith (sprintf "Error: cannot open device %s\n" !device_name);
+  if stick_init !device_index <> 0 then
+    failwith (sprintf "Error: cannot open device with SDL index %i\n" !device_index);
 
   (** Connect to the Ivy bus *)
   Ivy.init "Paparazzi joystick" "READY" (fun _ _ -> ());
