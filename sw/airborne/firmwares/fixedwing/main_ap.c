@@ -190,6 +190,7 @@ void init_ap( void ) {
   ahrs_init();
 #endif
 
+
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
   link_mcu_init();
@@ -257,7 +258,12 @@ void handle_periodic_tasks_ap(void) {
 #endif
 
   if (sys_time_check_and_ack_timer(modules_tid))
+  {
+#ifdef USE_INS
+    ins_periodic_task();
+#endif
     modules_periodic_task();
+  }
 
   if (sys_time_check_and_ack_timer(monitor_tid))
     monitor_task();
