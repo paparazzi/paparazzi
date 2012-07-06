@@ -552,6 +552,10 @@ void sensors_task( void ) {
     ahrs_timeout_counter ++;
 #endif // USE_AHRS
 #endif // USE_IMU
+
+#if USE_INS
+  ins_periodic_task();
+#endif
 }
 
 
