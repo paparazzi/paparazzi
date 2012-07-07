@@ -291,6 +291,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   /* feed forward command */
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
 
+  /* bound the nominal command to 0.9*MAX_PPRZ */
+  Bound(guidance_v_ff_cmd, 0, 8640);
+
 
   /* our error feed back command                   */
   /* z-axis pointing down -> positive error means we need less thrust */

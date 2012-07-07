@@ -134,20 +134,16 @@ static inline void gv_adapt_init(void) {
  */
 static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
-  /* Do you really think we want to divide by zero ?
-   * Negative commands are also prohibited here
-   */
-  if (thrust_applied <= 0) return;
-
-  /* We don't propagate state, it's constant !       */
-  /* We propagate our covariance                     */
-  gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
-
   /* Update only if accel and commands are in a valid range */
+  /* This also ensures we don't divide by zero */
   if (thrust_applied < GV_ADAPT_MIN_CMD || thrust_applied > GV_ADAPT_MAX_CMD
       || zdd_meas < -GV_ADAPT_MAX_ACCEL || zdd_meas > GV_ADAPT_MAX_ACCEL) {
     return;
   }
+
+  /* We don't propagate state, it's constant !       */
+  /* We propagate our covariance                     */
+  gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
 
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 30 bits */
   const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
@@ -160,15 +156,15 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
   /* Compute a residual */
   int32_t residual = gv_adapt_Xmeas - gv_adapt_X;
 
-  /* Covariance Error   */
+  /* Covariance Error  E = P + R  */
   int32_t ref = zd_ref >> (INT32_SPEED_FRAC - GV_ADAPT_P_FRAC);
   if (zd_ref < 0) ref = -ref;
   int32_t E = gv_adapt_P + GV_ADAPT_MEAS_NOISE_HOVER + ref * GV_ADAPT_MEAS_NOISE_OF_ZD;
 
-  /* Kalman gain        */
+  /* Kalman gain  K = P / (P + R) = P / E  */
   int32_t K = (gv_adapt_P<<K_FRAC) / E;
 
-  /* Update Covariance */
+  /* Update Covariance  Pnew = P - K * P   */
   gv_adapt_P = gv_adapt_P - ((K * gv_adapt_P)>>K_FRAC);
   /* Don't let covariance climb over initial value */
   if (gv_adapt_P > GV_ADAPT_P0) gv_adapt_P = GV_ADAPT_P0;
