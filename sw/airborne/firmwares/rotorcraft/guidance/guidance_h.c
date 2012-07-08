@@ -266,12 +266,12 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
 static inline void guidance_h_traj_run(bool_t in_flight) {
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, ins_ltp_pos);
+  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, ins_ltp_speed);
+  VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, *stateGetSpeedNed_i());
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -326,7 +326,7 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
 static inline void guidance_h_hover_enter(void) {
 
-  VECT2_COPY(guidance_h_pos_sp, ins_ltp_pos);
+  VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
   guidance_h_rc_sp.psi = ahrs.ltp_to_body_euler.psi;
   reset_psi_ref_from_body();
@@ -340,8 +340,8 @@ static inline void guidance_h_nav_enter(void) {
   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
   struct Int32Vect2 pos,speed,zero;
   INT_VECT2_ZERO(zero);
-  VECT2_COPY(pos, ins_ltp_pos);
-  VECT2_COPY(speed, ins_ltp_speed);
+  VECT2_COPY(pos, *stateGetPositionNed_i());
+  VECT2_COPY(speed, *stateGetSpeedNed_i());
   GuidanceHSetRef(pos, speed, zero);
 
   /* reset psi reference, set psi setpoint to current psi */
