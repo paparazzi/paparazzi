@@ -121,14 +121,14 @@ void booz_cam_periodic(void) {
 #ifdef WP_CAM
       {
         struct Int32Vect2 diff;
-        VECT2_DIFF(diff, waypoints[WP_CAM], ins_enu_pos);
+        VECT2_DIFF(diff, waypoints[WP_CAM], *stateGetPositionEnu_i());
         INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
         INT32_ATAN2(booz_cam_pan,diff.x,diff.y);
         nav_heading = booz_cam_pan;
 #ifdef BOOZ_CAM_USE_TILT_ANGLES
         int32_t dist, height;
         INT32_VECT2_NORM(dist, diff);
-        height = (waypoints[WP_CAM].z - ins_enu_pos.z) >> INT32_POS_FRAC;
+        height = (waypoints[WP_CAM].z - stateGetPositionEnu_i()->z) >> INT32_POS_FRAC;
         INT32_ATAN2(booz_cam_tilt, height, dist);
         Bound(booz_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
         booz_cam_tilt_pwm = BOOZ_CAM_TILT_MIN + D_TILT * (booz_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);

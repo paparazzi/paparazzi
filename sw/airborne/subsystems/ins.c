@@ -77,9 +77,6 @@ bool_t  ins_vf_realign;
 struct NedCoor_i ins_ltp_pos;
 struct NedCoor_i ins_ltp_speed;
 struct NedCoor_i ins_ltp_accel;
-struct EnuCoor_i ins_enu_pos;
-struct EnuCoor_i ins_enu_speed;
-struct EnuCoor_i ins_enu_accel;
 
 
 void ins_init() {
@@ -98,6 +95,7 @@ void ins_init() {
 
   ltp_def_from_ecef_i(&ins_ltp_def, &ecef_nav0);
   ins_ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_ltp_def);
 #else
   ins_ltp_initialised  = FALSE;
 #endif
@@ -116,9 +114,6 @@ void ins_init() {
   INT32_VECT3_ZERO(ins_ltp_pos);
   INT32_VECT3_ZERO(ins_ltp_speed);
   INT32_VECT3_ZERO(ins_ltp_accel);
-  INT32_VECT3_ZERO(ins_enu_pos);
-  INT32_VECT3_ZERO(ins_enu_speed);
-  INT32_VECT3_ZERO(ins_enu_accel);
 }
 
 void ins_periodic( void ) {
@@ -170,9 +165,7 @@ void ins_propagate() {
   ins_ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
-  INT32_VECT3_ENU_OF_NED(ins_enu_pos, ins_ltp_pos);
-  INT32_VECT3_ENU_OF_NED(ins_enu_speed, ins_ltp_speed);
-  INT32_VECT3_ENU_OF_NED(ins_enu_accel, ins_ltp_accel);
+  INS_NED_TO_STATE();
 }
 
 void ins_update_baro() {
@@ -192,9 +185,6 @@ void ins_update_baro() {
       ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
       ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
       ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
-      ins_enu_pos.z = -ins_ltp_pos.z;
-      ins_enu_speed.z = -ins_ltp_speed.z;
-      ins_enu_accel.z = -ins_ltp_accel.z;
     }
     else { /* not realigning, so normal update with baro measurement */
       ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
@@ -202,6 +192,7 @@ void ins_update_baro() {
       vff_update(alt_float);
     }
   }
+  INS_NED_TO_STATE();
 #endif
 }
 
@@ -214,6 +205,7 @@ void ins_update_gps(void) {
       ins_ltp_def.lla.alt = gps.lla_pos.alt;
       ins_ltp_def.hmsl = gps.hmsl;
       ins_ltp_initialised = TRUE;
+      stateSetLocalOrigin_i(&ins_ltp_def);
     }
     ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
     ned_of_ecef_vect_i(&ins_gps_speed_cm_s_ned, &ins_ltp_def, &gps.ecef_vel);
@@ -258,9 +250,7 @@ void ins_update_gps(void) {
 #endif
 #endif /* hff not used */
 
-    INT32_VECT3_ENU_OF_NED(ins_enu_pos, ins_ltp_pos);
-    INT32_VECT3_ENU_OF_NED(ins_enu_speed, ins_ltp_speed);
-    INT32_VECT3_ENU_OF_NED(ins_enu_accel, ins_ltp_accel);
+    INS_NED_TO_STATE();
   }
 #endif /* USE_GPS */
 }
