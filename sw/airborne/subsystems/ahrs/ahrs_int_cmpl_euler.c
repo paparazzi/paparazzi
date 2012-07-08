@@ -291,7 +291,10 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
   /* compute body rates */
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
 
+  AHRS_BODY_TO_STATE();
+
 }
+
 
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
