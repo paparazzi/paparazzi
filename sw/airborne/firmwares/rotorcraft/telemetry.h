@@ -35,6 +35,8 @@
 #include "subsystems/radio_control.h"
 #endif
 
+#include "state.h"
+
 #include "firmwares/rotorcraft/autopilot.h"
 #include "firmwares/rotorcraft/guidance.h"
 
@@ -439,10 +441,10 @@
                   &ahrs.ltp_to_imu_quat.qx,	\
                   &ahrs.ltp_to_imu_quat.qy,	\
                   &ahrs.ltp_to_imu_quat.qz,	\
-                  &ahrs.ltp_to_body_quat.qi,	\
-                  &ahrs.ltp_to_body_quat.qx,	\
-                  &ahrs.ltp_to_body_quat.qy,	\
-                  &ahrs.ltp_to_body_quat.qz);	\
+                  &(stateGetNedToBodyQuat_i()->qi),	\
+                  &(stateGetNedToBodyQuat_i()->qx),	\
+                  &(stateGetNedToBodyQuat_i()->qy),	\
+                  &(stateGetNedToBodyQuat_i()->qz));	\
   }
 
 #define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {				\
@@ -635,21 +637,21 @@
 #define PERIODIC_SEND_ROTORCRAFT_FP(_trans, _dev) {					\
     int32_t carrot_up = -guidance_v_z_sp;				\
     DOWNLINK_SEND_ROTORCRAFT_FP( _trans, _dev,					\
-                &ins_enu_pos.x,			\
-                &ins_enu_pos.y,			\
-                &ins_enu_pos.z,			\
-                &ins_enu_speed.x,			\
-                &ins_enu_speed.y,			\
-                &ins_enu_speed.z,			\
-                &ahrs.ltp_to_body_euler.phi,		\
-                &ahrs.ltp_to_body_euler.theta,		\
-                &ahrs.ltp_to_body_euler.psi,		\
-                &guidance_h_pos_sp.y,			\
-                &guidance_h_pos_sp.x,			\
-                &carrot_up,					\
-                &guidance_h_command_body.psi,		\
-                &stabilization_cmd[COMMAND_THRUST], \
-          &autopilot_flight_time);	\
+                                 &(stateGetPositionEnu_i()->x),         \
+                                 &(stateGetPositionEnu_i()->y),         \
+                                 &(stateGetPositionEnu_i()->z),         \
+                                 &(stateGetSpeedEnu_i()->x),            \
+                                 &(stateGetSpeedEnu_i()->y),            \
+                                 &(stateGetSpeedEnu_i()->z),            \
+                                 &(stateGetNedToBodyEulers_i()->phi),   \
+                                 &(stateGetNedToBodyEulers_i()->theta), \
+                                 &(stateGetNedToBodyEulers_i()->psi),   \
+                                 &guidance_h_pos_sp.y,                  \
+                                 &guidance_h_pos_sp.x,                  \
+                                 &carrot_up,                            \
+                                 &guidance_h_command_body.psi,          \
+                                 &stabilization_cmd[COMMAND_THRUST],    \
+                                 &autopilot_flight_time);               \
   }
 
 #if USE_GPS
