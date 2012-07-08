@@ -20,4 +20,11 @@
     (_pos1).alt = (_pos2).alt;			\
 }
 
+#define LTP_DEF_COPY(_def1,_def2){                              \
+    LLA_COPY((_def1).lla, (_def2).lla);                         \
+    VECT3_COPY((_def1).ecef, (_def2).ecef);                     \
+    RMAT_COPY((_def1).ltp_of_ecef, (_def2).ltp_of_ecef);        \
+    (_def1).hmsl = (_def2).hmsl;                                \
+  }
+
 #endif /* PPRZ_GEODETIC_H */
