@@ -130,9 +130,7 @@ install_tools:
 	$(INSTALLDATA) sw/tools/gen_messages.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_periodic.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_radio.ml $(DESTDIR)/sw/tools/
-	$(INSTALLDATA) sw/tools/gen_tuning.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
-	$(INSTALLDATA) sw/tools/gen_tuning.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_mtk.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_xsens.ml $(DESTDIR)/sw/tools/

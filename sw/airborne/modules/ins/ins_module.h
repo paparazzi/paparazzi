@@ -32,7 +32,6 @@
 #define INS_H
 
 #include "std.h"
-#include "led.h"
 
 #ifndef INS_FORMAT
 #define INS_FORMAT float
@@ -62,9 +61,10 @@ extern INS_FORMAT ins_mx;
 extern INS_FORMAT ins_my;
 extern INS_FORMAT ins_mz;
 
+#if USE_INS
 extern INS_FORMAT ins_roll_neutral;
 extern INS_FORMAT ins_pitch_neutral;
-
+#endif
 
 extern volatile uint8_t ins_msg_received;
 extern volatile uint8_t new_ins_attitude;
@@ -97,7 +97,6 @@ void parse_ins_buffer( uint8_t );
       ReadInsBuffer();						\
     }						                \
     if (ins_msg_received) {					\
-      LED_TOGGLE(2);						\
       parse_ins_msg();						\
       handler;							\
       ins_msg_received = FALSE;					\

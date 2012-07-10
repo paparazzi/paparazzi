@@ -28,7 +28,8 @@
 
 #include "mcu_periph/sys_time.h"
 
-#include "stm32_vector_table.h"
+#include "libopencm3/stm32/systick.h"
+
 #ifdef SYS_TIME_LED
 #include "led.h"
 #endif
@@ -39,11 +40,11 @@ void sys_time_arch_init( void ) {
    * The timer interrupt is activated on the transition from 1 to 0,
    * therefore it activates every n+1 clock ticks.
    */
-  if (SysTick_Config(SYS_TIME_RESOLUTION_CPU_TICKS-1))
-    while(1); /* if reload of value is impossible, go into endless loop */
+  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB);
+  systick_set_reload(SYS_TIME_RESOLUTION_CPU_TICKS-1);
 
-  /* Set SysTick handler priority */
-  NVIC_SetPriority(SysTick_IRQn, 0x0);
+  systick_interrupt_enable();
+  systick_counter_enable();
 }
 
 
@@ -52,7 +53,7 @@ void sys_time_arch_init( void ) {
 // 97 days at 512hz
 // 12 hours at 100khz
 //
-void sys_tick_irq_handler(void) {
+void sys_tick_handler(void) {
 
   sys_time.nb_tick++;
   sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;

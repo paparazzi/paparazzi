@@ -21,32 +21,33 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-#include <stm32/gpio.h>
-#include <stm32/rcc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
 
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
-#define A_PERIPH   RCC_APB2Periph_GPIOA
-#define A_RX_PIN   GPIO_Pin_10
-#define A_RX_PORT  GPIOA
-#define A_TX_PIN   GPIO_Pin_9
-#define A_TX_PORT  GPIOA
+#define A_PERIPH   RCC_APB2ENR_IOPAEN
+#define A_PORT     GPIOA
+#define A_RX_PIN   GPIO10
+#define A_RX_PORT  A_PORT
+#define A_TX_PIN   GPIO9
+#define A_TX_PORT  A_PORT
 
-#define B_PERIPH   RCC_APB2Periph_GPIOA
-#define B_RX_PIN   GPIO_Pin_3
-#define B_RX_PORT  GPIOA
-#define B_TX_PIN   GPIO_Pin_2
-#define B_TX_PORT  GPIOA
+#define B_PERIPH   RCC_APB2ENR_IOPAEN
+#define B_PORT     GPIOA
+#define B_RX_PIN   GPIO3
+#define B_RX_PORT  B_PORT
+#define B_TX_PIN   GPIO2
+#define B_TX_PORT  B_PORT
 
 static inline void main_periodic( void );
 static inline void main_event( void );
+void Delay(volatile uint32_t nCount);
 
-void Delay(__IO uint32_t nCount) {
+void Delay(volatile uint32_t nCount) {
   for(; nCount != 0; nCount--);
 }
 
@@ -56,27 +57,24 @@ int main(void) {
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
   /* init RCC */
-  RCC_APB2PeriphClockCmd(A_PERIPH , ENABLE);
-  //  RCC_APB2PeriphClockCmd(B_PERIPH , ENABLE);
-  //  GPIO_DeInit(A_RX_PORT);
-  /* Init GPIO for rx pins */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-  //  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Pin = A_RX_PIN;
-  GPIO_Init(A_RX_PORT, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = B_RX_PIN;
-  GPIO_Init(B_RX_PORT, &GPIO_InitStructure);
-  /* Init GPIO for tx pins */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Pin = A_TX_PIN;
-  GPIO_Init(A_TX_PORT, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = B_TX_PIN;
-  GPIO_Init(B_TX_PORT, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, A_PERIPH);
+  // rccp_perihperal_enable_clock(&RCC_APB2ENR, B_PERIPH);
 
-  A_TX_PORT->BRR  = A_TX_PIN;
+  /* Init GPIO for rx pins */
+  gpio_set(A_RX_PORT, A_RX_PIN);
+  gpio_set_mode(A_RX_PORT, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_PULL_UPDOWN, A_RX_PIN);
+  gpio_set(B_RX_PORT, B_RX_PIN);
+  gpio_set_mode(B_RX_PORT, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_PULL_UPDOWN, B_RX_PIN);
+
+  /* Init GPIO for tx pins */
+  gpio_set_mode(A_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_PUSHPULL, A_TX_PIN);
+  gpio_set_mode(B_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_PUSHPULL, B_TX_PIN);
+
+  GPIO_BRR(A_TX_PORT) = A_TX_PIN;
 
   /* */
   while (1) {
@@ -101,27 +99,32 @@ static inline void main_event( void ) {
 
 #if 0
   if (!(foo%2))
-    GPIO_WriteBit(B_TX_PORT,  B_TX_PIN, Bit_SET);
+    gpio_set(B_TX_PORT, B_TX_PIN);
   else
-    GPIO_WriteBit(B_TX_PORT,  B_TX_PIN, Bit_RESET);
+    gpio_clear(B_TX_PORT, B_TX_PIN);
 #endif
 
 #if 0
   if (!(foo%2))
-    A_TX_PORT->BRR  = A_TX_PIN;
+    GPIO_BRR(A_TX_PORT) = A_TX_PIN;
   else
-    A_TX_PORT->BSRR  = A_TX_PIN;
+    GPIO_BSRR(A_TX_PORT) = A_TX_PIN;
 #endif
 
 #if 1
-  GPIO_WriteBit(A_TX_PORT, A_TX_PIN, GPIO_ReadInputDataBit(B_RX_PORT, B_RX_PIN) );
+  /* passthrough B_RX to A_TX */
+  if (GPIO_IDR(B_RX_PORT) & B_RX_PIN)
+    GPIO_BSRR(A_TX_PORT) = A_TX_PIN;
+  else
+    GPIO_BRR(A_TX_PORT) = A_TX_PIN;
 #endif
-  if (GPIO_ReadInputDataBit(A_RX_PORT, A_RX_PIN)) {
-    GPIO_WriteBit(B_TX_PORT, B_TX_PIN,  Bit_SET);
+  /* passthrough A_RX to B_TX */
+  if (gpio_get(A_RX_PORT, A_RX_PIN)) {
+    gpio_set(B_TX_PORT, B_TX_PIN);
     LED_ON(2);
   }
   else {
-    GPIO_WriteBit(B_TX_PORT, B_TX_PIN,  Bit_RESET);
+    gpio_clear(B_TX_PORT, B_TX_PIN);
     LED_OFF(2);
   }
 

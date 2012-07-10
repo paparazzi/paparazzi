@@ -39,11 +39,11 @@ def main():
                       type="choice", choices=["ACCEL", "MAG"],
                       help="sensor to calibrate (ACCEL, MAG)",
                       action="store", default="ACCEL")
-    parser.add_option("-v", "--verbose",
-                      action="store_true", dest="verbose")
     parser.add_option("-p", "--plot",
                       help="Show resulting plots",
                       action="store_true", dest="plot")
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("incorrect number of arguments")

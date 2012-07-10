@@ -85,5 +85,16 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
 
 }
 
+static inline void stabilization_attitude_read_rc_roll_pitch_quat(struct FloatQuat* q) {
+  q->qx = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
+  q->qy = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
+  q->qz = 0.0;
+
+  /* normalize */
+  float norm = sqrtf(1.0 + SQUARE(q->qx)+ SQUARE(q->qy));
+  q->qi = 1.0 / norm;
+  q->qx /= norm;
+  q->qy /= norm;
+}
 
 #endif /* STABILISATION_ATTITUDE_RC_SETPOINT_H */

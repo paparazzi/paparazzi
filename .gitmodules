@@ -1,0 +1,3 @@
+[submodule "sw/ext/libopencm3"]
+	path = sw/ext/libopencm3
+	url = git://libopencm3.git.sourceforge.net/gitroot/libopencm3/libopencm3

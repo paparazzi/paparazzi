@@ -36,6 +36,7 @@
 #
 #
 
+
 IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
 IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\" -DIMU_OVERRIDE_CHANNELS
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \

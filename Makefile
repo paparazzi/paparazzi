@@ -46,6 +46,7 @@ MULTIMON=sw/ground_segment/multimon
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
+EXT=sw/ext
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 CONF=$(PAPARAZZI_SRC)/conf
 STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
@@ -82,7 +83,7 @@ endif
 
 all: conf commands static
 
-static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
+static: lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib ext
 
 conf: conf/conf.xml conf/control_panel.xml conf/maps.xml FORCE
 
@@ -126,6 +127,9 @@ static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSE
 
 usb_lib:
 	@[ -d sw/airborne/arch/lpc21/lpcusb ] && ((test -x "$(ARMGCC)" && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
+
+ext:
+	$(MAKE) -C$(EXT) all
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
@@ -235,7 +239,8 @@ fast_deb:
 clean:
 	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin
 	$(Q)rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
-	$(Q)find . -mindepth 2 -name Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)make -C sw/ext clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
 	$(Q)rm -f paparazzi sw/simulator/launchsitl
 

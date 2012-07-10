@@ -25,9 +25,7 @@ tunnel.ARCHDIR = $(ARCH)
 tunnel.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 tunnel.srcs   += mcu.c \
                  $(SRC_ARCH)/mcu_arch.c \
-                 $(SRC_LISA)/tunnel_hw.c          \
-                 $(SRC_ARCH)/stm32_exceptions.c   \
-                 $(SRC_ARCH)/stm32_vector_table.c
+                 $(SRC_LISA)/tunnel_hw.c
 tunnel.CFLAGS += -DUSE_LED
 tunnel.srcs   += $(SRC_ARCH)/led_hw.c
 ifneq ($(SYS_TIME_LED),none)
@@ -88,7 +86,7 @@ ifeq ($(TARGET), setup_actuators)
     ifeq ($(BOARD),lisa_l)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
-    ifeq ($(BOARD),lisa_m)
+	ifeq ($(BOARD),lisa_m)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
 
@@ -99,7 +97,6 @@ endif
 
 
 # a test program to setup actuators
-
 setup_actuators.CFLAGS += -DFBW -DUSE_LED -DPERIPHERALS_AUTO_INIT
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
 setup_actuators.srcs   += mcu.c $(SRC_ARCH)/mcu_arch.c
@@ -111,7 +108,6 @@ setup_actuators.srcs   += mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_FBW_DEVICE=$(MODEM_PORT) -DDOWNLINK_AP_DEVICE=$(MODEM_PORT) -DPPRZ_UART=$(MODEM_PORT)
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
 setup_actuators.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-
 ifneq ($(SYS_TIME_LED),none)
 setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
@@ -126,5 +122,4 @@ else ifeq ($(ARCH), stm32)
 setup_actuators.ARCHDIR = $(ARCH)
 setup_actuators.CFLAGS += -I$(ARCH)
 setup_actuators.srcs   += $(SRC_ARCH)/led_hw.c
-setup_actuators.srcs   += $(SRC_ARCH)/stm32_exceptions.c $(SRC_ARCH)/stm32_vector_table.c
 endif

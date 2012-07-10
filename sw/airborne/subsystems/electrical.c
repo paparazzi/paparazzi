@@ -61,22 +61,22 @@ void electrical_periodic(void) {
 #endif
 #else
 #if defined MILLIAMP_AT_FULL_THROTTLE && defined COMMAND_THROTTLE
-      /*
-       * Superellipse: abs(x/a)^n + abs(y/b)^n = 1
-       * with a = 1
-       * b = mA at full throttle
-       * n = 1.2     This defines nonlinearity (1 = linear)
-       * x = throttle
-       * y = current
-       *
-       * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
-       */
-      float b = (float)MILLIAMP_AT_FULL_THROTTLE;
-      float x = ((float)commands[COMMAND_THROTTLE]) / ((float)MAX_PPRZ);
-      /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
-       * a=1, n = electrical_priv.nonlin_factor
-       */
-      electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
+  /*
+   * Superellipse: abs(x/a)^n + abs(y/b)^n = 1
+   * with a = 1
+   * b = mA at full throttle
+   * n = 1.2     This defines nonlinearity (1 = linear)
+   * x = throttle
+   * y = current
+   *
+   * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
+   */
+  float b = (float)MILLIAMP_AT_FULL_THROTTLE;
+  float x = ((float)commands[COMMAND_THROTTLE]) / ((float)MAX_PPRZ);
+  /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
+   * a=1, n = electrical_priv.nonlin_factor
+   */
+  electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
 #endif
 #endif /* ADC_CHANNEL_CURRENT */
 

@@ -21,12 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
-
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/uart.h"

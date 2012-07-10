@@ -22,154 +22,115 @@
  */
 #include "peripherals/max1168.h"
 
-#include <stm32/rcc.h>
-#include <stm32/spi.h>
-#include <stm32/exti.h>
-#include <stm32/misc.h>
-#include <stm32/dma.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/f1/dma.h>
+#include <libopencm3/stm32/nvic.h>
 
 
 /* I can't use GPIOD as it's already defined in some system header */
-#define __DRDY_PORT(dev, _x) _x##dev
+#define __DRDY_PORT(dev, _x) dev##_x
 #define _DRDY_PORT(dev, _x)  __DRDY_PORT(dev, _x)
 #define DRDY_PORT(_x) _DRDY_PORT(MAX_1168_DRDY_PORT, _x)
 
-#define __DRDY_PORT_SOURCE(dev, _x) _x##dev
-#define _DRDY_PORT_SOURCE(dev, _x)  __DRDY_PORT_SOURCE(dev, _x)
-#define DRDY_PORT_SOURCE(_x) _DRDY_PORT_SOURCE(MAX_1168_DRDY_PORT_SOURCE, _x)
-
-void exti2_irq_handler(void);
+void exti2_isr(void);
 
 void max1168_arch_init( void ) {
 
   /* set slave select as output and assert it ( on PB12) */
   Max1168Unselect();
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+	  GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
 
   /* configure external interrupt exti2 on PD2( data ready ) v1.0*/
   /*                                       PB2( data ready ) v1.1*/
-  //  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
-  RCC_APB2PeriphClockCmd(DRDY_PORT(RCC_APB2Periph) | RCC_APB2Periph_AFIO, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
+	  GPIO_CNF_INPUT_FLOAT, GPIO2);
 
-  EXTI_InitTypeDef EXTI_InitStructure;
-  //  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
-  GPIO_EXTILineConfig(DRDY_PORT_SOURCE(GPIO_), GPIO_PinSource2);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line2;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  exti_select_source(EXTI2, GPIOB);
+  exti_set_trigger(EXTI2, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI2);
 
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_set_priority(NVIC_EXTI2_IRQ, 0xF);
+  nvic_enable_irq(NVIC_EXTI2_IRQ);
 
 #ifdef MAX1168_HANDLES_DMA_IRQ
   /* Enable DMA1 channel4 IRQ Channel */
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
+  nvic_set_priority(NVIC_DMA1_CHANNEL4_IRQ, 0);
+  nvic_enable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 #endif /* MAX1168_HANDLES_DMA_IRQ */
 }
 
 void max1168_read( void ) {
-  /*  ASSERT((max1168_status == STA_MAX1168_IDLE),	\
-   *   DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
-   */
+
   /* select max1168 */
   Max1168Select();
 
   /* write control byte - wait EOC on extint */
   /* use internal reference and clock, sequentially scan channels 0-7 */
   const uint16_t ctl_byte = (1 << 0 | 1 << 3 | 7 << 5) << 8;
-  SPI_I2S_SendData(SPI2, ctl_byte);
+  spi_write(SPI2, ctl_byte);
   max1168_status = STA_MAX1168_SENDING_REQ;
 
 }
 
-void exti2_irq_handler(void) {
-
-  /*  ASSERT((max1168_status == STA_MAX1168_SENDING_REQ),	\
-   *     DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_EOC);
-   */
+void exti2_isr(void) {
 
   /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line2);
+  exti_reset_request(EXTI2);
 
   /* read control byte FIXME: is this needed ?, yes*/
-   uint16_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI2);
+  uint16_t foo __attribute__ ((unused)) = spi_read(SPI2);
 
   /* trigger 8 frames read */
-  /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel4);
-  DMA_InitTypeDef DMA_initStructure_4 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)max1168_values,
-    .DMA_DIR = DMA_DIR_PeripheralSRC,
-    .DMA_BufferSize = MAX1168_NB_CHAN,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_VeryHigh,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel4, &DMA_initStructure_4);
+  // SPI2_Rx_DMA_Channel configuration ------------------------------------
+  dma_channel_reset(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)max1168_values);
+  dma_set_number_of_data(DMA1, DMA_CHANNEL4, MAX1168_NB_CHAN);
+  dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);
+  //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL4);
+  dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_size(DMA1, DMA_CHANNEL4, DMA_CCR_PSIZE_16BIT);
+  dma_set_memory_size(DMA1, DMA_CHANNEL4, DMA_CCR_MSIZE_16BIT);
+  //dma_set_mode(DMA1, DMA_CHANNEL4, DMA_???_NORMAL);
+  dma_set_priority(DMA1, DMA_CHANNEL4, DMA_CCR_PL_VERY_HIGH);
 
-  /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel5);
-  DMA_InitTypeDef DMA_initStructure_5 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)max1168_values,
-    .DMA_DIR = DMA_DIR_PeripheralDST,
-    .DMA_BufferSize = MAX1168_NB_CHAN,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_Medium,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
+  // SPI2_Tx_DMA_Channel configuration ------------------------------------
+  dma_channel_reset(DMA1, DMA_CHANNEL5);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL5, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)max1168_values);
+  dma_set_number_of_data(DMA1, DMA_CHANNEL5, MAX1168_NB_CHAN);
+  dma_set_read_from_memory(DMA1, DMA_CHANNEL5);
+  //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL5);
+  dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL5);
+  dma_set_peripheral_size(DMA1, DMA_CHANNEL5, DMA_CCR_PSIZE_16BIT);
+  dma_set_memory_size(DMA1, DMA_CHANNEL5, DMA_CCR_MSIZE_16BIT);
+  //dma_set_mode(DMA1, DMA_CHANNEL5, DMA_???_NORMAL);
+  dma_set_priority(DMA1, DMA_CHANNEL5, DMA_CCR_PL_MEDIUM);
 
-  /* Enable SPI_2 Rx request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
-  /* Enable DMA1 Channel4 */
-  DMA_Cmd(DMA1_Channel4, ENABLE);
+  // Enable DMA1 Channel4
+  dma_enable_channel(DMA1, DMA_CHANNEL4);
+  // Enable SPI_2 Rx request
+  spi_enable_rx_dma(SPI2);
 
-  /* Enable SPI_2 Tx request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
-  /* Enable DMA1 Channel5 */
-  DMA_Cmd(DMA1_Channel5, ENABLE);
+  // Enable DMA1 Channel5
+  dma_enable_channel(DMA1, DMA_CHANNEL5);
+  // Enable SPI_2 Tx request
+  spi_enable_tx_dma(SPI2);
 
-  /* Enable DMA1 Channel4 Transfer Complete interrupt */
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
+  // Enable DMA1 Channel4 Transfer Complete interrupt
+  dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
 
   max1168_status = STA_MAX1168_READING_RES;
 }
 
 #ifdef MAX1168_HANDLES_DMA_IRQ
-void dma1_c4_irq_handler(void) {
+void dma1_channel4_isr(void) {
   Max1168OnDmaIrq();
 }
 #endif /*MAX1168_HANDLES_DMA_IRQ */

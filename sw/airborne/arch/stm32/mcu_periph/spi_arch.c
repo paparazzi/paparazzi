@@ -1,87 +1,84 @@
 #include "subsystems/imu.h"
 
-#include <stm32/gpio.h>
-#include <stm32/misc.h>
-#include <stm32/rcc.h>
-#include <stm32/exti.h>
-#include <stm32/spi.h>
-#include <stm32/dma.h>
+#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/f1/dma.h>
 
 #include "mcu_periph/spi.h"
 
 // SPI2 Slave Selection
-#define Spi2Slave0Unselect() GPIOB->BSRR = GPIO_Pin_12
-#define Spi2Slave0Select()   GPIOB->BRR = GPIO_Pin_12
-
+#define Spi2Slave0Unselect() GPIO_BSRR(GPIOB) = GPIO12
+#define Spi2Slave0Select()   GPIO_BRR(GPIOB) = GPIO12
 
 // spi dma end of rx handler
-void dma1_c4_irq_handler(void);
+// XXX: should be provided by libopencm3?
+void dma1_channel4_isr(void);
 
 void spi_arch_int_enable(void) {
-  // Enable DMA1 channel4 IRQ Channel ( SPI RX)
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
 
+  // Enable DMA1 channel4 IRQ Channel ( SPI RX)
+  nvic_set_priority(NVIC_DMA1_CHANNEL4_IRQ, 0);
+  nvic_enable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 }
 
 void spi_arch_int_disable(void) {
+
   // Enable DMA1 channel4 IRQ Channel ( SPI RX)
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = DISABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
+  nvic_disable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 }
 
 void spi_init(void) {
 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  SPI_InitTypeDef SPI_InitStructure;
-
-  // Enable SPI2 Periph clock -------------------------------------------------
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+  // Enable SPI2 Periph and gpio clocks -------------------------------------------------
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
+	                                        GPIO_SPI2_MISO |
+	                                        GPIO_SPI2_MOSI);
 
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
-  SPI_Cmd(SPI2, ENABLE);
+  // reset SPI
+  spi_reset(SPI2);
+
+  // Disable SPI peripheral
+  spi_disable(SPI2);
 
   // configure SPI
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(SPI2, &SPI_InitStructure);
+  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+
+  /*
+   * Set NSS management to software.
+   *
+   * Note:
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
+  spi_enable_software_slave_management(SPI2);
+  spi_set_nss_high(SPI2);
+
+  // Enable SPI2 periph.
+  spi_enable(SPI2);
 
   // Enable SPI_2 DMA clock ---------------------------------------------------
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 
   // SLAVE 0
   // set accel slave select as output and assert it ( on PB12)
   Spi2Slave0Unselect();
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
 
   spi_arch_int_enable();
+
 }
 
 /*
@@ -111,78 +108,78 @@ void spi_rw(struct spi_transaction  * _trans)
 
   Spi2Slave0Select();
 
+
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
-  DMA_DeInit(DMA1_Channel4);
-  DMA_InitTypeDef DMA_initStructure_4 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t) slave0->miso_buf,
-    .DMA_DIR = DMA_DIR_PeripheralSRC,
-    .DMA_BufferSize = slave0->length,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_VeryHigh,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel4, &DMA_initStructure_4);
+
+  dma_channel_reset(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)slave0->miso_buf);
+  dma_set_number_of_data(DMA1, DMA_CHANNEL4, slave0->length);
+  dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);
+  //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL4);
+  dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_size(DMA1, DMA_CHANNEL4, DMA_CCR_PSIZE_8BIT);
+  dma_set_memory_size(DMA1, DMA_CHANNEL4, DMA_CCR_MSIZE_8BIT);
+  //dma_set_mode(DMA1, DMA_CHANNEL4, DMA_???_NORMAL);
+  dma_set_priority(DMA1, DMA_CHANNEL4, DMA_CCR_PL_VERY_HIGH);
 
   // SPI2_Tx_DMA_Channel configuration ------------------------------------
-  DMA_DeInit(DMA1_Channel5);
-  DMA_InitTypeDef DMA_initStructure_5 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t) slave0->mosi_buf,
-    .DMA_DIR = DMA_DIR_PeripheralDST,
-    .DMA_BufferSize = slave0->length,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_Medium,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
+  dma_channel_reset(DMA1, DMA_CHANNEL5);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL5, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)slave0->mosi_buf);
+  dma_set_number_of_data(DMA1, DMA_CHANNEL5, slave0->length);
+  dma_set_read_from_memory(DMA1, DMA_CHANNEL5);
+  //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL5);
+  dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL5);
+  dma_set_peripheral_size(DMA1, DMA_CHANNEL5, DMA_CCR_PSIZE_8BIT);
+  dma_set_memory_size(DMA1, DMA_CHANNEL5, DMA_CCR_MSIZE_8BIT);
+  //dma_set_mode(DMA1, DMA_CHANNEL5, DMA_???_NORMAL);
+  dma_set_priority(DMA1, DMA_CHANNEL5, DMA_CCR_PL_MEDIUM);
 
-  // Enable SPI_2 Rx request
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
   // Enable DMA1 Channel4
-  DMA_Cmd(DMA1_Channel4, ENABLE);
+  dma_enable_channel(DMA1, DMA_CHANNEL4);
+  // Enable SPI_2 Rx request
+  spi_enable_rx_dma(SPI2);
 
-  // Enable SPI_2 Tx request
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
   // Enable DMA1 Channel5
-  DMA_Cmd(DMA1_Channel5, ENABLE);
+  dma_enable_channel(DMA1, DMA_CHANNEL5);
+  // Enable SPI_2 Tx request
+  spi_enable_tx_dma(SPI2);
 
   // Enable DMA1 Channel4 Transfer Complete interrupt
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
+  dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
+
 }
 
-
-
-// Accel end of DMA transfert
-void dma1_c4_irq_handler(void)
+// Accel end of DMA transferred
+void dma1_channel4_isr(void)
 {
+
   Spi2Slave0Unselect();
 
-  if (DMA_GetITStatus(DMA1_IT_TC4)) {
+  if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
     // clear int pending bit
-    DMA_ClearITPendingBit(DMA1_IT_GL4);
+    DMA1_IFCR |= DMA_IFCR_CTCIF4;
 
     // mark as available
     spi_message_received = TRUE;
   }
 
   // disable DMA Channel
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
+  dma_disable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
+
   // Disable SPI_2 Rx and TX request
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
+  spi_disable_rx_dma(SPI2);
+  spi_disable_tx_dma(SPI2);
+
   // Disable DMA1 Channel4 and 5
-  DMA_Cmd(DMA1_Channel4, DISABLE);
-  DMA_Cmd(DMA1_Channel5, DISABLE);
+  dma_disable_channel(DMA1, DMA_CHANNEL4);
+  dma_disable_channel(DMA1, DMA_CHANNEL5);
 
   slave0->status = SPITransSuccess;
   *(slave0->ready) = 1;
+
 }
+
+
+

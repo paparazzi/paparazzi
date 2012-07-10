@@ -378,7 +378,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
 #endif
 
 #ifdef V_CTL_THROTTLE_SLEW_LIMITER
-#define V_CTL_THROTTLE_SLEW (1./CONTROL_RATE/(V_CTL_THROTTLE_SLEW_LIMITER))
+#define V_CTL_THROTTLE_SLEW (1./CONTROL_FREQUENCY/(V_CTL_THROTTLE_SLEW_LIMITER))
 #endif
 
 #ifndef V_CTL_THROTTLE_SLEW

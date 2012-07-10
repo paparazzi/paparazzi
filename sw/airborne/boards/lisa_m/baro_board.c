@@ -1,6 +1,6 @@
 
 #include "subsystems/sensors/baro.h"
-#include <stm32/gpio.h>
+#include <libopencm3/stm32/f1/gpio.h>
 
 struct Baro baro;
 struct BaroBoard baro_board;
@@ -14,23 +14,19 @@ struct bmp085_baro_calibration calibration;
 
 static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
 {
-  baro_trans.type = I2CTransTx;
-  baro_trans.slave_addr = BMP085_ADDR;
-  baro_trans.len_w = 2;
   baro_trans.buf[0] = addr;
   baro_trans.buf[1] = value;
-  i2c_submit(&i2c2, &baro_trans);
+
+  I2CTransmit(i2c2, baro_trans, BMP085_ADDR, 2);
+
+  // FIXME, no while loops without timeout!!
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
 }
 
 static inline void bmp085_read_reg16(uint8_t addr)
 {
-  baro_trans.type = I2CTransTxRx;
-  baro_trans.slave_addr = BMP085_ADDR;
-  baro_trans.len_w = 1;
-  baro_trans.len_r = 2;
   baro_trans.buf[0] = addr;
-  i2c_submit(&i2c2, &baro_trans);
+  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 2);
 }
 
 static inline int16_t bmp085_read_reg16_blocking(uint8_t addr)
@@ -44,12 +40,8 @@ static inline int16_t bmp085_read_reg16_blocking(uint8_t addr)
 
 static inline void bmp085_read_reg24(uint8_t addr)
 {
-  baro_trans.type = I2CTransTxRx;
-  baro_trans.slave_addr = BMP085_ADDR;
-  baro_trans.len_w = 1;
-  baro_trans.len_r = 3;
   baro_trans.buf[0] = addr;
-  i2c_submit(&i2c2, &baro_trans);
+  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 3);
 }
 
 static void bmp085_baro_read_calibration(void)
@@ -75,16 +67,14 @@ void baro_init(void) {
   bmp085_baro_read_calibration();
 
   /* STM32 specific (maybe this is a LISA/M specific driver anyway?) */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  gpio_clear(GPIOB, GPIO0);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
 }
 
 static inline int baro_eoc(void)
 {
-  return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_0);
+  return gpio_get(GPIOB, GPIO0);
 }
 
 static inline void bmp085_request_pressure(void)

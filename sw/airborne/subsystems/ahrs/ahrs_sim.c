@@ -53,6 +53,10 @@ void update_ahrs_from_sim(void) {
   FLOAT_RMAT_OF_EULERS(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_euler);
 
   compute_body_orientation_and_rates();
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+  ahrs_update_fw_estimator();
+#endif
 }
 
 
@@ -92,6 +96,10 @@ void ahrs_align(void)
 
 
 void ahrs_propagate(void) {
+  if (ahrs_sim_available) {
+    update_ahrs_from_sim();
+    ahrs_sim_available = FALSE;
+  }
 }
 
 void ahrs_update_accel(void) {

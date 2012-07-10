@@ -33,23 +33,72 @@
 
 #include "ins_module.h"
 
-#include "subsystems/ahrs.h"
+struct XsensTime {
+  int8_t hour;
+  int8_t min;
+  int8_t sec;
+  int32_t nanosec;
+  int16_t year;
+  int8_t month;
+  int8_t day;
+};
 
+extern struct XsensTime xsens_time;
 
-extern int8_t xsens_hour;
-extern int8_t xsens_min;
-extern int8_t xsens_sec;
-extern int32_t xsens_nanosec;
-extern int16_t xsens_year;
-extern int8_t xsens_month;
-extern int8_t xsens_day;
 extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
-#define AhrsEvent(_ahrs_handler) {	\
-  LED_TOGGLE(3); \
+
+/* To use Xsens to just provide IMU measurements
+ * for use with an external AHRS algorithm
+ */
+#if USE_IMU
+#include "subsystems/imu.h"
+
+struct ImuXsens {
+  bool_t gyro_available;
+  bool_t accel_available;
+  bool_t mag_available;
+};
+extern struct ImuXsens imu_xsens;
+
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
+    if (imu_xsens.accel_available) {                            \
+      imu_xsens.accel_available = FALSE;                        \
+      _accel_handler();                                         \
+    }                                                           \
+    if (imu_xsens.gyro_available) {                             \
+      imu_xsens.gyro_available = FALSE;                         \
+      _gyro_handler();                                          \
+    }                                                           \
+    if (imu_xsens.mag_available) {                              \
+      imu_xsens.mag_available = FALSE;                          \
+      _mag_handler();                                           \
+    }                                                           \
+  }
+#endif /* USE_IMU */
+
+
+/* use Xsens as a full INS solution */
+#if USE_INS
+#define InsEvent(_ins_handler) {	\
   InsEventCheckAndHandle(handle_ins_msg()) 			\
 }
+#endif
 
+
+#if USE_GPS_XSENS
+extern bool_t gps_xsens_msg_available;
+#define GpsEvent(_sol_available_callback) {         \
+    if (gps_xsens_msg_available) {                  \
+      if (gps.fix == GPS_FIX_3D) {                  \
+        gps.last_fix_ticks = sys_time.nb_sec_rem;   \
+        gps.last_fix_time = sys_time.nb_sec;        \
+      }                                             \
+      _sol_available_callback();                    \
+      gps_xsens_msg_available = FALSE;              \
+    }                                               \
+  }
+#endif
 
 #endif

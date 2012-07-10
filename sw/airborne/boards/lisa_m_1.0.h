@@ -3,6 +3,8 @@
 
 #define BOARD_LISA_M
 
+/* Lisa/M has a 12MHz external clock and 72MHz internal. */
+#define EXT_CLK 12000000
 #define AHB_CLK 72000000
 
 /* Onboard LEDs */
@@ -11,17 +13,17 @@
 #define USE_LED_1 1
 #endif
 #define LED_1_GPIO GPIOB
-#define LED_1_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
-#define LED_1_GPIO_PIN GPIO_Pin_4
-#define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
+#define LED_1_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+#define LED_1_GPIO_PIN GPIO4
+#define LED_1_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
 
 /* blue */
 #ifndef USE_LED_2
 #define USE_LED_2 1
 #endif
 #define LED_2_GPIO GPIOC
-#define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_2_GPIO_PIN GPIO_Pin_5
+#define LED_2_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_2_GPIO_PIN GPIO5
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* blue */
@@ -29,8 +31,8 @@
 #define USE_LED_3 1
 #endif
 #define LED_3_GPIO GPIOC
-#define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_3_GPIO_PIN GPIO_Pin_2
+#define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_3_GPIO_PIN GPIO2
 #define LED_3_AFIO_REMAP ((void)0)
 
 // GPIO pins
@@ -38,21 +40,21 @@
 #define USE_LED_4 1
 #endif
 #define LED_4_GPIO GPIOC
-#define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_4_GPIO_PIN GPIO_Pin_12
+#define LED_4_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_4_GPIO_PIN GPIO12
 #define LED_4_AFIO_REMAP ((void)0)
 
 #ifndef USE_LED_5
 #define USE_LED_5 1
 #endif
 #define LED_5_GPIO GPIOC
-#define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_5_GPIO_PIN GPIO_Pin_10
+#define LED_5_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_5_GPIO_PIN GPIO10
 #define LED_5_AFIO_REMAP ((void)0)
 
 
 /* configuration for aspirin - and more generaly IMUs */
-#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2Periph_GPIOB
+#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2ENR_IOPBEN
 #define IMU_ACC_DRDY_GPIO             GPIOB
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
 
@@ -69,11 +71,11 @@
    ADC_6 PC2/ADC12
    BATT  PC4/ADC14
 */
-#define BOARD_ADC_CHANNEL_1 ADC_Channel_13
-#define BOARD_ADC_CHANNEL_2 ADC_Channel_10
-#define BOARD_ADC_CHANNEL_3 ADC_Channel_11
+#define BOARD_ADC_CHANNEL_1 13
+#define BOARD_ADC_CHANNEL_2 10
+#define BOARD_ADC_CHANNEL_3 11
 // we can only use ADC1,2,3; the last channel is for bat monitoring
-#define BOARD_ADC_CHANNEL_4 ADC_Channel_14
+#define BOARD_ADC_CHANNEL_4 14
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above
@@ -92,13 +94,11 @@
 // FIXME, this is not very nice, is also stm lib specific
 #ifdef USE_AD1
 #define ADC1_GPIO_INIT(gpio) {                  \
-    (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;           \
-    GPIO_Init(GPIOC, (&gpio));                  \
+  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,         \
+		GPIO_CNF_INPUT_ANALOG,          \
+		GPIO3 | GPIO0 | GPIO1 | GPIO4); \
   }
 #endif // USE_AD1
-
-
 
 #define BOARD_HAS_BARO 1
 
@@ -109,12 +109,7 @@
 //#define STM32_RCC_MODE RCC_HSE_ON
 //#define STM32_PLL_MULT RCC_PLLMul_6
 
-#define PWM_5AND6_TIMER TIM5
-#define PWM_5AND6_RCC RCC_APB1Periph_TIM5
-#define PWM5_OC 1
-#define PWM6_OC 2
-#define PWM_5AND6_GPIO GPIOA
-#define PWM5_Pin GPIO_Pin_0
-#define PWM6_Pin GPIO_Pin_1
+// Remap the servos 5 and 6 to TIM5 CH1 and CH2
+#define REMAP_SERVOS_5AND6 1
 
 #endif /* CONFIG_LISA_M_1_0_H */

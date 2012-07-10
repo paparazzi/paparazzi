@@ -23,12 +23,12 @@
 
 #include "subsystems/imu.h"
 
-#include <stm32/gpio.h>
-#include <stm32/rcc.h>
-#include <stm32/spi.h>
-#include <stm32/exti.h>
-#include <stm32/misc.h>
-#include <stm32/dma.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/f1/dma.h>
+#include <libopencm3/stm32/nvic.h>
 
 #define IMU_SSP_STA_IDLE           0
 #define IMU_SSP_STA_BUSY_MAX1168   1
@@ -36,39 +36,28 @@
 
 volatile uint8_t imu_ssp_status;
 
-void dma1_c4_irq_handler(void);
-void spi2_irq_handler(void);
+void dma1_channel4_isr(void);
+void spi2_isr(void);
 
 void imu_b2_arch_init(void) {
 
   /* Enable SPI2 Periph clock -------------------------------------------------*/
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
   /* Enable SPI_2 DMA clock ---------------------------------------------------*/
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
   /* Enable PORTB GPIO clock --------------------------------------------------*/
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
   /* Configure GPIOs: SCK, MISO and MOSI  -------------------------------------*/
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
+	                                        GPIO_SPI2_MISO |
+	                                        GPIO_SPI2_MOSI);
   /* Enable DMA1 channel4 IRQ Channel */
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
+  nvic_set_priority(NVIC_DMA1_CHANNEL4_IRQ, 0);
+  nvic_enable_irq(NVIC_DMA1_CHANNEL4_IRQ);
   /* Enable SPI2 IRQ Channel */
-  NVIC_InitTypeDef NVIC_init_structure_spi = {
-    .NVIC_IRQChannel = SPI2_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 1,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_structure_spi);
+  nvic_set_priority(NVIC_SPI2_IRQ, 1);
+  nvic_enable_irq(NVIC_SPI2_IRQ);
 
   imu_ssp_status = IMU_SSP_STA_IDLE;
 }
@@ -78,7 +67,7 @@ void imu_periodic(void) {
   // ASSERT((imu_status == IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
   imu_ssp_status = IMU_SSP_STA_BUSY_MAX1168;
   Max1168ConfigureSPI();
-  SPI_Cmd(SPI2, ENABLE);
+  spi_enable(SPI2);
   max1168_read();
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
   hmc5843_periodic();
@@ -86,11 +75,11 @@ void imu_periodic(void) {
 }
 
 /* used for spi2 */
-void dma1_c4_irq_handler(void) {
+void dma1_channel4_isr(void) {
   switch (imu_ssp_status) {
   case IMU_SSP_STA_BUSY_MAX1168:
     Max1168OnDmaIrq();
-    SPI_Cmd(SPI2, DISABLE);
+    spi_disable(SPI2);
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
     if (ms2100_status == MS2100_IDLE) {
       Ms2100SendReq();
@@ -116,7 +105,7 @@ void dma1_c4_irq_handler(void) {
 }
 
 
-void spi2_irq_handler(void) {
+void spi2_isr(void) {
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
   Ms2100OnSpiIrq();
 #endif
