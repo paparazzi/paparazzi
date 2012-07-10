@@ -137,6 +137,9 @@ module Make(A:Data.MISSION) = struct
   let roll_response_factor =
     try float_value simu_section "ROLL_RESPONSE_FACTOR" with _ -> 15.
 
+  let pitch_response_factor =
+    try float_value simu_section "PITCH_RESPONSE_FACTOR" with _ -> 1.
+
   let yaw_response_factor =
     try float_value simu_section "YAW_RESPONSE_FACTOR" with _ -> 1.
 
@@ -245,7 +248,7 @@ module Make(A:Data.MISSION) = struct
       (* Aerodynamic pitching moment coeff, proportional to elevator;
         No Thrust moment, so null (0) for steady flight *)
       let c_m = 5e-7 *.state.delta_b in
-      let theta_dot_dot = c_m *. v2 -. state.theta_dot in
+      let theta_dot_dot = pitch_response_factor *. c_m *. v2 -. state.theta_dot in
       state.theta_dot <- state.theta_dot +. theta_dot_dot *. dt;
       state.theta <- state.theta +. state.theta_dot *. dt;
 
