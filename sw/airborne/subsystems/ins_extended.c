@@ -297,8 +297,16 @@ void ins_update_sonar() {
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
       && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
 #endif
+#ifdef INS_SONAR_STAB_THRESHOLD
+      && stabilization_cmd[COMMAND_ROLL] < INS_SONAR_STAB_THRESHOLD
+      && stabilization_cmd[COMMAND_ROLL] > -INS_SONAR_STAB_THRESHOLD
+      && stabilization_cmd[COMMAND_PITCH] < INS_SONAR_STAB_THRESHOLD
+      && stabilization_cmd[COMMAND_PITCH] > -INS_SONAR_STAB_THRESHOLD
+      && stabilization_cmd[COMMAND_YAW] < INS_SONAR_STAB_THRESHOLD
+      && stabilization_cmd[COMMAND_YAW] > -INS_SONAR_STAB_THRESHOLD
+#endif
 #ifdef INS_SONAR_BARO_THRESHOLD
-      && ins_baro_alt < POS_BFP_OF_REAL(INS_SONAR_BARO_THRESHOLD)
+      && ins_baro_alt > -POS_BFP_OF_REAL(INS_SONAR_BARO_THRESHOLD) /* z down */
 #endif
       && ins_update_on_agl
       && baro.status == BS_RUNNING) {
