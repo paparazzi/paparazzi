@@ -52,11 +52,6 @@ void stabilization_attitude_init(void) {
   stabilization_attitude_ref_init();
 
 
-  VECT3_ASSIGN(stabilization_gains.a,
-               STABILIZATION_ATTITUDE_PHI_AGAIN,
-               STABILIZATION_ATTITUDE_THETA_AGAIN,
-               STABILIZATION_ATTITUDE_PSI_AGAIN);
-
   VECT3_ASSIGN(stabilization_gains.p,
                STABILIZATION_ATTITUDE_PHI_PGAIN,
                STABILIZATION_ATTITUDE_THETA_PGAIN,
@@ -112,14 +107,11 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* compute feedforward command */
   stabilization_att_ff_cmd[COMMAND_ROLL] =
-    OFFSET_AND_ROUND(stabilization_gains.dd.x * stab_att_ref_accel.p, 5)
-    + OFFSET_AND_ROUND(stabilization_gains.a.x * stab_att_ref_euler.phi, 6);
+    OFFSET_AND_ROUND(stabilization_gains.dd.x * stab_att_ref_accel.p, 5);
   stabilization_att_ff_cmd[COMMAND_PITCH] =
-    OFFSET_AND_ROUND(stabilization_gains.dd.y * stab_att_ref_accel.q, 5)
-    + OFFSET_AND_ROUND(stabilization_gains.a.y * stab_att_ref_euler.theta, 6);
+    OFFSET_AND_ROUND(stabilization_gains.dd.y * stab_att_ref_accel.q, 5);
   stabilization_att_ff_cmd[COMMAND_YAW] =
-    OFFSET_AND_ROUND(stabilization_gains.dd.z * stab_att_ref_accel.r, 5)
-    + OFFSET_AND_ROUND(stabilization_gains.a.z * stab_att_ref_euler.psi, 6);
+    OFFSET_AND_ROUND(stabilization_gains.dd.z * stab_att_ref_accel.r, 5);
 
   /* compute feedback command */
   /* attitude error            */
