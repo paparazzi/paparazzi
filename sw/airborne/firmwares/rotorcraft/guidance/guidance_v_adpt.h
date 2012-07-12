@@ -41,14 +41,23 @@
 #define GUIDANCE_V_ADAPT_NOISE_FACTOR 1.0
 #endif
 
-/** Filter is not fed if accel values are more than +/- MAX_ACCEL
+/** Initial estimation.
+ *  The initial value can be adapted for faster converging time
+ *  It is usually recommended to start with a higher value (overestimation of the mass),
+ *  as it is helping for a smooth takeoff
+ */
+#ifndef GUIDANCE_V_ADAPT_X0
+#define GUIDANCE_V_ADAPT_X0 0.003
+#endif
+
+/** Filter is not fed if accel values are more than +/- MAX_ACCEL.
  *  MAX_ACCEL is a positive value in m/s^2
  */
 #ifndef GUIDANCE_V_ADAPT_MAX_ACCEL
 #define GUIDANCE_V_ADAPT_MAX_ACCEL 4.0
 #endif
 
-/** Filter is not fed if command values are out of a % of 0/MAX_PPRZ
+/** Filter is not fed if command values are out of a % of 0/MAX_PPRZ.
  *  MAX_CMD and MIN_CMD must be between 0 and 1 with MIN_CMD < MAX_CMD
  */
 #ifndef GUIDANCE_V_ADAPT_MAX_CMD
@@ -84,7 +93,7 @@ int32_t gv_adapt_Xmeas;
 
 
 /* Initial State and Covariance    */
-#define GV_ADAPT_X0_F 0.0015
+#define GV_ADAPT_X0_F GUIDANCE_V_ADAPT_X0
 #define GV_ADAPT_X0 BFP_OF_REAL(GV_ADAPT_X0_F, GV_ADAPT_X_FRAC)
 #define GV_ADAPT_P0_F 0.1
 #define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)

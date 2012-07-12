@@ -180,6 +180,7 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
+    <subsystem name="ins"/>
   </firmware>
 
 

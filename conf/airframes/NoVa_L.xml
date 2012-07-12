@@ -264,6 +264,7 @@
     </subsystem>
    <!--    <subsystem name="ahrs"          type="int_cmpl_euler"/> -->
    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ins"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 

@@ -33,9 +33,9 @@
 uint8_t booz_cam_mode;
 
 // Tilt definition
-#ifdef BOOZ_CAM_TILT_NEUTRAL
-int16_t booz_cam_tilt_pwm;
 int16_t booz_cam_tilt;
+int16_t booz_cam_tilt_pwm;
+#ifdef BOOZ_CAM_TILT_NEUTRAL
 #ifndef BOOZ_CAM_TILT_MIN
 #define BOOZ_CAM_TILT_MIN BOOZ_CAM_TILT_NEUTRAL
 #endif
@@ -46,8 +46,8 @@ int16_t booz_cam_tilt;
 #endif
 
 // Pan definition
-#ifdef BOOZ_CAM_PAN_NEUTRAL
 int16_t booz_cam_pan;
+#ifdef BOOZ_CAM_PAN_NEUTRAL
 #ifndef BOOZ_CAM_PAN_MIN
 #define BOOZ_CAM_PAN_MIN BOOZ_CAM_PAN_NEUTRAL
 #endif
@@ -78,9 +78,14 @@ void booz_cam_init(void) {
   booz_cam_tilt_pwm = BOOZ_CAM_TILT_NEUTRAL;
   BOOZ_CAM_SetPwm(booz_cam_tilt_pwm);
   booz_cam_tilt = 0;
+#else
+  booz_cam_tilt_pwm = 1500;
+  booz_cam_tilt = 0;
 #endif
 #ifdef BOOZ_CAM_USE_PAN
   booz_cam_pan = BOOZ_CAM_PAN_NEUTRAL;
+#else
+  booz_cam_pan = 0;
 #endif
 }
 
