@@ -56,7 +56,7 @@ inline int32_t update_median_filter(struct MedianFilterInt * filter, int32_t new
     filter->dataIndex++;
   }
   else {
-    filter->dataIndex = 0;    
+    filter->dataIndex = 0;
   }
 
   // Copy raw data to sort data array
