@@ -1,2 +1,0 @@
-#!/bin/sh
-git describe --match "v[0-9].[0-9]*" --dirty --always

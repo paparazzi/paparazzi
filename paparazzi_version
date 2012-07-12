@@ -1,0 +1,14 @@
+#!/bin/sh
+
+DEF_VER=v3.9.2_testing
+
+# First try git describe (if running on a git repo),
+# then use default version from above (for release tarballs).
+if test -d .git -o -f .git
+then
+	VN=$(git describe --match "v[0-9].[0-9]*" --dirty --always --long)
+else
+	VN="$DEF_VER"
+fi
+
+echo $VN
