@@ -640,10 +640,10 @@ let move_wp = fun logging _sender vs ->
   and ac_id = Pprz.string_assoc "ac_id" vs
   and deg7 = fun f -> Pprz.Int32 (Int32.of_float (Pprz.float_assoc f vs *. 1e7)) in
   let vs = [ "wp_id", f "wp_id";
-			 "ac_id", Pprz.String ac_id;
-	     "lat", deg7 "lat";
-	     "lon", deg7 "long";
-	     "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
+             "ac_id", Pprz.String ac_id;
+             "lat", deg7 "lat";
+             "lon", deg7 "long";
+             "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 
@@ -651,8 +651,8 @@ let move_wp = fun logging _sender vs ->
 let setting = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = [ "index", List.assoc "index" vs;
-		  "ac_id", Pprz.String ac_id;
-	    "value", List.assoc "value" vs] in
+             "ac_id", Pprz.String ac_id;
+             "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
   log logging ac_id "SETTING" vs
 
@@ -661,7 +661,7 @@ let setting = fun logging _sender vs ->
 let get_setting = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = [ "index", List.assoc "index" vs;
-		"ac_id", Pprz.String ac_id ] in
+             "ac_id", Pprz.String ac_id ] in
   Dl_Pprz.message_send dl_id "GET_SETTING" vs;
   log logging ac_id "GET_SETTING" vs
 
