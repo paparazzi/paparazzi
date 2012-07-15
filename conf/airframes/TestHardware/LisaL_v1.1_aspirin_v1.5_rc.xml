@@ -3,9 +3,8 @@
  The hardware configuration is
  Powered via a plug 12V pack
  Lisa/L v1.1 board
- XBee connected to UART2 configured at 38400
+ XBee connected to UART2 configured at 38400 (Configured for XBee API
  Booz2 v1.2
- GPS connected to UART1 (Since this is inside in a metal box it won't ever get a solution)
  -->
 <airframe name="TestConfig">
     <firmware name="rotorcraft">
@@ -22,7 +21,9 @@
             <subsystem name="radio_control" type="ppm"/>
         </target>
 
-        <subsystem name="telemetry"     type="transparent"/>
+        <subsystem name="telemetry"     type="xbee_api">
+            <configure name="MODEM_BAUD" value="B38400"/>
+        </subsystem>
         <subsystem name="actuators"     type="mkk"/>
         <subsystem name="imu"           type="aspirin_v1.5"/>
         <subsystem name="gps"           type="ublox">
@@ -183,25 +184,6 @@
         <define name="REF_ZETA_R"   value="0.9"/>
         <define name="REF_MAX_R"    value="180." unit="deg/s"/>
         <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
-
-        <!--
-         <define name="PHI_PGAIN"  value="-2000"/>
-         <define name="PHI_DGAIN"  value="-400"/>
-         <define name="PHI_IGAIN"  value="-200"/>
-
-         <define name="THETA_PGAIN"  value="-2000"/>
-         <define name="THETA_DGAIN"  value="-400"/>
-         <define name="THETA_IGAIN"  value="-200"/>
-
-         <define name="PSI_PGAIN"  value="-2000"/>
-         <define name="PSI_DGAIN"  value="-400"/>
-         <define name="PSI_IGAIN"  value="-10"/>
-
-
-         <define name="PHI_DDGAIN"   value=" 300"/>
-         <define name="THETA_DDGAIN" value=" 300"/>
-         <define name="PSI_DDGAIN"   value=" 300"/>
-         -->
 
         <!-- feedback -->
         <define name="PHI_PGAIN"  value="900"/>
