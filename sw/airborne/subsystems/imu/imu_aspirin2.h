@@ -106,7 +106,7 @@ struct ImuAspirin2 {
 extern struct ImuAspirin2 imu_aspirin2;
 
 
-static inline void imu_from_buff(void)
+static inline uint8_t imu_from_buff(void)
 {
   int32_t x, y, z, p, q, r, Mx, My, Mz;
 
@@ -137,18 +137,13 @@ static inline void imu_from_buff(void)
   VECT3_ASSIGN(imu.mag_unscaled, Mz, -Mx, My);
 #endif
 
-
-  //FIXME, remove it or use it...
-#if 0
-  // Is this is new data
 #define MPU_OFFSET_STATUS 1
   if (imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01) {
-    //gyr_valid = TRUE;
-    //acc_valid = TRUE;
+    return 1;
   }
   else {
+    return 0;
   }
-#endif
 }
 
 
@@ -158,11 +153,12 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 
   if (imu_aspirin2.imu_available) {
     imu_aspirin2.imu_available = FALSE;
-    imu_from_buff();
-
-    _gyro_handler();
-    _accel_handler();
-    _mag_handler();
+    if (imu_from_buff())
+    {
+      _gyro_handler();
+      _accel_handler();
+      _mag_handler();
+    }
   }
 }
 
