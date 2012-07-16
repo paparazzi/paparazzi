@@ -137,15 +137,24 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
           Pprz.scale_of_units unit_airframe unit_code
         with
             _ -> 1. in
-      (* settings are displayed in alt_unit specified in settings file *)
+      (*
+       * settings are displayed in alt_unit specified in settings file
+       * first try the alt_coef, otherwise try to convert the units
+       *)
       let display_scale =
         try
-          let unit_setting = attrib "unit"
-          and unit_setting_alt = attrib "alt_unit" in
-          (* Printf.fprintf stderr "param %s: unit_setting=%s unit_setting_alt=%s\n" param unit_setting unit_setting_alt; flush stderr; *)
-          Pprz.scale_of_units unit_setting unit_setting_alt
+          begin
+            try
+              float_of_string (attrib "alt_unit_coef")
+            with _ ->
+              let unit_setting = attrib "unit"
+              and unit_setting_alt = attrib "alt_unit" in
+              Pprz.scale_of_units unit_setting unit_setting_alt
+          end
         with
-            _ -> 1. in
+            Pprz.Unit_conversion_error s -> prerr_endline (Printf.sprintf "Unit conversion error: %s" s); flush stderr; 1.
+          | Pprz.Unknown_conversion _ -> 1. (* Use coef 1. *)
+          |  _ -> 1. in
       let val_list = Str.split (Str.regexp "[ ()]+") airframe_value in
       let (scale_macros, str_val) = List.partition (fun x -> Str.string_match (Str.regexp "RadOfDeg\\|DegOfRad") x 0) val_list in
       let extra_scale =
