@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * GUI to save settings in the airframe file
  *
  * Copyright (C) 2008, Cyril Allignol, Pascal Brisset
@@ -33,6 +31,7 @@ let col_param = cols#add Gobject.Data.string
 and col_airframe_value = cols#add Gobject.Data.float
 and col_settings_value = cols#add Gobject.Data.float
 and col_airframe_value_new = cols#add Gobject.Data.float
+and col_code_value = cols#add Gobject.Data.float
 and col_to_save = cols#add Gobject.Data.boolean
 
 let (//) = Filename.concat
@@ -111,8 +110,8 @@ let send_airframe_values = fun (model:GTree.tree_store) send_value ->
   model#foreach (fun _path row ->
     if model#get ~row ~column:col_to_save then begin
       let index = model#get ~row ~column:col_index
-      and airframe_value = model#get ~row ~column:col_airframe_value in
-      send_value index airframe_value
+      and code_value = model#get ~row ~column:col_code_value in
+      send_value index code_value
     end;
     false)
 
@@ -171,6 +170,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_airframe_value (airframe_value_scaled *. display_scale);
       model#set ~row ~column:col_settings_value (value *. display_scale);
       model#set ~row ~column:col_airframe_value_new airframe_value_new;
+      model#set ~row ~column:col_code_value value;
       model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value)
     with
         Xml.No_attribute _ -> ()
