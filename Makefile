@@ -63,6 +63,7 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
+BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
 
 # try to find the paparazzi multilib toolchain
 TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
@@ -259,8 +260,11 @@ ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
 replace_current_conf_xml:
-	test conf/conf.xml || mv conf/conf.xml conf/conf.xml.backup.`date +%Y%m%d-%H%M%s`
+	test conf/conf.xml && mv conf/conf.xml conf/conf.xml.backup.$(BUILD_DATETIME)
 	cp conf/conf.xml.example conf/conf.xml
+
+restore_conf_xml:
+	test conf/conf.xml.backup.$(BUILD_DATETIME) && mv conf/conf.xml.backup.$(BUILD_DATETIME) conf/conf.xml
 
 commands: paparazzi sw/simulator/launchsitl
 
@@ -272,6 +276,8 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-test: all replace_current_conf_xml
+run_tests:
 	cd tests; $(MAKE) test
+
+test: all replace_current_conf_xml run_tests restore_conf_xml
 
