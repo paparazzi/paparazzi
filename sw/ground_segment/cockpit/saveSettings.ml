@@ -123,7 +123,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
     let attrib = fun a -> Xml.attrib dl_setting a in
     try
       let param = attrib "param" in
-      let (airframe_value, airframe_unit) = EditAirframe.get airframe_xml param in
+      let (airframe_value, airframe_unit, code_unit) = EditAirframe.get airframe_xml param in
       (*
        * Get the scaling between the unit set in the airframe file to the real unit used (code_unit)
        * we assume that code_unit (in airframe file) == unit (in settings file)
