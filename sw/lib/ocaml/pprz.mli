@@ -90,6 +90,10 @@ exception Unit_conversion_error of string
 (** Unit_conversion_error raised when parsing error occurs *)
 exception Unknown_conversion of string * string
 (** Unknown_conversion raised when conversion fails *)
+exception No_automatic_conversion of string
+(** No_automatic_conversion raised when no conversion found
+ *  and to_unit is an empty string
+ *)
 
 val scale_of_units : string -> string -> float
 (** scale_of_units from to
