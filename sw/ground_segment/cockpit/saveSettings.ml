@@ -137,11 +137,11 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
                 if uc = us then uc
                 else invalid_arg (Printf.sprintf "Warning: code unit in airframe (%s) and setting file (%s) are not matching for param %s\n" uc us param) (* raise Invalid_argument *)
             | Some u, None | None, Some u -> u
-            | None, None -> raise Exit
+            | None, None -> ""
           and unit_airframe =
             match airframe_unit with
             | Some u -> u
-            | None -> raise Exit
+            | None -> ""
           in
           (* Printf.fprintf stderr "param %s: unit_code=%s unit_airframe=%s\n" param unit_code unit_airframe; flush stderr; *)
           Pprz.scale_of_units unit_airframe unit_code
