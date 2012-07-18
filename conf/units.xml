@@ -15,4 +15,6 @@
   <unit from="mm/s" to="m/s" coef="0.001"/>
   <unit from="decideg" to="deg" coef="0.1"/>
   <unit from="deg" to="decideg" coef="10."/>
+  <unit from="pprz" to="%" coef="0.000104167"/>
+  <unit from="%" to="pprz" coef="9600."/>
 </units>

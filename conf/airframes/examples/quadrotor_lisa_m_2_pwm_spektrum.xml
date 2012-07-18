@@ -182,7 +182,7 @@
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
     <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
     <!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive estimation -->
-    <!--define name="NOMINAL_HOVER_THROTTLE" value="0.5"/-->
+    <!--define name="NOMINAL_HOVER_THROTTLE" value="0.5" unit="%"/-->
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
