@@ -126,17 +126,29 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       let (airframe_value, airframe_unit, code_unit) = EditAirframe.get airframe_xml param in
       (*
        * Get the scaling between the unit set in the airframe file to the real unit used (code_unit)
-       * we assume that code_unit (in airframe file) == unit (in settings file)
+       * Print error and use a factor of 1 when code_unit (in airframe file) and unit (in settings file) not equal
        *)
+      let unit_setting = try Some (attrib "unit") with _ -> None in
       let airframe_scale =
         try
-          let unit_code = attrib "unit"
+          let unit_code =
+            match code_unit, unit_setting with
+            | Some uc, Some us ->
+                if uc = us then uc
+                else invalid_arg (Printf.sprintf "Warning: code unit in airframe (%s) and setting file (%s) are not matching for param %s\n" uc us param) (* raise Invalid_argument *)
+            | Some u, None | None, Some u -> u
+            | None, None -> raise Exit
           and unit_airframe =
-            match airframe_unit with Some u -> u | None -> raise Exit in
+            match airframe_unit with
+            | Some u -> u
+            | None -> raise Exit
+          in
           (* Printf.fprintf stderr "param %s: unit_code=%s unit_airframe=%s\n" param unit_code unit_airframe; flush stderr; *)
           Pprz.scale_of_units unit_airframe unit_code
         with
-            _ -> 1. in
+          | Invalid_argument s -> prerr_endline s; flush stderr; raise Exit
+          |  _ -> 1.
+      in
       (*
        * settings are displayed in alt_unit specified in settings file
        * first try the alt_coef, otherwise try to convert the units
@@ -169,7 +181,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_code_value value;
       model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value)
     with
-        Xml.No_attribute _ -> ()
+        Xml.No_attribute _ | Exit -> ()
       | EditAirframe.No_param param ->
         not_in_airframe_file := param :: !not_in_airframe_file ) (* Not savable *)
     settings;
