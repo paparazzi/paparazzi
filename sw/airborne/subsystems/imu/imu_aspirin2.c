@@ -41,11 +41,11 @@ static void mpu_configure(void);
 void imu_impl_init(void) {
 
   imu_aspirin2.status = Aspirin2StatusUninit;
-  imu_aspirin2.imu_available = FALSE;
+  imu_aspirin2.imu_spi_data_received = FALSE;
 
   aspirin2_mpu60x0.mosi_buf = imu_aspirin2.imu_tx_buf;
   aspirin2_mpu60x0.miso_buf = imu_aspirin2.imu_rx_buf;
-  aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
+  aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_spi_data_received);
   aspirin2_mpu60x0.length = 2;
 
 }
