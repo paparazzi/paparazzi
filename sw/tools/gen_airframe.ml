@@ -80,21 +80,15 @@ let define_integer name v n =
   in
   continious_frac (truncate v) v (1, (truncate v)) (0, 1)
 
-let code_unit_scale_of_tag = function t ->
+let code_unit_coef_of_xml = function xml ->
   (* if unit attribute is not specified don't even attempt to convert the units *)
-  let u = try ExtXml.attrib t "unit" with _ -> failwith "Unit conversion error" in
-  let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
+  let u = try Xml.attrib xml "unit" with _ -> failwith "Unit conversion error" in
+  let cu = ExtXml.attrib_or_default xml "code_unit" "" in
   (* default value for code_unit is rad[/s] when unit is deg[/s] *)
-  try match (u, cu) with
-      ("deg", "") -> Pprz.scale_of_units u "rad" (* implicit conversion to rad *)
-    | ("deg/s", "") -> Pprz.scale_of_units u "rad/s" (* implicit conversion to rad/s *)
-    | (_, "") -> failwith "Unit conversion error" (* code unit is not defined and no implicit conversion *)
-    | (_,_) -> Pprz.scale_of_units u cu (* try to convert *)
-  with
-      Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
-    | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
-    | _ -> failwith "Unit conversion error"
-
+  try Pprz.scale_of_units u cu with
+  | Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+  | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
+  | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error"
 
 let parse_element = fun prefix s ->
   match Xml.tag s with
@@ -104,7 +98,7 @@ let parse_element = fun prefix s ->
             (* fail if units conversion is not found and just copy value instead,
                this is important for integer values, you can't just multiply them with 1.0 *)
             try
-              let value = (ExtXml.float_attrib s "value") *. (code_unit_scale_of_tag s) in
+              let value = (ExtXml.float_attrib s "value") *. (code_unit_coef_of_xml s) in
               define (prefix^ExtXml.attrib s "name") (string_of_float value);
             with
                 _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
