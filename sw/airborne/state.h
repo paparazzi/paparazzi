@@ -67,6 +67,8 @@
 #define POS_ENU_F  7
 #define POS_LLA_F  8
 #define POS_UTM_F  9
+#define POS_LOCAL_COORD ((1<<POS_NED_I)|(1<<POS_NED_F)|(1<<POS_ENU_I)|(1<<POS_ENU_F))
+#define POS_GLOBAL_COORD ((1<<POS_ECEF_I)|(1<<POS_ECEF_F)|(1<<POS_LLA_I)|(1<<POS_LLA_F)|(1<<POS_UTM_I)|(1<<POS_UTM_F))
 /**@}*/
 
 /**
@@ -491,7 +493,6 @@ static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
   ClearBit(state.accel_status, ACCEL_NED_F);
 }
 
-
 /*******************************************************************************
  *                                                                             *
  * Set and Get functions for the POSITION representations                      *
@@ -510,6 +511,18 @@ extern void stateCalcPositionEcef_f(void);
 extern void stateCalcPositionNed_f(void);
 extern void stateCalcPositionEnu_f(void);
 extern void stateCalcPositionLla_f(void);
+
+/*********************** validity test functions ******************/
+
+/// Test if local coordinates are valid.
+static inline bool_t stateIsLocalCoordinateValid() {
+  return (state.ned_initialized_i && (state.pos_status &= ~(POS_LOCAL_COORD)));
+}
+
+/// Test if global coordinates are valid.
+static inline bool_t stateIsGlobalCoordinateValid() {
+  return ((state.pos_status &= ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+}
 
 /************************ Set functions ****************************/
 
@@ -539,6 +552,32 @@ static inline void stateSetPositionLla_i(struct LlaCoor_i* lla_pos) {
   LLA_COPY(state.lla_pos_i, *lla_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_LLA_I);
+}
+
+/// Set multiple position coordinates (int).
+static inline void stateSetPosition_i(
+    struct EcefCoor_i* ecef_pos,
+    struct NedCoor_i* ned_pos,
+    struct EnuCoor_i* enu_pos,
+    struct LlaCoor_i* lla_pos) {
+  /* clear all status bit */
+  state.pos_status = 0;
+  if (ecef_pos != 0) {
+    INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+    state.pos_status |= (1 << POS_ECEF_I);
+  }
+  if (ned_pos != 0) {
+    INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+    state.pos_status |= (1 << POS_NED_I);
+  }
+  if (enu_pos != 0) {
+    INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+    state.pos_status |= (1 << POS_ENU_I);
+  }
+  if (lla_pos != 0) {
+    LLA_COPY(state.lla_pos_i, *lla_pos);
+    state.pos_status |= (1 << POS_LLA_I);
+  }
 }
 
 /// Set position from UTM coordinates (float).
@@ -574,6 +613,37 @@ static inline void stateSetPositionLla_f(struct LlaCoor_f* lla_pos) {
   LLA_COPY(state.lla_pos_f, *lla_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_LLA_F);
+}
+
+/// Set multiple position coordinates (float).
+static inline void stateSetPosition_i(
+    struct EcefCoor_f* ecef_pos,
+    struct NedCoor_f* ned_pos,
+    struct EnuCoor_f* enu_pos,
+    struct LlaCoor_f* lla_pos,
+    struct UtmCoor_f* utm_pos) {
+  /* clear all status bit */
+  state.pos_status = 0;
+  if (ecef_pos != 0) {
+    VECT3_COPY(state.ecef_pos_f, *ecef_pos);
+    state.pos_status |= (1 << POS_ECEF_F);
+  }
+  if (ned_pos != 0) {
+    VECT3_COPY(state.ned_pos_f, *ned_pos);
+    state.pos_status |= (1 << POS_NED_F);
+  }
+  if (enu_pos != 0) {
+    VECT3_COPY(state.enu_pos_f, *enu_pos);
+    state.pos_status |= (1 << POS_ENU_F);
+  }
+  if (lla_pos != 0) {
+    LLA_COPY(state.lla_pos_f, *lla_pos);
+    state.pos_status |= (1 << POS_LLA_F);
+  }
+  if (utm_pos != 0) {
+    memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
+    state.pos_status |= (1 << POS_UTM_F);
+  }
 }
 
 /************************ Get functions ****************************/
@@ -688,6 +758,27 @@ static inline void stateSetSpeedEcef_i(struct EcefCoor_i* ecef_speed) {
   state.speed_status = (1 << SPEED_ECEF_I);
 }
 
+/// Set multiple speed coordinates (int).
+static inline void stateSetPosition_i(
+    struct EcefCoor_i* ecef_speed,
+    struct NedCoor_i* ned_speed,
+    struct EnuCoor_i* enu_speed) {
+  /* clear all status bit */
+  state.speed_status = 0;
+  if (ecef_speed != 0) {
+    INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+    state.speed_status |= (1 << SPEED_ECEF_I);
+  }
+  if (ned_speed != 0) {
+    INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+    state.speed_status |= (1 << SPEED_NED_I);
+  }
+  if (enu_speed != 0) {
+    INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+    state.speed_status |= (1 << SPEED_ENU_I);
+  }
+}
+
 /// Set ground speed in local NED coordinates (float).
 static inline void stateSetSpeedNed_f(struct NedCoor_f* ned_speed) {
   VECT3_COPY(state.ned_speed_f, *ned_speed);
@@ -707,6 +798,27 @@ static inline void stateSetSpeedEcef_f(struct EcefCoor_f* ecef_speed) {
   VECT3_COPY(state.ecef_speed_f, *ecef_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ECEF_F);
+}
+
+/// Set multiple speed coordinates (float).
+static inline void stateSetPosition_f(
+    struct EcefCoor_f* ecef_speed,
+    struct NedCoor_f* ned_speed,
+    struct EnuCoor_f* enu_speed) {
+  /* clear all status bit */
+  state.speed_status = 0;
+  if (ecef_speed != 0) {
+    VECT3_COPY(state.ecef_speed_f, *ecef_speed);
+    state.speed_status |= (1 << SPEED_ECEF_F);
+  }
+  if (ned_speed != 0) {
+    VECT3_COPY(state.ned_speed_f, *ned_speed);
+    state.speed_status |= (1 << SPEED_NED_F);
+  }
+  if (enu_speed != 0) {
+    VECT3_COPY(state.enu_speed_f, *enu_speed);
+    state.speed_status |= (1 << SPEED_ENU_F);
+  }
 }
 
 /************************ Get functions ****************************/
@@ -798,6 +910,13 @@ extern void stateCalcAccelEcef_i(void);
 extern void stateCalcAccelNed_f(void);
 extern void stateCalcAccelEcef_f(void);
 
+/*********************** validity test functions ******************/
+
+/// Test if accelerations are valid.
+static inline bool_t stateIsAccelValid() {
+  return (state.accel_status);
+}
+
 /************************ Set functions ****************************/
 
 /// Set acceleration in NED coordinates (int).
@@ -876,6 +995,13 @@ extern void stateCalcNedToBodyEulers_i(void);
 extern void stateCalcNedToBodyQuat_f(void);
 extern void stateCalcNedToBodyRMat_f(void);
 extern void stateCalcNedToBodyEulers_f(void);
+
+/*********************** validity test functions ******************/
+
+/// Test if attitudes are valid.
+static inline bool_t stateIsAttitudeValid() {
+  return (state.att_status);
+}
 
 /************************ Set functions ****************************/
 
@@ -980,6 +1106,13 @@ static inline struct FloatEulers* stateGetNedToBodyEulers_f(void) {
 extern void stateCalcBodyRates_i(void);
 extern void stateCalcBodyRates_f(void);
 
+/*********************** validity test functions ******************/
+
+/// Test if rates are valid.
+static inline bool_t stateIsRateValid() {
+  return (state.rate_status);
+}
+
 /************************ Set functions ****************************/
 
 /// Set vehicle body angular rate (int).
@@ -1029,6 +1162,19 @@ extern void stateCalcHorizontalWindspeed_i(void);
 extern void stateCalcAirspeed_i(void);
 extern void stateCalcHorizontalWindspeed_f(void);
 extern void stateCalcAirspeed_f(void);
+
+
+/************************ validity test function *******************/
+
+/// test if wind speed is available.
+static inline void stateIsWindspeedValid() {
+  return (state.wind_air_status &= ~((1<<WINDSPEED_I)|(1<<WINDSPEED_F)));
+}
+
+/// test if air speed is available.
+static inline void stateIsAirspeedValid() {
+  return (state.wind_air_status &= ~((1<<AIRSPEED_I)|(1<<AIRSPEED_F)));
+}
 
 /************************ Set functions ****************************/
 
