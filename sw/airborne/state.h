@@ -515,12 +515,12 @@ extern void stateCalcPositionLla_f(void);
 /*********************** validity test functions ******************/
 
 /// Test if local coordinates are valid.
-static inline bool_t stateIsLocalCoordinateValid() {
+static inline bool_t stateIsLocalCoordinateValid(void) {
   return (state.ned_initialized_i && (state.pos_status &= ~(POS_LOCAL_COORD)));
 }
 
 /// Test if global coordinates are valid.
-static inline bool_t stateIsGlobalCoordinateValid() {
+static inline bool_t stateIsGlobalCoordinateValid(void) {
   return ((state.pos_status &= ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
 }
 
@@ -616,7 +616,7 @@ static inline void stateSetPositionLla_f(struct LlaCoor_f* lla_pos) {
 }
 
 /// Set multiple position coordinates (float).
-static inline void stateSetPosition_i(
+static inline void stateSetPosition_f(
     struct EcefCoor_f* ecef_pos,
     struct NedCoor_f* ned_pos,
     struct EnuCoor_f* enu_pos,
@@ -759,7 +759,7 @@ static inline void stateSetSpeedEcef_i(struct EcefCoor_i* ecef_speed) {
 }
 
 /// Set multiple speed coordinates (int).
-static inline void stateSetPosition_i(
+static inline void stateSetSpeed_i(
     struct EcefCoor_i* ecef_speed,
     struct NedCoor_i* ned_speed,
     struct EnuCoor_i* enu_speed) {
@@ -801,7 +801,7 @@ static inline void stateSetSpeedEcef_f(struct EcefCoor_f* ecef_speed) {
 }
 
 /// Set multiple speed coordinates (float).
-static inline void stateSetPosition_f(
+static inline void stateSetSpeed_f(
     struct EcefCoor_f* ecef_speed,
     struct NedCoor_f* ned_speed,
     struct EnuCoor_f* enu_speed) {
@@ -913,7 +913,7 @@ extern void stateCalcAccelEcef_f(void);
 /*********************** validity test functions ******************/
 
 /// Test if accelerations are valid.
-static inline bool_t stateIsAccelValid() {
+static inline bool_t stateIsAccelValid(void) {
   return (state.accel_status);
 }
 
@@ -999,7 +999,7 @@ extern void stateCalcNedToBodyEulers_f(void);
 /*********************** validity test functions ******************/
 
 /// Test if attitudes are valid.
-static inline bool_t stateIsAttitudeValid() {
+static inline bool_t stateIsAttitudeValid(void) {
   return (state.att_status);
 }
 
@@ -1109,7 +1109,7 @@ extern void stateCalcBodyRates_f(void);
 /*********************** validity test functions ******************/
 
 /// Test if rates are valid.
-static inline bool_t stateIsRateValid() {
+static inline bool_t stateIsRateValid(void) {
   return (state.rate_status);
 }
 
@@ -1167,12 +1167,12 @@ extern void stateCalcAirspeed_f(void);
 /************************ validity test function *******************/
 
 /// test if wind speed is available.
-static inline void stateIsWindspeedValid() {
+static inline bool_t stateIsWindspeedValid(void) {
   return (state.wind_air_status &= ~((1<<WINDSPEED_I)|(1<<WINDSPEED_F)));
 }
 
 /// test if air speed is available.
-static inline void stateIsAirspeedValid() {
+static inline bool_t stateIsAirspeedValid(void) {
   return (state.wind_air_status &= ~((1<<AIRSPEED_I)|(1<<AIRSPEED_F)));
 }
 
