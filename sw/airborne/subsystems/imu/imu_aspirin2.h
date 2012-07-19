@@ -98,7 +98,7 @@ enum Aspirin2Status
 
 struct ImuAspirin2 {
   volatile enum Aspirin2Status status;
-  volatile uint8_t imu_available;
+  volatile uint8_t imu_spi_data_received;
   volatile uint8_t imu_tx_buf[64];
   volatile uint8_t imu_rx_buf[64];
 };
@@ -110,6 +110,10 @@ static inline uint8_t imu_from_buff(void)
 {
   int32_t x, y, z, p, q, r, Mx, My, Mz;
 
+#define MPU_OFFSET_STATUS 1
+  if (!(imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01)) {
+    return 0;
+  }
 
   // If the itg3200 I2C transaction has succeeded: convert the data
 #define MPU_OFFSET_GYRO 10
@@ -137,13 +141,7 @@ static inline uint8_t imu_from_buff(void)
   VECT3_ASSIGN(imu.mag_unscaled, Mz, -Mx, My);
 #endif
 
-#define MPU_OFFSET_STATUS 1
-  if (imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01) {
-    return 1;
-  }
-  else {
-    return 0;
-  }
+  return 1;
 }
 
 
@@ -151,8 +149,8 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 {
   if (imu_aspirin2.status == Aspirin2StatusUninit) return;
 
-  if (imu_aspirin2.imu_available) {
-    imu_aspirin2.imu_available = FALSE;
+  if (imu_aspirin2.imu_spi_data_received) {
+    imu_aspirin2.imu_spi_data_received = FALSE;
     if (imu_from_buff())
     {
       _gyro_handler();
