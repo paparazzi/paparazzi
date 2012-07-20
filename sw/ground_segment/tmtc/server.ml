@@ -639,20 +639,20 @@ let move_wp = fun logging _sender vs ->
   let f = fun a -> List.assoc a vs
   and ac_id = Pprz.string_assoc "ac_id" vs
   and deg7 = fun f -> Pprz.Int32 (Int32.of_float (Pprz.float_assoc f vs *. 1e7)) in
-  let vs = [ "ac_id", Pprz.String ac_id;
-	     "wp_id", f "wp_id";
-	     "lat", deg7 "lat";
-	     "lon", deg7 "long";
-	     "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
+  let vs = [ "wp_id", f "wp_id";
+             "ac_id", Pprz.String ac_id;
+             "lat", deg7 "lat";
+             "lon", deg7 "long";
+             "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 
 (** Got a DL_SETTING, and send an SETTING *)
 let setting = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  let vs = ["ac_id", Pprz.String ac_id;
-	    "index", List.assoc "index" vs;
-	    "value", List.assoc "value" vs] in
+  let vs = [ "index", List.assoc "index" vs;
+             "ac_id", Pprz.String ac_id;
+             "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
   log logging ac_id "SETTING" vs
 
@@ -660,8 +660,8 @@ let setting = fun logging _sender vs ->
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)
 let get_setting = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  let vs = ["ac_id", Pprz.String ac_id;
-	    "index", List.assoc "index" vs] in
+  let vs = [ "index", List.assoc "index" vs;
+             "ac_id", Pprz.String ac_id ] in
   Dl_Pprz.message_send dl_id "GET_SETTING" vs;
   log logging ac_id "GET_SETTING" vs
 
@@ -669,7 +669,7 @@ let get_setting = fun logging _sender vs ->
 (** Got a JUMP_TO_BLOCK, and send an BLOCK *)
 let jump_block = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  let vs = ["ac_id", Pprz.String ac_id; "block_id", List.assoc "block_id" vs] in
+  let vs = ["block_id", List.assoc "block_id" vs; "ac_id", Pprz.String ac_id] in
   Dl_Pprz.message_send dl_id "BLOCK" vs;
   log logging ac_id "BLOCK" vs
 
