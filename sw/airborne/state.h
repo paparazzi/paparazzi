@@ -562,19 +562,19 @@ static inline void stateSetPosition_i(
     struct LlaCoor_i* lla_pos) {
   /* clear all status bit */
   state.pos_status = 0;
-  if (ecef_pos != 0) {
+  if (ecef_pos != NULL) {
     INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
     state.pos_status |= (1 << POS_ECEF_I);
   }
-  if (ned_pos != 0) {
+  if (ned_pos != NULL) {
     INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
     state.pos_status |= (1 << POS_NED_I);
   }
-  if (enu_pos != 0) {
+  if (enu_pos != NULL) {
     INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
     state.pos_status |= (1 << POS_ENU_I);
   }
-  if (lla_pos != 0) {
+  if (lla_pos != NULL) {
     LLA_COPY(state.lla_pos_i, *lla_pos);
     state.pos_status |= (1 << POS_LLA_I);
   }
@@ -624,23 +624,23 @@ static inline void stateSetPosition_f(
     struct UtmCoor_f* utm_pos) {
   /* clear all status bit */
   state.pos_status = 0;
-  if (ecef_pos != 0) {
+  if (ecef_pos != NULL) {
     VECT3_COPY(state.ecef_pos_f, *ecef_pos);
     state.pos_status |= (1 << POS_ECEF_F);
   }
-  if (ned_pos != 0) {
+  if (ned_pos != NULL) {
     VECT3_COPY(state.ned_pos_f, *ned_pos);
     state.pos_status |= (1 << POS_NED_F);
   }
-  if (enu_pos != 0) {
+  if (enu_pos != NULL) {
     VECT3_COPY(state.enu_pos_f, *enu_pos);
     state.pos_status |= (1 << POS_ENU_F);
   }
-  if (lla_pos != 0) {
+  if (lla_pos != NULL) {
     LLA_COPY(state.lla_pos_f, *lla_pos);
     state.pos_status |= (1 << POS_LLA_F);
   }
-  if (utm_pos != 0) {
+  if (utm_pos != NULL) {
     memcpy(&state.utm_pos_f, utm_pos, sizeof(struct UtmCoor_f));
     state.pos_status |= (1 << POS_UTM_F);
   }
@@ -765,15 +765,15 @@ static inline void stateSetSpeed_i(
     struct EnuCoor_i* enu_speed) {
   /* clear all status bit */
   state.speed_status = 0;
-  if (ecef_speed != 0) {
+  if (ecef_speed != NULL) {
     INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
     state.speed_status |= (1 << SPEED_ECEF_I);
   }
-  if (ned_speed != 0) {
+  if (ned_speed != NULL) {
     INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
     state.speed_status |= (1 << SPEED_NED_I);
   }
-  if (enu_speed != 0) {
+  if (enu_speed != NULL) {
     INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
     state.speed_status |= (1 << SPEED_ENU_I);
   }
@@ -807,15 +807,15 @@ static inline void stateSetSpeed_f(
     struct EnuCoor_f* enu_speed) {
   /* clear all status bit */
   state.speed_status = 0;
-  if (ecef_speed != 0) {
+  if (ecef_speed != NULL) {
     VECT3_COPY(state.ecef_speed_f, *ecef_speed);
     state.speed_status |= (1 << SPEED_ECEF_F);
   }
-  if (ned_speed != 0) {
+  if (ned_speed != NULL) {
     VECT3_COPY(state.ned_speed_f, *ned_speed);
     state.speed_status |= (1 << SPEED_NED_F);
   }
-  if (enu_speed != 0) {
+  if (enu_speed != NULL) {
     VECT3_COPY(state.enu_speed_f, *enu_speed);
     state.speed_status |= (1 << SPEED_ENU_F);
   }
