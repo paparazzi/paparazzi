@@ -537,6 +537,11 @@ void sensors_task( void ) {
 #endif // USE_AHRS
 #endif // USE_IMU
 
+  //FIXME: this is just a kludge
+#if USE_AHRS && defined SITL
+  ahrs_propagate();
+#endif
+
 #if USE_INS
   ins_periodic_task();
 #endif
