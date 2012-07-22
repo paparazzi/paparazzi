@@ -92,6 +92,10 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);			\
   }
 
+#define DOUBLE_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
+
+#define DOUBLE_VECT3_COPY(_a, _b) VECT3_COPY(_a, _b)
+
 #define DOUBLE_VECT3_SUM(_c,_a,_b) {            \
     (_c).x = (_a).x + (_b).x;			\
     (_c).y = (_a).y + (_b).y;			\

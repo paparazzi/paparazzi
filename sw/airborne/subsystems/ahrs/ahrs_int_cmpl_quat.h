@@ -42,6 +42,9 @@ struct AhrsIntCmpl {
 };
 
 extern struct AhrsIntCmpl ahrs_impl;
+#ifdef USE_GEO_MAG
+extern struct DoubleVect3 ahrs_h;
+#endif
 
 
 /** Update yaw based on a heading measurement.
