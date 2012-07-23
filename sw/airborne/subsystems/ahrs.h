@@ -99,6 +99,7 @@ extern float ahrs_mag_offset;
     EULERS_BFP_OF_REAL(ahrs.ltp_to_imu_euler, ahrs_float.ltp_to_imu_euler); \
     RMAT_BFP_OF_REAL(ahrs.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_rmat); \
     RATES_BFP_OF_REAL(ahrs.imu_rate, ahrs_float.imu_rate);            \
+}
 
 /* copy attitude to state interface */
 #define AHRS_BODY_TO_STATE() {                          \
