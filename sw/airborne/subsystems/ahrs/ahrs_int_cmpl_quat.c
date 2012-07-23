@@ -24,6 +24,8 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
+#include "state.h"
+
 #include "subsystems/imu.h"
 #if USE_GPS
 #include "subsystems/gps.h"
@@ -52,10 +54,8 @@ static inline void ahrs_update_mag_2d(void);
 
 struct AhrsIntCmpl ahrs_impl;
 
-static inline void compute_imu_euler_and_rmat_from_quat(void);
-static inline void compute_body_euler_and_rmat_from_quat(void);
+static inline void set_body_state_from_quat(void);
 static inline void compute_imu_orientation(void);
-static inline void compute_body_orientation(void);
 
 void ahrs_init(void) {
 
@@ -105,10 +105,7 @@ void ahrs_align(void) {
   ahrs_impl.heading_aligned = FALSE;
 #endif
 
-  /* Convert initial orientation from quat to euler and rotation matrix representations. */
-  compute_imu_euler_and_rmat_from_quat();
-
-  compute_body_orientation();
+  set_body_state_from_quat();
 
   /* Use low passed gyro value as initial bias */
   RATES_COPY( ahrs_impl.gyro_bias, ahrs_aligner.lp_gyro);
@@ -149,9 +146,7 @@ void ahrs_propagate(void) {
   INT32_QUAT_INTEGRATE_FI(ahrs.ltp_to_imu_quat, ahrs_impl.high_rez_quat, omega, AHRS_PROPAGATE_FREQUENCY);
   INT32_QUAT_NORMALIZE(ahrs.ltp_to_imu_quat);
 
-  compute_imu_euler_and_rmat_from_quat();
-
-  compute_body_orientation();
+  set_body_state_from_quat();
 
 }
 
@@ -352,9 +347,10 @@ void ahrs_update_heading(int32_t heading) {
 
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
+  struct Int32RMat* ltp_to_body_rmat = stateGetNedToBodyRMat_i();
   struct Int32Vect2 expected_ltp =
-    { RMAT_ELMT(ahrs.ltp_to_body_rmat, 0, 0),
-      RMAT_ELMT(ahrs.ltp_to_body_rmat, 0, 1) };
+    { RMAT_ELMT((*ltp_to_body_rmat), 0, 0),
+      RMAT_ELMT((*ltp_to_body_rmat), 0, 1) };
 
   int32_t heading_x, heading_y;
   PPRZ_ITRIG_COS(heading_x, heading); // measured course in x-direction
@@ -424,8 +420,8 @@ void ahrs_realign_heading(int32_t heading) {
   INT32_QUAT_COMP_NORM_SHORTEST(q, q_c, ahrs.ltp_to_body_quat);
   QUAT_COPY(ahrs.ltp_to_body_quat, q);
 
-  /* compute other representations in body frame */
-  compute_body_euler_and_rmat_from_quat();
+  /* Set state */
+  stateSetNedToBodyQuat_i(&ahrs.ltp_to_body_quat);
 
   /* compute ltp to imu rotations */
   compute_imu_orientation();
@@ -434,39 +430,20 @@ void ahrs_realign_heading(int32_t heading) {
 }
 
 
-/* Compute ltp to imu rotation in euler angles and rotation matrix representation
-   from the quaternion representation */
-__attribute__ ((always_inline)) static inline void compute_imu_euler_and_rmat_from_quat(void) {
-
-  /* Compute LTP to IMU euler */
-  INT32_EULERS_OF_QUAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_quat);
-  /* Compute LTP to IMU rotation matrix */
+/* Rotate angles and rates from imu to body frame and set state */
+__attribute__ ((always_inline)) static inline void set_body_state_from_quat(void) {
+  /* Compute LTP to IMU rotation matrix (internal use) */
   INT32_RMAT_OF_QUAT(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_quat);
-
-}
-
-/* Compute ltp to body rotation in euler angles and rotation matrix representation
-   from the quaternion representation */
-__attribute__ ((always_inline)) static inline void compute_body_euler_and_rmat_from_quat(void) {
-
-  /* Compute LTP to body euler */
-  INT32_EULERS_OF_QUAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_quat);
-  /* Compute LTP to body rotation matrix */
-  INT32_RMAT_OF_QUAT(ahrs.ltp_to_body_rmat, ahrs.ltp_to_body_quat);
-
-}
-
-__attribute__ ((always_inline)) static inline void compute_body_orientation(void) {
 
   /* Compute LTP to BODY quaternion */
   INT32_QUAT_COMP_INV(ahrs.ltp_to_body_quat, ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
-  /* Compute LTP to BODY rotation matrix */
-  INT32_RMAT_COMP_INV(ahrs.ltp_to_body_rmat, ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
-  /* compute LTP to BODY eulers */
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_rmat);
+  /* Set state */
+  stateSetNedToBodyQuat_i(&ahrs.ltp_to_body_quat);
+
   /* compute body rates */
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
-
+  /* Set state */
+  stateSetBodyRates_i(&ahrs.body_rate);
 }
 
 __attribute__ ((always_inline)) static inline void compute_imu_orientation(void) {
@@ -474,9 +451,7 @@ __attribute__ ((always_inline)) static inline void compute_imu_orientation(void)
   /* Compute LTP to IMU quaternion */
   INT32_QUAT_COMP(ahrs.ltp_to_imu_quat, ahrs.ltp_to_body_quat, imu.body_to_imu_quat);
   /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_COMP(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_body_rmat, imu.body_to_imu_rmat);
-  /* compute LTP to IMU eulers */
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
+  INT32_RMAT_OF_QUAT(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_quat);
   /* compute IMU rates */
   INT32_RMAT_RATEMULT(ahrs.imu_rate, imu.body_to_imu_rmat, ahrs.body_rate);
 
@@ -497,19 +472,19 @@ float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 void ahrs_update_fw_estimator(void)
 {
-  struct FloatEulers att;
+  struct FloatEulers* att;
   // export results to estimator
-  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
+  att = stateGetNedToBodyEulers_f();
 
-  estimator_phi   = att.phi - ins_roll_neutral;
-  estimator_theta = att.theta - ins_pitch_neutral;
-  estimator_psi   = att.psi;
+  estimator_phi   = att->phi - ins_roll_neutral;
+  estimator_theta = att->theta - ins_pitch_neutral;
+  estimator_psi   = att->psi;
 
-  struct FloatRates rates;
-  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
-  estimator_p = rates.p;
-  estimator_q = rates.q;
-  estimator_r = rates.r;
+  struct FloatRates* rates;
+  rates = stateGetBodyRates_f();
+  estimator_p = rates->p;
+  estimator_q = rates->q;
+  estimator_r = rates->r;
 
 }
 #endif //AHRS_UPDATE_FW_ESTIMATOR

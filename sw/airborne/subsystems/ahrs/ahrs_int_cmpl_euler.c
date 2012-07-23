@@ -21,6 +21,7 @@
 
 #include "ahrs_int_cmpl_euler.h"
 
+#include "state.h"
 #include "subsystems/imu.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "math/pprz_trig_int.h"
@@ -37,8 +38,7 @@ struct AhrsIntCmplEuler ahrs_impl;
 
 static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel);
 static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3 mag);
-static inline void compute_imu_quat_and_rmat_from_euler(void);
-static inline void compute_body_orientation(void);
+static inline void set_body_state_from_euler(void);
 
 #define F_UPDATE 512
 
@@ -86,9 +86,7 @@ void ahrs_align(void) {
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
 
-  compute_imu_quat_and_rmat_from_euler();
-
-  compute_body_orientation();
+  set_body_state_from_euler();
 
   RATES_COPY( ahrs_impl.gyro_bias, ahrs_aligner.lp_gyro);
   ahrs.status = AHRS_RUNNING;
@@ -191,9 +189,7 @@ void ahrs_propagate(void) {
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
 
-  compute_imu_quat_and_rmat_from_euler();
-
-  compute_body_orientation();
+  set_body_state_from_euler();
 
 }
 
@@ -269,32 +265,21 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
 
 }
 
-/* Compute ltp to imu rotation in quaternion and rotation matrice representation
-   from the euler angle representation */
-__attribute__ ((always_inline)) static inline void compute_imu_quat_and_rmat_from_euler(void) {
-
-  /* Compute LTP to IMU quaternion */
-  INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
+/* Rotate angles and rates from imu to body frame and set state */
+__attribute__ ((always_inline)) static inline void set_body_state_from_euler(void) {
   /* Compute LTP to IMU rotation matrix */
   INT32_RMAT_OF_EULERS(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_euler);
-
-}
-
-__attribute__ ((always_inline)) static inline void compute_body_orientation(void) {
-
-  /* Compute LTP to BODY quaternion */
-  INT32_QUAT_COMP_INV(ahrs.ltp_to_body_quat, ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
   /* Compute LTP to BODY rotation matrix */
   INT32_RMAT_COMP_INV(ahrs.ltp_to_body_rmat, ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
-  /* compute LTP to BODY eulers */
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_rmat);
+  /* Set state */
+  stateSetNedToBodyRMat_i(&ahrs.ltp_to_body_rmat);
+
   /* compute body rates */
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
-
-  AHRS_BODY_TO_STATE();
+  /* Set state */
+  stateSetBodyRates_i(&ahrs.body_rate);
 
 }
-
 
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
