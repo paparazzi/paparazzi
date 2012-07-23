@@ -139,7 +139,7 @@ void ins_propagate() {
   struct Int32Vect3 accel_meas_body;
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_meas_ltp;
-  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, ahrs.ltp_to_body_rmat, accel_meas_body);
+  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
 
 #if USE_VFF
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
