@@ -30,9 +30,9 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/ins.h"
 #include "firmwares/rotorcraft/navigation.h"
+
+#include "state.h"
 
 #include "generated/airframe.h"
 
@@ -209,7 +209,7 @@ void guidance_h_run(bool_t  in_flight) {
         stab_att_sp_euler.phi = nav_roll;
         stab_att_sp_euler.theta = nav_pitch;
         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
-        stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+        stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
         INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
         INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
@@ -300,8 +300,9 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, ahrs.ltp_to_body_euler.psi);
-  PPRZ_ITRIG_COS(c_psi, ahrs.ltp_to_body_euler.psi);
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  PPRZ_ITRIG_SIN(s_psi, psi);
+  PPRZ_ITRIG_COS(c_psi, psi);
 
   // Restore angle ref resolution after rotation
   guidance_h_command_body.phi =
@@ -328,7 +329,7 @@ static inline void guidance_h_hover_enter(void) {
 
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
-  guidance_h_rc_sp.psi = ahrs.ltp_to_body_euler.psi;
+  guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
@@ -346,7 +347,7 @@ static inline void guidance_h_nav_enter(void) {
 
   /* reset psi reference, set psi setpoint to current psi */
   reset_psi_ref_from_body();
-  nav_heading = ahrs.ltp_to_body_euler.psi;
+  nav_heading = stateGetNedToBodyEulers_i()->psi;
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
