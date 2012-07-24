@@ -24,9 +24,8 @@
 
 #include "cam_control/booz_cam.h"
 #include "modules/core/booz_pwm_arch.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 #include "firmwares/rotorcraft/navigation.h"
-#include "subsystems/ins.h"
 #include "generated/flight_plan.h"
 #include "std.h"
 
@@ -103,7 +102,7 @@ void booz_cam_periodic(void) {
       booz_cam_tilt_pwm = BOOZ_CAM_TILT_NEUTRAL;
 #endif
 #ifdef BOOZ_CAM_USE_PAN
-      booz_cam_pan = ahrs.ltp_to_body_euler.psi;
+      booz_cam_pan = stateGetNedToBodyEulers_i()->psi;
 #endif
       break;
     case BOOZ_CAM_MODE_MANUAL:
