@@ -24,7 +24,7 @@
 #include "firmwares/rotorcraft/stabilization.h"
 
 #include "math/pprz_algebra_float.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 #include "subsystems/radio_control.h"
 
 #include "generated/airframe.h"
@@ -111,10 +111,9 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* Compute feedback                  */
   /* attitude error            */
-  struct FloatEulers att_float;
-  EULERS_FLOAT_OF_BFP(att_float, ahrs.ltp_to_body_euler);
+  struct FloatEulers att_float* = stateGetNedToBodyEulers_f();
   struct FloatEulers att_err;
-  EULERS_DIFF(att_err, stab_att_ref_euler, att_float);
+  EULERS_DIFF(att_err, stab_att_ref_euler, *att_float);
   FLOAT_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -127,10 +126,9 @@ void stabilization_attitude_run(bool_t  in_flight) {
   }
 
   /*  rate error                */
-  struct FloatRates rate_float;
-  RATES_FLOAT_OF_BFP(rate_float, ahrs.body_rate);
+  struct FloatRates* rate_float = stateGetBodyRates_f();
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, stab_att_ref_rate, rate_float);
+  RATES_DIFF(rate_err, stab_att_ref_rate, *rate_float);
 
   /*  PID                  */
 
