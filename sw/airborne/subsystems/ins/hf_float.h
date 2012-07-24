@@ -29,12 +29,22 @@
 
 #define HFF_STATE_SIZE 2
 
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+
 #ifndef HFF_PRESCALER
+#if AHRS_PROPAGATE_FREQUENCY == 512
 #define HFF_PRESCALER 16
+#elif AHRS_PROPAGATE_FREQUENCY == 500
+#define HFF_PRESCALER 10
+#else
+#error "HFF_PRESCALER needs to be a divisor of AHRS_PROPAGATE_FREQUENCY"
+#endif
 #endif
 
 /* horizontal filter propagation frequency */
-#define HFF_FREQ (512./HFF_PRESCALER)
+#define HFF_FREQ (AHRS_PROPAGATE_FREQUENCY/HFF_PRESCALER)
 #define DT_HFILTER (1./HFF_FREQ)
 
 #define HFF_UPDATE_SPEED
