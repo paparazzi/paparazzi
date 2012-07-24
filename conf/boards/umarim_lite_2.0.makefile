@@ -1,13 +1,13 @@
 #
-# unami_1.0.makefile
+# umarim_lite_2.0.makefile
 #
-# Umarim v1 board
+# Umarim Lite v2 board
 #
 
 ARCH=lpc21
 
 BOARD=umarim
-BOARD_VERSION=1.0
+BOARD_VERSION=lite_2.0
 
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
