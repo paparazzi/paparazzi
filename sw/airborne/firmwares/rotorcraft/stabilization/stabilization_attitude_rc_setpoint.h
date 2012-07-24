@@ -32,7 +32,7 @@
 #include "math/pprz_algebra_float.h"
 
 #include "subsystems/radio_control.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
 #define SP_MAX_PHI     (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI)
@@ -80,7 +80,7 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
     }
   }
   else { /* if not flying, use current yaw as setpoint */
-    sp->psi = ahrs.ltp_to_body_euler.psi;
+    sp->psi = stateGetNedToBodyEulers_i()->psi;
   }
 
 }
