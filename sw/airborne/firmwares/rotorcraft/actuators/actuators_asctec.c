@@ -82,9 +82,18 @@ void actuators_set(bool_t motors_on) {
   }
 #endif
 
-  if (actuators_asctec.i2c_trans.status != I2CTransSuccess) {
-    actuators_asctec.nb_err++;
-    return;
+  switch (actuators_asctec.i2c_trans.status) {
+    case I2CTransFailed:
+      actuators_asctec.nb_err++;
+      actuators_asctec.i2c_trans.status = I2CTransDone;
+      break;
+    case I2CTransSuccess:
+    case I2CTransDone:
+      actuators_asctec.i2c_trans.status = I2CTransDone;
+      break;
+    default:
+      actuators_asctec.nb_err++;
+      return;
   }
 
 #ifdef KILL_MOTORS
@@ -155,9 +164,18 @@ void actuators_set(bool_t motors_on) {
   }
 #endif
 
-  if (actuators_asctec.i2c_trans.status != I2CTransSuccess) {
-    actuators_asctec.nb_err++;
-    return;
+  switch (actuators_asctec.i2c_trans.status) {
+    case I2CTransFailed:
+      actuators_asctec.nb_err++;
+      actuators_asctec.i2c_trans.status = I2CTransDone;
+      break;
+    case I2CTransSuccess:
+    case I2CTransDone:
+      actuators_asctec.i2c_trans.status = I2CTransDone;
+      break;
+    default:
+      actuators_asctec.nb_err++;
+      return;
   }
 
   supervision_run(motors_on, FALSE, commands);
