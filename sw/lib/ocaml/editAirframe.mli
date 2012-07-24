@@ -25,7 +25,7 @@
  *)
 
 type units = string option
-type data = string * units
+type data = string * units * units
 
 val get : Nethtml.document -> string -> data
 (** [get xml param] Returns the associated value in a [define] element *)

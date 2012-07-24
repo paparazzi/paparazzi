@@ -56,6 +56,9 @@ volatile bool_t gyr_valid;
 volatile bool_t acc_valid;
 volatile bool_t mag_valid;
 
+#include "filters/median_filter.h"
+struct MedianFilter3Int median_gyro, median_accel, median_mag;
+
 void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
@@ -69,6 +72,11 @@ void imu_impl_init(void)
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
   hmc58xx_init();
+
+  // Init median filters
+  InitMedianFilterRatesInt(median_gyro);
+  InitMedianFilterVect3Int(median_accel);
+  InitMedianFilterVect3Int(median_mag);
 }
 
 void imu_periodic( void )
@@ -96,7 +104,6 @@ void imu_navgo_downlink_raw( void )
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,&imu.mag_unscaled.x,&imu.mag_unscaled.y,&imu.mag_unscaled.z);
 }
 
-
 void imu_navgo_event( void )
 {
 
@@ -104,6 +111,7 @@ void imu_navgo_event( void )
   itg3200_event();
   if (itg3200_data_available) {
     RATES_ASSIGN(imu.gyro_unscaled, -itg3200_data.q, itg3200_data.p, itg3200_data.r);
+    UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
     itg3200_data_available = FALSE;
     gyr_valid = TRUE;
   }
@@ -112,6 +120,7 @@ void imu_navgo_event( void )
   adxl345_event();
   if (adxl345_data_available) {
     VECT3_ASSIGN(imu.accel_unscaled, adxl345_data.y, -adxl345_data.x, adxl345_data.z);
+    UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
     adxl345_data_available = FALSE;
     acc_valid = TRUE;
   }
@@ -120,6 +129,7 @@ void imu_navgo_event( void )
   hmc58xx_event();
   if (hmc58xx_data_available) {
     VECT3_ASSIGN(imu.mag_unscaled, hmc58xx_data.x, hmc58xx_data.y, hmc58xx_data.z);
+    UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
     hmc58xx_data_available = FALSE;
     mag_valid = TRUE;
   }

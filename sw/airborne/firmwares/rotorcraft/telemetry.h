@@ -497,6 +497,21 @@
 #define PERIODIC_SEND_VFF(_trans, _dev) {}
 #endif
 
+#if USE_VFF_EXTENDED
+#include "subsystems/ins/vf_extended_float.h"
+#define PERIODIC_SEND_VFF_EXTENDED(_trans, _dev) {		\
+    DOWNLINK_SEND_VFF_EXTENDED(_trans, _dev,			\
+                &vff_z_meas,		\
+                &vff_z_meas_baro, \
+                &vff_z,			\
+                &vff_zdot,		\
+                &vff_bias,		\
+                &vff_offset);		\
+  }
+#else
+#define PERIODIC_SEND_VFF_EXTENDED(_trans, _dev) {}
+#endif
+
 #if USE_HFF
 #include  "subsystems/ins/hf_float.h"
 #define PERIODIC_SEND_HFF(_trans, _dev) {	\

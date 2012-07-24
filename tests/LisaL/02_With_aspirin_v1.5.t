@@ -9,18 +9,18 @@ $|++;
 
 ####################
 # Make the airframe
-my $make_compile_options = "AIRCRAFT=LisaLv11_Aspirinv15_Overo_RC clean_ac ap.compile";
+my $make_compile_options = "AIRCRAFT=LisaLv11_Aspirinv15_RC clean_ac ap.compile";
 my $compile_output = run_program(
 	"Attempting to build the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_compile_options",
 	0,1);
-unlike($compile_output, '/Aircraft \'LisaLv11_Aspirinv15_Overo_RC\' not found in/', "The compile output does not contain the message \"Aircraft \'LisaLv11_Aspirinv15_Overo_RC\' not found in\"");
+unlike($compile_output, '/Aircraft \'LisaLv11_Aspirinv15_RC\' not found in/', "The compile output does not contain the message \"Aircraft \'LisaLv11_Aspirinv15_RC\' not found in\"");
 unlike($compile_output, '/\bError\b/i', "The compile output does not contain the word \"Error\"");
 
 ####################
 # Upload the airframe
-my $make_upload_options = "AIRCRAFT=LisaLv11_Aspirinv15_Overo_RC BOARD_SERIAL=LISA-L-000154 ap.upload";
+my $make_upload_options = "AIRCRAFT=LisaLv11_Aspirinv15_RC BOARD_SERIAL=LISA-L-000154 ap.upload";
 my $upload_output = run_program(
 	"Attempting to build and upload the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
@@ -40,7 +40,7 @@ ok($server->alive(), "The server process started successfully");
 
 # Start the link process
 my $link_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/link";
-my @link_options = qw(-d /dev/tty.usbserial-000013FD -s 57600 -transport xbee -xbee_addr 123);
+my @link_options = qw(-d /dev/ttyUSB0 -s 57600 -transport xbee -xbee_addr 123);
 sleep 2; # The service should die in this time if there's an error
 my $link = Proc::Background->new($link_command, @link_options);
 ok($link->alive(), "The link process started successfully");

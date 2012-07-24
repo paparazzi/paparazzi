@@ -60,7 +60,7 @@ int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
 
-int16_t guidance_v_nominal_throttle;
+float guidance_v_nominal_throttle;
 
 
 /** Direct throttle from radio control.
@@ -109,7 +109,7 @@ void guidance_v_init(void) {
   guidance_v_z_sum_err = 0;
 
 #ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
-  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE * MAX_PPRZ;
+  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
 #endif
 
   gv_adapt_init();
@@ -276,7 +276,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our nominal command : (g + zdd)*m   */
 #ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
-  const int32_t inv_m = BFP_OF_REAL(9.81/guidance_v_nominal_throttle, FF_CMD_FRAC);
+  const int32_t inv_m = BFP_OF_REAL(9.81/(guidance_v_nominal_throttle*MAX_PPRZ), FF_CMD_FRAC);
 #else
   const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
@@ -291,6 +291,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   /* feed forward command */
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
+
+  /* bound the nominal command to 0.9*MAX_PPRZ */
+  Bound(guidance_v_ff_cmd, 0, 8640);
 
 
   /* our error feed back command                   */
