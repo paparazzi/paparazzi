@@ -31,59 +31,27 @@ SRC_ARCH = arch/stm32
 # Call with "make Q=''" to get full command display
 Q=@
 
+
+#
+# find compiler toolchain
+#
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
+
+
 MCU   = cortex-m3
 #DEBUG = dwarf-2
 OPT   = s
 #OPT   = 2
 #OPT   = 0
 
-# Programs location
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib ~/sat /opt/paparazzi/stm32 -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
-
-# Define programs and commands.
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
-CC   = $(GCC_BIN_PREFIX)-gcc
-LD   = $(GCC_BIN_PREFIX)-gcc
-CP   = $(GCC_BIN_PREFIX)-objcopy
-DMP  = $(GCC_BIN_PREFIX)-objdump
-NM   = $(GCC_BIN_PREFIX)-nm
-SIZE = $(GCC_BIN_PREFIX)-size
-GDB  = $(GCC_BIN_PREFIX)-gdb
-RM   = rm
-
-# If we can't find the toolchain then try picking up the compilers from the path
-else
-CC   = $(shell which arm-none-eabi-gcc)
-LD   = $(shell which arm-none-eabi-gcc)
-CP   = $(shell which arm-none-eabi-objcopy)
-DMP  = $(shell which arm-none-eabi-objdump)
-NM   = $(shell which arm-none-eabi-nm)
-SIZE = $(shell which arm-none-eabi-size)
-GDB  = $(shell which arm-none-eabi-gdb)
-RM   = rm
-TOOLCHAIN_DIR=$(shell dirname `which arm-none-eabi-gcc`)
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
-endif
 
 # Detect if we are using the new libopencm3 or the old libopenstm32
 LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
 LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
 
+
 ifndef $(PYTHON)
 PYTHON = $(shell which python)
-endif
-
-#first try to find OpenOCD in the path
-OOCD = $(shell which openocd)
-#if OpenOCD could not be found in the path, try the toolchain dir
-ifeq ($(OOCD),)
-ifneq ($(TOOLCHAIN),)
-OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_DIR)/bin/openocd ; else echo "Warning: OpenOCD not found"; fi)
-endif
 endif
 
 ifneq ($(BOARD_SERIAL),)
@@ -135,9 +103,6 @@ else
 LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
-
-#UNAME = $(shell uname -s)
-MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
 
 CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,--gc-sections

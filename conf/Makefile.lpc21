@@ -31,67 +31,27 @@
 # only define here or elsewhere?
 SRC_ARCH = arch/lpc21
 
-
-# Programs location
-# try to find the paparazzi multilib toolchain
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-
-#
-# found the new paparazzi toolchain, use it
-#
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
-CC      = $(GCC_BIN_PREFIX)-gcc
-LD      = $(GCC_BIN_PREFIX)-gcc
-OBJCOPY = $(GCC_BIN_PREFIX)-objcopy
-OBJDUMP = $(GCC_BIN_PREFIX)-objdump
-NM      = $(GCC_BIN_PREFIX)-nm
-SIZE    = $(GCC_BIN_PREFIX)-size
-
-#
-# If we can't find the toolchain (in /opt/paparazzi/arm-multilib or ~/sat) then try picking up the compilers from the path
-#
-else
-
-# see if we can find the new arm-none-eabi, otherwise use the older arm-elf
-HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
-ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-GCC_PREFIX = arm-elf
-else
-GCC_PREFIX = arm-none-eabi
-GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
-endif
-
-CC      = $(shell which $(GCC_PREFIX)-gcc)
-LD      = $(shell which $(GCC_PREFIX)-gcc)
-OBJCOPY = $(shell which $(GCC_PREFIX)-objcopy)
-OBJDUMP = $(shell which $(GCC_PREFIX)-objdump)
-NM      = $(shell which $(GCC_PREFIX)-nm)
-SIZE    = $(shell which $(GCC_PREFIX)-size)
-endif
-
-#first try to find OpenOCD in the path
-OOCD = $(shell which openocd)
-#if OpenOCD could not be found in the path, try the toolchain dir
-ifeq ($(OOCD),)
-ifneq ($(TOOLCHAIN),)
-OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_DIR)/bin/openocd ; else echo "Warning: OpenOCD not found"; fi)
-endif
-endif
-
-# Define some other programs and commands.
-SHELL = sh
-REMOVE = rm -f
-COPY = cp
-
-MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
-
-
 # Launch with "make Q=''" to get full command display
 Q=@
+
+
+#
+# find compiler toolchain
+#
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
+
+#
+# if the new arm-none-eabi multilib compiler was not found try the old arm-elf one
+#
+ifeq ($(CC),)
+CC   = $(shell which arm-elf-gcc)
+LD   = $(shell which arm-elf-gcc)
+CP   = $(shell which arm-elf-objcopy)
+DMP  = $(shell which arm-elf-objdump)
+NM   = $(shell which arm-elf-nm)
+SIZE = $(shell which arm-elf-size)
+endif
+
 
 # MCU name and submodel
 MCU = arm7tdmi
@@ -214,8 +174,8 @@ all: printcommands printmultilib sizebefore build sizeafter
 printcommands:
 	@echo "Using CC   = $(CC)"
 	@echo "Using LD   = $(LD)"
-	@echo "Using CP   = $(OBJCOPY)"
-	@echo "Using DMP  = $(OBJDUMP)"
+	@echo "Using CP   = $(CP)"
+	@echo "Using DMP  = $(DMP)"
 	@echo "Using NM   = $(NM)"
 	@echo "Using SIZE = $(SIZE)"
 	@echo "GCC version:"
@@ -272,14 +232,14 @@ endif
 # TODO: handling the .eeprom-section should be redundant
 %.hex: %.elf
 	@echo OBJC $@
-	$(Q)$(OBJCOPY) -O $(FORMAT) $< $@
+	$(Q)$(CP) -O $(FORMAT) $< $@
 
 
 # Create extended listing file from ELF output file.
 # testing: option -C
 %.lss: %.elf
 	@echo OBJD $@
-	$(Q)$(OBJDUMP) -h -S -C $< > $@
+	$(Q)$(DMP) -h -S -C $< > $@
 
 
 # Create a symbol table from ELF output file.
@@ -330,26 +290,26 @@ clean: clean_list
 
 clean_list :
 	@echo
-	$(REMOVE) $(OBJDIR)/$(TARGET).hex
-	$(REMOVE) $(OBJDIR)/$(TARGET).obj
-	$(REMOVE) $(OBJDIR)/$(TARGET).elf
-	$(REMOVE) $(OBJDIR)/$(TARGET).map
-	$(REMOVE) $(OBJDIR)/$(TARGET).obj
-	$(REMOVE) $(OBJDIR)/$(TARGET).a90
-	$(REMOVE) $(OBJDIR)/$(TARGET).sym
-	$(REMOVE) $(OBJDIR)/$(TARGET).lnk
-	$(REMOVE) $(OBJDIR)/$(TARGET).lss
-	$(REMOVE) $(COBJ)
-	$(REMOVE) $(AOBJ)
-	$(REMOVE) $(COBJARM)
-	$(REMOVE) $(AOBJARM)
-	$(REMOVE) $(LST)
-	$(REMOVE) $(SRC:.c=.s)
-	$(REMOVE) $(SRC:.c=.d)
-	$(REMOVE) $(SRCARM:.c=.s)
-	$(REMOVE) $(SRCARM:.c=.d)
-	$(REMOVE) .dep/*
-	$(REMOVE) *~
+	$(RM) $(OBJDIR)/$(TARGET).hex
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).elf
+	$(RM) $(OBJDIR)/$(TARGET).map
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).a90
+	$(RM) $(OBJDIR)/$(TARGET).sym
+	$(RM) $(OBJDIR)/$(TARGET).lnk
+	$(RM) $(OBJDIR)/$(TARGET).lss
+	$(RM) $(COBJ)
+	$(RM) $(AOBJ)
+	$(RM) $(COBJARM)
+	$(RM) $(AOBJARM)
+	$(RM) $(LST)
+	$(RM) $(SRC:.c=.s)
+	$(RM) $(SRC:.c=.d)
+	$(RM) $(SRCARM:.c=.s)
+	$(RM) $(SRCARM:.c=.d)
+	$(RM) .dep/*
+	$(RM) *~
 
 
 # Listing of phony targets.
