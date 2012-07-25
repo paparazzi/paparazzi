@@ -30,13 +30,11 @@
 #include <math.h>
 
 #include "estimator.h"
+#include "state.h"
 #include "mcu_periph/uart.h"
 #include "ap_downlink.h"
 #include "subsystems/gps.h"
 #include "subsystems/nav.h"
-#ifdef EXTRA_DOWNLINK_DEVICE
-#include "core/extra_pprz_dl.h"
-#endif
 
 /* position in meters */
 float estimator_x;
@@ -84,23 +82,15 @@ float estimator_AOA;
 
 void estimator_init( void ) {
 
-  EstimatorSetPosXY(0., 0.);
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  stateSetLocalUtmOrigin_f(&utm0);
+
+  stateSetPositionUtm_f(&utm0);
+
   EstimatorSetAlt(0.);
-
-  EstimatorSetAtt (0., 0., 0);
-
-  EstimatorSetSpeedPol ( 0., 0., 0.);
-
-  EstimatorSetRate(0., 0., 0.);
-
-#ifdef USE_AOA
-  EstimatorSetAOA( 0. );
-#endif
 
   estimator_flight_time = 0;
 
-  // FIXME? Set initial airspeed to zero if USE_AIRSPEED ?
-  EstimatorSetAirspeed( NOMINAL_AIRSPEED );
 }
 
 
@@ -202,22 +192,26 @@ void alt_kalman(float gps_z) {
 #endif // ALT_KALMAN
 
 void estimator_update_state_gps( void ) {
-  float gps_east = gps.utm_pos.east / 100.;
-  float gps_north = gps.utm_pos.north / 100.;
+  struct UtmCoor_f utm;
+  utm.east = gps.utm_pos.east / 100.;
+  utm.north = gps.utm_pos.north / 100.;
+  utm.zone = nav_utm_zone0;
 
-  /* Relative position to reference */
-  gps_east -= nav_utm_east0;
-  gps_north -= nav_utm_north0;
-
-  EstimatorSetPosXY(gps_east, gps_north);
 #if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif
-  float fspeed = gps.gspeed / 100.;
-  float fclimb = -gps.ned_vel.z / 100.;
-  float fcourse = gps.course / 1e7;
-  EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
+  utm.alt = estimator_z;
+  // set position
+  stateSetPositionUtm_f(&utm);
+
+  struct NedCoor_f ned_vel = {
+    gps.ned_vel.x / 100.,
+    gps.ned_vel.y / 100.,
+    gps.ned_vel.z / 100.
+  };
+  // set velocity
+  stateSetSpeedNed_f(&ned_vel);
 
   // Heading estimation now in ahrs_infrared
 

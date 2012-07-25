@@ -32,6 +32,9 @@
 #include <inttypes.h>
 
 #include "std.h"
+
+#include "state.h"
+
 #ifdef BARO_MS5534A
 #include "baro_MS5534A.h"
 #endif
@@ -88,9 +91,9 @@ extern void alt_kalman( float );
 #endif
 
 
-#define GetPosX() (estimator_x)
-#define GetPosY() (estimator_y)
-#define GetPosAlt() (estimator_z)
+#define GetPosX() (stateGetPositionEnu_f()->x)
+#define GetPosY() (stateGetPositionEnu_f()->y)
+#define GetPosAlt() (stateGetPositionEnu_f()->z)
 
 
 #ifdef ALT_KALMAN
