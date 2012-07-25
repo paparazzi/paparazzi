@@ -40,7 +40,7 @@
 #endif // TRAFFIC_INFO
 
 #if defined NAV || defined WIND_INFO
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #endif
 
@@ -137,10 +137,11 @@ void dl_parse_msg(void) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
 #if !USE_AIRSPEED
-    estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
+    float airspeed = DL_WIND_INFO_airspeed(dl_buffer);
+    stateSetAirspeed_f(&airspeed);
 #endif
 #ifdef WIND_INFO_RET
-    DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &wind_east, &wind_north, &estimator_airspeed);
+    DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &wind_east, &wind_north, stateGetAirspeed_f());
 #endif
   } else
 #endif /** WIND_INFO */
