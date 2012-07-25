@@ -156,20 +156,17 @@ endif
 nps.CFLAGS += -DUSE_NAVIGATION
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
-nps.srcs += $(SRC_SUBSYSTEMS)/ins.c
-
-#  vertical filter float version
-nps.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
-nps.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 #
 # INS choice
 #
-# include ins_hff.makefile
+# include subsystems/rotorcraft/ins.makefile
 # or
-# nothing
+# include subsystems/rotorcraft/ins_extended.makefile
 #
-
+# extra:
+# include subsystems/rotorcraft/ins_hff.makefile
+#
 
 nps.srcs += $(SRC_FIRMWARE)/navigation.c
 nps.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

@@ -248,7 +248,7 @@ static void mpu_configure(void)
   // Slave 0 Control:
 
 #ifdef IMU_ASPIRIN_VERSION_2_1
-#pragma note "Reading the MS5611"
+#pragma message "Reading the MS5611"
 /*
 
 

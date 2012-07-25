@@ -11,7 +11,14 @@
 <airframe name="Bixler LisaM 2.0">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="lisa_m_2.0"/>
+    <target name="ap" 			board="lisa_m_2.0">
+      <!-- higher frequency for aspirin imu, ouputs data at 100Hz -->
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
+      <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+    </target>
+
     <target name="sim" 			board="pc"/>
 
     <define name="ALT_KALMAN"/>
