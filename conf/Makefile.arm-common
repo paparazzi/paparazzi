@@ -1,0 +1,82 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+#   Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+#
+# This is the common Makefile for finding the arm compiler and OpenOcd
+#
+
+#
+# try to pick up the compiler from the path
+#
+CC   = $(shell which arm-none-eabi-gcc)
+LD   = $(shell which arm-none-eabi-gcc)
+AR   = $(shell which arm-none-eabi-ar)
+CP   = $(shell which arm-none-eabi-objcopy)
+DMP  = $(shell which arm-none-eabi-objdump)
+NM   = $(shell which arm-none-eabi-nm)
+SIZE = $(shell which arm-none-eabi-size)
+GDB  = $(shell which arm-none-eabi-gdb)
+TOOLCHAIN_DIR=$(shell dirname `which arm-none-eabi-gcc`)
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
+
+#
+# if not found in path, try the paparazzi toolchain in /opt
+#
+ifeq ($(CC),)
+TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+ifneq ($(TOOLCHAIN),)
+TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
+GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
+
+# Define programs and commands.
+GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
+CC   = $(GCC_BIN_PREFIX)-gcc
+LD   = $(GCC_BIN_PREFIX)-gcc
+AR   = $(GCC_BIN_PREFIX)-ar
+CP   = $(GCC_BIN_PREFIX)-objcopy
+DMP  = $(GCC_BIN_PREFIX)-objdump
+NM   = $(GCC_BIN_PREFIX)-nm
+SIZE = $(GCC_BIN_PREFIX)-size
+GDB  = $(GCC_BIN_PREFIX)-gdb
+else
+# toolchain not found...
+endif
+endif
+
+MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+
+# some general commands
+RM = rm
+
+
+
+#
+# Find OpenOCD
+#
+# first try in the path
+OOCD = $(shell which openocd)
+#if OpenOCD could not be found in the path, try the toolchain dir (for backwards compatibility)
+ifeq ($(OOCD),)
+ifneq ($(TOOLCHAIN),)
+OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_DIR)/bin/openocd ; else echo "Warning: OpenOCD not found"; fi)
+endif
+endif
