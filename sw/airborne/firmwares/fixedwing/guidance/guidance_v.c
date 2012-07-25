@@ -26,7 +26,7 @@
  */
 
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/autopilot.h"
@@ -207,7 +207,7 @@ void v_ctl_altitude_loop( void ) {
   }
 #endif
 
-  v_ctl_altitude_error = v_ctl_altitude_setpoint - estimator_z;
+  v_ctl_altitude_error = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
   v_ctl_climb_setpoint = altitude_pgain_boost * v_ctl_altitude_pgain * v_ctl_altitude_error
     + v_ctl_altitude_pre_climb * v_ctl_altitude_pre_climb_correction;
   BoundAbs(v_ctl_climb_setpoint, v_ctl_altitude_max_climb);
@@ -253,7 +253,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   static float last_err;
 
   float f_throttle = 0;
-  float err  = estimator_z_dot - v_ctl_climb_setpoint;
+  float err  = stateGetSpeedEnu_f()->z - v_ctl_climb_setpoint;
   float d_err = err - last_err;
   last_err = err;
   float controlled_throttle = v_ctl_auto_throttle_cruise_throttle
@@ -326,14 +326,14 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   v_ctl_climb_setpoint_last = v_ctl_climb_setpoint;
 
   // Pitch control (input: rate of climb error, output: pitch setpoint)
-  float err  = estimator_z_dot - v_ctl_climb_setpoint;
+  float err  = stateGetSpeedEnu_f()->z - v_ctl_climb_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
   v_ctl_pitch_of_vz = -v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
 
   // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
-  float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - estimator_hspeed_mod);
+  float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - *stateGetHorizontalSpeedNorm_f());
   v_ctl_auto_groundspeed_sum_err += err_groundspeed;
   BoundAbs(v_ctl_auto_groundspeed_sum_err, V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR);
   v_ctl_auto_airspeed_controlled = (err_groundspeed + v_ctl_auto_groundspeed_sum_err * v_ctl_auto_groundspeed_igain) * v_ctl_auto_groundspeed_pgain;
@@ -345,7 +345,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   }
 
   // Airspeed control loop (input: airspeed controlled, output: throttle controlled)
-  float err_airspeed = (v_ctl_auto_airspeed_controlled - estimator_airspeed);
+  float err_airspeed = (v_ctl_auto_airspeed_controlled - *stateGetAirspeed_f());
   v_ctl_auto_airspeed_sum_err += err_airspeed;
   BoundAbs(v_ctl_auto_airspeed_sum_err, V_CTL_AUTO_AIRSPEED_MAX_SUM_ERR);
   controlled_throttle = (err_airspeed + v_ctl_auto_airspeed_sum_err * v_ctl_auto_airspeed_igain) * v_ctl_auto_airspeed_pgain;
@@ -367,7 +367,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
  */
 #ifdef V_CTL_AUTO_PITCH_PGAIN
 inline static void v_ctl_climb_auto_pitch_loop(void) {
-  float err  = estimator_z_dot - v_ctl_climb_setpoint;
+  float err  = stateGetSpeedEnu_f()->z - v_ctl_climb_setpoint;
   v_ctl_throttle_setpoint = nav_throttle_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);

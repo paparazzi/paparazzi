@@ -32,7 +32,6 @@
 
 #include "subsystems/nav.h"
 #include "subsystems/gps.h"
-#include "estimator.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "firmwares/fixedwing/autopilot.h"
@@ -90,7 +89,8 @@ bool_t nav_survey_active;
 int nav_mode;
 
 void nav_init_stage( void ) {
-  last_x = estimator_x; last_y = estimator_y;
+  last_x = stateGetPositionEnu_f()->x;
+  last_y = stateGetPositionEnu_f()->y;
   stage_time = 0;
   nav_circle_radians = 0;
   nav_in_circle = FALSE;
@@ -107,8 +107,9 @@ void nav_init_stage( void ) {
 
 /** Navigates around (x, y). Clockwise iff radius > 0 */
 void nav_circle_XY(float x, float y, float radius) {
+  struct EnuCoor_f* pos = stateGetPositionEnu_f();
   float last_trigo_qdr = nav_circle_trigo_qdr;
-  nav_circle_trigo_qdr = atan2(estimator_y - y, estimator_x - x);
+  nav_circle_trigo_qdr = atan2(pos->y - y, pos->x - x);
 
   if (nav_in_circle) {
     float trigo_diff = nav_circle_trigo_qdr - last_trigo_qdr;
@@ -116,7 +117,7 @@ void nav_circle_XY(float x, float y, float radius) {
     nav_circle_radians += trigo_diff;
   }
 
-  float dist2_center = DistanceSquare(estimator_x, estimator_y, x, y);
+  float dist2_center = DistanceSquare(pos->x, pos->y, x, y);
   float dist_carrot = CARROT*NOMINAL_AIRSPEED;
   float sign_radius = radius > 0 ? 1 : -1;
 
@@ -129,7 +130,7 @@ void nav_circle_XY(float x, float y, float radius) {
     (dist2_center > Square(abs_radius + dist_carrot)
       || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
-    atan(estimator_hspeed_mod*estimator_hspeed_mod / (G*radius));
+    atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (G*radius));
 
   float carrot_angle = dist_carrot / abs_radius;
   carrot_angle = Min(carrot_angle, M_PI/4);
@@ -152,7 +153,7 @@ void nav_circle_XY(float x, float y, float radius) {
   float start_alt = waypoints[_last_wp].a; \
   float diff_alt = waypoints[_wp].a - start_alt; \
   float alt = start_alt + nav_leg_progress * diff_alt; \
-  float pre_climb = estimator_hspeed_mod * diff_alt / nav_leg_length; \
+  float pre_climb = (*stateGetHorizontalSpeedNorm_f()) * diff_alt / nav_leg_length; \
   NavVerticalAltitudeMode(alt, pre_climb); \
 }
 
@@ -203,7 +204,7 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 static void nav_ground_speed_loop( void ) {
   if (MINIMUM_AIRSPEED < nav_ground_speed_setpoint
       && nav_ground_speed_setpoint < MAXIMUM_AIRSPEED) {
-    float err = nav_ground_speed_setpoint - estimator_hspeed_mod;
+    float err = nav_ground_speed_setpoint - (*stateGetHorizontalSpeedNorm_f());
     v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
     Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
   } else {
@@ -273,7 +274,7 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) {
   float y = ac->north - _distance*sa;
   fly_to_xy(x, y);
 #ifdef NAV_FOLLOW_PGAIN
-  float s = (estimator_x-x)*ca+(estimator_y-y)*sa;
+  float s = (stateGetPositionEnu_f()->x - x)*ca + (stateGetPositionEnu_f()->y - y)*sa;
   nav_ground_speed_setpoint = ac->gspeed + NAV_FOLLOW_PGAIN*s;
   nav_ground_speed_loop();
 #endif
@@ -294,12 +295,12 @@ float fp_pitch; /* deg */
  */
 bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time) {
   /** distance to waypoint in x */
-  float pw_x = x - estimator_x;
+  float pw_x = x - stateGetPositionEnu_f()->x;
   /** distance to waypoint in y */
-  float pw_y = y - estimator_y;
+  float pw_y = y - stateGetPositionEnu_f()->y;
 
   dist2_to_wp = pw_x*pw_x + pw_y *pw_y;
-  float min_dist = approaching_time * estimator_hspeed_mod;
+  float min_dist = approaching_time * (*stateGetHorizontalSpeedNorm_f());
   if (dist2_to_wp < min_dist*min_dist)
     return TRUE;
 
@@ -314,19 +315,21 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
  */
 //static inline void fly_to_xy(float x, float y) {
 void fly_to_xy(float x, float y) {
+  struct EnuCoor_f* pos = stateGetPositionEnu_f();
   desired_x = x;
   desired_y = y;
   if (nav_mode == NAV_MODE_COURSE) {
-    h_ctl_course_setpoint = atan2(x - estimator_x, y - estimator_y);
+    h_ctl_course_setpoint = atan2(x - pos->x, y - pos->y);
     if (h_ctl_course_setpoint < 0.)
       h_ctl_course_setpoint += 2 * M_PI;
     lateral_mode = LATERAL_MODE_COURSE;
   } else {
-    float diff = atan2(x - estimator_x, y - estimator_y) - estimator_hspeed_dir;
+    float diff = atan2(x - pos->x, y - pos->y) - (*stateGetHorizontalSpeedDir_f());
     NormRadAngle(diff);
     BoundAbs(diff,M_PI/2.);
     float s = sin(diff);
-    h_ctl_roll_setpoint = atan(2 * estimator_hspeed_mod*estimator_hspeed_mod * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81) );
+    float speed = *stateGetHorizontalSpeedNorm_f();
+    h_ctl_roll_setpoint = atan(2 * speed * speed * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81) );
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
     lateral_mode = LATERAL_MODE_ROLL;
   }
@@ -339,7 +342,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_x = wp_x - last_wp_x;
   float leg_y = wp_y - last_wp_y;
   float leg2 = Max(leg_x * leg_x + leg_y * leg_y, 1.);
-  nav_leg_progress = ((estimator_x - last_wp_x) * leg_x + (estimator_y - last_wp_y) * leg_y) / leg2;
+  nav_leg_progress = ((stateGetPositionEnu_f()->x - last_wp_x) * leg_x + (stateGetPositionEnu_f()->y - last_wp_y) * leg_y) / leg2;
   nav_leg_length = sqrt(leg2);
 
   /** distance of carrot (in meter) */

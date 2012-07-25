@@ -23,7 +23,6 @@
  */
 
 #include "subsystems/navigation/common_nav.h"
-#include "estimator.h"
 #include "generated/flight_plan.h"
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
@@ -47,12 +46,13 @@ float max_dist_from_home = MAX_DIST_FROM_HOME;
  * \a too_far_from_home
  */
 void compute_dist2_to_home(void) {
-  float ph_x = waypoints[WP_HOME].x - estimator_x;
-  float ph_y = waypoints[WP_HOME].y - estimator_y;
+  struct EnuCoor_f* pos = stateGetPositionEnu_f();
+  float ph_x = waypoints[WP_HOME].x - pos->x;
+  float ph_y = waypoints[WP_HOME].y - pos->y;
   dist2_to_home = ph_x*ph_x + ph_y *ph_y;
   too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME);
 #if defined InAirspace
-  too_far_from_home = too_far_from_home || !(InAirspace(estimator_x, estimator_y));
+  too_far_from_home = too_far_from_home || !(InAirspace(pos_x, pos_y));
 #endif
 }
 
@@ -79,6 +79,10 @@ unit_t nav_reset_reference( void ) {
   nav_utm_east0 = gps.utm_pos.east/100;
   nav_utm_north0 = gps.utm_pos.north/100;
 #endif
+
+  // reset state UTM ref
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  stateSetLocalUtmOrigin_f(&utm0);
 
   previous_ground_alt = ground_alt;
   ground_alt = gps.hmsl/1000.;
