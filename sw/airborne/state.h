@@ -223,6 +223,18 @@ struct State {
   bool_t ned_initialized_f;
 
   /**
+   * Definition of the origin of Utm coordinate system.
+   * Defines the origin of the local NorthEastDown coordinate system
+   * in UTM coordinates, used as a reference when ned_origin is not
+   * initialized.
+   * (float version)
+   */
+  struct UtmCoor_f utm_origin_f;
+
+  /// True if utm origin (float) coordinate frame is initialsed
+  bool_t utm_initialized_f;
+
+  /**
    * Position in North East Down coordinates.
    * with respect to ned_origin_i (flat earth)
    * Units: meters
@@ -493,6 +505,23 @@ static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
   ClearBit(state.accel_status, ACCEL_NED_F);
 }
 
+/// Set the local (flat earth) coordinate frame origin from UTM (float).
+static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
+  memcpy(&state.utm_origin_f, utm_def, sizeof(struct UtmCoor_f));
+  state.utm_initialized_f = TRUE;
+
+  /* clear bits for all local frame representations */
+  ClearBit(state.pos_status, POS_NED_I);
+  ClearBit(state.pos_status, POS_ENU_I);
+  ClearBit(state.pos_status, POS_NED_F);
+  ClearBit(state.pos_status, POS_ENU_F);
+  ClearBit(state.speed_status, SPEED_NED_I);
+  ClearBit(state.speed_status, SPEED_ENU_I);
+  ClearBit(state.speed_status, SPEED_NED_F);
+  ClearBit(state.speed_status, SPEED_ENU_F);
+  ClearBit(state.accel_status, ACCEL_NED_I);
+  ClearBit(state.accel_status, ACCEL_NED_F);
+}
 /*******************************************************************************
  *                                                                             *
  * Set and Get functions for the POSITION representations                      *
@@ -516,7 +545,7 @@ extern void stateCalcPositionLla_f(void);
 
 /// Test if local coordinates are valid.
 static inline bool_t stateIsLocalCoordinateValid(void) {
-  return (state.ned_initialized_i && (state.pos_status &= ~(POS_LOCAL_COORD)));
+  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status &= ~(POS_LOCAL_COORD)));
 }
 
 /// Test if global coordinates are valid.

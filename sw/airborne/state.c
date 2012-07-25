@@ -46,6 +46,7 @@ void stateInit(void) {
   state.wind_air_status = 0;
   state.ned_initialized_i = FALSE;
   state.ned_initialized_f = FALSE;
+  state.utm_initialized_f = FALSE;
 }
 
 
@@ -101,6 +102,14 @@ void stateCalcPositionNed_i(void) {
     if (bit_is_set(state.pos_status, POS_NED_F)) {
       NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
     }
+    else if (bit_is_set(state.pos_status, POS_ENU_I)) {
+      INT32_VECT3_NED_OF_ENU(state.ned_pos_i, state.enu_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_ENU_F)) {
+      ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+      SetBit(state.pos_status, POS_ENU_I);
+      INT32_VECT3_NED_OF_ENU(state.ned_pos_i, state.enu_pos_i);
+    }
     else if (bit_is_set(state.pos_status, POS_ECEF_I)) {
       ned_of_ecef_point_i(&state.ned_pos_i, &state.ned_origin_i, &state.ecef_pos_i);
     }
@@ -124,8 +133,49 @@ void stateCalcPositionNed_i(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.pos_status, POS_NED_F)) {
+      NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_ENU_I)) {
+      INT32_VECT3_NED_OF_ENU(state.ned_pos_i, state.enu_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_ENU_F)) {
+      ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+      SetBit(state.pos_status, POS_ENU_I);
+      INT32_VECT3_NED_OF_ENU(state.ned_pos_i, state.enu_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_UTM_F)) {
+      /* transform utm_f -> ned_f -> ned_i, set status bits */
+      NED_OF_UTM_DIFF(state.ned_pos_f, state.utm_pos_f, state.utm_origin_f);
+      SetBit(state.pos_status, POS_NED_F);
+      NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_F)) {
+      /* transform lla_f -> utm_f -> ned_f -> ned_i, set status bits */
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      NED_OF_UTM_DIFF(state.ned_pos_f, state.utm_pos_f, state.utm_origin_f);
+      SetBit(state.pos_status, POS_NED_F);
+      NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_I)) {
+      /* transform lla_i -> lla_f -> utm_f -> ned_f -> ned_i, set status bits */
+      LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
+      SetBit(state.pos_status, POS_LLA_F);
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      NED_OF_UTM_DIFF(state.ned_pos_f, state.utm_pos_f, state.utm_origin_f);
+      SetBit(state.pos_status, POS_NED_F);
+      NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct NedCoor_i _ned_zero = {0};
@@ -175,8 +225,49 @@ void stateCalcPositionEnu_i(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.pos_status, POS_ENU_F)) {
+      ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_NED_I)) {
+      INT32_VECT3_ENU_OF_NED(state.enu_pos_i, state.ned_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_NED_F)) {
+      NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
+      SetBit(state.pos_status, POS_NED_I);
+      INT32_VECT3_ENU_OF_NED(state.enu_pos_i, state.ned_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_UTM_F)) {
+      /* transform utm_f -> enu_f -> enu_i , set status bits */
+      ENU_OF_UTM_DIFF(state.enu_pos_f, state.utm_pos_f, state.utm_origin_f);
+      SetBit(state.pos_status, POS_ENU_F);
+      ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_F)) {
+      /* transform lla_f -> utm_f -> enu_f -> enu_i , set status bits */
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      ENU_OF_UTM_DIFF(state.enu_pos_f, state.utm_pos_f, state.utm_origin_f);
+      SetBit(state.pos_status, POS_ENU_F);
+      ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_I)) {
+      /* transform lla_i -> lla_f -> utm_f -> enu_f -> enu_i , set status bits */
+      LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
+      SetBit(state.pos_status, POS_LLA_F);
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      ENU_OF_UTM_DIFF(state.enu_pos_f, state.utm_pos_f, state.utm_origin_f);
+      SetBit(state.pos_status, POS_ENU_F);
+      ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct EnuCoor_i _enu_zero = {0};
@@ -217,6 +308,12 @@ void stateCalcPositionLla_i(void) {
     SetBit(state.pos_status, POS_ECEF_I);
     lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i); /* uses double version internally */
   }
+  else if (bit_is_set(state.pos_status, POS_UTM_F)) {
+    /* transform utm_f -> lla_f -> lla_i, set status bits */
+    lla_of_utm_f(&state.lla_pos_f, &state.utm_pos_f);
+    SetBit(state.pos_status, POS_LLA_F);
+    LLA_BFP_OF_REAL(state.lla_pos_i, state.lla_pos_f);
+  }
   else {
     /* could not get this representation,  set errno */
     //struct LlaCoor_i _lla_zero = {0};
@@ -235,7 +332,7 @@ void stateCalcPositionUtm_f(void) {
   }
   else if (bit_is_set(state.pos_status, POS_LLA_I)) {
     /* transform lla_i -> lla_f -> utm_f, set status bits */
-    LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_f);
+    LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
     SetBit(state.pos_status, POS_LLA_F);
     utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
   }
@@ -314,8 +411,42 @@ void stateCalcPositionNed_f(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.pos_status, POS_NED_I)) {
+      NED_FLOAT_OF_BFP(state.ned_pos_f, state.ned_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_ENU_I)) {
+      ENU_FLOAT_OF_BFP(state.enu_pos_f, state.enu_pos_i);
+      SetBit(state.pos_status, POS_ENU_F);
+      VECT3_NED_OF_ENU(state.ned_pos_f, state.enu_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_ENU_F)) {
+      VECT3_NED_OF_ENU(state.ned_pos_f, state.enu_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_UTM_F)) {
+      NED_OF_UTM_DIFF(state.ned_pos_f, state.utm_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_F)) {
+      /* transform lla_f -> utm_f -> ned, set status bits */
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      NED_OF_UTM_DIFF(state.ned_pos_f, state.utm_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_I)) {
+      /* transform lla_i -> lla_f -> utm_f -> ned, set status bits */
+      LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
+      SetBit(state.pos_status, POS_LLA_F);
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      NED_OF_UTM_DIFF(state.ned_pos_f, state.utm_pos_f, state.utm_origin_f);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct NedCoor_f _ned_zero = {0.0f};
@@ -365,8 +496,42 @@ void stateCalcPositionEnu_f(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.pos_status, POS_ENU_I)) {
+      ENU_FLOAT_OF_BFP(state.enu_pos_f, state.enu_pos_i);
+    }
+    else if (bit_is_set(state.pos_status, POS_NED_F)) {
+      VECT3_ENU_OF_NED(state.enu_pos_f, state.ned_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_NED_I)) {
+      NED_FLOAT_OF_BFP(state.ned_pos_f, state.ned_pos_i);
+      SetBit(state.pos_status, POS_NED_F);
+      VECT3_ENU_OF_NED(state.enu_pos_f, state.ned_pos_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_UTM_F)) {
+      ENU_OF_UTM_DIFF(state.enu_pos_f, state.utm_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_F)) {
+      /* transform lla_f -> utm_f -> enu, set status bits */
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      ENU_OF_UTM_DIFF(state.enu_pos_f, state.utm_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_LLA_I)) {
+      /* transform lla_i -> lla_f -> utm_f -> enu, set status bits */
+      LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
+      SetBit(state.pos_status, POS_LLA_F);
+      utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
+      SetBit(state.pos_status, POS_UTM_F);
+      ENU_OF_UTM_DIFF(state.enu_pos_f, state.utm_pos_f, state.utm_origin_f);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct EnuCoor_f _enu_zero = {0.0f};
@@ -405,6 +570,9 @@ void stateCalcPositionLla_f(void) {
     ecef_of_ned_point_f(&state.ecef_pos_f, &state.ned_origin_f, &state.ned_pos_f);
     SetBit(state.pos_status, POS_ECEF_F);
     lla_of_ecef_f(&state.lla_pos_f, &state.ecef_pos_f);
+  }
+  else if (bit_is_set(state.pos_status, POS_UTM_F)) {
+    lla_of_utm_f(&state.lla_pos_f, &state.utm_pos_f);
   }
   else {
     /* could not get this representation,  set errno */
