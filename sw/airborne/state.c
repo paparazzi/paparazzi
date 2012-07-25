@@ -606,6 +606,14 @@ void stateCalcSpeedNed_i(void) {
     if (bit_is_set(state.speed_status, SPEED_NED_F)) {
       SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
     }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+      INT32_VECT3_NED_OF_ENU(state.ned_speed_i, state.enu_speed_i);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+      SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
+      SetBit(state.speed_status, SPEED_ENU_I);
+      INT32_VECT3_NED_OF_ENU(state.ned_speed_i, state.enu_speed_i);
+    }
     else if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
       ned_of_ecef_vect_i(&state.ned_speed_i, &state.ned_origin_i, &state.ecef_speed_i);
     }
@@ -618,8 +626,25 @@ void stateCalcSpeedNed_i(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+      SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+      INT32_VECT3_NED_OF_ENU(state.ned_speed_i, state.enu_speed_i);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+      SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
+      SetBit(state.speed_status, SPEED_ENU_I);
+      INT32_VECT3_NED_OF_ENU(state.ned_speed_i, state.enu_speed_i);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct NedCoor_i _ned_zero = {0};
@@ -658,8 +683,25 @@ void stateCalcSpeedEnu_i(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.speed_status, SPEED_NED_I)) {
+      INT32_VECT3_ENU_OF_NED(state.enu_speed_i, state.ned_speed_i);
+    }
+    if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+      ENU_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+      SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
+      SetBit(state.pos_status, SPEED_NED_I);
+      INT32_VECT3_ENU_OF_NED(state.enu_speed_i, state.ned_speed_i);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct EnuCoor_i _enu_zero = {0};
@@ -703,10 +745,19 @@ void stateCalcHorizontalSpeedNorm_i(void) { //TODO
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
     //TODO consider INT32_SPEED_FRAC
-    //INT32_VECT2_NORM(state.h_speed_norm_i, state.ned_speed_i);
+    INT32_VECT2_NORM(state.h_speed_norm_i, state.ned_speed_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+    SetBit(state.speed_status, SPEED_HNORM_F);
+    state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+    //TODO consider INT32_SPEED_FRAC
+    INT32_VECT2_NORM(state.h_speed_norm_i, state.enu_speed_i);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.enu_speed_f);
     SetBit(state.speed_status, SPEED_HNORM_F);
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
@@ -741,7 +792,24 @@ void stateCalcHorizontalSpeedDir_i(void) { //TODO
     state.h_speed_dir_i = SPEED_BFP_OF_REAL(state.h_speed_dir_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
-    //TODO
+    INT32_ATAN2(state.h_speed_dir_i, state.ned_speed_i.y, state.ned_speed_i.x);
+    INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+    INT32_ATAN2(state.h_speed_dir_i, state.enu_speed_i.x, state.enu_speed_i.y);
+    INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+    SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
+    SetBit(state.speed_status, SPEED_NED_I);
+    INT32_ATAN2(state.h_speed_dir_i, state.ned_speed_i.y, state.ned_speed_i.x);
+    INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+    SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
+    SetBit(state.speed_status, SPEED_ENU_I);
+    INT32_ATAN2(state.h_speed_dir_i, state.enu_speed_i.x, state.enu_speed_i.y);
+    INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HDIR_I);
@@ -756,6 +824,14 @@ void stateCalcSpeedNed_f(void) {
     if (bit_is_set(state.speed_status, SPEED_NED_I)) {
       SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
     }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+      VECT3_NED_OF_ENU(state.ned_speed_f, state.enu_speed_f);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+      SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+      SetBit(state.speed_status, SPEED_ENU_F);
+      VECT3_NED_OF_ENU(state.ned_speed_f, state.enu_speed_f);
+    }
     else if (bit_is_set(state.speed_status, SPEED_ECEF_F)) {
       ned_of_ecef_vect_f(&state.ned_speed_f, &state.ned_origin_f, &state.ecef_speed_f);
     }
@@ -768,8 +844,25 @@ void stateCalcSpeedNed_f(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.speed_status, SPEED_NED_I)) {
+      SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+      VECT3_NED_OF_ENU(state.ned_speed_f, state.enu_speed_f);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+      SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+      SetBit(state.speed_status, SPEED_ENU_F);
+      VECT3_NED_OF_ENU(state.ned_speed_f, state.enu_speed_f);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct NedCoor_f _ned_zero = {0.0f};
@@ -788,7 +881,7 @@ void stateCalcSpeedEnu_f(void) {
     if (bit_is_set(state.speed_status, SPEED_NED_F)) {
       VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
     }
-    if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+    else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
       ENU_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
     }
     else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
@@ -808,8 +901,25 @@ void stateCalcSpeedEnu_f(void) {
     else { /* could not get this representation,  set errno */
       errno = 1;
     }
-  } else { /* ned coordinate system not initialized,  set errno */
-    errno = 2;
+  }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+      VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+      ENU_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+    }
+    else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
+      SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
+      SetBit(state.pos_status, SPEED_NED_F);
+      VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
+    }
+    else { /* could not get this representation,  set errno */
+      errno = 2;
+    }
+  }
+  else { /* ned coordinate system not initialized,  set errno */
+    errno = 3;
   }
   if (errno) {
     //struct EnuCoor_f _enu_zero = {0};
@@ -850,8 +960,22 @@ void stateCalcHorizontalSpeedNorm_f(void) { //TODO
 
   if (bit_is_set(state.speed_status, SPEED_HNORM_I)){
     state.h_speed_norm_f = SPEED_FLOAT_OF_BFP(state.h_speed_norm_i);
-  } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+  }
+  else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.enu_speed_f);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
+    SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
+    SetBit(state.speed_status, SPEED_NED_F);
+    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+    SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+    SetBit(state.speed_status, SPEED_ENU_F);
+    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.enu_speed_f);
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HNORM_F);
@@ -863,8 +987,22 @@ void stateCalcHorizontalSpeedDir_f(void) { //TODO
 
   if (bit_is_set(state.speed_status, SPEED_HDIR_I)){
     state.h_speed_dir_f = SPEED_FLOAT_OF_BFP(state.h_speed_dir_i);
-  } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
-    //foo
+  }
+  else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+    state.h_speed_dir_f = atan2f(state.ned_speed_f.y, state.ned_speed_f.x);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
+    state.h_speed_dir_f = atan2f(state.enu_speed_f.x, state.enu_speed_f.y);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
+    SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
+    SetBit(state.speed_status, SPEED_NED_F);
+    state.h_speed_dir_f = atan2f(state.ned_speed_f.y, state.ned_speed_f.x);
+  }
+  else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
+    SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+    SetBit(state.speed_status, SPEED_ENU_F);
+    state.h_speed_dir_f = atan2f(state.enu_speed_f.x, state.enu_speed_f.y);
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HDIR_F);
