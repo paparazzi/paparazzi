@@ -173,9 +173,11 @@ let scale_of_units = fun ?auto from_unit to_unit ->
           (* will raise Xml.No_attribute if not a valid attribute *)
           let f = Xml.attrib u "from"
           and t = Xml.attrib u "to"
-          and a = match auto with
-            | Some a -> a
-            | None -> String.lowercase (ExtXml.attrib_or_default u "auto" "") in
+          and a = try Some (Xml.attrib u "auto") with _ -> None in
+          let a = match auto, a with
+            | Some _, None | None, None -> "" (* No auto conversion *)
+            | Some t, Some _ | None, Some t -> String.lowercase t (* param auto is used before attribute *)
+          in
           if (f = from_unit || a = "display") && (t = to_unit || a = "code") then true else false
         ) (Xml.children units_xml) in
       (* return coef, raise Failure if coef is not a numerical value *)
