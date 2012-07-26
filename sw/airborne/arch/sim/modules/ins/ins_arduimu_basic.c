@@ -4,7 +4,7 @@
 
 
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 
 // Arduimu empty implementation
 #include "modules/ins/ins_arduimu_basic.h"
