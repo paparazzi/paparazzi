@@ -45,7 +45,7 @@
 
 
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/navigation/gls.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
@@ -137,11 +137,11 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
   float final_y = WaypointY(_td) - WaypointY(_tod);
   float final2 = Max(final_x * final_x + final_y * final_y, 1.);
 
-  float nav_final_progress = ((estimator_x - WaypointX(_tod)) * final_x + (estimator_y - WaypointY(_tod)) * final_y) / final2;
+  float nav_final_progress = ((stateGetPositionEnu_f()->x - WaypointX(_tod)) * final_x + (stateGetPositionEnu_f()->y - WaypointY(_tod)) * final_y) / final2;
   Bound(nav_final_progress,-1,1);
   float nav_final_length = sqrt(final2);
 
-  float pre_climb = -(WaypointAlt(_tod) - WaypointAlt(_td)) / (nav_final_length / estimator_hspeed_mod);
+  float pre_climb = -(WaypointAlt(_tod) - WaypointAlt(_td)) / (nav_final_length / (*stateGetHorizontalSpeedNorm_f()));
   Bound(pre_climb, -5, 0.);
 
   float start_alt = WaypointAlt(_tod);

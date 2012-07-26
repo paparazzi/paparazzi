@@ -4,7 +4,7 @@
 #include <math.h>
 #include "generated/airframe.h"
 #include "subsystems/navigation/snav.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "subsystems/gps.h"
 
@@ -25,15 +25,15 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
   wp_a = a;
   radius = fabs(radius);
 
-  float da_x = WaypointX(wp_a) - estimator_x;
-  float da_y = WaypointY(wp_a) - estimator_y;
+  float da_x = WaypointX(wp_a) - stateGetPositionEnu_f()->x;
+  float da_y = WaypointY(wp_a) - stateGetPositionEnu_f()->y;
 
   /* D_CD orthogonal to current course, CD on the side of A */
-  float u_x = cos(M_PI_2 - estimator_hspeed_dir);
-  float u_y = sin(M_PI_2 - estimator_hspeed_dir);
+  float u_x = cos(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
+  float u_y = sin(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
   d_radius = - Sign(u_x*da_y - u_y*da_x) * radius;
-  wp_cd.x = estimator_x + d_radius * u_y;
-  wp_cd.y = estimator_y - d_radius * u_x;
+  wp_cd.x = stateGetPositionEnu_f()->x + d_radius * u_y;
+  wp_cd.y = stateGetPositionEnu_f()->y - d_radius * u_x;
   wp_cd.a = WaypointAlt(wp_a);
 
   /* A_CA orthogonal to desired course, CA on the side of D */
@@ -148,12 +148,12 @@ static void compute_ground_speed(float airspeed,
 bool_t snav_on_time(float nominal_radius) {
   nominal_radius = fabs(nominal_radius);
 
-  float current_qdr = M_PI_2 - atan2(estimator_y-wp_ca.y, estimator_x-wp_ca.x);
+  float current_qdr = M_PI_2 - atan2(stateGetPositionEnu_f()->y-wp_ca.y, stateGetPositionEnu_f()->x-wp_ca.x);
   float remaining_angle = Norm2Pi(Sign(a_radius)*(qdr_a - current_qdr));
   float remaining_time = snav_desired_tow - gps.tow / 1000.;
 
   /* Use the nominal airspeed if the estimated one is not realistic */
-  float airspeed = estimator_airspeed;
+  float airspeed = *stateGetAirspeed_f();
   if (airspeed < NOMINAL_AIRSPEED / 2. ||
       airspeed > 2.* NOMINAL_AIRSPEED)
     airspeed = NOMINAL_AIRSPEED;

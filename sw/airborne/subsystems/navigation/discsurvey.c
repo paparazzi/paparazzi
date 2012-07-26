@@ -1,7 +1,7 @@
 #include "subsystems/navigation/discsurvey.h"
 
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 #include "std.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
@@ -18,8 +18,8 @@ bool_t disc_survey_init( float grid ) {
   nav_survey_shift = grid;
   status = DOWNWIND;
   sign = 1;
-  c1.x = estimator_x;
-  c1.y = estimator_y;
+  c1.x = stateGetPositionEnu_f()->x;
+  c1.y = stateGetPositionEnu_f()->y;
   return FALSE;
 }
 
@@ -36,10 +36,10 @@ bool_t disc_survey( uint8_t center, float radius) {
   case UTURN:
     nav_circle_XY(c.x, c.y, grid*sign);
     if (NavQdrCloseTo(DegOfRad(M_PI_2-wind_dir))) {
-      c1.x = estimator_x;
-      c1.y = estimator_y;
+      c1.x = stateGetPositionEnu_f()->x;
+      c1.y = stateGetPositionEnu_f()->y;
 
-      float d = ScalarProduct(upwind_x, upwind_y, estimator_x-WaypointX(center), estimator_y-WaypointY(center));
+      float d = ScalarProduct(upwind_x, upwind_y, stateGetPositionEnu_f()->x-WaypointX(center), stateGetPositionEnu_f()->y-WaypointY(center));
       if (d > radius) {
 	status = DOWNWIND;
       } else {

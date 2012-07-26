@@ -22,7 +22,7 @@
  *
  */
 
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "subsystems/navigation/bomb.h"
 #include "generated/flight_plan.h"
@@ -93,12 +93,12 @@ static void integrate( uint8_t wp_target ) {
 /** Update the RELEASE location with the actual ground speed and altitude */
 unit_t bomb_update_release( uint8_t wp_target ) {
 
-  bomb_z = estimator_z - waypoints[wp_target].a;
+  bomb_z = stateGetPositionEnu_f()->z - waypoints[wp_target].a;
   bomb_x = 0.;
   bomb_y = 0.;
 
-  bomb_vx = estimator_hspeed_mod * sin(estimator_hspeed_dir);
-  bomb_vy = estimator_hspeed_mod * cos(estimator_hspeed_dir);
+  bomb_vx = (*stateGetHorizontalSpeedNorm_f()) * sin((*stateGetHorizontalSpeedDir_f()));
+  bomb_vy = (*stateGetHorizontalSpeedNorm_f()) * cos((*stateGetHorizontalSpeedDir_f()));
   bomb_vz = 0.;
 
   integrate(wp_target);
