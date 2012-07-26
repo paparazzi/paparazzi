@@ -38,6 +38,7 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 
 #ifdef SITL

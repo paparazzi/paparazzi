@@ -36,7 +36,7 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
-#include "estimator.h"
+#include "state.h"
 
 
 void atmega_i2c_cam_ctrl_init(void)

@@ -26,6 +26,7 @@
 #include "sensors/baro_amsys.h"
 #include "mcu_periph/i2c.h"
 #include "estimator.h"
+#include "state.h"
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
 

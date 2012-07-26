@@ -29,6 +29,7 @@
 #include BOARD_CONFIG
 #include "generated/airframe.h"
 #include "estimator.h"
+#include "state.h"
 #include "std.h"
 //Messages
 #include "mcu_periph/uart.h"

@@ -36,6 +36,7 @@
 #endif
 #include "subsystems/nav.h"
 #include "estimator.h"
+#include "state.h"
 
 bool_t baro_MS5534A_do_reset;
 uint32_t baro_MS5534A_pressure;

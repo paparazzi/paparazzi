@@ -23,7 +23,7 @@
 #include "subsystems/navigation/common_nav.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/navigation/traffic_info.h"
 #include "airborne_ant_track.h"
 
@@ -85,9 +85,9 @@ float airborne_ant_pan_servo = 0;
 
   static MATRIX smRotation;
 
-  svPlanePosition.fx = estimator_y;
-  svPlanePosition.fy = estimator_x;
-  svPlanePosition.fz = estimator_z;
+  svPlanePosition.fx = stateGetPositionEnu_f()->y;
+  svPlanePosition.fy = stateGetPositionEnu_f()->x;
+  svPlanePosition.fz = stateGetPositionEnu_f()->z;
 
   Home_Position.fx = WaypointY(WP_HOME);
   Home_Position.fy = WaypointX(WP_HOME);
@@ -97,8 +97,8 @@ float airborne_ant_pan_servo = 0;
   vSubtractVectors(&Home_PositionForPlane, Home_Position, svPlanePosition);
 
   /* yaw */
-  smRotation.fx1 = (float)(cos(estimator_hspeed_dir));
-  smRotation.fx2 = (float)(sin(estimator_hspeed_dir));
+  smRotation.fx1 = (float)(cos((*stateGetHorizontalSpeedDir_f())));
+  smRotation.fx2 = (float)(sin((*stateGetHorizontalSpeedDir_f())));
   smRotation.fx3 = 0.;
   smRotation.fy1 = -smRotation.fx2;
   smRotation.fy2 = smRotation.fx1;

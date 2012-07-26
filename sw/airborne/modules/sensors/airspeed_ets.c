@@ -35,7 +35,7 @@
  *
  */
 #include "sensors/airspeed_ets.h"
-#include "estimator.h"
+#include "state.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
@@ -109,7 +109,7 @@ void airspeed_ets_read_periodic( void ) {
     I2CReceive(AIRSPEED_ETS_I2C_DEV, airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
 #else // SITL
   extern float sim_air_speed;
-  EstimatorSetAirspeed(sim_air_speed);
+  stateSetAirspeed_f(&sim_air_speed);
 #endif //SITL
 }
 
@@ -167,7 +167,7 @@ void airspeed_ets_read_event( void ) {
       airspeed_ets += airspeed_ets_buffer[n];
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
 #if USE_AIRSPEED
-    EstimatorSetAirspeed(airspeed_ets);
+    stateSetAirspeed_f(&airspeed_ets);
 #endif
 #ifdef SENSOR_SYNC_SEND
     DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);

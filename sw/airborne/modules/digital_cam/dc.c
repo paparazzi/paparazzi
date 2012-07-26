@@ -55,13 +55,13 @@ uint16_t dc_buffer = 0;
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/gps.h"
 
 void dc_send_shot_position(void)
 {
-  int16_t phi = DegOfRad(estimator_phi*10.0f);
-  int16_t theta = DegOfRad(estimator_theta*10.0f);
+  int16_t phi = DegOfRad(stateGetNedToBodyEulers_f()->phi*10.0f);
+  int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta*10.0f);
   float gps_z = ((float)gps.hmsl) / 1000.0f;
   int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
   int16_t photo_nr = -1;
@@ -88,11 +88,11 @@ void dc_send_shot_position(void)
 
 uint8_t dc_info(void) {
 #ifdef DOWNLINK_SEND_DC_INFO
-  float course = DegOfRad(estimator_psi);
+  float course = DegOfRad(stateGetNedToBodyEulers_f()->psi);
   DOWNLINK_SEND_DC_INFO(DefaultChannel, DefaultDevice,
                         &dc_autoshoot,
-                        &estimator_x,
-                        &estimator_y,
+                        &stateGetPositionEnu_f()->x,
+                        &stateGetPositionEnu_f()->y,
                         &course,
                         &dc_buffer,
                         &dc_gps_dist,
@@ -115,7 +115,7 @@ uint8_t dc_circle(float interval, float start) {
   dc_circle_interval = fmodf(fmaxf(interval, 1.), 360.);
 
   if(start == DC_IGNORE) {
-    start = DegOfRad(estimator_psi);
+    start = DegOfRad(stateGetNedToBodyEulers_f()->psi);
   }
 
   dc_circle_start_angle = fmodf(start, 360.);
@@ -136,8 +136,8 @@ uint8_t dc_survey(float interval, float x, float y) {
   dc_gps_dist = interval;
 
   if (x == DC_IGNORE && y == DC_IGNORE) {
-    dc_gps_x = estimator_x;
-    dc_gps_y = estimator_y;
+    dc_gps_x = stateGetPositionEnu_f()->x;
+    dc_gps_y = stateGetPositionEnu_f()->y;
   } else if (y == DC_IGNORE) {
     dc_gps_x = waypoints[(uint8_t)x].x;
     dc_gps_y = waypoints[(uint8_t)x].y;

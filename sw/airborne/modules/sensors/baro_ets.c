@@ -38,6 +38,7 @@
 #include "sensors/baro_ets.h"
 #include "mcu_periph/i2c.h"
 #include "estimator.h"
+#include "state.h"
 #include <math.h>
 
 #include "subsystems/nav.h"
