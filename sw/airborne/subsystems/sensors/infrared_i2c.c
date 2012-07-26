@@ -21,7 +21,6 @@
  */
 
 #include "sensors/infrared_i2c.h"
-#include "estimator.h"
 
 // IR I2C definitions
 #define IR_HOR_I2C_ADDR (0x6C << 1)

@@ -29,6 +29,8 @@
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+#include "state.h"
+
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
@@ -48,7 +50,6 @@
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // FIXME this is still needed for fixedwing integration
-#include "estimator.h"
 // remotely settable
 #ifndef INS_ROLL_NEUTRAL_DEFAULT
 #define INS_ROLL_NEUTRAL_DEFAULT 0
@@ -88,7 +89,7 @@ float MAG_Heading_Y = 0;
 #endif
 
 static inline void compute_ahrs_representations(void);
-static inline void compute_body_orientation_and_rates(void);
+static inline void set_body_orientation_and_rates(void);
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat);
 
 void Normalize(void);
@@ -169,8 +170,8 @@ void ahrs_align(void)
   /* set filter dcm */
   set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
 
-  /* Compute initial body orientation */
-  compute_body_orientation_and_rates();
+  /* Set initial body orientation */
+  set_body_orientation_and_rates();
 
   /* use averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -400,14 +401,15 @@ void Drift_correction(void)
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
-  if (estimator_hspeed_mod < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
+  float speed = *stateGetHorizontalSpeedNorm_f();
+  if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = TRUE;
   } else {
     high_accel_flag = FALSE;
-    if (estimator_hspeed_mod > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
+    if (speed > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
       high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
     }
-    if (estimator_hspeed_mod < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
+    if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
       high_accel_done = FALSE; // Activate high accel after landing
     }
   }
@@ -515,14 +517,19 @@ void Matrix_update(void)
 /*
  * Compute body orientation and rates from imu orientation and rates
  */
-static inline void compute_body_orientation_and_rates(void) {
+static inline void set_body_orientation_and_rates(void) {
 
-  FLOAT_QUAT_COMP_INV(ahrs_float.ltp_to_body_quat,
-                      ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
+  FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);
+  stateSetBodyRates_f(&ahrs_float.body_rate);
+
   FLOAT_RMAT_COMP_INV(ahrs_float.ltp_to_body_rmat,
                       ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
   FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
-  FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+  ahrs_float.ltp_to_body_euler.phi -= ins_roll_neutral;
+  ahrs_float.ltp_to_body_euler.theta -= ins_pitch_neutral;
+#endif
+  stateSetNedToBodyEulers_f(&ahrs_float.ltp_to_body_euler);
 
 }
 
@@ -538,11 +545,7 @@ static inline void compute_ahrs_representations(void) {
   ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
 
-  /* set quaternion and rotation matrix representations as well */
-  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
-  FLOAT_RMAT_OF_EULERS(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_euler);
-
-  compute_body_orientation_and_rates();
+  set_body_orientation_and_rates();
 
   /*
     RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,
@@ -565,12 +568,5 @@ static inline void compute_ahrs_representations(void) {
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 void ahrs_update_fw_estimator( void ) {
   // export results to estimator
-  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
-  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
-  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
-
-  estimator_p = ahrs_float.body_rate.p;
-  estimator_q = ahrs_float.body_rate.q;
-  estimator_r = ahrs_float.body_rate.r;
 }
 #endif //AHRS_UPDATE_FW_ESTIMATOR

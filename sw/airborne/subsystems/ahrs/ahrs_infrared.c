@@ -25,7 +25,8 @@
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
 
-#include "estimator.h"
+#include "state.h"
+#include "estimator.h" // for wind FIXME use state interface
 
 
 
@@ -114,13 +115,7 @@ void ahrs_update_infrared(void) {
 void ahrs_update_fw_estimator(void)
 {
   // export results to estimator
-
-  estimator_phi   = ahrs_float.ltp_to_body_euler.phi;
-  estimator_theta = ahrs_float.ltp_to_body_euler.theta;
-  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
-
-  estimator_p = ahrs_float.body_rate.p;
-  estimator_q = ahrs_float.body_rate.q;
-  estimator_r = ahrs_float.body_rate.r;
+  stateSetNedToBodyEulers_f(&ahrs_float.ltp_to_body_euler);
+  stateSetBodyRates_f(&ahrs_float.body_rate);
 
 }
