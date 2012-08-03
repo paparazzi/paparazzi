@@ -9,8 +9,6 @@
     <configure name="PUSH" value"LED_ON" />
     <configure name="RELEASE" value"LED_OFF" />
 
-    <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
-
     <configure name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
     <configure name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
   </section>
@@ -24,6 +22,7 @@
 <module name="digital_cam">
   <doc>
     <description>Digital camera control (trigger using led)</description>
+    <define name="SENSOR_SYNC_SEND" value="1" />
   </doc>
 
   <header>

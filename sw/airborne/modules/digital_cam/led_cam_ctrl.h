@@ -77,38 +77,6 @@ static inline void led_cam_ctrl_init(void)
 #error DC: Please specify at least a SHUTTER LED
 #endif
 
-/* Command The Camera */
-static inline void dc_send_command(uint8_t cmd)
-{
-  dc_timer = DC_SHUTTER_DELAY;
-  switch (cmd)
-  {
-    case DC_SHOOT:
-      DC_PUSH(DC_SHUTTER_LED);
-#ifndef DC_SHOOT_ON_BUTTON_RELEASE
-      dc_send_shot_position();
-#endif
-      break;
-#ifdef DC_ZOOM_IN_LED
-    case DC_TALLER:
-      DC_PUSH(DC_ZOOM_IN_LED);
-      break;
-#endif
-#ifdef DC_ZOOM_OUT_LED
-    case DC_WIDER:
-      DC_PUSH(DC_ZOOM_OUT_LED);
-      break;
-#endif
-#ifdef DC_POWER_LED
-    case DC_ON:
-      DC_PUSH(DC_POWER_LED);
-      break;
-#endif
-    default:
-      break;
-  }
-}
-
 
 /* 4Hz Periodic */
 static inline void led_cam_ctrl_periodic( void )
