@@ -41,6 +41,11 @@
 #include "subsystems/datalink/downlink.h"
 #include "estimator.h"
 
+// In I2C mode we can not inline this function:
+void dc_send_command(uint8_t cmd)
+{
+  atmega_i2c_cam_ctrl_send(cmd);
+}
 
 static struct i2c_transaction atmega_i2c_cam_ctrl_trans;
 
