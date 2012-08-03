@@ -22,6 +22,7 @@
 <module name="digital_cam">
   <doc>
     <description>Digital camera control (trigger using led)</description>
+    <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
     <define name="SENSOR_SYNC_SEND" value="1" />
   </doc>
 

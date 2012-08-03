@@ -2,7 +2,9 @@
 
 <module name="atmega_i2c_cam_ctrl" dir="digital_cam">
   <doc>
-    <description></description>
+    <description>Trigger Digital Camera Using I2C connected remote microcontroller</description>
+    <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
+    <define name="SENSOR_SYNC_SEND" value="1" />
   </doc>
 
   <header>
