@@ -30,7 +30,7 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
-all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out find_free_msg_id.out gen_srtm.out
+all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out find_free_msg_id.out gen_srtm.out mergelogs
 
 FP_CMO = fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
@@ -43,6 +43,9 @@ fp_proc.cmo : fp_proc.cmi
 gen_flight_plan.cmo : fp_proc.cmi
 
 gen_common.cmo : gen_common.cmi
+
+mergelogs: mergelogs.c
+	gcc mergelogs.c -o mergelogs
 
 %.out : %.ml gen_common.ml Makefile
 	@echo OC $<
@@ -72,4 +75,4 @@ gen_common.cmo : gen_common.cmi
 	$(Q)$(OCAMLYACC) $<
 
 clean:
-	rm -f *.cm* *.out *~ fp_parser.ml fp_parser.mli
+	rm -f *.cm* *.out *~ fp_parser.ml fp_parser.mli mergelogs
