@@ -40,6 +40,10 @@
 #define PHOTOGRAMMETRY_SIDELAP 50
 #endif
 
+#ifndef PHOTOGRAMMETRY_RESOLUTION
+#define PHOTOGRAMMETRY_RESOLUTION 50
+#endif
+
 
 // Flightplan Paramters
 int photogrammetry_sweep_angle = 0; // in rad
@@ -71,10 +75,10 @@ void init_photogrammetry_calculator(void)
   photogrammetry_height_max  = PHOTOGRAMMETRY_HEIGHT_MAX;
   photogrammetry_radius_min  = PHOTOGRAMMETRY_RADIUS_MIN;
 
-  photogrammetry_calculator_update();
+  photogrammetry_calculator_update_camera2flightplan();
 }
 
-void photogrammetry_calculator_update(void)
+void photogrammetry_calculator_update_camera2flightplan(void)
 {
 
   // Photogrammetry Goals
@@ -96,6 +100,21 @@ void photogrammetry_calculator_update(void)
 
   photogrammetry_sidestep = viewing_ratio_width * photogrammetry_height * (1.0f - photogrammetry_sidelap_f);
   photogrammetry_triggerstep = viewing_ratio_height * photogrammetry_height * (1.0f - photogrammetry_overlap_f);
+}
+
+void photogrammetry_calculator_update_flightplan2camera(void)
+{
+  // Linear Projection Camera Model
+  float viewing_ratio_height = ((float) PHOTOGRAMMETRY_SENSOR_HEIGHT) / ((float)PHOTOGRAMMETRY_FOCAL_LENGTH);
+  float viewing_ratio_width = ((float) PHOTOGRAMMETRY_SENSOR_WIDTH) / ((float)PHOTOGRAMMETRY_FOCAL_LENGTH);
+  float pixel_projection_width = viewing_ratio_width / ((float)PHOTOGRAMMETRY_PIXELS_WIDTH);
+
+  // Resolution <-> Height
+  photogrammetry_resolution = photogrammetry_height * 1000.0f * pixel_projection_width;
+
+  // Overlap <-> track width
+  photogrammetry_sidelap = 100.0f - photogrammetry_sidestep / viewing_ratio_width / photogrammetry_height * 100.0f;
+  photogrammetry_overlap = 100.0f - photogrammetry_triggerstep / viewing_ratio_height / photogrammetry_height * 100.0f;
 }
 
 
