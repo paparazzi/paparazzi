@@ -114,9 +114,9 @@ static inline void dc_send_command(uint8_t cmd)
 static inline void led_cam_ctrl_periodic( void )
 {
 #ifdef DC_SHOOT_ON_BUTTON_RELEASE
- if (dc_timer==1) {                  //rht
-   dc_send_shot_position();          //rht
- }                                   //rht
+ if (dc_timer==1) {
+   dc_send_shot_position();
+ }
 #endif
 
   if (dc_timer) {
