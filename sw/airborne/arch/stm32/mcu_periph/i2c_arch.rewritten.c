@@ -457,7 +457,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     // We got all the results (stop condition might still be in progress but this is the last interrupt)
     trans->status = I2CTransSuccess;
 
-    // Document the current Status: 
+    // Document the current Status:
     // -the stop was actually already requested in the previous step
     periph->status = I2CStopRequested;
 
@@ -723,7 +723,7 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
 
   // Clear Event interrupt conditions:
   // --------------------------------
-  
+
   // Start Condition Was Generated
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
   {
@@ -779,10 +779,10 @@ static inline void i2c_irq(struct i2c_periph *periph)
            a new start in one go.
 
           -thanks to / because of this buffering and event sheduling there is not 1 interrupt per start / byte / stop
-           This also means you must think more in advance and a transaction could be popped from the transaction stack even before it's 
+           This also means you must think more in advance and a transaction could be popped from the transaction stack even before it's
            stop condition is actually generated.
 
-	// Beware: the order in which Status (and other register) is read determines how flags are cleared. 
+	// Beware: the order in which Status (and other register) is read determines how flags are cleared.
            You should NOT simply read SR1 & SR2 every time
 
 	If IT_EV_FEN AND IT_EV_BUF
@@ -1268,7 +1268,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
       risetime = 31;
 
     // we do not expect an interrupt as the interface should have been idle, but just in case...
-    __disable_irq(); // this code is in user space: 
+    __disable_irq(); // this code is in user space:
 
     // CCR can only be written when PE is disabled
      // p731 note 5
@@ -1288,7 +1288,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
     __enable_irq();
 
 #ifdef I2C_DEBUG_LED
-        __disable_irq(); // this code is in user space: 
+        __disable_irq(); // this code is in user space:
 
         LED2_ON();
         LED1_ON();
@@ -1306,7 +1306,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
 }
 
 
-// TODO: TODO: TODO: 
+// TODO: TODO: TODO:
 // Watchdog timer
 void i2c_event(void)
 {
