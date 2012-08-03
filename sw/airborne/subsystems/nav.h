@@ -34,7 +34,9 @@
 
 #include "std.h"
 #include "paparazzi.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
+#ifdef CTRL_TYPE_H
+#include CTRL_TYPE_H
+#endif
 #include "subsystems/navigation/nav_survey_rectangle.h"
 #include "subsystems/navigation/common_flight_plan.h"
 #include "subsystems/navigation/common_nav.h"
