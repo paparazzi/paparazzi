@@ -99,23 +99,41 @@ extern int photogrammetry_overlap;
 extern int photogrammetry_resolution;
 
 void init_photogrammetry_calculator(void);
-void photogrammetry_calculator_update(void);
+void photogrammetry_calculator_update_camera2flightplan(void);
+void photogrammetry_calculator_update_flightplan2camera(void);
 
-// Update Parameters on Settings Change
+// Update Flightplan on Camera Change
 #define photogrammetry_calculator_UpdateSideLap(X)	{ 	\
   photogrammetry_sidelap = X;					\
-  photogrammetry_calculator_update();				\
+  photogrammetry_calculator_update_camera2flightplan();		\
 }
 
 #define photogrammetry_calculator_UpdateOverLap(X)	{ 	\
   photogrammetry_overlap = X;					\
-  photogrammetry_calculator_update();				\
+  photogrammetry_calculator_update_camera2flightplan();		\
 }
 
 #define photogrammetry_calculator_UpdateResolution(X)	{ 	\
   photogrammetry_resolution = X;				\
-  photogrammetry_calculator_update();				\
+  photogrammetry_calculator_update_camera2flightplan();		\
 }
+
+// Update Camera on Flightplan Change
+#define photogrammetry_calculator_UpdateHeight(X)	{ 	\
+  photogrammetry_height = X;					\
+  photogrammetry_calculator_update_flightplan2camera();		\
+}
+
+#define photogrammetry_calculator_UpdateSideStep(X)	{ 	\
+  photogrammetry_sidestep = X;					\
+  photogrammetry_calculator_update_flightplan2camera();		\
+}
+
+#define photogrammetry_calculator_UpdateTriggerStep(X)	{ 	\
+  photogrammetry_triggerstep = X;				\
+  photogrammetry_calculator_update_flightplan2camera();		\
+}
+
 
 // Flightplan Routine Wrappers
 #define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {  			\
