@@ -1,0 +1,20 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- A conf to use to tune a new A/C -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="performance">
+
+      <dl_settings NAME="estimates">
+        <dl_setting MAX="1" MIN="-1" STEP="1" VAR="ac_char_climb_pitch" shortname="climb_pitch"  module="guidance/energy_ctrl"/>
+        <dl_setting MAX="1" MIN="-1" STEP="1" VAR="ac_char_climb_max" shortname="climb_max" />
+        <dl_setting MAX="1" MIN="-1" STEP="1" VAR="ac_char_descend_pitch" shortname="descend_pitch" />
+        <dl_setting MAX="1" MIN="-1" STEP="1" VAR="ac_char_descend_max" shortname="descend_max" />
+        <dl_setting MAX="1" MIN="-1" STEP="1" VAR="ac_char_cruise_throttle" shortname="cruise_thr" />
+        <dl_setting MAX="1" MIN="-1" STEP="1" VAR="ac_char_cruise_pitch" shortname="cruise_pitch" />
+      </dl_settings>
+
+    </dl_settings>
+  </dl_settings>
+</settings>
