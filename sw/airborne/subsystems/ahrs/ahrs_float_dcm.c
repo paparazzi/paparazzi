@@ -212,9 +212,24 @@ void ahrs_propagate(void)
   compute_ahrs_representations();
 }
 
+float ahrs_float_dcm_gps_speed = 0;
+float ahrs_float_dcm_gps_acceleration = 0;
+float ahrs_float_dcm_gps_age = 10;
+
+void ahrs_update_gps(void)
+{
+  static float last_gps_speed_3d = 0;
+
+  ahrs_float_dcm_gps_speed = gps.speed_3d/100.;
+  ahrs_float_dcm_gps_acceleration += (   ((ahrs_float_dcm_gps_speed - last_gps_speed_3d)*4.0f)  - ahrs_float_dcm_gps_acceleration) / 5.0f;
+  last_gps_speed_3d = ahrs_float_dcm_gps_speed;
+
+  ahrs_float_dcm_gps_age = 0;
+}
+
+
 void ahrs_update_accel(void)
 {
-
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
   // DCM filter uses g-force as positive
@@ -225,9 +240,20 @@ void ahrs_update_accel(void)
 
 
 #if USE_GPS
-  if (gps.fix == GPS_FIX_3D) {    //Remove centrifugal acceleration.
-    accel_float.y += gps.speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    accel_float.z -= gps.speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+  ahrs_float_dcm_gps_age ++;
+  if ((gps.fix == GPS_FIX_3D) && (ahrs_float_dcm_gps_age < 50)) {    //Remove centrifugal acceleration and longitudinal acceleration
+#ifdef USE_AHRS_GPS_ACCELERATIONS
+#pragma message "AHRS_FLOAT_DCM uses GPS acceleration."
+    accel_float.x += ahrs_float_dcm_gps_acceleration;      // Longitudinal acceleration
+#endif
+    accel_float.y += ahrs_float_dcm_gps_speed * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= ahrs_float_dcm_gps_speed * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+  }
+  else
+  {
+    ahrs_float_dcm_gps_speed = 0;
+    ahrs_float_dcm_gps_acceleration = 0;
+    ahrs_float_dcm_gps_age = 100;
   }
 #endif
 
@@ -286,10 +312,6 @@ void ahrs_update_mag(void)
   // Magnetic Heading
   // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
 #endif
-}
-
-void ahrs_update_gps(void) {
-
 }
 
 void Normalize(void)
