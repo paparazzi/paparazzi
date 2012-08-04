@@ -131,6 +131,8 @@ void event_task_fbw( void) {
   if (inter_mcu_received_ap) {
     inter_mcu_received_ap = FALSE;
     inter_mcu_event_task();
+    command_roll_trim = ap_state->command_roll_trim;
+    command_pitch_trim = ap_state->command_pitch_trim;
     if (ap_ok && fbw_mode == FBW_MODE_FAILSAFE) {
       fbw_mode = FBW_MODE_AUTO;
     }
