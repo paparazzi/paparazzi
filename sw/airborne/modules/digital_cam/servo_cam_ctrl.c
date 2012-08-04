@@ -33,7 +33,9 @@ void dc_send_command(uint8_t cmd)
   {
     case DC_SHOOT:
       DC_PUSH(DC_SHUTTER_SERVO);
+#ifndef DC_SHOOT_ON_BUTTON_RELEASE
       dc_send_shot_position();
+#endif
       break;
 #ifdef DC_ZOOM_IN_SERVO
     case DC_TALLER:
