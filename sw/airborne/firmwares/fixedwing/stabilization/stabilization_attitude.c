@@ -183,7 +183,7 @@ void h_ctl_init( void ) {
   h_ctl_pitch_igain = 0.0f;
 #endif
 #ifdef H_CTL_ROLL_ATTITUDE_IGAIN
-  h_ctl_roll_attitide_igain = H_CTL_ROLL_ATTITUDE_IGAIN;
+  h_ctl_roll_attitude_igain = H_CTL_ROLL_ATTITUDE_IGAIN;
 #else
   h_ctl_roll_attitude_igain = 0.0f;
 #endif
