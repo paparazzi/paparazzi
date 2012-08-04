@@ -98,7 +98,7 @@ static inline void dc_send_command(uint8_t cmd)
       break;
 #endif
 #ifdef DC_POWER_LED
-    case DC_POWER:
+    case DC_ON:
       DC_PUSH(DC_POWER_LED);
       break;
 #endif
