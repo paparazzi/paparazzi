@@ -37,8 +37,6 @@
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
 
-#pragma message "CAUTION! ALL control gains have to be positive now!"
-
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
 float h_ctl_course_pre_bank;

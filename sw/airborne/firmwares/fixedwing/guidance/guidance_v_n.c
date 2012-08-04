@@ -111,8 +111,6 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR 100
 #endif
 
-#pragma message "CAUTION! ALL control gains have to be positive now!"
-
 void v_ctl_init( void ) {
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;

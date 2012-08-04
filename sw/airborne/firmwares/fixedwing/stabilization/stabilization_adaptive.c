@@ -116,8 +116,6 @@ inline static void h_ctl_pitch_loop( void );
 #define H_CTL_COURSE_DGAIN 0.
 #endif
 
-#pragma message "CAUTION! ALL control gains have to be positive now!"
-
 // Some default roll gains
 // H_CTL_ROLL_ATTITUDE_GAIN needs to be define in airframe
 #ifndef H_CTL_ROLL_RATE_GAIN

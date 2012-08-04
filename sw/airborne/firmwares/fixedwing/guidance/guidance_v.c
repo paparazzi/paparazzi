@@ -109,8 +109,6 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_AUTO_AGR_CLIMB_GAIN 2.0 // altitude gain multiplier while in aggressive climb mode
 #endif
 
-#pragma message "CAUTION! ALL control gains have to be positive now!"
-
 #ifndef V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION
 #define V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION 1.0f
 #endif
