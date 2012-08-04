@@ -64,6 +64,8 @@ struct fbw_state {
 
 struct ap_state {
   pprz_t commands[COMMANDS_NB];
+  pprz_t command_roll_trim;
+  pprz_t command_pitch_trim;
 };
 
 // Status bits from FBW to AUTOPILOT
