@@ -74,36 +74,6 @@ static inline void servo_cam_ctrl_init(void)
 #error DC: Please specify at least a SHUTTER SERVO
 #endif
 
-/* Command The Camera */
-static inline void dc_send_command(uint8_t cmd)
-{
-  dc_timer = DC_SHUTTER_DELAY;
-  switch (cmd)
-  {
-    case DC_SHOOT:
-      DC_PUSH(DC_SHUTTER_SERVO);
-      dc_send_shot_position();
-      break;
-#ifdef DC_ZOOM_IN_SERVO
-    case DC_TALLER:
-      DC_PUSH(DC_ZOOM_IN_SERVO);
-      break;
-#endif
-#ifdef DC_ZOOM_OUT_SERVO
-    case DC_WIDER:
-      DC_PUSH(DC_ZOOM_OUT_SERVO);
-      break;
-#endif
-#ifdef DC_POWER_SERVO
-    case DC_ON:
-      DC_PUSH(DC_POWER_SERVO);
-      break;
-#endif
-    default:
-      break;
-  }
-}
-
 
 /* 4Hz Periodic */
 static inline void servo_cam_ctrl_periodic( void )
