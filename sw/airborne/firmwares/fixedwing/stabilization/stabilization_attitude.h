@@ -77,7 +77,7 @@ extern float  h_ctl_pitch_dgain; // D
 extern pprz_t h_ctl_elevator_setpoint;
 extern float  h_ctl_pitch_integrator;
 
-#define fw_h_ctl_SetPitchIGain(v) { h_ctl_pitch_igain = v; h_ctl_pitch_integrator = 0.0f; }
+#define stabilization_attitude_SetPitchIGain(v) { h_ctl_pitch_igain = v; h_ctl_pitch_integrator = 0.0f; }
 
 
 /* inner loop pre-command */
@@ -95,7 +95,7 @@ extern float h_ctl_lo_throttle_roll_rate_pgain;
 extern float h_ctl_roll_rate_igain;
 extern float h_ctl_roll_rate_dgain;
 
-#define fw_h_ctl_SetRollRatePGain(v) { h_ctl_hi_throttle_roll_rate_pgain = v; h_ctl_lo_throttle_roll_rate_pgain = v; }
+#define stabilization_attitude_SetRollRatePGain(v) { h_ctl_hi_throttle_roll_rate_pgain = v; h_ctl_lo_throttle_roll_rate_pgain = v; }
 #endif
 
 extern void h_ctl_init( void );
@@ -108,7 +108,7 @@ extern float h_ctl_roll_rate_gain;      // D
 
 extern float  h_ctl_roll_integrator;
 
-#define fw_h_ctl_SetRollIGain(v) { h_ctl_roll_attitude_igain = v; h_ctl_roll_integrator = 0.0f; }
+#define stabilization_attitude_SetRollIGain(v) { h_ctl_roll_attitude_igain = v; h_ctl_roll_integrator = 0.0f; }
 
 
 #endif /* FW_H_CTL_H */
