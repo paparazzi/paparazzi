@@ -218,8 +218,8 @@ static inline void v_ctl_set_pitch ( void ) {
   }
 
   // PI loop + feedforward ctl
-  v_ctl_pitch_setpoint =
-    v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
+  v_ctl_pitch_setpoint = nav_pitch
+    + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     + v_ctl_auto_pitch_pgain * err
     + v_ctl_auto_pitch_dgain * d_err
     + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err;
@@ -297,8 +297,8 @@ static inline void v_ctl_set_airspeed( void ) {
   }
 
   // Pitch loop
-  v_ctl_pitch_setpoint =
-    v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
+  v_ctl_pitch_setpoint = nav_pitch
+    + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     + v_ctl_auto_pitch_pgain * err_vz
     + v_ctl_auto_pitch_dgain * d_err_vz
     + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err
