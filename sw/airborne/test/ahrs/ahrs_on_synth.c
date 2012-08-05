@@ -42,6 +42,9 @@ static void traj_coordinated_circle_update(void);
 static void traj_stop_stop_x_init(void);
 static void traj_stop_stop_x_update(void);
 
+static void traj_bungee_takeoff_init(void);
+static void traj_bungee_takeoff_update(void);
+
 struct traj traj[] = {
   {.name="static", .desc="blaa",
    .init_fun=traj_static_static_init, .update_fun=traj_static_static_update},
@@ -58,7 +61,9 @@ struct traj traj[] = {
   {.name="coordinated circle", .desc="blaa2",
    .init_fun=traj_coordinated_circle_init, .update_fun=traj_coordinated_circle_update},
   {.name="stop stop x", .desc="blaa2",
-   .init_fun=traj_stop_stop_x_init, .update_fun=traj_stop_stop_x_update}
+   .init_fun=traj_stop_stop_x_init, .update_fun=traj_stop_stop_x_update},
+  {.name="bungee", .desc="blaa2",
+   .init_fun=traj_bungee_takeoff_init, .update_fun=traj_bungee_takeoff_update}
 };
 
 
@@ -133,20 +138,23 @@ void aos_init(int traj_nb) {
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
   printf("# AHRS_PROPAGATE_LOW_PASS_RATES\n");
 #endif
-#ifdef AHRS_MAG_UPDATE_YAW_ONLY
+#if AHRS_MAG_UPDATE_YAW_ONLY
   printf("# AHRS_MAG_UPDATE_YAW_ONLY\n");
 #endif
-#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
   printf("# AHRS_GRAVITY_UPDATE_COORDINATED_TURN\n");
 #endif
-#ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
+#if AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
   printf("# AHRS_GRAVITY_UPDATE_NORM_HEURISTIC\n");
 #endif
 #ifdef PERFECT_SENSORS
   printf("# PERFECT_SENSORS\n");
 #endif
-#ifdef AHRS_USE_GPS_HEADING
+#if AHRS_USE_GPS_HEADING
   printf("# AHRS_USE_GPS_HEADING\n");
+#endif
+#if USE_AHRS_GPS_ACCELERATIONS
+  printf("# USE_AHRS_GPS_ACCELERATIONS\n");
 #endif
 
   printf("# tajectory : %s\n", aos.traj->name);
@@ -191,6 +199,12 @@ void aos_compute_sensors(void) {
 #if AHRS_TYPE == AHRS_TYPE_FCR2
   ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
   ahrs_impl.ltp_vel_norm_valid = TRUE;
+#endif
+#if AHRS_TYPE == AHRS_TYPE_FCR
+  ahrs_impl.gps_speed = FLOAT_VECT3_NORM(aos.ltp_vel);
+  ahrs_impl.gps_age = 0;
+  ahrs_update_gps();
+  //RunOnceEvery(100,printf("# gps accel: %f\n", ahrs_impl.gps_acceleration));
 #endif
 #if AHRS_TYPE == AHRS_TYPE_ICQ
   ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(FLOAT_VECT3_NORM(aos.ltp_vel));
@@ -237,6 +251,10 @@ void aos_run(void) {
     float heading = aos.heading_meas;
 #endif
 
+#if AHRS_TYPE == AHRS_TYPE_FCR
+    ahrs_impl.gps_course = aos.heading_meas;
+    ahrs_impl.gps_course_valid = TRUE;
+#else
     if (aos.time > 10) {
       if (!ahrs_impl.heading_aligned) {
         ahrs_realign_heading(heading);
@@ -244,6 +262,8 @@ void aos_run(void) {
         RunOnceEvery(100,ahrs_update_heading(heading));
       }
     }
+#endif
+
 #endif // AHRS_USE_GPS_HEADING
 
 #ifndef DISABLE_ALIGNEMENT
@@ -443,5 +463,36 @@ static void  traj_stop_stop_x_update(void){
     9.81*aos.ltp_jerk.x / ( (9.81*9.81) + (aos.ltp_accel.x*aos.ltp_accel.x)),
     0. };
   FLOAT_RATES_OF_EULER_DOT(aos.imu_rates, aos.ltp_to_imu_euler, e_dot);
+
+}
+
+static void traj_bungee_takeoff_init(void) {
+
+  aos.traj->te = 40.;
+  EULERS_ASSIGN(aos.ltp_to_imu_euler, 0, RadOfDeg(10), 0);
+  FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+
+}
+
+static void traj_bungee_takeoff_update(void) {
+  const float initial_bungee_accel = 20.0; // in m/s^2
+  const float start = 5;
+  const float duration = 2;
+
+  struct FloatVect3 accel = {0, 0, 0};  //acceleration in imu x-direction in m/s^2
+
+  if (aos.time > start && aos.time < start+duration) {
+    accel.x = initial_bungee_accel * (1 - (aos.time - start) / duration);
+  }
+  else {
+    accel.x = 0;
+  }
+
+  struct FloatQuat imu2ltp;
+  QUAT_INVERT(imu2ltp, aos.ltp_to_imu_quat);
+  FLOAT_QUAT_VMULT(aos.ltp_accel, imu2ltp, accel);
+
+  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_vel, aos.ltp_accel, aos.dt);
+  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_pos, aos.ltp_vel, aos.dt);
 
 }

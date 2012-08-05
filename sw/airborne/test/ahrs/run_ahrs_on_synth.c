@@ -71,7 +71,7 @@ static void report(void) {
 	             DegOfRad(bias.q),
 	             DegOfRad(bias.r));
 #endif
-#if AHRS_TYPE == AHRS_TYPE_FLQ || AHRS_TYPE == AHRS_TYPE_FCR2 || AHRS_TYPE == AHRS_TYPE_FCQ
+#if AHRS_TYPE == AHRS_TYPE_FLQ || AHRS_TYPE == AHRS_TYPE_FCR2 || AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FCR
   printf("%f %f %f ", DegOfRad(ahrs_impl.gyro_bias.p),
 	             DegOfRad(ahrs_impl.gyro_bias.q),
 	             DegOfRad(ahrs_impl.gyro_bias.r));

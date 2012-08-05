@@ -84,15 +84,16 @@ def run_simulation(ahrs_type, build_opt, traj_nb):
 
 
 
-def plot_simulation_results(plot_true_state, lsty, sim_res):
+def plot_simulation_results(plot_true_state, lsty, type, sim_res):
     print "Plotting Results"
 
  #    f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True, sharey=True)
 
     subplot(3,3,1)
-    plt.plot(sim_res.time, sim_res.phi_ahrs, lsty)
+    plt.plot(sim_res.time, sim_res.phi_ahrs, lsty, label=type)
     ylabel('degres')
     title('phi')
+    legend()
 
     subplot(3,3,2)
     plot(sim_res.time, sim_res.theta_ahrs, lsty)
@@ -155,4 +156,4 @@ def plot_simulation_results(plot_true_state, lsty, sim_res):
 
 
 def show_plot():
-      plt.show();
+    plt.show();
