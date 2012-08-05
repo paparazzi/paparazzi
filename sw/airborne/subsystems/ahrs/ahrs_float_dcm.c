@@ -37,6 +37,7 @@
 
 #include "led.h"
 
+#if FLOAT_DCM_SEND_DEBUG
 // FIXME Debugging Only
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -44,6 +45,7 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
+#endif
 
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
@@ -155,6 +157,12 @@ void ahrs_init(void) {
   high_accel_done = FALSE;
   high_accel_flag = FALSE;
 #endif
+
+  ahrs_impl.gps_speed = 0;
+  ahrs_impl.gps_acceleration = 0;
+  ahrs_impl.gps_course = 0;
+  ahrs_impl.gps_course_valid = FALSE;
+  ahrs_impl.gps_age = 100;
 }
 
 void ahrs_align(void)
@@ -212,19 +220,28 @@ void ahrs_propagate(void)
   compute_ahrs_representations();
 }
 
-float ahrs_float_dcm_gps_speed = 0;
-float ahrs_float_dcm_gps_acceleration = 0;
-float ahrs_float_dcm_gps_age = 10;
-
 void ahrs_update_gps(void)
 {
   static float last_gps_speed_3d = 0;
 
-  ahrs_float_dcm_gps_speed = gps.speed_3d/100.;
-  ahrs_float_dcm_gps_acceleration += (   ((ahrs_float_dcm_gps_speed - last_gps_speed_3d)*4.0f)  - ahrs_float_dcm_gps_acceleration) / 5.0f;
-  last_gps_speed_3d = ahrs_float_dcm_gps_speed;
+#if USE_GPS
+  if (gps.fix == GPS_FIX_3D) {
+    ahrs_impl.gps_age = 0;
+    ahrs_impl.gps_speed = gps.speed_3d/100.;
 
-  ahrs_float_dcm_gps_age = 0;
+    if(gps.gspeed >= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
+      ahrs_impl.gps_course = ((float)gps.course)/1.e7;
+      ahrs_impl.gps_course_valid = TRUE;
+    } else {
+      ahrs_impl.gps_course_valid = FALSE;
+    }
+  } else {
+    ahrs_impl.gps_age = 100;
+  }
+#endif
+
+  ahrs_impl.gps_acceleration += (   ((ahrs_impl.gps_speed - last_gps_speed_3d)*4.0f)  - ahrs_impl.gps_acceleration) / 5.0f;
+  last_gps_speed_3d = ahrs_impl.gps_speed;
 }
 
 
@@ -239,23 +256,21 @@ void ahrs_update_accel(void)
   accel_float.z = -accel_float.z;
 
 
-#if USE_GPS
-  ahrs_float_dcm_gps_age ++;
-  if ((gps.fix == GPS_FIX_3D) && (ahrs_float_dcm_gps_age < 50)) {    //Remove centrifugal acceleration and longitudinal acceleration
-#ifdef USE_AHRS_GPS_ACCELERATIONS
+  ahrs_impl.gps_age ++;
+  if (ahrs_impl.gps_age < 50) {    //Remove centrifugal acceleration and longitudinal acceleration
+#if USE_AHRS_GPS_ACCELERATIONS
 #pragma message "AHRS_FLOAT_DCM uses GPS acceleration."
-    accel_float.x += ahrs_float_dcm_gps_acceleration;      // Longitudinal acceleration
+    accel_float.x += ahrs_impl.gps_acceleration;      // Longitudinal acceleration
 #endif
-    accel_float.y += ahrs_float_dcm_gps_speed * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    accel_float.z -= ahrs_float_dcm_gps_speed * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+    accel_float.y += ahrs_impl.gps_speed * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= ahrs_impl.gps_speed * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
   }
   else
   {
-    ahrs_float_dcm_gps_speed = 0;
-    ahrs_float_dcm_gps_acceleration = 0;
-    ahrs_float_dcm_gps_age = 100;
+    ahrs_impl.gps_speed = 0;
+    ahrs_impl.gps_acceleration = 0;
+    ahrs_impl.gps_age = 100;
   }
-#endif
 
   Drift_correction();
 }
@@ -306,8 +321,10 @@ void ahrs_update_mag(void)
   ltp_mag.x = MAG_Heading_X;
   ltp_mag.y = MAG_Heading_Y;
 
+#if FLOAT_DCM_SEND_DEBUG
   // Downlink
   RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
+#endif
 
   // Magnetic Heading
   // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
@@ -468,12 +485,12 @@ void Drift_correction(void)
   Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
   Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
 
-#elif USE_GPS // Use GPS Ground course to correct yaw gyro drift
+#else // Use GPS Ground course to correct yaw gyro drift
 
-  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
-    float ground_course = ((float)gps.course)/1.e7 - M_PI; //This is the runaway direction of you "plane" in rad
-    float COGX = cosf(ground_course); //Course overground X axis
-    float COGY = sinf(ground_course); //Course overground Y axis
+  if (ahrs_impl.gps_course_valid) {
+    float course = ahrs_impl.gps_course - M_PI; //This is the runaway direction of you "plane" in rad
+    float COGX = cosf(course); //Course overground X axis
+    float COGY = sinf(course); //Course overground Y axis
 
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.

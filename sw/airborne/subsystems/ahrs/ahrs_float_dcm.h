@@ -34,6 +34,12 @@ struct AhrsFloatDCM {
   */
   struct FloatQuat body_to_imu_quat;
   struct FloatRMat body_to_imu_rmat;
+
+  float gps_speed;
+  float gps_acceleration;
+  float gps_course;
+  bool_t gps_course_valid;
+  uint8_t gps_age;
 };
 extern struct AhrsFloatDCM ahrs_impl;
 
