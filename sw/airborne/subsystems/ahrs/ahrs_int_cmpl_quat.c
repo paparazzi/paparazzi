@@ -166,6 +166,8 @@ void ahrs_update_accel(void) {
                            RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
   struct Int32Vect3 residual;
 
+  struct Int32Vect3 pseudo_gravity_measurement;
+
   if (ahrs_impl.correct_gravity && ahrs_impl.ltp_vel_norm_valid) {
     /*
      * centrifugal acceleration in body frame
@@ -186,23 +188,29 @@ void ahrs_update_accel(void) {
     INT32_RMAT_VMULT(acc_c_imu, imu.body_to_imu_rmat, acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
-    struct Int32Vect3 corrected_gravity;
-    INT32_VECT3_DIFF(corrected_gravity, imu.accel, acc_c_imu);
-
-    /* compute the residual of gravity vector in imu frame */
-    INT32_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
+    INT32_VECT3_DIFF(pseudo_gravity_measurement, imu.accel, acc_c_imu);
   } else {
-    INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
+    VECT3_COPY(pseudo_gravity_measurement, imu.accel);
   }
+
+  /* compute the residual of the pseudo gravity vector in imu frame */
+  INT32_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
 
   int32_t inv_weight;
   if (ahrs_impl.use_gravity_heuristic) {
     /* heuristic on acceleration norm */
+
+    /* FIR filtered pseudo_gravity_measurement */
+    static struct Int32Vect3 filtered_gravity_measurement = {0, 0, 0};
+    VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, 7);
+    VECT3_ADD(filtered_gravity_measurement, pseudo_gravity_measurement);
+    VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, 8);
+
     int32_t acc_norm;
-    INT32_VECT3_NORM(acc_norm, imu.accel);
+    INT32_VECT3_NORM(acc_norm, filtered_gravity_measurement);
     const int32_t acc_norm_d = ABS(ACCEL_BFP_OF_REAL(9.81)-acc_norm);
-    inv_weight = Chop(6*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 6);
+    inv_weight = Chop(50*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 50);
   }
   else {
     inv_weight = 1;
@@ -223,9 +231,9 @@ void ahrs_update_accel(void) {
   //  ahrs_impl.high_rez_bias.q += residual.y*3;
   //  ahrs_impl.high_rez_bias.r += residual.z*3;
 
-  ahrs_impl.high_rez_bias.p += residual.x/inv_weight;
-  ahrs_impl.high_rez_bias.q += residual.y/inv_weight;
-  ahrs_impl.high_rez_bias.r += residual.z/inv_weight;
+  ahrs_impl.high_rez_bias.p += residual.x/(2*inv_weight);
+  ahrs_impl.high_rez_bias.q += residual.y/(2*inv_weight);
+  ahrs_impl.high_rez_bias.r += residual.z/(2*inv_weight);
 
 
   /*                        */
