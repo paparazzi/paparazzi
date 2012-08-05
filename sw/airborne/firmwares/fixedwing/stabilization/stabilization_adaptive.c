@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id: fw_h_ctl.c 3603 2009-07-01 20:06:53Z hecto $
- *
  * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
