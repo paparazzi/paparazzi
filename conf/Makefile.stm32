@@ -93,9 +93,11 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 #   if not, use the default STM32f103re_flash.ld
 ifndef LDSCRIPT
 ifndef $(TARGET).LDSCRIPT
+$(warning Linker script for target "$(TARGET)" on board "$(BOARD)" not defined. Using stm32default.ld.)
 LDSCRIPT = $(SRC_ARCH)/stm32default.ld
 else
 LDSCRIPT = $($(TARGET).LDSCRIPT)
+$(info Using "$($(TARGET).LDSCRIPT)" as ldscript for target "$(TARGET)".)
 endif
 endif
 
