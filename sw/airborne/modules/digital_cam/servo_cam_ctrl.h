@@ -49,7 +49,7 @@
 
 // Include Servo and airframe servo channels
 #include "std.h"
-#include "commands.h"
+#include "inter_mcu.h"
 #include "generated/airframe.h"
 
 extern uint8_t dc_timer;
@@ -63,8 +63,8 @@ static inline void servo_cam_ctrl_init(void)
   dc_timer = 0;
 }
 
-#define DC_PUSH(X) 	commands[X] = -MAX_PPRZ;
-#define DC_RELEASE(X) 	commands[X] =  MAX_PPRZ;
+#define DC_PUSH(X) 	ap_state->commands[X] = -MAX_PPRZ;
+#define DC_RELEASE(X) 	ap_state->commands[X] =  MAX_PPRZ;
 
 #ifndef DC_SHUTTER_DELAY
 #define DC_SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
