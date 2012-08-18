@@ -207,3 +207,7 @@ void ArduIMU_event( void ) {
   }
 }
 
+void ahrs_update_gps( void )
+{
+
+}
