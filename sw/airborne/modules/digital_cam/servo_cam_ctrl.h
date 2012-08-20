@@ -49,7 +49,7 @@
 
 // Include Servo and airframe servo channels
 #include "std.h"
-#include "commands.h"
+#include "inter_mcu.h"
 #include "generated/airframe.h"
 
 extern uint8_t dc_timer;
@@ -63,8 +63,8 @@ static inline void servo_cam_ctrl_init(void)
   dc_timer = 0;
 }
 
-#define DC_PUSH(X) 	commands[X] = -MAX_PPRZ;
-#define DC_RELEASE(X) 	commands[X] =  MAX_PPRZ;
+#define DC_PUSH(X) 	ap_state->commands[X] = -MAX_PPRZ;
+#define DC_RELEASE(X) 	ap_state->commands[X] =  MAX_PPRZ;
 
 #ifndef DC_SHUTTER_DELAY
 #define DC_SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
@@ -74,40 +74,16 @@ static inline void servo_cam_ctrl_init(void)
 #error DC: Please specify at least a SHUTTER SERVO
 #endif
 
-/* Command The Camera */
-static inline void dc_send_command(uint8_t cmd)
-{
-  dc_timer = DC_SHUTTER_DELAY;
-  switch (cmd)
-  {
-    case DC_SHOOT:
-      DC_PUSH(DC_SHUTTER_SERVO);
-      dc_send_shot_position();
-      break;
-#ifdef DC_ZOOM_IN_SERVO
-    case DC_TALLER:
-      DC_PUSH(DC_ZOOM_IN_SERVO);
-      break;
-#endif
-#ifdef DC_ZOOM_OUT_SERVO
-    case DC_WIDER:
-      DC_PUSH(DC_ZOOM_OUT_SERVO);
-      break;
-#endif
-#ifdef DC_POWER_SERVO
-    case DC_POWER:
-      DC_PUSH(DC_POWER_SERVO);
-      break;
-#endif
-    default:
-      break;
-  }
-}
-
 
 /* 4Hz Periodic */
 static inline void servo_cam_ctrl_periodic( void )
 {
+#ifdef DC_SHOOT_ON_BUTTON_RELEASE
+  if (dc_timer==1) {
+    dc_send_shot_position();
+  }
+#endif
+
   if (dc_timer) {
     dc_timer--;
   } else {

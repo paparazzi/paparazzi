@@ -30,14 +30,14 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 PREFIX = arm-none-eabi
 
 #
-# if we can find arm-none-eabi-gcc in the path, overwrite PREFIX with explicit path
+# if we can't find arm-none-eabi-gcc in the path, overwrite PREFIX with explicit path
 #
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-# not found in PATH, check paparazzi toolchains
+# not found in PATH, check paparazzi toolchain
 
-	TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib /opt/paparazzi/stm32 -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+	TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
 	ifneq ($(TOOLCHAIN),)
 		TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 		PREFIX = $(TOOLCHAIN_DIR)/bin/arm-none-eabi

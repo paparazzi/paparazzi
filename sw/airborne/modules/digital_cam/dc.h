@@ -100,7 +100,7 @@ typedef enum {
 } dc_command_type;
 
 /* Send Command To Camera */
-static inline void dc_send_command(uint8_t cmd);
+extern void dc_send_command(uint8_t cmd);
 
 /* Auotmatic Digital Camera Photo Triggering */
 typedef enum {

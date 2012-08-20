@@ -90,7 +90,7 @@ extern float h_ctl_lo_throttle_roll_rate_pgain;
 extern float h_ctl_roll_rate_igain;
 extern float h_ctl_roll_rate_dgain;
 
-#define fw_h_ctl_SetRollRatePGain(v) { h_ctl_hi_throttle_roll_rate_pgain = v; h_ctl_lo_throttle_roll_rate_pgain = v; }
+#define stabilization_attitude_SetRollRatePGain(v) { h_ctl_hi_throttle_roll_rate_pgain = v; h_ctl_lo_throttle_roll_rate_pgain = v; }
 #endif
 
 extern void h_ctl_init( void );

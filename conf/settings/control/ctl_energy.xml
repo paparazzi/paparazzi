@@ -23,12 +23,49 @@
         <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain" param="H_CTL_ROLL_RATE_GAIN"/>
       </dl_settings>
 
-      <dl_settings name="alt">
-        <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" param="V_CTL_ALTITUDE_PGAIN"/>
+
+      <dl_settings name="climb_accel">
+        <dl_setting MAX="2.0" MIN="0" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" module="guidance/energy_ctrl" param="V_CTL_ALTITUDE_PGAIN"/>
+        <dl_setting MAX="1.0" MIN="0" STEP="0.01" VAR="v_ctl_airspeed_pgain" shortname="speed_pgain"  param="V_CTL_AIRSPEED_PGAIN"/>
+        <dl_setting MAX="10.0" MIN="-10" STEP="0.5" VAR="v_ctl_max_climb" shortname="max_climb" />
+        <dl_setting MAX="2.0" MIN="-2" STEP="0.05" VAR="v_ctl_max_acceleration" shortname="max_acc_g" />
       </dl_settings>
 
+      <dl_settings name="energy_loop">
+        <dl_setting MAX="45" MIN="8.0" STEP="0.5" VAR="v_ctl_auto_airspeed_setpoint" shortname="airspeed sp" />
+
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_nominal_cruise_throttle" shortname="cruise throttle" />
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_nominal_cruise_pitch" shortname="cruise pitch" />
+        <dl_setting MAX="1.0" MIN="0" STEP="0.01" VAR="v_ctl_desired_acceleration" shortname="acc_cmd" />
+        <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr" param="V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT"/>
+        <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_pitch_of_vz_pgain" shortname="pitch_of_vz" param="V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN"/>
+
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_of_airspeed_pgain" shortname="P_th_air"/>
+        <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_of_airspeed_igain" shortname="I_th_air" />
+        <dl_setting MAX="1." MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_of_airspeed_pgain" shortname="P_pitch_air" />
+        <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_of_airspeed_igain" shortname="I_pitch_air" />
+        <dl_setting MAX="5." MIN="0" STEP="0.01" VAR="v_ctl_auto_pitch_of_airspeed_dgain" shortname="D_pitch_air" />
+
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_pgain" shortname="P_en_tot"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_igain" shortname="I_en_tot"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_pgain" shortname="P_en_dis"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_igain" shortname="I_en_dis"/>
+
+      </dl_settings>
+
+<!--
+
+       <dl_settings NAME="agr">
+          <dl_setting MAX="1.0" MIN="0." STEP="0.05" VAR="agr_climb_throttle" shortname="climb_throttle" param="AGR_CLIMB_THROTTLE"/>
+          <dl_setting MAX="0.5" MIN="-0.1" STEP="0.05" VAR="agr_climb_pitch" shortname="climb_pitch" param="AGR_CLIMB_PITCH"/>
+          <dl_setting MAX="1.0" MIN="0." STEP="0.1" VAR="agr_climb_nav_ratio" shortname="climb_nav_ratio" param="AGR_CLIMB_NAV_RATIO"/>
+          <dl_setting MAX="1.0" MIN="0." STEP="0.05" VAR="agr_descent_throttle" shortname="descent_throttle" param="AGR_DESCENT_THROTTLE"/>
+          <dl_setting MAX="0.1" MIN="-0.5" STEP="0.05" VAR="agr_descent_pitch" shortname="descent_ptich" param="AGR_DESCENT_PITCH"/>
+          <dl_setting MAX="1.0" MIN="0." STEP="0.1" VAR="agr_descent_nav_ratio" shortname="descent_nav_ratio" param="AGR_DESCENT_NAV_RATIO"/>
+       </dl_settings>
+
       <dl_settings name="auto_throttle">
-        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" module="guidance/guidance_v" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE">
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE">
           <strip_button name="Loiter" value="0.1" group="dash_loiter"/>
           <strip_button name="Cruise" value="0" group="dash_loiter"/>
           <strip_button name="Dash" value="1" group="dash_loiter"/>
@@ -46,6 +83,8 @@
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_pitch_igain" shortname="igain" param="V_CTL_AUTO_PITCH_IGAIN"/>
       </dl_settings>
 
+-->
+
       <dl_settings name="nav">
         <dl_setting MAX="3" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain" param="H_CTL_COURSE_PGAIN"/>
         <dl_setting MAX="2" MIN="0" STEP="0.1" VAR="h_ctl_course_dgain" shortname="course dgain" param="H_CTL_COURSE_DGAIN"/>
@@ -62,6 +101,7 @@
         <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
       </dl_settings>
+
     </dl_settings>
   </dl_settings>
 </settings>

@@ -18,53 +18,9 @@ LINKFILE_RAM	= lpc2148-ram.ld
 #
 # try to find the paparazzi multilib toolchain
 #
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
 
-#
-# found the new paparazzi toolchain, use it
-#
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
-CC      = $(GCC_BIN_PREFIX)-gcc
-LD      = $(GCC_BIN_PREFIX)-ld -v
-AR      = $(GCC_BIN_PREFIX)-ar
-AS      = $(GCC_BIN_PREFIX)-as
-CP      = $(GCC_BIN_PREFIX)-objcopy
-OD      = $(GCC_BIN_PREFIX)-objdump
-NM      = $(GCC_BIN_PREFIX)-nm
-SIZE    = $(GCC_BIN_PREFIX)-size
-
-#
-# If we can't find the toolchain (in /opt/paparazzi/arm-multilib or ~/sat) then try picking up the compilers from the path
-#
-else
-
-# see if we can find the new arm-none-eabi, otherwise use the older arm-elf
-HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
-ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-GCC_PREFIX = arm-elf
-else
-GCC_PREFIX = arm-none-eabi
-GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
-endif
-
-CC      = $(shell which $(GCC_PREFIX)-gcc)
-LD      = $(shell which $(GCC_PREFIX)-ld) -v
-AR      = $(shell which $(GCC_PREFIX)-ar)
-AS      = $(shell which $(GCC_PREFIX)-as)
-CP      = $(shell which $(GCC_PREFIX)-objcopy)
-OD      = $(shell which $(GCC_PREFIX)-objdump)
-NM      = $(shell which $(GCC_PREFIX)-nm)
-SIZE    = $(shell which $(GCC_PREFIX)-size)
-endif
-
-RM	= rm
-TAR	= tar
-
-MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+TAR = tar
 
 CFLAGS  = -I./ -c -W -Wall -Os -g -mcpu=arm7tdmi -mthumb-interwork $(ALLFLAGS)
 # -DDEBUG

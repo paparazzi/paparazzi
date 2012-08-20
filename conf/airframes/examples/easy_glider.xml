@@ -16,6 +16,7 @@
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
+    <axis name="BRAKE" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -23,21 +24,29 @@
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
     <set command="YAW" value="@YAW"/>
+    <set command="BRAKE" value="@GAIN1"/>
   </rc_commands>
 
   <section name="MIXER">
      <define name="AILERON_DIFF" value="0.66"/>
      <define name="COMBI_SWITCH" value="1.0"/>
+
+     <define name="BRAKE_DEFLECTION_TIME" value="2.0" /> <!-- seconds -->
+     <define name="MAX_BRAKE_RATE" value="(MAX_PPRZ / (60 * BRAKE_DEFLECTION_TIME ))" />
+     <define name="BRAKE_AILEVON" value="-0.68f"/>
+     <define name="BRAKE_PITCH" value="0.01f"/>
   </section>
 
   <command_laws>
+    <ratelimit var="brake_value" value="Chop(@BRAKE, 0, MAX_PPRZ)" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" />
+
     <set servo="THROTTLE" value="@THROTTLE"/>
-    <set servo="ELEVATOR" value="@PITCH"/>
+    <set servo="ELEVATOR" value="@PITCH + BRAKE_PITCH * $brake_value"/>
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
 
     <let var="roll" value="@ROLL"/>
-    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
-    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll + BRAKE_AILEVON * $brake_value"/>
+    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll + BRAKE_AILEVON * $brake_value"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">

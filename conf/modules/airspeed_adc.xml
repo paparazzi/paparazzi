@@ -20,7 +20,7 @@
     <file name="airspeed_adc.h"/>
   </header>
   <init fun="airspeed_adc_init()"/>
-  <periodic fun="airspeed_adc_update()" freq="10."/>
+  <periodic fun="airspeed_adc_update()" />
 
   <makefile>
     <file name="airspeed_adc.c"/>

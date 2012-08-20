@@ -47,17 +47,12 @@
 
     <define name="RUDDER_OF_AILERON" value="0.3"/>
 
-    <define name="LIMIT(X,XL,XH)" value="(    ((X)>(XH))   ?    (XH)    :    ( ((X)>(XL)) ? (X) : (XL) )    )"/>
-
 </section>
 
   <command_laws>
     <!-- Brake Rate Limiter -->
-    <let var="brake_value_nofilt" value="LIMIT(-@BRAKE, 0, MAX_PPRZ)"/>
-    <let var="test; \
-  	      static int16_t _var_brake_value = 0; \
-              _var_brake_value += LIMIT(_var_brake_value_nofilt - _var_brake_value,-MAX_BRAKE_RATE,MAX_BRAKE_RATE); \
-              int verwaarloos_deze_warning_CDW" value="0"/>
+    <let var="brake_value_nofilt" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
+    <ratelimit var="brake_value" value="$brake_value_nofilt" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" />
 
     <!-- Differential Aileron Depending on Brake Value -->
     <let var="aileron_up_rate" value="(AILERON_RATE_UP   * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_UP_BRAKE   * $brake_value)"/>

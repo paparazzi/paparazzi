@@ -29,11 +29,19 @@ static inline void bmp085_read_reg16(uint8_t addr)
   I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 2);
 }
 
-static inline int16_t bmp085_read_reg16_blocking(uint8_t addr)
+static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
 {
+  uint32_t time = 0;
+
   bmp085_read_reg16(addr);
 
-  while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
+  while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning) {
+	  if ((time == timeout) && (timeout != 0)) {
+		  return 0; /* Timeout of the i2c read */
+	  } else {
+		  time++;
+	  }
+  }
 
   return ((baro_trans.buf[0] << 8) | baro_trans.buf[1]);
 }
@@ -46,17 +54,17 @@ static inline void bmp085_read_reg24(uint8_t addr)
 
 static void bmp085_baro_read_calibration(void)
 {
-  calibration.ac1 = bmp085_read_reg16_blocking(0xAA); // AC1
-  calibration.ac2 = bmp085_read_reg16_blocking(0xAC); // AC2
-  calibration.ac3 = bmp085_read_reg16_blocking(0xAE); // AC3
-  calibration.ac4 = bmp085_read_reg16_blocking(0xB0); // AC4
-  calibration.ac5 = bmp085_read_reg16_blocking(0xB2); // AC5
-  calibration.ac6 = bmp085_read_reg16_blocking(0xB4); // AC6
-  calibration.b1 = bmp085_read_reg16_blocking(0xB6); // B1
-  calibration.b2 = bmp085_read_reg16_blocking(0xB8); // B2
-  calibration.mb = bmp085_read_reg16_blocking(0xBA); // MB
-  calibration.mc = bmp085_read_reg16_blocking(0xBC); // MC
-  calibration.md = bmp085_read_reg16_blocking(0xBE); // MD
+  calibration.ac1 = bmp085_read_reg16_blocking(0xAA, 10000); // AC1
+  calibration.ac2 = bmp085_read_reg16_blocking(0xAC, 10000); // AC2
+  calibration.ac3 = bmp085_read_reg16_blocking(0xAE, 10000); // AC3
+  calibration.ac4 = bmp085_read_reg16_blocking(0xB0, 10000); // AC4
+  calibration.ac5 = bmp085_read_reg16_blocking(0xB2, 10000); // AC5
+  calibration.ac6 = bmp085_read_reg16_blocking(0xB4, 10000); // AC6
+  calibration.b1 = bmp085_read_reg16_blocking(0xB6, 10000); // B1
+  calibration.b2 = bmp085_read_reg16_blocking(0xB8, 10000); // B2
+  calibration.mb = bmp085_read_reg16_blocking(0xBA, 10000); // MB
+  calibration.mc = bmp085_read_reg16_blocking(0xBC, 10000); // MC
+  calibration.md = bmp085_read_reg16_blocking(0xBE, 10000); // MD
 }
 
 void baro_init(void) {

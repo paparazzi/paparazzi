@@ -13,6 +13,8 @@ import getopt
 
 import pygame
 import time
+import platform
+import os
 
 _NAME = 'attitude_viz'
 
@@ -127,7 +129,8 @@ class Visualization:
     glColor3f(0.0, 0.0, 0.0)
     glTranslate(-wingspan, -0.2, thickness + 0.01)
     glScale(0.004, 0.004, 0.004)
-    glutStrokeString(GLUT_STROKE_ROMAN, name)
+    for c in name:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, ord(c))
     glPopMatrix()
 
     glPushMatrix()
@@ -138,7 +141,8 @@ class Visualization:
     glTranslate(wingspan, -0.2, -0.01 - thickness)
     glScale(0.004, 0.004, 0.004)
     glRotate(180, 0, 1, 0)
-    glutStrokeString(GLUT_STROKE_ROMAN, name)
+    for c in name:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, ord(c))
     glPopMatrix()
 
     if self.display_list is None:
@@ -188,7 +192,8 @@ class Visualization:
     glColor3f(0, 0, 0)
     glTranslate(-bar_length, -0.09, 0.02)
     glScale(0.0015, 0.0015, 0.0015)
-    glutStrokeString(GLUT_STROKE_ROMAN, name)
+    for c in name:
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, ord(c))
     glPopMatrix()
     glColor3f(0.92, 0.92, 0.92)
     glPushMatrix()
@@ -244,7 +249,13 @@ class Visualizer:
       lambda x, z: z
     )
 
-    IvyStart("")
+    if os.getenv('IVY_BUS') != None:
+      IvyStart(os.getenv('IVY_BUS'))
+    else:
+      if platform.system() == 'Darwin':
+        IvyStart("224.255.255.255:2010")
+      else:
+        IvyStart()
 
     # list of all message names
     messages = []

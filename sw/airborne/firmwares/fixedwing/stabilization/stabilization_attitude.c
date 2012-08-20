@@ -34,10 +34,8 @@
 #include "state.h"
 #include "subsystems/nav.h"
 #include "generated/airframe.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
-
-#pragma message "CAUTION! ALL control gains have to be positive now!"
 
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */

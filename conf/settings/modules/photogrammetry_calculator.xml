@@ -15,9 +15,9 @@
       <dl_setting max="500" min="1" step="1" var="photogrammetry_radius_min" shortname="r_min" />
 
 
-      <dl_setting max="500" min="1" step="1" var="photogrammetry_height" shortname="computed height" />
-      <dl_setting max="1000" min="1" step="1" var="photogrammetry_sidestep" shortname="computed sidestep" />
-      <dl_setting max="1000" min="1" step="1" var="photogrammetry_triggerstep" shortname="computed trigger" />
+      <dl_setting max="500" min="1" step="1" var="photogrammetry_height" module="cartography/photogrammetry_calculator" shortname="computed height" handler="UpdateHeight" />
+      <dl_setting max="1000" min="1" step="1" var="photogrammetry_sidestep" module="cartography/photogrammetry_calculator" shortname="computed sidestep" handler="UpdateSideStep" />
+      <dl_setting max="1000" min="1" step="1" var="photogrammetry_triggerstep" module="cartography/photogrammetry_calculator" shortname="computed trigger" handler="UpdateTriggerStep" />
 
     </dl_settings>
   </dl_settings>

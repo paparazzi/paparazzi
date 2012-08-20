@@ -58,7 +58,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include CTRL_TYPE_H
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
 #ifdef TRAFFIC_INFO
@@ -80,11 +80,6 @@
 
 #include "gpio.h"
 #include "led.h"
-
-#if defined RADIO_CONTROL
-#pragma message "CAUTION! radio control roll channel input has been changed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when banking right!"
-#endif
-
 
 
 #if USE_AHRS
@@ -474,10 +469,33 @@ void navigation_task( void ) {
 #endif
     if (lateral_mode >=LATERAL_MODE_COURSE)
       h_ctl_course_loop(); /* aka compute nav_desired_roll */
-    if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)
-      v_ctl_climb_loop();
+
+    // climb_loop(); //4Hz
+  }
+  energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
+}
+
+
+#if USE_AHRS
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+#endif
+#endif
+
+void attitude_loop( void ) {
+
+#if USE_INFRARED
+  ahrs_update_infrared();
+#endif /* USE_INFRARED */
+
+  if (pprz_mode >= PPRZ_MODE_AUTO2)
+  {
     if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE)
       v_ctl_throttle_setpoint = nav_throttle_setpoint;
+    else if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)
+    {
+      v_ctl_climb_loop();
+    }
 
 #if defined V_CTL_THROTTLE_IDLE
     Bound(v_ctl_throttle_setpoint, TRIM_PPRZ(V_CTL_THROTTLE_IDLE*MAX_PPRZ), MAX_PPRZ);
@@ -495,19 +513,6 @@ void navigation_task( void ) {
     if (kill_throttle || (!estimator_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
   }
-  energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
-}
-
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-volatile uint8_t new_ins_attitude = 0;
-#endif
-
-void attitude_loop( void ) {
-
-#if USE_INFRARED
-  ahrs_update_infrared();
-#endif /* USE_INFRARED */
 
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
@@ -595,7 +600,9 @@ void monitor_task( void ) {
 void event_task_ap( void ) {
 
 #ifndef SINGLE_MCU
+#if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2
   i2c_event();
+#endif
 #endif
 
 #if USE_AHRS && USE_IMU

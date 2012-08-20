@@ -171,6 +171,13 @@ let parse_command_laws = fun command ->
        and value = a "value" in
        let v = preprocess_value value "values" "COMMAND" in
        printf "  int16_t _var_%s = %s;\\\n" var v
+   | "ratelimit" ->
+       let var = a "var"
+       and value = a "value"
+       and rate_min = a "rate_min"
+       and rate_max = a "rate_max" in
+       let v = preprocess_value value "values" "COMMAND" in
+       printf "  static int16_t _var_%s = 0; _var_%s = Chop((%s) - (_var_%s), (%s), (%s));\\\n" var var v var rate_min rate_max
    | "define" ->
        parse_element "" command
    | _ -> xml_error "set|let"
