@@ -33,6 +33,22 @@
 #define FACE_REINJ_1 1024
 #endif
 
+#ifndef AHRS_MAG_OFFSET
+#define AHRS_MAG_OFFSET 0.
+#endif
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// remotely settable (for FW)
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+#endif
+
 
 struct AhrsIntCmplEuler ahrs_impl;
 
@@ -52,26 +68,14 @@ static inline void set_body_state_from_euler(void);
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
 
-  /* set ltp_to_body to zero */
-  INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
-  INT32_QUAT_ZERO(ahrs.ltp_to_body_quat);
-  INT32_RMAT_ZERO(ahrs.ltp_to_body_rmat);
-  INT_RATES_ZERO(ahrs.body_rate);
-
   /* set ltp_to_imu so that body is zero */
-  QUAT_COPY(ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
-  RMAT_COPY(ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
-  INT_RATES_ZERO(ahrs.imu_rate);
+  INT32_EULERS_OF_RMAT(ahrs_impl.ltp_to_imu_euler, imu.body_to_imu_rmat);
+  INT_RATES_ZERO(ahrs_impl.imu_rate);
 
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
   ahrs_impl.reinj_1 = FACE_REINJ_1;
 
-#ifdef IMU_MAG_OFFSET
-  ahrs_mag_offset = IMU_MAG_OFFSET;
-#else
-  ahrs_mag_offset = 0.;
-#endif
+  ahrs_impl.mag_offset = AHRS_MAG_OFFSET;
 }
 
 void ahrs_align(void) {
@@ -84,7 +88,7 @@ void ahrs_align(void) {
   EULERS_COPY(ahrs_impl.measurement, ahrs_impl.hi_res_euler);
 
   /* Compute LTP to IMU eulers      */
-  EULERS_SDIV(ahrs.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
+  EULERS_SDIV(ahrs_impl.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
 
   set_body_state_from_euler();
 
@@ -154,11 +158,11 @@ void ahrs_propagate(void) {
 #endif
     /* low pass rate */
 #if USE_NOISE_FILTER
-    RATES_SUM_SCALED(ahrs.imu_rate, ahrs.imu_rate, uf_rate, NOISE_FILTER_GAIN);
-    RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, NOISE_FILTER_GAIN+1);
+    RATES_SUM_SCALED(ahrs_impl.imu_rate, ahrs_impl.imu_rate, uf_rate, NOISE_FILTER_GAIN);
+    RATES_SDIV(ahrs_impl.imu_rate, ahrs_impl.imu_rate, NOISE_FILTER_GAIN+1);
 #else
-    RATES_ADD(ahrs.imu_rate, uf_rate);
-    RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 2);
+    RATES_ADD(ahrs_impl.imu_rate, uf_rate);
+    RATES_SDIV(ahrs_impl.imu_rate, ahrs_impl.imu_rate, 2);
 #endif
 #if USE_NOISE_CUT
   }
@@ -167,7 +171,7 @@ void ahrs_propagate(void) {
 
   /* integrate eulers */
   struct Int32Eulers euler_dot;
-  INT32_EULERS_DOT_OF_RATES(euler_dot, ahrs.ltp_to_imu_euler, ahrs.imu_rate);
+  INT32_EULERS_DOT_OF_RATES(euler_dot, ahrs_impl.ltp_to_imu_euler, ahrs_impl.imu_rate);
   EULERS_ADD(ahrs_impl.hi_res_euler, euler_dot);
 
   /* low pass measurement */
@@ -187,7 +191,7 @@ void ahrs_propagate(void) {
 
 
   /* Compute LTP to IMU eulers      */
-  EULERS_SDIV(ahrs.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
+  EULERS_SDIV(ahrs_impl.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
 
   set_body_state_from_euler();
 
@@ -216,7 +220,7 @@ void ahrs_update_accel(void) {
 
 void ahrs_update_mag(void) {
 
-  get_psi_measurement_from_mag(&ahrs_impl.measurement.psi, ahrs.ltp_to_imu_euler.phi, ahrs.ltp_to_imu_euler.theta, imu.mag);
+  get_psi_measurement_from_mag(&ahrs_impl.measurement.psi, ahrs_impl.ltp_to_imu_euler.phi, ahrs_impl.ltp_to_imu_euler.theta, imu.mag);
 
 }
 
@@ -261,54 +265,33 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
   //  sphi_ctheta * imu.mag.y +
   //  cphi_ctheta * imu.mag.z;
   float m_psi = -atan2(me, mn);
-  *psi_meas = ((m_psi - ahrs_mag_offset)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  *psi_meas = ((m_psi - ahrs_impl.mag_offset)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 
 }
 
 /* Rotate angles and rates from imu to body frame and set state */
 __attribute__ ((always_inline)) static inline void set_body_state_from_euler(void) {
+  struct Int32RMat ltp_to_imu_rmat, ltp_to_body_rmat;
   /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_OF_EULERS(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_euler);
+  INT32_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
   /* Compute LTP to BODY rotation matrix */
-  INT32_RMAT_COMP_INV(ahrs.ltp_to_body_rmat, ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
+  INT32_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, imu.body_to_imu_rmat);
   /* Set state */
-  stateSetNedToBodyRMat_i(&ahrs.ltp_to_body_rmat);
-
-  /* compute body rates */
-  INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
-  /* Set state */
-  stateSetBodyRates_i(&ahrs.body_rate);
-
-}
-
-
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO use ahrs result directly
-#include "estimator.h"
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
+  struct Int32Eulers ltp_to_body_euler;
+  INT32_EULERS_OF_RMAT(ltp_to_body_euler, ltp_to_body_rmat);
+  ltp_to_body_euler.phi -= ANGLE_BFP_OF_REAL(ins_roll_neutral);
+  ltp_to_body_euler.theta -= ANGLE_BFP_OF_REAL(ins_pitch_neutral);
+  stateSetNedToBodyEulers_i(&ltp_to_body_euler);
+#else
+  stateSetNedToBodyRMat_i(&ltp_to_body_rmat);
 #endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-void ahrs_update_fw_estimator(void)
-{
-  struct FloatEulers att;
-  // export results to estimator
-  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
 
-  estimator_phi   = att.phi - ins_roll_neutral;
-  estimator_theta = att.theta - ins_pitch_neutral;
-  estimator_psi   = att.psi;
-
-  struct FloatRates rates;
-  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
-  estimator_p = rates.p;
-  estimator_q = rates.q;
-  estimator_r = rates.r;
+  struct Int32Rates body_rate;
+  /* compute body rates */
+  INT32_RMAT_TRANSP_RATEMULT(body_rate, imu.body_to_imu_rmat, ahrs_impl.imu_rate);
+  /* Set state */
+  stateSetBodyRates_i(&body_rate);
 
 }
-#endif //AHRS_UPDATE_FW_ESTIMATOR
+
