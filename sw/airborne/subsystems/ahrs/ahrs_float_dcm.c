@@ -50,7 +50,6 @@
 #endif
 
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
 // FIXME this is still needed for fixedwing integration
 // remotely settable
 #ifndef INS_ROLL_NEUTRAL_DEFAULT
@@ -61,7 +60,6 @@
 #endif
 float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-#endif /* AHRS_UPDATE_FW_ESTIMATOR */
 
 
 struct AhrsFloatDCM ahrs_impl;
@@ -136,23 +134,14 @@ void ahrs_init(void) {
    */
   struct FloatEulers body_to_imu_euler =
     {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
-  FLOAT_QUAT_OF_EULERS(ahrs_impl.body_to_imu_quat, body_to_imu_euler);
   FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);
 
-  /* set ltp_to_body to zero */
-  FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
-  FLOAT_EULERS_ZERO(ahrs_float.ltp_to_body_euler);
-  FLOAT_RMAT_ZERO(ahrs_float.ltp_to_body_rmat);
-  FLOAT_RATES_ZERO(ahrs_float.body_rate);
+  EULERS_COPY(ahrs_impl.ltp_to_imu_euler, body_to_imu_euler);
 
-  /* set ltp_to_imu so that body is zero */
-  QUAT_COPY(ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
-  RMAT_COPY(ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
-  EULERS_COPY(ahrs_float.ltp_to_imu_euler, body_to_imu_euler);
-  FLOAT_RATES_ZERO(ahrs_float.imu_rate);
+  FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
 
   /* set inital filter dcm */
-  set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
+  set_dcm_matrix_from_rmat(&ahrs_impl.body_to_imu_rmat);
 
 #if USE_HIGH_ACCEL_FLAG
   high_accel_done = FALSE;
@@ -169,14 +158,14 @@ void ahrs_init(void) {
 void ahrs_align(void)
 {
   /* Compute an initial orientation using euler angles */
-  ahrs_float_get_euler_from_accel_mag(&ahrs_float.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_float_get_euler_from_accel_mag(&ahrs_impl.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
 
   /* Convert initial orientation in quaternion and rotation matrice representations. */
-  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
-  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
+  struct FloatRMat ltp_to_imu_rmat;
+  FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
 
   /* set filter dcm */
-  set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
+  set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
 
   /* Set initial body orientation */
   set_body_orientation_and_rates();
@@ -197,21 +186,21 @@ void ahrs_propagate(void)
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
 
   /* unbias rate measurement */
-  RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
+  RATES_DIFF(ahrs_impl.imu_rate, gyro_float, ahrs_impl.gyro_bias);
 
   /* Uncouple Motions */
 #ifdef IMU_GYRO_P_Q
   float dp=0,dq=0,dr=0;
-  dp += ahrs_float.imu_rate.q * IMU_GYRO_P_Q;
-  dp += ahrs_float.imu_rate.r * IMU_GYRO_P_R;
-  dq += ahrs_float.imu_rate.p * IMU_GYRO_Q_P;
-  dq += ahrs_float.imu_rate.r * IMU_GYRO_Q_R;
-  dr += ahrs_float.imu_rate.p * IMU_GYRO_R_P;
-  dr += ahrs_float.imu_rate.q * IMU_GYRO_R_Q;
+  dp += ahrs_impl.imu_rate.q * IMU_GYRO_P_Q;
+  dp += ahrs_impl.imu_rate.r * IMU_GYRO_P_R;
+  dq += ahrs_impl.imu_rate.p * IMU_GYRO_Q_P;
+  dq += ahrs_impl.imu_rate.r * IMU_GYRO_Q_R;
+  dr += ahrs_impl.imu_rate.p * IMU_GYRO_R_P;
+  dr += ahrs_impl.imu_rate.q * IMU_GYRO_R_Q;
 
-  ahrs_float.imu_rate.p += dp;
-  ahrs_float.imu_rate.q += dq;
-  ahrs_float.imu_rate.r += dr;
+  ahrs_impl.imu_rate.p += dp;
+  ahrs_impl.imu_rate.q += dq;
+  ahrs_impl.imu_rate.r += dr;
 #endif
 
   Matrix_update();
@@ -287,10 +276,10 @@ void ahrs_update_mag(void)
   float cos_pitch;
   float sin_pitch;
 
-  cos_roll = cos(ahrs_float.ltp_to_imu_euler.phi);
-  sin_roll = sin(ahrs_float.ltp_to_imu_euler.phi);
-  cos_pitch = cos(ahrs_float.ltp_to_imu_euler.theta);
-  sin_pitch = sin(ahrs_float.ltp_to_imu_euler.theta);
+  cos_roll = cosf(ahrs_impl.ltp_to_imu_euler.phi);
+  sin_roll = sinf(ahrs_impl.ltp_to_imu_euler.phi);
+  cos_pitch = cosf(ahrs_impl.ltp_to_imu_euler.theta);
+  sin_pitch = sinf(ahrs_impl.ltp_to_imu_euler.theta);
 
 
   // Pitch&Roll Compensation:
@@ -517,7 +506,7 @@ void Drift_correction(void)
 
 void Matrix_update(void)
 {
-  Vector_Add(&Omega[0], &ahrs_float.imu_rate.p, &Omega_I[0]);  //adding proportional term
+  Vector_Add(&Omega[0], &ahrs_impl.imu_rate.p, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
  #if OUTPUTMODE==1    // With corrected data (drift correction)
@@ -532,13 +521,13 @@ void Matrix_update(void)
   Update_Matrix[2][2]=0;
  #else                    // Uncorrected data (no drift correction)
   Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*ahrs_float.imu_rate.r;//-z
-  Update_Matrix[0][2]=G_Dt*ahrs_float.imu_rate.q;//y
-  Update_Matrix[1][0]=G_Dt*ahrs_float.imu_rate.r;//z
+  Update_Matrix[0][1]=-G_Dt*ahrs_impl.imu_rate.r;//-z
+  Update_Matrix[0][2]=G_Dt*ahrs_impl.imu_rate.q;//y
+  Update_Matrix[1][0]=G_Dt*ahrs_impl.imu_rate.r;//z
   Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*ahrs_float.imu_rate.p;
-  Update_Matrix[2][0]=-G_Dt*ahrs_float.imu_rate.q;
-  Update_Matrix[2][1]=G_Dt*ahrs_float.imu_rate.p;
+  Update_Matrix[1][2]=-G_Dt*ahrs_impl.imu_rate.p;
+  Update_Matrix[2][0]=-G_Dt*ahrs_impl.imu_rate.q;
+  Update_Matrix[2][1]=G_Dt*ahrs_impl.imu_rate.p;
   Update_Matrix[2][2]=0;
  #endif
 
@@ -558,30 +547,36 @@ void Matrix_update(void)
  */
 static inline void set_body_orientation_and_rates(void) {
 
-  FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);
-  stateSetBodyRates_f(&ahrs_float.body_rate);
+  struct FloatRates body_rate;
+  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, ahrs_impl.body_to_imu_rmat, ahrs_impl.imu_rate);
+  stateSetBodyRates_f(&body_rate);
 
-  FLOAT_RMAT_COMP_INV(ahrs_float.ltp_to_body_rmat,
-                      ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ahrs_float.ltp_to_body_euler.phi -= ins_roll_neutral;
-  ahrs_float.ltp_to_body_euler.theta -= ins_pitch_neutral;
-#endif
-  stateSetNedToBodyEulers_f(&ahrs_float.ltp_to_body_euler);
+  struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
+  FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
+  FLOAT_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
+
+  // Some stupid lines of code for neutrals
+  struct FloatEulers ltp_to_body_euler;
+  FLOAT_EULERS_OF_RMAT(ltp_to_body_euler, ltp_to_body_rmat);
+  ltp_to_body_euler.phi -= ins_roll_neutral;
+  ltp_to_body_euler.theta -= ins_pitch_neutral;
+  stateSetNedToBodyEulers_f(&ltp_to_body_euler);
+
+  // should be replaced at the end by: 
+  //   stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 
 }
 
 static inline void compute_ahrs_representations(void) {
 #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
-  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
-  ahrs_float.ltp_to_imu_euler.psi = 0;
+  ahrs_impl.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
+  ahrs_impl.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
+  ahrs_impl.ltp_to_imu_euler.psi = 0;
 #else
-  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
-  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
+  ahrs_impl.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
+  ahrs_impl.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
+  ahrs_impl.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+  ahrs_impl.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
 
   set_body_orientation_and_rates();
@@ -604,8 +599,3 @@ static inline void compute_ahrs_representations(void) {
   */
 }
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-void ahrs_update_fw_estimator( void ) {
-  // export results to estimator
-}
-#endif //AHRS_UPDATE_FW_ESTIMATOR
