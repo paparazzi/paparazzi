@@ -685,7 +685,6 @@ static inline void on_gyro_event( void ) {
 
   ahrs_propagate();
   ahrs_update_accel();
-  ahrs_update_fw_estimator();
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   new_ins_attitude = 1;
@@ -724,8 +723,6 @@ static inline void on_gyro_event( void ) {
       ImuScaleAccel(imu);
       ahrs_update_accel();
     }
-
-    ahrs_update_fw_estimator();
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
     new_ins_attitude = 1;
