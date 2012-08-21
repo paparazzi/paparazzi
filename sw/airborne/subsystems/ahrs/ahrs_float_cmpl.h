@@ -63,8 +63,6 @@ void ahrs_update_heading(float heading);
 void ahrs_realign_heading(float heading);
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO copy ahrs to state instead of estimator
-void ahrs_update_fw_estimator(void);
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 #endif
