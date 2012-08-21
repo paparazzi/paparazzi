@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -21,14 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_FLOAT_CMPL_RMAT
-#define AHRS_FLOAT_CMPL_RMAT
+#ifndef AHRS_FLOAT_CMPL
+#define AHRS_FLOAT_CMPL
 
 #include "std.h"
 
-struct AhrsFloatCmplRmat {
+struct AhrsFloatCmpl {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
+  struct FloatRates imu_rate;
+  struct FloatQuat ltp_to_imu_quat;
+  struct FloatRMat ltp_to_imu_rmat;
   /* for gravity correction during coordinated turns */
   float ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
@@ -45,7 +46,7 @@ struct AhrsFloatCmplRmat {
   struct FloatRMat body_to_imu_rmat;
 };
 
-extern struct AhrsFloatCmplRmat ahrs_impl;
+extern struct AhrsFloatCmpl ahrs_impl;
 
 
 /** Update yaw based on a heading measurement.

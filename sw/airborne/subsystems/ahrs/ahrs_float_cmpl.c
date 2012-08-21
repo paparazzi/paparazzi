@@ -54,16 +54,27 @@
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
 
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+#endif //AHRS_UPDATE_FW_ESTIMATOR
+
+
 void ahrs_update_mag_full(void);
 void ahrs_update_mag_2d(void);
 void ahrs_update_mag_2d_dumb(void);
 
-static inline void compute_imu_quat_and_euler_from_rmat(void);
-static inline void compute_imu_rmat_and_euler_from_quat(void);
 static inline void compute_body_orientation_and_rates(void);
 
 
-struct AhrsFloatCmplRmat ahrs_impl;
+struct AhrsFloatCmpl ahrs_impl;
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
@@ -76,18 +87,11 @@ void ahrs_init(void) {
   FLOAT_QUAT_OF_EULERS(ahrs_impl.body_to_imu_quat, body_to_imu_euler);
   FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);
 
-  /* Set ltp_to_body to zero */
-  FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
-  FLOAT_EULERS_ZERO(ahrs_float.ltp_to_body_euler);
-  FLOAT_RMAT_ZERO(ahrs_float.ltp_to_body_rmat);
-  FLOAT_RATES_ZERO(ahrs_float.body_rate);
-
   /* Set ltp_to_imu so that body is zero */
-  QUAT_COPY(ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
-  RMAT_COPY(ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
-  EULERS_COPY(ahrs_float.ltp_to_imu_euler, body_to_imu_euler);
+  QUAT_COPY(ahrs_impl.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
+  RMAT_COPY(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
 
-  FLOAT_RATES_ZERO(ahrs_float.imu_rate);
+  FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
 
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
   ahrs_impl.correct_gravity = TRUE;
@@ -101,23 +105,19 @@ void ahrs_align(void) {
 
 #if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
-  ahrs_float_get_quat_from_accel_mag(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_float_get_quat_from_accel_mag(&ahrs_impl.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
   ahrs_impl.heading_aligned = TRUE;
 #else
   /* Compute an initial orientation from accel and just set heading to zero */
-  ahrs_float_get_quat_from_accel(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
+  ahrs_float_get_quat_from_accel(&ahrs_impl.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
   ahrs_impl.heading_aligned = FALSE;
 #endif
 
-  /* Convert initial orientation from quat to euler and rotation matrix representations. */
-  compute_imu_rmat_and_euler_from_quat();
+  /* Convert initial orientation from quat to rotation matrix representations. */
+  FLOAT_RMAT_OF_QUAT(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
 
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
-
-  /* compute fixed point representations */
-  AHRS_INT_OF_FLOAT();
-  AHRS_IMU_INT_OF_FLOAT();
 
   /* used averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -138,9 +138,9 @@ void ahrs_propagate(void) {
 
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
   const float alpha = 0.1;
-  FLOAT_RATES_LIN_CMB(ahrs_float.imu_rate, ahrs_float.imu_rate, (1.-alpha), gyro_float, alpha);
+  FLOAT_RATES_LIN_CMB(ahrs_impl.imu_rate, ahrs_impl.imu_rate, (1.-alpha), gyro_float, alpha);
 #else
-  RATES_COPY(ahrs_float.imu_rate,gyro_float);
+  RATES_COPY(ahrs_impl.imu_rate,gyro_float);
 #endif
 
   /* add correction     */
@@ -151,28 +151,25 @@ void ahrs_propagate(void) {
 
   const float dt = 1./AHRS_PROPAGATE_FREQUENCY;
 #if AHRS_PROPAGATE_RMAT
-  FLOAT_RMAT_INTEGRATE_FI(ahrs_float.ltp_to_imu_rmat, omega, dt );
-  float_rmat_reorthogonalize(&ahrs_float.ltp_to_imu_rmat);
-  compute_imu_quat_and_euler_from_rmat();
+  FLOAT_RMAT_INTEGRATE_FI(ahrs_impl.ltp_to_imu_rmat, omega, dt);
+  float_rmat_reorthogonalize(&ahrs_impl.ltp_to_imu_rmat);
+  FLOAT_QUAT_OF_RMAT(ahrs_impl.ltp_to_imu_quat, ahrs_impl.ltp_to_imu_rmat);
 #endif
 #if AHRS_PROPAGATE_QUAT
-  FLOAT_QUAT_INTEGRATE(ahrs_float.ltp_to_imu_quat, omega, dt);
-  FLOAT_QUAT_NORMALIZE(ahrs_float.ltp_to_imu_quat);
-  compute_imu_rmat_and_euler_from_quat();
+  FLOAT_QUAT_INTEGRATE(ahrs_impl.ltp_to_imu_quat, omega, dt);
+  FLOAT_QUAT_NORMALIZE(ahrs_impl.ltp_to_imu_quat);
+  FLOAT_RMAT_OF_QUAT(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
 #endif
   compute_body_orientation_and_rates();
 
-  /* compute fixed point representations */
-  AHRS_INT_OF_FLOAT();
-  AHRS_IMU_INT_OF_FLOAT();
 }
 
 void ahrs_update_accel(void) {
 
   /* last column of roation matrix = ltp z-axis in imu-frame */
-  struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
-                            RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
-                            RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
+  struct FloatVect3  c2 = { RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 0,2),
+                            RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 1,2),
+                            RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,2)};
 
   struct FloatVect3 imu_accel_float;
   ACCELS_FLOAT_OF_BFP(imu_accel_float, imu.accel);
@@ -189,9 +186,9 @@ void ahrs_update_accel(void) {
      */
     const struct FloatVect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm, 0.0, 0.0};
     struct FloatVect3 acc_c_body;
-    VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs_float.body_rate, vel_tangential_body);
+    VECT3_RATES_CROSS_VECT3(acc_c_body, *stateGetBodyRates_f(), vel_tangential_body);
 
-    /* convert centrifucal acceleration from body to imu frame */
+    /* convert centrifugal acceleration from body to imu frame */
     struct FloatVect3 acc_c_imu;
     FLOAT_RMAT_VECT3_MUL(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body);
 
@@ -237,7 +234,7 @@ void ahrs_update_mag_full(void) {
 
   const struct FloatVect3 expected_ltp = {AHRS_H_X, AHRS_H_Y, AHRS_H_Z};
   struct FloatVect3 expected_imu;
-  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_float.ltp_to_imu_rmat, expected_ltp);
+  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_impl.ltp_to_imu_rmat, expected_ltp);
 
   struct FloatVect3 measured_imu;
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
@@ -263,7 +260,7 @@ void ahrs_update_mag_2d(void) {
   struct FloatVect3 measured_imu;
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
   struct FloatVect3 measured_ltp;
-  FLOAT_RMAT_VECT3_TRANSP_MUL(measured_ltp, ahrs_float.ltp_to_imu_rmat, measured_imu);
+  FLOAT_RMAT_VECT3_TRANSP_MUL(measured_ltp, ahrs_impl.ltp_to_imu_rmat, measured_imu);
 
   const struct FloatVect3 residual_ltp =
     { 0,
@@ -273,7 +270,7 @@ void ahrs_update_mag_2d(void) {
   //  printf("res : %f\n", residual_ltp.z);
 
   struct FloatVect3 residual_imu;
-  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_float.ltp_to_imu_rmat, residual_ltp);
+  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_impl.ltp_to_imu_rmat, residual_ltp);
 
   const float mag_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
@@ -287,19 +284,21 @@ void ahrs_update_mag_2d(void) {
 void ahrs_update_mag_2d_dumb(void) {
 
   /* project mag on local tangeant plane */
+  struct FloatEulers ltp_to_imu_euler;
+  FLOAT_EULERS_OF_RMAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_rmat);
   struct FloatVect3 magf;
   MAGS_FLOAT_OF_BFP(magf, imu.mag);
-  const float cphi   = cosf(ahrs_float.ltp_to_imu_euler.phi);
-  const float sphi   = sinf(ahrs_float.ltp_to_imu_euler.phi);
-  const float ctheta = cosf(ahrs_float.ltp_to_imu_euler.theta);
-  const float stheta = sinf(ahrs_float.ltp_to_imu_euler.theta);
+  const float cphi   = cosf(ltp_to_imu_euler.phi);
+  const float sphi   = sinf(ltp_to_imu_euler.phi);
+  const float ctheta = cosf(ltp_to_imu_euler.theta);
+  const float stheta = sinf(ltp_to_imu_euler.theta);
   const float mn = ctheta * magf.x + sphi*stheta*magf.y + cphi*stheta*magf.z;
   const float me =     0. * magf.x + cphi       *magf.y - sphi       *magf.z;
 
-  const float res_norm = -RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,0)*me + RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,0)*mn;
-  const struct FloatVect3 r2 = {RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,0),
-                                RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,1),
-                                RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
+  const float res_norm = -RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 0,0)*me + RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 1,0)*mn;
+  const struct FloatVect3 r2 = {RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,0),
+                                RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,1),
+                                RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,2)};
   const float mag_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, r2, (mag_rate_update_gain*res_norm));
   const float mag_bias_update_gain = -2.5e-4;
@@ -343,11 +342,12 @@ void ahrs_update_heading(float heading) {
 
   FLOAT_ANGLE_NORMALIZE(heading);
 
+  struct FloatRMat* ltp_to_body_rmat = stateGetNedToBodyRMat_f();
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
   struct FloatVect2 expected_ltp =
-    { RMAT_ELMT(ahrs_float.ltp_to_body_rmat, 0, 0),
-      RMAT_ELMT(ahrs_float.ltp_to_body_rmat, 0, 1) };
+    { RMAT_ELMT(*ltp_to_body_rmat, 0, 0),
+      RMAT_ELMT(*ltp_to_body_rmat, 0, 1) };
 
   // expected_heading cross measured_heading
   struct FloatVect3 residual_ltp =
@@ -356,7 +356,7 @@ void ahrs_update_heading(float heading) {
       expected_ltp.x * sinf(heading) - expected_ltp.y * cosf(heading)};
 
   struct FloatVect3 residual_imu;
-  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_float.ltp_to_imu_rmat, residual_ltp);
+  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_impl.ltp_to_imu_rmat, residual_ltp);
 
   const float heading_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
@@ -386,9 +386,10 @@ void ahrs_realign_heading(float heading) {
   q_h_new.qz = sinf(heading/2.0);
   q_h_new.qi = cosf(heading/2.0);
 
+  struct FloatQuat* ltp_to_body_quat = stateGetNedToBodyQuat_f();
   /* quaternion representing current heading only */
   struct FloatQuat q_h;
-  QUAT_COPY(q_h, ahrs_float.ltp_to_body_quat);
+  QUAT_COPY(q_h, *ltp_to_body_quat);
   q_h.qx = 0.;
   q_h.qy = 0.;
   FLOAT_QUAT_NORMALIZE(q_h);
@@ -399,79 +400,42 @@ void ahrs_realign_heading(float heading) {
 
   /* correct current heading in body frame */
   struct FloatQuat q;
-  FLOAT_QUAT_COMP_NORM_SHORTEST(q, q_c, ahrs_float.ltp_to_body_quat);
-  QUAT_COPY(ahrs_float.ltp_to_body_quat, q);
+  FLOAT_QUAT_COMP_NORM_SHORTEST(q, q_c, *ltp_to_body_quat);
 
-  /* compute ltp to imu rotation quaternion */
-  FLOAT_QUAT_COMP(ahrs_float.ltp_to_imu_quat,
-                  ahrs_float.ltp_to_body_quat, ahrs_impl.body_to_imu_quat);
+  /* compute ltp to imu rotation quaternion and matrix */
+  FLOAT_QUAT_COMP(ahrs_impl.ltp_to_imu_quat, q, ahrs_impl.body_to_imu_quat);
+  FLOAT_RMAT_OF_QUAT(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
 
-  /* compute other body orientation representations */
-  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_body_rmat, ahrs_float.ltp_to_body_quat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
-
-  /* compute other ltp to imu rotation representations */
-  compute_imu_rmat_and_euler_from_quat();
-
-  /* compute fixed point representations */
-  AHRS_INT_OF_FLOAT();
-  AHRS_IMU_INT_OF_FLOAT();
+  /* set state */
+  stateSetNedToBodyQuat_f(&q);
 
   ahrs_impl.heading_aligned = TRUE;
 }
 
 
 /**
- * Compute ltp to imu rotation in euler angles and quaternion representations
- * from the rotation matrix representation
- */
-static inline void compute_imu_quat_and_euler_from_rmat(void) {
-  FLOAT_QUAT_OF_RMAT(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_rmat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat);
-}
-
-
-static inline void compute_imu_rmat_and_euler_from_quat(void) {
-  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat);
-}
-
-
-
-/**
  * Compute body orientation and rates from imu orientation and rates
  */
 static inline void compute_body_orientation_and_rates(void) {
-  FLOAT_QUAT_COMP_INV(ahrs_float.ltp_to_body_quat,
-                      ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
-  FLOAT_RMAT_COMP_INV(ahrs_float.ltp_to_body_rmat,
-                      ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
-  FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);
-}
-
-
+  /* Compute LTP to BODY quaternion */
+  struct FloatQuat ltp_to_body_quat;
+  FLOAT_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
+  /* Set state */
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO use ahrs result directly
-#include "estimator.h"
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
+  struct FloatEulers neutrals_to_body_eulers = { ins_roll_neutral, ins_pitch_neutral, 0. };
+  struct FloatQuat neutrals_to_body_quat, ltp_to_neutrals_quat;
+  FLOAT_QUAT_OF_EULERS(neutrals_to_body_quat, neutrals_to_body_eulers);
+  FLOAT_QUAT_NORMALIZE(neutrals_to_body_quat);
+  FLOAT_QUAT_COMP_INV(ltp_to_neutrals_quat, ltp_to_body_quat, neutrals_to_body_quat);
+  stateSetNedToBodyQuat_f(&ltp_to_neutrals_quat);
+#else
+  stateSetNedToBodyQuat_f(&ltp_to_body_quat);
 #endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-void ahrs_update_fw_estimator(void)
-{
-  // export results to estimator
-  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
-  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
-  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
 
-  estimator_p = ahrs_float.body_rate.p;
-  estimator_q = ahrs_float.body_rate.q;
-  estimator_r = ahrs_float.body_rate.r;
+  /* compute body rates */
+  struct FloatRates body_rate;
+  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, ahrs_impl.body_to_imu_rmat, ahrs_impl.imu_rate);
+  stateSetBodyRates_f(&body_rate);
 }
-#endif //AHRS_UPDATE_FW_ESTIMATOR
+
+
