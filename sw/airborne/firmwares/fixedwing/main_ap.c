@@ -57,6 +57,7 @@
 // autopilot & control
 #include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
+#include "subsystems/ins.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
 #include "subsystems/nav.h"
@@ -167,9 +168,7 @@ void init_ap( void ) {
   ahrs_init();
 #endif
 
-#if USE_INS
   ins_init();
-#endif
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
@@ -183,9 +182,6 @@ void init_ap( void ) {
   h_ctl_init();
   v_ctl_init();
   estimator_init();
-#ifdef ALT_KALMAN
-  alt_kalman_init();
-#endif
   nav_init();
 
   modules_init();
@@ -547,9 +543,7 @@ void sensors_task( void ) {
   ahrs_propagate();
 #endif
 
-#if USE_INS
-  ins_periodic_task();
-#endif
+  ins_periodic();
 }
 
 
@@ -583,7 +577,7 @@ void monitor_task( void ) {
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
   if (!estimator_flight_time &&
-      estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
+      *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
     uint16_t time_sec = sys_time.nb_sec;
@@ -647,7 +641,7 @@ void event_task_ap( void ) {
 
 #if USE_GPS
 static inline void on_gps_solution( void ) {
-  estimator_update_state_gps();
+  ins_update_gps();
 #if USE_AHRS
   ahrs_update_gps();
 #endif
