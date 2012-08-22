@@ -169,6 +169,18 @@ ap_srcs 		+= $(SRC_FIXEDWING)/subsystems/ins/ins_float.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 ap_srcs 		+= state.c
 
+# BARO
+ifeq ($(BOARD), umarim)
+ifeq ($(BOARD_VERSION), 1.0)
+ap_srcs 	+= boards/umarim/baro_board.c
+ap_CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
+ap_CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+ap_srcs 	+= peripherals/ads1114.c
+endif
+else ifeq ($(BOARD), lisa_l)
+ap_CFLAGS += -DUSE_I2C2
+endif
+
 
 ######################################################################
 ##

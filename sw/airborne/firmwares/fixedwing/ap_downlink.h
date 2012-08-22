@@ -290,8 +290,7 @@
 #define PERIODIC_SEND_SCP_STATUS(_trans, _dev) {}
 #endif
 
-//FIXME: we need a better switch here...
-#if BOARD_HAS_BARO && USE_BARO_AS_ALTIMETER
+#if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {  \
     DOWNLINK_SEND_BARO_RAW(_trans, _dev,        \
