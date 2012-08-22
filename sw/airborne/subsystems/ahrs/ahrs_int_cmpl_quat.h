@@ -33,6 +33,7 @@ struct AhrsIntCmpl {
   struct Int64Quat   high_rez_quat;
   struct Int64Rates  high_rez_bias;
   struct Int32Quat   ltp_to_imu_quat;
+  struct Int32Eulers   ltp_to_imu_eulers; // FIXME to compile telemetry
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
