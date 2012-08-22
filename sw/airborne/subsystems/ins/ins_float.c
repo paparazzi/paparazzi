@@ -41,6 +41,16 @@
 float estimator_z;
 float estimator_z_dot;
 
+#if USE_BAROMETER
+#include "subsystems/sensors/baro.h"
+int32_t ins_qfe;
+bool_t  ins_baro_initialised;
+float ins_baro_alt;
+#endif
+
+bool_t ins_hf_realign;
+bool_t ins_vf_realign;
+
 void ins_init() {
 
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
@@ -51,6 +61,13 @@ void ins_init() {
 #ifdef ALT_KALMAN
   alt_kalman_init();
 #endif
+
+#if USE_BAROMETER
+  ins_qfe = 0;;
+  ins_baro_initialised = FALSE;
+  ins_baro_alt = 0.;
+#endif
+  ins_vf_realign = FALSE;
 
   EstimatorSetAlt(0.);
 
@@ -69,7 +86,23 @@ void ins_propagate() {
 }
 
 void ins_update_baro() {
+#if USE_BAROMETER
   // TODO update kalman filter with baro struct
+  if (baro.status == BS_RUNNING) {
+    if (!ins_baro_initialised) {
+      ins_qfe = baro.absolute;
+      ins_baro_initialised = TRUE;
+    }
+    if (ins_vf_realign) {
+      ins_vf_realign = FALSE;
+      ins_qfe = baro.absolute;
+    }
+    else { /* not realigning, so normal update with baro measurement */
+      ins_baro_alt = (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      EstimatorSetAlt(ins_baro_alt);
+    }
+  }
+#endif
 }
 
 
