@@ -53,6 +53,9 @@
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
+#if USE_BAROMETER
+#include "subsystems/sensors/baro.h"
+#endif
 
 // autopilot & control
 #include "firmwares/fixedwing/autopilot.h"
@@ -96,6 +99,10 @@ volatile uint8_t ahrs_timeout_counter = 0;
 static inline void on_gps_solution( void );
 #endif
 
+#if USE_BAROMETER
+static inline void on_baro_abs_event( void );
+static inline void on_baro_dif_event( void );
+#endif
 
 bool_t power_switch;
 
@@ -166,6 +173,10 @@ void init_ap( void ) {
 
 #if USE_AHRS
   ahrs_init();
+#endif
+
+#if USE_BAROMETER
+  baro_init();
 #endif
 
   ins_init();
@@ -543,6 +554,10 @@ void sensors_task( void ) {
   ahrs_propagate();
 #endif
 
+#if USE_BAROMETER
+  baro_periodic();
+#endif
+
   ins_periodic();
 }
 
@@ -611,6 +626,9 @@ void event_task_ap( void ) {
   GpsEvent(on_gps_solution);
 #endif /* USE_GPS */
 
+#if USE_BAROMETER
+  BaroEvent(on_baro_abs_event, on_baro_dif_event);
+#endif
 
   DatalinkEvent();
 
@@ -740,3 +758,14 @@ static inline void on_mag_event(void)
 
 #endif // USE_AHRS
 
+#if USE_BAROMETER
+
+static inline void on_baro_abs_event( void ) {
+  ins_update_baro();
+}
+
+static inline void on_baro_dif_event( void ) {
+
+}
+
+#endif // USE_BAROMETER
