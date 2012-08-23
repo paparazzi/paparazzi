@@ -30,6 +30,7 @@
 #include "baro_board.h"
 #include "subsystems/electrical.h"
 #include "mcu_periph/sys_time.h"
+#include "state.h"
 
 #include "actuators/supervision.h"
 
@@ -109,12 +110,12 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 
-  EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);
+  struct Int32Quat quat;
+  QUAT_BFP_OF_REAL(quat, fdm.ltp_to_body_quat);
+  stateSetNedToBodyQuat_f(&quat);
 
-  QUAT_BFP_OF_REAL(ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
-
-  RATES_BFP_OF_REAL(ahrs.body_rate, fdm.body_ecef_rotvel);
-
-  INT32_RMAT_OF_QUAT(ahrs.ltp_to_body_rmat, ahrs.ltp_to_body_quat);
+  struct Int32Rates rates;
+  RATES_BFP_OF_REAL(rates, fdm.body_ecef_rotvel);
+  stateSetBodyRates_f(&rates);
 
 }
