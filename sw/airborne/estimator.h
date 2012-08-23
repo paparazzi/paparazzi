@@ -39,9 +39,6 @@
 /** flight time in seconds. */
 extern uint16_t estimator_flight_time;
 
-/* Wind and airspeed estimation sent by the GCS */
-extern float estimator_airspeed; ///< m/s
-
 extern float estimator_AOA; ///< angle of attack in rad
 
 void estimator_init( void );

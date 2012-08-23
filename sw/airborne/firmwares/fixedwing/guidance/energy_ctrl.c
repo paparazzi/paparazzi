@@ -228,7 +228,7 @@ static float low_pass_vdot(float v)
 void v_ctl_climb_loop( void )
 {
   // Airspeed outerloop: positive means we need to accelerate
-  float speed_error = v_ctl_auto_airspeed_setpoint - estimator_airspeed;
+  float speed_error = v_ctl_auto_airspeed_setpoint - (*stateGetAirspeed_f());
 
   // Speed Controller to PseudoControl: gain 1 -> 5m/s error = 0.5g acceleration
   v_ctl_desired_acceleration = speed_error * v_ctl_airspeed_pgain / 9.81f;

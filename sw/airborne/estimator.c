@@ -39,7 +39,6 @@
 /* flight time in seconds */
 uint16_t estimator_flight_time;
 
-float estimator_airspeed;
 float estimator_AOA;
 
 void estimator_init( void ) {
