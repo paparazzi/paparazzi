@@ -194,7 +194,7 @@ void v_ctl_altitude_loop( void )
   if (v_ctl_auto_airspeed_setpoint <= 0.0f) v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;
 
   // Altitude Controller
-  v_ctl_altitude_error = v_ctl_altitude_setpoint - stateCalcPositionUtm_f()->alt;
+  v_ctl_altitude_error = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
   float sp = v_ctl_altitude_pgain * v_ctl_altitude_error + v_ctl_altitude_pre_climb ;
   BoundAbs(sp, v_ctl_max_climb);
 
