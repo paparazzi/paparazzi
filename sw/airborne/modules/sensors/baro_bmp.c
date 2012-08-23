@@ -37,7 +37,6 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
-#include "estimator.h"
 #include "state.h"
 #include "subsystems/nav.h"
 
@@ -127,7 +126,8 @@ void baro_bmp_periodic( void ) {
   }
 #else // SITL
   baro_bmp_altitude = gps.hmsl / 1000.0;
-  EstimatorSetAlt(baro_bmp_altitude);
+  baro_bmp_pressure = baro_bmp_altitude; //FIXME do a proper scaling here
+  baro_bmp_valid = TRUE;
 #endif
 
 }
@@ -237,10 +237,6 @@ void baro_bmp_event( void ) {
         baro_bmp_altitude = ground_alt + baro_bmp_temp;
         // New value available
         baro_bmp_valid = TRUE;
-#if USE_BARO_BMP
-#pragma message "USING BARO BMP"
-        EstimatorSetAlt(baro_bmp_altitude);
-#endif
 
 #ifdef SENSOR_SYNC_SEND
         DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &bmp_up, &bmp_ut, &bmp_p, &bmp_t);

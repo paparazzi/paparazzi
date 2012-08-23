@@ -25,7 +25,6 @@
 
 #include "sensors/baro_amsys.h"
 #include "mcu_periph/i2c.h"
-#include "estimator.h"
 #include "state.h"
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
@@ -73,6 +72,7 @@
 // Global variables
 uint16_t pBaroRaw;
 uint16_t tBaroRaw;
+uint16_t baro_amsys_adc;
 float baro_amsys_offset;
 bool_t baro_amsys_valid;
 float baro_amsys_altitude;
@@ -127,8 +127,8 @@ void baro_amsys_read_periodic( void ) {
 #else // SITL
 	pBaroRaw = 0;
 	baro_amsys_altitude = gps.hmsl / 1000.0;
+  baro_amsys_adc = baro_amsys_altitude / BARO_AMSYS_SCALE;
 	baro_amsys_valid = TRUE;
-	EstimatorSetAlt(baro_amsys_altitude);
 #endif
 }
 
@@ -146,6 +146,7 @@ void baro_amsys_read_event( void ) {
 	else
 		baro_amsys_valid = TRUE;
 
+  baro_amsys_adc = pBaroRaw;
 
 	// Continue only if a new altimeter value was received
 	//if (baro_amsys_valid && GpsFixValid()) {
@@ -181,10 +182,7 @@ void baro_amsys_read_event( void ) {
 			// Lowpassfiltering and convert pressure to altitude
 			baro_amsys_altitude = baro_filter * baro_old + (1 - baro_filter) * (baro_amsys_offset-baro_amsys_p)/(1.2041*9.81);
 			baro_old = baro_amsys_altitude;
-
-
 			//New value available
-			//EstimatorSetAlt(baro_amsys_abs_altitude);
 		}
 		baro_amsys_abs_altitude=baro_amsys_altitude+ref_alt_init;
 	} /*else {

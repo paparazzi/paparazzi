@@ -37,7 +37,6 @@
 
 #include "sensors/baro_ets.h"
 #include "mcu_periph/i2c.h"
-#include "estimator.h"
 #include "state.h"
 #include <math.h>
 
@@ -98,10 +97,9 @@ void baro_ets_read_periodic( void ) {
   if (baro_ets_i2c_trans.status == I2CTransDone)
     I2CReceive(BARO_ETS_I2C_DEV, baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
-  baro_ets_adc = 0;
   baro_ets_altitude = gps.hmsl / 1000.0;
+  baro_ets_adc = baro_ets_altitude / BARO_ETS_SCALE;
   baro_ets_valid = TRUE;
-  EstimatorSetAlt(baro_ets_altitude);
 #endif
 }
 
@@ -150,7 +148,6 @@ void baro_ets_read_event( void ) {
     if (baro_ets_offset_init) {
       baro_ets_altitude = ground_alt + BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
       // New value available
-      EstimatorSetAlt(baro_ets_altitude);
 #ifdef BARO_ETS_TELEMETRY
       DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
 #endif
