@@ -45,8 +45,8 @@
       <call fun="stop_formation()"/>
     </block>
     <block name="land"> <!-- basic landing function out of formation -->
-      <exception cond="(GROUND_ALT+10> estimator_z)" deroute="stop"/>
-      <circle radius="50" until="WaypointAlt(WP_IAF) > estimator_z" wp="IAF"/>
+      <exception cond="(GROUND_ALT+10> GetPosAlt())" deroute="stop"/>
+      <circle radius="50" until="WaypointAlt(WP_IAF) > GetPosAlt()" wp="IAF"/>
       <go alt="WaypointAlt(WP_AF)" wp="AF"/>
       <go from="AF" hmode="route" vmode="glide" wp="RWAY"/>
     </block>

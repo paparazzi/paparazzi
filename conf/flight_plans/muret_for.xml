@@ -10,7 +10,7 @@
     <block name="init">
       <while cond="(!launch)"/>
       <heading course="QFU" throttle="0.8" pitch="10" until="(estimator_flight_time > 8)" vmode="throttle"/>
-      <heading climb="3.0" course="QFU" pitch="10" until="(estimator_z > SECURITY_ALT)" vmode="climb"/>
+      <heading climb="3.0" course="QFU" pitch="10" until="(GetPosAlt() > SECURITY_ALT)" vmode="climb"/>
     </block>
     <block name="for">
       <for from="0" to="3" var="i">
