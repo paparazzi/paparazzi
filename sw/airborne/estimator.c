@@ -31,8 +31,6 @@
 
 #include "estimator.h"
 
-float estimator_AOA;
-
 void estimator_init( void ) {
 
 }

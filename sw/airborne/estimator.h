@@ -36,8 +36,6 @@
 
 #include "state.h"
 
-extern float estimator_AOA; ///< angle of attack in rad
-
 void estimator_init( void );
 
 #endif /* ESTIMATOR_H */

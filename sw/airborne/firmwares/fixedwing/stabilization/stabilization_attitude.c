@@ -433,7 +433,7 @@ inline static void h_ctl_pitch_loop( void ) {
 			err = att->theta - h_ctl_pitch_loop_setpoint;
 		break;
 		case H_CTL_PITCH_MODE_AOA:
-			err = estimator_AOA - h_ctl_pitch_loop_setpoint; //TODO AOA into state interface
+			err = (*stateGetAngleOfAttack_f()) - h_ctl_pitch_loop_setpoint;
 		break;
 		default:
 			err = att->theta - h_ctl_pitch_loop_setpoint;
