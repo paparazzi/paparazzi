@@ -83,7 +83,7 @@ void generic_com_periodic( void ) {
   com_trans.buf[19] = (uint8_t)(ap_state->commands[COMMAND_THROTTLE]*100/MAX_PPRZ);
   com_trans.buf[20] = pprz_mode;
   com_trans.buf[21] = nav_block;
-  FillBufWith16bit(com_trans.buf, 22, estimator_flight_time);
+  FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time);
   I2CTransmit(GENERIC_COM_I2C_DEV, com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
 
 }

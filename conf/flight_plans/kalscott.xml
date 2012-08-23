@@ -28,7 +28,7 @@
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > ground_alt+25" deroute="Circle"/>
       <set value="0" var="kill_throttle"/>
-      <set value="0" var="estimator_flight_time"/>
+      <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block name="Circle" strip_button="Circle" strip_icon="home.png">

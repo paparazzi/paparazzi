@@ -63,7 +63,7 @@
                           &v_ctl_throttle_slewed,       \
                           &vsupply,                     \
                           &amps,                        \
-                          &estimator_flight_time,       \
+                          &autopilot_flight_time,       \
                           &kill_throttle,				\
                           &block_time,					\
                           &stage_time,					\

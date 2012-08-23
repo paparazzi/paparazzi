@@ -78,7 +78,7 @@ unsigned char electrical_vsupply;
 unsigned char nav_block;
 unsigned short energy;
 unsigned char throttle;
-unsigned short estimator_flight_time;
+unsigned short autopilot_flight_time;
 unsigned char nav_utm_zone0;
 float latlong_utm_x, latlong_utm_y;
 unsigned char pprz_mode;
@@ -133,8 +133,8 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       pprz_mode = buf[19];
       //    com_trans.buf[21] = nav_block;
       nav_block = buf[20];
-      //    FillBufWith16bit(com_trans.buf, 22, estimator_flight_time); 
-      estimator_flight_time = buf2ushort(&buf[21]);
+      //    FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time); 
+      autopilot_flight_time = buf2ushort(&buf[21]);
 
 #if 0
       gps_lat = 52.2648312 * 1e7;
@@ -148,7 +148,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       throttle = 51;
       pprz_mode = 2;
       nav_block = 1;
-      estimator_flight_time = 123;
+      autopilot_flight_time = 123;
 #endif
 
       printf("**** message received from iridium module ****\n");
@@ -163,7 +163,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       printf("throttle %d\n", throttle);
       printf("pprz_mode %d\n", pprz_mode);
       printf("nav_block %d\n", nav_block);
-      printf("estimator_flight_time %d\n", estimator_flight_time);
+      printf("autopilot_flight_time %d\n", autopilot_flight_time);
       fflush(stdout);
 
       IvySendMsg("%d GENERIC_COM %d %d %d %d %d %d %d %d %d %d %d %d",
@@ -179,7 +179,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
           throttle,
           pprz_mode,
           nav_block,
-          estimator_flight_time);
+          autopilot_flight_time);
 
     }
     else {

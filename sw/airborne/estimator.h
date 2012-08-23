@@ -36,9 +36,6 @@
 
 #include "state.h"
 
-/** flight time in seconds. */
-extern uint16_t estimator_flight_time;
-
 extern float estimator_AOA; ///< angle of attack in rad
 
 void estimator_init( void );

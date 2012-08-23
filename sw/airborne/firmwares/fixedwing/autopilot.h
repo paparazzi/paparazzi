@@ -55,6 +55,9 @@
 extern uint8_t pprz_mode;
 extern bool_t kill_throttle;
 
+/** flight time in seconds. */
+extern uint16_t autopilot_flight_time;
+
 
 // FIXME, move to control
 #define LATERAL_MODE_MANUAL    0
@@ -95,7 +98,7 @@ extern bool_t power_switch;
 #endif // POWER_SWITCH_LED
 
 #define autopilot_ResetFlightTimeAndLaunch(_) { \
-  estimator_flight_time = 0; launch = FALSE; \
+  autopilot_flight_time = 0; launch = FALSE; \
 }
 
 /* CONTROL_RATE will be removed in the next release

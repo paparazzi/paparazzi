@@ -35,7 +35,7 @@
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby Menton"/>
       <set value="0" var="kill_throttle"/>
-      <set value="0" var="estimator_flight_time"/>
+      <set value="0" var="autopilot_flight_time"/>
       <go throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block name="Standby Menton" strip_button="Standby Menton" strip_icon="home.png">

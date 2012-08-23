@@ -30,20 +30,10 @@
 #include <math.h>
 
 #include "estimator.h"
-#include "state.h"
-#include "mcu_periph/uart.h"
-#include "ap_downlink.h"
-#include "subsystems/gps.h"
-#include "subsystems/nav.h"
-
-/* flight time in seconds */
-uint16_t estimator_flight_time;
 
 float estimator_AOA;
 
 void estimator_init( void ) {
-
-  estimator_flight_time = 0;
 
 }
 

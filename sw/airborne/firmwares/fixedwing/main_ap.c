@@ -122,6 +122,9 @@ bool_t kill_throttle = FALSE;
 
 bool_t launch = FALSE;
 
+/* flight time in seconds */
+uint16_t autopilot_flight_time = 0;
+
 
 /** Supply voltage in deciVolt.
  * This the ap copy of the measurement from fbw
@@ -382,7 +385,7 @@ static inline void telecommand_task( void ) {
   current = fbw_state->current;
 
 #ifdef RADIO_CONTROL
-  if (!estimator_flight_time) {
+  if (!autopilot_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
@@ -517,7 +520,7 @@ void attitude_loop( void ) {
 
     h_ctl_pitch_setpoint = nav_pitch;
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
-    if (kill_throttle || (!estimator_flight_time && !launch))
+    if (kill_throttle || (!autopilot_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
   }
 
@@ -577,8 +580,8 @@ void sensors_task( void ) {
 
 /** monitor stuff run at 1Hz */
 void monitor_task( void ) {
-  if (estimator_flight_time)
-    estimator_flight_time++;
+  if (autopilot_flight_time)
+    autopilot_flight_time++;
 #if defined DATALINK || defined SITL
   datalink_time++;
 #endif
@@ -591,9 +594,9 @@ void monitor_task( void ) {
   kill_throttle |= (t >= LOW_BATTERY_DELAY);
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
-  if (!estimator_flight_time &&
+  if (!autopilot_flight_time &&
       *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
-    estimator_flight_time = 1;
+    autopilot_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
     uint16_t time_sec = sys_time.nb_sec;
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
