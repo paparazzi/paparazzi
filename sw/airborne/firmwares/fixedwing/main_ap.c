@@ -58,8 +58,8 @@
 #endif
 
 // autopilot & control
+#include "state.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "estimator.h"
 #include "subsystems/ins.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
@@ -184,6 +184,8 @@ void init_ap( void ) {
 
   ins_init();
 
+  stateInit();
+
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
   link_mcu_init();
@@ -195,7 +197,6 @@ void init_ap( void ) {
   /************ Internal status ***************/
   h_ctl_init();
   v_ctl_init();
-  estimator_init();
   nav_init();
 
   modules_init();

@@ -28,7 +28,6 @@
 #include "mcu_periph/i2c.h"
 
 #include "state.h"
-#include "estimator.h"
 #include "subsystems/gps.h"
 #include "subsystems/electrical.h"
 #include "generated/airframe.h"
