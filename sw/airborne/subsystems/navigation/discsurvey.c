@@ -24,7 +24,8 @@ bool_t disc_survey_init( float grid ) {
 }
 
 bool_t disc_survey( uint8_t center, float radius) {
-  float wind_dir = atan2(wind_north, wind_east) + M_PI;
+  struct FloatVect2 wind = stateGetHorizontalSpeedDir_f();
+  float wind_dir = atan2(wind->x, wind->y) + M_PI;
 
   /** Not null even if wind_east=wind_north=0 */
   float upwind_x = cos(wind_dir);
