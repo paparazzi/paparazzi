@@ -101,7 +101,8 @@ bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td) {
   init = TRUE;
 
 #if USE_AIRSPEED
-  //float wind_additional = sqrt(wind_east*wind_east + wind_north*wind_north); // should be gusts only!
+  //struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
+  //float wind_additional = sqrt(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
   //Bound(wind_additional, 0, 0.5);
   //target_speed = FL_ENVE_V_S * 1.3 + wind_additional; FIXME
   target_speed =  APP_TARGET_SPEED; //  ok for now!

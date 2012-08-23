@@ -18,7 +18,8 @@ static void last_plume_was_here( void ) {
 }
 
 bool_t nav_anemotaxis_downwind( uint8_t c, float radius ) {
-  float wind_dir = atan2(wind_north, wind_east);
+  struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
+  float wind_dir = atan2(wind->x, wind->y);
   waypoints[c].x = waypoints[WP_HOME].x + radius*cos(wind_dir);
   waypoints[c].y = waypoints[WP_HOME].y + radius*sin(wind_dir);
   return FALSE;
@@ -27,7 +28,8 @@ bool_t nav_anemotaxis_downwind( uint8_t c, float radius ) {
 bool_t nav_anemotaxis_init( uint8_t c ) {
   status = UTURN;
   sign = 1;
-  float wind_dir = atan2(wind_north, wind_east);
+  struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
+  float wind_dir = atan2(wind->x, wind->y);
   waypoints[c].x = stateGetPositionEnu_f()->x + DEFAULT_CIRCLE_RADIUS*cos(wind_dir+M_PI);
   waypoints[c].y = stateGetPositionEnu_f()->y + DEFAULT_CIRCLE_RADIUS*sin(wind_dir+M_PI);
   last_plume_was_here();
@@ -42,7 +44,8 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
     //    DownlinkSendWp(plume);
   }
 
-  float wind_dir = atan2(wind_north, wind_east) + M_PI;
+  struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
+  float wind_dir = atan2(wind->x, wind->y) + M_PI;
 
   /** Not null even if wind_east=wind_north=0 */
   float upwind_x = cos(wind_dir);

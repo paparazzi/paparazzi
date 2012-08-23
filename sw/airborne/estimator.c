@@ -39,8 +39,6 @@
 /* flight time in seconds */
 uint16_t estimator_flight_time;
 
-/* wind */
-float wind_east, wind_north;
 float estimator_airspeed;
 float estimator_AOA;
 

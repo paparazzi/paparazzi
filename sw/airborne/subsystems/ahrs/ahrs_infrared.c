@@ -26,7 +26,6 @@
 #include "subsystems/gps.h"
 
 #include "state.h"
-#include "estimator.h" // for wind FIXME use state interface
 
 float heading;
 
@@ -70,8 +69,8 @@ void ahrs_update_gps(void) {
 
   // Heading estimator from wind-information, usually computed with -DWIND_INFO
   // wind_north and wind_east initialized to 0, so still correct if not updated
-  float w_vn = cosf(course_f) * hspeed_mod_f - wind_north;
-  float w_ve = sinf(course_f) * hspeed_mod_f - wind_east;
+  float w_vn = cosf(course_f) * hspeed_mod_f - stateGetHorizontalWindspeed_f()->x;
+  float w_ve = sinf(course_f) * hspeed_mod_f - stateGetHorizontalWindspeed_f()->y;
   heading = atan2f(w_ve, w_vn);
   if (heading < 0.)
     heading += 2 * M_PI;

@@ -134,14 +134,16 @@ void dl_parse_msg(void) {
 #endif /** NAV */
 #ifdef WIND_INFO
   if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
-    wind_east = DL_WIND_INFO_east(dl_buffer);
-    wind_north = DL_WIND_INFO_north(dl_buffer);
+    struct FloatVect2 wind;
+    wind.x = DL_WIND_INFO_north(dl_buffer);
+    wind.y = DL_WIND_INFO_east(dl_buffer);
+    stateSetHorizontalWindspeed_f(&wind);
 #if !USE_AIRSPEED
     float airspeed = DL_WIND_INFO_airspeed(dl_buffer);
     stateSetAirspeed_f(&airspeed);
 #endif
 #ifdef WIND_INFO_RET
-    DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &wind_east, &wind_north, stateGetAirspeed_f());
+    DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &wind.y, &wind.x, stateGetAirspeed_f());
 #endif
   } else
 #endif /** WIND_INFO */

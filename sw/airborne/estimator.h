@@ -40,7 +40,6 @@
 extern uint16_t estimator_flight_time;
 
 /* Wind and airspeed estimation sent by the GCS */
-extern float wind_east, wind_north; /* m/s */
 extern float estimator_airspeed; ///< m/s
 
 extern float estimator_AOA; ///< angle of attack in rad
