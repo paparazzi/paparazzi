@@ -112,10 +112,10 @@ void sim_overwrite_ahrs(void) {
 
   struct Int32Quat quat;
   QUAT_BFP_OF_REAL(quat, fdm.ltp_to_body_quat);
-  stateSetNedToBodyQuat_f(&quat);
+  stateSetNedToBodyQuat_i(&quat);
 
   struct Int32Rates rates;
   RATES_BFP_OF_REAL(rates, fdm.body_ecef_rotvel);
-  stateSetBodyRates_f(&rates);
+  stateSetBodyRates_i(&rates);
 
 }
