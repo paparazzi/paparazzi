@@ -85,6 +85,7 @@ float v_ctl_auto_pitch_sum_err;
 float controlled_throttle;
 pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
+float v_ctl_pitch_setpoint;
 
 // Set higher than 2*V_CTL_ALTITUDE_MAX_CLIMB to disable
 #define V_CTL_AUTO_CLIMB_LIMIT (0.5/4.0) // m/s/s
@@ -217,7 +218,7 @@ static inline void v_ctl_set_pitch ( void ) {
   }
 
   // PI loop + feedforward ctl
-  nav_pitch = 0. //nav_pitch FIXME it really sucks !
+  v_ctl_pitch_setpoint = nav_pitch
     + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     + v_ctl_auto_pitch_pgain * err
     + v_ctl_auto_pitch_dgain * d_err
@@ -296,8 +297,8 @@ static inline void v_ctl_set_airspeed( void ) {
   }
 
   // Pitch loop
-  nav_pitch = 0. //nav_pitch FIXME it really sucks !
-    + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
+  v_ctl_pitch_setpoint =
+    v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     + v_ctl_auto_pitch_pgain * err_vz
     + v_ctl_auto_pitch_dgain * d_err_vz
     + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err
@@ -351,7 +352,7 @@ void v_ctl_climb_loop ( void ) {
   }
 
   // Set Pitch output
-  Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
+  Bound(v_ctl_pitch_setpoint, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
   // Set Throttle output
   v_ctl_throttle_setpoint = TRIM_UPPRZ(controlled_throttle * MAX_PPRZ);
 
