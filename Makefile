@@ -159,7 +159,7 @@ $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 
 $(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
 	$(Q)mv /tmp/abi.h $@
 
 include Makefile.ac
