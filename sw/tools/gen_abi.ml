@@ -1,8 +1,6 @@
 (*
- * $Id$
- *
  * XML preprocessing of messages.xml for aiborne middleware ABI
- *  
+ *
  * Copyright (C) 2011 ENAC, Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -50,7 +48,7 @@ module Syntax = struct
           let _name = ExtXml.attrib field "name"
           and _type = ExtXml.attrib field "type" in
           (_name, _type))
-        (Xml.children xml) in 
+        (Xml.children xml) in
     { id = id; name = name; fields = fields }
 
   let check_single_ids = fun msgs ->
