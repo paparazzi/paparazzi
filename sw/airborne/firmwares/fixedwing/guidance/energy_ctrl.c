@@ -117,6 +117,7 @@ float v_ctl_energy_diff_igain;
 
 pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
+float v_ctl_pitch_setpoint;
 
 
 /////////////////////////////////////////////////
@@ -292,7 +293,7 @@ void v_ctl_climb_loop( void )
                 + v_ctl_energy_diff_pgain * en_dis_err
                 + v_ctl_auto_throttle_nominal_cruise_pitch;
 
-  nav_pitch = v_ctl_pitch_of_vz;
+  v_ctl_pitch_setpoint = v_ctl_pitch_of_vz;
 
   ac_char_update(controlled_throttle, v_ctl_pitch_of_vz, v_ctl_climb_setpoint, v_ctl_desired_acceleration);
 

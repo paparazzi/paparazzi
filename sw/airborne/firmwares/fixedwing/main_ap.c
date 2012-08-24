@@ -490,8 +490,10 @@ void attitude_loop( void ) {
 
   if (pprz_mode >= PPRZ_MODE_AUTO2)
   {
-    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE)
+    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
       v_ctl_throttle_setpoint = nav_throttle_setpoint;
+      v_ctl_pitch_setpoint = nav_pitch;
+    }
     else if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)
     {
       v_ctl_climb_loop();
@@ -508,7 +510,7 @@ void attitude_loop( void ) {
     }
 #endif
 
-    h_ctl_pitch_setpoint = nav_pitch;
+    h_ctl_pitch_setpoint = v_ctl_pitch_setpoint; // Copy the pitch setpoint from the guidance to the stabilization control
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
     if (kill_throttle || (!estimator_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
