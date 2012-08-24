@@ -157,7 +157,7 @@ end (* module Gen_onboard *)
 (********************* Main **************************************************)
 let () =
   if Array.length Sys.argv <> 3 then begin
-    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0)) 
+    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0))
   end;
 
   let filename = Sys.argv.(1)
