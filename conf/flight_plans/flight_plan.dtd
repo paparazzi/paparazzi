@@ -141,7 +141,8 @@ alt CDATA #IMPLIED
 height CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
 throttle CDATA #IMPLIED
-climb CDATA #IMPLIED>
+climb CDATA #IMPLIED
+until CDATA #IMPLIED>
 
 <!ATTLIST path
 wpts CDATA #REQUIRED

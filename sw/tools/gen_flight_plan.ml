@@ -380,6 +380,13 @@ let rec print_stage = fun index_of_waypoints x ->
     if vmode = "glide" && hmode <> "route" then
       failwith "glide vmode requires route hmode";
     left (); lprintf "}\n";
+    begin
+      try
+        let c = parsed_attrib x "until" in
+        lprintf "if (%s) NextStageAndBreak();\n" c
+      with
+        ExtXml.Error _ -> ()
+    end;
     lprintf "break;\n"
     | "stay" ->
     stage ();
