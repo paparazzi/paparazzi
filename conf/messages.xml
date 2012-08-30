@@ -1756,6 +1756,7 @@
     <field name="t_amb" type="float" unit="deg C"/>
     <field name="windspeed" type="float" unit="m/s"/>
     <field name="wind_from" type="float" unit="deg"/>
+    <field name="humidity" type="float" unit="%"/>
   </message>
 
   <message name="IMU_TURNTABLE" id="220">
