@@ -55,7 +55,8 @@ max_dist_from_home CDATA #REQUIRED
 ground_alt CDATA #REQUIRED
 security_height CDATA #REQUIRED
 alt CDATA #REQUIRED
-qfu CDATA #IMPLIED>
+qfu CDATA #IMPLIED
+home_mode_height CDATA #IMPLIED>
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED

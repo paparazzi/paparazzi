@@ -394,7 +394,7 @@ void nav_home(void) {
   /** Nominal speed */
   nav_pitch = 0.;
   v_ctl_mode = V_CTL_MODE_AUTO_ALT;
-  nav_altitude = ground_alt+SECURITY_HEIGHT;
+  nav_altitude = ground_alt+HOME_MODE_HEIGHT;
   compute_dist2_to_home();
   dist2_to_wp = dist2_to_home;
   nav_set_altitude();
