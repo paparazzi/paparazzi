@@ -49,6 +49,7 @@
 
   <firmware name="setup">
     <target name="setup_actuators" board="umarim_1.0"/>
+    <target name="tunnel" board="umarim_1.0"/>
   </firmware>
 
 <!-- commands section -->
