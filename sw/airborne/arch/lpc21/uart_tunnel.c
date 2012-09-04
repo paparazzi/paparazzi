@@ -16,7 +16,9 @@ int main (int argc, char** argv) {
   int tx_shadow=1, rx_shadow=1;
   mcu_init();
   led_init();
+#if USE_LED_1
   LED_ON(1);
+#endif
 
   /* TXD0 and TXD1 output */
   SetBit(IO0DIR, TXD0_PIN);
@@ -36,7 +38,9 @@ int main (int argc, char** argv) {
         SetBit(IO0CLR, TXD1_PIN);
       }
       tx_shadow = tx;
+#if USE_LED_2
       LED_TOGGLE(2);
+#endif
     }
     rx = bit_is_set(IO0PIN, RXD1_PIN);
     if (rx != rx_shadow) {
@@ -46,7 +50,9 @@ int main (int argc, char** argv) {
         SetBit(IO0CLR, TXD0_PIN);
       }
       rx_shadow = rx;
+#if USE_LED_3
       LED_TOGGLE(3);
+#endif
     }
   }
   return 0;
