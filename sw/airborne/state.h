@@ -23,16 +23,7 @@
  *
  * API to get/set the generic vehicle states.
  *
- * This general state interface holds all the most important vehicle states like
- * position, velocity, attitude, etc. It handles coordinate system and
- * fixed-/floating-point conversion on the fly when needed.
- *
- * You can set e.g. the position in any coordinate system you wish:
- * stateSetPositionNed_i() to set the position in fixed-point NED coordinates.
- * If you need to read the position somewhere else in a different representation,
- * call: stateGetPositionLla_f() and only then the LLA float position representation
- * is calculated on the fly and returned. It's also only calculated once,
- * until a new position is set which invalidates all the other representations again.
+ * Also see @ref StateGroup "State Interface" page.
  *
  * @author Felix Ruess <felix.ruess@gmail.com>
  */
@@ -47,6 +38,19 @@
 
 #include "std.h"
 #include <string.h>
+
+/**
+ * This general state interface holds all the most important vehicle states like
+ * position, velocity, attitude, etc. It handles coordinate system and
+ * fixed-/floating-point conversion on the fly when needed.
+ *
+ * You can set e.g. the position in any coordinate system you wish:
+ * stateSetPositionNed_i() to set the position in fixed-point NED coordinates.
+ * If you need to read the position somewhere else in a different representation,
+ * call: stateGetPositionLla_f() and only then the LLA float position representation
+ * is calculated on the fly and returned. It's also only calculated once,
+ * until a new position is set which invalidates all the other representations again.
+ */
 
 /**
  * @defgroup StateGroup State interface
