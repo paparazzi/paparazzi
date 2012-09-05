@@ -189,7 +189,7 @@ static void mpu_configure(void)
            (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
            (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
 
-  mpu_set( MPU60X0_REG_I2C_MST_DELAY, 
+  mpu_set( MPU60X0_REG_I2C_MST_DELAY,
            (0 << 2) |		// No Delay Slave 2
            (1 << 3) );		// Delay Slave 3
 

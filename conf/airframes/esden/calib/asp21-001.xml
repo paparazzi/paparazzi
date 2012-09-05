@@ -13,7 +13,7 @@
     <define name="GYRO_P_SENS" value="4.359" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
     <define name="GYRO_R_SENS" value="4.359" integer="16"/>
-    
+
     <define name="ACCEL_X_NEUTRAL" value="73"/>
     <define name="ACCEL_Y_NEUTRAL" value="21"/>
     <define name="ACCEL_Z_NEUTRAL" value="105"/>

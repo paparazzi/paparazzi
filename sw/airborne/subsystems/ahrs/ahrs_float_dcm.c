@@ -562,7 +562,7 @@ static inline void set_body_orientation_and_rates(void) {
   ltp_to_body_euler.theta -= ins_pitch_neutral;
   stateSetNedToBodyEulers_f(&ltp_to_body_euler);
 
-  // should be replaced at the end by: 
+  // should be replaced at the end by:
   //   stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 
 }

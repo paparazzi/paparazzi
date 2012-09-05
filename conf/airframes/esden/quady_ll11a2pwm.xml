@@ -138,7 +138,7 @@
     <define name="PHI_DDGAIN"   value=" 530"/>
     <define name="THETA_DDGAIN" value=" 530"/>
     <define name="PSI_DDGAIN"   value=" 300"/>
-    
+
     <!-- simonk esc firmware gains light quad? -->
     <!-- feedback -->
     <!--define name="PHI_PGAIN"  value="1300"/>
