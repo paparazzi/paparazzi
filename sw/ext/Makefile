@@ -51,18 +51,18 @@ libopencm3.module:
 	$(Q)if [ ! -f $(EXT_DIR)/libopencm3/Makefile ]; then \
 		cd $(PAPARAZZI_SRC); \
 		git submodule init; \
-		git submodule update; \
 		cd -; \
 	fi
+	cd $(PAPARAZZI_SRC) && git submodule update
 	make -C libopencm3 lib PREFIX=$(PREFIX)
 
 stm32loader.module:
 	$(Q)if [ ! -f $(EXT_DIR)/stm32loader/stm32loader.py ]; then \
 		cd $(PAPARAZZI_SRC); \
 		git submodule init; \
-		git submodule update; \
 		cd -; \
 	fi
+	cd $(PAPARAZZI_SRC) && git submodule update
 
 clean:
 	if [ -f libopencm3/Makefile ]; then \
