@@ -99,7 +99,7 @@ pile *MaPile = NULL;
 typedef enum {INIT, AT, CMGF, SMSMODE, CNMI, CPMS, ERREUR} Etat_Liste;
 
 // Informations extraites du SMS recu de l'avion
-char extr_gps_utm_east[15], extr_gps_utm_north[15], extr_gps_course[15], extr_gps_alt[15], extr_gps_gspeed[15], extr_gps_climb[15], extr_vsupply[15], extr_estimator_flight_time[15], extr_qualite_signal_GSM[10];
+char extr_gps_utm_east[15], extr_gps_utm_north[15], extr_gps_course[15], extr_gps_alt[15], extr_gps_gspeed[15], extr_gps_climb[15], extr_vsupply[15], extr_autopilot_flight_time[15], extr_qualite_signal_GSM[10];
 
 char reponse_attendue[20];
 int prompt_recu = 0;
@@ -472,10 +472,10 @@ void decoupage( char message_complet[])
 	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_gspeed);	
 	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_climb);	
 	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_vsupply);
-	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_estimator_flight_time);
+	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_autopilot_flight_time);
 	Extraction(data_to_cut, ' ', 1, 1, '\r', 1, 0, extr_qualite_signal_GSM);
 	
-	printf("Message :\n utm_east %s\n utm_north %s\n course %s\n alt %s\n speed %s\n climb %s\n bat %s\n flight_time %s\n signal %s\n", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb, extr_vsupply, extr_estimator_flight_time, extr_qualite_signal_GSM);
+	printf("Message :\n utm_east %s\n utm_north %s\n course %s\n alt %s\n speed %s\n climb %s\n bat %s\n flight_time %s\n signal %s\n", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb, extr_vsupply, extr_autopilot_flight_time, extr_qualite_signal_GSM);
   fflush(stdout);
 }
 

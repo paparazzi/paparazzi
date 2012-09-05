@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 #include "generated/airframe.h"
 
 struct Int32AttitudeGains stabilization_gains = {
@@ -80,7 +80,7 @@ void stabilization_attitude_enter(void) {
 
 #if !USE_SETPOINTS_WITH_TRANSITIONS
   /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
 #endif
 
   stabilization_attitude_ref_enter();
@@ -135,14 +135,16 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /* attitude error                          */
   struct Int32Quat att_err;
-  INT32_QUAT_INV_COMP(att_err, ahrs.ltp_to_body_quat, stab_att_ref_quat);
+  struct Int32Quat* att_quat = stateGetNedToBodyQuat_i();
+  INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   INT32_QUAT_WRAP_SHORTEST(att_err);
   INT32_QUAT_NORMALIZE(att_err);
 
   /*  rate error                */
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, stab_att_ref_rate, ahrs.body_rate);
+  struct Int32Rates* body_rate = stateGetBodyRates_i();
+  RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -194,7 +196,7 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
   /* get current heading */
   const struct FloatVect3 zaxis = {0., 0., 1.};
   struct FloatQuat q_yaw;
-  FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.psi));
+  FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, ANGLE_FLOAT_OF_BFP(stateGetNedToBodyEulers_i()->psi));
 
   /* apply roll and pitch commands with respect to current heading */
   struct FloatQuat q_sp;

@@ -75,7 +75,7 @@ unsigned char electrical_vsupply;
 unsigned char nav_block;
 unsigned char energy;
 unsigned char throttle;
-unsigned short estimator_flight_time;
+unsigned short autopilot_flight_time;
 unsigned char nav_utm_zone0;
 float latlong_utm_x, latlong_utm_y;
 unsigned char pprz_mode;
@@ -196,8 +196,8 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       pprz_mode = buf[19];
 //    com_trans.buf[20] = nav_block;
       nav_block = buf[20];
-//    FillBufWith16bit(com_trans.buf, 21, estimator_flight_time); 
-      estimator_flight_time = buf2ushort(&buf[21]);
+//    FillBufWith16bit(com_trans.buf, 21, autopilot_flight_time); 
+      autopilot_flight_time = buf2ushort(&buf[21]);
 
 //gps_lat = 52.2648312 * 1e7;
 //gps_lon =  9.9939456 * 1e7;
@@ -211,7 +211,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
 //throttle = 51;
 //pprz_mode = 2;
 //nav_block = 1;
-//estimator_flight_time = 123;
+//autopilot_flight_time = 123;
 
       nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
       latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
@@ -230,7 +230,7 @@ printf("energy %d\n", energy);
 printf("throttle %d\n", throttle);
 printf("pprz_mode %d\n", pprz_mode);
 printf("nav_block %d\n", nav_block);
-printf("estimator_flight_time %d\n", estimator_flight_time);
+printf("autopilot_flight_time %d\n", autopilot_flight_time);
 
 printf("gps_utm_east %d\n", gps_utm_east);
 printf("gps_utm_north %d\n", gps_utm_north);
@@ -316,7 +316,7 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 throttle * MAX_PPRZ / 100,
                 electrical_vsupply,
                 0, // amps
-                estimator_flight_time,
+                autopilot_flight_time,
                 0, // kill_auto_throttle
                 0, // block_time
                 0, // stage_time

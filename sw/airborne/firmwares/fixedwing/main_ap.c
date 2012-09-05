@@ -53,10 +53,14 @@
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
+#if USE_BAROMETER
+#include "subsystems/sensors/baro.h"
+#endif
 
 // autopilot & control
+#include "state.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "estimator.h"
+#include "subsystems/ins.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
 #include "subsystems/nav.h"
@@ -95,6 +99,10 @@ volatile uint8_t ahrs_timeout_counter = 0;
 static inline void on_gps_solution( void );
 #endif
 
+#if USE_BAROMETER
+static inline void on_baro_abs_event( void );
+static inline void on_baro_dif_event( void );
+#endif
 
 bool_t power_switch;
 
@@ -113,6 +121,9 @@ static uint8_t  mcu1_ppm_cpt;
 bool_t kill_throttle = FALSE;
 
 bool_t launch = FALSE;
+
+/* flight time in seconds */
+uint16_t autopilot_flight_time = 0;
 
 
 /** Supply voltage in deciVolt.
@@ -167,9 +178,13 @@ void init_ap( void ) {
   ahrs_init();
 #endif
 
-#if USE_INS
-  ins_init();
+#if USE_BAROMETER
+  baro_init();
 #endif
+
+  ins_init();
+
+  stateInit();
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
@@ -182,10 +197,6 @@ void init_ap( void ) {
   /************ Internal status ***************/
   h_ctl_init();
   v_ctl_init();
-  estimator_init();
-#ifdef ALT_KALMAN
-  alt_kalman_init();
-#endif
   nav_init();
 
   modules_init();
@@ -375,7 +386,7 @@ static inline void telecommand_task( void ) {
   current = fbw_state->current;
 
 #ifdef RADIO_CONTROL
-  if (!estimator_flight_time) {
+  if (!autopilot_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
@@ -512,7 +523,7 @@ void attitude_loop( void ) {
 
     h_ctl_pitch_setpoint = v_ctl_pitch_setpoint; // Copy the pitch setpoint from the guidance to the stabilization control
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
-    if (kill_throttle || (!estimator_flight_time && !launch))
+    if (kill_throttle || (!autopilot_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
   }
 
@@ -549,9 +560,11 @@ void sensors_task( void ) {
   ahrs_propagate();
 #endif
 
-#if USE_INS
-  ins_periodic_task();
+#if USE_BAROMETER
+  baro_periodic();
 #endif
+
+  ins_periodic();
 }
 
 
@@ -570,8 +583,8 @@ void sensors_task( void ) {
 
 /** monitor stuff run at 1Hz */
 void monitor_task( void ) {
-  if (estimator_flight_time)
-    estimator_flight_time++;
+  if (autopilot_flight_time)
+    autopilot_flight_time++;
 #if defined DATALINK || defined SITL
   datalink_time++;
 #endif
@@ -584,9 +597,9 @@ void monitor_task( void ) {
   kill_throttle |= (t >= LOW_BATTERY_DELAY);
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
-  if (!estimator_flight_time &&
-      estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
-    estimator_flight_time = 1;
+  if (!autopilot_flight_time &&
+      *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
+    autopilot_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
     uint16_t time_sec = sys_time.nb_sec;
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
@@ -619,6 +632,9 @@ void event_task_ap( void ) {
   GpsEvent(on_gps_solution);
 #endif /* USE_GPS */
 
+#if USE_BAROMETER
+  BaroEvent(on_baro_abs_event, on_baro_dif_event);
+#endif
 
   DatalinkEvent();
 
@@ -649,7 +665,7 @@ void event_task_ap( void ) {
 
 #if USE_GPS
 static inline void on_gps_solution( void ) {
-  estimator_update_state_gps();
+  ins_update_gps();
 #if USE_AHRS
   ahrs_update_gps();
 #endif
@@ -687,7 +703,6 @@ static inline void on_gyro_event( void ) {
 
   ahrs_propagate();
   ahrs_update_accel();
-  ahrs_update_fw_estimator();
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   new_ins_attitude = 1;
@@ -727,8 +742,6 @@ static inline void on_gyro_event( void ) {
       ahrs_update_accel();
     }
 
-    ahrs_update_fw_estimator();
-
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
     new_ins_attitude = 1;
 #endif
@@ -751,3 +764,14 @@ static inline void on_mag_event(void)
 
 #endif // USE_AHRS
 
+#if USE_BAROMETER
+
+static inline void on_baro_abs_event( void ) {
+  ins_update_baro();
+}
+
+static inline void on_baro_dif_event( void ) {
+
+}
+
+#endif // USE_BAROMETER

@@ -55,6 +55,8 @@ void baro_MS5534A_event_task( void );
 
 void baro_MS5534A_event( void );
 
+#define BaroMS5534AUpdate(_b) { if (baro_MS5534A_available) { _b = baro_MS5534A_pressure; baro_MS5534A_available = FALSE; } }
+
 #endif // USE_BARO_MS5534A
 
 #endif // BARO_MS5534A_H

@@ -62,6 +62,13 @@
       <message name="STATE_FILTER_STATUS" period="7."/>
       <message name="DOWNLINK"            period="5.7"/>
     </mode>
+    <mode name="raw_sensors">
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="BARO_RAW"          period="0.5"/>
+      <message name="IR_SENSORS"        period="0.5"/>
+      <message name="IMU_GYRO_RAW"      period="0.1"/>
+    </mode>
   </process>
   <process name="Fbw">
     <mode name="default">

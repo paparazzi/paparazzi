@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 ENAC
+ * Copyright (C) 2010-2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -33,24 +33,15 @@
 #include "std.h"
 #include "peripherals/ads1114.h"
 
-#define BARO_FILTER_GAIN 5
-
 /* There is no differential pressure on the board but
  * it can be available from an external sensor
  * */
-#define DIFF_FILTER_GAIN 5
-
-#if USE_BARO_AS_ALTIMETER
-extern float baro_alt;
-extern float baro_alt_offset;
-#define BaroAltHandler() { baro_alt = BARO_SENS*(baro_alt_offset - (float)baro.absolute); }
-#endif
 
 #define BARO_ABS_ADS ads1114_1
 
 #define BaroAbs(_ads, _handler) {           \
   if (_ads.data_available) {                \
-    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*Ads1114GetValue(_ads)) / (BARO_FILTER_GAIN+1); \
+    baro.absolute = Ads1114GetValue(_ads);  \
     if (baro.status == BS_RUNNING) {        \
       _handler();                           \
       _ads.data_available = FALSE;          \
@@ -65,14 +56,14 @@ extern float baro_alt_offset;
 #ifndef BARO_DIFF_ADS
 #define BARO_DIFF_ADS ads1114_2
 #endif
-#define BaroDiff(_ads, _handler) {          \
-  if (_ads.data_available) {                \
-    baro.differential = (baro.differential + DIFF_FILTER_GAIN*Ads1114GetValue(_ads)) / (DIFF_FILTER_GAIN+1); \
-    if (baro.status == BS_RUNNING) {        \
-      _handler();                           \
-      _ads.data_available = FALSE;          \
-    }                                       \
-  }                                         \
+#define BaroDiff(_ads, _handler) {              \
+  if (_ads.data_available) {                    \
+    baro.differential = Ads1114GetValue(_ads);  \
+    if (baro.status == BS_RUNNING) {            \
+      _handler();                               \
+      _ads.data_available = FALSE;              \
+    }                                           \
+  }                                             \
 }
 
 #else // Not using differential with ADS1114

@@ -26,83 +26,114 @@
  * \brief State estimate, fusioning sensors
  */
 
+#include "subsystems/ins/ins_float.h"
+
 #include <inttypes.h>
 #include <math.h>
 
-#include "estimator.h"
+#include "state.h"
 #include "mcu_periph/uart.h"
 #include "ap_downlink.h"
 #include "subsystems/gps.h"
 #include "subsystems/nav.h"
-#ifdef EXTRA_DOWNLINK_DEVICE
-#include "core/extra_pprz_dl.h"
-#endif
 
-/* position in meters */
-float estimator_x;
-float estimator_y;
+/* vertical position and speed in meters */
 float estimator_z;
-
 float estimator_z_dot;
 
-/* attitude in radian */
-float estimator_phi;
-float estimator_psi;
-float estimator_theta;
-
-/* rates in radians per second */
-float estimator_p;
-float estimator_q;
-float estimator_r;
-
-/* flight time in seconds */
-uint16_t estimator_flight_time;
-/* flight time in seconds */
-float estimator_t;
-
-/* horizontal speed in module and dir */
-float estimator_hspeed_mod;
-float estimator_hspeed_dir;
-
-/* wind */
-float wind_east, wind_north;
-float estimator_airspeed;
-float estimator_AOA;
-
-#define NORM_RAD_ANGLE2(x) { \
-    while (x > 2 * M_PI) x -= 2 * M_PI; \
-    while (x < 0 ) x += 2 * M_PI; \
-  }
-
-
-#define EstimatorSetSpeedCart(vx, vy, vz) { \
-  estimator_vx = vx; \
-  estimator_vy = vy; \
-  estimator_vz = vz; \
-}
-
-
-void estimator_init( void ) {
-
-  EstimatorSetPosXY(0., 0.);
-  EstimatorSetAlt(0.);
-
-  EstimatorSetAtt (0., 0., 0);
-
-  EstimatorSetSpeedPol ( 0., 0., 0.);
-
-  EstimatorSetRate(0., 0., 0.);
-
-#ifdef USE_AOA
-  EstimatorSetAOA( 0. );
+#if USE_BAROMETER
+#include "subsystems/sensors/baro.h"
+int32_t ins_qfe;
+bool_t  ins_baro_initialised;
+float ins_baro_alt;
 #endif
 
-  estimator_flight_time = 0;
+bool_t ins_hf_realign;
+bool_t ins_vf_realign;
 
-  // FIXME? Set initial airspeed to zero if USE_AIRSPEED ?
-  EstimatorSetAirspeed( NOMINAL_AIRSPEED );
+void ins_init() {
+
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  stateSetLocalUtmOrigin_f(&utm0);
+
+  stateSetPositionUtm_f(&utm0);
+
+#ifdef ALT_KALMAN
+  alt_kalman_init();
+#endif
+
+#if USE_BAROMETER
+  ins_qfe = 0;;
+  ins_baro_initialised = FALSE;
+  ins_baro_alt = 0.;
+#endif
+  ins_vf_realign = FALSE;
+
+  EstimatorSetAlt(0.);
+
 }
 
+void ins_periodic( void ) {
+}
+
+void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
+}
+
+void ins_realign_v(float z __attribute__ ((unused))) {
+}
+
+void ins_propagate() {
+}
+
+void ins_update_baro() {
+#if USE_BAROMETER
+  // TODO update kalman filter with baro struct
+  if (baro.status == BS_RUNNING) {
+    if (!ins_baro_initialised) {
+      ins_qfe = baro.absolute;
+      ins_baro_initialised = TRUE;
+    }
+    if (ins_vf_realign) {
+      ins_vf_realign = FALSE;
+      ins_qfe = baro.absolute;
+    }
+    else { /* not realigning, so normal update with baro measurement */
+      ins_baro_alt = (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      EstimatorSetAlt(ins_baro_alt);
+    }
+  }
+#endif
+}
+
+
+void ins_update_gps(void) {
+#if USE_GPS
+  struct UtmCoor_f utm;
+  utm.east = gps.utm_pos.east / 100.;
+  utm.north = gps.utm_pos.north / 100.;
+  utm.zone = nav_utm_zone0;
+
+#if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A
+  float falt = gps.hmsl / 1000.;
+  EstimatorSetAlt(falt);
+#endif
+  utm.alt = estimator_z;
+  // set position
+  stateSetPositionUtm_f(&utm);
+
+  struct NedCoor_f ned_vel = {
+    gps.ned_vel.x / 100.,
+    gps.ned_vel.y / 100.,
+    gps.ned_vel.z / 100.
+  };
+  // set velocity
+  stateSetSpeedNed_f(&ned_vel);
+
+#endif
+}
+
+void ins_update_sonar() {
+}
 
 bool_t alt_kalman_enabled;
 
@@ -132,7 +163,7 @@ void alt_kalman_init( void ) {
   alt_kalman_reset();
 }
 
-void alt_kalman(float gps_z) {
+void alt_kalman(float z_meas) {
   float DT;
   float R;
   float SIGMA2;
@@ -182,7 +213,7 @@ void alt_kalman(float gps_z) {
   if (fabs(e) > 1e-5) {
     float k_0 = p[0][0] / e;
     float k_1 =  p[1][0] / e;
-    e = gps_z - estimator_z;
+    e = z_meas - estimator_z;
 
     /* correction */
     estimator_z += k_0 * e;
@@ -201,24 +232,3 @@ void alt_kalman(float gps_z) {
 
 #endif // ALT_KALMAN
 
-void estimator_update_state_gps( void ) {
-  float gps_east = gps.utm_pos.east / 100.;
-  float gps_north = gps.utm_pos.north / 100.;
-
-  /* Relative position to reference */
-  gps_east -= nav_utm_east0;
-  gps_north -= nav_utm_north0;
-
-  EstimatorSetPosXY(gps_east, gps_north);
-#if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A
-  float falt = gps.hmsl / 1000.;
-  EstimatorSetAlt(falt);
-#endif
-  float fspeed = gps.gspeed / 100.;
-  float fclimb = -gps.ned_vel.z / 100.;
-  float fcourse = gps.course / 1e7;
-  EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
-
-  // Heading estimation now in ahrs_infrared
-
-}

@@ -20,4 +20,24 @@
     (_pos1).alt = (_pos2).alt;			\
 }
 
+#define LTP_DEF_COPY(_def1,_def2){                              \
+    LLA_COPY((_def1).lla, (_def2).lla);                         \
+    VECT3_COPY((_def1).ecef, (_def2).ecef);                     \
+    RMAT_COPY((_def1).ltp_of_ecef, (_def2).ltp_of_ecef);        \
+    (_def1).hmsl = (_def2).hmsl;                                \
+  }
+
+#define ENU_OF_UTM_DIFF(_pos, _utm1, _utm2) { \
+  (_pos).x = (_utm1).east - (_utm2).east;     \
+  (_pos).y = (_utm1).north - (_utm2).north;   \
+  (_pos).z = (_utm1).alt - (_utm2).alt;       \
+}
+
+#define NED_OF_UTM_DIFF(_pos, _utm1, _utm2) { \
+  (_pos).x = (_utm1).north - (_utm2).north;   \
+  (_pos).y = (_utm1).east - (_utm2).east;     \
+  (_pos).z = -(_utm1).alt + (_utm2).alt;      \
+}
+
+
 #endif /* PPRZ_GEODETIC_H */

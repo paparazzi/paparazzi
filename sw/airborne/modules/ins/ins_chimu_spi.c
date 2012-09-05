@@ -10,7 +10,7 @@
 #include "mcu_periph/spi_slave_hs_arch.h"
 
 // Output
-#include "estimator.h"
+#include "state.h"
 
 // For centripedal corrections
 #include "subsystems/gps.h"
@@ -81,8 +81,18 @@ void parse_ins_msg( void )
           CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
         }
 
-        EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
-        EstimatorSetRate(CHIMU_DATA.m_sensor.rate[0],CHIMU_DATA.m_attrates.euler.theta,0.); // FIXME rate r
+        struct FloatEulers att = {
+          CHIMU_DATA.m_attitude.euler.phi,
+          CHIMU_DATA.m_attitude.euler.theta,
+          CHIMU_DATA.m_attitude.euler.psi
+        };
+        stateSetNedToBodyEulers_f(&att);
+        struct FloatRates rates = {
+          CHIMU_DATA.m_sensor.rate[0],
+          CHIMU_DATA.m_attrates.euler.theta,
+          0.
+        }; // FIXME rate r
+        stateSetBodyRates_f(&rates);
       }
       else if(CHIMU_DATA.m_MsgID==0x02) {
 

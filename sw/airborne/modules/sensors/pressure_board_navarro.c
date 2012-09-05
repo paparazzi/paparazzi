@@ -26,7 +26,7 @@
 
 
 #include "pressure_board_navarro.h"
-#include "estimator.h"
+#include "state.h"
 
 /* Default I2C device on tiny is i2c0
  */
@@ -140,7 +140,7 @@ void pbn_read_event( void ) {
 
       pbn_airspeed = (airspeed_filter*pbn_airspeed + tmp_airspeed) / (airspeed_filter + 1.);
 #if USE_AIRSPEED
-      EstimatorSetAirspeed(pbn_airspeed);
+      stateSetAirspeed_f(&pbn_airspeed);
 #endif
       //alt_kalman(pbn_altitude);
 

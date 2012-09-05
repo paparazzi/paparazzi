@@ -54,6 +54,8 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
 
+#include "state.h"
+
 #include "firmwares/rotorcraft/main.h"
 
 #ifdef SITL
@@ -94,6 +96,8 @@ STATIC_INLINE void main_init( void ) {
   mcu_init();
 
   electrical_init();
+
+  stateInit();
 
   actuators_init();
   radio_control_init();

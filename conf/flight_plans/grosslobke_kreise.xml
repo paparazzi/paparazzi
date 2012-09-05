@@ -12,7 +12,7 @@
   </waypoints>
   <blocks>
     <block NAME="start">
-      <attitude roll="0" pitch="0.1" vmode="throttle" throttle="0.7" until="(estimator_flight_time > 5)"/>
+      <attitude roll="0" pitch="0.1" vmode="throttle" throttle="0.7" until="(autopilot_flight_time > 5)"/>
       <go wp="START"/>
     </block>
     <block NAME="east">
@@ -43,7 +43,7 @@
     <block NAME="roll" strip_button="Roll">
      <set value="TRUE" var="h_ctl_disabled"/>
      <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-     <while cond="3.> stage_time && (estimator_phi > 0 || -M_PI_2 > estimator_phi)"/>
+     <while cond="3.> stage_time && (stateGetNedToBodyEulers_f()->phi > 0 || -M_PI_2 > stateGetNedToBodyEulers_f()->phi)"/>
      <set value="FALSE" var="h_ctl_disabled"/>
      <return/>
     </block>

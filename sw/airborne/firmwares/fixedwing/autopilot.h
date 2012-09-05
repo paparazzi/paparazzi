@@ -33,7 +33,6 @@
 #include <inttypes.h>
 #include "std.h"
 #include "mcu_periph/sys_time.h"
-#include "estimator.h"
 
 #define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
@@ -54,6 +53,9 @@
 
 extern uint8_t pprz_mode;
 extern bool_t kill_throttle;
+
+/** flight time in seconds. */
+extern uint16_t autopilot_flight_time;
 
 
 // FIXME, move to control
@@ -95,7 +97,7 @@ extern bool_t power_switch;
 #endif // POWER_SWITCH_LED
 
 #define autopilot_ResetFlightTimeAndLaunch(_) { \
-  estimator_flight_time = 0; launch = FALSE; \
+  autopilot_flight_time = 0; launch = FALSE; \
 }
 
 /* CONTROL_RATE will be removed in the next release

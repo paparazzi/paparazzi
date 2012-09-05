@@ -15,7 +15,7 @@
     <waypoint name="S2" x="300" y="400"/>
   </waypoints>
   <exceptions>
-    <exception cond="estimator_z > 3600"  deroute="wait"/>
+    <exception cond="GetPosAlt() > 3600"  deroute="wait"/>
     <exception cond="datalink_time > 30"  deroute="wait"/>
     <exception cond="10 > PowerVoltage()" deroute="wait"/>
   </exceptions>
@@ -23,7 +23,7 @@
     <block name="start">
       <set value="10" var="my_nav_roll"/>
       <set value="-10" var="my_nav_pitch"/>
-      <attitude pitch="5" roll="0" throttle="0.7" until="(estimator_flight_time > 5)" vmode="throttle"/>
+      <attitude pitch="5" roll="0" throttle="0.7" until="(autopilot_flight_time > 5)" vmode="throttle"/>
       <go wp="1"/>
     </block>
     <block name="east">
@@ -66,11 +66,11 @@
       <circle radius="nav_radius" wp="CLIMB"/>
     </block>
     <block name="descent">
-      <circle radius="nav_radius" wp="CLIMB" vmode="throttle" throttle="0" pitch="RadOfDeg(my_nav_pitch)"  until="(ground_alt+150 > estimator_z)"/>
+      <circle radius="nav_radius" wp="CLIMB" vmode="throttle" throttle="0" pitch="RadOfDeg(my_nav_pitch)"  until="(ground_alt+150 > GetPosAlt())"/>
     <deroute block="wait"/>
     </block>
     <block name="wind">
-      <attitude pitch="RadOfDeg(my_nav_pitch)" roll="my_nav_roll" throttle="0.0" until="(ground_alt+150 > estimator_z)" vmode="throttle"/>
+      <attitude pitch="RadOfDeg(my_nav_pitch)" roll="my_nav_roll" throttle="0.0" until="(ground_alt+150 > GetPosAlt())" vmode="throttle"/>
       <deroute block="wait"/>
     </block>
     <block name="wait" strip_button="Wait">
@@ -79,7 +79,7 @@
     <block name="roll">
       <set value="TRUE" var="h_ctl_disabled"/>
       <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-      <while cond="3.> stage_time && (estimator_phi > 0 || -M_PI_2 > estimator_phi)"/>
+      <while cond="3.> stage_time && (stateGetNedToBodyEulers_f()->phi > 0 || -M_PI_2 > stateGetNedToBodyEulers_f()->phi)"/>
       <set value="FALSE" var="h_ctl_disabled"/>
       <return/>
     </block>

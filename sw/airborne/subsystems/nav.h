@@ -34,6 +34,7 @@
 
 #include "std.h"
 #include "paparazzi.h"
+#include "state.h"
 #ifdef CTRL_TYPE_H
 #include CTRL_TYPE_H
 #endif
@@ -131,7 +132,7 @@ extern void nav_circle_XY(float x, float y, float radius);
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
 #define NavQdrCloseTo(x) CloseDegAngles(x, NavCircleQdr())
 
-#define NavCourseCloseTo(x) CloseDegAngles(x, DegOfRad(estimator_hspeed_dir))
+#define NavCourseCloseTo(x) CloseDegAngles(x, DegOfRad(*stateGetHorizontalSpeedDir_f()))
 
 /*********** Navigation along a line *************************************/
 extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
@@ -193,4 +194,9 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 #define nav_SetNavRadius(x) { if (x==1) nav_radius = DEFAULT_CIRCLE_RADIUS; else if (x==-1) nav_radius = -DEFAULT_CIRCLE_RADIUS; else nav_radius = x; }
 
 #define NavKillThrottle() { kill_throttle = 1; }
+
+#define GetPosX() (stateGetPositionUtm_f()->north)
+#define GetPosY() (stateGetPositionUtm_f()->east)
+#define GetPosAlt() (stateGetPositionUtm_f()->alt)
+
 #endif /* NAV_H */

@@ -11,7 +11,7 @@ Autoren@ZHAW:   schmiemi
 #include "mcu_periph/i2c.h"
 
 // test
-#include "estimator.h"
+#include "state.h"
 
 // für das Senden von GPS-Daten an den ArduIMU
 #ifndef UBX
@@ -209,12 +209,12 @@ void IMU_Daten_verarbeiten( void ) {
     ArduIMU_data[5] = (float) (recievedData[5] / (float)100);
 
     // test
-    estimator_phi  = (float)ArduIMU_data[0]*0.01745329252 - ins_roll_neutral;
-    estimator_theta  = (float)ArduIMU_data[1]*0.01745329252 - ins_pitch_neutral;
+    struct FloatEulers att;
+    att.phi = (float)ArduIMU_data[0]*0.01745329252 - ins_roll_neutral;
+    att.theta = (float)ArduIMU_data[1]*0.01745329252 - ins_pitch_neutral;
+    att.psi = 0.;
     imu_daten_angefordert = FALSE;
+    stateSetNedToBodyEulers_f(&att);
 
-    {
-    float psi=0;
-    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &estimator_phi, &estimator_theta, &psi));
-    }
+    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi));
 }

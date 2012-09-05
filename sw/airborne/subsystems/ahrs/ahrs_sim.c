@@ -36,48 +36,40 @@ extern float sim_q;
 extern float sim_r;
 extern bool_t ahrs_sim_available;
 
-
-void compute_body_orientation_and_rates(void);
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+#endif //AHRS_UPDATE_FW_ESTIMATOR
 
 void update_ahrs_from_sim(void) {
-  ahrs_float.ltp_to_imu_euler.phi = sim_phi;
-  ahrs_float.ltp_to_imu_euler.theta = sim_theta;
-  ahrs_float.ltp_to_imu_euler.psi = sim_psi;
 
-  ahrs_float.imu_rate.p = sim_p;
-  ahrs_float.imu_rate.q = sim_q;
-  ahrs_float.imu_rate.r = sim_r;
-
-  /* set quaternion and rotation matrix representations as well */
-  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
-  FLOAT_RMAT_OF_EULERS(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_euler);
-
-  compute_body_orientation_and_rates();
-
+  struct FloatEulers ltp_to_imu_euler = { sim_phi, sim_theta, sim_psi };
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ahrs_update_fw_estimator();
+  ltp_to_imu_euler.phi - ins_roll_neutral;
+  ltp_to_imu_euler.theta - ins_pitch_neutral;
 #endif
+  struct FloatRates imu_rate = { sim_p, sim_q, sim_r };
+  /* set ltp_to_body to same as ltp_to_imu, currently no difference simulated */
+  stateSetNedToBodyEulers_f(&ltp_to_imu_euler);
+  stateSetBodyRates_f(&imu_rate);
+
 }
 
 
 void ahrs_init(void) {
   //ahrs_float.status = AHRS_UNINIT;
-  // set to running for now and only use ahrs.status, not ahrs_float.status
+  // set to running for now
   ahrs.status = AHRS_RUNNING;
 
   ahrs_sim_available = FALSE;
 
-  /* set ltp_to_body to zero */
-  FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
-  FLOAT_EULERS_ZERO(ahrs_float.ltp_to_body_euler);
-  FLOAT_RMAT_ZERO(ahrs_float.ltp_to_body_rmat);
-  FLOAT_RATES_ZERO(ahrs_float.body_rate);
-
-  /* set ltp_to_imu to same as ltp_to_body, currently no difference simulated */
-  QUAT_COPY(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_body_quat);
-  EULERS_COPY(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_body_euler);
-  RMAT_COPY(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_body_rmat);
-  RATES_COPY(ahrs_float.imu_rate, ahrs_float.body_rate);
 }
 
 void ahrs_align(void)
@@ -87,9 +79,6 @@ void ahrs_align(void)
    */
 
   update_ahrs_from_sim();
-
-  /* Compute initial body orientation */
-  compute_body_orientation_and_rates();
 
   ahrs.status = AHRS_RUNNING;
 }
@@ -112,42 +101,3 @@ void ahrs_update_gps(void) {
 
 }
 
-
-/*
- * Compute body orientation and rates from imu orientation and rates
- */
-void compute_body_orientation_and_rates(void) {
-
-  /* set ltp_to_body to same as ltp_to_imu, currently no difference simulated */
-
-  QUAT_COPY(ahrs_float.ltp_to_body_quat, ahrs_float.ltp_to_imu_quat);
-  EULERS_COPY(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_imu_euler);
-  RMAT_COPY(ahrs_float.ltp_to_body_rmat, ahrs_float.ltp_to_imu_rmat);
-  RATES_COPY(ahrs_float.body_rate, ahrs_float.imu_rate);
-}
-
-
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO use ahrs result directly
-#include "estimator.h"
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
-#endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-void ahrs_update_fw_estimator(void)
-{
-  // really subtract ins neutrals here?
-  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
-  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
-  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
-
-  estimator_p = ahrs_float.body_rate.p;
-  estimator_q = ahrs_float.body_rate.q;
-  estimator_r = ahrs_float.body_rate.r;
-}
-#endif //AHRS_UPDATE_FW_ESTIMATOR

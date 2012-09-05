@@ -37,7 +37,7 @@
 
 
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 #include "ap_downlink.h"
 #include "modules/nav/nav_catapult.h"
 #include "subsystems/nav.h"
@@ -166,8 +166,8 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
     WaypointY(_to) = GetPosY();
     WaypointAlt(_to) = GetPosAlt();
 
-    nav_catapult_x = estimator_x;
-    nav_catapult_y = estimator_y;
+    nav_catapult_x = stateGetPositionEnu_f()->x;
+    nav_catapult_y = stateGetPositionEnu_f()->y;
 
   }
   // No Roll, Climb Pitch, Full Power
@@ -189,8 +189,8 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
     // Store Heading, move Climb
     nav_catapult_launch = 0xffff;
 
-    float dir_x = estimator_x - nav_catapult_x;
-    float dir_y = estimator_y - nav_catapult_y;
+    float dir_x = stateGetPositionEnu_f()->x - nav_catapult_x;
+    float dir_y = stateGetPositionEnu_f()->y - nav_catapult_y;
 
     float dir_L = sqrt(dir_x * dir_x + dir_y * dir_y);
 

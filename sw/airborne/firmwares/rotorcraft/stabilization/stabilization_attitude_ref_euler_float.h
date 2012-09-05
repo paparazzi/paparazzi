@@ -59,7 +59,7 @@
       }                                                                 \
     }                                                                   \
     else { /* if not flying, use current yaw as setpoint */             \
-      _sp.psi = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.psi);         \
+      _sp.psi = stateGetNedToBodyEulers_f()->psi;                       \
     }                                                                   \
   }
 

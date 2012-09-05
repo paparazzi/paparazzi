@@ -31,11 +31,11 @@
 
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "subsystems/ahrs.h"
 // #include "booz_fms.h" FIXME
 #include "firmwares/rotorcraft/navigation.h"
 
-#include "subsystems/ins.h"
+#include "state.h"
+
 #include "math/pprz_algebra_int.h"
 
 #include "generated/airframe.h"
@@ -133,9 +133,9 @@ void guidance_v_mode_changed(uint8_t new_mode) {
 
   switch (new_mode) {
   case GUIDANCE_V_MODE_HOVER:
-    guidance_v_z_sp = ins_ltp_pos.z; // set current altitude as setpoint
+    guidance_v_z_sp = stateGetPositionNed_i()->z; // set current altitude as setpoint
     guidance_v_z_sum_err = 0;
-    GuidanceVSetRef(ins_ltp_pos.z, 0, 0);
+    GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
     break;
 
   case GUIDANCE_V_MODE_RC_CLIMB:
@@ -143,7 +143,7 @@ void guidance_v_mode_changed(uint8_t new_mode) {
     guidance_v_zd_sp = 0;
   case GUIDANCE_V_MODE_NAV:
     guidance_v_z_sum_err = 0;
-    GuidanceVSetRef(ins_ltp_pos.z, ins_ltp_speed.z, 0);
+    GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
     break;
 
   default:
@@ -167,13 +167,13 @@ void guidance_v_run(bool_t in_flight) {
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
   // AKA SUPERVISION and co
   if (in_flight) {
-    gv_adapt_run(ins_ltp_accel.z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
+    gv_adapt_run(stateGetAccelNed_i()->z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
   }
 
   switch (guidance_v_mode) {
 
   case GUIDANCE_V_MODE_RC_DIRECT:
-    guidance_v_z_sp = ins_ltp_pos.z; // for display only
+    guidance_v_z_sp = stateGetPositionNed_i()->z; // for display only
     stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
     break;
 
@@ -261,9 +261,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zd_ref = gv_zd_ref<<(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
-  int32_t err_z  = guidance_v_z_ref - ins_ltp_pos.z;
+  int32_t err_z  = guidance_v_z_ref - stateGetPositionNed_i()->z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd = guidance_v_zd_ref - ins_ltp_speed.z;
+  int32_t err_zd = guidance_v_zd_ref - stateGetSpeedNed_i()->z;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {
@@ -284,8 +284,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   guidance_v_ff_cmd = g_m_zdd / inv_m;
   int32_t cphi,ctheta,cphitheta;
-  PPRZ_ITRIG_COS(cphi, ahrs.ltp_to_body_euler.phi);
-  PPRZ_ITRIG_COS(ctheta, ahrs.ltp_to_body_euler.theta);
+  struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
+  PPRZ_ITRIG_COS(cphi, att_euler->phi);
+  PPRZ_ITRIG_COS(ctheta, att_euler->theta);
   cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
   if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   /* feed forward command */

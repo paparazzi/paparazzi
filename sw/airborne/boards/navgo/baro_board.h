@@ -26,8 +26,8 @@
 
 
 
-#ifndef BOARDS_UMARIM_BARO_H
-#define BOARDS_UMARIM_BARO_H
+#ifndef BOARDS_NAVGO_BARO_H
+#define BOARDS_NAVGO_BARO_H
 
 
 #include "std.h"
@@ -36,10 +36,10 @@
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
   mcp355x_event();                                    \
   if (mcp355x_data_available) {                       \
-    baro.absolute = mcp355x_data; \
+    baro.absolute = mcp355x_data;                     \
     _b_abs_handler();                                 \
     mcp355x_data_available = FALSE;                   \
   }                                                   \
 }
 
-#endif // BOARDS_UMARIM_BARO_H
+#endif // BOARDS_NAVGO_BARO_H

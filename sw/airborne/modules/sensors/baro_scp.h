@@ -20,4 +20,6 @@ void baro_scp_init(void);
 void baro_scp_periodic(void);
 void baro_scp_event(void);
 
+#define BaroScpUpdate(_b) { if (baro_scp_available) { _b = baro_scp_pressure; baro_scp_available = FALSE; } }
+
 #endif
