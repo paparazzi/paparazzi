@@ -1272,7 +1272,7 @@ static inline void stateSetAirspeed_f(float* airspeed) {
 static inline void stateSetAngleOfAttack_f(float* aoa) {
   state.angle_of_attack_f = *aoa;
   /* clear bits for all AOA representations and only set the new one */
-  // TODO no integer yet
+  /// @todo no integer yet
   SetBit(state.wind_air_status, AOA_F);
 }
 
@@ -1280,7 +1280,7 @@ static inline void stateSetAngleOfAttack_f(float* aoa) {
 static inline void stateSetSideslip_f(float* sideslip) {
   state.sideslip_f = *sideslip;
   /* clear bits for all sideslip representations and only set the new one */
-  // TODO no integer yet
+  /// @todo no integer yet
   SetBit(state.wind_air_status, SIDESLIP_F);
 }
 
@@ -1316,7 +1316,7 @@ static inline float* stateGetAirspeed_f(void) {
 
 /// Get angle of attack (float).
 static inline float* stateGetAngleOfAttack_f(void) {
-//  TODO only float for now
+  ///  @todo only float for now
 //  if (!bit_is_set(state.wind_air_status, AOA_F))
 //    stateCalcAOA_f();
   return &state.angle_of_attack_f;
@@ -1324,7 +1324,7 @@ static inline float* stateGetAngleOfAttack_f(void) {
 
 /// Get sideslip (float).
 static inline float* stateGetSideslip_f(void) {
-//  TODO only float for now
+  ///  @todo only float for now
 //  if (!bit_is_set(state.wind_air_status, SIDESLIP_F))
 //    stateCalcSideslip_f();
   return &state.sideslip_f;

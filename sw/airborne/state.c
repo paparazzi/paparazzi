@@ -69,7 +69,7 @@ void stateCalcPositionEcef_i(void) {
     ECEF_BFP_OF_REAL(state.ecef_pos_i, state.ecef_pos_f);
   }
   else if (bit_is_set(state.pos_status, POS_NED_I)) {
-    //TODO check if resolution is good enough
+    /// @todo check if resolution is good enough
     ecef_of_ned_point_i(&state.ecef_pos_i, &state.ned_origin_i, &state.ned_pos_i);
   }
   else if (bit_is_set(state.pos_status, POS_NED_F)) {
@@ -306,7 +306,7 @@ void stateCalcPositionLla_i(void) {
   }
   else if (bit_is_set(state.pos_status, POS_NED_I)) {
     /* transform ned_i -> ecef_i -> lla_i, set status bits */
-    //TODO check if resolution is enough
+    /// @todo check if resolution is enough
     ecef_of_ned_point_i(&state.ecef_pos_i, &state.ned_origin_i, &state.ned_pos_i);
     SetBit(state.pos_status, POS_ECEF_I);
     lla_of_ecef_i(&state.lla_pos_i, &state.ecef_pos_i); /* uses double version internally */
@@ -360,7 +360,7 @@ void stateCalcPositionEcef_f(void) {
   }
   else if (bit_is_set(state.pos_status, POS_NED_I)) {
     /* transform ned_i -> ecef_i -> ecef_f, set status bits */
-    //TODO check if resolution is good enough
+    /// @todo check if resolution is good enough
     ecef_of_ned_point_i(&state.ecef_pos_i, &state.ned_origin_i, &state.ned_pos_i);
     SetBit(state.pos_status, POS_ECEF_F);
     ECEF_FLOAT_OF_BFP(state.ecef_pos_f, state.ecef_pos_i);
@@ -739,7 +739,7 @@ void stateCalcSpeedEcef_i(void) {
   SetBit(state.speed_status, SPEED_ECEF_I);
 }
 
-void stateCalcHorizontalSpeedNorm_i(void) { //TODO
+void stateCalcHorizontalSpeedNorm_i(void) {
   if (bit_is_set(state.speed_status, SPEED_HNORM_I))
     return;
 
@@ -747,7 +747,7 @@ void stateCalcHorizontalSpeedNorm_i(void) { //TODO
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
-    //TODO consider INT32_SPEED_FRAC
+    /// @todo consider INT32_SPEED_FRAC
     INT32_VECT2_NORM(state.h_speed_norm_i, state.ned_speed_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
@@ -756,7 +756,7 @@ void stateCalcHorizontalSpeedNorm_i(void) { //TODO
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
-    //TODO consider INT32_SPEED_FRAC
+    /// @todo consider INT32_SPEED_FRAC
     INT32_VECT2_NORM(state.h_speed_norm_i, state.enu_speed_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
@@ -767,7 +767,7 @@ void stateCalcHorizontalSpeedNorm_i(void) { //TODO
   else if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
     /* transform ecef speed to ned, set status bit, then compute norm */
     //foo
-    //TODO consider INT32_SPEED_FRAC
+    /// @todo consider INT32_SPEED_FRAC
     //INT32_VECT2_NORM(state.h_speed_norm_i, state.ned_speed_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_ECEF_F)) {
@@ -783,11 +783,9 @@ void stateCalcHorizontalSpeedNorm_i(void) { //TODO
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HNORM_I);
-
-  //return state.h_speed_norm_i;
 }
 
-void stateCalcHorizontalSpeedDir_i(void) { //TODO
+void stateCalcHorizontalSpeedDir_i(void) {
   if (bit_is_set(state.speed_status, SPEED_HDIR_I))
     return;
 
@@ -957,7 +955,7 @@ void stateCalcSpeedEcef_f(void) {
   SetBit(state.speed_status, SPEED_ECEF_F);
 }
 
-void stateCalcHorizontalSpeedNorm_f(void) { //TODO
+void stateCalcHorizontalSpeedNorm_f(void) {
   if (bit_is_set(state.speed_status, SPEED_HNORM_F))
     return;
 
@@ -984,7 +982,7 @@ void stateCalcHorizontalSpeedNorm_f(void) { //TODO
   SetBit(state.speed_status, SPEED_HNORM_F);
 }
 
-void stateCalcHorizontalSpeedDir_f(void) { //TODO
+void stateCalcHorizontalSpeedDir_f(void) {
   if (bit_is_set(state.speed_status, SPEED_HDIR_F))
     return;
 

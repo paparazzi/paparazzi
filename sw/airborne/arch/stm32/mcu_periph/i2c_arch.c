@@ -1351,8 +1351,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
 }
 
 
-// TODO: TODO: TODO:
-// Watchdog timer
+/// @todo Watchdog timer
 void i2c_event(void)
 {
 #ifdef USE_I2C1

@@ -25,9 +25,11 @@
 #include "subsystems/ahrs.h"
 #include "std.h"
 
-// TODO: harmonize infrared neutrals with ins_neutrals
-// or get rid of ins neutrals
-// this ins only needed for sim right now
+/**
+ * @todo harmonize infrared neutrals with ins_neutrals
+ * or get rid of ins neutrals
+ * this ins only needed for sim right now
+ */
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 

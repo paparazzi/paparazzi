@@ -303,7 +303,7 @@ void radio_control_impl_init(void) {
       _SpektrumState.LostFrameCnt +=_c;                                       \
       TmpExpFrames = ExpectedFrames;                                          \
     } else {                                                                  \
-      /* TODO: collect more data. I suspect that there is a low res         */\
+      /** @todo collect more data. I suspect that there is a low res       */ \
       /* protocol that is still 10 bit but without using the full range.    */\
       TmpEncType =(_c & 0x10)>>4;      /* 0 = 10bit, 1 = 11 bit             */\
       TmpExpFrames = _c & 0x03;        /* 1 = 1 frame contains all channels */\
