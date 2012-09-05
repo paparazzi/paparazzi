@@ -7,6 +7,22 @@ Paparazzi 4.1 - development branch
 - Option to change text papget color using a combobox
   [#194] (https://github.com/paparazzi/paparazzi/pull/194)
 
+
+Paparazzi 4.0.1
+===============
+
+Maintenance release
+
+- Serious fix for settings:
+    - Handler was not called if module was not specfied as well.
+      Now an error is generated with info on which file to fix.
+    - Settings for adaptive fw stabilization fixed.
+- Fixes for photogrammetry module.
+- Fixes for digital_cam modules.
+- Tool added: mergelogs
+
+
+
 Paparazzi 4.0
 =============
 
