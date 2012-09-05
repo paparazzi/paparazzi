@@ -30,7 +30,6 @@
 #include "autopilot.h"
 #include "subsystems/nav.h"
 #include "subsystems/sensors/infrared.h"
-#include "estimator.h"
 #include "inter_mcu.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 

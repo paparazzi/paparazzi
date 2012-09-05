@@ -17,7 +17,6 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-#include "estimator.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"

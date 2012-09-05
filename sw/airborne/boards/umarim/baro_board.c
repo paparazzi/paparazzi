@@ -31,41 +31,28 @@
 /* Common Baro struct */
 struct Baro baro;
 
-#if USE_BARO_AS_ALTIMETER
-/* Number of values to compute an offset at startup */
-#define OFFSET_NBSAMPLES_AVRG 100
-
-/* Weight for offset IIR filter */
-#define OFFSET_FILTER 7
-
-float baro_alt;
-float baro_alt_offset;
-uint16_t offset_cnt;
-#endif
+/* Counter to init ads1114 at startup */
+#define BARO_STARTUP_COUNTER 200
+uint16_t startup_cnt;
 
 void baro_init( void ) {
   ads1114_init();
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board, use extra module (ex: airspeed_ads1114) */
-#if USE_BARO_AS_ALTIMETER
-  baro_alt = 0.;
-  baro_alt_offset = 0.;
-  offset_cnt = OFFSET_NBSAMPLES_AVRG;
-#endif
+  startup_cnt = BARO_STARTUP_COUNTER;
 }
 
 void baro_periodic( void ) {
 
-#if USE_BARO_AS_ALTIMETER
   if (baro.status == BS_UNINITIALIZED && BARO_ABS_ADS.data_available) {
-    // IIR filter to compute an initial offset
-    baro_alt_offset = (OFFSET_FILTER * baro_alt_offset + (float)baro.absolute) / (OFFSET_FILTER + 1);
-    // decrease init counter
-    --offset_cnt;
-    if (offset_cnt == 0) baro.status = BS_RUNNING;
+    // Run some loops to get correct readings from the adc
+    --startup_cnt;
+    BARO_ABS_ADS.data_available = FALSE;
+    if (startup_cnt == 0) {
+      baro.status = BS_RUNNING;
+    }
   }
-#endif
   // Read the ADC
   ads1114_read(&BARO_ABS_ADS);
 }

@@ -31,7 +31,6 @@
 #include "std.h"
 #include "inter_mcu.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "estimator.h"
 #include "subsystems/gps.h"
 #include "subsystems/navigation/traffic_info.h"
 #include "generated/flight_plan.h"

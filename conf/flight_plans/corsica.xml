@@ -33,9 +33,9 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="estimator_z > ground_alt+25" deroute="Standby Menton"/>
+      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby Menton"/>
       <set value="0" var="kill_throttle"/>
-      <set value="0" var="estimator_flight_time"/>
+      <set value="0" var="autopilot_flight_time"/>
       <go throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block name="Standby Menton" strip_button="Standby Menton" strip_icon="home.png">
@@ -63,10 +63,10 @@
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
-      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10), 10 > fabs(estimator_z - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>
     <block name="final">
-      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">

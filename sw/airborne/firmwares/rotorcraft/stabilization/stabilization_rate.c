@@ -28,7 +28,7 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 
-#include "subsystems/ahrs.h"
+#include "state.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/radio_control.h"
@@ -193,7 +193,8 @@ void stabilization_rate_run(bool_t in_flight) {
     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates _error;
-  RATES_DIFF(_error, _ref_scaled, ahrs.body_rate);
+  struct Int32Rates* body_rate = stateGetBodyRates_i();
+  RATES_DIFF(_error, _ref_scaled, (*body_rate));
   if (in_flight) {
     /* update integrator */
     RATES_ADD(stabilization_rate_sum_err, _error);

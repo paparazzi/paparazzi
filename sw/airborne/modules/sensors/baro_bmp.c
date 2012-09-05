@@ -37,7 +37,7 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 
 #ifdef SITL
@@ -73,6 +73,7 @@ float baro_bmp_sigma2;
 
 // Global variables
 uint8_t  baro_bmp_status;
+bool_t  baro_bmp_valid;
 uint32_t baro_bmp_pressure;
 uint16_t baro_bmp_temperature;
 int32_t baro_bmp_altitude, baro_bmp,baro_bmp_temp,baro_bmp_offset;
@@ -91,6 +92,7 @@ uint16_t baro_bmp_cnt;
 
 void baro_bmp_init( void ) {
   baro_bmp_status = BARO_BMP_UNINIT;
+  baro_bmp_valid = FALSE;
   baro_bmp_r = BARO_BMP_R;
   baro_bmp_sigma2 = BARO_BMP_SIGMA2;
   baro_bmp_enabled = TRUE;
@@ -124,7 +126,8 @@ void baro_bmp_periodic( void ) {
   }
 #else // SITL
   baro_bmp_altitude = gps.hmsl / 1000.0;
-  EstimatorSetAlt(baro_bmp_altitude);
+  baro_bmp_pressure = baro_bmp_altitude; //FIXME do a proper scaling here
+  baro_bmp_valid = TRUE;
 #endif
 
 }
@@ -233,10 +236,7 @@ void baro_bmp_event( void ) {
       if (baro_bmp_offset_init) {
         baro_bmp_altitude = ground_alt + baro_bmp_temp;
         // New value available
-#if USE_BARO_BMP
-#pragma message "USING BARO BMP"
-        EstimatorSetAlt(baro_bmp_altitude);
-#endif
+        baro_bmp_valid = TRUE;
 
 #ifdef SENSOR_SYNC_SEND
         DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &bmp_up, &bmp_ut, &bmp_p, &bmp_t);

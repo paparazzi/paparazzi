@@ -28,9 +28,6 @@
 extern bool_t ahrs_sim_available;
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-#include "estimator.h"
-// TODO copy ahrs to state instead of estimator
-void ahrs_update_fw_estimator(void);
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 #endif

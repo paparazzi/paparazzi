@@ -40,6 +40,7 @@ extern float baro_bmp_r;
 extern float baro_bmp_sigma2;
 
 extern uint8_t  baro_bmp_status;
+extern bool_t   baro_bmp_valid;
 extern uint32_t baro_bmp_pressure;
 extern uint16_t baro_bmp_temperature;
 extern int32_t  baro_bmp_altitude;
@@ -49,5 +50,7 @@ extern int32_t baro_bmp_offset;
 void baro_bmp_init(void);
 void baro_bmp_periodic(void);
 void baro_bmp_event(void);
+
+#define BaroBmpUpdate(_b) { if (baro_bmp_valid) { _b = baro_bmp_pressure; baro_bmp_valid = FALSE; } }
 
 #endif

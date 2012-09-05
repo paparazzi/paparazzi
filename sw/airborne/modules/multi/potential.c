@@ -12,7 +12,7 @@
 #include "dl_protocol.h"
 
 #include "potential.h"
-#include "estimator.h"
+#include "state.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
@@ -59,8 +59,8 @@ int potential_task(void) {
 
   uint8_t i;
 
-  float ch = cosf(estimator_hspeed_dir);
-  float sh = sinf(estimator_hspeed_dir);
+  float ch = cosf((*stateGetHorizontalSpeedDir_f()));
+  float sh = sinf((*stateGetHorizontalSpeedDir_f()));
   potential_force.east = 0.;
   potential_force.north = 0.;
   potential_force.alt = 0.;
@@ -76,17 +76,17 @@ int potential_task(void) {
     else {
       float sha = sinf(ac->course);
       float cha = cosf(ac->course);
-      float de = ac->east  + sha*delta_t - estimator_x;
+      float de = ac->east  + sha*delta_t - stateGetPositionEnu_f()->x;
       if (de > FORCE_MAX_DIST || de < -FORCE_MAX_DIST) continue;
-      float dn = ac->north + cha*delta_t - estimator_y;
+      float dn = ac->north + cha*delta_t - stateGetPositionEnu_f()->y;
       if (dn > FORCE_MAX_DIST || dn < -FORCE_MAX_DIST) continue;
-      float da = ac->alt + ac->climb*delta_t - estimator_z;
+      float da = ac->alt + ac->climb*delta_t - stateGetPositionEnu_f()->z;
       if (da > FORCE_MAX_DIST || da < -FORCE_MAX_DIST) continue;
       float dist = sqrtf(de*de + dn*dn + da*da);
       if (dist == 0.) continue;
-      float dve = estimator_hspeed_mod * sh - ac->gspeed * sha;
-      float dvn = estimator_hspeed_mod * ch - ac->gspeed * cha;
-      float dva = estimator_z_dot - the_acs[i].climb;
+      float dve = (*stateGetHorizontalSpeedNorm_f()) * sh - ac->gspeed * sha;
+      float dvn = (*stateGetHorizontalSpeedNorm_f()) * ch - ac->gspeed * cha;
+      float dva = stateGetSpeedEnu_f()->z - the_acs[i].climb;
       float scal = dve*de + dvn*dn + dva*da;
       if (scal < 0.) continue; // No risk of collision
       float d3 = dist * dist * dist;

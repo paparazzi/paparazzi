@@ -107,6 +107,8 @@ nps.srcs   += subsystems/electrical.c
 
 nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
+nps.srcs += state.c
+
 #
 # in makefile section of airframe xml
 # include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile

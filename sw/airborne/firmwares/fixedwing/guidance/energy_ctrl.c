@@ -53,7 +53,7 @@
 #pragma message "CAUTION! Using TOTAL ENERGY CONTROLLER: Experimental!"
 
 #include "firmwares/fixedwing/guidance/energy_ctrl.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/autopilot.h"
@@ -146,13 +146,13 @@ static void ac_char_update(float throttle, float pitch, float climb, float accel
     {
       ac_char_climb_count++;
       ac_char_average(&ac_char_climb_pitch, pitch * 57.6f,            ac_char_climb_count );
-      ac_char_average(&ac_char_climb_max ,  estimator_z_dot,  ac_char_climb_count );
+      ac_char_average(&ac_char_climb_max ,  stateGetSpeedEnu_f()->z,  ac_char_climb_count );
     }
     else if (throttle <= 0.0f)
     {
       ac_char_descend_count++;
       ac_char_average(&ac_char_descend_pitch, pitch * 57.6f ,           ac_char_descend_count );
-      ac_char_average(&ac_char_descend_max ,  estimator_z_dot , ac_char_descend_count );
+      ac_char_average(&ac_char_descend_max ,  stateGetSpeedEnu_f()->z , ac_char_descend_count );
     }
     else if ((climb > -0.125) && (climb < 0.125))
     {
@@ -195,7 +195,7 @@ void v_ctl_altitude_loop( void )
   if (v_ctl_auto_airspeed_setpoint <= 0.0f) v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;
 
   // Altitude Controller
-  v_ctl_altitude_error = v_ctl_altitude_setpoint - estimator_z;
+  v_ctl_altitude_error = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
   float sp = v_ctl_altitude_pgain * v_ctl_altitude_error + v_ctl_altitude_pre_climb ;
   BoundAbs(sp, v_ctl_max_climb);
 
@@ -229,7 +229,7 @@ static float low_pass_vdot(float v)
 void v_ctl_climb_loop( void )
 {
   // Airspeed outerloop: positive means we need to accelerate
-  float speed_error = v_ctl_auto_airspeed_setpoint - estimator_airspeed;
+  float speed_error = v_ctl_auto_airspeed_setpoint - (*stateGetAirspeed_f());
 
   // Speed Controller to PseudoControl: gain 1 -> 5m/s error = 0.5g acceleration
   v_ctl_desired_acceleration = speed_error * v_ctl_airspeed_pgain / 9.81f;
@@ -248,7 +248,7 @@ void v_ctl_climb_loop( void )
   float vdot_err = low_pass_vdot( v_ctl_desired_acceleration - vdot );
 
   // Flight Path Outerloop: positive means needs to climb more: needs extra energy
-  float gamma_err  = (v_ctl_climb_setpoint - estimator_z_dot) / v_ctl_auto_airspeed_setpoint;
+  float gamma_err  = (v_ctl_climb_setpoint - stateGetSpeedEnu_f()->z) / v_ctl_auto_airspeed_setpoint;
 
   // Total Energy Error: positive means energy should be added
   float en_tot_err = gamma_err + vdot_err;

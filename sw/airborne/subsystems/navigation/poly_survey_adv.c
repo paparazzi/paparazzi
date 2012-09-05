@@ -1,7 +1,7 @@
 #include "poly_survey_adv.h"
 
 #include "subsystems/nav.h"
-#include "estimator.h"
+#include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 
@@ -276,7 +276,7 @@ bool_t poly_survey_adv(void)
     nav_circle_XY(entry_center.x, entry_center.y, -psa_min_rad);
     if (NavCourseCloseTo(segment_angle)
         && nav_approaching_xy(seg_start.x, seg_start.y, last_x, last_y, CARROT)
-        && fabs(estimator_z - psa_altitude) <= 20) {
+        && fabs(stateGetPositionEnu_f()->z - psa_altitude) <= 20) {
       psa_stage = SEG;
       NavVerticalAutoThrottleMode(0.0);
       nav_init_stage();

@@ -28,7 +28,7 @@
 
 #include "modules/ins/ins_vn100.h"
 #include "mcu_periph/spi.h"
-#include "estimator.h"
+#include "state.h"
 #include "generated/airframe.h"
 
 #ifndef INS_YAW_NEUTRAL_DEFAULT
@@ -113,7 +113,13 @@ void ins_event_task( void ) {
 #ifndef INS_VN100_READ_ONLY
     // Update estimator
     // FIXME Use a proper rotation matrix here
-    EstimatorSetAtt((ins_eulers.phi - ins_roll_neutral), ins_eulers.psi, (ins_eulers.theta - ins_pitch_neutral));
+    struct FloatEulers att = {
+      ins_eulers.phi - ins_roll_neutral,
+      ins_eulers.theta - ins_pitch_neutral,
+      ins_eulers.psi
+    };
+    stateSetNedToBodyEulers_f(&att);
+    stateSetBodyRates(&ins_rates);
 #endif
     //uint8_t s = 4+VN100_REG_QMR_SIZE;
     //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,s,spi_buffer_input);

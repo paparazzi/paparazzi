@@ -40,7 +40,7 @@
 #include "float.h"
 #include "std.h"
 #include "led.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "generated/airframe.h"
 #include "subsystems/gps.h"
@@ -252,7 +252,7 @@ static inline void dc_periodic_4Hz( void )
     break;
 
   case DC_AUTOSHOOT_CIRCLE: {
-    float course = DegOfRad(estimator_psi) - dc_circle_start_angle;
+    float course = DegOfRad(stateGetNedToBodyEulers_f()->psi) - dc_circle_start_angle;
     if (course < 0.)
       course += 360.;
     float current_block = floorf(course/dc_circle_interval);
@@ -272,8 +272,8 @@ static inline void dc_periodic_4Hz( void )
     break;
 
   case DC_AUTOSHOOT_SURVEY : {
-    float dist_x = dc_gps_x - estimator_x;
-    float dist_y = dc_gps_y - estimator_y;
+    float dist_x = dc_gps_x - stateGetPositionEnu_f()->x;
+    float dist_y = dc_gps_y - stateGetPositionEnu_f()->y;
 
     if (dc_probing) {
       if (dist_x*dist_x + dist_y*dist_y < dc_gps_dist*dc_gps_dist) {

@@ -9,7 +9,7 @@
  *
  */
 
-#include "subsystems/ahrs.h"
+#include "state.h"
 
 #include "stabilization/stabilization_attitude_ref_quat_int.h"
 #include "stabilization/quat_setpoint_int.h"
@@ -94,7 +94,7 @@ void stabilization_attitude_read_rc_absolute(bool_t in_flight) {
     // update setpoint by rotating by incremental yaw command
     INT32_QUAT_COMP_NORM_SHORTEST(stab_att_sp_quat, prev_sp_quat, sticks_quat);
   } else { /* if not flying, use current body position + pitch/yaw from sticks to compose setpoint */
-    reset_sp_quat(RATE_BFP_OF_REAL(yaw * YAW_COEF), RATE_BFP_OF_REAL(pitch * PITCH_COEF), &ahrs.ltp_to_body_quat);
+    reset_sp_quat(RATE_BFP_OF_REAL(yaw * YAW_COEF), RATE_BFP_OF_REAL(pitch * PITCH_COEF), stateGetNedToBodyQuat_i());
   }
 
   // update euler setpoints for telemetry
@@ -104,5 +104,5 @@ void stabilization_attitude_read_rc_absolute(bool_t in_flight) {
 void stabilization_attitude_sp_enter(void)
 {
   // reset setpoint to "hover"
-  reset_sp_quat(0., 0., &ahrs.ltp_to_body_quat);
+  reset_sp_quat(0., 0., stateGetNedToBodyQuat_i());
 }

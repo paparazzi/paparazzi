@@ -79,8 +79,8 @@
     </block>
 
     <block name="ChemotaxisHere">
-      <set var="waypoints[WP_C].x" value="estimator_x"/>
-      <set var="waypoints[WP_C].y" value="estimator_y"/>
+      <set var="waypoints[WP_C].x" value="GetPosX()"/>
+      <set var="waypoints[WP_C].y" value="GetPosY()"/>
       <deroute block="Chemotaxis"/>
     </block>
 
@@ -107,15 +107,15 @@
     </block>
 
     <block name="climb 75">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10 > PowerVoltage()"/>
+      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10 > PowerVoltage()"/>
     </block>
 
     <block name="climb 1">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" climb="1" pitch="5" vmode="climb" until="10 > PowerVoltage()"/>
+      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" climb="1" pitch="5" vmode="climb" until="10 > PowerVoltage()"/>
     </block>
 
     <block name="descent 0">
-      <circle radius="50+(estimator_z-ground_alt)/2" wp="1" throttle="0.0" pitch="-15" vmode="throttle" until="ground_alt+50 > estimator_z"/>
+      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" throttle="0.0" pitch="-15" vmode="throttle" until="ground_alt+50 > GetPosAlt()"/>
       <deroute block="wait"/>
     </block>
 
@@ -148,12 +148,12 @@
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
       <circle radius="nav_radius"
-              until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(estimator_z - WaypointAlt(WP_BASELEG))"
+              until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))"
               wp="BASELEG"/>
     </block>
 
     <block name="final">
-      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
 

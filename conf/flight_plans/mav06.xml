@@ -30,11 +30,11 @@
       <set value="compute_baseleg()" var="unit"/>
       <circle radius="BOMB_RADIUS" until="circle_count > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
-      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(estimator_z - baseleg_alt)" wp="BASELEG"/>
+      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(GetPosAlt() - baseleg_alt)" wp="BASELEG"/>
     </block>
 
     <block name="final">
-      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
       <go alt="baseleg_alt" approaching_time="16" from="AF" hmode="route" wp="TD"/>
       <go approaching_time="2" from="AF" hmode="route" throttle="0.1" vmode="throttle" wp="TD"/>
     </block>
@@ -50,7 +50,7 @@
     </block>
 
     <block name="climb">
-      <exception cond=" estimator_z > ground_alt +30" deroute="wait"/>
+      <exception cond=" GetPosAlt() > ground_alt +30" deroute="wait"/>
       <attitude pitch="15" roll="0" throttle="0.8" until="10> stage_time" vmode="throttle"/>
     </block>-->
     <block name="wait" strip_button="Wait">
@@ -89,7 +89,7 @@
     <block name="roll" strip_button="Roll">
       <set value="TRUE" var="h_ctl_disabled"/>
       <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-      <while cond="3 > stage_time && (estimator_phi > 0 ||  -M_PI_2 > estimator_phi)"/>
+      <while cond="3 > stage_time && (stateGetNedToBodyEulers_f()->phi > 0 ||  -M_PI_2 > stateGetNedToBodyEulers_f()->phi)"/>
       <set value="FALSE" var="h_ctl_disabled"/>
       <return/>
     </block>-->

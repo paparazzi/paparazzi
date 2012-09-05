@@ -28,7 +28,7 @@
 #include "mcu_periph/i2c.h"
 
 // Estimator interface
-#include "estimator.h"
+#include "state.h"
 
 // GPS data for ArduIMU
 #include "subsystems/gps.h"
@@ -112,14 +112,15 @@ void ArduIMU_periodicGPS( void ) {
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
-  if (estimator_hspeed_mod < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
+  float speed = *stateGetHorizontalSpeedNorm_f();
+  if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = TRUE;
   } else {
     high_accel_flag = FALSE;
-    if (estimator_hspeed_mod > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
+    if (speed > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
       high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
     }
-    if (estimator_hspeed_mod < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
+    if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
       high_accel_done = FALSE; // Activate high accel after landing
     }
   }
@@ -174,8 +175,8 @@ void ArduIMU_event( void ) {
     recievedData[8] = (ardu_ins_trans.buf[17]<<8) | ardu_ins_trans.buf[16];
 
     // Update ArduIMU data
-    arduimu_eulers.phi = ANGLE_FLOAT_OF_BFP(recievedData[0]);
-    arduimu_eulers.theta = ANGLE_FLOAT_OF_BFP(recievedData[1]);
+    arduimu_eulers.phi = ANGLE_FLOAT_OF_BFP(recievedData[0]) - ins_roll_neutral;
+    arduimu_eulers.theta = ANGLE_FLOAT_OF_BFP(recievedData[1]) - ins_pitch_neutral;
     arduimu_eulers.psi = ANGLE_FLOAT_OF_BFP(recievedData[2]);
     arduimu_rates.p = RATE_FLOAT_OF_BFP(recievedData[3]);
     arduimu_rates.q = RATE_FLOAT_OF_BFP(recievedData[4]);
@@ -185,11 +186,9 @@ void ArduIMU_event( void ) {
     arduimu_accel.z = ACCEL_FLOAT_OF_BFP(recievedData[8]);
 
     // Update estimator
-    estimator_phi = arduimu_eulers.phi - ins_roll_neutral;
-    estimator_theta = arduimu_eulers.theta - ins_pitch_neutral;
-    estimator_p = arduimu_rates.p;
-    estimator_q = arduimu_rates.q;
-    estimator_r = arduimu_rates.r;
+    stateSetNedToBodyEulers_f(&arduimu_eulers);
+    stateSetBodyRates_f(&arduimu_rates);
+    stateSetAccelNed_f(&((struct NedCoor_f)arduimu_accel));
     ardu_ins_trans.status = I2CTransDone;
 
 #ifdef ARDUIMU_SYNC_SEND

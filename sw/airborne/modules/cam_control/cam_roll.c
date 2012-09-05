@@ -30,7 +30,7 @@
 #include "subsystems/nav.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
-#include "estimator.h"
+#include "state.h"
 #include "inter_mcu.h"
 
 #ifndef CAM_PHI_MAX
@@ -62,7 +62,7 @@ void cam_init( void ) {
 void cam_periodic( void ) {
   switch (cam_roll_mode) {
   case MODE_STABILIZED:
-    phi_c = cam_roll_phi + estimator_phi;
+    phi_c = cam_roll_phi + stateGetNedToBodyEulers_f()->phi;
     break;
   case MODE_MANUAL:
     phi_c = cam_roll_phi;

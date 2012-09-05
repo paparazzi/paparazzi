@@ -1,7 +1,7 @@
 #include "subsystems/navigation/OSAMNav.h"
 
 #include "subsystems/nav.h"
-#include "estimator.h"
+#include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 
@@ -47,15 +47,15 @@ bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 
 	Flowerradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 
-	TransCurrentX = estimator_x - WaypointX(Center);
-	TransCurrentY = estimator_y - WaypointY(Center);
+	TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
+	TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
 	DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
 	FlowerTheta = atan2(TransCurrentY,TransCurrentX);
 	Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
 	Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
-	FlyFromX = estimator_x;
-	FlyFromY = estimator_y;
+	FlyFromX = stateGetPositionEnu_f()->x;
+	FlyFromY = stateGetPositionEnu_f()->y;
 
 	if(DistanceFromCenter > Flowerradius)
 		CFlowerStatus = Outside;
@@ -69,8 +69,8 @@ bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 
 bool_t FlowerNav(void)
 {
-	TransCurrentX = estimator_x - WaypointX(Center);
-	TransCurrentY = estimator_y - WaypointY(Center);
+	TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
+	TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
 	DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
 	bool_t InCircle = TRUE;
@@ -92,8 +92,8 @@ bool_t FlowerNav(void)
 			FlowerTheta = atan2(TransCurrentY,TransCurrentX);
 			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
 			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
-			FlyFromX = estimator_x;
-			FlyFromY = estimator_y;
+			FlyFromX = stateGetPositionEnu_f()->x;
+			FlyFromY = stateGetPositionEnu_f()->y;
 			nav_init_stage();
 		}
 		break;
@@ -122,8 +122,8 @@ bool_t FlowerNav(void)
 			FlowerTheta = atan2(TransCurrentY,TransCurrentX);
 			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
 			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
-			FlyFromX = estimator_x;
-			FlyFromY = estimator_y;
+			FlyFromX = stateGetPositionEnu_f()->x;
+			FlyFromY = stateGetPositionEnu_f()->y;
 			nav_init_stage();
 		}
 		break;
@@ -180,8 +180,8 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 {
 	float ThrottleB;
 
-	initialx = estimator_x;
-	initialy = estimator_y;
+	initialx = stateGetPositionEnu_f()->x;
+	initialy = stateGetPositionEnu_f()->y;
 
 	BungeeWaypoint = BungeeWP;
 
@@ -233,8 +233,8 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 bool_t BungeeTakeoff(void)
 {
 	//Translate current position so Throttle point is (0,0)
-	float Currentx = estimator_x-throttlePx;
-	float Currenty = estimator_y-throttlePy;
+	float Currentx = stateGetPositionEnu_f()->x-throttlePx;
+	float Currenty = stateGetPositionEnu_f()->y-throttlePy;
 	bool_t CurrentAboveLine;
 	float ThrottleB;
 
@@ -249,10 +249,10 @@ bool_t BungeeTakeoff(void)
 		kill_throttle = 1;
 
 		//recalculate lines if below min speed
-		if(estimator_hspeed_mod < Takeoff_MinSpeed)
+		if((*stateGetHorizontalSpeedNorm_f()) < Takeoff_MinSpeed)
 		{
-			initialx = estimator_x;
-			initialy = estimator_y;
+			initialx = stateGetPositionEnu_f()->x;
+			initialy = stateGetPositionEnu_f()->y;
 
 			//Translate initial position so that the position of the bungee is (0,0)
 			Currentx = initialx-(WaypointX(BungeeWaypoint));
@@ -294,7 +294,7 @@ bool_t BungeeTakeoff(void)
 			CurrentAboveLine = FALSE;
 
 		//Find out if UAV has crossed the line
-		if(AboveLine != CurrentAboveLine && estimator_hspeed_mod > Takeoff_MinSpeed)
+		if(AboveLine != CurrentAboveLine && (*stateGetHorizontalSpeedNorm_f()) > Takeoff_MinSpeed)
 		{
 			CTakeoffStatus = Throttle;
 			kill_throttle = 0;
@@ -308,7 +308,7 @@ bool_t BungeeTakeoff(void)
 		nav_route_xy(initialx,initialy,throttlePx,throttlePy);
 		kill_throttle = 0;
 
-		if((estimator_z > BungeeAlt+Takeoff_Height-10) && (estimator_hspeed_mod > Takeoff_Speed))
+		if((stateGetPositionEnu_f()->z > BungeeAlt+Takeoff_Height-10) && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed))
 		{
 			CTakeoffStatus = Finished;
 			return FALSE;
@@ -573,7 +573,7 @@ bool_t PolygonSurvey(void)
 		//follow the circle
 		nav_circle_XY(C.x, C.y, SurveyRadius);
 
-		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > .1 && estimator_z > waypoints[SurveyEntryWP].a-10)
+		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > .1 && stateGetPositionEnu_f()->z > waypoints[SurveyEntryWP].a-10)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
@@ -806,7 +806,7 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
     break;
   case LTC2:
     nav_circle_XY(l2_c2.x, l2_c2.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && estimator_z >= (waypoints[l1].a-10)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && stateGetPositionEnu_f()->z >= (waypoints[l1].a-10)) {
       line_status = LQC22;
       nav_init_stage();
     }
@@ -835,7 +835,7 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
     break;
   case LTC1:
     nav_circle_XY(l1_c2.x, l1_c2.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && estimator_z >= (waypoints[l1].a-5)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && stateGetPositionEnu_f()->z >= (waypoints[l1].a-5)) {
       line_status = LQC11;
       nav_init_stage();
     }
@@ -893,7 +893,7 @@ bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
 	TDWaypoint = TDWP;
 	CLandingStatus = CircleDown;
 	LandRadius = radius;
-	LandAppAlt = estimator_z;
+	LandAppAlt = stateGetPositionEnu_f()->z;
 	FinalLandAltitude = Landing_FinalHeight;
 	FinalLandCount = 1;
 	waypoints[AFWaypoint].a = waypoints[TDWaypoint].a + Landing_AFHeight;
@@ -942,7 +942,7 @@ bool_t SkidLanding(void)
 
 		nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
 
-		if(estimator_z < waypoints[AFWaypoint].a + 5)
+		if(stateGetPositionEnu_f()->z < waypoints[AFWaypoint].a + 5)
 		{
 			CLandingStatus = LandingWait;
 			nav_init_stage();
@@ -1017,8 +1017,8 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 		V.y = WaypointY(To_WP) - WaypointY(From_WP);
 
 		//Record Aircraft Position
-		P.x = estimator_x;
-		P.y = estimator_y;
+		P.x = stateGetPositionEnu_f()->x;
+		P.y = stateGetPositionEnu_f()->y;
 
 		//Rotate Aircraft Position so V is aligned with x axis
 		TranslateAndRotateFromWorld(&P, atan2(V.y,V.x), WaypointX(From_WP), WaypointY(From_WP));

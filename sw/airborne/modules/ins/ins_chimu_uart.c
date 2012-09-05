@@ -10,7 +10,7 @@
 
 
 // Output
-#include "estimator.h"
+#include "state.h"
 
 // For centripedal corrections
 #include "subsystems/gps.h"
@@ -82,8 +82,12 @@ void parse_ins_msg( void )
           CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
         }
 
-        EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
-        //EstimatorSetRate(ins_p,ins_q,ins_r);
+        struct FloatEulers att = {
+          CHIMU_DATA.m_attitude.euler.phi,
+          CHIMU_DATA.m_attitude.euler.theta,
+          CHIMU_DATA.m_attitude.euler.psi
+        };
+        stateSetNedToBodyEulers_f(&att);
 
         DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
 

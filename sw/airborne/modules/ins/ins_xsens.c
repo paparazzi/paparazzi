@@ -306,17 +306,35 @@ void ins_periodic_task( void ) {
 }
 
 #if USE_INS
-#include "estimator.h"
+#include "state.h"
 
 static inline void update_fw_estimator(void) {
   // Send to Estimator (Control)
 #ifdef XSENS_BACKWARDS
-  EstimatorSetAtt((-ins_phi+ins_roll_neutral), (ins_psi + RadOfDeg(180)), (-ins_theta+ins_pitch_neutral));
-  EstimatorSetRate(-ins_p,-ins_q, ins_r);
+  struct FloatEulers att = {
+    -ins_phi+ins_roll_neutral,
+    -ins_theta+ins_pitch_neutral,
+    ins_psi + RadOfDeg(180)
+  };
+  struct FloatRates rates = {
+    -ins_p,
+    -ins_q,
+    ins_r
+  };
 #else
-  EstimatorSetAtt(ins_phi+ins_roll_neutral, ins_psi, ins_theta+ins_pitch_neutral);
-  EstimatorSetRate(ins_p, ins_q, ins_r);
+  struct FloatEulers att = {
+    ins_phi+ins_roll_neutral,
+    ins_theta+ins_pitch_neutral,
+    ins_psi
+  };
+  struct FloatRates rates = {
+    ins_p,
+    ins_q,
+    ins_r
+  };
 #endif
+  stateSetNedToBodyEulers_f(&att);
+  stateSetBodyRates_f(&rates);
 }
 #endif /* USE_INS */
 
