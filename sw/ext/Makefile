@@ -45,7 +45,7 @@ ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 endif
 
 
-all: libopencm3.module
+all: libopencm3.module stm32loader.module
 
 libopencm3.module:
 	$(Q)if [ ! -f $(PAPARAZZI_SRC)/libopencm3/Makefile ]; then \
@@ -55,6 +55,14 @@ libopencm3.module:
 		cd -; \
 	fi
 	make -C libopencm3 lib PREFIX=$(PREFIX)
+
+stm32loader.module:
+	$(Q)if [ ! -f $(PAPARAZZI_SRC)/stm32loader/stm32loader/py ]; then \
+                cd $(PAPARAZZI_SRC); \
+                git submodule init; \
+                git submodule update; \
+                cd -; \
+        fi
 
 clean:
 	if [ -f libopencm3/Makefile ]; then \
