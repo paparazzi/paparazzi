@@ -21,9 +21,12 @@
 /**
  * @file state.c
  *
- * General inteface for the main vehicle states.
+ * General interface for the main vehicle states.
  *
- * This is the more detailed description of this file.
+ * This file contains the functions to automatically convert between
+ * the different representations. They should normally not be used
+ * directly and instead the stateGet/Set interfaces used.
+ * Also see the @ref state_interface "State Interface" page.
  *
  * @author Felix Ruess <felix.ruess@gmail.com>
  */
@@ -33,7 +36,7 @@
 struct State state;
 
 /**
- * @addtogroup StateGroup
+ * @addtogroup state_interface
  * @{
  */
 
@@ -55,7 +58,7 @@ void stateInit(void) {
  * transformation functions for the POSITION representations                   *
  *                                                                             *
  ******************************************************************************/
-/** @addtogroup PosGroup
+/** @addtogroup state_position
  *  @{ */
 
 void stateCalcPositionEcef_i(void) {
@@ -593,7 +596,7 @@ void stateCalcPositionLla_f(void) {
  * Transformation functions for the SPEED representations                     *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup SpeedGroup
+/** @addtogroup state_velocity
  *  @{ */
 /************************ Set functions ****************************/
 
@@ -1016,7 +1019,7 @@ void stateCalcHorizontalSpeedDir_f(void) { //TODO
  * Transformation functions for the ACCELERATION representations              *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup AccelGroup
+/** @addtogroup state_acceleration
  *  @{ */
 
 void stateCalcAccelNed_i(void) {
@@ -1141,7 +1144,7 @@ void stateCalcAccelEcef_f(void) {
  * Transformation functions for the ATTITUDE representations                  *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup AttGroup
+/** @addtogroup state_attitude
  *  @{ */
 
 void stateCalcNedToBodyQuat_i(void) {
@@ -1313,7 +1316,7 @@ void stateCalcNedToBodyEulers_f(void) {
  * Transformation functions for the ANGULAR RATE representations              *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup RateGroup
+/** @addtogroup state_rate
  *  @{ */
 
 void stateCalcBodyRates_i(void) {
@@ -1346,7 +1349,7 @@ void stateCalcBodyRates_f(void) {
  * Transformation functions for the WIND- AND AIRSPEED representations        *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup WindAirGroup
+/** @addtogroup state_wind_airspeed
  *  @{ */
 
 void stateCalcHorizontalWindspeed_i(void) {

@@ -23,7 +23,7 @@
  *
  * API to get/set the generic vehicle states.
  *
- * Also see @ref StateGroup "State Interface" page.
+ * Also see the @ref state_interface "State Interface" page.
  *
  * @author Felix Ruess <felix.ruess@gmail.com>
  */
@@ -53,12 +53,12 @@
  */
 
 /**
- * @defgroup StateGroup State interface
+ * @defgroup state_interface State interface
  * @{
  */
 
 /**
- * @defgroup PosGroup Position representations
+ * @defgroup state_position Position representations
  * @{
  */
 #define POS_ECEF_I 0
@@ -76,7 +76,7 @@
 /**@}*/
 
 /**
- * @defgroup SpeedGroup Speed representations
+ * @defgroup state_velocity Speed representations
  * @{
  */
 #define SPEED_ECEF_I  0
@@ -92,7 +92,7 @@
 /**@}*/
 
 /**
- * @defgroup AccelGroup Acceleration representations
+ * @defgroup state_acceleration Acceleration representations
  * @{
  */
 #define ACCEL_ECEF_I 0
@@ -102,7 +102,7 @@
 /**@}*/
 
 /**
- * @defgroup AttGroup Attitude representations
+ * @defgroup state_attitude Attitude representations
  * @{
  */
 #define ATT_QUAT_I  0
@@ -114,7 +114,7 @@
 /**@}*/
 
 /**
- * @defgroup RateGroup Angular rate representations
+ * @defgroup state_rate Angular rate representations
  * @{
  */
 #define RATE_I 0
@@ -122,7 +122,7 @@
 /**@}*/
 
 /**
- * @defgroup WindAirGroup Wind- and airspeed representations
+ * @defgroup state_wind_airspeed Wind- and airspeed representations
  * @{
  */
 #define WINDSPEED_I 0
@@ -139,7 +139,7 @@
  */
 struct State {
 
-  /** @addtogroup PosGroup
+  /** @addtogroup state_position
    *  @{ */
 
   /**
@@ -256,7 +256,7 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup SpeedGroup
+  /** @addtogroup state_velocity
    *  @{ */
   /**
    * Holds the status bits for all ground speed representations.
@@ -327,7 +327,7 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup AccelGroup
+  /** @addtogroup state_acceleration
    *  @{ */
   /**
    * Holds the status bits for all acceleration representations.
@@ -362,7 +362,7 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup AttGroup
+  /** @addtogroup state_attitude
    *  @{ */
   /**
    * Holds the status bits for all attitude representations.
@@ -425,7 +425,7 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup RateGroup
+  /** @addtogroup state_rate
    *  @{ */
   /**
    * Holds the status bits for all angular rate representations.
@@ -448,7 +448,7 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup WindAirGroup
+  /** @addtogroup state_wind_airspeed
    *  @{ */
   /**
    * Holds the status bits for all wind- and airspeed representations.
@@ -546,7 +546,7 @@ static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
  * Set and Get functions for the POSITION representations                      *
  *                                                                             *
  ******************************************************************************/
-/** @addtogroup PosGroup
+/** @addtogroup state_position
  *  @{ */
 
 /************* declaration of transformation functions ************/
@@ -768,7 +768,7 @@ static inline struct LlaCoor_f* stateGetPositionLla_f(void) {
  * Set and Get functions for the SPEED representations                        *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup SpeedGroup
+/** @addtogroup state_velocity
  *  @{ */
 
 /************* declaration of transformation functions ************/
@@ -949,7 +949,7 @@ static inline float* stateGetHorizontalSpeedDir_f(void) {
  * Set and Get functions for the ACCELERATION representations                 *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup AccelGroup
+/** @addtogroup state_acceleration
  *  @{ */
 
 /************* declaration of transformation functions ************/
@@ -1033,7 +1033,7 @@ static inline struct EcefCoor_f* stateGetAccelEcef_f(void) {
  * Set and Get functions for the ATTITUDE representations                     *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup AttGroup
+/** @addtogroup state_attitude
  *  @{ */
 
 /************* declaration of transformation functions ************/
@@ -1147,7 +1147,7 @@ static inline struct FloatEulers* stateGetNedToBodyEulers_f(void) {
  * Set and Get functions for the ANGULAR RATE representations                 *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup RateGroup
+/** @addtogroup state_rate
  *  @{ */
 
 /************* declaration of transformation functions ************/
@@ -1202,7 +1202,7 @@ static inline struct FloatRates* stateGetBodyRates_f(void) {
  * Set and Get functions for the WIND- AND AIRSPEED representations           *
  *                                                                            *
  *****************************************************************************/
-/** @addtogroup WindAirGroup
+/** @addtogroup state_wind_airspeed
  *  @{ */
 
 /************* declaration of transformation functions ************/
