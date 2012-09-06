@@ -23,16 +23,14 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
-let google_ver = ref 0
-
 let home = Env.paparazzi_home
 let (//) = Filename.concat
 let maps_xml_path = home // "conf" // "maps.xml"
 
 let maps_xml = ExtXml.parse_file maps_xml_path
+let maps_xml_default = ExtXml.parse_file (maps_xml_path^".example")
+let gv = try Some (ExtXml.int_attrib maps_xml "google_version") with _ -> None
+let gv_default = try ExtXml.int_attrib maps_xml_default "google_version" with _ -> 0
 
-let google_version = (
-  if !google_ver == 0 then (
-    google_ver := ExtXml.int_attrib maps_xml "google_version" );
-  !google_ver
-  )
+let google_version = match gv with Some v -> v | None -> gv_default
+
