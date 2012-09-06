@@ -4,3 +4,6 @@
 [submodule "sw/ext/stm32loader"]
 	path = sw/ext/stm32loader
 	url = https://github.com/jsnyder/stm32loader.git
+[submodule "sw/ext/luftboot"]
+	path = sw/ext/luftboot
+	url = https://github.com/paparazzi/luftboot.git
