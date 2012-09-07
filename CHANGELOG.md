@@ -1,3 +1,19 @@
+Paparazzi 4.0.2
+===============
+
+Maintenance release
+
+- fix some illegal xml chars in xml description for xtend_rssi and pwm_meas modules
+- fix ins_arduimu_basic by adding an empty ahrs_update_gps function
+- fix some ivy includes on OSX for weird installation cases
+- fix ACTUATORS_PWM_NB for fixedwings with USE_SERVOS_7AND8
+- updated kestrel weather meter agent
+- fix uart_tunnel if leds are not available on some boards
+- fix GPS_LLA message
+- fix make failure when trying to get google maps version, but no internet connection
+  [#187] (https://github.com/paparazzi/paparazzi/issues/187)
+
+
 Paparazzi 4.0.1
 ===============
 
@@ -10,7 +26,6 @@ Maintenance release
 - Fixes for photogrammetry module.
 - Fixes for digital_cam modules.
 - Tool added: mergelogs
-
 
 
 Paparazzi 4.0
