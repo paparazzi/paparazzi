@@ -25,8 +25,8 @@ Q=@
 OCAML=ocaml
 OCAMLC=ocamlc
 INCLUDES=-I ../lib/ocaml $(shell ocamlfind query -r -i-format xml-light) -I .
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
-OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
+OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
+OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
@@ -43,6 +43,10 @@ fp_proc.cmo : fp_proc.cmi
 gen_flight_plan.cmo : fp_proc.cmi
 
 gen_common.cmo : gen_common.cmi
+
+gen_srtm.out : ../lib/ocaml/lib-pprz.cma
+	@echo OC $@
+	$(Q)$(OCAMLC) $(INCLUDES) $(OCAMLNETINCLUDES) -custom -o $@ unix.cma str.cma netstring.cma netclient.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma gen_common.cmo $^
 
 mergelogs: mergelogs.c
 	gcc mergelogs.c -o mergelogs

@@ -36,9 +36,9 @@ FPIC=-fPIC
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLOPTFLAGS=-thread
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
-OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
+OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
+OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
+INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format pcre) $(OCAMLNETINCLUDES)
 LIBS=$(OCAMLNETCMA) glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
@@ -53,7 +53,7 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) $(OCAMLNETINCLUDES) unix.cma str.cma netstring.cma netclient.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
