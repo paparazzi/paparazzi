@@ -94,7 +94,7 @@
 
 
 
-#define DefaultVoltageOfAdc(adc) (0.00485*adc)
+#define DefaultVoltageOfAdc(adc) (0.0045*adc)
 
 /* Onboard ADCs */
 /*
