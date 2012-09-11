@@ -55,6 +55,9 @@
 #define UART3_RxPin GPIO_Pin_11
 #define UART5_RxPin GPIO_Pin_2
 
+#define UART1_CtsPin GPIO_Pin_11
+#define UART1_RtsPin GPIO_Pin_12
+
 #define UART1_TxPort GPIOA
 #define UART2_TxPort GPIOA
 #define UART3_TxPort GPIOC
@@ -64,6 +67,8 @@
 #define UART2_RxPort GPIOA
 #define UART3_RxPort GPIOC
 #define UART5_RxPort GPIOD
+
+#define UART1_FlowControlPort GPIOA
 
 #define UART1_Periph RCC_APB2Periph_GPIOA
 #define UART2_Periph RCC_APB2Periph_GPIOA
@@ -112,6 +117,9 @@
 #define UART3_reg USART3
 #define UART5_reg USART5
 
+#if defined UART1_FLOW_CONTROL
+#error UART1_FLOW_CONTROL is renamed to UART1_HW_FLOW_CONTROL
+#endif
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
 extern void usart1_irq_handler(void);
