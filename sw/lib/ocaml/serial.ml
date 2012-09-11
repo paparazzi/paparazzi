@@ -77,13 +77,13 @@ let string_of_payload = fun x -> x
 let payload_of_string = fun x -> x
 
 
-external init_serial : string -> speed -> Unix.file_descr = "c_init_serial"
+external init_serial : string -> speed -> bool -> Unix.file_descr = "c_init_serial"
 external set_dtr : Unix.file_descr -> bool -> unit = "c_set_dtr"
 external set_speed : Unix.file_descr -> speed -> unit = "c_serial_set_baudrate"
 
-let opendev device speed =
+let opendev device speed hw_flow_control =
   try
-    init_serial device speed
+    init_serial device speed hw_flow_control
   with
     Failure x ->
       failwith (Printf.sprintf "Error %s (%s)" x device)

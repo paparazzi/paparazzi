@@ -37,6 +37,10 @@
 #define B57600   57600
 #define B115200 115200
 
+#if !defined UART1_FLOW_CONTROL
+#define UART1_FLOW_CONTROL 0
+#endif
+
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
 extern void usart1_isr(void);
 #endif
