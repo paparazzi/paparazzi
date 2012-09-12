@@ -11,8 +11,8 @@ $(DATADIR):
 
 $(DATADIR)/maps.google.com: $(DATADIR) FORCE
 	@echo "DOWNLOAD: google maps version code";
-	$(Q)wget -q -O $(@) http://maps.google.com/ | \
-		rm -f $(@) && echo "Could not download google maps version code" && exit 1
+	$(Q)wget -q -O $(@) http://maps.google.com/ || \
+		(rm -f $(@) && echo "Could not download google maps version code" && exit 1)
 
 $(PAPARAZZI_HOME)/conf/maps.xml: $(DATADIR)/maps.google.com
 	$(Q)echo "<!DOCTYPE maps SYSTEM \"maps.dtd\">" > $(@)
