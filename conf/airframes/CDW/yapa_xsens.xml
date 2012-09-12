@@ -105,7 +105,6 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="14." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 <!--    <define name="ALT_KALMAN_ENABLED" value="TRUE"/> -->
