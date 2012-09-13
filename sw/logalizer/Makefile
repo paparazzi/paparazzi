@@ -50,7 +50,7 @@ sd2log : sd2log.cmo
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
 
 CC = gcc
-CFLAGS=-g -O2 -Wall 
+CFLAGS=-g -O2 -Wall
 LDFLAGS=
 
 openlog2tlm: openlog2tlm.c

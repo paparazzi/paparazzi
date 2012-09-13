@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# WinARM template makefile 
-# by Martin Thomas, Kaiserslautern, Germany 
+# WinARM template makefile
+# by Martin Thomas, Kaiserslautern, Germany
 # <eversmith@heizung-thomas.de>
 #
 # based on the WinAVR makefile written by Eric B. Weddington, Jörg Wunsch, et al.
@@ -58,16 +58,16 @@ SRC = $(TARGET).c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
-SRCARM = 
+SRCARM =
 
 # List C++ source files here.
 # use file-extension cpp for C++-files
-CPPSRC = 
+CPPSRC =
 
 # List C++ source files here which must be compiled in ARM-Mode.
 # use file-extension cpp for C++-files
 # CPPSRCARM = $(TARGET).cpp
-CPPSRCARM = 
+CPPSRCARM =
 
 # List Assembler source files here.
 # Make them always end in a capital .S.  Files ending in a lowercase .s
@@ -76,12 +76,12 @@ CPPSRCARM =
 # Even though the DOS/Win* filesystem matches both .s and .S the same,
 # it will preserve the spelling of the filenames, and gcc itself does
 # care about how the name is spelled on its command-line.
-ASRC = 
+ASRC =
 
 # List Assembler source files here which must be assembled in ARM-Mode..
-ASRCARM = crt0.S 
+ASRCARM = crt0.S
 
-# Optimization level, can be [0, 1, 2, 3, s]. 
+# Optimization level, can be [0, 1, 2, 3, s].
 # 0 = turn off optimization. s = optimize for size.
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = s
@@ -95,7 +95,7 @@ DEBUG = dwarf-2
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
 #EXTRAINCDIRS = ./include
-EXTRAINCDIRS = 
+EXTRAINCDIRS =
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -126,16 +126,16 @@ ADEFS =  -D$(RUN_MODE)
 CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS) $(CINCS)
 CFLAGS += -O$(OPT)
-CFLAGS += -Wall -Wcast-align -Wcast-qual -Wimplicit 
+CFLAGS += -Wall -Wcast-align -Wcast-qual -Wimplicit
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-#CFLAGS += -Wa,-adhlns=$(<:.c=.lst) 
-CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<) 
+#CFLAGS += -Wa,-adhlns=$(<:.c=.lst)
+CFLAGS += -Wa,-adhlns=$(subst $(suffix $<),.lst,$<)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 # flags only for C
 CONLYFLAGS  = -Wstrict-prototypes -Wmissing-declarations
-CONLYFLAGS += -Wmissing-prototypes -Wnested-externs 
+CONLYFLAGS += -Wmissing-prototypes -Wnested-externs
 CONLYFLAGS += $(CSTANDARD)
 
 # flags only for C++ (arm-elf-g++)
@@ -148,7 +148,7 @@ CPPFLAGS =
 #             for use in COFF files, additional information about filenames
 #             and function names needs to be present in the assembler source
 #             files -- see avr-libc docs [FIXME: not yet described there]
-##ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
+##ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),-g$(DEBUG)
 
 #Additional libraries.
@@ -173,7 +173,7 @@ LDFLAGS += -n
 # Set Linker-Script Depending On Selected Memory
 ifeq ($(RUN_MODE),RAM_RUN)
 LDFLAGS +=-T$(SUBMDL)-RAM.ld
-else 
+else
 LDFLAGS +=-T$(SUBMDL)-ROM-bl.ld
 endif
 
@@ -184,7 +184,7 @@ DIRARM = /usr
 DIRARMBIN = $(DIRARM)/bin/
 
 # ---------------------------------------------------------------------------
-# Flash-Programming support using lpc21isp by Martin Maurer 
+# Flash-Programming support using lpc21isp by Martin Maurer
 
 # Settings and variables:
 LPC21ISP = $(DIRARMBIN)/lpc21isp
@@ -220,7 +220,7 @@ COPY = cp
 MSG_ERRORS_NONE = Errors: none
 MSG_BEGIN = -------- begin --------
 MSG_END = --------  end  --------
-MSG_SIZE_BEFORE = Size before: 
+MSG_SIZE_BEFORE = Size before:
 MSG_SIZE_AFTER = Size after:
 MSG_FLASH = Creating load file for Flash:
 MSG_EXTENDED_LISTING = Creating Extended Listing:
@@ -237,11 +237,11 @@ MSG_LPC21_RESETREMINDER = You may have to bring the target in bootloader-mode no
 
 
 # Define all object files.
-COBJ      = $(SRC:.c=.o) 
+COBJ      = $(SRC:.c=.o)
 AOBJ      = $(ASRC:.S=.o)
 COBJARM   = $(SRCARM:.c=.o)
 AOBJARM   = $(ASRCARM:.S=.o)
-CPPOBJ    = $(CPPSRC:.cpp=.o) 
+CPPOBJ    = $(CPPSRC:.cpp=.o)
 CPPOBJARM = $(CPPSRCARM:.cpp=.o)
 
 # Define all listing files.
@@ -265,7 +265,7 @@ build: elf hex lss sym
 
 elf: $(TARGET).elf
 hex: $(TARGET).hex
-lss: $(TARGET).lss 
+lss: $(TARGET).lss
 sym: $(TARGET).sym
 
 # Eye candy.
@@ -292,15 +292,15 @@ sizeafter:
 
 
 # Display compiler version information.
-gccversion : 
+gccversion :
 	@$(CC) --version
 
 
-# Program the device.  
+# Program the device.
 load upload program: $(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(LPC21IAP)  $(TARGET).elf
-else 
+else
 	@echo
 	@echo $(MSG_LPC21_RESETREMINDER)
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
@@ -342,25 +342,25 @@ endif
 $(COBJ) : %.o : %.c
 	@echo
 	@echo $(MSG_COMPILING) $<
-	$(CC) -c $(THUMB) $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	$(CC) -c $(THUMB) $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 # Compile: create object files from C source files. ARM-only
 $(COBJARM) : %.o : %.c
 	@echo
 	@echo $(MSG_COMPILING_ARM) $<
-	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 # Compile: create object files from C++ source files. ARM/Thumb
 $(CPPOBJ) : %.o : %.cpp
 	@echo
 	@echo $(MSG_COMPILINGCPP) $<
-	$(CPP) -c $(THUMB) $(ALL_CFLAGS) $(CPPFLAGS) $< -o $@ 
+	$(CPP) -c $(THUMB) $(ALL_CFLAGS) $(CPPFLAGS) $< -o $@
 
 # Compile: create object files from C++ source files. ARM-only
 $(CPPOBJARM) : %.o : %.cpp
 	@echo
 	@echo $(MSG_COMPILINGCPP_ARM) $<
-	$(CPP) -c $(ALL_CFLAGS) $(CPPFLAGS) $< -o $@ 
+	$(CPP) -c $(ALL_CFLAGS) $(CPPFLAGS) $< -o $@
 
 
 # Compile: create assembler files from C source files. ARM/Thumb
@@ -410,9 +410,9 @@ clean_list :
 	$(REMOVE) $(SRC:.c=.d)
 	$(REMOVE) $(SRCARM:.c=.s)
 	$(REMOVE) $(SRCARM:.c=.d)
-	$(REMOVE) $(CPPSRC:.cpp=.s) 
+	$(REMOVE) $(CPPSRC:.cpp=.s)
 	$(REMOVE) $(CPPSRC:.cpp=.d)
-	$(REMOVE) $(CPPSRCARM:.cpp=.s) 
+	$(REMOVE) $(CPPSRCARM:.cpp=.s)
 	$(REMOVE) $(CPPSRCARM:.cpp=.d)
 	$(REMOVE) -r .dep
 	$(REMOVE) *~

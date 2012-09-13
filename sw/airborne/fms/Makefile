@@ -7,7 +7,7 @@ fms: fms_main.c fms_ap_link.c fms_serial_port.c fms_gs_link.c fms_network.c
 
 
 
-TT_CFLAGS = -Wall 
+TT_CFLAGS = -Wall
 TT_CFLAGS += -I../../include
 TT_CFLAGS += -I..
 TT_CFLAGS += -I../../../var/include
@@ -37,7 +37,7 @@ OVERO_OE=/overo-oe
 CROSS_CC=$(OVERO_OE)/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
 
 CROSS_CFLAGS  = -Wall
-CROSS_LDFLAGS = 
+CROSS_LDFLAGS =
 
 test_telemetry: test_telemetry.c
 	$(CROSS_CC) $(CROSS_CFLAGS) -o $@ $^ $(CROSS_LDFLAGS)
