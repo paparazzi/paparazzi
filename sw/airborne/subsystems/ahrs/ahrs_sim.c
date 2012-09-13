@@ -52,8 +52,8 @@ void update_ahrs_from_sim(void) {
 
   struct FloatEulers ltp_to_imu_euler = { sim_phi, sim_theta, sim_psi };
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ltp_to_imu_euler.phi - ins_roll_neutral;
-  ltp_to_imu_euler.theta - ins_pitch_neutral;
+  ltp_to_imu_euler.phi -= ins_roll_neutral;
+  ltp_to_imu_euler.theta -= ins_pitch_neutral;
 #endif
   struct FloatRates imu_rate = { sim_p, sim_q, sim_r };
   /* set ltp_to_body to same as ltp_to_imu, currently no difference simulated */
