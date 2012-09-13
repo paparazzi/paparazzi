@@ -258,7 +258,6 @@ let get_image = fun key ->
               | Http.Blocked _ ->
                 begin
                   prerr_endline (Printf.sprintf "Seem to be temporarily blocked, '%s'" url);
-                  flush stderr;
                   raise Not_available
                 end
               | _ -> raise Not_available
