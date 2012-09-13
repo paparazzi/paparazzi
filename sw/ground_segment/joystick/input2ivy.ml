@@ -495,15 +495,15 @@ let execute_action = fun ac_id inputs buttons axis variables message ->
 
 (** Output on stderr the values from the input device *)
 let print_inputs = fun nb_buttons buttons axis ->
-  fprintf Pervasives.stderr "buttons: ";
+  print_string "buttons: ";
   for i = 0 to nb_buttons - 1 do
-    fprintf Pervasives.stderr "%d:%d " i (eval_input buttons axis (Button i))
+    printf "%d:%d " i (eval_input buttons axis (Button i))
   done;
-  fprintf Pervasives.stderr "\naxis: ";
+  print_string "\naxis: ";
   for i = 0 to Array.length axis - 1 do
-    fprintf Pervasives.stderr "%d:%d " i (eval_input buttons axis (Axis (i, 0, 1.0, 0.0, ref 0.0)))
+    printf "%d:%d " i (eval_input buttons axis (Axis (i, 0, 1.0, 0.0, ref 0.0)))
   done;
-  fprintf Pervasives.stderr "\n%!"
+  ignore (print_newline ())
 
 
 (** Get the values from the input values and send messages
