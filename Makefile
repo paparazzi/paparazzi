@@ -237,11 +237,10 @@ clean:
 	$(Q)rm -f paparazzi sw/simulator/launchsitl
 
 cleanspaces:
-	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
-	find ./conf -name '*.makefile' -exec sed -i {} -e 's/[ \t]*$$//' ';'
-	find ./sw -name '*.ml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
-	find ./sw -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
-	find ./conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find sw -path sw/ext -prune -o -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
+	find conf -name '*.makefile' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find sw -name '*.ml' -o -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 
 distclean : dist_clean
 dist_clean :
