@@ -71,7 +71,7 @@ SIGNAL(SIG_INTERRUPT1) {
 	}
       }
       else {
-	// framing error 
+	// framing error
 	soft_uart_error = RX_ERROR_FRAMING;
       }
       rx_buf_idx = 0;

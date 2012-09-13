@@ -3,7 +3,7 @@
 /*
  * Random number generation
  */
- 
+
 
 /*
  * Generates a random gaussian number

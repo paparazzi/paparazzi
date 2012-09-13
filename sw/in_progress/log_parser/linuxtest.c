@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2003-2009 Pascal Brisset, Antoine Drouin, Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -38,7 +38,7 @@
          2 MSG_PAYLOAD
          . DATA (messages.xml)
      E XBEE_CHECKSUM (sum[A->D])
-     
+
     ID is AC_ID for aircraft, 0x100 for ground station
   */
 
@@ -136,7 +136,7 @@ int bytes_in = 0;
 int bytes_out = 0;
 
 //dummy
-int fdw;	
+int fdw;
 unsigned int filew;
 int file_write (void* file, int size, unsigned char* buf)
 {
@@ -157,7 +157,7 @@ unsigned char checksum(unsigned char start, unsigned char* data, int length)
 void log_payload(int len, unsigned char source, unsigned int timestamp)
 {
   unsigned char chk, i;
-  
+
   /* start delimiter */
   log_buffer[0] = STX;
 
@@ -166,7 +166,7 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
 
   /* source */
   log_buffer[2] = source;
-    
+
   /* add a 32bit timestamp */
   log_buffer[3] = (timestamp) & 0xFF;       // LSB first
   log_buffer[4] = (timestamp >> 8)  & 0xFF;
@@ -190,11 +190,11 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
   /* write data, start+length+timestamp+data+checksum */
   chk = file_write(&filew, LOG_DATA_OFFSET+len+1, log_buffer);
 
-  if (len != chk) 
+  if (len != chk)
   {
     nb_fail_write++;
   }
-  
+
   bytes_out += chk;
   nb_messages++;
 //  dl_parse_msg();
@@ -270,7 +270,7 @@ void log_pprz(unsigned char c)
   switch (pprzl_status) {
   case UNINIT:
     if (c == STX)
-      pprzl_timestamp++;        
+      pprzl_timestamp++;
       pprzl_status++;
       printf(">");
     break;
@@ -320,9 +320,9 @@ void log_pprz(unsigned char c)
 
 int main(void)
 {
-    int fd;	
+    int fd;
     unsigned char inc;
-    
+
     fd = open("xbee.bin", O_RDONLY);
 //    fd = open("pprz.bin", O_RDONLY);
     if(fd < 0)
@@ -356,7 +356,7 @@ int main(void)
     close(fdw);
     close(fd);
 
-    printf("\nmsg detected %d\nbytes in %d, out %d\nerr xbee %d, pprz %d\n", 
+    printf("\nmsg detected %d\nbytes in %d, out %d\nerr xbee %d, pprz %d\n",
            nb_messages,
            bytes_in,
            bytes_out,

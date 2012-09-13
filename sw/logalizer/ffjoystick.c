@@ -113,18 +113,18 @@ void on_commands(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   char* start = argv[0];
   char* stop;
   int x, y;
-  
+
   strtol(start, &stop, 10);
   start=stop+1;
   x = -strtol(start, &stop, 10);
   start=stop+1;
   y = strtol(start, &stop, 10);
-  
+
   if (x>PPRZ_MAX) x=PPRZ_MAX;
-  if (x<PPRZ_MIN) x=PPRZ_MIN;  
-  if (y>PPRZ_MAX) y=PPRZ_MAX;  
-  if (y<PPRZ_MIN) y=PPRZ_MIN;  
-  
+  if (x<PPRZ_MIN) x=PPRZ_MIN;
+  if (y>PPRZ_MAX) y=PPRZ_MAX;
+  if (y<PPRZ_MIN) y=PPRZ_MIN;
+
   generate_force((double)x/PPRZ_MAX, (double)y/PPRZ_MAX);
 }
 
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 	char dev_name[STR_LEN];
 	int i;
 	GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-	
+
 	welcome();
 	if (argc <= 1) return 0;
 
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
 			strncpy(dev_name, argv[i], STR_LEN);
 		}
 	}
-		
+
 	/* Open force feedback device */
 	ff_fd = open(dev_name, O_RDWR);
 	if (ff_fd == -1) {

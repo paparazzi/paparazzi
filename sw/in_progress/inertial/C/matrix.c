@@ -57,7 +57,7 @@ void mat_mult(int n_rowa, int n_cola, int n_colb, double* r, double* a, double* 
   int row, col, k;
   for (row = 0; row<n_rowa; row++) {
     for (col = 0; col<n_colb; col++) {
-      int ridx = col + row * n_colb; 
+      int ridx = col + row * n_colb;
       r[ridx] =0.;
       for (k=0; k<n_cola; k++) {
 	int aidx = k + row * n_cola;

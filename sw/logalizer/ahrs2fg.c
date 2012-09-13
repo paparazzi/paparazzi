@@ -19,10 +19,10 @@ gboolean timeout_callback(gpointer data) {
   static double y = 0.;
   static double z = 10;
   const double earth_radius = 6372795.;
-  
+
   double lat =  0.656480 + asin(x/earth_radius);
   double lon = -2.135537 + asin(y/earth_radius);
-  
+
   struct FGNetGUI gui;
   net_gui_init(&gui);
 
@@ -76,7 +76,7 @@ int main ( int argc, char** argv) {
   g_timeout_add(16, timeout_callback, chan);
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   IvyInit ("IvyGtkButton", "IvyGtkButton READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_AHRS_STATE, chan, "^77 AHRS_STATE (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");

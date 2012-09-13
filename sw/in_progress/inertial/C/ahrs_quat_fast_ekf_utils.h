@@ -96,11 +96,11 @@ static inline FLOAT_T afe_phi_of_accel( const FLOAT_T* accel ) {
 }
 
 static inline FLOAT_T afe_theta_of_accel( const FLOAT_T* accel) {
-  FLOAT_T g2 =					
-    accel[AXIS_X]*accel[AXIS_X] +	
-    accel[AXIS_Y]*accel[AXIS_Y] +	
+  FLOAT_T g2 =
+    accel[AXIS_X]*accel[AXIS_X] +
+    accel[AXIS_Y]*accel[AXIS_Y] +
     accel[AXIS_Z]*accel[AXIS_Z];
-  return -asin( accel[AXIS_X] / sqrt( g2 ) );     
+  return -asin( accel[AXIS_X] / sqrt( g2 ) );
 }
 /*
  * The rotation matrix to rotate from NED frame to body frame without
@@ -116,7 +116,7 @@ static inline FLOAT_T afe_theta_of_accel( const FLOAT_T* accel) {
  * [  sin(Phi)*sin(Theta)  cos(Phi)   sin(Phi)*cos(Theta)]
  * [  cos(Phi)*sin(Theta)  -sin(Phi)  cos(Phi)*cos(Theta)]
  *
- * However, to untilt the compass reading, we need to use the 
+ * However, to untilt the compass reading, we need to use the
  * transpose of this matrix.
  *
  * [  cos(Theta)  sin(Phi)*sin(Theta)  cos(Phi)*sin(Theta) ]
@@ -136,9 +136,9 @@ static inline FLOAT_T afe_theta_of_accel( const FLOAT_T* accel) {
 static inline FLOAT_T afe_psi_of_mag( const int16_t* mag ) {
   const FLOAT_T ctheta  = cos( afe_theta );
 #if 0
-  const FLOAT_T    mn = ctheta * mag[0] 
+  const FLOAT_T    mn = ctheta * mag[0]
     - (afe_dcm12 * mag[1] + afe_dcm22 * mag[2]) * afe_dcm02 / ctheta;
-  
+
   const FLOAT_T    me =
     (afe_dcm22 * mag[1] - afe_dcm12 * mag[2]) / ctheta;
 #else
@@ -146,16 +146,16 @@ static inline FLOAT_T afe_psi_of_mag( const int16_t* mag ) {
   const FLOAT_T cphi  = cos( afe_phi );
   const FLOAT_T sphi  = sin( afe_phi );
 
-  const FLOAT_T mn = 
+  const FLOAT_T mn =
     ctheta*      mag[0]+
     sphi*stheta* mag[1]+
     cphi*stheta* mag[2];
-  const FLOAT_T me = 
+  const FLOAT_T me =
     0*     mag[0]+
     cphi*  mag[1]+
     -sphi* mag[2];
 #endif
-  
+
   const FLOAT_T psi = -atan2( me, mn );
   return psi;
 }

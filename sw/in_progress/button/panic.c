@@ -139,13 +139,13 @@ int main(int argc, char** argv) {
 	block_nr = strtol(argv[2], NULL, 10);
 
 	ml = g_main_loop_new(NULL, FALSE);
-  
+
 	IvyInit ("IvyCtrlButton", "IvyCtrlButton READY", NULL, NULL, NULL, NULL);
 	IvyStart("127.255.255.255");
 
 	btn_init();
 
-	g_timeout_add(TIMEOUT_PERIOD, btn_periodic, NULL);  
+	g_timeout_add(TIMEOUT_PERIOD, btn_periodic, NULL);
 	g_main_loop_run(ml);
 
 	btn_close();

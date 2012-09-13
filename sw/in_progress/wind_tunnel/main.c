@@ -34,7 +34,7 @@ static void configure_term(struct termios *termios, speed_t *speed) {
 }
 
 static void dump_buf ( int len, char* buf) {
-  
+
   static gchar buf2[BUF_SIZE];
   static int cur_len = 0;
   int i;
@@ -83,7 +83,7 @@ static gboolean on_serial_data_received(GIOChannel *source,
 #if 0
   static gchar buf[BUF_SIZE];
   gsize len;
-  
+
   g_io_channel_read_chars(source, buf, BUF_SIZE, &len, NULL);
   dump_buf(len, buf);
 #endif
@@ -95,19 +95,19 @@ gboolean timeout_callback(gpointer data) {
 
   const char* msg = "GT\n";
   gsize bw;
-  
-  g_io_channel_write_chars(ioc, msg, 3, &bw, NULL); 
+
+  g_io_channel_write_chars(ioc, msg, 3, &bw, NULL);
   g_io_channel_flush(ioc, NULL);
-  
+
   return TRUE;
-  
+
 }
 
 int main ( int argc, char** argv) {
 
   sp = serial_port_new();
   serial_port_open(sp, "/dev/ttyUSB1", configure_term);
-  
+
   ioc = g_io_channel_unix_new(sp->fd);
   g_io_channel_set_encoding(ioc, NULL, NULL);
   g_io_channel_set_flags (ioc,G_IO_FLAG_NONBLOCK, NULL );
@@ -120,7 +120,7 @@ int main ( int argc, char** argv) {
   IvyStart("127.255.255.255");
 
   g_timeout_add(500, timeout_callback, NULL);
-  
+
   g_main_loop_run(ml);
 
   return 0;

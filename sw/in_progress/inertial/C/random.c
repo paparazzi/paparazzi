@@ -8,7 +8,7 @@ ukf_filter_rand_normal() {
 	double norm2,x,y;
 	double bm;
 	double saved_value;
-	
+
 	if(is_ready == 0) {
 		do {
 			x = 2.0 * drand48() - 1.0;

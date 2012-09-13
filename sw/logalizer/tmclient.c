@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -50,7 +50,7 @@ char hostaddr[4096] = {HOSTADDR};
 unsigned int  uvalue[PACKET_SIZE];
 unsigned char cvalue[4*PACKET_SIZE];
 
-static const char usage_str[] = 
+static const char usage_str[] =
 "client [options]\n"
 "options:\n"
 "  -s HOST       server address\n";
@@ -101,7 +101,7 @@ int main ( int argc, char** argv) {
       break;
     }
   }
-  
+
   IvyInit ("IvyFlightParams", "IvyFlightParams READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_FLIGHT_PARAM_STATUS, NULL, "^\\S* FLIGHT_PARAM (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
@@ -119,9 +119,9 @@ int main ( int argc, char** argv) {
   }
 
   memcpy((char *)&server.sin_addr,
-         (char *)hent->h_addr, 
+         (char *)hent->h_addr,
          hent->h_length);
-        
+
   server.sin_port = htons(PORT);
   length=sizeof(struct sockaddr_in);
 

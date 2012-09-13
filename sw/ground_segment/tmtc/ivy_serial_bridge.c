@@ -19,7 +19,7 @@
 //#include <Ivy/ivyglibloop.h>
 
 
-#define Dprintf(X, ... ) 
+#define Dprintf(X, ... )
 //#define Dprintf printf
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ struct _uav_type_
 
   // Footer
   unsigned char footer;
-} 
+}
 __attribute__((packed))
 
 local_uav, remote_uav;
@@ -188,7 +188,7 @@ void send_ivy(void)
 
   if (new_serial_data == 0)
     return;
- 
+
   new_serial_data = 0;
 
   phi = ((float) remote_uav.phi) / 1000.0f;
@@ -198,7 +198,7 @@ void send_ivy(void)
   IvySendMsg("%d ALIVE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n", remote_uav.ac_id);
 
   IvySendMsg("%d ATTITUDE %f %f %f\n", remote_uav.ac_id, phi, psi, theta);
-  
+
 /*
   remote_uav.utm_east = local_uav.utm_east;
   remote_uav.utm_north = local_uav.utm_north + 5000;
@@ -225,7 +225,7 @@ void send_ivy(void)
 */
 
   IvySendMsg("%d GPS 3 %d %d 0 %d %d 0 0 0 %d 0\n", remote_uav.ac_id, remote_uav.utm_east, remote_uav.utm_north, remote_uav.utm_z, remote_uav.speed, remote_uav.utm_zone);
-  
+
 /*
   <message name="FBW_STATUS" id="103">
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
@@ -362,13 +362,13 @@ void send_port(void)
 
   if (new_ivy_data == 0)
     return;
- 
+
   new_ivy_data = 0;
 
 
   local_uav.header = '@';
   local_uav.footer = 0;
-  // Checksum 
+  // Checksum
   for (i=0;i<(sizeof(local_uav)-1);i++)
   {
     local_uav.footer += buf_tx[i];
@@ -395,7 +395,7 @@ int handle_api(void)
   int bytes;
   int i=0;
   char buff[32];
-  
+
   // ATPL4 = power level 4
   // ATMT0 = zero retry on broadcast
   // ATRR = mac retry on NACK
@@ -403,7 +403,7 @@ int handle_api(void)
   // ATDH = 0x00000000
   // ATDL = 0x0000FFFF
 
-  // read only: 
+  // read only:
   // Serial High
   // Serial Low
 
@@ -432,7 +432,7 @@ int handle_api(void)
 
     buff[strlen(buff)] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
 
     break;
   case 8:
@@ -442,7 +442,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 10:
     sprintf(buff,"ATPL%d\r", power_level);
@@ -451,7 +451,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 12:
     sprintf(buff,"ATPL\r");
@@ -460,7 +460,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 14:
     sprintf(buff,"ATDH\r");
@@ -469,7 +469,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 16:
     sprintf(buff,"ATDL\r");
@@ -478,7 +478,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 18:
     sprintf(buff,"ATSH\r");
@@ -487,7 +487,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 20:
     sprintf(buff,"ATSL\r");
@@ -496,7 +496,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 22:
     sprintf(buff,"ATMT0\r");
@@ -505,7 +505,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 24:
     sprintf(buff,"ATRR0\r");
@@ -514,7 +514,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 26:
     sprintf(buff,"ATDH00000000\r");
@@ -523,7 +523,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 28:
     sprintf(buff,"ATDL0000FFFF\r");
@@ -532,7 +532,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 30:
     sprintf(buff,"ATWR\r");
@@ -541,7 +541,7 @@ int handle_api(void)
 
     buff[strlen(buff) - 1] = 0;
     strcpy(status_ivy_str,buff);
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     break;
   case 32:
     sprintf(buff,"ATCN\r");
@@ -557,10 +557,10 @@ int handle_api(void)
     break;
   case 34:
     sprintf(status_ivy_str, "---");
-    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );    
+    gtk_label_set_text( GTK_LABEL(status_ivy), status_ivy_str );
     sprintf(status_serial_str, "---");
-    gtk_label_set_text( GTK_LABEL(status_serial), status_serial_str );    
-    
+    gtk_label_set_text( GTK_LABEL(status_serial), status_serial_str );
+
     break;
   case 7:
   case 9:
@@ -594,7 +594,7 @@ int handle_api(void)
       else if (step == 19)
       {
         if ((buff[i] != '\r') && (buff[i] != '\n'))
-        { 
+        {
           modem_id[strlen(modem_id)] = buff[i];
           modem_id[strlen(modem_id)+1] = 0;
         }
@@ -602,7 +602,7 @@ int handle_api(void)
       else if (step == 21)
       {
         if ((buff[i] != '\r') && (buff[i] != '\n'))
-        { 
+        {
           modem_id[strlen(modem_id)] = buff[i];
           modem_id[strlen(modem_id)+1] = 0;
         }
@@ -635,7 +635,7 @@ void read_port(void)
 
   counter += bytes;
 
-  if (counter >= sizeof(remote_uav)) 
+  if (counter >= sizeof(remote_uav))
   {
     if (buf_rx[0] != '@')
     {
@@ -666,7 +666,7 @@ void read_port(void)
         Dprintf("\n");
       }
       counter -= head;
-      return; 
+      return;
       // Wait for more data
     }
     for (i=0;i<(sizeof(remote_uav)-1);i++)
@@ -701,7 +701,7 @@ void close_port(void)
 gboolean timeout_callback(gpointer data)
 {
   static unsigned char dispatch = 0;
-  
+
   // Only do the settings if in xbee mode
   if ((power_level >= 0) && (handle_api() == 0))
     return TRUE;
@@ -731,8 +731,8 @@ gint delete_event( GtkWidget *widget,
                    gpointer   data )
 {
   g_print ("CLEAN STOP\n");
-  
-  close_port(); 
+
+  close_port();
   IvyStop();
 
   exit(0);
@@ -741,10 +741,10 @@ gint delete_event( GtkWidget *widget,
 }
 
 
-int main ( int argc, char** argv) 
+int main ( int argc, char** argv)
 {
   int s = sizeof(local_uav);
- 
+
   gtk_init(&argc, &argv);
 
   if (argc < 3)
@@ -769,7 +769,7 @@ int main ( int argc, char** argv)
   {
     power_level = -1;
   }
-  
+
   local_uav.ac_id = atoi(argv[1]);
 
   sprintf(status_str, "Listening to AC=%d, Serial Data Size = %d",local_uav.ac_id, s);
@@ -800,7 +800,7 @@ int main ( int argc, char** argv)
   // Add Timer
   gtk_timeout_add(delay / 4, timeout_callback, NULL);
 
-  // GTK Window  
+  // GTK Window
   GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "IVY_Serial_Bridge");
 
@@ -843,8 +843,8 @@ int main ( int argc, char** argv)
   gtk_main();
 
   // Clean up
-  fprintf(stderr,"Stopping\n");  
-  
+  fprintf(stderr,"Stopping\n");
+
 
   return 0;
 }

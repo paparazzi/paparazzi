@@ -1,7 +1,7 @@
 /*
  *      demod_afsk48p.c -- 4800 baud AFSK demodulator for paparazzi
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@ static float corr_space_i[CORRLEN];
 static float corr_space_q[CORRLEN];
 
 /* ---------------------------------------------------------------------- */
-	
+
 static void afsk48p_init(struct demod_state *s)
 {
 	float f;

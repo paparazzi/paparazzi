@@ -1,7 +1,7 @@
 /*
  *      demod_display.c -- signal display
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -71,7 +71,7 @@ static void scope_demod(struct demod_state *s, float *buffer, int length)
 	}
 	s->l1.scope.datalen += i;
 	memcpy(dst, src, i*sizeof(s->l1.scope.data[0]));
-	if (s->l1.scope.datalen < MEMSIZE) 
+	if (s->l1.scope.datalen < MEMSIZE)
 		return;
 	if (xdisp_update(s->l1.scope.dispnum, s->l1.scope.data))
 		s->l1.scope.datalen = 0;

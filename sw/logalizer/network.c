@@ -12,13 +12,13 @@ struct FgNetChannel* open_out_channel( char* host, uint16_t port) {
   int so_reuseaddr = 1;
   struct protoent * pte = getprotobyname("UDP");
   chan->socket = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
-  setsockopt(chan->socket, SOL_SOCKET, SO_REUSEADDR, 
+  setsockopt(chan->socket, SOL_SOCKET, SO_REUSEADDR,
 	     &so_reuseaddr, sizeof(so_reuseaddr));
 
   chan->addr.sin_family = PF_INET;
   chan->addr.sin_port = htons(port);
   chan->addr.sin_addr.s_addr = inet_addr(host);
-  
+
   return chan;
 }
 

@@ -19,19 +19,19 @@ static uint8_t           tx_buf[ TX_BUF_SIZE ];
  * With 16.0 MHz clock,UBRR=25  => 38400 baud
  * With 8.0 Mhz clock, UBRR=12  => 38400 baud
  *
- * With 4.0 MHz UBRR=12 + ub2X=1 -> 38400 baud 
+ * With 4.0 MHz UBRR=12 + ub2X=1 -> 38400 baud
  */
 
 void uart_init( void ) {
   /* Baudrate is 38.4k */
   UBRRH = 0;
-  UBRRL = 12; 
-  /* double speed */ 
-  UCSRA = _BV(U2X); 
-  /* Enable transmitter */ 
-  UCSRB = _BV(TXEN); 
-  /* Set frame format: 8data, 1stop bit */ 
-  UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0); 
+  UBRRL = 12;
+  /* double speed */
+  UCSRA = _BV(U2X);
+  /* Enable transmitter */
+  UCSRB = _BV(TXEN);
+  /* Set frame format: 8data, 1stop bit */
+  UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0);
 }
 
 
@@ -71,7 +71,7 @@ void uart_putc( unsigned char c ) {
   }
 }
 
-SIGNAL( SIG_UART_TRANS ) { 
+SIGNAL( SIG_UART_TRANS ) {
   /*  if we have nothing left to transmit */
   if( tx_head == tx_tail )
     /* disable data register empty interrupt */

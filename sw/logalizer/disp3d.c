@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 1998 Janne Löf <jlof@mail.student.oulu.fi>
  *
  * This library is free software; you can redistribute it and/or
@@ -78,7 +78,7 @@ void game_init() {
   if (!gtimer)
     gtimer = g_timer_new();
   g_timer_reset(gtimer);
-  
+
   game_time = g_timer_elapsed(gtimer, NULL);
   game_tick  = 1.0 / 60;
 }
@@ -95,7 +95,7 @@ void game_play()
   if (tick_now > 0.2  ) tick_now = 0.2;
   game_tick = (tick_now + 4*game_tick)/5; /* average */
   game_time = time_now;
-  
+
 
 }
 
@@ -112,17 +112,17 @@ void quat_to_euler( gfloat* quat, gfloat* euler) {
 
 
 float ahrs_heading_of_mag( const float* mag ) {
-  
+
   const float cphi  = cos( eulers[0] );
   const float sphi  = sin( eulers[0] );
   const float ctheta  = cos( eulers[1] );
   const float stheta  = sin( eulers[1] );
 
-  const float mn = 
+  const float mn =
     ctheta*      mag[0]+
     sphi*stheta* mag[1]+
     cphi*stheta* mag[2];
-  const float me = 
+  const float me =
     0*     mag[0]+
     cphi*  mag[1]+
     -sphi* mag[2];
@@ -135,12 +135,12 @@ float ahrs_roll_of_accel( const float* accel ) {
   return atan2(accel[AXIS_Y], accel[AXIS_Z]);
 }
 
-float ahrs_pitch_of_accel( float* accel) {			
-  float g2 =					
-    accel[AXIS_X]*accel[AXIS_X] +	
-    accel[AXIS_Y]*accel[AXIS_Y] +	
+float ahrs_pitch_of_accel( float* accel) {
+  float g2 =
+    accel[AXIS_X]*accel[AXIS_X] +
+    accel[AXIS_Y]*accel[AXIS_Y] +
     accel[AXIS_Z]*accel[AXIS_Z];
-  return -asin( accel[AXIS_X] / sqrt( g2 ) );     
+  return -asin( accel[AXIS_X] / sqrt( g2 ) );
 }
 
 float compute_euler_heading( void ) {
@@ -242,10 +242,10 @@ void draw_heli ( void ) {
   glVertex3f( accel[0]/4., accel[1]/4., accel[2]/4. );
   glEnd();
   glPopMatrix();
-  
-  printf("mag heading %f  ac heading %f err %f\n\n", DegOfRad(ahrs_mag_heading), DegOfRad(eulers[2]), 
+
+  printf("mag heading %f  ac heading %f err %f\n\n", DegOfRad(ahrs_mag_heading), DegOfRad(eulers[2]),
 	 DegOfRad(ahrs_mag_heading) - DegOfRad(eulers[2]));
-  
+
 
 }
 
@@ -294,8 +294,8 @@ void game_render()
   /* switch to nort east down */
 #ifdef NED
   glPushMatrix();
-  glRotatef(90., 1., 0., 0.);  
-  glRotatef(180., 0., 0., 1.);  
+  glRotatef(90., 1., 0., 0.);
+  glRotatef(180., 0., 0., 1.);
 #endif
 
   /* draw frame */
@@ -322,10 +322,10 @@ void game_render()
 
   draw_heli();
 
- 
+
 #ifdef NED
   glPopMatrix();
-#endif  
+#endif
 
 /*   glViewport(0,0, width, height); */
 /*   glMatrixMode(GL_PROJECTION); */
@@ -338,7 +338,7 @@ void game_render()
 /*   if (fontbase) {  */
 /*     char s[200]; */
 /*     g_snprintf(s, sizeof(s), "magnetometer : mx -> %d, my -> %d, mz -> %d", mx, my, mz); */
-    
+
 /*     glColor3f(.8,.8,.8); */
 /*     glRasterPos2f(-90, 90); */
 /*     glListBase(fontbase); */
@@ -377,7 +377,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event)
 
   /* Swap backbuffer to front */
   gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
-  
+
   return TRUE;
 }
 
@@ -498,7 +498,7 @@ int main(int argc, char **argv)
 
   logo = gtk_label_new("ahrs3d");
 
- 
+
   /* Create new OpenGL widget. */
   glarea = GTK_WIDGET(gtk_gl_area_new(attrlist));
   /* Events for widget must be set before X Window is created */
@@ -509,7 +509,7 @@ int main(int argc, char **argv)
   /* set default size */
   gtk_gl_area_size(GTK_GL_AREA(glarea), 640,400);
 
-  
+
   /* Connect signal handlers */
   /* Redraw image when exposed. */
   gtk_signal_connect(GTK_OBJECT(glarea), "expose_event",

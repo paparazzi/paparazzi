@@ -17,15 +17,15 @@ gboolean timeout_callback(gpointer data) {
 
 
 int main ( int argc, char** argv) {
-  
+
   //  GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   gtk_init(&argc, &argv);
 
   g_timeout_add(500, timeout_callback, NULL);
 
   calibrator_init();
-  
+
   gui_init();
 
   //g_main_loop_run(ml);

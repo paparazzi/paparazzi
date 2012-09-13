@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009  Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -30,7 +30,7 @@
  * on the map
  */
 
-/* 
+/*
   <message name="FLIGHT_PARAM" id="11">
     <field name="ac_id"  type="string"/>
     <field name="roll"   type="float" unit="deg"/>
@@ -140,12 +140,12 @@ int main(int argc, char *argv[])
     gps_set_raw_hook(gpsdata, update_gps);
 
     gps_stream(gpsdata, WATCH_ENABLE, NULL);
-  
+
     IvyInit ("GPSd2Ivy", "GPSd2Ivy READY", NULL, NULL, NULL, NULL);
     IvyStart("127.255.255.255");
-  
+
     g_timeout_add(TIMEOUT_PERIOD, gps_periodic, NULL);
-  
+
     g_main_loop_run(ml);
 
     return 0;

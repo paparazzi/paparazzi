@@ -58,8 +58,8 @@ void linear_filter(double *u, double* X, double* dt, double *Xdot, double* F) {
 		    p , 0.,  r, -q, -q0,  q3, -q2,
 		    q,  -r, 0.,  p, -q3, -q0,  q1,
 		    r,   q, -p, 0.,  q2, -q1, -q0,
-		    0., 0., 0., 0.,  0.,  0.,  0., 
-		    0., 0., 0., 0.,  0.,  0.,  0., 
+		    0., 0., 0., 0.,  0.,  0.,  0.,
+		    0., 0., 0., 0.,  0.,  0.,  0.,
 		    0., 0., 0., 0.,  0.,  0.,  0. };
   memcpy(F, my_f, sizeof(my_f));
 
@@ -121,7 +121,7 @@ void linear_measure(double *y, double* err, double*X, double *H) {
 
 void run_ekf (void) {
   /* initial state covariance matrix */
-  double P[7*7] = {P0Q,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0, 
+  double P[7*7] = {P0Q,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   P0Q,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   P0Q,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   P0Q,   0.0,   0.0,   0.0,
@@ -129,7 +129,7 @@ void run_ekf (void) {
 		   0.0,   0.0,   0.0,   0.0,   0.0,   P0B,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   P0B };
   /* model noise covariance matrix */
-  double Q[7*7] = {Q0G,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0, 
+  double Q[7*7] = {Q0G,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   Q0G,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   Q0G,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   Q0G,   0.0,   0.0,   0.0,
@@ -144,7 +144,7 @@ void run_ekf (void) {
   double Y[1];
   /* command */
   double U[3] = {0.0, 0.0, 0.0};
-  
+
   struct ekf_filter* ekf;
   ekf = ekf_filter_new(7, 1, Q, R, linear_filter, linear_measure);
   ahrs_quat_init(ad, 150, X);

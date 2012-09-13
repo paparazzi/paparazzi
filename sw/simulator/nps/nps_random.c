@@ -104,7 +104,7 @@ double get_gaussian_noise(void) {
 #include <stdlib.h>
 double get_gaussian_noise(void) {
   static gsl_rng * r = NULL;
-  // select random number generator 
+  // select random number generator
   if (!r)  r = gsl_rng_alloc (gsl_rng_mt19937);
   return gsl_ran_gaussian(r, 1.);
 }

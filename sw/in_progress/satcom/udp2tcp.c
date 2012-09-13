@@ -1,6 +1,6 @@
 /*
  * Paparazzi udp to tcp handling for sat based telemetry
- * 
+ *
  * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -68,11 +68,11 @@ int main(int argc, char *argv[]) {
   length = sizeof(sourceaddr);
   memset(&sourceaddr, 0, sizeof(sourceaddr));
   memset(&sinkaddr, 0, sizeof(sinkaddr));
-                           
+
   sourceaddr.sin_family = AF_INET;
   sourceaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   sourceaddr.sin_port = htons(PORT_IN);
-  
+
   sinkaddr.sin_family = AF_INET;
   sinkaddr.sin_addr.s_addr = INADDR_ANY;
   sinkaddr.sin_port = htons(PORT_OUT);
@@ -109,12 +109,12 @@ int main(int argc, char *argv[]) {
     tvt.tv_sec = 1;
     tvt.tv_usec = 0;
 
-    count = select(fdmax+1, &fds, NULL, NULL, &tvt); 
+    count = select(fdmax+1, &fds, NULL, NULL, &tvt);
 
     for (i=0; i<NUM_STREAMS; i++) {
       if (FD_ISSET(consock[i], &fds)) {
         n = recv(consock[i], buf, sizeof(buf), 0);
-      
+
         if (n <= 0) {
           if (n < 0) perror("recv");
           printf("disconnect\n");
@@ -127,18 +127,18 @@ int main(int argc, char *argv[]) {
           printf("receive uplink %d\n", n);
           /* create email to satcom */
         }
-      }  
+      }
     }
-    
-    
+
+
     if (FD_ISSET(sourcesock, &fds)) {
       gettimeofday(&tvcur, NULL);
-      n = recvfrom(sourcesock, buf, sizeof(buf), 0, 
+      n = recvfrom(sourcesock, buf, sizeof(buf), 0,
                    (struct sockaddr *)&sourceaddr, (socklen_t *)&fromlen);
       if (n < 0) perror("recvfrom");
 
       printf("receive downlink %d\n", n);
-      
+
       for (i=0; i<NUM_STREAMS; i++) {
         if (consock[i] != 0) {
           printf("send downlink %d\n", i);
@@ -178,6 +178,6 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-  }  
+  }
   return 0;
-}                                                                               
+}

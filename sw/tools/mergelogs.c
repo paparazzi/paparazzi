@@ -35,7 +35,7 @@ int merge(char* fn1, char* fn2)
 	{
 		//
 		printf("Searching End Time in File '%s'\n",fn1);
-		
+
 		while(fgets(str,sizeof(str),f1) != NULL)
 		{
 		}
@@ -52,7 +52,7 @@ int merge(char* fn1, char* fn2)
 			//	firstline = 0;
 			//	offset -= get_time(str);
 			//}
-			
+
 			// Change Time and add to first file:
 			add_time(str, offset, f1);
 		}

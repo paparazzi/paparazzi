@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -158,7 +158,7 @@ int USBFindDevice(usb_dev_handle *udev)
     return(1);
 }
 
-int USBReqISP(usb_dev_handle *udev, 
+int USBReqISP(usb_dev_handle *udev,
               unsigned int *command,
               unsigned int *result)
 {
@@ -178,7 +178,7 @@ int USBReqISP(usb_dev_handle *udev,
         20,         // size
         40000);     // timeout
 
-    if (cmdret < 0) 
+    if (cmdret < 0)
     {
         perror("USB error");
         return(0);
@@ -190,13 +190,13 @@ int USBReqISP(usb_dev_handle *udev,
         REQ_ISP_COMMAND,    // request
         0,          // value
         0,          // index
-        (char*) result,    // *bytes 
+        (char*) result,    // *bytes
         12+20,      // size
         100);       // timeout
 //printf("\ncmdret %d, resret %d cmd %d res %d cmdo %d \n",cmdret, resret, command[0], result[0], result[3]);
 //printf("\ncmdret %d, cmd0 %d/%c, cmd1 0x%08X, cmd2 0x%08X, cmd3 0x%08X\n", cmdret, command[0], command[0], command[1], command[2], command[3]);
 
-    if (resret < 0) 
+    if (resret < 0)
     {
         perror("USB error");
         return(0);
@@ -207,8 +207,8 @@ int USBReqISP(usb_dev_handle *udev,
         printf("ISP error (%d:%s)\n", result[0]&0xFF, IspError(result[0]&0xFF));
         return(0);
     }
-    if ((cmdret != 20) || 
-        (resret != 12+20) || 
+    if ((cmdret != 20) ||
+        (resret != 12+20) ||
         (memcmp(command, &result[3], 20)))
     {
         printf("Unknown error\n");
@@ -243,7 +243,7 @@ int USBReqData(usb_dev_handle *udev, unsigned char* data, int size)
 //        printf("\ndatret %d, size %d\n", datret, size);
 //        printf(" %d %d\n", size1, size2);
 
-        if (datret < 0) 
+        if (datret < 0)
         {
             perror("USB error");
             return(0);
@@ -258,7 +258,7 @@ int USBReqData(usb_dev_handle *udev, unsigned char* data, int size)
     return(1);
 }
 
-int USBReqBTL(usb_dev_handle *udev, 
+int USBReqBTL(usb_dev_handle *udev,
               unsigned int *command,
               unsigned int *result)
 {
@@ -278,7 +278,7 @@ int USBReqBTL(usb_dev_handle *udev,
         20,         // size
         40000);     // timeout
 
-    if (cmdret < 0) 
+    if (cmdret < 0)
     {
         perror("USB error");
         return(0);
@@ -290,13 +290,13 @@ int USBReqBTL(usb_dev_handle *udev,
         REQ_ISP_COMMAND,    // request
         0,          // value
         0,          // index
-        (char*) result,    // *bytes 
-        12+20,      // size 
+        (char*) result,    // *bytes
+        12+20,      // size
         100);       // timeout
 //printf("\ncmdret %d, resret %d cmd %d res %d cmdo %d \n",cmdret, resret, command[0], result[0], result[3]);
 //printf("\ncmdret %d, cmd0 %d/%c, cmd1 0x%08X, cmd2 0x%08X, cmd3 0x%08X\n", cmdret, command[0], command[0], command[1], command[2], command[3]);
 
-    if (resret < 0) 
+    if (resret < 0)
     {
         perror("USB error");
         return(0);
@@ -307,8 +307,8 @@ int USBReqBTL(usb_dev_handle *udev,
         printf("BTL error (%d:%s)\n", result[0]&0xFF, IspError(result[0]&0xFF));
         return(0);
     }
-    if ((cmdret != 20) || 
-        (resret != 12+20) || 
+    if ((cmdret != 20) ||
+        (resret != 12+20) ||
         (memcmp(command, &result[3], 20)))
     {
         printf("Unknown error\n");
@@ -410,7 +410,7 @@ int blankCheckSectors(usb_dev_handle *udev, int startSec, int endSec)
     unsigned int result[8];
 
     /* blank check sector 0 always fails */
-    if (startSec == 0) 
+    if (startSec == 0)
     {
         if (endSec == 0)
         {

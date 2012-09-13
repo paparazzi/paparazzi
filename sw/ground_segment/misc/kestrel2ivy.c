@@ -289,7 +289,7 @@ int getValues(char* msg, float* values){
 
   for(i=0; i<NUM_PARAMS; i++) {
     if (tok == NULL) return 0;
-    
+
     values[i] = strtof(tok, NULL);
     tok = strtok(NULL, &delim);
   }
@@ -313,19 +313,19 @@ void decode_and_send_to_ivy() {
   // > DT,MG,TR,WS,CW,HW,TP,WC,RH,HI,DP,WB,BP,AL,DA
   // s,Mag,True,km/h,km/h,km/h,�C,�C,%,�C,�C,�C,hPa,m,m
   // 399124138,000,000,0.0,0.0,0.0,22.5,22.5,37.6,21.4,7.3,13.5,931.5,701,1171
-  // > 
+  // >
   //
   // where:
   //
-  //   DT is the date and time in seconds since 1st January 2000, 
-  //   AV is air velocity 
+  //   DT is the date and time in seconds since 1st January 2000,
+  //   AV is air velocity
   //   AF is air flow
   //   MG is the compass magnetic direction
   //   TR is the compass true direction
   //   WS is the wind speed
   //   CW is the crosswind
   //   HW is the headwind
-  //   TP is the temperature, 
+  //   TP is the temperature,
   //   WC is the wind chill,
   //   RH is the relative humidity,
   //   EV is the evaporation rate
@@ -335,8 +335,8 @@ void decode_and_send_to_ivy() {
   //   DP is the dew point,
   //   WB is the wet bulb
   //   AP is absolute pressure
-  //   BP is the pressure,   
-  //   AL is the altitude,     
+  //   BP is the pressure,
+  //   AL is the altitude,
   //   DA is the density altitude
   //   AD is air density
   //   RA is relative air density
@@ -411,7 +411,7 @@ int main(int argc, char **argv) {
     *defaultdevice = "/dev/rfcomm0";
   device = defaultdevice;
   long delay = 5000;
-  
+
   // parse options
   char c;
   while ((c = getopt (argc, argv, "hamb:d:i:s:")) != EOF) {

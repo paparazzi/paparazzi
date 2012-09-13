@@ -1,7 +1,7 @@
 /*
  *      $Id$
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *      Copyright (C) 2005 Pascal Brisset, Antoine Drouin
  *
@@ -87,11 +87,11 @@ static float corr_space_q[CORRLEN];
 
 static int verbose_level = 0;
 
-void 
+void
 verbprintf(int verb_level, const char *fmt, ...)
 {
   va_list args;
-        
+
   va_start(args, fmt);
   if (verb_level <= verbose_level)
     vfprintf(stdout, fmt, args);
@@ -109,7 +109,7 @@ pprz_tmtc_send(unsigned char *data, unsigned int len, char* data_received)
   }
 }
 
-	
+
 void
 my_pprz_baudot_rxbit(struct demod_state *s, int bit, char* data)
 {
@@ -136,9 +136,9 @@ my_pprz_baudot_rxbit(struct demod_state *s, int bit, char* data)
   }
 
   /* frame end / out of sync */
-  if (s->l2.hdlc.rxbitbuf & 1) 
+  if (s->l2.hdlc.rxbitbuf & 1)
     s->l2.hdlc.rxbitbuf |= 2;
-		
+
 	/* shift in new data */
   s->l2.hdlc.rxbitbuf >>= 1;
 
@@ -150,11 +150,11 @@ pprz_init(struct demod_state *s)
 {
   memset(&s->l2.hdlc, 0, sizeof(s->l2.hdlc));
 
-  /* reset buffer pointer */	
+  /* reset buffer pointer */
   s->l2.pprz.rxptr = s->l2.hdlc.rxbuf;
 }
 
-static void 
+static void
 afsk48p_init(struct demod_state *s)
 {
   float f;
@@ -267,7 +267,7 @@ input_init(const char *ifname) {
 	      "number to 2\n");
       exit (10);
     }
-    sndparam = sample_rate; 
+    sndparam = sample_rate;
     if (ioctl(fd, SNDCTL_DSP_SPEED, &sndparam) == -1) {
       perror("ioctl: SNDCTL_DSP_SPEED");
       exit (10);
@@ -319,10 +319,10 @@ pprz_demod_read_data(void) {
     if (i)
 	fprintf(stderr, "warning: noninteger number of samples read\n");
     if (fbuf_cnt > overlap) {
-      
+
       glob_data_received_len = 0;
       afsk48p_demod(&dem_st[LEFT], fbuf[LEFT], fbuf_cnt-overlap, data_received.data_left);
-      
+
       data_received.len_left = glob_data_received_len;
       memmove(fbuf[LEFT], fbuf[LEFT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[LEFT][0]));
       if (stereo) {
@@ -330,11 +330,11 @@ pprz_demod_read_data(void) {
 	afsk48p_demod(&dem_st[RIGHT], fbuf[RIGHT], fbuf_cnt-overlap, data_received.data_right);
 	data_received.len_right = glob_data_received_len;
 	memmove(fbuf[RIGHT], fbuf[RIGHT]+fbuf_cnt-overlap, overlap*sizeof(fbuf[RIGHT][0]));
-      }      
+      }
       fbuf_cnt = overlap;
     }
     return &data_received;
-  } else 
+  } else
     return NULL;
 }
 

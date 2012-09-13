@@ -54,7 +54,7 @@ unsigned char md5[] = {"\207\151\313\256\355\252\016\273\072\126\273\222\017\372
 
 #define RadOfDeg(x) ((x) * (M_PI/180.))
 
-static const char usage_str[] = 
+static const char usage_str[] =
 "tcp2ivy [options]\n"
 "options:\n"
 "  -s <server address>\n";
@@ -196,7 +196,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       pprz_mode = buf[19];
 //    com_trans.buf[20] = nav_block;
       nav_block = buf[20];
-//    FillBufWith16bit(com_trans.buf, 21, autopilot_flight_time); 
+//    FillBufWith16bit(com_trans.buf, 21, autopilot_flight_time);
       autopilot_flight_time = buf2ushort(&buf[21]);
 
 //gps_lat = 52.2648312 * 1e7;

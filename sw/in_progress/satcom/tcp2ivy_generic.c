@@ -57,7 +57,7 @@ unsigned char* md5 = (unsigned char*)MD5SUM;
 #define RadOfDeg(x) ((x) * (M_PI/180.))
 #define DegOfRad(x) ((x) * (180./M_PI))
 
-static const char usage_str[] = 
+static const char usage_str[] =
 "tcp2ivy [options]\n"
 "options:\n"
 "  -s <server address>\n";
@@ -133,7 +133,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       pprz_mode = buf[19];
       //    com_trans.buf[21] = nav_block;
       nav_block = buf[20];
-      //    FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time); 
+      //    FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time);
       autopilot_flight_time = buf2ushort(&buf[21]);
 
 #if 0
