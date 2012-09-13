@@ -206,7 +206,7 @@ let () =
   gui#console#set_buffer buffer;
 
   let errors = "red", ["error"; "no such file"; "undefined reference"; "failure"]
-  and warnings = "orange", ["warning"]
+  and warnings = "orange", ["warning";"note"]
   and info = "green", ["pragma message"] in
 
   let color_regexps =
