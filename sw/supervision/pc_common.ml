@@ -44,19 +44,18 @@ let run_and_log = fun log com ->
   let pid, com_stdout = my_open_process_in com in
   let channel_out = GMain.Io.channel_of_descr (Unix.descr_of_in_channel com_stdout) in
   let cb = fun ev ->
-    if List.mem `IN ev then begin
-      let buf = String.create buf_size in
-      (* loop until input returns zero *)
-      let rec log_input = fun out ->
-        let n = input out buf 0 buf_size in
-        (* split on beginning of new line *)
-        let s = Str.split (Str.regexp "^") (String.sub buf 0 n) in
-        List.iter (fun l -> log l) s;
-        if n = buf_size then log_input out
-      in
-      log_input com_stdout;
-      true
-    end else begin
+    let buf = String.create buf_size in
+    (* loop until input returns zero *)
+    let rec log_input = fun out ->
+      let n = input out buf 0 buf_size in
+      (* split on beginning of new line *)
+      let s = Str.split (Str.regexp "^") (String.sub buf 0 n) in
+      List.iter (fun l -> log l) s;
+      if n = buf_size then log_input out
+    in
+    log_input com_stdout;
+    if List.mem `IN ev then true
+    else begin
       log (sprintf "\nDONE (%s)\n\n" com);
       false
     end in
