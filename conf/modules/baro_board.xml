@@ -7,7 +7,7 @@
   <header>
     <file name="baro_board_module.h"/>
   </header>
-  <makefile target="ap">
+  <makefile>
     <file name="baro_board_module.c"/>
     <define name="USE_BAROMETER"/>
   </makefile>
