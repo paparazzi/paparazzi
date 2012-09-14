@@ -30,6 +30,8 @@
 #include "std.h"
 #include "state.h"
 
+
+#if USE_BAROMETER
 #ifdef BARO_MS5534A
 #include "baro_MS5534A.h"
 #endif
@@ -42,6 +44,10 @@
 #include "modules/sensors/baro_bmp.h"
 #endif
 
+extern int32_t ins_qfe;
+extern float   ins_baro_alt;
+extern bool_t  ins_baro_initialised;
+#endif //USE_BAROMETER
 
 /* position in meters, ENU frame, relative to reference */
 extern float estimator_z; ///< altitude above MSL in meters
@@ -58,10 +64,10 @@ extern void alt_kalman( float );
 
 #ifdef ALT_KALMAN
 
-#if USE_BARO_MS5534A || USE_BARO_ETS || USE_BARO_BMP
+#if USE_BAROMETER
 /* Kalman filter cannot be disabled in this mode (no z_dot) */
 #define EstimatorSetAlt(z) alt_kalman(z)
-#else /* USE_BARO_x */
+#else /* USE_BAROMETER */
 #define EstimatorSetAlt(z) { \
   if (!alt_kalman_enabled) { \
     estimator_z = z; \
@@ -69,7 +75,7 @@ extern void alt_kalman( float );
     alt_kalman(z); \
   } \
 }
-#endif /* ! USE_BARO_x */
+#endif /* ! USE_BAROMETER */
 
 #else /* ALT_KALMAN */
 #define EstimatorSetAlt(z) { estimator_z = z; }
