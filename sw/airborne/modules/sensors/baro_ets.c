@@ -50,6 +50,16 @@
 #include "subsystems/gps.h"
 #endif
 
+#ifdef BARO_ETS_TELEMETRY
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+#endif //BARO_ETS_TELEMETRY
+
 #define BARO_ETS_ADDR 0xE8
 #define BARO_ETS_REG 0x07
 #define BARO_ETS_SCALE 0.32
@@ -101,23 +111,19 @@ void baro_ets_read_periodic( void ) {
   if (baro_ets_i2c_trans.status == I2CTransDone)
     I2CReceive(BARO_ETS_I2C_DEV, baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
+  /* fake an offset so sim works for under hmsl as well */
+  if (!baro_ets_offset_init) {
+    baro_ets_offset = 200;
+    baro_ets_offset_init = TRUE;
+  }
   baro_ets_altitude = gps.hmsl / 1000.0;
-  baro_ets_adc = baro_ets_altitude / BARO_ETS_SCALE;
+  baro_ets_adc = baro_ets_offset - baro_ets_altitude / BARO_ETS_SCALE;
   baro_ets_valid = TRUE;
+#ifdef BARO_ETS_TELEMETRY
+  DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
+#endif
 #endif
 }
-
-#ifdef BARO_ETS_TELEMETRY
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-
-#endif
 
 void baro_ets_read_event( void ) {
   // Get raw altimeter from buffer
