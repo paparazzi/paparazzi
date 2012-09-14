@@ -244,20 +244,26 @@ let get_image = fun key ->
     if !policy = NoCache then raise Not_found;
     get_from_cache cache_dir key
   with
-    Not_found ->
-      if !policy = NoHttp then raise Not_available;
-      let rec loop = fun k ->
-    if String.length k >= 1 then
-      let url = url_of_tile_key !maps_source k in
-      let jpg_file = cache_dir // (k ^ ".jpg") in
-      try
-        ignore (Http.file_of_url ~dest:jpg_file url);
-        tile_of_key k, jpg_file
-      with
-        Http.Failure _ -> loop (remove_last_char k)
-    else
-      raise Not_available in
-      loop key
+      Not_found ->
+        if !policy = NoHttp then raise Not_available;
+        let rec loop = fun k ->
+          if String.length k >= 1 then
+            let url = url_of_tile_key !maps_source k in
+            let jpg_file = cache_dir // (k ^ ".jpg") in
+            try
+              ignore (Http.file_of_url ~dest:jpg_file url);
+              tile_of_key k, jpg_file
+            with
+                Http.Not_Found _ -> loop (remove_last_char k)
+              | Http.Blocked _ ->
+                begin
+                  prerr_endline (Printf.sprintf "Seem to be temporarily blocked, '%s'" url);
+                  raise Not_available
+                end
+              | _ -> raise Not_available
+          else
+            raise Not_available in
+        loop key
 
 
 let rec get_tile = fun wgs84 zoom ->
