@@ -36,6 +36,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   struct UtmCoor_f utm_f;
   lla_f.lat = Double_val(lat);
   lla_f.lon = Double_val(lon);
+  lla_f.alt = Double_val(a);
   utm_f.zone = nav_utm_zone0;
   utm_of_lla_f(&utm_f, &lla_f);
   LLA_BFP_OF_REAL(gps.lla_pos, lla_f);
