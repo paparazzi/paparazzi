@@ -1,17 +1,4 @@
 /*
- * Driver for the EagleTree Systems Airspeed Sensor
- * Has only been tested with V3 of the sensor hardware
- *
- * Notes:
- * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
- * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
- *
- * Sensor module wire assignments:
- * Red wire: 5V
- * White wire: Ground
- * Yellow wire: SDA
- * Brown wire: SCL
- *
  * Copyright (C) 2009 Vassilis Varveropoulos
  * Modified by Mark Griffin on 8 September 2010 to work with new i2c transaction routines.
  * Converted by Gautier Hattenberger to modules (10/2010)
@@ -32,7 +19,23 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file airspeed_ets.h
  *
+ * Driver for the EagleTree Systems Airspeed Sensor.
+ * Has only been tested with V3 of the sensor hardware.
+ *
+ * Notes:
+ * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
+ * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
+ *
+ * Sensor module wire assignments:
+ * Red wire: 5V
+ * White wire: Ground
+ * Yellow wire: SDA
+ * Brown wire: SCL
  */
 
 #ifndef AIRSPEED_ETS_H
