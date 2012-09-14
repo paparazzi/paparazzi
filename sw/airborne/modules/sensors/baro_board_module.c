@@ -13,5 +13,6 @@ void baro_init(void) {
 }
 
 void baro_periodic(void) {
-  baro.status = BS_RUNNING;
+  if (baro.absolute != 0)
+    baro.status = BS_RUNNING;
 }
