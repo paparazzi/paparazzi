@@ -113,7 +113,7 @@ void ins_update_gps(void) {
   utm.north = gps.utm_pos.north / 100.;
   utm.zone = nav_utm_zone0;
 
-#if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A
+#if !USE_BAROMETER
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif

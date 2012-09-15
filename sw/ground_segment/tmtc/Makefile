@@ -43,7 +43,7 @@ clean:
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../../lib/ocaml
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
+OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
@@ -172,4 +172,3 @@ ivy_serial_bridge: ivy_serial_bridge.c
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif
-
