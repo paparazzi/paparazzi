@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_hca" dir="sensors">
+  <doc>
+    <description>Baro sensortechnics HCA module (I2C)</description>
+    <define name="BARO_HCA_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+  </doc>
+
+  <header>
+    <file name="baro_hca.h"/>
+  </header>
+  <init fun="baro_hca_init()"/>
+  <periodic fun="baro_hca_read_periodic()" freq="10."/>
+  <event fun="BaroHcaEvent()"/>
+
+  <makefile>
+    <file name="baro_hca.c"/>
+  </makefile>
+
+</module>
