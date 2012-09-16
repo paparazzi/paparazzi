@@ -162,7 +162,7 @@ exception Unit_conversion_error of string
 exception Unknown_conversion of string * string
 exception No_automatic_conversion of string * string
 
-let scale_of_units = fun from_unit to_unit ->
+let scale_of_units = fun ?auto from_unit to_unit ->
   if (from_unit = to_unit) then
     1.0
   else
@@ -173,7 +173,11 @@ let scale_of_units = fun from_unit to_unit ->
           (* will raise Xml.No_attribute if not a valid attribute *)
           let f = Xml.attrib u "from"
           and t = Xml.attrib u "to"
-          and a = String.lowercase (ExtXml.attrib_or_default u "auto" "") in
+          and a = try Some (Xml.attrib u "auto") with _ -> None in
+          let a = match auto, a with
+            | Some _, None | None, None -> "" (* No auto conversion *)
+            | Some t, Some _ | None, Some t -> String.lowercase t (* param auto is used before attribute *)
+          in
           if (f = from_unit || a = "display") && (t = to_unit || a = "code") then true else false
         ) (Xml.children units_xml) in
       (* return coef, raise Failure if coef is not a numerical value *)
@@ -187,13 +191,16 @@ let scale_of_units = fun from_unit to_unit ->
       | _ -> raise (Unknown_conversion (from_unit, to_unit))
 
 
-let alt_unit_coef_of_xml = function xml ->
+let alt_unit_coef_of_xml = fun ?auto xml ->
   try Xml.attrib xml "alt_unit_coef"
   with _ ->
     let u = try Xml.attrib xml "unit" with _ -> "" in
     let au = try Xml.attrib xml "alt_unit" with _ -> "" in
-    let coef = try string_of_float (scale_of_units u au) with
-      Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; "1." (* Use coef 1. *)
+    let coef = try string_of_float (match auto with
+      | None -> scale_of_units u au
+      | Some a -> scale_of_units u au ~auto:a)
+    with
+    | Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; "1." (* Use coef 1. *)
     | Unknown_conversion _ -> "1." (* Use coef 1. *)
     | _ -> "1."
     in

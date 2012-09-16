@@ -37,11 +37,15 @@
 struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
 
+#ifndef NPS_BYPASS_AHRS
+#define NPS_BYPASS_AHRS TRUE
+#endif
+
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
-  nps_bypass_ahrs = TRUE;
+  nps_bypass_ahrs = NPS_BYPASS_AHRS;
 
   main_init();
 

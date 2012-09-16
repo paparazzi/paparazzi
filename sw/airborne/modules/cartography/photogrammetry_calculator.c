@@ -42,7 +42,7 @@
 
 
 // Flightplan Paramters
-int photogrammetry_sweep_angle = 0; // in rad
+float photogrammetry_sweep_angle = 0; // in rad
 
 int photogrammetry_sidestep = 0;
 int photogrammetry_triggerstep = 0;

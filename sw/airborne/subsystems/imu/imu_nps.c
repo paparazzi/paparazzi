@@ -54,6 +54,6 @@ void imu_feed_gyro_accel(void) {
 void imu_feed_mag(void) {
 
   VECT3_ASSIGN(imu.mag_unscaled, sensors.mag.value.x, sensors.mag.value.y, sensors.mag.value.z);
-  imu_nps.gyro_available = TRUE;
+  imu_nps.mag_available = TRUE;
 
 }

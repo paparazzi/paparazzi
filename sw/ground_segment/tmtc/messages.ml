@@ -67,7 +67,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           let literal_values = values_of_field f in
           let alt_value =
             try
-              let coeff = float_of_string (Pprz.alt_unit_coef_of_xml f)
+              let coeff = float_of_string (Pprz.alt_unit_coef_of_xml ~auto:"display" f)
               and unit = Xml.attrib f "alt_unit" in
               fun value -> sprintf "%s (%f%s)" value (coeff*.float_of_string value) unit
             with
@@ -86,7 +86,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           (* box dragger *)
           field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
           let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
-            let scale = Pprz.alt_unit_coef_of_xml f in
+            let scale = Pprz.alt_unit_coef_of_xml ~auto:"display" f in
             let field_descr =
               if Pprz.is_array_type type_ then
                 match GToolbox.input_string ~title:"Index of value to drag" ~text:"0" "Index in the array ?" with
