@@ -13,10 +13,10 @@
 #include "wmm2010.h"
 
 struct GeoMagVect {
-	double x;
-	double y;
-	double z;
-	bool_t ready;
+  double x;
+  double y;
+  double z;
+  bool_t ready;
 };
 
 extern void geo_mag_init(void);
