@@ -195,18 +195,6 @@ const double gh2[MAXCOEFF] =  {
 0.1,0.0
 };
 
-double julday(uint16_t month, uint16_t day, uint16_t year) {
-
-  int days[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-
-  int leap_year = (((year % 4) == 0) &&
-                   (((year % 100) != 0) || ((year % 400) == 0)));
-
-  double day_in_year = (days[month - 1] + day + (month > 2 ? leap_year : 0));
-
-  return ((double)year + (day_in_year / (365.0 + leap_year)));
-}
-
 int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double *gh) {
 
   int16_t   nmax;
@@ -253,7 +241,7 @@ int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double 
   return(nmax);
 }
 
-int16_t shval3(int16_t igdgc, double flat, double flon, double elev, int16_t nmax, double *gh, double *geo_mag_x, double *geo_mag_y, double *geo_mag_z, int16_t iext, double ext1, double ext2, double ext3) {
+int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t nmax, double *gh, double *geo_mag_x, double *geo_mag_y, double *geo_mag_z, int16_t iext, double ext1, double ext2, double ext3) {
 
   double earths_radius = 6371.2;
   double dtr = 0.01745329;
@@ -270,8 +258,13 @@ int16_t shval3(int16_t igdgc, double flat, double flon, double elev, int16_t nma
   double fm,fn = 0;
   double sl[14];
   double cl[14];
+#ifdef GEO_MAG_DOUBLE
+	double p[119];
+  double q[119];
+#else
   float p[119];
   float q[119];
+#endif
   int ii,j,k,l,m,n;
   int npq;
   int ios;
@@ -283,21 +276,17 @@ int16_t shval3(int16_t igdgc, double flat, double flon, double elev, int16_t nma
   r = elev;
   argument = flat * dtr;
   slat = sinf( argument );
-  if ((90.0 - flat) < 0.001)
-    {
+  if ((90.0 - flat) < 0.001) {
       aa = 89.999;            /*  300 ft. from North pole  */
+  }
+  else {
+    if ((90.0 + flat) < 0.001) {
+      aa = -89.999;        /*  300 ft. from South pole  */
     }
-  else
-    {
-      if ((90.0 + flat) < 0.001)
-        {
-          aa = -89.999;        /*  300 ft. from South pole  */
-        }
-      else
-        {
-          aa = flat;
-        }
+    else {
+      aa = flat;
     }
+  }
   argument = aa * dtr;
   clat = cosf( argument );
   argument = flon * dtr;
@@ -314,21 +303,22 @@ int16_t shval3(int16_t igdgc, double flat, double flon, double elev, int16_t nma
   n = 0;
   m = 1;
   npq = (nmax * (nmax + 3)) / 2;
-  if (igdgc == 1)
-    {
-      aa = a2 * clat * clat;
-      bb = b2 * slat * slat;
-      cc = aa + bb;
-      argument = cc;
-      dd = sqrt( argument );
-      argument = elev * (elev + 2.0 * dd) + (a2 * aa + b2 * bb) / cc;
-      r = sqrt( argument );
-      cd = (elev + dd) / r;
-      sd = (a2 - b2) / dd * slat * clat / r;
-      aa = slat;
-      slat = slat * cd - clat * sd;
-      clat = clat * cd + aa * sd;
-    }
+	
+  if (igdgc == 1) {
+    aa = a2 * clat * clat;
+    bb = b2 * slat * slat;
+    cc = aa + bb;
+    argument = cc;
+    dd = sqrt( argument );
+    argument = elev * (elev + 2.0 * dd) + (a2 * aa + b2 * bb) / cc;
+    r = sqrt( argument );
+    cd = (elev + dd) / r;
+    sd = (a2 - b2) / dd * slat * clat / r;
+    aa = slat;
+    slat = slat * cd - clat * sd;
+    clat = clat * cd + aa * sd;
+  }
+	
   ratio = earths_radius / r;
   argument = 3.0;
   aa = sqrt( argument );
@@ -340,80 +330,69 @@ int16_t shval3(int16_t igdgc, double flat, double flon, double elev, int16_t nma
   q[2] = slat;
   q[3] = -3.0 * clat * slat;
   q[4] = aa * (slat * slat - clat * clat);
-  for ( k = 1; k <= npq; ++k)
-    {
-      if (n < m)
-        {
-          m = 0;
-          n = n + 1;
-          argument = ratio;
-          power =  n + 2;
-          rr = pow(argument,power);
-          fn = n;
-        }
-      fm = m;
-      if (k >= 5)
-        {
-          if (m == n)
-            {
-              argument = (1.0 - 0.5/fm);
-              aa = sqrt( argument );
-              j = k - n - 1;
-              p[k] = (1.0 + 1.0/fm) * aa * clat * p[j];
-              q[k] = aa * (clat * q[j] + slat/fm * p[j]);
-              sl[m] = sl[m-1] * cl[1] + cl[m-1] * sl[1];
-              cl[m] = cl[m-1] * cl[1] - sl[m-1] * sl[1];
-            }
-          else
-            {
-              argument = fn*fn - fm*fm;
-              aa = sqrt( argument );
-              argument = ((fn - 1.0)*(fn-1.0)) - (fm * fm);
-              bb = sqrt( argument )/aa;
-              cc = (2.0 * fn - 1.0)/aa;
-              ii = k - n;
-              j = k - 2 * n + 1;
-              p[k] = (fn + 1.0) * (cc * slat/fn * p[ii] - bb/(fn - 1.0) * p[j]);
-              q[k] = cc * (slat * q[ii] - clat/fn * p[ii]) - bb * q[j];
-            }
-        }
-				
-      aa = rr * gh[l];
-			
-      if (m == 0)
-        {
-				
-          *geo_mag_x = *geo_mag_x + aa * q[k];
-          *geo_mag_z = *geo_mag_z - aa * p[k];
-					
-          l = l + 1;
-        }
-      else
-        {
-          bb = rr * gh[l+1];
-              cc = aa * cl[m] + bb * sl[m];
-              *geo_mag_x = *geo_mag_x + cc * q[k];
-              *geo_mag_z = *geo_mag_z - cc * p[k];
-              if (clat > 0)
-                {
-                  *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) *
-                    fm * p[k]/((fn + 1.0) * clat);
-                }
-              else
-                {
-                  *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) * q[k] * slat;
-                }
-              l = l + 2;
-        }
-      m = m + 1;
+	
+  for ( k = 1; k <= npq; ++k) {
+    if (n < m) {
+      m = 0;
+      n = n + 1;
+      argument = ratio;
+      power =  n + 2;
+      rr = pow(argument,power);
+      fn = n;
     }
-  if (iext != 0)
-    {
-      aa = ext2 * cl[1] + ext3 * sl[1];
-      *geo_mag_x = *geo_mag_x - ext1 * clat + aa * slat;
-      *geo_mag_y = *geo_mag_y + ext2 * sl[1] - ext3 * cl[1];
-      *geo_mag_z = *geo_mag_z + ext1 * slat + aa * clat;
+    fm = m;
+    if (k >= 5) {
+      if (m == n) {
+        argument = (1.0 - 0.5/fm);
+        aa = sqrt( argument );
+        j = k - n - 1;
+        p[k] = (1.0 + 1.0/fm) * aa * clat * p[j];
+        q[k] = aa * (clat * q[j] + slat/fm * p[j]);
+        sl[m] = sl[m-1] * cl[1] + cl[m-1] * sl[1];
+        cl[m] = cl[m-1] * cl[1] - sl[m-1] * sl[1];
+      }
+      else {
+        argument = fn*fn - fm*fm;
+        aa = sqrt( argument );
+        argument = ((fn - 1.0)*(fn-1.0)) - (fm * fm);
+        bb = sqrt( argument )/aa;
+        cc = (2.0 * fn - 1.0)/aa;
+        ii = k - n;
+        j = k - 2 * n + 1;
+        p[k] = (fn + 1.0) * (cc * slat/fn * p[ii] - bb/(fn - 1.0) * p[j]);
+        q[k] = cc * (slat * q[ii] - clat/fn * p[ii]) - bb * q[j];
+      }
     }
+		
+    aa = rr * gh[l];
+		
+    if (m == 0) {
+			*geo_mag_x = *geo_mag_x + aa * q[k];
+      *geo_mag_z = *geo_mag_z - aa * p[k];
+      l = l + 1;
+    }
+    else {
+      bb = rr * gh[l+1];
+      cc = aa * cl[m] + bb * sl[m];
+      *geo_mag_x = *geo_mag_x + cc * q[k];
+      *geo_mag_z = *geo_mag_z - cc * p[k];
+      if (clat > 0) {
+        *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) *
+        fm * p[k]/((fn + 1.0) * clat);
+      }
+      else {
+        *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) * q[k] * slat;
+      }
+      l = l + 2;
+    }
+    m = m + 1;
+  }
+  if (iext != 0) {
+		aa = ext2 * cl[1] + ext3 * sl[1];
+    *geo_mag_x = *geo_mag_x - ext1 * clat + aa * slat;
+    *geo_mag_y = *geo_mag_y + ext2 * sl[1] - ext3 * cl[1];
+    *geo_mag_z = *geo_mag_z + ext1 * slat + aa * clat;
+  }
 	aa = *geo_mag_x;
 	*geo_mag_x = *geo_mag_x * cd + *geo_mag_z * sd;
 	*geo_mag_z = *geo_mag_z * cd - aa * sd;

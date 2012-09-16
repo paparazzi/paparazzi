@@ -30,6 +30,9 @@
 #endif
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
+#ifdef USE_GEO_MAG
+#include "math/pprz_algebra_double.h"
+#endif
 
 #include "generated/airframe.h"
 
@@ -51,6 +54,10 @@ static inline void ahrs_update_mag_2d(void);
 #endif
 
 struct AhrsIntCmpl ahrs_impl;
+
+#ifdef USE_GEO_MAG
+struct DoubleVect3 ahrs_h;
+#endif
 
 static inline void compute_imu_euler_and_rmat_from_quat(void);
 static inline void compute_body_euler_and_rmat_from_quat(void);
@@ -89,6 +96,10 @@ void ahrs_init(void) {
   ahrs_impl.use_gravity_heuristic = TRUE;
 #else
   ahrs_impl.use_gravity_heuristic = FALSE;
+#endif
+
+#ifdef USE_GEO_MAG
+	VECT3_ASSIGN(ahrs_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
 #endif
 
 }
@@ -243,9 +254,15 @@ void ahrs_update_mag(void) {
 
 
 static inline void ahrs_update_mag_full(void) {
+#ifndef USE_GEO_MAG
   const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
                                           MAG_BFP_OF_REAL(AHRS_H_Y),
                                           MAG_BFP_OF_REAL(AHRS_H_Z)};
+#else
+	const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(ahrs_h.x),
+                                          MAG_BFP_OF_REAL(ahrs_h.y),
+                                          MAG_BFP_OF_REAL(ahrs_h.z)};
+#endif
   struct Int32Vect3 expected_imu;
   INT32_RMAT_VMULT(expected_imu, ahrs.ltp_to_imu_rmat, expected_ltp);
 
