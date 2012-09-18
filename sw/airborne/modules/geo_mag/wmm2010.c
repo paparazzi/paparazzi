@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>.
- * 
+ *
  * This module based on the WMM2010 modell (http://www.ngdc.noaa.gov/geomag/models.shtml).
  *
  */
@@ -45,39 +45,39 @@ int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double 
   int16_t   k, l;
   int16_t   ii;
   double factor;
-  
+
   factor = date - dte1;
   if (nmax1 == nmax2) {
-      k =  nmax1 * (nmax1 + 2);
-      nmax = nmax1;
+    k =  nmax1 * (nmax1 + 2);
+    nmax = nmax1;
   }
   else {
     if (nmax1 > nmax2) {
       k = nmax2 * (nmax2 + 2);
       l = nmax1 * (nmax1 + 2);
-					
-		  for ( ii = k + 1; ii <= l; ++ii) {
+
+      for ( ii = k + 1; ii <= l; ++ii) {
         gh[ii] = gh1[ii];
       }
-					
+
       nmax = nmax1;
     }
     else {
       k = nmax1 * (nmax1 + 2);
       l = nmax2 * (nmax2 + 2);
-					
-		  for ( ii = k + 1; ii <= l; ++ii) {
+
+      for ( ii = k + 1; ii <= l; ++ii) {
         gh[ii] = factor * gh2[ii];
       }
-					
+
       nmax = nmax2;
     }
   }
-		
+
   for ( ii = 1; ii <= k; ++ii) {
     gh[ii] = gh1[ii] + factor * gh2[ii];
   }
-		
+
   return(nmax);
 }
 
@@ -99,7 +99,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
   double sl[14];
   double cl[14];
 #ifdef GEO_MAG_DOUBLE
-	double p[119];
+  double p[119];
   double q[119];
 #else
   float p[119];
@@ -117,7 +117,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
   argument = flat * dtr;
   slat = sinf( argument );
   if ((90.0 - flat) < 0.001) {
-      aa = 89.999;            /*  300 ft. from North pole  */
+    aa = 89.999;            /*  300 ft. from North pole  */
   }
   else {
     if ((90.0 + flat) < 0.001) {
@@ -132,18 +132,18 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
   argument = flon * dtr;
   sl[1] = sinf( argument );
   cl[1] = cosf( argument );
-	
+
   *geo_mag_x = 0;
   *geo_mag_y = 0;
   *geo_mag_z = 0;
-	
+
   sd = 0.0;
   cd = 1.0;
   l = 1;
   n = 0;
   m = 1;
   npq = (nmax * (nmax + 3)) / 2;
-	
+
   if (igdgc == 1) {
     aa = a2 * clat * clat;
     bb = b2 * slat * slat;
@@ -158,7 +158,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
     slat = slat * cd - clat * sd;
     clat = clat * cd + aa * sd;
   }
-	
+
   ratio = earths_radius / r;
   argument = 3.0;
   aa = sqrt( argument );
@@ -170,7 +170,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
   q[2] = slat;
   q[3] = -3.0 * clat * slat;
   q[4] = aa * (slat * slat - clat * clat);
-	
+
   for ( k = 1; k <= npq; ++k) {
     if (n < m) {
       m = 0;
@@ -203,11 +203,11 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
         q[k] = cc * (slat * q[ii] - clat/fn * p[ii]) - bb * q[j];
       }
     }
-		
+
     aa = rr * gh[l];
-		
+
     if (m == 0) {
-			*geo_mag_x = *geo_mag_x + aa * q[k];
+      *geo_mag_x = *geo_mag_x + aa * q[k];
       *geo_mag_z = *geo_mag_z - aa * p[k];
       l = l + 1;
     }
@@ -218,7 +218,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
       *geo_mag_z = *geo_mag_z - cc * p[k];
       if (clat > 0) {
         *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) *
-        fm * p[k]/((fn + 1.0) * clat);
+          fm * p[k]/((fn + 1.0) * clat);
       }
       else {
         *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) * q[k] * slat;
@@ -228,13 +228,13 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
     m = m + 1;
   }
   if (iext != 0) {
-		aa = ext2 * cl[1] + ext3 * sl[1];
+    aa = ext2 * cl[1] + ext3 * sl[1];
     *geo_mag_x = *geo_mag_x - ext1 * clat + aa * slat;
     *geo_mag_y = *geo_mag_y + ext2 * sl[1] - ext3 * cl[1];
     *geo_mag_z = *geo_mag_z + ext1 * slat + aa * clat;
   }
-	aa = *geo_mag_x;
-	*geo_mag_x = *geo_mag_x * cd + *geo_mag_z * sd;
-	*geo_mag_z = *geo_mag_z * cd - aa * sd;
+  aa = *geo_mag_x;
+  *geo_mag_x = *geo_mag_x * cd + *geo_mag_z * sd;
+  *geo_mag_z = *geo_mag_z * cd - aa * sd;
   return(ios);
 }
