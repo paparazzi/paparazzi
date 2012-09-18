@@ -33,9 +33,8 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
 AC_GENERATED = $(ACINCLUDE)/generated
 
-ifndef PERIODIC_FREQ
-PERIODIC_FREQ = 60
-endif
+# periodic frequency defaults to 60Hz
+PERIODIC_FREQ ?= 60
 
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
 PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h

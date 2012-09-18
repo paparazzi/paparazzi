@@ -45,9 +45,7 @@ OPT   = s
 #OPT   = 0
 
 
-ifndef $(PYTHON)
-PYTHON = $(shell which python)
-endif
+PYTHON ?= $(shell which python)
 
 ifneq ($(BOARD_SERIAL),)
 OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
@@ -266,11 +264,10 @@ upload: $(OBJDIR)/$(TARGET).hex
 		-c shutdown
 else
 # jtag via BMP
-  ifndef $(BMP_UPLOAD_SCRIPT)
-    BMP_UPLOAD_SCRIPT = $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_jtag_flash.scr
-  endif
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_jtag_flash.scr
 
 upload: $(OBJDIR)/$(TARGET).elf
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using Black Magic Probe with JTAG"
 	@echo "Using GDB = $(GDB)"
 	@echo "  BMP\t$<"
@@ -284,10 +281,9 @@ endif
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
 ifneq ($(BMP_PORT),)
-  ifndef $(BMP_UPLOAD_SCRIPT)
-    BMP_UPLOAD_SCRIPT = $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_swd_flash.scr
-  endif
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using Black Magic Probe with SWD"
 	@echo "Using GDB = $(GDB)"
 	@echo "  BMP\t$<"
