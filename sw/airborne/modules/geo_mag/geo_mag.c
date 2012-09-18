@@ -11,7 +11,9 @@
 #include "math/pprz_algebra_double.h"
 #include "subsystems/gps.h"
 #include "autopilot.h"
-#include "subsystems/ahrs/ahrs_int_cmpl_quat.h" // in AHRS subsystem ahrs_h is DoubleVect3 variable
+
+// in int_cmpl_quat implementation, mag_h is an Int32Vect3 with INT32_MAG_FRAC
+#include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 
 bool_t geo_mag_calc_flag;
 struct GeoMagVect geo_mag_vect;
@@ -49,7 +51,10 @@ void geo_mag_event(void) {
              &geo_mag_vect.x, &geo_mag_vect.y, &geo_mag_vect.z,
              IEXT, EXT_COEFF1, EXT_COEFF2, EXT_COEFF3);
     FLOAT_VECT3_NORMALIZE(geo_mag_vect);
-    DOUBLE_VECT3_COPY(ahrs_h, geo_mag_vect);
+
+    // convert to MAG_BFP and copy to ahrs
+    VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(geo_mag_vect.x), MAG_BFP_OF_REAL(geo_mag_vect.y), MAG_BFP_OF_REAL(geo_mag_vect.z));
+
     geo_mag_vect.ready = TRUE;
   }
   geo_mag_calc_flag = FALSE;

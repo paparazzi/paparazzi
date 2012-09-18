@@ -30,9 +30,6 @@
 #endif
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
-#ifdef USE_GEO_MAG
-#include "math/pprz_algebra_double.h"
-#endif
 
 #include "generated/airframe.h"
 
@@ -60,9 +57,6 @@ static inline void compute_body_euler_and_rmat_from_quat(void);
 static inline void compute_imu_orientation(void);
 static inline void compute_body_orientation(void);
 
-#ifdef USE_GEO_MAG
-struct DoubleVect3 ahrs_h;
-#endif
 
 void ahrs_init(void) {
 
@@ -98,9 +92,7 @@ void ahrs_init(void) {
   ahrs_impl.use_gravity_heuristic = FALSE;
 #endif
 
-#ifdef USE_GEO_MAG
-  VECT3_ASSIGN(ahrs_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
-#endif
+  VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X), MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z));
 
 }
 
@@ -264,17 +256,9 @@ void ahrs_update_mag(void) {
 
 
 static inline void ahrs_update_mag_full(void) {
-#ifndef USE_GEO_MAG
-  const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-                                          MAG_BFP_OF_REAL(AHRS_H_Y),
-                                          MAG_BFP_OF_REAL(AHRS_H_Z)};
-#else
-  const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(ahrs_h.x),
-                                          MAG_BFP_OF_REAL(ahrs_h.y),
-                                          MAG_BFP_OF_REAL(ahrs_h.z)};
-#endif
+
   struct Int32Vect3 expected_imu;
-  INT32_RMAT_VMULT(expected_imu, ahrs.ltp_to_imu_rmat, expected_ltp);
+  INT32_RMAT_VMULT(expected_imu, ahrs.ltp_to_imu_rmat, ahrs_impl.mag_h);
 
   struct Int32Vect3 residual;
   INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
@@ -296,21 +280,13 @@ static inline void ahrs_update_mag_full(void) {
 
 static inline void ahrs_update_mag_2d(void) {
 
-#ifndef USE_GEO_MAG
-  const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-                                          MAG_BFP_OF_REAL(AHRS_H_Y)};
-#else
-  const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(ahrs_h.x),
-                                          MAG_BFP_OF_REAL(ahrs_h.y)};
-#endif
-
   struct Int32Vect3 measured_ltp;
   INT32_RMAT_TRANSP_VMULT(measured_ltp, ahrs.ltp_to_imu_rmat, imu.mag);
 
   struct Int32Vect3 residual_ltp =
     { 0,
       0,
-      (measured_ltp.x * expected_ltp.y - measured_ltp.y * expected_ltp.x)/(1<<5)};
+      (measured_ltp.x * ahrs_impl.mag_h.y - measured_ltp.y * ahrs_impl.mag_h.x)/(1<<5)};
 
   struct Int32Vect3 residual_imu;
   INT32_RMAT_VMULT(residual_imu, ahrs.ltp_to_imu_rmat, residual_ltp);
