@@ -48,15 +48,15 @@ int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double 
 
   factor = date - dte1;
   if (nmax1 == nmax2) {
-      k =  nmax1 * (nmax1 + 2);
-      nmax = nmax1;
+    k =  nmax1 * (nmax1 + 2);
+    nmax = nmax1;
   }
   else {
     if (nmax1 > nmax2) {
       k = nmax2 * (nmax2 + 2);
       l = nmax1 * (nmax1 + 2);
 
-		  for ( ii = k + 1; ii <= l; ++ii) {
+      for ( ii = k + 1; ii <= l; ++ii) {
         gh[ii] = gh1[ii];
       }
 
@@ -66,7 +66,7 @@ int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double 
       k = nmax1 * (nmax1 + 2);
       l = nmax2 * (nmax2 + 2);
 
-		  for ( ii = k + 1; ii <= l; ++ii) {
+      for ( ii = k + 1; ii <= l; ++ii) {
         gh[ii] = factor * gh2[ii];
       }
 
@@ -99,7 +99,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
   double sl[14];
   double cl[14];
 #ifdef GEO_MAG_DOUBLE
-	double p[119];
+  double p[119];
   double q[119];
 #else
   float p[119];
@@ -117,7 +117,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
   argument = flat * dtr;
   slat = sinf( argument );
   if ((90.0 - flat) < 0.001) {
-      aa = 89.999;            /*  300 ft. from North pole  */
+    aa = 89.999;            /*  300 ft. from North pole  */
   }
   else {
     if ((90.0 + flat) < 0.001) {
@@ -207,7 +207,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
     aa = rr * gh[l];
 
     if (m == 0) {
-			*geo_mag_x = *geo_mag_x + aa * q[k];
+      *geo_mag_x = *geo_mag_x + aa * q[k];
       *geo_mag_z = *geo_mag_z - aa * p[k];
       l = l + 1;
     }
@@ -218,7 +218,7 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
       *geo_mag_z = *geo_mag_z - cc * p[k];
       if (clat > 0) {
         *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) *
-        fm * p[k]/((fn + 1.0) * clat);
+          fm * p[k]/((fn + 1.0) * clat);
       }
       else {
         *geo_mag_y = *geo_mag_y + (aa * sl[m] - bb * cl[m]) * q[k] * slat;
@@ -228,13 +228,13 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
     m = m + 1;
   }
   if (iext != 0) {
-		aa = ext2 * cl[1] + ext3 * sl[1];
+    aa = ext2 * cl[1] + ext3 * sl[1];
     *geo_mag_x = *geo_mag_x - ext1 * clat + aa * slat;
     *geo_mag_y = *geo_mag_y + ext2 * sl[1] - ext3 * cl[1];
     *geo_mag_z = *geo_mag_z + ext1 * slat + aa * clat;
   }
-	aa = *geo_mag_x;
-	*geo_mag_x = *geo_mag_x * cd + *geo_mag_z * sd;
-	*geo_mag_z = *geo_mag_z * cd - aa * sd;
+  aa = *geo_mag_x;
+  *geo_mag_x = *geo_mag_x * cd + *geo_mag_z * sd;
+  *geo_mag_z = *geo_mag_z * cd - aa * sd;
   return(ios);
 }
