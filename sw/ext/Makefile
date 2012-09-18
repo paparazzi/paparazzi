@@ -45,13 +45,16 @@ ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 endif
 
 
-all: update_submodules libopencm3.module
+all: update_submodules libopencm3.module luftboot.module
 
 update_submodules:
 	cd $(PAPARAZZI_SRC) && git submodule update --init
 
 libopencm3.module:
 	make -C libopencm3 lib PREFIX=$(PREFIX)
+
+luftboot.module:
+	make -C luftboot/src all LIBOPENCM3=../../libopencm3
 
 clean:
 	if [ -f libopencm3/Makefile ]; then \
