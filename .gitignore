@@ -24,6 +24,7 @@
 *.cproject
 *.project
 *.externalToolBuilders
+.settings
 /build.properties
 /META-INF
 
@@ -69,6 +70,7 @@
 /sw/ground_segment/cockpit/gcs
 /sw/ground_segment/cockpit/gtk_strip.ml
 /sw/ground_segment/cockpit/ant_track
+/sw/ground_segment/cockpit/compass
 
 
 # /sw/ground_segment/lpc21iap/
