@@ -268,7 +268,7 @@ BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_jtag_flash.
 
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
-	@echo "Using Black Magic Probe with JTAG"
+	@echo "Using Black Magic Probe with JTAG on BMP_PORT $(BMP_PORT)"
 	@echo "Using GDB = $(GDB)"
 	@echo "  BMP\t$<"
 	$(Q)$(GDB) --batch \
@@ -280,22 +280,17 @@ endif
 # SWD flash mode
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
-ifneq ($(BMP_PORT),)
+BMP_PORT ?= /dev/ttyACM0
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
-	@echo "Using Black Magic Probe with SWD"
+	@echo "Using Black Magic Probe with SWD on BMP_PORT $(BMP_PORT)"
 	@echo "Using GDB = $(GDB)"
 	@echo "  BMP\t$<"
 	$(Q)$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
-else
-# print error if BMP_PORT not specified
-upload:
-	@echo "BMP_PORT not specified for SWD flash mode"
-endif
 #
 # no known flash mode
 else
