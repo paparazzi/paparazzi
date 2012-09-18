@@ -37,10 +37,10 @@
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
-<!--									 Using Geo Mag module										 -->
-	<modules>
-		<load name="geo_mag.xml"/>
-	</modules>
+  <!-- Using Geo Mag module -->
+  <modules>
+    <load name="geo_mag.xml"/>
+  </modules>
 
   <servos>
     <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
