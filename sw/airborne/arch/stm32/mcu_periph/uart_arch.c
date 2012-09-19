@@ -136,9 +136,9 @@ void uart1_init( void ) {
 #ifdef UART1_FLOW_CONTROL
 #warning "USING UART1 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   gpio_set_mode(GPIO_BANK_USART1_RTS, GPIO_MODE_OUTPUT_50_MHZ,
-          GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
+          GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_RTS);
   gpio_set_mode(GPIO_BANK_USART1_CTS, GPIO_MODE_INPUT,
-          GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
+          GPIO_CNF_INPUT_FLOAT, GPIO_USART1_CTS);
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart1, UART1_BAUD, 1);
