@@ -62,8 +62,7 @@ sim.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
 sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
-sim.CFLAGS += -DUSE_INS_MODULE -DINS_TYPE_H=\"subsystems/ins/ins_gps_only.h\"
-sim.srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_only.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ins/ins_gps_passthrough.c
 
 sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
