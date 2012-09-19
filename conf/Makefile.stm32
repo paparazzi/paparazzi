@@ -264,7 +264,7 @@ upload: $(OBJDIR)/$(TARGET).hex
 		-c shutdown
 else
 # jtag via BMP
-BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_jtag_flash.scr
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
 
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
@@ -281,7 +281,7 @@ endif
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
 BMP_PORT ?= /dev/ttyACM0
-BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/conf/boards/upload_scripts/bmp_swd_flash.scr
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using Black Magic Probe with SWD on BMP_PORT $(BMP_PORT)"
