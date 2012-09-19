@@ -208,7 +208,7 @@ void h_ctl_course_loop ( void ) {
 */
 
     // Heading error
-    float herr = *stateGetNedToBodyEulers_f()->psi - h_ctl_course_setpoint; //+crab);
+    float herr = stateGetNedToBodyEulers_f()->psi - h_ctl_course_setpoint; //+crab);
     NormRadAngle(herr);
 
     if (advance < -0.5)              //<! moving in the wrong direction / big > 90 degree turn
