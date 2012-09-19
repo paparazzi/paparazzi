@@ -7,12 +7,12 @@ use Program;
 use Data::Dumper;
 use Config;
 
-$|++; 
-my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml.example");
+$|++;
+my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/tests_conf.xml");
 
 use Data::Dumper;
 
-ok(1, "Parsed the example file");
+ok(1, "Parsed the tests_conf file");
 foreach my $example (sort keys%{$examples->{'aircraft'}})
 {
 	#next unless $example =~ m#easystar#i;
