@@ -63,11 +63,6 @@ value c_init_serial(value device, value speed, value hw_flow_control)
   cur_termios.c_oflag  &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
 
   /* control modes */
-<<<<<<< HEAD
-  cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
-  cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
-
-=======
   if (Bool_val(hw_flow_control)) {
     cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL);
     cur_termios.c_cflag |= CREAD|CS8|CLOCAL|CRTSCTS;
@@ -77,7 +72,6 @@ value c_init_serial(value device, value speed, value hw_flow_control)
     cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
   }
    
->>>>>>> ebfeb45... Added UART hardware flow control to ground segment. Added UART hardware flow control to UART1 for STM32
   /* local modes */
   cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
   cur_termios.c_lflag |= NOFLSH;
