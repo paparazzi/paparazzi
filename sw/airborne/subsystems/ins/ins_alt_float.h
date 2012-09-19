@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef INS_FLOAT_H
-#define INS_FLOAT_H
+#ifndef INS_ALT_FLOAT_H
+#define INS_ALT_FLOAT_H
 
 #include "subsystems/ins.h"
 
@@ -73,4 +73,4 @@ extern void alt_kalman( float );
 }
 #endif /* ! USE_BAROMETER */
 
-#endif /* INS_FLOAT_H */
+#endif /* INS_ALT_FLOAT_H */

@@ -253,13 +253,13 @@ static inline void nav_set_altitude( void ) {
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
   ins_ltp_initialised = FALSE;
-  ins_hf_realign = TRUE;
-  ins_vf_realign = TRUE;
+  ins.hf_realign = TRUE;
+  ins.vf_realign = TRUE;
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
-  ins_vf_realign = TRUE;
+  ins.vf_realign = TRUE;
 
 #if USE_GPS
   ins_ltp_def.lla.alt = gps.lla_pos.alt;

@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file ins_float.c
+/** @file ins_alt_float.c
  * Filters altitude and climb rate.
  */
 
@@ -48,9 +48,6 @@ bool_t  ins_baro_initialised;
 float ins_baro_alt;
 #endif
 
-bool_t ins_hf_realign;
-bool_t ins_vf_realign;
-
 void ins_init() {
 
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
@@ -65,7 +62,7 @@ void ins_init() {
   ins_baro_initialised = FALSE;
   ins_baro_alt = 0.;
 #endif
-  ins_vf_realign = FALSE;
+  ins.vf_realign = FALSE;
 
   EstimatorSetAlt(0.);
 
@@ -91,8 +88,8 @@ void ins_update_baro() {
       ins_qfe = baro.absolute;
       ins_baro_initialised = TRUE;
     }
-    if (ins_vf_realign) {
-      ins_vf_realign = FALSE;
+    if (ins.vf_realign) {
+      ins.vf_realign = FALSE;
       ins_qfe = baro.absolute;
     }
     else { /* not realigning, so normal update with baro measurement */

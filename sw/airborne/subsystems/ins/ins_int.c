@@ -55,7 +55,6 @@ struct NedCoor_i ins_gps_speed_cm_s_ned;
 struct FloatVect2 ins_gps_pos_m_ned;
 struct FloatVect2 ins_gps_speed_m_s_ned;
 #endif
-bool_t ins_hf_realign;
 
 /* barometer                   */
 #if USE_VFF
@@ -67,7 +66,6 @@ bool_t  ins_update_on_agl;
 int32_t ins_sonar_offset;
 #endif
 #endif
-bool_t  ins_vf_realign;
 
 /* output                      */
 struct NedCoor_i ins_ltp_pos;
@@ -102,8 +100,8 @@ void ins_init() {
 #endif
   vff_init(0., 0., 0.);
 #endif
-  ins_vf_realign = FALSE;
-  ins_hf_realign = FALSE;
+  ins.vf_realign = FALSE;
+  ins.hf_realign = FALSE;
 #if USE_HFF
   b2_hff_init(0., 0., 0., 0.);
 #endif
@@ -172,8 +170,8 @@ void ins_update_baro() {
       ins_qfe = baro.absolute;
       ins_baro_initialised = TRUE;
     }
-    if (ins_vf_realign) {
-      ins_vf_realign = FALSE;
+    if (ins.vf_realign) {
+      ins.vf_realign = FALSE;
       ins_qfe = baro.absolute;
 #if USE_SONAR
       ins_sonar_offset = sonar_meas;
@@ -211,8 +209,8 @@ void ins_update_gps(void) {
     VECT2_SDIV(ins_gps_pos_m_ned, ins_gps_pos_m_ned, 100.);
     VECT2_ASSIGN(ins_gps_speed_m_s_ned, ins_gps_speed_cm_s_ned.x, ins_gps_speed_cm_s_ned.y);
     VECT2_SDIV(ins_gps_speed_m_s_ned, ins_gps_speed_m_s_ned, 100.);
-    if (ins_hf_realign) {
-      ins_hf_realign = FALSE;
+    if (ins.hf_realign) {
+      ins.hf_realign = FALSE;
 #ifdef SITL
       struct FloatVect2 true_pos, true_speed;
       VECT2_COPY(true_pos, fdm.ltpprz_pos);

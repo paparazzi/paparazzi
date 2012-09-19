@@ -123,12 +123,12 @@ void track_periodic_task(void) {
 void track_event(void) {
   if (!ins_ltp_initialised) {
     ins_ltp_initialised = TRUE;
-    ins_hf_realign = TRUE;
+    ins.hf_realign = TRUE;
   }
 
 #if USE_HFF
-  if (ins_hf_realign) {
-    ins_hf_realign = FALSE;
+  if (ins.hf_realign) {
+    ins.hf_realign = FALSE;
     struct FloatVect2 pos, zero;
     pos.x = -target_pos_ned.x;
     pos.y = -target_pos_ned.y;

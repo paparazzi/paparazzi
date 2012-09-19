@@ -38,15 +38,12 @@
 /** Inertial Navigation System state */
 struct Ins {
   uint8_t status; ///< status of the INS
+  bool_t hf_realign; ///< realign horizontally if true
+  bool_t vf_realign; ///< realign vertically if true
 };
 
 /** global INS state */
 extern struct Ins ins;
-
-// TODO add to struct
-extern bool_t ins_hf_realign;
-extern bool_t ins_vf_realign;
-
 
 /** INS initialization. Called at startup.
  *  Needs to be implemented by each INS algorithm.
