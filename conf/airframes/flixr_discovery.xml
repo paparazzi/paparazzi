@@ -27,7 +27,6 @@
     <define name="USE_GYRO_PITCH_RATE"/>
 
     <define name="WIND_INFO"/>
-    <define name="ALT_KALMAN"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="transparent"/>
@@ -42,6 +41,7 @@
       <configure name="USE_MAGNETOMETER" value="0"/>
       <define name="AHRS_USE_GPS_HEADING" value="1"/>
     </subsystem>
+    <subsystem name="ins" type="alt_float"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="b2_v1.0">

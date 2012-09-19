@@ -56,13 +56,9 @@ extern float estimator_z; ///< altitude above MSL in meters
 extern float estimator_z_dot;
 
 extern bool_t alt_kalman_enabled;
-#ifdef ALT_KALMAN
 extern void alt_kalman_reset( void );
 extern void alt_kalman_init( void );
 extern void alt_kalman( float );
-#endif
-
-#ifdef ALT_KALMAN
 
 #if USE_BAROMETER
 /* Kalman filter cannot be disabled in this mode (no z_dot) */
@@ -76,9 +72,5 @@ extern void alt_kalman( float );
   } \
 }
 #endif /* ! USE_BAROMETER */
-
-#else /* ALT_KALMAN */
-#define EstimatorSetAlt(z) { estimator_z = z; }
-#endif
 
 #endif /* INS_FLOAT_H */

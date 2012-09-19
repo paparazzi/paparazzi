@@ -14,7 +14,6 @@
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
     <define name="STRONG_WIND"/>
 
     <subsystem name="radio_control" type="ppm"/>

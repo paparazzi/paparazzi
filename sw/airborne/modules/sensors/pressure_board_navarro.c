@@ -142,8 +142,6 @@ void pbn_read_event( void ) {
 #if USE_AIRSPEED
       stateSetAirspeed_f(&pbn_airspeed);
 #endif
-      //alt_kalman(pbn_altitude);
-
     }
 
   }

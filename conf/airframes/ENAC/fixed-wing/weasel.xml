@@ -18,7 +18,6 @@
     <define name="USE_I2C0"/>
     <define name="USE_I2C1"/>
     <!--define name="AGR_CLIMB"/-->
-    <define name="ALT_KALMAN"/>
     <define name="USE_AIRSPEED"/>
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
@@ -38,6 +37,7 @@
     <subsystem name="ahrs"    type="float_dcm">
       <define name="USE_HIGH_ACCEL_FLAG"/>
     </subsystem>
+    <subsystem name="ins" typee="alt_float"/>
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->

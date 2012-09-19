@@ -160,7 +160,6 @@
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
-    <define name="ALT_KALMAN" />
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -175,6 +174,7 @@
     <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">

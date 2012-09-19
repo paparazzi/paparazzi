@@ -10,15 +10,10 @@
 <airframe name="EasyStar TWOGv1">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1.0">
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <target name="ap" 			board="twog_1.0"/>
+    <target name="sim" 			board="pc"/>
 
-    <target name="sim" 			board="pc">
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <define name="LOITER_TRIM"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry" type="transparent"/>
@@ -26,6 +21,7 @@
     <subsystem name="ahrs" type="infrared"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">

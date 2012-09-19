@@ -374,9 +374,6 @@ void handle_ins_msg(void) {
 #endif /* USE_IMU */
 
 #if USE_GPS_XSENS
-  #ifndef ALT_KALMAN
-  #warning NO_VZ
-  #endif
 
   // Horizontal speed
   float fspeed = sqrt(ins_vx*ins_vx + ins_vy*ins_vy);

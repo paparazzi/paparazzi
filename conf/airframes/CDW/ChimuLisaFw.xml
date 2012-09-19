@@ -144,7 +144,6 @@
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
-    <define name="ALT_KALMAN" />
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -157,7 +156,6 @@
     <!-- Sensors -->
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
-
   </firmware>
 
 

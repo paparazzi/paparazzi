@@ -24,6 +24,7 @@
             <configure name="GPS_BAUD"    value="B57600"/>
         </subsystem>
         <subsystem name="ahrs" type="float_dcm"/>
+        <subsystem name="ins" type="alt_float"/>
         <subsystem name="navigation"/>
     </firmware>
 

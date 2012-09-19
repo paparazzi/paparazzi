@@ -194,7 +194,6 @@
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
-    <define name="ALT_KALMAN" />
 
     <subsystem name="radio_control" type="ppm"/>
 

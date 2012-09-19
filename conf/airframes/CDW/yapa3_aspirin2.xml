@@ -238,7 +238,6 @@
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
 
     <!-- Sensors -->
     <!--
@@ -252,7 +251,7 @@
 <!--      <configure name="USE_MAGNETOMETER" /> -->
     </subsystem>
 
-
+    <subsystem name="ins" type="alt_float"/>
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->

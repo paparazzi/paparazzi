@@ -163,14 +163,12 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
 			<!--      <define name="NB_CHANNELS" value="5" />  -->
     </target>
     <target name="sim" board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="gps" type="ublox" />
-
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>

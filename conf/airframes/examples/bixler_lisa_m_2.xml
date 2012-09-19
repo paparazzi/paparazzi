@@ -21,7 +21,6 @@
 
     <target name="sim" 			board="pc"/>
 
-    <define name="ALT_KALMAN"/>
     <define name="USE_MAGNETOMETER" value="FALSE"/>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -31,6 +30,7 @@
     <subsystem name="ahrs" type="float_dcm"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <!-- commands section -->

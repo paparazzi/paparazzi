@@ -14,7 +14,6 @@
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
-    <define name="ALT_KALMAN" />
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -30,6 +29,7 @@
     <subsystem name="gps" type="ublox"/>
     <subsystem name="control"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <modules>
@@ -197,7 +197,6 @@
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
   </section>
 

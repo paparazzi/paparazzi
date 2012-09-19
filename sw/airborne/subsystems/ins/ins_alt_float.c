@@ -58,9 +58,7 @@ void ins_init() {
 
   stateSetPositionUtm_f(&utm0);
 
-#ifdef ALT_KALMAN
   alt_kalman_init();
-#endif
 
 #if USE_BAROMETER
   ins_qfe = 0;;
@@ -136,8 +134,6 @@ void ins_update_sonar() {
 }
 
 bool_t alt_kalman_enabled;
-
-#ifdef ALT_KALMAN
 
 #ifndef ALT_KALMAN_ENABLED
 #define ALT_KALMAN_ENABLED FALSE
@@ -231,6 +227,4 @@ void alt_kalman(float z_meas) {
   DOWNLINK_SEND_ALT_KALMAN(DefaultChannel,DefaultDevice,&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
 #endif
 }
-
-#endif // ALT_KALMAN
 
