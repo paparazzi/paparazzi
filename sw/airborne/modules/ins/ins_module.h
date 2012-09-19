@@ -67,9 +67,9 @@ extern INS_FORMAT ins_pitch_neutral;
 extern volatile uint8_t ins_msg_received;
 extern volatile uint8_t new_ins_attitude;
 
-void handle_ins_msg( void);
-void parse_ins_msg( void );
-void parse_ins_buffer( uint8_t );
+void handle_ins_msg(void);
+void parse_ins_msg(void);
+void parse_ins_buffer(uint8_t);
 
 #ifndef SITL
 #include "mcu_periph/uart.h"
