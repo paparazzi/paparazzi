@@ -37,9 +37,7 @@ CHIMU_PARSER_DATA CHIMU_DATA;
 INS_FORMAT ins_roll_neutral;
 INS_FORMAT ins_pitch_neutral;
 
-volatile uint8_t new_ins_attitude;
-
-void ahrs_init( void )
+void ahrs_init(void)
 {
   ahrs.status = AHRS_UNINIT;
 
