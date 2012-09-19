@@ -26,10 +26,10 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="ahrs" 		type="infrared"/>
-    <subsystem name="gps" 		    type="ublox"/>
-
-    <subsystem name="navigation"    type="extra"/>
+    <subsystem name="ahrs" 		  type="infrared"/>
+    <subsystem name="gps" 		  type="ublox"/>
+    <subsystem name="ins"         type="gps_passthrough"/>
+    <subsystem name="navigation"  type="extra"/>
   </firmware>
 
 

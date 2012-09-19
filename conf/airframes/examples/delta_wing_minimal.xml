@@ -20,6 +20,7 @@
     <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="gps_passthrough"/>
   </firmware>
 
   <modules>

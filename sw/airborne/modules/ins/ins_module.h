@@ -59,7 +59,7 @@ extern INS_FORMAT ins_mx;
 extern INS_FORMAT ins_my;
 extern INS_FORMAT ins_mz;
 
-#if USE_INS
+#if USE_INS_MODULE
 extern INS_FORMAT ins_roll_neutral;
 extern INS_FORMAT ins_pitch_neutral;
 #endif

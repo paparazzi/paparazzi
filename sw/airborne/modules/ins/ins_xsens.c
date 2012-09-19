@@ -20,7 +20,7 @@
  *
  */
 
-/** @file xsens.c
+/** @file ins_xsens.c
  * Parser for the Xsens protocol.
  */
 
@@ -33,7 +33,6 @@
 #include "generated/airframe.h"
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 
 #if USE_GPS_XSENS
@@ -71,7 +70,7 @@ INS_FORMAT ins_mx;
 INS_FORMAT ins_my;
 INS_FORMAT ins_mz;
 
-#if USE_INS
+#if USE_INS_MODULE
 float ins_pitch_neutral;
 float ins_roll_neutral;
 #endif
@@ -207,12 +206,15 @@ uint8_t send_ck;
 
 volatile int xsens_configured = 0;
 
-void ins_init( void ) {
+void xsens_init(void);
+void xsens_periodic(void);
+
+void xsens_init(void) {
 
   xsens_status = UNINIT;
   xsens_configured = 20;
 
-#if USE_INS
+#if USE_INS_MODULE
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 #endif
@@ -227,16 +229,29 @@ void ins_init( void ) {
 struct ImuXsens imu_xsens;
 
 void imu_impl_init(void) {
-  ins_init();
+  xsens_init();
   imu_xsens.gyro_available = FALSE;
   imu_xsens.accel_available = FALSE;
   imu_xsens.mag_available = FALSE;
 }
 
 void imu_periodic(void) {
-  ins_periodic();
+  xsens_periodic();
 }
 #endif /* USE_IMU */
+
+#if USE_INS_MODULE
+void ins_init(void) {
+  xsens_init();
+}
+
+void ins_periodic(void) {
+  xsens_periodic();
+}
+
+void ins_update_gps(void) {
+}
+#endif
 
 #if USE_GPS_XSENS
 void gps_impl_init(void) {
@@ -245,7 +260,7 @@ void gps_impl_init(void) {
 }
 #endif
 
-void ins_periodic( void ) {
+void xsens_periodic(void) {
   if (xsens_configured > 0)
     {
       switch (xsens_configured)
@@ -306,11 +321,7 @@ void ins_periodic( void ) {
   RunOnceEvery(100,XSENS_ReqGPSStatus());
 }
 
-void ins_update_gps(void) {
-
-}
-
-#if USE_INS
+#if USE_INS_MODULE
 #include "state.h"
 
 static inline void update_fw_estimator(void) {
@@ -341,11 +352,11 @@ static inline void update_fw_estimator(void) {
   stateSetNedToBodyEulers_f(&att);
   stateSetBodyRates_f(&rates);
 }
-#endif /* USE_INS */
+#endif /* USE_INS_MODULE */
 
 void handle_ins_msg(void) {
 
-#if USE_INS
+#if USE_INS_MODULE
   update_fw_estimator();
 #endif
 
@@ -388,7 +399,7 @@ void handle_ins_msg(void) {
 #endif // USE_GPS_XSENS
 }
 
-void parse_ins_msg( void ) {
+void parse_ins_msg(void) {
   uint8_t offset = 0;
   if (xsens_id == XSENS_ReqOutputModeAck_ID) {
     xsens_output_mode = XSENS_ReqOutputModeAck_mode(xsens_msg_buf);
@@ -633,7 +644,7 @@ void parse_ins_msg( void ) {
 }
 
 
-void parse_ins_buffer( uint8_t c ) {
+void parse_ins_buffer(uint8_t c) {
   ck += c;
   switch (xsens_status) {
   case UNINIT:

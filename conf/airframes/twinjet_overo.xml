@@ -27,6 +27,7 @@
     <subsystem name="gps"           type="ublox_hitl"/>
     <subsystem name="navigation"/>
     <subsystem name="joystick"/>
+    <subsystem name="ins"           type="gps_passthrough"/>
   </firmware>
 
   <firmware name="setup">

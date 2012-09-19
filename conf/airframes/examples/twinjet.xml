@@ -26,6 +26,7 @@
     </subsystem>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="gps_passthrough"/>
   </firmware>
 
   <firmware name="setup">
