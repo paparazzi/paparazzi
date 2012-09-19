@@ -15,8 +15,7 @@
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
     <define name="ALT_KALMAN"/>
-    <define name="USE_BARO_BMP"/>
-
+    <define name="STRONG_WIND"/>
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -30,14 +29,11 @@
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="control"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <modules>
     <load name="sys_mon.xml"/>
-    <load name="baro_bmp.xml">
-      <define name="BMP_I2C_DEV" value="i2c2"/>
-      <define name="USE_I2C2"/>
-    </load>
   </modules>
 
   <servos>

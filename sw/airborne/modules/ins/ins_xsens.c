@@ -26,6 +26,7 @@
 
 #include "ins_module.h"
 #include "ins_xsens.h"
+#include "subsystems/ins.h"
 
 #include <inttypes.h>
 
@@ -233,7 +234,7 @@ void imu_impl_init(void) {
 }
 
 void imu_periodic(void) {
-  ins_periodic_task();
+  ins_periodic();
 }
 #endif /* USE_IMU */
 
@@ -244,7 +245,7 @@ void gps_impl_init(void) {
 }
 #endif
 
-void ins_periodic_task( void ) {
+void ins_periodic( void ) {
   if (xsens_configured > 0)
     {
       switch (xsens_configured)
@@ -303,6 +304,10 @@ void ins_periodic_task( void ) {
     }
 
   RunOnceEvery(100,XSENS_ReqGPSStatus());
+}
+
+void ins_update_gps(void) {
+
 }
 
 #if USE_INS

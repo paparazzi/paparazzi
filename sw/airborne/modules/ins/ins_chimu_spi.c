@@ -127,7 +127,7 @@ void ahrs_update_gps( void )
 }
 
 //Frequency defined in conf *.xml
-void ins_periodic_task( void )
+void ins_periodic( void )
 {
 }
 

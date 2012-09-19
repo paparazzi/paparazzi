@@ -17,7 +17,7 @@ ifeq ($(TARGET), ap)
 ap.CFLAGS += -DUSE_INS
 
 # AHRS Results
-ap.CFLAGS += -DINS_MODULE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DINS_TYPE_H=\"modules/ins/ins_xsens.h\"
 
 ifndef XSENS_UART_BAUD
 	XSENS_UART_BAUD = B115200

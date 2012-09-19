@@ -56,11 +56,13 @@
 #if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
 #endif
+#if USE_INS
+#include "subsystems/ins.h"
+#endif
 
 // autopilot & control
 #include "state.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "subsystems/ins.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
 #include "subsystems/nav.h"
@@ -182,7 +184,9 @@ void init_ap( void ) {
   baro_init();
 #endif
 
+#if USE_INS
   ins_init();
+#endif
 
   stateInit();
 
@@ -487,10 +491,8 @@ void navigation_task( void ) {
 }
 
 
-#if USE_AHRS
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 volatile uint8_t new_ins_attitude = 0;
-#endif
 #endif
 
 void attitude_loop( void ) {
@@ -564,7 +566,9 @@ void sensors_task( void ) {
   baro_periodic();
 #endif
 
+#if USE_INS
   ins_periodic();
+#endif
 }
 
 
@@ -624,7 +628,8 @@ void event_task_ap( void ) {
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif
 
-#if USE_INS
+#ifdef InsEvent
+#pragma message "calling InsEvent, remove me.."
   InsEvent(NULL);
 #endif
 
@@ -665,7 +670,9 @@ void event_task_ap( void ) {
 
 #if USE_GPS
 static inline void on_gps_solution( void ) {
+#if USE_INS
   ins_update_gps();
+#endif
 #if USE_AHRS
   ahrs_update_gps();
 #endif
@@ -767,7 +774,9 @@ static inline void on_mag_event(void)
 #if USE_BAROMETER
 
 static inline void on_baro_abs_event( void ) {
+#if USE_INS
   ins_update_baro();
+#endif
 }
 
 static inline void on_baro_dif_event( void ) {

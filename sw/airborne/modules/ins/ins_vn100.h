@@ -51,7 +51,6 @@ extern struct FloatVect3 ins_mag;
 extern volatile uint8_t ins_msg_received;
 
 extern void ins_init( void );
-extern void ins_periodic_task( void );
 extern void ins_event_task( void );
 extern void ins_report_task( void );
 extern void parse_ins_msg( void );

@@ -1,7 +1,5 @@
 /*
- * Paparazzi autopilot $Id$
- *
- * Copyright (C) 2004-2010 The Paparazzi Team
+ * Copyright (C) 2004-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,23 +17,25 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file estimator.c
- * \brief State estimate, fusioning sensors
+/** @file ins_float.c
+ * Filters altitude and climb rate.
  */
 
-#include "subsystems/ins/ins_float.h"
+#include "subsystems/ins.h"
 
 #include <inttypes.h>
 #include <math.h>
 
 #include "state.h"
-#include "mcu_periph/uart.h"
-#include "ap_downlink.h"
 #include "subsystems/gps.h"
 #include "subsystems/nav.h"
+
+#ifdef DEBUG_ALT_KALMAN
+#include "mcu_periph/uart.h"
+#include "ap_downlink.h"
+#endif
 
 /* vertical position and speed in meters */
 float estimator_z;
@@ -168,6 +168,7 @@ void alt_kalman(float z_meas) {
   float R;
   float SIGMA2;
 
+#if USE_BAROMETER
 #if USE_BARO_MS5534A
   if (alt_baro_enabled) {
     DT = BARO_DT;
@@ -186,6 +187,7 @@ void alt_kalman(float z_meas) {
     R = baro_bmp_r;
     SIGMA2 = baro_bmp_sigma2;
   } else
+#endif
 #endif
   {
     DT = GPS_DT;

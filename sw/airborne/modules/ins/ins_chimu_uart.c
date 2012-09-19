@@ -98,7 +98,7 @@ void parse_ins_msg( void )
 
 
 //Frequency defined in conf *.xml
-void ins_periodic_task( void )
+void ins_periodic( void )
 {
   // Downlink Send
 }

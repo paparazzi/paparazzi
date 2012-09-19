@@ -82,7 +82,7 @@ static inline bool_t ins_configure( void ) {
   return FALSE;
 }
 
-void ins_periodic_task( void ) {
+void ins_periodic( void ) {
   if (!SpiCheckAvailable()) {
     SpiOverRun();
     return;
