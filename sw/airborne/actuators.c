@@ -17,15 +17,13 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file actuators.c
- *  \brief Hardware independent actuators code
+/** @file actuators.c
+ *  Hardware independent actuators code.
  *
  */
 
 #include "firmwares/fixedwing/actuators.h"
-//#include "actuators.h"
 
 uint16_t actuators[SERVOS_NB];

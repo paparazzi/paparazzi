@@ -20,7 +20,7 @@
  */
 
 /** @file arch/stm32/actuators_pwm_arch.c
- *  STM32 PWM servos handling
+ *  STM32 PWM servos handling.
  */
 
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"

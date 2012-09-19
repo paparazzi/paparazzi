@@ -20,7 +20,7 @@
  */
 
 /** @file arch/stm32/actuators_pwm_arch.h
- *  STM32 PWM servos handling
+ *  STM32 PWM servos handling.
  */
 
 #ifndef ACTUATORS_PWM_ARCH_H

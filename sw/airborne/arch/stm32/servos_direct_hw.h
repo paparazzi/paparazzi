@@ -4,7 +4,7 @@
 
 #include "std.h"
 
-#include "actuators_pwm_arch.h"
+#include "subsystems/actuators/actuators_pwm_arch.h"
 
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
