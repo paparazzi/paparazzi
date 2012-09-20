@@ -1,5 +1,5 @@
-#ifndef SERVOS_DIRECT_HW_H
-#define SERVOS_DIRECT_HW_H
+#ifndef ACTUATORS_PWM_ARCH_H
+#define ACTUATORS_PWM_ARCH_H
 
 #include "LPC21xx.h"
 #include "mcu_periph/sys_time.h"
@@ -80,4 +80,4 @@ extern const uint8_t pwm_latch_value;
     PWMLER = pwm_latch_value;   \
   }
 
-#endif /* SERVOS_DIRECT_HW_H */
+#endif /* ACTUATORS_PWM_ARCH_H */

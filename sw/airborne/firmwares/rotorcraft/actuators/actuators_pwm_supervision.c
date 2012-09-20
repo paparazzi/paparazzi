@@ -24,23 +24,19 @@
  */
 
 #include "generated/airframe.h"
-#include "firmwares/rotorcraft/actuators.h"
-#include "firmwares/rotorcraft/commands.h"
-#include "subsystems/radio_control.h"
 
-/* warn if SUPERVISION_STOP_MOTOR is not define in the airframe file */
+/* warn if SUPERVISION_STOP_MOTOR is not defined in the airframe file */
 #ifndef SUPERVISION_STOP_MOTOR
 #warning "STOP_MOTOR is not defined in the SUPERVISION section, are you sure you want to use the default of 0?"
 #endif
 
-#include "actuators_pwm_supervision.h"
+#include "firmwares/rotorcraft/actuators/supervision.h"
+#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/radio_control.h"
 
-/* let's start butchery now and use the actuators_pwm arch functions */
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#include "firmwares/rotorcraft/actuators.h"
+#include "subsystems/actuators/actuators_pwm.h"
 
-#define actuators actuators_pwm_values
-#define Actuator(_x) actuators_pwm_values[_x]
-#define ActuatorsCommit() {}
 
 /** actuator PWM values in usec. */
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
@@ -51,8 +47,8 @@ void actuators_init(void)
   actuators_pwm_arch_init();
 }
 
-void actuators_set(bool_t motors_on) {
-
+void actuators_set(bool_t motors_on)
+{
   /* set normal control surface actuators, i.e. servos */
   SetActuatorsFromCommands(commands);
 
@@ -62,7 +58,6 @@ void actuators_set(bool_t motors_on) {
   for (int i = 0; i < SUPERVISION_NB_MOTOR; i++) {
     actuators_pwm_values[i] = supervision.commands[i];
   }
-  actuators_pwm_commit();
-
+  ActuatorsCommit();
 }
 

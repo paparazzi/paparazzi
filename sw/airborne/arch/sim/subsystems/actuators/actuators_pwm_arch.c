@@ -19,11 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/sim/actuators_pwm_arch.c
+/** @file arch/sim/subsystems/actuators/actuators_pwm_arch.c
  *  dummy servos handling for sim
  */
 
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#include "subsystems/actuators/actuators_pwm.h"
 
 void actuators_pwm_arch_init(void) {
 

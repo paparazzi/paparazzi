@@ -19,12 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/stm32/actuators_pwm_arch.h
+/** @file arch/stm32/subsystems/actuators/actuators_pwm_arch.h
  *  STM32 PWM servos handling.
  */
 
 #ifndef ACTUATORS_PWM_ARCH_H
 #define ACTUATORS_PWM_ARCH_H
+
+#include "std.h"
 
 #if USE_SERVOS_7AND8
 #if defined(BOARD_LISA_M) && USE_I2C1
@@ -36,11 +38,15 @@
 #define ACTUATORS_PWM_NB 6
 #endif
 
+/* Needs to be included after ACTUATORS_PWM_NB is defined!
+ * Otherwise ACTUATORS_PWM_NB is not declared in actuators_pwm.h
+ */
+#include "subsystems/actuators/actuators_pwm.h"
+
 extern void actuators_pwm_arch_init(void);
 extern void actuators_pwm_commit(void);
 
-#define ChopServo(_x,_a,_b) Chop(_x, _a, _b)
-#define Actuator(_x)  actuators_pwm_values[_x]
 #define SERVOS_TICS_OF_USEC(_v) (_v)
+#define ActuatorsCommit  actuators_pwm_commit
 
 #endif /* ACTUATORS_PWM_ARCH_H */

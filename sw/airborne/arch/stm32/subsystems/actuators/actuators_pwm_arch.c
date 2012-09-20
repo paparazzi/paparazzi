@@ -19,11 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/stm32/actuators_pwm_arch.c
+/** @file arch/stm32/subsystems/actuators/actuators_pwm_arch.c
  *  STM32 PWM servos handling.
  */
 
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#include "actuators.h"
+#include "subsystems/actuators/actuators_pwm_arch.h"
 
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>

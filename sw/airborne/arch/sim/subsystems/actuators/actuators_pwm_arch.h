@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/sim/actuators_pwm_arch.h
+/** @file arch/sim/subsystems/actuators/actuators_pwm_arch.h
  *  dummy servos handling for sim
  */
 
@@ -28,11 +28,15 @@
 
 #define ACTUATORS_PWM_NB 8
 
+/* Needs to be included after ACTUATORS_PWM_NB is defined!
+ * Otherwise ACTUATORS_PWM_NB is not declared in actuators_pwm.h
+ */
+#include "subsystems/actuators/actuators_pwm.h"
+
 extern void actuators_pwm_arch_init(void);
 extern void actuators_pwm_commit(void);
 
-#define ChopServo(_x,_a,_b) Chop(_x, _a, _b)
-#define Actuator(_x)  actuators_pwm_values[_x]
 #define SERVOS_TICS_OF_USEC(_v) (_v)
+#define ActuatorsCommit() {}
 
 #endif /* ACTUATORS_PWM_ARCH_H */

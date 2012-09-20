@@ -1,6 +1,6 @@
 #include "std.h"
 #include "actuators.h"
-#include "servos_direct_hw.h"
+#include "actuators_pwm_arch.h"
 
 /* 40 Hz */
 #ifndef SERVOS_PERIOD
