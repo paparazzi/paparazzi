@@ -1388,11 +1388,10 @@
       <field name="save_cnt"    type="int16"/>
   </message>
 
-  <message name="BOOZ2_SONAR" id="167">
-    <field name="front" type="uint16" unit="adc"/>
-    <field name="back" type="uint16" unit="adc"/>
-    <field name="right" type="uint16" unit="adc"/>
-    <field name="left" type="uint16" unit="adc"/>
+  <message name="INS_SONAR" id="167">
+    <field name="raw" type="int32" unit="adc" alt_unit="m" alt_unit_coef="0.0039063"/>
+    <field name="scaled" type="float" unit="m"/>
+    <field name="var" type="float"/>
   </message>
 
   <message name="BOOZ2_CAM" id="168">

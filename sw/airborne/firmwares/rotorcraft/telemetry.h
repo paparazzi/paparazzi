@@ -847,9 +847,6 @@
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {}
 #endif
 
-// FIXME: still used?? or replace by EXTRA_ADC
-#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
-
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
 #define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_NPS_SPEED_POS(_trans, _dev, \

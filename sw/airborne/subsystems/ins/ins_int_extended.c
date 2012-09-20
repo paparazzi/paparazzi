@@ -30,11 +30,9 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 
-#include "subsystems/ahrs.h"
+#include "state.h"
 
-#if USE_VFF_EXTENDED
 #include "subsystems/ins/vf_extended_float.h"
-#endif
 
 #if USE_HFF
 #include "subsystems/ins/hf_float.h"
@@ -65,14 +63,15 @@ struct FloatVect2 ins_gps_speed_m_s_ned;
 #endif
 
 /* barometer                   */
-#if USE_VFF_EXTENDED
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
 #include "filters/median_filter.h"
 struct MedianFilterInt baro_median;
-#if USE_SONAR
+
+/* sonar                       */
 bool_t  ins_update_on_agl;
+int32_t ins_sonar_alt;
 int32_t ins_sonar_offset;
 struct MedianFilterInt sonar_median;
 #ifndef INS_SONAR_OFFSET
@@ -80,16 +79,11 @@ struct MedianFilterInt sonar_median;
 #endif
 #define VFF_R_SONAR_0 0.1
 #define VFF_R_SONAR_OF_M 0.2
-#endif
-#endif
 
 /* output                      */
 struct NedCoor_i ins_ltp_pos;
 struct NedCoor_i ins_ltp_speed;
 struct NedCoor_i ins_ltp_accel;
-struct EnuCoor_i ins_enu_pos;
-struct EnuCoor_i ins_enu_speed;
-struct EnuCoor_i ins_enu_accel;
 
 
 void ins_init() {
@@ -111,16 +105,13 @@ void ins_init() {
 #else
   ins_ltp_initialised  = FALSE;
 #endif
-#if USE_VFF_EXTENDED
+
   ins_baro_initialised = FALSE;
   init_median_filter(&baro_median);
-#if USE_SONAR
   ins_update_on_agl = FALSE;
   init_median_filter(&sonar_median);
   ins_sonar_offset = INS_SONAR_OFFSET;
-#endif
   vff_init(0., 0., 0., 0.);
-#endif
   ins.vf_realign = FALSE;
   ins.hf_realign = FALSE;
 #if USE_HFF
@@ -129,9 +120,6 @@ void ins_init() {
   INT32_VECT3_ZERO(ins_ltp_pos);
   INT32_VECT3_ZERO(ins_ltp_speed);
   INT32_VECT3_ZERO(ins_ltp_accel);
-  INT32_VECT3_ZERO(ins_enu_pos);
-  INT32_VECT3_ZERO(ins_enu_speed);
-  INT32_VECT3_ZERO(ins_enu_accel);
 }
 
 void ins_periodic( void ) {
@@ -147,9 +135,7 @@ void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatV
 
 
 void ins_realign_v(float z) {
-#if USE_VFF_EXTENDED
   vff_realign(z);
-#endif
 }
 
 void ins_propagate() {
@@ -157,9 +143,8 @@ void ins_propagate() {
   struct Int32Vect3 accel_meas_body;
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_meas_ltp;
-  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, ahrs.ltp_to_body_rmat, accel_meas_body);
+  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, *stateGetNedToBodyRMat_i(), accel_meas_body);
 
-#if USE_VFF_EXTENDED
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
   if (baro.status == BS_RUNNING && ins_baro_initialised) {
     vff_propagate(z_accel_meas_float);
@@ -171,12 +156,6 @@ void ins_propagate() {
     // subtract -9.81m/s2 (acceleration measured due to gravity, but vehivle not accelerating in ltp)
     ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
   }
-#if !USE_SONAR
-  vff_update_offset(0.);
-#endif
-#else
-  ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
-#endif /* USE_VFF_EXTENDED */
 
 #if USE_HFF
   /* propagate horizontal filter */
@@ -186,13 +165,9 @@ void ins_propagate() {
   ins_ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
-  INT32_VECT3_ENU_OF_NED(ins_enu_pos, ins_ltp_pos);
-  INT32_VECT3_ENU_OF_NED(ins_enu_speed, ins_ltp_speed);
-  INT32_VECT3_ENU_OF_NED(ins_enu_accel, ins_ltp_accel);
 }
 
 void ins_update_baro() {
-#if USE_VFF_EXTENDED
   int32_t baro_pressure = update_median_filter(&baro_median, baro.absolute);
   if (baro.status == BS_RUNNING) {
     if (!ins_baro_initialised) {
@@ -202,17 +177,10 @@ void ins_update_baro() {
     if (ins.vf_realign) {
       ins.vf_realign = FALSE;
       ins_qfe = baro_pressure;
-#if USE_SONAR
-      // FIXME should use an averaged value
-      //ins_sonar_offset = sonar_meas;
-#endif
       vff_realign(0.);
       ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
       ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
       ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
-      ins_enu_pos.z = -ins_ltp_pos.z;
-      ins_enu_speed.z = -ins_ltp_speed.z;
-      ins_enu_accel.z = -ins_ltp_accel.z;
     }
     else { /* not realigning, so normal update with baro measurement */
       ins_baro_alt = ((baro_pressure - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
@@ -220,7 +188,6 @@ void ins_update_baro() {
       vff_update_baro(alt_float);
     }
   }
-#endif
 }
 
 
@@ -253,43 +220,47 @@ void ins_update_gps(void) {
 #endif
     }
     b2_hff_update_gps();
-#if !USE_VFF_EXTENDED /* vff not used */
-    ins_ltp_pos.z =  (ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
-    ins_ltp_speed.z =  (ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;
-#endif /* vff not used */
 #endif /* hff used */
 
-
 #if !USE_HFF /* hff not used */
-#if !USE_VFF_EXTENDED /* neither hf nor vf used */
-    INT32_VECT3_SCALE_3(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-    INT32_VECT3_SCALE_3(ins_ltp_speed, ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
-#else /* only vff used */
     INT32_VECT2_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT2_SCALE_2(ins_ltp_speed, ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
-#endif
-
-#if USE_GPS_LAG_HACK
-    VECT2_COPY(d_pos, ins_ltp_speed);
-    INT32_VECT2_RSHIFT(d_pos, d_pos, 11);
-    VECT2_ADD(ins_ltp_pos, d_pos);
-#endif
 #endif /* hff not used */
 
-    INT32_VECT3_ENU_OF_NED(ins_enu_pos, ins_ltp_pos);
-    INT32_VECT3_ENU_OF_NED(ins_enu_speed, ins_ltp_speed);
-    INT32_VECT3_ENU_OF_NED(ins_enu_accel, ins_ltp_accel);
   }
 #endif /* USE_GPS */
 }
 
+//#define INS_SONAR_VARIANCE_THRESHOLD 0.01
+
+#ifdef INS_SONAR_VARIANCE_THRESHOLD
+
+#include "messages.h"
+#include "mcu_periph/uart.h"
+#include "subsystems/datalink/downlink.h"
+
+#include "math/pprz_stat.h"
+#define VAR_ERR_MAX 10
+float var_err[VAR_ERR_MAX];
+uint8_t var_idx = 0;
+#endif
+
 void ins_update_sonar() {
-#if USE_SONAR && USE_VFF_EXTENDED
   static float last_offset = 0.;
-  //static int32_t sonar_filtered = 0;
-  int32_t sonar_filtered = update_median_filter(&sonar_median, sonar_meas);
-  //sonar_filtered = (sm + 2*sonar_filtered) / 3;
-  float sonar = (sonar_filtered - ins_sonar_offset) * INS_SONAR_SENS;
+  // new value filtered with median_filter
+  ins_sonar_alt = update_median_filter(&sonar_median, sonar_meas);
+  float sonar = (ins_sonar_alt - ins_sonar_offset) * INS_SONAR_SENS;
+
+#ifdef INS_SONAR_VARIANCE_THRESHOLD
+  /* compute variance of error between sonar and baro alt */
+  int32_t err = POS_BFP_OF_REAL(sonar) + ins_baro_alt; // sonar positive up, baro positive down !!!!
+  var_err[var_idx] = POS_FLOAT_OF_BFP(err);
+  var_idx = (var_idx + 1) % VAR_ERR_MAX;
+  float var = variance_float(var_err, VAR_ERR_MAX);
+  DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice,&err, &sonar, &var);
+  //DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice,&ins_sonar_alt, &sonar, &var);
+#endif
+
   /* update filter assuming a flat ground */
   if (sonar < INS_SONAR_MAX_RANGE
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
@@ -306,6 +277,9 @@ void ins_update_sonar() {
 #ifdef INS_SONAR_BARO_THRESHOLD
       && ins_baro_alt > -POS_BFP_OF_REAL(INS_SONAR_BARO_THRESHOLD) /* z down */
 #endif
+#ifdef INS_SONAR_VARIANCE_THRESHOLD
+      && var < INS_SONAR_VARIANCE_THRESHOLD
+#endif
       && ins_update_on_agl
       && baro.status == BS_RUNNING) {
     vff_update_alt_conf(-sonar, VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabs(sonar));
@@ -315,5 +289,4 @@ void ins_update_sonar() {
     /* update offset with last value to avoid divergence */
     vff_update_offset(last_offset);
   }
-#endif
 }
