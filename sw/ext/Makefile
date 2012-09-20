@@ -53,10 +53,13 @@ update_submodules:
 libopencm3.module:
 	make -C libopencm3 lib PREFIX=$(PREFIX)
 
-luftboot.module:
+luftboot.module: libopencm3.module
 	make -C luftboot/src all LIBOPENCM3=../../libopencm3
 
 clean:
 	if [ -f libopencm3/Makefile ]; then \
 		make -C $(EXT_DIR)/libopencm3 clean; \
+	fi
+	if [ -f luftboot/src/Makefile ]; then \
+		make -C luftboot/src clean; \
 	fi
