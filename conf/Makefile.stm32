@@ -233,15 +233,26 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(AFLAGS) $< -o $@
 
+#
+# check which flash mode is configured
+#
 ifeq ($(FLASH_MODE),DFU)
+#
+# DFU flash mode
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using stm32 mem dfu loader"
 	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
+#
+# serial flash mode
 else ifeq ($(FLASH_MODE),SERIAL)
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
+#
+# JTAG flash mode
 else ifeq ($(FLASH_MODE),JTAG)
+# either via normal jtag or BlackMagicProbe
 ifeq ($(BMP_PORT),)
+# normal jtag via OpenOCD
 upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using OOCD = $(OOCD)"
@@ -256,15 +267,36 @@ upload: $(OBJDIR)/$(TARGET).hex
 		-c reset \
 		-c shutdown
 else
+# jtag via BMP
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
+
 upload: $(OBJDIR)/$(TARGET).elf
-	@echo "Using Black Magic Probe"
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
+	@echo "Using Black Magic Probe with JTAG on BMP_PORT $(BMP_PORT)"
 	@echo "Using GDB = $(GDB)"
 	@echo "  BMP\t$<"
 	$(Q)$(GDB) --batch \
 		   -ex 'target extended-remote $(BMP_PORT)' \
-		   -x $(TOOLCHAIN_DIR)/arm-none-eabi/share/libopencm3/scripts/black_magic_probe_flash.scr \
+		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
 endif
+#
+# SWD flash mode
+else ifeq ($(FLASH_MODE),SWD)
+# only works if BMP_PORT is defined
+BMP_PORT ?= /dev/ttyACM0
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
+upload: $(OBJDIR)/$(TARGET).elf
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
+	@echo "Using Black Magic Probe with SWD on BMP_PORT $(BMP_PORT)"
+	@echo "Using GDB = $(GDB)"
+	@echo "  BMP\t$<"
+	$(Q)$(GDB) --batch \
+		   -ex 'target extended-remote $(BMP_PORT)' \
+		   -x $(BMP_UPLOAD_SCRIPT) \
+		   $<
+#
+# no known flash mode
 else
 upload:
 	@echo unknown flash_mode $(FLASH_MODE)
