@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="400" ground_alt="387" lat0="37.0380740" lon0="-122.1428470" max_dist_from_home="4000" name="Booz Test Enac" security_height="2">
+<flight_plan alt="400" ground_alt="387" lat0="37.0380740" lon0="-122.1428470" max_dist_from_home="4000" name="Rotorcraft TRI Field" security_height="2">
   <header>
 #include "autopilot.h"
 </header>
