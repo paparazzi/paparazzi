@@ -239,7 +239,7 @@ void v_ctl_climb_loop( void )
 #ifndef SITL
   struct FloatVect3 accel_float = {0,0,0};
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-  float vdot = ( accel_float.x / 9.81f - sin(ahrs_float.ltp_to_imu_euler.theta) );
+  float vdot = ( accel_float.x / 9.81f - sinf(stateGetNedToBodyEulers_f()->theta) );
 #else
   float vdot = 0;
 #endif
@@ -302,7 +302,7 @@ void v_ctl_climb_loop( void )
 
 
 #ifdef V_CTL_THROTTLE_SLEW_LIMITER
-#define V_CTL_THROTTLE_SLEW (1./CONTROL_RATE/(V_CTL_THROTTLE_SLEW_LIMITER))
+#define V_CTL_THROTTLE_SLEW (1./CONTROL_FREQUENCY/(V_CTL_THROTTLE_SLEW_LIMITER))
 #endif
 
 #ifndef V_CTL_THROTTLE_SLEW
