@@ -87,7 +87,9 @@ pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 
 // Set higher than 2*V_CTL_ALTITUDE_MAX_CLIMB to disable
+#ifndef V_CTL_AUTO_CLIMB_LIMIT
 #define V_CTL_AUTO_CLIMB_LIMIT (0.5/4.0) // m/s/s
+#endif
 
 uint8_t v_ctl_speed_mode;
 
