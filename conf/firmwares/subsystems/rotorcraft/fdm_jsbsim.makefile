@@ -89,7 +89,7 @@ nps.srcs += $(SRC_FIRMWARE)/datalink.c
 #
 # Math functions
 #
-nps.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+nps.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
 
 nps.CFLAGS += -DROTORCRAFT_BARO_LED=2
 nps.srcs += $(SRC_BOARD)/baro_board.c
