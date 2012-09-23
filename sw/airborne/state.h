@@ -35,6 +35,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_orientation_conversion.h"
 
 #include "std.h"
 #include <string.h>
@@ -99,18 +100,6 @@
 #define ACCEL_NED_I  1
 #define ACCEL_ECEF_F 2
 #define ACCEL_NED_F  3
-/**@}*/
-
-/**
- * @defgroup state_attitude Attitude representations
- * @{
- */
-#define ATT_QUAT_I  0
-#define ATT_EULER_I 1
-#define ATT_RMAT_I  2
-#define ATT_QUAT_F  3
-#define ATT_EULER_F 4
-#define ATT_RMAT_F  5
 /**@}*/
 
 /**
@@ -362,66 +351,9 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup state_attitude
+  /** @defgroup state_attitude
    *  @{ */
-  /**
-   * Holds the status bits for all attitude representations.
-   * When the corresponding bit is set, the representation
-   * is already computed.
-   */
-  uint8_t att_status;
-
-  /**
-   * Attitude quaternion.
-   * Specifies rotation from local NED frame to body frame.
-   * Units: #INT32_QUAT_FRAC
-   *
-   * @code
-   * struct Int32Vect3 body_accel;
-   * INT32_QUAT_VMULT(body_accel, *stateGetNedToBodyQuat_i(), *stateGetAccelNed_i());
-   * @endcode
-   */
-  struct Int32Quat ned_to_body_quat_i;
-
-  /**
-   * Attitude in zyx euler angles.
-   * Specifies rotation from local NED frame to body frame.
-   * Units: rad in BFP with #INT32_ANGLE_FRAC
-   */
-  struct Int32Eulers ned_to_body_eulers_i;
-
-  /**
-   * Attitude rotation matrix.
-   * Specifies rotation from local NED frame to body frame.
-   * Units: rad in BFP with #INT32_TRIG_FRAC
-   */
-  struct Int32RMat ned_to_body_rmat_i;
-
-  /**
-   * Attitude as quaternion.
-   * Specifies rotation from local NED frame to body frame.
-   * Units: unit length quaternion
-   *
-   * @code
-   * struct FloatVect3 body_accel;
-   * FLOAT_QUAT_VMULT(body_accel, *stateGetNedToBodyQuat_f(), *stateGetAccelNed_f());
-   * @endcode
-   */
-  struct FloatQuat ned_to_body_quat_f;
-
-  /**
-   * Attitude in zyx euler angles.
-   * Specifies rotation from local NED frame to body frame.
-   * Units: rad
-   */
-  struct FloatEulers ned_to_body_eulers_f;
-
-  /**
-   * Attitude rotation matrix.
-   * Specifies rotation from local NED frame to body frame.
-   * Units: rad
-   */
-  struct FloatRMat   ned_to_body_rmat_f;
+  struct OrientationReps ned_to_body_orientation;
   /** @}*/
 
 
@@ -1026,120 +958,85 @@ static inline struct EcefCoor_f* stateGetAccelEcef_f(void) {
 }
 /** @}*/
 
-
-
 /******************************************************************************
- *                                                                            *
- * Set and Get functions for the ATTITUDE representations                     *
- *                                                                            *
- *****************************************************************************/
+*                                                                             *
+* Set and Get functions for the ATTITUDE representations                      *
+* (Calls the functions in math/pprz_orientation_conversion)                   *
+*                                                                             *
+*****************************************************************************/
 /** @addtogroup state_attitude
- *  @{ */
-
-/************* declaration of transformation functions ************/
-extern void stateCalcNedToBodyQuat_i(void);
-extern void stateCalcNedToBodyRMat_i(void);
-extern void stateCalcNedToBodyEulers_i(void);
-extern void stateCalcNedToBodyQuat_f(void);
-extern void stateCalcNedToBodyRMat_f(void);
-extern void stateCalcNedToBodyEulers_f(void);
-
+* @{ */
 /*********************** validity test functions ******************/
 
 /// Test if attitudes are valid.
 static inline bool_t stateIsAttitudeValid(void) {
-  return (state.att_status);
+  return (orienationCheckValid(&state.ned_to_body_orientation));
 }
 
 /************************ Set functions ****************************/
 
 /// Set vehicle body attitude from quaternion (int).
 static inline void stateSetNedToBodyQuat_i(struct Int32Quat* ned_to_body_quat) {
-  QUAT_COPY(state.ned_to_body_quat_i, *ned_to_body_quat);
-  /* clear bits for all attitude representations and only set the new one */
-  state.att_status = (1 << ATT_QUAT_I);
+  orientationSetQuat_i(&state.ned_to_body_orientation,ned_to_body_quat);
 }
 
 /// Set vehicle body attitude from rotation matrix (int).
 static inline void stateSetNedToBodyRMat_i(struct Int32RMat* ned_to_body_rmat) {
-  RMAT_COPY(state.ned_to_body_rmat_i, *ned_to_body_rmat);
-  /* clear bits for all attitude representations and only set the new one */
-  state.att_status = (1 << ATT_RMAT_I);
+  orientationSetRMat_i(&state.ned_to_body_orientation,ned_to_body_rmat);
 }
 
 /// Set vehicle body attitude from euler angles (int).
 static inline void stateSetNedToBodyEulers_i(struct Int32Eulers* ned_to_body_eulers) {
-  EULERS_COPY(state.ned_to_body_eulers_i, *ned_to_body_eulers);
-  /* clear bits for all attitude representations and only set the new one */
-  state.att_status = (1 << ATT_EULER_I);
+  orientationSetEulers_i(&state.ned_to_body_orientation,ned_to_body_eulers);
 }
 
 /// Set vehicle body attitude from quaternion (float).
 static inline void stateSetNedToBodyQuat_f(struct FloatQuat* ned_to_body_quat) {
-  QUAT_COPY(state.ned_to_body_quat_f, *ned_to_body_quat);
-  /* clear bits for all attitude representations and only set the new one */
-  state.att_status = (1 << ATT_QUAT_F);
+  orientationSetQuat_f(&state.ned_to_body_orientation,ned_to_body_quat);
 }
 
 /// Set vehicle body attitude from rotation matrix (float).
 static inline void stateSetNedToBodyRMat_f(struct FloatRMat* ned_to_body_rmat) {
-  RMAT_COPY(state.ned_to_body_rmat_f, *ned_to_body_rmat);
-  /* clear bits for all attitude representations and only set the new one */
-  state.att_status = (1 << ATT_RMAT_F);
+  orientationSetRMat_f(&state.ned_to_body_orientation,ned_to_body_rmat);
 }
 
 /// Set vehicle body attitude from euler angles (float).
 static inline void stateSetNedToBodyEulers_f(struct FloatEulers* ned_to_body_eulers) {
-  EULERS_COPY(state.ned_to_body_eulers_f, *ned_to_body_eulers);
-  /* clear bits for all attitude representations and only set the new one */
-  state.att_status = (1 << ATT_EULER_F);
+  orientationSetEulers_f(&state.ned_to_body_orientation,ned_to_body_eulers);
 }
 
 /************************ Get functions ****************************/
 
 /// Get vehicle body attitude quaternion (int).
 static inline struct Int32Quat* stateGetNedToBodyQuat_i(void) {
-  if (!bit_is_set(state.att_status, ATT_QUAT_I))
-    stateCalcNedToBodyQuat_i();
-  return &state.ned_to_body_quat_i;
+  return orientationGetQuat_i(&state.ned_to_body_orientation);
 }
 
 /// Get vehicle body attitude rotation matrix (int).
 static inline struct Int32RMat* stateGetNedToBodyRMat_i(void) {
-  if (!bit_is_set(state.att_status, ATT_RMAT_I))
-    stateCalcNedToBodyRMat_i();
-  return &state.ned_to_body_rmat_i;
+  return orientationGetRMat_i(&state.ned_to_body_orientation);
 }
 
 /// Get vehicle body attitude euler angles (int).
 static inline struct Int32Eulers* stateGetNedToBodyEulers_i(void) {
-  if (!bit_is_set(state.att_status, ATT_EULER_I))
-    stateCalcNedToBodyEulers_i();
-  return &state.ned_to_body_eulers_i;
+  return orientationGetEulers_i(&state.ned_to_body_orientation);
 }
 
 /// Get vehicle body attitude quaternion (float).
 static inline struct FloatQuat* stateGetNedToBodyQuat_f(void) {
-  if (!bit_is_set(state.att_status, ATT_QUAT_F))
-    stateCalcNedToBodyQuat_f();
-  return &state.ned_to_body_quat_f;
+  return orientationGetQuat_f(&state.ned_to_body_orientation);
 }
 
 /// Get vehicle body attitude rotation matrix (float).
 static inline struct FloatRMat* stateGetNedToBodyRMat_f(void) {
-  if (!bit_is_set(state.att_status, ATT_RMAT_F))
-    stateCalcNedToBodyRMat_f();
-  return &state.ned_to_body_rmat_f;
+  return orientationGetRMat_f(&state.ned_to_body_orientation);
 }
 
 /// Get vehicle body attitude euler angles (float).
 static inline struct FloatEulers* stateGetNedToBodyEulers_f(void) {
-  if (!bit_is_set(state.att_status, ATT_EULER_F))
-    stateCalcNedToBodyEulers_f();
-  return &state.ned_to_body_eulers_f;
+  return orientationGetEulers_f(&state.ned_to_body_orientation);
 }
 /** @}*/
-
 
 
 /******************************************************************************
