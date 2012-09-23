@@ -21,8 +21,37 @@
 
 /**
  * @file pprz_orienation_conversion.h
- *   @brief Paparazzi generic orientation representation and conversion.
+ * Generic orientation representation and conversions.
  *
+ * This file contains the functions to automatically convert between
+ * the different representations. They should normally not be used
+ * directly and instead the stateGet/Set interfaces used.
+ * Also see the @ref math_orientation_representation "Generic Orientation Representation" page.
+ *
+ * @author Felix Ruess <felix.ruess@gmail.com>
+ */
+
+/**
+ * @addtogroup math
+ * @{
+ */
+
+/**
+ * This generic orientation representation consists of a struct, containing the 6 orientation
+ * representations, and a status variable. The bits in the status variable indicate  which
+ * representations of the orientation are up-to-date.
+ *
+ * When a getter is used to get a certain representation, the status bit is checked to see if
+ * the current value is already available in the desired orientation representation.
+ * If the desired representation is not available, it will be calculated.
+ *
+ * When a setter is used to set a representation, all status bits are cleared, and only the
+ * status bit for the set representation is set to one.
+ */
+
+/**
+ * @defgroup math_orientation_representation Generic Orientation Representations
+ * @{
  */
 
 #ifndef PPRZ_ORIENTATION_CONVERSION_H
@@ -34,18 +63,12 @@
 #include "std.h"
 
 
-/**
- * @defgroup math_orreps Orientation representation bit positions
- * @{
- */
-#define ORREP_QUAT_I  0
-#define ORREP_EULER_I 1
-#define ORREP_RMAT_I  2
-#define ORREP_QUAT_F  3
-#define ORREP_EULER_F 4
-#define ORREP_RMAT_F  5
-/**@}*/
-
+#define ORREP_QUAT_I  0  ///< Quaternion (BFP int)
+#define ORREP_EULER_I 1  ///< zyx Euler (BFP int)
+#define ORREP_RMAT_I  2  ///< Rotation Matrix (BFP int)
+#define ORREP_QUAT_F  3  ///< Quaternion (float)
+#define ORREP_EULER_F 4  ///< zyx Euler (float)
+#define ORREP_RMAT_F  5  ///< Rotation Matrix (float)
 
 /*
  * @brief Struct with euler/rmat/quaternion orientation representations in BFP int and float
@@ -110,13 +133,6 @@ static inline bool_t orienationCheckValid(struct OrientationReps* orientation) {
   return (orientation->status);
 }
 
-
-
-/**
- * @defgroup math_orrep_setters Orientation set functions
- * @{
- */
-
 /// Set vehicle body attitude from quaternion (int).
 static inline void orientationSetQuat_i(struct OrientationReps* orientation, struct Int32Quat* quat) {
   QUAT_COPY(orientation->quat_i, *quat);
@@ -158,16 +174,7 @@ static inline void orientationSetEulers_f(struct OrientationReps* orientation, s
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_EULER_F);
 }
-/** @}*/
 
-
-
-
-
-/**
- * @defgroup math_orrep_getters Orientation get functions
- * @{
- */
 
 /// Get vehicle body attitude quaternion (int).
 static inline struct Int32Quat* orientationGetQuat_i(struct OrientationReps* orientation) {
@@ -210,7 +217,7 @@ static inline struct FloatEulers* orientationGetEulers_f(struct OrientationReps*
     orientationCalcEulers_f(orientation);
   return &orientation->eulers_f;
 }
-/** @}*/
-
 
 #endif /* PPRZ_ORIENTATION_CONVERSION_H */
+/** @}*/
+/** @}*/

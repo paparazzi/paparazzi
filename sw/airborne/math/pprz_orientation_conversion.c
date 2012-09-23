@@ -21,6 +21,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file pprz_orientation_conversion.h
+ *
+ * Generic orientation representation and conversion.
+ *
+ * This is for example used in the @ref state_interface "state interface".
+ *
+ * @author Felix Ruess <felix.ruess@gmail.com>
+ */
+
+/**
+ * @addtogroup math
+ * @{
+ */
+/**
+ * @addtogroup math_orientation_representation Generic Orientation Representations
+ * @{
+ */
 #include "pprz_orientation_conversion.h"
 
 
@@ -191,3 +209,5 @@ void orientationCalcEulers_f(struct OrientationReps* orientation) {
   /* set bit to indicate this representation is computed */
   SetBit(orientation->status, ORREP_EULER_F);
 }
+/** @}*/
+/** @}*/
