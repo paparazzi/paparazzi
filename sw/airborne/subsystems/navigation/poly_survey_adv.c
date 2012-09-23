@@ -256,7 +256,7 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
   entry_center.y = seg_start.y - rad_vec.y;
 
   //fast climbing to desired altitude
-  NavVerticalAutoThrottleMode(100.0);
+  NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(psa_altitude, 0.0);
 
   psa_stage = ENTRY;
@@ -271,6 +271,9 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
 **/
 bool_t poly_survey_adv(void)
 {
+  NavVerticalAutoThrottleMode(0.0);
+  NavVerticalAltitudeMode(psa_altitude, 0.0);
+
   //entry circle around entry-center until the desired altitude is reached
   if (psa_stage == ENTRY) {
     nav_circle_XY(entry_center.x, entry_center.y, -psa_min_rad);
@@ -278,7 +281,6 @@ bool_t poly_survey_adv(void)
         && nav_approaching_xy(seg_start.x, seg_start.y, last_x, last_y, CARROT)
         && fabs(estimator_z - psa_altitude) <= 20) {
       psa_stage = SEG;
-      NavVerticalAutoThrottleMode(0.0);
       nav_init_stage();
 #ifdef DIGITAL_CAM
       dc_survey(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
