@@ -1,0 +1,40 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="170" ground_alt="68" lat0="52.26483" lon0="9.99394" max_dist_from_home="700" name="Gross Lobke Photo" qfu="0" security_height="60">
+
+  <header>
+#include "subsystems/navigation/bomb.h"
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/datalink/datalink.h"
+#include "generated/airframe.h"
+<!--
+#ifdef DC_AUTOSHOOT_QUARTERSEC_PERIOD
+#include "modules/digital_cam/dc.h"
+#define LINE_START_FUNCTION dc_Survey(dc_gps_dist);
+#define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+#endif
+-->
+  </header>
+
+  <waypoints>
+    <waypoint name="HOME" x="15.0" y="5.0"/>
+    <waypoint name="CR" x="0.0" y="200.0"/>
+    <waypoint name="S1" x="-231" y="-161"/>
+    <waypoint name="S2" x="-161" y="231"/>
+    <waypoint name="S3" x="231"  y="161"/>
+    <waypoint name="S4" x="161"  y="-231"/>
+  </waypoints>
+  
+  <blocks>
+    <block name="wait" strip_button="wait" strip_icon="home.png" group="home">
+      <circle radius="-nav_radius" wp="CR"/>
+    </block>
+
+    <block group="survey" name="SurveyAdvanced" strip_button="SurveyAdvanced" strip_icon="survey.png">
+      <call fun="PhotogrammetryCalculatorPolygonSurveyADV(WP_S1, 4)"/>
+      <call fun="poly_survey_adv()"/>
+      <deroute block="wait"/>
+    </block>
+  </blocks>
+
+</flight_plan>
