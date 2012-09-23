@@ -351,7 +351,7 @@ struct State {
   /** @}*/
 
 
-  /** @addtogroup state_attitude
+  /** @defgroup state_attitude
    *  @{ */
   struct OrientationReps ned_to_body_orientation;
   /** @}*/
