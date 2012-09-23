@@ -55,6 +55,7 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <glib.h>
+#include <unistd.h>
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
@@ -66,7 +67,7 @@
 
 #define TIMEOUT_PERIOD 200
 
-static struct gps_data_t *gpsdata;
+struct gps_data_t *gpsdata;
 
 static void update_gps(struct gps_data_t *gpsdata,
                        char *message,
@@ -116,38 +117,48 @@ static void update_gps(struct gps_data_t *gpsdata,
 
 static gboolean gps_periodic(gpointer data __attribute__ ((unused)))
 {
-    int ret = gps_waiting(gpsdata);
-
-    if (ret == -1)
-    {
-        perror("socket error\n");
-        exit(2);
-    }
-    else if (ret) gps_poll(gpsdata);
-
-    return 1;
+        if (gps_waiting (gpsdata, 500)) {
+            if (gps_read (gpsdata) == -1) {
+		    perror("gps read error");
+		    //exit 2;
+		    //ret = 2;
+		    //running = false;
+	    } else {
+		    update_gps(gpsdata, NULL, 0);
+	    }
+	}
 }
 
 int main(int argc, char *argv[])
 {
     char *server = NULL, *port = DEFAULT_GPSD_PORT;
+    bool running = true;
+    int ret = 0;
     GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
+    
 
-    gpsdata = gps_open(server, port);
+    gpsdata = malloc(sizeof(struct gps_data_t));
 
-    if (!gpsdata) perror("error connecting to gpsd");
-
-    gps_set_raw_hook(gpsdata, update_gps);
+    ret = gps_open(NULL, port, gpsdata);
+    if (ret != 0) {
+	    perror("error connecting to gpsd");
+	    return 1;
+    }
 
     gps_stream(gpsdata, WATCH_ENABLE, NULL);
-  
+    
     IvyInit ("GPSd2Ivy", "GPSd2Ivy READY", NULL, NULL, NULL, NULL);
-    IvyStart("127.255.255.255");
-  
+    IvyStart("224.255.255.255:2010");
+
     g_timeout_add(TIMEOUT_PERIOD, gps_periodic, NULL);
-  
+
     g_main_loop_run(ml);
 
-    return 0;
+    (void) gps_stream(gpsdata, WATCH_DISABLE, NULL);
+    (void) gps_close (gpsdata);
+
+    free(gpsdata);
+
+    return ret;
 }
 
