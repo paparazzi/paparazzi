@@ -237,9 +237,9 @@ void v_ctl_climb_loop( void )
 
   // Actual Acceleration from IMU: attempt to reconstruct the actual kinematic acceleration
 #ifndef SITL
-  struct FloatVect3 accel_float = {0,0,0};
-  ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-  float vdot = ( accel_float.x / 9.81f - sinf(stateGetNedToBodyEulers_f()->theta) );
+  struct Int32Vect3 accel_meas_body;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+  float vdot = ACCEL_FLOAT_OF_BFP(accel_meas_body.x) / 9.81f - sinf(stateGetNedToBodyEulers_f()->theta);
 #else
   float vdot = 0;
 #endif
