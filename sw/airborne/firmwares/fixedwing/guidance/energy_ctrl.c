@@ -236,9 +236,9 @@ void v_ctl_climb_loop( void )
 
   // Actual Acceleration from IMU: attempt to reconstruct the actual kinematic acceleration
 #ifndef SITL
-  struct FloatVect3 accel_float = {0,0,0};
-  ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-  float vdot = ( accel_float.x / 9.81f - sin(ahrs_float.ltp_to_imu_euler.theta) );
+  struct Int32Vect3 accel_meas_body;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+  float vdot = ACCEL_FLOAT_OF_BFP(accel_meas_body.x) / 9.81f - sinf(ahrs_float.ltp_to_imu_euler.theta);
 #else
   float vdot = 0;
 #endif
@@ -259,8 +259,8 @@ void v_ctl_climb_loop( void )
   if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB))
   {
     v_ctl_auto_throttle_nominal_cruise_throttle +=
-		  v_ctl_auto_throttle_of_airspeed_igain * speed_error * dt
-		+ en_tot_err * v_ctl_energy_total_igain * dt;
+        v_ctl_auto_throttle_of_airspeed_igain * speed_error * dt
+      + en_tot_err * v_ctl_energy_total_igain * dt;
     if (v_ctl_auto_throttle_nominal_cruise_throttle < 0.0f) v_ctl_auto_throttle_nominal_cruise_throttle = 0.0f;
     else if (v_ctl_auto_throttle_nominal_cruise_throttle > 1.0f) v_ctl_auto_throttle_nominal_cruise_throttle = 1.0f;
   }
