@@ -17,8 +17,6 @@
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
       <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="USE_I2C2"/>
-      <define name="USE_0"/>
-      <define name="USE_1"/>
 
       <define name="USE_AHRS_GPS_ACCELERATIONS"/>
     </target>
