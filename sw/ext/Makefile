@@ -48,7 +48,7 @@ endif
 all: update_submodules libopencm3.module luftboot.module
 
 update_submodules:
-	cd $(PAPARAZZI_SRC) && git submodule update --init
+	cd $(PAPARAZZI_SRC) && git submodule update --quiet --init
 
 libopencm3.module:
 	make -C libopencm3 lib PREFIX=$(PREFIX)
