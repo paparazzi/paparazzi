@@ -68,7 +68,12 @@ OCAMLRUN=$(shell which ocamlrun)
 BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
 
 
-all: conf commands static
+all: print_build_version conf commands static
+
+print_build_version:
+	@echo "------------------------------------------------------------"
+	@echo "Building Paparazzi version" $(shell ./paparazzi_version)
+	@echo "------------------------------------------------------------"
 
 static: lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib ext
 

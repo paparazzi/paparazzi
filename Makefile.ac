@@ -61,6 +61,10 @@ ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
 endif
 
+print_version:
+	@echo "-----------------------------------------------------------------------"
+	@echo "Paparazzi version" $(shell ./paparazzi_version)
+	@echo "-----------------------------------------------------------------------"
 
 
 all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
@@ -131,7 +135,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 	@echo BUILD $(AIRCRAFT), TARGET $*
 	+$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
-%.compile: %.ac_h
+%.compile: %.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
 
 %.wr_fuses: %.compile
