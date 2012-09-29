@@ -48,18 +48,20 @@ endif
 all: update_submodules libopencm3.module luftboot.module
 
 update_submodules:
-	cd $(PAPARAZZI_SRC) && git submodule update --quiet --init
+	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
+		cd $(PAPARAZZI_SRC) && git submodule update --quiet --init; \
+	fi
 
 libopencm3.module:
-	make -C libopencm3 lib PREFIX=$(PREFIX)
+	$(Q)make -C libopencm3 lib PREFIX=$(PREFIX)
 
 luftboot.module: libopencm3.module
-	make -C luftboot/src all LIBOPENCM3=../../libopencm3
+	$(Q)make -C luftboot/src all LIBOPENCM3=../../libopencm3
 
 clean:
-	if [ -f libopencm3/Makefile ]; then \
+	$(Q)if [ -f libopencm3/Makefile ]; then \
 		make -C $(EXT_DIR)/libopencm3 clean; \
 	fi
-	if [ -f luftboot/src/Makefile ]; then \
+	$(Q)if [ -f luftboot/src/Makefile ]; then \
 		make -C luftboot/src clean; \
 	fi
