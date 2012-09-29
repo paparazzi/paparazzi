@@ -156,6 +156,7 @@ gtk_papget_led_editor.ml : widgets.glade
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
 
+.PHONY: all opt clean
 
 #
 # Dependencies
