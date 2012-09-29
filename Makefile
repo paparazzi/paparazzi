@@ -84,7 +84,7 @@ conf/%.xml :conf/%.xml.example
 
 conf/maps.xml: conf/maps.xml.example FORCE
 	-cd data/maps; $(MAKE)
-	if test ! -e $@; then cp $< $@; fi
+	$(Q)if test ! -e $@; then cp $< $@; fi
 
 FORCE:
 
@@ -282,3 +282,4 @@ run_tests:
 
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
+.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible doxygen run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml

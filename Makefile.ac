@@ -182,3 +182,5 @@ hard_ac ac: ac_h fbw ap
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
+
+.PHONY: all clean_ac print_version
