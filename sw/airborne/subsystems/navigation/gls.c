@@ -147,7 +147,7 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
   float start_alt = WaypointAlt(_tod);
   float diff_alt = WaypointAlt(_td) - start_alt;
   float alt = start_alt + nav_final_progress * diff_alt;
-  Bound(alt, WaypointAlt(_td), start_alt +(pre_climb/(v_ctl_altitude_pgain))) // to prevent climbing before intercept
+  Bound(alt, WaypointAlt(_td), start_alt +(pre_climb/(-v_ctl_altitude_pgain))) // to prevent climbing before intercept
 
 
 
