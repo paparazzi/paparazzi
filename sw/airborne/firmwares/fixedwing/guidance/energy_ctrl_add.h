@@ -38,7 +38,6 @@ extern float v_ctl_altitude_pgain;
 extern float v_ctl_airspeed_pgain;
 
 extern float v_ctl_auto_airspeed_setpoint; ///< in meters per second
-extern float v_ctl_auto_airspeed_controlled; ///< in meters per second
 
 extern float v_ctl_max_climb;
 extern float v_ctl_max_acceleration;
@@ -63,7 +62,6 @@ extern float v_ctl_energy_total_igain;
 extern float v_ctl_energy_diff_pgain;
 extern float v_ctl_energy_diff_igain;
 
-extern float v_ctl_auto_groundspeed_setpoint;
 extern float v_ctl_auto_groundspeed_pgain;
 extern float v_ctl_auto_groundspeed_igain;
 extern float v_ctl_auto_groundspeed_sum_err;
