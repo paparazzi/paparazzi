@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef PPZUAVIMU_H
-#define PPZUAVIMU_H
+#ifndef DROTECIMU_H
+#define DROTECIMU_H
 
 #include "std.h"
 #include "subsystems/imu.h"
@@ -54,4 +54,4 @@ extern void drotec_subsystem_event( void );
 extern void drotec_subsystem_downlink_raw( void );
 
 
-#endif // PPZUAVIMU_H
+#endif // DROTECIMU_H

@@ -77,7 +77,7 @@ void imu_impl_init(void)
   // -switch to gyroX clock
   drotec_mpu60x0.buf[0] = MPU60X0_REG_PWR_MGMT_1;
   drotec_mpu60x0.buf[1] = 0x01;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
@@ -97,28 +97,28 @@ void imu_impl_init(void)
 #endif
   drotec_mpu60x0.buf[0] = MPU60X0_REG_CONFIG;
   drotec_mpu60x0.buf[1] = (2 << 3) | (3 << 0);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_SMPLRT_DIV
   // -100Hz output = 1kHz / (9 + 1)
   drotec_mpu60x0.buf[0] = MPU60X0_REG_SMPLRT_DIV;
   drotec_mpu60x0.buf[1] = 9;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_GYRO_CONFIG
   // -2000deg/sec
   drotec_mpu60x0.buf[0] = MPU60X0_REG_GYRO_CONFIG;
   drotec_mpu60x0.buf[1] = (3<<3);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_ACCEL_CONFIG
   // 16g, no HPFL
   drotec_mpu60x0.buf[0] = MPU60X0_REG_ACCEL_CONFIG;
   drotec_mpu60x0.buf[1] = (3<<3);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
 
@@ -135,7 +135,7 @@ void imu_impl_init(void)
   drotec_mpu60x0.buf[0] = MPU60X0_REG_USER_CTRL;
   drotec_mpu60x0.buf[1] = ((1 << 5) |		// I2C_MST_EN: Enable Aux I2C Master Mode
 				(0 << 1) );		// Trigger a I2C_MST_RESET
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
   // Enable the aux i2c
@@ -145,7 +145,7 @@ void imu_impl_init(void)
 				(0 << 5) | 		// no slave 3 FIFO
 				(0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
 				(8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
     
@@ -153,70 +153,70 @@ void imu_impl_init(void)
   //step1
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_ADDR;
   drotec_mpu60x0.buf[1] = (HMC58XX_ADDR >> 1);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_REG;
   drotec_mpu60x0.buf[1] = (HMC58XX_REG_CFGA);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_DO;
   drotec_mpu60x0.buf[1] = (HMC58XX_CRA);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
   
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_CTRL;
   drotec_mpu60x0.buf[1] =	((1 << 7) |		// Slave 4 enable
 				(0 << 6) |		// Byte Swap
 				(0 << 0) );		// Full Speed
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
 //step2
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_ADDR;
   drotec_mpu60x0.buf[1] = (HMC58XX_ADDR >> 1);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_REG;
   drotec_mpu60x0.buf[1] = (HMC58XX_REG_CFGB);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_DO;
   drotec_mpu60x0.buf[1] = (HMC58XX_CRB);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_CTRL;
   drotec_mpu60x0.buf[1] =	((1 << 7) |		// Slave 4 enable
 				(0 << 6) |		// Byte Swap
 				(0 << 0) );		// Full Speed
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
 //step3
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_ADDR;
   drotec_mpu60x0.buf[1] = (HMC58XX_ADDR >> 1);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_REG;
   drotec_mpu60x0.buf[1] = (HMC58XX_REG_MODE);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_DO;
   drotec_mpu60x0.buf[1] = (HMC58XX_MD);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV4_CTRL;
   drotec_mpu60x0.buf[1] =	((1 << 7) |		// Slave 4 enable
 				(0 << 6) |		// Byte Swap
 				(0 << 0) );		// Full Speed
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
 
   // HMC5883 Reading:
@@ -225,19 +225,19 @@ void imu_impl_init(void)
 
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV0_ADDR;
   drotec_mpu60x0.buf[1] = ((HMC58XX_ADDR >> 1) | MPU60X0_SPI_READ);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 	
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV0_REG;
   drotec_mpu60x0.buf[1] = HMC58XX_REG_DATXM;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);	
 
   drotec_mpu60x0.buf[0] = MPU60X0_REG_I2C_SLV0_CTRL;
   drotec_mpu60x0.buf[1] =	((1 << 7) |		// Slave 0 enable
 				(0 << 6) |		// Byte Swap
 				(6 << 0) );		// Read 6 bytes
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE,&drotec_mpu60x0);
     while(drotec_mpu60x0.status == I2CTransPending);
   // end conf mpu60x0 slave i2c magnetometer
 #endif // READ_MAG
@@ -252,7 +252,7 @@ void imu_periodic( void )
   drotec_mpu60x0.len_r = 21;
   drotec_mpu60x0.len_w = 1;
   drotec_mpu60x0.buf[0] = MPU60X0_REG_INT_STATUS;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &drotec_mpu60x0);
+  i2c_submit(&DROTECIMU_I2C_DEVICE, &drotec_mpu60x0);
 }
 
 void drotec_subsystem_downlink_raw( void )
@@ -291,7 +291,7 @@ void drotec_subsystem_event( void )
     y = (int16_t) ((drotec_mpu60x0.buf[2+MPU_OFFSET_MAG] << 8) | drotec_mpu60x0.buf[3+MPU_OFFSET_MAG]);
     z = (int16_t) ((drotec_mpu60x0.buf[4+MPU_OFFSET_MAG] << 8) | drotec_mpu60x0.buf[5+MPU_OFFSET_MAG]);
 	
-    VECT3_ASSIGN(imu.mag_unscaled, x, y, z);
+    VECT3_ASSIGN(imu.mag_unscaled, x, -y, -z);
 #endif
 
     // Is this is new data
