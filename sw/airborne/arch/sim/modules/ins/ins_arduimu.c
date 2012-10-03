@@ -4,7 +4,7 @@
 
 
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 
 // Arduimu empty implementation
 #include "modules/ins/ins_arduimu.h"
@@ -25,8 +25,12 @@ extern float sim_theta;
 void ArduIMU_init( void ) {}
 void ArduIMU_periodic( void ) {
   // Feed directly the estimator
-  estimator_phi = sim_phi - ins_roll_neutral;
-  estimator_theta = sim_theta - ins_pitch_neutral;
+  struct FloatEulers att = {
+    sim_phi - ins_roll_neutral,
+    sim_theta - ins_pitch_neutral,
+    0.
+  };
+  stateSetNedToBodyEulers_f(&att);
 }
 void ArduIMU_periodicGPS( void ) {}
 void IMU_Daten_verarbeiten( void ) {}

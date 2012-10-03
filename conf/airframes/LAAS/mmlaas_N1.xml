@@ -6,12 +6,10 @@
     <target name="sim" 			board="pc">
       <define name="AGR_CLIMB" />
       <define name="LOITER_TRIM" />
-      <define name="ALT_KALMAN" />
     </target>
     <target name="ap" 			board="tiny_0.99">
       <define name="AGR_CLIMB" />
       <define name="LOITER_TRIM" />
-      <define name="ALT_KALMAN" />
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -26,7 +24,7 @@
     <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
-
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">
@@ -180,7 +178,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
     <define name="NAV_GROUND_SPEED_PGAIN" value="0.015"/>
     <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>

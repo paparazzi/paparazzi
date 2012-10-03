@@ -40,7 +40,7 @@ ok($server->alive(), "The server process started successfully");
 
 # Start the link process
 my $link_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/link";
-my @link_options = qw(-d /dev/tty.usbserial-000013FD -s 57600 -transport xbee -xbee_addr 123);
+my @link_options = qw(-d /dev/ttyUSB0 -s 57600 -transport xbee -xbee_addr 123);
 sleep 2; # The service should die in this time if there's an error
 my $link = Proc::Background->new($link_command, @link_options);
 ok($link->alive(), "The link process started successfully");

@@ -20,7 +20,7 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 #include "subsystems/radio_control.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
@@ -87,7 +87,7 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 
 void stabilization_attitude_enter(void) {
 
-  stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
@@ -120,7 +120,8 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND(stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
-  EULERS_DIFF(att_err, att_ref_scaled, ahrs.ltp_to_body_euler);
+  struct Int32Eulers* ltp_to_body_euler = stateGetNedToBodyEulers_i();
+  EULERS_DIFF(att_err, att_ref_scaled, (*ltp_to_body_euler));
   INT32_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -138,7 +139,8 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, rate_ref_scaled, ahrs.body_rate);
+  struct Int32Rates* body_rate = stateGetBodyRates_i();
+  RATES_DIFF(rate_err, rate_ref_scaled, (*body_rate));
 
   /* PID                  */
   stabilization_att_fb_cmd[COMMAND_ROLL] =

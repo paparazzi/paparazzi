@@ -1,3 +1,9 @@
 [submodule "sw/ext/libopencm3"]
 	path = sw/ext/libopencm3
 	url = git://libopencm3.git.sourceforge.net/gitroot/libopencm3/libopencm3
+[submodule "sw/ext/stm32loader"]
+	path = sw/ext/stm32loader
+	url = https://github.com/jsnyder/stm32loader.git
+[submodule "sw/ext/luftboot"]
+	path = sw/ext/luftboot
+	url = https://github.com/paparazzi/luftboot.git

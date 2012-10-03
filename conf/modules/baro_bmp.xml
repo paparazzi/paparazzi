@@ -18,7 +18,7 @@
   <init fun="baro_bmp_init()"/>
   <periodic fun="baro_bmp_periodic()" freq="8"/>
   <event fun="baro_bmp_event()"/>
-  <makefile target="ap">
+  <makefile>
     <file name="baro_bmp.c"/>
   </makefile>
 </module>

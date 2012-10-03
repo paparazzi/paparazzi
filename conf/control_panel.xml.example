@@ -121,24 +121,6 @@
       <program name="Server"/>
     </session>
 
-    <session name="Booz simulation : AHRS">
-
-     <program name="Messages">
-        <arg flag="-c" constant="common_telemetry"/>
-     </program>
-
-    <program name="Real-time Plotter">
-        <arg flag="-t" constant="ahrs : covariances"/>
-        <arg flag="-u" constant="0.1"/>
-        <arg flag="-c" constant="'*:common_telemetry:ATTITUDE_EULER:phi'"/>
-        <arg flag="-c" constant="'*:common_telemetry:ATTITUDE_EULER:theta'"/>
-        <arg flag="-c" constant="'*:common_telemetry:ATTITUDE_EULER:psi'"/>
-    </program>
-
-    </session>
-
-
-
   </section>
 
 </control_panel>

@@ -15,7 +15,7 @@ ukf_cholesky_decomposition(double *A, unsigned n, double *sigma);
 
 /*
  * Solve the linear system AX^t=B^t given the cholesky decomposition of A
- * @param A: the cholesky decomposition of A, as given by the 
+ * @param A: the cholesky decomposition of A, as given by the
  * routine ukf_cholesky_decomposition
  * @param n: the size of the problem
  * @param sigma: the vector of diagonal elements of A
@@ -23,7 +23,7 @@ ukf_cholesky_decomposition(double *A, unsigned n, double *sigma);
  * @param m: the number of simultaneou systems to solve
  * @param X: a matrix holding the result
  */
- 
+
 void
 ukf_cholesky_solve(double *A, unsigned n, double *sigma, double *B, unsigned m, double *X);
 
@@ -33,7 +33,7 @@ ukf_cholesky_solve(double *A, unsigned n, double *sigma, double *B, unsigned m, 
  * Lower triangle of the inverse of the cholesky decomposition.
  * On exit, the lower triangle of A is overwritten with the lower
  * triangle of the inverse.
- * @param A: the cholesky decomposition of A, as given by the 
+ * @param A: the cholesky decomposition of A, as given by the
  * routine ukf_cholesky_decomposition
  * @param n: the size of the problem
  * @param sigma: the vector of diagonal elements of A

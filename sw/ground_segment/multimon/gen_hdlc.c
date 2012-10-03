@@ -206,7 +206,7 @@ int gen_hdlc(signed short *buf, int buflen, struct gen_params *p, struct gen_sta
       }
       if (!(s->s.hdlc.data[s->s.hdlc.ch_idx] & s->s.hdlc.bitmask))
 	s->s.hdlc.lastb = !s->s.hdlc.lastb;
-      s->s.hdlc.phinc = (s->s.hdlc.lastb) ? 
+      s->s.hdlc.phinc = (s->s.hdlc.lastb) ?
 	0x10000*2200/hdlc_sample_rate : 0x10000*1200/hdlc_sample_rate;
     }
     *buf += (p->ampl * COS(s->s.hdlc.ph)) >> 15;

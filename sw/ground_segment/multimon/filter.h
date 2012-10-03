@@ -1,7 +1,7 @@
 /*
  *      filter.h -- optimized filter routines
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@ extern inline unsigned int hweight16(unsigned short w)
 extern inline unsigned int hweight8(unsigned char w)
         __attribute__ ((unused));
 
-extern inline unsigned int hweight32(unsigned int w) 
+extern inline unsigned int hweight32(unsigned int w)
 {
         unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
         res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
@@ -73,7 +73,7 @@ extern inline unsigned int gcd(unsigned int x, unsigned int y)
         for (;;) {
                 if (!x)
                         return y;
-                if (!y) 
+                if (!y)
                         return x;
                 if (x > y)
                         x %= y;
@@ -101,7 +101,7 @@ extern inline float mac(const float *a, const float *b, unsigned int size)
 }
 #endif /* __HAVE_ARCH_MAC */
 
-extern inline float fsqr(float f) 
+extern inline float fsqr(float f)
 {
 	return f*f;
 }

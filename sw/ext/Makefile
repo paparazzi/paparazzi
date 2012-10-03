@@ -30,14 +30,14 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 PREFIX = arm-none-eabi
 
 #
-# if we can find arm-none-eabi-gcc in the path, overwrite PREFIX with explicit path
+# if we can't find arm-none-eabi-gcc in the path, overwrite PREFIX with explicit path
 #
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-# not found in PATH, check paparazzi toolchains
+# not found in PATH, check paparazzi toolchain
 
-	TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib /opt/paparazzi/stm32 -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+	TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
 	ifneq ($(TOOLCHAIN),)
 		TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 		PREFIX = $(TOOLCHAIN_DIR)/bin/arm-none-eabi
@@ -45,18 +45,23 @@ ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 endif
 
 
-all: libopencm3.module
+all: update_submodules libopencm3.module luftboot.module
+
+update_submodules:
+	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
+		cd $(PAPARAZZI_SRC) && git submodule update --quiet --init; \
+	fi
 
 libopencm3.module:
-	$(Q)if [ ! -f $(PAPARAZZI_SRC)/libopencm3/Makefile ]; then \
-		cd $(PAPARAZZI_SRC); \
-		git submodule init; \
-		git submodule update; \
-		cd -; \
-	fi
-	make -C libopencm3 lib PREFIX=$(PREFIX)
+	$(Q)make -C libopencm3 lib PREFIX=$(PREFIX)
+
+luftboot.module: libopencm3.module
+	$(Q)make -C luftboot/src all LIBOPENCM3=../../libopencm3
 
 clean:
-	if [ -f libopencm3/Makefile ]; then \
+	$(Q)if [ -f libopencm3/Makefile ]; then \
 		make -C $(EXT_DIR)/libopencm3 clean; \
+	fi
+	$(Q)if [ -f luftboot/src/Makefile ]; then \
+		make -C luftboot/src clean; \
 	fi

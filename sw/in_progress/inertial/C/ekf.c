@@ -9,7 +9,7 @@
 struct ekf_filter {
   unsigned state_dim;
   unsigned measure_dim;
-  
+
   /* state                           */
   double* X;
   /* state covariance matrix         */
@@ -36,7 +36,7 @@ struct ekf_filter {
   double* tmp1;
   double* tmp2;
   double* tmp3;
-  
+
 };
 
 
@@ -46,7 +46,7 @@ struct ekf_filter* ekf_filter_new(unsigned state_dim,
 				  double* R,
 				  filter_function ffun,
 				  measure_function mfun) {
-  
+
   struct ekf_filter* ekf = malloc(sizeof(struct ekf_filter));
   ekf->state_dim = state_dim;
   ekf->measure_dim = measure_dim;
@@ -63,7 +63,7 @@ struct ekf_filter* ekf_filter_new(unsigned state_dim,
   ekf->tmp3 = malloc( n * sizeof(double));
 
   ekf->Q = malloc( n * sizeof(double));
-  memcpy(ekf->Q, Q, n * sizeof(double)); 
+  memcpy(ekf->Q, Q, n * sizeof(double));
 
   n = ekf->measure_dim * ekf->measure_dim;
   ekf->R = malloc( n * sizeof(double));
@@ -74,7 +74,7 @@ struct ekf_filter* ekf_filter_new(unsigned state_dim,
 
   n = ekf->measure_dim * ekf->state_dim;
   ekf->H = malloc( n * sizeof(double));
-  
+
   n = ekf->measure_dim * ekf->measure_dim;
   ekf->E = malloc( n * sizeof(double));
 
@@ -90,8 +90,8 @@ struct ekf_filter* ekf_filter_new(unsigned state_dim,
 
 
 void ekf_filter_reset(struct ekf_filter *filter, double *x0, double *P0) {
-  memcpy(filter->X, x0, filter->state_dim * sizeof(double)); 
-  memcpy(filter->P, P0, filter->state_dim * filter->state_dim * sizeof(double)); 
+  memcpy(filter->X, x0, filter->state_dim * sizeof(double));
+  memcpy(filter->P, P0, filter->state_dim * filter->state_dim * sizeof(double));
 }
 
 void
@@ -103,7 +103,7 @@ ekf_filter_get_state(struct ekf_filter* filter, double *X, double* P){
 void ekf_filter_predict(struct ekf_filter* filter, double *u) {
 
   /* prediction :
-     
+
      X += Xdot * dt
      Pdot = F * P * F' + Q   ( or Pdot = F*P + P*F' + Q  for continuous form )
      P += Pdot * dt
@@ -115,12 +115,12 @@ void ekf_filter_predict(struct ekf_filter* filter, double *u) {
   /* fetch dt, Xdot and F */
   filter->ffun(u, filter->X, &dt, filter->Xdot, filter->F);
   /*  X = X + Xdot * dt */
-  mat_add_scal_mult(n, 1, filter->X, filter->X, dt, filter->Xdot); 
+  mat_add_scal_mult(n, 1, filter->X, filter->X, dt, filter->Xdot);
 
 #ifdef EKF_UPDATE_CONTINUOUS
-  /*  
+  /*
       continuous update
-      Pdot = F * P + P * F' + Q 
+      Pdot = F * P + P * F' + Q
   */
   mat_mult(n, n, n, filter->tmp1, filter->F, filter->P);
   mat_transpose(n, n, filter->tmp2, filter->F);
@@ -129,9 +129,9 @@ void ekf_filter_predict(struct ekf_filter* filter, double *u) {
   mat_add(n, n, filter->Pdot, filter->Pdot, filter->Q);
 #endif
 #ifdef EKF_UPDATE_DISCRETE
-  /*  
+  /*
       discrete update
-      Pdot = F * P * F' + Q 
+      Pdot = F * P * F' + Q
   */
   mat_mult(n, n, n, filter->tmp1, filter->F, filter->P);
   mat_transpose(n, n, filter->tmp2, filter->F);
@@ -140,7 +140,7 @@ void ekf_filter_predict(struct ekf_filter* filter, double *u) {
 #endif
 
   /*  P = P + Pdot * dt */
-  mat_add_scal_mult(n, n, filter->P, filter->P, dt, filter->Pdot); 
+  mat_add_scal_mult(n, n, filter->P, filter->P, dt, filter->Pdot);
 
 }
 
@@ -177,6 +177,6 @@ void ekf_filter_update(struct ekf_filter* filter, double *y) {
   mat_sub(n, n, filter->P, filter->P, filter->tmp2);
 
   /*  X = X + err * K */
-  mat_add_scal_mult(n, m, filter->X, filter->X, err, filter->K); 
+  mat_add_scal_mult(n, m, filter->X, filter->X, err, filter->K);
 
 }

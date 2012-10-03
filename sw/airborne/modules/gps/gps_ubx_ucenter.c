@@ -379,7 +379,11 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 4);
     break;
   case 11:
+#if defined FIRMWARE && FIRMWARE == ROTORCRAFT
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 1);
+#else
     gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 8);
+#endif
     break;
   case 12:
     // Disable UTM on old Lea4P

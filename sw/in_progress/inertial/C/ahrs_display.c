@@ -55,7 +55,7 @@ GtkWidget* ahrs_display(struct ahrs_data* ad) {
   frame = gtk_frame_new ("angle");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
-  
+
   databox = gtk_databox_new();
   //  databox = gtk_databox_create_box_with_scrollbars_and_rulers();
   gfloat* f_ephi = g_new0 (gfloat, ad->nb_samples);
@@ -93,7 +93,7 @@ GtkWidget* ahrs_display(struct ahrs_data* ad) {
   frame = gtk_frame_new ("biase");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
-  
+
   databox = gtk_databox_new();
   gfloat* f_ebias_p = g_new0 (gfloat, ad->nb_samples);
   gfloat* f_ebias_q = g_new0 (gfloat, ad->nb_samples);
@@ -118,7 +118,7 @@ GtkWidget* ahrs_display(struct ahrs_data* ad) {
   frame = gtk_frame_new ("covariance");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
-  
+
   databox = gtk_databox_new();
   gfloat* f_p11 = g_new0 (gfloat, ad->nb_samples);
   gfloat* f_p22 = g_new0 (gfloat, ad->nb_samples);

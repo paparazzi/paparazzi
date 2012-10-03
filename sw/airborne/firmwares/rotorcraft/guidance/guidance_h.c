@@ -30,9 +30,9 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/ins.h"
 #include "firmwares/rotorcraft/navigation.h"
+
+#include "state.h"
 
 #include "generated/airframe.h"
 
@@ -209,7 +209,7 @@ void guidance_h_run(bool_t  in_flight) {
         stab_att_sp_euler.phi = nav_roll;
         stab_att_sp_euler.theta = nav_pitch;
         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
-        stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+        stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
         INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
         INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
@@ -266,12 +266,12 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
 static inline void guidance_h_traj_run(bool_t in_flight) {
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, ins_ltp_pos);
+  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, ins_ltp_speed);
+  VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, *stateGetSpeedNed_i());
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -300,8 +300,9 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, ahrs.ltp_to_body_euler.psi);
-  PPRZ_ITRIG_COS(c_psi, ahrs.ltp_to_body_euler.psi);
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  PPRZ_ITRIG_SIN(s_psi, psi);
+  PPRZ_ITRIG_COS(c_psi, psi);
 
   // Restore angle ref resolution after rotation
   guidance_h_command_body.phi =
@@ -326,9 +327,9 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
 static inline void guidance_h_hover_enter(void) {
 
-  VECT2_COPY(guidance_h_pos_sp, ins_ltp_pos);
+  VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
-  guidance_h_rc_sp.psi = ahrs.ltp_to_body_euler.psi;
+  guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
@@ -340,13 +341,13 @@ static inline void guidance_h_nav_enter(void) {
   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
   struct Int32Vect2 pos,speed,zero;
   INT_VECT2_ZERO(zero);
-  VECT2_COPY(pos, ins_ltp_pos);
-  VECT2_COPY(speed, ins_ltp_speed);
+  VECT2_COPY(pos, *stateGetPositionNed_i());
+  VECT2_COPY(speed, *stateGetSpeedNed_i());
   GuidanceHSetRef(pos, speed, zero);
 
   /* reset psi reference, set psi setpoint to current psi */
   reset_psi_ref_from_body();
-  nav_heading = ahrs.ltp_to_body_euler.psi;
+  nav_heading = stateGetNedToBodyEulers_i()->psi;
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 

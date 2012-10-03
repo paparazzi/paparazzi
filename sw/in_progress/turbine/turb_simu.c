@@ -1,6 +1,6 @@
 /*
  * turbine message simulator $Id: turb_simu.c 2145 2007-12-16 00:10:07Z mmm $
- *  
+ *
  * Copyright (C) 2009 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,10 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
- 
+
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -111,44 +111,44 @@ int main (void)
         return( -1 );
     }
 
-    if (tcgetattr(serial_fd, &orig_termios)) 
+    if (tcgetattr(serial_fd, &orig_termios))
     {
         perror("getting modem serial device attr");
         return( -1 );
     }
 
     cur_termios = orig_termios;
-    
+
     /* input modes */
     cur_termios.c_iflag &= ~(IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
                            |ICRNL |IXON|IXANY|IXOFF|IMAXBEL);
-    
+
     /* IGNCR does not pass 0x0D */
     cur_termios.c_iflag |= BRKINT;
-    
+
     /* output_flags */
     cur_termios.c_oflag  &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
-    
+
     /* control modes */
     cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
     cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
-    
+
     /* local modes */
     cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
     cur_termios.c_lflag |= NOFLSH;
-    
+
     if (cfsetispeed(&cur_termios, B0))
     {
         perror("setting input modem serial device speed");
         return( -1 );
     }
-    
+
     if (cfsetospeed(&cur_termios, br))
     {
         perror("setting modem serial device speed");
         return( -1 );
     }
-    
+
     if (tcsetattr(serial_fd, TCSADRAIN, &cur_termios))
     {
         perror("setting modem serial device attr");
@@ -183,9 +183,9 @@ printf("  0x%02X %c\n", data_temp, data_temp);
         }
     }
 #endif
-    
 
-    /* this is the interesting part  */ 
+
+    /* this is the interesting part  */
     {
         /*
 
@@ -224,7 +224,7 @@ printf("  0x%02X %c\n", data_temp, data_temp);
                                  0x00,       // TX16_OPTIONS (none)
                                              // Paparazzi message
                                  0x00,       // SENDER_ID (0)
-                                 0x32,       // MSG_ID 0x32 = 50 (WINDTURBINE_STATUS) 
+                                 0x32,       // MSG_ID 0x32 = 50 (WINDTURBINE_STATUS)
                                  0x2A,         // ac_id 42 (target aircraft id)
                                  0x01,         // tb_id 01 (source turbine id)
                                  0x39, 0x30, 0x00, 0x00, // sync_itow

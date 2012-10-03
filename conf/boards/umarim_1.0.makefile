@@ -1,7 +1,7 @@
 #
 # unami_1.0.makefile
 #
-# prototype for Umarim board
+# Umarim v1 board
 #
 
 ARCH=lpc21
@@ -41,7 +41,7 @@ GPS_LED = 2
 endif
 
 ifndef SYS_TIME_LED
-SYS_TIME_LED = none
+SYS_TIME_LED = 1
 endif
 
 

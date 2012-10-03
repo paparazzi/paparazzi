@@ -39,6 +39,7 @@
 #include <math.h>
 
 #include "generated/airframe.h"
+#include "state.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -57,14 +58,15 @@
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
 
 #define PERIODIC_SEND_POSITION_SPEED_ACCEL(_trans, _dev) Downlink({ \
-  int32_t speed_x = (int32_t)(estimator_hspeed_mod*sin(estimator_hspeed_dir)*526316) ;\
-  int32_t speed_y = (int32_t)(estimator_hspeed_mod*cos(estimator_hspeed_dir)*526316) ;\
-  int32_t pos_x = (int32_t)(estimator_x*256);\
-  int32_t pos_y = (int32_t)(estimator_y*256);\
-  int32_t pos_z = (int32_t)(estimator_z*256);\
-  int32_t speed_z = (int32_t)(estimator_z_dot*526316);\
-  int32_t ref = 0;\
-  DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &pos_x, &pos_y, &pos_z, &speed_x, &speed_y, &speed_z, &ref, &ref, &ref, &ref, &ref, &ref);\
+    struct EnuCoor_i* pos = stateGetPositionEnu_i();                \
+    struct EnuCoor_i* speed = stateGetSpeedEnu_i();                 \
+    struct NedCoor_i* acc = stateGetAccelNed_i();                   \
+    int32_t ref = 0;                                                \
+    DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev,                \
+      &(pos->x), &(pos->y), &(pos->z),                              \
+      &(speed->x), &(speed->y), &(speed->z),                        \
+      &(acc->x), &(acc->y), &(acc->z),                              \
+      &ref, &ref, &ref);                                            \
 })
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
@@ -100,12 +102,18 @@
 }
 
 
-#define PERIODIC_SEND_ATTITUDE_EULER(_trans, _dev) Downlink({ \
-      DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &estimator_phi, &estimator_theta, &estimator_psi); \
+#define PERIODIC_SEND_ATTITUDE(_trans, _dev) Downlink({ \
+    struct FloatEulers* att = stateGetNedToBodyEulers_f(); \
+    DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &(att->phi), &(att->psi), &(att->theta)); \
 })
 
 
-#define PERIODIC_SEND_DESIRED(_trans, _dev) DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
+#ifndef USE_AIRSPEED
+#define PERIODIC_SEND_DESIRED(_trans, _dev) { float v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;  DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint, &v_ctl_auto_airspeed_setpoint);}
+#else
+#define PERIODIC_SEND_DESIRED(_trans, _dev) DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint, &v_ctl_auto_airspeed_setpoint);
+#endif
+
 
 #if USE_INFRARED
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_trans, _dev) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_trans, _dev, &mde, &contrast); }
@@ -195,7 +203,7 @@
 #define PERIODIC_SEND_IMU(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_ESTIMATOR(_trans, _dev) DOWNLINK_SEND_ESTIMATOR(_trans, _dev, &estimator_z, &estimator_z_dot)
+#define PERIODIC_SEND_ESTIMATOR(_trans, _dev) DOWNLINK_SEND_ESTIMATOR(_trans, _dev, &(stateGetPositionUtm_f()->alt), &(stateGetSpeedEnu_f()->z))
 
 #if defined CAM || defined MOBILE_CAM
 #define SEND_CAM(_trans, _dev) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int16_t phi = DegOfRad(cam_phi_c); int16_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_trans, _dev, &phi, &theta, &x, &y);})
@@ -214,10 +222,12 @@
 
 #define PERIODIC_SEND_RANGEFINDER(_trans, _dev) DOWNLINK_SEND_RANGEFINDER(_trans, _dev, &rangemeter, &ctl_grz_z_dot, &ctl_grz_z_dot_sum_err, &ctl_grz_z_dot_setpoint, &ctl_grz_z_sum_err, &ctl_grz_z_setpoint, &flying)
 
-#define PERIODIC_SEND_TUNE_ROLL(_trans, _dev) DOWNLINK_SEND_TUNE_ROLL(_trans, _dev, &estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
+#define PERIODIC_SEND_TUNE_ROLL(_trans, _dev) DOWNLINK_SEND_TUNE_ROLL(_trans, _dev, &(stateGetBodyRates_f()->p), &(stateGetNedToBodyEulers_f()->phi), &h_ctl_roll_setpoint);
 
-#if USE_GPS || USE_GPS_XSENS || defined SITL
+#if USE_GPS || defined SITL
 #define PERIODIC_SEND_GPS_SOL(_trans, _dev) DOWNLINK_SEND_GPS_SOL(_trans, _dev, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv)
+#else
+#define PERIODIC_SEND_GPS_SOL(_trans, _dev) {}
 #endif
 
 #define PERIODIC_SEND_GPS_UTM(_trans, _dev) {                                      \
@@ -255,6 +265,7 @@
   }
 
 #define PERIODIC_SEND_GPS_LLA(_trans, _dev) {               \
+    uint8_t err = 0;                                        \
     int16_t climb = -gps.ned_vel.z;                         \
     int16_t course = (DegOfRad(gps.course)/((int32_t)1e6)); \
     DOWNLINK_SEND_GPS_LLA( _trans, _dev,                    \
@@ -284,8 +295,7 @@
 #define PERIODIC_SEND_SCP_STATUS(_trans, _dev) {}
 #endif
 
-//FIXME: we need a better switch here...
-#if BOARD_HAS_BARO && USE_BARO_AS_ALTIMETER
+#if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {  \
     DOWNLINK_SEND_BARO_RAW(_trans, _dev,        \
@@ -297,9 +307,12 @@
 #endif
 
 #ifdef MEASURE_AIRSPEED
-#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) DOWNLINK_SEND_AIRSPEED_CONTROL (_trans, _dev, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed)
+#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) { \
+  float* airspeed = stateGetAirspeed_f(); \
+  DOWNLINK_SEND_AIRSPEED_CONTROL(_trans, _dev, airspeed, airspeed, airspeed, airspeed); \
+}
 #elif USE_AIRSPEED
-#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) DOWNLINK_SEND_AIRSPEED_CONTROL (_trans, _dev, &estimator_airspeed, &v_ctl_auto_airspeed_setpoint, &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint)
+#define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) DOWNLINK_SEND_AIRSPEED_CONTROL(_trans, _dev, stateGetAirspeed_f(), &v_ctl_auto_airspeed_setpoint, &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint)
 #else
 #define PERIODIC_SEND_AIRSPEED_CONTROL(_trans, _dev) {}
 #endif

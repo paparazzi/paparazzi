@@ -38,7 +38,11 @@ ifneq ($(MAKECMDGOALS),clean)
   ifeq ($($(TARGET).ARCHDIR), )
     $(error Architecture not set, maybe you forgot to add the target? e.g. <target name="tunnel" board="twog_1.0"/>)
   else
-    include ../../conf/Makefile.$($(TARGET).ARCHDIR)
+    ifdef $(TARGET).MAKEFILE
+      include ../../conf/Makefile.$($(TARGET).MAKEFILE)
+    else
+      include ../../conf/Makefile.$($(TARGET).ARCHDIR)
+    endif
   endif
 endif
 

@@ -29,7 +29,7 @@
 
 #include "multi/tcas.h"
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "subsystems/gps.h"
 #include "generated/flight_plan.h"
@@ -88,7 +88,7 @@ void tcas_init( void ) {
 
 static inline enum tcas_resolve tcas_test_direction(uint8_t id) {
   struct ac_info_ * ac = get_ac_info(id);
-  float dz = ac->alt - estimator_z;
+  float dz = ac->alt - stateGetPositionEnu_f()->z;
   if (dz > tcas_alim/2) return RA_DESCEND;
   else if (dz < -tcas_alim/2) return RA_CLIMB;
   else // AC with the smallest ID descend
@@ -102,7 +102,7 @@ static inline enum tcas_resolve tcas_test_direction(uint8_t id) {
 /* conflicts detection and monitoring */
 void tcas_periodic_task_1Hz( void ) {
   // no TCAS under security_height
-  if (estimator_z < GROUND_ALT + SECURITY_HEIGHT) {
+  if (stateGetPositionEnu_f()->z < GROUND_ALT + SECURITY_HEIGHT) {
     uint8_t i;
     for (i = 0; i < NB_ACS; i++) tcas_acs_status[i].status = TCAS_NO_ALARM;
     return;
@@ -111,8 +111,8 @@ void tcas_periodic_task_1Hz( void ) {
   float tau_min = tcas_tau_ta;
   uint8_t ac_id_close = AC_ID;
   uint8_t i;
-  float vx = estimator_hspeed_mod * sinf(estimator_hspeed_dir);
-  float vy = estimator_hspeed_mod * cosf(estimator_hspeed_dir);
+  float vx = (*stateGetHorizontalSpeedNorm_f()) * sinf((*stateGetHorizontalSpeedDir_f()));
+  float vy = (*stateGetHorizontalSpeedNorm_f()) * cosf((*stateGetHorizontalSpeedDir_f()));
   for (i = 2; i < NB_ACS; i++) {
     if (the_acs[i].ac_id == 0) continue; // no AC data
     uint32_t dt = gps.tow - the_acs[i].itow;
@@ -121,12 +121,12 @@ void tcas_periodic_task_1Hz( void ) {
       continue;
     }
     if (dt > TCAS_DT_MAX) continue; // lost com but keep current status
-    float dx = the_acs[i].east - estimator_x;
-    float dy = the_acs[i].north - estimator_y;
-    float dz = the_acs[i].alt - estimator_z;
+    float dx = the_acs[i].east - stateGetPositionEnu_f()->x;
+    float dy = the_acs[i].north - stateGetPositionEnu_f()->y;
+    float dz = the_acs[i].alt - stateGetPositionEnu_f()->z;
     float dvx = vx - the_acs[i].gspeed * sinf(the_acs[i].course);
     float dvy = vy - the_acs[i].gspeed * cosf(the_acs[i].course);
-    float dvz = estimator_z_dot - the_acs[i].climb;
+    float dvz = stateGetSpeedEnu_f()->z - the_acs[i].climb;
     float scal = dvx*dx + dvy*dy + dvz*dz;
     float ddh = dx*dx + dy*dy;
     float ddv = dz*dz;
@@ -219,7 +219,7 @@ void tcas_periodic_task_1Hz( void ) {
 /* altitude control loop */
 void tcas_periodic_task_4Hz( void ) {
   // set alt setpoint
-  if (estimator_z > GROUND_ALT + SECURITY_HEIGHT && tcas_status == TCAS_RA) {
+  if (stateGetPositionEnu_f()->z > GROUND_ALT + SECURITY_HEIGHT && tcas_status == TCAS_RA) {
     struct ac_info_ * ac = get_ac_info(tcas_ac_RA);
     switch (tcas_resolve) {
       case RA_CLIMB :

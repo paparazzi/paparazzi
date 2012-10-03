@@ -42,14 +42,14 @@ void on_AHRS_STATE(IvyClientPtr app, void *user_data, int argc, char *argv[]){
 
 int main (int argc, char** argv) {
 
-  gtk_init(&argc, &argv); 
-  
+  gtk_init(&argc, &argv);
+
   GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_size_request (window, 640, 400);
 
   GtkWidget *vbox1 = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (window), vbox1);
- 
+
   GtkWidget *frame = gtk_frame_new ("Biases");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);

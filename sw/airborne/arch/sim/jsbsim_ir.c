@@ -7,7 +7,6 @@
 
 #include "jsbsim_hw.h"
 #include <math.h>
-#include "estimator.h"
 
 #ifndef JSBSIM_IR_ROLL_NEUTRAL
 #define JSBSIM_IR_ROLL_NEUTRAL 0.

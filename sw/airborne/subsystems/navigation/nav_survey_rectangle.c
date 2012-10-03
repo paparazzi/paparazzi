@@ -1,5 +1,5 @@
 #include "subsystems/navigation/nav_survey_rectangle.h"
-#include "estimator.h"
+#include "state.h"
 
 static struct point survey_from;
 static struct point survey_to;
@@ -29,8 +29,8 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   survey_orientation = so;
 
   if (survey_orientation == NS) {
-    survey_from.x = survey_to.x = Min(Max(estimator_x, nav_survey_west+grid/2.), nav_survey_east-grid/2.);
-    if (estimator_y > nav_survey_north || (estimator_y > nav_survey_south && estimator_hspeed_dir > M_PI/2. && estimator_hspeed_dir < 3*M_PI/2)) {
+    survey_from.x = survey_to.x = Min(Max(stateGetPositionEnu_f()->x, nav_survey_west+grid/2.), nav_survey_east-grid/2.);
+    if (stateGetPositionEnu_f()->y > nav_survey_north || (stateGetPositionEnu_f()->y > nav_survey_south && (*stateGetHorizontalSpeedDir_f()) > M_PI/2. && (*stateGetHorizontalSpeedDir_f()) < 3*M_PI/2)) {
       survey_to.y = nav_survey_south;
       survey_from.y = nav_survey_north;
     } else {
@@ -38,8 +38,8 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
       survey_to.y = nav_survey_north;
     }
   } else { /* survey_orientation == WE */
-    survey_from.y = survey_to.y = Min(Max(estimator_y, nav_survey_south+grid/2.), nav_survey_north-grid/2.);
-    if (estimator_x > nav_survey_east || (estimator_x > nav_survey_west && estimator_hspeed_dir > M_PI)) {
+    survey_from.y = survey_to.y = Min(Max(stateGetPositionEnu_f()->y, nav_survey_south+grid/2.), nav_survey_north-grid/2.);
+    if (stateGetPositionEnu_f()->x > nav_survey_east || (stateGetPositionEnu_f()->x > nav_survey_west && (*stateGetHorizontalSpeedDir_f()) > M_PI)) {
       survey_to.x = nav_survey_west;
       survey_from.x = nav_survey_east;
     } else {
@@ -79,10 +79,10 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
   }
 
   if (! survey_uturn) { /* S-N, N-S, W-E or E-W straight route */
-    if ((estimator_y < nav_survey_north && SurveyGoingNorth()) ||
-        (estimator_y > nav_survey_south && SurveyGoingSouth()) ||
-    (estimator_x < nav_survey_east && SurveyGoingEast()) ||
-        (estimator_x > nav_survey_west && SurveyGoingWest())) {
+    if ((stateGetPositionEnu_f()->y < nav_survey_north && SurveyGoingNorth()) ||
+        (stateGetPositionEnu_f()->y > nav_survey_south && SurveyGoingSouth()) ||
+    (stateGetPositionEnu_f()->x < nav_survey_east && SurveyGoingEast()) ||
+        (stateGetPositionEnu_f()->x > nav_survey_west && SurveyGoingWest())) {
       /* Continue ... */
       nav_route_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y);
     } else {

@@ -60,7 +60,7 @@ uint32_t ins_baud;
 
 uint8_t ins_init_status;
 
-/* ins_init and ins_periodic_task to be implemented according to the airframe type : FW or BOOZ */
+/* ins_init and ins_periodic to be implemented according to the airframe type : FW or BOOZ */
 
 void parse_ins_msg( void ) {
   if (last_received_packet.ErrID != VN100_Error_None) {

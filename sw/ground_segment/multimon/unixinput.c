@@ -1,7 +1,7 @@
 /*
  *      unixinput.c -- input sound samples
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@
 /* ---------------------------------------------------------------------- */
 
 static const char *allowed_types[] = {
-  "raw", "aiff", "au", "hcom", "sf", "voc", "cdr", "dat", 
+  "raw", "aiff", "au", "hcom", "sf", "voc", "cdr", "dat",
   "smp", "wav", "maud", "vwe", NULL
 };
 
@@ -66,7 +66,7 @@ static int verbose_level = 0;
 void verbprintf(int verb_level, const char *fmt, ...)
 {
   va_list args;
-        
+
   va_start(args, fmt);
   if (verb_level <= verbose_level)
     vfprintf(stdout, fmt, args);
@@ -79,7 +79,7 @@ static void process_buffer(float *buf, unsigned int len)
 {
   int i;
 
-  for (i = 0; i <  NUMDEMOD; i++) 
+  for (i = 0; i <  NUMDEMOD; i++)
     if (MASK_ISSET(i) && dem[i]->demod)
       dem[i]->demod(dem_st+i, buf, len);
 }
@@ -140,7 +140,7 @@ static void input_sound(unsigned int sample_rate, unsigned int overlap,
 	      "number to 1\n");
       exit (10);
     }
-  sndparam = sample_rate; 
+  sndparam = sample_rate;
   if (ioctl(fd, SNDCTL_DSP_SPEED, &sndparam) == -1) {
     perror("ioctl: SNDCTL_DSP_SPEED");
     exit (10);
@@ -253,10 +253,10 @@ static void input_file(unsigned int sample_rate, unsigned int overlap,
       sprintf(srate, "%d", sample_rate);
       close(pipedes[0]); /* close reading pipe end */
       close(1); /* close standard output */
-      if (dup2(pipedes[1], 1) < 0) 
+      if (dup2(pipedes[1], 1) < 0)
 	perror("dup2");
       close(pipedes[1]); /* close writing pipe end */
-      execlp("sox", "sox", 
+      execlp("sox", "sox",
 	     "-t", type, fname,
 	     "-t", "raw", "-s", "-w", "-r", srate, "-",
 	     NULL);
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
 
   fprintf(stdout, "multimod  (C) 1996/1997 by Tom Sailer HB9JNX/AE4WA\n"
 	  "available demodulators:");
-  for (i = 0; i < NUMDEMOD; i++) 
+  for (i = 0; i < NUMDEMOD; i++)
     fprintf(stdout, " %s", dem[i]->name);
   fprintf(stdout, "\n");
   while ((c = getopt(argc, argv, "t:a:p:s:v:")) != EOF) {
@@ -334,20 +334,20 @@ int main(int argc, char *argv[])
       break;
 
     case 't':
-      for (itype = (char **)allowed_types; *itype; itype++) 
+      for (itype = (char **)allowed_types; *itype; itype++)
 	if (!strcmp(*itype, optarg)) {
 	  input_type = *itype;
 	  goto intypefound;
 	}
       fprintf(stderr, "invalid input type \"%s\"\n"
 	      "allowed types: ", optarg);
-      for (itype = (char **)allowed_types; *itype; itype++) 
+      for (itype = (char **)allowed_types; *itype; itype++)
 	fprintf(stderr, "%s ", *itype);
       fprintf(stderr, "\n");
       errflg++;
     intypefound:
       break;
-		
+
     case 'a':
       if (mask_first)
 	memset(dem_mask, 0, sizeof(dem_mask));
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
 	errflg++;
       }
       break;
-			
+
     }
   }
   if (errflg) {
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
     memset(dem_mask, 0xff, sizeof(dem_mask));
 
   fprintf(stdout, "Enabled demodulators:");
-  for (i = 0; i < NUMDEMOD; i++) 
+  for (i = 0; i < NUMDEMOD; i++)
     if (MASK_ISSET(i)) {
       fprintf(stdout, " %s", dem[i]->name);
       memset(dem_st+i, 0, sizeof(dem_st[i]));
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
   if (!strcmp(input_type, "hw")) {
     if ((argc - optind) >= 1)
       input_sound(sample_rate, overlap, argv[optind]);
-    else 
+    else
       input_sound(sample_rate, overlap, NULL);
     exit(0);
   }

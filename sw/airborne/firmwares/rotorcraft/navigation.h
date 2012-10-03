@@ -58,6 +58,9 @@ extern int32_t nav_roll, nav_pitch;     ///< with #INT32_ANGLE_FRAC
 extern int32_t nav_heading, nav_course; ///< with #INT32_ANGLE_FRAC
 extern float nav_radius;
 
+extern int32_t nav_leg_progress;
+extern int32_t nav_leg_length;
+
 extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
 extern int32_t nav_climb, nav_altitude, nav_flight_altitude;
@@ -83,7 +86,7 @@ void nav_home(void);
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
 #define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
 
-#define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], ins_enu_pos); FALSE; })
+#define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], *stateGetPositionEnu_i()); FALSE; })
 #define NavCopyWaypoint(_wp1, _wp2) ({ VECT2_COPY(waypoints[_wp1], waypoints[_wp2]); FALSE; })
 
 #define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
@@ -124,11 +127,17 @@ extern void nav_route(uint8_t wp_start, uint8_t wp_end);
   nav_route(_start, _end); \
 }
 
+/** Nav glide routine */
+#define NavGlide(_last_wp, _wp) { \
+  int32_t start_alt = waypoints[_last_wp].z; \
+  int32_t diff_alt = waypoints[_wp].z - start_alt; \
+  int32_t alt = start_alt + ((diff_alt * nav_leg_progress) / nav_leg_length); \
+  NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(alt),0); \
+}
+
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define NavApproaching(wp, time) nav_approaching_from(wp, 0)
 #define NavApproachingFrom(wp, from, time) nav_approaching_from(wp, from)
-
-#define NavGlide(_last_wp, _wp) {}
 
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
@@ -183,9 +192,9 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 }
 
 
-#define GetPosX() POS_FLOAT_OF_BFP(ins_enu_pos.x)
-#define GetPosY() POS_FLOAT_OF_BFP(ins_enu_pos.y)
-#define GetPosAlt() (POS_FLOAT_OF_BFP(ins_enu_pos.z+ground_alt))
+#define GetPosX() (stateGetPositionEnu_f()->x)
+#define GetPosY() (stateGetPositionEnu_f()->y)
+#define GetPosAlt() (stateGetPositionEnu_f()->z+ground_alt)
 
 
 extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp );

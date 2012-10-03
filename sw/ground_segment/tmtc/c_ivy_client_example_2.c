@@ -21,7 +21,7 @@ int main ( int argc, char** argv) {
   IvyStart("127.255.255.255");
 
   g_timeout_add(100, timeout_callback, NULL);
-  
+
   g_main_loop_run(ml);
 
   return 0;

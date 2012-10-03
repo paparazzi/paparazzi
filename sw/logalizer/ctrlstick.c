@@ -1,7 +1,7 @@
 /*
  * ctrlstick.c
  *
- * send joystick control to paparazzi through ivy 
+ * send joystick control to paparazzi through ivy
  *
  * based on Force Feedback: Constant Force Stress Test
  * Copyright (C) 2001 Oliver Hamann
@@ -187,7 +187,7 @@ int init_hid_device(char* device_name)
         close(device_handle);
 		return(1);
 	}
-	
+
     for (cnt=0; cnt<AXIS_COUNT; cnt++)
     {
     	/* get axis value range */
@@ -276,7 +276,7 @@ int init_hid_device(char* device_name)
         close(device_handle);
 		return(1);
 	}
-#endif	
+#endif
 
 	ioctl(device_handle, EVIOCGNAME(sizeof(name)), name);
 	printf("Input device name: \"%s\"\n", name);
@@ -308,7 +308,7 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
     }
   } while (res == sizeof(event));
 
-  if (errno != EAGAIN) 
+  if (errno != EAGAIN)
   {
     printf("device removed\n");
     g_main_loop_quit(ml);
@@ -340,7 +340,7 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
 	        IvySendMsg("dl RC_3CH %d %d %d", throttle_mode, roll, pitch);
         }
     }
-     
+
 	return 1;
 }
 
@@ -349,9 +349,9 @@ int main ( int argc, char** argv) {
   char devname[256];
   int cnt;
   ml =  g_main_loop_new(NULL, FALSE);
-  
+
   parse_args(argc, argv);
-  
+
   IvyInit ("IvyCtrlJoystick", "IvyCtrlJoystick READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
 
@@ -361,10 +361,10 @@ int main ( int argc, char** argv) {
       sprintf(devname, DEVICE_NAME "%d", cnt);
       if (init_hid_device(devname) == 0) break;
     }
-  
-    if (cnt != INPUT_DEV_MAX) 
+
+    if (cnt != INPUT_DEV_MAX)
     {
-      g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);  
+      g_timeout_add(TIMEOUT_PERIOD, joystick_periodic, NULL);
       g_main_loop_run(ml);
      }
      sleep(1);

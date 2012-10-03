@@ -9,7 +9,7 @@
 #define afe_dt 0.0166667
 
 /* We have seven variables in our state -- the quaternion attitude
- * estimate and three gyro bias values 
+ * estimate and three gyro bias values
  */
 FLOAT_T afe_q0, afe_q1, afe_q2, afe_q3;
 FLOAT_T afe_bias_p, afe_bias_q, afe_bias_r;
@@ -127,7 +127,7 @@ void afe_predict( const FLOAT_T* gyro ) {
   afe_q = gyro[1] -  afe_bias_q;
   afe_r = gyro[2] -  afe_bias_r;
 
-  /* compute F 
+  /* compute F
      F is only needed later on to update the state covariance P.
      However, its [0:3][0:3] region is actually the Wxq(pqr) which is needed to
      compute the time derivative of the quaternion, so we compute F now */
@@ -157,7 +157,7 @@ void afe_predict( const FLOAT_T* gyro ) {
   afe_q1_dot = afe_F[1][0] * afe_q0                        + afe_F[1][2] * afe_q2 + afe_F[1][3] * afe_q3;
   afe_q2_dot = afe_F[2][0] * afe_q0 + afe_F[2][1] * afe_q1                        + afe_F[2][3] * afe_q3;
   afe_q3_dot = afe_F[3][0] * afe_q0 + afe_F[3][1] * afe_q1 + afe_F[3][2] * afe_q2;
-  
+
   /* quat = quat + quat_dot * dt */
   afe_q0 += afe_q0_dot * afe_dt;
   afe_q1 += afe_q1_dot * afe_dt;
@@ -256,7 +256,7 @@ void afe_predict( const FLOAT_T* gyro ) {
 
 
 /*
- * 
+ *
  */
 static void run_kalman( const FLOAT_T R_axis, const FLOAT_T error ) {
   int i, j;

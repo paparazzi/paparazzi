@@ -12,7 +12,6 @@
 #include "std.h"
 #include "inter_mcu.h"
 #include "autopilot.h"
-#include "estimator.h"
 #include "subsystems/gps.h"
 #include "subsystems/navigation/traffic_info.h"
 #include "generated/settings.h"

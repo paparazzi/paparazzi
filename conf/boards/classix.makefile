@@ -32,3 +32,28 @@ $(TARGET).ARCHDIR = $(ARCH)
 # Battery Voltage
 fbw.CFLAGS +=  -DUSE_AD0
 
+#
+# default LED configuration
+#
+ifndef RADIO_CONTROL_LED
+RADIO_CONTROL_LED  = none
+endif
+
+ifndef BARO_LED
+BARO_LED = none
+endif
+
+ifndef AHRS_ALIGNER_LED
+AHRS_ALIGNER_LED = none
+endif
+
+ifndef GPS_LED
+GPS_LED = 2
+endif
+
+ifndef SYS_TIME_LED
+SYS_TIME_LED = none
+endif
+
+
+

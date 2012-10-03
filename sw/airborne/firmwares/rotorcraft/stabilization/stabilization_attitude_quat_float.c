@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 #include "generated/airframe.h"
 #include "stabilization_attitude_float.h"
 #include "stabilization_attitude_rc_setpoint.h"
@@ -39,6 +39,8 @@ struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_
 
 struct FloatQuat stabilization_att_sum_err_quat;
 struct FloatEulers stabilization_att_sum_err_eulers;
+
+struct FloatRates last_body_rate;
 
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
@@ -101,6 +103,7 @@ void stabilization_attitude_init(void) {
 
   FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
   FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
+  FLOAT_RAYES_ZERO( last_body_rate );
 }
 
 void stabilization_attitude_gain_schedule(uint8_t idx)
@@ -197,13 +200,19 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /* attitude error                          */
   struct FloatQuat att_err;
-  FLOAT_QUAT_INV_COMP(att_err, ahrs_float.ltp_to_body_quat, stab_att_ref_quat);
+  struct FloatQuat* att_quat = stateGetNedToBodyQuat_f();
+  FLOAT_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(att_err);
 
   /*  rate error                */
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, stab_att_ref_rate, ahrs_float.body_rate);
+  struct FloatRates* body_rate = stateGetBodyRates_f();
+  RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
+  /* rate_d error               */
+  struct FloatRates body_rate_d;
+  RATES_DIFF(body_rate_d, *body_rate, last_body_rate);
+  RATES_COPY(last_body_rate, *body_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -225,7 +234,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains[gain_idx], &stab_att_ref_accel);
 
-  attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, &ahrs_float.body_rate_d, &stabilization_att_sum_err_quat);
+  attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, body_rate_d, &stabilization_att_sum_err_quat);
 
   // FIXME: this is very dangerous! only works if this really includes all commands
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW_SURFACE; i++) {

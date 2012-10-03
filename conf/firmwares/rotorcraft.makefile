@@ -40,6 +40,8 @@ ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 
 ap.ARCHDIR = $(ARCH)
 
+# would be better to auto-generate this
+$(TARGET).CFLAGS 	+= -DFIRMWARE=ROTORCRAFT
 
 ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
@@ -50,7 +52,7 @@ ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 #
 # Math functions
 #
-ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
 
 ifeq ($(ARCH), stm32)
 ap.srcs += lisa/plug_sys.c
@@ -164,8 +166,10 @@ ap.CFLAGS += -DUSE_ADC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
 # baro has variable offset amplifier on booz board
+ifeq ($(BOARD), booz)
 ap.CFLAGS += -DUSE_DAC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
+endif
 else ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
@@ -196,6 +200,8 @@ endif
 
 ap.srcs += $(SRC_FIRMWARE)/autopilot.c
 
+ap.srcs += state.c
+
 ap.srcs += $(SRC_FIRMWARE)/stabilization.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
@@ -204,19 +210,16 @@ ap.CFLAGS += -DUSE_NAVIGATION
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 
-ap.srcs += $(SRC_SUBSYSTEMS)/ins.c
-
 #
 # INS choice
 #
-# include subsystems/rotorcraft/ins_hff.makefile
+# include subsystems/rotorcraft/ins.makefile
 # or
-# nothing
+# include subsystems/rotorcraft/ins_extended.makefile
 #
-
-#  vertical filter float version
-ap.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
-ap.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./$(PERIODIC_FREQUENCY).)'
+# extra:
+# include subsystems/rotorcraft/ins_hff.makefile
+#
 
 ap.srcs += $(SRC_FIRMWARE)/navigation.c
 ap.srcs += subsystems/navigation/common_flight_plan.c

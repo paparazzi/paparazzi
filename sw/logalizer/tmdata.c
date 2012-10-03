@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -43,7 +43,7 @@ int sock, length, fromlen;
 struct sockaddr_in server;
 char hostaddr[4096] = {HOSTADDR};
 
-static const char usage_str[] = 
+static const char usage_str[] =
 "tmdata [options] [parameter]\n"
 "options:\n"
 "  -s HOST       server address\n";
@@ -58,7 +58,7 @@ int main ( int argc, char** argv) {
   char noparam = 0;
   char *param = &noparam;
 
-  while ((c = getopt(argc, argv, "hs:")) != EOF) 
+  while ((c = getopt(argc, argv, "hs:")) != EOF)
   {
     switch (c)
     {
@@ -92,10 +92,10 @@ int main ( int argc, char** argv) {
     exit(1);
   }
 
-  memcpy((char *)hent->h_addr, 
+  memcpy((char *)hent->h_addr,
          (char *)&server.sin_addr,
          hent->h_length);
-        
+
   server.sin_port = htons(PORT_OUT);
   length=sizeof(struct sockaddr_in);
 
@@ -115,7 +115,7 @@ int main ( int argc, char** argv) {
   FD_CLEAR(&fds);
   FD_SET(sock, &fds);
 
-  count = select(sock+1, &fds, NULL, NULL, &tvt); 
+  count = select(sock+1, &fds, NULL, NULL, &tvt);
 
   if (count > 0)
   {

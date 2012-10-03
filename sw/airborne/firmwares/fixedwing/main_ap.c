@@ -53,12 +53,17 @@
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
+#if USE_BAROMETER
+#include "subsystems/sensors/baro.h"
+#endif
+#include "subsystems/ins.h"
+
 
 // autopilot & control
+#include "state.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "estimator.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include CTRL_TYPE_H
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
 #ifdef TRAFFIC_INFO
@@ -81,11 +86,6 @@
 #include "gpio.h"
 #include "led.h"
 
-#if defined RADIO_CONTROL
-#pragma message "CAUTION! radio control roll channel input has been changed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when banking right!"
-#endif
-
-
 
 #if USE_AHRS
 #if USE_IMU
@@ -93,8 +93,6 @@ static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#else
-static inline void on_ahrs_event(void);
 #endif // USE_IMU
 #endif // USE_AHRS
 
@@ -102,6 +100,10 @@ static inline void on_ahrs_event(void);
 static inline void on_gps_solution( void );
 #endif
 
+#if USE_BAROMETER
+static inline void on_baro_abs_event( void );
+static inline void on_baro_dif_event( void );
+#endif
 
 bool_t power_switch;
 
@@ -120,6 +122,9 @@ static uint8_t  mcu1_ppm_cpt;
 bool_t kill_throttle = FALSE;
 
 bool_t launch = FALSE;
+
+/* flight time in seconds */
+uint16_t autopilot_flight_time = 0;
 
 
 /** Supply voltage in deciVolt.
@@ -147,22 +152,6 @@ tid_t attitude_tid;    ///< id for attitude_loop() timer
 tid_t navigation_tid;  ///< id for navigation_task() timer
 tid_t monitor_tid;     ///< id for monitor_task() timer
 
-#ifndef CONTROL_FREQUENCY
-#ifdef  CONTROL_RATE
-#define CONTROL_FREQUENCY CONTROL_RATE
-//#warning "CONTROL_RATE deprecated. Renamed into CONTROL_FREQUENCY (in airframe file)"
-#else
-#define CONTROL_FREQUENCY 20
-#endif
-#endif
-
-#ifndef NAVIGATION_FREQUENCY
-#define NAVIGATION_FREQUENCY 4
-#endif
-
-#ifndef MODULES_FREQUENCY
-#define MODULES_FREQUENCY 60
-#endif
 
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
@@ -190,6 +179,14 @@ void init_ap( void ) {
   ahrs_init();
 #endif
 
+#if USE_BAROMETER
+  baro_init();
+#endif
+
+  ins_init();
+
+  stateInit();
+
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
   link_mcu_init();
@@ -201,10 +198,6 @@ void init_ap( void ) {
   /************ Internal status ***************/
   h_ctl_init();
   v_ctl_init();
-  estimator_init();
-#ifdef ALT_KALMAN
-  alt_kalman_init();
-#endif
   nav_init();
 
   modules_init();
@@ -282,7 +275,25 @@ static inline uint8_t pprz_mode_update( void ) {
       || TRUE
 #endif
       ) {
+#ifndef RADIO_AUTO_MODE
     return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]));
+#else
+#pragma message "Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2."
+    /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between two switches/channels
+     * RADIO_MODE will switch between PPRZ_MODE_MANUAL and any PPRZ_MODE_AUTO mode selected by RADIO_AUTO_MODE.
+     *
+     * This is mainly a cludge for entry level radios with no three-way switch but two available two-way switches which can be used.
+     */
+    if(PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]) == PPRZ_MODE_MANUAL) {
+      /* RADIO_MODE in MANUAL position */
+      return ModeUpdate(pprz_mode, PPRZ_MODE_MANUAL);
+    } else {
+      /* RADIO_MODE not in MANUAL position.
+       * Select AUTO mode bassed on RADIO_AUTO_MODE channel
+       */
+      return ModeUpdate(pprz_mode, (fbw_state->channels[RADIO_AUTO_MODE] > THRESHOLD2) ? PPRZ_MODE_AUTO2 : PPRZ_MODE_AUTO1);
+    }
+#endif // RADIO_AUTO_MODE
   } else
     return FALSE;
 }
@@ -376,7 +387,7 @@ static inline void telecommand_task( void ) {
   current = fbw_state->current;
 
 #ifdef RADIO_CONTROL
-  if (!estimator_flight_time) {
+  if (!autopilot_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
@@ -470,10 +481,33 @@ void navigation_task( void ) {
 #endif
     if (lateral_mode >=LATERAL_MODE_COURSE)
       h_ctl_course_loop(); /* aka compute nav_desired_roll */
-    if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)
-      v_ctl_climb_loop();
-    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE)
+
+    // climb_loop(); //4Hz
+  }
+  energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
+}
+
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+#endif
+
+void attitude_loop( void ) {
+
+#if USE_INFRARED
+  ahrs_update_infrared();
+#endif /* USE_INFRARED */
+
+  if (pprz_mode >= PPRZ_MODE_AUTO2)
+  {
+    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
       v_ctl_throttle_setpoint = nav_throttle_setpoint;
+      v_ctl_pitch_setpoint = nav_pitch;
+    }
+    else if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)
+    {
+      v_ctl_climb_loop();
+    }
 
 #if defined V_CTL_THROTTLE_IDLE
     Bound(v_ctl_throttle_setpoint, TRIM_PPRZ(V_CTL_THROTTLE_IDLE*MAX_PPRZ), MAX_PPRZ);
@@ -486,26 +520,11 @@ void navigation_task( void ) {
     }
 #endif
 
-    h_ctl_pitch_setpoint = nav_pitch;
+    h_ctl_pitch_setpoint = v_ctl_pitch_setpoint; // Copy the pitch setpoint from the guidance to the stabilization control
     Bound(h_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
-    if (kill_throttle || (!estimator_flight_time && !launch))
+    if (kill_throttle || (!autopilot_flight_time && !launch))
       v_ctl_throttle_setpoint = 0;
   }
-  energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
-}
-
-
-#if USE_AHRS
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-volatile uint8_t new_ins_attitude = 0;
-#endif
-#endif
-
-void attitude_loop( void ) {
-
-#if USE_INFRARED
-  ahrs_update_infrared();
-#endif /* USE_INFRARED */
 
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
@@ -534,6 +553,17 @@ void sensors_task( void ) {
     ahrs_timeout_counter ++;
 #endif // USE_AHRS
 #endif // USE_IMU
+
+  //FIXME: this is just a kludge
+#if USE_AHRS && defined SITL
+  ahrs_propagate();
+#endif
+
+#if USE_BAROMETER
+  baro_periodic();
+#endif
+
+  ins_periodic();
 }
 
 
@@ -552,8 +582,8 @@ void sensors_task( void ) {
 
 /** monitor stuff run at 1Hz */
 void monitor_task( void ) {
-  if (estimator_flight_time)
-    estimator_flight_time++;
+  if (autopilot_flight_time)
+    autopilot_flight_time++;
 #if defined DATALINK || defined SITL
   datalink_time++;
 #endif
@@ -566,9 +596,9 @@ void monitor_task( void ) {
   kill_throttle |= (t >= LOW_BATTERY_DELAY);
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
-  if (!estimator_flight_time &&
-      estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
-    estimator_flight_time = 1;
+  if (!autopilot_flight_time &&
+      *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
+    autopilot_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
     uint16_t time_sec = sys_time.nb_sec;
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
@@ -584,21 +614,27 @@ void monitor_task( void ) {
 void event_task_ap( void ) {
 
 #ifndef SINGLE_MCU
+#if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2
   i2c_event();
 #endif
+#endif
 
-#if USE_AHRS
-#if USE_IMU
+#if USE_AHRS && USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-#else
-  AhrsEvent(on_ahrs_event);
-#endif // USE_IMU
-#endif // USE_AHRS
+#endif
+
+#ifdef InsEvent
+#pragma message "calling InsEvent, remove me.."
+  InsEvent(NULL);
+#endif
 
 #if USE_GPS
   GpsEvent(on_gps_solution);
-#endif /** USE_GPS */
+#endif /* USE_GPS */
 
+#if USE_BAROMETER
+  BaroEvent(on_baro_abs_event, on_baro_dif_event);
+#endif
 
   DatalinkEvent();
 
@@ -629,8 +665,10 @@ void event_task_ap( void ) {
 
 #if USE_GPS
 static inline void on_gps_solution( void ) {
-  estimator_update_state_gps();
+  ins_update_gps();
+#if USE_AHRS
   ahrs_update_gps();
+#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
@@ -646,10 +684,6 @@ static inline void on_accel_event( void ) {
 static inline void on_gyro_event( void ) {
 
   ahrs_timeout_counter = 0;
-
-#ifdef AHRS_CPU_LED
-  LED_ON(AHRS_CPU_LED);
-#endif
 
 #if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
@@ -669,7 +703,6 @@ static inline void on_gyro_event( void ) {
 
   ahrs_propagate();
   ahrs_update_accel();
-  ahrs_update_fw_estimator();
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   new_ins_attitude = 1;
@@ -709,17 +742,11 @@ static inline void on_gyro_event( void ) {
       ahrs_update_accel();
     }
 
-    ahrs_update_fw_estimator();
-
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
     new_ins_attitude = 1;
 #endif
   }
 #endif //PERIODIC_FREQUENCY
-
-#ifdef AHRS_CPU_LED
-    LED_OFF(AHRS_CPU_LED);
-#endif
 
 }
 
@@ -733,14 +760,18 @@ static inline void on_mag_event(void)
 #endif
 }
 
-#else // USE_IMU not defined
-static inline void on_ahrs_event(void)
-{
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ahrs_update_fw_estimator();
-#endif
-}
 #endif // USE_IMU
 
 #endif // USE_AHRS
 
+#if USE_BAROMETER
+
+static inline void on_baro_abs_event( void ) {
+  ins_update_baro();
+}
+
+static inline void on_baro_dif_event( void ) {
+
+}
+
+#endif // USE_BAROMETER

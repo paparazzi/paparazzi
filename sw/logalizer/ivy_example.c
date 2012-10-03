@@ -15,7 +15,7 @@ void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, char *ar
 
 int main ( int argc, char** argv) {
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   IvyInit ("IvyExample", "IvyExample READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_MOTOR_BENCH_STATUS, NULL, "^\\S* MOTOR_BENCH_STATUS (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");

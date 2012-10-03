@@ -12,7 +12,7 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "multi/formation.h"
-#include "estimator.h"
+#include "state.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
@@ -128,21 +128,21 @@ int formation_flight(void) {
 
   static uint8_t _1Hz   = 0;
   uint8_t nb = 0, i;
-  float ch = cosf(estimator_hspeed_dir);
-  float sh = sinf(estimator_hspeed_dir);
+  float ch = cosf((*stateGetHorizontalSpeedDir_f()));
+  float sh = sinf((*stateGetHorizontalSpeedDir_f()));
   form_n = 0.;
   form_e = 0.;
   form_a = 0.;
-  form_speed = estimator_hspeed_mod;
-  form_speed_n = estimator_hspeed_mod * ch;
-  form_speed_e = estimator_hspeed_mod * sh;
+  form_speed = (*stateGetHorizontalSpeedNorm_f());
+  form_speed_n = (*stateGetHorizontalSpeedNorm_f()) * ch;
+  form_speed_e = (*stateGetHorizontalSpeedNorm_f()) * sh;
 
   if (AC_ID == leader_id) {
-    estimator_x += formation[the_acs_id[AC_ID]].east;
-    estimator_y += formation[the_acs_id[AC_ID]].north;
+    stateGetPositionEnu_f()->x += formation[the_acs_id[AC_ID]].east;
+    stateGetPositionEnu_f()->y += formation[the_acs_id[AC_ID]].north;
   }
   // set info for this AC
-  SetAcInfo(AC_ID, estimator_x, estimator_y, estimator_hspeed_dir, estimator_z, estimator_hspeed_mod, estimator_z_dot, gps.tow);
+  SetAcInfo(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, (*stateGetHorizontalSpeedDir_f()), stateGetPositionEnu_f()->z, (*stateGetHorizontalSpeedNorm_f()), stateGetSpeedEnu_f()->z, gps.tow);
 
   // broadcast info
   uint8_t ac_id = AC_ID;
@@ -188,12 +188,12 @@ int formation_flight(void) {
     }
     else formation[i].status = ACTIVE;
     // compute control if AC is ACTIVE and around the same altitude (maybe not so usefull)
-    if (formation[i].status == ACTIVE && fabs(estimator_z - ac->alt) < form_prox && ac->alt > 0) {
-      form_e += (ac->east  + ac->gspeed*sinf(ac->course)*delta_t - estimator_x)
+    if (formation[i].status == ACTIVE && fabs(stateGetPositionEnu_f()->z - ac->alt) < form_prox && ac->alt > 0) {
+      form_e += (ac->east  + ac->gspeed*sinf(ac->course)*delta_t - stateGetPositionEnu_f()->x)
         - (form[i].east - form[the_acs_id[AC_ID]].east);
-      form_n += (ac->north + ac->gspeed*cosf(ac->course)*delta_t - estimator_y)
+      form_n += (ac->north + ac->gspeed*cosf(ac->course)*delta_t - stateGetPositionEnu_f()->y)
         - (form[i].north - form[the_acs_id[AC_ID]].north);
-      form_a += (ac->alt - estimator_z) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
+      form_a += (ac->alt - stateGetPositionEnu_f()->z) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
       form_speed += ac->gspeed;
       //form_speed_e += ac->gspeed * sinf(ac->course);
       //form_speed_n += ac->gspeed * cosf(ac->course);
@@ -204,9 +204,9 @@ int formation_flight(void) {
   form_n /= _nb;
   form_e /= _nb;
   form_a /= _nb;
-  form_speed = form_speed / (nb+1) - estimator_hspeed_mod;
-  //form_speed_e = form_speed_e / (nb+1) - estimator_hspeed_mod * sh;
-  //form_speed_n = form_speed_n / (nb+1) - estimator_hspeed_mod * ch;
+  form_speed = form_speed / (nb+1) - (*stateGetHorizontalSpeedNorm_f());
+  //form_speed_e = form_speed_e / (nb+1) - (*stateGetHorizontalSpeedNorm_f()) * sh;
+  //form_speed_n = form_speed_n / (nb+1) - (*stateGetHorizontalSpeedNorm_f()) * ch;
 
   // set commands
   NavVerticalAutoThrottleMode(0.);
@@ -230,7 +230,7 @@ int formation_flight(void) {
     desired_y = leader->north + dy;
     // lateral correction
     //float diff_heading = asin((dx*ch - dy*sh) / sqrt(dx*dx + dy*dy));
-    //float diff_course = leader->course - estimator_hspeed_dir;
+    //float diff_course = leader->course - (*stateGetHorizontalSpeedDir_f());
     //NormRadAngle(diff_course);
     //h_ctl_roll_setpoint += coef_form_course * diff_course;
     //h_ctl_roll_setpoint += coef_form_course * diff_heading;
@@ -249,8 +249,8 @@ int formation_flight(void) {
 
 void formation_pre_call(void) {
   if (leader_id == AC_ID) {
-    estimator_x -= formation[the_acs_id[AC_ID]].east;
-    estimator_y -= formation[the_acs_id[AC_ID]].north;
+    stateGetPositionEnu_f()->x -= formation[the_acs_id[AC_ID]].east;
+    stateGetPositionEnu_f()->y -= formation[the_acs_id[AC_ID]].north;
   }
 }
 

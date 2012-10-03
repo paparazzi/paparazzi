@@ -10,7 +10,7 @@
     <file name="ins_module.h"/>
   </header>
   <init fun="ins_init()"/>
-  <periodic fun="ins_periodic_task()" freq="60"/>
+  <periodic fun="ins_periodic()" freq="60"/>
   <makefile>
     <define name="USE_UART0"/>
     <define name="INS_LINK" value="Uart0"/>

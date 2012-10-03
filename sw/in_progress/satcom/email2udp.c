@@ -26,7 +26,7 @@
  *
  */
 
- 
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -143,13 +143,13 @@ int base64_decode( unsigned char *dst, int *dlen,
 
 int base64_invalid(char *src, int  slen ) {
   int i;
-  
+
   for( i=0; i < slen; i++ ) {
     if( ( slen - i ) >= 2 && src[i] == '\r' && src[i + 1] == '\n' )
       return 0;
     if( src[i] == '\n' )
       return 0;
-    if(src[i] > 127 || base64_dec_map[(unsigned char)src[i]] == 127) 
+    if(src[i] > 127 || base64_dec_map[(unsigned char)src[i]] == 127)
       return 1;
   }
   return 0;
@@ -174,7 +174,7 @@ int main( int argc, char** argv) {
   line[0] = '\0';
   line[sizeof(line)-1] = ~'\0';
 
-  /* setup UDP */  
+  /* setup UDP */
   sock = socket(AF_INET, SOCK_DGRAM, 0);
   if (sock < 0) perror("socket");
   server.sin_family = AF_INET;
@@ -184,7 +184,7 @@ int main( int argc, char** argv) {
     exit(1);
   }
   memcpy((char *)&server.sin_addr,
-         (char *)hent->h_addr, 
+         (char *)hent->h_addr,
          hent->h_length);
   server.sin_port = htons(PORT);
   length=sizeof(struct sockaddr_in);
@@ -211,13 +211,13 @@ int main( int argc, char** argv) {
     len = strnlen(line, sizeof(line));
     if ((base64_crlf(line, len) == 1) || (base64_invalid(line, len) == 1)) break;
     if ((total_len+len) > sizeof(buf)) return 0;
-    
+
     /* fill buffer */
     memcpy(buf+total_len, line, len);
     total_len += len;
   } while (eof != NULL);
   if (eof == NULL) return 0;
-  
+
   len_out = sizeof(out);
 
   if (base64_decode(out, &len_out, buf, total_len) != 0) return 0;

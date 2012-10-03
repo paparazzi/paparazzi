@@ -4,7 +4,7 @@ MODCFLAGS=-Wall
 
 all:		turb_simu
 
-clean:	
+clean:
 	rm -f core *.o turb_simu
 
 ublox_conf:	ublox_conf.c Makefile

@@ -28,7 +28,7 @@
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 
 #include "stabilization_attitude_ref_float.h"
 
@@ -55,7 +55,7 @@ static const float omega_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_OMEGA_R;
 static const float zeta_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_ZETA_R;
 
 static void reset_psi_ref_from_body(void) {
-  stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
+  stab_att_ref_euler.psi = stateGetNedToBodyEulers_f()->psi;
   stab_att_ref_rate.r = 0;
   stab_att_ref_accel.r = 0;
 }

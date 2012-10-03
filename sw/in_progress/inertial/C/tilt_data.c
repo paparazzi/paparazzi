@@ -10,7 +10,7 @@
 #include <glib.h>
 
 #define DT 0.01
-#define T_END 90. 
+#define T_END 90.
 #define NB_POINTS (int)(T_END/DT)
 #define T0 10.
 #define T1 11.
@@ -41,7 +41,7 @@ struct tilt_data* tilt_data_gen(void) {
 	td->rate[i] = MAX_RATE * ( -1. + cos((td->t[i] - T1)/DELTA_T2*2*M_PI));
       td->angle[i] = td->angle[i-1] + td->rate[i] * td->dt;
     }
-    td->bias[i] = td->t[i] < 30. ? BIAS_GYRO * ( 1. + td->t[i] * DBIAS_GYRO) : 
+    td->bias[i] = td->t[i] < 30. ? BIAS_GYRO * ( 1. + td->t[i] * DBIAS_GYRO) :
       BIAS_GYRO * ( 1. + 30. * DBIAS_GYRO);
   }
 
@@ -67,7 +67,7 @@ void tilt_data_save_state(struct tilt_data* td, int idx, double* X, double* P) {
 
 struct tilt_data* tilt_data_read_log(const char* filename) {
   GError* _err = NULL;
-  GIOChannel* in_c = g_io_channel_new_file(filename, "r", &_err); 
+  GIOChannel* in_c = g_io_channel_new_file(filename, "r", &_err);
   if (_err) {
     g_free(_err);
     return NULL;
@@ -102,14 +102,14 @@ struct tilt_data* tilt_data_read_log(const char* filename) {
   int i;
   for (i=0; i<ga_gyro->len; i++) {
     double* ggx = &g_array_index(ga_gyro, double, i);
-    td->gyro[i] = *ggx; 
+    td->gyro[i] = *ggx;
     double* gay = &g_array_index(ga_ay, double, i);
-    td->ay[i] = *gay; 
+    td->ay[i] = *gay;
     double* gaz = &g_array_index(ga_az, double, i);
-    td->az[i] = *gaz; 
+    td->az[i] = *gaz;
     td->m_angle[i] = atan2(td->ay[i], td->az[i]);
   }
-  
+
   return td;
 }
 

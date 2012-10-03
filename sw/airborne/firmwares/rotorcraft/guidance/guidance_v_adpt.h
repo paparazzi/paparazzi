@@ -41,14 +41,23 @@
 #define GUIDANCE_V_ADAPT_NOISE_FACTOR 1.0
 #endif
 
-/** Filter is not fed if accel values are more than +/- MAX_ACCEL
+/** Initial estimation.
+ *  The initial value can be adapted for faster converging time
+ *  It is usually recommended to start with a higher value (overestimation of the mass),
+ *  as it is helping for a smooth takeoff
+ */
+#ifndef GUIDANCE_V_ADAPT_X0
+#define GUIDANCE_V_ADAPT_X0 0.003
+#endif
+
+/** Filter is not fed if accel values are more than +/- MAX_ACCEL.
  *  MAX_ACCEL is a positive value in m/s^2
  */
 #ifndef GUIDANCE_V_ADAPT_MAX_ACCEL
 #define GUIDANCE_V_ADAPT_MAX_ACCEL 4.0
 #endif
 
-/** Filter is not fed if command values are out of a % of 0/MAX_PPRZ
+/** Filter is not fed if command values are out of a % of 0/MAX_PPRZ.
  *  MAX_CMD and MIN_CMD must be between 0 and 1 with MIN_CMD < MAX_CMD
  */
 #ifndef GUIDANCE_V_ADAPT_MAX_CMD
@@ -63,7 +72,7 @@
  *  Q13.18
  */
 extern int32_t gv_adapt_X;
-#define GV_ADAPT_X_FRAC 18
+#define GV_ADAPT_X_FRAC 24
 
 /** Covariance.
  *  fixed point representation with #GV_ADAPT_P_FRAC
@@ -84,9 +93,9 @@ int32_t gv_adapt_Xmeas;
 
 
 /* Initial State and Covariance    */
-#define GV_ADAPT_X0_F 0.15
+#define GV_ADAPT_X0_F GUIDANCE_V_ADAPT_X0
 #define GV_ADAPT_X0 BFP_OF_REAL(GV_ADAPT_X0_F, GV_ADAPT_X_FRAC)
-#define GV_ADAPT_P0_F 0.5
+#define GV_ADAPT_P0_F 0.1
 #define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)
 
 /* System  noises */
@@ -94,9 +103,9 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
 /* Measuremement noises */
-#define GV_ADAPT_MEAS_NOISE_HOVER_F (8.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
+#define GV_ADAPT_MEAS_NOISE_HOVER_F (50.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 #define GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_HOVER_F, GV_ADAPT_P_FRAC)
-#define GV_ADAPT_MEAS_NOISE_OF_ZD (20.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
+#define GV_ADAPT_MEAS_NOISE_OF_ZD (100.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 
 /* Max accel */
 #define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL)
@@ -134,22 +143,18 @@ static inline void gv_adapt_init(void) {
  */
 static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
-  /* Do you really think we want to divide by zero ?
-   * Negative commands are also prohibited here
-   */
-  if (thrust_applied <= 0) return;
-
-  /* We don't propagate state, it's constant !       */
-  /* We propagate our covariance                     */
-  gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
-
   /* Update only if accel and commands are in a valid range */
+  /* This also ensures we don't divide by zero */
   if (thrust_applied < GV_ADAPT_MIN_CMD || thrust_applied > GV_ADAPT_MAX_CMD
       || zdd_meas < -GV_ADAPT_MAX_ACCEL || zdd_meas > GV_ADAPT_MAX_ACCEL) {
     return;
   }
 
-  /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
+  /* We don't propagate state, it's constant !       */
+  /* We propagate our covariance                     */
+  gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
+
+  /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 30 bits */
   const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
   if ( g_m_zdd > 0) {
     gv_adapt_Xmeas = (g_m_zdd + (thrust_applied>>1)) / thrust_applied;
@@ -160,21 +165,21 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
   /* Compute a residual */
   int32_t residual = gv_adapt_Xmeas - gv_adapt_X;
 
-  /* Covariance Error   */
+  /* Covariance Error  E = P + R  */
   int32_t ref = zd_ref >> (INT32_SPEED_FRAC - GV_ADAPT_P_FRAC);
   if (zd_ref < 0) ref = -ref;
   int32_t E = gv_adapt_P + GV_ADAPT_MEAS_NOISE_HOVER + ref * GV_ADAPT_MEAS_NOISE_OF_ZD;
 
-  /* Kalman gain        */
+  /* Kalman gain  K = P / (P + R) = P / E  */
   int32_t K = (gv_adapt_P<<K_FRAC) / E;
 
-  /* Update Covariance */
+  /* Update Covariance  Pnew = P - K * P   */
   gv_adapt_P = gv_adapt_P - ((K * gv_adapt_P)>>K_FRAC);
   /* Don't let covariance climb over initial value */
   if (gv_adapt_P > GV_ADAPT_P0) gv_adapt_P = GV_ADAPT_P0;
 
   /* Update State */
-  gv_adapt_X = gv_adapt_X + ((K * residual)>>K_FRAC);
+  gv_adapt_X = gv_adapt_X + (((int64_t)(K * residual))>>K_FRAC);
 
   /* Again don't let it climb over a value that would
    * give less than zero throttle and don't let it down to zero.

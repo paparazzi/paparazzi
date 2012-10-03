@@ -14,7 +14,6 @@
 
   <firmware name="fixedwing">
     <define name="AGR_CLIMB"/>
-    <define name="ALT_KALMAN"/>
     <define name="LOITER_TRIM"/>
     <!--define name="PITCH_TRIM"/-->
 
@@ -37,6 +36,7 @@
     <subsystem name="ahrs"    type="float_dcm">
       <define name="USE_HIGH_ACCEL_FLAG"/>
     </subsystem>
+    <subsystem name="ins" type="alt_float"/>
     <subsystem name="control" type="adaptive"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->
@@ -195,7 +195,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
   </section>
 

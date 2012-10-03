@@ -123,6 +123,10 @@ struct FloatRates {
 /* _vo = _vi * _s */
 #define FLOAT_VECT2_SMUL(_vo, _vi, _s) VECT2_SMUL(_vo, _vi, _s)
 
+#define FLOAT_VECT2_NORM(n, v) {               \
+    n = sqrtf((v).x*(v).x + (v).y*(v).y);      \
+  }
+
 
 /*
  * Dimension 3 Vectors

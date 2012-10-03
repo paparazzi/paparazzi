@@ -39,6 +39,9 @@ $(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
 $(TARGET).CFLAGS 	+= -DPERIPHERALS_AUTO_INIT
 $(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
 
+# would be better to auto-generate this
+$(TARGET).CFLAGS 	+= -DFIRMWARE=FIXEDWING
+
 $(TARGET).srcs 	+= mcu.c
 $(TARGET).srcs 	+= $(SRC_ARCH)/mcu_arch.c
 
@@ -84,7 +87,7 @@ $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
 #
 # Math functions
 #
-$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
 
 #
 # I2C
@@ -159,8 +162,20 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ap_CFLAGS 		+= -DAP
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
-ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
+ap_srcs 		+= state.c
+
+# BARO
+ifeq ($(BOARD), umarim)
+ifeq ($(BOARD_VERSION), 1.0)
+ap_srcs 	+= boards/umarim/baro_board.c
+ap_CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
+ap_CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+ap_srcs 	+= peripherals/ads1114.c
+endif
+else ifeq ($(BOARD), lisa_l)
+ap_CFLAGS += -DUSE_I2C2
+endif
 
 
 ######################################################################
@@ -226,6 +241,7 @@ jsbsim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 ifeq ($(BOARD),classix)
   fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
   fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+  ap_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
   ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
   ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 else

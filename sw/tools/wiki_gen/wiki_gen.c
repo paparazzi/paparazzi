@@ -26,7 +26,7 @@ void parse_name(char* subs)
     printf("\" type=\"");
     for (i++;i<256;i++)
     {
-    
+
       if (subs[i] == '.')
       {
         break;
@@ -45,10 +45,10 @@ int empty_line(char* line)
   for (int i=0;i<256;i++)
   {
     if (
-         (line[i] == ' ') || 
-         (line[i] == '\t') || 
-         (line[i] == '\n') || 
-         (line[i] == '\r') 
+         (line[i] == ' ') ||
+         (line[i] == '\t') ||
+         (line[i] == '\n') ||
+         (line[i] == '\r')
        )
     {
     }
@@ -74,7 +74,7 @@ void print_subsys(char* file)
   fp = fopen(file , "r");
   if ( fp != NULL)
   {
-   
+
     while (fgets(line, sizeof(line), fp) != NULL)
     {
        if (empty_line(line) == 0)
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
   list_subs = fopen(argv[1] , "r");
   if ( list_subs != NULL)
   {
-   
+
     while (fgets(buff, sizeof(buff), list_subs) != NULL)
     {
        for (int i=0;i<256;i++)
@@ -118,8 +118,8 @@ int main(int argc, char** argv)
     }
     fclose(list_subs);
   }
-  
-  
+
+
   printf("converting");
   return 0;
 

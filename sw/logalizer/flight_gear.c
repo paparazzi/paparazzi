@@ -84,11 +84,11 @@ void net_fdm_ntoh (struct FGNetFDM* fdm) {
 }
 
 void net_fdm_dump (struct FGNetFDM* fdm) {
-  printf("net_fdm (version %d size %d)\n",fdm->version, sizeof( *fdm)); 
-  printf("  lat, lon, alt, agl\n  [%f %f %f %f]\n", 
+  printf("net_fdm (version %d size %d)\n",fdm->version, sizeof( *fdm));
+  printf("  lat, lon, alt, agl\n  [%f %f %f %f]\n",
 	 fdm->latitude, fdm->longitude, fdm->altitude, fdm->agl);
   printf("  phi, theta, psi, alpha, beta\n  [%f %f %f %f %f]\n",
-	 fdm->phi, fdm->theta, fdm->psi, fdm->alpha, fdm->beta);  
+	 fdm->phi, fdm->theta, fdm->psi, fdm->alpha, fdm->beta);
   printf("  phidot, thetadot, psidot, vcas, climb_rate\n  [%f %f %f %f %f]\n",
 	 fdm->phidot, fdm->thetadot, fdm->psidot, fdm->vcas, fdm->climb_rate);
   printf("  v_north, v_east, v_down\n  [%f %f %f]\n",
@@ -100,15 +100,15 @@ void net_fdm_dump (struct FGNetFDM* fdm) {
 
   printf("  cur_time, warp\n  [%u %u]\n", fdm->cur_time, fdm->warp);
   printf("  visibility [%f]\n", fdm->visibility);
-  printf("  elevator, elevator_trim_tab\n  [%f %f]\n", 
+  printf("  elevator, elevator_trim_tab\n  [%f %f]\n",
 	 fdm->elevator, fdm->elevator_trim_tab);
-  printf("  left_flap, right_flap\n  [%f %f]\n", 
+  printf("  left_flap, right_flap\n  [%f %f]\n",
 	 fdm->left_flap, fdm->right_flap);
-  printf("  left_aileron, right_aileron\n  [%f %f]\n", 
+  printf("  left_aileron, right_aileron\n  [%f %f]\n",
 	 fdm->left_aileron, fdm->right_aileron);
-  printf("  rudder, nose_wheel\n  [%f %f]\n", 
+  printf("  rudder, nose_wheel\n  [%f %f]\n",
 	 fdm->rudder, fdm->nose_wheel);
-  printf("  speedbrake, spoilers\n  [%f %f]\n", 
+  printf("  speedbrake, spoilers\n  [%f %f]\n",
 	 fdm->speedbrake, fdm->spoilers);
 
 }
@@ -116,12 +116,12 @@ void net_fdm_dump (struct FGNetFDM* fdm) {
 void net_fdm_init ( struct FGNetFDM* fdm ) {
 
   fdm->version = FG_NET_FDM_VERSION;
-  
+
   fdm->latitude = 0.656480;
   fdm->longitude = -2.135537;
   fdm->altitude = 2.;
   fdm->agl = 1.111652;
-  
+
   fdm->phi = 0.;
   fdm->theta = 0.;
   fdm->psi = 5.20;
@@ -185,7 +185,7 @@ void net_fdm_init ( struct FGNetFDM* fdm ) {
   fdm->cur_time = 3213082700ul;
   fdm->warp = 0;
   fdm->visibility = 1000.;
-  
+
   fdm->elevator = 0.;
   fdm->elevator_trim_tab = 0.;
   fdm->left_flap = 0.;
@@ -200,16 +200,16 @@ void net_fdm_init ( struct FGNetFDM* fdm ) {
 }
 
 void net_gui_init (struct FGNetGUI* gui) {
-  gui->version = FG_NET_GUI_VERSION; 
+  gui->version = FG_NET_GUI_VERSION;
   gui->latitude = 0.656480;
   gui->longitude = -2.135537;
   gui->altitude = 0.807609;
   gui->agl = 1.111652;
-  
+
   gui->phi = 0.;
   gui->theta = 0.;
   gui->psi = 5.20;
-  
+
   gui->vcas = 0.;
   gui->climb_rate = 0.;
 
@@ -243,11 +243,11 @@ void net_gui_hton (struct FGNetGUI* gui) {
 }
 
 void net_gui_dump (struct FGNetGUI* gui) {
-  printf("net_gui (version %d size %d)\n",gui->version, sizeof( *gui)); 
-  printf("  lat, lon, alt, agl\n  [%f %f %f %f]\n", 
+  printf("net_gui (version %d size %d)\n",gui->version, sizeof( *gui));
+  printf("  lat, lon, alt, agl\n  [%f %f %f %f]\n",
 	 gui->latitude, gui->longitude, gui->altitude, gui->agl);
   printf("  phi, theta, psi\n  [%f %f %f]\n",
-	 gui->phi, gui->theta, gui->psi);  
+	 gui->phi, gui->theta, gui->psi);
   printf("  vcas, climb_rate\n  [%f %f]\n",
 	 gui->vcas, gui->climb_rate);
   printf("  num_tanks, fuel[0], fuel[1], fuel[2], fuel[3]\n  [%u %f %f %f %f]\n",
@@ -273,7 +273,7 @@ void net_ctrls_init(struct FGNetCtrls* ctrls) {
   ctrls->flaps = 0.;
   ctrls->spoilers = 0.;
   ctrls->speedbrake = 0.;
-  
+
   ctrls->flaps_power = 1;
   ctrls->flap_motor_ok = 1;
 
@@ -347,10 +347,10 @@ void net_ctrls_ntoh(struct FGNetCtrls* ctrls) {
 
 
 void net_ctrls_dump(struct FGNetCtrls* ctrls) {
-  printf("net_ctrls (version %d size %d)\n",ctrls->version, sizeof( *ctrls)); 
-  printf("  aileron elevator rudder\n  [%f %f %f]\n", 
+  printf("net_ctrls (version %d size %d)\n",ctrls->version, sizeof( *ctrls));
+  printf("  aileron elevator rudder\n  [%f %f %f]\n",
 	 ctrls->aileron, ctrls->elevator, ctrls->rudder);
-  printf("  throttle\n  [%f %f %f]\n", 
+  printf("  throttle\n  [%f %f %f]\n",
 	 ctrls->throttle[0], ctrls->throttle[1], ctrls->throttle[2]);
 
 }
@@ -413,4 +413,4 @@ void mplay_msg_init ( struct FGMplayMsg* msg) {
   msg->header.id = 7;
   msg->header.len = 232;
 
-} 
+}

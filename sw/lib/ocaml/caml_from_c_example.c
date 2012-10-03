@@ -12,7 +12,7 @@ void print_ascii_to_binary(int n, char* msg)
   static value * caml_to_binary_closure = NULL;
   if (caml_to_binary_closure == NULL)
     caml_to_binary_closure = caml_named_value("to_binary");
-  
+
   value s = caml_callback2(*caml_to_binary_closure, Val_int(n), caml_copy_string(msg));
 
   int i;

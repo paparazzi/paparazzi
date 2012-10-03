@@ -123,3 +123,8 @@ setup_actuators.ARCHDIR = $(ARCH)
 setup_actuators.CFLAGS += -I$(ARCH)
 setup_actuators.srcs   += $(SRC_ARCH)/led_hw.c
 endif
+
+# a test program for ABI
+test_abi.CFLAGS += -DUSE_LED -DPERIPHERALS_AUTO_INIT
+test_abi.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_hw.c $(SRC_ARCH)/armVIC.c mcu.c $(SRC_ARCH)/mcu_arch.c
+test_abi.srcs += test/test_abi.c

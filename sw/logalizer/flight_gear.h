@@ -2,11 +2,11 @@
 #define FLIGHT_GEAR_H
 
 #include <stdint.h>
-   
+
 #define FG_NET_CTRLS_VERSION 27
-#define FG_NET_CTRLS_MAX_ENGINES 4 
-#define FG_NET_CTRLS_MAX_WHEELS  16 
-#define FG_NET_CTRLS_MAX_TANKS   8 
+#define FG_NET_CTRLS_MAX_ENGINES 4
+#define FG_NET_CTRLS_MAX_WHEELS  16
+#define FG_NET_CTRLS_MAX_TANKS   8
 #define FG_NET_CTRLS_RESERVED_SPACE 25
 
 struct FGNetCtrls {
@@ -63,13 +63,13 @@ struct FGNetCtrls {
     double copilot_brake_left;
     double copilot_brake_right;
     double brake_parking;
-    
+
     // Landing Gear
     uint32_t gear_handle; // true=gear handle down; false= gear handle up
 
     // Switches
     uint32_t master_avionics;
-    
+
         // nav and Comm
     double	comm_1;
     double	comm_2;
@@ -110,9 +110,9 @@ struct FGNetCtrls {
 
 
 #define FG_NET_FDM_VERSION 23
-#define FG_NET_FDM_MAX_ENGINES 4 
-#define FG_NET_FDM_MAX_WHEELS  3 
-#define FG_NET_FDM_MAX_TANKS   4 
+#define FG_NET_FDM_MAX_ENGINES 4
+#define FG_NET_FDM_MAX_WHEELS  3
+#define FG_NET_FDM_MAX_TANKS   4
 
 
 struct FGNetFDM {
@@ -146,7 +146,7 @@ struct FGNetFDM {
                               // relative to local airmass, fps
   float v_wind_body_down;     // down/vertical velocity in local/body
                               // frame relative to local airmass, fps
-  
+
   // Accelerations
   float A_X_pilot;            // X accel in body frame ft/sec^2
   float A_Y_pilot;            // Y accel in body frame ft/sec^2
@@ -154,9 +154,9 @@ struct FGNetFDM {
   // Stall
   float stall_warning;        // 0.0 - 1.0 indicating the amount of stall
   float slip_deg;             // slip ball deflection
-  
+
   // Pressure
-  
+
   // Engine status
   uint32_t num_engines;            // Number of valid engines
   uint32_t eng_state[FG_NET_FDM_MAX_ENGINES];// Engine state (off, cranking, running)
@@ -168,24 +168,24 @@ struct FGNetFDM {
   float tit[FG_NET_FDM_MAX_ENGINES];       // Turbine Inlet Temperature
   float oil_temp[FG_NET_FDM_MAX_ENGINES];  // Oil temp deg F
   float oil_px[FG_NET_FDM_MAX_ENGINES];    // Oil pressure psi
-  
+
   // Consumables
   uint32_t num_tanks;         // Max number of fuel tanks
   float fuel_quantity[FG_NET_FDM_MAX_TANKS];
-  
+
   // Gear status
   uint32_t num_wheels;
   uint32_t wow[FG_NET_FDM_MAX_WHEELS];
   float gear_pos[FG_NET_FDM_MAX_WHEELS];
   float gear_steer[FG_NET_FDM_MAX_WHEELS];
   float gear_compression[FG_NET_FDM_MAX_WHEELS];
-  
+
   // Environment
   uint32_t cur_time;           // current unix time
   // FIXME: make this uint64_t before 2038
   int32_t warp;                // offset in seconds to unix time
   float visibility;            // visibility in meters (for env. effects)
-  
+
   // Control surface positions (normalized values)
   float elevator;
   float elevator_trim_tab;
@@ -237,7 +237,7 @@ struct FGNetGUI {
   float phi;                  // roll (radians)
   float theta;                // pitch (radians)
   float psi;                  // yaw or true heading (radians)
-  
+
   // Velocities
   float vcas;
   float climb_rate;           // feet per second

@@ -23,10 +23,10 @@ static uint8_t input_buf_idx = 0;
 static uint16_t saved_valim;
 
 inline void periodic_task( void ) { // 15 Hz
-  static uint8_t _1Hz = 0; 
+  static uint8_t _1Hz = 0;
   _1Hz++;
   if (_1Hz>=15) _1Hz=0;
-  
+
   if (!_1Hz) {
     uint8_t cd_status = bit_is_set(SOFT_UART_CD_PIN, SOFT_UART_CD);
     cputime++;
@@ -38,7 +38,7 @@ inline void periodic_task( void ) { // 15 Hz
 
 int main( void ) {
   /* init peripherals */
-  timer_init(); 
+  timer_init();
   uart_init();
   soft_uart_init();
   adc_init();
@@ -56,7 +56,7 @@ int main( void ) {
       input_buf[input_buf_idx] = soft_uart_byte;
       input_buf_idx++;
       if (input_buf_idx >= INPUT_BUF_LEN) {
-	LINK_TMTC_SEND_DATA(input_buf, input_buf_idx); 
+	LINK_TMTC_SEND_DATA(input_buf, input_buf_idx);
 	input_buf_idx = 0;
       }
       soft_uart_got_byte = FALSE;
@@ -65,6 +65,6 @@ int main( void ) {
       saved_valim = adc_alim;
       adc_got_val = FALSE;
     }
-  } 
+  }
   return 0;
 }

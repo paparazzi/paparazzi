@@ -16,7 +16,6 @@
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="joystick"/>
@@ -27,10 +26,10 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="ahrs" 		type="infrared"/>
-    <subsystem name="gps" 		    type="ublox"/>
-
-    <subsystem name="navigation"    type="extra"/>
+    <subsystem name="ahrs" 		  type="infrared"/>
+    <subsystem name="gps" 		  type="ublox"/>
+    <subsystem name="ins"         type="gps_passthrough"/>
+    <subsystem name="navigation"  type="extra"/>
   </firmware>
 
 
@@ -119,8 +118,7 @@
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="ALT_KALMAN_ENABLED" value="FALSE"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
@@ -168,7 +166,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
   </section>
 

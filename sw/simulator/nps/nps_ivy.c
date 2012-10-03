@@ -97,7 +97,7 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
   struct EnuCoor_i enu;
   lla.lat = INT32_RAD_OF_DEG(atoi(argv[3]));
   lla.lon = INT32_RAD_OF_DEG(atoi(argv[4]));
-  lla.alt = atoi(argv[5]) - ins_ltp_def.hmsl + ins_ltp_def.lla.alt;
+  lla.alt = atoi(argv[5])*10 - ins_ltp_def.hmsl + ins_ltp_def.lla.alt;
   enu_of_lla_point_i(&enu,&ins_ltp_def,&lla);
   enu.x = POS_BFP_OF_REAL(enu.x)/100;
   enu.y = POS_BFP_OF_REAL(enu.y)/100;

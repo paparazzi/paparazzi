@@ -6,7 +6,7 @@ LDFLAGS = `pkg-config glib-2.0 --libs` -lm
 	gcc -c -Wall $(CFLAGS) -o $@ $<
 
 CFLAGS += `pkg-config gtk+-2.0 --cflags`
-LDFLAGS += `pkg-config gtk+-2.0 --libs` -lgtkdatabox 
+LDFLAGS += `pkg-config gtk+-2.0 --libs` -lgtkdatabox
 
 #
 #
@@ -36,7 +36,7 @@ OBJS_TILT_EKF =	tilt_data.o 	\
 #CFLAGS += -DEKF_UPDATE_DISCRETE
 CFLAGS += -DEKF_UPDATE_CONTINUOUS
 tilt_ekf: $(OBJS_TILT_EKF)
-	gcc  -o $@ $^ $(LDFLAGS) 
+	gcc  -o $@ $^ $(LDFLAGS)
 
 
 OBJS_TILT_FAST_EKF =	tilt_data.o 	 \
@@ -115,7 +115,7 @@ OBJS_TEST_MATRIX = 	test_matrix.o 	\
 			matrix.o
 
 test_matrix: $(OBJS_TEST_MATRIX)
-	gcc  -o $@ $^ $(LDFLAGS) 
+	gcc  -o $@ $^ $(LDFLAGS)
 
 OBJS_TEST_UKF =  main.o    \
 		linalg.o  \

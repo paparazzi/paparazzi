@@ -13,8 +13,8 @@
 
 <blocks>
   <block name="init">
-    <while cond="(estimator_flight_time)"></while>
-    <heading course="QFU" vmode="climb" climb="2.0" until="(estimator_z > SECURITY_ALT)"/>
+    <while cond="(autopilot_flight_time)"></while>
+    <heading course="QFU" vmode="climb" climb="2.0" until="(GetPosAlt() > SECURITY_ALT)"/>
   </block>
 
   <block name="balaye">

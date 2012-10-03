@@ -17,11 +17,11 @@ extern double psi_of_mag(double phi, double theta, double mx, double my, double 
   const float sphi   = sin( phi );
   const float ctheta = cos( theta );
   const float stheta = sin( theta );
-  const float mn = 
+  const float mn =
            ctheta * mx +
     sphi * stheta * my +
     cphi * stheta * mz;
-  const float me = 
+  const float me =
      0    * mx+
      cphi * my+
     -sphi * mz;
@@ -61,7 +61,7 @@ void eulers_of_quat(double* euler, double* quat) {
 }
 
 void norm_quat(double* quat) {
-  double  mag = quat[0]*quat[0] + quat[1]*quat[1] + 
+  double  mag = quat[0]*quat[0] + quat[1]*quat[1] +
                 quat[2]*quat[2] + quat[3]*quat[3];
   mag = sqrt( mag );
   quat[0] /= mag;
@@ -82,8 +82,8 @@ void ahrs_euler_init(struct ahrs_data* ad, int len, double* X) {
   int iter;
   for (iter = 0; iter < len; iter++) {
     /* average attitude */
-    init_phi += phi_of_accel(ad->accel_x[iter], ad->accel_y[iter], ad->accel_z[iter]); 
-    init_theta += theta_of_accel(ad->accel_x[iter], ad->accel_y[iter], ad->accel_z[iter]); 
+    init_phi += phi_of_accel(ad->accel_x[iter], ad->accel_y[iter], ad->accel_z[iter]);
+    init_theta += theta_of_accel(ad->accel_x[iter], ad->accel_y[iter], ad->accel_z[iter]);
     init_mx += ad->mag_x[iter];
     init_my += ad->mag_y[iter];
     init_mz += ad->mag_z[iter];

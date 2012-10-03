@@ -29,7 +29,7 @@ struct ahrs_data* ahrs_data_new(int len, double dt) {
   ad->gyro_p = malloc(ad->nb_samples*sizeof(double));
   ad->gyro_q = malloc(ad->nb_samples*sizeof(double));
   ad->gyro_r = malloc(ad->nb_samples*sizeof(double));
-  
+
   ad->accel_x = malloc(ad->nb_samples*sizeof(double));
   ad->accel_y = malloc(ad->nb_samples*sizeof(double));
   ad->accel_z = malloc(ad->nb_samples*sizeof(double));
@@ -45,7 +45,7 @@ struct ahrs_data* ahrs_data_new(int len, double dt) {
   ad->est_phi   = malloc(ad->nb_samples*sizeof(double));
   ad->est_theta = malloc(ad->nb_samples*sizeof(double));
   ad->est_psi   = malloc(ad->nb_samples*sizeof(double));
-  
+
   ad->est_bias_p = malloc(ad->nb_samples*sizeof(double));
   ad->est_bias_q = malloc(ad->nb_samples*sizeof(double));
   ad->est_bias_r = malloc(ad->nb_samples*sizeof(double));
@@ -64,7 +64,7 @@ struct ahrs_data* ahrs_data_new(int len, double dt) {
 
 struct ahrs_data* ahrs_data_read_log(const char* filename) {
   GError* _err = NULL;
-  GIOChannel* in_c = g_io_channel_new_file(filename, "r", &_err); 
+  GIOChannel* in_c = g_io_channel_new_file(filename, "r", &_err);
   if (_err) {
     g_free(_err);
     return NULL;
@@ -117,27 +117,27 @@ struct ahrs_data* ahrs_data_read_log(const char* filename) {
     ad->t[i] = (double)i * ad->dt;
 
     double* ggx = &g_array_index(ga_gx, double, i);
-    ad->gyro_p[i] = *ggx; 
+    ad->gyro_p[i] = *ggx;
     double* ggy = &g_array_index(ga_gy, double, i);
-    ad->gyro_q[i] = *ggy; 
+    ad->gyro_q[i] = *ggy;
     double* ggz = &g_array_index(ga_gz, double, i);
     ad->gyro_r[i] = *ggz;
 
     double* gax = &g_array_index(ga_ax, double, i);
-    ad->accel_x[i] = *gax; 
+    ad->accel_x[i] = *gax;
     double* gay = &g_array_index(ga_ay, double, i);
-    ad->accel_y[i] = *gay; 
+    ad->accel_y[i] = *gay;
     double* gaz = &g_array_index(ga_az, double, i);
     ad->accel_z[i] = *gaz;
 
     double* gmx = &g_array_index(ga_mx, double, i);
-    ad->mag_x[i] = *gmx; 
+    ad->mag_x[i] = *gmx;
     double* gmy = &g_array_index(ga_my, double, i);
-    ad->mag_y[i] = *gmy; 
+    ad->mag_y[i] = *gmy;
     double* gmz = &g_array_index(ga_mz, double, i);
     ad->mag_z[i] = *gmz;
   }
-  
+
   return ad;
 }
 
@@ -184,7 +184,7 @@ void ahrs_data_save_measure(struct ahrs_data* ad, int idx) {
 
   ad->m_phi[idx] = phi_of_accel(ad->accel_x[idx], ad->accel_y[idx], ad->accel_z[idx]);
   ad->m_theta[idx] = theta_of_accel(ad->accel_x[idx], ad->accel_y[idx], ad->accel_z[idx]);
-  ad->m_psi[idx] = psi_of_mag(ad->est_phi[idx], ad->est_theta[idx], 
+  ad->m_psi[idx] = psi_of_mag(ad->est_phi[idx], ad->est_theta[idx],
 			      ad->mag_x[idx], ad->mag_y[idx], ad->mag_z[idx]);
 
 }

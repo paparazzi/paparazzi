@@ -28,7 +28,7 @@
 #include "mcu_periph/adc.h"
 #include BOARD_CONFIG
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 #include "std.h"
 //Messages
 #include "mcu_periph/uart.h"
@@ -78,6 +78,6 @@ void AOA_adc_update( void ) {
 	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, DefaultDevice, &adc_AOA_val, &AOA));
 
 #ifdef USE_AOA
-	EstimatorSetAOA(AOA);
+	stateSetAngleOfAttack_f(AOA);
 #endif
 }

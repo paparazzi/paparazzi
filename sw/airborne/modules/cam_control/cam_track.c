@@ -25,7 +25,7 @@
 #include "cam_track.h"
 
 #include "subsystems/ins.h"
-#include "subsystems/ahrs.h"
+#include "state.h"
 
 #if USE_HFF
 #include "subsystems/ins/hf_float.h"
@@ -72,7 +72,8 @@ void track_periodic_task(void) {
 
   cmd_msg[c++] = 'A';
   cmd_msg[c++] = ' ';
-  float phi = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.phi);
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+  float phi = att->phi;
   if (phi > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; phi = -phi; }
   cmd_msg[c++] = '0' + ((unsigned int) phi % 10);
@@ -81,7 +82,7 @@ void track_periodic_task(void) {
   cmd_msg[c++] = '0' + ((unsigned int) (1000*phi) % 10);
   cmd_msg[c++] = '0' + ((unsigned int) (10000*phi) % 10);
   cmd_msg[c++] = ' ';
-  float theta = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.theta);
+  float theta = att->theta;
   if (theta > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; theta = -theta; }
   cmd_msg[c++] = '0' + ((unsigned int) theta % 10);
@@ -90,7 +91,7 @@ void track_periodic_task(void) {
   cmd_msg[c++] = '0' + ((unsigned int) (1000*theta) % 10);
   cmd_msg[c++] = '0' + ((unsigned int) (10000*theta) % 10);
   cmd_msg[c++] = ' ';
-  float psi = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.psi);
+  float psi = att->psi;
   if (psi > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; psi = -psi; }
   cmd_msg[c++] = '0' + ((unsigned int) psi % 10);
@@ -99,7 +100,7 @@ void track_periodic_task(void) {
   cmd_msg[c++] = '0' + ((unsigned int) (1000*psi) % 10);
   cmd_msg[c++] = '0' + ((unsigned int) (10000*psi) % 10);
   cmd_msg[c++] = ' ';
-  float alt = -POS_FLOAT_OF_BFP(ins_ltp_pos.z);
+  float alt = stateGetPositionEnu_f()->z;
   //alt = 0.40;
   if (alt > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; alt = -alt; }
@@ -122,18 +123,18 @@ void track_periodic_task(void) {
 void track_event(void) {
   if (!ins_ltp_initialised) {
     ins_ltp_initialised = TRUE;
-    ins_hf_realign = TRUE;
+    ins.hf_realign = TRUE;
   }
 
 #if USE_HFF
-  if (ins_hf_realign) {
-    ins_hf_realign = FALSE;
+  if (ins.hf_realign) {
+    ins.hf_realign = FALSE;
     struct FloatVect2 pos, zero;
     pos.x = -target_pos_ned.x;
     pos.y = -target_pos_ned.y;
     ins_realign_h(pos, zero);
   }
-  const stuct FlotVect2 measuremet_noise = { 10.0, 10.0);
+  const stuct FlotVect2 measuremet_noise = { 10.0, 10.0 };
   b2_hff_update_pos(-target_pos_ned, measurement_noise);
   ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
   ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
@@ -141,6 +142,8 @@ void track_event(void) {
   ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
   ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
   ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
+
+  INS_NED_TO_STATE();
 #else
   // store pos in ins
   ins_ltp_pos.x = -(POS_BFP_OF_REAL(target_pos_ned.x));
@@ -149,6 +152,8 @@ void track_event(void) {
   // TODO get delta T
   // store last pos
   VECT3_COPY(last_pos_ned, target_pos_ned);
+
+  stateSetPositionNed_i(&ins_ltp_pos);
 #endif
 
   b2_hff_lost_counter = 0;

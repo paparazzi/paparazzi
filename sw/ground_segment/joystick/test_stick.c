@@ -68,9 +68,9 @@ static gboolean periodic(gpointer data __attribute__ ((unused))) {
 int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   parse_args(argc, argv);
-  
+
   if (stick_init(device_name) != 0) return 1;
 
   g_timeout_add(TIMEOUT_PERIOD, periodic, NULL);

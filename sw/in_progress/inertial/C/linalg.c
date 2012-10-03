@@ -6,14 +6,14 @@ void
 ukf_cholesky_decomposition(double *A, unsigned n, double *sigma) {
 	unsigned i,j,k;
 	double t;
-	
+
 	for(i = 0 ; i < n ; i++) {
 		if(i > 0) {
 			for(j = i ; j < n ; j++) {
 				t = 0.0;
 				for(k = 0 ; k < i  ; k++)
 					t += A[j * n + k] * A[i * n + k];
-				A[j * n + i] -= t;			
+				A[j * n + i] -= t;
 			}
 		}
 		if(A[i * n + i] <= 0.0) {
@@ -32,7 +32,7 @@ void
 ukf_cholesky_solve(double *A, unsigned n, double *sigma, double *B, unsigned m, double *X) {
 	int i,j,k;
 	double t;
-	
+
 	for(i = 0 ; i < m ; i++) { // iterate over the lines of B
 		for(j = 0 ; j < n ; j++) { // solve Ly=B
 			t = B[i * n + j];
@@ -46,7 +46,7 @@ ukf_cholesky_solve(double *A, unsigned n, double *sigma, double *B, unsigned m, 
 				t -= A[k * n + j] * X[i * n + k];
 			X[i * n + j] = t / sigma[j];
 		}
-	} 
+	}
 }
 
 
@@ -54,7 +54,7 @@ void
 ukf_cholesky_invert(double *A, unsigned n, double *sigma) {
 	double t;
 	int i,j,k;
-	
+
 	for(i = 0 ; i < n ; i++) {
 		A[i * n + i] = 1.0 / sigma[i];
 		for(j = i + 1 ; j < n ; j++) {

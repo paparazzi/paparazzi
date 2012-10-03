@@ -31,7 +31,7 @@
 #include "subsystems/navigation/common_nav.h" //needed for WaypointX, WaypointY and ground_alt
 #include "autopilot.h"
 #include "generated/flight_plan.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/navigation/traffic_info.h"
 #ifdef POINT_CAM
 #include "point.h"
@@ -234,8 +234,10 @@ void cam_target( void ) {
          cam_target_x, cam_target_y, cam_target_alt,
          &cam_pan_c, &cam_tilt_c);
 #else
-  vPoint(estimator_x, estimator_y, estimator_z,
-         estimator_phi, estimator_theta, estimator_hspeed_dir,
+  struct EnuCoor_f* pos = stateGetPositionEnu_f();
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+  vPoint(pos->x, pos->y, pos->z,
+         att->phi, att->theta, *stateGetHorizontalSpeedDir_f(),
          cam_target_x, cam_target_y, cam_target_alt,
          &cam_pan_c, &cam_tilt_c);
 #endif
@@ -244,12 +246,13 @@ void cam_target( void ) {
 
 /** Point straight down */
 void cam_nadir( void ) {
+  struct EnuCoor_f* pos = stateGetPositionEnu_f();
 #ifdef TEST_CAM
   cam_target_x = test_cam_estimator_x;
   cam_target_y = test_cam_estimator_y;
 #else
-  cam_target_x = estimator_x;
-  cam_target_y = estimator_y;
+  cam_target_x = pos->x;
+  cam_target_y = pos->y;
 #endif
   cam_target_alt = -10;
   cam_target();

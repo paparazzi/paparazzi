@@ -30,8 +30,13 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/flash.h>
+#include <libopencm3/stm32/f1/scb.h>
 
 void mcu_arch_init(void) {
+#if LUFTBOOT
+#pragma message "We are running luftboot, the interrupt vector is being relocated."
+  SCB_VTOR = 0x00002000;
+#endif
 #if EXT_CLK == 8000000
 #pragma message "Using 8MHz external clock to PLL it to 72MHz."
   rcc_clock_setup_in_hse_8mhz_out_72mhz();

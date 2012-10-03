@@ -1,7 +1,7 @@
 /*
  *      demod_afsk12.c -- 1200 baud AFSK demodulator
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@ static float corr_space_i[CORRLEN];
 static float corr_space_q[CORRLEN];
 
 /* ---------------------------------------------------------------------- */
-	
+
 void afsk12_init(struct demod_state *s)
 {
 	float f;
@@ -110,7 +110,7 @@ static void afsk12_demod(struct demod_state *s, float *buffer, int length)
 			s->l1.afsk12.sphase &= 0xffffu;
 			s->l1.afsk12.lasts <<= 1;
 			s->l1.afsk12.lasts |= s->l1.afsk12.dcd_shreg & 1;
-			curbit = (s->l1.afsk12.lasts ^ 
+			curbit = (s->l1.afsk12.lasts ^
 				  (s->l1.afsk12.lasts >> 1) ^ 1) & 1;
 			verbprintf(9, " %c ", '0'+curbit);
 			hdlc_rxbit(s, curbit);

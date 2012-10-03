@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -25,48 +25,71 @@
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"
+#include "state.h"
 
-/* gps transformed to LTP-NED  */
-extern struct LtpDef_i  ins_ltp_def;
-extern          bool_t  ins_ltp_initialised;
-extern struct NedCoor_i ins_gps_pos_cm_ned;
-extern struct NedCoor_i ins_gps_speed_cm_s_ned;
+#define INS_UNINIT  0
+#define INS_RUNNING 1
 
-/* barometer                   */
-#if USE_VFF
-extern int32_t ins_baro_alt;
-extern int32_t ins_qfe;
-extern bool_t  ins_baro_initialised;
-#if USE_SONAR
-extern bool_t  ins_update_on_agl; /* use sonar to update agl if available */
-extern int32_t ins_sonar_offset;
-#endif
+/* underlying includes (needed for parameters) */
+#ifdef INS_TYPE_H
+#include INS_TYPE_H
 #endif
 
-/* output LTP NED               */
-extern struct NedCoor_i ins_ltp_pos;
-extern struct NedCoor_i ins_ltp_speed;
-extern struct NedCoor_i ins_ltp_accel;
-/* output LTP ENU               */
-extern struct EnuCoor_i ins_enu_pos;
-extern struct EnuCoor_i ins_enu_speed;
-extern struct EnuCoor_i ins_enu_accel;
-#if USE_HFF
-/* horizontal gps transformed to NED in meters as float */
-extern struct FloatVect2 ins_gps_pos_m_ned;
-extern struct FloatVect2 ins_gps_speed_m_s_ned;
-#endif
+/** Inertial Navigation System state */
+struct Ins {
+  uint8_t status; ///< status of the INS
+  bool_t hf_realign; ///< realign horizontally if true
+  bool_t vf_realign; ///< realign vertically if true
+};
 
-extern bool_t ins_hf_realign;
-extern bool_t ins_vf_realign;
+/** global INS state */
+extern struct Ins ins;
 
+/** INS initialization. Called at startup.
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_init( void );
+
+/** INS periodic call.
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_periodic( void );
+
+/** INS horizontal realign.
+ *  @param pos new horizontal position to set
+ *  @param speed new horizontal speed to set
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed);
+
+/** INS vertical realign.
+ *  @param z new altitude to set
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_realign_v(float z);
+
+/** Propagation. Usually integrates the gyro rates to angles.
+ *  Reads the global #imu data struct.
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_propagate( void );
+
+/** Update INS state with barometer measurements.
+ *  Reads the global #baro data struct.
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_update_baro( void );
+
+/** Update INS state with GPS measurements.
+ *  Reads the global #gps data struct.
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_update_gps( void );
+
+/** Update INS state with sonar measurements.
+ *  Reads the global #sonar data struct.
+ *  Needs to be implemented by each INS algorithm.
+ */
 extern void ins_update_sonar( void );
 
 

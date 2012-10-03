@@ -83,7 +83,7 @@ Add to flightplan
 
 
 // Flightplan Variables
-extern int photogrammetry_sweep_angle;
+extern float photogrammetry_sweep_angle;
 extern int photogrammetry_sidestep;
 extern int photogrammetry_triggerstep;
 extern int photogrammetry_height;
@@ -99,34 +99,52 @@ extern int photogrammetry_overlap;
 extern int photogrammetry_resolution;
 
 void init_photogrammetry_calculator(void);
-void photogrammetry_calculator_update(void);
+void photogrammetry_calculator_update_camera2flightplan(void);
+void photogrammetry_calculator_update_flightplan2camera(void);
 
-// Update Parameters on Settings Change
+// Update Flightplan on Camera Change
 #define photogrammetry_calculator_UpdateSideLap(X)	{ 	\
   photogrammetry_sidelap = X;					\
-  photogrammetry_calculator_update();				\
+  photogrammetry_calculator_update_camera2flightplan();		\
 }
 
 #define photogrammetry_calculator_UpdateOverLap(X)	{ 	\
   photogrammetry_overlap = X;					\
-  photogrammetry_calculator_update();				\
+  photogrammetry_calculator_update_camera2flightplan();		\
 }
 
 #define photogrammetry_calculator_UpdateResolution(X)	{ 	\
   photogrammetry_resolution = X;				\
-  photogrammetry_calculator_update();				\
+  photogrammetry_calculator_update_camera2flightplan();		\
 }
+
+// Update Camera on Flightplan Change
+#define photogrammetry_calculator_UpdateHeight(X)	{ 	\
+  photogrammetry_height = X;					\
+  photogrammetry_calculator_update_flightplan2camera();		\
+}
+
+#define photogrammetry_calculator_UpdateSideStep(X)	{ 	\
+  photogrammetry_sidestep = X;					\
+  photogrammetry_calculator_update_flightplan2camera();		\
+}
+
+#define photogrammetry_calculator_UpdateTriggerStep(X)	{ 	\
+  photogrammetry_triggerstep = X;				\
+  photogrammetry_calculator_update_flightplan2camera();		\
+}
+
 
 // Flightplan Routine Wrappers
 #define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {  			\
-  WaypointAlt(WP__BASELEG) = photogrammetry_height + GROUND_ALT;		\
-  int _ang = 90 - photogrammetry_sweep_angle; 					\
+  WaypointAlt(_WP) = photogrammetry_height + GROUND_ALT;			\
+  int _ang = 90 - DegOfRad(photogrammetry_sweep_angle);				\
   if (_ang > 90) _ang -= 180; if (_ang < -90) _ang += 180; 			\
   InitializePolygonSurvey((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
 }
 
 #define PhotogrammetryCalculatorPolygonSurveyADV(_WP, _COUNT) {			\
-  init_poly_survey_adv((_WP), (_COUNT), photogrammetry_sweep_angle, 		\
+  init_poly_survey_adv((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle),	\
     photogrammetry_sidestep, photogrammetry_triggerstep, 			\
   photogrammetry_radius_min,  photogrammetry_height + GROUND_ALT);		\
 }

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ -z $1 ] 
+then
+	echo "usage: sw/logalizer/getopenlog <textfile from openlog> <textfile from openlog>*"
+elif [ -z $PAPARAZZI_HOME ] 
+then 
+	echo "\$PAPARAZZI_HOME isn't set in this shell. Please verify your environment variables!"
+else
+for i in $*
+do
+  $PAPARAZZI_HOME/sw/logalizer/openlog2tlm $i $i.tlm
+  if [ $? -eq 0 ]
+  then
+    $PAPARAZZI_HOME/sw/logalizer/sd2log $i.tlm
+  else
+    echo "openlog2tlm was not succesful. Please check for errors"
+  fi
+  rm $i.tlm
+done
+fi

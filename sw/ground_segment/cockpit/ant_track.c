@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2009 - Pascal Brisset, Antoine Drouin
  *
  * Modified by: Mark Griffin
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 #include <gtk/gtk.h>
@@ -50,7 +50,7 @@ GtkWidget *elev_scale;
 void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
   mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)) ? MANUAL : AUTO;
   IvySendMsg("1ME RAW_DATALINK 80 SETTING;0;0;%d", mode);
-  g_message("Mode changed to %d" , mode);  
+  g_message("Mode changed to %d" , mode);
 }
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
@@ -175,7 +175,7 @@ GtkWidget* build_gui ( void ) {
 
 /* jump here when a GPS message is received */
 void on_GPS_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
-  if (home_found == 0) {  
+  if (home_found == 0) {
 	if (atof(argv[0]) == 3) { /* wait until we have a valid GPS fix */
     	   home_alt = atof(argv[4])/100.; /* get the altitude */
     	   home_found = 1;

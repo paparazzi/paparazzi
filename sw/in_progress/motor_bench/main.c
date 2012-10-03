@@ -114,7 +114,7 @@ static void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, c
     g_string_printf(str, "%.4f %.3f %.0f %.1f %.1f %.1f\n", mb_state.time, mb_state.throttle, mb_state.rpms, mb_state.amps, mb_state.thrust, mb_state.torque);
     gsize b_writen;
     GError* my_err = NULL;
-    GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel,str->str, str->len, &b_writen, &my_err); 
+    GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel,str->str, str->len, &b_writen, &my_err);
     g_string_free(str, TRUE);
   }
   //  g_message("foo %f %f %f %f %d", mb_state.time, throttle, rpm, amp, mode);
@@ -131,7 +131,7 @@ static void on_MOTOR_BENCH_STATIC(IvyClientPtr app, void *user_data, int argc, c
     g_string_printf(str, "%0f %.3f %.2f %.1f\n", mb_state.av_throttle, mb_state.av_rpm, mb_state.av_amps, mb_state.av_thrust);
     gsize b_writen;
     GError* my_err = NULL;
-    GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel_static,str->str, str->len, &b_writen, &my_err); 
+    GIOStatus stat = g_io_channel_write_chars(mb_state.log_channel_static,str->str, str->len, &b_writen, &my_err);
     g_string_free(str, TRUE);
   }
   g_message("in_static %f %f %f %f", mb_state.av_throttle, mb_state.av_rpm, mb_state.av_amps, mb_state.av_thrust);
@@ -163,7 +163,7 @@ static void on_log_button_toggled (GtkWidget *widget, gpointer data) {
      GError* my_err = NULL;
      mb_state.log_channel = g_io_channel_new_file (log_file_name, "w", &my_err);
      GString* static_name = g_string_sized_new(128);
-     g_string_printf(static_name,"%s%s", log_file_name, "_static"); 
+     g_string_printf(static_name,"%s%s", log_file_name, "_static");
      mb_state.log_channel_static = g_io_channel_new_file (static_name->str, "w", &my_err);
      g_string_free(static_name, TRUE);
    }
@@ -218,7 +218,7 @@ int main (int argc, char** argv) {
   IvyStart("127.255.255.255");
 
   g_timeout_add(40, timeout_callback, NULL);
-  
+
   mb_state.log_channel = NULL;
 
   gtk_main();
@@ -302,7 +302,7 @@ static GtkWidget* build_gui ( void ) {
   GtkWidget* table1 = gtk_table_new (2, 3, FALSE);
   gtk_container_add (GTK_CONTAINER (measure_frame), table1);
   gtk_table_set_col_spacings (GTK_TABLE (table1), 5);
-  
+
   GtkWidget* t_time = gtk_label_new ("time");
   gtk_table_attach (GTK_TABLE (table1), t_time, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
@@ -376,9 +376,9 @@ static GtkWidget* build_gui ( void ) {
   GtkWidget *log_frame = gtk_frame_new ("Log");
   gtk_container_set_border_width (GTK_CONTAINER (log_frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), log_frame, TRUE, TRUE, 0);
-  
 
-  GtkWidget* bbox = gtk_hbutton_box_new (); 
+
+  GtkWidget* bbox = gtk_hbutton_box_new ();
   gtk_container_add (GTK_CONTAINER (log_frame), bbox);
 
   GtkWidget* log_button = gtk_toggle_button_new_with_label( "Log" );
@@ -394,7 +394,7 @@ static GtkWidget* build_gui ( void ) {
   //
   // Asctech
   //
-  
+
   GtkWidget *asctech_frame = gtk_frame_new ("Asctech");
   gtk_container_set_border_width (GTK_CONTAINER (asctech_frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), asctech_frame, TRUE, TRUE, 0);
@@ -428,7 +428,7 @@ static GtkWidget* build_gui ( void ) {
 
 
 
-  GtkWidget* as_bbox = gtk_hbutton_box_new (); 
+  GtkWidget* as_bbox = gtk_hbutton_box_new ();
   gtk_box_pack_start (GTK_BOX (as_vbox2), as_bbox, TRUE, TRUE, 0);
   //gtk_container_add (GTK_CONTAINER (asctech_frame), as_bbox);
 

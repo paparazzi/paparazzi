@@ -29,6 +29,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
+#include "state.h"
 
 #define AHRS_UNINIT  0
 #define AHRS_RUNNING 1
@@ -38,67 +39,13 @@
 #include AHRS_TYPE_H
 #endif
 
-/** Attitude and Heading Reference System state (fixed point version) */
+/** Attitude and Heading Reference System state */
 struct Ahrs {
-
-  struct Int32Quat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as unit quaternion
-  struct Int32Eulers ltp_to_imu_euler; ///< Rotation from LocalTangentPlane to IMU frame as Euler angles
-  struct Int32RMat   ltp_to_imu_rmat;  ///< Rotation from LocalTangentPlane to IMU frame as Rotation Matrix
-  struct Int32Rates  imu_rate;         ///< Rotational velocity in IMU frame
-
-  struct Int32Quat   ltp_to_body_quat;  ///< Rotation from LocalTangentPlane to body frame as unit quaternion
-  struct Int32Eulers ltp_to_body_euler; ///< Rotation from LocalTangentPlane to body frame as Euler angles
-  struct Int32RMat   ltp_to_body_rmat;  ///< Rotation from LocalTangentPlane to body frame as Rotation Matrix
-  struct Int32Rates  body_rate;         ///< Rotational velocity in body frame
-
   uint8_t status; ///< status of the AHRS, AHRS_UNINIT or AHRS_RUNNING
 };
 
-/** Attitude and Heading Reference System state (floating point version) */
-struct AhrsFloat {
-  struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as unit quaternion
-  struct FloatEulers ltp_to_imu_euler; ///< Rotation from LocalTangentPlane to IMU frame as Euler angles
-  struct FloatRMat   ltp_to_imu_rmat;  ///< Rotation from LocalTangentPlane to IMU frame as Rotation Matrix
-  struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
-  struct FloatRates  imu_rate_previous;
-  struct FloatRates  imu_rate_d;
-
-  struct FloatQuat   ltp_to_body_quat;  ///< Rotation from LocalTangentPlane to body frame as unit quaternion
-  struct FloatEulers ltp_to_body_euler; ///< Rotation from LocalTangentPlane to body frame as Euler angles
-  struct FloatRMat   ltp_to_body_rmat;  ///< Rotation from LocalTangentPlane to body frame as Rotation Matrix
-  struct FloatRates  body_rate;         ///< Rotational velocity in body frame
-  struct FloatRates  body_rate_d;
-
-  // always use status from fixed point ahrs struct for now
-  //uint8_t status;
-};
-
-/** global AHRS state (fixed point version) */
+/** global AHRS state */
 extern struct Ahrs ahrs;
-/** global AHRS state (floating point version) */
-extern struct AhrsFloat ahrs_float;
-
-extern float ahrs_mag_offset;
-
-#define AHRS_FLOAT_OF_INT32() {						       \
-    QUAT_FLOAT_OF_BFP(ahrs_float.ltp_to_body_quat, ahrs.ltp_to_body_quat);     \
-    EULERS_FLOAT_OF_BFP(ahrs_float.ltp_to_body_euler, ahrs.ltp_to_body_euler); \
-    RATES_FLOAT_OF_BFP(ahrs_float.body_rate, ahrs.body_rate);		       \
-  }
-
-#define AHRS_INT_OF_FLOAT() {                                                  \
-    QUAT_BFP_OF_REAL(ahrs.ltp_to_body_quat, ahrs_float.ltp_to_body_quat);      \
-    EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, ahrs_float.ltp_to_body_euler);  \
-    RMAT_BFP_OF_REAL(ahrs.ltp_to_body_rmat, ahrs_float.ltp_to_body_rmat);      \
-    RATES_BFP_OF_REAL(ahrs.body_rate, ahrs_float.body_rate);                   \
-  }
-
-#define AHRS_IMU_INT_OF_FLOAT() {                                       \
-    QUAT_BFP_OF_REAL(ahrs.ltp_to_imu_quat, ahrs_float.ltp_to_imu_quat); \
-    EULERS_BFP_OF_REAL(ahrs.ltp_to_imu_euler, ahrs_float.ltp_to_imu_euler); \
-    RMAT_BFP_OF_REAL(ahrs.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_rmat); \
-    RATES_BFP_OF_REAL(ahrs.imu_rate, ahrs_float.imu_rate);            \
-  }
 
 /** AHRS initialization. Called at startup.
  *  Needs to be implemented by each AHRS algorithm.
@@ -128,6 +75,11 @@ extern void ahrs_update_accel(void);
  *  Needs to be implemented by each AHRS algorithm.
  */
 extern void ahrs_update_mag(void);
+
+/** Update AHRS state with GPS measurements.
+ *  Reads the global #gps data struct.
+ *  Needs to be implemented by each AHRS algorithm.
+ */
 extern void ahrs_update_gps(void);
 
 #endif /* AHRS_H */

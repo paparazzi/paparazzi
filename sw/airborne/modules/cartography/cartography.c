@@ -29,7 +29,7 @@
 
 
 
-#include "estimator.h"
+#include "state.h"
 #include "stdio.h"
 
 #include "subsystems/nav.h"
@@ -210,10 +210,10 @@ bool_t nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, u
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf,struct point pointBf,float estimator_xf,float estimator_yf,float *normAMf,float *normBMf,float *distancefromrailf);
+bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf,struct point pointBf,float pos_xf,float pos_yf,float *normAMf,float *normBMf,float *distancefromrailf);
 
 
-bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf,struct point pointBf,float estimator_xf,float estimator_yf,float *normAMf,float *normBMf,float *distancefromrailf)
+bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf,struct point pointBf,float pos_xf,float pos_yf,float *normAMf,float *normBMf,float *distancefromrailf)
 //return if the projection of the estimator on the AB line is located inside the AB interval
 {
 	float a,b,c,xa,xb,xc,ya,yb,yc;
@@ -234,8 +234,8 @@ bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf,struct point poi
 	xc=pointBf.x;
 	yc=pointBf.y;
 
-	xa=estimator_xf;
-	ya=estimator_yf;
+	xa=pos_xf;
+	ya=pos_yf;
 
 	//calcul des parametres de la droite pointAf pointBf
 	a = yc - yb;
@@ -427,8 +427,8 @@ bool_t nav_survey_losange_carto(void)
 
 	PRTDEB(d,railnumberSinceBoot)
 
-	//PRTDEB(f,estimator_x)
-	//PRTDEB(f,estimator_y)
+	//PRTDEB(f,stateGetPositionEnu_f()->x)
+	//PRTDEB(f,stateGetPositionEnu_f()->y)
 
 	//sortir du bloc si données abhérantes
 	if (norm13<1e-15)
@@ -465,15 +465,15 @@ bool_t nav_survey_losange_carto(void)
 
 
 			//the following test can cause problem when the aircraft is quite close to the entry point, as it can turn around for infinte time
-			//if ( DISTXY(estimator_x,estimator_y,pointA.x,pointA.y)  >DISTLIMIT)
-			//if ( DISTXY(estimator_x,estimator_y,pointA.x,pointA.y)  >DISTLIMIT)
+			//if ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointA.x,pointA.y)  >DISTLIMIT)
+			//if ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointA.x,pointA.y)  >DISTLIMIT)
 
 
-			nav_survey_ComputeProjectionOnLine(pointA,pointB,estimator_x,estimator_y,&normAM,&normBM,&distancefromrail);
+			nav_survey_ComputeProjectionOnLine(pointA,pointB,stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,&normAM,&normBM,&distancefromrail);
 
-			if ((DISTXY(estimator_x,estimator_y,pointA.x,pointA.y)  >2* DISTLIMIT)  || (normBM<(DISTXY(pointB.x,pointB.y,pointA.x,pointA.y))))
+			if ((DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointA.x,pointA.y)  >2* DISTLIMIT)  || (normBM<(DISTXY(pointB.x,pointB.y,pointA.x,pointA.y))))
 			{
-				nav_route_xy(estimator_x, estimator_y,pointA.x,pointA.y);
+				nav_route_xy(stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y,pointA.x,pointA.y);
 				//nav_route_xy(pointB.x, pointB.y,pointA.x,pointA.y);
 			}
 			else
@@ -519,15 +519,15 @@ bool_t nav_survey_losange_carto(void)
 			//	PRTDEB(f,pointA.y)
 			//	PRTDEB(f,pointB.x)
 			//	PRTDEB(f,pointB.y)
-			ProjectionInsideLimitOfRail=nav_survey_ComputeProjectionOnLine(pointA,pointB,estimator_x,estimator_y,&normAM,&normBM,&distancefromrail);
+			ProjectionInsideLimitOfRail=nav_survey_ComputeProjectionOnLine(pointA,pointB,stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,&normAM,&normBM,&distancefromrail);
 
 
 
-			//	if ( ( DISTXY(estimator_x,estimator_y,pointB.x,pointB.y)  >DISTLIMIT)  &&
+			//	if ( ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointB.x,pointB.y)  >DISTLIMIT)  &&
 			//		(normBM>(DISTXY(pointB.x,pointB.y,pointA.x,pointA.y))))
 
 
-			if (! ( ( DISTXY(estimator_x,estimator_y,pointB.x,pointB.y) <DISTLIMIT)  ||   ( ProjectionInsideLimitOfRail &&( normAM > (DISTXY(pointB.x,pointB.y,pointA.x,pointA.y))))))
+			if (! ( ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointB.x,pointB.y) <DISTLIMIT)  ||   ( ProjectionInsideLimitOfRail &&( normAM > (DISTXY(pointB.x,pointB.y,pointA.x,pointA.y))))))
 				//		(normBM>(DISTXY(pointB.x,pointB.y,pointA.x,pointA.y))))
 			{
 				nav_route_xy(pointA.x,pointA.y,pointB.x,pointB.y);
@@ -536,7 +536,7 @@ bool_t nav_survey_losange_carto(void)
 
 				//est ce que l'avion est dans la zone ou il doit prendre des images?
 				//DEJA APPELE AVANT LE IF
-				//	nav_survey_ComputeProjectionOnLine(pointA,pointB,estimator_x,estimator_y,&normAM,&normBM,&distancefromrail);
+				//	nav_survey_ComputeProjectionOnLine(pointA,pointB,stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,&normAM,&normBM,&distancefromrail);
 
 				if (  (normAM> distplus) && (normBM> distplus) && (distancefromrail<distrail/2))
 				{
@@ -607,9 +607,9 @@ bool_t nav_survey_losange_carto(void)
 
 				course_next_rail=atan2(pointC.x-pointB.x,pointC.y-pointB.y);
 				PRTDEB(f,course_next_rail )
-				PRTDEB(f,estimator_hspeed_dir)
+				PRTDEB(f,(*stateGetHorizontalSpeedDir_f()))
 
-				angle_between=(course_next_rail-estimator_hspeed_dir);
+				angle_between=(course_next_rail-(*stateGetHorizontalSpeedDir_f()));
 				while (angle_between > M_PI) angle_between -= 2 * M_PI;
     			while (angle_between < -M_PI) angle_between += 2 * M_PI;
 
@@ -618,7 +618,7 @@ bool_t nav_survey_losange_carto(void)
 				//if (angle_between> -10 && angle_between< 10)   PRTDEBSTR(ON SE CASSE)
 
 				NavCircleWaypoint(0,signforturn*tempcircleradius);
-				if ( ( DISTXY(estimator_x,estimator_y,pointB.x,pointB.y)  <DISTLIMIT) || (angle_between> -10 && angle_between< 10) )
+				if ( ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointB.x,pointB.y)  <DISTLIMIT) || (angle_between> -10 && angle_between< 10) )
 				{
 					//l'avion fait le rail suivant
 					survey_losange_uturn=FALSE;
@@ -652,9 +652,9 @@ bool_t nav_survey_losange_carto(void)
 
 				course_next_rail=atan2(pointC.x-pointB.x,pointC.y-pointB.y);
 				PRTDEB(f,course_next_rail )
-				PRTDEB(f,estimator_hspeed_dir)
+				PRTDEB(f,(*stateGetHorizontalSpeedDir_f()))
 
-				angle_between=(course_next_rail-estimator_hspeed_dir);
+				angle_between=(course_next_rail-(*stateGetHorizontalSpeedDir_f()));
 				while (angle_between > M_PI) angle_between -= 2 * M_PI;
     			while (angle_between < -M_PI) angle_between += 2 * M_PI;
 
@@ -663,7 +663,7 @@ bool_t nav_survey_losange_carto(void)
 				//if (angle_between> -10 && angle_between< 10)   PRTDEBSTR(ON SE CASSE)
 
 				NavCircleWaypoint(0,signforturn*(-1)*tempcircleradius);
-				if (( DISTXY(estimator_x,estimator_y,pointB.x,pointB.y)  <DISTLIMIT) || (angle_between> -10 && angle_between< 10) )
+				if (( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointB.x,pointB.y)  <DISTLIMIT) || (angle_between> -10 && angle_between< 10) )
 				{
 					//l'avion fait le rail suivant
 					survey_losange_uturn=FALSE;
@@ -684,7 +684,7 @@ bool_t nav_survey_losange_carto(void)
 				pointB.x=(point2.x + ((vec12.x/norm12)*distplus) ) + ((railnumber)*(vec13.x/norm13)* distrail);
 				pointB.y=(point2.y + ((vec12.y/norm12)*distplus) ) + ((railnumber)*(vec13.y/norm13)* distrail);
 				nav_route_xy(pointA.x,pointA.y,pointB.x,pointB.y);
-				if ( DISTXY(estimator_x,estimator_y,pointB.x,pointB.y)  <DISTLIMIT)
+				if ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointB.x,pointB.y)  <DISTLIMIT)
 				{
 					//l'avion fait le rail suivant
 					survey_losange_uturn=FALSE;
@@ -701,7 +701,7 @@ bool_t nav_survey_losange_carto(void)
 				pointB.x=(point1.x - ((vec12.x/norm12)*distplus) ) + ((railnumber)*(vec13.x/norm13)* distrail);
 				pointB.y=(point1.y - ((vec12.y/norm12)*distplus) ) + ((railnumber)*(vec13.y/norm13)* distrail);
 				nav_route_xy(pointA.x,pointA.y,pointB.x,pointB.y);
-				if ( DISTXY(estimator_x,estimator_y,pointB.x,pointB.y)  <DISTLIMIT)
+				if ( DISTXY(stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,pointB.x,pointB.y)  <DISTLIMIT)
 				{
 					//l'avion fait le rail suivant
 					survey_losange_uturn=FALSE;

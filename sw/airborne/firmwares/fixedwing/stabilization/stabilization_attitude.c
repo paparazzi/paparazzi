@@ -31,13 +31,11 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "std.h"
 #include "led.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "generated/airframe.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
-
-#pragma message "CAUTION! ALL control gains have to be positive now!"
 
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
@@ -181,17 +179,17 @@ void h_ctl_course_loop ( void ) {
   static float last_err;
 
   // Ground path error
-  float err = estimator_hspeed_dir - h_ctl_course_setpoint;
+  float err = *stateGetHorizontalSpeedDir_f() - h_ctl_course_setpoint;
   NormRadAngle(err);
 
 #ifdef STRONG_WIND
   // Usefull path speed
   const float reference_advance = (NOMINAL_AIRSPEED / 2.);
-  float advance = cos(err) * estimator_hspeed_mod / reference_advance;
+  float advance = cos(err) * (*stateGetHorizontalSpeedNorm_f()) / reference_advance;
 
   if (
        (advance < 1.)  &&                          // Path speed is small
-       (estimator_hspeed_mod < reference_advance)  // Small path speed is due to wind (small groundspeed)
+       ((*stateGetHorizontalSpeedNorm_f()) < reference_advance)  // Small path speed is due to wind (small groundspeed)
      )
   {
 /*
@@ -210,7 +208,7 @@ void h_ctl_course_loop ( void ) {
 */
 
     // Heading error
-    float herr = estimator_psi - h_ctl_course_setpoint; //+crab);
+    float herr = stateGetNedToBodyEulers_f()->psi - h_ctl_course_setpoint; //+crab);
     NormRadAngle(herr);
 
     if (advance < -0.5)              //<! moving in the wrong direction / big > 90 degree turn
@@ -268,7 +266,7 @@ void h_ctl_course_loop ( void ) {
   }
 #endif
 
-  float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED;
+  float speed_depend_nav = (*stateGetHorizontalSpeedNorm_f())/NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   float cmd = -h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
@@ -316,14 +314,15 @@ void h_ctl_attitude_loop ( void ) {
 
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
 inline static void h_ctl_roll_loop( void ) {
-  float err = estimator_phi - h_ctl_roll_setpoint;
+  float err = stateGetNedToBodyEulers_f()->phi - h_ctl_roll_setpoint;
+  struct FloatRates* body_rate = stateGetBodyRates_f();
 #ifdef SITL
   static float last_err = 0;
-  estimator_p = (err - last_err)/(1/60.);
+  body_rate->p = (err - last_err)/(1/60.);
   last_err = err;
 #endif
   float cmd = h_ctl_roll_attitude_gain * err
-    + h_ctl_roll_rate_gain * estimator_p
+    + h_ctl_roll_rate_gain * body_rate->p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
@@ -333,7 +332,7 @@ inline static void h_ctl_roll_loop( void ) {
 
 /** Computes h_ctl_aileron_setpoint from h_ctl_roll_setpoint */
 inline static void h_ctl_roll_loop( void ) {
-  float err = estimator_phi - h_ctl_roll_setpoint;
+  float err = stateGetNedToBodyEulers_f()->phi - h_ctl_roll_setpoint;
   float cmd = h_ctl_roll_pgain * err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
@@ -357,7 +356,7 @@ inline static void h_ctl_roll_loop( void ) {
 #ifdef H_CTL_RATE_LOOP
 
 static inline void h_ctl_roll_rate_loop() {
-  float err = estimator_p - h_ctl_roll_rate_setpoint;
+  float err = stateGetBodyRates_f()->p - h_ctl_roll_rate_setpoint;
 
   /* I term calculation */
   static float roll_rate_sum_err = 0.;
@@ -419,28 +418,29 @@ inline static float loiter(void) {
 
 inline static void h_ctl_pitch_loop( void ) {
   static float last_err;
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
   /* sanity check */
   if (h_ctl_elevator_of_roll <0.)
     h_ctl_elevator_of_roll = 0.;
 
-  h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
+  h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
 
 	float err = 0;
 
 #ifdef USE_AOA
 	switch (h_ctl_pitch_mode){
 		case H_CTL_PITCH_MODE_THETA:
-			err = estimator_theta - h_ctl_pitch_loop_setpoint;
+			err = att->theta - h_ctl_pitch_loop_setpoint;
 		break;
 		case H_CTL_PITCH_MODE_AOA:
-			err = estimator_AOA - h_ctl_pitch_loop_setpoint;
+			err = (*stateGetAngleOfAttack_f()) - h_ctl_pitch_loop_setpoint;
 		break;
 		default:
-			err = estimator_theta - h_ctl_pitch_loop_setpoint;
+			err = att->theta - h_ctl_pitch_loop_setpoint;
 		break;
 	}
 #else //NO_AOA
-	err = estimator_theta - h_ctl_pitch_loop_setpoint;
+	err = att->theta - h_ctl_pitch_loop_setpoint;
 #endif
 
 

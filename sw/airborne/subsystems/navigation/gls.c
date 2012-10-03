@@ -45,7 +45,7 @@
 
 
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/navigation/gls.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
@@ -101,7 +101,8 @@ bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td) {
   init = TRUE;
 
 #if USE_AIRSPEED
-  //float wind_additional = sqrt(wind_east*wind_east + wind_north*wind_north); // should be gusts only!
+  //struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
+  //float wind_additional = sqrt(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
   //Bound(wind_additional, 0, 0.5);
   //target_speed = FL_ENVE_V_S * 1.3 + wind_additional; FIXME
   target_speed =  APP_TARGET_SPEED; //  ok for now!
@@ -137,11 +138,11 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
   float final_y = WaypointY(_td) - WaypointY(_tod);
   float final2 = Max(final_x * final_x + final_y * final_y, 1.);
 
-  float nav_final_progress = ((estimator_x - WaypointX(_tod)) * final_x + (estimator_y - WaypointY(_tod)) * final_y) / final2;
+  float nav_final_progress = ((stateGetPositionEnu_f()->x - WaypointX(_tod)) * final_x + (stateGetPositionEnu_f()->y - WaypointY(_tod)) * final_y) / final2;
   Bound(nav_final_progress,-1,1);
   float nav_final_length = sqrt(final2);
 
-  float pre_climb = -(WaypointAlt(_tod) - WaypointAlt(_td)) / (nav_final_length / estimator_hspeed_mod);
+  float pre_climb = -(WaypointAlt(_tod) - WaypointAlt(_td)) / (nav_final_length / (*stateGetHorizontalSpeedNorm_f()));
   Bound(pre_climb, -5, 0.);
 
   float start_alt = WaypointAlt(_tod);

@@ -25,7 +25,7 @@
  *)
 
 type units = string option
-type data = string * units
+type data = string * units * units
 
 exception Got_it of data
 exception No_param of string
@@ -39,8 +39,11 @@ let get = fun xml param ->
 	  and units =
 	    try Some (snd (List.find (fun (p, v) -> p = "unit") params))
 	    with Not_found -> None
+	  and code_units =
+	    try Some (snd (List.find (fun (p, v) -> p = "code_unit") params))
+	    with Not_found -> None
 	  in
-	  raise (Got_it (old_val, units))
+	  raise (Got_it (old_val, units, code_units))
     | Nethtml.Element (block, params, children) ->
 	let new_prefix =
 	  List.fold_left (fun acc (p, v) -> if p = "prefix" then v^acc else acc) prefix params in

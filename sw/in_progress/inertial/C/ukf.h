@@ -20,14 +20,14 @@ typedef void (*measure_function)(double *, double *);
  * @param ffun: the funcion describing the filter evolution equation
  * @param mfun: the measurement function
  */
-ukf_filter 
-ukf_filter_new(unsigned state_dim, 
-			   unsigned measure_dim,  
+ukf_filter
+ukf_filter_new(unsigned state_dim,
+			   unsigned measure_dim,
 			   double *Q,
 			   double *R,
 			   filter_function ffun,
 			   measure_function mfun);
-			   
+
 /*
  * free filter memory
  * @param filter: the filter to delete
@@ -43,28 +43,28 @@ ukf_filter_delete(ukf_filter filter);
  */
  void
  ukf_filter_compute_weights(ukf_filter filter,
- 					 double alpha, 
- 					 double k, 
+ 					 double alpha,
+ 					 double k,
  					 double beta);
 
 /*
  * Reset filter to new state
- * @param x0: initial state 
+ * @param x0: initial state
  * @param P0: initial state covariance matrix
  */
-void 
+void
 ukf_filter_reset(ukf_filter filter,
 				 double *x0,
 				 double *PO);
 
 /*
- * Get filter state 
+ * Get filter state
  * @param x: A vector that will hold the state
  * @param P: A vector that will hold the state covariance
  */
 void
 ukf_filter_get_state(ukf_filter filter, double *x, double *P);
- 
+
 /*
  * Update filter using a measure
  * @param y: The measure vector
