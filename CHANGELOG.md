@@ -1,3 +1,15 @@
+Paparazzi 4.0.3
+===============
+
+Maintenance release
+
+- fix google map version download
+- fix BMP scripts for stm32
+- fix lisa/m 2.0 default voltage
+- fix gpsd2ivy for libgps3.5
+- improve some makefiles
+
+
 Paparazzi 4.0.2
 ===============
 
