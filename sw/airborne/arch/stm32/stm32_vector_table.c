@@ -159,6 +159,16 @@ extern void adc1_2_irq_handler(void);
 #define ADC1_2_IRQ_HANDLER null_handler
 #endif
 
+#ifdef USE_TIM1_IRQ
+  extern void tim1_up_irq_handler(void);
+  extern void tim1_cc_irq_handler(void);
+#define TIM1_UP_IRQ_HANDLER tim1_up_irq_handler
+#define TIM1_CC_IRQ_HANDLER tim1_cc_irq_handler
+#else
+#define TIM1_UP_IRQ_HANDLER null_handler
+#define TIM1_CC_IRQ_HANDLER null_handler
+#endif
+
 #ifdef USE_TIM2_IRQ
 extern void tim2_irq_handler(void);
 #define TIM2_IRQ_HANDLER tim2_irq_handler
@@ -241,9 +251,9 @@ void (* const vector_table[])(void) = {
     null_handler,             /* can_sce_irq_handler */
     EXTI9_5_IRQ_HANDLER,      /* exti9_5_irq_handler */
     null_handler,             /* tim1_brk_irq_handler */
-    null_handler,             /* tim1_up_irq_handler */
+    TIM1_UP_IRQ_HANDLER,      /* tim1_up_irq_handler */
     null_handler,             /* tim1_trg_com_irq_handler */
-    null_handler,             /* tim1_cc_irq_handler */
+    TIM1_CC_IRQ_HANDLER,      /* tim1_cc_irq_handler */
     TIM2_IRQ_HANDLER,         /* tim2_irq_handler */
     null_handler,             /* tim3_irq_handler */
     null_handler,             /* tim4_irq_handler */
