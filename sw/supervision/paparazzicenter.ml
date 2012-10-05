@@ -205,7 +205,7 @@ let () =
   let buffer = GText.buffer ~tag_table () in
   gui#console#set_buffer buffer;
 
-  let errors = "red", ["error"; "no such file"; "undefined reference"; "failure"]
+  let errors = "red", ["error"; "no such file"; "undefined reference"; "failure"; "multiple definition"]
   and warnings = "orange", ["warning"]
   and info = "green", ["pragma message"]
   and version = "cyan", ["paparazzi version"] in
