@@ -64,7 +64,9 @@ void init_fbw( void ) {
 
   mcu_init();
 
+#ifndef DISABLE_ELECTRICAL
   electrical_init();
+#endif
 
 #ifdef ACTUATORS
   actuators_init();
@@ -213,7 +215,9 @@ void handle_periodic_tasks_fbw(void) {
   if (sys_time_check_and_ack_timer(fbw_periodic_tid))
     periodic_task_fbw();
 
+#ifndef DISABLE_ELECTRICAL
   if (sys_time_check_and_ack_timer(electrical_tid))
     electrical_periodic();
+#endif
 
 }
