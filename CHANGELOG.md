@@ -1,3 +1,22 @@
+Paparazzi 4.1.0_testing
+=======================
+
+First release candidate for next stable release.
+
+- Total energy control
+  [#251] (https://github.com/paparazzi/paparazzi/pull/251)
+- PPM input on UART1 RX for Lisa/M autopilots
+- Rate Limiter for Flaps, Gears and servo hatches
+  [#252] (https://github.com/paparazzi/paparazzi/pull/252)
+- GPS acceleration compensation in ahrs_float_dcm
+  [#255] (https://github.com/paparazzi/paparazzi/pull/255)
+- Improved gravity heuristic for int_cmpl_quat
+- Some updates on digital_cam and photogrammetry modules
+  [#250] (https://github.com/paparazzi/paparazzi/pull/250)
+- Replace wget by OCaml Http_client from netclient lib to download files
+  [#276] (https://github.com/paparazzi/paparazzi/pull/276)
+
+
 Paparazzi 4.0.3
 ===============
 
