@@ -30,7 +30,7 @@
 #include "std.h"
 #include "pprz_baudrate.h"
 
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control) {
 
   /* Configure USART */
   USART_InitTypeDef usart;
@@ -38,7 +38,12 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   usart.USART_WordLength          = USART_WordLength_8b;
   usart.USART_StopBits            = USART_StopBits_1;
   usart.USART_Parity              = USART_Parity_No;
-  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  if (hw_flow_control) {
+    usart.USART_HardwareFlowControl = USART_HardwareFlowControl_RTS_CTS;
+  }
+  else {
+    usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  }
   usart.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
   USART_Init(p->reg_addr, &usart);
   /* Enable USART1 Receive interrupts */
@@ -136,8 +141,25 @@ void uart1_init( void ) {
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
   GPIO_Init(UART1_RxPort, &gpio);
 
-  /* Configure USART1 */
-  uart_periph_set_baudrate(&uart1, UART1_BAUD);
+#if UART1_HW_FLOW_CONTROL
+#warning "USING UART1 HW FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
+  /* GPIOA: GPIO_Pin_12 USART1 Rts push-pull */
+  gpio.GPIO_Pin   = UART1_RtsPin;
+  gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(UART1_FlowControlPort, &gpio);
+
+  /* GPIOA: GPIO_Pin_11 USART1 Cts pin as floating input */
+  gpio.GPIO_Pin   = UART1_CtsPin;
+  gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(UART1_FlowControlPort, &gpio);
+
+  /* Configure USART1, enable hardware flow control*/
+  uart_periph_set_baudrate(&uart1, UART1_BAUD, TRUE);
+#else
+  /* Configure USART1, no flow control */
+  uart_periph_set_baudrate(&uart1, UART1_BAUD, FALSE);
+#endif
 }
 
 void usart1_irq_handler(void) { usart_irq_handler(&uart1); }
@@ -171,7 +193,7 @@ void uart2_init( void ) {
   GPIO_Init(UART2_RxPort, &gpio);
 
   /* Configure USART2 */
-  uart_periph_set_baudrate(&uart2, UART2_BAUD);
+  uart_periph_set_baudrate(&uart2, UART2_BAUD, FALSE);
 }
 
 void usart2_irq_handler(void) { usart_irq_handler(&uart2); }
@@ -207,7 +229,7 @@ void uart3_init( void ) {
   GPIO_Init(UART3_RxPort, &gpio);
 
   /* Configure USART3 */
-  uart_periph_set_baudrate(&uart3, UART3_BAUD);
+  uart_periph_set_baudrate(&uart3, UART3_BAUD, FALSE);
 }
 
 void usart3_irq_handler(void) { usart_irq_handler(&uart3); }
@@ -242,10 +264,9 @@ void uart5_init( void ) {
   GPIO_Init(UART5_RxPort, &gpio);
 
   /* Configure UART5 */
-  uart_periph_set_baudrate(&uart5, UART5_BAUD);
+  uart_periph_set_baudrate(&uart5, UART5_BAUD, FALSE);
 }
 
 void usart5_irq_handler(void) { usart_irq_handler(&uart5); }
 
 #endif /* USE_UART5 */
-

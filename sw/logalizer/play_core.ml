@@ -122,6 +122,7 @@ let was_running = ref false
 let bus = ref Defivybus.default_ivy_bus
 let port = ref "/dev/ttyUSB0"
 let baudrate = ref "9600"
+let hw_flow_control = ref false
 let file_to_load = ref ""
 let output_on_serial = ref false
 
@@ -177,7 +178,8 @@ let init = fun () ->
     [ "-b", Arg.String (fun x -> bus := x), (sprintf "<ivy bus> Default is %s" !bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-o", Arg.Set output_on_serial, "Output binary messages on serial port";
-      "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate)]
+      "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
+      "-hfc",  Arg.Set hw_flow_control, "Enable UART hardware flow control (CTS/RTS)";]
     (fun x -> file_to_load := x)
     "Usage: ";
 
@@ -187,7 +189,7 @@ let init = fun () ->
 
   let serial_port =
     if !output_on_serial then
-      Some (Unix.out_channel_of_descr (Serial.opendev !port (Serial.speed_of_baudrate !baudrate)))
+      Some (Unix.out_channel_of_descr (Serial.opendev !port (Serial.speed_of_baudrate !baudrate) !hw_flow_control))
     else
       None in
 
