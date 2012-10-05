@@ -40,7 +40,7 @@ static int baudrates[] = { B0, B50, B75, B110, B134, B150, B200, B300, B600, B12
 /****************************************************************************/
 /* Open serial device for requested protocoll */
 /****************************************************************************/
-value c_init_serial(value device, value speed)
+value c_init_serial(value device, value speed, value hw_flow_control)
 {
   struct termios orig_termios, cur_termios;
 
@@ -63,8 +63,14 @@ value c_init_serial(value device, value speed)
   cur_termios.c_oflag  &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
 
   /* control modes */
-  cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
-  cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
+  if (Bool_val(hw_flow_control)) {
+    cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL);
+    cur_termios.c_cflag |= CREAD|CS8|CLOCAL|CRTSCTS;
+  }
+  else {
+    cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
+    cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
+  }
    
   /* local modes */
   cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
