@@ -15,7 +15,9 @@
   <event fun="geo_mag_event()"/><!---->
   <makefile>
     <file name="geo_mag.c"/>
-    <file name="wmm2010.c"/>
     <define name="USE_GEO_MAG"/>
+    <raw>
+      $(TARGET).srcs += math/pprz_geodetic_wmm2010.c
+    </raw>
   </makefile>
 </module>

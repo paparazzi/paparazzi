@@ -7,7 +7,7 @@
  */
 
 #include "std.h"
-#include "wmm2010.h"
+#include "math/pprz_geodetic_wmm2010.h"
 
 const double gh1[MAXCOEFF] = {
 0.0,-29496.6,-1586.3,4944.4,

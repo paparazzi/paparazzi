@@ -10,7 +10,6 @@
 #define GEO_MAG_H
 
 #include "std.h"
-#include "wmm2010.h"
 
 struct GeoMagVect {
   double x;
