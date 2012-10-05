@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE radio SYSTEM "radio.dtd">
+<radio name="ezuhf" data_min="800" data_max="2200" sync_min="5000" sync_max="13500" pulse_type="POSITIVE">
+  <channel ctl="right_stick_vert" function="PITCH" min="1080" neutral="1500" max="1920" average="0"/>
+  <channel ctl="left_stick_vert" function="THROTTLE" min="1080" neutral="1000" max="1916" average="0"/>
+  <channel ctl="left_stick_horiz" function="YAW" min="1080" neutral="1500" max="1912" average="0"/>
+  <channel ctl="switch_E" function="MODE" min="1002" neutral="1500" max="1984" average="10"/>
+  <!-- Some radio's have very tight frame spacing and lose the roll channel as a result. 
+       On my radio, I slaved the roll channel to ch.6, deactivated the VR knob and use this
+       for the aileron controls instead. It may be possible on your radio to use the regular
+       roll channel (usually first). -->
+  <channel ctl="right_stick_horiz" function="ROLL" min="1080" neutral="1500" max="1920" average="0"/>
+  <channel ctl="switch_G" function="CALIB" min="1002" neutral="1500" max="1984" average="10"/>
+  <channel ctl="NOTUSEDA" function="NOTUSEDA" min="0" neutral="1500" max="2000" average="0"/>
+</radio>
+
