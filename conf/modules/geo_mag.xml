@@ -16,8 +16,6 @@
   <makefile>
     <file name="geo_mag.c"/>
     <define name="USE_GEO_MAG"/>
-    <raw>
-      $(TARGET).srcs += math/pprz_geodetic_wmm2010.c
-    </raw>
+    <file name="pprz_geodetic_wmm2010.c" dir="math"/>
   </makefile>
 </module>
