@@ -74,13 +74,13 @@
     <define name="GYRO_Q_SENS" value="1.00" integer="16"/>
     <define name="GYRO_R_SENS" value="1.00" integer="16"/>
 
-    <define name="ACCEL_X_SENS" value="2.55975587" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.55643340" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.57178460" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="32508"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32565"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32147"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="33067"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32778"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32140"/>
+    <define name="ACCEL_X_SENS" value="2.56787679957" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.55480391706" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.57076132924" integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="-12"/>
     <define name="MAG_Y_NEUTRAL" value="-10"/>
