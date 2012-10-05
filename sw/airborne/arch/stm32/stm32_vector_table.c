@@ -160,8 +160,8 @@ extern void adc1_2_irq_handler(void);
 #endif
 
 #ifdef USE_TIM1_IRQ
-  extern void tim1_up_irq_handler(void);
-  extern void tim1_cc_irq_handler(void);
+extern void tim1_up_irq_handler(void);
+extern void tim1_cc_irq_handler(void);
 #define TIM1_UP_IRQ_HANDLER tim1_up_irq_handler
 #define TIM1_CC_IRQ_HANDLER tim1_cc_irq_handler
 #else
