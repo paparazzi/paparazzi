@@ -5,7 +5,7 @@
 
 struct Electrical {
 
-  uint8_t vsupply; /* supply in decivolts */
+  uint16_t vsupply; /* supply in decivolts */
   int32_t current; /* current in milliamps */
   int32_t consumed; /* consumption in mAh */
 
