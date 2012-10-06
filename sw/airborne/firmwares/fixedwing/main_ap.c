@@ -125,7 +125,7 @@ bool_t launch = FALSE;
 /** Supply voltage in deciVolt.
  * This the ap copy of the measurement from fbw
  */
-uint8_t vsupply;
+uint16_t vsupply;
 
 /** Supply current in milliAmpere.
  * This the ap copy of the measurement from fbw
