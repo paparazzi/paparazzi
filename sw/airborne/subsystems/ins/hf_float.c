@@ -586,7 +586,7 @@ void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel) {
 static inline void b2_hff_propagate_x(struct HfilterFloat* hff_work) {
   /* update state */
   hff_work->xdotdot = b2_hff_xdd_meas;
-  hff_work->x = hff_work->x + DT_HFILTER * hff_work->xdot;
+  hff_work->x = hff_work->x + DT_HFILTER * hff_work->xdot + DT_HFILTER*DT_HFILTER/2 * hff_work->xdotdot;
   hff_work->xdot = hff_work->xdot + DT_HFILTER * hff_work->xdotdot;
   /* update covariance */
   const float FPF00 = hff_work->xP[0][0] + DT_HFILTER * ( hff_work->xP[1][0] + hff_work->xP[0][1] + DT_HFILTER * hff_work->xP[1][1] );

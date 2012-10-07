@@ -1,4 +1,4 @@
-# 
+#
 #   $Id$
 #   Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
 #
@@ -17,15 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 # Quiet
 Q=@
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  FPIC = -fPIC   
+  FPIC = -fPIC
 else
   FPIC =
 endif
@@ -43,7 +43,7 @@ clean:
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../../lib/ocaml
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
+OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
@@ -169,7 +169,6 @@ ivy_serial_bridge: ivy_serial_bridge.c
 .depend: Makefile
 	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif
-

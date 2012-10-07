@@ -30,7 +30,7 @@ else
   FPIC =
 endif
 
-INCLUDES=  $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format pcre)
+INCLUDES=  $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient) $(shell ocamlfind query -r -i-format pcre)
 XINCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
