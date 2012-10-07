@@ -1,8 +1,4 @@
-/*
- * Driver for the EzOSD Current sensor.
- *
- * Notes:
- * Connect directly to I2C1 port.
+/**
  *
  * Copyright (C) 2012 Gerard Toonstra
  *
@@ -24,23 +20,29 @@
  * Boston, MA 02111-1307, USA.
  *
  */
+
+/**
+ * @file modules/sensors/ezcurrent.c
+ * Implementation of driver for the EzOSD Current sensor.
+ *
+ * Notes:
+ * Connect directly to I2C1 port.
+ *
+ * Sensor module wire assignments:
+ * Red wire: 5V
+ * Black wire: Ground
+ * DAT: SDA
+ * CLK: SCL
+ */
+
 #include "sensors/ezcurrent.h"
-#include "estimator.h"
 #include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
 #include "subsystems/electrical.h"
-#include <math.h>
 
 #define EZCURRENT_ADDR 0xEF
 
-#ifndef ezcurrent_I2C_DEV
-#define ezcurrent_I2C_DEV i2c1
-#endif
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#ifndef EZCURRENT_I2C_DEV
+#define EZCURRENT_I2C_DEV i2c1
 #endif
 
 struct i2c_transaction ezcurrent_i2c_trans;
@@ -56,22 +58,22 @@ void ezcurrent_init( void ) {
 void ezcurrent_read_periodic( void ) {
 #ifndef SITL
   if (ezcurrent_i2c_trans.status == I2CTransDone) {
-    I2CReceive(ezcurrent_I2C_DEV, ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
+    I2CReceive(EZCURRENT_I2C_DEV, ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
   }
 #endif //SITL
 }
 
 void ezcurrent_read_event( void ) {
-    if (ezcurrent_i2c_trans.status == I2CTransSuccess) {
-        // Get electrical information from buffer
-        electrical.vsupply = ((uint8_t)( (((ezcurrent_i2c_trans.buf[3]) << 8) + (ezcurrent_i2c_trans.buf[2])) * 0.01f) );
-        electrical.current = ((int32_t)(ezcurrent_i2c_trans.buf[9]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[8]);
-        electrical.consumed = ((int32_t)(ezcurrent_i2c_trans.buf[7]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[6]);
-        // Transaction has been read
-        ezcurrent_i2c_trans.status = I2CTransDone;
-    } else if ( ezcurrent_i2c_trans.status == I2CTransFailed ) {
-        ezcurrent_i2c_trans.status = I2CTransDone;
-        // ezcurrent_i2c_trans.slave_addr++;
-    }
+  if (ezcurrent_i2c_trans.status == I2CTransSuccess) {
+    // Get electrical information from buffer
+    electrical.vsupply = ((uint8_t)( (((ezcurrent_i2c_trans.buf[3]) << 8) + (ezcurrent_i2c_trans.buf[2])) * 0.01f) );
+    electrical.current = ((int32_t)(ezcurrent_i2c_trans.buf[9]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[8]);
+    electrical.consumed = ((int32_t)(ezcurrent_i2c_trans.buf[7]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[6]);
+    // Transaction has been read
+    ezcurrent_i2c_trans.status = I2CTransDone;
+  } else if ( ezcurrent_i2c_trans.status == I2CTransFailed ) {
+    ezcurrent_i2c_trans.status = I2CTransDone;
+    // ezcurrent_i2c_trans.slave_addr++;
+  }
 }
 

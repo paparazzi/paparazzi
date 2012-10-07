@@ -6,8 +6,8 @@
 
 <module name="ezcurrent" dir="sensors">
   <doc>
-    <description>EzOSD Current sensor (I2C)</description>
-    <define name="EZCURRENT_I2C_DEV" value="i2cX" description="change default i2c peripheral"/>
+    <description>EzOSD Current sensor (I2C).</description>
+    <define name="EZCURRENT_I2C_DEV" value="i2c1" description="change default i2c peripheral to i2c1"/>
   </doc>
 
   <header>
@@ -19,6 +19,7 @@
 
   <makefile>
     <file name="ezcurrent.c"/>
+    <!-- This disables the standard electrical monitoring system -->
     <define name="DISABLE_ELECTRICAL" description="Disable default electrical handling"/>
   </makefile>
 
