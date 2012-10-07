@@ -1,14 +1,4 @@
-/*
- * Driver for the EzOSD Current sensor.
- *
- * Notes:
- * Connect directly to I2C1 port.
- *
- * Sensor module wire assignments:
- * Red wire: 5V
- * Black wire: Ground
- * DAT: SDA
- * CLK: SCL
+/**
  *
  * Copyright (C) 2012 Gerard Toonstra
  *
@@ -31,13 +21,24 @@
  *
  */
 
+/**
+ * @file modules/sensors/ezcurrent.c
+ * Prototypes of driver for the EzOSD Current sensor.
+ *
+ * Notes:
+ * Connect directly to I2C1 port.
+ *
+ * Sensor module wire assignments:
+ * Red wire: 5V
+ * Black wire: Ground
+ * DAT: SDA
+ * CLK: SCL
+ */
+
 #ifndef EZCURRENT_H
 #define EZCURRENT_H
 
 #include "std.h"
-#include "mcu_periph/i2c.h"
-
-extern struct i2c_transaction ezcurrent_i2c_trans;
 
 extern void ezcurrent_init( void );
 extern void ezcurrent_read_periodic( void );
