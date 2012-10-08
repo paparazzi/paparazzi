@@ -1,5 +1,6 @@
 /*
  * (c) 2003-2005 Pascal Brisset, Antoine Drouin
+ * (c) 2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -26,32 +27,29 @@
 #ifndef ACTUATORS_H
 #define ACTUATORS_H
 
-#if defined ACTUATORS
-
 #include "paparazzi.h"
 
-/** Defines SetActuatorsFromCommands() macro */
+/** Defines SetActuatorsFromCommands() macro
+ *  Defines ACTUATORS_NB to 0 if no servo
+ *  Include servos drivers
+ */
 #include "generated/airframe.h"
 
-/** Must be defined by specific hardware implementation */
+#if ACTUATORS_NB
+
 extern void actuators_init( void );
 
 /** Temporary storage (for debugging purpose, downlinked via telemetry) */
-extern uint16_t actuators[SERVOS_NB];
+extern uint16_t actuators[ACTUATORS_NB];
 
-#include ACTUATORS
+#define SetServo(x, v) { actuators[x##_IDX] = v; }
 
-#define SetServo(x, v) {                                        \
-    Actuator(x) = SERVOS_TICS_OF_USEC(ChopServo(v,700,2400));   \
-    actuators[x] = v;                                           \
-  }
+#else /* ACTUATORS_NB */
 
-#else /* ACTUATORS */
-
-// define empty SetServo makro for sim
+// define empty SetServo makro for sim (really needed ?)
 #define SetServo(x, v) {}
 
-#endif /* ACTUATORS */
+#endif /* ACTUATORS_NB */
 
 
 #endif /* ACTUATORS_H */

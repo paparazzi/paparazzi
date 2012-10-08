@@ -40,9 +40,11 @@
 
 #define _PPM_NB_CHANNELS 8
 extern uint16_t servos_values[_PPM_NB_CHANNELS];
-#define Actuator(i) servos_values[i]
+#define ActuatorPpm(i) servos_values[i]
 
-#define ActuatorsCommit() {}
+extern void actuators_ppm_init(void);
+#define ActuatorsPpmCommit() {}
+#define ActuatorsPpmInit() actuators_ppm_init()
 extern uint8_t servos_PPM_idx;
 extern uint32_t servos_delay;
 extern uint8_t ppm_pulse; /* 1=start of pulse, 0=end of pulse */

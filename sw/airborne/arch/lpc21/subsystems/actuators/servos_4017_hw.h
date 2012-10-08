@@ -19,9 +19,11 @@
 #endif
 
 extern uint16_t servos_values[_4017_NB_CHANNELS];
-#define Actuator(i) servos_values[i]
+#define Actuator4017(i) servos_values[i]
 
-#define ActuatorsCommit() {}
+extern void actuators_4017_init(void);
+#define Actuators4017Commit() {}
+#define Actuators4017Init() actuators_4017_init()
 
 extern uint8_t servos_4017_idx;
 

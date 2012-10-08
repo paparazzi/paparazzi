@@ -15,7 +15,7 @@
 #define SERVO_REG_5 PWMMR2
 
 #define COMMAND_(i) SERVO_REG_ ## i
-#define Actuator(i) COMMAND_(i)
+#define ActuatorPwm(i) COMMAND_(i)
 
 
 /*
@@ -76,8 +76,11 @@ PWM6        PWM2  SSEL0  EINT2   P0.7
 
 extern const uint8_t pwm_latch_value;
 
-#define ActuatorsCommit() { \
+#define ActuatorsPwmCommit() { \
     PWMLER = pwm_latch_value;   \
   }
+
+extern void actuators_pwm_init(void);
+#define ActuatorsPwmInit() actuators_pwm_init()
 
 #endif /* ACTUATORS_PWM_ARCH_H */

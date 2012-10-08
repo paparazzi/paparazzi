@@ -28,7 +28,7 @@ const uint8_t pwm_latch_value = 0
 #endif
   ;
 
-void actuators_init ( void ) {
+void actuators_pwm_init ( void ) {
 
   /* configure pins for PWM */
 #if defined PWM_SERVO_0

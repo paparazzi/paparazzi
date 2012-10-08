@@ -35,9 +35,11 @@
 
 #define _4015_NB_CHANNELS 8
 extern uint16_t servos_values[_4015_NB_CHANNELS];
-#define Actuator(i) servos_values[i]
+#define Actuator4015(i) servos_values[i]
 
-#define ActuatorsCommit() {}
+extern void actuators_4015_init(void);
+#define Actuators4015Commit() {}
+#define Actuators4015Init() actuators_4015_init()
 
 void PWM_ISR ( void ) __attribute__((naked));
 

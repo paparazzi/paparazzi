@@ -26,7 +26,7 @@
  *  \ for a R/C receiver which has a microcontroller to drive the servos
  *  \(not a 4015 or 4017 decade counter chip).
  */
-#include "actuators.h"
+#include "subsystems/actuators.h"
 #include "paparazzi.h"
 #include "generated/airframe.h"
 
@@ -36,7 +36,7 @@ uint32_t servos_delay = SERVO_REFRESH_TICS;
 
 #define START_TIMEOUT 0xFFFF;
 
-void actuators_init ( void ) {
+void actuators_ppm_init ( void ) {
   /* select ppm output pin as MAT0.1 output */
   SERVO_CLOCK_PINSEL |= SERVO_CLOCK_PINSEL_VAL << SERVO_CLOCK_PINSEL_BIT;
 
