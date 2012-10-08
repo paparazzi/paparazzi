@@ -25,6 +25,7 @@
 #include "subsystems/ahrs/ahrs_float_utils.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/imu.h"
+#include "firmwares/fixedwing/autopilot.h"	// launch detection
 
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 #include "math/pprz_algebra_float.h"
@@ -500,6 +501,17 @@ void Drift_correction(void)
 
     Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
     Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
+  }
+  else if (launch == FALSE)
+  {
+    float COGX = imu.mag.x; // Non-Tilt-Compensated (for filter stability reasons)
+    float COGY = imu.mag.y; // Non-Tilt-Compensated (for filter stability reasons)
+
+    errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
+    Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
+
+    Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW / 10.0);
+    Vector_Add(Omega_P,Omega_P,Scaled_Omega_P);//Adding  Proportional.fi
   }
 #endif
 
