@@ -139,9 +139,11 @@ void event_task_fbw( void) {
     inter_mcu_event_task();
     command_roll_trim = ap_state->command_roll_trim;
     command_pitch_trim = ap_state->command_pitch_trim;
+#ifndef OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
     if (ap_ok && fbw_mode == FBW_MODE_FAILSAFE) {
       fbw_mode = FBW_MODE_AUTO;
     }
+#endif
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
@@ -196,7 +198,12 @@ void periodic_task_fbw( void ) {
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
   if (fbw_mode == FBW_MODE_MANUAL && radio_control.status == RC_REALLY_LOST) {
+#ifdef OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
+#warning WARNING DANGER: OUTBACK_CHALLENGE RULE RC_LOST_NO_AP defined. If you loose RC you will NOT go to automatically go to AUTO2 Anymore!!
+set_failsafe_mode();
+#else
     fbw_mode = FBW_MODE_AUTO;
+#endif
   }
 #endif
 
