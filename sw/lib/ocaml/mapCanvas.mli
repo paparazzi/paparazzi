@@ -81,6 +81,12 @@ class widget :
     method of_world : Latlong.fmeter * Latlong.fmeter -> Latlong.geographic
     method pack_labels : unit
     method projection : string
+    method photoprojection :
+      ?group:GnoCanvas.group ->
+      ?width:int ->
+      ?fill_color:string ->
+      ?color:string ->
+      ?number:string -> Latlong.geographic -> Latlong.fmeter -> GnoCanvas.text
     method pt2D_of : Latlong.geographic -> Geometry_2d.pt_2D
     method region : ((float * float) * (Latlong.fmeter * Latlong.fmeter)) option
     method register_to_fit : geographic -> unit
