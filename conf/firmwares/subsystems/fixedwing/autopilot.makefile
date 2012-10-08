@@ -236,10 +236,15 @@ ifeq ($(BOARD),classix)
   ap_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
   ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
   ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+  SEPARATE_FBW		= 1
 else
   # Single MCU's run both
-  ap.CFLAGS 		+= $(fbw_CFLAGS)
-  ap.srcs 		+= $(fbw_srcs)
+  ifeq ($(SEPARATE_FBW),)
+    ap.CFLAGS 		+= $(fbw_CFLAGS)
+    ap.srcs 		+= $(fbw_srcs)
+  else
+   ap_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
+  endif
 endif
 
 #

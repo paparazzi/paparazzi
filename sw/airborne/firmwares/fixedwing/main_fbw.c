@@ -83,6 +83,9 @@ void init_fbw( void ) {
 #ifdef MCU_SPI_LINK
   link_mcu_restart();
 #endif
+#ifdef MCU_CAN_LINK
+  link_mcu_init();
+#endif
 
   fbw_mode = FBW_MODE_FAILSAFE;
 
@@ -125,7 +128,7 @@ void event_task_fbw( void) {
   i2c_event();
 
 #ifdef INTER_MCU
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK | defined MCU_UART_LINK
     link_mcu_event_task();
 #endif /* MCU_SPI_LINK */
 
@@ -174,11 +177,14 @@ void event_task_fbw( void) {
 #endif
 
 
-#ifdef MCU_SPI_LINK
+
+#if defined( MCU_SPI_LINK ) || defined( MCU_CAN_LINK )
   if (link_mcu_received) {
     link_mcu_received = FALSE;
     inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
+#ifdef MCU_SPI_LINK
     link_mcu_restart(); /** Prepares the next SPI communication */
+#endif
   }
 #endif /* MCU_SPI_LINK */
 #endif /* INTER_MCU */
@@ -202,6 +208,15 @@ void periodic_task_fbw( void ) {
   {
     set_failsafe_mode();
   }
+#endif
+
+#ifdef MCU_CAN_LINK
+  link_mcu_send();
+#endif
+
+#ifdef MCU_UART_LINK
+  inter_mcu_fill_fbw_state();
+  link_mcu_periodic_task();
 #endif
 
 #ifdef DOWNLINK
