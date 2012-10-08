@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -66,28 +64,10 @@ void link_mcu_send(void)
 
   can_transmit(3, (uint8_t*)&link_mcu_from_fbw_msg, 4);
 
-//  LED_TOGGLE(3);
-/*
-  spi_buffer_input = (uint8_t*)&link_mcu_from_ap_msg;
-  spi_buffer_output = (uint8_t*)&link_mcu_from_fbw_msg;
-  spi_buffer_length = LINK_MCU_FRAME_LENGTH;
-  SpiStart();
-*/
 }
 
 void link_mcu_event_task( void ) {
-/*
-  if (spi_message_received) {
-    spi_message_received = FALSE;
 
-    ComputeChecksum(link_mcu_from_ap_msg);
-    link_mcu_received = TRUE;
-    if (link_mcu_from_ap_msg.checksum == crc)
-      inter_mcu_received_ap = TRUE;
-    else
-      fbw_state->nb_err++;
-  }
-*/
 }
 
 #endif /* FBW */
@@ -110,33 +90,9 @@ void link_mcu_init(void) {
 }
 
 void link_mcu_send(void) {
-/*
-  if (!SpiCheckAvailable()) {
-    SpiOverRun();
-    return;
-  }
-
-  ComputeChecksum(link_mcu_from_ap_msg);
-  link_mcu_from_ap_msg.checksum = crc;
-  spi_buffer_input = (uint8_t*)&link_mcu_from_fbw_msg;
-  spi_buffer_output = (uint8_t*)&link_mcu_from_ap_msg;
-  spi_buffer_length = LINK_MCU_FRAME_LENGTH;
-  SpiSelectSlave0();
-  SpiStart();
-*/
 }
 
 void link_mcu_event_task( void ) {
-/*
-  if (spi_message_received) {
-    spi_message_received = FALSE;
-    ComputeChecksum(link_mcu_from_fbw_msg);
-    if (link_mcu_from_fbw_msg.checksum == crc)
-      inter_mcu_received_fbw = TRUE;
-    else
-      link_mcu_nb_err++;
-  }
-*/
 }
 
 #endif /* AP */

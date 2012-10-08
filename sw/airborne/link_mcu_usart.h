@@ -1,7 +1,5 @@
 /*
- * $Id: link_mcu.h,v 1.12 2007/08/03 10:06:45 hecto Exp $
- *
- * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,8 +20,7 @@
  *
  */
 
-/** \brief Transport for the communication between FBW and AP in a bi-process
-    architecture. Essentially adds a checksum to the inter_mcu structure.
+/** \brief Transport for the communication between FBW and AP via UART.
  */
 
 #ifndef LINK_MCU_H

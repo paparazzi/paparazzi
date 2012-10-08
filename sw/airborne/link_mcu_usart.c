@@ -1,7 +1,5 @@
 /*
- * $Id: link_mcu.c,v 1.18 2006/07/19 06:54:38 hecto Exp $
- *
- * Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
