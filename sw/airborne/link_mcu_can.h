@@ -20,7 +20,8 @@
  *
  */
 
-/** \brief Transport for the communication between FBW and AP via UART.
+/** \brief Transport for the communication between FBW and AP via CAN.
+    \todo: CAN not working
  */
 
 #ifndef LINK_MCU_H
