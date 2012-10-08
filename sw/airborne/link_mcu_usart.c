@@ -268,7 +268,9 @@ void parse_mavpilot_msg( void )
         ap_state->commands[i] = ((pprz_t)MSG_INTERMCU_COMMAND(intermcu_data.msg_buf, i));
       }
 
-      LED_TOGGLE(3);
+#ifdef LINK_MCU_LED
+      LED_TOGGLE(LINK_MCU_LED);
+#endif
       inter_mcu_received_ap = TRUE;
     }
     else if (intermcu_data.msg_id == MSG_INTERMCU_RADIO_ID)
@@ -304,7 +306,9 @@ void parse_mavpilot_msg( void )
 #ifdef AP
 void link_mcu_send( void )
 {
-  LED_TOGGLE(4);
+#ifdef LINK_MCU_LED
+  LED_TOGGLE(LINK_MCU_LED);
+#endif
   InterMcuSend_INTERMCU_COMMAND( ap_state->commands );
   InterMcuSend_INTERMCU_TRIM( ap_state->command_roll_trim, ap_state->command_pitch_trim );
 }
@@ -333,7 +337,6 @@ void link_mcu_periodic_task( void )
     InterMcuSend_INTERMCU_RADIO( fbw_state->channels );
 #endif
 
-//    LED_TOGGLE(3);
   }
 }
 #endif
