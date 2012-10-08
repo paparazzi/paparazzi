@@ -49,6 +49,10 @@
 #include "link_mcu.h"
 #endif
 
+#ifdef MCU_UART_LINK
+#include "link_mcu_usart.h"
+#endif
+
 uint8_t fbw_mode;
 
 #include "inter_mcu.h"
@@ -125,7 +129,7 @@ void event_task_fbw( void) {
   i2c_event();
 
 #ifdef INTER_MCU
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK | defined MCU_UART_LINK
     link_mcu_event_task();
 #endif /* MCU_SPI_LINK */
 
@@ -202,6 +206,11 @@ void periodic_task_fbw( void ) {
   {
     set_failsafe_mode();
   }
+#endif
+
+#ifdef MCU_UART_LINK
+  inter_mcu_fill_fbw_state();
+  link_mcu_periodic_task();
 #endif
 
 #ifdef DOWNLINK

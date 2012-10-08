@@ -191,7 +191,7 @@ void init_ap( void ) {
 #endif
 
   /************* Links initialization ***************/
-#if defined MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_init();
 #endif
 #if USE_AUDIO_TELEMETRY
@@ -540,7 +540,7 @@ void attitude_loop( void ) {
 
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
-#if defined MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
   /**Directly set the flag indicating to FBW that shared buffer is available*/
@@ -633,7 +633,7 @@ void event_task_ap( void ) {
   DatalinkEvent();
 
 
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_event_task();
 #endif
 
