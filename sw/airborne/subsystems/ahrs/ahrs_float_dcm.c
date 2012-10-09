@@ -16,6 +16,11 @@
  *  \brief Attitude estimation for fixedwings based on the DCM
  *  Theory: http://code.google.com/p/gentlenav/downloads/list  file DCMDraft2.pdf
  *
+ *  Options:
+ *  -USE_HIGH_ACCEL_FLAG: no compensation when high accelerations present
+ *  -USE_MAGNETOMETER_ONGROUND: use magnetic compensation before takeoff only while GPS course not good
+ *  -USE_AHRS_GPS_ACCELERATIONS: forward acceleration compensation from GPS speed
+ *
  */
 
 #include "std.h"
@@ -502,7 +507,8 @@ void Drift_correction(void)
     Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
     Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
   }
-#ifdef USE_MAGNETOMETER_ONGROUND
+#if USE_MAGNETOMETER_ONGROUND == 1
+#pragma message AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS during flight
   else if (launch == FALSE)
   {
     float COGX = imu.mag.x; // Non-Tilt-Compensated (for filter stability reasons)
