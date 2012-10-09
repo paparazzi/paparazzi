@@ -119,7 +119,6 @@
       <message name="DL_VALUE"          period="1.1"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="ALIVE"             period="2.1"/>
-      <!--<message name="BOOZ2_SONAR"       period="0.1"/>-->
       <!--<message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>-->
       <!-- <message name="GPS_INT"               period=".20"/> -->
       <!--<message name="INS2"              period=".05"/>

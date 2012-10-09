@@ -1,4 +1,4 @@
-all: 
+all:
 
 CFLAGS = -Wall -I..
 LDFLAGS = -lm

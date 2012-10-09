@@ -20,7 +20,7 @@ int main ( int argc, char** argv) {
   IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE (\\S*) (\\S*) (\\S*)");
 
   IvyStart("127.255.255.255");
-  
+
   g_main_loop_run(ml);
 
   return 0;

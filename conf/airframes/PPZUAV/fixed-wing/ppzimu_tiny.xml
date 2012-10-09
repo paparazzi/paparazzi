@@ -115,7 +115,7 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
@@ -225,13 +225,11 @@
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
       <configure name="AHRS_ALIGNER_LED" value="3"/>
-      <configure name="CPU_LED" value="3"/>
     </target>
     <target name="sim" board="pc"/>
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
 
     <!-- Sensors -->
     <!--
@@ -244,7 +242,7 @@
     <subsystem name="ahrs" type="float_dcm">
 <!--      <configure name="USE_MAGNETOMETER" /> -->
     </subsystem>
-
+    <subsystem name="ins" type="alt_float"/>
 
     <subsystem name="radio_control" type="ppm"/>
 

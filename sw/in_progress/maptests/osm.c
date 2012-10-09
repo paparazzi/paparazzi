@@ -9,14 +9,14 @@
 #include <stdio.h>
 #include <math.h>
 
-int long2tile(double lon, int z) 
-{ 
-  return (int)(floor((lon + 180.0) / 360.0 * pow(2.0, z))); 
+int long2tile(double lon, int z)
+{
+  return (int)(floor((lon + 180.0) / 360.0 * pow(2.0, z)));
 }
-  
+
 int lat2tile(double lat, int z)
-{ 
-  return (int)(floor((1.0 - log( tan(lat * M_PI/180.0) + 1.0 / cos(lat * M_PI/180.0)) / M_PI) / 2.0 * pow(2.0, z))); 
+{
+  return (int)(floor((1.0 - log( tan(lat * M_PI/180.0) + 1.0 / cos(lat * M_PI/180.0)) / M_PI) / 2.0 * pow(2.0, z)));
 }
 
 void gm_quadtree(int x, int y, int z, char *buffer)
@@ -39,11 +39,11 @@ void ms_quadtree(int x, int y, int z, char *buffer)
 {
   int i;
   char *ptr = buffer;
-  
+
   for (i = z; i > 0; i--)
   {
     int mask = 1 << (i - 1);
-    char digit = '0';    
+    char digit = '0';
     if ((x & mask) != 0)
     {
       digit+=1;
@@ -68,13 +68,13 @@ int main(void)
   y = lat2tile(lat, z);
   ms_quadtree(x, y, z, ms_qkey);
   gm_quadtree(x, y, z, gm_qkey);
-  
+
   printf("http://tile.openstreetmap.org/%d/%d/%d.png\n", z, x, y);
   printf("http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d\n", x, y, z);
 //  printf("http://kh.google.com/kh?v=3&t=%s\n", gm_qkey);
 //  printf("http://mt1.google.com/mt/v=ap.95&hl=en&x=%d&y=%d&z=%d&s=G\n", x, y, z);
   printf("http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d\n", ms_qkey, z+32);
   printf("http://r0.ortho.tiles.virtualearth.net/tiles/r%s.png?g=%d\n", ms_qkey, z+32);
-  
+
   return(0);
 };

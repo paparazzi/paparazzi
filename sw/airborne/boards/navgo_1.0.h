@@ -54,6 +54,15 @@
 
 /* ADC */
 
+/* not compatible with PWM0 */
+#define ADC_0 AdcBank1(6)
+#ifdef USE_ADC_0
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_6
+#endif
+
 /* battery */
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
@@ -82,17 +91,18 @@
 #define SPI1_DRDY_EINT         0
 #define SPI1_DRDY_VIC_IT       VIC_EINT0
 
-/* PWM0 (internal PWM5) */
-/* P0.21 */
-#define PWM0_PINSEL PINSEL1
-#define PWM0_PINSEL_VAL 0x01
-#define PWM0_PINSEL_BIT 10
-
-/* PWM1 (internal PWM2 */
+/* PWM0 (internal PWM2) */
 /* P0.7 */
-#define PWM1_PINSEL PINSEL0
-#define PWM1_PINSEL_VAL 0x02
-#define PWM1_PINSEL_BIT 14
+#define PWM0_PINSEL PINSEL0
+#define PWM0_PINSEL_VAL 0x02
+#define PWM0_PINSEL_BIT 14
+
+/* PWM1 (internal PWM5) */
+/* not compatible with ADC_0 */
+/* P0.21 */
+#define PWM1_PINSEL PINSEL1
+#define PWM1_PINSEL_VAL 0x01
+#define PWM1_PINSEL_BIT 10
 
 #define BOARD_HAS_BARO 1
 

@@ -58,7 +58,7 @@ static gboolean periodic(gpointer data __attribute__ ((unused))) {
   pitch = 0;
   roll = STEP_VAL;
   if ((counter%6) >=3) roll = -roll;
-    
+
   IvySendMsg("dl COMMANDS_RAW %d %d,%d", aircraft_id, roll, pitch);
   return TRUE;
 }
@@ -67,14 +67,14 @@ static gboolean periodic(gpointer data __attribute__ ((unused))) {
 int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   parse_args(argc, argv);
-  
+
   IvyInit ("IvyFdmStep", "IvyFdmStep READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
 
   g_timeout_add(TIMEOUT_PERIOD, periodic, NULL);
-  
+
   g_main_loop_run(ml);
 
   return 0;

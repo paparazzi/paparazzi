@@ -70,11 +70,11 @@ l_help:
 */
 
 static gboolean periodic(gpointer data __attribute__ ((unused))) {
-  
+
   counter++;
 
-  uint8_t h_mode = FMS_H_MODE_ATTITUDE; 
-  uint8_t v_mode = FMS_V_MODE_DIRECT; 
+  uint8_t h_mode = FMS_H_MODE_ATTITUDE;
+  uint8_t v_mode = FMS_V_MODE_DIRECT;
   int32_t pitch  = FMS_ATTITUDE_OF_DEG(0);
   int32_t roll   = FMS_ATTITUDE_OF_DEG(STEP_VAL);
   int32_t yaw    = FMS_ATTITUDE_OF_DEG(0);
@@ -89,14 +89,14 @@ static gboolean periodic(gpointer data __attribute__ ((unused))) {
 int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   parse_args(argc, argv);
-  
+
   IvyInit ("IvyBooz2FmsAttStep", "IvyBooz2FmsAttStep READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
 
   g_timeout_add(TIMEOUT_PERIOD, periodic, NULL);
-  
+
   g_main_loop_run(ml);
 
   return 0;

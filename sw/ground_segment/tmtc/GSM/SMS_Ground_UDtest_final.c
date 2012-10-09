@@ -94,12 +94,12 @@ void 	View(pile *);
 //static void 	Jump_To_Block(IvyClientPtr app, void *user_data, int argc, char *argv[]);
 void 	*Envoi_SMS_Uplink();
 
-pile *MaPile = NULL; 
+pile *MaPile = NULL;
 
 typedef enum {INIT, AT, CMGF, SMSMODE, CNMI, CPMS, ERREUR} Etat_Liste;
 
 // Informations extraites du SMS recu de l'avion
-char extr_gps_utm_east[15], extr_gps_utm_north[15], extr_gps_course[15], extr_gps_alt[15], extr_gps_gspeed[15], extr_gps_climb[15], extr_vsupply[15], extr_estimator_flight_time[15], extr_qualite_signal_GSM[10];
+char extr_gps_utm_east[15], extr_gps_utm_north[15], extr_gps_course[15], extr_gps_alt[15], extr_gps_gspeed[15], extr_gps_climb[15], extr_vsupply[15], extr_autopilot_flight_time[15], extr_qualite_signal_GSM[10];
 
 char reponse_attendue[20];
 int prompt_recu = 0;
@@ -108,12 +108,12 @@ int prompt_recu = 0;
 int config_port_serie()
 {
 	int handle;
-	
+
 	char uart[20]={"/dev/ttyUSB0"};
-	
-	//Ouverture du port série		
+
+	//Ouverture du port série
 	handle=open ( uart, O_RDWR | O_NOCTTY | O_NDELAY );
-	
+
 	if ( handle<0 )
 	{
 		perror ( "serial port fail to open\n" );
@@ -125,16 +125,16 @@ int config_port_serie()
 			perror("fcntl");
 	}
 
-	
+
 	//settings for the uart
 	tcgetattr ( handle, &option );
 	cfmakeraw ( &option );
 	cfsetspeed ( &option, B9600 );
 	option.c_cflag |= ( CLOCAL | CREAD | CS8 );
 	option.c_cflag &= ( ~PARENB & ~CSTOPB & ~CRTSCTS & ~CSIZE);
-	
+
 	tcsetattr ( handle, TCSANOW, &option );
-	
+
 	return handle;
 }
 
@@ -145,13 +145,13 @@ void Send(int srl_handle, char chaine_envoyee[])
 	char* commande_envoyee = (char*)malloc(sizeof(char)*160);
 
 	printf("Envoi : %s\n", chaine_envoyee);
-	
+
 	while (ligne_occupee == 1);
-	
+
 	ligne_occupee = 1;
 	sprintf(commande_envoyee, "%s\r\n", chaine_envoyee);
 	longueur_derniere_commande = strlen(chaine_envoyee);
-	
+
   int len = strlen(commande_envoyee)*sizeof(char);
 	if (write(srl_handle, commande_envoyee, len) != len) {
     printf("Erreur de transmission sur UART\n");
@@ -164,17 +164,17 @@ void Send(int srl_handle, char chaine_envoyee[])
 void Send_Msg_part1(int handle)
 {
 	char* commande_envoyee = (char*)malloc(sizeof(char)*22);
-	
+
 	while ((reception_sms_en_cours == 1) || (envoi_sms_en_cours == 1));
-	
+
 	sleep(5);
-	
-	envoi_sms_en_cours = 1; 
+
+	envoi_sms_en_cours = 1;
 	sprintf(commande_envoyee, "AT+CMGS=\"%s\"", num_avion);
 	wait_prompt = 1;
 	fct_en_cours = _SEND_MSG;
 	Send(handle, commande_envoyee);
-	
+
 	free(commande_envoyee);
 }
 
@@ -184,9 +184,9 @@ void Send_Msg_part2(int handle)
 	char* info_envoyee = (char*)malloc(sizeof(char)*165);
 	sprintf(info_envoyee, "%s %c", data_to_send, CTRLZ);
 	wait_reponse = 1;
-	
+
 	Send(handle, info_envoyee);
-	
+
 	envoi_sms_en_cours = 0;
 	free(info_envoyee);
 }
@@ -208,7 +208,7 @@ void Send_AT(int handle)
 
 void Send_cmgf(int handle)
 {
-	strcpy(reponse_attendue, "OK");	
+	strcpy(reponse_attendue, "OK");
 	fct_en_cours = _CMGF;
 	wait_reponse = 1;
 	Send(handle, "AT+CMGF=1");
@@ -234,7 +234,7 @@ void Send_fin_config(int handle)
 {
 	// Envoi d'un SMS de vérification au démarrage
 	fct_en_cours = _FINCONF;
-	
+
 	sprintf(data_to_send, "Configuration correcte du module GSM");
 	Send_Msg_part1(handle);
 }
@@ -244,9 +244,9 @@ gboolean lecture_port(gpointer handle)
 {
 	char *caracteres_recus = (char*)malloc(sizeof(char)*450);
 	int nb_octets_dispos, flush;
-	
+
 	chaine_recue = (char*)malloc(sizeof(char)*450);
-	
+
 	ioctl((int) handle, FIONREAD, &nb_octets_dispos);
 
   if (nb_octets_dispos !=0)
@@ -259,7 +259,7 @@ gboolean lecture_port(gpointer handle)
       Traitement_reponse((int) handle);
     }
 	}
-	
+
 	caracteres_recus[0] = '\0';
 	chaine_recue[0] = '\0';
 	free(chaine_recue);
@@ -273,17 +273,17 @@ void Traitement_reponse(int handle)
 {
 	char buffer[450];
 	strcpy(buffer, chaine_recue);
-	chaine_recue[0] = '\0'; 
+	chaine_recue[0] = '\0';
 	printf("Recu : %s\n", buffer);
-	
-	
+
+
 //	si on a recu un nouveau SMS
 	if(locate("+CMTI:", buffer) == 1)
-	{	
+	{
 		while((envoi_sms_en_cours == 1) || (reception_sms_en_cours));
-		
+
 		reception_sms_en_cours = 1;
-		
+
 		printf("Nouveau SMS recu\n");
 		Reception_SMS(handle);
 	}
@@ -295,7 +295,7 @@ void Traitement_reponse(int handle)
 		Send_Msg_part2(handle);
 	}
 	else if (wait_reponse == 1)
-	{		
+	{
 		ligne_occupee = 0;
 
 		if(locate(reponse_attendue, buffer) == 1)
@@ -309,13 +309,13 @@ void Traitement_reponse(int handle)
 
 		// Suite des opérations...
 		switch(fct_en_cours)
-		{	
+		{
 			case _AT : 	if(GSM_reponse == 1)
 							Send_cmgf(handle);
 						else
 							Send_AT(handle);
 			break;
-		
+
 			case _CMGF : if(GSM_reponse == 1)
 						{
 							Send_cnmi(handle);
@@ -323,36 +323,36 @@ void Traitement_reponse(int handle)
 						else
 							Send_cmgf(handle);
 			break;
-		
+
 			case _CNMI : if(GSM_reponse == 1)
 							Send_cpms(handle);
 						else
 							Send_cnmi(handle);
 			break;
-		
+
 			case _CPMS : if(GSM_reponse == 1)
 						{
 							printf("Configuration correcte du module GSM\n");
-							//Send_fin_config(handle);							
+							//Send_fin_config(handle);
 						}
 						else
 							Send_cpms(handle);
 			break;
-			
+
 			case _SUPPR_SMS : if(GSM_reponse == 1)
 								reception_sms_en_cours = 0;
 			break;
-			
-			case _FINCONF : 
+
+			case _FINCONF :
 			break;
-			
+
 			case _RECEPTION_SMS : 	if(GSM_reponse == 1)
 									{
 										strcpy(GSM_Line, buffer);
 										Reception_SMS_Continue(handle);
-									}								
+									}
 			break;
-									
+
 			default : break;
 		}
 	}
@@ -362,10 +362,10 @@ void Traitement_reponse(int handle)
 }
 
 
-	
+
 // Première partie de la fonction de réception de SMS
-void Reception_SMS(int handle) 
-{	
+void Reception_SMS(int handle)
+{
 	Recuperation_SMS((int) handle);
 }
 
@@ -373,36 +373,36 @@ void Reception_SMS(int handle)
 void Reception_SMS_Continue(int handle)
 {
 	char buffer_SMS_recu[250];
-	
+
 	strcpy(buffer_SMS_recu, GSM_Line);
 
 	Remplissage_SMS(buffer_SMS_recu);
-	
+
 	if (Verification(expediteur) == 1)// Le SMS provient bien de l'avion
 	{
 		printf("Nouveau message recu de l'avion\n");
-		
+
 		/* Stockage du message dans un fichier de log */
 		Save_SMS_In_Log();
-		
+
 		/* Vérification de l'index (pour ne pas en laisser passer un)*/
 		if (Check_index(index_msg) == 0) /*on a laissé passer qqch*/
 		{
 			printf("Attention perte d'un ou plusieurs messages...\n");
 		}
-		
+
 		printf("Contenu du message :%s\n", data);
-		
-		
-		
+
+
+
 		// Découpage prévu du SMS recu
 		decoupage(data);
-	
+
 		/* Envoi sur le bus Ivy */
 		IvySendMsg("16 GPS 3 %s %s %s %s %s %s 0 335297960 31 0", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb);
     IvySendMsg("16 FBW_STATUS 0 1 %s 0",extr_vsupply);
 
-	
+
 		/* Suppression du message de la carte SIM */
 		Suppr_SMS(handle, index_msg);
 	}
@@ -434,7 +434,7 @@ int locate(char chaine_a_trouver[], char chaine_source[])
 {
 	int i=0, indice_dbt = -1;
 	char buffer[20];
-	
+
 	if ( strstr(chaine_source, chaine_a_trouver) != NULL)
 	{
 		if (strcmp(chaine_a_trouver, "+CMTI:") == 0)
@@ -449,7 +449,7 @@ int locate(char chaine_a_trouver[], char chaine_source[])
 				}
 				strcpy(info_SMS_recu, buffer);
 			}
-		}		
+		}
 		return 1;
 	}
 	else
@@ -468,14 +468,14 @@ void decoupage( char message_complet[])
 	Extraction(data_to_cut, '\n', 1, 1, ' ', 1, 0, extr_gps_utm_east);
 	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_utm_north);
 	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_course);
-	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_alt);	
-	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_gspeed);	
-	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_climb);	
+	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_alt);
+	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_gspeed);
+	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_gps_climb);
 	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_vsupply);
-	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_estimator_flight_time);
+	Extraction(data_to_cut, ' ', 1, 1, ' ', 1, 0, extr_autopilot_flight_time);
 	Extraction(data_to_cut, ' ', 1, 1, '\r', 1, 0, extr_qualite_signal_GSM);
-	
-	printf("Message :\n utm_east %s\n utm_north %s\n course %s\n alt %s\n speed %s\n climb %s\n bat %s\n flight_time %s\n signal %s\n", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb, extr_vsupply, extr_estimator_flight_time, extr_qualite_signal_GSM);
+
+	printf("Message :\n utm_east %s\n utm_north %s\n course %s\n alt %s\n speed %s\n climb %s\n bat %s\n flight_time %s\n signal %s\n", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb, extr_vsupply, extr_autopilot_flight_time, extr_qualite_signal_GSM);
   fflush(stdout);
 }
 
@@ -493,9 +493,9 @@ int Verification( char* num_expediteur)
 // Vérification de l'index du message recu
 int Check_index( int index_test )
 {
-	/* si l'index du nouveau msg est égal à l'index du precedent msg recu c'est bon 
+	/* si l'index du nouveau msg est égal à l'index du precedent msg recu c'est bon
 	   (on aura supprimé le précédent msg de la mémoire de la carte SIM)*/
-	
+
 	if (index_test == index_msg_precedent)
 	{
 		return 1;
@@ -511,12 +511,12 @@ int Check_index( int index_test )
 void Suppr_SMS(int srl_handle, int index_)
 {
 	char demande_suppr[10];
-	
+
 	sprintf(demande_suppr, "AT+CMGD=%d", index_); // AT+CMGD=1,4  --> erase all messages
 	sprintf(reponse_attendue, "OK");
 	wait_reponse = 1;
 	fct_en_cours = _SUPPR_SMS;
-	
+
 	Send(srl_handle, demande_suppr);
 }
 
@@ -527,19 +527,19 @@ void Save_SMS_In_Log()
 	char ecriture_log[500];
 	time_t 	moment_reception = time(NULL);
 	int longueur_ecrite;
-	
+
 	sprintf(ecriture_log, "%sIndex : %d\nFlag : %s\nContenu du message : %s\n\n", ctime(&moment_reception), index_msg, flag, data);
-	
+
 	longueur_ecrite = strlen(ecriture_log);
-	
+
 	if(( log_SMS = fopen("/home/cocoleon/dev/paparazzi3/log_SMS", "a+")) == NULL )
 	{
 		perror("Erreur, impossible d'ouvrir le fichier de log :");
 	}
 	else
-	{	
+	{
 		fwrite(ecriture_log, sizeof(char), longueur_ecrite, log_SMS);
-	
+
 		fclose(log_SMS);
 	}
 }
@@ -549,11 +549,11 @@ void Save_SMS_In_Log()
 void Recuperation_SMS(int handle)
 {
 	char demande_lecture[10], chaine_extraite[4];
-	
+
 	Extraction(info_SMS_recu, ',', 1, 1, '\0', 1, 0, chaine_extraite);
 	index_msg = atoi(chaine_extraite);
 	printf("index du message : %d\n", index_msg);
-	
+
 	sprintf(demande_lecture, "AT+CMGR=%d", index_msg);
 	strcpy(reponse_attendue, "+CMGR:");
 	wait_reponse = 1;
@@ -566,20 +566,20 @@ void Recuperation_SMS(int handle)
 void Extraction(char source[], char char_dbt, int nb_occurrence1, int decalage1, char char_fin, int nb_occurrence2, int decalage2, char destination[])
 {
 	int indice_debut, indice_fin, i, rch1, rch2;
-  	
+
   	rch1 = recherche_caractere(source, char_dbt, nb_occurrence1);
-  	
+
 	if(rch1 == -1)
 		strncpy(destination, "0", 1);
 	else
 	{
-	  
+
 	  indice_debut = rch1 + decalage1;
 	  for(i=0; i<strlen(source); i++)
 		source[i] = source[i+indice_debut];
-		
+
 		rch2 = recherche_caractere(source, char_fin, nb_occurrence2);
-		
+
 	  if(rch2 == -1)
 	  		strncpy(destination, "0", 1);
 	  else
@@ -588,37 +588,37 @@ void Extraction(char source[], char char_dbt, int nb_occurrence1, int decalage1,
 	  	strncpy(destination, source, indice_fin);
 	  	destination[indice_fin] = '\0';
 	  }
-	}	
+	}
 }
 
 // Fonction remplissant les différents champs relatifs au dernier SMS recu
 void Remplissage_SMS(char reponse_module[])
 {
 	char buffer[250];
-	
+
 	strcpy(buffer, reponse_module);
 
 	printf("Index du message : %d\n", index_msg);
-	
+
 	Extraction(buffer, '"', 1, 1, '"', 1, 0, flag);
 	printf("Flag : %s\n", flag);
-	
+
 	Extraction(buffer, '"', 2, 1, '"', 1, 0, expediteur);
 	printf("Expéditeur : %s\n", expediteur);
-	
+
  	Extraction(buffer, '"', 2, 1, '"', 1, 0, dateheure);
  	printf("Dateheure : %s\n", dateheure);
-	
+
 	Extraction(buffer, '"', 1, 3, '\0', 1, -3, data);
 	printf("Contenu du message : %s\n", data);
 
   fflush(stdout);
 }
- 
+
 int recherche_caractere(char* chaine, char caractere, int nb_occ)
 {
 	int nb_trouve = 0, i=0, longueur_chaine = strlen(chaine);
-	
+
 	while(i<longueur_chaine && nb_trouve < nb_occ)
 	{
 		if(chaine[i] == caractere)
@@ -627,7 +627,7 @@ int recherche_caractere(char* chaine, char caractere, int nb_occ)
 		}
 		i++;
 	}
-	
+
 	if (i<=longueur_chaine)
   	return i-1;
   else
@@ -662,7 +662,7 @@ char *Pop(pile **p)
 	free(*p);
 						*p = tmp;       /* Le pointeur pointe sur le dernier �l�ment. */
 						return message;     /* Retourne le message soutir� de la pile. */
-        
+
 }
 
 /*************************************************************************/
@@ -706,7 +706,7 @@ void View(pile *p)
 //static void Jump_To_Block(IvyClientPtr app, void *user_data, int argc, char *argv[])
 //{
 //	char message_complet[100];
-//	
+//
 //	sprintf(message_complet,"%s JUMP_TO_BLOCK %s %s\n", argv[0], argv[1], argv[2]);
 //	printf(message_complet,"%s JUMP_TO_BLOCK %s %s\n", argv[0], argv[1], argv[2]);
 //	Push(&MaPile,message_complet);
@@ -721,12 +721,12 @@ void * Envoi_SMS_Uplink(void* hdl)
 		sleep(1);
 
 		if(!MaPile) {} // La pile est vide .
-		else 
+		else
 		{
 			strcpy(data_to_send, Pop(&MaPile));
 			Send_Msg_part1((int) hdl);
 		}
-	}       
+	}
 	pthread_exit(NULL);
 }
 
@@ -736,35 +736,35 @@ int main( int argc, char** argv)
 {
 	int srl_handle = config_port_serie();
 	//pthread_t idthread;
-	
+
 	strcpy(num_avion, "+33640286564");
-	
+
 	//if(pthread_create(&idthread,NULL,Envoi_SMS_Uplink, (void*)srl_handle)!=0)// creation thread envoi_SMS_Uplink
 	//{
 	//	printf("Erreur creation du thread envoi_SMS_Uplink");
 	//	exit(1);
 	//}
-	
+
 	GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-	
+
 	//gtk_init(&argc, &argv);
-	
+
 	IvyInit ("SMS_GROUND", "SMS_GROUND READY", NULL, NULL, NULL, NULL);
 	IvyStart("127.255.255.255");
 
 	//IvyBindMsg(Jump_To_Block, NULL, "^(\\S*) JUMP_TO_BLOCK (\\S*) (\\S*)");
-		
+
 	g_timeout_add(300, lecture_port, (gpointer)srl_handle);
-	
+
 	g_timeout_add(400, init, (gpointer)srl_handle);
-	
-	
+
+
 	g_main_loop_run(ml);
-	
-	
+
+
 	//Clear(&MaPile);    /* Vider la pile avant de quitter. */
 
 	//pthread_join(idthread,NULL);
-	
+
 	return 0;
 }

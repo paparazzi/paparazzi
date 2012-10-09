@@ -1,4 +1,4 @@
-# 
+#
 #   $Id$
 #   Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
 #
@@ -17,15 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 # Quiet
 Q=@
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  FPIC = -fPIC   
+  FPIC = -fPIC
 else
   FPIC =
 endif
@@ -38,12 +38,12 @@ VAR = ../../../var
 all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
 
 clean:
-	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp
+	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../../lib/ocaml
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
+OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
@@ -139,20 +139,27 @@ GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre $(FPIC)
 GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` $(FPIC)
 GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre $(FPIC)
 
+UNAME = $(shell uname -s)
+
+ifeq ("$(UNAME)","Darwin")
+  C_LIBRARYS = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
+  C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
+endif
+
 gpsd2ivy: gpsd2ivy.c
-	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS) -lgps
+	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS) -lgps
 
 c_ivy_client_example_1: c_ivy_client_example_1.c
-	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS)
+	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS)
 
 c_ivy_client_example_2: c_ivy_client_example_2.c
-	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS)
+	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS)
 
 c_ivy_client_example_3: c_ivy_client_example_3.c
-	$(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LDFLAGS)
+	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 ivy_serial_bridge: ivy_serial_bridge.c
-	$(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LDFLAGS)
+	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 
 #
@@ -162,7 +169,6 @@ ivy_serial_bridge: ivy_serial_bridge.c
 .depend: Makefile
 	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif
-

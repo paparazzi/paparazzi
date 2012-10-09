@@ -1,19 +1,4 @@
 /*
- * Driver for the EagleTree Systems Altitude Sensor
- * Has only been tested with V3 of the sensor hardware
- *
- * Notes:
- * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
- * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
- * Pitch gains may need to be updated.
- *
- *
- * Sensor module wire assignments:
- * Red wire: 5V
- * White wire: Ground
- * Yellow wire: SDA
- * Brown wire: SCL
- *
  * Copyright (C) 2009 Vassilis Varveropoulos
  * Copyright (C) 2010 The Paparazzi Team
  *
@@ -33,6 +18,25 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file baro_ets.h
+ *
+ * Driver for the EagleTree Systems Altitude Sensor.
+ * Has only been tested with V3 of the sensor hardware.
+ *
+ * Notes:
+ * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
+ * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
+ * Pitch gains may need to be updated.
+ *
+ *
+ * Sensor module wire assignments:
+ * Red wire: 5V
+ * White wire: Ground
+ * Yellow wire: SDA
+ * Brown wire: SCL
  */
 
 #ifndef BARO_ETS_H
@@ -59,5 +63,7 @@ extern void baro_ets_read_periodic( void );
 extern void baro_ets_read_event( void );
 
 #define BaroEtsEvent() { if (baro_ets_i2c_trans.status == I2CTransSuccess) baro_ets_read_event(); }
+
+#define BaroEtsUpdate(_b) { if (baro_ets_valid) { _b = baro_ets_adc; baro_ets_valid = FALSE; } }
 
 #endif // BARO_ETS_H

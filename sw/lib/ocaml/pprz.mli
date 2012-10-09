@@ -90,8 +90,12 @@ exception Unit_conversion_error of string
 (** Unit_conversion_error raised when parsing error occurs *)
 exception Unknown_conversion of string * string
 (** Unknown_conversion raised when conversion fails *)
+exception No_automatic_conversion of string * string
+(** No_automatic_conversion raised when no conversion found
+ *  and from_unit or to_unit are empty string
+ *)
 
-val scale_of_units : string -> string -> float
+val scale_of_units : ?auto:string -> string -> string -> float
 (** scale_of_units from to
  *  Returns conversion factor between two units
  *  The possible conversions are described in conf/units.xml
@@ -99,7 +103,7 @@ val scale_of_units : string -> string -> float
  *  or if units.xml is not valid
  *)
 
-val alt_unit_coef_of_xml : Xml.xml -> string
+val alt_unit_coef_of_xml : ?auto:string -> Xml.xml -> string
 (** Return coef for alternate unit
  *)
 

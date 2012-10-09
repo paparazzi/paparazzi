@@ -10,7 +10,7 @@ struct ahrs_data {
   double* phi;
   double* theta;
   double* psi;
-  
+
   double* bias_p;
   double* bias_q;
   double* bias_r;

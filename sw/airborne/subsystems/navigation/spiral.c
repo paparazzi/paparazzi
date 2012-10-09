@@ -9,7 +9,7 @@
 #include "subsystems/navigation/spiral.h"
 
 #include "subsystems/nav.h"
-#include "estimator.h"
+#include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 
@@ -64,9 +64,9 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
 
   Spiralradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 
-  TransCurrentX = estimator_x - WaypointX(Center);
-  TransCurrentY = estimator_y - WaypointY(Center);
-  TransCurrentZ = estimator_z - ZPoint;
+  TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
+  TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
+  TransCurrentZ = stateGetPositionEnu_f()->z - ZPoint;
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   // 	SpiralTheta = atan2(TransCurrentY,TransCurrentX);
@@ -76,8 +76,8 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
   // Alphalimit denotes angle, where the radius will be increased
   Alphalimit = 2*M_PI / Segments;
   //current position
-  FlyFromX = estimator_x;
-  FlyFromY = estimator_y;
+  FlyFromX = stateGetPositionEnu_f()->x;
+  FlyFromY = stateGetPositionEnu_f()->y;
 
   if(DistanceFromCenter > Spiralradius)
 	CSpiralStatus = Outside;
@@ -86,8 +86,8 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
 
 bool_t SpiralNav(void)
 {
-  TransCurrentX = estimator_x - WaypointX(Center);
-  TransCurrentY = estimator_y - WaypointY(Center);
+  TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
+  TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   float DistanceStartEstim;
@@ -113,8 +113,8 @@ bool_t SpiralNav(void)
 	  // calculation needed, State switch to Circle
 	  nav_circle_XY(WaypointX(Center), WaypointY(Center), SRad);
 	  if(DistanceFromCenter >= SRad){
-		LastCircleX = estimator_x;
-		LastCircleY = estimator_y;
+		LastCircleX = stateGetPositionEnu_f()->x;
+		LastCircleY = stateGetPositionEnu_f()->y;
 		CSpiralStatus = Circle;
 		// Start helix
 #ifdef DIGITAL_CAM
@@ -130,12 +130,12 @@ bool_t SpiralNav(void)
 	  // if alphamax already reached, increase radius.
 
 	  //DistanceStartEstim = |Starting position angular - current positon|
-	  DistanceStartEstim = sqrt (((LastCircleX-estimator_x)*(LastCircleX-estimator_x))
-									   + ((LastCircleY-estimator_y)*(LastCircleY-estimator_y)));
+	  DistanceStartEstim = sqrt (((LastCircleX-stateGetPositionEnu_f()->x)*(LastCircleX-stateGetPositionEnu_f()->x))
+									   + ((LastCircleY-stateGetPositionEnu_f()->y)*(LastCircleY-stateGetPositionEnu_f()->y)));
 	  CircleAlpha = (2.0 * asin (DistanceStartEstim / (2 * SRad)));
 	  if (CircleAlpha >= Alphalimit) {
-		LastCircleX = estimator_x;
-		LastCircleY = estimator_y;
+		LastCircleX = stateGetPositionEnu_f()->x;
+		LastCircleY = stateGetPositionEnu_f()->y;
 		CSpiralStatus = IncSpiral;
 	  }
 	  break;
@@ -148,7 +148,7 @@ bool_t SpiralNav(void)
 #ifdef DIGITAL_CAM
 		  if (dc_cam_tracing) {
 			// calculating Cam angle for camera alignment
-			TransCurrentZ = estimator_z - ZPoint;
+			TransCurrentZ = stateGetPositionEnu_f()->z - ZPoint;
 			dc_cam_angle = atan(SRad/TransCurrentZ) * 180  / M_PI;
           }
 #endif

@@ -32,12 +32,6 @@ void atmega_i2c_cam_ctrl_periodic(void);
 void atmega_i2c_cam_ctrl_event(void);
 void atmega_i2c_cam_ctrl_send(uint8_t cmd);
 
-// In I2C mode we can not inline this function:
-static inline void dc_send_command(uint8_t cmd)
-{
-  atmega_i2c_cam_ctrl_send(cmd);
-}
-
 // Allow commands to be set by datalink
 #define ParseCameraCommand() { 								\
   {											\

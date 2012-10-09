@@ -7,7 +7,6 @@
    <define name="AGR_CLIMB" />
    <define name="TRAFFIC_INFO"/>
    <define name="LOITER_TRIM"/>
-   <define name="ALT_KALMAN"/>
  </target>
 
  <target name="sim" description="The simulator">

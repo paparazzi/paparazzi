@@ -57,6 +57,7 @@ MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
+ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
@@ -64,24 +65,15 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
+BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
 
-# try to find the paparazzi multilib toolchain
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-#found the compiler from the paparazzi multilib package
-ARMGCC=$(TOOLCHAIN_DIR)/bin/arm-none-eabi-gcc
-else
-#try picking up the arm-none-eabi compiler from the path, otherwise use arm-elf
-HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
-ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-ARMGCC=$(shell which arm-elf-gcc)
-else
-ARMGCC=$(HAVE_ARM_NONE_EABI_GCC)
-endif
-endif
 
-all: conf commands static
+all: print_build_version conf commands static
+
+print_build_version:
+	@echo "------------------------------------------------------------"
+	@echo "Building Paparazzi version" $(shell ./paparazzi_version)
+	@echo "------------------------------------------------------------"
 
 static: lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib ext
 
@@ -92,7 +84,7 @@ conf/%.xml :conf/%.xml.example
 
 conf/maps.xml: conf/maps.xml.example FORCE
 	-cd data/maps; $(MAKE)
-	if test ! -e $@; then cp $< $@; fi
+	$(Q)if test ! -e $@; then cp $< $@; fi
 
 FORCE:
 
@@ -123,10 +115,10 @@ misc:
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
+static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
 
 usb_lib:
-	@[ -d sw/airborne/arch/lpc21/lpcusb ] && ((test -x "$(ARMGCC)" && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
+	@[ -d sw/airborne/arch/lpc21/lpcusb ] && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE)) || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
 
 ext:
 	$(MAKE) -C$(EXT) all
@@ -169,6 +161,11 @@ $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
 	$(Q)mv /tmp/dl2.h $@
+
+$(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
+	$(Q)mv /tmp/abi.h $@
 
 include Makefile.ac
 
@@ -245,11 +242,11 @@ clean:
 	$(Q)rm -f paparazzi sw/simulator/launchsitl
 
 cleanspaces:
-	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
-	find ./conf -name '*.makefile' -exec sed -i {} -e 's/[ \t]*$$//' ';'
-	find ./sw -name '*.ml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
-	find ./sw -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
-	find ./conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find sw -path sw/ext -prune -o -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
+	find conf -name '*.makefile' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find . -path ./sw/ext -prune -o -name Makefile -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find sw -name '*.ml' -o -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 
 distclean : dist_clean
 dist_clean :
@@ -264,8 +261,11 @@ ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
 replace_current_conf_xml:
-	test conf/conf.xml || mv conf/conf.xml conf/conf.xml.backup.`date +%Y%m%d-%H%M%s`
-	cp conf/conf.xml.example conf/conf.xml
+	test conf/conf.xml && mv conf/conf.xml conf/conf.xml.backup.$(BUILD_DATETIME)
+	cp conf/tests_conf.xml conf/conf.xml
+
+restore_conf_xml:
+	test conf/conf.xml.backup.$(BUILD_DATETIME) && mv conf/conf.xml.backup.$(BUILD_DATETIME) conf/conf.xml
 
 commands: paparazzi sw/simulator/launchsitl
 
@@ -277,6 +277,9 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-test: all replace_current_conf_xml
+run_tests:
 	cd tests; $(MAKE) test
 
+test: all replace_current_conf_xml run_tests restore_conf_xml
+
+.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible doxygen run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml

@@ -50,7 +50,7 @@ void sliding_plot_update(GtkWidget* plot, float* values) {
   guint nb_data = (guint)g_object_get_data(G_OBJECT(plot), "nb_data");
   guint _time = (guint)g_object_get_data(G_OBJECT(plot), "time");
   guint nb_plot = (guint)g_object_get_data(G_OBJECT(plot), "nb_plot");
-  
+
   if (nb_data >= NB_POINTS) {
     nb_data -= NB_POINTS_BY_STEP;
     guint mem_to_move = (NB_POINTS - NB_POINTS_BY_STEP)*sizeof(gfloat);

@@ -20,11 +20,11 @@ int main ( int argc, char** argv) {
 
   IvyInit ("Example1", "Example1 READY", NULL, NULL, NULL, NULL);
   IvyStart("127.255.255.255");
-  
+
 
   GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window), "HelloWorld");
-  
+
   GtkWidget* button = gtk_toggle_button_new_with_label( "ClickMe" );
   gtk_container_add (GTK_CONTAINER (window), button);
   g_signal_connect (G_OBJECT (button), "clicked", G_CALLBACK (on_button_clicked), NULL);

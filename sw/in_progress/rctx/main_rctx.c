@@ -1,5 +1,5 @@
 
-    /* 
+    /*
 
   - 0x101..0x10F reserved for rc transmitters
   - rc transmitters broadcast their messages (dest = 0xFFFF)
@@ -11,7 +11,7 @@
   - XBee-message
 
        ID is AC_ID for aircraft, 0x100 for ground station
-    
+
  1     A XBEE_START (0x7E)
  2     B LENGTH_MSB (A->E)
  3     C LENGTH_LSB
@@ -25,7 +25,7 @@
  9         0 SENDER_ID
 10         1 MSG_ID
              MSG_PAYLOAD
-11           0 RCTX_MODE 
+11           0 RCTX_MODE
 12           1 THOTTLE_LSB
 13           2 THOTTLE_MSB
 14           3 ROLL_LSB
@@ -33,7 +33,7 @@
 16           5 PITCH_LSB
 17           6 PITCH_MSB
 18     E XBEE_CHECKSUM (sum[A->D])
-     
+
   - messages.xml
 
   <message name="RC_3CH" ID="27">
@@ -51,7 +51,7 @@
 #define GROUND_STATION_ADDR 0x0100
 #endif
 
-  - datalink.c  
+  - datalink.c
 
 #ifdef USE_RC_TELEMETRY
     if (msg_id == DL_RC_3CH && DL_RC_3CH_ac_id(dl_buffer) == TX_ID) {
@@ -62,7 +62,7 @@ LED_TOGGLE(3);
     } else
 #endif // USE_RC_TELEMETRY
 
-*/    
+*/
 
 #include <stdio.h>
 #include "std.h"
@@ -152,7 +152,7 @@ void init_rctx( void ) {
   ppm_init();
 #endif
   int_enable();
-  
+
   /** - wait 0.5s (for modem init ?) */
   uint8_t init_cpt = 30;
   while (init_cpt) {
@@ -164,7 +164,7 @@ void init_rctx( void ) {
 #if DATALINK == XBEE
   xbee_init();
 #endif
-#endif /* DATALINK */ 
+#endif /* DATALINK */
 }
 
 /********** EVENT ************************************************************/
@@ -173,7 +173,7 @@ void event_task_rctx( void) {
   if (ppm_valid) {
     ppm_valid = FALSE;
     radio_control_event_task();
-    
+
 #ifdef USE_RCTX_MODE_SWITCH
     // TODO: set rxtx_mode from GPIO connected switch (e.g. I2C pins)
 #else
@@ -182,7 +182,7 @@ void event_task_rctx( void) {
 
     rctx_mode |= rctx_under_voltage << 2;
 LED_TOGGLE(3);
-    
+
     if (1)
     // TODO: check XBee busy pin
     // TODO: send only if aircraft is listening
@@ -196,8 +196,8 @@ LED_TOGGLE(3);
     }
   }
 #endif
-  
-#if defined DATALINK 
+
+#if defined DATALINK
 
 #if DATALINK == XBEE
   if (XBeeBuffer()) {
@@ -208,12 +208,12 @@ LED_TOGGLE(3);
     }
   }
 #endif
-  
+
   if (dl_msg_available) {
     dl_parse_msg();
     dl_msg_available = FALSE;
   }
-#endif /* DATALINK */ 
+#endif /* DATALINK */
 }
 
 /************* PERIODIC ******************************************************/
@@ -224,8 +224,8 @@ void periodic_task_rctx( void ) {
   _10Hz++;
   if (_10Hz >= 6) _10Hz = 0;
   _1Hz++;
-  if (_1Hz>=60) _1Hz=0; 
-  
+  if (_1Hz>=60) _1Hz=0;
+
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
 #endif
@@ -250,7 +250,7 @@ void periodic_task_rctx( void ) {
       LED_TOGGLE(1);
       rctx_under_voltage = 1;
     }
-    
+
     if (0)
     // TODO: send (here) only in auto2
     {
@@ -259,7 +259,7 @@ void periodic_task_rctx( void ) {
             &rc_values[RADIO_THROTTLE],
             &rc_values[RADIO_ROLL],
             &rc_values[RADIO_PITCH]);
-    }    
+    }
   }
 #endif
 }

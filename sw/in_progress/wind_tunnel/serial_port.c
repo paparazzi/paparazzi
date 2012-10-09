@@ -1,4 +1,4 @@
-/* 
+/*
    pc2rc serial port functions
    Copyright (C) 2001 Antoine Drouin
 
@@ -17,7 +17,7 @@
    You should have received a copy of the GNU General Public License
    along with paparazzi; see the file COPYING.  If not, write to
    the Free Software Foundation, 59 Temple Place - Suite 330,
-   Boston, MA 02111-1307, USA.  
+   Boston, MA 02111-1307, USA.
 
 */
 
@@ -43,8 +43,8 @@ struct SerialPort* serial_port_new() {
 /*
  * opens serial port and setup the terminal
  */
-guint 
-serial_port_open(struct SerialPort* this, const char* device, 
+guint
+serial_port_open(struct SerialPort* this, const char* device,
 		 void(*term_conf_callback)(struct termios*, speed_t*)) {
   speed_t speed;
   if ((this->fd = open(device, O_RDWR)) < 0) {
@@ -54,7 +54,7 @@ serial_port_open(struct SerialPort* this, const char* device,
   if (tcgetattr(this->fd, &this->orig_termios) < 0) {
     TRACE(TRACE_ERROR,"getting term settings (%s)\n", strerror(errno));
     return -1;
-  }   
+  }
   this->cur_termios = this->orig_termios;
   term_conf_callback(&this->cur_termios, &speed);
   if (cfsetispeed(&this->cur_termios, speed)) {
@@ -69,21 +69,21 @@ serial_port_open(struct SerialPort* this, const char* device,
 }
 
 /*
- * closes serial port and restore term settings 
+ * closes serial port and restore term settings
  */
-guint 
+guint
 serial_port_close(struct SerialPort* this) {
   if (tcflush(this->fd, TCIOFLUSH)) {
     TRACE(TRACE_ERROR,"flushing (%s)\n", strerror(errno));
-    return -1; 
+    return -1;
   }
   if (tcsetattr(this->fd, TCSADRAIN, &this->orig_termios)) {        // Restore modes.
     TRACE(TRACE_ERROR,"restoring term attributes (%s)\n", strerror(errno));
-    return -1; 
+    return -1;
   }
   if (close(this->fd)) {
     TRACE(TRACE_ERROR,"closing (%s)\n", strerror(errno));
-    return -1; 
+    return -1;
   }
   return 0;
 }

@@ -1,7 +1,7 @@
 /*
  *      xdisplay.c -- actually displaying things
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -120,10 +120,10 @@ static char *x_getkey(void)
 
 	if (!display)
 		return NULL;
-	while (XCheckIfEvent(display, &evt, predicate, NULL)) { 
+	while (XCheckIfEvent(display, &evt, predicate, NULL)) {
 		switch (evt.type) {
 		case KeyPress:
-			i = XLookupString((XKeyEvent *)&evt, kbuf, 
+			i = XLookupString((XKeyEvent *)&evt, kbuf,
 					  sizeof(kbuf)-1, NULL, NULL);
 			if (i) {
 				kbuf[i] = 0;
@@ -135,7 +135,7 @@ static char *x_getkey(void)
 			exit(0);
 		case Expose:
 			XGetWindowAttributes(display, window, &winattrs);
-			XCopyArea(display, window, pixmap, gc, 0, 0, 
+			XCopyArea(display, window, pixmap, gc, 0, 0,
 				  winattrs.width, winattrs.height, 0, 0);
 			continue;
 		default:
@@ -163,7 +163,7 @@ static int do_x_select(int fd, int wr)
 	int *xconn, xconnnum;
 	int max = fd, i;
 	fd_set rmask, wmask;
-	
+
 	if (!XInternalConnectionNumbers(display, &xconn, &xconnnum)) {
 		perror("XInternalConnectionNumbers");
 		exit(1);
@@ -184,7 +184,7 @@ static int do_x_select(int fd, int wr)
 		perror("select");
 		exit(1);
 	}
-	for (i = 0; i < xconnnum; i++) 
+	for (i = 0; i < xconnnum; i++)
 		if (FD_ISSET(xconn[i], &rmask))
 			XProcessInternalConnection(display, xconn[i]);
 	XFree(xconn);
@@ -203,7 +203,7 @@ static void child_win_init(void)
 	XGCValues gcv;
 	XColor color, dummy;
 	XSizeHints sizehints;
-	
+
 	/*
 	 * start graphical output
 	 */
@@ -219,7 +219,7 @@ static void child_win_init(void)
         col_trace = BlackPixel(display, 0);
         attr.background_pixel = col_background;
 	window = XCreateWindow(display, XRootWindow(display, 0),
-			       200, 200, WIDTH, HEIGHT, 5, 
+			       200, 200, WIDTH, HEIGHT, 5,
 			       DefaultDepth(display, 0),
 			       InputOutput, DefaultVisual(display, 0),
 			       CWBackPixel, &attr);
@@ -243,7 +243,7 @@ static void child_win_init(void)
 	XSetWMNormalHints(display, window, &sizehints);
 	XMapWindow(display, window);
 	XSynchronize(display, 1);
-}	
+}
 
 /* ---------------------------------------------------------------------- */
 
@@ -286,7 +286,7 @@ static void child_process(void)
 		 */
 		XSetState(display, gc, col_background, col_background,
 			  GXcopy, AllPlanes);
-                XFillRectangle(display, pixmap, gc, 0, 0, 
+                XFillRectangle(display, pixmap, gc, 0, 0,
                                WIDTH, HEIGHT);
 		/*
 		 * draw zero line
@@ -301,7 +301,7 @@ static void child_process(void)
 		for (i = 1; i < WIDTH; i++)
                 XDrawLine(display, pixmap, gc, i-1, YCOORD(d.s[i-1]),
                           i, YCOORD(d.s[i]));
-		XCopyArea(display, pixmap, window, gc, 0, 0, 
+		XCopyArea(display, pixmap, window, gc, 0, 0,
 			  WIDTH, HEIGHT, 0, 0);
 		/* XSync(display, 0); */
 	}
@@ -376,7 +376,7 @@ int xdisp_start(void)
 		close(datapipe[0]);
 		cli[cnum].datafd = datapipe[1];
 		cli[cnum].used = 1;
-		fcntl(cmdpipe[0], F_SETFL, 
+		fcntl(cmdpipe[0], F_SETFL,
 		      (fcntl(cmdpipe[0], F_GETFL, 0) | O_NDELAY));
 		return cnum;
 	}
@@ -418,7 +418,7 @@ int xdisp_update(int cnum, float *f)
 			*sp = 32767;
 		else if (*f <= -1)
 			*sp = -32767;
-		else 
+		else
 			*sp = 32767.0 * (*f);
 	}
 	bp = d.b;

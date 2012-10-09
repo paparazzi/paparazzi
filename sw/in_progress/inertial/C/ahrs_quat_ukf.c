@@ -40,7 +40,7 @@ void linear_filter(double *x1, double *x0, double *u) {
   x1[6] = x0[6];
 
   norm_quat(x1);
-}  
+}
 
 void linear_measure(double *y, double *x) {
   double eulers[3];
@@ -52,7 +52,7 @@ void linear_measure(double *y, double *x) {
 
 void run_ukf(void) {
   /* initial state covariance matrix */
-  double P[7*7] = {1.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0, 
+  double P[7*7] = {1.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   1.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   1.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   1.0,   0.0,   0.0,   0.0,
@@ -60,7 +60,7 @@ void run_ukf(void) {
 		   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0 };
   /* model noise covariance matrix */
-  double Q[7*7] = {0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0, 
+  double Q[7*7] = {0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,

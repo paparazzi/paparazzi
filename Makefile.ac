@@ -33,9 +33,8 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
 AC_GENERATED = $(ACINCLUDE)/generated
 
-ifndef PERIODIC_FREQ
-PERIODIC_FREQ = 60
-endif
+# periodic frequency defaults to 60Hz
+PERIODIC_FREQ ?= 60
 
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
 PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
@@ -48,7 +47,6 @@ SETTINGS_XML=$(ACINCLUDE)/settings.xml
 SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
 SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
-SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(AC_GENERATED)/modules.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
@@ -59,13 +57,14 @@ Q=@
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
 
-demo:
-	$(SUPERVISION)
-
 ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
 endif
 
+print_version:
+	@echo "-----------------------------------------------------------------------"
+	@echo "Paparazzi version" $(shell ./paparazzi_version)
+	@echo "-----------------------------------------------------------------------"
 
 
 all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
@@ -136,7 +135,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 	@echo BUILD $(AIRCRAFT), TARGET $*
 	+$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
-%.compile: %.ac_h
+%.compile: %.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
 
 %.wr_fuses: %.compile
@@ -183,3 +182,5 @@ hard_ac ac: ac_h fbw ap
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
+
+.PHONY: all clean_ac print_version

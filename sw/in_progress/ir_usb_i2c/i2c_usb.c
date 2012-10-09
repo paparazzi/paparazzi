@@ -54,7 +54,7 @@ unsigned crc8(unsigned char* dat, int len)
 {
   unsigned bits = 0;
   int i;
-  
+
   /* x^8 + x^2 + x^1 + x^0 */
   while (len-- > 0) {
     for (i = 7; i >= 0; i--) {
@@ -70,13 +70,13 @@ unsigned crc8(unsigned char* dat, int len)
     if (bits > 0xFF)
       bits ^= 0x107;
   }
-  
+
   return bits;
 }
 
 /* write a set of bytes to the i2c_tiny_usb device */
 int i2c_tiny_usb_write(int request, int value, int index) {
-  if(usb_control_msg(handle, USB_CTRL_OUT, request, 
+  if(usb_control_msg(handle, USB_CTRL_OUT, request,
 		      value, index, NULL, 0, 1000) < 0) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
@@ -89,8 +89,8 @@ int i2c_tiny_usb_read(unsigned char cmd, void *data, int len) {
   int                 nBytes;
 
   /* send control request and accept return value */
-  nBytes = usb_control_msg(handle, 
-	   USB_CTRL_IN, 
+  nBytes = usb_control_msg(handle,
+	   USB_CTRL_IN,
 	   cmd, 0, 0, data, len, 1000);
 
   if(nBytes < 0) {
@@ -104,15 +104,15 @@ int i2c_tiny_usb_read(unsigned char cmd, void *data, int len) {
 /* get i2c usb interface firmware version */
 void i2c_tiny_usb_get_func(void) {
   unsigned long func;
-  
+
   if(i2c_tiny_usb_read(CMD_GET_FUNC, &func, sizeof(func)) == 0)
     printf("Functionality = %lx\n", func);
 }
 
 /* set a value in the I2C_USB interface */
 void i2c_tiny_usb_set(unsigned char cmd, int value) {
-  if(usb_control_msg(handle, 
-	     USB_TYPE_VENDOR, cmd, value, 0, 
+  if(usb_control_msg(handle,
+	     USB_TYPE_VENDOR, cmd, value, 0,
 	     NULL, 0, 1000) < 0) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
   }
@@ -122,7 +122,7 @@ void i2c_tiny_usb_set(unsigned char cmd, int value) {
 int i2c_tiny_usb_get_status(void) {
   int i;
   unsigned char status;
-  
+
   if((i=i2c_tiny_usb_read(CMD_GET_STATUS, &status, sizeof(status))) < 0) {
     fprintf(stderr, "Error reading status\n");
     return i;
@@ -138,17 +138,17 @@ int i2c_read_with_cmd(unsigned char addr, char cmd, int length) {
   if((length < 0) || (length > sizeof(result))) {
     fprintf(stderr, "request exceeds %d bytes\n", sizeof(result));
     return -1;
-  } 
+  }
 
   /* write one byte register address to chip */
-  if(usb_control_msg(handle, USB_CTRL_OUT, 
+  if(usb_control_msg(handle, USB_CTRL_OUT,
 		     CMD_I2C_IO + CMD_I2C_BEGIN
 		     + ((!length)?CMD_I2C_END:0),
-		     0, addr, &cmd, 1, 
+		     0, addr, &cmd, 1,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "write command status failed\n");
@@ -158,14 +158,14 @@ int i2c_read_with_cmd(unsigned char addr, char cmd, int length) {
   // just a test? return ok
   if(!length) return 0;
 
-  if(usb_control_msg(handle, 
-		     USB_CTRL_IN, 
+  if(usb_control_msg(handle,
+		     USB_CTRL_IN,
 		     CMD_I2C_IO + CMD_I2C_END,
-		     I2C_M_RD, addr, (char*)result, length, 
+		     I2C_M_RD, addr, (char*)result, length,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "read data status failed\n");
@@ -177,7 +177,7 @@ int i2c_read_with_cmd(unsigned char addr, char cmd, int length) {
     return 256*result[0] + result[1];
 
   // return 8 bit result
-  return result[0];  
+  return result[0];
 }
 
 /* write command and read an 16 bit value from mlx */
@@ -186,27 +186,27 @@ int i2c_mlx_read_word_with_cmd(unsigned char addr, char cmd) {
   unsigned char pec[6];
 
   /* write one byte register address to chip */
-  if(usb_control_msg(handle, USB_CTRL_OUT, 
+  if(usb_control_msg(handle, USB_CTRL_OUT,
 		     CMD_I2C_IO + CMD_I2C_BEGIN,
-		     0, addr, &cmd, 1, 
+		     0, addr, &cmd, 1,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "write command status failed\n");
     return -1;
   }
 
-  if(usb_control_msg(handle, 
-		     USB_CTRL_IN, 
+  if(usb_control_msg(handle,
+		     USB_CTRL_IN,
 		     CMD_I2C_IO + CMD_I2C_END,
-		     I2C_M_RD, addr, (char*)result, 4, 
+		     I2C_M_RD, addr, (char*)result, 4,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "read data status failed\n");
@@ -230,20 +230,20 @@ int i2c_mlx_read_word_with_cmd(unsigned char addr, char cmd) {
 int i2c_write_byte(unsigned char addr, char data) {
 
   /* write one byte register address to chip */
-  if(usb_control_msg(handle, USB_CTRL_OUT, 
+  if(usb_control_msg(handle, USB_CTRL_OUT,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, addr, &data, 1, 
+		     0, addr, &data, 1,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "write command status failed\n");
     return -1;
   }
 
-  return 0;  
+  return 0;
 }
 
 /* write a command byte and a single byte to the i2c client */
@@ -254,27 +254,27 @@ int i2c_write_cmd_and_byte(unsigned char addr, char cmd, char data) {
   msg[1] = data;
 
   /* write one byte register address to chip */
-  if(usb_control_msg(handle, USB_CTRL_OUT, 
+  if(usb_control_msg(handle, USB_CTRL_OUT,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, addr, msg, 2, 
+		     0, addr, msg, 2,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "write command status failed\n");
     return -1;
   }
 
-  return 0;  
+  return 0;
 }
 
 /* write a command byte and a 16 bit value to the mlx */
 int i2c_mlx_write_cmd_and_word(unsigned char addr, char cmd, int data) {
   char msg[4];
   unsigned char pec[5];
-    
+
   pec[0]=addr<<1;
   pec[1]=cmd;
   pec[2]=data & 0xff;
@@ -286,20 +286,20 @@ int i2c_mlx_write_cmd_and_word(unsigned char addr, char cmd, int data) {
   msg[3] = crc8(pec, 4);
 
   /* write one byte register address to chip */
-  if(usb_control_msg(handle, USB_CTRL_OUT, 
+  if(usb_control_msg(handle, USB_CTRL_OUT,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, addr, msg, 4, 
+		     0, addr, msg, 4,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "write command status failed\n");
     return -1;
   }
 
-  return 0;  
+  return 0;
 }
 
 /* write a command byte and a 16 bit value to the mlx i2c client */
@@ -311,20 +311,20 @@ int i2c_write_cmd_and_word(unsigned char addr, char cmd, int data) {
   msg[2] = data & 0xff;
 
   /* write one byte register address to chip */
-  if(usb_control_msg(handle, USB_CTRL_OUT, 
+  if(usb_control_msg(handle, USB_CTRL_OUT,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, addr, msg, 3, 
+		     0, addr, msg, 3,
 		     1000) < 1) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     return -1;
-  } 
+  }
 
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     fprintf(stderr, "write command status failed\n");
     return -1;
   }
 
-  return 0;  
+  return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -334,34 +334,34 @@ int main(int argc, char *argv[]) {
 #ifndef WIN
   int ret;
 #endif
-  
+
   printf("--      i2c-tiny-usb test application       --\n");
   printf("--         (c) 2006 by Till Harbaum         --\n");
   printf("-- http://www.harbaum.org/till/i2c_tiny_usb --\n");
 
   usb_init();
-  
+
   usb_find_busses();
   usb_find_devices();
-  
+
   for(bus = usb_get_busses(); bus; bus = bus->next) {
     for(dev = bus->devices; dev; dev = dev->next) {
-      if((dev->descriptor.idVendor == I2C_TINY_USB_VID) && 
+      if((dev->descriptor.idVendor == I2C_TINY_USB_VID) &&
 	 (dev->descriptor.idProduct == I2C_TINY_USB_PID)) {
-	
-	printf("Found i2c_tiny_usb device on bus %s device %s.\n", 
+
+	printf("Found i2c_tiny_usb device on bus %s device %s.\n",
 	       bus->dirname, dev->filename);
-	
+
 	/* open device */
-	if(!(handle = usb_open(dev))) 
-	  fprintf(stderr, "Error: Cannot open the device: %s\n", 
+	if(!(handle = usb_open(dev)))
+	  fprintf(stderr, "Error: Cannot open the device: %s\n",
 		  usb_strerror());
 
 	break;
       }
     }
   }
-  
+
   if(!handle) {
     fprintf(stderr, "Error: Could not find i2c_tiny_usb device\n");
 
@@ -382,7 +382,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 #endif
-  
+
   /* do some testing */
   i2c_tiny_usb_get_func();
 
@@ -398,17 +398,17 @@ int main(int argc, char *argv[]) {
   printf("Probing for MLX90614 ... ");
 
   /* try to access mlx90614 at address MLX90614_ADDR */
-  if(usb_control_msg(handle, USB_CTRL_IN, 
+  if(usb_control_msg(handle, USB_CTRL_IN,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, MLX90614_ADDR, NULL, 0, 
+		     0, MLX90614_ADDR, NULL, 0,
 		     1000) < 0) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     goto quit;
-  } 
-  
+  }
+
   if(i2c_tiny_usb_get_status() == STATUS_ADDRESS_ACK) {
     int tp;
-    
+
     printf("success at address 0x%02x\n", MLX90614_ADDR);
     usleep(10000);
 
@@ -427,13 +427,13 @@ int main(int argc, char *argv[]) {
     /* write new i2c address, always set bit0 ! */
 //    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, 1);
 //    usleep(1000000);
-    
+
     tp = i2c_mlx_read_word_with_cmd(MLX90614_ADDR, 0x2E);
     printf("i2c addr = 0x%04X\n", tp);
 
     tp = i2c_mlx_read_word_with_cmd(MLX90614_ADDR, 0x06);
     printf("Ta    = %2.2f°C (0x%04X)\n", (tp*0.02)-273.15, tp);
-    
+
     tp = i2c_mlx_read_word_with_cmd(MLX90614_ADDR, 0x07);
     printf("Tobj1 = %2.2f°C (0x%04X)\n", (tp*0.02)-273.15, tp);
 
@@ -446,35 +446,35 @@ int main(int argc, char *argv[]) {
   /* -------- begin of mlx90614 multi client processing --------- */
 
   /* try to access mlx90614 at address MLX90614_ADDR_1 */
-  if(usb_control_msg(handle, USB_CTRL_IN, 
+  if(usb_control_msg(handle, USB_CTRL_IN,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, MLX90614_ADDR_1, NULL, 0, 
+		     0, MLX90614_ADDR_1, NULL, 0,
 		     1000) < 0) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     goto quit;
-  } 
-  
+  }
+
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     printf("no device at address 0x%02x\n", MLX90614_ADDR_1);
     goto quit;
-  }  
+  }
   /* try to access mlx90614 at address MLX90614_ADDR_2 */
-  if(usb_control_msg(handle, USB_CTRL_IN, 
+  if(usb_control_msg(handle, USB_CTRL_IN,
 		     CMD_I2C_IO + CMD_I2C_BEGIN + CMD_I2C_END,
-		     0, MLX90614_ADDR_1, NULL, 0, 
+		     0, MLX90614_ADDR_1, NULL, 0,
 		     1000) < 0) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     goto quit;
-  } 
-  
+  }
+
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     printf("no device at address 0x%02x\n", MLX90614_ADDR_2);
     goto quit;
-  }  
-  
-  {  
+  }
+
+  {
     int tp1, tp2;
-    
+
     usleep(100000);
 
     while(1) {

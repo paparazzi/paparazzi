@@ -18,7 +18,7 @@ GtkWidget* build_gui ( void ) {
 
   window1 = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title (GTK_WINDOW (window1), "plot roll loop");
-  
+
   vbox1 = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (window1), vbox1);
 

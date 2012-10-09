@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -44,7 +44,7 @@
 #define AC_NUM      10
 #define AC_TIMEOUT  5
 
-typedef struct 
+typedef struct
 {
   long addr;
   struct timeval tvvalid;
@@ -95,7 +95,7 @@ int cleanupac(ac_dat_t * ac_dati)
 
   for(count=0; count < AC_NUM; count++)
   {
-    if (ac_dati[count].tvvalid.tv_sec + AC_TIMEOUT < tvcur.tv_sec) 
+    if (ac_dati[count].tvvalid.tv_sec + AC_TIMEOUT < tvcur.tv_sec)
     {
       ac_dati[count].ac_id = 0;
     }
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   length = sizeof(sourceaddr);
   memset(&sourceaddr, 0, sizeof(sourceaddr));
   memset(&sinkaddr, 0, sizeof(sinkaddr));
-                           
+
   sourceaddr.sin_family = AF_INET;
   sourceaddr.sin_addr.s_addr = INADDR_ANY;
   sourceaddr.sin_port = htons(PORT_IN);
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
     tvt.tv_sec = 1;
     tvt.tv_usec = 0;
 
-    count = select(fdmax+1, &fds, NULL, NULL, &tvt); 
+    count = select(fdmax+1, &fds, NULL, NULL, &tvt);
 
     if (FD_ISSET(sourcesock, &fds))
     {
@@ -220,14 +220,14 @@ int main(int argc, char *argv[])
         pbuf = buf;
         ac = getnumac(ac_dat);
         pbuf += sprintf(pbuf,"Cache-Control: no-cache\n");
-        pbuf += sprintf(pbuf,"Pragma: no-cache\n");	
+        pbuf += sprintf(pbuf,"Pragma: no-cache\n");
         pbuf += sprintf(pbuf,"Content-type: text/xml\n\n");
         pbuf += sprintf(pbuf,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
         pbuf += sprintf(pbuf,"<kml xmlns=\"http://earth.google.com/kml/2.1\">\n");
         pbuf += sprintf(pbuf,"<NetworkLinkControl>\n");
         pbuf += sprintf(pbuf," <Update>\n");
         pbuf += sprintf(pbuf,"  <targetHref>http://localhost/maps/fg_server_xml.cgi?ppac</targetHref>\n");
-           
+
         for (count = 0; count < ac; count++)
         {
           if (ac_dat[count].ac_id > 0)
@@ -270,14 +270,14 @@ int main(int argc, char *argv[])
         pbuf = buf;
         ac = getnumac(ac_dat);
         pbuf += sprintf(pbuf,"Cache-Control: no-cache\n");
-        pbuf += sprintf(pbuf,"Pragma: no-cache\n");	
+        pbuf += sprintf(pbuf,"Pragma: no-cache\n");
         pbuf += sprintf(pbuf,"Content-type: text/xml\n\n");
         pbuf += sprintf(pbuf,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
         pbuf += sprintf(pbuf,"<kml xmlns=\"http://earth.google.com/kml/2.1\">\n");
         pbuf += sprintf(pbuf," <Document id=\"mpmap\">\n");
         pbuf += sprintf(pbuf," <name>Paparazzi live aircrafts</name>\n");
         pbuf += sprintf(pbuf," <visibility>1</visibility>\n");
-   
+
         for (count = 0; count < ac; count++)
         {
           if (ac_dat[count].ac_id > 0)
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
             pbuf += sprintf(pbuf, "   <tilt>55</tilt>\n");
             pbuf += sprintf(pbuf, "   <heading>%f</heading>\n", ac_dat[count].fval[7]);
             pbuf += sprintf(pbuf, "   <altitudeMode>absolute</altitudeMode>\n");
-            pbuf += sprintf(pbuf, "  </LookAt>\n");            
+            pbuf += sprintf(pbuf, "  </LookAt>\n");
 #endif
             pbuf += sprintf(pbuf, "  <description>Paparazzi</description>\n");
             pbuf += sprintf(pbuf, "  <Model>\n");
@@ -335,17 +335,17 @@ int main(int argc, char *argv[])
       {
         pbuf=buf;
         ac = getnumac(ac_dat);
-  
+
         pbuf += sprintf(pbuf,"Cache-Control: no-cache\n");
-        pbuf += sprintf(pbuf,"Pragma: no-cache\n");	
+        pbuf += sprintf(pbuf,"Pragma: no-cache\n");
         pbuf += sprintf(pbuf, "Content-type: text/xml\n\n<fg_server pilot_cnt=\"%d\">\n", ac);
-   
+
         for (count = 0; count < ac; count++)
         {
           if (ac_dat[count].ac_id > 0)
           {
             pbuf += sprintf(pbuf, "<marker callsign=\"%i\" server_ip=\"%u.%u.%u.%u\" model=\"c172p\" lat=\"%f\" lng=\"%f\" alt=\"%f\" heading=\"%f\" pitch=\"%f\" roll=\"%f\"/>\n",
-                     ac_dat[count].ac_id, 
+                     ac_dat[count].ac_id,
                      (unsigned char)(ac_dat[count].addr >> 24),
                      (unsigned char)(ac_dat[count].addr >> 16),
                      (unsigned char)(ac_dat[count].addr >> 8),
@@ -353,8 +353,8 @@ int main(int argc, char *argv[])
                      ac_dat[count].fval[3],
                      ac_dat[count].fval[4],
                      ac_dat[count].fval[7],
-                     ac_dat[count].fval[6], 
-                     ac_dat[count].fval[2], 
+                     ac_dat[count].fval[6],
+                     ac_dat[count].fval[2],
                      ac_dat[count].fval[1]);
           }
         }
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
       }
 //      else buf[0]=0;
 
-      if (ntohl(sinkaddr.sin_addr.s_addr) == INADDR_LOOPBACK) 
+      if (ntohl(sinkaddr.sin_addr.s_addr) == INADDR_LOOPBACK)
       {
         count = send(consock, buf, strlen(buf), 0);
       }
@@ -375,4 +375,4 @@ int main(int argc, char *argv[])
   }
 
   return 0;
-}                                                                               
+}

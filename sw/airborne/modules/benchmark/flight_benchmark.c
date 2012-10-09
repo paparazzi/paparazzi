@@ -7,7 +7,7 @@
 
 
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "estimator.h"
+#include "state.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
@@ -60,7 +60,7 @@ void flight_benchmark_periodic( void ) {
 
 	if (benchm_go){
 	#if USE_AIRSPEED && defined(BENCHMARK_AIRSPEED)
-		Err_airspeed = fabs(estimator_airspeed - v_ctl_auto_airspeed_setpoint);
+		Err_airspeed = fabs(*stateGetAirspeed_f() - v_ctl_auto_airspeed_setpoint);
 		if (Err_airspeed>ToleranceAispeed){
 			Err_airspeed = Err_airspeed-ToleranceAispeed;
 			SquareSumErr_airspeed += (Err_airspeed * Err_airspeed);
@@ -68,7 +68,7 @@ void flight_benchmark_periodic( void ) {
 	#endif
 
 	#ifdef BENCHMARK_ALTITUDE
-		Err_altitude = fabs(estimator_z - v_ctl_altitude_setpoint);
+		Err_altitude = fabs(stateGetPositionEnu_f()->z - v_ctl_altitude_setpoint);
 		if (Err_altitude>ToleranceAltitude){
 			Err_altitude = Err_altitude-ToleranceAltitude;
 			SquareSumErr_altitude += (Err_altitude * Err_altitude);
@@ -79,7 +79,7 @@ void flight_benchmark_periodic( void ) {
 
 	//---------------This part is a waste of memory and calculation power -  but it works - feel free to optimize it ;-) -----------------
 
-	// 	err_temp = waypoints[target].x - estimator_x;
+	// 	err_temp = waypoints[target].x - stateGetPositionEnu_f()->x;
 		float deltaPlaneX = 0;
 		float deltaPlaneY = 0;
 		float Err_position_segment = 0;
@@ -89,16 +89,16 @@ void flight_benchmark_periodic( void ) {
 			float deltaX = nav_segment_x_2 - nav_segment_x_1;
 			float deltaY = nav_segment_y_2 - nav_segment_y_1;
 			float anglePath = atan2(deltaX,deltaY);
-			deltaPlaneX = nav_segment_x_2 - estimator_x;
-			deltaPlaneY = nav_segment_y_2 - estimator_y;
+			deltaPlaneX = nav_segment_x_2 - stateGetPositionEnu_f()->x;
+			deltaPlaneY = nav_segment_y_2 - stateGetPositionEnu_f()->y;
 			float anglePlane = atan2(deltaPlaneX,deltaPlaneY);
 			float angleDiff = fabs(anglePlane - anglePath);
 			Err_position_segment = fabs(sin(angleDiff)*sqrt(deltaPlaneX*deltaPlaneX+deltaPlaneY*deltaPlaneY));
 // 		}
 
 // 		if (nav_in_circle){
-			deltaPlaneX = nav_circle_x - estimator_x;
-			deltaPlaneY = nav_circle_y - estimator_y;
+			deltaPlaneX = nav_circle_x - stateGetPositionEnu_f()->x;
+			deltaPlaneY = nav_circle_y - stateGetPositionEnu_f()->y;
 			Err_position_circle = fabs(sqrt(deltaPlaneX*deltaPlaneX+deltaPlaneY*deltaPlaneY)-nav_circle_radius);
 // 		}
 		if (Err_position_circle < Err_position_segment){

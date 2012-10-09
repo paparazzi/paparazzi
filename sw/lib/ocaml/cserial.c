@@ -1,4 +1,4 @@
-/* 
+/*
    $Id$
    Copyright (C) 2004 Pascal Brisset, Antoine Drouin
 
@@ -19,8 +19,8 @@
  You should have received a copy of the GNU General Public License
  along with paparazzi; see the file COPYING.  If not, write to
  the Free Software Foundation, 59 Temple Place - Suite 330,
- Boston, MA 02111-1307, USA.  
-*/ 
+ Boston, MA 02111-1307, USA.
+*/
 
 #include <sys/types.h>
 #include <fcntl.h>
@@ -47,40 +47,40 @@ value c_init_serial(value device, value speed)
   int br = baudrates[Int_val(speed)];
 
   int fd = open(String_val(device), O_RDWR|O_NONBLOCK);
- 
+
   if (fd == -1) failwith("opening modem serial device : fd < 0");
-  
+
   if (tcgetattr(fd, &orig_termios)) failwith("getting modem serial device attr");
   cur_termios = orig_termios;
- 
+
   /* input modes */
   cur_termios.c_iflag &= ~(IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
 			    |ICRNL |IXON|IXANY|IXOFF|IMAXBEL);
   /* pas IGNCR sinon il vire les 0x0D */
   cur_termios.c_iflag |= BRKINT;
-   
+
   /* output_flags */
   cur_termios.c_oflag  &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
 
   /* control modes */
   cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
   cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
-   
+
   /* local modes */
   cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
   cur_termios.c_lflag |= NOFLSH;
-  
+
   if (cfsetspeed(&cur_termios, br)) failwith("setting modem serial device speed");
 
   if (tcsetattr(fd, TCSADRAIN, &cur_termios)) failwith("setting modem serial device attr");
-  
+
   return Val_int(fd);
 }
 
 value c_set_dtr(value val_fd, value val_bit) {
   int status;
   int fd = Int_val(val_fd);
-  
+
   ioctl(fd, TIOCMGET, &status);
   if (Bool_val(val_bit))
     status |= TIOCM_DTR;
@@ -93,10 +93,10 @@ value c_set_dtr(value val_fd, value val_bit) {
 
 /* From the gPhoto I/O library */
 value c_serial_set_baudrate(value val_fd, value speed)
-{  
+{
   struct termios tio;
   int fd = Int_val(val_fd);
-  
+
   if (tcgetattr(fd, &tio) < 0) {
     failwith("tcgetattr");
   }
@@ -105,7 +105,7 @@ value c_serial_set_baudrate(value val_fd, value speed)
   tio.c_cflag = CS8 | CREAD | CLOCAL;
   tio.c_cc[VMIN] = 1;
   tio.c_cc[VTIME] = 5;
-  
+
   tio.c_lflag &= ~(ICANON | ISIG | ECHO | ECHONL | ECHOE | ECHOK);
 
   int br = baudrates[Int_val(speed)];

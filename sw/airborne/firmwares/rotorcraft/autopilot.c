@@ -22,6 +22,7 @@
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "subsystems/radio_control.h"
+#include "subsystems/gps.h"
 #include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
@@ -248,7 +249,9 @@ void autopilot_on_rc_frame(void) {
   else {
     uint8_t new_autopilot_mode = 0;
     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
-    autopilot_set_mode(new_autopilot_mode);
+    /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
+    if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost()))
+      autopilot_set_mode(new_autopilot_mode);
   }
 
   /* if not in FAILSAFE mode check motor and in_flight status, read RC */

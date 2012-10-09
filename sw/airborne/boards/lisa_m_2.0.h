@@ -96,7 +96,7 @@
 
 
 
-#define DefaultVoltageOfAdc(adc) (0.00485*adc)
+#define DefaultVoltageOfAdc(adc) (0.0045*adc)
 
 /* Onboard ADCs */
 /*
@@ -154,5 +154,8 @@
 #define PWM_5AND6_GPIO GPIOA
 #define PWM5_Pin GPIO0
 #define PWM6_Pin GPIO1
+
+// Remap the servos 5 and 6 to TIM5 CH1 and CH2
+#define REMAP_SERVOS_5AND6 1
 
 #endif /* CONFIG_LISA_M_2_0_H */

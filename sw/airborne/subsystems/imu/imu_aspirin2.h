@@ -105,12 +105,14 @@ struct ImuAspirin2 {
 extern struct ImuAspirin2 imu_aspirin2;
 
 
-
-
-static inline void imu_from_buff(volatile uint8_t *buf)
+static inline int imu_from_buff(volatile uint8_t *buf)
 {
   int32_t x, y, z, p, q, r, Mx, My, Mz;
 
+#define MPU_OFFSET_STATUS 1
+  if (!(buf[MPU_OFFSET_STATUS] & 0x01)) {
+    return 0;
+  }
 
 #define MPU_OFFSET_GYRO 10
   p = (int16_t) ((buf[0+MPU_OFFSET_GYRO] << 8) | buf[1+MPU_OFFSET_GYRO]);
@@ -137,19 +139,7 @@ static inline void imu_from_buff(volatile uint8_t *buf)
   VECT3_ASSIGN(imu.mag_unscaled, Mz, -Mx, My);
 #endif
 
-
-  //FIXME, remove it or use it...
-#if 0
-  // Is this is new data
-#define MPU_OFFSET_STATUS 1
-  if (buf[MPU_OFFSET_STATUS] & 0x01)
-  {
-    //gyr_valid = TRUE;
-    //acc_valid = TRUE;
-  }
-  else {
-  }
-#endif
+  return 1;
 }
 
 
@@ -159,13 +149,12 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 
   if (imu_aspirin2.imu_available) {
     imu_aspirin2.imu_available = FALSE;
-    imu_from_buff(imu_aspirin2.input_buf_p);
-
-    _gyro_handler();
-    _accel_handler();
-    _mag_handler();
+    if (imu_from_buff(imu_aspirin2.input_buf_p)) {
+      _gyro_handler();
+      _accel_handler();
+      _mag_handler();
+    }
   }
-
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \

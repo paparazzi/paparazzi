@@ -117,7 +117,7 @@ value ml_init_gen_hdlc(value device) {
 	    "number to 1\n");
     exit (10);
   }
-  sndparam = sample_rate; 
+  sndparam = sample_rate;
   if (ioctl(fd, SNDCTL_DSP_SPEED, &sndparam) == -1) {
     perror("ioctl: SNDCTL_DSP_SPEED");
     exit (10);
@@ -163,7 +163,7 @@ value ml_init_gen_hdlc(value device) {
 
   return Val_int(fd);
 #else
-  failwith("Not supported under OSX");  
+  failwith("Not supported under OSX");
 #endif
 
 }
@@ -187,7 +187,7 @@ value ml_init_dec_hdlc(value dev) {
     exit (10);
   }
 
-  sndparam = DEFAULT_SAMPLE_RATE; 
+  sndparam = DEFAULT_SAMPLE_RATE;
   if (ioctl(fd, SNDCTL_DSP_SPEED, &sndparam) == -1) {
     perror("ioctl: SNDCTL_DSP_SPEED");
     exit (10);
@@ -206,7 +206,7 @@ value ml_init_dec_hdlc(value dev) {
   dem_st.dem_par = &demod_afsk1200;
   return Val_int(fd);
 #else
-  failwith("Not supported under OSX");  
+  failwith("Not supported under OSX");
 #endif
 
 }
@@ -226,7 +226,7 @@ value ml_gen_hdlc(value val_data) {
   }
   params.p.hdlc.pktlen = 16 + data_len;
   params.p.hdlc.txdelay = 10;
-  
+
   memset(&state, 0, sizeof(state));
   gen_init_hdlc(&params, &state);
 
@@ -248,7 +248,7 @@ value ml_gen_hdlc(value val_data) {
 
   return Val_unit;
 #else
-  failwith("Not supported under OSX");  
+  failwith("Not supported under OSX");
 #endif
 
 }
@@ -269,22 +269,22 @@ value ml_write_to_dsp(value _) {
   for(i = available; i < n; i++) {
     my_buffer[(idx_start+i)%MY_BUF_LEN] = silence_buffer[i];
   }
-  
+
   int k =  Min(n, MY_BUF_LEN - idx_start);
   int num = write(fd, my_buffer+idx_start, k*sizeof(short));
   num += write(fd, my_buffer+0, (n - k)*sizeof(short));
-  if (available <= n) { 
+  if (available <= n) {
     /* buffer is empty */
     idx_start = idx_end = 0;
   } else {
     idx_start = (idx_start + n) % MY_BUF_LEN;
   }
-		  
+
   assert(num == n*sizeof(short));
 
   return Val_unit
 #else
-  failwith("Not supported under OSX");  
+  failwith("Not supported under OSX");
 #endif
 ;
 }
@@ -316,19 +316,19 @@ value ml_get_hdlc(value unit) {
 	fprintf(stderr, "warning: noninteger number of samples read\n");
     if (fbuf_cnt > overlap) {
       demod_afsk1200.demod(&dem_st, fbuf, fbuf_cnt-overlap);
-      
+
       memmove(fbuf, fbuf+fbuf_cnt-overlap, overlap*sizeof(fbuf[0]));
-      fbuf_cnt = overlap; 
+      fbuf_cnt = overlap;
     }
   }
-    
+
   /* Alloc the caml string and fill it */
   result = alloc_string(hdlc_data_received_idx);
   for(i = 0; i < hdlc_data_received_idx; i++)
     Byte(result, i) = hdlc_data_received[i];
   CAMLreturn(result);
 #else
-  failwith("Not supported under OSX");  
+  failwith("Not supported under OSX");
 #endif
 
 }

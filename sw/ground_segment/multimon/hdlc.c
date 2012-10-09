@@ -1,7 +1,7 @@
 /*
  *      hdlc.c -- hdlc decoder and AX.25 packet dump
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -88,7 +88,7 @@ static void ax25_disp_packet(struct demod_state *s, unsigned char *bp, unsigned 
   unsigned char v1=1,cmd=0;
   unsigned char i,j;
 
-  if (!bp || len < 10) 
+  if (!bp || len < 10)
     return;
 #if 1
   if (!check_crc_ccitt(bp, len))
@@ -103,22 +103,22 @@ static void ax25_disp_packet(struct demod_state *s, unsigned char *bp, unsigned 
     cmd = (bp[1] & 2) != 0;
     verbprintf(1, "%s: fm ? to ", s->dem_par->name);
     i = (bp[2] >> 2) & 0x3f;
-    if (i) 
+    if (i)
       verbprintf(1, "%c",i+0x20);
     i = ((bp[2] << 4) | ((bp[3] >> 4) & 0xf)) & 0x3f;
-    if (i) 
+    if (i)
       verbprintf(1, "%c",i+0x20);
     i = ((bp[3] << 2) | ((bp[4] >> 6) & 3)) & 0x3f;
-    if (i) 
+    if (i)
       verbprintf(1, "%c",i+0x20);
     i = bp[4] & 0x3f;
-    if (i) 
+    if (i)
       verbprintf(1, "%c",i+0x20);
     i = (bp[5] >> 2) & 0x3f;
-    if (i) 
+    if (i)
       verbprintf(1, "%c",i+0x20);
     i = ((bp[5] << 4) | ((bp[6] >> 4) & 0xf)) & 0x3f;
-    if (i) 
+    if (i)
       verbprintf(1, "%c",i+0x20);
     verbprintf(1, "-%u QSO Nr %u", bp[6] & 0xf, (bp[0] << 6) | (bp[1] >> 2));
     bp += 7;
@@ -127,7 +127,7 @@ static void ax25_disp_packet(struct demod_state *s, unsigned char *bp, unsigned 
     /*
      * normal header
      */
-    if (len < 15) 
+    if (len < 15)
       return;
 
 
@@ -137,35 +137,35 @@ static void ax25_disp_packet(struct demod_state *s, unsigned char *bp, unsigned 
     }
 
     verbprintf(1, "%s: fm ", s->dem_par->name);
-    for(i = 7; i < 13; i++) 
-      if ((bp[i] &0xfe) != 0x40) 
+    for(i = 7; i < 13; i++)
+      if ((bp[i] &0xfe) != 0x40)
 	verbprintf(1, "%c",bp[i] >> 1);
     verbprintf(1, "-%u to ",(bp[13] >> 1) & 0xf);
-    for(i = 0; i < 6; i++) 
-      if ((bp[i] &0xfe) != 0x40) 
+    for(i = 0; i < 6; i++)
+      if ((bp[i] &0xfe) != 0x40)
 	verbprintf(1, "%c",bp[i] >> 1);
     verbprintf(1, "-%u",(bp[6] >> 1) & 0xf);
     bp += 14;
     len -= 14;
-    if ((!(bp[-1] & 1)) && (len >= 7)) 
+    if ((!(bp[-1] & 1)) && (len >= 7))
       verbprintf(1, " via ");
     while ((!(bp[-1] & 1)) && (len >= 7)) {
-      for(i = 0; i < 6; i++) 
-	if ((bp[i] &0xfe) != 0x40) 
+      for(i = 0; i < 6; i++)
+	if ((bp[i] &0xfe) != 0x40)
 	  verbprintf(1, "%c",bp[i] >> 1);
       verbprintf(1, "-%u",(bp[6] >> 1) & 0xf);
       bp += 7;
       len -= 7;
-      if ((!(bp[-1] & 1)) && (len >= 7)) 
+      if ((!(bp[-1] & 1)) && (len >= 7))
 	verbprintf(1, ",");
     }
   }
 
-  if(!len) 
+  if(!len)
     return;
   i = *bp++;
   len--;
-  j = v1 ? ((i & 0x10) ? '!' : ' ') : 
+  j = v1 ? ((i & 0x10) ? '!' : ' ') :
     ((i & 0x10) ? (cmd ? '+' : '-') : (cmd ? '^' : 'v'));
   if (!(i & 1)) {
     /*
@@ -214,7 +214,7 @@ static void ax25_disp_packet(struct demod_state *s, unsigned char *bp, unsigned 
       verbprintf(1, " REJ%u%c",(i >> 5) & 7,j);
       break;
     default:
-      verbprintf(1, " unknown S (0x%x)%u%c", i & 0xf, 
+      verbprintf(1, " unknown S (0x%x)%u%c", i & 0xf,
 		 (i >> 5) & 7, j);
       break;
     }
@@ -235,16 +235,16 @@ static void ax25_disp_packet(struct demod_state *s, unsigned char *bp, unsigned 
     if ((i >= 32) && (i < 128)) {
       verbprintf(1, "%c",i);
     } else if (i == 13) {
-      if (j) 
+      if (j)
 	verbprintf(1, "\n");
       j = 0;
-    } else 
+    } else
       verbprintf(1, ".");
-    if (i >= 32) 
+    if (i >= 32)
       j = 1;
     len--;
   }
-  if (j) 
+  if (j)
     verbprintf(1, "\n");
 }
 

@@ -44,6 +44,6 @@ clean:
 .depend:
 	ocamldep -I ../lib/ocaml *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif

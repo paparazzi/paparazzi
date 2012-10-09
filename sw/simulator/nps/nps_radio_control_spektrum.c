@@ -10,11 +10,17 @@
 #include <errno.h>
 #include <inttypes.h>
 
+// IUCLC flag translates upper case to lower case (actually needed here?)
+// but is not in POSIX and OSX
+#ifndef IUCLC
+#define IUCLC 0
+#endif
+
 static int sp_fd;
 
 static gboolean on_serial_data_received(GIOChannel *source,
-					GIOCondition condition,
-					gpointer data);
+                    GIOCondition condition,
+                    gpointer data);
 static void parse_data(char* buf, int len);
 static void handle_frame(void);
 
@@ -28,7 +34,7 @@ int nps_radio_control_spektrum_init(const char* device) {
   struct termios termios;
   /* input modes  */
   termios.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
-			|ICRNL |IUCLC|IXON|IXANY|IXOFF|IMAXBEL);
+                       |ICRNL|IUCLC|IXON|IXANY|IXOFF|IMAXBEL);
   termios.c_iflag |= IGNPAR;
   /* control modes*/
   termios.c_cflag &= ~(CSIZE|PARENB|CRTSCTS|PARODD|HUPCL);
@@ -57,8 +63,8 @@ int nps_radio_control_spektrum_init(const char* device) {
 
 
 static gboolean on_serial_data_received(GIOChannel *source,
-					GIOCondition condition __attribute__ ((unused)),
-					gpointer data __attribute__ ((unused))) {
+                    GIOCondition condition __attribute__ ((unused)),
+                    gpointer data __attribute__ ((unused))) {
   char buf[255];
   gsize bytes_read;
   GError* _err = NULL;
@@ -110,7 +116,7 @@ static void parse_data(char* buf, int len) {
       idx++;
       if (idx == FRAME_LEN) {
         status = STA_UNINIT;
-	handle_frame();
+        handle_frame();
       }
       break;
     }

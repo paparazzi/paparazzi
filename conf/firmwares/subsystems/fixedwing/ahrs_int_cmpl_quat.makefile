@@ -33,10 +33,6 @@ ap.srcs += $(AHRS_SRCS)
 
 # Extra stuff for fixedwings
 
-ifdef CPU_LED
-  ap.CFLAGS += -DAHRS_CPU_LED=$(CPU_LED)
-endif
-
 ifndef AHRS_PROPAGATE_FREQUENCY
   AHRS_PROPAGATE_FREQUENCY = 60
 endif

@@ -43,7 +43,7 @@ void on_GPS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
 
 7.73 11 GPS 0 55577549 665183336 0 -4310 0 0 1642 345957748 31 0
 */
-	
+
   int32_t _alt;
 
   _alt = atoi(argv[5]);
@@ -60,13 +60,13 @@ void on_TMP_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
     <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
   </message>
 */
-	
+
   float _temp;
   int i;
-  
+
   _temp = atof(argv[2]);
   if (alt < HEIGHT_SPAN) temp[alt] = _temp * 100;
-  
+
 //  printf("temp %f\n", _temp);
   fprintf(Gplt, "plot '-' w points pt 0 title \"Temp\"\n");
   for (i = 0; i < HEIGHT_SPAN; i++){
@@ -84,12 +84,12 @@ void on_SHT_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
     <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
   </message>
 */
-	
+
   float _humid;
   int i;
-  
+
   _humid = atof(argv[3]);
-  if (alt < HEIGHT_SPAN) humid[alt] = _humid * 100;  
+  if (alt < HEIGHT_SPAN) humid[alt] = _humid * 100;
 
 //  printf("humid %f\n", _humid);
   fprintf(Gplh, "plot '-' w points pt 0 title \"Humid\"\n");
@@ -103,7 +103,7 @@ int main( int argc, char* argv[] )
 {
   double xmint, xmaxt, xminh, xmaxh, ymin, ymax;
   GMainLoop *ml;
-  
+
   ml =  g_main_loop_new(NULL, FALSE);
 
   IvyInit ("IvyPlotProfile", "IvyPlotProfile READY", NULL, NULL, NULL, NULL);

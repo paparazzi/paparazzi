@@ -24,26 +24,26 @@
 
 #include "subsystems/radio_control.h"
 
-#define AUTOPILOT_THROTTLE_TRESHOLD      (MAX_PPRZ / 20)
-#define AUTOPILOT_YAW_TRESHOLD           (MAX_PPRZ * 19 / 20)
-#ifndef AUTOPILOT_STICK_CENTER_TRESHOLD
-#define AUTOPILOT_STICK_CENTER_TRESHOLD  (MAX_PPRZ * 1 / 20)
+#define AUTOPILOT_THROTTLE_THRESHOLD      (MAX_PPRZ / 20)
+#define AUTOPILOT_YAW_THRESHOLD           (MAX_PPRZ * 19 / 20)
+#ifndef AUTOPILOT_STICK_CENTER_THRESHOLD
+#define AUTOPILOT_STICK_CENTER_THRESHOLD  (MAX_PPRZ * 1 / 20)
 #endif
 
 #define THROTTLE_STICK_DOWN()                                           \
-  (radio_control.values[RADIO_THROTTLE] < AUTOPILOT_THROTTLE_TRESHOLD)
+  (radio_control.values[RADIO_THROTTLE] < AUTOPILOT_THROTTLE_THRESHOLD)
 #define YAW_STICK_PUSHED()                                      \
-  (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_TRESHOLD ||  \
-   radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_TRESHOLD)
+  (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_THRESHOLD ||  \
+   radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_THRESHOLD)
 #define YAW_STICK_CENTERED()                                            \
-  (radio_control.values[RADIO_YAW] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
-   radio_control.values[RADIO_YAW] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+  (radio_control.values[RADIO_YAW] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
+   radio_control.values[RADIO_YAW] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
 #define PITCH_STICK_CENTERED()                                          \
-  (radio_control.values[RADIO_PITCH] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
-   radio_control.values[RADIO_PITCH] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+  (radio_control.values[RADIO_PITCH] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
+   radio_control.values[RADIO_PITCH] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
 #define ROLL_STICK_CENTERED()                                           \
-  (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
-   radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+  (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
+   radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
 
 static inline bool_t rc_attitude_sticks_centered(void) {
   return ROLL_STICK_CENTERED() && PITCH_STICK_CENTERED() && YAW_STICK_CENTERED();
@@ -61,6 +61,16 @@ static inline bool_t kill_switch_is_on(void) {
   return FALSE;
 }
 #endif
+
+static inline uint8_t percent_from_rc(int channel)
+{
+  int per = (MAX_PPRZ + (int32_t)radio_control.values[channel]) * 50 / MAX_PPRZ;
+  if (per < 0)
+    per = 0;
+  else if (per > 100)
+    per = 100;
+  return per;
+}
 
 
 #endif /* AUTOPILOT_RC_HELPERS_H */

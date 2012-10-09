@@ -30,7 +30,7 @@ else
   FPIC =
 endif
 
-INCLUDES=  $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format pcre)
+INCLUDES=  $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient) $(shell ocamlfind query -r -i-format pcre)
 XINCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
@@ -156,6 +156,7 @@ gtk_papget_led_editor.ml : widgets.glade
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
 
+.PHONY: all opt clean
 
 #
 # Dependencies

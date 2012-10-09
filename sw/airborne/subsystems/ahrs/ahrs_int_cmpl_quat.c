@@ -24,6 +24,8 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
+#include "state.h"
+
 #include "subsystems/imu.h"
 #if USE_GPS
 #include "subsystems/gps.h"
@@ -52,10 +54,20 @@ static inline void ahrs_update_mag_2d(void);
 
 struct AhrsIntCmpl ahrs_impl;
 
-static inline void compute_imu_euler_and_rmat_from_quat(void);
-static inline void compute_body_euler_and_rmat_from_quat(void);
-static inline void compute_imu_orientation(void);
-static inline void compute_body_orientation(void);
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+#endif
+
+static inline void set_body_state_from_quat(void);
+
 
 void ahrs_init(void) {
 
@@ -63,17 +75,9 @@ void ahrs_init(void) {
   ahrs_impl.ltp_vel_norm_valid = FALSE;
   ahrs_impl.heading_aligned = FALSE;
 
-  /* set ltp_to_body to zero */
-  INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
-  INT32_QUAT_ZERO(ahrs.ltp_to_body_quat);
-  INT32_RMAT_ZERO(ahrs.ltp_to_body_rmat);
-  INT_RATES_ZERO(ahrs.body_rate);
-
   /* set ltp_to_imu so that body is zero */
-  QUAT_COPY(ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
-  RMAT_COPY(ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
-  INT_RATES_ZERO(ahrs.imu_rate);
+  QUAT_COPY(ahrs_impl.ltp_to_imu_quat, imu.body_to_imu_quat);
+  INT_RATES_ZERO(ahrs_impl.imu_rate);
 
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
   INT_RATES_ZERO(ahrs_impl.rate_correction);
@@ -91,24 +95,23 @@ void ahrs_init(void) {
   ahrs_impl.use_gravity_heuristic = FALSE;
 #endif
 
+  VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X), MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z));
+
 }
 
 void ahrs_align(void) {
 
 #if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
-  ahrs_int_get_quat_from_accel_mag(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_int_get_quat_from_accel_mag(&ahrs_impl.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
   ahrs_impl.heading_aligned = TRUE;
 #else
   /* Compute an initial orientation from accel and just set heading to zero */
-  ahrs_int_get_quat_from_accel(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
+  ahrs_int_get_quat_from_accel(&ahrs_impl.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
   ahrs_impl.heading_aligned = FALSE;
 #endif
 
-  /* Convert initial orientation from quat to euler and rotation matrix representations. */
-  compute_imu_euler_and_rmat_from_quat();
-
-  compute_body_orientation();
+  set_body_state_from_quat();
 
   /* Use low passed gyro value as initial bias */
   RATES_COPY( ahrs_impl.gyro_bias, ahrs_aligner.lp_gyro);
@@ -133,11 +136,11 @@ void ahrs_propagate(void) {
 
   /* low pass rate */
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
-  RATES_SMUL(ahrs.imu_rate, ahrs.imu_rate,2);
-  RATES_ADD(ahrs.imu_rate, omega);
-  RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 3);
+  RATES_SMUL(ahrs_impl.imu_rate, ahrs_impl.imu_rate,2);
+  RATES_ADD(ahrs_impl.imu_rate, omega);
+  RATES_SDIV(ahrs_impl.imu_rate, ahrs_impl.imu_rate, 3);
 #else
-  RATES_COPY(ahrs.imu_rate, omega);
+  RATES_COPY(ahrs_impl.imu_rate, omega);
 #endif
 
   /* add correction     */
@@ -146,12 +149,10 @@ void ahrs_propagate(void) {
   INT_RATES_ZERO(ahrs_impl.rate_correction);
 
   /* integrate quaternion */
-  INT32_QUAT_INTEGRATE_FI(ahrs.ltp_to_imu_quat, ahrs_impl.high_rez_quat, omega, AHRS_PROPAGATE_FREQUENCY);
-  INT32_QUAT_NORMALIZE(ahrs.ltp_to_imu_quat);
+  INT32_QUAT_INTEGRATE_FI(ahrs_impl.ltp_to_imu_quat, ahrs_impl.high_rez_quat, omega, AHRS_PROPAGATE_FREQUENCY);
+  INT32_QUAT_NORMALIZE(ahrs_impl.ltp_to_imu_quat);
 
-  compute_imu_euler_and_rmat_from_quat();
-
-  compute_body_orientation();
+  set_body_state_from_quat();
 
 }
 
@@ -161,10 +162,14 @@ void ahrs_propagate(void) {
 void ahrs_update_accel(void) {
 
   // c2 = ltp z-axis in imu-frame
-  struct Int32Vect3 c2 = { RMAT_ELMT(ahrs.ltp_to_imu_rmat, 0,2),
-                           RMAT_ELMT(ahrs.ltp_to_imu_rmat, 1,2),
-                           RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
+  struct Int32RMat ltp_to_imu_rmat;
+  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
+  struct Int32Vect3 c2 = { RMAT_ELMT(ltp_to_imu_rmat, 0,2),
+                           RMAT_ELMT(ltp_to_imu_rmat, 1,2),
+                           RMAT_ELMT(ltp_to_imu_rmat, 2,2)};
   struct Int32Vect3 residual;
+
+  struct Int32Vect3 pseudo_gravity_measurement;
 
   if (ahrs_impl.correct_gravity && ahrs_impl.ltp_vel_norm_valid) {
     /*
@@ -176,33 +181,41 @@ void ahrs_update_accel(void) {
      */
 
     // FIXME: check overflows !
-    const struct Int32Vect3 vel_tangential_body = {(ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC), 0.0, 0.0};
+#define COMPUTATION_FRAC 16
+
+    const struct Int32Vect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm >> COMPUTATION_FRAC, 0, 0};
     struct Int32Vect3 acc_c_body;
-    VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs.body_rate, vel_tangential_body);
-    INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC);
+    VECT3_RATES_CROSS_VECT3(acc_c_body, (*stateGetBodyRates_i()), vel_tangential_body);
+    INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-COMPUTATION_FRAC);
 
     /* convert centrifucal acceleration from body to imu frame */
     struct Int32Vect3 acc_c_imu;
     INT32_RMAT_VMULT(acc_c_imu, imu.body_to_imu_rmat, acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
-    struct Int32Vect3 corrected_gravity;
-    INT32_VECT3_DIFF(corrected_gravity, imu.accel, acc_c_imu);
-
-    /* compute the residual of gravity vector in imu frame */
-    INT32_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
+    INT32_VECT3_DIFF(pseudo_gravity_measurement, imu.accel, acc_c_imu);
   } else {
-    INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
+    VECT3_COPY(pseudo_gravity_measurement, imu.accel);
   }
+
+  /* compute the residual of the pseudo gravity vector in imu frame */
+  INT32_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
 
   int32_t inv_weight;
   if (ahrs_impl.use_gravity_heuristic) {
     /* heuristic on acceleration norm */
+
+    /* FIR filtered pseudo_gravity_measurement */
+    static struct Int32Vect3 filtered_gravity_measurement = {0, 0, 0};
+    VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, 7);
+    VECT3_ADD(filtered_gravity_measurement, pseudo_gravity_measurement);
+    VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, 8);
+
     int32_t acc_norm;
-    INT32_VECT3_NORM(acc_norm, imu.accel);
+    INT32_VECT3_NORM(acc_norm, filtered_gravity_measurement);
     const int32_t acc_norm_d = ABS(ACCEL_BFP_OF_REAL(9.81)-acc_norm);
-    inv_weight = Chop(6*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 6);
+    inv_weight = Chop(50*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 50);
   }
   else {
     inv_weight = 1;
@@ -223,9 +236,9 @@ void ahrs_update_accel(void) {
   //  ahrs_impl.high_rez_bias.q += residual.y*3;
   //  ahrs_impl.high_rez_bias.r += residual.z*3;
 
-  ahrs_impl.high_rez_bias.p += residual.x/inv_weight;
-  ahrs_impl.high_rez_bias.q += residual.y/inv_weight;
-  ahrs_impl.high_rez_bias.r += residual.z/inv_weight;
+  ahrs_impl.high_rez_bias.p += residual.x/(2*inv_weight);
+  ahrs_impl.high_rez_bias.q += residual.y/(2*inv_weight);
+  ahrs_impl.high_rez_bias.r += residual.z/(2*inv_weight);
 
 
   /*                        */
@@ -243,11 +256,12 @@ void ahrs_update_mag(void) {
 
 
 static inline void ahrs_update_mag_full(void) {
-  const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-                                          MAG_BFP_OF_REAL(AHRS_H_Y),
-                                          MAG_BFP_OF_REAL(AHRS_H_Z)};
+
+  struct Int32RMat ltp_to_imu_rmat;
+  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
+
   struct Int32Vect3 expected_imu;
-  INT32_RMAT_VMULT(expected_imu, ahrs.ltp_to_imu_rmat, expected_ltp);
+  INT32_RMAT_VMULT(expected_imu, ltp_to_imu_rmat, ahrs_impl.mag_h);
 
   struct Int32Vect3 residual;
   INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
@@ -269,19 +283,19 @@ static inline void ahrs_update_mag_full(void) {
 
 static inline void ahrs_update_mag_2d(void) {
 
-  const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-                                          MAG_BFP_OF_REAL(AHRS_H_Y)};
+  struct Int32RMat ltp_to_imu_rmat;
+  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
 
   struct Int32Vect3 measured_ltp;
-  INT32_RMAT_TRANSP_VMULT(measured_ltp, ahrs.ltp_to_imu_rmat, imu.mag);
+  INT32_RMAT_TRANSP_VMULT(measured_ltp, ltp_to_imu_rmat, imu.mag);
 
   struct Int32Vect3 residual_ltp =
     { 0,
       0,
-      (measured_ltp.x * expected_ltp.y - measured_ltp.y * expected_ltp.x)/(1<<5)};
+      (measured_ltp.x * ahrs_impl.mag_h.y - measured_ltp.y * ahrs_impl.mag_h.x)/(1<<5)};
 
   struct Int32Vect3 residual_imu;
-  INT32_RMAT_VMULT(residual_imu, ahrs.ltp_to_imu_rmat, residual_ltp);
+  INT32_RMAT_VMULT(residual_imu, ltp_to_imu_rmat, residual_ltp);
 
   // residual_ltp FRAC = 2 * MAG_FRAC = 22
   // rate_correction FRAC = RATE_FRAC = 12
@@ -352,9 +366,10 @@ void ahrs_update_heading(int32_t heading) {
 
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
+  struct Int32RMat* ltp_to_body_rmat = stateGetNedToBodyRMat_i();
   struct Int32Vect2 expected_ltp =
-    { RMAT_ELMT(ahrs.ltp_to_body_rmat, 0, 0),
-      RMAT_ELMT(ahrs.ltp_to_body_rmat, 0, 1) };
+    { RMAT_ELMT((*ltp_to_body_rmat), 0, 0),
+      RMAT_ELMT((*ltp_to_body_rmat), 0, 1) };
 
   int32_t heading_x, heading_y;
   PPRZ_ITRIG_COS(heading_x, heading); // measured course in x-direction
@@ -367,7 +382,9 @@ void ahrs_update_heading(int32_t heading) {
       (expected_ltp.x * heading_y - expected_ltp.y * heading_x)/(1<<INT32_ANGLE_FRAC)};
 
   struct Int32Vect3 residual_imu;
-  INT32_RMAT_VMULT(residual_imu, ahrs.ltp_to_imu_rmat, residual_ltp);
+  struct Int32RMat ltp_to_imu_rmat;
+  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
+  INT32_RMAT_VMULT(residual_imu, ltp_to_imu_rmat, residual_ltp);
 
   // residual FRAC = TRIG_FRAC + TRIG_FRAC = 14 + 14 = 28
   // rate_correction FRAC = RATE_FRAC = 12
@@ -401,6 +418,8 @@ void ahrs_update_heading(int32_t heading) {
 
 void ahrs_realign_heading(int32_t heading) {
 
+  struct Int32Quat ltp_to_body_quat = *stateGetNedToBodyQuat_i();
+
   /* quaternion representing only the heading rotation from ltp to body */
   struct Int32Quat q_h_new;
   q_h_new.qx = 0;
@@ -410,7 +429,7 @@ void ahrs_realign_heading(int32_t heading) {
 
   /* quaternion representing current heading only */
   struct Int32Quat q_h;
-  QUAT_COPY(q_h, ahrs.ltp_to_body_quat);
+  QUAT_COPY(q_h, ltp_to_body_quat);
   q_h.qx = 0;
   q_h.qy = 0;
   INT32_QUAT_NORMALIZE(q_h);
@@ -421,95 +440,44 @@ void ahrs_realign_heading(int32_t heading) {
 
   /* correct current heading in body frame */
   struct Int32Quat q;
-  INT32_QUAT_COMP_NORM_SHORTEST(q, q_c, ahrs.ltp_to_body_quat);
-  QUAT_COPY(ahrs.ltp_to_body_quat, q);
-
-  /* compute other representations in body frame */
-  compute_body_euler_and_rmat_from_quat();
+  INT32_QUAT_COMP_NORM_SHORTEST(q, q_c, ltp_to_body_quat);
+  QUAT_COPY(ltp_to_body_quat, q);
 
   /* compute ltp to imu rotations */
-  compute_imu_orientation();
+  INT32_QUAT_COMP(ahrs_impl.ltp_to_imu_quat, ltp_to_body_quat, imu.body_to_imu_quat);
+
+  /* Set state */
+  stateSetNedToBodyQuat_i(&ltp_to_body_quat);
 
   ahrs_impl.heading_aligned = TRUE;
 }
 
 
-/* Compute ltp to imu rotation in euler angles and rotation matrix representation
-   from the quaternion representation */
-__attribute__ ((always_inline)) static inline void compute_imu_euler_and_rmat_from_quat(void) {
-
-  /* Compute LTP to IMU euler */
-  INT32_EULERS_OF_QUAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_quat);
-  /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_OF_QUAT(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_quat);
-
-}
-
-/* Compute ltp to body rotation in euler angles and rotation matrix representation
-   from the quaternion representation */
-__attribute__ ((always_inline)) static inline void compute_body_euler_and_rmat_from_quat(void) {
-
-  /* Compute LTP to body euler */
-  INT32_EULERS_OF_QUAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_quat);
-  /* Compute LTP to body rotation matrix */
-  INT32_RMAT_OF_QUAT(ahrs.ltp_to_body_rmat, ahrs.ltp_to_body_quat);
-
-}
-
-__attribute__ ((always_inline)) static inline void compute_body_orientation(void) {
-
+/* Rotate angles and rates from imu to body frame and set state */
+__attribute__ ((always_inline)) static inline void set_body_state_from_quat(void) {
   /* Compute LTP to BODY quaternion */
-  INT32_QUAT_COMP_INV(ahrs.ltp_to_body_quat, ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
-  /* Compute LTP to BODY rotation matrix */
-  INT32_RMAT_COMP_INV(ahrs.ltp_to_body_rmat, ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
-  /* compute LTP to BODY eulers */
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_rmat);
-  /* compute body rates */
-  INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
-
-}
-
-__attribute__ ((always_inline)) static inline void compute_imu_orientation(void) {
-
-  /* Compute LTP to IMU quaternion */
-  INT32_QUAT_COMP(ahrs.ltp_to_imu_quat, ahrs.ltp_to_body_quat, imu.body_to_imu_quat);
-  /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_COMP(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_body_rmat, imu.body_to_imu_rmat);
-  /* compute LTP to IMU eulers */
-  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
-  /* compute IMU rates */
-  INT32_RMAT_RATEMULT(ahrs.imu_rate, imu.body_to_imu_rmat, ahrs.body_rate);
-
-}
-
-
+  struct Int32Quat ltp_to_body_quat;
+  INT32_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, imu.body_to_imu_quat);
+  /* Set state */
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO use ahrs result directly
-#include "estimator.h"
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
+  struct Int32Eulers neutrals_to_body_eulers = {
+    ANGLE_BFP_OF_REAL(ins_roll_neutral),
+    ANGLE_BFP_OF_REAL(ins_pitch_neutral),
+    0 };
+  struct Int32Quat neutrals_to_body_quat, ltp_to_neutrals_quat;
+  INT32_QUAT_OF_EULERS(neutrals_to_body_quat, neutrals_to_body_eulers);
+  INT32_QUAT_NORMALIZE(neutrals_to_body_quat);
+  INT32_QUAT_COMP_INV(ltp_to_neutrals_quat, ltp_to_body_quat, neutrals_to_body_quat);
+  stateSetNedToBodyQuat_i(&ltp_to_neutrals_quat);
+#else
+  stateSetNedToBodyQuat_i(&ltp_to_body_quat);
 #endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-void ahrs_update_fw_estimator(void)
-{
-  struct FloatEulers att;
-  // export results to estimator
-  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
 
-  estimator_phi   = att.phi - ins_roll_neutral;
-  estimator_theta = att.theta - ins_pitch_neutral;
-  estimator_psi   = att.psi;
-
-  struct FloatRates rates;
-  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
-  estimator_p = rates.p;
-  estimator_q = rates.q;
-  estimator_r = rates.r;
-
+  /* compute body rates */
+  struct Int32Rates body_rate;
+  INT32_RMAT_TRANSP_RATEMULT(body_rate, imu.body_to_imu_rmat, ahrs_impl.imu_rate);
+  /* Set state */
+  stateSetBodyRates_i(&body_rate);
 }
-#endif //AHRS_UPDATE_FW_ESTIMATOR
+
+

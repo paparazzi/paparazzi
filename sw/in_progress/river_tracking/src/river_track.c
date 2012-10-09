@@ -62,7 +62,7 @@ void init_river_tracking( GtkWidget *widget, gpointer data )
 }
 
 
-/* Called when aircraft reaches "Block 1" (the second 
+/* Called when aircraft reaches "Block 1" (the second
  * block defined in the flight plan)
  */
 void start_track(IvyClientPtr app, void *data, int argc, char **argv)
@@ -71,7 +71,7 @@ void start_track(IvyClientPtr app, void *data, int argc, char **argv)
     /* Call function get_next_waypoint (defined in nexcwp.c)
      * which returns a waypoint. */
     Waypoint new_wp = get_next_waypoint();
-    
+
     if(CONTINUE) {
         IvySendMsg("gcs MOVE_WAYPOINT %d %d %f %f %f", \
                 new_wp.ac_id, 4, new_wp.lat, new_wp.lon, new_wp.alt); //Always move waypoint 4
@@ -94,23 +94,23 @@ int main( int   argc, char *argv[] )
     GtkWidget *window;
     GtkWidget *button;
     GtkWidget *box1;
-    
+
     char *bus=getenv("IVYBUS");
-    
+
     gtk_init(&argc, &argv);
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_title (GTK_WINDOW (window), "River Tracking");
-    
+
     box1 = gtk_hbox_new (FALSE, 0);
     gtk_container_add (GTK_CONTAINER (window), box1);
-    
+
     //first button...
     button = gtk_button_new_with_label("(Re)define region of interest");
     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(init_river_tracking), 0);
     gtk_box_pack_start(GTK_BOX(box1), button, TRUE, TRUE, 0);
     gtk_widget_show (button);
-            
+
     //second button...
     button = gtk_button_new_with_label("Quit");
     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(destroy), 0);
@@ -125,7 +125,7 @@ int main( int   argc, char *argv[] )
     IvyBindMsg(start_track,0,"(NAV_STATUS 1 1 +.*)");
     IvyBindMsg(set_end,0,"(WAYPOINT_MOVED 1 5 +.*)");
     IvyStart(bus);
-    
+
     gtk_main();
     return 0;
 }

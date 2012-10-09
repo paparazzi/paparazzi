@@ -4,7 +4,7 @@ MODCFLAGS=-Wall
 
 all:		ublox_conf
 
-clean:	
+clean:
 	rm -f core *.o ublox_conf
 
 ublox_conf:	ublox_conf.c Makefile

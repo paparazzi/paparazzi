@@ -9,7 +9,6 @@
 #include "generated/flight_plan.h"
 #include "autopilot.h"
 #include "subsystems/gps.h"
-#include "estimator.h"
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_geodetic_int.h"
 
@@ -24,6 +23,8 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps.course = Double_val(c) * 1e7;
   gps.hmsl = Double_val(a) * 1000.;
   gps.gspeed = Double_val(s) * 100.;
+  gps.ned_vel.x = gps.gspeed * cos(Double_val(c));
+  gps.ned_vel.y = gps.gspeed * sin(Double_val(c));
   gps.ned_vel.z = -Double_val(cl) * 100.;
   gps.week = 0; // FIXME
   gps.tow = Double_val(t) * 1000.;
@@ -35,6 +36,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   struct UtmCoor_f utm_f;
   lla_f.lat = Double_val(lat);
   lla_f.lon = Double_val(lon);
+  lla_f.alt = Double_val(a);
   utm_f.zone = nav_utm_zone0;
   utm_of_lla_f(&utm_f, &lla_f);
   LLA_BFP_OF_REAL(gps.lla_pos, lla_f);

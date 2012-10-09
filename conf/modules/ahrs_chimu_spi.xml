@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins">
+  <doc>
+    <description>CHimu (SPI)</description>
+  </doc>
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="ins_module.h"/>
+  </header>
+  <event fun="parse_ins_msg()"/>
+  <makefile target="ap">
+    <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
+    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_INS_MODULE"/>
+    <define name="USE_SPI"/>
+    <define name="INS_LINK" value="SpiSlave"/>
+    <define name="USE_USB_HIGH_PCLK" />
+    <file name="ahrs_chimu_spi.c"/>
+    <file name="imu_chimu.c"/>
+    <raw>
+      ap.srcs += subsystems/ahrs.c
+    </raw>
+  </makefile>
+</module>

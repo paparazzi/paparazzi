@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,12 +35,14 @@
 #include "nps_ivy.h"
 #include "nps_flightgear.h"
 
-#define SIM_DT     (1./512.)
+#include "mcu_periph/sys_time.h"
+#define SIM_DT     (SYS_TIME_RESOLUTION)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
 #define HOST_TIME_FACTOR 1.
 
 static struct {
+  double real_initial_time;
   double scaled_initial_time;
   double host_time_factor;
   double sim_time;
@@ -82,6 +106,7 @@ static void nps_main_init(void) {
   nps_main.display_time = 0.;
   struct timeval t;
   gettimeofday (&t, NULL);
+  nps_main.real_initial_time = time_to_double(&t);
   nps_main.scaled_initial_time = time_to_double(&t);
   nps_main.host_time_factor = HOST_TIME_FACTOR;
 
@@ -106,6 +131,10 @@ static void nps_main_init(void) {
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port);
+
+#if DEBUG_NPS_TIME
+  printf("host_time_factor,host_time_elapsed,host_time_now,scaled_initial_time,sim_time_before,display_time_before,sim_time_after,display_time_after\n");
+#endif
 
 }
 
@@ -160,6 +189,7 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
     t2 = time_to_double(&tv_now);
     /* add the pause to initial real time */
     irt += t2 - t1;
+    nps_main.real_initial_time += t2 - t1;
     /* convert to scaled initial real time */
     nps_main.scaled_initial_time = t2 - (t2 - irt)/nps_main.host_time_factor;
     pauseSignal = 0;
@@ -169,14 +199,36 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
   host_time_now = time_to_double(&tv_now);
   double host_time_elapsed = nps_main.host_time_factor *(host_time_now  - nps_main.scaled_initial_time);
 
+#if DEBUG_NPS_TIME
+  printf("%f,%f,%f,%f,%f,%f,",nps_main.host_time_factor,host_time_elapsed,host_time_now,nps_main.scaled_initial_time,nps_main.sim_time,nps_main.display_time);
+#endif
+
+  int cnt = 0;
+  static int prev_cnt = 0;
+  static int grow_cnt = 0;
   while (nps_main.sim_time <= host_time_elapsed) {
     nps_main_run_sim_step();
     nps_main.sim_time += SIM_DT;
-    if (nps_main.display_time < nps_main.sim_time) {
+    if (nps_main.display_time < (host_time_now - nps_main.real_initial_time)) {
       nps_main_display();
       nps_main.display_time += DISPLAY_DT;
     }
+    cnt++;
   }
+
+  /* Check to make sure the simulation doesn't get too far behind real time looping */
+  if (cnt > (prev_cnt)) {grow_cnt++;}
+  else { grow_cnt--;}
+  if (grow_cnt < 0) {grow_cnt = 0;}
+  prev_cnt = cnt;
+
+  if (grow_cnt > 10) {
+    printf("Warning: The time factor is too large for efficient operation! Please reduce the time factor.\n");
+  }
+
+#if DEBUG_NPS_TIME
+  printf("%f,%f\n",nps_main.sim_time,nps_main.display_time);
+#endif
 
   return TRUE;
 
@@ -194,11 +246,12 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
   static const char* usage =
 "Usage: %s [options]\n"
 " Options :\n"
-"   --fg_host flight gear host\n"
-"   --fg_port flight gear port\n"
-"   -j --js_dev joystick device\n"
-"   --spektrum_dev spektrum device\n"
-"   --rc_script no\n";
+"   -h                                     Display this help\n"
+"   --fg_host <flight gear host>           e.g. 127.0.0.1\n"
+"   --fg_port <flight gear port>           e.g. 5501\n"
+"   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
+"   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
+"   --rc_script <number>                   e.g. 0\n";
 
 
   while (1) {
@@ -206,13 +259,13 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     static struct option long_options[] = {
       {"fg_host", 1, NULL, 0},
       {"fg_port", 1, NULL, 0},
-      {"js_dev", 1, NULL, 0},
+      {"js_dev", 2, NULL, 0},
       {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
-    int c = getopt_long(argc, argv, "j:",
+    int c = getopt_long(argc, argv, "jh",
                         long_options, &option_index);
     if (c == -1)
       break;
@@ -225,7 +278,9 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       case 1:
         nps_main.fg_port = atoi(optarg); break;
       case 2:
-        nps_main.js_dev = strdup(optarg); break;
+        if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+        else {nps_main.js_dev = strdup(optarg);}
+        break;
       case 3:
         nps_main.spektrum_dev = strdup(optarg); break;
       case 4:
@@ -234,8 +289,13 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       break;
 
     case 'j':
-      nps_main.js_dev = strdup(optarg);
+      if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+      else {nps_main.js_dev = strdup(optarg);}
       break;
+
+    case 'h':
+      fprintf(stderr, usage, argv[0]);
+      exit(0);
 
     default: /* ’?’ */
       printf("?? getopt returned character code 0%o ??\n", c);

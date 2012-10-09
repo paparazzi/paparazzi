@@ -15,7 +15,6 @@
     <target name="sim" 			board="pc"/>
 
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
     <define name="AGR_CLIMB"/>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -27,6 +26,7 @@
     </subsystem>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="gps_passthrough"/>
   </firmware>
 
   <firmware name="setup">
@@ -146,7 +146,6 @@
 
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="75."/>
   </section>

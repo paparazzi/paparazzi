@@ -42,21 +42,12 @@
     <define name="BRAKE_PITCH" value="0.0f"/>
     <define name="MAX_BRAKE_RATE" value="150"/>
 
-    <define name="RATELIMIT(X,RATE)" value="( _rate_limited_value + Chop( (X) - _rate_limited_value, -(RATE), (RATE)  )); \
-       int16_t _rate_limited_value = 0;"/>
-
 </section>
 
   <command_laws>
     <!-- Brake Rate Limiter -->
-    <let var="brake_value" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
-    <!--<let var="brake_value" value="RATELIMIT(  $brake_value , MAX_BRAKE_RATE )"/>
-
-    <let var="test; \
-  	      static int16_t _var_brake_value = 0; \
-              _var_brake_value += LIMIT(_var_brake_value_nofilt - _var_brake_value,-MAX_BRAKE_RATE,MAX_BRAKE_RATE); \
-              int verwaarloos_deze_warning_CDW" value="0"/>
-		-->
+    <let var="brake_value_nofilt" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
+    <ratelimit var="brake_value" value="$brake_value_nofilt" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" />
 
     <!-- Differential Aileron Depending on Brake Value -->
     <let var="aileron_up_rate" value="(AILERON_RATE_UP   * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_UP_BRAKE   * $brake_value)"/>
@@ -96,7 +87,7 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
@@ -187,7 +178,6 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
     </target>
     <target name="sim" board="pc"/>
 

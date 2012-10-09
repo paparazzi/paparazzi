@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="geo_mag" dir="geo_mag">
+  <doc>
+    <description>
+      Geo Mag modell
+      by Sergey Kruskowski
+    </description>
+  </doc>
+  <header>
+    <file name="geo_mag.h"/>
+  </header>
+  <init fun="geo_mag_init()"/>
+  <periodic fun="geo_mag_periodic()" freq="1"/>
+  <event fun="geo_mag_event()"/><!---->
+  <makefile>
+    <file name="geo_mag.c"/>
+    <define name="USE_GEO_MAG"/>
+    <file name="pprz_geodetic_wmm2010.c" dir="math"/>
+  </makefile>
+</module>

@@ -16,7 +16,7 @@ static int ahrs_state;
 
 void linear_filter(double *u, double* X, double* dt, double *Xdot, double* F) {
   *dt = ad->dt;
-  
+
   double p = u[0] - X[3];
   double q = u[1] - X[4];
   double r = u[2] - X[5];
@@ -24,7 +24,7 @@ void linear_filter(double *u, double* X, double* dt, double *Xdot, double* F) {
   double phi   = X[0];
   double theta = X[1];
   //  double psi   = X[2];
-  
+
   Xdot[0] = p + sin(phi)*tan(theta) * q + cos(phi)*tan(theta) * r;
   Xdot[1] =     cos(phi) * q            - sin(phi) * r;
   Xdot[2] =     sin(phi)/cos(theta) * q + cos(phi)/cos(theta) * r;
@@ -49,28 +49,28 @@ void linear_filter(double *u, double* X, double* dt, double *Xdot, double* F) {
   F[2*6+0] = cos(phi)/cos(theta)*q - sin(phi)/cos(theta)*r;
   F[2*6+1] = sin(theta)/(cos(theta)*cos(theta))*(sin(phi)*q+cos(phi)*r);
   F[2*6+2] = 0.;
-  F[2*6+3] = 0.;  
+  F[2*6+3] = 0.;
   F[2*6+4] = -sin(phi)/cos(theta);
-  F[2*6+5] = -cos(phi)/cos(theta);  
+  F[2*6+5] = -cos(phi)/cos(theta);
 
   F[3*6+0] = 0.;
   F[3*6+1] = 0.;
   F[3*6+2] = 0.;
-  F[3*6+3] = 0.;  
+  F[3*6+3] = 0.;
   F[3*6+4] = 0.;
   F[3*6+5] = 0.;
 
   F[4*6+0] = 0.;
   F[4*6+1] = 0.;
   F[4*6+2] = 0.;
-  F[4*6+3] = 0.;  
+  F[4*6+3] = 0.;
   F[4*6+4] = 0.;
   F[4*6+5] = 0.;
 
   F[5*6+0] = 0.;
   F[5*6+1] = 0.;
   F[5*6+2] = 0.;
-  F[5*6+3] = 0.;  
+  F[5*6+3] = 0.;
   F[5*6+4] = 0.;
   F[5*6+5] = 0.;
 
@@ -115,14 +115,14 @@ void linear_measure(double *y, double* err, double*X, double *H) {
 
 void run_ekf (void) {
   /* initial state covariance matrix */
-  double P[6*6] = {P0E,   0.0,   0.0,   0.0,   0.0,   0.0, 
+  double P[6*6] = {P0E,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   P0E,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   P0E,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   P0B,   0.0,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   P0B,   0.0,
 		   0.0,   0.0,   0.0,   0.0,   0.0,   P0B };
   /* model noise covariance matrix */
-  double Q[6*6] = { QE,   0.0,   0.0,   0.0,   0.0,   0.0, 
+  double Q[6*6] = { QE,   0.0,   0.0,   0.0,   0.0,   0.0,
 		   0.0,    QE,   0.0,   0.0,   0.0,   0.0,
 		   0.0,   0.0,    QE,   0.0,   0.0,   0.0,
 		   0.0,   0.0,   0.0,    QB,   0.0,   0.0,
@@ -136,7 +136,7 @@ void run_ekf (void) {
   double Y[1];
   /* command */
   double U[3] = {0.0, 0.0, 0.0};
-  
+
   struct ekf_filter* ekf;
   ekf = ekf_filter_new(6, 1, Q, R, linear_filter, linear_measure);
   ahrs_euler_init(ad, 150, X);

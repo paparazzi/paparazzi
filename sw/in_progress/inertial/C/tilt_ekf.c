@@ -6,7 +6,7 @@
 #include "ekf.h"
 
 /*
-  Simple 2 state filter for hybridizing gyrometer and accelerometer 
+  Simple 2 state filter for hybridizing gyrometer and accelerometer
   on one axis.
   The filter wil track the gyro bias.
 
@@ -18,14 +18,14 @@ static struct tilt_data* td;
 static int iter;
 
 void linear_filter(double *u, double* x, double* dt, double *Xdot, double* F) {
-  /* state prediction 
+  /* state prediction
      angle += angle_dot * dt
      bias  += 0
   */
   *dt = td->dt;
   Xdot[0] = (u[0] - x[1]);
   Xdot[1] = 0.;
-  /* Jacobian of xdot wrt the state 
+  /* Jacobian of xdot wrt the state
       F = [ d(angle_dot)/d(angle)     d(angle_dot)/d(gyro_bias) ]
           [ d(gyro_bias_dot)/d(angle) d(gyro_bias_dot)/d(gyro_bias) ]
   */
@@ -46,15 +46,15 @@ void linear_measure(double *y, double* err, double*x, double *H) {
 
 void run_ekf(struct tilt_data* td) {
   /* model noise covariance matrix       */
-  double Q[4]={0.001, 0.0, 
+  double Q[4]={0.001, 0.0,
 	       0.0,   0.003};
   /* measurement noise covariance matrix */
   double R[1]={1.7};
   /* initial x */
   double X0[2] = {0.0, 0.0};
   /* initial state covariance matrix */
-  double P0[4] = {1.0, 0.0, 
-		  0.0, 1.0};  
+  double P0[4] = {1.0, 0.0,
+		  0.0, 1.0};
   /* measure */
   double y[1];
   /* command */

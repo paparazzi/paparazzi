@@ -19,10 +19,10 @@ OCAMLC	 	=ocamlc
 
 CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I`$(OCAMLC) -where`
 ifeq ($(DEBUG),y)
-  CFLAGS		+=-g -O 
+  CFLAGS		+=-g -O
 else
-  CFLAGS		+=-O3 
-endif 		
+  CFLAGS		+=-O3
+endif
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
@@ -50,7 +50,7 @@ ifeq ("$(UNAME)","Darwin")
   ALLTARGETS=multimon.cma
 endif
 
-all:    $(ALLTARGETS) 
+all:    $(ALLTARGETS)
 
 multimon.cma:   $(OBJFILES)
 	@echo OLD $@

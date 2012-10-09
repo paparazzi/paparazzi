@@ -39,7 +39,9 @@ void imu_init(void) {
 #if defined IMU_MAG_X_NEUTRAL && defined IMU_MAG_Y_NEUTRAL && defined IMU_MAG_Z_NEUTRAL
   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
 #else
+#if USE_MAGNETOMETER
 #pragma message "Info: Magnetomter neutrals are set to zero!"
+#endif
   INT_VECT3_ZERO(imu.mag_neutral);
 #endif
 

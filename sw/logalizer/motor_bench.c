@@ -65,7 +65,7 @@ void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
     guint new_mode =  (gint)user_data;
     IvySendMsg("ME RAW_DATALINK 78 SETTING;0;0;%d", new_mode);
     //    IvySendMsg("ME DL_SETTINGS 78 0 %d.0", new_mode);
-    g_message("sending new mode %d" , new_mode);  
+    g_message("sending new mode %d" , new_mode);
   }
 }
 
@@ -100,7 +100,7 @@ void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, char *ar
   sliding_plot_update(throttle_plot, foo);
 
   if (new_mode != mode) {
-    g_message("mode changed %d->%d", mode, new_mode);  
+    g_message("mode changed %d->%d", mode, new_mode);
     GtkRadioButton  *radiobutton = g_slist_nth(radiobutton_group, MODE_NB-new_mode-1)->data;
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radiobutton), TRUE);
     mode = new_mode;
@@ -111,11 +111,11 @@ void on_MOTOR_BENCH_STATUS(IvyClientPtr app, void *user_data, int argc, char *ar
 int main ( int argc, char** argv) {
 
   gtk_init(&argc, &argv);
-  
+
   g_timeout_add(160, timeout_callback, NULL);
 
   //  GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   IvyInit ("MotorBench", "MotorBench READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_MOTOR_BENCH_STATUS, NULL, "^\\S* MOTOR_BENCH_STATUS (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
@@ -209,23 +209,23 @@ GtkWidget* build_gui ( void ) {
   }
 
   GtkWidget *frame = gtk_frame_new ("Throttle");
- 
+
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
   throttle_plot = sliding_plot_new(1);
   gtk_container_add (GTK_CONTAINER (frame), throttle_plot );
- 
+
 
   frame = gtk_frame_new ("RPM");
- 
+
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
   gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
   //  rpm_plot = sliding_plot_new(1);
   //  gtk_container_add (GTK_CONTAINER (frame), rpm_plot );
 
- 
+
  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
- 
+
 
  return window;
 }

@@ -15,7 +15,7 @@ GtkWidget *spin; /* awfull but a lot easier */
 void on_scale_value_changed (GtkScale  *scale, gpointer user_data) {
   gfloat cf = gtk_range_get_value(GTK_RANGE(scale));
   gint c = (gint)rint(cf);
-  
+
   gfloat sf = gtk_spin_button_get_value (( GtkSpinButton*)spin);
   gint s = (gint)rint(sf);
 
@@ -40,7 +40,7 @@ GtkWidget* build_gui ( void ) {
                     G_CALLBACK (on_scale_value_changed),
                     (gpointer)0);
 
-  spin = gtk_spin_button_new(GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 8, 1, 1, 0)), 1, 0); 
+  spin = gtk_spin_button_new(GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 8, 1, 1, 0)), 1, 0);
   gtk_box_pack_start (GTK_BOX (vbox1), spin, TRUE, TRUE, 0);
 
   return window1;
@@ -49,7 +49,7 @@ GtkWidget* build_gui ( void ) {
 
 int main (int argc, char** argv) {
   gtk_init(&argc, &argv);
-  
+
   if (argc > 1) {
     ac_id = atoi(argv[1]);
   } else {

@@ -76,18 +76,22 @@ static rc_script scripts[] = {
 bool_t nps_radio_control_available(double time) {
   if (time >=  nps_radio_control.next_update) {
     nps_radio_control.next_update += RADIO_CONTROL_DT;
-    if (time < RADIO_CONTROL_TAKEOFF_TIME)
-      radio_control_script_takeoff(time);
-    else if (nps_radio_control.type == SCRIPT)
-      scripts[nps_radio_control.num_script](time);
-    else if (nps_radio_control.type == JOYSTICK) {
+
+    if (nps_radio_control.type == JOYSTICK) {
+      nps_radio_control_joystick_update();
       nps_radio_control.throttle = nps_joystick.throttle;
       nps_radio_control.roll = nps_joystick.roll;
       nps_radio_control.pitch = nps_joystick.pitch;
       nps_radio_control.yaw = nps_joystick.yaw;
       nps_radio_control.mode = nps_joystick.mode;
       //printf("throttle: %f, roll: %f, pitch: %f, yaw: %f\n", nps_joystick.throttle, nps_joystick.roll, nps_joystick.pitch, nps_joystick.yaw);
-    }
+    } else
+      if (nps_radio_control.type == SCRIPT) {
+        if (time < RADIO_CONTROL_TAKEOFF_TIME)
+          radio_control_script_takeoff(time);
+        else
+          scripts[nps_radio_control.num_script](time);
+      }
     return TRUE;
   }
   return FALSE;

@@ -6,7 +6,7 @@
 #include "ukf.h"
 
 /*
-  Simple 2 state filter for hybridizing gyrometer and accelerometer 
+  Simple 2 state filter for hybridizing gyrometer and accelerometer
   on one axis.
   The filter wil track the gyro bias.
 
@@ -32,14 +32,14 @@ void linear_measure(double *y, double *x) {
 
 void run_ukf(struct tilt_data* td) {
   /* model noise covariance matrix */
-  double Q[4]={0.001, 0.0, 
+  double Q[4]={0.001, 0.0,
 	       0.0, 0.003 };
   /* measurement noise covariance matrix */
   double R[1]={0.5};
   /* initial x */
   double x[2] = {0.0, 0.0};
   /* initial state covariance matrix */
-  double P[4] = {1.0, 0.0, 
+  double P[4] = {1.0, 0.0,
 		 0.0, 1.0};
   /* measure */
   double y[1];

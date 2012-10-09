@@ -1,9 +1,9 @@
 /*
  *      pprz.c -- paparazzi decoder
  *
- *      Copyright (C) 1996  
+ *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
- *      Copyright (C) 2005   
+ *      Copyright (C) 2005
  *          Martin Mueller (ma.mueller@tu-bs.de)
  *
  *      This program is free software; you can redistribute it and/or modify
@@ -51,13 +51,13 @@
 static void pprz_tmtc_send(struct demod_state *s, unsigned char *data, unsigned int len, unsigned char type)
 {
 	unsigned char msg[INPUT_BUF_LEN+6];
-	unsigned int count = 0; 
+	unsigned int count = 0;
 	int ret;
-	
+
 	unsigned char checksum = 0;
 	const unsigned char real_len = len + 2;
 	unsigned char i;
-	
+
 	msg[count++] = STX;
 	msg[count++] = real_len;
 	checksum ^= real_len;
@@ -83,7 +83,7 @@ char multimon_pipe_name[1024] = MULTIMON_PIPE_NAME;
 void pprz_init(struct demod_state *s)
 {
 	memset(&s->l2.hdlc, 0, sizeof(s->l2.hdlc));
-	
+
 	/* open named pipe */
 	struct stat st;
 	if (stat(multimon_pipe_name, &st)) {
@@ -97,7 +97,7 @@ void pprz_init(struct demod_state *s)
 		exit (10);
 	}
 
-	/* reset buffer pointer */	
+	/* reset buffer pointer */
 	s->l2.pprz.rxptr = s->l2.hdlc.rxbuf;
 }
 
@@ -128,9 +128,9 @@ void pprz_baudot_rxbit(struct demod_state *s, int bit)
 	}
 
 	/* frame end / out of sync */
-	if (s->l2.hdlc.rxbitbuf & 1) 
+	if (s->l2.hdlc.rxbitbuf & 1)
 		s->l2.hdlc.rxbitbuf |= 2;
-		
+
 	/* shift in new data */
 	s->l2.hdlc.rxbitbuf >>= 1;
 
@@ -179,7 +179,7 @@ void pprz_hdlc_rxbit(struct demod_state *s, int bit)
 void pprz_status(struct demod_state *s)
 {
 	unsigned char data[2];
-	
+
 	/* TODO find carrier */
 	data[0] = 0x01; pprz_tmtc_send(s, data, 1, MSG_CD);
 	/* just write some useful value (get it from acpi?) */

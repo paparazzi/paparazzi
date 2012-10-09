@@ -19,15 +19,15 @@
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Takeoff">
-      <exception cond="estimator_z > ground_alt+25" deroute="HSIF"/>
+      <exception cond="GetPosAlt() > ground_alt+25" deroute="HSIF"/>
       <set value="0" var="kill_throttle"/>
-      <set value="0" var="estimator_flight_time"/>
+      <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
     <block name="HSIF">
-      <circle radius="200" until="estimator_x > 200" wp="2"/>
+      <circle radius="200" until="GetPosX() > 200" wp="2"/>
       <circle radius="-75" until="NavQdrCloseTo(330)" wp="3"/>
-      <circle radius="200" until="0 > estimator_x" wp="1"/>
+      <circle radius="200" until="0 > GetPosX()" wp="1"/>
       <circle radius="35" wp="STDBY"/>
     </block>
   </blocks>

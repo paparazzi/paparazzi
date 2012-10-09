@@ -4,9 +4,9 @@
 This is a quick hack - just to show how it might work. It gives a 3D view of
 the GPS positions with an additional value (here: attitude phi) as colour.
 
-Start this with your favorite .data telemetry file as argument and pipe it 
+Start this with your favorite .data telemetry file as argument and pipe it
 to output.dat, then run gnuplot with:
- 
+
 #set terminal png nocrop enhanced size 800,600
 #set output 'output.png'
 set view 64, 8, 1, 1
@@ -98,13 +98,13 @@ int main( int argc, char* argv[] )
 	char got_navref = 0;
 
 	FILE *fd;
-	
+
 	if (argc != 2)
 	{
     	printf("plot3dparse 'flight_file.data' > output.dat\n");
     	exit(0);
    	}
-	
+
 	fd = fopen( argv[1], "r" );
 
 	if (!fd) exit(0);
@@ -147,7 +147,7 @@ int main( int argc, char* argv[] )
 					id_name,
 					&humid,
 					&temp );
-					
+
                 fhumid = (dpicco_val[0] * DPICCO_HUMID_RANGE) / DPICCO_HUMID_MAX;
                 ftemp = ((dpicco_val[1] * DPICCO_TEMP_RANGE) / DPICCO_TEMP_MAX) + DPICCO_TEMP_OFFS;
 
@@ -184,7 +184,7 @@ int main( int argc, char* argv[] )
 					&psi,
 					&theta );
 
-				if (got_navref) printf("%i %i %i %i\n\n", 
+				if (got_navref) printf("%i %i %i %i\n\n",
                                        utm_east/100  - nr_utm_east,
                                        utm_north/100 - nr_utm_north,
                                        alt / 100,

@@ -30,6 +30,7 @@
 #include "baro_board.h"
 #include "subsystems/electrical.h"
 #include "mcu_periph/sys_time.h"
+#include "state.h"
 
 #include "actuators/supervision.h"
 
@@ -37,11 +38,15 @@
 struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
 
+#ifndef NPS_BYPASS_AHRS
+#define NPS_BYPASS_AHRS TRUE
+#endif
+
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
-  nps_bypass_ahrs = TRUE;
+  nps_bypass_ahrs = NPS_BYPASS_AHRS;
 
   main_init();
 
@@ -93,18 +98,6 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   handle_periodic_tasks();
 
-  /* override the commands for the first 8 seconds...
-   * start with a little bit of hovering
-   */
-  if (time < 8) {
-    int32_t init_cmd[4];
-    init_cmd[COMMAND_THRUST] = 0.253*MAX_PPRZ;
-    init_cmd[COMMAND_ROLL]   = 0;
-    init_cmd[COMMAND_PITCH]  = 0;
-    init_cmd[COMMAND_YAW]    = 0;
-    supervision_run(TRUE, FALSE, init_cmd);
-  }
-
   /* scale final motor commands to 0-1 for feeding the fdm */
   /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
   for (uint8_t i=0; i<SUPERVISION_NB_MOTOR; i++)
@@ -117,12 +110,12 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 
-  EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);
+  struct Int32Quat quat;
+  QUAT_BFP_OF_REAL(quat, fdm.ltp_to_body_quat);
+  stateSetNedToBodyQuat_i(&quat);
 
-  QUAT_BFP_OF_REAL(ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
-
-  RATES_BFP_OF_REAL(ahrs.body_rate, fdm.body_ecef_rotvel);
-
-  INT32_RMAT_OF_QUAT(ahrs.ltp_to_body_rmat, ahrs.ltp_to_body_quat);
+  struct Int32Rates rates;
+  RATES_BFP_OF_REAL(rates, fdm.body_ecef_rotvel);
+  stateSetBodyRates_i(&rates);
 
 }

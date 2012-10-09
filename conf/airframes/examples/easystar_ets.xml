@@ -16,10 +16,10 @@
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
     <define name="WIND_INFO"/>
-    <define name="ALT_KALMAN"/>
     <define name="USE_I2C0"/>
     <define name="USE_AIRSPEED"/>
     <define name="USE_BARO_ETS"/>
+    <define name="INS_BARO_SENS" value="0.32"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
@@ -27,6 +27,7 @@
     <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"    type="extra"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">
@@ -36,6 +37,9 @@
   <modules>
     <load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/>
+    <load name="baro_board.xml">
+      <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>
+    </load>
     <load name="infrared_adc.xml"/>
   </modules>
 
@@ -104,7 +108,7 @@
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="4." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(2.0*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="NO_XBEE_API_INIT" value="TRUE"/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
@@ -153,7 +157,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
   </section>
 

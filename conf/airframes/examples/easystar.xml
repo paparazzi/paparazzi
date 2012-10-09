@@ -10,15 +10,10 @@
 <airframe name="EasyStar TWOGv1">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1.0">
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <target name="ap" 			board="twog_1.0"/>
+    <target name="sim" 			board="pc"/>
 
-    <target name="sim" 			board="pc">
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <define name="LOITER_TRIM"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry" type="transparent"/>
@@ -26,6 +21,7 @@
     <subsystem name="ahrs" type="infrared"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="navigation"/>
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
   <firmware name="setup">
@@ -98,7 +94,7 @@
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="4." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(2.0*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+    <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="NO_XBEE_API_INIT" value="TRUE"/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
@@ -140,7 +136,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
   </section>
 

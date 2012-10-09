@@ -22,7 +22,7 @@
  *
  */
 
-#include "estimator.h"
+#include "state.h"
 #include "subsystems/nav.h"
 #include "subsystems/navigation/bomb.h"
 #include "generated/flight_plan.h"
@@ -57,9 +57,9 @@ static void integrate( uint8_t wp_target ) {
   /* Inspired from Arnold Schroeter's code */
   int i = 0;
   while (bomb_z > 0. && i < MAX_STEPS) {
-    /* relative wind experienced by the ball */
-    float airx = -bomb_vx + wind_east;
-    float airy = -bomb_vy + wind_north;
+    /* relative wind experienced by the ball (wind in NED frame) */
+    float airx = -bomb_vx + stateGetHorizontalWindspeed_f()->y;
+    float airy = -bomb_vy + stateGetHorizontalWindspeed_f()->x;
     float airz = -bomb_vz;
 
     /* alpha / m * air */
@@ -93,12 +93,12 @@ static void integrate( uint8_t wp_target ) {
 /** Update the RELEASE location with the actual ground speed and altitude */
 unit_t bomb_update_release( uint8_t wp_target ) {
 
-  bomb_z = estimator_z - waypoints[wp_target].a;
+  bomb_z = stateGetPositionEnu_f()->z - waypoints[wp_target].a;
   bomb_x = 0.;
   bomb_y = 0.;
 
-  bomb_vx = estimator_hspeed_mod * sin(estimator_hspeed_dir);
-  bomb_vy = estimator_hspeed_mod * cos(estimator_hspeed_dir);
+  bomb_vx = (*stateGetHorizontalSpeedNorm_f()) * sin((*stateGetHorizontalSpeedDir_f()));
+  bomb_vy = (*stateGetHorizontalSpeedNorm_f()) * cos((*stateGetHorizontalSpeedDir_f()));
   bomb_vz = 0.;
 
   integrate(wp_target);
@@ -132,8 +132,9 @@ unit_t bomb_compute_approach( uint8_t wp_target, uint8_t wp_start, float bomb_ra
   if (bomb_radius < 0)
     bomb_start_qdr += M_PI;
 
-  bomb_vx = x1 * airspeed + wind_east;
-  bomb_vy = y_1 * airspeed + wind_north;
+  // wind in NED frame
+  bomb_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
+  bomb_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
   bomb_vz = 0.;
 
   float vx0 = bomb_vx;

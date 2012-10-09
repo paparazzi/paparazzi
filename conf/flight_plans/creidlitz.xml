@@ -17,7 +17,7 @@
     <waypoint name="CLIMB" x="-102.3" y="-129.0"/>
   </waypoints>
   <exceptions>
-    <exception cond="estimator_z > 3400" deroute="Standby"/>
+    <exception cond="GetPosAlt() > 3400" deroute="Standby"/>
     <exception cond="datalink_time > 30" deroute="Standby"/>
   </exceptions>
   <blocks>
@@ -34,9 +34,9 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
-      <set value="0" var="estimator_flight_time"/>
+      <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -46,7 +46,7 @@
       <circle radius="nav_radius" wp="PROFILE"/>
     </block>
     <block name="profile_down" strip_button="Profile Down" strip_icon="down_profile.png">
-      <circle pitch="RadOfDeg(-10)" radius="nav_radius" throttle="0" until="(ground_alt+150 > estimator_z)" vmode="throttle" wp="PROFILE"/>
+      <circle pitch="RadOfDeg(-10)" radius="nav_radius" throttle="0" until="(ground_alt+150 > GetPosAlt())" vmode="throttle" wp="PROFILE"/>
       <deroute block="Standby"/>
     </block>
     <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">

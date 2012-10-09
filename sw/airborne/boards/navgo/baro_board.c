@@ -33,7 +33,7 @@
 struct Baro baro;
 
 /* Counter to init mcp355x at startup */
-#define STARTUP_COUNTER 200
+#define BARO_STARTUP_COUNTER 200
 uint16_t startup_cnt;
 
 void baro_init( void ) {
@@ -44,7 +44,7 @@ void baro_init( void ) {
 #ifdef ROTORCRAFT_BARO_LED
   LED_OFF(ROTORCRAFT_BARO_LED);
 #endif
-  startup_cnt = STARTUP_COUNTER;
+  startup_cnt = BARO_STARTUP_COUNTER;
 }
 
 void baro_periodic( void ) {

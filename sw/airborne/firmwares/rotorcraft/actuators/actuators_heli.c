@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -21,19 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "firmwares/rotorcraft/actuators.h"
-#include "actuators_heli.h"
-#include "firmwares/rotorcraft/commands.h"
-
-/* let's start butchery now and use the actuators_pwm arch functions */
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
-
-/* get SetActuatorsFromCommands() macro */
 #include "generated/airframe.h"
 
-/* define the glue between control and SetActuatorsFromCommands */
-#define actuators actuators_pwm_values
-#define SERVOS_TICS_OF_USEC(_v) (_v)
+#include "firmwares/rotorcraft/actuators.h"
+#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/actuators/actuators_pwm.h"
+
+
 #define ESC_STOPPED SERVOS_TICS_OF_USEC(0)
 
 #ifndef KILL_MOTORS
@@ -42,20 +34,16 @@
 #define ESC_HOVER   SERVOS_TICS_OF_USEC(0)
 #endif
 
-#define Actuator(_x)  actuators_pwm_values[_x]
-#ifndef ChopServo
-#define ChopServo(x,a,b) Chop(x, a, b)
-#endif
-#define ActuatorsCommit  actuators_pwm_commit
-
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-void actuators_init(void) { actuators_pwm_arch_init(); }
+void actuators_init(void)
+{
+  actuators_pwm_arch_init();
+}
 
 
-void actuators_set(bool_t motors_on) {
-
+void actuators_set(bool_t motors_on)
+{
   SetActuatorsFromCommands(commands);
-
 }
 

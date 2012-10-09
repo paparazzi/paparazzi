@@ -47,11 +47,11 @@ GtkWidget* tilt_display(struct tilt_data* td) {
   gtk_container_add (GTK_CONTAINER (frame), databox );
   gtk_databox_auto_rescale (GTK_DATABOX(databox), 0.);
 
-  
+
 
   frame = gtk_frame_new ("angle");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);  
+  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
 
   databox = gtk_databox_new();
   gfloat* pangle = g_new0 (gfloat, td->nb_samples);
@@ -62,26 +62,26 @@ GtkWidget* tilt_display(struct tilt_data* td) {
     pm_angle[idx] = td->m_angle[idx];
     pe_angle[idx] = td->est_angle[idx];
   }
-  
+
   GtkDataboxGraph *gangle = gtk_databox_lines_new (td->nb_samples, pt, pangle, &red, 1);
   gtk_databox_graph_add (GTK_DATABOX(databox), gangle);
 
   GtkDataboxGraph *ge_angle = gtk_databox_lines_new (td->nb_samples, pt, pe_angle, &blue, 1);
   gtk_databox_graph_add (GTK_DATABOX(databox), ge_angle);
-   
+
   GtkDataboxGraph *gm_angle = gtk_databox_lines_new (td->nb_samples, pt, pm_angle, &green, 1);
   gtk_databox_graph_add (GTK_DATABOX(databox), gm_angle);
 
   grid = gtk_databox_grid_new (10, 10, &black, 1);
   gtk_databox_graph_add (GTK_DATABOX(databox), grid);
-  
+
   gtk_container_add (GTK_CONTAINER (frame), databox );
   gtk_databox_auto_rescale (GTK_DATABOX(databox), 0.);
 
 
   frame = gtk_frame_new ("bias");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);  
+  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
 
   databox = gtk_databox_new();
   gfloat* pbias = g_new0 (gfloat, td->nb_samples);
@@ -102,10 +102,10 @@ GtkWidget* tilt_display(struct tilt_data* td) {
   gtk_container_add (GTK_CONTAINER (frame), databox );
   gtk_databox_auto_rescale (GTK_DATABOX(databox), 0.);
 
-  
+
   frame = gtk_frame_new ("covariance");
   gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);  
+  gtk_box_pack_start (GTK_BOX (vbox1), frame, TRUE, TRUE, 0);
 
   databox = gtk_databox_new();
   gfloat* pP00 = g_new0 (gfloat, td->nb_samples);

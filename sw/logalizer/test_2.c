@@ -21,7 +21,7 @@ float q3;
 
 
 /* d_euler / dq */
-/* 
+/*
    phi = atan ( 2(q2q3 + q0q1) / (q0^2 - q1^2 - q2^2 + q3^2))
 
 */
@@ -49,7 +49,7 @@ void test_dtheta_dq ( void ) {
   C[3] = -2 * q1 / (sqrt(1 - dcm02_sq));
 }
 
-/* 
+/*
    psi = atan ( 2(q1q2 + q0q3) / (q0^2 + q1^2 - q2^2 - q3^2))
 
 
@@ -60,7 +60,7 @@ void test_dpsi_dq ( void ) {
   float my_dcm01 = 2*(q1*q2 +q0*q3);
   float dcm00_sq = my_dcm00 * my_dcm00;
   float dcm01_sq = my_dcm01 * my_dcm01;
-  C[0] = 2. * q3 * my_dcm00 / (dcm00_sq + dcm01_sq); 
+  C[0] = 2. * q3 * my_dcm00 / (dcm00_sq + dcm01_sq);
   C[1] = 2. * q2 * my_dcm00 / (dcm00_sq + dcm01_sq);
   C[2] = 2. * q1 * my_dcm00 / (dcm00_sq + dcm01_sq);
   C[3] = 2. * q0 * my_dcm00 / (dcm00_sq + dcm01_sq);

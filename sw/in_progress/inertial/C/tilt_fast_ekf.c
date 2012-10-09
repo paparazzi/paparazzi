@@ -16,7 +16,7 @@ void run_tilt(void) {
   double P[4] = { 1., 0.,
 		  0., 1. };
   /* model noise covariance matrix */
-  double Q[4]={0.001, 0.0, 
+  double Q[4]={0.001, 0.0,
 	       0.0, 0.003 };
   /* jacobian of the measure wrt X */
   const double H[2] = { 1., 0. };
@@ -24,7 +24,7 @@ void run_tilt(void) {
   const double R = 0.5;
 
   tilt_init(td, 150, X);
-  
+
   int iter;
   for (iter=0; iter<td->nb_samples; iter++) {
 
@@ -33,7 +33,7 @@ void run_tilt(void) {
     X[0] += rate * td->dt;
 
 #ifdef EKF_UPDATE_CONTINUOUS
-    /* Pdot = F*P + P*F' + Q 
+    /* Pdot = F*P + P*F' + Q
      * F = { 1, 0,
      *       0, 0 };
      */
@@ -46,17 +46,17 @@ void run_tilt(void) {
 		       0.                    ,  Q[1*2 + 1] };
 #endif
     /* P += Pdot * dt */
-    P[0*2 + 0] += Pdot[0*2 + 0] * td->dt; 
-    P[0*2 + 1] += Pdot[0*2 + 1] * td->dt; 
-    P[1*2 + 0] += Pdot[1*2 + 0] * td->dt; 
-    P[1*2 + 1] += Pdot[1*2 + 1] * td->dt; 
-    
+    P[0*2 + 0] += Pdot[0*2 + 0] * td->dt;
+    P[0*2 + 1] += Pdot[0*2 + 1] * td->dt;
+    P[1*2 + 0] += Pdot[1*2 + 0] * td->dt;
+    P[1*2 + 1] += Pdot[1*2 + 1] * td->dt;
+
     /* E = H * P * H' + R */
     const double PHt_0 = P[0*2 + 0] * H[0]; // + P[0*2 + 1] * H[1]
     const double PHt_1 = P[1*2 + 0] * H[0]; // + P[1*2 + 1] * H[1]
     const double E = H[0] * PHt_0 + // H[1] * PHt1
                      R;
-    
+
     /* K = P * H' * inv(E) */
     const double K_0 = PHt_0 / E;
     const double K_1 = PHt_1 / E;
@@ -75,7 +75,7 @@ void run_tilt(void) {
     X[1] += K_1 * err;
 
     tilt_data_save_state(td, iter, X, P);
-    
+
   }
 }
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
   //td = tilt_data_read_log("../data/log_ahrs_yaw_pitched");
 
   run_tilt();
-  
+
   tilt_display(td);
 
   gtk_main();

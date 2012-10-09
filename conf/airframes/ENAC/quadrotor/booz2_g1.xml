@@ -6,9 +6,7 @@
     </load>
     <load name="booz_drop.xml"/>
     <load name="booz_cam.xml"/>
-    <!--load name="sonar_maxbotix_booz.xml">
-      <configure name="ADC_SONAR" value="ADC_0"/>
-    </load-->
+    <!--load name="sonar_maxbotix_booz.xml"/-->
     <!--load name="adc_generic_booz.xml"/-->
     <!--load name="sys_mon.xml"/-->
   </modules>
@@ -23,8 +21,7 @@
       <define name="ACTUATORS_START_DELAY" value="3"/>
     </target>
     <target name="nps" board="pc">
-      <subsystem name="fdm"         type="nps"/>
-      <!--define name="NPS_NO_SUPERVISION"/-->
+      <subsystem name="fdm"         type="jsbsim"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -36,6 +33,7 @@
     </subsystem>
     <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
+    <subsystem name="ins"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -76,13 +74,13 @@
     <define name="GYRO_Q_SENS" value="1.00" integer="16"/>
     <define name="GYRO_R_SENS" value="1.00" integer="16"/>
 
-    <define name="ACCEL_X_SENS" value="2.55975587" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.55643340" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.57178460" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="32508"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32565"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32147"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="33067"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32778"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32140"/>
+    <define name="ACCEL_X_SENS" value="2.56787679957" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.55480391706" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.57076132924" integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="-12"/>
     <define name="MAG_Y_NEUTRAL" value="-10"/>
@@ -135,28 +133,34 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
    <!-- feedback -->
-    <define name="PHI_PGAIN"  value="2000"/>
-    <define name="PHI_DGAIN"  value="400"/>
-    <define name="PHI_IGAIN"  value="200"/>
+    <define name="PHI_PGAIN"  value="6000"/>
+    <define name="PHI_DGAIN"  value="800"/>
+    <define name="PHI_IGAIN"  value="500"/>
 
-    <define name="THETA_PGAIN"  value="2000"/>
-    <define name="THETA_DGAIN"  value="400"/>
-    <define name="THETA_IGAIN"  value="200"/>
+    <define name="THETA_PGAIN"  value="6000"/>
+    <define name="THETA_DGAIN"  value="800"/>
+    <define name="THETA_IGAIN"  value="500"/>
 
-    <define name="PSI_PGAIN"  value="2000"/>
-    <define name="PSI_DGAIN"  value="400"/>
-    <define name="PSI_IGAIN"  value="10"/>
+    <define name="PSI_PGAIN"  value="3000"/>
+    <define name="PSI_DGAIN"  value="600"/>
+    <define name="PSI_IGAIN"  value="100"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 300"/>
     <define name="THETA_DDGAIN" value=" 300"/>
     <define name="PSI_DDGAIN"   value=" 300"/>
 
+    <define name="PHI_AGAIN"   value="0"/>
+    <define name="THETA_AGAIN" value="0"/>
+    <define name="PSI_AGAIN"   value="0"/>
+
   </section>
 
   <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
-    <define name="SONAR_SENS" value="2.146" integer="16"/>
+    <!--define name="SONAR_SENS" value="2.146" integer="16"/-->
+    <define name="SONAR_SENS" value="0.0128633" integer="16"/>
+    <define name="SONAR_MAX_RANGE" value="4.0"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -165,7 +169,7 @@
     <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR"  value="2000000"/>
-    <define name="REF_MIN_ZDD"  value="-1.5*9.81"/>
+    <define name="REF_MIN_ZDD"  value="-0.8*9.81"/>
     <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
     <define name="REF_MIN_ZD"   value="-1.5"/>
     <define name="REF_MAX_ZD"   value=" 1.5"/>
@@ -181,6 +185,7 @@
 
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="15"/>

@@ -11,11 +11,12 @@
 <!ELEMENT rc_commands (set)*>
 <!ELEMENT auto_rc_commands (set)*>
 <!ELEMENT ap_only_commands (copy)*>
-<!ELEMENT command_laws (let|set)*>
+<!ELEMENT command_laws (let|set|ratelimit)*>
 <!ELEMENT section (define|linear)*>
 <!ELEMENT servo EMPTY>
 <!ELEMENT axis EMPTY>
 <!ELEMENT set EMPTY>
+<!ELEMENT ratelimit EMPTY>
 <!ELEMENT copy EMPTY>
 <!ELEMENT let EMPTY>
 <!ELEMENT define EMPTY>
@@ -92,6 +93,12 @@ command CDATA #REQUIRED>
 <!ATTLIST let
 var CDATA #REQUIRED
 value CDATA #REQUIRED>
+
+<!ATTLIST ratelimit
+var CDATA #REQUIRED
+value CDATA #REQUIRED
+rate_min CDATA #REQUIRED
+rate_max CDATA #REQUIRED>
 
 <!ATTLIST define
 name CDATA #REQUIRED

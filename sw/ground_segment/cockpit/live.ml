@@ -697,7 +697,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     connect "kill_throttle" ac.strip#connect_kill;
     connect "nav_shift" ac.strip#connect_shift_lateral;
     connect "pprz_mode" ac.strip#connect_mode;
-    connect "estimator_flight_time" ac.strip#connect_flight_time;
+    connect "autopilot_flight_time" ac.strip#connect_flight_time;
     let get_ac_unix_time = fun () -> ac.last_unix_time in
     connect ~warning:false "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
     begin (* Periodically update the appointment *)
@@ -1289,12 +1289,13 @@ let listen_telemetry_status = fun () ->
 
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->
   let ac = find_ac !active_ac in
+    let photonumber = Pprz.string_assoc "photo_nr" vs in
 (*  let ac = get_ac vs in *)
     match ac.track#last with
       Some geo ->
     begin
       let group = geomap#background in
-      let point = geomap#circle ~group ~fill_color:"yellow" geo 3. in
+      let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber geo 3. in
       point#raise_to_top ()
     end
     | None -> ()

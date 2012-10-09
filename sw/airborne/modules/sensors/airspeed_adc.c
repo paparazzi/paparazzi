@@ -24,7 +24,7 @@
 #include "mcu_periph/adc.h"
 #include BOARD_CONFIG
 #include "generated/airframe.h"
-#include "estimator.h"
+#include "state.h"
 
 uint16_t adc_airspeed_val;
 
@@ -59,10 +59,10 @@ void airspeed_adc_update( void ) {
 #else
   float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
 #endif
-  EstimatorSetAirspeed(airspeed);
+  stateSetAirspeed_f(&airspeed);
 #else // SITL
   extern float sim_air_speed;
-  EstimatorSetAirspeed(sim_air_speed);
+  stateSetAirspeed_f(&sim_air_speed);
   adc_airspeed_val = 0;
 #endif //SITL
 }

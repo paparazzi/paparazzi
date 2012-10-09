@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-#  $Id$
 #  Copyright (C) 2010 Antoine Drouin
 #
 # This file is part of Paparazzi.
@@ -18,13 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 #
 
 #
 # calibrate gyrometers using turntable measurements
 #
 from optparse import OptionParser
+import os
+import sys
 
 import re
 import scipy
@@ -32,18 +33,6 @@ from scipy import linspace, polyval, polyfit, sqrt, stats, randn
 from pylab import *
 
 import calibration_utils
-
-
-
-axis_p = 1
-axis_q = 2
-axis_r = 3
-
-
-ac_id = "160"
-tt_id = "43"
-filename = "/home/poine/work/enac-lara/kahina/scilab/data/crista/log_gyro_r.data"
-axis = axis_r
 
 #
 # lisa 3
@@ -62,37 +51,91 @@ axis = axis_r
 # r : a= 3817.11 b=32709.70, std error= 3.296
 #
 
-samples =  calibration_utils.read_turntable_log(ac_id, tt_id, filename, 1, 7)
 
 
-#Linear regression using stats.linregress
-t  = samples[:,0]
-xn = samples[:,axis]
-(a_s,b_s,r,tt,stderr)=stats.linregress(t,xn)
-print('Linear regression using stats.linregress')
-print('regression: a=%.2f b=%.2f, std error= %.3f' % (a_s,b_s,stderr))
-print('<define name="GYRO_X_NEUTRAL" value="%d"/>' % (b_s));
-print('<define name="GYRO_X_SENS" value="%f" integer="16"/>' % (a_s/pow(2,12)));
+def main():
+    usage = "usage: %prog --id <ac_id> --tt_id <tt_id> --axis <axis> [options] log_filename.data" + "\n" + "Run %prog --help to list the options."
+    parser = OptionParser(usage)
+    parser.add_option("-i", "--id", dest="ac_id",
+                      action="store", type=int, default=-1,
+                      help="aircraft id to use")
+    parser.add_option("-t", "--tt_id", dest="tt_id",
+                      action="store", type=int, default=-1,
+                      help="turntable id to use")
+    parser.add_option("-a", "--axis", dest="axis",
+                      type="choice", choices=['p', 'q', 'r'],
+                      help="axis to calibrate (p, q, r)",
+                      action="store")
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose")
+    (options, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.error("incorrect number of arguments")
+    else:
+        if os.path.isfile(args[0]):
+            filename = args[0]
+        else:
+            print(args[0] + " not found")
+            sys.exit(1)
+    if not filename.endswith(".data"):
+        parser.error("Please specify a *.data log file")
 
-#
-# overlay fited value
-#
-ovl_omega = linspace(1,7.5,10)
-ovl_adc = polyval([a_s,b_s],ovl_omega)
+    if options.ac_id < 0 or options.ac_id > 255:
+        parser.error("Specify a valid aircraft id number!")
+    if options.tt_id < 0 or options.tt_id > 255:
+        parser.error("Specify a valid turntable id number!")
+    if options.verbose:
+        print("reading file "+filename+" for aircraft "+str(options.ac_id)+" and turntable "+str(options.tt_id))
 
-title('Linear Regression Example')
-subplot(3,1,1)
-plot(samples[:,1])
-plot(samples[:,2])
-plot(samples[:,3])
-legend(['p','q','r']);
+    samples =  calibration_utils.read_turntable_log(options.ac_id, options.tt_id, filename, 1, 7)
 
-subplot(3,1,2)
-plot(samples[:,0])
+    if len(samples) == 0:
+        print("Error: found zero matching messages in log file!")
+        print("Was looking for IMU_TURNTABLE from id: "+str(options.tt_id)+" and IMU_GYRO_RAW from id: "+str(options.ac_id)+" in file "+filename)
+        sys.exit(1)
+    if options.verbose:
+       print("found "+str(len(samples))+" records")
 
-subplot(3,1,3)
-plot(samples[:,0], samples[:,axis], 'b.')
-plot(ovl_omega, ovl_adc, 'r')
+    if options.axis == 'p':
+        axis_idx = 1
+    elif options.axis == 'q':
+        axis_idx = 2
+    elif options.axis == 'r':
+        axis_idx = 3
+    else:
+        parser.error("Specify a valid axis!")
 
-show();
+    #Linear regression using stats.linregress
+    t  = samples[:, 0]
+    xn = samples[:, axis_idx]
+    (a_s, b_s, r, tt, stderr)=stats.linregress(t, xn)
+    print('Linear regression using stats.linregress')
+    print(('regression: a=%.2f b=%.2f, std error= %.3f' % (a_s, b_s, stderr)))
+    print(('<define name="GYRO_X_NEUTRAL" value="%d"/>' % (b_s)));
+    print(('<define name="GYRO_X_SENS" value="%f" integer="16"/>' % (pow(2, 12)/a_s)));
 
+    #
+    # overlay fited value
+    #
+    ovl_omega = linspace(1, 7.5, 10)
+    ovl_adc = polyval([a_s, b_s], ovl_omega)
+
+    title('Linear Regression Example')
+    subplot(3, 1, 1)
+    plot(samples[:, 1])
+    plot(samples[:, 2])
+    plot(samples[:, 3])
+    legend(['p', 'q', 'r']);
+
+    subplot(3, 1, 2)
+    plot(samples[:, 0])
+
+    subplot(3, 1, 3)
+    plot(samples[:, 0], samples[:, axis_idx], 'b.')
+    plot(ovl_omega, ovl_adc, 'r')
+
+    show();
+
+
+if __name__ == "__main__":
+    main()

@@ -26,6 +26,7 @@
 // Peripherials
 #include "peripherals/mpu60X0.h"
 #include "peripherals/hmc58xx.h"
+#include "peripherals/ms5611.h"
 
 
 struct ImuAspirin2 imu_aspirin2;
@@ -113,6 +114,13 @@ static void mpu_configure(void)
   aspirin2_mpu60x0.length = 2;
 
   ///////////////////
+  // Reset the MPU
+  mpu_set( MPU60X0_REG_USER_CTRL,
+	   (1 << 2) |           // Trigger a FIFO_RESET
+	   (1 << 1) |           // Trigger a I2C_MST_RESET
+	   (1 << 0) );          // Trigger a SIG_COND_RESET
+
+  ///////////////////
   // Configure power:
 
   // MPU60X0_REG_PWR_MGMT_1
@@ -190,6 +198,26 @@ static void mpu_configure(void)
 	   (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
 	   (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
 
+  mpu_set( MPU60X0_REG_I2C_MST_DELAY,
+           (0 << 2) |		// No Delay Slave 2
+           (1 << 3) );		// Delay Slave 3
+
+#ifdef IMU_ASPIRIN_VERSION_2_1
+
+  // MS5611 Send Reset
+  mpu_set( MPU60X0_REG_I2C_SLV4_ADDR, (MS5611_ADDR0));
+  mpu_set( MPU60X0_REG_I2C_SLV4_DO,  MS5611_REG_RESET);
+  mpu_set( MPU60X0_REG_I2C_SLV4_CTRL,
+           (1 << 7) |		// Slave 4 enable
+           (0 << 6) |		// Byte Swap
+           (1 << 5) |		// Reg_Dis: do not write the register, just the data
+           (0 << 0) );		// Full Speed
+
+  mpu_wait_slave4_ready();
+
+  // Wait at least 2.8ms
+
+#endif
 
   // HMC5883 Magnetometer Configuration
 
@@ -219,8 +247,7 @@ static void mpu_configure(void)
   mpu_set( MPU60X0_REG_I2C_SLV4_CTRL,
            (1 << 7) |		// Slave 4 enable
            (0 << 6) |		// Byte Swap
-           (0 << 0) );		// Full Speed
-
+           (3 << 0) );		// From now on a delayed rate of 1/4 is defined...
 
   // HMC5883 Reading:
   // a) write hmc-register to HMC
@@ -236,6 +263,53 @@ static void mpu_configure(void)
 
 	// Slave 0 Control:
 
+#ifdef IMU_ASPIRIN_VERSION_2_1
+#pragma message "Reading the MS5611"
+/*
+
+
+  // Read MS5611 Calibration
+  mpu_set( MPU60X0_REG_I2C_SLV1_ADDR, (MS5611_ADDR0) | MPU60X0_SPI_READ);
+  mpu_set( MPU60X0_REG_I2C_SLV1_REG,  MS5611_REG_ADCREAD);
+  // Put the enable command as last.
+  mpu_set( MPU60X0_REG_I2C_SLV1_CTRL,
+           (1 << 7) |		// Slave 1 enable
+           (0 << 6) |		// Byte Swap
+           (3 << 0) );		// Read 6 bytes
+
+*/
+
+  // Full Rate Request For Pressure
+  mpu_set( MPU60X0_REG_I2C_SLV2_ADDR, (MS5611_ADDR0));
+  mpu_set( MPU60X0_REG_I2C_SLV2_DO,  0x48);
+  // Put the enable command as last.
+  mpu_set( MPU60X0_REG_I2C_SLV2_CTRL,
+           (1 << 7) |		// Slave 2 enable
+           (0 << 6) |		// Byte Swap
+           (1 << 5) |		// Rig Dis: Write Only
+           (1 << 0) );		// Write 1 byte
+
+  // Reduced rate request For Temperature: Overwrites the Pressure Request
+  mpu_set( MPU60X0_REG_I2C_SLV3_ADDR, (MS5611_ADDR0));
+  mpu_set( MPU60X0_REG_I2C_SLV3_DO,  0x58);
+  // Put the enable command as last.
+  mpu_set( MPU60X0_REG_I2C_SLV3_CTRL,
+           (1 << 7) |		// Slave 2 enable
+           (0 << 6) |		// Byte Swap
+           (1 << 5) |		// Rig Dis: Write Only
+           (1 << 0) );		// Write 1 byte
+
+  mpu_set( MPU60X0_REG_I2C_SLV1_ADDR, (MS5611_ADDR0) | MPU60X0_SPI_READ);
+  mpu_set( MPU60X0_REG_I2C_SLV1_REG,  MS5611_REG_ADCREAD);
+  // Put the enable command as last.
+  mpu_set( MPU60X0_REG_I2C_SLV1_CTRL,
+           (1 << 7) |		// Slave 1 enable
+           (0 << 6) |		// Byte Swap
+           (3 << 0) );		// Read 6 bytes
+
+
+
+#endif
 
 #endif
 
