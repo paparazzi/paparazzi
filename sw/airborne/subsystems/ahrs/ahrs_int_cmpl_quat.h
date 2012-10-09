@@ -31,6 +31,7 @@ struct AhrsIntCmpl {
   struct Int32Rates  rate_correction;
   struct Int64Quat   high_rez_quat;
   struct Int64Rates  high_rez_bias;
+  struct Int32Vect3  mag_h;
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
