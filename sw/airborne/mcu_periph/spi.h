@@ -144,6 +144,7 @@ struct spi_periph {
   volatile uint8_t rx_idx_buf;
   void* reg_addr;
   void *init_struct;
+  void *dma;
   enum SPIMode mode;
   /* control for stop/resume of the fifo */
   volatile uint8_t suspend;

@@ -33,27 +33,25 @@ struct ImuAspirin2 imu_aspirin2;
 
 struct spi_transaction aspirin2_mpu60x0;
 
-
-
 // initialize peripherals
 static void mpu_configure(void);
 
-
 void imu_impl_init(void) {
-
-  imu_aspirin2.status = Aspirin2StatusUninit;
-  imu_aspirin2.imu_available = FALSE;
-  imu_aspirin2.input_buf_p = aspirin2_mpu60x0.input_buf;
-
   aspirin2_mpu60x0.select = SPISelectUnselect;
   aspirin2_mpu60x0.cpol = SPICpolIdleLow;
   aspirin2_mpu60x0.cpha = SPICphaEdge1;
-  aspirin2_mpu60x0.dss = DSS8bit;
-  aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
-  aspirin2_mpu60x0.length = 2;
-  aspirin2_mpu60x0.slave_idx = 0;
+  aspirin2_mpu60x0.dss = SPIDss8bit;
+  //aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
+  //aspirin2_mpu60x0.length = 2;
+  aspirin2_mpu60x0.slave_idx = 2;
+  aspirin2_mpu60x0.slave_idx = 2;
+  aspirin2_mpu60x0.output_length = IMU_ASPIRIN_BUFFER_LEN;
+  aspirin2_mpu60x0.input_length = IMU_ASPIRIN_BUFFER_LEN;
 
-
+  imu_aspirin2.status = Aspirin2StatusUninit;
+  imu_aspirin2.imu_available = FALSE;
+  aspirin2_mpu60x0.input_buf = &imu_aspirin2.input_buf_p;
+  aspirin2_mpu60x0.output_buf = &imu_aspirin2.output_buf_p;
 }
 
 
@@ -65,9 +63,9 @@ void imu_periodic(void)
     // imu_aspirin_arch_int_enable();
     imu_aspirin2.status = Aspirin2StatusIdle;
 
-    aspirin2_mpu60x0.length = 22;
+    aspirin2_mpu60x0.output_length = 22;
     aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
-    for (int i=1;i<aspirin2_mpu60x0.length;i++) {
+    for (int i=1;i<aspirin2_mpu60x0.output_length;i++) {
         aspirin2_mpu60x0.output_buf[i] = 0;
     }
   }
@@ -111,7 +109,7 @@ static inline void mpu_wait_slave4_ready(void)
 
 static void mpu_configure(void)
 {
-  aspirin2_mpu60x0.length = 2;
+  aspirin2_mpu60x0.output_length = 2;
 
   ///////////////////
   // Reset the MPU

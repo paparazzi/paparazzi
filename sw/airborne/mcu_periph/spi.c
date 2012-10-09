@@ -31,7 +31,6 @@
 #ifdef SPI_MASTER
 
 #if USE_SPI0
-
 struct spi_periph spi0;
 
 void spi0_init(void) {
@@ -42,7 +41,6 @@ void spi0_init(void) {
 #endif
 
 #if USE_SPI1
-
 struct spi_periph spi1;
 
 void spi1_init(void) {
@@ -53,7 +51,6 @@ void spi1_init(void) {
 #endif
 
 #if USE_SPI2
-
 struct spi_periph spi2;
 
 void spi2_init(void) {
