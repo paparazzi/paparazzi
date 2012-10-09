@@ -502,6 +502,7 @@ void Drift_correction(void)
     Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
     Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
   }
+#ifdef USE_MAGNETOMETER_ONGROUND
   else if (launch == FALSE)
   {
     float COGX = imu.mag.x; // Non-Tilt-Compensated (for filter stability reasons)
@@ -510,9 +511,11 @@ void Drift_correction(void)
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
 
+    // P only
     Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW / 10.0);
     Vector_Add(Omega_P,Omega_P,Scaled_Omega_P);//Adding  Proportional.fi
   }
+#endif // USE_MAGNETOMETER_ONGROUND
 #endif
 
   //  Here we will place a limit on the integrator so that the integrator cannot ever exceed half the saturation limit of the gyros
