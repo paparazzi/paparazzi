@@ -22,7 +22,7 @@
  *
  */
 
-#include "link_mcu.h"
+#include "link_mcu_spi.h"
 #include "mcu_periph/spi.h"
 
 struct link_mcu_msg link_mcu_from_ap_msg;

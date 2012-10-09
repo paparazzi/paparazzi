@@ -38,7 +38,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 
-#include "link_mcu.h"
+#include "link_mcu_spi.h"
 
 // Sensors
 #if USE_GPS
