@@ -100,17 +100,17 @@ struct spi_periph_dma spi2_dma;
 static inline void SpiSlaveUnselect(uint8_t slave)
 {
   switch(slave) {
-#if USE_SPI_SLAVE0
+#if USE_SPI0
     case 0:
       GPIO_BSRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
       break;
 #endif // USE_SPI_SLAVE0
-#if USE_SPI_SLAVE1
+#if USE_SPI1
     case 1:
       GPIO_BSRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
       break;
 #endif //USE_SPI_SLAVE1
-#if USE_SPI_SLAVE2
+#if USE_SPI2
     case 2:
       GPIO_BSRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
       break;
@@ -125,17 +125,17 @@ static inline void SpiSlaveUnselect(uint8_t slave)
 static inline void SpiSlaveSelect(uint8_t slave)
 {
   switch(slave) {
-#if USE_SPI_SLAVE0
+#if USE_SPI0
     case 0:
       GPIO_BRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
       break;
 #endif // USE_SPI_SLAVE0
-#if USE_SPI_SLAVE1
+#if USE_SPI1
     case 1:
       GPIO_BRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
       break;
 #endif //USE_SPI_SLAVE1
-#if USE_SPI_SLAVE2
+#if USE_SPI2
     case 2:
       GPIO_BRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
       break;
@@ -157,21 +157,21 @@ static void spi_arch_int_disable( struct spi_periph *spi ) {
 }
 
 void spi_init_slaves(void) {
-#if USE_SPI_SLAVE0
+#if USE_SPI0
   SpiSlaveUnselect(0);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
   gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE0_PIN);
 #endif
 
-#if USE_SPI_SLAVE1
+#if USE_SPI1
   SpiSlaveUnselect(1);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
   gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE1_PIN);
 #endif
 
-#if USE_SPI_SLAVE2
+#if USE_SPI2
   SpiSlaveUnselect(2);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
   gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
@@ -321,8 +321,8 @@ void spi2_arch_init(void) {
   spi_disable(SPI2);
 
   // configure SPI
-  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+                  SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 
   /*
    * Set NSS management to software.
@@ -427,7 +427,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   //FIXME
   //__disable_irq();
   
-  // GT: no copy?  There's a queue len implying a copy here...
+  // GT: no copy?  There's a queue implying a copy here...
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
 
@@ -501,11 +501,11 @@ void process_dma_interrupt( struct spi_periph *spi ) {
   // disable DMA Channel
   dma_disable_transfer_complete_interrupt( dma->dma, dma->rx_chan );
 
-  // Disable SPI_2 Rx and TX request
+  // Disable SPI Rx and TX request
   spi_disable_rx_dma( dma->spi );
   spi_disable_tx_dma( dma->spi );
 
-  // Disable DMA1 Channel4 and 5
+  // Disable DMA1 rx and tx channels
   dma_disable_channel( dma->dma, dma->rx_chan );
   dma_disable_channel( dma->dma, dma->tx_chan );
 
