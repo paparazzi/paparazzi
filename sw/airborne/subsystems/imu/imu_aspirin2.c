@@ -64,6 +64,7 @@ void imu_periodic(void)
     imu_aspirin2.status = Aspirin2StatusIdle;
 
     aspirin2_mpu60x0.output_length = 22;
+    aspirin2_mpu60x0.input_length = 22;
     aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
     for (int i=1;i<aspirin2_mpu60x0.output_length;i++) {
         aspirin2_mpu60x0.output_buf[i] = 0;
@@ -110,6 +111,7 @@ static inline void mpu_wait_slave4_ready(void)
 static void mpu_configure(void)
 {
   aspirin2_mpu60x0.output_length = 2;
+  aspirin2_mpu60x0.input_length = 2;
 
   ///////////////////
   // Reset the MPU

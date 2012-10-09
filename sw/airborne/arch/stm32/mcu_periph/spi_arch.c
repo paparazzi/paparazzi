@@ -229,7 +229,7 @@ void spi0_arch_init(void) {
 
   spi0.dma = &spi0_dma;
   spi0_dma.spi = SPI3;
-  spi0_dma.spidr = SPI3_DR;
+  spi0_dma.spidr = (u32)&SPI3_DR;
   spi0_dma.dma = DMA2;
   spi0_dma.rx_chan = DMA_CHANNEL1;
   spi0_dma.tx_chan = DMA_CHANNEL2;
@@ -286,7 +286,7 @@ void spi1_arch_init(void) {
 
   spi1.dma = &spi1_dma;
   spi1_dma.spi = SPI1;
-  spi1_dma.spidr = SPI1_DR;
+  spi1_dma.spidr = (u32)&SPI1_DR;
   spi1_dma.dma = DMA1;
   spi1_dma.rx_chan = DMA_CHANNEL4;
   spi1_dma.tx_chan = DMA_CHANNEL5;
@@ -321,8 +321,10 @@ void spi2_arch_init(void) {
   spi_disable(SPI2);
 
   // configure SPI
-  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                   SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+  //spi_enable_crc( SPI2 );
+  //spi_set_full_duplex_mode( SPI2 );
 
   /*
    * Set NSS management to software.
@@ -343,7 +345,7 @@ void spi2_arch_init(void) {
 
   spi2.dma = &spi2_dma;
   spi2_dma.spi = SPI2;
-  spi2_dma.spidr = SPI2_DR;
+  spi2_dma.spidr = (u32)&SPI2_DR;
   spi2_dma.dma = DMA1;
   spi2_dma.rx_chan = DMA_CHANNEL4;
   spi2_dma.tx_chan = DMA_CHANNEL5;
@@ -373,7 +375,7 @@ void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
 
   // Rx_DMA_Channel configuration ------------------------------------
   dma_channel_reset( dma->dma, dma->rx_chan );
-  dma_set_peripheral_address(dma->dma, dma->rx_chan, (u32)&dma->spidr);
+  dma_set_peripheral_address(dma->dma, dma->rx_chan, (u32)dma->spidr);
   dma_set_memory_address(dma->dma, dma->rx_chan, (uint32_t)_trans->input_buf);
   dma_set_number_of_data(dma->dma, dma->rx_chan, _trans->input_length);
   dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
@@ -386,7 +388,7 @@ void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
 
   // SPI Tx_DMA_Channel configuration ------------------------------------
   dma_channel_reset(dma->dma, dma->tx_chan);
-  dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)&dma->spidr);
+  dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)dma->spidr);
   dma_set_memory_address(dma->dma, dma->tx_chan, (uint32_t)_trans->output_buf);
   dma_set_number_of_data(dma->dma, dma->tx_chan, _trans->output_length);
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
