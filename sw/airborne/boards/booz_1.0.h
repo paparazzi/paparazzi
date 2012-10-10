@@ -147,26 +147,19 @@
 #define MS2100_DRDY_EINT 3
 #define MS2100_DRDY_VIC_IT VIC_EINT3
 
-/* PWM5 on CAM connector */
-/* P0.21 */
-#define PWM0_PINSEL PINSEL1
-#define PWM0_PINSEL_VAL 0x01
-#define PWM0_PINSEL_BIT 10
+/* BOOZ PWM0 = PWM_SERVO_0 (driver) = PWM5 (lpc)
+ * on CAM connector */
+#if USE_PWM0
+#define PWM_SERVO_0 1
+#endif
 
-/* PWM2 on SPI connector */
-/* P0.7 */
-#define PWM1_PINSEL PINSEL0
-#define PWM1_PINSEL_VAL 0x02
-#define PWM1_PINSEL_BIT 14
+/* BOOZ PWM1 = PWM_SERVO_5 (driver) = PWM2 (lpc)
+ * on SPI connector */
+#if USE_PWM1
+#define PWM_SERVO_5 1
+#endif
 
 
 #define BOARD_HAS_BARO 1
-
-/*
- * Modem
- */
-//#define MODEM_DEVICE Uart1
-//#define MODEM_UART_FLAG
-
 
 #endif /* CONFIG_BOOZ2_V1_0_H */

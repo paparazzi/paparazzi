@@ -105,6 +105,7 @@ ifeq ($(TARGET), ap)
 endif
 
 ap.srcs += $(SRC_FIRMWARE)/commands.c
+ap.srcs += subsystems/actuators.c
 
 #
 # Radio control choice

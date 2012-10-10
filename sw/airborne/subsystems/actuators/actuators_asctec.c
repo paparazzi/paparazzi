@@ -23,12 +23,8 @@
  *  Actuators driver for Asctec motor controllers.
  */
 
-#include "firmwares/rotorcraft/actuators.h"
-#include "firmwares/rotorcraft/actuators/actuators_asctec.h"
-
-#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-#include "firmwares/rotorcraft/actuators/supervision.h"
-#endif
+#include "subsystems/actuators.h"
+#include "subsystems/actuators/actuators_asctec.h"
 
 #include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
@@ -45,7 +41,7 @@ struct ActuatorsAsctec actuators_asctec;
 uint32_t actuators_delay_time;
 bool_t   actuators_delay_done;
 
-void actuators_init(void) {
+void actuators_asctec_init(void) {
   actuators_asctec.cmd = NONE;
   actuators_asctec.cur_addr = FRONT;
   actuators_asctec.new_addr = FRONT;
@@ -74,7 +70,7 @@ void actuators_init(void) {
 }
 
 #ifndef ACTUATORS_ASCTEC_V2_PROTOCOL
-void actuators_set(bool_t motors_on) {
+void actuators_asctec_set(bool_t motors_on) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
@@ -102,10 +98,10 @@ void actuators_set(bool_t motors_on) {
   actuators_asctec.cmds[YAW]    = 0;
   actuators_asctec.cmds[THRUST] = 0;
 #else /* ! KILL_MOTORS */
-  actuators_asctec.cmds[PITCH]  = ((commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E) * ASCTEC_MAX_CMD) / MAX_PPRZ;
-  actuators_asctec.cmds[ROLL]   = ((commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A) * ASCTEC_MAX_CMD) / MAX_PPRZ;
-  actuators_asctec.cmds[YAW]    = ((commands[COMMAND_YAW]    + SUPERVISION_TRIM_R) * ASCTEC_MAX_CMD) / MAX_PPRZ;
-  actuators_asctec.cmds[THRUST] = (commands[COMMAND_THRUST] * ASCTEC_MAX_THROTTLE) / MAX_PPRZ;
+//  actuators_asctec.cmds[PITCH]  = ((commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E) * ASCTEC_MAX_CMD) / MAX_PPRZ;
+//  actuators_asctec.cmds[ROLL]   = ((commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A) * ASCTEC_MAX_CMD) / MAX_PPRZ;
+//  actuators_asctec.cmds[YAW]    = ((commands[COMMAND_YAW]    + SUPERVISION_TRIM_R) * ASCTEC_MAX_CMD) / MAX_PPRZ;
+//  actuators_asctec.cmds[THRUST] = (commands[COMMAND_THRUST] * ASCTEC_MAX_THROTTLE) / MAX_PPRZ;
   Bound(actuators_asctec.cmds[PITCH],ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   Bound(actuators_asctec.cmds[ROLL], ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   Bound(actuators_asctec.cmds[YAW],  ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);

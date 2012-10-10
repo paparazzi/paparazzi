@@ -28,27 +28,32 @@
 
 #include "mcu_periph/i2c.h"
 
-enum actuators_astec_cmd { NONE,
+#include "generated/airframe.h"
+#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
+#include "subsystems/actuators/supervision.h"
+#endif
+
+enum actuators_asctec_cmd { NONE,
                            TEST,
                            REVERSE,
                            SET_ADDR };
 
-enum actuators_astec_addr { FRONT,
+enum actuators_asctec_addr { FRONT,
                             BACK,
                             LEFT,
                             RIGHT };
 
 /* this is for the v1 protocol which does its own mixing */
-enum actuators_astec_cmds { PITCH,
+enum actuators_asctec_cmds { PITCH,
                             ROLL,
                             YAW,
                             THRUST,
                             CMD_NB };
 
 struct ActuatorsAsctec {
-  enum actuators_astec_cmd cmd;
-  enum actuators_astec_addr cur_addr;
-  enum actuators_astec_addr new_addr;
+  enum actuators_asctec_cmd cmd;
+  enum actuators_asctec_addr cur_addr;
+  enum actuators_asctec_addr new_addr;
   int32_t cmds[CMD_NB];
   struct i2c_transaction i2c_trans;
   volatile uint32_t nb_err;
@@ -68,6 +73,13 @@ extern struct ActuatorsAsctec actuators_asctec;
 #define actuators_asctec_SetCurAddr(_v) {  \
     actuators_asctec.cur_addr = _v;        \
   }
+
+extern void actuators_asctec_init(void);
+extern void actuators_asctec_set(bool_t motors_on);
+
+#define ActuatorAsctecSet(_i, _v) { actuators_asctec.cmds[_i] = _v; }
+#define ActuatorsAsctecInit() actuators_asctec_init()
+#define ActuatorsAsctecCommit() actuators_asctec_set(autopilot_motors_on)
 
 
 #endif /* ACTUATORS_ASCTEC_H */

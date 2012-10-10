@@ -19,7 +19,7 @@
 #endif
 
 extern uint16_t servos_values[_4017_NB_CHANNELS];
-#define Actuator4017(i) servos_values[i]
+#define Actuator4017Set(_i, _v) { servos_values[i] = SERVOS_TICS_OF_USEC(_v); }
 
 extern void actuators_4017_init(void);
 #define Actuators4017Commit() {}

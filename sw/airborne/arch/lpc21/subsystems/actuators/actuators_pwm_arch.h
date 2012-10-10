@@ -5,7 +5,6 @@
 #include "mcu_periph/sys_time.h"
 
 #define SERVOS_TICS_OF_USEC(s) CPU_TICKS_OF_USEC(s)
-#define ChopServo(x,a,b) Chop(x, a, b)
 
 #define SERVO_REG_0 PWMMR5
 #define SERVO_REG_1 PWMMR3
@@ -15,7 +14,7 @@
 #define SERVO_REG_5 PWMMR2
 
 #define COMMAND_(i) SERVO_REG_ ## i
-#define ActuatorPwm(i) COMMAND_(i)
+#define ActuatorPwmSet(_i, _v) { COMMAND_(_i) = SERVOS_TICS_OF_USEC(_v); }
 
 
 /*

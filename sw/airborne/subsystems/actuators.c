@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -26,6 +27,8 @@
 
 #include "subsystems/actuators.h"
 
+#if ACTUATORS_NB
+
 uint16_t actuators[ACTUATORS_NB];
 
 void actuators_init(void) {
@@ -34,3 +37,5 @@ void actuators_init(void) {
   AllActuatorsInit();
 
 }
+
+#endif

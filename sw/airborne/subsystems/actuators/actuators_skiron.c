@@ -23,13 +23,11 @@
  *  Skiron motor speed controller by Michel.
  */
 
-#include "firmwares/rotorcraft/actuators.h"
-#include "firmwares/rotorcraft/actuators/actuators_skiron.h"
+#include "subsystems/actuators.h"
+#include "subsystems/actuators/actuators_skiron.h"
 
-#include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
-
 
 struct ActuatorsSkiron actuators_skiron;
 
@@ -37,17 +35,13 @@ struct ActuatorsSkiron actuators_skiron;
 uint32_t actuators_delay_time;
 bool_t   actuators_delay_done;
 
-void actuators_init(void) {
+void actuators_skiron_init(void) {
 
   supervision_init();
   actuators_skiron.trans.type = I2CTransTx;
-  actuators_skiron.trans.len_w = ACTUATORS_SKIRON_NB;
+  actuators_skiron.trans.len_w = SERVOS_SKIRON_NB;
   actuators_skiron.trans.slave_addr = ACTUATORS_SKIRON_I2C_ADDR;
   actuators_skiron.trans.status = I2CTransDone;
-  const uint8_t actuators_idx[ACTUATORS_SKIRON_NB] = ACTUATORS_SKIRON_IDX;
-  for (uint8_t i=0; i<ACTUATORS_SKIRON_NB; i++) {
-    actuators_skiron.actuators_idx[i] = actuators_idx[i];
-  }
 
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   actuators_delay_done = FALSE;
@@ -59,7 +53,7 @@ void actuators_init(void) {
 
 }
 
-void actuators_set(bool_t motors_on) {
+void actuators_skiron_set(void) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
@@ -67,14 +61,11 @@ void actuators_set(bool_t motors_on) {
   }
 #endif
 
-  supervision_run(motors_on, FALSE, commands);
-  for (uint8_t i=0; i<ACTUATORS_SKIRON_NB; i++) {
-    uint8_t idx = actuators_skiron.actuators_idx[i];
 #ifdef KILL_MOTORS
-    actuators_skiron.trans.buf[idx] = 0;
-#else
-    actuators_skiron.trans.buf[idx] = supervision.commands[i];
-#endif
+  for (uint8_t i=0; i<ACTUATORS_SKIRON_NB; i++) {
+    actuators_skiron.trans.buf[i] = 0;
   }
+#endif
+
   i2c_submit(&ACTUATORS_SKIRON_DEVICE, &actuators_skiron.trans);
 }

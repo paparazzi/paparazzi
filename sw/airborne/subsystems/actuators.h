@@ -37,17 +37,10 @@
 
 #if ACTUATORS_NB
 
-extern void actuators_init( void );
+extern void actuators_init(void);
 
 /** Temporary storage (for debugging purpose, downlinked via telemetry) */
 extern uint16_t actuators[ACTUATORS_NB];
-
-#define SetServo(x, v) { actuators[x##_IDX] = v; }
-
-#else /* ACTUATORS_NB */
-
-// define empty SetServo makro for sim (really needed ?)
-#define SetServo(x, v) {}
 
 #endif /* ACTUATORS_NB */
 

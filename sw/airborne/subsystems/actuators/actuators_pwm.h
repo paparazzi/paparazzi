@@ -23,14 +23,11 @@
 #define ACTUATORS_PWM_H
 
 #include "std.h"
-#include "actuators.h"
+#include "generated/airframe.h"
 
 #include BOARD_CONFIG
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
-extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
-
-#define Actuator(_x)  actuators_pwm_values[_x]
-#define ChopServo(_x,_a,_b) Chop(_x, _a, _b)
+extern int32_t actuators_pwm_values[SERVOS_PWM_NB];
 
 #endif /* ACTUATORS_PWM_H */

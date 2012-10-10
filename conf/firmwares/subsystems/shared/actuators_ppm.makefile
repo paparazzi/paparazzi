@@ -6,5 +6,5 @@
 # can be adjusted in the "servos_ppm_hw.h" file to suit your particular receiver.
 
 $(TARGET).CFLAGS += -DACTUATORS -DSERVOS_PPM_MAT
-$(TARGET).srcs += $(SRC_ARCH)/subsystems/actuators/servos_ppm_hw.c subsystems/actuators.c
+$(TARGET).srcs += $(SRC_ARCH)/subsystems/actuators/servos_ppm_hw.c
 

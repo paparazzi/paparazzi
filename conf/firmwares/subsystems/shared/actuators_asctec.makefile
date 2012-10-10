@@ -1,5 +1,5 @@
 # asctec controllers
-ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+ap.srcs += subsystems/actuators/actuators_asctec.c
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c0
@@ -13,6 +13,6 @@ endif
 
 
 # Simulator
-nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+nps.srcs += subsystems/actuators/actuators_asctec.c
 nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_ASCTEC_DEVICE=i2c0
 

@@ -1,11 +1,11 @@
 <airframe name="BOOZ2_G1">
 
   <modules main_freq="512">
-    <load name="booz_pwm.xml">
+    <!--load name="booz_pwm.xml">
       <define name="USE_PWM1"/>
     </load>
     <load name="booz_drop.xml"/>
-    <load name="booz_cam.xml"/>
+    <load name="booz_cam.xml"/-->
     <!--load name="sonar_maxbotix_booz.xml"/-->
     <!--load name="adc_generic_booz.xml"/-->
     <!--load name="sys_mon.xml"/-->
@@ -27,28 +27,35 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
+    <subsystem name="actuators"     type="direct">
+      <define name="USE_PWM0"/>
+      <define name="USE_PWM1"/>
+    </subsystem>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
     <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
-    <subsystem name="ins"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
-  <firmware name="booz_test_progs">
-    <target name="test_telemetry"   board="booz_1.0"/>
-    <target name="test_baro"        board="booz_1.0"/>
-    <target name="test_rc_spektrum" board="booz_1.0"/>
-    <target name="test_rc_ppm"      board="booz_1.0"/>
-  </firmware>
+  <section name="TRIM">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="6"/>
+    <define name="TRIM_YAW" value="0"/>
+  </section>
 
-  <servos>
-    <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
-    <servo name="ROLL"   no="1" min="0" neutral="0" max="255"/>
-    <servo name="YAW"    no="2" min="0" neutral="0" max="255"/>
-    <servo name="THRUST" no="3" min="0" neutral="0" max="255"/>
+  <servos driver="Asctec">
+    <servo name="PITCH"  no="0" min="-100" neutral="0" max="100"/>
+    <servo name="ROLL"   no="1" min="-100" neutral="0" max="100"/>
+    <servo name="YAW"    no="2" min="-100" neutral="0" max="100"/>
+    <servo name="THRUST" no="3" min="0"    neutral="0" max="200"/>
+  </servos>
+
+  <servos driver="Pwm">
+    <servo name="CAM" no="0" min="1000" neutral="1500" max="2000"/>
+    <servo name="DROP" no="5" min="1000" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
@@ -58,11 +65,12 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="6"/>
-    <define name="TRIM_R" value="0"/>
-  </section>
+  <command_laws>
+    <set servo="PITCH" value="@PITCH"/>
+    <set servo="ROLL" value="@ROLL"/>
+    <set servo="YAW" value="@YAW"/>
+    <set servo="THRUST" value="@THRUST"/>
+  </command_laws>
 
   <section name="IMU" prefix="IMU_">
 

@@ -25,7 +25,7 @@
  *  to actual motor commands.
  */
 
-#include "firmwares/rotorcraft/actuators/supervision.h"
+#include "subsystems/actuators/supervision.h"
 #include "paparazzi.h"
 
 //#include <stdint.h>
@@ -36,6 +36,9 @@
 #ifndef INT32_MAX
 #define INT32_MAX (2147483647)
 #endif
+
+#define SUPERVISION_MIN_MOTOR 0
+#define SUPERVISION_MAX_MOTOR MAX_PPRZ
 
 #ifndef SUPERVISION_STOP_MOTOR
 #define SUPERVISION_STOP_MOTOR 0

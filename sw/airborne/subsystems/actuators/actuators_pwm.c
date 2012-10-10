@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -21,8 +21,5 @@
 
 #include "actuators_pwm.h"
 
-int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+int32_t actuators_pwm_values[SERVOS_PWM_NB];
 
-void actuators_init(void) {
-  actuators_pwm_arch_init();
-}

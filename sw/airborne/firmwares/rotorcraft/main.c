@@ -36,7 +36,7 @@
 #include "subsystems/datalink/xbee.h"
 
 #include "firmwares/rotorcraft/commands.h"
-#include "firmwares/rotorcraft/actuators.h"
+#include "subsystems/actuators.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
@@ -160,7 +160,8 @@ STATIC_INLINE void main_periodic( void ) {
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */
-  actuators_set(autopilot_motors_on);
+  //actuators_set(autopilot_motors_on);
+  SetActuatorsFromCommands(commands);
 
   modules_periodic_task();
 

@@ -30,17 +30,24 @@
 #include "mcu_periph/i2c.h"
 
 #include "generated/airframe.h"
+#include "subsystems/actuators/supervision.h"
+
 
 // Use I2C broadcast adderss
 #define ACTUATORS_SKIRON_I2C_ADDR 0x00
 
 struct ActuatorsSkiron {
   struct i2c_transaction trans;
-  uint8_t actuators_idx[ACTUATORS_SKIRON_NB];
+  //uint8_t actuators_idx[ACTUATORS_SKIRON_NB];
 };
 
 extern struct ActuatorsSkiron actuators_skiron;
 
-#include "firmwares/rotorcraft/actuators/supervision.h"
+extern void actuators_skiron_init(void);
+extern void actuators_skiron_set(void);
+
+#define ActuatorSkironSet(_i, _v) { actuators_skiron.trans.buf[_i] = _v; }
+#define ActuatorsSkironInit() actuators_skiron_init()
+#define ActuatorsSkironCommit() actuators_skiron_set()
 
 #endif /* ACTUATORS_SKIRON_H */

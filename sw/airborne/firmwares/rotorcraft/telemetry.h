@@ -40,7 +40,7 @@
 #include "firmwares/rotorcraft/autopilot.h"
 #include "firmwares/rotorcraft/guidance.h"
 
-#include "firmwares/rotorcraft/actuators.h"
+#include "subsystems/actuators.h"
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
