@@ -15,6 +15,10 @@ First release candidate for next stable release.
   [#250] (https://github.com/paparazzi/paparazzi/pull/250)
 - Replace wget by OCaml Http_client from netclient lib to download files
   [#276] (https://github.com/paparazzi/paparazzi/pull/276)
+- Run AP and FBW on separate boards
+  [#297] (https://github.com/paparazzi/paparazzi/pull/297)
+- Separate Board Files for yapa_v2.0
+  [#303] (https://github.com/paparazzi/paparazzi/pull/303)
 
 
 Paparazzi 4.0.3
