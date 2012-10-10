@@ -208,7 +208,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="tiny_2.11"/>
+    <target name="ap" board="yapa_2.0"/>
     <target name="sim" board="pc"/>
 
       <define name="STRONG_WIND"/>
