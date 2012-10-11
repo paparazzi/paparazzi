@@ -46,7 +46,11 @@
 #include "mcu_periph/i2c.h"
 
 #ifdef MCU_SPI_LINK
-#include "link_mcu.h"
+#include "link_mcu_spi.h"
+#endif
+
+#ifdef MCU_UART_LINK
+#include "link_mcu_usart.h"
 #endif
 
 uint8_t fbw_mode;
@@ -125,7 +129,7 @@ void event_task_fbw( void) {
   i2c_event();
 
 #ifdef INTER_MCU
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK | defined MCU_UART_LINK
     link_mcu_event_task();
 #endif /* MCU_SPI_LINK */
 
@@ -135,9 +139,11 @@ void event_task_fbw( void) {
     inter_mcu_event_task();
     command_roll_trim = ap_state->command_roll_trim;
     command_pitch_trim = ap_state->command_pitch_trim;
+#ifndef OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
     if (ap_ok && fbw_mode == FBW_MODE_FAILSAFE) {
       fbw_mode = FBW_MODE_AUTO;
     }
+#endif
     if (fbw_mode == FBW_MODE_AUTO) {
       SetCommands(ap_state->commands);
     }
@@ -154,6 +160,17 @@ void event_task_fbw( void) {
 #endif /**Else the buffer is filled even if the last receive was not correct */
   }
 
+#if OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE
+#warning DANGER DANGER DANGER DANGER: Outback Challenge Rule FORCE-CRASH-RULE: DANGER DANGER: AP is now capable to FORCE your FBW in failsafe mode EVEN IF RC IS NOT LOST: Consider the consequences.
+
+  int crash = 0;
+  if (commands[COMMAND_FORCECRASH] >= 8000)
+  {
+    set_failsafe_mode();
+    crash = 1;
+  }
+
+#endif
 #ifdef ACTUATORS
   if (fbw_new_actuators > 0)
   {
@@ -170,6 +187,13 @@ void event_task_fbw( void) {
 
     SetActuatorsFromCommands(trimmed_commands);
     fbw_new_actuators = 0;
+    #if OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE
+    if (crash == 1)
+    {
+      for (;;) {}
+    }
+    #endif
+
   }
 #endif
 
@@ -192,7 +216,12 @@ void periodic_task_fbw( void ) {
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
   if (fbw_mode == FBW_MODE_MANUAL && radio_control.status == RC_REALLY_LOST) {
+#ifdef OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
+#warning WARNING DANGER: OUTBACK_CHALLENGE RULE RC_LOST_NO_AP defined. If you loose RC you will NOT go to automatically go to AUTO2 Anymore!!
+set_failsafe_mode();
+#else
     fbw_mode = FBW_MODE_AUTO;
+#endif
   }
 #endif
 
@@ -202,6 +231,11 @@ void periodic_task_fbw( void ) {
   {
     set_failsafe_mode();
   }
+#endif
+
+#ifdef MCU_UART_LINK
+  inter_mcu_fill_fbw_state();
+  link_mcu_periodic_task();
 #endif
 
 #ifdef DOWNLINK

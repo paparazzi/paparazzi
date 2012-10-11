@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,24 +20,31 @@
  *
  */
 
+/** \brief Transport for the communication between FBW and AP via UART.
+ */
+
+#ifndef LINK_MCU_H
+#define LINK_MCU_H
+
+#include <inttypes.h>
 #include "inter_mcu.h"
 
-#if defined SINGLE_MCU
-static struct fbw_state _fbw_state;
-static struct ap_state _ap_state;
-struct fbw_state* fbw_state = &_fbw_state;
-struct ap_state* ap_state = &_ap_state;
-#else /* SINGLE_MCU */
-#include "link_mcu_spi.h"
-struct fbw_state* fbw_state = &link_mcu_from_fbw_msg.payload.from_fbw;
-struct ap_state*  ap_state = &link_mcu_from_ap_msg.payload.from_ap;
-#endif /* ! SINGLE_MCU */
+struct link_mcu_msg {
+  union  {
+    struct fbw_state from_fbw;
+    struct ap_state  from_ap;
+  } payload;
+};
 
-volatile bool_t inter_mcu_received_fbw = FALSE;
-volatile bool_t inter_mcu_received_ap  = FALSE;
+extern struct link_mcu_msg link_mcu_from_ap_msg;
+extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
-#ifdef FBW
-/** Variables for monitoring AP communication status */
-uint8_t ap_ok;
-uint8_t time_since_last_ap;
+extern bool_t link_mcu_received;
+
+extern void link_mcu_send( void );
+extern void link_mcu_init( void );
+extern void link_mcu_event_task( void );
+extern void link_mcu_periodic_task( void );
+
+
 #endif

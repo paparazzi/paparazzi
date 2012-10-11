@@ -750,6 +750,9 @@ let () =
       and alt = ExtXml.attrib xml "alt" in
       security_height := get_float "security_height";
       ground_alt := get_float "ground_alt";
+      let home_mode_height = try
+        max (get_float "home_mode_height") !security_height
+      with _ -> !security_height in
 
       check_altitude (float_of_string alt) xml;
 
@@ -783,6 +786,7 @@ let () =
       Xml2h.define "GROUND_ALT_CM" (sprintf "%.0f" (100.*. !ground_alt));
       Xml2h.define "SECURITY_HEIGHT" (sof !security_height);
       Xml2h.define "SECURITY_ALT" (sof (!security_height +. !ground_alt));
+      Xml2h.define "HOME_MODE_HEIGHT" (sof home_mode_height);
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
 
       let index_of_waypoints =

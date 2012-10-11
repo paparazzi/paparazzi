@@ -186,7 +186,7 @@ fbw.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLI
 fbw.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 fbw.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
-fbw.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
+fbw.srcs += inter_mcu.c link_mcu_spi.c spi.c $(SRC_ARCH)/spi_hw.c
 
 fbw.CFLAGS += -DADC -DUSE_AD0
 fbw.srcs += $(SRC_ARCH)/adc_hw.c
@@ -202,7 +202,7 @@ ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLIN
 ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
+ap.srcs += inter_mcu.c link_mcu_spi.c spi.c $(SRC_ARCH)/spi_hw.c
 
 ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 ap.srcs += gps_ubx.c gps.c latlong.c
