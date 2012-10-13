@@ -55,26 +55,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="Microjet_xsens_imu"
-   ac_id="45"
-   airframe="airframes/examples/microjet_imu_xsens.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="Microjet_xsens_ins"
-   ac_id="44"
-   airframe="airframes/examples/microjet_lisa_m_xsens.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/ctl_dash_loiter_trim.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="MentorEnergy"
    ac_id="77"
    airframe="airframes/examples/MentorEnergy.xml"
