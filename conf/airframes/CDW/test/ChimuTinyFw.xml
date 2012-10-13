@@ -1,13 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
+
 <airframe name="Yapa v1">
 
   <servos>
-    <servo name="THROTTLE" no="8" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="9" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="4" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="5" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <commands>
@@ -109,7 +110,7 @@
     <define name="COURSE_DGAIN" value="0.3"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="0.2"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.75" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.9" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 

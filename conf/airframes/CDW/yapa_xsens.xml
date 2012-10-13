@@ -43,7 +43,7 @@
 
     <define name="BRAKE_AILEVON" value="-0.7f"/>
     <define name="BRAKE_PITCH" value="0.1f"/>
-    <define name="MAX_BRAKE_RATE" value="130"/>
+    <define name="MAX_BRAKE_RATE" value="80"/>
 
     <define name="RUDDER_OF_AILERON" value="0.3"/>
 
