@@ -58,7 +58,7 @@ ifneq ($(BOARD_SERIAL),)
 OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
 endif
 
-LOADER=/home/poine/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
+LOADER ?= $(PAPARAZZI_SRC)/sw/tools/stm32loader/stm32loader.py
 
 ifndef $(TARGET).OOCD_INTERFACE
 OOCD_INTERFACE = lisa-l
