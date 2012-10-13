@@ -1,13 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
+
 <airframe name="Yapa v1">
 
   <servos>
-    <servo name="THROTTLE" no="8" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="9" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="4" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="5" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <commands>
@@ -109,7 +110,7 @@
     <define name="COURSE_DGAIN" value="0.3"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="0.2"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.75" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.9" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
@@ -150,11 +151,9 @@
 
 
   <modules>
-    <load name="ins_chimu_uart.xml">
-      <configure name="CHIMU_UART_NR" value="0"/>
-    </load>
-
-    <load name="gps_i2c.xml" />
+    <load name="ins_chimu_spi.xml" >
+<!--			<define name="CHIMU_BIG_ENDIAN" />  -->
+		</load>
 
   </modules>
 
@@ -165,13 +164,12 @@
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
       <define name="ALT_KALMAN"/>
+			<!--      <define name="NB_CHANNELS" value="5" />  -->
     </target>
     <target name="sim" board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox" >
-      <configure name="GPS_PORT" value="gps_i2c" />
-    </subsystem>
+    <subsystem name="gps" type="ublox" />
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
@@ -184,6 +182,7 @@
     <subsystem name="navigation"/>
 <!--    <subsystem name="gps"    type="ublox"/> -->
 
+    <subsystem name="spi_slave_hs"/>
 
   </firmware>
 

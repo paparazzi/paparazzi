@@ -165,6 +165,47 @@
    settings=" settings/test_fixedwing_actuators.xml"
    gui_color="blue"
   />
+  <!-- Special Combinnations -->
+  <aircraft
+   name="DualBoard_AP_FBW"
+   ac_id="31"
+   airframe="airframes/CDW/DualBoardApFbw.xml"
+   radio="radios/R6107SP_7ch.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Yapa2_XSens"
+   ac_id="32"
+   airframe="airframes/CDW/yapa_xsens.xml"
+   radio="radios/R6107SP_7ch.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml settings/modules/dc.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Classix_XSens"
+   ac_id="33"
+   airframe="airframes/CDW/classix.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/modules/photogrammetry_calculator.xml settings/modules/dc.xml settings/estimation/ins_neutrals.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="tiny2_chimu_spi"
+   ac_id="22"
+   airframe="airframes/TUDelft/tiny2_chimu_spi_pt.xml"
+   radio="radios/R6107SP_7ch.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/modules/cam.xml"
+   gui_color="blue"
+  />
   <!-- Hardware test Lisa/L -->
   <aircraft
     name="LisaLv11_Booz2v12_RC"
