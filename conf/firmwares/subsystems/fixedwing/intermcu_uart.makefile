@@ -15,9 +15,10 @@ else
   ap.CFLAGS += -DINTERMCU_LINK=Uart$(INTERMCU_PORT_NR) -DUSE_UART$(INTERMCU_PORT_NR) -DUART$(INTERMCU_PORT_NR)_BAUD=B57600
 endif
 
+ifneq ($(TARGET),sim)
 $(TARGET).CFLAGS += -DINTER_MCU -DMCU_UART_LINK
 $(TARGET).srcs += ./link_mcu_usart.c
-
+endif
 
 
 
