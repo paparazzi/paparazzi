@@ -19,8 +19,8 @@
     <define name="DC_PUSH" value="LED_ON" />
     <define name="DC_RELEASE" value="LED_OFF" />
 
-    <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
-    <define name="DC_AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
+    <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
+    <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>
 
   <header>
