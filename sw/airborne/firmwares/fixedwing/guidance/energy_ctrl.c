@@ -173,6 +173,8 @@ void v_ctl_init( void ) {
 
 #ifdef V_CTL_ALTITUDE_PGAIN
   v_ctl_altitude_pgain = V_CTL_ALTITUDE_PGAIN;
+#endif
+#ifdef V_CTL_AIRSPEED_PGAIN
   v_ctl_airspeed_pgain = V_CTL_AIRSPEED_PGAIN;
 #endif
 
