@@ -1,0 +1,32 @@
+<!DOCTYPE procedure SYSTEM "flight_plan.dtd">
+
+<procedure>
+
+  <waypoints>
+    <!-- starting at northeast corner, clockwise -->
+    <waypoint name="_1bre" lat="53.64798" lon="-113.27777"/>
+    <waypoint name="_2bre" lat="53.63575" lon="-113.27830"/>
+    <waypoint name="_3bre" lat="53.63577" lon="-113.28612"/>
+    <waypoint name="_4bre" lat="53.63835" lon="-113.28607"/>
+    <waypoint name="_5bre" lat="53.63830" lon="-113.28924"/>
+    <waypoint name="_6bre" lat="53.63773" lon="-113.29547"/>
+    <waypoint name="_7bre" lat="53.63927" lon="-113.29554"/>
+    <waypoint name="_8bre" lat="53.64100" lon="-113.29007"/>
+    <waypoint name="_9bre" lat="53.64261" lon="-113.28766"/>
+    <waypoint name="_10bre" lat="53.64606" lon="-113.28528"/>
+    <waypoint name="_11bre" lat="53.64806" lon="-113.28493"/>
+  </waypoints>
+
+  <sectors>
+    <!-- outside boundary, can use just this one -->
+    <sector name="SoftKillOut" color="red">
+      <corner name="_1bre"/>
+      <corner name="_2bre"/>
+      <corner name="_3bre"/>
+      <corner name="_6bre"/>
+      <corner name="_7bre"/>
+      <corner name="_11bre"/>
+    </sector>
+  </sectors>
+
+</procedure>
