@@ -24,6 +24,7 @@
  *  Vertical control using total energy control for fixed wing vehicles.
  *
 
+	\brief Total Energy (speed + height) control
 
 	=================================================
 	Energy:
@@ -47,6 +48,15 @@
 
 		- pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
 		- throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
+
+	\dot
+	total energy control {
+		node [shape=record];
+		b [label="class B" URL="\ref B"];
+		c [label="class C" URL="\ref C"];
+		b -> c [ arrowhead="open", style="dashed" ];
+	}
+	\enddot
 
  */
 
