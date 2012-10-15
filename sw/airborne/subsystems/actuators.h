@@ -40,7 +40,7 @@
 extern void actuators_init(void);
 
 /** Temporary storage (for debugging purpose, downlinked via telemetry) */
-extern uint16_t actuators[ACTUATORS_NB];
+extern int16_t actuators[ACTUATORS_NB];
 
 #endif /* ACTUATORS_NB */
 

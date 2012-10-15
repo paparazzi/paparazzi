@@ -258,7 +258,7 @@ let rec parse_section = fun s ->
       print_actuators_idx ();
 
       printf "#define SetActuatorsFromCommands(values) { \\\n";
-      printf "  uint32_t servo_value;\\\n";
+      printf "  int32_t servo_value;\\\n";
       printf "  float command_value;\\\n";
 
       List.iter parse_command_laws (Xml.children s);

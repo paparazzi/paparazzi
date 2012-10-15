@@ -1,11 +1,8 @@
 <airframe name="BOOZ2_G1">
 
   <modules main_freq="512">
-    <!--load name="booz_pwm.xml">
-      <define name="USE_PWM1"/>
-    </load>
-    <load name="booz_drop.xml"/>
-    <load name="booz_cam.xml"/-->
+    <load name="servo_switch.xml"/>
+    <!--load name="booz_cam.xml"/-->
     <!--load name="sonar_maxbotix_booz.xml"/-->
     <!--load name="adc_generic_booz.xml"/-->
     <!--load name="sys_mon.xml"/-->
@@ -54,8 +51,8 @@
   </servos>
 
   <servos driver="Pwm">
-    <servo name="CAM" no="0" min="1000" neutral="1500" max="2000"/>
-    <servo name="DROP" no="5" min="1000" neutral="1500" max="2000"/>
+    <servo name="CAM" no="5" min="1000" neutral="1500" max="2000"/>
+    <servo name="SWITCH" no="0" min="2120" neutral="1500" max="1060"/>
   </servos>
 
   <commands>
@@ -63,13 +60,15 @@
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
+    <axis name="SWITCH" failsafe_value="0"/>
   </commands>
 
   <command_laws>
-    <set servo="PITCH" value="@PITCH"/>
-    <set servo="ROLL" value="@ROLL"/>
-    <set servo="YAW" value="@YAW"/>
+    <set servo="PITCH" value="@PITCH - TRIM_PITCH"/>
+    <set servo="ROLL" value="@ROLL - TRIM_ROLL"/>
+    <set servo="YAW" value="@YAW - TRIM_YAW"/>
     <set servo="THRUST" value="@THRUST"/>
+    <set servo="SWITCH" value="@SWITCH"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -228,12 +227,6 @@
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
     <define name="SetPwm(_v)" value="BoozSetPwm1Value(_v)"/>
-  </section>
-
-  <section name="DROP">
-    <define name="DROP_SERVO_CLOSED" value="2120"/>
-    <define name="DROP_SERVO_OPEN" value="1060"/>
-    <!--define name="BoozDropPwm(_v)" value="BoozSetPwm0Value(_v)"/-->
   </section>
 
   <section name="MISC">

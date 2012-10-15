@@ -136,6 +136,12 @@
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
+#ifdef ACTUATORS
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
+#else
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
+#endif
+
 #define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
     DOWNLINK_SEND_IMU_GYRO_SCALED(_trans, _dev,			\
                  &imu.gyro.p,		\

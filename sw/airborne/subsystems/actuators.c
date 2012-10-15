@@ -29,7 +29,7 @@
 
 #if ACTUATORS_NB
 
-uint16_t actuators[ACTUATORS_NB];
+int16_t actuators[ACTUATORS_NB];
 
 void actuators_init(void) {
 

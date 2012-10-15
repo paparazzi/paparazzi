@@ -1,6 +1,4 @@
 /*
- * $Id: $
- *
  * Copyright (C) 2010 Flixr
  *
  * This file is part of paparazzi.
@@ -23,10 +21,9 @@
 
 #include "servo_switch/servo_switch.h"
 #include "generated/airframe.h"
-#include "actuators.h"
+#include "firmwares/rotorcraft/commands.h"
 
 bool_t servo_switch_on;
-int16_t servo_switch_value;
 
 void servo_switch_init(void) {
   servo_switch_on = FALSE;
@@ -35,7 +32,7 @@ void servo_switch_init(void) {
 
 void servo_switch_periodic(void) {
   if (servo_switch_on == TRUE)
-    SetServo(SERVO_SWITCH_SERVO, SERVO_SWITCH_ON_VALUE)
+    commands[SERVO_SWITCH_SERVO] = SERVO_SWITCH_ON_VALUE;
   else
-    SetServo(SERVO_SWITCH_SERVO, SERVO_SWITCH_OFF_VALUE)
+    commands[SERVO_SWITCH_SERVO] = SERVO_SWITCH_OFF_VALUE;
 }

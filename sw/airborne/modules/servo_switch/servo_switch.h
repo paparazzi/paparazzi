@@ -31,13 +31,13 @@ extern bool_t servo_switch_on;
 extern int16_t servo_switch_value;
 
 #ifndef SERVO_SWITCH_ON_VALUE
-#define SERVO_SWITCH_ON_VALUE 2000
+#define SERVO_SWITCH_ON_VALUE MAX_PPRZ
 #endif
 #ifndef SERVO_SWITCH_OFF_VALUE
-#define SERVO_SWITCH_OFF_VALUE 1000
+#define SERVO_SWITCH_OFF_VALUE -MAX_PPRZ
 #endif
 #ifndef SERVO_SWITCH_SERVO
-#define SERVO_SWITCH_SERVO SERVO_SWITCH
+#define SERVO_SWITCH_SERVO COMMAND_SWITCH
 #endif
 
 
