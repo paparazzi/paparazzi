@@ -40,7 +40,7 @@
 
 #define _PPM_NB_CHANNELS 8
 extern uint16_t servos_values[_PPM_NB_CHANNELS];
-#define ActuatorPpm(i) servos_values[i]
+#define ActuatorPpmSet(_i, _v) { servos_values[_i] = SERVOS_TICS_OF_USEC(_v); }
 
 extern void actuators_ppm_init(void);
 #define ActuatorsPpmCommit() {}
