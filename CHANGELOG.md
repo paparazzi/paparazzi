@@ -1,3 +1,32 @@
+Paparazzi 4.1.1_testing
+=======================
+
+Second release candidate for next stable release.
+
+- Run AP and FBW on separate boards
+  [#297] (https://github.com/paparazzi/paparazzi/pull/297)
+- Separate Board Files for yapa_v2.0
+  [#303] (https://github.com/paparazzi/paparazzi/pull/303)
+- Add UART hardware flow control (for STM32 only)
+  [#289] (https://github.com/paparazzi/paparazzi/pull/289)
+- Add ezosd current sensor module
+  [#292] (https://github.com/paparazzi/paparazzi/pull/292)
+- Paparazzi Center: fix coloration by passing input buffer line by line, set language to english
+- Rate limiter bugfix
+- DC_SHOT message photo numbers shown in GCS
+- home mode height can be set different from security height
+- Ahrs float_dcm uses magnetic heading while not inflight for better initial guess
+  [#299] (https://github.com/paparazzi/paparazzi/pull/299)
+- Outback Challenge "Safety" Rules 1 and 2
+- Added WMM2010 Geo model used in ahrs int_cmpl_quat for rotorcrafts
+  [#288] (https://github.com/paparazzi/paparazzi/pull/288)
+- Fix missing gain definitions from airframe file in total energy control
+- Added stm32loader to sw/tools
+- Change vsupply to be a uint16 to enable reporting of voltages higher than 25.5V
+  [#294] (https://github.com/paparazzi/paparazzi/issues/294)
+- Digital cam module: release camera button on init
+- Fix second order term in propagation of x-position in HFF
+
 Paparazzi 4.1.0_testing
 =======================
 
@@ -15,10 +44,6 @@ First release candidate for next stable release.
   [#250] (https://github.com/paparazzi/paparazzi/pull/250)
 - Replace wget by OCaml Http_client from netclient lib to download files
   [#276] (https://github.com/paparazzi/paparazzi/pull/276)
-- Run AP and FBW on separate boards
-  [#297] (https://github.com/paparazzi/paparazzi/pull/297)
-- Separate Board Files for yapa_v2.0
-  [#303] (https://github.com/paparazzi/paparazzi/pull/303)
 
 
 Paparazzi 4.0.3
