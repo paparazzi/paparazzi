@@ -147,16 +147,21 @@
 #define MS2100_DRDY_EINT 3
 #define MS2100_DRDY_VIC_IT VIC_EINT3
 
-/* BOOZ PWM0 = PWM_SERVO_0 (driver) = PWM5 (lpc)
+
+/* Servo definition for actruators_pwm driver */
+
+/* BOOZ PWM0 = PWM_SERVO_5 (driver) = PWM5 (lpc)
  * on CAM connector */
 #if USE_PWM0
-#define PWM_SERVO_0 1
+#define PWM_SERVO_5 1
+#define SERVO_REG_0 PWMMR5
 #endif
 
-/* BOOZ PWM1 = PWM_SERVO_5 (driver) = PWM2 (lpc)
+/* BOOZ PWM1 = PWM_SERVO_2 (driver) = PWM2 (lpc)
  * on SPI connector */
 #if USE_PWM1
-#define PWM_SERVO_5 1
+#define PWM_SERVO_2 1
+#define SERVO_REG_1 PWMMR2
 #endif
 
 

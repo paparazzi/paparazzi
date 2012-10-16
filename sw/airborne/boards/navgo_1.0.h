@@ -88,14 +88,18 @@
 #define SPI1_DRDY_EINT         0
 #define SPI1_DRDY_VIC_IT       VIC_EINT0
 
-/* NAVGO PWM0 = PWM_SERVO_5 (driver) = PWM2 (lpc) */
+/* Servo definition for actruators_pwm driver */
+
+/* NAVGO PWM0 = PWM_SERVO_2 (driver) = PWM2 (lpc) */
 #if USE_PWM0
-#define PWM_SERVO_5 1
+#define PWM_SERVO_2 1
+#define SERVO_REG_0 PWMMR2
 #endif
 
-/* NAVGO PWM1 = PWM_SERVO_0 (driver) = PWM5 (lpc) */
+/* NAVGO PWM1 = PWM_SERVO_5 (driver) = PWM5 (lpc) */
 #if USE_PWM1
-#define PWM_SERVO_0 1
+#define PWM_SERVO_5 1
+#define SERVO_REG_1 PWMMR5
 #endif
 
 #define BOARD_HAS_BARO 1
