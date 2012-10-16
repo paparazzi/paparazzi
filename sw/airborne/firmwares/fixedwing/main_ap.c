@@ -130,7 +130,7 @@ uint16_t autopilot_flight_time = 0;
 /** Supply voltage in deciVolt.
  * This the ap copy of the measurement from fbw
  */
-uint8_t vsupply;
+uint16_t vsupply;
 
 /** Supply current in milliAmpere.
  * This the ap copy of the measurement from fbw
