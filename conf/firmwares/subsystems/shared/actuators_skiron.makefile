@@ -34,6 +34,7 @@ ifeq ($(SKIRON_I2C_SCL_TIME), )
 SKIRON_I2C_SCL_TIME=150
 endif
 
+$(TARGET).CFLAGS += -DACTUATORS
 ap.srcs += subsystems/actuators/supervision.c
 ap.srcs += subsystems/actuators/actuators_skiron.c
 

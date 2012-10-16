@@ -19,7 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "actuators_pwm.h"
+#include "subsystems/actuators/actuators_pwm.h"
 
-int32_t actuators_pwm_values[SERVOS_PWM_NB];
+void actuators_pwm_init(void)
+{
+#if USE_SUPERVISION
+  supervision_init();
+#endif
+  // implemented in arch files
+  actuators_pwm_arch_init();
+}
 

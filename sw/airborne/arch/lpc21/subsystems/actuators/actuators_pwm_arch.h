@@ -40,6 +40,7 @@ PWM6        PWM2  SSEL0  EINT2   P0.7
 #endif
 
 #define COMMAND_(i) SERVO_REG_ ## i
+/** Actuator set macro */
 #define ActuatorPwmSet(_i, _v) { COMMAND_(_i) = SERVOS_TICS_OF_USEC(_v); }
 
 #define PWM_PINSEL_MASK_VAL 3
@@ -88,11 +89,11 @@ PWM6        PWM2  SSEL0  EINT2   P0.7
 
 extern const uint8_t pwm_latch_value;
 
+/** Actuator commit macro */
 #define ActuatorsPwmCommit() { \
     PWMLER = pwm_latch_value;   \
   }
 
-extern void actuators_pwm_init(void);
-#define ActuatorsPwmInit() actuators_pwm_init()
+extern void actuators_pwm_arch_init(void);
 
 #endif /* ACTUATORS_PWM_ARCH_H */

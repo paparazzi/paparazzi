@@ -1,8 +1,6 @@
 # asctec controllers v2
 #
 #  <section name="SUPERVISION" prefix="SUPERVISION_">
-#    <define name="MIN_MOTOR" value="2"/>
-#    <define name="MAX_MOTOR" value="210"/>
 #    <define name="TRIM_A" value="2"/>
 #    <define name="TRIM_E" value="-1"/>
 #    <define name="TRIM_R" value="3"/>
@@ -16,9 +14,10 @@
 #
 #
 
-ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
+$(TARGET).CFLAGS += -DACTUATORS
+ap.srcs += subsystems/actuators/supervision.c
 ap.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
-ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+ap.srcs += subsystems/actuators/actuators_asctec.c
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c0
@@ -31,6 +30,6 @@ ap.CFLAGS += -DUSE_I2C1
 endif
 
 # Simulator
-nps.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
-nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+nps.srcs += subsystems/actuators/supervision.c
+nps.srcs += subsystems/actuators/actuators_asctec.c
 nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_ASCTEC_DEVICE=i2c0

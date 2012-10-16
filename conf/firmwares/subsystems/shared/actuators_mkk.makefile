@@ -18,8 +18,6 @@
 #  </section>
 #
 #  <section name="SUPERVISION" prefix="SUPERVISION_">
-#    <define name="MIN_MOTOR" value="2"/>
-#    <define name="MAX_MOTOR" value="210"/>
 #    <define name="TRIM_A" value="2"/>
 #    <define name="TRIM_E" value="-1"/>
 #    <define name="TRIM_R" value="3"/>
@@ -33,8 +31,9 @@
 #
 #
 
-ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
-ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
+$(TARGET).CFLAGS += -DACTUATORS
+ap.srcs += subsystems/actuators/supervision.c
+ap.srcs += subsystems/actuators/actuators_mkk.c
 
 ifeq ($(ARCH), lpc21)
 
@@ -52,6 +51,6 @@ ap.CFLAGS += -DUSE_I2C1
 endif
 
 # Simulator
-nps.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
-nps.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
+nps.srcs += subsystems/actuators/supervision.c
+nps.srcs += subsystems/actuators/actuators_mkk.c
 nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_MKK_DEVICE=i2c0

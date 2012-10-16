@@ -26,7 +26,6 @@
 #include "subsystems/actuators.h"
 #include "subsystems/actuators/actuators_asctec.h"
 
-#include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
@@ -98,10 +97,6 @@ void actuators_asctec_set(bool_t motors_on) {
   actuators_asctec.cmds[YAW]    = 0;
   actuators_asctec.cmds[THRUST] = 0;
 #else /* ! KILL_MOTORS */
-//  actuators_asctec.cmds[PITCH]  = ((commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E) * ASCTEC_MAX_CMD) / MAX_PPRZ;
-//  actuators_asctec.cmds[ROLL]   = ((commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A) * ASCTEC_MAX_CMD) / MAX_PPRZ;
-//  actuators_asctec.cmds[YAW]    = ((commands[COMMAND_YAW]    + SUPERVISION_TRIM_R) * ASCTEC_MAX_CMD) / MAX_PPRZ;
-//  actuators_asctec.cmds[THRUST] = (commands[COMMAND_THRUST] * ASCTEC_MAX_THROTTLE) / MAX_PPRZ;
   Bound(actuators_asctec.cmds[PITCH],ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   Bound(actuators_asctec.cmds[ROLL], ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   Bound(actuators_asctec.cmds[YAW],  ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
@@ -147,7 +142,7 @@ void actuators_asctec_set(bool_t motors_on) {
 
 }
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
-void actuators_set(bool_t motors_on) {
+void actuators_asctec_set(bool_t motors_on) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) {
@@ -174,7 +169,6 @@ void actuators_set(bool_t motors_on) {
       return;
   }
 
-  supervision_run(motors_on, FALSE, commands);
 #ifdef KILL_MOTORS
   actuators_asctec.i2c_trans.buf[0] = 0;
   actuators_asctec.i2c_trans.buf[1] = 0;
@@ -182,10 +176,10 @@ void actuators_set(bool_t motors_on) {
   actuators_asctec.i2c_trans.buf[3] = 0;
   actuators_asctec.i2c_trans.buf[4] = 0xAA;
 #else
-  actuators_asctec.i2c_trans.buf[0] = supervision.commands[SERVO_FRONT];
-  actuators_asctec.i2c_trans.buf[1] = supervision.commands[SERVO_BACK];
-  actuators_asctec.i2c_trans.buf[2] = supervision.commands[SERVO_LEFT];
-  actuators_asctec.i2c_trans.buf[3] = supervision.commands[SERVO_RIGHT];
+  actuators_asctec.i2c_trans.buf[0] = actuators_asctec.cmds[SERVO_FRONT];
+  actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cmds[SERVO_BACK];
+  actuators_asctec.i2c_trans.buf[2] = actuators_asctec.cmds[SERVO_LEFT];
+  actuators_asctec.i2c_trans.buf[3] = actuators_asctec.cmds[SERVO_RIGHT];
   actuators_asctec.i2c_trans.buf[4] = 0xAA + actuators_asctec.i2c_trans.buf[0] + actuators_asctec.i2c_trans.buf[1] +
                                              actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
 #endif

@@ -30,6 +30,7 @@
 #include "mcu_periph/i2c.h"
 
 #include "generated/airframe.h"
+#include "subsystems/actuators/supervision.h"
 
 
 struct ActuatorsMkk {
@@ -38,9 +39,11 @@ struct ActuatorsMkk {
 
 extern struct ActuatorsMkk actuators_mkk;
 
+extern void actuators_mkk_init(void);
+extern void actuators_mkk_set(void);
 
-
-#include "firmwares/rotorcraft/actuators/supervision.h"
-
+#define ActuatorMkkSet(_i, _v) { actuators_mkk.trans[i].buf[0] = _v; }
+#define ActuatorsMkkInit() actuators_mkk_init()
+#define ActuatorsMkkCommit() actuators_mkk_set()
 
 #endif /* ACTUATORS_MKK_H */

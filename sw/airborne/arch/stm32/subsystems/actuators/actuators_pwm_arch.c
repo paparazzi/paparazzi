@@ -30,6 +30,8 @@
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/timer.h>
 
+int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+
 #define PCLK 72000000
 #define ONE_MHZ_CLK 1000000
 #ifndef SERVO_HZ

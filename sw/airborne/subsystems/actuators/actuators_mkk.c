@@ -23,10 +23,9 @@
  *  Actuators driver for Mikrokopter motor controllers.
  */
 
-#include "firmwares/rotorcraft/actuators.h"
-#include "firmwares/rotorcraft/actuators/actuators_mkk.h"
+#include "subsystems/actuators.h"
+#include "subsystems/actuators/actuators_mkk.h"
 
-#include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
@@ -37,7 +36,7 @@ struct ActuatorsMkk actuators_mkk;
 uint32_t actuators_delay_time;
 bool_t   actuators_delay_done;
 
-void actuators_init(void) {
+void actuators_mkk_init(void) {
 
   supervision_init();
   const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
@@ -59,7 +58,7 @@ void actuators_init(void) {
 }
 
 
-void actuators_set(bool_t motors_on) {
+void actuators_mkk_set(void) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
@@ -67,12 +66,9 @@ void actuators_set(bool_t motors_on) {
   }
 #endif
 
-  supervision_run(motors_on, FALSE, commands);
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
 #ifdef KILL_MOTORS
     actuators_mkk.trans[i].buf[0] = 0;
-#else
-    actuators_mkk.trans[i].buf[0] = supervision.commands[i];
 #endif
     i2c_submit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i]);
   }

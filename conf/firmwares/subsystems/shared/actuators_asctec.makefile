@@ -1,4 +1,5 @@
 # asctec controllers
+$(TARGET).CFLAGS += -DACTUATORS
 ap.srcs += subsystems/actuators/actuators_asctec.c
 
 ifeq ($(ARCH), lpc21)

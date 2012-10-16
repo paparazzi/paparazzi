@@ -28,6 +28,14 @@
 #include BOARD_CONFIG
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
-extern int32_t actuators_pwm_values[SERVOS_PWM_NB];
+#if USE_SUPERVISION
+#include "subsystems/actuators/supervision.h"
+#endif
+
+extern void actuators_pwm_init(void);
+
+#define ActuatorsPwmInit() actuators_pwm_init()
+/* ActuatorSet and ActuatorsPwmCommit are implemented in arch files
+ */
 
 #endif /* ACTUATORS_PWM_H */

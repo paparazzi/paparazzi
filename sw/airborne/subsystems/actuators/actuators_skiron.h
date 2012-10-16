@@ -38,7 +38,6 @@
 
 struct ActuatorsSkiron {
   struct i2c_transaction trans;
-  //uint8_t actuators_idx[ACTUATORS_SKIRON_NB];
 };
 
 extern struct ActuatorsSkiron actuators_skiron;
