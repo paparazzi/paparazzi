@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -19,11 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "firmwares/rotorcraft/actuators.h"
+#ifndef ACTUATORS_DUMMY_H
+#define ACTUATORS_DUMMY_H
 
+#define ActuatorDummySet(_i, _v) {}
+#define ActuatorsDummyInit() {}
+#define ActuatorsDummyCommit() {}
 
-void actuators_init(void) {
-}
-
-void actuators_set(bool_t motors_on) {
-}
+#endif
