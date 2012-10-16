@@ -20,34 +20,45 @@
  */
 
 /**
- *  @file firmwares/fixedwing/guidance/guidance_v.c
- *  Vertical control using total energy control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/energy_ctrl.c
+ *  Total Energy (speed + height) control for fixed wing vehicles.
  *
-
-
-	=================================================
-	Energy:
-	------
-	E 		= mgh + 1/2mV^2
-	Edot / V 	= (gamma + Vdot/g) * W
-
-	equilibrium
-
-	Vdot / g = Thrust/W - Drag/W - sin(gamma)
-	with: Drag/Weight = (Cl/Cd)^-1
-
-	-glide angle: Vdot = 0, T=0 ==> gamma = Cd/Cl
-	-level flight: Vdot = 0, gamma=0 ==> W/T = Cl/Cd
-	=================================================
-
-	Strategy:  thrust = path + acceleration[g] (total energy)
-		   pitch = path - acceleration[g]  (energy balance)
-
-	Pseudo-Control Unit = dimensionless acceleration [g]
-
-		- pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
-		- throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
-
+ *  Energy:
+ *  @f{eqnarray*}{
+ *  E &=& mgh + \frac{1}{2}mV^2 \\
+ *  \frac{\dot{E}}{V} &=& \left(\gamma + \frac{\dot{V}}{g}\right) W
+ *  @f}
+ *
+ *  Equilibrium:
+ *  @f[
+ *  \frac{\dot{V}}{g} = \frac{\mbox{Thrust}}{W} - \frac{\mbox{Drag}}{W} - \sin(\gamma)
+ *  @f]
+ *  with:
+ *  @f[
+ *  \frac{\mbox{Drag}}{\mbox{Weight}} = \left(\frac{C_l}{C_d}\right)^{-1}
+ *  @f]
+ *
+ *    - glide angle: @f$\dot{V}=0, T=0 \rightarrow \gamma = \frac{C_d}{C_l}@f$
+ *    - level flight: @f$\dot{V}=0, \gamma=0 \rightarrow \frac{W}{T} = \frac{C_l}{C_d}@f$
+ *
+ *  Strategy:
+ *      - thrust = path + acceleration[g] (total energy)
+ *      - pitch = path - acceleration[g]  (energy balance)
+ *
+ *  Pseudo-Control Unit = dimensionless acceleration [g]
+ *
+ *  	- pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
+ *  	- throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
+ *
+ *  @dot
+ *  digraph total_energy_control {
+ *  	node [shape=record];
+ *  	b [label="attitude loop" URL="\ref attitude_loop"];
+ *  	c [label="climb loop" URL="\ref v_ctl_climb_loop"];
+ *  	b -> c [ arrowhead="open", style="dashed" ];
+ *  }
+ *  @enddot
+ *
  */
 
 #pragma message "CAUTION! Using TOTAL ENERGY CONTROLLER: Experimental!"
