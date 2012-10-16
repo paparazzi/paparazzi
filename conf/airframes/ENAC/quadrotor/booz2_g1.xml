@@ -52,7 +52,7 @@
 
   <servos driver="Pwm">
     <servo name="CAM" no="5" min="1000" neutral="1500" max="2000"/>
-    <servo name="SWITCH" no="0" min="2120" neutral="1500" max="1060"/>
+    <servo name="SWITCH" no="0" min="1060" neutral="1500" max="2120"/>
   </servos>
 
   <commands>
@@ -60,7 +60,6 @@
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
-    <axis name="SWITCH" failsafe_value="0"/>
   </commands>
 
   <command_laws>
@@ -68,7 +67,6 @@
     <set servo="ROLL" value="@ROLL - TRIM_ROLL"/>
     <set servo="YAW" value="@YAW - TRIM_YAW"/>
     <set servo="THRUST" value="@THRUST"/>
-    <set servo="SWITCH" value="@SWITCH"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">

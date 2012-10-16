@@ -29,9 +29,10 @@
 
 #include "paparazzi.h"
 
-/** Defines SetActuatorsFromCommands() macro
- *  Defines ACTUATORS_NB to 0 if no servo
- *  Include servos drivers
+/*
+ * Defines SetActuatorsFromCommands() macro
+ * Defines ACTUATORS_NB to 0 if no servo
+ * Include servos drivers
  */
 #include "generated/airframe.h"
 
@@ -39,8 +40,16 @@
 
 extern void actuators_init(void);
 
-/** Temporary storage (for debugging purpose, downlinked via telemetry) */
+/** Actuators array.
+ * Temporary storage (for debugging purpose, downlinked via telemetry)
+ * */
 extern int16_t actuators[ACTUATORS_NB];
+
+/** Set actuators.
+ * @param _n actuators name as given in airframe file, servos section
+ * @param _v new actuator's value
+ */
+#define ActuatorSet(_n, _v) Set_ ## _n ## _Servo(_v)
 
 #endif /* ACTUATORS_NB */
 
