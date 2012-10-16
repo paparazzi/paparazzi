@@ -102,15 +102,15 @@
 #define MSG_INTERMCU_FBW_MOD(_intermcu_payload) (uint8_t)(*((uint8_t*)_intermcu_payload+0))
 #define MSG_INTERMCU_FBW_STAT(_intermcu_payload) (uint8_t)(*((uint8_t*)_intermcu_payload+1))
 #define MSG_INTERMCU_FBW_ERR(_intermcu_payload) (uint8_t)(*((uint8_t*)_intermcu_payload+2))
-#define MSG_INTERMCU_FBW_VOLT(_intermcu_payload) (uint8_t)(*((uint8_t*)_intermcu_payload+3))
-#define MSG_INTERMCU_FBW_CURRENT(_intermcu_payload) (uint16_t)(*((uint8_t*)_intermcu_payload+4)|*((uint8_t*)_intermcu_payload+1+4)<<8)
+#define MSG_INTERMCU_FBW_VOLT(_intermcu_payload) (uint16_t)(*((uint8_t*)_intermcu_payload+3)|*((uint8_t*)_intermcu_payload+1+3)<<8)
+#define MSG_INTERMCU_FBW_CURRENT(_intermcu_payload) (uint16_t)(*((uint8_t*)_intermcu_payload+5)|*((uint8_t*)_intermcu_payload+1+5)<<8)
 
 #define InterMcuSend_INTERMCU_FBW(mod,stat,err,volt,current) { \
   InterMcuHeader(MSG_INTERMCU_ID, MSG_INTERMCU_FBW_ID, 6);\
   uint8_t _mod = mod; InterMcuSend1ByAddr((uint8_t*)&_mod);\
   uint8_t _stat = stat; InterMcuSend1ByAddr((uint8_t*)&_stat);\
   uint8_t _err = err; InterMcuSend1ByAddr((uint8_t*)&_err);\
-  uint8_t _volt = volt; InterMcuSend1ByAddr((uint8_t*)&_volt);\
+  uint16_t _volt = volt; InterMcuSend2ByAddr((uint8_t*)&_volt);\
   uint16_t _current = current; InterMcuSend2ByAddr((uint8_t*)&_current);\
   InterMcuTrailer();\
 }
