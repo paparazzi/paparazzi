@@ -30,8 +30,6 @@
 #include "mcu_periph/i2c.h"
 
 #include "generated/airframe.h"
-#include "subsystems/actuators/supervision.h"
-
 
 // Use I2C broadcast adderss
 #define ACTUATORS_SKIRON_I2C_ADDR 0x00

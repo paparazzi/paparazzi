@@ -28,10 +28,6 @@
 #include BOARD_CONFIG
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
-#if USE_SUPERVISION
-#include "subsystems/actuators/supervision.h"
-#endif
-
 extern void actuators_pwm_init(void);
 
 #define ActuatorsPwmInit() actuators_pwm_init()

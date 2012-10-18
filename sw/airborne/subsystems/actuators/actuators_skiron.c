@@ -37,7 +37,6 @@ bool_t   actuators_delay_done;
 
 void actuators_skiron_init(void) {
 
-  supervision_init();
   actuators_skiron.trans.type = I2CTransTx;
   actuators_skiron.trans.len_w = SERVOS_SKIRON_NB;
   actuators_skiron.trans.slave_addr = ACTUATORS_SKIRON_I2C_ADDR;

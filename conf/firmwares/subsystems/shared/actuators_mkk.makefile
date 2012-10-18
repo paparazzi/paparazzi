@@ -17,22 +17,11 @@
 #    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
 #  </section>
 #
-#  <section name="SUPERVISION" prefix="SUPERVISION_">
-#    <define name="TRIM_A" value="2"/>
-#    <define name="TRIM_E" value="-1"/>
-#    <define name="TRIM_R" value="3"/>
-#    <define name="NB_MOTOR" value="4"/>
-#    <define name="SCALE" value="256"/>
-#    <define name="ROLL_COEF"  value="{    0,    0, -256,  256}"/>
-#    <define name="PITCH_COEF" value="{  256, -256,    0,    0}"/>
-#    <define name="YAW_COEF"   value="{ -256, -256,  256,  256}"/>
-#    <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
-#  </section>
-#
+#  servo section with driver="Mkk"
+#  command_laws section to map motor_mixing commands to servos
 #
 
 $(TARGET).CFLAGS += -DACTUATORS
-ap.srcs += subsystems/actuators/supervision.c
 ap.srcs += subsystems/actuators/actuators_mkk.c
 
 ifeq ($(ARCH), lpc21)
@@ -51,6 +40,5 @@ ap.CFLAGS += -DUSE_I2C1
 endif
 
 # Simulator
-nps.srcs += subsystems/actuators/supervision.c
 nps.srcs += subsystems/actuators/actuators_mkk.c
 nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_MKK_DEVICE=i2c0

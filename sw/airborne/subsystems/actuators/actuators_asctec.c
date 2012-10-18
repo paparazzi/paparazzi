@@ -62,10 +62,6 @@ void actuators_asctec_init(void) {
   actuators_delay_time = 0;
 #endif
 
-#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-  supervision_init();
-#endif
-
 }
 
 #ifndef ACTUATORS_ASCTEC_V2_PROTOCOL

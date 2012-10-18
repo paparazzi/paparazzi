@@ -19,30 +19,30 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file supervision.h
- *  Supervision.
+/** @file motor_mixing.h
+ *  Motor Mixing.
  *  Handles the mapping of roll/pitch/yaw commands
  *  to actual motor commands.
  */
 
-#ifndef SUPERVISION_H
-#define SUPERVISION_H
+#ifndef MOTOR_MIXING_H
+#define MOTOR_MIXING_H
 
 #include "std.h"
 #include "generated/airframe.h"
 
-struct Supervision {
-  int32_t commands[SUPERVISION_NB_MOTOR];
-  int32_t trim[SUPERVISION_NB_MOTOR];
-  bool_t override_enabled[SUPERVISION_NB_MOTOR];
-  int32_t override_value[SUPERVISION_NB_MOTOR];
+struct MotorMixing {
+  int32_t commands[MOTOR_MIXING_NB_MOTOR];
+  int32_t trim[MOTOR_MIXING_NB_MOTOR];
+  bool_t override_enabled[MOTOR_MIXING_NB_MOTOR];
+  int32_t override_value[MOTOR_MIXING_NB_MOTOR];
   uint32_t nb_failure;
 };
 
-extern struct Supervision supervision;
+extern struct MotorMixing motor_mixing;
 
-extern void supervision_init(void);
-extern void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[]);
-extern void supervision_run_spinup(uint32_t counter, uint32_t max_counter);
+extern void motor_mixing_init(void);
+extern void motor_mixing_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[]);
+extern void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter);
 
-#endif /* SUPERVISION_H */
+#endif /* MOTOR_MIXING_H */

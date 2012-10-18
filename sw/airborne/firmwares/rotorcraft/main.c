@@ -37,6 +37,9 @@
 
 #include "firmwares/rotorcraft/commands.h"
 #include "subsystems/actuators.h"
+#if USE_MOTOR_MIXING
+#include "subsystems/actuators/motor_mixing.h"
+#endif
 
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
@@ -100,6 +103,10 @@ STATIC_INLINE void main_init( void ) {
   stateInit();
 
   actuators_init();
+#if USE_MOTOR_MIXING
+  motor_mixing_init();
+#endif
+
   radio_control_init();
 
 #if DATALINK == XBEE

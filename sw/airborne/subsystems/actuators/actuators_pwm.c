@@ -23,9 +23,6 @@
 
 void actuators_pwm_init(void)
 {
-#if USE_SUPERVISION
-  supervision_init();
-#endif
   // implemented in arch files
   actuators_pwm_arch_init();
 }

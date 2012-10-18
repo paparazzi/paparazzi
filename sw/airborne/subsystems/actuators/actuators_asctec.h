@@ -29,9 +29,6 @@
 #include "mcu_periph/i2c.h"
 
 #include "generated/airframe.h"
-#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-#include "subsystems/actuators/supervision.h"
-#endif
 
 enum actuators_asctec_cmd { NONE,
                            TEST,

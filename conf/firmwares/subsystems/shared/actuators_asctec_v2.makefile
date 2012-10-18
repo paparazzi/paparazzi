@@ -1,21 +1,12 @@
 # asctec controllers v2
 #
-#  <section name="SUPERVISION" prefix="SUPERVISION_">
-#    <define name="TRIM_A" value="2"/>
-#    <define name="TRIM_E" value="-1"/>
-#    <define name="TRIM_R" value="3"/>
-#    <define name="NB_MOTOR" value="4"/>
-#    <define name="SCALE" value="256"/>
-#    <define name="ROLL_COEF"   value="{    0,    0, -256,  256}"/>
-#    <define name="PITCH_COEF"  value="{ 256,  -256,    0,    0}"/>
-#    <define name="YAW_COEF"    value="{-256,  -256,  256,  256}"/>
-#    <define name="THRUST_COEF" value="{ 256,   256,  256,  256}"/>
-#  </section>
+# required xml configuration:
 #
+#  servo section with driver="Asctec"
+#  command_laws section to map motor_mixing commands to servos
 #
 
 $(TARGET).CFLAGS += -DACTUATORS
-ap.srcs += subsystems/actuators/supervision.c
 ap.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
 ap.srcs += subsystems/actuators/actuators_asctec.c
 
@@ -30,6 +21,5 @@ ap.CFLAGS += -DUSE_I2C1
 endif
 
 # Simulator
-nps.srcs += subsystems/actuators/supervision.c
 nps.srcs += subsystems/actuators/actuators_asctec.c
 nps.CFLAGS += -DUSE_I2C0 -DACTUATORS_ASCTEC_DEVICE=i2c0

@@ -29,6 +29,7 @@
     <subsystem name="actuators"     type="skiron">
       <define name="SKIRON_I2C_SCL_TIME" value="25"/>
     </subsystem>
+    <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="direct">
       <define name="USE_PWM0"/>
     </subsystem>
@@ -41,10 +42,10 @@
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="TRIM_A" value="-50"/>
-    <define name="TRIM_E" value="-150"/>
-    <define name="TRIM_R" value="-100"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="-50"/>
+    <define name="TRIM_PITCH" value="-150"/>
+    <define name="TRIM_YAW" value="-100"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"  value="{    0, -256,    0,  256}"/>
@@ -72,11 +73,11 @@
   </commands>
 
   <command_laws>
-    <call fun="supervision_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT" value="supervision.commands[SERVO_FRONT]"/>
-    <set servo="BACK" value="supervision.commands[SERVO_BACK]"/>
-    <set servo="RIGHT" value="supervision.commands[SERVO_RIGHT]"/>
-    <set servo="LEFT" value="supervision.commands[SERVO_LEFT]"/>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
+    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
+    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
+    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">

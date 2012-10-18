@@ -38,7 +38,6 @@ bool_t   actuators_delay_done;
 
 void actuators_mkk_init(void) {
 
-  supervision_init();
   const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
     actuators_mkk.trans[i].type = I2CTransTx;
