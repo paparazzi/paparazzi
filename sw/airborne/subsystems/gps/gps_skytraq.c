@@ -46,14 +46,14 @@ struct GpsSkytraq gps_skytraq;
 #define SKYTRAQ_FIX_3D      0x02
 #define SKYTRAQ_FIX_3D_DGPS 0x03
 
-// distance in cm (20km dist max)
-#define MAX_DISTANCE  2000000
+// distance in cm (10km dist max any direction)
+#define MAX_DISTANCE  1000000
 
 //#include "my_debug_servo.h"
 
 struct LtpDef_i     ref_ltp;
 
-static int32_t horz_distance( struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos );
+static int distance_too_great( struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos );
 
 void gps_impl_init(void) {
 
@@ -115,7 +115,7 @@ void gps_skytraq_read_message(void) {
 #endif
 
     if ( gps.fix == GPS_FIX_3D ) {
-      if ( horz_distance( &ref_ltp.ecef, &gps.ecef_pos ) > MAX_DISTANCE ) {
+      if ( distance_too_great( &ref_ltp.ecef, &gps.ecef_pos ) ) {
         // just grab current ecef_pos as reference.
         ltp_def_from_ecef_i( &ref_ltp, &gps.ecef_pos );
       }
@@ -220,10 +220,14 @@ void gps_skytraq_parse(uint8_t c) {
   return;
 }
 
-static int32_t horz_distance( struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos ) {
-  int32_t xdiff = ecef_ref->x - ecef_pos->x;
-  int32_t ydiff = ecef_ref->y - ecef_pos->y;
+static int distance_too_great( struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos ) {
+  int32_t xdiff = abs(ecef_ref->x - ecef_pos->x);
+  if ( xdiff > MAX_DISTANCE ) return TRUE;
+  int32_t ydiff = abs(ecef_ref->y - ecef_pos->y);
+  if ( ydiff > MAX_DISTANCE ) return TRUE;
+  int32_t zdiff = abs(ecef_ref->z - ecef_pos->z);
+  if ( zdiff > MAX_DISTANCE ) return TRUE;
 
-  return sqrt( xdiff*xdiff + ydiff*ydiff );
+  return FALSE;
 }
 
