@@ -26,6 +26,7 @@
 
 #include "std.h"
 #include "paparazzi.h"
+#include "generated/airframe.h"
 
 extern bool_t servo_switch_on;
 extern int16_t servo_switch_value;
