@@ -2,7 +2,7 @@
 
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
-    <!--load name="booz_cam.xml"/-->
+    <load name="rotorcraft_cam.xml"/>
     <!--load name="sonar_maxbotix_booz.xml"/-->
     <!--load name="adc_generic_booz.xml"/-->
     <!--load name="sys_mon.xml"/-->
@@ -37,12 +37,6 @@
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
-  <section name="TRIM">
-    <define name="TRIM_ROLL" value="0"/>
-    <define name="TRIM_PITCH" value="6"/>
-    <define name="TRIM_YAW" value="0"/>
-  </section>
-
   <servos driver="Asctec">
     <servo name="PITCH"  no="0" min="-100" neutral="0" max="100"/>
     <servo name="ROLL"   no="1" min="-100" neutral="0" max="100"/>
@@ -51,8 +45,8 @@
   </servos>
 
   <servos driver="Pwm">
-    <servo name="CAM" no="5" min="1000" neutral="1500" max="2000"/>
     <servo name="SWITCH" no="0" min="1060" neutral="1500" max="2120"/>
+    <servo name="CAM" no="1" min="1000" neutral="1500" max="2300"/>
   </servos>
 
   <commands>
@@ -61,6 +55,12 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
+
+  <section name="TRIM">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="6"/>
+    <define name="TRIM_YAW" value="0"/>
+  </section>
 
   <command_laws>
     <set servo="PITCH" value="@PITCH - TRIM_PITCH"/>
@@ -213,18 +213,19 @@
     <define name="BOOZ_FMS_TIMEOUT" value="0"/>
   </section>
 
-  <section name="CAM" prefix="BOOZ_CAM_">
+  <section name="CAM" prefix="ROTORCRAFT_CAM_">
     <define name="ON" value="LED_ON(CAM_SWITCH_LED)"/>
     <define name="OFF" value="LED_OFF(CAM_SWITCH_LED)"/>
-    <define name="TILT_NEUTRAL" value="1500"/>
-    <define name="TILT_MAX" value="1000"/>
-    <define name="TILT_MIN" value="2300"/>
-    <define name="TILT_ANGLE_MIN" value="-90." unit="deg"/>
-    <define name="TILT_ANGLE_MAX" value=" 10." unit="deg"/>
-    <define name="PAN_NEUTRAL" value="0"/>
-    <define name="PAN_MIN" value="0"/>
-    <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
-    <define name="SetPwm(_v)" value="BoozSetPwm1Value(_v)"/>
+    <define name="TILT_SERVO" value="CAM"/>
+    <define name="TILT_ANGLE_MAX" value="-90." unit="deg"/>
+    <define name="TILT_ANGLE_MIN" value=" 10." unit="deg"/>
+  </section>
+
+  <section name="SERVO_SWITCH">
+    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_SWITCH_MIN"/>
+    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_SWITCH_MAX"/>
+    <define name="DropOpen()" value="ServoSwitchOn()"/>
+    <define name="DropClose()" value="ServoSwitchOff()"/>
   </section>
 
   <section name="MISC">

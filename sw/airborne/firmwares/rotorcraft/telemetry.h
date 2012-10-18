@@ -737,9 +737,9 @@
   }
 
 #if USE_CAM
-#define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) DOWNLINK_SEND_BOOZ2_CAM(_trans, _dev,&booz_cam_tilt,&booz_cam_pan);
+#define PERIODIC_SEND_ROTORCRAFT_CAM(_trans, _dev) DOWNLINK_SEND_ROTORCRAFT_CAM(_trans, _dev,&rotorcraft_cam_tilt,&rotorcraft_cam_pan);
 #else
-#define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
+#define PERIODIC_SEND_ROTORCRAFT_CAM(_trans, _dev) {}
 #endif
 
 #define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
