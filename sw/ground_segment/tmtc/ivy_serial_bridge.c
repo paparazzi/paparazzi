@@ -231,7 +231,7 @@ void send_ivy(void)
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="frame_rate" type="uint8" unit="Hz"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
-    <field name="vsupply" type="uint8" unit="decivolt"/>
+    <field name="vsupply" type="uint16" unit="decivolt"/>
     <field name="current" type="int32" unit="mA"/>
   </message>
 */
@@ -273,7 +273,7 @@ void send_ivy(void)
 /*
    <message name="BAT" id="12">
      <field name="throttle" type="int16" unit="pprz"/>
-     <field name="voltage" type="uint8" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
+     <field name="voltage" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
      <field name="amps" type="int16" unit="A" alt_unit="A" />
      <field name="flight_time" type="uint16" unit="s"/>
      <field name="kill_auto_throttle" type="uint8" unit="bool"/>

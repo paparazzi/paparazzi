@@ -200,10 +200,6 @@ upload_ms ms.upload: ms
 #####
 #####
 
-doxygen:
-	mkdir -p dox
-	doxygen Doxyfile
-
 run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
@@ -251,7 +247,7 @@ ab_clean:
 
 replace_current_conf_xml:
 	test conf/conf.xml && mv conf/conf.xml conf/conf.xml.backup.$(BUILD_DATETIME)
-	cp conf/conf.xml.example conf/conf.xml
+	cp conf/tests_conf.xml conf/conf.xml
 
 restore_conf_xml:
 	test conf/conf.xml.backup.$(BUILD_DATETIME) && mv conf/conf.xml.backup.$(BUILD_DATETIME) conf/conf.xml
@@ -271,4 +267,4 @@ run_tests:
 
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
-.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible doxygen run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml
+.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml

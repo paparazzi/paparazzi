@@ -1,5 +1,5 @@
 # ignore html dir for github pages
-/doc/html
+/doc/generated
 
 *.so
 *.[oa]

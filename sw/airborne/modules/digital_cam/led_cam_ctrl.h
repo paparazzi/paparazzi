@@ -52,15 +52,6 @@
 
 extern uint8_t dc_timer;
 
-static inline void led_cam_ctrl_init(void)
-{
-  // Call common DC init
-  dc_init();
-
-  // Do LED specific DC init
-  dc_timer = 0;
-}
-
 #ifndef DC_PUSH
 #define DC_PUSH LED_ON
 #endif
@@ -76,6 +67,26 @@ static inline void led_cam_ctrl_init(void)
 #ifndef DC_SHUTTER_LED
 #error DC: Please specify at least a SHUTTER LED
 #endif
+
+static inline void led_cam_ctrl_init(void)
+{
+  // Call common DC init
+  dc_init();
+
+  // Do LED specific DC init
+  dc_timer = 0;
+
+  DC_RELEASE(DC_SHUTTER_LED);
+#ifdef DC_ZOOM_IN_LED
+    DC_RELEASE(DC_ZOOM_IN_LED);
+#endif
+#ifdef DC_ZOOM_OUT_LED
+    DC_RELEASE(DC_ZOOM_OUT_LED);
+#endif
+#ifdef DC_POWER_LED
+    DC_RELEASE(DC_POWER_LED);
+#endif
+}
 
 
 /* 4Hz Periodic */

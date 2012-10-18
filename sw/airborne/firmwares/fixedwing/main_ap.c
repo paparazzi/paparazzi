@@ -125,7 +125,7 @@ bool_t launch = FALSE;
 /** Supply voltage in deciVolt.
  * This the ap copy of the measurement from fbw
  */
-uint8_t vsupply;
+uint16_t vsupply;
 
 /** Supply current in milliAmpere.
  * This the ap copy of the measurement from fbw
@@ -614,7 +614,9 @@ void monitor_task( void ) {
 void event_task_ap( void ) {
 
 #ifndef SINGLE_MCU
+#if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2
   i2c_event();
+#endif
 #endif
 
 #if USE_AHRS

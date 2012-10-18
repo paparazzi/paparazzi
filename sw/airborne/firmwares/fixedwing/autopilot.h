@@ -70,7 +70,7 @@ extern uint8_t lateral_mode;
 
 #define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
-extern uint8_t vsupply;
+extern uint16_t vsupply;
 extern float energy;
 
 extern bool_t launch;
