@@ -4,7 +4,7 @@
 
   <firmware name="setup">
     <target name="tunnel"           board="lisa_m_2.0"/>
-    <target name="setup_actuators"  board="lisa_m_2.0"/>
+    <!--target name="setup_actuators"  board="lisa_m_2.0"/-->
   </firmware>
 
   <firmware name="lisa_test_progs">

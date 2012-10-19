@@ -228,8 +228,8 @@
     <target name="test_adxl345"             board="lisa_l_1.1"/>
     <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
     <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
-    <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
+    <!--target name="test_actuators_mkk"       board="lisa_l_1.1"/>
+    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/-->
   </firmware>
 
 

@@ -90,7 +90,6 @@
         <axis name="THRUST" failsafe_value="0"/>
     </commands>
 
-
     <section name="MIXING" prefix="MOTOR_MIXING_">
         <define name="TRIM_ROLL" value="0"/>
         <define name="TRIM_PITCH" value="0"/>
@@ -102,6 +101,14 @@
         <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
         <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
     </section>
+
+    <command_laws>
+      <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+      <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
+      <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
+      <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
+      <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
+    </command_laws>
 
     <section name="IMU" prefix="IMU_">
         <define name="GYRO_P_NEUTRAL" value="32581"/>

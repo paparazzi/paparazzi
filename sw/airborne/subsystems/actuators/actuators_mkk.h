@@ -41,7 +41,7 @@ extern struct ActuatorsMkk actuators_mkk;
 extern void actuators_mkk_init(void);
 extern void actuators_mkk_set(void);
 
-#define ActuatorMkkSet(_i, _v) { actuators_mkk.trans[i].buf[0] = _v; }
+#define ActuatorMkkSet(_i, _v) { actuators_mkk.trans[_i].buf[0] = _v; }
 #define ActuatorsMkkInit() actuators_mkk_init()
 #define ActuatorsMkkCommit() actuators_mkk_set()
 

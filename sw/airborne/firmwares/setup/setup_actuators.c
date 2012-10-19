@@ -4,8 +4,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
-#include "firmwares/fixedwing/actuators.h"
-//#include "actuators.h"
+#include "subsystems/actuators.h"
 
 #include "firmwares/fixedwing/main_fbw.h"
 
@@ -31,7 +30,7 @@ void dl_parse_msg( void ) {
     uint16_t servo_value = DL_SET_ACTUATOR_value(dl_buffer);
     LED_TOGGLE(2);
     if (servo_no < ACTUATORS_NB)
-      SetServo(servo_no, servo_value);
+      //SetServo(servo_no, servo_value);
   }
 #ifdef DlSetting
   else if (msg_id == DL_SETTING && DL_SETTING_ac_id(dl_buffer) == AC_ID) {
@@ -40,7 +39,7 @@ void dl_parse_msg( void ) {
     DlSetting(i, val);
     LED_TOGGLE(2);
     for (int j=0 ; j<8 ; j++) {
-      SetServo(j,actuators[j]);
+      //SetServo(j,actuators[j]);
     }
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
@@ -59,7 +58,7 @@ void init_fbw( void ) {
 
   uint8_t i;
   for(i = 0; i < ACTUATORS_NB; i++) {
-    SetServo(i, 1500);
+    //SetServo(i, 1500);
   }
 
   //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
