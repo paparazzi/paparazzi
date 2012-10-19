@@ -123,7 +123,7 @@ void gps_skytraq_read_message(void) {
       ned_of_ecef_vect_i( &gps.ned_vel, &ref_ltp, &gps.ecef_vel );
 
       // ground course in radians
-      gps.course = atan2( gps.ned_vel.x, gps.ned_vel.y ) * 1e7;
+      gps.course = ( M_PI_4 + atan2( -gps.ned_vel.y, gps.ned_vel.x )) * 1e7;
       // GT: gps.cacc = ... ? what should course accuracy be?
 
       // ground speed
