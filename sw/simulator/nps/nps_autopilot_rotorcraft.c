@@ -32,7 +32,7 @@
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 
-#include "actuators/motor_mixing.h"
+#include "subsystems/actuators/motor_mixing.h"
 
 
 struct NpsAutopilot autopilot;
