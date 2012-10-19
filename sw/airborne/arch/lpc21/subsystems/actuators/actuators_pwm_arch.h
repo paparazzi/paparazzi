@@ -115,6 +115,4 @@ extern const uint8_t pwm_latch_value;
     PWMLER = pwm_latch_value;   \
   }
 
-extern void actuators_pwm_arch_init(void);
-
 #endif /* ACTUATORS_PWM_ARCH_H */

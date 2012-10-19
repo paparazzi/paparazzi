@@ -23,7 +23,6 @@
  *  STM32 PWM servos handling.
  */
 
-#include "subsystems/actuators.h"
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
 #include <libopencm3/stm32/f1/gpio.h>

@@ -101,7 +101,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   /* scale final motor commands to 0-1 for feeding the fdm */
   /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
   for (uint8_t i=0; i<MOTOR_MIXING_NB_MOTOR; i++)
-    autopilot.commands[i] = (double)(motor_mixing.commands[i]/MAX_PPRZ);
+    autopilot.commands[i] = (double)motor_mixing.commands[i]/MAX_PPRZ;
 
 }
 

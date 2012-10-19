@@ -19,9 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "std.h"
-#include "subsystems/actuators.h"
 #include "subsystems/actuators/actuators_pwm_arch.h"
+#include "std.h"
+#include BOARD_CONFIG
+#include "generated/airframe.h"
 
 /* 40 Hz */
 #ifndef SERVOS_PERIOD

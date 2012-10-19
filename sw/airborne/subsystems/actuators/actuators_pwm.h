@@ -22,16 +22,13 @@
 #ifndef ACTUATORS_PWM_H
 #define ACTUATORS_PWM_H
 
-#include "std.h"
-#include "generated/airframe.h"
-
-#include BOARD_CONFIG
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
-extern void actuators_pwm_init(void);
-
-#define ActuatorsPwmInit() actuators_pwm_init()
-/* ActuatorSet and ActuatorsPwmCommit are implemented in arch files
+/** Arch dependent init file.
+ * implemented in arch files
  */
+extern void actuators_pwm_arch_init(void);
+
+#define ActuatorsPwmInit() actuators_pwm_arch_init()
 
 #endif /* ACTUATORS_PWM_H */

@@ -140,7 +140,6 @@ test_servos.srcs    = $(COMMON_TEST_SRCS)
 test_servos.CFLAGS  += -I$(SRC_LISA)
 test_servos.LDFLAGS += -lm
 test_servos.srcs    += $(SRC_LISA)/test_servos.c
-test_servos.srcs    += subsystems/actuators/actuators_pwm.c
 test_servos.srcs    += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
 ifeq ($(BOARD), lisa_m)
   test_servos.CFLAGS += -DUSE_SERVOS_7AND8

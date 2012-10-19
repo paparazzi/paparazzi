@@ -40,7 +40,6 @@
 
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-extern void actuators_pwm_arch_init(void);
 extern void actuators_pwm_commit(void);
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
