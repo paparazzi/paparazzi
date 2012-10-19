@@ -130,7 +130,9 @@ let parse_servo = fun driver c ->
 
   define (name^"_NEUTRAL") (sof neutral);
   define (name^"_TRAVEL_UP") (sof travel_up);
+  define_integer (name^"_TRAVEL_UP") travel_up 16;
   define (name^"_TRAVEL_DOWN") (sof travel_down);
+  define_integer (name^"_TRAVEL_DOWN") travel_down 16;
 
   let min = Pervasives.min min max
   and max = Pervasives.max min max in
@@ -171,8 +173,9 @@ let parse_command_laws = fun command ->
        and value = a "value" in
        let v = preprocess_value value "values" "COMMAND" in
        printf "  command_value = %s; \\\n" v;
-       printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN; \\\n" servo servo;
-       printf "  servo_value = SERVO_%s_NEUTRAL + (int32_t)(command_value); \\\n" servo;
+       printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
+       printf "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
+       printf "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
        printf "  Set_%s_Servo(servo_value); \\\n\\\n" servo
    | "let" ->
        let var = a "var"
@@ -181,7 +184,7 @@ let parse_command_laws = fun command ->
        printf "  int16_t _var_%s = %s; \\\n" var v
    | "call" ->
        let f = a "fun" in
-       printf "  %s; \\\n" f
+       printf "  %s; \\\n\\\n" f
    | "ratelimit" ->
        let var = a "var"
        and value = a "value"
@@ -264,7 +267,7 @@ let rec parse_section = fun s ->
 
       printf "#define SetActuatorsFromCommands(values) { \\\n";
       printf "  int32_t servo_value;\\\n";
-      printf "  float command_value;\\\n\\\n";
+      printf "  int32_t command_value;\\\n\\\n";
 
       List.iter parse_command_laws (Xml.children s);
 
