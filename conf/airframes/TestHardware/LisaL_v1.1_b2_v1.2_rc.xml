@@ -23,6 +23,7 @@
             <subsystem name="radio_control" type="ppm"/>
         </target>
 
+        <subsystem name="motor_mixing"/>
         <subsystem name="actuators"     type="mkk"/>
         <subsystem name="telemetry"     type="transparent"/>
         <subsystem name="imu"           type="b2_v1.2"/>
@@ -70,11 +71,11 @@
     </firmware>
 -->
 
-    <servos>
-        <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
-        <servo name="BACK"    no="1" min="0" neutral="0" max="255"/>
-        <servo name="RIGHT"   no="2" min="0" neutral="0" max="255"/>
-        <servo name="LEFT"    no="3" min="0" neutral="0" max="255"/>
+    <servos driver="Mkk">
+        <servo name="FRONT"   no="0" min="0" neutral="2" max="210"/>
+        <servo name="BACK"    no="1" min="0" neutral="2" max="210"/>
+        <servo name="RIGHT"   no="2" min="0" neutral="2" max="210"/>
+        <servo name="LEFT"    no="3" min="0" neutral="2" max="210"/>
     </servos>
 
     <commands>
@@ -91,12 +92,10 @@
     </section>
 
 
-    <section name="SUPERVISION" prefix="SUPERVISION_">
-        <define name="MIN_MOTOR" value="2"/>
-        <define name="MAX_MOTOR" value="210"/>
-        <define name="TRIM_A" value="0"/>
-        <define name="TRIM_E" value="0"/>
-        <define name="TRIM_R" value="0"/>
+    <section name="MIXING" prefix="MOTOR_MIXING_">
+        <define name="TRIM_ROLL" value="0"/>
+        <define name="TRIM_PITCH" value="0"/>
+        <define name="TRIM_YAW" value="0"/>
         <define name="NB_MOTOR" value="4"/>
         <define name="SCALE" value="256"/>
         <define name="ROLL_COEF"   value="{    0,    0, -256,  256 }"/>

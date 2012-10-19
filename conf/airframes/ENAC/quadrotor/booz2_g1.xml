@@ -24,7 +24,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
-    <subsystem name="actuators"     type="direct">
+    <subsystem name="actuators"     type="pwm">
       <define name="USE_PWM0"/>
       <define name="USE_PWM1"/>
     </subsystem>

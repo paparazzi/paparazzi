@@ -21,6 +21,12 @@
 #define IMU_ACC_DRDY_GPIO             GPIOD
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOD
 
+/* Default actuators driver */
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
+#define ActuatorDefault(_x) ActuatorPwm(_x)
+#define ActuatorsDefaultInit() ActuatorsPwmInit()
+#define ActuatorsDefaultCommit() ActuatorsPwmCommit()
+
 
 /* PA0 - ADC0 */
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/

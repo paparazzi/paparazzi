@@ -30,7 +30,7 @@
       <define name="SKIRON_I2C_SCL_TIME" value="25"/>
     </subsystem>
     <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="direct">
+    <subsystem name="actuators"     type="pwm">
       <define name="USE_PWM0"/>
     </subsystem>
     <subsystem name="imu"           type="navgo"/>
