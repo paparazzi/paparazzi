@@ -51,7 +51,7 @@
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_4017.h"
-#define ActuatorDefault(_x) Actuator4017(_x)
+#define ActuatorDefaultSet(_x,_y) Actuator4017Set(_x,_y)
 #define ActuatorsDefaultInit() Actuators4017Init()
 #define ActuatorsDefaultCommit() Actuators4017Commit()
 
