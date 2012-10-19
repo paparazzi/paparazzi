@@ -38,11 +38,6 @@
 #define ACTUATORS_PWM_NB 6
 #endif
 
-///* Needs to be included after ACTUATORS_PWM_NB is defined!
-// * Otherwise ACTUATORS_PWM_NB is not declared in actuators_pwm.h
-// */
-//#include "subsystems/actuators/actuators_pwm.h"
-
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 extern void actuators_pwm_arch_init(void);
