@@ -71,6 +71,11 @@
     </firmware>
 -->
 
+    <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+        <define name="NB" value="4"/>
+        <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+    </section>
+
     <servos driver="Mkk">
         <servo name="FRONT"   no="0" min="0" neutral="2" max="210"/>
         <servo name="BACK"    no="1" min="0" neutral="2" max="210"/>
@@ -84,12 +89,6 @@
         <axis name="YAW"    failsafe_value="0"/>
         <axis name="THRUST" failsafe_value="0"/>
     </commands>
-
-    <!-- for the sim -->
-    <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-        <define name="NB" value="4"/>
-        <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-    </section>
 
 
     <section name="MIXING" prefix="MOTOR_MIXING_">
