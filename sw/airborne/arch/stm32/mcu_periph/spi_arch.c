@@ -55,10 +55,11 @@
 
 #ifdef SPI_MASTER
 
-void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans);
-
+static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans);
 static void process_dma_interrupt( struct spi_periph *spi );
 
+// This structure keeps track of specific ID's for each SPI bus,
+// which allows for more code reuse.
 struct spi_periph_dma {
   u32 spi;
   u32 spidr;
@@ -68,13 +69,9 @@ struct spi_periph_dma {
   u8  nvic_irq;
 };
 
-struct spi_periph_dma spi0_dma;
-struct spi_periph_dma spi1_dma;
-struct spi_periph_dma spi2_dma;
-
-// spi dma end of rx handler
-// XXX: should be provided by libopencm3?
-// void dma1_channel4_isr(void);
+static struct spi_periph_dma spi0_dma;
+static struct spi_periph_dma spi1_dma;
+static struct spi_periph_dma spi2_dma;
 
 // SPI2 Slave Selection
 
@@ -146,38 +143,15 @@ static inline void SpiSlaveSelect(uint8_t slave)
 }
 
 static void spi_arch_int_enable( struct spi_periph *spi ) {
-  // Enable DMA1 channel4 IRQ Channel ( SPI RX)
+  // Enable DMA rx channel interrupt
   nvic_set_priority( ((struct spi_periph_dma *)spi->dma)->nvic_irq, 0);
   nvic_enable_irq( ((struct spi_periph_dma *)spi->dma)->nvic_irq );
 }
 
 static void spi_arch_int_disable( struct spi_periph *spi ) {
-  // Disable DMA1 channel4 IRQ Channel ( SPI RX)
+  // Disable DMA rx channel interrupt
   nvic_disable_irq( ((struct spi_periph_dma *)spi->dma)->nvic_irq );
 }
-
-void spi_init_slaves(void) {
-#if USE_SPI0
-  SpiSlaveUnselect(0);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE0_PIN);
-#endif
-
-#if USE_SPI1
-  SpiSlaveUnselect(1);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE1_PIN);
-#endif
-
-#if USE_SPI2
-
-  //FIXME: do remapping
-  //GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //Slave2 is on JTDO pin, so disable JTAG DP
-#endif
-}
-
 
 /**
  *  These functions map the publically available "spi" structures to 
@@ -188,14 +162,14 @@ void spi0_arch_init(void) {
 
   // Enable SPI3 Periph and gpio clocks -------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
 	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI3_SCK |
-	                                        GPIO_SPI3_MISO |
 	                                        GPIO_SPI3_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+          GPIO_SPI3_MISO);
 
   // reset SPI
   spi_reset(SPI3);
@@ -203,7 +177,19 @@ void spi0_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI3);
 
-  // configure SPI
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+
+  SpiSlaveUnselect(0);
+  gpio_set(SPI_SLAVE0_PORT, SPI_SLAVE0_PIN);
+  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE0_PIN);
+
+  // Force SPI mode over I2S.
+  SPI3_I2SCFGR = 0;
+
+  // configure master SPI.
   spi_init_master(SPI3, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                   SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 
@@ -218,25 +204,25 @@ void spi0_arch_init(void) {
   spi_enable_software_slave_management(SPI3);
   spi_set_nss_high(SPI3);
 
-  // Enable SPI3 periph.
-  spi_enable(SPI3);
-
   // Enable SPI_3 DMA clock ---------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
 
-  spi0.dma = &spi0_dma;
-  spi0_dma.spi = SPI3;
-  spi0_dma.spidr = (u32)&SPI3_DR;
-  spi0_dma.dma = DMA2;
-  spi0_dma.rx_chan = DMA_CHANNEL1;
-  spi0_dma.tx_chan = DMA_CHANNEL2;
-  spi0_dma.nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
+  // Enable SPI3 periph.
+  spi_enable(SPI3);
 
-  spi0.trans_insert_idx = 0;
-  spi0.trans_extract_idx = 0;
-  spi0.status = SPIIdle;
+  spi3.dma = &spi3_dma;
+  spi3_dma.spi = SPI3;
+  spi3_dma.spidr = (u32)&SPI3_DR;
+  spi3_dma.dma = DMA2;
+  spi3_dma.rx_chan = DMA_CHANNEL1;
+  spi3_dma.tx_chan = DMA_CHANNEL2;
+  spi3_dma.nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
+
+  spi3.trans_insert_idx = 0;
+  spi3.trans_extract_idx = 0;
+  spi3.status = SPIIdle;
   
-  spi_arch_int_enable( &spi0 );
+  spi_arch_int_enable( &spi3 );
 }
 #endif
 
@@ -244,15 +230,15 @@ void spi0_arch_init(void) {
 void spi1_arch_init(void) {
 
   // Enable SPI1 Periph and gpio clocks -------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB1ENR_SPI1EN);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI1EN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
 	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI1_SCK |
-	                                        GPIO_SPI1_MISO |
 	                                        GPIO_SPI1_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+          GPIO_SPI1_MISO);
 
   // reset SPI
   spi_reset(SPI1);
@@ -260,7 +246,19 @@ void spi1_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI1);
 
-  // configure SPI
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+
+  SpiSlaveUnselect(1);
+  gpio_set(SPI_SLAVE1_PORT, SPI_SLAVE1_PIN);
+  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE1_PIN);
+
+  // Force SPI mode over I2S.
+  SPI1_I2SCFGR = 0;
+
+  // configure master SPI.
   spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                   SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 
@@ -275,18 +273,18 @@ void spi1_arch_init(void) {
   spi_enable_software_slave_management(SPI1);
   spi_set_nss_high(SPI1);
 
-  // Enable SPI1 periph.
-  spi_enable(SPI1);
-
   // Enable SPI_1 DMA clock ---------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+
+  // Enable SPI1 periph.
+  spi_enable(SPI1);
 
   spi1.dma = &spi1_dma;
   spi1_dma.spi = SPI1;
   spi1_dma.spidr = (u32)&SPI1_DR;
   spi1_dma.dma = DMA1;
-  spi1_dma.rx_chan = DMA_CHANNEL4;
-  spi1_dma.tx_chan = DMA_CHANNEL5;
+  spi1_dma.rx_chan = DMA_CHANNEL2;
+  spi1_dma.tx_chan = DMA_CHANNEL3;
   spi1_dma.nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
 
   spi1.trans_insert_idx = 0;
@@ -312,30 +310,26 @@ void spi2_arch_init(void) {
           GPIO_SPI2_MISO);
 
   // reset SPI
-  //spi_reset(SPI2);
+  spi_reset(SPI2);
 
   // Disable SPI peripheral
-  //spi_disable(SPI2);
+  spi_disable(SPI2);
 
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
-
+  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   SpiSlaveUnselect(2);
   gpio_set(GPIOB, SPI_SLAVE2_PIN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE2_PIN);
 
-
-  // configure SPI
+  // Force SPI mode over I2S.
   SPI2_I2SCFGR = 0;
+
+  // configure master SPI.
   spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                   SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
-  //spi_enable_crc( SPI2 );
-  //spi_set_next_tx_from_buffer( SPI2 );
-  //spi_set_full_duplex_mode( SPI2 );
-  //SPI2_CRCPR = 0x07;
 
   /*
    * Set NSS management to software.
@@ -347,17 +341,12 @@ void spi2_arch_init(void) {
    */
   spi_enable_software_slave_management(SPI2);
   spi_set_nss_high(SPI2);
-  //spi_enable_ss_output(SPI2);
 
   // Enable SPI_2 DMA clock ---------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 
   // Enable SPI2 periph.
   spi_enable(SPI2);
-
-  // SpiSlaveUnselect( &spi2 );
-
-  // spi_enable_ss_output( SPI2 );
 
   spi2.dma = &spi2_dma;
   spi2_dma.spi = SPI2;
@@ -375,10 +364,7 @@ void spi2_arch_init(void) {
 }
 #endif
 
-
-//FIXME: get rid off slave0 and take spi periph as parameter
-// GT: done
-void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
+static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
 {
   struct spi_periph_dma *dma;
 
@@ -440,11 +426,12 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   }
   t->status = SPITransPending;
   // FIXME: still needed?
-  //*(t->ready) = 0;
+  // should probably use callback here?
+  *(t->ready) = 0;
+
   //Disable interrupts to avoid race conflict with end of DMA transfer interrupt
   //FIXME
-  //__disable_irq();
-  //spi_arch_int_disable( p );
+  spi_arch_int_disable( p );
   
   // GT: no copy?  There's a queue implying a copy here...
   p->trans[p->trans_insert_idx] = t;
@@ -455,8 +442,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
     spi_rw(p, p->trans[p->trans_extract_idx]);
   }
   //FIXME
-  //__enable_irq();
-  //spi_arch_int_enable( p );
+  spi_arch_int_enable( p );
   return TRUE;
 }
 
