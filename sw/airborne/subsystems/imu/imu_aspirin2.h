@@ -96,10 +96,13 @@ enum Aspirin2Status
     Aspirin2StatusReading
   };
 
+#define IMU_ASPIRIN_BUFFER_LEN    32
+
 struct ImuAspirin2 {
   volatile enum Aspirin2Status status;
   volatile uint8_t imu_available;
-  volatile uint8_t *input_buf_p;
+  volatile uint8_t input_buf_p[IMU_ASPIRIN_BUFFER_LEN];
+  volatile uint8_t output_buf_p[IMU_ASPIRIN_BUFFER_LEN];
 };
 
 extern struct ImuAspirin2 imu_aspirin2;

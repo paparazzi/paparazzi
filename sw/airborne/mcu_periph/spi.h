@@ -120,6 +120,7 @@ struct spi_transaction {
   uint8_t input_length;
   uint8_t output_length;
   uint8_t slave_idx;
+  volatile uint8_t* ready;
   enum SPISlaveSelect select;
   enum SPIClockPolarity cpol;
   enum SPIClockPhase cpha;
@@ -144,6 +145,7 @@ struct spi_periph {
   volatile uint8_t rx_idx_buf;
   void* reg_addr;
   void *init_struct;
+  void *dma;
   enum SPIMode mode;
   /* control for stop/resume of the fifo */
   volatile uint8_t suspend;

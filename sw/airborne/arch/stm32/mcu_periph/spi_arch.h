@@ -29,12 +29,4 @@
 #define SPI_ARCH_H
 
 
-#include "mcu_periph/spi.h"
-
-extern void spi_arch_int_enable(void);
-extern void spi_arch_int_disable(void);
-
-extern void spi_clear_rx_buf(void);
-
-
 #endif // SPI_ARCH_H
