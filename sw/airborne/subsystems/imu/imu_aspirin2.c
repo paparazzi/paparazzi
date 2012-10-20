@@ -115,10 +115,10 @@ static void mpu_configure(void)
 
   ///////////////////
   // Reset the MPU
-  mpu_set( MPU60X0_REG_USER_CTRL,
-	   (1 << 2) |           // Trigger a FIFO_RESET
-	   (1 << 1) |           // Trigger a I2C_MST_RESET
-	   (1 << 0) );          // Trigger a SIG_COND_RESET
+  //mpu_set( MPU60X0_REG_USER_CTRL,
+	//   (1 << 2) |           // Trigger a FIFO_RESET
+	//   (1 << 1) |           // Trigger a I2C_MST_RESET
+	//   (1 << 0) );          // Trigger a SIG_COND_RESET
 
   ///////////////////
   // Configure power:
