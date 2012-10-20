@@ -306,8 +306,10 @@ void spi2_arch_init(void) {
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
 	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
-	                                        GPIO_SPI2_MISO |
 	                                        GPIO_SPI2_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+          GPIO_SPI2_MISO);
 
   // reset SPI
   //spi_reset(SPI2);
@@ -317,17 +319,23 @@ void spi2_arch_init(void) {
 
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
-  // Enable SPI2 periph.
-  spi_enable(SPI2);
+
+  SpiSlaveUnselect(2);
+  gpio_set(GPIOB, SPI_SLAVE2_PIN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE2_PIN);
+
 
   // configure SPI
+  SPI2_I2SCFGR = 0;
   spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                   SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
   //spi_enable_crc( SPI2 );
   //spi_set_next_tx_from_buffer( SPI2 );
-  spi_set_full_duplex_mode( SPI2 );
-  SPI2_CRCPR = 0x07;
+  //spi_set_full_duplex_mode( SPI2 );
+  //SPI2_CRCPR = 0x07;
 
   /*
    * Set NSS management to software.
@@ -339,9 +347,13 @@ void spi2_arch_init(void) {
    */
   spi_enable_software_slave_management(SPI2);
   spi_set_nss_high(SPI2);
+  //spi_enable_ss_output(SPI2);
 
   // Enable SPI_2 DMA clock ---------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+
+  // Enable SPI2 periph.
+  spi_enable(SPI2);
 
   // SpiSlaveUnselect( &spi2 );
 
@@ -359,11 +371,6 @@ void spi2_arch_init(void) {
   spi2.trans_extract_idx = 0;
   spi2.status = SPIIdle;
   
-  SpiSlaveUnselect(2);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE2_PIN);
-
   spi_arch_int_enable( &spi2 );
 }
 #endif
@@ -408,15 +415,15 @@ void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
   //dma_set_mode(dma->dma, dma->tx_chan, DMA_???_NORMAL);
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
 
-  // Enable dma->dma rx channel
-  dma_enable_channel(dma->dma, dma->rx_chan);
   // Enable SPI Rx request
   spi_enable_rx_dma(dma->spi);
+  // Enable dma->dma rx channel
+  dma_enable_channel(dma->dma, dma->rx_chan);
 
-  // Enable dma->dma tx Channel
-  dma_enable_channel(dma->dma, dma->tx_chan);
   // Enable SPI Tx request
   spi_enable_tx_dma(dma->spi);
+  // Enable dma->dma tx Channel
+  dma_enable_channel(dma->dma, dma->tx_chan);
 
   // Enable dma->dma rx Channel Transfer Complete interrupt
   dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
@@ -509,7 +516,7 @@ void dma2_channel1_isr(void)
 // to reduce processing time in interrupt?
 void process_dma_interrupt( struct spi_periph *spi ) {
   struct spi_periph_dma *dma = spi->dma;
-  struct spi_transaction *trans = &spi->trans[spi->trans_extract_idx];
+  struct spi_transaction *trans = spi->trans[spi->trans_extract_idx];
 
   // disable DMA Channel
   dma_disable_transfer_complete_interrupt( dma->dma, dma->rx_chan );
@@ -523,7 +530,7 @@ void process_dma_interrupt( struct spi_periph *spi ) {
   dma_disable_channel( dma->dma, dma->tx_chan );
 
   trans->status = SPITransSuccess;
-  //*(trans->ready) = 1;
+  *(trans->ready) = 1;
   spi->trans_extract_idx++;
 
   // Check if there is another pending SPI transaction

@@ -41,9 +41,7 @@ void imu_impl_init(void) {
   aspirin2_mpu60x0.cpol = SPICpolIdleLow;
   aspirin2_mpu60x0.cpha = SPICphaEdge1;
   aspirin2_mpu60x0.dss = SPIDss8bit;
-  //aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
-  //aspirin2_mpu60x0.length = 2;
-  aspirin2_mpu60x0.slave_idx = 2;
+  aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
   aspirin2_mpu60x0.slave_idx = 2;
   aspirin2_mpu60x0.output_length = IMU_ASPIRIN_BUFFER_LEN;
   aspirin2_mpu60x0.input_length = IMU_ASPIRIN_BUFFER_LEN;

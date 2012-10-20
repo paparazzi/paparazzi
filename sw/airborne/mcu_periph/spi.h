@@ -120,6 +120,7 @@ struct spi_transaction {
   uint8_t input_length;
   uint8_t output_length;
   uint8_t slave_idx;
+  volatile uint8_t* ready;
   enum SPISlaveSelect select;
   enum SPIClockPolarity cpol;
   enum SPIClockPhase cpha;
