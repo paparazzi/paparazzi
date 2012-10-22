@@ -96,7 +96,7 @@
 
 void adc1_2_isr(void);
 
-uint8_t adc_new_data_trigger;
+volatile uint8_t adc_new_data_trigger;
 
 /* Static functions */
 
@@ -312,80 +312,62 @@ static inline void adc_init_single(uint32_t adc,
     }
 
     /* Configure ADC */
-    //adc_reset(adc);
 
-    /* XXX: This register fiddeling code should be moved to libopencm3! */
+    /* Explicitly setting most registers, reset/default values are correct for most */
+
     /* Set CR1 register. */
-    {
-	    uint32_t tmpreg = ADC_CR1(adc);
 
-	    /* Clear DUALMOD and SCAN. */
-	    tmpreg &= ~(ADC_CR1_DUALMOD_MASK | ADC_CR1_SCAN);
-
-	    /* Set correct DUALMOD and SCAN. */
-	    tmpreg |= ADC_CR1_DUALMOD_IND | ADC_CR1_SCAN;
-
-	    ADC_CR1(adc) = tmpreg;
-    }
+    /* Clear AWDEN */
+    adc_disable_analog_watchdog_regular(adc);
+    /* Clear JAWDEN */
+    adc_disable_analog_watchdog_injected(adc);
+    /* Clear DISCEN */
+    adc_disable_discontinuous_mode_regular(adc);
+    /* Clear JDISCEN */
+    adc_disable_discontinuous_mode_injected(adc);
+    /* Clear JAUTO */
+    adc_disable_automatic_injected_group_conversion(adc);
+    /* Set SCAN */
+    adc_enable_scan_mode(adc);
+    /* Enable ADC<X> JEOC interrupt (Set JEOCIE) */
+    adc_enable_eoc_interrupt_injected(adc);
+    /* Clear AWDIE */
+    adc_disable_awd_interrupt(adc);
+    /* Clear EOCIE */
+    adc_disable_eoc_interrupt(adc);
 
     /* Set CR2 register. */
-    {
-	    uint32_t tmpreg = ADC_CR2(adc);
 
-	    /* Clear CONT, ALIGN and EXTSEL. */
-	    tmpreg &= ~(ADC_CR2_CONT | ADC_CR2_ALIGN | ADC_CR2_EXTSEL_MASK);
-
-	    /* Set correct CONT, ALIGN and EXTSEL. */
-	    tmpreg |= ADC_CR2_EXTSEL_SWSTART;
-
-	    ADC_CR2(adc) = tmpreg;
-    }
-
-    /* Set SQR1 register. */
-    {
-	    uint32_t tmpreg = ADC_SQR1(adc);
-
-	    /* Clear regular channel sequence length. */
-	    tmpreg &= ~(0xF); //~(ADC_SQR1_L_MSK);
-
-	    /* Set regular channel sequence length. */
-	    tmpreg |= 0;
-
-	    ADC_SQR1(adc) = tmpreg;
-    }
-
-    /* Set JSQR1 injected sequence length. */
-    {
-	    uint32_t tmpreg = ADC_JSQR(adc);
-
-	    /* Clear injected channel sequence length. */
-	    tmpreg &= ~(0x2 << 20); //~(ADC_JSQR_JL_MSK);
-
-	    /* Set injected channel sequence length. */
-	    tmpreg |= (num_channels << ADC_JSQR_JL_LSB);
-
-	    ADC_JSQR(adc) = tmpreg;
-    }
+    /* Clear TSVREFE */
+    adc_disable_temperature_sensor(adc);
+    /* Clear EXTTRIG */
+    adc_disable_external_trigger_regular(adc);
+    /* Clear ALIGN */
+    adc_set_right_aligned(adc);
+    /* Clear DMA */
+    adc_disable_dma(adc);
+    /* Clear CONT */
+    adc_set_single_conversion_mode(adc);
 
     rank = 0;
     if (chan1) {
-	adc_set_conversion_time(adc, adc_channel_map[0], ADC_SMPR1_SMP_41DOT5CYC);
-	channels[rank] = adc_channel_map[0];
+	   adc_set_sample_time(adc, adc_channel_map[0], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[0];
         rank++;
     }
     if (chan2) {
-	adc_set_conversion_time(adc, adc_channel_map[1], ADC_SMPR1_SMP_41DOT5CYC);
-	channels[rank] = adc_channel_map[1];
+	   adc_set_sample_time(adc, adc_channel_map[1], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[1];
         rank++;
     }
     if (chan3) {
-	adc_set_conversion_time(adc, adc_channel_map[2], ADC_SMPR1_SMP_41DOT5CYC);
-	channels[rank] = adc_channel_map[2];
+	   adc_set_sample_time(adc, adc_channel_map[2], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[2];
         rank++;
     }
     if (chan4) {
-	adc_set_conversion_time(adc, adc_channel_map[3], ADC_SMPR1_SMP_41DOT5CYC);
-	channels[rank] = adc_channel_map[3];
+	   adc_set_sample_time(adc, adc_channel_map[3], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[3];
     }
 
     adc_set_injected_sequence(adc, num_channels, channels);
@@ -398,15 +380,11 @@ static inline void adc_init_single(uint32_t adc,
     adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
 #endif
 
-    /* Enable ADC<X> JEOC interrupt */
-    adc_enable_jeoc_interrupt(adc);
-
     /* Enable ADC<X> */
-    adc_on(adc);
+    adc_power_on(adc);
 
     /* Enable ADC<X> reset calibaration register */
     adc_reset_calibration(adc);
-
     /* Check the end of ADC<X> reset calibration */
     while ((ADC_CR2(adc) & ADC_CR2_RSTCAL) != 0);
     /* Start ADC<X> calibaration */

@@ -43,7 +43,7 @@
 
     <define name="BRAKE_AILEVON" value="-0.7f"/>
     <define name="BRAKE_PITCH" value="0.1f"/>
-    <define name="MAX_BRAKE_RATE" value="130"/>
+    <define name="MAX_BRAKE_RATE" value="80"/>
 
     <define name="RUDDER_OF_AILERON" value="0.3"/>
 
@@ -207,7 +207,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="tiny_2.11"/>
+    <target name="ap" board="yapa_2.0"/>
     <target name="sim" board="pc"/>
 
       <define name="STRONG_WIND"/>

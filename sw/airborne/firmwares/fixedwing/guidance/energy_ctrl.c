@@ -20,34 +20,45 @@
  */
 
 /**
- *  @file firmwares/fixedwing/guidance/guidance_v.c
- *  Vertical control using total energy control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/energy_ctrl.c
+ *  Total Energy (speed + height) control for fixed wing vehicles.
  *
-
-
-	=================================================
-	Energy:
-	------
-	E 		= mgh + 1/2mV^2
-	Edot / V 	= (gamma + Vdot/g) * W
-
-	equilibrium
-
-	Vdot / g = Thrust/W - Drag/W - sin(gamma)
-	with: Drag/Weight = (Cl/Cd)^-1
-
-	-glide angle: Vdot = 0, T=0 ==> gamma = Cd/Cl
-	-level flight: Vdot = 0, gamma=0 ==> W/T = Cl/Cd
-	=================================================
-
-	Strategy:  thrust = path + acceleration[g] (total energy)
-		   pitch = path - acceleration[g]  (energy balance)
-
-	Pseudo-Control Unit = dimensionless acceleration [g]
-
-		- pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
-		- throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
-
+ *  Energy:
+ *  @f{eqnarray*}{
+ *  E &=& mgh + \frac{1}{2}mV^2 \\
+ *  \frac{\dot{E}}{V} &=& \left(\gamma + \frac{\dot{V}}{g}\right) W
+ *  @f}
+ *
+ *  Equilibrium:
+ *  @f[
+ *  \frac{\dot{V}}{g} = \frac{\mbox{Thrust}}{W} - \frac{\mbox{Drag}}{W} - \sin(\gamma)
+ *  @f]
+ *  with:
+ *  @f[
+ *  \frac{\mbox{Drag}}{\mbox{Weight}} = \left(\frac{C_l}{C_d}\right)^{-1}
+ *  @f]
+ *
+ *    - glide angle: @f$\dot{V}=0, T=0 \rightarrow \gamma = \frac{C_d}{C_l}@f$
+ *    - level flight: @f$\dot{V}=0, \gamma=0 \rightarrow \frac{W}{T} = \frac{C_l}{C_d}@f$
+ *
+ *  Strategy:
+ *      - thrust = path + acceleration[g] (total energy)
+ *      - pitch = path - acceleration[g]  (energy balance)
+ *
+ *  Pseudo-Control Unit = dimensionless acceleration [g]
+ *
+ *  	- pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
+ *  	- throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
+ *
+ *  @dot
+ *  digraph total_energy_control {
+ *  	node [shape=record];
+ *  	b [label="attitude loop" URL="\ref attitude_loop"];
+ *  	c [label="climb loop" URL="\ref v_ctl_climb_loop"];
+ *  	b -> c [ arrowhead="open", style="dashed" ];
+ *  }
+ *  @enddot
+ *
  */
 
 #pragma message "CAUTION! Using TOTAL ENERGY CONTROLLER: Experimental!"
@@ -170,7 +181,14 @@ void v_ctl_init( void ) {
 
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
+
+#ifdef V_CTL_ALTITUDE_PGAIN
   v_ctl_altitude_pgain = V_CTL_ALTITUDE_PGAIN;
+#endif
+#ifdef V_CTL_AIRSPEED_PGAIN
+  v_ctl_airspeed_pgain = V_CTL_AIRSPEED_PGAIN;
+#endif
+
   v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;
 
   /* inner loops */
@@ -178,8 +196,23 @@ void v_ctl_init( void ) {
 
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
+
+#ifdef V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT
   v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
+#endif
+
+#ifdef V_CTL_AUTO_THROTTLE_OF_AIRSPEED_PGAIN
+  v_ctl_auto_throttle_of_airspeed_pgain = V_CTL_AUTO_THROTTLE_OF_AIRSPEED_PGAIN;
+  v_ctl_auto_throttle_of_airspeed_igain = V_CTL_AUTO_THROTTLE_OF_AIRSPEED_IGAIN;
+#endif
+
+#ifdef V_CTL_ENERGY_TOT_PGAIN
+  v_ctl_energy_total_pgain = V_CTL_ENERGY_TOT_PGAIN;
+  v_ctl_energy_total_igain = V_CTL_ENERGY_TOT_IGAIN;
+  v_ctl_energy_diff_pgain = V_CTL_ENERGY_DIFF_PGAIN;
+  v_ctl_energy_diff_igain = V_CTL_ENERGY_DIFF_IGAIN;
+#endif
 
   v_ctl_throttle_setpoint = 0;
 }

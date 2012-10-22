@@ -9,7 +9,7 @@
     <file name="point.h"/>
   </header>
   <init fun="cam_init()"/>
-  <periodic fun="cam_periodic()" freq="10."/>
+  <periodic fun="cam_periodic()" />
   <makefile>
     <define name="CAM"/>
     <define name="MOBILE_CAM"/>

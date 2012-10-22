@@ -575,6 +575,20 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       l#show ();
       l
 
+    method photoprojection = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") ?(number="1") geo radius ->
+      let (x, y) = self#world_of geo in
+
+      (** Compute the actual radius in a UTM projection *)
+      let utm = LL.utm_of LL.WGS84 geo in
+      let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
+      let (xe, _) = self#world_of geo_east in
+      let rad = xe -. x in
+      let l1 = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
+      let l2 = GnoCanvas.text ~x:(x) ~y:(y) ~text:number ~props:[`FILL_COLOR color; `X_OFFSET 0.0; `Y_OFFSET 0.0] group in
+      l1#show ();
+      l2#show ();
+      l2
+
     method text = fun ?(group = canvas#root) ?(fill_color = "blue") ?(x_offset = 0.0) ?(y_offset = 0.0) geo text ->
       let (x1, y1) = self#world_of geo in
       let t = GnoCanvas.text ~x:x1 ~y:y1 ~text:text ~props:[`FILL_COLOR fill_color; `X_OFFSET x_offset; `Y_OFFSET y_offset] group in

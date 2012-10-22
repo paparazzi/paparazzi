@@ -27,8 +27,8 @@
       <dl_settings name="climb_accel">
         <dl_setting MAX="2.0" MIN="0" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" module="guidance/energy_ctrl" param="V_CTL_ALTITUDE_PGAIN"/>
         <dl_setting MAX="1.0" MIN="0" STEP="0.01" VAR="v_ctl_airspeed_pgain" shortname="speed_pgain"  param="V_CTL_AIRSPEED_PGAIN"/>
-        <dl_setting MAX="10.0" MIN="-10" STEP="0.5" VAR="v_ctl_max_climb" shortname="max_climb" />
-        <dl_setting MAX="2.0" MIN="-2" STEP="0.05" VAR="v_ctl_max_acceleration" shortname="max_acc_g" />
+        <dl_setting MAX="10.0" MIN="-10" STEP="0.5" VAR="v_ctl_max_climb" shortname="max_climb"  param="V_CTL_MAX_CLIMB"/>
+        <dl_setting MAX="2.0" MIN="-2" STEP="0.05" VAR="v_ctl_max_acceleration" shortname="max_acc_g"  param="V_CTL_MAX_ACCELERATION"/>
       </dl_settings>
 
       <dl_settings name="energy_loop">
@@ -46,10 +46,10 @@
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_of_airspeed_igain" shortname="I_pitch_air" />
         <dl_setting MAX="5." MIN="0" STEP="0.01" VAR="v_ctl_auto_pitch_of_airspeed_dgain" shortname="D_pitch_air" />
 
-        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_pgain" shortname="P_en_tot"/>
-        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_igain" shortname="I_en_tot"/>
-        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_pgain" shortname="P_en_dis"/>
-        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_igain" shortname="I_en_dis"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_pgain" shortname="P_en_tot" param="V_CTL_ENERGY_TOT_PGAIN"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_igain" shortname="I_en_tot" param="V_CTL_ENERGY_TOT_IGAIN"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_pgain" shortname="P_en_dis" param="V_CTL_ENERGY_DIFF_PGAIN"/>
+        <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_igain" shortname="I_en_dis" param="V_CTL_ENERGY_DIFF_IGAIN"/>
 
       </dl_settings>
 

@@ -38,7 +38,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 
-#include "link_mcu.h"
+#include "link_mcu_spi.h"
 
 // Sensors
 #if USE_GPS
@@ -130,7 +130,7 @@ uint16_t autopilot_flight_time = 0;
 /** Supply voltage in deciVolt.
  * This the ap copy of the measurement from fbw
  */
-uint8_t vsupply;
+uint16_t vsupply;
 
 /** Supply current in milliAmpere.
  * This the ap copy of the measurement from fbw
@@ -188,7 +188,7 @@ void init_ap( void ) {
   stateInit();
 
   /************* Links initialization ***************/
-#if defined MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_init();
 #endif
 #if USE_AUDIO_TELEMETRY
@@ -533,7 +533,7 @@ void attitude_loop( void ) {
 
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
-#if defined MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
   /**Directly set the flag indicating to FBW that shared buffer is available*/
@@ -639,7 +639,7 @@ void event_task_ap( void ) {
   DatalinkEvent();
 
 
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_event_task();
 #endif
 

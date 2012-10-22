@@ -66,7 +66,7 @@ void ezcurrent_read_periodic( void ) {
 void ezcurrent_read_event( void ) {
   if (ezcurrent_i2c_trans.status == I2CTransSuccess) {
     // Get electrical information from buffer
-    electrical.vsupply = ((uint8_t)( (((ezcurrent_i2c_trans.buf[3]) << 8) + (ezcurrent_i2c_trans.buf[2])) * 0.01f) );
+    electrical.vsupply = ((uint16_t)( (((ezcurrent_i2c_trans.buf[3]) << 8) + ezcurrent_i2c_trans.buf[2]) * 0.01f) );
     electrical.current = ((int32_t)(ezcurrent_i2c_trans.buf[9]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[8]);
     electrical.consumed = ((int32_t)(ezcurrent_i2c_trans.buf[7]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[6]);
     // Transaction has been read

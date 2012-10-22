@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,30 +17,34 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-/**
- * @file modules/geo_mag/geo_mag.h
- * @brief Calculation of the Geomagnetic field vector based on current GPS fix.
- * This module based on the WMM2010 modell (http://www.ngdc.noaa.gov/geomag/models.shtml).
+/** \brief Transport for the communication between FBW and AP via UART.
  */
 
-#ifndef GEO_MAG_H
-#define GEO_MAG_H
+#ifndef LINK_MCU_H
+#define LINK_MCU_H
 
-#include "std.h"
+#include <inttypes.h>
+#include "inter_mcu.h"
 
-struct GeoMagVect {
-  double x;
-  double y;
-  double z;
-  bool_t ready;
+struct link_mcu_msg {
+  union  {
+    struct fbw_state from_fbw;
+    struct ap_state  from_ap;
+  } payload;
 };
 
-extern void geo_mag_init(void);
-extern void geo_mag_periodic(void);
-extern void geo_mag_event(void);
+extern struct link_mcu_msg link_mcu_from_ap_msg;
+extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
-extern struct GeoMagVect geo_mag_vect;
+extern bool_t link_mcu_received;
+
+extern void link_mcu_send( void );
+extern void link_mcu_init( void );
+extern void link_mcu_event_task( void );
+extern void link_mcu_periodic_task( void );
+
 
 #endif
