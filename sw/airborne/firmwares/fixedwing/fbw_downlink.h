@@ -39,7 +39,7 @@
 #include "messages.h"
 #include "generated/periodic_telemetry.h"
 #include "generated/airframe.h"
-#include "commands.h"
+#include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 
 #include "mcu_periph/uart.h"

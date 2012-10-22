@@ -1,7 +1,7 @@
 #include "subsystems/electrical.h"
 
 #include "mcu_periph/adc.h"
-#include "commands.h"
+#include "subsystems/commands.h"
 
 #include "generated/airframe.h"
 #include BOARD_CONFIG

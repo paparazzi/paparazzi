@@ -24,7 +24,7 @@
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #include "subsystems/datalink/downlink.h"
 #include "led.h"

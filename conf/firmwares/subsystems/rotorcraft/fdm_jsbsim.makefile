@@ -83,7 +83,7 @@ nps.srcs += $(SRC_FIRMWARE)/telemetry.c \
             $(SRC_ARCH)/ivy_transport.c
 
 nps.srcs   += subsystems/actuators.c
-nps.srcs   += $(SRC_FIRMWARE)/commands.c
+nps.srcs   += subsystems/commands.c
 
 nps.srcs += $(SRC_FIRMWARE)/datalink.c
 

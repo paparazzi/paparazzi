@@ -33,6 +33,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "mcu_periph/sys_time.h"
+#include "generated/airframe.h"
 
 #define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
@@ -56,6 +57,10 @@ extern bool_t kill_throttle;
 
 /** flight time in seconds. */
 extern uint16_t autopilot_flight_time;
+
+#define autopilot_ResetFlightTimeAndLaunch(_) { \
+  autopilot_flight_time = 0; launch = FALSE; \
+}
 
 
 // FIXME, move to control
@@ -85,6 +90,22 @@ extern bool_t gps_lost;
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
 
+/** Commands trim for roll and pitch/
+ */
+#ifndef COMMAND_ROLL_TRIM
+#define COMMAND_ROLL_TRIM 0
+#endif
+
+#ifndef COMMAND_PITCH_TRIM
+#define COMMAND_PITCH_TRIM 0
+#endif
+
+extern pprz_t command_roll_trim = COMMAND_ROLL_TRIM;
+extern pprz_t command_pitch_trim = COMMAND_PITCH_TRIM;
+
+
+/** Power switch control.
+ */
 extern bool_t power_switch;
 
 #ifdef POWER_SWITCH_LED
@@ -96,9 +117,6 @@ extern bool_t power_switch;
 #define autopilot_SetPowerSwitch(_x) { power_switch = _x; }
 #endif // POWER_SWITCH_LED
 
-#define autopilot_ResetFlightTimeAndLaunch(_) { \
-  autopilot_flight_time = 0; launch = FALSE; \
-}
 
 /* CONTROL_RATE will be removed in the next release
  * please use CONTROL_FREQUENCY instead

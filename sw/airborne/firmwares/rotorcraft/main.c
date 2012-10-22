@@ -35,7 +35,7 @@
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
 
-#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #if USE_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"

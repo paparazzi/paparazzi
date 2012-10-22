@@ -508,7 +508,7 @@ test_actuators_mkk.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_actuators_mkk.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_actuators_mkk.srcs   += test/test_actuators.c
-test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/commands.c
+test_actuators_mkk.srcs   += subsystems/commands.c
 test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
 test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
 test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/actuators/supervision.c
@@ -526,7 +526,7 @@ test_actuators_asctecv1.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_actuators_asctecv1.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_actuators_asctecv1.srcs   += test/test_actuators.c
-test_actuators_asctecv1.srcs   += $(SRC_FIRMWARE)/commands.c
+test_actuators_asctecv1.srcs   += subsystems/commands.c
 test_actuators_asctecv1.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 test_actuators_asctecv1.srcs   += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 test_actuators_asctecv1.CFLAGS += -DUSE_I2C1
@@ -560,7 +560,7 @@ test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_ar
 #test_manual.srcs   += $(COMMON_TELEMETRY_SRCS)
 #
 #test_manual.srcs   += test/test_manual.c
-#test_manual.srcs   += $(SRC_FIRMWARE)/commands.c
+#test_manual.srcs   += subsystems/commands.c
 ##test_manual.srcs   += subsystems/actuators/actuators_pwm.c
 #test_manual.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
 #

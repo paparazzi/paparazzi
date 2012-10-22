@@ -27,7 +27,7 @@
 #include "led.h"
 
 #include "mcu_periph/i2c.h"
-#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 
 static inline void main_init( void );

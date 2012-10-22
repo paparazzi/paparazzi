@@ -65,8 +65,8 @@ extern bool_t autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
 
-
-
+/** Default RC mode.
+ */
 #ifndef MODE_MANUAL
 #define MODE_MANUAL AP_MODE_RATE_DIRECT
 #endif
@@ -109,6 +109,23 @@ extern uint16_t autopilot_flight_time;
   }
 #endif
 
+/** Thrust and Yaw commands limitation.
+ *  Limit thrust and/or yaw depending of the in_flight
+ *  and motors_on flag status
+ */
+#ifndef ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
+#define RotorcraftCommandsTest(_cmd, _in_flight,  _motor_on) {  \
+  if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }                 \
+  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }               \
+}
+#else
+#define RotorcraftCommandsTest(_cmd, _in_flight,  _motor_on) {  \
+  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }               \
+}
+#endif
+
+/** Ground detection based on accelerometers.
+ */
 #ifndef THRESHOLD_GROUND_DETECT
 #define THRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #endif

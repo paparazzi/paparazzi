@@ -26,7 +26,7 @@
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
-#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #include "subsystems/actuators/actuators_pwm.h"
 #include "subsystems/imu.h"

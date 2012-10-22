@@ -1,5 +1,4 @@
-/*  $Id$
- *
+/*
  * (c) 2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -21,29 +20,12 @@
  *
  */
 
-/** \file commands.h
- *  \brief Hardware independent code for commands handling
+/** \file commands.c
+ *  \brief Hardware independent data structures for commands handling
  *
  */
 
-#ifndef COMMANDS_H
-#define COMMANDS_H
+#include "subsystems/commands.h"
 
-#include "paparazzi.h"
-#include "generated/airframe.h"
-
-extern pprz_t command_roll_trim;
-extern pprz_t command_pitch_trim;
-
-extern pprz_t commands[COMMANDS_NB];
-extern const pprz_t commands_failsafe[COMMANDS_NB];
-/** Storage of intermediate command values: these values come from
-the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
-They are asyncronisly used to set the servos */
-
-#define SetCommands(t) { \
-  int i; \
-  for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
-}
-
-#endif /*  COMMANDS_H */
+pprz_t commands[COMMANDS_NB];
+const pprz_t commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
