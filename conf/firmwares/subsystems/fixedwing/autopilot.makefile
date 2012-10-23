@@ -163,6 +163,7 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ap_CFLAGS 		+= -DAP
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
+ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 ap_srcs 		+= state.c
 

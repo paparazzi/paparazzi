@@ -43,7 +43,7 @@
 #ifdef SERVOS_4017
 #include "subsystems/actuators/servos_4017_hw.h"
 #endif
-#ifdef SERVOS_PPM
+#ifdef SERVOS_PPM_MAT
 #include "subsystems/actuators/servos_ppm_hw.h"
 #endif
 #else

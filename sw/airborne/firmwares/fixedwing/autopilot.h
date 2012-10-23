@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -32,15 +30,23 @@
 
 #include <inttypes.h>
 #include "std.h"
+#include "paparazzi.h"
 #include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
 
-#define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 
+/** Autopilot inititalization.
+ */
+extern void autopilot_init(void);
+
+/** Threshold for RC mode detection.
+ */
+#define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 #define THRESHOLD1 THRESHOLD_MANUAL_PPRZ
 #define THRESHOLD2 (MAX_PPRZ/2)
 
-
+/** AP modes.
+ */
 #define  PPRZ_MODE_MANUAL 0
 #define  PPRZ_MODE_AUTO1 1
 #define  PPRZ_MODE_AUTO2 2
@@ -76,7 +82,14 @@ extern uint8_t lateral_mode;
 
 #define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
+/** Supply voltage in deciVolt.
+ * This the ap copy of the measurement from fbw
+ */
 extern uint16_t vsupply;
+
+/** Fuel consumption (mAh)
+ * TODO: move to electrical subsystem
+ */
 extern float energy;
 
 extern bool_t launch;
@@ -100,8 +113,8 @@ extern bool_t gps_lost;
 #define COMMAND_PITCH_TRIM 0
 #endif
 
-extern pprz_t command_roll_trim = COMMAND_ROLL_TRIM;
-extern pprz_t command_pitch_trim = COMMAND_PITCH_TRIM;
+extern pprz_t command_roll_trim;
+extern pprz_t command_pitch_trim;
 
 
 /** Power switch control.

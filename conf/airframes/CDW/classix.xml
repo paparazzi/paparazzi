@@ -2,7 +2,7 @@
 
 <airframe name="TwinStarXSens">
 
-  <servos>
+  <servos driver="Ppm">
     <servo name="THROTTLE_LEFT" no="1" min="1100" neutral="1100" max="1900"/>
     <servo name="THROTTLE_RIGHT" no="0" min="1100" neutral="1100" max="1900"/>
     <servo name="AILERON_RIGHT" no="2" min="2300" neutral="1550" max="700"/>

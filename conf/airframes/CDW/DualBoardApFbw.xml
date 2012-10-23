@@ -265,7 +265,7 @@
       <subsystem name="radio_control" type="ppm"/>
 
       <!-- split of ap/fbw specific subsystems for fbw -->
-      <subsystem name="actuators" type="direct"/>
+      <subsystem name="actuators" type="pwm"/>
       <subsystem name="intermcu" type="uart">
         <configure name="INTERMCU_PORT_NR" value="2"/>
       </subsystem>
