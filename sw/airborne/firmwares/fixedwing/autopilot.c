@@ -42,9 +42,6 @@ float energy;
 
 bool_t gps_lost;
 
-pprz_t command_roll_trim;
-pprz_t command_pitch_trim;
-
 bool_t power_switch;
 
 void autopilot_init(void) {
@@ -56,9 +53,6 @@ void autopilot_init(void) {
   lateral_mode = LATERAL_MODE_MANUAL;
 
   gps_lost = FALSE;
-
-  command_roll_trim = COMMAND_ROLL_TRIM;
-  command_pitch_trim = COMMAND_PITCH_TRIM;
 
   power_switch = FALSE;
 

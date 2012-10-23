@@ -20,6 +20,7 @@
  */
 
 #include "subsystems/actuators/actuators_pwm_arch.h"
+#include "subsystems/actuators/actuators_pwm.h"
 #include "std.h"
 #include BOARD_CONFIG
 #include "generated/airframe.h"

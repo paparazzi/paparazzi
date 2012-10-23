@@ -24,6 +24,7 @@
  */
 
 #include "subsystems/actuators/actuators_pwm_arch.h"
+#include "subsystems/actuators/actuators_pwm.h"
 
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>

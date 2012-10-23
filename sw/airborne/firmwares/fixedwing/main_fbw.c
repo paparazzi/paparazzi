@@ -58,6 +58,20 @@ uint8_t fbw_mode;
 #include "inter_mcu.h"
 
 
+/** Trim commands for roll and pitch/
+ */
+#ifndef COMMAND_ROLL_TRIM
+#define COMMAND_ROLL_TRIM 0
+#endif
+
+#ifndef COMMAND_PITCH_TRIM
+#define COMMAND_PITCH_TRIM 0
+#endif
+
+pprz_t command_roll_trim;
+pprz_t command_pitch_trim;
+
+
 volatile uint8_t fbw_new_actuators = 0;
 
 tid_t fbw_periodic_tid; ///< id for periodic_task_fbw() timer
@@ -89,6 +103,10 @@ void init_fbw( void ) {
 #endif
 
   fbw_mode = FBW_MODE_FAILSAFE;
+
+  command_roll_trim = COMMAND_ROLL_TRIM;
+  command_pitch_trim = COMMAND_PITCH_TRIM;
+
 
   /**** start timers for periodic functions *****/
   fbw_periodic_tid = sys_time_register_timer((1./60.), NULL);

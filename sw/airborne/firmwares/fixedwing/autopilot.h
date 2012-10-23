@@ -103,19 +103,6 @@ extern bool_t gps_lost;
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
 
-/** Commands trim for roll and pitch/
- */
-#ifndef COMMAND_ROLL_TRIM
-#define COMMAND_ROLL_TRIM 0
-#endif
-
-#ifndef COMMAND_PITCH_TRIM
-#define COMMAND_PITCH_TRIM 0
-#endif
-
-extern pprz_t command_roll_trim;
-extern pprz_t command_pitch_trim;
-
 
 /** Power switch control.
  */
