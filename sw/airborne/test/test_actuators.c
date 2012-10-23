@@ -27,8 +27,8 @@
 #include "led.h"
 
 #include "mcu_periph/i2c.h"
-#include "firmwares/rotorcraft/commands.h"
-#include "firmwares/rotorcraft/actuators.h"
+#include "subsystems/commands.h"
+#include "subsystems/actuators.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -61,7 +61,7 @@ static inline void main_periodic_task( void ) {
   commands[COMMAND_YAW]=0;
   commands[COMMAND_THRUST]=1;
 
-  actuators_set(TRUE);
+  //actuators_set(TRUE);
 
   LED_PERIODIC();
 

@@ -105,13 +105,8 @@ static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
 #endif
 
-bool_t power_switch;
-
 // what version is this ????
 static const uint16_t version = 1;
-
-uint8_t pprz_mode = PPRZ_MODE_AUTO2;
-uint8_t lateral_mode = LATERAL_MODE_MANUAL;
 
 static uint8_t  mcu1_status;
 
@@ -119,30 +114,10 @@ static uint8_t  mcu1_status;
 static uint8_t  mcu1_ppm_cpt;
 #endif
 
-bool_t kill_throttle = FALSE;
-
-bool_t launch = FALSE;
-
-/* flight time in seconds */
-uint16_t autopilot_flight_time = 0;
-
-
-/** Supply voltage in deciVolt.
- * This the ap copy of the measurement from fbw
- */
-uint16_t vsupply;
-
 /** Supply current in milliAmpere.
  * This the ap copy of the measurement from fbw
  */
 static int32_t current;	// milliAmpere
-
-/** Fuel consumption (mAh)
- * TODO: move to electrical subsystem
- */
-float energy;
-
-bool_t gps_lost = FALSE;
 
 
 tid_t modules_tid;     ///< id for modules_periodic_task() timer
@@ -196,6 +171,7 @@ void init_ap( void ) {
 #endif
 
   /************ Internal status ***************/
+  autopilot_init();
   h_ctl_init();
   v_ctl_init();
   nav_init();
@@ -225,8 +201,6 @@ void init_ap( void ) {
   IO0DIR |= _BV(AEROCOMM_DATA_PIN);
   IO0SET = _BV(AEROCOMM_DATA_PIN);
 #endif
-
-  power_switch = FALSE;
 
   /************ Multi-uavs status ***************/
 

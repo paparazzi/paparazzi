@@ -1,12 +1,14 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
 <!-- this is an asctec frame equiped with  Lisa/L#3 and asctec V2 controllers -->
 
 <airframe name="lisa_asctec">
 
-  <servos>
-    <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
-    <servo name="BACK"    no="1" min="0" neutral="0" max="255"/>
-    <servo name="LEFT"    no="2" min="0" neutral="0" max="255"/>
-    <servo name="RIGHT"   no="3" min="0" neutral="0" max="255"/>
+  <servos driver="Asctec">
+    <servo name="FRONT"   no="0" min="0" neutral="3" max="200"/>
+    <servo name="BACK"    no="1" min="0" neutral="3" max="200"/>
+    <servo name="LEFT"    no="2" min="0" neutral="3" max="200"/>
+    <servo name="RIGHT"   no="3" min="0" neutral="3" max="200"/>
   </servos>
 
   <commands>
@@ -22,13 +24,10 @@
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
 
-
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="3"/>
-    <define name="MAX_MOTOR" value="200"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"   value="{  0  ,    0,  256, -256 }"/>
@@ -36,6 +35,14 @@
     <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
+    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
+    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
+    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
+  </command_laws>
 
   <section name="IMU" prefix="IMU_">
     <define name="GYRO_P_NEUTRAL" value="32276"/>
@@ -183,6 +190,7 @@
     <target name="ap" board="lisa_l_1.1">
 <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="motor_mixing"/>
       <subsystem name="actuators"     type="asctec_v2"/>
       <subsystem name="telemetry"     type="transparent"/>
       <define name="RADIO_MODE" value="RADIO_AUX2"/>
@@ -192,6 +200,7 @@
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="motor_mixing"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
@@ -219,8 +228,8 @@
     <target name="test_adxl345"             board="lisa_l_1.1"/>
     <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
     <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
-    <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
+    <!--target name="test_actuators_mkk"       board="lisa_l_1.1"/>
+    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/-->
   </firmware>
 
 

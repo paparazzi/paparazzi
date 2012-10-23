@@ -40,7 +40,7 @@
 #include "firmwares/rotorcraft/autopilot.h"
 #include "firmwares/rotorcraft/guidance.h"
 
-#include "firmwares/rotorcraft/actuators.h"
+#include "subsystems/actuators.h"
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
@@ -134,6 +134,12 @@
   }
 #else
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
+#endif
+
+#ifdef ACTUATORS
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
+#else
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
 #endif
 
 #define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
@@ -731,9 +737,9 @@
   }
 
 #if USE_CAM
-#define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) DOWNLINK_SEND_BOOZ2_CAM(_trans, _dev,&booz_cam_tilt,&booz_cam_pan);
+#define PERIODIC_SEND_ROTORCRAFT_CAM(_trans, _dev) DOWNLINK_SEND_ROTORCRAFT_CAM(_trans, _dev,&rotorcraft_cam_tilt,&rotorcraft_cam_pan);
 #else
-#define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
+#define PERIODIC_SEND_ROTORCRAFT_CAM(_trans, _dev) {}
 #endif
 
 #define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \

@@ -26,17 +26,11 @@
 #ifndef ACTUATORS_PWM_ARCH_H
 #define ACTUATORS_PWM_ARCH_H
 
-#define ACTUATORS_PWM_NB 8
+#define SERVOS_TICS_OF_USEC(_v) (_v)
 
-/* Needs to be included after ACTUATORS_PWM_NB is defined!
- * Otherwise ACTUATORS_PWM_NB is not declared in actuators_pwm.h
- */
-#include "subsystems/actuators/actuators_pwm.h"
+#define ActuatorPwmSet(_i, _v) {}
+#define ActuatorsPwmCommit() {}
 
 extern void actuators_pwm_arch_init(void);
-extern void actuators_pwm_commit(void);
-
-#define SERVOS_TICS_OF_USEC(_v) (_v)
-#define ActuatorsCommit() {}
 
 #endif /* ACTUATORS_PWM_ARCH_H */

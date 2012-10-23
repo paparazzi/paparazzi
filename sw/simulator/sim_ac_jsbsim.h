@@ -51,7 +51,7 @@
 
 extern bool run_model;
 
-void autopilot_init(void);
+void sim_autopilot_init(void);
 void autopilot_periodic_task(void);
 void autopilot_event_task(void);
 void jsbsim_init(void);

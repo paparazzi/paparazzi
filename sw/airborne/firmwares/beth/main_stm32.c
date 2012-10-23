@@ -28,7 +28,7 @@
 #include "mcu_periph/can.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
-#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 //#include "booz/booz_radio_control.h"
 #include "subsystems/imu.h"

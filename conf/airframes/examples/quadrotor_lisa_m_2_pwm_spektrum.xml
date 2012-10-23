@@ -25,7 +25,8 @@
       <subsystem name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="actuators"     type="pwm_supervision">
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
     </subsystem>
@@ -38,11 +39,11 @@
     <subsystem name="ins"/>
   </firmware>
 
-  <servos>
-    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="RIGHT"   no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="LEFT"    no="3" min="1000" neutral="1000" max="2000"/>
+  <servos driver="Pwm">
+    <servo name="FRONT"   no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK"    no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>
@@ -52,18 +53,10 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <command_laws>
-    <!-- command_laws is needed for pwm_supervision -->
-    <!-- but can be empty if no additional servos are used -->
-  </command_laws>
-
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="STOP_MOTOR" value="1000"/>
-    <define name="MIN_MOTOR"  value="1100"/>
-    <define name="MAX_MOTOR"  value="1900"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <!-- front/back turning CW, right/left CCW -->
@@ -72,6 +65,14 @@
     <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
+    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
+    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
+    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
+  </command_laws>
 
   <section name="IMU" prefix="IMU_">
     <define name="ACCEL_X_NEUTRAL" value="11"/>

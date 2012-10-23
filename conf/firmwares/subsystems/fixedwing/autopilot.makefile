@@ -152,7 +152,8 @@ endif
 fbw_CFLAGS		+= -DFBW
 fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
 fbw_srcs 		+= subsystems/electrical.c
-fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
+fbw_srcs 		+= subsystems/commands.c
+fbw_srcs 		+= subsystems/actuators.c
 fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ######################################################################
@@ -162,6 +163,7 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ap_CFLAGS 		+= -DAP
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
+ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 ap_srcs 		+= state.c
 

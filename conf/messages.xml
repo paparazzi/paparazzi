@@ -737,7 +737,7 @@
   </message>
 
   <message name="ACTUATORS" id="105">
-    <field name="values" type="uint16[]" unit="none"/>
+    <field name="values" type="int16[]" unit="none"/>
   </message>
 
   <message name="BETH" id="106">
@@ -1394,8 +1394,8 @@
     <field name="var" type="float"/>
   </message>
 
-  <message name="BOOZ2_CAM" id="168">
-    <field name="tilt" type="int16" unit="us"/>
+  <message name="ROTORCRAFT_CAM" id="168">
+    <field name="tilt" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="pan" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
 
@@ -2177,7 +2177,7 @@
    <field name="yd"     type="float" unit="m"/>
  </message>
 
- <message name="BOOZ_CAM_STICK" id="152" link="forwarded">
+ <message name="ROTORCRAFT_CAM_STICK" id="152" link="forwarded">
    <field name="ac_id" type="uint8"/>
    <field name="tilt" type="int8"/>
    <field name="pan" type="int8"/>

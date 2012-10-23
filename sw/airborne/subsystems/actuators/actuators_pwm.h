@@ -22,15 +22,13 @@
 #ifndef ACTUATORS_PWM_H
 #define ACTUATORS_PWM_H
 
-#include "std.h"
-#include "actuators.h"
-
-#include BOARD_CONFIG
 #include "subsystems/actuators/actuators_pwm_arch.h"
 
-extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+/** Arch dependent init file.
+ * implemented in arch files
+ */
+extern void actuators_pwm_arch_init(void);
 
-#define Actuator(_x)  actuators_pwm_values[_x]
-#define ChopServo(_x,_a,_b) Chop(_x, _a, _b)
+#define ActuatorsPwmInit() actuators_pwm_arch_init()
 
 #endif /* ACTUATORS_PWM_H */
