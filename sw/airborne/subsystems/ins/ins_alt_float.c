@@ -32,6 +32,8 @@
 #include "subsystems/gps.h"
 #include "subsystems/nav.h"
 
+#include "generated/airframe.h"
+
 #ifdef DEBUG_ALT_KALMAN
 #include "mcu_periph/uart.h"
 #include "ap_downlink.h"
