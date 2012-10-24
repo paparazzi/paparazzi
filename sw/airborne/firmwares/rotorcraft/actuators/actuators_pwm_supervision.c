@@ -37,6 +37,7 @@
 #include "firmwares/rotorcraft/actuators.h"
 #include "subsystems/actuators/actuators_pwm.h"
 
+#define actuators actuators_pwm_values
 
 /** actuator PWM values in usec. */
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
