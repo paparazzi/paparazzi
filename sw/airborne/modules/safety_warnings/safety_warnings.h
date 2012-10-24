@@ -21,13 +21,13 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef LED_DRIVER_H
-#define LED_DRIVER_H
+#ifndef SAFETY_WARNINGS_H
+#define SAFETY_WARNINGS_H
 
 #include "std.h"
 
-extern void led_driver_init(void);
-extern void led_driver_periodic(void);
+extern void safety_warnings_init(void);
+extern void safety_warnings_periodic(void);
 
-#endif  /* LED_DRIVER_H */
+#endif  /* SAFETY_WARNINGS_H */
 
