@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="led_driver">
+  <header>
+    <file name="led_driver.h"/>
+  </header>
+  <init fun="led_driver_init()"/>
+  <periodic fun="led_driver_periodic()" freq="100"/>
+  <makefile>
+    <file name="led_driver.c"/>
+  </makefile>
+</module>
+
+
