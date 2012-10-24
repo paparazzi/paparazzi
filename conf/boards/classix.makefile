@@ -55,5 +55,13 @@ ifndef SYS_TIME_LED
 SYS_TIME_LED = none
 endif
 
+#
+# you can use different actuators by adding a configure option to your firmware section
+# e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+#
+ifndef ACTUATORS
+ACTUATORS = actuators_pwm
+endif
+
 
 

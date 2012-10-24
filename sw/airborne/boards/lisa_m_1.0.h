@@ -59,6 +59,12 @@
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
 
 
+/* Default actuators driver */
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
+#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorsDefaultInit() ActuatorsPwmInit()
+#define ActuatorsDefaultCommit() ActuatorsPwmCommit()
+
 
 #define DefaultVoltageOfAdc(adc) (0.00485*adc)
 

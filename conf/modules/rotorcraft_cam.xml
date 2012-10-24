@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rotorcraft_cam" dir="cam_control">
+  <doc>
+    <description>
+      Camera control for rotorcraft.
+      The camera is controled by the heading of the vehicle for pan and can be controlled by a servo for tilt if defined.
+    </description>
+    <section name="CAM" prefix="ROTORCRAFT_CAM_">
+      <define name="DEFAULT_MODE" value="MODE_NONE|MODE_MANUAL|MODE_HEADING|MODE_WP" description="Select default mode (default: MODE_NONE)"/>
+      <define name="CAM_ON" value="handler" description="Handler to power on the camera ({} to disable)"/>
+      <define name="CAM_OFF" value="handler" description="Handler to power off the camera ({} to disable)"/>
+      <define name="TILT_SERVO" value="name" description="Servo name for tilt control (no tilt control if not defined)"/>
+      <define name="TILT_ANGLE_MIN" value="angle" description="Tilt angle corresponding to the servo min position"/>
+      <define name="TILT_ANGLE_MAX" value="angle" description="Tilt angle corresponding to the servo max position"/>
+      <define name="USE_PAN" value="TRUE|FALSE" description="Enable pan control with heading (default: TRUE)"/>
+      <define name="TRACK_WP" value="WP_XXX" description="Enable waypoint tracking mode on the selected WP (default: enable if waypoint CAM is defined)"/>
+      <define name="STICK_TILT_INC" value="angle/stick_input" description="Sensitivity of the datalink stick tilt control (default: 10 deg)"/>
+      <define name="STICK_PAN_INC" value="angle/stick_input" description="Sensitivity of the datalink stick pan control (default: 20 deg)"/>
+    </section>
+  </doc>
+  <header>
+    <file name="rotorcraft_cam.h"/>
+  </header>
+  <init fun="rotorcraft_cam_init()"/>
+  <periodic fun="rotorcraft_cam_periodic()" freq="10."/>
+  <datalink message="ROTORCRAFT_CAM_STICK" fun="ROTORCRAFT_CAM_STICK_PARSE(dl_buffer)"/>
+  <makefile>
+    <define name="USE_CAM"/>
+    <file name="rotorcraft_cam.c"/>
+  </makefile>
+</module>
+

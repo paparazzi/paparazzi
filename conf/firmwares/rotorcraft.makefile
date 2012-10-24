@@ -104,7 +104,8 @@ ifeq ($(TARGET), ap)
   include $(CFG_SHARED)/i2c_select.makefile
 endif
 
-ap.srcs += $(SRC_FIRMWARE)/commands.c
+ap.srcs += subsystems/commands.c
+ap.srcs += subsystems/actuators.c
 
 #
 # Radio control choice

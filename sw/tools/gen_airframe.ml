@@ -130,7 +130,9 @@ let parse_servo = fun driver c ->
 
   define (name^"_NEUTRAL") (sof neutral);
   define (name^"_TRAVEL_UP") (sof travel_up);
+  define_integer (name^"_TRAVEL_UP") travel_up 16;
   define (name^"_TRAVEL_DOWN") (sof travel_down);
+  define_integer (name^"_TRAVEL_DOWN") travel_down 16;
 
   let min = Pervasives.min min max
   and max = Pervasives.max min max in
@@ -150,7 +152,18 @@ let preprocess_value = fun s v prefix ->
   let s = Str.global_replace pprz_value (sprintf "%s[%s_\\1]" v prefix) s in
   Str.global_replace var_value "_var_\\1" s
 
-
+let print_actuators_idx = fun () ->
+  let nb = Hashtbl.fold (fun s d i ->
+    printf "#define SERVO_%s_IDX %d\n" s i;
+    (* Set servo macro *)
+    printf "#define Set_%s_Servo(_v) { \\\n" s;
+    printf "  actuators[SERVO_%s_IDX] = Chop(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
+    printf "  Actuator%sSet(SERVO_%s, actuators[SERVO_%s_IDX]); \\\n" d s s;
+    printf "}\n\n";
+    i+1
+  ) servos_drivers 0 in
+  define "ACTUATORS_NB" (string_of_int nb);
+  nl ()
 
 let parse_command_laws = fun command ->
   let a = fun s -> ExtXml.attrib command s in
@@ -159,62 +172,29 @@ let parse_command_laws = fun command ->
        let servo = a "servo"
        and value = a "value" in
        let v = preprocess_value value "values" "COMMAND" in
-       printf "  command_value = %s;\\\n" v;
-       printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
-       printf "  servo_value = SERVO_%s_NEUTRAL + (int32_t)(command_value);\\\n" servo;
-       printf "  actuators[SERVO_%s] = ChopServo(servo_value, SERVO_%s_MIN, SERVO_%s_MAX);\\\n\\\n" servo servo servo;
-
-       let driver = get_servo_driver servo in
-       printf "  Actuator%s(SERVO_%s) = SERVOS_TICS_OF_USEC(actuators[SERVO_%s]);\\\n\\\n" driver servo servo
+       printf "  command_value = %s; \\\n" v;
+       printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
+       printf "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
+       printf "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
+       printf "  Set_%s_Servo(servo_value); \\\n\\\n" servo
    | "let" ->
        let var = a "var"
        and value = a "value" in
        let v = preprocess_value value "values" "COMMAND" in
-       printf "  int16_t _var_%s = %s;\\\n" var v
+       printf "  int16_t _var_%s = %s; \\\n" var v
+   | "call" ->
+       let f = a "fun" in
+       printf "  %s; \\\n\\\n" f
    | "ratelimit" ->
        let var = a "var"
        and value = a "value"
        and rate_min = a "rate_min"
        and rate_max = a "rate_max" in
        let v = preprocess_value value "values" "COMMAND" in
-       printf "  static int16_t _var_%s = 0; _var_%s += Chop((%s) - (_var_%s), (%s), (%s));\\\n" var var v var rate_min rate_max
+       printf "  static int16_t _var_%s = 0; _var_%s += Chop((%s) - (_var_%s), (%s), (%s)); \\\n" var var v var rate_min rate_max
    | "define" ->
        parse_element "" command
    | _ -> xml_error "set|let"
-
-let parse_csc_fields = fun csc_fields ->
-  let a = fun s -> ExtXml.attrib csc_fields s in
-   match Xml.tag csc_fields with
-     "field_map" ->
-       let servo_id = a "servo_id"
-       and field = a "field" in
-       printf "  temp.%s = actuators[%s]; \\\n" field servo_id;
-      | _ -> xml_error "field_map"
-
-let parse_csc_messages = (let msg_index_ref = ref 0 in fun csc_id csc_messages ->
-  let a = fun s -> ExtXml.attrib csc_messages s in
-   match Xml.tag csc_messages with
-     "msg" ->
-       let msg_id = a "id"
-       and msg_type = a "type"
-       and msg_index = msg_index_ref.contents in
-       msg_index_ref.contents <- msg_index + 1;
-       printf "{\\\n  struct Csc%s temp; \\\n" msg_type;
-       List.iter parse_csc_fields (Xml.children csc_messages);
-       printf "  can_write_csc(%s, CSC_%s, (uint8_t *)&temp, sizeof(struct Csc%s)); \\\n" csc_id msg_id msg_type;
-       printf "} \\\n"
-      | _ -> xml_error "msg"
-  )
-
-let parse_csc_boards = fun csc_board ->
-  let a = fun s -> ExtXml.attrib csc_board s in
-   match Xml.tag csc_board with
-     "board" ->
-       let csc_id = a "id" in
-       List.iter (parse_csc_messages csc_id) (Xml.children csc_board);
-   | "define" ->
-       parse_element "" csc_board
-   | _ -> xml_error "board"
 
 let parse_rc_commands = fun rc ->
   let a = fun s -> ExtXml.attrib rc s in
@@ -255,11 +235,12 @@ let rec parse_section = fun s ->
       List.iter (parse_element prefix) (Xml.children s);
       nl ()
   | "servos" ->
-      let driver = ExtXml.attrib_or_default s "driver" "" in
+      let driver = ExtXml.attrib_or_default s "driver" "Default" in
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
 
-      define "SERVOS_NB" (string_of_int nb_servos);
+      define (sprintf "SERVOS_%s_NB" (String.uppercase driver)) (string_of_int nb_servos);
+      printf "#include \"subsystems/actuators/actuators_%s.h\"\n" (String.lowercase driver);
       nl ();
       List.iter (parse_servo driver) servos;
       nl ()
@@ -282,9 +263,11 @@ let rec parse_section = fun s ->
       List.iter parse_ap_only_commands (Xml.children s);
       printf "}\n\n"
   | "command_laws" ->
+      print_actuators_idx ();
+
       printf "#define SetActuatorsFromCommands(values) { \\\n";
-      printf "  uint32_t servo_value;\\\n";
-      printf "  float command_value;\\\n";
+      printf "  int32_t servo_value;\\\n";
+      printf "  int32_t command_value;\\\n\\\n";
 
       List.iter parse_command_laws (Xml.children s);
 
@@ -295,12 +278,6 @@ let rec parse_section = fun s ->
       printf "#define AllActuatorsInit() { \\\n";
       List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
       printf "}\n\n";
-  | "csc_boards" ->
-      let boards = Array.of_list (Xml.children s) in
-      define "CSC_BOARD_NB" (string_of_int (Array.length boards));
-      printf "#define SendCscFromActuators() { \\\n";
-      List.iter parse_csc_boards (Xml.children s);
-      printf "}\n"
   | "include" ->
       let filename = ExtXml.attrib s "href" in
       let subxml = Xml.parse_file filename in

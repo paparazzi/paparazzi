@@ -1,0 +1,12 @@
+<joystick>
+  <input>
+    <axis index="6" name="pan"/>
+    <axis index="7" name="tilt"/>
+  </input>
+  <messages period="0.1">
+    <message class="datalink" name="ROTORCRAFT_CAM_STICK">
+      <field name="tilt" value="-tilt"/>
+      <field name="pan" value="pan"/>
+    </message>
+  </messages>
+</joystick>

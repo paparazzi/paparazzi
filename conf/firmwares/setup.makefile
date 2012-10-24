@@ -84,10 +84,10 @@ ifeq ($(TARGET), setup_actuators)
     endif
 
     ifeq ($(BOARD),lisa_l)
-      include $(CFG_SHARED)/actuators_direct.makefile
+      include $(CFG_SHARED)/actuators_pwm.makefile
     endif
-	ifeq ($(BOARD),lisa_m)
-      include $(CFG_SHARED)/actuators_direct.makefile
+		ifeq ($(BOARD),lisa_m)
+      include $(CFG_SHARED)/actuators_pwm.makefile
     endif
 
   else

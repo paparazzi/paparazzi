@@ -5,6 +5,6 @@
 # The PPM is output on the SERV_CLK pin. The PPM frame rate, pulse width, and number of channels
 # can be adjusted in the "servos_ppm_hw.h" file to suit your particular receiver.
 
-$(TARGET).CFLAGS += -DACTUATORS=\"servos_ppm_hw.h\" -DSERVOS_PPM_MAT
-$(TARGET).srcs += $(SRC_ARCH)/servos_ppm_hw.c actuators.c
+$(TARGET).CFLAGS += -DACTUATORS -DSERVOS_PPM_MAT
+$(TARGET).srcs += $(SRC_ARCH)/subsystems/actuators/servos_ppm_hw.c
 
