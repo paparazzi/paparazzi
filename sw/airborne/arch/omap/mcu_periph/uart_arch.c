@@ -32,7 +32,7 @@
 #include "fms/fms_serial_port.h"
 
 
-void uart_periph_set_baudrate(struct uart_periph* p, uint16_t baud) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint16_t baud, bool_t hw_flow_control __attribute__ ((unused))) {
   struct FmsSerialPort* fmssp;
   // close serial port if already open
   if (p->reg_addr != NULL) {

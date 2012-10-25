@@ -37,7 +37,7 @@ void airborne_run_one_step(void) {
   // SEE  sim_run_one_step
 }
 
-void autopilot_init(void) {
+void sim_autopilot_init(void) {
   init_fbw();
   init_ap();
 }

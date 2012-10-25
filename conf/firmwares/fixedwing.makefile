@@ -34,16 +34,7 @@ endif
 
 ifeq ($(TARGET),$(ACTUATOR_TARGET))
 
-  ifeq ($(ACTUATORS),)
-
-    ifeq ($(BOARD),lisa_l)
-      include $(CFG_SHARED)/actuators_direct.makefile
-    endif
-    ifeq ($(BOARD),lisa_m)
-      include $(CFG_SHARED)/actuators_direct.makefile
-    endif
-
-  else
+  ifneq ($(ACTUATORS),)
     include $(CFG_SHARED)/$(ACTUATORS).makefile
   endif
 

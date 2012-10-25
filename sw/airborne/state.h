@@ -351,10 +351,9 @@ struct State {
   /** @}*/
 
 
-  /** @defgroup state_attitude
-   *  @{ */
+  /** @defgroup state_attitude Attitude representations
+   */
   struct OrientationReps ned_to_body_orientation;
-  /** @}*/
 
 
   /** @addtogroup state_rate
@@ -433,6 +432,9 @@ extern struct State state;
 
 extern void stateInit(void);
 
+/** @addtogroup state_position
+ *  @{ */
+
 /// Set the local (flat earth) coordinate frame origin (int).
 static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
   LTP_DEF_COPY(state.ned_origin_i, *ltp_def);
@@ -478,8 +480,6 @@ static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
  * Set and Get functions for the POSITION representations                      *
  *                                                                             *
  ******************************************************************************/
-/** @addtogroup state_position
- *  @{ */
 
 /************* declaration of transformation functions ************/
 extern void stateCalcPositionEcef_i(void);

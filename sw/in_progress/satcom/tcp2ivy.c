@@ -71,7 +71,7 @@ unsigned char gps_utm_zone;
 int gps_lat, gps_lon; /* 1e7 deg */
 int gps_hmsl;
 short estimator_airspeed;
-unsigned char electrical_vsupply;
+unsigned short electrical_vsupply;
 unsigned char nav_block;
 unsigned char energy;
 unsigned char throttle;

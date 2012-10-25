@@ -471,6 +471,7 @@ let () =
   let ivy_bus = ref Defivybus.default_ivy_bus
   and port = ref "/dev/ttyUSB0"
   and baudrate = ref "9600"
+  and hw_flow_control = ref false
   and transport = ref "pprz"
   and uplink = ref true
   and audio = ref false
@@ -488,6 +489,7 @@ let () =
       "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
+      "-hfc",  Arg.Set hw_flow_control, "Enable UART hardware flow control (CTS/RTS)";
       "-local_timestamp", Arg.Unit (fun () -> add_timestamp := Some (Unix.gettimeofday ())), "Add local timestamp to messages sent over ivy";
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,pprz2 and xbee. Default is %s" !transport);
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
@@ -520,7 +522,7 @@ let () =
       end else if !audio then
 	Demod.init !port
       else if on_serial_device then
-	Serial.opendev !port (Serial.speed_of_baudrate !baudrate)
+	Serial.opendev !port (Serial.speed_of_baudrate !baudrate) !hw_flow_control
       else
 	Unix.openfile !port [Unix.O_RDWR] 0o640
     in

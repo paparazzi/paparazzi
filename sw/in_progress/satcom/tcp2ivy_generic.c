@@ -74,7 +74,7 @@ unsigned char gps_utm_zone;
 int gps_lat, gps_lon; /* 1e7 deg */
 int gps_hmsl;
 short estimator_airspeed;
-unsigned char electrical_vsupply;
+unsigned short electrical_vsupply;
 unsigned char nav_block;
 unsigned short energy;
 unsigned char throttle;
@@ -124,6 +124,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       //    FillBufWith16bit(com_trans.buf, 15, (uint16_t)(estimator_airspeed*100)); // TAS (cm/s)
       estimator_airspeed = buf2ushort(&buf[14]);
       //    com_trans.buf[17] = electrical.vsupply; // decivolt
+      //FIXME: electrical.vsupply is now a uint16
       electrical_vsupply = buf[16];
       //    com_trans.buf[18] = (uint8_t)(energy / 100); // deciAh
       energy = buf[17];

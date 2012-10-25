@@ -46,7 +46,13 @@
 #define PPM_CCR_CRI TCCR_CR2_I
 #define PPM_CR T0CR2
 
-/* SERVOS : 4017 on FBW_RC0 connector */
+/* Default actuators driver */
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
+#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorsDefaultInit() ActuatorsPwmInit()
+#define ActuatorsDefaultCommit() ActuatorsPwmCommit()
+
+/* SERVOS : 4017 on FBW_RC0 connector (ppm driver) */
 
 /* MAT0.1 on P0.5 */
 #define SERVO_CLOCK_PIN 5

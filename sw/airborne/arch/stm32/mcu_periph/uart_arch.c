@@ -29,15 +29,22 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include "std.h"
 
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control) {
 
   /* Configure USART */
   usart_set_baudrate((u32)p->reg_addr, baud);
   usart_set_databits((u32)p->reg_addr, 8);
   usart_set_stopbits((u32)p->reg_addr, USART_STOPBITS_1);
   usart_set_parity((u32)p->reg_addr, USART_PARITY_NONE);
-  usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_NONE);
   usart_set_mode((u32)p->reg_addr, USART_MODE_TX_RX);
+
+  if (hw_flow_control) {
+    usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_RTS_CTS);
+  }
+  else {
+    usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_NONE);
+  }
+
   /* Enable USART1 Receive interrupts */
   USART_CR1((u32)p->reg_addr) |= USART_CR1_RXNEIE;
 
@@ -126,8 +133,19 @@ void uart1_init( void ) {
   gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_INPUT,
 	  GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
 
-  /* Configure USART */
-  uart_periph_set_baudrate(&uart1, UART1_BAUD);
+#if UART1_HW_FLOW_CONTROL
+#warning "USING UART1 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
+  gpio_set_mode(GPIO_BANK_USART1_RTS, GPIO_MODE_OUTPUT_50_MHZ,
+          GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_RTS);
+  gpio_set_mode(GPIO_BANK_USART1_CTS, GPIO_MODE_INPUT,
+          GPIO_CNF_INPUT_FLOAT, GPIO_USART1_CTS);
+
+  /* Configure USART1, enable hardware flow control*/
+  uart_periph_set_baudrate(&uart1, UART1_BAUD, TRUE);
+#else
+  /* Configure USART1, no flow control */
+  uart_periph_set_baudrate(&uart1, UART1_BAUD, FALSE);
+#endif
 }
 
 void usart1_isr(void) { usart_isr(&uart1); }
@@ -155,7 +173,7 @@ void uart2_init( void ) {
 	  GPIO_CNF_INPUT_FLOAT, GPIO_USART2_RX);
 
   /* Configure USART */
-  uart_periph_set_baudrate(&uart2, UART2_BAUD);
+  uart_periph_set_baudrate(&uart2, UART2_BAUD, FALSE);
 }
 
 void usart2_isr(void) { usart_isr(&uart2); }
@@ -185,7 +203,7 @@ void uart3_init( void ) {
 	  GPIO_CNF_INPUT_FLOAT, GPIO_USART3_PR_RX);
 
   /* Configure USART */
-  uart_periph_set_baudrate(&uart3, UART3_BAUD);
+  uart_periph_set_baudrate(&uart3, UART3_BAUD, FALSE);
 }
 
 void usart3_isr(void) { usart_isr(&uart3); }
@@ -214,7 +232,7 @@ void uart5_init( void ) {
 	  GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
 
   /* Configure USART */
-  uart_periph_set_baudrate(&uart5, UART5_BAUD);
+  uart_periph_set_baudrate(&uart5, UART5_BAUD, FALSE);
 }
 
 void uart5_isr(void) { usart_isr(&uart5); }

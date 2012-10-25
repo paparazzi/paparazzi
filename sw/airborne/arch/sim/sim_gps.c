@@ -7,7 +7,6 @@
 /** From airborne/autopilot/ */
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
-#include "autopilot.h"
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_geodetic_int.h"

@@ -116,8 +116,6 @@ So use @c #if not @c #ifdef to turn a feature on or off. This works fine, and do
 
 The following sections provide guidelines for Paparazzi developers
 who wish to write Doxygen comments in the code or this manual.
-For an introduction to Doxygen documentation,
-see the @ref primerdoxygen.
 
 @section styledoxyblocks Doxygen Block Selection
 

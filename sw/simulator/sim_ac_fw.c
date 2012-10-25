@@ -65,7 +65,7 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
   parse_dl_move_wp(argv);
 }
 
-void autopilot_init(void) {
+void sim_autopilot_init(void) {
   IvyBindMsg(on_DL_PING, NULL, "^(\\S*) DL_PING");
   IvyBindMsg(on_DL_ACINFO, NULL, "^(\\S*) DL_ACINFO (\\S*) (\\S*) (\\S* (\\S*) (\\S*) (\\S*)) (\\S*) (\\S*)");
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");

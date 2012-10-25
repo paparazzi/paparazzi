@@ -68,6 +68,7 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 
 static inline void set_body_state_from_quat(void);
 
+
 void ahrs_init(void) {
 
   ahrs.status = AHRS_UNINIT;
@@ -93,6 +94,8 @@ void ahrs_init(void) {
 #else
   ahrs_impl.use_gravity_heuristic = FALSE;
 #endif
+
+  VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X), MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z));
 
 }
 
@@ -256,11 +259,9 @@ static inline void ahrs_update_mag_full(void) {
 
   struct Int32RMat ltp_to_imu_rmat;
   INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
-  const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-                                          MAG_BFP_OF_REAL(AHRS_H_Y),
-                                          MAG_BFP_OF_REAL(AHRS_H_Z)};
+
   struct Int32Vect3 expected_imu;
-  INT32_RMAT_VMULT(expected_imu, ltp_to_imu_rmat, expected_ltp);
+  INT32_RMAT_VMULT(expected_imu, ltp_to_imu_rmat, ahrs_impl.mag_h);
 
   struct Int32Vect3 residual;
   INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
@@ -284,15 +285,14 @@ static inline void ahrs_update_mag_2d(void) {
 
   struct Int32RMat ltp_to_imu_rmat;
   INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
-  const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-                                          MAG_BFP_OF_REAL(AHRS_H_Y)};
+
   struct Int32Vect3 measured_ltp;
   INT32_RMAT_TRANSP_VMULT(measured_ltp, ltp_to_imu_rmat, imu.mag);
 
   struct Int32Vect3 residual_ltp =
     { 0,
       0,
-      (measured_ltp.x * expected_ltp.y - measured_ltp.y * expected_ltp.x)/(1<<5)};
+      (measured_ltp.x * ahrs_impl.mag_h.y - measured_ltp.y * ahrs_impl.mag_h.x)/(1<<5)};
 
   struct Int32Vect3 residual_imu;
   INT32_RMAT_VMULT(residual_imu, ltp_to_imu_rmat, residual_ltp);

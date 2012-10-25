@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 TUDelft
+ * Copyright (C) 2012 TUDelft, Tobias Muench
  *
  * This file is part of paparazzi.
  *
@@ -61,6 +61,10 @@ extern float v_ctl_energy_total_igain;
 
 extern float v_ctl_energy_diff_pgain;
 extern float v_ctl_energy_diff_igain;
+
+extern float v_ctl_auto_groundspeed_pgain;
+extern float v_ctl_auto_groundspeed_igain;
+extern float v_ctl_auto_groundspeed_sum_err;
 
 /////////////////////////////////////////////////
 // Automatically found airplane characteristics

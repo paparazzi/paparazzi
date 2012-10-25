@@ -37,7 +37,15 @@
 #define SYS_TICK_IT TIR_MR0I
 
 #if defined ACTUATORS && ( defined SERVOS_4017 || defined SERVOS_4015_MAT || defined SERVOS_PPM_MAT)
-#include ACTUATORS
+#ifdef SERVOS_4015_MAT
+#include "subsystems/actuators/servos_4015_MAT_hw.h"
+#endif
+#ifdef SERVOS_4017
+#include "subsystems/actuators/servos_4017_hw.h"
+#endif
+#ifdef SERVOS_PPM_MAT
+#include "subsystems/actuators/servos_ppm_hw.h"
+#endif
 #else
 #define ACTUATORS_IT 0x00
 #endif /* ACTUATORS */
