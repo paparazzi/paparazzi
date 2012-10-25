@@ -52,27 +52,22 @@ void safety_warnings_periodic(void) {
   }
   else if(!autopilot_motors_on) {
     if (!(autopilot_mode == MODE_MANUAL) ){
-      //RunXTimesEvery(0, 240, 20, 4, {LED_TOGGLE(SAFETY_WARNING_LED);});
       RunXTimesEvery(20, 240, 40, 1, {LED_ON(SAFETY_WARNING_LED);});
       RunXTimesEvery(0, 240, 40, 1, {LED_OFF(SAFETY_WARNING_LED);});
     }
     else if (!THROTTLE_STICK_DOWN()){
-      //RunXTimesEvery(0, 240, 20, 4, {LED_TOGGLE(SAFETY_WARNING_LED);});
       RunXTimesEvery(20, 240, 40, 2, {LED_ON(SAFETY_WARNING_LED);});
       RunXTimesEvery(0, 240, 40, 2, {LED_OFF(SAFETY_WARNING_LED);});
     }
     else if (!ROLL_STICK_CENTERED()){
-      //RunXTimesEvery(0, 240, 20, 6, {LED_TOGGLE(SAFETY_WARNING_LED);});
       RunXTimesEvery(20, 240, 40, 3, {LED_ON(SAFETY_WARNING_LED);});
       RunXTimesEvery(0, 240, 40, 3, {LED_OFF(SAFETY_WARNING_LED);});
     }
     else if (!PITCH_STICK_CENTERED()){
-      //RunXTimesEvery(0, 240, 20, 8, {LED_TOGGLE(SAFETY_WARNING_LED);});
       RunXTimesEvery(20, 240, 40, 4, {LED_ON(SAFETY_WARNING_LED);});
       RunXTimesEvery(0, 240, 40, 4, {LED_OFF(SAFETY_WARNING_LED);});
     }
     else if (!YAW_STICK_CENTERED()){
-      //RunXTimesEvery(0, 240, 20, 8, {LED_TOGGLE(SAFETY_WARNING_LED);});
       RunXTimesEvery(20, 240, 40, 5, {LED_ON(SAFETY_WARNING_LED);});
       RunXTimesEvery(0, 240, 40, 5, {LED_OFF(SAFETY_WARNING_LED);});
     }
