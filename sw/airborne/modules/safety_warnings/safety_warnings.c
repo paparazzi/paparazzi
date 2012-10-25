@@ -26,6 +26,7 @@
 #include "subsystems/radio_control.h"
 #include "autopilot.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
+#include "autopilot_rc_helpers.h"
 
 #include "safety_warnings.h"
 
@@ -37,28 +38,55 @@
 
 /* initialises periodic loop; place more init functions here if expanding driver */
 void safety_warnings_init(void) {
-  LED_ON(AHRS_ALIGNER_LED);
+  LED_ON(SAFETY_WARNING_LED);
   safety_warnings_periodic();
 }
 
 
 void safety_warnings_periodic(void) {
   
-#ifdef AHRS_ALIGNER_LED
+#ifdef SAFETY_WARNING_LED
   if (radio_control.status == RC_LOST || radio_control.status == RC_REALLY_LOST){
-    RunXTimesEvery(0, 60, 5, 7, {LED_TOGGLE(AHRS_ALIGNER_LED);});
-    RunXTimesEvery(130, 130, 10, 6, {LED_TOGGLE(AHRS_ALIGNER_LED);});
+    RunXTimesEvery(0, 60, 5, 7, {LED_TOGGLE(SAFETY_WARNING_LED);});
+    RunXTimesEvery(130, 130, 10, 6, {LED_TOGGLE(SAFETY_WARNING_LED);});
+  }
+  else if(!autopilot_motors_on) {
+    if (!(autopilot_mode == MODE_MANUAL) ){
+      //RunXTimesEvery(0, 240, 20, 4, {LED_TOGGLE(SAFETY_WARNING_LED);});
+      RunXTimesEvery(20, 240, 40, 1, {LED_ON(SAFETY_WARNING_LED);});
+      RunXTimesEvery(0, 240, 40, 1, {LED_OFF(SAFETY_WARNING_LED);});
     }
-  #ifdef MIN_BAT_LEVEL
+    else if (!THROTTLE_STICK_DOWN()){
+      //RunXTimesEvery(0, 240, 20, 4, {LED_TOGGLE(SAFETY_WARNING_LED);});
+      RunXTimesEvery(20, 240, 40, 2, {LED_ON(SAFETY_WARNING_LED);});
+      RunXTimesEvery(0, 240, 40, 2, {LED_OFF(SAFETY_WARNING_LED);});
+    }
+    else if (!ROLL_STICK_CENTERED()){
+      //RunXTimesEvery(0, 240, 20, 6, {LED_TOGGLE(SAFETY_WARNING_LED);});
+      RunXTimesEvery(20, 240, 40, 3, {LED_ON(SAFETY_WARNING_LED);});
+      RunXTimesEvery(0, 240, 40, 3, {LED_OFF(SAFETY_WARNING_LED);});
+    }
+    else if (!PITCH_STICK_CENTERED()){
+      //RunXTimesEvery(0, 240, 20, 8, {LED_TOGGLE(SAFETY_WARNING_LED);});
+      RunXTimesEvery(20, 240, 40, 4, {LED_ON(SAFETY_WARNING_LED);});
+      RunXTimesEvery(0, 240, 40, 4, {LED_OFF(SAFETY_WARNING_LED);});
+    }
+    else if (!YAW_STICK_CENTERED()){
+      //RunXTimesEvery(0, 240, 20, 8, {LED_TOGGLE(SAFETY_WARNING_LED);});
+      RunXTimesEvery(20, 240, 40, 5, {LED_ON(SAFETY_WARNING_LED);});
+      RunXTimesEvery(0, 240, 40, 5, {LED_OFF(SAFETY_WARNING_LED);});
+    }
+  }
+#ifdef MIN_BAT_LEVEL
   else if (electrical.vsupply < (MIN_BAT_LEVEL * 10)){
-    RunOnceEvery(20, {LED_TOGGLE(AHRS_ALIGNER_LED);});
-    }
+    RunOnceEvery(20, {LED_TOGGLE(SAFETY_WARNING_LED);});
+  }
   else if (electrical.vsupply < ((MIN_BAT_LEVEL + 0.5) * 10)){
-    RunXTimesEvery(0, 300, 10, 10, {LED_TOGGLE(AHRS_ALIGNER_LED);});
-    }
-  #endif
+    RunXTimesEvery(0, 300, 10, 10, {LED_TOGGLE(SAFETY_WARNING_LED);});
+  }
+#endif
   else {
-    LED_ON(AHRS_ALIGNER_LED);
-    }
+    LED_ON(SAFETY_WARNING_LED);
+  }
 #endif
 }
