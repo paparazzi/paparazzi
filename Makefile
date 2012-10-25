@@ -258,7 +258,7 @@ sw/simulator/launchsitl:
 
 gen_messages_macros: $(MACROS_TARGET)
 
-$(MACROS_TARGET) : $(MESSAGES_XML_CONF) tools
+$(MACROS_TARGET):
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
