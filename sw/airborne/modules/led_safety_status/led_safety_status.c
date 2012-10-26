@@ -20,6 +20,7 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
 #include "led.h"
 #include "generated/airframe.h"
 #include "subsystems/electrical.h"
@@ -28,24 +29,18 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "autopilot_rc_helpers.h"
 
-#include "safety_warnings.h"
+#include "led_safety_status.h"
 
-/*
- * simple module to blink LEDs when battery voltage drops below a certain 
- * level, as well as when AHRS is not aligned or when takeoff safety conditions
- * are not met.
- */
+#ifndef SAFETY_WARNING_LED
+#error You must define SAFETY_WARNING_LED to use this module!
+#else
 
-/* initialises periodic loop; place more init functions here if expanding driver */
-void safety_warnings_init(void) {
+void led_safety_status_init(void) {
   LED_ON(SAFETY_WARNING_LED);
-  safety_warnings_periodic();
+  led_safety_status_periodic();
 }
 
-
-void safety_warnings_periodic(void) {
-  
-#ifdef SAFETY_WARNING_LED
+void led_safety_status_periodic(void) {
   if (radio_control.status == RC_LOST || radio_control.status == RC_REALLY_LOST){
     RunXTimesEvery(0, 60, 5, 7, {LED_TOGGLE(SAFETY_WARNING_LED);});
     RunXTimesEvery(130, 130, 10, 6, {LED_TOGGLE(SAFETY_WARNING_LED);});
@@ -81,5 +76,5 @@ void safety_warnings_periodic(void) {
   else {
     LED_ON(SAFETY_WARNING_LED);
   }
-#endif
 }
+#endif

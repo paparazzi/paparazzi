@@ -170,8 +170,8 @@
    <!--load name="vehicle_interface_overo_link.xml"/-->
    <load name="gps_ubx_ucenter.xml"/>
    
-   <load name="safety_warnings.xml"> 
-         <define name="SAFETY_WARNING_LED" value="5"/>
+   <load name="led_safety_status.xml"> 
+     <define name="SAFETY_WARNING_LED" value="5"/>
    </load>
 </modules>
 

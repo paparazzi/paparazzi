@@ -21,13 +21,29 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef SAFETY_WARNINGS_H
-#define SAFETY_WARNINGS_H
+
+/**
+ * @file led_safety_status.h
+ * 
+ * Simple module to blink LEDs when battery voltage drops below a certain 
+ * level, radio control is lost or when takeoff safety conditions are not met.
+ */
+
+#ifndef LED_SAFETY_STATUS_H
+#define LED_SAFETY_STATUS_H
 
 #include "std.h"
 
-extern void safety_warnings_init(void);
-extern void safety_warnings_periodic(void);
+/**
+ * Initialises periodic loop; place more init functions here if expanding driver
+ */
+extern void led_safety_status_init(void);
 
-#endif  /* SAFETY_WARNINGS_H */
+/**
+ * Periodic function that makes the leds blink in the right pattern for 
+ * each situation.
+ */
+extern void led_safety_status_periodic(void);
+
+#endif  /* LED_SAFETY_STATUS_H */
 
