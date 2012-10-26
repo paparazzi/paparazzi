@@ -21,7 +21,7 @@
     <define name="SERVO_SWITCH_OFF_VALUE" value="1000"/>
     <define name="SERVO_SWITCH_SERVO"     value="SWITCH"/>
   </load>
-  
+
   The servo will not exceed the min and max positions defined in the servo section
 -->
 

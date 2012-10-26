@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<!-- 
+<!--
      Eternity 1
      designed by Murat Bronz
      Umarim-Lite
@@ -93,7 +93,7 @@
     <define name="ACCEL_X_NEUTRAL" value="-1"/>
     <define name="ACCEL_Y_NEUTRAL" value="-6"/>
     <define name="ACCEL_Z_NEUTRAL" value="-18"/>
-    
+
     <define name="ACCEL_X_SENS" value="38.8426913974" integer="16"/>
     <define name="ACCEL_Y_SENS" value="38.743860704" integer="16"/>
     <define name="ACCEL_Z_SENS" value="39.5046247859" integer="16"/>

@@ -24,8 +24,8 @@
 
 /**
  * @file led_safety_status.h
- * 
- * Simple module to blink LEDs when battery voltage drops below a certain 
+ *
+ * Simple module to blink LEDs when battery voltage drops below a certain
  * level, radio control is lost or when takeoff safety conditions are not met.
  */
 
@@ -40,7 +40,7 @@
 extern void led_safety_status_init(void);
 
 /**
- * Periodic function that makes the leds blink in the right pattern for 
+ * Periodic function that makes the leds blink in the right pattern for
  * each situation.
  */
 extern void led_safety_status_periodic(void);
