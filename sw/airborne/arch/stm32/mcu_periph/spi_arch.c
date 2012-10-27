@@ -97,6 +97,10 @@ static struct spi_periph_dma spi2_dma;
 #define SPI_SLAVE2_PORT GPIOB
 #define SPI_SLAVE2_PIN GPIO12
 
+#define SPI_SLAVE3_PERIPH RCC_APB2ENR_IOPCEN
+#define SPI_SLAVE3_PORT GPIOC
+#define SPI_SLAVE3_PIN GPIO13
+
 static inline void SpiSlaveUnselect(uint8_t slave)
 {
   switch(slave) {
@@ -113,8 +117,9 @@ static inline void SpiSlaveUnselect(uint8_t slave)
 #if USE_SPI2
     case 2:
       GPIO_BSRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
+      GPIO_BSRR(SPI_SLAVE3_PORT) = SPI_SLAVE3_PIN;
       break;
-#endif //USE_SPI_SLAVE2
+#endif //USE_SPI_SLAVE2 and USE_SPI_SLAVE3
 
     default:
       break;
@@ -140,6 +145,11 @@ static inline void SpiSlaveSelect(uint8_t slave)
       GPIO_BRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
       break;
 #endif //USE_SPI_SLAVE2
+#if USE_SPI3
+    case 3:
+      GPIO_BRR(SPI_SLAVE3_PORT) = SPI_SLAVE3_PIN;
+      break;
+#endif //USE_SPI_SLAVE3
     default:
       break;
   }
@@ -319,6 +329,7 @@ void spi2_arch_init(void) {
   spi_disable(SPI2);
 
   rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE2_PERIPH);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE3_PERIPH);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
   // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
@@ -326,6 +337,12 @@ void spi2_arch_init(void) {
   gpio_set(GPIOB, SPI_SLAVE2_PIN);
   gpio_set_mode(SPI_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE2_PIN);
+
+
+  SpiSlaveUnselect(3);
+  gpio_set(GPIOB, SPI_SLAVE3_PIN);
+  gpio_set_mode(SPI_SLAVE3_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE3_PIN);
 
   // Force SPI mode over I2S.
   SPI2_I2SCFGR = 0;
