@@ -29,6 +29,12 @@
 #define LED_2_BANK 1
 #define LED_2_PIN 19
 
+/* Default actuators driver */
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_4017.h"
+#define ActuatorDefaultSet(_x,_y) Actuator4017Set(_x,_y)
+#define ActuatorsDefaultInit() Actuators4017Init()
+#define ActuatorsDefaultCommit() Actuators4017Commit()
+
 /* p0.21 aka PWM5 */
 #define SERV0_CLOCK_PIN 21
 #define SERV0_CLOCK_PINSEL PINSEL1

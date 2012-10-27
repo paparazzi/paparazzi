@@ -46,7 +46,14 @@ struct GpsSkytraq gps_skytraq;
 #define SKYTRAQ_FIX_3D      0x02
 #define SKYTRAQ_FIX_3D_DGPS 0x03
 
+// distance in cm (10km dist max any direction)
+#define MAX_DISTANCE  1000000
+
 //#include "my_debug_servo.h"
+
+struct LtpDef_i     ref_ltp;
+
+static int distance_too_great( struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos );
 
 void gps_impl_init(void) {
 
@@ -106,6 +113,28 @@ void gps_skytraq_read_message(void) {
     gps.utm_pos.alt = gps.lla_pos.alt;
     gps.utm_pos.zone = nav_utm_zone0;
 #endif
+
+    if ( gps.fix == GPS_FIX_3D ) {
+      if ( distance_too_great( &ref_ltp.ecef, &gps.ecef_pos ) ) {
+        // just grab current ecef_pos as reference.
+        ltp_def_from_ecef_i( &ref_ltp, &gps.ecef_pos );
+      }
+      // convert ecef velocity vector to NED vector.
+      ned_of_ecef_vect_i( &gps.ned_vel, &ref_ltp, &gps.ecef_vel );
+
+      // ground course in radians
+      gps.course = ( M_PI_4 + atan2( -gps.ned_vel.y, gps.ned_vel.x )) * 1e7;
+      // GT: gps.cacc = ... ? what should course accuracy be?
+
+      // ground speed
+      gps.gspeed = sqrt( gps.ned_vel.x * gps.ned_vel.x + gps.ned_vel.y * gps.ned_vel.y );
+      gps.speed_3d = sqrt( gps.ned_vel.x * gps.ned_vel.x + gps.ned_vel.y * gps.ned_vel.y + gps.ned_vel.z * gps.ned_vel.z );
+
+      // vertical speed (climb)
+      // solved by gps.ned.z?
+    }
+
+
 
     //DEBUG_S2_TOGGLE();
 
@@ -189,4 +218,15 @@ void gps_skytraq_parse(uint8_t c) {
  restart:
   gps_skytraq.status = UNINIT;
   return;
+}
+
+static int distance_too_great( struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos ) {
+  int32_t xdiff = abs(ecef_ref->x - ecef_pos->x);
+  if ( xdiff > MAX_DISTANCE ) return TRUE;
+  int32_t ydiff = abs(ecef_ref->y - ecef_pos->y);
+  if ( ydiff > MAX_DISTANCE ) return TRUE;
+  int32_t zdiff = abs(ecef_ref->z - ecef_pos->z);
+  if ( zdiff > MAX_DISTANCE ) return TRUE;
+
+  return FALSE;
 }

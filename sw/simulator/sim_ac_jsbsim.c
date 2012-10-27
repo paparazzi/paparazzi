@@ -78,7 +78,7 @@ static void sim_init(void) {
   ivy_transport_init();
 
   // main AP init (feed the sensors once before ?)
-  autopilot_init();
+  sim_autopilot_init();
 
   printf("sys_time resolution: %f\n", SYS_TIME_RESOLUTION);
   printf("sys_time period in msec: %d\n", SYSTIME_PERIOD);

@@ -1,13 +1,20 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
 <!-- this is a custom hexa Lisa/L#3 and mikrokopter controllers -->
 <airframe name="booz2_a6">
 
-  <servos>
-    <servo name="BACK_RIGHT"   no="0" min="0" neutral="0" max="255"/>
-    <servo name="BACK_LEFT"    no="1" min="0" neutral="0" max="255"/>
-    <servo name="CENTER_RIGHT" no="2" min="0" neutral="0" max="255"/>
-    <servo name="CENTER_LEFT"  no="3" min="0" neutral="0" max="255"/>
-    <servo name="FRONT_RIGHT"  no="4" min="0" neutral="0" max="255"/>
-    <servo name="FRONT_LEFT"   no="5" min="0" neutral="0" max="255"/>
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="6"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58, 0x5A, 0X5C }"/>
+  </section>
+
+  <servos driver="Mkk">
+    <servo name="BACK_RIGHT"   no="0" min="0" neutral="2" max="210"/>
+    <servo name="BACK_LEFT"    no="1" min="0" neutral="2" max="210"/>
+    <servo name="CENTER_RIGHT" no="2" min="0" neutral="2" max="210"/>
+    <servo name="CENTER_LEFT"  no="3" min="0" neutral="2" max="210"/>
+    <servo name="FRONT_RIGHT"  no="4" min="0" neutral="2" max="210"/>
+    <servo name="FRONT_LEFT"   no="5" min="0" neutral="2" max="210"/>
   </servos>
 
   <commands>
@@ -17,17 +24,10 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="6"/>
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58, 0x5A, 0X5C }"/>
-  </section>
-
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="2"/>
-    <define name="MAX_MOTOR" value="210"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"   value="{  -69,   69, -256,  256, -186,  186 }"/>
@@ -35,6 +35,16 @@
     <define name="YAW_COEF"    value="{ -153,  153,  256, -256, -115,  115 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
   </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
+    <set servo="CENTER_RIGHT" value="motor_mixing.commands[SERVO_CENTER_RIGHT]"/>
+    <set servo="CENTER_LEFT"  value="motor_mixing.commands[SERVO_CENTER_LEFT]"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
+  </command_laws>
 
   <section name="IMU" prefix="IMU_">
 
@@ -172,6 +182,7 @@
     <target name="ap" board="lisa_l_1.0">
 <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="motor_mixing"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
     <subsystem name="telemetry"     type="transparent"/>
@@ -200,8 +211,8 @@
     <target name="test_adxl345"             board="lisa_l_1.0"/>
     <target name="test_esc_mkk_simple"      board="lisa_l_1.0"/>
     <target name="test_esc_asctecv1_simple" board="lisa_l_1.0"/>
-    <target name="test_actuators_mkk"       board="lisa_l_1.0"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.0"/>
+    <!--target name="test_actuators_mkk"       board="lisa_l_1.0"/>
+    <target name="test_actuators_asctecv1"  board="lisa_l_1.0"/-->
   </firmware>
 
 </airframe>

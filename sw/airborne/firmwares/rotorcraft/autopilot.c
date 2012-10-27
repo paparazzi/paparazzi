@@ -23,7 +23,7 @@
 
 #include "subsystems/radio_control.h"
 #include "subsystems/gps.h"
-#include "firmwares/rotorcraft/commands.h"
+#include "subsystems/commands.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -102,15 +102,14 @@ void autopilot_periodic(void) {
 #else
   if (autopilot_mode == AP_MODE_KILL) {
 #endif
-    SetCommands(commands_failsafe,
-		autopilot_in_flight, autopilot_motors_on);
+    SetCommands(commands_failsafe);
   }
   else {
     guidance_v_run( autopilot_in_flight );
     guidance_h_run( autopilot_in_flight );
-    SetCommands(stabilization_cmd,
-        autopilot_in_flight, autopilot_motors_on);
+    SetCommands(stabilization_cmd);
   }
+  RotorcraftCommandsTest(commands, autopilot_in_flight, autopilot_motors_on);
 
 }
 

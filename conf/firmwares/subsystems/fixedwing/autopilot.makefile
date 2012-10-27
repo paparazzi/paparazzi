@@ -152,7 +152,8 @@ endif
 fbw_CFLAGS		+= -DFBW
 fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
 fbw_srcs 		+= subsystems/electrical.c
-fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
+fbw_srcs 		+= subsystems/commands.c
+fbw_srcs 		+= subsystems/actuators.c
 fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ######################################################################
@@ -162,6 +163,7 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ap_CFLAGS 		+= -DAP
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
+ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 ap_srcs 		+= state.c
 
@@ -239,15 +241,16 @@ jsbsim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 #
 
 ifeq ($(BOARD),classix)
-  fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
-  fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
-  ap_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
-  ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-  ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+  include $(CFG_FIXEDWING)/intermcu_spi.makefile
 else
   # Single MCU's run both
-  ap.CFLAGS 		+= $(fbw_CFLAGS)
-  ap.srcs 		+= $(fbw_srcs)
+  ifeq ($(SEPARATE_FBW),)
+    ap.CFLAGS 		+= $(fbw_CFLAGS)
+    ap.srcs 		+= $(fbw_srcs)
+  else
+   # avoid fbw_telemetry_mode error
+   ap_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
+  endif
 endif
 
 #

@@ -32,7 +32,7 @@
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 
-#include "actuators/supervision.h"
+#include "subsystems/actuators/motor_mixing.h"
 
 
 struct NpsAutopilot autopilot;
@@ -100,8 +100,8 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   /* scale final motor commands to 0-1 for feeding the fdm */
   /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
-  for (uint8_t i=0; i<SUPERVISION_NB_MOTOR; i++)
-    autopilot.commands[i] = (double)(supervision.commands[i] - SUPERVISION_MIN_MOTOR) / SUPERVISION_MAX_MOTOR;
+  for (uint8_t i=0; i<MOTOR_MIXING_NB_MOTOR; i++)
+    autopilot.commands[i] = (double)motor_mixing.commands[i]/MAX_PPRZ;
 
 }
 

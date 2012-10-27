@@ -49,6 +49,12 @@
 
 #define POWER_SWITCH_LED 4
 
+/* Default actuators driver */
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_4017.h"
+#define ActuatorDefaultSet(_x,_y) Actuator4017Set(_x,_y)
+#define ActuatorsDefaultInit() Actuators4017Init()
+#define ActuatorsDefaultCommit() Actuators4017Commit()
+
 /* P0.5 aka MAT0.1  */
 #define SERVO_CLOCK_PIN  5
 #define SERVO_CLOCK_PINSEL PINSEL0

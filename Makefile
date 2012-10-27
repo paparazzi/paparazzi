@@ -210,10 +210,6 @@ upload_ms ms.upload: ms
 #####
 #####
 
-doxygen:
-	mkdir -p dox
-	doxygen Doxyfile
-
 run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
@@ -282,4 +278,4 @@ run_tests:
 
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
-.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible doxygen run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml
+.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml

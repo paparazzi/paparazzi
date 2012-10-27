@@ -39,8 +39,8 @@
 #include "messages.h"
 #include "generated/periodic_telemetry.h"
 #include "generated/airframe.h"
-#include "commands.h"
-#include "actuators.h"
+#include "subsystems/commands.h"
+#include "subsystems/actuators.h"
 
 #include "mcu_periph/uart.h"
 #include "firmwares/fixedwing/main_fbw.h"
@@ -78,7 +78,7 @@
 #endif // RADIO_CONTROL
 
 #ifdef ACTUATORS
-#define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, SERVOS_NB, actuators)
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
 #else
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
 #endif

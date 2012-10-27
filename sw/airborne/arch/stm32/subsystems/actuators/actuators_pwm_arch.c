@@ -23,12 +23,14 @@
  *  STM32 PWM servos handling.
  */
 
-#include "actuators.h"
 #include "subsystems/actuators/actuators_pwm_arch.h"
+#include "subsystems/actuators/actuators_pwm.h"
 
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/timer.h>
+
+int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 #define PCLK 72000000
 #define ONE_MHZ_CLK 1000000

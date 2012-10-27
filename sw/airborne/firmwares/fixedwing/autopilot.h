@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -32,14 +30,23 @@
 
 #include <inttypes.h>
 #include "std.h"
+#include "paparazzi.h"
 #include "mcu_periph/sys_time.h"
+#include "generated/airframe.h"
 
+
+/** Autopilot inititalization.
+ */
+extern void autopilot_init(void);
+
+/** Threshold for RC mode detection.
+ */
 #define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
-
 #define THRESHOLD1 THRESHOLD_MANUAL_PPRZ
 #define THRESHOLD2 (MAX_PPRZ/2)
 
-
+/** AP modes.
+ */
 #define  PPRZ_MODE_MANUAL 0
 #define  PPRZ_MODE_AUTO1 1
 #define  PPRZ_MODE_AUTO2 2
@@ -57,6 +64,10 @@ extern bool_t kill_throttle;
 /** flight time in seconds. */
 extern uint16_t autopilot_flight_time;
 
+#define autopilot_ResetFlightTimeAndLaunch(_) { \
+  autopilot_flight_time = 0; launch = FALSE; \
+}
+
 
 // FIXME, move to control
 #define LATERAL_MODE_MANUAL    0
@@ -71,7 +82,14 @@ extern uint8_t lateral_mode;
 
 #define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
-extern uint8_t vsupply;
+/** Supply voltage in deciVolt.
+ * This the ap copy of the measurement from fbw
+ */
+extern uint16_t vsupply;
+
+/** Fuel consumption (mAh)
+ * TODO: move to electrical subsystem
+ */
 extern float energy;
 
 extern bool_t launch;
@@ -85,6 +103,9 @@ extern bool_t gps_lost;
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
 
+
+/** Power switch control.
+ */
 extern bool_t power_switch;
 
 #ifdef POWER_SWITCH_LED
@@ -96,9 +117,6 @@ extern bool_t power_switch;
 #define autopilot_SetPowerSwitch(_x) { power_switch = _x; }
 #endif // POWER_SWITCH_LED
 
-#define autopilot_ResetFlightTimeAndLaunch(_) { \
-  autopilot_flight_time = 0; launch = FALSE; \
-}
 
 /* CONTROL_RATE will be removed in the next release
  * please use CONTROL_FREQUENCY instead

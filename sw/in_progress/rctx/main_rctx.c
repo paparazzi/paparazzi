@@ -95,7 +95,7 @@ struct adc_buf vsupply_adc_buf;
 
 #define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
 
-uint8_t rctx_vsupply_decivolt;
+uint16_t rctx_vsupply_decivolt;
 uint8_t rctx_under_voltage;
 uint8_t rctx_mode;
 

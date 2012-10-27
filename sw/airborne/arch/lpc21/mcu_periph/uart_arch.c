@@ -56,7 +56,7 @@ static inline void uart_set_baudrate(struct uart_periph* p, uint32_t baud) {
   ((uartRegs_t *)(p->reg_addr))->fcr = UART_FIFO_8;
 }
 
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control __attribute__ ((unused))) {
   uart_disable_interrupts(p);
   uart_set_baudrate(p, baud);
   uart_enable_interrupts(p);

@@ -5,7 +5,7 @@
     <description>Servo switch</description>
     <define name="SERVO_SWITCH_ON_VALUE"  value="pwm" description="servo value in usec"/>
     <define name="SERVO_SWITCH_OFF_VALUE" value="pwm" description="servo value in usec"/>
-    <define name="SERVO_SWITCH_SERVO"     value="nb" description="Id of the servo to use"/>
+    <define name="SERVO_SWITCH_SERVO"     value="nb" description="Id of the servo (default: SWITCH)"/>
   </doc>
   <header>
     <file name="servo_switch.h"/>
@@ -19,8 +19,10 @@
   <load name="servo_switch.xml">
     <define name="SERVO_SWITCH_ON_VALUE"  value="2000"/>
     <define name="SERVO_SWITCH_OFF_VALUE" value="1000"/>
-    <define name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
+    <define name="SERVO_SWITCH_SERVO"     value="SWITCH"/>
   </load>
+
+  The servo will not exceed the min and max positions defined in the servo section
 -->
 
     <file name="servo_switch.c"/>
