@@ -85,12 +85,15 @@ static struct spi_periph_dma spi2_dma;
 // SPI1 to spi1
 // SPI3 to spi0
 
+#define SPI_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
 #define SPI_SLAVE0_PORT GPIOA
 #define SPI_SLAVE0_PIN GPIO15
 
+#define SPI_SLAVE1_PERIPH RCC_APB2ENR_IOPAEN
 #define SPI_SLAVE1_PORT GPIOA
 #define SPI_SLAVE1_PIN GPIO4
 
+#define SPI_SLAVE2_PERIPH RCC_APB2ENR_IOPBEN
 #define SPI_SLAVE2_PORT GPIOB
 #define SPI_SLAVE2_PIN GPIO12
 
@@ -177,13 +180,13 @@ void spi0_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI3);
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE0_PERIPH);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
   // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   SpiSlaveUnselect(0);
   gpio_set(SPI_SLAVE0_PORT, SPI_SLAVE0_PIN);
-  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(GPIO_SLAVE0_PORT, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE0_PIN);
 
   // Force SPI mode over I2S.
@@ -246,7 +249,7 @@ void spi1_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI1);
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE1_PERIPH);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
   // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
@@ -315,13 +318,13 @@ void spi2_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI2);
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE2_PERIPH);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
   // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   SpiSlaveUnselect(2);
   gpio_set(GPIOB, SPI_SLAVE2_PIN);
-  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(SPI_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE2_PIN);
 
   // Force SPI mode over I2S.
@@ -359,7 +362,7 @@ void spi2_arch_init(void) {
   spi2.trans_insert_idx = 0;
   spi2.trans_extract_idx = 0;
   spi2.status = SPIIdle;
-  
+
   spi_arch_int_enable( &spi2 );
 }
 #endif
@@ -432,7 +435,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   //Disable interrupts to avoid race conflict with end of DMA transfer interrupt
   //FIXME
   spi_arch_int_disable( p );
-  
+
   // GT: no copy?  There's a queue implying a copy here...
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
