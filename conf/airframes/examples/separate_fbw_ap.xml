@@ -254,8 +254,6 @@
   <firmware name="fixedwing">
 
     <target name="ap" board="lisa_m_2.0">
-      <define name="LISA_M_LONGITUDINAL_X"/>
-
       <configure name="SEPARATE_FBW" value="1"/>
 
       <configure name="PERIODIC_FREQUENCY" value="120"/>

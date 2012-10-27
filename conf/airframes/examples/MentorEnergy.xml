@@ -7,8 +7,7 @@
 <airframe name="LisaAspirin2">
 
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_m_1.0">
-      <define name="LISA_M_LONGITUDINAL_X"/>
+    <target name="ap" board="lisa_m_2.0">
       <define name="SENSOR_SYNC_SEND"/>
 
       <configure name="PERIODIC_FREQUENCY" value="120"/>
@@ -118,25 +117,6 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <!-- Calibration Neutral -->
-    <define name="GYRO_P_NEUTRAL" value="0"/>
-    <define name="GYRO_Q_NEUTRAL" value="0"/>
-    <define name="GYRO_R_NEUTRAL" value="0"/>
-
-    <!-- SENS = 16.4 LSB/(deg/sec) * 57.6 deg/rad = 939.650 LSB/rad/sec / 12bit FRAC: 4096 / 939.65 -->
-    <define name="GYRO_P_SENS" value="4.359" integer="16"/>
-    <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
-    <define name="GYRO_R_SENS" value="4.359" integer="16"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="0"/>
-    <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="0"/>
-
-    <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
-    <define name="ACCEL_X_SENS" value="9.81" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="9.81" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="9.81" integer="16"/>
-
     <define name="MAG_X_NEUTRAL" value="((-320+140)/2)"/>
     <define name="MAG_Y_NEUTRAL" value="((-320+140)/2)"/>
     <define name="MAG_Z_NEUTRAL" value="0"/>
