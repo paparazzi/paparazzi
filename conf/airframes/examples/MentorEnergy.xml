@@ -160,6 +160,7 @@
     <define name="NOMINAL_AIRSPEED" value="16." unit="m/s"/>
     <define name="GLIDE_AIRSPEED" value="12." unit="m/s"/>
     <define name="RACE_AIRSPEED" value="25." unit="m/s"/>
+    <define name="STALL_AIRSPEED" value="10." unit="m/s"/>
 
     <define name="CARROT" value="5." unit="s"/>
 
@@ -199,6 +200,10 @@
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.307000011206"/>
 
     <define name="THROTTLE_SLEW_LIMITER" value="1" unit="s"/>
+
+    <!--define name="AUTO_GROUNDSPEED_SETPOINT" value="15." unit="m/s"/>
+    <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
+    <define name="AUTO_GROUNDSPEED_IGAIN" value="0"/-->
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
