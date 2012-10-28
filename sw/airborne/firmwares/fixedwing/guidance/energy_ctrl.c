@@ -47,15 +47,15 @@
  *
  *  Pseudo-Control Unit = dimensionless acceleration [g]
  *
- *  	- pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
- *  	- throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
+ *      - pitch <-> pseudocontrol:    sin(Theta) steers Vdot in [g]
+ *      - throttle <-> pseudocontrol: motor characteristic as function of V x throttle steeds VDot
  *
  *  @dot
  *  digraph total_energy_control {
- *  	node [shape=record];
- *  	b [label="attitude loop" URL="\ref attitude_loop"];
- *  	c [label="climb loop" URL="\ref v_ctl_climb_loop"];
- *  	b -> c [ arrowhead="open", style="dashed" ];
+ *      node [shape=record];
+ *      b [label="attitude loop" URL="\ref attitude_loop"];
+ *      c [label="climb loop" URL="\ref v_ctl_climb_loop"];
+ *      b -> c [ arrowhead="open", style="dashed" ];
  *  }
  *  @enddot
  *
@@ -233,7 +233,7 @@ void v_ctl_init( void ) {
 
 #ifdef V_CTL_ALTITUDE_MAX_CLIMB
   v_ctl_max_climb = V_CTL_ALTITUDE_MAX_CLIMB;
-#else 
+#else
   v_ctl_max_climb = 2;
 #warning "V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s"
 #endif
@@ -260,7 +260,7 @@ void v_ctl_init( void ) {
 void v_ctl_altitude_loop( void )
 {
   // Imput Checks
-  if (v_ctl_auto_airspeed_setpoint <= STALL_AIRSPEED * 1.23) v_ctl_auto_airspeed_setpoint = STALL_AIRSPEED * 1.23; 
+  if (v_ctl_auto_airspeed_setpoint <= STALL_AIRSPEED * 1.23) v_ctl_auto_airspeed_setpoint = STALL_AIRSPEED * 1.23;
 
   // Altitude Controller
   v_ctl_altitude_error = v_ctl_altitude_setpoint - estimator_z;
@@ -297,7 +297,7 @@ static float low_pass_vdot(float v)
 void v_ctl_climb_loop( void )
 {
 #ifdef AIRSPEED_SETPOINT_SLEW
-  // airspeed_setpoint ratelimiter: 
+  // airspeed_setpoint ratelimiter:
   float airspeed_incr = v_ctl_auto_airspeed_setpoint - v_ctl_auto_airspeed_setpoint_slew; // FIXME
   BoundAbs(airspeed_incr, AIRSPEED_SETPOINT_SLEW * NOMINAL_AIRSPEED);
   v_ctl_auto_airspeed_setpoint_slew += airspeed_incr;
@@ -314,7 +314,7 @@ void v_ctl_climb_loop( void )
   if (v_ctl_auto_airspeed_controlled < v_ctl_auto_airspeed_setpoint) {
     v_ctl_auto_airspeed_controlled = v_ctl_auto_airspeed_setpoint;
     // reset integrator of ground speed loop
-    v_ctl_auto_groundspeed_sum_err = v_ctl_auto_airspeed_controlled/(v_ctl_auto_groundspeed_pgain*v_ctl_auto_groundspeed_igain); 
+    v_ctl_auto_groundspeed_sum_err = v_ctl_auto_airspeed_controlled/(v_ctl_auto_groundspeed_pgain*v_ctl_auto_groundspeed_igain);
   }
 #else
     v_ctl_auto_airspeed_controlled = v_ctl_auto_airspeed_setpoint_slew;
@@ -378,8 +378,8 @@ void v_ctl_climb_loop( void )
     Bound(v_ctl_auto_throttle_nominal_cruise_pitch,H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
   }
   float v_ctl_pitch_of_vz =
-		+ (v_ctl_climb_setpoint /*+ d_err * v_ctl_auto_throttle_pitch_of_vz_dgain*/) * v_ctl_auto_throttle_pitch_of_vz_pgain
-		- v_ctl_auto_pitch_of_airspeed_pgain * speed_error
+        + (v_ctl_climb_setpoint /*+ d_err * v_ctl_auto_throttle_pitch_of_vz_dgain*/) * v_ctl_auto_throttle_pitch_of_vz_pgain
+        - v_ctl_auto_pitch_of_airspeed_pgain * speed_error
                 + v_ctl_auto_pitch_of_airspeed_dgain * vdot
                 + v_ctl_energy_diff_pgain * en_dis_err
                 + v_ctl_auto_throttle_nominal_cruise_pitch;

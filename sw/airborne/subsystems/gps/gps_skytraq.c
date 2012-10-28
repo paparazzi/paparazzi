@@ -134,7 +134,7 @@ void gps_skytraq_read_message(void) {
       // solved by gps.ned.z?
     }
 
-    
+
 
     //DEBUG_S2_TOGGLE();
 
