@@ -98,13 +98,29 @@ enum SPIStatus {
   SPIRunning
 };
 
+enum SPIBitOrder {
+  SPIMSBFirst,
+  SPILSBFirst  
+};
+
+enum SPIClockDiv {
+  SPIDiv2,
+  SPIDiv4,
+  SPIDiv8,
+  SPIDiv16,
+  SPIDiv32,
+  SPIDiv64,
+  SPIDiv128,
+  SPIDiv256
+};
+
 /** SPI Callback function.
  * if not NULL (or 0), can execute a function before or after transaction
  * allow to execute some hardware very specific actions
  */
-typedef void (*SPICallback)(void);
-
-
+struct spi_transaction;
+typedef void (*SPICallback)( struct spi_transaction *trans );
+  
 /** SPI transaction structure.
  * - Use this structure to store a request of SPI transaction
  *   and submit it using spi_submit function
@@ -120,11 +136,12 @@ struct spi_transaction {
   uint8_t input_length;
   uint8_t output_length;
   uint8_t slave_idx;
-  volatile uint8_t* ready;
   enum SPISlaveSelect select;
   enum SPIClockPolarity cpol;
   enum SPIClockPhase cpha;
   enum SPIDataSizeSelect dss; // Architecture dependant options (LPC21) ?
+  enum SPIBitOrder bitorder;
+  enum SPIClockDiv cdiv;
   SPICallback before_cb;
   SPICallback after_cb;
   volatile enum SPITransactionStatus status;
@@ -145,7 +162,6 @@ struct spi_periph {
   volatile uint8_t rx_idx_buf;
   void* reg_addr;
   void *init_struct;
-  void *dma;
   enum SPIMode mode;
   /* control for stop/resume of the fifo */
   volatile uint8_t suspend;
