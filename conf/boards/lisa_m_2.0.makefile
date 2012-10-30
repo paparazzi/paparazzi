@@ -112,3 +112,11 @@ endif
 ifndef ADC_IR_NB_SAMPLES
 ADC_IR_NB_SAMPLES = 16
 endif
+
+
+# default PPM CAPTURE configuration
+ifndef RADIO_CONTROL_PPM_PIN
+RADIO_CONTROL_PPM_PIN = SERVO6
+# RADIO_CONTROL_PPM_PIN = UART1_RX
+endif
+

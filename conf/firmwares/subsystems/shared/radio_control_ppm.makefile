@@ -22,6 +22,14 @@ ifeq ($(NORADIO), False)
   $(TARGET).srcs 	+= $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
 
   ifeq ($(ARCH),stm32)
-    ap.CFLAGS += -DUSE_TIM2_IRQ
+    ifeq ($(RADIO_CONTROL_PPM_PIN),UART1_RX)
+      $(TARGET).CFLAGS += -DUSE_TIM1_IRQ
+      fbw.CFLAGS += -DUSE_TIM1_IRQ
+    else ifeq ($(RADIO_CONTROL_PPM_PIN),SERVO6)
+      $(TARGET).CFLAGS += -DUSE_TIM2_IRQ
+      fbw.CFLAGS += -DUSE_TIM2_IRQ
+    else
+        $(error unknown configuration for RADIO_CONTROL_PPM_PIN)
+    endif
   endif
 endif

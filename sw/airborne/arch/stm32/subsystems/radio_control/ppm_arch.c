@@ -42,16 +42,66 @@ uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
+#ifdef USE_TIM1_IRQ
+#pragma message "UART1 RX pin is used for PPM input"
+void tim1_up_isr(void);
+void tim1_cc_isr(void);
+#endif
+
+#ifdef USE_TIM2_IRQ
+#pragma message "Servo pin 6 is used for PPM input"
 void tim2_isr(void);
+#endif
 
 void ppm_arch_init ( void ) {
-
-  /* TIM2 clock enable */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
-
+#ifdef USE_TIM1_IRQ
+  /* TIM1 clock enable */
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM1EN);
   /* GPIOA clock enable */
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  /* TIM1 channel 3 pin (PA.10) configuration */
+  gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
+		GPIO_CNF_INPUT_FLOAT, GPIO10);
 
+  /* Time Base configuration */
+  timer_reset(TIM1);
+  timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT,
+		 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_set_period(TIM1, 0xFFFF);
+  timer_set_prescaler(TIM1, 0x8);
+
+ /* TIM2 configuration: Input Capture mode ---------------------
+     The external signal is connected to TIM1 CH3 pin (PA.10)
+     The Rising edge is used as active edge,
+  ------------------------------------------------------------ */
+  timer_ic_set_polarity(TIM1, TIM_IC3, TIM_IC_RISING);
+  timer_ic_set_input(TIM1, TIM_IC3, TIM_IC_IN_TI3);
+  timer_ic_set_prescaler(TIM1, TIM_IC3, TIM_IC_PSC_OFF);
+  timer_ic_set_filter(TIM1, TIM_IC3, TIM_IC_OFF);
+
+  /* Enable the TIM1 global Interrupt. */
+  nvic_set_priority(NVIC_TIM1_UP_IRQ, 2);
+  nvic_enable_irq(NVIC_TIM1_UP_IRQ);
+
+  nvic_set_priority(NVIC_TIM1_CC_IRQ, 2);
+  nvic_enable_irq(NVIC_TIM1_CC_IRQ);
+
+  /* Enable the CC3 and Update interrupt requests. */
+  timer_enable_irq(TIM1, TIM_DIER_CC3IE | TIM_DIER_UIE);
+
+  /* Enable capture channel. */
+  timer_ic_enable(TIM1, TIM_IC3);
+
+  /* TIM2 enable counter */
+  timer_enable_counter(TIM1);
+
+#endif
+
+#ifdef USE_TIM2_IRQ
+  /* TIM2 clock enable */
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+  /* GPIOA clock enable */
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
   /* TIM2 channel 2 pin (PA.01) configuration */
   gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
 		GPIO_CNF_INPUT_FLOAT, GPIO1);
@@ -85,13 +135,31 @@ void ppm_arch_init ( void ) {
   /* TIM2 enable counter */
   timer_enable_counter(TIM2);
 
+#endif
+
   ppm_last_pulse_time = 0;
   ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
   timer_rollover_cnt = 0;
-
 }
 
+#ifdef USE_TIM1_IRQ
+void tim1_up_isr(void) {
+  if((TIM1_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM1, TIM_SR_UIF);
+  }
+}
 
+void tim1_cc_isr(void) {
+  if((TIM1_SR & TIM_SR_CC3IF) != 0) {
+    timer_clear_flag(TIM1, TIM_SR_CC3IF);
+    uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+}
+#endif
+
+#ifdef USE_TIM2_IRQ
 void tim2_isr(void) {
 
   if((TIM2_SR & TIM_SR_CC2IF) != 0) {
@@ -106,3 +174,5 @@ void tim2_isr(void) {
   }
 
 }
+#endif
+
