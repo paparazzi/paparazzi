@@ -1,8 +1,4 @@
 (*
- * $Id$
- *
- * Multi aircrafts receiver, logger and broadcaster
- *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -21,6 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ *)
+
+(*
+ * Multi aircrafts receiver, logger and broadcaster
  *
  *)
 
@@ -144,11 +145,10 @@ let ac_msg = fun messages_xml logging ac_name ac ->
 			let cls_id = Tele_Pprz.class_id_of_msg_args m in
 			let msg = Tele_Pprz.message_of_id ~class_id:cls_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
-			match Tele_Pprz.xml_version with
+			match Tele_Pprz.message_version with
   			| "1.0" ->
-					Fw_server.log_and_parse ac_name ac msg values;
-      		Rotorcraft_server.log_and_parse ac_name ac msg values
-				| _ -> Ac_server.log_and_parse ac_name ac msg values
+					Server_msg_v1.log_and_parse ac_name ac msg values
+				| _ -> Server_msg_v2.log_and_parse ac_name ac msg values
 
     with
       Telemetry_error (ac_name, msg) ->

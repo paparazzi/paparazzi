@@ -208,7 +208,7 @@ module SpreadMessages = struct
       (** Get list of included classes as XML Elements *)
       let classes = List.map Classes.get_class_from_include includes in
       (** Create the complete XML element *)
-      let final_xml = Xml.Element("protocol",["version","2.0"],classes) in
+      let final_xml = Xml.Element("protocol",["version","2.0"; "message_version","2.0"],classes) in
       (** User-readable xml formating *)
       let formated_xml = Xml.to_string_fmt final_xml in
       (** Save the xml code into a xml file *)

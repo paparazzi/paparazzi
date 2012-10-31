@@ -586,8 +586,12 @@ let space = Str.regexp "[ \t]+"
 let semicolon = Str.regexp "[;\t]+"
 let coma = Str.regexp "[,\t]+"
 
+let current_protocol_version = "2.0"
+let current_message_version = "2.0"
+
 module type MESSAGES = sig
-  val xml_version : string
+  val protocol_version : string
+  val message_version : string
   val formated_xml : Xml.xml
 
   val messages : (msg_and_class_id, message) Hashtbl.t
@@ -655,7 +659,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
         let param_list = ["id",string_of_int(cls.class_id);"name",cls.class_name;"type",cls.class_type] in
         Xml.Element("class",param_list,Xml.children cls.class_xml)
           ) classes in
-      let node_protocol = Xml.Element("protocol",["version","1.0"],class_nodes) in
+      let node_protocol = Xml.Element("protocol",["version","1.0"; "message_version","1.0"],class_nodes) in
       node_protocol
     with
       | Not_found -> failwith ("Pprz.convert_to_new_xml New info for old class not defined")
@@ -664,12 +668,14 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     try
       let version = Xml.attrib xml "version" in
       match version with
-        | "2.0" -> ("2.0",xml)
+        | "2.0" ->
+            let msg_ver = ExtXml.attrib_or_default xml "message_version" current_message_version in
+            (current_protocol_version, msg_ver ,xml)
         | v -> failwith (sprintf "Pprz.to_new_xml_format Version not handled (Version: %s)" v)
-    with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); ("1.0",convert_to_new_xml xml)
+    with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); ("1.0", "1.0", convert_to_new_xml xml)
 
   (** Stores the original version of the xml file and converts the xml file to the 2.0 version format *)
-  let (xml_version,formated_xml) = to_new_xml_format Class.xml
+  let (protocol_version, message_version, formated_xml) = to_new_xml_format Class.xml
 
   (* _____________________ FROM HERE THE XML FILE IS 2.0 VERSION (formated_xml) _______________________ *)
 

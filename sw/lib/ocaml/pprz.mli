@@ -176,8 +176,12 @@ type msg_and_class_id = {
   cls_id : int;
 }
 
+val current_protocol_version : string
+val current_message_version : string
+
 module type MESSAGES = sig
-  val xml_version : string
+  val protocol_version : string
+  val message_version : string
   val formated_xml : Xml.xml
 
   val messages : (msg_and_class_id, message) Hashtbl.t
