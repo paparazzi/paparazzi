@@ -28,28 +28,30 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/ms5611.h"
 
-
 struct ImuAspirin2 imu_aspirin2;
 
 struct spi_transaction aspirin2_mpu60x0;
 
 // initialize peripherals
 static void mpu_configure(void);
+static void trans_cb( struct spi_transaction *trans );
 
 void imu_impl_init(void) {
   aspirin2_mpu60x0.select = SPISelectUnselect;
-  aspirin2_mpu60x0.cpol = SPICpolIdleLow;
-  aspirin2_mpu60x0.cpha = SPICphaEdge1;
+  aspirin2_mpu60x0.cpol = SPICpolIdleHigh;
+  aspirin2_mpu60x0.cpha = SPICphaEdge2;
   aspirin2_mpu60x0.dss = SPIDss8bit;
-  aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
+  aspirin2_mpu60x0.bitorder = SPIMSBFirst;
+  aspirin2_mpu60x0.cdiv = SPIDiv64;
   aspirin2_mpu60x0.slave_idx = 2;
   aspirin2_mpu60x0.output_length = IMU_ASPIRIN_BUFFER_LEN;
   aspirin2_mpu60x0.input_length = IMU_ASPIRIN_BUFFER_LEN;
+  aspirin2_mpu60x0.after_cb = trans_cb;
 
   imu_aspirin2.status = Aspirin2StatusUninit;
   imu_aspirin2.imu_available = FALSE;
-  aspirin2_mpu60x0.input_buf = &imu_aspirin2.input_buf_p;
-  aspirin2_mpu60x0.output_buf = &imu_aspirin2.output_buf_p;
+  aspirin2_mpu60x0.input_buf = &imu_aspirin2.input_buf_p[0];
+  aspirin2_mpu60x0.output_buf = &imu_aspirin2.output_buf_p[0];
 }
 
 
@@ -58,7 +60,6 @@ void imu_periodic(void)
 
   if (imu_aspirin2.status == Aspirin2StatusUninit) {
     mpu_configure();
-    // imu_aspirin_arch_int_enable();
     imu_aspirin2.status = Aspirin2StatusIdle;
 
     aspirin2_mpu60x0.output_length = 22;
@@ -69,12 +70,13 @@ void imu_periodic(void)
     }
   }
   else {
-
-    // imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + MPU60X0_SPI_READ;
-    // imu_aspirin2.imu_tx_buf[1] = 0x00;
-
     spi_submit(&spi2,&aspirin2_mpu60x0);
+  }
+}
 
+static void trans_cb( struct spi_transaction *trans ) {
+  if ( imu_aspirin2.status != Aspirin2StatusUninit ) {
+    imu_aspirin2.imu_available = TRUE;
   }
 }
 
@@ -103,8 +105,6 @@ static inline void mpu_wait_slave4_ready(void)
     ret = aspirin2_mpu60x0.input_buf[1];
   }
 }
-
-
 
 static void mpu_configure(void)
 {
