@@ -258,7 +258,7 @@ void spi0_arch_init(void) {
 void spi1_arch_init(void) {
 
   // Enable SPI1 Periph and gpio clocks -------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB1ENR_SPI1EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
