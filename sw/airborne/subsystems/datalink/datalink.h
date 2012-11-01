@@ -81,6 +81,12 @@ EXTERN void dl_parse_msg(void);
   DlCheckAndParse();                      \
 }
 
+#elif DATALINK == W5100
+#define DatalinkEvent() {                  \
+  W5100CheckAndParse(W5100, w5100_tp);    \
+  DlCheckAndParse();                      \
+}
+
 #else
 
 // Unknown DATALINK
