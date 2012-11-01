@@ -133,6 +133,8 @@
 //#define STM32_PLL_MULT RCC_PLLMul_6
 
 // Remap the servos 5 and 6 to TIM5 CH1 and CH2
+#if !defined REMAP_SERVOS_5AND6
 #define REMAP_SERVOS_5AND6 1
+#endif
 
 #endif /* CONFIG_LISA_M_1_0_H */
