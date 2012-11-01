@@ -195,7 +195,7 @@ void init_ap( void ) {
 #if defined DATALINK
 #if DATALINK == XBEE
   xbee_init();
-#endi
+#endif
 #if DATALINK == W5100
   w5100_init();
 #endif
