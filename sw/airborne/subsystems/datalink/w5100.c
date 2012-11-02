@@ -71,14 +71,13 @@ uint8_t ck_a, ck_b;
 uint8_t rx_buf[W5100_RX_BUFFER_SIZE];
 
 // the media access control (ethernet hardware) address for the shield.
-// ( check: are there limitations here wrt multicast access? See chip datasheet ).
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 //the IP address for the shield:
-static uint8_t ip[] = { 192, 168, 25, 47 };
-static uint8_t dest[] = { 224, 1, 1, 11 };
-static uint8_t subnet[] = { 255, 255, 255, 0 };
-static uint16_t dport = 1234;
+static uint8_t ip[] = { W5100_IP };
+static uint8_t dest[] = { W5100_MULTICAST_IP };
+static uint8_t subnet[] = { W5100_SUBNET };
+static uint16_t dport = W5100_MULTICAST_PORT;
 
 static const uint8_t RST = 7; // Reset BIT
 

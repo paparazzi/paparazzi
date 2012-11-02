@@ -62,7 +62,7 @@ struct w5100_periph {
 extern uint8_t rx_buf[W5100_RX_BUFFER_SIZE];
 
 extern struct w5100_periph chip0;
-extern uint8_t ck_a, ck_b;
+//extern uint8_t ck_a, ck_b;
 
 void w5100_init( void );
 void w5100_transmit( uint8_t data );
