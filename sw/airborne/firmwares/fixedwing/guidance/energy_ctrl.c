@@ -123,22 +123,30 @@ float v_ctl_energy_diff_igain;
 
 float v_ctl_auto_airspeed_setpoint; ///< in meters per second
 float v_ctl_auto_airspeed_setpoint_slew;
-#ifndef AIRSPEED_SETPOINT_SLEW
-#define AIRSPEED_SETPOINT_SLEW 1
-#endif
 float v_ctl_auto_airspeed_controlled;
-#ifdef V_CTL_AUTO_GROUNDSPEED_SETPOINT
+
 float v_ctl_auto_groundspeed_setpoint; ///< in meters per second
 float v_ctl_auto_groundspeed_pgain;
 float v_ctl_auto_groundspeed_igain;
 float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR 100
-#endif
 
 pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 float v_ctl_pitch_setpoint;
 
+
+///////////// DEFAULT SETTINGS ////////////////
+#ifndef V_CTL_ALTITUDE_MAX_CLIMB
+#define V_CTL_ALTITUDE_MAX_CLIMB 2;
+#warning "V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s"
+#endif
+#ifndef STALL_AIRSPEED
+#define STALL_AIRSPEED NOMINAL_AIRSPEED
+#endif
+#ifndef AIRSPEED_SETPOINT_SLEW
+#define AIRSPEED_SETPOINT_SLEW 1
+#endif
 
 /////////////////////////////////////////////////
 // Automatically found airplane characteristics
@@ -244,10 +252,6 @@ void v_ctl_init( void ) {
   v_ctl_auto_groundspeed_pgain = V_CTL_AUTO_GROUNDSPEED_PGAIN;
   v_ctl_auto_groundspeed_igain = V_CTL_AUTO_GROUNDSPEED_IGAIN;
   v_ctl_auto_groundspeed_sum_err = 0.;
-#endif
-
-#ifndef STALL_AIRSPEED
-#define STALL_AIRSPEED NOMINAL_AIRSPEED
 #endif
 
   v_ctl_throttle_setpoint = 0;

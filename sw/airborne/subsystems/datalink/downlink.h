@@ -42,6 +42,7 @@
 #include "sim_uart.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
+#include "subsystems/datalink/w5100.h"
 #else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"
@@ -50,6 +51,7 @@
 #else /** SITL */
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
+#include "subsystems/datalink/w5100.h"
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"
 #endif
