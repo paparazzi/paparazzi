@@ -1,21 +1,23 @@
 #!/usr/bin/python
 
-import StringIO
 import os
-import time
-import zmq
-import random
-from datetime import datetime
+import sys
 import socket
 import struct
+from optparse import OptionParser
 
-dest_addr = '192.168.25.47'
-dest_port = 1234
-local_port = 4243
+sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
+
+parser = OptionParser()
+parser.add_option("-d", "--destip", dest="dest_addr", help="Destination IP for messages picked up from local socket", default="192.168.25.47")
+parser.add_option("-p", "--destport", dest="dest_port", default=1234, help="Destination UDP port to send messages to")
+parser.add_option("-l", "--localport", dest="local_port", default=4243, help="Local port to listen to for UDP messages")
+
+(options, args) = parser.parse_args()
 
 msock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 msock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-msock.bind(("", int(local_port)))
+msock.bind(("", int(options.local_port)))
 # mreq = struct.pack("4sl", socket.inet_aton(telemip), socket.INADDR_ANY)
 # msock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
@@ -34,7 +36,7 @@ while( 1 ):
       print len( strdata ), ":", strdata
 
       # send the command
-      destsock.sendto( data, (dest_addr, dest_port) )
+      destsock.sendto( data, (options.dest_addr, options.dest_port) )
 
     except socket.error, e:
       print 'Exception', e

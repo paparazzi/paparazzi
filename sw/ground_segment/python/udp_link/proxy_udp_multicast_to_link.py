@@ -1,45 +1,26 @@
 #!/usr/bin/python
 
-import StringIO
 import os
-import time
-import zmq
-import random
-from datetime import datetime
 import socket
 import struct
+import sys
+from optparse import OptionParser
 
-telemip = '224.1.1.11'
-telemport = '1234'
-dest_addr = '192.168.25.4'
-dest_port = 4242
+sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
 
-if (( telemip == None ) or ( len(telemip) == 0 )):
-    print "environment variable TELEM_IP needs a value!"
-    exit( -1 )
+parser = OptionParser()
+parser.add_option("-m", "--multicast_ip", dest="multicast_ip", help="Multicast IP where telemetry messages go to", default="224.1.1.11")
+parser.add_option("-p", "--multicast_port", dest="multicast_port", default='1234', help="Multicast port where messages get sent")
+parser.add_option("-d", "--dest_ip", dest="dest_addr", default='192.168.25.4', help="Multicast ip where messages get sent")
+parser.add_option("-l", "--dest_port", dest="dest_port", default=4242, help="Local port to send telemetry messages to")
 
-if (( telemport == None ) or ( len(telemport) == 0 )):
-    print "environment variable TELEM_PORT needs a value!"
-    exit( -1 )
+(options, args) = parser.parse_args()
 
 msock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 msock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-msock.bind(("", int(telemport)))
-mreq = struct.pack("4sl", socket.inet_aton(telemip), socket.INADDR_ANY)
+msock.bind(("", int(options.multicast_port)))
+mreq = struct.pack("4sl", socket.inet_aton(options.multicast_ip), socket.INADDR_ANY)
 msock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
-def unshiftLong( data, idx ):
-    result = data[ idx ] | (data[ idx+1 ] << 8) | (data[ idx+2 ] << 16) | (data[ idx+3 ] << 24)
-    if(result & 0x80000000):
-        result = -0x100000000 + result
-    return result
-
-def unshiftInt( data, idx ):
-    result = data[ idx ] | (data[ idx+1 ] << 8)
-    if(result & 0x8000):
-        result = -0x10000 + result
-    return result
-
 
 # initialize a socket, think of it as a cable
 # SOCK_DGRAM specifies that this is UDP
@@ -56,10 +37,8 @@ while( 1 ):
       #print len( strdata ), ":", strdata
 
       # send the command
-      destsock.sendto( data, (dest_addr, dest_port) )
+      destsock.sendto( data, (options.dest_addr, options.dest_port) )
 
     except socket.error, e:
       print 'Exception', e
-
-
 
