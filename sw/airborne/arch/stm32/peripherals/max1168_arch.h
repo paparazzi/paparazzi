@@ -36,7 +36,7 @@
 #define Max1168Select() GPIOB_BRR = GPIO12
 
 #define Max1168OnDmaIrq() {						\
-    /*  ASSERT((max1168_status == STA_MAX1168_READING_RES),	\
+    /*  ASSERT((max1168_status == MAX1168_READING_RES),	\
      *          DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_DMA_IRQ);		\
      */									\
     Max1168Unselect();							\
@@ -48,7 +48,7 @@
     dma_disable_channel(DMA1, DMA_CHANNEL4);				\
     dma_disable_channel(DMA1, DMA_CHANNEL5);				\
     									\
-    max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
+    max1168_status = MAX1168_DATA_AVAILABLE;			\
   }
 
 

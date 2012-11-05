@@ -74,7 +74,7 @@ void max1168_read( void ) {
   /* use internal reference and clock, sequentially scan channels 0-7 */
   const uint16_t ctl_byte = (1 << 0 | 1 << 3 | 7 << 5) << 8;
   spi_write(SPI2, ctl_byte);
-  max1168_status = STA_MAX1168_SENDING_REQ;
+  max1168_status = MAX1168_SENDING_REQ;
 
 }
 
@@ -126,7 +126,7 @@ void exti2_isr(void) {
   // Enable DMA1 Channel4 Transfer Complete interrupt
   dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
 
-  max1168_status = STA_MAX1168_READING_RES;
+  max1168_status = MAX1168_READING_RES;
 }
 
 #ifdef MAX1168_HANDLES_DMA_IRQ
