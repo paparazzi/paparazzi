@@ -38,17 +38,17 @@
  * @file spi_arch.c
  *
  * SPI Master code.
- * 
+ *
  * This file manages the SPI implementation how it appears to the chip.
  * The public "API" that is used across the modules has different ideas about the
- * numbers used in the spi structures (spi_periph). 
- * 
+ * numbers used in the spi structures (spi_periph).
+ *
  * This means that from the outside, a spi_periph 2 may be mapped to SPI2, even though it's
  * not the primary spi peripheral to use. Alternatively, it may as well be spi0 (mcu_periph/spi.c)
  * which connects to the IMU (SPI2), instead of spi2.
  *
  * See the "spix_arch_init()" functions to see where the mapping occurs.
- * 
+ *
  * This does require modifications in the makefiles, because the correct arch_init needs to be called
  * for the selection of aspirin v2.1 for example.
  */
@@ -88,10 +88,10 @@ static struct spi_periph_dma spi2_dma;
 
 // SPI2 Slave Selection
 
-// This mapping is related to the mapping of spi(x) structures in the modules and not 
-// necessarily to the identifiers as they appear to the processor. 
+// This mapping is related to the mapping of spi(x) structures in the modules and not
+// necessarily to the identifiers as they appear to the processor.
 // The IMU on Lisam2 for example is assigned to the SPI2 bus, but we continue to use
-// the mapping to spi(x) structures as in modules here. The actual mapping of pins 
+// the mapping to spi(x) structures as in modules here. The actual mapping of pins
 // occurs in "arch_init".
 // What this means is that we're effectively 'locking':
 // SPI2 to spi2
@@ -180,7 +180,7 @@ static void spi_arch_int_disable( struct spi_periph *spi ) {
 }
 
 /**
- *  These functions map the publically available "spi" structures to 
+ *  These functions map the publically available "spi" structures to
  *  specific pins on this processor
  */
 #if USE_SPI0
@@ -191,8 +191,8 @@ void spi0_arch_init(void) {
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI3_SCK |
-	                                        GPIO_SPI3_MOSI);
+            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI3_SCK |
+                                            GPIO_SPI3_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
           GPIO_SPI3_MISO);
@@ -249,7 +249,7 @@ void spi0_arch_init(void) {
   spi0.trans_insert_idx = 0;
   spi0.trans_extract_idx = 0;
   spi0.status = SPIIdle;
-  
+
   spi_arch_int_enable( &spi0 );
 }
 #endif
@@ -258,12 +258,12 @@ void spi0_arch_init(void) {
 void spi1_arch_init(void) {
 
   // Enable SPI1 Periph and gpio clocks -------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB1ENR_SPI1EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI1_SCK |
-	                                        GPIO_SPI1_MOSI);
+            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI1_SCK |
+                                            GPIO_SPI1_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
           GPIO_SPI1_MISO);
@@ -320,7 +320,7 @@ void spi1_arch_init(void) {
   spi1.trans_insert_idx = 0;
   spi1.trans_extract_idx = 0;
   spi1.status = SPIIdle;
-  
+
   spi_arch_int_enable( &spi1 );
 }
 #endif
@@ -333,8 +333,8 @@ void spi2_arch_init(void) {
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
-	                                        GPIO_SPI2_MOSI);
+            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
+                                            GPIO_SPI2_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
           GPIO_SPI2_MISO);
@@ -755,7 +755,7 @@ void process_tx_dma_interrupt( struct spi_periph *spi ) {
   if ( trans->input_length == 0 ) {
     // this transaction does not require rx
     trans->status = SPITransSuccess;
-    if (trans->after_cb != 0) { 
+    if (trans->after_cb != 0) {
       trans->after_cb( trans );
     }
     spi->trans_extract_idx++;
@@ -783,4 +783,3 @@ void process_tx_dma_interrupt( struct spi_periph *spi ) {
 #ifdef SPI_SLAVE
 
 #endif /* SPI_SLAVE */
-
