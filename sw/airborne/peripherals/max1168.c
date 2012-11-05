@@ -75,7 +75,7 @@ extern void max1168_init( void ) {
 
 #include "led.h"
 void max1168_read( void ) {
-  ASSERT((max1168_status == MAX1168_IDLE), DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
+  //ASSERT((max1168_status == MAX1168_IDLE), DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
 
   /* set SPI transaction */
   /* SPI is locked between the two transactions (callback) */
