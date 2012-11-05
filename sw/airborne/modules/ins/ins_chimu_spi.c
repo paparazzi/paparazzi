@@ -14,7 +14,6 @@
 
 // For centripedal corrections
 #include "subsystems/gps.h"
-#include "subsystems/ahrs.h"
 
 // Telemetry
 #ifndef DOWNLINK_DEVICE
@@ -25,7 +24,7 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#include "ins_module.h"
+#include "ins_chimu_spi.h"
 #include "imu_chimu.h"
 
 
@@ -94,7 +93,7 @@ void parse_ins_msg( void )
 }
 
 
-void ahrs_update_gps( void )
+void chimu_update_gps( void )
 {
   // Send SW Centripetal Corrections
   uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0xc2 };
