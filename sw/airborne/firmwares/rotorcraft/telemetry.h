@@ -787,32 +787,6 @@
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {}
 #endif
 
-#ifdef USE_I2C0
-#define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                             \
-    uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;          \
-    uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;   \
-    uint16_t i2c0_arb_lost_cnt          = i2c0.errors->arb_lost_cnt;          \
-    uint16_t i2c0_over_under_cnt        = i2c0.errors->over_under_cnt;        \
-    uint16_t i2c0_pec_recep_cnt         = i2c0.errors->pec_recep_cnt;         \
-    uint16_t i2c0_timeout_tlow_cnt      = i2c0.errors->timeout_tlow_cnt;      \
-    uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt;       \
-    uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt;  \
-    uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event; \
-    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
-                             &i2c0_ack_fail_cnt,            \
-                             &i2c0_miss_start_stop_cnt,     \
-                             &i2c0_arb_lost_cnt,            \
-                             &i2c0_over_under_cnt,          \
-                             &i2c0_pec_recep_cnt,           \
-                             &i2c0_timeout_tlow_cnt,        \
-                             &i2c0_smbus_alert_cnt,         \
-                             &i2c0_unexpected_event_cnt,    \
-                             &i2c0_last_unexpected_event);  \
-  }
-#else
-#define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {}
-#endif
-
 #ifdef USE_I2C1
 #define PERIODIC_SEND_I2C1_ERRORS(_trans, _dev) {                             \
     uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;          \
