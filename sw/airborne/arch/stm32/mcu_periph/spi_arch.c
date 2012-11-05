@@ -469,6 +469,8 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
       case SPIDiv256:
         dma->cdiv = SPI_CR1_BAUDRATE_FPCLK_DIV_256;
         break;
+      default:
+        break;
     }
 
     spi_disable( dma->spi );
