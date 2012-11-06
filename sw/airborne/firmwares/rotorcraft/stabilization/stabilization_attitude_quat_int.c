@@ -189,6 +189,15 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 
   //FIXME: remove me, do in quaternion directly
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  
+#ifdef STABILIZATION_ATTITUDE_SP_MAX_PSI
+  if((stab_att_sp_euler.psi - stateGetNedToBodyEulers_i()->psi) > ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PSI)) {
+    stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi +ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PSI); 
+  }
+  else if((stab_att_sp_euler.psi - stateGetNedToBodyEulers_i()->psi) < ANGLE_BFP_OF_REAL(-STABILIZATION_ATTITUDE_SP_MAX_PSI)) {
+    stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi -ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PSI); 
+  }
+#endif
 
   struct FloatQuat q_rp_cmd;
   stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
@@ -208,7 +217,7 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
     /* get current heading setpoint */
     struct FloatQuat q_yaw_sp;
     FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
-
+    
     /* rotation between current yaw and yaw setpoint */
     struct FloatQuat q_yaw_diff;
     FLOAT_QUAT_COMP_INV(q_yaw_diff, q_yaw_sp, q_yaw);
