@@ -556,6 +556,17 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   return TRUE;
 }
 
+void spi_init_slaves(void) {
+}
+
+void spi_slave_select(uint8_t slave) {
+  SpiSlaveSelect(slave);
+}
+
+void spi_slave_unselect(uint8_t slave) {
+  SpiSlaveUnselect(slave);
+}
+
 bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
   spi_arch_int_disable( p );
   if (slave < 254 && p->suspend == 0) {

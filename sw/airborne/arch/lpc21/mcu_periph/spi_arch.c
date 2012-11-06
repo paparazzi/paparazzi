@@ -239,7 +239,7 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   }
 
   // callback function before transaction
-  if (t->before_cb != 0) t->before_cb();
+  if (t->before_cb != 0) t->before_cb(t);
 
   // start spi transaction
   SpiEnable(p);
@@ -250,7 +250,7 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
 
 __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct spi_periph* p, struct spi_transaction* t) {
   // callback function after transaction
-  if (t->after_cb != 0) t->after_cb();
+  if (t->after_cb != 0) t->after_cb(t);
 
   // handle slave unselect
   if (t->select == SPISelectUnselect || t->select == SPIUnselect) {

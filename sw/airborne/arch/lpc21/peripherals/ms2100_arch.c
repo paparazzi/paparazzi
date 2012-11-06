@@ -63,7 +63,7 @@ void EXTINT_ISR(void) {
   ISR_EXIT();
 }
 
-void ms2100_reset_cb( void ) {
+void ms2100_reset_cb( struct spi_transaction * t __attribute__ ((unused)) ) {
   // set RESET pin high for at least 100 nsec
   // busy wait should not harm
   // storing start and dt is probably long enough...

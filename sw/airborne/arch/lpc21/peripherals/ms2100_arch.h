@@ -23,12 +23,14 @@
 #ifndef MS2100_ARCH_H
 #define MS2100_ARCH_H
 
+#include "mcu_periph/spi.h"
+
 #define Ms2100Reset() SetBit(MS2100_RESET_IOCLR,MS2100_RESET_PIN)
 #define Ms2100Set()   SetBit(MS2100_RESET_IOSET,MS2100_RESET_PIN)
 
 /** Reset callback.
  * called before spi transaction and after slave select
  */
-extern void ms2100_reset_cb( void );
+extern void ms2100_reset_cb( struct spi_transaction * t );
 
 #endif /* MS2100_ARCH_H */

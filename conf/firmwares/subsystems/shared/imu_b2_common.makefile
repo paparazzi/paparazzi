@@ -41,7 +41,6 @@ imu_CFLAGS += -DUSE_IMU
 imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-#imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 
 imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
