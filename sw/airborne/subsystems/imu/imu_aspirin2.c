@@ -113,10 +113,12 @@ static void mpu_configure(void)
 
   ///////////////////
   // Reset the MPU
-  //mpu_set( MPU60X0_REG_USER_CTRL,
-	//   (1 << 2) |           // Trigger a FIFO_RESET
-	//   (1 << 1) |           // Trigger a I2C_MST_RESET
-	//   (1 << 0) );          // Trigger a SIG_COND_RESET
+  mpu_set( MPU60X0_REG_PWR_MGMT_1,
+           0x01 << 7);		// -device reset
+  mpu_set( MPU60X0_REG_USER_CTRL,
+	   (1 << 2) |           // Trigger a FIFO_RESET
+	   (1 << 1) |           // Trigger a I2C_MST_RESET
+	   (1 << 0) );          // Trigger a SIG_COND_RESET
 
   ///////////////////
   // Configure power:
@@ -124,6 +126,11 @@ static void mpu_configure(void)
   // MPU60X0_REG_PWR_MGMT_1
   mpu_set( MPU60X0_REG_PWR_MGMT_1,
            0x01);		// -switch to gyroX clock
+
+  // Wait for the new clock to stabilize.
+  // FIXME: This must not be a delay!
+  // It should be done using the MPU-6000 interrupt!
+  {for (int i = 0; i < 1000000; i++) { asm("nop"); }}
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
   // -No standby and no wake timer
@@ -261,6 +268,7 @@ static void mpu_configure(void)
 
 	// Slave 0 Control:
 
+#if !IMU_ASPIRIN_DISABLE_BARO
 #ifdef IMU_ASPIRIN_VERSION_2_1
 #pragma message "Reading the MS5611"
 /*
@@ -307,6 +315,7 @@ static void mpu_configure(void)
 
 
 
+#endif
 #endif
 
 #endif
