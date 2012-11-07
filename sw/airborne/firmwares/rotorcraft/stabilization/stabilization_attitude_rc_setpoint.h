@@ -76,12 +76,15 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
       sp->psi += ((int32_t) radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      INT32_ANGLE_NORMALIZE(sp->psi);
     }
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
     int32_t sp_psi_delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
     int32_t sp_psi_min = stateGetNedToBodyEulers_i()->psi - sp_psi_delta_limit;
+    INT32_ANGLE_NORMALIZE(sp_psi_min);
     int32_t sp_psi_max = stateGetNedToBodyEulers_i()->psi + sp_psi_delta_limit;
-    Bound(sp->psi, sp_psi_min, sp_psi_max);
+    INT32_ANGLE_NORMALIZE(sp_psi_max);
+    BoundWrapped(sp->psi, sp_psi_min, sp_psi_max);
 #endif
     INT32_ANGLE_NORMALIZE(sp->psi);
   }
