@@ -58,11 +58,6 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <command_laws>
-    <!-- command_laws is needed for pwm_supervision -->
-    <!-- but can be empty if no additional servos are used -->
-  </command_laws>
-
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
@@ -140,12 +135,13 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
-    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
-    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
-    <define name="DEADBAND_A"     value="0"/>
-    <define name="DEADBAND_E"     value="0"/>
-    <define name="DEADBAND_R"     value="250"/>
+    <define name="SP_MAX_PHI"          value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"        value="45." unit="deg"/>
+    <define name="SP_MAX_R"            value="90." unit="deg/s"/>
+    <define name="SP_PSI_DELTA_LIMIT"  value="45." unit="deg"/>
+    <define name="DEADBAND_A"          value="0"/>
+    <define name="DEADBAND_E"          value="0"/>
+    <define name="DEADBAND_R"          value="250"/>
 
     <!-- reference -->
     <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
