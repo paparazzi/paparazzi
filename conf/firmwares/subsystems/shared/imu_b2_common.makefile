@@ -71,7 +71,6 @@ include $(CFG_SHARED)/imu_nps.makefile
 #sim.CFLAGS += -DIMU_B2_VERSION_1_0
 #sim.srcs += $(SRC_SUBSYSTEMS)/imu.c
 #sim.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-#sim.srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 #
 #sim.srcs += peripherals/max1168.c
 #sim.srcs += $(SRC_ARCH)/peripherals/max1168_arch.c

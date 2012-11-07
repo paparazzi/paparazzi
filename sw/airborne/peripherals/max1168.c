@@ -35,7 +35,7 @@ uint16_t max1168_conv_req;
 /* callback function to lock the spi fifo
  * after the first transaction
  */
-void max1168_lock_cb(void);
+void max1168_lock_cb(struct spi_transaction * t);
 
 extern void max1168_init( void ) {
 
@@ -130,7 +130,7 @@ void max1168_event( void ) {
   }
 }
 
-void max1168_lock_cb(void) {
+void max1168_lock_cb(struct spi_transaction * t __attribute__ ((unused))) {
   spi_lock(&(MAX1168_SPI_DEV),MAX1168_SLAVE_IDX);
 }
 
