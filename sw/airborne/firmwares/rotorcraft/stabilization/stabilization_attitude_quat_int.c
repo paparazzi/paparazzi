@@ -189,6 +189,15 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 
   //FIXME: remove me, do in quaternion directly
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  
+#ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
+  if((stab_att_sp_euler.psi - stateGetNedToBodyEulers_i()->psi) > ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT)) {
+    stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi +ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT); 
+  }
+  else if((stab_att_sp_euler.psi - stateGetNedToBodyEulers_i()->psi) < ANGLE_BFP_OF_REAL(-STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT)) {
+    stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi -ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT); 
+  }
+#endif
 
   struct FloatQuat q_rp_cmd;
   stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
