@@ -41,11 +41,14 @@ imu_CFLAGS += -DUSE_IMU
 imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 
 imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
+include $(CFG_SHARED)/spi.makefile
+ap.CFLAGS += -DUSE_SPI_SLAVE0
+ap.CFLAGS += -DUSE_SPI1
+ap.CFLAGS += -DSPI_MASTER
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DSSP_VIC_SLOT=9
@@ -68,7 +71,6 @@ include $(CFG_SHARED)/imu_nps.makefile
 #sim.CFLAGS += -DIMU_B2_VERSION_1_0
 #sim.srcs += $(SRC_SUBSYSTEMS)/imu.c
 #sim.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-#sim.srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 #
 #sim.srcs += peripherals/max1168.c
 #sim.srcs += $(SRC_ARCH)/peripherals/max1168_arch.c

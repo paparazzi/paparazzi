@@ -207,27 +207,59 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Serial Peripheral Interface 1 (SPI1)
-#define SPI1            ((spiRegs_t *)0xE0030000)
+#define SPI1            ((sspRegs_t *)0xE0068000)
 
 // SPI1 Registers
-#define S1SPCR          SPI1->cr        /* Control Register */
-#define S1SPSR          SPI1->sr        /* Status Register */
-#define S1SPDR          SPI1->dr        /* Data Register */
-#define S1SPCCR         SPI1->ccr       /* Clock Counter Register */
-#define S1SPINT         SPI1->flag      /* Interrupt Flag Register */
+//#define S1SPCR          SPI1->cr        /* Control Register */
+//#define S1SPSR          SPI1->sr        /* Status Register */
+//#define S1SPDR          SPI1->dr        /* Data Register */
+//#define S1SPCCR         SPI1->ccr       /* Clock Counter Register */
+//#define S1SPINT         SPI1->flag      /* Interrupt Flag Register */
 
 /* S1SPINT bits definition */
 #define SPI1IF 0
 
-#define SSPCR0   (*(REG16*) 0xE0068000) /* Control Register 0               */
-#define SSPCR1   (*(REG_8*) 0xE0068004) /* Control Register 1               */
-#define SSPDR    (*(REG16*) 0xE0068008) /* Data register                    */
-#define SSPSR    (*(REG_8*) 0xE006800C) /* Status register                  */
-#define SSPCPSR  (*(REG_8*) 0xE0068010) /* Clock prescale register          */
-#define SSPIMSC  (*(REG_8*) 0xE0068014) /* Interrupt mask register          */
-#define SSPRIS   (*(REG_8*) 0xE0068018) /* Raw interrupt status register    */
-#define SSPMIS   (*(REG_8*) 0xE006801C) /* Masked interrupt status register */
-#define SSPICR   (*(REG_8*) 0xE0068020) /* Interrupt clear register         */
+#define SSPCR0          SPI1->cr0       /* Control Register 0               */
+#define SSPCR1          SPI1->cr1       /* Control Register 1               */
+#define SSPDR           SPI1->dr        /* Data register                    */
+#define SSPSR           SPI1->sr        /* Status register                  */
+#define SSPCPSR         SPI1->cpsr      /* Clock prescale register          */
+#define SSPIMSC         SPI1->imsc      /* Interrupt mask register          */
+#define SSPRIS          SPI1->ris       /* Raw interrupt status register    */
+#define SSPMIS          SPI1->mis       /* Masked interrupt status register */
+#define SSPICR          SPI1->icr       /* Interrupt clear register         */
+
+//#define SSPCR0   (*(REG16*) 0xE0068000) /* Control Register 0               */
+//#define SSPCR1   (*(REG_8*) 0xE0068004) /* Control Register 1               */
+//#define SSPDR    (*(REG16*) 0xE0068008) /* Data register                    */
+//#define SSPSR    (*(REG_8*) 0xE006800C) /* Status register                  */
+//#define SSPCPSR  (*(REG_8*) 0xE0068010) /* Clock prescale register          */
+//#define SSPIMSC  (*(REG_8*) 0xE0068014) /* Interrupt mask register          */
+//#define SSPRIS   (*(REG_8*) 0xE0068018) /* Raw interrupt status register    */
+//#define SSPMIS   (*(REG_8*) 0xE006801C) /* Masked interrupt status register */
+//#define SSPICR   (*(REG_8*) 0xE0068020) /* Interrupt clear register         */
+
+/* SSPCR0 bits definition */
+#define DSS   0
+#define FRF   4
+#define CPOL  6
+#define CPHA  7
+#define SCR   8
+
+/* SSPDSS values definition */
+#define DSS_VAL4  0x3
+#define DSS_VAL5  0x4
+#define DSS_VAL6  0x5
+#define DSS_VAL7  0x6
+#define DSS_VAL8  0x7
+#define DSS_VAL9  0x8
+#define DSS_VAL10 0x9
+#define DSS_VAL11 0xA
+#define DSS_VAL12 0xB
+#define DSS_VAL13 0XC
+#define DSS_VAL14 0xD
+#define DSS_VAL15 0xE
+#define DSS_VAL16 0xF
 
 /* SSPCR1 bits definition */
 #define LBM   0

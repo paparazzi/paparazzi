@@ -1,7 +1,5 @@
 /*
- * Paparazzi $Id$
- *
- * Copyright (C) 2005-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2005-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,17 +20,60 @@
  *
  */
 
+/**
+ * @file mcu_periph/spi.c
+ * Architecture independent SPI (Serial Peripheral Interface) API.
+ */
+
 #include "std.h"
 #include "mcu_periph/spi.h"
+
+#ifdef SPI_MASTER
+
+#if USE_SPI0
+struct spi_periph spi0;
+
+void spi0_init(void) {
+  spi_init(&spi0);
+  spi0_arch_init();
+}
+
+#endif
+
+#if USE_SPI1
+struct spi_periph spi1;
+
+void spi1_init(void) {
+  spi_init(&spi1);
+  spi1_arch_init();
+}
+
+#endif
+
+#if USE_SPI2
+struct spi_periph spi2;
+
+void spi2_init(void) {
+  spi_init(&spi2);
+  spi2_arch_init();
+}
+
+#endif
+
+void spi_init(struct spi_periph* p) {
+  p->trans_insert_idx = 0;
+  p->trans_extract_idx = 0;
+  p->status = SPIIdle;
+  p->suspend = FALSE;
+}
+
+#endif /* SPI_MASTER */
+
+#ifdef SPI_SLAVE
 
 uint8_t* spi_buffer_input;
 uint8_t* spi_buffer_output;
 uint8_t spi_buffer_length;
 volatile bool_t spi_message_received;
 
-#ifdef SPI_MASTER
-
-volatile uint8_t spi_cur_slave;
-uint8_t spi_nb_ovrn;
-
-#endif /* SPI_MASTER */
+#endif
