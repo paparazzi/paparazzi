@@ -100,7 +100,7 @@ enum SPIStatus {
 
 enum SPIBitOrder {
   SPIMSBFirst,
-  SPILSBFirst  
+  SPILSBFirst
 };
 
 enum SPIClockDiv {
@@ -120,7 +120,7 @@ enum SPIClockDiv {
  */
 struct spi_transaction;
 typedef void (*SPICallback)( struct spi_transaction *trans );
-  
+
 /** SPI transaction structure.
  * - Use this structure to store a request of SPI transaction
  *   and submit it using spi_submit function

@@ -307,7 +307,7 @@ static void configure_socket( uint8_t _s, uint8_t _flag, uint16_t _lport, uint16
   // configure destination port
   w5100_sock_set( _s, SOCK_DPORT, _dport >> 8 );
   w5100_sock_set( _s, SOCK_DPORT+1, _dport & 0xFF );
-  
+
   // send command to open the socket
   w5100_sock_set( _s, SOCK_CR, SOCK_OPEN );
 }
