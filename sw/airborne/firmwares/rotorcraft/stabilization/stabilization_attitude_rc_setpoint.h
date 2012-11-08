@@ -79,19 +79,22 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
-    int32_t sp_psi_delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
-    int32_t sp_psi_min = stateGetNedToBodyEulers_i()->psi - sp_psi_delta_limit;
-    INT32_ANGLE_NORMALIZE(sp_psi_min);
-    int32_t sp_psi_max = stateGetNedToBodyEulers_i()->psi + sp_psi_delta_limit;
-    INT32_ANGLE_NORMALIZE(sp_psi_max);
-    BoundWrapped(sp->psi, sp_psi_min, sp_psi_max);
-#endif
+    // Make sure the yaw setpoint does not differ too much from the real yaw to prevent a sudden switch at 180 deg
+    int32_t delta_psi = sp->psi - stateGetNedToBodyEulers_i()->psi;
+    int32_t delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
+    INT32_ANGLE_NORMALIZE(delta_psi);
+    if (delta_psi > delta_limit){
+      sp->psi = stateGetNedToBodyEulers_i()->psi + delta_limit;
+    }
+    else if (delta_psi < -delta_limit){
+      sp->psi = stateGetNedToBodyEulers_i()->psi - delta_limit;
+    }
     INT32_ANGLE_NORMALIZE(sp->psi);
+#endif
   }
   else { /* if not flying, use current yaw as setpoint */
     sp->psi = stateGetNedToBodyEulers_i()->psi;
   }
-
 }
 
 static inline void stabilization_attitude_read_rc_roll_pitch_quat(struct FloatQuat* q) {
