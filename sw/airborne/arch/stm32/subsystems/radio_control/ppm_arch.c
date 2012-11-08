@@ -27,7 +27,7 @@
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/timer.h>
-#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/f1/nvic.h>
 
 #include "mcu_periph/sys_time.h"
 
@@ -57,8 +57,6 @@ static uint32_t timer_rollover_cnt;
 #define PPM_GPIO_PORT		GPIOA
 #define PPM_GPIO_PIN		GPIO1
 
-void tim2_isr(void);
-
 #elif defined USE_TIM1_IRQ
 
 #pragma message "Using PPM input on UART1_RX pin!"
@@ -74,9 +72,6 @@ void tim2_isr(void);
 #define PPM_GPIO_PERIPHERAL	RCC_APB2ENR_IOPAEN
 #define PPM_GPIO_PORT		GPIOA
 #define PPM_GPIO_PIN		GPIO10
-
-void tim1_up_isr(void);
-void tim1_cc_isr(void);
 
 #endif
 

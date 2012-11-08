@@ -24,15 +24,12 @@
 #include <stdint.h>
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/f1/nvic.h>
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/usart.h>
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
-
-/* XXX: this should be declared in some libopencm3 header */
-void tim6_isr(void);
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
 #define MAX_SPEKTRUM_FRAMES 2

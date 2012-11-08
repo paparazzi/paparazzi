@@ -57,9 +57,6 @@ static uint8_t gyro_state = 0;
 static volatile uint8_t gyro_ready_for_read = FALSE;
 static uint8_t reading_gyro = FALSE;
 
-void exti15_10_isr(void);
-
-
 int main(void) {
   main_init();
 

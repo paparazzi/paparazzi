@@ -192,9 +192,6 @@ static inline void accel_copy_spi(void)
   VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
 }
 
-// FIXME, remove stm32 specific stuff here
-void i2c2_er_isr(void);
-
 static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;

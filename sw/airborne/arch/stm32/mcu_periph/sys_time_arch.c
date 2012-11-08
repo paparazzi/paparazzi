@@ -28,7 +28,7 @@
 
 #include "mcu_periph/sys_time.h"
 
-#include "libopencm3/stm32/systick.h"
+#include "libopencm3/cm3/systick.h"
 
 #ifdef SYS_TIME_LED
 #include "led.h"

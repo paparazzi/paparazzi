@@ -5,18 +5,10 @@
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/f1/dma.h>
-#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/f1/nvic.h>
 
 #include "mcu_periph/i2c.h"
 
-/* gyro int handler */
-void exti15_10_isr(void);
-/* mag int handler  */
-void exti9_5_isr(void);
-/* accelerometer int handler */
-void exti2_isr(void);
-/* dma1 channel 4 int handler */
-void dma1_channel4_isr(void);
 /* accelerometer SPI selection */
 #define Adxl345Unselect() GPIOB_BSRR = GPIO12
 #define Adxl345Select()   GPIOB_BRR = GPIO12

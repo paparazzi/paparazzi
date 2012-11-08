@@ -47,8 +47,6 @@ static inline void main_event_task( void );
 
 static inline void main_init_hw(void);
 
-void exti2_isr(void);
-
 int main(void) {
   main_init();
 
