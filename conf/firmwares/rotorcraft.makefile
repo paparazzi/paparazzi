@@ -147,7 +147,7 @@ ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DUSE_SPI
 ap.CFLAGS += -DUSE_SPI_SLAVE0
-ap.CFLAGS += -DSPI_NO_UNSELECT_SLAVE
+ap.CFLAGS += -DUSE_SPI1
 ap.CFLAGS += -DSPI_MASTER
 ap.srcs += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 ap.srcs += peripherals/mcp355x.c

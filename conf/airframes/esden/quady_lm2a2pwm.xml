@@ -100,20 +100,20 @@
 
     <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="180." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1500"/>
-    <define name="PHI_DGAIN"  value="1000"/>
-    <define name="PHI_IGAIN"  value="100"/>
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="1500"/>
-    <define name="THETA_DGAIN"  value="1000"/>
-    <define name="THETA_IGAIN"  value="100"/>
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="1500"/>
-    <define name="PSI_DGAIN"  value="1000"/>
+    <define name="PSI_PGAIN"  value="500"/>
+    <define name="PSI_DGAIN"  value="300"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
@@ -121,6 +121,9 @@
     <define name="THETA_DDGAIN" value=" 300"/>
     <define name="PSI_DDGAIN"   value=" 300"/>
 
+    <define name="PHI_AGAIN"   value="0"/>
+    <define name="THETA_AGAIN" value="0"/>
+    <define name="PSI_AGAIN"   value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -144,7 +147,6 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="H_X" value=" 0.47577"/>
     <define name="H_Y" value=" 0.11811"/>
     <define name="H_Z" value=" 0.87161"/>
@@ -198,7 +200,9 @@
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1"/>
+    <subsystem name="imu"           type="aspirin_v2.1">
+	    <define name="IMU_ASPIRIN_DISABLE_BARO" value="TRUE"/>
+    </subsystem>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
@@ -219,6 +223,7 @@
     <target name="test_imu_aspirin"		board="lisa_m_2.0"/>
     <target name="test_rc_spektrum"		board="lisa_m_2.0"/>
     <target name="test_baro"			board="lisa_m_2.0"/>
+    <target name="test_imu_b2"			board="lisa_m_2.0"/>
     <!--<target name="test_imu"			board="lisa_m_2.0"/>
     <target name="test_rc_ppm"			board="lisa_m_2.0"/>
     <target name="test_adc"			board="lisa_m_2.0"/>

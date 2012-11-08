@@ -44,13 +44,14 @@ IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_ARCH)/mcu_periph/spi_arch.c \
                       mcu_periph/spi.c
 
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
 
 ifeq ($(ARCH), lpc21)
 #TODO
 $(error Not implemented for the LCP21x yet. Needs the new SPI mcu_periph. See issue 147!)
 else ifeq ($(ARCH), stm32)
 IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 endif
 
 IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1

@@ -68,8 +68,9 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 
   temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
-  if (temp == p->tx_extract_idx)
+  if (temp == p->tx_extract_idx) {
     return;                          // no room
+  }
 
   cpsr = disableIRQ();                                // disable global interrupts
   ((uartRegs_t *)(p->reg_addr))->ier &= ~UIER_ETBEI;  // disable TX interrupts
@@ -94,7 +95,6 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 static inline void uart_ISR(struct uart_periph* p)
 {
   uint8_t iid;
-
   // loop until not more interrupt sources
   while (((iid = ((uartRegs_t *)(p->reg_addr))->iir) & UIIR_NO_INT) == 0)
   {

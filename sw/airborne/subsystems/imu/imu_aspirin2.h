@@ -96,40 +96,41 @@ enum Aspirin2Status
     Aspirin2StatusReading
   };
 
+#define IMU_ASPIRIN_BUFFER_LEN    32
+
 struct ImuAspirin2 {
   volatile enum Aspirin2Status status;
-  volatile uint8_t imu_spi_data_received;
-  volatile uint8_t imu_tx_buf[64];
-  volatile uint8_t imu_rx_buf[64];
+  volatile uint8_t imu_available;
+  volatile uint8_t input_buf_p[IMU_ASPIRIN_BUFFER_LEN];
+  volatile uint8_t output_buf_p[IMU_ASPIRIN_BUFFER_LEN];
 };
 
 extern struct ImuAspirin2 imu_aspirin2;
 
 
-static inline uint8_t imu_from_buff(void)
+static inline int imu_from_buff(volatile uint8_t *buf)
 {
   int32_t x, y, z, p, q, r, Mx, My, Mz;
 
 #define MPU_OFFSET_STATUS 1
-  if (!(imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01)) {
+  if (!(buf[MPU_OFFSET_STATUS] & 0x01)) {
     return 0;
   }
 
-  // If the itg3200 I2C transaction has succeeded: convert the data
 #define MPU_OFFSET_GYRO 10
-  p = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_GYRO]);
-  q = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_GYRO]);
-  r = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_GYRO]);
+  p = (int16_t) ((buf[0+MPU_OFFSET_GYRO] << 8) | buf[1+MPU_OFFSET_GYRO]);
+  q = (int16_t) ((buf[2+MPU_OFFSET_GYRO] << 8) | buf[3+MPU_OFFSET_GYRO]);
+  r = (int16_t) ((buf[4+MPU_OFFSET_GYRO] << 8) | buf[5+MPU_OFFSET_GYRO]);
 
 #define MPU_OFFSET_ACC 2
-  x = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_ACC]);
-  y = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_ACC]);
-  z = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_ACC]);
+  x = (int16_t) ((buf[0+MPU_OFFSET_ACC] << 8) | buf[1+MPU_OFFSET_ACC]);
+  y = (int16_t) ((buf[2+MPU_OFFSET_ACC] << 8) | buf[3+MPU_OFFSET_ACC]);
+  z = (int16_t) ((buf[4+MPU_OFFSET_ACC] << 8) | buf[5+MPU_OFFSET_ACC]);
 
 #define MPU_OFFSET_MAG 16
-  Mx = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_MAG] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_MAG]);
-  My = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_MAG] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_MAG]);
-  Mz = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_MAG] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_MAG]);
+  Mx = (int16_t) ((buf[0+MPU_OFFSET_MAG] << 8) | buf[1+MPU_OFFSET_MAG]);
+  My = (int16_t) ((buf[2+MPU_OFFSET_MAG] << 8) | buf[3+MPU_OFFSET_MAG]);
+  Mz = (int16_t) ((buf[4+MPU_OFFSET_MAG] << 8) | buf[5+MPU_OFFSET_MAG]);
 
 #ifdef LISA_M_LONGITUDINAL_X
   RATES_ASSIGN(imu.gyro_unscaled, q, -p, r);
@@ -149,10 +150,9 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 {
   if (imu_aspirin2.status == Aspirin2StatusUninit) return;
 
-  if (imu_aspirin2.imu_spi_data_received) {
-    imu_aspirin2.imu_spi_data_received = FALSE;
-    if (imu_from_buff())
-    {
+  if (imu_aspirin2.imu_available) {
+    imu_aspirin2.imu_available = FALSE;
+    if (imu_from_buff(imu_aspirin2.input_buf_p)) {
       _gyro_handler();
       _accel_handler();
       _mag_handler();

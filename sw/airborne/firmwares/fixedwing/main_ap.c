@@ -74,6 +74,7 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
+#include "subsystems/datalink/w5100.h"
 #include "firmwares/fixedwing/ap_downlink.h"
 
 // modules & settings
@@ -194,6 +195,9 @@ void init_ap( void ) {
 #if defined DATALINK
 #if DATALINK == XBEE
   xbee_init();
+#endif
+#if DATALINK == W5100
+  w5100_init();
 #endif
 #endif /* DATALINK */
 
