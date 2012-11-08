@@ -30,7 +30,7 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/flash.h>
-#include <libopencm3/stm32/f1/scb.h>
+#include <libopencm3/cm3/scb.h>
 
 void mcu_arch_init(void) {
 #if LUFTBOOT

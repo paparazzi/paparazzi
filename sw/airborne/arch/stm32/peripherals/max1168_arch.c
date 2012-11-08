@@ -23,9 +23,7 @@
 #include "libopencm3/stm32/f1/rcc.h"
 #include "libopencm3/stm32/f1/gpio.h"
 #include "libopencm3/stm32/exti.h"
-#include "libopencm3/stm32/nvic.h"
-
-void exti2_isr(void);
+#include "libopencm3/stm32/f1/nvic.h"
 
 void max1168_arch_init( void ) {
 

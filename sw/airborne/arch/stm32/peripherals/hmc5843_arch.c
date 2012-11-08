@@ -28,8 +28,6 @@
 #include <libopencm3/stm32/exti.h>
 #include "mcu_periph/i2c.h"
 
-void exti9_5_isr(void);
-
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */
 

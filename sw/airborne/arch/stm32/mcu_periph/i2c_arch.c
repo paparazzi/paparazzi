@@ -2,8 +2,8 @@
 
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/scb.h>
-#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/cm3/scb.h>
+#include <libopencm3/stm32/f1/nvic.h>
 
 //#define I2C_DEBUG_LED
 
@@ -171,13 +171,6 @@ static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
 
 #define __I2C_REG_CRITICAL_ZONE_START	__disable_irq();
 #define __I2C_REG_CRITICAL_ZONE_STOP	__enable_irq();
-
-/* Interrupt service routine forward declarations. */
-/* XXX: This should be somehow integrated into libopencm3. */
-void i2c1_ev_isr(void);
-void i2c1_er_isr(void);
-void i2c2_ev_isr(void);
-void i2c2_er_isr(void);
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
