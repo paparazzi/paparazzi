@@ -42,7 +42,6 @@
 #include "sim_uart.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
-#include "subsystems/datalink/w5100.h"
 #else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"

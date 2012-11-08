@@ -65,6 +65,7 @@ extern struct w5100_periph chip0;
 //extern uint8_t ck_a, ck_b;
 
 void w5100_init( void );
+
 void w5100_transmit( uint8_t data );
 uint16_t w5100_receive( uint8_t *buf, uint16_t len );
 void w5100_send( void );
@@ -87,43 +88,43 @@ bool_t w5100_ch_available( void );
 #define W5100TransportPut1Byte(_dev, x) TransportLink(_dev, Transmit(x))
 #define W5100TransportSendMessage(_dev) TransportLink(_dev, SendMessage())
 
-#define W5100TransportPutUint8(_dev, _byte) { \
-ck_a += _byte; \
-ck_b += ck_a; \
-W5100TransportPut1Byte(_dev, _byte); \
-}
+#define W5100TransportPutUint8(_dev, _byte) {   \
+    ck_a += _byte;                              \
+    ck_b += ck_a;                               \
+    W5100TransportPut1Byte(_dev, _byte);        \
+  }
 
 #define W5100TransportPut1ByteByAddr(_dev, _byte) { \
-uint8_t _x = *(_byte); \
-W5100TransportPutUint8(_dev, _x); \
-}
+    uint8_t _x = *(_byte);                          \
+    W5100TransportPutUint8(_dev, _x);               \
+  }
 
-#define W5100TransportPut2Bytes(_dev, _x) { \
-uint16_t x16 = _x; \
-W5100TransportPut1Byte(_dev, x16>>8); \
-W5100TransportPut1Byte(_dev, x16 & 0xff); \
-}
+#define W5100TransportPut2Bytes(_dev, _x) {     \
+    uint16_t x16 = _x;                          \
+    W5100TransportPut1Byte(_dev, x16>>8);       \
+    W5100TransportPut1Byte(_dev, x16 & 0xff);   \
+  }
 
-#define W5100TransportPut2ByteByAddr(_dev, _byte) { \
-W5100TransportPut1ByteByAddr(_dev, _byte); \
-W5100TransportPut1ByteByAddr(_dev, (const uint8_t*)_byte+1); \
-}
+#define W5100TransportPut2ByteByAddr(_dev, _byte) {                 \
+    W5100TransportPut1ByteByAddr(_dev, _byte);                      \
+    W5100TransportPut1ByteByAddr(_dev, (const uint8_t*)_byte+1);    \
+  }
 
-#define W5100TransportPut4ByteByAddr(_dev, _byte) { \
-W5100TransportPut2ByteByAddr(_dev, _byte); \
-W5100TransportPut2ByteByAddr(_dev, (const uint8_t*)_byte+2); \
-}
+#define W5100TransportPut4ByteByAddr(_dev, _byte) {                 \
+    W5100TransportPut2ByteByAddr(_dev, _byte);                      \
+    W5100TransportPut2ByteByAddr(_dev, (const uint8_t*)_byte+2);    \
+  }
 
 #ifdef __IEEE_BIG_ENDIAN // From machine/ieeefp.h
-#define W5100TransportPutDoubleByAddr(_dev, _byte) { \
-W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4); \
-W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte); \
-}
+#define W5100TransportPutDoubleByAddr(_dev, _byte) {                \
+    W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);    \
+    W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);      \
+  }
 #else
-#define W5100TransportPutDoubleByAddr(_dev, _byte) { \
-W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte); \
-W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4); \
-}
+#define W5100TransportPutDoubleByAddr(_dev, _byte) {                \
+    W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);      \
+    W5100TransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);    \
+  }
 #endif
 
 
@@ -249,15 +250,15 @@ static inline void w5100_read_buffer( struct w5100_transport *t ) {
 
 #define W5100Buffer(_dev) TransportLink(_dev,ChAvailable())
 
-#define W5100CheckAndParse(_dev,_trans) { \
-if (W5100Buffer(_dev)) { \
-w5100_read_buffer( &(_trans) ); \
-if (_trans.trans.msg_received) { \
-w5100_parse_payload(&(_trans)); \
-_trans.trans.msg_received = FALSE; \
-} \
-} \
-}
+#define W5100CheckAndParse(_dev,_trans) {       \
+    if (W5100Buffer(_dev)) {                    \
+      w5100_read_buffer( &(_trans) );           \
+      if (_trans.trans.msg_received) {          \
+        w5100_parse_payload(&(_trans));         \
+        _trans.trans.msg_received = FALSE;      \
+      }                                         \
+    }                                           \
+  }
 
 
 #endif /* W5100_TELEM_H */
