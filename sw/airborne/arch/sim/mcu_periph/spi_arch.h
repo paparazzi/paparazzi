@@ -19,15 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** Dummy functions for handling of stm32 SPI hardware in sim.
+/** Dummy functions for handling of SPI hardware in sim.
  */
 
 #ifndef SPI_ARCH_H
 #define SPI_ARCH_H
 
-
-#include "mcu_periph/spi.h"
-
-extern void spi_rw(struct spi_transaction  * _trans);
 
 #endif /* SPI_ARCH_H */

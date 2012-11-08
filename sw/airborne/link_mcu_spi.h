@@ -51,8 +51,8 @@ extern bool_t link_mcu_received;
 
 extern void link_mcu_event_task( void );
 
-#if defined MCU_SPI_LINK && ! defined USE_SPI
-#define USE_SPI
+#if defined MCU_SPI_LINK && !USE_SPI
+#define USE_SPI 1
 #endif
 
 

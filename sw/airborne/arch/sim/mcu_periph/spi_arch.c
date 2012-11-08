@@ -21,6 +21,16 @@
 
 #include "mcu_periph/spi.h"
 
-void spi_init( void ) {}
 
-void spi_rw(struct spi_transaction  * _trans __attribute__ ((unused))) {}
+bool_t spi_submit(struct spi_periph* p __attribute__ ((unused)), struct spi_transaction* t __attribute__ ((unused))) {}
+
+void spi_init_slaves(void) {}
+
+void spi_slave_select(uint8_t slave __attribute__ ((unused))) {}
+
+void spi_slave_unselect(uint8_t slave __attribute__ ((unused))) {}
+
+bool_t spi_lock(struct spi_periph* p __attribute__ ((unused)), uint8_t slave __attribute__ ((unused))) {}
+
+bool_t spi_resume(struct spi_periph* p __attribute__ ((unused)), uint8_t slave __attribute__ ((unused))) {}
+

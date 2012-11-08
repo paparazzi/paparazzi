@@ -45,6 +45,7 @@ include $(CFG_SHARED)/imu_b2_common.makefile
 # imu Booz2 v1.1
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
 imu_CFLAGS += -DIMU_B2_VERSION_1_1
+imu_CFLAGS += -DUSE_SPI_SLAVE1
 
 # Magnetometer
 imu_srcs += peripherals/ms2100.c

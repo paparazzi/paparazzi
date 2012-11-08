@@ -35,4 +35,27 @@ typedef struct
   REG_8 _pad7[3];
 } spiRegs_t;
 
+// Serial Serial Port Registers (SSP/SPI)
+typedef struct
+{
+  REG16 cr0;                            // Control Register 0
+  REG16 _pad0;
+  REG_8 cr1;                            // Control Register 1
+  REG_8 _pad1[3];
+  REG16 dr;                             // Data Register
+  REG16 _pad2;
+  REG_8 sr;                             // Status Register
+  REG_8 _pad3[3];
+  REG_8 cpsr;                           // Clock Prescale Register
+  REG_8 _pad4[3];
+  REG_8 imsc;                           // Interrupt Mask Set and Clear Register
+  REG_8 _pad5[3];
+  REG_8 ris;                            // Raw Interrupt Status Register
+  REG_8 _pad6[3];
+  REG_8 mis;                            // Masked Interrupt Status Register
+  REG_8 _pad7[3];
+  REG_8 icr;                            // Interrupt Clear Register
+  REG_8 _pad8[3];
+} sspRegs_t;
+
 #endif
