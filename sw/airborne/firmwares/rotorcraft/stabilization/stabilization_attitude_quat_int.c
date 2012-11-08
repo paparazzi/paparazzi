@@ -187,40 +187,38 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
   stabilization_attitude_read_rc_absolute(in_flight);
 #else
 
-  //FIXME: remove me, do in quaternion directly
+#ifdef STABILIZATION_ATTITUDE_TRANSITION_VEHICLE
+//   Earth bound frame for yaw and roll commands
+//   Get commands from rc
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
 
-  struct FloatQuat q_rp_cmd;
-  stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
+//   Initialize three rotations
+  struct Int32Eulers e_psi = {0, 0, stab_att_sp_euler.psi};
+  struct Int32Quat q_psi;
+  struct Int32Eulers e_theta = {0, stab_att_sp_euler.theta, 0};
+  struct Int32Quat q_theta;
+  struct Int32Eulers e_phi = {stab_att_sp_euler.phi, 0, 0};
+  struct Int32Quat q_phi;
+  struct Int32Quat q_phi_theta;
 
-  /* get current heading */
-  const struct FloatVect3 zaxis = {0., 0., 1.};
-  struct FloatQuat q_yaw;
-  FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, ANGLE_FLOAT_OF_BFP(stateGetNedToBodyEulers_i()->psi));
+//   Construct Quaternions
+  INT32_QUAT_OF_EULERS(q_psi, e_psi);
+  INT32_QUAT_OF_EULERS(q_theta, e_theta);
+  INT32_QUAT_OF_EULERS(q_phi, e_phi);
 
-  /* apply roll and pitch commands with respect to current heading */
-  struct FloatQuat q_sp;
-  FLOAT_QUAT_COMP(q_sp, q_yaw, q_rp_cmd);
-  FLOAT_QUAT_NORMALIZE(q_sp);
+//   Apply first two rotations
+  INT32_QUAT_COMP(q_phi_theta, q_phi, q_theta);
 
-  if (in_flight)
-  {
-    /* get current heading setpoint */
-    struct FloatQuat q_yaw_sp;
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
+//   Apply third rotation
+  INT32_QUAT_COMP(stab_att_sp_quat, q_psi, q_phi_theta);
+#else
+//  Earth bound yaw and Body pitch and roll
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
 
-    /* rotation between current yaw and yaw setpoint */
-    struct FloatQuat q_yaw_diff;
-    FLOAT_QUAT_COMP_INV(q_yaw_diff, q_yaw_sp, q_yaw);
+  /* update quaternion setpoint from euler setpoint */
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 
-    /* temporary copy with roll/pitch command and current heading */
-    struct FloatQuat q_rp_sp;
-    QUAT_COPY(q_rp_sp, q_sp);
-
-    /* compute final setpoint with yaw */
-    FLOAT_QUAT_COMP_NORM_SHORTEST(q_sp, q_rp_sp, q_yaw_diff);
-  }
-
-  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
+#endif
 #endif
 }
