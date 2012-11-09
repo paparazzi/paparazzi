@@ -564,3 +564,16 @@ test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_ar
 #test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control/spektrum.c
 #test_manual.srcs   += $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
 
+##
+## test can interface
+##
+test_can.ARCHDIR = $(ARCH)
+test_can.CFLAGS  = $(COMMON_TEST_CFLAGS)
+test_can.srcs    = $(COMMON_TEST_SRCS)
+test_can.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_can.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_can.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOARD)
+
+test_can.CFLAGS += -I$(SRC_LISA)
+test_can.srcs   += lisa/test_can.c
+test_can.srcs   += mcu_periph/can.c $(SRC_ARCH)/mcu_periph/can_arch.c

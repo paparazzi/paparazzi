@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
+ * Copyright (C) 2012 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of paparazzi.
  *
@@ -29,13 +29,13 @@ can_rx_callback_t can_rx_callback;
 
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
 
-void can_init(can_rx_callback_t callback)
+void ppz_can_init(can_rx_callback_t callback)
 {
 	can_rx_callback = callback;
 	can_hw_init();
 }
 
-int can_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
+int ppz_can_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 {
 	return can_hw_transmit(id, buf, len);
 }

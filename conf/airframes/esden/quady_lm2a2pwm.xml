@@ -224,6 +224,7 @@
     <target name="test_rc_spektrum"		board="lisa_m_2.0"/>
     <target name="test_baro"			board="lisa_m_2.0"/>
     <target name="test_imu_b2"			board="lisa_m_2.0"/>
+    <target name="test_can"			board="lisa_m_2.0"/>
     <!--<target name="test_imu"			board="lisa_m_2.0"/>
     <target name="test_rc_ppm"			board="lisa_m_2.0"/>
     <target name="test_adc"			board="lisa_m_2.0"/>
