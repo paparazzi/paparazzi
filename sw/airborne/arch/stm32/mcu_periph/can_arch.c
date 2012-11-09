@@ -64,7 +64,32 @@ void can_hw_init(void)
 	/* Reset CAN. */
         can_reset(CAN1);
 
-	/* CAN cell init. */
+	/* CAN cell init.
+	 * For time quanta calculation see STM32 reference manual
+	 * section 24.7.7 "Bit timing" page 645
+	 *
+	 * To talk to CSC using LPC mcu we need a baud rate of 375kHz
+	 * The APB1 runs at 36MHz therefor we select a prescaler of 12
+	 * resulting in time quanta frequency of 36MHz / 12 = 3MHz
+	 *
+	 * As the Bit time is combined of 1tq for SYNC_SEG, TS1tq for bit
+	 * segment 1 and TS2tq for bit segment 2:
+	 * BITtq = 1tq + TS1tq + TS2tq
+	 *
+	 * We can choose to use TS1 = 3 and TS2 = 4 getting
+	 * 1tq + 3tq + 4tq = 8tq per bit therefor a bit frequency is
+	 * 3MHZ / 8 = 375kHz
+	 *
+	 * Maximum baud rate of CAN is 1MHz so we can choose to use
+	 * prescaler of 2 resulting in a quanta frequency of 36MHz / 2 = 18Mhz
+	 *
+	 * So we need to devide the frequency by 18. This can be accomplished
+	 * using TS1 = 10 and TS2 = 7 resulting in:
+	 * 1tq + 10tq + 7tq = 18tq
+	 *
+	 * NOTE: Although it is out of spec I managed to have CAN run at 2MBit
+	 * Just decrease the prescaler to 1. It worked for me(tm) (esden)
+	 */
         if (can_init(CAN1,
                      false,           /* TTCM: Time triggered comm mode? */
                      true,            /* ABOM: Automatic bus-off management? */
@@ -73,9 +98,9 @@ void can_hw_init(void)
                      false,           /* RFLM: Receive FIFO locked mode? */
                      false,           /* TXFP: Transmit FIFO priority? */
                      CAN_BTR_SJW_1TQ,
-                     CAN_BTR_TS1_3TQ,
-                     CAN_BTR_TS2_4TQ,
-                     12))             /* BRP+1: Baud rate prescaler */
+                     CAN_BTR_TS1_10TQ,
+                     CAN_BTR_TS2_7TQ,
+                     2))             /* BRP+1: Baud rate prescaler */
         {
 		/* TODO we need something somewhere where we can leave a note
 		 * that CAN was unable to initialize. Just like any other
