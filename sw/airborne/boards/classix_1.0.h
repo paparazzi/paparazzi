@@ -76,6 +76,9 @@
 
 #define SPI_SELECT_SLAVE0_PORT 0
 #define SPI_SELECT_SLAVE0_PIN 20
+#define SPI_SELECT_SLAVE0_PINSEL PINSEL1
+#define SPI_SELECT_SLAVE0_PINSEL_BIT 8
+#define SPI_SELECT_SLAVE0_PINSEL_VAL 0
 
 #ifndef SITL
 /* sitl handles this board as a mono-processor one: unfortunately these
