@@ -1,5 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -24,8 +24,14 @@
 Q=@
 
 OCAMLC = ocamlc
+OCAMLDEP = ocamldep
 OCAMLOPT = ocamlopt
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml
+LIBPPRZDIR = ../lib/ocaml
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR)
+LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
+XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
+XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
 
 all: play plotter plot sd2log plotprofile openlog2tlm
 
@@ -56,9 +62,10 @@ LDFLAGS=
 openlog2tlm: openlog2tlm.c
 	$(CC) $(CFLAGS) -g -o $@ $^
 
-
-play play-nox plotter sd2log : ../lib/ocaml/lib-pprz.cma
-plot : ../lib/ocaml/lib-pprz.cmxa
+# depedency on lib-pprz
+play play-nox sd2log : $(LIBPPRZCMA)
+plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA)
+plot : $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -178,14 +185,16 @@ ctrlstick: ctrlstick.c
 	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick
+	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
+
+.PHONY: all clean pt run_fg
 
 #
 # Dependencies
 #
 
 .depend: Makefile
-	ocamldep -I ../lib/ocaml *.ml* > .depend
+	ocamldep -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

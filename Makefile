@@ -1,6 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   Paparazzi main $Id$
 #   Copyright (C) 2004 Pascal Brisset Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -38,18 +37,49 @@ ifeq ($(PAPARAZZI_HOME),)
 PAPARAZZI_HOME=$(PAPARAZZI_SRC)
 endif
 
+# export the PAPARAZZI environment to sub-make
+export PAPARAZZI_SRC
+export PAPARAZZI_HOME
+
+OCAML=$(shell which ocaml)
+OCAMLRUN=$(shell which ocamlrun)
+BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
+
+#
+# define some paths
+#
 LIB=sw/lib
+STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
+CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
+SIMULATOR=sw/simulator
+MULTIMON=sw/ground_segment/multimon
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
-MULTIMON=sw/ground_segment/multimon
+TOOLS=$(PAPARAZZI_SRC)/sw/tools
+EXT=sw/ext
+
+#
+# build some stuff in subdirs
+# nothing should depend on these...
+#
+PPRZCENTER=sw/supervision
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
-SIMULATOR=sw/simulator
-EXT=sw/ext
-MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
-CONF=$(PAPARAZZI_SRC)/conf
-STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
+
+SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER)
+
+#
+# xml files used as input for header generation
+#
+MESSAGES_XML = $(CONF)/messages.xml
+UBX_XML = $(CONF)/ubx.xml
+MTK_XML = $(CONF)/mtk.xml
+XSENS_XML = $(CONF)/xsens_MTi-G.xml
+
+#
+# generated header files
+#
 MESSAGES_H=$(STATICINCLUDE)/messages.h
 MESSAGES2_H=$(STATICINCLUDE)/messages2.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
@@ -58,79 +88,72 @@ XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
 ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
-MESSAGES_XML = $(CONF)/messages.xml
-UBX_XML = $(CONF)/ubx.xml
-MTK_XML = $(CONF)/mtk.xml
-XSENS_XML = $(CONF)/xsens_MTi-G.xml
-TOOLS=$(PAPARAZZI_SRC)/sw/tools
-OCAML=$(shell which ocaml)
-OCAMLRUN=$(shell which ocamlrun)
-BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
+
+GEN_HEADERS = $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
 
 
-all: print_build_version conf commands static
+all: print_build_version update_google_version conf ext lib subdirs lpctools commands static
 
 print_build_version:
 	@echo "------------------------------------------------------------"
 	@echo "Building Paparazzi version" $(shell ./paparazzi_version)
 	@echo "------------------------------------------------------------"
 
-static: lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib ext
+update_google_version:
+	-$(MAKE) -C data/maps
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml FORCE
+conf: conf/conf.xml conf/control_panel.xml conf/maps.xml
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
-conf/maps.xml: conf/maps.xml.example FORCE
-	-cd data/maps; $(MAKE)
-	$(Q)if test ! -e $@; then cp $< $@; fi
 
-FORCE:
+static: cockpit tmtc tools sim_static static_h
 
 lib:
-	cd $(LIB)/ocaml; $(MAKE)
-
-center: lib
-	cd sw/supervision; $(MAKE)
-
-tools: lib
-	cd $(TOOLS); $(MAKE)
-
-logalizer: lib
-	cd $(LOGALIZER); $(MAKE)
-
-sim_static : lib
-	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
-
-cockpit: lib
-	cd $(COCKPIT); $(MAKE) all
-
-tmtc: lib cockpit
-	cd $(TMTC); $(MAKE) all
-
-misc:
-	cd $(MISC); $(MAKE) all
+	$(MAKE) -C $(LIB)/ocaml
 
 multimon:
-	cd $(MULTIMON); $(MAKE)
+	$(MAKE) -C $(MULTIMON)
 
-static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
+cockpit: lib
+	$(MAKE) -C $(COCKPIT)
 
-usb_lib:
-	@[ -d sw/airborne/arch/lpc21/lpcusb ] && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE)) || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
+tmtc: lib cockpit multimon
+	$(MAKE) -C $(TMTC)
+
+tools: lib
+	$(MAKE) -C $(TOOLS)
+
+sim_static: lib
+	$(MAKE) -C $(SIMULATOR)
 
 ext:
-	$(MAKE) -C$(EXT) all
+	$(MAKE) -C $(EXT)
 
-$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
+#
+# make misc subdirs
+#
+subdirs: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@
+
+$(PPRZCENTER): lib
+
+$(LOGALIZER): lib
+
+
+static_h: $(GEN_HEADERS)
+
+$(MESSAGES_H) : $(MESSAGES_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
 	$(Q)chmod a+r $@
 
-$(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) tools
+$(MESSAGES2_H) : $(MESSAGES_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg2.h
@@ -167,48 +190,31 @@ $(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
 	$(Q)mv /tmp/abi.h $@
 
+
 include Makefile.ac
 
-sim : sim_static
+ac_h ac fbw ap: static conf tools ext
+
+sim: sim_static
 
 
-ac_h ac1 ac2 ac3 ac fbw ap: static conf
-
-##### preliminary hard wired arm7 bootloader rules
 #
+# Commands
 #
-# call with : make bl PROC=[TINY|FBW|AP|GENERIC]
-bl:
-	cd $(AIRBORNE)/arch/lpc21/test/bootloader; $(MAKE) clean; $(MAKE)
 
-BOOTLOADER_DEV=/dev/ttyUSB0
-upload_bl bl.upload: bl
-	lpc21isp -control $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex $(BOOTLOADER_DEV) 38400 12000
+# stuff to build and upload the lpc bootloader ...
+include Makefile.lpctools
+lpctools: lpc21iap usb_lib
 
-JTAG_INTERFACE = olimex-jtag-tiny.cfg
-#JTAG_INTERFACE = olimex-arm-usb-ocd.cfg
+commands: paparazzi sw/simulator/launchsitl
 
-upload_jtag: bl
-	openocd -f interface/$(JTAG_INTERFACE)  -f board/olimex_lpc_h2148.cfg -c init -c halt -c "flash write_image erase $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex"  -c reset -c shutdown
+paparazzi:
+	cat src/paparazzi | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
+	chmod a+x $@
 
-
-
-lpc21iap:
-	cd sw/ground_segment/lpc21iap; $(MAKE)
-
-upgrade_bl bl.upgrade: bl lpc21iap
-	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/test/bootloader/bl_ram.elf
-	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/test/bootloader/bl.elf
-
-ms:
-	cd $(AIRBORNE)/arch/lpc21/lpcusb; $(MAKE)
-	cd $(AIRBORNE)/arch/lpc21/lpcusb/examples; $(MAKE)
-
-upload_ms ms.upload: ms
-	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/lpcusb/examples/msc.elf
-
-#####
-#####
+sw/simulator/launchsitl:
+	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
+	chmod a+x $@
 
 run_sitl :
 	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
@@ -219,21 +225,16 @@ install :
 uninstall :
 	$(MAKE) -f Makefile.install PREFIX=$(PREFIX) uninstall
 
-DISTRO=lenny
-deb :
-	chmod u+x debian/rules
-	cp debian/control.$(DISTRO) debian/control
-	cp debian/changelog.$(DISTRO) debian/changelog
-	dpkg-buildpackage $(DEBFLAGS) -Ivar -rfakeroot
 
-fast_deb:
-	$(MAKE) deb OCAMLC=ocamlc.opt DEBFLAGS=-b
+#
+# Cleaning
+#
 
 clean:
 	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin
-	$(Q)rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
+	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
-	$(Q)make -C sw/ext clean
+	$(Q)$(MAKE) -C $(EXT) clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
 	$(Q)rm -f paparazzi sw/simulator/launchsitl
 
@@ -256,6 +257,11 @@ dist_clean_irreversible: clean
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
+
+#
+# Tests
+#
+
 replace_current_conf_xml:
 	test conf/conf.xml && mv conf/conf.xml conf/conf.xml.backup.$(BUILD_DATETIME)
 	cp conf/tests_conf.xml conf/conf.xml
@@ -263,19 +269,15 @@ replace_current_conf_xml:
 restore_conf_xml:
 	test conf/conf.xml.backup.$(BUILD_DATETIME) && mv conf/conf.xml.backup.$(BUILD_DATETIME) conf/conf.xml
 
-commands: paparazzi sw/simulator/launchsitl
-
-paparazzi:
-	cat src/paparazzi | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
-	chmod a+x $@
-
-sw/simulator/launchsitl:
-	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
-	chmod a+x $@
-
 run_tests:
 	cd tests; $(MAKE) test
 
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
-.PHONY: all print_build_version clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible run_sitl install uninstall test replace_current_conf_xml run_tests restore_conf_xml
+
+.PHONY: all print_build_version update_google_version \
+subdirs $(SUBDIRS) conf ext lib multimon cockpit tmtc tools\
+static sim_static lpctools \
+commands run_sitl install uninstall \
+clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
+test replace_current_conf_xml run_tests restore_conf_xml

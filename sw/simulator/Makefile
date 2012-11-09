@@ -1,4 +1,4 @@
-# Paparazzi simulator $Id$
+# Hey Emacs, this is a -*- makefile -*-
 #
 # Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
 #
@@ -40,18 +40,20 @@ SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
 
 OCAMLC = ocamlc -g
-OCAMLOPT=ocamlopt
+OCAMLOPT = ocamlopt
+OCAMLDEP = ocamldep
 OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)
+LIBPPRZDIR=../lib/ocaml
+INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)
+LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-LAUNCHSITL = launchsitl
+
 
 all : gaia sitl.cma $(LAUNCHSITL) simhitl
-	@chmod a+x $(LAUNCHSITL)
 
 simhitl : fg.o $(SIMHCMO) simhitl.cmo
 	@echo OL $@
@@ -72,7 +74,7 @@ diffusion : stdlib.cmo diffusion.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
 
-%.cmo : %.ml ../lib/ocaml/lib-pprz.cma
+%.cmo : %.ml
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
 
@@ -84,24 +86,29 @@ diffusion : stdlib.cmo diffusion.cmo
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
 
-%.cmi : %.mli ../lib/ocaml/lib-pprz.cma
+%.cmi : %.mli
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
-
-clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim test2
 
 launchsitl :
 	cat ../../src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
+
+# dependency on lib-pprz
+simhitl diffusion gaia:  $(LIBPPRZCMA)
+
+clean :
+	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl diffusion
+
+.PHONY: all clean
 
 
 #
 # Dependencies
 #
 
-.depend:
-	ocamldep *.ml* > .depend
+.depend: Makefile
+	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

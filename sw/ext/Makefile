@@ -1,7 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   Paparazzi main $Id$
-#   Copyright (C) 2004 Pascal Brisset Antoine Drouin
+#   Copyright (C) 2012 The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -24,6 +23,7 @@
 # Launch with "make Q=''" to get full echo
 
 Q=@
+
 PAPARAZZI_SRC=../..
 EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 
@@ -45,23 +45,25 @@ ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 endif
 
 
-all: update_submodules libopencm3.module luftboot.module
+all: libopencm3.module luftboot.module
 
 update_submodules:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
 		cd $(PAPARAZZI_SRC) && git submodule update --quiet --init; \
 	fi
 
-libopencm3.module:
-	$(Q)make -C libopencm3 lib PREFIX=$(PREFIX)
+libopencm3.module: update_submodules
+	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX)
 
-luftboot.module: libopencm3.module
-	$(Q)make -C luftboot/src all LIBOPENCM3=../../libopencm3
+luftboot.module: update_submodules libopencm3.module
+	$(Q)$(MAKE) -C luftboot/src all LIBOPENCM3=../../libopencm3
 
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
-		make -C $(EXT_DIR)/libopencm3 clean; \
+		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \
 	fi
 	$(Q)if [ -f luftboot/src/Makefile ]; then \
-		make -C luftboot/src clean; \
+		$(MAKE) -C luftboot/src clean; \
 	fi
+
+.PHONY: all clean update_submodules libopencm3.module luftboot.module
