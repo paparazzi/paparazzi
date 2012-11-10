@@ -33,9 +33,6 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
 AC_GENERATED = $(ACINCLUDE)/generated
 
-# periodic frequency defaults to 60Hz
-PERIODIC_FREQ ?= 60
-
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
 PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
 RADIO_H=$(AC_GENERATED)/radio.h
@@ -53,12 +50,19 @@ AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 # "make Q=''" to get full echo
 Q=@
 
-init:
-	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
-
+#
+# include the generated airframe makefile
+#
 ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
 endif
+
+# telemetry periodic frequency defaults to 60Hz
+TELEMETRY_FREQUENCY ?= 60
+
+init:
+	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
+
 
 print_version:
 	@echo "-----------------------------------------------------------------------"
@@ -95,7 +99,7 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(PERIODIC_FREQ) $(SETTINGS_TELEMETRY) > $@
+	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)
 	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry

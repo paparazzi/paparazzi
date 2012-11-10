@@ -73,10 +73,9 @@ ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
 # frequency of main periodic
-ifndef PERIODIC_FREQUENCY
-PERIODIC_FREQUENCY = 512
-endif
+PERIODIC_FREQUENCY ?= 512
 ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+
 #
 # Systime
 #
