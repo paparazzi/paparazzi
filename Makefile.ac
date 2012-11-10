@@ -152,11 +152,6 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
 
-# Copy from Makefile, to get it in the paparazzi-bin package
-BOOTLOADER_DEVICE=/dev/ttyUSB0
-tiny_bl.upload:
-	lpc21isp -control $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex $(BOOTLOADER_DEVICE) 38400 12000
-
 jsbsim jsbsim.compile: jsbsim.ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim ARCH=jsbsim all
 
@@ -170,16 +165,10 @@ upload_fbw: fbw.upload
 upload_ap: ap.upload
 erase_fbw: fbw.erase
 erase_ap: ap.erase
-wr_fuses_ap: ap.wr_fuses
-wr_fuses_fbw: fbw.wr_fuses
-rd_fuses_ap: ap.rd_fuses
-rd_fuses_fbw: fbw.rd_fuses
-check_fuses_ap: ap.check_fuses
-check_fuses_fbw: fbw.check_fuses
 hard_ac ac: ac_h fbw ap
 
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-.PHONY: all init all_ac_h all_ac_hclean_ac print_version
+.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
