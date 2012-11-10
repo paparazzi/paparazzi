@@ -28,7 +28,7 @@
 #include "std.h"
 #include "mcu_periph/spi.h"
 
-#ifdef SPI_MASTER
+#if SPI_MASTER
 
 #if USE_SPI0
 struct spi_periph spi0;
@@ -64,16 +64,51 @@ void spi_init(struct spi_periph* p) {
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = SPIIdle;
+  p->mode = SPIMaster;
   p->suspend = FALSE;
 }
 
 #endif /* SPI_MASTER */
 
-#ifdef SPI_SLAVE
+#if SPI_SLAVE
 
-uint8_t* spi_buffer_input;
-uint8_t* spi_buffer_output;
-uint8_t spi_buffer_length;
-volatile bool_t spi_message_received;
+#if USE_SPI0_SLAVE
+struct spi_periph spi0;
+
+void spi0_slave_init(void) {
+  spi_slave_init(&spi0);
+  spi0_slave_arch_init();
+}
 
 #endif
+
+#if USE_SPI1_SLAVE
+struct spi_periph spi1;
+
+void spi1_slave_init(void) {
+  spi_slave_init(&spi1);
+  spi1_slave_arch_init();
+}
+
+#endif
+
+#if USE_SPI2_SLAVE
+struct spi_periph spi2;
+
+void spi2_slave_init(void) {
+  spi_slave_init(&spi2);
+  spi2_slave_arch_init();
+}
+
+#endif
+
+extern void spi_slave_init(struct spi_periph* p) {
+  p->trans_insert_idx = 0;
+  p->trans_extract_idx = 0;
+  p->status = SPIIdle;
+  p->mode = SPISlave;
+  p->suspend = FALSE;
+}
+
+#endif /* SPI_SLAVE */
+

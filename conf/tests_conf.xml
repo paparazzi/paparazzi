@@ -186,7 +186,7 @@
    settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml settings/modules/dc.xml"
    gui_color="blue"
   />
-  <!--aircraft
+  <aircraft
    name="Classix_XSens"
    ac_id="33"
    airframe="airframes/CDW/classix.xml"
@@ -195,7 +195,7 @@
    flight_plan="flight_plans/versatile.xml"
    settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/modules/photogrammetry_calculator.xml settings/modules/dc.xml"
    gui_color="blue"
-  /-->
+  />
   <aircraft
    name="tiny2_chimu_spi"
    ac_id="22"

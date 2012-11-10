@@ -1,5 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
 #   Copyright (C) 2012 The Paparazzi Team
 #
@@ -25,10 +25,12 @@
 Q=@
 
 OCAMLC = ocamlc
-OCAMLLIB = ../../lib/ocaml
+OCAMLDEP = ocamldep
+LIBPPRZDIR = ../../lib/ocaml
 TOOLSDIR = ../../tools
-OCAMLINCLUDES= -I $(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
-LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
+OCAMLINCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
+LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
 #ML_SDL_LFLAGS = $(foreach u,$(shell sdl-config --libs),-cclib $(u))
 ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u))
@@ -42,6 +44,9 @@ test_stick: test_sdl_stick.o
 input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
 	$(OCAMLC) $(OCAMLINCLUDES) -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^ -custom $(ML_SDL_LFLAGS)
 
+# dependency of input2ivy
+input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
+
 %.o : %.c
 	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(INCLUDES) $<
 
@@ -51,3 +56,16 @@ input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
 
 clean:
 	rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
+
+.PHONY: all clean
+
+#
+# Dependencies
+#
+
+.depend: Makefile
+	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
+
+ifneq ($(MAKECMDGOALS),clean)
+-include .depend
+endif

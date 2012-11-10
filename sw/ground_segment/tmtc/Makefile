@@ -1,5 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -35,87 +35,92 @@ include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
 
-all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
-
-clean:
-	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy
-
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-OCAMLLIB = ../../lib/ocaml
+OCAMLDEP = ocamldep
+LIBPPRZDIR = ../../lib/ocaml
 OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
-INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
-LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
+INCLUDES= -I $(LIBPPRZDIR) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
+
+LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
+XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
+XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
+
+LIBMULTIMONCMA=../multimon/multimon.cma
 
 SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
+
+all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
+
+clean:
+	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
+
+
 $(VAR)/boa.conf :$(CONF)/boa.conf
 	mkdir -p $(VAR)
 	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $< > $@
-	chmod a+x boa
 
 
-messages : messages.cmo ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
+messages : messages.cmo $(XLIBPPRZCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $<
 
 
-settings : settings.cmo ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma ../cockpit/page_settings.cmo
+settings : settings.cmo $(XLIBPPRZCMA) $(LIBPPRZCMA) ../cockpit/page_settings.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma $(OCAMLNETCMA) glibivy-ocaml.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma gtkInit.cmo gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
 
 
-server : $(SERVERCMO) ../../lib/ocaml/lib-pprz.cma
+server : $(SERVERCMO) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $(SERVERCMO)
 
-server.opt :  $(SERVERCMX) ../../lib/ocaml/lib-pprz.cmxa
+server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $(SERVERCMX)
 
-LINKCMO=link.cmo
-
-link : $(LINKCMO)  ../../lib/ocaml/lib-pprz.cma
+link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $(LINKCMO)
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
 
 
-ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  ../../lib/ocaml/lib-pprz.cma
+ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp_aircraft.cmo
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
 
 
-ivy_tcp_controller : ivy_tcp_controller.cmo  ../../lib/ocaml/lib-pprz.cma
+ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma ivy_tcp_controller.cmo
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
 
 
-broadcaster : broadcaster.cmo  ../../lib/ocaml/lib-pprz.cma
+broadcaster : broadcaster.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma broadcaster.cmo
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
 
 
-ivy2udp : ivy2udp.cmo  ../../lib/ocaml/lib-pprz.cma
+ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $<
 
 
-dia : dia.cmo ../multimon/multimon.cma
+dia : dia.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
 
 
-diadec : diadec.cmo ../multimon/multimon.cma
+diadec : diadec.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
 
 
-150m : 150m.cmo
+150m : 150m.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $^
-
+	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $<
 
 settings.cmo : INCLUDES += -I ../cockpit
 settings.cmo : ../cockpit/page_settings.cmi
@@ -162,12 +167,14 @@ ivy_serial_bridge: ivy_serial_bridge.c
 	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 
+.PHONY: all clean
+
 #
 # Dependencies
 #
 
 .depend: Makefile
-	ocamldep -I ../../lib/ocaml *.ml* > .depend
+	$(OCAMLDEP) -I $(LIBPPRZDIR) -I ../multimon *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

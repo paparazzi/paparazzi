@@ -33,8 +33,6 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
-
-
 // SSP is on SPI1 on lpc
 #if defined USE_SSP & !USE_SPI1
 #define USE_SP11 1
@@ -43,20 +41,5 @@
 #if defined SSP_VIC_SLOT & !SPI1_VIC_SLOT
 #define SPI1_VIC_SLOT SSP_VIC_SLOT
 #endif
-
-#ifdef SPI_SLAVE
-
-extern volatile uint8_t spi_tx_idx;
-extern volatile uint8_t spi_rx_idx;
-
-#endif /* SPI_SLAVE */
-
-
-
-#ifdef SPI_MASTER
-
-
-#endif /* SPI_MASTER */
-
 
 #endif /* SPI_ARCH_H */

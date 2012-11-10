@@ -99,6 +99,7 @@ void init_fbw( void ) {
   inter_mcu_init();
 #endif
 #ifdef MCU_SPI_LINK
+  link_mcu_init();
   link_mcu_restart();
 #endif
 

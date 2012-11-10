@@ -23,10 +23,15 @@
  */
 
 #include "link_mcu_spi.h"
-#include "mcu_periph/spi.h"
+
+#ifndef LINK_MCU_SPI_DEV
+#define LINK_MCU_SPI_DEV spi1
+#endif
 
 struct link_mcu_msg link_mcu_from_ap_msg;
 struct link_mcu_msg link_mcu_from_fbw_msg;
+
+struct spi_transaction link_mcu_trans;
 
 bool_t link_mcu_received;
 
@@ -46,20 +51,30 @@ static uint16_t crc = 0;
 
 #ifdef FBW
 
+void link_mcu_init(void) {
+
+  link_mcu_trans.cpol = SPICpolIdleLow;
+  link_mcu_trans.cpha = SPICphaEdge2;
+  link_mcu_trans.dss = SPIDss8bit;
+  link_mcu_trans.input_buf = (uint8_t*)&link_mcu_from_ap_msg;
+  link_mcu_trans.output_buf = (uint8_t*)&link_mcu_from_fbw_msg;
+  link_mcu_trans.input_length = LINK_MCU_FRAME_LENGTH;
+  link_mcu_trans.output_length = LINK_MCU_FRAME_LENGTH;
+  spi_slave_register(&(LINK_MCU_SPI_DEV), &link_mcu_trans);
+}
+
 void link_mcu_restart(void) {
   ComputeChecksum(link_mcu_from_fbw_msg);
   link_mcu_from_fbw_msg.checksum = crc;
 
-  spi_buffer_input = (uint8_t*)&link_mcu_from_ap_msg;
-  spi_buffer_output = (uint8_t*)&link_mcu_from_fbw_msg;
-  spi_buffer_length = LINK_MCU_FRAME_LENGTH;
-  SpiStart();
+  // wait for the next transaction
+  spi_slave_wait(&(LINK_MCU_SPI_DEV));
 }
 
 void link_mcu_event_task( void ) {
-  if (spi_message_received) {
+  if (link_mcu_trans.status == SPITransSuccess) {
     /* Got a message on SPI. */
-    spi_message_received = FALSE;
+    link_mcu_trans.status = SPITransDone;
 
     /* A message has been received */
     ComputeChecksum(link_mcu_from_ap_msg);
@@ -68,6 +83,11 @@ void link_mcu_event_task( void ) {
       inter_mcu_received_ap = TRUE;
     else
       fbw_state->nb_err++;
+  }
+  if (link_mcu_trans.status == SPITransFailed) {
+    link_mcu_trans.status = SPITransDone;
+    link_mcu_received = TRUE;
+    fbw_state->nb_err++;
   }
 }
 
@@ -78,39 +98,49 @@ void link_mcu_event_task( void ) {
 /*****************************************************************************/
 #ifdef AP
 
+#ifndef LINK_MCU_SLAVE_IDX
+#define LINK_MCU_SLAVE_IDX SPI_SLAVE0
+#endif
+
 uint8_t link_mcu_nb_err;
 uint8_t link_mcu_fbw_nb_err;
 
 void link_mcu_init(void) {
   link_mcu_nb_err = 0;
+
+  link_mcu_trans.cpol = SPICpolIdleLow;
+  link_mcu_trans.cpha = SPICphaEdge2;
+  link_mcu_trans.dss = SPIDss8bit;
+  link_mcu_trans.select = SPISelectUnselect;
+  link_mcu_trans.slave_idx = LINK_MCU_SLAVE_IDX;
+  link_mcu_trans.input_buf = (uint8_t*)&link_mcu_from_fbw_msg;
+  link_mcu_trans.output_buf = (uint8_t*)&link_mcu_from_ap_msg;
+  link_mcu_trans.input_length = LINK_MCU_FRAME_LENGTH;
+  link_mcu_trans.output_length = LINK_MCU_FRAME_LENGTH;
 }
 
 void link_mcu_send(void) {
 
-  if (!SpiCheckAvailable()) {
-    SpiOverRun();
-    return;
-  }
-
   ComputeChecksum(link_mcu_from_ap_msg);
   link_mcu_from_ap_msg.checksum = crc;
-  spi_buffer_input = (uint8_t*)&link_mcu_from_fbw_msg;
-  spi_buffer_output = (uint8_t*)&link_mcu_from_ap_msg;
-  spi_buffer_length = LINK_MCU_FRAME_LENGTH;
-  SpiSelectSlave0();
-  SpiStart();
+  spi_submit(&(LINK_MCU_SPI_DEV), &link_mcu_trans);
 }
 
 void link_mcu_event_task( void ) {
-  if (spi_message_received) {
+  if (link_mcu_trans.status == SPITransSuccess) {
     /* Got a message on SPI. */
-    spi_message_received = FALSE;
+    link_mcu_trans.status = SPITransDone;
     /* A message has been received */
     ComputeChecksum(link_mcu_from_fbw_msg);
     if (link_mcu_from_fbw_msg.checksum == crc)
       inter_mcu_received_fbw = TRUE;
     else
       link_mcu_nb_err++;
+  }
+  if (link_mcu_trans.status == SPITransFailed) {
+    link_mcu_trans.status = SPITransDone;
+    link_mcu_received = TRUE;
+    link_mcu_nb_err++;
   }
 }
 

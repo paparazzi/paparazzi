@@ -31,6 +31,7 @@
 
 #include <inttypes.h>
 #include "inter_mcu.h"
+#include "mcu_periph/spi.h"
 
 #ifndef SITL
 #include "link_mcu_hw.h"
@@ -47,26 +48,21 @@ struct link_mcu_msg {
 extern struct link_mcu_msg link_mcu_from_ap_msg;
 extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
+extern struct spi_transaction link_mcu_trans;
+
 extern bool_t link_mcu_received;
 
+extern void link_mcu_init(void);
 extern void link_mcu_event_task( void );
 
-#if defined MCU_SPI_LINK && !USE_SPI
-#define USE_SPI 1
-#endif
-
-
 #ifdef FBW
-#define SPI_SLAVE 1
 extern void link_mcu_restart(void);
 #endif /* FBW */
 
 #ifdef AP
-#define SPI_MASTER 1
 extern uint8_t link_mcu_nb_err;
 extern uint8_t link_mcu_fbw_nb_err;
 
-extern void link_mcu_init(void);
 extern void link_mcu_send(void);
 #endif /* AP */
 

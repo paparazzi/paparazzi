@@ -1,5 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
-#   Paparazzi main $Id$
+#
 #   Copyright (C) 2004 Pascal Brisset Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -47,7 +47,6 @@ SETTINGS_XML=$(ACINCLUDE)/settings.xml
 SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
 SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
-MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(AC_GENERATED)/modules.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
@@ -183,4 +182,4 @@ clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-.PHONY: all clean_ac print_version
+.PHONY: all init all_ac_h all_ac_hclean_ac print_version

@@ -2,10 +2,17 @@
 
 # InterMCU type SPI
 
+ifeq ($(INTER_MCU_SPI),)
+INTER_MCU_SPI = SPI1
+endif
 
-fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
-fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu_spi.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
-ap_srcs			+= $(SRC_FIRMWARE)/fbw_downlink.c
-ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu_spi.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
-SEPARATE_FBW		= 1
+ifeq ($(INTER_MCU_SLAVE),)
+INTER_MCU_SLAVE = SLAVE0
+endif
+
+fbw.CFLAGS  += -DMCU_SPI_LINK -DUSE_$(INTER_MCU_SPI)_SLAVE -DSPI_SLAVE
+fbw.srcs    += $(SRC_FIXEDWING)/link_mcu_spi.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+ap_srcs     += $(SRC_FIRMWARE)/fbw_downlink.c
+ap.CFLAGS   += -DMCU_SPI_LINK -DUSE_$(INTER_MCU_SPI) -DSPI_MASTER -DUSE_SPI_$(INTER_MCU_SLAVE)
+ap.srcs     += $(SRC_FIXEDWING)/link_mcu_spi.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+SEPARATE_FBW    = 1

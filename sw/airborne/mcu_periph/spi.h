@@ -167,7 +167,7 @@ struct spi_periph {
   volatile uint8_t suspend;
 };
 
-#ifdef SPI_MASTER
+#if SPI_MASTER
 
 #define SPI_SLAVE0 0
 #define SPI_SLAVE1 1
@@ -260,16 +260,65 @@ extern bool_t spi_resume(struct spi_periph* p, uint8_t slave);
 
 #endif /* SPI_MASTER */
 
-#ifdef SPI_SLAVE
+#if SPI_SLAVE
 
-extern uint8_t* spi_buffer_input;
-extern uint8_t* spi_buffer_output;
-extern uint8_t spi_buffer_length;
+#if USE_SPI0_SLAVE
 
-extern volatile bool_t spi_message_received;
+extern struct spi_periph spi0;
+extern void spi0_slave_init(void);
 
-void spi_slave_init(void);
+/** Architecture dependant SPI1 initialization.
+ * Must be implemented by underlying architecture
+ */
+extern void spi0_slave_arch_init(void);
 
 #endif
+
+#if USE_SPI1_SLAVE
+
+extern struct spi_periph spi1;
+extern void spi1_slave_init(void);
+
+/** Architecture dependant SPI1 initialization.
+ * Must be implemented by underlying architecture
+ */
+extern void spi1_slave_arch_init(void);
+
+#endif
+
+#if USE_SPI2_SLAVE
+
+extern struct spi_periph spi2;
+extern void spi2_slave_init(void);
+
+/** Architecture dependant SPI1 initialization.
+ * Must be implemented by underlying architecture
+ */
+extern void spi2_slave_arch_init(void);
+
+#endif
+
+/** Initialize a spi peripheral in slave mode.
+ * @param p spi peripheral to be configured
+ */
+extern void spi_slave_init(struct spi_periph* p);
+
+/** Register a spi transaction in slave mode (only one transaction can be registered).
+ * Must be implemented by the underlying architecture
+ * @param p spi peripheral to be used
+ * @param t spi transaction
+ * @return return true if registered with success
+ */
+extern bool_t spi_slave_register(struct spi_periph* p, struct spi_transaction* t);
+
+/** Initialized and wait for the next transaction.
+ * If a transaction is registered for this peripheral, the spi will be
+ * waiting for a communication from the master
+ * @param p spi peripheral to be used
+ * @return return true if a transaction was register for this peripheral
+ */
+extern bool_t spi_slave_wait(struct spi_periph* p);
+
+#endif /* SPI_SLAVE */
 
 #endif /* SPI_H */
