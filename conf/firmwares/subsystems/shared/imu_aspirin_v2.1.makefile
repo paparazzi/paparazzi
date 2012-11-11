@@ -50,7 +50,6 @@ ifeq ($(ARCH), lpc21)
 #TODO
 $(error Not implemented for the LCP21x yet. Needs the new SPI mcu_periph. See issue 147!)
 else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 endif
 

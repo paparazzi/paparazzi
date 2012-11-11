@@ -274,8 +274,6 @@ IMU_B2_CFLAGS  = -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 IMU_B2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100 -DIMU_B2_VERSION_1_1
 IMU_B2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
 IMU_B2_SRCS   += math/pprz_trig_int.c
-IMU_B2_CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
-IMU_B2_CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 IMU_B2_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI1 -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100 -DIMU_B2_VERSION_1_1 -DUSE_SPI_SLAVE1
 IMU_B2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
 IMU_B2_SRCS   += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
@@ -301,15 +299,12 @@ IMU_B2_2_CFLAGS  = -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 IMU_B2_2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843 -DIMU_B2_VERSION_1_2
 IMU_B2_2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
 IMU_B2_2_SRCS   += math/pprz_trig_int.c
-IMU_B2_2_CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
-IMU_B2_2_CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
-IMU_B2_2_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+IMU_B2_2_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
 IMU_B2_2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 IMU_B2_2_SRCS   += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 IMU_B2_2_CFLAGS += -DUSE_I2C2
 IMU_B2_2_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 IMU_B2_2_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
-IMU_B2_2_CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 IMU_B2_2_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 
 test_imu_b2_2.ARCHDIR = $(ARCH)
@@ -336,10 +331,6 @@ IMU_ASPIRIN_SRCS   += math/pprz_trig_int.c
 IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 IMU_ASPIRIN_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-IMU_ASPIRIN_CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
-IMU_ASPIRIN_CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
-IMU_ASPIRIN_CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
-IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 
 test_imu_aspirin.ARCHDIR = $(ARCH)
 test_imu_aspirin.srcs    = test/subsystems/test_imu.c
@@ -436,7 +427,6 @@ test_hmc5843.CFLAGS += -I$(SRC_LISA)
 test_hmc5843.srcs   += lisa/test/lisa_test_hmc5843.c
 test_hmc5843.CFLAGS += -DUSE_I2C2
 test_hmc5843.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 
 
 #
@@ -452,7 +442,6 @@ test_itg3200.CFLAGS += -I$(SRC_LISA)
 test_itg3200.srcs   += lisa/test/lisa_test_itg3200.c
 test_itg3200.CFLAGS += -DUSE_I2C2
 test_itg3200.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_itg3200.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
 
 
 #
@@ -466,8 +455,6 @@ test_adxl345.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_adxl345.CFLAGS += -I$(SRC_LISA)
 test_adxl345.srcs   += lisa/test/lisa_test_adxl345_dma.c
-test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Accel Int on PD2
-test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
 
 
 
@@ -548,7 +535,6 @@ test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_ar
 #test_bmp085.srcs   += lisa/test/lisa_test_bmp085.c
 #test_bmp085.CFLAGS += -DUSE_I2C2
 #test_bmp085.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-##test_bmp085.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 
 
 

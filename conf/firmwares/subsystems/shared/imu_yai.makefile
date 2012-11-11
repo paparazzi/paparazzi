@@ -26,9 +26,6 @@
 #
 #
 
-#
-# param: MAX_1168_DRDY_PORT
-
 # common Booz2 IMU files
 include $(CFG_SHARED)/imu_b2_common.makefile
 

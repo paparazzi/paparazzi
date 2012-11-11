@@ -47,7 +47,7 @@ stm_passthrough.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 stm_passthrough.CFLAGS += -DUSE_OVERO_LINK
 stm_passthrough.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp
 stm_passthrough.CFLAGS += -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
-stm_passthrough.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=2 -DUSE_DMA1_C2_IRQ
+stm_passthrough.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=2
 stm_passthrough.srcs += $(SRC_LISA)/lisa_overo_link.c           \
             $(SRC_LISA_ARCH)/lisa_overo_link_arch.c
 
