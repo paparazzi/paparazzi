@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2009  Martin Mueller
  *
  * This file is part of paparazzi.

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Converter for OpenLog logfiles to TLM
  *
  * Copyright (C) 2011-2012 Christoph Niemann

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Flight plan preprocessing (from XML to XML)
  *
  * Copyright (C) 2009 ENAC, Pascal Brisset, Antoine Drouin

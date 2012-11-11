@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Extraction of .log and .data file from a .TLM airborne SD file
  *
  * Copyright (C) 2009 ENAC, Pascal Brisset

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Server part specific to fixed wing vehicles
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin

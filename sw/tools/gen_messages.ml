@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing of messages.xml for downlink protocol
  *
  * Copyright (C) 2003-2008 ENAC, Pascal Brisset, Antoine Drouin

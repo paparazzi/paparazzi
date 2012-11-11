@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Ground harware modem handling
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin

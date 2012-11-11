@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2011 Andreas Gaeb
  *
  * This file is part of paparazzi.

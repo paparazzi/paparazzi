@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2005-2008  Arnold Schroeter
  *
  * This file is part of paparazzi.

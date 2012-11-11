@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Configuration handling
  *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec, Pascal Brisset, Antoine Drouin

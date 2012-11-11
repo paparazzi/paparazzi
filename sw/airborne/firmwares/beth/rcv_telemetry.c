@@ -1,6 +1,4 @@
 /*
- * $Id: datalink.c 5626 2010-08-23 18:10:19Z flixr $
- *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.

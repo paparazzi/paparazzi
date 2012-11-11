@@ -1,6 +1,4 @@
 /*
- * $Id: interrupt_hw.h 859 2006-05-03 21:32:23Z poine $
- *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.

@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id: pprz_transport.h 4870 2010-04-24 03:02:39Z poine $
- *
  * Copyright (C) 2010  ENAC
  *
  * This file is part of paparazzi.

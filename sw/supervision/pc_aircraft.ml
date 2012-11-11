@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Paparazzi center aircraft handling
  *
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin

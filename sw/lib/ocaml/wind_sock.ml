@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Wind sock
  *
  * Copyright (C) 2007 ENAC

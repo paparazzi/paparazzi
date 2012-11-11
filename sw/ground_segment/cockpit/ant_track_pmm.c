@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id: ant_track_pmm.c 2010-11-27 18:14:20Z griffin $
- *
  * Copyright (C) 2010
  *
  * Modified by: Mark Griffin and Todd Sandercock

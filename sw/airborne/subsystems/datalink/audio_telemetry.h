@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Paparazzi telemetry via audio channel modem functions
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin

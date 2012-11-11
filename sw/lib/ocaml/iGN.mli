@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Handling IGN tiles
  *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin

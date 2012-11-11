@@ -1,6 +1,4 @@
 /*
- * $Id: demo_module.c 3079 2009-03-11 16:55:42Z gautier $
- *
  * Copyright (C) 2009  Gautier Hattenberger
  *
  * This file is part of paparazzi.

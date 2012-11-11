@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing for periodic messages
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin

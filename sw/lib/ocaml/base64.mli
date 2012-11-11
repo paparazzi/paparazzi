@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Downlink protocol (handling messages.xml)
  *
  * Copyright (c) 2003 Dustin Sallings <dustin@spy.net>

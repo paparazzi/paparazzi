@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2003-2009 Pascal Brisset, Antoine Drouin, Martin Mueller
  *
  * This file is part of paparazzi.

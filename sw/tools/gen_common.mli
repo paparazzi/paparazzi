@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * generic tools for modules
  *
  * Copyright (C) 2010 Gautier Hattenberger

@@ -1,6 +1,4 @@
 /*
- * $Id: stabilization_attitude_euler.c 3795 2009-07-24 23:43:02Z poine $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.

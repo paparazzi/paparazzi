@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Basic log plotter
  *
  * Copyright (C) 2007- ENAC, Pascal Brisset, Antoine Drouin

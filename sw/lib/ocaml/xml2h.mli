@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing tools
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
