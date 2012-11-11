@@ -67,19 +67,26 @@ EXTERN void dl_parse_msg(void);
   }						                \
 }
 
-#if DATALINK == PPRZ
+#if defined DATALINK && DATALINK == PPRZ
 
 #define DatalinkEvent() {			            \
-  PprzCheckAndParse(PPRZ_UART, pprz_tp);  \
-  DlCheckAndParse();                      \
-}
+    PprzCheckAndParse(PPRZ_UART, pprz_tp);      \
+    DlCheckAndParse();                          \
+  }
 
-#elif DATALINK == XBEE
+#elif defined DATALINK && DATALINK == XBEE
 
 #define DatalinkEvent() {			            \
-  XBeeCheckAndParse(XBEE_UART, xbee_tp);  \
-  DlCheckAndParse();                      \
-}
+    XBeeCheckAndParse(XBEE_UART, xbee_tp);      \
+    DlCheckAndParse();                          \
+  }
+
+#elif defined DATALINK && DATALINK == W5100
+
+#define DatalinkEvent() {                       \
+    W5100CheckAndParse(W5100, w5100_tp);        \
+    DlCheckAndParse();                          \
+  }
 
 #else
 

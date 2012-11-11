@@ -229,8 +229,7 @@
   <firmware name="fixedwing">
 
     <target name="ap" board="lisa_m_2.0">
-      <!-- this define is not available in paparazzi v4.1 -->
-      <!--define name="LISA_M_LONGITUDINAL_X"/-->
+      <define name="LISA_M_LONGITUDINAL_X"/>
 
       <configure name="SEPARATE_FBW" value="1"/>
 

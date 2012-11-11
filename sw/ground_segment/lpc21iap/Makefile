@@ -52,3 +52,5 @@ arch: clean
 # Builds release tar file
 dist: clean
 	cd .. && $(TAR) --exclude={CVS,cvs} -cvzf $(PKG_NAME)-$(DATE).tar.gz $(PKG_NAME)
+
+.PHONY: all clean app arch dist

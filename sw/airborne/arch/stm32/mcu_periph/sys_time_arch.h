@@ -34,7 +34,7 @@
 
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/systick.h>
+#include <libopencm3/cm3/systick.h>
 #include "std.h"
 
 extern void sys_tick_handler(void);

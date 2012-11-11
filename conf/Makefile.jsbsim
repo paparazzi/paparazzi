@@ -1,6 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id: Makefile.sim 3505 2009-06-17 12:59:32Z hecto $
 #   Copyright (C) 2006 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.

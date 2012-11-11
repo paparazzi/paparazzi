@@ -1,5 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -35,12 +35,17 @@ FPIC=-fPIC
 
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
+OCAMLDEP=ocamldep
 OCAMLOPTFLAGS=-thread
 OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format pcre) $(OCAMLNETINCLUDES)
+LIBPPRZDIR=../../lib/ocaml
+INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format pcre) $(OCAMLNETINCLUDES)
 LIBS=$(OCAMLNETCMA) glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
+LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
+XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
@@ -51,7 +56,7 @@ all : $(MAIN)
 
 opt : $(MAIN).opt
 
-$(MAIN) : $(CMO) ../../lib/ocaml/xlib-pprz.cma ../../lib/ocaml/lib-pprz.cma
+$(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) $(OCAMLNETINCLUDES) unix.cma str.cma netstring.cma netclient.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
 
@@ -89,9 +94,9 @@ compass : compass.ml
 
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml
+	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml compass ant_track ant_track_pmm test_enose actuators
 
-
+.PHONY: all opt clean
 
 
 CC = gcc
@@ -117,7 +122,7 @@ actuators : actuators.c
 #
 
 .depend: Makefile
-	ocamldep -I ../../lib/ocaml *.ml* > .depend
+	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

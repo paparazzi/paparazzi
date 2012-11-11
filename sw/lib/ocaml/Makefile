@@ -1,5 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -33,6 +33,7 @@ endif
 INCLUDES=  $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient) $(shell ocamlfind query -r -i-format pcre)
 XINCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
 OCAMLC=ocamlc
+OCAMLDEP=ocamldep
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
@@ -154,7 +155,7 @@ gtk_papget_led_editor.ml : widgets.glade
 	@rm /tmp/$@_$<
 
 clean :
-	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
+	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
 
 .PHONY: all opt clean
 
@@ -163,7 +164,7 @@ clean :
 #
 
 .depend: Makefile
-	ocamldep *.ml* > .depend
+	$(OCAMLDEP) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

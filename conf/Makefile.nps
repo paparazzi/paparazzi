@@ -88,6 +88,7 @@ $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
+.PHONY: all compile check_jsbsim
 
 #
 # Dependencies

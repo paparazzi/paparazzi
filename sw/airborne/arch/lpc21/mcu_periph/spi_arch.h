@@ -1,6 +1,5 @@
-/*  $Id$
- *
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+/*
+ * Copyright (C) 2005-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,8 +20,10 @@
  *
  */
 
-/** \brief handling of arm7 SPI hardware
- *  for now only SPI1 ( aka SSP )
+/**
+ * @file arch/lpc21/mcu_periph/spi_arch.h
+ * Handling of SPI hardware for lpc21xx.
+ * for now only SPI1 ( aka SSP )
  */
 
 #ifndef SPI_ARCH_H
@@ -32,164 +33,13 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
-extern volatile uint8_t spi_tx_idx;
-extern volatile uint8_t spi_rx_idx;
-
-#define SpiInitBuf() {                                                  \
-  spi_rx_idx = 0;                                                       \
-  spi_tx_idx = 0;                                                       \
-  spi_message_received = FALSE;                                         \
-  SpiTransmit();      /* fill fifo */                                   \
-}
-
-#define SpiTransmit() {                             \
-    while (spi_tx_idx < spi_buffer_length                       \
-       && bit_is_set(SSPSR, TNF)) {					\
-      SpiSend(spi_buffer_output[spi_tx_idx]);                           \
-      spi_tx_idx++;                             \
-    }                                                           \
-    if (spi_tx_idx == spi_buffer_length)                    \
-      SpiDisableTxi();                                                  \
-}
-
-#define SpiReceive() {                              \
-    while (bit_is_set(SSPSR, RNE)) {					\
-      if (spi_rx_idx < spi_buffer_length) {                             \
-          SpiRead(spi_buffer_input[spi_rx_idx])                         \
-          spi_rx_idx++;                             \
-      }                                                                 \
-      else {                                                            \
-         uint8_t foo;                                                   \
-     SpiRead(foo);                                                  \
-      }                                                                 \
-    }									\
-  }
-
-#define SpiEnable() {		\
-    SetBit(SSPCR1, SSE);	\
-  }
-
-#define SpiDisable() {		\
-    ClearBit(SSPCR1, SSE);	\
-  }
-
-#define SpiEnableRti() {	\
-    SetBit(SSPIMSC, RTIM);	\
-  }
-
-#define SpiDisableRti() {	\
-    ClearBit(SSPIMSC, RTIM);	\
-  }
-
-#define SpiClearRti() {         \
-    SetBit(SSPICR, RTIC);	\
-  }
-
-#define SpiEnableTxi() {	\
-    SetBit(SSPIMSC, TXIM);	\
-  }
-
-#define SpiDisableTxi() {	\
-    ClearBit(SSPIMSC, TXIM);	\
-  }
-
-#define SpiEnableRxi() {	\
-    SetBit(SSPIMSC, RXIM);	\
-  }
-
-#define SpiDisableRxi() {	\
-    ClearBit(SSPIMSC, RXIM);	\
-  }
-
-#define SpiSend(a) {            \
-    SSPDR = a;			\
-  }
-
-#define SpiRead(a) {            \
-   a = SSPDR;			\
-  }
-
-#ifdef SPI_SLAVE
-#define SpiStart() {                              \
-    SpiEnable();                              \
-    SpiInitBuf();                             \
-    SpiEnableTxi();     /* enable tx fifo half empty interrupt */     \
-  }
-
-#endif /* SPI_SLAVE */
-
-
-
-#ifdef SPI_MASTER
-
-
-/* !!!!!!!!!!!!! Code for one single slave at a time !!!!!!!!!!!!!!!!! */
-#if defined SPI_SELECT_SLAVE1_PIN && defined SPI_SELECT_SLAVE0_PIN
-#error "SPI: one single slave, please"
+// SSP is on SPI1 on lpc
+#if defined USE_SSP & !USE_SPI1
+#define USE_SP11 1
 #endif
 
-
-#define SpiStart() {                                                    \
-   SpiEnable();                                                         \
-   SpiInitBuf();                                                        \
-   SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
-}
-
-/*
- * Slave0 select : P0.20  PINSEL1 00 << 8
- * Slave1 select : P1.20
- *
- */
-
-#define SPI_SELECT_SLAVE_IO__(port, reg) IO ## port ## reg
-#define SPI_SELECT_SLAVE_IO_(port, reg) SPI_SELECT_SLAVE_IO__(port, reg)
-
-#define SPI_SELECT_SLAVE0_IODIR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, DIR)
-#define SPI_SELECT_SLAVE0_IOCLR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, CLR)
-#define SPI_SELECT_SLAVE0_IOSET SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE0_PORT, SET)
-
-#define SPI_SELECT_SLAVE1_IODIR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, DIR)
-#define SPI_SELECT_SLAVE1_IOCLR SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, CLR)
-#define SPI_SELECT_SLAVE1_IOSET SPI_SELECT_SLAVE_IO_(SPI_SELECT_SLAVE1_PORT, SET)
-
-
-#define SpiSelectSlave0() {	\
-    spi_cur_slave = SPI_SLAVE0;	\
-    SetBit(SPI_SELECT_SLAVE0_IOCLR, SPI_SELECT_SLAVE0_PIN);	\
-  }
-
-#define SpiUnselectSlave0() { \
-    spi_cur_slave = SPI_NONE;	\
-    SetBit(SPI_SELECT_SLAVE0_IOSET, SPI_SELECT_SLAVE0_PIN);	\
-  }
-
-
-#define SpiSelectSlave1() {	\
-    spi_cur_slave = SPI_SLAVE1;	\
-    SetBit(SPI_SELECT_SLAVE1_IOCLR, SPI_SELECT_SLAVE1_PIN);	\
-  }
-
-#define SpiUnselectSlave1() { \
-    spi_cur_slave = SPI_NONE;	\
-    SetBit(SPI_SELECT_SLAVE1_IOSET, SPI_SELECT_SLAVE1_PIN);	\
-  }
-
-#ifdef SPI_SELECT_SLAVE0_PIN
-#define SpiUnselectCurrentSlave() SpiUnselectSlave0()
+#if defined SSP_VIC_SLOT & !SPI1_VIC_SLOT
+#define SPI1_VIC_SLOT SSP_VIC_SLOT
 #endif
-
-#ifdef SPI_SELECT_SLAVE1_PIN
-#define SpiUnselectCurrentSlave() SpiUnselectSlave1()
-#endif
-
-#endif /* SPI_MASTER */
-
-
-#define SpiSetCPOL() (SSPCR0 |= _BV(6))
-#define SpiClrCPOL() (SSPCR0 &= ~(_BV(6)))
-
-#define SpiSetCPHA() (SSPCR0 |= _BV(7))
-#define SpiClrCPHA() (SSPCR0 &= ~(_BV(7)))
-
 
 #endif /* SPI_ARCH_H */

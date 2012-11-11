@@ -18,7 +18,6 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
 #include "subsystems/imu.h"
 
 #include "led.h"
@@ -29,26 +28,30 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/ms5611.h"
 
-
 struct ImuAspirin2 imu_aspirin2;
 
 struct spi_transaction aspirin2_mpu60x0;
 
-
 // initialize peripherals
 static void mpu_configure(void);
-
+static void trans_cb( struct spi_transaction *trans );
 
 void imu_impl_init(void) {
+  aspirin2_mpu60x0.select = SPISelectUnselect;
+  aspirin2_mpu60x0.cpol = SPICpolIdleHigh;
+  aspirin2_mpu60x0.cpha = SPICphaEdge2;
+  aspirin2_mpu60x0.dss = SPIDss8bit;
+  aspirin2_mpu60x0.bitorder = SPIMSBFirst;
+  aspirin2_mpu60x0.cdiv = SPIDiv64;
+  aspirin2_mpu60x0.slave_idx = 2;
+  aspirin2_mpu60x0.output_length = IMU_ASPIRIN_BUFFER_LEN;
+  aspirin2_mpu60x0.input_length = IMU_ASPIRIN_BUFFER_LEN;
+  aspirin2_mpu60x0.after_cb = trans_cb;
 
   imu_aspirin2.status = Aspirin2StatusUninit;
-  imu_aspirin2.imu_spi_data_received = FALSE;
-
-  aspirin2_mpu60x0.mosi_buf = imu_aspirin2.imu_tx_buf;
-  aspirin2_mpu60x0.miso_buf = imu_aspirin2.imu_rx_buf;
-  aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_spi_data_received);
-  aspirin2_mpu60x0.length = 2;
-
+  imu_aspirin2.imu_available = FALSE;
+  aspirin2_mpu60x0.input_buf = &imu_aspirin2.input_buf_p[0];
+  aspirin2_mpu60x0.output_buf = &imu_aspirin2.output_buf_p[0];
 }
 
 
@@ -57,32 +60,34 @@ void imu_periodic(void)
 
   if (imu_aspirin2.status == Aspirin2StatusUninit) {
     mpu_configure();
-    // imu_aspirin_arch_int_enable();
     imu_aspirin2.status = Aspirin2StatusIdle;
 
-    aspirin2_mpu60x0.length = 22;
-    aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
-
-    for (int i=1;i<aspirin2_mpu60x0.length;i++) {
-      aspirin2_mpu60x0.mosi_buf[i] = 0;
+    aspirin2_mpu60x0.output_length = 22;
+    aspirin2_mpu60x0.input_length = 22;
+    aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
+    for (int i=1;i<aspirin2_mpu60x0.output_length;i++) {
+        aspirin2_mpu60x0.output_buf[i] = 0;
     }
   }
   else {
+    spi_submit(&spi2,&aspirin2_mpu60x0);
+  }
+}
 
-    // imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + MPU60X0_SPI_READ;
-    // imu_aspirin2.imu_tx_buf[1] = 0x00;
-
-    spi_rw(&aspirin2_mpu60x0);
+static void trans_cb( struct spi_transaction *trans ) {
+  if ( imu_aspirin2.status != Aspirin2StatusUninit ) {
+    imu_aspirin2.imu_available = TRUE;
   }
 }
 
 static inline void mpu_set(uint8_t _reg, uint8_t _val)
 {
-  aspirin2_mpu60x0.mosi_buf[0] = _reg;
-  aspirin2_mpu60x0.mosi_buf[1] = _val;
-  spi_rw(&aspirin2_mpu60x0);
+  aspirin2_mpu60x0.output_buf[0] = _reg;
+  aspirin2_mpu60x0.output_buf[1] = _val;
+  spi_submit(&spi2,&aspirin2_mpu60x0);
 
-  while(aspirin2_mpu60x0.status != SPITransSuccess);
+  // FIXME: no busy waiting! if really needed add a timeout!!!!
+    while(aspirin2_mpu60x0.status != SPITransSuccess);
 }
 
 static inline void mpu_wait_slave4_ready(void)
@@ -90,23 +95,26 @@ static inline void mpu_wait_slave4_ready(void)
   uint8_t ret = 0x80;
   while (ret & 0x80)
   {
-    aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
-    aspirin2_mpu60x0.mosi_buf[1] = 0;
-    spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+    aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
+    aspirin2_mpu60x0.output_buf[1] = 0;
+    spi_submit(&spi2,&aspirin2_mpu60x0);
 
-    ret = aspirin2_mpu60x0.miso_buf[1];
+    // FIXME: no busy waiting! if really needed add a timeout!!!!
+      while(aspirin2_mpu60x0.status != SPITransSuccess);
+
+    ret = aspirin2_mpu60x0.input_buf[1];
   }
 }
 
-
-
 static void mpu_configure(void)
 {
-  aspirin2_mpu60x0.length = 2;
+  aspirin2_mpu60x0.output_length = 2;
+  aspirin2_mpu60x0.input_length = 2;
 
   ///////////////////
   // Reset the MPU
+  mpu_set( MPU60X0_REG_PWR_MGMT_1,
+           0x01 << 7);		// -device reset
   mpu_set( MPU60X0_REG_USER_CTRL,
 	   (1 << 2) |           // Trigger a FIFO_RESET
 	   (1 << 1) |           // Trigger a I2C_MST_RESET
@@ -118,6 +126,11 @@ static void mpu_configure(void)
   // MPU60X0_REG_PWR_MGMT_1
   mpu_set( MPU60X0_REG_PWR_MGMT_1,
            0x01);		// -switch to gyroX clock
+
+  // Wait for the new clock to stabilize.
+  // FIXME: This must not be a delay!
+  // It should be done using the MPU-6000 interrupt!
+  {for (int i = 0; i < 1000000; i++) { asm("nop"); }}
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
   // -No standby and no wake timer
@@ -150,7 +163,8 @@ static void mpu_configure(void)
 #    endif
 #  endif
 #endif
-  // MPU60X0_REG_CONFIG
+  aspirin2_mpu60x0.output_buf[1] = (2 << 3) | (MPU_DIG_FILTER << 0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
   mpu_set( MPU60X0_REG_CONFIG,
            (2 << 3) | 			// Fsync / ext sync on gyro X (bit 3->6)
            (MPU_DIG_FILTER << 0) );	// Low-Pass Filter
@@ -184,10 +198,10 @@ static void mpu_configure(void)
   // Enable the aux i2c
   mpu_set( MPU60X0_REG_I2C_MST_CTRL,
            (0 << 7) | 		// no multimaster
-           (0 << 6) |		// do not delay IRQ waiting for all external slaves
-           (0 << 5) | 		// no slave 3 FIFO
-           (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
-           (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
+	   (0 << 6) |		// do not delay IRQ waiting for all external slaves
+	   (0 << 5) | 		// no slave 3 FIFO
+	   (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
+	   (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
 
   mpu_set( MPU60X0_REG_I2C_MST_DELAY,
            (0 << 2) |		// No Delay Slave 2
@@ -252,8 +266,9 @@ static void mpu_configure(void)
            (0 << 6) |		// Byte Swap
            (6 << 0) );		// Read 6 bytes
 
-  // Slave 0 Control:
+	// Slave 0 Control:
 
+#if !IMU_ASPIRIN_DISABLE_BARO
 #ifdef IMU_ASPIRIN_VERSION_2_1
 #pragma message "Reading the MS5611"
 /*
@@ -300,6 +315,7 @@ static void mpu_configure(void)
 
 
 
+#endif
 #endif
 
 #endif

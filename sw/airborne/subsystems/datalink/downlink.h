@@ -49,6 +49,7 @@
 #else /** SITL */
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
+#include "subsystems/datalink/w5100.h"
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"
 #endif

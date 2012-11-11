@@ -37,20 +37,4 @@
 #define B57600   57600
 #define B115200 115200
 
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void usart1_isr(void);
-#endif
-
-#if defined USE_UART2 || OVERRIDE_UART2_IRQ_HANDLER
-extern void usart2_isr(void);
-#endif
-
-#if defined USE_UART3 || OVERRIDE_UART3_IRQ_HANDLER
-extern void usart3_isr(void);
-#endif
-
-#if defined USE_UART5 || OVERRIDE_UART5_IRQ_HANDLER
-extern void uart5_isr(void);
-#endif
-
 #endif /* STM32_UART_ARCH_H */

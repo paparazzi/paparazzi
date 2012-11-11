@@ -1,6 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2009 Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -345,9 +344,8 @@ clean_list :
 
 
 # Listing of phony targets.
-.PHONY : all sizebefore sizeafter \
-build elf bin lss sym clean clean_list upload
-
+.PHONY : all sizebefore sizeafter printcommands printmultilib\
+build elf bin lss sym clean clean_list upload start_gdb start_telnet
 
 #
 # Dependencies

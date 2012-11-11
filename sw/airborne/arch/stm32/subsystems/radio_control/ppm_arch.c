@@ -27,7 +27,7 @@
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/timer.h>
-#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/f1/nvic.h>
 
 #include "mcu_periph/sys_time.h"
 
@@ -42,48 +42,84 @@ uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
-void tim2_isr(void);
+#ifdef USE_TIM2_IRQ
+
+#pragma message "Using PPM input on SERVO6 pin!"
+
+#define PPM_RCC			&RCC_APB1ENR
+#define PPM_PERIPHERAL		RCC_APB1ENR_TIM2EN
+#define PPM_TIMER		TIM2
+#define PPM_CHANNEL		TIM_IC2
+#define PPM_TIMER_INPUT		TIM_IC_IN_TI2
+#define PPM_IRQ			NVIC_TIM2_IRQ
+#define PPM_IRQ_FLAGS		(TIM_DIER_CC2IE | TIM_DIER_UIE)
+#define PPM_GPIO_PERIPHERAL	RCC_APB2ENR_IOPAEN
+#define PPM_GPIO_PORT		GPIOA
+#define PPM_GPIO_PIN		GPIO1
+
+#elif defined USE_TIM1_IRQ
+
+#pragma message "Using PPM input on UART1_RX pin!"
+
+#define PPM_RCC			&RCC_APB2ENR
+#define PPM_PERIPHERAL		RCC_APB2ENR_TIM1EN
+#define PPM_TIMER		TIM1
+#define PPM_CHANNEL		TIM_IC3
+#define PPM_TIMER_INPUT		TIM_IC_IN_TI3
+#define PPM_IRQ			NVIC_TIM1_UP_IRQ
+#define PPM_IRQ2		NVIC_TIM1_CC_IRQ
+#define PPM_IRQ_FLAGS		(TIM_DIER_CC3IE | TIM_DIER_UIE)
+#define PPM_GPIO_PERIPHERAL	RCC_APB2ENR_IOPAEN
+#define PPM_GPIO_PORT		GPIOA
+#define PPM_GPIO_PIN		GPIO10
+
+#endif
 
 void ppm_arch_init ( void ) {
 
-  /* TIM2 clock enable */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+  /* timer clock enable */
+  rcc_peripheral_enable_clock(PPM_RCC, PPM_PERIPHERAL);
 
   /* GPIOA clock enable */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, PPM_GPIO_PERIPHERAL);
 
-  /* TIM2 channel 2 pin (PA.01) configuration */
-  gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
-		GPIO_CNF_INPUT_FLOAT, GPIO1);
+  /* timer gpio configuration */
+  gpio_set_mode(PPM_GPIO_PORT, GPIO_MODE_INPUT,
+		GPIO_CNF_INPUT_FLOAT, PPM_GPIO_PIN);
 
   /* Time Base configuration */
-  timer_reset(TIM2);
-  timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,
+  timer_reset(PPM_TIMER);
+  timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
 		 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-  timer_set_period(TIM2, 0xFFFF);
-  timer_set_prescaler(TIM2, 0x8);
+  timer_set_period(PPM_TIMER, 0xFFFF);
+  timer_set_prescaler(PPM_TIMER, 0x8);
 
  /* TIM2 configuration: Input Capture mode ---------------------
      The external signal is connected to TIM2 CH2 pin (PA.01)
      The Rising edge is used as active edge,
   ------------------------------------------------------------ */
-  timer_ic_set_polarity(TIM2, TIM_IC2, TIM_IC_RISING);
-  timer_ic_set_input(TIM2, TIM_IC2, TIM_IC_IN_TI2);
-  timer_ic_set_prescaler(TIM2, TIM_IC2, TIM_IC_PSC_OFF);
-  timer_ic_set_filter(TIM2, TIM_IC2, TIM_IC_OFF);
+  timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_RISING);
+  timer_ic_set_input(PPM_TIMER, PPM_CHANNEL, PPM_TIMER_INPUT);
+  timer_ic_set_prescaler(PPM_TIMER, PPM_CHANNEL, TIM_IC_PSC_OFF);
+  timer_ic_set_filter(PPM_TIMER, PPM_CHANNEL, TIM_IC_OFF);
 
-  /* Enable the TIM2 global Interrupt. */
-  nvic_set_priority(NVIC_TIM2_IRQ, 2);
-  nvic_enable_irq(NVIC_TIM2_IRQ);
+  /* Enable timer Interrupt(s). */
+  nvic_set_priority(PPM_IRQ, 2);
+  nvic_enable_irq(PPM_IRQ);
+
+#ifdef PPM_IRQ2
+  nvic_set_priority(PPM_IRQ2, 2);
+  nvic_enable_irq(PPM_IRQ2);
+#endif
 
   /* Enable the CC2 and Update interrupt requests. */
-  timer_enable_irq(TIM2, TIM_DIER_CC2IE | TIM_DIER_UIE);
+  timer_enable_irq(PPM_TIMER, PPM_IRQ_FLAGS);
 
   /* Enable capture channel. */
-  timer_ic_enable(TIM2, TIM_IC2);
+  timer_ic_enable(PPM_TIMER, PPM_CHANNEL);
 
   /* TIM2 enable counter */
-  timer_enable_counter(TIM2);
+  timer_enable_counter(PPM_TIMER);
 
   ppm_last_pulse_time = 0;
   ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
@@ -91,6 +127,7 @@ void ppm_arch_init ( void ) {
 
 }
 
+#ifdef USE_TIM2_IRQ
 
 void tim2_isr(void) {
 
@@ -106,3 +143,23 @@ void tim2_isr(void) {
   }
 
 }
+
+#elif defined (USE_TIM1_IRQ)
+
+void tim1_up_isr(void) {
+  if((TIM1_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM1, TIM_SR_UIF);
+  }
+}
+
+void tim1_cc_isr(void) {
+  if((TIM2_SR & TIM_SR_CC3IF) != 0) {
+    timer_clear_flag(TIM1, TIM_SR_CC3IF);
+
+    uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+}
+
+#endif

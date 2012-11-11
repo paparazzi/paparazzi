@@ -88,13 +88,11 @@
 #include <libopencm3/stm32/f1/adc.h>
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/timer.h>
-#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/f1/nvic.h>
 #include <string.h>
 #include "std.h"
 #include "led.h"
 #include BOARD_CONFIG
-
-void adc1_2_isr(void);
 
 volatile uint8_t adc_new_data_trigger;
 

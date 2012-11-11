@@ -91,6 +91,20 @@ typedef uint8_t unit_t;
 #endif
 
 #define Bound(_x, _min, _max) { if (_x > _max) _x = _max; else if (_x < _min) _x = _min; }
+#define BoundInverted(_x, _min, _max) {           \
+    if ((_x < _min) && (_x > _max)) {             \
+      if (abs(_x - _min) < abs(_x - _max))        \
+        _x = _min;                                \
+      else                                        \
+        _x = _max;                                \
+    }                                             \
+  }
+#define BoundWrapped(_x, _min, _max) {            \
+    if (_max > _min)                              \
+      Bound(_x, _min, _max)                       \
+    else                                          \
+      BoundInverted(_x, _min, _max)               \
+  }
 #define BoundAbs(_x, _max) Bound(_x, -(_max), (_max))
 #define Chop(_x, _min, _max) ( (_x) < (_min) ? (_min) : (_x) > (_max) ? (_max) : (_x) )
 #define ChopAbs(x, max) Chop(x, -max, max)
@@ -117,6 +131,20 @@ typedef uint8_t unit_t;
       _code;						\
     }							\
   }
+
+#define RunXTimesEvery(_jumpstart, _prescaler, _interval, _xtimes, _code) {		\
+  static uint16_t prescaler = _jumpstart;			\
+  static uint16_t xtimes = 0;		         	\
+  prescaler++;					\
+  if (prescaler >= _prescaler + _interval*xtimes && xtimes < _xtimes) {			\
+    _code;						\
+    xtimes++;						\
+    }							\
+  if (xtimes >= _xtimes) {				\
+    xtimes = 0;					\
+    prescaler = 0;					\
+    }							\
+}
 
 
 #define PeriodicPrescaleBy5( _code_0, _code_1, _code_2, _code_3, _code_4) { \

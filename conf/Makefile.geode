@@ -1,6 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
 #   Copyright (C) 2009 Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -18,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 # Define programs and commands.
 CC		= gcc
@@ -45,9 +44,9 @@ CFLAGS += -mtune=geode # optimize for geode
 
 # flags only for C
 CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
-CFLAGS += -Wmissing-prototypes -Wnested-externs 
+CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
-CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)		
+CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)
 
 #Additional libraries.
 MATH_LIB = -lm
@@ -63,7 +62,7 @@ build: elf
 
 elf: $(OBJDIR)/$(TARGET).elf
 
-# Program the device.  
+# Program the device.
 load upload program: $(OBJDIR)/$(TARGET).elf
 	scp $(OBJDIR)/$(TARGET).elf $(USER)@$(HOST):$(TARGET_DIR)
 
@@ -78,7 +77,7 @@ load upload program: $(OBJDIR)/$(TARGET).elf
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CFLAGS) $< -o $@ 
+	$(Q)$(CC) -c $(CFLAGS) $< -o $@
 
 # Listing of phony targets.
 .PHONY : all build elf clean clean_list
@@ -92,8 +91,8 @@ $(OBJDIR)/.depend:
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
-ifneq ($(MAKECMDGOALS),clean) 
-ifneq ($(MAKECMDGOALS),erase) 
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
 endif
 endif

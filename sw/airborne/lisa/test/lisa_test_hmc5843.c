@@ -60,9 +60,6 @@ static uint8_t mag_state = 0;
 static volatile uint8_t mag_ready_for_read = FALSE;
 static uint8_t reading_mag = FALSE;
 
-extern void exti9_5_isr(void);
-
-
 int main(void) {
   main_init();
 

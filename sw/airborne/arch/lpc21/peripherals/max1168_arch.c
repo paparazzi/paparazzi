@@ -1,7 +1,6 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -23,14 +22,13 @@
 
 #include "peripherals/max1168.h"
 
+#include "LPC21xx.h"
+#include "interrupt_hw.h"
+#include BOARD_CONFIG
+
 static void EXTINT0_ISR(void) __attribute__((naked));
 
 void max1168_arch_init( void ) {
-
-  /* unselected max1168 */
-  Max1168Unselect();
-  /* SS pin is output */
-  SetBit(MAX1168_SS_IODIR, MAX1168_SS_PIN);
 
   /* connect P0.16 to extint0 (EOC) */
   MAX1168_EOC_PINSEL |= MAX1168_EOC_PINSEL_VAL << MAX1168_EOC_PINSEL_BIT;
@@ -49,41 +47,12 @@ void max1168_arch_init( void ) {
 }
 
 
-void max1168_read( void ) {
-  ASSERT((max1168_status == STA_MAX1168_IDLE),		\
-     DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
-  /* select max1168 */
-  Max1168Select();
-  /* enable SPI */
-  SSP_ClearRti();
-  SSP_DisableRti();
-  SSP_Enable();
-  /* write control byte - wait EOC on extint */
-  /* use internal reference and clock, sequentially scan channels 0-7 */
-  SSPDR = (1 << 0 | 1 << 3 | 7 << 5) << 8;
-  max1168_status = STA_MAX1168_SENDING_REQ;
-
-}
-
 void EXTINT0_ISR(void) {
   ISR_ENTRY();
-  ASSERT((max1168_status == STA_MAX1168_SENDING_REQ),	\
-     DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_EOC);
-  /* read dummy control byte reply */
-  uint16_t foo __attribute__ ((unused));
-  foo = SSPDR;
-  /* trigger 8 frames read */
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_Send(0);
-  SSP_ClearRti();
-  SSP_EnableRti();
-  max1168_status = STA_MAX1168_READING_RES;
+  //ASSERT((max1168_status == MAX1168_SENDING_REQ),	DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_EOC);
+
+  max1168_status = MAX1168_GOT_EOC;
+
   //SetBit(EXTINT, MAX1168_EOC_EINT);   /* clear extint0 */
   EXTINT = (1<<MAX1168_EOC_EINT);
   VICVectAddr = 0x00000000;             /* clear this interrupt from the VIC */

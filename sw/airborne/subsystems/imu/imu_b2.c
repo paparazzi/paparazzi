@@ -1,7 +1,6 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -25,8 +24,6 @@
 
 void imu_impl_init(void) {
 
-  imu_b2_arch_init();
-
   max1168_init();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
   ms2100_init();
@@ -39,3 +36,22 @@ void imu_impl_init(void) {
 #endif
 
 }
+
+#include "led.h"
+void imu_periodic(void) {
+
+  // read adc
+  Max1168Periodic();
+  // read mag
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
+  Ms2100Periodic();
+#endif
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
+  RunOnceEvery(10, { ami601_read(); });
+#endif
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
+  RunOnceEvery(5,Hmc58xxPeriodic());
+#endif
+
+}
+

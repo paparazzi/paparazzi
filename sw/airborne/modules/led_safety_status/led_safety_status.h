@@ -1,7 +1,8 @@
+
 /*
- * $Id$
+ * $Id: $
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Pranay Sinha <psinha@transition-robotics.com>
  *
  * This file is part of paparazzi.
  *
@@ -21,34 +22,28 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_B2_ARCH_H
-#define IMU_B2_ARCH_H
+/**
+ * @file led_safety_status.h
+ *
+ * Simple module to blink LEDs when battery voltage drops below a certain
+ * level, radio control is lost or when takeoff safety conditions are not met.
+ */
 
-/*
-
-  MAX1168 SPI ADC connected on SPI1
-  SS on P0.20
-  EOC on P0.16 ( EINT0 )
-
-  PNI mag on same bus
-  SS on p1.28
-  EOC P0.30 ( EINT3 )
-  RESET P1.19
-
-*/
+#ifndef LED_SAFETY_STATUS_H
+#define LED_SAFETY_STATUS_H
 
 #include "std.h"
-#include "LPC21xx.h"
-#include "interrupt_hw.h"
 
-#define IMU_SSP_STA_IDLE           0
-#define IMU_SSP_STA_BUSY_MAX1168   1
-#define IMU_SSP_STA_BUSY_MS2100    2
-extern volatile uint8_t imu_ssp_status;
-extern int imu_overrun;
+/**
+ * Initialises periodic loop; place more init functions here if expanding driver
+ */
+extern void led_safety_status_init(void);
 
+/**
+ * Periodic function that makes the leds blink in the right pattern for
+ * each situation.
+ */
+extern void led_safety_status_periodic(void);
 
+#endif  /* LED_SAFETY_STATUS_H */
 
-
-
-#endif /* IMU_B2_ARCH_H */

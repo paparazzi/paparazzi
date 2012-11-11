@@ -11,13 +11,13 @@
 
 <airframe name="hexy_ll11a2pwm">
 
-  <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT_LEFT"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="FRONT_RIGHT"  no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="RIGHT"        no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK_RIGHT"   no="3" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK_LEFT"    no="4" min="1000" neutral="1000" max="2000"/>
-    <servo name="LEFT"         no="5" min="1000" neutral="1000" max="2000"/>
+  <servos driver="Pwm">
+    <servo name="FRONT_LEFT"   no="0" min="1000" neutral="1100" max="1950"/>
+    <servo name="FRONT_RIGHT"  no="1" min="1000" neutral="1100" max="1950"/>
+    <servo name="RIGHT"        no="2" min="1000" neutral="1100" max="1950"/>
+    <servo name="BACK_RIGHT"   no="3" min="1000" neutral="1100" max="1950"/>
+    <servo name="BACK_LEFT"    no="4" min="1000" neutral="1100" max="1950"/>
+    <servo name="LEFT"         no="5" min="1000" neutral="1100" max="1950"/>
   </servos>
 
   <commands>
@@ -28,50 +28,33 @@
   </commands>
 
   <command_laws>
-    <!--<let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
-    <set servo="MOTOR"         value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
-    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
-    -->
-    <set servo="FRONT_LEFT"   value="0"/>
-    <set servo="FRONT_RIGHT"  value="1"/>
-    <set servo="RIGHT"        value="2"/>
-    <set servo="BACK_RIGHT"   value="3"/>
-    <set servo="BACK_LEFT"    value="4"/>
-    <set servo="LEFT"         value="5"/>
-
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
+    <set servo="RIGHT"        value="motor_mixing.commands[SERVO_RIGHT]"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
+    <set servo="LEFT"         value="motor_mixing.commands[SERVO_LEFT]"/>
   </command_laws>
 
-  <!-- for the sim -->
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-  </section>
-
-
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="STOP_MOTOR" value="1000"/>
-    <define name="MIN_MOTOR" value="1100"/>
-    <define name="MAX_MOTOR" value="1920"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"   value="{  256, -256, -256, -256,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256,    0, -256, -256,    0 }"/>
     <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
-    <!--define name="MOTOR_INERTIA_COMPENSATION_FACTOR" value="2"/-->
   </section>
 
   <include href="conf/airframes/esden/calib/asp21-001.xml"/>
 
   <section name="IMU" prefix="IMU_">
-	  <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
-	  <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
-	  <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 180. )"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="180." unit="deg"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -229,26 +212,32 @@
  <modules main_freq="512">
    <!--load name="vehicle_interface_overo_link.xml"/-->
    <load name="gps_ubx_ucenter.xml"/>
+   <load name="led_safety_status.xml"/>
  </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.1">
-<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
-      <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="actuators"     type="pwm_supervision"/>
-      <subsystem name="telemetry"     type="transparent"/>
-      <define name="SERVO_HZ" value="400"/>
-      <define name="RADIO_MODE" value="RADIO_AUX2"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-      <!--define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/-->
-      <!--define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/-->
-    </target>
-    <target name="sim" board="pc">
-      <subsystem name="fdm"           type="nps"/>
-      <subsystem name="radio_control" type="ppm"/>
-      <subsystem name="actuators"     type="mkk"/>
+      <subsystem name="radio_control" type="spektrum">
+	<define name="RADIO_MODE" value="RADIO_FLAP"/>
+	<define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+	<configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      </subsystem>
+
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
+    <target name="nps" board="pc">
+      <subsystem name="fdm"           type="jsbsim"/>
+      <subsystem name="radio_control" type="ppm"/>
+    </target>
+
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators"     type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+      <define name="USE_SERVOS_7AND8"/>
+    </subsystem>
+
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
