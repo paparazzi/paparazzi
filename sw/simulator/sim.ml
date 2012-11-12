@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * Hardware in the loop basic simulator (handling GPS, infrared and commands)
  *
  * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin

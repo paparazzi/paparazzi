@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Utilities
  *
  * Copyright (C) 2004-2009 CENA/ENAC, Yann Le Fablec, Pascal Brisset

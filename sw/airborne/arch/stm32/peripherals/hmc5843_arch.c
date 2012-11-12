@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -24,6 +22,7 @@
 
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/f1/nvic.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/exti.h>
 #include "mcu_periph/i2c.h"

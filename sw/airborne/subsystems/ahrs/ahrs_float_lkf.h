@@ -1,6 +1,4 @@
 /*
- * $Id:  $
- *
  * Copyright (C) 2009 Felix Ruess <felix.ruess@gmail.com>
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *

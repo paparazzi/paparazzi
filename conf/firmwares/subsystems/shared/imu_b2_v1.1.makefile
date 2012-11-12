@@ -35,10 +35,6 @@
 #
 #
 
-#
-# param: MAX_1168_DRDY_PORT
-
-
 # common Booz2 IMU files
 include $(CFG_SHARED)/imu_b2_common.makefile
 
@@ -53,7 +49,6 @@ imu_srcs += $(SRC_ARCH)/peripherals/ms2100_arch.c
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=12
-else ifeq ($(ARCH), stm32)
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets

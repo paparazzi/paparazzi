@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.

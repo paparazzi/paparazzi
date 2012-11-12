@@ -37,11 +37,6 @@ IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 
 ifeq ($(ARCH), lpc21)
 $(error The aspirin subsystem (using SPI) is currently not implemnented for the lpc21. Please use the aspirin_i2c subsystem.)
-else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
-IMU_ASPIRIN_CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
-IMU_ASPIRIN_CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
-IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 endif
 
 include $(CFG_SHARED)/imu_nps.makefile

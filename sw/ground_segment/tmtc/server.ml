@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Multi aircrafts receiver, logger and broadcaster
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin

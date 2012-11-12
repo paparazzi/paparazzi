@@ -52,7 +52,7 @@ ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
 #FIXME: untested
-imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
+imu_CFLAGS += -DUSE_I2C2
 endif
 
 endif #NO_MAG

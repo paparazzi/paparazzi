@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Geographic display
  *
  * Copyright (C) 2004-2008 ENAC, Pascal Brisset, Antoine Drouin

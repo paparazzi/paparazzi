@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Downlink protocol (handling messages.xml)
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin

@@ -1,6 +1,4 @@
 (*
- * $Id: gen_aircraft.ml 4198 2009-09-23 19:15:40Z hecto $
- *
  * Call to Makefile.ac with the appropriate attributes from conf.xml
  *
  * Copyright (C) 2003-2010 ENAC

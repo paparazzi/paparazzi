@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Paparazzi widgets
  *
  * Copyright (C) 2008 ENAC

@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id: ins_xsens.c 3872 2009-08-05 14:42:41Z mmm $
- *
  * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.

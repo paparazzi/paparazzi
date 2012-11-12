@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Icons library
  *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec

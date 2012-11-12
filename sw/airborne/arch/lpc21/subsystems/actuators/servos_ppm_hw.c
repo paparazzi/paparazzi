@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008  Mark Griffin
  *
  * This file is part of paparazzi.

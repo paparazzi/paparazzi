@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Support for obtaining os specific information at runtime
  *
  * Copyright (C) 2011 Eric Parsonage and Stephen Dwyer

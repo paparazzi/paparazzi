@@ -1,6 +1,4 @@
 /*
- * $Id: nav_cube.c 3600 2009-07-01 20:05:12Z hecto $
- *
  * Copyright (C) 2010  Martin Mueller
  *
  * This file is part of paparazzi.

@@ -1,6 +1,4 @@
 /*
- * $Id: booz2_test_mc.c 3701 2009-07-13 09:57:55Z poine $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.

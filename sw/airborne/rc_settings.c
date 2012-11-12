@@ -1,6 +1,4 @@
 /*
- * $Id$
- * Flight-time calibration facility
  *
  * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *

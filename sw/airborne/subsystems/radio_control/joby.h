@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2009 Pascal Brisset <pascal.brisset@gmail.com>,
  *                    Antoine Drouin <poinix@gmail.com>
  *

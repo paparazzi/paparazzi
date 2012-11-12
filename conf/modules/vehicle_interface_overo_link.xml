@@ -23,7 +23,6 @@
     <define name="OVERO_LINK_MSG_DOWN" value="AutopilotMessageVIDown"/>
     <define name="OVERO_LINK_LED_OK" value="3"/>
     <define name="OVERO_LINK_LED_KO" value="2"/>
-    <define name="USE_DMA1_C2_IRQ"/>
   </makefile>
 </module>
 

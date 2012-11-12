@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Track objects
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin

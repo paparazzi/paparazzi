@@ -1,6 +1,4 @@
 /*
- * $Id: light_solar.c $
- *
  * Copyright (C) 2011 Martin Mueller
  *
  * This file is part of paparazzi.

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing for modules
  *
  * Copyright (C) 2009 Gautier Hattenberger

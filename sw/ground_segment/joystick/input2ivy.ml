@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Forwarding events from an USB input device to the ivy bus
  *
  * Copyright (C) 2009 ENAC, Pascal Brisset

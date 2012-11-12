@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2009  Gautier Hattenberger
  *
  * This file is part of paparazzi.

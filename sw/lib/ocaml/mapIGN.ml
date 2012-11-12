@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Displaying IGN Maps on a MapCanvas object
  *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin

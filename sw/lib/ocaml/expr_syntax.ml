@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Syntax of expressions à la C
  *
  * Copyright (C) 2003-2010 Antoine Drouin, Pascal Brisset, ENAC

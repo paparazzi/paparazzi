@@ -1,6 +1,4 @@
 (*
-* $Id$
-*
 * Handling papgets in the geomap canvas
 *
 * Copyright (C) 2008 ENAC

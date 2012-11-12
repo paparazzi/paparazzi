@@ -1,6 +1,4 @@
 /*
- * Paparazzi mcu0 $Id: pprz_transport.c 929 2006-06-02 12:11:37Z poine $
- *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  * Copyright (C) 2010  ENAC
  *

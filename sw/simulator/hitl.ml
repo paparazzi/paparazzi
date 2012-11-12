@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * Hardware In The Loop
  *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin

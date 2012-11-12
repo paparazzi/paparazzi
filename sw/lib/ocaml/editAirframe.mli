@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Handling of an XML airframe file
  *
  * Copyright (C) 2008, Cyril Allignol, Pascal Brisset

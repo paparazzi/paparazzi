@@ -5,8 +5,6 @@
  *             adapted to Melexis MLX 90614 adapter
  *
  *
- * $Id$
- */
 
 #include <stdio.h>
 #include <stdlib.h>

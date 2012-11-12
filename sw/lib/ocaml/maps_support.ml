@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Support for obtaining google maps api information at runtime
  *
  * Copyright (C) 2011 Stephen Dwyer

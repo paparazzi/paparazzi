@@ -35,10 +35,6 @@
 #
 #
 
-#
-# param: MAX_1168_DRDY_PORT
-
-
 # common Booz2 IMU files
 include $(CFG_SHARED)/imu_b2_common.makefile
 
@@ -54,7 +50,7 @@ else ifeq ($(ARCH), stm32)
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843
 imu_srcs += peripherals/hmc5843.c
 imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
-imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
+imu_CFLAGS += -DUSE_I2C2
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets

@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2010 Eric Parsonage <eric@eparsonage.com>
  *
  * This file is part of paparazzi.

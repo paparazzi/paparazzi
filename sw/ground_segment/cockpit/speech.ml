@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Speech support for GCS alerts
  *
  * Copyright (C) 2011

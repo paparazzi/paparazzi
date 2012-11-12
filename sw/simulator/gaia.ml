@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * World environment (time, wind, ...) for multi-AC simulation
  *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin

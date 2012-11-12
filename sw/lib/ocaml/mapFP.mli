@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Displaying and editing a flight plan on a MapCanvas
  *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin

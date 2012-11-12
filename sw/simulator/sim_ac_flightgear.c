@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2011 Eric Parsonage eric@eparsonage.com
  * Mainly based around the equivalent file in nps
  * which was written by Antoine

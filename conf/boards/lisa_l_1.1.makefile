@@ -99,16 +99,6 @@ ifndef ACTUATORS
 ACTUATORS = actuators_pwm
 endif
 
-#
-# this is the DRDY pin of a max1168 on a booz IMU
-#
-# v 1.1
-#
-MAX_1168_DRDY_PORT = _GPIOB
-MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOB
-# v1.1
-#MAX_1168_DRDY_PORT = GPIOB
-
 
 ifndef ADC_IR1
 ADC_IR1      = 1

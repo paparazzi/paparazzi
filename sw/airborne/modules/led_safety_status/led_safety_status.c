@@ -1,6 +1,4 @@
 /*
- * $Id: $
- *
  * Copyright (C) 2012 Pranay Sinha <psinha@transition-robotics.com>
  *
  * This file is part of paparazzi.

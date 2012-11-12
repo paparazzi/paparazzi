@@ -1,6 +1,4 @@
 /*
- * $Id: temp_tmp102.c $
- *
  * Copyright (C) 2010 Martin Mueller
  *
  * This file is part of paparazzi.

@@ -33,6 +33,7 @@
         <subsystem name="stabilization"   type="euler"/>
         <subsystem name="ahrs"            type="int_cmpl_quat"/>
         <subsystem name="ins"/>
+        <define name="HMC5843_USE_INT"/>
     </firmware>
 
 <!--

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Flight plan preprocessing (procedure including)
  *
  * Copyright (C) 2004-2009 CENA/ENAC, Pascal Brisset, Antoine Drouin
