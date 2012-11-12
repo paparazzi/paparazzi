@@ -63,26 +63,17 @@ int main(void) {
 
 static inline void main_init( void ) {
 	mcu_init();
-	sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+	sys_time_register_timer((0.5/PERIODIC_FREQUENCY), NULL);
 	ppz_can_init(main_on_can_msg);
 }
 
 static inline void main_periodic_task( void ) {
-	static int delay = 0;
-
-	DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-	LED_PERIODIC();
-
-	if (delay < 100) {
-		delay++;
-		return;
-	}
-
-	delay = 0;
 
 	tx_data[0]+=1;
 	ppz_can_transmit(0, tx_data, 8);
 
+	LED_PERIODIC();
+	DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 }
 
 
@@ -90,7 +81,7 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
 
 	if (new_can_data) {
-		if (rx_data[0] & 1) {
+		if (rx_data[0] & 0x10) {
 			LED_ON(2);
 		} else {
 			LED_OFF(2);
@@ -98,7 +89,7 @@ static inline void main_event_task( void ) {
 	}
 
 	if (new_can_data) {
-		if (rx_data[0] & 2) {
+		if (rx_data[0] & 0x20) {
 			LED_ON(3);
 		} else {
 			LED_OFF(3);
@@ -106,7 +97,7 @@ static inline void main_event_task( void ) {
 	}
 
 	if (new_can_data) {
-		if (rx_data[0] & 4) {
+		if (rx_data[0] & 0x40) {
 			LED_ON(4);
 		} else {
 			LED_OFF(4);
@@ -114,7 +105,7 @@ static inline void main_event_task( void ) {
 	}
 
 	if (new_can_data) {
-		if (rx_data[0] & 8) {
+		if (rx_data[0] & 0x80) {
 			LED_ON(5);
 		} else {
 			LED_OFF(5);
