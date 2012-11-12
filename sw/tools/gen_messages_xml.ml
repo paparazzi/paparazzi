@@ -280,7 +280,7 @@ module FinalMacros = struct
 
 
   let include_in_file = fun clas h ->
-    Printf.fprintf h "#include \"messages_%s.h\" \n" clas.g_name
+    Printf.fprintf h "#include \"messages_%s.h\"\n" clas.g_name
 
   let generate_files = fun classes ->
     try

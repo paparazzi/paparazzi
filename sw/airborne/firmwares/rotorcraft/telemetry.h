@@ -492,7 +492,7 @@
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
 #define PERIODIC_SEND_VFF_DEBUG(_trans, _dev) {		\
-    DOWNLINK_SEND_VFF(_trans, _dev,			\
+    DOWNLINK_SEND_VFF_DEBUG(_trans, _dev,			\
                 &vff_z_meas,		\
                 &vff_z,			\
                 &vff_zdot,		\

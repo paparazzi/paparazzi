@@ -28,7 +28,7 @@ include conf/Makefile.local
 CONF=$(PAPARAZZI_HOME)/conf
 CONF_XML=$(CONF)/conf.xml
 AIRBORNE=sw/airborne
-MESSAGES_XML = $(CONF)/messages.xml
+MESSAGES_XML = $(PAPARAZZI_HOME)/var/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
 AC_GENERATED = $(ACINCLUDE)/generated

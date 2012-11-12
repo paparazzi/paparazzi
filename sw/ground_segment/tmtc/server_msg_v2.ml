@@ -161,7 +161,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.rpm <- a.throttle *. 100.;
       (*a.kill_mode <- ivalue "kill_auto_throttle" <> 0;*)
       (*a.flight_time <- ivalue "flight_time";*)
-      a.bat <- fvalue "voltage" /. 10.;
+      a.bat <- fvalue "voltage" /. 100.;
       (*a.stage_time <- ivalue "stage_time";*)
       (*a.block_time <- ivalue "block_time";*)
       a.energy <- ivalue "energy"

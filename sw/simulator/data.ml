@@ -30,7 +30,6 @@ let (//) = Filename.concat
 
 (* let pprz_conf_path = Env.paparazzi_src // "conf" *)
 let user_conf_path = Env.paparazzi_home // "conf"
-let user_var_path = Env.paparazzi_home // "var"
 
 let conf_xml = Xml.parse_file (user_conf_path // "conf.xml")
 
@@ -45,7 +44,7 @@ type _class = {
 
 let messages_ap =
 (*  let xml = Xml.parse_file (pprz_conf_path // "messages.xml") in *)
-  let xml = Xml.parse_file (user_var_path // "messages.xml") in
+  let xml = Pprz.messages_xml () in
   try
   	let version_xml = Pprz.get_downlink_messages_in_one_class xml in
     ExtXml.child version_xml ~select:(fun x -> Xml.attrib x "name" = "telemetry") "class"

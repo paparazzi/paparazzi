@@ -30,7 +30,7 @@ install_conf:
 	$(INSTALL) -d $(DESTDIR)/conf
 	$(INSTALLDATA) conf/conf.xml.example $(DESTDIR)/conf/conf.xml
 	$(INSTALLDATA) conf/control_panel.xml.example $(DESTDIR)/conf/control_panel.xml
-	$(INSTALLDATA) conf/messages.xml $(DESTDIR)/conf/
+	$(INSTALLDATA) conf/messages_conf.xml.example $(DESTDIR)/conf/messages_conf.xml
 	$(INSTALLDATA) conf/messages.dtd $(DESTDIR)/conf/
 	$(INSTALLDATA) conf/gui.xml $(DESTDIR)/conf/
 	$(INSTALL) -d $(DESTDIR)/conf/airframes

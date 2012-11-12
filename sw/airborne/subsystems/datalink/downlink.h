@@ -33,6 +33,7 @@
 #include <inttypes.h>
 
 #include "generated/modules.h"
+#include "downlink_msg.h" // All generated downlink macros
 #include "generated/airframe.h" // AC_ID is required
 
 #if defined SITL

@@ -80,7 +80,7 @@
 #define SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
   uint8_t _circle_count = NavCircleCount(); \
   uint32_t nb_sec = sys_time.nb_sec; \
-  DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &estimator_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
+  DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &autopilot_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
 })
 
 #define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
@@ -102,9 +102,9 @@
 }
 
 
-#define PERIODIC_SEND_ATTITUDE(_trans, _dev) Downlink({ \
+#define PERIODIC_SEND_ATTITUDE_EULER(_trans, _dev) Downlink({ \
     struct FloatEulers* att = stateGetNedToBodyEulers_f(); \
-    DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &(att->phi), &(att->psi), &(att->theta)); \
+    DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &(att->phi), &(att->theta), &(att->psi)); \
 })
 
 
