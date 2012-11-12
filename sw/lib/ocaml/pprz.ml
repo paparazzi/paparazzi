@@ -74,7 +74,7 @@ let split_array = fun s -> Str.split regexp_separator s
 
 
 let (//) = Filename.concat
-let messages_file = Env.paparazzi_src // "conf" // "messages.xml"
+let messages_file = Env.paparazzi_home // "var" // "messages.xml"
 let lazy_messages_xml = lazy (Xml.parse_file messages_file)
 let messages_xml = fun () -> Lazy.force lazy_messages_xml
 let units_file = Env.paparazzi_src // "conf" // "units.xml"
@@ -650,7 +650,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   (* ________________________________ XML VERSION CONTROL ____________________________________________ *)
   let old_classes_info = [("telemetry",["common_telemetry";"0";"downlink"]);("datalink",["common_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
 
-  let convert_to_new_xml = fun xml ->
+  let convert_v1_to_v2_xml = fun xml ->
     try
       let classes = List.map (fun _class ->
         let new_info = List.assoc (ExtXml.attrib _class "name") old_classes_info in
@@ -662,7 +662,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       let node_protocol = Xml.Element("protocol",["version","1.0"; "message_version","1.0"],class_nodes) in
       node_protocol
     with
-      | Not_found -> failwith ("Pprz.convert_to_new_xml New info for old class not defined")
+      | Not_found -> failwith ("Pprz.convert_v1_to_v2_xml New info for old class not defined")
 
   let to_new_xml_format = fun xml ->
     try
@@ -672,7 +672,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
             let msg_ver = ExtXml.attrib_or_default xml "message_version" current_message_version in
             (current_protocol_version, msg_ver ,xml)
         | v -> failwith (sprintf "Pprz.to_new_xml_format Version not handled (Version: %s)" v)
-    with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); ("1.0", "1.0", convert_to_new_xml xml)
+    with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); ("1.0", "1.0", convert_v1_to_v2_xml xml)
 
   (** Stores the original version of the xml file and converts the xml file to the 2.0 version format *)
   let (protocol_version, message_version, formated_xml) = to_new_xml_format Class.xml

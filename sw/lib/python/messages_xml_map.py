@@ -4,7 +4,7 @@ import os
 import sys
 import getopt
 
-messages_path = '%s/conf/messages.xml' % os.getenv("PAPARAZZI_HOME")
+messages_path = '%s/var/messages.xml' % os.getenv("PAPARAZZI_HOME")
 
 message_dictionary = {}
 message_dictionary_types = {}

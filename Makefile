@@ -73,7 +73,7 @@ SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER)
 #
 # xml files used as input for header generation
 #
-MESSAGES_XML = $(CONF)/messages.xml
+MESSAGES_XML = $(PAPARAZZI_HOME)/var/messages.xml
 MESSAGES_XML_CONF = $(CONF)/messages_conf.xml
 UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
@@ -83,17 +83,16 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 # generated header files
 #
 MESSAGES_H=$(STATICINCLUDE)/messages.h
-MESSAGES2_H=$(STATICINCLUDE)/messages2.h
 UPLINK_MSG_H=$(STATICINCLUDE)/uplink_msg.h
+DOWNLINK_MSG_H=$(STATICINCLUDE)/downlink_msg.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
-DOWNLINK_MSG_H=$(STATICINCLUDE)/downlink_msg.h
 ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 
 MESSAGES_FILES = $(CONF)/messages
 
-GEN_HEADERS = messages $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
+GEN_HEADERS = $(MESSAGES_XML) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
 
 
 all: print_build_version update_google_version conf ext lib subdirs lpctools commands static
@@ -150,12 +149,12 @@ $(LOGALIZER): lib
 
 static_h: $(GEN_HEADERS)
 
-messages : $(MESSAGES_XML_CONF) tools
-	@echo BUILD $(MESSAGES_XML)
+$(MESSAGES_XML) : $(MESSAGES_XML_CONF) tools
+	@echo BUILD $@
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages_xml.out $(MESSAGES_XML_CONF) $(MESSAGES_FILES) $@ $(STATICINCLUDE) $(UPLINK_MSG_H) $(DOWNLINK_MSG_H)
 
-$(MACROS_TARGET): $(MESSAGES_XML)
+$(MACROS_TARGET):
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
