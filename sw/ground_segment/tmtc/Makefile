@@ -50,7 +50,7 @@ XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
 
 LIBMULTIMONCMA=../multimon/multimon.cma
 
-SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server_msg_v1.ml server_msg_v2.ml server.cmo
+SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server_msg_v1.cmo server_msg_v2.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 

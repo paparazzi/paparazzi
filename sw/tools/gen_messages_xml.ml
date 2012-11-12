@@ -232,19 +232,18 @@ end
 
 module MakeCalls = struct
 
-  let make_target = "gen_messages_macros"
   let make_options = ""
 
   let make = fun class_name class_id check_alignment ->
     let file = Env.paparazzi_home // "Makefile" in
     let macros_target = var_include_path // ("messages_"^(String.lowercase class_name)^".h") in
-    let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s MACROS_CLASS_ID=%s MACROS_ALIGN=%u %s %s" file macros_target class_name class_id check_alignment make_options make_target in
+    let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s MACROS_CLASS_ID=%s MACROS_ALIGN=%u %s %s" file macros_target class_name class_id check_alignment make_options macros_target in
     let returned_code = Sys.command c in
     if returned_code <> 0 then failwith (sprintf "Make command error (Error code: %d)" returned_code)
 
 
   let generate_macros = fun classes ->
-    List.map (fun clas -> match (clas.g_type) with
+    List.iter (fun clas -> match (clas.g_type) with
       | "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1
       | "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1
       | "downlink" -> prerr_endline ("\t Downlink Class -> Generate macros ("^clas.g_name^")"); make clas.g_name clas.g_id 0

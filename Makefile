@@ -93,7 +93,7 @@ ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 
 MESSAGES_FILES = $(CONF)/messages
 
-GEN_HEADERS = $(MESSAGES_XML) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
+GEN_HEADERS = messages $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
 
 
 all: print_build_version update_google_version conf ext lib subdirs lpctools commands static
@@ -150,14 +150,12 @@ $(LOGALIZER): lib
 
 static_h: $(GEN_HEADERS)
 
-$(MESSAGES_XML) : $(MESSAGES_XML_CONF) tools
-	@echo BUILD $@
+messages : $(MESSAGES_XML_CONF) tools
+	@echo BUILD $(MESSAGES_XML)
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages_xml.out $(MESSAGES_XML_CONF) $(MESSAGES_FILES) $@ $(STATICINCLUDE) $(UPLINK_MSG_H) $(DOWNLINK_MSG_H)
 
-gen_messages_macros: $(MACROS_TARGET)
-
-$(MACROS_TARGET):
+$(MACROS_TARGET): $(MESSAGES_XML)
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
@@ -276,4 +274,4 @@ subdirs $(SUBDIRS) conf ext lib multimon cockpit tmtc tools\
 static sim_static lpctools \
 commands run_sitl install uninstall \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test replace_current_conf_xml run_tests restore_conf_xml
+test replace_current_conf_xml run_tests restore_conf_xml $(MESSAGES_XML)
