@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+ <path>AR_Drone.ac</path>
+ <model>
+<!-- LF -->
+  <name>Front Engine</name>
+  <path>Aircraft/AR_Drone/Models/engineF.xml</path>
+  <offsets>
+   <x-m>0.1319</x-m>
+   <y-m>-0.14538</y-m>
+   <z-m>0.0</z-m>
+   <pitch-deg>180</pitch-deg>
+  </offsets>
+ </model>
+ <model>
+<!-- RB -->
+  <name>Rear Engine</name>
+  <path>Aircraft/AR_Drone/Models/engineB.xml</path>
+  <offsets>
+   <x-m> -0.1119</x-m>
+   <y-m>0.09763</y-m>
+   <z-m> 0.0</z-m>
+   <pitch-deg>180</pitch-deg>
+  </offsets>
+ </model>
+ <model>
+<!-- RF -->
+  <name>Left Engine</name>
+  <path>Aircraft/AR_Drone/Models/engineL.xml</path>
+  <offsets>
+   <x-m>-0.1119</x-m>
+   <y-m>-0.14538</y-m>
+   <z-m> 0.0</z-m>
+   <pitch-deg>0</pitch-deg>
+  </offsets>
+ </model>
+ <model>
+<!-- LB -->
+  <name>Right Engine</name>
+  <path>Aircraft/AR_Drone/Models/engineR.xml</path>
+  <offsets>
+   <x-m> 0.1319</x-m>
+   <y-m> 0.09763 </y-m>
+   <z-m> 0.0</z-m>
+   <pitch-deg>0</pitch-deg>
+  </offsets>
+ </model>
+ <offsets>
+  <heading-deg>270</heading-deg>
+ </offsets>
+</PropertyList>

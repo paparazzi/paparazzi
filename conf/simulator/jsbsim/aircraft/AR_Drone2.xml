@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+    <fileheader>
+        <author> Max Hijne</author>
+        <filecreationdate> 13-11-2012 </filecreationdate>
+        <version> Version 0.9 - beta</version>
+        <description>Parrot AR.Drone 2.0</description>
+    </fileheader>
+
+<!-- Parrot AR.Drone 2.0 model for the 2012/2013 TU Delft Robotics Minor. Note that the visual model is from the Parrot
+	 AR.Drone 1.0 . -->
+
+    <metrics>
+        <wingarea unit="IN2"> 0 </wingarea>
+        <wingspan unit="IN"> 0 </wingspan>
+        <chord unit="IN"> 0 </chord>
+        <htailarea unit="FT2"> 0 </htailarea>
+        <htailarm unit="FT"> 0 </htailarm>
+        <vtailarea unit="FT2"> 0 </vtailarea>
+        <vtailarm unit="FT"> 0 </vtailarm>
+        <location name="AERORP" unit="IN">
+            <x> 0 </x>
+            <y> 0 </y>
+            <z> 0 </z>
+        </location>
+        <location name="EYEPOINT" unit="IN">
+            <x> 0 </x>
+            <y> 0 </y>
+            <z> 0 </z>
+        </location>
+        <location name="VRP" unit="IN">
+            <x> 0 </x>
+            <y> 0 </y>
+            <z> 0 </z>
+        </location>
+    </metrics>
+
+	<mass_balance>
+		<ixx unit="KG*M2">  0.035 </ixx>
+		<iyy unit="KG*M2">  0.035 </iyy>
+		<izz unit="KG*M2"> 0.04 </izz>
+		<ixy unit="KG*M2">  0.0 </ixy>
+		<ixz unit="KG*M2">  0.0 </ixz>
+		<iyz unit="KG*M2">  0 </iyz>
+		<emptywt unit="KG"> 0.380 </emptywt> 	<!-- Outdoor hull weight -->
+        <location name="CG" unit="M">
+            <x> 0 </x>
+            <y> 0 </y>
+            <z> 0 </z>
+        </location>
+    </mass_balance>
+
+
+	<!-- Ground reactions locations are bogus, but not important due to nature of quadrotor. -->
+   <ground_reactions>
+        <contact type="STRUCTURE" name="CONTACT_FRONT">
+            <location unit="M">
+                <x>-0.15 </x>
+                <y> 0 </y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+
+        <contact type="STRUCTURE" name="CONTACT_BACK">
+            <location unit="M">
+                <x> 0.15</x>
+                <y> 0   </y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+
+        <contact type="STRUCTURE" name="CONTACT_RIGHT">
+            <location unit="M">
+                <x> 0.  </x>
+                <y> 0.15</y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+
+        <contact type="STRUCTURE" name="CONTACT_LEFT">
+            <location unit="M">
+                <x> 0.  </x>
+                <y>-0.15</y>
+                <z>-0.1 </z>
+            </location>
+            <static_friction>  0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
+            <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+    </ground_reactions>
+
+	<propulsion>
+	  <engine file="Parrot_engine" name="LeftBack">
+	   <location unit="M">
+		<x>  0.1319 </x>
+		<y>   0.14538 </y>
+		<z>   0.00  </z>
+	   </location>
+	   <orient unit="DEG">
+		<pitch> 90.00 </pitch>
+		<roll>   0.00 </roll>
+		<yaw>    0.00 </yaw>
+	   </orient>
+	   <feed>0</feed>
+	   <thruster file="18x8">
+		<location unit="M">
+		<x>  0.1319 </x>
+		<y>   0.14538 </y>
+		<z>   -0.025  </z>
+		</location>
+		<orient unit="DEG">
+		 <pitch> 90.00 </pitch>
+		 <roll>   0.00 </roll>
+		 <yaw>    0.00 </yaw>
+		</orient>
+	   <sense> -1 </sense>
+	   <p_factor> 10 </p_factor>
+	   </thruster>
+	  </engine>
+
+	  <engine file="Parrot_engine" name="RightBack">
+	   <location unit="M">
+		<x>   -0.1319 </x>
+		<y>   0.14538 </y>
+		<z>   0.000 </z>
+	   </location>
+	   <orient unit="DEG">
+		<pitch> 90.00 </pitch>
+		<roll>   0.00 </roll>
+		<yaw>    0.00 </yaw>
+	   </orient>
+	   <feed>0</feed>
+	   <thruster file="18x8">
+		<location unit="M">
+		<x>   -0.1319 </x>
+		<y>   0.14538 </y>
+		<z>   -0.025 </z>
+		</location>
+		<orient unit="DEG">
+		 <pitch> 90.00 </pitch>
+		 <roll>   0.00 </roll>
+		 <yaw>    0.00 </yaw>
+		</orient>
+		 <sense> 1 </sense>
+		    <p_factor> 10 </p_factor>
+	   </thruster>
+	  </engine>
+
+	  <engine file="Parrot_engine" name="LeftFront">
+	   <location unit="M">
+		<x>   0.1319 </x>
+		<y>   -0.14538 </y>
+		<z>   0.00 </z>
+	   </location>
+	   <orient unit="DEG">
+		<pitch> 90.00 </pitch>
+		<roll>   0.00 </roll>
+		<yaw>    0.00 </yaw>
+	   </orient>
+	   <feed>0</feed>
+	   <thruster file="18x8">
+		<location unit="M">
+		 <x>   0.1319 </x>
+		<y>   -0.14538 </y>
+		 <z>   -0.025 </z>
+		</location>
+		<orient unit="DEG">
+		 <pitch> 90.00 </pitch>
+		 <roll>   0.00 </roll>
+		 <yaw>    0.00 </yaw>
+		</orient>
+	  <sense> 1 </sense>
+	     <p_factor> 10 </p_factor>
+	   </thruster>
+	  </engine>
+
+	  <engine file="Parrot_engine" name="RightFront">
+	   <location unit="M">
+		<x>   -0.1319 </x>
+		<y>  -0.1453 </y>
+		<z>   0.000 </z>
+	   </location>
+	   <orient unit="DEG">
+		<pitch> 90.00 </pitch>
+		<roll>   0.00 </roll>
+		<yaw>    0.00 </yaw>
+	   </orient>
+	   <feed>0</feed>
+	   <thruster file="18x8">
+		<location unit="M">
+		<x>   -0.1319 </x>
+		<y>  -0.1453 </y>
+		<z>   -0.025 </z>
+		</location>
+		<orient unit="DEG">
+		 <pitch> 90.00 </pitch>
+		 <roll>   0.00 </roll>
+		 <yaw>    0.00 </yaw>
+		</orient>
+		<sense> -1 </sense>
+		   <p_factor> 10 </p_factor>
+		</thruster>
+		</engine>
+
+		  <tank type="FUEL" number="0">
+			 <location unit="M">
+			   <x>   0.00 </x>
+			   <y>   0.00 </y>
+			   <z>   0.00 </z>
+			 </location>
+			 <capacity unit="KG"> 0.0 </capacity>
+			 <contents unit="KG"> 0.0 </contents>
+		  </tank>
+
+	 </propulsion>
+
+    <flight_control name="FGFCS"/>
+
+    <aerodynamics>
+        <axis name="DRAG">
+            <function name="aero/coefficient/CD">
+                <description>Drag</description>
+                <product>
+                    <property>aero/qbar-psf</property>
+                    <value>47.9</value> <!-- Conversion to pascals -->
+                    <value>0.0151</value> <!-- CD x Area (m^2) -->
+                    <value>0.224808943</value> <!-- N to LBS -->
+                </product>
+            </function>
+        </axis>
+    </aerodynamics>
+
+</fdm_config>
