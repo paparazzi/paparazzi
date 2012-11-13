@@ -117,23 +117,26 @@ static struct spi_periph_dma spi2_dma;
 static inline void SpiSlaveUnselect(uint8_t slave)
 {
   switch(slave) {
-#if USE_SPI0
+#if USE_SPI_SLAVE0
     case 0:
       GPIO_BSRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
       break;
 #endif // USE_SPI_SLAVE0
-#if USE_SPI1
+#if USE_SPI_SLAVE1
     case 1:
       GPIO_BSRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
       break;
 #endif //USE_SPI_SLAVE1
-#if USE_SPI2
+#if USE_SPI_SLAVE2
     case 2:
       GPIO_BSRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
+      break;
+#endif //USE_SPI_SLAVE2
+#if USE_SPI_SLAVE3
+    case 3:
       GPIO_BSRR(SPI_SLAVE3_PORT) = SPI_SLAVE3_PIN;
       break;
-#endif //USE_SPI_SLAVE2 and USE_SPI_SLAVE3
-
+#endif //USE_SPI_SLAVE3
     default:
       break;
   }
@@ -143,22 +146,22 @@ static inline void SpiSlaveUnselect(uint8_t slave)
 static inline void SpiSlaveSelect(uint8_t slave)
 {
   switch(slave) {
-#if USE_SPI0
+#if USE_SPI_SLAVE0
     case 0:
       GPIO_BRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
       break;
 #endif // USE_SPI_SLAVE0
-#if USE_SPI1
+#if USE_SPI_SLAVE1
     case 1:
       GPIO_BRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
       break;
 #endif //USE_SPI_SLAVE1
-#if USE_SPI2
+#if USE_SPI_SLAVE2
     case 2:
       GPIO_BRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
       break;
 #endif //USE_SPI_SLAVE2
-#if USE_SPI3
+#if USE_SPI_SLAVE3
     case 3:
       GPIO_BRR(SPI_SLAVE3_PORT) = SPI_SLAVE3_PIN;
       break;
