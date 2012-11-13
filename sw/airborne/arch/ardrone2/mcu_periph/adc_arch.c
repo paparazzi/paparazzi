@@ -84,24 +84,21 @@
 */
 
 #include "mcu_periph/adc.h"
-#include <stm32/rcc.h>
-#include <stm32/misc.h>
-#include <stm32/adc.h>
-#include <stm32/gpio.h>
-#include <stm32/rcc.h>
-#include <stm32/tim.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/f1/adc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/timer.h>
+#include <libopencm3/stm32/f1/nvic.h>
 #include <string.h>
 #include "std.h"
 #include "led.h"
 #include BOARD_CONFIG
 
-void adc1_2_irq_handler(void);
-
-uint8_t adc_new_data_trigger;
+volatile uint8_t adc_new_data_trigger;
 
 /* Static functions */
 
-static inline void adc_init_single(ADC_TypeDef * adc_t,
+static inline void adc_init_single(uint32_t adc,
                    uint8_t chan1, uint8_t chan2,
                    uint8_t chan3, uint8_t chan4);
 
@@ -129,12 +126,13 @@ static inline void adc_init_irq( void );
 */
 #ifdef USE_AD1
 #ifndef ADC1_GPIO_INIT
-#define ADC1_GPIO_INIT(gpio) {			\
-    (gpio).GPIO_Pin  = GPIO_Pin_1 | GPIO_Pin_0; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
-    GPIO_Init(GPIOB, (&gpio));			\
-    (gpio).GPIO_Pin  = GPIO_Pin_5 | GPIO_Pin_3; \
-    GPIO_Init(GPIOC, (&gpio));			\
+#define ADC1_GPIO_INIT() {			\
+	gpio_set_mode(GPIOB, GPIO_MODE_INPUT,	\
+		GPIO_CNF_INPUT_ANALOG,		\
+		GPIO1 |	GPIO0);			\
+	gpio_set_mode(GPIOC, GPIO_MODE_INPUT,	\
+		GPIO_CNF_INPUT_ANALOG,		\
+		GPIO5 |	GPIO3);			\
 }
 #endif // ADC1_GPIO_INIT
 #endif // USE_AD1
@@ -145,15 +143,15 @@ static inline void adc_init_irq( void );
     Uses the same GPIOs as ADC1 (lisa specific).
 */
 #ifdef USE_AD2
-#define ADC2_GPIO_INIT(gpio) {			\
-    (gpio).GPIO_Pin  = GPIO_Pin_0 | GPIO_Pin_1; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
-    GPIO_Init(GPIOB, (&gpio));			\
-    (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_5; \
-    GPIO_Init(GPIOC, (&gpio));			\
-  }
 #ifndef ADC2_GPIO_INIT
-#define ADC2_GPIO_INIT(gpio) { }
+#define ADC2_GPIO_INIT() {			\
+    gpio_set_mode(GPIOB, GPIO_MODE_INPUT,	\
+	    GPIO_CNF_INPUT_ANALOG,		\
+	    GPIO1 | GPIO0);			\
+    gpio_set_mode(GPIOC, GPIO_MODE_INPUT,	\
+	    GPIO_CNF_INPUT_ANALOG,		\
+	    GPIO5 | GPIO3);			\
+  }
 #endif // ADC2_GPIO_INIT
 #endif // USE_AD2
 
@@ -186,7 +184,7 @@ static struct adc_buf * adc2_buffers[NB_ADC2_CHANNELS];
  Maps integer value x to ADC_InjectedChannel_x,
  so they can be iterated safely
 */
-static uint8_t adc_injected_channels[4];
+volatile uint32_t *adc_injected_channels[4];
 /*
  Maps integer value x to ADC_Channel_y, like
 
@@ -215,41 +213,59 @@ void adc_buf_channel(uint8_t adc_channel,
 static inline void adc_init_rcc( void )
 { // {{{
 #if defined (USE_AD1) || defined (USE_AD2)
-    TIM_TypeDef * timer;
+    uint32_t timer;
+    volatile uint32_t *rcc_apbenr;
     uint32_t rcc_apb;
 #if defined(USE_AD_TIM4)
     timer   = TIM4;
-    rcc_apb = RCC_APB1Periph_TIM4;
+    rcc_apbenr = &RCC_APB1ENR;
+    rcc_apb = RCC_APB1ENR_TIM4EN;
 #elif defined(USE_AD_TIM1)
     timer   = TIM1;
-    rcc_apb = RCC_APB2Periph_TIM1;
+    rcc_apbenr = &RCC_APB2ENR;
+    rcc_apb = RCC_APB2ENR_TIM1EN;
 #else
     timer   = TIM2;
-    rcc_apb = RCC_APB1Periph_TIM2;
+    rcc_apbenr = &RCC_APB1ENR;
+    rcc_apb = RCC_APB1ENR_TIM2EN;
 #endif
 
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+    /*
+     * Historic Note:
+     * Previously in libstm32 we were setting the ADC clock here.
+     * It was being set to PCLK2 DIV2 resulting in 36MHz clock on the ADC. I am
+     * pretty sure that this is wrong as based on the datasheet the ADC clock
+     * must not exceed 14MHz! Now the clock is being set by the clock init
+     * routine in libopencm3 so we don't have to set up this clock ourselves any
+     * more. This comment is here just as a reminder and may be removed in the
+     * future when we know that everything is working properly.
+     * (by Esden the historian :D)
+     */
 
-    RCC_ADCCLKConfig(RCC_PCLK2_Div2);
-    RCC_APB1PeriphClockCmd(rcc_apb, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB |
-                   RCC_APB2Periph_GPIOC, ENABLE);
+    /* Timer peripheral clock enable. */
+    rcc_peripheral_enable_clock(rcc_apbenr, rcc_apb);
+    /* GPIO peripheral clock enable. */
+    rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN |
+			                      RCC_APB2ENR_IOPCEN);
+
+    /* Enable ADC peripheral clocks. */
 #ifdef USE_AD1
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+    rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
 #endif
 #ifdef USE_AD2
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE);
+    rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC2EN);
 #endif
 
     /* Time Base configuration */
-    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period        = 0xFF;
-    TIM_TimeBaseStructure.TIM_Prescaler     = 0x8;
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
-    TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
-    TIM_TimeBaseInit(timer, &TIM_TimeBaseStructure);
-    TIM_SelectOutputTrigger(timer, TIM_TRGOSource_Update);
-    TIM_Cmd(timer, ENABLE);
+    timer_reset(timer);
+    timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
+	    TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+    timer_set_period(timer, 0xFF);
+    timer_set_prescaler(timer, 0x8);
+    timer_set_clock_division(timer, 0x0);
+    /* Generate TRGO on every update. */
+    timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
+    timer_enable_counter(timer);
 
 #endif // defined (USE_AD1) || defined (USE_AD2)
 } // }}}
@@ -257,12 +273,8 @@ static inline void adc_init_rcc( void )
 /* Configure and enable ADC interrupt */
 static inline void adc_init_irq( void )
 { // {{{
-    NVIC_InitTypeDef nvic;
-    nvic.NVIC_IRQChannel                   = ADC1_2_IRQn;
-    nvic.NVIC_IRQChannelPreemptionPriority = 0;
-    nvic.NVIC_IRQChannelSubPriority        = 0;
-    nvic.NVIC_IRQChannelCmd                = ENABLE;
-    NVIC_Init(&nvic);
+    nvic_set_priority(NVIC_ADC1_2_IRQ, 0);
+    nvic_enable_irq(NVIC_ADC1_2_IRQ);
 } // }}}
 
 /*
@@ -273,89 +285,110 @@ static inline void adc_init_irq( void )
     ... would enable ADC1, enabling channels 1 and 2,
     but not 3 and 4.
 */
-static inline void adc_init_single(ADC_TypeDef * adc_t,
+static inline void adc_init_single(uint32_t adc,
                    uint8_t chan1, uint8_t chan2,
                    uint8_t chan3, uint8_t chan4)
 {
-    GPIO_InitTypeDef gpio;
-    ADC_InitTypeDef adc;
     uint8_t num_channels, rank;
+    uint8_t channels[4];
 
     // Paranoia, must be down for 2+ ADC clock cycles before calibration
-    ADC_Cmd(adc_t, DISABLE);
+    adc_off(adc);
 
-    /* enable adc_t clock */
-    if (adc_t == ADC1) {
+    /* enable adc clock */
+    if (adc == ADC1) {
 #ifdef USE_AD1
         num_channels = NB_ADC1_CHANNELS;
-        ADC1_GPIO_INIT(gpio);
+        ADC1_GPIO_INIT();
 #endif
     }
-    else if (adc_t == ADC2) {
+    else if (adc == ADC2) {
 #ifdef USE_AD2
         num_channels = NB_ADC2_CHANNELS;
-        ADC2_GPIO_INIT(gpio);
+        ADC2_GPIO_INIT();
 #endif
     }
 
     /* Configure ADC */
 
-    adc.ADC_Mode               = ADC_Mode_Independent;
-    adc.ADC_ScanConvMode       = ENABLE;
-    adc.ADC_ContinuousConvMode = DISABLE;
-    adc.ADC_ExternalTrigConv   = ADC_ExternalTrigConv_None;
-    adc.ADC_DataAlign          = ADC_DataAlign_Right;
-    adc.ADC_NbrOfChannel       = 0; // No. of channels in regular mode
-    ADC_Init(adc_t, &adc);
+    /* Explicitly setting most registers, reset/default values are correct for most */
 
-    ADC_InjectedSequencerLengthConfig(adc_t, num_channels);
+    /* Set CR1 register. */
 
-    rank = 1;
+    /* Clear AWDEN */
+    adc_disable_analog_watchdog_regular(adc);
+    /* Clear JAWDEN */
+    adc_disable_analog_watchdog_injected(adc);
+    /* Clear DISCEN */
+    adc_disable_discontinuous_mode_regular(adc);
+    /* Clear JDISCEN */
+    adc_disable_discontinuous_mode_injected(adc);
+    /* Clear JAUTO */
+    adc_disable_automatic_injected_group_conversion(adc);
+    /* Set SCAN */
+    adc_enable_scan_mode(adc);
+    /* Enable ADC<X> JEOC interrupt (Set JEOCIE) */
+    adc_enable_eoc_interrupt_injected(adc);
+    /* Clear AWDIE */
+    adc_disable_awd_interrupt(adc);
+    /* Clear EOCIE */
+    adc_disable_eoc_interrupt(adc);
+
+    /* Set CR2 register. */
+
+    /* Clear TSVREFE */
+    adc_disable_temperature_sensor(adc);
+    /* Clear EXTTRIG */
+    adc_disable_external_trigger_regular(adc);
+    /* Clear ALIGN */
+    adc_set_right_aligned(adc);
+    /* Clear DMA */
+    adc_disable_dma(adc);
+    /* Clear CONT */
+    adc_set_single_conversion_mode(adc);
+
+    rank = 0;
     if (chan1) {
-        ADC_InjectedChannelConfig(adc_t, adc_channel_map[0], rank,
-                      ADC_SampleTime_41Cycles5);
+	   adc_set_sample_time(adc, adc_channel_map[0], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[0];
         rank++;
     }
     if (chan2) {
-        ADC_InjectedChannelConfig(adc_t, adc_channel_map[1], rank,
-                      ADC_SampleTime_41Cycles5);
+	   adc_set_sample_time(adc, adc_channel_map[1], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[1];
         rank++;
     }
     if (chan3) {
-        ADC_InjectedChannelConfig(adc_t, adc_channel_map[2], rank,
-                      ADC_SampleTime_41Cycles5);
+	   adc_set_sample_time(adc, adc_channel_map[2], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[2];
         rank++;
     }
     if (chan4) {
-        ADC_InjectedChannelConfig(adc_t, adc_channel_map[3], rank,
-                      ADC_SampleTime_41Cycles5);
+	   adc_set_sample_time(adc, adc_channel_map[3], ADC_SMPR1_SMP_41DOT5CYC);
+	   channels[rank] = adc_channel_map[3];
     }
 
+    adc_set_injected_sequence(adc, num_channels, channels);
 
-    ADC_ExternalTrigInjectedConvCmd(adc_t, ENABLE);
 #if defined(USE_AD_TIM4)
-    ADC_ExternalTrigInjectedConvConfig(adc_t, ADC_ExternalTrigInjecConv_T4_TRGO);
+    adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
 #elif defined(USE_AD_TIM1)
-    ADC_ExternalTrigInjectedConvConfig(adc_t, ADC_ExternalTrigInjecConv_T1_TRGO);
+    adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
 #else
-    ADC_ExternalTrigInjectedConvConfig(adc_t, ADC_ExternalTrigInjecConv_T2_TRGO);
+    adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
 #endif
 
-    /* Enable ADC<X> JEOC interrupt */
-    ADC_ITConfig(adc_t, ADC_IT_JEOC, ENABLE);
-
     /* Enable ADC<X> */
-    ADC_Cmd(adc_t, ENABLE);
+    adc_power_on(adc);
 
     /* Enable ADC<X> reset calibaration register */
-    ADC_ResetCalibration(adc_t);
-
+    adc_reset_calibration(adc);
     /* Check the end of ADC<X> reset calibration */
-    while (ADC_GetResetCalibrationStatus(adc_t)) ;
+    while ((ADC_CR2(adc) & ADC_CR2_RSTCAL) != 0);
     /* Start ADC<X> calibaration */
-    ADC_StartCalibration(adc_t);
+    adc_calibration(adc);
     /* Check the end of ADC<X> calibration */
-    while (ADC_GetCalibrationStatus(adc_t)) ;
+    while ((ADC_CR2(adc) & ADC_CR2_CAL) != 0);
 
 } // adc_init_single
 
@@ -371,17 +404,21 @@ void adc_init( void ) {
 #ifdef USE_AD1
     for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
         adc1_buffers[channel] = NULL;
+    adc_injected_channels[0] = &ADC_JDR1(ADC1);
+    adc_injected_channels[1] = &ADC_JDR2(ADC1);
+    adc_injected_channels[2] = &ADC_JDR3(ADC1);
+    adc_injected_channels[3] = &ADC_JDR4(ADC1);
 #endif
 #ifdef USE_AD2
     for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
         adc2_buffers[channel] = NULL;
+    adc_injected_channels[0] = &ADC_JDR1(ADC2);
+    adc_injected_channels[1] = &ADC_JDR2(ADC2);
+    adc_injected_channels[2] = &ADC_JDR3(ADC2);
+    adc_injected_channels[3] = &ADC_JDR4(ADC2);
 #endif
 
     adc_new_data_trigger = FALSE;
-    adc_injected_channels[0] = ADC_InjectedChannel_1;
-    adc_injected_channels[1] = ADC_InjectedChannel_2;
-    adc_injected_channels[2] = ADC_InjectedChannel_3;
-    adc_injected_channels[3] = ADC_InjectedChannel_4;
     adc_channel_map[0] = BOARD_ADC_CHANNEL_1;
     adc_channel_map[1] = BOARD_ADC_CHANNEL_2;
     // FIXME for now we get battery voltage this way
@@ -460,7 +497,7 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
 /**
  * ADC1+2 interrupt hander
  */
-void adc1_2_irq_handler(void)
+void adc1_2_isr(void)
 {
     uint8_t channel = 0;
     uint16_t value  = 0;
@@ -468,11 +505,11 @@ void adc1_2_irq_handler(void)
 
 #ifdef USE_AD1
     // Clear Injected End Of Conversion
-    ADC_ClearITPendingBit(ADC1, ADC_IT_JEOC);
+    ADC_SR(ADC1) &= ~ADC_SR_JEOC;
     for(channel = 0; channel < NB_ADC1_CHANNELS; channel++) {
         buf = adc1_buffers[channel];
         if(buf) {
-            value = ADC_GetInjectedConversionValue(ADC1, adc_injected_channels[channel]);
+            value = *adc_injected_channels[channel];
             adc_push_sample(buf, value);
         }
     }
@@ -480,11 +517,11 @@ void adc1_2_irq_handler(void)
 #endif
 #ifdef USE_AD2
     // Clear Injected End Of Conversion
-    ADC_ClearITPendingBit(ADC2, ADC_IT_JEOC);
+    ADC_SR(ADC2) &= ~ADC_SR_JEOC;
     for(channel = 0; channel < NB_ADC2_CHANNELS; channel++) {
         buf = adc2_buffers[channel];
         if(buf) {
-            value = ADC_GetInjectedConversionValue(ADC2, adc_injected_channels[channel]);
+            value = *adc_injected_channels[channel];
             adc_push_sample(buf, value);
         }
     }
