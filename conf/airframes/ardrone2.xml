@@ -15,7 +15,10 @@
       <subsystem name="fdm"           type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="radio_control" type="spektrum">
+      <define name="RADIO_MODE" value="RADIO_AUX1"/>
+      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+    </subsystem>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="aspirin_v1.5"/>

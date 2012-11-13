@@ -165,7 +165,7 @@
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc" />
-    <target name="jsbsim"       board="pc"/>
+    <target name="jsbsim"       	board="pc"/>
     <target name="ap" 			board="tiny_1.1"/>
 
     <define name="AGR_CLIMB" />
