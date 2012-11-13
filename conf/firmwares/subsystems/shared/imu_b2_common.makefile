@@ -46,11 +46,11 @@ imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
 include $(CFG_SHARED)/spi.makefile
-imu.CFLAGS += -DUSE_SPI_SLAVE0
-imu.CFLAGS += -DSPI_MASTER
+imu_CFLAGS += -DUSE_SPI_SLAVE0
+imu_CFLAGS += -DSPI_MASTER
 
 ifeq ($(ARCH), lpc21)
-imu.CFLAGS += -DUSE_SPI1
+imu_CFLAGS += -DUSE_SPI1
 imu_CFLAGS += -DSSP_VIC_SLOT=9
 imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 else ifeq ($(ARCH), stm32)
