@@ -1,20 +1,15 @@
 #ifndef MY_GPIO_ARCH_H
 #define MY_GPIO_ARCH_H
 
-#include <stm32/gpio.h>
-#include <stm32/rcc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
 
 #define GPIO_ARCH_SET_SPI_CS_HIGH()					\
 {									\
-  GPIO_InitTypeDef GPIO_InitStructure;					\
-  /* initialise peripheral clock for port B */				\
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE);		\
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;				\
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;			\
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;			\
-  GPIO_Init(GPIOB, &GPIO_InitStructure);				\
-  /* set port B pin 12 to be high */					\
-  GPIO_WriteBit(GPIOB, GPIO_Pin_12 , Bit_SET );				\
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);        \
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,                         \
+	        GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);                      \
+  gpio_set(GPIOB, GPIO12);                                              \
 }
 
 

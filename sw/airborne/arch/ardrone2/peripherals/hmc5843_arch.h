@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -24,12 +22,12 @@
 #ifndef HMC5843_ARCH_H
 #define HMC5843_ARCH_H
 
-#include <stm32/gpio.h>
+#include <libopencm3/stm32/f1/gpio.h>
 
 /* returns true if conversion done */
 static inline int mag_eoc(void)
 {
-  return GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5);
+  return (gpio_get(GPIOB, GPIO5) != 0);
 }
 
 #endif /* HMC5843_ARCH_H */

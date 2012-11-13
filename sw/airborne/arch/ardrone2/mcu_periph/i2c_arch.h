@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -29,8 +27,7 @@
 #define I2C_HW_H
 
 #include "mcu_periph/i2c.h"
-#include <stm32/i2c.h>
-
+#include <libopencm3/stm32/i2c.h>
 
 #ifdef USE_I2C1
 

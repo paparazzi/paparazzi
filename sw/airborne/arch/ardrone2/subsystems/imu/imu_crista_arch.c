@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -28,8 +26,6 @@
 #include <stm32/spi.h>
 #include <stm32/misc.h>
 #include <stm32/dma.h>
-
-#include "stm32_vector_table.h"
 
 static volatile uint8_t channel;
 static uint8_t buf_in[4];
