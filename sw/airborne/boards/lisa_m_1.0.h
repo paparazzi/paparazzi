@@ -125,13 +125,6 @@
 
 #define BOARD_HAS_BARO 1
 
-#define USE_OPENCM3 1
-
-// not needed with USE_OPENCM3:
-//#define HSE_TYPE_EXT_CLK
-//#define STM32_RCC_MODE RCC_HSE_ON
-//#define STM32_PLL_MULT RCC_PLLMul_6
-
 // Remap the servos 5 and 6 to TIM5 CH1 and CH2
 #if !defined REMAP_SERVOS_5AND6
 #define REMAP_SERVOS_5AND6 1
