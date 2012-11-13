@@ -795,4 +795,6 @@ void process_tx_dma_interrupt( struct spi_periph *spi ) {
  */
 #ifdef SPI_SLAVE
 
+#warning SPI_SLAVE mode currently not implemented for STM32.
+
 #endif /* SPI_SLAVE */
