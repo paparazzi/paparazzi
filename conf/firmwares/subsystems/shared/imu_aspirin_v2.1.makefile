@@ -51,6 +51,9 @@ ifeq ($(ARCH), lpc21)
 $(error Not implemented for the LCP21x yet. Needs the new SPI mcu_periph. See issue 147!)
 else ifeq ($(ARCH), stm32)
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
+# Slave select configuration
+# SLAVE2 is on PB12 (NSS) (MPU600 CS)
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 endif
 
 IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1
