@@ -173,6 +173,7 @@ struct spi_periph {
 #define SPI_SLAVE1 1
 #define SPI_SLAVE2 2
 #define SPI_SLAVE3 3
+#define SPI_SLAVE4 4
 
 //extern uint8_t spi_nb_ovrn; //TODO SPI error struct
 
