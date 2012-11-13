@@ -54,14 +54,14 @@ TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 $(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
-opt : lib-pprz.cmxa xlib-pprz.cmxa
+opt : lib-pprz.cmxa xlib-pprz.cmxa dlllib-pprz.so dllxlib-pprz.so
 
 
 lib-pprz.cma : $(CMO)
 	@echo OL $@
 	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
-lib-pprz.cmxa : $(CMX)
+lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
 	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
@@ -69,7 +69,7 @@ xlib-pprz.cma : $(XCMO)
 	@echo OL $@
 	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
-xlib-pprz.cmxa : $(XCMX)
+xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 	@echo OOL $@
 	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
