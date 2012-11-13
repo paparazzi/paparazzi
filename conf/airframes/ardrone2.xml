@@ -79,7 +79,7 @@
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <!-- front/back turning CCW, left/right CW -->
+    <!-- Time cross layout, as documented in paparazzi -->
     <define name="ROLL_COEF"   value="{ -256, -256,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256, -256, -256,  256 }"/>
     <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
