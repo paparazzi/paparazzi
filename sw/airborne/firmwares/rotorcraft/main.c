@@ -135,7 +135,7 @@ STATIC_INLINE void main_init( void ) {
   radio_control_tid = sys_time_register_timer((1./60.), NULL);
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
-  baro_tid = sys_time_register_timer(0.02, NULL);
+  baro_tid = sys_time_register_timer(1./20., NULL);
   telemetry_tid = sys_time_register_timer((1./60.), NULL);
 }
 
