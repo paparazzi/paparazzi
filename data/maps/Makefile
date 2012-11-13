@@ -21,7 +21,7 @@ $(DATADIR)/maps.google.com: $(DATADIR) FORCE
 		exit 1)
 
 $(PAPARAZZI_HOME)/conf/maps.xml: $(DATADIR)/maps.google.com
-	$(eval GOOGLE_VERSION := $(shell grep -P "http://khm[0-9]+.google.com/kh/v=[0-9]+.x26" $(DATADIR)/maps.google.com | sed -E 's#.*http://khm[0-9]+.google.com/kh/v=##;s#.x26.*##'))
+	$(eval GOOGLE_VERSION := $(shell grep -E "http://khm[0-9]+.google.com/kh/v=[0-9]+.x26" $(DATADIR)/maps.google.com | sed -E 's#.*http://khm[0-9]+.google.com/kh/v=##;s#.x26.*##'))
 	@echo "Updated google maps version to $(GOOGLE_VERSION)"
 	@echo "-----------------------------------------------"
 	$(Q)echo "<!DOCTYPE maps SYSTEM \"maps.dtd\">" > /tmp/maps.xml
