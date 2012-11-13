@@ -64,6 +64,14 @@
 #define SOCK_RSR 0x0026
 #define SOCK_RXRD 0x0028
 
+#ifndef W5100_SPI_DEV
+#define W5100_SPI_DEV spi1
+#endif
+
+#ifndef W5100_SLAVE_IDX
+#define W5100_SLAVE_IDX SPI_SLAVE1
+#endif
+
 struct w5100_periph chip0;
 uint8_t ck_a, ck_b;
 uint8_t rx_buf[W5100_RX_BUFFER_SIZE];
@@ -99,7 +107,7 @@ static inline void w5100_set(uint16_t _reg, uint8_t _val)
   w5100_spi.output_buf[2] = _reg & 0xFF;
   w5100_spi.output_buf[3] = _val;
 
-  spi_submit( &spi1, &w5100_spi );
+  spi_submit( &(W5100_SPI_DEV), &w5100_spi );
 
   // FIXME: no busy waiting! if really needed add a timeout!!!!
   while(w5100_spi.status != SPITransSuccess);
@@ -111,7 +119,7 @@ static inline uint8_t w5100_get(uint16_t _reg)
   w5100_spi.output_buf[1] = _reg >> 8;
   w5100_spi.output_buf[2] = _reg & 0xFF;
 
-  spi_submit( &spi1, &w5100_spi );
+  spi_submit( &(W5100_SPI_DEV), &w5100_spi );
 
   // FIXME: no busy waiting! if really needed add a timeout!!!!
   while(w5100_spi.status != SPITransSuccess);
@@ -147,7 +155,7 @@ static inline uint16_t w5100_sock_get16( uint8_t _sock, uint16_t _reg) {
 void w5100_init( void ) {
 
   // configure the SPI bus.
-  w5100_spi.slave_idx = 1;
+  w5100_spi.slave_idx = W5100_SLAVE_IDX;
   w5100_spi.output_length = 4;
   w5100_spi.input_length = 4;
   w5100_spi.select = SPISelectUnselect;
@@ -165,10 +173,13 @@ void w5100_init( void ) {
   // wait one second for proper initialization (chip getting powered up).
   sys_time_usleep(1000000);
 
-gpio_set_mode( GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO1 );
+  // @FIXME: should be no arch dependant code here...
+  // set DRDY pin
+  gpio_set_mode( GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO1 );
   gpio_clear( GPIOB, GPIO1 );
   sys_time_usleep(200);
-gpio_set( GPIOB, GPIO1 );
+  gpio_set( GPIOB, GPIO1 );
+
   // allow some time for the chip to wake up.
   sys_time_usleep(20000);
 
