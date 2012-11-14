@@ -93,7 +93,7 @@ B2L -> CW
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="180." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="90." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="270." unit="deg"/>
   </section>
 
  <section name="AUTOPILOT">
