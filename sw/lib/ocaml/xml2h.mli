@@ -28,6 +28,7 @@ val define : string -> string -> unit
 val define_string : string -> string -> unit
 val xml_error : string -> 'a
 val sprint_float_array : string list -> string
+val start_and_begin_out : string -> string -> out_channel -> Xml.xml
 val start_and_begin : string -> string -> Xml.xml
 val start_and_begin_c : string -> string -> Xml.xml
 val begin_c_out : string -> string -> out_channel -> unit

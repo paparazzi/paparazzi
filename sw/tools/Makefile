@@ -31,7 +31,7 @@ OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfi
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
-all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_abi.out find_free_msg_id.out gen_srtm.out mergelogs
+all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out find_free_msg_id.out gen_srtm.out mergelogs
 
 FP_CMO = fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)

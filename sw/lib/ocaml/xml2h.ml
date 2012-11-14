@@ -47,6 +47,15 @@ let sprint_float_array = fun l ->
     | x::xs -> x ^","^ loop xs in
   "{" ^ loop l
 
+let start_and_begin_out = fun xml_file h_name out ->
+  let xml = Xml.parse_file xml_file in
+
+  fprintf out "/* This file has been generated from %s */\n" xml_file;
+  fprintf out "/* Please DO NOT EDIT */\n\n";
+
+  fprintf out "#ifndef %s\n" h_name;
+  fprintf out "#define %s\n\n" h_name;
+  xml
 
 let start_and_begin = fun xml_file h_name ->
   let xml = Xml.parse_file xml_file in

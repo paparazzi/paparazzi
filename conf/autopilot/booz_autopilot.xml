@@ -1,0 +1,88 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="Booz Quadrotor Autopilot (Basic version)">
+
+  <control_block name="attitude_loop">
+    <call fun="SetAttitudeFromRC(rc_values)"/>
+    <call fun="AddAttitudeFromFMS()" cond="fms.enabled"/>
+    <call fun="booz_stabilization_attitude_run(booz2_autopilot_in_flight)"/>
+  </control_block>
+
+  <control_block name="altitude_loop">
+    <call fun="SetAltitudeFromFMS()" cond="fms.enabled"/>
+    <call fun="b2_gv_update_ref_from_z_sp(booz2_guidance_v_z_sp)"/>
+    <call fun="run_hover_loop(booz2_autopilot_in_flight)"/>
+    <call fun="SaturateThrottle(rc_values)"/>
+  </control_block>
+
+  <exceptions>
+    <exception cond="too_far_from_home" deroute="HOME"/>
+  </exceptions>
+
+  <mode name="ATTITUDE" start="booz_stabilization_attitude_enter()">
+    <select cond="$DEFAULT_MODE"/>
+    <select cond="RCMode0()"/>
+    <control freq="512">
+      <call_block name="attitude_loop"/>
+      <call fun="SetThrottleFromRC(rc_values)"/>
+      <call fun="actuators_set(booz2_autopilot_motors_on)"/>
+    </control>
+    <exception cond="RCLost()" deroute="FAILSAFE"/>
+  </mode>
+
+  <mode name="VERTICAL" start="booz_stabilization_attitude_enter()|booz_guidance_v_enter()">
+    <select cond="RCMode1()"/>
+    <control freq="512">
+      <call_block name="attitude_loop"/>
+      <call_block name="altitude_loop"/>
+      <call fun="actuators_set(booz2_autopilot_motors_on)"/>
+    </control>
+    <exception cond="RCLost()" deroute="FAILSAFE"/>
+  </mode>
+
+  <mode name="NAV" start="booz_guidance_h_nav_enter()|booz_guidance_v_enter()">
+    <select cond="RCMode2()" exception="HOME"/>
+    <select cond="RCMode2() && DLModeNav()"/>
+    <control freq="32">
+      <call fun="nav_periodic_task()"/>
+    </control>
+    <control freq="512">
+      <call fun="SetCommandFromAP()"/>
+      <call fun="GuidanceNavHorizontal()"/>
+      <call fun="GuidanceNavVertical()"/>
+      <call fun="AddAttitudeFromRC(rc_values)" cond="!RCLost()"/>
+      <call fun="booz_stabilization_attitude_run(booz2_autopilot_in_flight)"/>
+      <call fun="SaturateThrottle(rc_values)" cond="!RCLost()"/>
+      <call fun="actuators_set(booz2_autopilot_motors_on)"/>
+      <call_block name="actuators_ap"/>
+    </control>
+    <exception cond="GPSLost()" deroute="FAILSAFE"/>
+  </mode>
+
+  <mode name="HOME" start="booz_guidance_h_nav_enter()|booz_guidance_v_enter()">
+    <control freq="32">
+      <call fun="nav_home()"/>
+    </control>
+    <control freq="512">
+      <call fun="SetCommandFromAP()"/>
+      <call fun="GuidanceNavHorizontal()"/>
+      <call fun="GuidanceNavVertical()"/>
+      <call fun="booz_stabilization_attitude_run(booz2_autopilot_in_flight)"/>
+      <call fun="actuators_set(booz2_autopilot_motors_on)"/>
+    </control>
+    <exception cond="GPSLost()" deroute="FAILSAFE"/>
+  </mode>
+
+  <!-- Safe landing -->
+  <mode name="FAILSAFE" start="failsafe_enter()|booz_stabilization_attitude_enter()|booz_guidance_v_enter()" stop="failsafe_exit()">
+    <control freq="512">
+      <call fun="SetFailsafeCommand()"/>
+      <call fun="booz_stabilization_attitude_run(booz2_autopilot_in_flight)"/>
+      <call fun="b2_gv_update_ref_from_zd_sp(booz2_guidance_v_zd_sp)"/>
+      <call fun="run_hover_loop(booz2_autopilot_in_flight)"/>
+      <call fun="actuators_set(booz2_autopilot_motors_on)"/>
+    </control>
+    <exception cond="!GPSLost()" deroute="$LAST_MODE"/>
+  </mode>
+
+</autopilot>
