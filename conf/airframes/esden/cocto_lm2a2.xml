@@ -47,14 +47,14 @@ B2L -> CW
 -->
 
   <servos driver="Pwm">
-    <servo name="A1U" no="0" min="1000" neutral="1050" max="1950"/>
-    <servo name="A1L" no="1" min="1000" neutral="1050" max="1950"/>
-    <servo name="A2U" no="2" min="1000" neutral="1050" max="1950"/>
-    <servo name="A2L" no="3" min="1000" neutral="1050" max="1950"/>
-    <servo name="B1U" no="4" min="1000" neutral="1050" max="1950"/>
-    <servo name="B1L" no="5" min="1000" neutral="1050" max="1950"/>
-    <servo name="B2U" no="6" min="1000" neutral="1050" max="1950"/>
-    <servo name="B2L" no="7" min="1000" neutral="1050" max="1950"/>
+    <servo name="A1U" no="0" min="1000" neutral="1100" max="1950"/>
+    <servo name="A1L" no="1" min="1000" neutral="1100" max="1950"/>
+    <servo name="A2U" no="2" min="1000" neutral="1100" max="1950"/>
+    <servo name="A2L" no="3" min="1000" neutral="1100" max="1950"/>
+    <servo name="B1U" no="4" min="1000" neutral="1100" max="1950"/>
+    <servo name="B1L" no="5" min="1000" neutral="1100" max="1950"/>
+    <servo name="B2U" no="6" min="1000" neutral="1100" max="1950"/>
+    <servo name="B2L" no="7" min="1000" neutral="1100" max="1950"/>
   </servos>
 
   <commands>
@@ -147,16 +147,16 @@ B2L -> CW
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="500"/>
-    <define name="PHI_DGAIN"  value="200"/>
-    <define name="PHI_IGAIN"  value="100"/>
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="500"/>
-    <define name="THETA_DGAIN"  value="200"/>
-    <define name="THETA_IGAIN"  value="100"/>
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="250"/>
-    <define name="PSI_DGAIN"  value="150"/>
+    <define name="PSI_PGAIN"  value="500"/>
+    <define name="PSI_DGAIN"  value="300"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
