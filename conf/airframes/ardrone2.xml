@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+<!-- The Parrot AR Drone 2 uses pwm motor controllers -->
 
 <airframe name="ardrone2">
 
@@ -19,42 +19,17 @@
       <define name="RADIO_MODE" value="RADIO_AUX1"/>
     </subsystem>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="aspirin_v1.5"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators"     type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+    </subsystem>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
+    <!-- <subsystem name="gps"           type="ublox"/> -->
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"/>
 
   </firmware>
-
-  <firmware name="setup">
-    <target name="tunnel" board="ardrone2"/>
-  </firmware>
-
-  <!--
-  <firmware name="lisa_test_progs">
-    <target name="test_led"	            board="lisa_m_1.0"/>
-    <target name="test_sys_time"            board="lisa_m_1.0"/>
-    <target name="test_uart"                board="lisa_m_1.0"/>
-    <target name="test_servos"              board="lisa_m_1.0"/>
-    <target name="test_telemetry"           board="lisa_m_1.0"/>
-    <target name="test_baro"                board="lisa_m_1.0"/>
-    <target name="test_rc_spektrum"         board="lisa_m_1.0"/>
-    <target name="test_rc_ppm"              board="lisa_m_1.0"/>
-    <target name="test_adc"                 board="lisa_m_1.0"/>
-    <target name="test_imu_b2"              board="lisa_m_1.0"/>
-    <target name="test_imu_b2_2"            board="lisa_m_1.0"/>
-    <target name="test_imu_aspirin"         board="lisa_m_1.0"/>
-    <target name="test_ahrs"                board="lisa_m_1.0"/>
-    <target name="test_hmc5843"	            board="lisa_m_1.0"/>
-    <target name="test_itg3200"             board="lisa_m_1.0"/>
-    <target name="test_adxl345"	            board="lisa_m_1.0"/>
-    <target name="test_esc_mkk_simple"      board="lisa_m_1.0"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_m_1.0"/>
-    <target name="test_actuators_mkk"       board="lisa_m_1.0"/>
-    <target name="test_actuators_asctecv1"  board="lisa_m_1.0"/>
-  </firmware>								-->
 
   <modules main_freq="512">
     <load name="sys_mon.xml"/>
@@ -67,32 +42,40 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <!-- FRONT, BACK, RIGHT, LEFT -->
-    <define name="ADDR" value="{ 0x54, 0x52, 0x56, 0x58 }"/>
-  </section>
+  <servos driver="Pwm">
+    <servo name="TOP_RIGHT"      no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="BOTTOM_LEFT"    no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="BOTTOM_RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="TOP_LEFT"       no="3" min="1000" neutral="1100" max="1900"/>
+  </servos>
 
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="2"/>
-    <define name="MAX_MOTOR" value="200"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <!-- X cross layout, as documented in paparazzi -->
+    <!-- Time cross layout (X), as documented in paparazzi -->
     <define name="ROLL_COEF"   value="{ -256, -256,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256, -256, -256,  256 }"/>
     <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="TOP_RIGHT"  value="motor_mixing.commands[SERVO_TOP_RIGHT]"/>
+    <set servo="BOTTOM_LEFT"   value="motor_mixing.commands[SERVO_BOTTOM_LEFT]"/>
+    <set servo="BOTTOM_RIGHT"  value="motor_mixing.commands[SERVO_BOTTOM_RIGHT]"/>
+    <set servo="TOP_LEFT"   value="motor_mixing.commands[SERVO_TOP_LEFT]"/>
+  </command_laws>
+
   <section name="IMU" prefix="IMU_">
     <define name="ACCEL_X_NEUTRAL" value="11"/>
     <define name="ACCEL_Y_NEUTRAL" value="11"/>
     <define name="ACCEL_Z_NEUTRAL" value="-25"/>
 
+    <!-- replace this with your own calibration -->
     <define name="MAG_X_NEUTRAL" value="-45"/>
     <define name="MAG_Y_NEUTRAL" value="334"/>
     <define name="MAG_Z_NEUTRAL" value="7"/>
@@ -105,6 +88,7 @@
     <define name="BODY_TO_IMU_PSI"   value="-45." unit="deg"/>
   </section>
 
+<!-- FIXME: Calibration -->
   <section name="AHRS" prefix="AHRS_">
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
@@ -198,11 +182,11 @@
     <define name="RC_CLIMB_COEF" value ="163"/>
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
     <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+    <!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive estimation -->
     <!--define name="NOMINAL_HOVER_THROTTLE" value="0.5"/-->
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <!--define name="USE_REF" value="1"/-->
     <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
@@ -210,7 +194,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <define name="ACTUATOR_NAMES"  value="{&quot;top_right_motor&quot;, &quot;bottom_left_motor&quot;, &quot;bottom_right_motor&quot;, &quot;top_left_motor&quot;}"/>
     <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>

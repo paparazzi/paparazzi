@@ -1,6 +1,6 @@
 
 #include "subsystems/sensors/baro.h"
-#include <stm32/gpio.h>
+#include <libopencm3/stm32/f1/gpio.h>
 
 struct Baro baro;
 struct BaroBoard baro_board;
@@ -10,61 +10,59 @@ struct bmp085_baro_calibration calibration;
 #define BMP085_SAMPLE_PERIOD_MS (3 + (2 << BMP085_OSS) * 3)
 #define BMP085_SAMPLE_PERIOD (BMP075_SAMPLE_PERIOD_MS >> 1)
 
-// FIXME: BARO DRDY connected to PB0 for lisa/m
-
 static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
 {
-  baro_trans.type = I2CTransTx;
-  baro_trans.slave_addr = BMP085_ADDR;
-  baro_trans.len_w = 2;
   baro_trans.buf[0] = addr;
   baro_trans.buf[1] = value;
-  i2c_submit(&i2c2, &baro_trans);
+
+  I2CTransmit(i2c2, baro_trans, BMP085_ADDR, 2);
+
+  // FIXME, no while loops without timeout!!
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
 }
 
 static inline void bmp085_read_reg16(uint8_t addr)
 {
-  baro_trans.type = I2CTransTxRx;
-  baro_trans.slave_addr = BMP085_ADDR;
-  baro_trans.len_w = 1;
-  baro_trans.len_r = 2;
   baro_trans.buf[0] = addr;
-  i2c_submit(&i2c2, &baro_trans);
+  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 2);
 }
 
-static inline int16_t bmp085_read_reg16_blocking(uint8_t addr)
+static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
 {
+  uint32_t time = 0;
+
   bmp085_read_reg16(addr);
 
-  while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
+  while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning) {
+	  if ((time == timeout) && (timeout != 0)) {
+		  return 0; /* Timeout of the i2c read */
+	  } else {
+		  time++;
+	  }
+  }
 
   return ((baro_trans.buf[0] << 8) | baro_trans.buf[1]);
 }
 
 static inline void bmp085_read_reg24(uint8_t addr)
 {
-  baro_trans.type = I2CTransTxRx;
-  baro_trans.slave_addr = BMP085_ADDR;
-  baro_trans.len_w = 1;
-  baro_trans.len_r = 3;
   baro_trans.buf[0] = addr;
-  i2c_submit(&i2c2, &baro_trans);
+  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 3);
 }
 
 static void bmp085_baro_read_calibration(void)
 {
-  calibration.ac1 = bmp085_read_reg16_blocking(0xAA); // AC1
-  calibration.ac2 = bmp085_read_reg16_blocking(0xAC); // AC2
-  calibration.ac3 = bmp085_read_reg16_blocking(0xAE); // AC3
-  calibration.ac4 = bmp085_read_reg16_blocking(0xB0); // AC4
-  calibration.ac5 = bmp085_read_reg16_blocking(0xB2); // AC5
-  calibration.ac6 = bmp085_read_reg16_blocking(0xB4); // AC6
-  calibration.b1 = bmp085_read_reg16_blocking(0xB6); // B1
-  calibration.b2 = bmp085_read_reg16_blocking(0xB8); // B2
-  calibration.mb = bmp085_read_reg16_blocking(0xBA); // MB
-  calibration.mc = bmp085_read_reg16_blocking(0xBC); // MC
-  calibration.md = bmp085_read_reg16_blocking(0xBE); // MD
+  calibration.ac1 = bmp085_read_reg16_blocking(0xAA, 10000); // AC1
+  calibration.ac2 = bmp085_read_reg16_blocking(0xAC, 10000); // AC2
+  calibration.ac3 = bmp085_read_reg16_blocking(0xAE, 10000); // AC3
+  calibration.ac4 = bmp085_read_reg16_blocking(0xB0, 10000); // AC4
+  calibration.ac5 = bmp085_read_reg16_blocking(0xB2, 10000); // AC5
+  calibration.ac6 = bmp085_read_reg16_blocking(0xB4, 10000); // AC6
+  calibration.b1 = bmp085_read_reg16_blocking(0xB6, 10000); // B1
+  calibration.b2 = bmp085_read_reg16_blocking(0xB8, 10000); // B2
+  calibration.mb = bmp085_read_reg16_blocking(0xBA, 10000); // MB
+  calibration.mc = bmp085_read_reg16_blocking(0xBC, 10000); // MC
+  calibration.md = bmp085_read_reg16_blocking(0xBE, 10000); // MD
 }
 
 void baro_init(void) {
@@ -74,17 +72,15 @@ void baro_init(void) {
   baro_board.status = LBS_UNINITIALIZED;
   bmp085_baro_read_calibration();
 
-  /* STM32 specific (maybe this is a LISA/M specific driver anyway?) */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  /* STM32 specific */
+  gpio_clear(GPIOB, GPIO0);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
 }
 
 static inline int baro_eoc(void)
 {
-  return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_0);
+  return gpio_get(GPIOB, GPIO0);
 }
 
 static inline void bmp085_request_pressure(void)

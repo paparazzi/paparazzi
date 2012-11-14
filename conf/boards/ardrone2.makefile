@@ -66,11 +66,18 @@ ifndef MODEM_BAUD
 MODEM_BAUD=B57600
 endif
 
-#FIXME!
+#FIXME: Port not yet determined
 ifndef GPS_PORT
 GPS_PORT=UART3
 endif
 
 ifndef GPS_BAUD
 GPS_BAUD=B4800
+endif
+
+#
+# Setting Default Actuators
+#
+ifndef ACTUATORS
+ACTUATORS = actuators_pwm
 endif

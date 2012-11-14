@@ -82,7 +82,7 @@
 #endif // USE_AD1
 
 
-
+//FIXME: implement onboard Baro
 #define BOARD_HAS_BARO 1
 
 #define USE_OPENCM3 1

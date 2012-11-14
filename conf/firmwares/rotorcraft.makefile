@@ -98,7 +98,7 @@ ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-# I2C is needed for speed controllers and barometers on lisa
+# I2C is needed for speed controllers and barometers on lisa and AR Drone 2
 ifeq ($(TARGET), ap)
   include $(CFG_SHARED)/i2c_select.makefile
 endif
@@ -142,6 +142,8 @@ ifeq ($(BOARD), booz)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), lisa_m)
+ap.CFLAGS += -DUSE_I2C2
+else ifeq ($(BOARD), ardrone)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DUSE_SPI

@@ -1,11 +1,11 @@
 
 /*
- * board specific fonctions for the lisa_m board
+ * board specific fonctions for the AR Drone 2 board
  *
  */
 
-#ifndef BOARDS_LISA_M_BARO_H
-#define BOARDS_LISA_M_BARO_H
+#ifndef BOARDS_ARDRONE2_BARO_H
+#define BOARDS_ARDRONE2_BARO_H
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
@@ -15,7 +15,7 @@
 // Over sample setting (0-3)
 #define BMP085_OSS 3
 
-enum LisaBaroStatus {
+enum ARDroneBaroStatus {
   LBS_UNINITIALIZED,
   LBS_REQUEST,
   LBS_READING,
@@ -26,7 +26,7 @@ enum LisaBaroStatus {
 };
 
 struct BaroBoard {
-  enum LisaBaroStatus status;
+  enum ARDroneBaroStatus status;
 };
 
 struct bmp085_baro_calibration {
@@ -103,4 +103,4 @@ static inline void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler
 
 #define BaroEvent(_b_abs_handler, _b_diff_handler) baro_event(_b_abs_handler,_b_diff_handler)
 
-#endif /* BOARDS_LISA_M_BARO_H */
+#endif /* BOARDS_ARDRONE2_BARO_H */

@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   Copyright (C) 2009 Antoine Drouin
+#   Copyright (C) 2012 Vincent van Hoek
 #
 # This file is part of paparazzi.
 #
@@ -21,7 +21,7 @@
 #
 
 #
-# This is the common Makefile for the stm32-target.
+# This is the common Makefile for the ardrone2-target.
 #
 
 SRC_ARCH = arch/ardrone2
@@ -46,35 +46,7 @@ OPT   = s
 
 PYTHON ?= $(shell which python)
 
-ifneq ($(BOARD_SERIAL),)
-OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
-endif
-
 LOADER ?= $(PAPARAZZI_SRC)/sw/tools/stm32loader/stm32loader.py
-
-ifndef $(TARGET).OOCD_INTERFACE
-OOCD_INTERFACE = lisa-l
-else
-OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
-endif
-
-ifndef $(TARGET).OOCD_BOARD
-OOCD_BOARD = lisa-l
-else
-OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
-endif
-
-# default: assume the luftboot bootloader is used
-# if luftboot is not used define NO_LUFTBOOT to a value != 0
-OOCD_START_SECTOR = 4
-ASSUMING_LUFTBOOT = "yes"
-ifdef NO_LUFTBOOT
-$(shell echo luftboot: $(NO_LUFTBOOT))
-ifneq ($(NO_LUFTBOOT),0)
-OOCD_START_SECTOR = 0
-ASSUMING_LUFTBOOT = "no"
-endif
-endif
 
 # input files
 SRCS = $($(TARGET).srcs)
@@ -303,12 +275,6 @@ else
 upload:
 	@echo unknown flash_mode $(FLASH_MODE)
 endif
-
-
-start_gdb:
-	xterm -e "$(OOCD) -f interface/$(OOCD_INTERFACE).cfg  -f target/$(OOCD_TARGET).cfg" &
-	xterm -e "$(OOCD) -f interface/lisa-l.cfg -f board/lisa-l.cfg"&
-	xterm -e "$(OOCD) -f interface/flossjtag.cfg -f board/lisa-l.cfg"&
 
 start_telnet:
 	xterm -e "telnet localhost 4444" &
