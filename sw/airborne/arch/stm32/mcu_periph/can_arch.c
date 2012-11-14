@@ -138,6 +138,11 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 		return -1;
 	}
 
+
+	/* FIXME: we are discarding the const qualifier for buf here.
+	 * We should probably fix libopencm3 to actually have the
+	 * const qualifier too...
+	 */
 	return can_transmit(CAN1,
 			id,     /* (EX/ST)ID: CAN ID */
 #ifdef USE_CAN_EXT_ID
@@ -147,7 +152,7 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 #endif
 			false, /* RTR: Request transmit? */
 			len,   /* DLC: Data length */
-			buf);
+			(uint8_t *)buf);
 }
 
 void usb_lp_can_rx0_isr(void)
