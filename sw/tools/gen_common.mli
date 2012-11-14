@@ -68,7 +68,7 @@ val get_modules_dir : module_conf list -> string list
 
 (** [get_autopilot_of_airframe xml]
  * Returns (autopilot file, main freq) from airframe xml file
- * Raise Not_found if no autopilot 
+ * Raise Not_found if no autopilot
  * Fail if more than one *)
 val get_autopilot_of_airframe : Xml.xml -> (string * int)
 

@@ -65,11 +65,30 @@ let targets_of_field = fun field default ->
   with
     _ -> []
 
+(** [get_autopilot_of_airframe xml]
+ * Returns (autopilot xml, main freq) from airframe xml file *)
+let get_autopilot_of_airframe = fun xml ->
+  (* extract all "modules" sections *)
+  let section = List.filter (fun s -> compare (Xml.tag s) "autopilot" = 0) (Xml.children xml) in
+  (* Raise error if more than one modules section *)
+  match section with
+    [autopilot] ->
+      let freq = try int_of_string (Xml.attrib autopilot "freq") with _ -> default_freq in
+      let ap = try Xml.attrib autopilot "name" with _ -> raise Not_found in
+      (autopilot_dir // ap, freq)
+  | [] -> raise Not_found
+  | _ -> failwith "Error: you have more than one 'autopilot' section in your airframe file"
+
 (** [get_modules_of_airframe xml]
  * Returns a list of module configuration from airframe file *)
 let rec get_modules_of_airframe = fun xml ->
   (* extract all "modules" sections *)
   let section = List.filter (fun s -> compare (Xml.tag s) "modules" = 0) (Xml.children xml) in
+  (* get autopilot file if any *)
+  let ap_file = try
+    let (ap, _) = get_autopilot_of_airframe xml in
+    ap
+  with _ -> "" in
   (* Raise error if more than one modules section *)
   match section with
     [modules] ->
@@ -80,15 +99,14 @@ let rec get_modules_of_airframe = fun xml ->
         let targets = singletonize (t @ targets_of_field m "") in
         { xml = ExtXml.parse_file file; file = file; param = Xml.children m; extra_targets = targets }
       in
-      List.flatten (List.map (fun m ->
+      let modules_list = List.map (fun m ->
         if compare (Xml.tag m) "load" <> 0 then Xml2h.xml_error "load";
-        let airframe_module = [get_module m t_global] in
-        let ap_module = try
-          let ap_file = autopilot_dir // ExtXml.attrib m "autopilot" in
-          get_modules_of_airframe (ExtXml.parse_file ap_file)
-        with _ -> [] in
-        List.flatten [airframe_module @ ap_module]
-      ) (Xml.children modules))
+        get_module m t_global
+      ) (Xml.children modules) in
+      let ap_modules = try
+        get_modules_of_airframe (ExtXml.parse_file ap_file)
+      with _ -> [] in
+      modules_list @ ap_modules
   | [] -> []
   | _ -> failwith "Error: you have more than one 'modules' section in your airframe file"
 
@@ -135,18 +153,4 @@ let get_modules_name = fun xml ->
 let get_modules_dir = fun modules ->
   let dir = List.map (fun m -> try Xml.attrib m.xml "dir" with _ -> ExtXml.attrib m.xml "name") modules in
   singletonize (List.sort compare dir)
-
-(** [get_autopilot_of_airframe xml]
- * Returns (autopilot xml, main freq) from airframe xml file *)
-let get_autopilot_of_airframe = fun xml ->
-  (* extract all "modules" sections *)
-  let section = List.filter (fun s -> compare (Xml.tag s) "modules" = 0) (Xml.children xml) in
-  (* Raise error if more than one modules section *)
-  match section with
-    [modules] ->
-      let main_freq = try int_of_string (Xml.attrib modules "main_freq") with _ -> default_freq in
-      let ap = try Xml.attrib modules "autopilot" with _ -> raise Not_found in
-      (autopilot_dir // ap, main_freq)
-  | [] -> raise Not_found
-  | _ -> failwith "Error: you have more than one 'modules' section in your airframe file"
 

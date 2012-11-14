@@ -46,7 +46,7 @@ SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
-AUTOPILOT_H=$(AC_GENERATED)/autopilot.h
+AUTOPILOT_H=$(AC_GENERATED)/autopilot_core.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
 # "make Q=''" to get full echo

@@ -1,8 +1,4 @@
 (*
- * $Id: gen_modules.ml 4538 2010-02-04 09:45:08Z gautier $
- *
- * XML preprocessing for core autopilot
- *  
  * Copyright (C) 2010 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -20,10 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
+(*
+ * XML preprocessing for core autopilot
+ *)  
 open Printf
 open Xml2h
 
@@ -131,7 +130,7 @@ let print_test_exception = fun modes out_h ->
 
   lprintf out_h "\nstatic inline uint8_t autopilot_core_mode_exceptions(uint8_t mode) {\n";
   right ();
-  lprintf out_h "switch ( mode ) { \n";
+  lprintf out_h "switch ( mode ) {\n";
   right ();
   List.iter (fun m -> (* Test exceptions for all modes *)
     lprintf out_h "case %s :\n" (print_mode_name (Xml.attrib m "name"));
@@ -176,12 +175,12 @@ let print_set_mode = fun modes out_h ->
     left ();
   in
   let print_switch = fun var modes t ->
-    lprintf out_h "switch ( %s ) { \n" var;
+    lprintf out_h "// switch over %s functions\n" t;
+    lprintf out_h "switch ( %s ) {\n" var;
     right ();
     List.iter (fun m ->
       try
-        let stop = Xml.attrib m t in
-        print_case m stop
+        print_case m (Xml.attrib m t)
       with _ -> ()
     ) modes;
     left ();
@@ -193,10 +192,10 @@ let print_set_mode = fun modes out_h ->
   lprintf out_h "if (new_mode == private_autopilot_mode) return;\n\n"; (* set mode if different from current mode *)
   (* Print stop functions for each modes *)
   print_switch "private_autopilot_mode" modes "stop";
-  lprintf out_h "\n";
+  fprintf out_h "\n";
   (* Print start functions for each modes *)
   print_switch "new_mode" modes "start";
-  lprintf out_h "\n";
+  fprintf out_h "\n";
   lprintf out_h "last_autopilot_mode = private_autopilot_mode;\n";
   lprintf out_h "private_autopilot_mode = new_mode;\n";
   lprintf out_h "autopilot_mode = new_mode;\n";
@@ -227,7 +226,7 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
   in
   (** Equivalent to the RunOnceEvery macro *)
   let print_prescaler = fun pre ctrl ->
-    lprintf out_h "{ \n";
+    lprintf out_h "{\n";
     right ();
     lprintf out_h "static uint16_t prescaler = 0;\n";
     lprintf out_h "prescaler++;\n";
@@ -251,7 +250,7 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
   lprintf out_h "mode = autopilot_core_mode_exceptions(mode);\n"; (* change mode according to exceptions *)
   lprintf out_h "mode = autopilot_core_global_exceptions(mode);\n"; (* change mode according to global exceptions *)
   lprintf out_h "autopilot_core_set_mode(mode);\n\n"; (* set new mode and call start/stop functions *)
-  lprintf out_h "switch ( private_autopilot_mode ) { \n";
+  lprintf out_h "switch ( private_autopilot_mode ) {\n";
   right ();
   List.iter (fun m -> (* Print control loops for each modes *)
     lprintf out_h "case %s :\n" (print_mode_name (Xml.attrib m "name"));
@@ -337,6 +336,10 @@ let () =
   | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
   | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
   | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
-  | Not_found -> let out_h = open_out h_file in close_out out_h; exit 0
+  | Not_found ->
+      let out_h = open_out h_file in
+      fprintf out_h "/*** Sorry, no autopilot file found ***/\n";
+      close_out out_h;
+      exit 0
 
 
