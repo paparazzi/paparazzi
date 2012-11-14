@@ -3,6 +3,7 @@
 <airframe name="Easy Glider Tiny 0.99">
 
 <!-- commands section -->
+<!-- test git -->
   <servos>
     <servo name="THROTTLE" no="0" min="1290" neutral="1290" max="1810"/>
     <servo name="ELEVATOR" no="1" min="1770" neutral="1457" max="970"/>
