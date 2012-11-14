@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
+ * Copyright (C) 2012 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of paparazzi.
  *
@@ -26,128 +26,153 @@
 #include "mcu_periph/can_arch.h"
 #include "mcu_periph/can.h"
 
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-#include <stm32/can.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/can.h>
+#include <libopencm3/cm3/nvic.h>
 
 #include "led.h"
 
-#define RCC_APB2Periph_GPIO_CAN RCC_APB2Periph_GPIOA
-#define GPIO_CAN GPIOA
-#define GPIO_Pin_CAN_RX GPIO_Pin_11
-#define GPIO_Pin_CAN_TX GPIO_Pin_12
-
-CanTxMsg can_tx_msg;
-CanRxMsg can_rx_msg;
-
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
+
+bool can_initialized = false;
 
 void can_hw_init(void)
 {
-	GPIO_InitTypeDef gpio;
-	NVIC_InitTypeDef nvic;
-	CAN_InitTypeDef can;
-	CAN_FilterInitTypeDef can_filter;
 
-	/* Enable peripheral clocks */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO |
-			       RCC_APB2Periph_GPIOA, ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+	/* Enable peripheral clocks. */
+        rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+        rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+        rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_CAN1EN);
 
-	/* Configure CAN pin: RX */
-	gpio.GPIO_Pin = GPIO_Pin_11;
-	gpio.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_Init(GPIOA, &gpio);
+	/* Remap the gpio pin if necessary. */
+	AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
 
-	/* Configure CAN pin: TX */
-	gpio.GPIO_Pin = GPIO_Pin_12;
-	gpio.GPIO_Mode = GPIO_Mode_AF_PP;
-	gpio.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA, &gpio);
+	/* Configure CAN pin: RX (input pull-up). */
+	gpio_set_mode(GPIO_BANK_CAN1_PB_RX, GPIO_MODE_INPUT,
+                      GPIO_CNF_INPUT_PULL_UPDOWN, GPIO_CAN1_PB_RX);
+        gpio_set(GPIO_BANK_CAN1_PB_RX, GPIO_CAN1_PB_RX);
 
-	/* NVIC configuration */
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+        /* Configure CAN pin: TX (output push-pull). */
+        gpio_set_mode(GPIO_BANK_CAN1_PB_TX, GPIO_MODE_OUTPUT_50_MHZ,
+                      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_CAN1_PB_TX);
 
-	nvic.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
-	nvic.NVIC_IRQChannelPreemptionPriority = 0x00;
-	nvic.NVIC_IRQChannelSubPriority = 0x00;
-	nvic.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&nvic);
+	/* NVIC setup. */
+        nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
+        nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 1);
 
-	/* CAN register init */
-	CAN_DeInit(CAN1);
-	CAN_StructInit(&can);
+	/* Reset CAN. */
+        can_reset(CAN1);
 
-	/* CAN cell init */
-	can.CAN_TTCM = DISABLE;
-	can.CAN_ABOM = CAN_ERR_RESUME;
-	can.CAN_AWUM = DISABLE;
-	can.CAN_NART = DISABLE;
-	can.CAN_RFLM = DISABLE;
-	can.CAN_TXFP = DISABLE;
-	can.CAN_Mode = CAN_Mode_Normal;
-	can.CAN_SJW = CAN_SJW_TQ;
-	can.CAN_BS1 = CAN_BS1_TQ;
-	can.CAN_BS2 = CAN_BS2_TQ;
-	can.CAN_Prescaler = CAN_PRESCALER;
-	can.CAN_ABOM = ENABLE;
-	CAN_Init(CAN1, &can);
+	/* CAN cell init.
+	 * For time quanta calculation see STM32 reference manual
+	 * section 24.7.7 "Bit timing" page 645
+	 *
+	 * To talk to CSC using LPC mcu we need a baud rate of 375kHz
+	 * The APB1 runs at 36MHz therefor we select a prescaler of 12
+	 * resulting in time quanta frequency of 36MHz / 12 = 3MHz
+	 *
+	 * As the Bit time is combined of 1tq for SYNC_SEG, TS1tq for bit
+	 * segment 1 and TS2tq for bit segment 2:
+	 * BITtq = 1tq + TS1tq + TS2tq
+	 *
+	 * We can choose to use TS1 = 3 and TS2 = 4 getting
+	 * 1tq + 3tq + 4tq = 8tq per bit therefor a bit frequency is
+	 * 3MHZ / 8 = 375kHz
+	 *
+	 * Maximum baud rate of CAN is 1MHz so we can choose to use
+	 * prescaler of 2 resulting in a quanta frequency of 36MHz / 2 = 18Mhz
+	 *
+	 * So we need to devide the frequency by 18. This can be accomplished
+	 * using TS1 = 10 and TS2 = 7 resulting in:
+	 * 1tq + 10tq + 7tq = 18tq
+	 *
+	 * NOTE: Although it is out of spec I managed to have CAN run at 2MBit
+	 * Just decrease the prescaler to 1. It worked for me(tm) (esden)
+	 */
+        if (can_init(CAN1,
+                     false,           /* TTCM: Time triggered comm mode? */
+                     true,            /* ABOM: Automatic bus-off management? */
+                     false,           /* AWUM: Automatic wakeup mode? */
+                     false,           /* NART: No automatic retransmission? */
+                     false,           /* RFLM: Receive FIFO locked mode? */
+                     false,           /* TXFP: Transmit FIFO priority? */
+                     CAN_BTR_SJW_1TQ,
+                     CAN_BTR_TS1_10TQ,
+                     CAN_BTR_TS2_7TQ,
+                     2))             /* BRP+1: Baud rate prescaler */
+        {
+		/* TODO we need something somewhere where we can leave a note
+		 * that CAN was unable to initialize. Just like any other
+		 * driver should...
+		 */
 
-	/* CAN filter init */
-	can_filter.CAN_FilterNumber = 0;
-	can_filter.CAN_FilterMode = CAN_FilterMode_IdMask;
-	can_filter.CAN_FilterScale = CAN_FilterScale_32bit;
-	can_filter.CAN_FilterIdHigh = 0x0000;
-	can_filter.CAN_FilterIdLow = 0x0000;
-	can_filter.CAN_FilterMaskIdHigh = 0x0000;
-	can_filter.CAN_FilterMaskIdLow = 0x0000;
-	can_filter.CAN_FilterFIFOAssignment = 0;
-	can_filter.CAN_FilterActivation = ENABLE;
-	CAN_FilterInit(&can_filter);
+		can_reset(CAN1);
 
-	/* transmit struct init */
-	can_tx_msg.StdId = 0x0;
-	can_tx_msg.ExtId = 0x0;
-	can_tx_msg.RTR = CAN_RTR_DATA;
-#ifdef USE_CAN_EXT_ID
-	can_tx_msg.IDE = CAN_ID_EXT;
-#else
-	can_tx_msg.IDE = CAN_ID_STD;
-#endif
-	can_tx_msg.DLC = 1;
+		return;
+        }
 
-	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+        /* CAN filter 0 init. */
+        can_filter_id_mask_32bit_init(CAN1,
+                                0,     /* Filter ID */
+                                0,     /* CAN ID */
+                                0,     /* CAN ID mask */
+                                0,     /* FIFO assignment (here: FIFO0) */
+                                true); /* Enable the filter. */
+
+        /* Enable CAN RX interrupt. */
+        can_enable_irq(CAN1, CAN_IER_FMPIE0);
+
+	/* Remember that we succeeded to initialize. */
+	can_initialized = true;
 }
 
 int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 {
+
+	if (!can_initialized) {
+		return -2;
+	}
+
 	if(len > 8){
 		return -1;
 	}
 
+
+	/* FIXME: we are discarding the const qualifier for buf here.
+	 * We should probably fix libopencm3 to actually have the
+	 * const qualifier too...
+	 */
+	return can_transmit(CAN1,
+			id,     /* (EX/ST)ID: CAN ID */
 #ifdef USE_CAN_EXT_ID
-	can_tx_msg.ExtId = id;
+			true,  /* IDE: CAN ID extended */
 #else
-	can_tx_msg.StdId = id;
+			false, /* IDE: CAN ID not extended */
 #endif
-	can_tx_msg.DLC = len;
-
-	memcpy(can_tx_msg.Data, buf, len);
-
-	CAN_Transmit(CAN1, &can_tx_msg);
-
-	return 0;
+			false, /* RTR: Request transmit? */
+			len,   /* DLC: Data length */
+			(uint8_t *)buf);
 }
 
-void usb_lp_can1_rx0_irq_handler(void)
+void usb_lp_can_rx0_isr(void)
 {
-	CAN_Receive(CAN1, CAN_FIFO0, &can_rx_msg);
-#ifdef USE_CAN_EXT_ID
-	_can_run_rx_callback(can_rx_msg.ExtId, can_rx_msg.Data, can_rx_msg.DLC);
-#else
-	_can_run_rx_callback(can_rx_msg.StdId, can_rx_msg.Data, can_rx_msg.DLC);
-#endif
+	u32 id, fmi;
+        bool ext, rtr;
+        u8 length, data[8];
+
+	can_receive(CAN1,
+		0,     /* FIFO: 0 */
+		false, /* Release */
+		&id,
+		&ext,
+		&rtr,
+		&fmi,
+		&length,
+		data);
+
+	_can_run_rx_callback(id, data, length);
+
+	can_fifo_release(CAN1, 0);
 }
 
