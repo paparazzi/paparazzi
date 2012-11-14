@@ -61,14 +61,16 @@ endif
 
 #
 # default uart configuration
+# UART1 = SPEKTRUM
+# UART2 = MODEM
+# UART3 = IMU (GX3)
+# UART5 = GPS
 #
 ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART1
 endif
 
-#ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-#RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
-#endif
+# there is not enough ports for two satellite receivers
 
 ifndef MODEM_PORT
 MODEM_PORT=UART2
