@@ -88,11 +88,11 @@
     <define name="BODY_TO_IMU_PSI"   value="-45." unit="deg"/>
   </section>
 
-<!-- FIXME: Calibration -->
+<!-- local magnetic field, calculated for: 52°0'0", 4°22'22" -->
   <section name="AHRS" prefix="AHRS_">
-    <define name="H_X" value="0.3770441"/>
-    <define name="H_Y" value="0.0193986"/>
-    <define name="H_Z" value="0.9259921"/>
+    <define name="H_X" value="0.390471116"/>
+    <define name="H_Y" value="0.001535123"/>
+    <define name="H_Z" value="0.920613899"/>
   </section>
 
   <section name="INS" prefix="INS_">
