@@ -24,6 +24,7 @@
 *.cproject
 *.project
 *.externalToolBuilders
+.settings
 /build.properties
 /META-INF
 
