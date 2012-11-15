@@ -149,6 +149,12 @@ void alt_kalman(float gps_z) {
     R = baro_ets_r;
     SIGMA2 = baro_ets_sigma2;
   } else
+#elif USE_BARO_MS5611
+  if (baro_ms5611_enabled) {
+    DT = BARO_MS5611_DT;
+    R = baro_ms5611_r;
+    SIGMA2 = baro_ms5611_sigma2;
+  } else
 #elif USE_BARO_BMP
   if (baro_bmp_enabled) {
     DT = BARO_BMP_DT;
@@ -210,7 +216,7 @@ void estimator_update_state_gps( void ) {
   gps_north -= nav_utm_north0;
 
   EstimatorSetPosXY(gps_east, gps_north);
-#if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A
+#if !USE_BARO_BMP && !USE_BARO_ETS && !USE_BARO_MS5534A && !USE_BARO_MS5611
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif

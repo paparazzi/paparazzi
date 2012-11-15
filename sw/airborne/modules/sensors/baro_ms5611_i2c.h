@@ -12,6 +12,13 @@
 
 #define PROM_NB                 8
 
+#define BARO_MS5611_DT 0.05
+#define BARO_MS5611_R 20
+#define BARO_MS5611_SIGMA2 1
+extern bool_t baro_ms5611_enabled;
+extern float baro_ms5611_r;
+extern float baro_ms5611_sigma2;
+
 enum ms5611_stat{
   MS5611_UNINIT,
   MS5611_RESET,

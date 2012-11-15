@@ -45,7 +45,9 @@
 #endif
 
 /* address can be 0xEC or 0xEE (CSB\ high = 0xEC) */
+#ifndef MS5611_SLAVE_ADDR
 #define MS5611_SLAVE_ADDR 0xEC
+#endif
 
 #if PERIODIC_FREQUENCY > 60
 #error baro_ms5611_i2c assumes a PERIODIC_FREQUENCY of 60Hz
@@ -56,8 +58,11 @@ uint8_t ms5611_status;
 uint16_t ms5611_c[PROM_NB];
 uint32_t ms5611_d1, ms5611_d2;
 int32_t prom_cnt;
-float fbaroms, ftempms;
-
+float fbaroms, ftempms, tmp_float,baro_alt,baro_offset,baro_altitude,baro_temp;
+bool_t baro_offset_init;
+bool_t baro_ms5611_enabled;
+float baro_ms5611_r;
+float baro_ms5611_sigma2;
 
 static int8_t baro_ms5611_crc(uint16_t* prom) {
   int32_t i, j;
@@ -78,7 +83,11 @@ static int8_t baro_ms5611_crc(uint16_t* prom) {
 }
 
 void baro_ms5611_init(void) {
+  baro_offset_init = FALSE;
+  baro_ms5611_enabled = TRUE;
   ms5611_status = MS5611_UNINIT;
+  baro_ms5611_r = BARO_MS5611_R;
+  baro_ms5611_sigma2 = BARO_MS5611_SIGMA2;
   prom_cnt = 0;
 }
 
@@ -217,12 +226,36 @@ void baro_ms5611_event( void ) {
       }
       /* temperature compensated pressure */
       baroms = (((int64_t)ms5611_d1 * sens) / (1<<21) - off) / (1<<15);
+
+      tmp_float = baroms/101325.0; //pressao nivel mar
+      tmp_float = pow(tmp_float,0.190295); //eleva pressao ao expoente
+      baro_alt = 44330*(1.0-tmp_float); //altitude relativa nivel do mar
+
+      if (!baro_offset_init) {
+        baro_offset = baro_alt;
+        baro_offset_init = TRUE;
+      } //baro offset init
+
+      baro_temp = (baro_alt - baro_offset);
+
+      if (baro_offset_init) {        // New value available
+        baro_altitude = ground_alt + baro_temp;
+
+#if USE_BARO_MS5611
+#pragma message "USING BARO MS5611"
+        EstimatorSetAlt(baro_altitude);
+#endif
+
+      } else {
+        baro_altitude = 0.0;
+      }
 #ifdef SENSOR_SYNC_SEND
       ftempms = tempms / 100.;
       fbaroms = baroms / 100.;
       DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
                                 &ms5611_d1, &ms5611_d2, &fbaroms, &ftempms);
 #endif
+
       break;
     }
 
@@ -232,4 +265,3 @@ void baro_ms5611_event( void ) {
     }
   }
 }
-
