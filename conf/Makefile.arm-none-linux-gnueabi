@@ -1,0 +1,24 @@
+#
+# Copyright (C) 2012 - TU Delft Robotics Minor - Group 1 - Dino Hensen <dino.hensen@gmail.com> 
+#
+# Minimal makefile for arm-none-linux-gnueabi toolchain. Assuming installed in default installation.
+# todo: make it dynamically find the toolchain
+
+CC   = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-gcc
+LD   = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-gcc
+AR   = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-ar
+CP   = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-objcopy
+DMP  = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-objdump
+NM   = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-nm
+SIZE = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-size
+GDB  = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-gdb
+TOOLCHAIN_DIR=/usr/local/codesourcery/arm-2011.03
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-linux-gnueabi/lib
+
+# checking if gcc has thumb2 instruction
+MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+
+# some general commands
+RM = rm
+
+	@echo "Using CC   = $(CC)"

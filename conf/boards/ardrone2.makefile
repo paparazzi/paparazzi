@@ -18,7 +18,6 @@ ifndef FLASH_MODE
 FLASH_MODE = FTP
 endif
 
-
 #
 # some default values shared between different firmwares
 #
