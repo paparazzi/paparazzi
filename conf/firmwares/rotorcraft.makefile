@@ -143,8 +143,8 @@ else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), lisa_m)
 ap.CFLAGS += -DUSE_I2C2
-else ifeq ($(BOARD), ardrone)
-ap.CFLAGS += -DUSE_I2C2
+#else ifeq ($(BOARD), ardrone)
+#ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DUSE_SPI
 ap.CFLAGS += -DUSE_SPI_SLAVE0

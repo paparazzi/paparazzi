@@ -1,0 +1,126 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+#   Copyright (C) 2009-2010 The Paparazzi Team
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+
+# Define programs and commands.
+
+# Look for an open embedded directory
+#OVERO_OE := $(shell find -L /opt/paparazzi/omap ~ / -maxdepth 1 -type d -name overo-oe 2>/dev/null | head -n 1)
+
+# Multiple places to look for compiler within oe directory structure
+#CC_NAME = arm-angstrom-linux-gnueabi-gcc
+#CCPATH1 = $(OVERO_OE)/tmp/cross/armv7a/bin
+#CCPATH2 = $(OVERO_OE)/tmp/sysroots/i686-linux/usr/armv7a/bin
+#CCPATH3 = $(OVERO_OE)/tmp/sysroots/x86_64-linux/usr/armv7a/bin
+#CC := $(shell find -L $(CCPATH1) $(CCPATH2) $(CCPATH3) -name $(CC_NAME) -type f 2>/dev/null | head -n 1)
+CC   = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-gcc
+LD = $(CC)
+
+#GLIB_INC = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/include/glib-2.0
+#GLIB_LIB = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/lib/
+
+# Launch with "make Q=''" to get full command display
+Q=@
+
+OPT=3
+CSTANDARD = -std=gnu99
+CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
+
+# Compiler flags.
+CFLAGS += $(CINCS)
+CFLAGS += -O$(OPT) -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
+# CFLAGS += -malignment-traps
+CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
+CFLAGS += -Wpointer-arith -Wswitch
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+#CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
+#CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
+
+# flags only for C
+CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
+CFLAGS += -Wmissing-prototypes -Wnested-externs
+CFLAGS += $(CSTANDARD)
+CFLAGS += $($(TARGET).CFLAGS)
+
+
+#CXX = /opt/paparazzi/omap/overo-oe/tmp/sysroots/i686-linux/usr/armv7a/bin/arm-angstrom-linux-gnueabi-g++
+CXX = /usr/local/codesourcery/arm-2011.03/bin/arm-none-linux-gnueabi-g++
+CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
+CXXFLAGS += -g -ffunction-sections -fdata-sections
+CXXFLAGS += -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
+CXXFLAGS += -Wall -Wextra
+CXXFLAGS += $($(TARGET).CXXFLAGS)
+
+
+SRC_C_OMAP  = $($(TARGET).srcs)
+OBJ_C_OMAP = $(SRC_C_OMAP:%.c=$(OBJDIR)/%.o)
+
+SRC_CPP_OMAP  = $($(TARGET).cpp_srcs)
+OBJ_CPP_OMAP = $(SRC_CPP_OMAP:%.cpp=$(OBJDIR)/%.o)
+
+all: build
+
+build: elf
+
+elf: $(OBJDIR)/$(TARGET).elf
+
+# Program the device.
+load upload program: $(OBJDIR)/$(TARGET).elf
+	scp $(OBJDIR)/$(TARGET).elf $(USER)@$(HOST):$(TARGET_DIR)
+
+# Link: create ELF output file from object files.
+.SECONDARY : $(OBJDIR)/$(TARGET).elf
+.PRECIOUS :   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
+%.elf:   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
+	@echo LD $@
+	$(Q)if (expr "$($(TARGET).cpp_srcs)"); \
+		  then $(CXX) $(CXXFLAGS) $(OBJ_CPP_OMAP) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); \
+		  else $(CC) $(CFLAGS) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); fi
+
+# Compile: create object files from C source files
+$(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
+	@echo CC $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC) -c $(CFLAGS) $< -o $@
+
+# Compile: create object files from C++ source files
+$(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
+	@echo CXX $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CXX) -c $(CXXFLAGS) $< -o $@
+
+# Listing of phony targets.
+.PHONY : all build elf clean clean_list
+
+#
+# Dependencies
+#
+
+$(OBJDIR)/.depend:
+	@echo DEPEND $@
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
+	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),erase)
+-include $(OBJDIR)/.depend
+endif
+endif
