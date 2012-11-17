@@ -19,26 +19,47 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/exti.h>
-#include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/f1/dma.h>
+#include "libopencm3/stm32/f1/gpio.h"
+#include "libopencm3/stm32/f1/nvic.h"
+#include "libopencm3/stm32/exti.h"
 
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
+#include "mcu_periph/spi.h"
 
 #include "peripherals/adxl345.h"
-#include "my_debug_servo.h"
 #include "led.h"
+
+#ifndef ADXL345_SLAVE_IDX
+#define ADXL345_SLAVE_IDX SPI_SLAVE2
+#endif
+
+#ifndef ADXL345_SPI_DEV
+#define ADXL345_SPI_DEV spi2
+#endif
+
+#define CONFIGURED 6
+static uint8_t acc_status=0;
+static volatile uint8_t acc_data_available = FALSE;
+static volatile uint8_t foo = FALSE;
+struct spi_transaction adxl345_spi_trans;
+
+static uint8_t dma_tx_buf[7];
+static uint8_t dma_rx_buf[7];
+
+static void write_to_reg(uint8_t addr, uint8_t val);
+static void adxl345_trans_cb(struct spi_transaction *trans);
+static inline void init_adxl345_spi_trans( void );
+static void read_data(void);
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
-static inline void main_init_hw(void);
+void hw_init(void);
 
 int main(void) {
   main_init();
@@ -54,134 +75,19 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
+  hw_init();
+  init_adxl345_spi_trans();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
-  main_init_hw();
-
 }
-
-static void write_to_reg(uint8_t addr, uint8_t val);
-static uint8_t read_fom_reg(uint8_t addr);
-#define CONFIGURED 6
-static uint8_t acc_status=0;
-static volatile uint8_t acc_data_available = FALSE;
-
-static uint8_t dma_tx_buf[7];
-static uint8_t dma_rx_buf[7];
-
-#define AccUnselect() GPIOB->BSRR = GPIO_Pin_12
-#define AccSelect() GPIOB->BRR = GPIO_Pin_12
-#define AccToggleSelect() GPIOB->ODR ^= GPIO_Pin_12
-
-static void write_to_reg(uint8_t addr, uint8_t val) {
-
-#warning "Needs porting to libopencm3 or the real driver!"
-
-#if 0
-  AccSelect();
-  SPI_I2S_SendData(SPI2, addr);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  SPI_I2S_SendData(SPI2, val);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  AccUnselect();
-#endif
-
-}
-
-static uint8_t read_fom_reg(uint8_t addr) {
-
-  uint8_t ret;
-
-#warning "Needs porting to libopencm3 or the real driver!"
-
-#if 0
-  AccSelect();
-  SPI_I2S_SendData(SPI2, (1<<7|addr));
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  uint8_t ret = SPI_I2S_ReceiveData(SPI2);
-  AccUnselect();
-#endif
-
-  return ret;
-}
-
-static void read_data(void) {
-
-#warning "Needs porting to libopencm3 or the real driver!"
-
-#if 0
-  AccSelect();
-
-  dma_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
-
-  /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel4);
-  DMA_InitTypeDef DMA_initStructure_4 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)dma_rx_buf,
-    .DMA_DIR = DMA_DIR_PeripheralSRC,
-    .DMA_BufferSize = 7,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_VeryHigh,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel4, &DMA_initStructure_4);
-
-  /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel5);
-  DMA_InitTypeDef DMA_initStructure_5 = {
-    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)dma_tx_buf,
-    .DMA_DIR = DMA_DIR_PeripheralDST,
-    .DMA_BufferSize = 7,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-    .DMA_MemoryInc = DMA_MemoryInc_Enable,
-    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-    .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_Medium,
-    .DMA_M2M = DMA_M2M_Disable
-  };
-  DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
-
-  /* Enable SPI_2 Rx request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
-  /* Enable DMA1 Channel4 */
-  DMA_Cmd(DMA1_Channel4, ENABLE);
-
-  /* Enable SPI_2 Tx request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
-  /* Enable DMA1 Channel5 */
-  DMA_Cmd(DMA1_Channel5, ENABLE);
-
-  /* Enable DMA1 Channel4 Transfer Complete interrupt */
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
-#endif
-
-}
-
 
 static inline void main_periodic_task( void ) {
-
-
   RunOnceEvery(10,
-    {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-      LED_PERIODIC();
-    });
+               {
+                 DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+                 LED_PERIODIC();
+               });
 
   if (acc_status != CONFIGURED) {
-    {
-      /* read data rate */
-      //      uint8_t bar = read_fom_reg(ADXL345_REG_BW_RATE);
-    }
     /* set data rate to 800Hz */
     write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
     /* switch to measurememnt mode */
@@ -191,16 +97,20 @@ static inline void main_periodic_task( void ) {
     /* Enable full res and interrupt active low */
     write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
     /* reads data once to bring interrupt line up */
-    uint8_t ret = spi_read(SPI2);
     read_data();
     acc_status = CONFIGURED;
   }
-
+  else {
+    read_data();
+  }
 }
 
 
 static inline void main_event_task( void ) {
-
+  if (foo) {
+    foo = FALSE;
+    RunOnceEvery(100, {LED_TOGGLE(3);});
+  }
   if (acc_status >= CONFIGURED && acc_data_available) {
     acc_data_available = FALSE;
     int16_t ax = dma_rx_buf[1] | (dma_rx_buf[2]<<8);
@@ -211,113 +121,60 @@ static inline void main_event_task( void ) {
     int32_t iaz = az;
     RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &iax, &iay, &iaz);});
   }
-
 }
 
-static inline void main_init_hw( void ) {
+static void write_to_reg(uint8_t addr, uint8_t val) {
+  dma_tx_buf[0] = addr;
+  dma_tx_buf[1] = val;
+  spi_submit(&(ADXL345_SPI_DEV), &adxl345_spi_trans);
+  // FIXME: no busy waiting! if really needed add a timeout!!!!
+  while(adxl345_spi_trans.status != SPITransSuccess);
+}
 
-#warning "Needs porting to libopencm3 or the real driver!"
-
-#if 0
-  /* configure acc slave select */
-  /* set acc slave select as output and assert it ( on PB12) */
-  AccUnselect();
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  /* configure external interrupt exti2 on PD2( accel int ) */
-  RCC_APB2PeriphClockCmd(IMU_ACC_DRDY_RCC_GPIO | RCC_APB2Periph_AFIO, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(IMU_ACC_DRDY_GPIO, &GPIO_InitStructure);
-  EXTI_InitTypeDef EXTI_InitStructure;
-  GPIO_EXTILineConfig(IMU_ACC_DRDY_GPIO_PORTSOURCE, GPIO_PinSource2);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line2;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+static void read_data(void) {
+  dma_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
+  spi_submit(&(ADXL345_SPI_DEV), &adxl345_spi_trans);
+}
 
 
-  /* Enable SPI2 Periph clock -------------------------------------------------*/
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+static void adxl345_trans_cb( struct spi_transaction *trans ) {
+  acc_data_available = TRUE;
+}
 
-  /* Configure GPIOs: SCK, MISO and MOSI  --------------------------------*/
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+static inline void init_adxl345_spi_trans( void ) {
+  adxl345_spi_trans.select = SPISelectUnselect;
+  adxl345_spi_trans.cpol = SPICpolIdleHigh;
+  adxl345_spi_trans.cpha = SPICphaEdge2;
+  adxl345_spi_trans.dss = SPIDss8bit;
+  adxl345_spi_trans.bitorder = SPIMSBFirst;
+  adxl345_spi_trans.cdiv = SPIDiv64;
+  adxl345_spi_trans.slave_idx = ADXL345_SLAVE_IDX;
+  adxl345_spi_trans.output_length = 7;
+  adxl345_spi_trans.input_length = 7;
+  adxl345_spi_trans.after_cb = adxl345_trans_cb;
+  adxl345_spi_trans.input_buf = &dma_rx_buf[0];
+  adxl345_spi_trans.output_buf = &dma_tx_buf[0];
+}
 
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
-  SPI_Cmd(SPI2, ENABLE);
+void hw_init(void) {
+  /* configure external interrupt exti2 on PB2( accel int ) */
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO2);
 
-  /* configure SPI */
-  SPI_InitTypeDef SPI_InitStructure;
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(SPI2, &SPI_InitStructure);
+  exti_select_source(EXTI2, GPIOB);
+  exti_set_trigger(EXTI2, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI2);
 
-  /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
-
-  /* Enable SPI_2 DMA clock ---------------------------------------------------*/
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-
-  DEBUG_SERVO2_INIT();
-#endif
-
+  nvic_set_priority(NVIC_EXTI2_IRQ, 0xF);
+  nvic_enable_irq(NVIC_EXTI2_IRQ);
 }
 
 
 void exti2_isr(void) {
-
   /* clear EXTI */
   exti_reset_request(EXTI2);
 
-  //DEBUG_S4_TOGGLE();
+  LED_TOGGLE(2);
 
-  read_data();
-
-}
-
-void dma1_channel4_isr(void) {
-
-#warning "Needs porting to libopencm3 or to the real driver!"
-
-#if 0
-  AccUnselect();
-  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
-  /* Disable SPI_2 Rx and TX request */
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
-  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
-  /* Disable DMA1 Channel4 and 5 */
-  DMA_Cmd(DMA1_Channel4, DISABLE);
-  DMA_Cmd(DMA1_Channel5, DISABLE);
-#endif
-
-  acc_data_available = TRUE;
+  foo = TRUE;
 }

@@ -454,6 +454,8 @@ test_adxl345.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_adxl345.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_adxl345.CFLAGS += -I$(SRC_LISA)
+test_adxl345.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2 -DUSE_SPI_SLAVE2
+test_adxl345.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 test_adxl345.srcs   += lisa/test/lisa_test_adxl345_dma.c
 
 
