@@ -22,21 +22,8 @@
 
 /**
  * @file arch/stm32/mcu_periph/spi_arch.c
- * Handling of SPI hardware for STM32.
- */
-
-#include <libopencm3/stm32/f1/nvic.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/exti.h>
-#include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/f1/dma.h>
-
-#include "mcu_periph/spi.h"
-
-/*
- * @file spi_arch.c
  *
+ * Handling of SPI hardware for STM32.
  * SPI Master code.
  *
  * This file manages the SPI implementation how it appears to the chip.
@@ -52,6 +39,15 @@
  * This does require modifications in the makefiles, because the correct arch_init needs to be called
  * for the selection of aspirin v2.1 for example.
  */
+
+#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/f1/dma.h>
+
+#include "mcu_periph/spi.h"
 
 #ifdef SPI_MASTER
 
