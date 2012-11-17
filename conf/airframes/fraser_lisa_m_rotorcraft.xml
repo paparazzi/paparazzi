@@ -5,6 +5,7 @@
 <airframe name="fraser">
 
   <firmware name="rotorcraft">
+    <configure name="FLASH_MODE" value="SWD"/>
     <target name="ap" board="lisa_m_1.0">
       <define name="ACTUATORS_START_DELAY" value="3"/>
       <define name="USE_INS_NAV_INIT"/>
@@ -17,6 +18,7 @@
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="gps"           type="ublox"/>
@@ -30,6 +32,7 @@
   </firmware>
 
   <firmware name="lisa_test_progs">
+    <configure name="FLASH_MODE" value="SWD"/>
     <target name="test_led"	                board="lisa_m_1.0"/>
     <target name="test_sys_time"            board="lisa_m_1.0"/>
     <target name="test_uart"                board="lisa_m_1.0"/>
@@ -69,12 +72,17 @@
     <define name="ADDR" value="{ 0x54, 0x52, 0x56, 0x58 }"/>
   </section>
 
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="2"/>
-    <define name="MAX_MOTOR" value="200"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <servos driver="Mkk">
+    <servo name="FRONT"  no="0"    min="0" neutral="2" max="200"/>
+    <servo name="BACK"   no="1"    min="0" neutral="2" max="200"/>
+    <servo name="RIGHT"  no="2"    min="0" neutral="2" max="200"/>
+    <servo name="LEFT"   no="3"    min="0" neutral="2" max="200"/>
+  </servos>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <!-- front/back turning CCW, left/right CW -->
@@ -83,6 +91,14 @@
     <define name="YAW_COEF"    value="{  256,  256, -256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
+    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
+    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
+    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
+  </command_laws>
 
   <section name="IMU" prefix="IMU_">
     <define name="ACCEL_X_NEUTRAL" value="11"/>
