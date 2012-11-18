@@ -326,11 +326,17 @@ test_imu_b2_2.srcs   += $(IMU_B2_2_SRCS)
 IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_0
 IMU_ASPIRIN_SRCS   = $(SRC_SUBSYSTEMS)/imu.c             \
                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
-                     $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
+                     $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
+                     $(SRC_ARCH)/mcu_periph/spi_arch.c \
+                     mcu_periph/spi.c
 IMU_ASPIRIN_SRCS   += math/pprz_trig_int.c
 IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 IMU_ASPIRIN_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
+# SLAVE2 is on PB12 (NSS) (ADXL345 CS)
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 
 test_imu_aspirin.ARCHDIR = $(ARCH)
 test_imu_aspirin.srcs    = test/subsystems/test_imu.c
