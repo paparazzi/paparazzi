@@ -190,18 +190,39 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
   //FIXME: remove me, do in quaternion directly
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
 
-  struct FloatQuat q_rp_cmd;
-  stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
-
   /* get current heading */
   const struct FloatVect3 zaxis = {0., 0., 1.};
   struct FloatQuat q_yaw;
   FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, ANGLE_FLOAT_OF_BFP(stateGetNedToBodyEulers_i()->psi));
 
-  /* apply roll and pitch commands with respect to current heading */
   struct FloatQuat q_sp;
+
+#ifdef STABILIZATION_ATTITUDE_TRANSITION_VEHICLE
+//   Roll and Yaw are earth bound
+//   Initialize the rotations
+  struct FloatEulers e_theta = {0, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.theta), 0};
+  struct FloatQuat q_theta;
+  struct FloatEulers e_phi = {ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.phi), 0, 0};
+  struct FloatQuat q_phi;
+  struct FloatQuat q_phi_theta;
+
+//   Construct Quaternions
+  FLOAT_QUAT_OF_EULERS(q_theta, e_theta);
+  FLOAT_QUAT_OF_EULERS(q_phi, e_phi);
+
+//   Apply first two rotations
+  FLOAT_QUAT_COMP(q_phi_theta, q_phi, q_theta);
+
+  FLOAT_QUAT_COMP(q_sp, q_yaw, q_phi_theta);
+  FLOAT_QUAT_NORMALIZE(q_sp);
+#else
+  struct FloatQuat q_rp_cmd;
+  stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
+
+  /* apply roll and pitch commands with respect to current heading */
   FLOAT_QUAT_COMP(q_sp, q_yaw, q_rp_cmd);
   FLOAT_QUAT_NORMALIZE(q_sp);
+#endif
 
   if (in_flight)
   {
