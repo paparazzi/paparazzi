@@ -9,9 +9,9 @@ BOARD=ardrone
 BOARD_VERSION=2
 BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION).h\"
 
-ARCH=omap
+ARCH=omap_ardrone2
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).MAKEFILE = omap_ardrone2
+#$(TARGET).MAKEFILE = omap_ardrone2
 
 # -----------------------------------------------------------------------
 

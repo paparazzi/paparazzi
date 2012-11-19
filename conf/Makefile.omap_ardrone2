@@ -54,8 +54,10 @@ CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
+CFLAGS += -lm
+
 # flags only for C
-CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
+CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)

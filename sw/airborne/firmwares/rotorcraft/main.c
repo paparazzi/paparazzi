@@ -105,7 +105,9 @@ STATIC_INLINE void main_init( void ) {
   motor_mixing_init();
 #endif
 
+#if RADIO_CONTROL
   radio_control_init();
+#endif
 
 #if DATALINK == XBEE
   xbee_init();
@@ -146,8 +148,10 @@ STATIC_INLINE void main_init( void ) {
 STATIC_INLINE void handle_periodic_tasks( void ) {
   if (sys_time_check_and_ack_timer(main_periodic_tid))
     main_periodic();
+#if RADIO_CONTROL
   if (sys_time_check_and_ack_timer(radio_control_tid))
     radio_control_periodic_task();
+#endif
   if (sys_time_check_and_ack_timer(failsafe_tid))
     failsafe_check();
   if (sys_time_check_and_ack_timer(electrical_tid))
@@ -182,7 +186,10 @@ STATIC_INLINE void telemetry_periodic(void) {
 }
 
 STATIC_INLINE void failsafe_check( void ) {
-  if (radio_control.status != RC_OK &&
+  if (
+#if RADIO_CONTROL // dino: added to remove the radio control
+		  radio_control.status != RC_OK &&
+#endif // dino: added to remove the radio control
       autopilot_mode != AP_MODE_KILL &&
       autopilot_mode != AP_MODE_NAV)
   {
@@ -191,9 +198,11 @@ STATIC_INLINE void failsafe_check( void ) {
 
 #if USE_GPS
   if (autopilot_mode == AP_MODE_NAV &&
+#if RADIO_CONTROL // dino: added to remove the radio control
 #if NO_GPS_LOST_WITH_RC_VALID
       radio_control.status != RC_OK &&
 #endif
+#endif // dino: added to remove the radio control
       GpsIsLost())
   {
     autopilot_set_mode(AP_MODE_FAILSAFE);

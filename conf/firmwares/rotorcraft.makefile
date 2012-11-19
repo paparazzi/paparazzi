@@ -47,7 +47,7 @@ ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 ap.srcs    = $(SRC_FIRMWARE)/main.c
 ap.srcs   += mcu.c
-ap.srcs   += $(SRC_ARCH)/mcu_arch.c
+#ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 
 #
 # Math functions
@@ -80,7 +80,7 @@ ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 # Systime
 #
 ap.CFLAGS += -DUSE_SYS_TIME
-ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+#ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 ifneq ($(SYS_TIME_LED),none)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
@@ -93,7 +93,7 @@ endif
 # include subsystems/rotorcraft/telemetry_xbee_api.makefile
 #
 ap.srcs += subsystems/settings.c
-ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
+#ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
