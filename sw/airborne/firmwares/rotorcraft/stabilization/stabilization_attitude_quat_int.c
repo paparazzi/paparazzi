@@ -191,7 +191,11 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
 
   struct FloatQuat q_rp_cmd;
+#if USE_EARTH_BOUND_RC_SETPOINT
+  stabilization_attitude_read_rc_roll_pitch_earth_quat(&q_rp_cmd);
+#else
   stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
+#endif
 
   /* get current heading */
   const struct FloatVect3 zaxis = {0., 0., 1.};

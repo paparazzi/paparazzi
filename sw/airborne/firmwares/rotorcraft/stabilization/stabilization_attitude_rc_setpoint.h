@@ -97,6 +97,10 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
   }
 }
 
+/** Read roll/pitch command from RC as quaternion.
+ * Interprets the stick positions as axes.
+ * @param[out] q quaternion representing the RC roll/pitch input
+ */
 static inline void stabilization_attitude_read_rc_roll_pitch_quat(struct FloatQuat* q) {
   q->qx = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
   q->qy = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
@@ -107,6 +111,28 @@ static inline void stabilization_attitude_read_rc_roll_pitch_quat(struct FloatQu
   q->qi = 1.0 / norm;
   q->qx /= norm;
   q->qy /= norm;
+}
+
+/** Read roll/pitch command from RC as quaternion.
+ * Both angles are are interpreted relative to to the horizontal plane (earth bound).
+ * @param[out] q quaternion representing the RC roll/pitch input
+ */
+static inline void stabilization_attitude_read_rc_roll_pitch_earth_quat(struct FloatQuat* q) {
+  /* only non-zero entries for roll quaternion */
+  float roll2 = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
+  float qx_roll = sinf(roll2);
+  float qi_roll = cosf(roll2);
+
+  /* only non-zero entries for pitch quaternion */
+  float pitch2 = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
+  float qy_pitch = sinf(pitch2);
+  float qi_pitch = cosf(pitch2);
+
+  /* only multiply non-zero entries of FLOAT_QUAT_COMP(*q, q_roll, q_pitch) */
+  q->qi = qi_roll * qi_pitch;
+  q->qx = qx_roll * qi_pitch;
+  q->qy = qi_roll * qy_pitch;
+  q->qz = -qx_roll * qy_pitch;
 }
 
 #endif /* STABILISATION_ATTITUDE_RC_SETPOINT_H */
