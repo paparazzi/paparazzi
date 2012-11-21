@@ -605,7 +605,7 @@ void uart5_isr(void) {
   if (((USART_CR1(UART5) & USART_CR1_RXNEIE) != 0) &&
       ((USART_SR(UART5) & USART_SR_RXNE) != 0)) {
     uint8_t b = usart_recv(UART5);
-    SpektrumParser(b, SecondarySpektrumState, 0);
+    SpektrumParser(b, SecondarySpektrumState, 1);
   }
 
 }
