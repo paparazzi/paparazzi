@@ -29,20 +29,6 @@
 
 
 struct FloatAttitudeGains stabilization_gains;
-
-/* warn if some gains are still negative */
-#if (STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN < 0)   ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN < 0) ||   \
-  (STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN  < 0)
-#warning "ALL control gains are now positive!!!"
-#endif
-
 struct FloatEulers stabilization_att_sum_err;
 
 float stabilization_att_fb_cmd[COMMANDS_NB];
@@ -80,7 +66,7 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  STABILIZATION_ATTITUDE_FLOAT_READ_RC(stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight);
 
 }
 

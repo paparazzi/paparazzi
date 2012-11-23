@@ -28,38 +28,6 @@
 
 #include "stabilization_attitude_ref_float.h"
 
-/*
- * Radio Control
- */
-#define SP_MAX_PHI   STABILIZATION_ATTITUDE_FLOAT_SP_MAX_PHI
-#define SP_MAX_THETA STABILIZATION_ATTITUDE_FLOAT_SP_MAX_THETA
-#define SP_MAX_R     STABILIZATION_ATTITUDE_FLOAT_SP_MAX_R
-
-
-
-
-
-#define RC_UPDATE_FREQ 40.
-
-#define YAW_DEADBAND_EXCEEDED()						\
-  (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_FLOAT_DEADBAND_R || \
-   radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_FLOAT_DEADBAND_R)
-
-#define STABILIZATION_ATTITUDE_FLOAT_READ_RC(_sp, _inflight) {          \
-                                                                        \
-    _sp.phi = (radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ); \
-    _sp.theta = (radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ); \
-    if (_inflight) {                                                    \
-      if (YAW_DEADBAND_EXCEEDED()) {                                    \
-        _sp.psi +=                                                      \
-          (radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ); \
-        FLOAT_ANGLE_NORMALIZE(_sp.psi);                                 \
-      }                                                                 \
-    }                                                                   \
-    else { /* if not flying, use current yaw as setpoint */             \
-      _sp.psi = stateGetNedToBodyEulers_f()->psi;                       \
-    }                                                                   \
-  }
 
 #define STABILIZATION_ATTITUDE_FLOAT_ADD_SP(_add_sp) {  \
     struct FloatEulers add_sp_float;                    \
