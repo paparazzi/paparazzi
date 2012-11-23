@@ -23,6 +23,8 @@
 
 #include "generated/airframe.h"
 
+#include "state.h"
+
 extern struct FloatEulers stab_att_sp_euler;
 extern struct FloatQuat   stab_att_sp_quat;
 extern struct FloatEulers stab_att_ref_euler;
@@ -36,5 +38,11 @@ struct FloatRefModel {
 };
 
 extern struct FloatRefModel stab_att_ref_model[];
+
+static inline void reset_psi_ref_from_body(void) {
+  stab_att_ref_euler.psi = stateGetNedToBodyEulers_f()->psi;
+  stab_att_ref_rate.r = 0;
+  stab_att_ref_accel.r = 0;
+}
 
 #endif /* STABILISATION_ATTITUDE_REF_FLOAT_H */
