@@ -23,8 +23,8 @@
  *  Read an attitude setpoint from the RC.
  */
 
-#ifndef STABILISATION_ATTITUDE_RC_SETPOINT_H
-#define STABILISATION_ATTITUDE_RC_SETPOINT_H
+#ifndef STABILIZATION_ATTITUDE_RC_SETPOINT_H
+#define STABILIZATION_ATTITUDE_RC_SETPOINT_H
 
 #include "std.h"
 #include "generated/airframe.h"
@@ -34,16 +34,16 @@
 #include "subsystems/radio_control.h"
 #include "state.h"
 
-#if defined STABILISATION_ATTITUDE_TYPE_INT
+#if defined STABILIZATION_ATTITUDE_TYPE_INT
 #define SP_MAX_PHI     (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI)
 #define SP_MAX_THETA   (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA)
 #define SP_MAX_R       (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R)
-#elif defined STABILISATION_ATTITUDE_TYPE_FLOAT
+#elif defined STABILIZATION_ATTITUDE_TYPE_FLOAT
 #define SP_MAX_PHI   STABILIZATION_ATTITUDE_SP_MAX_PHI
 #define SP_MAX_THETA STABILIZATION_ATTITUDE_SP_MAX_THETA
 #define SP_MAX_R     STABILIZATION_ATTITUDE_SP_MAX_R
 #else
-#error "STABILISATION_ATTITUDE_TYPE not defined"
+#error "STABILIZATION_ATTITUDE_TYPE not defined"
 #endif
 
 #define RC_UPDATE_FREQ 40
@@ -67,7 +67,6 @@
 #define YAW_DEADBAND_EXCEEDED()                                         \
   (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
-
 
 
 static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
@@ -197,7 +196,7 @@ static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQu
   {
     /* get current heading setpoint */
     struct FloatQuat q_yaw_sp;
-#if defined STABILISATION_ATTITUDE_TYPE_INT
+#if defined STABILIZATION_ATTITUDE_TYPE_INT
     FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
 #else
     FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, stab_att_sp_euler.psi);
@@ -213,4 +212,4 @@ static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQu
     QUAT_COPY(*q_sp, q_rp_sp);
   }
 }
-#endif /* STABILISATION_ATTITUDE_RC_SETPOINT_H */
+#endif /* STABILIZATION_ATTITUDE_RC_SETPOINT_H */

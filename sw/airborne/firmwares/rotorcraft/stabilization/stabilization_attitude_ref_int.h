@@ -24,8 +24,8 @@
  *  Common to all fixed-point reference generators (euler and quaternion)
  */
 
-#ifndef STABILISATION_ATTITUDE_REF_INT_H
-#define STABILISATION_ATTITUDE_REF_INT_H
+#ifndef STABILIZATION_ATTITUDE_REF_INT_H
+#define STABILIZATION_ATTITUDE_REF_INT_H
 
 #include "math/pprz_algebra_int.h"
 
@@ -63,4 +63,4 @@ static inline void reset_psi_ref_from_body(void) {
   stab_att_ref_accel.r = 0;
 }
 
-#endif /* STABILISATION_ATTITUDE_REF_INT_H */
+#endif /* STABILIZATION_ATTITUDE_REF_INT_H */

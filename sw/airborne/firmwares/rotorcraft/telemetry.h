@@ -216,7 +216,7 @@
                                   &stabilization_cmd[COMMAND_THRUST]); \
   }
 
-#ifdef STABILISATION_ATTITUDE_TYPE_INT
+#ifdef STABILIZATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct Int32Rates* body_rate = stateGetBodyRates_i();   \
   struct Int32Eulers* att = stateGetNedToBodyEulers_i();  \
@@ -256,9 +256,9 @@
                           &stab_att_ref_accel.q, \
                           &stab_att_ref_accel.r); \
   }
-#endif /* STABILISATION_ATTITUDE_TYPE_INT */
+#endif /* STABILIZATION_ATTITUDE_TYPE_INT */
 
-#ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
+#ifdef STABILIZATION_ATTITUDE_TYPE_FLOAT
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct FloatRates* body_rate = stateGetBodyRates_f();   \
   struct FloatEulers* att = stateGetNedToBodyEulers_f();  \
@@ -300,7 +300,7 @@
                         &stab_att_ref_accel.r); \
   }
 
-#endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
+#endif /* STABILIZATION_ATTITUDE_TYPE_FLOAT */
 
 
 #include "subsystems/ahrs/ahrs_aligner.h"
@@ -418,7 +418,7 @@
 #define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {}
 #endif
 
-#if defined STABILISATION_ATTITUDE_TYPE_QUAT && defined STABILISATION_ATTITUDE_TYPE_INT
+#if defined STABILIZATION_ATTITUDE_TYPE_QUAT && defined STABILIZATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {   \
     DOWNLINK_SEND_AHRS_REF_QUAT(_trans, _dev,         \
                   &stab_att_ref_quat.qi,              \
@@ -432,7 +432,7 @@
   }
 #else
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {}
-#endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
+#endif /* STABILIZATION_ATTITUDE_TYPE_QUAT */
 
 #define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {   \
     DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,         \

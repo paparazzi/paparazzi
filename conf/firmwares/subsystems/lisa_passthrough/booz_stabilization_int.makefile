@@ -14,8 +14,8 @@ stm_passthrough.srcs += $(SRC_FIRMWARE)/navigation.c
 stm_passthrough.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
 stm_passthrough.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
-stm_passthrough.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-stm_passthrough.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_int.h\"
-stm_passthrough.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
+stm_passthrough.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_INT
+stm_passthrough.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_int.h\"
+stm_passthrough.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
 stm_passthrough.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
 stm_passthrough.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c

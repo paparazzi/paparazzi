@@ -23,14 +23,13 @@
 #define STABILIZATION_ATTITUDE_H
 
 
-#include STABILISATION_ATTITUDE_H
+#include STABILIZATION_ATTITUDE_TYPE_H
 extern void stabilization_attitude_init(void);
 extern void stabilization_attitude_read_rc(bool_t in_flight);
 extern void stabilization_attitude_enter(void);
 extern void stabilization_attitude_run(bool_t  in_flight);
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h"
-#include STABILISATION_ATTITUDE_REF_H
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
 
