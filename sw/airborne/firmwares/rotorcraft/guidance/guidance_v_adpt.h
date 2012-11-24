@@ -99,7 +99,9 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)
 
 /* System  noises */
+#ifndef GV_ADAPT_SYS_NOISE_F
 #define GV_ADAPT_SYS_NOISE_F 0.00005
+#endif
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
 /* Measuremement noises */
