@@ -15,6 +15,7 @@ $(TARGET).ARCHDIR = $(ARCH)
 # not needed?
 $(TARGET).OOCD_INTERFACE=flossjtag
 #$(TARGET).OOCD_INTERFACE=jtagkey-tiny
+$(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-m.ld
 
 # -----------------------------------------------------------------------
 
@@ -26,7 +27,7 @@ endif
 
 ifndef NO_LUFTBOOT
 $(TARGET).CFLAGS+=-DLUFTBOOT
-$(TARGET).LDSCRIPT = $(SRC_ARCH)/lisa_m_2.0_luftboot.ld
+$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
 endif
 
 #
