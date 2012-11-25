@@ -21,11 +21,6 @@ LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
 
-### default settings for classix
-GPS_BAUD = B38400
-GPS_LED = none
-RADIO_CONTROL_LED = none
-
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)
 
@@ -35,25 +30,15 @@ fbw.CFLAGS +=  -DUSE_AD0
 #
 # default LED configuration
 #
-ifndef RADIO_CONTROL_LED
-RADIO_CONTROL_LED  = none
-endif
+RADIO_CONTROL_LED ?= none
+BARO_LED          ?= none
+AHRS_ALIGNER_LED  ?= none
+GPS_LED           ?= none
+SYS_TIME_LED      ?= none
 
-ifndef BARO_LED
-BARO_LED = none
-endif
+### default settings for classix
+GPS_BAUD ?= B38400
 
-ifndef AHRS_ALIGNER_LED
-AHRS_ALIGNER_LED = none
-endif
-
-ifndef GPS_LED
-GPS_LED = 2
-endif
-
-ifndef SYS_TIME_LED
-SYS_TIME_LED = none
-endif
 
 #
 # you can use different actuators by adding a configure option to your firmware section
