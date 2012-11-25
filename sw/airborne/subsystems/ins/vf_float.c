@@ -32,22 +32,22 @@ temps :
 */
 /* initial error covariance diagonal */
 #ifndef VF_FLOAT_INIT_PXX
-#define VF_FLOAT_INIT_PXX 1
+#define VF_FLOAT_INIT_PXX 1.0
 #endif
 
 /* process noise covariance Q */
-#ifndef VF_FLOAT_VF_FLOAT_ACCEL_NOISE
-#define VF_FLOAT_ACCEL_NOISE 0.00001
+#ifndef VF_FLOAT_ACCEL_NOISE
+#define VF_FLOAT_ACCEL_NOISE 0.5
 #endif
 
 /* measurement noise covariance R */
 #ifndef VF_FLOAT_MEAS_NOISE
-#define VF_FLOAT_MEAS_NOISE 0.1
+#define VF_FLOAT_MEAS_NOISE 1.0
 #endif
 
 /* default parameters */
-#define Qzz       VF_FLOAT_ACCEL_NOISE/512./512./2.
-#define Qzdotzdot VF_FLOAT_ACCEL_NOISE/512.
+#define Qzz       VF_FLOAT_ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
+#define Qzdotzdot VF_FLOAT_ACCEL_NOISE * DT_VFILTER
 #define Qbiasbias 1e-7
 
 float vff_z;
