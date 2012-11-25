@@ -65,6 +65,10 @@
 
 #include "generated/modules.h"
 
+#ifndef BARO_PERIODIC_FREQUENCY
+#define BARO_PERIODIC_FREQUENCY 50
+#endif
+
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_baro_abs_event( void );
@@ -139,7 +143,7 @@ STATIC_INLINE void main_init( void ) {
   radio_control_tid = sys_time_register_timer((1./60.), NULL);
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
-  baro_tid = sys_time_register_timer(0.02, NULL);
+  baro_tid = sys_time_register_timer(1./BARO_PERIODIC_FREQUENCY, NULL);
   telemetry_tid = sys_time_register_timer((1./60.), NULL);
 }
 
