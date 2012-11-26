@@ -36,7 +36,7 @@ temps :
 #endif
 
 /* process noise covariance Q */
-#ifndef VF_FLOAT_VF_FLOAT_ACCEL_NOISE
+#ifndef VF_FLOAT_ACCEL_NOISE
 #define VF_FLOAT_ACCEL_NOISE 0.00001
 #endif
 
