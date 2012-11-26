@@ -95,7 +95,10 @@ int32_t gv_adapt_Xmeas;
 /* Initial State and Covariance    */
 #define GV_ADAPT_X0_F GUIDANCE_V_ADAPT_X0
 #define GV_ADAPT_X0 BFP_OF_REAL(GV_ADAPT_X0_F, GV_ADAPT_X_FRAC)
-#define GV_ADAPT_P0_F 0.1
+
+#ifndef GV_ADAPT_P0_F
+#define GV_ADAPT_P0_F 0.01
+#endif
 #define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)
 
 /* System  noises */
