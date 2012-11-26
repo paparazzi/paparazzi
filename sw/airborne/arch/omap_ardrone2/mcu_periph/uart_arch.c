@@ -101,8 +101,8 @@ static inline void uart_handler(struct uart_periph* p) {
 
 void uart0_init( void ) {
   uart_periph_init(&uart0);
-  uart.dev = UART0_DEV;
-  uart_periph_set_baudrate(&uart0,UART0_BAUD);
+  strcpy(uart0.dev, UART0_DEV);
+  uart_periph_set_baudrate(&uart0,UART0_BAUD,0);
 }
 
 
@@ -116,8 +116,8 @@ void uart0_handler(void) {
 
 void uart1_init( void ) {
   uart_periph_init(&uart1);
-  uart.dev = UART1_DEV;
-  uart_periph_init_param(&uart1,UART1_BAUD);
+  strcpy(uart1.dev, UART1_DEV);
+  uart_periph_set_baudrate(&uart1,UART1_BAUD,0);
 }
 
 void uart1_handler(void) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Dino Hensen <dino.hensen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -22,6 +22,7 @@
 #ifndef IMU_OMAP_ARDRONE2_ARCH_H
 #define IMU_OMAP_ARDRONE2_ARCH_H
 
+#include "subsystems/imu.h"
 
 #define ImuArdrone2ArchPeriodic() { }
 

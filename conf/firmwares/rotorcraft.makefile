@@ -47,7 +47,7 @@ ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 ap.srcs    = $(SRC_FIRMWARE)/main.c
 ap.srcs   += mcu.c
-#ap.srcs   += $(SRC_ARCH)/mcu_arch.c
+ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 
 #
 # Math functions
@@ -80,7 +80,7 @@ ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 # Systime
 #
 ap.CFLAGS += -DUSE_SYS_TIME
-#ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 ifneq ($(SYS_TIME_LED),none)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
@@ -177,11 +177,15 @@ ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
-else ifeq ($(ARCH), ardrone2)
-ap.CFLAGS += -DUSE_ADC
-ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
-ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-ap.srcs   += subsystems/electrical.c
+else ifeq ($(ARCH), omap_ardrone2)
+# Do we need this?
+#ap.CFLAGS += -DUSE_ADC
+# Do we need this?
+#ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+# Do we need this?
+#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+#ap.srcs   += subsystems/electrical.c
+ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 endif
 
 
@@ -240,3 +244,8 @@ ap.srcs += subsystems/navigation/common_flight_plan.c
 # or
 # nothing
 #
+ifeq ($(ARCH), omap_ardrone2)
+SRC_FMS=fms
+ap.CFLAGS += -I. -I$(SRC_FMS)
+ap.srcs   += $(SRC_FMS)/fms_serial_port.c
+endif

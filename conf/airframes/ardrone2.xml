@@ -1,7 +1,5 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<!-- The Parrot AR Drone 2 uses pwm motor controllers -->
-
 <airframe name="ardrone2">
 
 	<firmware name="rotorcraft">
@@ -18,12 +16,13 @@
 		<subsystem name="radio_control" type="wifi" />
 		<subsystem name="motor_mixing" />
 
-		<!-- <subsystem name="actuators" type="pwm"> <define name="SERVO_HZ" value="400"/> 
-			</subsystem> -->
+		<subsystem name="actuators" type="pwm">
+			<define name="SERVO_HZ" value="400" />
+		</subsystem>
 
 		<subsystem name="telemetry" type="transparent" />
 		<subsystem name="imu" type="ardrone2" />
-		<!-- <subsystem name="gps" type="ublox"/> -->
+		<subsystem name="gps" type="nmea" />
 		<subsystem name="stabilization" type="int_quat" />
 		<subsystem name="ahrs" type="int_cmpl_quat" />
 		<subsystem name="ins" />
