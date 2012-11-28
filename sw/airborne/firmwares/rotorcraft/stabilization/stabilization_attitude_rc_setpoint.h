@@ -162,7 +162,7 @@ static inline void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct
   q->qi = qi_roll * qi_pitch;
   q->qx = qx_roll * qi_pitch;
   q->qy = qi_roll * qy_pitch;
-  q->qz = -qx_roll * qy_pitch;
+  q->qz = qx_roll * qy_pitch;
 }
 
 static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool_t in_flight) {
