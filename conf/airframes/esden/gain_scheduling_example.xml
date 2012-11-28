@@ -85,27 +85,27 @@
   </section>
   
   <!--////////////////THIS SECTION CONTAINS THE GAINS FOR DIFFERENT SETPOINTS\\\\\\\\\\\\\\\\\\-->
-  <gain_set>
+  <section name ="GAIN_SETS">
     <define name="NUMBER_OF_GAINSETS" value="2"/>
     <define name="SCHEDULING_VARIABLE" value="stab_att_sp_euler.theta"/>
     <define name="SCHEDULING_POINTS" value="{0, 20*M_PI/180}"/>
     <define name="SCHEDULING_VARIABLE_FRAC" value="12"/>
   
-    <gain name="PHI_P" value="{0, 1000}"/>
-    <gain name="PHI_D" value="{0, 1000}"/>
-    <gain name="PHI_I" value="{0, 1000}"/>
-    <gain name="PHI_DD" value="{0, 1000}"/>
+    <define name="PHI_P" value="{0, 1000}"/>
+    <define name="PHI_D" value="{0, 1000}"/>
+    <define name="PHI_I" value="{0, 1000}"/>
+    <define name="PHI_DD" value="{0, 1000}"/>
     
-    <gain name="PSI_P" value="{0, 1000}"/>
-    <gain name="PSI_D" value="{0, 1000}"/>
-    <gain name="PSI_I" value="{0, 1000}"/>
-    <gain name="PSI_DD" value="{0, 1000}"/>
+    <define name="PSI_P" value="{0, 1000}"/>
+    <define name="PSI_D" value="{0, 1000}"/>
+    <define name="PSI_I" value="{0, 1000}"/>
+    <define name="PSI_DD" value="{0, 1000}"/>
     
-    <gain name="THETA_P" value="{0, 1000}"/>
-    <gain name="THETA_D" value="{0, 1000}"/>
-    <gain name="THETA_I" value="{0, 1000}"/>
-    <gain name="THETA_DD" value="{0, 1000}"/>
-  </gain_set>
+    <define name="THETA_P" value="{0, 1000}"/>
+    <define name="THETA_D" value="{0, 1000}"/>
+    <define name="THETA_I" value="{0, 1000}"/>
+    <define name="THETA_DD" value="{0, 1000}"/>
+  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 

@@ -276,21 +276,6 @@ let rec parse_section = fun s ->
       printf "#define AllActuatorsInit() { \\\n";
       List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
       printf "}\n\n";
-  | "gain_set" ->
-      let parse_gain = fun c ->
-      let attr = fun attr_name -> ExtXml.attrib c attr_name in
-      match Xml.tag c with
-      "gain" ->
-      let name = attr "name"
-      and value = attr "value" in
-      printf " #define %s %s\n" name value
-      | "define" ->
-      let name = attr "name"
-      and value = attr "value" in
-      printf "#define %s %s\n" name value
-      | _ -> xml_error "gain" in
-      List.iter parse_gain (Xml.children s);
-      nl ()
   | "include" ->
       let filename = ExtXml.attrib s "href" in
       let subxml = Xml.parse_file filename in
