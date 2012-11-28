@@ -118,6 +118,8 @@ void stabilization_attitude_ref_enter()
  * Reference
  */
 #define DT_UPDATE (1./PERIODIC_FREQUENCY)
+// CAUTION! Periodic frequency is assumed to be 512 Hz
+// which is equal to >> 9
 #define F_UPDATE_RES 9
 
 void stabilization_attitude_ref_update() {
@@ -125,9 +127,11 @@ void stabilization_attitude_ref_update() {
   /* integrate reference attitude            */
   struct Int32Quat qdot;
   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
-  //QUAT_SMUL(qdot, qdot, RATE_BFP_OF_REAL(DT_UPDATE));
-  QUAT_SMUL(qdot, qdot, 4);
-  QUAT_SMUL(qdot, qdot, DT_UPDATE);
+  //QUAT_SMUL(qdot, qdot, DT_UPDATE);
+  qdot.qi = qdot.qi >> F_UPDATE_RES;
+  qdot.qx = qdot.qx >> F_UPDATE_RES;
+  qdot.qy = qdot.qy >> F_UPDATE_RES;
+  qdot.qz = qdot.qz >> F_UPDATE_RES;
   QUAT_ADD(stab_att_ref_quat, qdot);
   INT32_QUAT_NORMALIZE(stab_att_ref_quat);
 
