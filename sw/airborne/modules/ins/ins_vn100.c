@@ -24,13 +24,30 @@
  * \brief driver for the VectorNav VN100
  */
 
-#include "ins_vn100.h"
+#include "modules/ins/ins_vn100.h"
 
 #include "generated/airframe.h"
-#include "led.h"
+#include "mcu_periph/spi.h"
+#include "state.h"
 
+// for telemetry report
+#include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #include "messages.h"
+
+#ifndef INS_YAW_NEUTRAL_DEFAULT
+#define INS_YAW_NEUTRAL_DEFAULT 0.
+#endif
+
+// default spi device
+#ifndef VN100_SPI_DEV
+#define VN100_SPI_DEV spi1
+#endif
+
+// default slave number
+#ifndef VN100_SLAVE_IDX
+#define VN100_SLAVE_IDX 0
+#endif
 
 /* neutrals */
 float ins_roll_neutral;
@@ -58,9 +75,110 @@ uint32_t ins_baud;
 
 uint8_t ins_init_status;
 
-/* ins_init and ins_periodic to be implemented according to the airframe type : FW or BOOZ */
+// parsing function
+static inline void parse_ins_msg( void );
 
-void parse_ins_msg( void ) {
+/* spi transaction */
+struct spi_transaction vn100_trans;
+
+/* init vn100 */
+void vn100_init( void ) {
+
+  //ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+  //ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+  ins_yaw_neutral = INS_YAW_NEUTRAL_DEFAULT;
+
+  vn100_trans.slave_idx = VN100_SLAVE_IDX;
+  vn100_trans.cpol = SPICpolIdleHigh;
+  vn100_trans.cpha = SPICphaEdge2;
+  vn100_trans.dss = SPIDss8bit;
+  vn100_trans.select = SPISelectUnselect;
+  vn100_trans.output_buf = (uint8_t*)&last_send_packet;
+  vn100_trans.input_buf = (uint8_t*)&last_received_packet;
+  vn100_trans.status = SPITransDone;
+
+  ins_ador = VN100_ADOR;
+  ins_adof = VN100_ADOF;
+  ins_baud = VN100_BAUD;
+
+  ins_init_status = INS_VN100_SET_BAUD;
+
+}
+
+static inline bool_t ins_configure( void ) {
+  // nothing to receive during conf
+  vn100_trans.input_length = 0;
+
+  switch (ins_init_status) {
+    case INS_VN100_SET_BAUD :
+      last_send_packet.RegID = VN100_REG_SBAUD;
+      vn100_trans.output_length = 4+VN100_REG_SBAUD_SIZE;
+      ins_init_status++;
+      break;
+    case INS_VN100_SET_ADOR :
+      last_send_packet.RegID = VN100_REG_ADOR;
+      vn100_trans.output_length = 4+VN100_REG_ADOR_SIZE;
+      ins_init_status++;
+      break;
+    case INS_VN100_SET_ADOF :
+      last_send_packet.RegID = VN100_REG_ADOF;
+      vn100_trans.output_length = 4+VN100_REG_ADOF_SIZE;
+      ins_init_status++;
+      break;
+    case INS_VN100_READY :
+      return TRUE;
+  }
+  last_send_packet.CmdID = VN100_CmdID_WriteRegister;
+
+  spi_submit(&(VN100_SPI_DEV),&vn100_trans);
+
+  return FALSE;
+}
+
+void vn100_periodic_task( void ) {
+
+  // only send config or request when last transaction is done
+  if (vn100_trans.status != SPITransDone) { return; }
+
+  // send request when configuration is done
+  if (ins_configure() == TRUE) {
+    // Fill request for QMR
+    last_send_packet.CmdID = VN100_CmdID_ReadRegister;
+    last_send_packet.RegID = VN100_REG_YMR;
+    // Set IO length
+    vn100_trans.output_length = 2; // Only 2 ?
+    vn100_trans.input_length = 4+VN100_REG_YMR_SIZE;
+    // submit
+    spi_submit(&(VN100_SPI_DEV),&vn100_trans);
+  }
+
+}
+
+void vn100_event_task( void ) {
+  if (vn100_trans.status == SPITransSuccess) {
+    parse_ins_msg();
+#ifndef INS_VN100_READ_ONLY
+    // Update estimator
+    // FIXME Use a proper rotation matrix here
+    struct FloatEulers att = {
+      ins_eulers.phi - ins_roll_neutral,
+      ins_eulers.theta - ins_pitch_neutral,
+      ins_eulers.psi
+    };
+    stateSetNedToBodyEulers_f(&att);
+    stateSetBodyRates_f(&ins_rates);
+#endif
+    //uint8_t s = 4+VN100_REG_QMR_SIZE;
+    //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,s,spi_buffer_input);
+    vn100_trans.status = SPITransDone;
+  }
+  if (vn100_trans.status == SPITransFailed) {
+    vn100_trans.status = SPITransDone;
+    // FIXME retry config if not done ?
+  }
+}
+
+static inline void parse_ins_msg( void ) {
   if (last_received_packet.ErrID != VN100_Error_None) {
     //TODO send error
     return;
@@ -175,6 +293,8 @@ void parse_ins_msg( void ) {
       ins_rates.q = last_received_packet.Data[10].Float;
       ins_rates.r = last_received_packet.Data[11].Float;
       break;
+    default:
+      break;
   }
 
 }
@@ -186,7 +306,7 @@ void parse_ins_msg( void ) {
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-extern void ins_report_task( void ) {
+extern void vn100_report_task( void ) {
   DOWNLINK_SEND_AHRS_LKF(DefaultChannel, DefaultDevice,
       &ins_eulers.phi, &ins_eulers.theta, &ins_eulers.psi,
       &ins_quat.qi, &ins_quat.qx, &ins_quat.qy, &ins_quat.qz,
@@ -194,3 +314,4 @@ extern void ins_report_task( void ) {
       &ins_accel.x, &ins_accel.y, &ins_accel.z,
       &ins_mag.x, &ins_mag.y, &ins_mag.z);
 }
+

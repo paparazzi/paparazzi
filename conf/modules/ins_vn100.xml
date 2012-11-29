@@ -3,18 +3,20 @@
 <module name="vn100" dir="ins">
   <doc>
     <description>VectorNav VN100 (SPI)</description>
+    <define name="VN100_SPI_DEV" value="spiX" description="select spi peripherals (default spi1)"/>
+    <define name="VN100_SLAVE_IDX" value="X" description="spi slave index"/>
   </doc>
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_vn100.h"/>
   </header>
-  <init fun="ins_init()"/>
-  <periodic fun="ins_periodic()" freq="60"/>
-  <periodic fun="ins_report_task()" freq="4"/>
-  <event fun="ins_event_task()"/>
+  <init fun="vn100_init()"/>
+  <periodic fun="vn100_periodic_task()" freq="60"/>
+  <periodic fun="vn100_report_task()" freq="4"/>
+  <event fun="vn100_event_task()"/>
   <makefile>
     <file name="ins_vn100.c"/>
-    <file name="fw_ins_vn100.c"/>
+    <define name="SPI_MASTER"/>
   </makefile>
 </module>
 

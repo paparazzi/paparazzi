@@ -162,10 +162,10 @@ void orientationCalcRMat_f(struct OrientationReps* orientation) {
     RMAT_FLOAT_OF_BFP(orientation->rmat_f, orientation->rmat_i);
   }
   else if (bit_is_set(orientation->status, ORREP_QUAT_F)) {
-    FLOAT_RMAT_OF_QUAT(orientation->rmat_i, orientation->quat_i);
+    FLOAT_RMAT_OF_QUAT(orientation->rmat_f, orientation->quat_f);
   }
   else if (bit_is_set(orientation->status, ORREP_EULER_F)) {
-    FLOAT_RMAT_OF_EULERS(orientation->rmat_i, orientation->eulers_i);
+    FLOAT_RMAT_OF_EULERS(orientation->rmat_f, orientation->eulers_f);
   }
   else if (bit_is_set(orientation->status, ORREP_QUAT_I)) {
     QUAT_FLOAT_OF_BFP(orientation->quat_f, orientation->quat_i);
@@ -197,7 +197,7 @@ void orientationCalcEulers_f(struct OrientationReps* orientation) {
   else if (bit_is_set(orientation->status, ORREP_RMAT_I)) {
     RMAT_FLOAT_OF_BFP(orientation->rmat_f, orientation->rmat_i);
     SetBit(orientation->status, ORREP_RMAT_F);
-    FLOAT_EULERS_OF_RMAT(orientation->eulers_i, orientation->rmat_i);
+    FLOAT_EULERS_OF_RMAT(orientation->eulers_f, orientation->rmat_f);
   }
   else if (bit_is_set(orientation->status, ORREP_QUAT_I)) {
     QUAT_FLOAT_OF_BFP(orientation->quat_f, orientation->quat_i);
