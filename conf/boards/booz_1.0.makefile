@@ -21,11 +21,11 @@ endif
 #
 # default LED configuration
 #
-RADIO_CONTROL_LED  ?= 2
-BARO_LED           ?= none
+RADIO_CONTROL_LED  ?= 1
+BARO_LED           ?= 2
 AHRS_ALIGNER_LED   ?= 3
 GPS_LED            ?= 4
-SYS_TIME_LED       ?= 1
+SYS_TIME_LED       ?= none
 
 RADIO_CONTROL_LINK = UART0
 
