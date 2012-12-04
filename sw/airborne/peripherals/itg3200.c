@@ -20,7 +20,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Driver for ITG3200
+/** @file peripherals/itg3200.c
+ *  Driver for ITG3200.
  */
 
 #include "peripherals/itg3200.extra.h"
