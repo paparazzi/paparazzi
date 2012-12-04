@@ -19,14 +19,28 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file gain_scheduling.c
+ * Module that interpolates gainsets in flight based on a scheduling variable
+ */
+
 #include "gain_scheduling.h"
 
-#define INT32_RATIO_FRAC 12
+//Include for scheduling on transition_status
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+
+// #include "state.h"
+#include "math/pprz_algebra_int.h"
+
+#ifndef NUMBER_OF_GAINSETS
+#error You must define the number of gainsets to use this module!
+#endif
 
 #ifndef SCHEDULING_VARIABLE_FRAC
 #define SCHEDULING_VARIABLE_FRAC 0
-#pragma message "SCHEDULING VARIABLE is assumed to be a float. Else specify SCHEDULING_VARIABLE_FRAC"
+#pragma message "SCHEDULING_VARIABLE_FRAC not specified!"
 #endif
+
+#define INT32_RATIO_FRAC 12
 
 struct Int32AttitudeGains gainlibrary[NUMBER_OF_GAINSETS];
 

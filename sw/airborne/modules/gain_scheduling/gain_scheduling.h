@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2012 Pranay Sinha <psinha@transition-robotics.com>
  *
@@ -29,20 +28,8 @@
 #ifndef GAIN_SCHEDULING_H
 #define GAINS_SCHEDULING_H
 
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_int.h"
-#include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/guidance/guidance_h.h"
-
-#include <stdio.h>
-#include "math/pprz_algebra_float.h"
-#include "state.h"
-#include "math/pprz_algebra_int.h"
 #include "generated/airframe.h"
-#include "std.h"
-
-#ifndef NUMBER_OF_GAINSETS
-#error You must define the number of gainsets to use this module!
-#endif
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_int.h"
 
 extern struct Int32AttitudeGains gainlibrary[NUMBER_OF_GAINSETS];
 
