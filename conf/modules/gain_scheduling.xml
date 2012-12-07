@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gain_scheduling">
+  <doc>
+    <description> Module that interpolates between different gain sets </description>
+  </doc>
+  <header>
+    <file name="gain_scheduling.h"/>
+  </header>
+  <init fun="gain_scheduling_init()"/>
+  <periodic fun="gain_scheduling_periodic()" freq="20"/>
+  <makefile>
+    <file name="gain_scheduling.c"/>
+  </makefile>
+</module>
