@@ -42,8 +42,9 @@
 #define AP_MODE_HOVER_CLIMB       10
 #define AP_MODE_HOVER_Z_HOLD      11
 #define AP_MODE_NAV               12
-#define AP_MODE_RC_DIRECT	  13	// Safety Pilot Direct Commands for helicopter direct control: appropriately chosen as mode "13"
-
+#define AP_MODE_RC_DIRECT	   13	// Safety Pilot Direct Commands for helicopter direct control: appropriately chosen as mode "13"
+#define AP_MODE_FORWARD           14
+#define AP_MODE_CARE_FREE	   15
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
@@ -62,6 +63,8 @@ extern void autopilot_set_motors_on(bool_t motors_on);
 
 extern bool_t autopilot_detect_ground;
 extern bool_t autopilot_detect_ground_once;
+
+extern float mem_psi;
 
 extern uint16_t autopilot_flight_time;
 

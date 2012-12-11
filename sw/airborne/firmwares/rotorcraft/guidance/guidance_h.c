@@ -58,6 +58,9 @@ int32_t guidance_h_dgain;
 int32_t guidance_h_igain;
 int32_t guidance_h_again;
 
+int32_t transition_status;
+int32_t theta_offset;
+
 /* warn if some gains are still negative */
 #if (GUIDANCE_H_PGAIN < 0) || \
   (GUIDANCE_H_DGAIN < 0)   || \
@@ -82,6 +85,9 @@ static inline void guidance_h_update_reference(bool_t use_ref);
 static inline void guidance_h_traj_run(bool_t in_flight);
 static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
+
+static inline void transition_enter(void);
+static inline void transition_run(void);
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
     b2_gh_set_ref(_pos, _speed, _accel); \
@@ -110,6 +116,11 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   if (new_mode == guidance_h_mode)
     return;
 
+  if(new_mode != GUIDANCE_H_MODE_FORWARD) {
+    transition_status = 0;
+    theta_offset = 0;
+  }
+
   switch (new_mode) {
 
   case GUIDANCE_H_MODE_RC_DIRECT:
@@ -131,6 +142,10 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   case GUIDANCE_H_MODE_NAV:
     guidance_h_nav_enter();
     break;
+
+  case GUIDANCE_H_MODE_FORWARD:
+    transition_enter();
+
   default:
     break;
   }
@@ -168,6 +183,11 @@ void guidance_h_read_rc(bool_t  in_flight) {
       INT_EULERS_ZERO(guidance_h_rc_sp);
     }
     break;
+
+  case GUIDANCE_H_MODE_FORWARD:
+    stabilization_attitude_read_rc(in_flight);
+    break;
+
   default:
     break;
   }
@@ -231,6 +251,14 @@ void guidance_h_run(bool_t  in_flight) {
       stabilization_attitude_run(in_flight);
       break;
     }
+
+  case GUIDANCE_H_MODE_FORWARD:
+    if(transition_status < (100<<INT32_PERCENTAGE_FRAC)) {
+      transition_run();
+    }
+    stabilization_attitude_run(in_flight);
+    break;
+
   default:
     break;
   }
@@ -330,7 +358,9 @@ static inline void guidance_h_hover_enter(void) {
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
   guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
+#if USE_REFERENCE_SYSTEM
   reset_psi_ref_from_body();
+#endif
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
@@ -346,9 +376,34 @@ static inline void guidance_h_nav_enter(void) {
   GuidanceHSetRef(pos, speed, zero);
 
   /* reset psi reference, set psi setpoint to current psi */
+#if USE_REFERENCE_SYSTEM
   reset_psi_ref_from_body();
+#endif
   nav_heading = stateGetNedToBodyEulers_i()->psi;
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
+
+}
+
+static inline void transition_enter(void) {
+  transition_status = 0;
+}
+
+static inline void transition_run(void) {
+  //Add 0.00625%
+  transition_status += 1<<(INT32_PERCENTAGE_FRAC-4);
+
+  int32_t max_offset = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(-82.0)/180,INT32_ANGLE_PI, INT32_ANGLE_FRAC);
+  theta_offset = INT_MULT_RSHIFT((transition_status<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, max_offset, INT32_ANGLE_FRAC);
+
+  //Change body_to_imu to forward flight attitude;
+//   struct Int32Eulers body_to_imu_eulers =
+//   { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI),
+//     ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA)- INT_MULT_RSHIFT((transition_status<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, INT32_ANGLE_PI_2, INT32_ANGLE_FRAC),
+//     ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PSI) };
+// 
+//   INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
+//   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
+//   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
 
 }

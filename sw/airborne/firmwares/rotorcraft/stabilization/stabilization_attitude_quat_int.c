@@ -26,10 +26,6 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
-#if USE_SETPOINTS_WITH_TRANSITIONS
-#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
-#endif
-
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
@@ -60,7 +56,7 @@ struct Int32Quat stabilization_att_sum_err_quat;
 struct Int32Eulers stabilization_att_sum_err;
 
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
-int32_t stabilization_att_ff_cmd[COMMANDS_NB];
+int32_t stabilization_att_ff_cmd[COMMANDS_NB] = {0,0,0};
 
 #define IERROR_SCALE 1024
 #define GAIN_PRESCALER_FF 48
@@ -78,10 +74,19 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_enter(void) {
 
-#if !USE_SETPOINTS_WITH_TRANSITIONS
+  int32_t yaw;
+  if(abs(stateGetNedToBodyEulers_i()->phi) < INT32_ANGLE_PI_2) {
+    int32_t sin_theta;
+    PPRZ_ITRIG_SIN(sin_theta, stateGetNedToBodyEulers_i()->theta);
+    yaw = stateGetNedToBodyEulers_i()->psi - INT_MULT_RSHIFT(sin_theta, stateGetNedToBodyEulers_i()->phi, INT32_TRIG_FRAC);
+  }
+  else if(ANGLE_FLOAT_OF_BFP(stateGetNedToBodyEulers_i()->theta) > 0)
+    yaw = stateGetNedToBodyEulers_i()->psi - stateGetNedToBodyEulers_i()->phi;
+  else
+    yaw = stateGetNedToBodyEulers_i()->psi + stateGetNedToBodyEulers_i()->phi;
+
   /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
-#endif
+  stab_att_sp_euler.psi = yaw;
 
   stabilization_attitude_ref_enter();
 
@@ -92,6 +97,7 @@ void stabilization_attitude_enter(void) {
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
 
+#if USE_REFERENCE_SYSTEM
 static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *gains, struct Int32Rates *ref_accel)
 {
   /* Compute feedforward based on reference acceleration */
@@ -100,6 +106,7 @@ static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *ga
   ff_commands[COMMAND_PITCH] = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / (1 << 7);
   ff_commands[COMMAND_YAW]   = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / (1 << 7);
 }
+#endif
 
 static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *gains, struct Int32Quat *att_err,
     struct Int32Rates *rate_err, struct Int32Quat *sum_err)
@@ -136,7 +143,11 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat* att_quat = stateGetNedToBodyQuat_i();
+#if USE_REFERENCE_SYSTEM
   INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
+#else
+  INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_sp_quat);
+#endif
   /* wrap it in the shortest direction       */
   INT32_QUAT_WRAP_SHORTEST(att_err);
   INT32_QUAT_NORMALIZE(att_err);
@@ -144,7 +155,15 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   /*  rate error                */
   struct Int32Rates rate_err;
   struct Int32Rates* body_rate = stateGetBodyRates_i();
+#if USE_REFERENCE_SYSTEM
   RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
+#else
+  struct Int32Rates zero_rates;
+  zero_rates.p = 0;
+  zero_rates.q = 0;
+  zero_rates.r = 0;
+  RATES_DIFF(rate_err, zero_rates, *body_rate);
+#endif
 
   /* integrated error */
   if (enable_integrator) {
@@ -164,9 +183,10 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     INT_EULERS_ZERO( stabilization_att_sum_err );
   }
 
+#if USE_REFERENCE_SYSTEM
   /* compute the feed forward command */
   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &stab_att_ref_accel);
-
+#endif
   /* compute the feed back command */
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
 
@@ -183,11 +203,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-#if USE_SETPOINTS_WITH_TRANSITIONS
-  stabilization_attitude_read_rc_absolute(in_flight);
-#else
   struct FloatQuat q_sp;
   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
-#endif
 }
