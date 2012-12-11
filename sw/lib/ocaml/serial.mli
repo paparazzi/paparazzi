@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Serial Port handling
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset

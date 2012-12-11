@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2012 Gautier Hattenberger (ENAC)
  *
  * This file is part of paparazzi.
  *
@@ -17,17 +17,16 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-/**
- * simulator plug for the aspirin2 imu arch dependant functions.
- */
-#ifndef IMU_ASPIRIN2_ARCH_H
-#define IMU_ASPIRIN2_ARCH_H
+#ifndef BARO_MPL3115_H
+#define BARO_MPL3115_H
 
+#include "peripherals/mpl3115.h"
 
-extern void imu_feed_gyro_accel(void);
-extern void imu_feed_mag(void);
+extern void baro_mpl3115_init( void );
+extern void baro_mpl3115_read_periodic( void );
+extern void baro_mpl3115_read_event( void );
 
-
-#endif /* IMU_ASPIRIN2_ARCH_H */
+#endif

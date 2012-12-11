@@ -1,6 +1,4 @@
 /*
- * $Id: sim_ac_fw.c 3499 2009-06-16 17:38:56Z gov $
- *
  * Copyright (C) 2008 Gautier Hattenberger
  *
  * This file is part of paparazzi.

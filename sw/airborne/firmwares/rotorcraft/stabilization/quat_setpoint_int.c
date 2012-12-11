@@ -15,10 +15,6 @@
 #include "stabilization/quat_setpoint_int.h"
 #include "stabilization.h"
 
-#include "downlink_msg.h"
-#include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
-
 #define QUAT_SETPOINT_HOVER_PITCH RadOfDeg(90)
 
 #define ROLL_COEF   (STABILIZATION_ATTITUDE_SP_MAX_PHI   / MAX_PPRZ)

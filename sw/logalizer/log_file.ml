@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Log files utilities
  *
  * Copyright (C) 2007 ENAC

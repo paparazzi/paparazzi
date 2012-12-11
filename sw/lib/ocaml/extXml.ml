@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Xml-Light extension
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset

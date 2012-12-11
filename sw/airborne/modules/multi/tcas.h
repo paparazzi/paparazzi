@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Strip handling
  *
  * Copyright (C) 2006-2009 ENAC, Pascal Brisset, Antoine Drouin

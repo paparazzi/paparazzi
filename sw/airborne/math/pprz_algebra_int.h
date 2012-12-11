@@ -605,11 +605,12 @@ struct Int64Vect3 {
 
 
 /* _qd = -0.5*omega(_r) * _q  */
+// mult with 0.5 is done by shifting one more bit to the right
 #define INT32_QUAT_DERIVATIVE(_qd, _r, _q) {				\
-    (_qd).qi = (-1*( (_r).p*(_q).qx/2 + (_r).q*(_q).qy + (_r).r*(_q).qz))>>INT32_RATE_FRAC; \
-    (_qd).qx = (-1*(-(_r).p*(_q).qi/2 - (_r).r*(_q).qy + (_r).q*(_q).qz))>>INT32_RATE_FRAC; \
-    (_qd).qy = (-1*(-(_r).q*(_q).qi/2 + (_r).r*(_q).qx - (_r).p*(_q).qz))>>INT32_RATE_FRAC; \
-    (_qd).qz = (-1*(-(_r).r*(_q).qi/2 - (_r).q*(_q).qx + (_r).p*(_q).qy))>>INT32_RATE_FRAC; \
+    (_qd).qi = (-( (_r).p*(_q).qx + (_r).q*(_q).qy + (_r).r*(_q).qz))>>(INT32_RATE_FRAC+1); \
+    (_qd).qx = (-(-(_r).p*(_q).qi - (_r).r*(_q).qy + (_r).q*(_q).qz))>>(INT32_RATE_FRAC+1); \
+    (_qd).qy = (-(-(_r).q*(_q).qi + (_r).r*(_q).qx - (_r).p*(_q).qz))>>(INT32_RATE_FRAC+1); \
+    (_qd).qz = (-(-(_r).r*(_q).qi - (_r).q*(_q).qx + (_r).p*(_q).qy))>>(INT32_RATE_FRAC+1); \
   }
 
 /** in place quaternion first order integration with constant rotational velocity. */

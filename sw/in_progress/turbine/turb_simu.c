@@ -1,6 +1,4 @@
 /*
- * turbine message simulator $Id: turb_simu.c 2145 2007-12-16 00:10:07Z mmm $
- *
  * Copyright (C) 2009 Martin Mueller
  *
  * This file is part of paparazzi.

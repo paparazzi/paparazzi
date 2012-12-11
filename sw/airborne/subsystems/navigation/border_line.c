@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2012 Tobias Muench
  *
  * This file is part of paparazzi.

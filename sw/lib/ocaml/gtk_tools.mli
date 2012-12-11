@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Lablgtk2 utils
  *
  * Copyright (C) 2009 ENAC, Pascal Brisset

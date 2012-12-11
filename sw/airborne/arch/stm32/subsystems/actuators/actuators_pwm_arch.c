@@ -176,7 +176,7 @@ void actuators_pwm_arch_init(void) {
 
 #if (!REMAP_SERVOS_5AND6 || USE_SERVOS_7AND8)
 #if !REMAP_SERVOS_5AND6
-#pragma message "Not remapping servos 6 and 7 using PB8 and PB9 -> TIM4"
+#pragma message "Not remapping servos 5 and 6 using PB8 and PB9 -> TIM4"
 #endif
 #if USE_SERVOS_7AND8
 #pragma message "Enabeling sevros 7 and 8 on PB6, PB7 -> TIM4"
@@ -255,7 +255,7 @@ void actuators_pwm_arch_init(void) {
 #endif
 
 #if REMAP_SERVOS_5AND6
-#pragma message "Remapping servo outputs 6 and 7 to PA0,PA1 -> TIM5"
+#pragma message "Remapping servo outputs 5 and 6 to PA0,PA1 -> TIM5"
   /*---------------
    * Timer 5 setup
    *---------------*/

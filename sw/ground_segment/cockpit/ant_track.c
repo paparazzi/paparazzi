@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2009 - Pascal Brisset, Antoine Drouin
  *
  * Modified by: Mark Griffin

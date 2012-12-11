@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Commons for papgets
  *
  * Copyright (C) 2008 ENAC

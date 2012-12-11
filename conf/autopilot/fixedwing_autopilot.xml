@@ -1,0 +1,80 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="Fixed Wing Autopilot">
+
+  <!--modules>
+    <load name=""/>
+  </modules-->
+
+  <control_block name="actuators_ap">
+    <call fun="SetCommandsFromAP(commands)"/>
+    <call fun="SetActuatorsFromCommands(commands)"/>
+  </control_block>
+
+  <control_block name="attitude">
+    <call fun="h_ctl_attitude_loop()"/>
+    <call fun="h_ctl_throttle_slew()"/>
+  </control_block>
+
+  <exceptions>
+    <exception cond="too_far_from_home" deroute="HOME"/>
+  </exceptions>
+
+  <mode name="MANUAL">
+    <select cond="RCMode0()"/>
+    <control freq="60">
+      <call fun="SetCommandsFromRC(commands, rc_values)"/>
+      <call fun="SetActuatorsFromCommands(commands)"/>
+    </control>
+    <exception cond="RCLost()" deroute="HOME"/>
+  </mode>
+
+  <mode name="AUTO1">
+    <select cond="RCMode1()"/>
+    <control freq="60">
+      <call fun="SetAttitudeThrottleFromRC(rc_values)"/>
+      <call_block name="attitude"/>
+      <call_block name="actuators_ap"/>
+    </control>
+    <exception cond="RCLost()" deroute="HOME"/>
+  </mode>
+
+  <mode name="AUTO2">
+    <select cond="$DEFAULT_MODE"/>
+    <select cond="RCMode2()" exception="HOME"/>
+    <select cond="RCMode2() && DLMode2()"/>
+    <control freq="4">
+      <call fun="navigation_task()"/>
+    </control>
+    <control freq="60">
+      <call fun="SetApOnlyCommands(commands)"/>
+      <call fun="SetAutoCommandsFromRC(commands, rc_values)" cond="!RCLost()"/>
+      <call_block name="attitude"/>
+      <call_block name="actuators_ap"/>
+    </control>
+    <exception cond="GPSLost()" deroute="GPS_LOST"/>
+  </mode>
+
+  <mode name="HOME">
+    <control freq="4">
+      <call fun="nav_home()"/>
+    </control>
+    <control freq="60">
+      <call_block name="attitude"/>
+      <call_block name="actuators_ap"/>
+    </control>
+    <exception cond="GPSLost()" deroute="GPS_LOST"/>
+  </mode>
+
+  <mode name="GPS_LOST">
+    <control freq="4">
+      <call fun="nav_gps_lost()"/>
+    </control>
+    <control freq="60">
+      <call_block name="attitude"/>
+      <call_block name="actuators_ap"/>
+    </control>
+    <exception cond="!GPSLost()" deroute="$LAST_MODE"/>
+  </mode>
+
+</autopilot>

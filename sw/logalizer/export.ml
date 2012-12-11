@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * GUI to export some values of a log
  *
  * Copyright (C) 2008, ENAC

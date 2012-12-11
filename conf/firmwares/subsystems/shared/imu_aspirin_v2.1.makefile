@@ -47,10 +47,14 @@ IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
 
 ifeq ($(ARCH), lpc21)
-#TODO
-$(error Not implemented for the LCP21x yet. Needs the new SPI mcu_periph. See issue 147!)
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
+IMU_ASPIRIN_CFLAGS += -DSSP_VIC_SLOT=9
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
 else ifeq ($(ARCH), stm32)
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
+# Slave select configuration
+# SLAVE2 is on PB12 (NSS) (MPU600 CS)
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 endif
 
 IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1

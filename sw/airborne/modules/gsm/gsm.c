@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2009 ENAC, Arnaud Quintard, Pascal Brisset
  *
  * This file is part of paparazzi.

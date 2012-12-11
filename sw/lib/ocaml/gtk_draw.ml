@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * GTK drawing in a pixmap
  *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec

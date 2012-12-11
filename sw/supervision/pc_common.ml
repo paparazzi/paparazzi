@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Paparazzi center utilities
  *
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin

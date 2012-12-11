@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing for dynamic tuning
  *
  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin

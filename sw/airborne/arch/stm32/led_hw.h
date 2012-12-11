@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.

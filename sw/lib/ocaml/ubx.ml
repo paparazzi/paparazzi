@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * UBX protocol handling
  *
  * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin

@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * Usefull data for simulation
  *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin

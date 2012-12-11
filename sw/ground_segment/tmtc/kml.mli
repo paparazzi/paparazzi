@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * KML export for Google Earth display
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin

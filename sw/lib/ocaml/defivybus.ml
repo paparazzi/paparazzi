@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Default ivy bus address selection
  *
  * Copyright (C) 2011 Eric Parsonage

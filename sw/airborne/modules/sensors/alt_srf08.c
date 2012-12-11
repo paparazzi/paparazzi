@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  * Copyright (C) 2002  Chris efstathiou hendrix@otenet.gr
  *

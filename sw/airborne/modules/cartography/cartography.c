@@ -1,6 +1,4 @@
 /*
- * $Id: cartography.c  2011-04-20 10:43:13Z  $
- *
  * Copyright (C) 2011  Vandeportaele Bertrand
  *
  * This file is part of paparazzi.

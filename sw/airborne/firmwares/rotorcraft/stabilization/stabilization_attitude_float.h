@@ -1,6 +1,4 @@
 /*
- * $Id: stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.

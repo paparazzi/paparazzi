@@ -129,26 +129,26 @@ STAB_TYPE=euler
 #STAB_TYPE=quaternion
 
 ifeq ($(NUM_TYPE), integer)
-  nps.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-  nps.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_int.h\"
+  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_INT
+  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_int.h\"
   ifeq ($(STAB_TYPE), euler)
-    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
+    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
   else ifeq ($(STAB_TYPE), quaternion)
-    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_int.h\"
+    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_quat_int.h\"
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_int.c
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_int.c
   endif
 else ifeq ($(NUM_TYPE), float)
-  nps.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
-  nps.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_float.h\"
+  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_FLOAT
+  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_float.h\"
   ifeq ($(STAB_TYPE), euler)
-    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_float.h\"
+    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_euler_float.h\"
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_float.c
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_float.c
   else ifeq ($(STAB_TYPE), quaternion)
-    nps.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_float.h\"
+    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_quat_float.h\"
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_float.c
     nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_float.c
   endif

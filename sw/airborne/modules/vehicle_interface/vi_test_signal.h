@@ -1,6 +1,4 @@
 /*
- * $Id: booz_fms_test_signal.h 3976 2009-08-21 01:30:22Z poine $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.

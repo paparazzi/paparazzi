@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2012 Pranay Sinha <psinha@transition-robotics.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,27 +19,32 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/imu.h"
+/**
+ * @file gain_scheduling.h
+ *
+ * Module that interpolates between gain sets, depending on the scheduling variable.
+ */
+
+#ifndef GAIN_SCHEDULING_H
+#define GAINS_SCHEDULING_H
 
 #include "generated/airframe.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_int.h"
 
+extern struct Int32AttitudeGains gainlibrary[NUMBER_OF_GAINSETS];
 
-#if USE_NPS
-#include "nps_sensors.h"
+/**
+ * Initialises periodic loop;
+ */
+extern void gain_scheduling_init(void);
 
-void imu_feed_gyro_accel(void) {
+/**
+ * Periodic function that interpolates between gain sets depending on the scheduling variable.
+ * If the variable has not changed, keep the same gain set.
+ */
+extern void gain_scheduling_periodic(void);
 
-  RATES_ASSIGN(imu.gyro_unscaled, sensors.gyro.value.x, sensors.gyro.value.y, sensors.gyro.value.z);
-  VECT3_ASSIGN(imu.accel_unscaled, sensors.accel.value.x, sensors.accel.value.y, sensors.accel.value.z);
+void set_gainset(int gainset);
 
-  // set availability flags...
-  imu_aspirin2.imu_available = true;
+#endif  /* GAIN_SCHEDULING_H */
 
-}
-
-
-void imu_feed_mag(void) {
-  VECT3_ASSIGN(imu.mag_unscaled, sensors.mag.value.x, sensors.mag.value.y, sensors.mag.value.z);
-  imu_aspirin2.imu_available = true;
-}
-#endif

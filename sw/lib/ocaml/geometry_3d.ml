@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * 3D Geometry
  *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec

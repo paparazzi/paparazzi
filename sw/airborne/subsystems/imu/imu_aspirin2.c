@@ -28,6 +28,14 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/ms5611.h"
 
+#ifndef MPU6000_SLAVE_IDX
+#define MPU6000_SLAVE_IDX SPI_SLAVE2
+#endif
+
+#ifndef MPU6000_SPI_DEV
+#define MPU6000_SPI_DEV spi2
+#endif
+
 struct ImuAspirin2 imu_aspirin2;
 
 struct spi_transaction aspirin2_mpu60x0;
@@ -43,7 +51,7 @@ void imu_impl_init(void) {
   aspirin2_mpu60x0.dss = SPIDss8bit;
   aspirin2_mpu60x0.bitorder = SPIMSBFirst;
   aspirin2_mpu60x0.cdiv = SPIDiv64;
-  aspirin2_mpu60x0.slave_idx = 2;
+  aspirin2_mpu60x0.slave_idx = MPU6000_SLAVE_IDX;
   aspirin2_mpu60x0.output_length = IMU_ASPIRIN_BUFFER_LEN;
   aspirin2_mpu60x0.input_length = IMU_ASPIRIN_BUFFER_LEN;
   aspirin2_mpu60x0.after_cb = trans_cb;
@@ -65,12 +73,12 @@ void imu_periodic(void)
     aspirin2_mpu60x0.output_length = 22;
     aspirin2_mpu60x0.input_length = 22;
     aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
-    for (int i=1;i<aspirin2_mpu60x0.output_length;i++) {
+    for (int i=1; i<aspirin2_mpu60x0.output_length; i++) {
         aspirin2_mpu60x0.output_buf[i] = 0;
     }
   }
   else {
-    spi_submit(&spi2,&aspirin2_mpu60x0);
+    spi_submit(&(MPU6000_SPI_DEV), &aspirin2_mpu60x0);
   }
 }
 
@@ -84,7 +92,7 @@ static inline void mpu_set(uint8_t _reg, uint8_t _val)
 {
   aspirin2_mpu60x0.output_buf[0] = _reg;
   aspirin2_mpu60x0.output_buf[1] = _val;
-  spi_submit(&spi2,&aspirin2_mpu60x0);
+  spi_submit(&(MPU6000_SPI_DEV), &aspirin2_mpu60x0);
 
   // FIXME: no busy waiting! if really needed add a timeout!!!!
     while(aspirin2_mpu60x0.status != SPITransSuccess);
@@ -97,7 +105,7 @@ static inline void mpu_wait_slave4_ready(void)
   {
     aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
     aspirin2_mpu60x0.output_buf[1] = 0;
-    spi_submit(&spi2,&aspirin2_mpu60x0);
+    spi_submit(&(MPU6000_SPI_DEV), &aspirin2_mpu60x0);
 
     // FIXME: no busy waiting! if really needed add a timeout!!!!
       while(aspirin2_mpu60x0.status != SPITransSuccess);
@@ -164,7 +172,7 @@ static void mpu_configure(void)
 #  endif
 #endif
   aspirin2_mpu60x0.output_buf[1] = (2 << 3) | (MPU_DIG_FILTER << 0);
-  spi_submit(&spi2,&aspirin2_mpu60x0);
+  spi_submit(&(MPU6000_SPI_DEV), &aspirin2_mpu60x0);
   mpu_set( MPU60X0_REG_CONFIG,
            (2 << 3) | 			// Fsync / ext sync on gyro X (bit 3->6)
            (MPU_DIG_FILTER << 0) );	// Low-Pass Filter

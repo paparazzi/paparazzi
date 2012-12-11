@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing for Mediatek (DIYDrones 1.4/1.6) protocol
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin

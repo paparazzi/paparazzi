@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2005-2008  Arnold Schroeter
  * Modified and expanded to show the coordinates of where the camera is looking at
  * by Chris Efstathiou 23-Jan-2011 AD.

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 Eric Parsonage <eric@eparsonage.com>
  *
  * This file is part of paparazzi.
@@ -607,7 +605,7 @@ void uart5_isr(void) {
   if (((USART_CR1(UART5) & USART_CR1_RXNEIE) != 0) &&
       ((USART_SR(UART5) & USART_SR_RXNE) != 0)) {
     uint8_t b = usart_recv(UART5);
-    SpektrumParser(b, PrimarySpektrumState, 0);
+    SpektrumParser(b, SecondarySpektrumState, 1);
   }
 
 }

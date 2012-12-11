@@ -22,6 +22,7 @@
     <target name="test_adxl345"	            board="lisa_m_2.0"/>
     <target name="test_esc_mkk_simple"      board="lisa_m_2.0"/>
     <target name="test_esc_asctecv1_simple" board="lisa_m_2.0"/>
+    <target name="test_can"                 board="lisa_m_2.0"/>
   </firmware>
 
   <servos>

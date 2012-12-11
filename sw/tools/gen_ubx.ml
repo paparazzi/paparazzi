@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing for UBX protocol
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -123,6 +121,14 @@
 #define IMU_ACCEL_Z_SENS_DEN 100
 #endif
 
+/* Default I2C address and device for the ITG3200/IMU300 gyro */
+#ifndef ITG3200_I2C_ADDR
+#define ITG3200_I2C_ADDR ITG3200_ADDR
+#endif
+#ifndef ITG3200_I2C_DEV
+#define ITG3200_I2C_DEV i2c2
+#endif
+
 
 enum AspirinStatus
   { AspirinStatusUninit,
@@ -151,7 +157,7 @@ extern struct ImuAspirin imu_aspirin;
 
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
-      MagEvent(foo_handler); \
+    MagEvent(foo_handler);                          \
     if (hmc5843.data_available) {			\
       imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
       imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
@@ -168,19 +174,16 @@ extern void imu_aspirin_arch_init(void);
 
 static inline void gyro_read_i2c(void)
 {
-  imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx;
-  imu_aspirin.i2c_trans_gyro.len_w = 1;
-  imu_aspirin.i2c_trans_gyro.len_r = 6;
   imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
-  i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
+  I2CTransceive(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 1, 6);
   imu_aspirin.reading_gyro = 1;
 }
 
 static inline void gyro_copy_i2c(void)
 {
-  int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1];
-  int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3];
-  int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
+  const int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1];
+  const int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3];
+  const int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
   RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);
 }
 
@@ -192,19 +195,20 @@ static inline void accel_copy_spi(void)
   VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
 }
 
-static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;
 
-  imu_aspirin_arch_int_disable();
+  //imu_aspirin_arch_int_disable();
   if (imu_aspirin.accel_available) {
     imu_aspirin.time_since_last_accel_reading = 0;
     imu_aspirin.accel_available = FALSE;
     accel_copy_spi();
     _accel_handler();
   }
-  imu_aspirin_arch_int_enable();
+  //imu_aspirin_arch_int_enable();
 
+#if 0
   // Reset everything if we've been waiting too long
   if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
     // FIXME: there should be no arch specific code like that here!
@@ -213,6 +217,7 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
     imu_aspirin.time_since_last_reading = 0;
     return;
   }
+#endif
 
   // Try again later if transaction is in progress
   if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning)
@@ -239,8 +244,8 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
     return;
   }
 
-  // If we're not already waiting for read, and conversion is complete, schedule a read
-  if (!imu_aspirin.reading_gyro && imu_aspirin_eoc() && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
+  // If we're not already waiting for read, schedule a read
+  if (!imu_aspirin.reading_gyro && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
     if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
       imu_aspirin.time_since_last_reading = 0;
     }
@@ -249,9 +254,5 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
   }
 
 }
-
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
-  imu_aspirin_event(_gyro_handler, _accel_handler, _mag_handler); \
-} while(0);
 
 #endif /* IMU_ASPIRIN_H */

@@ -210,7 +210,7 @@ void guidance_h_run(bool_t  in_flight) {
         stab_att_sp_euler.theta = nav_pitch;
         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
         stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
-#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+#ifdef STABILIZATION_ATTITUDE_TYPE_QUAT
         INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
         INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 #endif
@@ -318,10 +318,10 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
   /* Set attitude setpoint in eulers and as quaternion */
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 
-#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+#ifdef STABILIZATION_ATTITUDE_TYPE_QUAT
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
   INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-#endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
+#endif /* STABILIZATION_ATTITUDE_TYPE_QUAT */
 
 }
 

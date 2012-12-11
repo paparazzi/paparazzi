@@ -3,8 +3,10 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
-    <!--load name="sonar_maxbotix_booz.xml"/-->
-    <!--load name="adc_generic_booz.xml"/-->
+    <load name="sonar_maxbotix_booz.xml"/>
+    <!--load name="adc_generic.xml">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_0"/>
+    </load-->
     <!--load name="sys_mon.xml"/-->
   </modules>
 
@@ -34,8 +36,7 @@
     </subsystem>
     <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
-    <subsystem name="ins"           type="hff"/>
-    <!--subsystem name="ins"           type="extended"/-->
+    <subsystem name="ins"           type="extended"/>
   </firmware>
 
   <servos driver="Asctec">
@@ -164,9 +165,10 @@
 
   <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
-    <!--define name="SONAR_SENS" value="0.0128633" integer="16"/--> <!-- 3.3V supply -->
-    <define name="SONAR_SENS" value="0.00833333" integer="16"/> <!-- 5V supply -->
-    <define name="SONAR_MAX_RANGE" value="4.0"/>
+    <define name="SONAR_SENS" value="0.00650498" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply -->
+    <define name="SONAR_MAX_RANGE" value="5.0"/>
+    <define name="SONAR_MIN_RANGE" value="0.25"/>
+    <!--define name="SONAR_VARIANCE_THRESHOLD" value="0.01"/-->
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">

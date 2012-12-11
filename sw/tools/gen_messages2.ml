@@ -1,6 +1,4 @@
 (*
- * $Id: gen_messages2.ml 4783 2010-04-02 11:23:40Z hecto $
- *
  * XML preprocessing of messages.xml for downlink protocol
  *
  * Copyright (C) 2003-2008 ENAC, Pascal Brisset, Antoine Drouin

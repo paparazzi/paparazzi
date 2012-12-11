@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Wind estimation by analysing aircrafts trajectories
  *
  * Copyright (C) 2004 ENAC, Nicolas Barnier, Pascal Brisset, Antoine Drouin

@@ -1,6 +1,4 @@
 /*
- * $Id: humid_pcap01.c $
- *
  * Copyright (C) 2011 Norman Wildmann, Martin Mueller
  *
  * This file is part of paparazzi.

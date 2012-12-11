@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2003-2005  Antoine Drouin
  *
  * This file is part of paparazzi.

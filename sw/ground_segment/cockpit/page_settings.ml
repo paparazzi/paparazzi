@@ -1,6 +1,4 @@
 (*
-* $Id$
-*
 * Widget to pack settings buttons
 *
 * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin

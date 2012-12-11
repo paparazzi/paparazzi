@@ -1,6 +1,4 @@
 /*
- * $Id: point.h 2304 2008-02-07 21:35:08Z mmm $
- *
  * Copyright (C) 2005-2008  Arnold Schroeter
  *
  * This file is part of paparazzi.

@@ -1,6 +1,4 @@
 /*
- * $Id: wt_baro.c 2752 2008-10-09 07:51:24Z gautier $
- *
  * Copyright (C) 2007  ENAC
  *
  * This file is part of paparazzi.

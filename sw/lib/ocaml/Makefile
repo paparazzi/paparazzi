@@ -57,23 +57,29 @@ all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
 opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 
-lib-pprz.cma : $(CMO)
+lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
 	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
-lib-pprz.cmxa : $(CMX)
+lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
 	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
-xlib-pprz.cma : $(XCMO)
+xlib-pprz.cma libxlib-pprz.a: $(XCMO)
 	@echo OL $@
 	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
-xlib-pprz.cmxa : $(XCMX)
+xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 	@echo OOL $@
 	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
-xml_get.out : lib-pprz.cma xml_get.cmo
+# trying to set correct dependencies for parallel build
+# these are order only depedencies
+lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
+
+xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
+
+xml_get.out : lib-pprz.cma xml_get.cmo | opt
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma -I . $^
 

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * OpenGL utils
  *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec

@@ -19,7 +19,7 @@ void stabilization_attitude_ref_init(void) {
 /*
  * Reference
  */
-#define DT_UPDATE (1./512.)
+#define DT_UPDATE (1./PERIODIC_FREQUENCY)
 
 #define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_FLOAT_REF_MAX_PDOT
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_FLOAT_REF_MAX_QDOT

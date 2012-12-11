@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Reading logged timestamped messages
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin

@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * Basic GPS parameters simulation
  *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin

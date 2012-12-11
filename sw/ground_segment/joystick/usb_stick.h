@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * joystick lib
  *
  * based on Force Feedback: Constant Force Stress Test

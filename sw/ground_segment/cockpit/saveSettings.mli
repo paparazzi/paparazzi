@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * GUI to save settings in the airframe file
  *
  * Copyright (C) 2008, Cyril Allignol, Pascal Brisset

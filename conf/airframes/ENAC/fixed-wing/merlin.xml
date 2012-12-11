@@ -23,6 +23,11 @@
     <subsystem name="ins"           type="alt_float"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
+
+    <!--subsystem name="spi">
+      <define name="USE_SPI_SLAVE0"/>
+      <define name="USE_SPI1"/>
+    </subsystem-->
   </firmware>
 
   <firmware name="setup">
@@ -32,6 +37,7 @@
 
   <modules>
     <load name="infrared_adc.xml"/>
+    <!--load name="ins_vn100.xml"/-->
   </modules>
 
 <!-- commands section -->

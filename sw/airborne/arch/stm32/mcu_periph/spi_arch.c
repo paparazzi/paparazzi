@@ -22,21 +22,8 @@
 
 /**
  * @file arch/stm32/mcu_periph/spi_arch.c
- * Handling of SPI hardware for STM32.
- */
-
-#include <libopencm3/stm32/f1/nvic.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/exti.h>
-#include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/f1/dma.h>
-
-#include "mcu_periph/spi.h"
-
-/*
- * @file spi_arch.c
  *
+ * Handling of SPI hardware for STM32.
  * SPI Master code.
  *
  * This file manages the SPI implementation how it appears to the chip.
@@ -52,6 +39,15 @@
  * This does require modifications in the makefiles, because the correct arch_init needs to be called
  * for the selection of aspirin v2.1 for example.
  */
+
+#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/f1/dma.h>
+
+#include "mcu_periph/spi.h"
 
 #ifdef SPI_MASTER
 
@@ -98,42 +94,54 @@ static struct spi_periph_dma spi2_dma;
 // SPI1 to spi1
 // SPI3 to spi0
 
-#define SPI_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
-#define SPI_SLAVE0_PORT GPIOA
-#define SPI_SLAVE0_PIN GPIO15
+#define SPI_SELECT_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
+#define SPI_SELECT_SLAVE0_PORT GPIOA
+#define SPI_SELECT_SLAVE0_PIN GPIO15
 
-#define SPI_SLAVE1_PERIPH RCC_APB2ENR_IOPAEN
-#define SPI_SLAVE1_PORT GPIOA
-#define SPI_SLAVE1_PIN GPIO4
+#define SPI_SELECT_SLAVE1_PERIPH RCC_APB2ENR_IOPAEN
+#define SPI_SELECT_SLAVE1_PORT GPIOA
+#define SPI_SELECT_SLAVE1_PIN GPIO4
 
-#define SPI_SLAVE2_PERIPH RCC_APB2ENR_IOPBEN
-#define SPI_SLAVE2_PORT GPIOB
-#define SPI_SLAVE2_PIN GPIO12
+#define SPI_SELECT_SLAVE2_PERIPH RCC_APB2ENR_IOPBEN
+#define SPI_SELECT_SLAVE2_PORT GPIOB
+#define SPI_SELECT_SLAVE2_PIN GPIO12
 
-#define SPI_SLAVE3_PERIPH RCC_APB2ENR_IOPCEN
-#define SPI_SLAVE3_PORT GPIOC
-#define SPI_SLAVE3_PIN GPIO13
+#define SPI_SELECT_SLAVE3_PERIPH RCC_APB2ENR_IOPCEN
+#define SPI_SELECT_SLAVE3_PORT GPIOC
+#define SPI_SELECT_SLAVE3_PIN GPIO13
+
+#define SPI_SELECT_SLAVE4_PERIPH RCC_APB2ENR_IOPCEN
+#define SPI_SELECT_SLAVE4_PORT GPIOC
+#define SPI_SELECT_SLAVE4_PIN GPIO12
 
 static inline void SpiSlaveUnselect(uint8_t slave)
 {
   switch(slave) {
-#if USE_SPI0
+#if USE_SPI_SLAVE0
     case 0:
-      GPIO_BSRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
+      GPIO_BSRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
       break;
 #endif // USE_SPI_SLAVE0
-#if USE_SPI1
+#if USE_SPI_SLAVE1
     case 1:
-      GPIO_BSRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
+      GPIO_BSRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
       break;
 #endif //USE_SPI_SLAVE1
-#if USE_SPI2
+#if USE_SPI_SLAVE2
     case 2:
-      GPIO_BSRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
-      GPIO_BSRR(SPI_SLAVE3_PORT) = SPI_SLAVE3_PIN;
+      GPIO_BSRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
       break;
-#endif //USE_SPI_SLAVE2 and USE_SPI_SLAVE3
-
+#endif //USE_SPI_SLAVE2
+#if USE_SPI_SLAVE3
+    case 3:
+      GPIO_BSRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
+      break;
+#endif //USE_SPI_SLAVE3
+#if USE_SPI_SLAVE4
+    case 4:
+      GPIO_BSRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
+      break;
+#endif //USE_SPI_SLAVE4
     default:
       break;
   }
@@ -143,24 +151,29 @@ static inline void SpiSlaveUnselect(uint8_t slave)
 static inline void SpiSlaveSelect(uint8_t slave)
 {
   switch(slave) {
-#if USE_SPI0
+#if USE_SPI_SLAVE0
     case 0:
-      GPIO_BRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
+      GPIO_BRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
       break;
 #endif // USE_SPI_SLAVE0
-#if USE_SPI1
+#if USE_SPI_SLAVE1
     case 1:
-      GPIO_BRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
+      GPIO_BRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
       break;
 #endif //USE_SPI_SLAVE1
-#if USE_SPI2
+#if USE_SPI_SLAVE2
     case 2:
-      GPIO_BRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
+      GPIO_BRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
       break;
 #endif //USE_SPI_SLAVE2
-#if USE_SPI3
+#if USE_SPI_SLAVE3
     case 3:
-      GPIO_BRR(SPI_SLAVE3_PORT) = SPI_SLAVE3_PIN;
+      GPIO_BRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
+      break;
+#endif //USE_SPI_SLAVE3
+#if USE_SPI_SLAVE4
+    case 4:
+      GPIO_BRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
       break;
 #endif //USE_SPI_SLAVE3
     default:
@@ -203,14 +216,11 @@ void spi0_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI3);
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE0_PERIPH);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+  // Initialize the slave select pins
+  // done from mcu_init, is it really necessary to do that here?
+  //spi_init_slaves();
 
-  SpiSlaveUnselect(0);
-  gpio_set(SPI_SLAVE0_PORT, SPI_SLAVE0_PIN);
-  gpio_set_mode(GPIO_SLAVE0_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE0_PIN);
+  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   spi0_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
 
@@ -274,14 +284,11 @@ void spi1_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI1);
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE1_PERIPH);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+  // Initialize the slave select pins
+  // done from mcu_init, is it really necessary to do that here?
+  //spi_init_slaves();
 
-  SpiSlaveUnselect(1);
-  gpio_set(SPI_SLAVE1_PORT, SPI_SLAVE1_PIN);
-  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE1_PIN);
+  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   // Force SPI mode over I2S.
   SPI1_I2SCFGR = 0;
@@ -345,21 +352,11 @@ void spi2_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI2);
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE2_PERIPH);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SLAVE3_PERIPH);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  // Initialize the slave select pins
+  // done from mcu_init, is it really necessary to do that here?
+  //spi_init_slaves();
+
   // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
-
-  SpiSlaveUnselect(2);
-  gpio_set(GPIOB, SPI_SLAVE2_PIN);
-  gpio_set_mode(SPI_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE2_PIN);
-
-
-  SpiSlaveUnselect(3);
-  gpio_set(GPIOB, SPI_SLAVE3_PIN);
-  gpio_set_mode(SPI_SLAVE3_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SLAVE3_PIN);
 
   // Force SPI mode over I2S.
   SPI2_I2SCFGR = 0;
@@ -557,6 +554,47 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
 }
 
 void spi_init_slaves(void) {
+
+#if USE_SPI_SLAVE0
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE0_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(0);
+  gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE0_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE0_PIN);
+#endif
+
+#if USE_SPI_SLAVE1
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE1_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(1);
+  gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE1_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE1_PIN);
+#endif
+
+#if USE_SPI_SLAVE2
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE2_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(2);
+  gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE2_PIN);
+#endif
+
+#if USE_SPI_SLAVE3
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE3_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(3);
+  gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE3_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE3_PIN);
+#endif
+
+#if USE_SPI_SLAVE4
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE4_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(4);
+  gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE4_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE4_PIN);
+#endif
+
 }
 
 void spi_slave_select(uint8_t slave) {
@@ -794,5 +832,7 @@ void process_tx_dma_interrupt( struct spi_periph *spi ) {
  *
  */
 #ifdef SPI_SLAVE
+
+#warning SPI_SLAVE mode currently not implemented for STM32.
 
 #endif /* SPI_SLAVE */

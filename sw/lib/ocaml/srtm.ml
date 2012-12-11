@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Acces functions to SRTM data (http://edcftp.cr.usgs.gov/pub/data/srtm)
  *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec, Pascal Brisset, Antoine Drouin

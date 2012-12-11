@@ -1,6 +1,4 @@
 /*
- * $Id:$
- *
  * Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of paparazzi.

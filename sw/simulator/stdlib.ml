@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * Utilities for the simulators
  *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin

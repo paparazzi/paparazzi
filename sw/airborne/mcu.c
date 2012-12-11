@@ -109,6 +109,9 @@ void mcu_init(void) {
 #if USE_SPI2
   spi2_init();
 #endif
+#if USE_SPI0 || USE_SPI1 || USE_SPI2
+  spi_init_slaves();
+#endif
 #if USE_SPI0_SLAVE
   spi0_slave_init();
 #endif

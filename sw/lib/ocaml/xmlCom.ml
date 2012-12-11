@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML parsing keeping everything (comments and declarations)
  *
  * Copyright (C) 2008, Cyril Allignol, Pascal Brisset

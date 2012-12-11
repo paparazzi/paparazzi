@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * EGM96 geoid model
  *
  * Copyright (C) 2009 ENAC, Pascal Brisset

@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * XML preprocessing for airframe parameters
  *
  * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin

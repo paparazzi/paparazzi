@@ -1,6 +1,4 @@
 /*
- * $Id: temp_tcouple_adc.c $
- *
  * Copyright (C) 2011 Martin Mueller
  *
  * This file is part of paparazzi.

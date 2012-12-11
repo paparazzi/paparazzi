@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This is the implementation of the "external interface" to the autopilot.

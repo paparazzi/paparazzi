@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * generic tools for modules
  *
  * Copyright (C) 2010 Gautier Hattenberger
@@ -32,8 +30,10 @@ let (//) = Filename.concat
 
 let paparazzi_conf = Env.paparazzi_home // "conf"
 let modules_dir = paparazzi_conf // "modules"
+let autopilot_dir = paparazzi_conf // "autopilot"
 
 let default_module_targets = "ap|sim"
+let default_freq = 60
 
 (** remove all duplicated elements of a list *)
 let singletonize = fun l ->
@@ -65,22 +65,48 @@ let targets_of_field = fun field default ->
   with
     _ -> []
 
+(** [get_autopilot_of_airframe xml]
+ * Returns (autopilot xml, main freq) from airframe xml file *)
+let get_autopilot_of_airframe = fun xml ->
+  (* extract all "modules" sections *)
+  let section = List.filter (fun s -> compare (Xml.tag s) "autopilot" = 0) (Xml.children xml) in
+  (* Raise error if more than one modules section *)
+  match section with
+    [autopilot] ->
+      let freq = try int_of_string (Xml.attrib autopilot "freq") with _ -> default_freq in
+      let ap = try Xml.attrib autopilot "name" with _ -> raise Not_found in
+      (autopilot_dir // ap, freq)
+  | [] -> raise Not_found
+  | _ -> failwith "Error: you have more than one 'autopilot' section in your airframe file"
+
 (** [get_modules_of_airframe xml]
  * Returns a list of module configuration from airframe file *)
-let get_modules_of_airframe = fun xml ->
+let rec get_modules_of_airframe = fun xml ->
   (* extract all "modules" sections *)
   let section = List.filter (fun s -> compare (Xml.tag s) "modules" = 0) (Xml.children xml) in
+  (* get autopilot file if any *)
+  let ap_file = try
+    let (ap, _) = get_autopilot_of_airframe xml in
+    ap
+  with _ -> "" in
   (* Raise error if more than one modules section *)
   match section with
     [modules] ->
       (* if only one section, returns a list of configuration *)
       let t_global = targets_of_field modules "" in
-      List.map (fun m ->
-        if compare (Xml.tag m) "load" <> 0 then Xml2h.xml_error "load";
+      let get_module = fun m t ->
         let file = modules_dir // ExtXml.attrib m "name" in
-        let targets = singletonize (t_global @ targets_of_field m "") in
+        let targets = singletonize (t @ targets_of_field m "") in
         { xml = ExtXml.parse_file file; file = file; param = Xml.children m; extra_targets = targets }
-      ) (Xml.children modules)
+      in
+      let modules_list = List.map (fun m ->
+        if compare (Xml.tag m) "load" <> 0 then Xml2h.xml_error "load";
+        get_module m t_global
+      ) (Xml.children modules) in
+      let ap_modules = try
+        get_modules_of_airframe (ExtXml.parse_file ap_file)
+      with _ -> [] in
+      modules_list @ ap_modules
   | [] -> []
   | _ -> failwith "Error: you have more than one 'modules' section in your airframe file"
 

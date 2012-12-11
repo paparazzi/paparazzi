@@ -25,6 +25,7 @@
 #define ABI_COMMON_H
 
 /* Include pprz math library */
+#include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 /* Include here headers with structure definition you may want to use with ABI
@@ -39,17 +40,24 @@
 #define EXTERN extern
 #endif
 
-/* Generic callback definition */
+/** Generic callback definition */
 typedef void (*abi_callback)(void);
 
-/* Event structure to store callbacks in a linked list */
+/** Broadcast address.
+ * When passing broadcast address has a sender id,
+ * messages from all sender are received
+ */
+#define ABI_BROADCAST 0
+
+/** Event structure to store callbacks in a linked list */
 struct abi_struct {
+  uint8_t id;
   abi_callback cb;
   struct abi_struct * next;
 };
 typedef struct abi_struct abi_event;
 
-/* Macros for linked list */
+/** Macros for linked list */
 #define ABI_FOREACH(head,el) for(el=head; el; el=el->next)
 #define ABI_PREPEND(head,add) { (add)->next = head; head = add; }
 

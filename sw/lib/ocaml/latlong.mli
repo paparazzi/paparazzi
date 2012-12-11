@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Geographic conversion utilities
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset

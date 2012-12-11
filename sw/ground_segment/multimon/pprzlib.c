@@ -1,6 +1,4 @@
 /*
- *      $Id$
- *
  *      Copyright (C) 1996
  *          Thomas Sailer (sailer@ife.ee.ethz.ch, hb9jnx@hb9w.che.eu)
  *      Copyright (C) 2005 Pascal Brisset, Antoine Drouin

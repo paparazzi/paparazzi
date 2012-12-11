@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
  *
  * This file is part of paparazzi.

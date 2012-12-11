@@ -1,6 +1,4 @@
 (*
- *  $Id$
- *
  * Basic flight model for simulation
  *
  * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin

@@ -186,41 +186,8 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 #if USE_SETPOINTS_WITH_TRANSITIONS
   stabilization_attitude_read_rc_absolute(in_flight);
 #else
-
-  //FIXME: remove me, do in quaternion directly
-  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
-
-  struct FloatQuat q_rp_cmd;
-  stabilization_attitude_read_rc_roll_pitch_quat(&q_rp_cmd);
-
-  /* get current heading */
-  const struct FloatVect3 zaxis = {0., 0., 1.};
-  struct FloatQuat q_yaw;
-  FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, ANGLE_FLOAT_OF_BFP(stateGetNedToBodyEulers_i()->psi));
-
-  /* apply roll and pitch commands with respect to current heading */
   struct FloatQuat q_sp;
-  FLOAT_QUAT_COMP(q_sp, q_yaw, q_rp_cmd);
-  FLOAT_QUAT_NORMALIZE(q_sp);
-
-  if (in_flight)
-  {
-    /* get current heading setpoint */
-    struct FloatQuat q_yaw_sp;
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
-
-    /* rotation between current yaw and yaw setpoint */
-    struct FloatQuat q_yaw_diff;
-    FLOAT_QUAT_COMP_INV(q_yaw_diff, q_yaw_sp, q_yaw);
-
-    /* temporary copy with roll/pitch command and current heading */
-    struct FloatQuat q_rp_sp;
-    QUAT_COPY(q_rp_sp, q_sp);
-
-    /* compute final setpoint with yaw */
-    FLOAT_QUAT_COMP_NORM_SHORTEST(q_sp, q_rp_sp, q_yaw_diff);
-  }
-
+  stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 #endif
 }

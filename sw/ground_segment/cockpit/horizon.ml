@@ -1,6 +1,4 @@
 (*
-* $Id$
-*
 * Multi aircrafts map display and flight plan editor
 *
 * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin / 2011 Tobias Muench, Rolf Noellenburg

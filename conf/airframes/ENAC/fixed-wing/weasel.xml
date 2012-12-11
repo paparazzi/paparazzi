@@ -8,6 +8,8 @@
 
 <airframe name="Weasel">
 
+  <autopilot name="fixedwing_autopilot.xml"/>
+
   <modules>
     <!--load name="airspeed_ads1114.xml"/-->
     <!--load name="mcp355x.xml"/-->

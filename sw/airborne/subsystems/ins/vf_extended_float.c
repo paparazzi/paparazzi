@@ -43,8 +43,8 @@ temps :
 #define INIT_PXX 1.
 /* process noise */
 #define ACCEL_NOISE 0.5
-#define Qzz       ACCEL_NOISE/512./512./2.
-#define Qzdotzdot ACCEL_NOISE/512.
+#define Qzz       ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
+#define Qzdotzdot ACCEL_NOISE * DT_VFILTER
 #define Qbiasbias 1e-7
 #define Qoffoff 1e-4
 #define R_BARO 1.

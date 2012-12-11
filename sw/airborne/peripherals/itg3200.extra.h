@@ -20,8 +20,9 @@
  *
  */
 
-/* driver for the gyro ITG3200 from InvenSense
- * this extra header allows standalone operation of the ITG3200
+/** @file peripherals/itg3200.extra.h
+ * Driver for the gyro ITG3200 from InvenSense,
+ * this extra header allows standalone operation of the ITG3200.
  */
 
 #ifndef ITG3200_EXTRA_H

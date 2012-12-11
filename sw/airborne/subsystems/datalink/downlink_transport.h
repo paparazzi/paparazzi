@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id: downlink_transport.h 4766 2010-03-30 10:00:29Z hecto $
- *
  * Copyright (C) 2003-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.

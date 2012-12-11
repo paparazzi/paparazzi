@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Air Proximity Alert Module
  *
  * Copyright (C) ENAC, Pascal Brisset, Antoine Drouin

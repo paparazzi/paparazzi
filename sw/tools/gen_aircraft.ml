@@ -1,6 +1,4 @@
 (*
- * $Id$
- *
  * Call to Makefile.ac with the appropriate attributes from conf.xml
  *
  * Copyright (C) 2003-2009 Pascal Brisset, Antoine Drouin, ENAC

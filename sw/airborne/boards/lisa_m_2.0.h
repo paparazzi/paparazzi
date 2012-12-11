@@ -172,13 +172,6 @@
 
 #define BOARD_HAS_BARO 1
 
-#define USE_OPENCM3 1
-
-// not needed with USE_OPENCM3:
-//#define HSE_TYPE_EXT_CLK
-//#define STM32_RCC_MODE RCC_HSE_ON
-//#define STM32_PLL_MULT RCC_PLLMul_6
-
 #define PWM_5AND6_TIMER TIM5
 #define PWM_5AND6_RCC RCC_APB1ENR_TIM5EN
 #define PWM5_OC 1

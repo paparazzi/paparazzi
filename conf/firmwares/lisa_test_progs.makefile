@@ -326,11 +326,17 @@ test_imu_b2_2.srcs   += $(IMU_B2_2_SRCS)
 IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_0
 IMU_ASPIRIN_SRCS   = $(SRC_SUBSYSTEMS)/imu.c             \
                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
-                     $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
+                     $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
+                     $(SRC_ARCH)/mcu_periph/spi_arch.c \
+                     mcu_periph/spi.c
 IMU_ASPIRIN_SRCS   += math/pprz_trig_int.c
 IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 IMU_ASPIRIN_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
+# SLAVE2 is on PB12 (NSS) (ADXL345 CS)
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 
 test_imu_aspirin.ARCHDIR = $(ARCH)
 test_imu_aspirin.srcs    = test/subsystems/test_imu.c
@@ -454,6 +460,8 @@ test_adxl345.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_adxl345.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_adxl345.CFLAGS += -I$(SRC_LISA)
+test_adxl345.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2 -DUSE_SPI_SLAVE2
+test_adxl345.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 test_adxl345.srcs   += lisa/test/lisa_test_adxl345_dma.c
 
 
@@ -564,3 +572,16 @@ test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_ar
 #test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control/spektrum.c
 #test_manual.srcs   += $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
 
+##
+## test can interface
+##
+test_can.ARCHDIR = $(ARCH)
+test_can.CFLAGS  = $(COMMON_TEST_CFLAGS)
+test_can.srcs    = $(COMMON_TEST_SRCS)
+test_can.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_can.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_can.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOARD)
+
+test_can.CFLAGS += -I$(SRC_LISA)
+test_can.srcs   += lisa/test_can.c
+test_can.srcs   += mcu_periph/can.c $(SRC_ARCH)/mcu_periph/can_arch.c
