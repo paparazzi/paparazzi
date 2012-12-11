@@ -204,6 +204,12 @@
     <field name="temp"     type="float" unit="deg_celsius" format="%.2f"/>
   </message>
 
+  <message name="MPL3115_BARO" id="26">
+    <field name="pressure" type="uint32" alt_unit="Pa" alt_unit_coef="0.25"/>
+    <field name="temp" type="int16" alt_unit="degC" alt_unit_coef="0.0625"/>
+    <field name="alt" type="float" unit="m"/>
+  </message>
+
   <message name="PBN" id="45">
     <field name="airspeed_adc" type="uint16"/>
     <field name="altitude_adc" type="uint16"/>
