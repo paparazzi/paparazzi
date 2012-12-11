@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_mpl3115" dir="sensors">
+  <doc>
+    <description>Baro MPL3115A2 module (I2C)</description>
+    <define name="MPL3115_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+  </doc>
+
+  <header>
+    <file name="baro_mpl3115.h"/>
+  </header>
+  <init fun="baro_mpl3115_init()"/>
+  <periodic fun="baro_mpl3115_read_periodic()" freq="5."/>
+  <event fun="baro_mpl3115_read_event()"/>
+
+  <makefile>
+    <file name="baro_mpl3115.c"/>
+    <file name="mpl3115.c" dir="peripherals"/>
+  </makefile>
+
+</module>
