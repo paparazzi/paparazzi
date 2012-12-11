@@ -448,7 +448,7 @@
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="frame_rate" type="uint8" unit="Hz"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
-    <field name="vsupply" type="uint8" unit="decivolt"/>
+    <field name="vsupply" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
     <field name="current" type="int32" unit="mA"/>
   </message>
 
@@ -794,7 +794,7 @@
     <field name="gspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
     <field name="course" type="int16" unit="decideg" alt_unit="deg"/>
     <field name="airspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
-    <field name="vsupply" type="uint8" unit="decivolt"/>
+    <field name="vsupply" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
     <field name="energy" type="uint8" unit="deciAh"/>
     <field name="throttle" type="uint8" unit="%"/>
     <field name="ap_mode" type="uint8"/>
@@ -910,10 +910,7 @@
     <field name="Err_Pos" type="float"/>
   </message>
 
-  <message name="AOA_adc" id="227">
-    <field name="adcVal" type="uint16"/>
-    <field name="AOA" type="float" unit="rad"/>
-  </message>
+  <!-- 227 is free -->
 
   <message name="VF_UPDATE" id="228">
     <field name="baro" type="float" unit="m"/>

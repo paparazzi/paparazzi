@@ -167,8 +167,8 @@
     <field name="snapshot_image_number" type="uint16"/>
   </message>
 
-  <message name="BOOZ2_CAM" id="30">
-    <field name="tilt" type="int16" unit="us"/>
+  <message name="ROTORCRAFT_CAM" id="30">
+    <field name="tilt" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
     <field name="pan" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
 

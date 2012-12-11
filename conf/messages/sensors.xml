@@ -210,6 +210,11 @@
     <field name="alt" type="float" unit="m"/>
   </message>
 
+  <message name="AOA_adc" id="27">
+    <field name="adcVal" type="uint16"/>
+    <field name="AOA" type="float" unit="rad"/>
+  </message>
+
   <message name="PBN" id="45">
     <field name="airspeed_adc" type="uint16"/>
     <field name="altitude_adc" type="uint16"/>
