@@ -12,7 +12,7 @@
   </header>
   <init fun="servo_switch_init()"/>
   <periodic fun="servo_switch_periodic()" freq="10."/>
-  <makefile target="ap|sim|jsbsim">
+  <makefile target="ap|sim|jsbsim|nps">
 
 <!-- these parameters should be set for that module in the airframe file unless you want the defaults
      Servo value in usec
