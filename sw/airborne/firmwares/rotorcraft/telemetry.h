@@ -65,13 +65,13 @@
 	DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z, &ins_ltp_speed.x, &ins_ltp_speed.y, &ins_ltp_speed.z, &ins_ltp_accel.x, &ins_ltp_accel.y, &ins_ltp_accel.z, &ref, &ref, &ref);\
 })
 
-#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
-	uint16_t vsup = electrical.vsupply*10; \
-	int16_t amps = (int16_t) (electrical.current/10); \
-	int16_t pwr = (int16_t) (vsup*amps*100); \
-	int16_t e = 0; \
-	DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, 0);\
-})
+#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({                   \
+      uint16_t vsup = electrical.vsupply*10;                            \
+      int16_t amps = (int16_t) (electrical.current/10);                 \
+      int16_t pwr = (int16_t) (vsup*amps*100);                          \
+      int16_t e = 0;                                                    \
+      DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &e);   \
+    })
 
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
@@ -85,15 +85,43 @@
   }
 
 #ifdef USE_GPS
-#define SEND_MISSION_STATUS(_trans, _dev) { \
-	uint8_t _circle_count = NavCircleCount(); \
-	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, 0, &nav_block, &block_time, &nav_stage, &stage_time, &sys_time.nb_sec, &gps.fix, 0, 0, &_circle_count, 0, &guidance_h_mode);\
-}
+#define SEND_MISSION_STATUS(_trans, _dev) {                 \
+	uint8_t _circle_count = NavCircleCount();               \
+    uint8_t _foo8 = 0;                                      \
+    float _foo = 0.0;                                       \
+	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev,              \
+                                 &autopilot_flight_time,    \
+                                 &nav_block,                \
+                                 &block_time,               \
+                                 &nav_stage,                \
+                                 &stage_time,               \
+                                 &sys_time.nb_sec,          \
+                                 &gps.fix,                  \
+                                 &_foo,                     \
+                                 &_foo,                     \
+                                 &_circle_count,            \
+                                 &_foo8,                    \
+                                 &guidance_h_mode);         \
+  }
 #else /* !USE_GPS */
 #define SEND_MISSION_STATUS(_trans, _dev) { \
 	uint8_t _circle_count = NavCircleCount(); \
 	uint8_t fix = GPS_FIX_NONE; \
-	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, 0, &nav_block, &block_time, &nav_stage, &stage_time, &sys_time.nb_sec, &fix, 0, 0, &_circle_count, 0, &guidance_h_mode);\
+    uint8_t _foo8 = 0;                                                  \
+    float _foo = 0.0;                                                   \
+	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev,                          \
+                                 &autopilot_flight_time,                \
+                                 &nav_block,                            \
+                                 &block_time,                           \
+                                 &nav_stage,                            \
+                                 &stage_time,                           \
+                                 &sys_time.nb_sec,                      \
+                                 &fix,                                  \
+                                 &_foo,                                 \
+                                 &_foo,                                 \
+                                 &_circle_count,                        \
+                                 &_foo8,                                \
+                                 &guidance_h_mode);                     \
 }
 #endif /*USE_GPS */
 
