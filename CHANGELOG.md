@@ -1,3 +1,19 @@
+Paparazzi 4.2.0_stable
+======================
+
+Stable version release
+
+Since last stable v4.0:
+- Total energy control
+- Improve Google map tiles download
+- Several updates on the Digital Cam and photogrammetry modules
+- WMM210 model
+- Rate limiter in airframes control laws
+- Uart flow control (stm32)
+- Bug fix for INS and AHRS filters
+- AP/FBW separation using spi or uart
+- Sensors fix and addition (GPS, current, baro)
+
 Paparazzi 4.1.1_testing
 =======================
 
