@@ -124,6 +124,7 @@ void baro_ets_read_periodic( void ) {
 #ifdef BARO_ETS_TELEMETRY
   DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
 #endif
+#endif
 }
 
 void baro_ets_read_event( void ) {
