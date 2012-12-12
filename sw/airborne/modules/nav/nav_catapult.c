@@ -38,7 +38,6 @@
 
 #include "generated/airframe.h"
 #include "state.h"
-#include "ap_downlink.h"
 #include "modules/nav/nav_catapult.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
@@ -48,13 +47,8 @@
 // Imu is required
 #include "subsystems/imu.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/datalink.h"
-
+// For DownlinkSendWp
+#include "ap_downlink.h"
 
 static bool_t nav_catapult_armed = FALSE;
 static uint16_t nav_catapult_launch = 0;
