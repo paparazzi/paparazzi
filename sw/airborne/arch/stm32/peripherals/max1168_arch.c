@@ -29,9 +29,9 @@ void max1168_arch_init( void ) {
 
   /* configure external interrupt exti2 on PD2( data ready ) v1.0*/
   /*                                       PB2( data ready ) v1.1*/
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
-	  GPIO_CNF_INPUT_FLOAT, GPIO2);
+                GPIO_CNF_INPUT_FLOAT, GPIO2);
 
   exti_select_source(EXTI2, GPIOB);
   exti_set_trigger(EXTI2, EXTI_TRIGGER_FALLING);
