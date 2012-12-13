@@ -26,10 +26,6 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
-#if USE_SETPOINTS_WITH_TRANSITIONS
-#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
-#endif
-
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
@@ -78,10 +74,8 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_enter(void) {
 
-#if !USE_SETPOINTS_WITH_TRANSITIONS
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
-#endif
 
   stabilization_attitude_ref_enter();
 
@@ -182,12 +176,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 }
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
-
-#if USE_SETPOINTS_WITH_TRANSITIONS
-  stabilization_attitude_read_rc_absolute(in_flight);
-#else
   struct FloatQuat q_sp;
   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
-#endif
 }
