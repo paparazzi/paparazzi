@@ -56,7 +56,7 @@ struct Int32Quat stabilization_att_sum_err_quat;
 struct Int32Eulers stabilization_att_sum_err;
 
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
-int32_t stabilization_att_ff_cmd[COMMANDS_NB] = {0,0,0};
+int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
 #define IERROR_SCALE 1024
 #define GAIN_PRESCALER_FF 48

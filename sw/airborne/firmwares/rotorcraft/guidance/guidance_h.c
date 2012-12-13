@@ -353,9 +353,7 @@ static inline void guidance_h_hover_enter(void) {
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
   guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
-#if USE_REFERENCE_SYSTEM
   reset_psi_ref_from_body();
-#endif
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
@@ -371,9 +369,7 @@ static inline void guidance_h_nav_enter(void) {
   GuidanceHSetRef(pos, speed, zero);
 
   /* reset psi reference, set psi setpoint to current psi */
-#if USE_REFERENCE_SYSTEM
   reset_psi_ref_from_body();
-#endif
   nav_heading = stateGetNedToBodyEulers_i()->psi;
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
