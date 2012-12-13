@@ -266,19 +266,48 @@ test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 
 
+##################################################
+# IMU B2
+#################################################
+# common for IMU b2
+# max1168 via SPI
+#
+IMU_B2_COMMON_CFLAGS  = -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
+IMU_B2_COMMON_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
+IMU_B2_COMMON_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
+IMU_B2_COMMON_SRCS   += math/pprz_trig_int.c
+IMU_B2_COMMON_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
+# SLAVE2 is on PB12 (NSS) (MAX1168)
+IMU_B2_COMMON_CFLAGS += -DUSE_SPI_SLAVE2
+IMU_B2_COMMON_CFLAGS += -DMAX1168_SPI_DEV=spi2 -DMAX1168_SLAVE_IDX=2
+IMU_B2_COMMON_SRCS   += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
+IMU_B2_COMMON_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+
+#
+# test IMU b2 without mag
+#
+IMU_B2_NOMAG_CFLAGS += -DIMU_B2_VERSION_1_1
+IMU_B2_NOMAG_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_NONE
+
+test_imu_b2_nomag.ARCHDIR = $(ARCH)
+test_imu_b2_nomag.srcs    = test/subsystems/test_imu.c
+test_imu_b2_nomag.CFLAGS  = $(COMMON_TEST_CFLAGS)
+test_imu_b2_nomag.srcs   += $(COMMON_TEST_SRCS)
+test_imu_b2_nomag.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_imu_b2_nomag.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_imu_b2_nomag.CFLAGS += $(IMU_B2_COMMON_CFLAGS)
+test_imu_b2_nomag.srcs   += $(IMU_B2_COMMON_SRCS)
+test_imu_b2_nomag.CFLAGS += $(IMU_B2_NOMAG_CFLAGS)
+test_imu_b2_nomag.srcs   += $(IMU_B2_NOMAG_SRCS)
 
 #
 # test IMU b2 v1.1
 #
-IMU_B2_CFLAGS  = -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
-IMU_B2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100 -DIMU_B2_VERSION_1_1
-IMU_B2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_B2_SRCS   += math/pprz_trig_int.c
-IMU_B2_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI1 -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100 -DIMU_B2_VERSION_1_1 -DUSE_SPI_SLAVE1
-IMU_B2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-IMU_B2_SRCS   += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
-IMU_B2_SRCS   += peripherals/ms2100.c  $(SRC_ARCH)/peripherals/ms2100_arch.c
-IMU_B2_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+IMU_B2_CFLAGS  = -DIMU_B2_VERSION_1_1
+# mag stuff on SPI
+IMU_B2_CFLAGS += -DUSE_SPI_SLAVE4 -DMS2100_SLAVE_IDX=4 -DMS2100_SPI_DEV=spi2
+IMU_B2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
+IMU_B2_SRCS    = peripherals/ms2100.c $(SRC_ARCH)/peripherals/ms2100_arch.c
 
 test_imu_b2.ARCHDIR = $(ARCH)
 test_imu_b2.srcs    = test/subsystems/test_imu.c
@@ -286,26 +315,21 @@ test_imu_b2.CFLAGS  = $(COMMON_TEST_CFLAGS)
 test_imu_b2.srcs   += $(COMMON_TEST_SRCS)
 test_imu_b2.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_imu_b2.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_imu_b2.CFLAGS += $(IMU_B2_COMMON_CFLAGS)
+test_imu_b2.srcs   += $(IMU_B2_COMMON_SRCS)
 test_imu_b2.CFLAGS += $(IMU_B2_CFLAGS)
 test_imu_b2.srcs   += $(IMU_B2_SRCS)
-
-
 
 
 #
 # test IMU b2 v1.2
 #
-IMU_B2_2_CFLAGS  = -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
-IMU_B2_2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843 -DIMU_B2_VERSION_1_2
-IMU_B2_2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_B2_2_SRCS   += math/pprz_trig_int.c
-IMU_B2_2_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
-IMU_B2_2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
-IMU_B2_2_SRCS   += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
+IMU_B2_2_CFLAGS  = -DIMU_B2_VERSION_1_2
+# mag stuff
 IMU_B2_2_CFLAGS += -DUSE_I2C2
-IMU_B2_2_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+IMU_B2_2_SRCS    = mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+IMU_B2_2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843
 IMU_B2_2_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
-IMU_B2_2_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 
 test_imu_b2_2.ARCHDIR = $(ARCH)
 test_imu_b2_2.srcs    = test/subsystems/test_imu.c
@@ -313,6 +337,8 @@ test_imu_b2_2.CFLAGS  = $(COMMON_TEST_CFLAGS)
 test_imu_b2_2.srcs   += $(COMMON_TEST_SRCS)
 test_imu_b2_2.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_imu_b2_2.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_imu_b2_2.CFLAGS += $(IMU_B2_COMMON_CFLAGS)
+test_imu_b2_2.srcs   += $(IMU_B2_COMMON_SRCS)
 test_imu_b2_2.CFLAGS += $(IMU_B2_2_CFLAGS)
 test_imu_b2_2.srcs   += $(IMU_B2_2_SRCS)
 
