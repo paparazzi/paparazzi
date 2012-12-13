@@ -159,9 +159,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
 #else
   struct Int32Rates zero_rates;
-  zero_rates.p = 0;
-  zero_rates.q = 0;
-  zero_rates.r = 0;
+  INT_RATES_ZERO(zero_rates);
   RATES_DIFF(rate_err, zero_rates, *body_rate);
 #endif
 

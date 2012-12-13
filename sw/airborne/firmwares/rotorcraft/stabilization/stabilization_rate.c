@@ -146,9 +146,15 @@ void stabilization_rate_init(void) {
 void stabilization_rate_read_rc( void ) {
 
   if(ROLL_RATE_DEADBAND_EXCEEDED())
+#if SWITCH_STICKS_FOR_RATE_CONTROL
+    stabilization_rate_sp.r = (int32_t) -radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+  else
+    stabilization_rate_sp.r = 0;
+#else
     stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
   else
     stabilization_rate_sp.p = 0;
+#endif
 
   if(PITCH_RATE_DEADBAND_EXCEEDED())
     stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
@@ -156,9 +162,15 @@ void stabilization_rate_read_rc( void ) {
     stabilization_rate_sp.q = 0;
 
   if(YAW_RATE_DEADBAND_EXCEEDED())
+#if SWITCH_STICKS_FOR_RATE_CONTROL
+    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+  else
+    stabilization_rate_sp.p = 0;
+#else
     stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
   else
     stabilization_rate_sp.r = 0;
+#endif
 
   // Setpoint at ref resolution
   INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);

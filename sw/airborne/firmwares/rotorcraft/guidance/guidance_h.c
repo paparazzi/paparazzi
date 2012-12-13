@@ -86,7 +86,6 @@ static inline void guidance_h_traj_run(bool_t in_flight);
 static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
 
-static inline void transition_enter(void);
 static inline void transition_run(void);
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
@@ -108,6 +107,7 @@ void guidance_h_init(void) {
   guidance_h_igain = GUIDANCE_H_IGAIN;
   guidance_h_dgain = GUIDANCE_H_DGAIN;
   guidance_h_again = GUIDANCE_H_AGAIN;
+  transition_status = 0;
 
 }
 
@@ -116,7 +116,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   if (new_mode == guidance_h_mode)
     return;
 
-  if(new_mode != GUIDANCE_H_MODE_FORWARD) {
+  if(new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
     transition_status = 0;
     theta_offset = 0;
   }
@@ -131,6 +131,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     stabilization_rate_enter();
     break;
 
+  case GUIDANCE_H_MODE_FORWARD:
   case GUIDANCE_H_MODE_ATTITUDE:
     stabilization_attitude_enter();
     break;
@@ -142,9 +143,6 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   case GUIDANCE_H_MODE_NAV:
     guidance_h_nav_enter();
     break;
-
-  case GUIDANCE_H_MODE_FORWARD:
-    transition_enter();
 
   default:
     break;
@@ -167,6 +165,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
     stabilization_rate_read_rc();
     break;
 
+  case GUIDANCE_H_MODE_FORWARD:
   case GUIDANCE_H_MODE_ATTITUDE:
     stabilization_attitude_read_rc(in_flight);
     break;
@@ -182,10 +181,6 @@ void guidance_h_read_rc(bool_t  in_flight) {
     else {
       INT_EULERS_ZERO(guidance_h_rc_sp);
     }
-    break;
-
-  case GUIDANCE_H_MODE_FORWARD:
-    stabilization_attitude_read_rc(in_flight);
     break;
 
   default:
@@ -385,25 +380,12 @@ static inline void guidance_h_nav_enter(void) {
 
 }
 
-static inline void transition_enter(void) {
-  transition_status = 0;
-}
-
 static inline void transition_run(void) {
   //Add 0.00625%
   transition_status += 1<<(INT32_PERCENTAGE_FRAC-4);
 
-  int32_t max_offset = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(-82.0)/180,INT32_ANGLE_PI, INT32_ANGLE_FRAC);
+#ifdef TRANSITION_MAX_OFFSET
+  int32_t max_offset = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET)/180,INT32_ANGLE_PI, INT32_ANGLE_FRAC);
   theta_offset = INT_MULT_RSHIFT((transition_status<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, max_offset, INT32_ANGLE_FRAC);
-
-  //Change body_to_imu to forward flight attitude;
-//   struct Int32Eulers body_to_imu_eulers =
-//   { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI),
-//     ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA)- INT_MULT_RSHIFT((transition_status<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, INT32_ANGLE_PI_2, INT32_ANGLE_FRAC),
-//     ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PSI) };
-// 
-//   INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
-//   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
-//   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
-
+#endif
 }

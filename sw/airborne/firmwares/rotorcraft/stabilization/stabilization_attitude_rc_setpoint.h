@@ -84,14 +84,14 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
     }
     if (autopilot_mode == AP_MODE_FORWARD) {
       //Coordinated turn
-//       sp->psi -= 5*stateGetAccelNed_i()->y/RC_UPDATE_FREQ;
-//       sp->psi -= INT_MULT_RSHIFT(ANGLE_BFP_OF_REAL((int32_t) (turn_accel_gain/10.0)),imu.accel.y/RC_UPDATE_FREQ, INT32_ANGLE_FRAC);
       //feedforward estimate angular rotation omega = g*tan(phi)/v
-      //Take v = 9.81/1.5 m/s
+      //Take v = 9.81/1.3 m/s
       int32_t omega;
-//       omega = ANGLE_BFP_OF_REAL(1.3*tan(ANGLE_FLOAT_OF_BFP(sp->phi)));
-      omega = ANGLE_BFP_OF_REAL(1.3*tan(stateGetNedToBodyEulers_f()->phi));
-//       omega = ANGLE_BFP_OF_REAL(turn_gain/10.0*tan(ANGLE_FLOAT_OF_BFP(sp->phi)));
+      if(abs(sp->phi) < ANGLE_BFP_OF_REAL(60.0/180.0*M_PI))
+	omega = ANGLE_BFP_OF_REAL(1.3*tan(ANGLE_FLOAT_OF_BFP(sp->phi)));
+      else //max 60 degrees roll, then take constant omega
+	omega = ANGLE_BFP_OF_REAL(1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0)));
+
       sp->psi += omega/RC_UPDATE_FREQ;
     }
 
@@ -138,6 +138,19 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers_f(struct Float
       sp->psi += (radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
       FLOAT_ANGLE_NORMALIZE(sp->psi);
     }
+    if (autopilot_mode == AP_MODE_FORWARD) {
+      //Coordinated turn
+      //feedforward estimate angular rotation omega = g*tan(phi)/v
+      //Take v = 9.81/1.3 m/s
+      float omega;
+      if(abs(sp->phi) < (60.0/180.0*M_PI))
+	omega = 1.3*tan(sp->phi);
+      else //max 60 degrees roll, then take constant omega
+	omega = 1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0));
+
+      sp->psi += omega/RC_UPDATE_FREQ;
+    }
+
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
 //     This is a different way to obtain yaw. It will not switch when going beyond 90 degrees pitch.
 //     However, when rolling more then 90 degrees in combination with pitch it switches switching. For a
@@ -252,7 +265,6 @@ static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQu
   /* get current heading */
   const struct FloatVect3 zaxis = {0., 0., 1.};
   struct FloatQuat q_yaw;
-//   FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, yaw);
 
   //Care Free mode
   if(autopilot_mode == AP_MODE_CARE_FREE) {
