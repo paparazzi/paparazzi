@@ -20,6 +20,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/sim/mcu_periph/sys_time_arch.c
+ * Handling of sys_time in sim.
+ */
+
 #include "mcu_periph/sys_time.h"
 
 

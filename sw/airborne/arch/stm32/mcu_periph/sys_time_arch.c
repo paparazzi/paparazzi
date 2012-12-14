@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2009-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -22,7 +21,9 @@
 
 /**
  * @file arch/stm32/mcu_periph/sys_time_arch.c
- * @brief STM32 timing functions.
+ * @ingroup stm32_arch
+ *
+ * STM32 timing functions.
  *
  */
 
@@ -34,12 +35,12 @@
 #include "led.h"
 #endif
 
+/** Initialize SysTick.
+ * Generate SysTick interrupt every SYS_TIME_RESOLUTION_CPU_TICKS
+ * The timer interrupt is activated on the transition from 1 to 0,
+ * therefore it activates every n+1 clock ticks.
+ */
 void sys_time_arch_init( void ) {
-
-  /* Generate SysTick interrupt every SYS_TIME_RESOLUTION_CPU_TICKS
-   * The timer interrupt is activated on the transition from 1 to 0,
-   * therefore it activates every n+1 clock ticks.
-   */
   systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB);
   systick_set_reload(SYS_TIME_RESOLUTION_CPU_TICKS-1);
 

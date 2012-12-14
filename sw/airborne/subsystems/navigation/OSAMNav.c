@@ -1,3 +1,29 @@
+/*
+ * Copyright (C) 2008-2012 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/navigation/OSAMNav.c
+ *
+ */
+
 #include "subsystems/navigation/OSAMNav.h"
 
 #include "subsystems/nav.h"
@@ -142,13 +168,14 @@ launch the plane. After initialized, the plane will follow a line drawn by the p
 position of the bungee (given in the arguments). Once the plane crosses the throttle line, which is perpendicular to the line the plane is following,
 and intersects the position of the bungee (plus or minus a fixed distance (TakeOff_Distance in airframe file) from the bungee just in case the bungee doesn't release directly above the bungee) the prop will come on. The plane will then continue to follow the line until it has reached a specific
 height (defined in as Takeoff_Height in airframe file) above the bungee waypoint and speed (defined as Takeoff_Speed in the airframe file).
-
+@verbatim
 <section name="Takeoff" prefix="Takeoff_">
   <define name="Height" value="30" unit="m"/>
   <define name="Speed" value="15" unit="m/s"/>
   <define name="Distance" value="10" unit="m"/>
   <define name="MinSpeed" value="5" unit="m/s"/>
 </section>
+@endverbatim
  */
 
 #ifndef Takeoff_Distance
@@ -853,16 +880,16 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
 }
 
 /************** SkidLanding **********************************************/
-/*
+/**
 Landing Routine
 
-
+@verbatim
   <section name="Landing" prefix="Landing_">
     <define name="AFHeight" value="50" unit="m"/>
     <define name="FinalHeight" value="5" unit="m"/>
     <define name="FinalStageTime" value="5" unit="s"/>
   </section>
-
+@endverbatim
  */
 
 #ifndef Landing_AFHeight
@@ -1159,9 +1186,7 @@ void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, fl
 	p->y = -temp*sin(Zrot)+p->y*cos(Zrot);
 }
 
-/*
-Rotates point round z by -Zrot then translates so (0,0) becomes (transX,transY)
-*/
+/// Rotates point round z by -Zrot then translates so (0,0) becomes (transX,transY)
 void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY)
 {
 	float temp = p->x;

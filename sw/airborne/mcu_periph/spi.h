@@ -22,9 +22,11 @@
 
 /**
  * @file mcu_periph/spi.h
+ *
  * Architecture independent SPI (Serial Peripheral Interface) API.
+ *
+ * Also see the @ref spi "SPI interface" page.
  */
-
 
 #ifndef SPI_H
 #define SPI_H
@@ -32,6 +34,13 @@
 #include "std.h"
 
 #include "mcu_periph/spi_arch.h"
+
+/**
+ * @addtogroup mcu_periph
+ * @{
+ * @defgroup spi SPI Interface
+ * @{
+ */
 
 // FIXME how to use this properly ?
 enum SPIMode {
@@ -255,7 +264,7 @@ extern bool_t spi_lock(struct spi_periph* p, uint8_t slave);
  * Only the slave that locks the fifo can unlock it.
  * @param p spi peripheral to be used
  * @param slave slave id
- * @resume true if correctly unlocked
+ * @return true if correctly unlocked
  */
 extern bool_t spi_resume(struct spi_periph* p, uint8_t slave);
 
@@ -321,5 +330,8 @@ extern bool_t spi_slave_register(struct spi_periph* p, struct spi_transaction* t
 extern bool_t spi_slave_wait(struct spi_periph* p);
 
 #endif /* SPI_SLAVE */
+
+/** @}*/
+/** @}*/
 
 #endif /* SPI_H */

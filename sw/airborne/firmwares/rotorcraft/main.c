@@ -20,6 +20,12 @@
  *
  */
 
+/**
+ * @file firmwares/rotorcraft/main.c
+ *
+ * Rotorcraft main loop.
+ */
+
 #define MODULES_C
 
 #include <inttypes.h>

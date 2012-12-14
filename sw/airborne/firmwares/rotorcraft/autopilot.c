@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/autopilot.c
+ *
+ * Autopilot.
+ *
+ */
+
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "subsystems/radio_control.h"

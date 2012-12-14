@@ -19,6 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/stm32/subsystems/radio_control/ppm_arch.c
+ * @ingroup stm32_arch
+ *
+ * STM32 ppm decoder.
+ *
+ */
+
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 

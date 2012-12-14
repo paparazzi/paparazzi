@@ -23,7 +23,9 @@
 
 /**
  * @file arch/stm32/mcu_periph/sys_time_arch.h
- * @brief STM32 timing functions.
+ * @ingroup stm32_arch
+ *
+ * STM32 timing functions.
  *
  */
 
@@ -55,8 +57,9 @@ extern void sys_tick_handler(void);
 #define SysTimeTimerStop(_t) { _t = ( GET_CUR_TIME_USEC() - (_t)); }
 
 
-/** Busy wait, in microseconds */
-// FIXME: directly use the SysTick->VAL here
+/** Busy wait in microseconds.
+ * FIXME: directly use the SysTick->VAL here
+ */
 static inline void sys_time_usleep(uint32_t us) {
   uint32_t end = GET_CUR_TIME_USEC() + us;
   while ((uint32_t)GET_CUR_TIME_USEC() < end);

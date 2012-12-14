@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * @file arch/stm32/mcu_periph/can_arch.c
+ * @ingroup stm32_arch
+ *
+ * Handling of CAN hardware for STM32.
+ */
+
 #include <stdint.h>
 #include <string.h>
 

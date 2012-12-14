@@ -1,7 +1,5 @@
 /*
- * Paparazzi microcontroller initialisation function
- *
- * Copyright (C) 2010 The Paparazzi team
+ * Copyright (C) 2010-2012 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -20,6 +18,11 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file mcu.c
+ * @brief Arch independent mcu ( Micro Controller Unit ) utilities.
  */
 
 #include "mcu.h"

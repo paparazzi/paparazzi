@@ -1,5 +1,4 @@
-/*  $Id$
- *
+/*
  * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -21,8 +20,11 @@
  *
  */
 
-/** \brief handling of arm7 PWM input using a timer with capture
+/**
+ * @file arch/lpc21/mcu_periph/pwm_input_arch.c
+ * @ingroup lpc21_arch
  *
+ * handling of arm7 PWM input using a timer with capture.
  */
 
 #include "mcu_periph/pwm_input_arch.h"

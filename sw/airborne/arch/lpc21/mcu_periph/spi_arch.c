@@ -22,8 +22,12 @@
 
 /**
  * @file arch/lpc21/mcu_periph/spi_arch.c
+ * @ingroup lpc21_arch
+ *
  * Handling of SPI hardware for lpc21xx.
  * for now only SPI1 ( aka SSP )
+ *
+ * TODO current implementation only works for SPI1 (SSP)
  */
 
 #include "mcu_periph/spi.h"
@@ -34,13 +38,10 @@
 #include "armVIC.h"
 #include BOARD_CONFIG
 
-// FIXME
-// current implementation only works for SPI1 (SSP)
-
-/** Slave selection functions and macros.
- *
+/** @name Slave selection
+ *  Slave selection functions and macros.
  */
-
+///@{
 #define SPI_SELECT_SLAVE_IO__(port, reg) IO ## port ## reg
 #define SPI_SELECT_SLAVE_IO_(port, reg) SPI_SELECT_SLAVE_IO__(port, reg)
 
@@ -85,10 +86,12 @@ __attribute__ ((always_inline)) static inline void SpiSlaveUnselect(uint8_t slav
       break;
   }
 }
+///@}
 
-/** Spi clock polarity and phase functions
+/** @name SPI clock
+ *  Spi clock polarity and phase functions.
  */
-
+///@{
 __attribute__ ((always_inline)) static inline void SpiSetCPOL(struct spi_periph* p) {
   SetBit(((sspRegs_t *)(p->reg_addr))->cr0, CPOL);
 }
@@ -104,10 +107,14 @@ __attribute__ ((always_inline)) static inline void SpiSetCPHA(struct spi_periph*
 __attribute__ ((always_inline)) static inline void SpiClearCPHA(struct spi_periph* p) {
   ClearBit(((sspRegs_t *)(p->reg_addr))->cr0, CPHA);
 }
+///@}
 
-/** Spi data size functions
+
+/**
+ * Set the SPI data size to 8 or 16bit.
+ * @param p SPI peripheral to set
+ * @param dss data size
  */
-
 __attribute__ ((always_inline)) static inline void SpiSetDataSize(struct spi_periph* p, enum SPIDataSizeSelect dss) {
   switch (dss) {
     default:
@@ -120,9 +127,11 @@ __attribute__ ((always_inline)) static inline void SpiSetDataSize(struct spi_per
   }
 }
 
-/** Spi control functions
- */
 
+/** @name SPI control
+ *  Spi control functions.
+ */
+///@{
 __attribute__ ((always_inline)) static inline void SpiEnable(struct spi_periph* p) {
   SetBit(((sspRegs_t *)(p->reg_addr))->cr1, SSE);
 }
@@ -166,6 +175,7 @@ __attribute__ ((always_inline)) static inline void SpiSend(struct spi_periph* p,
 __attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p, uint16_t* c) {
   *c = ((sspRegs_t *)(p->reg_addr))->dr;
 }
+
 
 __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph* p, struct spi_transaction* t) {
   // when all byte are sent, continue until tx_idx reach input_length
@@ -344,6 +354,7 @@ __attribute__ ((always_inline)) static inline void SpiSlaveAutomaton(struct spi_
   }
 
 }
+///@}
 
 /* SSP (SPI1) pins (UM10120_1.pdf page 76)
    P0.17 SCK    PINSEL1 2 << 2
@@ -397,17 +408,17 @@ void spi0_arch_init(void) {
 #if USE_SPI1
 
 /* SSPCR0 settings */
-#define MASTER_SSP_DSS  0x07 << 0  /* data size         : 8 bits        */
-#define MASTER_SSP_FRF  0x00 << 4  /* frame format      : SPI           */
-#define MASTER_SSP_CPOL 0x00 << 6  /* clock polarity    : SCK idles low */
-#define MASTER_SSP_CPHA 0x00 << 7  /* clock phase       : data captured on first clock transition */
-#define MASTER_SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
+#define MASTER_SSP_DSS  0x07 << 0  ///< data size         : 8 bits
+#define MASTER_SSP_FRF  0x00 << 4  ///< frame format      : SPI
+#define MASTER_SSP_CPOL 0x00 << 6  ///< clock polarity    : SCK idles low
+#define MASTER_SSP_CPHA 0x00 << 7  ///< clock phase       : data captured on first clock transition
+#define MASTER_SSP_SCR  0x0F << 8  ///< serial clock rate : divide by 16
 
 /* SSPCR1 settings */
-#define MASTER_SSP_LBM  0x00 << 0  /* loopback mode     : disabled                  */
-#define MASTER_SSP_SSE  0x00 << 1  /* SSP enable        : disabled                  */
-#define MASTER_SSP_MS   0x00 << 2  /* master slave mode : master                    */
-#define MASTER_SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
+#define MASTER_SSP_LBM  0x00 << 0  ///< loopback mode     : disabled
+#define MASTER_SSP_SSE  0x00 << 1  ///< SSP enable        : disabled
+#define MASTER_SSP_MS   0x00 << 2  ///< master slave mode : master
+#define MASTER_SSP_SOD  0x00 << 3  ///< slave output disable : don't care when master
 
 /** Clock prescaler.
  * SPI clock rate = PCLK / (CPSR*(SCR+1))
@@ -547,7 +558,7 @@ bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
   return FALSE;
 }
 
-#endif /** SPI_MASTER */
+#endif /* SPI_MASTER */
 
 
 /*
@@ -630,7 +641,7 @@ void spi1_slave_arch_init(void) {
 
 #endif
 
-/* Register one (and only one) transaction to use spi as slave */
+/** Register one (and only one) transaction to use spi as slave */
 bool_t spi_slave_register(struct spi_periph* p, struct spi_transaction* t) {
 
   if (p->trans_insert_idx >= 1) {

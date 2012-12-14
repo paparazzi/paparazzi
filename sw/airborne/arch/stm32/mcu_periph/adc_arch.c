@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,9 +21,10 @@
  */
 
 /**
+ * @file arch/stm32/mcu_periph/adc_arch.c
+ * @ingroup stm32_arch
  *
- * This is the driver for the analog to digital converters
- * on STM32
+ * Driver for the analog to digital converters on STM32.
  *
  * Usage:
  * Define flags for ADCs to use and their channels:

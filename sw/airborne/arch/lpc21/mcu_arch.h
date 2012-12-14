@@ -1,6 +1,4 @@
 /*
- * Paparazzi lpc21 arch dependant microcontroller initialisation functions
- *
  * Copyright (C) 2010 The Paparazzi team
  *
  * This file is part of Paparazzi.
@@ -20,6 +18,13 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file arch/lpc21/mcu_arch.h
+ * @brief lpc21 arch dependant microcontroller initialisation functions.
+ * @defgroup lpc21_arch LPC21 architecture
+ * @ingroup lpc21_arch
  */
 
 #ifndef LPC21_MCU_ARCH_H

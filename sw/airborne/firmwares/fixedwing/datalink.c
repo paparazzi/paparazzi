@@ -19,10 +19,13 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-/** \file datalink.c
- *  \brief Handling of messages coming from ground and other A/Cs
+
+/**
+ * @file firmwares/fixedwing/datalink.c
+ * Handling of messages coming from ground and other A/Cs.
  *
  */
+
 #define DATALINK_C
 
 #define MODULES_DATALINK_C

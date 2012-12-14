@@ -19,7 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** Dummy functions for handling of SPI hardware in sim.
+/**
+ * @file arch/sim/mcu_periph/spi_arch.h
+ * Dummy header for handling of SPI hardware in sim.
  */
 
 #ifndef SPI_ARCH_H

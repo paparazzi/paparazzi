@@ -21,8 +21,8 @@
  */
 
 
-/** \file led_cam_ctrl.h
- *  \brief Digital Camera Control
+/** @file modules/digital_cam/led_cam_ctrl.h
+ *  @brief Digital Camera Control
  *
  * Provides the control of the shutter and the zoom of a digital camera
  * through standard binary IOs of the board.
@@ -30,13 +30,17 @@
  * Configuration:
  *  Since the API of led.h is used, connected pins must be defined as led
  *  numbers (usually in the airframe file):
+ * @verbatim
  *   <define name="DC_SHUTTER_LED" value="10"/>
  *   <define name="DC_ZOOM_IN_LED" value="7"/>
  *   <define name="DC_ZOOM_OUT_LED" value="8"/>
  *   <define name="DC_POWER_LED" value="9"/>
+ * @endverbatim
  *  Related bank and pin must also be defined:
+ * @verbatim
  *   <define name="LED_10_BANK" value="0"/>
  *   <define name="LED_10_PIN" value="2"/>
+ * @endverbatim
  *  The required initialization (dc_init()) and periodic (4Hz) process
  *
  */

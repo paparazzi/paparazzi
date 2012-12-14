@@ -22,6 +22,7 @@
 
 /**
  * @file mcu_periph/spi.c
+ *
  * Architecture independent SPI (Serial Peripheral Interface) API.
  */
 

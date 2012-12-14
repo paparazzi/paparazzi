@@ -20,8 +20,10 @@
  *
  */
 
-/** \file autopilot.h
- *  \brief Autopilot modes
+/**
+ * @file firmwares/fixedwing/autopilot.h
+ *
+ * Autopilot modes.
  *
  */
 

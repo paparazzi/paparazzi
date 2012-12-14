@@ -1462,6 +1462,9 @@ PREDEFINED             = USE_GPS \
                        USE_IMU \
                        USE_MAGNETOMETER \
                        USE_BAROMETER \
+                       SPI_MASTER \
+                       SPI_SLAVE \
+                       USE_SPI0 USE_SPI1 USE_SPI2 \
                        RADIO_CONTROL \
                        GUIDANCE_V_C \
                        __attribute__(x)=

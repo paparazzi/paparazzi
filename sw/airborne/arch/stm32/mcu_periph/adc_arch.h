@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010  Paparazzi team
+ * Copyright (C) 2010-2012  Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -20,8 +20,15 @@
  *
  */
 
-#ifndef ADC_HW_H
-#define ADC_HW_H
+/**
+ * @file arch/stm32/mcu_periph/adc_arch.h
+ * @ingroup stm32_arch
+ *
+ * Driver for the analog to digital converters on STM32.
+ */
+
+#ifndef ADC_ARCH_H
+#define ADC_ARCH_H
 
 /*
  * Architecture dependant ADC functions for STM32
@@ -81,4 +88,4 @@ enum adc2_channels {
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x+NB_ADC)
 
-#endif /* ADC_HW_H */
+#endif /* ADC_ARCH_H */

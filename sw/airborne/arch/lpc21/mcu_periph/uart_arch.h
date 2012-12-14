@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * @file arch/lpc21/mcu_periph/uart_arch.h
+ * @ingroup lpc21_arch
+ *
+ * Handling of UART hardware for lpc21xx.
+ */
+
 #ifndef LPC21_UART_ARCH_H
 #define LPC21_UART_ARCH_H
 

@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/datalink.c
+ * Handling of messages coming from ground and other A/Cs.
+ *
+ */
+
 #define DATALINK_C
 #define MODULES_DATALINK_C
 

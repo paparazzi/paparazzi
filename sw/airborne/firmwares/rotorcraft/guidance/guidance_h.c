@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmware/rotorcraft/guidance/guidance_h.c
+/** @file firmwares/rotorcraft/guidance/guidance_h.c
  *  Horizontal guidance for rotorcrafts.
  *
  */
