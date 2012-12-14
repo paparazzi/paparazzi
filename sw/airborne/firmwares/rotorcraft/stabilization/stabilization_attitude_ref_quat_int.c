@@ -93,7 +93,6 @@ void stabilization_attitude_ref_init(void) {
 void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
-  stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
 
   /* convert reference attitude with REF_ANGLE_FRAC to eulers with normal INT32_ANGLE_FRAC */
   struct Int32Eulers ref_eul;

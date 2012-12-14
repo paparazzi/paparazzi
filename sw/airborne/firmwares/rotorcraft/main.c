@@ -169,11 +169,8 @@ STATIC_INLINE void main_periodic( void ) {
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */
-#ifdef SetCommandsFromRC
-  SetCommandsFromRC(commands, radio_control.values);
-#endif
   //actuators_set(autopilot_motors_on);
-  SetActuatorsFromCommands(commands);
+  SetActuatorsFromCommands(commands, autopilot_mode);
 
   modules_periodic_task();
 

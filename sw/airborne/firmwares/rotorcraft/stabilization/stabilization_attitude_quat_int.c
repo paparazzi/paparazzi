@@ -58,6 +58,8 @@ struct Int32Eulers stabilization_att_sum_err;
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
+float care_free_heading = 0;
+
 #define IERROR_SCALE 1024
 #define GAIN_PRESCALER_FF 48
 #define GAIN_PRESCALER_P 48
@@ -75,16 +77,8 @@ void stabilization_attitude_init(void) {
 void stabilization_attitude_enter(void) {
 
   int32_t yaw;
-  if(abs(stateGetNedToBodyEulers_i()->phi) < INT32_ANGLE_PI_2) {
-    int32_t sin_theta;
-    PPRZ_ITRIG_SIN(sin_theta, stateGetNedToBodyEulers_i()->theta);
-    yaw = stateGetNedToBodyEulers_i()->psi - INT_MULT_RSHIFT(sin_theta, stateGetNedToBodyEulers_i()->phi, INT32_TRIG_FRAC);
-  }
-  else if(ANGLE_FLOAT_OF_BFP(stateGetNedToBodyEulers_i()->theta) > 0)
-    yaw = stateGetNedToBodyEulers_i()->psi - stateGetNedToBodyEulers_i()->phi;
-  else
-    yaw = stateGetNedToBodyEulers_i()->psi + stateGetNedToBodyEulers_i()->phi;
-
+  stabilization_attitude_get_yaw_i(&yaw);
+  
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = yaw;
 
@@ -202,6 +196,10 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
   struct FloatQuat q_sp;
+#if USE_EARTH_BOUND_RC_SETPOINT
+  stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(&q_sp, in_flight);
+#else
   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
+#endif
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }

@@ -45,8 +45,6 @@ bool_t   autopilot_power_switch;
 bool_t   autopilot_detect_ground;
 bool_t   autopilot_detect_ground_once;
 
-float    mem_psi;
-
 #define AUTOPILOT_IN_FLIGHT_TIME    40
 
 #ifndef AUTOPILOT_DISABLE_AHRS_KILL
@@ -80,7 +78,6 @@ void autopilot_init(void) {
   autopilot_flight_time = 0;
   autopilot_rc = TRUE;
   autopilot_power_switch = FALSE;
-  mem_psi = 0;
 #ifdef POWER_SWITCH_LED
   LED_ON(POWER_SWITCH_LED); // POWER OFF
 #endif
@@ -151,7 +148,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       break;
     case AP_MODE_CARE_FREE:
       //Take the current psi as the reference for pitch and roll
-      mem_psi = stateGetNedToBodyEulers_f()->psi;
+      care_free_heading = stateGetNedToBodyEulers_f()->psi;
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_ATTITUDE_CLIMB:
     case AP_MODE_ATTITUDE_Z_HOLD:

@@ -64,8 +64,6 @@ extern void autopilot_set_motors_on(bool_t motors_on);
 extern bool_t autopilot_detect_ground;
 extern bool_t autopilot_detect_ground_once;
 
-extern float mem_psi;
-
 extern uint16_t autopilot_flight_time;
 
 /** Default RC mode.
