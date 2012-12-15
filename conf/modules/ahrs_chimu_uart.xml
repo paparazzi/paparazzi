@@ -14,7 +14,6 @@
   <!--<periodic fun="ins_periodic()" freq="60"/>-->
   <event fun="parse_ins_msg()"/>
   <makefile target="ap">
-    <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS"/>
     <define name="USE_INS_MODULE"/>
@@ -23,8 +22,9 @@
     <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>
     <file name="ahrs_chimu_uart.c"/>
     <file name="imu_chimu.c"/>
+    <file name="ahrs.c" dir="subsystems"/>
     <raw>
-      ap.srcs += subsystems/ahrs.c
+      ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_module.h\"
     </raw>
   </makefile>
 </module>

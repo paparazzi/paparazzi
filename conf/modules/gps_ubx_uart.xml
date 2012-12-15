@@ -14,11 +14,16 @@
   </makefile>
   <makefile target="ap">
     <file name="gps_ubx.c" dir="subsystems/gps"/>
-    <define name="GPS_TYPE_H" value="\"subsystems/gps/gps_ubx.h\""/>
+    <raw>
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+    </raw>
   </makefile>
   <makefile target="sim|jsbsim">
     <file name="gps_sim.c" dir="subsystems/gps"/>
-    <define name="GPS_TYPE_H" value="\"subsystems/gps/gps_sim.h\""/>
+    <raw>
+      sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+      jsbsim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+    </raw>
   </makefile>
 </module>
 
