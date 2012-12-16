@@ -70,6 +70,7 @@ def module_page(filename, module):
     s += "Module XML file: @c " + filename + "\n\n"
     s += details + "\n"
     s += module_configuration(module)
+    s += module_functions(module)
     s += "@section files Files\n\n"
     s += headers_list(module)
     s += sources_list(module)
@@ -84,7 +85,7 @@ def get_doc_config_option(module, type):
         if confs:
             s += "@subsection {0} {1} Options\n\n".format(type, type.title())
             for c in confs:
-                s += "- @b name: @c {0} @b value: @c {1}".format(c.get('name'), c.get('value'))
+                s += "- @b name: @c {0} @b value: <em>{1}</em>".format(c.get('name'), c.get('value'))
                 desc = c.get('description','')
                 if desc:
                     desc = " \\n\n  Description: " + desc
@@ -111,7 +112,7 @@ def get_doc_sections(module):
                 defs = sec.findall("./define")
                 #print("module {0} has {1} defines in section {2}".format(mname, len(defs), sname))
                 for d in defs:
-                    s += "  - @b name @c {0} @b value: @c {1}".format(d.get('name'), d.get('value'))
+                    s += "  - @b name @c {0} @b value: <em>{1}</em>".format(d.get('name'), d.get('value'))
                     desc = d.get('description','')
                     if desc:
                         desc = " \\n\n    Description: " + desc
@@ -171,6 +172,71 @@ def sources_list(module):
         for f in files:
             s += dox_list_file(f)
         return s + "\n"
+    else:
+        return ""
+
+def get_init_functions(module):
+    s = ""
+    inits = [f.get('fun') for f in module.findall("./init")]
+    if inits:
+        s += "@subsection init_functions Init Functions\n\n"
+        s += "These initialization functions are called once on startup.\n\n"
+        for init in inits:
+            s += "- " + init + "\n"
+        s += "\n"
+    return s
+
+def get_event_functions(module):
+    s = ""
+    events = [f.get('fun') for f in module.findall("./event")]
+    if events:
+        s += "@subsection event_functions Event Functions\n\n"
+        s += "These event functions are called in each cycle of the module event loop.\n\n"
+        for event in events:
+            s += "- " + event + "\n"
+        s += "\n"
+    return s
+
+def get_periodic_functions(module):
+    s = ""
+    periodics = module.findall("./periodic")
+    if periodics:
+        s += "@subsection periodic_functions Periodic Functions\n\n"
+        s += "These functions are called periodically at the specified frequency from the module periodic loop.\n\n"
+        for p in periodics:
+            s += "- {0}\n".format(p.get('fun',''))
+            if p.get('period',''):
+                s += "  - Period in seconds: @a {0}\n".format(p.get('period'))
+            elif p.get('freq',''):
+                s += "  - Frequency in Hz: @a {0}\n".format(p.get('freq'))
+            else:
+                s += "  - Running at maximum module frequency.\n"
+            if p.get('delay',''):
+                s += "  - Delay: @a {0} \\n\n".format(p.get('delay'))
+                s += "    Integer to impose a sequence (between 0 and main_freq/function_freq)\n"
+            # default for autorun is LOCK
+            autorun = p.get('autorun','LOCK')
+            s += "  - Autorun: @a {0} \\n\n".format(autorun)
+            if autorun == "TRUE":
+                s += "    Periodic function automatically starts after init.\n"
+            elif autorun == "FALSE":
+                s += "    Periodic function is started by user command.\n"
+            else:
+                s += "    Periodic function automatically starts after init and can't be stopped.\n"
+            if p.get('start',''):
+                s += "  - Start function: {0}\\n\n".format(p.get('start'))
+                s += "    Executed before the periodic function starts.\n"
+            if p.get('stop','') and autorun != "LOCK":
+                s += "  - Stop function: {0}\\n\n".format(p.get('stop'))
+                s += "    Executed after the periodic function stops.\n"
+    return s
+
+def module_functions(module):
+    fdoc = get_init_functions(module)
+    fdoc += get_event_functions(module)
+    fdoc += get_periodic_functions(module)
+    if fdoc:
+        return "@section functions Module functions\n\n" + fdoc + "\n"
     else:
         return ""
 
