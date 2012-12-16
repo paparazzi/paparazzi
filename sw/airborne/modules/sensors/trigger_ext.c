@@ -20,11 +20,12 @@
  *
  */
 
-/** \file trigger_ext.c
- *  \brief Measure external trigger pulse at PPM input
+/**
+ * @file modules/sensors/trigger_ext.c
+ * Measure external trigger pulse at PPM input
  *
- *   This measures a trigger pulse length (e.g. duration of a wind turbine
- *   rotation) and sends a message with the info.
+ * This measures a trigger pulse length (e.g. duration of a wind turbine
+ * rotation) and sends a message with the info.
  */
 
 

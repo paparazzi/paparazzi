@@ -20,11 +20,12 @@
  *
  */
 
-/** \file humid_pcap01.c
- *  \brief ACAM Picocap Single-chip Solution for Capacitance Measurement
+/**
+ * @file modules/meteo/humid_pcap01.c
+ * @brief ACAM Picocap Single-chip Solution for Capacitance Measurement
  *
- *   This reads the values for temperature and humidity from the ACAM capacitance and resistance
- *   measurement unit through I2C.
+ * This reads the values for temperature and humidity from the ACAM capacitance and resistance
+ * measurement unit through I2C.
  */
 
 #include "led.h"

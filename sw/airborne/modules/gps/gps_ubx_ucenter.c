@@ -21,6 +21,13 @@
  * Initial author: C. De Wagter
  */
 
+/**
+ * @file modules/gps/gps_ubx_ucenter.c
+ * @brief Configure Ublox GPS
+ *
+ */
+
+
 #include "gps_ubx_ucenter.h"
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -19,7 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file gps_ucenter_onboard.h
+/**
+ * @file modules/gps/gps_ubx_ucenter.h
  * @brief Configure Ublox GPS
  *
  */

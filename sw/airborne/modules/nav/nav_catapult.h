@@ -22,7 +22,7 @@
  */
 
 /**
- * @file module/nav/nav_catapult.h
+ * @file modules/nav/nav_catapult.h
  * @brief catapult launch timing system
  */
 
