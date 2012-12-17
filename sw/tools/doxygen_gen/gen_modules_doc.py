@@ -269,7 +269,13 @@ if __name__ == '__main__':
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
 
-    paparazzi_home = os.getenv("PAPARAZZI_HOME", os.getcwd())
+    # if PAPARAZZI_HOME not set, then assume the tree containing this
+    # file is a reasonable substitute
+    paparazzi_home = os.getenv(
+        "PAPARAZZI_HOME",
+        os.path.join(
+            os.path.dirname(__file__),
+            '../../../'))
 
     if options.input_dir:
         modules_dir = options.input_dir
