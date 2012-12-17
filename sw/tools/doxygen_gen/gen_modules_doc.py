@@ -269,15 +269,21 @@ if __name__ == '__main__':
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
 
-    paparazzi_home = os.getenv("PAPARAZZI_HOME", os.getcwd())
+    # if PAPARAZZI_HOME not set, then assume the tree containing this
+    # file is a reasonable substitute
+    paparazzi_home = os.getenv(
+        "PAPARAZZI_HOME",
+        os.path.join(
+            os.path.dirname(__file__),
+            '../../../'))
 
     if options.input_dir:
         modules_dir = options.input_dir
     else:
         modules_dir = os.path.join(paparazzi_home, "conf/modules")
-        if not os.path.isdir(modules_dir):
-            print("Input directory with modules " + modules_dir + " not found.")
-            sys.exit(1)
+    if not os.path.isdir(modules_dir):
+        print("Input directory with modules " + modules_dir + " not found.")
+        sys.exit(1)
 
     if options.output_dir:
         output_dir = options.output_dir
