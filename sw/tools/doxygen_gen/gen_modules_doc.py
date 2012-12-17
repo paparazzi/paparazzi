@@ -65,7 +65,8 @@ def modules_overview_page(modules_dict):
 
 def module_page(filename, module):
     (brief, details) = get_module_description(module)
-    page_name = "module__" + filename[:-4].lower()
+    keyword = filename[:-4].lower()
+    page_name = "module__" + keyword
     s = dox_new_page(page_name, brief)
     s += "Module XML file: @c " + filename + "\n\n"
     s += details + "\n"
@@ -74,7 +75,7 @@ def module_page(filename, module):
     s += "@section files Files\n\n"
     s += headers_list(module)
     s += sources_list(module)
-    s += "\n@subsection module_xml Raw {0} file:\n@include {0}\n".format(filename)
+    s += "\n@subsection module_xml__{0} Raw {1} file:\n@include {1}\n".format(keyword, filename)
     s += "\n */\n\n"
     return s
 
@@ -258,7 +259,7 @@ if __name__ == '__main__':
     usage = "Usage: %prog [options] modules/dir" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-i", "--inputdir", dest="input_dir",
-                      help="write output to DIR [default: PAPARAZZI_HOME/conf/modules", metavar="DIR")
+                      help="read input from DIR [default: PAPARAZZI_HOME/conf/modules", metavar="DIR")
     parser.add_option("-o", "--outputdir", dest="output_dir",
                       help="write output to DIR [default: PAPARAZZI_HOME/doc/manual", metavar="DIR")
     parser.add_option("-p", "--parents",
