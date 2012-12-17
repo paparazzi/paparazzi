@@ -139,7 +139,6 @@ ns_CFLAGS 		+= -DUSE_ADC
   ns_srcs 		+= $(SRC_ARCH)/mcu_periph/adc_arch.c
 ifeq ($(ARCH), stm32)
   ns_CFLAGS 		+= -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
-  ns_CFLAGS 		+= -DUSE_ADC1_2_IRQ_HANDLER
 endif
 
 ######################################################################
