@@ -281,9 +281,9 @@ if __name__ == '__main__':
         modules_dir = options.input_dir
     else:
         modules_dir = os.path.join(paparazzi_home, "conf/modules")
-        if not os.path.isdir(modules_dir):
-            print("Input directory with modules " + modules_dir + " not found.")
-            sys.exit(1)
+    if not os.path.isdir(modules_dir):
+        print("Input directory with modules " + modules_dir + " not found.")
+        sys.exit(1)
 
     if options.output_dir:
         output_dir = options.output_dir
