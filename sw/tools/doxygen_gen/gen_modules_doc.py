@@ -289,13 +289,14 @@ if __name__ == '__main__':
         output_dir = options.output_dir
     else:
         output_dir = os.path.join(paparazzi_home, "doc/manual/generated")
-        if not os.path.isdir(output_dir):
-            if options.create_parent_dirs:
-                print("Output directory " + output_dir + " doesn't exit yet. Creating it.")
-                os.makedirs(output_dir)
-            else:
-                print("Output directory " + output_dir + " not valid.")
-                sys.exit(1)
+
+    if not os.path.isdir(output_dir):
+        if options.create_parent_dirs:
+            print("Output directory " + output_dir + " doesn't exit yet. Creating it.")
+            os.makedirs(output_dir)
+        else:
+            print("Output directory " + output_dir + " not valid.")
+            sys.exit(1)
 
     if options.verbose:
         print("Generating module documentation in " + output_dir)
