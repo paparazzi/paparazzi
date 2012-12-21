@@ -49,7 +49,8 @@ let print_headers = fun modules ->
     try
       let headers = ExtXml.child m "header" in
       List.iter (fun h ->
-        lprintf out_h "#include \"%s/%s\"\n" dir_name (Xml.attrib h "name"))
+        let dir = ExtXml.attrib_or_default h "dir" dir_name in
+        lprintf out_h "#include \"%s/%s\"\n" dir (Xml.attrib h "name"))
       (Xml.children headers)
     with _ -> ())
   modules
