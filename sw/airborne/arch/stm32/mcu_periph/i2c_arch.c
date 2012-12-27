@@ -87,7 +87,8 @@ static inline void LED_ERROR(uint8_t base, uint8_t nr)
   }
   LED2_OFF();
 }
-#endif
+
+#endif // I2C_DEBUG_LED
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -102,55 +103,6 @@ static inline void LED_ERROR(uint8_t base, uint8_t nr)
 #define I2C2_CLOCK_SPEED 300000
 #endif
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-// Bypassing the libSTM I2C functions to have more control over the reading of registers
-// e.g. SR1 and SR2 should not always be read together as it might unwantedly clear ADDR flags etc.
-
-// Referring to STM32 manual:
-// -Doc ID 13902 Rev 11
-
-/* This macros are defined in libopencm3 already. Keeping commented for reference. */
-
-#if 0
-// Status Register 1
-
-#define I2C_SR1_BIT_SB			(1<<0)		// Start Condition Met
-#define I2C_SR1_BIT_ADDR		(1<<1)		// Address Sent
-#define I2C_SR1_BIT_BTF			(1<<2)		// SCL held low
-#define I2C_SR1_BIT_RXNE		(1<<6)		// Data Read Available
-#define I2C_SR1_BIT_TXE			(1<<7)		// TX buffer space available
-
-#define I2C_SR1_BIT_ERR_BUS		(1<<8)		// Misplaced Start/Stop (usually interference)
-#define I2C_SR1_BIT_ERR_ARLO		(1<<9)		// Arbitration Lost (in multimaster) or SDA short-to-ground (in single master)
-#define I2C_SR1_BIT_ERR_AF		(1<<10)		// Ack Failure (too fast/too soon/no sensor/wiring break/...)
-#define I2C_SR1_BIT_ERR_OVR		(1<<11)		// Overrun [data loss] (in slave) or SCL short-to-ground (in single master)
-
-#define I2C_SR1_BITS_ERR		((1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12)|(1<<14)|(1<<15))
-
-// Status Register 2
-
-#define I2C_SR2_BIT_TRA			(1<<2)		// Transmitting
-#define I2C_SR2_BIT_BUSY		(1<<1)		// Busy
-#define I2C_SR2_BIT_MSL			(1<<0)		// Master Selected
-
-// Control Register 1
-
-#define I2C_CR1_BIT_PE			(1<<0)		// Peripheral Enable
-#define I2C_CR1_BIT_START		(1<<8)		// Generate a Start
-#define I2C_CR1_BIT_STOP		(1<<9)		// Generate a Stop
-#define I2C_CR1_BIT_ACK			(1<<10)		// ACK / NACK
-#define I2C_CR1_BIT_POS			(1<<11)		// Ack will control not the next but secondnext received byte
-#define I2C_CR1_BIT_SWRST		(1<<15)		// Clear Busy Condition when no stop was detected
-
-// Control Register 2
-
-#define I2C_CR2_BIT_ITERREN		(1<<8)		// Error Interrupt
-#define I2C_CR2_BIT_ITEVTEN		(1<<9)		// Event Interrupt
-#define I2C_CR2_BIT_ITBUFEN		(1<<10)		// Buffer Interrupt
-
-#endif
 
 // Error bit mask
 // XXX: consider moving this define into libopencm3
@@ -298,7 +250,9 @@ static inline void LED_SHOW_ACTIVE_BITS(I2C_TypeDef *regs)
 #endif
 
 }
-#endif
+
+#endif // I2C_DEBUG_LED
+
 
 static inline void PPRZ_I2C_SEND_STOP(u32 i2c)
 {
