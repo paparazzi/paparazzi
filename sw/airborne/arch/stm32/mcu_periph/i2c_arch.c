@@ -92,39 +92,15 @@ static inline void LED_ERROR(uint8_t base, uint8_t nr)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-/* Not used in libopencm3 implementation. Keeping commented for reference. */
-#if 0
-#ifdef USE_I2C1
-#ifndef I2C1_BITRATE
-#define I2C1_BITRATE 200000
-#endif
-static I2C_InitTypeDef  I2C1_InitStruct = {
-      .I2C_Mode = I2C_Mode_I2C,
-      .I2C_DutyCycle = I2C_DutyCycle_2,
-      .I2C_OwnAddress1 = 0x00,
-      .I2C_Ack = I2C_Ack_Enable,
-      .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = I2C1_BITRATE
-};
-#endif
 
-#ifdef USE_I2C2
-#ifndef I2C2_BITRATE
-#define I2C2_BITRATE 300000
-#endif
-static I2C_InitTypeDef  I2C2_InitStruct = {
-      .I2C_Mode = I2C_Mode_I2C,
-      .I2C_DutyCycle = I2C_DutyCycle_2,
-      .I2C_OwnAddress1 = 0x00,
-      .I2C_Ack = I2C_Ack_Enable,
-      .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = I2C2_BITRATE
-};
-#endif
-#endif
-
+/** default I2C1 clock speed */
+#ifndef I2C1_CLOCK_SPEED
 #define I2C1_CLOCK_SPEED 40000
+#endif
+/** default I2C2 clock speed */
+#ifndef I2C2_CLOCK_SPEED
 #define I2C2_CLOCK_SPEED 300000
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
