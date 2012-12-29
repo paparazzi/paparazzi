@@ -3,6 +3,8 @@
 <module name="gps_ubx" dir="gps">
   <doc>
     <description>
+      Ublox GPS autoconfiguration.
+
       Automatically configure any Ublox GPS for paparazzi.
 
       -configures all the messages, and the rates

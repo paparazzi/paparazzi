@@ -1,19 +1,12 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Airspeed ADC module
-     @configure ADC_AIRSPEED on which ADC the sensor is connected
-     @define AIRSPEED_SCALE/AIRSPEED_QUADRATIC_SCALE scale factor, quadratic is used if defined
-     @define AIRSPEED_BIAS offset on ADC
-     -->
-
 <module name="airspeed_adc" dir="sensors">
   <doc>
-    <description>Airspeed sensor using internal ADC</description>
+    <description>Airspeed sensor (ADC). Using the internal ADC.</description>
     <configure name="ADC_AIRSPEED" value="ADCX" description="ADC on which sensor is connected"/>
     <define name="AIRSPEED_SCALE" value="scale factor" description="linear scale factor (used if AIRSPEED_QUADRATIC_SCALE is not defined"/>
     <define name="AIRSPEED_QUADRATIC_SCALE" value="quadratic scale factor" description="it is recommended to use quadratic scale"/>
-    <define name="AIRSPEED_BIAS" value="sensor bias"/>
+    <define name="AIRSPEED_BIAS" value="sensor bias" description="offset on ADC"/>
   </doc>
 
   <header>

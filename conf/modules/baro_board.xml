@@ -2,7 +2,10 @@
 
 <module name="baro_board" dir="sensors">
   <doc>
-    <description>Allow to use baro interface on fixedwing with external barometers</description>
+    <description>
+      Baro board wrapper.
+      Allows to use baro interface on fixedwing with external barometers.
+    </description>
   </doc>
   <header>
     <file name="baro_board_module.h"/>

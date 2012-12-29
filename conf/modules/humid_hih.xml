@@ -2,7 +2,10 @@
 
 <module name="humid_hih" dir="meteo">
   <doc>
-    <description></description>
+    <description>
+      HIH-4030 humidity sensor.
+      This reads the values for humidity from the Honeywell HIH-4030 sensor via ADC.
+    </description>
   </doc>
   <header>
     <file name="humid_hih.h"/>

@@ -2,7 +2,10 @@
 
 <module name="deploy_sonar_buoy">
   <doc>
-    <description></description>
+    <description>
+      Toggle two gpio pins (Lisa).
+      The application in this was written for drops two sonar buoys.
+    </description>
   </doc>
   <header>
     <file name="deploy_sonar_buoy.h"/>

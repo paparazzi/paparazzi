@@ -2,7 +2,11 @@
 
 <module name="dust_gp2y" dir="meteo">
   <doc>
-    <description></description>
+    <description>
+      Sharp GP2Y1010AU dust sensor.
+      This reads the values for dust density from the Sharp GP2Y1010AU0F sensor
+      through I2C (needs I2C ADC at the sensor).
+    </description>
   </doc>
   <header>
     <file name="dust_gp2y.h"/>

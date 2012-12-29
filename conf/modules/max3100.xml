@@ -4,7 +4,7 @@
 
 <module name="max3100">
   <doc>
-    <description>Driver for the MAXIM SPI/Uart MAX3100 converter</description>
+    <description>MAX3100 SPI/Uart converter</description>
   </doc>
   <header>
     <file name="max3100_hw.h"/>

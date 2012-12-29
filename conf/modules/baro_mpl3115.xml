@@ -2,7 +2,7 @@
 
 <module name="baro_mpl3115" dir="sensors">
   <doc>
-    <description>Baro MPL3115A2 module (I2C)</description>
+    <description>Baro MPL3115A2 (I2C)</description>
     <define name="MPL3115_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
   </doc>
 

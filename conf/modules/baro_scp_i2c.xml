@@ -1,11 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     VTI SCP1000 pressure sensor (I2C)
-     @define SCP_I2C_DEV i2c device (default i2c0)
-     @define SENSOR_SYNC_SEND to transmit the data as it is acquired
-     -->
-
 <module name="baro_scp_i2c" dir="sensors">
   <doc>
     <description>VTI SCP1000 pressure sensor (I2C)</description>

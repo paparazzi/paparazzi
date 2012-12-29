@@ -2,7 +2,7 @@
 
 <module name="baro_hca" dir="sensors">
   <doc>
-    <description>Baro sensortechnics HCA module (I2C)</description>
+    <description>Baro sensortechnics HCA (I2C)</description>
     <define name="BARO_HCA_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
   </doc>
 

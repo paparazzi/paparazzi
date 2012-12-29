@@ -1,13 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!-- to be configured with
-ap.CFLAGS += -DUSE_GPS -DUBX -DGPS_LINK=gps_i2c -DGPS_LED=2
-ap.CFLAGS += -DGPS_CONFIGURE -DGPS_PORT_ID=GPS_PORT_DDC
--->
-
 <module name="gps_i2c">
   <doc>
-    <description>U-blox gps using i2c (broken)</description>
+    <description>
+      U-blox GPS (I2C)
+      (apparently currently broken)
+    </description>
   </doc>
   <header>
     <file name="gps_i2c.h"/>
@@ -18,7 +16,7 @@ ap.CFLAGS += -DGPS_CONFIGURE -DGPS_PORT_ID=GPS_PORT_DDC
   <makefile target="ap">
     <file name="gps_i2c.c"/>
     <define name="GPS_CONFIGURE" />
-    <define name="GPS_PORT_ID" value="GPS_PORT_DDC" />
+    <define name="GPS_PORT_ID" value="GPS_PORT_DDC"/>
   </makefile>
 </module>
 

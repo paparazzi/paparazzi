@@ -2,7 +2,11 @@
 
 <module name="humdid_pcap01" dir="meteo">
   <doc>
-    <description></description>
+    <description>
+      ACAM Picocap capacitance sensor.
+      ACAM Picocap Single-chip Solution for Capacitance Measurement
+      This reads the values for temperature and humidity from the ACAM capacitance and resistance measurement unit through I2C.
+    </description>
   </doc>
   <header>
     <file name="humid_pcap01.h"/>
