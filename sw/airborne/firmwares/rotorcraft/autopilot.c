@@ -263,6 +263,18 @@ void autopilot_on_rc_frame(void) {
   /* if not in FAILSAFE mode check motor and in_flight status, read RC */
   if (autopilot_mode > AP_MODE_FAILSAFE) {
 
+    /* if there are some commands that should always be set from RC, do it */
+#ifdef SetAutoCommandsFromRC
+    SetAutoCommandsFromRC(commands, radio_control.values);
+#endif
+
+    /* if in "MANUAL" set commands from the rc */
+#ifdef SetCommandsFromRC
+    if (autopilot_mode == MODE_MANUAL) {
+      SetCommandsFromRC(commands, radio_control.values);
+    }
+#endif
+
     /* an arming sequence is used to start/stop motors */
     autopilot_arming_check_motors_on();
     kill_throttle = ! autopilot_motors_on;
