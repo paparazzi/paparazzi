@@ -348,7 +348,7 @@ test_imu_b2_2.srcs   += $(IMU_B2_2_SRCS)
 #
 # test IMU aspirin
 #
-IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_0
+IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_5
 IMU_ASPIRIN_SRCS   = $(SRC_SUBSYSTEMS)/imu.c             \
                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                      $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
