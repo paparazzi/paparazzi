@@ -54,6 +54,7 @@ value sim_periodic_task(value unit) {
   reporting_task();
   modules_periodic_task();
   periodic_task_fbw();
+  electrical_periodic();
   event_task_ap();
   event_task_fbw();
   return unit;
