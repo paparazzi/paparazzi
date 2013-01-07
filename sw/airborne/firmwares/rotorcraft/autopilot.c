@@ -114,9 +114,8 @@ void autopilot_periodic(void) {
   else {
     guidance_v_run( autopilot_in_flight );
     guidance_h_run( autopilot_in_flight );
-    SetCommands(stabilization_cmd);
+    SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
-  RotorcraftCommandsTest(commands, autopilot_in_flight, autopilot_motors_on);
 
 }
 
@@ -268,9 +267,9 @@ void autopilot_on_rc_frame(void) {
     SetAutoCommandsFromRC(commands, radio_control.values);
 #endif
 
-    /* if in "MANUAL" set commands from the rc */
+    /* if not in NAV_MODE set commands from the rc */
 #ifdef SetCommandsFromRC
-    if (autopilot_mode == MODE_MANUAL) {
+    if (autopilot_mode != AP_MODE_NAV) {
       SetCommandsFromRC(commands, radio_control.values);
     }
 #endif

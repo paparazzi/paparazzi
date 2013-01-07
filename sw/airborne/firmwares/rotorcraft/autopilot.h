@@ -116,18 +116,26 @@ extern uint16_t autopilot_flight_time;
   }
 #endif
 
-/** Thrust and Yaw commands limitation.
+/** Set Rotorcraft commands.
  *  Limit thrust and/or yaw depending of the in_flight
  *  and motors_on flag status
  */
 #ifndef ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
-#define RotorcraftCommandsTest(_cmd, _in_flight,  _motor_on) {  \
-  if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }                 \
-  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }               \
+#define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
+  if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }               \
+  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
+  commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
+  commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
+  commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
+  commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
 }
 #else
-#define RotorcraftCommandsTest(_cmd, _in_flight,  _motor_on) {  \
-  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }               \
+#define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
+  if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
+  commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
+  commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
+  commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
+  commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
 }
 #endif
 
