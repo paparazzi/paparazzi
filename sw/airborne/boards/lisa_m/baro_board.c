@@ -15,14 +15,10 @@
 
 struct Baro baro;
 
-
-struct Baro baro;
-
 void baro_init(void) {
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0;
-  baro_board.status = LBS_UNINITIALIZED;
 }
 
 void baro_periodic(void) {}

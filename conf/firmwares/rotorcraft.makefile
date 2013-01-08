@@ -137,7 +137,7 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
-BARO = BARO_SPI
+BARO = BARO_ASPIRIN
 ifeq ($(BOARD), booz)
 ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), lisa_l)
