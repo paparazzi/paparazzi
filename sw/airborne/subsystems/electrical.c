@@ -52,7 +52,7 @@ void electrical_init(void) {
 
 void electrical_periodic(void) {
 #ifndef SITL
-  electrical.vsupply = VoltageOfAdc((10*(electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample)));
+  electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT
