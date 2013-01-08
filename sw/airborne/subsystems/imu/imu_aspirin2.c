@@ -28,6 +28,8 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/ms5611.h"
 
+#define MPU6000_NO_SLAVES
+
 #ifndef MPU6000_SLAVE_IDX
 #define MPU6000_SLAVE_IDX SPI_SLAVE2
 #endif
