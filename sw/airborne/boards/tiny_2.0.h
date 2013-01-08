@@ -150,9 +150,7 @@
 #endif
 
 
-#ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) (0.01787109375*adc)
-#endif
+#define DefaultVoltageOfAdc(adc) (0.01787109375*adc)
 
 #define SPI_SELECT_SLAVE0_PORT 0
 #define SPI_SELECT_SLAVE0_PIN 20
