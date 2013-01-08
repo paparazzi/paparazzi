@@ -25,11 +25,11 @@ ifeq ($(NORADIO), False)
 # default to PA.01 (Servo 6 on Lisa/M) if not already defined
         RADIO_CONTROL_PPM_PIN ?= PA_01
     ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_10 UART1_RX))
-      ap.CFLAGS += -DUSE_TIM1_IRQ
-      fbw.CFLAGS += -DUSE_TIM1_IRQ
+      ap.CFLAGS += -DUSE_PPM_TIM1
+      fbw.CFLAGS += -DUSE_PPM_TIM1
     else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 SERVO6))
-      ap.CFLAGS += -DUSE_TIM2_IRQ
-      fbw.CFLAGS += -DUSE_TIM2_IRQ
+      ap.CFLAGS += -DUSE_PPM_TIM2
+      fbw.CFLAGS += -DUSE_PPM_TIM2
     else
         $(error unknown configuration for RADIO_CONTROL_PPM_PIN)
     endif

@@ -48,7 +48,7 @@ uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
-#ifdef USE_TIM2_IRQ
+#ifdef USE_PPM_TIM2
 
 #pragma message "Using PPM input on SERVO6 pin!"
 
@@ -63,7 +63,7 @@ static uint32_t timer_rollover_cnt;
 #define PPM_GPIO_PORT		GPIOA
 #define PPM_GPIO_PIN		GPIO1
 
-#elif defined USE_TIM1_IRQ
+#elif defined USE_PPM_TIM1
 
 #pragma message "Using PPM input on UART1_RX pin!"
 
