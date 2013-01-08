@@ -613,13 +613,15 @@ let send_config = fun http _asker args ->
     "settings.xml") else "file://replay" in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
+    let ac_speech_name = try Xml.attrib conf "speech_name" with _ -> ac_name in
     [ "ac_id", Pprz.String ac_id;
       "flight_plan", Pprz.String fp;
       "airframe", Pprz.String af;
       "radio", Pprz.String rc;
       "settings", Pprz.String settings;
       "default_gui_color", Pprz.String col;
-      "ac_name", Pprz.String ac_name ]
+      "ac_name", Pprz.String ac_name;
+      "ac_speech_name", Pprz.String ac_speech_name ]
   with
     Not_found ->
       failwith (sprintf "ground UNKNOWN %s" ac_id')

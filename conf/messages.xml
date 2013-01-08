@@ -2239,6 +2239,7 @@
     <field name="settings" type="string" unit="url"/>
     <field name="default_gui_color" type="string"/>
     <field name="ac_name" type="string"/>
+    <field name="ac_speech_name" type="string"/>
   </message>
 
   <message name="FLIGHT_PARAM" id="11">
