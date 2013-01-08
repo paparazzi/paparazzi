@@ -28,8 +28,8 @@ ifeq ($(NORADIO), False)
       ap.CFLAGS += -DUSE_PPM_TIM1
       fbw.CFLAGS += -DUSE_PPM_TIM1
     else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 SERVO6))
-      ap.CFLAGS += -DUSE_PPM_TIM2
-      fbw.CFLAGS += -DUSE_PPM_TIM2
+      ap.CFLAGS += -DUSE_PPM_TIM2 -DUSE_AD_TIM1
+      fbw.CFLAGS += -DUSE_PPM_TIM2 -DUSE_AD_TIM1
     else
         $(error unknown configuration for RADIO_CONTROL_PPM_PIN)
     endif

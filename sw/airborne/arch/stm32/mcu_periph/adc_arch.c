@@ -373,11 +373,14 @@ static inline void adc_init_single(uint32_t adc,
 
   adc_set_injected_sequence(adc, num_channels, channels);
 
-#if defined(USE_AD_TIM4)
+#if USE_AD_TIM4
+#pragma message "Info: Using TIM4 for ADC"
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
-#elif defined(USE_AD_TIM1)
+#elif USE_AD_TIM1
+#pragma message "Info: Using TIM1 for ADC"
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
 #else
+#pragma message "Info: Using default TIM2 for ADC"
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
 #endif
 
