@@ -28,6 +28,7 @@
 #ifndef AUTOPILOT_RC_HELPERS_H
 #define AUTOPILOT_RC_HELPERS_H
 
+#include "generated/airframe.h"
 #include "subsystems/radio_control.h"
 
 #define AUTOPILOT_THROTTLE_THRESHOLD      (MAX_PPRZ / 20)

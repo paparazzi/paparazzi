@@ -31,10 +31,15 @@
 
 #include "autopilot_rc_helpers.h"
 
+/** Delay until motors are armed/disarmed.
+ * In number of rc frames recieved.
+ * So 40 is usually ~1s.
+ */
+#ifndef MOTOR_ARMING_DELAY
+#define MOTOR_ARMING_DELAY  40
+#endif
 
-#define AUTOPILOT_MOTOR_ON_TIME     40
-
-// Motors ON check state machine
+/// Motors ON check state machine states
 enum arming_state {
   STATUS_MOTORS_OFF,
   STATUS_M_OFF_STICK_PUSHED,
@@ -65,9 +70,9 @@ static inline void autopilot_arming_set(bool_t motors_on) {
 
 /**
  * State machine to check if motors should be turned ON or OFF.
- * The motors start/stop when pushing the yaw stick without throttle during a given time
- * An intermediate state prevents oscillating between ON and OFF while keeping the stick pushed
- * The stick must return to a neutral position before starting/stoping again
+ * The motors start/stop when pushing the yaw stick without throttle until #MOTOR_ARMING_DELAY is reached.
+ * An intermediate state prevents oscillating between ON and OFF while keeping the stick pushed.
+ * The stick must return to a neutral position before starting/stoping again.
  */
 static inline void autopilot_arming_check_motors_on( void ) {
   /* only allow switching motor if not in FAILSAFE or KILL mode */
@@ -83,20 +88,20 @@ static inline void autopilot_arming_check_motors_on( void ) {
     case STATUS_M_OFF_STICK_PUSHED:
       autopilot_motors_on = FALSE;
       autopilot_motors_on_counter++;
-      if (autopilot_motors_on_counter >= AUTOPILOT_MOTOR_ON_TIME)
+      if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY)
         autopilot_check_motor_status = STATUS_START_MOTORS;
       else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // stick released too soon
         autopilot_check_motor_status = STATUS_MOTORS_OFF;
       break;
     case STATUS_START_MOTORS:
       autopilot_motors_on = TRUE;
-      autopilot_motors_on_counter = AUTOPILOT_MOTOR_ON_TIME;
+      autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
       if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // wait until stick released
         autopilot_check_motor_status = STATUS_MOTORS_ON;
       break;
     case STATUS_MOTORS_ON:
       autopilot_motors_on = TRUE;
-      autopilot_motors_on_counter = AUTOPILOT_MOTOR_ON_TIME;
+      autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
       if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) // stick pushed
         autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
       break;
