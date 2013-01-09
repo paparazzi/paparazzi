@@ -94,16 +94,6 @@ static inline void LED_ERROR(uint8_t base, uint8_t nr)
 //////////////////////////////////////////////////////////////////////////////////
 
 
-/** default I2C1 clock speed */
-#ifndef I2C1_CLOCK_SPEED
-#define I2C1_CLOCK_SPEED 40000
-#endif
-/** default I2C2 clock speed */
-#ifndef I2C2_CLOCK_SPEED
-#define I2C2_CLOCK_SPEED 300000
-#endif
-
-
 // Error bit mask
 // XXX: consider moving this define into libopencm3
 #define I2C_SR1_ERR_MASK (I2C_SR1_SMBALERT | \
@@ -1049,6 +1039,12 @@ I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
 
 #ifdef USE_I2C1
 
+/** default I2C1 clock speed */
+#ifndef I2C1_CLOCK_SPEED
+#pragma message "Info: Using default I2C1_CLOCK_SPEED of 200000 (Hz)"
+#define I2C1_CLOCK_SPEED 200000
+#endif
+
 struct i2c_errors i2c1_errors;
 volatile uint32_t i2c1_watchdog_counter;
 
@@ -1131,6 +1127,12 @@ void i2c1_er_isr(void) {
 #endif /* USE_I2C1 */
 
 #ifdef USE_I2C2
+
+/** default I2C2 clock speed */
+#ifndef I2C2_CLOCK_SPEED
+#pragma message "Info: Using default I2C2_CLOCK_SPEED of 300000 (Hz)"
+#define I2C2_CLOCK_SPEED 300000
+#endif
 
 struct i2c_errors i2c2_errors;
 volatile uint32_t i2c2_watchdog_counter;
