@@ -25,7 +25,8 @@
  */
 
 #include "subsystems/imu.h"
-#include "peripherals/hmc5843.h"
+//#include "peripherals/hmc5843.h"
+#include "peripherals/hmc58xx.h"
 
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/spi.h"
@@ -123,13 +124,17 @@ void imu_impl_init(void) {
   imu_aspirin.i2c_trans_gyro.status = I2CTransFailed;
 
   imu_aspirin_arch_init();
-  hmc5843_init();
+  //hmc5843_init();
+  hmc58xx_init(&imu_aspirin.mag_hmc, TRUE);
 
 }
 
 
 void imu_periodic(void) {
-  hmc5843_periodic();
+  //hmc5843_periodic();
+  // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
+  RunOnceEvery(5,Hmc58xxPeriodic(imu_aspirin.mag_hmc));
+
   if (imu_aspirin.status == AspirinStatusUninit) {
     configure_gyro();
     configure_accel();

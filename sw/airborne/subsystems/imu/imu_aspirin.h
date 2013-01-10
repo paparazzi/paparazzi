@@ -27,7 +27,8 @@
 
 #include "mcu_periph/i2c.h"
 #include "peripherals/itg3200.h"
-#include "peripherals/hmc5843.h"
+//#include "peripherals/hmc5843.h"
+#include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345.h"
 
 #ifdef IMU_ASPIRIN_VERSION_1_0
@@ -149,6 +150,7 @@ struct ImuAspirin {
   uint8_t mag_available;
   uint8_t reading_gyro;
   uint8_t gyro_available_blaaa;
+  struct Hmc58xx mag_hmc;
 };
 
 extern struct ImuAspirin imu_aspirin;
@@ -156,6 +158,7 @@ extern struct ImuAspirin imu_aspirin;
 #define ASPIRIN_ACCEL_TIMEOUT 3
 
 #define foo_handler() {}
+#if 0
 #define ImuMagEvent(_mag_handler) {					\
     MagEvent(foo_handler);                          \
     if (hmc5843.data_available) {			\
@@ -166,6 +169,18 @@ extern struct ImuAspirin imu_aspirin;
       hmc5843.data_available = FALSE;		\
     }									\
 }
+#else
+#define ImuMagEvent(_mag_handler) {                                          \
+    hmc58xx_event(&imu_aspirin.mag_hmc);                                  \
+    if (imu_aspirin.mag_hmc.data_available) {                              \
+      imu.mag_unscaled.x = imu_aspirin.mag_hmc.data.value[IMU_MAG_X_CHAN]; \
+      imu.mag_unscaled.y = imu_aspirin.mag_hmc.data.value[IMU_MAG_Y_CHAN]; \
+      imu.mag_unscaled.z = imu_aspirin.mag_hmc.data.value[IMU_MAG_Z_CHAN]; \
+      _mag_handler();                                                        \
+      imu_aspirin.mag_hmc.data_available = FALSE;                          \
+    }                                                                        \
+  }
+#endif
 
 /* underlying architecture */
 #include "subsystems/imu/imu_aspirin_arch.h"

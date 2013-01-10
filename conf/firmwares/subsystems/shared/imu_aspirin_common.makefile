@@ -35,13 +35,18 @@ IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
 
 # Magnetometer
-IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
-
-IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
+#IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
+IMU_ASPIRIN_SRCS   += peripherals/hmc58xx.c
 
 ifeq ($(ARCH), lpc21)
-$(error The aspirin subsystem (using SPI) is currently not implemnented for the lpc21. Please use the aspirin_i2c subsystem.)
+$(error Aspirin driver on lpc is unfinished.)
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
+IMU_ASPIRIN_CFLAGS += -DSSP_VIC_SLOT=9
+IMU_ASPIRIN_CFLAGS += -DUSE_I2C1
+IMU_ASPIRIN_CFLAGS += -DHMC58XX_I2C_DEVICE=i2c1 -DI2C1_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
+IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (ADXL345 CS)
