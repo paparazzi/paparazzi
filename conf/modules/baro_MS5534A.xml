@@ -2,7 +2,7 @@
 
 <module name="baro_MS5534A" dir="sensors">
   <doc>
-    <description>MS5611 barometer (SPI)</description>
+    <description>MS5534a barometer (SPI)</description>
   </doc>
   <header>
     <file name="baro_MS5534A.h"/>

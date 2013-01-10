@@ -43,6 +43,13 @@
 #define ITG3200_REG_GYRO_ZOUT_L 0X22
 #define ITG3200_REG_PWR_MGM     0X3E
 
-
+/* Digital Low Pass Filter */
+#define ITG3200_DLPF_256HZ      0x0  // internal sampling rate 8kHz
+#define ITG3200_DLPF_188HZ      0x1  // internal sampling rate 1kHz
+#define ITG3200_DLPF_98HZ       0x2
+#define ITG3200_DLPF_42HZ       0x3
+#define ITG3200_DLPF_20HZ       0x4
+#define ITG3200_DLPF_10HZ       0x5
+#define ITG3200_DLPF_05HZ       0x6
 
 #endif /* ITG3200_H */

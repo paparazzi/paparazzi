@@ -28,6 +28,8 @@ ifeq ($(NORADIO), False)
       ap.CFLAGS += -DUSE_PPM_TIM1
       fbw.CFLAGS += -DUSE_PPM_TIM1
     else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 SERVO6))
+# TIM2 is used by ADC by default, tell it to use TIM1 instead
+# (also see sw/airborne/arch/stm32/TIM_usage_list.txt)
       ap.CFLAGS += -DUSE_PPM_TIM2 -DUSE_AD_TIM1
       fbw.CFLAGS += -DUSE_PPM_TIM2 -DUSE_AD_TIM1
     else

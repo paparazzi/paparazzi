@@ -3,8 +3,8 @@
 IMU_PPZUAV_CFLAGS  = -DUSE_IMU
 IMU_PPZUAV_CFLAGS += -DIMU_TYPE_H=\"modules/sensors/imu_ppzuav.h\"
 
-IMU_PPZUAV_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                      $(SRC_MODULES)/sensors/imu_ppzuav.c
+IMU_PPZUAV_SRCS  = $(SRC_SUBSYSTEMS)/imu.c
+IMU_PPZUAV_SRCS += modules/sensors/imu_ppzuav.c
 
 
 IMU_PPZUAV_CFLAGS += -DUSE_I2C

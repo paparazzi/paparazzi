@@ -32,6 +32,7 @@
 
 #ifndef ASPIRIN_ACCEL_RATE
 #define ASPIRIN_ACCEL_RATE ADXL345_RATE_800
+#pragma message "Info: Using default ASPIRIN_ACCEL_RATE of 800Hz."
 #endif
 
 #ifndef ADXL345_SLAVE_IDX
@@ -50,7 +51,8 @@
 #define ITG3200_FS_SEL 0x3 // Full scale range +- 2000°/s
 #endif
 #ifndef ITG3200_DLPF_CFG
-#define ITG3200_DLPF_CFG 0x0 // Internal sampling (8kHz, 256Hz LP Bandwidth)
+#define ITG3200_DLPF_CFG ITG3200_DLPF_256HZ
+#pragma message "Info: Gyro set to default 256Hz low pass."
 #endif
 #ifndef ITG3200_CLK_SEL
 #define ITG3200_CLK_SEL 0x1 // PLL with X gyro reference
@@ -153,7 +155,7 @@ static void adxl345_trans_cb( struct spi_transaction *trans ) {
   }
 }
 
-/* sends a serie of I2C commands to configure the ITG3200 gyro */
+/* sends a series of I2C commands to configure the ITG3200 gyro */
 static void configure_gyro(void) {
   /* set gyro range to 2000deg/s and low pass at 256Hz */
   imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_DLPF_FS;
