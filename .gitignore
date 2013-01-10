@@ -26,6 +26,8 @@
 *.project
 *.externalToolBuilders
 .settings
+.pydevproject
+.metadata
 /build.properties
 /META-INF
 
