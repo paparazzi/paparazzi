@@ -5,11 +5,19 @@
  * Utah State University, http://aggieair.usu.edu/
  */
 #include "subsystems/sensors/baro.h"
-#include "baro_board_spi.h"
+#include "baro_board.h"
+#include "peripherals/ms5611.h"
 #include "led.h"
+#include "std.h"
+#include "mcu_periph/sys_time.h"
+
+#include "mcu_periph/spi.h"
+#ifndef MS5611_SPI_DEV
+#define MS5611_SPI_DEV spi2
+#endif
+#define MS5611_BUFFER_LENGTH    4
 
 #ifdef DEBUG
-#pragma message "Baro SPI debugging downlik active"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif

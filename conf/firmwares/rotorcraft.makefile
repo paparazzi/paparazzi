@@ -137,7 +137,7 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
-BARO = BARO_ASPIRIN
+BARO = BARO_SPI
 ifeq ($(BOARD), booz)
 ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), lisa_l)
@@ -153,9 +153,9 @@ else ifeq ($(BOARD), lisa_m)
     ap.CFLAGS += -DUSE_I2C2
     ap.srcs += $(SRC_BOARD)/baro_board_i2c.c
   else ifeq ($(BARO), BARO_ASPIRIN)
-#  # Aspirin has its own definitions
     ap.srcs += $(SRC_BOARD)/baro_board.c
   endif
+  ap.CFLAGS += -D$(BARO)
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DUSE_SPI
 ap.CFLAGS += -DUSE_SPI_SLAVE0

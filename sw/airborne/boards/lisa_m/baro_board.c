@@ -7,11 +7,6 @@
 
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
-#include "led.h"
-
-#ifdef DEBUG
-#pragma message "Generic baro driver"
-#endif
 
 struct Baro baro;
 

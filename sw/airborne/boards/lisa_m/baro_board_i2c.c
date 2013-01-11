@@ -5,11 +5,18 @@
  * Utah State University, http://aggieair.usu.edu/
  */
 #include "subsystems/sensors/baro.h"
-#include "baro_board_i2c.h"
+#include "baro_board.h"
+#include "peripherals/ms5611.h"
 #include "led.h"
+#include "std.h"
+#include "mcu_periph/sys_time.h"
+
+#include "mcu_periph/i2c.h"
+#ifndef MS5611_I2C_DEV
+#define MS5611_I2C_DEV i2c2
+#endif
 
 #ifdef DEBUG
-#pragma message "Baro debugging downlik active"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
