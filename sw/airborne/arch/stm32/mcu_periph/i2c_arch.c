@@ -863,9 +863,9 @@ I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
 
 /** default I2C1 clock speed */
 #ifndef I2C1_CLOCK_SPEED
-#pragma message "Info: Using default I2C1_CLOCK_SPEED of 200000 (Hz)"
 #define I2C1_CLOCK_SPEED 200000
 #endif
+PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 
 struct i2c_errors i2c1_errors;
 volatile uint32_t i2c1_watchdog_counter;
@@ -952,9 +952,9 @@ void i2c1_er_isr(void) {
 
 /** default I2C2 clock speed */
 #ifndef I2C2_CLOCK_SPEED
-#pragma message "Info: Using default I2C2_CLOCK_SPEED of 300000 (Hz)"
 #define I2C2_CLOCK_SPEED 300000
 #endif
+PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 
 struct i2c_errors i2c2_errors;
 volatile uint32_t i2c2_watchdog_counter;
