@@ -24,28 +24,13 @@
  * @file peripherals/hmc58xx.c
  *
  * Driver for Honeywell HMC5843 and HMC5883 magnetometers.
+ * @todo DRDY/IRQ handling
  */
 
 #include "peripherals/hmc58xx.h"
 #include "std.h"
 
-/* default I2C address */
-#define HMC58XX_ADDR 0x3C
-
-/* Registers */
-#define HMC58XX_REG_CFGA   0x00
-#define HMC58XX_REG_CFGB   0x01
-#define HMC58XX_REG_MODE   0x02
-#define HMC58XX_REG_DATXM  0x03
-#define HMC58XX_REG_DATXL  0x04
-#define HMC58XX_REG_DATYM  0x05
-#define HMC58XX_REG_DATYL  0x06
-#define HMC58XX_REG_DATZM  0x07
-#define HMC58XX_REG_DATZL  0x08
-#define HMC58XX_REG_STATUS 0x09
-#define HMC58XX_REG_IDA    0x0A
-#define HMC58XX_REG_IDB    0x0B
-#define HMC58XX_REG_IDC    0x0C
+#include "peripherals/hmc58xx_regs.h"
 
 /* HMC58XX default conf */
 #ifndef HMC58XX_DO
@@ -66,22 +51,14 @@
 #define HMC58XX_I2C_DEVICE i2c2
 #endif
 
-/* config status states */
-#define HMC_CONF_UNINIT 0
-#define HMC_CONF_CRA    1
-#define HMC_CONF_CRB    2
-#define HMC_CONF_MODE   3
-#define HMC_CONF_DONE   4
 
-
-// TODO IRQ handling
-
-void hmc58xx_init(struct Hmc58xx *hmc, bool_t use_default_config)
+void hmc58xx_init(struct Hmc58xx *hmc, bool_t set_default_config)
 {
   hmc->i2c_trans.status = I2CTransDone;
   hmc->i2c_trans.slave_addr = HMC58XX_ADDR;
-  if (use_default_config) {
-    hmc->i2c_dev_p = &(HMC58XX_I2C_DEVICE);
+  if (set_default_config) {
+    hmc->type = HMC_TYPE_5883;
+    hmc->i2c_p = &(HMC58XX_I2C_DEVICE);
     hmc->config.dor = HMC58XX_DO;
     hmc->config.ms = HMC58XX_MS;
     hmc->config.gn = HMC58XX_GN;
@@ -98,19 +75,19 @@ static void hmc58xx_send_config(struct Hmc58xx *hmc)
     case HMC_CONF_CRA:
       hmc->i2c_trans.buf[0] = HMC58XX_REG_CFGA;
       hmc->i2c_trans.buf[1] = (hmc->config.dor<<2)|(hmc->config.ms);
-      I2CTransmit(*(hmc->i2c_dev_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
+      I2CTransmit(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
       hmc->init_status++;
       break;
     case HMC_CONF_CRB:
       hmc->i2c_trans.buf[0] = HMC58XX_REG_CFGB;
       hmc->i2c_trans.buf[1] = hmc->config.gn<<5;
-      I2CTransmit(*(hmc->i2c_dev_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
+      I2CTransmit(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
       hmc->init_status++;
       break;
     case HMC_CONF_MODE:
       hmc->i2c_trans.buf[0] = HMC58XX_REG_MODE;
       hmc->i2c_trans.buf[1] = hmc->config.md;
-      I2CTransmit(*(hmc->i2c_dev_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
+      I2CTransmit(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
       hmc->init_status++;
       break;
     case HMC_CONF_DONE:
@@ -138,7 +115,7 @@ void hmc58xx_read(struct Hmc58xx *hmc)
 {
   if (hmc->initialized && hmc->i2c_trans.status == I2CTransDone){
     hmc->i2c_trans.buf[0] = HMC58XX_REG_DATXM;
-    I2CTransceive(*(hmc->i2c_dev_p), hmc->i2c_trans, HMC58XX_ADDR, 1, 6);
+    I2CTransceive(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 1, 6);
   }
 }
 
@@ -151,9 +128,16 @@ void hmc58xx_event(struct Hmc58xx *hmc)
       hmc->i2c_trans.status = I2CTransDone;
     }
     else if (hmc->i2c_trans.status == I2CTransSuccess) {
-      hmc->data.vect.x = Int16FromBuf(hmc->i2c_trans.buf,0);
-      hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,2);
-      hmc->data.vect.z = Int16FromBuf(hmc->i2c_trans.buf,4);
+      if (hmc->type == HMC_TYPE_5843) {
+        hmc->data.vect.x = Int16FromBuf(hmc->i2c_trans.buf,0);
+        hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,2);
+        hmc->data.vect.z = Int16FromBuf(hmc->i2c_trans.buf,4);
+      }
+      else {
+        hmc->data.vect.x = Int16FromBuf(hmc->i2c_trans.buf,0);
+        hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,4);
+        hmc->data.vect.z = Int16FromBuf(hmc->i2c_trans.buf,2);
+      }
       hmc->data_available = TRUE;
       hmc->i2c_trans.status = I2CTransDone;
     }

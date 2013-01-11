@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2011 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -20,21 +20,29 @@
  */
 
 /**
- * @file modules/mag_hmc58xx.h
- *
- * Module wrapper for Honeywell HMC5843 and HMC5883 magnetometers.
+ * @file peripherals/hmc58xx_regs.h
+ * Register defs for Honeywell HMC5843 and HMC5883 magnetometers.
  */
 
-#ifndef MAG_HMC58XX_H
-#define MAG_HMC58XX_H
+#ifndef HMC58XX_REGS_H
+#define HMC58XX_REGS_H
 
-#include "peripherals/hmc58xx.h"
+/* default I2C address */
+#define HMC58XX_ADDR 0x3C
 
-extern struct Hmc58xx mag_hmc58xx;
+/* Registers */
+#define HMC58XX_REG_CFGA   0x00
+#define HMC58XX_REG_CFGB   0x01
+#define HMC58XX_REG_MODE   0x02
+#define HMC58XX_REG_DATXM  0x03
+#define HMC58XX_REG_DATXL  0x04
+#define HMC58XX_REG_DATYM  0x05
+#define HMC58XX_REG_DATYL  0x06
+#define HMC58XX_REG_DATZM  0x07
+#define HMC58XX_REG_DATZL  0x08
+#define HMC58XX_REG_STATUS 0x09
+#define HMC58XX_REG_IDA    0x0A
+#define HMC58XX_REG_IDB    0x0B
+#define HMC58XX_REG_IDC    0x0C
 
-extern void mag_hmc58xx_module_init(void);
-extern void mag_hmc58xx_module_periodic(void);
-extern void mag_hmc58xx_module_event(void);
-extern void mag_hmc58xx_report(void);
-
-#endif // MAG_HMC58XX_H
+#endif // HMC58XX_REGS_H

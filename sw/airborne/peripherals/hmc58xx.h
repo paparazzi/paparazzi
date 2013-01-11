@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Gautier Hattenbergerr <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2011 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *               2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
@@ -40,24 +40,39 @@ struct Hmc58xxConfig {
   uint8_t md;   ///< Measurement mode
 };
 
+/** config status states */
+enum Hmc58xxConfStatus {
+  HMC_CONF_UNINIT,
+  HMC_CONF_CRA,
+  HMC_CONF_CRB,
+  HMC_CONF_MODE,
+  HMC_CONF_DONE
+};
+
+enum Hmc58xxType {
+  HMC_TYPE_5843,
+  HMC_TYPE_5883
+};
+
 struct Hmc58xx {
-  struct i2c_periph *i2c_dev_p;
+  struct i2c_periph *i2c_p;
   struct i2c_transaction i2c_trans;
-  bool_t initialized;               ///< config done flag
-  bool_t init_status;               ///< init status
-  volatile bool_t data_available;   ///< data ready flag
+  bool_t initialized;                 ///< config done flag
+  enum Hmc58xxConfStatus init_status; ///< init status
+  volatile bool_t data_available;     ///< data ready flag
   union {
-    struct Int16Vect3 vect;         ///< data vector in mag coordinate system
-    int16_t value[3];               ///< data values accessible by channel index
+    struct Int16Vect3 vect;           ///< data vector in mag coordinate system
+    int16_t value[3];                 ///< data values accessible by channel index
   } data;
   struct Hmc58xxConfig config;
+  enum Hmc58xxType type;
 };
 
 
 // TODO IRQ handling
 
 // Functions
-extern void hmc58xx_init(struct Hmc58xx *hmc, bool_t use_default_config);
+extern void hmc58xx_init(struct Hmc58xx *hmc, bool_t set_default_config);
 extern void hmc58xx_configure(struct Hmc58xx *hmc);
 extern void hmc58xx_read(struct Hmc58xx *hmc);
 extern void hmc58xx_event(struct Hmc58xx *hmc);
@@ -67,14 +82,5 @@ extern void hmc58xx_event(struct Hmc58xx *hmc);
   if (_hmc.initialized) hmc58xx_read(&_hmc);  \
   else hmc58xx_configure(&_hmc);                 \
 }
-
-#if 0 // doesn't seem to be needed/used anywhere?
-#define MagEvent(_m_handler) {    \
-    hmc58xx_event();              \
-    if (hmc->data_available) { \
-      _m_handler();               \
-    }                             \
-  }
-#endif
 
 #endif /* HMC58XX_H */
