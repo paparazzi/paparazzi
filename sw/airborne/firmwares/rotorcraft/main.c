@@ -72,7 +72,7 @@
 #include "generated/modules.h"
 
 #ifndef BARO_PERIODIC_FREQUENCY
-#define BARO_PERIODIC_FREQUENCY 100
+#define BARO_PERIODIC_FREQUENCY 50
 #endif
 
 static inline void on_gyro_event( void );
