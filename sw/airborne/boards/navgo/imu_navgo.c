@@ -38,7 +38,7 @@
 // Peripherials
 
 // Configure ADXL345
-// ADXL345_I2C_DEVICE IMU_UMARIM_I2C_DEVICE
+// ADXL345_I2C_DEV IMU_UMARIM_I2C_DEV
 // ADXL345_I2C_ADDR ADXL345_ADDR_ALT
 #include "peripherals/adxl345.extra_i2c.h"
 
@@ -52,7 +52,7 @@ void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
-  itg3200_init(&imu_navgo.itg, &(IMU_NAVGO_I2C_DEVICE), ITG3200_ADDR_ALT);
+  itg3200_init(&imu_navgo.itg, &(IMU_NAVGO_I2C_DEV), ITG3200_ADDR_ALT);
   // change the default configuration
   imu_navgo.itg.config.smplrt_div = 1;  // 500Hz sample rate since internal is 1kHz
   imu_navgo.itg.config.dlpf_cfg = ITG3200_DLPF_10HZ;

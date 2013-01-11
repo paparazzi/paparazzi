@@ -9,8 +9,8 @@
 struct Hmc5843 hmc5843;
 void exti9_5_irq_handler(void);
 
-#ifndef HMC5843_I2C_DEVICE
-#define HMC5843_I2C_DEVICE i2c2
+#ifndef HMC5843_I2C_DEV
+#define HMC5843_I2C_DEV i2c2
 #endif
 
 void hmc5843_init(void)
@@ -30,21 +30,21 @@ static void send_config(void)
   hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
   hmc5843.i2c_trans.buf[1] = 0x00 | (0x06 << 2);
   hmc5843.i2c_trans.len_w = 2;
-  i2c_submit(&HMC5843_I2C_DEVICE,&hmc5843.i2c_trans);
+  i2c_submit(&HMC5843_I2C_DEV,&hmc5843.i2c_trans);
   while(hmc5843.i2c_trans.status == I2CTransPending);
 
   hmc5843.i2c_trans.type = I2CTransTx;
   hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
   hmc5843.i2c_trans.buf[1] = 0x01<<5;
   hmc5843.i2c_trans.len_w = 2;
-  i2c_submit(&HMC5843_I2C_DEVICE,&hmc5843.i2c_trans);
+  i2c_submit(&HMC5843_I2C_DEV,&hmc5843.i2c_trans);
   while(hmc5843.i2c_trans.status == I2CTransPending);
 
   hmc5843.i2c_trans.type = I2CTransTx;
   hmc5843.i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
   hmc5843.i2c_trans.buf[1] = 0x00;
   hmc5843.i2c_trans.len_w = 2;
-  i2c_submit(&HMC5843_I2C_DEVICE,&hmc5843.i2c_trans);
+  i2c_submit(&HMC5843_I2C_DEV,&hmc5843.i2c_trans);
   while(hmc5843.i2c_trans.status == I2CTransPending);
 
 }
@@ -67,11 +67,11 @@ void hmc5843_idle_task(void)
   if (hmc5843.i2c_trans.status == I2CTransRunning || hmc5843.i2c_trans.status == I2CTransPending) return;
 
   if (hmc5843.initialized && mag_eoc() && !hmc5843.sent_tx && !hmc5843.sent_rx) {
-    if (HMC5843_I2C_DEVICE.status == I2CIdle && i2c_idle(&HMC5843_I2C_DEVICE)) {
+    if (HMC5843_I2C_DEV.status == I2CIdle && i2c_idle(&HMC5843_I2C_DEV)) {
       hmc5843.i2c_trans.type = I2CTransTx;
       hmc5843.i2c_trans.len_w = 1;
       hmc5843.i2c_trans.buf[0] = 0x3;
-      i2c_submit(&HMC5843_I2C_DEVICE, &hmc5843.i2c_trans);
+      i2c_submit(&HMC5843_I2C_DEV, &hmc5843.i2c_trans);
       hmc5843.sent_tx = 1;
       return;
     }
@@ -82,7 +82,7 @@ void hmc5843_idle_task(void)
     hmc5843.i2c_trans.len_r = 6;
     hmc5843.i2c_trans.len_w = 1;
     hmc5843.i2c_trans.buf[0] = 0x3;
-    i2c_submit(&HMC5843_I2C_DEVICE, &hmc5843.i2c_trans);
+    i2c_submit(&HMC5843_I2C_DEV, &hmc5843.i2c_trans);
     hmc5843.sent_rx = 1;
     hmc5843.sent_tx = 0;
     return;
@@ -105,19 +105,19 @@ void hmc5843_periodic(void)
   if (!hmc5843.initialized) {
     send_config();
     hmc5843.initialized = TRUE;
-  } else if (hmc5843.timeout++ > HMC5843_TIMEOUT && HMC5843_I2C_DEVICE.status == I2CIdle && i2c_idle(&HMC5843_I2C_DEVICE)){
+  } else if (hmc5843.timeout++ > HMC5843_TIMEOUT && HMC5843_I2C_DEV.status == I2CIdle && i2c_idle(&HMC5843_I2C_DEV)){
 #ifdef USE_HMC59843_ARCH_RESET
     hmc5843_arch_reset();
 #endif
     hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.len_w = 1;
     hmc5843.i2c_trans.buf[0] = 0x3;
-    i2c_submit(&HMC5843_I2C_DEVICE, &hmc5843.i2c_trans);
+    i2c_submit(&HMC5843_I2C_DEV, &hmc5843.i2c_trans);
     while(hmc5843.i2c_trans.status == I2CTransPending || hmc5843.i2c_trans.status == I2CTransRunning);
 
     hmc5843.i2c_trans.type = I2CTransRx;
     hmc5843.i2c_trans.len_r = 6;
-    i2c_submit(&HMC5843_I2C_DEVICE, &hmc5843.i2c_trans);
+    i2c_submit(&HMC5843_I2C_DEV, &hmc5843.i2c_trans);
     while(hmc5843.i2c_trans.status == I2CTransPending || hmc5843.i2c_trans.status == I2CTransRunning);
     hmc5843.timeout = 0;
   }

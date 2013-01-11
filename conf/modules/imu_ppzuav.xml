@@ -20,7 +20,7 @@
 
   <makefile target="ap">
     <file name="imu_ppzuav.c"/>
-    <define name="PPZUAVIMU_I2C_DEVICE" value="i2c0" />
+    <define name="PPZUAVIMU_I2C_DEV" value="i2c0" />
     <define name="USE_I2C" />
     <define name="USE_I2C0" />
   </makefile>

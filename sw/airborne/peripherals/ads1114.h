@@ -109,8 +109,8 @@
 
 /* Default I2C device */
 // FIXME all ads on the same device for now
-#ifndef ADS1114_I2C_DEVICE
-#define ADS1114_I2C_DEVICE i2c1
+#ifndef ADS1114_I2C_DEV
+#define ADS1114_I2C_DEV i2c1
 #endif
 
 struct ads1114_periph {

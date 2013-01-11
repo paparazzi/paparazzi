@@ -93,7 +93,7 @@ void imu_impl_init(void) {
   aspirin_adxl345.output_buf = &imu_aspirin.accel_tx_buf[0];
 
   /* Gyro configuration and initalization */
-  itg3200_init(&imu_aspirin.gyro_itg, &(IMU_ASPIRIN_I2C_DEVICE), ITG3200_ADDR);
+  itg3200_init(&imu_aspirin.gyro_itg, &(IMU_ASPIRIN_I2C_DEV), ITG3200_ADDR);
   /* change the default config */
   imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV; // Sample rate divider defaults to 533Hz
   imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_DLPF_CFG; // defaults to 8kHz internal with 256Hz low pass

@@ -23,7 +23,7 @@
   <makefile target="ap">
     <file name="atmega_i2c_cam_ctrl.c"/>
     <file name="dc.c"/>
-      <define name="ATMEGA_I2C_DEVICE" value="i2c0"/>
+      <define name="ATMEGA_I2C_DEV" value="i2c0"/>
       <define name="USE_I2C0" value="1"/>
       <define name="SENSOR_SYNC_SEND" value="1" />
   </makefile>

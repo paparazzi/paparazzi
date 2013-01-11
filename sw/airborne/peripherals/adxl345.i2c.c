@@ -61,25 +61,25 @@ static void adxl345_send_config(void)
     case ADXL_CONF_RATE:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_BW_RATE;
       adxl345_i2c_trans.buf[1] = ADXL345_BW_RATE;
-      I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      I2CTransmit(ADXL345_I2C_DEV, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
       adxl345_init_status++;
       break;
     case ADXL_CONF_POWER:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_POWER_CTL;
       adxl345_i2c_trans.buf[1] = ADXL345_POWER_CTL;
-      I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      I2CTransmit(ADXL345_I2C_DEV, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
       adxl345_init_status++;
       break;
     case ADXL_CONF_INT:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_INT_ENABLE;
       adxl345_i2c_trans.buf[1] = ADXL345_INT_ENABLE;
-      I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      I2CTransmit(ADXL345_I2C_DEV, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
       adxl345_init_status++;
       break;
     case ADXL_CONF_FORMAT:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_DATA_FORMAT;
       adxl345_i2c_trans.buf[1] = ADXL345_DATA_FORMAT;
-      I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      I2CTransmit(ADXL345_I2C_DEV, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
       adxl345_init_status++;
       break;
     case ADXL_CONF_DONE:
@@ -107,7 +107,7 @@ void adxl345_read(void)
 {
   if (adxl345_initialized && adxl345_i2c_trans.status == I2CTransDone) {
     adxl345_i2c_trans.buf[0] = ADXL345_REG_DATA_X0;
-    I2CTransceive(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 1, 6);
+    I2CTransceive(ADXL345_I2C_DEV, adxl345_i2c_trans, ADXL345_I2C_ADDR, 1, 6);
   }
 }
 

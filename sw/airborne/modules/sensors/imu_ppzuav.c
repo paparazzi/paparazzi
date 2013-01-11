@@ -84,7 +84,7 @@ void imu_impl_init(void)
 #  endif
 #endif
   ppzuavimu_itg3200.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
   /* set sample rate to 66Hz: so at 60Hz there is always a new sample ready and you loose little */
@@ -94,19 +94,19 @@ void imu_impl_init(void)
 #else
   ppzuavimu_itg3200.buf[1] = 9;  // 100Hz
 #endif
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
   /* switch to gyroX clock */
   ppzuavimu_itg3200.buf[0] = ITG3200_REG_PWR_MGM;
   ppzuavimu_itg3200.buf[1] = 0x01;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
   /* no interrupts for now, but set data ready interrupt to enable reading status bits */
   ppzuavimu_itg3200.buf[0] = ITG3200_REG_INT_CFG;
   ppzuavimu_itg3200.buf[1] = 0x01;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
   /////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void imu_impl_init(void)
   ppzuavimu_adxl345.buf[1] = ADXL345_RATE_100;  // normal power and 100Hz sampling, 50Hz BW
 #endif
   ppzuavimu_adxl345.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
 
   /* switch to measurement mode */
@@ -130,14 +130,14 @@ void imu_impl_init(void)
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_POWER_CTL;
   ppzuavimu_adxl345.buf[1] = 1<<3;
   ppzuavimu_adxl345.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
 
   /* Set range to 16g but keeping full resolution of 3.9 mV/g */
   ppzuavimu_adxl345.type = I2CTransTx;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_DATA_FORMAT;
   ppzuavimu_adxl345.buf[1] = ADXL345_FULL_RES | ADXL345_RANGE_16G;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
 
   /////////////////////////////////////////////////////////////////////
@@ -147,21 +147,21 @@ void imu_impl_init(void)
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_CFGA;  // set to rate to max speed: 50Hz no bias
   ppzuavimu_hmc5843.buf[1] = 0x00 | (0x06 << 2);
   ppzuavimu_hmc5843.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_hmc5843);
     while(ppzuavimu_hmc5843.status == I2CTransPending);
 
   ppzuavimu_hmc5843.type = I2CTransTx;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
   ppzuavimu_hmc5843.buf[1] = 0x01<<5;
   ppzuavimu_hmc5843.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_hmc5843);
     while(ppzuavimu_hmc5843.status == I2CTransPending);
 
   ppzuavimu_hmc5843.type = I2CTransTx;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
   ppzuavimu_hmc5843.buf[1] = 0x00;
   ppzuavimu_hmc5843.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_hmc5843);
     while(ppzuavimu_hmc5843.status == I2CTransPending);
 
 }
@@ -173,14 +173,14 @@ void imu_periodic( void )
   ppzuavimu_itg3200.len_r = 9;
   ppzuavimu_itg3200.len_w = 1;
   ppzuavimu_itg3200.buf[0] = ITG3200_REG_INT_STATUS;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_itg3200);
+  i2c_submit(&PPZUAVIMU_I2C_DEV, &ppzuavimu_itg3200);
 
   // Start reading the latest accelerometer data
   ppzuavimu_adxl345.type = I2CTransTxRx;
   ppzuavimu_adxl345.len_r = 6;
   ppzuavimu_adxl345.len_w = 1;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_DATA_X0;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_adxl345);
+  i2c_submit(&PPZUAVIMU_I2C_DEV, &ppzuavimu_adxl345);
 
   // Start reading the latest magnetometer data
 #if PERIODIC_FREQUENCY > 60
@@ -190,7 +190,7 @@ void imu_periodic( void )
   ppzuavimu_hmc5843.len_r = 6;
   ppzuavimu_hmc5843.len_w = 1;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_DATXM;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV, &ppzuavimu_hmc5843);
 #if PERIODIC_FREQUENCY > 60
   });
 #endif

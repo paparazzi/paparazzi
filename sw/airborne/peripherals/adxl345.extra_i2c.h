@@ -63,8 +63,8 @@
 #endif
 
 /* Default I2C device */
-#ifndef ADXL345_I2C_DEVICE
-#define ADXL345_I2C_DEVICE i2c1
+#ifndef ADXL345_I2C_DEV
+#define ADXL345_I2C_DEV i2c1
 #endif
 
 // Config done flag

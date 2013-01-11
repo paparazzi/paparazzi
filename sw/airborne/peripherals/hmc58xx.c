@@ -47,8 +47,8 @@
 #endif
 
 /* Default I2C device is i2c2 (for lisa) */
-#ifndef HMC58XX_I2C_DEVICE
-#define HMC58XX_I2C_DEVICE i2c2
+#ifndef HMC58XX_I2C_DEV
+#define HMC58XX_I2C_DEV i2c2
 #endif
 
 
@@ -58,7 +58,7 @@ void hmc58xx_init(struct Hmc58xx *hmc, bool_t set_default_config)
   hmc->i2c_trans.slave_addr = HMC58XX_ADDR;
   if (set_default_config) {
     hmc->type = HMC_TYPE_5883;
-    hmc->i2c_p = &(HMC58XX_I2C_DEVICE);
+    hmc->i2c_p = &(HMC58XX_I2C_DEV);
     hmc->config.dor = HMC58XX_DO;
     hmc->config.ms = HMC58XX_MS;
     hmc->config.gn = HMC58XX_GN;
