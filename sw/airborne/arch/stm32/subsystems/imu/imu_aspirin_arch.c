@@ -44,6 +44,7 @@ void imu_aspirin_arch_int_disable(void) {
 
 void imu_aspirin_arch_init(void) {
 
+  // This was needed for Lisa/L????
 #if 0
   /* Set "mag ss" and "mag reset" as floating inputs ------------------------*/
   /* "mag ss"    (PC12) is shorted to I2C2 SDA       */

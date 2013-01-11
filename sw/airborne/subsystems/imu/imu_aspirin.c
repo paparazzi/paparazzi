@@ -33,7 +33,7 @@
 
 #ifndef ASPIRIN_ACCEL_RATE
 #define ASPIRIN_ACCEL_RATE ADXL345_RATE_800
-#pragma message "Info: Using default ASPIRIN_ACCEL_RATE of 800Hz."
+INFO("Using default ASPIRIN_ACCEL_RATE of 800Hz.")
 #endif
 
 #ifndef ADXL345_SLAVE_IDX
@@ -45,19 +45,22 @@
 #endif
 
 
-#ifndef ITG3200_SMPLRT_DIV
-#define ITG3200_SMPLRT_DIV 0x0E // Sample rate divider defaults to 533Hz
+#ifdef ASPIRIN_GYRO_LOWPASS_HZ
+PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS_HZ)
+#define __DLPF(x, hz) x##hz
+#define _DLPF(hz) __DLPF(ITG3200_DLPF_, hz)
+#define ASPIRIN_GYRO_DLPF_CFG _DLPF(ASPIRIN_GYRO_LOWPASS_HZ)
+#else
+#define ASPIRIN_GYRO_DLPF_CFG ITG3200_DLPF_256HZ
+INFO("Using default ASPIRIN_GYRO_LOWPASS of 256HZ")
 #endif
-#ifndef ITG3200_FS_SEL
-#define ITG3200_FS_SEL 0x3 // Full scale range +- 2000°/s
+//PRINT_CONFIG_VAR(ASPIRIN_GYRO_DLPF_CFG)
+
+/// Default sample rate divider: with default DLPF -> 533Hz
+#ifndef ASPIRIN_GYRO_SMPLRT_DIV
+#define ASPIRIN_GYRO_SMPLRT_DIV 14
 #endif
-#ifndef ITG3200_DLPF_CFG
-#define ITG3200_DLPF_CFG ITG3200_DLPF_256HZ
-#pragma message "Info: Gyro set to default 256Hz low pass."
-#endif
-#ifndef ITG3200_CLK_SEL
-#define ITG3200_CLK_SEL 0x1 // PLL with X gyro reference
-#endif
+//PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
 
 struct ImuAspirin imu_aspirin;
@@ -68,11 +71,11 @@ void adxl345_write_to_reg(uint8_t _reg, uint8_t _val);
 static void adxl345_trans_cb( struct spi_transaction *trans );
 
 /* initialize peripherals */
-static void configure_gyro(void);
+//static void configure_gyro(void);
 static void configure_accel(void);
 //static void configure_mag(void);
 
-
+#if 0
 // FIXME: there should be no arch dependent code here!
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   uint8_t max_retry = 8;
@@ -95,13 +98,16 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
     _t.len_w = _len;                                \
     send_i2c_msg_with_retry(&(_t));                 \
   }
+#endif
 
 void imu_impl_init(void) {
 
   imu_aspirin.status = AspirinStatusUninit;
-  imu_aspirin.gyro_available_blaaa = FALSE;
-  imu_aspirin.mag_available = FALSE;
-  imu_aspirin.accel_available = FALSE;
+  //imu_aspirin.gyro_available_blaaa = FALSE;
+  //imu_aspirin.mag_available = FALSE;
+  imu_aspirin.accel_valid = FALSE;
+  imu_aspirin.gyro_valid = FALSE;
+  imu_aspirin.mag_valid = FALSE;
 
   aspirin_adxl345.select = SPISelectUnselect;
   aspirin_adxl345.cpol = SPICpolIdleHigh;
@@ -116,12 +122,24 @@ void imu_impl_init(void) {
   aspirin_adxl345.input_buf = &imu_aspirin.accel_rx_buf[0];
   aspirin_adxl345.output_buf = &imu_aspirin.accel_tx_buf[0];
 
+  /* Gyro configuration and initalization */
+  itg3200_init(&imu_aspirin.gyro_itg, &(IMU_ASPIRIN_I2C_DEVICE), ITG3200_ADDR);
+  /* change the default config */
+  imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV; // Sample rate divider defaults to 533Hz
+  imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_DLPF_CFG; // defaults to 8kHz internal with 256Hz low pass
+
+  /// @todo eoc interrupt for itg3200, polling for now (including status reg)
+  /* interrupt on data ready, idle high, latch until read any register */
+  //itg_conf.int_cfg = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
+
+#if 0
   imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx;
   imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
   imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR;
   imu_aspirin.i2c_trans_gyro.len_w = 1;
   imu_aspirin.i2c_trans_gyro.len_r = 6;
   imu_aspirin.i2c_trans_gyro.status = I2CTransFailed;
+#endif
 
   imu_aspirin_arch_init();
   //hmc5843_init();
@@ -131,20 +149,23 @@ void imu_impl_init(void) {
 
 
 void imu_periodic(void) {
-  //hmc5843_periodic();
-  // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(5,Hmc58xxPeriodic(imu_aspirin.mag_hmc));
+  // Read HMC58XX at 50Hz (main loop for rotorcraft: 512Hz)
+  RunOnceEvery(10, Hmc58xxPeriodic(imu_aspirin.mag_hmc));
+
+  // Start reading the latest gyroscope data
+  Itg3200Periodic(imu_aspirin.gyro_itg);
 
   if (imu_aspirin.status == AspirinStatusUninit) {
-    configure_gyro();
+    //configure_gyro();
+
     configure_accel();
     //imu_aspirin_arch_int_enable();
     imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
     imu_aspirin.status = AspirinStatusIdle;
   } else {
-    imu_aspirin.gyro_available_blaaa = TRUE;
-    imu_aspirin.time_since_last_reading++;
-    imu_aspirin.time_since_last_accel_reading++;
+    //imu_aspirin.gyro_available_blaaa = TRUE;
+    //imu_aspirin.time_since_last_reading++;
+    //imu_aspirin.time_since_last_accel_reading++;
     spi_submit(&(ADXL345_SPI_DEV), &aspirin_adxl345);
 
     //if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT) {
@@ -154,12 +175,7 @@ void imu_periodic(void) {
   }
 }
 
-static void adxl345_trans_cb( struct spi_transaction *trans ) {
-  if ( imu_aspirin.status != AspirinStatusUninit ) {
-    imu_aspirin.accel_available = TRUE;
-  }
-}
-
+#if 0
 /* sends a series of I2C commands to configure the ITG3200 gyro */
 static void configure_gyro(void) {
   /* set gyro range to 2000deg/s and low pass at 256Hz */
@@ -186,6 +202,13 @@ static void configure_gyro(void) {
   //I2CTransmit(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
   I2C2TransmitWithRetry(imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
 }
+#endif
+
+static void adxl345_trans_cb( struct spi_transaction *trans ) {
+  if ( imu_aspirin.status != AspirinStatusUninit ) {
+    imu_aspirin.accel_valid = TRUE;
+  }
+}
 
 void adxl345_write_to_reg(uint8_t _reg, uint8_t _val) {
   imu_aspirin.accel_tx_buf[0] = _reg;
@@ -205,4 +228,36 @@ static void configure_accel(void) {
   adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
   /* Enable full res with +-16g range and interrupt active low */
   adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, ADXL345_FULL_RES|ADXL345_RANGE_16G|ADXL345_INT_INVERT);
+}
+
+void imu_aspirin_event(void)
+{
+  //if (imu_aspirin.status == AspirinStatusUninit) return;
+
+  //imu_aspirin_arch_int_disable();
+  if (imu_aspirin.accel_valid) {
+    //imu_aspirin.time_since_last_accel_reading = 0;
+    imu_aspirin.accel_valid = FALSE;
+    accel_copy_spi();
+  }
+  //imu_aspirin_arch_int_enable();
+
+  // If the itg3200 I2C transaction has succeeded: convert the data
+  itg3200_event(&imu_aspirin.gyro_itg);
+  if (imu_aspirin.gyro_itg.data_available) {
+    RATES_COPY(imu.gyro_unscaled, imu_aspirin.gyro_itg.data.rates);
+    imu_aspirin.gyro_itg.data_available = FALSE;
+    imu_aspirin.gyro_valid = TRUE;
+  }
+
+  // HMC58XX event task
+  hmc58xx_event(&imu_aspirin.mag_hmc);
+  if (imu_aspirin.mag_hmc.data_available) {
+    imu.mag_unscaled.x = imu_aspirin.mag_hmc.data.value[IMU_MAG_X_CHAN];
+    imu.mag_unscaled.y = imu_aspirin.mag_hmc.data.value[IMU_MAG_Y_CHAN];
+    imu.mag_unscaled.z = imu_aspirin.mag_hmc.data.value[IMU_MAG_Z_CHAN];
+    imu_aspirin.mag_hmc.data_available = FALSE;
+    imu_aspirin.mag_valid = TRUE;
+  }
+
 }

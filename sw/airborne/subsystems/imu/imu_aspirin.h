@@ -26,7 +26,7 @@
 #include "subsystems/imu.h"
 
 #include "mcu_periph/i2c.h"
-#include "peripherals/itg3200_regs.h"
+#include "peripherals/itg3200.h"
 //#include "peripherals/hmc5843.h"
 #include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345.h"
@@ -122,12 +122,14 @@
 #define IMU_ACCEL_Z_SENS_DEN 100
 #endif
 
+#if 0
 /* Default I2C address and device for the ITG3200/IMU300 gyro */
 #ifndef ITG3200_I2C_ADDR
 #define ITG3200_I2C_ADDR ITG3200_ADDR
 #endif
 #ifndef ITG3200_I2C_DEV
 #define ITG3200_I2C_DEV i2c2
+#endif
 #endif
 
 
@@ -140,16 +142,20 @@ enum AspirinStatus
 
 struct ImuAspirin {
   volatile enum AspirinStatus status;
-  struct i2c_transaction i2c_trans_gyro;
-  struct i2c_transaction i2c_trans_mag;
-  volatile uint8_t accel_available;
+  //struct i2c_transaction i2c_trans_gyro;
+  //struct i2c_transaction i2c_trans_mag;
+  //volatile uint8_t accel_available;
   volatile uint8_t accel_tx_buf[7];
   volatile uint8_t accel_rx_buf[7];
-  uint32_t time_since_last_reading;
-  uint32_t time_since_last_accel_reading;
-  uint8_t mag_available;
-  uint8_t reading_gyro;
-  uint8_t gyro_available_blaaa;
+  //uint32_t time_since_last_reading;
+  //uint32_t time_since_last_accel_reading;
+  //uint8_t mag_available;
+  //uint8_t reading_gyro;
+  //uint8_t gyro_available_blaaa;
+  volatile uint8_t accel_valid;
+  volatile uint8_t gyro_valid;
+  volatile uint8_t mag_valid;
+  struct Itg3200 gyro_itg;
   struct Hmc58xx mag_hmc;
 };
 
@@ -157,28 +163,18 @@ extern struct ImuAspirin imu_aspirin;
 #define ASPIRIN_GYRO_TIMEOUT 3
 #define ASPIRIN_ACCEL_TIMEOUT 3
 
-#define foo_handler() {}
+extern void imu_aspirin_event(void);
+
 #if 0
-#define ImuMagEvent(_mag_handler) {					\
-    MagEvent(foo_handler);                          \
-    if (hmc5843.data_available) {			\
-      imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
-      imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
-      imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];		\
-      _mag_handler();							\
-      hmc5843.data_available = FALSE;		\
-    }									\
-}
-#else
-#define ImuMagEvent(_mag_handler) {                                          \
-    hmc58xx_event(&imu_aspirin.mag_hmc);                                  \
+#define ImuMagEvent(_mag_handler) {                                        \
+    hmc58xx_event(&imu_aspirin.mag_hmc);                                   \
     if (imu_aspirin.mag_hmc.data_available) {                              \
       imu.mag_unscaled.x = imu_aspirin.mag_hmc.data.value[IMU_MAG_X_CHAN]; \
       imu.mag_unscaled.y = imu_aspirin.mag_hmc.data.value[IMU_MAG_Y_CHAN]; \
       imu.mag_unscaled.z = imu_aspirin.mag_hmc.data.value[IMU_MAG_Z_CHAN]; \
-      _mag_handler();                                                        \
+      _mag_handler();                                                      \
       imu_aspirin.mag_hmc.data_available = FALSE;                          \
-    }                                                                        \
+    }                                                                      \
   }
 #endif
 
@@ -187,6 +183,7 @@ extern struct ImuAspirin imu_aspirin;
 /* must be implemented by underlying architecture */
 extern void imu_aspirin_arch_init(void);
 
+#if 0
 static inline void gyro_read_i2c(void)
 {
   imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
@@ -201,6 +198,7 @@ static inline void gyro_copy_i2c(void)
   const int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
   RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);
 }
+#endif
 
 static inline void accel_copy_spi(void)
 {
@@ -210,6 +208,25 @@ static inline void accel_copy_spi(void)
   VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
 }
 
+
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
+    imu_aspirin_event();                                        \
+    if (imu_aspirin.gyro_valid) {                               \
+      imu_aspirin.gyro_valid = FALSE;                           \
+      _gyro_handler();                                          \
+    }                                                           \
+    if (imu_aspirin.accel_valid) {                              \
+      imu_aspirin.accel_valid = FALSE;                          \
+      _accel_handler();                                         \
+    }                                                           \
+    if (imu_aspirin.mag_valid) {                                \
+      imu_aspirin.mag_valid = FALSE;                            \
+      _mag_handler();                                           \
+    }                                                           \
+  }
+
+
+#if 0
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;
@@ -243,7 +260,7 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
   ImuMagEvent(_mag_handler);
 
   // Try back later if things are not idle
-  if ((i2c2.status != I2CIdle) || !i2c_idle(&i2c2)) {
+  if (!i2c_idle(&i2c2)) {
     return;
   }
 
@@ -260,14 +277,14 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
   }
 
   // If we're not already waiting for read, schedule a read
-  if (!imu_aspirin.reading_gyro && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
+  if (!imu_aspirin.reading_gyro && imu_aspirin_eoc() && i2c_idle(&i2c2)) {
     if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
       imu_aspirin.time_since_last_reading = 0;
     }
     gyro_read_i2c();
     return;
   }
-
 }
+#endif
 
 #endif /* IMU_ASPIRIN_H */

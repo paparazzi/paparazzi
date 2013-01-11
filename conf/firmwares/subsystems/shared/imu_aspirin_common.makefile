@@ -20,12 +20,7 @@
 #
 #
 
-# for fixedwing firmware and ap only
-ifeq ($(TARGET), ap)
-  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
-endif
-
-IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
+IMU_ASPIRIN_CFLAGS  = -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                       $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
@@ -33,6 +28,14 @@ IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       mcu_periph/spi.c
 
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
+
+# for fixedwing firmware and ap only
+ifeq ($(TARGET), ap)
+  IMU_ASPIRIN_CFLAGS  += -DUSE_IMU
+endif
+
+# Gyro
+IMU_ASPIRIN_SRCS   += peripherals/itg3200.c
 
 # Magnetometer
 #IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
@@ -43,9 +46,11 @@ $(error Aspirin driver on lpc is unfinished.)
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
 IMU_ASPIRIN_CFLAGS += -DSSP_VIC_SLOT=9
+IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_I2C_DEVICE=i2c1
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C1
 IMU_ASPIRIN_CFLAGS += -DHMC58XX_I2C_DEVICE=i2c1 -DI2C1_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
+IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_I2C_DEVICE=i2c2
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 # Slave select configuration
