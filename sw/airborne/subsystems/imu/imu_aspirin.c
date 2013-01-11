@@ -36,12 +36,16 @@
 INFO("Using default ASPIRIN_ACCEL_RATE of 800Hz.")
 #endif
 
-#ifndef ADXL345_SLAVE_IDX
-#define ADXL345_SLAVE_IDX SPI_SLAVE2
+#ifndef ASPIRIN_SPI_SLAVE_IDX
+#define ASPIRIN_SPI_SLAVE_IDX SPI_SLAVE2
 #endif
 
-#ifndef ADXL345_SPI_DEV
-#define ADXL345_SPI_DEV spi2
+#ifndef ASPIRIN_SPI_DEV
+#define ASPIRIN_SPI_DEV spi2
+#endif
+
+#ifndef ASPIRIN_I2C_DEV
+#define ASPIRIN_I2C_DEV i2c2
 #endif
 
 
@@ -85,7 +89,7 @@ void imu_impl_init(void) {
   aspirin_adxl345.dss = SPIDss8bit;
   aspirin_adxl345.bitorder = SPIMSBFirst;
   aspirin_adxl345.cdiv = SPIDiv64;
-  aspirin_adxl345.slave_idx = ADXL345_SLAVE_IDX;
+  aspirin_adxl345.slave_idx = ASPIRIN_SPI_SLAVE_IDX;
   aspirin_adxl345.output_length = 7;
   aspirin_adxl345.input_length = 7;
   aspirin_adxl345.after_cb = adxl345_trans_cb;
@@ -93,7 +97,7 @@ void imu_impl_init(void) {
   aspirin_adxl345.output_buf = &imu_aspirin.accel_tx_buf[0];
 
   /* Gyro configuration and initalization */
-  itg3200_init(&imu_aspirin.gyro_itg, &(IMU_ASPIRIN_I2C_DEV), ITG3200_ADDR);
+  itg3200_init(&imu_aspirin.gyro_itg, &(ASPIRIN_I2C_DEV), ITG3200_ADDR);
   /* change the default config */
   imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV; // Sample rate divider defaults to 533Hz
   imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_DLPF_CFG; // defaults to 8kHz internal with 256Hz low pass
