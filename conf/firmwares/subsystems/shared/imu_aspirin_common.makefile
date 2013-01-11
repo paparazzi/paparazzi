@@ -21,11 +21,13 @@
 #
 
 IMU_ASPIRIN_CFLAGS  = -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
-IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
-                      $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
-                      $(SRC_ARCH)/mcu_periph/spi_arch.c \
-                      mcu_periph/spi.c
+IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
+IMU_ASPIRIN_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c
+
+#IMU_ASPIRIN_SRCS   += $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
+IMU_ASPIRIN_CFLAGS += -DASPIRIN_ARCH_INDEP
+
+IMU_ASPIRIN_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
 

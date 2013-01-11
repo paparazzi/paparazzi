@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ *               2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -144,10 +145,12 @@ extern struct ImuAspirin imu_aspirin;
 
 extern void imu_aspirin_event(void);
 
+#if !ASPIRIN_ARCH_INDEP
 /* underlying architecture */
 #include "subsystems/imu/imu_aspirin_arch.h"
 /* must be implemented by underlying architecture */
 extern void imu_aspirin_arch_init(void);
+#endif
 
 
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {

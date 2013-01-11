@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2012 The Paparazzi Team
+ * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ *               2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -107,9 +108,13 @@ void imu_impl_init(void) {
   /* interrupt on data ready, idle high, latch until read any register */
   //itg_conf.int_cfg = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
 
-
-  imu_aspirin_arch_init();
   hmc58xx_init(&imu_aspirin.mag_hmc, &(ASPIRIN_I2C_DEV), HMC58XX_ADDR);
+
+#if ASPIRIN_ARCH_INDEP
+#warning "Arch dependent functions (accel and gyro eoc interrupt) not used for aspirin!"
+#else
+  imu_aspirin_arch_init();
+#endif
 
 }
 
@@ -127,7 +132,7 @@ void imu_periodic(void) {
     imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
     imu_aspirin.status = AspirinStatusIdle;
   } else {
-    spi_submit(&(ADXL345_SPI_DEV), &aspirin_adxl345);
+    spi_submit(&(ASPIRIN_SPI_DEV), &aspirin_adxl345);
   }
 }
 
@@ -140,7 +145,7 @@ static void adxl345_trans_cb( struct spi_transaction *trans ) {
 void adxl345_write_to_reg(uint8_t _reg, uint8_t _val) {
   imu_aspirin.accel_tx_buf[0] = _reg;
   imu_aspirin.accel_tx_buf[1] = _val;
-  spi_submit(&(ADXL345_SPI_DEV), &aspirin_adxl345);
+  spi_submit(&(ASPIRIN_SPI_DEV), &aspirin_adxl345);
 
   // FIXME: no busy waiting! if really needed add a timeout!!!!
   while(aspirin_adxl345.status != SPITransSuccess);
