@@ -82,6 +82,7 @@
 
 /* FIXME: backwards compatibility with Aspirin driver */
 #define MS5611_REG_RESET MS5611_SOFT_RESET
+#define MS5611_REG_ADCREAD MS5611_ADC_READ
 
 enum ms5611_stat{
   MS5611_UNINIT,

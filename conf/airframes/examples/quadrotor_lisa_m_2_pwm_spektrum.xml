@@ -13,8 +13,8 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
       <subsystem name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_GEAR"/>
-        <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
+        <define name="RADIO_MODE" value="RADIO_AUX1"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       </subsystem>
       <!-- MPU600 is configured to output data at 500Hz -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
@@ -32,7 +32,7 @@
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.2"/>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
@@ -89,7 +89,7 @@
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="-45." unit="deg"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
