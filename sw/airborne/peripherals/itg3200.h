@@ -34,7 +34,7 @@
 #include "math/pprz_algebra_int.h"
 #include "mcu_periph/i2c.h"
 
-/* Address and register definition */
+/* Address and register definitions */
 #include "peripherals/itg3200_regs.h"
 
 /// Default sample rate divider

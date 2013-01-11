@@ -36,6 +36,7 @@
 INFO("Using default ASPIRIN_ACCEL_RATE of 800Hz.")
 #endif
 
+/* defaults suitable for Lisa */
 #ifndef ASPIRIN_SPI_SLAVE_IDX
 #define ASPIRIN_SPI_SLAVE_IDX SPI_SLAVE2
 #endif
@@ -108,7 +109,7 @@ void imu_impl_init(void) {
 
 
   imu_aspirin_arch_init();
-  hmc58xx_init(&imu_aspirin.mag_hmc, TRUE);
+  hmc58xx_init(&imu_aspirin.mag_hmc, &(ASPIRIN_I2C_DEV), HMC58XX_ADDR);
 
 }
 

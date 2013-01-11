@@ -63,7 +63,7 @@ void imu_impl_init(void)
 
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
-  hmc58xx_init(&imu_navgo.hmc, TRUE);
+  hmc58xx_init(&imu_navgo.hmc, &(IMU_NAVGO_I2C_DEV), HMC58XX_ADDR);
 
   // Init median filters
   InitMedianFilterRatesInt(median_gyro);

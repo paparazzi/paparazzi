@@ -58,6 +58,14 @@ void itg3200_init(struct Itg3200 *itg, struct i2c_periph *i2c_p, uint8_t addr)
   itg->init_status = ITG_CONF_UNINIT;
 }
 
+static void itg3200_i2c_tx_reg(struct Itg3200 *itg)
+{
+  itg->i2c_trans.type = I2CTransTx;
+  itg->i2c_trans.len_r = 0;
+  itg->i2c_trans.len_w = 2;
+  i2c_submit(itg->i2c_p, &(itg->i2c_trans));
+}
+
 // Configuration function called once before normal use
 static void itg3200_send_config(struct Itg3200 *itg)
 {
@@ -65,25 +73,25 @@ static void itg3200_send_config(struct Itg3200 *itg)
     case ITG_CONF_SD:
       itg->i2c_trans.buf[0] = ITG3200_REG_SMPLRT_DIV;
       itg->i2c_trans.buf[1] = itg->config.smplrt_div;
-      I2CTransmit(*(itg->i2c_p), itg->i2c_trans, itg->i2c_trans.slave_addr, 2);
+      itg3200_i2c_tx_reg(itg);
       itg->init_status++;
       break;
     case ITG_CONF_DF:
       itg->i2c_trans.buf[0] = ITG3200_REG_DLPF_FS;
       itg->i2c_trans.buf[1] = (itg->config.fs_sel<<3)|(itg->config.dlpf_cfg);
-      I2CTransmit(*(itg->i2c_p), itg->i2c_trans, itg->i2c_trans.slave_addr, 2);
+      itg3200_i2c_tx_reg(itg);
       itg->init_status++;
       break;
     case ITG_CONF_INT:
       itg->i2c_trans.buf[0] = ITG3200_REG_INT_CFG;
       itg->i2c_trans.buf[1] = itg->config.int_cfg;
-      I2CTransmit(*(itg->i2c_p), itg->i2c_trans, itg->i2c_trans.slave_addr, 2);
+      itg3200_i2c_tx_reg(itg);
       itg->init_status++;
       break;
     case ITG_CONF_PWR:
       itg->i2c_trans.buf[0] = ITG3200_REG_PWR_MGM;
       itg->i2c_trans.buf[1] = itg->config.clk_sel;
-      I2CTransmit(*(itg->i2c_p), itg->i2c_trans, itg->i2c_trans.slave_addr, 2);
+      itg3200_i2c_tx_reg(itg);
       itg->init_status++;
       break;
     case ITG_CONF_DONE:
@@ -111,7 +119,10 @@ void itg3200_read(struct Itg3200 *itg)
 {
   if (itg->initialized && itg->i2c_trans.status == I2CTransDone) {
     itg->i2c_trans.buf[0] = ITG3200_REG_INT_STATUS;
-    I2CTransceive(*(itg->i2c_p), itg->i2c_trans, itg->i2c_trans.slave_addr, 1, 9);
+    itg->i2c_trans.type = I2CTransTxRx;
+    itg->i2c_trans.len_r = 9;
+    itg->i2c_trans.len_w = 1;
+    i2c_submit(itg->i2c_p, &(itg->i2c_trans));
   }
 }
 
@@ -135,7 +146,7 @@ void itg3200_event(struct Itg3200 *itg)
       itg->i2c_trans.status = I2CTransDone;
     }
   }
-  else if (!itg->initialized && itg->init_status != ITG_CONF_UNINIT) { // Configuring
+  else if (itg->init_status != ITG_CONF_UNINIT) { // Configuring but not yet initialized
     if (itg->i2c_trans.status == I2CTransSuccess || itg->i2c_trans.status == I2CTransDone) {
       itg->i2c_trans.status = I2CTransDone;
       itg3200_send_config(itg);

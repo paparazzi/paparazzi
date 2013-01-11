@@ -30,42 +30,55 @@
 #include "peripherals/hmc58xx.h"
 #include "std.h"
 
-#include "peripherals/hmc58xx_regs.h"
 
 /* HMC58XX default conf */
-#ifndef HMC58XX_DO
-#define HMC58XX_DO 0x6 // Data Output Rate (6 -> 50Hz with HMC5843, 75Hz with HMC5883)
+#ifndef HMC58XX_DEFAULT_DO
+#define HMC58XX_DEFAULT_DO 0x6 // Data Output Rate (6 -> 50Hz with HMC5843, 75Hz with HMC5883)
 #endif
-#ifndef HMC58XX_MS
-#define HMC58XX_MS 0x0 // Measurement configuration
+#ifndef HMC58XX_DEFAULT_MS
+#define HMC58XX_DEFAULT_MS 0x0 // Measurement configuration
 #endif
-#ifndef HMC58XX_GN
-#define HMC58XX_GN 0x1 // Gain configuration (1 -> +- 1 Gauss)
+#ifndef HMC58XX_DEFAULT_GN
+#define HMC58XX_DEFAULT_GN 0x1 // Gain configuration (1 -> +- 1 Gauss)
 #endif
-#ifndef HMC58XX_MD
-#define HMC58XX_MD 0x0 // Continious measurement mode
-#endif
-
-/* Default I2C device is i2c2 (for lisa) */
-#ifndef HMC58XX_I2C_DEV
-#define HMC58XX_I2C_DEV i2c2
+#ifndef HMC58XX_DEFAULT_MD
+#define HMC58XX_DEFAULT_MD 0x0 // Continious measurement mode
 #endif
 
-
-void hmc58xx_init(struct Hmc58xx *hmc, bool_t set_default_config)
+static void hmc58xx_set_default_config(struct Hmc58xxConfig *c)
 {
+  c->rate = HMC58XX_DEFAULT_DO;
+  c->meas = HMC58XX_DEFAULT_MS;
+  c->gain = HMC58XX_DEFAULT_GN;
+  c->mode = HMC58XX_DEFAULT_MD;
+}
+
+/**
+ * Initialize Hmc58xx struct and set default config options.
+ * @param hmc   Hmc58xx struct
+ * @param i2c_p I2C periperal to use
+ * @param addr  I2C address of HMC58xx
+ */
+void hmc58xx_init(struct Hmc58xx *hmc, struct i2c_periph *i2c_p, uint8_t addr)
+{
+  /* set i2c_peripheral */
+  hmc->i2c_p = i2c_p;
+  /* set i2c address */
+  hmc->i2c_trans.slave_addr = addr;
   hmc->i2c_trans.status = I2CTransDone;
-  hmc->i2c_trans.slave_addr = HMC58XX_ADDR;
-  if (set_default_config) {
-    hmc->type = HMC_TYPE_5883;
-    hmc->i2c_p = &(HMC58XX_I2C_DEV);
-    hmc->config.dor = HMC58XX_DO;
-    hmc->config.ms = HMC58XX_MS;
-    hmc->config.gn = HMC58XX_GN;
-    hmc->config.md = HMC58XX_MD;
-  }
+  /* set default config options */
+  hmc58xx_set_default_config(&(hmc->config));
+  hmc->type = HMC_TYPE_5883;
   hmc->initialized = FALSE;
   hmc->init_status = HMC_CONF_UNINIT;
+}
+
+static void hmc58xx_i2c_tx_reg(struct Hmc58xx *hmc)
+{
+  hmc->i2c_trans.type = I2CTransTx;
+  hmc->i2c_trans.len_r = 0;
+  hmc->i2c_trans.len_w = 2;
+  i2c_submit(hmc->i2c_p, &(hmc->i2c_trans));
 }
 
 /// Configuration function called once before normal use
@@ -74,20 +87,20 @@ static void hmc58xx_send_config(struct Hmc58xx *hmc)
   switch (hmc->init_status) {
     case HMC_CONF_CRA:
       hmc->i2c_trans.buf[0] = HMC58XX_REG_CFGA;
-      hmc->i2c_trans.buf[1] = (hmc->config.dor<<2)|(hmc->config.ms);
-      I2CTransmit(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
+      hmc->i2c_trans.buf[1] = (hmc->config.rate<<2)|(hmc->config.meas);
+      hmc58xx_i2c_tx_reg(hmc);
       hmc->init_status++;
       break;
     case HMC_CONF_CRB:
       hmc->i2c_trans.buf[0] = HMC58XX_REG_CFGB;
-      hmc->i2c_trans.buf[1] = hmc->config.gn<<5;
-      I2CTransmit(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
+      hmc->i2c_trans.buf[1] = hmc->config.gain<<5;
+      hmc58xx_i2c_tx_reg(hmc);
       hmc->init_status++;
       break;
     case HMC_CONF_MODE:
       hmc->i2c_trans.buf[0] = HMC58XX_REG_MODE;
-      hmc->i2c_trans.buf[1] = hmc->config.md;
-      I2CTransmit(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 2);
+      hmc->i2c_trans.buf[1] = hmc->config.mode;
+      hmc58xx_i2c_tx_reg(hmc);
       hmc->init_status++;
       break;
     case HMC_CONF_DONE:
@@ -115,7 +128,10 @@ void hmc58xx_read(struct Hmc58xx *hmc)
 {
   if (hmc->initialized && hmc->i2c_trans.status == I2CTransDone){
     hmc->i2c_trans.buf[0] = HMC58XX_REG_DATXM;
-    I2CTransceive(*(hmc->i2c_p), hmc->i2c_trans, HMC58XX_ADDR, 1, 6);
+    hmc->i2c_trans.type = I2CTransTxRx;
+    hmc->i2c_trans.len_r = 6;
+    hmc->i2c_trans.len_w = 1;
+    i2c_submit(hmc->i2c_p, &(hmc->i2c_trans));
   }
 }
 
@@ -133,6 +149,7 @@ void hmc58xx_event(struct Hmc58xx *hmc)
         hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,2);
         hmc->data.vect.z = Int16FromBuf(hmc->i2c_trans.buf,4);
       }
+      /* HMC5843 has xzy order of axes in returned data */
       else {
         hmc->data.vect.x = Int16FromBuf(hmc->i2c_trans.buf,0);
         hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,4);
@@ -142,7 +159,7 @@ void hmc58xx_event(struct Hmc58xx *hmc)
       hmc->i2c_trans.status = I2CTransDone;
     }
   }
-  else if (!hmc->initialized && hmc->init_status != HMC_CONF_UNINIT) { // Configuring
+  else if (hmc->init_status != HMC_CONF_UNINIT) { // Configuring but not yet initialized
     if (hmc->i2c_trans.status == I2CTransSuccess || hmc->i2c_trans.status == I2CTransDone) {
       hmc->i2c_trans.status = I2CTransDone;
       hmc58xx_send_config(hmc);

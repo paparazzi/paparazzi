@@ -33,11 +33,14 @@
 #include "mcu_periph/i2c.h"
 #include "math/pprz_algebra_int.h"
 
+/* Address and register definitions */
+#include "peripherals/hmc58xx_regs.h"
+
 struct Hmc58xxConfig {
-  uint8_t dor;  ///< Data Output Rate Bits(6 -> 50Hz with HMC5843, 75Hz with HMC5883)
-  uint8_t ms;   ///< Measurement configuration
-  uint8_t gn;   ///< Gain configuration (1 -> +- 1 Gauss)
-  uint8_t md;   ///< Measurement mode
+  uint8_t rate;  ///< Data Output Rate Bits(6 -> 50Hz with HMC5843, 75Hz with HMC5883)
+  uint8_t meas;  ///< Measurement configuration
+  uint8_t gain;   ///< Gain configuration (1 -> +- 1 Gauss)
+  uint8_t mode;   ///< Measurement mode
 };
 
 /** config status states */
@@ -72,7 +75,7 @@ struct Hmc58xx {
 // TODO IRQ handling
 
 // Functions
-extern void hmc58xx_init(struct Hmc58xx *hmc, bool_t set_default_config);
+extern void hmc58xx_init(struct Hmc58xx *hmc, struct i2c_periph *i2c_p, uint8_t addr);
 extern void hmc58xx_configure(struct Hmc58xx *hmc);
 extern void hmc58xx_read(struct Hmc58xx *hmc);
 extern void hmc58xx_event(struct Hmc58xx *hmc);
