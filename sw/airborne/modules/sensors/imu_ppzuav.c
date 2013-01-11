@@ -38,7 +38,7 @@
 
 // Peripherials
 #define HMC5843_NO_IRQ
-#include "../../peripherals/itg3200.h"
+#include "peripherals/itg3200_regs.h"
 #include "../../peripherals/adxl345.h"
 #include "../../peripherals/hmc5843.h"
 

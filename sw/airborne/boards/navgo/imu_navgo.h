@@ -28,6 +28,9 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
+#include "peripherals/itg3200.h"
+#include "peripherals/hmc58xx.h"
+
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
 #define IMU_GYRO_P_SIGN   1
@@ -45,10 +48,15 @@
 #define IMU_MAG_Z_SIGN    1
 #endif
 
+struct ImuNavgo {
+  volatile bool_t gyr_valid;
+  volatile bool_t acc_valid;
+  volatile bool_t mag_valid;
+  struct Itg3200 itg;
+  struct Hmc58xx hmc;
+};
 
-extern volatile bool_t gyr_valid;
-extern volatile bool_t acc_valid;
-extern volatile bool_t mag_valid;
+extern struct ImuNavgo imu_navgo;
 
 /* must be defined in order to be IMU code: declared in imu.h
 extern void imu_impl_init(void);
@@ -57,16 +65,16 @@ extern void imu_periodic(void);
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
   imu_navgo_event();                                            \
-  if (gyr_valid) {                                              \
-    gyr_valid = FALSE;                                          \
+  if (imu_navgo.gyr_valid) {                                    \
+    imu_navgo.gyr_valid = FALSE;                                \
     _gyro_handler();                                            \
   }                                                             \
-  if (acc_valid) {                                              \
-    acc_valid = FALSE;                                          \
+  if (imu_navgo.acc_valid) {                                    \
+    imu_navgo.acc_valid = FALSE;                                \
     _accel_handler();                                           \
   }                                                             \
-  if (mag_valid) {                                              \
-    mag_valid = FALSE;                                          \
+  if (imu_navgo.mag_valid) {                                    \
+    imu_navgo.mag_valid = FALSE;                                \
     _mag_handler();                                             \
   }                                                             \
 }

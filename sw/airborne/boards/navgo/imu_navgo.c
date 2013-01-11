@@ -37,33 +37,25 @@
 
 // Peripherials
 
-// Configure ITG3200
-// ITG3200_I2C_DEVICE IMU_UMARIM_I2C_DEVICE
-// ITG3200_I2C_ADDR ITG3200_ADDR_ALT
-// ITG3200_SMPLRT_DIV 1
-#include "peripherals/itg3200.extra.h"
-
 // Configure ADXL345
 // ADXL345_I2C_DEVICE IMU_UMARIM_I2C_DEVICE
 // ADXL345_I2C_ADDR ADXL345_ADDR_ALT
 #include "peripherals/adxl345.extra_i2c.h"
 
-// Configure HMC58XX
-#include "peripherals/hmc58xx.h"
-
-// Results
-volatile bool_t gyr_valid;
-volatile bool_t acc_valid;
-volatile bool_t mag_valid;
 
 #include "filters/median_filter.h"
 struct MedianFilter3Int median_gyro, median_accel, median_mag;
+
+struct ImuNavgo imu_navgo;
 
 void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
-  itg3200_init();
+  itg3200_init(&imu_navgo.itg, &(IMU_NAVGO_I2C_DEVICE), ITG3200_ADDR_ALT);
+  // change the default configuration
+  imu_navgo.itg.config.smplrt_div = 1;  // 500Hz sample rate since internal is 1kHz
+  imu_navgo.itg.config.dlpf_cfg = ITG3200_DLPF_10HZ;
 
   /////////////////////////////////////////////////////////////////////
   // ADXL345
@@ -71,18 +63,22 @@ void imu_impl_init(void)
 
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
-  hmc58xx_init();
+  hmc58xx_init(&imu_navgo.hmc, TRUE);
 
   // Init median filters
   InitMedianFilterRatesInt(median_gyro);
   InitMedianFilterVect3Int(median_accel);
   InitMedianFilterVect3Int(median_mag);
+
+  imu_navgo.gyr_valid = FALSE;
+  imu_navgo.acc_valid = FALSE;
+  imu_navgo.mag_valid = FALSE;
 }
 
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  Itg3200Periodic();
+  Itg3200Periodic(imu_navgo.itg);
 
   // Start reading the latest accelerometer data
   // Periodicity is automatically adapted
@@ -91,7 +87,7 @@ void imu_periodic( void )
   RunOnceEvery((PERIODIC_FREQUENCY/(2*3200>>(0xf-ADXL345_BW_RATE))),Adxl345Periodic());
 
   // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(5,Hmc58xxPeriodic());
+  RunOnceEvery(5,Hmc58xxPeriodic(imu_navgo.hmc));
 
   //RunOnceEvery(20,imu_navgo_downlink_raw());
 }
@@ -108,12 +104,12 @@ void imu_navgo_event( void )
 {
 
   // If the itg3200 I2C transaction has succeeded: convert the data
-  itg3200_event();
-  if (itg3200_data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled, -itg3200_data.q, itg3200_data.p, itg3200_data.r);
+  itg3200_event(&imu_navgo.itg);
+  if (imu_navgo.itg.data_available) {
+    RATES_ASSIGN(imu.gyro_unscaled, -imu_navgo.itg.data.rates.q, imu_navgo.itg.data.rates.p, imu_navgo.itg.data.rates.r);
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
-    itg3200_data_available = FALSE;
-    gyr_valid = TRUE;
+    imu_navgo.itg.data_available = FALSE;
+    imu_navgo.gyr_valid = TRUE;
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
@@ -122,16 +118,16 @@ void imu_navgo_event( void )
     VECT3_ASSIGN(imu.accel_unscaled, adxl345_data.y, -adxl345_data.x, adxl345_data.z);
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
     adxl345_data_available = FALSE;
-    acc_valid = TRUE;
+    imu_navgo.acc_valid = TRUE;
   }
 
   // HMC58XX event task
-  hmc58xx_event();
-  if (hmc58xx_data_available) {
-    VECT3_ASSIGN(imu.mag_unscaled, hmc58xx_data.x, hmc58xx_data.y, hmc58xx_data.z);
+  hmc58xx_event(&imu_navgo.hmc);
+  if (imu_navgo.hmc.data_available) {
+    VECT3_COPY(imu.mag_unscaled, imu_navgo.hmc.data.vect);
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
-    hmc58xx_data_available = FALSE;
-    mag_valid = TRUE;
+    imu_navgo.hmc.data_available = FALSE;
+    imu_navgo.mag_valid = TRUE;
   }
 
 }

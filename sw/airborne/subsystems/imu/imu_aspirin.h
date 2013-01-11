@@ -26,7 +26,7 @@
 #include "subsystems/imu.h"
 
 #include "mcu_periph/i2c.h"
-#include "peripherals/itg3200.h"
+#include "peripherals/itg3200_regs.h"
 //#include "peripherals/hmc5843.h"
 #include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345.h"
