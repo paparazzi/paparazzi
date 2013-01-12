@@ -20,7 +20,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/imu/imu_b2.c
+ *
+ * Driver for the Booz2 IMUs.
+ */
+
 #include "subsystems/imu.h"
+
+struct ImuBooz2 imu_b2;
 
 void imu_impl_init(void) {
 
@@ -32,7 +40,7 @@ void imu_impl_init(void) {
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
   hmc5843_init();
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-  hmc58xx_init();
+  hmc58xx_init(&imu_b2.mag_hmc, &(IMU_B2_I2C_DEV), HMC58XX_ADDR);
 #endif
 
 }
@@ -50,7 +58,7 @@ void imu_periodic(void) {
   RunOnceEvery(10, { ami601_read(); });
 #endif
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-  RunOnceEvery(5,Hmc58xxPeriodic());
+  RunOnceEvery(5, hmc58xx_periodic(&imu_b2.mag_hmc));
 #endif
 
 }

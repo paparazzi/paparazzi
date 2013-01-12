@@ -348,14 +348,17 @@ test_imu_b2_2.srcs   += $(IMU_B2_2_SRCS)
 #
 # test IMU aspirin
 #
-IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_5
-IMU_ASPIRIN_SRCS   = $(SRC_SUBSYSTEMS)/imu.c             \
-                     $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
-                     $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
-                     $(SRC_ARCH)/mcu_periph/spi_arch.c \
-                     mcu_periph/spi.c
+IMU_ASPIRIN_CFLAGS  = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_5
+IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
+IMU_ASPIRIN_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c
+#IMU_ASPIRIN_SRCS   += $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
+IMU_ASPIRIN_CFLAGS += -DASPIRIN_ARCH_INDEP
+IMU_ASPIRIN_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 IMU_ASPIRIN_SRCS   += math/pprz_trig_int.c
-IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
+#IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
+IMU_ASPIRIN_SRCS   += peripherals/hmc58xx.c
+IMU_ASPIRIN_SRCS   += peripherals/adxl345_spi.c
+IMU_ASPIRIN_SRCS   += peripherals/itg3200.c
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
 IMU_ASPIRIN_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER

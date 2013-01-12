@@ -85,14 +85,16 @@ struct Itg3200 {
 // Functions
 extern void itg3200_init(struct Itg3200 *itg, struct i2c_periph *i2c_p, uint8_t i2c_address);
 extern void itg3200_set_default_config(struct Itg3200Config *conf);
-extern void itg3200_configure(struct Itg3200 *itg);
+extern void itg3200_start_configure(struct Itg3200 *itg);
 extern void itg3200_read(struct Itg3200 *itg);
 extern void itg3200_event(struct Itg3200 *itg);
 
-// Macro for using ITG3200 in periodic function
-#define Itg3200Periodic(_itg) {               \
-  if (_itg.initialized) itg3200_read(&_itg);  \
-  else itg3200_configure(&_itg);              \
+/// convenience function: read or start configuration if not already initialized
+static inline void itg3200_periodic(struct Itg3200 *itg) {
+  if (itg->initialized)
+    itg3200_read(itg);
+  else
+    itg3200_start_configure(itg);
 }
 
 #endif // ITG3200_H

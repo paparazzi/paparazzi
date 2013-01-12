@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/mag_hmc58xx.h
+ * @file modules/sensors/mag_hmc58xx.h
  *
  * Module wrapper for Honeywell HMC5843 and HMC5883 magnetometers.
  */

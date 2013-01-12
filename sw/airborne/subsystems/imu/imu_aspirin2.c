@@ -25,7 +25,7 @@
 
 // Peripherials
 #include "peripherals/mpu60X0.h"
-#include "peripherals/hmc58xx.h"
+#include "peripherals/hmc58xx_regs.h"
 #include "peripherals/ms5611.h"
 
 #ifndef MPU6000_SLAVE_IDX
@@ -35,6 +35,23 @@
 #ifndef MPU6000_SPI_DEV
 #define MPU6000_SPI_DEV spi2
 #endif
+
+/* HMC58XX default conf */
+#ifndef HMC58XX_DO
+#define HMC58XX_DO 0x6 // Data Output Rate (6 -> 50Hz with HMC5843, 75Hz with HMC5883)
+#endif
+#ifndef HMC58XX_MS
+#define HMC58XX_MS 0x0 // Measurement configuration
+#endif
+#ifndef HMC58XX_GN
+#define HMC58XX_GN 0x1 // Gain configuration (1 -> +- 1 Gauss)
+#endif
+#ifndef HMC58XX_MD
+#define HMC58XX_MD 0x0 // Continious measurement mode
+#endif
+
+#define HMC58XX_CRA ((HMC58XX_DO<<2)|(HMC58XX_MS))
+#define HMC58XX_CRB (HMC58XX_GN<<5)
 
 struct ImuAspirin2 imu_aspirin2;
 

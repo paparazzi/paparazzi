@@ -18,7 +18,16 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file boards/navgo/imu_navgo.c
  *
+ * Driver for the IMU on the NavGo board.
+ *
+ *  - Gyroscope: Invensense ITG-3200
+ *  - Accelerometer: Analog Devices ADXL345
+ *  - Magnetometer: Honeywell HMC5883L
  */
 
 #include <math.h>
@@ -35,13 +44,10 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
-// Peripherials
-
-// Configure ADXL345
-// ADXL345_I2C_DEV IMU_UMARIM_I2C_DEV
-// ADXL345_I2C_ADDR ADXL345_ADDR_ALT
-#include "peripherals/adxl345.extra_i2c.h"
-
+#ifndef NAVGO_ACCEL_RATE
+#define NAVGO_ACCEL_RATE ADXL345_RATE_25HZ
+#endif
+PRINT_CONFIG_VAR(NAVGO_ACCEL_RATE)
 
 #include "filters/median_filter.h"
 struct MedianFilter3Int median_gyro, median_accel, median_mag;
@@ -59,7 +65,9 @@ void imu_impl_init(void)
 
   /////////////////////////////////////////////////////////////////////
   // ADXL345
-  adxl345_init();
+  adxl345_i2c_init(&imu_navgo.adxl, &(IMU_NAVGO_I2C_DEV), ADXL345_ADDR_ALT);
+  // change the default data rate
+  imu_navgo.adxl.config.rate = NAVGO_ACCEL_RATE;
 
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
@@ -78,16 +86,16 @@ void imu_impl_init(void)
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  Itg3200Periodic(imu_navgo.itg);
+  itg3200_periodic(&imu_navgo.itg);
 
   // Start reading the latest accelerometer data
   // Periodicity is automatically adapted
   // 3200 is the maximum output freq corresponding to the parameter 0xF
   // A factor 2 is applied to reduice the delay without overloading the i2c
-  RunOnceEvery((PERIODIC_FREQUENCY/(2*3200>>(0xf-ADXL345_BW_RATE))),Adxl345Periodic());
+  RunOnceEvery((PERIODIC_FREQUENCY/(2*3200>>(0xf-NAVGO_ACCEL_RATE))), adxl345_i2c_periodic(&imu_navgo.adxl));
 
   // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(5,Hmc58xxPeriodic(imu_navgo.hmc));
+  RunOnceEvery(5, hmc58xx_periodic(&imu_navgo.hmc));
 
   //RunOnceEvery(20,imu_navgo_downlink_raw());
 }
@@ -113,11 +121,11 @@ void imu_navgo_event( void )
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
-  adxl345_event();
-  if (adxl345_data_available) {
-    VECT3_ASSIGN(imu.accel_unscaled, adxl345_data.y, -adxl345_data.x, adxl345_data.z);
+  adxl345_i2c_event(&imu_navgo.adxl);
+  if (imu_navgo.adxl.data_available) {
+    VECT3_ASSIGN(imu.accel_unscaled, imu_navgo.adxl.data.vect.y, -imu_navgo.adxl.data.vect.x, imu_navgo.adxl.data.vect.z);
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
-    adxl345_data_available = FALSE;
+    imu_navgo.adxl.data_available = FALSE;
     imu_navgo.acc_valid = TRUE;
   }
 

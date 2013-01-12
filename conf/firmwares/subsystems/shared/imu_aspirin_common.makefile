@@ -36,6 +36,9 @@ ifeq ($(TARGET), ap)
   IMU_ASPIRIN_CFLAGS  += -DUSE_IMU
 endif
 
+# Accelerometer
+IMU_ASPIRIN_SRCS   += peripherals/adxl345_spi.c
+
 # Gyro
 IMU_ASPIRIN_SRCS   += peripherals/itg3200.c
 

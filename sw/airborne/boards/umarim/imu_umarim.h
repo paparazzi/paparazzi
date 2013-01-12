@@ -18,7 +18,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file boards/navgo/imu_navgo.h
  *
+ * Interface for the IMU on the Umarim board.
+ *
+ *  - Gyroscope: Invensense ITG-3200
+ *  - Accelerometer: Analog Devices ADXL345
  */
 
 #ifndef IMU_UMARIM_H
@@ -27,6 +35,9 @@
 #include "std.h"
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
+
+#include "peripherals/itg3200.h"
+#include "peripherals/adxl345_i2c.h"
 
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
@@ -94,25 +105,36 @@
 extern volatile bool_t gyr_valid;
 extern volatile bool_t acc_valid;
 
+struct ImuUmarim {
+  volatile bool_t gyr_valid;
+  volatile bool_t acc_valid;
+  struct Itg3200 itg;
+  struct Adxl345_I2c adxl;
+};
+
+extern struct ImuUmarim imu_umarim;
+
+
 /* must be defined in order to be IMU code: declared in imu.h
 extern void imu_impl_init(void);
 extern void imu_periodic(void);
 */
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-  imu_umarim_event();                                           \
-  if (gyr_valid) {                                              \
-    gyr_valid = FALSE;                                          \
-    _gyro_handler();                                            \
-  }                                                             \
-  if (acc_valid) {                                              \
-    acc_valid = FALSE;                                          \
-    _accel_handler();                                           \
-  }                                                             \
-}
-
 /* Own Extra Functions */
 extern void imu_umarim_event( void );
 extern void imu_umarim_downlink_raw( void );
+
+
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+  imu_umarim_event();
+  if (imu_umarim.gyr_valid) {
+    imu_umarim.gyr_valid = FALSE;
+    _gyro_handler();
+  }
+  if (imu_umarim.acc_valid) {
+    imu_umarim.acc_valid = FALSE;
+    _accel_handler();
+  }
+}
 
 #endif // PPZUAVIMU_H

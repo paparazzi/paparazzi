@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/mag_hmc58xx.c
+ * @file modules/sensors/mag_hmc58xx.c
  *
  * Module wrapper for Honeywell HMC5843 and HMC5883 magnetometers.
  */
@@ -37,11 +37,11 @@
 struct Hmc58xx mag_hmc58xx;
 
 void mag_hmc58xx_module_init(void) {
-  hmc58xx_init(&mag_hmc58xx, TRUE);
+  hmc58xx_init(&mag_hmc58xx, &(MAG_HMC58XX_I2C_DEV), HMC58XX_ADDR);
 }
 
 void mag_hmc58xx_module_periodic(void) {
-  Hmc58xxPeriodic(mag_hmc58xx);
+  hmc58xx_periodic(&mag_hmc58xx);
 }
 
 void mag_hmc58xx_module_event(void) {

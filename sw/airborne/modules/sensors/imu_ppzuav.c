@@ -39,8 +39,8 @@
 // Peripherials
 #define HMC5843_NO_IRQ
 #include "peripherals/itg3200_regs.h"
-#include "../../peripherals/adxl345.h"
-#include "../../peripherals/hmc5843.h"
+#include "peripherals/adxl345_regs.h"
+#include "peripherals/hmc5843_regs.h"
 
 // Results
 volatile bool_t mag_valid;
@@ -117,9 +117,9 @@ void imu_impl_init(void)
   ppzuavimu_adxl345.type = I2CTransTx;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_BW_RATE;
 #if PERIODIC_FREQUENCY == 60
-  ppzuavimu_adxl345.buf[1] = ADXL345_RATE_50;  // normal power and 50Hz sampling, 25Hz BW
+  ppzuavimu_adxl345.buf[1] = ADXL345_RATE_50HZ;  // normal power and 50Hz sampling, 25Hz BW
 #else
-  ppzuavimu_adxl345.buf[1] = ADXL345_RATE_100;  // normal power and 100Hz sampling, 50Hz BW
+  ppzuavimu_adxl345.buf[1] = ADXL345_RATE_100HZ;  // normal power and 100Hz sampling, 50Hz BW
 #endif
   ppzuavimu_adxl345.len_w = 2;
   i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_adxl345);

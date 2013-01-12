@@ -73,9 +73,11 @@ void hmc58xx_init(struct Hmc58xx *hmc, struct i2c_periph *i2c_p, uint8_t addr)
   hmc->init_status = HMC_CONF_UNINIT;
 }
 
-static void hmc58xx_i2c_tx_reg(struct Hmc58xx *hmc)
+static void hmc58xx_i2c_tx_reg(struct Hmc58xx *hmc, uint8_t reg, uint8_t val)
 {
   hmc->i2c_trans.type = I2CTransTx;
+  hmc->i2c_trans.buf[0] = reg;
+  hmc->i2c_trans.buf[1] = val;
   hmc->i2c_trans.len_r = 0;
   hmc->i2c_trans.len_w = 2;
   i2c_submit(hmc->i2c_p, &(hmc->i2c_trans));
@@ -86,21 +88,15 @@ static void hmc58xx_send_config(struct Hmc58xx *hmc)
 {
   switch (hmc->init_status) {
     case HMC_CONF_CRA:
-      hmc->i2c_trans.buf[0] = HMC58XX_REG_CFGA;
-      hmc->i2c_trans.buf[1] = (hmc->config.rate<<2)|(hmc->config.meas);
-      hmc58xx_i2c_tx_reg(hmc);
+      hmc58xx_i2c_tx_reg(hmc, HMC58XX_REG_CFGA, (hmc->config.rate<<2)|(hmc->config.meas));
       hmc->init_status++;
       break;
     case HMC_CONF_CRB:
-      hmc->i2c_trans.buf[0] = HMC58XX_REG_CFGB;
-      hmc->i2c_trans.buf[1] = hmc->config.gain<<5;
-      hmc58xx_i2c_tx_reg(hmc);
+      hmc58xx_i2c_tx_reg(hmc, HMC58XX_REG_CFGB, (hmc->config.gain << 5));
       hmc->init_status++;
       break;
     case HMC_CONF_MODE:
-      hmc->i2c_trans.buf[0] = HMC58XX_REG_MODE;
-      hmc->i2c_trans.buf[1] = hmc->config.mode;
-      hmc58xx_i2c_tx_reg(hmc);
+      hmc58xx_i2c_tx_reg(hmc, HMC58XX_REG_MODE, hmc->config.mode);
       hmc->init_status++;
       break;
     case HMC_CONF_DONE:
@@ -113,7 +109,7 @@ static void hmc58xx_send_config(struct Hmc58xx *hmc)
 }
 
 // Configure
-void hmc58xx_configure(struct Hmc58xx *hmc)
+void hmc58xx_start_configure(struct Hmc58xx *hmc)
 {
   if (hmc->init_status == HMC_CONF_UNINIT) {
     hmc->init_status++;

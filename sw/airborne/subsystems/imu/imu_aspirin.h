@@ -26,10 +26,9 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-#include "mcu_periph/i2c.h"
 #include "peripherals/itg3200.h"
 #include "peripherals/hmc58xx.h"
-#include "peripherals/adxl345.h"
+#include "peripherals/adxl345_spi.h"
 
 #ifdef IMU_ASPIRIN_VERSION_1_0
 #define IMU_MAG_X_CHAN 0
@@ -131,12 +130,11 @@ enum AspirinStatus
   };
 
 struct ImuAspirin {
-  volatile enum AspirinStatus status;
-  volatile uint8_t accel_tx_buf[7];
-  volatile uint8_t accel_rx_buf[7];
+  //volatile enum AspirinStatus status;
   volatile uint8_t accel_valid;
   volatile uint8_t gyro_valid;
   volatile uint8_t mag_valid;
+  struct Adxl345_Spi acc_adxl;
   struct Itg3200 gyro_itg;
   struct Hmc58xx mag_hmc;
 };

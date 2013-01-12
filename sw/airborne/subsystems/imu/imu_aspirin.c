@@ -26,16 +26,14 @@
  */
 
 #include "subsystems/imu.h"
-//#include "peripherals/hmc5843.h"
-#include "peripherals/hmc58xx.h"
 
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/spi.h"
 
 #ifndef ASPIRIN_ACCEL_RATE
-#define ASPIRIN_ACCEL_RATE ADXL345_RATE_800
-INFO("Using default ASPIRIN_ACCEL_RATE of 800Hz.")
+#define ASPIRIN_ACCEL_RATE ADXL345_RATE_800HZ
 #endif
+PRINT_CONFIG_VAR(ASPIRIN_ACCEL_RATE)
 
 /* defaults suitable for Lisa */
 #ifndef ASPIRIN_SPI_SLAVE_IDX
@@ -71,43 +69,31 @@ INFO("Using default ASPIRIN_GYRO_LOWPASS of 256HZ")
 
 struct ImuAspirin imu_aspirin;
 
-struct spi_transaction aspirin_adxl345;
-
-void adxl345_write_to_reg(uint8_t _reg, uint8_t _val);
-static void adxl345_trans_cb( struct spi_transaction *trans );
-static void configure_accel(void);
-static void accel_copy_spi(void);
-
-void imu_impl_init(void) {
-
-  imu_aspirin.status = AspirinStatusUninit;
+void imu_impl_init(void)
+{
+  //imu_aspirin.status = AspirinStatusUninit;
   imu_aspirin.accel_valid = FALSE;
   imu_aspirin.gyro_valid = FALSE;
   imu_aspirin.mag_valid = FALSE;
 
-  aspirin_adxl345.select = SPISelectUnselect;
-  aspirin_adxl345.cpol = SPICpolIdleHigh;
-  aspirin_adxl345.cpha = SPICphaEdge2;
-  aspirin_adxl345.dss = SPIDss8bit;
-  aspirin_adxl345.bitorder = SPIMSBFirst;
-  aspirin_adxl345.cdiv = SPIDiv64;
-  aspirin_adxl345.slave_idx = ASPIRIN_SPI_SLAVE_IDX;
-  aspirin_adxl345.output_length = 7;
-  aspirin_adxl345.input_length = 7;
-  aspirin_adxl345.after_cb = adxl345_trans_cb;
-  aspirin_adxl345.input_buf = &imu_aspirin.accel_rx_buf[0];
-  aspirin_adxl345.output_buf = &imu_aspirin.accel_tx_buf[0];
+  /* Set accel configuration */
+  adxl345_spi_init(&imu_aspirin.acc_adxl, &(ASPIRIN_SPI_DEV), ASPIRIN_SPI_SLAVE_IDX);
+  /// @todo drdy int handling for adxl345
+  //imu_aspirin.acc_adxl.config.drdy_int_enable = TRUE;
 
   /* Gyro configuration and initalization */
   itg3200_init(&imu_aspirin.gyro_itg, &(ASPIRIN_I2C_DEV), ITG3200_ADDR);
   /* change the default config */
-  imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV; // Sample rate divider defaults to 533Hz
-  imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_DLPF_CFG; // defaults to 8kHz internal with 256Hz low pass
+  // Aspirin sample rate divider defaults to 533Hz
+  imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV;
+  // aspirin defaults to 8kHz internal with 256Hz low pass
+  imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_DLPF_CFG;
 
   /// @todo eoc interrupt for itg3200, polling for now (including status reg)
   /* interrupt on data ready, idle high, latch until read any register */
   //itg_conf.int_cfg = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
 
+  /* initialize mag and set default options */
   hmc58xx_init(&imu_aspirin.mag_hmc, &(ASPIRIN_I2C_DEV), HMC58XX_ADDR);
 
 #if ASPIRIN_ARCH_INDEP
@@ -115,68 +101,28 @@ void imu_impl_init(void) {
 #else
   imu_aspirin_arch_init();
 #endif
-
 }
 
 
-void imu_periodic(void) {
-  // Read HMC58XX at 50Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(10, Hmc58xxPeriodic(imu_aspirin.mag_hmc));
+void imu_periodic(void)
+{
+  adxl345_spi_periodic(&imu_aspirin.acc_adxl);
 
   // Start reading the latest gyroscope data
-  Itg3200Periodic(imu_aspirin.gyro_itg);
+  itg3200_periodic(&imu_aspirin.gyro_itg);
 
-  if (imu_aspirin.status == AspirinStatusUninit) {
-    configure_accel();
-    //imu_aspirin_arch_int_enable();
-    imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
-    imu_aspirin.status = AspirinStatusIdle;
-  } else {
-    spi_submit(&(ASPIRIN_SPI_DEV), &aspirin_adxl345);
-  }
+  // Read HMC58XX at 50Hz (main loop for rotorcraft: 512Hz)
+  RunOnceEvery(10, hmc58xx_periodic(&imu_aspirin.mag_hmc));
 }
 
-static void adxl345_trans_cb( struct spi_transaction *trans ) {
-  if ( imu_aspirin.status != AspirinStatusUninit ) {
+void imu_aspirin_event(void)
+{
+  adxl345_spi_event(&imu_aspirin.acc_adxl);
+  if (imu_aspirin.acc_adxl.data_available) {
+    VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
+    imu_aspirin.acc_adxl.data_available = FALSE;
     imu_aspirin.accel_valid = TRUE;
   }
-}
-
-void adxl345_write_to_reg(uint8_t _reg, uint8_t _val) {
-  imu_aspirin.accel_tx_buf[0] = _reg;
-  imu_aspirin.accel_tx_buf[1] = _val;
-  spi_submit(&(ASPIRIN_SPI_DEV), &aspirin_adxl345);
-
-  // FIXME: no busy waiting! if really needed add a timeout!!!!
-  while(aspirin_adxl345.status != SPITransSuccess);
-}
-
-static void configure_accel(void) {
-  /* set data rate to 800Hz and bandwidth to 400Hz (unless set otherwise) */
-  adxl345_write_to_reg(ADXL345_REG_BW_RATE, ASPIRIN_ACCEL_RATE);
-  /* switch to measurememnt mode */
-  adxl345_write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
-  /* enable data ready interrupt */
-  adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
-  /* Enable full res with +-16g range and interrupt active low */
-  adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, ADXL345_FULL_RES|ADXL345_RANGE_16G|ADXL345_INT_INVERT);
-}
-
-static void accel_copy_spi(void) {
-  const int16_t ax = imu_aspirin.accel_rx_buf[1] | (imu_aspirin.accel_rx_buf[2]<<8);
-  const int16_t ay = imu_aspirin.accel_rx_buf[3] | (imu_aspirin.accel_rx_buf[4]<<8);
-  const int16_t az = imu_aspirin.accel_rx_buf[5] | (imu_aspirin.accel_rx_buf[6]<<8);
-  VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
-}
-
-void imu_aspirin_event(void) {
-
-  //imu_aspirin_arch_int_disable();
-  if (imu_aspirin.accel_valid) {
-    imu_aspirin.accel_valid = FALSE;
-    accel_copy_spi();
-  }
-  //imu_aspirin_arch_int_enable();
 
   /* If the itg3200 I2C transaction has succeeded: convert the data */
   itg3200_event(&imu_aspirin.gyro_itg);
@@ -195,5 +141,4 @@ void imu_aspirin_event(void) {
     imu_aspirin.mag_hmc.data_available = FALSE;
     imu_aspirin.mag_valid = TRUE;
   }
-
 }
