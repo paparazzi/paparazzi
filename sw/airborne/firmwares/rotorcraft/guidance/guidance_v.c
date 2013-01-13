@@ -298,6 +298,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our error feed back command                   */
   /* z-axis pointing down -> positive error means we need less thrust */
+  /* do 6 less bitshifts to get a better resolution*/
   guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 6) +
                       ((-guidance_v_kd * err_zd) >> 15) +
                       ((-guidance_v_ki * guidance_v_z_sum_err) >> 15);

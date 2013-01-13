@@ -43,9 +43,12 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{    0, -256, -256,    0,  256,  256 }"/>
+<!--    <define name="ROLL_COEF"   value="{    0, -256, -256,    0,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256, -256, -256, -256,  256 }"/>
-    <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>-->
+    <define name="ROLL_COEF"   value="{ 0,0,0,0,0,0 }"/>
+    <define name="PITCH_COEF"  value="{ 0,0,0,0,0,0 }"/>
+    <define name="YAW_COEF"    value="{ 0,0,0,0,0,0 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
   </section>
 
@@ -59,8 +62,8 @@
 
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_HOVER_DIRECT"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
 
    <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
  </section>
@@ -170,7 +173,7 @@
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="FALSE"/>
    <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
-   <define name="MILLIAMP_AT_FULL_THROTTLE" value="40000"/>
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="66000"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

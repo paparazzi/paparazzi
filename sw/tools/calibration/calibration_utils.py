@@ -62,7 +62,7 @@ def read_log(ac_id, filename, sensor):
     return scipy.array(list_meas)
 
 #
-# extracts scaled magnetometer measurements from a log
+# extracts raw magnetometer and current measurements from a log
 #
 def read_log_mag_current(ac_id, filename):
     f = open(filename, 'r')
@@ -115,12 +115,11 @@ def scale_measurements(meas, p):
     return scipy.array(l_comp), scipy.array(l_norm)
 
 #
-# calculate coefficient of magnetometer with current
+# calculate linear coefficient of magnetometer-current relation
 #
 def estimate_mag_current_relation(meas):
     coefficient = []
     for i in range(0,3):
-        print(meas[1,i])
         gradient, intercept, r_value, p_value, std_err = stats.linregress(meas[:,3],meas[:,i])
         coefficient.append(gradient)
     return coefficient
