@@ -19,8 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** \file booz_radio_control_ppm_hw.h
- *  \brief STM32 ppm decoder
+/**
+ * @file arch/stm32/subsystems/radio_control/ppm_arch.h
+ * @ingroup stm32_arch
+ *
+ * STM32 ppm decoder.
  *
  */
 

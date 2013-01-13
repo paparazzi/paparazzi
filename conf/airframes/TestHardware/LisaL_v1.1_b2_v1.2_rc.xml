@@ -36,41 +36,18 @@
         <define name="HMC5843_USE_INT"/>
     </firmware>
 
-<!--
     <firmware name="lisa_test_progs">
-        <target name="test_led"         board="lisa_l_1.1"/>
-        <target name="test_uart"        board="lisa_l_1.1"/>
-        <target name="test_servos"      board="lisa_l_1.1"/>
-        <target name="test_telemetry"   board="lisa_l_1.1"/>
-        <target name="test_baro"        board="lisa_l_1.1"/>
-        <target name="test_imu_b2"      board="lisa_l_1.1"/>
-        <target name="test_imu_b2_2"    board="lisa_l_1.1"/>
-        <target name="test_imu_aspirin" board="lisa_l_1.1"/>
-        <target name="test_rc_spektrum" board="lisa_l_1.1"/>
-        <target name="test_rc_ppm"      board="lisa_l_1.1"/>
-        <target name="test_adc"         board="lisa_l_1.1"/>
-        <target name="test_hmc5843"     board="lisa_l_1.1"/>
-        <target name="test_itg3200"     board="lisa_l_1.1"/>
-        <target name="test_adxl345"             board="lisa_l_1.1"/>
-        <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
-        <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
-        <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
-        <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
+        <target name="test_led"           board="lisa_l_1.1"/>
+        <target name="test_uart"          board="lisa_l_1.1"/>
+        <target name="test_servos"        board="lisa_l_1.1"/>
+        <target name="test_telemetry"     board="lisa_l_1.1"/>
+        <target name="test_baro"          board="lisa_l_1.1"/>
+        <target name="test_imu_b2_2"      board="lisa_l_1.1"/>
+        <target name="test_imu_b2_nomag"  board="lisa_l_1.1"/>
+        <target name="test_rc_spektrum"   board="lisa_l_1.1"/>
+        <target name="test_rc_ppm"        board="lisa_l_1.1"/>
+        <target name="test_adc"           board="lisa_l_1.1"/>
     </firmware>
-
-    <firmware name="lisa_passthrough">
-        <target name="overo_test_passthrough" board="lisa_l_1.1"  >
-            <configure name="HOST"          value="A7"/>
-            <configure name="USER"          value=""/>
-            <configure name="TARGET_DIR"    value="~"/>
-            <configure name="PERIODIC_FREQ" value="512"/>
-        </target>
-        <target name="stm_passthrough" board="lisa_l_1.1">
-            <subsystem name="radio_control" type="spektrum"/>
-            <subsystem name="imu" type="b2_v1.2"/>
-        </target>
-    </firmware>
--->
 
     <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
         <define name="NB" value="4"/>

@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * @file arch/stm32/mcu_periph/can_arch.c
+ * @ingroup stm32_arch
+ *
+ * Handling of CAN hardware for STM32.
+ */
+
 #include <stdint.h>
 #include <string.h>
 
@@ -40,139 +47,139 @@ bool can_initialized = false;
 void can_hw_init(void)
 {
 
-	/* Enable peripheral clocks. */
-        rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-        rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-        rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_CAN1EN);
+  /* Enable peripheral clocks. */
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_CAN1EN);
 
-	/* Remap the gpio pin if necessary. */
-	AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
+  /* Remap the gpio pin if necessary. */
+  AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;
 
-	/* Configure CAN pin: RX (input pull-up). */
-	gpio_set_mode(GPIO_BANK_CAN1_PB_RX, GPIO_MODE_INPUT,
-                      GPIO_CNF_INPUT_PULL_UPDOWN, GPIO_CAN1_PB_RX);
-        gpio_set(GPIO_BANK_CAN1_PB_RX, GPIO_CAN1_PB_RX);
+  /* Configure CAN pin: RX (input pull-up). */
+  gpio_set_mode(GPIO_BANK_CAN1_PB_RX, GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_PULL_UPDOWN, GPIO_CAN1_PB_RX);
+  gpio_set(GPIO_BANK_CAN1_PB_RX, GPIO_CAN1_PB_RX);
 
-        /* Configure CAN pin: TX (output push-pull). */
-        gpio_set_mode(GPIO_BANK_CAN1_PB_TX, GPIO_MODE_OUTPUT_50_MHZ,
-                      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_CAN1_PB_TX);
+  /* Configure CAN pin: TX (output push-pull). */
+  gpio_set_mode(GPIO_BANK_CAN1_PB_TX, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_CAN1_PB_TX);
 
-	/* NVIC setup. */
-        nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
-        nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 1);
+  /* NVIC setup. */
+  nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
+  nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 1);
 
-	/* Reset CAN. */
-        can_reset(CAN1);
+  /* Reset CAN. */
+  can_reset(CAN1);
 
-	/* CAN cell init.
-	 * For time quanta calculation see STM32 reference manual
-	 * section 24.7.7 "Bit timing" page 645
-	 *
-	 * To talk to CSC using LPC mcu we need a baud rate of 375kHz
-	 * The APB1 runs at 36MHz therefor we select a prescaler of 12
-	 * resulting in time quanta frequency of 36MHz / 12 = 3MHz
-	 *
-	 * As the Bit time is combined of 1tq for SYNC_SEG, TS1tq for bit
-	 * segment 1 and TS2tq for bit segment 2:
-	 * BITtq = 1tq + TS1tq + TS2tq
-	 *
-	 * We can choose to use TS1 = 3 and TS2 = 4 getting
-	 * 1tq + 3tq + 4tq = 8tq per bit therefor a bit frequency is
-	 * 3MHZ / 8 = 375kHz
-	 *
-	 * Maximum baud rate of CAN is 1MHz so we can choose to use
-	 * prescaler of 2 resulting in a quanta frequency of 36MHz / 2 = 18Mhz
-	 *
-	 * So we need to devide the frequency by 18. This can be accomplished
-	 * using TS1 = 10 and TS2 = 7 resulting in:
-	 * 1tq + 10tq + 7tq = 18tq
-	 *
-	 * NOTE: Although it is out of spec I managed to have CAN run at 2MBit
-	 * Just decrease the prescaler to 1. It worked for me(tm) (esden)
-	 */
-        if (can_init(CAN1,
-                     false,           /* TTCM: Time triggered comm mode? */
-                     true,            /* ABOM: Automatic bus-off management? */
-                     false,           /* AWUM: Automatic wakeup mode? */
-                     false,           /* NART: No automatic retransmission? */
-                     false,           /* RFLM: Receive FIFO locked mode? */
-                     false,           /* TXFP: Transmit FIFO priority? */
-                     CAN_BTR_SJW_1TQ,
-                     CAN_BTR_TS1_10TQ,
-                     CAN_BTR_TS2_7TQ,
-                     2))             /* BRP+1: Baud rate prescaler */
-        {
-		/* TODO we need something somewhere where we can leave a note
-		 * that CAN was unable to initialize. Just like any other
-		 * driver should...
-		 */
+  /* CAN cell init.
+   * For time quanta calculation see STM32 reference manual
+   * section 24.7.7 "Bit timing" page 645
+   *
+   * To talk to CSC using LPC mcu we need a baud rate of 375kHz
+   * The APB1 runs at 36MHz therefor we select a prescaler of 12
+   * resulting in time quanta frequency of 36MHz / 12 = 3MHz
+   *
+   * As the Bit time is combined of 1tq for SYNC_SEG, TS1tq for bit
+   * segment 1 and TS2tq for bit segment 2:
+   * BITtq = 1tq + TS1tq + TS2tq
+   *
+   * We can choose to use TS1 = 3 and TS2 = 4 getting
+   * 1tq + 3tq + 4tq = 8tq per bit therefor a bit frequency is
+   * 3MHZ / 8 = 375kHz
+   *
+   * Maximum baud rate of CAN is 1MHz so we can choose to use
+   * prescaler of 2 resulting in a quanta frequency of 36MHz / 2 = 18Mhz
+   *
+   * So we need to devide the frequency by 18. This can be accomplished
+   * using TS1 = 10 and TS2 = 7 resulting in:
+   * 1tq + 10tq + 7tq = 18tq
+   *
+   * NOTE: Although it is out of spec I managed to have CAN run at 2MBit
+   * Just decrease the prescaler to 1. It worked for me(tm) (esden)
+   */
+  if (can_init(CAN1,
+               false,           /* TTCM: Time triggered comm mode? */
+               true,            /* ABOM: Automatic bus-off management? */
+               false,           /* AWUM: Automatic wakeup mode? */
+               false,           /* NART: No automatic retransmission? */
+               false,           /* RFLM: Receive FIFO locked mode? */
+               false,           /* TXFP: Transmit FIFO priority? */
+               CAN_BTR_SJW_1TQ,
+               CAN_BTR_TS1_10TQ,
+               CAN_BTR_TS2_7TQ,
+               2))             /* BRP+1: Baud rate prescaler */
+  {
+    /* TODO we need something somewhere where we can leave a note
+     * that CAN was unable to initialize. Just like any other
+     * driver should...
+     */
 
-		can_reset(CAN1);
+    can_reset(CAN1);
 
-		return;
-        }
+    return;
+  }
 
-        /* CAN filter 0 init. */
-        can_filter_id_mask_32bit_init(CAN1,
+  /* CAN filter 0 init. */
+  can_filter_id_mask_32bit_init(CAN1,
                                 0,     /* Filter ID */
                                 0,     /* CAN ID */
                                 0,     /* CAN ID mask */
                                 0,     /* FIFO assignment (here: FIFO0) */
                                 true); /* Enable the filter. */
 
-        /* Enable CAN RX interrupt. */
-        can_enable_irq(CAN1, CAN_IER_FMPIE0);
+  /* Enable CAN RX interrupt. */
+  can_enable_irq(CAN1, CAN_IER_FMPIE0);
 
-	/* Remember that we succeeded to initialize. */
-	can_initialized = true;
+  /* Remember that we succeeded to initialize. */
+  can_initialized = true;
 }
 
 int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 {
 
-	if (!can_initialized) {
-		return -2;
-	}
+  if (!can_initialized) {
+    return -2;
+  }
 
-	if(len > 8){
-		return -1;
-	}
+  if(len > 8){
+    return -1;
+  }
 
 
-	/* FIXME: we are discarding the const qualifier for buf here.
-	 * We should probably fix libopencm3 to actually have the
-	 * const qualifier too...
-	 */
-	return can_transmit(CAN1,
-			id,     /* (EX/ST)ID: CAN ID */
+  /* FIXME: we are discarding the const qualifier for buf here.
+   * We should probably fix libopencm3 to actually have the
+   * const qualifier too...
+   */
+  return can_transmit(CAN1,
+                      id,     /* (EX/ST)ID: CAN ID */
 #ifdef USE_CAN_EXT_ID
-			true,  /* IDE: CAN ID extended */
+                      true,  /* IDE: CAN ID extended */
 #else
-			false, /* IDE: CAN ID not extended */
+                      false, /* IDE: CAN ID not extended */
 #endif
-			false, /* RTR: Request transmit? */
-			len,   /* DLC: Data length */
-			(uint8_t *)buf);
+                      false, /* RTR: Request transmit? */
+                      len,   /* DLC: Data length */
+                      (uint8_t *)buf);
 }
 
 void usb_lp_can_rx0_isr(void)
 {
-	u32 id, fmi;
-        bool ext, rtr;
-        u8 length, data[8];
+  u32 id, fmi;
+  bool ext, rtr;
+  u8 length, data[8];
 
-	can_receive(CAN1,
-		0,     /* FIFO: 0 */
-		false, /* Release */
-		&id,
-		&ext,
-		&rtr,
-		&fmi,
-		&length,
-		data);
+  can_receive(CAN1,
+              0,     /* FIFO: 0 */
+              false, /* Release */
+              &id,
+              &ext,
+              &rtr,
+              &fmi,
+              &length,
+              data);
 
-	_can_run_rx_callback(id, data, length);
+  _can_run_rx_callback(id, data, length);
 
-	can_fifo_release(CAN1, 0);
+  can_fifo_release(CAN1, 0);
 }
 

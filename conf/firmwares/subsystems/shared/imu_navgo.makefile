@@ -26,3 +26,7 @@ IMU_NAVGO_SRCS += peripherals/hmc58xx.c
 ap.CFLAGS += $(IMU_NAVGO_CFLAGS)
 ap.srcs   += $(IMU_NAVGO_SRCS)
 
+#
+# Simulator
+#
+include $(CFG_SHARED)/imu_nps.makefile

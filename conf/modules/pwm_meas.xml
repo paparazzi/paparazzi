@@ -1,17 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<!-- Currently only available on LPC21xx arch
-    pwm input measurement mcu periph access and init wrapper for other modules
-      For LPC21xx on the TWOG:
-      1 - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V->3.3V voltage divider)
-      2 - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
--->
+
 <module name="pwm_meas" dir="core">
   <doc>
     <description>
-      pwm input measurement mcu periph access and init wrapper for other modules
+      PWM measurement.
+
+      PWM input measurement mcu periph access and init wrapper for other modules.
+
       For LPC21xx on the TWOG:
-      1 - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V to 3.3V voltage divider)
-      2 - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
+      - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V to 3.3V voltage divider)
+      - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
+
       Currently only available on LPC21xx arch
     </description>
   </doc>

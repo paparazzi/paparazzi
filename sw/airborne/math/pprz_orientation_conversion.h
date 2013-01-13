@@ -20,7 +20,7 @@
  */
 
 /**
- * @file pprz_orienation_conversion.h
+ * @file math/pprz_orientation_conversion.h
  * Generic orientation representation and conversions.
  *
  * This file contains the functions to automatically convert between

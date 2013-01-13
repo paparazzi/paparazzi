@@ -19,8 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** \file stabilization_attitude_ref_float.c
- *  \brief Booz attitude reference generation (quaternion float version)
+/**
+ * @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.c
+ *
+ * Rotorcraft attitude reference generation.
+ * (quaternion float version)
  *
  */
 

@@ -1,10 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Sensirion SHT25 humidity sensor (I2C)
-     @define SCP_I2C_DEV i2c device (default i2c0)
-     -->
-
 <module name="humid_sht_i2c" dir="meteo">
   <doc>
     <description>Sensirion SHT25 humidity sensor (I2C)</description>

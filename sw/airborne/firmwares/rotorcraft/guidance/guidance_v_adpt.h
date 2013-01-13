@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file guidance_v_adapt.h
+/** @file firmwares/rotorcraft/guidance/guidance_v_adpt.h
  *  Adaptation bloc of the vertical guidance.
  *
  *  This is a dimension one kalman filter estimating

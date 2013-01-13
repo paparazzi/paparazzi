@@ -21,7 +21,7 @@
  */
 
 /**
- * @file main.c
+ * @file firmwares/fixedwing/main.c
  * Main loop used both on single and dual MCU configuration.
  */
 

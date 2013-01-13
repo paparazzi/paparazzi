@@ -32,7 +32,7 @@ let paparazzi_conf = Env.paparazzi_home // "conf"
 let modules_dir = paparazzi_conf // "modules"
 let autopilot_dir = paparazzi_conf // "autopilot"
 
-let default_module_targets = "ap|sim"
+let default_module_targets = "ap|sim|nps"
 let default_freq = 60
 
 (** remove all duplicated elements of a list *)

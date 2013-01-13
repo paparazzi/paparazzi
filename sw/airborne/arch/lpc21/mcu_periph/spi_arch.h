@@ -22,6 +22,8 @@
 
 /**
  * @file arch/lpc21/mcu_periph/spi_arch.h
+ * @ingroup lpc21_arch
+ *
  * Handling of SPI hardware for lpc21xx.
  * for now only SPI1 ( aka SSP )
  */

@@ -102,6 +102,7 @@ void ins_init() {
 
   ltp_def_from_ecef_i(&ins_ltp_def, &ecef_nav0);
   ins_ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_ltp_def);
 #else
   ins_ltp_initialised  = FALSE;
 #endif
@@ -165,6 +166,7 @@ void ins_propagate() {
   ins_ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
+  INS_NED_TO_STATE();
 }
 
 void ins_update_baro() {
@@ -199,6 +201,7 @@ void ins_update_gps(void) {
       ins_ltp_def.lla.alt = gps.lla_pos.alt;
       ins_ltp_def.hmsl = gps.hmsl;
       ins_ltp_initialised = TRUE;
+      stateSetLocalOrigin_i(&ins_ltp_def);
     }
     ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
     ned_of_ecef_vect_i(&ins_gps_speed_cm_s_ned, &ins_ltp_def, &gps.ecef_vel);
@@ -263,6 +266,9 @@ void ins_update_sonar() {
 
   /* update filter assuming a flat ground */
   if (sonar < INS_SONAR_MAX_RANGE
+#ifdef INS_SONAR_MIN_RANGE
+      && sonar > INS_SONAR_MIN_RANGE
+#endif
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
       && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
 #endif

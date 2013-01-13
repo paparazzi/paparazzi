@@ -1,9 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Angle of Attack ADC module
-     -->
-
 <module name="AOA_adc" dir="sensors">
   <doc>
     <description>Angle of Attack using internal ADC</description>

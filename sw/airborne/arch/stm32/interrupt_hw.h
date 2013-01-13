@@ -19,9 +19,13 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-/** \file interrupt_hw.h
- *  \brief STM32 Low level interrupt handling
- *  Empty for now, just to match what we have on LPC
+
+/**
+ * @file arch/stm32/interrupt_hw.h
+ * @ingroup stm32_arch
+ *
+ * STM32 Low level interrupt handling.
+ * Empty for now, just to match what we have on LPC
  */
 
 #ifndef INTERRUPT_HW_H

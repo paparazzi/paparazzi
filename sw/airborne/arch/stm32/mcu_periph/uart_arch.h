@@ -19,9 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- *\brief STM32 usart functions
+/**
+ * @file arch/stm32/mcu_periph/uart_arch.h
+ * @ingroup stm32_arch
  *
+ * Handling of UART hardware for STM32.
  */
 
 #ifndef STM32_UART_ARCH_H

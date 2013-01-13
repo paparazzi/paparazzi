@@ -22,8 +22,9 @@
 
 /**
  * @file arch/lpc21/mcu_periph/sys_time_arch.c
- * @brief LPC21xx timing functions.
+ * @ingroup lpc21_arch
  *
+ * LPC21xx timing functions.
  */
 
 #include "mcu_periph/sys_time.h"

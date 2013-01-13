@@ -2,7 +2,7 @@
 
 <module name="sensors">
   <doc>
-    <description>standalone hmc5843 magnetometer</description>
+    <description>hmc5843 magnetometer</description>
   </doc>
   <!-- <depend conflict="ins" -->
   <header>

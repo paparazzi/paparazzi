@@ -20,8 +20,9 @@
  *
  */
 
-/** \file baro_MS5534A.c
- *  \brief Handling of the MS5534a pressure sensor
+/**
+ * @file modules/sensors/baro_MS5534A.c
+ * @brief Handling of the MS5534a pressure sensor
  *
  * uses: MOSI, MISO, SCK and 32kHz @ P0.7 with 5V for the -A type
  */

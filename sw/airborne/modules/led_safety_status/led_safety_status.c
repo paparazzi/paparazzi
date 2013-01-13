@@ -23,9 +23,9 @@
 #include "generated/airframe.h"
 #include "subsystems/electrical.h"
 #include "subsystems/radio_control.h"
-#include "autopilot.h"
+#include "firmwares/rotorcraft/autopilot.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include "autopilot_rc_helpers.h"
+#include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 
 #include "led_safety_status.h"
 

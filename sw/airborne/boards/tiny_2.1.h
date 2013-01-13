@@ -201,4 +201,13 @@
 #define SPI1_DRDY_EINT         0
 #define SPI1_DRDY_VIC_IT       VIC_EINT0
 
+
+/* MAX1168 EOC pin (e.g. booz2 imu) */
+#define MAX1168_EOC_PIN 16
+#define MAX1168_EOC_PINSEL PINSEL1
+#define MAX1168_EOC_PINSEL_BIT 0
+#define MAX1168_EOC_PINSEL_VAL 1
+#define MAX1168_EOC_EINT 0
+#define MAX1168_EOC_VIC_IT VIC_EINT0
+
 #endif /* CONFIG_TINY_H */

@@ -1,23 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-
-  Pressure Board Navarro (2010)
-
-  by Matthieu Navarro
-
-  combine differential and absolute pressure sensor (ETS raw sensors)
-  controlled by a dspic
-  return scaled values over I2C
-
--->
-
 <module name="pbn" dir="sensors">
   <doc>
     <description>
-      Pressure Board Navarro (2010)
+      Pressure Board Navarro.
 
-      by Matthieu Navarro
+      by Matthieu Navarro (2010)
 
       combine differential and absolute pressure sensor (ETS raw sensors)
       controlled by a dspic

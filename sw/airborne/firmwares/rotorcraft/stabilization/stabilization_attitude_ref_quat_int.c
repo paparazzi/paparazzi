@@ -19,8 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_attitude_ref_int.c
- * Rotorcraft attitude reference generation (quaternion int version)
+/**
+ * @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c
+ *
+ * Rotorcraft attitude reference generation.
+ * (quaternion int version)
  *
  */
 

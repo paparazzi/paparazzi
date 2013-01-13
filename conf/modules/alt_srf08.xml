@@ -2,7 +2,7 @@
 
 <module name="alt_srf08" dir="sensors">
   <doc>
-    <description>Range meter based on srf08 ultrasonic sensor</description>
+    <description>SRF08 ultrasonic range meter</description>
   </doc>
   <header>
     <file name="alt_srf08.h"/>

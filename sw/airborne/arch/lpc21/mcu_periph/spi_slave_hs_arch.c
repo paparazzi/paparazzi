@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/lpc21/mcu_periph/spi_slave_hs_arch.c
+ * @ingroup lpc21_arch
+ *
+ * Highspeed SPI Slave Interface.
+ */
+
 #include "spi_slave_hs_arch.h"
 #include "mcu_periph/spi.h"
 

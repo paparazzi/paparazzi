@@ -536,7 +536,11 @@
     <field name="Err_Pos" type="float"></field>
   </message>
 
- <!-- 68 is free -->
+  <message name="MPL3115_BARO" id="68">
+    <field name="pressure" type="uint32" alt_unit="Pa" alt_unit_coef="0.25"/>
+    <field name="temp" type="int16" alt_unit="degC" alt_unit_coef="0.0625"/>
+    <field name="alt" type="float" unit="m"/>
+  </message>
 
 	<message name="AOA_adc" id="69">
 		<field name="adcVal" type="uint16"></field>

@@ -255,6 +255,7 @@ typedef struct {
 #define PT_HIOS		0x6fffffff
 #define PT_LOPROC	0x70000000
 #define PT_HIPROC	0x7fffffff
+#define SHT_ARM_EXIDX	0x70000001
 
 /*
  * p_flags

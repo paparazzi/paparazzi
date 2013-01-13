@@ -20,6 +20,11 @@
  *
  */
 
+/**
+ * @file modules/MPPT/MPPT.c
+ * @brief Solar cells MPTT monitoring
+ *
+ */
 
 #include <stdbool.h>
 #include "MPPT.h"

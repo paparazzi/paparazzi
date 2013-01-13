@@ -22,7 +22,7 @@
  */
 
 /** @file arch/sim/mcu_periph/sys_time_arch.h
- * Simulator timing functions
+ * Simulator timing functions.
  */
 
 #ifndef SYS_TIME_ARCH_H

@@ -18,6 +18,15 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/**
+ * @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h
+ *
+ * Rotorcraft attitude reference generation.
+ * (quaternion int version)
+ *
+ */
+
 #ifndef STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
 #define STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
 

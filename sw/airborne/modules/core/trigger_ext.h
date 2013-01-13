@@ -20,10 +20,11 @@
  *
  */
 
-/** \file trigger_ext.h
- *  \brief Measure external trigger pulse at PPM input (default)
+/**
+ * @file modules/core/trigger_ext.h
+ * Measure external trigger pulse at PPM input (default).
  *
- *   This measures a trigger pulse length
+ * This measures a trigger pulse length
  */
 
 #ifndef TRIGGER_EXT_H

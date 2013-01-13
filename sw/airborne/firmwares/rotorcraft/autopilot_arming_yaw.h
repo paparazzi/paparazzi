@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/autopilot_arming_yaw.h
+ *
+ * Arm the motors by with max yaw stick.
+ *
+ */
+
 #ifndef AUTOPILOT_ARMING_YAW_H
 #define AUTOPILOT_ARMING_YAW_H
 

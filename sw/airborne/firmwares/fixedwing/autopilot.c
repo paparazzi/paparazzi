@@ -20,8 +20,10 @@
  *
  */
 
-/** \file autopilot.c
- *  \brief Autopilot inititalization
+/**
+ * @file firmwares/fixedwing/autopilot.c
+ *
+ * Autopilot inititalization.
  *
  */
 

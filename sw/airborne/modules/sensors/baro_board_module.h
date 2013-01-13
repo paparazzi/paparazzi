@@ -20,7 +20,7 @@
  */
 
 /**
- * @file baro_board_module.h
+ * @file modules/sensors/baro_board_module.h
  *
  * Wrapper for the board specific barometer.
  */
@@ -35,7 +35,9 @@
  *  in your airframe file when configuring baro_board module
  *  ex:
  *   for module baro_ets
+ * @verbatim
  *   <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>
+ * @endverbatim
  */
 #ifndef BARO_ABS_EVENT
 #define BARO_ABS_EVENT NoBaro

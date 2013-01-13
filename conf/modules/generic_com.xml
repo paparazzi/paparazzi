@@ -1,13 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<!-- Generic Com Module -->
-<!-- Can be redefined :
-     GENERIC_COM_I2C_DEV (default: i2c0)
-     GENERIC_COM_SLAVE_ADDR (default: ??)
-     -->
 
 <module name="generic_com" dir="com">
   <doc>
-    <description>Generic com (can be used for Satcom/GSM)</description>
+    <description>
+      Generic com.
+      Can be used for Satcom/GSM
+    </description>
     <define name="GENERIC_COM_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
     <define name="GENERIC_COM_SLAVE_ADDR" value="i2c address"/>
   </doc>

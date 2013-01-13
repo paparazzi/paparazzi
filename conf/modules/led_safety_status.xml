@@ -2,7 +2,10 @@
 
 <module name="led_safety_status">
   <doc>
-    <description> LED module that blinks in different patterns in different safety situations </description>
+    <description>
+      LED safety indicator.
+      LED module that blinks in different patterns in different safety situations.
+    </description>
   </doc>
   <header>
     <file name="led_safety_status.h"/>

@@ -121,6 +121,14 @@
 #define IMU_ACCEL_Z_SENS_DEN 100
 #endif
 
+/* Default I2C address and device for the ITG3200/IMU300 gyro */
+#ifndef ITG3200_I2C_ADDR
+#define ITG3200_I2C_ADDR ITG3200_ADDR
+#endif
+#ifndef ITG3200_I2C_DEV
+#define ITG3200_I2C_DEV i2c2
+#endif
+
 
 enum AspirinStatus
   { AspirinStatusUninit,
@@ -166,19 +174,16 @@ extern void imu_aspirin_arch_init(void);
 
 static inline void gyro_read_i2c(void)
 {
-  imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx;
-  imu_aspirin.i2c_trans_gyro.len_w = 1;
-  imu_aspirin.i2c_trans_gyro.len_r = 6;
   imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
-  i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
+  I2CTransceive(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 1, 6);
   imu_aspirin.reading_gyro = 1;
 }
 
 static inline void gyro_copy_i2c(void)
 {
-  int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1];
-  int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3];
-  int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
+  const int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1];
+  const int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3];
+  const int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
   RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);
 }
 
@@ -190,7 +195,7 @@ static inline void accel_copy_spi(void)
   VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
 }
 
-static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;
 
@@ -249,9 +254,5 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
   }
 
 }
-
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
-  imu_aspirin_event(_gyro_handler, _accel_handler, _mag_handler); \
-} while(0);
 
 #endif /* IMU_ASPIRIN_H */

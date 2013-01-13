@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/autopilot.h
+ *
+ * Autopilot modes.
+ *
+ */
+
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 

@@ -40,9 +40,9 @@ void max1168_arch_init( void ) {
   SetBit(EXTINT, MAX1168_EOC_EINT);
 
    /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_EINT0 );                     // EXTINT0 selected as IRQ
-  VICIntEnable = VIC_BIT( VIC_EINT0 );                       // EXTINT0 interrupt enabled
-  _VIC_CNTL(MAX1168_EOC_VIC_SLOT) = VIC_ENABLE | VIC_EINT0;
+  VICIntSelect &= ~VIC_BIT( MAX1168_EOC_VIC_IT );                     // EXTINT0 selected as IRQ
+  VICIntEnable = VIC_BIT( MAX1168_EOC_VIC_IT );                       // EXTINT0 interrupt enabled
+  _VIC_CNTL(MAX1168_EOC_VIC_SLOT) = VIC_ENABLE | MAX1168_EOC_VIC_IT;
   _VIC_ADDR(MAX1168_EOC_VIC_SLOT) = (uint32_t)EXTINT0_ISR;   // address of the ISR
 }
 

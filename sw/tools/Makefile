@@ -23,12 +23,14 @@
 Q=@
 
 OCAML=ocaml
+OCAMLFIND=ocamlfind
 OCAMLC=ocamlc
 OCAMLDEP=ocamldep
 LIBPPRZDIR=../lib/ocaml
-INCLUDES=-I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
-OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
+INCLUDES=-I $(LIBPPRZDIR)
+# $(shell ocamlfind query -r -i-format xml-light)
+#OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
+#OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
 all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out find_free_msg_id.out gen_srtm.out mergelogs
@@ -38,33 +40,34 @@ ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -custom -o $@ -package unix,str,xml-light -linkpkg ivy-ocaml.cma lib-pprz.cma $^
 
-gen_srtm.out : gen_common.cmo
+gen_srtm.out : gen_srtm.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OC $@
-	$(Q)$(OCAMLC) $(INCLUDES) $(OCAMLNETINCLUDES) -custom -o $@ unix.cma str.cma netstring.cma netclient.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma gen_common.cmo $^
-
-mergelogs: mergelogs.c
-	gcc mergelogs.c -o mergelogs
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -custom -o $@ -package unix,str,xml-light,netclient -linkpkg ivy-ocaml.cma lib-pprz.cma $<
 
 %.out : %.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ unix.cma str.cma ivy-ocaml.cma xml-light.cma lib-pprz.cma gen_common.cmo $<
-	@cat ../../pprz_src_test.sh > $@
-	@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/tools $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma gen_common.cmo $$PAPARAZZI_BIN/$< $$*' >> $@
-	@chmod a+x $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -custom -o $@ -package unix,str,xml-light -linkpkg ivy-ocaml.cma lib-pprz.cma gen_common.cmo $<
+
+# disable this for now and use the compiled bytecode
+#@cat ../../pprz_src_test.sh > $@
+#@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/tools $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma gen_common.cmo $$PAPARAZZI_BIN/$< $$*' >> $@
+#@chmod a+x $@
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package xml-light -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package xml-light -c $<
 
 # dependency on lib-pprz
 gen_flight_plan.out gen_srtm.out : $(LIBPPRZCMA)
 
+mergelogs: mergelogs.c
+	gcc mergelogs.c -o mergelogs
 
 clean:
 	rm -f *.cm* *.out *~ .depend fp_parser.ml fp_parser.mli mergelogs

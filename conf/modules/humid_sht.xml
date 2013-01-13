@@ -2,7 +2,10 @@
 
 <module name="humid_sht" dir="meteo">
   <doc>
-    <description></description>
+    <description>
+      SHTxx humidity sensor.
+      This reads the values for humidity and temperature from the SHTxx sensor through bit banging.
+    </description>
   </doc>
   <header>
     <file name="humid_sht.h"/>

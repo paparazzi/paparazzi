@@ -202,7 +202,7 @@ void event_task_fbw( void) {
     trimmed_commands[COMMAND_PITCH] += ChopAbs(command_pitch_trim, MAX_PPRZ/10);
     #endif
 
-    SetActuatorsFromCommands(trimmed_commands);
+    SetActuatorsFromCommands(trimmed_commands, autopilot_mode);
     fbw_new_actuators = 0;
     #if OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE
     if (crash == 1)

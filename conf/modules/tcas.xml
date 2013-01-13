@@ -2,7 +2,7 @@
 
 <module name="tcas" dir="multi">
   <doc>
-    <description>Collision avoidance system based on TCAS logic</description>
+    <description>TCAS collision avoidance</description>
   </doc>
   <header>
     <file name="tcas.h"/>

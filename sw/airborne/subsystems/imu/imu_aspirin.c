@@ -42,9 +42,20 @@
 #define ADXL345_SPI_DEV spi2
 #endif
 
-#ifndef ITG3200_I2C_DEV
-#define ITG3200_I2C_DEV i2c2
+
+#ifndef ITG3200_SMPLRT_DIV
+#define ITG3200_SMPLRT_DIV 0x0E // Sample rate divider defaults to 533Hz
 #endif
+#ifndef ITG3200_FS_SEL
+#define ITG3200_FS_SEL 0x3 // Full scale range +- 2000°/s
+#endif
+#ifndef ITG3200_DLPF_CFG
+#define ITG3200_DLPF_CFG 0x0 // Internal sampling (8kHz, 256Hz LP Bandwidth)
+#endif
+#ifndef ITG3200_CLK_SEL
+#define ITG3200_CLK_SEL 0x1 // PLL with X gyro reference
+#endif
+
 
 struct ImuAspirin imu_aspirin;
 
@@ -73,6 +84,14 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   }
   while (t->status != I2CTransSuccess && nb_retry < max_retry);
 }
+
+#define I2C2TransmitWithRetry(_t, _s_addr, _len) {	\
+    _t.type = I2CTransTx;                           \
+    _t.slave_addr = _s_addr;                        \
+    _t.len_r = 0;                                   \
+    _t.len_w = _len;                                \
+    send_i2c_msg_with_retry(&(_t));                 \
+  }
 
 void imu_impl_init(void) {
 
@@ -136,30 +155,29 @@ static void adxl345_trans_cb( struct spi_transaction *trans ) {
 
 /* sends a serie of I2C commands to configure the ITG3200 gyro */
 static void configure_gyro(void) {
-  struct i2c_transaction t;
-  t.type = I2CTransTx;
-  t.slave_addr = ITG3200_ADDR;
   /* set gyro range to 2000deg/s and low pass at 256Hz */
-  t.buf[0] = ITG3200_REG_DLPF_FS;
-  t.buf[1] = (0x03<<3);
-  t.len_w = 2;
-  //send_i2c_msg_with_retry(&t);
-  i2c_submit(&(ITG3200_I2C_DEV), &t);
+  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_DLPF_FS;
+  imu_aspirin.i2c_trans_gyro.buf[1] = (ITG3200_FS_SEL<<3)|(ITG3200_DLPF_CFG);
+  //I2CTransmit(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+  I2C2TransmitWithRetry(imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+
   /* set sample rate to 533Hz */
-  t.buf[0] = ITG3200_REG_SMPLRT_DIV;
-  t.buf[1] = 0x0E;
-  //send_i2c_msg_with_retry(&t);
-  i2c_submit(&(ITG3200_I2C_DEV), &t);
+  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_SMPLRT_DIV;
+  imu_aspirin.i2c_trans_gyro.buf[1] = ITG3200_SMPLRT_DIV;
+  //I2CTransmit(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+  I2C2TransmitWithRetry(imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+
   /* switch to gyroX clock */
-  t.buf[0] = ITG3200_REG_PWR_MGM;
-  t.buf[1] = 0x01;
-  //send_i2c_msg_with_retry(&t);
-  i2c_submit(&(ITG3200_I2C_DEV), &t);
+  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_PWR_MGM;
+  imu_aspirin.i2c_trans_gyro.buf[1] = ITG3200_CLK_SEL;
+  //I2CTransmit(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+  I2C2TransmitWithRetry(imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+
   /* enable interrupt on data ready, idle high, latch until read any register */
-  t.buf[0] = ITG3200_REG_INT_CFG;
-  t.buf[1] = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
-  //send_i2c_msg_with_retry(&t);
-  i2c_submit(&(ITG3200_I2C_DEV), &t);
+  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_INT_CFG;
+  imu_aspirin.i2c_trans_gyro.buf[1] = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
+  //I2CTransmit(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
+  I2C2TransmitWithRetry(imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 2);
 }
 
 void adxl345_write_to_reg(uint8_t _reg, uint8_t _val) {

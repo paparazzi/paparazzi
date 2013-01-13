@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/autopilot_arming_switch.h
+ *
+ * Arm the motors using a switch.
+ *
+ */
+
 #ifndef AUTOPILOT_ARMING_SWITCH_H
 #define AUTOPILOT_ARMING_SWITCH_H
 

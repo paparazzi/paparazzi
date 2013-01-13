@@ -22,13 +22,17 @@
       <define name="I2C0_SCLL" value="25"/>
       <define name="I2C0_SCLH" value="25"/>
     </load-->
-    <load name="baro_bmp.xml">
+    <!--load name="baro_bmp.xml">
       <define name="BMP_I2C_DEV" value="i2c1"/>
-    </load>
-    <load name="baro_ms5611_i2c.xml">
+    </load-->
+    <!--load name="baro_ms5611_i2c.xml">
       <define name="MS5611_I2C_DEV" value="i2c0"/>
+    </load-->
+    <load name="baro_mpl3115.xml">
+      <define name="MPL3115_I2C_DEV" value="i2c0"/>
+      <define name="SENSOR_SYNC_SEND"/>
     </load>
-    <!-- load name="airspeed_ads1114.xml"/-->
+    <!--load name="airspeed_ads1114.xml"/-->
     <!--load name="mcp355x.xml"/-->
     <!--load name="sys_mon.xml"/-->
   </modules>

@@ -20,9 +20,13 @@
  *
  */
 
-/*
- * Brief LPC21 uart code
+/**
+ * @file arch/lpc21/mcu_periph/uart_arch.c
+ * @ingroup lpc21_arch
+ *
+ * Handling of UART hardware for lpc21xx.
  */
+
 
 #include "mcu_periph/uart.h"
 #include "armVIC.h"

@@ -2,7 +2,10 @@
 
 <module name="mag_micromag_fw" dir="sensors">
   <doc>
-    <description>Micromag magnetometer for fixedwing</description>
+    <description>
+      Micromag magnetometer.
+      for fixedwing
+    </description>
   </doc>
   <header>
     <file name="mag_micromag_fw_hw.h"/>

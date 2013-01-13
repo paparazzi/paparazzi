@@ -20,12 +20,19 @@
  *
  */
 
-#ifndef ADC_HW_H
-#define ADC_HW_H
+/**
+ * @file arch/lpc21/mcu_periph/adc_arch.h
+ * @ingroup lpc21_arch
+ *
+ * Handling of ADC hardware for lpc21xx.
+ */
+
+#ifndef ADC_ARCH_H
+#define ADC_ARCH_H
 
 #include BOARD_CONFIG
 
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x+NB_ADC)
 
-#endif /* ADC_HW_H */
+#endif /* ADC_ARCH_H */

@@ -22,6 +22,7 @@
 
 /**
  * @file arch/stm32/mcu_periph/spi_arch.c
+ * @ingroup stm32_arch
  *
  * Handling of SPI hardware for STM32.
  * SPI Master code.
@@ -55,8 +56,10 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans);
 static void process_rx_dma_interrupt( struct spi_periph *spi );
 static void process_tx_dma_interrupt( struct spi_periph *spi );
 
-// This structure keeps track of specific ID's for each SPI bus,
-// which allows for more code reuse.
+/**
+ * This structure keeps track of specific ID's for each SPI bus,
+ * which allows for more code reuse.
+ */
 struct spi_periph_dma {
   u32 spi;
   u32 spidr;
@@ -181,18 +184,18 @@ static inline void SpiSlaveSelect(uint8_t slave)
   }
 }
 
+/// Enable DMA rx channel interrupt
 static void spi_arch_int_enable( struct spi_periph *spi ) {
-  // Enable DMA rx channel interrupt
   nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->nvic_irq, 0);
   nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->nvic_irq );
 }
 
+/// Disable DMA rx channel interrupt
 static void spi_arch_int_disable( struct spi_periph *spi ) {
-  // Disable DMA rx channel interrupt
   nvic_disable_irq( ((struct spi_periph_dma *)spi->init_struct)->nvic_irq );
 }
 
-/**
+/*
  *  These functions map the publically available "spi" structures to
  *  specific pins on this processor
  */
@@ -633,7 +636,7 @@ bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
 
 
 #ifdef USE_SPI1
-// receive transferred over DMA
+/// receive transferred over DMA
 void dma1_channel2_isr(void)
 {
   struct spi_transaction *trans = spi1.trans[spi1.trans_extract_idx];
@@ -652,7 +655,7 @@ void dma1_channel2_isr(void)
   process_rx_dma_interrupt( &spi1 );
 }
 
-// transmit transferred over DMA
+/// transmit transferred over DMA
 void dma1_channel3_isr(void)
 {
   struct spi_transaction *trans = spi1.trans[spi1.trans_extract_idx];
@@ -676,7 +679,7 @@ void dma1_channel3_isr(void)
 #endif
 
 #ifdef USE_SPI2
-// receive transferred over DMA
+/// receive transferred over DMA
 void dma1_channel4_isr(void)
 {
   struct spi_transaction *trans = spi2.trans[spi2.trans_extract_idx];
@@ -695,7 +698,7 @@ void dma1_channel4_isr(void)
   process_rx_dma_interrupt( &spi2 );
 }
 
-// transmit transferred over DMA
+/// transmit transferred over DMA
 void dma1_channel5_isr(void)
 {
   struct spi_transaction *trans = spi2.trans[spi2.trans_extract_idx];
@@ -718,7 +721,7 @@ void dma1_channel5_isr(void)
 #endif
 
 #if USE_SPI0
-// receive transferred over DMA
+/// receive transferred over DMA
 void dma2_channel1_isr(void)
 {
   struct spi_transaction *trans = spi0.trans[spi0.trans_extract_idx];
@@ -737,7 +740,7 @@ void dma2_channel1_isr(void)
   process_rx_dma_interrupt( &spi0 );
 }
 
-// transmit transferred over DMA
+/// transmit transferred over DMA
 void dma2_channel2_isr(void)
 {
   struct spi_transaction *trans = spi0.trans[spi0.trans_extract_idx];
@@ -760,7 +763,7 @@ void dma2_channel2_isr(void)
 
 #endif
 
-// Processing done after rx completes.
+/// Processing done after rx completes.
 void process_rx_dma_interrupt( struct spi_periph *spi ) {
   struct spi_periph_dma *dma = spi->init_struct;
   struct spi_transaction *trans = spi->trans[spi->trans_extract_idx];
@@ -789,7 +792,7 @@ void process_rx_dma_interrupt( struct spi_periph *spi ) {
     spi_rw(spi, spi->trans[spi->trans_extract_idx]);
 }
 
-// Processing done after tx completes
+/// Processing done after tx completes
 void process_tx_dma_interrupt( struct spi_periph *spi ) {
   struct spi_periph_dma *dma = spi->init_struct;
   struct spi_transaction *trans = spi->trans[spi->trans_extract_idx];

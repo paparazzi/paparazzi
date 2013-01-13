@@ -22,7 +22,7 @@
  */
 
 /**
- * @file airspeed_ets.c
+ * @file modules/sensors/airspeed_ets.c
  *
  * Driver for the EagleTree Systems Airspeed Sensor.
  * Has only been tested with V3 of the sensor hardware.

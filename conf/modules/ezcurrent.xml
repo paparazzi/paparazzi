@@ -1,9 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     EzOSD current sensor module (I2C)
--->
-
 <module name="ezcurrent" dir="sensors">
   <doc>
     <description>EzOSD Current sensor (I2C).</description>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,8 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- * Hardware level I2C handling
+/**
+ * @file arch/stm32/mcu_periph/i2c_arch.h
+ * @ingroup stm32_arch
+ *
+ * Hardware level I2C handling for the STM32.
  */
 
 #ifndef I2C_HW_H

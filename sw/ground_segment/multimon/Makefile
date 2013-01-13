@@ -49,7 +49,7 @@ endif
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
   CFLAGS          += -fPIC
-else
+else ifeq ($(MACHINE),'i686')
   CFLAGS          += -march=i486 -falign-loops=2 -falign-jumps=2 -falign-functions=2 -DARCH_I386
 endif
 
@@ -89,7 +89,7 @@ $(BINDIR)/%.o:	%.c
 	@echo CC $<
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
-SRC_L2		=hdlc.c pprz.c
+SRC_L2		= hdlc.c pprz.c
 SRC_L1		= demod_afsk48p.c demod_display.c
 SRC_MISC	= unixinput.c xdisplay.c
 

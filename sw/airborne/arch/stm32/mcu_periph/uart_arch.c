@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/stm32/mcu_periph/uart_arch.c
+ * @ingroup stm32_arch
+ *
+ * Handling of UART hardware for STM32.
+ */
+
 #include "mcu_periph/uart.h"
 
 #include <libopencm3/stm32/f1/nvic.h>

@@ -1,12 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Battery checker module
-     @define BAT_CHECKER_DELAY Number of seconds the battery voltage has to be
-                               below LOW_BAT_LEVEL before the warning signal is
-                               activated.
-     @define BAT_CHECKER_LED   The LED to use for the warning signal.
-     -->
 <module name="bat_checker">
   <doc>
     <description>Battery checker module</description>

@@ -2,7 +2,9 @@
 
 <module name="potential" dir="multi">
   <doc>
-    <description>Collision avoidance using potential fields</description>
+    <description>
+      Potential fields collision avoidance.
+    </description>
   </doc>
   <header>
     <file name="potential.h"/>

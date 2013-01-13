@@ -1,10 +1,8 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!-- Driver for the EA DOG-M163 LCD (SPI) -->
-
 <module name="lcd_dogm" dir="display">
   <doc>
-    <description>Driver for the EA DOG-M163 LCD (SPI)</description>
+    <description>EA DOG-M163 LCD (SPI)</description>
   </doc>
   <header>
     <file name="lcd_dogm.h"/>

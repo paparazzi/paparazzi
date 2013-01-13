@@ -22,6 +22,8 @@
 
 /**
  * @file arch/stm32/mcu_periph/spi_arch.h
+ * @ingroup stm32_arch
+ *
  * Handling of SPI hardware for STM32.
  */
 

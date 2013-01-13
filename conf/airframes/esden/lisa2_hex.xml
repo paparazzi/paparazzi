@@ -12,12 +12,12 @@
 <airframe name="hexy_lm2a2pwm">
 
   <servos driver="Pwm">
-    <servo name="FRONT_LEFT"   no="0" min="1000" neutral="1100" max="1950"/>
-    <servo name="FRONT_RIGHT"  no="1" min="1000" neutral="1100" max="1950"/>
-    <servo name="RIGHT"        no="2" min="1000" neutral="1100" max="1950"/>
-    <servo name="BACK_RIGHT"   no="3" min="1000" neutral="1100" max="1950"/>
-    <servo name="BACK_LEFT"    no="4" min="1000" neutral="1100" max="1950"/>
-    <servo name="LEFT"         no="5" min="1000" neutral="1100" max="1950"/>
+    <servo name="FRONT_LEFT"   no="0" min="1000" neutral="1050" max="1950"/>
+    <servo name="FRONT_RIGHT"  no="1" min="1000" neutral="1050" max="1950"/>
+    <servo name="RIGHT"        no="2" min="1000" neutral="1050" max="1950"/>
+    <servo name="BACK_RIGHT"   no="3" min="1000" neutral="1050" max="1950"/>
+    <servo name="BACK_LEFT"    no="4" min="1000" neutral="1050" max="1950"/>
+    <servo name="LEFT"         no="5" min="1000" neutral="1050" max="1950"/>
   </servos>
 
   <commands>
@@ -43,24 +43,24 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{  256, -256, -256, -256,  256,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256,  256,    0, -256, -256,    0 }"/>
+    <define name="ROLL_COEF"   value="{    0, -256, -256,    0,  256,  256 }"/>
+    <define name="PITCH_COEF"  value="{  256,  256, -256, -256, -256,  256 }"/>
     <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/asp21-026.xml"/>
+  <include href="conf/airframes/esden/calib/asp21-220.xml"/>
 
   <section name="IMU" prefix="IMU_">
 	  <define name="BODY_TO_IMU_PHI"   value="0."  unit="deg"/>
 	  <define name="BODY_TO_IMU_THETA" value="0."  unit="deg"/>
-	  <define name="BODY_TO_IMU_PSI"   value="-30." unit="deg"/>
+	  <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_HOVER_DIRECT"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
 
    <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
  </section>
@@ -87,8 +87,7 @@
     <define name="SP_MAX_PHI"     value="45." unit="deg"/>
     <define name="SP_MAX_THETA"   value="45." unit="deg"/>
     <define name="SP_MAX_PSI"     value="45." unit="deg"/>
-    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
-    <define name="SP_MAX_P"       value="90." unit="deg/s"/>
+    <define name="SP_MAX_R"       value="130." unit="deg/s"/>
     <define name="DEADBAND_R"     value="250"/>
     <define name="DEADBAND_A"     value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
@@ -108,7 +107,7 @@
     <define name="REF_ZETA_R"   value="0.9"/>
     <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="900." unit="deg/s"/>
-    
+
     <!-- feedback -->
     <!--350/310-->
     <define name="PHI_PGAIN"  value="450"/>
@@ -119,7 +118,7 @@
     <define name="THETA_DGAIN"  value="220"/>
     <define name="THETA_IGAIN"  value="40"/>
 
-    <define name="PSI_PGAIN"  value="700"/>
+    <define name="PSI_PGAIN"  value="1000"/>
     <define name="PSI_DGAIN"  value="400"/>
     <define name="PSI_IGAIN"  value="10"/>
 
@@ -140,14 +139,14 @@
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP"    value="830"/>
-   <define name="HOVER_KD"    value="650"/>
-   <define name="HOVER_KI"    value="100"/>
-   <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+
+   <define name="HOVER_KP"    value="60"/>
+   <define name="HOVER_KD"    value="0"/>
+   <define name="HOVER_KI"    value="8"/>
+
    <define name="RC_CLIMB_COEF" value ="163"/>
-   <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <!--define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value ="0.9"/-->
+   <define name="NOMINAL_HOVER_THROTTLE" value ="0.35"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -158,15 +157,20 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="50"/>
-   <define name="DGAIN" value="50"/>
-   <define name="IGAIN" value="0"/>
+   <define name="PGAIN" value="15"/>
+   <define name="DGAIN" value="20"/>
+   <define name="IGAIN" value="4"/>
+   <define name="AGAIN" value="0"/>
+
+   <define name="USE_REF" value="FALSE"/>
  </section>
 
  <section name="MISC">
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="FALSE"/>
-   <!--define name="USE_REFERENCE_SYSTEM"/-->
+   <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
+   <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="40000"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
@@ -185,6 +189,7 @@
  </modules>
 
   <firmware name="rotorcraft">
+    <target name="sim" board="pc"/>
     <target name="ap" board="lisa_m_2.0">
       <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
@@ -210,7 +215,7 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="0"/>
+      <configure name="USE_MAGNETOMETER" value="1"/>
     </subsystem>
     <subsystem name="ins"/>
     <!--define name="USE_INS_NAV_INIT"/-->

@@ -298,11 +298,11 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our error feed back command                   */
   /* z-axis pointing down -> positive error means we need less thrust */
-  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
-                      ((-guidance_v_kd * err_zd) >> 21) +
-                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 6) +
+                      ((-guidance_v_kd * err_zd) >> 15) +
+                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 15);
 
-  guidance_v_delta_t = guidance_v_ff_cmd + (guidance_v_fb_cmd * GUIDANCE_V_GAIN_SCALER);
+  guidance_v_delta_t = guidance_v_ff_cmd + (guidance_v_fb_cmd);
 
   /* bound the result */
   Bound(guidance_v_delta_t, 0, MAX_PPRZ);
