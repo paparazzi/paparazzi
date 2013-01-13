@@ -37,7 +37,11 @@ Q=@
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
 
 
+ifeq ($(ARCH_L),f4)
+MCU   = cortex-m4
+else
 MCU   = cortex-m3
+endif
 #DEBUG = dwarf-2
 OPT   = s
 #OPT   = 2
@@ -119,7 +123,13 @@ CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 CFLAGS += -Wswitch-default
+ifneq ($(ARCH_L), )
+ifeq ($(ARCH_L),f4)
+CFLAGS += -DSTM32F4
+endif
+else
 CFLAGS += -DSTM32F1
+endif
 
 CFLAGS += $($(TARGET).CFLAGS)
 
@@ -129,14 +139,24 @@ AFLAGS += -mcpu=$(MCU) -mthumb
 endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS = -L../ext/libopencm3/lib
+ifneq ($(ARCH_L), )
+LDFLAGS = -L../ext/libopencm3/lib/stm32/$(ARCH_L)
+else
+LDFLAGS = -L../ext/libopencm3/lib/stm32/f1
+endif
+LDFLAGS += -L../ext/libopencm3/lib
 ifeq ("$(MULTILIB)","yes")
 LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
 else
 LDFLAGS += -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
 endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc -lopencm3_stm32f1
+LDLIBS  += -lc -lm -lgcc
+ifneq ($(ARCH_L), )
+LDLIBS  += -lopencm3_stm32$(ARCH_L)
+else
+LDLIBS  += -lopencm3_stm32f1
+endif
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary
