@@ -149,6 +149,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_CARE_FREE:
       //Take the current psi as the reference for pitch and roll
       care_free_heading = stateGetNedToBodyEulers_f()->psi;
+    case AP_MODE_ATTITUDE_RC_CLIMB:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_ATTITUDE_CLIMB:
     case AP_MODE_ATTITUDE_Z_HOLD:
