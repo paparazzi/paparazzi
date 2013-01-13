@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+  <!--
+     Allow to use PWM output on booz boards
+     PWM0 is activated by default (PWM5 on lpc21 output)
+     PWM1 can be activated with USE_PWM1 flag (PWM2 on lpc21 output)
+   -->
+
+<module name="booz_pwm" dir="core">
+  <doc>
+    <description>Allow to use PWM output on booz boards, PWM0 is activated by default (PWM5 on lpc21 output)</description>
+    <define name="USE_PWM1" description="flag to activate with USE_PWM1 flag (PWM2 on lpc21 output)"/>
+  </doc>
+  <header>
+    <file name="booz_pwm_arch.h"/>
+  </header>
+  <init fun="booz_pwm_init_arch()"/>
+  <makefile target="ap">
+    <file_arch name="booz_pwm_arch.c"/>
+  </makefile>
+</module>
+

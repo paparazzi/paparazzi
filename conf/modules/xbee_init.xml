@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+
+	Reads XBee high and low addresses
+
+-->
+
+<module name="xbee_init" dir="xbee">
+  <header>
+    <file name="xbee_init.h"/>
+  </header>
+  <init fun="xbee_module_init()"/>
+  <makefile>	
+    <file name="xbee_init.c"/>
+		<define name="INIT_XBEE"/>
+		<define name="XBEE_LED" value="1"/>
+  </makefile>
+</module>
+
+

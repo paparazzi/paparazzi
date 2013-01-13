@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     SRF02 Sonar driver
+     -->
+
+<module name="sonar_srf02" dir="sonar">
+  <header>
+    <file name="sonar_srf02.h"/>
+    <file name="../../subsystems/ins.h"/>
+  </header>
+  <init fun="srf02_init()"/>
+  <periodic fun="srf02_periodic()" freq="12"/>
+  <event fun="SRF02Event(ins_update_sonar)"/>
+  <makefile>
+    <file name="sonar_srf02.c"/>
+  </makefile>
+  <makefile target="ap">
+    <define name="USE_I2C1"/>
+    <define name="USE_SONAR"/>
+  </makefile>
+
+</module>

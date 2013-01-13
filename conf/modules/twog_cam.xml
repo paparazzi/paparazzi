@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="twog_cam" dir="cam_control">
+  <!-- depend require="twog_servos.xml" -->
+  <header>
+    <file name="twog_cam.h"/>
+  </header>
+  <periodic fun="twog_cam_periodic()" freq="192."/>
+	<event fun="twog_cam_event()"/>
+  <makefile>	
+    <file name="twog_cam.c"/>
+  </makefile>
+</module>
+

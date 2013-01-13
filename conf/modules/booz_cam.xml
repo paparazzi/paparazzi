@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="booz_cam" dir="cam_control">
+  <doc>
+    <description>Camera control for BOOZ board</description>
+  </doc>
+  <!-- depend require="booz_pwm|led" -->
+  <header>
+    <file name="booz_cam.h"/>
+  </header>
+  <init fun="booz_cam_init()"/>
+  <periodic fun="booz_cam_periodic()" freq="10."/>
+  <datalink message="BOOZ_CAM_STICK" fun="BOOZ_CAM_STICK_PARSE(dl_buffer)"/>
+  <makefile>
+    <define name="USE_CAM"/>
+    <file name="booz_cam.c"/>
+  </makefile>
+</module>
+

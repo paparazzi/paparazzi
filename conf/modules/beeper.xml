@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="beeper" dir="beeper">
+  <header>
+    <file name="beeper.h"/>
+  </header>
+	<init fun="beeper_init()"/>
+  <periodic fun="periodic_task_beeper()" freq="16"/>
+  <makefile>	
+    <file name="beeper.c"/>
+		<define name="BEEPER"/><!--  -->
+  </makefile>
+</module>
+

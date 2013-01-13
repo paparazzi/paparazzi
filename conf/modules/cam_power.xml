@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cam_power" dir="cam_control">
+  <!-- depend require="twog_servos.xml" -->
+  <header>
+    <file name="cam_power.h"/>
+  </header>
+	<init fun="kamera_init()"/><!--  -->
+  <periodic fun="periodic_task_kamera()" freq="4"/>
+  <makefile target="ap">	
+    <file name="cam_power.c"/>
+		<!-- <define name="ADC_CHANNEL_CAM1" value="$(ADC_CAM1)"/>
+		<define name="ADC_CHANNEL_CAM2" value="$(ADC_CAM2)"/>-->
+		<!--<define name="USE_ADC_4"/> 
+		<define name="USE_ADC_7"/>-->
+  </makefile>
+</module>
+

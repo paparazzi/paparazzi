@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="krooz_cam" dir="cam_control">
+  <header>
+    <file name="krooz_cam.h"/>
+  </header>
+  <periodic fun="krooz_cam_periodic()" freq="192."/>
+	<event fun="krooz_cam_event()"/>
+  <makefile>	
+    <file name="krooz_cam.c"/>
+		<define name="USE_SERVOS_9AND10"/>
+  </makefile>
+</module>
+
