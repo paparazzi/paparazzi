@@ -57,6 +57,7 @@ extern void max1168_init( void ) {
   max1168_req_trans.input_buf = 0;
   max1168_req_trans.input_length = 0;
   max1168_req_trans.after_cb = max1168_lock_cb;
+  max1168_req_trans.status = SPITransDone;
 
   max1168_read_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_read_trans.cpol = SPICpolIdleLow;
@@ -69,6 +70,7 @@ extern void max1168_init( void ) {
   max1168_read_trans.output_length = 0;
   max1168_read_trans.input_buf = (uint8_t*)max1168_values;
   max1168_read_trans.input_length = 8;
+  max1168_read_trans.status = SPITransDone;
 
   max1168_status = MAX1168_IDLE;
 }
