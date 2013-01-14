@@ -28,10 +28,16 @@
 
 #include "mcu_periph/i2c.h"
 
+#if defined(STM32F1)
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/f1/nvic.h>
+#elif defined(STM32F4)
+#include <libopencm3/stm32/f4/rcc.h>
+#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/f4/nvic.h>
+#endif
+#include <libopencm3/cm3/scb.h>
 
 
 #ifdef I2C_DEBUG_LED
@@ -963,8 +969,13 @@ void i2c2_hw_init(void) {
 
   i2c2.reg_addr = (void *)I2C2;
   i2c2.init_struct = NULL;
+#if defined(STM32F1)
   i2c2.scl_pin = GPIO_I2C2_SCL;
   i2c2.sda_pin = GPIO_I2C2_SDA;
+#elif defined(STM32F4)
+	i2c2.scl_pin = GPIO10;
+  i2c2.sda_pin = GPIO11;
+#endif
   i2c2.errors = &i2c2_errors;
   i2c2_watchdog_counter = 0;
 
@@ -989,11 +1000,17 @@ void i2c2_hw_init(void) {
   /* Enable I2C2 clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C2EN);
   /* Enable GPIOB clock */
+#if defined(STM32F1)
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-
   gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
                 i2c2.scl_pin | i2c2.sda_pin);
+#elif defined(STM32F4)
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
+  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, i2c2.scl_pin | i2c2.sda_pin);
+	gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ, i2c2.scl_pin | i2c2.sda_pin);
+	gpio_set_af(GPIOB, GPIO_AF4, i2c2.scl_pin | i2c2.sda_pin);
+#endif
 
   i2c_reset(I2C2);
 

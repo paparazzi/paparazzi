@@ -84,11 +84,18 @@
 */
 
 #include "mcu_periph/adc.h"
+#if defined(STM32F1)
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/adc.h>
 #include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/f1/nvic.h>
+#elif defined(STM32F4)
+#include <libopencm3/stm32/f4/rcc.h>
+#include <libopencm3/stm32/f4/adc.h>
+#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/f4/nvic.h>
+#endif
+#include <libopencm3/stm32/timer.h>
 #include <string.h>
 #include "std.h"
 #include "led.h"
@@ -247,8 +254,14 @@ static inline void adc_init_rcc( void )
   /* Timer peripheral clock enable. */
   rcc_peripheral_enable_clock(rcc_apbenr, rcc_apb);
   /* GPIO peripheral clock enable. */
+#if defined(STM32F1)
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN |
                               RCC_APB2ENR_IOPCEN);
+#elif defined(STM32F4)
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN |
+														RCC_AHB1ENR_IOPCEN);
+	adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
+#endif
 
   /* Enable ADC peripheral clocks. */
 #ifdef USE_AD1
@@ -262,9 +275,14 @@ static inline void adc_init_rcc( void )
   timer_reset(timer);
   timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+#if defined(STM32F1)
   timer_set_period(timer, 0xFF);
   timer_set_prescaler(timer, 0x8);
-  timer_set_clock_division(timer, 0x0);
+#elif defined(STM32F4)
+		timer_set_period(timer, 0xFFFF);
+    timer_set_prescaler(timer, 0x53);
+#endif
+  //timer_set_clock_division(timer, 0x0);
   /* Generate TRGO on every update. */
   timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
   timer_enable_counter(timer);
@@ -275,8 +293,13 @@ static inline void adc_init_rcc( void )
 /* Configure and enable ADC interrupt */
 static inline void adc_init_irq( void )
 {
+#if defined(STM32F1)
   nvic_set_priority(NVIC_ADC1_2_IRQ, 0);
   nvic_enable_irq(NVIC_ADC1_2_IRQ);
+#elif defined(STM32F4)
+	nvic_set_priority(NVIC_ADC_IRQ, 0);
+  nvic_enable_irq(NVIC_ADC_IRQ);
+#endif
 }
 
 /**
@@ -340,7 +363,11 @@ static inline void adc_init_single(uint32_t adc,
   /* Set CR2 register. */
 
   /* Clear TSVREFE */
+#if defined(STM32F1)
   adc_disable_temperature_sensor(adc);
+#elif defined(STM32F4)
+  adc_disable_temperature_sensor();
+#endif
   /* Clear EXTTRIG */
   adc_disable_external_trigger_regular(adc);
   /* Clear ALIGN */
@@ -375,18 +402,30 @@ static inline void adc_init_single(uint32_t adc,
 
 #if USE_AD_TIM4
 #pragma message "Info: Using TIM4 for ADC"
+#if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
+#elif defined(STM32F4)
+	adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
+#endif
 #elif USE_AD_TIM1
 #pragma message "Info: Using TIM1 for ADC"
+#if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
+#elif defined(STM32F4)
+	adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
+#endif
 #else
 #pragma message "Info: Using default TIM2 for ADC"
+#if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
+#elif defined(STM32F4)
+	adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
+#endif
 #endif
 
   /* Enable ADC<X> */
   adc_power_on(adc);
-
+#if defined(STM32F1)
   /* Enable ADC<X> reset calibaration register */
   adc_reset_calibration(adc);
   /* Check the end of ADC<X> reset calibration */
@@ -395,7 +434,7 @@ static inline void adc_init_single(uint32_t adc,
   adc_calibration(adc);
   /* Check the end of ADC<X> calibration */
   while ((ADC_CR2(adc) & ADC_CR2_CAL) != 0);
-
+#endif
 } // adc_init_single
 
 
@@ -502,7 +541,11 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
 /**
  * ADC1+2 interrupt hander
  */
+#if defined(STM32F1)
 void adc1_2_isr(void)
+#elif defined(STM32F4)
+void adc_isr(void)
+#endif
 {
   uint8_t channel = 0;
   uint16_t value  = 0;

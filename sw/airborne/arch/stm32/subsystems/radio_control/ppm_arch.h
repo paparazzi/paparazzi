@@ -38,9 +38,14 @@
  * Let's add a pair of macros to make it possible for them to be different.
  *
  */
-#define RC_PPM_TICKS_OF_USEC(_v)        CPU_TICKS_OF_USEC((_v)/9)
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) SIGNED_CPU_TICKS_OF_USEC((_v)/9)
-#define USEC_OF_RC_PPM_TICKS(_v)        USEC_OF_CPU_TICKS((_v)*9)
+#if defined(STM32F1)
+#define RC_TICK_DIVIDER 9
+#elif defined(STM32F4)
+#define RC_TICK_DIVIDER 168
+#endif
+#define RC_PPM_TICKS_OF_USEC(_v)        CPU_TICKS_OF_USEC((_v)/RC_TICK_DIVIDER)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) SIGNED_CPU_TICKS_OF_USEC((_v)/RC_TICK_DIVIDER)
+#define USEC_OF_RC_PPM_TICKS(_v)        USEC_OF_CPU_TICKS((_v)*RC_TICK_DIVIDER)
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 

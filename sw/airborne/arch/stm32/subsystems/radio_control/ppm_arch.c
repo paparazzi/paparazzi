@@ -30,11 +30,16 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
+#if defined(STM32F1)
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/f1/nvic.h>
-
+#elif defined(STM32F4)
+#include <libopencm3/stm32/f4/rcc.h>
+#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/f4/nvic.h>
+#endif
+#include <libopencm3/stm32/timer.h>
 #include "mcu_periph/sys_time.h"
 
 /*
@@ -85,20 +90,31 @@ void ppm_arch_init ( void ) {
 
   /* timer clock enable */
   rcc_peripheral_enable_clock(PPM_RCC, PPM_PERIPHERAL);
-
+	
+#if defined(STM32F1)
   /* GPIOA clock enable */
   rcc_peripheral_enable_clock(&RCC_APB2ENR, PPM_GPIO_PERIPHERAL);
-
   /* timer gpio configuration */
   gpio_set_mode(PPM_GPIO_PORT, GPIO_MODE_INPUT,
 		GPIO_CNF_INPUT_FLOAT, PPM_GPIO_PIN);
+#elif defined(STM32F4)
+	/* GPIOB clock enable */
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
+	/* TIM2 channel 2 pin (PB.03) configuration */
+	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO3);
+	gpio_set_af(GPIOB, GPIO_AF1, GPIO3);
+#endif
 
   /* Time Base configuration */
-  timer_reset(PPM_TIMER);
+  //timer_reset(PPM_TIMER);
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
 		 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
-  timer_set_prescaler(PPM_TIMER, 0x8);
+#if defined(STM32F1)
+	timer_set_prescaler(TIM2, 0x8);
+#elif defined(STM32F4)
+	timer_set_prescaler(TIM2, 0x53);
+#endif
 
  /* TIM2 configuration: Input Capture mode ---------------------
      The external signal is connected to TIM2 CH2 pin (PA.01)

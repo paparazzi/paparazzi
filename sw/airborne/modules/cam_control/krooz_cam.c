@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#include "subsystems/actuators/actuators_pwm.h"
 #include "cam_control/krooz_cam.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"

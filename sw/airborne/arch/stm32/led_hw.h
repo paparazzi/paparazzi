@@ -22,13 +22,17 @@
 #ifndef LED_HW_H
 #define LED_HW_H
 
+#if defined(STM32F1)
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
+#elif defined(STM32F4)
+#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/f4/rcc.h>
+#endif
 
 #include BOARD_CONFIG
 
 #include "std.h"
-
 
 /*
  *
@@ -40,18 +44,15 @@
 #define _LED_GPIO_CLK(i)  i
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
-#define _LED_GPIO_ON(i) i
-#define _LED_GPIO_OFF(i) i
 #define _LED_AFIO_REMAP(i) i
 
 #define LED_GPIO_CLK(i) _LED_GPIO_CLK(LED_ ## i ## _GPIO_CLK)
 #define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
 #define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
-#define LED_GPIO_ON(i) _LED_GPIO_ON(LED_ ## i ## _GPIO_ON)
-#define LED_GPIO_OFF(i) _LED_GPIO_OFF(LED_ ## i ## _GPIO_OFF)
 #define LED_AFIO_REMAP(i) _LED_AFIO_REMAP(LED_ ## i ## _AFIO_REMAP)
 
 /* set pin as output */
+#if defined(STM32F1) || defined(STM32F2)
 #define LED_INIT(i) {                               \
     rcc_peripheral_enable_clock(&RCC_APB2ENR,       \
                                 LED_GPIO_CLK(i));	\
@@ -61,10 +62,25 @@
                   LED_GPIO_PIN(i));                 \
     LED_AFIO_REMAP(i);                              \
   }
+#elif defined(STM32F4)
+#define LED_INIT(i) {                             	  \
+    rcc_peripheral_enable_clock(&RCC_AHB1ENR,     	  \
+                                LED_GPIO_CLK(i));	  \
+    gpio_mode_setup(LED_GPIO(i),                      \
+                  GPIO_MODE_OUTPUT,			          \
+                  GPIO_PUPD_NONE,   	      \
+                  LED_GPIO_PIN(i));               	  \
+    LED_AFIO_REMAP(i);                           	  \
+  }
+#endif
 
-#define LED_ON(i) { LED_GPIO_ON(i)(LED_GPIO(i)) = LED_GPIO_PIN(i);}
-#define LED_OFF(i) { LED_GPIO_OFF(i)(LED_GPIO(i)) = LED_GPIO_PIN(i);}
-#define LED_TOGGLE(i) {	GPIO_ODR(LED_GPIO(i)) ^= LED_GPIO_PIN(i);}
+//#define LED_ON(i) { GPIO_BRR(LED_GPIO(i)) = LED_GPIO_PIN(i);}
+//#define LED_OFF(i) { GPIO_BSRR(LED_GPIO(i)) = LED_GPIO_PIN(i);}
+//#define LED_TOGGLE(i) {	GPIO_ODR(LED_GPIO(i)) ^= LED_GPIO_PIN(i);}
+
+#define LED_ON(i) { gpio_clear(LED_GPIO(i), LED_GPIO_PIN(i));}
+#define LED_OFF(i) { gpio_set(LED_GPIO(i), LED_GPIO_PIN(i));}
+#define LED_TOGGLE(i) {	gpio_toggle(LED_GPIO(i), LED_GPIO_PIN(i));}
 
 #define LED_PERIODIC() {}
 

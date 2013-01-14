@@ -31,24 +31,6 @@
 	<modules main_freq="512">
 		<!--<load name="gps_ubx_ucenter.xml"/>
 		<load name="geo_mag.xml"/>-->
-		<load name="xbee_init.xml"/>
-		<load name="beeper.xml"/>
-		<load name="krooz_cam.xml">
-			<define name="CAM_SETUP"/>
-			<define name="SERVO_HZ_CAM" value="100"/>
-			<define name="TILT" value="9"/>
-			<define name="PAN" value="8"/>
-			<define name="TILT_CENTER" value="1360"/>
-			<define name="TILT_COEFF" value="-1900"/>
-			<define name="PAN_COEFF" value="1500"/>
-			<define name="TILT_RATE" value="-140"/>
-			<define name="PAN_RATE" value="180"/>
-		</load>
-		<load name="cam_power.xml">
-			<define name="CAM_TEST"/><!--  -->
-			<define name="STAGE_PHOTO_NUM" value="3"/>
-			<define name="SHOT_PERIOD" value="4"/>
-		</load>
 	</modules>
 	
   <servos>
@@ -68,6 +50,11 @@
   <command_laws>
     <!-- command_laws is needed for pwm_supervision -->
     <!-- but can be empty if no additional servos are used -->
+		<!-- <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
+    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
+    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
+    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/> -->
   </command_laws>
 
 	<section name="VERSION" prefix="VERSION_">

@@ -31,9 +31,15 @@
 #include BOARD_CONFIG
 
 #include <inttypes.h>
+#if defined(STM32F1)
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/flash.h>
+#elif defined(STM32F4)
+#include <libopencm3/stm32/f4/rcc.h>
+#include <libopencm3/stm32/f4/gpio.h>
+#include <libopencm3/stm32/f4/flash.h>
+#endif
 #include <libopencm3/cm3/scb.h>
 
 void mcu_arch_init(void) {
@@ -42,11 +48,21 @@ void mcu_arch_init(void) {
   SCB_VTOR = 0x00002000;
 #endif
 #if EXT_CLK == 8000000
+#if defined(STM32F1)
 #pragma message "Using 8MHz external clock to PLL it to 72MHz."
   rcc_clock_setup_in_hse_8mhz_out_72mhz();
+#elif defined(STM32F4)
+#pragma message "Using 8MHz external clock to PLL it to 168MHz."
+  rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
+#endif
 #elif EXT_CLK == 12000000
+#if defined(STM32F1)
 #pragma message "Using 12MHz external clock to PLL it to 72MHz."
   rcc_clock_setup_in_hse_12mhz_out_72mhz();
+#elif defined(STM32F4)
+#pragma message "Using 12MHz external clock to PLL it to 168MHz."
+  rcc_clock_setup_hse_3v3(&hse_12mhz_3v3[CLOCK_3V3_168MHZ]);
+#endif
 #else
 #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!
 #endif
