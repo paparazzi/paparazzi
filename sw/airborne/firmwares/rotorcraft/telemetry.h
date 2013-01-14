@@ -179,7 +179,8 @@
     DOWNLINK_SEND_IMU_MAG_RAW(_trans, _dev,					\
                   &imu.mag_unscaled.x,			\
                   &imu.mag_unscaled.y,			\
-                  &imu.mag_unscaled.z);		\
+                  &imu.mag_unscaled.z, 			\
+                  &electrical.current);               \
   }
 
 
