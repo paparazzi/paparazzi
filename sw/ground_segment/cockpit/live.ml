@@ -373,7 +373,14 @@ let get_alt_shift = fun af_xml ->
     fvalue "ALT_SHIFT_MINUS" default_minus
   with _ -> (default_plus_plus, default_plus, default_minus)
 
-
+let get_speech_name = fun af_xml def_name ->
+  let default_speech_name = def_name in
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    fvalue "SPEECH_NAME" default_speech_name
+  with _ -> default_speech_name
 
 let key_press_event = fun keys do_action ev ->
   try
@@ -393,8 +400,7 @@ let key_press_event = fun keys do_action ev ->
 (*****************************************************************************)
 let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id:string) config ->
   let color = Pprz.string_assoc "default_gui_color" config
-  and name = Pprz.string_assoc "ac_name" config
-  and speech_name = Pprz.string_assoc "ac_speech_name" config in
+  and name = Pprz.string_assoc "ac_name" config in
 
   (** Get the flight plan **)
   let fp_url = Pprz.string_assoc "flight_plan" config in
@@ -407,6 +413,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let af_url = Pprz.string_assoc "airframe" config in
   let af_file =  Http.file_of_url af_url in
   let af_xml = ExtXml.parse_file af_file in
+
+  (** Get an alternate speech name if available *)
+  let speech_name = get_speech_name af_xml name in
 
   (* Aicraft menu decorated with a colored box *)
   let image = GBin.event_box ~width:10 ~height:10 () in
