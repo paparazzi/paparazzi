@@ -43,9 +43,13 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{  256, -256, -256, -256,  256,  256 }"/>
+<!--    <define name="ROLL_COEF"   value="{  256, -256, -256, -256,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256,    0, -256, -256,    0 }"/>
-    <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>-->
+
+ <define name="ROLL_COEF"   value="{  0,0,0,0,0,0}"/>
+ <define name="PITCH_COEF"  value="{  0,0,0,0,0,0 }"/>
+ <define name="YAW_COEF"    value="{  0,0,0,0,0,0 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
   </section>
 
@@ -166,7 +170,9 @@
  <section name="MISC">
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="FALSE"/>
-   <!--define name="USE_REFERENCE_SYSTEM"/-->
+   <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
+   <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="66000"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

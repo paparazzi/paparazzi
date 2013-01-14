@@ -182,6 +182,13 @@
                   &imu.mag_unscaled.z);		\
   }
 
+#define PERIODIC_SEND_IMU_MAG_CURRENT_CALIBRATION(_trans, _dev) {                               \
+    DOWNLINK_SEND_IMU_MAG_CURRENT_CALIBRATION(_trans, _dev,                                     \
+                  &imu.mag_unscaled.x,                  \
+                  &imu.mag_unscaled.y,                  \
+                  &imu.mag_unscaled.z,                  \
+                  &electrical.current);               \
+  }
 
 #include "subsystems/sensors/baro.h"
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {         \

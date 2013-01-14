@@ -23,6 +23,7 @@
 import re
 import scipy
 from scipy import linalg
+from scipy import stats
 from pylab import *
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -60,7 +61,21 @@ def read_log(ac_id, filename, sensor):
             list_meas.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
     return scipy.array(list_meas)
 
-
+#
+# extracts raw magnetometer and current measurements from a log
+#
+def read_log_mag_current(ac_id, filename):
+    f = open(filename, 'r')
+    pattern = re.compile("(\S+) "+ac_id+" IMU_MAG_CURRENT_CALIBRATION (\S+) (\S+) (\S+) (\S+)")
+    list_meas = []
+    while True:
+        line = f.readline().strip()
+        if line == '':
+            break
+        m=re.match(pattern, line)
+        if m:
+            list_meas.append([float(m.group(2)), float(m.group(3)), float(m.group(4)), float(m.group(5))])
+    return scipy.array(list_meas)
 
 #
 # select only non-noisy data
@@ -99,6 +114,15 @@ def scale_measurements(meas, p):
         l_norm.append(linalg.norm(sm))
     return scipy.array(l_comp), scipy.array(l_norm)
 
+#
+# calculate linear coefficient of magnetometer-current relation
+#
+def estimate_mag_current_relation(meas):
+    coefficient = []
+    for i in range(0,3):
+        gradient, intercept, r_value, p_value, std_err = stats.linregress(meas[:,3],meas[:,i])
+        coefficient.append(gradient)
+    return coefficient
 
 #
 # print xml for airframe file
