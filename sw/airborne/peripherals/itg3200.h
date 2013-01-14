@@ -43,8 +43,8 @@
 #define ITG3200_DEFAULT_FS_SEL 3
 /// Default internal sampling (1kHz, 42Hz LP Bandwidth)
 #define ITG3200_DEFAULT_DLPF_CFG ITG3200_DLPF_42HZ
-/// Default interrupt config: none
-#define ITG3200_DEFAULT_INT_CFG 0
+/// Default interrupt config: RAW_RDY_EN
+#define ITG3200_DEFAULT_INT_CFG 1
 /// Default clock: PLL with X gyro reference
 #define ITG3200_DEFAULT_CLK_SEL 1
 
