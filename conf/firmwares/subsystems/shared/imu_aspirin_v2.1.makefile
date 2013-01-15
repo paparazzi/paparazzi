@@ -65,6 +65,13 @@ IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1
 ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN_SRCS)
 
+ap.CFLAGS := $(sort $(ap.CFLAGS))
+ap.srcs := $(sort $(ap.srcs))
+
+# NOTE that we should check for duplicities at the end of the generated makefile
+# otherwise we would have to check at the end of each subsystem/module and that is annoying
+$(info CFLAGS = $(ap.CFLAGS))
+$(info srcs = $(ap.srcs))
 #
 # NPS simulator
 #
