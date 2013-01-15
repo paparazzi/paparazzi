@@ -54,8 +54,9 @@ bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
 #if USE_PPM_TIM2
-
+#ifndef BOARD_KROOZ
 #pragma message "Using PPM input on SERVO6 pin!"
+#endif
 
 #define PPM_RCC			&RCC_APB1ENR
 #define PPM_PERIPHERAL		RCC_APB1ENR_TIM2EN
@@ -106,14 +107,16 @@ void ppm_arch_init ( void ) {
 #endif
 
   /* Time Base configuration */
-  //timer_reset(PPM_TIMER);
+#ifndef BOARD_KROOZ
+  timer_reset(PPM_TIMER);
+#endif
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
 		 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
 #if defined(STM32F1)
-	timer_set_prescaler(TIM2, 0x8);
+	timer_set_prescaler(PPM_TIMER, 0x8);
 #elif defined(STM32F4)
-	timer_set_prescaler(TIM2, 0x53);
+	timer_set_prescaler(PPM_TIMER, 0x53);
 #endif
 
  /* TIM2 configuration: Input Capture mode ---------------------

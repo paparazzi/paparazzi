@@ -183,6 +183,11 @@ static struct adc_buf * adc1_buffers[NB_ADC1_CHANNELS];
 static struct adc_buf * adc2_buffers[NB_ADC2_CHANNELS];
 #endif
 
+#ifdef BOARD_KROOZ
+#undef USE_AD_TIM1
+#undef USE_AD_TIM4
+#endif
+
 /*
   Static mapping from channel index to channel injection
   index:

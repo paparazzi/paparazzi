@@ -23,6 +23,7 @@
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
 		<subsystem name="ins"           type="hff"/>
+		<subsystem name="motor_mixing"/>
 		
 		<define name="NO_RC_THRUST_LIMIT"/>
   </firmware>
@@ -33,11 +34,11 @@
 		<load name="geo_mag.xml"/>-->
 	</modules>
 	
-  <servos>
-    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="RIGHT"   no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="LEFT"    no="3" min="1000" neutral="1000" max="2000"/>
+  <servos driver="Pwm">
+    <servo name="FRONT"   no="0" min="1000" neutral="1205" max="1900"/>
+    <servo name="BACK"    no="1" min="1000" neutral="1160" max="1900"/>
+    <servo name="RIGHT"   no="2" min="1000" neutral="1215" max="1900"/>
+    <servo name="LEFT"    no="3" min="1000" neutral="1150" max="1900"/>
   </servos>
 
   <commands>
@@ -50,11 +51,11 @@
   <command_laws>
     <!-- command_laws is needed for pwm_supervision -->
     <!-- but can be empty if no additional servos are used -->
-		<!-- <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+		<!--  --><call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
     <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
     <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
     <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
-    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/> -->
+    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
   </command_laws>
 
 	<section name="VERSION" prefix="VERSION_">
@@ -62,19 +63,16 @@
     <define name="MINOR" value="2"/>
   </section>
 
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="STOP_MOTOR" value="1000"/>
-		<define name="MIN_MOTOR_NB"  value="{ 1205, 1150, 1160, 1215}"/> <!-- front, left, back, right -->
-    <define name="MIN_MAX_MOTOR_DIFF"  value="800"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="512"/>
-    <define name="ROLL_COEF"   value="{    0,  SUPERVISION_SCALE,    0, -SUPERVISION_SCALE }"/>
-    <define name="PITCH_COEF"  value="{  SUPERVISION_SCALE,    0, -SUPERVISION_SCALE,    0 }"/>
-    <define name="YAW_COEF"    value="{ -SUPERVISION_SCALE,  SUPERVISION_SCALE, -SUPERVISION_SCALE,  SUPERVISION_SCALE }"/>
-    <define name="THRUST_COEF" value="{  SUPERVISION_SCALE,  SUPERVISION_SCALE,  SUPERVISION_SCALE,  SUPERVISION_SCALE }"/>
+    <define name="ROLL_COEF"   value="{    0,  MOTOR_MIXING_SCALE,    0, -MOTOR_MIXING_SCALE }"/>
+    <define name="PITCH_COEF"  value="{  MOTOR_MIXING_SCALE,    0, -MOTOR_MIXING_SCALE,    0 }"/>
+    <define name="YAW_COEF"    value="{ -MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE, -MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE }"/>
+    <define name="THRUST_COEF" value="{  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE }"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -91,19 +89,7 @@
 <define name="ACCEL_X_SENS" value="4.90163520863" integer="16"/>
 <define name="ACCEL_Y_SENS" value="4.92641947248" integer="16"/>
 <define name="ACCEL_Z_SENS" value="4.75672568963" integer="16"/>
-<!--
-		<define name="GYRO_P_SIGN" value="1"/>
-		<define name="GYRO_Q_SIGN" value="-1"/>
-		<define name="GYRO_R_SIGN" value="1"/>
-		
-		<define name="ACCEL_X_SIGN" value="1"/>
-		<define name="ACCEL_Y_SIGN" value="-1"/>
-		<define name="ACCEL_Z_SIGN" value="1"/>
-		
-		<define name="MAG_X_SIGN" value="-1"/>
-		<define name="MAG_Y_SIGN" value="-1"/>
-		<define name="MAG_Z_SIGN" value="1"/>
--->
+
     <!-- replace this with your own calibration -->
 <define name="MAG_X_NEUTRAL" value="-183"/>
 <define name="MAG_Y_NEUTRAL" value="-106"/>

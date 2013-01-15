@@ -40,10 +40,20 @@
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-#define PCLK 72000000
+//#define PCLK 72000000
+#if defined(STM32F1)
+#define PCLK AHB_CLK
+#elif defined(STM32F4)
+#define PCLK AHB_CLK/2
+#endif
+
 #define ONE_MHZ_CLK 1000000
 #ifndef SERVO_HZ
 #define SERVO_HZ 40
+#endif
+
+#ifndef SERVO_HZ_CAM
+#define SERVO_HZ_CAM SERVO_HZ
 #endif
 
 #define _TIM_OC_INIT(n) TIM_OC##n##Init
@@ -71,6 +81,7 @@ void actuators_pwm_arch_init(void) {
   /*-----------------------------------
    * Configure timer peripheral clocks
    *-----------------------------------*/
+#ifndef BOARD_KROOZ
   /* TIM3, TIM4 and TIM5 clock enable */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM3EN);
 #if REMAP_SERVOS_5AND6
@@ -81,10 +92,26 @@ void actuators_pwm_arch_init(void) {
 #if USE_SERVOS_7AND8
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM4EN);
 #endif
+#else // BOARD_KROOZ
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_1_4_RCC_TIM);
+#	if USE_SERVOS_5AND6
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_5AND6_RCC_TIM);
+#endif
+#	if USE_SERVOS_7AND8
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_7AND8_RCC_TIM);
+#	endif
+#	if USE_SERVOS_9AND10
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_9AND10_RCC_TIM);
+#	endif
+#	if USE_SERVO_11
+	rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_11_RCC_TIM);
+#	endif
+#endif // BOARD_KROOZ
 
   /*----------------
    * Configure GPIO
    *----------------*/
+#if defined(STM32F1)
   /* GPIO A,B and C clock enable */
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN |
 			  RCC_APB2ENR_IOPBEN |
@@ -100,17 +127,33 @@ void actuators_pwm_arch_init(void) {
 	  GPIO_TIM3_FR_CH2 |
 	  GPIO_TIM3_FR_CH3 |
 	  GPIO_TIM3_FR_CH4);
+#elif defined(STM32F4)
+#ifdef BOARD_KROOZ
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_1_4_RCC_IOP);
+	gpio_mode_setup(PWM_1_4_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_1_4_Pins);
+	gpio_set_af(PWM_1_4_GPIO, GPIO_AF2, PWM_1_4_Pins);
+#endif
+#endif
 
   /* TIM4 GPIO for PWM7..8 */
 #if USE_SERVOS_7AND8
+#if defined(STM32F1)
   gpio_set_mode(GPIO_BANK_TIM4,
 	  GPIO_MODE_OUTPUT_50_MHZ,
 	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
 	  GPIO_TIM4_CH1 |
 	  GPIO_TIM4_CH2);
+#elif defined(STM32F4)
+#ifdef BOARD_KROOZ
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_7AND8_RCC_IOP);
+	gpio_mode_setup(PWM_7AND8_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_7AND8_Pins);
+	gpio_set_af(PWM_7AND8_GPIO, GPIO_AF2, PWM_7AND8_Pins);
+#endif
+#endif
 #endif
 
   /* TIM4/5 GPIO for PWM6..7 */
+#if defined(STM32F1)
 #if REMAP_SERVOS_5AND6
   gpio_set_mode(GPIO_BANK_TIM5,
 	  GPIO_MODE_OUTPUT_50_MHZ,
@@ -123,6 +166,41 @@ void actuators_pwm_arch_init(void) {
 	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
 	  GPIO_TIM4_CH3 |
 	  GPIO_TIM4_CH4);
+#endif
+#elif defined(STM32F4)
+#if USE_SERVOS_5AND6
+#ifdef BOARD_KROOZ
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_5AND6_RCC_IOP);
+	gpio_mode_setup(PWM_5AND6_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_5AND6_Pins);
+	gpio_set_af(PWM_5AND6_GPIO, GPIO_AF2, PWM_5AND6_Pins);
+#endif
+#endif
+#endif
+
+  /* PWM9..10 */
+#if USE_SERVOS_9AND10
+#if defined(STM32F1)
+#warning "No servo 9 and 10 outputs on this hardware"
+#elif defined(STM32F4)
+#ifdef BOARD_KROOZ
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_9AND10_RCC_IOP);
+	gpio_mode_setup(PWM_9AND10_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_9AND10_Pins);
+	gpio_set_af(PWM_9AND10_GPIO, GPIO_AF2, PWM_9AND10_Pins);
+#endif
+#endif
+#endif
+
+  /* PWM11 */
+#if USE_SERVO_11
+#if defined(STM32F1)
+#warning "No servo 11 output on this hardware"
+#elif defined(STM32F4)
+#ifdef BOARD_KROOZ
+	rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_11_RCC_IOP);
+	gpio_mode_setup(PWM_11_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_11_Pin);
+	gpio_set_af(PWM_11_GPIO, GPIO_AF2, PWM_11_Pin);
+#endif
+#endif
 #endif
 
   /*---------------
@@ -208,6 +286,8 @@ void actuators_pwm_arch_init(void) {
 
 #ifdef SERVO_HZ_SECONDARY
   timer_set_period(TIM4, (ONE_MHZ_CLK / SERVO_HZ_SECONDARY) - 1);
+#elif defined SERVO_HZ_CAM
+	timer_set_period(TIM4, (ONE_MHZ_CLK / SERVO_HZ_CAM) - 1);
 #else
   timer_set_period(TIM4, (ONE_MHZ_CLK / SERVO_HZ) - 1);
 #endif
@@ -217,9 +297,11 @@ void actuators_pwm_arch_init(void) {
   timer_disable_oc_output(TIM4, TIM_OC1);
   timer_disable_oc_output(TIM4, TIM_OC2);
 #endif
+#ifndef BOARD_KROOZ
 #if !REMAP_SERVOS_5AND6
   timer_disable_oc_output(TIM4, TIM_OC3);
   timer_disable_oc_output(TIM4, TIM_OC4);
+#endif
 #endif
 
   /* -- Channel configuration -- */
@@ -227,9 +309,11 @@ void actuators_pwm_arch_init(void) {
   actuators_pwm_arch_channel_init(TIM4, TIM_OC1);
   actuators_pwm_arch_channel_init(TIM4, TIM_OC2);
 #endif
+#ifndef BOARD_KROOZ
 #if !REMAP_SERVOS_5AND6
   actuators_pwm_arch_channel_init(TIM4, TIM_OC3);
   actuators_pwm_arch_channel_init(TIM4, TIM_OC4);
+#endif
 #endif
 
   /*
@@ -260,8 +344,13 @@ void actuators_pwm_arch_init(void) {
 
 #endif
 
-#if REMAP_SERVOS_5AND6
+#if REMAP_SERVOS_5AND6 || defined(BOARD_KROOZ)
+#ifdef REMAP_SERVOS_5AND6
 #pragma message "Remapping servo outputs 5 and 6 to PA0,PA1 -> TIM5"
+#endif
+#ifdef BOARD_KROOZ
+#pragma message "Using servo outputs 5 and 6 to PA0,PA1 -> TIM5"
+#endif
   /*---------------
    * Timer 5 setup
    *---------------*/
@@ -290,10 +379,18 @@ void actuators_pwm_arch_init(void) {
   /* Disable outputs. */
   timer_disable_oc_output(TIM5, TIM_OC1);
   timer_disable_oc_output(TIM5, TIM_OC2);
+#ifdef BOARD_KROOZ
+	timer_disable_oc_output(TIM5, TIM_OC3);
+  timer_disable_oc_output(TIM5, TIM_OC4);
+#endif
 
   /* -- Channel configuration -- */
   actuators_pwm_arch_channel_init(TIM5, TIM_OC1);
   actuators_pwm_arch_channel_init(TIM5, TIM_OC2);
+#ifdef BOARD_KROOZ
+	actuators_pwm_arch_channel_init(TIM5, TIM_OC3);
+  actuators_pwm_arch_channel_init(TIM5, TIM_OC4);
+#endif
 
   /*
    * Set the capture compare value for OC1.
@@ -315,6 +412,33 @@ void actuators_pwm_arch_init(void) {
   /* Counter enable. */
   timer_enable_counter(TIM5);
 
+#endif
+
+#if defined(BOARD_KROOZ) && defined(USE_SERVO_11)
+  timer_reset(PWM_11_TIMER);
+  /* Timer global mode:
+   * - No divider.
+   * - Alignement edge.
+   * - Direction up.
+   */
+  timer_set_mode(PWM_11_TIMER, TIM_CR1_CKD_CK_INT,
+	  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_set_prescaler(PWM_11_TIMER, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
+  timer_disable_preload(PWM_11_TIMER);
+  timer_continuous_mode(PWM_11_TIMER);
+#ifdef SERVO_HZ_SECONDARY
+  timer_set_period(PWM_11_TIMER, (ONE_MHZ_CLK / SERVO_HZ_SECONDARY) - 1);
+#else
+  timer_set_period(PWM_11_TIMER, (ONE_MHZ_CLK / SERVO_HZ) - 1);
+#endif
+  /* Disable outputs. */
+  timer_disable_oc_output(PWM_11_TIMER, PWM11_OC);
+  /* -- Channel configuration -- */
+  actuators_pwm_arch_channel_init(PWM_11_TIMER, PWM11_OC);
+  /* -- Enable timer -- */
+  timer_enable_preload(PWM_11_TIMER);
+  /* Counter enable. */
+  timer_enable_counter(PWM_11_TIMER);
 #endif
 
 }
