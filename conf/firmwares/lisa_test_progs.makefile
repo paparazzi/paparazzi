@@ -178,8 +178,12 @@ test_baro.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_baro.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_baro.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOARD)
-test_baro.srcs   += $(SRC_BOARD)/test_baro.c
+test_baro.srcs   += $(SRC_LISA)/test_baro.c
+ifeq ($(BOARD), lisa_l)
+test_baro.srcs   += $(SRC_BOARD)/baro_board.c
+else
 test_baro.srcs   += $(SRC_BOARD)/baro_board_i2c.c
+endif
 test_baro.CFLAGS += -DUSE_I2C2
 test_baro.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
