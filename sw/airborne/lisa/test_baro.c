@@ -31,7 +31,6 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/i2c.h"
-
 #include "led.h"
 
 #include "subsystems/datalink/downlink.h"
@@ -45,6 +44,7 @@ static inline void main_event_task( void );
 
 static inline void main_on_baro_diff(void);
 static inline void main_on_baro_abs(void);
+
 
 int main(void) {
   main_init();

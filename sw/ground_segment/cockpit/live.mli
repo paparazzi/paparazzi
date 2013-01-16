@@ -26,6 +26,7 @@
 type color = string
 type aircraft = private {
     ac_name : string;
+    ac_speech_name : string;
     config : Pprz.values;
     track : MapTrack.track;
     color: color;
