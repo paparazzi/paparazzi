@@ -30,10 +30,6 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/spi.h"
 
-#ifndef ASPIRIN_ACCEL_RATE
-#define ASPIRIN_ACCEL_RATE ADXL345_RATE_800HZ
-#endif
-PRINT_CONFIG_VAR(ASPIRIN_ACCEL_RATE)
 
 /* defaults suitable for Lisa */
 #ifndef ASPIRIN_SPI_SLAVE_IDX
@@ -48,23 +44,32 @@ PRINT_CONFIG_VAR(ASPIRIN_ACCEL_RATE)
 #define ASPIRIN_I2C_DEV i2c2
 #endif
 
-
-#ifdef ASPIRIN_GYRO_LOWPASS_HZ
-PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS_HZ)
-#define __DLPF(x, hz) x##hz
-#define _DLPF(hz) __DLPF(ITG3200_DLPF_, hz)
-#define ASPIRIN_GYRO_DLPF_CFG _DLPF(ASPIRIN_GYRO_LOWPASS_HZ)
-#else
-#define ASPIRIN_GYRO_DLPF_CFG ITG3200_DLPF_256HZ
-INFO("Using default ASPIRIN_GYRO_LOWPASS of 256HZ")
+#ifndef ASPIRIN_ACCEL_RATE
+#define ASPIRIN_ACCEL_RATE ADXL345_RATE_800HZ
 #endif
-//PRINT_CONFIG_VAR(ASPIRIN_GYRO_DLPF_CFG)
+PRINT_CONFIG_VAR(ASPIRIN_ACCEL_RATE)
 
-/// Default sample rate divider: with default DLPF -> 533Hz
+
+/** gyro internal lowpass frequency */
+#ifndef ASPIRIN_GYRO_LOWPASS
+#define ASPIRIN_GYRO_LOWPASS ITG3200_DLPF_256HZ
+#endif
+PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS)
+
+
+/** gyro sample rate divider */
 #ifndef ASPIRIN_GYRO_SMPLRT_DIV
+#if ASPIRIN_GYRO_LOWPASS == ITG3200_DLPF_256HZ
+// internal 8kHz, output rate 533Hz
 #define ASPIRIN_GYRO_SMPLRT_DIV 14
+INFO("Gyro output rate is 533Hz")
+#else
+// internal 1kHz, output rate 500Hz
+#define ASPIRIN_GYRO_SMPLRT_DIV 9
+INFO("Gyro output rate is 500Hz")
 #endif
-//PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
+#endif
+PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
 
 struct ImuAspirin imu_aspirin;
@@ -88,7 +93,7 @@ void imu_impl_init(void)
   // Aspirin sample rate divider defaults to 533Hz
   imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV;
   // aspirin defaults to 8kHz internal with 256Hz low pass
-  imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_DLPF_CFG;
+  imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_LOWPASS;
 
   /// @todo eoc interrupt for itg3200, polling for now (including status reg)
   /* interrupt on data ready, idle high, latch until read any register */
