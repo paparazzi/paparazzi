@@ -43,8 +43,8 @@
 
 #ifdef IMU_ASPIRIN_VERSION_1_5
 #define IMU_MAG_X_CHAN  2
-#define IMU_MAG_Y_CHAN  0
-#define IMU_MAG_Z_CHAN  1
+#define IMU_MAG_Y_CHAN  1
+#define IMU_MAG_Z_CHAN  0
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
 #define IMU_MAG_X_SIGN  1
 #define IMU_MAG_Y_SIGN -1

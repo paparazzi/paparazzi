@@ -101,6 +101,9 @@ void imu_impl_init(void)
 
   /* initialize mag and set default options */
   hmc58xx_init(&imu_aspirin.mag_hmc, &(ASPIRIN_I2C_DEV), HMC58XX_ADDR);
+#ifdef IMU_ASPIRIN_VERSION_1_0
+  imu_aspirin.mag_hmc.type = HMC_TYPE_5843;
+#endif
 
 #if ASPIRIN_ARCH_INDEP
 #warning "Arch dependent functions (accel and gyro eoc interrupt) not used for aspirin!"
