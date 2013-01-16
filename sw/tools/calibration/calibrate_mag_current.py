@@ -70,7 +70,7 @@ def main():
     # read raw measurements from log file
     measurements = calibration_utils.read_log_mag_current(options.ac_id, filename)
     if len(measurements) == 0:
-        print("Error: found zero IMU_"+options.sensor+"_RAW measurements for aircraft with id "+options.ac_id+" in log file!")
+        print("Error: found zero IMU_MAG_CURRENT_CALIBRATION measurements for aircraft with id "+options.ac_id+" in log file!")
         sys.exit(1)
     if options.verbose:
        print("found "+str(len(measurements))+" records")

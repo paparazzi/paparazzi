@@ -50,7 +50,7 @@ def get_ids_in_log(filename):
 #
 def read_log(ac_id, filename, sensor):
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW (\S+) (\S+) (\S+) (\S+)")
+    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -66,7 +66,7 @@ def read_log(ac_id, filename, sensor):
 #
 def read_log_mag_current(ac_id, filename):
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_MAG_RAW (\S+) (\S+) (\S+) (\S+)")
+    pattern = re.compile("(\S+) "+ac_id+" IMU_MAG_CURRENT_CALIBRATION (\S+) (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
