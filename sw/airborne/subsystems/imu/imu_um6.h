@@ -1,7 +1,34 @@
 /*
- * Released under Creative Commons License
+ * Copyright (C) 2013 Michal Podhradsky
+ * Utah State University, http://aggieair.usu.edu/
  *
- * 2012, Utah State University, http://aggieair.usu.edu/
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+ /**
+ * @file imu_um6.h
+ *
+ * Driver for CH Robotics UM6 IMU/AHRS subsystem
+ *
+ * Takes care of configuration of the IMU, communication and parsing
+ * the received packets. See UM6 datasheet for configuration options.
+ * Should be used with @ahrs_extern_euler AHRS subsystem.
+ *
+ * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
 #ifndef IMU_UM6_H
 #define IMU_UM6_H
@@ -18,74 +45,20 @@
 
 #define UM6Buffer() UM6Link(ChAvailable())
 
-// GYRO
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS 1
-#define IMU_GYRO_P_SENS_NUM 1
-#define IMU_GYRO_P_SENS_DEN 1
-#define IMU_GYRO_Q_SENS 1
-#define IMU_GYRO_Q_SENS_NUM 1
-#define IMU_GYRO_Q_SENS_DEN 1
-#define IMU_GYRO_R_SENS 1
-#define IMU_GYRO_R_SENS_NUM 1
-#define IMU_GYRO_R_SENS_DEN 1
+#ifdef ImuScaleGyro
+#undef ImuScaleGyro
 #endif
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN   1
-#define IMU_GYRO_Q_SIGN   1
-#define IMU_GYRO_R_SIGN   1
-#endif
-#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
-#endif
+#define ImuScaleGyro(_imu) {}
 
-// ACCELEROMETER
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 1
-#define IMU_ACCEL_X_SENS_NUM 1
-#define IMU_ACCEL_X_SENS_DEN 1
-#define IMU_ACCEL_Y_SENS 1
-#define IMU_ACCEL_Y_SENS_NUM 1
-#define IMU_ACCEL_Y_SENS_DEN 1
-#define IMU_ACCEL_Z_SENS 1
-#define IMU_ACCEL_Z_SENS_NUM 1
-#define IMU_ACCEL_Z_SENS_DEN 1
+#ifdef ImuScaleAccel
+#undef ImuScaleAccel
 #endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
+#define ImuScaleAccel(_imu) {}
+  
+#ifdef ImuScaleMag
+#undef ImuScaleMag
 #endif
-#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
-#endif
-
-// MAGNETOMETER
-#if !defined IMU_MAG_X_SENS & !defined IMU_MAX_Y_SENS & !defined IMU_MAG_Z_SENS
-#define IMU_MAG_X_SENS 1
-#define IMU_MAG_X_SENS_NUM 1
-#define IMU_MAG_X_SENS_DEN 1
-#define IMU_MAX_Y_SENS 1
-#define IMU_MAG_Y_SENS_NUM 1
-#define IMU_MAG_Y_SENS_DEN 1
-#define IMU_MAG_Z_SENS 1
-#define IMU_MAG_Z_SENS_NUM 1
-#define IMU_MAG_Z_SENS_DEN 1
-#endif
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN 1
-#define IMU_MAG_Z_SIGN 1
-#endif
-#if !defined IMU_MAG_X_NEUTRAL & !defined IMU_MAG_Y_NEUTRAL & !defined IMU_MAG_Z_NEUTRAL
-#define IMU_MAG_X_NEUTRAL 0
-#define IMU_MAG_Y_NEUTRAL 0
-#define IMU_MAG_Z_NEUTRAL 0
-#endif
+#define ImuScaleMag(_imu) {}
 
 #define IMU_UM6_BUFFER_LENGTH 32
 #define IMU_UM6_DATA_OFFSET 5
@@ -108,8 +81,6 @@
 
 extern void UM6_packet_read_message(void);
 extern void UM6_packet_parse(uint8_t c);
-extern void UM6_packet_send(uint8_t *data);
-inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_length);
 
 extern struct UM6Packet UM6_packet;
 
@@ -148,26 +119,6 @@ enum UM6Status {
   UM6Uninit,
   UM6Running
 };
-
-static inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length) {
-    chk_rec = (packet_buffer[packet_length-2] << 8) | packet_buffer[packet_length-1];
-    chk_calc = UM6_calculate_checksum(packet_buffer, packet_length-2);    
-    return (chk_calc == chk_rec);
-}
-
-static inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length) {
-  for (int i=0; i<packet_length; i++) {
-    UM6Link(Transmit(packet_buffer[i]));  
-  }
-}
-
-inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_length) {
-  uint16_t chk = 0;
-  for (int i=0; i<packet_length; i++) {
-    chk += packet_buffer[i];
-  }
-  return chk;
-}
 		
 #define imu_um6_event(_callback1, _callback2, _callback3) {				\
     if (UM6Buffer()) {							\

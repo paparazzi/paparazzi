@@ -1,7 +1,34 @@
 /*
- * Released under Creative Commons License
+ * Copyright (C) 2013 Michal Podhradsky
+ * Utah State University, http://aggieair.usu.edu/
  *
- * 2012, Utah State University, http://aggieair.usu.edu/
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+ /**
+ * @file imu_um6.c
+ *
+ * Driver for CH Robotics UM6 IMU/AHRS subsystem
+ *
+ * Takes care of configuration of the IMU, communication and parsing
+ * the received packets. See UM6 datasheet for configuration options.
+ * Should be used with @ahrs_extern_euler AHRS subsystem.
+ *
+ * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
 #include "subsystems/imu/imu_um6.h"
 #include "subsystems/imu.h"
@@ -25,7 +52,30 @@ struct FloatVect3 UM6_mag;
 struct FloatEulers UM6_eulers;
 struct FloatQuat UM6_quat;
 
-static inline void UM6_imu_align(void);
+inline void UM6_imu_align(void);
+inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length);
+inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_length);
+inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length);
+
+inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length) {
+    chk_rec = (packet_buffer[packet_length-2] << 8) | packet_buffer[packet_length-1];
+    chk_calc = UM6_calculate_checksum(packet_buffer, packet_length-2);    
+    return (chk_calc == chk_rec);
+}
+
+inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_length) {
+  uint16_t chk = 0;
+  for (int i=0; i<packet_length; i++) {
+    chk += packet_buffer[i];
+  }
+  return chk;
+}
+
+inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length) {
+  for (int i=0; i<packet_length; i++) {
+    UM6Link(Transmit(packet_buffer[i]));  
+  }
+}
 
 void UM6_imu_align(void) {
     UM6_status = UM6Uninit;
@@ -62,10 +112,6 @@ void UM6_imu_align(void) {
     buf_out[5] = (uint8_t)(data_chk >> 8);
     buf_out[6] = (uint8_t)data_chk;
     UM6_send_packet(buf_out, 7);
-
-    for (uint32_t startup_counter=0; startup_counter<IMU_UM6_LONG_DELAY; startup_counter++){
-      __asm("nop");
-    }
 
     // Reset EKF 0xAD
     buf_out[0] = 's';
@@ -135,10 +181,6 @@ void imu_impl_init(void) {
   UM6_send_packet(buf_out, 7);
   */
 
-  for (uint32_t startup_counter=0; startup_counter<IMU_UM6_LONG_DELAY; startup_counter++){
-    __asm("nop");
-  }
-
   UM6_imu_align();  
 }
 
@@ -177,7 +219,7 @@ void UM6_packet_read_message(void) {
                     ((float)((int16_t)
                     ((UM6_packet.msg_buf[IMU_UM6_DATA_OFFSET+4]<<8)|UM6_packet.msg_buf[IMU_UM6_DATA_OFFSET+5])))*0.0610352;  
            RATES_SMUL(UM6_rate, UM6_rate, 0.0174532925); //Convert deg/sec to rad/sec
-           RATES_BFP_OF_REAL(imu.gyro_unscaled, UM6_rate);
+           RATES_BFP_OF_REAL(imu.gyro, UM6_rate);
            break;
         case IMU_UM6_ACCEL_PROC:
            UM6_accel.x = 
@@ -190,7 +232,7 @@ void UM6_packet_read_message(void) {
                     ((float)((int16_t)
                     ((UM6_packet.msg_buf[IMU_UM6_DATA_OFFSET+4]<<8)|UM6_packet.msg_buf[IMU_UM6_DATA_OFFSET+5])))*0.000183105;
           VECT3_SMUL(UM6_accel, UM6_accel, 9.80665); //Convert g into m/s2
-          ACCELS_BFP_OF_REAL(imu.accel_unscaled, UM6_accel); // float to int 
+          ACCELS_BFP_OF_REAL(imu.accel, UM6_accel); // float to int 
            break;
         case IMU_UM6_MAG_PROC:
            UM6_mag.x = 
@@ -204,7 +246,7 @@ void UM6_packet_read_message(void) {
                     ((UM6_packet.msg_buf[IMU_UM6_DATA_OFFSET+4]<<8)|UM6_packet.msg_buf[IMU_UM6_DATA_OFFSET+5])))*0.000305176;
            // Assume the same units for magnetic field 
            // Magnitude at the Earth's surface ranges from 25 to 65 microteslas (0.25 to 0.65 gauss).
-           MAGS_BFP_OF_REAL(imu.mag_unscaled, UM6_mag);
+           MAGS_BFP_OF_REAL(imu.mag, UM6_mag);
            break;
         case IMU_UM6_EULER:
            UM6_eulers.phi = 

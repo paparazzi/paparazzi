@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2013 Michal Podhradsky
+ * Utah State University, http://aggieair.usu.edu/
  *
  * This file is part of paparazzi.
  *
@@ -18,7 +19,16 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
+ /**
+ * @file ahrs_extern_euler.c
+ *
+ * AHRS interface for multiple IMU/AHRS subsystems, such as GX3, UM6 etc.
+ *
+ * Propagates the estimated attitude and rates from IMU to body states. Quaternion 
+ * calculation is used.
+ *
+ * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
+ */
 #include "ahrs_extern_euler.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
