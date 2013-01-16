@@ -46,6 +46,10 @@
     <define name="ROLL_COEF"   value="{  256, -256, -256, -256,  256,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,  256,    0, -256, -256,    0 }"/>
     <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>
+
+<!-- <define name="ROLL_COEF"   value="{  0,0,0,0,0,0}"/>
+ <define name="PITCH_COEF"  value="{  0,0,0,0,0,0 }"/>
+ <define name="YAW_COEF"    value="{  0,0,0,0,0,0 }"/>-->
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
   </section>
 
