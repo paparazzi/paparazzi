@@ -20,10 +20,12 @@
  *
  */
 
-/** \file main_fbw.c
- *  \brief FBW ( FlyByWire ) process
+/**
+ * @file firmwares/fixedwing/main_fbw.c
  *
- *   This process is responsible for decoding radio control, generating actuators
+ * FBW ( FlyByWire ) process
+ *
+ * This process is responsible for decoding radio control, generating actuators
  * signals either from the radio control or from the commands provided by the
  * AP (autopilot) process. It also performs a telemetry task and a low level monitoring
  * ( for parameters like the supply )

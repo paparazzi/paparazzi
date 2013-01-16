@@ -17,15 +17,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- * @file main_ap.c
+ * @file firmwares/fixedwing/main_ap.c
+ *
  * AP ( AutoPilot ) tasks
  *
- * This process is reponsible for the collecting the different sensors data, fusing them to obtain
- * aircraft attitude and running the different control loops
+ * This process is reponsible for the collecting the different sensors data,
+ * calling the appropriate estimation algorithms and running the different control loops.
  */
 
 #define MODULES_C

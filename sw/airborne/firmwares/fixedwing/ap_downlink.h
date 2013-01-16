@@ -17,11 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file ap_downlink.h
- *  \brief Set of macros defining the periodic telemetry messages of AP process
+/**
+ * @file firmwares/fixedwing/ap_downlink.h
+ *
+ * Set of macros defining the periodic telemetry messages of AP process.
  *
  * The PeriodicSendAp() macro is generated from the telemetry description
  * (named in conf.xml, usually in conf/telemetry directory). This macro
