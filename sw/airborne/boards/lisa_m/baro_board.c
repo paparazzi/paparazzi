@@ -1,6 +1,6 @@
-/** 
+/**
  *  Generic barometer interface, assuming the barometer is read through Aspirin IMU directly
- *  
+ *
  * Edit by: Michal Podhradsky, michal.podhradsky@aggiemail.usu.edu
  * Utah State University, http://aggieair.usu.edu/
  */
@@ -19,6 +19,6 @@ void baro_init(void) {
 void baro_periodic(void) {}
 
 void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
-      b_abs_handler();
-      b_diff_handler();
+  b_abs_handler();
+  b_diff_handler();
 }
