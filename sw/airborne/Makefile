@@ -33,8 +33,6 @@ ifneq ($(MAKECMDGOALS),clean)
   include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
   $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
   include ../../conf/Makefile.local
-	$(TARGET).CFLAGS := $(sort $($(TARGET).CFLAGS))
-	$(TARGET).srcs := $(sort $($(TARGET).srcs))
 
 # check if ARCHDIR is set
   ifeq ($($(TARGET).ARCHDIR), )
