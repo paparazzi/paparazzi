@@ -1,6 +1,6 @@
-/** 
+/**
  *  Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for I2C
- *  
+ *
  * Edit by: Michal Podhradsky, michal.podhradsky@aggiemail.usu.edu
  * Utah State University, http://aggieair.usu.edu/
  */
@@ -89,7 +89,7 @@ void baro_periodic(void) {
       ms5611_status = MS5611_ADC_D2;
       ms5611_trans.buf[0] = MS5611_ADC_READ;
       I2CTransceive(MS5611_I2C_DEV, ms5611_trans, MS5611_SLAVE_ADDR, 1, 3);
-    }    
+    }
     else if (ms5611_status == MS5611_UNINIT) {
       /* reset sensor */
       ms5611_status = MS5611_RESET;
@@ -100,7 +100,7 @@ void baro_periodic(void) {
       /* start getting prom data */
       ms5611_status = MS5611_PROM;
       ms5611_trans.buf[0] = MS5611_PROM_READ | (prom_cnt << 1);
-      I2CTransceive(MS5611_I2C_DEV, ms5611_trans, MS5611_SLAVE_ADDR, 1, 2); 
+      I2CTransceive(MS5611_I2C_DEV, ms5611_trans, MS5611_SLAVE_ADDR, 1, 2);
     }
   }
 }

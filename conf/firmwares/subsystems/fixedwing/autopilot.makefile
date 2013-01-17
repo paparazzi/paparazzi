@@ -219,8 +219,8 @@ jsbsim.CFLAGS 		+= -DSITL
 jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_ac_flightgear.c
 
 # external libraries
-jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) -I$(OCAMLLIBDIR) `pkg-config glib-2.0 --cflags`
-jsbsim.LDFLAGS		+= `pkg-config glib-2.0 --libs` -lglibivy -lm -L/usr/lib -lJSBSim
+jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) -I$(OCAMLLIBDIR) $(shell pkg-config glib-2.0 --cflags)
+jsbsim.LDFLAGS		+= $(shell pkg-config glib-2.0 --libs) -lglibivy -lm -L/usr/lib -lJSBSim
 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c

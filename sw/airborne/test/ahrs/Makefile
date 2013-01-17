@@ -145,8 +145,8 @@ run_ahrs_on_synth: run_ahrs_on_synth.c $(RAOS_SRCS) $(AHRS_SRCS)
 	@echo "Building run_ahrs_on_synth for $(AHRS_TYPE)"
 	$(Q) $(CC) $(CFLAGS) $(AHRS_CFLAGS) -o $@ $^ $(LDFLAGS)
 
-IVY_CFLAGS=-g -O2 -Wall `pkg-config glib-2.0 --cflags`
-IVY_LDFLAGS=`pkg-config glib-2.0 --libs` -lglibivy
+IVY_CFLAGS=-g -O2 -Wall $(shell pkg-config glib-2.0 --cflags)
+IVY_LDFLAGS=$(shell pkg-config glib-2.0 --libs) -lglibivy
 
 run_ahrs_on_synth_ivy: run_ahrs_on_synth_ivy.c $(RAOS_SRCS) $(AHRS_SRCS)
 	$(CC) $(CFLAGS) $(AHRS_CFLAGS) $(IVY_CFLAGS) -o $@ $^ $(LDFLAGS) $(IVY_LDFLAGS)

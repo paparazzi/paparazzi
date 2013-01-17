@@ -90,6 +90,7 @@
 #define SPEED_ENU_F   7
 #define SPEED_HNORM_F 8
 #define SPEED_HDIR_F  9
+#define SPEED_LOCAL_COORD ((1<<SPEED_NED_I)|(1<<SPEED_ENU_I)|(1<<SPEED_NED_F)|(1<<SPEED_ENU_F))
 /**@}*/
 
 /**
@@ -437,25 +438,21 @@ extern void stateInit(void);
 
 /// Set the local (flat earth) coordinate frame origin (int).
 static inline void stateSetLocalOrigin_i(struct LtpDef_i* ltp_def) {
-  LTP_DEF_COPY(state.ned_origin_i, *ltp_def);
-  state.ned_initialized_i = TRUE;
+  memcpy(&state.ned_origin_i, ltp_def, sizeof(struct LtpDef_i));
+  /* convert to float */
   ECEF_FLOAT_OF_BFP(state.ned_origin_f.ecef, state.ned_origin_i.ecef);
   LLA_FLOAT_OF_BFP(state.ned_origin_f.lla, state.ned_origin_i.lla);
   RMAT_FLOAT_OF_BFP(state.ned_origin_f.ltp_of_ecef, state.ned_origin_i.ltp_of_ecef);
-  state.ned_origin_f.hmsl = M_OF_MM(state.ned_origin_f.hmsl);
-  state.ned_initialized_f = TRUE;
+  state.ned_origin_f.hmsl = M_OF_MM(state.ned_origin_i.hmsl);
 
   /* clear bits for all local frame representations */
-  ClearBit(state.pos_status, POS_NED_I);
-  ClearBit(state.pos_status, POS_ENU_I);
-  ClearBit(state.pos_status, POS_NED_F);
-  ClearBit(state.pos_status, POS_ENU_F);
-  ClearBit(state.speed_status, SPEED_NED_I);
-  ClearBit(state.speed_status, SPEED_ENU_I);
-  ClearBit(state.speed_status, SPEED_NED_F);
-  ClearBit(state.speed_status, SPEED_ENU_F);
+  state.pos_status &= ~(POS_LOCAL_COORD);
+  state.speed_status &= ~(SPEED_LOCAL_COORD);
   ClearBit(state.accel_status, ACCEL_NED_I);
   ClearBit(state.accel_status, ACCEL_NED_F);
+
+  state.ned_initialized_i = TRUE;
+  state.ned_initialized_f = TRUE;
 }
 
 /// Set the local (flat earth) coordinate frame origin from UTM (float).
@@ -464,14 +461,8 @@ static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f* utm_def) {
   state.utm_initialized_f = TRUE;
 
   /* clear bits for all local frame representations */
-  ClearBit(state.pos_status, POS_NED_I);
-  ClearBit(state.pos_status, POS_ENU_I);
-  ClearBit(state.pos_status, POS_NED_F);
-  ClearBit(state.pos_status, POS_ENU_F);
-  ClearBit(state.speed_status, SPEED_NED_I);
-  ClearBit(state.speed_status, SPEED_ENU_I);
-  ClearBit(state.speed_status, SPEED_NED_F);
-  ClearBit(state.speed_status, SPEED_ENU_F);
+  state.pos_status &= ~(POS_LOCAL_COORD);
+  state.speed_status &= ~(SPEED_LOCAL_COORD);
   ClearBit(state.accel_status, ACCEL_NED_I);
   ClearBit(state.accel_status, ACCEL_NED_F);
 }
@@ -496,12 +487,12 @@ extern void stateCalcPositionLla_f(void);
 
 /// Test if local coordinates are valid.
 static inline bool_t stateIsLocalCoordinateValid(void) {
-  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status &= ~(POS_LOCAL_COORD)));
+  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & ~(POS_LOCAL_COORD)));
 }
 
 /// Test if global coordinates are valid.
 static inline bool_t stateIsGlobalCoordinateValid(void) {
-  return ((state.pos_status &= ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+  return ((state.pos_status & ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
 }
 
 /************************ Set functions ****************************/

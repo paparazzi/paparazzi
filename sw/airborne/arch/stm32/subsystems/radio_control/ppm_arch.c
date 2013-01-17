@@ -104,7 +104,13 @@ void ppm_arch_init ( void ) {
      The external signal is connected to TIM2 CH2 pin (PA.01)
      The Rising edge is used as active edge,
   ------------------------------------------------------------ */
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_RISING);
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_FALLING);
+#else
+#error "ppm_arch.c: Unknown PM_PULSE_TYPE"
+#endif
   timer_ic_set_input(PPM_TIMER, PPM_CHANNEL, PPM_TIMER_INPUT);
   timer_ic_set_prescaler(PPM_TIMER, PPM_CHANNEL, TIM_IC_PSC_OFF);
   timer_ic_set_filter(PPM_TIMER, PPM_CHANNEL, TIM_IC_OFF);

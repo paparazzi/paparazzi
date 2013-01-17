@@ -20,7 +20,7 @@
  */
 
 /**
- * @file firmwares/fixedwing/guidance/guidance_v.h
+ * @file firmwares/fixedwing/guidance/guidance_common.h
  * Vertical control for fixed wing vehicles.
  *
  */

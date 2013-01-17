@@ -37,6 +37,9 @@
 #define INT32_MAX (2147483647)
 #endif
 
+#if defined MOTOR_MIXING_MIN_MOTOR || defined MOTOR_MIXING_MAX_MOTOR
+#error MIN_MOTOR and MAX_MOTOR have to be set via neutral/max of the respective servo
+#endif
 #define MOTOR_MIXING_MIN_MOTOR 0
 #define MOTOR_MIXING_MAX_MOTOR MAX_PPRZ
 

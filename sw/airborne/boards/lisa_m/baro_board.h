@@ -1,6 +1,6 @@
-/** 
+/**
  *  Generic barometer interface, assuming the barometer is read through Aspirin IMU directly
- *  
+ *
  * Edit by: Michal Podhradsky, michal.podhradsky@aggiemail.usu.edu
  * Utah State University, http://aggieair.usu.edu/
  */

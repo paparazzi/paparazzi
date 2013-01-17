@@ -808,7 +808,7 @@ INLINE_SOURCES         = NO
 # doxygen to hide any special comment blocks from generated source code
 # fragments. Normal C, C++ and Fortran comments will always remain visible.
 
-STRIP_CODE_COMMENTS    = NO
+STRIP_CODE_COMMENTS    = YES
 
 # If the REFERENCED_BY_RELATION tag is set to YES
 # then for each documented function all documented

@@ -21,18 +21,18 @@ nps.ARCHDIR = sim
 nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
-nps.CFLAGS  += `pkg-config glib-2.0 --cflags`
-nps.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lgsl -lgslcblas
+nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
+nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy -lgsl -lgslcblas
 nps.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
-nps.LDFLAGS += `sdl-config --libs`
+nps.LDFLAGS += $(shell sdl-config --libs)
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
 ifndef JSBSIM_PKG
 JSBSIM_PKG = $(shell pkg-config JSBSim --exists && echo 'yes')
 endif
 ifeq ($(JSBSIM_PKG), yes)
-	nps.CFLAGS  += `pkg-config JSBSim --cflags`
-	nps.LDFLAGS += `pkg-config JSBSim --libs`
+	nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)
+	nps.LDFLAGS += $(shell pkg-config JSBSim --libs)
 else
 	JSBSIM_PKG = no
 	nps.CFLAGS  += -I$(JSBSIM_INC)

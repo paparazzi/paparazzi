@@ -69,6 +69,7 @@ let rec list_iter3 = fun f l1 l2 l3 ->
 type color = string
 type aircraft = {
     ac_name : string;
+    ac_speech_name : string;
     config : Pprz.values;
     track : MapTrack.track;
     color: color;
@@ -372,7 +373,14 @@ let get_alt_shift = fun af_xml ->
     fvalue "ALT_SHIFT_MINUS" default_minus
   with _ -> (default_plus_plus, default_plus, default_minus)
 
-
+let get_speech_name = fun af_xml def_name ->
+  let default_speech_name = def_name in
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    fvalue "SPEECH_NAME" default_speech_name
+  with _ -> default_speech_name
 
 let key_press_event = fun keys do_action ev ->
   try
@@ -405,6 +413,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let af_url = Pprz.string_assoc "airframe" config in
   let af_file =  Http.file_of_url af_url in
   let af_xml = ExtXml.parse_file af_file in
+
+  (** Get an alternate speech name if available *)
+  let speech_name = get_speech_name af_xml name in
 
   (* Aicraft menu decorated with a colored box *)
   let image = GBin.event_box ~width:10 ~height:10 () in
@@ -629,7 +640,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   let ac = { track = track; color = color; last_dist_to_wp = 0.;
          fp_group = fp; fp_show = fp_show ; config = config ;
-         wp_HOME = wp_HOME; fp = fp_xml; ac_name = name;
+         wp_HOME = wp_HOME; fp = fp_xml;
+         ac_name = name; ac_speech_name = speech_name;
          blocks = blocks; last_ap_mode= "";
          last_stage = (-1,-1);
          ir_page = ir_page; flight_time = 0;
@@ -803,7 +815,7 @@ let get_fbw_msg = fun alarm _sender vs ->
   ac.strip#set_rc rate status;
   let mode = Pprz.string_assoc "rc_mode" vs in
   if mode = "FAILSAFE" then begin
-    log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_name)
+    log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_speech_name)
   end
 
 
@@ -869,7 +881,7 @@ let check_approaching = fun ac geo alert ->
   | Some ac_pos ->
       let d = LL.wgs84_distance ac_pos geo in
       if d < ac.speed *. approaching_alert_time then
-    log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_name)
+    log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_speech_name)
 
 
 let ac_alt_graph = [14,0;-5,0;-7,-6]
@@ -1064,7 +1076,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       ac.alt <- alt;
       ac.strip#set_agl agl;
       if not ac.ground_prox && ac.flight_time > 10 && agl < 20. then begin
-    log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name "Ground Proximity Warning");
+    log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name "Ground Proximity Warning");
       ac.ground_prox <- true
       end else if agl > 25. then
     ac.ground_prox <- false;
@@ -1092,7 +1104,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     ac.target_alt <- target_alt;
     let b = try List.assoc cur_block ac.blocks with Not_found -> failwith (sprintf "Error: unknown block %d for A/C %s" cur_block ac.ac_name) in
     if b <> ac.last_block_name then begin
-      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name b);
+      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name b);
       ac.last_block_name <- b;
       ac.strip#set_label "block_name" b
     end;
@@ -1183,7 +1195,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     ac.flight_time <- flight_time;
     let ap_mode = Pprz.string_assoc "ap_mode" vs in
     if ap_mode <> ac.last_ap_mode then begin
-      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_name ap_mode);
+      log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name ap_mode);
       ac.last_ap_mode <- ap_mode;
       let label = Pprz.string_assoc "ap_mode" vs in
       ac.strip#set_label "AP" (if label="MANUAL" then "MANU" else label);
@@ -1208,7 +1220,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     let kill_mode = Pprz.string_assoc "kill_mode" vs in
     if kill_mode <> "OFF" then  begin
       if not ac.in_kill_mode then
-    log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_name);
+    log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_speech_name);
       ac.in_kill_mode <- true
     end else
       ac.in_kill_mode <- false;
@@ -1240,7 +1252,7 @@ let listen_waypoint_moved = fun () ->
 let get_alert_bat_low = fun a _sender vs ->
   let ac = get_ac vs in
   let level = Pprz.string_assoc "level" vs in
-  log_and_say a ac.ac_name (sprintf "%s, %s %s" ac.ac_name "BAT LOW" level)
+  log_and_say a ac.ac_name (sprintf "%s, %s %s" ac.ac_speech_name "BAT LOW" level)
 
 let listen_alert = fun a ->
   alert_bind "BAT_LOW" (get_alert_bat_low a)
@@ -1321,7 +1333,7 @@ let listen_tcas = fun a ->
       | 3 -> "=> DESCEND"
       | _ -> ""
       with _ -> "" in
-    log_and_say a ac.ac_name (sprintf "%s : %s -> %s %s" txt ac.ac_name other_ac.ac_name resolve)
+    log_and_say a ac.ac_name (sprintf "%s : %s -> %s %s" txt ac.ac_speech_name other_ac.ac_speech_name resolve)
   in
   tele_bind "TCAS_TA" (get_alarm_tcas a "tcas TA");
   tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA")
