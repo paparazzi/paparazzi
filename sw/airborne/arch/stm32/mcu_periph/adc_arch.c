@@ -284,8 +284,8 @@ static inline void adc_init_rcc( void )
   timer_set_period(timer, 0xFF);
   timer_set_prescaler(timer, 0x8);
 #elif defined(STM32F4)
-		timer_set_period(timer, 0xFFFF);
-    timer_set_prescaler(timer, 0x53);
+	timer_set_period(timer, 0xFFFF);
+  timer_set_prescaler(timer, 0x53);
 #endif
   //timer_set_clock_division(timer, 0x0);
   /* Generate TRGO on every update. */

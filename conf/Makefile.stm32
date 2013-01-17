@@ -256,7 +256,12 @@ ifeq ($(FLASH_MODE),DFU)
 # DFU flash mode
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using stm32 mem dfu loader"
+ifeq ($(ARCH_L), )
 	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
+else ifeq ($(ARCH_L),f4)
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_f4_mem.py $^
+endif
+
 #
 # serial flash mode
 else ifeq ($(FLASH_MODE),SERIAL)
