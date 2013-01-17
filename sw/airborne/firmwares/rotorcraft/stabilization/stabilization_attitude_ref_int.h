@@ -58,7 +58,8 @@ extern struct Int32RefModel stab_att_ref_model;
 
 
 static inline void reset_psi_ref_from_body(void) {
-  stab_att_ref_euler.psi = stateGetNedToBodyEulers_i()->psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+  //sp has been set from body using stabilization_attitude_get_yaw_i, use that value
+  stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
   stab_att_ref_rate.r = 0;
   stab_att_ref_accel.r = 0;
 }

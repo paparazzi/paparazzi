@@ -87,12 +87,17 @@ extern void imu_init(void);
 #define IMU_GYRO_R_NEUTRAL 0
 #endif
 
+#if !defined IMU_MAG_X_CURRENT_COEF && !defined IMU_MAG_Y_CURRENT_COEF && !defined IMU_MAG_Z_CURRENT_COEF
+#define IMU_MAG_X_CURRENT_COEF 0
+#define IMU_MAG_Y_CURRENT_COEF 0
+#define IMU_MAG_Z_CURRENT_COEF 0
+#endif
+
 #if !defined IMU_ACCEL_X_NEUTRAL && !defined IMU_ACCEL_Y_NEUTRAL && !defined IMU_ACCEL_Z_NEUTRAL
 #define IMU_ACCEL_X_NEUTRAL 0
 #define IMU_ACCEL_Y_NEUTRAL 0
 #define IMU_ACCEL_Z_NEUTRAL 0
 #endif
-
 
 #ifndef ImuScaleGyro
 #define ImuScaleGyro(_imu) {					\
@@ -124,10 +129,14 @@ extern void imu_init(void);
   }
 #else
 #define ImuScaleMag(_imu) {						\
-    _imu.mag.x = ((_imu.mag_unscaled.x - _imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
-    _imu.mag.y = ((_imu.mag_unscaled.y - _imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
-    _imu.mag.z = ((_imu.mag_unscaled.z - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
-  }
+    struct Int32Vect3 _mag_correction;                                  \
+    _mag_correction.x = BFP_OF_REAL((IMU_MAG_X_CURRENT_COEF * (float) electrical.current),0); \
+    _mag_correction.y = BFP_OF_REAL((IMU_MAG_Y_CURRENT_COEF * (float) electrical.current),0); \
+    _mag_correction.z = BFP_OF_REAL((IMU_MAG_Z_CURRENT_COEF * (float) electrical.current),0); \
+    _imu.mag.x = (((_imu.mag_unscaled.x - _mag_correction.x) - _imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
+    _imu.mag.y = (((_imu.mag_unscaled.y - _mag_correction.y) - _imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
+    _imu.mag.z = (((_imu.mag_unscaled.z - _mag_correction.z) - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
+ }
 #endif //IMU_MAG_45_HACK
 #endif //ImuScaleMag
 

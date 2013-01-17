@@ -149,6 +149,13 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_RATE_Z_HOLD:
       guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
       break;
+    case AP_MODE_FORWARD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
+      break;
+    case AP_MODE_CARE_FREE:
+      //Take the current psi as the reference for pitch and roll
+      care_free_heading = stateGetNedToBodyEulers_f()->psi;
+    case AP_MODE_ATTITUDE_RC_CLIMB:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_ATTITUDE_CLIMB:
     case AP_MODE_ATTITUDE_Z_HOLD:
@@ -176,10 +183,12 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_KILL:
       guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
       break;
+    case AP_MODE_FORWARD:
     case AP_MODE_RC_DIRECT:
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_HOVER_DIRECT:
+    case AP_MODE_CARE_FREE:
       guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
       break;
     case AP_MODE_RATE_RC_CLIMB:

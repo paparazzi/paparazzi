@@ -62,7 +62,7 @@ void electrical_periodic(void) {
   BoundAbs(electrical.current, 65000);
 #endif
 #else
-#if defined MILLIAMP_AT_FULL_THROTTLE && defined COMMAND_THROTTLE
+#if defined MILLIAMP_AT_FULL_THROTTLE && defined COMMAND_THRUST
   /*
    * Superellipse: abs(x/a)^n + abs(y/b)^n = 1
    * with a = 1
@@ -74,7 +74,7 @@ void electrical_periodic(void) {
    * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
    */
   float b = (float)MILLIAMP_AT_FULL_THROTTLE;
-  float x = ((float)commands[COMMAND_THROTTLE]) / ((float)MAX_PPRZ);
+  float x = ((float)commands[COMMAND_THRUST]) / ((float)MAX_PPRZ);
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
    */

@@ -25,18 +25,21 @@
     <set servo="A2"  value="motor_mixing.commands[SERVO_A2]"/>
     <set servo="B1" value="motor_mixing.commands[SERVO_B1]"/>
     <set servo="B2"  value="motor_mixing.commands[SERVO_B2]"/>
-    
+
     <let var="aileron_feedback_left"  value="-@YAW"/>
     <let var="aileron_feedback_right" value="-@YAW"/>
-    
-    <let var="elevator_feedback_left"  value="-@PITCH * (9600 + @THRUST)/9600"/>
-    <let var="elevator_feedback_right" value="+@PITCH * (9600 + @THRUST)/9600"/>
-    
-    <let var="hover_left"  value="6*$aileron_feedback_left+$elevator_feedback_left"/>
-    <let var="hover_right" value="6*$aileron_feedback_right+$elevator_feedback_right"/>
 
-    <set servo="ELEVON_LEFT"   value= "$hover_left" />
-    <set servo="ELEVON_RIGHT"  value= "$hover_right"/>
+    <let var="elevator_feedback_left"  value="-@PITCH"/>
+    <let var="elevator_feedback_right" value="+@PITCH"/>
+
+    <let var="hover_left"  value="3*$aileron_feedback_left"/>
+    <let var="hover_right" value="3*$aileron_feedback_right"/>
+
+    <let var="forward_left"  value="6*$aileron_feedback_left+4*$elevator_feedback_left"/>
+    <let var="forward_right" value="6*$aileron_feedback_right+4*$elevator_feedback_right"/>
+
+    <set servo="ELEVON_LEFT"   value="RC_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
+    <set servo="ELEVON_RIGHT"   value="RC_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_right  : $forward_right" />
   </command_laws>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -60,9 +63,9 @@
   </section>
 
  <section name="AUTOPILOT">
-   <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_RATE_DIRECT"/>
    
    <define name="AUTOPILOT_KILL_WITHOUT_AHRS" value="TRUE"/>
    <define name="LOBATT_WING_WAGGLE" value="TRUE"/>
@@ -87,24 +90,24 @@
   <!--////////////////THIS SECTION CONTAINS THE GAINS FOR DIFFERENT SETPOINTS\\\\\\\\\\\\\\\\\\-->
   <section name ="GAIN_SETS">
     <define name="NUMBER_OF_GAINSETS" value="2"/>
-    <define name="SCHEDULING_VARIABLE" value="stab_att_sp_euler.theta"/>
-    <define name="SCHEDULING_POINTS" value="{0, 20*M_PI/180}"/>
-    <define name="SCHEDULING_VARIABLE_FRAC" value="12"/>
+    <define name="SCHEDULING_VARIABLE" value="transition_status"/>
+    <define name="SCHEDULING_POINTS" value="{0, 100}"/>
+    <define name="SCHEDULING_VARIABLE_FRAC" value="INT32_PERCENTAGE_FRAC"/>
   
-    <define name="PHI_P" value="{0, 1000}"/>
-    <define name="PHI_D" value="{0, 1000}"/>
-    <define name="PHI_I" value="{0, 1000}"/>
-    <define name="PHI_DD" value="{0, 1000}"/>
+    <define name="PHI_P" value="{230, 230}"/>
+    <define name="PHI_D" value="{170, 170}"/>
+    <define name="PHI_I" value="{30, 30}"/>
+    <define name="PHI_DD" value="{0, 0}"/>
     
-    <define name="PSI_P" value="{0, 1000}"/>
-    <define name="PSI_D" value="{0, 1000}"/>
-    <define name="PSI_I" value="{0, 1000}"/>
-    <define name="PSI_DD" value="{0, 1000}"/>
+    <define name="PSI_P" value="{300, 300}"/>
+    <define name="PSI_D" value="{50, 50}"/>
+    <define name="PSI_I" value="{40, 40}"/>
+    <define name="PSI_DD" value="{0, 0}"/>
     
-    <define name="THETA_P" value="{0, 1000}"/>
-    <define name="THETA_D" value="{0, 1000}"/>
-    <define name="THETA_I" value="{0, 1000}"/>
-    <define name="THETA_DD" value="{0, 1000}"/>
+    <define name="THETA_P" value="{300, 220}"/>
+    <define name="THETA_D" value="{150, 150}"/>
+    <define name="THETA_I" value="{5, 5}"/>
+    <define name="THETA_DD" value="{0, 0}"/>
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -120,17 +123,17 @@
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_P"  value="3000" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
     <define name="REF_MAX_P"    value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_Q"  value="3000" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
     <define name="REF_MAX_Q"    value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+    <define name="REF_OMEGA_R"  value="3000" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.9"/>
     <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
@@ -149,7 +152,7 @@
     
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 0"/>
-    <define name="THETA_DDGAIN" value=" 140"/>
+    <define name="THETA_DDGAIN" value=" 0"/>
     <define name="PSI_DDGAIN"   value=" 0"/>
   </section>
 
@@ -187,6 +190,10 @@
  <section name="MISC">
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="REF_QUAT_INFINITESIMAL_STEP" value="TRUE"/>
+   <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
+   <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
+   <define name="SWITCH_STICKS_FOR_RATE_CONTROL" value="TRUE"/>
+   <define name="TRANSITION_MAX_OFFSET" value="-82.0"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

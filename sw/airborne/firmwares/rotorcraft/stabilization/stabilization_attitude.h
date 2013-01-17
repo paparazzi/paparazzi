@@ -33,6 +33,8 @@ extern void stabilization_attitude_run(bool_t  in_flight);
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
 
+extern float care_free_heading;
+
 #define stabilization_attitude_SetKiPhi(_val) {	\
     stabilization_gains.i.x = _val;             \
     stabilization_att_sum_err.phi = 0;          \

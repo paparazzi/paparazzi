@@ -176,7 +176,7 @@ STATIC_INLINE void main_periodic( void ) {
   autopilot_periodic();
   /* set actuators     */
   //actuators_set(autopilot_motors_on);
-  SetActuatorsFromCommands(commands);
+  SetActuatorsFromCommands(commands, autopilot_mode);
 
   modules_periodic_task();
 

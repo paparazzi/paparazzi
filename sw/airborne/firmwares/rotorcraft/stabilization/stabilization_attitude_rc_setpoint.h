@@ -33,6 +33,8 @@
 
 #include "subsystems/radio_control.h"
 #include "state.h"
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/autopilot.h"
 
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
 #define SP_MAX_PHI     (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI)
@@ -68,6 +70,21 @@
   (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
+static inline void stabilization_attitude_get_yaw_i(int32_t* yaw) {
+  int32_t phi = stateGetNedToBodyEulers_i()->phi;
+  int32_t theta = stateGetNedToBodyEulers_i()->theta;
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+
+  if(abs(phi) < INT32_ANGLE_PI_2) {
+    int32_t sin_theta;
+    PPRZ_ITRIG_SIN(sin_theta, theta);
+    *yaw = psi - INT_MULT_RSHIFT(sin_theta, phi, INT32_TRIG_FRAC);
+  }
+  else if(ANGLE_FLOAT_OF_BFP(theta) > 0)
+    *yaw = psi - phi;
+  else
+    *yaw = psi + phi;
+}
 
 static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
 
@@ -79,16 +96,35 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eu
       sp->psi += ((int32_t) radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
+    if (autopilot_mode == AP_MODE_FORWARD) {
+      //Coordinated turn
+      //feedforward estimate angular rotation omega = g*tan(phi)/v
+      //Take v = 9.81/1.3 m/s
+      int32_t omega;
+      if(abs(sp->phi) < ANGLE_BFP_OF_REAL(60.0/180.0*M_PI))
+        omega = ANGLE_BFP_OF_REAL(1.3*tan(ANGLE_FLOAT_OF_BFP(sp->phi)));
+      else //max 60 degrees roll, then take constant omega
+        omega = ANGLE_BFP_OF_REAL(1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0)));
+
+      sp->psi += omega/RC_UPDATE_FREQ;
+    }
+
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
+//     This is a different way to obtain yaw. It will not switch when going beyond 90 degrees pitch.
+//     However, when rolling more then 90 degrees in combination with pitch it switches switching. For a
+//     transition vehicle this is better as 90 degrees pitch will occur, but more than 90 degrees roll probably not.
+    int32_t yaw;
+    stabilization_attitude_get_yaw_i(&yaw);
+
     // Make sure the yaw setpoint does not differ too much from the real yaw to prevent a sudden switch at 180 deg
-    int32_t delta_psi = sp->psi - stateGetNedToBodyEulers_i()->psi;
+    int32_t delta_psi = sp->psi - yaw;
     int32_t delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
     INT32_ANGLE_NORMALIZE(delta_psi);
     if (delta_psi > delta_limit){
-      sp->psi = stateGetNedToBodyEulers_i()->psi + delta_limit;
+      sp->psi = yaw + delta_limit;
     }
     else if (delta_psi < -delta_limit){
-      sp->psi = stateGetNedToBodyEulers_i()->psi - delta_limit;
+      sp->psi = yaw - delta_limit;
     }
     INT32_ANGLE_NORMALIZE(sp->psi);
 #endif
@@ -108,15 +144,36 @@ static inline void stabilization_attitude_read_rc_setpoint_eulers_f(struct Float
       sp->psi += (radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
       FLOAT_ANGLE_NORMALIZE(sp->psi);
     }
+    if (autopilot_mode == AP_MODE_FORWARD) {
+      //Coordinated turn
+      //feedforward estimate angular rotation omega = g*tan(phi)/v
+      //Take v = 9.81/1.3 m/s
+      float omega;
+      if(abs(sp->phi) < (60.0/180.0*M_PI))
+        omega = 1.3*tan(sp->phi);
+      else //max 60 degrees roll, then take constant omega
+        omega = 1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0));
+
+      sp->psi += omega/RC_UPDATE_FREQ;
+    }
+
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
+//     This is a different way to obtain yaw. It will not switch when going beyond 90 degrees pitch.
+//     However, when rolling more then 90 degrees in combination with pitch it switches switching. For a
+//     transition vehicle this is better as 90 degrees pitch will occur, but more than 90 degrees roll probably not.
+    float yaw;
+    int32_t yaw_i;
+    stabilization_attitude_get_yaw_i(&yaw_i);
+    yaw = ANGLE_FLOAT_OF_BFP(yaw_i);
+
     // Make sure the yaw setpoint does not differ too much from the real yaw to prevent a sudden switch at 180 deg
-    float delta_psi = sp->psi - stateGetNedToBodyEulers_f()->psi;
+    float delta_psi = sp->psi - yaw;
     FLOAT_ANGLE_NORMALIZE(delta_psi);
     if (delta_psi > STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT){
-      sp->psi = stateGetNedToBodyEulers_f()->psi + STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
+      sp->psi = yaw + STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
     }
     else if (delta_psi < -STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT){
-      sp->psi = stateGetNedToBodyEulers_f()->psi - STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
+      sp->psi = yaw - STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
     }
     FLOAT_ANGLE_NORMALIZE(sp->psi);
 #endif
@@ -153,8 +210,9 @@ static inline void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct
   float qx_roll = sinf(roll2);
   float qi_roll = cosf(roll2);
 
+  //An offset is added if in forward mode
   /* only non-zero entries for pitch quaternion */
-  float pitch2 = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
+  float pitch2 = (ANGLE_FLOAT_OF_BFP(theta_offset) + radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) / 2;
   float qy_pitch = sinf(pitch2);
   float qi_pitch = cosf(pitch2);
 
@@ -176,16 +234,20 @@ static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQu
 #endif
 
   struct FloatQuat q_rp_cmd;
-#if USE_EARTH_BOUND_RC_SETPOINT
-  stabilization_attitude_read_rc_roll_pitch_earth_quat_f(&q_rp_cmd);
-#else
   stabilization_attitude_read_rc_roll_pitch_quat_f(&q_rp_cmd);
-#endif
 
   /* get current heading */
   const struct FloatVect3 zaxis = {0., 0., 1.};
   struct FloatQuat q_yaw;
-  FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+
+  //Care Free mode
+  if(autopilot_mode == AP_MODE_CARE_FREE) {
+    //care_free_heading has been set to current psi when entering care free mode.
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, care_free_heading);
+  }
+  else {
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+  }
 
   /* roll/pitch commands applied to to current heading */
   struct FloatQuat q_rp_sp;
@@ -212,4 +274,45 @@ static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQu
     QUAT_COPY(*q_sp, q_rp_sp);
   }
 }
+
+//Function that reads the rc setpoint in an earth bound frame
+static inline void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat* q_sp, bool_t in_flight) {
+  // FIXME: remove me, do in quaternion directly
+  // is currently still needed, since the yaw setpoint integration is done in eulers
+  #if defined STABILIZATION_ATTITUDE_TYPE_INT
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  #else
+  stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight);
+  #endif
+
+  const struct FloatVect3 zaxis = {0., 0., 1.};
+
+  struct FloatQuat q_rp_cmd;
+  stabilization_attitude_read_rc_roll_pitch_earth_quat_f(&q_rp_cmd);
+
+  if (in_flight) {
+    /* get current heading setpoint */
+    struct FloatQuat q_yaw_sp;
+
+    #if defined STABILIZATION_ATTITUDE_TYPE_INT
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
+    #else
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, stab_att_sp_euler.psi);
+    #endif
+
+    FLOAT_QUAT_COMP(*q_sp, q_yaw_sp, q_rp_cmd);
+  }
+  else {
+    struct FloatQuat q_yaw;
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+
+    /* roll/pitch commands applied to to current heading */
+    struct FloatQuat q_rp_sp;
+    FLOAT_QUAT_COMP(q_rp_sp, q_yaw, q_rp_cmd);
+    FLOAT_QUAT_NORMALIZE(q_rp_sp);
+
+    QUAT_COPY(*q_sp, q_rp_sp);
+  }
+}
+
 #endif /* STABILIZATION_ATTITUDE_RC_SETPOINT_H */

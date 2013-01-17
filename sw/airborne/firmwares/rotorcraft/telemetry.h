@@ -179,7 +179,8 @@
     DOWNLINK_SEND_IMU_MAG_RAW(_trans, _dev,					\
                   &imu.mag_unscaled.x,			\
                   &imu.mag_unscaled.y,			\
-                  &imu.mag_unscaled.z);		\
+                  &imu.mag_unscaled.z, 		\
+                  &electrical.current);               \
   }
 
 
@@ -215,6 +216,7 @@
                                   &stabilization_rate_fb_cmd.r,    \
                                   &stabilization_cmd[COMMAND_THRUST]); \
   }
+
 
 #ifdef STABILIZATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
