@@ -37,14 +37,16 @@
 #
 
 
-IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
+# for fixedwing firmware and ap only
+ifeq ($(TARGET), ap)
+  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
+endif
+
 IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\" -DIMU_OVERRIDE_CHANNELS
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c \
-                      $(SRC_ARCH)/mcu_periph/spi_arch.c \
-                      mcu_periph/spi.c
+                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c
 
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
+include $(CFG_SHARED)/spi.makefile
 
 ifeq ($(ARCH), lpc21)
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
@@ -65,13 +67,6 @@ IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1
 ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN_SRCS)
 
-#ap.CFLAGS := $(sort $(ap.CFLAGS))
-#ap.srcs := $(sort $(ap.srcs))
-
-# NOTE that we should check for duplicities at the end of the generated makefile
-# otherwise we would have to check at the end of each subsystem/module and that is annoying
-#$(info CFLAGS = $(ap.CFLAGS))
-#$(info srcs = $(ap.srcs))
 
 #
 # NPS simulator

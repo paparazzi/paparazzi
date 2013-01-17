@@ -46,7 +46,6 @@ imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
 include $(CFG_SHARED)/spi.makefile
-imu_CFLAGS += -DSPI_MASTER
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_SPI_SLAVE0

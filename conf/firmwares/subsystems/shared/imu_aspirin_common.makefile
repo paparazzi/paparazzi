@@ -28,11 +28,9 @@ endif
 IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
-                      $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c \
-                      $(SRC_ARCH)/mcu_periph/spi_arch.c \
-                      mcu_periph/spi.c
+                      $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
 
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
+include $(CFG_SHARED)/spi.makefile
 
 # Magnetometer
 IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
@@ -48,4 +46,7 @@ IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 endif
 
+#
+# NPS simulator
+#
 include $(CFG_SHARED)/imu_nps.makefile
