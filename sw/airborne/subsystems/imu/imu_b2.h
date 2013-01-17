@@ -166,15 +166,15 @@ extern struct ImuBooz2 imu_b2;
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
 #include "peripherals/ms2100.h"
-#define ImuMagEvent(_mag_handler) {                     \
-  ms2100_event();                                       \
-  if (ms2100_status == MS2100_DATA_AVAILABLE) {         \
-    imu.mag_unscaled.x = ms2100_values[IMU_MAG_X_CHAN]; \
-    imu.mag_unscaled.y = ms2100_values[IMU_MAG_Y_CHAN]; \
-    imu.mag_unscaled.z = ms2100_values[IMU_MAG_Z_CHAN]; \
-    ms2100_status = MS2100_IDLE;                        \
-    _mag_handler();                                     \
-  }                                                     \
+static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+  ms2100_event(&ms2100);
+  if (ms2100.status == MS2100_DATA_AVAILABLE) {
+    imu.mag_unscaled.x = ms2100.data.value[IMU_MAG_X_CHAN];
+    imu.mag_unscaled.y = ms2100.data.value[IMU_MAG_Y_CHAN];
+    imu.mag_unscaled.z = ms2100.data.value[IMU_MAG_Z_CHAN];
+    ms2100.status = MS2100_IDLE;
+    _mag_handler();
+  }
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
 #include "peripherals/ami601.h"

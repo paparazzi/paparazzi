@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/stm32/peripherals/ms2100_arch.h
+ *
+ * STM32 specific functions for the ms2100 magnetic sensor from PNI.
+ */
+
 #ifndef MS2100_ARCH_H
 #define MS2100_ARCH_H
 
