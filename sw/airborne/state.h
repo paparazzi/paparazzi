@@ -487,12 +487,12 @@ extern void stateCalcPositionLla_f(void);
 
 /// Test if local coordinates are valid.
 static inline bool_t stateIsLocalCoordinateValid(void) {
-  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status &= ~(POS_LOCAL_COORD)));
+  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & ~(POS_LOCAL_COORD)));
 }
 
 /// Test if global coordinates are valid.
 static inline bool_t stateIsGlobalCoordinateValid(void) {
-  return ((state.pos_status &= ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+  return ((state.pos_status & ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
 }
 
 /************************ Set functions ****************************/
