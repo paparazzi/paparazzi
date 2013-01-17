@@ -84,10 +84,10 @@ let dump_module_section = fun xml f ->
   let dir_list = Gen_common.get_modules_dir modules in
 (**
   let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
-  List.iter (fun target -> fprintf f "%s.CFLAGS += -I modules -I arch/$(ARCH)/modules\n" target) target_list;
+  List.iter (fun target -> fprintf f "%s.CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n" target) target_list;
 **)
   (** include modules directory for ALL targets and not just the defined ones **)
-  fprintf f "$(TARGET).CFLAGS += -I modules -I arch/$(ARCH)/modules\n";
+  fprintf f "$(TARGET).CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n";
   List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) dir_list;
   (* parse each module *)
   List.iter (fun m ->

@@ -44,6 +44,15 @@ ifneq ($(MAKECMDGOALS),clean)
       include ../../conf/Makefile.$($(TARGET).ARCHDIR)
     endif
   endif
+
+  # sort cflags and sources to throw out duplicates
+  #
+  #$(info CFLAGS_orig = $($(TARGET).CFLAGS))
+  #$(info CFLAGS_sort = $(sort $($(TARGET).CFLAGS)))
+  #$(info srcs_orig = $($(TARGET).srcs))
+  #$(info srcs_sort = $(sort $($(TARGET).srcs)))
+  $(TARGET).CFLAGS := $(sort $($(TARGET).CFLAGS))
+  $(TARGET).srcs := $(sort $($(TARGET).srcs))
 endif
 
 # check for obsolete MODEM_UART_NR and GPS_UART_NR makefile vars
