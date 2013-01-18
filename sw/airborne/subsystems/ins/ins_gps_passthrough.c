@@ -19,7 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file ins_gps_passthrough.c
+/**
+ * @file subsystems/ins/ins_gps_passthrough.c
+ *
  * Simply passes GPS position and velocity through to the state interface.
  */
 

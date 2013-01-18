@@ -1,4 +1,25 @@
-//Algebra helper functions for DCM
+/*
+ * Released under Creative Commons License
+ *
+ * 2010 The Paparazzi Team
+ *
+ *
+ * Based on Code by Jordi Munoz and William Premerlani, Supported by Chris Anderson (Wired) and Nathan Sindle (SparkFun).
+ * Version 1.0 for flat board updated by Doug Weibel and Jose Julio
+ *
+ */
+
+/**
+ * @file subsystems/ahrs/ahrs_float_dcm_algebra.h
+ *
+ * Algebra helper functions for DCM.
+ *
+ * @todo get rid of this and use pprz math lib.
+ */
+
+#ifndef AHRS_FLOAT_DCM_ALGEBRA_H
+#define AHRS_FLOAT_DCM_ALGEBRA_H
+
 
 static inline float Vector_Dot_Product(float vector1[3],float vector2[3])
 {
@@ -55,3 +76,5 @@ static inline void Matrix_Multiply(float a[3][3], float b[3][3],float mat[3][3])
         }
     }
 }
+
+#endif // AHRS_FLOAT_DCM_ALGEBRA_H

@@ -20,6 +20,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins/vf_extended_float.h
+ *
+ * Interface for extended vertical filter (in float).
+ *
+ */
+
 #ifndef VF_EXTENDED_FLOAT_H
 #define VF_EXTENDED_FLOAT_H
 

@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_sim.h
+ *
+ * Interface to set the AHRS from the simple OCaml simulator.
+ *
+ */
+
 #ifndef AHRS_SIM_H
 #define AHRS_SIM_H
 

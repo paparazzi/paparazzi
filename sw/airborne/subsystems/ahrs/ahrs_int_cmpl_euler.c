@@ -19,6 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_int_cmpl_euler.c
+ *
+ * Complementary filter in euler representation (fixed-point).
+ *
+ * Estimate the attitude, heading and gyro bias.
+ *
+ */
+
 #include "ahrs_int_cmpl_euler.h"
 
 #include "state.h"

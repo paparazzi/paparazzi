@@ -12,14 +12,17 @@
  *
  */
 
-/** \file ahrs_float_dcm.c
- *  \brief Attitude estimation for fixedwings based on the DCM
- *  Theory: http://code.google.com/p/gentlenav/downloads/list  file DCMDraft2.pdf
+/**
+ * @file subsystems/ahrs/ahrs_float_dcm.c
  *
- *  Options:
- *  -USE_HIGH_ACCEL_FLAG: no compensation when high accelerations present
- *  -USE_MAGNETOMETER_ONGROUND: use magnetic compensation before takeoff only while GPS course not good
- *  -USE_AHRS_GPS_ACCELERATIONS: forward acceleration compensation from GPS speed
+ * Attitude estimation for fixedwings based on the DCM.
+ *
+ * Theory: http://code.google.com/p/gentlenav/downloads/list  file DCMDraft2.pdf
+ *
+ * Options:
+ *  - USE_HIGH_ACCEL_FLAG: no compensation when high accelerations present
+ *  - USE_MAGNETOMETER_ONGROUND: use magnetic compensation before takeoff only while GPS course not good
+ *  - USE_AHRS_GPS_ACCELERATIONS: forward acceleration compensation from GPS speed
  *
  */
 

@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins/hf_float.h
+ *
+ * Horizontal filter (x,y) to estimate position and velocity.
+ *
+ */
+
 #ifndef HF_FLOAT_H
 #define HF_FLOAT_H
 
