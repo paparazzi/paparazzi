@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
  /**
- * @file ahrs_extern_euler.c
+ * @file subsystems/ahrs/ahrs_extern_quat.c
  *
  * AHRS interface for multiple IMU/AHRS subsystems, such as GX3, UM6 etc.
  *
@@ -29,11 +29,11 @@
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
-#include "ahrs_extern_euler.h"
+#include "ahrs_extern_quat.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
-struct AhrsIntExternEuler ahrs_impl;
+struct AhrsIntExternQuat ahrs_impl;
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;

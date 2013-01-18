@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
  /**
- * @file ahrs_extern_euler.h
+ * @file subsystems/ahrs/ahrs_extern_quat.h
  *
  * AHRS interface for multiple IMU/AHRS subsystems, such as GX3, UM6 etc.
  *
@@ -29,20 +29,20 @@
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
-#ifndef AHRS_EXTERN_EULER_H
-#define AHRS_EXTERN_EULER_H
+#ifndef AHRS_EXTERN_QUAT_H
+#define AHRS_EXTERN_QUAT_H
 
 #include "state.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/imu.h"
 
-struct AhrsIntExternEuler {
+struct AhrsIntExternQuat {
   struct Int32Eulers ltp_to_imu_euler; ///< Rotation from LocalTangentPlane to IMU frame as Euler angles
   struct Int32Quat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as quaternions
   struct Int32Rates  imu_rate;         ///< Rotational velocity in IMU frame
   float mag_offset;
 };
 
-extern struct AhrsIntExternEuler ahrs_impl;
+extern struct AhrsIntExternQuat ahrs_impl;
 
-#endif /* AHRS_INT_CMPL_EULER_H */
+#endif /* AHRS_EXTERN_QUAT_H */
