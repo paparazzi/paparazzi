@@ -17,12 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file nav_line.c
- *  \brief Navigation along a line with nice U-turns
+/**
+ * @file subsystems/navigation/nav_line.c
  *
+ * Fixedwing navigation along a line with nice U-turns.
  */
 
 #include "generated/airframe.h"
@@ -53,24 +53,24 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
 
   /* The half circle centers and the other leg */
   struct point l2_c1 = { WaypointX(l1) + radius * u_y,
-             WaypointY(l1) + radius * -u_x,
-             alt  };
+                         WaypointY(l1) + radius * -u_x,
+                         alt  };
   struct point l2_c2 = { WaypointX(l1) + 1.732*radius * u_x,
-             WaypointY(l1) + 1.732*radius * u_y,
-             alt  };
+                         WaypointY(l1) + 1.732*radius * u_y,
+                         alt  };
   struct point l2_c3 = { WaypointX(l1) + radius * -u_y,
-             WaypointY(l1) + radius * u_x,
-             alt  };
+                         WaypointY(l1) + radius * u_x,
+                         alt  };
 
   struct point l1_c1 = { WaypointX(l2) + radius * -u_y,
-             WaypointY(l2) + radius * u_x,
-             alt  };
+                         WaypointY(l2) + radius * u_x,
+                         alt  };
   struct point l1_c2 = { WaypointX(l2) +1.732*radius * -u_x,
-             WaypointY(l2) + 1.732*radius * -u_y,
-             alt  };
+                         WaypointY(l2) + 1.732*radius * -u_y,
+                         alt  };
   struct point l1_c3 = { WaypointX(l2) + radius * u_y,
-             WaypointY(l2) + radius * -u_x,
-             alt  };
+                         WaypointY(l2) + radius * -u_x,
+                         alt  };
   float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
 
   float qdr_out_2_2 = -M_PI/3. - atan2(u_y, u_x);
