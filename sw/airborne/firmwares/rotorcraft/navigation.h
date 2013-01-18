@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/navigation.h
+ *
+ * Rotorcraft navigation functions.
+ */
+
 #ifndef NAVIGATION_H
 #define NAVIGATION_H
 

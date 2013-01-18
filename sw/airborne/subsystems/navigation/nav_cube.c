@@ -17,11 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file nav_cube.c
- *  \brief Navigation in a cube towards a center
+/**
+ * @file subsystems/navigation/nav_cube.c
+ *
+ * Fixedwing Navigation in a cube towards a center.
  *
  */
 
@@ -83,7 +84,7 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
 
   /* calculate lower left start begin/end x coord */
   start_bx = WaypointX(center) - (((cube_nline_x_t-1) * cube_grid_x)/2)
-             + cube_offs_x;
+    + cube_offs_x;
   start_ex = start_bx;
 
   /* calculate lower left start end point y coord */
@@ -94,7 +95,7 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
 
   /* calculate lower left start begin/end z coord */
   start_bz = waypoints[center].a - (((cube_nline_z_t-1) * cube_grid_z)/2)
-             + (cube_line_z_start*cube_grid_z) + cube_offs_z;
+    + (cube_line_z_start*cube_grid_z) + cube_offs_z;
   start_ez = start_bz;
 
   /* reset all waypoints to the standby position */

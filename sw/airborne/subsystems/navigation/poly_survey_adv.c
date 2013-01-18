@@ -1,3 +1,31 @@
+/*
+ * Copyright (C) 2011  The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/navigation/poly_survey_adv.c
+ *
+ * Advanced polygon survey for fixedwings from Uni Stuttgart.
+ *
+ */
+
 #include "poly_survey_adv.h"
 
 #include "subsystems/nav.h"
@@ -10,9 +38,9 @@
 #endif
 
 
-/**
-The following variables are set by poly_survey_init and not changed later on
-**/
+/*
+  The following variables are set by poly_survey_init and not changed later on
+*/
 
 // precomputed vectors to ease calculations
 point2d dir_vec;
@@ -33,19 +61,19 @@ float psa_altitude;
 int segment_angle;
 int return_angle;
 
-/**
-The Following variables are dynamic, changed while navigating.
-**/
+/*
+   The Following variables are dynamic, changed while navigating.
+*/
 
 /*
-psa_stage starts at ENTRY and than circles trought the other
-states until to polygon is completely covered
-ENTRY : getting in the right position and height for the first flyover
-SEG   : fly from seg_start to seg_end and take pictures,
-        then calculate navigation points of next flyover
-TURN1 : do a 180° turn around seg_center1
-RET   : fly from ret_start to ret_end
-TURN2 : do a 180° turn around seg_center2
+  psa_stage starts at ENTRY and than circles trought the other
+  states until to polygon is completely covered
+  ENTRY : getting in the right position and height for the first flyover
+  SEG   : fly from seg_start to seg_end and take pictures,
+  then calculate navigation points of next flyover
+  TURN1 : do a 180° turn around seg_center1
+  RET   : fly from ret_start to ret_end
+  TURN2 : do a 180° turn around seg_center2
 */
 survey_stage psa_stage;
 
@@ -76,13 +104,13 @@ static void nav_points(point2d start, point2d end)
 }
 
 /**
-   intercept two lines and give back the point of intersection
-   returns        : FALSE if no intersection can be found or intersection does not lie between points a and b
-   else TRUE
-   p              : returns intersection
-   x, y           : first line is defined by point x and y (goes through this points)
-   a1, a2, b1, b2 : second line by coordinates a1/a2, b1/b2
-**/
+ * intercept two lines and give back the point of intersection
+ * @return         FALSE if no intersection can be found or intersection does not lie between points a and b
+ * else TRUE
+ * @param p               returns intersection
+ * @param x, y            first line is defined by point x and y (goes through this points)
+ * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
+ */
 static bool_t intercept_two_lines(point2d *p, point2d x, point2d y, float a1, float a2, float b1, float b2)
 {
   float divider, fac;
@@ -100,11 +128,11 @@ static bool_t intercept_two_lines(point2d *p, point2d x, point2d y, float a1, fl
 }
 
 /**
-   intersects a line with the polygon and gives back the two intersection points
-   returns : TRUE if two intersection can be found, else FALSE
-   x, y    : intersection points
-   a, b    : define the line to intersection
-**/
+ *  intersects a line with the polygon and gives back the two intersection points
+ *  @return        TRUE if two intersection can be found, else FALSE
+ *  @param x, y     intersection points
+ *  @param a, b     define the line to intersection
+ */
 static bool_t get_two_intersects(point2d *x, point2d *y, point2d a, point2d b)
 {
   int i, count = 0;
@@ -151,15 +179,15 @@ static bool_t get_two_intersects(point2d *x, point2d *y, point2d a, point2d b)
 }
 
 /**
-   initializes the variables needed for the survey to start
-   first_wp    :  the first Waypoint of the polygon
-   size        :  the number of points that make up the polygon
-   angle       :  angle in which to do the flyovers
-   sweep_width :  distance between the sweeps
-   shot_dist   :  distance between the shots
-   min_rad     :  minimal radius when navigating
-   altitude    :  the altitude that must be reached before the flyover starts
-**/
+ *  initializes the variables needed for the survey to start
+ *  @param first_wp      the first Waypoint of the polygon
+ *  @param size          the number of points that make up the polygon
+ *  @param angle         angle in which to do the flyovers
+ *  @param sweep_width   distance between the sweeps
+ *  @param shot_dist     distance between the shots
+ *  @param min_rad       minimal radius when navigating
+ *  @param altitude      the altitude that must be reached before the flyover starts
+ **/
 bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude)
 {
   int i;
@@ -265,10 +293,10 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
 }
 
 /**
-   main navigation routine. This is called periodically evaluates the current
-   Position and stage and navigates accordingly.
-   Returns True until the survey is finished
-**/
+ * main navigation routine. This is called periodically evaluates the current
+ * Position and stage and navigates accordingly.
+ * Returns True until the survey is finished
+ */
 bool_t poly_survey_adv(void)
 {
   NavVerticalAutoThrottleMode(0.0);

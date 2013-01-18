@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Tobias Muench
+ * modified nav_linie by Anton Kochevar, ENAC
  *
  * This file is part of paparazzi.
  *
@@ -17,11 +18,7 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
-
-
-//modified nav_linie by Anton Kochevar, ENAC
 
 /**
  * @file subsystems/navigation/border_line.c
@@ -30,7 +27,7 @@
  * you can use this function to navigate along a border if it is essetial not to cross it
  * navigation is along line p1, p2 with turns in the same direction to make sure you dont cross the line
  * take care youre navigation radius is not to small in strong wind conditions!
-*/
+ */
 
 #include "subsystems/navigation/border_line.h"
 #include "generated/airframe.h"
@@ -60,20 +57,20 @@ bool_t border_line(uint8_t l1, uint8_t l2, float radius) {
   float angle = atan2((WaypointY(l1)-WaypointY(l2)),(WaypointX(l2)-WaypointX(l1)));
 
   struct point l2_c1 = { WaypointX(l1) - sin(angle)*radius,
-       WaypointY(l1) - cos(angle)*radius,
-       alt  };
+                         WaypointY(l1) - cos(angle)*radius,
+                         alt  };
   struct point l2_c2 = { l2_c1.x + 2*radius*cos(angle) ,
-       l2_c1.y - 2*radius*sin(angle),
-       alt  };
+                         l2_c1.y - 2*radius*sin(angle),
+                         alt  };
 
 
 
   struct point l1_c2 = { WaypointX(l2) - sin(angle)*radius,
-       WaypointY(l2) - cos(angle)*radius,
-       alt  };
+                         WaypointY(l2) - cos(angle)*radius,
+                         alt  };
   struct point l1_c3 = { l1_c2.x - 2*radius*cos(angle) ,
-       l1_c2.y + 2*radius*sin(angle),
-       alt  };
+                         l1_c2.y + 2*radius*sin(angle),
+                         alt  };
 
   float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
   float qdr_out_2_2 = -M_PI/3. - atan2(u_y, u_x);
@@ -84,53 +81,53 @@ bool_t border_line(uint8_t l1, uint8_t l2, float radius) {
   NavVerticalAltitudeMode(WaypointAlt(l1), 0.);
 
   switch (border_line_status) {
-  case LR12:
-    NavSegment(l2, l1);
-    if (NavApproachingFrom(l1, l2, CARROT)) {
-      border_line_status = LQC21;
-      nav_init_stage();
-    }
-    break;
-  case LQC21:
-    nav_circle_XY(l2_c1.x, l2_c1.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)-10)) {
-      border_line_status = LTC2;
-      nav_init_stage();
-    }
-    break;
-  case LTC2:
-    nav_circle_XY(l2_c2.x, l2_c2.y, radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_3)-10)) {
-      border_line_status = LR21;
-      nav_init_stage();
-    }
-    break;
+    case LR12:
+      NavSegment(l2, l1);
+      if (NavApproachingFrom(l1, l2, CARROT)) {
+        border_line_status = LQC21;
+        nav_init_stage();
+      }
+      break;
+    case LQC21:
+      nav_circle_XY(l2_c1.x, l2_c1.y, -radius);
+      if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)-10)) {
+        border_line_status = LTC2;
+        nav_init_stage();
+      }
+      break;
+    case LTC2:
+      nav_circle_XY(l2_c2.x, l2_c2.y, radius);
+      if (NavQdrCloseTo(DegOfRad(qdr_out_2_3)-10)) {
+        border_line_status = LR21;
+        nav_init_stage();
+      }
+      break;
 
-  case LR21:
-    NavSegment(l1, l2);
-    if (NavApproachingFrom(l2, l1, CARROT)) {
-      border_line_status = LTC1;
-      nav_init_stage();
-    }
-    break;
+    case LR21:
+      NavSegment(l1, l2);
+      if (NavApproachingFrom(l2, l1, CARROT)) {
+        border_line_status = LTC1;
+        nav_init_stage();
+      }
+      break;
 
-  case LTC1:
-    nav_circle_XY(l1_c2.x, l1_c2.y, radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_1) + 10)) {
-      border_line_status = LQC11;
-      nav_init_stage();
-    }
-    break;
-  case LQC11:
-    nav_circle_XY(l1_c3.x, l1_c3.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_3 + M_PI + 10))) {
-      border_line_status = LR12;
-      nav_init_stage();
-    }
-    break;
+    case LTC1:
+      nav_circle_XY(l1_c2.x, l1_c2.y, radius);
+      if (NavQdrCloseTo(DegOfRad(qdr_out_2_1) + 10)) {
+        border_line_status = LQC11;
+        nav_init_stage();
+      }
+      break;
+    case LQC11:
+      nav_circle_XY(l1_c3.x, l1_c3.y, -radius);
+      if (NavQdrCloseTo(DegOfRad(qdr_out_2_3 + M_PI + 10))) {
+        border_line_status = LR12;
+        nav_init_stage();
+      }
+      break;
 
-  default: /* Should not occur !!! End the pattern */
-    return FALSE;
+    default: /* Should not occur !!! End the pattern */
+      return FALSE;
   }
   return TRUE; /* This pattern never ends */
 }

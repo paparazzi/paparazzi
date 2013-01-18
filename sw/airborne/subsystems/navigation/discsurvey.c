@@ -1,3 +1,29 @@
+/*
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/navigation/discsurvey.c
+ *
+ */
+
 #include "subsystems/navigation/discsurvey.h"
 
 #include "generated/airframe.h"
@@ -42,17 +68,17 @@ bool_t disc_survey( uint8_t center, float radius) {
 
       float d = ScalarProduct(upwind_x, upwind_y, stateGetPositionEnu_f()->x-WaypointX(center), stateGetPositionEnu_f()->y-WaypointY(center));
       if (d > radius) {
-	status = DOWNWIND;
+        status = DOWNWIND;
       } else {
-	float w = sqrt(radius*radius - d*d) - 1.5*grid;
+        float w = sqrt(radius*radius - d*d) - 1.5*grid;
 
-	float crosswind_x = - upwind_y;
-	float crosswind_y = upwind_x;
+        float crosswind_x = - upwind_y;
+        float crosswind_y = upwind_x;
 
-	c2.x = WaypointX(center)+d*upwind_x-w*sign*crosswind_x;
-	c2.y = WaypointY(center)+d*upwind_y-w*sign*crosswind_y;
+        c2.x = WaypointX(center)+d*upwind_x-w*sign*crosswind_x;
+        c2.y = WaypointY(center)+d*upwind_y-w*sign*crosswind_y;
 
-	status = SEGMENT;
+        status = SEGMENT;
       }
       nav_init_stage();
     }

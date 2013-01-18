@@ -17,18 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file  flightzone.c
- *  \brief check whether a point is inside the polygon limiting the
- *         competition area
+/**
+ * @file  subsystems/navigation/flightzone.c
  *
- * filename:        flightzone.c
- * project:         MAV 2007
- * description:     check whether a point is inside the polygon limiting
- *                  the competition area
- *
+ * Check whether a point is inside the polygon limiting the competition area.
  *
  * todo:            - support concave/convex polygons
  *                  - sort points automatically
@@ -47,17 +41,17 @@
 #include "flightzone.h"
 
 typedef struct { COORD_TYPE x;
-				 COORD_TYPE y;
-			   } POINT;
+  COORD_TYPE y;
+} POINT;
 
 POINT Corner[] = {
-				 12, 18,
-				 12, 25,
-				 15, 29,
-				 18, 25,
-				 18, 18,
- 				 13.5, 16,
-				 0 , 0}; // last corner is a dummy, which must not be deleted!!!
+  12, 18,
+  12, 25,
+  15, 29,
+  18, 25,
+  18, 18,
+  13.5, 16,
+  0 , 0}; // last corner is a dummy, which must not be deleted!!!
 
 POINT Orthogonal[20]; // Attention!!! array must be at least as long as Corner[]
 
@@ -69,25 +63,24 @@ unsigned char bNumberOfCorners = 0;
 ;*******************************************************************/
 void vInitIsInsideBoundaries(void)
 {
-	unsigned char i;
+  unsigned char i;
 
-   	bNumberOfCorners = sizeof(Corner)/sizeof(POINT) - 1; // last corner is always a dummy
+  bNumberOfCorners = sizeof(Corner)/sizeof(POINT) - 1; // last corner is always a dummy
 
-	Corner[bNumberOfCorners].x = Corner[0].x;
-	Corner[bNumberOfCorners].y = Corner[0].y;
+  Corner[bNumberOfCorners].x = Corner[0].x;
+  Corner[bNumberOfCorners].y = Corner[0].y;
 
-	for (i = 0; i < bNumberOfCorners; i++)
-	{
-		Orthogonal[i].x =     Corner[i+1].y - Corner[i].y;
-		Orthogonal[i].y =  - (Corner[i+1].x - Corner[i].x);
+  for (i = 0; i < bNumberOfCorners; i++)
+  {
+    Orthogonal[i].x =     Corner[i+1].y - Corner[i].y;
+    Orthogonal[i].y =  - (Corner[i+1].x - Corner[i].x);
 
 #if 0
-		printf("%d: corner (%f, %f), orthogonal (%f, %f)\n",
-		        i,
-		        Corner[i].x, Corner[i].y,
-		        Orthogonal[i].x, Orthogonal[i].y);
+    printf("%d: corner (%f, %f), orthogonal (%f, %f)\n",
+           i, Corner[i].x, Corner[i].y,
+           Orthogonal[i].x, Orthogonal[i].y);
 #endif
-	}
+  }
 
 }
 
@@ -102,26 +95,20 @@ void vInitIsInsideBoundaries(void)
 int iIsInsideBoundaries(COORD_TYPE x, COORD_TYPE y)
 {
 
-	int r = 1;
-	static unsigned char i;
+  int r = 1;
+  static unsigned char i;
 
- 	i = 0;
+  i = 0;
 
-   	while (    (i < bNumberOfCorners)
-	        && (r == 1)
-		  )
+  while ((i < bNumberOfCorners) && (r == 1))
+  {
+    if (((x - Corner[i].x) * Orthogonal[i].x + (y - Corner[i].y) * Orthogonal[i].y) < 0.)
     {
-		if (  (   (x - Corner[i].x) * Orthogonal[i].x
-		        + (y - Corner[i].y) * Orthogonal[i].y
-		      ) < 0. )
-		{
-			r = 0;
-		}
-
-		++i;
+      r = 0;
     }
 
-	return r;
+    ++i;
+  }
+
+  return r;
 }
-
-

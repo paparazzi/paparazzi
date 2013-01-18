@@ -17,19 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file flightzone.h
- *  \brief check whether a point is inside the polygon limiting the
- *         competition area
+/**
+ * @file  subsystems/navigation/flightzone.c
  *
- * filename:        flightzone.h
- * project:     	MAV 2007
- * description:     check whether a point is inside the polygon limiting
- *                  the competition area
- *
- *
+ * Check whether a point is inside the polygon limiting the competition area.
  *
  * author:          Arnold Schroeter
  * history:
@@ -37,7 +30,12 @@
  *
  */
 
+#ifndef FLIGHTZONE_H
+#define FLIGHTZONE_H
+
 #define COORD_TYPE float
 
 void vInitIsInsideBoundaries(void);
 int iIsInsideBoundaries(COORD_TYPE x, COORD_TYPE y);
+
+#endif /* FLIGHTZONE_H */
