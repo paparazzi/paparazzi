@@ -119,7 +119,7 @@ void ms2100_event(struct Ms2100 *ms) {
   if (ms->read_trans.status == SPITransSuccess) {
     if (ms->status == MS2100_READING_RES) {
       // store value
-      int16_t new_val = new_val = Int16FromBuf(ms->read_buf,0);
+      int16_t new_val = Int16FromBuf(ms->read_buf,0);
       // what is this check about?
       if (abs(new_val) < 2000) {
         ms->data.value[ms->cur_axe] = new_val;
