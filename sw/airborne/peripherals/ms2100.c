@@ -92,7 +92,7 @@ void ms2100_read(struct Ms2100 *ms) {
   ms->status = MS2100_SENDING_REQ;
 }
 
-#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
+#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
 
 void ms2100_event(struct Ms2100 *ms) {
   // handle request transaction
