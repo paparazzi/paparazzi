@@ -91,6 +91,9 @@ void baro_bmp_periodic( void ) {
     I2CTransceive(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 1, 3);
     baro_bmp_status = BARO_BMP_READ_PRESS;
   }
+  if (bmp_trans.status == I2CTransFailed) {
+    baro_bmp_status = BARO_BMP_IDLE;
+  }
 }
 
 void baro_bmp_event( void ) {
@@ -157,7 +160,7 @@ void baro_bmp_event( void ) {
       if (bmp_b7 < 0x80000000)
         bmp_p = (bmp_b7 * 2) / bmp_b4;
       else
-        bmp_p = (bmp_b7 * bmp_b4) * 2;
+        bmp_p = (bmp_b7 / bmp_b4) * 2;
       bmp_x1 = (bmp_p / (1<<8)) * (bmp_p / (1<<8));
       bmp_x1 = (bmp_x1 * 3038) / (1<<16);
       bmp_x2 = (-7357 * bmp_p) / (1<<16);
