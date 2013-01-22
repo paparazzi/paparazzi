@@ -131,7 +131,7 @@ AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 LDFLAGS = -L../ext/libopencm3/lib
 ifeq ("$(MULTILIB)","yes")
-LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -mcpu=$(MCU) -mfix-cortex-m3-ldrd -msoft-float
 else
 LDFLAGS += -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
 endif
