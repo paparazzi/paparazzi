@@ -734,7 +734,7 @@
     <field name="photo_nr" type="int16"></field>
     <field name="utm_east"  type="int32" unit="cm"></field>
     <field name="utm_north" type="int32" unit="cm"></field>
-    <field name="z" type="float" unit="m"/>
+    <field name="z" type="float" unit="m" format="%.2f"/>
     <field name="utm_zone"  type="uint8"></field>
     <field name="phi" type="int16" unit="decideg"></field>
     <field name="theta" type="int16" unit="decideg"></field>

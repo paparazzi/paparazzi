@@ -30,13 +30,13 @@
  * Configuration:
  *  Since the API of led.h is used, connected pins must be defined as led
  *  numbers (usually in the airframe file):
- *   <define name="DC_SHUTTER_LED" value="6"/>
+ *   <define name="DC_SHUTTER_LED" value="10"/>
  *   <define name="DC_ZOOM_IN_LED" value="7"/>
  *   <define name="DC_ZOOM_OUT_LED" value="8"/>
  *   <define name="DC_POWER_LED" value="9"/>
  *  Related bank and pin must also be defined:
- *   <define name="LED_6_BANK" value="0"/>
- *   <define name="LED_6_PIN" value="2"/>
+ *   <define name="LED_10_BANK" value="0"/>
+ *   <define name="LED_10_PIN" value="2"/>
  *  The required initialization (dc_init()) and periodic (4Hz) process
  *
  */
@@ -76,34 +76,6 @@ static inline void led_cam_ctrl_init(void)
 #ifndef DC_SHUTTER_LED
 #error DC: Please specify at least a SHUTTER LED
 #endif
-
-/* Command The Camera */
-static inline void dc_send_command(uint8_t cmd)
-{
-  dc_timer = DC_SHUTTER_DELAY;
-  switch (cmd)
-  {
-    case DC_SHOOT:
-      DC_PUSH(DC_SHUTTER_LED);
-      dc_send_shot_position();
-      break;
-#ifdef DC_ZOOM_IN_LED
-    case DC_TALLER:
-      DC_PUSH(DC_ZOOM_IN_LED);
-      break;
-#endif
-#ifdef DC_ZOOM_OUT_LED
-    case DC_WIDER:
-      DC_PUSH(DC_ZOOM_OUT_LED);
-      break;
-#endif
-#ifdef DC_POWER_LED
-    case DC_POWER:
-      DC_PUSH(DC_POWER_LED);
-      break;
-#endif
-  }
-}
 
 
 /* 4Hz Periodic */

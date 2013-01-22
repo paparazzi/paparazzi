@@ -5,10 +5,9 @@
 
 
 
- 
+
 void init_carto(void);
-void periodic_1Hz_carto(void);
-void periodic_10Hz_carto(void);
+void periodic_downlink_carto(void);
 void start_carto(void);
 void stop_carto(void);
 
@@ -17,12 +16,12 @@ void stop_carto(void);
  */
 
 
-#ifdef USE_ONBOARD_CAMERA
-extern bool_t CAMERA_SNAPSHOT_REQUIERED;   
-extern uint16_t camera_snapshot_image_number;  
+#if USE_ONBOARD_CAMERA
+extern bool_t CAMERA_SNAPSHOT_REQUIERED;
+extern uint16_t camera_snapshot_image_number;
 #endif
 
-extern float distrailinteractif; //pour exporter la variable et pouvoir la changer depuis settings	
+extern float distrailinteractif; //pour exporter la variable et pouvoir la changer depuis settings
 
 
 
@@ -49,4 +48,4 @@ extern bool_t nav_survey_losange_carto(void);   // !!!! important il faut mettre
 
 
 #endif
- 
+
