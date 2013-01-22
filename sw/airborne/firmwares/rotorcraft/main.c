@@ -117,10 +117,6 @@ STATIC_INLINE void main_init( void ) {
 
   radio_control_init();
 
-#if DATALINK == XBEE
-  xbee_init();
-#endif
-
   baro_init();
   imu_init();
   autopilot_init();
@@ -143,6 +139,10 @@ STATIC_INLINE void main_init( void ) {
   settings_init();
 
   mcu_int_enable();
+
+#if DATALINK == XBEE
+  xbee_init();
+#endif
 
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
