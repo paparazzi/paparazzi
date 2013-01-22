@@ -42,9 +42,9 @@
     <define name="GYRO_P_NEUTRAL" value="32858"/>
     <define name="GYRO_Q_NEUTRAL" value="33152"/>
     <define name="GYRO_R_NEUTRAL" value="31779"/>
-    <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 1.122670898" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 1.104890137" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 0.901357422" integer="16"/>
+    <define name="GYRO_Q_SENS" value=" 0.922670898" integer="16"/>
+    <define name="GYRO_R_SENS" value=" 0.904890137" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="32907"/>
     <define name="ACCEL_Y_NEUTRAL" value="33046"/>
@@ -53,21 +53,13 @@
     <define name="ACCEL_Y_SENS" value="2.56968772349" integer="16"/>
     <define name="ACCEL_Z_SENS" value="2.56894625325" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="58"/>
-    <define name="MAG_Y_NEUTRAL" value="92"/>
-    <define name="MAG_Z_NEUTRAL" value="-3"/>
-    <define name="MAG_X_SENS" value="4.70018395734" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.884119848" integer="16"/>
-    <define name="MAG_Z_SENS" value="2.59926404993" integer="16"/>
+<define name="MAG_X_NEUTRAL" value="-32"/>
+<define name="MAG_Y_NEUTRAL" value="6"/>
+<define name="MAG_Z_NEUTRAL" value="-84"/>
+<define name="MAG_X_SENS" value="5.05709538052" integer="16"/>
+<define name="MAG_Y_SENS" value="4.99604280494" integer="16"/>
+<define name="MAG_Z_SENS" value="2.27587757048" integer="16"/>
 
-<!-- old calibration
-    <define name="MAG_X_NEUTRAL" value="30"/>
-    <define name="MAG_Y_NEUTRAL" value="80"/>
-    <define name="MAG_Z_NEUTRAL" value="19"/>
-    <define name="MAG_X_SENS" value="4.73590916868" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.86013203775" integer="16"/>
-    <define name="MAG_Z_SENS" value="2.5947951512" integer="16"/>
--->
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>

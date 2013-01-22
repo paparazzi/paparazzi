@@ -1,13 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<!-- Funjet Ultra Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
+<!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
-     robbe R6107SP
+     Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
+     GND Vcc IRH_1 IRH_2  GND Vcc IRV
      XBee modem
      LEA 5H
 -->
 
-<airframe name="Funjet mm">
+<airframe name="Funjet mm 1">
 
   <firmware name="fixedwing">
     <define name="AGR_CLIMB"/>
@@ -15,7 +16,7 @@
     <define name="ALT_KALMAN"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
-    <!--define name="ARDUIMU_I2C_DEV" value="i2c1"/-->
+    <define name="ARDUIMU_I2C_DEV" value="i2c0"/>
     <define name="PITCH_OF_VZ_REDUCED" value="10"/>
     <define name="USE_ARDUIMU" value="1"/>
     <define name="USE_HIGH_ACCEL_FLAG" value="1"/>
@@ -52,9 +53,7 @@
   <!-- modules -->
   <modules>
     <load name="ins_arduimu.xml"/>
-    <load name="humid_sht.xml"/>
     <load name="ir_mlx.xml"/>
-    <load name="airspeed_ets.xml"/>
     <!--
     <load name="dust_gp2y.xml"/>
     <load name="light_solar.xml"/>
@@ -77,8 +76,8 @@
   <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1495" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1488" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1500" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1543" max="1900"/>
   </servos>
 
   <commands>
@@ -195,7 +194,6 @@
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
 
-   <define name="ROLL_SLEW" value="0.2"/>
    <define name="THROTTLE_SLEW" value="0.1"/>
 
   </section>
@@ -208,7 +206,7 @@
 
     <define name="ROLL_PGAIN" value="10000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-16000."/>
+    <define name="PITCH_PGAIN" value="-13000."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2000"/>
