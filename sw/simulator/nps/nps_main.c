@@ -49,6 +49,7 @@ static struct {
   double display_time;
   char* fg_host;
   unsigned int fg_port;
+  unsigned int fg_time_offset;
   char* js_dev;
   char* spektrum_dev;
   int rc_script;
@@ -130,7 +131,7 @@ static void nps_main_init(void) {
   nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 
   if (nps_main.fg_host)
-    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port);
+    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_time_offset);
 
 #if DEBUG_NPS_TIME
   printf("host_time_factor,host_time_elapsed,host_time_now,scaled_initial_time,sim_time_before,display_time_before,sim_time_after,display_time_after\n");
@@ -239,6 +240,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 
   nps_main.fg_host = NULL;
   nps_main.fg_port = 5501;
+  nps_main.fg_time_offset = 0;
   nps_main.js_dev = NULL;
   nps_main.spektrum_dev = NULL;
   nps_main.rc_script = 0;
@@ -249,6 +251,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 "   -h                                     Display this help\n"
 "   --fg_host <flight gear host>           e.g. 127.0.0.1\n"
 "   --fg_port <flight gear port>           e.g. 5501\n"
+"   --fg_time_offset <offset in seconds>   e.g. 21600 for 6h\n"
 "   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
 "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
 "   --rc_script <number>                   e.g. 0\n";
@@ -259,6 +262,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     static struct option long_options[] = {
       {"fg_host", 1, NULL, 0},
       {"fg_port", 1, NULL, 0},
+      {"fg_time_offset", 1, NULL, 0},
       {"js_dev", 2, NULL, 0},
       {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
@@ -271,36 +275,38 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       break;
 
     switch (c) {
-    case 0:
-      switch (option_index) {
       case 0:
-        nps_main.fg_host = strdup(optarg); break;
-      case 1:
-        nps_main.fg_port = atoi(optarg); break;
-      case 2:
+        switch (option_index) {
+          case 0:
+            nps_main.fg_host = strdup(optarg); break;
+          case 1:
+            nps_main.fg_port = atoi(optarg); break;
+          case 2:
+            nps_main.fg_time_offset = atoi(optarg); break;
+          case 3:
+            if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+            else {nps_main.js_dev = strdup(optarg);}
+            break;
+          case 4:
+            nps_main.spektrum_dev = strdup(optarg); break;
+          case 5:
+            nps_main.rc_script = atoi(optarg); break;
+        }
+        break;
+
+      case 'j':
         if (optarg == NULL) {nps_main.js_dev = strdup("0");}
         else {nps_main.js_dev = strdup(optarg);}
         break;
-      case 3:
-        nps_main.spektrum_dev = strdup(optarg); break;
-      case 4:
-        nps_main.rc_script = atoi(optarg); break;
-      }
-      break;
 
-    case 'j':
-      if (optarg == NULL) {nps_main.js_dev = strdup("0");}
-      else {nps_main.js_dev = strdup(optarg);}
-      break;
+      case 'h':
+        fprintf(stderr, usage, argv[0]);
+        exit(0);
 
-    case 'h':
-      fprintf(stderr, usage, argv[0]);
-      exit(0);
-
-    default: /* ’?’ */
-      printf("?? getopt returned character code 0%o ??\n", c);
-      fprintf(stderr, usage, argv[0]);
-      exit(EXIT_FAILURE);
+      default: /* ’?’ */
+        printf("?? getopt returned character code 0%o ??\n", c);
+        fprintf(stderr, usage, argv[0]);
+        exit(EXIT_FAILURE);
     }
   }
   return TRUE;
