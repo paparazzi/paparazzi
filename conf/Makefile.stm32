@@ -260,23 +260,6 @@ upload:
 endif
 
 
-start_gdb:
-	xterm -e "$(OOCD) -f interface/$(OOCD_INTERFACE).cfg  -f target/$(OOCD_TARGET).cfg" &
-	xterm -e "$(OOCD) -f interface/lisa-l.cfg -f board/lisa-l.cfg"&
-	xterm -e "$(OOCD) -f interface/flossjtag.cfg -f board/lisa-l.cfg"&
-
-start_telnet:
-	xterm -e "telnet localhost 4444" &
-#reset halt
-#flash probe 0
-#stm32x mass_erase 0
-#flash write_bank 0 main.bin 0
-#reset halt
-
-#/opt/paparazzi/stm32/bin/arm-none-eabi-gdbtui --eval-command="target remote localhost:3333"
-#/opt/paparazzi/stm32/bin/arm-none-eabi-gdbtui --eval-command="target remote localhost:3333" var/BOOZ2_A6/ap/ap.elf
-
-
 # Listing of phony targets.
 .PHONY : all build elf bin lss sym upload start_gdb start_telnet
 
