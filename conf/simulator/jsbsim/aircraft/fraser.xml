@@ -6,7 +6,7 @@
         <author>Gustavo Violato &amp; Antoine Drouin</author>
         <filecreationdate>24-02-2009</filecreationdate>
         <version>Version 0.9 - beta</version>
-        <description>Simple Quadrotor without rotor dynamic (front/back motors turning CW, left/right CCW)</description>
+        <description>Simple Quadrotor without rotor dynamic (front/back motors turning CCW, left/right CW)</description>
     </fileheader>
 
     <metrics>
@@ -228,7 +228,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>1</x>
+      <x>-1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -247,7 +247,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>-1</x>
+      <x>1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -268,7 +268,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>1</x>
+      <x>-1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -287,7 +287,7 @@
       <z>0</z>
      </location>
      <direction>
-      <x>-1</x>
+      <x>1</x>
       <y>0</y>
       <z>0</z>
      </direction>
@@ -309,7 +309,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>1</y>
+      <y>-1</y>
       <z>0</z>
      </direction>
     </force>
@@ -328,7 +328,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>-1</y>
+      <y>1</y>
       <z>0</z>
      </direction>
     </force>
@@ -349,7 +349,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>1</y>
+      <y>-1</y>
       <z>0</z>
      </direction>
     </force>
@@ -368,7 +368,7 @@
      </location>
      <direction>
       <x>0</x>
-      <y>-1</y>
+      <y>1</y>
       <z>0</z>
      </direction>
     </force>
