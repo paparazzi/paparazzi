@@ -100,6 +100,7 @@ endif
 
 CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,--gc-sections
+CFLAGS += -mfix-cortex-m3-ldrd
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
@@ -126,7 +127,7 @@ AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 LDFLAGS = -L../ext/libopencm3/lib
 LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT)
-LDFLAGS += -mthumb -mcpu=$(MCU) -msoft-float
+LDFLAGS += -mthumb -mcpu=$(MCU) -msoft-float -mfix-cortex-m3-ldrd
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lopencm3_stm32f1
 
