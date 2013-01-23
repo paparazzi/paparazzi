@@ -141,13 +141,28 @@ let double_quote = fun s ->
   else
     s
 
+let get_simtype = fun () ->
+  match GToolbox.question_box ~title:"Simulator type" ~buttons:["Simple (fixedwing)"; "JSBSim"; "NPS (rotorcraft)"] "Choose the simulator type:" with
+      1 -> "simple_fw"
+    | 2 -> "jsbsim"
+    | 3 -> "nps"
+    | _ -> "none"
+
 let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
   let run_gcs = fun () ->
     run_and_monitor ?file gui log "GCS" ""
   and run_server = fun args ->
     run_and_monitor ?file gui log "Server" args
   and run_sitl = fun ac_name ->
-    let args = sprintf "-a %s -boot -norc" ac_name in
+    let get_args = fun simtype ac_name->
+      match simtype with
+          "simple_fw" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
+        | "jsbsim" -> sprintf "-a %s -t %s" ac_name simtype
+        | "nps" -> sprintf "-a %s -t %s" ac_name simtype
+        | _ -> sprintf "-a %s" ac_name
+    in
+    let sim_type = get_simtype () in
+    let args = get_args sim_type ac_name in
     run_and_monitor ?file gui log "Simulator" args
   in
 
@@ -196,9 +211,9 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
 
   (* Simulations *)
   let simulation = fun () ->
+    run_sitl (Gtk_tools.combo_value ac_combo);
     run_gcs ();
-    run_server "-n";
-    run_sitl (Gtk_tools.combo_value ac_combo) in
+    run_server "-n" in
 
   (* Run session *)
   let callback = fun () ->
