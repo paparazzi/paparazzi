@@ -62,12 +62,62 @@ else
 endif
 endif
 
-MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
 
 # some general commands
 RM = rm
 
 
+#
+# some generic and informative targets
+#
+printcommands:
+	@echo ""
+	@echo "Using CC   = $(CC)"
+	@echo "Using LD   = $(LD)"
+	@echo "Using CP   = $(CP)"
+	@echo "Using DMP  = $(DMP)"
+	@echo "Using NM   = $(NM)"
+	@echo "Using SIZE = $(SIZE)"
+	@echo "GCC version:"
+	@$(CC) --version | head -1
+	@echo ""
+
+# Display size of file.
+HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
+ELFSIZE = $(SIZE) -A -x $(OBJDIR)/$(TARGET).elf
+sizebefore:
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
+
+sizeafter:
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
+
+# Target: clean project.
+clean: clean_list
+
+clean_list :
+	@echo
+	$(RM) $(OBJDIR)/$(TARGET).hex
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).elf
+	$(RM) $(OBJDIR)/$(TARGET).map
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).a90
+	$(RM) $(OBJDIR)/$(TARGET).sym
+	$(RM) $(OBJDIR)/$(TARGET).lnk
+	$(RM) $(OBJDIR)/$(TARGET).lss
+	$(RM) $(COBJ)
+	$(RM) $(AOBJ)
+	$(RM) $(COBJARM)
+	$(RM) $(AOBJARM)
+	$(RM) $(LST)
+	$(RM) $(SRC:.c=.s)
+	$(RM) $(SRC:.c=.d)
+	$(RM) $(SRCARM:.c=.s)
+	$(RM) $(SRCARM:.c=.d)
+	$(RM) .dep/*
+	$(RM) *~
+
+.PHONY : printcommands sizebefore sizeafter clean clean_list
 
 #
 # Find OpenOCD

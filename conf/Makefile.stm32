@@ -101,9 +101,6 @@ endif
 CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
-ifeq ("$(MULTILIB)","yes")
-CFLAGS += -mfix-cortex-m3-ldrd
-endif
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
 CFLAGS += -fno-common
@@ -124,17 +121,12 @@ CFLAGS += -DSTM32F1
 CFLAGS += $($(TARGET).CFLAGS)
 
 AFLAGS  = -ahls -mapcs-32
-ifeq ("$(MULTILIB)","yes")
 AFLAGS += -mcpu=$(MCU) -mthumb
-endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 LDFLAGS = -L../ext/libopencm3/lib
-ifeq ("$(MULTILIB)","yes")
-LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
-else
-LDFLAGS += -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
-endif
+LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT)
+LDFLAGS += -mthumb -mcpu=$(MCU) -msoft-float
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lopencm3_stm32f1
 
@@ -147,27 +139,7 @@ ODFLAGS = -S
 
 
 # Default target.
-all: printcommands printmultilib sizebefore build sizeafter
-
-printcommands:
-	@echo "Using CC   = $(CC)"
-	@echo "Using LD   = $(LD)"
-	@echo "Using CP   = $(CP)"
-	@echo "Using DMP  = $(DMP)"
-	@echo "Using NM   = $(NM)"
-	@echo "Using SIZE = $(SIZE)"
-	@echo "GCC version:"
-	@$(CC) --version | head -1
-
-ifeq ("$(MULTILIB)","yes")
-printmultilib:
-	@echo "*** Using multilib ***"
-	@echo "--------------------------------------"
-else
-printmultilib:
-	@echo "*** NOT using multilib ***"
-	@echo "--------------------------------------"
-endif
+all: printcommands sizebefore build sizeafter
 
 build: elf bin hex
 # lss sym
@@ -177,16 +149,6 @@ bin: $(OBJDIR)/$(TARGET).bin
 hex: $(OBJDIR)/$(TARGET).hex
 lss: $(OBJDIR)/$(TARGET).lss
 sym: $(OBJDIR)/$(TARGET).sym
-
-# Display size of file.
-ELFSIZE = $(SIZE) -A -x $(OBJDIR)/$(TARGET).elf
-sizebefore:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
-
-sizeafter:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
-
-
 
 %.bin: %.elf
 	@echo OBJCB $@
@@ -315,37 +277,8 @@ start_telnet:
 #/opt/paparazzi/stm32/bin/arm-none-eabi-gdbtui --eval-command="target remote localhost:3333" var/BOOZ2_A6/ap/ap.elf
 
 
-# Target: clean project.
-clean: clean_list
-
-
-clean_list :
-	@echo
-	$(RM) $(OBJDIR)/$(TARGET).hex
-	$(RM) $(OBJDIR)/$(TARGET).obj
-	$(RM) $(OBJDIR)/$(TARGET).elf
-	$(RM) $(OBJDIR)/$(TARGET).map
-	$(RM) $(OBJDIR)/$(TARGET).obj
-	$(RM) $(OBJDIR)/$(TARGET).a90
-	$(RM) $(OBJDIR)/$(TARGET).sym
-	$(RM) $(OBJDIR)/$(TARGET).lnk
-	$(RM) $(OBJDIR)/$(TARGET).lss
-	$(RM) $(COBJ)
-	$(RM) $(AOBJ)
-	$(RM) $(COBJARM)
-	$(RM) $(AOBJARM)
-	$(RM) $(LST)
-	$(RM) $(SRC:.c=.s)
-	$(RM) $(SRC:.c=.d)
-	$(RM) $(SRCARM:.c=.s)
-	$(RM) $(SRCARM:.c=.d)
-	$(RM) .dep/*
-	$(RM) *~
-
-
 # Listing of phony targets.
-.PHONY : all sizebefore sizeafter printcommands printmultilib\
-build elf bin lss sym clean clean_list upload start_gdb start_telnet
+.PHONY : all build elf bin lss sym upload start_gdb start_telnet
 
 #
 # Dependencies
