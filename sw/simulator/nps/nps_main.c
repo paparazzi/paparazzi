@@ -53,6 +53,7 @@ static struct {
   char* js_dev;
   char* spektrum_dev;
   int rc_script;
+  char* ivy_bus;
 } nps_main;
 
 static bool_t nps_main_parse_options(int argc, char** argv);
@@ -111,7 +112,7 @@ static void nps_main_init(void) {
   nps_main.scaled_initial_time = time_to_double(&t);
   nps_main.host_time_factor = HOST_TIME_FACTOR;
 
-  nps_ivy_init();
+  nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
 
@@ -244,6 +245,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
   nps_main.js_dev = NULL;
   nps_main.spektrum_dev = NULL;
   nps_main.rc_script = 0;
+  nps_main.ivy_bus = NULL;
 
   static const char* usage =
 "Usage: %s [options]\n"
@@ -254,7 +256,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
 "   --fg_time_offset <offset in seconds>   e.g. 21600 for 6h\n"
 "   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
 "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
-"   --rc_script <number>                   e.g. 0\n";
+"   --rc_script <number>                   e.g. 0\n"
+"   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n";
 
 
   while (1) {
@@ -266,6 +269,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
       {"js_dev", 2, NULL, 0},
       {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
+      {"ivy_bus", 1, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -291,6 +295,8 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
             nps_main.spektrum_dev = strdup(optarg); break;
           case 5:
             nps_main.rc_script = atoi(optarg); break;
+          case 6:
+            nps_main.ivy_bus = strdup(optarg); break;
         }
         break;
 
