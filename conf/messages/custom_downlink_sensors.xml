@@ -1,11 +1,171 @@
 <?xml version="1.0"?>
 <class type="downlink">
 
+<!-- ___________________________________________ GENERIC SENSOR ______________________________________________ -->
+<!-- IR Messages: Infrared Sensors -->
+  <message name="IR_SENSORS" id="51">
+    <field name="ir1" type="int16"/>
+    <field name="ir2" type="int16"/>
+    <field name="longitudinal" type="int16"/>
+    <field name="lateral" type="int16"/>
+    <field name="vertical" type="int16"/>
+  </message>
+
+<!-- IMU Messages: Inertial Measurement Unit -->
+  <message name="IMU_GYRO" id="52">
+    <field name="gp" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="gq" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="gr" type="float" unit="rad/s" alt_unit="deg/s"/>
+  </message>
+
+  <message name="IMU_MAG" id="53">
+    <field name="mx" type="float" />
+    <field name="my" type="float" />
+    <field name="mz" type="float" />
+  </message>
+
+  <message name="IMU_ACCEL" id="54">
+    <field name="ax" type="float" unit="m/s-2"/>
+    <field name="ay" type="float" unit="m/s-2"/>
+    <field name="az" type="float" unit="m/s-2"/>
+  </message>
+
+  <message name="IMU_GYRO_RAW" id="55">
+    <field name="gp" type="int32" unit="adc"/>
+    <field name="gq" type="int32" unit="adc"/>
+    <field name="gr" type="int32" unit="adc"/>
+  </message>
+
+  <message name="IMU_ACCEL_RAW" id="56">
+    <field name="ax" type="int32" unit="adc"/>
+    <field name="ay" type="int32" unit="adc"/>
+    <field name="az" type="int32" unit="adc"/>
+  </message>
+
+  <message name="IMU_MAG_RAW" id="57">
+    <field name="mx" type="int32" unit="adc"/>
+    <field name="my" type="int32" unit="adc"/>
+    <field name="mz" type="int32" unit="adc"/>
+  </message>
+
+  <message name="IMU_MAG_SETTINGS" id="58">
+    <field name="inclination" type="float" />
+    <field name="declination" type="float" />
+    <field name="hardiron_x" type="float" />
+    <field name="hardiron_y" type="float" />
+    <field name="hardiron_z" type="float" />
+  </message>
+
+  <message name="IMU_HS_GYRO" id="59">
+    <field name="axis" type="uint8"/>
+    <field name="samples"  type="uint32[]"/>
+  </message>
+
+<!-- IMU Messages: Inertial Measurement Unit -->
+  <message name="IMU_GYRO_INT" id="60">
+    <field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gq"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gr"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="IMU_ACCEL_INT" id="61">
+    <field name="ax"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="ay"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="az"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+  </message>
+
+  <message name="IMU_MAG_INT" id="62">
+    <field name="mx"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+    <field name="my"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+    <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+  </message>
+
   <message name="OPTICFLOW" id="1">
     <field name="flow" type="uint16"/>
     <field name="ref_alt" type="float"/>
   </message>
 
+<!-- ____GPS ____ -->
+
+  <message name="GPS_UTM" id="33">
+    <field name="fix"       type="uint8"  unit="byte_mask" values="NONE|UKN1|UKN2|3D"/>
+    <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
+    <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="week"       type="uint16" unit="weeks"/>
+    <field name="itow"       type="uint32" unit="ms"/>
+    <field name="utm_zone"   type="uint8"/>
+    <field name="gps_nb_err" type="uint8"/>
+  </message>
+
+  <message name="GPS_LLA" id="34">
+    <field name="lat"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
+    <field name="lon"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="week"       type="uint16" unit="weeks"/>
+    <field name="itow"       type="uint32" unit="ms"/>
+    <field name="fix"       type="uint8"  unit="byte_mask" values="NONE|UKN1|UKN2|3D"/>
+  </message>
+
+  <message name="GPS_INT" id="35">
+    <field name="ecef_x"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_y"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_z"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="alt"     type="int32" unit="mm"   alt_unit="m"/>
+    <field name="hmsl"    type="int32" unit="mm"   alt_unit="m"/>
+    <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_yd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_zd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="pacc"    type="int32" unit="cm"   alt_unit="m"/>
+    <field name="sacc"    type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="tow"     type="uint32"/>
+    <field name="pdop"    type="uint16"/>
+    <field name="numsv"   type="uint8"/>
+    <field name="fix"     type="uint8" values="NONE|UKN1|UKN2|3D"/>
+  </message>
+
+<!-- GPS Messages: Global Positioning System (OTHERS)  -->
+
+
+  <message name="GPS_SOL" id="38">
+    <field name="Pacc" type="uint32" unit="cm"/>
+    <field name="Sacc" type="uint32" unit="cm/s"/>
+    <field name="PDOP" type="uint16"/>
+    <field name="numSV" type="uint8"/>
+  </message>
+
+
+  <message name="GPS_ERROR" id="39">
+    <field name="x_position"    type="float" unit="m"/>
+    <field name="y_position"    type="float" unit="m"/>
+    <field name="z_position"    type="float" unit="m"/>
+    <field name="x_velocity"    type="float" unit="m"/>
+    <field name="y_velocity"    type="float" unit="m"/>
+    <field name="z_velocity"    type="float" unit="m"/>
+  </message>
+
+<!-- ___________________________________________ BARO _____________________________________________ -->
+  <message name="PRESSURE" id="43">
+    <field name="airspeed_adc" type="float"/>
+    <field name="airspeed" type="float" unit="m/s"/>
+    <field name="altitude_adc" type="float"/>
+    <field name="altitude" type="float" unit="m"/>
+  </message>
+
+  <message name="BARO_RAW" id="44">
+    <field name="abs"          type="int32"/>
+    <field name="diff"         type="int32"/>
+  </message>
+
+  <!-- ___________ SPECIFIC SENSORS _____________ -->
   <message name="XSENS" id="2">
     <field name="counter" type="int16" unit=""/>
 
@@ -187,6 +347,12 @@
     <field name="aktuell" type="float" unit="m"/>
     <field name="Over_Ground" type="float" unit="m"/>
     <field name="tempBaro" type="float" unit="°C"/>
+  </message>
+
+  <message name="AIRSPEED_ETS" id="49">
+    <field name="adc" type="uint16"/>
+    <field name="offset" type="uint16"/>
+    <field name="scaled" type="float"/>
   </message>
 
   <message name="AMSYS_AIRSPEED" id="24">
