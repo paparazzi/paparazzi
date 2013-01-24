@@ -36,16 +36,16 @@ def main():
     usage = "usage: %prog -a <ac_name> -t <sim_type> [sim arguments]\nRun %prog --help to list the options."
     parser = OptionParser(usage)
     parser.add_option("-a", "--aircraft", dest="ac_name",
-                      action="store",
-                      help="aircraft name to use")
+                      action="store", metavar="NAME",
+                      help="Aircraft name to use")
     parser.add_option("-t", "--type", dest="simtype",
                       type='choice', choices=['sim', 'jsbsim', 'nps'],
                       action="store", default="sim",
                       help="Simlator type to start: sim, jsbsim or nps (Default: %default)")
     parser.add_option("-b", "--ivy_bus", dest="ivy_bus", action="store",
-                      help="Ivy Bus broadcast address.")
-    parser.add_option("-f", "--fg_host", dest="fg_host", action="store",
-                     help="FlightGear host to connect to for visualization, e.g. 127.0.0.1")
+                      metavar="BUS", help="Ivy Bus broadcast address (127.255.255.255)")
+    parser.add_option("-f", "--fg_host", dest="fg_host", action="store", metavar="HOST",
+                     help="Host for FlightGear visualization (e.g. 127.0.0.1)")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
 
@@ -59,19 +59,23 @@ def main():
 
     # special options for NPS
     nps_opts = OptionGroup(parser, "NPS Options", "These are only relevant to the NPS sim")
-    nps_opts.add_option("-p", "--fg_port", dest="fg_port", type="int", default=5501,
-                        help="Port on FlightGear host to connect to (default %default)")
-    nps_opts.add_option("--fg_time_offset", type="int", action="store",
-                        help="Time offset in seconds for FlightGear, e.g. 21600 for 6h.")
-    nps_opts.add_option("-j", "--js_dev", dest="js_dev", metavar="DEVICE_INDEX", action="store", type="int", default=-1,
+    nps_opts.add_option("-p", "--fg_port", dest="fg_port", metavar="PORT",
+                        type="int", default=5501, action="store",
+                        help="Port on FlightGear host to connect to (Default: %default)")
+    nps_opts.add_option("--fg_time_offset", type="int", action="store", metavar="SEC",
+                        help="FlightGear time offset in seconds (e.g. 21600 for 6h)")
+    nps_opts.add_option("-j", "--js_dev", dest="js_dev", metavar="IDX",
+                        type="int", default=-1, action="store",
                         help="Use joystick with specified index (e.g. 0)")
-    nps_opts.add_option("--spektrum_dev", type="string", action="callback", callback=spektrum_callback,
-                        help="Spektrum device to use, e.g. /dev/ttyUSB0")
-    nps_opts.add_option("--rc_script", type="int", action="store",
-                        help="Number of RC script to use.")
+    nps_opts.add_option("--spektrum_dev", type="string", action="callback",
+                        callback=spektrum_callback, metavar="DEV",
+                        help="Spektrum device to use (e.g. /dev/ttyUSB0)")
+    nps_opts.add_option("--rc_script", type="int", action="store", metavar="NO",
+                        help="Number of RC script to use")
 
     # special options for the JSBSim sim (without sensor models)
-    #jsbsim_opts = OptionGroup(parser, "JSBSim options", "These are only relevant to the jsbsim sim")
+    #jsbsim_opts = OptionGroup(parser, "JSBSim options",
+    #                          "These are only relevant to the jsbsim sim")
 
     parser.add_option_group(ocamlsim_opts)
     parser.add_option_group(nps_opts)
