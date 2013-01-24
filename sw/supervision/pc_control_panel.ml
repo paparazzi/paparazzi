@@ -141,27 +141,36 @@ let double_quote = fun s ->
   else
     s
 
-let get_simtype = fun () ->
-  match GToolbox.question_box ~title:"Simulator type" ~buttons:["Simple (fixedwing)"; "JSBSim"; "NPS (rotorcraft)"] "Choose the simulator type:" with
-      1 -> "simple_fw"
-    | 2 -> "jsbsim"
-    | 3 -> "nps"
-    | _ -> "none"
+let get_simtype = fun (target_combo : Gtk_tools.combo) ->
+  (* get the list of possible targets *)
+  let targets = Gtk_tools.combo_values_list target_combo in
+  (* filter non simulator targets *)
+  let sim_targets = ["sim"; "jsbsim"; "nps"] in
+  let targets = List.filter (fun t -> List.mem t sim_targets) targets in
+  (* open question box and return corresponding simulator type *)
+  match targets with
+    [] -> "none"
+  | [t] -> t
+  | l ->
+      match GToolbox.question_box ~title:"Simulator type" ~buttons:l "Choose the simulator type:" with
+      | 0 -> "none"
+      | choice -> List.nth targets (choice-1)
 
-let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
+let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo : Gtk_tools.combo) ->
   let run_gcs = fun () ->
     run_and_monitor ?file gui log "GCS" ""
   and run_server = fun args ->
     run_and_monitor ?file gui log "Server" args
   and run_sitl = fun ac_name ->
-    let get_args = fun simtype ac_name->
+    let get_args = fun simtype ac_name ->
       match simtype with
-          "simple_fw" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
+          "sim" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
         | "jsbsim" -> sprintf "-a %s -t %s" ac_name simtype
         | "nps" -> sprintf "-a %s -t %s" ac_name simtype
         | _ -> sprintf "-a %s" ac_name
     in
-    let sim_type = get_simtype () in
+    let sim_type = get_simtype target_combo in
+    prerr_endline sim_type;
     let args = get_args sim_type ac_name in
     run_and_monitor ?file gui log "Simulator" args
   in

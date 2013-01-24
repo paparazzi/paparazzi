@@ -39,9 +39,9 @@ def main():
                       action="store",
                       help="aircraft name to use")
     parser.add_option("-t", "--type", dest="simtype",
-                      type='choice', choices=['simple_fw', 'jsbsim', 'nps'],
-                      action="store", default="simple_fw",
-                      help="Simlator type to start: simple_fw, jsbsim or nps (Default: %default)")
+                      type='choice', choices=['sim', 'jsbsim', 'nps'],
+                      action="store", default="sim",
+                      help="Simlator type to start: sim, jsbsim or nps (Default: %default)")
     parser.add_option("-b", "--ivy_bus", dest="ivy_bus", action="store",
                       help="Ivy Bus broadcast address.")
     parser.add_option("-f", "--fg_host", dest="fg_host", action="store",
@@ -84,7 +84,7 @@ def main():
 
     simargs = []
 
-    if options.simtype == "simple_fw":
+    if options.simtype == "sim":
         simdir = "sim"
         if options.boot:
             simargs.append("-boot")
