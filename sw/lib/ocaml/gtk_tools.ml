@@ -68,6 +68,14 @@ let combo_value = fun ((combo: #GEdit.combo_box), (_,column)) ->
   | None -> raise Not_found
   | Some row -> combo#model#get ~row ~column
 
+let combo_values_list = fun (combo : combo) ->
+  let (store, column) = combo_model combo in
+  let values = ref [] in
+  store#foreach (fun _ row ->
+    values := !values @ [store#get ~row ~column];
+    false);
+  !values
+
 let combo_separator = "--"
 
 let combo = fun strings vbox ->

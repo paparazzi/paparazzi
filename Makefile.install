@@ -90,7 +90,7 @@ install_bin:
 	$(INSTALL) paparazzi-make $(PREFIX)/usr/bin/
 	$(INSTALLDATA) -d $(DESTDIR)/sw/simulator
 	$(INSTALL) sw/simulator/*.cmo $(DESTDIR)/sw/simulator
-	$(INSTALL) sw/simulator/launchsitl $(DESTDIR)/sw/simulator
+	$(INSTALL) sw/simulator/pprzsim-launch $(DESTDIR)/sw/simulator
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/cockpit
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/tmtc
 	$(INSTALL) -d  $(DESTDIR)/sw/ground_segment/multimon

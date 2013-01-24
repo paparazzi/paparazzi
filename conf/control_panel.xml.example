@@ -49,7 +49,7 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="Simulator" command="sw/simulator/launchsitl">
+    <program name="Simulator" command="sw/simulator/pprzsim-launch">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
