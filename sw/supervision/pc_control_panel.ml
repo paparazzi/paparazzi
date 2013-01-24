@@ -170,7 +170,6 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
         | _ -> sprintf "-a %s" ac_name
     in
     let sim_type = get_simtype target_combo in
-    prerr_endline sim_type;
     let args = get_args sim_type ac_name in
     run_and_monitor ?file gui log "Simulator" args
   in
