@@ -358,6 +358,17 @@
 #define PERIODIC_SEND_FILTER(_trans, _dev) {}
 #endif
 
+#if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
+#define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {    \
+  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev,            \
+                                   &ahrs_impl.gyro_bias.p,  \
+                                   &ahrs_impl.gyro_bias.q,  \
+                                   &ahrs_impl.gyro_bias.r); \
+  }
+#else
+#define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {}
+#endif
+
 #if USE_AHRS_LKF
 #include "subsystems/ahrs.h"
 #include "ahrs/ahrs_float_lkf.h"

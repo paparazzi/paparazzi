@@ -23,7 +23,9 @@
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat">
+      <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
+    </subsystem>
     <subsystem name="ins"/>
   </firmware>
 
