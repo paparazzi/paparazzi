@@ -26,11 +26,7 @@
 ## COMMON FIXEDWING ALL TARGETS (SIM + AP + FBW ...)
 ##
 
-# temporary hack for ADCs
-ifeq ($(ARCH), stm32)
-# FIXME : this is for the battery
-$(TARGET).CFLAGS += -DUSE_AD1_3
-endif
+
 #
 # Board config + Include paths
 #
@@ -90,7 +86,8 @@ $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_
 #
 # I2C
 #
-include $(CFG_SHARED)/i2c_select.makefile
+$(TARGET).srcs += mcu_periph/i2c.c
+$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 ######################################################################
 ##
@@ -187,7 +184,7 @@ ifeq ("$(UNAME)","Darwin")
   sim.CFLAGS += $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
 endif
 
-sim.CFLAGS              += $(CPPFLAGS)
+sim.CFLAGS  	+= $(CPPFLAGS)
 sim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 
@@ -208,9 +205,22 @@ sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
 ## JSBSIM THREAD SPECIFIC
 ##
 
-OCAMLLIBDIR=$(shell ocamlc -where)
-JSBSIM_INC = /usr/include/JSBSim
-#JSBSIM_LIB = /usr/lib
+JSBSIM_ROOT ?= /opt/jsbsim
+JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
+JSBSIM_LIB = $(JSBSIM_ROOT)/lib
+
+# use the paparazzi-jsbsim package if it is installed,
+# otherwise look for JSBsim under /opt/jsbsim
+JSBSIM_PKG ?= $(shell pkg-config JSBSim --exists && echo 'yes')
+ifeq ($(JSBSIM_PKG), yes)
+	jsbsim.CFLAGS  += $(shell pkg-config JSBSim --cflags)
+	jsbsim.LDFLAGS += $(shell pkg-config JSBSim --libs)
+else
+	JSBSIM_PKG = no
+	jsbsim.CFLAGS  += -I$(JSBSIM_INC)
+	jsbsim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+endif
+
 
 jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)
@@ -219,8 +229,8 @@ jsbsim.CFLAGS 		+= -DSITL
 jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_ac_flightgear.c
 
 # external libraries
-jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) -I$(OCAMLLIBDIR) $(shell pkg-config glib-2.0 --cflags)
-jsbsim.LDFLAGS		+= $(shell pkg-config glib-2.0 --libs) -lglibivy -lm -L/usr/lib -lJSBSim
+jsbsim.CFLAGS 		+= -I/usr/include $(shell pkg-config glib-2.0 --cflags)
+jsbsim.LDFLAGS		+= $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c

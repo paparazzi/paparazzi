@@ -4,7 +4,7 @@
 # SITL Simulator
 #
 
-JSBSIM_ROOT = /opt/jsbsim
+JSBSIM_ROOT ?= /opt/jsbsim
 JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
 JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 
@@ -27,9 +27,7 @@ nps.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(P
 nps.LDFLAGS += $(shell sdl-config --libs)
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
-ifndef JSBSIM_PKG
-JSBSIM_PKG = $(shell pkg-config JSBSim --exists && echo 'yes')
-endif
+JSBSIM_PKG ?= $(shell pkg-config JSBSim --exists && echo 'yes')
 ifeq ($(JSBSIM_PKG), yes)
 	nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)
 	nps.LDFLAGS += $(shell pkg-config JSBSim --libs)
@@ -65,9 +63,8 @@ nps.srcs   += firmwares/rotorcraft/main.c
 nps.srcs   += mcu.c
 nps.srcs   += $(SRC_ARCH)/mcu_arch.c
 
-ifeq ($(TARGET), nps)
-  include $(CFG_SHARED)/i2c_select.makefile
-endif
+nps.srcs += mcu_periph/i2c.c
+nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 nps.CFLAGS += -DPERIODIC_FREQUENCY=512
@@ -98,13 +95,6 @@ nps.srcs += $(SRC_BOARD)/baro_board.c
 nps.CFLAGS += -DUSE_ADC
 nps.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 nps.srcs   += subsystems/electrical.c
-# baro has variable offset amplifier on booz board
-#nps.CFLAGS += -DUSE_DAC
-#nps.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-
-
-#nps.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-#nps.CFLAGS += -DIMU_B2_VERSION_1_1
 
 nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
