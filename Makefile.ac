@@ -149,18 +149,6 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 %.compile: %.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
 
-%.wr_fuses: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* wr_fuses
-
-%.rd_fuses: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* rd_fuses
-
-%.check_fuses: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* check_fuses
-
-%.erase: %.compile
-	cd $(AIRBORNE); $(MAKE) TARGET=$* erase
-
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
 
@@ -173,11 +161,6 @@ sim sim.compile: sim.ac_h
 # Rules for backward compatibility (old guys are used to !)
 fbw : fbw.compile
 ap: ap.compile
-upload_fbw: fbw.upload
-upload_ap: ap.upload
-erase_fbw: fbw.erase
-erase_ap: ap.erase
-hard_ac ac: ac_h fbw ap
 
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
