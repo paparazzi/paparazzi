@@ -88,6 +88,13 @@ int main ( int argc, char** argv) {
 
   if (!nps_main_parse_options(argc, argv)) return 1;
 
+  /* disable buffering for stdout,
+   * so it properly works in paparazzi center
+   * where it is not detected as interactive
+   * and hence fully buffered instead of line buffered
+   */
+  setbuf(stdout, NULL);
+
   nps_main_init();
 
   signal(SIGCONT, cont_hdl);
