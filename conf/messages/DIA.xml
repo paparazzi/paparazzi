@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <class type="ground">
   <message name="NAV_INFO" id="1">
+    <description></description>
     <field name="unix_time" type="float"/>
 
     <field name="lat"   type="float" unit="deg"/>

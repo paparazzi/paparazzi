@@ -53,7 +53,47 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
     a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
-  "ROTORCRAFT_FP" ->
+  | "ALIVE" ->
+      let vehicle_type = match ivalue "type" with
+        | 1 -> GCS
+        | 2 -> FixedWing
+        | 3 -> Rotorcraft
+        | _ -> UnknownVehicleType
+      in
+      a.vehicle_type <- vehicle_type;
+  | "SYSTEM_STATUS" ->
+      a.state_filter_mode <- check_index (ivalue "attitude_filter_mode") state_filter_modes "STATE_FILTER_MODES";
+      a.gps_Pacc <- ivalue "Pacc";
+  | "FIXEDWING_STATUS" ->
+      a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
+      a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
+      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
+      a.throttle <- fvalue "throttle" /. 9600. *. 100.;
+      a.rpm <- a.throttle *. 100.;
+      if a.fbw.rc_mode = "FAILSAFE" then
+        a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
+      else
+        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE"
+  | "FBW_STATUS" ->
+      a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
+      a.fbw.rc_rate <- ivalue "frame_rate";
+      a.fbw.rc_status <- rc_modes.(ivalue "rc_status");
+      a.fbw.rc_mode <- fbw_modes.(ivalue "mode");
+  | "ROTORCRAFT_STATUS" ->
+      a.fbw.rc_status <- rc_modes.(ivalue "rc_status");
+      a.fbw.rc_rate   <- ivalue "frame_rate";
+      a.ap_mode       <- check_index (ivalue "ap_mode") rotorcraft_ap_modes "ROTORCRAFT_AP_MODE";
+      a.kill_mode     <- ivalue "ap_motors_on" == 0;
+      a.throttle <- fvalue "throttle" /. 9600. *. 100.;
+      a.rpm <- a.throttle *. 100.;
+  | "ELECTRICAL_STATUS" ->
+      a.bat <- fvalue "voltage" /. 100.;
+      a.energy <- ivalue "energy"
+  | "CAM_STATUS" ->
+      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
+      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
+      a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
+  | "ROTORCRAFT_FP" ->
       begin match a.nav_ref with
         None -> (); (* No nav_ref yet *)
         | Some nav_ref ->
@@ -116,8 +156,6 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.gps_mode <- check_index (ivalue "fix") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
         Wind.update ac_name a.gspeed a.course
-  | "GPS_SOL" ->
-      a.gps_Pacc <- ivalue "Pacc"
   | "GPS_INT" ->
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "tow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "tow");
@@ -156,53 +194,6 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.pitch <- pitch;
         a.heading  <- norm_course (fvalue "psi")
       end
-  | "ENERGY" ->
-      a.throttle <- fvalue "throttle" /. 9600. *. 100.;
-      a.rpm <- a.throttle *. 100.;
-      (*a.kill_mode <- ivalue "kill_auto_throttle" <> 0;*)
-      (*a.flight_time <- ivalue "flight_time";*)
-      a.bat <- fvalue "voltage" /. 100.;
-      (*a.stage_time <- ivalue "stage_time";*)
-      (*a.block_time <- ivalue "block_time";*)
-      a.energy <- ivalue "energy"
-  | "FBW_STATUS" ->
-      a.bat <- fvalue "vsupply" /. 10.;
-      a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
-      a.fbw.rc_rate <- ivalue "frame_rate";
-      let fbw_rc_mode = ivalue "rc_status" in
-      a.fbw.rc_status <- rc_modes.(fbw_rc_mode);
-      let fbw_mode = ivalue "mode" in
-      a.fbw.rc_mode <- fbw_modes.(fbw_mode);
-  | "STATE_FILTER_STATUS" ->
-      a.state_filter_mode <- check_index (ivalue "state_filter_mode") state_filter_modes "STATE_FILTER_MODES"
-  | "PPRZ_MODE" ->
-      a.vehicle_type <- FixedWing;
-      a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
-      a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
-      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
-      if a.fbw.rc_mode = "FAILSAFE" then
-        a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
-      else
-        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE"
-  | "ROTORCRAFT_STATUS" ->
-      a.vehicle_type  <- Rotorcraft;
-      a.fbw.rc_status <- rc_modes.(ivalue "rc_status");
-      a.fbw.rc_rate   <- ivalue "frame_rate";
-      a.ap_mode       <- check_index (ivalue "ap_mode") rotorcraft_ap_modes "ROTORCRAFT_AP_MODE";
-      a.kill_mode     <- ivalue "ap_motors_on" == 0;
-  | "MISSION_STATUS" ->
-      a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
-      a.flight_time <- ivalue "flight_time";
-      a.stage_time <- ivalue "stage_time";
-      a.block_time <- ivalue "block_time";
-      a.cur_block <- ivalue "cur_block";
-      a.cur_stage <- ivalue "cur_stage";
-      a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
-      a.dist_to_wp <- sqrt (fvalue "dist2_wp")
-  | "CAM" ->
-      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
-      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
-      a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
   | "SVINFO" ->
       let i = ivalue "chn" in
       assert(i < Array.length a.svinfo);
@@ -215,6 +206,15 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         azim = ivalue "Azim";
         age = 0
       }
+  | "MISSION_STATUS" ->
+      a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
+      a.flight_time <- ivalue "flight_time";
+      a.stage_time <- ivalue "stage_time";
+      a.block_time <- ivalue "block_time";
+      a.cur_block <- ivalue "cur_block";
+      a.cur_stage <- ivalue "cur_stage";
+      a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
+      a.dist_to_wp <- sqrt (fvalue "dist2_wp")
   | "CIRCLE" ->
       begin
         match a.nav_ref, a.horizontal_mode with

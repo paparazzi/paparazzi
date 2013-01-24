@@ -646,7 +646,7 @@ end
 module MessagesOfXml(Class:CLASS_Xml) = struct
 
   (* ________________________________ XML VERSION CONTROL ____________________________________________ *)
-  let old_classes_info = [("telemetry",["common_telemetry";"0";"downlink"]);("datalink",["common_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
+  let old_classes_info = [("telemetry",["standard_telemetry";"0";"downlink"]);("datalink",["standard_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
 
   let convert_v1_to_v2_xml = fun xml ->
     try

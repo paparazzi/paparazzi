@@ -59,7 +59,8 @@ type nav_ref =
   | Ltp of Latlong.ecef
 
 type vehicle_type =
-    FixedWing
+  | GCS
+  | FixedWing
   | Rotorcraft
   | UnknownVehicleType
 

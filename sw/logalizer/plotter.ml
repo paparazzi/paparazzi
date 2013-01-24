@@ -552,7 +552,7 @@ let _ =
 
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
-      "-c", Arg.String (fun x -> add_init x), "<curve>  Add a curve (e.g. '*:common_telemetry:ENERGY:voltage'). The curve is inserted into the last open window (cf -n option)";
+      "-c", Arg.String (fun x -> add_init x), "<curve>  Add a curve (e.g. '*:standard_telemetry:ELECTRICAL_STATUS:voltage'). The curve is inserted into the last open window (cf -n option)";
 
       (* no code yet *)
       "-t", Arg.String set_title, "<title>  Set the last opened window title (cf -n option)";

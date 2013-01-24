@@ -1,32 +1,40 @@
 <?xml version="1.0"?>
 <class type="ground">
   <message name="NEW_AIRCRAFT" id="1">
+    <description></description>
     <field name="ac_id" type="string"/>
   </message>
 
   <message name="AIRCRAFT_DIE" id="2">
+    <description></description>
     <field name="ac_id" type="string"/>
   </message>
 
   <message name="AIRCRAFTS" id="3">
+    <description></description>
     <field name="ac_list" type="string" format="csv"/>
   </message>
 
   <message name="AIRCRAFTS_REQ" id="4">
+    <description></description>
   </message>
 
   <message name="SELECTED" id="5">
+    <description></description>
     <field name="aircraft_id" type="string"/>
   </message>
 
   <message name="SELECTED_REQ" id="6">
+    <description></description>
   </message>
 
   <message name="WIND_CLEAR" id="7">
+    <description></description>
     <field name="ac_id" type="string"/>
   </message>
 
   <message name="WIND" id="8">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="dir" type="float"   unit="deg_wind"/>
     <field name="wspeed" type="float" unit="m/s"/>
@@ -35,10 +43,12 @@
   </message>
 
   <message name="CONFIG_REQ" id="9">
+    <description></description>
     <field name="ac_id" type="string"/>
   </message>
 
   <message name="CONFIG" id="10">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="flight_plan" type="string" unit="url"/>
     <field name="airframe" type="string" unit="url"/>
@@ -49,6 +59,7 @@
   </message>
 
   <message name="FLIGHT_PARAM" id="11">
+    <description></description>
     <field name="ac_id"  type="string"/>
     <field name="roll"   type="float" unit="deg"/>
     <field name="pitch"  type="float" unit="deg"/>
@@ -65,6 +76,7 @@
   </message>
 
   <message name="AP_STATUS" id="12">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="ap_mode" type="string" values="MANUAL|AUTO1|AUTO2|HOME|FAILSAFE"/>
     <field name="lat_mode" type="string" values="MANUAL|ROLL_RATE|ROLL|COURSE"/>
@@ -77,6 +89,7 @@
   </message>
 
   <message name="NAV_STATUS" id="13">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="cur_block"   type="uint8"/>
     <field name="cur_stage"   type="uint8"/>
@@ -91,6 +104,7 @@
   </message>
 
   <message name="CAM_STATUS" id="14">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="cam_lat" type="float" unit="deg"/>
     <field name="cam_long" type="float" unit="deg"/>
@@ -99,6 +113,7 @@
   </message>
 
   <message name="ENGINE_STATUS" id="15">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="throttle" type="float" unit="%"  format="%.1f"/>
     <field name="throttle_accu" type="float" format="%.1f"/>
@@ -110,6 +125,7 @@
   </message>
 
   <message name="SVSINFO" id="16">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="pacc"  type="uint16" unit="cm"/>
     <field name="svid"  type="string" format="csv"/>
@@ -122,6 +138,7 @@
   </message>
 
   <message name="FLY_BY_WIRE" id="17">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="rc_status" type="string" values="OK|LOST|REALLY_LOST"/>
     <field name="rc_mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
@@ -129,6 +146,7 @@
   </message>
 
   <message name="INFLIGH_CALIB" id="19">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="if_mode" type="string" values="OFF|DOWN|UP"/>
     <field name="if_value1" type="float"/>
@@ -136,6 +154,7 @@
   </message>
 
   <message name="WORLD_ENV" id="20">
+    <description></description>
     <field name="wind_east" type="float" unit="m/s" format="%.1f"/>
     <field name="wind_north" type="float" unit="m/s" format="%.1f"/>
     <field name="wind_up" type="float" unit="m/s" format="%.1f"/>
@@ -145,6 +164,7 @@
   </message>
 
   <message name="WORLD_ENV_REQ" id="21">
+    <description></description>
     <field name="lat"  type="float" unit="deg"/>
     <field name="long" type="float" unit="deg"/>
     <field name="alt"  type="float" unit="m"/>
@@ -154,6 +174,7 @@
   </message>
 
   <message name="CIRCLE_STATUS" id="22">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="circle_lat" type="float" unit="deg"/>
     <field name="circle_long" type="float" unit="deg"/>
@@ -161,6 +182,7 @@
   </message>
 
   <message name="SEGMENT_STATUS" id="23">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="segment1_lat" type="float" unit="deg"/>
     <field name="segment1_long" type="float" unit="deg"/>
@@ -169,6 +191,7 @@
   </message>
 
   <message name="MOVE_WAYPOINT" id="24">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="wp_id" type="uint8"/>
     <field name="lat"  type="float" unit="deg"/>
@@ -177,32 +200,38 @@
   </message>
 
   <message name="GET_DL_SETTING" id="25">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="index" type="uint8"/>
   </message>
 
   <message name="DL_SETTING" id="26">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="index" type="uint8"/>
     <field name="value" type="float"/>
   </message>
 
   <message name="JUMP_TO_BLOCK" id="27">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="block_id" type="uint8"/>
   </message>
 
   <message name="DL_VALUES" id="28">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="values" type="string" format="csv"/>
   </message>
 
   <message name="RAW_DATALINK" id="29">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="message" type="string" format=";sv"/>
   </message>
 
   <message name="WAYPOINT_MOVED" id="30">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="wp_id" type="uint8"/>
     <field name="lat"  type="float" unit="deg"/>
@@ -211,6 +240,7 @@
   </message>
 
   <message name="SURVEY_STATUS" id="31">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="east_long" type="float" unit="deg"/>
     <field name="north_lat" type="float" unit="deg"/>
@@ -219,16 +249,19 @@
   </message>
 
   <message name="TELEMETRY_STATUS" id="32">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="time_since_last_msg" type="float" unit="s"/>
   </message>
 
   <message name="TELEMETRY_ERROR" id="33">
+    <description></description>
     <field name="ac_id" type="string"/>
     <field name="message" type="string"/>
   </message>
 
   <message name="PLUMES" id="100">
+    <description></description>
     <field name="ids" type="string" format="csv"/>
     <field name="lats" type="string" format="csv"/>
     <field name="longs" type="string" format="csv"/>

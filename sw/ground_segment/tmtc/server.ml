@@ -39,9 +39,9 @@ module LL = Latlong
 
 module Ground = struct let class_type = "ground" end
 module Ground_Pprz = Pprz.Messages_of_type(Ground)
-module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
+module Tm_Pprz = Pprz.Messages_of_name (struct let class_name = "standard_telemetry" end)
 module Alerts_Pprz = Pprz.Messages_of_name(struct let class_name = "alert" end)
-module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
+module Dl_Pprz = Pprz.Messages_of_name (struct let class_name = "standard_commands" end)
 
 
 
@@ -55,7 +55,8 @@ let get_indexed_value = fun t i ->
 
 let modes_of_type = fun vt ->
   match vt with
-    FixedWing -> fixedwing_ap_modes
+  | GCS -> [| |]
+  | FixedWing -> fixedwing_ap_modes
   | Rotorcraft -> rotorcraft_ap_modes
   | UnknownVehicleType -> [| |]
 
