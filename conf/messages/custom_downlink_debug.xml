@@ -535,7 +535,7 @@
     <field name="body_psi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="TCAS_DEBUG" id="">
+  <message name="TCAS_DEBUG" id="231">
     <description></description>
     <field name="ac_id" type="uint8"/>
     <field name="tau" type="float"/>

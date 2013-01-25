@@ -24,12 +24,21 @@
     <field name="busvolts"  type="uint16[]"/>
   </message>
 -->
-  <message name="ANTENNA_STATUS" id="">
+  <message name="ANTENNA_STATUS" id="5">
     <description></description>
     <field name="azim_sp" type="float"/>
     <field name="elev_sp" type="float"/>
     <field name="id_sp" type="uint8"/>
     <field name="mode" type="uint8"/>
+  </message>
+
+  <message name="POTENTIAL" id="82">
+    <description></description>
+    <field name="east" type="float"/>
+    <field name="north" type="float"/>
+    <field name="alt" type="float"/>
+    <field name="speed" type="float"/>
+    <field name="climb" type="float"/>
   </message>
 
 <!-- MOTOR Messages -->

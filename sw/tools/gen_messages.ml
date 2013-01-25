@@ -82,14 +82,13 @@ module Syntax = struct
     and id = ExtXml.int_attrib xml "id"
     and period = try Some (ExtXml.float_attrib xml "period") with _ -> None
     and fields =
-      List.map
-  (fun field ->
-    let id = ExtXml.attrib field "name"
-    and type_name = ExtXml.attrib field "type"
-    and fmt = try Some (Xml.attrib field "format") with _ -> None in
-    let _type = parse_type type_name id in
-      (_type, id, fmt))
-  (Xml.children xml) in
+      List.map (fun field ->
+        let id = ExtXml.attrib field "name"
+        and type_name = ExtXml.attrib field "type"
+        and fmt = try Some (Xml.attrib field "format") with _ -> None in
+        let _type = parse_type type_name id in
+        (_type, id, fmt))
+      (List.filter (fun t -> compare (Xml.tag t) "field" = 0) (Xml.children xml)) in
     { id=id; name = name; period = period; fields = fields }
 
   let check_single_ids = fun msgs ->
