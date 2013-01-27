@@ -23,6 +23,7 @@ from sys import stdout, argv
 
 import usb
 import dfu
+import time
 
 APP_ADDRESS = 0x08004000
 SECTOR_SIZE = 2048
@@ -67,9 +68,14 @@ if __name__ == "__main__":
 	print "Copyright (C) 2011  Black Sphere Technologies"
 	print "Copyright (C) 2012  Transition Robotics Inc."
 	print "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>"
-	print
 
-	devs = dfu.finddevs()
+	for i in range(1,20):
+		devs = dfu.finddevs()
+		if not devs:
+			print "#",
+			stdout.flush()
+			time.sleep(1)
+	
 	if not devs:
 		print "No devices found!"
 		exit(-1)
@@ -86,7 +92,8 @@ if __name__ == "__main__":
 		if man == "Black Sphere Technologies": break
 		if man == "Transition Robotics Inc.": break
 		if man == "STMicroelectronics": break
-
+	
+	print
 	print "Device %s: ID %04x:%04x %s - %s - %s" % (dfudev.dev.filename, 
 		dfudev.dev.idVendor, dfudev.dev.idProduct, man, product, serial)
 
@@ -110,7 +117,8 @@ if __name__ == "__main__":
 
 	addr = APP_ADDRESS
 	while bin:
-		print ("Programming memory at 0x%08X\r" % addr),
+#		print ("Programming memory at 0x%08X\r" % addr),
+		print "#",
 		stdout.flush()
 		stm32_erase(dfudev, addr)
 		stm32_write(dfudev, bin[:SECTOR_SIZE])
