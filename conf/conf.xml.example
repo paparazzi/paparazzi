@@ -22,9 +22,9 @@
     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/modules/rotorcraft_cam.xml settings/modules/servo_switch.xml"
     gui_color="white"
     />
-	
-	<!-- Krooz -->
-	<aircraft
+  
+  <!-- Krooz -->
+  <aircraft
    name="Quad_Krooz_1"
    ac_id="3"
    airframe="airframes/krooz_1_0_quad_pwm.xml"
@@ -34,7 +34,7 @@
    settings=" settings/rotorcraft_basic.xml"
    gui_color="blue"
   />
-	
+  
   <!-- LISA -->
   <aircraft
     name="Hexa_LisaL"
