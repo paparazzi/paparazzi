@@ -21,6 +21,7 @@
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
+      <define name="USE_AHRS_GPS_ACCELERATIONS" />
     </target>
 
     <target name="sim"                 board="pc">
@@ -59,7 +60,7 @@
     <servo name="AILERON_LEFT"  no="2" min="1100" neutral="1545" max="1900"/>
     <servo name="AILERON_RIGHT" no="6" min="1100" neutral="1545" max="1900"/>
     <servo name="ELEVATOR"      no="7" min="1900" neutral="1504" max="1100"/>
-    <servo name="RUDDER"        no="3" min="1900" neutral="1419" max="1100"/>
+    <servo name="RUDDER"        no="3" min="1100" neutral="1419" max="1900"/>
   </servos>
 
   <commands>
@@ -145,8 +146,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="4" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="3" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="2" unit="deg"/>
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -156,8 +157,6 @@
 
   <section name="BAT">
     <!--define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/-->
-    <define name="ADC_CHANNEL_CURRENT" value="ADC_4"/>
-    <define name="MilliAmpereOfAdc(adc)" value="(88*adc)"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
@@ -175,19 +174,22 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
+
+    <define name="COMMAND_ROLL_TRIM" value="0"/>
+    <define name="COMMAND_PITCH_TRIM" value="0"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="0.06"/> <!-- -0.024 -->
+    <define name="ALTITUDE_PGAIN" value="0.1"/> <!-- -0.06 -->
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.66"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.55"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-600"/>
