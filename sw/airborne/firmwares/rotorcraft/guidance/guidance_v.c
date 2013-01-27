@@ -39,7 +39,7 @@
 #include "math/pprz_algebra_int.h"
 
 #include "generated/airframe.h"
-
+#include "subsystems/sensors/baro.h"
 
 /* warn if some gains are still negative */
 #if (GUIDANCE_V_HOVER_KP < 0) ||                   \
@@ -52,6 +52,15 @@
 #warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
 #endif
 
+#ifndef GUIDANCE_V_RC_CLIMB_COEF
+#define GUIDANCE_V_RC_CLIMB_COEF 600
+#endif
+
+#ifndef GUIDANCE_V_RC_DESCENT_COEF
+#define GUIDANCE_V_RC_DESCENT_COEF GUIDANCE_V_RC_CLIMB_COEF
+#endif
+
+#define GUIDANCE_V_MIN_COMMAND 2
 #define GUIDANCE_V_GAIN_SCALER 48
 
 uint8_t guidance_v_mode;
@@ -121,7 +130,11 @@ void guidance_v_read_rc(void) {
   guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE];
 
   /* used in RC_CLIMB */
-  guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
+  guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]);
+  if(guidance_v_rc_zd_sp < 0)
+    guidance_v_rc_zd_sp *=  GUIDANCE_V_RC_CLIMB_COEF;
+  else
+    guidance_v_rc_zd_sp *=  GUIDANCE_V_RC_DESCENT_COEF;
   DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
 
 }
@@ -204,9 +217,19 @@ void guidance_v_run(bool_t in_flight) {
 #if USE_FMS
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_HOVER)
       guidance_v_z_sp = fms.input.v_sp.height;
+#else
+    guidance_v_z_sp = guidance_v_z_ref; // for display only
 #endif
-    gv_update_ref_from_z_sp(guidance_v_z_sp);
-    run_hover_loop(in_flight);
+    if(!in_flight) {
+      if(baro.status == BS_RUNNING)
+        GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
+      guidance_v_delta_t = GUIDANCE_V_MIN_COMMAND;
+    } else {
+      //gv_update_ref_from_z_sp(guidance_v_z_sp);
+      guidance_v_zd_sp = guidance_v_rc_zd_sp;
+      gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+      run_hover_loop(in_flight);
+    }
 #if NO_RC_THRUST_LIMIT
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #else

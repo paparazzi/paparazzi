@@ -43,7 +43,8 @@ extern struct EnuCoor_i navigation_carrot;
 
 extern struct EnuCoor_f waypoints_float[];
 extern struct EnuCoor_i waypoints[];
-extern const uint8_t nb_waypoint;
+extern uint16_t nb_waypoint;
+extern uint16_t nb_waypoint_ok;
 
 extern void nav_init(void);
 extern void nav_run(void);
@@ -71,6 +72,7 @@ extern uint8_t vertical_mode;
 extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
 extern int32_t nav_climb, nav_altitude, nav_flight_altitude;
 extern float flight_altitude;
+extern float max_dist_from_home;
 #define VERTICAL_MODE_MANUAL      0
 #define VERTICAL_MODE_CLIMB       1
 #define VERTICAL_MODE_ALT         2
@@ -93,6 +95,7 @@ void nav_home(void);
 #define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
 
 #define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], *stateGetPositionEnu_i()); FALSE; })
+#define NavSet3DWaypointHere(_wp) ({ VECT3_COPY(waypoints[_wp], *stateGetPositionEnu_i()); FALSE; })
 #define NavCopyWaypoint(_wp1, _wp2) ({ VECT2_COPY(waypoints[_wp1], waypoints[_wp2]); FALSE; })
 
 #define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
@@ -105,6 +108,9 @@ void nav_home(void);
   while (x < 0) x += 360; \
   while (x >= 360) x -= 360; \
 }
+
+#define NavSetWpAlt(_wp, _alt) ({ waypoints[_wp].z = _alt; FALSE; })
+#define NavSetWpCurAlt(_wp) ({ waypoints[_wp].z = GetPosAlt(); FALSE; })
 
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \

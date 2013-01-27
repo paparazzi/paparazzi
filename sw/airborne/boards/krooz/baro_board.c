@@ -1,5 +1,6 @@
 
 #include "subsystems/sensors/baro.h"
+#include "baro_board.h"
 /*
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"

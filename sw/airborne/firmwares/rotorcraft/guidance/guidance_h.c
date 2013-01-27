@@ -35,10 +35,14 @@
 #include "state.h"
 
 #include "generated/airframe.h"
+#include "generated/flight_plan.h"
 
 uint8_t guidance_h_mode;
 
 struct Int32Vect2 guidance_h_pos_sp;
+#ifndef GUIDANCE_H_USE_SPEED_REF
+struct Int32Vect2 guidance_h_speed_sp;
+#endif
 struct Int32Vect2 guidance_h_pos_ref;
 struct Int32Vect2 guidance_h_speed_ref;
 struct Int32Vect2 guidance_h_accel_ref;
@@ -95,6 +99,9 @@ void guidance_h_init(void) {
 
   guidance_h_mode = GUIDANCE_H_MODE_KILL;
   INT_VECT2_ZERO(guidance_h_pos_sp);
+#ifndef GUIDANCE_H_USE_SPEED_REF
+  INT_VECT2_ZERO(guidance_h_speed_sp);
+#endif
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
   INT_EULERS_ZERO(guidance_h_rc_sp);
   INT_EULERS_ZERO(guidance_h_command_body);
@@ -157,7 +164,14 @@ void guidance_h_read_rc(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
+#ifndef GUIDANCE_H_USE_SPEED_REF
     stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+#else
+    INT_VECT2_ASSIGN(guidance_h_speed_sp, ((int32_t)radio_control.values[RADIO_ROLL]  * GUIDANCE_H_MAX_SPEED / MAX_PPRZ), 
+                                          ((int32_t)radio_control.values[RADIO_PITCH] * GUIDANCE_H_MAX_SPEED / MAX_PPRZ));
+    DeadBand(guidance_h_speed_sp.x, GUIDANCE_H_RC_SPEED_DEAD_BAND);
+    DeadBand(guidance_h_speed_sp.y, GUIDANCE_H_RC_SPEED_DEAD_BAND);
+#endif
     break;
 
   case GUIDANCE_H_MODE_NAV:
@@ -191,7 +205,11 @@ void guidance_h_run(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
+#ifndef GUIDANCE_H_USE_SPEED_REF
     guidance_h_update_reference(FALSE);
+#else
+    guidance_h_update_reference(TRUE);
+#endif
 
     /* set psi command */
     guidance_h_command_body.psi = guidance_h_rc_sp.psi;
@@ -240,7 +258,11 @@ void guidance_h_run(bool_t  in_flight) {
 static inline void guidance_h_update_reference(bool_t use_ref) {
   /* convert our reference to generic representation */
   if (use_ref) {
+#ifndef GUIDANCE_H_USE_SPEED_REF
     b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+#else
+    b2_gh_update_ref_from_speed_sp(guidance_h_speed_sp);
+#endif
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
@@ -265,6 +287,21 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
 
 static inline void guidance_h_traj_run(bool_t in_flight) {
 
+  /* saturate the distance from home waypoint */
+  struct Int32Vect2 path_to_home;
+  int32_t dist_to_home, max_dist_to_home;
+  INT32_VECT2_ENU_OF_NED(path_to_home, guidance_h_pos_ref);
+  VECT2_DIFF(path_to_home, path_to_home, waypoints[WP_HOME]);
+  INT32_VECT2_NORM(dist_to_home, path_to_home);
+  max_dist_to_home = POS_BFP_OF_REAL(max_dist_from_home);
+  if(dist_to_home > max_dist_to_home) {
+    int32_t s_angle, c_angle; // sin and cos of ref position direction angle
+    s_angle = path_to_home.x * (1 << INT32_TRIG_FRAC) / dist_to_home;
+    c_angle = path_to_home.y * (1 << INT32_TRIG_FRAC) / dist_to_home;
+    path_to_home.x = max_dist_to_home * s_angle / (1 << INT32_TRIG_FRAC);
+    path_to_home.y = max_dist_to_home * c_angle / (1 << INT32_TRIG_FRAC);
+    INT32_VECT2_NED_OF_ENU(guidance_h_pos_ref, path_to_home);
+  }
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
   /* saturate it               */

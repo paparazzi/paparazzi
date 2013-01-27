@@ -72,7 +72,7 @@ if __name__ == "__main__":
 	for i in range(1,20):
 		devs = dfu.finddevs()
 		if not devs:
-			print "#",
+			print ".",
 			stdout.flush()
 			time.sleep(1)
 	
@@ -94,6 +94,7 @@ if __name__ == "__main__":
 		if man == "STMicroelectronics": break
 	
 	print
+	print "Uploading: ",
 	print "Device %s: ID %04x:%04x %s - %s - %s" % (dfudev.dev.filename, 
 		dfudev.dev.idVendor, dfudev.dev.idProduct, man, product, serial)
 
@@ -116,6 +117,7 @@ if __name__ == "__main__":
 		raise
 
 	addr = APP_ADDRESS
+	print ("Programming memory from 0x%08X...\r" % addr)
 	while bin:
 #		print ("Programming memory at 0x%08X\r" % addr),
 		print "#",

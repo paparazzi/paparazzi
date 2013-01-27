@@ -41,9 +41,13 @@
 
 #include "math/pprz_algebra_int.h"
 
-const uint8_t nb_waypoint = NB_WAYPOINT;
-struct EnuCoor_f waypoints_float[NB_WAYPOINT] = WAYPOINTS;
-struct EnuCoor_i waypoints[NB_WAYPOINT];
+#define MAX_WAYPOINTS 200
+
+uint16_t nb_waypoint;
+uint16_t nb_waypoint_ok;
+
+struct EnuCoor_f waypoints_float[MAX_WAYPOINTS] = WAYPOINTS;
+struct EnuCoor_i waypoints[MAX_WAYPOINTS];
 
 struct EnuCoor_i navigation_target;
 struct EnuCoor_i navigation_carrot;
@@ -74,6 +78,7 @@ uint8_t vertical_mode;
 uint32_t nav_throttle;
 int32_t nav_climb, nav_altitude, nav_flight_altitude;
 float flight_altitude;
+float max_dist_from_home;
 
 static inline void nav_set_altitude( void );
 
@@ -83,6 +88,9 @@ static inline void nav_set_altitude( void );
 
 void nav_init(void) {
   // init int32 waypoints
+  nb_waypoint = NB_WAYPOINT;
+  nb_waypoint_ok = 0;
+  
   uint8_t i = 0;
   for (i = 0; i < nb_waypoint; i++) {
     waypoints[i].x = POS_BFP_OF_REAL(waypoints_float[i].x);
@@ -95,6 +103,7 @@ void nav_init(void) {
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
   flight_altitude = SECURITY_ALT;
+  max_dist_from_home = MAX_DIST_FROM_HOME;
   INT32_VECT3_COPY( navigation_target, waypoints[WP_HOME]);
   INT32_VECT3_COPY( navigation_carrot, waypoints[WP_HOME]);
 

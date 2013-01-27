@@ -597,8 +597,8 @@
                        &ins_ltp_accel.z);	\
   }
 
+/*    if (ins_ltp_initialised)                        \ */
 #define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
-    if (ins_ltp_initialised)                        \
       DOWNLINK_SEND_INS_REF(_trans, _dev,           \
                             &ins_ltp_def.ecef.x,    \
                             &ins_ltp_def.ecef.y,    \

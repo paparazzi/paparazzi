@@ -30,7 +30,7 @@
    airframe="airframes/krooz_1_0_quad_pwm.xml"
    radio="radios/mx-16.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
+   flight_plan="flight_plans/rotorcraft_krooz.xml"
    settings=" settings/rotorcraft_basic.xml"
    gui_color="blue"
   />

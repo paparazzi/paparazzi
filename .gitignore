@@ -34,6 +34,7 @@
 # Debian related files
 *.deb
 *.dsc
+*.d
 *.changes
 *.substvars
 *.debhelper.log

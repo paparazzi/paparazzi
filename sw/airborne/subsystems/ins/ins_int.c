@@ -73,6 +73,7 @@ bool_t  ins_update_on_agl;
 int32_t ins_sonar_offset;
 #endif
 #endif
+int32_t gps_init_cnt;
 
 /* output                      */
 struct NedCoor_i ins_ltp_pos;
@@ -82,6 +83,7 @@ struct NedCoor_i ins_ltp_accel;
 
 void ins_init() {
 #if USE_INS_NAV_INIT
+#else
   ins_ltp_initialised = TRUE;
 
   /** FIXME: should use the same code than MOVE_WP in firmwares/rotorcraft/datalink.c */
@@ -89,15 +91,15 @@ void ins_init() {
   llh_nav0.lat = INT32_RAD_OF_DEG(NAV_LAT0);
   llh_nav0.lon = INT32_RAD_OF_DEG(NAV_LON0);
   /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
-  llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
+  llh_nav0.alt = 0;//NAV_ALT0 + NAV_MSL0;
 
   struct EcefCoor_i ecef_nav0;
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
 
   ltp_def_from_ecef_i(&ins_ltp_def, &ecef_nav0);
-  ins_ltp_def.hmsl = NAV_ALT0;
+  ins_ltp_def.hmsl = 0;//NAV_ALT0;
   stateSetLocalOrigin_i(&ins_ltp_def);
-#else
+//#else
   ins_ltp_initialised  = FALSE;
 #endif
 #if USE_VFF
@@ -202,12 +204,44 @@ void ins_update_baro() {
 void ins_update_gps(void) {
 #if USE_GPS
   if (gps.fix == GPS_FIX_3D) {
+/*
     if (!ins_ltp_initialised) {
       ltp_def_from_ecef_i(&ins_ltp_def, &gps.ecef_pos);
       ins_ltp_def.lla.alt = gps.lla_pos.alt;
       ins_ltp_def.hmsl = gps.hmsl;
       ins_ltp_initialised = TRUE;
       stateSetLocalOrigin_i(&ins_ltp_def);
+    }
+*/
+    if(gps_init_cnt == 0)
+      gps_init_cnt = cpu_time_sec;
+    if (!ins_ltp_initialised) {
+      if(gps.ecef_pos.x != 0 && gps.ecef_pos.x != 0 && gps.ecef_pos.x != 0  && (cpu_time_sec > gps_init_cnt + GPS_INIT_TIME)) {	
+        struct LlaCoor_i llh;
+        llh.lat = INT32_RAD_OF_DEG(NAV_LAT0);
+        llh.lon = INT32_RAD_OF_DEG(NAV_LON0);
+        llh.alt = NAV_ALT0 + NAV_MSL0;
+        
+        struct EcefCoor_i home_pos;
+        ecef_of_lla_i(&home_pos, &llh);
+        ltp_def_from_ecef_i(&ins_ltp_def, &home_pos);
+        
+        int32_t dist_btw_points;
+        VECT2_DIFF(home_pos, home_pos, gps.ecef_pos);
+        INT32_VECT2_NORM(dist_btw_points, home_pos);
+        
+        if(dist_btw_points > (int32_t)(MAX_DIST_FROM_HOME) * 100)
+          ltp_def_from_ecef_i(&ins_ltp_def, &gps.ecef_pos);
+        ins_ltp_def.hmsl = 0;//gps.hmsl
+        
+        if(ins_ltp_def.ecef.x != 0 && ins_ltp_def.ecef.y != 0 && ins_ltp_def.ecef.z) {
+          stateSetLocalOrigin_i(&ins_ltp_def);
+          ins_ltp_initialised = TRUE;
+        #ifdef USE_GEO_MAG_MODULE
+          geo_mag_event();
+        #endif
+        }
+      }
     }
     ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
     ned_of_ecef_vect_i(&ins_gps_speed_cm_s_ned, &ins_ltp_def, &gps.ecef_vel);

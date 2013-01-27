@@ -42,7 +42,7 @@
 #define GPS_FIX_3D   0x03
 
 #define GpsFixValid() (gps.fix == GPS_FIX_3D)
-
+#define GPS_INIT_TIME   5
 
 #ifndef GPS_NB_CHANNELS
 #define GPS_NB_CHANNELS 1

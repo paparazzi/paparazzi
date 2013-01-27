@@ -26,6 +26,7 @@
     <subsystem name="motor_mixing"/>
     
     <define name="NO_RC_THRUST_LIMIT"/>
+    <define name="USE_RC_FP_BLOCK_SWITCHING"/>
   </firmware>
   
   <modules main_freq="512">
@@ -34,10 +35,10 @@
   </modules>
   
   <servos driver="Pwm">
-    <servo name="FRONT"   no="0" min="1000" neutral="1205" max="1900"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1160" max="1900"/>
-    <servo name="RIGHT"   no="2" min="1000" neutral="1215" max="1900"/>
-    <servo name="LEFT"    no="3" min="1000" neutral="1150" max="1900"/>
+    <servo name="FRONT"   no="0" min="1000" neutral="1190" max="1900"/>
+    <servo name="BACK"    no="1" min="1000" neutral="1190" max="1900"/>
+    <servo name="RIGHT"   no="2" min="1000" neutral="1190" max="1900"/>
+    <servo name="LEFT"    no="3" min="1000" neutral="1190" max="1900"/>
   </servos>
 
   <commands>
@@ -48,9 +49,7 @@
   </commands>
 
   <command_laws>
-    <!-- command_laws is needed for pwm_supervision -->
-    <!-- but can be empty if no additional servos are used -->
-    <!--  --><call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
     <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
     <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
     <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
@@ -99,7 +98,7 @@
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -219,8 +218,8 @@
 
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">

@@ -73,6 +73,10 @@ static inline int ahrs_is_aligned(void) {
 #include "autopilot_arming_yaw.h"
 #endif
 
+#ifdef USE_RC_FP_BLOCK_SWITCHING
+#include "autopilot_fp_block_switch.h"
+#endif
+
 void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
@@ -126,7 +130,14 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
   if (!ahrs_is_aligned())
     new_autopilot_mode = AP_MODE_KILL;
 
-  if (new_autopilot_mode != autopilot_mode) {
+  //if (new_autopilot_mode != autopilot_mode) 
+  if (new_autopilot_mode == autopilot_mode) {
+    if(!autopilot_motors_on)
+      rc_command = 0;
+    return;
+  }
+  rc_command = RC_MODE_CHANGE;
+  {
     /* horizontal mode */
     switch (new_autopilot_mode) {
     case AP_MODE_FAILSAFE:
@@ -209,14 +220,19 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 
 static inline void autopilot_check_in_flight( bool_t motors_on ) {
   if (autopilot_in_flight) {
+    if(!motors_on) {
+      autopilot_in_flight = FALSE;
+      autopilot_in_flight_counter = 0;
+      return;
+    }
     if (autopilot_in_flight_counter > 0) {
-      if (THROTTLE_STICK_DOWN()) {
+      if (autopilot_mode != AP_MODE_HOVER_Z_HOLD && autopilot_mode != AP_MODE_NAV && THROTTLE_STICK_DOWN()) {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
           autopilot_in_flight = FALSE;
         }
       }
-      else {	/* !THROTTLE_STICK_DOWN */
+      else {  /* !THROTTLE_STICK_DOWN */
         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
       }
     }
@@ -224,7 +240,9 @@ static inline void autopilot_check_in_flight( bool_t motors_on ) {
   else { /* not in flight */
     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
         motors_on) {
-      if (!THROTTLE_STICK_DOWN()) {
+      if ((autopilot_mode != AP_MODE_HOVER_Z_HOLD && autopilot_mode != AP_MODE_NAV && !THROTTLE_STICK_DOWN()) ||
+          (autopilot_mode == AP_MODE_HOVER_Z_HOLD && THROTTLE_STICK_CENTER_UP()) || 
+          (autopilot_mode == AP_MODE_NAV && THROTTLE_STICK_UP())) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
           autopilot_in_flight = TRUE;
@@ -279,6 +297,9 @@ void autopilot_on_rc_frame(void) {
     kill_throttle = ! autopilot_motors_on;
 
     autopilot_check_in_flight(autopilot_motors_on);
+#ifdef USE_RC_FP_BLOCK_SWITCHING
+    autopilot_block_switch_check(autopilot_in_flight);
+#endif
 
     guidance_v_read_rc();
     guidance_h_read_rc(autopilot_in_flight);

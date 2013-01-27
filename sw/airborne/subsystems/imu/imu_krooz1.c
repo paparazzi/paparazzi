@@ -37,6 +37,7 @@
  *
  */
 
+#include "subsystems/imu.h"
 #include "subsystems/imu/imu_krooz1.h"
 /**/
 #include "subsystems/datalink/downlink.h"
@@ -57,7 +58,7 @@ extern void exti9_5_isr(void);
 #endif
 
 static inline void krooz_init_hw( void ) {
-#if defined(STM32F1) || defined(STM32F2)
+#if defined(STM32F1)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 	
@@ -223,7 +224,7 @@ void imu_periodic( void ) {
 	//RunOnceEvery(100,DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 5, buf));
 */
 }
-#if defined(STM32F1) || defined(STM32F2)
+#if defined(STM32F1)
 void exti9_5_irq_handler(void) {
   /* clear EXTI */
 	if(EXTI_GetITStatus(EXTI_Line8) != RESET) {

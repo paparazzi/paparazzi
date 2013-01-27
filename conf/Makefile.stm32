@@ -102,7 +102,17 @@ $(info Using "$($(TARGET).LDSCRIPT)" as ldscript for target "$(TARGET)".)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
+CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
+CFLAGS += -D__thumb2__ -Wall -O$(OPT)
+ifeq ($(ARCH_L), )
+CFLAGS += -msoft-float
+else ifeq ($(ARCH_L),f4)
+ifndef HARD_FLOAT
+CFLAGS += -msoft-float
+else
+CFLAGS += -g -mfloat-abi=hard -mfpu=fpv4-sp-d16 -MD
+endif
+endif
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mfix-cortex-m3-ldrd
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
@@ -135,17 +145,20 @@ AFLAGS  = -ahls -mapcs-32
 AFLAGS += -mcpu=$(MCU) -mthumb
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-ifneq ($(ARCH_L), )
-LDFLAGS = -L../ext/libopencm3/lib/stm32/$(ARCH_L)
-else
-LDFLAGS = -L../ext/libopencm3/lib/stm32/f1
-endif
 LDFLAGS += -L../ext/libopencm3/lib
-ifeq ("$(MULTILIB)","yes")
-LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -mcpu=$(MCU) -mfix-cortex-m3-ldrd -msoft-float
+LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -mcpu=$(MCU)
+
+ifeq ($(ARCH_L), )
+LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
+else ifeq ($(ARCH_L),f4)
+ifndef HARD_FLOAT
+LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
 else
-LDFLAGS += -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
+LDFLAGS += -lnosys -D__thumb2__\
+           -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
+endif
+
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc
 ifneq ($(ARCH_L), )

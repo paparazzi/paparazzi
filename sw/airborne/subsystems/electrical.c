@@ -31,6 +31,8 @@ static struct {
 #endif
 } electrical_priv;
 
+#define AUTOPILOT_BAT_LOW_TIME	500
+
 #ifndef VoltageOfAdc
 #define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
 #endif
@@ -59,6 +61,13 @@ void electrical_init(void) {
 void electrical_periodic(void) {
 #ifndef SITL
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
+  if(electrical.vsupply < LOW_BAT_LEVEL*10) {
+		if(electrical.vsupply_low > 0)
+			electrical.vsupply_low--;
+	}
+	else
+		if(electrical.vsupply_low)
+			electrical.vsupply_low = AUTOPILOT_BAT_LOW_TIME;
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT

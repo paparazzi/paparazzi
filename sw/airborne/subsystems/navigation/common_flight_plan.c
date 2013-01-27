@@ -36,7 +36,7 @@ uint8_t nav_stage, nav_block;
 
 /** To save the current block/stage to enable return */
 uint8_t last_block, last_stage;
-
+uint8_t rc_command;
 
 void nav_init_block(void) {
   if (nav_block >= NB_BLOCK)

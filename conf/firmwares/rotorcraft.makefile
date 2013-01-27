@@ -162,6 +162,9 @@ ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DUSE_SPI1
 ap.srcs += peripherals/mcp355x.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
+else ifeq ($(BOARD), krooz)
+ap.CFLAGS += -DUSE_I2C2
+ap.srcs += $(SRC_BOARD)/baro_board.c
 endif
 ifneq ($(BARO_LED),none)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)

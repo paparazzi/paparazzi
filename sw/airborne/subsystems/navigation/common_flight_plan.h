@@ -34,12 +34,22 @@ extern uint16_t stage_time, block_time;
 
 extern uint8_t nav_stage, nav_block;
 extern uint8_t last_block, last_stage;
-
+extern uint8_t rc_command;
 
 void nav_init_stage(void); /* needs to be implemented by fixedwing and rotorcraft seperately */
 
 void nav_init_block(void);
 void nav_goto_block(uint8_t block_id);
+
+#define RcCommand(_cmd)         (rc_command == _cmd)
+#define NavRouteComplete(_wp)   (_wp >= nb_waypoint)
+
+#define RC_TAKEOFF          1
+#define RC_ROUTE            2
+#define RC_LAND             3
+#define RC_MODE_CHANGE      4
+#define RC_CIRCLE           5
+#define RC_HOME             6
 
 #define InitStage() nav_init_stage();
 
