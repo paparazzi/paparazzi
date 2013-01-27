@@ -1733,7 +1733,13 @@
     <field name="hardiron_z" type="float" />
   </message>
 
-  <!--207 is free -->
+  <message name="IMU_MAG_CURRENT_CALIBRATION" id="207">
+    <field name="mx" type="int32" unit="adc"/>
+    <field name="my" type="int32" unit="adc"/>
+    <field name="mz" type="int32" unit="adc"/>
+    <field name="electrical_current" type="int32" unit="mA"/>
+  </message>
+
   <!--208 is free -->
 
   <message name="IMU_GYRO_LP" id="209">

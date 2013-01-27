@@ -53,7 +53,7 @@ VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 
-all : gaia sitl.cma $(LAUNCHSITL) simhitl
+all : gaia sitl.cma simhitl
 
 simhitl : fg.o $(SIMHCMO) simhitl.cmo
 	@echo OL $@
@@ -89,10 +89,6 @@ diffusion : stdlib.cmo diffusion.cmo
 %.cmi : %.mli
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $<
-
-launchsitl :
-	cat ../../src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
-	chmod a+x $@
 
 # dependency on lib-pprz
 simhitl diffusion gaia:  $(LIBPPRZCMA)

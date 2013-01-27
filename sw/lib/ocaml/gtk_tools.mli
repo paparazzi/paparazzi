@@ -54,6 +54,7 @@ val add_to_combo : combo -> string -> unit
 val combo_separator : string
 
 val combo_value : combo -> string
+val combo_values_list : combo -> string list
 val select_in_combo : combo -> string -> unit
 val combo_connect : combo -> (string -> unit) -> unit
 

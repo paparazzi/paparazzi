@@ -49,7 +49,11 @@ $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
-all compile: $(OBJDIR)/simsitl
+all compile: check_jsbsim $(OBJDIR)/simsitl
+
+
+check_jsbsim:
+	@echo Paparazzi jsbsim package found: $(JSBSIM_PKG)
 
 
 $(OBJDIR)/simsitl : $($(TARGET).objs)
@@ -79,10 +83,11 @@ $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
-	@echo CC++ $@
+	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
+.PHONY: all compile check_jsbsim
 
 #
 # Dependencies
@@ -93,7 +98,5 @@ $(OBJDIR)/.depend:
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
-endif
 endif

@@ -1,4 +1,4 @@
-#!OCAMLRUN OCAML
+#!/usr/bin/ocamlrun /usr/bin/ocaml
 #load "unix.cma";;
 let (//) = Filename.concat
 let paparazzi_home =

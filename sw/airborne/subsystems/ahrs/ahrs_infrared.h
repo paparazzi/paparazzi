@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_infrared.h
+ *
+ * Fixedwing attitude estimation using infrared sensors.
+ *
+ */
+
 #ifndef AHRS_INFRARED_H
 #define AHRS_INFRARED_H
 

@@ -28,6 +28,10 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/ms5611.h"
 
+#ifdef BARO_I2C
+#define MPU6000_NO_SLAVES
+#endif
+
 #ifndef MPU6000_SLAVE_IDX
 #define MPU6000_SLAVE_IDX SPI_SLAVE2
 #endif

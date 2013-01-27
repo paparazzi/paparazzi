@@ -19,8 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file ins_alt_float.c
- * Filters altitude and climb rate.
+/**
+ * @file subsystems/ins/ins_alt_float.c
+ * Filters altitude and climb rate for fixedwings.
  */
 
 #include "subsystems/ins.h"

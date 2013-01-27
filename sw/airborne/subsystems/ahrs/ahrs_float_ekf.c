@@ -162,8 +162,3 @@ void ahrs_propagate(void) {
 
 
 extern void ahrs_update(void);
-
-
-
-
-#endif /* AHRS_FLOAT_EKF_H */

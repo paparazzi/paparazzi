@@ -17,14 +17,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file nav.h
- *  \brief Navigation library
+/**
+ * @file subsystems/nav.h
+ *
+ * Fixedwing Navigation library.
  *
  * This collection of macros and functions is used by the C code generated
- * from the XML flight plan
+ * from the XML flight plan.
  */
 
 #ifndef NAV_H

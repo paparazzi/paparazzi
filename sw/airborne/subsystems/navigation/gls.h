@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2012, Tobias Muench
  *
  * This file is part of paparazzi.
@@ -18,7 +17,6 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
@@ -32,9 +30,7 @@
 #include "std.h"
 #include "paparazzi.h"
 
-
-
 extern bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td);
 extern bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td);
 
-#endif
+#endif // NAV_GLS_H

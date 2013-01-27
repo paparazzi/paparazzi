@@ -17,11 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** @file main_fbw.h
- *  @brief FBW ( FlyByWire ) process API
+/**
+ * @file firmwares/fixedwing/main_fbw.h
+ *
+ * FBW ( FlyByWire ) process API
  *
  */
 

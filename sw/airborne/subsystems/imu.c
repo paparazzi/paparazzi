@@ -19,7 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file imu.c
+/**
+ * @file subsystems/imu.c
  * Inertial Measurement Unit interface.
  */
 

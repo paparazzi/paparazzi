@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs.c
+ * Attitude and Heading Reference System interface.
+ */
+
+
 #include "subsystems/ahrs.h"
 
 struct Ahrs ahrs;

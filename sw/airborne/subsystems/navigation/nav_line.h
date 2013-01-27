@@ -17,7 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/navigation/nav_line.h
  *
+ * Fixedwing navigation along a line with nice U-turns.
  */
 
 #ifndef NAV_LINE_H

@@ -36,7 +36,7 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]);
 
-void nps_ivy_init(void) {
+void nps_ivy_init(char* ivy_bus) {
   const char* agent_name = AIRFRAME_NAME"_NPS";
   const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
@@ -45,7 +45,17 @@ void nps_ivy_init(void) {
   IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) DL_GET_SETTING (\\S*) (\\S*)");
   IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
   IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
-  IvyStart("127.255.255.255");
+
+#ifdef __APPLE__
+  const char* default_ivy_bus = "224.255.255.255";
+#else
+  const char* default_ivy_bus = "127.255.255.255";
+#endif
+  if (ivy_bus == NULL) {
+    IvyStart(default_ivy_bus);
+  } else {
+    IvyStart(ivy_bus);
+  }
 }
 
 //TODO use datalink parsing from booz or fw instead of doing it here explicitly

@@ -236,7 +236,7 @@ let () =
 
   AC.build_handler ~file gui ac_combo target_combo log;
 
-  let session_combo, execute_session = CP.supervision ~file gui log ac_combo in
+  let session_combo, execute_session = CP.supervision ~file gui log ac_combo target_combo in
 
   (* Quit button *)
   ignore (gui#menu_item_quit#connect#activate ~callback:(quit_button_callback gui ac_combo session_combo target_combo));

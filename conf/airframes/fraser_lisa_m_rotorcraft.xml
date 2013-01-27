@@ -23,7 +23,9 @@
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat">
+      <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
+    </subsystem>
     <subsystem name="ins"/>
   </firmware>
 
@@ -225,6 +227,7 @@
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
     <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="JS_MODE_AXIS" value="4"/>
   </section>
 
   <section name="AUTOPILOT">

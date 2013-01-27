@@ -27,11 +27,7 @@
 # this should not be needed
 SRC_ARCH = arch/sim
 
-ifneq ($(SIM_TYPE),JSBSIM)
 CC = gcc
-else
-CC = g++
-endif
 OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 CAMLINCLUDES = $(shell ocamlfind query -r -i-format lablgtk2) -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) $(shell ocamlfind query -r -i-format xml-light)
@@ -46,9 +42,7 @@ Q=@
 # End of configuration part.
 #
 
-ifneq ($(SIM_TYPE),JSBSIM)
 INCLUDES += -I `ocamlc -where`
-endif
 
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
@@ -56,16 +50,11 @@ CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
 CFLAGS += -O2
 CFLAGS += -g
-
-ifneq ($(SIM_TYPE),JSBSIM)
 CFLAGS += -std=gnu99
-endif
 
 LDFLAGS		=	-lm
 
-ifeq ($(SIM_TYPE),JSBSIM)
-LDFLAGS		+= $($(TARGET).LDFLAGS)
-endif
+
 #
 # General rules
 #
@@ -74,30 +63,12 @@ $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
-ifeq ($(SIM_TYPE),JSBSIM)
-all compile: check_jsbsim $(OBJDIR)/simsitl
-else
 all compile: $(OBJDIR)/simsitl
-endif
-
-check_jsbsim:
-	@echo Paparazzi jsbsim package found: $(JSBSIM_PKG)
-#	@if `pkg-config JSBSim --exists`; then       \
-#		echo "Using paparazzi JSBSim package.";     \
-#	else	\
-#		echo "Looking for JSBSim under /opt/jsbsim/"; \
-#	fi
 
 
-ifeq ($(SIM_TYPE),JSBSIM)
-$(OBJDIR)/simsitl : $($(TARGET).objs)
-	@echo LD $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
-else
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
 	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) $(MYGTKINITCMO) $(SITLCMA) $(SIMSITLML)
-endif
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)
@@ -131,7 +102,7 @@ $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
-.PHONY: all compile check_jsbsim
+.PHONY: all compile
 
 #
 # Dependencies
@@ -142,7 +113,5 @@ $(OBJDIR)/.depend:
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
-endif
 endif

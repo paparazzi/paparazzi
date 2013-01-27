@@ -208,18 +208,12 @@ sim: sim_static
 include Makefile.lpctools
 lpctools: lpc21iap usb_lib
 
-commands: paparazzi sw/simulator/launchsitl
+commands: paparazzi
 
 paparazzi:
 	cat src/paparazzi | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-sw/simulator/launchsitl:
-	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
-	chmod a+x $@
-
-run_sitl :
-	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
 
 install :
 	$(MAKE) -f Makefile.install PREFIX=$(PREFIX)
@@ -238,7 +232,6 @@ clean:
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
-	$(Q)rm -f paparazzi sw/simulator/launchsitl
 
 cleanspaces:
 	find sw -path sw/ext -prune -o -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
@@ -279,7 +272,6 @@ test: all replace_current_conf_xml run_tests restore_conf_xml
 
 .PHONY: all print_build_version update_google_version ground_segment \
 subdirs $(SUBDIRS) conf ext lib multimon cockpit tmtc tools\
-static sim_static lpctools \
-commands run_sitl install uninstall \
+static sim_static lpctools commands install uninstall \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test replace_current_conf_xml run_tests restore_conf_xml

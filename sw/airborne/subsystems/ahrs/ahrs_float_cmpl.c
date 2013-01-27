@@ -19,6 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_float_cmpl.c
+ *
+ * Complementary filter in float to estimate the attitude, heading and gyro bias.
+ *
+ * Propagation can be done in rotation matrix or quaternion representation.
+ */
+
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_float_cmpl.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"

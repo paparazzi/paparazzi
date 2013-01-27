@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins/vf_float.h
+ *
+ * Vertical filter (in float) estimating altitude, velocity and accel bias.
+ *
+ */
+
 #ifndef VF_FLOAT_H
 #define VF_FLOAT_H
 

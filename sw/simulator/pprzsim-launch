@@ -1,0 +1,155 @@
+#! /usr/bin/env python
+
+#  Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+#
+# This file is part of Paparazzi.
+#
+# Paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# Paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+
+from __future__ import print_function
+import sys
+import os
+import subprocess
+from optparse import OptionParser, OptionGroup, OptionValueError
+
+def spektrum_callback(option, opt_str, value, parser):
+    if not os.path.exists(value):
+        raise OptionValueError("Spektrum device %s not found" % value)
+    else:
+        parser.values.spektrum_dev = value
+
+def main():
+    usage = "usage: %prog -a <ac_name> -t <sim_type> [sim arguments]\nRun %prog --help to list the options."
+    parser = OptionParser(usage)
+    parser.add_option("-a", "--aircraft", dest="ac_name",
+                      action="store", metavar="NAME",
+                      help="Aircraft name to use")
+    parser.add_option("-t", "--type", dest="simtype",
+                      type='choice', choices=['sim', 'jsbsim', 'nps'],
+                      action="store", default="sim",
+                      help="Simlator type to start: sim, jsbsim or nps (Default: %default)")
+    parser.add_option("-b", "--ivy_bus", dest="ivy_bus", action="store",
+                      metavar="BUS", help="Ivy Bus broadcast address (127.255.255.255)")
+    parser.add_option("-f", "--fg_host", dest="fg_host", action="store", metavar="HOST",
+                     help="Host for FlightGear visualization (e.g. 127.0.0.1)")
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose")
+
+    # special options for the fixedwing OCaml sim
+    ocamlsim_opts = OptionGroup(parser, "Simple fixedwing OCaml Simulator Options",
+                                "These are only relevant to the simple fixedwing OCaml sim")
+    ocamlsim_opts.add_option("--boot", dest="boot", action="store_true",
+                             help="Boot the aircraft on start")
+    ocamlsim_opts.add_option("--norc", dest="norc", action="store_true",
+                              help="Hide the simulated RC")
+
+    # special options for NPS
+    nps_opts = OptionGroup(parser, "NPS Options", "These are only relevant to the NPS sim")
+    nps_opts.add_option("-p", "--fg_port", dest="fg_port", metavar="PORT",
+                        type="int", default=5501, action="store",
+                        help="Port on FlightGear host to connect to (Default: %default)")
+    nps_opts.add_option("--fg_time_offset", type="int", action="store", metavar="SEC",
+                        help="FlightGear time offset in seconds (e.g. 21600 for 6h)")
+    nps_opts.add_option("-j", "--js_dev", dest="js_dev", metavar="IDX",
+                        type="int", default=-1, action="store",
+                        help="Use joystick with specified index (e.g. 0)")
+    nps_opts.add_option("--spektrum_dev", type="string", action="callback",
+                        callback=spektrum_callback, metavar="DEV",
+                        help="Spektrum device to use (e.g. /dev/ttyUSB0)")
+    nps_opts.add_option("--rc_script", type="int", action="store", metavar="NO",
+                        help="Number of RC script to use")
+
+    # special options for the JSBSim sim (without sensor models)
+    #jsbsim_opts = OptionGroup(parser, "JSBSim options",
+    #                          "These are only relevant to the jsbsim sim")
+
+    parser.add_option_group(ocamlsim_opts)
+    parser.add_option_group(nps_opts)
+    #parser.add_option_group(jsbsim_opts)
+
+    (options, args) = parser.parse_args()
+
+    if not options.ac_name:
+        parser.error("Please specify the aircraft name.")
+
+    simargs = []
+
+    if options.simtype == "sim":
+        simdir = "sim"
+        if options.boot:
+            simargs.append("-boot")
+        if options.norc:
+            simargs.append("-norc")
+        if options.ivy_bus:
+            simargs.append("-b")
+            simargs.append(options.ivy_bus)
+        if options.fg_host:
+            simargs.append("-fg")
+            simargs.append(options.fg_host)
+    elif options.simtype == "jsbsim":
+        simdir = "jsbsim"
+        if options.ivy_bus:
+            simargs.append("-b")
+            simargs.append(options.ivy_bus)
+    elif options.simtype == "nps":
+        simdir = "nps"
+        if options.fg_host:
+            simargs.append("--fg_host")
+            simargs.append(options.fg_host)
+            simargs.append("--fg_port")
+            simargs.append(str(options.fg_port))
+            if options.fg_time_offset:
+                simargs.append("--fg_time_offset")
+                simargs.append(str(options.fg_time_offset))
+        if options.js_dev is not -1:
+            simargs.append("--js_dev")
+            simargs.append(str(options.js_dev))
+        if options.spektrum_dev:
+            simargs.append("--spektrum_dev")
+            simargs.append(options.spektrum_dev)
+        if options.rc_script:
+            simargs.append("--rc_script")
+            simargs.append(options.rc_script)
+        if options.ivy_bus:
+            simargs.append("--ivy_bus")
+            simargs.append(options.ivy_bus)
+    else:
+        parser.error("Please specify a valid sim type.")
+
+    # pass additional args through to the sim
+    simargs += args
+
+    # get environment
+    paparazzi_home = os.environ['PAPARAZZI_HOME']
+    if not paparazzi_home:
+        paparazzi_home = os.getcwd()
+    if options.verbose:
+        print("Using "+paparazzi_home+" as Paparazzi home dir.")
+
+    simsitl = os.path.join(paparazzi_home, "var", options.ac_name, simdir, "simsitl")
+    if not os.path.isfile(simsitl):
+        print("Error: " + simsitl + " is missing. Is target " + simdir + " built for aircraft " + options.ac_name + "?")
+        sys.exit(1)
+
+    if options.verbose:
+        print("Launching "+options.simtype+" simulator with arguments: "+' '.join(simargs))
+
+    # start the simulator, replacing this process
+    os.execv(simsitl, [simsitl] + simargs)
+
+if __name__ == "__main__":
+    main()

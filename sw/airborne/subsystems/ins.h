@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins.h
+ * Integrated Navigation System interface.
+ */
+
 #ifndef INS_H
 #define INS_H
 

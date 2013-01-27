@@ -166,27 +166,7 @@ ALL_ASFLAGS = -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: printcommands printmultilib sizebefore build sizeafter
-
-printcommands:
-	@echo "Using CC   = $(CC)"
-	@echo "Using LD   = $(LD)"
-	@echo "Using CP   = $(CP)"
-	@echo "Using DMP  = $(DMP)"
-	@echo "Using NM   = $(NM)"
-	@echo "Using SIZE = $(SIZE)"
-	@echo "GCC version:"
-	@$(CC) --version | head -1
-
-ifeq ("$(MULTILIB)","yes")
-printmultilib:
-	@echo "*** Using multilib ***"
-	@echo "--------------------------------------"
-else
-printmultilib:
-	@echo "*** NOT using multilib ***"
-	@echo "--------------------------------------"
-endif
+all: printcommands sizebefore build sizeafter
 
 build: elf hex lss sym
 
@@ -194,16 +174,6 @@ elf: $(OBJDIR)/$(TARGET).elf
 hex: $(OBJDIR)/$(TARGET).hex
 lss: $(OBJDIR)/$(TARGET).lss
 sym: $(OBJDIR)/$(TARGET).sym
-
-
-# Display size of file.
-HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
-ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
-sizebefore:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
-
-sizeafter:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
 
 
 # Program the device.
@@ -281,37 +251,8 @@ $(AOBJARM) : $(OBJDIR)/%.o : $(SRC_ARCH)/%.S
 	$(Q)$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 
-# Target: clean project.
-clean: clean_list
-
-
-clean_list :
-	@echo
-	$(RM) $(OBJDIR)/$(TARGET).hex
-	$(RM) $(OBJDIR)/$(TARGET).obj
-	$(RM) $(OBJDIR)/$(TARGET).elf
-	$(RM) $(OBJDIR)/$(TARGET).map
-	$(RM) $(OBJDIR)/$(TARGET).obj
-	$(RM) $(OBJDIR)/$(TARGET).a90
-	$(RM) $(OBJDIR)/$(TARGET).sym
-	$(RM) $(OBJDIR)/$(TARGET).lnk
-	$(RM) $(OBJDIR)/$(TARGET).lss
-	$(RM) $(COBJ)
-	$(RM) $(AOBJ)
-	$(RM) $(COBJARM)
-	$(RM) $(AOBJARM)
-	$(RM) $(LST)
-	$(RM) $(SRC:.c=.s)
-	$(RM) $(SRC:.c=.d)
-	$(RM) $(SRCARM:.c=.s)
-	$(RM) $(SRCARM:.c=.d)
-	$(RM) .dep/*
-	$(RM) *~
-
-
 # Listing of phony targets.
-.PHONY : all sizebefore sizeafter \
-build elf hex lss sym clean clean_list program
+.PHONY : all build elf hex lss sym load upload program
 
 
 #
@@ -324,7 +265,5 @@ $(OBJDIR)/.depend:
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
-endif
 endif

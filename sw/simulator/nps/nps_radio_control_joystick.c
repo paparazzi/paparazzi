@@ -33,6 +33,9 @@
 #include "nps_radio_control.h"
 #include "nps_radio_control_joystick.h"
 
+// for NPS_JS_MODE_AXIS
+#include "generated/airframe.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -43,13 +46,22 @@
 #define JS_PITCH    1
 #define JS_YAW      2
 #define JS_THROTTLE 3
+
+#ifndef NPS_JS_MODE_AXIS
 #define JS_NB_AXIS  4
+#else
+#define JS_NB_AXIS 5
+#endif
 
 // buttons to switch modes
-#define JS_MODE_MANUAL 4
-#define JS_MODE_AUTO1  5
-#define JS_MODE_AUTO2  6
+#define JS_BUTTON_MODE_MANUAL 4
+#define JS_BUTTON_MODE_AUTO1  5
+#define JS_BUTTON_MODE_AUTO2  6
+#ifndef NPS_JS_MODE_AXIS
 #define JS_NB_BUTTONS  3
+#else
+#define JS_NB_BUTTONS 0
+#endif
 
 NpsJoystick nps_joystick;
 SDL_Joystick *sdl_joystick;
@@ -126,6 +138,7 @@ int nps_radio_control_joystick_init(const char* device) {
   else if (SDL_JoystickNumButtons(sdl_joystick) < JS_NB_BUTTONS)
   {
     printf("Selected joystick does not support enough buttons!\n");
+    printf("Buttons supported: %d  needed: %d\n", SDL_JoystickNumButtons(sdl_joystick), JS_NB_BUTTONS);
     SDL_JoystickClose(sdl_joystick);
     exit(-1);
   }
@@ -146,43 +159,48 @@ void nps_radio_control_joystick_update(void) {
   nps_joystick.roll = (float)(SDL_JoystickGetAxis(sdl_joystick,JS_ROLL))/32767.;
   nps_joystick.pitch = (float)(SDL_JoystickGetAxis(sdl_joystick,JS_PITCH))/32767.;
   nps_joystick.yaw = (float)(SDL_JoystickGetAxis(sdl_joystick,JS_YAW))/32767.;
+  // if an axis is asigned to the mode, use it instead of the buttons
+#ifdef NPS_JS_MODE_AXIS
+  nps_joystick.mode = (float)(SDL_JoystickGetAxis(sdl_joystick,NPS_JS_MODE_AXIS))/32767.;
+#endif
 
   while(SDL_PollEvent(&sdl_event))
   {
     switch(sdl_event.type)
     {
       case SDL_JOYBUTTONDOWN:
-      {
-	switch(sdl_event.jbutton.button)
-	{
-	  case JS_MODE_MANUAL:
-          nps_joystick.mode = MODE_SWITCH_MANUAL;
-	  break;
+        {
+          switch(sdl_event.jbutton.button)
+          {
+#ifndef NPS_JS_MODE_AXIS
+            case JS_BUTTON_MODE_MANUAL:
+              nps_joystick.mode = MODE_SWITCH_MANUAL;
+              break;
 
-	  case JS_MODE_AUTO1:
-	  nps_joystick.mode = MODE_SWITCH_AUTO1;
-	  break;
+            case JS_BUTTON_MODE_AUTO1:
+              nps_joystick.mode = MODE_SWITCH_AUTO1;
+              break;
 
-	  case JS_MODE_AUTO2:
-	  nps_joystick.mode = MODE_SWITCH_AUTO2;
-	  break;
-
-	  default:
-	  //ignore
-	  break;
+            case JS_BUTTON_MODE_AUTO2:
+              nps_joystick.mode = MODE_SWITCH_AUTO2;
+              break;
+#endif
+            default:
+              //ignore
+              break;
+          }
         }
-      }
-      break;
+        break;
 
       case SDL_QUIT:
-      printf("Quitting...\n");
-      exit(-1);
-      break;
+        printf("Quitting...\n");
+        exit(-1);
+        break;
 
       default:
-      //do nothing
-      printf("unknown SDL event!!!\n");
-      break;
+        //do nothing
+        printf("unknown SDL event!!!\n");
+        break;
     }
   }
 }

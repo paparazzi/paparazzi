@@ -27,17 +27,26 @@
 #define MS5611_H
 
 /* default i2c address
- * when CSB is set to GND ADDR0 is valid
- * when CSB is set to VCC ADDR1 is valid
+ * when CSB is set to GND addr is 0xEE
+ * when CSB is set to VCC addr is 0xEC
  *
  * Note: Aspirin 2.1 has CSB bound to GND.
  */
+#define MS5611_SLAVE_ADDR 0xEE
+
+/* FIXME: For backwards compatibility with Aspirin driver (it doesnt talk to baro either) */
 #define MS5611_ADDR0 0x77
 #define MS5611_ADDR1 0x76
 
-/* General Registers */
-#define MS5611_REG_ADCREAD   0x00 // Read converted value
-#define MS5611_REG_RESET     0x1E // Reset command
+/* SPI SLAVE3 is on pin PC13 
+ * Aspirin 2.2 has ms5611 on SPI bus
+ */
+#ifndef MS5611_SLAVE_DEV
+#define MS5611_SLAVE_DEV SPI_SLAVE3
+#endif
+
+/* Number of 16bit calibration coefficients */
+#define PROM_NB                 8
 
 /* OSR definitions */
 #define MS5611_OSR256        0x02
@@ -64,25 +73,29 @@
 #define MS5611_REG_D2OSR2048 MS5611_REG_D2(MS5611_OSR2048)
 #define MS5611_REG_D2OSR4096 MS5611_REG_D2(MS5611_OSR4096)
 
-/* PROM address definitions */
-#define MS5611_PROM_ADDR0    0x00 // 16 bit reserved for manufacturer
-#define MS5611_PROM_ADDR1    0x02 // Coefficient 1 (Pressure Sensitivity | SENS_T1)
-#define MS5611_PROM_ADDR2    0x04 // Coefficient 2 (Pressure Offset | OFF_T1)
-#define MS5611_PROM_ADDR3    0x06 // Coefficient 3 (Temperature coefficient of pressure sensitivity | TCS)
-#define MS5611_PROM_ADDR4    0x08 // Coefficient 4 (Temperature coefficient of pressure offset | TCO)
-#define MS5611_PROM_ADDR5    0x0A // Coefficient 5 (Reference temperature | T_REF)
-#define MS5611_PROM_ADDR6    0x0C // Coefficient 6 (Temperature coefficient of the temperature | TEMPSENS)
-#define MS5611_PROM_ADDR7    0x0E // CRC-4 (Chkecksum of the PROM content)
+/* Commands */
+#define MS5611_ADC_READ         0x00 // Read converted value
+#define MS5611_SOFT_RESET       0x1E // Reset command
+#define MS5611_PROM_READ        0xA0 // Start reading PROM
+#define MS5611_START_CONV_D1    MS5611_REG_D1OSR4096 /* we use OSR=4096 for maximum resolution */
+#define MS5611_START_CONV_D2    MS5611_REG_D2OSR4096 /* we use OSR=4096 for maximum resolution */
 
-/* PROM register defines */
-#define MS5611_REG_PROMR     0xA0
-#define MS5611_REG_PROM(_addr) (MS5611_REG_PROMR | _addr)
-#define MS5611_REG_C1        MS5611_REG_PROM(ADDR1)
-#define MS5611_REG_C2        MS5611_REG_PROM(ADDR2)
-#define MS5611_REG_C3        MS5611_REG_PROM(ADDR3)
-#define MS5611_REG_C4        MS5611_REG_PROM(ADDR4)
-#define MS5611_REG_C5        MS5611_REG_PROM(ADDR5)
-#define MS5611_REG_C6        MS5611_REG_PROM(ADDR6)
-#define MS5611_REG_CRC       MS5611_REG_PROM(ADDR7)
+/* FIXME: backwards compatibility with Aspirin driver */
+#define MS5611_REG_RESET MS5611_SOFT_RESET
+#define MS5611_REG_ADCREAD MS5611_ADC_READ
+
+enum ms5611_stat{
+  MS5611_UNINIT,
+  MS5611_RESET,
+  MS5611_RESET_OK,
+  MS5611_PROM,
+  MS5611_IDLE,
+  MS5611_CONV_D1,
+  MS5611_CONV_D1_OK,
+  MS5611_ADC_D1,
+  MS5611_CONV_D2,
+  MS5611_CONV_D2_OK,
+  MS5611_ADC_D2
+};
 
 #endif /* MS5611_H */

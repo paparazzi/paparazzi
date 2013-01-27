@@ -20,6 +20,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_float_lkf.h
+ *
+ * Linearized Kalman Filter for attitude estimation.
+ *
+ */
+
 #ifndef AHRS_FLOAT_LKF_H
 #define AHRS_FLOAT_LKF_H
 
