@@ -17,7 +17,6 @@ ifeq ($(ARCH), lpc21)
 # only an issue of setting the DRDY pin in w5100.c, which is stm32 specific
 $(error Not implemented for the LCP21x yet.)
 ap.CFLAGS += -DUSE_SPI1
-ap.CFLAGS += -DSSP_VIC_SLOT=9
 # default SPI device for W5100 is already SPI1
 ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DW5100_SLAVE_IDX=0

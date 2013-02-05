@@ -50,8 +50,7 @@ include $(CFG_SHARED)/spi.makefile
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_SPI_SLAVE0
 imu_CFLAGS += -DUSE_SPI1
-imu_CFLAGS += -DSSP_VIC_SLOT=9
-imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
+imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
 else ifeq ($(ARCH), stm32)
 #FIXME: untested
 imu_CFLAGS += -DUSE_SPI2 -DMAX1168_SPI_DEV=spi2

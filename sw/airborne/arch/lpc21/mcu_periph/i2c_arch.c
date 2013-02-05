@@ -196,7 +196,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
 #endif
 
 #ifndef I2C0_VIC_SLOT
-#define I2C0_VIC_SLOT 9
+#define I2C0_VIC_SLOT 8
 #endif
 
 
@@ -279,7 +279,7 @@ void i2c0_hw_init ( void ) {
 #endif
 
 #ifndef I2C1_VIC_SLOT
-#define I2C1_VIC_SLOT 11
+#define I2C1_VIC_SLOT 9
 #endif
 
 

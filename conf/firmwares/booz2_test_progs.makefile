@@ -75,7 +75,7 @@ test_max1168.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_max1168.srcs   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
+test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
 test_max1168.srcs   += peripherals/max1168.c \
 					   $(SRC_ARCH)/peripherals/max1168_arch.c
 
@@ -100,7 +100,7 @@ test_micromag.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_tr
 #test_micromag.CFLAGS += -I$(BOOZ)
 #test_micromag.srcs += pprz_debug.c
 
-test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
+test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12
 test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 
@@ -256,7 +256,7 @@ test_ami.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_ami.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_ami.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-test_ami.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+test_ami.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_BUF_LEN=16
 test_ami.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_ami.CFLAGS += -DUSE_AMI601
 test_ami.srcs += AMI601.c
@@ -294,8 +294,7 @@ test_micromag2.ARCHDIR = $(ARCH)
 
 test_micromag2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_micromag2.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag_2.c
-test_micromag2.CFLAGS += -DSSP_VIC_SLOT=9
-test_micromag2.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8
+test_micromag2.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12
 test_micromag2.CFLAGS += -DPERIODIC_FREQUENCY='50.' -DSYS_TIME_LED=1
 test_micromag2.CFLAGS += -DUSE_LED
 test_micromag2.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
@@ -333,9 +332,8 @@ test_imu_b2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_tran
 test_imu_b2.srcs += $(SRC_BOOZ)/booz_trig_int.c
 
 test_imu_b2.CFLAGS += -DBOOZ2_IMU_TYPE=\"booz2_imu_b2.h\"
-test_imu_b2.CFLAGS += -DSSP_VIC_SLOT=9
 test_imu_b2.srcs += $(SRC_BOOZ)/booz2_imu_b2.c $(SRC_BOOZ_ARCH)/booz2_imu_b2_hw.c
-test_imu_b2.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
+test_imu_b2.CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
 test_imu_b2.srcs += $(SRC_BOOZ)/booz2_max1168.c $(SRC_BOOZ_ARCH)/booz2_max1168_hw.c
 test_imu_b2.CFLAGS += -DFLOAT_T=float
 test_imu_b2.srcs += $(SRC_BOOZ)/booz2_imu.c
@@ -426,7 +424,7 @@ test_mc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transpor
 
 test_mc.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
 test_mc.srcs += $(SRC_BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
-test_mc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_mc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
 test_mc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
@@ -450,7 +448,7 @@ test_buss_bldc.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_buss_bldc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_buss_bldc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-test_buss_bldc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_buss_bldc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
 test_buss_bldc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
@@ -477,9 +475,8 @@ test_amc.srcs += $(SRC_FIRMWARE)/datalink.c
 
 test_amc.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
 test_amc.srcs += $(SRC_BOOZ_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c
-test_amc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_amc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
 test_amc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-
 test_amc.CFLAGS += -DFLOAT_T=float
 #-DBOOZ2_IMU_TYPE=\"booz2_imu_crista.h\"
 
@@ -496,7 +493,7 @@ test_mkk_bldc.srcs   += $(SRC_BOOZ_TEST)/booz2_test_buss_bldc_hexa.c
 test_mkk_bldc.CFLAGS += -DUSE_LED
 test_mkk_bldc.CFLAGS += -DPERIODIC_FREQUENCY='512.' -DSYS_TIME_LED=1
 test_mkk_bldc.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
-test_mkk_bldc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_mkk_bldc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
 test_mkk_bldc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
@@ -519,7 +516,7 @@ test_baro_24.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_baro_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_baro_24.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-test_baro_24.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+test_baro_24.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_BUF_LEN=16
 test_baro_24.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_baro_24.srcs += $(SRC_BOOZ)/booz2_baro_24.c
 

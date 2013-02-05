@@ -49,9 +49,8 @@ imu_srcs += peripherals/ms2100.c
 imu_srcs += $(SRC_ARCH)/peripherals/ms2100_arch.c
 
 ifeq ($(ARCH), lpc21)
-imu_CFLAGS += -DSSP_VIC_SLOT=9
-imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=11
+imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
+imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
 imu_CFLAGS += -DUSE_SPI2
 endif

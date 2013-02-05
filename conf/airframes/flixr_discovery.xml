@@ -17,7 +17,6 @@
       <configure name="GPS_LED" value="none"/>
       <!-- for airspeed sensor
       <define name="USE_I2C0"/>
-      <define name="I2C0_VIC_SLOT" value="12"/>
       -->
     </target>
     <target name="sim"          board="pc"/>
