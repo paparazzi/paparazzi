@@ -62,6 +62,10 @@
 #endif
 #endif
 
+#ifndef USB_VIC_SLOT
+#define USB_VIC_SLOT 10
+#endif
+
 #define INT_IN_EP               0x81
 #define BULK_OUT_EP             0x05
 #define BULK_IN_EP              0x82
@@ -579,8 +583,8 @@ void VCOM_init(void) {
 	VICIntSelect &= ~VIC_BIT(VIC_USB);               // select IRQ for USB
 	VICIntEnable = VIC_BIT(VIC_USB);
 
-	VICVectCntl10 = VIC_ENABLE | VIC_USB;
-	VICVectAddr10 = (uint32_t)USBIntHandler;
+	_VIC_CNTL(USB_VIC_SLOT) = VIC_ENABLE | VIC_USB;
+	_VIC_ADDR(USB_VIC_SLOT) = (uint32_t)USBIntHandler;
 
 	// connect to bus
 	USBHwConnect(TRUE);

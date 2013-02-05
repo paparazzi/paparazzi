@@ -138,6 +138,9 @@ static inline void main_event_task( void ) {
 #define SSP_DisableRti() ClearBit(SSPIMSC, RTIM);
 #define SSP_ClearRti()   SetBit(SSPICR, RTIC);
 
+#ifndef SSP_VIC_SLOT
+#define SSP_VIC_SLOT 7
+#endif
 
 static void main_init_ssp(void) {
 
@@ -154,9 +157,6 @@ static void main_init_ssp(void) {
   VICIntEnable = VIC_BIT( VIC_SPI1 );    /* enable it            */
   _VIC_CNTL(SSP_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
   _VIC_ADDR(SSP_VIC_SLOT) = (uint32_t)SSP_ISR;      /* address of the ISR   */
-
-
-
 
 }
 

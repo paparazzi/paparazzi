@@ -39,15 +39,18 @@ uint16_t servos_values[_4015_NB_CHANNELS];
 #define PWMIR_MRI_SERV0 PWMIR_MR5I
 #define PWMIR_MRI_SERV1 PWMIR_MR2I
 
+#ifndef PWM_VIC_SLOT
+#define PWM_VIC_SLOT 3
+#endif
 
 void actuators_4015_init ( void ) {
   /* PWM selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_PWM);
   /* PWM interrupt enabled */
   VICIntEnable = VIC_BIT(VIC_PWM);
-  VICVectCntl3 = VIC_ENABLE | VIC_PWM;
+  _VIC_CNTL(PWM_VIC_SLOT) = VIC_ENABLE | VIC_PWM;
   /* address of the ISR */
-  VICVectAddr3 = (uint32_t)PWM_ISR;
+  _VIC_ADDR(PWM_VIC_SLOT) = (uint32_t)PWM_ISR;
   /* PW5 pin (P0.21) used for PWM  */
   IO0DIR |= _BV(SERV1_CLOCK_PIN);
   IO1DIR |= _BV(SERV1_DATA_PIN) | _BV(SERV1_RESET_PIN);

@@ -35,13 +35,4 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
-// SSP is on SPI1 on lpc
-#if defined USE_SSP & !USE_SPI1
-#define USE_SP11 1
-#endif
-
-#if defined SSP_VIC_SLOT & !SPI1_VIC_SLOT
-#define SPI1_VIC_SLOT SSP_VIC_SLOT
-#endif
-
 #endif /* SPI_ARCH_H */
