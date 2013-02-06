@@ -172,8 +172,6 @@ endif
 #
 
 ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -DADC0_VIC_SLOT=2
-ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.CFLAGS += -DUSE_ADC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c

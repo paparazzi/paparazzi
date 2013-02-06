@@ -64,6 +64,12 @@ void baro_scp_periodic(void) {
 #define ScpSelect()   SetBit(SS_IOCLR,SS_PIN)
 #define ScpUnselect() SetBit(SS_IOSET,SS_PIN)
 
+#warning "This driver should be updated to use the new SPI peripheral"
+
+#ifndef SPI1_VIC_SLOT
+#define SPI1_VIC_SLOT 7
+#endif
+
 void baro_scp_init( void ) {
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
@@ -77,8 +83,8 @@ void baro_scp_init( void ) {
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI1);     // SPI1 interrupt enabled
-  VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
-  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
+  _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
+  _VIC_CNTL(SPI1_VIC_SLOT) = (uint32_t)SPI1_ISR;    /* address of the ISR */
 
   /* configure SS pin */
   SetBit(SS_IODIR, SS_PIN); /* pin is output  */

@@ -49,10 +49,9 @@ imu_srcs += peripherals/hmc5843.c
 imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
 
 ifeq ($(ARCH), lpc21)
-imu_CFLAGS += -DSSP_VIC_SLOT=9
-imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
+imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
 #FIXME ms2100 not used on this imu
-imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=11
+imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
 imu_CFLAGS += -DUSE_SPI2
 imu_CFLAGS += -DUSE_I2C2

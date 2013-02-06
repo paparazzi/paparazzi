@@ -40,6 +40,11 @@ volatile uint8_t num_irqs = 0;
 static void SSP_ISR(void) __attribute__((naked));
 static void EXTINT_ISR(void) __attribute__((naked));
 
+#warning "This driver should be updated to use the new SPI peripheral"
+
+#ifndef SPI1_VIC_SLOT
+#define SPI1_VIC_SLOT 7
+#endif
 
 static void SSP_ISR(void) {
   int i;
@@ -283,8 +288,8 @@ void max11040_hw_init( void ) {
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( VIC_SPI1 );         /* SPI1 selected as IRQ */
   VICIntEnable = VIC_BIT( VIC_SPI1 );           /* enable it            */
-  _VIC_CNTL(SSP_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
-  _VIC_ADDR(SSP_VIC_SLOT) = (uint32_t)SSP_ISR;  /* address of the ISR   */
+  _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
+  _VIC_ADDR(SPI1_VIC_SLOT) = (uint32_t)SSP_ISR;  /* address of the ISR   */
 
 
   /* *** configure DRDY pin***  */
