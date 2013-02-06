@@ -41,6 +41,8 @@
  *  Q23.8 : accuracy 0.0039 , range 8388km/s^2
  */
 extern int32_t gv_zdd_ref;
+extern int32_t gv_min_zdd;
+extern int32_t gv_max_zdd;
 
 /** number of bits for the fractional part of #gv_zdd_ref */
 #define GV_ZDD_REF_FRAC 8
@@ -50,6 +52,8 @@ extern int32_t gv_zdd_ref;
  *  Q14.17 : accuracy 0.0000076 , range 16384m/s2
  */
 extern int32_t gv_zd_ref;
+extern int32_t gv_min_zd;
+extern int32_t gv_max_zd;
 
 /** number of bits for the fractional part of #gv_zd_ref */
 #define GV_ZD_REF_FRAC (GV_ZDD_REF_FRAC + GV_FREQ_FRAC)
@@ -110,6 +114,11 @@ int64_t gv_z_ref;
 int32_t gv_zd_ref;
 int32_t gv_zdd_ref;
 
+int32_t gv_min_zdd = GV_MIN_ZDD;
+int32_t gv_max_zdd = GV_MAX_ZDD;
+int32_t gv_min_zd = GV_MIN_ZD;
+int32_t gv_max_zd = GV_MAX_ZD;
+
 __attribute__ ((always_inline)) static inline void gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
   int64_t new_z = ((int64_t)alt)<<(GV_Z_REF_FRAC - INT32_POS_FRAC);
   gv_z_ref   = new_z;
@@ -133,16 +142,16 @@ __attribute__ ((always_inline)) static inline void gv_update_ref_from_z_sp(int32
   gv_zdd_ref = zdd_speed + zdd_pos;
 
   /* Saturate accelerations */
-  Bound(gv_zdd_ref, GV_MIN_ZDD, GV_MAX_ZDD);
+  Bound(gv_zdd_ref, gv_min_zdd, gv_max_zdd);
 
   /* Saturate speed and adjust acceleration accordingly */
-  if (gv_zd_ref <= GV_MIN_ZD) {
-    gv_zd_ref = GV_MIN_ZD;
+  if (gv_zd_ref <= gv_min_zd) {
+    gv_zd_ref = gv_min_zd;
     if (gv_zdd_ref < 0)
       gv_zdd_ref = 0;
   }
-  else if (gv_zd_ref >= GV_MAX_ZD) {
-    gv_zd_ref = GV_MAX_ZD;
+  else if (gv_zd_ref >= gv_max_zd) {
+    gv_zd_ref = gv_max_zd;
     if (gv_zdd_ref > 0)
       gv_zdd_ref = 0;
   }
@@ -159,16 +168,16 @@ __attribute__ ((always_inline)) static inline void gv_update_ref_from_zd_sp(int3
   gv_zdd_ref = (-(int32_t)GV_REF_INV_THAU * zd_err_zdd_res)>>GV_REF_INV_THAU_FRAC;
 
   /* Saturate accelerations */
-  Bound(gv_zdd_ref, GV_MIN_ZDD, GV_MAX_ZDD);
+  Bound(gv_zdd_ref, gv_min_zdd, gv_max_zdd);
 
   /* Saturate speed and adjust acceleration accordingly */
-  if (gv_zd_ref <= GV_MIN_ZD) {
-    gv_zd_ref = GV_MIN_ZD;
+  if (gv_zd_ref <= gv_min_zd) {
+    gv_zd_ref = gv_min_zd;
     if (gv_zdd_ref < 0)
       gv_zdd_ref = 0;
   }
-  else if (gv_zd_ref >= GV_MAX_ZD) {
-    gv_zd_ref = GV_MAX_ZD;
+  else if (gv_zd_ref >= gv_max_zd) {
+    gv_zd_ref = gv_max_zd;
     if (gv_zdd_ref > 0)
       gv_zdd_ref = 0;
   }

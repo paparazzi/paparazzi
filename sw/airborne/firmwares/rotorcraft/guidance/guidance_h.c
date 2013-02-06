@@ -40,7 +40,7 @@
 uint8_t guidance_h_mode;
 
 struct Int32Vect2 guidance_h_pos_sp;
-#ifndef GUIDANCE_H_USE_SPEED_REF
+#ifdef GUIDANCE_H_USE_SPEED_REF
 struct Int32Vect2 guidance_h_speed_sp;
 #endif
 struct Int32Vect2 guidance_h_pos_ref;
@@ -99,7 +99,7 @@ void guidance_h_init(void) {
 
   guidance_h_mode = GUIDANCE_H_MODE_KILL;
   INT_VECT2_ZERO(guidance_h_pos_sp);
-#ifndef GUIDANCE_H_USE_SPEED_REF
+#ifdef GUIDANCE_H_USE_SPEED_REF
   INT_VECT2_ZERO(guidance_h_speed_sp);
 #endif
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
@@ -164,13 +164,20 @@ void guidance_h_read_rc(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
-#ifndef GUIDANCE_H_USE_SPEED_REF
     stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
-#else
-    INT_VECT2_ASSIGN(guidance_h_speed_sp, ((int32_t)radio_control.values[RADIO_ROLL]  * GUIDANCE_H_MAX_SPEED / MAX_PPRZ), 
-                                          ((int32_t)radio_control.values[RADIO_PITCH] * GUIDANCE_H_MAX_SPEED / MAX_PPRZ));
-    DeadBand(guidance_h_speed_sp.x, GUIDANCE_H_RC_SPEED_DEAD_BAND);
-    DeadBand(guidance_h_speed_sp.y, GUIDANCE_H_RC_SPEED_DEAD_BAND);
+#ifdef GUIDANCE_H_USE_SPEED_REF
+    if(in_flight) {
+      int32_t psi, s_psi, c_psi, rc_x, rc_y;
+      rc_x   = (int32_t)radio_control.values[RADIO_PITCH] * GUIDANCE_H_MAX_SPEED / MAX_PPRZ;
+      rc_y   = (int32_t)radio_control.values[RADIO_ROLL]  * GUIDANCE_H_MAX_SPEED / MAX_PPRZ;
+      //DeadBand(rc_x, GUIDANCE_H_RC_SPEED_DEAD_BAND);
+      //DeadBand(rc_y, GUIDANCE_H_RC_SPEED_DEAD_BAND);
+      psi = stateGetNedToBodyEulers_i()->psi;
+      PPRZ_ITRIG_SIN(s_psi, psi);
+      PPRZ_ITRIG_COS(c_psi, psi);
+      guidance_h_speed_sp.x   = (-c_psi * rc_x + s_psi * rc_y) / (1 << INT32_TRIG_FRAC);
+      guidance_h_speed_sp.y   = (-s_psi * rc_x - c_psi * rc_y) / (1 << INT32_TRIG_FRAC);
+    }
 #endif
     break;
 
@@ -213,6 +220,9 @@ void guidance_h_run(bool_t  in_flight) {
 
     /* set psi command */
     guidance_h_command_body.psi = guidance_h_rc_sp.psi;
+    /* reset setpoint to current position when not in flight */
+    if(!in_flight)
+      guidance_h_hover_enter();
     /* compute roll and pitch commands and set final attitude setpoint */
     guidance_h_traj_run(in_flight);
 
@@ -258,11 +268,12 @@ void guidance_h_run(bool_t  in_flight) {
 static inline void guidance_h_update_reference(bool_t use_ref) {
   /* convert our reference to generic representation */
   if (use_ref) {
-#ifndef GUIDANCE_H_USE_SPEED_REF
-    b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
-#else
-    b2_gh_update_ref_from_speed_sp(guidance_h_speed_sp);
+#ifdef GUIDANCE_H_USE_SPEED_REF
+    if(guidance_h_mode == GUIDANCE_H_MODE_HOVER)
+      b2_gh_update_ref_from_speed_sp(guidance_h_speed_sp);
+    else
 #endif
+      b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
@@ -286,7 +297,7 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
 #define TRAJ_MAX_BANK BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC)
 
 static inline void guidance_h_traj_run(bool_t in_flight) {
-
+#if 0
   /* saturate the distance from home waypoint */
   struct Int32Vect2 path_to_home;
   int32_t dist_to_home, max_dist_to_home;
@@ -302,6 +313,7 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
     path_to_home.y = max_dist_to_home * c_angle / (1 << INT32_TRIG_FRAC);
     INT32_VECT2_NED_OF_ENU(guidance_h_pos_ref, path_to_home);
   }
+#endif
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
   /* saturate it               */
@@ -347,10 +359,11 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
   guidance_h_command_body.theta =
     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
 
-
-  /* Add RC roll and pitch setpoints for emergency corrections */
-  guidance_h_command_body.phi += guidance_h_rc_sp.phi;
-  guidance_h_command_body.theta += guidance_h_rc_sp.theta;
+  if(guidance_h_mode != GUIDANCE_H_MODE_NAV) {
+    /* Add RC roll and pitch setpoints for emergency corrections */
+    //guidance_h_command_body.phi += guidance_h_rc_sp.phi;
+    //guidance_h_command_body.theta += guidance_h_rc_sp.theta;
+  }
 
   /* Set attitude setpoint in eulers and as quaternion */
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
@@ -365,6 +378,10 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 static inline void guidance_h_hover_enter(void) {
 
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
+  struct Int32Vect2 speed, zero;
+  INT_VECT2_ZERO(zero);
+  VECT2_COPY(speed, *stateGetSpeedNed_i());
+  GuidanceHSetRef(guidance_h_pos_sp, speed, zero);
 
   guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();

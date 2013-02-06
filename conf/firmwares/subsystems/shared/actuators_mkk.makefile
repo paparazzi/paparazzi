@@ -37,6 +37,7 @@ ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SC
 else ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
 ap.CFLAGS += -DUSE_I2C1
+ap.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
 endif
 
 # Simulator
