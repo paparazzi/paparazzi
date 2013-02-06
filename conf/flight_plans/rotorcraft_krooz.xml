@@ -30,8 +30,7 @@
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
-			<exception cond="!RcCommand(RC_MODE_CHANGE) && autopilot_in_flight" deroute="Takeoff"/>
-			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_in_flight" deroute="Standby"/>
+      <exception cond="autopilot_motors_on" deroute="Start Engine"/>
       <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
@@ -39,13 +38,15 @@
 			<exception cond="!RcCommand(RC_MODE_CHANGE) && autopilot_in_flight" deroute="Takeoff"/>
 			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_in_flight" deroute="Standby"/>
       <call fun="NavResurrect()"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+			<call fun="NavSetWaypointHere(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_STDBY)"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
 			<!--<call fun="NavStopDetectGround()"/>-->
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="0.5" wp="CLIMB"/>
+      <stay vmode="climb" climb="1.0" wp="CLIMB"/>
     </block>
 		<block name="Come Home">
 			<call fun="NavSetWpCurAlt(WP_STDBY)"/>
@@ -67,6 +68,7 @@
 			<exception cond="!autopilot_motors_on" deroute="Holding point"/>
 			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on && !autopilot_in_flight" deroute="Start Engine"/>
 			<!--<call fun="NavStopDetectGround()"/>-->
+      <go wp="1"/>
       <go from="1" hmode="route" wp="2"/>
 			<go from="2" hmode="route" wp="3"/>
       <go from="3" hmode="route" wp="4"/>
