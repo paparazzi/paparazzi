@@ -283,7 +283,7 @@ void v_ctl_altitude_loop( void )
  * \brief
  */
 
-const float dt = 0.01f;
+const float dt = CONTROL_FREQUENCY;
 
 float lp_vdot[5];
 
