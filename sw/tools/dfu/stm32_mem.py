@@ -1,8 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # stm32_mem.py: STM32 memory access using USB DFU class
 # Copyright (C) 2011  Black Sphere Technologies
 # Written by Gareth McMullin <gareth@blacksphere.co.nz>
+# Modified by Felix Ruess <felix.ruess@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +23,9 @@ from __future__ import print_function
 from time import sleep
 import struct
 from sys import stdout, argv
+from os import path
+
+from optparse import OptionParser
 
 import usb
 import dfu
@@ -63,50 +67,95 @@ def stm32_manifest(dev):
         if status.bState == dfu.STATE_DFU_MANIFEST:
             break
 
-if __name__ == "__main__":
+def print_copyright():
     print("")
-    print("USB Device Firmware Upgrade - Host Utility -- version 1.2")
+    print("USB Device Firmware Upgrade - Host Utility -- version 1.3")
     print("Copyright (C) 2011  Black Sphere Technologies")
     print("Copyright (C) 2012  Transition Robotics Inc.")
     print("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>")
     print("")
 
+if __name__ == "__main__":
+    usage = "Usage: %prog [options] firmware.bin" + "\n" + "Run %prog --help to list the options."
+    parser = OptionParser(usage, version='%prog version 1.3')
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose")
+    (options, args) = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("incorrect number of arguments")
+    else:
+        if path.isfile(args[0]):
+            binfile = args[0]
+        else:
+            parser.error("Binary file " + args[0] + " not found")
+
+    if options.verbose:
+        print_copyright()
+
     devs = dfu.finddevs()
     if not devs:
         print("No devices found!")
         exit(-1)
+    elif options.verbose:
+        print("Found %i devices." % len(devs))
+
+    valid_manufacturers = []
+    valid_manufacturers.append("Transition Robotics Inc.")
+    valid_manufacturers.append("STMicroelectronics")
+    # don't accept BMP to not accidentally upload ap firmware to it
+    # valid_manufacturers.append("Black Sphere Technologies")
+
+    # stm32 (autopilot) device which is found
+    stm32dev = None
 
     for dev in devs:
-        dfudev = dfu.dfu_device(*dev)
+        try:
+            dfudev = dfu.dfu_device(*dev)
+        except:
+            if options.verbose:
+                print("Could not open DFU device %s ID %04x:%04x\n"
+                      "Maybe the OS driver is claiming it?" %
+                      (dev[0].filename, dev[0].idVendor, dev[0].idProduct))
+            continue
         try:
             man = dfudev.handle.getString(dfudev.dev.iManufacturer, 30)
             product = dfudev.handle.getString(dfudev.dev.iProduct, 30)
             serial = dfudev.handle.getString(dfudev.dev.iSerialNumber, 40)
         except:
-            print("Could not access the description strings of a DFU device. " +
-                  "Maybe the OS driver is claiming it?")
+            print("Whoops... could not get device description.")
             continue
-        if man == "Black Sphere Technologies": break
-        if man == "Transition Robotics Inc.": break
-        if man == "STMicroelectronics": break
 
-    print("Device %s: ID %04x:%04x %s - %s - %s" % (dfudev.dev.filename,
-          dfudev.dev.idVendor, dfudev.dev.idProduct, man, product, serial))
+        if options.verbose:
+            print("Found device %s: ID %04x:%04x %s - %s - %s" %
+                    (dfudev.dev.filename, dfudev.dev.idVendor,
+                     dfudev.dev.idProduct, man, product, serial))
+
+        if man in valid_manufacturers:
+            stm32dev = dfudev
+            break
+
+    if stm32dev is None:
+        print("Could not find STM32 (autopilot) device.")
+        exit(-1)
+
+    print("Using device %s: ID %04x:%04x %s - %s - %s" % (stm32dev.dev.filename,
+          stm32dev.dev.idVendor, stm32dev.dev.idProduct, man, product, serial))
 
     try:
-        state = dfudev.get_state()
+        state = stm32dev.get_state()
     except:
         print("Failed to read device state! Assuming APP_IDLE")
         state = dfu.STATE_APP_IDLE
     if state == dfu.STATE_APP_IDLE:
-        dfudev.detach()
+        stm32dev.detach()
         print("Run again to upgrade firmware.")
         exit(0)
 
-    dfudev.make_idle()
+    stm32dev.make_idle()
 
     try:
-        bin = open(argv[1], "rb").read()
+        bin = open(binfile, "rb").read()
     except:
         print("Could not open binary file.")
         raise
@@ -115,12 +164,12 @@ if __name__ == "__main__":
     while bin:
         print("Programming memory at 0x%08X\r" % addr)
         stdout.flush()
-        stm32_erase(dfudev, addr)
-        stm32_write(dfudev, bin[:SECTOR_SIZE])
+        stm32_erase(stm32dev, addr)
+        stm32_write(stm32dev, bin[:SECTOR_SIZE])
 
         bin = bin[SECTOR_SIZE:]
         addr += SECTOR_SIZE
 
-    stm32_manifest(dfudev)
+    stm32_manifest(stm32dev)
 
     print("\nAll operations complete!\n")

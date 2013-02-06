@@ -78,12 +78,18 @@ class dfu_device(object):
         self.dev = dev
         self.conf = conf
         self.iface = iface
-        self.handle = self.dev.open()
+        try:
+            self.handle = self.dev.open()
+        except:
+            raise
         try:
             self.handle.setConfiguration(conf)
         except:
             pass
-        self.handle.claimInterface(iface.interfaceNumber)
+        try:
+            self.handle.claimInterface(iface.interfaceNumber)
+        except:
+            raise
         if type(self.iface) is usb.Interface:
             self.index = self.iface.interfaceNumber
         else:
@@ -184,6 +190,8 @@ if __name__ == "__main__":
     if not devs:
         print("No devices found!")
         exit(-1)
+    else:
+        print("Found %i devices." % len(devs))
 
     for dfu in devs:
         handle = dfu[0].open()
