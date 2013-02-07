@@ -79,6 +79,16 @@ extern uint32_t ppm_last_pulse_time;
 extern bool_t   ppm_data_valid;
 
 /**
+ * RssiValid test macro.
+ * This macro has to be defined to test the validity of ppm frame
+ * from an other source (ex: GPIO).
+ * By default, always true.
+ */
+#ifndef RssiValid
+#define RssiValid() TRUE
+#endif
+
+/**
  * A valid ppm frame:
  * - synchro blank
  * - correct number of channels
@@ -89,9 +99,9 @@ extern bool_t   ppm_data_valid;
   ppm_last_pulse_time = _ppm_time;                          \
                                                             \
   if (ppm_cur_pulse == PPM_NB_CHANNEL) {                    \
-    if (length > RC_PPM_TICKS_OF_USEC(PPM_SYNC_MIN_LEN) &&   \
-        length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {   \
-      if (ppm_data_valid) {                                 \
+    if (length > RC_PPM_TICKS_OF_USEC(PPM_SYNC_MIN_LEN) &&  \
+        length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {  \
+      if (ppm_data_valid && RssiValid()) {                  \
         ppm_frame_available = TRUE;                         \
         ppm_data_valid = FALSE;                             \
       }                                                     \
@@ -102,8 +112,8 @@ extern bool_t   ppm_data_valid;
     }                                                       \
   }                                                         \
   else {                                                    \
-    if (length > RC_PPM_TICKS_OF_USEC(PPM_DATA_MIN_LEN) &&   \
-        length < RC_PPM_TICKS_OF_USEC(PPM_DATA_MAX_LEN)) {   \
+    if (length > RC_PPM_TICKS_OF_USEC(PPM_DATA_MIN_LEN) &&  \
+        length < RC_PPM_TICKS_OF_USEC(PPM_DATA_MAX_LEN)) {  \
       ppm_pulses[ppm_cur_pulse] = length;                   \
       ppm_cur_pulse++;                                      \
       if (ppm_cur_pulse == PPM_NB_CHANNEL) {                \

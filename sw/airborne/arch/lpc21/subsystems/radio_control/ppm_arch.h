@@ -47,5 +47,9 @@
   DecodePpmFrame(now);    \
 }
 
+#ifdef USE_PPM_RSSI_GPIO
+#define RssiValid() (bit_is_set(PPM_RSSI_IOPIN, PPM_RSSI_PIN) == PPM_RSSI_VALID_LEVEL)
+#endif
+
 
 #endif /* PPM_ARCH_H */

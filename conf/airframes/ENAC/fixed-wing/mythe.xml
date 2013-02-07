@@ -15,6 +15,11 @@
       <define name="AIRSPEED_QUADRATIC_SCALE" value="1.09378"/>
       <define name="AIRSPEED_BIAS" value="110"/>
     </load>
+    <load name="AOA_adc.xml">
+      <configure name="ADC_AOA" value="ADC_2"/>
+      <define name="AOA_OFFSET" value="0"/>
+      <define name="AOA_FILTER" value="0.5"/>
+    </load>
     <!--load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
     </load-->
@@ -28,10 +33,10 @@
     <!--load name="baro_ms5611_i2c.xml">
       <define name="MS5611_I2C_DEV" value="i2c0"/>
     </load-->
-    <load name="baro_mpl3115.xml">
+    <!--load name="baro_mpl3115.xml">
       <define name="MPL3115_I2C_DEV" value="i2c0"/>
       <define name="SENSOR_SYNC_SEND"/>
-    </load>
+    </load-->
     <!--load name="airspeed_ads1114.xml"/-->
     <!--load name="mcp355x.xml"/-->
     <!--load name="sys_mon.xml"/-->
@@ -51,7 +56,12 @@
     <target name="sim" board="pc"/>
     <target name="ap" board="umarim_1.0"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="radio_control" type="ppm">
+      <define name="USE_PPM_RSSI_GPIO"/>
+      <define name="PPM_RSSI_IOPIN" value="IO0PIN"/>
+      <define name="PPM_RSSI_PIN" value="10"/>
+      <define name="PPM_RSSI_VALID_LEVEL" value="0"/>
+    </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>
