@@ -80,6 +80,12 @@ if __name__ == "__main__":
     parser = OptionParser(usage, version='%prog version 1.3')
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
+    parser.add_option("--product", type="choice", choices=["any", "Lisa/M"],
+                      action="store", default="Lisa/M",
+                      help="Only upload to device where idProduct matches PRODUCT\n"
+                      "choices: (any, Lisa/M), default: Lisa/M")
+    parser.add_option("-n", "--dry-run", action="store_true",
+                      help="Dry run to check which board is found without actually flashing.")
     (options, args) = parser.parse_args()
 
     if len(args) != 1:
@@ -95,26 +101,25 @@ if __name__ == "__main__":
 
     devs = dfu.finddevs()
     if not devs:
-        print("No devices found!")
+        print("No DFU devices found!")
         exit(-1)
     elif options.verbose:
-        print("Found %i devices." % len(devs))
+        print("Found %i DFU devices." % len(devs))
 
     valid_manufacturers = []
     valid_manufacturers.append("Transition Robotics Inc.")
     valid_manufacturers.append("STMicroelectronics")
-    # don't accept BMP to not accidentally upload ap firmware to it
-    # valid_manufacturers.append("Black Sphere Technologies")
+    valid_manufacturers.append("Black Sphere Technologies")
 
-    # stm32 (autopilot) device which is found
-    stm32dev = None
+    # list of tuples with possible stm32 (autopilot) devices
+    stm32devs = []
 
     for dev in devs:
         try:
             dfudev = dfu.dfu_device(*dev)
         except:
             if options.verbose:
-                print("Could not open DFU device %s ID %04x:%04x\n"
+                print("Could not open DFU device %s ID %04x:%04x "
                       "Maybe the OS driver is claiming it?" %
                       (dev[0].filename, dev[0].idVendor, dev[0].idProduct))
             continue
@@ -127,32 +132,48 @@ if __name__ == "__main__":
             continue
 
         if options.verbose:
-            print("Found device %s: ID %04x:%04x %s - %s - %s" %
+            print("Found DFU device %s: ID %04x:%04x %s - %s - %s" %
                     (dfudev.dev.filename, dfudev.dev.idVendor,
                      dfudev.dev.idProduct, man, product, serial))
 
         if man in valid_manufacturers:
-            stm32dev = dfudev
-            break
+            if options.product == "any":
+                stm32devs.append((dfudev, man, product, serial))
+            elif options.product == "Lisa/M":
+                if "Lisa/M" in product:
+                    stm32devs.append((dfudev, man, product, serial))
 
-    if stm32dev is None:
+    if not stm32devs:
         print("Could not find STM32 (autopilot) device.")
         exit(-1)
 
-    print("Using device %s: ID %04x:%04x %s - %s - %s" % (stm32dev.dev.filename,
-          stm32dev.dev.idVendor, stm32dev.dev.idProduct, man, product, serial))
+    if len(stm32devs) > 1:
+        print("Warning: Found more than one potential board to flash.")
+        for (d, m, p, s) in stm32devs:
+            print("Found possible STM32 (autopilot) device %s: ID %04x:%04x %s - %s - %s" %
+                  (d.dev.filename, d.dev.idVendor, d.dev.idProduct, m, p, s))
+
+    # use first potential board as target
+    target = stm32devs[0][0]
+    print("Using device %s: ID %04x:%04x %s - %s - %s" % (target.dev.filename,
+          target.dev.idVendor, target.dev.idProduct, man, product, serial))
+
+    # if it's a dry run only, don't actually flash, just exit now
+    if options.dry_run:
+        print("Dry run, done.")
+        exit(0)
 
     try:
-        state = stm32dev.get_state()
+        state = target.get_state()
     except:
         print("Failed to read device state! Assuming APP_IDLE")
         state = dfu.STATE_APP_IDLE
     if state == dfu.STATE_APP_IDLE:
-        stm32dev.detach()
+        target.detach()
         print("Run again to upgrade firmware.")
         exit(0)
 
-    stm32dev.make_idle()
+    target.make_idle()
 
     try:
         bin = open(binfile, "rb").read()
@@ -164,12 +185,12 @@ if __name__ == "__main__":
     while bin:
         print("Programming memory at 0x%08X\r" % addr)
         stdout.flush()
-        stm32_erase(stm32dev, addr)
-        stm32_write(stm32dev, bin[:SECTOR_SIZE])
+        stm32_erase(target, addr)
+        stm32_write(target, bin[:SECTOR_SIZE])
 
         bin = bin[SECTOR_SIZE:]
         addr += SECTOR_SIZE
 
-    stm32_manifest(stm32dev)
+    stm32_manifest(target)
 
     print("\nAll operations complete!\n")
