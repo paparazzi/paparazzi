@@ -174,12 +174,42 @@ void actuators_asctec_set(bool_t motors_on) {
   actuators_asctec.i2c_trans.buf[3] = 0;
   actuators_asctec.i2c_trans.buf[4] = 0xAA;
 #else
-  actuators_asctec.i2c_trans.buf[0] = actuators_asctec.cmds[SERVO_FRONT];
-  actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cmds[SERVO_BACK];
-  actuators_asctec.i2c_trans.buf[2] = actuators_asctec.cmds[SERVO_LEFT];
-  actuators_asctec.i2c_trans.buf[3] = actuators_asctec.cmds[SERVO_RIGHT];
-  actuators_asctec.i2c_trans.buf[4] = 0xAA + actuators_asctec.i2c_trans.buf[0] + actuators_asctec.i2c_trans.buf[1] +
-                                             actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
+  switch (actuators_asctec.cmd) {
+  case TEST:
+    actuators_asctec.i2c_trans.buf[0] = 251;
+    actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cur_addr;
+    actuators_asctec.i2c_trans.buf[2] = 0;
+    actuators_asctec.i2c_trans.buf[3] = 231 + actuators_asctec.cur_addr;
+    actuators_asctec.i2c_trans.len_w = 4;
+    break;
+  case REVERSE:
+    actuators_asctec.i2c_trans.buf[0] = 254;
+    actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cur_addr;
+    actuators_asctec.i2c_trans.buf[2] = 0;
+    actuators_asctec.i2c_trans.buf[3] = 234 + actuators_asctec.cur_addr;
+    actuators_asctec.i2c_trans.len_w = 4;
+    break;
+  case SET_ADDR:
+    actuators_asctec.i2c_trans.buf[0] = 250;
+    actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cur_addr;
+    actuators_asctec.i2c_trans.buf[2] = actuators_asctec.new_addr;
+    actuators_asctec.i2c_trans.buf[3] = 230 + actuators_asctec.cur_addr + actuators_asctec.new_addr;
+    actuators_asctec.cur_addr = actuators_asctec.new_addr;
+    actuators_asctec.i2c_trans.len_w = 4;
+    break;
+  case NONE:
+    actuators_asctec.i2c_trans.buf[0] = actuators_asctec.cmds[SERVO_FRONT];
+    actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cmds[SERVO_BACK];
+    actuators_asctec.i2c_trans.buf[2] = actuators_asctec.cmds[SERVO_LEFT];
+    actuators_asctec.i2c_trans.buf[3] = actuators_asctec.cmds[SERVO_RIGHT];
+    actuators_asctec.i2c_trans.buf[4] = 0xAA + actuators_asctec.i2c_trans.buf[0] + actuators_asctec.i2c_trans.buf[1] +
+      actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
+    actuators_asctec.i2c_trans.len_w = 5;
+    break;
+  default:
+    break;
+  }
+  actuators_asctec.cmd = NONE;
 #endif
 
   i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
