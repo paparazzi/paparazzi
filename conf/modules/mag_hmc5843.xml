@@ -15,7 +15,7 @@
     <define name="USE_I2C" />
     <file name="mag_hmc5843.c"/>
     <file name="../../peripherals/hmc5843.c"/>
-    <define name="HMC5843_I2C_DEVICE" value="i2c0" />
+    <define name="HMC5843_I2C_DEV" value="i2c0" />
     <define name="USE_I2C0" />
     <define name="HMC5843_NO_IRQ" />
   </makefile>

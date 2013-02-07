@@ -22,57 +22,62 @@
 
 /**
  * @file subsystems/imu/imu_aspirin.c
- * Driver for the Aspirin v1.x IMU using SPI for the accelerometer.
+ * Driver for the Aspirin v1.x IMU using I2C for the accelerometer.
  */
 
 #include "subsystems/imu.h"
 
 #include "mcu_periph/i2c.h"
-#include "mcu_periph/spi.h"
+
+// Set SPI_CS High to enable I2C mode of ADXL345
+#include "mcu_periph/gpio_arch.h"
 
 
-/* defaults suitable for Lisa */
-#ifndef ASPIRIN_SPI_SLAVE_IDX
-#define ASPIRIN_SPI_SLAVE_IDX SPI_SLAVE2
-#endif
-
-#ifndef ASPIRIN_SPI_DEV
-#define ASPIRIN_SPI_DEV spi2
-#endif
-
+/* i2c default suitable for Lisa */
 #ifndef ASPIRIN_I2C_DEV
 #define ASPIRIN_I2C_DEV i2c2
 #endif
 
+/** adxl345 accelerometer output rate, lowpass is set to half of rate */
 #ifndef ASPIRIN_ACCEL_RATE
-#define ASPIRIN_ACCEL_RATE ADXL345_RATE_800HZ
+#  if PERIODIC_FREQUENCY <= 60
+#    define ASPIRIN_ACCEL_RATE ADXL345_RATE_50HZ
+#  elif PERIODIC_FREQUENCY <= 120
+#    define ASPIRIN_ACCEL_RATE ADXL345_RATE_100HZ
+#  else
+#    define ASPIRIN_ACCEL_RATE ADXL345_RATE_200HZ
+#  endif
 #endif
 PRINT_CONFIG_VAR(ASPIRIN_ACCEL_RATE)
 
 
 /** gyro internal lowpass frequency */
 #ifndef ASPIRIN_GYRO_LOWPASS
-#define ASPIRIN_GYRO_LOWPASS ITG3200_DLPF_256HZ
+#  if PERIODIC_FREQUENCY <= 60
+#    define ASPIRIN_GYRO_LOWPASS ITG3200_DLPF_20HZ
+#  elif PERIODIC_FREQUENCY <= 120
+#    define ASPIRIN_GYRO_LOWPASS ITG3200_DLPF_42HZ
+#  else
+#    define ASPIRIN_GYRO_LOWPASS ITG3200_DLPF_98HZ
+#  endif
 #endif
 PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS)
 
 
 /** gyro sample rate divider */
 #ifndef ASPIRIN_GYRO_SMPLRT_DIV
-#if ASPIRIN_GYRO_LOWPASS == ITG3200_DLPF_256HZ
-// internal 8kHz, output rate 533Hz
-#define ASPIRIN_GYRO_SMPLRT_DIV 14
-INFO("Gyro output rate is 533Hz")
-#else
-// internal 1kHz, output rate 500Hz
-#define ASPIRIN_GYRO_SMPLRT_DIV 9
-INFO("Gyro output rate is 500Hz")
-#endif
+#  if PERIODIC_FREQUENCY <= 60
+#    define ASPIRIN_GYRO_SMPLRT_DIV 19
+     INFO("Gyro output rate is 50Hz")
+#  else
+#    define ASPIRIN_GYRO_SMPLRT_DIV 9
+     INFO("Gyro output rate is 100Hz")
+#  endif
 #endif
 PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
 
-struct ImuAspirin imu_aspirin;
+struct ImuAspirinI2c imu_aspirin;
 
 void imu_impl_init(void)
 {
@@ -81,18 +86,21 @@ void imu_impl_init(void)
   imu_aspirin.mag_valid = FALSE;
 
   /* Set accel configuration */
-  adxl345_spi_init(&imu_aspirin.acc_adxl, &(ASPIRIN_SPI_DEV), ASPIRIN_SPI_SLAVE_IDX);
+  adxl345_i2c_init(&imu_aspirin.acc_adxl, &(ASPIRIN_I2C_DEV), ADXL345_ADDR);
   // set the data rate
   imu_aspirin.acc_adxl.config.rate = ASPIRIN_ACCEL_RATE;
   /// @todo drdy int handling for adxl345
   //imu_aspirin.acc_adxl.config.drdy_int_enable = TRUE;
 
+  // With CS tied high to VDD I/O, the ADXL345 is in I2C mode
+  GPIO_ARCH_SET_SPI_CS_HIGH();
+
   /* Gyro configuration and initalization */
   itg3200_init(&imu_aspirin.gyro_itg, &(ASPIRIN_I2C_DEV), ITG3200_ADDR);
   /* change the default config */
-  // Aspirin sample rate divider defaults to 533Hz
+  // Aspirin sample rate divider
   imu_aspirin.gyro_itg.config.smplrt_div = ASPIRIN_GYRO_SMPLRT_DIV;
-  // aspirin defaults to 8kHz internal with 256Hz low pass
+  // digital low pass filter
   imu_aspirin.gyro_itg.config.dlpf_cfg = ASPIRIN_GYRO_LOWPASS;
 
   /// @todo eoc interrupt for itg3200, polling for now (including status reg)
@@ -104,18 +112,12 @@ void imu_impl_init(void)
 #ifdef IMU_ASPIRIN_VERSION_1_0
   imu_aspirin.mag_hmc.type = HMC_TYPE_5843;
 #endif
-
-#if ASPIRIN_ARCH_INDEP
-#warning "Arch dependent functions (accel and gyro eoc interrupt) not used for aspirin!"
-#else
-  imu_aspirin_arch_init();
-#endif
 }
 
 
 void imu_periodic(void)
 {
-  adxl345_spi_periodic(&imu_aspirin.acc_adxl);
+  adxl345_i2c_periodic(&imu_aspirin.acc_adxl);
 
   // Start reading the latest gyroscope data
   itg3200_periodic(&imu_aspirin.gyro_itg);
@@ -124,9 +126,9 @@ void imu_periodic(void)
   RunOnceEvery(10, hmc58xx_periodic(&imu_aspirin.mag_hmc));
 }
 
-void imu_aspirin_event(void)
+void imu_aspirin_i2c_event(void)
 {
-  adxl345_spi_event(&imu_aspirin.acc_adxl);
+  adxl345_i2c_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
     imu_aspirin.acc_adxl.data_available = FALSE;

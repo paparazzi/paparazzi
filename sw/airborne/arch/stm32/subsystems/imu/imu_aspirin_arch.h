@@ -7,6 +7,7 @@
 extern void imu_aspirin_arch_int_enable(void);
 extern void imu_aspirin_arch_int_disable(void);
 
+// gyro eoc
 static inline int imu_aspirin_eoc(void)
 {
   return (gpio_get(GPIOC, GPIO14) == 0);

@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sensors">
+  <doc>
+    <description>
+      HMC58xx magnetometer.
+      Module for standalone operation/logging of a HMC58xx magnetometer.
+    </description>
+    <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c1)"/>
+    <define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
+  </doc>
+  <header>
+    <file name="mag_hmc58xx.h"/>
+  </header>
+  <init fun="mag_hmc58xx_module_init()"/>
+  <periodic fun="mag_hmc58xx_module_periodic()" freq="60"/>
+  <periodic fun="mag_hmc58xx_report()" freq="10" autorun="TRUE"/>
+  <event fun="mag_hmc58xx_module_event()"/>
+  <makefile>
+    <file name="mag_hmc58xx.c"/>
+    <file name="hmc58xx.c" dir="peripherals"/>
+    <define name="USE_I2C"/>
+  </makefile>
+</module>

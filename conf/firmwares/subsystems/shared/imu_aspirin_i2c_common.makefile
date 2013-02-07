@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Common part for all Aspirin IMUs
+# Common part for all Aspirin IMUs using I2C only
 #
 # if ACCEL and GYRO SENS/NEUTRAL are not defined,
 # the defaults from the datasheet will be used
@@ -20,48 +20,30 @@
 #
 #
 
-IMU_ASPIRIN_CFLAGS  = -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
+IMU_ASPIRIN_CFLAGS  = -DIMU_TYPE_H=\"imu/imu_aspirin_i2c.h\"
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_ASPIRIN_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c
-
-#IMU_ASPIRIN_SRCS   += $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
-IMU_ASPIRIN_CFLAGS += -DASPIRIN_ARCH_INDEP
-
-IMU_ASPIRIN_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
-
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
+IMU_ASPIRIN_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin_i2c.c
 
 # for fixedwing firmware and ap only
 ifeq ($(TARGET), ap)
   IMU_ASPIRIN_CFLAGS  += -DUSE_IMU
 endif
 
-# Accelerometer
-IMU_ASPIRIN_SRCS   += peripherals/adxl345_spi.c
+# Accelerometer via I2C
+IMU_ASPIRIN_SRCS   += peripherals/adxl345_i2c.c
 
 # Gyro
 IMU_ASPIRIN_SRCS   += peripherals/itg3200.c
 
 # Magnetometer
-#IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 IMU_ASPIRIN_SRCS   += peripherals/hmc58xx.c
 
 ifeq ($(ARCH), lpc21)
-$(error Aspirin driver on lpc is unfinished.)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
-IMU_ASPIRIN_CFLAGS += -DASPIRIN_SPI_DEV=SPI_SLAVE0
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
 IMU_ASPIRIN_CFLAGS += -DASPIRIN_I2C_DEV=i2c1
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C1
+IMU_ASPIRIN_CFLAGS += -DI2C1_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
-# Slave select configuration
-# SLAVE2 is on PB12 (NSS) (ADXL345 CS)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 endif
 
-#
-# NPS simulator
-#
 include $(CFG_SHARED)/imu_nps.makefile

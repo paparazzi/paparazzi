@@ -48,6 +48,8 @@ imu_srcs += $(SRC_ARCH)/peripherals/ms2100_arch.c
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_SPI_SLAVE1
+imu_CFLAGS += -DMS2100_SLAVE_IDX=1
+imu_CFLAGS += -DMS2100_SPI_DEV=spi1
 imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=12
 else ifeq ($(ARCH), stm32)
 imu_CFLAGS += -DUSE_SPI_SLAVE4

@@ -20,19 +20,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/imu/imu_b2.c
+ *
+ * Driver for the Booz2 IMUs.
+ */
+
 #include "subsystems/imu.h"
+
+struct ImuBooz2 imu_b2;
 
 void imu_impl_init(void) {
 
   max1168_init();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-  ms2100_init();
+  ms2100_init(&ms2100, &(MS2100_SPI_DEV), MS2100_SLAVE_IDX);
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   ami601_init();
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
   hmc5843_init();
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-  hmc58xx_init();
+  hmc58xx_init(&imu_b2.mag_hmc, &(IMU_B2_I2C_DEV), HMC58XX_ADDR);
 #endif
 
 }
@@ -44,13 +52,13 @@ void imu_periodic(void) {
   Max1168Periodic();
   // read mag
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-  Ms2100Periodic();
+  ms2100_periodic(&ms2100);
 #endif
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-  RunOnceEvery(5,Hmc58xxPeriodic());
+  RunOnceEvery(5, hmc58xx_periodic(&imu_b2.mag_hmc));
 #endif
 
 }

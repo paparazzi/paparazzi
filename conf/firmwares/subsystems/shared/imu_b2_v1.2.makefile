@@ -41,16 +41,13 @@ include $(CFG_SHARED)/imu_b2_common.makefile
 # imu Booz2 v1.2
 imu_CFLAGS += -DIMU_B2_VERSION_1_2
 
+imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC58XX
+imu_srcs += peripherals/hmc58xx.c
 
 ifeq ($(ARCH), lpc21)
-imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC58XX
-imu_CFLAGS += -DHMC58XX_I2C_DEVICE=i2c1 -DUSE_I2C1
-imu_srcs += peripherals/hmc58xx.c
+imu_CFLAGS += -DIMU_B2_I2C_DEV=i2c1 -DUSE_I2C1
 else ifeq ($(ARCH), stm32)
-imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843
-imu_srcs += peripherals/hmc5843.c
-imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
-imu_CFLAGS += -DUSE_I2C2
+imu_CFLAGS += -DIMU_B2_I2C_DEV=i2c2 -DUSE_I2C2
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets

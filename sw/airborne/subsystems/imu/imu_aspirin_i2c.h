@@ -22,46 +22,39 @@
 
 /**
  * @file subsystems/imu/imu_aspirin.h
- * Interface for the Aspirin v1.x IMU using SPI for the accelerometer.
+ * Interface for the Aspirin v1.x IMU using I2C for the accelerometer.
  */
 
 
-#ifndef IMU_ASPIRIN_H
-#define IMU_ASPIRIN_H
+#ifndef IMU_ASPIRIN_I2C_H
+#define IMU_ASPIRIN_I2C_H
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
 #include "peripherals/itg3200.h"
 #include "peripherals/hmc58xx.h"
-#include "peripherals/adxl345_spi.h"
+#include "peripherals/adxl345_i2c.h"
 
 /* include default aspirin sensitivity/channel definitions */
 #include "subsystems/imu/imu_aspirin_defaults.h"
 
-struct ImuAspirin {
+
+struct ImuAspirinI2c {
   volatile uint8_t accel_valid;
   volatile uint8_t gyro_valid;
   volatile uint8_t mag_valid;
-  struct Adxl345_Spi acc_adxl;
+  struct Adxl345_I2c acc_adxl;
   struct Itg3200 gyro_itg;
   struct Hmc58xx mag_hmc;
 };
 
-extern struct ImuAspirin imu_aspirin;
+extern struct ImuAspirinI2c imu_aspirin;
 
-extern void imu_aspirin_event(void);
-
-#if !ASPIRIN_ARCH_INDEP
-/* underlying architecture */
-#include "subsystems/imu/imu_aspirin_arch.h"
-/* must be implemented by underlying architecture */
-extern void imu_aspirin_arch_init(void);
-#endif
-
+extern void imu_aspirin_i2c_event(void);
 
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
-  imu_aspirin_event();
+  imu_aspirin_i2c_event();
   if (imu_aspirin.gyro_valid) {
     imu_aspirin.gyro_valid = FALSE;
     _gyro_handler();
@@ -76,4 +69,4 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
   }
 }
 
-#endif /* IMU_ASPIRIN_H */
+#endif /* IMU_ASPIRIN_I2C_H */

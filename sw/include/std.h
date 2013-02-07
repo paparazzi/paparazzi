@@ -30,6 +30,19 @@
 //#include <stdbool.h>
 #include <math.h>
 
+/* some helper macros */
+#define DO_PRAGMA(x) _Pragma (#x)
+#define VALUE_TO_STRING(x) #x
+#define VALUE(x) VALUE_TO_STRING(x)
+
+/* some convenience macros to print debug/config messages at compile time */
+#define MESSAGE(x) DO_PRAGMA(message (x))
+#define TODO(x) DO_PRAGMA(message ("TODO - " x))
+#define INFO(x) DO_PRAGMA(message ("Info: " x))
+#define INFO_VALUE(x,v) DO_PRAGMA(message ("Info: " x VALUE(v)))
+#define PRINT_CONFIG_VAR(var) DO_PRAGMA(message ("Config: " #var " = " VALUE(var)))
+
+
 #ifndef FALSE
 #define FALSE 0
 #endif
