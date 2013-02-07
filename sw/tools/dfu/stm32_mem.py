@@ -102,7 +102,7 @@ if __name__ == "__main__":
     devs = dfu.finddevs()
     if not devs:
         print("No DFU devices found!")
-        exit(-1)
+        exit(1)
     elif options.verbose:
         print("Found %i DFU devices." % len(devs))
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     if not stm32devs:
         print("Could not find STM32 (autopilot) device.")
-        exit(-1)
+        exit(1)
 
     if len(stm32devs) > 1:
         print("Warning: Found more than one potential board to flash.")
