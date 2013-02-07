@@ -52,8 +52,6 @@
 #warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
 #endif
 
-#define GUIDANCE_V_GAIN_SCALER 48
-
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
@@ -298,11 +296,11 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our error feed back command                   */
   /* z-axis pointing down -> positive error means we need less thrust */
-  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
-                      ((-guidance_v_kd * err_zd) >> 21) +
-                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 7) +
+                      ((-guidance_v_kd * err_zd) >> 16) +
+                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 16);
 
-  guidance_v_delta_t = guidance_v_ff_cmd + (guidance_v_fb_cmd * GUIDANCE_V_GAIN_SCALER);
+  guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
 
   /* bound the result */
   Bound(guidance_v_delta_t, 0, MAX_PPRZ);
