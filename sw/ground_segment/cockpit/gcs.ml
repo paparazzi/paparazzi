@@ -727,7 +727,11 @@ let () =
 
   (** Wait for A/Cs and subsequent messages *)
   if not !edit then
-    Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph;
+    begin
+      my_alert#add "Waiting for telemetry...";
+      Speech.say "Waiting for telemetry...";
+      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph
+    end;
 
   (** Display the window *)
   let accel_group = menu_fact#accel_group in
