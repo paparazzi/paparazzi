@@ -25,6 +25,10 @@
  *
  * STM32 ppm decoder.
  *
+ * Input signal either on:
+ *  - PA1 TIM2/CH2 (uart1 trig on Lisa/L)  (Servo 6 on Lisa/M)
+ *  - PA10 TIM1/CH3 (uart1 trig on Lisa/L) (uart1 rx on Lisa/M)
+ *
  */
 
 #include "subsystems/radio_control.h"
@@ -37,12 +41,7 @@
 
 #include "mcu_periph/sys_time.h"
 
-/*
- *
- * This a radio control ppm driver for stm32
- * signal on PA1 TIM2/CH2 (uart1 trig on lisa/L)
- *
- */
+
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
@@ -100,16 +99,16 @@ void ppm_arch_init ( void ) {
   timer_set_period(PPM_TIMER, 0xFFFF);
   timer_set_prescaler(PPM_TIMER, 0x8);
 
- /* TIM2 configuration: Input Capture mode ---------------------
-     The external signal is connected to TIM2 CH2 pin (PA.01)
+ /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge,
+     Intput pin is either PA1 or PA10
   ------------------------------------------------------------ */
 #if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_RISING);
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_FALLING);
 #else
-#error "ppm_arch.c: Unknown PM_PULSE_TYPE"
+#error "Unknown PM_PULSE_TYPE"
 #endif
   timer_ic_set_input(PPM_TIMER, PPM_CHANNEL, PPM_TIMER_INPUT);
   timer_ic_set_prescaler(PPM_TIMER, PPM_CHANNEL, TIM_IC_PSC_OFF);
@@ -130,7 +129,7 @@ void ppm_arch_init ( void ) {
   /* Enable capture channel. */
   timer_ic_enable(PPM_TIMER, PPM_CHANNEL);
 
-  /* TIM2 enable counter */
+  /* TIM enable counter */
   timer_enable_counter(PPM_TIMER);
 
   ppm_last_pulse_time = 0;
