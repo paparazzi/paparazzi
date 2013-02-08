@@ -51,6 +51,9 @@ XCMX = $(XSRC:.ml=.cmx)
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
+# default directory for temporary files
+TMPDIR ?= /tmp
+
 $(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
@@ -141,24 +144,24 @@ expr_syntax.cmo : expr_syntax.cmi
 
 
 gtk_papget_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$@_$<
-	lablgladecc2 -root papget_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
-	@rm /tmp/$@_$<
+	grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	lablgladecc2 -root papget_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	@rm $(TMPDIR)/$@_$<
 
 gtk_papget_text_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$@_$<
-	lablgladecc2 -root table_text_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
-	@rm /tmp/$@_$<
+	grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	lablgladecc2 -root table_text_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	@rm $(TMPDIR)/$@_$<
 
 gtk_papget_gauge_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$@_$<
-	lablgladecc2 -root table_gauge_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
-	@rm /tmp/$@_$<
+	grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	lablgladecc2 -root table_gauge_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	@rm $(TMPDIR)/$@_$<
 
 gtk_papget_led_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$@_$<
-	lablgladecc2 -root table_led_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
-	@rm /tmp/$@_$<
+	grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	lablgladecc2 -root table_led_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	@rm $(TMPDIR)/$@_$<
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli

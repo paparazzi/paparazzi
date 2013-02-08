@@ -33,6 +33,9 @@ LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
 XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
 XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
 
+# default directory for temporary files
+TMPDIR ?= /tmp
+
 all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo
@@ -86,8 +89,8 @@ export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
 
 gtk_export.ml : export.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -root export -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > $(TMPDIR)/$<
+	lablgladecc2 -root export -hide-default $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
 
 
 

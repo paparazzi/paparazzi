@@ -92,6 +92,9 @@ ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 GEN_HEADERS = $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
 
 
+# default directory for temporary files
+TMPDIR ?= /tmp
+
 all: ground_segment ext lpctools
 
 print_build_version:
@@ -151,46 +154,46 @@ static_h: $(GEN_HEADERS)
 $(MESSAGES_H) : $(MESSAGES_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
-	$(Q)mv /tmp/msg.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > $(TMPDIR)/msg.h
+	$(Q)mv $(TMPDIR)/msg.h $@
 	$(Q)chmod a+r $@
 
 $(MESSAGES2_H) : $(MESSAGES_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg2.h
-	$(Q)mv /tmp/msg2.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > $(TMPDIR)/msg2.h
+	$(Q)mv $(TMPDIR)/msg2.h $@
 	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
-	$(Q)mv /tmp/ubx.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_ubx.out $< > $(TMPDIR)/ubx.h
+	$(Q)mv $(TMPDIR)/ubx.h $@
 
 $(MTK_PROTOCOL_H) : $(MTK_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_mtk.out $< > /tmp/mtk.h
-	$(Q)mv /tmp/mtk.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_mtk.out $< > $(TMPDIR)/mtk.h
+	$(Q)mv $(TMPDIR)/mtk.h $@
 
 $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > /tmp/xsens.h
-	$(Q)mv /tmp/xsens.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > $(TMPDIR)/xsens.h
+	$(Q)mv $(TMPDIR)/xsens.h $@
 
 $(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
-	$(Q)mv /tmp/dl.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > $(TMPDIR)/dl.h
+	$(Q)mv $(TMPDIR)/dl.h $@
 
 $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
-	$(Q)mv /tmp/dl2.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > $(TMPDIR)/dl2.h
+	$(Q)mv $(TMPDIR)/dl2.h $@
 
 $(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
-	$(Q)mv /tmp/abi.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > $(TMPDIR)/abi.h
+	$(Q)mv $(TMPDIR)/abi.h $@
 
 
 include Makefile.ac

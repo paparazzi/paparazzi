@@ -62,6 +62,9 @@ endif
 # telemetry periodic frequency defaults to 60Hz
 TELEMETRY_FREQUENCY ?= 60
 
+# default directory for temporary files
+TMPDIR ?= /tmp
+
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
 
@@ -87,15 +90,15 @@ makefile_ac: $(MAKEFILE_AC)
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > /tmp/airframe.h
-	$(Q)mv /tmp/airframe.h $@
+	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $(TMPDIR)/airframe.h
+	$(Q)mv $(TMPDIR)/airframe.h $@
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_radio.out $< > /tmp/radio.h
-	$(Q)mv /tmp/radio.h $@
+	$(Q)$(TOOLS)/gen_radio.out $< > $(TMPDIR)/radio.h
+	$(Q)mv $(TMPDIR)/radio.h $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
 
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
@@ -109,8 +112,8 @@ $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TE
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_flight_plan.out $< > /tmp/$(AC_ID)_fp.h
-	$(Q)mv /tmp/$(AC_ID)_fp.h $@
+	$(Q)$(TOOLS)/gen_flight_plan.out $< > $(TMPDIR)/$(AC_ID)_fp.h
+	$(Q)mv $(TMPDIR)/$(AC_ID)_fp.h $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
 
