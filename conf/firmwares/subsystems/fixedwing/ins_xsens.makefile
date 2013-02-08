@@ -38,6 +38,7 @@ ifeq ($(TARGET), fbw)
 # when compiling FBW only, the settings need to know the AHRS_TYPE
 
 fbw.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_xsens.h\"
+fbw.CFLAGS += -DUSE_INS_MODULE
 
 endif
 
