@@ -38,14 +38,16 @@
 #include "mcu_periph/sys_time.h"
 
 /*
- *
- * This a radio control ppm driver for stm32
- * signal on PA1 TIM2/CH2 (uart1 trig on lisa/L)
- *
- */
-uint8_t  ppm_cur_pulse;
+*
+* This a radio control ppm driver for stm32
+* Either on:
+* signal on PA1 TIM2/CH2 (uart1 trig on lisa/L)  (Servo 6 on Lisa/M2)
+* or signal on PA10 TIM1/CH3 (uart1 trig on lisa/L) (uart1 rx on Lisa/M2)
+*
+*/
+uint8_t ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
-bool_t   ppm_data_valid;
+bool_t ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
 #if USE_PPM_TIM2
@@ -130,6 +132,10 @@ void ppm_arch_init ( void ) {
   /* Enable capture channel. */
   timer_ic_enable(PPM_TIMER, PPM_CHANNEL);
 
+#ifdef USE_TIM1_IRQ
+  /* TIM1 enable counter */
+  TIM_Cmd(TIM1, ENABLE);
+#elif defined USE_TIM2_IRQ
   /* TIM2 enable counter */
   timer_enable_counter(PPM_TIMER);
 
