@@ -1,5 +1,5 @@
 #
-# Makefile for shared radio_control ppm susbsytem
+# Makefile for shared radio_control ppm subsystem
 #
 
 NORADIO = False
@@ -14,6 +14,7 @@ ifeq ($(NORADIO), False)
   $(TARGET).CFLAGS	+= -DRADIO_CONTROL
   ifneq ($(RADIO_CONTROL_LED),none)
     ap.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+    fbw.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
   endif
   $(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
   $(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_PPM
@@ -37,3 +38,4 @@ ifeq ($(NORADIO), False)
     endif
 endif
 endif
+
