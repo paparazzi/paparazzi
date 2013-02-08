@@ -2,7 +2,21 @@
 
 <module name="nav">
   <doc>
-    <description>Catapult</description>
+    <description>
+      Catapult.
+      A catapult launch timing system.
+      - Phase 1: Zero Roll, Climb Pitch, Zero Throttle
+      - Phase 2: After detecting the Start Acceleration\n
+                 Zero Roll, Climb Pitch, Full Throttle
+      - Phase 3: After getting the GPS heading (time based)\n
+                 Place climb 300m in front of us\n
+                 GoTo(climb)\n
+    </description>
+    <define name="NAV_CATAPULT_ACCELERATION_THRESHOLD" value="1.5" description="acceleration threshold in multiples of g"/>
+    <define name="NAV_CATAPULT_MOTOR_DELAY" value="0.75" description="delay until motor is turned on in seconds"/>
+    <define name="NAV_CATAPULT_HEADING_DELAY" value="3.0" description="delay until heading is unlocked in seconds"/>
+    <define name="NAV_CATAPULT_INITAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)"/>
+    <define name="NAV_CATAPULT_INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)"/>
   </doc>
   <header>
     <file name="nav_catapult.h"/>
