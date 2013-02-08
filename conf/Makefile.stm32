@@ -121,7 +121,7 @@ CFLAGS += -DSTM32F1
 
 CFLAGS += $($(TARGET).CFLAGS)
 
-AFLAGS  = -ahls -mapcs-32
+AFLAGS  = -ahls
 AFLAGS += -mcpu=$(MCU) -mthumb
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
