@@ -107,7 +107,6 @@ LDFLAGS += $(MATH_LIB)
 LDFLAGS += -lc -lgcc
 LDFLAGS += $(CPLUSPLUS_LIB)
 LDFLAGS += -Wl,--gc-sections
-# -lusbstack -Larm7/lpcusb
 
 ifndef LDSCRIPT
 ifeq ($(FLASH_MODE),ISP)

@@ -32,7 +32,7 @@ DATE		= $$(date +%Y%m%d)
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-toolchain
 
 #
 # if the new arm-none-eabi multilib compiler was not found try the old arm-elf one
@@ -82,6 +82,6 @@ depend: $(LIBSRCS)
 	$(Q)$(CC) $(CFLAGS) -MM $^ > .depend || rm -f .depend
 
 # phony targets
-.PHONY: all clean depend
+.PHONY: all clean lib dist depend
 
 -include .depend
