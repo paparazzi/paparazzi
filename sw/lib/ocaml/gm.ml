@@ -28,7 +28,7 @@ open Latlong
 open Printf
 
 let tile_size = 256, 256
-let zoom_max = 18
+let zoom_max = 22
 
 let cache_path = ref "/var/tmp"
 

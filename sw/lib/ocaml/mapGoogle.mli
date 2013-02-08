@@ -25,8 +25,8 @@
 val display_tile : MapCanvas.widget -> Latlong.geographic -> unit
 (** Displaying the Google Maps tile around the given point (zoom=1) *)
 
-val fill_window : MapCanvas.widget -> unit
-(** Filling the canvas window with Google Maps tiles *)
+val fill_window : MapCanvas.widget -> int -> unit
+(** Filling the canvas window with Google Maps tiles at given zoomlevel*)
 
-val pixbuf : Latlong.geographic -> Latlong.geographic -> GdkPixbuf.pixbuf
-(** [pixbuf south_west north_east] Returns a map background of the given area *)
+val pixbuf : Latlong.geographic -> Latlong.geographic -> int -> GdkPixbuf.pixbuf
+(** [pixbuf south_west north_east zoomlevel] Returns a map background of the given area *)
