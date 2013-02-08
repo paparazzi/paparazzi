@@ -48,6 +48,10 @@
 #include "modules/sensors/baro_bmp.h"
 #endif
 
+#if USE_BARO_MS5611
+#include "modules/sensors/baro_ms5611_i2c.h"
+#endif
+
 extern int32_t ins_qfe;
 extern float   ins_baro_alt;
 extern bool_t  ins_baro_initialised;

@@ -177,6 +177,12 @@ void alt_kalman(float z_meas) {
     R = baro_ets_r;
     SIGMA2 = baro_ets_sigma2;
   } else
+#elif USE_BARO_MS5611
+  if (baro_ms5611_enabled) {
+    DT = BARO_MS5611_DT;
+    R = baro_ms5611_r;
+    SIGMA2 = baro_ms5611_sigma2;
+  } else
 #elif USE_BARO_BMP
   if (baro_bmp_enabled) {
     DT = BARO_BMP_DT;
@@ -184,7 +190,7 @@ void alt_kalman(float z_meas) {
     SIGMA2 = baro_bmp_sigma2;
   } else
 #endif
-#endif
+#endif // USE_BAROMETER
   {
     DT = GPS_DT;
     R = GPS_R;

@@ -43,11 +43,10 @@
 #endif
 
 /* address can be 0xEC or 0xEE (CSB\ high = 0xEC) */
+#ifndef MS5611_SLAVE_ADDR
 #define MS5611_SLAVE_ADDR 0xEC
-
-#if PERIODIC_FREQUENCY > 60
-#error baro_ms5611_i2c assumes a PERIODIC_FREQUENCY of 60Hz
 #endif
+
 
 struct i2c_transaction ms5611_trans;
 uint8_t ms5611_status;
@@ -55,7 +54,11 @@ uint16_t ms5611_c[PROM_NB];
 uint32_t ms5611_d1, ms5611_d2;
 int32_t prom_cnt;
 float fbaroms, ftempms;
-
+float baro_ms5611_alt;
+bool_t baro_ms5611_enabled;
+bool_t baro_ms5611_valid;
+float baro_ms5611_r;
+float baro_ms5611_sigma2;
 
 static int8_t baro_ms5611_crc(uint16_t* prom) {
   int32_t i, j;
@@ -76,7 +79,11 @@ static int8_t baro_ms5611_crc(uint16_t* prom) {
 }
 
 void baro_ms5611_init(void) {
+  baro_ms5611_enabled = TRUE;
+  baro_ms5611_valid = FALSE;
   ms5611_status = MS5611_UNINIT;
+  baro_ms5611_r = BARO_MS5611_R;
+  baro_ms5611_sigma2 = BARO_MS5611_SIGMA2;
   prom_cnt = 0;
 }
 
@@ -215,12 +222,20 @@ void baro_ms5611_event( void ) {
       }
       /* temperature compensated pressure */
       baroms = (((int64_t)ms5611_d1 * sens) / (1<<21) - off) / (1<<15);
+
+      float tmp_float = baroms/101325.0; //pressure at sea level
+      tmp_float = pow(tmp_float,0.190295); //eleva pressao ao expoente
+      baro_ms5611_alt = 44330*(1.0-tmp_float); //altitude above MSL
+
+      baro_ms5611_valid = TRUE;
+
 #ifdef SENSOR_SYNC_SEND
       ftempms = tempms / 100.;
       fbaroms = baroms / 100.;
       DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
                                 &ms5611_d1, &ms5611_d2, &fbaroms, &ftempms);
 #endif
+
       break;
     }
 
@@ -230,4 +245,3 @@ void baro_ms5611_event( void ) {
     }
   }
 }
-
