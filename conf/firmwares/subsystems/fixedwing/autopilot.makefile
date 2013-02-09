@@ -125,8 +125,7 @@ endif
 #
 ns_srcs 		+= mcu_periph/uart.c
 ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
-ns_srcs 		+= subsystems/settings.c
-ns_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
+
 
 #
 # ANALOG
@@ -160,6 +159,8 @@ ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
 ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 ap_srcs 		+= state.c
+ap_srcs 		+= subsystems/settings.c
+ap_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 
 # BARO
 ifeq ($(BOARD), umarim)
