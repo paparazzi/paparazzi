@@ -1,8 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # stm32_mem.py: STM32 memory access using USB DFU class
-# Copyright (C) 2011  Black Sphere Technologies 
+# Copyright (C) 2011  Black Sphere Technologies
 # Written by Gareth McMullin <gareth@blacksphere.co.nz>
+# Modified by Felix Ruess <felix.ruess@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,9 +18,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+
 from time import sleep
 import struct
 from sys import stdout, argv
+from os import path
+
+from optparse import OptionParser
 
 import usb
 import dfu
@@ -27,97 +33,164 @@ import dfu
 APP_ADDRESS = 0x08002000
 SECTOR_SIZE = 2048
 
-CMD_GETCOMMANDS =            0x00
-CMD_SETADDRESSPOINTER =      0x21
-CMD_ERASE =                  0x41
+CMD_GETCOMMANDS = 0x00
+CMD_SETADDRESSPOINTER = 0x21
+CMD_ERASE = 0x41
 
 def stm32_erase(dev, addr):
-	erase_cmd = struct.pack("<BL", CMD_ERASE, addr)
-	dev.download(0, erase_cmd)
-	while True:
-		status = dev.get_status()
-		if status.bState == dfu.STATE_DFU_DOWNLOAD_BUSY:
-			sleep(status.bwPollTimeout / 1000.0)
-		if status.bState == dfu.STATE_DFU_DOWNLOAD_IDLE:
-			break
+    erase_cmd = struct.pack("<BL", CMD_ERASE, addr)
+    dev.download(0, erase_cmd)
+    while True:
+        status = dev.get_status()
+        if status.bState == dfu.STATE_DFU_DOWNLOAD_BUSY:
+            sleep(status.bwPollTimeout / 1000.0)
+        if status.bState == dfu.STATE_DFU_DOWNLOAD_IDLE:
+            break
 
 def stm32_write(dev, data):
-	dev.download(2, data)
-	while True:
-		status = dev.get_status()
-		if status.bState == dfu.STATE_DFU_DOWNLOAD_BUSY:
-			sleep(status.bwPollTimeout / 1000.0)
-		if status.bState == dfu.STATE_DFU_DOWNLOAD_IDLE:
-			break
-	
+    dev.download(2, data)
+    while True:
+        status = dev.get_status()
+        if status.bState == dfu.STATE_DFU_DOWNLOAD_BUSY:
+            sleep(status.bwPollTimeout / 1000.0)
+        if status.bState == dfu.STATE_DFU_DOWNLOAD_IDLE:
+            break
+
 def stm32_manifest(dev):
-	dev.download(0, "")
-	while True:
-		try:
-			status = dev.get_status()
-		except:
-			return
-		sleep(status.bwPollTimeout / 1000.0)
-		if status.bState == dfu.STATE_DFU_MANIFEST:
-			break
+    dev.download(0, "")
+    while True:
+        try:
+            status = dev.get_status()
+        except:
+            return
+        sleep(status.bwPollTimeout / 1000.0)
+        if status.bState == dfu.STATE_DFU_MANIFEST:
+            break
+
+def print_copyright():
+    print("")
+    print("USB Device Firmware Upgrade - Host Utility -- version 1.3")
+    print("Copyright (C) 2011  Black Sphere Technologies")
+    print("Copyright (C) 2012  Transition Robotics Inc.")
+    print("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>")
+    print("")
 
 if __name__ == "__main__":
-	print
-	print "USB Device Firmware Upgrade - Host Utility -- version 1.2"
-	print "Copyright (C) 2011  Black Sphere Technologies"
-	print "Copyright (C) 2012  Transition Robotics Inc."
-	print "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>"
-	print
+    usage = "Usage: %prog [options] firmware.bin" + "\n" + "Run %prog --help to list the options."
+    parser = OptionParser(usage, version='%prog version 1.3')
+    parser.add_option("-v", "--verbose",
+                      action="store_true", dest="verbose")
+    parser.add_option("--product", type="choice", choices=["any", "Lisa/M"],
+                      action="store", default="Lisa/M",
+                      help="Only upload to device where idProduct matches PRODUCT\n"
+                      "choices: (any, Lisa/M), default: Lisa/M")
+    parser.add_option("-n", "--dry-run", action="store_true",
+                      help="Dry run to check which board is found without actually flashing.")
+    (options, args) = parser.parse_args()
 
-	devs = dfu.finddevs()
-	if not devs:
-		print "No devices found!"
-		exit(-1)
+    if len(args) != 1:
+        parser.error("incorrect number of arguments")
+    else:
+        if path.isfile(args[0]):
+            binfile = args[0]
+        else:
+            parser.error("Binary file " + args[0] + " not found")
 
-	for dev in devs:
-		dfudev = dfu.dfu_device(*dev)
-		try:
-			man = dfudev.handle.getString(dfudev.dev.iManufacturer, 30)
-			product = dfudev.handle.getString(dfudev.dev.iProduct, 30)
-			serial = dfudev.handle.getString(dfudev.dev.iSerialNumber, 40)
-		except:
-			print "Could not access the description strings of a DFU device. Maybe the OS driver is claiming it?"
-			continue
-		if man == "Black Sphere Technologies": break
-		if man == "Transition Robotics Inc.": break
-		if man == "STMicroelectronics": break
+    if options.verbose:
+        print_copyright()
 
-	print "Device %s: ID %04x:%04x %s - %s - %s" % (dfudev.dev.filename, 
-		dfudev.dev.idVendor, dfudev.dev.idProduct, man, product, serial)
+    devs = dfu.finddevs()
+    if not devs:
+        print("No DFU devices found!")
+        exit(1)
+    elif options.verbose:
+        print("Found %i DFU devices." % len(devs))
 
-	try:
-		state = dfudev.get_state()
-	except:
-		print "Failed to read device state! Assuming APP_IDLE"
-		state = dfu.STATE_APP_IDLE
-	if state == dfu.STATE_APP_IDLE:
-		dfudev.detach()
-		print "Run again to upgrade firmware."
-		exit(0)
-	
-	dfudev.make_idle()
+    valid_manufacturers = []
+    valid_manufacturers.append("Transition Robotics Inc.")
+    valid_manufacturers.append("STMicroelectronics")
+    valid_manufacturers.append("Black Sphere Technologies")
 
-	try:
-		bin = open(argv[1], "rb").read()
-	except:
-		print "Could not open binary file."
-		raise
+    # list of tuples with possible stm32 (autopilot) devices
+    stm32devs = []
 
-	addr = APP_ADDRESS
-	while bin:
-		print ("Programming memory at 0x%08X\r" % addr),
-		stdout.flush()
-		stm32_erase(dfudev, addr)
-		stm32_write(dfudev, bin[:SECTOR_SIZE])
+    for dev in devs:
+        try:
+            dfudev = dfu.dfu_device(*dev)
+        except:
+            if options.verbose:
+                print("Could not open DFU device %s ID %04x:%04x "
+                      "Maybe the OS driver is claiming it?" %
+                      (dev[0].filename, dev[0].idVendor, dev[0].idProduct))
+            continue
+        try:
+            man = dfudev.handle.getString(dfudev.dev.iManufacturer, 30)
+            product = dfudev.handle.getString(dfudev.dev.iProduct, 30)
+            serial = dfudev.handle.getString(dfudev.dev.iSerialNumber, 40)
+        except:
+            print("Whoops... could not get device description.")
+            continue
 
-		bin = bin[SECTOR_SIZE:]
-		addr += SECTOR_SIZE
+        if options.verbose:
+            print("Found DFU device %s: ID %04x:%04x %s - %s - %s" %
+                    (dfudev.dev.filename, dfudev.dev.idVendor,
+                     dfudev.dev.idProduct, man, product, serial))
 
-	stm32_manifest(dfudev)
+        if man in valid_manufacturers:
+            if options.product == "any":
+                stm32devs.append((dfudev, man, product, serial))
+            elif options.product == "Lisa/M":
+                if "Lisa/M" in product:
+                    stm32devs.append((dfudev, man, product, serial))
 
-	print "\nAll operations complete!\n"
+    if not stm32devs:
+        print("Could not find STM32 (autopilot) device.")
+        exit(1)
+
+    if len(stm32devs) > 1:
+        print("Warning: Found more than one potential board to flash.")
+        for (d, m, p, s) in stm32devs:
+            print("Found possible STM32 (autopilot) device %s: ID %04x:%04x %s - %s - %s" %
+                  (d.dev.filename, d.dev.idVendor, d.dev.idProduct, m, p, s))
+
+    # use first potential board as target
+    target = stm32devs[0][0]
+    print("Using device %s: ID %04x:%04x %s - %s - %s" % (target.dev.filename,
+          target.dev.idVendor, target.dev.idProduct, man, product, serial))
+
+    # if it's a dry run only, don't actually flash, just exit now
+    if options.dry_run:
+        print("Dry run, done.")
+        exit(0)
+
+    try:
+        state = target.get_state()
+    except:
+        print("Failed to read device state! Assuming APP_IDLE")
+        state = dfu.STATE_APP_IDLE
+    if state == dfu.STATE_APP_IDLE:
+        target.detach()
+        print("Run again to upgrade firmware.")
+        exit(0)
+
+    target.make_idle()
+
+    try:
+        bin = open(binfile, "rb").read()
+    except:
+        print("Could not open binary file.")
+        raise
+
+    addr = APP_ADDRESS
+    while bin:
+        print("Programming memory at 0x%08X\r" % addr)
+        stdout.flush()
+        stm32_erase(target, addr)
+        stm32_write(target, bin[:SECTOR_SIZE])
+
+        bin = bin[SECTOR_SIZE:]
+        addr += SECTOR_SIZE
+
+    stm32_manifest(target)
+
+    print("\nAll operations complete!\n")
