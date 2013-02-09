@@ -70,6 +70,8 @@ GPS_BAUD ?= B38400
 #
 # you can use different actuators by adding a configure option to your firmware section
 # e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+# and by setting the correct "driver" attribute in servo section
+# e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
 
