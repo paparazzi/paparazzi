@@ -1,3 +1,15 @@
+Paparazzi 4.2.1_stable
+======================
+
+Maintenance release
+
+- fix elf PT_LOAD type in lpc21iap LPC USB download
+- fix electrical.current estimate in sim
+- fix LPC+xbee_api in rotorcraft
+- fix conversion of vsupply to decivolts if offset is used
+- more robust dfu flash script, only upload to Lisa/M
+
+
 Paparazzi 4.2.0_stable
 ======================
 
