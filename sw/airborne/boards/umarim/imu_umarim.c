@@ -48,6 +48,16 @@
 #endif
 PRINT_CONFIG_VAR(UMARIM_ACCEL_RATE)
 
+
+/* default gyro internal lowpass frequency and sample rate divider */
+#if !defined UMARIM_GYRO_LOWPASS && !defined  UMARIM_GYRO_SMPLRT_DIV
+#define UMARIM_GYRO_LOWPASS ITG3200_DLPF_20HZ
+#define UMARIM_GYRO_SMPLRT_DIV 19
+INFO("Gyro output rate is 50Hz")
+#endif
+PRINT_CONFIG_VAR(UMARIM_GYRO_LOWPASS)
+PRINT_CONFIG_VAR(UMARIM_GYRO_SMPLRT_DIV)
+
 struct ImuUmarim imu_umarim;
 
 void imu_impl_init(void)
@@ -56,8 +66,8 @@ void imu_impl_init(void)
   // ITG3200
   itg3200_init(&imu_umarim.itg, &(IMU_UMARIM_I2C_DEV), ITG3200_ADDR_ALT);
   // change the default configuration
-  imu_umarim.itg.config.smplrt_div = 19;
-  imu_umarim.itg.config.dlpf_cfg = ITG3200_DLPF_20HZ;
+  imu_umarim.itg.config.smplrt_div = UMARIM_GYRO_SMPLRT_DIV;
+  imu_umarim.itg.config.dlpf_cfg = UMARIM_GYRO_LOWPASS;
 
   /////////////////////////////////////////////////////////////////////
   // ADXL345
