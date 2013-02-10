@@ -50,25 +50,13 @@
 PRINT_CONFIG_VAR(ASPIRIN_ACCEL_RATE)
 
 
-/** gyro internal lowpass frequency */
-#ifndef ASPIRIN_GYRO_LOWPASS
+/* gyro internal lowpass frequency */
+#if !defined ASPIRIN_GYRO_LOWPASS && !defined ASPIRIN_GYRO_SMPLRT_DIV
 #define ASPIRIN_GYRO_LOWPASS ITG3200_DLPF_256HZ
-#endif
-PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS)
-
-
-/** gyro sample rate divider */
-#ifndef ASPIRIN_GYRO_SMPLRT_DIV
-#if ASPIRIN_GYRO_LOWPASS == ITG3200_DLPF_256HZ
-// internal 8kHz, output rate 533Hz
 #define ASPIRIN_GYRO_SMPLRT_DIV 14
 INFO("Gyro output rate is 533Hz")
-#else
-// internal 1kHz, output rate 500Hz
-#define ASPIRIN_GYRO_SMPLRT_DIV 9
-INFO("Gyro output rate is 500Hz")
 #endif
-#endif
+PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS)
 PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
 
