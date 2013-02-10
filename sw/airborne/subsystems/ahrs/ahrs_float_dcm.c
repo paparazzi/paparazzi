@@ -58,6 +58,9 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
 
 // FIXME this is still needed for fixedwing integration
 // remotely settable

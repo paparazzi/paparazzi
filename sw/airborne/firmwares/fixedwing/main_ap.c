@@ -88,6 +88,12 @@
 
 #if USE_AHRS
 #if USE_IMU
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+#ifndef AHRS_CORRECT_FREQUENCY
+#define AHRS_CORRECT_FREQUENCY PERIODIC_FREQUENCY
+#endif
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
