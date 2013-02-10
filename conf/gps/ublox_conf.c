@@ -81,7 +81,7 @@
 #define TIM             0x0D
 
 #define ACK_ACK_LENGTH  0x0A
-#define CFG_CFG_LENGTH  0x14
+#define CFG_CFG_LENGTH  0x15
 
 struct speed_map
 {
@@ -205,11 +205,11 @@ int main (int argc, char **argv)
     unsigned char data[65536] = { SYNC_CHAR_1, SYNC_CHAR_2 };
     /* this packet saves the just sent CFG commands */
     unsigned char cfg_cfg[CFG_CFG_LENGTH] = {
-        SYNC_CHAR_1, SYNC_CHAR_2, CFG, CFG_CFG, 0x0C, 0x00,
+        SYNC_CHAR_1, SYNC_CHAR_2, CFG, CFG_CFG, 0x0D, 0x00,
         0x00, 0x00, 0x00, 0x00, 
         0xFF, 0xFF, 0xFF, 0xFF,
         0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00 }; 
+        0x03, 0x00, 0x00 }; 
     unsigned char data_temp;
 
     FILE *in_file;
