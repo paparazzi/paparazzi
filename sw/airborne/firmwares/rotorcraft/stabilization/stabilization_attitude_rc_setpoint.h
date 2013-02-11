@@ -46,7 +46,9 @@
 #error "STABILIZATION_ATTITUDE_TYPE not defined"
 #endif
 
+#ifndef RC_UPDATE_FREQ
 #define RC_UPDATE_FREQ 40
+#endif
 
 #ifdef STABILIZATION_ATTITUDE_DEADBAND_A
 #define ROLL_DEADBAND_EXCEEDED()                                        \
