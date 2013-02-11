@@ -86,20 +86,23 @@
 #include "led.h"
 
 
-#if USE_AHRS
-#if USE_IMU
+#if USE_AHRS && USE_IMU
+
 #ifndef AHRS_PROPAGATE_FREQUENCY
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 #ifndef AHRS_CORRECT_FREQUENCY
 #define AHRS_CORRECT_FREQUENCY PERIODIC_FREQUENCY
 #endif
+PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
+
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#endif // USE_IMU
-#endif // USE_AHRS
+
+#endif // USE_AHRS && USE_IMU
 
 #if USE_GPS
 static inline void on_gps_solution( void );

@@ -174,6 +174,14 @@ else ifeq ($(BOARD), lisa_l)
 ap_CFLAGS += -DUSE_I2C2
 endif
 
+# ahrs frequencies if configured
+ifdef AHRS_PROPAGATE_FREQUENCY
+ap_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+endif
+ifdef AHRS_CORRECT_FREQUENCY
+ap_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+endif
+
 
 ######################################################################
 ##
