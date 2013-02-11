@@ -263,7 +263,7 @@ static inline uint8_t pprz_mode_update( void ) {
 #ifndef RADIO_AUTO_MODE
     return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]));
 #else
-#pragma message "Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2."
+    INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
     /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between two switches/channels
      * RADIO_MODE will switch between PPRZ_MODE_MANUAL and any PPRZ_MODE_AUTO mode selected by RADIO_AUTO_MODE.
      *
@@ -609,7 +609,7 @@ void event_task_ap( void ) {
 #endif
 
 #ifdef InsEvent
-#pragma message "calling InsEvent, remove me.."
+  TODO("calling InsEvent, remove me..")
   InsEvent(NULL);
 #endif
 

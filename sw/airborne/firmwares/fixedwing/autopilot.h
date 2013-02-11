@@ -125,7 +125,7 @@ extern bool_t power_switch;
 #ifndef CONTROL_FREQUENCY
 #ifdef  CONTROL_RATE
 #define CONTROL_FREQUENCY CONTROL_RATE
-#pragma message "CONTROL_RATE is deprecated. Please use CONTROL_FREQUENCY instead. Defaults to 60Hz if not defined."
+#warning "CONTROL_RATE is deprecated. Please use CONTROL_FREQUENCY instead. Defaults to 60Hz if not defined."
 #else
 #define CONTROL_FREQUENCY 60
 #endif  // CONTROL_RATE

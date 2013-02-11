@@ -261,7 +261,7 @@ void ahrs_update_accel(void)
   ahrs_impl.gps_age ++;
   if (ahrs_impl.gps_age < 50) {    //Remove centrifugal acceleration and longitudinal acceleration
 #if USE_AHRS_GPS_ACCELERATIONS
-#pragma message "AHRS_FLOAT_DCM uses GPS acceleration."
+PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses GPS acceleration.")
     accel_float.x += ahrs_impl.gps_acceleration;      // Longitudinal acceleration
 #endif
     accel_float.y += ahrs_impl.gps_speed * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
@@ -505,7 +505,7 @@ void Drift_correction(void)
     Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
   }
 #if USE_MAGNETOMETER_ONGROUND == 1
-#pragma message AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS during flight
+PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS during flight")
   else if (launch == FALSE)
   {
     float COGX = imu.mag.x; // Non-Tilt-Compensated (for filter stability reasons)

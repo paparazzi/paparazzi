@@ -40,7 +40,17 @@
 #define TODO(x) DO_PRAGMA(message ("TODO - " x))
 #define INFO(x) DO_PRAGMA(message ("Info: " x))
 #define INFO_VALUE(x,v) DO_PRAGMA(message ("Info: " x VALUE(v)))
+
+/* only if PRINT_CONFIG is true */
+#if PRINT_CONFIG
+#define PRINT_CONFIG_MSG(x) DO_PRAGMA(message ("Config: " x))
+#define PRINT_CONFIG_MSG_VALUE(x,v) DO_PRAGMA(message ("Config: " x VALUE(v))
 #define PRINT_CONFIG_VAR(var) DO_PRAGMA(message ("Config: " #var " = " VALUE(var)))
+#else
+#define PRINT_CONFIG_MSG(x)
+#define PRINT_CONFIG_MSG_VALUE(x,v)
+#define PRINT_CONFIG_VAR(var)
+#endif
 
 
 #ifndef FALSE

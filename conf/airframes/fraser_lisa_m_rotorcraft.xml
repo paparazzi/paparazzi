@@ -27,6 +27,9 @@
       <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
     </subsystem>
     <subsystem name="ins"/>
+
+    <!-- print the configuration during compiling -->
+    <define name="PRINT_CONFIG"/>
   </firmware>
 
   <firmware name="setup">

@@ -299,7 +299,7 @@ static void mpu_configure(void)
 
 #if !IMU_ASPIRIN_DISABLE_BARO
 #ifdef IMU_ASPIRIN_VERSION_2_1
-#pragma message "Reading the MS5611"
+PRINT_CONFIG_MSG("Reading the MS5611")
 /*
 
 
