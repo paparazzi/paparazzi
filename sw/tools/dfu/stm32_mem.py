@@ -80,10 +80,10 @@ if __name__ == "__main__":
     parser = OptionParser(usage, version='%prog version 1.3')
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
-    parser.add_option("--product", type="choice", choices=["any", "Lisa/M"],
-                      action="store", default="Lisa/M",
-                      help="Only upload to device where idProduct matches PRODUCT\n"
-                      "choices: (any, Lisa/M), default: Lisa/M")
+    parser.add_option("--product", type="choice", choices=["any", "Lisa/Lia"],
+                      action="store", default="Lisa/Lia",
+                      help="only upload to device where idProduct contains PRODUCT\n"
+                      "choices: (any, Lisa/Lia), default: Lisa/Lia")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="Dry run to check which board is found without actually flashing.")
     (options, args) = parser.parse_args()
@@ -139,8 +139,8 @@ if __name__ == "__main__":
         if man in valid_manufacturers:
             if options.product == "any":
                 stm32devs.append((dfudev, man, product, serial))
-            elif options.product == "Lisa/M":
-                if "Lisa/M" in product:
+            elif options.product == "Lisa/Lia":
+                if "Lisa/M" in product or "Lia" in product:
                     stm32devs.append((dfudev, man, product, serial))
 
     if not stm32devs:
