@@ -138,24 +138,30 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
-BARO = BARO_I2C
+# booz baro
 ifeq ($(BOARD), booz)
 ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 ap.srcs += $(SRC_BOARD)/baro_board.c
+
+# Lisa/M and Lia baro
 else ifeq ($(BOARD), lisa_m)
-  ifeq ($(BARO), BARO_SPI)
+# defaults to i2c baro
+LISA_M_BARO ?= BARO_I2C
+  ifeq ($(LISA_M_BARO), BARO_SPI)
     include $(CFG_SHARED)/spi.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
     ap.srcs += $(SRC_BOARD)/baro_board_spi.c
-  else ifeq ($(BARO), BARO_I2C)
+  else ifeq ($(LISA_M_BARO), BARO_I2C)
     ap.CFLAGS += -DUSE_I2C2
     ap.srcs += $(SRC_BOARD)/baro_board_i2c.c
-  else ifeq ($(BARO), BARO_ASPIRIN)
+  else ifeq ($(LISA_M_BARO), BARO_ASPIRIN)
     ap.srcs += $(SRC_BOARD)/baro_board.c
   endif
-  ap.CFLAGS += -D$(BARO)
+  ap.CFLAGS += -D$(LISA_M_BARO)
+
+# navgo baro
 else ifeq ($(BOARD), navgo)
 include $(CFG_SHARED)/spi.makefile
 ap.CFLAGS += -DUSE_SPI_SLAVE0
