@@ -32,6 +32,8 @@
 
 struct sys_time sys_time;
 
+PRINT_CONFIG_VAR(SYS_TIME_RESOLUTION)
+
 int sys_time_register_timer(float duration, sys_time_cb cb) {
 
   uint32_t start_time = sys_time.nb_tick;

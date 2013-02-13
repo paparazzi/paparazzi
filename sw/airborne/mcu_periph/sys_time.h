@@ -103,7 +103,11 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
 
 /** system time resolution in seconds */
 #ifndef SYS_TIME_RESOLUTION
+#if defined PERIODIC_FREQUENCY
+#define SYS_TIME_RESOLUTION ( 1./(2*PERIODIC_FREQUENCY) )
+#else
 #define SYS_TIME_RESOLUTION ( 1./1024. )
+#endif
 #endif
 #define SYS_TIME_RESOLUTION_CPU_TICKS CPU_TICKS_OF_SEC(SYS_TIME_RESOLUTION)
 
