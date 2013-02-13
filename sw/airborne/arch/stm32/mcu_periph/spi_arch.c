@@ -46,7 +46,7 @@
  * - SPI Interrupts (in this case the dma interrupts) are disabled to prevent race conditions
  * - The slave is selected if required, AFTER which the before_cb callback is run
  * - The spi and dma registers are set up appropriately for the specific transaction
- * - Interrupts, spi and dma are enabled, and the transaction starts
+ * - Spi and dma are enabled, interrupts are reenabled and the transaction starts
  *
  * For the dma and interrupts:
  * - For each transaction, an interrupt is called after the dma transfer is complete for the rx AND the tx (i.e. two)
@@ -58,6 +58,9 @@
  *
  * It is assumed that the transmit output_length and receive input_length will never be 0 at the same time.
  * In this case, spi_submit will just return false.
+ *
+ * IMPORTANT: At this point, you MUST MAKE THE TRANSACTION TRANSMIT BUFFER AT LEAST AS LONG AS THE RECEIVE BUFFER, or the
+ * transmit buffer memory will overrun to the length of the receive buffer with zeroes.
  */
 
 #include <libopencm3/stm32/f1/nvic.h>
@@ -444,6 +447,7 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
 {
   struct spi_periph_dma *dma;
   uint8_t config = 0x00;
+  uint8_t max_length = 0;
 
   // Store local copy to notify of the results
   _trans->status = SPITransRunning;
@@ -460,6 +464,21 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
   }
 
   dma = p->init_struct;
+
+  // FIXME this section is at least partially necessary but may block!!!
+  /* Wait until transceive complete.
+   * This follows the procedure on the Reference Manual (RM0008 rev 14
+   * Section 25.3.9 page 692, the note.)
+   */
+  while (!(SPI_SR( dma->spi ) & SPI_SR_TXE))
+    ;
+  while (SPI_SR( dma->spi ) & SPI_SR_BSY)
+    ;
+  /* Reset SPI data and status registers */
+  volatile u16 temp_data __attribute__ ((unused));
+  while (SPI_SR( dma->spi ) & (SPI_SR_RXNE | SPI_SR_OVR)) {
+    temp_data = SPI_DR( dma->spi );
+  }
 
   config = (_trans->dss << 6) | (_trans->cdiv << 3) | (_trans->bitorder << 2) | (_trans->cpha << 1) | (_trans->cpol);
   if ( config != dma->config ) {
@@ -522,7 +541,7 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
     spi_set_nss_high( dma->spi );
     spi_enable( dma->spi );
     // FIXME this is also called immediately after spi_rw in spi_submit is this needed?
-    spi_arch_int_enable( p );
+    //spi_arch_int_enable( p );
   }
 
   /*
@@ -536,17 +555,36 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
    */
   dma->other_dma_finished = 0;
 
+  /* To receive data, the clock must run, which means something has to be transmitted.
+   * This should be zeroed data if the transaction rx length > tx length.
+   */
+  if (_trans->input_length > _trans->output_length) {
+    max_length = _trans->input_length;
+    int i;
+    for (i = _trans->output_length; i < _trans->input_length; i++) {
+      _trans->output_buf[i] = 0;
+    }
+  } else {
+    max_length = _trans->output_length;
+  }
+
+  dma_channel_reset( dma->dma, dma->rx_chan );
   if ( _trans->input_length > 0 ) {
     // Rx_DMA_Channel configuration ------------------------------------
-    dma_channel_reset( dma->dma, dma->rx_chan );
     dma_set_peripheral_address(dma->dma, dma->rx_chan, (u32)dma->spidr);
-    dma_set_memory_address(dma->dma, dma->rx_chan, (uint32_t)_trans->input_buf);
+    dma_set_memory_address(dma->dma, dma->rx_chan, (u32)_trans->input_buf);
     dma_set_number_of_data(dma->dma, dma->rx_chan, _trans->input_length);
     dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
     //dma_disable_peripheral_increment_mode(dma->dma, dma->rx_chan);
     dma_enable_memory_increment_mode(dma->dma, dma->rx_chan);
-    dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_8BIT);
-    dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_8BIT);
+    // Set the dma transfer size based on SPI transaction DSS
+    if ( dma->dss == SPIDss8bit ) {
+      dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_8BIT);
+      dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_8BIT);
+    } else {
+      dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_16BIT);
+      dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_16BIT);
+    }
     //dma_set_mode(dma->dma, dma->rx_chan, DMA_???_NORMAL);
     dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
   } else {
@@ -554,47 +592,49 @@ static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans)
     dma->other_dma_finished = 1;
   }
 
-  if ( _trans->output_length > 0 ) {
-    // SPI Tx_DMA_Channel configuration ------------------------------------
-    dma_channel_reset(dma->dma, dma->tx_chan);
-    dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)dma->spidr);
-    dma_set_memory_address(dma->dma, dma->tx_chan, (uint32_t)_trans->output_buf);
-    dma_set_number_of_data(dma->dma, dma->tx_chan, _trans->output_length);
-    dma_set_read_from_memory(dma->dma, dma->tx_chan);
-    //dma_disable_peripheral_increment_mode(dma->dma, dma->tx_chan);
-    dma_enable_memory_increment_mode(dma->dma, dma->tx_chan);
+  dma_channel_reset(dma->dma, dma->tx_chan);
+  // SPI Tx_DMA_Channel configuration ------------------------------------
+  dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)dma->spidr);
+  dma_set_memory_address(dma->dma, dma->tx_chan, (u32)_trans->output_buf);
+  // Here use the max length of rx or tx instead of the actual tx length, as described above
+  dma_set_number_of_data(dma->dma, dma->tx_chan, max_length);
+  dma_set_read_from_memory(dma->dma, dma->tx_chan);
+  //dma_disable_peripheral_increment_mode(dma->dma, dma->tx_chan);
+  dma_enable_memory_increment_mode(dma->dma, dma->tx_chan);
+  // Set the dma transfer size based on SPI transaction DSS
+  if ( dma->dss == SPIDss8bit ) {
     dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_8BIT);
     dma_set_memory_size(dma->dma, dma->tx_chan, DMA_CCR_MSIZE_8BIT);
-    //dma_set_mode(dma->dma, dma->tx_chan, DMA_???_NORMAL);
-    dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
   } else {
-    // There will be no interrupt in this case, i.e. like the interrupt already finished
-    dma->other_dma_finished = 1;
+    dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_16BIT);
+    dma_set_memory_size(dma->dma, dma->tx_chan, DMA_CCR_MSIZE_16BIT);
   }
+  //dma_set_mode(dma->dma, dma->tx_chan, DMA_???_NORMAL);
+  dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
 
-  if ( _trans->input_length > 0 ) {
-    // Enable SPI Rx request
-    spi_enable_rx_dma(dma->spi);
-    // Enable dma->dma rx channel
-    dma_enable_channel(dma->dma, dma->rx_chan);
-  }
-
-  if ( _trans->output_length > 0 ) {
-    // Enable SPI Tx request
-    spi_enable_tx_dma(dma->spi);
-    // Enable dma->dma tx Channel
-    dma_enable_channel(dma->dma, dma->tx_chan);
-  }
 
   // FIXME do we need to explicitly disable the half transfer interrupt?
   if ( _trans->input_length > 0 ) {
     // Enable dma->dma rx Channel Transfer Complete interrupt
     dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
   }
-  if ( _trans->output_length > 0 ) {
-    // Enable dma->dma tx Channel Transfer Complete interrupt
-    dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
+  // Enable dma->dma tx Channel Transfer Complete interrupt
+  dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
+
+  if ( _trans->input_length > 0 ) {
+    // Enable dma->dma rx channel
+    dma_enable_channel(dma->dma, dma->rx_chan);
   }
+  // Enable dma->dma tx Channel
+  dma_enable_channel(dma->dma, dma->tx_chan);
+
+  if ( _trans->input_length > 0 ) {
+    // Enable SPI Rx request
+    spi_enable_rx_dma(dma->spi);
+  }
+  // Enable SPI Tx request
+  spi_enable_tx_dma(dma->spi);
+
 }
 
 bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
