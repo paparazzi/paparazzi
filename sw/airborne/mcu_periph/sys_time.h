@@ -100,6 +100,8 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
 #define SIGNED_CPU_TICKS_OF_NSEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-9)
 
 /* paparazzi sys_time timers */
+
+/** system time resolution in seconds */
 #ifndef SYS_TIME_RESOLUTION
 #define SYS_TIME_RESOLUTION ( 1./1024. )
 #endif
@@ -110,6 +112,7 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
 #define SYS_TIME_TICKS_OF_NSEC(ns) SYS_TIME_TICKS_OF_SEC((ns) * 1e-9)
 
 #define SEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION)
+#define MSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-3)
 #define USEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-6)
 #define NSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-9)
 

@@ -160,12 +160,10 @@ static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
 void gps_mtk_read_message(void) {
   if (gps_mtk.msg_class == MTK_DIY14_ID) {
     if (gps_mtk.msg_id == MTK_DIY14_NAV_ID) {
-#ifdef GPS_TIMESTAMP
       /* get hardware clock ticks */
-      SysTimeTimerStart(gps.t0);
-      gps.t0_tow      = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);
-      gps.t0_tow_frac = 0;
-#endif
+      gps_time_sync.t0_ticks      = sys_time.nb_tick;
+      gps_time_sync.t0_tow      = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);
+      gps_time_sync.t0_tow_frac = 0;
       gps.lla_pos.lat = RadOfDeg(MTK_DIY14_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY14_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed

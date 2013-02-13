@@ -31,6 +31,7 @@
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 
+#include "mcu_periph/sys_time.h"
 
 /* GPS model specific implementation or sim */
 #ifdef GPS_TYPE_H
@@ -86,17 +87,17 @@ struct GpsState {
   uint16_t reset;                ///< hotstart, warmstart, coldstart
 };
 
+/** data structure for GPS time sync */
 struct GpsTimeSync {
-  uint32_t t0_tow;      ///< for time sync: time of week in ms for time sync
-  int32_t t0_tow_frac;  ///< for time sync: fractional ns remainder of tow [ms], range -500000 .. 500000
-  uint32_t t0;          ///< for time sync: hw clock ticks when GPS message is received
+  uint32_t t0_tow;      ///< GPS time of week in ms from last message
+  int32_t t0_tow_frac;  ///< fractional ns remainder of tow [ms], range -500000 .. 500000
+  uint32_t t0_ticks;    ///< hw clock ticks when GPS message is received
 };
 
 /** global GPS state */
 extern struct GpsState gps;
 
-
-
+/** initialize the global GPS state */
 extern void gps_init(void);
 
 /* GPS model specific init implementation */
@@ -108,7 +109,6 @@ extern void gps_impl_init(void);
 #define GPS_TIMEOUT 5
 #endif
 
-#include "mcu_periph/sys_time.h"
 inline bool_t GpsIsLost(void);
 
 inline bool_t GpsIsLost(void) {
@@ -120,49 +120,24 @@ inline bool_t GpsIsLost(void) {
 }
 
 
-//TODO
-// this still needs to call gps specific stuff
-
-/*
+/**
  * GPS Reset
+ * @todo this still needs to call gps specific stuff
  */
-
-#define CFG_RST_BBR_Hotstart  0x0000
-#define CFG_RST_BBR_Warmstart 0x0001
-#define CFG_RST_BBR_Coldstart 0xffff
-
 #define gps_Reset(_val) {                               \
 }
 
 
+/*
+ * For GPS time synchronizaiton...
+ */
+extern struct GpsTimeSync gps_time_sync;
 
-#ifdef GPS_TIMESTAMP
-#ifndef PCLK
-#error unknown PCLK frequency
-#endif
-
-extern struct GpsTimeSync gps_time;
-
-uint32_t gps_tow_from_ticks(uint32_t clock_ticks)
-{
-  uint32_t clock_delta;
-  uint32_t time_delta;
-  uint32_t itow_now;
-
-  if (clock_ticks < gps_t0) {
-    clock_delta = (0xFFFFFFFF - clock_ticks) + gps_time.t0 + 1;
-  } else {
-    clock_delta = clock_ticks - gps_time.t0;
-  }
-
-  time_delta = MSEC_OF_CPU_TICKS(clock_delta);
-
-  itow_now = gps_time.t0_tow + time_delta;
-  if (itow_now > MSEC_PER_WEEK) itow_now %= MSEC_PER_WEEK;
-
-  return itow_now;
-}
-#endif
-
+/**
+ * Convert time in sys_time ticks to GPS time of week.
+ * The resolution depends on #SYS_TIME_RESOLUTION
+ * @return GPS tow in ms
+ */
+extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);
 
 #endif /* GPS_H */
