@@ -135,8 +135,4 @@ extern bool_t power_switch;
 #define NAVIGATION_FREQUENCY 4
 #endif
 
-#ifndef MODULES_FREQUENCY
-#define MODULES_FREQUENCY 60
-#endif
-
 #endif /* AUTOPILOT_H */
