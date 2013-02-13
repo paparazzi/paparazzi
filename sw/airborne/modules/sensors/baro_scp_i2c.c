@@ -48,7 +48,7 @@ void baro_scp_init( void ) {
 
 void baro_scp_periodic( void ) {
 
-  if (baro_scp_status == BARO_SCP_UNINIT && cpu_time_sec > 1) {
+  if (baro_scp_status == BARO_SCP_UNINIT && sys_time.nb_sec > 1) {
 
     baro_scp_start_high_res_measurement();
     baro_scp_status = BARO_SCP_IDLE;

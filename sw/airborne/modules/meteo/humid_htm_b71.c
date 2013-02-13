@@ -57,7 +57,7 @@ void humid_htm_init(void) {
 }
 
 void humid_htm_start( void ) {
-  if (cpu_time_sec > 1) {
+  if (sys_time.nb_sec > 1) {
     /* measurement request: wake up sensor, sample temperature/humidity */
     I2CTransmit(HTM_I2C_DEV, htm_trans, HTM_SLAVE_ADDR, 0);
     htm_status = HTM_MR;

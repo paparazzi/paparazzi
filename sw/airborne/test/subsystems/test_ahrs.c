@@ -71,7 +71,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 
-  if (cpu_time_sec > 1) imu_periodic();
+  if (sys_time.nb_sec > 1) imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
   main_report();
 }

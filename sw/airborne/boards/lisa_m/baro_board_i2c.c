@@ -58,7 +58,7 @@ void baro_init(void) {
 }
 
 void baro_periodic(void) {
-  if (cpu_time_sec > 1) {
+  if (sys_time.nb_sec > 1) {
     if (ms5611_status == MS5611_IDLE) {
       /* start D1 conversion */
       ms5611_status = MS5611_CONV_D1;

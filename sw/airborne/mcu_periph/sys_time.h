@@ -60,9 +60,6 @@ struct sys_time {
 
 extern struct sys_time sys_time;
 
-//FIXME temporary hack
-#define cpu_time_sec sys_time.nb_sec
-#define cpu_time_ticks sys_time.nb_sec_rem
 
 extern void sys_time_init(void);
 

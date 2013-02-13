@@ -34,7 +34,7 @@ static void EXTINT_ISR(void) __attribute__((naked));
 static void SPI1_ISR(void) __attribute__((naked));
 
 void baro_scp_periodic(void) {
-  if (baro_scp_status == STA_UNINIT && cpu_time_sec > 1) {
+  if (baro_scp_status == STA_UNINIT && sys_time.nb_sec > 1) {
     baro_scp_start_high_res_measurement();
     baro_scp_status = STA_INITIALISING;
   }

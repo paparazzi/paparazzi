@@ -81,7 +81,7 @@ struct GpsState {
   uint8_t nb_channels;           ///< Number of scanned satellites
   struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellites)
 
-  uint32_t last_fix_ticks;       ///< cpu time in ticks at last valid fix
+  uint32_t last_fix_ticks;       ///< cpu time ticks at last valid fix
   uint32_t last_fix_time;        ///< cpu time in sec at last valid fix
   uint16_t reset;                ///< hotstart, warmstart, coldstart
 };

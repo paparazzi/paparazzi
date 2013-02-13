@@ -88,7 +88,7 @@ void baro_ms5611_init(void) {
 }
 
 void baro_ms5611_periodic( void ) {
-  if (cpu_time_sec > 1) {
+  if (sys_time.nb_sec > 1) {
     if (ms5611_status >= MS5611_IDLE) {
       /* start D1 conversion */
       ms5611_status = MS5611_CONV_D1;
@@ -114,7 +114,7 @@ void baro_ms5611_periodic( void ) {
 }
 
 void baro_ms5611_d1( void ) {
-  if (cpu_time_sec > 1) {
+  if (sys_time.nb_sec > 1) {
     if (ms5611_status == MS5611_CONV_D1_OK) {
       /* read D1 adc */
       ms5611_status = MS5611_ADC_D1;
@@ -125,7 +125,7 @@ void baro_ms5611_d1( void ) {
 }
 
 void baro_ms5611_d2( void ) {
-  if (cpu_time_sec > 1) {
+  if (sys_time.nb_sec > 1) {
     if (ms5611_status == MS5611_CONV_D2_OK) {
       /* read D2 adc */
       ms5611_status = MS5611_ADC_D2;

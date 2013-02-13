@@ -67,7 +67,7 @@ void ir_mlx_init( void ) {
 }
 
 void ir_mlx_periodic( void ) {
-  if (cpu_time_sec > 1) {
+  if (sys_time.nb_sec > 1) {
     if (ir_mlx_status >= IR_MLX_IDLE) {
       /* start two byte case temperature */
       mlx_trans.buf[0] = MLX90614_TA;
