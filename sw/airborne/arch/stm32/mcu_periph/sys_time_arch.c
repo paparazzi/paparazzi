@@ -41,7 +41,10 @@
  * therefore it activates every n+1 clock ticks.
  */
 void sys_time_arch_init( void ) {
-  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB);
+  /* 72MHz / 8 => 9000000 counts per second */
+  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB_DIV8);
+
+  /* 8999 would be one interrupt every 1ms */
   systick_set_reload(SYS_TIME_RESOLUTION_CPU_TICKS-1);
 
   systick_interrupt_enable();
@@ -56,10 +59,13 @@ void sys_time_arch_init( void ) {
 //
 void sys_tick_handler(void) {
 
+  static const uint32_t ticks_resolution = SYS_TIME_RESOLUTION_CPU_TICKS;
+  static const uint32_t ticks_per_sec = CPU_TICKS_OF_SEC(1.0);
+
   sys_time.nb_tick++;
-  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
-  if (sys_time.nb_sec_rem >= CPU_TICKS_PER_SEC) {
-    sys_time.nb_sec_rem -= CPU_TICKS_PER_SEC;
+  sys_time.nb_sec_rem += ticks_resolution;
+  if (sys_time.nb_sec_rem >= ticks_per_sec) {
+    sys_time.nb_sec_rem -= ticks_per_sec;
     sys_time.nb_sec++;
 #ifdef SYS_TIME_LED
     LED_TOGGLE(SYS_TIME_LED);

@@ -34,10 +34,13 @@ void sys_time_arch_init( void ) {
 
 void sys_tick_handler( void ) {
 
+  static const unsigned int ticks_resolution = SYS_TIME_RESOLUTION_CPU_TICKS;
+  static const unsigned int ticks_per_sec = CPU_TICKS_OF_SEC(1.0);
+
   sys_time.nb_tick++;
-  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
-  if (sys_time.nb_sec_rem >= CPU_TICKS_PER_SEC) {
-    sys_time.nb_sec_rem -= CPU_TICKS_PER_SEC;
+  sys_time.nb_sec_rem += ticks_resolution;
+  if (sys_time.nb_sec_rem >= ticks_per_sec) {
+    sys_time.nb_sec_rem -= ticks_per_sec;
     sys_time.nb_sec++;
   }
   for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {

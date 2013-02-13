@@ -138,13 +138,17 @@ void sys_time_arch_init( void ) {
 // 12 hours at 100khz
 //
 static inline void sys_tick_irq_handler(void) {
+
+  static const uint32_t ticks_resolution = SYS_TIME_RESOLUTION_CPU_TICKS;
+  static const uint32_t ticks_per_sec = CPU_TICKS_OF_SEC(1.0);
+
   /* set match register for next interrupt */
-  T0MR0 += SYS_TIME_RESOLUTION_CPU_TICKS - 1;
+  T0MR0 += ticks_resolution - 1;
 
   sys_time.nb_tick++;
   sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
-  if (sys_time.nb_sec_rem >= CPU_TICKS_PER_SEC) {
-    sys_time.nb_sec_rem -= CPU_TICKS_PER_SEC;
+  if (sys_time.nb_sec_rem >= ticks_per_sec) {
+    sys_time.nb_sec_rem -= ticks_per_sec;
     sys_time.nb_sec++;
 #ifdef SYS_TIME_LED
     LED_TOGGLE(SYS_TIME_LED);

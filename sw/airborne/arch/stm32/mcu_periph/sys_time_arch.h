@@ -41,12 +41,12 @@
 
 extern void sys_tick_handler(void);
 
-#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
-#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
+#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK / 8 + 0.5)
+#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK / 8 + 0.5)
 
-#define SEC_OF_CPU_TICKS(t)  ((t) / AHB_CLK)
-#define MSEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK/1000))
-#define USEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK/1000000))
+#define SEC_OF_CPU_TICKS(t)  ((t) / AHB_CLK * 8)
+#define MSEC_OF_CPU_TICKS(t) ((t) / AHB_CLK * 8000)
+#define USEC_OF_CPU_TICKS(t) ((t) / AHB_CLK * 8000000)
 
 #define GET_CUR_TIME_USEC() (sys_time.nb_sec * 1000000 +                \
                              USEC_OF_CPU_TICKS(sys_time.nb_sec_rem) +   \
@@ -58,11 +58,25 @@ extern void sys_tick_handler(void);
 
 
 /** Busy wait in microseconds.
- * FIXME: directly use the SysTick->VAL here
+ * Limited to ((2^24)-1)/9000000 = 1.86s
  */
 static inline void sys_time_usleep(uint32_t us) {
-  uint32_t end = GET_CUR_TIME_USEC() + us;
-  while ((uint32_t)GET_CUR_TIME_USEC() < end);
+  uint32_t start = systick_get_value();
+  uint32_t ticks = CPU_TICKS_OF_USEC(us);
+  /* cortex systick counts backwards */
+  int32_t d = start - ticks;
+  uint32_t end = 0;
+  /* check if it wraps around zero */
+  if (d >= 0) {
+    end = d;
+    while (systick_get_value() > end);
+  } else {
+    /* wait to zero */
+    while (systick_get_value() > 0);
+    /* wrap to reload value, wait the rest */
+    end = STK_LOAD + d;
+    while (systick_get_value() > end);
+  }
 }
 
 #endif /* SYS_TIME_ARCH_H */
