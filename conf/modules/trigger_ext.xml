@@ -19,7 +19,6 @@
     <define name="TRIGGER_EXT"/>
     <define name="TRIG_EXT_PULSE_TYPE" value="TRIG_EXT_EDGE_FALLING"/>
     <define name="TURBINE_ID" value="42"/>
-    <define name="GPS_TIMESTAMP"/>
   </makefile>
 </module>
 
