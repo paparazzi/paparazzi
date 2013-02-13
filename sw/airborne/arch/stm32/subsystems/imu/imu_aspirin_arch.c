@@ -77,10 +77,11 @@ void imu_aspirin_arch_init(void) {
 
 }
 
+
+/****** the interrupts should be handled in the peripheral drivers *******/
+
 /*
- *
  * Gyro data ready
- *
  */
 void exti15_10_isr(void) {
 
@@ -95,9 +96,7 @@ void exti15_10_isr(void) {
 }
 
 /*
- *
  * Accel data ready
- *
  */
 void exti2_isr(void) {
 
@@ -105,6 +104,5 @@ void exti2_isr(void) {
   exti_reset_request(EXTI2);
 
   //adxl345_start_reading_data();
-
 }
 
