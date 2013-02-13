@@ -243,9 +243,7 @@ B2L -> CW
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1">
-	    <define name="IMU_ASPIRIN_DISABLE_BARO" value="TRUE"/>
-    </subsystem>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
