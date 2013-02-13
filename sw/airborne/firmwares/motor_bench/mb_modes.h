@@ -31,7 +31,7 @@ extern void mb_mode_periodic(float rpm, float thrust, float current);
 
 #define mb_modes_SetMode(_val) {			\
     mb_modes_mode = _val;				\
-    mb_modes_last_change_time = GET_CUR_TIME_FLOAT();	\
+    mb_modes_last_change_time = get_sys_time_float(); \
     /*if  (mb_modes_mode == MB_MODES_RAMP)		\
       mb_static_init();					\
     if  (mb_modes_mode == MB_MODES_FIXED_RPM)		\

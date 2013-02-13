@@ -41,6 +41,9 @@
 
 extern void sys_tick_handler(void);
 
+/*
+ * sys tick timer is running with AHB_CLK / 8
+ */
 #define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK / 8 + 0.5)
 #define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK / 8 + 0.5)
 
@@ -48,14 +51,21 @@ extern void sys_tick_handler(void);
 #define MSEC_OF_CPU_TICKS(t) ((t) / AHB_CLK * 8000)
 #define USEC_OF_CPU_TICKS(t) ((t) / AHB_CLK * 8000000)
 
-#define GET_CUR_TIME_USEC() (sys_time.nb_sec * 1000000 +                \
-                             USEC_OF_CPU_TICKS(sys_time.nb_sec_rem) +   \
-                             USEC_OF_CPU_TICKS(STK_LOAD - STK_VAL))
+/**
+ * Get the time in microseconds since startup.
+ * WARNING: overflows after 70min!
+ * @return current system time as uint32_t
+ */
+static inline uint32_t get_sys_time_usec(void) {
+  return sys_time.nb_sec * 1000000 +
+    USEC_OF_CPU_TICKS(sys_time.nb_sec_rem) +
+    USEC_OF_CPU_TICKS(STK_LOAD - systick_get_value());
+}
 
-#define SysTimeTimerStart(_t) { _t = GET_CUR_TIME_USEC(); }
-#define SysTimeTimer(_t) ( GET_CUR_TIME_USEC() - (_t))
-#define SysTimeTimerStop(_t) { _t = ( GET_CUR_TIME_USEC() - (_t)); }
-
+/* Generic timer macros */
+#define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
+#define SysTimeTimer(_t) ( get_sys_time_usec() - (_t))
+#define SysTimeTimerStop(_t) { _t = ( get_sys_time_usec() - (_t)); }
 
 /** Busy wait in microseconds.
  * Limited to ((2^24)-1)/9000000 = 1.86s

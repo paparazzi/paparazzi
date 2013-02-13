@@ -54,7 +54,7 @@ struct sys_time_timer {
 struct sys_time {
   volatile uint32_t nb_sec;       ///< full seconds since startup
   volatile uint32_t nb_sec_rem;   ///< remainder of second in CPU_TICKS
-  volatile uint32_t nb_tick;      ///< in SYS_TICKS with SYS_TIME_RESOLUTION
+  volatile uint32_t nb_tick;      ///< SYS_TICKS since startup (with SYS_TIME_RESOLUTION)
   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
 };
 
@@ -95,17 +95,12 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
   return FALSE;
 }
 
-#define GET_CUR_TIME_FLOAT() ((float)sys_time.nb_sec + SEC_OF_CPU_TICKS((float)sys_time.nb_sec_rem))
-
 
 /* CPU clock */
 #define CPU_TICKS_OF_USEC(us) CPU_TICKS_OF_SEC((us) * 1e-6)
 #define CPU_TICKS_OF_NSEC(ns) CPU_TICKS_OF_SEC((ns) * 1e-9)
 #define SIGNED_CPU_TICKS_OF_USEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-6)
 #define SIGNED_CPU_TICKS_OF_NSEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-9)
-
-#define CPU_TICKS_PER_SEC CPU_TICKS_OF_SEC( 1.)
-
 
 /* paparazzi sys_time timers */
 #ifndef SYS_TIME_RESOLUTION
@@ -129,5 +124,12 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
 /* architecture specific init implementation */
 extern void sys_time_arch_init(void);
 
+/**
+ * Get the time in seconds since startup.
+ * @return current system time as float
+ */
+static inline float get_sys_time_float(void) {
+  return (float)sys_time.nb_sec + SEC_OF_CPU_TICKS((float)sys_time.nb_sec_rem);
+}
 
 #endif /* SYS_TIME_H */
