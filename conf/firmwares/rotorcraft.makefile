@@ -145,7 +145,7 @@ else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 ap.srcs += $(SRC_BOARD)/baro_board.c
 
-# Lisa/M and Lia baro
+# Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
 # defaults to i2c baro bmp085 on the board
 LISA_M_BARO ?= BARO_BOARD_BMP085
@@ -161,6 +161,20 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
 	ap.CFLAGS += -DUSE_I2C2
   endif
   ap.CFLAGS += -D$(LISA_M_BARO)
+
+# Lia baro (no bmp onboard)
+else ifeq ($(BOARD), lia)
+# fixme, reuse the baro drivers in lisa_m dir
+LIA_BARO ?= BARO_MS5611_SPI
+  ifeq ($(LIA_BARO), BARO_MS5611_SPI)
+    include $(CFG_SHARED)/spi.makefile
+    ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
+    ap.srcs += boards/lisa_m/baro_ms5611_spi.c
+  else ifeq ($(LIA_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DUSE_I2C2
+    ap.srcs += boards/lisa_m/baro_ms5611_i2c.c
+  endif
+  ap.CFLAGS += -D$(LIA_BARO)
 
 # navgo baro
 else ifeq ($(BOARD), navgo)

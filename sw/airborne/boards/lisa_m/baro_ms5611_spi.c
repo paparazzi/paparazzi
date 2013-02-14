@@ -5,7 +5,6 @@
  * Utah State University, http://aggieair.usu.edu/
  */
 #include "subsystems/sensors/baro.h"
-#include "baro_board.h"
 #include "peripherals/ms5611.h"
 #include "led.h"
 #include "std.h"

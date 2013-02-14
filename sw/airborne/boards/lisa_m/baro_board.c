@@ -148,7 +148,7 @@ void baro_board_send_reset(void) {
 }
 
 // Apply temp calibration and sensor calibration to raw measurement to get Pa (from BMP085 datasheet)
-int32_t baro_apply_calibration(int32_t raw)
+static int32_t baro_apply_calibration(int32_t raw)
 {
   int32_t b6 = calibration.b5 - 4000;
   int x1 = (calibration.b2 * (b6 * b6 >> 12)) >> 11;

@@ -49,7 +49,6 @@
 #include "subsystems/gps.h"
 
 #include "subsystems/sensors/baro.h"
-#include "baro_board.h"
 
 #include "subsystems/electrical.h"
 

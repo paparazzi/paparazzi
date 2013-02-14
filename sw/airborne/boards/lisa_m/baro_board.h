@@ -1,6 +1,6 @@
 
 /*
- * board specific fonctions for the lisa_m board
+ * board specific functions for the lisa_m board
  *
  */
 
