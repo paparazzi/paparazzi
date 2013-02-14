@@ -147,17 +147,18 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 
 # Lisa/M and Lia baro
 else ifeq ($(BOARD), lisa_m)
-# defaults to i2c baro
-LISA_M_BARO ?= BARO_I2C
-  ifeq ($(LISA_M_BARO), BARO_SPI)
+# defaults to i2c baro bmp085 on the board
+LISA_M_BARO ?= BARO_BOARD_BMP085
+  ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
     include $(CFG_SHARED)/spi.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-    ap.srcs += $(SRC_BOARD)/baro_board_spi.c
-  else ifeq ($(LISA_M_BARO), BARO_I2C)
+    ap.srcs += $(SRC_BOARD)/baro_ms5611_spi.c
+  else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
     ap.CFLAGS += -DUSE_I2C2
-    ap.srcs += $(SRC_BOARD)/baro_board_i2c.c
-  else ifeq ($(LISA_M_BARO), BARO_ASPIRIN)
+    ap.srcs += $(SRC_BOARD)/baro_ms5611_i2c.c
+  else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
     ap.srcs += $(SRC_BOARD)/baro_board.c
+	ap.CFLAGS += -DUSE_I2C2
   endif
   ap.CFLAGS += -D$(LISA_M_BARO)
 

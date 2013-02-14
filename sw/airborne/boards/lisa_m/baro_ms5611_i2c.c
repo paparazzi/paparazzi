@@ -190,7 +190,7 @@ void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
       b_abs_handler();
       b_diff_handler();
 
-      #ifdef EBUG
+      #ifdef DEBUG
       ftempms = tempms / 100.;
       fbaroms = baroms / 100.;
       DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
