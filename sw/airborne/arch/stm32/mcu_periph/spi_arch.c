@@ -89,6 +89,7 @@ struct spi_periph_dma {
   u8  rx_nvic_irq;            ///< receive interrupt
   u8  tx_nvic_irq;            ///< transmit interrupt
   u8  other_dma_finished;
+  u16 tx_dummy_buf;           ///< dummy tx buffer for receive only cases
   struct locm3_spi_comm comm; ///< current communication paramters
   u8  comm_sig;               ///< comm config signature used to check for changes: cdiv, cpol, cpha, dss, bo
 };
@@ -352,6 +353,7 @@ void spi1_arch_init(void) {
   spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
   spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
   spi1_dma.other_dma_finished = 0;
+  spi1_dma.tx_dummy_buf = 0;
 
   // set the default configuration
   set_default_comm_config(&spi1_dma.comm);
@@ -425,6 +427,7 @@ void spi2_arch_init(void) {
   spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
   spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
   spi2_dma.other_dma_finished = 0;
+  spi2_dma.tx_dummy_buf = 0;
 
   // set the default configuration
   set_default_comm_config(&spi2_dma.comm);
@@ -499,6 +502,7 @@ void spi3_arch_init(void) {
   spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
   spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
   spi3_dma.other_dma_finished = 0;
+  spi3_dma.tx_dummy_buf = 0;
 
   // set the default configuration
   set_default_comm_config(&spi3_dma.comm);
@@ -567,6 +571,12 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
   struct spi_periph_dma *dma;
   uint8_t sig = 0x00;
   uint8_t max_length = 0;
+  typedef enum {
+    TX_LEN_LONGER = 0,
+    RX_LEN_LONGER_TX_0,
+    RX_LEN_LONGER_TX_NOT_0
+  } spi_tx_length_case;
+  spi_tx_length_case tx_length_case = TX_LEN_LONGER;
 
   // Store local copy to notify of the results
   _trans->status = SPITransRunning;
@@ -585,7 +595,8 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
   dma = periph->init_struct;
 
   // FIXME this section is at least partially necessary but may block!!!
-  /* Wait until transceive complete.
+  /*
+   * Wait until transceive complete.
    * This follows the procedure on the Reference Manual (RM0008 rev 14
    * Section 25.3.9 page 692, the note.)
    */
@@ -627,16 +638,42 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
    */
   dma->other_dma_finished = 0;
 
-  /* To receive data, the clock must run, which means something has to be transmitted.
+  /* Determine the length case of the transaction */
+  if ((_trans->input_length > _trans->output_length) && (_trans->output_length > 0)) {
+    /* We are sending something, but less than receiving */
+    tx_length_case = RX_LEN_LONGER_TX_NOT_0;
+  } else if ((_trans->input_length > _trans->output_length) && (_trans->output_length == 0)) {
+    /* We are not sending anything, but we are receiving */
+    tx_length_case = RX_LEN_LONGER_TX_0;
+  } else {
+    /* We are sending at least as much as we receive, use output length */
+    tx_length_case = TX_LEN_LONGER;
+  }
+
+  /*
+   * To receive data, the clock must run, which means something has to be transmitted.
    * This should be zeroed data if the transaction rx length > tx length.
    */
-  if (_trans->input_length > _trans->output_length) {
+  if (tx_length_case == RX_LEN_LONGER_TX_NOT_0) {
+    /*
+     * We are sending something, but less than receiving, we need to pad the tx
+     * buffer with zeroes
+     */
     max_length = _trans->input_length;
     int i;
     for (i = _trans->output_length; i < _trans->input_length; i++) {
       _trans->output_buf[i] = 0;
     }
+  } else if (tx_length_case == RX_LEN_LONGER_TX_0) {
+    /*
+     * We are not sending anything, but we are receiving, use the dummy buf but
+     * make sure to run the SPI for the whole receive length
+     */
+     max_length = _trans->input_length;
   } else {
+    /*
+     * We are sending at least as much as we receive, use output length
+     */
     max_length = _trans->output_length;
   }
 
@@ -667,12 +704,18 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
   dma_channel_reset(dma->dma, dma->tx_chan);
   // SPI Tx_DMA_Channel configuration ------------------------------------
   dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)dma->spidr);
-  dma_set_memory_address(dma->dma, dma->tx_chan, (u32)_trans->output_buf);
+  // Use the dummy buffer if tx length is zero
+  if (tx_length_case == RX_LEN_LONGER_TX_0) {
+    dma_set_memory_address(dma->dma, dma->tx_chan, (u32)dma->tx_dummy_buf);
+    dma_disable_memory_increment_mode(dma->dma, dma->tx_chan);
+  } else {
+    dma_set_memory_address(dma->dma, dma->tx_chan, (u32)_trans->output_buf);
+    dma_enable_memory_increment_mode(dma->dma, dma->tx_chan);
+  }
   // Here use the max length of rx or tx instead of the actual tx length, as described above
   dma_set_number_of_data(dma->dma, dma->tx_chan, max_length);
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
   //dma_disable_peripheral_increment_mode(dma->dma, dma->tx_chan);
-  dma_enable_memory_increment_mode(dma->dma, dma->tx_chan);
   // Set the dma transfer size based on SPI transaction DSS
   if (_trans->dss == SPIDss8bit) {
     dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_8BIT);
