@@ -44,12 +44,12 @@ extern void sys_tick_handler(void);
 /*
  * sys tick timer is running with AHB_CLK / 8
  */
-#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK / 8 + 0.5)
-#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK / 8 + 0.5)
+#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * (AHB_CLK / 8) + 0.5)
+#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * (AHB_CLK / 8) + 0.5)
 
-#define SEC_OF_CPU_TICKS(t)  ((t) / AHB_CLK * 8)
-#define MSEC_OF_CPU_TICKS(t) ((t) / AHB_CLK * 8000)
-#define USEC_OF_CPU_TICKS(t) ((t) / AHB_CLK * 8000000)
+#define SEC_OF_CPU_TICKS(t)  ((t) / (AHB_CLK / 8))
+#define MSEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK / 8000))
+#define USEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK / 8000000))
 
 /**
  * Get the time in microseconds since startup.
