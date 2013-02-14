@@ -27,19 +27,6 @@
  * Handling of SPI hardware for STM32.
  * SPI Master code.
  *
- * This file manages the SPI implementation how it appears to the chip.
- * The public "API" that is used across the modules has different ideas about the
- * numbers used in the spi structures (spi_periph).
- *
- * This means that from the outside, a spi_periph 2 may be mapped to SPI2, even though it's
- * not the primary spi peripheral to use. Alternatively, it may as well be spi0 (mcu_periph/spi.c)
- * which connects to the IMU (SPI2), instead of spi2.
- *
- * See the "spix_arch_init()" functions to see where the mapping occurs.
- *
- * This does require modifications in the makefiles, because the correct arch_init needs to be called
- * for the selection of aspirin v2.1 for example.
- *
  * When a transaction is submitted:
  * - The transaction is added to the queue if there is space, otherwise it returns false
  * - The pending state is set
@@ -100,7 +87,7 @@ struct spi_periph_dma {
 };
 
 #if USE_SPI0
-static struct spi_periph_dma spi0_dma;
+#error "The STM32 doesn't have SPI0"
 #endif
 #if USE_SPI1
 static struct spi_periph_dma spi1_dma;
@@ -108,18 +95,10 @@ static struct spi_periph_dma spi1_dma;
 #if USE_SPI2
 static struct spi_periph_dma spi2_dma;
 #endif
+#if USE_SPI3
+static struct spi_periph_dma spi3_dma;
+#endif
 
-// SPI2 Slave Selection
-
-// This mapping is related to the mapping of spi(x) structures in the modules and not
-// necessarily to the identifiers as they appear to the processor.
-// The IMU on Lisam2 for example is assigned to the SPI2 bus, but we continue to use
-// the mapping to spi(x) structures as in modules here. The actual mapping of pins
-// occurs in "arch_init".
-// What this means is that we're effectively 'locking':
-// SPI2 to spi2
-// SPI1 to spi1
-// SPI3 to spi0
 
 #define SPI_SELECT_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
 #define SPI_SELECT_SLAVE0_PORT GPIOA
@@ -233,78 +212,32 @@ static void spi_arch_int_disable( struct spi_periph *spi ) {
  *  These functions map the publically available "spi" structures to
  *  specific pins on this processor
  */
-#if USE_SPI0
-void spi0_arch_init(void) {
-
-  // Enable SPI3 Periph and gpio clocks -------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
-
-  // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
-  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI3_SCK |
-                                            GPIO_SPI3_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-          GPIO_SPI3_MISO);
-
-  // reset SPI
-  spi_reset(SPI3);
-
-  // Disable SPI peripheral
-  spi_disable(SPI3);
-
-  // Initialize the slave select pins
-  // done from mcu_init, is it really necessary to do that here?
-  //spi_init_slaves();
-
-  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
-
-  spi0_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
-
-  // Force SPI mode over I2S.
-  SPI3_I2SCFGR = 0;
-
-  // configure master SPI.
-  spi_init_master(SPI3, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
-
-  /*
-   * Set NSS management to software.
-   *
-   * Note:
-   * Setting nss high is very important, even if we are controlling the GPIO
-   * ourselves this bit needs to be at least set to 1, otherwise the spi
-   * peripheral will not send any data out.
-   */
-  spi_enable_software_slave_management(SPI3);
-  spi_set_nss_high(SPI3);
-
-  // Enable SPI_3 DMA clock ---------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
-
-  // Enable SPI3 periph.
-  spi_enable(SPI3);
-
-  spi0.init_struct = &spi0_dma;
-  spi0_dma.spi = SPI3;
-  spi0_dma.spidr = (u32)&SPI3_DR;
-  spi0_dma.dma = DMA2;
-  spi0_dma.rx_chan = DMA_CHANNEL1;
-  spi0_dma.tx_chan = DMA_CHANNEL2;
-  spi0_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
-  spi0_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
-  spi0_dma.other_dma_finished = 0;
-
-  spi0.trans_insert_idx = 0;
-  spi0.trans_extract_idx = 0;
-  spi0.status = SPIIdle;
-
-  spi_arch_int_enable( &spi0 );
-}
-#endif
-
 #if USE_SPI1
 void spi1_arch_init(void) {
+
+  // set the default configuration
+  spi1_dma.spi = SPI1;
+  spi1_dma.spidr = (u32)&SPI1_DR;
+  spi1_dma.dma = DMA1;
+  spi1_dma.rx_chan = DMA_CHANNEL2;
+  spi1_dma.tx_chan = DMA_CHANNEL3;
+  spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
+  spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
+
+  // set the default configuration
+  spi1_dma.other_dma_finished = 0;
+  spi1_dma.cdiv = SPI_CR1_BAUDRATE_FPCLK_DIV_64;
+  spi1_dma.cpol = SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
+  spi1_dma.cpha = SPI_CR1_CPHA_CLK_TRANSITION_2;
+  spi1_dma.dss = SPI_CR1_DFF_8BIT;
+  spi1_dma.bo = SPI_CR1_MSBFIRST;
+  spi1_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
+
+  // set init struct, indices and status
+  spi1.init_struct = &spi1_dma;
+  spi1.trans_insert_idx = 0;
+  spi1.trans_extract_idx = 0;
+  spi1.status = SPIIdle;
 
   // Enable SPI1 Periph and gpio clocks -------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
@@ -332,12 +265,8 @@ void spi1_arch_init(void) {
   // Force SPI mode over I2S.
   SPI1_I2SCFGR = 0;
 
-  spi1_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
-
   // configure master SPI.
-  spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
-
+  spi_init_master(SPI1, spi1_dma.cdiv, spi1_dma.cpol, spi1_dma.cpha, spi1_dma.dss, spi1_dma.bo);
   /*
    * Set NSS management to software.
    *
@@ -355,26 +284,36 @@ void spi1_arch_init(void) {
   // Enable SPI1 periph.
   spi_enable(SPI1);
 
-  spi1.init_struct = &spi1_dma;
-  spi1_dma.spi = SPI1;
-  spi1_dma.spidr = (u32)&SPI1_DR;
-  spi1_dma.dma = DMA1;
-  spi1_dma.rx_chan = DMA_CHANNEL2;
-  spi1_dma.tx_chan = DMA_CHANNEL3;
-  spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
-  spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
-  spi1_dma.other_dma_finished = 0;
-
-  spi1.trans_insert_idx = 0;
-  spi1.trans_extract_idx = 0;
-  spi1.status = SPIIdle;
-
   spi_arch_int_enable( &spi1 );
 }
 #endif
 
 #if USE_SPI2
 void spi2_arch_init(void) {
+
+  // set the default configuration
+  spi2_dma.spi = SPI2;
+  spi2_dma.spidr = (u32)&SPI2_DR;
+  spi2_dma.dma = DMA1;
+  spi2_dma.rx_chan = DMA_CHANNEL4;
+  spi2_dma.tx_chan = DMA_CHANNEL5;
+  spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
+  spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
+
+  spi2_dma.other_dma_finished = 0;
+  spi2_dma.cdiv = SPI_CR1_BAUDRATE_FPCLK_DIV_64;
+  spi2_dma.cpol = SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
+  spi2_dma.cpha = SPI_CR1_CPHA_CLK_TRANSITION_2;
+  spi2_dma.dss = SPI_CR1_DFF_8BIT;
+  spi2_dma.bo = SPI_CR1_MSBFIRST;
+  spi2_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
+
+  // set init struct, indices and status
+  spi2.init_struct = &spi2_dma;
+  spi2.trans_insert_idx = 0;
+  spi2.trans_extract_idx = 0;
+  spi2.status = SPIIdle;
+
 
   // Enable SPI2 Periph and gpio clocks -------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
@@ -402,11 +341,8 @@ void spi2_arch_init(void) {
   // Force SPI mode over I2S.
   SPI2_I2SCFGR = 0;
 
-  spi2_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
-
   // configure master SPI.
-  spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+  spi_init_master(SPI2, spi2_dma.cdiv, spi2_dma.cpol, spi2_dma.cpha, spi2_dma.dss, spi2_dma.bo);
 
   /*
    * Set NSS management to software.
@@ -425,21 +361,84 @@ void spi2_arch_init(void) {
   // Enable SPI2 periph.
   spi_enable(SPI2);
 
-  spi2.init_struct = &spi2_dma;
-  spi2_dma.spi = SPI2;
-  spi2_dma.spidr = (u32)&SPI2_DR;
-  spi2_dma.dma = DMA1;
-  spi2_dma.rx_chan = DMA_CHANNEL4;
-  spi2_dma.tx_chan = DMA_CHANNEL5;
-  spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
-  spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
-  spi2_dma.other_dma_finished = 0;
-
-  spi2.trans_insert_idx = 0;
-  spi2.trans_extract_idx = 0;
-  spi2.status = SPIIdle;
-
   spi_arch_int_enable( &spi2 );
+}
+#endif
+
+#if USE_SPI3
+void spi3_arch_init(void) {
+
+  // set the default configuration
+  spi3_dma.spi = SPI3;
+  spi3_dma.spidr = (u32)&SPI3_DR;
+  spi3_dma.dma = DMA2;
+  spi3_dma.rx_chan = DMA_CHANNEL1;
+  spi3_dma.tx_chan = DMA_CHANNEL2;
+  spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
+  spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
+
+  spi3_dma.other_dma_finished = 0;
+  spi3_dma.cdiv = SPI_CR1_BAUDRATE_FPCLK_DIV_64;
+  spi3_dma.cpol = SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
+  spi3_dma.cpha = SPI_CR1_CPHA_CLK_TRANSITION_2;
+  spi3_dma.dss = SPI_CR1_DFF_8BIT;
+  spi3_dma.bo = SPI_CR1_MSBFIRST;
+  spi3_dma.config = (SPIDss8bit << 6) | (SPIDiv64 << 3) | (SPIMSBFirst << 2) | (SPICphaEdge2 << 1) | (SPICpolIdleHigh);
+
+  // set init struct, indices and status
+  spi3.init_struct = &spi3_dma;
+  spi3.trans_insert_idx = 0;
+  spi3.trans_extract_idx = 0;
+  spi3.status = SPIIdle;
+
+
+  // Enable SPI3 Periph and gpio clocks -------------------------------------------------
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
+
+  // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
+  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI3_SCK |
+                GPIO_SPI3_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+                GPIO_SPI3_MISO);
+
+  // reset SPI
+  spi_reset(SPI3);
+
+  // Disable SPI peripheral
+  spi_disable(SPI3);
+
+  // Initialize the slave select pins
+  // done from mcu_init, is it really necessary to do that here?
+  //spi_init_slaves();
+
+  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
+
+  // Force SPI mode over I2S.
+  SPI3_I2SCFGR = 0;
+
+  // configure master SPI.
+  spi_init_master(SPI3, spi3_dma.cdiv, spi3_dma.cpol, spi3_dma.cpha, spi3_dma.dss, spi3_dma.bo);
+
+  /*
+   * Set NSS management to software.
+   *
+   * Note:
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
+  spi_enable_software_slave_management(SPI3);
+  spi_set_nss_high(SPI3);
+
+  // Enable SPI_3 DMA clock ---------------------------------------------------
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
+
+  // Enable SPI3 periph.
+  spi_enable(SPI3);
+
+  spi_arch_int_enable( &spi3 );
 }
 #endif
 
@@ -808,7 +807,7 @@ void dma1_channel5_isr(void)
 
 #endif
 
-#if USE_SPI0
+#if USE_SPI3
 /// receive transferred over DMA
 void dma2_channel1_isr(void)
 {

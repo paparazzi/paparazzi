@@ -46,7 +46,7 @@ IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\"
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c
 
-include $(CFG_SHARED)/spi.makefile
+include $(CFG_SHARED)/spi_master.makefile
 
 ifeq ($(ARCH), lpc21)
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI1

@@ -194,7 +194,7 @@ extern void spi0_init(void);
  */
 extern void spi0_arch_init(void);
 
-#endif
+#endif // USE_SPI0
 
 #if USE_SPI1
 
@@ -206,7 +206,7 @@ extern void spi1_init(void);
  */
 extern void spi1_arch_init(void);
 
-#endif
+#endif // USE_SPI1
 
 #if USE_SPI2
 
@@ -218,8 +218,19 @@ extern void spi2_init(void);
  */
 extern void spi2_arch_init(void);
 
+#endif // USE_SPI2
 
-#endif
+#if USE_SPI3
+
+extern struct spi_periph spi3;
+extern void spi3_init(void);
+
+/** Architecture dependant SPI3 initialization.
+ * Must be implemented by underlying architecture
+ */
+extern void spi3_arch_init(void);
+
+#endif // USE_SPI3
 
 /** Initialize a spi peripheral.
  * @param p spi peripheral to be configured
@@ -275,7 +286,7 @@ extern bool_t spi_resume(struct spi_periph* p, uint8_t slave);
 extern struct spi_periph spi0;
 extern void spi0_slave_init(void);
 
-/** Architecture dependant SPI1 initialization.
+/** Architecture dependant SPI0 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi0_slave_arch_init(void);
@@ -287,7 +298,7 @@ extern void spi0_slave_arch_init(void);
 extern struct spi_periph spi1;
 extern void spi1_slave_init(void);
 
-/** Architecture dependant SPI1 initialization.
+/** Architecture dependant SPI1 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi1_slave_arch_init(void);
@@ -299,10 +310,22 @@ extern void spi1_slave_arch_init(void);
 extern struct spi_periph spi2;
 extern void spi2_slave_init(void);
 
-/** Architecture dependant SPI1 initialization.
+/** Architecture dependant SPI2 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi2_slave_arch_init(void);
+
+#endif
+
+#if USE_SPI3_SLAVE
+
+extern struct spi_periph spi3;
+extern void spi3_slave_init(void);
+
+/** Architecture dependant SPI3 initialization as slave.
+ * Must be implemented by underlying architecture
+ */
+extern void spi3_slave_arch_init(void);
 
 #endif
 

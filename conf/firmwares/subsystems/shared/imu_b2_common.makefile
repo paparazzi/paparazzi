@@ -45,7 +45,7 @@ imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
 imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
-include $(CFG_SHARED)/spi.makefile
+include $(CFG_SHARED)/spi_master.makefile
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_SPI_SLAVE0
