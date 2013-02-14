@@ -16,7 +16,7 @@
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       </subsystem>
-      <!-- MPU600 is configured to output data at 500Hz -->
+      <!-- MPU6000 is configured to output data at 500Hz -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
@@ -35,7 +35,9 @@
     <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat">
+      <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
+    </subsystem>
     <subsystem name="ins"/>
   </firmware>
 
