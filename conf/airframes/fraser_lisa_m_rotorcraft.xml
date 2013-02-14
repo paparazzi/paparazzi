@@ -9,7 +9,6 @@
     <target name="ap" board="lisa_m_1.0">
       <define name="ACTUATORS_START_DELAY" value="3"/>
       <define name="USE_INS_NAV_INIT"/>
-      <!--configure name="USE_NEW_I2C_DRIVER" value="1"/-->
     </target>
 
     <target name="nps" board="pc">
@@ -18,11 +17,14 @@
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
+
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="aspirin_v1.5"/>
-    <subsystem name="gps"           type="ublox"/>
+
     <subsystem name="stabilization" type="int_quat"/>
+
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
     </subsystem>
@@ -219,7 +221,7 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <!--define name="USE_REF" value="1"/-->
+    <define name="USE_REF" value="1"/>
     <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>

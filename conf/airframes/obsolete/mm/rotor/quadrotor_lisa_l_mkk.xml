@@ -5,7 +5,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
       <define name="USE_INS_NAV_INIT"/>
-      <!--configure name="USE_NEW_I2C_DRIVER" value="1"/-->
     </target>
 
     <target name="nps" board="pc">
