@@ -1,10 +1,6 @@
 /*
  * Copyright (C) 2010 The Paparazzi Team
  *
- * Autor: Bruzzlee
- * Angle of Attack ADC Sensor
- * US DIGITAL MA3-A10-236-N
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -24,25 +20,50 @@
  *
  */
 
+/**
+ * @file modules/sensors/AOA_adc.c
+ * @brief Angle of Attack sensor on ADC
+ * Autor: Bruzzlee
+ *
+ * ex: US DIGITAL MA3-A10-236-N
+ */
+
 #include "modules/sensors/AOA_adc.h"
-#include "mcu_periph/adc.h"
-#include BOARD_CONFIG
 #include "generated/airframe.h"
 #include "state.h"
-#include "std.h"
-//Messages
+
+// Messages
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-uint16_t adc_AOA_val;
+// Default offset value (assuming 0 AOA is in the middle of the range)
+#ifndef AOA_OFFSET
+#define AOA_OFFSET M_PI
+#endif
+// Default filter value
+#ifndef AOA_FILTER
+#define AOA_FILTER 0.5
+#endif
+// Default sensitivity (2*pi on a 10 bit ADC)
+#ifndef AOA_SENS
+#define AOA_SENS ((2.0*M_PI)/1024)
+#endif
 
-//Downlink
+uint16_t adc_AOA_val;
+float AOA_offset, AOA_filter;
+
+// Internal values
+float AOA, AOA_old;
+
+// Downlink
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
 #ifndef SITL // Use ADC if not in simulation
+
+#include "mcu_periph/adc.h"
 
 #ifndef ADC_CHANNEL_AOA
 #error "ADC_CHANNEL_AOA needs to be defined to use AOA_adc module"
@@ -53,15 +74,14 @@ uint16_t adc_AOA_val;
 #endif
 
 struct adc_buf buf_AOA;
-float AOA_offset, AOA_filter;
-float AOA, AOA_old;
 #endif
 
 
 void AOA_adc_init( void ) {
 	AOA_offset = AOA_OFFSET;
 	AOA_filter = AOA_FILTER;
-	AOA_old = 0;
+	AOA_old = 0.0;
+  AOA = 0.0;
 #ifndef SITL
 	adc_buf_channel(ADC_CHANNEL_AOA, &buf_AOA, ADC_CHANNEL_AOA_NB_SAMPLES);
 #endif
@@ -71,8 +91,8 @@ void AOA_adc_update( void ) {
 #ifndef SITL
 	adc_AOA_val = buf_AOA.sum / buf_AOA.av_nb_sample;
 
-// 	PT1 filter and convert to rad
-	AOA = AOA_filter * AOA_old + (1 - AOA_filter) * (adc_AOA_val*(2*M_PI)/1024-M_PI+AOA_offset);
+  // PT1 filter and convert to rad
+	AOA = AOA_filter * AOA_old + (1 - AOA_filter) * (adc_AOA_val*AOA_SENS - AOA_offset);
 	AOA_old = AOA;
 #endif
 	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, DefaultDevice, &adc_AOA_val, &AOA));
@@ -81,3 +101,4 @@ void AOA_adc_update( void ) {
 	stateSetAngleOfAttack_f(AOA);
 #endif
 }
+

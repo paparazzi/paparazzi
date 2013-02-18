@@ -3,7 +3,10 @@
 <module name="AOA_adc" dir="sensors">
   <doc>
     <description>Angle of Attack using internal ADC</description>
-    <configure name="ADC_AOA" value="ADCX" description="select the ADC channel to use"/>
+    <configure name="ADC_AOA" value="ADC_X" description="select the ADC channel to use"/>
+    <define name="AOA_SENS" value="(2*3.14)/1024" description="sensor sensitivity"/>
+    <define name="AOA_OFFSET" value="3.14"  description="offset in radians"/>
+    <define name="AOA_FILTER" value="0.5" description="filtering parameter between 0 (no filtering) and 1"/>
   </doc>
 
   <header>

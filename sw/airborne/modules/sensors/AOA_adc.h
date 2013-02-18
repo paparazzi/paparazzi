@@ -1,10 +1,6 @@
 /*
  * Copyright (C) 2010 The Paparazzi Team
  *
- * Autor: Bruzzlee
- * Angle of Attack ADC Sensor
- * US DIGITAL MA3-A10-236-N
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -24,13 +20,30 @@
  *
  */
 
+/**
+ * @file modules/sensors/AOA_adc.c
+ * @brief Angle of Attack sensor on ADC
+ * Autor: Bruzzlee
+ *
+ * ex: US DIGITAL MA3-A10-236-N
+ */
+
 #ifndef AOA_ADC_H
 #define AOA_ADC_H
 
-#include <inttypes.h>
+#include "std.h"
 
+/** Raw ADC value */
 extern uint16_t adc_AOA_val;
-extern float AOA_offset, AOA_filter;
+
+/** Angle of Attack offset */
+extern float AOA_offset;
+
+/** Filtering value [0-1[
+ * 0: no filtering
+ * 1: output is a constant value
+ */
+extern float AOA_filter;
 
 void AOA_adc_init( void );
 void AOA_adc_update( void );

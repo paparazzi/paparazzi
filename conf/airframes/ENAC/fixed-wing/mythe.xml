@@ -17,8 +17,6 @@
     </load>
     <load name="AOA_adc.xml">
       <configure name="ADC_AOA" value="ADC_2"/>
-      <define name="AOA_OFFSET" value="0"/>
-      <define name="AOA_FILTER" value="0.5"/>
     </load>
     <!--load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
@@ -164,7 +162,6 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-158)*16.5698"/>
   </section>
