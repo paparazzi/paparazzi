@@ -76,15 +76,15 @@ void gps_skytraq_read_message(void) {
     gps.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
     gps.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
     gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
-    gps.lla_pos.lat = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf));
-    gps.lla_pos.lon = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf));
-    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf)/10;
-    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf)/10;
+    gps.lla_pos.lat = RadOfDeg((int32_t)SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf));
+    gps.lla_pos.lon = RadOfDeg((int32_t)SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf));
+    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf)*10;
+    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf)*10;
     //   pacc;
     //   sacc;
     //     gps.pdop       = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
     gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
-    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)/10;
+    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)*10;
 
     switch (SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf)) {
     case SKYTRAQ_FIX_3D_DGPS:
