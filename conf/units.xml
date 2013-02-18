@@ -11,6 +11,8 @@
   <unit from="mm/s" to="m/s" coef="0.001"/>
   <unit from="decideg" to="deg" coef="0.1"/>
   <unit from="deg" to="decideg" coef="10."/>
+  <unit from="centideg" to="deg" coef="0.01"/>
+  <unit from="deg" to="centideg" coef="100."/>
   <unit from="deg" to="rad" coef="0.0174532925" auto="code"/>
   <unit from="rad" to="deg" coef="57.2957795131" auto="display"/>
   <unit from="deg/s" to="rad/s" coef="0.0174532925" auto="code"/>
