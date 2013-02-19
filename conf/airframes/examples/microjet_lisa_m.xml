@@ -10,11 +10,18 @@
 
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
-    <target name="ap"   board="lisa_m_1.0"/>
+    <target name="ap"   board="lisa_m_1.0">
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
+    </target>
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
+
+    <!-- print config info at compile time -->
+    <define name="PRINT_CONFIG"/>
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -22,7 +29,12 @@
     <subsystem name="telemetry" 	type="transparent"/>
 
     <!-- Sensors -->
-    <subsystem name="imu"           type="aspirin_v1.5"/>
+    <subsystem name="imu"           type="aspirin_v1.5">
+      <define name="ASPIRIN_ACCEL_RATE" value="ADXL345_RATE_100HZ"/>
+      <define name="ASPIRIN_GYRO_LOWPASS" value="ITG3200_DLPF_42HZ"/>
+      <!-- gyro: internal freq 1kHz, output freq 100Hz -->
+      <define name="ASPIRIN_GYRO_SMPLRT_DIV" value="9"/>
+    </subsystem>
     <subsystem name="gps"           type="ublox"/>
 
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
