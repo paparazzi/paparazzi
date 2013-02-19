@@ -178,14 +178,36 @@ test_baro.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_baro.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_baro.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOARD)
-test_baro.srcs   += $(SRC_LISA)/test_baro.c
+
 ifeq ($(BOARD), lisa_l)
-test_baro.srcs   += $(SRC_BOARD)/baro_board.c
-else
-test_baro.srcs   += $(SRC_BOARD)/baro_board_i2c.c
-endif
 test_baro.CFLAGS += -DUSE_I2C2
-test_baro.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_baro.srcs += $(SRC_BOARD)/baro_board.c
+test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
+
+# Lisa/M baro
+else ifeq ($(BOARD), lisa_m)
+# defaults to i2c baro bmp085 on the board
+LISA_M_BARO ?= BARO_BOARD_BMP085
+  ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
+    include $(CFG_SHARED)/spi_master.makefile
+    test_baro.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
+    test_baro.srcs += $(SRC_BOARD)/baro_ms5611_spi.c
+    test_baro.srcs += $(SRC_LISA)/test_baro_spi.c
+  else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
+    test_baro.CFLAGS += -DUSE_I2C2
+    test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.srcs += $(SRC_BOARD)/baro_ms5611_i2c.c
+    test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
+  else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
+	test_baro.CFLAGS += -DUSE_I2C2
+    test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.srcs += $(SRC_BOARD)/baro_board.c
+    test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
+  endif
+  test_baro.CFLAGS += -D$(LISA_M_BARO)
+endif
+
 
 
 #
