@@ -107,7 +107,9 @@ void can_hw_init(void)
                CAN_BTR_SJW_1TQ,
                CAN_BTR_TS1_10TQ,
                CAN_BTR_TS2_7TQ,
-               2))             /* BRP+1: Baud rate prescaler */
+               2,               /* BRP+1: Baud rate prescaler */
+               false,           /* loopback mode */
+               false))          /* silent mode */
   {
     /* TODO we need something somewhere where we can leave a note
      * that CAN was unable to initialize. Just like any other
