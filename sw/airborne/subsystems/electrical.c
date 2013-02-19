@@ -21,7 +21,7 @@
 
 struct Electrical electrical;
 
-#if defined ADC_CHANNEL_VSUPPLY || ADC_CHANNEL_CURRENT || MILLIAMP_AT_FULL_THROTTLE
+#if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
 static struct {
 #ifdef ADC_CHANNEL_VSUPPLY
   struct adc_buf vsupply_adc_buf;
