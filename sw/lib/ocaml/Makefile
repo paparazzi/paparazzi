@@ -23,6 +23,22 @@
 
 Q=@
 
+
+OCAMLC=ocamlc
+OCAMLFIND=ocamlfind
+OCAMLDEP=ocamldep
+OCAMLOPT=ocamlopt
+OCAMLLEX=ocamllex
+OCAMLYACC=ocamlyacc
+OCAMLLIBDIR=$(shell $(OCAMLC) -where)
+
+# default directory for temporary files
+TMPDIR ?= /tmp
+
+# verbose ocamlmklib: Print commands before executing them
+VERBOSITY = -verbose
+#VERBOSITY =
+
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
   FPIC = -ccopt -fPIC
@@ -30,15 +46,8 @@ else
   FPIC =
 endif
 
-INCLUDES=  $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient) $(shell ocamlfind query -r -i-format pcre)
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netclient)
 XINCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
-OCAMLC=ocamlc
-OCAMLDEP=ocamldep
-OCAMLOPT=ocamlopt
-OCAMLLEX=ocamllex
-OCAMLYACC=ocamlyacc
-OCAMLLIBDIR=$(shell $(OCAMLC) -where)
-
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
@@ -51,9 +60,6 @@ XCMX = $(XSRC:.ml=.cmx)
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
 $(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
@@ -62,19 +68,19 @@ opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
-	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
+	$(Q)ocamlmklib $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
 lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
-	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
+	$(Q)ocamlmklib $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
 xlib-pprz.cma libxlib-pprz.a: $(XCMO)
 	@echo OL $@
-	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
+	$(Q)ocamlmklib $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
 xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 	@echo OOL $@
-	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
+	$(Q)ocamlmklib $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
 # trying to set correct dependencies for parallel build
 # these are order only depedencies
