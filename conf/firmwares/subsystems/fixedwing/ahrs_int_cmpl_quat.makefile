@@ -27,6 +27,15 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
+# for fixedwings this is already added in autopilot.makefile
+#ifdef AHRS_PROPAGATE_FREQUENCY
+#ap.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+#endif
+#
+#ifdef AHRS_CORRECT_FREQUENCY
+#ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+#endif
+
 
 #
 # Simple simulation of the AHRS result
