@@ -18,12 +18,16 @@
       </subsystem>
       <!-- MPU6000 is configured to output data at 500Hz -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="500"/>
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
     </target>
+
+    <!-- print the configuration during compiling -->
+    <define name="PRINT_CONFIG"/>
 
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">

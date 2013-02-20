@@ -4,7 +4,9 @@
   <dl_settings>
 
     <dl_settings NAME="AHRS">
-       <dl_setting var="ahrs_impl.use_gravity_heuristic" min="0" step="1" max="1" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="gravity_heuristic" values="OFF|ON"/>
+       <dl_setting var="ahrs_impl.use_gravity_heuristic" min="0" step="1" max="1" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="gravity_heuristic" values="OFF|ON" param="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC"/>
+       <dl_setting var="ahrs_impl.rate_correction_gain" min="1" step="1" max="100" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="rate_gain" param="AHRS_RATE_CORRECTION_GAIN"/>
+       <dl_setting var="ahrs_impl.bias_correction_gain" min="1" step="1" max="100" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="bias_gain" param="AHRS_BIAS_CORRECTION_GAIN"/>
     </dl_settings>
 
   </dl_settings>

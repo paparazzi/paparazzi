@@ -59,8 +59,18 @@ static inline void ahrs_update_mag_2d(void);
 #ifndef AHRS_PROPAGATE_FREQUENCY
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+#ifndef AHRS_CORRECT_FREQUENCY
+#define AHRS_CORRECT_FREQUENCY PERIODIC_FREQUENCY
+#endif
+PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
 
-struct AhrsIntCmpl ahrs_impl;
+#ifndef AHRS_RATE_CORRECTION_GAIN
+#define AHRS_RATE_CORRECTION_GAIN 25
+#endif
+#ifndef AHRS_BIAS_CORRECTION_GAIN
+#define AHRS_BIAS_CORRECTION_GAIN 16
+#endif
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // remotely settable
@@ -73,6 +83,8 @@ struct AhrsIntCmpl ahrs_impl;
 float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 #endif
+
+struct AhrsIntCmpl ahrs_impl;
 
 static inline void set_body_state_from_quat(void);
 
@@ -90,6 +102,10 @@ void ahrs_init(void) {
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
   INT_RATES_ZERO(ahrs_impl.rate_correction);
   INT_RATES_ZERO(ahrs_impl.high_rez_bias);
+
+  /* set default correction gains */
+  ahrs_impl.rate_correction_gain = AHRS_RATE_CORRECTION_GAIN;
+  ahrs_impl.bias_correction_gain = AHRS_BIAS_CORRECTION_GAIN;
 
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
   ahrs_impl.correct_gravity = TRUE;
@@ -151,7 +167,7 @@ void ahrs_propagate(void) {
   RATES_COPY(ahrs_impl.imu_rate, omega);
 #endif
 
-  /* add correction     */
+  /* add correction */
   RATES_ADD(omega, ahrs_impl.rate_correction);
   /* and zeros it */
   INT_RATES_ZERO(ahrs_impl.rate_correction);
@@ -229,24 +245,37 @@ void ahrs_update_accel(void) {
     inv_weight = 1;
   }
 
-  // residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
-  // rate_correction FRAC = RATE_FRAC = 12
-  // 2^12 / 2^24 * 5e-2 = 1/81920
-  ahrs_impl.rate_correction.p += -residual.x/82000/inv_weight;
-  ahrs_impl.rate_correction.q += -residual.y/82000/inv_weight;
-  ahrs_impl.rate_correction.r += -residual.z/82000/inv_weight;
+  /* Correct the drift by adding a rate correction.
+   * residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
+   * rate_correction FRAC = RATE_FRAC = 12
+   * FRAC conversion: 2^12 / 2^24 = 1/(2^12) = 1/4096
+   */
+  /* scale gain with the update_accel freq and */
+  uint32_t inv_rate_scale = AHRS_CORRECT_FREQUENCY * (4096 / ahrs_impl.rate_correction_gain);
+  Bound(inv_rate_scale, 2000, 500000);
+  ahrs_impl.rate_correction.p += -residual.x / inv_rate_scale / inv_weight;
+  ahrs_impl.rate_correction.q += -residual.y / inv_rate_scale / inv_weight;
+  ahrs_impl.rate_correction.r += -residual.z / inv_rate_scale / inv_weight;
 
-  // residual FRAC = ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
-  // high_rez_bias = RATE_FRAC+28 = 40
-  // 2^40 / 2^24 * 5e-6 = 1/3.05
 
-  //  ahrs_impl.high_rez_bias.p += residual.x*3;
-  //  ahrs_impl.high_rez_bias.q += residual.y*3;
-  //  ahrs_impl.high_rez_bias.r += residual.z*3;
-
-  ahrs_impl.high_rez_bias.p += residual.x/(2*inv_weight);
-  ahrs_impl.high_rez_bias.q += residual.y/(2*inv_weight);
-  ahrs_impl.high_rez_bias.r += residual.z/(2*inv_weight);
+  /* Correct the gyro bias.
+   * Also make mitigating effect of gravity heuristic weight
+   * twice as large on bias as on rate.
+   *
+   * residual FRAC = ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
+   * high_rez_bias = RATE_FRAC+28 = 40
+   * FRAC conversion: 2^40 / 2^24 = 2^16
+   *
+   * Use bias_correction_gain scale of 1/(2^11) compared to rate_correction_gain.
+   * 2^16 / 2^11 = 32
+   * To allow a suitable range of the freq and bias gain, multily by 32 separately.
+   */
+  /* scale gain with the update_accel freq */
+  uint32_t inv_bias_gain = AHRS_CORRECT_FREQUENCY / ahrs_impl.bias_correction_gain;
+  Bound(inv_bias_gain, 1, 1000)
+  ahrs_impl.high_rez_bias.p += (residual.x / inv_bias_gain) * 32 / (2*inv_weight);
+  ahrs_impl.high_rez_bias.q += (residual.y / inv_bias_gain) * 32 / (2*inv_weight);
+  ahrs_impl.high_rez_bias.r += (residual.z / inv_bias_gain) * 32 / (2*inv_weight);
 
 
   /*                        */
