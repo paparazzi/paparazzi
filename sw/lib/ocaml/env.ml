@@ -51,6 +51,8 @@ let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 
 let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
 
+let dump_fp = paparazzi_src // "sw" // "tools" // "gen_flight_plan.out -dump"
+
 let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
   let parse_file = fun a file ->
@@ -67,14 +69,36 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
 
   let parse = fun a ->
     List.map
-      (fun filename ->parse_file a (prefix filename))
+      (fun filename -> parse_file a (prefix filename))
       (Str.split space_regexp (ExtXml.attrib ac_conf a)) in
 
   let parse_opt = fun a ->
     try parse a with ExtXml.Error _ -> [] in
 
+  (* dump expanded version of flight plan before parsing *)
+  let parse_fp = fun a ->
+    try
+      (* get full path file name *)
+      let fp = prefix (ExtXml.attrib ac_conf a) in
+      (* create a temporary dump file *)
+      let dump = Filename.temp_file "fp_dump" ".xml" in
+      (* set command then call it *)
+      let c = sprintf "%s %s > %s" dump_fp fp dump in
+      if Sys.command c <> 0 then
+        begin
+          Sys.remove dump;
+          failwith c
+        end;
+      (* parse temp fp file and then remove it *)
+      let fp_xml = parse_file a dump in
+      Sys.remove dump;
+      (* return Xml list *)
+      [fp_xml]
+    with _ -> []
+  in
+
   let pervasives = parse "airframe" @ parse "telemetry" @ parse "settings" in
-  let optionals = parse_opt "radio" @ parse_opt "flight_plan" @ pervasives in
+  let optionals = parse_opt "radio" @ parse_fp "flight_plan" @ pervasives in
 
   let children = Xml.children ac_conf@optionals in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
