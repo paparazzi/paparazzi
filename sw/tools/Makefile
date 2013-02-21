@@ -22,16 +22,7 @@
 # Quiet compilation
 Q=@
 
-OCAML=ocaml
-OCAMLFIND=ocamlfind
-OCAMLC=ocamlc
-OCAMLDEP=ocamldep
-LIBPPRZDIR=$(PAPARAZZI_SRC)/sw/lib/ocaml
-INCLUDES=-I $(LIBPPRZDIR)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-
-# since the ivy-ocaml lib currently can't be found with ocamlfind, specify the path directly with -dllpath
-LIBIVYDIR=/usr/lib/ocaml
+include ../Makefile.ocaml
 
 all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out find_free_msg_id.out gen_srtm.out mergelogs
 
@@ -40,15 +31,15 @@ ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light -linkpkg -dllpath $(LIBIVYDIR) ivy-ocaml.cma -dllpath $(LIBPPRZDIR) lib-pprz.cma $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg $(OCAMLDLL) lib-pprz.cma $^
 
 gen_srtm.out : gen_srtm.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OC $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,netclient -linkpkg -dllpath $(LIBIVYDIR) ivy-ocaml.cma -dllpath $(LIBPPRZDIR) lib-pprz.cma $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,netclient,ivy -linkpkg $(OCAMLDLL) lib-pprz.cma $<
 
 %.out : %.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light -linkpkg -dllpath $(LIBIVYDIR) ivy-ocaml.cma -dllpath $(LIBPPRZDIR) lib-pprz.cma gen_common.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg $(OCAMLDLL) lib-pprz.cma gen_common.cmo $<
 
 # disable this for now and use the compiled bytecode
 #@cat ../../pprz_src_test.sh > $@

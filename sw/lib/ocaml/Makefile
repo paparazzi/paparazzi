@@ -30,6 +30,7 @@ OCAMLDEP=ocamldep
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
+OCAMLMKLIB=ocamlmklib
 OCAMLLIBDIR=$(shell $(OCAMLC) -where)
 
 # default directory for temporary files
@@ -46,21 +47,25 @@ else
   FPIC =
 endif
 
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netclient)
-XINCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
+INCLUDES=
+#$(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netclient) $(shell ocamlfind query -r -i-format ivy)
+PKGCOMMON=xml-light,netclient,ivy,lablgtk2
+XINCLUDES=
+#$(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format ivy)
+XPKGCOMMON=lablgtk2,xml-light,ivy
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
-XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
+XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml xmlEdit.ml mapFP.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-$(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
+OCAMLDLL = -dllpath $(shell ocamlfind query ivy)
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
 opt : lib-pprz.cmxa xlib-pprz.cmxa
@@ -68,19 +73,19 @@ opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
-	$(Q)ocamlmklib $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
 lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
-	$(Q)ocamlmklib $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
-xlib-pprz.cma libxlib-pprz.a: $(XCMO)
+xlib-pprz.cma libxlib-pprz.a: $(XCMO) ml_gtk_drag.o
 	@echo OL $@
-	$(Q)ocamlmklib $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
-xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
+xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX) ml_gtk_drag.o
 	@echo OOL $@
-	$(Q)ocamlmklib $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
 # trying to set correct dependencies for parallel build
 # these are order only depedencies
@@ -90,48 +95,48 @@ xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
 xml_get.out : lib-pprz.cma xml_get.cmo | opt
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma -I . $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^
 
 tests : lib-pprz.cma $(TESTS_CMO)
-	$(OCAMLC) $(INCLUDES) -custom -I . -o $@ str.cma unix.cma ivy-ocaml.cma xml-light.cma $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
 
 GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
-#GTKCFLAGS := -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I/usr/include/cairo
-# GTKCFLAGS := $(shell gtk-config --cflags)
 
 %.o   : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
+
+$(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
 
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
 ml_gtkgl_hack.o   : ml_gtkgl_hack.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
 camltm.o : register_example.cmo
-	$(OCAMLC) $(INCLUDES) -output-obj -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
+	$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -output-obj -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
 
 caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	$(CC) -o $@ $^ -L$(OCAMLLIBDIR) -lunix -lstr -livy-ocaml -lcamlrun -lm -livy -lcurses
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(XINCLUDES) $(INCLUDES) -package $(PKGCOMMON),$(XPKGCOMMON) $<
 
 %.cmi : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(XINCLUDES) -package $(PKGCOMMON) -c $<
 
 %.ml : %.mll
 	@echo OCL $<

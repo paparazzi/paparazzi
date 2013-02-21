@@ -33,19 +33,14 @@ else
 endif
 FPIC=-fPIC
 
-OCAMLC=ocamlc
-OCAMLOPT=ocamlopt
-OCAMLDEP=ocamldep
-OCAMLOPTFLAGS=-thread
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
-OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
-LIBPPRZDIR=../../lib/ocaml
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format pcre) $(OCAMLNETINCLUDES)
-LIBS=$(OCAMLNETCMA) glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
+include ../../Makefile.ocaml
+
+INCLUDES=
+LIBS= lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
-XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
+
+INCLUDES= -I $(LIBPPRZDIR) -I ../multimon
+PKGCOMMON=unix,str,lablgtk2,ivy,xml-light,netstring,netclient,threads
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
@@ -58,22 +53,22 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) $(OCAMLNETINCLUDES) unix.cma str.cma netstring.cma netclient.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -linkpkg $(LIBS) gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -linkpkg $(LIBS:.cma=.cmxa) gtkThread.cmx gtkInit.cmx $(CMX) -o $@
 
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -c $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -c $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 saveSettings.cmo : gtk_save_settings.cmo
 saveSettings.cmx: gtk_save_settings.cmx
