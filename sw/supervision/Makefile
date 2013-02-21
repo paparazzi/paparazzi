@@ -23,12 +23,11 @@
 # Launch with "make Q=''" to get full echo
 Q=@
 
-OCAMLC = ocamlc
-OCAMLOPT = ocamlopt
-OCAMLDEP = ocamldep
-LIBPPRZDIR = ../lib/ocaml
-INCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+include ../Makefile.ocaml
+
+INCLUDES= -I $(LIBPPRZDIR)
+PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
+
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 
 # default directory for temporary files
@@ -38,7 +37,7 @@ all: paparazzicenter
 
 paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZDIR)/lib-pprz.cma
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma lablgnomeui.cma $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lablglade.cma gtkInit.cmo lablgnomeui.cma $(OCAMLDLL) $(LIBPPRZCMA) $(OCAMLXDLL) $(XLIBPPRZCMA) $^
 
 gtk_pc.ml : paparazzicenter.glade
 	grep -v invisible_char $< > $(TMPDIR)/$<
@@ -50,11 +49,11 @@ gtk_process.ml : paparazzicenter.glade
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) $<
 
 pc_common.cmo: gtk_process.cmo
 

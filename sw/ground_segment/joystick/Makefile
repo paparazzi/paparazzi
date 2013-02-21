@@ -24,11 +24,11 @@
 # Quiet compilation
 Q=@
 
-OCAMLC = ocamlc
-OCAMLDEP = ocamldep
-LIBPPRZDIR = ../../lib/ocaml
+include ../../Makefile.ocaml
 TOOLSDIR = ../../tools
+
 OCAMLINCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
+PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
@@ -42,7 +42,9 @@ test_stick: test_sdl_stick.o
 	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ sdl_stick.c `pkg-config glib-2.0 --libs` -lglibivy `sdl-config --libs`
 
 input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
-	$(OCAMLC) $(OCAMLINCLUDES) -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^ -custom $(ML_SDL_LFLAGS)
+	@echo OL $@
+	$(Q)$(OCAMLC) -make-runtime -o i2i_run sdl_stick.o ml_sdl_stick.o $(ML_SDL_LFLAGS)
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -use-runtime i2i_run -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
 
 # dependency of input2ivy
 input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo

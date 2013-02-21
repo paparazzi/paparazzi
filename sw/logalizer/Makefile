@@ -23,15 +23,9 @@
 # Quiet compilation
 Q=@
 
-OCAMLC = ocamlc
-OCAMLDEP = ocamldep
-OCAMLOPT = ocamlopt
-LIBPPRZDIR = ../lib/ocaml
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
-XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
-XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
+include ../Makefile.ocaml
+INCLUDES= -I $(LIBPPRZDIR)
+PKGCOMMON=unix,str,xml-light,ivy,lablgtk2
 
 # default directory for temporary files
 TMPDIR ?= /tmp
@@ -40,23 +34,23 @@ all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) gtkInit.cmo $^
 
 play-nox : play_core.cmo play-nox.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml lablgtk.cma lib-pprz.cma  $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $^
 
 plotter : plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lablgtk.cma lib-pprz.cma xlib-pprz.cma gtkInit.cmo  $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(XLIBPPRZCMA) gtkInit.cmo $^
 
-plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
-	@echo OL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa xlib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
+plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
+	@echo OL $@ $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(XLIBPPRZCMA) lablglade.cma gtkInit.cmo $^
 
 sd2log : sd2log.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $^
 
 CC = gcc
 CFLAGS=-g -O2 -Wall
@@ -68,7 +62,7 @@ openlog2tlm: openlog2tlm.c
 # depedency on lib-pprz
 play play-nox sd2log : $(LIBPPRZCMA)
 plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA)
-plot : $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
+plot : $(LIBPPRZCMA) $(XLIBPPRZCMA)
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -77,13 +71,13 @@ plot : $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c -package $(PKGCOMMON) $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c -package $(PKGCOMMON) $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c -package $(PKGCOMMON) $<
 
 export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx

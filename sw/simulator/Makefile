@@ -42,53 +42,58 @@ SIMSCMX=$(SIMSML:%.ml=%.cmx)
 OCAMLC = ocamlc -g
 OCAMLOPT = ocamlopt
 OCAMLDEP = ocamldep
+OCAMLFIND = ocamlfind
 OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
 LIBPPRZDIR=../lib/ocaml
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)
+INCLUDES= -I $(LIBPPRZDIR)
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 
-all : gaia sitl.cma simhitl
+all : gaia sitl.cma
+
+#simhitl
 
 simhitl : fg.o $(SIMHCMO) simhitl.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) -make-runtime -o simhitl_run fg.o
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -use-runtime simhitl_run -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $^
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@
 	$(Q)ocamlmklib -o sitl $^
 
 sitl.cmxa : $(SIMSCMX)
-	ocamlopt -o $@ -a $^
+	$(Q)$(OCAMLOPT) -o $@ -a $^
 
 gaia : gaia.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $<
 
 diffusion : stdlib.cmo diffusion.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $^
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
 
 %.o : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(FPIC) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(FPIC) -c -package $(PKGCOMMON) $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -c -package $(PKGCOMMON) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
 
 # dependency on lib-pprz
 simhitl diffusion gaia:  $(LIBPPRZCMA)
