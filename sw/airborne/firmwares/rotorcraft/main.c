@@ -242,6 +242,7 @@ STATIC_INLINE void main_event( void ) {
 #endif
 
 #ifdef FAILSAFE_GROUND_DETECT
+INFO("Using FAILSAFE_GROUND_DETECT")
   DetectGroundEvent();
 #endif
 
