@@ -145,7 +145,7 @@ void hmc58xx_event(struct Hmc58xx *hmc)
         hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,2);
         hmc->data.vect.z = Int16FromBuf(hmc->i2c_trans.buf,4);
       }
-      /* HMC5843 has xzy order of axes in returned data */
+      /* HMC5883 has xzy order of axes in returned data */
       else {
         hmc->data.vect.x = Int16FromBuf(hmc->i2c_trans.buf,0);
         hmc->data.vect.y = Int16FromBuf(hmc->i2c_trans.buf,4);

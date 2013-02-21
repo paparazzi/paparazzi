@@ -36,10 +36,24 @@
 #define HMC58XX_REG_MODE   0x02
 #define HMC58XX_REG_DATXM  0x03
 #define HMC58XX_REG_DATXL  0x04
-#define HMC58XX_REG_DATYM  0x05
-#define HMC58XX_REG_DATYL  0x06
-#define HMC58XX_REG_DATZM  0x07
-#define HMC58XX_REG_DATZL  0x08
+
+/* Warning!
+ * The HMC5843 and HMC5883 differ here.
+ * - HMC5843 order: Y,Z
+ * - HMC5883 order: Z,Y
+ * So we make defines for each version explicitly.
+ */
+#define HMC5843_REG_DATYM  0x05
+#define HMC5843_REG_DATYL  0x06
+#define HMC5843_REG_DATZM  0x07
+#define HMC5843_REG_DATZL  0x08
+
+#define HMC5883_REG_DATZM  0x05
+#define HMC5883_REG_DATZL  0x06
+#define HMC5883_REG_DATYM  0x07
+#define HMC5883_REG_DATYL  0x08
+
+
 #define HMC58XX_REG_STATUS 0x09
 #define HMC58XX_REG_IDA    0x0A
 #define HMC58XX_REG_IDB    0x0B
