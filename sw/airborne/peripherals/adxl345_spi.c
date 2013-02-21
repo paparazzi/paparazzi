@@ -60,13 +60,14 @@ void adxl345_spi_init(struct Adxl345_Spi *adxl, struct spi_periph *spi_p, uint8_
   adxl345_set_default_config(&(adxl->config));
 
   adxl->initialized = FALSE;
+  adxl->data_available = FALSE;
   adxl->init_status = ADXL_CONF_UNINIT;
 }
 
 
 static void adxl345_spi_write_to_reg(struct Adxl345_Spi *adxl, uint8_t _reg, uint8_t _val) {
-  adxl->spi_trans.output_length = 2;
-  adxl->spi_trans.input_length = 0;
+  //adxl->spi_trans.output_length = 2;
+  //adxl->spi_trans.input_length = 0;
   adxl->tx_buf[0] = _reg;
   adxl->tx_buf[1] = _val;
   spi_submit(adxl->spi_p, &(adxl->spi_trans));
@@ -115,8 +116,8 @@ void adxl345_spi_start_configure(struct Adxl345_Spi *adxl)
 void adxl345_spi_read(struct Adxl345_Spi *adxl)
 {
   if (adxl->initialized && adxl->spi_trans.status == SPITransDone) {
-    adxl->spi_trans.output_length = 1;
-    adxl->spi_trans.input_length = 7;
+    //adxl->spi_trans.output_length = 1;
+    //adxl->spi_trans.input_length = 7;
     /* set read bit and multiple byte bit, then address */
     adxl->tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
     spi_submit(adxl->spi_p, &(adxl->spi_trans));
