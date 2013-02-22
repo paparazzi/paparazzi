@@ -27,13 +27,14 @@ Q=@
 include ../../Makefile.ocaml
 TOOLSDIR = ../../tools
 
-OCAMLINCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
+OCAMLINCLUDES= -I $(LIBPPRZDIR) -I $(TOOLSDIR)
+#OCAMLINCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format ivy) -I $(TOOLSDIR)
 PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
 #ML_SDL_LFLAGS = $(foreach u,$(shell sdl-config --libs),-cclib $(u))
-ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u))
+ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u)) libSDL.so
 INCLUDES += -I `ocamlc -where`
 
 all: test_stick input2ivy
@@ -41,20 +42,22 @@ all: test_stick input2ivy
 test_stick: test_sdl_stick.o
 	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ sdl_stick.c `pkg-config glib-2.0 --libs` -lglibivy `sdl-config --libs`
 
-input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
+input2ivy: sdl_stick.so input2ivy.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -make-runtime -o i2i_run sdl_stick.o ml_sdl_stick.o $(ML_SDL_LFLAGS)
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -use-runtime i2i_run -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
 
 # dependency of input2ivy
 input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
+
+sdl_stick.so : sdl_stick.o ml_sdl_stick.o
+	gcc -shared -o $@ $^
 
 %.o : %.c
 	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(INCLUDES) $<
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -c -package $(PKGCOMMON) $<
 
 clean:
 	rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy

@@ -36,7 +36,7 @@ FPIC=-fPIC
 include ../../Makefile.ocaml
 
 INCLUDES=
-LIBS= lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
+LIBS= lablglade.cma lablgnomecanvas.cma $(OCAMLDLL) $(LIBPPRZCMA) $(OCAMLXDLL) $(XLIBPPRZCMA)
 CMXA=$(LIBS:.cma=.cmxa)
 
 INCLUDES= -I $(LIBPPRZDIR) -I ../multimon
@@ -85,7 +85,8 @@ gtk_save_settings.ml : gcs.glade
 strip.cmo : gtk_strip.cmo gtk_setting_time.cmo
 
 compass : compass.ml
-	$(OCAMLC) -custom $(OCAMLCFLAGS) $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) gtkInit.cmo $^ -o $@
+	@echo OL $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -linkpkg $(LIBS) gtkInit.cmo $^ -o $@
 
 
 clean:

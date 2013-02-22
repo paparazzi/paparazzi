@@ -57,6 +57,7 @@ MULTIMON=sw/ground_segment/multimon
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
+JOYSTICK=sw/ground_segment/joystick
 EXT=sw/ext
 
 #
@@ -113,7 +114,7 @@ conf/%.xml :conf/%.xml.example
 
 ground_segment: print_build_version update_google_version conf lib subdirs commands static
 
-static: cockpit tmtc tools sim_static static_h
+static: cockpit tmtc tools sim_static joystick static_h
 
 lib:
 	$(MAKE) -C $(LIB)/ocaml
@@ -129,6 +130,9 @@ tmtc: lib cockpit multimon
 
 tools: lib
 	$(MAKE) -C $(TOOLS)
+
+joystick: lib
+	$(MAKE) -C $(JOYSTICK)
 
 sim_static: lib
 	$(MAKE) -C $(SIMULATOR)

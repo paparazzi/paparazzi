@@ -30,6 +30,10 @@ else
 endif
 
 include ../../conf/Makefile.local
+include ../Makefile.ocaml
+
+OCAMLC += -g
+PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
 
 SIMML = stdlib.ml data.ml flightModel.ml gps.ml
 SIMHML = $(SIMML) hitl.ml sim.ml
@@ -38,31 +42,19 @@ SIMSML = $(SIMML) sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
-
-OCAMLC = ocamlc -g
-OCAMLOPT = ocamlopt
-OCAMLDEP = ocamldep
-OCAMLFIND = ocamlfind
-OCAML=$(shell which ocaml)
-OCAMLRUN=$(shell which ocamlrun)
-LIBPPRZDIR=../lib/ocaml
-INCLUDES= -I $(LIBPPRZDIR)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
-
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 
-all : gaia sitl.cma
+all : gaia sitl.cma simhitl
 
-#simhitl
+fg.so : fg.o
+	gcc -shared -o $@ $^
 
-simhitl : fg.o $(SIMHCMO) simhitl.cmo
+simhitl : fg.so $(SIMHCMO) simhitl.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) -make-runtime -o simhitl_run fg.o
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -use-runtime simhitl_run -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $<
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@

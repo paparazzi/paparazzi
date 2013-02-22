@@ -100,7 +100,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 
 GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
 
-%.o   : %.c
+%.o : %.c
 	@echo OC $<
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
@@ -110,7 +110,7 @@ ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
-ml_gtkgl_hack.o   : ml_gtkgl_hack.c
+ml_gtkgl_hack.o : ml_gtkgl_hack.c
 	@echo OC $<
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
