@@ -56,7 +56,7 @@ SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_par
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
-XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml xmlEdit.ml mapFP.ml
+XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
@@ -71,17 +71,17 @@ opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $(shell ocamlfind query -predicates byte -a-format ivy) $(shell ocamlfind query -predicates -l-format byte ivy) $^
 
 lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
 	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
-xlib-pprz.cma libxlib-pprz.a: $(XCMO) ml_gtk_drag.o
+xlib-pprz.cma libxlib-pprz.a: $(XCMO)
 	@echo OL $@
 	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
-xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX) ml_gtk_drag.o
+xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 	@echo OOL $@
 	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
