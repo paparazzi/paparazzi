@@ -27,25 +27,37 @@ Q=@
 include ../../Makefile.ocaml
 TOOLSDIR = ../../tools
 
+CC = gcc
+
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC=-fpic
+else
+  FPIC=
+endif
+
 OCAMLINCLUDES= -I $(LIBPPRZDIR) -I $(TOOLSDIR)
 PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
+GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) $(FPIC)
+GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
+
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
-ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u)) libSDL.so
+SDL_LDIRS = $(shell pkg-config sdl --libs-only-L)
+SDL_LIBS = -lSDL
+SDL_LDFLAGS = $(SDL_LDIRS) $(SDL_LIBS)
+
+# apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
+ML_SDL_LFLAGS = $(foreach u,$(SDL_LDIRS),-ccopt $(u)) $(foreach u,$(SDL_LIBS),-cclib $(u)) libSDL.so
 INCLUDES += -I `ocamlc -where`
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -fpic
-else
-  FPIC =
-endif
 
 all: test_stick input2ivy
 
 test_stick: test_sdl_stick.o
-	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ sdl_stick.c `pkg-config glib-2.0 --libs` -lglibivy `sdl-config --libs`
+	@echo BUILD $@
+	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
 input2ivy: sdl_stick.so input2ivy.cmo
 	@echo OL $@
@@ -55,10 +67,12 @@ input2ivy: sdl_stick.so input2ivy.cmo
 input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
 
 sdl_stick.so : sdl_stick.o ml_sdl_stick.o
-	gcc -shared -o $@ $^
+	@echo BUILD $@
+	$(Q)$(CC) -shared -o $@ $^
 
 %.o : %.c
-	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(FPIC) $(INCLUDES) $<
+	@echo CC $@
+	$(Q)$(CC) -c -O2 $(GLIB_CFLAGS) $(INCLUDES) $<
 
 %.cmo : %.ml
 	@echo OC $<
