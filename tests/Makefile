@@ -28,5 +28,5 @@ test:
 	$(Q)$(PERLENV) $(PERL) "-e" "$(RUNTESTS)"
 
 clean:
-	rm -rf results/*
+	$(Q)rm -rf results/*
 

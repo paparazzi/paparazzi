@@ -182,7 +182,7 @@ ctrlstick: ctrlstick.c
 	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
 
 .PHONY: all clean pt run_fg
 

@@ -72,7 +72,7 @@ MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/incl
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* panic
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* panic
 
 #FGFS_PREFIX=/home/poine/local
 FGFS_PREFIX=/home/poine/flightgear

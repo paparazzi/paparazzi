@@ -91,7 +91,7 @@ diffusion : stdlib.cmo diffusion.cmo
 simhitl diffusion gaia:  $(LIBPPRZCMA)
 
 clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl diffusion
+	$(Q)rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl diffusion
 
 .PHONY: all clean
 

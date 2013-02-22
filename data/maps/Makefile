@@ -9,7 +9,7 @@ TMPDIR ?= /tmp
 all: $(PAPARAZZI_HOME)/conf/maps.xml
 
 clean:
-	rm -f $(DATADIR)/maps.google.com
+	$(Q)rm -f $(DATADIR)/maps.google.com
 
 $(DATADIR):
 	mkdir $(DATADIR)

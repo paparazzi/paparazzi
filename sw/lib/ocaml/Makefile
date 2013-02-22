@@ -173,7 +173,7 @@ gtk_papget_led_editor.ml : widgets.glade
 	@rm $(TMPDIR)/$@_$<
 
 clean :
-	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
+	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
 
 .PHONY: all opt clean
 

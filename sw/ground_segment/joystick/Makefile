@@ -60,7 +60,7 @@ sdl_stick.so : sdl_stick.o ml_sdl_stick.o
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -c -package $(PKGCOMMON) $<
 
 clean:
-	rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
+	$(Q)rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
 
 .PHONY: all clean
 

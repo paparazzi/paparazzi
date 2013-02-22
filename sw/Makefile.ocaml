@@ -1,6 +1,6 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   $Id$
-#   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
+# Copyright (C) 2013 Gautier Hattenberger
 #
 # This file is part of paparazzi.
 #
@@ -20,19 +20,18 @@
 # Boston, MA 02111-1307, USA.
 #
 
-# Quiet compilation
-Q=@
+# General ocaml compiling tools and pprz lib
 
-all: fdm_step
-
-fdm_step: fdm_step.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
-
-
-fms_steps_attitude: fms_steps_attitude.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
-
-
-
-clean:
-	$(Q)rm -f *~ core *.o *.bak .depend fdm_step fms_steps_attitude
+OCAML = ocaml
+OCAMLC = ocamlc
+OCAMLOPT = ocamlopt
+OCAMLDEP = ocamldep
+OCAMLFIND = ocamlfind
+LIBPPRZDIR = $(PAPARAZZI_SRC)/sw/lib/ocaml
+INCLUDES = -I $(LIBPPRZDIR)
+LIBPPRZCMA = $(LIBPPRZDIR)/lib-pprz.cma
+LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
+XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
+XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
+OCAMLDLL = -dllpath $(LIBPPRZDIR)
+OCAMLXDLL = -dllpath $(LIBPPRZDIR)

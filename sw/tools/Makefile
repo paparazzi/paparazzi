@@ -61,7 +61,7 @@ mergelogs: mergelogs.c
 	gcc mergelogs.c -o mergelogs
 
 clean:
-	rm -f *.cm* *.out *~ .depend fp_parser.ml fp_parser.mli mergelogs
+	$(Q)rm -f *.cm* *.out *~ .depend fp_parser.ml fp_parser.mli mergelogs
 
 .PHONY: all clean
 

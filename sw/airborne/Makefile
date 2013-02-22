@@ -21,6 +21,9 @@
 # Boston, MA 02111-1307, USA.
 #
 
+# Quiet compilation
+Q=@
+
 
 OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -75,5 +78,5 @@ warn_conf :
 	@echo
 
 clean :
-	rm -f *~ a.out *.elf
+	$(Q)rm -f *~ a.out *.elf
 .PHONY: clean

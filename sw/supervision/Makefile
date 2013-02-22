@@ -60,7 +60,7 @@ pc_common.cmo: gtk_process.cmo
 paparazzicenter.cmo : gtk_pc.cmo
 
 clean:
-	\rm -f *.cm* gtk_pc.ml gtk_process.ml .depend paparazzicenter
+	$(Q)rm -f *.cm* gtk_pc.ml gtk_process.ml .depend paparazzicenter
 
 .PHONY: all clean
 

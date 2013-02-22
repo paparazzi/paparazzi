@@ -3,6 +3,8 @@
 #
 #JSBSIM = /usr/local
 
+Q=@
+
 #CC = g++
 #CFLAGS  = -Wall -I$(JSBSIM)/include/JSBSim -I../include
 #LDFLAGS = -L$(JSBSIM)/lib -lJSBSim
@@ -70,4 +72,5 @@ test_sensors : $(TEST_SENSORS_SRCS)
 	gcc $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
+	$(Q)rm -f *.o
 
