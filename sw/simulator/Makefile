@@ -33,7 +33,8 @@ include ../../conf/Makefile.local
 include ../Makefile.ocaml
 
 OCAMLC += -g
-PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
+INCLUDES = -I $(LIBPPRZDIR)
+PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light
 
 SIMML = stdlib.ml data.ml flightModel.ml gps.ml
 SIMHML = $(SIMML) hitl.ml sim.ml

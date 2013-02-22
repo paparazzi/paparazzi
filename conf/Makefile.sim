@@ -27,10 +27,12 @@
 # this should not be needed
 SRC_ARCH = arch/sim
 
+include $(PAPARAZZI_SRC)/sw/Makefile.ocaml
+
 CC = gcc
-OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
-CAMLINCLUDES = $(shell ocamlfind query -r -i-format lablgtk2) -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) $(shell ocamlfind query -r -i-format xml-light)
+CAMLINCLUDES = -I $(LIBPPRZDIR) -I $(SIMDIR) -I $(OBJDIR)
+PKGCOMMON = unix,str,xml-light,glibivy,lablgtk2
 SIMSITLML = $(OBJDIR)/simsitl.ml
 MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
@@ -65,10 +67,14 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 all compile: $(OBJDIR)/simsitl
 
+# shared library of the C autopilot part
+autopilot.so : $($(TARGET).objs)
+	@echo BUILD $@
+	$(Q)$(CC) -shared -o $(OBJDIR)/$@ $^
 
-$(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
+$(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) $(MYGTKINITCMO) $(SITLCMA) $(SIMSITLML)
+	$(Q)$(OCAMLFIND) $(OCAMLC) -g $(CAMLINCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)

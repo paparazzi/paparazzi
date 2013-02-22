@@ -40,7 +40,7 @@ LIBS= lablglade.cma lablgnomecanvas.cma $(OCAMLDLL) $(LIBPPRZCMA) $(OCAMLXDLL) $
 CMXA=$(LIBS:.cma=.cmxa)
 
 INCLUDES= -I $(LIBPPRZDIR) -I ../multimon
-PKGCOMMON=unix,str,lablgtk2,ivy,xml-light,netstring,netclient,threads
+PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light,netstring,netclient,threads
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs

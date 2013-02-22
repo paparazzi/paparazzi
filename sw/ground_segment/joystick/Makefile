@@ -28,12 +28,10 @@ include ../../Makefile.ocaml
 TOOLSDIR = ../../tools
 
 OCAMLINCLUDES= -I $(LIBPPRZDIR) -I $(TOOLSDIR)
-#OCAMLINCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format ivy) -I $(TOOLSDIR)
-PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
+PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light
 LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
-#ML_SDL_LFLAGS = $(foreach u,$(shell sdl-config --libs),-cclib $(u))
 ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u)) libSDL.so
 INCLUDES += -I `ocamlc -where`
 

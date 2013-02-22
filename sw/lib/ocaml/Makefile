@@ -50,7 +50,7 @@ endif
 INCLUDES=
 PKGCOMMON=xml-light,netclient,ivy,lablgtk2
 XINCLUDES=
-XPKGCOMMON=lablgtk2,xml-light,ivy
+XPKGCOMMON=lablgtk2,xml-light,glibivy
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
