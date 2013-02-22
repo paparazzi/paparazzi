@@ -35,6 +35,13 @@ LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u)) libSDL.so
 INCLUDES += -I `ocamlc -where`
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC = -fpic
+else
+  FPIC =
+endif
+
 all: test_stick input2ivy
 
 test_stick: test_sdl_stick.o
@@ -51,7 +58,7 @@ sdl_stick.so : sdl_stick.o ml_sdl_stick.o
 	gcc -shared -o $@ $^
 
 %.o : %.c
-	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(INCLUDES) $<
+	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(FPIC) $(INCLUDES) $<
 
 %.cmo : %.ml
 	@echo OC $<
