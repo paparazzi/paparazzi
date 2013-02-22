@@ -36,9 +36,9 @@
 enum Adxl345ConfStatus {
   ADXL_CONF_UNINIT = 0,
   ADXL_CONF_RATE   = 1,
-  ADXL_CONF_POWER  = 2,
-  ADXL_CONF_INT    = 3,
-  ADXL_CONF_FORMAT = 4,
+  ADXL_CONF_INT    = 2,
+  ADXL_CONF_FORMAT = 3,
+  ADXL_CONF_ENABLE = 4,
   ADXL_CONF_DONE   = 5
 };
 

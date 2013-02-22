@@ -90,13 +90,13 @@ static inline void main_periodic_task( void ) {
   if (acc_status != CONFIGURED) {
     /* set data rate to 800Hz */
     write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
-    /* switch to measurememnt mode */
-    write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
     /* enable data ready interrupt */
     write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
     /* Enable full res and interrupt active low */
     write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
     /* reads data once to bring interrupt line up */
+    /* switch to measurememnt mode */
+    write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
     read_data();
     acc_status = CONFIGURED;
   }
