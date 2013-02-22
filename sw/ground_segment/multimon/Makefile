@@ -60,15 +60,11 @@ LDFLAGSX = -lX11 -L/usr/X11R6/lib
 BINDIR =.
 
 UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Linux")
+ifneq (,$(findstring $(UNAME),linux Linux))
   OBJFILES=pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
   ALLTARGETS=$(BINDIR)/multimon multimon.cma
 endif
-ifeq ("$(UNAME)","linux")
-  OBJFILES=pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
-  ALLTARGETS=$(BINDIR)/multimon multimon.cma
-endif
-ifeq ("$(UNAME)","Darwin")
+ifeq ($(UNAME),Darwin)
   OBJFILES=demodml.o ml_hdlc.o demod.cmo hdlc.cmo
   ALLTARGETS=multimon.cma
 endif
