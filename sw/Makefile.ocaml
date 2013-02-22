@@ -27,6 +27,7 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLDEP = ocamldep
 OCAMLFIND = ocamlfind
+OCAMLMKLIB = ocamlmklib
 LIBPPRZDIR = $(PAPARAZZI_SRC)/sw/lib/ocaml
 LIBPPRZCMA = $(LIBPPRZDIR)/lib-pprz.cma
 LIBPPRZCMXA = $(LIBPPRZCMA:.cma=.cmxa)

@@ -24,7 +24,7 @@ Q=@
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  FPIC = -ccopt -fPIC
+  FPIC = -fPIC
 else
   FPIC =
 endif
@@ -51,7 +51,8 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 all : gaia sitl.cma simhitl
 
 fg.so : fg.o
-	gcc -shared -o $@ $^
+	@echo BUILD $@
+	$(Q)$(CC) -shared -o $@ $^
 
 simhitl : fg.so $(SIMHCMO) simhitl.cmo
 	@echo OL $@
@@ -59,9 +60,10 @@ simhitl : fg.so $(SIMHCMO) simhitl.cmo
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@
-	$(Q)ocamlmklib -o sitl $^
+	$(Q)$(OCAMLMKLIB) -o sitl $^
 
 sitl.cmxa : $(SIMSCMX)
+	@echo OC $@
 	$(Q)$(OCAMLOPT) -o $@ -a $^
 
 gaia : gaia.cmo
@@ -77,8 +79,8 @@ diffusion : stdlib.cmo diffusion.cmo
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
 
 %.o : %.c
-	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(FPIC) -c -package $(PKGCOMMON) $<
+	@echo CC $<
+	$(Q)$(CC) $(FPIC) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<

@@ -44,12 +44,20 @@ Q=@
 # End of configuration part.
 #
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC = -fPIC
+else
+  FPIC =
+endif
+
 INCLUDES += -I `ocamlc -where`
 
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
+CFLAGS += $(FPIC)
 CFLAGS += -O2
 CFLAGS += -g
 CFLAGS += -std=gnu99
