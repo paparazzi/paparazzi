@@ -32,37 +32,33 @@ TMPDIR ?= /tmp
 
 all: play plotter plot sd2log plotprofile openlog2tlm
 
-play : log_file.cmo play_core.cmo play.cmo
+play : $(LIBPPRZCMA) log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) gtkInit.cmo $^
 
-play-nox : play_core.cmo play-nox.cmo
+play-nox : $(LIBPPRZCMA) play_core.cmo play-nox.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $^
 
-plotter : plotter.cmo
+plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA) plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(XLIBPPRZCMA) gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) gtkInit.cmo $^
 
-plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
+plot : $(LIBPPRZCMA) $(XLIBPPRZCMA) log_file.cmo gtk_export.cmo export.cmo plot.cmo
 	@echo OL $@ $^
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(XLIBPPRZCMA) lablglade.cma gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) lablglade.cma gtkInit.cmo $^
 
-sd2log : sd2log.cmo
+sd2log : $(LIBPPRZCMA) sd2log.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $^
 
 CC = gcc
 CFLAGS=-g -O2 -Wall
 LDFLAGS=
 
 openlog2tlm: openlog2tlm.c
-	$(CC) $(CFLAGS) -g -o $@ $^
-
-# depedency on lib-pprz
-play play-nox sd2log : $(LIBPPRZCMA)
-plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA)
-plot : $(LIBPPRZCMA) $(XLIBPPRZCMA)
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -g -o $@ $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -83,9 +79,10 @@ export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
 
 gtk_export.ml : export.glade
-	grep -v invisible_char $< > $(TMPDIR)/$<
-	lablgladecc2 -root export -hide-default $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
-
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$<
+	$(Q)lablgladecc2 -root export -hide-default $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
+	$(Q)rm $(TMPDIR)/$<
 
 
 pt : ahrsview imuview ahrs2fg
@@ -191,7 +188,7 @@ clean:
 #
 
 .depend: Makefile
-	ocamldep -I $(LIBPPRZDIR) *.ml* > .depend
+	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

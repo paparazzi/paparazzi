@@ -35,17 +35,21 @@ TMPDIR ?= /tmp
 
 all: paparazzicenter
 
-paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZDIR)/lib-pprz.cma
+paparazzicenter : $(LIBPPRZCMA) $(XLIBPPRZCMA) $(PAPARAZZICENTERCMO)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lablglade.cma gtkInit.cmo lablgnomeui.cma $(OCAMLDLL) $(LIBPPRZCMA) $(OCAMLXDLL) $(XLIBPPRZCMA) $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lablglade.cma gtkInit.cmo lablgnomeui.cma $(OCAMLDLL) $(OCAMLXDLL) $^
 
 gtk_pc.ml : paparazzicenter.glade
-	grep -v invisible_char $< > $(TMPDIR)/$<
-	lablgladecc2 -hide-default -root window $(TMPDIR)/$< > $@
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$<
+	$(Q)lablgladecc2 -hide-default -root window $(TMPDIR)/$< > $@
+	$(Q)rm $(TMPDIR)/$<
 
 gtk_process.ml : paparazzicenter.glade
-	grep -v invisible_char $< > $(TMPDIR)/$<
-	lablgladecc2 -hide-default -root hbox_program $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$<
+	$(Q)lablgladecc2 -hide-default -root hbox_program $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
+	$(Q)rm $(TMPDIR)/$<
 
 %.cmo : %.ml
 	@echo OC $<

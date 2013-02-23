@@ -37,8 +37,8 @@ OCAMLLIBDIR=$(shell $(OCAMLC) -where)
 TMPDIR ?= /tmp
 
 # verbose ocamlmklib: Print commands before executing them
-VERBOSITY = -verbose
-#VERBOSITY =
+#VERBOSITY = -verbose
+VERBOSITY =
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
@@ -50,7 +50,7 @@ endif
 INCLUDES=
 PKGCOMMON=xml-light,netclient,ivy,lablgtk2
 XINCLUDES=
-XPKGCOMMON=lablgtk2,xml-light,glibivy
+XPKGCOMMON=xml-light,glibivy,lablgtk2
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
@@ -63,7 +63,12 @@ XCMX = $(XSRC:.ml=.cmx)
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-OCAMLDLL = -dllpath $(shell ocamlfind query ivy)
+comma := ,
+null  :=
+space := $(null) $(null)
+PKG_COMMON = $(subst $(comma),$(space),$(PKGCOMMON))
+CMACOMMON = $(shell ocamlfind query -predicates byte -a-format $(PKG_COMMON))
+CMACOMMON_INC = $(shell ocamlfind query -predicates byte -i-format $(PKG_COMMON))
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
 opt : lib-pprz.cmxa xlib-pprz.cmxa
@@ -71,7 +76,7 @@ opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $(shell ocamlfind query -predicates byte -a-format ivy) $(shell ocamlfind query -predicates -l-format byte ivy) $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $(CMACOMMON) $(CMACOMMON_INC) $^
 
 lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
@@ -153,24 +158,28 @@ expr_syntax.cmo : expr_syntax.cmi
 
 
 gtk_papget_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root papget_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	$(Q)lablgladecc2 -root papget_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	$(Q)rm $(TMPDIR)/$@_$<
 
 gtk_papget_text_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root table_text_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	$(Q)lablgladecc2 -root table_text_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	$(Q)rm $(TMPDIR)/$@_$<
 
 gtk_papget_gauge_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root table_gauge_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	$(Q)lablgladecc2 -root table_gauge_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	$(Q)rm $(TMPDIR)/$@_$<
 
 gtk_papget_led_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root table_led_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
+	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
+	$(Q)rm $(TMPDIR)/$@_$<
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli

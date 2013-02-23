@@ -37,7 +37,7 @@ CONF = ../../../conf
 VAR = ../../../var
 
 INCLUDES= -I $(LIBPPRZDIR) -I ../multimon
-PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light,netstring,netclient
+PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light,netstring
 
 LIBMULTIMONCMA=../multimon/multimon.cma
 LIBMULTIMONDLL= multimon.cma -dllpath $(PAPARAZZI_SRC)/sw/ground_segment/multimon

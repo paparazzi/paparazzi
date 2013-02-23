@@ -44,11 +44,6 @@ gen_srtm.out : gen_srtm.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OC $<
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) lib-pprz.cma gen_common.cmo $<
 
-# disable this for now and use the compiled bytecode
-#@cat ../../pprz_src_test.sh > $@
-#@echo '$(OCAML) -I $$PAPARAZZI_SRC/sw/tools $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma gen_common.cmo $$PAPARAZZI_BIN/$< $$*' >> $@
-#@chmod a+x $@
-
 %.cmo : %.ml
 	@echo OC $<
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) lib-pprz.cma -c $<

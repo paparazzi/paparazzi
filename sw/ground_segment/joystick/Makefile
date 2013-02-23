@@ -38,7 +38,6 @@ endif
 
 OCAMLINCLUDES= -I $(LIBPPRZDIR) -I $(TOOLSDIR)
 PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
 
 GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) $(FPIC)
 GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
@@ -59,7 +58,7 @@ test_stick: test_sdl_stick.o
 	@echo BUILD $@
 	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: sdl_stick.so input2ivy.cmo
+input2ivy: sdl_stick.so input2ivy.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
 
