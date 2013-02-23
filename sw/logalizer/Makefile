@@ -25,7 +25,7 @@ Q=@
 
 include ../Makefile.ocaml
 INCLUDES= -I $(LIBPPRZDIR)
-PKGCOMMON=unix,str,xml-light,ivy,lablgtk2
+PKGCOMMON=unix,str,xml-light,glibivy,lablgtk2
 
 # default directory for temporary files
 TMPDIR ?= /tmp
