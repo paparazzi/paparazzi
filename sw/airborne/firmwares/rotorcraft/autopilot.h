@@ -139,14 +139,15 @@ extern uint16_t autopilot_flight_time;
 }
 #endif
 
-/** Ground detection based on accelerometers.
- */
+/** Z-acceleration threshold to detect ground in m/s^2 */
 #ifndef THRESHOLD_GROUND_DETECT
-#define THRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
+#define THRESHOLD_GROUND_DETECT 25.0
 #endif
+/** Ground detection based on vertical acceleration.
+ */
 static inline void DetectGroundEvent(void) {
   if (autopilot_mode == AP_MODE_FAILSAFE || autopilot_detect_ground_once) {
-    struct NedCoor_i* accel = stateGetAccelNed_i();
+    struct NedCoor_f* accel = stateGetAccelNed_f();
     if (accel->z < -THRESHOLD_GROUND_DETECT ||
         accel->z > THRESHOLD_GROUND_DETECT) {
       autopilot_detect_ground = TRUE;

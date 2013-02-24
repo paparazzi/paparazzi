@@ -241,8 +241,7 @@ STATIC_INLINE void main_event( void ) {
   GpsEvent(on_gps_event);
 #endif
 
-#ifdef FAILSAFE_GROUND_DETECT
-INFO("Using FAILSAFE_GROUND_DETECT")
+#if FAILSAFE_GROUND_DETECT || KILL_ON_GROUND_DETECT
   DetectGroundEvent();
 #endif
 

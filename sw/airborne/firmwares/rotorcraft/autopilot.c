@@ -95,7 +95,8 @@ void autopilot_init(void) {
 void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
-#ifdef FAILSAFE_GROUND_DETECT
+#if FAILSAFE_GROUND_DETECT
+INFO("Using FAILSAFE_GROUND_DETECT")
   if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
     autopilot_set_mode(AP_MODE_KILL);
     autopilot_detect_ground = FALSE;
@@ -103,7 +104,7 @@ void autopilot_periodic(void) {
 #endif
 
   /* set failsafe commands, if in FAILSAFE or KILL mode */
-#ifndef FAILSAFE_GROUND_DETECT
+#if !FAILSAFE_GROUND_DETECT
   if (autopilot_mode == AP_MODE_KILL ||
       autopilot_mode == AP_MODE_FAILSAFE) {
 #else
