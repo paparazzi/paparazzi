@@ -64,7 +64,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(10, {radio_control_periodic_task();});
 
-  int16_t foo = 0;//RC_PPM_SIGNED_TICKS_OF_USEC(2050-1500);
+  int16_t foo = 0;
   RunOnceEvery(10,
     {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
 				       &radio_control.values[RADIO_ROLL], \

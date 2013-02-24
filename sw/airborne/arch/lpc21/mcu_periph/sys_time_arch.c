@@ -103,6 +103,14 @@
 
 
 void sys_time_arch_init( void ) {
+  sys_time.cpu_ticks_per_sec = PCLK / T0_PCLK_DIV;
+  /* cpu ticks per desired sys_time timer step */
+  sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution_sec * sys_time.cpu_ticks_per_sec + 0.5);
+
+  /* set final sys_time resolution in seconds from resolution in cpu_ticks */
+  sys_time.resolution_sec = (float)sys_time.resolution_cpu_ticks / sys_time.cpu_ticks_per_sec;
+  sys_time.ticks_per_sec = (uint32_t)(sys_time.cpu_ticks_per_sec / sys_time.resolution_cpu_ticks + 0.5);
+
   /* setup Timer 0 to count forever  */
   /* reset & disable timer 0         */
   T0TCR = TCR_RESET;
@@ -116,7 +124,7 @@ void sys_time_arch_init( void ) {
   T0EMR = 0;
 
   /* set first sys tick interrupt    */
-  T0MR0 = SYS_TIME_RESOLUTION_CPU_TICKS;
+  T0MR0 = sys_time.resolution_cpu_ticks;
 
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
@@ -139,16 +147,13 @@ void sys_time_arch_init( void ) {
 //
 static inline void sys_tick_irq_handler(void) {
 
-  static const uint32_t ticks_resolution = SYS_TIME_RESOLUTION_CPU_TICKS;
-  static const uint32_t ticks_per_sec = CPU_TICKS_OF_SEC(1.0);
-
   /* set match register for next interrupt */
-  T0MR0 += ticks_resolution - 1;
+  T0MR0 += sys_time.resolution_cpu_ticks - 1;
 
   sys_time.nb_tick++;
-  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
-  if (sys_time.nb_sec_rem >= ticks_per_sec) {
-    sys_time.nb_sec_rem -= ticks_per_sec;
+  sys_time.nb_sec_rem += sys_time.resolution_cpu_ticks;
+  if (sys_time.nb_sec_rem >= sys_time.cpu_ticks_per_sec) {
+    sys_time.nb_sec_rem -= sys_time.cpu_ticks_per_sec;
     sys_time.nb_sec++;
 #ifdef SYS_TIME_LED
     LED_TOGGLE(SYS_TIME_LED);
@@ -159,7 +164,9 @@ static inline void sys_tick_irq_handler(void) {
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
       sys_time.timer[i].elapsed = TRUE;
-      if (sys_time.timer[i].cb) sys_time.timer[i].cb(i);
+      if (sys_time.timer[i].cb) {
+        sys_time.timer[i].cb(i);
+      }
     }
   }
 }

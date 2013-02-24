@@ -59,18 +59,11 @@ void TIMER0_ISR ( void ) __attribute__((naked));
 #define TIMER0_VIC_SLOT 1
 #endif /* TIMER0_VIC_SLOT */
 
-#define CPU_TICKS_OF_SEC(s)        (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
-#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
-
-#define SEC_OF_CPU_TICKS(t)  (t / PCLK * T0_PCLK_DIV)
-#define MSEC_OF_CPU_TICKS(t) (t / (PCLK/1000) * T0_PCLK_DIV)
-#define USEC_OF_CPU_TICKS(t) (t / (PCLK/1000000) * T0_PCLK_DIV)
-
 
 /* Generic timer macros */
-#define SysTimeTimerStart(_t) { _t = USEC_OF_CPU_TICKS(T0TC); }
-#define SysTimeTimer(_t) ( USEC_OF_CPU_TICKS(T0TC) - (_t))
-#define SysTimeTimerStop(_t) { _t = ( USEC_OF_CPU_TICKS(T0TC) - (_t)); }
+#define SysTimeTimerStart(_t) { _t = usec_of_cpu_ticks(T0TC); }
+#define SysTimeTimer(_t) ( usec_of_cpu_ticks(T0TC) - (_t))
+#define SysTimeTimerStop(_t) { _t = ( usec_of_cpu_ticks(T0TC) - (_t)); }
 
 #define SysTickTimerStart(_t) { _t = T0TC; }
 #define SysTickTimer(_t) ((uint32_t)(T0TC - _t))
@@ -79,7 +72,7 @@ void TIMER0_ISR ( void ) __attribute__((naked));
 /** Busy wait, in microseconds */
 static inline void sys_time_usleep(uint32_t us) {
   uint32_t start = T0TC;
-  uint32_t ticks = CPU_TICKS_OF_USEC(us);
+  uint32_t ticks = cpu_ticks_of_usec(us);
   while ((uint32_t)(T0TC-start) < ticks);
 }
 

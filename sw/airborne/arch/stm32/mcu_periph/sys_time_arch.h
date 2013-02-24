@@ -41,16 +41,6 @@
 
 extern void sys_tick_handler(void);
 
-/*
- * sys tick timer is running with AHB_CLK / 8
- */
-#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * (AHB_CLK / 8) + 0.5)
-#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * (AHB_CLK / 8) + 0.5)
-
-#define SEC_OF_CPU_TICKS(t)  ((t) / (AHB_CLK / 8))
-#define MSEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK / 8000))
-#define USEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK / 8000000))
-
 /**
  * Get the time in microseconds since startup.
  * WARNING: overflows after 70min!
@@ -58,8 +48,8 @@ extern void sys_tick_handler(void);
  */
 static inline uint32_t get_sys_time_usec(void) {
   return sys_time.nb_sec * 1000000 +
-    USEC_OF_CPU_TICKS(sys_time.nb_sec_rem) +
-    USEC_OF_CPU_TICKS(systick_get_reload() - systick_get_value());
+    usec_of_cpu_ticks(sys_time.nb_sec_rem) +
+    usec_of_cpu_ticks(systick_get_reload() - systick_get_value());
 }
 
 /* Generic timer macros */
@@ -73,11 +63,11 @@ static inline uint32_t get_sys_time_usec(void) {
  */
 static inline void sys_time_usleep(uint32_t us) {
   /* duration and end time in SYS_TIME_TICKS */
-  uint32_t d_sys_ticks = SYS_TIME_TICKS_OF_USEC(us);
+  uint32_t d_sys_ticks = sys_time_ticks_of_usec(us);
   uint32_t end_nb_tick = sys_time.nb_tick + d_sys_ticks;
 
   /* remainder in CPU_TICKS */
-  uint32_t rem_cpu_ticks = CPU_TICKS_OF_USEC(us) - d_sys_ticks * SYS_TIME_RESOLUTION_CPU_TICKS;
+  uint32_t rem_cpu_ticks = cpu_ticks_of_usec(us) - d_sys_ticks * sys_time.resolution_cpu_ticks;
   /* cortex systick counts backwards, end value is reload_value - remainder */
   uint32_t end_cpu_ticks = systick_get_reload() - rem_cpu_ticks;
 

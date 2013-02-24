@@ -23,7 +23,7 @@ void sys_time_arch_init( void ) {
   T0TCR = TCR_ENABLE;
 
   /* set first sys tick interrupt    */
-  T0MR0 = SYS_TIME_RESOLUTION_CPU_TICKS;
+  T0MR0 = sys_time.resolution_cpu_ticks;
 
   /* select TIMER0 as IRQ    */
   VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
@@ -36,16 +36,13 @@ void sys_time_arch_init( void ) {
 }
 
 static inline void sys_tick_irq_handler(void) {
-  static const uint32_t ticks_resolution = SYS_TIME_RESOLUTION_CPU_TICKS;
-  static const uint32_t ticks_per_sec = CPU_TICKS_OF_SEC(1.0);
-
   /* set match register for next interrupt */
   T0MR0 += ticks_resolution - 1;
 
   sys_time.nb_tick++;
-  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
-  if (sys_time.nb_sec_rem >= ticks_per_sec) {
-    sys_time.nb_sec_rem -= ticks_per_sec;
+  sys_time.nb_sec_rem += sys_time.resolution_cpu_ticks;
+  if (sys_time.nb_sec_rem >= sys_time.ticks_per_sec) {
+    sys_time.nb_sec_rem -= sys_time.ticks_per_sec;
     sys_time.nb_sec++;
 #ifdef SYS_TIME_LED
     LED_TOGGLE(SYS_TIME_LED);

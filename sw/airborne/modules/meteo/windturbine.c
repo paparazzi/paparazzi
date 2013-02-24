@@ -48,7 +48,7 @@ void windturbine_periodic( void ) {
     uint32_t sync_itow, cycle_time;
 
     sync_itow = gps_tow_from_sys_ticks(trigger_t0);
-    cycle_time = MSEC_OF_SYS_TIME_TICKS(trigger_delta_t0);
+    cycle_time = msec_of_sys_time_ticks(trigger_delta_t0);
 
     DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
                 &ac_id,

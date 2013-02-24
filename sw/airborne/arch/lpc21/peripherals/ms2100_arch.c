@@ -72,7 +72,7 @@ void ms2100_reset_cb( struct spi_transaction * t __attribute__ ((unused)) ) {
   // storing start and dt is probably long enough...
   Ms2100Set();
   uint32_t start = T0TC;
-  uint32_t dt = CPU_TICKS_OF_NSEC(110);
+  uint32_t dt = cpu_ticks_of_nsec(110);
   while ((uint32_t)(T0TC - start) < dt);
   Ms2100Reset();
 }
