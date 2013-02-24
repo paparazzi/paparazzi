@@ -34,7 +34,7 @@
 
 uint8_t servos_PPM_idx;
 uint8_t ppm_pulse;
-uint32_t servos_delay = SERVO_REFRESH_TICS;
+uint32_t servos_delay;
 
 #define START_TIMEOUT 0xFFFF;
 
@@ -58,6 +58,8 @@ void actuators_ppm_init ( void ) {
   uint8_t i;
   for( i=0 ; i < _PPM_NB_CHANNELS ; i++ )
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
+
+  servos_delay = SERVO_REFRESH_TICS;
 }
 uint16_t servos_values[_PPM_NB_CHANNELS];
 
