@@ -100,12 +100,22 @@ test_led.srcs   += $(SRC_LISA)/test_led.c
 #
 # test sys_time
 #
-test_sys_time.ARCHDIR = $(ARCH)
-test_sys_time.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_sys_time.srcs    = $(COMMON_TEST_SRCS)
+ifeq ($(BOARD), lisa_m)
+ifeq ($(BOARD_VERSION), 2.0)
+LED_DEFINES = -DLED_BLUE=3 -DLED_RED=4 -DLED_GREEN=5
+endif
+endif
+LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
 
-test_sys_time.CFLAGS += -DLED_RED=2 -DLED_BLUE=3
-test_sys_time.srcs   += $(SRC_AIRBORNE)/test/mcu_periph/test_sys_time.c
+test_sys_time_timer.ARCHDIR = $(ARCH)
+test_sys_time_timer.CFLAGS  = $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
+test_sys_time_timer.srcs    = $(COMMON_TEST_SRCS)
+test_sys_time_timer.srcs   += $(SRC_AIRBORNE)/test/mcu_periph/test_sys_time_timer.c
+
+test_sys_time_usleep.ARCHDIR = $(ARCH)
+test_sys_time_usleep.CFLAGS  = $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
+test_sys_time_usleep.srcs    = $(COMMON_TEST_SRCS)
+test_sys_time_usleep.srcs   += $(SRC_AIRBORNE)/test/mcu_periph/test_sys_time_usleep.c
 
 
 
