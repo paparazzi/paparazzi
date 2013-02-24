@@ -47,14 +47,14 @@ struct sys_time_timer {
   bool_t          in_use;
   sys_time_cb     cb;
   volatile bool_t elapsed;
-  uint32_t        end_time; ///< in SYS_TICKS
-  uint32_t        duration; ///< in SYS_TICKS
+  uint32_t        end_time; ///< in SYS_TIME_TICKS
+  uint32_t        duration; ///< in SYS_TIME_TICKS
 };
 
 struct sys_time {
   volatile uint32_t nb_sec;       ///< full seconds since startup
   volatile uint32_t nb_sec_rem;   ///< remainder of second in CPU_TICKS
-  volatile uint32_t nb_tick;      ///< SYS_TICKS since startup (with SYS_TIME_RESOLUTION)
+  volatile uint32_t nb_tick;      ///< SYS_TIME_TICKS since startup (with SYS_TIME_RESOLUTION)
   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
 };
 
@@ -116,9 +116,9 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
 #define SYS_TIME_TICKS_OF_NSEC(ns) SYS_TIME_TICKS_OF_SEC((ns) * 1e-9)
 
 #define SEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION)
-#define MSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-3)
-#define USEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-6)
-#define NSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-9)
+#define MSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION * 1e3)
+#define USEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION * 1e6)
+#define NSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION * 1e9)
 
 #define USEC_OF_SEC(sec) ((sec) * 1e6)
 
