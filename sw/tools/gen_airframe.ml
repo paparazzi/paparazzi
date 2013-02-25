@@ -78,15 +78,18 @@ let define_integer name v n =
   in
   continious_frac (truncate v) v (1, (truncate v)) (0, 1)
 
-let code_unit_coef_of_xml = function xml ->
+let convert_value_with_code_unit_coef_of_xml = function xml ->
   (* if unit attribute is not specified don't even attempt to convert the units *)
   let u = try Xml.attrib xml "unit" with _ -> failwith "Unit conversion error" in
   let cu = ExtXml.attrib_or_default xml "code_unit" "" in
   (* default value for code_unit is rad[/s] when unit is deg[/s] *)
-  try Pprz.scale_of_units u cu with
+  let conv = try (Pprz.scale_of_units u cu) with
   | Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
   | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
-  | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error"
+  | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error" in
+  let v = try ExtXml.float_attrib xml "value" with _ -> prerr_endline (sprintf "Error: Unit conversion of parameter %s impossible because '%s' is not a float" (Xml.attrib xml "name") (Xml.attrib xml "value")); flush stderr; exit 1 in
+  v *. conv
+
 
 let parse_element = fun prefix s ->
   match Xml.tag s with
@@ -96,7 +99,7 @@ let parse_element = fun prefix s ->
             (* fail if units conversion is not found and just copy value instead,
                this is important for integer values, you can't just multiply them with 1.0 *)
             try
-              let value = (ExtXml.float_attrib s "value") *. (code_unit_coef_of_xml s) in
+              let value = (convert_value_with_code_unit_coef_of_xml s) in
               define (prefix^ExtXml.attrib s "name") (string_of_float value);
             with
                 _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
