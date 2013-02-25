@@ -25,8 +25,9 @@ Q=@
 
 include ../Makefile.ocaml
 
-INCLUDES= -I $(LIBPPRZDIR)
-PKGCOMMON=unix,str,lablgtk2,ivy,xml-light
+INCLUDES =
+XPKG = -package pprz.xlib,lablgtk2-gnome.gnomeui
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 
@@ -35,9 +36,9 @@ TMPDIR ?= /tmp
 
 all: paparazzicenter
 
-paparazzicenter : $(LIBPPRZCMA) $(XLIBPPRZCMA) $(PAPARAZZICENTERCMO)
+paparazzicenter : $(PAPARAZZICENTERCMO)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lablglade.cma gtkInit.cmo lablgnomeui.cma $(OCAMLDLL) $(OCAMLXDLL) $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 gtk_pc.ml : paparazzicenter.glade
 	@echo GLADE $@
@@ -53,14 +54,15 @@ gtk_process.ml : paparazzicenter.glade
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(XPKG) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(XPKG) $<
 
 pc_common.cmo: gtk_process.cmo
 
+paparazzicenter : $(LIBPPRZCMA) $(XLIBPPRZCMA)
 paparazzicenter.cmo : gtk_pc.cmo
 
 clean:

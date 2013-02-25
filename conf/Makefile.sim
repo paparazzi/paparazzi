@@ -32,7 +32,8 @@ include $(PAPARAZZI_SRC)/sw/Makefile.ocaml
 CC = gcc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 CAMLINCLUDES = -I $(LIBPPRZDIR) -I $(SIMDIR) -I $(OBJDIR)
-PKGCOMMON = unix,str,xml-light,glibivy,lablgtk2
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 SIMSITLML = $(OBJDIR)/simsitl.ml
 MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
@@ -82,7 +83,7 @@ autopilot.so : $($(TARGET).objs)
 
 $(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) -g $(CAMLINCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
+	$(Q)$(OCAMLFIND) $(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)

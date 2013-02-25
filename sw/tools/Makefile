@@ -24,8 +24,9 @@ Q=@
 
 include ../Makefile.ocaml
 
-INCLUDES = -I $(LIBPPRZDIR)
-PKGCOMMON=unix,str,xml-light
+INCLUDES =
+PKG = -package pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
 all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out find_free_msg_id.out gen_srtm.out mergelogs
 
@@ -34,26 +35,26 @@ ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) lib-pprz.cma $^
-
-gen_srtm.out : gen_srtm.ml gen_common.cmo $(LIBPPRZCMA)
-	@echo OC $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON),netclient -linkpkg $(OCAMLDLL) lib-pprz.cma $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+	
+gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
+	@echo OL $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 %.out : %.ml gen_common.cmo $(LIBPPRZCMA)
-	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) lib-pprz.cma gen_common.cmo $<
+	@echo OL $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gen_common.cmo $<
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) lib-pprz.cma -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) lib-pprz.cma -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 # dependency on lib-pprz
-gen_flight_plan.out gen_srtm.out : $(LIBPPRZCMA)
+gen_flight_plan.out : $(LIBPPRZCMA)
 
 mergelogs: mergelogs.c
 	gcc mergelogs.c -o mergelogs

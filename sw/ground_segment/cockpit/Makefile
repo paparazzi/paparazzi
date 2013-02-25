@@ -36,11 +36,12 @@ FPIC=-fPIC
 include ../../Makefile.ocaml
 
 INCLUDES=
-LIBS= lablglade.cma lablgnomecanvas.cma $(OCAMLDLL) $(LIBPPRZCMA) $(OCAMLXDLL) $(XLIBPPRZCMA)
-CMXA=$(LIBS:.cma=.cmxa)
+LIBS=
+LIBSX=$(LIBS:.cma=.cmxa)
 
-INCLUDES= -I $(LIBPPRZDIR) -I ../multimon
-PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light,netclient,threads
+INCLUDES= -I ../multimon
+PKG = -package pprz.xlib,threads
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
@@ -53,22 +54,22 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -linkpkg $(LIBS) gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -linkpkg $(LIBS:.cma=.cmxa) gtkThread.cmx gtkInit.cmx $(CMX) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) $(LINKPKG) gtkThread.cmx gtkInit.cmx $(CMX) -o $@
 
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(PKG) -c $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(PKG) -c $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(PKG) -c $<
 
 saveSettings.cmo : gtk_save_settings.cmo
 saveSettings.cmx: gtk_save_settings.cmx
@@ -89,7 +90,7 @@ strip.cmo : gtk_strip.cmo gtk_setting_time.cmo
 
 compass : compass.ml
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -package $(PKGCOMMON) -linkpkg $(LIBS) gtkInit.cmo $^ -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LINKPKG) gtkInit.cmo $^ -o $@
 
 
 clean:

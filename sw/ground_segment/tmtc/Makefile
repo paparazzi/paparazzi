@@ -36,8 +36,11 @@ include ../../Makefile.ocaml
 CONF = ../../../conf
 VAR = ../../../var
 
-INCLUDES= -I $(LIBPPRZDIR) -I ../multimon
-PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light,netstring
+INCLUDES= -I ../multimon
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+XPKG = -package pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 LIBMULTIMONCMA=../multimon/multimon.cma
 LIBMULTIMONDLL= multimon.cma -dllpath $(PAPARAZZI_SRC)/sw/ground_segment/multimon
@@ -59,73 +62,73 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 
 messages : messages.cmo $(XLIBPPRZCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) gtkInit.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 settings : settings.cmo $(XLIBPPRZCMA) $(LIBPPRZCMA) ../cockpit/page_settings.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lablglade.cma lablgnomecanvas.cma gtkInit.cmo $(OCAMLDLL) $(LIBPPRZCMA) $(OCAMLXDLL) $(XLIBPPRZCMA) -I ../cockpit gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo -I ../cockpit gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
 
 server : $(SERVERCMO) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(SERVERCMO)
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(SERVERCMO)
 
 server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
 	@echo OOL $@
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMXA) $(SERVERCMX)
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -o $@ $(LINKPKG) $(SERVERCMX)
 
 link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 broadcaster : broadcaster.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
 dia : dia.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 diadec : diadec.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) $(LIBMULTIMONDLL) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
 150m : 150m.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $(LIBPPRZCMA) gtkInit.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 settings.cmo : INCLUDES += -I ../cockpit
 settings.cmo : ../cockpit/page_settings.cmi
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) $(PKG) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) $(PKG) $<
 
 
 CC = gcc

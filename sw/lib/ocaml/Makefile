@@ -48,9 +48,9 @@ else
 endif
 
 INCLUDES=
-PKGCOMMON=xml-light,netclient,ivy,lablgtk2
+PKGCOMMON=xml-light,netclient,glibivy,lablgtk2
 XINCLUDES=
-XPKGCOMMON=xml-light,glibivy,lablgtk2
+XPKGCOMMON=xml-light,glibivy,lablgtk2-gnome.gnomecanvas,lablgtk2.glade
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
@@ -63,20 +63,13 @@ XCMX = $(XSRC:.ml=.cmx)
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-comma := ,
-null  :=
-space := $(null) $(null)
-PKG_COMMON = $(subst $(comma),$(space),$(PKGCOMMON))
-CMACOMMON = $(shell ocamlfind query -predicates byte -a-format $(PKG_COMMON))
-CMACOMMON_INC = $(shell ocamlfind query -predicates byte -i-format $(PKG_COMMON))
-
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
 opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
-	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $(CMACOMMON) $(CMACOMMON_INC) $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
 lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
@@ -120,7 +113,7 @@ ml_gtkgl_hack.o : ml_gtkgl_hack.c
 	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
 camltm.o : register_example.cmo
-	$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -output-obj -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
+	$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -output-obj -o $@ -package unix,str,xml-light,ivy debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
 
 caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	$(CC) -o $@ $^ -L$(OCAMLLIBDIR) -lunix -lstr -livy-ocaml -lcamlrun -lm -livy -lcurses

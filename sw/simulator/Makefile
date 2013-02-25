@@ -33,8 +33,9 @@ include ../../conf/Makefile.local
 include ../Makefile.ocaml
 
 OCAMLC += -g
-INCLUDES = -I $(LIBPPRZDIR)
-PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light
+INCLUDES =
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
 SIMML = stdlib.ml data.ml flightModel.ml gps.ml
 SIMHML = $(SIMML) hitl.ml sim.ml
@@ -56,7 +57,7 @@ fg.so : fg.o
 
 simhitl : fg.so $(SIMHCMO) simhitl.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@
@@ -68,15 +69,15 @@ sitl.cmxa : $(SIMSCMX)
 
 gaia : gaia.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 diffusion : stdlib.cmo diffusion.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
 %.o : %.c
 	@echo CC $<
@@ -84,11 +85,11 @@ diffusion : stdlib.cmo diffusion.cmo
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -c $(PKG) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
 # dependency on lib-pprz
 simhitl diffusion gaia:  $(LIBPPRZCMA)

@@ -37,7 +37,8 @@ else
 endif
 
 OCAMLINCLUDES= -I $(LIBPPRZDIR) -I $(TOOLSDIR)
-PKGCOMMON=unix,str,lablgtk2,glibivy,xml-light
+PKG = -package pprz,glibivy
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
 GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) $(FPIC)
 GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
@@ -49,6 +50,7 @@ SDL_LDFLAGS = $(SDL_LDIRS) $(SDL_LIBS)
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
 ML_SDL_LFLAGS = $(foreach u,$(SDL_LDIRS),-ccopt $(u)) $(foreach u,$(SDL_LIBS),-cclib $(u)) libSDL.so
+ML_SDL_LFLAGS += -dllpath ${PAPARAZZI_SRC}/sw/ground_segment/joystick
 INCLUDES += -I `ocamlc -where`
 
 
@@ -60,7 +62,7 @@ test_stick: test_sdl_stick.o
 
 input2ivy: sdl_stick.so input2ivy.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
 
 # dependency of input2ivy
 input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
@@ -75,7 +77,7 @@ sdl_stick.so : sdl_stick.o ml_sdl_stick.o
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -c $(PKG) $<
 
 clean:
 	$(Q)rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy

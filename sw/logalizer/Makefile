@@ -25,7 +25,10 @@ Q=@
 
 include ../Makefile.ocaml
 INCLUDES= -I $(LIBPPRZDIR)
-PKGCOMMON=unix,str,xml-light,glibivy,lablgtk2
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+XPKG = -package pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 # default directory for temporary files
 TMPDIR ?= /tmp
@@ -34,23 +37,23 @@ all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : $(LIBPPRZCMA) log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
 play-nox : $(LIBPPRZCMA) play_core.cmo play-nox.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
 plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA) plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) gtkInit.cmo $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 plot : $(LIBPPRZCMA) $(XLIBPPRZCMA) log_file.cmo gtk_export.cmo export.cmo plot.cmo
-	@echo OL $@ $^
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) lablglade.cma gtkInit.cmo $^
+	@echo OL $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 sd2log : $(LIBPPRZCMA) sd2log.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package $(PKGCOMMON) -linkpkg $(OCAMLDLL) $^
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
 CC = gcc
 CFLAGS=-g -O2 -Wall
@@ -67,13 +70,13 @@ openlog2tlm: openlog2tlm.c
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c -package $(PKGCOMMON) $<
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 
 export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
@@ -119,16 +122,20 @@ MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/incl
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 disp3d: disp3d.c
-	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
+	@echo CC $@
+	$(Q)$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
 
 plotprofile: plotprofile.c
-	$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	@echo CC $@
+	$(Q)$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 test1: test1.c
-	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
+	@echo CC $@
+	$(Q)$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
 
 test3: test3.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 
 #FGFS_PREFIX=/home/poine/local
