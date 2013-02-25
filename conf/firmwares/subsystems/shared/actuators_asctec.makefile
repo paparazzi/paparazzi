@@ -1,4 +1,11 @@
 # asctec controllers
+#
+# required xml configuration:
+#
+#  servo section with driver="Asctec"
+#  command_laws section to map motor_mixing commands to servos
+#
+
 $(TARGET).CFLAGS += -DACTUATORS
 ap.srcs += subsystems/actuators/actuators_asctec.c
 
