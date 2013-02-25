@@ -38,8 +38,8 @@ void spi0_init(void) {
   spi_init(&spi0);
   spi0_arch_init();
 }
+#endif // USE_SPI0
 
-#endif
 
 #if USE_SPI1
 struct spi_periph spi1;
@@ -48,8 +48,8 @@ void spi1_init(void) {
   spi_init(&spi1);
   spi1_arch_init();
 }
+#endif // USE_SPI1
 
-#endif
 
 #if USE_SPI2
 struct spi_periph spi2;
@@ -58,8 +58,18 @@ void spi2_init(void) {
   spi_init(&spi2);
   spi2_arch_init();
 }
+#endif // USE_SPI2
 
-#endif
+
+#if USE_SPI3
+struct spi_periph spi3;
+
+void spi3_init(void) {
+  spi_init(&spi3);
+  spi3_arch_init();
+}
+#endif // USE_SPI3
+
 
 void spi_init(struct spi_periph* p) {
   p->trans_insert_idx = 0;
@@ -71,6 +81,7 @@ void spi_init(struct spi_periph* p) {
 
 #endif /* SPI_MASTER */
 
+
 #if SPI_SLAVE
 
 #if USE_SPI0_SLAVE
@@ -80,8 +91,8 @@ void spi0_slave_init(void) {
   spi_slave_init(&spi0);
   spi0_slave_arch_init();
 }
+#endif // USE_SPI0_SLAVE
 
-#endif
 
 #if USE_SPI1_SLAVE
 struct spi_periph spi1;
@@ -90,8 +101,8 @@ void spi1_slave_init(void) {
   spi_slave_init(&spi1);
   spi1_slave_arch_init();
 }
+#endif // USE_SPI1_SLAVE
 
-#endif
 
 #if USE_SPI2_SLAVE
 struct spi_periph spi2;
@@ -100,8 +111,18 @@ void spi2_slave_init(void) {
   spi_slave_init(&spi2);
   spi2_slave_arch_init();
 }
+#endif // USE_SPI2_SLAVE
 
-#endif
+
+#if USE_SPI3_SLAVE
+struct spi_periph spi3;
+
+void spi3_slave_init(void) {
+  spi_slave_init(&spi3);
+  spi3_slave_arch_init();
+}
+#endif // USE_SPI3_SLAVE
+
 
 extern void spi_slave_init(struct spi_periph* p) {
   p->trans_insert_idx = 0;
