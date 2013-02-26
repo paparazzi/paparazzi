@@ -230,7 +230,7 @@ uninstall :
 #
 
 clean:
-	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin paparazzi
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
