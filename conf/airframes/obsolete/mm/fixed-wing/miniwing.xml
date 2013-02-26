@@ -185,7 +185,7 @@ ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 ap.CFLAGS += -DRADIO_CONTROL -DUSE_RC_TELEMETRY
 ap.srcs += radio_control.c ppm_telemetry.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=UART1 -DDATALINK=XBEE -DUART1_BAUD=B57600
 ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/xbee.c
 
 ap.CFLAGS += -DINTER_MCU
@@ -194,7 +194,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART0 -DGPS_LINK=UART0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 

@@ -27,11 +27,11 @@ example_gps.srcs += $(SRC_ARCH)/armVIC.c
 example_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 example_gps.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-example_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
+example_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART0
 example_gps.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 example_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
-example_gps.CFLAGS += -DUSE_GPS -DUBX -DGPS_LINK=Uart0 -DDOWNLINK_GPS_DEVICE=Uart0 -DGPS_BAUD=38400
+example_gps.CFLAGS += -DUSE_GPS -DUBX -DGPS_LINK=UART0 -DDOWNLINK_GPS_DEVICE=UART0 -DGPS_BAUD=38400
 example_gps.srcs += gps_ubx.c gps.c latlong.c
 
 

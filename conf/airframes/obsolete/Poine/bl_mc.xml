@@ -32,7 +32,7 @@ main.CFLAGS += -DUSE_LED
 main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
 main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 main.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 main.srcs += $(SRC_ARCH)/bl_mc_power.c

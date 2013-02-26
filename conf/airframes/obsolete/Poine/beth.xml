@@ -113,7 +113,7 @@ main_stm32.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_stm32.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 main_stm32.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-main_stm32.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+main_stm32.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART2
 main_stm32.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
@@ -183,7 +183,7 @@ main_coders.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_coders.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 main_coders.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-main_coders.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+main_coders.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 main_coders.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #main_coders.CFLAGS += -DUSE_I2C2
@@ -252,11 +252,11 @@ overo_test_uart.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downl
 overo_test_uart.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_uart.LDFLAGS += -levent -lm
 overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
-#overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"modules/gps_i2c/runtime_configure.h\" -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
-#overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
-overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
+#overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"modules/gps_i2c/runtime_configure.h\" -DGPS_BAUD=B38400 -DGPS_LINK=UART0 -DGPS_USE_LATLONG
+#overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DGPS_BAUD=B38400 -DGPS_LINK=UART0 -DGPS_USE_LATLONG
+overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=UART0 -DGPS_USE_LATLONG
 overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_BETH)/uart_hw.c
-overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ
+overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=UART1 -DPPRZ_UART=UART1 -DDATALINK=PPRZ
 overo_test_uart.srcs    += subsystems/datalink/pprz_transport.c $(SRC_BETH)/rcv_telemetry.c
 
 #

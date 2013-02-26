@@ -52,7 +52,7 @@ test_downlink.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_downlink.srcs   += mcu_periph/uart.c
 test_downlink.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_downlink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_downlink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_downlink.srcs   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
@@ -72,7 +72,7 @@ test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_max1168.srcs   += mcu_periph/uart.c
 test_max1168.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_max1168.srcs   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
@@ -94,7 +94,7 @@ test_micromag.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_micromag.srcs += mcu_periph/uart.c
 test_micromag.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_micromag.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #test_micromag.CFLAGS += -I$(BOOZ)
@@ -174,11 +174,11 @@ test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_gps.srcs += mcu_periph/uart.c
 test_gps.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_gps.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-test_gps.CFLAGS += -DGPS_LINK=Uart0 -DGPS_LED=2
+test_gps.CFLAGS += -DGPS_LINK=UART0 -DGPS_LED=2
 test_gps.srcs += $(SRC_BOOZ)/booz2_gps.c
 
 
@@ -200,7 +200,7 @@ test_modem.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_modem.srcs += mcu_periph/uart.c
 test_modem.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_modem.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_modem.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_modem.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #test_modem.CFLAGS += -DBOOZ_ANALOG_BARO_LED=2 -DBOOZ_ANALOG_BARO_PERIOD='CPU_TICKS_OF_SEC((1./100.))'
@@ -223,7 +223,7 @@ test_usb.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
 #test_usb.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 #test_usb.srcs += mcu_periph/uart.c
 #test_usb.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-#test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+#test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 #test_usb.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
@@ -253,7 +253,7 @@ test_ami.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_ami.srcs += mcu_periph/uart.c
 test_ami.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_ami.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_ami.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_ami.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_ami.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_BUF_LEN=16
@@ -277,7 +277,7 @@ test_crista.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600
 test_crista.srcs += mcu_periph/uart.c
 test_crista.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
+test_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART0
 test_crista.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_crista.CFLAGS += -DFLOAT_T=float -DBOOZ2_IMU_TYPE=\"booz2_imu_crista.h\"
@@ -303,7 +303,7 @@ test_micromag2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_micromag2.srcs += mcu_periph/uart.c
 test_micromag2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_micromag2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_micromag2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_micromag2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
@@ -326,7 +326,7 @@ test_imu_b2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_imu_b2.srcs += mcu_periph/uart.c
 test_imu_b2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_imu_b2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_imu_b2.srcs += $(SRC_BOOZ)/booz_trig_int.c
@@ -355,7 +355,7 @@ test_rc_spektrum.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_a
 #test_rc_spektrum.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 #test_rc_spektrum.srcs += mcu_periph/uart.c
 #test_rc_spektrum.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-#test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+#test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 #test_rc_spektrum.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
 test_rc_spektrum.CFLAGS += -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
@@ -367,7 +367,7 @@ test_rc_spektrum.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=1
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_spektrum.h\"
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"booz_radio_control_spektrum_dx7se.h\"
 test_rc_spektrum.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200
-test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LINK=Uart0
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LINK=UART0
 test_rc_spektrum.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
 						 $(SRC_SUBSYSTEMS)/radio_control_spektrum.c \
 						 mcu_periph/uart.c \
@@ -388,7 +388,7 @@ test_rc_ppm.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 #test_rc_ppm.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 #test_rc_ppm.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-#test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+#test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 #test_rc_ppm.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
 test_rc_ppm.CFLAGS += -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
@@ -419,7 +419,7 @@ test_mc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_mc.srcs += mcu_periph/uart.c
 test_mc.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_mc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_mc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_mc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_mc.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
@@ -445,7 +445,7 @@ test_buss_bldc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_buss_bldc.srcs += mcu_periph/uart.c
 test_buss_bldc.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_buss_bldc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_buss_bldc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_buss_bldc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_buss_bldc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
@@ -468,9 +468,9 @@ test_amc.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_amc.srcs += mcu_periph/uart.c
 test_amc.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_amc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_amc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_amc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-test_amc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+test_amc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=UART1
 test_amc.srcs += $(SRC_FIRMWARE)/datalink.c
 
 test_amc.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
@@ -513,7 +513,7 @@ test_baro_24.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_baro_24.srcs += mcu_periph/uart.c
 test_baro_24.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_baro_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_baro_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
 test_baro_24.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_baro_24.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_BUF_LEN=16

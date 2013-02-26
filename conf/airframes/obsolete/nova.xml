@@ -13,7 +13,7 @@ timu.srcs = nova_test_imu.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/arm
 
 timu.CFLAGS += -DUSE_LED  -DUSE_LED -DTIME_LED=1
 
-timu.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
+timu.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1 -DPPRZ_UART=UART1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
 timu.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c subsystems/datalink/pprz_transport.c
 
 timu.srcs += $(SRC_ARCH)/ADS8344.c

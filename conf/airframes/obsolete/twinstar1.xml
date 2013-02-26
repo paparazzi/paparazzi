@@ -180,12 +180,12 @@ include $(PAPARAZZI_SRC)/conf/firmwares/twin_mcu_avr.makefile
 ap.CFLAGS += -DHITL
 
 # Downlink on uart0
-ap.CFLAGS += -DUSE_UART0 -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=Uart0 -DUART0_BAUD=B38400
+ap.CFLAGS += -DUSE_UART0 -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_AP_DEVICE=UART0 -DUART0_BAUD=B38400
 ap.EXTRA_SRCS += subsystems/datalink/pprz_transport.c subsystems/datalink/downlink.c
 
 # Datalink (on uart0) used to emulate sensors (infrared and gps)
 ap.EXTRA_SRCS += subsystems/navigation/traffic_info.c datalink.c
-ap.CFLAGS += -DDATALINK -DPPRZ_INPUT -DPPRZ_UART=Uart0
+ap.CFLAGS += -DDATALINK -DPPRZ_INPUT -DPPRZ_UART=UART0
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/firmwares/sitl.makefile
