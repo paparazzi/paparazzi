@@ -97,8 +97,8 @@ void ppm_arch_init ( void ) {
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
 		 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
-  /* run ppm timer at cpu freq / 8 */
-  timer_set_prescaler(PPM_TIMER, 7);
+  /* run ppm timer at cpu freq / 9 = 8MHz */
+  timer_set_prescaler(PPM_TIMER, 8);
 
  /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge,

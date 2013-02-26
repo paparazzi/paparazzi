@@ -37,12 +37,11 @@
 
 /** Initialize SysTick.
  * Generate SysTick interrupt every sys_time.resolution_cpu_ticks
- * The timer interrupt is activated on the transition from 1 to 0,
- * therefore it activates every n+1 clock ticks.
  */
 void sys_time_arch_init( void ) {
-  /* 72MHz / 8 => 9000000 counts per second */
-  sys_time.cpu_ticks_per_sec = AHB_CLK / 8;
+  /* run cortex systick timer with 72MHz */
+  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB);
+  sys_time.cpu_ticks_per_sec = AHB_CLK;
 
   /* cpu ticks per desired sys_time timer step */
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution_sec * sys_time.cpu_ticks_per_sec + 0.5);
@@ -51,10 +50,9 @@ void sys_time_arch_init( void ) {
   sys_time.resolution_sec = (float)sys_time.resolution_cpu_ticks / sys_time.cpu_ticks_per_sec;
   sys_time.ticks_per_sec = (uint32_t)(sys_time.cpu_ticks_per_sec / sys_time.resolution_cpu_ticks + 0.5);
 
-  /* set clock for cortex systick to AHB_CLK / 8 */
-  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB_DIV8);
-
-  /* 8999 would be one interrupt every 1ms */
+  /* The timer interrupt is activated on the transition from 1 to 0,
+   * therefore it activates every n+1 clock ticks.
+   */
   systick_set_reload(sys_time.resolution_cpu_ticks-1);
 
   systick_interrupt_enable();

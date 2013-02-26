@@ -33,13 +33,11 @@
 #include "mcu_periph/sys_time.h"
 
 /**
- * While the ppm counter is currently running at the same speed as
- * the systick counter, there is no reason for this to be true.
- * Let's add a pair of macros to make it possible for them to be different.
+ * The ppm counter is running at cpu freq / 9
  */
-#define RC_PPM_TICKS_OF_USEC(_v)        cpu_ticks_of_usec((_v))
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v) * sys_time.cpu_ticks_per_sec * 1e-6)
-#define USEC_OF_RC_PPM_TICKS(_v)        usec_of_cpu_ticks((_v))
+#define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * (AHB_CLK / 9000000))
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) ((_v) * (AHB_CLK / 9000000))
+#define USEC_OF_RC_PPM_TICKS(_v)        ((_v) / (AHB_CLK / 9000000))
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 
