@@ -36,7 +36,7 @@
 #include "nps_flightgear.h"
 
 #include "mcu_periph/sys_time.h"
-#define SIM_DT     (SYS_TIME_RESOLUTION)
+#define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
 #define HOST_TIME_FACTOR 1.

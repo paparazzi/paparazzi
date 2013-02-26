@@ -135,7 +135,7 @@ extern struct GpsTimeSync gps_time_sync;
 
 /**
  * Convert time in sys_time ticks to GPS time of week.
- * The resolution depends on #SYS_TIME_RESOLUTION
+ * The resolution is sys_time.resolution
  * @return GPS tow in ms
  */
 extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);

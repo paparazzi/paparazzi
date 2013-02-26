@@ -78,7 +78,7 @@ static void sim_init(void) {
   // main AP init (feed the sensors once before ?)
   sim_autopilot_init();
 
-  printf("sys_time resolution: %f\n", SYS_TIME_RESOLUTION);
+  printf("sys_time frequency: %f\n", SYS_TIME_FREQUENCY);
   printf("sys_time period in msec: %d\n", SYSTIME_PERIOD);
 
 }

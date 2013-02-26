@@ -42,7 +42,7 @@
 #endif
 #define DT (JSBSIM_PERIOD*1e-3) ///< JSBSim timestep in seconds
 
-#define SYSTIME_PERIOD ((uint32_t)(SYS_TIME_RESOLUTION * 1000)) ///< in msec
+#define SYSTIME_PERIOD ((uint32_t)(1000. / SYS_TIME_FREQUENCY)) ///< in msec
 
 #define RAD2DEG 57.29578
 #define FT2M 0.3048

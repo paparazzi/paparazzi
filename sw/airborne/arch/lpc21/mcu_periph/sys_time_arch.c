@@ -105,11 +105,7 @@
 void sys_time_arch_init( void ) {
   sys_time.cpu_ticks_per_sec = PCLK / T0_PCLK_DIV;
   /* cpu ticks per desired sys_time timer step */
-  sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution_sec * sys_time.cpu_ticks_per_sec + 0.5);
-
-  /* set final sys_time resolution in seconds from resolution in cpu_ticks */
-  sys_time.resolution_sec = (float)sys_time.resolution_cpu_ticks / sys_time.cpu_ticks_per_sec;
-  sys_time.ticks_per_sec = (uint32_t)(sys_time.cpu_ticks_per_sec / sys_time.resolution_cpu_ticks + 0.5);
+  sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
 
   /* setup Timer 0 to count forever  */
   /* reset & disable timer 0         */

@@ -30,9 +30,9 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu.h"
 
-struct sys_time sys_time;
+PRINT_CONFIG_VAR(SYS_TIME_FREQUENCY)
 
-PRINT_CONFIG_VAR(SYS_TIME_RESOLUTION)
+struct sys_time sys_time;
 
 int sys_time_register_timer(float duration, sys_time_cb cb) {
 
@@ -72,8 +72,8 @@ void sys_time_init( void ) {
   sys_time.nb_sec_rem = 0;
   sys_time.nb_tick    = 0;
 
-  sys_time.resolution_sec = SYS_TIME_RESOLUTION;
-  sys_time.ticks_per_sec = 1.0 / sys_time.resolution_sec;
+  sys_time.ticks_per_sec = SYS_TIME_FREQUENCY;
+  sys_time.resolution = 1.0 / sys_time.ticks_per_sec;
 
   for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
     sys_time.timer[i].in_use     = FALSE;

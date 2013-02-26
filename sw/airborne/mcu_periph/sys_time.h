@@ -40,12 +40,16 @@
 #define SYS_TIME_NB_TIMER 8
 #endif
 
-/** system time resolution in seconds */
-#ifndef SYS_TIME_RESOLUTION
+
+/**
+ * (Default) sys_time timer frequency in Hz.
+ * sys_time.resolution is set from this define.
+ */
+#ifndef SYS_TIME_FREQUENCY
 #if defined PERIODIC_FREQUENCY
-#define SYS_TIME_RESOLUTION ( 1./(2*PERIODIC_FREQUENCY) )
+#define SYS_TIME_FREQUENCY (2 * PERIODIC_FREQUENCY)
 #else
-#define SYS_TIME_RESOLUTION ( 1./1000. )
+#define SYS_TIME_FREQUENCY 1000
 #endif
 #endif
 
@@ -67,9 +71,9 @@ struct sys_time {
   volatile uint32_t nb_tick;      ///< SYS_TIME_TICKS since startup
   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
 
-  float resolution_sec;           ///< sys_time_timer resolution in seconds
+  float resolution;               ///< sys_time_timer resolution in seconds
+  uint32_t ticks_per_sec;         ///< sys_time ticks per second (SYS_TIME_FREQUENCY)
   uint32_t resolution_cpu_ticks;  ///< sys_time_timer resolution in cpu ticks
-  uint32_t ticks_per_sec;         ///< sys_time ticks per second
   uint32_t cpu_ticks_per_sec;     ///< cpu ticks per second
 };
 
@@ -137,7 +141,7 @@ static inline uint32_t sys_time_ticks_of_usec(uint32_t usec) {
 }
 
 static inline float sec_of_sys_time_ticks(uint32_t ticks) {
-  return (float)ticks * sys_time.resolution_sec;
+  return (float)ticks * sys_time.resolution;
 }
 
 static inline uint32_t msec_of_sys_time_ticks(uint32_t ticks) {

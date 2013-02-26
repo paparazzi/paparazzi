@@ -44,11 +44,7 @@ void sys_time_arch_init( void ) {
   sys_time.cpu_ticks_per_sec = AHB_CLK;
 
   /* cpu ticks per desired sys_time timer step */
-  sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution_sec * sys_time.cpu_ticks_per_sec + 0.5);
-
-  /* set final sys_time resolution in seconds from resolution in cpu_ticks */
-  sys_time.resolution_sec = (float)sys_time.resolution_cpu_ticks / sys_time.cpu_ticks_per_sec;
-  sys_time.ticks_per_sec = (uint32_t)(sys_time.cpu_ticks_per_sec / sys_time.resolution_cpu_ticks + 0.5);
+  sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
 
   /* The timer interrupt is activated on the transition from 1 to 0,
    * therefore it activates every n+1 clock ticks.
