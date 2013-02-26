@@ -115,12 +115,6 @@
 #define LED_12_AFIO_REMAP ((void)0)
 
 
-/* configuration for aspirin - and more generaly IMUs */
-#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2ENR_IOPBEN
-#define IMU_ACC_DRDY_GPIO             GPIOB
-#define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
-
-
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
