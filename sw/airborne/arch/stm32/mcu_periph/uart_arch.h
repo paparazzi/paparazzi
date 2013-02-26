@@ -31,10 +31,4 @@
 
 #include "std.h"
 
-#define B4800     4800
-#define B9600     9600
-#define B38400   38400
-#define B57600   57600
-#define B115200 115200
-
 #endif /* STM32_UART_ARCH_H */

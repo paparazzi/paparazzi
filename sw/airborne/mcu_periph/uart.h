@@ -36,6 +36,21 @@
 #define UART_DEV_NAME_SIZE 16
 
 /**
+ * UART Baud rates
+ */
+enum UartBaud {
+  B1200 = 1200,
+  B2400 = 2400,
+  B4800 = 4800,
+  B9600 = 9600,
+  B19200 = 19200,
+  B38400 = 38400,
+  B57600 = 57600,
+  B115200 = 115200,
+  B230400 = 230400
+};
+
+/**
  * UART peripheral
  */
 struct uart_periph {
@@ -55,8 +70,7 @@ struct uart_periph {
 };
 
 extern void uart_periph_init(struct uart_periph* p);
-extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control);
-//extern void uart_periph_init_param(struct uart_periph* p, uint32_t baud, uint8_t mode, uint8_t fmode, char * dev);
+extern void uart_periph_set_baudrate(struct uart_periph* p, enum UartBaud, bool_t hw_flow_control);
 extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 
@@ -81,7 +95,6 @@ extern void uart0_init(void);
 #define Uart0Getch() UartGetch(uart0)
 #define Uart0TxRunning uart0.tx_running
 #define Uart0SetBaudrate(_b) uart_periph_set_baudrate(&uart0, _b, FALSE)
-//#define Uart0InitParam(_b, _m, _fm) uart_periph_init_param(&uart0, _b, _m, _fm, "")
 
 #define UART0Init           Uart0Init
 #define UART0CheckFreeSpace Uart0CheckFreeSpace
@@ -110,7 +123,6 @@ extern void uart1_init(void);
 #else
 #define Uart1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b, FALSE)
 #endif
-//#define Uart1InitParam(_b, _m, _fm) uart_periph_init_param(&uart1, _b, _m, _fm, "")
 
 #define UART1Init           Uart1Init
 #define UART1CheckFreeSpace Uart1CheckFreeSpace
@@ -135,7 +147,6 @@ extern void uart2_init(void);
 #define Uart2Getch() UartGetch(uart2)
 #define Uart2TxRunning uart2.tx_running
 #define Uart2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b, FALSE)
-//#define Uart2InitParam(_b, _m, _fm) uart_periph_init_param(&uart2, _b, _m, _fm, "")
 
 #define UART2Init           Uart2Init
 #define UART2CheckFreeSpace Uart2CheckFreeSpace
@@ -160,7 +171,6 @@ extern void uart3_init(void);
 #define Uart3Getch() UartGetch(uart3)
 #define Uart3TxRunning uart3.tx_running
 #define Uart3SetBaudrate(_b) uart_periph_set_baudrate(&uart3, _b, FALSE)
-//#define Uart3InitParam(_b, _m, _fm) uart_periph_init_param(&uart3, _b, _m, _fm, "")
 
 #define UART3Init           Uart3Init
 #define UART3CheckFreeSpace Uart3CheckFreeSpace
@@ -185,7 +195,6 @@ extern void uart5_init(void);
 #define Uart5Getch() UartGetch(uart5)
 #define Uart5TxRunning uart5.tx_running
 #define Uart5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b, FALSE)
-//#define Uart5InitParam(_b, _m, _fm) uart_periph_init_param(&uart5, _b, _m, _fm, "")
 
 #define UART5Init           Uart5Init
 #define UART5CheckFreeSpace Uart5CheckFreeSpace

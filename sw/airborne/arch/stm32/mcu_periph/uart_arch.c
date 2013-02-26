@@ -34,7 +34,7 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include "std.h"
 
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control) {
+void uart_periph_set_baudrate(struct uart_periph* p, enum UartBaud baud, bool_t hw_flow_control) {
 
   /* Configure USART */
   usart_set_baudrate((u32)p->reg_addr, baud);
