@@ -42,10 +42,10 @@ int main (int argc, char** argv) {
 #endif
 
 #ifdef USE_UART0
-  Uart0Init();
+  uart_periph_init(&uart0);
 #endif
 #ifdef USE_UART1
-  Uart1Init();
+  uart_periph_init(&uart1);
 #endif
 
   mcu_int_enable();

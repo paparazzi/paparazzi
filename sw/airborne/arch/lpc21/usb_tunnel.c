@@ -59,34 +59,34 @@ int main( void ) {
   while(1) {
     if (T0TC > (rx_time+((PCLK / T0_PCLK_DIV) / BLINK_MIN))) LED_OFF(1);
     if (T0TC > (tx_time+((PCLK / T0_PCLK_DIV) / BLINK_MIN))) LED_OFF(2);
-    if (Uart0ChAvailable() && VCOM_check_free_space(1)) {
+    if (uart_char_available(&uart0) && VCOM_check_free_space(1)) {
       LED_ON(1);
       rx_time = T0TC;
-      inc = Uart0Getch();
+      inc = uart_getch(&uart0);
       VCOM_putchar(inc);
     }
-    if (VCOM_check_available() && Uart0CheckFreeSpace(1)) {
+    if (VCOM_check_available() && uart_check_free_space(&uart0, 1)) {
       LED_ON(2);
       tx_time = T0TC;
       inc = VCOM_getchar();
-      Uart0Transmit(inc);
+      uart_transmit(&uart0, inc);
     }
   }
 #else
   while(1) {
     if (T0TC > (rx_time+((PCLK / T0_PCLK_DIV) / BLINK_MIN))) LED_OFF(1);
     if (T0TC > (tx_time+((PCLK / T0_PCLK_DIV) / BLINK_MIN))) LED_OFF(2);
-    if (Uart1ChAvailable() && VCOM_check_free_space(1)) {
+    if (uart_char_available(&uart1) && VCOM_check_free_space(1)) {
       LED_ON(1);
       rx_time = T0TC;
-      inc = Uart1Getch();
+      inc = uart_getch(&uart1);
       VCOM_putchar(inc);
     }
-    if (VCOM_check_available() && Uart1CheckFreeSpace(1)) {
+    if (VCOM_check_available() && uart_check_free_space(&uart1, 1)) {
       LED_ON(2);
       tx_time = T0TC;
       inc = VCOM_getchar();
-      Uart1Transmit(inc);
+      uart_transmit(&uart1, inc);
     }
   }
 #endif
