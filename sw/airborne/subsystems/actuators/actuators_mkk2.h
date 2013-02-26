@@ -32,18 +32,19 @@
 #include "generated/airframe.h"
 
 
-struct ActuatorsMkk {
+struct ActuatorsMkk2 {
   bool_t   actuators_delay_done;    // mkk_config module wants to know state
-  struct i2c_transaction trans[ACTUATORS_MKK_NB];
+  uint16_t setpoint[ACTUATORS_MKK2_NB];
+  struct i2c_transaction trans[ACTUATORS_MKK2_NB];
 };
 
-extern struct ActuatorsMkk actuators_mkk;
+extern struct ActuatorsMkk2 actuators_mkk2;
 
-extern void actuators_mkk_init(void);
-extern void actuators_mkk_set(void);
+extern void actuators_mkk2_init(void);
+extern void actuators_mkk2_set(void);
 
-#define ActuatorMkkSet(_i, _v) { actuators_mkk.trans[_i].buf[0] = _v; }
-#define ActuatorsMkkInit() actuators_mkk_init()
-#define ActuatorsMkkCommit() actuators_mkk_set()
+#define ActuatorMkk2Set(_i, _v) { actuators_mkk2.setpoint[_i] = _v; }
+#define ActuatorsMkk2Init() actuators_mkk2_init()
+#define ActuatorsMkk2Commit() actuators_mkk2_set()
 
 #endif /* ACTUATORS_MKK_H */
