@@ -44,7 +44,7 @@ static inline void uart_enable_interrupts(struct uart_periph* p) {
   ((uartRegs_t *)(p->reg_addr))->ier = UIER_ERBFI;
 }
 
-static inline void uart_set_baudrate(struct uart_periph* p, enum UartBaud baud) {
+static inline void uart_set_baudrate(struct uart_periph* p, uint32_t baud) {
   /* calculate the baudrate */
   uint32_t _baud_reg_val = (uint16_t)((PCLK / (((float)baud) * 16.0)) + 0.5);
   /* select divisor latches */
@@ -62,7 +62,7 @@ static inline void uart_set_baudrate(struct uart_periph* p, enum UartBaud baud) 
   ((uartRegs_t *)(p->reg_addr))->fcr = UART_FIFO_8;
 }
 
-void uart_periph_set_baudrate(struct uart_periph* p, enum UartBaud baud, bool_t hw_flow_control __attribute__ ((unused))) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control __attribute__ ((unused))) {
   uart_disable_interrupts(p);
   uart_set_baudrate(p, baud);
   uart_enable_interrupts(p);

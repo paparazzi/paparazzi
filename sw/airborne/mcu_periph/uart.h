@@ -35,20 +35,19 @@
 #define UART_TX_BUFFER_SIZE 128
 #define UART_DEV_NAME_SIZE 16
 
-/**
+/*
  * UART Baud rates
- */
-enum UartBaud {
-  B1200 = 1200,
-  B2400 = 2400,
-  B4800 = 4800,
-  B9600 = 9600,
-  B19200 = 19200,
-  B38400 = 38400,
-  B57600 = 57600,
-  B115200 = 115200,
-  B230400 = 230400
-};
+ * defines because the stupid c preprocessor can't handle enums
+*/
+#define B1200    1200
+#define B2400    2400
+#define B4800    4800
+#define B9600    9600
+#define B19200   19200
+#define B38400   38400
+#define B57600   57600
+#define B115200  115200
+#define B230400  230400
 
 /**
  * UART peripheral
@@ -70,7 +69,7 @@ struct uart_periph {
 };
 
 extern void uart_periph_init(struct uart_periph* p);
-extern void uart_periph_set_baudrate(struct uart_periph* p, enum UartBaud, bool_t hw_flow_control);
+extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control);
 extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph* p);
