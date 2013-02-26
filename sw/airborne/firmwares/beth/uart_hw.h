@@ -33,13 +33,6 @@
 //junk for gps_configure_uart in gps_ubx.c to compile
 #define UART_8N1 1
 #define UART_FIFO_8 1
-#define UART_BAUD(baud) (baud)
-
-
-#define Uart1_init uart1_init()
-#define Uart2_init uart2_init()
-#define Uart3_init uart3_init()
-#define Uart5_init uart5_init()
 
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
@@ -62,8 +55,8 @@ extern volatile uint16_t uart0_tx_insert_idx, uart0_tx_extract_idx;
 extern volatile bool_t   uart0_tx_running;
 extern uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
 
-#define Uart0ChAvailable() (uart0_rx_insert_idx != uart0_rx_extract_idx)
-#define Uart0Getch() ({							\
+#define UART0ChAvailable() (uart0_rx_insert_idx != uart0_rx_extract_idx)
+#define UART0Getch() ({							\
       uint8_t ret = uart0_rx_buffer[uart0_rx_extract_idx];		\
       uart0_rx_extract_idx = (uart0_rx_extract_idx + 1)%UART0_RX_BUFFER_SIZE; \
       ret;								\
@@ -87,8 +80,8 @@ extern volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 extern volatile bool_t   uart1_tx_running;
 extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 
-#define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
-#define Uart1Getch() ({							\
+#define UART1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
+#define UART1Getch() ({							\
       uint8_t ret = uart1_rx_buffer[uart1_rx_extract_idx];		\
       uart1_rx_extract_idx = (uart1_rx_extract_idx + 1)%UART1_RX_BUFFER_SIZE; \
       ret;								\

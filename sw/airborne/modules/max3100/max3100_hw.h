@@ -87,19 +87,19 @@ extern bool read_bytes;
 #define MAX3100_T_BIT 14
 #define MAX3100_R_BIT 15
 
-/** Like Uart macros */
-#define Uart3100Init() {} /* Already initialized as a module */
-#define Uart3100CheckFreeSpace(_len) (((int16_t)max3100_tx_extract_idx - max3100_tx_insert_idx + MAX3100_TX_BUF_LEN - 1) % MAX3100_TX_BUF_LEN >= _len)
+/** Like UART macros */
+#define UART3100Init() {} /* Already initialized as a module */
+#define UART3100CheckFreeSpace(_len) (((int16_t)max3100_tx_extract_idx - max3100_tx_insert_idx + MAX3100_TX_BUF_LEN - 1) % MAX3100_TX_BUF_LEN >= _len)
 
-#define Uart3100Transmit(_x) { max3100_putchar(_x); }
-#define Uart3100SendMessage() {}
-#define Uart3100Getch() ({\
+#define UART3100Transmit(_x) { max3100_putchar(_x); }
+#define UART3100SendMessage() {}
+#define UART3100Getch() ({\
    uint8_t ret = max3100_rx_buf[max3100_rx_extract_idx]; \
    max3100_rx_extract_idx++; /* Since size=256 */        \
    ret;                                                 \
 })
 
-#define Uart3100ChAvailable() (max3100_rx_extract_idx != max3100_rx_insert_idx)
+#define UART3100ChAvailable() (max3100_rx_extract_idx != max3100_rx_insert_idx)
 
 static inline void max3100_transmit(uint16_t data) {
   Max3100Select();

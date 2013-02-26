@@ -51,7 +51,7 @@
 #define MAX_BYTE_SPACE  3   // .3ms
 
 /*
- * in the makefile we set RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT to be Uartx
+ * in the makefile we set RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT to be UARTx
  * but in uart_hw.c the initialisation functions are
  * defined as uartx these macros give us the glue
  * that allows static calls at compile time

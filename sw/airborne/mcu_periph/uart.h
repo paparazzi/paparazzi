@@ -83,23 +83,14 @@ static inline bool_t uart_char_available(struct uart_periph* p) {
 extern struct uart_periph uart0;
 extern void uart0_init(void);
 
-#define Uart0Init() uart_periph_init(&uart0)
-#define Uart0CheckFreeSpace(_x) uart_check_free_space(&uart0, _x)
-#define Uart0Transmit(_x) uart_transmit(&uart0, _x)
-#define Uart0SendMessage() {}
-#define Uart0ChAvailable() uart_char_available(&uart0)
-#define Uart0Getch() uart_getch(&uart0)
-#define Uart0TxRunning uart0.tx_running
-#define Uart0SetBaudrate(_b) uart_periph_set_baudrate(&uart0, _b, FALSE)
-
-#define UART0Init           Uart0Init
-#define UART0CheckFreeSpace Uart0CheckFreeSpace
-#define UART0Transmit       Uart0Transmit
-#define UART0SendMessage    Uart0SendMessage
-#define UART0ChAvailable    Uart0ChAvailable
-#define UART0Getch          Uart0Getch
-#define UART0TxRunning      Uart0TxRunning
-#define UART0SetBaudrate    Uart0SetBaudrate
+#define UART0Init() uart_periph_init(&uart0)
+#define UART0CheckFreeSpace(_x) uart_check_free_space(&uart0, _x)
+#define UART0Transmit(_x) uart_transmit(&uart0, _x)
+#define UART0SendMessage() {}
+#define UART0ChAvailable() uart_char_available(&uart0)
+#define UART0Getch() uart_getch(&uart0)
+#define UART0TxRunning uart0.tx_running
+#define UART0SetBaudrate(_b) uart_periph_set_baudrate(&uart0, _b, FALSE)
 
 #endif // USE_UART0
 
@@ -107,27 +98,18 @@ extern void uart0_init(void);
 extern struct uart_periph uart1;
 extern void uart1_init(void);
 
-#define Uart1Init() uart_periph_init(&uart1)
-#define Uart1CheckFreeSpace(_x) uart_check_free_space(&uart1, _x)
-#define Uart1Transmit(_x) uart_transmit(&uart1, _x)
-#define Uart1SendMessage() {}
-#define Uart1ChAvailable() uart_char_available(&uart1)
-#define Uart1Getch() uart_getch(&uart1)
-#define Uart1TxRunning uart1.tx_running
+#define UART1Init() uart_periph_init(&uart1)
+#define UART1CheckFreeSpace(_x) uart_check_free_space(&uart1, _x)
+#define UART1Transmit(_x) uart_transmit(&uart1, _x)
+#define UART1SendMessage() {}
+#define UART1ChAvailable() uart_char_available(&uart1)
+#define UART1Getch() uart_getch(&uart1)
+#define UART1TxRunning uart1.tx_running
 #if UART1_HW_FLOW_CONTROL
-#define Uart1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b, TRUE)
+#define UART1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b, TRUE)
 #else
-#define Uart1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b, FALSE)
+#define UART1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b, FALSE)
 #endif
-
-#define UART1Init           Uart1Init
-#define UART1CheckFreeSpace Uart1CheckFreeSpace
-#define UART1Transmit       Uart1Transmit
-#define UART1SendMessage    Uart1SendMessage
-#define UART1ChAvailable    Uart1ChAvailable
-#define UART1Getch          Uart1Getch
-#define UART1TxRunning      Uart1TxRunning
-#define UART1SetBaudrate    Uart1SetBaudrate
 
 #endif // USE_UART1
 
@@ -135,23 +117,14 @@ extern void uart1_init(void);
 extern struct uart_periph uart2;
 extern void uart2_init(void);
 
-#define Uart2Init() uart_periph_init(&uart2)
-#define Uart2CheckFreeSpace(_x) uart_check_free_space(&uart2, _x)
-#define Uart2Transmit(_x) uart_transmit(&uart2, _x)
-#define Uart2SendMessage() {}
-#define Uart2ChAvailable() uart_char_available(&uart2)
-#define Uart2Getch() uart_getch(&uart2)
-#define Uart2TxRunning uart2.tx_running
-#define Uart2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b, FALSE)
-
-#define UART2Init           Uart2Init
-#define UART2CheckFreeSpace Uart2CheckFreeSpace
-#define UART2Transmit       Uart2Transmit
-#define UART2SendMessage    Uart2SendMessage
-#define UART2ChAvailable    Uart2ChAvailable
-#define UART2Getch          Uart2Getch
-#define UART2TxRunning      Uart2TxRunning
-#define UART2SetBaudrate    Uart2SetBaudrate
+#define UART2Init() uart_periph_init(&uart2)
+#define UART2CheckFreeSpace(_x) uart_check_free_space(&uart2, _x)
+#define UART2Transmit(_x) uart_transmit(&uart2, _x)
+#define UART2SendMessage() {}
+#define UART2ChAvailable() uart_char_available(&uart2)
+#define UART2Getch() uart_getch(&uart2)
+#define UART2TxRunning uart2.tx_running
+#define UART2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b, FALSE)
 
 #endif // USE_UART2
 
@@ -159,23 +132,14 @@ extern void uart2_init(void);
 extern struct uart_periph uart3;
 extern void uart3_init(void);
 
-#define Uart3Init() uart_periph_init(&uart3)
-#define Uart3CheckFreeSpace(_x) uart_check_free_space(&uart3, _x)
-#define Uart3Transmit(_x) uart_transmit(&uart3, _x)
-#define Uart3SendMessage() {}
-#define Uart3ChAvailable() uart_char_available(&uart3)
-#define Uart3Getch() uart_getch(&uart3)
-#define Uart3TxRunning uart3.tx_running
-#define Uart3SetBaudrate(_b) uart_periph_set_baudrate(&uart3, _b, FALSE)
-
-#define UART3Init           Uart3Init
-#define UART3CheckFreeSpace Uart3CheckFreeSpace
-#define UART3Transmit       Uart3Transmit
-#define UART3SendMessage    Uart3SendMessage
-#define UART3ChAvailable    Uart3ChAvailable
-#define UART3Getch          Uart3Getch
-#define UART3TxRunning      Uart3TxRunning
-#define UART3SetBaudrate    Uart3SetBaudrate
+#define UART3Init() uart_periph_init(&uart3)
+#define UART3CheckFreeSpace(_x) uart_check_free_space(&uart3, _x)
+#define UART3Transmit(_x) uart_transmit(&uart3, _x)
+#define UART3SendMessage() {}
+#define UART3ChAvailable() uart_char_available(&uart3)
+#define UART3Getch() uart_getch(&uart3)
+#define UART3TxRunning uart3.tx_running
+#define UART3SetBaudrate(_b) uart_periph_set_baudrate(&uart3, _b, FALSE)
 
 #endif // USE_UART3
 
@@ -183,23 +147,14 @@ extern void uart3_init(void);
 extern struct uart_periph uart5;
 extern void uart5_init(void);
 
-#define Uart5Init() uart_periph_init(&uart5)
-#define Uart5CheckFreeSpace(_x) uart_check_free_space(&uart5, _x)
-#define Uart5Transmit(_x) uart_transmit(&uart5, _x)
-#define Uart5SendMessage() {}
-#define Uart5ChAvailable() uart_char_available(&uart5)
-#define Uart5Getch() uart_getch(&uart5)
-#define Uart5TxRunning uart5.tx_running
-#define Uart5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b, FALSE)
-
-#define UART5Init           Uart5Init
-#define UART5CheckFreeSpace Uart5CheckFreeSpace
-#define UART5Transmit       Uart5Transmit
-#define UART5SendMessage    Uart5SendMessage
-#define UART5ChAvailable    Uart5ChAvailable
-#define UART5Getch          Uart5Getch
-#define UART5TxRunning      Uart5TxRunning
-#define UART5SetBaudrate    Uart5SetBaudrate
+#define UART5Init() uart_periph_init(&uart5)
+#define UART5CheckFreeSpace(_x) uart_check_free_space(&uart5, _x)
+#define UART5Transmit(_x) uart_transmit(&uart5, _x)
+#define UART5SendMessage() {}
+#define UART5ChAvailable() uart_char_available(&uart5)
+#define UART5Getch() uart_getch(&uart5)
+#define UART5TxRunning uart5.tx_running
+#define UART5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b, FALSE)
 
 #endif // USE_UART5
 

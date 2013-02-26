@@ -61,71 +61,46 @@
 
 #ifdef USE_UART0
 
-#define Uart0PrintHex(c) _PrintHex(Uart0Transmit, c)
-#define Uart0PrintHex16(c) _PrintHex16(Uart0Transmit, c)
-#define Uart0PrintHex32(c) _PrintHex32(Uart0Transmit, c)
-#define Uart0PrintString(s) _PrintString(Uart0Transmit, s)
-
-#define UART0PrintHex     Uart0PrintHex
-#define UART0PrintHex16   Uart0PrintHex16
-#define UART0PrintHex32   Uart0PrintHex32
-#define UART0PrintString  Uart0PrintString
+#define UART0PrintHex(c) _PrintHex(UART0Transmit, c)
+#define UART0PrintHex16(c) _PrintHex16(UART0Transmit, c)
+#define UART0PrintHex32(c) _PrintHex32(UART0Transmit, c)
+#define UART0PrintString(s) _PrintString(UART0Transmit, s)
 
 #endif /* USE_UART0 */
 
 #ifdef USE_UART1
 
-#define Uart1PrintHex(c) _PrintHex(Uart1Transmit, c)
-#define Uart1PrintHex16(c) _PrintHex16(Uart1Transmit, c)
-#define Uart1PrintHex32(c) _PrintHex32(Uart1Transmit, c)
-#define Uart1PrintString(s) _PrintString(Uart1Transmit, s)
-
-#define UART1PrintHex     Uart1PrintHex
-#define UART1PrintHex16   Uart1PrintHex16
-#define UART1PrintHex32   Uart1PrintHex32
-#define UART1PrintString  Uart1PrintString
+#define UART1PrintHex(c) _PrintHex(UART1Transmit, c)
+#define UART1PrintHex16(c) _PrintHex16(UART1Transmit, c)
+#define UART1PrintHex32(c) _PrintHex32(UART1Transmit, c)
+#define UART1PrintString(s) _PrintString(UART1Transmit, s)
 
 #endif /* USE_UART1 */
 
 #ifdef USE_UART2
 
-#define Uart2PrintHex(c) _PrintHex(Uart2Transmit, c)
-#define Uart2PrintHex16(c) _PrintHex16(Uart2Transmit, c)
-#define Uart2PrintHex32(c) _PrintHex32(Uart2Transmit, c)
-#define Uart2PrintString(s) _PrintString(Uart2Transmit, s)
-
-#define UART2PrintHex     Uart2PrintHex
-#define UART2PrintHex16   Uart2PrintHex16
-#define UART2PrintHex32   Uart2PrintHex32
-#define UART2PrintString  Uart2PrintString
+#define UART2PrintHex(c) _PrintHex(UART2Transmit, c)
+#define UART2PrintHex16(c) _PrintHex16(UART2Transmit, c)
+#define UART2PrintHex32(c) _PrintHex32(UART2Transmit, c)
+#define UART2PrintString(s) _PrintString(UART2Transmit, s)
 
 #endif /* USE_UART2 */
 
 #ifdef USE_UART3
 
-#define Uart3PrintHex(c) _PrintHex(Uart3Transmit, c)
-#define Uart3PrintHex16(c) _PrintHex16(Uart3Transmit, c)
-#define Uart3PrintHex32(c) _PrintHex32(Uart3Transmit, c)
-#define Uart3PrintString(s) _PrintString(Uart3Transmit, s)
-
-#define UART3PrintHex     Uart3PrintHex
-#define UART3PrintHex16   Uart3PrintHex16
-#define UART3PrintHex32   Uart3PrintHex32
-#define UART3PrintString  Uart3PrintString
+#define UART3PrintHex(c) _PrintHex(UART3Transmit, c)
+#define UART3PrintHex16(c) _PrintHex16(UART3Transmit, c)
+#define UART3PrintHex32(c) _PrintHex32(UART3Transmit, c)
+#define UART3PrintString(s) _PrintString(UART3Transmit, s)
 
 #endif /* USE_UART3 */
 
 #ifdef USE_UART5
 
-#define Uart5PrintHex(c) _PrintHex(Uart5Transmit, c)
-#define Uart5PrintHex16(c) _PrintHex16(Uart5Transmit, c)
-#define Uart5PrintHex32(c) _PrintHex32(Uart5Transmit, c)
-#define Uart5PrintString(s) _PrintString(Uart5Transmit, s)
-
-#define UART5PrintHex     Uart5PrintHex
-#define UART5PrintHex16   Uart5PrintHex16
-#define UART5PrintHex32   Uart5PrintHex32
-#define UART5PrintString  Uart5PrintString
+#define UART5PrintHex(c) _PrintHex(UART5Transmit, c)
+#define UART5PrintHex16(c) _PrintHex16(UART5Transmit, c)
+#define UART5PrintHex32(c) _PrintHex32(UART5Transmit, c)
+#define UART5PrintString(s) _PrintString(UART5Transmit, s)
 
 #endif /* USE_UART5 */
 

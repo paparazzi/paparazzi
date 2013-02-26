@@ -27,7 +27,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   LED_TOGGLE(1);
-  Uart0PrintString("demo3 running since ");
-  Uart0PrintHex32(sys_time.nb_sec);
-  Uart0PrintString(" seconds\n");
+  UART0PrintString("demo3 running since ");
+  UART0PrintHex32(sys_time.nb_sec);
+  UART0PrintString(" seconds\n");
 }

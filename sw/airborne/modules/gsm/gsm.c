@@ -73,7 +73,7 @@ Receiving:
 #include "generated/settings.h"
 
 #ifndef GSM_LINK
-#define GSM_LINK Uart3100
+#define GSM_LINK UART3100
 #endif
 
 #define GSM_MAX_PAYLOAD 160
