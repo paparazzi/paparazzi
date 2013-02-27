@@ -245,7 +245,13 @@
     <field name="utm_zone" type="uint8"/>
   </message>
 
-  <!-- 36 is free -->
+  <message name="MKK" id="36">
+    <field name="nr" type="int8" unit="mA"/>
+    <field name="rpm" type="uint8" unit="Poles/s"/>
+    <field name="current" type="int8" unit="mA"/>
+    <field name="temp" type="int8" unit="deg"/>
+  </message>
+
 
   <message name="ENERGY" id="37">
     <field name="bat"      type="float" unit="V"/>
