@@ -1,0 +1,33 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1.5" ground_alt="0" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="400" name="Booz Vision" security_height="0.5">
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+  </waypoints>
+  <blocks>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 3)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <!--exception cond="booz_ins_enu_pos.z > POS_BFP_OF_REAL(1.)" deroute="Standby"/-->
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="HOME"/>
+    </block>
+    <block name="land">
+      <go wp="HOME"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.8" vmode="climb" wp="HOME"/>
+    </block>
+  </blocks>
+</flight_plan>

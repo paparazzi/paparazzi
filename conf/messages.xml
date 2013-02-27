@@ -1823,6 +1823,16 @@
    </message>
 
  <!--233 is free -->
+   <message name="PX4FLOW" id="233">
+     <!--field name="time_usec" type="uint64"/--> <!-- uint64 not supported yet -->
+     <field name="sensor_id" type="uint8"/>
+     <field name="flow_x" type="int16"/>
+     <field name="flow_y" type="int16"/>
+     <field name="flow_comp_m_x" type="float" unit="m"/>
+     <field name="flow_comp_m_y" type="float" unit="m"/>
+     <field name="quality" type="uint8"/>
+     <field name="ground_distance" type="float" unit="m"/>
+   </message>
 
   <message name="OPTICFLOW" id="234">
     <field name="flow" type="uint16"></field>
