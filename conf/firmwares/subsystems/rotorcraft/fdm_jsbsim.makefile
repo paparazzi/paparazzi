@@ -57,7 +57,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                      \
 
 
 
-nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 
 nps.srcs   += firmwares/rotorcraft/main.c
 nps.srcs   += mcu.c

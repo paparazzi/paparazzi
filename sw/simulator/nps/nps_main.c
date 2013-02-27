@@ -122,6 +122,7 @@ static void nps_main_init(void) {
   nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
   nps_sensors_init(nps_main.sim_time);
+  printf("Simulating with dt of %f\n", SIM_DT);
 
   enum NpsRadioControlType rc_type;
   char* rc_dev = NULL;

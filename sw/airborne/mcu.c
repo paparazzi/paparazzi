@@ -141,6 +141,8 @@ void mcu_init(void) {
 #ifdef USE_DAC
   dac_init();
 #endif
+#else
+#pragma message "Info: Not auto-initializing mcu peripherals including sys_time"
 #endif /* PERIPHERALS_AUTO_INIT */
 
 }
