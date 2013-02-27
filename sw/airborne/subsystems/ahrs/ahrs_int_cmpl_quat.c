@@ -28,6 +28,8 @@
  *
  */
 
+#include "generated/airframe.h"
+
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
@@ -41,12 +43,7 @@
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
 
-#include "generated/airframe.h"
 
-//#include "../../test/pprz_algebra_print.h"
-
-static inline void ahrs_update_mag_full(void);
-static inline void ahrs_update_mag_2d(void);
 
 #ifdef AHRS_MAG_UPDATE_YAW_ONLY
 #warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
@@ -60,17 +57,19 @@ static inline void ahrs_update_mag_2d(void);
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
 PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+
 #ifndef AHRS_CORRECT_FREQUENCY
-#define AHRS_CORRECT_FREQUENCY PERIODIC_FREQUENCY
+#define AHRS_CORRECT_FREQUENCY AHRS_PROPAGATE_FREQUENCY
 #endif
 PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
 
 #ifndef AHRS_RATE_CORRECTION_GAIN
-#define AHRS_RATE_CORRECTION_GAIN 25
+#define AHRS_RATE_CORRECTION_GAIN 32
 #endif
 #ifndef AHRS_BIAS_CORRECTION_GAIN
-#define AHRS_BIAS_CORRECTION_GAIN 16
+#define AHRS_BIAS_CORRECTION_GAIN 32
 #endif
+
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // remotely settable
@@ -87,6 +86,8 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 struct AhrsIntCmpl ahrs_impl;
 
 static inline void set_body_state_from_quat(void);
+static inline void ahrs_update_mag_full(void);
+static inline void ahrs_update_mag_2d(void);
 
 
 void ahrs_init(void) {
@@ -123,6 +124,7 @@ void ahrs_init(void) {
 
 }
 
+
 void ahrs_align(void) {
 
 #if USE_MAGNETOMETER
@@ -146,12 +148,6 @@ void ahrs_align(void) {
 }
 
 
-
-/*
- *
- *
- *
- */
 void ahrs_propagate(void) {
 
   /* unbias gyro             */
@@ -181,8 +177,6 @@ void ahrs_propagate(void) {
 }
 
 
-
-
 void ahrs_update_accel(void) {
 
   // c2 = ltp z-axis in imu-frame
@@ -206,11 +200,12 @@ void ahrs_update_accel(void) {
 
     // FIXME: check overflows !
 #define COMPUTATION_FRAC 16
+#define ACC_FROM_CROSS_FRAC INT32_RATE_FRAC + INT32_SPEED_FRAC - INT32_ACCEL_FRAC - COMPUTATION_FRAC
 
     const struct Int32Vect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm >> COMPUTATION_FRAC, 0, 0};
     struct Int32Vect3 acc_c_body;
     VECT3_RATES_CROSS_VECT3(acc_c_body, (*stateGetBodyRates_i()), vel_tangential_body);
-    INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-COMPUTATION_FRAC);
+    INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, ACC_FROM_CROSS_FRAC);
 
     /* convert centrifucal acceleration from body to imu frame */
     struct Int32Vect3 acc_c_imu;
@@ -226,7 +221,7 @@ void ahrs_update_accel(void) {
   INT32_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
 
-  int32_t inv_weight;
+  int32_t inv_weight = 1;
   if (ahrs_impl.use_gravity_heuristic) {
     /* heuristic on acceleration norm */
 
@@ -238,21 +233,21 @@ void ahrs_update_accel(void) {
 
     int32_t acc_norm;
     INT32_VECT3_NORM(acc_norm, filtered_gravity_measurement);
-    const int32_t acc_norm_d = ABS(ACCEL_BFP_OF_REAL(9.81)-acc_norm);
-    inv_weight = Chop(50*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 50);
-  }
-  else {
-    inv_weight = 1;
+    const int32_t g_int = ACCEL_BFP_OF_REAL(9.81);
+    const int32_t acc_norm_d = ABS(g_int - acc_norm);
+    inv_weight = Chop(50 * acc_norm_d / g_int, 1, 50);
   }
 
   /* Correct the drift by adding a rate correction.
    * residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
-   * rate_correction FRAC = RATE_FRAC = 12
+   * rate_correction FRAC: RATE_FRAC = 12
    * FRAC conversion: 2^12 / 2^24 = 1/(2^12) = 1/4096
+   *
+   * Scale residual with FRAC difference, update_accel freq and the gain.
+   * To allow convenient range for the correction gain, multiply by two again...
    */
-  /* scale gain with the update_accel freq and */
-  uint32_t inv_rate_scale = AHRS_CORRECT_FREQUENCY * (4096 / ahrs_impl.rate_correction_gain);
-  Bound(inv_rate_scale, 2000, 500000);
+  uint32_t inv_rate_scale = 2 * 4096 * AHRS_CORRECT_FREQUENCY / ahrs_impl.rate_correction_gain;
+  Bound(inv_rate_scale, 8192, 1024000);
   ahrs_impl.rate_correction.p += -residual.x / inv_rate_scale / inv_weight;
   ahrs_impl.rate_correction.q += -residual.y / inv_rate_scale / inv_weight;
   ahrs_impl.rate_correction.r += -residual.z / inv_rate_scale / inv_weight;
@@ -266,22 +261,23 @@ void ahrs_update_accel(void) {
    * high_rez_bias = RATE_FRAC+28 = 40
    * FRAC conversion: 2^40 / 2^24 = 2^16
    *
+   * Scale residual with FRAC difference, update_accel freq and the gain.
    * Use bias_correction_gain scale of 1/(2^11) compared to rate_correction_gain.
    * 2^16 / 2^11 = 32
    * To allow a suitable range of the freq and bias gain, multily by 32 separately.
    */
   /* scale gain with the update_accel freq */
-  uint32_t inv_bias_gain = AHRS_CORRECT_FREQUENCY / ahrs_impl.bias_correction_gain;
+  uint32_t inv_bias_gain = 2 * AHRS_CORRECT_FREQUENCY / ahrs_impl.bias_correction_gain;
   Bound(inv_bias_gain, 1, 1000)
   ahrs_impl.high_rez_bias.p += (residual.x / inv_bias_gain) * 32 / (2*inv_weight);
   ahrs_impl.high_rez_bias.q += (residual.y / inv_bias_gain) * 32 / (2*inv_weight);
   ahrs_impl.high_rez_bias.r += (residual.z / inv_bias_gain) * 32 / (2*inv_weight);
 
 
-  /*                        */
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
 
 }
+
 
 void ahrs_update_mag(void) {
 #if AHRS_MAG_UPDATE_ALL_AXES
@@ -491,7 +487,7 @@ void ahrs_realign_heading(int32_t heading) {
 
 
 /* Rotate angles and rates from imu to body frame and set state */
-__attribute__ ((always_inline)) static inline void set_body_state_from_quat(void) {
+static inline void set_body_state_from_quat(void) {
   /* Compute LTP to BODY quaternion */
   struct Int32Quat ltp_to_body_quat;
   INT32_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, imu.body_to_imu_quat);
@@ -516,5 +512,3 @@ __attribute__ ((always_inline)) static inline void set_body_state_from_quat(void
   /* Set state */
   stateSetBodyRates_i(&body_rate);
 }
-
-
