@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mavlink_decoder" dir="datalink">
+  <doc>
+    <description>A simple MAVLINK decoder</description>
+    <configure name="MAVLINK_PORT" value="UART0|UART1|UART2" description="Select port for Mavlink decoder"/>
+    <configure name="MAVLINK_BAUD" value="B9600|B57600|B115200" description="Baudrate for Mavlink decoder"/>
+  </doc>
+  <header>
+    <file name="mavlink_decoder.h"/>
+  </header>
+  <event fun="MavlinkDatalinkEvent()"/>
+  <makefile>
+    <define name="MAVLINK_UART" value="$(MAVLINK_PORT)"/>
+    <define name="USE_$(MAVLINK_PORT)"/>
+    <define name="$(MAVLINK_PORT)_BAUD" value="$(MAVLINK_BAUD)"/>
+    <file name="mavlink_decoder.c"/>
+  </makefile>
+</module>
+
