@@ -34,9 +34,9 @@
  * Let's add a pair of macros to make it possible for them to be different.
  *
  */
-#define RC_PPM_TICKS_OF_USEC(_v)        cpu_ticks_of_usec((_v))
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v) * sys_time.cpu_ticks_per_sec * 1e-6)
-#define USEC_OF_RC_PPM_TICKS(_v)        usec_of_cpu_ticks((_v))
+#define RC_PPM_TICKS_OF_USEC(_v)        cpu_ticks_of_usec(_v)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) signed_cpu_ticks_of_usec(_v)
+#define USEC_OF_RC_PPM_TICKS(_v)        usec_of_cpu_ticks(_v)
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 

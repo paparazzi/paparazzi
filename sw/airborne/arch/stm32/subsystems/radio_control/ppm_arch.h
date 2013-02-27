@@ -36,7 +36,7 @@
  * The ppm counter is running at cpu freq / 9
  */
 #define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * (AHB_CLK / 9000000))
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) ((_v) * (AHB_CLK / 9000000))
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v) * (AHB_CLK / 9000000))
 #define USEC_OF_RC_PPM_TICKS(_v)        ((_v) / (AHB_CLK / 9000000))
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
