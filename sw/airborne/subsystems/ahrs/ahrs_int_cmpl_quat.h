@@ -28,14 +28,17 @@
  *
  */
 
-#ifndef AHRS_INT_CMPL_H
-#define AHRS_INT_CMPL_H
+#ifndef AHRS_INT_CMPL_QUAT_H
+#define AHRS_INT_CMPL_QUAT_H
 
 #include "subsystems/ahrs.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
-struct AhrsIntCmpl {
+/**
+ * Ahrs implementation specifc values
+ */
+struct AhrsIntCmplQuat {
   struct Int32Rates  gyro_bias;
   struct Int32Rates  imu_rate;
   struct Int32Rates  rate_correction;
@@ -44,8 +47,10 @@ struct AhrsIntCmpl {
   struct Int32Quat   ltp_to_imu_quat;
   struct Int32Eulers ltp_to_imu_euler; // FIXME to compile telemetry
   struct Int32Vect3  mag_h;
-  uint32_t rate_correction_gain;
-  uint32_t bias_correction_gain;
+  uint32_t accel_attitude_gain;  ///< gain for correcting the attitude from accels (pseudo-gravity measurement)
+  uint32_t accel_gyrobias_gain;  ///< gain for correcting the gyro-bias from accels (pseudo-gravity measurement)
+  uint32_t mag_attitude_gain;    ///< gain for correcting the attitude (heading) from magnetometer
+  uint32_t mag_gyrobias_gain;    ///< gain for correcting the gyro bias from magnetometer
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
@@ -53,7 +58,7 @@ struct AhrsIntCmpl {
   bool_t heading_aligned;
 };
 
-extern struct AhrsIntCmpl ahrs_impl;
+extern struct AhrsIntCmplQuat ahrs_impl;
 
 
 /** Update yaw based on a heading measurement.
@@ -75,4 +80,4 @@ extern float ins_pitch_neutral;
 #endif
 
 
-#endif /* AHRS_INT_CMPL_H */
+#endif /* AHRS_INT_CMPL_QUAT_H */
