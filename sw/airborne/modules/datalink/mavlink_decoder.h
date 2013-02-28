@@ -65,7 +65,7 @@ struct mavlink_message {
 
 #ifndef MAVLINK_NO_CRC_EXTRA
 // CRC Extra (!!! staticaly calculated !!!)
-extern uint8_t crc_extra[256];
+extern uint8_t mavlink_crc_extra[256];
 #endif
 
 /**
@@ -77,7 +77,7 @@ extern uint8_t crc_extra[256];
  * @param data new char to hash
  * @param crcAccum the already accumulated checksum
  */
-static inline void crc_accumulate(uint8_t data, uint16_t *crcAccum)
+static inline void mavlink_crc_accumulate(uint8_t data, uint16_t *crcAccum)
 {
   /*Accumulate one byte of data into the CRC*/
   uint8_t tmp;
@@ -92,7 +92,7 @@ static inline void crc_accumulate(uint8_t data, uint16_t *crcAccum)
  *
  * @param crcAccum the 16 bit X.25 CRC
  */
-static inline void crc_init(uint16_t* crcAccum)
+static inline void mavlink_crc_init(uint16_t* crcAccum)
 {
   *crcAccum = X25_INIT_CRC;
 }
@@ -104,12 +104,12 @@ static inline void crc_init(uint16_t* crcAccum)
  * @param  length  length of the byte array
  * @return the checksum over the buffer bytes
  **/
-static inline uint16_t crc_calculate(const uint8_t* pBuffer, uint16_t length)
+static inline uint16_t mavlink_crc_calculate(const uint8_t* pBuffer, uint16_t length)
 {
   uint16_t crcTmp;
-  crc_init(&crcTmp);
+  mavlink_crc_init(&crcTmp);
   while (length--) {
-    crc_accumulate(*pBuffer++, &crcTmp);
+    mavlink_crc_accumulate(*pBuffer++, &crcTmp);
   }
   return crcTmp;
 }
@@ -175,7 +175,7 @@ static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
     case MAVLINK_PARSE_STATE_IDLE:
       if (c == STXMAV) {
         t->status = MAVLINK_PARSE_STATE_GOT_STX;
-        crc_init(&(t->checksum));
+        mavlink_crc_init(&(t->checksum));
       }
       break;
     case MAVLINK_PARSE_STATE_GOT_STX:
@@ -184,13 +184,13 @@ static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
         goto error;
       }
       t->trans.payload_len = c + MAVLINK_PAYLOAD_OFFSET; /* Not Counting STX, CRC1 and CRC2, adding LENGTH, SEQ, SYSID, COMPID, MSGID  */
-      crc_accumulate(c, &(t->checksum));
+      mavlink_crc_accumulate(c, &(t->checksum));
       t->status = MAVLINK_PARSE_STATE_GOT_LENGTH;
       t->payload_idx = 0;
       break;
     case MAVLINK_PARSE_STATE_GOT_LENGTH:
       t->trans.payload[t->payload_idx] = c;
-      crc_accumulate(c, &(t->checksum));
+      mavlink_crc_accumulate(c, &(t->checksum));
       t->payload_idx++;
       if (t->payload_idx == t->trans.payload_len)
         t->status = MAVLINK_PARSE_STATE_GOT_PAYLOAD;
@@ -201,7 +201,7 @@ static inline void parse_mavlink(struct mavlink_transport * t, uint8_t c ) {
 #endif
 #ifndef MAVLINK_NO_CRC_EXTRA
       // add extra CRC
-      crc_accumulate(crc_extra[(t->trans.payload[MAVLINK_MSG_ID_IDX])], &(t->checksum));
+      mavlink_crc_accumulate(mavlink_crc_extra[(t->trans.payload[MAVLINK_MSG_ID_IDX])], &(t->checksum));
 #endif
       if (c != (t->checksum & 0xFF))
         goto error;
