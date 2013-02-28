@@ -158,7 +158,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 jsbsim jsbsim.compile: jsbsim.ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim ARCH=jsbsim all
 
-sim sim.compile: sim.ac_h
+sim sim.compile: sim.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim ARCH=sim all
 
 # Rules for backward compatibility (old guys are used to !)
