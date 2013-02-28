@@ -1844,7 +1844,11 @@
     <field name="y" type="uint16"></field>
   </message>
 
- <!--236 is free -->
+ <message name="SONAR" id="236">
+    <field name="sonar_meas" type="uint16"/>
+    <field name="sonar_distance" type="float" unit="m"/>
+  </message>
+
  <!--237 is free -->
 
   <message name="NPS_POS_LLH" id="238">

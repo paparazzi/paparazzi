@@ -26,19 +26,17 @@
  * simple driver to deal with one maxbotix sensor
  */
 
-#ifndef SONAR_MAXBOTIX_BOOZ_H
-#define SONAR_MAXBOTIX_BOOZ_H
+#ifndef SONAR_ADC_H
+#define SONAR_ADC_H
 
 #include "std.h"
 
 extern uint16_t sonar_meas;
-
 extern bool_t sonar_data_available;
+extern float sonar_distance;
 
-extern void maxbotix_init(void);
-extern void maxbotix_read(void);
-
-//#include "subsystems/ins.h" // needed because ins is not a module
+extern void sonar_adc_init(void);
+extern void sonar_adc_read(void);
 
 #define SonarEvent(_handler) { \
   if (sonar_data_available) { \
