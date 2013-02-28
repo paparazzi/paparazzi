@@ -42,7 +42,7 @@
 uint16_t sonar_meas;
 bool_t sonar_data_available;
 float sonar_distance;
-uint16_t sonar_offset;
+float sonar_offset;
 uint16_t sonar_scale;
 
 #ifndef SITL
@@ -68,11 +68,11 @@ void sonar_adc_read(void) {
   sonar_meas = sonar_adc.sum / sonar_adc.av_nb_sample;
   sonar_data_available = TRUE;
 //sonar_offset in cm, sonar_distance in m!
-  sonar_distance = ((float)sonar_meas * (float)sonar_scale) / 10000 + (float)sonar_offset / 100;
+  sonar_distance = ((float)sonar_meas * (float)sonar_scale) / 10000 + sonar_offset;
 
 #else // SITL
   sonar_distance = (gps.hmsl / 1000.0) - ground_alt;
-  //sonar_meas = (sonar_distance - (sonar_offset / 100)) / (sonar_scale / 1000); //fixme for SITL
+  //sonar_meas = (sonar_distance - sonar_offset / (sonar_scale / 1000);
   Bound(sonar_distance, 0.1f, 7.0f);
 #endif // SITL
 
