@@ -32,12 +32,24 @@
 
 #include "mcu_periph/i2c.h"
 
+typedef struct
+{
+  uint8_t revision;
+  uint8_t SetMask;
+  uint8_t PwmScaling;
+  uint8_t CurrentLimit;
+  uint8_t TempLimit;
+  uint8_t CurrentScaling;
+  uint8_t BitConfig;
+  uint8_t crc;
+} config_mkk_eeprom_t;
+
+extern config_mkk_eeprom_t config_mkk_eeprom;
 
 struct config_mkk_struct
 {
+    int read_config;
     int addr;
-    int temp;
-    int current;
 
     int nb_err;
 
@@ -47,11 +59,17 @@ struct config_mkk_struct
 
 extern struct config_mkk_struct config_mkk;
 
-#define config_mkk_SetCommand(_v) {   \
+extern void config_mkk_send_eeprom(void);
+
+#define config_mkk_SetConfig(_v) {    \
     config_mkk.addr = _v;             \
+    config_mkk_send_eeprom();         \
 }
 
-
+#define config_mkk_GetConfig(_v) {    \
+    config_mkk.addr = _v;             \
+    config_mkk.read_config = 1;       \
+}
 
 
 
