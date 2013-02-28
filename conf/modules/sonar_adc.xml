@@ -11,20 +11,19 @@
      Maxbotix Sonar driver
     </description>
     <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
-    <define name="SONAR_DISTANCE" description="enables calculation of Distance in m"/>
-    <define name="SONAR_OFFSET" description="sensor offset- default is 0"/>
-    <define name="SONAR_SCALE" description="sensor scale factor default is 166"/>
+    <define name="SONAR_OFFSET" description="sensor offset in [cm] - default is 0"/>
+    <define name="SONAR_SCALE" description="sensor scale factor [] - default is 166"/>
   </doc>
 
   <header>
-    <file name="sonar_maxbotix.h"/>
+    <file name="sonar_adc.h"/>
   </header>
 
-  <init fun="maxbotix_init()"/>
-  <periodic fun="maxbotix_periodic()" freq="10"/>
+  <init fun="sonar_adc_init()"/>
+  <periodic fun="sonar_adc_read()" freq="10"/>
 
   <makefile>
-    <file name="sonar_maxbotix.c"/>
+    <file name="sonar_adc.c"/>
   </makefile>
   <makefile target="ap">
   <!--  <raw>

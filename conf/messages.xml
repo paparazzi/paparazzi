@@ -1834,7 +1834,8 @@
     <field name="y" type="uint16"></field>
   </message>
 
- <message name="SONAR_MAXBOTIX" id="236">
+ <message name="SONAR" id="236">
+    <field name="sonar_meas" type="uint16"/>
     <field name="sonar_distance" type="float" unit="m"/>
   </message>
 

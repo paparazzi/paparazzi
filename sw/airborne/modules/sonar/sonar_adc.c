@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2010  Gautier Hattenberger
+ * Copyright (C) 2010  Gautier Hattenberger, 2013 Tobias Münch
  *
  * This file is part of paparazzi.
  *
@@ -21,7 +21,7 @@
  *
  */
 
-#include "modules/sonar/sonar_maxbotix.h"
+#include "modules/sonar/sonar_adc.h"
 #include "mcu_periph/adc.h"
 #include "subsystems/datalink/downlink.h"
 #ifdef SITL
@@ -49,7 +49,7 @@ uint16_t sonar_scale;
 static struct adc_buf sonar_adc;
 #endif
 
-void maxbotix_init(void) {
+void sonar_adc_init(void) {
   sonar_meas = 0;
   sonar_data_available = FALSE;
   sonar_distance = 0;
@@ -63,23 +63,21 @@ void maxbotix_init(void) {
 
 /** Read ADC value to update sonar measurement
  */
-void maxbotix_periodic(void) {
+void sonar_adc_read(void) {
 #ifndef SITL
   sonar_meas = sonar_adc.sum / sonar_adc.av_nb_sample;
   sonar_data_available = TRUE;
-
 //sonar_offset in cm, sonar_distance in m!
   sonar_distance = ((float)sonar_meas * (float)sonar_scale) / 10000 + (float)sonar_offset / 100;
-#ifdef SENSOR_SYNC_SEND_SONAR
-  DOWNLINK_SEND_SONAR_MAXBOTIX(DefaultChannel, DefaultDevice, &sonar_distance);
-#endif
 
 #else // SITL
   sonar_distance = (gps.hmsl / 1000.0) - ground_alt;
+  //sonar_meas = (sonar_distance - (sonar_offset / 100)) / (sonar_scale / 1000); //fixme for SITL
   Bound(sonar_distance, 0.1f, 7.0f);
-#ifdef SENSOR_SYNC_SEND_SONAR
-  DOWNLINK_SEND_SONAR_MAXBOTIX(DefaultChannel, DefaultDevice, &sonar_distance);
-#endif
 #endif // SITL
+
+#ifdef SENSOR_SYNC_SEND_SONAR
+  DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_meas, &sonar_distance);
+#endif
 }
 

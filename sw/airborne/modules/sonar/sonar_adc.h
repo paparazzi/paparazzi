@@ -33,13 +33,10 @@
 
 extern uint16_t sonar_meas;
 extern bool_t sonar_data_available;
-
-#ifdef SONAR_DISTANCE
 extern float sonar_distance;
-#endif
 
-extern void maxbotix_init(void);
-extern void maxbotix_periodic(void);
+extern void sonar_adc_init(void);
+extern void sonar_adc_read(void);
 
 //#include "subsystems/ins.h" // needed because ins is not a module
 
