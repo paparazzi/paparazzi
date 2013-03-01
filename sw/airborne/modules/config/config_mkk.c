@@ -35,7 +35,7 @@ uint8_t config_mkk_crc(uint8_t offset);
 
 struct config_mkk_struct config_mkk;
 
-#define MAX_MOTORS ACTUATORS_MKK2_NB
+#define MAX_MOTORS ACTUATORS_MKK_V2_NB
 
 
 typedef struct
@@ -111,13 +111,13 @@ void init_config_mkk(void)
   }
 }
 
-#include "subsystems/actuators/actuators_mkk2.h"
+#include "subsystems/actuators/actuators_mkk_v2.h"
 
 void periodic_config_mkk_read_status(void)
 {
   static int read_nr = 0;
 
-  if (!actuators_mkk2.actuators_delay_done)
+  if (!actuators_mkk_v2.actuators_delay_done)
     return;
 
   switch (config_mkk.trans.status) {
@@ -149,7 +149,7 @@ void periodic_config_mkk_read_status(void)
     config_mkk_read_eeprom();
 
 
-    i2c_submit(&ACTUATORS_MKK2_DEVICE, &config_mkk.trans);
+    i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &config_mkk.trans);
   }
   // Read Status
   else
@@ -157,7 +157,7 @@ void periodic_config_mkk_read_status(void)
     read_nr++;
     if (read_nr >= MAX_MOTORS)
       read_nr = 0;
-    const uint8_t actuators_addr[ACTUATORS_MKK2_NB] = ACTUATORS_MKK2_ADDR;
+    const uint8_t actuators_addr[ACTUATORS_MKK_V2_NB] = ACTUATORS_MKK_V2_ADDR;
     config_mkk.trans.type = I2CTransRx;
     config_mkk.trans.len_r = 3;
     config_mkk.trans.slave_addr = actuators_addr[read_nr];
@@ -246,7 +246,7 @@ void config_mkk_send_eeprom(void)
     config_mkk.trans.buf[8] = config_mkk_eeprom.BitConfig;
     config_mkk.trans.buf[9] = config_mkk_crc(2);
 
-    i2c_submit(&ACTUATORS_MKK2_DEVICE, &config_mkk.trans);
+    i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &config_mkk.trans);
 
 }
 

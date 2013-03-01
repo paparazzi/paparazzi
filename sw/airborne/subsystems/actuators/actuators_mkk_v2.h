@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file actuators_mkk.h
+/** @file actuators_mkk_v2.h
  *  Actuators driver for Mikrokopter motor controllers.
  */
 
-#ifndef ACTUATORS_MKK_H
-#define ACTUATORS_MKK_H
+#ifndef ACTUATORS_MKK_V2_H
+#define ACTUATORS_MKK_V2_H
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
@@ -32,19 +32,19 @@
 #include "generated/airframe.h"
 
 
-struct ActuatorsMkk2 {
-  bool_t   actuators_delay_done;    // mkk_config module wants to know state
-  uint16_t setpoint[ACTUATORS_MKK2_NB];
-  struct i2c_transaction trans[ACTUATORS_MKK2_NB];
+struct actuators_mkk_v2_struct {
+  bool_t   actuators_delay_done;    // config_mkk module wants to know state
+  uint16_t setpoint[ACTUATORS_MKK_V2_NB];
+  struct i2c_transaction trans[ACTUATORS_MKK_V2_NB];
 };
 
-extern struct ActuatorsMkk2 actuators_mkk2;
+extern struct actuators_mkk_v2_struct actuators_mkk_v2;
 
-extern void actuators_mkk2_init(void);
-extern void actuators_mkk2_set(void);
+extern void actuators_mkk_v2_init(void);
+extern void actuators_mkk_v2_set(void);
 
-#define ActuatorMkk2Set(_i, _v) { actuators_mkk2.setpoint[_i] = _v; }
-#define ActuatorsMkk2Init() actuators_mkk2_init()
-#define ActuatorsMkk2Commit() actuators_mkk2_set()
+#define ActuatorMkk_v2Set(_i, _v) { actuators_mkk_v2.setpoint[_i] = _v; }
+#define ActuatorsMkk_v2Init() actuators_mkk_v2_init()
+#define ActuatorsMkk_v2Commit() actuators_mkk_v2_set()
 
-#endif /* ACTUATORS_MKK_H */
+#endif /* ACTUATORS_MKK_V2_H */
