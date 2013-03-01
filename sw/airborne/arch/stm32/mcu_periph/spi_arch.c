@@ -63,6 +63,7 @@
 
 static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans);
 static void spi_next_transaction(struct spi_periph* periph);
+static void spi_configure_dma(u32 dma, u8 chan, u32 periph_addr, u32 buf_addr, u16 len, enum SPIDataSizeSelect dss, bool_t increment);
 static void process_rx_dma_interrupt(struct spi_periph* periph);
 static void process_tx_dma_interrupt(struct spi_periph* periph);
 
@@ -371,16 +372,16 @@ void spi1_arch_init(void) {
   spi1.status = SPIIdle;
 
 
-  // Enable SPI1 Periph and gpio clocks -------------------------------------------------
+  // Enable SPI1 Periph and gpio clocks ---------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI1_SCK |
-                                            GPIO_SPI1_MOSI);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-          GPIO_SPI1_MISO);
+                GPIO_SPI1_MISO);
 
   // reset SPI
   spi_reset(SPI1);
@@ -392,7 +393,8 @@ void spi1_arch_init(void) {
   SPI1_I2SCFGR = 0;
 
   // configure master SPI.
-  spi_init_master(SPI1, spi1_dma.comm.br, spi1_dma.comm.cpol, spi1_dma.comm.cpha, spi1_dma.comm.dff, spi1_dma.comm.lsbfirst);
+  spi_init_master(SPI1, spi1_dma.comm.br, spi1_dma.comm.cpol, spi1_dma.comm.cpha,
+                  spi1_dma.comm.dff, spi1_dma.comm.lsbfirst);
   /*
    * Set NSS management to software.
    *
@@ -442,16 +444,16 @@ void spi2_arch_init(void) {
   spi2.status = SPIIdle;
 
 
-  // Enable SPI2 Periph and gpio clocks -------------------------------------------------
+  // Enable SPI2 Periph and gpio clocks ---------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI2_SCK |
-                                            GPIO_SPI2_MOSI);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-          GPIO_SPI2_MISO);
+                GPIO_SPI2_MISO);
 
   // reset SPI
   spi_reset(SPI2);
@@ -463,7 +465,8 @@ void spi2_arch_init(void) {
   SPI2_I2SCFGR = 0;
 
   // configure master SPI.
-  spi_init_master(SPI2, spi2_dma.comm.br, spi2_dma.comm.cpol, spi2_dma.comm.cpha, spi2_dma.comm.dff, spi2_dma.comm.lsbfirst);
+  spi_init_master(SPI2, spi2_dma.comm.br, spi2_dma.comm.cpol, spi2_dma.comm.cpha,
+                  spi2_dma.comm.dff, spi2_dma.comm.lsbfirst);
 
   /*
    * Set NSS management to software.
@@ -514,13 +517,13 @@ void spi3_arch_init(void) {
   spi3.status = SPIIdle;
 
 
-  // Enable SPI3 Periph and gpio clocks -------------------------------------------------
+  // Enable SPI3 Periph and gpio clocks ---------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
 
   // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
   gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_SPI3_SCK |
-                GPIO_SPI3_MOSI);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                GPIO_SPI3_SCK | GPIO_SPI3_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
                 GPIO_SPI3_MISO);
@@ -535,7 +538,8 @@ void spi3_arch_init(void) {
   SPI3_I2SCFGR = 0;
 
   // configure master SPI.
-  spi_init_master(SPI3, spi3_dma.comm.br, spi3_dma.comm.cpol, spi3_dma.comm.cpha, spi3_dma.comm.dff, spi3_dma.comm.lsbfirst);
+  spi_init_master(SPI3, spi3_dma.comm.br, spi3_dma.comm.cpol, spi3_dma.comm.cpha,
+                  spi3_dma.comm.dff, spi3_dma.comm.lsbfirst);
 
   /*
    * Set NSS management to software.
@@ -562,9 +566,6 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
 {
   struct spi_periph_dma *dma;
   uint8_t sig = 0x00;
-  uint8_t max_length = 0;
-  bool_t use_dummy_tx_buf = FALSE;
-  bool_t use_dummy_rx_buf = FALSE;
 
   /* Store local copy to notify of the results */
   _trans->status = SPITransRunning;
@@ -585,7 +586,8 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
 
     /* apply the new configuration */
     spi_disable((u32)periph->reg_addr);
-    spi_init_master((u32)periph->reg_addr, dma->comm.br, dma->comm.cpol, dma->comm.cpha, dma->comm.dff, dma->comm.lsbfirst);
+    spi_init_master((u32)periph->reg_addr, dma->comm.br, dma->comm.cpol,
+                    dma->comm.cpha, dma->comm.dff, dma->comm.lsbfirst);
     spi_enable_software_slave_management((u32)periph->reg_addr);
     spi_set_nss_high((u32)periph->reg_addr);
     spi_enable((u32)periph->reg_addr);
@@ -619,97 +621,48 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
 
 
   /*
-   * Determine the maximum length of the transaction.
-   *
    * To receive data, the clock must run, which means something has to be transmitted.
    * This is done by enabling a second, dummy dma transmit transfer with the dummy buffer.
    * Also, best to run receive to the very end to deal with timing issues in cleanup (i.e.
    * the dma for tx will trigger complete interrupt before all data is sent, meaning slave
    * is deselected and callback run BEFORE data is fully sent)
    */
-  if (_trans->input_length > _trans->output_length) {
-    /* Receiving more than sending */
-    max_length = _trans->input_length;
-    /* Make sure we send zeroed data while we are actually only receiving */
-    if (_trans->output_length == 0) {
-      /* Special case: use dummy buffer */
-      use_dummy_tx_buf = TRUE;
-    } else {
+  if (_trans->input_length > _trans->output_length && _trans->output_length > 0) {
      /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
       dma->tx_use_dummy_dma = 1;
-    }
-  } else if (_trans->output_length > _trans->input_length) {
-    /* Transmitting more than receiving */
-    max_length = _trans->output_length;
-    /* Make sure we ignore junk data while we are actually only transmitting */
-    if (_trans->input_length == 0) {
-      /* Special case: use dummy buffer */
-      use_dummy_rx_buf = TRUE;
-    } else {
+  } else if (_trans->output_length > _trans->input_length && _trans->input_length > 0) {
      /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
       dma->rx_use_dummy_dma = 1;
-    }
-  } else {
-    /* We are sending equal amounts, use output length */
-    max_length = _trans->output_length;
   }
 
 
   /*
    * Receive DMA channel configuration ----------------------------------------
    */
-  dma_channel_reset(dma->dma, dma->rx_chan);
-  dma_set_peripheral_address(dma->dma, dma->rx_chan, (u32)dma->spidr);
   /* Use the dummy buffer if rx length is zero */
-  if (use_dummy_rx_buf) {
-    dma_set_memory_address(dma->dma, dma->rx_chan, (u32)&(dma->rx_dummy_buf));
-    dma_disable_memory_increment_mode(dma->dma, dma->rx_chan);
-    /* Use the max length of rx or tx instead of actual rx length as described above */
-    dma_set_number_of_data(dma->dma, dma->rx_chan, (u16)(max_length));
+  if (_trans->input_length == 0) {
+    spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
+                      (u32)&(dma->rx_dummy_buf), _trans->output_length, _trans->dss, FALSE);
   } else {
-    dma_set_memory_address(dma->dma, dma->rx_chan, (u32)_trans->input_buf);
-    dma_enable_memory_increment_mode(dma->dma, dma->rx_chan);
-    dma_set_number_of_data(dma->dma, dma->rx_chan, (u16)(_trans->input_length));
+    spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
+                      (u32)_trans->input_buf, _trans->input_length, _trans->dss, TRUE);
   }
   dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
-
-  /* Set the dma transfer size based on SPI transaction DSS */
-  if (_trans->dss == SPIDss8bit) {
-    dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_8BIT);
-    dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_8BIT);
-  } else {
-    dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_16BIT);
-    dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_16BIT);
-  }
   dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
 
 
   /*
    * Transmit DMA channel configuration ---------------------------------------
    */
-  dma_channel_reset(dma->dma, dma->tx_chan);
-  dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)dma->spidr);
   /* Use the dummy buffer if tx length is zero */
-  if (use_dummy_tx_buf) {
-    dma_set_memory_address(dma->dma, dma->tx_chan, (u32)&(dma->tx_dummy_buf));
-    dma_disable_memory_increment_mode(dma->dma, dma->tx_chan);
-    /* Use the max length of rx or tx instead of actual tx length as described above */
-    dma_set_number_of_data(dma->dma, dma->tx_chan, (u16)(max_length));
+  if (_trans->output_length == 0) {
+    spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
+                      (u32)&(dma->tx_dummy_buf), _trans->input_length, _trans->dss, FALSE);
   } else {
-    dma_set_memory_address(dma->dma, dma->tx_chan, (u32)_trans->output_buf);
-    dma_enable_memory_increment_mode(dma->dma, dma->tx_chan);
-    dma_set_number_of_data(dma->dma, dma->tx_chan, (u16)(_trans->output_length));
+    spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
+                      (u32)_trans->output_buf, _trans->output_length, _trans->dss, TRUE);
   }
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
-
-  /* Set the DMA transfer size based on SPI transaction DSS */
-  if (_trans->dss == SPIDss8bit) {
-    dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_8BIT);
-    dma_set_memory_size(dma->dma, dma->tx_chan, DMA_CCR_MSIZE_8BIT);
-  } else {
-    dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_16BIT);
-    dma_set_memory_size(dma->dma, dma->tx_chan, DMA_CCR_MSIZE_16BIT);
-  }
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
 
 
@@ -844,13 +797,36 @@ static void spi_next_transaction(struct spi_periph* periph) {
   /* Increment the transaction to handle */
   periph->trans_extract_idx++;
 
-  /* Check if there is another pending SPI transaction */
+  /* wrap read index of circular buffer */
   if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
     periph->trans_extract_idx = 0;
+
+  /* Check if there is another pending SPI transaction */
   if ((periph->trans_extract_idx == periph->trans_insert_idx) || periph->suspend)
     periph->status = SPIIdle;
   else
     spi_rw(periph, periph->trans[periph->trans_extract_idx]);
+}
+
+static void spi_configure_dma(u32 dma, u8 chan, u32 periph_addr, u32 buf_addr, u16 len, enum SPIDataSizeSelect dss, bool_t increment) {
+  dma_channel_reset(dma, chan);
+  dma_set_peripheral_address(dma, chan, periph_addr);
+  dma_set_memory_address(dma, chan, buf_addr);
+  dma_set_number_of_data(dma, chan, len);
+
+  /* Set the dma transfer size based on SPI transaction DSS */
+  if (dss == SPIDss8bit) {
+    dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_8BIT);
+    dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_8BIT);
+  } else {
+    dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_16BIT);
+    dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_16BIT);
+  }
+
+  if (increment)
+    dma_enable_memory_increment_mode(dma, chan);
+  else
+    dma_disable_memory_increment_mode(dma, chan);
 }
 
 
@@ -969,23 +945,14 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
     /* Reset the flag so this only happens once in a transaction */
     dma->rx_use_dummy_dma = 0;
 
-    dma_channel_reset(dma->dma, dma->rx_chan);
-    dma_set_peripheral_address(dma->dma, dma->rx_chan, (u32)dma->spidr);
-    /* Use the dummy buffer if rx length is zero */
-    dma_set_memory_address(dma->dma, dma->rx_chan, (u32)&(dma->rx_dummy_buf));
-    dma_disable_memory_increment_mode(dma->dma, dma->rx_chan);
     /* Use the difference in length between rx and tx */
-    dma_set_number_of_data(dma->dma, dma->rx_chan, (u16)(trans->output_length - trans->input_length));
-    dma_set_read_from_memory(dma->dma, dma->rx_chan);
-    /* Set the DMA transfer size based on SPI transaction DSS */
-    if (trans->dss == SPIDss8bit) {
-      dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_8BIT);
-      dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_8BIT);
-    } else {
-      dma_set_peripheral_size(dma->dma, dma->rx_chan, DMA_CCR_PSIZE_16BIT);
-      dma_set_memory_size(dma->dma, dma->rx_chan, DMA_CCR_MSIZE_16BIT);
-    }
+    u16 len_remaining = trans->output_length - trans->input_length;
+
+    spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
+                      (u32)&(dma->rx_dummy_buf), len_remaining, trans->dss, FALSE);
+    dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
     dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_HIGH);
+
     /* Enable DMA transfer complete interrupts. */
     dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
     /* Enable DMA channels */
@@ -1038,23 +1005,14 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
     /* Reset the flag so this only happens once in a transaction */
     dma->tx_use_dummy_dma = 0;
 
-    dma_channel_reset(dma->dma, dma->tx_chan);
-    dma_set_peripheral_address(dma->dma, dma->tx_chan, (u32)dma->spidr);
-    /* Use the dummy buffer if tx length is zero */
-    dma_set_memory_address(dma->dma, dma->tx_chan, (u32)&(dma->tx_dummy_buf));
-    dma_disable_memory_increment_mode(dma->dma, dma->tx_chan);
-    /* Use the difference in length between rx and tx */
-    dma_set_number_of_data(dma->dma, dma->tx_chan, (u16)(trans->input_length - trans->output_length));
+    /* Use the difference in length between tx and rx */
+    u16 len_remaining = trans->input_length - trans->output_length;
+
+    spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
+                      (u32)&(dma->tx_dummy_buf), len_remaining, trans->dss, FALSE);
     dma_set_read_from_memory(dma->dma, dma->tx_chan);
-    /* Set the DMA transfer size based on SPI transaction DSS */
-    if (trans->dss == SPIDss8bit) {
-      dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_8BIT);
-      dma_set_memory_size(dma->dma, dma->tx_chan, DMA_CCR_MSIZE_8BIT);
-    } else {
-      dma_set_peripheral_size(dma->dma, dma->tx_chan, DMA_CCR_PSIZE_16BIT);
-      dma_set_memory_size(dma->dma, dma->tx_chan, DMA_CCR_MSIZE_16BIT);
-    }
     dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
+
     /* Enable DMA transfer complete interrupts. */
     dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
     /* Enable DMA channels */
