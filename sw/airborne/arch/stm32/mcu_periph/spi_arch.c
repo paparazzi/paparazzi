@@ -61,9 +61,10 @@
 
 #ifdef SPI_MASTER
 
-static void spi_rw(struct spi_periph* p, struct spi_transaction  * _trans);
-static void process_rx_dma_interrupt( struct spi_periph *spi );
-static void process_tx_dma_interrupt( struct spi_periph *spi );
+static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans);
+static void spi_next_transaction(struct spi_periph* periph);
+static void process_rx_dma_interrupt(struct spi_periph* periph);
+static void process_tx_dma_interrupt(struct spi_periph* periph);
 
 /**
  * Libopencm3 specifc communication parameters for a SPI peripheral in master mode.
@@ -838,6 +839,20 @@ bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
   return FALSE;
 }
 
+/** start next transaction if there is one in the queue */
+static void spi_next_transaction(struct spi_periph* periph) {
+  /* Increment the transaction to handle */
+  periph->trans_extract_idx++;
+
+  /* Check if there is another pending SPI transaction */
+  if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
+    periph->trans_extract_idx = 0;
+  if ((periph->trans_extract_idx == periph->trans_insert_idx) || periph->suspend)
+    periph->status = SPIIdle;
+  else
+    spi_rw(periph, periph->trans[periph->trans_extract_idx]);
+}
+
 
 #ifdef USE_SPI1
 /// receive transferred over DMA
@@ -942,16 +957,8 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
       SpiSlaveUnselect(trans->slave_idx);
     }
 
-    /* Increment the transaction to handle */
-    periph->trans_extract_idx++;
+    spi_next_transaction(periph);
 
-    /* Check if there is another pending SPI transaction */
-    if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
-      periph->trans_extract_idx = 0;
-    if (periph->trans_extract_idx == periph->trans_insert_idx  || periph->suspend)
-      periph->status = SPIIdle;
-    else
-      spi_rw(periph, periph->trans[periph->trans_extract_idx]);
   } else if (dma->rx_use_dummy_dma == 1) {
     /*
      * We are finished the first part of the receive with real data, but still need
@@ -1019,16 +1026,8 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
       SpiSlaveUnselect(trans->slave_idx);
     }
 
-    /* Increment the transaction to handle */
-    periph->trans_extract_idx++;
+    spi_next_transaction(periph);
 
-    /* Check if there is another pending SPI transaction */
-    if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
-      periph->trans_extract_idx = 0;
-    if (periph->trans_extract_idx == periph->trans_insert_idx  || periph->suspend)
-      periph->status = SPIIdle;
-    else
-      spi_rw(periph, periph->trans[periph->trans_extract_idx]);
   } else if (dma->tx_use_dummy_dma == 1) {
     /*
      * We are finished the first part of the transmit with real data, but still need
