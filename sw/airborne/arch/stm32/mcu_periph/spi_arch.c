@@ -324,16 +324,12 @@ static inline void SpiSlaveSelect(uint8_t slave)
 /// Enable DMA channel interrupts
 // FIXME fix priority levels if necessary
 static void spi_arch_int_enable( struct spi_periph *spi ) {
-  if (spi->trans[spi->trans_extract_idx]->input_length != 0) {
-    // only enable the receive interrupt if we want to receive something
-    nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, 0);
-    nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
-  }
-  if (spi->trans[spi->trans_extract_idx]->output_length != 0) {
-    // only enable the transmit interrupt if we want to transmit something
-    nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq, 0);
-    nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
-  }
+  // enable receive interrupt
+  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, 0);
+  nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
+  // enable transmit interrupt
+  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq, 0);
+  nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
 }
 
 /// Disable DMA channel interrupts
