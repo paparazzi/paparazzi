@@ -38,15 +38,6 @@ struct config_mkk_struct config_mkk;
 #define MAX_MOTORS ACTUATORS_MKK_V2_NB
 
 
-typedef struct
-{
-  uint8_t Version;
-  uint8_t Current;        // in 0.1 A steps, read back from BL
-  uint8_t MaxPWM;         // read back from BL -> is less than 255 if BL is in current limit, not running (250) or starting (40)
-  int8_t  Temperature;    // old BL-Ctrl will return a 255 here, the new version the temp. in °C
-} __attribute__((packed)) MotorData_t;
-
-extern MotorData_t Motor[MAX_MOTORS];
 
 /*
 typedef struct
@@ -75,7 +66,6 @@ uint8_t config_mkk_crc(uint8_t offset)
 }
 
 
-MotorData_t Motor[MAX_MOTORS];
 config_mkk_eeprom_t config_mkk_eeprom;
 
 
@@ -102,13 +92,6 @@ void init_config_mkk(void)
 
   config_mkk.trans.status = I2CTransSuccess;
   
-  for(int i=0; i < MAX_MOTORS; i++)
-  {
-    Motor[i].Version     = 0;
-    Motor[i].Current     = 0;
-    Motor[i].MaxPWM      = 0;
-    Motor[i].Temperature = 0;
-  }
 }
 
 #include "subsystems/actuators/actuators_mkk_v2.h"
@@ -126,16 +109,7 @@ void periodic_config_mkk_read_status(void)
       break;
     case I2CTransSuccess:
     case I2CTransDone:
-      if (config_mkk.trans.len_r == 3)
-      {
-          Motor[read_nr].Current = config_mkk.trans.buf[0];
-          Motor[read_nr].MaxPWM = config_mkk.trans.buf[1];
-          Motor[read_nr].Temperature = config_mkk.trans.buf[2];
-      }
-      else if (config_mkk.trans.len_r == 8)
-      {
         config_mkk_parse_eeprom();
-      }
       break;
     default:
       config_mkk.nb_err++;
@@ -151,18 +125,6 @@ void periodic_config_mkk_read_status(void)
 
     i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &config_mkk.trans);
   }
-  // Read Status
-  else
-  {
-    read_nr++;
-    if (read_nr >= MAX_MOTORS)
-      read_nr = 0;
-    const uint8_t actuators_addr[ACTUATORS_MKK_V2_NB] = ACTUATORS_MKK_V2_ADDR;
-    config_mkk.trans.type = I2CTransRx;
-    config_mkk.trans.len_r = 3;
-    config_mkk.trans.slave_addr = actuators_addr[read_nr];
-  }  
-
 
 }
 
@@ -178,7 +140,7 @@ void periodic_config_mkk_telemetry(void)
 {
     static uint8_t send_nr = 0;
 
-    DOWNLINK_SEND_MKK(DefaultChannel, DefaultDevice, &send_nr, &Motor[send_nr].MaxPWM, &Motor[send_nr].Current, &Motor[send_nr].Temperature);
+    DOWNLINK_SEND_MKK(DefaultChannel, DefaultDevice, &send_nr, &actuators_mkk_v2.data[send_nr].MaxPWM, &actuators_mkk_v2.data[send_nr].Current, &actuators_mkk_v2.data[send_nr].Temperature);
 
     send_nr++;
     if (send_nr >= MAX_MOTORS)

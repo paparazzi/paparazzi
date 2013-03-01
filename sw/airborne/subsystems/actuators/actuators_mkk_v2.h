@@ -31,11 +31,18 @@
 
 #include "generated/airframe.h"
 
+struct actuators_mkk_v2_telemetry_struct {
+  uint8_t Version;        // Motor controller version
+  uint8_t Current;        // In 0.1 A steps, read back from BL
+  uint8_t MaxPWM;         // Read back from BL -> is less than 255 if BL is in current limit, not running (250) or starting (40)
+  int8_t  Temperature;    // Old BL-Ctrl will return a 255 here, the new version the temp. in °C
+};
 
 struct actuators_mkk_v2_struct {
   bool_t   actuators_delay_done;    // config_mkk module wants to know state
   uint16_t setpoint[ACTUATORS_MKK_V2_NB];
   struct i2c_transaction trans[ACTUATORS_MKK_V2_NB];
+  struct actuators_mkk_v2_telemetry_struct data[ACTUATORS_MKK_V2_NB];
 };
 
 extern struct actuators_mkk_v2_struct actuators_mkk_v2;
