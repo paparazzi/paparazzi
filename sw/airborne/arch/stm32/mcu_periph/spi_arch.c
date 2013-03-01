@@ -90,7 +90,6 @@ struct spi_periph_dma {
   u8  tx_chan;                ///< transmit DMA channel number
   u8  rx_nvic_irq;            ///< receive interrupt
   u8  tx_nvic_irq;            ///< transmit interrupt
-  u8  other_dma_finished;
   u16 tx_dummy_buf;           ///< dummy tx buffer for receive only cases
   u8  tx_use_dummy_dma;       ///< second dma transmit with dummy buffer for tx_len < rx_len
   u16 rx_dummy_buf;           ///< dummy rx buffer for receive only cases
@@ -354,7 +353,6 @@ void spi1_arch_init(void) {
   spi1_dma.tx_chan = DMA_CHANNEL3;
   spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
   spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
-  spi1_dma.other_dma_finished = 0;
   spi1_dma.tx_dummy_buf = 0;
   spi1_dma.tx_use_dummy_dma = 0;
   spi1_dma.rx_dummy_buf = 0;
@@ -426,7 +424,6 @@ void spi2_arch_init(void) {
   spi2_dma.tx_chan = DMA_CHANNEL5;
   spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
   spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
-  spi2_dma.other_dma_finished = 0;
   spi2_dma.tx_dummy_buf = 0;
   spi2_dma.tx_use_dummy_dma = 0;
   spi2_dma.rx_dummy_buf = 0;
@@ -499,7 +496,6 @@ void spi3_arch_init(void) {
   spi3_dma.tx_chan = DMA_CHANNEL2;
   spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
   spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
-  spi3_dma.other_dma_finished = 0;
   spi3_dma.tx_dummy_buf = 0;
   spi3_dma.tx_use_dummy_dma = 0;
   spi3_dma.rx_dummy_buf = 0;
@@ -609,43 +605,31 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
   }
 
   /*
-   * Clear flag for interrupt order handling
-   *
-   * Note: If one of the transaction lengths is 0, it won't trigger an interrupt.
-   * This is like the interrupt has already finished, so you specify that the other
-   * dma has already finished, and everything is cleaned up after the one interrupt
-   * that actually runs. The case that both lengths are zero is guarded against in
-   * spi_submit.
-   */
-  dma->other_dma_finished = 0;
-
-
-  /*
-   * To receive data, the clock must run, which means something has to be transmitted.
-   * This is done by enabling a second, dummy dma transmit transfer with the dummy buffer.
-   * Also, best to run receive to the very end to deal with timing issues in cleanup (i.e.
-   * the dma for tx will trigger complete interrupt before all data is sent, meaning slave
-   * is deselected and callback run BEFORE data is fully sent)
-   */
-  if (trans->input_length > trans->output_length && trans->output_length > 0) {
-     /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->tx_use_dummy_dma = 1;
-  } else if (trans->output_length > trans->input_length && trans->input_length > 0) {
-     /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->rx_use_dummy_dma = 1;
-  }
-
-
-  /*
    * Receive DMA channel configuration ----------------------------------------
+   *
+   * We always run the receive DMA until the very end!
+   * This is done so we can use the transfer complete interrupt
+   * of the RX DMA to signal the end of the transaction.
+   *
+   * If we want to receive less than we transmit, a dummy buffer
+   * for the rx DMA is used after for the remaining data.
+   *
+   * In the transmit only case (input_length == 0),
+   * the dummy is used right from the start.
    */
-  /* Use the dummy buffer if rx length is zero */
   if (trans->input_length == 0) {
+    /* run the dummy rx dma for the complete transaction length */
     spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
                       (u32)&(dma->rx_dummy_buf), trans->output_length, trans->dss, FALSE);
   } else {
+    /* run the real rx dma for input_length */
     spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
                       (u32)trans->input_buf, trans->input_length, trans->dss, TRUE);
+    /* use dummy rx dma for the rest */
+    if (trans->output_length > trans->input_length) {
+      /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
+      dma->rx_use_dummy_dma = 1;
+    }
   }
   dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
   dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
@@ -653,6 +637,10 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
 
   /*
    * Transmit DMA channel configuration ---------------------------------------
+   *
+   * We always run the transmit DMA!
+   * To receive data, the clock must run, which means something has to be transmitted.
+   * This is done by enabling a second, dummy dma transmit transfer with the dummy buffer.
    */
   /* Use the dummy buffer if tx length is zero */
   if (trans->output_length == 0) {
@@ -661,9 +649,14 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
   } else {
     spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
                       (u32)trans->output_buf, trans->output_length, trans->dss, TRUE);
+    if (trans->input_length > trans->output_length) {
+      /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
+      dma->tx_use_dummy_dma = 1;
+    }
   }
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
+
 
 
   /*
@@ -913,29 +906,8 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
   /* Disable DMA rx channel */
   dma_disable_channel(dma->dma, dma->rx_chan);
 
-  if (dma->other_dma_finished != 0) {
-    /* This transaction is finished */
-    /*
-     * In theory, the RXNE flag will be cleared by the rx dma reading the SPI_DR
-     * since we are receiving the same amount as transmitting, and also because of
-     * this, we should always being entering this if clause, and never the equivalent
-     * in process_tx_dma_interrupt(), since the rx dma will finish after the last data
-     * while the tx will fire just before the last word is sent.
-     */
-    /* Run the callback */
-    trans->status = SPITransSuccess;
-    if (trans->after_cb != 0) {
-      trans->after_cb(trans);
-    }
 
-    /* AFTER the callback, then unselect the slave if required */
-    if (trans->select == SPISelectUnselect || trans->select == SPIUnselect) {
-      SpiSlaveUnselect(trans->slave_idx);
-    }
-
-    spi_next_transaction(periph);
-
-  } else if (dma->rx_use_dummy_dma == 1) {
+  if (dma->rx_use_dummy_dma == 1) {
     /*
      * We are finished the first part of the receive with real data, but still need
      * to run the dma to get a fully complete interrupt. Set up a dummy dma receive transfer
@@ -959,9 +931,28 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
     dma_enable_channel(dma->dma, dma->rx_chan);
     /* Enable SPI transfers via DMA */
     spi_enable_rx_dma((u32)periph->reg_addr);
-  } else {
-    /* If this is not the last part of the transaction, set finished flag */
-    dma->other_dma_finished = 1;
+  }
+  else {
+    /* This transaction is finished */
+    /*
+     * In theory, the RXNE flag will be cleared by the rx dma reading the SPI_DR
+     * since we are receiving the same amount as transmitting, and also because of
+     * this, we should always being entering this if clause, and never the equivalent
+     * in process_tx_dma_interrupt(), since the rx dma will finish after the last data
+     * while the tx will fire just before the last word is sent.
+     */
+    /* Run the callback */
+    trans->status = SPITransSuccess;
+    if (trans->after_cb != 0) {
+      trans->after_cb(trans);
+    }
+
+    /* AFTER the callback, then unselect the slave if required */
+    if (trans->select == SPISelectUnselect || trans->select == SPIUnselect) {
+      SpiSlaveUnselect(trans->slave_idx);
+    }
+
+    spi_next_transaction(periph);
   }
 }
 
@@ -979,23 +970,7 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
   /* Disable DMA tx channel */
   dma_disable_channel(dma->dma, dma->tx_chan);
 
-  if (dma->other_dma_finished != 0) {
-    /* This transaction is finished */
-    /* Theoretically this should never actually run... */
-    /* Run the callback */
-    trans->status = SPITransSuccess;
-    if (trans->after_cb != 0) {
-      trans->after_cb(trans);
-    }
-
-    /* AFTER the callback, then unselect the slave if required */
-    if (trans->select == SPISelectUnselect || trans->select == SPIUnselect) {
-      SpiSlaveUnselect(trans->slave_idx);
-    }
-
-    spi_next_transaction(periph);
-
-  } else if (dma->tx_use_dummy_dma == 1) {
+  if (dma->tx_use_dummy_dma == 1) {
     /*
      * We are finished the first part of the transmit with real data, but still need
      * to clock in the rest of the receive data. Set up a dummy dma transmit transfer
@@ -1020,9 +995,6 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
     /* Enable SPI transfers via DMA */
     spi_enable_tx_dma((u32)periph->reg_addr);
 
-  } else {
-    /* If this is not the last part of the transaction, set finished flag */
-    dma->other_dma_finished = 1;
   }
 }
 
