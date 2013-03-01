@@ -91,9 +91,9 @@ struct spi_periph_dma {
   u8  rx_nvic_irq;            ///< receive interrupt
   u8  tx_nvic_irq;            ///< transmit interrupt
   u16 tx_dummy_buf;           ///< dummy tx buffer for receive only cases
-  u8  tx_use_dummy_dma;       ///< second dma transmit with dummy buffer for tx_len < rx_len
+  bool_t tx_extra_dummy_dma;  ///< second dma transmit with dummy buffer for tx_len < rx_len
   u16 rx_dummy_buf;           ///< dummy rx buffer for receive only cases
-  u8  rx_use_dummy_dma;       ///< second dma transmit with dummy buffer for tx_len > rx_len
+  bool_t rx_extra_dummy_dma;  ///< second dma receive with dummy buffer for tx_len > rx_len
   struct locm3_spi_comm comm; ///< current communication paramters
   u8  comm_sig;               ///< comm config signature used to check for changes: cdiv, cpol, cpha, dss, bo
 };
@@ -354,9 +354,9 @@ void spi1_arch_init(void) {
   spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
   spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
   spi1_dma.tx_dummy_buf = 0;
-  spi1_dma.tx_use_dummy_dma = 0;
+  spi1_dma.tx_extra_dummy_dma = FALSE;
   spi1_dma.rx_dummy_buf = 0;
-  spi1_dma.rx_use_dummy_dma = 0;
+  spi1_dma.rx_extra_dummy_dma = FALSE;
 
   // set the default configuration
   set_default_comm_config(&spi1_dma.comm);
@@ -425,9 +425,9 @@ void spi2_arch_init(void) {
   spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
   spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
   spi2_dma.tx_dummy_buf = 0;
-  spi2_dma.tx_use_dummy_dma = 0;
+  spi2_dma.tx_extra_dummy_dma = FALSE;
   spi2_dma.rx_dummy_buf = 0;
-  spi2_dma.rx_use_dummy_dma = 0;
+  spi2_dma.rx_extra_dummy_dma = FALSE;
 
   // set the default configuration
   set_default_comm_config(&spi2_dma.comm);
@@ -497,9 +497,9 @@ void spi3_arch_init(void) {
   spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
   spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
   spi3_dma.tx_dummy_buf = 0;
-  spi3_dma.tx_use_dummy_dma = 0;
+  spi3_dma.tx_extra_dummy_dma = FALSE;
   spi3_dma.rx_dummy_buf = 0;
-  spi3_dma.rx_use_dummy_dma = 0;
+  spi3_dma.rx_extra_dummy_dma = FALSE;
 
   // set the default configuration
   set_default_comm_config(&spi3_dma.comm);
@@ -628,7 +628,7 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
     /* use dummy rx dma for the rest */
     if (trans->output_length > trans->input_length) {
       /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->rx_use_dummy_dma = 1;
+      dma->rx_extra_dummy_dma = TRUE;
     }
   }
   dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
@@ -651,7 +651,7 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
                       (u32)trans->output_buf, trans->output_length, trans->dss, TRUE);
     if (trans->input_length > trans->output_length) {
       /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->tx_use_dummy_dma = 1;
+      dma->tx_extra_dummy_dma = TRUE;
     }
   }
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
@@ -907,7 +907,7 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
   dma_disable_channel(dma->dma, dma->rx_chan);
 
 
-  if (dma->rx_use_dummy_dma == 1) {
+  if (dma->rx_extra_dummy_dma) {
     /*
      * We are finished the first part of the receive with real data, but still need
      * to run the dma to get a fully complete interrupt. Set up a dummy dma receive transfer
@@ -915,7 +915,7 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
      */
 
     /* Reset the flag so this only happens once in a transaction */
-    dma->rx_use_dummy_dma = 0;
+    dma->rx_extra_dummy_dma = FALSE;
 
     /* Use the difference in length between rx and tx */
     u16 len_remaining = trans->output_length - trans->input_length;
@@ -970,7 +970,7 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
   /* Disable DMA tx channel */
   dma_disable_channel(dma->dma, dma->tx_chan);
 
-  if (dma->tx_use_dummy_dma == 1) {
+  if (dma->tx_extra_dummy_dma) {
     /*
      * We are finished the first part of the transmit with real data, but still need
      * to clock in the rest of the receive data. Set up a dummy dma transmit transfer
@@ -978,7 +978,7 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
      */
 
     /* Reset the flag so this only happens once in a transaction */
-    dma->tx_use_dummy_dma = 0;
+    dma->tx_extra_dummy_dma = FALSE;
 
     /* Use the difference in length between tx and rx */
     u16 len_remaining = trans->input_length - trans->output_length;
