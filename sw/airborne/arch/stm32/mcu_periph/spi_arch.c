@@ -562,13 +562,13 @@ void spi3_arch_init(void) {
 }
 #endif
 
-static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
+static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
 {
   struct spi_periph_dma *dma;
   uint8_t sig = 0x00;
 
   /* Store local copy to notify of the results */
-  _trans->status = SPITransRunning;
+  trans->status = SPITransRunning;
   periph->status = SPIRunning;
 
   dma = periph->init_struct;
@@ -576,10 +576,10 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
   /*
    * Check if we need to reconfigure the spi peripheral for this transaction
    */
-  sig = get_transaction_signature(_trans);
+  sig = get_transaction_signature(trans);
   if (sig != dma->comm_sig) {
     /* A different config is required in this transaction... */
-    set_comm_from_transaction(&(dma->comm), _trans);
+    set_comm_from_transaction(&(dma->comm), trans);
 
     /* remember the new conf signature */
     dma->comm_sig = sig;
@@ -599,13 +599,13 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
   /*
    * Select the slave after reconfiguration of the peripheral
    */
-  if (_trans->select == SPISelectUnselect || _trans->select == SPISelect) {
-    SpiSlaveSelect(_trans->slave_idx);
+  if (trans->select == SPISelectUnselect || trans->select == SPISelect) {
+    SpiSlaveSelect(trans->slave_idx);
   }
 
   /* Run the callback AFTER selecting the slave */
-  if (_trans->before_cb != 0) {
-    _trans->before_cb(_trans);
+  if (trans->before_cb != 0) {
+    trans->before_cb(trans);
   }
 
   /*
@@ -627,10 +627,10 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
    * the dma for tx will trigger complete interrupt before all data is sent, meaning slave
    * is deselected and callback run BEFORE data is fully sent)
    */
-  if (_trans->input_length > _trans->output_length && _trans->output_length > 0) {
+  if (trans->input_length > trans->output_length && trans->output_length > 0) {
      /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
       dma->tx_use_dummy_dma = 1;
-  } else if (_trans->output_length > _trans->input_length && _trans->input_length > 0) {
+  } else if (trans->output_length > trans->input_length && trans->input_length > 0) {
      /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
       dma->rx_use_dummy_dma = 1;
   }
@@ -640,12 +640,12 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
    * Receive DMA channel configuration ----------------------------------------
    */
   /* Use the dummy buffer if rx length is zero */
-  if (_trans->input_length == 0) {
+  if (trans->input_length == 0) {
     spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
-                      (u32)&(dma->rx_dummy_buf), _trans->output_length, _trans->dss, FALSE);
+                      (u32)&(dma->rx_dummy_buf), trans->output_length, trans->dss, FALSE);
   } else {
     spi_configure_dma(dma->dma, dma->rx_chan, (u32)dma->spidr,
-                      (u32)_trans->input_buf, _trans->input_length, _trans->dss, TRUE);
+                      (u32)trans->input_buf, trans->input_length, trans->dss, TRUE);
   }
   dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
   dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
@@ -655,12 +655,12 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans)
    * Transmit DMA channel configuration ---------------------------------------
    */
   /* Use the dummy buffer if tx length is zero */
-  if (_trans->output_length == 0) {
+  if (trans->output_length == 0) {
     spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
-                      (u32)&(dma->tx_dummy_buf), _trans->input_length, _trans->dss, FALSE);
+                      (u32)&(dma->tx_dummy_buf), trans->input_length, trans->dss, FALSE);
   } else {
     spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
-                      (u32)_trans->output_buf, _trans->output_length, _trans->dss, TRUE);
+                      (u32)trans->output_buf, trans->output_length, trans->dss, TRUE);
   }
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
