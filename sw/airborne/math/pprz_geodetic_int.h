@@ -63,18 +63,18 @@ struct LlaCoor_i {
  * @brief vector in North East Down coordinates
  */
 struct NedCoor_i {
-  int32_t x;
-  int32_t y;
-  int32_t z;
+  int32_t x;  ///< North
+  int32_t y;  ///< East
+  int32_t z;  ///< Down
 };
 
 /**
  * @brief vector in East North Up coordinates
  */
 struct EnuCoor_i {
-  int32_t x;
-  int32_t y;
-  int32_t z;
+  int32_t x;  ///< East
+  int32_t y;  ///< North
+  int32_t z;  ///< Up
 };
 
 /**

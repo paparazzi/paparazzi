@@ -60,25 +60,25 @@ enum SPISlaveSelect {
   SPINoSelect        ///< slave is not selected nor unselected
 };
 
-/** SPI clock phase control options.
+/** SPI CPHA (clock phase) options.
  * Control whether data line is sampled
  * at first or second edge of clock signal.
  */
 enum SPIClockPhase {
-  SPICphaEdge1,
-  SPICphaEdge2
+  SPICphaEdge1,  ///< CPHA = 0
+  SPICphaEdge2   ///< CPHA = 1
 };
 
-/** SPI clock polarity control options.
+/** SPI CPOL (clock polarity) options.
  * Control whether clock line is held
  * low or high in idle state.
  */
 enum SPIClockPolarity {
-  SPICpolIdleLow,
-  SPICpolIdleHigh
+  SPICpolIdleLow,  ///< CPOL = 0
+  SPICpolIdleHigh  ///< CPOL = 1
 };
 
-/** SPI Data size transfer.
+/** SPI data word size of transfer.
  */
 enum SPIDataSizeSelect {
   SPIDss8bit,
@@ -107,6 +107,9 @@ enum SPIBitOrder {
   SPILSBFirst
 };
 
+/** Peripheral clock divider.
+ * Defines the SPI baudrate
+ */
 enum SPIClockDiv {
   SPIDiv2,
   SPIDiv4,
@@ -140,17 +143,17 @@ typedef void (*SPICallback)( struct spi_transaction *trans );
  * has (0 < output_length < input_length).
  */
 struct spi_transaction {
-  volatile uint8_t* input_buf;
-  volatile uint8_t* output_buf;
-  uint8_t input_length;         ///< number of bytes to read
-  uint8_t output_length;        ///< number of bytes to write
-  uint8_t slave_idx;            ///< slave id
+  volatile uint8_t* input_buf;  ///< pointer to receive buffer for DMA
+  volatile uint8_t* output_buf; ///< pointer to transmit buffer for DMA
+  uint8_t input_length;         ///< number of data words to read
+  uint8_t output_length;        ///< number of data words to write
+  uint8_t slave_idx;            ///< slave id: #SPI_SLAVE0 to #SPI_SLAVE4
   enum SPISlaveSelect select;   ///< slave selection behavior
   enum SPIClockPolarity cpol;   ///< clock polarity control
   enum SPIClockPhase cpha;      ///< clock phase control
-  enum SPIDataSizeSelect dss;   ///< transfer data size
-  enum SPIBitOrder bitorder;
-  enum SPIClockDiv cdiv;
+  enum SPIDataSizeSelect dss;   ///< data transfer word size
+  enum SPIBitOrder bitorder;    ///< MSB/LSB order
+  enum SPIClockDiv cdiv;        ///< prescaler of main clock to use as SPI clock
   SPICallback before_cb;        ///< NULL or function called before the transaction
   SPICallback after_cb;         ///< NULL or function called after the transaction
   volatile enum SPITransactionStatus status;
