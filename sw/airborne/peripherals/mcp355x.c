@@ -17,10 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/* driver for MCP3550/1/3
+/**
+ * @file peripherals/mcp355x.c
+ * @brief Driver for MCP3550/1/3
  */
 
 #include "peripherals/mcp355x.h"
@@ -39,13 +40,15 @@ void mcp355x_init(void) {
   mcp355x_spi_trans.input_length = 4;
   mcp355x_spi_trans.input_buf = mcp355x_val;
   mcp355x_spi_trans.output_length = 0;
-  mcp355x_spi_trans.output_buf = 0;
+  mcp355x_spi_trans.output_buf = NULL;
   mcp355x_spi_trans.slave_idx = SPI_SLAVE0;
   mcp355x_spi_trans.select = SPISelect;
-  mcp355x_spi_trans.cpol = SPICphaEdge1;
-  mcp355x_spi_trans.cpha = SPICpolIdleLow;
-  mcp355x_spi_trans.dss = SPIDss8bit;
 
+  mcp355x_spi_trans.cpol = SPICpolIdleLow;
+  mcp355x_spi_trans.cpha = SPICphaEdge1;
+  mcp355x_spi_trans.dss = SPIDss8bit;
+  mcp355x_spi_trans.bitorder = SPIMSBFirst;
+  mcp355x_spi_trans.cdiv = SPIDiv64;
 }
 
 void mcp355x_read(void) {

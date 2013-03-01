@@ -38,12 +38,13 @@ void adxl345_spi_init(struct Adxl345_Spi *adxl, struct spi_periph *spi_p, uint8_
   adxl->spi_p = spi_p;
 
   /* configure spi transaction */
-  adxl->spi_trans.select = SPISelectUnselect;
   adxl->spi_trans.cpol = SPICpolIdleHigh;
   adxl->spi_trans.cpha = SPICphaEdge2;
   adxl->spi_trans.dss = SPIDss8bit;
   adxl->spi_trans.bitorder = SPIMSBFirst;
   adxl->spi_trans.cdiv = SPIDiv64;
+
+  adxl->spi_trans.select = SPISelectUnselect;
   adxl->spi_trans.slave_idx = slave_idx;
   adxl->spi_trans.output_length = 7;
   adxl->spi_trans.input_length = 7;
