@@ -338,10 +338,7 @@ static void spi_arch_int_disable( struct spi_periph *spi ) {
   nvic_disable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
 }
 
-/*
- *  These functions map the publically available "spi" structures to
- *  specific pins on this processor
- */
+
 #if USE_SPI1
 void spi1_arch_init(void) {
 
@@ -383,12 +380,6 @@ void spi1_arch_init(void) {
 
   // Disable SPI peripheral
   spi_disable(SPI1);
-
-  // Initialize the slave select pins
-  // done from mcu_init, is it really necessary to do that here?
-  //spi_init_slaves();
-
-  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   // Force SPI mode over I2S.
   SPI1_I2SCFGR = 0;
@@ -458,12 +449,6 @@ void spi2_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI2);
 
-  // Initialize the slave select pins
-  // done from mcu_init, is it really necessary to do that here?
-  //spi_init_slaves();
-
-  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
-
   // Force SPI mode over I2S.
   SPI2_I2SCFGR = 0;
 
@@ -532,12 +517,6 @@ void spi3_arch_init(void) {
 
   // Disable SPI peripheral
   spi_disable(SPI3);
-
-  // Initialize the slave select pins
-  // done from mcu_init, is it really necessary to do that here?
-  //spi_init_slaves();
-
-  // rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_OTGFSEN);
 
   // Force SPI mode over I2S.
   SPI3_I2SCFGR = 0;
@@ -862,10 +841,6 @@ void dma1_channel2_isr(void)
   if ((DMA1_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF2;
-
-    // mark as available
-    // FIXME: should only be needed in slave mode...
-    //spi_message_received = TRUE;
   }
   process_rx_dma_interrupt(&spi1);
 }
@@ -876,10 +851,6 @@ void dma1_channel3_isr(void)
   if ((DMA1_ISR & DMA_ISR_TCIF3) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF3;
-
-    // mark as available
-    // FIXME: should only be needed in slave mode...
-    //spi_message_received = TRUE;
   }
   process_tx_dma_interrupt(&spi1);
 }
@@ -893,10 +864,6 @@ void dma1_channel4_isr(void)
   if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF4;
-
-    // mark as available
-    // FIXME: should only be needed in slave mode...
-    //spi_message_received = TRUE;
   }
   process_rx_dma_interrupt(&spi2);
 }
@@ -907,10 +874,6 @@ void dma1_channel5_isr(void)
   if ((DMA1_ISR & DMA_ISR_TCIF5) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF5;
-
-    // mark as available
-    // FIXME: should only be needed in slave mode...
-    //spi_message_received = TRUE;
   }
   process_tx_dma_interrupt(&spi2);
 }
@@ -924,10 +887,6 @@ void dma2_channel1_isr(void)
   if ((DMA2_ISR & DMA_ISR_TCIF1) != 0) {
     // clear int pending bit
     DMA2_IFCR |= DMA_IFCR_CTCIF1;
-
-    // mark as available
-    // FIXME: should only be needed in slave mode...
-    //spi_message_received = TRUE;
   }
   process_rx_dma_interrupt(&spi3);
 }
@@ -938,10 +897,6 @@ void dma2_channel2_isr(void)
   if ((DMA2_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA2_IFCR |= DMA_IFCR_CTCIF2;
-
-    // mark as available
-    // FIXME: should only be needed in slave mode...
-    //spi_message_received = TRUE;
   }
   process_tx_dma_interrupt(&spi3);
 }
