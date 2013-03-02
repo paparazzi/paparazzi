@@ -24,11 +24,16 @@
  * @file subsystems/imu/imu_b2.c
  *
  * Driver for the Booz2 IMUs.
+ *
+ * Analog gyros and accelerometers are read via MAX1168 16-bit SPI ADC.
+ * Depending on version, different I2C or SPI magnetometers are used.
  */
 
 #include "subsystems/imu.h"
 
 struct ImuBooz2 imu_b2;
+
+PRINT_CONFIG_VAR(IMU_B2_MAG_TYPE)
 
 void imu_impl_init(void) {
 
@@ -53,11 +58,9 @@ void imu_periodic(void) {
   // read mag
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
   ms2100_periodic(&ms2100);
-#endif
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
+#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   RunOnceEvery(10, { ami601_read(); });
-#endif
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
+#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
   RunOnceEvery(5, hmc58xx_periodic(&imu_b2.mag_hmc));
 #endif
 
