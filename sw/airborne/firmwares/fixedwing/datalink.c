@@ -44,10 +44,6 @@
 #include "subsystems/nav.h"
 #endif
 
-#if USE_JOYSTICK
-#include "joystick.h"
-#endif
-
 #ifdef HITL
 #include "subsystems/gps.h"
 #endif
@@ -63,6 +59,21 @@
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #include "ap_downlink.h"
+
+
+#if USE_JOYSTICK
+#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
+#include "autopilot.h"
+uint8_t joystick_block;
+#define JoystickHandeDatalink(_roll_int8, _pitch_int8, _throttle_int8) { \
+    if (pprz_mode == PPRZ_MODE_AUTO2 && nav_block == joystick_block) {  \
+      h_ctl_roll_setpoint = _roll_int8 * (AUTO1_MAX_ROLL / 0x7f);       \
+      h_ctl_pitch_setpoint = _pitch_int8 * (AUTO1_MAX_PITCH / 0x7f);    \
+      v_ctl_throttle_setpoint = (MAX_PPRZ/0x7f) * _throttle_int8;       \
+    }                                                                   \
+  }
+#endif
+
 
 #define MOfCm(_x) (((float)(_x))/100.)
 
@@ -184,8 +195,8 @@ void dl_parse_msg(void) {
 #if USE_JOYSTICK
     if (msg_id == DL_JOYSTICK_RAW && DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
       JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(dl_buffer),
-			    DL_JOYSTICK_RAW_pitch(dl_buffer),
-			    DL_JOYSTICK_RAW_throttle(dl_buffer));
+                DL_JOYSTICK_RAW_pitch(dl_buffer),
+                DL_JOYSTICK_RAW_throttle(dl_buffer));
     } else
 #endif // USE_JOYSTICK
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
