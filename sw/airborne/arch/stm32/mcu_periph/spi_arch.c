@@ -28,26 +28,27 @@
  * SPI Master code.
  *
  * When a transaction is submitted:
- * - The transaction is added to the queue if there is space, otherwise it returns false
+ * - The transaction is added to the queue if there is space,
+ *   otherwise it returns false
  * - The pending state is set
- * - SPI Interrupts (in this case the dma interrupts) are disabled to prevent race conditions
- * - The slave is selected if required, AFTER which the before_cb callback is run
- * - The spi and dma registers are set up appropriately for the specific transaction
- * - Spi and dma are enabled, interrupts are reenabled and the transaction starts
+ * - SPI Interrupts (in this case the DMA interrupts) are disabled
+ *   to prevent race conditions
+ * - The slave is selected if required, then the before_cb callback is run
+ * - The spi and dma registers are set up for the specific transaction
+ * - Spi, DMA and interrupts are enabled and the transaction starts
  *
- * For the dma and interrupts:
- * - For each transaction, an interrupt is called after the dma transfer is complete for the rx AND the tx (i.e. two)
- * - Each interrupt does some basic cleanup necessary to finish off each dma transfer
- * - The after_cb callback, slave unselect, status changes and further transactions only occur after both dma
- *   transfers are complete, using a state flag. Note that the callback happens BEFORE the slave unselect
- * - If the output_len != input_len, a dummy dma transfer is triggered for the remainder so the same amount
- *   of data is moved in and out. This simplifies keeping the clock going if output_len is greater and allows
- *   the rx dma interrupt to represent that the transaction has fully completed. The second dummy transfer is
- *   initiated at the transaction setup if either length is 0, otherwise after the first dma interrupt completes
- *   in the ISR directly
- *
- * It is assumed that the transmit output_length and receive input_length will never be 0 at the same time.
+ * Obviously output_length and input_length will never both be 0 at the same time.
  * In this case, spi_submit will just return false.
+ *
+ * For the DMA and interrupts:
+ * - If the output_len != input_len, a dummy DMA transfer is triggered for
+ *   the remainder so the same amount of data is moved in and out.
+ *   This simplifies keeping the clock going if output_len is greater and allows
+ *   the rx dma interrupt to represent that the transaction has fully completed.
+ * - The dummy DMA transfer is initiated at the transaction setup if length is 0,
+ *   otherwise after the first dma interrupt completes in the ISR directly.
+ * - The rx DMA transfer completed interrupt marks the end of a complete transaction.
+ * - The after_cb callback happens BEFORE the slave is unselected as configured.
  */
 
 #include <libopencm3/stm32/f1/nvic.h>
@@ -60,12 +61,6 @@
 #include "mcu_periph/spi.h"
 
 #ifdef SPI_MASTER
-
-static void spi_rw(struct spi_periph* periph, struct spi_transaction* _trans);
-static void spi_next_transaction(struct spi_periph* periph);
-static void spi_configure_dma(u32 dma, u8 chan, u32 periph_addr, u32 buf_addr, u16 len, enum SPIDataSizeSelect dss, bool_t increment);
-static void process_rx_dma_interrupt(struct spi_periph* periph);
-static void process_tx_dma_interrupt(struct spi_periph* periph);
 
 /**
  * Libopencm3 specifc communication parameters for a SPI peripheral in master mode.
@@ -91,11 +86,11 @@ struct spi_periph_dma {
   u8  rx_nvic_irq;            ///< receive interrupt
   u8  tx_nvic_irq;            ///< transmit interrupt
   u16 tx_dummy_buf;           ///< dummy tx buffer for receive only cases
-  bool_t tx_extra_dummy_dma;  ///< second dma transmit with dummy buffer for tx_len < rx_len
+  bool_t tx_extra_dummy_dma;  ///< extra tx dummy dma flag for tx_len < rx_len
   u16 rx_dummy_buf;           ///< dummy rx buffer for receive only cases
-  bool_t rx_extra_dummy_dma;  ///< second dma receive with dummy buffer for tx_len > rx_len
+  bool_t rx_extra_dummy_dma;  ///< extra rx dummy dma flag for tx_len > rx_len
   struct locm3_spi_comm comm; ///< current communication paramters
-  u8  comm_sig;               ///< comm config signature used to check for changes: cdiv, cpol, cpha, dss, bo
+  u8  comm_sig;               ///< comm config signature used to check for changes
 };
 
 
@@ -112,7 +107,22 @@ static struct spi_periph_dma spi2_dma;
 static struct spi_periph_dma spi3_dma;
 #endif
 
+static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_transaction* _trans);
+static void spi_next_transaction(struct spi_periph* periph);
+static void spi_configure_dma(u32 dma, u8 chan, u32 periph_addr, u32 buf_addr,
+                              u16 len, enum SPIDataSizeSelect dss, bool_t increment);
+static void process_rx_dma_interrupt(struct spi_periph* periph);
+static void process_tx_dma_interrupt(struct spi_periph* periph);
+static void spi_arch_int_enable(struct spi_periph *spi);
+static void spi_arch_int_disable(struct spi_periph *spi);
 
+
+/******************************************************************************
+ *
+ * Handling of Slave Select outputs
+ *
+ *****************************************************************************/
+/// @todo move the SS gpio defines to the board files
 #define SPI_SELECT_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
 #define SPI_SELECT_SLAVE0_PORT GPIOA
 #define SPI_SELECT_SLAVE0_PIN GPIO15
@@ -133,7 +143,194 @@ static struct spi_periph_dma spi3_dma;
 #define SPI_SELECT_SLAVE4_PORT GPIOC
 #define SPI_SELECT_SLAVE4_PIN GPIO12
 
+static inline void SpiSlaveUnselect(uint8_t slave) {
+  switch(slave) {
+#if USE_SPI_SLAVE0
+    case 0:
+      GPIO_BSRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
+      break;
+#endif // USE_SPI_SLAVE0
+#if USE_SPI_SLAVE1
+    case 1:
+      GPIO_BSRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
+      break;
+#endif //USE_SPI_SLAVE1
+#if USE_SPI_SLAVE2
+    case 2:
+      GPIO_BSRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
+      break;
+#endif //USE_SPI_SLAVE2
+#if USE_SPI_SLAVE3
+    case 3:
+      GPIO_BSRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
+      break;
+#endif //USE_SPI_SLAVE3
+#if USE_SPI_SLAVE4
+    case 4:
+      GPIO_BSRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
+      break;
+#endif //USE_SPI_SLAVE4
+    default:
+      break;
+  }
+}
 
+static inline void SpiSlaveSelect(uint8_t slave) {
+  switch(slave) {
+#if USE_SPI_SLAVE0
+    case 0:
+      GPIO_BRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
+      break;
+#endif // USE_SPI_SLAVE0
+#if USE_SPI_SLAVE1
+    case 1:
+      GPIO_BRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
+      break;
+#endif //USE_SPI_SLAVE1
+#if USE_SPI_SLAVE2
+    case 2:
+      GPIO_BRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
+      break;
+#endif //USE_SPI_SLAVE2
+#if USE_SPI_SLAVE3
+    case 3:
+      GPIO_BRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
+      break;
+#endif //USE_SPI_SLAVE3
+#if USE_SPI_SLAVE4
+    case 4:
+      GPIO_BRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
+      break;
+#endif //USE_SPI_SLAVE4
+    default:
+      break;
+  }
+}
+
+void spi_slave_select(uint8_t slave) {
+  SpiSlaveSelect(slave);
+}
+
+void spi_slave_unselect(uint8_t slave) {
+  SpiSlaveUnselect(slave);
+}
+
+void spi_init_slaves(void) {
+
+#if USE_SPI_SLAVE0
+  rcc_peripheral_enable_clock(&RCC_APB2ENR,
+                              SPI_SELECT_SLAVE0_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(0);
+  gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE0_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE0_PIN);
+#endif
+
+#if USE_SPI_SLAVE1
+  rcc_peripheral_enable_clock(&RCC_APB2ENR,
+                              SPI_SELECT_SLAVE1_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(1);
+  gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE1_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE1_PIN);
+#endif
+
+#if USE_SPI_SLAVE2
+  rcc_peripheral_enable_clock(&RCC_APB2ENR,
+                              SPI_SELECT_SLAVE2_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(2);
+  gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE2_PIN);
+#endif
+
+#if USE_SPI_SLAVE3
+  rcc_peripheral_enable_clock(&RCC_APB2ENR,
+                              SPI_SELECT_SLAVE3_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(3);
+  gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE3_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE3_PIN);
+#endif
+
+#if USE_SPI_SLAVE4
+  rcc_peripheral_enable_clock(&RCC_APB2ENR,
+                              SPI_SELECT_SLAVE4_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(4);
+  gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE4_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE4_PIN);
+#endif
+}
+
+
+/******************************************************************************
+ *
+ * Implementation of the generic SPI functions
+ *
+ *****************************************************************************/
+bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
+{
+  uint8_t idx;
+  idx = p->trans_insert_idx + 1;
+  if (idx >= SPI_TRANSACTION_QUEUE_LEN) idx = 0;
+  if ((idx == p->trans_extract_idx) || ((t->input_length == 0) && (t->output_length == 0))) {
+    t->status = SPITransFailed;
+    return FALSE; /* queue full or input_length and output_length both 0 */
+    // TODO can't tell why it failed here if it does
+  }
+
+  t->status = SPITransPending;
+
+  //Disable interrupts to avoid race conflict with end of DMA transfer interrupt
+  //FIXME
+  spi_arch_int_disable(p);
+
+  // GT: no copy?  There's a queue implying a copy here...
+  p->trans[p->trans_insert_idx] = t;
+  p->trans_insert_idx = idx;
+
+  /* if peripheral is idle, start the transaction */
+  if (p->status == SPIIdle && !p->suspend) {
+    spi_start_dma_transaction(p, p->trans[p->trans_extract_idx]);
+  }
+  //FIXME
+  spi_arch_int_enable(p);
+  return TRUE;
+}
+
+bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
+  spi_arch_int_disable(p);
+  if (slave < 254 && p->suspend == 0) {
+    p->suspend = slave + 1; // 0 is reserved for unlock state
+    spi_arch_int_enable(p);
+    return TRUE;
+  }
+  spi_arch_int_enable(p);
+  return FALSE;
+}
+
+bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
+  spi_arch_int_disable( p );
+  if (p->suspend == slave + 1) {
+    // restart fifo
+    p->suspend = 0;
+    if (p->trans_extract_idx != p->trans_insert_idx && p->status == SPIIdle) {
+      spi_start_dma_transaction(p, p->trans[p->trans_extract_idx]);
+    }
+    spi_arch_int_enable(p);
+    return TRUE;
+  }
+  spi_arch_int_enable(p);
+  return FALSE;
+}
+
+
+/******************************************************************************
+ *
+ * Transaction configuration helper functions
+ *
+ *****************************************************************************/
 static void set_default_comm_config(struct locm3_spi_comm* c) {
   c->br = SPI_CR1_BAUDRATE_FPCLK_DIV_64;
   c->cpol = SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
@@ -143,7 +340,8 @@ static void set_default_comm_config(struct locm3_spi_comm* c) {
 }
 
 static inline uint8_t get_transaction_signature(struct spi_transaction* t) {
-  return ((t->dss << 6) | (t->cdiv << 3) | (t->bitorder << 2) | (t->cpha << 1) | (t->cpol));
+  return ((t->dss << 6) | (t->cdiv << 3) | (t->bitorder << 2) |
+          (t->cpha << 1) | (t->cpol));
 }
 
 static uint8_t get_comm_signature(struct locm3_spi_comm* c) {
@@ -254,76 +452,38 @@ static void set_comm_from_transaction(struct locm3_spi_comm* c, struct spi_trans
   }
 }
 
-static inline void SpiSlaveUnselect(uint8_t slave)
-{
-  switch(slave) {
-#if USE_SPI_SLAVE0
-    case 0:
-      GPIO_BSRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
-      break;
-#endif // USE_SPI_SLAVE0
-#if USE_SPI_SLAVE1
-    case 1:
-      GPIO_BSRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
-      break;
-#endif //USE_SPI_SLAVE1
-#if USE_SPI_SLAVE2
-    case 2:
-      GPIO_BSRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
-      break;
-#endif //USE_SPI_SLAVE2
-#if USE_SPI_SLAVE3
-    case 3:
-      GPIO_BSRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
-      break;
-#endif //USE_SPI_SLAVE3
-#if USE_SPI_SLAVE4
-    case 4:
-      GPIO_BSRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
-      break;
-#endif //USE_SPI_SLAVE4
-    default:
-      break;
-  }
-}
 
-
-static inline void SpiSlaveSelect(uint8_t slave)
+/******************************************************************************
+ *
+ * Helpers for SPI transactions with DMA
+ *
+ *****************************************************************************/
+static void spi_configure_dma(u32 dma, u8 chan, u32 periph_addr, u32 buf_addr,
+                              u16 len, enum SPIDataSizeSelect dss, bool_t increment)
 {
-  switch(slave) {
-#if USE_SPI_SLAVE0
-    case 0:
-      GPIO_BRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
-      break;
-#endif // USE_SPI_SLAVE0
-#if USE_SPI_SLAVE1
-    case 1:
-      GPIO_BRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
-      break;
-#endif //USE_SPI_SLAVE1
-#if USE_SPI_SLAVE2
-    case 2:
-      GPIO_BRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
-      break;
-#endif //USE_SPI_SLAVE2
-#if USE_SPI_SLAVE3
-    case 3:
-      GPIO_BRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
-      break;
-#endif //USE_SPI_SLAVE3
-#if USE_SPI_SLAVE4
-    case 4:
-      GPIO_BRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
-      break;
-#endif //USE_SPI_SLAVE4
-    default:
-      break;
+  dma_channel_reset(dma, chan);
+  dma_set_peripheral_address(dma, chan, periph_addr);
+  dma_set_memory_address(dma, chan, buf_addr);
+  dma_set_number_of_data(dma, chan, len);
+
+  /* Set the dma transfer size based on SPI transaction DSS */
+  if (dss == SPIDss8bit) {
+    dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_8BIT);
+    dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_8BIT);
+  } else {
+    dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_16BIT);
+    dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_16BIT);
   }
+
+  if (increment)
+    dma_enable_memory_increment_mode(dma, chan);
+  else
+    dma_disable_memory_increment_mode(dma, chan);
 }
 
 /// Enable DMA channel interrupts
-// FIXME fix priority levels if necessary
-static void spi_arch_int_enable( struct spi_periph *spi ) {
+static void spi_arch_int_enable(struct spi_periph *spi) {
+  /// @todo fix priority levels if necessary
   // enable receive interrupt
   nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, 0);
   nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
@@ -333,228 +493,32 @@ static void spi_arch_int_enable( struct spi_periph *spi ) {
 }
 
 /// Disable DMA channel interrupts
-static void spi_arch_int_disable( struct spi_periph *spi ) {
+static void spi_arch_int_disable(struct spi_periph *spi) {
   nvic_disable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
   nvic_disable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
 }
 
+/// start next transaction if there is one in the queue
+static void spi_next_transaction(struct spi_periph* periph) {
+  /* Increment the transaction to handle */
+  periph->trans_extract_idx++;
 
-#if USE_SPI1
-void spi1_arch_init(void) {
+  /* wrap read index of circular buffer */
+  if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
+    periph->trans_extract_idx = 0;
 
-  // set dma options
-  spi1_dma.spidr = (u32)&SPI1_DR;
-  spi1_dma.dma = DMA1;
-  spi1_dma.rx_chan = DMA_CHANNEL2;
-  spi1_dma.tx_chan = DMA_CHANNEL3;
-  spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
-  spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
-  spi1_dma.tx_dummy_buf = 0;
-  spi1_dma.tx_extra_dummy_dma = FALSE;
-  spi1_dma.rx_dummy_buf = 0;
-  spi1_dma.rx_extra_dummy_dma = FALSE;
-
-  // set the default configuration
-  set_default_comm_config(&spi1_dma.comm);
-  spi1_dma.comm_sig = get_comm_signature(&spi1_dma.comm);
-
-  // set init struct, indices and status
-  spi1.reg_addr = (void *)SPI1;
-  spi1.init_struct = &spi1_dma;
-  spi1.trans_insert_idx = 0;
-  spi1.trans_extract_idx = 0;
-  spi1.status = SPIIdle;
-
-
-  // Enable SPI1 Periph and gpio clocks ---------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
-
-  // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
-  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_MISO);
-
-  // reset SPI
-  spi_reset(SPI1);
-
-  // Disable SPI peripheral
-  spi_disable(SPI1);
-
-  // Force SPI mode over I2S.
-  SPI1_I2SCFGR = 0;
-
-  // configure master SPI.
-  spi_init_master(SPI1, spi1_dma.comm.br, spi1_dma.comm.cpol, spi1_dma.comm.cpha,
-                  spi1_dma.comm.dff, spi1_dma.comm.lsbfirst);
-  /*
-   * Set NSS management to software.
-   *
-   * Note:
-   * Setting nss high is very important, even if we are controlling the GPIO
-   * ourselves this bit needs to be at least set to 1, otherwise the spi
-   * peripheral will not send any data out.
-   */
-  spi_enable_software_slave_management(SPI1);
-  spi_set_nss_high(SPI1);
-
-  // Enable SPI_1 DMA clock ---------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
-
-  // Enable SPI1 periph.
-  spi_enable(SPI1);
-
-  spi_arch_int_enable(&spi1);
+  /* Check if there is another pending SPI transaction */
+  if ((periph->trans_extract_idx == periph->trans_insert_idx) || periph->suspend)
+    periph->status = SPIIdle;
+  else
+    spi_start_dma_transaction(periph, periph->trans[periph->trans_extract_idx]);
 }
-#endif
-
-#if USE_SPI2
-void spi2_arch_init(void) {
-
-  // set dma options
-  spi2_dma.spidr = (u32)&SPI2_DR;
-  spi2_dma.dma = DMA1;
-  spi2_dma.rx_chan = DMA_CHANNEL4;
-  spi2_dma.tx_chan = DMA_CHANNEL5;
-  spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
-  spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
-  spi2_dma.tx_dummy_buf = 0;
-  spi2_dma.tx_extra_dummy_dma = FALSE;
-  spi2_dma.rx_dummy_buf = 0;
-  spi2_dma.rx_extra_dummy_dma = FALSE;
-
-  // set the default configuration
-  set_default_comm_config(&spi2_dma.comm);
-  spi2_dma.comm_sig = get_comm_signature(&spi2_dma.comm);
-
-  // set init struct, indices and status
-  spi2.reg_addr = (void *)SPI2;
-  spi2.init_struct = &spi2_dma;
-  spi2.trans_insert_idx = 0;
-  spi2.trans_extract_idx = 0;
-  spi2.status = SPIIdle;
 
 
-  // Enable SPI2 Periph and gpio clocks ---------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
-
-  // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
-  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI2_MISO);
-
-  // reset SPI
-  spi_reset(SPI2);
-
-  // Disable SPI peripheral
-  spi_disable(SPI2);
-
-  // Force SPI mode over I2S.
-  SPI2_I2SCFGR = 0;
-
-  // configure master SPI.
-  spi_init_master(SPI2, spi2_dma.comm.br, spi2_dma.comm.cpol, spi2_dma.comm.cpha,
-                  spi2_dma.comm.dff, spi2_dma.comm.lsbfirst);
-
-  /*
-   * Set NSS management to software.
-   *
-   * Note:
-   * Setting nss high is very important, even if we are controlling the GPIO
-   * ourselves this bit needs to be at least set to 1, otherwise the spi
-   * peripheral will not send any data out.
-   */
-  spi_enable_software_slave_management(SPI2);
-  spi_set_nss_high(SPI2);
-
-  // Enable SPI_2 DMA clock ---------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
-
-  // Enable SPI2 periph.
-  spi_enable(SPI2);
-
-  spi_arch_int_enable(&spi2);
-}
-#endif
-
-#if USE_SPI3
-void spi3_arch_init(void) {
-
-  // set the default configuration
-  spi3_dma.spidr = (u32)&SPI3_DR;
-  spi3_dma.dma = DMA2;
-  spi3_dma.rx_chan = DMA_CHANNEL1;
-  spi3_dma.tx_chan = DMA_CHANNEL2;
-  spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
-  spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
-  spi3_dma.tx_dummy_buf = 0;
-  spi3_dma.tx_extra_dummy_dma = FALSE;
-  spi3_dma.rx_dummy_buf = 0;
-  spi3_dma.rx_extra_dummy_dma = FALSE;
-
-  // set the default configuration
-  set_default_comm_config(&spi3_dma.comm);
-  spi3_dma.comm_sig = get_comm_signature(&spi3_dma.comm);
-
-  // set init struct, indices and status
-  spi3.reg_addr = (void *)SPI3;
-  spi3.init_struct = &spi3_dma;
-  spi3.trans_insert_idx = 0;
-  spi3.trans_extract_idx = 0;
-  spi3.status = SPIIdle;
-
-
-  // Enable SPI3 Periph and gpio clocks ---------------------------------------
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
-
-  // Configure GPIOs: SCK, MISO and MOSI  --------------------------------
-  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI3_SCK | GPIO_SPI3_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI3_MISO);
-
-  // reset SPI
-  spi_reset(SPI3);
-
-  // Disable SPI peripheral
-  spi_disable(SPI3);
-
-  // Force SPI mode over I2S.
-  SPI3_I2SCFGR = 0;
-
-  // configure master SPI.
-  spi_init_master(SPI3, spi3_dma.comm.br, spi3_dma.comm.cpol, spi3_dma.comm.cpha,
-                  spi3_dma.comm.dff, spi3_dma.comm.lsbfirst);
-
-  /*
-   * Set NSS management to software.
-   *
-   * Note:
-   * Setting nss high is very important, even if we are controlling the GPIO
-   * ourselves this bit needs to be at least set to 1, otherwise the spi
-   * peripheral will not send any data out.
-   */
-  spi_enable_software_slave_management(SPI3);
-  spi_set_nss_high(SPI3);
-
-  // Enable SPI_3 DMA clock ---------------------------------------------------
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
-
-  // Enable SPI3 periph.
-  spi_enable(SPI3);
-
-  spi_arch_int_enable( &spi3 );
-}
-#endif
-
-static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
+/**
+ * Start a new transaction with DMA.
+ */
+static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_transaction* trans)
 {
   struct spi_periph_dma *dma;
   uint8_t sig = 0x00;
@@ -583,9 +547,6 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
     spi_enable_software_slave_management((u32)periph->reg_addr);
     spi_set_nss_high((u32)periph->reg_addr);
     spi_enable((u32)periph->reg_addr);
-
-    // FIXME this is also called immediately after spi_rw in spi_submit is this needed?
-    //spi_arch_int_enable( p );
   }
 
   /*
@@ -635,10 +596,12 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
    * Transmit DMA channel configuration ---------------------------------------
    *
    * We always run the transmit DMA!
-   * To receive data, the clock must run, which means something has to be transmitted.
-   * This is done by enabling a second, dummy dma transmit transfer with the dummy buffer.
+   * To receive data, the clock must run, so something has to be transmitted.
+   * If needed, use a dummy DMA transmitting zeros for the remaining length.
+   *
+   * In the reveive only case (output_length == 0),
+   * the dummy is used right from the start.
    */
-  /* Use the dummy buffer if tx length is zero */
   if (trans->output_length == 0) {
     spi_configure_dma(dma->dma, dma->tx_chan, (u32)dma->spidr,
                       (u32)&(dma->tx_dummy_buf), trans->input_length, trans->dss, FALSE);
@@ -654,14 +617,9 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
 
 
-
-  /*
-   * Enable DMA ---------------------------------------------------------------
-   */
   /* Enable DMA transfer complete interrupts. */
   dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
   dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
-  /* FIXME do we need to explicitly disable the half transfer interrupt? */
 
   /* Enable DMA channels */
   dma_enable_channel(dma->dma, dma->rx_chan);
@@ -670,155 +628,236 @@ static void spi_rw(struct spi_periph* periph, struct spi_transaction* trans)
   /* Enable SPI transfers via DMA */
   spi_enable_rx_dma((u32)periph->reg_addr);
   spi_enable_tx_dma((u32)periph->reg_addr);
-
 }
 
-bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
-{
-  uint8_t idx;
-  idx = p->trans_insert_idx + 1;
-  if (idx >= SPI_TRANSACTION_QUEUE_LEN) idx = 0;
-  if ((idx == p->trans_extract_idx) || ((t->input_length == 0) && (t->output_length == 0))) {
-    t->status = SPITransFailed;
-    return FALSE; /* queue full or input_length and output_length both 0 */
-    // TODO can't tell why it failed here if it does
-  }
 
-  t->status = SPITransPending;
 
-  //Disable interrupts to avoid race conflict with end of DMA transfer interrupt
-  //FIXME
-  spi_arch_int_disable(p);
+/******************************************************************************
+ *
+ * Initialization of each SPI peripheral
+ *
+ *****************************************************************************/
+#if USE_SPI1
+void spi1_arch_init(void) {
 
-  // GT: no copy?  There's a queue implying a copy here...
-  p->trans[p->trans_insert_idx] = t;
-  p->trans_insert_idx = idx;
+  // set dma options
+  spi1_dma.spidr = (u32)&SPI1_DR;
+  spi1_dma.dma = DMA1;
+  spi1_dma.rx_chan = DMA_CHANNEL2;
+  spi1_dma.tx_chan = DMA_CHANNEL3;
+  spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
+  spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
+  spi1_dma.tx_dummy_buf = 0;
+  spi1_dma.tx_extra_dummy_dma = FALSE;
+  spi1_dma.rx_dummy_buf = 0;
+  spi1_dma.rx_extra_dummy_dma = FALSE;
 
-  /* if peripheral is idle, start the transaction */
-  if (p->status == SPIIdle && !p->suspend) {
-    spi_rw(p, p->trans[p->trans_extract_idx]);
-  }
-  //FIXME
-  spi_arch_int_enable(p);
-  return TRUE;
+  // set the default configuration
+  set_default_comm_config(&spi1_dma.comm);
+  spi1_dma.comm_sig = get_comm_signature(&spi1_dma.comm);
+
+  // set init struct, indices and status
+  spi1.reg_addr = (void *)SPI1;
+  spi1.init_struct = &spi1_dma;
+  spi1.trans_insert_idx = 0;
+  spi1.trans_extract_idx = 0;
+  spi1.status = SPIIdle;
+
+
+  // Enable SPI1 Periph and gpio clocks
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
+
+  // Configure GPIOs: SCK, MISO and MOSI
+  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+                GPIO_SPI1_MISO);
+
+  // reset SPI
+  spi_reset(SPI1);
+
+  // Disable SPI peripheral
+  spi_disable(SPI1);
+
+  // Force SPI mode over I2S.
+  SPI1_I2SCFGR = 0;
+
+  // configure master SPI.
+  spi_init_master(SPI1, spi1_dma.comm.br, spi1_dma.comm.cpol, spi1_dma.comm.cpha,
+                  spi1_dma.comm.dff, spi1_dma.comm.lsbfirst);
+  /*
+   * Set NSS management to software.
+   *
+   * Note:
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
+  spi_enable_software_slave_management(SPI1);
+  spi_set_nss_high(SPI1);
+
+  // Enable SPI_1 DMA clock
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+
+  // Enable SPI1 periph.
+  spi_enable(SPI1);
+
+  spi_arch_int_enable(&spi1);
 }
-
-void spi_init_slaves(void) {
-
-#if USE_SPI_SLAVE0
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE0_PERIPH | RCC_APB2ENR_AFIOEN);
-  SpiSlaveUnselect(0);
-  gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE0_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE0_PIN);
 #endif
 
-#if USE_SPI_SLAVE1
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE1_PERIPH | RCC_APB2ENR_AFIOEN);
-  SpiSlaveUnselect(1);
-  gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE1_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE1_PIN);
+#if USE_SPI2
+void spi2_arch_init(void) {
+
+  // set dma options
+  spi2_dma.spidr = (u32)&SPI2_DR;
+  spi2_dma.dma = DMA1;
+  spi2_dma.rx_chan = DMA_CHANNEL4;
+  spi2_dma.tx_chan = DMA_CHANNEL5;
+  spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
+  spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
+  spi2_dma.tx_dummy_buf = 0;
+  spi2_dma.tx_extra_dummy_dma = FALSE;
+  spi2_dma.rx_dummy_buf = 0;
+  spi2_dma.rx_extra_dummy_dma = FALSE;
+
+  // set the default configuration
+  set_default_comm_config(&spi2_dma.comm);
+  spi2_dma.comm_sig = get_comm_signature(&spi2_dma.comm);
+
+  // set init struct, indices and status
+  spi2.reg_addr = (void *)SPI2;
+  spi2.init_struct = &spi2_dma;
+  spi2.trans_insert_idx = 0;
+  spi2.trans_extract_idx = 0;
+  spi2.status = SPIIdle;
+
+
+  // Enable SPI2 Periph and gpio clocks
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
+
+  // Configure GPIOs: SCK, MISO and MOSI
+  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+                GPIO_SPI2_MISO);
+
+  // reset SPI
+  spi_reset(SPI2);
+
+  // Disable SPI peripheral
+  spi_disable(SPI2);
+
+  // Force SPI mode over I2S.
+  SPI2_I2SCFGR = 0;
+
+  // configure master SPI.
+  spi_init_master(SPI2, spi2_dma.comm.br, spi2_dma.comm.cpol, spi2_dma.comm.cpha,
+                  spi2_dma.comm.dff, spi2_dma.comm.lsbfirst);
+
+  /*
+   * Set NSS management to software.
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
+  spi_enable_software_slave_management(SPI2);
+  spi_set_nss_high(SPI2);
+
+  // Enable SPI_2 DMA clock
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+
+  // Enable SPI2 periph.
+  spi_enable(SPI2);
+
+  spi_arch_int_enable(&spi2);
+}
 #endif
 
-#if USE_SPI_SLAVE2
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE2_PERIPH | RCC_APB2ENR_AFIOEN);
-  SpiSlaveUnselect(2);
-  gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE2_PIN);
+#if USE_SPI3
+void spi3_arch_init(void) {
+
+  // set the default configuration
+  spi3_dma.spidr = (u32)&SPI3_DR;
+  spi3_dma.dma = DMA2;
+  spi3_dma.rx_chan = DMA_CHANNEL1;
+  spi3_dma.tx_chan = DMA_CHANNEL2;
+  spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
+  spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
+  spi3_dma.tx_dummy_buf = 0;
+  spi3_dma.tx_extra_dummy_dma = FALSE;
+  spi3_dma.rx_dummy_buf = 0;
+  spi3_dma.rx_extra_dummy_dma = FALSE;
+
+  // set the default configuration
+  set_default_comm_config(&spi3_dma.comm);
+  spi3_dma.comm_sig = get_comm_signature(&spi3_dma.comm);
+
+  // set init struct, indices and status
+  spi3.reg_addr = (void *)SPI3;
+  spi3.init_struct = &spi3_dma;
+  spi3.trans_insert_idx = 0;
+  spi3.trans_extract_idx = 0;
+  spi3.status = SPIIdle;
+
+
+  // Enable SPI3 Periph and gpio clocks
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
+
+  // Configure GPIOs: SCK, MISO and MOSI
+  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                GPIO_SPI3_SCK | GPIO_SPI3_MOSI);
+
+  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
+                GPIO_SPI3_MISO);
+
+  /// @todo disable JTAG so the pins can be used?
+
+  // reset SPI
+  spi_reset(SPI3);
+
+  // Disable SPI peripheral
+  spi_disable(SPI3);
+
+  // Force SPI mode over I2S.
+  SPI3_I2SCFGR = 0;
+
+  // configure master SPI.
+  spi_init_master(SPI3, spi3_dma.comm.br, spi3_dma.comm.cpol, spi3_dma.comm.cpha,
+                  spi3_dma.comm.dff, spi3_dma.comm.lsbfirst);
+
+  /*
+   * Set NSS management to software.
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
+  spi_enable_software_slave_management(SPI3);
+  spi_set_nss_high(SPI3);
+
+  // Enable SPI_3 DMA clock
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
+
+  // Enable SPI3 periph.
+  spi_enable(SPI3);
+
+  spi_arch_int_enable(&spi3);
+}
 #endif
 
-#if USE_SPI_SLAVE3
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE3_PERIPH | RCC_APB2ENR_AFIOEN);
-  SpiSlaveUnselect(3);
-  gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE3_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE3_PIN);
-#endif
-
-#if USE_SPI_SLAVE4
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPI_SELECT_SLAVE4_PERIPH | RCC_APB2ENR_AFIOEN);
-  SpiSlaveUnselect(4);
-  gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE4_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE4_PIN);
-#endif
-
-}
-
-void spi_slave_select(uint8_t slave) {
-  SpiSlaveSelect(slave);
-}
-
-void spi_slave_unselect(uint8_t slave) {
-  SpiSlaveUnselect(slave);
-}
-
-bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
-  spi_arch_int_disable(p);
-  if (slave < 254 && p->suspend == 0) {
-    p->suspend = slave + 1; // 0 is reserved for unlock state
-    spi_arch_int_enable(p);
-    return TRUE;
-  }
-  spi_arch_int_enable(p);
-  return FALSE;
-}
-
-bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
-  spi_arch_int_disable( p );
-  if (p->suspend == slave + 1) {
-    // restart fifo
-    p->suspend = 0;
-    if (p->trans_extract_idx != p->trans_insert_idx && p->status == SPIIdle) {
-      spi_rw(p, p->trans[p->trans_extract_idx]);
-    }
-    spi_arch_int_enable(p);
-    return TRUE;
-  }
-  spi_arch_int_enable(p);
-  return FALSE;
-}
-
-/** start next transaction if there is one in the queue */
-static void spi_next_transaction(struct spi_periph* periph) {
-  /* Increment the transaction to handle */
-  periph->trans_extract_idx++;
-
-  /* wrap read index of circular buffer */
-  if (periph->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
-    periph->trans_extract_idx = 0;
-
-  /* Check if there is another pending SPI transaction */
-  if ((periph->trans_extract_idx == periph->trans_insert_idx) || periph->suspend)
-    periph->status = SPIIdle;
-  else
-    spi_rw(periph, periph->trans[periph->trans_extract_idx]);
-}
-
-static void spi_configure_dma(u32 dma, u8 chan, u32 periph_addr, u32 buf_addr, u16 len, enum SPIDataSizeSelect dss, bool_t increment) {
-  dma_channel_reset(dma, chan);
-  dma_set_peripheral_address(dma, chan, periph_addr);
-  dma_set_memory_address(dma, chan, buf_addr);
-  dma_set_number_of_data(dma, chan, len);
-
-  /* Set the dma transfer size based on SPI transaction DSS */
-  if (dss == SPIDss8bit) {
-    dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_8BIT);
-    dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_8BIT);
-  } else {
-    dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_16BIT);
-    dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_16BIT);
-  }
-
-  if (increment)
-    dma_enable_memory_increment_mode(dma, chan);
-  else
-    dma_disable_memory_increment_mode(dma, chan);
-}
 
 
+
+/******************************************************************************
+ *
+ * DMA Interrupt service routines
+ *
+ *****************************************************************************/
 #ifdef USE_SPI1
 /// receive transferred over DMA
 void dma1_channel2_isr(void)
@@ -905,9 +944,9 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
 
   if (dma->rx_extra_dummy_dma) {
     /*
-     * We are finished the first part of the receive with real data, but still need
-     * to run the dma to get a fully complete interrupt. Set up a dummy dma receive transfer
-     * to accomplish this.
+     * We are finished the first part of the receive with real data,
+     * but still need to run the dummy to get a transfer complete interrupt
+     * after the complete transaction is done.
      */
 
     /* Reset the flag so this only happens once in a transaction */
@@ -929,14 +968,12 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
     spi_enable_rx_dma((u32)periph->reg_addr);
   }
   else {
-    /* This transaction is finished */
     /*
-     * In theory, the RXNE flag will be cleared by the rx dma reading the SPI_DR
-     * since we are receiving the same amount as transmitting, and also because of
-     * this, we should always being entering this if clause, and never the equivalent
-     * in process_tx_dma_interrupt(), since the rx dma will finish after the last data
-     * while the tx will fire just before the last word is sent.
+     * Since the receive DMA is always run until the very end
+     * and this interrupt is triggered after the last data word was read,
+     * we now know that this transaction is finished.
      */
+
     /* Run the callback */
     trans->status = SPITransSuccess;
     if (trans->after_cb != 0) {
@@ -968,9 +1005,9 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
 
   if (dma->tx_extra_dummy_dma) {
     /*
-     * We are finished the first part of the transmit with real data, but still need
-     * to clock in the rest of the receive data. Set up a dummy dma transmit transfer
-     * to accomplish this.
+     * We are finished the first part of the transmit with real data,
+     * but still need to clock in the rest of the receive data.
+     * Set up a dummy dma transmit transfer to accomplish this.
      */
 
     /* Reset the flag so this only happens once in a transaction */

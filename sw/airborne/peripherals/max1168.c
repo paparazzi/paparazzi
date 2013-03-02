@@ -93,7 +93,6 @@ void max1168_read( void ) {
   spi_submit(&(MAX1168_SPI_DEV),&max1168_read_trans);
 
   max1168_status = MAX1168_SENDING_REQ;
-
 }
 
 void max1168_event( void ) {
@@ -111,15 +110,7 @@ void max1168_event( void ) {
   // handle reading transaction
   if (max1168_read_trans.status == SPITransSuccess) {
     if (max1168_status == MAX1168_READING_RES) {
-      // store values
-      //max1168_values[0] = max1168_read_trans.input_buf[0];
-      //max1168_values[1] = max1168_read_trans.input_buf[1];
-      //max1168_values[2] = max1168_read_trans.input_buf[2];
-      //max1168_values[3] = max1168_read_trans.input_buf[3];
-      //max1168_values[4] = max1168_read_trans.input_buf[4];
-      //max1168_values[5] = max1168_read_trans.input_buf[5];
-      //max1168_values[6] = max1168_read_trans.input_buf[6];
-      //max1168_values[7] = max1168_read_trans.input_buf[7];
+      // result was already written to max1168_values by DMA
       max1168_status = MAX1168_DATA_AVAILABLE;
       max1168_read_trans.status = SPITransDone;
     }

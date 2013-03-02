@@ -135,9 +135,9 @@ typedef void (*SPICallback)( struct spi_transaction *trans );
  * - The input/output buffers needs to be created separately
  * - Take care of pointing input_buf/ouput_buf correctly
  * - input_length and output_length can be different, the larger number
- *   of the two specifies the toal number of exchanged bytes,
+ *   of the two specifies the toal number of exchanged words,
  * - if input_length is larger than output length,
- *   0 is sent for the remaining bytes
+ *   0 is sent for the remaining words
  */
 struct spi_transaction {
   volatile uint8_t* input_buf;  ///< pointer to receive buffer for DMA
