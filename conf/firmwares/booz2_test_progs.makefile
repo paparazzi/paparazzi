@@ -79,30 +79,6 @@ test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=11
 test_max1168.srcs   += peripherals/max1168.c \
 					   $(SRC_ARCH)/peripherals/max1168_arch.c
 
-#
-# test MICROMAG
-#
-test_micromag.ARCHDIR = $(ARCH)
-
-test_micromag.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_micromag.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag.c
-test_micromag.CFLAGS += -DPERIODIC_FREQUENCY='512.' -DSYS_TIME_LED=1
-test_micromag.CFLAGS += -DUSE_LED
-test_micromag.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
-
-test_micromag.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_micromag.srcs += mcu_periph/uart.c
-test_micromag.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-
-test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
-test_micromag.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-
-#test_micromag.CFLAGS += -I$(BOOZ)
-#test_micromag.srcs += pprz_debug.c
-
-test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12
-test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
-
 
 
 #
@@ -283,30 +259,6 @@ test_crista.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_tran
 test_crista.CFLAGS += -DFLOAT_T=float -DBOOZ2_IMU_TYPE=\"booz2_imu_crista.h\"
 test_crista.srcs += $(SRC_BOOZ)/booz2_imu.c
 test_crista.srcs += $(SRC_BOOZ)/booz2_imu_crista.c $(SRC_BOOZ_ARCH)/booz2_imu_crista_hw.c
-
-
-
-
-#
-# test MICROMAG
-#
-test_micromag2.ARCHDIR = $(ARCH)
-
-test_micromag2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_micromag2.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag_2.c
-test_micromag2.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12
-test_micromag2.CFLAGS += -DPERIODIC_FREQUENCY='50.' -DSYS_TIME_LED=1
-test_micromag2.CFLAGS += -DUSE_LED
-test_micromag2.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
-
-test_micromag2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_micromag2.srcs += mcu_periph/uart.c
-test_micromag2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-
-test_micromag2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1
-test_micromag2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-
-
 
 
 
