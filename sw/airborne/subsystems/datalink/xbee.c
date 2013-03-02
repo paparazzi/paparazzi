@@ -21,7 +21,7 @@
  */
 
 #include "mcu_periph/sys_time.h"
-#include "print.h"
+#include "subsystems/datalink/uart_print.h"
 #include "subsystems/datalink/xbee.h"
 
 #ifdef SIM_UART

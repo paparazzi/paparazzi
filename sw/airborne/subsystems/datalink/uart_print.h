@@ -1,6 +1,4 @@
 /*
- * Paparazzi $I$
- *
  * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -19,11 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-#ifndef PRINT_H
-#define PRINT_H
+#ifndef UART_PRINT_H
+#define UART_PRINT_H
 
 #include "mcu_periph/uart.h"
 #include "mcu_periph/usb_serial.h"
@@ -109,5 +106,5 @@
 #define UsbSPrintString(s) _PrintString(VCOM_putchar, s)
 
 
-#endif /* PRINT_H */
+#endif /* UART_PRINT_H */
 

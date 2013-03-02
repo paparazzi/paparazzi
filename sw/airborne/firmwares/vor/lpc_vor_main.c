@@ -4,7 +4,7 @@
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
-#include "print.h"
+#include "subsystems/datalink/uart_print.h"
 //#include "messages.h"
 //#include "subsystems/datalink/downlink.h"
 
