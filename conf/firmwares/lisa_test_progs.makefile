@@ -480,9 +480,21 @@ endif
 
 
 
+#
+# test ms2100 mag
+#
+test_ms2100.ARCHDIR = $(ARCH)
+test_ms2100.CFLAGS  = $(COMMON_TEST_CFLAGS)
+test_ms2100.srcs    = $(COMMON_TEST_SRCS)
+test_ms2100.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_ms2100.srcs   += $(COMMON_TELEMETRY_SRCS)
 
-
-
+test_ms2100.CFLAGS += -I$(SRC_LISA)
+test_ms2100.srcs   += test/peripherals/test_ms2100.c
+test_ms2100.srcs   += peripherals/ms2100.c $(SRC_ARCH)/peripherals/ms2100_arch.c
+test_ms2100.CFLAGS += -DUSE_SPI_SLAVE4 -DMS2100_SLAVE_IDX=4 -DMS2100_SPI_DEV=spi2
+test_ms2100.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
+test_ms2100.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 
 #
 # test hmc5843
