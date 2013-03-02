@@ -90,13 +90,13 @@ static inline void main_periodic_task( void ) {
   if (acc_status != CONFIGURED) {
     /* set data rate to 800Hz */
     write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
-    /* switch to measurememnt mode */
-    write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
     /* enable data ready interrupt */
     write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
     /* Enable full res and interrupt active low */
     write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
     /* reads data once to bring interrupt line up */
+    /* switch to measurememnt mode */
+    write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
     read_data();
     acc_status = CONFIGURED;
   }
@@ -114,9 +114,6 @@ static inline void main_event_task( void ) {
   }
   if (acc_status >= CONFIGURED && acc_data_available) {
     acc_data_available = FALSE;
-    //int16_t ax = dma_rx_buf[1] | (dma_rx_buf[2]<<8);
-    //int16_t ay = dma_rx_buf[3] | (dma_rx_buf[4]<<8);
-    //int16_t az = dma_rx_buf[5] | (dma_rx_buf[6]<<8);
     int16_t ax = Int16FromBuf(dma_rx_buf, 1);
     int16_t ay = Int16FromBuf(dma_rx_buf, 3);
     int16_t az = Int16FromBuf(dma_rx_buf, 5);
@@ -128,7 +125,8 @@ static inline void main_event_task( void ) {
 }
 
 static void write_to_reg(uint8_t addr, uint8_t val) {
-  //adxl345_spi_trans.output_length = 2;
+  adxl345_spi_trans.output_length = 2;
+  adxl345_spi_trans.input_length = 0;
   dma_tx_buf[0] = addr;
   dma_tx_buf[1] = val;
   spi_submit(&(ADXL345_SPI_DEV), &adxl345_spi_trans);
@@ -137,7 +135,8 @@ static void write_to_reg(uint8_t addr, uint8_t val) {
 }
 
 static void read_data(void) {
-  //adxl345_spi_trans.output_length = 1;
+  adxl345_spi_trans.output_length = 1;
+  adxl345_spi_trans.input_length = 7;
   dma_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
   spi_submit(&(ADXL345_SPI_DEV), &adxl345_spi_trans);
 }

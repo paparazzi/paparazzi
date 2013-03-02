@@ -64,17 +64,17 @@ static void adxl345_i2c_send_config(struct Adxl345_I2c *adxl)
       adxl345_i2c_tx_reg(adxl, ADXL345_REG_BW_RATE, adxl->config.rate);
       adxl->init_status++;
       break;
-    case ADXL_CONF_POWER:
-      /* enable measurement, is in standby after power up */
-      adxl345_i2c_tx_reg(adxl, ADXL345_REG_POWER_CTL, (0x1<<3));
-      adxl->init_status++;
-      break;
     case ADXL_CONF_INT:
       adxl345_i2c_tx_reg(adxl, ADXL345_REG_INT_ENABLE, adxl->config.drdy_int_enable);
       adxl->init_status++;
       break;
     case ADXL_CONF_FORMAT:
       adxl345_i2c_tx_reg(adxl, ADXL345_REG_DATA_FORMAT, ADXL345_DATA_FORMAT);
+      adxl->init_status++;
+      break;
+    case ADXL_CONF_ENABLE:
+      /* enable measurement, is in standby after power up */
+      adxl345_i2c_tx_reg(adxl, ADXL345_REG_POWER_CTL, (0x1<<3));
       adxl->init_status++;
       break;
     case ADXL_CONF_DONE:

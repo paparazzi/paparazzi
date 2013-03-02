@@ -41,7 +41,7 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
-static inline void on_gyro_accel_event(void);
+static inline void on_gyro_event(void);
 static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
@@ -69,7 +69,7 @@ static inline void main_init( void ) {
 static inline void led_toggle ( void ) {
 
 #ifdef BOARD_LISA_L
-      LED_TOGGLE(3);
+  LED_TOGGLE(7);
 #endif
 }
 
@@ -109,8 +109,7 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
-
+  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 
 }
 
@@ -135,7 +134,7 @@ static inline void on_accel_event(void) {
   }
 }
 
-static inline void on_gyro_accel_event(void) {
+static inline void on_gyro_event(void) {
   ImuScaleGyro(imu);
 
   RunOnceEvery(50, LED_TOGGLE(2));
