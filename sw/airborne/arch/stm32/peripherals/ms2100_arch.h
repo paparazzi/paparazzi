@@ -31,8 +31,13 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include "mcu_periph/spi.h"
 
-#define Ms2100Reset() GPIOC_BSRR = GPIO13;
-#define Ms2100Set()   GPIOC_BRR = GPIO13
+static inline void Ms2100Reset(void) {
+  GPIOC_BSRR = GPIO13;
+}
+
+static inline void Ms2100Set(void) {
+  GPIOC_BRR = GPIO13;
+}
 
 #define Ms2100HasEOC() (gpio_get(GPIOB, GPIO5) != 0)
 

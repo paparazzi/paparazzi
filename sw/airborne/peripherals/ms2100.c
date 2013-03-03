@@ -103,9 +103,6 @@ void ms2100_read(struct Ms2100 *ms) {
 void ms2100_event(struct Ms2100 *ms) {
   // handle request transaction
   if (ms->req_trans.status == SPITransDone) {
-#ifdef Ms2100HasEOC  // stupid hack for now: poll pin to check for EOC with stm32
-    if (Ms2100HasEOC()) ms->status = MS2100_GOT_EOC;
-#endif
     if (ms->status == MS2100_GOT_EOC) {
       // eoc occurs, submit reading req
       spi_submit(ms->spi_p, &(ms->read_trans));
