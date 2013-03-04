@@ -262,11 +262,11 @@ void ahrs_update_accel(void) {
    * Scale residual with FRAC difference, update_accel freq and the gain.
    * To allow convenient range for the correction gain, multiply by two again...
    */
-  uint32_t inv_rate_scale = 2 * 4096 * AHRS_CORRECT_FREQUENCY / ahrs_impl.accel_attitude_gain;
+  int32_t inv_rate_scale = 2 * 4096 * AHRS_CORRECT_FREQUENCY / ahrs_impl.accel_attitude_gain;
   Bound(inv_rate_scale, 8192, 1024000);
-  ahrs_impl.rate_correction.p += -residual.x / inv_rate_scale / inv_weight;
-  ahrs_impl.rate_correction.q += -residual.y / inv_rate_scale / inv_weight;
-  ahrs_impl.rate_correction.r += -residual.z / inv_rate_scale / inv_weight;
+  ahrs_impl.rate_correction.p -= residual.x / inv_rate_scale / inv_weight;
+  ahrs_impl.rate_correction.q -= residual.y / inv_rate_scale / inv_weight;
+  ahrs_impl.rate_correction.r -= residual.z / inv_rate_scale / inv_weight;
 
 
   /* Correct the gyro bias.
@@ -283,7 +283,7 @@ void ahrs_update_accel(void) {
    * To allow a suitable range of the freq and bias gain, multily by 32 separately.
    */
   /* scale gain with the update_accel freq */
-  uint32_t inv_bias_gain = 2 * AHRS_CORRECT_FREQUENCY / ahrs_impl.accel_gyrobias_gain;
+  int32_t inv_bias_gain = 2 * AHRS_CORRECT_FREQUENCY / ahrs_impl.accel_gyrobias_gain;
   Bound(inv_bias_gain, 1, 1000)
   ahrs_impl.high_rez_bias.p += (residual.x / inv_bias_gain) * 32 / (2*inv_weight);
   ahrs_impl.high_rez_bias.q += (residual.y / inv_bias_gain) * 32 / (2*inv_weight);
@@ -322,9 +322,9 @@ static inline void ahrs_update_mag_full(void) {
    * Scale with mag_attitude_gain * 2  for convenient range,
    * and with mag frequency.
    */
-  ahrs_impl.rate_correction.p += residual.x * ahrs_impl.mag_attitude_gain / (512 * AHRS_MAG_CORRECT_FREQUENCY);
-  ahrs_impl.rate_correction.q += residual.y * ahrs_impl.mag_attitude_gain / (512 * AHRS_MAG_CORRECT_FREQUENCY);
-  ahrs_impl.rate_correction.r += residual.z * ahrs_impl.mag_attitude_gain / (512 * AHRS_MAG_CORRECT_FREQUENCY);
+  ahrs_impl.rate_correction.p += residual.x * (int32_t)ahrs_impl.mag_attitude_gain / (512 * AHRS_MAG_CORRECT_FREQUENCY);
+  ahrs_impl.rate_correction.q += residual.y * (int32_t)ahrs_impl.mag_attitude_gain / (512 * AHRS_MAG_CORRECT_FREQUENCY);
+  ahrs_impl.rate_correction.r += residual.z * (int32_t)ahrs_impl.mag_attitude_gain / (512 * AHRS_MAG_CORRECT_FREQUENCY);
 
   /* residual FRAC: 2* MAG_FRAC = 22
    * high_rez_bias FRAC: RATE_FRAC+28 = 40
@@ -333,7 +333,7 @@ static inline void ahrs_update_mag_full(void) {
    * bias correction gain scale with 1/2^13 compared to attitude correction:
    * 2^18 / 2^11 = 32
    */
-  uint32_t bias_scale = 32 * ahrs_impl.mag_gyrobias_gain / AHRS_MAG_CORRECT_FREQUENCY;
+  int32_t bias_scale = 32 * ahrs_impl.mag_gyrobias_gain / AHRS_MAG_CORRECT_FREQUENCY;
   ahrs_impl.high_rez_bias.p -= residual.x * bias_scale;
   ahrs_impl.high_rez_bias.q -= residual.y * bias_scale;
   ahrs_impl.high_rez_bias.r -= residual.z * bias_scale;
@@ -368,9 +368,9 @@ static inline void ahrs_update_mag_2d(void) {
    * Scale with mag_attitude_gain * 2  for convenient range,
    * and with mag frequency.
    */
-  ahrs_impl.rate_correction.p += residual_imu.x * ahrs_impl.mag_attitude_gain / (16 * AHRS_MAG_CORRECT_FREQUENCY);
-  ahrs_impl.rate_correction.q += residual_imu.y * ahrs_impl.mag_attitude_gain / (16 * AHRS_MAG_CORRECT_FREQUENCY);
-  ahrs_impl.rate_correction.r += residual_imu.z * ahrs_impl.mag_attitude_gain / (16 * AHRS_MAG_CORRECT_FREQUENCY);
+  ahrs_impl.rate_correction.p += residual_imu.x * (int32_t)ahrs_impl.mag_attitude_gain / (16 * AHRS_MAG_CORRECT_FREQUENCY);
+  ahrs_impl.rate_correction.q += residual_imu.y * (int32_t)ahrs_impl.mag_attitude_gain / (16 * AHRS_MAG_CORRECT_FREQUENCY);
+  ahrs_impl.rate_correction.r += residual_imu.z * (int32_t)ahrs_impl.mag_attitude_gain / (16 * AHRS_MAG_CORRECT_FREQUENCY);
 
 
   /* residual_imu FRAC = residual_ltp FRAC = 17
@@ -381,7 +381,7 @@ static inline void ahrs_update_mag_2d(void) {
    * 2^23 / 2^11 = 4096
    * also divide mag_gyrobias_gain by 4 for convenience range
    */
-  uint32_t bias_scale = 1024 * ahrs_impl.mag_gyrobias_gain / AHRS_MAG_CORRECT_FREQUENCY;
+  int32_t bias_scale = 1024 * ahrs_impl.mag_gyrobias_gain / AHRS_MAG_CORRECT_FREQUENCY;
   ahrs_impl.high_rez_bias.p -= residual_imu.x * bias_scale;
   ahrs_impl.high_rez_bias.q -= residual_imu.y * bias_scale;
   ahrs_impl.high_rez_bias.r -= residual_imu.z * bias_scale;
