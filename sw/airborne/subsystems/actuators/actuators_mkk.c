@@ -59,6 +59,7 @@ void actuators_mkk_set(void) {
     actuators_mkk.trans[i].buf[0] = 0;
 #endif
 
+    actuators_mkk.trans[i].type = I2CTransTx;
     i2c_submit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i]);
   }
 }
