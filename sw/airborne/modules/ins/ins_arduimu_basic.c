@@ -132,7 +132,7 @@ void ArduIMU_periodicGPS( void ) {
   ardu_gps_trans.buf[12] = gps.fix;                               // status gps fix
   ardu_gps_trans.buf[13] = (uint8_t)arduimu_calibrate_neutrals;   // calibration flag
   ardu_gps_trans.buf[14] = (uint8_t)high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
-  I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
+  i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
   // Reset calibration flag
   if (arduimu_calibrate_neutrals) arduimu_calibrate_neutrals = FALSE;
@@ -142,7 +142,7 @@ void ArduIMU_periodic( void ) {
   //Frequence defined in conf/modules/ins_arduimu.xml
 
   if (ardu_ins_trans.status == I2CTransDone) {
-    I2CReceive(ARDUIMU_I2C_DEV, ardu_ins_trans, ArduIMU_SLAVE_ADDR, NB_DATA*2);
+    i2c_receive(&ARDUIMU_I2C_DEV, &ardu_ins_trans, ArduIMU_SLAVE_ADDR, NB_DATA*2);
   }
 
 }

@@ -96,7 +96,7 @@ void pbn_periodic( void ) {
 
   // Initiate next read
   pbn_trans.buf[0] = 0;
-  I2CTransceive(PBN_I2C_DEV, pbn_trans, PBN_I2C_ADDR, 1, 4);
+  i2c_transceive(&PBN_I2C_DEV, &pbn_trans, PBN_I2C_ADDR, 1, 4);
 
 }
 

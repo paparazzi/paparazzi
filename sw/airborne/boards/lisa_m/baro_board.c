@@ -17,7 +17,7 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
   baro_trans.buf[0] = addr;
   baro_trans.buf[1] = value;
 
-  I2CTransmit(i2c2, baro_trans, BMP085_ADDR, 2);
+  i2c_transmit(&i2c2, &baro_trans, BMP085_ADDR, 2);
 
   // FIXME, no while loops without timeout!!
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
@@ -26,7 +26,7 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
 static inline void bmp085_read_reg16(uint8_t addr)
 {
   baro_trans.buf[0] = addr;
-  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 2);
+  i2c_transceive(&i2c2, &baro_trans, BMP085_ADDR, 1, 2);
 }
 
 static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
@@ -49,7 +49,7 @@ static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
 static inline void bmp085_read_reg24(uint8_t addr)
 {
   baro_trans.buf[0] = addr;
-  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 3);
+  i2c_transceive(&i2c2, &baro_trans, BMP085_ADDR, 1, 3);
 }
 
 static void bmp085_baro_read_calibration(void)
