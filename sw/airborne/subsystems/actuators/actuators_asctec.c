@@ -134,6 +134,7 @@ void actuators_asctec_set(bool_t motors_on) {
   }
   actuators_asctec.cmd = NONE;
 
+  actuators_asctec.i2c_trans.type = I2CTransTx;   // Can be reset I2C driver
   i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
 
 }
@@ -212,6 +213,7 @@ void actuators_asctec_set(bool_t motors_on) {
   actuators_asctec.cmd = NONE;
 #endif
 
+  actuators_asctec.i2c_trans.type = I2CTransTx;   // Can be reset I2C driver
   i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
 
 }
