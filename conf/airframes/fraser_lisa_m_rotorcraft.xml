@@ -93,6 +93,7 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
+    <define name="MAX_SATURATION_OFFSET" value="2000"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <!-- front/back turning CCW, left/right CW -->
