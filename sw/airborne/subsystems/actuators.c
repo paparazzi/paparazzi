@@ -26,6 +26,7 @@
  */
 
 #include "subsystems/actuators.h"
+#include "mcu_periph/sys_time.h"
 
 #if ACTUATORS_NB
 
