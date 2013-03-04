@@ -56,7 +56,7 @@
     <servo name="LEFT"   no="3"    min="0" neutral="20" max="255"/>
   </servos-->
 
-  <servos driver="Asctec">
+  <servos driver="Asctec_v2">
     <servo name="FRONT"  no="0"    min="0" neutral="1" max="200"/>
     <servo name="BACK"   no="1"    min="0" neutral="1" max="200"/>
     <servo name="LEFT"   no="2"    min="0" neutral="1" max="200"/>

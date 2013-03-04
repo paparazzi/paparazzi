@@ -4,7 +4,7 @@
 
 <airframe name="lisa_asctec">
 
-  <servos driver="Asctec">
+  <servos driver="Asctec_v2">
     <servo name="FRONT"   no="0" min="0" neutral="3" max="200"/>
     <servo name="BACK"    no="1" min="0" neutral="3" max="200"/>
     <servo name="LEFT"    no="2" min="0" neutral="3" max="200"/>
@@ -72,9 +72,9 @@
     <define name="MAG_Y_SENS" value="1." integer="16"/>
     <define name="MAG_Z_SENS" value="1." integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="0. " unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0. " unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="45. " unit="deg"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
 
   </section>
 
@@ -198,7 +198,7 @@
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name="USE_I2C_ACTUATORS_REBOOT_HACK"/>
     </target>
-    <target name="sim" board="pc">
+    <target name="nps" board="pc">
       <subsystem name="fdm"           type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="motor_mixing"/>
