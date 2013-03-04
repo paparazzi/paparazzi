@@ -28,6 +28,7 @@
 #define ACTUATORS_H
 
 #include "paparazzi.h"
+#include "std.h"
 
 /*
  * Defines SetActuatorsFromCommands() macro
