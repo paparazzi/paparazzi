@@ -39,20 +39,20 @@ void imu_quality_assessment_periodic(void)
   //static const int32_t B[3] = {};
 
   // Peak tracking
-  if (imu.accel_scaled.x > imu_quality_assessment_data.q_ax)
-     imu_quality_assessment_data.q_ax = imu.accel_scaled.x;
-  if (-imu.accel_scaled.x < imu_quality_assessment_data.q_ax)
-     imu_quality_assessment_data.q_ax = -imu.accel_scaled.x;
+  if (imu.accel.x > imu_quality_assessment_data.q_ax)
+     imu_quality_assessment_data.q_ax = imu.accel.x;
+  if (-imu.accel.x > imu_quality_assessment_data.q_ax)
+     imu_quality_assessment_data.q_ax = -imu.accel.x;
 
-  if (imu.accel_scaled.y > imu_quality_assessment_data.q_ay)
-     imu_quality_assessment_data.q_ay = imu.accel_scaled.y;
-  if (-imu.accel_scaled.y < imu_quality_assessment_data.q_ay)
-     imu_quality_assessment_data.q_ay = -imu.accel_scaled.y;
+  if (imu.accel.y > imu_quality_assessment_data.q_ay)
+     imu_quality_assessment_data.q_ay = imu.accel.y;
+  if (-imu.accel.y > imu_quality_assessment_data.q_ay)
+     imu_quality_assessment_data.q_ay = -imu.accel.y;
 
-  if (imu.accel_scaled.z > imu_quality_assessment_data.q_az)
-     imu_quality_assessment_data.q_az = imu.accel_scaled.z;
-  if (-imu.accel_scaled.z < imu_quality_assessment_data.q_az)
-     imu_quality_assessment_data.q_az = -imu.accel_scaled.z;
+  if (imu.accel.z > imu_quality_assessment_data.q_az)
+     imu_quality_assessment_data.q_az = imu.accel.z;
+  if (-imu.accel.z > imu_quality_assessment_data.q_az)
+     imu_quality_assessment_data.q_az = -imu.accel.z;
 
   // High frequency high-pass filter
   // Medium frequency bandpass

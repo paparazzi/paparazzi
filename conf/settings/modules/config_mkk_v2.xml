@@ -10,7 +10,7 @@
       <dl_setting var="config_mkk_v2_eeprom.CurrentLimit" min="0" step="1" max="255"  module="modules/config/config_mkk_v2" shortname="ee.amp.lim"  handler="SetCurrentLimit" />
       <dl_setting var="config_mkk_v2_eeprom.TempLimit" min="0" step="1" max="255" module="modules/config/config_mkk_v2"  shortname="ee.tmp.lim"  handler="SetTempLimit" />
       <dl_setting var="config_mkk_v2_eeprom.CurrentScaling" min="0" step="1" max="255" module="modules/config/config_mkk_v2"  shortname="ee.amp.scl"  handler="SetCurrentScaling" />
-      <dl_setting var="config_mkk_v2_eeprom.BitConfig" min="4" step="5" max="255" module="modules/config/config_mkk_v2"  shortname="ee.bit.msk"  values="Normal|Reversed" handler="SetBitConfig" />
+      <dl_setting var="config_mkk_v2_eeprom.BitConfig" min="4" step="1" max="5" module="modules/config/config_mkk_v2"  shortname="ee.bit.msk"  values="Normal|Reversed" handler="SetBitConfig" />
       <dl_setting var="config_mkk_v2_eeprom.crc" min="0" step="1" max="255"  shortname="ee.crc" />
     </dl_settings>
 

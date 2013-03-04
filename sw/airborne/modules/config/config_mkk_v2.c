@@ -129,6 +129,9 @@ config_mkk_v2_eeprom_t config_mkk_v2_eeprom;
 
 void config_mkk_v2_read_eeprom(void)
 {
+    // Activate decoder
+    config_mkk_v2.read_config = 1;
+
     // Do not read config while running
     RETURN_IF_NOT_KILLMODE();
 
