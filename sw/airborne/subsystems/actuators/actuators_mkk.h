@@ -33,6 +33,7 @@
 
 
 struct ActuatorsMkk {
+  bool_t   actuators_delay_done;    // mkk_config module wants to know state
   struct i2c_transaction trans[ACTUATORS_MKK_NB];
 };
 
