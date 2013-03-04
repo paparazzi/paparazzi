@@ -143,6 +143,10 @@ static void spi_arch_int_disable(struct spi_periph *spi);
 #define SPI_SELECT_SLAVE4_PORT GPIOC
 #define SPI_SELECT_SLAVE4_PIN GPIO12
 
+#define SPI_SELECT_SLAVE5_PERIPH RCC_APB2ENR_IOPCEN
+#define SPI_SELECT_SLAVE5_PORT GPIOC
+#define SPI_SELECT_SLAVE5_PIN GPIO4
+
 static inline void SpiSlaveUnselect(uint8_t slave) {
   switch(slave) {
 #if USE_SPI_SLAVE0
@@ -170,6 +174,11 @@ static inline void SpiSlaveUnselect(uint8_t slave) {
       GPIO_BSRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
       break;
 #endif //USE_SPI_SLAVE4
+#if USE_SPI_SLAVE5
+    case 5:
+      GPIO_BSRR(SPI_SELECT_SLAVE5_PORT) = SPI_SELECT_SLAVE5_PIN;
+      break;
+#endif //USE_SPI_SLAVE5
     default:
       break;
   }
@@ -202,6 +211,11 @@ static inline void SpiSlaveSelect(uint8_t slave) {
       GPIO_BRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
       break;
 #endif //USE_SPI_SLAVE4
+#if USE_SPI_SLAVE5
+    case 5:
+      GPIO_BRR(SPI_SELECT_SLAVE5_PORT) = SPI_SELECT_SLAVE5_PIN;
+      break;
+#endif //USE_SPI_SLAVE5
     default:
       break;
   }
@@ -260,6 +274,15 @@ void spi_init_slaves(void) {
   gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
   gpio_set_mode(SPI_SELECT_SLAVE4_PORT, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE4_PIN);
+#endif
+
+#if USE_SPI_SLAVE5
+  rcc_peripheral_enable_clock(&RCC_APB2ENR,
+                              SPI_SELECT_SLAVE5_PERIPH | RCC_APB2ENR_AFIOEN);
+  SpiSlaveUnselect(5);
+  gpio_set(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
+  gpio_set_mode(SPI_SELECT_SLAVE5_PORT, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE5_PIN);
 #endif
 }
 
@@ -361,7 +384,7 @@ static uint8_t get_comm_signature(struct locm3_spi_comm* c) {
   } else {
     sig |= (SPILSBFirst << 2);
   }
-  uint8_t cdiv;
+  uint8_t cdiv = SPIDiv256;
   switch (c->br) {
     case SPI_CR1_BAUDRATE_FPCLK_DIV_2:
       cdiv = SPIDiv2;
