@@ -32,8 +32,6 @@
 
 struct ActuatorsMkk actuators_mkk;
 
-uint32_t actuators_delay_time;
-
 void actuators_mkk_init(void) {
 
   const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
@@ -44,22 +42,14 @@ void actuators_mkk_init(void) {
     actuators_mkk.trans[i].status = I2CTransSuccess;
   }
 
-#if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_mkk.actuators_delay_done = FALSE;
-  SysTimeTimerStart(actuators_delay_time);
-#else
-  actuators_mkk.actuators_delay_done = TRUE;
-  actuators_delay_time = 0;
-#endif
-
 }
 
 
 void actuators_mkk_set(void) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
-  if (!actuators_mkk.actuators_delay_done) {
+  if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
-    else actuators_mkk.actuators_delay_done = TRUE;
+    else actuators_delay_done = TRUE;
   }
 #endif
 

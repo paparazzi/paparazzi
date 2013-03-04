@@ -33,7 +33,7 @@ void config_mkk_v2_init(void)
   config_mkk_v2.read_config = 0;
 
   config_mkk_v2.trans.status = I2CTransSuccess;
-  
+
 }
 
 #include "subsystems/actuators/actuators_mkk_v2.h"
@@ -104,26 +104,26 @@ extern config_mkk_v2_eeprom_t config_mkk_v2_eeprom;
 
 uint8_t config_mkk_v2_crc(uint8_t offset)
 {
-	uint8_t crc = 0xaa;
-	for(int i=offset; i<(offset+7); i++)
-	{
-		crc += config_mkk_v2.trans.buf[i];
-	}
-	return crc;
+    uint8_t crc = 0xaa;
+    for(int i=offset; i<(offset+7); i++)
+    {
+        crc += config_mkk_v2.trans.buf[i];
+    }
+    return crc;
 }
 
 
 config_mkk_v2_eeprom_t config_mkk_v2_eeprom;
 
 
-#define BL_READMODE_CONFIG	            16
+#define BL_READMODE_CONFIG              16
 #define config_mkk_v2_EEPROM_REVISION      2
 
 
-#define RETURN_IF_NOT_KILLMODE()                \
-{                                               \
-  if (!actuators_mkk_v2.actuators_delay_done)   \
-    return;                                     \
+#define RETURN_IF_NOT_KILLMODE() \
+{                                \
+  if (!actuators_delay_done)     \
+    return;                      \
 }
 
 void config_mkk_v2_read_eeprom(void)
@@ -189,4 +189,3 @@ void config_mkk_v2_send_eeprom(void)
     i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &config_mkk_v2.trans);
 
 }
-

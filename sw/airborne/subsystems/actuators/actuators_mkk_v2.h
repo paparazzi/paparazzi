@@ -39,7 +39,6 @@ struct actuators_mkk_v2_telemetry_struct {
 };
 
 struct actuators_mkk_v2_struct {
-  bool_t   actuators_delay_done;    // config_mkk module wants to know state
   uint16_t setpoint[ACTUATORS_MKK_V2_NB];
   struct i2c_transaction trans[ACTUATORS_MKK_V2_NB];
   struct actuators_mkk_v2_telemetry_struct data[ACTUATORS_MKK_V2_NB];

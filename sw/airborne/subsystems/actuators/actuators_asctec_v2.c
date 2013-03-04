@@ -33,9 +33,6 @@
 
 struct ActuatorsAsctecV2 actuators_asctec_v2;
 
-uint32_t actuators_delay_time;
-bool_t   actuators_delay_done;
-
 void actuators_asctec_v2_init(void) {
   actuators_asctec_v2.cmd = NONE;
   actuators_asctec_v2.cur_addr = FRONT;
@@ -45,15 +42,6 @@ void actuators_asctec_v2_init(void) {
   actuators_asctec_v2.i2c_trans.slave_addr = ACTUATORS_ASCTEC_V2_SLAVE_ADDR;
   actuators_asctec_v2.i2c_trans.len_w = 5;
   actuators_asctec_v2.nb_err = 0;
-
-#if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_delay_done = FALSE;
-  SysTimeTimerStart(actuators_delay_time);
-#else
-  actuators_delay_done = TRUE;
-  actuators_delay_time = 0;
-#endif
-
 }
 
 

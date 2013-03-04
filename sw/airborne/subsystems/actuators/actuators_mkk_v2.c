@@ -32,9 +32,6 @@
 
 struct actuators_mkk_v2_struct actuators_mkk_v2;
 
-static uint32_t actuators_delay_time;
-static uint8_t actuators_read_number;
-
 void actuators_mkk_v2_init(void) {
 
   const uint8_t actuators_addr[ACTUATORS_MKK_V2_NB] = ACTUATORS_MKK_V2_ADDR;
@@ -49,14 +46,6 @@ void actuators_mkk_v2_init(void) {
     actuators_mkk_v2.data[i].MaxPWM      = 0;
     actuators_mkk_v2.data[i].Temperature = 0;
   }
-
-#if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_mkk_v2.actuators_delay_done = FALSE;
-  SysTimeTimerStart(actuators_delay_time);
-#else
-  actuators_mkk_v2.actuators_delay_done = TRUE;
-  actuators_delay_time = 0;
-#endif
 
   actuators_read_number = 0;
 
@@ -73,9 +62,9 @@ static inline void actuators_mkk_v2_read(void) {
 
 void actuators_mkk_v2_set(void) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
-  if (!actuators_mkk_v2.actuators_delay_done) {
+  if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
-    else actuators_mkk_v2.actuators_delay_done = TRUE;
+    else actuators_delay_done = TRUE;
   }
 #endif
 
