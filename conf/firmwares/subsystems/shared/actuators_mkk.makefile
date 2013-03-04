@@ -19,7 +19,7 @@
 #
 #  servo section with driver="Mkk"
 #  command_laws section to map motor_mixing commands to servos
-#
+#  max command = 255
 
 $(TARGET).CFLAGS += -DACTUATORS
 ap.srcs += subsystems/actuators/actuators_mkk.c

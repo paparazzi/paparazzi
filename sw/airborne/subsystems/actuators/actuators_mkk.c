@@ -32,9 +32,7 @@
 
 struct ActuatorsMkk actuators_mkk;
 
-
 uint32_t actuators_delay_time;
-bool_t   actuators_delay_done;
 
 void actuators_mkk_init(void) {
 
@@ -47,10 +45,10 @@ void actuators_mkk_init(void) {
   }
 
 #if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_delay_done = FALSE;
+  actuators_mkk.actuators_delay_done = FALSE;
   SysTimeTimerStart(actuators_delay_time);
 #else
-  actuators_delay_done = TRUE;
+  actuators_mkk.actuators_delay_done = TRUE;
   actuators_delay_time = 0;
 #endif
 
@@ -59,16 +57,18 @@ void actuators_mkk_init(void) {
 
 void actuators_mkk_set(void) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
-  if (!actuators_delay_done) {
+  if (!actuators_mkk.actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
-    else actuators_delay_done = TRUE;
+    else actuators_mkk.actuators_delay_done = TRUE;
   }
 #endif
 
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
+
 #ifdef KILL_MOTORS
     actuators_mkk.trans[i].buf[0] = 0;
 #endif
+
     i2c_submit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i]);
   }
 }

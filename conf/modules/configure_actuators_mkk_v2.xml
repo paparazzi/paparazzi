@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="config">
+  <doc>
+    <description>Configure Mikrokopter MKK v2.0 BLDC motor controllers (requires subsystem actuators_mkk_v2)</description>
+  </doc>
+  <header>
+    <file name="config_mkk_v2.h"/>
+  </header>
+  <init fun="config_mkk_v2_init()"/>
+  <periodic fun="config_mkk_v2_periodic_read_status()" period="0.1" autorun="TRUE"/>
+  <periodic fun="config_mkk_v2_periodic_telemetry()" period="1"  autorun="TRUE"/>
+  <makefile>
+    <file name="config_mkk_v2.c"/>
+  </makefile>
+</module>
+
