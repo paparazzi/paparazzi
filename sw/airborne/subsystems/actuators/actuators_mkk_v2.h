@@ -39,6 +39,7 @@ struct actuators_mkk_v2_telemetry_struct {
 };
 
 struct actuators_mkk_v2_struct {
+  uint8_t read_number;
   uint16_t setpoint[ACTUATORS_MKK_V2_NB];
   struct i2c_transaction trans[ACTUATORS_MKK_V2_NB];
   struct actuators_mkk_v2_telemetry_struct data[ACTUATORS_MKK_V2_NB];

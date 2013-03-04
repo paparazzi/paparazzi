@@ -22,6 +22,7 @@
 
 #include "config_mkk_v2.h"
 #include "generated/airframe.h"
+#include "subsystems/actuators.h"
 
 void config_mkk_v2_parse_eeprom(void);
 

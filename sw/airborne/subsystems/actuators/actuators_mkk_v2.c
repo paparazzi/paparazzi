@@ -47,17 +47,17 @@ void actuators_mkk_v2_init(void) {
     actuators_mkk_v2.data[i].Temperature = 0;
   }
 
-  actuators_read_number = 0;
+  actuators_mkk_v2.read_number = 0;
 
 }
 
 static inline void actuators_mkk_v2_read(void) {
-  actuators_read_number++;
-  if (actuators_read_number >= ACTUATORS_MKK_V2_NB)
-    actuators_read_number = 0;
+  actuators_mkk_v2.read_number++;
+  if (actuators_mkk_v2.read_number >= ACTUATORS_MKK_V2_NB)
+    actuators_mkk_v2.read_number = 0;
 
-  actuators_mkk_v2.trans[actuators_read_number].type = I2CTransTxRx;
-  actuators_mkk_v2.trans[actuators_read_number].len_r = 3;
+  actuators_mkk_v2.trans[actuators_mkk_v2.read_number].type = I2CTransTxRx;
+  actuators_mkk_v2.trans[actuators_mkk_v2.read_number].len_r = 3;
 }
 
 void actuators_mkk_v2_set(void) {
