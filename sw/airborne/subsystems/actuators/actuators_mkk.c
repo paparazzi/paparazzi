@@ -36,9 +36,6 @@ void actuators_mkk_init(void) {
 
   const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
-    actuators_mkk.trans[i].type = I2CTransTx;
-    actuators_mkk.trans[i].len_w = 1;
-    actuators_mkk.trans[i].slave_addr = actuators_addr[i];
     actuators_mkk.trans[i].status = I2CTransSuccess;
   }
 
@@ -59,7 +56,6 @@ void actuators_mkk_set(void) {
     actuators_mkk.trans[i].buf[0] = 0;
 #endif
 
-    actuators_mkk.trans[i].type = I2CTransTx;
-    i2c_submit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i]);
+    I2CTransmit(ACTUATORS_MKK_DEVICE, actuators_mkk.trans[i], actuators_addr[i], 1);
   }
 }
