@@ -79,7 +79,7 @@ void humid_sht_periodic_i2c( void ) {
     /* do soft reset, then wait at least 15ms */
     sht_status = SHT2_RESET;
     sht_trans.buf[0] = SHT2_SOFT_RESET;
-    I2CTransmit(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 1);
+    i2c_transmit(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 1);
     break;
 
   case SHT2_SERIAL:
@@ -87,7 +87,7 @@ void humid_sht_periodic_i2c( void ) {
     sht_status = SHT2_SERIAL1;
     sht_trans.buf[0] = 0xFA;
     sht_trans.buf[1] = 0x0F;
-    I2CTransceive(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 2, 8);
+    i2c_transceive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 2, 8);
     break;
 
   case SHT2_SERIAL1:
@@ -98,7 +98,7 @@ void humid_sht_periodic_i2c( void ) {
     /* trigger temp measurement, no master hold */
     sht_trans.buf[0] = SHT2_TRIGGER_TEMP;
     sht_status = SHT2_TRIG_TEMP;
-    I2CTransmit(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 1);
+    i2c_transmit(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 1);
     /* send serial number every 30 seconds */
     RunOnceEvery((4*30), DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, DefaultDevice, &sht_serial1, &sht_serial2));
     break;
@@ -110,7 +110,7 @@ void humid_sht_p_temp( void ) {
   if (sht_status == SHT2_GET_TEMP) {
     /* get temp */
     sht_status = SHT2_READ_TEMP;
-    I2CReceive(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 3);
+    i2c_receive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 3);
   }
 }
 
@@ -119,7 +119,7 @@ void humid_sht_p_humid( void ) {
   if (sht_status == SHT2_GET_HUMID) {
     /* read humid */
     sht_status = SHT2_READ_HUMID;
-    I2CReceive(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 3);
+    i2c_receive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 3);
   }
 }
 
@@ -140,7 +140,7 @@ void humid_sht_event_i2c( void ) {
         /* trigger humid measurement, no master hold */
         sht_trans.buf[0] = SHT2_TRIGGER_HUMID;
         sht_status = SHT2_TRIG_HUMID;
-        I2CTransmit(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 1);
+        i2c_transmit(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 1);
       }
       else {
         /* checksum error, restart */
@@ -184,7 +184,7 @@ void humid_sht_event_i2c( void ) {
       sht_status = SHT2_SERIAL2;
       sht_trans.buf[0] = 0xFC;
       sht_trans.buf[1] = 0xC9;
-      I2CTransceive(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 2, 6);
+      i2c_transceive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 2, 6);
       break;
 
     case SHT2_SERIAL2:

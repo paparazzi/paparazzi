@@ -172,30 +172,19 @@ extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 extern void   i2c_setbitrate(struct i2c_periph* p, int bitrate);
 extern void   i2c_event(void);
 
+/*
+ * Convenience functions.
+ * Usually these are preferred over i2c_submit,
+ * as they explicitly set the transaction type again.
+ */
+extern void i2c_transmit(struct i2c_periph* p, struct i2c_transaction* t,
+                         uint8_t s_addr, uint8_t len);
 
-#define I2CReceive(_p, _t, _s_addr, _len) { \
-  _t.type = I2CTransRx;                     \
-  _t.slave_addr = _s_addr;                  \
-  _t.len_r = _len;                          \
-  _t.len_w = 0;                             \
-  i2c_submit(&(_p),&(_t));                  \
-}
+extern void i2c_receive(struct i2c_periph* p, struct i2c_transaction* t,
+                        uint8_t s_addr, uint16_t len);
 
-#define I2CTransmit(_p, _t, _s_addr, _len) {	\
-  _t.type = I2CTransTx;			                  \
-  _t.slave_addr = _s_addr;			              \
-  _t.len_r = 0;				                        \
-  _t.len_w = _len;				                    \
-  i2c_submit(&(_p),&(_t));			              \
-}
-
-#define I2CTransceive(_p, _t, _s_addr, _len_w, _len_r) {  \
-  _t.type = I2CTransTxRx;                                 \
-  _t.slave_addr = _s_addr;                                \
-  _t.len_r = _len_r;                                      \
-  _t.len_w = _len_w;                                      \
-  i2c_submit(&(_p),&(_t));                                \
-}
+extern void i2c_transceive(struct i2c_periph* p, struct i2c_transaction* t,
+                           uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
 /** @}*/
 /** @}*/

@@ -91,7 +91,7 @@ static void MPPT_ask( void ) {
   }
 
   mppt_trans.buf[0] = data_index;
-  I2CTransmit(i2c0, mppt_trans, MPPT_SLAVE_ADDR, 1);
+  i2c_transmit(&i2c0, &mppt_trans, MPPT_SLAVE_ADDR, 1);
   MPPT_status = MPPT_STATUS_ASKING;
 }
 
@@ -105,7 +105,7 @@ void MPPT_periodic( void ) {
           mppt_trans.buf[0] = MPPT_MODE_ADDR;
           mppt_trans.buf[1] = 0;
           mppt_trans.buf[2] = MPPT_mode;
-          I2CTransmit(i2c0, mppt_trans, MPPT_SLAVE_ADDR, 3);
+          i2c_transmit(&i2c0, &mppt_trans, MPPT_SLAVE_ADDR, 3);
           MPPT_mode = 0;
           MPPT_status = MPPT_STATUS_WRITING;
         } else {
@@ -119,7 +119,7 @@ void MPPT_periodic( void ) {
 
       case MPPT_STATUS_ASKING:
         /* The slave should send 2 bytes */
-        I2CReceive(i2c0, mppt_trans, MPPT_SLAVE_ADDR, 2);
+        i2c_receive(&i2c0, &mppt_trans, MPPT_SLAVE_ADDR, 2);
         MPPT_status = MPPT_STATUS_READING;
         break;
 

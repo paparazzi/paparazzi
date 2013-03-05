@@ -58,7 +58,7 @@ void writePCAP01_SRAM(uint8_t data, uint16_t s_add)
 	pcap01_trans.buf[0] = 0x90+(unsigned char)(s_add>>8);
 	pcap01_trans.buf[1] = (unsigned char)(s_add);
 	pcap01_trans.buf[2] = data;
-   	I2CTransmit(PCAP01_I2C_DEV, pcap01_trans, PCAP01_ADDR, 3);
+	i2c_transmit(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 3);
 }
 
 uint8_t readPCAP01_SRAM(uint16_t s_add)
@@ -67,7 +67,7 @@ uint8_t readPCAP01_SRAM(uint16_t s_add)
 
 	pcap01_trans.buf[0] = 0x10+(unsigned char)(s_add>>8);
 	pcap01_trans.buf[1] = (unsigned char)(s_add);
-	I2CTransceive(PCAP01_I2C_DEV, pcap01_trans, PCAP01_ADDR, 2, 1);
+	i2c_transceive(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 2, 1);
 	while (pcap01_trans.status == I2CTransPending);
 
 	return pcap01_trans.buf[0];
@@ -93,7 +93,7 @@ uint8_t readPCAP01_SRAM(uint16_t s_add)
 	pcap01_trans.buf[1] = 0;
 	pcap01_trans.buf[2] = 0;
 	pcap01_trans.buf[3] = 0;
-	I2CTransmit(PCAP01_I2C_DEV, pcap01_trans, PCAP01_ADDR, 4);
+	i2c_transmit(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 4);
 }
 
  void pcap01writeRegister(uint8_t reg,uint32_t value)
@@ -104,7 +104,7 @@ uint8_t readPCAP01_SRAM(uint16_t s_add)
 	pcap01_trans.buf[1] = (unsigned char) (value>>16);
 	pcap01_trans.buf[2] = (unsigned char) (value>>8);
 	pcap01_trans.buf[3] = (unsigned char) (value);
-	I2CTransmit(PCAP01_I2C_DEV, pcap01_trans, PCAP01_ADDR, 4);
+	i2c_transmit(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 4);
  }
 
 #ifdef PCAP01_LOAD_FIRMWARE
@@ -190,7 +190,7 @@ void pcap01readRegister(uint8_t reg)
  {
  	uint16_t byte1 = 0x40 | reg;
 	pcap01_trans.buf[0] = byte1;
-	I2CTransceive(PCAP01_I2C_DEV, pcap01_trans, PCAP01_ADDR, 1, 3);
+	i2c_transceive(&PCAP01_I2C_DEV, &pcap01_trans, PCAP01_ADDR, 1, 3);
  }
 
 /**

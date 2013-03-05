@@ -66,13 +66,13 @@ static void mpl3115_send_config(void)
     case MPL_CONF_PT_DATA:
       mpl3115_trans.buf[0] = MPL3115_REG_PT_DATA_CFG;
       mpl3115_trans.buf[1] = MPL3115_PT_DATA_CFG;
-      I2CTransmit(MPL3115_I2C_DEV, mpl3115_trans, MPL3115_I2C_ADDR, 2);
+      i2c_transmit(&MPL3115_I2C_DEV, &mpl3115_trans, MPL3115_I2C_ADDR, 2);
       mpl3115_init_status++;
       break;
     case MPL_CONF_CTRL1:
       mpl3115_trans.buf[0] = MPL3115_REG_CTRL_REG1;
       mpl3115_trans.buf[1] = MPL3115_CTRL_REG1;
-      I2CTransmit(MPL3115_I2C_DEV, mpl3115_trans, MPL3115_I2C_ADDR, 2);
+      i2c_transmit(&MPL3115_I2C_DEV, &mpl3115_trans, MPL3115_I2C_ADDR, 2);
       mpl3115_init_status++;
       break;
     case MPL_CONF_DONE:
@@ -101,11 +101,11 @@ void mpl3115_read(void)
   // ask for a reading and then prepare next conversion
   if (mpl3115_initialized && mpl3115_trans.status == I2CTransDone) {
     mpl3115_trans.buf[0] = MPL3115_REG_STATUS;
-    I2CTransceive(MPL3115_I2C_DEV, mpl3115_trans, MPL3115_I2C_ADDR, 1, 6);
+    i2c_transceive(&MPL3115_I2C_DEV, &mpl3115_trans, MPL3115_I2C_ADDR, 1, 6);
     if (mpl3115_req_trans.status == I2CTransDone) {
       mpl3115_req_trans.buf[0] = MPL3115_REG_CTRL_REG1;
       mpl3115_req_trans.buf[1] = MPL3115_CTRL_REG1 | MPL3115_OST_BIT;
-      I2CTransmit(MPL3115_I2C_DEV, mpl3115_req_trans, MPL3115_I2C_ADDR, 2);
+      i2c_transmit(&MPL3115_I2C_DEV, &mpl3115_req_trans, MPL3115_I2C_ADDR, 2);
     }
   }
 }

@@ -60,7 +60,7 @@ void baro_hca_init( void ) {
 
 void baro_hca_read_periodic( void ) {
   if (baro_hca_i2c_trans.status == I2CTransDone){
-    I2CReceive(BARO_HCA_I2C_DEV, baro_hca_i2c_trans, BARO_HCA_ADDR, 2);
+    i2c_receive(&BARO_HCA_I2C_DEV, &baro_hca_i2c_trans, BARO_HCA_ADDR, 2);
   }
 }
 

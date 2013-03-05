@@ -83,7 +83,7 @@ void generic_com_periodic( void ) {
   com_trans.buf[20] = pprz_mode;
   com_trans.buf[21] = nav_block;
   FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time);
-  I2CTransmit(GENERIC_COM_I2C_DEV, com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
+  i2c_transmit(&GENERIC_COM_I2C_DEV, &com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
 
 }
 
@@ -102,6 +102,6 @@ void start_com( void ) {
 void stop_com( void ) {
   active_com = FALSE;
   com_trans.buf[0] = active_com;
-  I2CTransmit(GENERIC_COM_I2C_DEV, com_trans, GENERIC_COM_SLAVE_ADDR, 1);
+  i2c_transmit(&GENERIC_COM_I2C_DEV, &com_trans, GENERIC_COM_SLAVE_ADDR, 1);
 }
 

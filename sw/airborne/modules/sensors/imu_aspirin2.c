@@ -70,7 +70,7 @@ void imu_impl_init(void)
   // -switch to gyroX clock
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_PWR_MGMT_1;
   aspirin2_mpu60x0.buf[1] = 0x01;
-  I2CTransmit(PPZUAVIMU_I2C_DEV, aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
   while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
@@ -90,28 +90,28 @@ void imu_impl_init(void)
 #endif
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_CONFIG;
   aspirin2_mpu60x0.buf[1] = (2 << 3) | (3 << 0);
-  I2CTransmit(PPZUAVIMU_I2C_DEV, aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
   while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_SMPLRT_DIV
   // -100Hz output = 1kHz / (9 + 1)
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_SMPLRT_DIV;
   aspirin2_mpu60x0.buf[1] = 9;
-  I2CTransmit(PPZUAVIMU_I2C_DEV, aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
   while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_GYRO_CONFIG
   // -2000deg/sec
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_GYRO_CONFIG;
   aspirin2_mpu60x0.buf[1] = (3<<3);
-  I2CTransmit(PPZUAVIMU_I2C_DEV, aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
   while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_ACCEL_CONFIG
   // 16g, no HPFL
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_ACCEL_CONFIG;
   aspirin2_mpu60x0.buf[1] = (3<<3);
-  I2CTransmit(PPZUAVIMU_I2C_DEV, aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
   while(aspirin2_mpu60x0.status == I2CTransPending);
 
 
@@ -157,12 +157,12 @@ void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_INT_STATUS;
-  I2CTransceive(PPZUAVIMU_I2C_DEV, aspirin2_mpu60x0, MPU60X0_ADDR, 1, 21);
+  i2c_transceive(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 1, 21);
 
 /*
   // Start reading the latest accelerometer data
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_DATA_X0;
-  I2CTransceive(PPZUAVIMU_I2C_DEV, ppzuavimu_adxl345, ADXL345_ADDR, 1, 6);
+  i2c_transceive(&PPZUAVIMU_I2C_DEV, &ppzuavimu_adxl345, ADXL345_ADDR, 1, 6);
 */
   // Start reading the latest magnetometer data
 #if PERIODIC_FREQUENCY > 60
