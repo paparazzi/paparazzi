@@ -49,8 +49,19 @@
 #endif
 PRINT_CONFIG_VAR(NAVGO_ACCEL_RATE)
 
+/* default gyro internal lowpass frequency and sample rate divider */
+#if !defined NAVGO_GYRO_LOWPASS && !defined  NAVGO_GYRO_SMPLRT_DIV
+#define NAVGO_GYRO_LOWPASS ITG3200_DLPF_10HZ
+#define NAVGO_GYRO_SMPLRT_DIV 1
+PRINT_CONFIG_MSG("Gyro output rate is 500Hz")
+#endif
+PRINT_CONFIG_VAR(NAVGO_GYRO_LOWPASS)
+PRINT_CONFIG_VAR(NAVGO_GYRO_SMPLRT_DIV)
+
+#if NAVGO_USE_MEDIAN_FILTER
 #include "filters/median_filter.h"
 struct MedianFilter3Int median_gyro, median_accel, median_mag;
+#endif
 
 struct ImuNavgo imu_navgo;
 
@@ -60,8 +71,8 @@ void imu_impl_init(void)
   // ITG3200
   itg3200_init(&imu_navgo.itg, &(IMU_NAVGO_I2C_DEV), ITG3200_ADDR_ALT);
   // change the default configuration
-  imu_navgo.itg.config.smplrt_div = 1;  // 500Hz sample rate since internal is 1kHz
-  imu_navgo.itg.config.dlpf_cfg = ITG3200_DLPF_10HZ;
+  imu_navgo.itg.config.smplrt_div = NAVGO_GYRO_SMPLRT_DIV;  // 500Hz sample rate since internal is 1kHz
+  imu_navgo.itg.config.dlpf_cfg = NAVGO_GYRO_LOWPASS;
 
   /////////////////////////////////////////////////////////////////////
   // ADXL345
@@ -73,10 +84,12 @@ void imu_impl_init(void)
   // HMC58XX
   hmc58xx_init(&imu_navgo.hmc, &(IMU_NAVGO_I2C_DEV), HMC58XX_ADDR);
 
+#if NAVGO_USE_MEDIAN_FILTER
   // Init median filters
   InitMedianFilterRatesInt(median_gyro);
   InitMedianFilterVect3Int(median_accel);
   InitMedianFilterVect3Int(median_mag);
+#endif
 
   imu_navgo.gyr_valid = FALSE;
   imu_navgo.acc_valid = FALSE;
@@ -115,7 +128,9 @@ void imu_navgo_event( void )
   itg3200_event(&imu_navgo.itg);
   if (imu_navgo.itg.data_available) {
     RATES_ASSIGN(imu.gyro_unscaled, -imu_navgo.itg.data.rates.q, imu_navgo.itg.data.rates.p, imu_navgo.itg.data.rates.r);
+#if NAVGO_USE_MEDIAN_FILTER
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
+#endif
     imu_navgo.itg.data_available = FALSE;
     imu_navgo.gyr_valid = TRUE;
   }
@@ -124,7 +139,9 @@ void imu_navgo_event( void )
   adxl345_i2c_event(&imu_navgo.adxl);
   if (imu_navgo.adxl.data_available) {
     VECT3_ASSIGN(imu.accel_unscaled, imu_navgo.adxl.data.vect.y, -imu_navgo.adxl.data.vect.x, imu_navgo.adxl.data.vect.z);
+#if NAVGO_USE_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
+#endif
     imu_navgo.adxl.data_available = FALSE;
     imu_navgo.acc_valid = TRUE;
   }
@@ -133,7 +150,9 @@ void imu_navgo_event( void )
   hmc58xx_event(&imu_navgo.hmc);
   if (imu_navgo.hmc.data_available) {
     VECT3_COPY(imu.mag_unscaled, imu_navgo.hmc.data.vect);
+#if NAVGO_USE_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
+#endif
     imu_navgo.hmc.data_available = FALSE;
     imu_navgo.mag_valid = TRUE;
   }
