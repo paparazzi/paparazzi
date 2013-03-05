@@ -85,6 +85,12 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 #endif
 
 
+/** by default use the gravity heursitic to reduce gain */
+#ifndef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
+#define AHRS_GRAVITY_UPDATE_NORM_HEURISTIC TRUE
+#endif
+
+
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // remotely settable
 #ifndef INS_ROLL_NEUTRAL_DEFAULT
@@ -250,8 +256,8 @@ void ahrs_update_accel(void) {
     /* heuristic on acceleration (gravity estimate) norm */
 
     /* Factor how strongly to change the weight.
-     * e.g.: 3 means that at 1/(2*3) g = 1.6m/s^2
-     * the weight will half and zero at 3.27m/s^2
+     * e.g. for WEIGHT_FACTOR 3:
+     * <0.66G = 0, 1G = 1.0, >1.33G = 0
      */
     #define WEIGHT_FACTOR 3
 
