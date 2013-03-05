@@ -135,7 +135,7 @@ void ArduIMU_periodicGPS( void ) {
       ardu_gps_trans.buf[26] = (uint8_t) (GPS_Data[6] >>8);
       ardu_gps_trans.buf[27] = (uint8_t) (GPS_Data[6] >>16);
       ardu_gps_trans.buf[28] = (uint8_t) (GPS_Data[6] >>24);
-      I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 28);
+      i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 28);
 
       gps_daten_versendet_msg1 = TRUE;
       messageNr =1;
@@ -156,7 +156,7 @@ void ArduIMU_periodicGPS( void ) {
       ardu_gps_trans.buf[11] = GPS_Data[9];		//status flags
       ardu_gps_trans.buf[12] = GPS_Data[10];		//sol gps fix
       ardu_gps_trans.buf[13] = GPS_Data[11];		//sol flags
-      I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 13);
+      i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 13);
 
       gps_daten_versendet_msg2 = TRUE;
       messageNr = 0;
@@ -172,7 +172,7 @@ void ArduIMU_periodic( void ) {
     if (imu_daten_angefordert == TRUE) {
         IMU_Daten_verarbeiten();
     }
-    I2CReceive(ARDUIMU_I2C_DEV, ardu_ins_trans, ArduIMU_SLAVE_ADDR, 12);
+    i2c_receive(&ARDUIMU_I2C_DEV, &ardu_ins_trans, ArduIMU_SLAVE_ADDR, 12);
 
     imu_daten_angefordert = TRUE;
     /*

@@ -57,7 +57,7 @@ void ezcurrent_init( void ) {
 
 void ezcurrent_read_periodic( void ) {
   if (ezcurrent_i2c_trans.status == I2CTransDone) {
-    I2CReceive(EZCURRENT_I2C_DEV, ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
+    i2c_receive(&EZCURRENT_I2C_DEV, &ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
   }
 }
 

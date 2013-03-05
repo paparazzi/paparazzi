@@ -52,6 +52,6 @@ void actuators_mkk_set(void) {
     actuators_mkk.trans[i].buf[0] = 0;
 #endif
 
-    I2CTransmit(ACTUATORS_MKK_DEVICE, actuators_mkk.trans[i], actuators_addr[i], 1);
+    i2c_transmit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i], actuators_addr[i], 1);
   }
 }

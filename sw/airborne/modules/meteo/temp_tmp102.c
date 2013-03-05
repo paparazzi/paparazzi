@@ -69,12 +69,12 @@ void tmp102_init(void) {
   tmp_trans.buf[0] = TMP102_CONF_REG;
   tmp_trans.buf[1] = TMP102_CONF1;
   tmp_trans.buf[2] = TMP102_CONF2;
-  I2CTransmit(TMP_I2C_DEV, tmp_trans, TMP102_SLAVE_ADDR, 3);
+  i2c_transmit(&TMP_I2C_DEV, &tmp_trans, TMP102_SLAVE_ADDR, 3);
 }
 
 void tmp102_periodic( void ) {
     tmp_trans.buf[0] = TMP102_TEMP_REG;
-    I2CTransceive(TMP_I2C_DEV, tmp_trans, TMP102_SLAVE_ADDR, 1, 2);
+    i2c_transceive(&TMP_I2C_DEV, &tmp_trans, TMP102_SLAVE_ADDR, 1, 2);
     tmp_meas_started = TRUE;
 }
 

@@ -71,14 +71,14 @@ void ir_mlx_periodic( void ) {
     if (ir_mlx_status >= IR_MLX_IDLE) {
       /* start two byte case temperature */
       mlx_trans.buf[0] = MLX90614_TA;
-      I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
+      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_CASE_TEMP;
       /* send serial number every 30 seconds */
       RunOnceEvery((8*30), DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, DefaultDevice, &ir_mlx_id_01, &ir_mlx_id_23));
     } else if (ir_mlx_status == IR_MLX_UNINIT) {
       /* start two byte ID 0 */
       mlx_trans.buf[0] = MLX90614_ID_0;
-      I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
+      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_0;
     }
   }
@@ -94,7 +94,7 @@ void ir_mlx_event( void ) {
       ir_mlx_id_01 |= mlx_trans.buf[1] << 8;
       /* start two byte ID 1 */
       mlx_trans.buf[0] = MLX90614_ID_1;
-      I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
+      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_1;
       break;
 
@@ -104,7 +104,7 @@ void ir_mlx_event( void ) {
       ir_mlx_id_01 |= mlx_trans.buf[1] << 24;
       /* start two byte ID 2 */
       mlx_trans.buf[0] = MLX90614_ID_2;
-      I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
+      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_2;
       break;
 
@@ -114,7 +114,7 @@ void ir_mlx_event( void ) {
       ir_mlx_id_23 |= mlx_trans.buf[1] << 8;
       /* start two byte ID 3 */
       mlx_trans.buf[0] = MLX90614_ID_3;
-      I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
+      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_3;
       break;
 
@@ -135,7 +135,7 @@ void ir_mlx_event( void ) {
 
       /* start two byte obj temperature */
       mlx_trans.buf[0] = MLX90614_TOBJ;
-      I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
+      i2c_transceive(&MLX_I2C_DEV, &mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_OBJ_TEMP;
       break;
 

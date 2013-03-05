@@ -60,7 +60,7 @@ void dpicco_init( void ) {
 
 void dpicco_periodic( void ) {
   /* init read */
-  I2CReceive(DPICCO_I2C_DEV, dpicco_trans, DPICCO_SLAVE_ADDR, 4);
+  i2c_receive(&DPICCO_I2C_DEV, &dpicco_trans, DPICCO_SLAVE_ADDR, 4);
 }
 
 void dpicco_event( void ) {

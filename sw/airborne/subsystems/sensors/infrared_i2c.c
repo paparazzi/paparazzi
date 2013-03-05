@@ -100,11 +100,11 @@ void infrared_i2c_update( void ) {
   if (irh_trans.status == I2CTransDone && ir_i2c_hor_status == IR_I2C_IDLE) {
     if (ValidConfWord(ir_i2c_conf_word) && !ir_i2c_conf_hor_done) {
       irh_trans.buf[0] = ir_i2c_conf_word | IR_HOR_OC_BIT | IR_START_CONV ;
-      I2CTransmit(i2c0, irh_trans, IR_HOR_I2C_ADDR, 1);
+      i2c_transmit(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 1);
       ir_i2c_hor_status = IR_I2C_CONFIGURE_HOR;
     } else {
       // Read next values
-      I2CReceive(i2c0, irh_trans, IR_HOR_I2C_ADDR, 3);
+      i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
       ir_i2c_data_hor_available = FALSE;
       ir_i2c_hor_status = IR_I2C_READ_IR1;
     }
@@ -113,10 +113,10 @@ void infrared_i2c_update( void ) {
   if (irv_trans.status == I2CTransDone) {
     if (ValidConfWord(ir_i2c_conf_word) && !ir_i2c_conf_ver_done) {
       irv_trans.buf[0] = ir_i2c_conf_word | IR_VER_OC_BIT;
-      I2CTransmit(i2c0, irv_trans, IR_VER_I2C_ADDR, 1);
+      i2c_transmit(&i2c0, &irv_trans, IR_VER_I2C_ADDR, 1);
     } else {
       // Read next values
-      I2CReceive(i2c0, irv_trans, IR_VER_I2C_ADDR, 2);
+      i2c_receive(&i2c0, &irv_trans, IR_VER_I2C_ADDR, 2);
       ir_i2c_data_ver_available = FALSE;
     }
   }
@@ -133,7 +133,7 @@ void infrared_i2c_hor_event( void ) {
       break;
     case IR_I2C_READ_IR1 :
       if (bit_is_set(irh_trans.buf[2],7)) {
-        I2CReceive(i2c0, irh_trans, IR_HOR_I2C_ADDR, 3);
+        i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
         break;
       }
       // Read IR1 value
@@ -142,18 +142,18 @@ void infrared_i2c_hor_event( void ) {
       ir_i2c.ir1 = FilterIR(ir_i2c.ir1, ir1);
       // Select IR2 channel
       irh_trans.buf[0] = IR_HOR_I2C_SELECT_IR2 | IR_HOR_OC_BIT | ir_i2c_conf_word | IR_START_CONV;
-      I2CTransmit(i2c0, irh_trans, IR_HOR_I2C_ADDR, 1);
+      i2c_transmit(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 1);
       ir_i2c_hor_status = IR_I2C_IR2_SELECTED;
       break;
     case IR_I2C_IR2_SELECTED :
       // IR2 selected, asking for IR2 value
-      I2CReceive(i2c0, irh_trans, IR_HOR_I2C_ADDR, 3);
+      i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
       ir_i2c_hor_status = IR_I2C_READ_IR2;
       break;
     case IR_I2C_READ_IR2 :
       // Read IR2 value
       if (bit_is_set(irh_trans.buf[2],7)) {
-        I2CReceive(i2c0, irh_trans, IR_HOR_I2C_ADDR, 3);
+        i2c_receive(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 3);
         break;
       }
       int16_t ir2 = (irh_trans.buf[0]<<8) | irh_trans.buf[1];
@@ -170,7 +170,7 @@ void infrared_i2c_hor_event( void ) {
 #endif
       // Select IR1 channel
       irh_trans.buf[0] = IR_HOR_I2C_SELECT_IR1 | IR_HOR_OC_BIT | ir_i2c_conf_word | IR_START_CONV;
-      I2CTransmit(i2c0, irh_trans, IR_HOR_I2C_ADDR, 1);
+      i2c_transmit(&i2c0, &irh_trans, IR_HOR_I2C_ADDR, 1);
       ir_i2c_hor_status = IR_I2C_IR1_SELECTED;
       break;
     case IR_I2C_IR1_SELECTED :
