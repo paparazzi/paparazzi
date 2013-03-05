@@ -34,9 +34,10 @@ void imu_quality_assessment_init(void) {
 
 void imu_quality_assessment_periodic(void)
 {
-  //static int32_t q_a[3][IMU_QUALITY_ASSESSMENT_ORDER];
-  //static const int32_t A[3] = {};
-  //static const int32_t B[3] = {};
+  static int32_t lx[3];
+  static int32_t fx[3];
+  const int32_t A[3] = {16384, -25576, 10508};
+  const int32_t B[3] = {13117, -26234, 13117};
 
   // Peak tracking
   if (imu.accel.x > imu_quality_assessment_data.q_ax)
@@ -56,6 +57,17 @@ void imu_quality_assessment_periodic(void)
 
   // High frequency high-pass filter
   // Medium frequency bandpass
+
+  lx[2] = lx[1];
+  lx[1] = lx[0];
+  lx[0] = imu.accel_unscaled.x;
+
+  fx[2] = fx[1];
+  fx[1] = fx[0];
+  fx[0] = B[0] * lx[0] + B[1] * lx[1] + B[2] * lx[2] - A[1] * fx[1] - A[2] * fx[2];
+  fx[0] == fx[0] >> 14;
+
+  imu_quality_assessment_data.q = fx[0];
 
 }
 
