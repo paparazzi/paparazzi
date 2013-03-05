@@ -237,16 +237,15 @@ void ahrs_update_accel(void) {
   INT32_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
 
+  /* FIR filtered pseudo_gravity_measurement */
+  static struct Int32Vect3 filtered_gravity_measurement = {0, 0, 0};
+  VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, 7);
+  VECT3_ADD(filtered_gravity_measurement, pseudo_gravity_measurement);
+  VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, 8);
+
   int32_t inv_weight = 1;
   if (ahrs_impl.use_gravity_heuristic) {
     /* heuristic on acceleration norm */
-
-    /* FIR filtered pseudo_gravity_measurement */
-    static struct Int32Vect3 filtered_gravity_measurement = {0, 0, 0};
-    VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, 7);
-    VECT3_ADD(filtered_gravity_measurement, pseudo_gravity_measurement);
-    VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, 8);
-
     int32_t acc_norm;
     INT32_VECT3_NORM(acc_norm, filtered_gravity_measurement);
     const int32_t g_int = ACCEL_BFP_OF_REAL(9.81);
