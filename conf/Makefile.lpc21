@@ -80,17 +80,19 @@ CINCS = $(INCLUDES) -I$(SRC_ARCH)/include
 CFLAGS = $(CINCS)
 CFLAGS += -O$(OPT)
 # CFLAGS += -malignment-traps
-CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
-CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -finline-limit=1200 --param inline-unit-growth=100
 
-# flags only for C
+# flags for warnings
+CFLAGS += -Wall -Wextra
+CFLAGS += -Wcast-qual -Wimplicit -Wcast-align
+CFLAGS += -Wpointer-arith -Wswitch
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
+
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)
 

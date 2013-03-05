@@ -98,7 +98,7 @@ $(info Using "$($(TARGET).LDSCRIPT)" as ldscript for target "$(TARGET)".)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
+CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -msoft-float -O$(OPT)
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mfix-cortex-m3-ldrd
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
@@ -107,16 +107,20 @@ CFLAGS += -std=gnu99
 CFLAGS += -fno-common
 CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
+
+# flags for warnings
+CFLAGS += -Wall -Wextra
 CFLAGS += -Wimplicit
 CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += -Wnested-externs
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 CFLAGS += -Wswitch-default
+
+CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += -DSTM32F1
 
 CFLAGS += $($(TARGET).CFLAGS)

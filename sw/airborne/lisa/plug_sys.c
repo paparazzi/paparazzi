@@ -14,11 +14,11 @@ extern ssize_t                _write(int, const void *, size_t);
 extern int                    _close(int);
 extern ssize_t                _read(int, void *, size_t);
 
-off_t                  _lseek(int a, off_t b, int c) { return b;}
+off_t                  _lseek(int a __attribute__((unused)), off_t b, int c __attribute__((unused))) { return b;}
 void                   abort(void) {while(1){};}
 pid_t                  getpid(void) { return 0;}
-int                    kill(pid_t a, int b) {return 0;}
-void *                 _sbrk(int a) {return 0;}
-ssize_t                _write(int a, const void *b, size_t c) {return 0; }
-int                    _close(int a) { return 0;}
-ssize_t                _read(int a, void *b, size_t c) {return 0;}
+int                    kill(pid_t a __attribute__((unused)), int b __attribute__((unused))) {return 0;}
+void *                 _sbrk(int a __attribute__((unused))) {return 0;}
+ssize_t                _write(int a __attribute__((unused)), const void *b __attribute__((unused)), size_t c __attribute__((unused))) {return 0; }
+int                    _close(int a __attribute__((unused))) { return 0;}
+ssize_t                _read(int a __attribute__((unused)), void *b __attribute__((unused)), size_t c __attribute__((unused))) {return 0;}
