@@ -23,6 +23,7 @@
 #include "imu_quality_assessment.h"
 
 #include "subsystems/imu.h"
+#include "generated/airframe.h"
 
 struct imu_quality_assessment_data_struct imu_quality_assessment_data;
 
@@ -32,43 +33,45 @@ void imu_quality_assessment_init(void) {
 
 #define IMU_QUALITY_ASSESSMENT_FILTER_ORDER    2
 
+
+#define PEAK_TRACKER(_Value, _Peak) {  \
+  if (  (_Value) > (_Peak)  )          \
+    _Peak = _Value;                    \
+  else if ( -(_Value) > (_Peak) )      \
+    _Peak = -(_Value);                 \
+}
+
+
 void imu_quality_assessment_periodic(void)
 {
-  static int32_t lx[3];
-  static int32_t fx[3];
-  const int32_t A[3] = {16384, -25576, 10508};
-  const int32_t B[3] = {13117, -26234, 13117};
+  static int32_t lx[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1];
+  static int32_t fx[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1];
+  const int32_t A[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1] = {16384, -25576, 10508};
+  const int32_t B[IMU_QUALITY_ASSESSMENT_FILTER_ORDER+1] = {13117, -26234, 13117};
 
   // Peak tracking
-  if (imu.accel.x > imu_quality_assessment_data.q_ax)
-     imu_quality_assessment_data.q_ax = imu.accel.x;
-  if (-imu.accel.x > imu_quality_assessment_data.q_ax)
-     imu_quality_assessment_data.q_ax = -imu.accel.x;
 
-  if (imu.accel.y > imu_quality_assessment_data.q_ay)
-     imu_quality_assessment_data.q_ay = imu.accel.y;
-  if (-imu.accel.y > imu_quality_assessment_data.q_ay)
-     imu_quality_assessment_data.q_ay = -imu.accel.y;
-
-  if (imu.accel.z > imu_quality_assessment_data.q_az)
-     imu_quality_assessment_data.q_az = imu.accel.z;
-  if (-imu.accel.z > imu_quality_assessment_data.q_az)
-     imu_quality_assessment_data.q_az = -imu.accel.z;
+  PEAK_TRACKER( imu.accel.x, imu_quality_assessment_data.q_ax);
+  PEAK_TRACKER( imu.accel.y, imu_quality_assessment_data.q_ay);
+  PEAK_TRACKER( imu.accel.z, imu_quality_assessment_data.q_az);
 
   // High frequency high-pass filter
-  // Medium frequency bandpass
 
+  // <= 15 bit raw measurement
+  // 14 bit multiplication and sum of 5 parameters
+
+  // Buffer of last measurement
   lx[2] = lx[1];
   lx[1] = lx[0];
   lx[0] = imu.accel_unscaled.x;
-
+  // Buffer of last filter values
   fx[2] = fx[1];
   fx[1] = fx[0];
   fx[0] = B[0] * lx[0] + B[1] * lx[1] + B[2] * lx[2] - A[1] * fx[1] - A[2] * fx[2];
-  fx[0] == fx[0] >> 14;
+  fx[0] = fx[0] >> 14;
 
-  imu_quality_assessment_data.q = fx[0];
-
+  int32_t filt_x = ((fx[0])*IMU_ACCEL_X_SENS_NUM)/IMU_ACCEL_X_SENS_DEN;
+  PEAK_TRACKER( filt_x, imu_quality_assessment_data.q);
 }
 
 
