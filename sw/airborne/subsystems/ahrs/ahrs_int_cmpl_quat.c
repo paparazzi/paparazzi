@@ -238,19 +238,28 @@ void ahrs_update_accel(void) {
 
 
   /* FIR filtered pseudo_gravity_measurement */
+  #define FIR_FILTER_SIZE 8
   static struct Int32Vect3 filtered_gravity_measurement = {0, 0, 0};
-  VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, 7);
+  VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, FIR_FILTER_SIZE-1);
   VECT3_ADD(filtered_gravity_measurement, pseudo_gravity_measurement);
-  VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, 8);
+  VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, FIR_FILTER_SIZE);
 
-  int32_t inv_weight = 1;
+
+  float weight = 1.0;
   if (ahrs_impl.use_gravity_heuristic) {
-    /* heuristic on acceleration norm */
-    int32_t acc_norm;
-    INT32_VECT3_NORM(acc_norm, filtered_gravity_measurement);
-    const int32_t g_int = ACCEL_BFP_OF_REAL(9.81);
-    const int32_t acc_norm_d = ABS(g_int - acc_norm);
-    inv_weight = Chop(50 * acc_norm_d / g_int, 1, 50);
+    /* heuristic on acceleration (gravity estimate) norm */
+
+    /* Factor how strongly to change the weight.
+     * e.g.: 3 means that at 1/(2*3) g = 1.6m/s^2
+     * the weight will half and zero at 3.27m/s^2
+     */
+    #define WEIGHT_FACTOR 3
+
+    struct FloatVect3 g_meas_f;
+    ACCELS_FLOAT_OF_BFP(g_meas_f, filtered_gravity_measurement);
+    const float g_meas_norm = FLOAT_VECT3_NORM(g_meas_f)/9.81;
+    weight = 1.0 - WEIGHT_FACTOR * fabs(1.0 - g_meas_norm);
+    Bound(weight, 0.02, 1.0);
   }
 
   /* Correct the drift by adding a rate correction.
@@ -261,16 +270,14 @@ void ahrs_update_accel(void) {
    * Scale residual with FRAC difference, update_accel freq and the gain.
    * To allow convenient range for the correction gain, multiply by two again...
    */
-  int32_t inv_rate_scale = 2 * 4096 * AHRS_CORRECT_FREQUENCY / ahrs_impl.accel_attitude_gain;
+  int32_t inv_rate_scale = 2 * 4096 * AHRS_CORRECT_FREQUENCY / (weight * ahrs_impl.accel_attitude_gain);
   Bound(inv_rate_scale, 8192, 1024000);
-  ahrs_impl.rate_correction.p -= residual.x / inv_rate_scale / inv_weight;
-  ahrs_impl.rate_correction.q -= residual.y / inv_rate_scale / inv_weight;
-  ahrs_impl.rate_correction.r -= residual.z / inv_rate_scale / inv_weight;
+  ahrs_impl.rate_correction.p -= residual.x / inv_rate_scale;
+  ahrs_impl.rate_correction.q -= residual.y / inv_rate_scale;
+  ahrs_impl.rate_correction.r -= residual.z / inv_rate_scale;
 
 
   /* Correct the gyro bias.
-   * Also make mitigating effect of gravity heuristic weight
-   * twice as large on bias as on rate.
    *
    * residual FRAC = ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
    * high_rez_bias = RATE_FRAC+28 = 40
@@ -279,14 +286,13 @@ void ahrs_update_accel(void) {
    * Scale residual with FRAC difference, update_accel freq and the gain.
    * Use accel_gyrobias_gain scale of 1/(2^11) compared to accel_attitude_gain.
    * 2^16 / 2^11 = 32
-   * To allow a suitable range of the freq and bias gain, multily by 32 separately.
+   * To allow a suitable range of the freq and bias gain, multily by 32 (<< 5) separately.
    */
-  /* scale gain with the update_accel freq */
-  int32_t inv_bias_gain = 2 * AHRS_CORRECT_FREQUENCY / ahrs_impl.accel_gyrobias_gain;
+  int32_t inv_bias_gain = 3 * AHRS_CORRECT_FREQUENCY / (weight * ahrs_impl.accel_gyrobias_gain);
   Bound(inv_bias_gain, 1, 1000)
-  ahrs_impl.high_rez_bias.p += (residual.x / inv_bias_gain) * 32 / (2*inv_weight);
-  ahrs_impl.high_rez_bias.q += (residual.y / inv_bias_gain) * 32 / (2*inv_weight);
-  ahrs_impl.high_rez_bias.r += (residual.z / inv_bias_gain) * 32 / (2*inv_weight);
+  ahrs_impl.high_rez_bias.p += (residual.x / inv_bias_gain) << 5;
+  ahrs_impl.high_rez_bias.q += (residual.y / inv_bias_gain) << 5;
+  ahrs_impl.high_rez_bias.r += (residual.z / inv_bias_gain) << 5;
 
 
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
