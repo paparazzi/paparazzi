@@ -299,7 +299,7 @@
 
   <!-- MISION -->
 
-  <message name="MISSION_STATUS" id="50">
+  <message name="FLIGHT_PLAN_STATUS" id="50">
     <description></description>
     <field name="flight_time" type="uint16" unit="s"/>
     <field name="cur_block" type="uint8"/>
