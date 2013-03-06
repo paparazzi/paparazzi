@@ -102,7 +102,8 @@
 
 #define PERIODIC_SEND_ATTITUDE_EULER(_trans, _dev) Downlink({ \
     struct FloatEulers* att = stateGetNedToBodyEulers_f(); \
-    DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &(att->phi), &(att->theta), &(att->psi)); \
+    struct FloatRates* rates = stateGetBodyRates_f(); \
+    DOWNLINK_SEND_ATTITUDE_EULER(_trans, _dev, &(att->phi), &(att->theta), &(att->psi), &(rates->p), &(rates->q), &(rates->r)); \
 })
 
 
@@ -139,11 +140,11 @@
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "rc_settings.h"
-#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle);
+#define PERIODIC_SEND_FIXEDWING_STATUS(_trans, _dev) DOWNLINK_SEND_FIXEDWING_STATUS(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle, &v_ctl_throttle_slewed);
 #define PERIODIC_SEND_RC_SETTINGS(_trans, _dev) if (!RcSettingsOff()) DOWNLINK_SEND_RC_SETTINGS(_trans, _dev, &slider_1_val, &slider_2_val);
 #else
-#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) {                         \
-    DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle); \
+#define PERIODIC_SEND_FIXEDWING_STATUS(_trans, _dev) {                         \
+    DOWNLINK_SEND_FIXEDWING_STATUS(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle, &v_ctl_throttle_slewed); \
   }
 #define PERIODIC_SEND_RC_SETTINGS(_trans, _dev) {}
 #endif

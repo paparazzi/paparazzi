@@ -216,5 +216,7 @@ void IMU_Daten_verarbeiten( void ) {
     imu_daten_angefordert = FALSE;
     stateSetNedToBodyEulers_f(&att);
 
-    RunOnceEvery(15, DOWNLINK_SEND_ATTITUDE_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi));
+    RunOnceEvery(15, DOWNLINK_SEND_ATTITUDE_EULER(DefaultChannel, DefaultDevice,
+          &att->phi, &att->theta, &att->psi,
+          &ArduIMU_data[3], &ArduIMU_data[4], &ArduIMU_data[5]));
 }

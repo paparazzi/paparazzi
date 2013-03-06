@@ -54,7 +54,7 @@
 #define PERIODIC_SEND_COMMANDS(_trans, _dev) DOWNLINK_SEND_COMMANDS(_trans, _dev, COMMANDS_NB, commands)
 
 #ifdef RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS(_trans, _dev) DOWNLINK_SEND_FBW_STATUS(_trans, _dev, &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current)
+#define PERIODIC_SEND_FBW_STATUS(_trans, _dev) DOWNLINK_SEND_FBW_STATUS(_trans, _dev, &(radio_control.status), &(radio_control.frame_rate), &fbw_mode)
 #ifdef RADIO_CONTROL_TYPE_PPM
 #define PERIODIC_SEND_PPM(_trans, _dev) {                           \
   uint16_t ppm_pulses_usec[RADIO_CONTROL_NB_CHANNEL];        \
