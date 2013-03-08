@@ -5,8 +5,8 @@
 
     <dl_settings NAME="AHRS">
        <dl_setting var="ahrs_impl.use_gravity_heuristic" min="0" step="1" max="1" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="gravity_heuristic" values="OFF|ON" param="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC"/>
-       <dl_setting var="ahrs_impl.accel_attitude_gain" min="1" step="1" max="100" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_att_gain" param="AHRS_ACCEL_ATTITUDE_GAIN"/>
-       <dl_setting var="ahrs_impl.accel_gyrobias_gain" min="1" step="1" max="100" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_bias_gain" param="AHRS_ACCEL_GYROBIAS_GAIN"/>
+       <dl_setting var="ahrs_impl.accel_inv_omega" min="4" step="4" max="128" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_inv_omega" param="AHRS_ACCEL_INV_OMEGA"/>
+       <dl_setting var="ahrs_impl.accel_inv_zeta" min="16" step="4" max="128" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_inv_zeta" param="AHRS_ACCEL_INV_ZETA"/>
        <dl_setting var="ahrs_impl.mag_attitude_gain" min="1" step="1" max="100" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_att_gain" param="AHRS_MAG_GYROBIAS_GAIN"/>
        <dl_setting var="ahrs_impl.mag_gyrobias_gain" min="1" step="1" max="100" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_bias_gain" param="AHRS_MAG_GYROBIAS_GAIN"/>
     </dl_settings>

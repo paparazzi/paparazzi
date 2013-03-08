@@ -71,11 +71,11 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 /*
  * default gains for correcting attitude and bias from accel/mag
  */
-#ifndef AHRS_ACCEL_ATTITUDE_GAIN
-#define AHRS_ACCEL_ATTITUDE_GAIN 32
+#ifndef AHRS_ACCEL_INV_OMEGA
+#define AHRS_ACCEL_INV_OMEGA 32
 #endif
-#ifndef AHRS_ACCEL_GYROBIAS_GAIN
-#define AHRS_ACCEL_GYROBIAS_GAIN 32
+#ifndef AHRS_ACCEL_INV_ZETA
+#define AHRS_ACCEL_INV_ZETA 64
 #endif
 #ifndef AHRS_MAG_ATTITUDE_GAIN
 #define AHRS_MAG_ATTITUDE_GAIN 32
@@ -125,8 +125,8 @@ void ahrs_init(void) {
   INT_RATES_ZERO(ahrs_impl.high_rez_bias);
 
   /* set default correction gains */
-  ahrs_impl.accel_attitude_gain = AHRS_ACCEL_ATTITUDE_GAIN;
-  ahrs_impl.accel_gyrobias_gain = AHRS_ACCEL_GYROBIAS_GAIN;
+  ahrs_impl.accel_inv_omega = AHRS_ACCEL_INV_OMEGA;
+  ahrs_impl.accel_inv_zeta = AHRS_ACCEL_INV_ZETA;
   ahrs_impl.mag_attitude_gain = AHRS_MAG_ATTITUDE_GAIN;
   ahrs_impl.mag_gyrobias_gain = AHRS_MAG_GYROBIAS_GAIN;
 
@@ -255,7 +255,7 @@ void ahrs_update_accel(void) {
   if (ahrs_impl.use_gravity_heuristic) {
     /* heuristic on acceleration (gravity estimate) norm */
 
-    /* Factor how strongly to change the weight.
+    /* Factor how strongly to change the weight. 
      * e.g. for WEIGHT_FACTOR 3:
      * <0.66G = 0, 1G = 1.0, >1.33G = 0
      */
@@ -265,37 +265,38 @@ void ahrs_update_accel(void) {
     ACCELS_FLOAT_OF_BFP(g_meas_f, filtered_gravity_measurement);
     const float g_meas_norm = FLOAT_VECT3_NORM(g_meas_f)/9.81;
     weight = 1.0 - WEIGHT_FACTOR * fabs(1.0 - g_meas_norm);
-    Bound(weight, 0.02, 1.0);
+    Bound(weight, 0.15, 1.0);
   }
 
-  /* Correct the drift by adding a rate correction.
+  /* Complementary filter proportionnal gain. 
+   * Kp = 1/(2 * zeta * omega)
    * residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
    * rate_correction FRAC: RATE_FRAC = 12
    * FRAC conversion: 2^12 / 2^24 = 1/(2^12) = 1/4096
    *
-   * Scale residual with FRAC difference, update_accel freq and the gain.
-   * To allow convenient range for the correction gain, multiply by two again...
+   * Kp = 1 / inv_rate_scale * 4096 = 1/(2*45*32*500/32)  * 4096 = 0.091
+   * zeta = Kp/2/SQRT(Ki analog) = 0.73
    */
-  int32_t inv_rate_scale = 2 * 4096 * AHRS_CORRECT_FREQUENCY / (weight * ahrs_impl.accel_attitude_gain);
-  Bound(inv_rate_scale, 8192, 1024000);
+  int32_t inv_rate_scale = 2 * ahrs_impl.accel_inv_omega * ahrs_impl.accel_inv_zeta * AHRS_CORRECT_FREQUENCY / (32 * weight);
+  Bound(inv_rate_scale, 8192, 4194304);
   ahrs_impl.rate_correction.p -= residual.x / inv_rate_scale;
   ahrs_impl.rate_correction.q -= residual.y / inv_rate_scale;
   ahrs_impl.rate_correction.r -= residual.z / inv_rate_scale;
 
 
-  /* Correct the gyro bias.
-   *
+  /* Complementary filter integral gain
+   * Correct the gyro bias.
+   * Ki = 1/(omega*omega)
    * residual FRAC = ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
    * high_rez_bias = RATE_FRAC+28 = 40
    * FRAC conversion: 2^40 / 2^24 = 2^16
    *
-   * Scale residual with FRAC difference, update_accel freq and the gain.
-   * Use accel_gyrobias_gain scale of 1/(2^11) compared to accel_attitude_gain.
-   * 2^16 / 2^11 = 32
-   * To allow a suitable range of the freq and bias gain, multily by 32 (<< 5) separately.
+   * Ki = 1/2^16 / inv_bias_gain * 32 = 1/2^16 / (500*32*32/8192) * 32 = 7.8e-6
+   * Ki analog = 7.8e-6 * 500 = 3.9e-3
+   * omega = SQRT(Ki analog)/(2*pi) = 0.01 Hz - T = 100 s.
    */
-  int32_t inv_bias_gain = 3 * AHRS_CORRECT_FREQUENCY / (weight * ahrs_impl.accel_gyrobias_gain);
-  Bound(inv_bias_gain, 1, 1000)
+  int32_t inv_bias_gain = ahrs_impl.accel_inv_omega * ahrs_impl.accel_inv_omega * AHRS_CORRECT_FREQUENCY / (weight * weight * 8192);
+  Bound(inv_bias_gain, 8, 65536)
   ahrs_impl.high_rez_bias.p += (residual.x / inv_bias_gain) << 5;
   ahrs_impl.high_rez_bias.q += (residual.y / inv_bias_gain) << 5;
   ahrs_impl.high_rez_bias.r += (residual.z / inv_bias_gain) << 5;
