@@ -428,7 +428,7 @@ void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
-  SEND_MISSION_STATUS(DefaultChannel, DefaultDevice);
+  SEND_FLIGHT_PLAN_STATUS(DefaultChannel, DefaultDevice);
 #endif
 
   SEND_CAM(DefaultChannel, DefaultDevice);

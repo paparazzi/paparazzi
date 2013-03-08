@@ -3,7 +3,6 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
-      <message name="ESTIMATOR"      period="3."	phase="0."/>
       <message name="MISSION_STATUS" period="3."	phase="0."/>
       <message name="GPS_UTM"	       period="3."	phase="0."/>
 

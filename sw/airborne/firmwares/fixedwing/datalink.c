@@ -129,7 +129,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_WP_MOVED_UTM(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-    SEND_MISSION_STATUS(DefaultChannel, DefaultDevice);
+    SEND_FLIGHT_PLAN_STATUS(DefaultChannel, DefaultDevice);
   } else
 #endif /** NAV */
 #ifdef WIND_INFO

@@ -84,49 +84,25 @@
                   );					\
   }
 
-#ifdef USE_GPS
-#define SEND_MISSION_STATUS(_trans, _dev) {                 \
-	uint8_t _circle_count = NavCircleCount();               \
+#define SEND_FLIGHT_PLAN_STATUS(_trans, _dev) {             \
+	uint8_t _circle_count = NavCircleCount();                 \
     uint8_t _foo8 = 0;                                      \
     float _foo = 0.0;                                       \
-	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev,              \
+	DOWNLINK_SEND_FLIGHT_PLAN_STATUS(_trans, _dev,            \
                                  &autopilot_flight_time,    \
                                  &nav_block,                \
-                                 &block_time,               \
                                  &nav_stage,                \
+                                 &block_time,               \
                                  &stage_time,               \
-                                 &sys_time.nb_sec,          \
-                                 &gps.fix,                  \
                                  &_foo,                     \
                                  &_foo,                     \
+                                 &guidance_h_mode,          \
                                  &_circle_count,            \
-                                 &_foo8,                    \
-                                 &guidance_h_mode);         \
+                                 &_foo8);                   \
   }
-#else /* !USE_GPS */
-#define SEND_MISSION_STATUS(_trans, _dev) { \
-	uint8_t _circle_count = NavCircleCount(); \
-	uint8_t fix = GPS_FIX_NONE; \
-    uint8_t _foo8 = 0;                                                  \
-    float _foo = 0.0;                                                   \
-	DOWNLINK_SEND_MISSION_STATUS(_trans, _dev,                          \
-                                 &autopilot_flight_time,                \
-                                 &nav_block,                            \
-                                 &block_time,                           \
-                                 &nav_stage,                            \
-                                 &stage_time,                           \
-                                 &sys_time.nb_sec,                      \
-                                 &fix,                                  \
-                                 &_foo,                                 \
-                                 &_foo,                                 \
-                                 &_circle_count,                        \
-                                 &_foo8,                                \
-                                 &guidance_h_mode);                     \
-}
-#endif /*USE_GPS */
 
-#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
-  SEND_MISSION_STATUS(_trans, _dev); \
+#define PERIODIC_SEND_FLIGHT_PLAN_STATUS(_trans, _dev) Downlink({ \
+  SEND_FLIGHT_PLAN_STATUS(_trans, _dev); \
 })
 
 

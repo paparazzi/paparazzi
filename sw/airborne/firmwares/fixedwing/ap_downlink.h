@@ -37,6 +37,7 @@
 #include <math.h>
 
 #include "generated/airframe.h"
+#include "paparazzi.h"
 #include "state.h"
 
 #ifndef DOWNLINK_DEVICE
@@ -53,18 +54,19 @@
 #define Downlink(x) {}
 #endif
 
-#define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
+#define PERIODIC_SEND_ALIVE(_trans, _dev) {             \
+  uint8_t type = PPRZ_TYPE_FIXEDWING;                   \
+  DOWNLINK_SEND_ALIVE(_trans, _dev, &type, 16, MD5SUM); \
+}
 
-#define PERIODIC_SEND_POSITION_SPEED_ACCEL(_trans, _dev) Downlink({ \
-    struct EnuCoor_i* pos = stateGetPositionEnu_i();                \
-    struct EnuCoor_i* speed = stateGetSpeedEnu_i();                 \
-    struct NedCoor_i* acc = stateGetAccelNed_i();                   \
-    int32_t ref = 0;                                                \
-    DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev,                \
-      &(pos->x), &(pos->y), &(pos->z),                              \
-      &(speed->x), &(speed->y), &(speed->z),                        \
-      &(acc->x), &(acc->y), &(acc->z),                              \
-      &ref, &ref, &ref);                                            \
+#define PERIODIC_SEND_LOCAL_POSITION(_trans, _dev) Downlink({ \
+    struct EnuCoor_i* pos = stateGetPositionEnu_f();          \
+    struct EnuCoor_i* speed = stateGetSpeedEnu_f();           \
+    uint8_t frame = FRAME_ENU;                                \
+    DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev,          \
+      &(pos->x), &(pos->y), &(pos->z),                        \
+      &(speed->x), &(speed->y), &(speed->z),                  \
+      &frame);                                                \
 })
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
@@ -75,14 +77,13 @@
   DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
 })
 
-#define SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
+#define SEND_FLIGHT_PLAN_STATUS(_trans, _dev) Downlink({ \
   uint8_t _circle_count = NavCircleCount(); \
-  uint32_t nb_sec = sys_time.nb_sec; \
-  DOWNLINK_SEND_MISSION_STATUS(_trans, _dev, &autopilot_flight_time, &nav_block, &block_time, &nav_stage, &stage_time, &nb_sec, &gps.fix, &dist2_to_wp, &dist2_to_home, &_circle_count, &nav_oval_count, &horizontal_mode);\
+  DOWNLINK_SEND_FLIGHT_PLAN_STATUS(_trans, _dev, &autopilot_flight_time, &nav_block, &nav_stage, &block_time, &stage_time, &dist2_to_wp, &dist2_to_home, &horizontal_mode, &_circle_count, &nav_oval_count);\
 })
 
-#define PERIODIC_SEND_MISSION_STATUS(_trans, _dev) Downlink({ \
-  SEND_MISSION_STATUS(_trans, _dev); \
+#define PERIODIC_SEND_FLIGHT_PLAN_STATUS(_trans, _dev) Downlink({ \
+  SEND_FLIGHT_PLAN_STATUS(_trans, _dev); \
 })
 
 #ifdef MCU_SPI_LINK

@@ -7,7 +7,6 @@
       <message name="GPS_UTM"        period="0.25"/>
       <message name="ATTITUDE_EULER" period="0.2"/>
       <message name="H_CTL_A"        period="0.2"/>
-      <message name="ESTIMATOR"      period="0.5"/>
       <message name="WP_MOVED"       period="0.5"/>
       <message name="CIRCLE"         period="1.05"/>
       <message name="DESIRED"        period="0.2"/>
