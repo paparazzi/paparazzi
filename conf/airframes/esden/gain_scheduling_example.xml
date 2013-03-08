@@ -210,8 +210,6 @@
       <subsystem name="radio_control" type="ppm">
       	<configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
-
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
     <target name="nps" board="pc">
