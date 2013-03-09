@@ -58,8 +58,6 @@ struct Int32Eulers stabilization_att_sum_err;
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-float care_free_heading = 0;
-
 #define IERROR_SCALE 1024
 #define GAIN_PRESCALER_FF 48
 #define GAIN_PRESCALER_P 48
