@@ -33,6 +33,7 @@
 
 #include "subsystems/radio_control.h"
 #include "state.h"
+#include "firmwares/rotorcraft/autopilot.h"
 
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
 #define SP_MAX_PHI     (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI)
@@ -187,7 +188,15 @@ static inline void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQu
   /* get current heading */
   const struct FloatVect3 zaxis = {0., 0., 1.};
   struct FloatQuat q_yaw;
-  FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+
+  //Care Free mode
+  if(autopilot_mode == AP_MODE_CARE_FREE) {
+    //care_free_heading has been set to current psi when entering care free mode.
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, care_free_heading);
+  }
+  else {
+    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+  }
 
   /* roll/pitch commands applied to to current heading */
   struct FloatQuat q_rp_sp;
