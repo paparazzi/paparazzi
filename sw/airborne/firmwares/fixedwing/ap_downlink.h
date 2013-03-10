@@ -59,22 +59,34 @@
   DOWNLINK_SEND_ALIVE(_trans, _dev, &type, 16, MD5SUM); \
 }
 
-#define PERIODIC_SEND_LOCAL_POSITION(_trans, _dev) Downlink({ \
-    struct EnuCoor_i* pos = stateGetPositionEnu_f();          \
-    struct EnuCoor_i* speed = stateGetSpeedEnu_f();           \
-    uint8_t frame = FRAME_ENU;                                \
-    DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev,          \
-      &(pos->x), &(pos->y), &(pos->z),                        \
-      &(speed->x), &(speed->y), &(speed->z),                  \
-      &frame);                                                \
-})
+#if USE_INFRARED
+#define PERIODIC_SEND_SYSTEM_STATUS(_trans, _dev) { \
+    uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); \
+    uint8_t mde = 3; if (contrast < 50) mde = 7; \
+    uint8_t pos_st = 0; \
+    DOWNLINK_SEND_SYSTEM_STATUS(_trans, _dev, &sys_time.nb_sec, &gps.tow, &mde, &contrast, &pos_st, &gps.pacc); \
+    }
+#elif USE_IMU && USE_AHRS
+#define PERIODIC_SEND_SYSTEM_STATUS(_trans, _dev) { \
+    uint8_t mde = 3; \
+    if (ahrs.status == AHRS_UNINIT) mde = 2; \
+    if (ahrs_timeout_counter > 10) mde = 5; \
+    uint16_t val = 0; \
+    uint8_t pos_st = 0; \
+    DOWNLINK_SEND_SYSTEM_STATUS(_trans, _dev, &sys_time.nb_sec, &gps.tow, &mde, &val, &pos_st, &gps.pacc); \
+    }
+#else
+#define PERIODIC_SEND_SYSTEM_STATUS(_trans, _dev) {}
+#endif
 
-#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ \
+
+#define PERIODIC_SEND_FIXEDWING_STATUS(_trans, _dev) DOWNLINK_SEND_FIXEDWING_STATUS(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle, &v_ctl_throttle_slewed);
+
+#define PERIODIC_SEND_ELECTRICAL_STATUS(_trans, _dev) Downlink({ \
   uint16_t vsup = vsupply*10; \
   int16_t amps = (int16_t) (current/10); \
-  int16_t pwr = (int16_t) (vsup*amps*100); \
   int16_t e = energy; \
-  DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &v_ctl_throttle_slewed);\
+  DOWNLINK_SEND_ELECTRICAL_STATUS(_trans, _dev, &vsup, &amps, &e);\
 })
 
 #define SEND_FLIGHT_PLAN_STATUS(_trans, _dev) Downlink({ \
@@ -100,6 +112,26 @@
   DOWNLINK_SEND_DOWNLINK(_trans, _dev, &downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
 }
 
+#define PERIODIC_SEND_LOCAL_POSITION(_trans, _dev) Downlink({ \
+    struct EnuCoor_i* pos = stateGetPositionEnu_f();          \
+    struct EnuCoor_i* speed = stateGetSpeedEnu_f();           \
+    uint8_t frame = FRAME_ENU;                                \
+    DOWNLINK_SEND_LOCAL_POSITION(_trans, _dev,          \
+      &(pos->x), &(pos->y), &(pos->z),                        \
+      &(speed->x), &(speed->y), &(speed->z),                  \
+      &frame);                                                \
+})
+
+#define PERIODIC_SEND_LOCAL_POSITION_DESIRED(_trans, _dev) Downlink({ \
+    uint8_t frame = FRAME_ENU;                                \
+    float vx = sinf(h_ctl_course_setpoint); \
+    float vy = cosf(h_ctl_course_setpoint); \
+    DOWNLINK_SEND_LOCAL_POSITION_DESIRED(_trans, _dev,          \
+      &desired_x, &desired_y, &v_ctl_altitude_setpoint,         \
+      &vx, &vy, &v_ctl_climb_setpoint,                  \
+      &frame);                                                \
+})
+
 
 #define PERIODIC_SEND_ATTITUDE_EULER(_trans, _dev) Downlink({ \
     struct FloatEulers* att = stateGetNedToBodyEulers_f(); \
@@ -115,15 +147,7 @@
 #endif
 
 
-#if USE_INFRARED
-#define PERIODIC_SEND_STATE_FILTER_STATUS(_trans, _dev) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_trans, _dev, &mde, &contrast); }
-#elif USE_IMU && USE_AHRS
-#define PERIODIC_SEND_STATE_FILTER_STATUS(_trans, _dev) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_trans, _dev, &mde, &val); }
-#else
-#define PERIODIC_SEND_STATE_FILTER_STATUS(_trans, _dev) {}
-#endif
-
-#define PERIODIC_SEND_NAVIGATION_REF(_trans, _dev)  DOWNLINK_SEND_NAVIGATION_REF(_trans, _dev, &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
+#define PERIODIC_SEND_GLOBAL_ORIGIN_UTM(_trans, _dev)  DOWNLINK_SEND_GLOBAL_ORIGIN_UTM(_trans, _dev, &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 
 
 #define DownlinkSendWp(_trans, _dev, i) {	     \
@@ -141,12 +165,8 @@
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "rc_settings.h"
-#define PERIODIC_SEND_FIXEDWING_STATUS(_trans, _dev) DOWNLINK_SEND_FIXEDWING_STATUS(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle, &v_ctl_throttle_slewed);
 #define PERIODIC_SEND_RC_SETTINGS(_trans, _dev) if (!RcSettingsOff()) DOWNLINK_SEND_RC_SETTINGS(_trans, _dev, &slider_1_val, &slider_2_val);
 #else
-#define PERIODIC_SEND_FIXEDWING_STATUS(_trans, _dev) {                         \
-    DOWNLINK_SEND_FIXEDWING_STATUS(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &kill_throttle, &v_ctl_throttle_slewed); \
-  }
 #define PERIODIC_SEND_RC_SETTINGS(_trans, _dev) {}
 #endif
 
@@ -202,8 +222,6 @@
 #else
 #define PERIODIC_SEND_IMU(_trans, _dev) {}
 #endif
-
-#define PERIODIC_SEND_ESTIMATOR(_trans, _dev) DOWNLINK_SEND_ESTIMATOR(_trans, _dev, &(stateGetPositionUtm_f()->alt), &(stateGetSpeedEnu_f()->z))
 
 #if defined CAM || defined MOBILE_CAM
 #define SEND_CAM(_trans, _dev) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int16_t phi = DegOfRad(cam_phi_c); int16_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_trans, _dev, &phi, &theta, &x, &y);})

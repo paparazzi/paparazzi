@@ -6,20 +6,20 @@
       <message name="AIRSPEED_CONTROL"    period="1"/>
       <message name="ALIVE"               period="5"/>
       <message name="GPS_UTM"             period="0.25"/>
-      <message name="MISSION_STATUS"      period="1."/>
+      <message name="FLIGHT_PLAN_STATUS"      period="1."/>
       <message name="ATTITUDE_EULER"      period="0.5"/>
       <message name="WP_MOVED"            period="0.5"/>
       <message name="CIRCLE"              period="1.05"/>
-      <message name="DESIRED"             period="1.05"/>
-      <message name="ENERGY"              period="1.1"/>
+      <message name="LOCAL_POSITION_DESIRED"             period="1.05"/>
+      <message name="ELECTRICAL_STATUS"              period="1.1"/>
       <message name="BARO_MS5534A"        period="1.0"/>
       <message name="SCP_STATUS"          period="1.0"/>
       <message name="SEGMENT"             period="1.2"/>
       <message name="V_CTL_CALIBRATION"   period="2.1"/>
-      <message name="NAVIGATION_REF"      period="9."/>
-      <message name="PPRZ_MODE"           period="5."/>
+      <message name="GLOBAL_ORIGIN_UTM"      period="9."/>
+      <message name="FIXEDWING_STATUS"           period="5."/>
       <message name="RC_SETTINGS"         period="5."/>
-      <message name="STATE_FILTER_STATUS" period="5."/>
+      <message name="SYSTEM_STATUS" period="5."/>
       <message name="DOWNLINK"            period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="1.2"/>
@@ -33,14 +33,14 @@
       <message name="GPS_UTM"             period="1.05"/>
       <message name="WP_MOVED"            period="1.4"/>
       <message name="CIRCLE"              period="3.05"/>
-      <message name="DESIRED"             period="4.05"/>
-      <message name="ENERGY"              period="1.1"/>
+      <message name="LOCAL_POSITION_DESIRED"             period="4.05"/>
+      <message name="ELECTRICAL_STATUS"              period="1.1"/>
       <message name="SEGMENT"             period="3.2"/>
       <message name="V_CTL_CALIBRATION"   period="5.1"/>
-      <message name="NAVIGATION_REF"      period="9."/>
-      <message name="MISSION_STATUS"      period="3."/>
-      <message name="PPRZ_MODE"           period="5."/>
-      <message name="STATE_FILTER_STATUS" period="5."/>
+      <message name="GLOBAL_ORIGIN_UTM"      period="9."/>
+      <message name="FLIGHT_PLAN_STATUS"      period="3."/>
+      <message name="FIXEDWING_STATUS"           period="5."/>
+      <message name="SYSTEM_STATUS" period="5."/>
       <message name="DOWNLINK"            period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="5.2"/>
@@ -51,11 +51,11 @@
     <mode name="extremal">
       <message name="ALIVE"               period="5"/>
       <message name="GPS_UTM"             period="5.1"/>
-      <message name="ENERGY"              period="10.1"/>
-      <message name="DESIRED"             period="10.2"/>
-      <message name="MISSION_STATUS"      period="5.4"/>
-      <message name="PPRZ_MODE"           period="5.5"/>
-      <message name="STATE_FILTER_STATUS" period="7."/>
+      <message name="ELECTRICAL_STATUS"              period="10.1"/>
+      <message name="LOCAL_POSITION_DESIRED"             period="10.2"/>
+      <message name="FLIGHT_PLAN_STATUS"      period="5.4"/>
+      <message name="FIXEDWING_STATUS"           period="5.5"/>
+      <message name="SYSTEM_STATUS" period="7."/>
       <message name="DOWNLINK"            period="5.7"/>
     </mode>
     <mode name="raw_sensors">
