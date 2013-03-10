@@ -151,6 +151,7 @@
   </message>
 
   <message name="DOWNLINK_STATUS" id="23">
+    <field name="link_id" type="int8"/>
     <field name="run_time" type="uint32" unit="s"/>
     <field name="rx_bytes" type="uint32"/>
     <field name="rx_msgs" type="uint32"/>
@@ -2459,6 +2460,18 @@
   <message name="TELEMETRY_ERROR" id="33">
     <field name="ac_id" type="string"/>
     <field name="message" type="string"/>
+  </message>
+
+   <message name="TELEMETRY_MESSAGE" id="34">
+    <field name="ac_id" type="string"/>
+    <field name="link_id" type="string" />
+    <field name="message" type="string" format=";sv"/>
+   </message>
+
+  <message name="DATALINK_MESSAGE" id="35">
+    <field name="ac_id" type="string"/>
+    <field name="link_id" type="string"/>
+    <field name="message" type="string" format=";sv"/>
   </message>
 
   <message name="PLUMES" id="100">

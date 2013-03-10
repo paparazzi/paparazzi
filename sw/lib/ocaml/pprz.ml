@@ -485,10 +485,10 @@ module type MESSAGES = sig
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 
-  val message_send : ?timestamp:float -> string -> string -> values -> unit
-  (** [message_send sender msg_name values] *)
+  val message_send : ?timestamp:float -> ?link_id:int -> string -> string -> values -> unit
+  (** [message_send sender link_id msg_name values] *)
 
-  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
+  val message_bind : ?sender:string -> string -> (string -> values -> unit) -> Ivy.binding
   (** [message_bind ?sender msg_name callback] *)
 
   val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
@@ -609,8 +609,22 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     if n > 1000 then (** FIXME: to prevent Ivy bug on long message *)
       fprintf stderr "Discarding long ivy message (%d bytes)\n%!" n
     else
-      Ivy.send msg
-
+      match link_id with
+        None -> Ivy.send msg
+      | Some the_link_id -> begin
+        let index = ref 0 in
+        let modified_msg = String.copy msg in
+        let func = fun c -> 
+          match c with 
+            ' ' -> begin 
+            String.set modified_msg !index ';'; 
+            index := !index + 1
+            end
+          | x -> index := !index + 1; in
+        String.iter func modified_msg;
+        Ivy.send ( Printf.sprintf "redlink TELEMETRY_MESSAGE %s %i %s" sender the_link_id modified_msg);
+      end
+          
   let message_bind = fun ?sender msg_name cb ->
     match sender with
         None ->
