@@ -27,8 +27,6 @@
 
 int32_t stabilization_cmd[COMMANDS_NB];
 
-float care_free_heading = 0;
-
 void stabilization_init(void) {
 #ifndef STABILIZATION_SKIP_RATE
   stabilization_none_init();

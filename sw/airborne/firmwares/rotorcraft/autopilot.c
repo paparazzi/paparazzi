@@ -130,82 +130,82 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */
     switch (new_autopilot_mode) {
-    case AP_MODE_FAILSAFE:
+      case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-      stab_att_sp_euler.phi = 0;
-      stab_att_sp_euler.theta = 0;
-      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-      break;
+        stab_att_sp_euler.phi = 0;
+        stab_att_sp_euler.theta = 0;
+        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+        break;
 #endif
-    case AP_MODE_KILL:
-      autopilot_set_motors_on(FALSE);
-      autopilot_in_flight = FALSE;
-      autopilot_in_flight_counter = 0;
-      guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
-      break;
-    case AP_MODE_RC_DIRECT:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
-      break;
-    case AP_MODE_RATE_DIRECT:
-    case AP_MODE_RATE_Z_HOLD:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
-      break;
-    case AP_MODE_CARE_FREE:
-      //Take the current psi as the reference for pitch and roll
-      care_free_heading = stateGetNedToBodyEulers_f()->psi;
-    case AP_MODE_ATTITUDE_RC_CLIMB:
-    case AP_MODE_ATTITUDE_DIRECT:
-    case AP_MODE_ATTITUDE_CLIMB:
-    case AP_MODE_ATTITUDE_Z_HOLD:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-      break;
-    case AP_MODE_HOVER_DIRECT:
-    case AP_MODE_HOVER_CLIMB:
-    case AP_MODE_HOVER_Z_HOLD:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
-      break;
-    case AP_MODE_NAV:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
-      break;
-    default:
-      break;
+      case AP_MODE_KILL:
+        autopilot_set_motors_on(FALSE);
+        autopilot_in_flight = FALSE;
+        autopilot_in_flight_counter = 0;
+        guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
+        break;
+      case AP_MODE_RC_DIRECT:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+        break;
+      case AP_MODE_RATE_DIRECT:
+      case AP_MODE_RATE_Z_HOLD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+        break;
+      case AP_MODE_ATTITUDE_RC_CLIMB:
+      case AP_MODE_ATTITUDE_DIRECT:
+      case AP_MODE_ATTITUDE_CLIMB:
+      case AP_MODE_ATTITUDE_Z_HOLD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+        break;
+      case AP_MODE_CARE_FREE_DIRECT:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
+        break;
+      case AP_MODE_HOVER_DIRECT:
+      case AP_MODE_HOVER_CLIMB:
+      case AP_MODE_HOVER_Z_HOLD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
+        break;
+      case AP_MODE_NAV:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
+        break;
+      default:
+        break;
     }
     /* vertical mode */
     switch (new_autopilot_mode) {
-    case AP_MODE_FAILSAFE:
+      case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-      guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
-      guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-      break;
+        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
+        guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        break;
 #endif
-    case AP_MODE_KILL:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
-      break;
-    case AP_MODE_RC_DIRECT:
-    case AP_MODE_RATE_DIRECT:
-    case AP_MODE_ATTITUDE_DIRECT:
-    case AP_MODE_HOVER_DIRECT:
-    case AP_MODE_CARE_FREE:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
-      break;
-    case AP_MODE_RATE_RC_CLIMB:
-    case AP_MODE_ATTITUDE_RC_CLIMB:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
-      break;
-    case AP_MODE_ATTITUDE_CLIMB:
-    case AP_MODE_HOVER_CLIMB:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-      break;
-    case AP_MODE_RATE_Z_HOLD:
-    case AP_MODE_ATTITUDE_Z_HOLD:
-    case AP_MODE_HOVER_Z_HOLD:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
-      break;
-    case AP_MODE_NAV:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
-      break;
-    default:
-      break;
+      case AP_MODE_KILL:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
+        break;
+      case AP_MODE_RC_DIRECT:
+      case AP_MODE_RATE_DIRECT:
+      case AP_MODE_ATTITUDE_DIRECT:
+      case AP_MODE_HOVER_DIRECT:
+      case AP_MODE_CARE_FREE_DIRECT:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
+        break;
+      case AP_MODE_RATE_RC_CLIMB:
+      case AP_MODE_ATTITUDE_RC_CLIMB:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
+        break;
+      case AP_MODE_ATTITUDE_CLIMB:
+      case AP_MODE_HOVER_CLIMB:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        break;
+      case AP_MODE_RATE_Z_HOLD:
+      case AP_MODE_ATTITUDE_Z_HOLD:
+      case AP_MODE_HOVER_Z_HOLD:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
+        break;
+      case AP_MODE_NAV:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
+        break;
+      default:
+        break;
     }
     autopilot_mode = new_autopilot_mode;
   }
