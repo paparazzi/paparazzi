@@ -33,6 +33,7 @@ and col_settings_value = cols#add Gobject.Data.float
 and col_airframe_value_new = cols#add Gobject.Data.float
 and col_code_value = cols#add Gobject.Data.float
 and col_to_save = cols#add Gobject.Data.boolean
+and col_integer = cols#add Gobject.Data.boolean
 
 let (//) = Filename.concat
 
@@ -94,7 +95,8 @@ let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
     if model#get ~row ~column:col_to_save then begin
       let new_value = model#get ~row ~column:col_airframe_value_new
       and param = model#get ~row ~column:col_param in
-      new_xml := EditAirframe.set !new_xml param (string_of_float new_value)
+      let string_value = if model#get ~row ~column:col_integer then string_of_int (truncate new_value) else string_of_float new_value in
+      new_xml := EditAirframe.set !new_xml param string_value
     end;
     false);
   if old_file = file then begin
@@ -171,6 +173,8 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
             Failure "float_of_string" -> raise (EditAirframe.No_param param)
       in
       let airframe_value_new = value /. airframe_scale in
+      (* test if is has to be saved as integer or float *)
+      let integer = try ignore(int_of_string (attrib "step")); true with _ -> false in
       (* Printf.fprintf stderr "param %s: airframe_scale=%f display_scale=%f extra_scale=%f\n" param airframe_scale display_scale extra_scale; flush stderr; *)
       let row = model#append () in
       model#set ~row ~column:col_index index;
@@ -179,7 +183,8 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_settings_value (value *. display_scale);
       model#set ~row ~column:col_airframe_value_new airframe_value_new;
       model#set ~row ~column:col_code_value value;
-      model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value)
+      model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value);
+      model#set ~row ~column:col_integer integer
     with
         Xml.No_attribute _ | Exit -> ()
       | EditAirframe.No_param param ->

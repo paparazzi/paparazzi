@@ -73,6 +73,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
       fprintf stderr "Warning: 'step' attribute missing in '%s' setting. Default to 1\n%!" (Xml.to_string dl_setting);
       1.
   in
+  let digits = try ignore(int_of_string (ExtXml.attrib dl_setting "step")); 0 with _ -> 3 in
   let page_incr = step_incr
   and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
@@ -135,7 +136,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
-      let _scale = GRange.scale `HORIZONTAL ~digits:3 ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
+      let _scale = GRange.scale `HORIZONTAL ~digits ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
       let f = fun _ -> do_change i ((adj#value-.alt_b)/.alt_a)  in
       let callback = fun () -> modified := true; if auto_but#active then f () in
       ignore (adj#connect#value_changed ~callback);
