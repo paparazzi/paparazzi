@@ -130,25 +130,25 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
     }
     FLOAT_ANGLE_NORMALIZE(sp->psi);
 #endif
-  }
-  //Care Free mode
-  if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
-    //care_free_heading has been set to current psi when entering care free mode.
-    float cos_psi;
-    float sin_psi;
-    float temp_theta;
+    //Care Free mode
+    if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
+      //care_free_heading has been set to current psi when entering care free mode.
+      float cos_psi;
+      float sin_psi;
+      float temp_theta;
 
-    float care_free_delta_psi_f = sp->psi - care_free_heading;
+      float care_free_delta_psi_f = sp->psi - care_free_heading;
 
-    FLOAT_ANGLE_NORMALIZE(care_free_delta_psi_f);
+      FLOAT_ANGLE_NORMALIZE(care_free_delta_psi_f);
 
-    sin_psi = sin(care_free_delta_psi_f);
-    cos_psi = cos(care_free_delta_psi_f);
+      sin_psi = sin(care_free_delta_psi_f);
+      cos_psi = cos(care_free_delta_psi_f);
 
-    temp_theta = cos_psi*sp->theta - sin_psi*sp->phi;
-    sp->phi = cos_psi*sp->phi - sin_psi*sp->theta;
+      temp_theta = cos_psi*sp->theta - sin_psi*sp->phi;
+      sp->phi = cos_psi*sp->phi - sin_psi*sp->theta;
 
-    sp->theta = temp_theta;
+      sp->theta = temp_theta;
+    }
   }
   else { /* if not flying, use current yaw as setpoint */
     sp->psi = stateGetNedToBodyEulers_f()->psi;
