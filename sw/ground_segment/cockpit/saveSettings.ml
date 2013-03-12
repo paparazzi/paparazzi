@@ -28,9 +28,9 @@ module U = Unix
 let cols = new GTree.column_list
 let col_index = cols#add Gobject.Data.int
 let col_param = cols#add Gobject.Data.string
-and col_airframe_value = cols#add Gobject.Data.float
-and col_settings_value = cols#add Gobject.Data.float
-and col_airframe_value_new = cols#add Gobject.Data.float
+and col_airframe_value = cols#add Gobject.Data.string
+and col_settings_value = cols#add Gobject.Data.string
+and col_airframe_value_new = cols#add Gobject.Data.string
 and col_code_value = cols#add Gobject.Data.float
 and col_to_save = cols#add Gobject.Data.boolean
 and col_integer = cols#add Gobject.Data.boolean
@@ -95,8 +95,7 @@ let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
     if model#get ~row ~column:col_to_save then begin
       let new_value = model#get ~row ~column:col_airframe_value_new
       and param = model#get ~row ~column:col_param in
-      let string_value = if model#get ~row ~column:col_integer then string_of_int (truncate new_value) else string_of_float new_value in
-      new_xml := EditAirframe.set !new_xml param string_value
+      new_xml := EditAirframe.set !new_xml param new_value
     end;
     false);
   if old_file = file then begin
@@ -179,9 +178,15 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       let row = model#append () in
       model#set ~row ~column:col_index index;
       model#set ~row ~column:col_param param;
-      model#set ~row ~column:col_airframe_value (airframe_value_scaled *. display_scale);
-      model#set ~row ~column:col_settings_value (value *. display_scale);
-      model#set ~row ~column:col_airframe_value_new airframe_value_new;
+      model#set ~row ~column:col_airframe_value (string_of_float (airframe_value_scaled *. display_scale));
+      if integer then begin
+        model#set ~row ~column:col_settings_value (string_of_int (truncate (value *. display_scale +. 0.5)));
+        model#set ~row ~column:col_airframe_value_new (string_of_int (truncate (airframe_value_new +. 0.5)))
+      end
+      else begin
+        model#set ~row ~column:col_settings_value (string_of_float (value *. display_scale));
+        model#set ~row ~column:col_airframe_value_new (string_of_float airframe_value_new)
+      end;
       model#set ~row ~column:col_code_value value;
       model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value);
       model#set ~row ~column:col_integer integer
