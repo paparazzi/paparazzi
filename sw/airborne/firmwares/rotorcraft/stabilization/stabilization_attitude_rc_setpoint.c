@@ -82,6 +82,24 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
     }
     INT32_ANGLE_NORMALIZE(sp->psi);
 #endif
+    //Care Free mode
+    if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
+      //care_free_heading has been set to current psi when entering care free mode.
+      int32_t cos_psi;
+      int32_t sin_psi;
+      int32_t care_free_heading_i;
+      int32_t temp_theta;
+
+      care_free_heading_i = ANGLE_BFP_OF_REAL(care_free_heading);
+
+      PPRZ_ITRIG_SIN(sin_psi, sp->psi - care_free_heading_i);
+      PPRZ_ITRIG_COS(cos_psi, sp->psi - care_free_heading_i);
+
+      temp_theta = INT_MULT_RSHIFT(cos_psi, sp->theta, INT32_ANGLE_FRAC) - INT_MULT_RSHIFT(sin_psi, sp->phi, INT32_ANGLE_FRAC);
+      sp->phi = INT_MULT_RSHIFT(cos_psi, sp->phi, INT32_ANGLE_FRAC) - INT_MULT_RSHIFT(sin_psi, sp->theta, INT32_ANGLE_FRAC);
+
+      sp->theta = temp_theta;
+    }
   }
   else { /* if not flying, use current yaw as setpoint */
     sp->psi = stateGetNedToBodyEulers_i()->psi;
@@ -111,6 +129,21 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
     }
     FLOAT_ANGLE_NORMALIZE(sp->psi);
 #endif
+  }
+  //Care Free mode
+  if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
+    //care_free_heading has been set to current psi when entering care free mode.
+    float cos_psi;
+    float sin_psi;
+    float temp_theta;
+
+    sin_psi = sin(sp->psi - care_free_heading);
+    cos_psi = cos(sp->psi - care_free_heading);
+
+    temp_theta = cos_psi*sp->theta - sin_psi*sp->phi;
+    sp->phi = cos_psi*sp->phi - sin_psi*sp->theta;
+
+    sp->theta = temp_theta;
   }
   else { /* if not flying, use current yaw as setpoint */
     sp->psi = stateGetNedToBodyEulers_f()->psi;
