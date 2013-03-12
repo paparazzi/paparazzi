@@ -54,7 +54,6 @@ void stabilization_attitude_reset_care_free_heading(void) {
 }
 
 /** Read attitude setpoint from RC as euler angles.
- * @todo implement care_free_heading as in quaternion setpoint...
  * @param[in]  in_flight  true if in flight
  * @param[out] sp         attitude setpoint as euler angles
  */
