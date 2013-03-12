@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2010  Gautier Hattenberger, 2013 Tobias Münch
  *
  * This file is part of paparazzi.
@@ -22,28 +21,39 @@
  */
 
 #include "modules/sonar/sonar_adc.h"
+#include "generated/airframe.h"
 #include "mcu_periph/adc.h"
-#include "subsystems/datalink/downlink.h"
 #ifdef SITL
-#include "subsystems/gps.h"
+#include "state.h"
 #endif
 
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
+/** Sonar offset.
+ *  Offset value in m (float)
+ *  equals to the height when the ADC gives 0
+ */
 #ifndef SONAR_OFFSET
-#define SONAR_OFFSET 0
+#define SONAR_OFFSET 0.
 #endif
+
+/** Sonar scale.
+ *  Sensor sensitivity in m/adc (float)
+ */
 #ifndef SONAR_SCALE
-#define SONAR_SCALE 166
+#define SONAR_SCALE 0.0166
 #endif
 
 uint16_t sonar_meas;
 bool_t sonar_data_available;
 float sonar_distance;
 float sonar_offset;
-uint16_t sonar_scale;
+float sonar_scale;
 
 #ifndef SITL
 static struct adc_buf sonar_adc;
@@ -67,12 +77,10 @@ void sonar_adc_read(void) {
 #ifndef SITL
   sonar_meas = sonar_adc.sum / sonar_adc.av_nb_sample;
   sonar_data_available = TRUE;
-//sonar_offset in cm, sonar_distance in m!
-  sonar_distance = ((float)sonar_meas * (float)sonar_scale) / 10000 + sonar_offset;
+  sonar_distance = ((float)sonar_meas * sonar_scale) + sonar_offset;
 
 #else // SITL
-  sonar_distance = (gps.hmsl / 1000.0) - ground_alt;
-  //sonar_meas = (sonar_distance - sonar_offset / (sonar_scale / 1000);
+  sonar_distance = stateGetPositionEnu_f()->z;
   Bound(sonar_distance, 0.1f, 7.0f);
 #endif // SITL
 
