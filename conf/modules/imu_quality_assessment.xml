@@ -2,11 +2,12 @@
 
 <module name="benchmark">
   <doc>
-    <description>Give comparable with IMU Health information: 
--saturation information
--vibration level
--magnetic field hard iron offset
-</description>
+    <description>
+      Give comparable with IMU Health information.
+      - saturation information
+      - vibration level
+      - magnetic field hard iron offset
+    </description>
   </doc>
   <header>
     <file name="imu_quality_assessment.h"/>
