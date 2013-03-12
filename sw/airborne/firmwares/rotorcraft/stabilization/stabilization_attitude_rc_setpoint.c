@@ -86,13 +86,15 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
       //care_free_heading has been set to current psi when entering care free mode.
       int32_t cos_psi;
       int32_t sin_psi;
-      int32_t care_free_heading_i;
       int32_t temp_theta;
+      int32_t care_free_delta_psi_i;
 
-      care_free_heading_i = ANGLE_BFP_OF_REAL(care_free_heading);
+      care_free_delta_psi_i = sp->psi - ANGLE_BFP_OF_REAL(care_free_heading);
 
-      PPRZ_ITRIG_SIN(sin_psi, sp->psi - care_free_heading_i);
-      PPRZ_ITRIG_COS(cos_psi, sp->psi - care_free_heading_i);
+      INT32_ANGLE_NORMALIZE(care_free_delta_psi_i);
+
+      PPRZ_ITRIG_SIN(sin_psi, care_free_delta_psi_i);
+      PPRZ_ITRIG_COS(cos_psi, care_free_delta_psi_i);
 
       temp_theta = INT_MULT_RSHIFT(cos_psi, sp->theta, INT32_ANGLE_FRAC) - INT_MULT_RSHIFT(sin_psi, sp->phi, INT32_ANGLE_FRAC);
       sp->phi = INT_MULT_RSHIFT(cos_psi, sp->phi, INT32_ANGLE_FRAC) - INT_MULT_RSHIFT(sin_psi, sp->theta, INT32_ANGLE_FRAC);
@@ -136,8 +138,12 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
     float sin_psi;
     float temp_theta;
 
-    sin_psi = sin(sp->psi - care_free_heading);
-    cos_psi = cos(sp->psi - care_free_heading);
+    float care_free_delta_psi_f = sp->psi - care_free_heading;
+
+    FLOAT_ANGLE_NORMALIZE(care_free_delta_psi_f);
+
+    sin_psi = sin(care_free_delta_psi_f);
+    cos_psi = cos(care_free_delta_psi_f);
 
     temp_theta = cos_psi*sp->theta - sin_psi*sp->phi;
     sp->phi = cos_psi*sp->phi - sin_psi*sp->theta;
