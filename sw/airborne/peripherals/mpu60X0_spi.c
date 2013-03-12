@@ -57,74 +57,35 @@ void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t
   /* set default MPU60X0 config options */
   mpu60x0_set_default_config(&(mpu->config));
 
-  mpu->initialized = FALSE;
   mpu->data_available = FALSE;
-  mpu->init_status = MPU60X0_CONF_UNINIT;
+  mpu->config.initialized = FALSE;
+  mpu->config.init_status = MPU60X0_CONF_UNINIT;
 }
 
 
-static void mpu60x0_spi_write_to_reg(struct Mpu60x0_Spi *mpu, uint8_t _reg, uint8_t _val) {
-  mpu->spi_trans.output_length = 2;
-  mpu->spi_trans.input_length = 0;
-  mpu->tx_buf[0] = _reg;
-  mpu->tx_buf[1] = _val;
-  spi_submit(mpu->spi_p, &(mpu->spi_trans));
+static void mpu60x0_spi_write_to_reg(void* mpu, uint8_t _reg, uint8_t _val) {
+  struct Mpu60x0_Spi* mpu_spi = (struct Mpu60x0_Spi*)(mpu);
+  mpu_spi->spi_trans.output_length = 2;
+  mpu_spi->spi_trans.input_length = 0;
+  mpu_spi->tx_buf[0] = _reg;
+  mpu_spi->tx_buf[1] = _val;
+  spi_submit(mpu_spi->spi_p, &(mpu_spi->spi_trans));
 }
 
 // Configuration function called once before normal use
-static void mpu60x0_spi_send_config(struct Mpu60x0_Spi *mpu)
-{
-  switch (mpu->init_status) {
-    case MPU60X0_CONF_SD:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_SMPLRT_DIV, mpu->config.smplrt_div);
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_CONFIG:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_CONFIG, mpu->config.dlpf_cfg);
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_GYRO:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_GYRO_CONFIG, (mpu->config.gyro_range<<3));
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_ACCEL:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_ACCEL_CONFIG, (mpu->config.accel_range<<3));
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_INT_PIN:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_INT_PIN_CFG, (mpu->config.i2c_bypass<<1));
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_INT_ENABLE:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_INT_ENABLE, (mpu->config.drdy_int_enable<<0));
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_PWR:
-      mpu60x0_spi_write_to_reg(mpu, MPU60X0_REG_PWR_MGMT_1, ((mpu->config.clk_sel)|(0<<6));
-      mpu->init_status++;
-      break;
-    case MPU60X0_CONF_DONE:
-      mpu->initialized = TRUE;
-      mpu->spi_trans.status = SPITransDone;
-      break;
-    default:
-      break;
-  }
-}
-
 void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu)
 {
-  if (mpu->init_status == MPU60X0_CONF_UNINIT) {
-    mpu->init_status++;
+  if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
+    mpu->config.init_status++;
     if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
-      mpu60x0_spi_send_config(mpu);
+      mpu60x0_spi_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
     }
   }
 }
 
 void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu)
 {
-  if (mpu->initialized && mpu->spi_trans.status == SPITransDone) {
+  if (mpu->config.initialized && mpu->spi_trans.status == SPITransDone) {
     mpu->spi_trans.output_length = 1;
     mpu->spi_trans.input_length = 15; // FIXME external data
     /* set read bit and multiple byte bit, then address */
@@ -137,7 +98,7 @@ void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu)
 
 void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
 {
-  if (mpu->initialized) {
+  if (mpu->config.initialized) {
     if (mpu->spi_trans.status == SPITransFailed) {
       mpu->spi_trans.status = SPITransDone;
     }
@@ -156,14 +117,15 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
       mpu->spi_trans.status = SPITransDone;
     }
   }
-  else if (mpu->init_status != MPU60X0_CONF_UNINIT) { // Configuring but not yet initialized
+  else if (mpu->config.init_status != MPU60X0_CONF_UNINIT) { // Configuring but not yet initialized
     switch (mpu->spi_trans.status) {
       case SPITransFailed:
-        mpu->init_status--; // Retry config (TODO max retry)
+        mpu->config.init_status--; // Retry config (TODO max retry)
       case SPITransSuccess:
       case SPITransDone:
         mpu->spi_trans.status = SPITransDone;
-        mpu60x0_spi_send_config(mpu);
+        mpu60x0_spi_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
+        if (mpu->config.initialized) mpu->spi_trans.status = SPITransDone;
         break;
       default:
         break;

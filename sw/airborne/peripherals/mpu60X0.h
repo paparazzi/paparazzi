@@ -66,6 +66,8 @@ struct Mpu60x0Config {
   bool_t i2c_bypass;                    ///< bypass mpu i2c
   bool_t drdy_int_enable;               ///< Enable Data Ready Interrupt
   uint8_t clk_sel;                      ///< Clock select
+  enum Mpu60x0ConfStatus init_status;   ///< init status
+  bool_t initialized;                   ///< config done flag
 };
 
 static inline void mpu60X0_set_default_config(struct Mpu60x0Config *c)
@@ -78,5 +80,49 @@ static inline void mpu60X0_set_default_config(struct Mpu60x0Config *c)
   c->drdy_int_enable = FALSE;
   c->clk_sel = MPU60X0_DEFAULT_CLK_SEL;
 }
+
+/// Configuration function prototype
+typedef void (*Mpu60x0ConfigSet)(void* mpu, uint8_t _reg, uint8_t _val);
+
+/// Configuration sequence called once before normal use
+static inline void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Config* config)
+{
+  switch (config->init_status) {
+    case MPU60X0_CONF_SD:
+      mpu_set(mpu, MPU60X0_REG_SMPLRT_DIV, config->smplrt_div);
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_CONFIG:
+      mpu_set(mpu, MPU60X0_REG_CONFIG, config->dlpf_cfg);
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_GYRO:
+      mpu_set(mpu, MPU60X0_REG_GYRO_CONFIG, (config->gyro_range<<3));
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_ACCEL:
+      mpu_set(mpu, MPU60X0_REG_ACCEL_CONFIG, (config->accel_range<<3));
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_INT_PIN:
+      mpu_set(mpu, MPU60X0_REG_INT_PIN_CFG, (config->i2c_bypass<<1));
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_INT_ENABLE:
+      mpu_set(mpu, MPU60X0_REG_INT_ENABLE, (config->drdy_int_enable<<0));
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_PWR:
+      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->config.clk_sel)|(0<<6));
+      config->init_status++;
+      break;
+    case MPU60X0_CONF_DONE:
+      config->initialized = TRUE;
+      break;
+    default:
+      break;
+  }
+}
+
 
 #endif // MPU60X0_H

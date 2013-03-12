@@ -43,8 +43,6 @@ struct Mpu60x0_Spi {
   struct spi_transaction spi_trans;
   volatile uint8_t tx_buf[MPU60X0_BUFFER_LEN]; // FIXME correct length
   volatile uint8_t rx_buf[MPU60X0_BUFFER_LEN]; // FIXME idem
-  enum Mpu60x0ConfStatus init_status; ///< init status
-  bool_t initialized;                 ///< config done flag
   volatile bool_t data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system
@@ -65,7 +63,7 @@ extern void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu);
 
 /// convenience function: read or start configuration if not already initialized
 static inline void mpu60x0_spi_periodic(struct Mpu60x0_Spi *mpu) {
-  if (mpu->initialized)
+  if (mpu->config.initialized)
     mpu60x0_spi_read(mpu);
   else
     mpu60x0_spi_start_configure(mpu);
