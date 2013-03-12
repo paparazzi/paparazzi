@@ -180,8 +180,8 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_param param;
       model#set ~row ~column:col_airframe_value (string_of_float (airframe_value_scaled *. display_scale));
       if integer then begin
-        model#set ~row ~column:col_settings_value (string_of_int (truncate (value *. display_scale +. 0.5)));
-        model#set ~row ~column:col_airframe_value_new (string_of_int (truncate (airframe_value_new +. 0.5)))
+        model#set ~row ~column:col_settings_value (string_of_int (truncate (floor (value *. display_scale +. 0.5))));
+        model#set ~row ~column:col_airframe_value_new (string_of_int (truncate (floor (airframe_value_new +. 0.5))))
       end
       else begin
         model#set ~row ~column:col_settings_value (string_of_float (value *. display_scale));
