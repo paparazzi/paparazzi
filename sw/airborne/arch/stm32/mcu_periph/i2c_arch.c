@@ -5,7 +5,6 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
-
 static void start_transaction(struct i2c_periph* p);
 static inline void end_of_transaction(struct i2c_periph *p);
 static inline void i2c_hard_reset(struct i2c_periph *p);
@@ -24,6 +23,10 @@ static inline void i2c_reset_init(struct i2c_periph *p);
 //#define SPURIOUS_INTERRUPT(_periph, _status, _event) { periph->errors->unexpected_event_cnt++; abort_and_reset(_periph);}
 #define SPURIOUS_INTERRUPT(_periph, _status, _event) { if (_status == I2CAddrWrSent) abort_and_reset(_periph);}
 #define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { abort_and_reset(_periph);}
+#endif
+
+#ifdef USE_I2C0
+#error "The STM32 doesn't have I2C0, use I2C1 or I2C2"
 #endif
 
 #ifdef USE_I2C1
