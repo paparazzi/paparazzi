@@ -78,7 +78,7 @@ void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu)
   if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
     mpu->config.init_status++;
     if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
-      mpu60x0_spi_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
+      mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
     }
   }
 }
@@ -104,7 +104,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
     }
     else if (mpu->spi_trans.status == SPITransSuccess) {
       // Successfull reading
-      if (bit_is_set(mpu->rx_buf,0)) {
+      if (bit_is_set(mpu->rx_buf[0],0)) {
         // new data
         mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf,1);
         mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf,3);
@@ -124,7 +124,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
       case SPITransSuccess:
       case SPITransDone:
         mpu->spi_trans.status = SPITransDone;
-        mpu60x0_spi_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
+        mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
         if (mpu->config.initialized) mpu->spi_trans.status = SPITransDone;
         break;
       default:
