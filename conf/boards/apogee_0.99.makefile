@@ -26,7 +26,7 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/apogee.ld
 FLASH_MODE ?= DFU
 
 ifndef NO_LUFTBOOT
-$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8004000
+$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8000000
 endif
 
 #
@@ -38,17 +38,17 @@ endif
 #
 # default LED configuration
 #
-RADIO_CONTROL_LED  ?= 4
+RADIO_CONTROL_LED  ?= none
 BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 2
-GPS_LED            ?= 3
+GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
 
 
-MODEM_PORT ?= UART2
+MODEM_PORT ?= UART1
 MODEM_BAUD ?= B57600
 
-GPS_PORT ?= UART3
+GPS_PORT ?= UART4
 GPS_BAUD ?= B38400
 
 

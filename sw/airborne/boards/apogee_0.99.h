@@ -7,65 +7,31 @@
 #define EXT_CLK 16000000
 #define AHB_CLK 168000000
 
-#define USE_OPENCM3 1
-
 /*
  * Onboard LEDs
  */
 
-/* red, on PA8 */
+/* red, on PC0 */
 #ifndef USE_LED_1
 #define USE_LED_1 1
 #endif
-#define LED_1_GPIO GPIOA
-#define LED_1_GPIO_CLK RCC_AHB1ENR_IOPAEN
-#define LED_1_GPIO_PIN GPIO13
+#define LED_1_GPIO GPIOC
+#define LED_1_GPIO_CLK RCC_AHB1ENR_IOPCEN
+#define LED_1_GPIO_PIN GPIO0
+#define LED_1_GPIO_ON gpio_clear
+#define LED_1_GPIO_OFF gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
-/* green, shared with JTAG_TRST */
+/* green, on PC13 */
 #ifndef USE_LED_2
 #define USE_LED_2 1
 #endif
-#define LED_2_GPIO GPIOA
-#define LED_2_GPIO_CLK RCC_AHB1ENR_IOPAEN
-#define LED_2_GPIO_PIN GPIO14
+#define LED_2_GPIO GPIOC
+#define LED_2_GPIO_CLK RCC_AHB1ENR_IOPCEN
+#define LED_2_GPIO_PIN GPIO13
+#define LED_2_GPIO_ON gpio_clear
+#define LED_2_GPIO_OFF gpio_set
 #define LED_2_AFIO_REMAP ((void)0)
-
-/* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
-#ifndef USE_LED_3
-#define USE_LED_3 1
-#endif
-#define LED_3_GPIO GPIOA
-#define LED_3_GPIO_CLK RCC_AHB1ENR_IOPAEN
-#define LED_3_GPIO_PIN GPIO15
-#define LED_3_AFIO_REMAP ((void)0)
-
-/*
- * not actual LEDS, used as GPIOs
- */
-
-/* PB4, Camera power On/Off */
-#define CAM_SW_GPIO GPIOB
-#define CAM_SW_GPIO_CLK RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO
-#define CAM_SW_GPIO_PIN GPIO_Pin_4
-#define CAM_SW_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE)
-
-/* PC2, Camera shot */
-#define CAM_SH_GPIO GPIOC
-#define CAM_SH_GPIO_CLK RCC_APB2Periph_GPIOC
-#define CAM_SH_GPIO_PIN GPIO_Pin_2
-#define CAM_SH_AFIO_REMAP ((void)0)
-
-/* PC15, Camera video */
-#define CAM_V_GPIO GPIOC
-#define CAM_V_GPIO_CLK RCC_APB2Periph_GPIOC
-#define CAM_V_GPIO_PIN GPIO_Pin_15
-#define CAM_V_AFIO_REMAP ((void)0)
-
-#define BEEPER_GPIO GPIOC
-#define BEEPER_GPIO_CLK RCC_AHB1ENR_IOPCEN
-#define BEEPER_GPIO_PIN GPIO14
-#define BEEPER_AFIO_REMAP ((void)0)
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
@@ -77,12 +43,11 @@
 
 /* Onboard ADCs */
 /*
-   ADC1 PC3/ADC13
-   ADC2 PC0/ADC10
-   ADC3 PC1/ADC11
-   ADC4 PC5/ADC15
-   ADC6 PC2/ADC12
-   BATT PC4/ADC14
+   ADC1 PB0/?ADC13
+   ADC2 PB1/?ADC10
+   ADC3 PB15/?ADC11
+   ADC4 PC4/?ADC15
+   BATT PA4/ADC4
 */
 #define BOARD_ADC_CHANNEL_1 12
 #define BOARD_ADC_CHANNEL_2 10
