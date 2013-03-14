@@ -46,26 +46,32 @@
 bool_t gps_xsens_msg_available;
 #endif
 
+// positions
 INS_FORMAT ins_x;
 INS_FORMAT ins_y;
 INS_FORMAT ins_z;
 
+// velocities
 INS_FORMAT ins_vx;
 INS_FORMAT ins_vy;
 INS_FORMAT ins_vz;
 
+// body angles
 INS_FORMAT ins_phi;
 INS_FORMAT ins_theta;
 INS_FORMAT ins_psi;
 
+// angle rates
 INS_FORMAT ins_p;
 INS_FORMAT ins_q;
 INS_FORMAT ins_r;
 
+// accelerations
 INS_FORMAT ins_ax;
 INS_FORMAT ins_ay;
 INS_FORMAT ins_az;
 
+// magnetic
 INS_FORMAT ins_mx;
 INS_FORMAT ins_my;
 INS_FORMAT ins_mz;
