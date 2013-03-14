@@ -44,15 +44,11 @@
 #define _LED_GPIO_CLK(i)  i
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
-#define _LED_GPIO_ON(i) i
-#define _LED_GPIO_OFF(i) i
 #define _LED_AFIO_REMAP(i) i
 
 #define LED_GPIO_CLK(i) _LED_GPIO_CLK(LED_ ## i ## _GPIO_CLK)
 #define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
 #define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
-#define LED_GPIO_ON(i) _LED_GPIO_ON(LED_ ## i ## _GPIO_ON)
-#define LED_GPIO_OFF(i) _LED_GPIO_OFF(LED_ ## i ## _GPIO_OFF)
 #define LED_AFIO_REMAP(i) _LED_AFIO_REMAP(LED_ ## i ## _AFIO_REMAP)
 
 /* set pin as output */

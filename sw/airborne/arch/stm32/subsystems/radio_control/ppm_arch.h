@@ -33,11 +33,16 @@
 #include "mcu_periph/sys_time.h"
 
 /**
- * The ppm counter is running at cpu freq / 9
+ * The ppm counter is running at cpu freq / 9 or 168
  */
-#define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * (AHB_CLK / 9000000))
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v) * (AHB_CLK / 9000000))
-#define USEC_OF_RC_PPM_TICKS(_v)        ((_v) / (AHB_CLK / 9000000))
+#if defined(STM32F1)
+#define RC_TICK_DIVIDER 9
+#elif defined(STM32F4)
+#define RC_TICK_DIVIDER 168
+#endif
+#define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * (AHB_CLK / (RC_TICK_DIVIDER*1000000)))
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v) * (AHB_CLK / (RC_TICK_DIVIDER*1000000)))
+#define USEC_OF_RC_PPM_TICKS(_v)        ((_v) / (AHB_CLK / (RC_TICK_DIVIDER*1000000)))
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 

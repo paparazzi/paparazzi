@@ -35,7 +35,11 @@
 
 #include "subsystems/settings.h"
 
+#if defined(STM32F1)
 #include <libopencm3/stm32/f1/flash.h>
+#elif defined(STM32F4)
+#include <libopencm3/stm32/f4/flash.h>
+#endif
 
 #include <libopencm3/stm32/crc.h>
 #include <libopencm3/stm32/dbgmcu.h>
@@ -55,7 +59,11 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
                      uint32_t size,
                      uint32_t chksum);
 
+#if defined(STM32F1)
 #define FLASH_SIZE_ MMIO16(0x1FFFF7E0)
+#elif defined(STM32F4)
+#define FLASH_SIZE_ MMIO16(0x1FFF7A22)
+#endif
 
 #define FLASH_BEGIN 0x08000000
 #define FSIZ        8
@@ -192,7 +200,9 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
                     uint32_t   src,
                     uint32_t   size,
                     uint32_t   chksum) {
-  uint32_t i;
+#if defined(STM32F1)  
+	uint32_t i;
+	
 
   /* erase */
   flash_unlock();
@@ -232,6 +242,9 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
   }
   if (*(uint32_t*) (flash->addr+flash->page_size-FSIZ) != size) return -3;
   if (*(uint32_t*) (flash->addr+flash->page_size-FCHK) != chksum) return -4;
+#elif defined(STM32F4)
+
+#endif
 
   return 0;
 }
