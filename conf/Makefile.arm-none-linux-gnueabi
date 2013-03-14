@@ -1,0 +1,44 @@
+#
+# Copyright (C) 2012 - TU Delft Robotics Minor - Dino Hensen <dino.hensen@gmail.com> and Freek van Tienen
+#
+# Minimal makefile for arm-none-linux-gnueabi toolchain. Assuming installed in default installation.
+
+
+#
+# try to pick up the compiler from the path
+#
+CC   = $(shell which arm-none-linux-gnueabi-gcc)
+LD   = $(shell which arm-none-linux-gnueabi-gcc)
+AR   = $(shell which arm-none-linux-gnueabi-ar)
+CP   = $(shell which arm-none-linux-gnueabi-objcopy)
+DMP  = $(shell which arm-none-linux-gnueabi-objdump)
+NM   = $(shell which arm-none-linux-gnueabi-nm)
+SIZE = $(shell which arm-none-linux-gnueabi-size)
+GDB  = $(shell which arm-none-linux-gnueabi-gdb)
+TOOLCHAIN_DIR=$(shell dirname `which arm-none-linux-gnueabi`)
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-linux-gnueabi/lib
+
+#
+# if not found in path, try the paparazzi toolchain in /opt
+#
+ifeq ($(CC),)
+TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
+ifneq ($(TOOLCHAIN),)
+TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
+GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
+
+# Define programs and commands.
+GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-linux-gnueabi
+CC   = $(GCC_BIN_PREFIX)-gcc
+LD   = $(GCC_BIN_PREFIX)-gcc
+AR   = $(GCC_BIN_PREFIX)-ar
+CP   = $(GCC_BIN_PREFIX)-objcopy
+DMP  = $(GCC_BIN_PREFIX)-objdump
+NM   = $(GCC_BIN_PREFIX)-nm
+SIZE = $(GCC_BIN_PREFIX)-size
+GDB  = $(GCC_BIN_PREFIX)-gdb
+else
+# toolchain not found...
+endif
+endif
