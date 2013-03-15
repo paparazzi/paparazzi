@@ -200,9 +200,8 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
                     uint32_t   src,
                     uint32_t   size,
                     uint32_t   chksum) {
-#if defined(STM32F1)  
-	uint32_t i;
-	
+#if defined(STM32F1)
+  uint32_t i;
 
   /* erase */
   flash_unlock();

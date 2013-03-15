@@ -73,6 +73,13 @@
 #define ADC_CHANNEL_VSUPPLY ADC_4
 #endif
 
+/* I2C mapping (really at this place ?) */
+#define GPIO_I2C1_SCL GPIO8
+#define GPIO_I2C1_SDA GPIO7
+#define GPIO_I2C2_SCL GPIO10
+#define GPIO_I2C2_SDA GPIO11
+
+
 #define BOARD_HAS_BARO 1
 
 #define PWM_1_4_TIMER TIM3

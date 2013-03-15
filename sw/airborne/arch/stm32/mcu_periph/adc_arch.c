@@ -84,17 +84,15 @@
 */
 
 #include "mcu_periph/adc.h"
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 #if defined(STM32F1)
-#include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/adc.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/nvic.h>
 #elif defined(STM32F4)
-#include <libopencm3/stm32/f4/rcc.h>
 #include <libopencm3/stm32/f4/adc.h>
-#include <libopencm3/stm32/f4/gpio.h>
-#include <libopencm3/stm32/f4/nvic.h>
 #endif
+#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/timer.h>
 #include <string.h>
 #include "std.h"
@@ -263,9 +261,9 @@ static inline void adc_init_rcc( void )
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN |
                               RCC_APB2ENR_IOPCEN);
 #elif defined(STM32F4)
-	rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN |
-														RCC_AHB1ENR_IOPCEN);
-	adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN |
+                              RCC_AHB1ENR_IOPCEN);
+  adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
 #endif
 
   /* Enable ADC peripheral clocks. */
@@ -284,7 +282,7 @@ static inline void adc_init_rcc( void )
   timer_set_period(timer, 0xFF);
   timer_set_prescaler(timer, 0x8);
 #elif defined(STM32F4)
-	timer_set_period(timer, 0xFFFF);
+  timer_set_period(timer, 0xFFFF);
   timer_set_prescaler(timer, 0x53);
 #endif
   //timer_set_clock_division(timer, 0x0);
@@ -302,7 +300,7 @@ static inline void adc_init_irq( void )
   nvic_set_priority(NVIC_ADC1_2_IRQ, 0);
   nvic_enable_irq(NVIC_ADC1_2_IRQ);
 #elif defined(STM32F4)
-	nvic_set_priority(NVIC_ADC_IRQ, 0);
+  nvic_set_priority(NVIC_ADC_IRQ, 0);
   nvic_enable_irq(NVIC_ADC_IRQ);
 #endif
 }
@@ -410,21 +408,21 @@ PRINT_CONFIG_MSG("Info: Using TIM4 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
 #elif defined(STM32F4)
-	adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
+  adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #elif USE_AD_TIM1
 PRINT_CONFIG_MSG("Info: Using TIM1 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
 #elif defined(STM32F4)
-	adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
+  adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #else
 PRINT_CONFIG_MSG("Info: Using default TIM2 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
 #elif defined(STM32F4)
-	adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
+  adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #endif
 

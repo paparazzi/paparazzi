@@ -34,13 +34,8 @@
 
 #include "mcu_periph/sys_time.h"
 
-#if defined(STM32F1)
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-#elif defined(STM32F4)
-#include <libopencm3/stm32/f4/gpio.h>
-#include <libopencm3/stm32/f4/rcc.h>
-#endif
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/cm3/systick.h>
 #include "std.h"
 

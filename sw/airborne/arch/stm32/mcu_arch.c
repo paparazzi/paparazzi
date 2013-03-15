@@ -31,13 +31,11 @@
 #include BOARD_CONFIG
 
 #include <inttypes.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #if defined(STM32F1)
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
 #include <libopencm3/stm32/f1/flash.h>
 #elif defined(STM32F4)
-#include <libopencm3/stm32/f4/rcc.h>
-#include <libopencm3/stm32/f4/gpio.h>
 #include <libopencm3/stm32/f4/flash.h>
 #endif
 #include <libopencm3/cm3/scb.h>

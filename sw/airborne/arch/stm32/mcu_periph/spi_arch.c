@@ -51,9 +51,9 @@
  * - The after_cb callback happens BEFORE the slave is unselected as configured.
  */
 
-#include <libopencm3/stm32/f1/nvic.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/f1/dma.h>

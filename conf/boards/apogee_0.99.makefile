@@ -2,7 +2,6 @@
 #
 # apogee_0.99.makefile
 #
-# 
 #
 
 BOARD=apogee
