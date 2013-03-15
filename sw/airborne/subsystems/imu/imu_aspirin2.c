@@ -48,6 +48,8 @@ void imu_impl_init(void) {
   aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_spi_data_received);
   aspirin2_mpu60x0.length = 2;
 
+  /* to pull PC13 high */
+  imu_aspirin2_arch_init();
 }
 
 
