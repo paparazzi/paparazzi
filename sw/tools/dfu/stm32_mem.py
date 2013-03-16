@@ -84,6 +84,8 @@ if __name__ == "__main__":
                       action="store", default="Lisa/Lia",
                       help="only upload to device where idProduct contains PRODUCT\n"
                       "choices: (any, Lisa/Lia), default: Lisa/Lia")
+    parser.add_option("--addr", type="int", action="store", dest="addr", default=APP_ADDRESS,
+                      help="Upload start address (default: 0x08002000)")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="Dry run to check which board is found without actually flashing.")
     (options, args) = parser.parse_args()
@@ -181,7 +183,8 @@ if __name__ == "__main__":
         print("Could not open binary file.")
         raise
 
-    addr = APP_ADDRESS
+    #addr = APP_ADDRESS
+    addr = options.addr
     while bin:
         print("Programming memory at 0x%08X\r" % addr)
         stdout.flush()
