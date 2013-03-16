@@ -34,6 +34,7 @@
 
 struct ActuatorsMkk {
   struct i2c_transaction trans[ACTUATORS_MKK_NB];
+  uint16_t submit_err_cnt;
 };
 
 extern struct ActuatorsMkk actuators_mkk;
