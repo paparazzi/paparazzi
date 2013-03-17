@@ -46,6 +46,7 @@
 #endif
 
 #else /** SITL */
+#include "subsystems/datalink/wifi.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
