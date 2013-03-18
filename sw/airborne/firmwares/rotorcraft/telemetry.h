@@ -464,6 +464,7 @@
                   &(stateGetNedToBodyQuat_i()->qz));  \
   }
 
+#if USE_AHRS_CMPL_EULER
 #define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {      \
     DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,            \
                    &ahrs_impl.ltp_to_imu_euler.phi,       \
@@ -473,6 +474,9 @@
                    &(stateGetNedToBodyEulers_i()->theta), \
                    &(stateGetNedToBodyEulers_i()->psi));  \
   }
+#else
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {}
+#endif
 
 #define PERIODIC_SEND_AHRS_RMAT_INT(_trans, _dev) {       \
   struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i(); \
