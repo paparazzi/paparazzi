@@ -19,4 +19,5 @@ $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/spiral.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/poly_survey_adv.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/gls.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/border_line.c
+$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/zamboni_survey.c
 
