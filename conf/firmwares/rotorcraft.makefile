@@ -138,6 +138,13 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
+ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
+ap.srcs += $(SRC_BOARD)/at_com.c
+else
+ap.srcs += $(SRC_BOARD)/baro_board.c
+endif
+
+BARO = BARO_I2C
 # booz baro
 ifeq ($(BOARD), booz)
 ap.srcs += $(SRC_BOARD)/baro_board.c
@@ -206,6 +213,8 @@ ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
+else ifeq ($(ARCH), omap_ardrone2)
+ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 endif
 
 
@@ -264,3 +273,8 @@ ap.srcs += subsystems/navigation/common_flight_plan.c
 # or
 # nothing
 #
+ifeq ($(ARCH), omap_ardrone2)
+SRC_FMS=fms
+ap.CFLAGS += -I. -I$(SRC_FMS)
+ap.srcs   += $(SRC_FMS)/fms_serial_port.c
+endif
