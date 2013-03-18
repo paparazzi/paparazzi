@@ -1,0 +1,12 @@
+#ifndef CONFIG_ARDRONE2_SDK
+#define CONFIG_ARDRONE2_SDK
+
+#define BOARD_ARDRONE2_SDK
+
+/* Internal communication */
+#define ARDRONE_NAVDATA_PORT 5554
+#define ARDRONE_AT_PORT 5556
+#define ARDRONE_NAVDATA_BUFFER_SIZE 2048
+#define ARDRONE_IP "192.168.1.1"
+
+#endif /* CONFIG_ARDRONE2_SDK */
