@@ -475,7 +475,17 @@
                    &(stateGetNedToBodyEulers_i()->psi));  \
   }
 #else
-#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {}
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {                    \
+    struct Int32Eulers ltp_to_imu_euler;                                \
+    INT32_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);  \
+    DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,                          \
+                                 &ltp_to_imu_euler.phi,                 \
+                                 &ltp_to_imu_euler.theta,               \
+                                 &ltp_to_imu_euler.psi,                 \
+                                 &(stateGetNedToBodyEulers_i()->phi),   \
+                                 &(stateGetNedToBodyEulers_i()->theta), \
+                                 &(stateGetNedToBodyEulers_i()->psi));  \
+}
 #endif
 
 #define PERIODIC_SEND_AHRS_RMAT_INT(_trans, _dev) {       \
