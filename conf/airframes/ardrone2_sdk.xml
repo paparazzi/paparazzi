@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<airframe name="ardrone2">
+<airframe name="ardrone2_sdk">
 
 	<firmware name="rotorcraft">
 		<target name="ap" board="ardrone2_sdk">
