@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=3
+Type=Application
+Terminal=false
+StartupNotify=true
+Icon=/home/USERNAME/paparazzi/conf/system/launcher/logo.png
+Name=Paparazzi
+Comment=The Free Autopilot
+Exec=/home/USERNAME/paparazzi/paparazzi
+Categories=Application;
