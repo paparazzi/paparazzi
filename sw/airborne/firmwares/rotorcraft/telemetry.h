@@ -42,7 +42,9 @@
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
+#if USE_IMU
 #include "subsystems/imu.h"
+#endif
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
@@ -140,6 +142,7 @@
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
 #endif
 
+#if USE_IMU
 #define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
     DOWNLINK_SEND_IMU_GYRO_SCALED(_trans, _dev,			\
                  &imu.gyro.p,		\
@@ -189,15 +192,28 @@
                   &imu.mag_unscaled.z,                  \
                   &electrical.current);               \
   }
+#else
+#define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {}
+#define PERIODIC_SEND_IMU_ACCEL_SCALED(_trans, _dev) {}
+#define PERIODIC_SEND_IMU_MAG_SCALED(_trans, _dev) {}
+#define PERIODIC_SEND_IMU_GYRO_RAW(_trans, _dev) {}
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_trans, _dev) {}
+#define PERIODIC_SEND_IMU_MAG_RAW(_trans, _dev) {}
+#define PERIODIC_SEND_IMU_MAG_CURRENT_CALIBRATION(_trans, _dev) {}
+#endif
 
+
+
+#if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {         \
     DOWNLINK_SEND_BARO_RAW(_trans, _dev,               \
                            &baro.absolute,      \
                            &baro.differential); \
   }
-
-
+#else
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {}
+#endif
 
 #include "firmwares/rotorcraft/stabilization.h"
 #define PERIODIC_SEND_RATE_LOOP(_trans, _dev) {                          \
@@ -310,6 +326,7 @@
 #endif /* STABILIZATION_ATTITUDE_TYPE_FLOAT */
 
 
+#if USE_AHRS_ALIGNER && USE_IMU
 #include "subsystems/ahrs/ahrs_aligner.h"
 #define PERIODIC_SEND_FILTER_ALIGNER(_trans, _dev) {			\
     DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,                  \
@@ -323,6 +340,9 @@
                                  &ahrs_aligner.low_noise_cnt,   \
                                  &ahrs_aligner.status);         \
   }
+#else
+#define PERIODIC_SEND_FILTER_ALIGNER(_trans, _dev) {}
+#endif
 
 
 #define PERIODIC_SEND_ROTORCRAFT_CMD(_trans, _dev) {                    \
@@ -356,6 +376,28 @@
   }
 #else
 #define PERIODIC_SEND_FILTER(_trans, _dev) {}
+#endif
+
+#if USE_AHRS_ARDRONE2
+#include "subsystems/ahrs/ahrs_ardrone2.h"
+#define PERIODIC_SEND_AHRS_ARDRONE2(_trans, _dev) {	\
+    DOWNLINK_SEND_AHRS_ARDRONE2(_trans, _dev,	\
+    		 &ahrs_impl.state,					\
+    		 &ahrs_impl.control_state,			\
+             &ahrs_impl.eulers.phi,				\
+             &ahrs_impl.eulers.theta,			\
+             &ahrs_impl.eulers.psi,				\
+             &ahrs_impl.speed.x,				\
+             &ahrs_impl.speed.y,				\
+             &ahrs_impl.speed.z,				\
+             &ahrs_impl.accel.x,				\
+             &ahrs_impl.accel.y,				\
+             &ahrs_impl.accel.z,				\
+             &ahrs_impl.altitude,				\
+             &ahrs_impl.battery);				\
+  }
+#else
+#define PERIODIC_SEND_AHRS_ARDRONE2(_trans, _dev) {}
 #endif
 
 #if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
@@ -452,6 +494,7 @@
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {}
 #endif /* STABILIZATION_ATTITUDE_TYPE_QUAT */
 
+#if USE_AHRS_CMPL_QUAT
 #define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {   \
     DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,         \
                   &ahrs_impl.ltp_to_imu_quat.qi,      \
@@ -463,7 +506,11 @@
                   &(stateGetNedToBodyQuat_i()->qy),   \
                   &(stateGetNedToBodyQuat_i()->qz));  \
   }
+#else
+#define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {}
+#endif
 
+#if USE_AHRS_CMPL_EULER
 #define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {      \
     DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,            \
                    &ahrs_impl.ltp_to_imu_euler.phi,       \
@@ -473,7 +520,11 @@
                    &(stateGetNedToBodyEulers_i()->theta), \
                    &(stateGetNedToBodyEulers_i()->psi));  \
   }
+#else
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {}
+#endif
 
+#if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
 #define PERIODIC_SEND_AHRS_RMAT_INT(_trans, _dev) {       \
   struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i(); \
   DOWNLINK_SEND_AHRS_RMAT(_trans, _dev,                   \
@@ -496,8 +547,9 @@
       &(att_rmat->m[7]),                                  \
       &(att_rmat->m[8]));                                 \
 }
-
-
+#else
+#define PERIODIC_SEND_AHRS_RMAT_INT(_trans, _dev) {}
+#endif
 
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
@@ -579,33 +631,33 @@
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
     DOWNLINK_SEND_INS_Z(_trans, _dev,					\
                 &ins_baro_alt,				\
-                &ins_ltp_pos.z,			\
-                &ins_ltp_speed.z,			\
-                &ins_ltp_accel.z);			\
+                &(stateGetPositionNed_i()->z),			\
+                &(stateGetSpeedNed_i()->z),			\
+                &(stateGetAccelNed_i()->z);			\
   }
 
 #define PERIODIC_SEND_INS(_trans, _dev) {			\
     DOWNLINK_SEND_INS(_trans, _dev,				\
-                       &ins_ltp_pos.x,		\
-                       &ins_ltp_pos.y,      \
-                       &ins_ltp_pos.z,		\
-                       &ins_ltp_speed.x,	\
-                       &ins_ltp_speed.y,	\
-                       &ins_ltp_speed.z,	\
-                       &ins_ltp_accel.x,	\
-                       &ins_ltp_accel.y,	\
-                       &ins_ltp_accel.z);	\
+                       &(stateGetPositionNed_f()->x),		\
+                       &(stateGetPositionNed_f()->y),      \
+                       &(stateGetPositionNed_f()->z),		\
+                       &(stateGetSpeedNed_f()->x),	\
+                       &(stateGetSpeedNed_f()->y),	\
+                       &(stateGetSpeedNed_f()->z),	\
+                       &(stateGetAccelNed_f()->x),	\
+                       &(stateGetAccelNed_f()->y),	\
+                       &(stateGetAccelNed_f()->z));	\
   }
 
 #define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
     if (ins_ltp_initialised)                        \
       DOWNLINK_SEND_INS_REF(_trans, _dev,           \
-                            &ins_ltp_def.ecef.x,    \
-                            &ins_ltp_def.ecef.y,    \
-                            &ins_ltp_def.ecef.z,    \
-                            &ins_ltp_def.lla.lat,   \
-                            &ins_ltp_def.lla.lon,   \
-                            &ins_ltp_def.lla.alt,   \
+                            &(stateGetLocalOriginEcef_i()->x),    \
+                            &(stateGetLocalOriginEcef_i()->y),    \
+                            &(stateGetLocalOriginEcef_i()->z),    \
+                            &(stateGetLocalOriginLla_i()->lat),   \
+                            &(stateGetLocalOriginLla_i()->lon),   \
+                            &(stateGetLocalOriginLla_i()->alt),   \
                             &ins_ltp_def.hmsl,		\
                             &ins_qfe);				\
   }
@@ -614,9 +666,9 @@
     DOWNLINK_SEND_VERT_LOOP(_trans, _dev,				\
                   &guidance_v_z_sp,		\
                   &guidance_v_zd_sp,		\
-                  &ins_ltp_pos.z,			\
-                  &ins_ltp_speed.z,		\
-                  &ins_ltp_accel.z,		\
+                  &(stateGetPositionNed_i()->z),			\
+                  &(stateGetSpeedNed_i()->z),			\
+                  &(stateGetAccelNed_i()->z),			\
                   &guidance_v_z_ref,		\
                   &guidance_v_zd_ref,		\
                   &guidance_v_zdd_ref,		\
@@ -633,12 +685,12 @@
     DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
                    &guidance_h_pos_sp.x,		\
                    &guidance_h_pos_sp.y,		\
-                   &ins_ltp_pos.x,			\
-                   &ins_ltp_pos.y,			\
-                   &ins_ltp_speed.x,		\
-                   &ins_ltp_speed.y,		\
-                   &ins_ltp_accel.x,		\
-                   &ins_ltp_accel.y,		\
+                   &(stateGetPositionNed_i()->x),			\
+                   &(stateGetPositionNed_i()->y),			\
+                   &(stateGetSpeedNed_i()->x),		\
+                   &(stateGetSpeedNed_i()->y),		\
+                   &(stateGetAccelNed_i()->x),		\
+                   &(stateGetAccelNed_i()->y),		\
                    &guidance_h_pos_err.x,		\
                    &guidance_h_pos_err.y,		\
                    &guidance_h_speed_err.x,	\
