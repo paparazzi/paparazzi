@@ -3,17 +3,17 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
-    <load name="sonar_maxbotix_booz.xml"/>
+    <load name="sonar_adc.xml"/>
     <!--load name="baro_mpl3115.xml">
       <define name="MPL3115_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
       <define name="SENSOR_SYNC_SEND"/>
     </load-->
-    <load name="mavlink_decoder.xml">
+    <!--load name="mavlink_decoder.xml">
       <configure name="MAVLINK_PORT" value="UART0"/>
       <configure name="MAVLINK_BAUD" value="B115200"/>
     </load>
-    <load name="px4flow.xml"/>
+    <load name="px4flow.xml"/-->
     <!--load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_0"/>
     </load-->
@@ -41,9 +41,9 @@
       <define name="USE_PWM1"/>
     </subsystem>
     <subsystem name="imu"           type="b2_v1.1"/>
-    <!--subsystem name="gps"           type="ublox">
+    <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
-    </subsystem-->
+    </subsystem>
     <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"           type="extended"/>
