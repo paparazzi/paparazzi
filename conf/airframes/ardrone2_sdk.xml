@@ -3,7 +3,7 @@
 <airframe name="ardrone2">
 
 	<firmware name="rotorcraft">
-		<target name="ap" board="ardrone2">
+		<target name="ap" board="ardrone2_sdk">
 			<define name="USE_INS_NAV_INIT" />
 			<define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED"/>
 			<!-- <define name="USE_GPS_HEIGHT" /> -->
