@@ -74,7 +74,7 @@ server : $(SERVERCMO) $(LIBPPRZCMA)
 
 server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
 	@echo OOL $@
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -o $@ $(LINKPKG) $(SERVERCMX)
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -o $@ -package glibivy,pprz -linkpkg $(SERVERCMX)
 
 link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@

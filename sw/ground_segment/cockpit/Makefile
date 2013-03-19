@@ -58,7 +58,7 @@ $(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) $(LINKPKG) gtkInit.cmx $(CMX) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,lablgtk2.init -linkpkg $(CMX) -o $@
 
 
 %.cmo: %.ml
