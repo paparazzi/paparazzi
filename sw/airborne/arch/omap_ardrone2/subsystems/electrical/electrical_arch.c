@@ -7,8 +7,18 @@
 
 
 #include "subsystems/electrical/electrical_arch.h"
+#include "vbat.h"
 
 struct Electrical electrical;
+vbat_struct vbat;
 
-void electrical_init(void) { }
-void electrical_periodic(void) { }
+void electrical_init(void) {
+//	int status;
+//	status = vbat_init(&vbat);
+//	printf("Status returned on vbat_init: %d", status);
+}
+
+void electrical_periodic(void) {
+//	vbat_read(&vbat);
+	electrical.vsupply = 120;
+}
