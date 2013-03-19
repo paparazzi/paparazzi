@@ -25,8 +25,6 @@
 #include "mcu_periph/uart.h"
 #include "std.h"
 
-#define UartChAvailable(_p) uart_recieve(&_p)
-
 #define B1200         1200
 #define B2400         2400
 #define B4800         4800
