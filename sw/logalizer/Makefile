@@ -37,23 +37,23 @@ all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : $(LIBPPRZCMA) log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
 play-nox : $(LIBPPRZCMA) play_core.cmo play-nox.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
 plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA) plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 plot : $(LIBPPRZCMA) $(XLIBPPRZCMA) log_file.cmo gtk_export.cmo export.cmo plot.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 sd2log : $(LIBPPRZCMA) sd2log.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
 CC = gcc
 CFLAGS=-g -O2 -Wall
@@ -70,13 +70,13 @@ openlog2tlm: openlog2tlm.c
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 
 export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx

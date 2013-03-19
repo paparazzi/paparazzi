@@ -62,7 +62,7 @@ test_stick: test_sdl_stick.o
 
 input2ivy: sdl_stick.so input2ivy.cmo $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
 
 # dependency of input2ivy
 input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
@@ -77,7 +77,7 @@ sdl_stick.so : sdl_stick.o ml_sdl_stick.o
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLINCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $(PKG) $<
 
 clean:
 	$(Q)rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy

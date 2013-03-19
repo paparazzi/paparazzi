@@ -23,10 +23,9 @@
 # General ocaml compiling tools and pprz lib
 
 OCAML = ocaml
-OCAMLC = ocamlc
-OCAMLOPT = ocamlopt
+OCAMLC = ocamlfind ocamlc
+OCAMLOPT = ocamlfind ocamlopt
 OCAMLDEP = ocamldep
-OCAMLFIND = ocamlfind
 OCAMLMKLIB = ocamlmklib
 LIBPPRZDIR = $(PAPARAZZI_SRC)/sw/lib/ocaml
 LIBPPRZCMA = $(LIBPPRZDIR)/lib-pprz.cma

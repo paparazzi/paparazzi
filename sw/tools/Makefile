@@ -35,23 +35,23 @@ ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
-	
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+
 gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 %.out : %.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OL $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gen_common.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gen_common.cmo $<
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) $(PKG) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) $(PKG) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 # dependency on lib-pprz
 gen_flight_plan.out : $(LIBPPRZCMA)

@@ -38,7 +38,7 @@ all: paparazzicenter
 
 paparazzicenter : $(PAPARAZZICENTERCMO)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 gtk_pc.ml : paparazzicenter.glade
 	@echo GLADE $@
@@ -54,11 +54,11 @@ gtk_process.ml : paparazzicenter.glade
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(XPKG) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(XPKG) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(XPKG) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(XPKG) $<
 
 pc_common.cmo: gtk_process.cmo
 

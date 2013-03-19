@@ -24,10 +24,9 @@
 Q=@
 
 
-OCAMLC=ocamlc
-OCAMLFIND=ocamlfind
+OCAMLC=ocamlfind ocamlc
+OCAMLOPT=ocamlfind ocamlopt
 OCAMLDEP=ocamldep
-OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 OCAMLMKLIB=ocamlmklib
@@ -91,48 +90,48 @@ xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
 xml_get.out : lib-pprz.cma xml_get.cmo | opt
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^
 
 tests : lib-pprz.cma $(TESTS_CMO)
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
 
 GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
 
 %.o : %.c
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 $(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
 
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
 ml_gtkgl_hack.o : ml_gtkgl_hack.c
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
 camltm.o : register_example.cmo
-	$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -output-obj -o $@ -package unix,str,xml-light,ivy debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
+	$(OCAMLC) $(INCLUDES) -output-obj -o $@ -package unix,str,xml-light,ivy debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
 
 caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	$(CC) -o $@ $^ -L$(OCAMLLIBDIR) -lunix -lstr -livy-ocaml -lcamlrun -lm -livy -lcurses
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(XINCLUDES) $(INCLUDES) -package $(PKGCOMMON),$(XPKGCOMMON) $<
+	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) -package $(PKGCOMMON),$(XPKGCOMMON) $<
 
 %.cmi : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(XINCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLC) $(XINCLUDES) -package $(PKGCOMMON) -c $<
 
 %.ml : %.mll
 	@echo OCL $<

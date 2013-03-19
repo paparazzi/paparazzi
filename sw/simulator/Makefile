@@ -57,7 +57,7 @@ fg.so : fg.o
 
 simhitl : fg.so $(SIMHCMO) simhitl.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@
@@ -69,15 +69,15 @@ sitl.cmxa : $(SIMSCMX)
 
 gaia : gaia.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 diffusion : stdlib.cmo diffusion.cmo
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
 %.o : %.c
 	@echo CC $<
@@ -85,11 +85,11 @@ diffusion : stdlib.cmo diffusion.cmo
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(INCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -c $(PKG) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(INCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
 # dependency on lib-pprz
 simhitl diffusion gaia:  $(LIBPPRZCMA)
