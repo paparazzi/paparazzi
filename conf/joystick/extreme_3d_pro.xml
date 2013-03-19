@@ -25,7 +25,7 @@
 		<set var="mode" value="2" on_event="b5" />
 	</variables>
 
-	<messages period="0.017">
+	<messages period="0.025">
 		<message class="datalink" name="RC_4CH" send_always="true">
 			<field name="mode" value="mode" />
 			<field name="throttle" value="127-Scale(throttle,0,128)" />
