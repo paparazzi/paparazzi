@@ -40,7 +40,7 @@ LIBS=
 LIBSX=$(LIBS:.cma=.cmxa)
 
 INCLUDES= -I ../multimon
-PKG = -package pprz.xlib,threads
+PKG = -package pprz.xlib
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
@@ -54,11 +54,11 @@ opt : $(MAIN).opt
 
 $(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
 	@echo OL $@
-	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) myGtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) $(LINKPKG) gtkThread.cmx gtkInit.cmx $(CMX) -o $@
+	$(Q)$(OCAMLFIND) $(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) $(LINKPKG) gtkInit.cmx $(CMX) -o $@
 
 
 %.cmo: %.ml
