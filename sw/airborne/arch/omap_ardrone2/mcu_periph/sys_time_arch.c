@@ -37,7 +37,7 @@ void sys_time_arch_init( void ) {
 	sa.sa_handler = &sys_tick_handler;
 	sigaction(SIGALRM, &sa, NULL);
 
-	// timer expires after (1./1024) sec
+	// timer expires after sys_time.resolution sec
 	timer.it_value.tv_sec = 0;
 	timer.it_value.tv_usec = USEC_OF_SEC(sys_time.resolution);
 	// and every SYS_TIME_RESOLUTION sec after that
