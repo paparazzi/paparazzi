@@ -1,0 +1,7 @@
+#ifndef CONFIG_ARDRONE2_RAW
+#define CONFIG_ARDRONE2_RAW
+
+#define BOARD_ARDRONE2_RAW
+
+
+#endif /* CONFIG_ARDRONE2_RAW */
