@@ -22,13 +22,21 @@
 #ifndef ACTUATORS_PWM_ARCH_H_
 #define ACTUATORS_PWM_ARCH_H_
 
+#include <stdint.h>
 #include "subsystems/actuators/actuators_pwm.h"
+
+#ifndef ACTUATORS_PWM_NB
+#define ACTUATORS_PWM_NB 4
+#endif
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorPwmSet(_i, _v) {}
-#define ActuatorsPwmCommit() {}
+#define ActuatorPwmSet(_i, _v) { actuators_pwm_values[_i] = _v; }
+#define ActuatorsPwmCommit() actuators_pwm_commit();
+
+uint16_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 //extern void actuators_pwm_arch_init(void);
+void actuators_pwm_commit(void);
 
 #endif /* ACTUATORS_PWM_ARCH_H_ */
