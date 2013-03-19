@@ -20,8 +20,6 @@
 # Boston, MA 02111-1307, USA.
 #
 
-# Launch with "make Q=''" to get full command display
-Q=@
 
 #
 # find compiler toolchain
@@ -29,6 +27,9 @@ Q=@
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-none-linux-gnueabi
 
 # Define programs and commands.
+
+# Launch with "make Q=''" to get full command display
+Q=@
 
 OPT=3
 CSTANDARD = -std=gnu99
@@ -38,9 +39,12 @@ CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 CFLAGS += $(CINCS)
 CFLAGS += -O$(OPT) -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
 CFLAGS += -fno-short-enums
+# CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+#CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
+#CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
 CFLAGS += -lm
 
@@ -73,18 +77,28 @@ elf: $(OBJDIR)/$(TARGET).elf
 # Program the device and start it.
 load upload program: $(OBJDIR)/$(TARGET).elf
 
+# If it is not the SDK version, then kill program.elf
+ifneq ($(BOARD_TYPE), sdk)
+	-echo "killall -9 program.elf" | telnet $(HOST)
+endif	
+
 	# Kill the application
 	-echo "killall -9 $(TARGET).elf" | telnet $(HOST)
 	
+		# Upload the modules and start the application
+	-{ 												\
+	  echo "mkdir -p $(TARGET_DIR)";						\
+	} | telnet $(HOST)
+	
 	# Upload the drivers and new application
-	{																							\
-	  echo "binary";																			\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko /$(SUB_DIR)cdc-acm.ko";		\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/usbserial.ko /$(SUB_DIR)usbserial.ko";	\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/pl2303.ko /$(SUB_DIR)pl2303.ko";		\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/ftdi-sio.ko /$(SUB_DIR)ftdi-sio.ko";		\
-	  echo "put $(OBJDIR)/$(TARGET).elf /$(SUB_DIR)$(TARGET).elf";								\
-	  echo "quit";																				\
+	{																								\
+	  echo "binary";																				\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko /$(SUB_DIR)/cdc-acm.ko";		\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/usbserial.ko /$(SUB_DIR)/usbserial.ko";	\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/pl2303.ko /$(SUB_DIR)/pl2303.ko";			\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/ftdi-sio.ko /$(SUB_DIR)/ftdi-sio.ko";		\
+	  echo "put $(OBJDIR)/$(TARGET).elf /$(SUB_DIR)/$(TARGET).elf";									\
+	  echo "quit";																					\
 	} | ftp -n $(HOST)
 	
 	# Upload the modules and start the application
@@ -93,7 +107,7 @@ load upload program: $(OBJDIR)/$(TARGET).elf
 	  echo "insmod cdc-acm.ko";						\
 	  echo "insmod usbserial.ko";					\
 	  echo "insmod pl2303.ko";						\
-	  echo "insmod ftdi-sio.ko";						\
+	  echo "insmod ftdi-sio.ko";					\
 	  echo "chmod 777 $(TARGET).elf";				\
 	  echo "./$(TARGET).elf > /dev/null 2>&1 &";	\
 	} | telnet $(HOST)
