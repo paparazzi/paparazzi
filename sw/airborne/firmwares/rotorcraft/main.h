@@ -41,6 +41,9 @@ STATIC_INLINE void handle_periodic_tasks( void );
 STATIC_INLINE void main_periodic( void );
 STATIC_INLINE void telemetry_periodic(void);
 STATIC_INLINE void failsafe_check( void );
+#if ARDRONE2
+STATIC_INLINE void navdata_periodic(void);
+#endif
 
 
 #endif /* MAIN_H */

@@ -81,6 +81,11 @@
 #include "arch/omap_ardrone2/subsystems/actuators/actuators_at.h"
 #endif
 
+#if ARDRONE2
+#include "navdata.h"
+#include <stdio.h>
+#endif
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -107,6 +112,9 @@ static inline void on_baro_dif_event( void );
 #endif
 static inline void on_gps_event( void );
 
+#if ARDRONE2
+static inline void on_navdata_event( void );
+#endif
 
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t modules_tid;       ///< id for modules_periodic_task() timer
@@ -115,6 +123,7 @@ tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 tid_t electrical_tid;    ///< id for electrical_periodic() timer
 tid_t baro_tid;          ///< id for baro_periodic() timer
 tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
+tid_t navdata_tid;
 
 #ifndef SITL
 int main( void ) {
@@ -128,6 +137,10 @@ int main( void ) {
 #endif /* SITL */
 
 STATIC_INLINE void main_init( void ) {
+
+#if ARDRONE2
+  navdata_init();
+#endif
 
   mcu_init();
 
@@ -145,7 +158,11 @@ STATIC_INLINE void main_init( void ) {
   imu_init();
 #endif
   autopilot_init();
+
+#if ARDRONE2
   nav_init();
+#endif
+
   guidance_h_init();
   guidance_v_init();
   stabilization_init();
@@ -188,6 +205,9 @@ STATIC_INLINE void main_init( void ) {
   electrical_tid = sys_time_register_timer(0.1, NULL);
   baro_tid = sys_time_register_timer(1./BARO_PERIODIC_FREQUENCY, NULL);
   telemetry_tid = sys_time_register_timer((1./60.), NULL);
+#if ARDRONE2
+  navdata_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+#endif
 }
 
 STATIC_INLINE void handle_periodic_tasks( void ) {
@@ -207,6 +227,10 @@ STATIC_INLINE void handle_periodic_tasks( void ) {
 #endif
   if (sys_time_check_and_ack_timer(telemetry_tid))
     telemetry_periodic();
+#if ARDRONE2
+  if (sys_time_check_and_ack_timer(navdata_tid))
+	  navdata_periodic();
+#endif
 }
 
 STATIC_INLINE void main_periodic( void ) {
@@ -230,6 +254,11 @@ STATIC_INLINE void main_periodic( void ) {
 STATIC_INLINE void telemetry_periodic(void) {
   PeriodicSendMain(DefaultChannel,DefaultDevice);
 }
+
+#if ARDRONE2
+STATIC_INLINE void navdata_periodic(void){
+}
+#endif
 
 STATIC_INLINE void failsafe_check( void ) {
   if (radio_control.status != RC_OK &&
@@ -270,6 +299,10 @@ STATIC_INLINE void main_event( void ) {
 
 #if USE_BAROMETER
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
+#endif
+
+#if ARDRONE2
+  NavdataEvent(on_navdata_event);
 #endif
 
 #if USE_GPS
@@ -346,8 +379,34 @@ static inline void on_baro_dif_event( void ) {
 
 static inline void on_gps_event(void) {
   ins_update_gps();
+#if USE_AHRS
+  ahrs_update_gps();
+#endif
+
 #ifdef USE_VEHICLE_INTERFACE
   if (gps.fix == GPS_FIX_3D)
     vi_notify_gps_available();
 #endif
 }
+
+//static inline void on_mag_event(void) {
+//  ImuScaleMag(imu);
+//
+//#if USE_MAGNETOMETER
+//  if (ahrs.status == AHRS_RUNNING) {
+//    ahrs_update_mag();
+//  }
+//#endif
+//
+//#ifdef USE_VEHICLE_INTERFACE
+//  vi_notify_mag_available();
+//#endif
+//}
+
+#if ARDRONE2
+static inline void on_navdata_event(void) {
+	// when executing here, navdata is done reading...
+	// what should happen now? update IMU?
+	// notify navdata available?
+}
+#endif
