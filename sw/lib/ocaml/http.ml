@@ -15,6 +15,7 @@ let file_of_url = fun ?dest url ->
     let call = new Http_client.get url in
     call#set_response_body_storage (`File (fun () -> tmp_file));
     let pipeline = new Http_client.pipeline in
+    pipeline#set_proxy_from_environment ();
     pipeline#add call;
     pipeline#run ();
     match call#status with
