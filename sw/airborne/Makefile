@@ -45,6 +45,10 @@ ifneq ($(MAKECMDGOALS),clean)
     endif
   endif
 
+  ifdef PRINT_CONFIG
+    $(TARGET).CFLAGS += -DPRINT_CONFIG
+  endif
+
   # sort cflags and sources to throw out duplicates
   #
   #$(info CFLAGS_orig = $($(TARGET).CFLAGS))
