@@ -248,6 +248,10 @@ void imu_periodic(void) {
 
 #if USE_INS_MODULE
 void ins_init(void) {
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  stateSetLocalUtmOrigin_f(&utm0);
+  stateSetPositionUtm_f(&utm0);
+
   xsens_init();
 }
 
@@ -256,6 +260,22 @@ void ins_periodic(void) {
 }
 
 void ins_update_gps(void) {
+  struct UtmCoor_f utm;
+  utm.east = gps.utm_pos.east / 100.;
+  utm.north = gps.utm_pos.north / 100.;
+  utm.zone = nav_utm_zone0;
+  utm.alt = gps.hmsl / 1000.;
+
+  // set position
+  stateSetPositionUtm_f(&utm);
+
+  struct NedCoor_f ned_vel = {
+    gps.ned_vel.x / 100.,
+    gps.ned_vel.y / 100.,
+    gps.ned_vel.z / 100.
+  };
+  // set velocity
+  stateSetSpeedNed_f(&ned_vel);
 }
 #endif
 
