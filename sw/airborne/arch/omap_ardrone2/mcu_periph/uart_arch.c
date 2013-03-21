@@ -113,7 +113,7 @@ bool_t uart_recieve(struct uart_periph* p) {
 void uart0_init( void ) {
 	uart_periph_init(&uart0);
 	strcpy(uart0.dev, UART0_DEV);
-	UART0SetBaudrate(UART0_BAUD);
+	uart_periph_set_baudrate(&uart0, UART0_BAUD, FALSE);
 }
 #endif
 
@@ -121,7 +121,7 @@ void uart0_init( void ) {
 void uart1_init( void ) {
 	uart_periph_init(&uart1);
 	strcpy(uart1.dev, UART1_DEV);
-	UART1SetBaudrate(UART1_BAUD);
+	uart_periph_set_baudrate(&uart1, UART1_BAUD, FALSE);
 }
 #endif
 
