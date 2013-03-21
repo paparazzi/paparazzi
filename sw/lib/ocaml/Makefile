@@ -32,9 +32,6 @@ OCAMLYACC=ocamlyacc
 OCAMLMKLIB=ocamlmklib
 OCAMLLIBDIR=$(shell $(OCAMLC) -where)
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
 # verbose ocamlmklib: Print commands before executing them
 #VERBOSITY = -verbose
 VERBOSITY =
@@ -153,27 +150,31 @@ expr_syntax.cmo : expr_syntax.cmi
 
 gtk_papget_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	$(Q)lablgladecc2 -root papget_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	$(Q)rm $(TMPDIR)/$@_$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root papget_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_papget_text_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	$(Q)lablgladecc2 -root table_text_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	$(Q)rm $(TMPDIR)/$@_$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root table_text_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_papget_gauge_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	$(Q)lablgladecc2 -root table_gauge_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	$(Q)rm $(TMPDIR)/$@_$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root table_gauge_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_papget_led_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	$(Q)rm $(TMPDIR)/$@_$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 
 clean :

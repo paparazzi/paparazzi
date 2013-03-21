@@ -27,10 +27,6 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
-
 all: panic
 
 $^
@@ -58,8 +54,11 @@ export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
 
 gtk_export.ml : export.glade
-	grep -v invisible_char $< > $(TMPDIR)/$<
-	lablgladecc2 -root export -hide-default $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root export -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 pt : ahrsview imuview ahrs2fg
 

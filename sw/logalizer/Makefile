@@ -30,9 +30,6 @@ LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 XPKG = -package pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
 all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo
@@ -83,9 +80,10 @@ export.cmx : gtk_export.cmx
 
 gtk_export.ml : export.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$<
-	$(Q)lablgladecc2 -root export -hide-default $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
-	$(Q)rm $(TMPDIR)/$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root export -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 
 pt : ahrsview imuview ahrs2fg

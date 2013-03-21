@@ -31,9 +31,6 @@ XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
 all: paparazzicenter
 
 paparazzicenter : $(PAPARAZZICENTERCMO)
@@ -42,15 +39,17 @@ paparazzicenter : $(PAPARAZZICENTERCMO)
 
 gtk_pc.ml : paparazzicenter.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$<
-	$(Q)lablgladecc2 -hide-default -root window $(TMPDIR)/$< > $@
-	$(Q)rm $(TMPDIR)/$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -hide-default -root window $($@_TMP) > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_process.ml : paparazzicenter.glade
 	@echo GLADE $@
-	$(Q)grep -v invisible_char $< > $(TMPDIR)/$<
-	$(Q)lablgladecc2 -hide-default -root hbox_program $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
-	$(Q)rm $(TMPDIR)/$<
+	$(eval $@_TMP := $(shell mktemp))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -hide-default -root hbox_program $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 %.cmo : %.ml
 	@echo OC $<
