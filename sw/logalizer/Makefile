@@ -24,7 +24,7 @@
 Q=@
 
 include ../Makefile.ocaml
-INCLUDES= -I $(LIBPPRZDIR)
+INCLUDES=
 PKG = -package glibivy,pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 XPKG = -package pprz.xlib
@@ -35,23 +35,23 @@ TMPDIR ?= /tmp
 
 all: play plotter plot sd2log plotprofile openlog2tlm
 
-play : $(LIBPPRZCMA) log_file.cmo play_core.cmo play.cmo
+play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
-play-nox : $(LIBPPRZCMA) play_core.cmo play-nox.cmo
+play-nox : play_core.cmo play-nox.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
-plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA) plotter.cmo
+plotter : plotter.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-plot : $(LIBPPRZCMA) $(XLIBPPRZCMA) log_file.cmo gtk_export.cmo export.cmo plot.cmo
+plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-sd2log : $(LIBPPRZCMA) sd2log.cmo
+sd2log : sd2log.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 

@@ -62,7 +62,6 @@ gtk_process.ml : paparazzicenter.glade
 
 pc_common.cmo: gtk_process.cmo
 
-paparazzicenter : $(LIBPPRZCMA) $(XLIBPPRZCMA)
 paparazzicenter.cmo : gtk_pc.cmo
 
 clean:

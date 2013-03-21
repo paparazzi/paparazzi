@@ -95,14 +95,14 @@ xml_get.out : lib-pprz.cma xml_get.cmo | opt
 tests : lib-pprz.cma $(TESTS_CMO)
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
 
-GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
-
 %.o : %.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 $(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
 
+
+GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0)
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
@@ -141,6 +141,8 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	@echo OCY $<
 	$(Q)$(OCAMLYACC) $<
 
+# these deps *should* be generated correctly by ocamldep
+# somehow this is not the case for all
 expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
 expr_parser.cmi : expr_parser.ml expr_syntax.cmi
 expr_lexer.ml : expr_parser.ml
@@ -172,6 +174,7 @@ gtk_papget_led_editor.ml : widgets.glade
 	$(Q)grep -v invisible_char $< > $(TMPDIR)/$@_$<
 	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
 	$(Q)rm $(TMPDIR)/$@_$<
+
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli

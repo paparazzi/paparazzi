@@ -52,7 +52,7 @@ all : $(MAIN)
 
 opt : $(MAIN).opt
 
-$(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
+$(MAIN) : $(CMO)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) myGtkInit.cmo $(CMO) -o $@
 

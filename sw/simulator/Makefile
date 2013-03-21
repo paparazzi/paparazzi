@@ -91,9 +91,6 @@ diffusion : stdlib.cmo diffusion.cmo
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
-# dependency on lib-pprz
-simhitl diffusion gaia:  $(LIBPPRZCMA)
-
 clean :
 	$(Q)rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl diffusion
 

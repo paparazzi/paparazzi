@@ -37,11 +37,11 @@ gen_flight_plan.out : $(FP_CMO)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
-gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
+gen_srtm.out : gen_srtm.ml
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
-%.out : %.ml gen_common.cmo $(LIBPPRZCMA)
+%.out : %.ml gen_common.cmo
 	@echo OL $<
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gen_common.cmo $<
 
@@ -52,9 +52,6 @@ gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
 %.cmi : %.mli
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
-
-# dependency on lib-pprz
-gen_flight_plan.out : $(LIBPPRZCMA)
 
 mergelogs: mergelogs.c
 	gcc mergelogs.c -o mergelogs
