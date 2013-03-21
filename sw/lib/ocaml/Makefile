@@ -126,10 +126,6 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	@echo OC $<
 	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) -package $(PKGCOMMON),$(XPKGCOMMON) $<
 
-%.cmi : %.ml
-	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) -package $(PKGCOMMON) -c $<
-
 %.ml : %.mll
 	@echo OCL $<
 	$(Q)$(OCAMLLEX) $<
@@ -138,8 +134,8 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	@echo OCY $<
 	$(Q)$(OCAMLYACC) $<
 
-# these deps *should* be generated correctly by ocamldep
-# somehow this is not the case for all
+# dependencies not covered by ocamldep
+# since these files are generated
 expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
 expr_parser.cmi : expr_parser.ml expr_syntax.cmi
 expr_lexer.ml : expr_parser.ml
