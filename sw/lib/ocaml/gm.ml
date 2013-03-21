@@ -29,6 +29,7 @@ open Printf
 
 let tile_size = 256, 256
 let zoom_max = 22
+let zoom_min = 18
 
 let cache_path = ref "/var/tmp"
 
@@ -150,6 +151,8 @@ let is_prefix = fun a b ->
 (** Get the tile or one which contains it from the cache *)
 let get_from_cache = fun dir f ->
   let files = Sys.readdir dir in
+  (* sort files to have the longest names first *)
+  Array.sort (fun a b -> String.length b - String.length a) files;
   let rec loop = fun i ->
     if i < Array.length files then
       let fi = files.(i) in

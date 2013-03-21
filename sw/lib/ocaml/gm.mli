@@ -23,6 +23,8 @@
  *)
 
 val tile_size : int * int
+val zoom_max : int
+val zoom_min : int
 val tile_coverage : float -> int -> float * float
 (** [tile_coverage wgs84_lat zoom] Returns (width,height) *)
 

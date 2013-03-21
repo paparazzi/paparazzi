@@ -72,7 +72,7 @@ let add_tile = fun tile_key ->
   loop 0 [|gm_tiles|] 0
 
 
-let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
+let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file level ->
   let south_lat = tile.Gm.sw_corner.LL.posn_lat
   and west_long = tile.Gm.sw_corner.LL.posn_long in
   let north_lat = south_lat +. tile.Gm.height
@@ -83,7 +83,7 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   try
     let pixbuf = GdkPixbuf.from_file jpg_file in
     ignore (GMain.Idle.add (fun () ->
-      let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) pixbuf in
+      let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) pixbuf ~level in
       map#raise 1;
       false));
     add_tile tile.Gm.key
@@ -103,7 +103,8 @@ let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
   let key = desired_tile.Gm.key in
   if not (mem_tile key) then
     let (tile, jpg_file) = Gm.get_tile wgs84 1 in
-    display_the_tile geomap tile jpg_file
+    let level = String.length tile.Gm.key in
+    display_the_tile geomap tile jpg_file level
 
 
 exception New_displayed of int
@@ -135,7 +136,8 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
 	| Empty ->
 	    if zoom = 1 then
 	      let tile, image = Gm.get_image key in
-	      display_the_tile geomap tile image;
+              let level = String.length tile.Gm.key in
+	      display_the_tile geomap tile image level;
 	      raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))
 	    else begin
 	      trees.(i) <- Node (Array.create 4 Empty);

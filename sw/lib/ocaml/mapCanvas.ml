@@ -152,6 +152,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let canvas = GnoCanvas.canvas ~packing:(frame#pack ~expand:true) () in
   let background = GnoCanvas.group canvas#root
   and still = GnoCanvas.group canvas#root in
+  (* create several layers of canvas group to display the map in correct order *)
+  let maps = Array.init (Gm.zoom_max - Gm.zoom_min + 1) (fun _ -> GnoCanvas.group background) in
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
@@ -184,6 +186,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method toolbar = toolbar
     method background = background
     method still = still
+    method maps = maps
     method top_still = 3.5*.s
     method utc_time = utc_time
     method set_utc_time = fun h m s ->
@@ -373,14 +376,23 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       self#of_world (xw, yw)
 
 
-    method display_pixbuf = fun ?opacity ((x1,y1), geo1) ((x2,y2), geo2) image ->
+    method display_pixbuf = fun ?opacity ?level ((x1,y1), geo1) ((x2,y2), geo2) image ->
       let x1 = float x1 and x2 = float x2
       and y1 = float y1 and y2 = float y2 in
       let image =
 	match opacity with
 	  None -> image
 	| Some o -> set_opacity image o in
-      let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1)~pixbuf:image ~props:[`ANCHOR `NW] background in
+      let map_layer = match level with
+        | None -> 0
+        | Some l ->
+            if l > Gm.zoom_max then
+              Array.length maps - 1
+            else if l < Gm.zoom_min then
+              0
+            else l - Gm.zoom_min
+      in
+      let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1) ~pixbuf:image ~props:[`ANCHOR `NW] maps.(map_layer) in
       let xw1, yw1 = self#world_of geo1
       and xw2, yw2 = self#world_of geo2 in
 
