@@ -112,29 +112,29 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
 
-ground_segment: print_build_version update_google_version conf lib subdirs commands static
+ground_segment: print_build_version update_google_version conf libpprz subdirs commands static
 
 static: cockpit tmtc tools sim_static joystick static_h
 
-lib:
+libpprz:
 	$(MAKE) -C $(LIB)/ocaml
 
 multimon:
 	$(MAKE) -C $(MULTIMON)
 
-cockpit: lib
+cockpit: libpprz
 	$(MAKE) -C $(COCKPIT)
 
-tmtc: lib cockpit multimon
+tmtc: libpprz cockpit multimon
 	$(MAKE) -C $(TMTC)
 
-tools: lib
+tools: libpprz
 	$(MAKE) -C $(TOOLS)
 
-joystick: lib
+joystick: libpprz
 	$(MAKE) -C $(JOYSTICK)
 
-sim_static: lib
+sim_static: libpprz
 	$(MAKE) -C $(SIMULATOR)
 
 ext:
@@ -148,9 +148,9 @@ subdirs: $(SUBDIRS)
 $(SUBDIRS):
 	$(MAKE) -C $@
 
-$(PPRZCENTER): lib
+$(PPRZCENTER): libpprz
 
-$(LOGALIZER): lib
+$(LOGALIZER): libpprz
 
 
 static_h: $(GEN_HEADERS)
@@ -222,10 +222,10 @@ paparazzi:
 	chmod a+x $@
 
 
-install :
+install: all
 	$(MAKE) -f Makefile.install PREFIX=$(PREFIX)
 
-uninstall :
+uninstall:
 	$(MAKE) -f Makefile.install PREFIX=$(PREFIX) uninstall
 
 
@@ -278,7 +278,7 @@ test: all replace_current_conf_xml run_tests restore_conf_xml
 
 
 .PHONY: all print_build_version update_google_version ground_segment \
-subdirs $(SUBDIRS) conf ext lib multimon cockpit tmtc tools\
+subdirs $(SUBDIRS) conf ext libpprz multimon cockpit tmtc tools\
 static sim_static lpctools commands install uninstall \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test replace_current_conf_xml run_tests restore_conf_xml
