@@ -21,8 +21,8 @@
  *
  */
 
-/** @file arch/sim/mcu_periph/sys_time_arch.h
- * Simulator timing functions
+/** @file arch/omap_ardrone2/mcu_periph/sys_time_arch.h
+ * omap_ardrone2 timing functions
  */
 
 #ifndef SYS_TIME_ARCH_H
@@ -32,21 +32,20 @@
 
 extern void sys_tick_handler(int signum);
 
-// simulate 1us cpu ticks
-#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * 1e6 + 0.5)
-#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * 1e6 + 0.5)
+/**
+ * Get the time in microseconds since startup.
+ * WARNING: overflows after 71min34seconds!
+ * @return current system time as uint32_t
+ */
+static inline uint32_t get_sys_time_usec(void) {
+  return sys_time.nb_sec * 1000000 +
+    usec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
 
-#define SEC_OF_CPU_TICKS(t)  ((t) / 1e6)
-#define MSEC_OF_CPU_TICKS(t) ((t) / 1e3)
-#define USEC_OF_CPU_TICKS(t) (t)
-
-#define GET_CUR_TIME_USEC() (sys_time.nb_sec * 1000000 +                \
-                             USEC_OF_CPU_TICKS(sys_time.nb_sec_rem))
-
-#define SysTimeTimerStart(_t) { _t = GET_CUR_TIME_USEC(); }
-#define SysTimeTimer(_t) ( GET_CUR_TIME_USEC() - (_t))
-#define SysTimeTimerStop(_t) { _t = ( GET_CUR_TIME_USEC() - (_t)); }
-
+/* Generic timer macros */
+#define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
+#define SysTimeTimer(_t) ( get_sys_time_usec() - (_t))
+#define SysTimeTimerStop(_t) { _t = ( get_sys_time_usec() - (_t)); }
 
 static inline void sys_time_usleep(uint32_t us __attribute__ ((unused))) {}
 
