@@ -40,10 +40,10 @@ type tile_t = {
     height : float (* Latitude difference *)
   }
 
-type maps_source = Google | OSM | MS
-let maps_sources = [Google; OSM; MS]
+type maps_source = Google | OSM | MS | MQ | MQ_Aerial
+let maps_sources = [Google; OSM; MS; MQ; MQ_Aerial]
 let string_of_maps_source = function
-    Google -> "Google" | OSM -> "OSM" | MS -> "MS"
+    Google -> "Google" | OSM -> "OpenStreetMap" | MS -> "Bing" | MQ -> "MapQuest OSM" | MQ_Aerial -> "MapQuest Open Aerial"
 
 let maps_source = ref Google
 let set_maps_source = fun s -> maps_source := s
@@ -205,6 +205,8 @@ let url_of_tile_key = fun maps_source s ->
   match maps_source with
     Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
   | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
+  | MQ -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/osm/%d/%d/%d.png" z x y
+  | MQ_Aerial -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/sat/%d/%d/%d.png" z x y
   | MS ->
       let (key, last_char) = ms_key s in
       (* That's the old naming scheme, that still works as of 1st August 2010
@@ -218,6 +220,8 @@ let url_of_tile_key = fun maps_source s ->
 let get_cache_dir = function
     Google -> !cache_path (* Historic ! Should be // Google *)
   | OSM -> !cache_path // "OSM"
+  | MQ -> !cache_path // "MapQuest"
+  | MQ_Aerial -> !cache_path // "MapQuestAerial"
   | MS -> !cache_path // "MS"
 
 

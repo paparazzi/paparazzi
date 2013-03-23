@@ -35,7 +35,7 @@ type tile_t = {
     height : float (* Latitude difference *)
   }
 
-type maps_source = Google | OSM | MS
+type maps_source = Google | OSM | MS | MQ | MQ_Aerial
 val string_of_maps_source : maps_source -> string
 val maps_sources : maps_source list
 val set_maps_source : maps_source -> unit
