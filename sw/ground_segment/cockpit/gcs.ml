@@ -287,7 +287,7 @@ let button_press = fun (geomap:G.widget) ev ->
     (`I ("Load BDORTHO", display_bdortho geomap wgs84))::m
       else
     m in
-    GToolbox.popup_menu ~entries:([`I ("Load Google tile", display_gm)]@m)
+    GToolbox.popup_menu ~entries:([`I ("Load background tile", display_gm)]@m)
       ~button:3 ~time:(Int32.of_int 0);
     true
   end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
