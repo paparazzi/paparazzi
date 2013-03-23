@@ -42,7 +42,7 @@ val set_maps_source : maps_source -> unit
 val get_maps_source : unit -> maps_source
 (** Initialized to Google *)
 
-val tile_of_geo : Latlong.geographic -> int -> tile_t
+val tile_of_geo : ?level:int -> Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
   given point with a the smallest available zoom greater or equal to [zoom]. *)
 

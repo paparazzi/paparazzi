@@ -97,14 +97,13 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file level ->
 
 
 (** Displaying the tile around the given point *)
-let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
-  let desired_tile = Gm.tile_of_geo wgs84 1 in
+let display_tile = fun (geomap:MapCanvas.widget) wgs84 level ->
+  let desired_tile = Gm.tile_of_geo ~level wgs84 1 in
 
   let key = desired_tile.Gm.key in
   if not (mem_tile key) then
-    let (tile, jpg_file) = Gm.get_tile wgs84 1 in
-    let level = String.length tile.Gm.key in
-    display_the_tile geomap tile jpg_file level
+    let (tile, jpg_file) = Gm.get_image key in
+    display_the_tile geomap tile jpg_file (String.length tile.Gm.key)
 
 
 exception New_displayed of int
@@ -131,34 +130,34 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
     if not (twest > east || (twest+.tsize < west && (east < 1. (* Standard case *) || twest+.2.>east (* Over 180° *))) || tsouth > north || tsouth+.tsize < south) then
       let tsize2 = tsize /. 2. in
       try
-	match trees.(i) with
-	  Tile -> ()
-	| Empty ->
-	    if zoom = 1 then
-	      let tile, image = Gm.get_image key in
+        match trees.(i) with
+          Tile -> ()
+        | Empty ->
+            if zoom = 1 then
+              let tile, image = Gm.get_image key in
               let level = String.length tile.Gm.key in
-	      display_the_tile geomap tile image level;
-	      raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))
-	    else begin
-	      trees.(i) <- Node (Array.create 4 Empty);
-	      loop twest tsouth tsize trees i zoom key
-	    end
-	| Node sons ->
-	    let continue = fun j tw ts ->
-	      loop tw ts tsize2 sons j (zoom-1) (key^String.make 1 (char_of j)) in
+              display_the_tile geomap tile image level;
+              raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))
+            else begin
+              trees.(i) <- Node (Array.create 4 Empty);
+              loop twest tsouth tsize trees i zoom key
+            end
+        | Node sons ->
+            let continue = fun j tw ts ->
+              loop tw ts tsize2 sons j (zoom-1) (key^String.make 1 (char_of j)) in
 
-	    continue 0 twest (tsouth+.tsize2);
-	    continue 1 (twest+.tsize2) (tsouth+.tsize2);
-	    continue 2 (twest+.tsize2) tsouth;
-	    continue 3 twest tsouth;
+            continue 0 twest (tsouth+.tsize2);
+            continue 1 (twest+.tsize2) (tsouth+.tsize2);
+            continue 2 (twest+.tsize2) tsouth;
+            continue 3 twest tsouth;
 
-	    (* If the current node is complete, replace it by a Tile *)
-	    if array_forall (fun x -> x = Tile) sons then begin
-	      trees.(i) <- Tile
-	    end
+            (* If the current node is complete, replace it by a Tile *)
+            if array_forall (fun x -> x = Tile) sons then begin
+              trees.(i) <- Tile
+            end
       with
-	New_displayed z when z = zoom ->
-	  trees.(i) <- Tile
+        New_displayed z when z = zoom ->
+          trees.(i) <- Tile
       | Gm.Not_available -> () in
   loop (-1.) (-1.)  2. [|gm_tiles|] 0 zoomlevel "t"
 

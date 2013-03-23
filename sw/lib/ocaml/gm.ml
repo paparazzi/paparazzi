@@ -79,8 +79,12 @@ let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
 
 (** Returns a keyhole string for a longitude (x), latitude (y), and zoom
    for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
-let tile_of_geo = fun wgs84 zoom ->
-  let zoom = zoom_max - zoom in
+let tile_of_geo = fun ?level wgs84 zoom ->
+  let max = match level with
+    | None -> zoom_max
+    | Some l -> if l < zoom_min then zoom_min else if l > zoom_max then zoom_max else l
+  in
+  let zoom = max - zoom in
 
   (* first convert the lat lon to transverse mercator coordinates *)
   let lon = (Rad>>Deg)wgs84.posn_long in
@@ -157,12 +161,14 @@ let get_from_cache = fun dir f ->
     if i < Array.length files then
       let fi = files.(i) in
       let fi_key = try Filename.chop_extension fi with _ -> fi in
+      (* is it a valid substring ? *)
       if fi_key <> "" && is_prefix fi_key f then
-    (tile_of_key fi_key, dir // fi)
+        (tile_of_key fi_key, dir // fi)
       else
-    loop (i+1)
+        loop (i+1)
     else
-      raise Not_found in
+      raise Not_found
+    in
   loop 0
 
 (** Translate the old quadtree naming policy into new (x,y) coordinates
@@ -245,30 +251,35 @@ let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 let get_image = fun key ->
   let cache_dir = get_cache_dir !maps_source in
   mkdir cache_dir;
+  let rec get_from_http = fun k ->
+    if String.length k >= 1 then
+      let url = url_of_tile_key !maps_source k in
+      let jpg_file = cache_dir // (k ^ ".jpg") in
+      try
+        ignore (Http.file_of_url ~dest:jpg_file url);
+        tile_of_key k, jpg_file
+      with
+          Http.Not_Found _ -> get_from_http (remove_last_char k)
+        | Http.Blocked _ ->
+          begin
+            prerr_endline (Printf.sprintf "Seem to be temporarily blocked, '%s'" url);
+            raise Not_available
+          end
+        | _ -> raise Not_available
+    else
+      raise Not_available
+  in
   try
     if !policy = NoCache then raise Not_found;
-    get_from_cache cache_dir key
+    let (t, f) = get_from_cache cache_dir key in
+    (* if not exact match from cache, try http if CacheOrHttp policy *)
+    if !policy = CacheOrHttp && (String.length t.key < String.length key) then
+      try get_from_http key with _ -> (t, f)
+    else (t, f)
   with
-      Not_found ->
-        if !policy = NoHttp then raise Not_available;
-        let rec loop = fun k ->
-          if String.length k >= 1 then
-            let url = url_of_tile_key !maps_source k in
-            let jpg_file = cache_dir // (k ^ ".jpg") in
-            try
-              ignore (Http.file_of_url ~dest:jpg_file url);
-              tile_of_key k, jpg_file
-            with
-                Http.Not_Found _ -> loop (remove_last_char k)
-              | Http.Blocked _ ->
-                begin
-                  prerr_endline (Printf.sprintf "Seem to be temporarily blocked, '%s'" url);
-                  raise Not_available
-                end
-              | _ -> raise Not_available
-          else
-            raise Not_available in
-        loop key
+  | Not_found ->
+      if !policy = NoHttp then raise Not_available;
+      get_from_http key
 
 
 let rec get_tile = fun wgs84 zoom ->

@@ -278,7 +278,7 @@ let button_press = fun (geomap:G.widget) ev ->
     and display_gm = fun () ->
       TodoList.add
     (fun () ->
-      try ignore (MapGoogle.display_tile geomap wgs84) with
+      try ignore (MapGoogle.display_tile geomap wgs84 !GM.zoomlevel) with
         Gm.Not_available -> ()) in
 
     let m = if !ign then [`I ("Load IGN tile", display_ign)] else [] in
