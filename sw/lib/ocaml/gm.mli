@@ -23,6 +23,8 @@
  *)
 
 val tile_size : int * int
+val zoom_max : int
+val zoom_min : int
 val tile_coverage : float -> int -> float * float
 (** [tile_coverage wgs84_lat zoom] Returns (width,height) *)
 
@@ -33,14 +35,14 @@ type tile_t = {
     height : float (* Latitude difference *)
   }
 
-type maps_source = Google | OSM | MS
+type maps_source = Google | OSM | MS | MQ | MQ_Aerial
 val string_of_maps_source : maps_source -> string
 val maps_sources : maps_source list
 val set_maps_source : maps_source -> unit
 val get_maps_source : unit -> maps_source
 (** Initialized to Google *)
 
-val tile_of_geo : Latlong.geographic -> int -> tile_t
+val tile_of_geo : ?level:int -> Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
   given point with a the smallest available zoom greater or equal to [zoom]. *)
 
