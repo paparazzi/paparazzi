@@ -49,7 +49,7 @@ class IvyMessagesInterface():
         try:
             ac_id = int(data[0])
             name = data[1]
-            values = data[2:]
+            values = filter(None, data[2:])
             self.callback(ac_id, name, values)
         except ValueError:
             pass
