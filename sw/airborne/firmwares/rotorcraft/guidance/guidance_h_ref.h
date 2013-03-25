@@ -54,7 +54,8 @@ extern struct Int64Vect2 b2_gh_pos_ref;
 
 /* Saturations definition */
 #ifndef GUIDANCE_H_REF_MAX_ACCEL
-#define GUIDANCE_H_REF_MAX_ACCEL ( tanf(RadOfDeg(30.))*9.81 )
+/* tanf(RadOfDeg(30.))*9.81 = 5.66 */
+#define GUIDANCE_H_REF_MAX_ACCEL 5.66
 #endif
 #define B2_GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
 

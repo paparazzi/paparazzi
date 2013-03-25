@@ -288,15 +288,15 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
   /* run PID */
   guidance_h_command_earth.x =
-    guidance_h_pgain * (guidance_h_pos_err.x >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_dgain * (guidance_h_speed_err.x >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_igain * (guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_again * (guidance_h_accel_ref.x >> 8); /* feedforward gain */
+    ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
+    ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
   guidance_h_command_earth.y =
-    guidance_h_pgain * (guidance_h_pos_err.y >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_dgain * (guidance_h_speed_err.y >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_igain * (guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_again * (guidance_h_accel_ref.y >> 8); /* feedforward gain */
+    ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
+    ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
   VECT2_STRIM(guidance_h_command_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
 

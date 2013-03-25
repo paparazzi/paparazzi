@@ -174,10 +174,11 @@ end
 (************ Google, OSM Maps handling *****************************************)
 module GM = struct
   (** Fill the visible background with Google, OSM tiles *)
+  let zoomlevel = ref 18
   let fill_tiles = fun geomap ->
     match geomap#georef with
       None -> ()
-    | Some _ -> TodoList.add (fun () -> MapGoogle.fill_window geomap)
+    | Some _ -> TodoList.add (fun () -> MapGoogle.fill_window geomap !zoomlevel)
 
   let auto = ref false
   let update = fun geomap ->
@@ -197,7 +198,7 @@ module GM = struct
            posn_long = min geo1.posn_long geo2.posn_long }
     and ne = { posn_lat = max geo1.posn_lat geo2.posn_lat;
            posn_long = max geo1.posn_long geo2.posn_long } in
-    let pix = MapGoogle.pixbuf sw ne in
+    let pix = MapGoogle.pixbuf sw ne !zoomlevel in
     let nw = { posn_lat = ne.posn_lat; posn_long = sw.posn_long }
     and se = { posn_lat = sw.posn_lat; posn_long = ne.posn_long } in
     save_map geomap ~projection:"Mercator" pix nw se
@@ -277,7 +278,7 @@ let button_press = fun (geomap:G.widget) ev ->
     and display_gm = fun () ->
       TodoList.add
     (fun () ->
-      try ignore (MapGoogle.display_tile geomap wgs84) with
+      try ignore (MapGoogle.display_tile geomap wgs84 !GM.zoomlevel) with
         Gm.Not_available -> ()) in
 
     let m = if !ign then [`I ("Load IGN tile", display_ign)] else [] in
@@ -286,7 +287,7 @@ let button_press = fun (geomap:G.widget) ev ->
     (`I ("Load BDORTHO", display_bdortho geomap wgs84))::m
       else
     m in
-    GToolbox.popup_menu ~entries:([`I ("Load Google tile", display_gm)]@m)
+    GToolbox.popup_menu ~entries:([`I ("Load background tile", display_gm)]@m)
       ~button:3 ~time:(Int32.of_int 0);
     true
   end else if GdkEvent.Button.button ev = 1 && Gdk.Convert.test_modifier `CONTROL state then
@@ -347,6 +348,7 @@ let options =
    "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";
    "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
    "-maps_fill", Arg.Set GM.auto, "Automatically start loading background maps";
+   "-maps_zoom", Arg.Set_int GM.zoomlevel, "Background maps zoomlevel (default: 18, max: 22)";
    "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
    "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
    "-layout", Arg.Set_string layout_file, (sprintf "<XML layout specification> GUI layout. Default: %s" !layout_file);
@@ -470,7 +472,7 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   (** Separate from A/C menus *)
   ignore (geomap#factory#add_separator ());
 
-  (** Set the initial soom *)
+  (** Set the initial zoom *)
   geomap#zoom !zoom;
   geomap, menu_fact
 
