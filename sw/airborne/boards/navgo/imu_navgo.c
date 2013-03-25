@@ -45,7 +45,7 @@
 #endif
 
 #ifndef NAVGO_ACCEL_RATE
-#define NAVGO_ACCEL_RATE ADXL345_RATE_25HZ
+#define NAVGO_ACCEL_RATE ADXL345_RATE_200HZ
 #endif
 PRINT_CONFIG_VAR(NAVGO_ACCEL_RATE)
 
@@ -58,20 +58,22 @@ void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
-  itg3200_init(&imu_navgo.itg, &(IMU_NAVGO_I2C_DEV), ITG3200_ADDR_ALT);
+
   // change the default configuration
-  imu_navgo.itg.config.smplrt_div = 1;  // 500Hz sample rate since internal is 1kHz
-  imu_navgo.itg.config.dlpf_cfg = ITG3200_DLPF_10HZ;
+  imu_navgo.itg.config.smplrt_div = 12;  // 500Hz sample rate since internal is 1kHz
+  imu_navgo.itg.config.dlpf_cfg = ITG3200_DLPF_20HZ;
+  itg3200_init(&imu_navgo.itg, &(IMU_NAVGO_I2C_DEV), ITG3200_ADDR_ALT);
 
   /////////////////////////////////////////////////////////////////////
   // ADXL345
-  adxl345_i2c_init(&imu_navgo.adxl, &(IMU_NAVGO_I2C_DEV), ADXL345_ADDR_ALT);
+
   // change the default data rate
   imu_navgo.adxl.config.rate = NAVGO_ACCEL_RATE;
+  adxl345_i2c_init(&imu_navgo.adxl, &(IMU_NAVGO_I2C_DEV), ADXL345_ADDR);
 
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
-  hmc58xx_init(&imu_navgo.hmc, &(IMU_NAVGO_I2C_DEV), HMC58XX_ADDR);
+  //hmc58xx_init(&imu_navgo.hmc, &(IMU_NAVGO_I2C_DEV), HMC58XX_ADDR);
 
   // Init median filters
   InitMedianFilterRatesInt(median_gyro);
@@ -95,7 +97,7 @@ void imu_periodic( void )
   RunOnceEvery((PERIODIC_FREQUENCY/(2*3200>>(0xf-NAVGO_ACCEL_RATE))), adxl345_i2c_periodic(&imu_navgo.adxl));
 
   // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(5, hmc58xx_periodic(&imu_navgo.hmc));
+  //RunOnceEvery(5, hmc58xx_periodic(&imu_navgo.hmc));
 
   //RunOnceEvery(20,imu_navgo_downlink_raw());
 }
@@ -114,7 +116,7 @@ void imu_navgo_event( void )
   // If the itg3200 I2C transaction has succeeded: convert the data
   itg3200_event(&imu_navgo.itg);
   if (imu_navgo.itg.data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled, -imu_navgo.itg.data.rates.q, imu_navgo.itg.data.rates.p, imu_navgo.itg.data.rates.r);
+    RATES_ASSIGN(imu.gyro_unscaled, -imu_navgo.itg.data.rates.q, -imu_navgo.itg.data.rates.p, imu_navgo.itg.data.rates.r);
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
     imu_navgo.itg.data_available = FALSE;
     imu_navgo.gyr_valid = TRUE;
@@ -123,14 +125,14 @@ void imu_navgo_event( void )
   // If the adxl345 I2C transaction has succeeded: convert the data
   adxl345_i2c_event(&imu_navgo.adxl);
   if (imu_navgo.adxl.data_available) {
-    VECT3_ASSIGN(imu.accel_unscaled, imu_navgo.adxl.data.vect.y, -imu_navgo.adxl.data.vect.x, imu_navgo.adxl.data.vect.z);
+    VECT3_ASSIGN(imu.accel_unscaled, imu_navgo.adxl.data.vect.x, -imu_navgo.adxl.data.vect.y, imu_navgo.adxl.data.vect.z);
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
     imu_navgo.adxl.data_available = FALSE;
     imu_navgo.acc_valid = TRUE;
   }
 
   // HMC58XX event task
-  hmc58xx_event(&imu_navgo.hmc);
+//  hmc58xx_event(&imu_navgo.hmc);
   if (imu_navgo.hmc.data_available) {
     VECT3_COPY(imu.mag_unscaled, imu_navgo.hmc.data.vect);
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);

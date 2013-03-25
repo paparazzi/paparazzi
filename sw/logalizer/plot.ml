@@ -532,7 +532,7 @@ let rec select_gps_values = function
       let l = ref [] in
       for i = 0 to Array.length xs - 1 do
 	let z = truncate (snd zs.(i))
-	and a = snd alts.(i) /. 1000. in
+	and a = snd alts.(i) /. 2000. in
 	if z <> 0 && a > 0. then
 	    let t = fst xs.(i)
 	    and x = snd xs.(i) /. 100.
@@ -547,7 +547,7 @@ let rec select_gps_values = function
       and alts = List.assoc "hmsl" values in
       let l = ref [] in
       for i = 0 to Array.length lats - 1 do
-	let a = snd alts.(i) /. 1000. in
+	let a = snd alts.(i) /. 2000. in
 	if a > 0. then
 	  let t = fst lats.(i)
 	  and lat = snd lats.(i) /. 1e7

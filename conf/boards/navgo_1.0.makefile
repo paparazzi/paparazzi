@@ -23,11 +23,11 @@ LPC21ISP_XTAL = 12000
 #
 # default LED configuration
 #
-RADIO_CONTROL_LED ?= 1
-BARO_LED          ?= 2
-AHRS_ALIGNER_LED  ?= 3
+RADIO_CONTROL_LED ?= none
+BARO_LED          ?= none
+AHRS_ALIGNER_LED  ?= 2
 GPS_LED           ?= 4
-SYS_TIME_LED      ?= none
+SYS_TIME_LED      ?= 1
 
 
 #

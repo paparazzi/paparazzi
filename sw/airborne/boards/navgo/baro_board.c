@@ -37,8 +37,8 @@ struct Baro baro;
 uint16_t startup_cnt;
 
 void baro_init( void ) {
-  mcp355x_init();
-  baro.status = BS_UNINITIALIZED;
+ // mcp355x_init();
+ // baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board */
 #ifdef ROTORCRAFT_BARO_LED
@@ -63,6 +63,6 @@ void baro_periodic( void ) {
     }
   }
   // Read the ADC (at 50/4 Hz, conversion time is 68 ms)
-  RunOnceEvery(4,mcp355x_read());
+  //RunOnceEvery(4,mcp355x_read());
 }
 

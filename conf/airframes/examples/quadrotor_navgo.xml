@@ -14,16 +14,18 @@
     <target name="ap" board="navgo_1.0">
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
-      <define name="ACTUATORS_START_DELAY" value="3"/>
+      <define name="ACTUATORS_START_DELAY" value="10"/>
     </target>
     <target name="nps" board="pc">
       <subsystem name="fdm"         type="jsbsim"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_CH6"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="mkk">
-      <define name="MKK_I2C_SCL_TIME" value="25"/>
+    <define name="I2C_TRANSACTION_QUEUE_LEN"  value="20"/>
+    <define name="MKK_I2C_SCL_TIME" value="20"/> <!--19 = 400kbit-->
     </subsystem>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
@@ -31,9 +33,9 @@
     </subsystem>
     <subsystem name="imu"           type="navgo"/>
     <subsystem name="gps"           type="ublox">
-      <configure name="GPS_BAUD" value="B57600"/>
+      <configure name="GPS_BAUD" value="B38400"/>
     </subsystem>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
@@ -42,25 +44,28 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
+    <define name="NB_MOTOR" value="8"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"  value="{    0, -256,    0,  256}"/>
-    <define name="PITCH_COEF" value="{  256,    0, -256,    0}"/>
-    <define name="YAW_COEF"   value="{ -256,  256, -256,  256}"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
+    <define name="ROLL_COEF"  value="{ -256, -256, -256, -256,  256,  256,  256,  256}"/>
+    <define name="PITCH_COEF" value="{  256,  256, -256, -256, -256, -256,  256,  256}"/>
+    <define name="YAW_COEF"   value="{ -256,  256, -256,  256, -256,  256, -256,  256}"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256,  256,  256,  256,  256}"/>
   </section>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <!-- FRONT, BACK, RIGHT, LEFT -->
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+    <define name="NB" value="8"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58, 0x5A, 0x5C , 0x5E, 0x60 }"/>
   </section>
 
   <servos driver="Mkk">
-    <servo name="FRONT"  no="0"    min="0" neutral="2" max="255"/>
-    <servo name="RIGHT"  no="1"    min="0" neutral="2" max="255"/>
-    <servo name="BACK"   no="2"    min="0" neutral="2" max="255"/>
-    <servo name="LEFT"   no="3"    min="0" neutral="2" max="255"/>
+    <servo name="FRONT_RIGHT"      no="0"    min="0" neutral="12" max="255"/>
+    <servo name="FRONT_MID_RIGHT"  no="1"    min="0" neutral="12" max="255"/>
+    <servo name="BACK_MID_RIGHT"   no="2"    min="0" neutral="12" max="255"/>
+    <servo name="BACK_RIGHT"       no="3"    min="0" neutral="12" max="255"/>
+    <servo name="BACK_LEFT"        no="4"    min="0" neutral="12" max="255"/>
+    <servo name="BACK_MID_LEFT"    no="5"    min="0" neutral="12" max="255"/>
+    <servo name="FRONT_MID_LEFT"   no="6"    min="0" neutral="12" max="255"/>
+    <servo name="FRONT_LEFT"       no="7"    min="0" neutral="12" max="255"/>
   </servos>
 
   <servos driver="Pwm">
@@ -76,10 +81,14 @@
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
-    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
-    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
-    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
+    <set servo="FRONT_RIGHT"       value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
+    <set servo="FRONT_MID_RIGHT"   value="motor_mixing.commands[SERVO_FRONT_MID_RIGHT]"/>
+    <set servo="BACK_MID_RIGHT"    value="motor_mixing.commands[SERVO_BACK_MID_RIGHT]"/>
+    <set servo="BACK_RIGHT"        value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
+    <set servo="BACK_LEFT"         value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
+    <set servo="BACK_MID_LEFT"     value="motor_mixing.commands[SERVO_BACK_MID_LEFT]"/>
+   <set servo="FRONT_MID_LEFT"    value="motor_mixing.commands[SERVO_FRONT_MID_LEFT]"/>
+    <set servo="FRONT_LEFT"        value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -92,26 +101,32 @@
     <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="1"/>
+    <define name="GYRO_R_SIGN" value="-1"/> 
 
-    <define name="ACCEL_X_NEUTRAL" value="9"/>
-    <define name="ACCEL_Y_NEUTRAL" value="14"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-45"/>
+    <define name="ACCEL_Y_NEUTRAL" value="108"/>
+    <define name="ACCEL_Z_NEUTRAL" value="650"/>
+    <define name="ACCEL_X_SIGN"  value="-1"/>
+    <define name="ACCEL_Y_SIGN"  value="-1"/>
+    <define name="ACCEL_Z_SIGN"  value="-1"/>
 
     <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 = 31.9488-->
     <define name="ACCEL_X_SENS" value="38.5866088465" integer="16"/>
     <define name="ACCEL_Y_SENS" value="38.7212932023" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39.403098907" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.403098907"  integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="80"/>
-    <define name="MAG_Y_NEUTRAL" value="-271"/>
-    <define name="MAG_Z_NEUTRAL" value="112"/>
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
     <define name="MAG_X_SENS" value="4.44131219218" integer="16"/>
     <define name="MAG_Y_SENS" value="4.56234629213" integer="16"/>
-    <define name="MAG_Z_SENS" value="5.298653926" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.298653926"   integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PHI"   value="0."  unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0."  unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="90." unit="deg"/>
 
   </section>
 
@@ -171,16 +186,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1800"/>
+    <define name="PHI_PGAIN"  value="800"/>
     <define name="PHI_DGAIN"  value="240"/>
-    <define name="PHI_IGAIN"  value="200"/>
+    <define name="PHI_IGAIN"  value="100"/>
 
-    <define name="THETA_PGAIN"  value="1800"/>
+    <define name="THETA_PGAIN"  value="800"/>
     <define name="THETA_DGAIN"  value="240"/>
-    <define name="THETA_IGAIN"  value="200"/>
+    <define name="THETA_IGAIN"  value="100"/>
 
-    <define name="PSI_PGAIN"  value="1000"/>
-    <define name="PSI_DGAIN"  value="350"/>
+    <define name="PSI_PGAIN"  value="600"/>
+    <define name="PSI_DGAIN"  value="450"/>
     <define name="PSI_IGAIN"  value="20"/>
 
     <!-- feedforward -->
@@ -215,7 +230,7 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="MAX_BANK" value="30" unit="deg"/>
+   <define name="MAX_BANK" value="15" unit="deg"/>
    <define name="PGAIN" value="50"/>
    <define name="DGAIN" value="80"/>
    <define name="IGAIN" value="20"/>
@@ -232,7 +247,7 @@
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
    <!--define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/-->
-   <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
  <section name="FMS">

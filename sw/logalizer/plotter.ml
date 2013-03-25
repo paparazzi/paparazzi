@@ -317,8 +317,8 @@ class plot = fun ~size ~width ~height ~packing () ->
     initializer ignore (self#drawing_area#event#connect#button_press ~callback:self#button_press);
   end
 
-let update_time = ref 0.5
-let size = ref 500
+let update_time = ref 0.05
+let size = ref 2000
 
 type window = { title : string; geometry : string; curves : string list }
 

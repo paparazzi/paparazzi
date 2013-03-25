@@ -95,7 +95,7 @@ class PlotFrame(wx.Frame):
 
         self.staticText3 = wx.StaticText(id=wxID_PLOTFRAMESTATICTEXT3, label=u'interval', name='staticText3', parent=self, pos=wx.Point(389, 5), size=wx.Size(68, 17), style=wx.ALIGN_RIGHT)
 
-        self.sliderTime = wx.Slider(id=wxID_PLOTFRAMESLIDERTIME, maxValue=1000, minValue=1, name=u'sliderTime', parent=self, pos=wx.Point(457, 4), size=wx.Size(200, 19), style=wx.SL_HORIZONTAL, value=_INITIAL_TIME_VALUE_ * 1000)
+        self.sliderTime = wx.Slider(id=wxID_PLOTFRAMESLIDERTIME, maxValue=2000, minValue=1, name=u'sliderTime', parent=self, pos=wx.Point(457, 4), size=wx.Size(200, 19), style=wx.SL_HORIZONTAL, value=_INITIAL_TIME_VALUE_ * 2000)
         self.sliderTime.SetLabel(u'')
         self.sliderTime.Bind(wx.EVT_COMMAND_SCROLL, self.OnSliderTimeCommandScroll, id=wxID_PLOTFRAMESLIDERTIME)
 
@@ -141,15 +141,15 @@ class PlotFrame(wx.Frame):
     def OnSliderTimeCommandScroll(self, event):
         value = event.GetPosition()
         self.canvas.SetPlotInterval(value)
-        self.editTime.SetValue( '%.3f' % (value/1000.0))
+        self.editTime.SetValue( '%.3f' % (value/2000.0))
         
     def OnEditTimeTextEnter(self, event):
         try:
-            value = int(float(event.GetString()) * 1000.0)
+            value = int(float(event.GetString()) * 2000.0)
         except:
             value = 0
-        if value < 1 or value > 1000:
-            value = '%.3f' % (self.sliderTime.GetValue() / 1000.0)
+        if value < 1 or value > 2000:
+            value = '%.3f' % (self.sliderTime.GetValue() / 2000.0)
             self.editTime.SetValue( value)
             return
         self.canvas.SetPlotInterval(value)

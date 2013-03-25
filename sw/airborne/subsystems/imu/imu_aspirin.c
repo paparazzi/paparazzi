@@ -59,11 +59,23 @@ INFO("Gyro output rate is 533Hz")
 PRINT_CONFIG_VAR(ASPIRIN_GYRO_LOWPASS)
 PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
+#ifdef USE_ASPIRIN_MEDIAN
+INFO("Aspirin with median filter")
+#include "filters/median_filter.h"
+struct MedianFilter3Int median_gyro, median_accel, median_mag;
+#endif
 
 struct ImuAspirin imu_aspirin;
 
 void imu_impl_init(void)
 {
+    // Init median filters
+  #ifdef USE_ASPIRIN_MEDIAN
+  InitMedianFilterRatesInt(median_gyro);
+  InitMedianFilterVect3Int(median_accel);
+  InitMedianFilterVect3Int(median_mag);
+  #endif
+  
   imu_aspirin.accel_valid = FALSE;
   imu_aspirin.gyro_valid = FALSE;
   imu_aspirin.mag_valid = FALSE;
@@ -117,6 +129,9 @@ void imu_aspirin_event(void)
   adxl345_spi_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
+    #ifdef USE_ASPIRIN_MEDIAN
+    UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
+    #endif
     imu_aspirin.acc_adxl.data_available = FALSE;
     imu_aspirin.accel_valid = TRUE;
   }
@@ -125,6 +140,9 @@ void imu_aspirin_event(void)
   itg3200_event(&imu_aspirin.gyro_itg);
   if (imu_aspirin.gyro_itg.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_aspirin.gyro_itg.data.rates);
+    #ifdef USE_ASPIRIN_MEDIAN   
+    UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
+    #endif
     imu_aspirin.gyro_itg.data_available = FALSE;
     imu_aspirin.gyro_valid = TRUE;
   }
@@ -139,6 +157,9 @@ void imu_aspirin_event(void)
     imu.mag_unscaled.y = -imu_aspirin.mag_hmc.data.vect.x;
     imu.mag_unscaled.z =  imu_aspirin.mag_hmc.data.vect.z;
 #endif
+    #ifdef USE_ASPIRIN_MEDIAN
+    UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
+    #endif
     imu_aspirin.mag_hmc.data_available = FALSE;
     imu_aspirin.mag_valid = TRUE;
   }

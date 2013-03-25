@@ -7,6 +7,8 @@ struct BaroBoard baro_board;
 struct i2c_transaction baro_trans;
 struct bmp085_baro_calibration calibration;
 
+#include "mcu_periph/i2c.h"
+
 #define BMP085_SAMPLE_PERIOD_MS (3 + (2 << BMP085_OSS) * 3)
 #define BMP085_SAMPLE_PERIOD (BMP075_SAMPLE_PERIOD_MS >> 1)
 
@@ -17,7 +19,7 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
   baro_trans.buf[0] = addr;
   baro_trans.buf[1] = value;
 
-  i2c_transmit(&i2c2, &baro_trans, BMP085_ADDR, 2);
+  i2c_transmit(&i2c1, &baro_trans, BMP085_ADDR, 2);
 
   // FIXME, no while loops without timeout!!
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
@@ -26,7 +28,7 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
 static inline void bmp085_read_reg16(uint8_t addr)
 {
   baro_trans.buf[0] = addr;
-  i2c_transceive(&i2c2, &baro_trans, BMP085_ADDR, 1, 2);
+  i2c_transceive(&i2c1, &baro_trans, BMP085_ADDR, 1, 2);
 }
 
 static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
@@ -49,7 +51,7 @@ static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
 static inline void bmp085_read_reg24(uint8_t addr)
 {
   baro_trans.buf[0] = addr;
-  i2c_transceive(&i2c2, &baro_trans, BMP085_ADDR, 1, 3);
+  i2c_transceive(&i2c1, &baro_trans, BMP085_ADDR, 1, 3);
 }
 
 static void bmp085_baro_read_calibration(void)
@@ -109,7 +111,7 @@ void baro_periodic(void) {
   // check that nothing is in progress
   if (baro_trans.status == I2CTransPending) return;
   if (baro_trans.status == I2CTransRunning) return;
-  if (!i2c_idle(&i2c2)) return;
+  if (!i2c_idle(&i2c1)) return;
 
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:
@@ -122,20 +124,20 @@ void baro_periodic(void) {
     baro_board.status = LBS_READ;
     break;
   case LBS_READ:
-    if (baro_eoc()) {
+ //   if (baro_eoc()) {
       bmp085_read_pressure();
       baro_board.status = LBS_READING;
-    }
+ //   }
     break;
   case LBS_REQUEST_TEMP:
     bmp085_request_temp();
     baro_board.status = LBS_READ_TEMP;
     break;
   case LBS_READ_TEMP:
-    if (baro_eoc()) {
+  //  if (baro_eoc()) {
       bmp085_read_temp();
       baro_board.status = LBS_READING_TEMP;
-    }
+  //  }
     break;
   default:
     break;

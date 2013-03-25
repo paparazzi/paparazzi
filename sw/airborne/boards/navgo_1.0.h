@@ -18,6 +18,21 @@
 #define PCLK (CCLK / PBSD_VAL)
 
 /* Onboard LEDs */
+
+#ifndef USE_LED_1
+#define USE_LED_1 1
+#endif
+#define LED_1_BANK 1
+#define LED_1_PIN 25
+
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
+#define LED_2_BANK 1
+#define LED_2_PIN 24
+
+/*
+
 #ifndef USE_LED_1
 #define USE_LED_1 1
 #endif
@@ -29,6 +44,7 @@
 #endif
 #define LED_2_BANK 1
 #define LED_2_PIN 28
+*/
 
 #ifndef USE_LED_3
 #define USE_LED_3 1
@@ -73,7 +89,8 @@
 #define USE_AD0_2
 #endif
 
-#define DefaultVoltageOfAdc(adc) (0.017889*adc)
+//#define DefaultVoltageOfAdc(adc) (0.017889*adc)
+#define DefaultVoltageOfAdc(adc) (0.0247*adc)
 
 /* SPI (SSP) */
 #define SPI_SELECT_SLAVE0_PORT 0
@@ -105,6 +122,6 @@
 #define SERVO_REG_1 PWMMR5
 #endif
 
-#define BOARD_HAS_BARO 1
+#define BOARD_HAS_BARO 0
 
 #endif /* CONFIG_NAVGO_V1_0_H */
