@@ -33,13 +33,13 @@ module PprzTransport = Serial.Transport(Tele_Pprz)
 
 (** Monitoring of the message reception *)
 type status = {
-    mutable ac_id : string;
-    mutable rx_byte : int;
-    mutable rx_msg : int;
-    mutable rx_err : int
-  }
+  mutable ac_id : string;
+  mutable rx_byte : int;
+  mutable rx_msg : int;
+  mutable rx_err : int
+}
 (** Ivy messages are initially tagged "modem" and with the A/C
-id as soon as it is identified (IDENT message) *)
+    id as soon as it is identified (IDENT message) *)
 let make_status = fun id ->
   { ac_id = id; rx_byte = 0; rx_msg = 0; rx_err = 0 }
 
@@ -69,13 +69,13 @@ let listen_pprz_modem = fun pprz_message_cb devdsp ->
   (** Callback for available chars *)
   let cb = fun status buffer data ->
       (** Accumulate in a buffer *)
-      let b = !buffer ^ data in
-      Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
+    let b = !buffer ^ data in
+    Debug.call 'M' (fun f -> fprintf f "Pprz buffer: %s\n" (Debug.xprint b));
       (** Parse as pprz message and ... *)
-      let x = PprzTransport.parse (use_pprz_buf status) b in
-      status.rx_err <- !PprzTransport.nb_err;
+    let x = PprzTransport.parse (use_pprz_buf status) b in
+    status.rx_err <- !PprzTransport.nb_err;
       (** ... remove from the buffer the chars which have been used *)
-      buffer := String.sub b x (String.length b - x)
+    buffer := String.sub b x (String.length b - x)
   in
   let buffer_left = ref "" and buffer_right = ref "" in
   let cb_stereo = fun _ ->
@@ -100,12 +100,12 @@ let send_modem_msg = fun status ->
     rx_msg := status.rx_msg;
     rx_byte := status.rx_byte;
     let vs = ["run_time", Pprz.Int t;
-	      "rx_bytes_rate", Pprz.Float byte_rate;
-	      "rx_msgs_rate", Pprz.Float msg_rate;
-	      "rx_err", Pprz.Int status.rx_err;
-	      "rx_bytes", Pprz.Int status.rx_byte;
-	      "rx_msgs", Pprz.Int status.rx_msg
-	    ] in
+              "rx_bytes_rate", Pprz.Float byte_rate;
+              "rx_msgs_rate", Pprz.Float msg_rate;
+              "rx_err", Pprz.Int status.rx_err;
+              "rx_bytes", Pprz.Int status.rx_byte;
+              "rx_msgs", Pprz.Int status.rx_msg
+             ] in
     Tele_Pprz.message_send status.ac_id "DOWNLINK_STATUS" vs
 
 (* main loop *)

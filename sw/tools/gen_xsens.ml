@@ -29,7 +29,7 @@ let out = stdout
 exception Variable_data
 
 let sizeof = function
-    "U32" -> 32
+"U32" -> 32
   | "U8" -> 8
   | "U4" | "I4" | "R4" -> 4
   | "U2" | "I2" -> 2
@@ -39,20 +39,20 @@ let sizeof = function
 let (+=) = fun r x -> r := !r + x
 
 let test_type = function
-    "U32" | "U8" -> "skip"
+"U32" | "U8" -> "skip"
   | "V" -> "variable"
   | _ -> "fixe"
 
 let c_type = fun format ->
   match format with
-    "R4" -> "float"
-  | "I4" -> "int32_t"
-  | "I2" -> "int16_t"
-  | "I1" -> "int8_t"
-  | "U4" -> "uint32_t"
-  | "U2" -> "uint16_t"
-  | "U1" -> "uint8_t"
-  | _ -> failwith (sprintf "Gen_xsens.c_type: unknown format '%s'" format)
+      "R4" -> "float"
+    | "I4" -> "int32_t"
+    | "I2" -> "int16_t"
+    | "I1" -> "int8_t"
+    | "U4" -> "uint32_t"
+    | "U2" -> "uint16_t"
+    | "U1" -> "uint8_t"
+    | _ -> failwith (sprintf "Gen_xsens.c_type: unknown format '%s'" format)
 
 (* format is BigEndian *)
 let get_at = fun offset format block_size ->
@@ -60,11 +60,11 @@ let get_at = fun offset format block_size ->
   let block_offset =
     if block_size = 0 then "" else sprintf "+%d*_xsens_block" block_size in
   match format with
-  "R4" -> sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((uint32_t)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((uint32_t)*((uint8_t*)_xsens_payload+%d%s))<<24); _f.f; })"  offset block_offset offset block_offset offset block_offset offset block_offset
-   | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((%s)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((%s)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
-   | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+1+%d%s)|*((uint8_t*)_xsens_payload+%d%s)<<8)" t offset block_offset offset block_offset
-   | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+%d%s))" t offset block_offset
-   | _ -> failwith (sprintf "Gen_xsens.c_type: unknown format '%s'" format)
+      "R4" -> sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((uint32_t)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((uint32_t)*((uint8_t*)_xsens_payload+%d%s))<<24); _f.f; })"  offset block_offset offset block_offset offset block_offset offset block_offset
+    | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+3+%d%s)|*((uint8_t*)_xsens_payload+2+%d%s)<<8|((%s)*((uint8_t*)_xsens_payload+1+%d%s))<<16|((%s)*((uint8_t*)_xsens_payload+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
+    | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+1+%d%s)|*((uint8_t*)_xsens_payload+%d%s)<<8)" t offset block_offset offset block_offset
+    | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_xsens_payload+%d%s))" t offset block_offset
+    | _ -> failwith (sprintf "Gen_xsens.c_type: unknown format '%s'" format)
 
 let define = fun x y ->
   fprintf out "#define %s %s\n" x y
@@ -88,25 +88,25 @@ let parse_message = fun m ->
   (** Generating read function *)
   let rec gen_read_macro = fun block_size f ->
     match Xml.tag f with
-      "field" ->
-        let fn = field_name f
-        and fmt = format f  in
-        begin
-        match test_type (format f) with
-          "fixe" ->
-            let block_no = if block_size = 0 then "" else ",_xsens_block" in
-            define (sprintf "XSENS_%s_%s(_xsens_payload%s)" msg_name fn block_no) (get_at !offset fmt block_size);
-            offset += sizeof fmt;
-          | "variable" -> fprintf out "/* XSENS_%s_%s: variable data size */\n" msg_name fn;
-          | _ -> offset += sizeof fmt;
-        end
-    | "block" ->
-	let s = int_of_string (Xml.attrib f "length") in
-	let o = !offset in
-	List.iter (gen_read_macro s) (Xml.children f);
-	let s' = !offset - o in
-	if s <> s' then raise (Length_error (f, s, s'))
-    | x -> failwith ("Unexpected field: " ^ x)
+        "field" ->
+          let fn = field_name f
+          and fmt = format f  in
+          begin
+            match test_type (format f) with
+                "fixe" ->
+                  let block_no = if block_size = 0 then "" else ",_xsens_block" in
+                  define (sprintf "XSENS_%s_%s(_xsens_payload%s)" msg_name fn block_no) (get_at !offset fmt block_size);
+                  offset += sizeof fmt;
+              | "variable" -> fprintf out "/* XSENS_%s_%s: variable data size */\n" msg_name fn;
+              | _ -> offset += sizeof fmt;
+          end
+      | "block" ->
+        let s = int_of_string (Xml.attrib f "length") in
+        let o = !offset in
+        List.iter (gen_read_macro s) (Xml.children f);
+        let s' = !offset - o in
+        if s <> s' then raise (Length_error (f, s, s'))
+      | x -> failwith ("Unexpected field: " ^ x)
   in
 
   (** Generating send function *)
@@ -128,15 +128,15 @@ let parse_message = fun m ->
     fprintf out "  XsensHeader(%s, %s);\\\n" msg_id (get_msg_length m);
     let rec send_one_field = fun f ->
       match Xml.tag f with
-        "field" ->
-  	let s = sizeof (format f) in
-  	let p = param_name f in
-  	let t = param_type f in
-        offset += sizeof (format f);
-  	fprintf out "  %s _%s = %s; XsensSend%dByAddr((uint8_t*)&_%s);\\\n" t p p s p
-      | "block" ->
-  	List.iter send_one_field (Xml.children f)
-      | _ -> assert (false) in
+          "field" ->
+            let s = sizeof (format f) in
+            let p = param_name f in
+            let t = param_type f in
+            offset += sizeof (format f);
+            fprintf out "  %s _%s = %s; XsensSend%dByAddr((uint8_t*)&_%s);\\\n" t p p s p
+        | "block" ->
+          List.iter send_one_field (Xml.children f)
+        | _ -> assert (false) in
     List.iter send_one_field (Xml.children m);
     fprintf out "  XsensTrailer();\\\n";
     fprintf out "}"
@@ -144,9 +144,9 @@ let parse_message = fun m ->
 
   let gen_access_macro =
     match Xml.attrib m "to" with
-      "MT" -> gen_send_macro ();
-    | "host" -> List.iter (gen_read_macro 0) (Xml.children m);
-    | _ -> failwith "Unexpected direction";
+        "MT" -> gen_send_macro ();
+      | "host" -> List.iter (gen_read_macro 0) (Xml.children m);
+      | _ -> failwith "Unexpected direction";
   in
   gen_access_macro;
 
@@ -155,7 +155,7 @@ let parse_message = fun m ->
       let l = int_of_string (Xml.attrib m "length") in
       if l <> !offset then raise (Length_error (m, l, !offset))
     with
-      Xml.No_attribute("length") -> () (** Undefined length authorized *)
+        Xml.No_attribute("length") -> () (** Undefined length authorized *)
   end
 
 
@@ -176,19 +176,19 @@ let parse_data = fun d ->
   (** Generating read function *)
   let gen_read_macro = fun f ->
     match Xml.tag f with
-      "field" ->
-        let fn = field_name f
-        and fdt = format f  in
-        begin
-        match test_type (format f) with
-          "fixe" ->
+        "field" ->
+          let fn = field_name f
+          and fdt = format f  in
+          begin
+            match test_type (format f) with
+                "fixe" ->
             (* _xsens_block used as offset value *)
-            define (sprintf "XSENS_DATA_%s_%s(_xsens_payload,_xsens_block)" data_name fn) (get_at !offset fdt 1);
-            offset += sizeof fdt;
-          | "variable" -> failwith (sprintf "XSENS_%s_%s: variable data size" data_name fn);
-          | _ -> offset += sizeof fdt;
-        end
-    | x -> failwith ("Unexpected field: " ^ x)
+                  define (sprintf "XSENS_DATA_%s_%s(_xsens_payload,_xsens_block)" data_name fn) (get_at !offset fdt 1);
+                  offset += sizeof fdt;
+              | "variable" -> failwith (sprintf "XSENS_%s_%s: variable data size" data_name fn);
+              | _ -> offset += sizeof fdt;
+          end
+      | x -> failwith ("Unexpected field: " ^ x)
   in
 
   List.iter gen_read_macro (Xml.children d);
@@ -197,7 +197,7 @@ let parse_data = fun d ->
       let l = int_of_string (Xml.attrib d "length") in
       if l <> !offset then raise (Length_error (d, l, !offset))
     with
-      Xml.No_attribute("length") -> () (** Undefined length authorized *)
+        Xml.No_attribute("length") -> () (** Undefined length authorized *)
   end
 
 let parse_mask = fun m ->
@@ -211,10 +211,10 @@ let parse_mask = fun m ->
 
 let parse_all = fun m ->
   match Xml.tag m with
-    "message" -> parse_message m
-  | "data" -> parse_data m
-  | "mask" -> parse_mask m
-  | x -> failwith (sprintf "Unexpected tag: %s" x)
+      "message" -> parse_message m
+    | "data" -> parse_data m
+    | "mask" -> parse_mask m
+    | x -> failwith (sprintf "Unexpected tag: %s" x)
 
 
 
@@ -234,18 +234,18 @@ let _ =
 
     List.iter parse_all (Xml.children xml)
   with
-    Xml.Error (em, ep) ->
-      let l = Xml.line ep
-      and c1, c2 = Xml.range ep in
-      fprintf stderr "File \"%s\", line %d, characters %d-%d:\n" xml_file l c1 c2;
-      fprintf stderr "%s\n" (Xml.error_msg em);
-      exit 1
-  | Length_error (m, l1, l2) ->
+      Xml.Error (em, ep) ->
+        let l = Xml.line ep
+        and c1, c2 = Xml.range ep in
+        fprintf stderr "File \"%s\", line %d, characters %d-%d:\n" xml_file l c1 c2;
+        fprintf stderr "%s\n" (Xml.error_msg em);
+        exit 1
+    | Length_error (m, l1, l2) ->
       fprintf stderr "File \"%s\", inconsistent length: %d expected, %d found from fields in message:\n %s\n" xml_file l1 l2 (Xml.to_string_fmt m);
       exit 1
-  | Dtd.Parse_error e ->
+    | Dtd.Parse_error e ->
       fprintf stderr "File \"%s\", DTD parse error: %s\n" xml_file (Dtd.parse_error e)
-  | Dtd.Check_error e ->
+    | Dtd.Check_error e ->
       fprintf stderr "File \"%s\", DTD check error: %s\n" xml_file (Dtd.check_error e)
-  | Dtd.Prove_error e ->
+    | Dtd.Prove_error e ->
       fprintf stderr "\nFile \"%s\", DTD prove error: %s\n\n" xml_file (Dtd.prove_error e)

@@ -51,9 +51,9 @@ let print_headers = fun modules ->
       List.iter (fun h ->
         let dir = ExtXml.attrib_or_default h "dir" dir_name in
         lprintf out_h "#include \"%s/%s\"\n" dir (Xml.attrib h "name"))
-      (Xml.children headers)
+        (Xml.children headers)
     with _ -> ())
-  modules
+    modules
 
 let get_status_name = fun f n ->
   let func = (Xml.attrib f "fun") in
@@ -67,10 +67,10 @@ let get_period_and_freq = fun f max_freq ->
   let period = try Some (float_of_string (Xml.attrib f "period")) with _ -> None
   and freq = try Some (float_of_string (Xml.attrib f "freq")) with _ -> None in
   match period, freq with
-  | None, None -> (1. /. max_freq, max_freq)
-  | Some _p, None -> (_p, 1. /. _p)
-  | None, Some _f -> (1. /. _f, _f)
-  | Some _p, Some _ ->
+    | None, None -> (1. /. max_freq, max_freq)
+    | Some _p, None -> (_p, 1. /. _p)
+    | None, Some _f -> (1. /. _f, _f)
+    | Some _p, Some _ ->
       fprintf stderr "Warning: both period and freq are defined but only period is used for function %s\n" (ExtXml.attrib f "fun");
       (_p, 1. /. _p)
 
@@ -78,10 +78,10 @@ let get_period_and_freq = fun f max_freq ->
 let get_cap_name = fun f ->
   let name = Str.full_split (Str.regexp "[()]") f in
   match name with
-  | [Str.Text t]
-  | [Str.Text t; Str.Delim "("; Str.Delim ")"]
-  | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> String.uppercase t
-  | _ -> failwith "Gen_modules: not a valid function name"
+    | [Str.Text t]
+    | [Str.Text t; Str.Delim "("; Str.Delim ")"]
+    | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> String.uppercase t
+    | _ -> failwith "Gen_modules: not a valid function name"
 
 let print_function_freq = fun modules ->
   let max_freq = float !freq in
@@ -89,14 +89,14 @@ let print_function_freq = fun modules ->
   List.iter (fun m ->
     List.iter (fun i ->
       match Xml.tag i with
-        "periodic" ->
-          let fname = get_cap_name (Xml.attrib i "fun") in
-          let p, f = get_period_and_freq i max_freq in
-          lprintf out_h "#define %s_PERIOD %f\n" fname p;
-          lprintf out_h "#define %s_FREQ %f\n" fname f;
-      | _ -> ())
-    (Xml.children m))
-  modules
+          "periodic" ->
+            let fname = get_cap_name (Xml.attrib i "fun") in
+            let p, f = get_period_and_freq i max_freq in
+            lprintf out_h "#define %s_PERIOD %f\n" fname p;
+            lprintf out_h "#define %s_FREQ %f\n" fname f;
+        | _ -> ())
+      (Xml.children m))
+    modules
 
 let is_status_lock = fun p ->
   let mode = ExtXml.attrib_or_default p "autorun" "LOCK" in
@@ -108,13 +108,13 @@ let print_status = fun modules ->
     let module_name = ExtXml.attrib m "name" in
     List.iter (fun i ->
       match Xml.tag i with
-        "periodic" ->
-          if not (is_status_lock i) then begin
-            lprintf out_h "EXTERN_MODULES uint8_t %s;\n" (get_status_name i module_name);
-          end
-      | _ -> ())
-    (Xml.children m))
-  modules
+          "periodic" ->
+            if not (is_status_lock i) then begin
+              lprintf out_h "EXTERN_MODULES uint8_t %s;\n" (get_status_name i module_name);
+            end
+        | _ -> ())
+      (Xml.children m))
+    modules
 
 let print_init_functions = fun modules ->
   lprintf out_h "\nstatic inline void modules_init(void) {\n";
@@ -123,16 +123,16 @@ let print_init_functions = fun modules ->
     let module_name = ExtXml.attrib m "name" in
     List.iter (fun i ->
       match Xml.tag i with
-        "init" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
-      | "periodic" -> if not (is_status_lock i) then
-          lprintf out_h "%s = %s;\n" (get_status_name i module_name) (try match Xml.attrib i "autorun" with
-              "TRUE" | "true" -> "MODULES_START"
-            | "FALSE" | "false" | "LOCK" | "lock" -> "MODULES_IDLE"
-            | _ -> failwith "Error: Unknown autorun value (possible values are: TRUE, FALSE, LOCK(default))"
-          with _ -> "MODULES_IDLE" (* this should not be possible anyway *))
-      | _ -> ())
-    (Xml.children m))
-  modules;
+          "init" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
+        | "periodic" -> if not (is_status_lock i) then
+            lprintf out_h "%s = %s;\n" (get_status_name i module_name) (try match Xml.attrib i "autorun" with
+                "TRUE" | "true" -> "MODULES_START"
+              | "FALSE" | "false" | "LOCK" | "lock" -> "MODULES_IDLE"
+              | _ -> failwith "Error: Unknown autorun value (possible values are: TRUE, FALSE, LOCK(default))"
+              with _ -> "MODULES_IDLE" (* this should not be possible anyway *))
+        | _ -> ())
+      (Xml.children m))
+    modules;
   left ();
   lprintf out_h "}\n"
 
@@ -152,17 +152,17 @@ let print_periodic_functions = fun modules ->
       let p, _ = get_period_and_freq x max_freq in
       if p < min_period || p > max_period then
         fprintf stderr "Warning: period is bound between %.3fs and %.3fs (%fHz and %.1fHz) for function %s\n%!"
-        min_period max_period max_freq min_freq (ExtXml.attrib x "fun");
+          min_period max_period max_freq min_freq (ExtXml.attrib x "fun");
       ((x, module_name), min 65535 (max 1 (int_of_float (p *. float_of_int !freq))))
-      ) periodic)
-    modules) in
+    ) periodic)
+                                         modules) in
   let modulos = GC.singletonize (List.map snd functions_modulo) in
   (** Print modulos *)
   List.iter (fun modulo ->
     let v = sprintf "i%d" modulo in
     let _type = if modulo >= 256 then "uint16_t" else "uint8_t" in
     lprintf out_h "static %s %s; %s++; if (%s>=%d) %s=0;\n" _type v v v modulo v;)
-  modulos;
+    modulos;
   (** Print start and stop functions *)
   List.iter (fun m ->
     let module_name = ExtXml.attrib m "name" in
@@ -171,7 +171,7 @@ let print_periodic_functions = fun modules ->
     List.iter (fun f ->
       if (is_status_lock f) then begin
         try lprintf out_h "%s;\n" (Xml.attrib f "start") with _ -> ();
-        try let stop = Xml.attrib f "stop" in fprintf stderr "Warning: stop %s function will not be called\n" stop with _ -> ();
+          try let stop = Xml.attrib f "stop" in fprintf stderr "Warning: stop %s function will not be called\n" stop with _ -> ();
       end
       else begin
         let status = get_status_name f module_name in
@@ -180,9 +180,9 @@ let print_periodic_functions = fun modules ->
         let stop = (ExtXml.attrib_or_default f "stop" "") in
         lprintf out_h "if (%s == MODULES_STOP) { %s; %s = MODULES_IDLE; }\n" status stop status;
       end
-      )
-    periodic)
-  modules;
+    )
+      periodic)
+    modules;
   (** Print periodic functions *)
   let functions = List.sort (fun (_,p) (_,p') -> compare p p') functions_modulo in
   let i = ref 0 in (** Basic balancing:1 function every 10Hz FIXME *)
@@ -211,7 +211,7 @@ let print_periodic_functions = fun modules ->
           if delay >= p then fprintf stderr "Warning: delay is bound between 0 and %d for function %s\n" (p-1) function_name;
           let delay_p = delay mod p in
           let else_ = if List.mem_assoc p !l && not (List.mem (p, delay_p) !l) then
-            "else " else "" in
+              "else " else "" in
           if (is_status_lock func) then
             lprintf out_h "%sif (i%d == %d) {\n" else_ p delay_p
           else
@@ -245,10 +245,10 @@ let print_event_functions = fun modules ->
   List.iter (fun m ->
     List.iter (fun i ->
       match Xml.tag i with
-        "event" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
-      | _ -> ())
-    (Xml.children m))
-  modules;
+          "event" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
+        | _ -> ())
+      (Xml.children m))
+    modules;
   left ();
   lprintf out_h "}\n"
 
@@ -261,12 +261,12 @@ let print_datalink_functions = fun modules ->
   List.iter (fun m ->
     List.iter (fun i ->
       match Xml.tag i with
-        "datalink" ->
-          lprintf out_h "%sif (msg_id == DL_%s) { %s; }\n" !else_ (ExtXml.attrib i "message") (ExtXml.attrib i "fun");
-          else_ := "else "
-      | _ -> ())
-    (Xml.children m))
-  modules;
+          "datalink" ->
+            lprintf out_h "%sif (msg_id == DL_%s) { %s; }\n" !else_ (ExtXml.attrib i "message") (ExtXml.attrib i "fun");
+            else_ := "else "
+        | _ -> ())
+      (Xml.children m))
+    modules;
   left ();
   lprintf out_h "}\n"
 
@@ -296,7 +296,7 @@ let dep_of_field = fun field att ->
   try
     Str.split pipe_regexp (Xml.attrib field att)
   with
-    _ -> []
+      _ -> []
 
 let check_dependencies = fun modules names ->
   List.iter (fun m ->
@@ -306,12 +306,12 @@ let check_dependencies = fun modules names ->
       List.iter (fun req ->
         if not (List.exists (fun c -> String.compare c req == 0) names) then
           fprintf stderr "\nWARNING: Dependency not satisfied: module %s requires %s\n" (Xml.attrib m "name") req)
-      require;
+        require;
       let conflict = dep_of_field dep "conflict" in
       List.iter (fun con ->
         if List.exists (fun c -> String.compare c con == 0) names then
           fprintf stderr "\nWARNING: Dependency not satisfied: module %s conflicts with %s\n" (Xml.attrib m "name") con)
-      conflict
+        conflict
     with _ -> ()
   ) modules
 
@@ -325,18 +325,18 @@ let write_settings = fun xml_file out_set modules ->
     let module_name = ExtXml.attrib m "name" in
     List.iter (fun i ->
       match Xml.tag i with
-        "periodic" ->
-          if not (is_status_lock i) then begin
-            if (not !setting_exist) then begin
-              fprintf out_set "   <dl_settings name=\"Modules\">\n";
-              setting_exist := true;
-            end;
-            fprintf out_set "      <dl_setting min=\"2\" max=\"3\" step=\"1\" var=\"%s\" shortname=\"%s\" values=\"START|STOP\"/>\n"
-              (get_status_name i module_name) (get_status_shortname i)
-          end
-      | _ -> ())
-    (Xml.children m))
-  modules;
+          "periodic" ->
+            if not (is_status_lock i) then begin
+              if (not !setting_exist) then begin
+                fprintf out_set "   <dl_settings name=\"Modules\">\n";
+                setting_exist := true;
+              end;
+              fprintf out_set "      <dl_setting min=\"2\" max=\"3\" step=\"1\" var=\"%s\" shortname=\"%s\" values=\"START|STOP\"/>\n"
+                (get_status_name i module_name) (get_status_shortname i)
+            end
+        | _ -> ())
+      (Xml.children m))
+    modules;
   if !setting_exist then fprintf out_set "   </dl_settings>\n";
   fprintf out_set " </dl_settings>\n";
   fprintf out_set "</settings>\n"
@@ -371,7 +371,7 @@ let () =
     (* Extract modules names (file name and module name) *)
     let modules_name =
       (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
-      (List.map (fun m -> m.GC.file) modules) in
+        (List.map (fun m -> m.GC.file) modules) in
     (* Extract xml modules nodes *)
     let modules_list = List.map (fun m -> m.GC.xml) modules in
     check_dependencies modules_list modules_name;
@@ -380,7 +380,7 @@ let () =
     write_settings xml_file out_set modules_list;
     close_out out_set;
   with
-    Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
-  | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
+      Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
+    | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
+    | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
+    | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1

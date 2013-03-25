@@ -1,26 +1,26 @@
 (*
-* Real time handling of flying A/Cs
-*
-* Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
-*
-* This file is part of paparazzi.
-*
-* paparazzi is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2, or (at your option)
-* any later version.
-*
-* paparazzi is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with paparazzi; see the file COPYING.  If not, write to
-* the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA.
-*
-*)
+ * Real time handling of flying A/Cs
+ *
+ * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ *)
 
 module G = MapCanvas
 open Latlong
@@ -54,65 +54,65 @@ let rotate = fun a (x, y) ->
   (cosa *.x +. sina *.y, -. sina*.x +. cosa *. y)
 
 let rec list_casso x = function
-    [] -> raise Not_found
+[] -> raise Not_found
   | (a,b)::abs -> if x = b then a else list_casso x abs
 
 let rec list_iter3 = fun f l1 l2 l3 ->
   match l1, l2, l3 with
-    [], [], [] -> ()
-  | x1::x1s, x2::x2s, x3::x3s ->
+      [], [], [] -> ()
+    | x1::x1s, x2::x2s, x3::x3s ->
       f x1 x2 x3;
       list_iter3 f x1s x2s x3s
-  | _ -> invalid_arg "list_iter3"
+    | _ -> invalid_arg "list_iter3"
 
 
 type color = string
 type aircraft = {
-    ac_name : string;
-    ac_speech_name : string;
-    config : Pprz.values;
-    track : MapTrack.track;
-    color: color;
-    fp_group : MapFP.flight_plan;
-    fp_show : GMenu.check_menu_item;
-    wp_HOME : MapWaypoints.waypoint option;
-    fp : Xml.xml;
-    blocks : (int * string) list;
-    mutable last_ap_mode : string;
-    mutable last_stage : int * int;
-    ir_page : Pages.infrared;
-    gps_page : Pages.gps;
-    pfd_page : Horizon.pfd;
-    misc_page : Pages.misc;
-    dl_settings_page : Page_settings.settings option;
-    rc_settings_page : Pages.rc_settings option;
-    pages : GObj.widget;
-    notebook_label : GMisc.label;
-    strip : Strip.t;
-    mutable first_pos : bool;
-    mutable last_block_name : string;
-    mutable in_kill_mode : bool;
-    mutable speed : float;
-    mutable alt : float;
-    mutable target_alt : float;
-    mutable flight_time : int;
-    mutable wind_speed : float;
-    mutable wind_dir : float; (* Rad, clockwise from North *)
-    mutable ground_prox : bool;
-    mutable got_track_status_timer : int;
-    mutable last_dist_to_wp : float;
-    mutable dl_values : float array;
-    mutable last_unix_time : float;
-    mutable airspeed : float
-  }
+  ac_name : string;
+  ac_speech_name : string;
+  config : Pprz.values;
+  track : MapTrack.track;
+  color: color;
+  fp_group : MapFP.flight_plan;
+  fp_show : GMenu.check_menu_item;
+  wp_HOME : MapWaypoints.waypoint option;
+  fp : Xml.xml;
+  blocks : (int * string) list;
+  mutable last_ap_mode : string;
+  mutable last_stage : int * int;
+  ir_page : Pages.infrared;
+  gps_page : Pages.gps;
+  pfd_page : Horizon.pfd;
+  misc_page : Pages.misc;
+  dl_settings_page : Page_settings.settings option;
+  rc_settings_page : Pages.rc_settings option;
+  pages : GObj.widget;
+  notebook_label : GMisc.label;
+  strip : Strip.t;
+  mutable first_pos : bool;
+  mutable last_block_name : string;
+  mutable in_kill_mode : bool;
+  mutable speed : float;
+  mutable alt : float;
+  mutable target_alt : float;
+  mutable flight_time : int;
+  mutable wind_speed : float;
+  mutable wind_dir : float; (* Rad, clockwise from North *)
+  mutable ground_prox : bool;
+  mutable got_track_status_timer : int;
+  mutable last_dist_to_wp : float;
+  mutable dl_values : float array;
+  mutable last_unix_time : float;
+  mutable airspeed : float
+}
 
 let aircrafts = Hashtbl.create 3
 exception AC_not_found
 let find_ac = fun ac_id ->
-   try
+  try
     Hashtbl.find aircrafts ac_id
   with
-    Not_found -> raise AC_not_found
+      Not_found -> raise AC_not_found
 
 let active_ac = ref ""
 let get_ac = fun vs ->
@@ -184,18 +184,18 @@ let resize_track = fun ac track ->
   match
     GToolbox.input_string ~text:(string_of_int track#size) ~title:ac "Track size"
   with
-    None -> ()
-  | Some s -> track#resize (int_of_string s)
+      None -> ()
+    | Some s -> track#resize (int_of_string s)
 
 
 let send_move_waypoint_msg = fun ac i w ->
   let wgs84 = w#pos in
   let vs = ["ac_id", Pprz.String ac;
-        "wp_id", Pprz.Int i;
-        "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-        "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
-        "alt", Pprz.Float w#alt
-      ] in
+            "wp_id", Pprz.Int i;
+            "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+            "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
+            "alt", Pprz.Float w#alt
+           ] in
   Ground_Pprz.message_send "gcs" "MOVE_WAYPOINT" vs
 
 let commit_changes = fun ac ->
@@ -204,13 +204,13 @@ let commit_changes = fun ac ->
     (fun w ->
       let (i, w) = a.fp_group#index w in
       if w#moved then
-    send_move_waypoint_msg ac i w)
+        send_move_waypoint_msg ac i w)
     a.fp_group#waypoints
 
 let center = fun geomap track () ->
   match track#last with
-    None -> ()
-  | Some geo ->
+      None -> ()
+    | Some geo ->
       geomap#center geo;
       geomap#canvas#misc#draw None
 
@@ -250,73 +250,73 @@ let reset_waypoints = fun fp () ->
 let icon = ref None
 let show_snapshot = fun (geomap:G.widget) geo_FL geo_BR point pixbuf name ev ->
   match ev with
-  | `BUTTON_PRESS _ev ->
+    | `BUTTON_PRESS _ev ->
       let image = GMisc.image ~pixbuf () in
       let icon = image#coerce in
       begin
-    match GToolbox.question_box ~title:name ~buttons:["Delete"; "Close"] ~icon "" with
-      1  ->
-        point#destroy ()
-    | _ -> ()
+        match GToolbox.question_box ~title:name ~buttons:["Delete"; "Close"] ~icon "" with
+            1  ->
+              point#destroy ()
+          | _ -> ()
       end;
       true
-  | `LEAVE_NOTIFY _ev ->
+    | `LEAVE_NOTIFY _ev ->
       begin
-    match !icon with
-      None -> ()
-    | Some i -> i#destroy ()
+        match !icon with
+            None -> ()
+          | Some i -> i#destroy ()
       end;
       false
-  | `ENTER_NOTIFY _ev ->
+    | `ENTER_NOTIFY _ev ->
       let w = GdkPixbuf.get_width pixbuf
       and h = GdkPixbuf.get_height pixbuf in
       icon := Some (geomap#display_pixbuf ((0,0), geo_FL) ((w,h), geo_BR) pixbuf);
       point#raise_to_top ();
       false
 
-  | _ -> false
+    | _ -> false
 
 
 let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
   let i = ref 1 in fun () ->
     match track#last with
-      Some geo ->
-    begin
-      let group = geomap#background in
-      let point = geomap#circle ~group ~fill_color:"blue" geo 5. in
-      point#raise_to_top ();
-      let lat = (Rad>>Deg)geo.posn_lat
-      and long = (Rad>>Deg)geo.posn_long in
-      Tele_Pprz.message_send ac_id "MARK"
-        ["ac_id", Pprz.String ac_id;
-         "lat", Pprz.Float lat;
-         "long", Pprz.Float long];
-      let frame =
-        match plugin_frame with
-          None -> geomap#canvas#coerce
-        | Some pf -> pf#coerce in
-      let width, height = Gdk.Drawable.get_size frame#misc#window in
-      let dest = GdkPixbuf.create width height() in
-      GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
-      let name = sprintf "Snapshot-%s-%d_%f_%f_%f.png" ac_id !i lat long (track#last_heading) in
-      let png = sprintf "%s/var/logs/%s" Env.paparazzi_home name in
-      GdkPixbuf.save png "png" dest;
-      incr i;
+        Some geo ->
+          begin
+            let group = geomap#background in
+            let point = geomap#circle ~group ~fill_color:"blue" geo 5. in
+            point#raise_to_top ();
+            let lat = (Rad>>Deg)geo.posn_lat
+            and long = (Rad>>Deg)geo.posn_long in
+            Tele_Pprz.message_send ac_id "MARK"
+              ["ac_id", Pprz.String ac_id;
+               "lat", Pprz.Float lat;
+               "long", Pprz.Float long];
+            let frame =
+              match plugin_frame with
+                  None -> geomap#canvas#coerce
+                | Some pf -> pf#coerce in
+            let width, height = Gdk.Drawable.get_size frame#misc#window in
+            let dest = GdkPixbuf.create width height() in
+            GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
+            let name = sprintf "Snapshot-%s-%d_%f_%f_%f.png" ac_id !i lat long (track#last_heading) in
+            let png = sprintf "%s/var/logs/%s" Env.paparazzi_home name in
+            GdkPixbuf.save png "png" dest;
+            incr i;
 
       (* Computing the footprint: front_left and back_right *)
-      let cam_aperture = 2.4/.1.9 in (* width over distance FIXME *)
-      let alt = track#last_altitude -. float (Srtm.of_wgs84 geo) in
-      let width = cam_aperture *. alt in
-      let height = width *. 3. /. 4. in
-      let utm = utm_of WGS84 geo in
-      let a = (Deg>>Rad)track#last_heading in
-      let (xfl,yfl) = rotate a (-.width/.2., height/.2.)
-      and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
-      let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
-      and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
-      ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
-    end
-    | None -> ()
+            let cam_aperture = 2.4/.1.9 in (* width over distance FIXME *)
+            let alt = track#last_altitude -. float (Srtm.of_wgs84 geo) in
+            let width = cam_aperture *. alt in
+            let height = width *. 3. /. 4. in
+            let utm = utm_of WGS84 geo in
+            let a = (Deg>>Rad)track#last_heading in
+            let (xfl,yfl) = rotate a (-.width/.2., height/.2.)
+            and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
+            let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
+            and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
+            ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
+          end
+      | None -> ()
 
 
 (** Light display of attributes in the flight plan. *)
@@ -325,7 +325,7 @@ let attributes_pretty_printer = fun attribs ->
   let valid = fun a ->
     let a = String.lowercase a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
-      && a <> "post_call" && a <> "key" && a <> "group" in
+    && a <> "post_call" && a <> "key" && a <> "group" in
 
   let sprint_opt = fun b s ->
     if String.length b > 0 then
@@ -341,8 +341,8 @@ let attributes_pretty_printer = fun attribs ->
 
   (* Don't print the name of the attribute if there is only one *)
   match attribs with
-    [(_, v)] -> v ^ sprint_opt pre_call "]" ^ sprint_opt post_call "["
-  | _        -> XmlEdit.string_of_attribs attribs
+      [(_, v)] -> v ^ sprint_opt pre_call "]" ^ sprint_opt post_call "["
+    | _        -> XmlEdit.string_of_attribs attribs
 
 
 (** Load a mission. Returns the XML window *)
@@ -392,7 +392,7 @@ let key_press_event = fun keys do_action ev ->
     end else
       false
   with
-  | _ -> false
+    | _ -> false
 
 
 
@@ -470,9 +470,9 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let min_bat, max_bat = get_bat_levels af_xml in
   let alt_shift_plus_plus, alt_shift_plus, alt_shift_minus = get_alt_shift af_xml in
   let param = { Strip.color = color; min_bat = min_bat; max_bat = max_bat;
-            alt_shift_plus_plus = alt_shift_plus_plus;
-            alt_shift_plus = alt_shift_plus;
-            alt_shift_minus = alt_shift_minus; } in
+                alt_shift_plus_plus = alt_shift_plus_plus;
+                alt_shift_plus = alt_shift_plus;
+                alt_shift_minus = alt_shift_minus; } in
   (*let strip = Strip.add config color min_bat max_bat in*)
   let strip = Strip.add config param in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
@@ -488,15 +488,15 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
       jump_to_block ac_id id);
   ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
 
-  (** Monitor waypoints changes *)
-   List.iter
+   (** Monitor waypoints changes *)
+  List.iter
     (fun w ->
       let (i, w) = fp#index w in
       w#set_commit_callback (fun () -> send_move_waypoint_msg ac_id i w))
     fp#waypoints;
 
-  (** Add waypoints as geo references *)
-   List.iter
+   (** Add waypoints as geo references *)
+  List.iter
     (fun w ->
       let (_i, w) = fp#index w in
       geomap#add_info_georef (sprintf "%s.%s" name w#name) (w :> < pos : Latlong.geographic >))
@@ -509,42 +509,42 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     let id = ExtXml.int_attrib block "no" in
     begin (* Is it a key short cut ? *)
       try
-    let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib block "key") in
-    keys := (key, (modifiers, id)) :: !keys
+        let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib block "key") in
+        keys := (key, (modifiers, id)) :: !keys
       with
-    _ -> ()
+          _ -> ()
     end;
     try (* Is it a strip button ? *)
       let label = ExtXml.attrib block "strip_button"
       and block_name = ExtXml.attrib block "name"
       and group = ExtXml.attrib_or_default block "group" "" in
       let b =
-    try (* Is it an icon ? *)
-      let icon = Xml.attrib block "strip_icon" in
-      let b = GButton.button () in
-      let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
-      ignore (GMisc.image ~pixbuf ~packing:b#add ());
+        try (* Is it an icon ? *)
+          let icon = Xml.attrib block "strip_icon" in
+          let b = GButton.button () in
+          let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
+          ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
       (* Drag for Drop *)
-      let papget = Papget_common.xml "goto_block" "button"
-          [ "block_name", block_name;
-        "icon", icon] in
-      Papget_common.dnd_source b#coerce papget;
+          let papget = Papget_common.xml "goto_block" "button"
+            [ "block_name", block_name;
+              "icon", icon] in
+          Papget_common.dnd_source b#coerce papget;
 
       (* Associates the label as a tooltip *)
-      tooltips#set_tip b#coerce ~text:label;
-      b
-    with
-      Xml.No_attribute _ -> (* It's not an icon *)
+          tooltips#set_tip b#coerce ~text:label;
+          b
+        with
+            Xml.No_attribute _ -> (* It's not an icon *)
+              GButton.button ~label ()
+          | exc ->
+            fprintf stderr "Error: '%s' Using a standard button" (Printexc.to_string exc);
             GButton.button ~label ()
-    | exc ->
-        fprintf stderr "Error: '%s' Using a standard button" (Printexc.to_string exc);
-        GButton.button ~label ()
       in
       strip#add_widget b#coerce ~group;
       ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
     with
-       _ -> ())
+        _ -> ())
     (Xml.children (ExtXml.child (ExtXml.child fp_xml_dump "flight_plan") "blocks"));
 
 
@@ -603,7 +603,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
       (** Connect key shortcuts *)
       let key_press = fun ev ->
-    key_press_event settings_tab#keys (fun commit -> commit ()) ev in
+        key_press_event settings_tab#keys (fun commit -> commit ()) ev in
       ignore (geomap#canvas#event#connect#after#key_press key_press);
 
       let tab_label = GPack.hbox () in
@@ -622,45 +622,45 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "rc_settings") in
       if xml_settings = [] then
-    raise Exit
+        raise Exit
       else
-    let settings_tab = new Pages.rc_settings ~visible xml_settings in
-    let tab_label = (GMisc.label ~text:"RC Settings" ())#coerce in
-    ignore (ac_notebook#append_page ~tab_label settings_tab#widget);
-    Some settings_tab
+        let settings_tab = new Pages.rc_settings ~visible xml_settings in
+        let tab_label = (GMisc.label ~text:"RC Settings" ())#coerce in
+        ignore (ac_notebook#append_page ~tab_label settings_tab#widget);
+        Some settings_tab
     with _ -> None in
 
   let wp_HOME =
     let rec loop = function
     [] -> None
       | w::ws ->
-      let (_i, w) = fp#index w in
-      if w#name = "HOME" then Some w else loop ws in
+        let (_i, w) = fp#index w in
+        if w#name = "HOME" then Some w else loop ws in
     loop fp#waypoints in
 
   let ac = { track = track; color = color; last_dist_to_wp = 0.;
-         fp_group = fp; fp_show = fp_show ; config = config ;
-         wp_HOME = wp_HOME; fp = fp_xml;
-         ac_name = name; ac_speech_name = speech_name;
-         blocks = blocks; last_ap_mode= "";
-         last_stage = (-1,-1);
-         ir_page = ir_page; flight_time = 0;
-         gps_page = gps_page;
-         pfd_page = pfd_page;
-         misc_page = misc_page;
-         dl_settings_page = dl_settings_page;
-         rc_settings_page = rc_settings_page;
-         strip = strip; first_pos = true;
-         last_block_name = ""; alt = 0.; target_alt = 0.;
-         in_kill_mode = false; speed = 0.;
-         wind_dir = 42.; ground_prox = true;
-         wind_speed = 0.;
-         pages = ac_frame#coerce;
-         notebook_label = _label;
-         got_track_status_timer = 1000;
-         dl_values = [||]; last_unix_time = 0.;
-         airspeed = 0.
-       } in
+             fp_group = fp; fp_show = fp_show ; config = config ;
+             wp_HOME = wp_HOME; fp = fp_xml;
+             ac_name = name; ac_speech_name = speech_name;
+             blocks = blocks; last_ap_mode= "";
+             last_stage = (-1,-1);
+             ir_page = ir_page; flight_time = 0;
+             gps_page = gps_page;
+             pfd_page = pfd_page;
+             misc_page = misc_page;
+             dl_settings_page = dl_settings_page;
+             rc_settings_page = rc_settings_page;
+             strip = strip; first_pos = true;
+             last_block_name = ""; alt = 0.; target_alt = 0.;
+             in_kill_mode = false; speed = 0.;
+             wind_dir = 42.; ground_prox = true;
+             wind_speed = 0.;
+             pages = ac_frame#coerce;
+             notebook_label = _label;
+             got_track_status_timer = 1000;
+             dl_values = [||]; last_unix_time = 0.;
+             airspeed = 0.
+           } in
   Hashtbl.add aircrafts ac_id ac;
   select_ac acs_notebook ac_id;
 
@@ -670,19 +670,19 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     if misc_page#periodic_send then begin
       (* FIXME: Disabling the timer would be preferable *)
       try
-    let a = (pi/.2. -. ac.wind_dir)
-    and w =  ac.wind_speed in
+        let a = (pi/.2. -. ac.wind_dir)
+        and w =  ac.wind_speed in
 
-    let wind_east = sprintf "%.1f" (-. cos a *. w)
-    and wind_north = sprintf "%.1f" (-. sin a *. w)
-    and airspeed = sprintf "%.1f" ac.airspeed in
+        let wind_east = sprintf "%.1f" (-. cos a *. w)
+        and wind_north = sprintf "%.1f" (-. sin a *. w)
+        and airspeed = sprintf "%.1f" ac.airspeed in
 
-    let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north;airspeed] in
-    let value = String.concat ";" msg_items in
-    let vs = ["ac_id", Pprz.String ac_id; "message", Pprz.String value] in
-    Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;
+        let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north;airspeed] in
+        let value = String.concat ";" msg_items in
+        let vs = ["ac_id", Pprz.String ac_id; "message", Pprz.String value] in
+        Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;
       with
-    exc -> log alert ac_id (sprintf "send_wind (%s): %s" ac_id (Printexc.to_string exc))
+          exc -> log alert ac_id (sprintf "send_wind (%s): %s" ac_id (Printexc.to_string exc))
     end;
     true
   in
@@ -692,49 +692,49 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   begin
     match dl_settings_page with
-      Some settings_tab ->
-        (** Connect the strip buttons *)
-    let connect = fun ?(warning=true) setting_name strip_connect ->
-      try
-        let id = settings_tab#assoc setting_name in
-        strip_connect (fun x -> dl_setting_callback id x)
-      with Not_found ->
-        if warning then
-          fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)" setting_name in
+        Some settings_tab ->
+    (** Connect the strip buttons *)
+          let connect = fun ?(warning=true) setting_name strip_connect ->
+            try
+              let id = settings_tab#assoc setting_name in
+              strip_connect (fun x -> dl_setting_callback id x)
+            with Not_found ->
+              if warning then
+                fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)" setting_name in
 
-    connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
-    connect "launch" ac.strip#connect_launch;
-    connect "kill_throttle" ac.strip#connect_kill;
-    connect "nav_shift" ac.strip#connect_shift_lateral;
-    connect "pprz_mode" ac.strip#connect_mode;
-    connect "autopilot_flight_time" ac.strip#connect_flight_time;
-    let get_ac_unix_time = fun () -> ac.last_unix_time in
-    connect ~warning:false "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
-    begin (* Periodically update the appointment *)
-      try
-        let id = settings_tab#assoc "snav_desired_tow" in
-        let set_appointment = fun _ ->
-          begin try
-        let v = ac.dl_values.(id) in
-        let t = Unix.gmtime (Latlong.unix_time_of_tow (truncate v)) in
-        ac.strip#set_label "apt" (sprintf "%d:%02d:%02d" t.Unix.tm_hour t.Unix.tm_min t.Unix.tm_sec)
-          with _ -> () end;
-          true
-        in
-        ignore (Glib.Timeout.add 1000 set_appointment)
-      with Not_found -> ()
-    end;
+          connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
+          connect "launch" ac.strip#connect_launch;
+          connect "kill_throttle" ac.strip#connect_kill;
+          connect "nav_shift" ac.strip#connect_shift_lateral;
+          connect "pprz_mode" ac.strip#connect_mode;
+          connect "autopilot_flight_time" ac.strip#connect_flight_time;
+          let get_ac_unix_time = fun () -> ac.last_unix_time in
+          connect ~warning:false "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
+          begin (* Periodically update the appointment *)
+            try
+              let id = settings_tab#assoc "snav_desired_tow" in
+              let set_appointment = fun _ ->
+                begin try
+                        let v = ac.dl_values.(id) in
+                        let t = Unix.gmtime (Latlong.unix_time_of_tow (truncate v)) in
+                        ac.strip#set_label "apt" (sprintf "%d:%02d:%02d" t.Unix.tm_hour t.Unix.tm_min t.Unix.tm_sec)
+                  with _ -> () end;
+                true
+              in
+              ignore (Glib.Timeout.add 1000 set_appointment)
+            with Not_found -> ()
+          end;
 
     (** Connect the GPS reset button *)
-    begin
-      try
-        let gps_reset_id = settings_tab#assoc "gps.reset" in
-        gps_page#connect_reset
-          (fun x -> dl_setting_callback gps_reset_id (float x))
-      with Not_found ->
-        prerr_endline "Warning: GPS reset not setable from GCS (i.e. 'gps.reset' not listed in the xml settings file)"
-    end
-    | None -> ()
+          begin
+            try
+              let gps_reset_id = settings_tab#assoc "gps.reset" in
+              gps_page#connect_reset
+                (fun x -> dl_setting_callback gps_reset_id (float x))
+            with Not_found ->
+              prerr_endline "Warning: GPS reset not setable from GCS (i.e. 'gps.reset' not listed in the xml settings file)"
+          end
+      | None -> ()
   end;
 
   (* Monitor track status *)
@@ -755,8 +755,8 @@ let alert_color = "red"
 let safe_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
     try cb sender vs with
-      AC_not_found -> () (* A/C not yet registed; silently ignore *)
-    | x -> fprintf stderr "%s: safe_bind (%s:%a): %s\n%!" Sys.argv.(0) msg (fun c vs -> List.iter (fun (_,v) -> fprintf c "%s " (Pprz.string_of_value v)) vs) vs (Printexc.to_string x) in
+        AC_not_found -> () (* A/C not yet registed; silently ignore *)
+      | x -> fprintf stderr "%s: safe_bind (%s:%a): %s\n%!" Sys.argv.(0) msg (fun c vs -> List.iter (fun (_,v) -> fprintf c "%s " (Pprz.string_of_value v)) vs) vs (Printexc.to_string x) in
   ignore (Ground_Pprz.message_bind msg safe_cb)
 
 let alert_bind = fun msg cb ->
@@ -767,8 +767,8 @@ let alert_bind = fun msg cb ->
 let tele_bind = fun msg cb ->
   let safe_cb = fun sender vs ->
     try cb sender vs with
-      AC_not_found -> () (* A/C not yet registed; silently ignore *)
-    | x -> fprintf stderr "tele_bind (%s): %s\n%!" msg (Printexc.to_string x) in
+        AC_not_found -> () (* A/C not yet registed; silently ignore *)
+      | x -> fprintf stderr "tele_bind (%s): %s\n%!" msg (Printexc.to_string x) in
   ignore (Tele_Pprz.message_bind msg safe_cb)
 
 let ask_config = fun alert geomap fp_notebook ac ->
@@ -828,8 +828,8 @@ let get_engine_status_msg = fun _sender vs ->
 let get_if_calib_msg = fun _sender vs ->
   let ac = get_ac vs in
   match ac.rc_settings_page with
-    None -> ()
-  | Some p ->
+      None -> ()
+    | Some p ->
       p#set_rc_setting_mode (Pprz.string_assoc "if_mode" vs);
       p#set (Pprz.float_assoc "if_value1" vs) (Pprz.float_assoc "if_value2" vs)
 
@@ -857,14 +857,14 @@ let listen_dl_value = fun () ->
   let get_dl_value = fun _sender vs ->
     let ac = get_ac vs in
     match ac.dl_settings_page with
-      Some settings ->
-    let csv = Pprz.string_assoc "values" vs in
-    let values = Array.map float_of_string (Array.of_list (Str.split list_separator csv)) in
-    ac.dl_values <- values;
-    for i = 0 to min (Array.length values) settings#length - 1 do
-      settings#set i (try values.(i) with _ -> failwith (sprintf "values.(%d)" i))
-    done
-    | None -> () in
+        Some settings ->
+          let csv = Pprz.string_assoc "values" vs in
+          let values = Array.map float_of_string (Array.of_list (Str.split list_separator csv)) in
+          ac.dl_values <- values;
+          for i = 0 to min (Array.length values) settings#length - 1 do
+            settings#set i (try values.(i) with _ -> failwith (sprintf "values.(%d)" i))
+          done
+      | None -> () in
   safe_bind "DL_VALUES" get_dl_value
 
 
@@ -877,11 +877,11 @@ let highlight_fp = fun ac b s ->
 
 let check_approaching = fun ac geo alert ->
   match ac.track#last with
-    None -> ()
-  | Some ac_pos ->
+      None -> ()
+    | Some ac_pos ->
       let d = LL.wgs84_distance ac_pos geo in
       if d < ac.speed *. approaching_alert_time then
-    log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_speech_name)
+        log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_speech_name)
 
 
 let ac_alt_graph = [14,0;-5,0;-7,-6]
@@ -951,47 +951,47 @@ let draw_altgraph = fun (da_object:Gtk_tools.pixmap_in_drawin_area) (geomap:MapC
     dr#set_foreground (`NAME ac.color);
     let track = ac.track in
     match track#last with
-    Some pos ->
-      let (xac, _yac) = geomap#world_of pos in
-      let w = float width in
-      let eac = (truncate (w *. (xac -. east) /. (west -. east))) in
-      let alt = (truncate track#last_altitude) in
-      let aac = height - height * (alt - !min_alt) / height_alt in
-      let h = track#last_heading in
-      let climb_angle = ref 0. in
-      if track#last_speed > 0. then
-        climb_angle := (atan2 track#last_climb track#last_speed);
+        Some pos ->
+          let (xac, _yac) = geomap#world_of pos in
+          let w = float width in
+          let eac = (truncate (w *. (xac -. east) /. (west -. east))) in
+          let alt = (truncate track#last_altitude) in
+          let aac = height - height * (alt - !min_alt) / height_alt in
+          let h = track#last_heading in
+          let climb_angle = ref 0. in
+          if track#last_speed > 0. then
+            climb_angle := (atan2 track#last_climb track#last_speed);
 
-      dr#set_line_attributes ~width:4 ~cap:`ROUND ();
-      dr#set_foreground (`NAME "white");
-      if h > 0. && h <= 180. then begin
-        dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac);
-        dr#set_line_attributes ~width:2 ();
-        dr#set_foreground (`NAME ac.color);
-        dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac);
-      end
-      else begin
-        dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
-        dr#set_line_attributes ~width:2 ();
-        dr#set_foreground (`NAME ac.color);
-        dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
-      end;
+          dr#set_line_attributes ~width:4 ~cap:`ROUND ();
+          dr#set_foreground (`NAME "white");
+          if h > 0. && h <= 180. then begin
+            dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac);
+            dr#set_line_attributes ~width:2 ();
+            dr#set_foreground (`NAME ac.color);
+            dr#lines (rotate_and_translate ac_alt_graph (-. !climb_angle) eac aac);
+          end
+          else begin
+            dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
+            dr#set_line_attributes ~width:2 ();
+            dr#set_foreground (`NAME ac.color);
+            dr#lines (rotate_and_translate (flip ac_alt_graph) !climb_angle eac aac);
+          end;
 
       (* altitude from ground if available *)
-      let alt_from_ground = truncate (track#height ()) in
-      let gac = aac + height * alt_from_ground / height_alt in
-      dr#set_line_attributes ~width:1 ~cap:`NOT_LAST ();
-      dr#line ~x:eac ~y:aac ~x:eac ~y:gac;
+          let alt_from_ground = truncate (track#height ()) in
+          let gac = aac + height * alt_from_ground / height_alt in
+          dr#set_line_attributes ~width:1 ~cap:`NOT_LAST ();
+          dr#line ~x:eac ~y:aac ~x:eac ~y:gac;
 
       (* history *)
-      let v_path = track#v_path in
-      for i = 0 to Array.length v_path - 1 do
-        let (x, _y) = geomap#world_of (fst v_path.(i)) in
-        let e = (truncate (w *. (x -. east) /. (west -. east))) in
-        let a = height - height * ((truncate (snd v_path.(i))) - !min_alt) / height_alt in
-        dr#point ~x:e ~y:a;
-      done
-  | None -> ()
+          let v_path = track#v_path in
+          for i = 0 to Array.length v_path - 1 do
+            let (x, _y) = geomap#world_of (fst v_path.(i)) in
+            let e = (truncate (w *. (x -. east) /. (west -. east))) in
+            let a = height - height * ((truncate (snd v_path.(i))) - !min_alt) / height_alt in
+            dr#point ~x:e ~y:a;
+          done
+      | None -> ()
   ) aircrafts;
 
   (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
@@ -1009,13 +1009,13 @@ module GCS_icon = struct
   let display = fun (geomap:G.widget) vs ->
     let item =
       match !status with
-    None -> (* First call, create the graphical object *)
-      GnoCanvas.ellipse ~fill_color ~props:[`WIDTH_PIXELS 2]
-        ~x1: ~-.radius ~y1:  ~-.radius ~x2:radius ~y2:radius
-        geomap#canvas#root
-      | Some (item, timeout_handle) -> (* Remove the timeouted color modification *)
-      Glib.Timeout.remove timeout_handle;
-      item in
+          None -> (* First call, create the graphical object *)
+            GnoCanvas.ellipse ~fill_color ~props:[`WIDTH_PIXELS 2]
+              ~x1: ~-.radius ~y1:  ~-.radius ~x2:radius ~y2:radius
+              geomap#canvas#root
+        | Some (item, timeout_handle) -> (* Remove the timeouted color modification *)
+          Glib.Timeout.remove timeout_handle;
+          item in
 
     item#set [`OUTLINE_COLOR color];
     let change_color_if_not_updated =
@@ -1056,18 +1056,18 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 
       let unix_time = a "unix_time" in
       if unix_time > ac.last_unix_time then begin
-    let utc = Unix.gmtime unix_time in
-    geomap#set_utc_time utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec;
-    ac.last_unix_time <- unix_time
+        let utc = Unix.gmtime unix_time in
+        geomap#set_utc_time utc.Unix.tm_hour utc.Unix.tm_min utc.Unix.tm_sec;
+        ac.last_unix_time <- unix_time
       end;
 
       if auto_center_new_ac && ac.first_pos then begin
-    center geomap ac.track ();
-    ac.first_pos <- false
+        center geomap ac.track ();
+        ac.first_pos <- false
       end;
 
       let set_label = fun lbl_name value ->
-    ac.strip#set_label lbl_name (sprintf "%.0fm" value)
+        ac.strip#set_label lbl_name (sprintf "%.0fm" value)
       in
       set_label "altitude" alt;
       ac.strip#set_speed speed;
@@ -1076,10 +1076,10 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       ac.alt <- alt;
       ac.strip#set_agl agl;
       if not ac.ground_prox && ac.flight_time > 10 && agl < 20. then begin
-    log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name "Ground Proximity Warning");
-      ac.ground_prox <- true
+        log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name "Ground Proximity Warning");
+        ac.ground_prox <- true
       end else if agl > 25. then
-    ac.ground_prox <- false;
+          ac.ground_prox <- false;
       try
         if not (alt_graph#drawing_area#misc#parent = None) then
           draw_altgraph alt_graph geomap aircrafts
@@ -1119,29 +1119,29 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     let d = Pprz.float_assoc "dist_to_wp" vs in
     let label =
       if d = 0. || ac.speed = 0. then
-    "N/A"
+        "N/A"
       else
-    sprintf "%.0fs" (d /. ac.speed) in
+        sprintf "%.0fs" (d /. ac.speed) in
     ac.strip#set_label "eta_time" label;
     ac.last_dist_to_wp <- d;
 
     (* Estimated Time to HOME *)
     try
       match ac.wp_HOME with
-    Some wp_HOME ->
-      let (bearing_to_HOME_deg, d) = Latlong.bearing ac.track#pos wp_HOME#pos in
-      let bearing_to_HOME = (Deg>>Rad)bearing_to_HOME_deg in
-      let wind_north = -. ac.wind_speed *. cos ac.wind_dir
-      and wind_east = -. ac.wind_speed *. sin ac.wind_dir in
-      let c = ac.wind_speed *. ac.wind_speed -. ac.airspeed *. ac.airspeed
-      and scal = wind_east *. sin bearing_to_HOME +. wind_north *. cos bearing_to_HOME in
-      let delta = 4. *. (scal*.scal -. c) in
-      let ground_speed_to_HOME = scal +. sqrt delta /. 2. in
-      let time_to_HOME = d /. ground_speed_to_HOME in
-    ac.misc_page#set_value "Time to HOME" (sprintf "%.0fs" time_to_HOME)
-      | _ -> ()
+          Some wp_HOME ->
+            let (bearing_to_HOME_deg, d) = Latlong.bearing ac.track#pos wp_HOME#pos in
+            let bearing_to_HOME = (Deg>>Rad)bearing_to_HOME_deg in
+            let wind_north = -. ac.wind_speed *. cos ac.wind_dir
+            and wind_east = -. ac.wind_speed *. sin ac.wind_dir in
+            let c = ac.wind_speed *. ac.wind_speed -. ac.airspeed *. ac.airspeed
+            and scal = wind_east *. sin bearing_to_HOME +. wind_north *. cos bearing_to_HOME in
+            let delta = 4. *. (scal*.scal -. c) in
+            let ground_speed_to_HOME = scal +. sqrt delta /. 2. in
+            let time_to_HOME = d /. ground_speed_to_HOME in
+            ac.misc_page#set_value "Time to HOME" (sprintf "%.0fs" time_to_HOME)
+        | _ -> ()
     with
-      _NotSoImportant -> ()
+        _NotSoImportant -> ()
   in
   safe_bind "NAV_STATUS" get_ns;
 
@@ -1201,17 +1201,17 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       ac.strip#set_label "AP" (if label="MANUAL" then "MANU" else label);
       let color =
         match ap_mode with
-          "AUTO2" | "NAV" -> ok_color
-        | "AUTO1" | "R_RCC" | "A_RCC" | "ATT_C" | "R_ZH" | "A_ZH" | "HOVER" | "HOV_C" | "H_ZH" -> "#10F0E0"
-        | "MANUAL" | "RATE" | "ATT" | "RC_D" -> warning_color
-        | _ -> alert_color in
+            "AUTO2" | "NAV" -> ok_color
+          | "AUTO1" | "R_RCC" | "A_RCC" | "ATT_C" | "R_ZH" | "A_ZH" | "HOVER" | "HOV_C" | "H_ZH" -> "#10F0E0"
+          | "MANUAL" | "RATE" | "ATT" | "RC_D" -> warning_color
+          | _ -> alert_color in
       ac.strip#set_color "AP" color;
     end;
     let status_filter_mode = Pprz.string_assoc "state_filter_mode" vs in
     let gps_mode =
       if (status_filter_mode <> "UNKNOWN") && (status_filter_mode <> "OK") && (status_filter_mode <> "GPS_LOST")
-        then status_filter_mode
-        else Pprz.string_assoc "gps_mode" vs in
+      then status_filter_mode
+      else Pprz.string_assoc "gps_mode" vs in
     ac.strip#set_label "GPS" gps_mode;
     ac.strip#set_color "GPS" (if gps_mode<>"3D" then alert_color else ok_color);
     let ft =
@@ -1220,14 +1220,14 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     let kill_mode = Pprz.string_assoc "kill_mode" vs in
     if kill_mode <> "OFF" then  begin
       if not ac.in_kill_mode then
-    log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_speech_name);
+        log_and_say alert ac.ac_name (sprintf "%s, mayday, kill mode" ac.ac_speech_name);
       ac.in_kill_mode <- true
     end else
       ac.in_kill_mode <- false;
     match ac.rc_settings_page with
-      None -> ()
-    | Some p ->
-    p#set_rc_mode ap_mode
+        None -> ()
+      | Some p ->
+        p#set_rc_mode ap_mode
   in
   safe_bind "AP_STATUS" get_ap_status;
 
@@ -1245,7 +1245,7 @@ let listen_waypoint_moved = fun () ->
       let w = ac.fp_group#get_wp wp_id in
       w#set ~altitude ~update:true geo
     with
-      Not_found -> () (* Silently ignore unknown waypoints *)
+        Not_found -> () (* Silently ignore unknown waypoints *)
   in
   safe_bind "WAYPOINT_MOVED" get_values
 
@@ -1268,11 +1268,11 @@ let get_svsinfo = fun alarm _sender vs ->
   let a = Array.create (List.length svids) (0,0,0,0) in
   let rec loop = fun i s c f ages ->
     match (s, c, f, ages) with
-      [], [], [], [] -> ()
-    | s::ss, c::cs, f::fs, age::ages ->
-    a.(i) <- (int_of_string s, int_of_string c, int_of_string f, int_of_string age);
-    loop (i+1) ss cs fs ages
-    | _ -> assert false in
+        [], [], [], [] -> ()
+      | s::ss, c::cs, f::fs, age::ages ->
+        a.(i) <- (int_of_string s, int_of_string c, int_of_string f, int_of_string age);
+        loop (i+1) ss cs fs ages
+      | _ -> assert false in
   loop 0 svids cn0s flagss ages;
 
   let pacc = Pprz.int_assoc "pacc" vs in
@@ -1299,15 +1299,15 @@ let listen_telemetry_status = fun () ->
 
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->
   let ac = find_ac !active_ac in
-    let photonumber = Pprz.string_assoc "photo_nr" vs in
-(*  let ac = get_ac vs in *)
-    match ac.track#last with
+  let photonumber = Pprz.string_assoc "photo_nr" vs in
+    (*  let ac = get_ac vs in *)
+  match ac.track#last with
       Some geo ->
-    begin
-      let group = geomap#background in
-      let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber geo 3. in
-      point#raise_to_top ()
-    end
+        begin
+          let group = geomap#background in
+          let point = geomap#photoprojection ~group ~fill_color:"yellow" ~number:photonumber geo 3. in
+          point#raise_to_top ()
+        end
     | None -> ()
 
 (*  mark geomap ac.ac_name track !Plugin.frame *)
@@ -1327,11 +1327,11 @@ let listen_tcas = fun a ->
     let ac = find_ac _sender in
     let other_ac = get_ac vs in
     let resolve = try
-      match Pprz.int_assoc "resolve" vs with
-        1 -> "=> LEVEL"
-      | 2 -> "=> CLIMB"
-      | 3 -> "=> DESCEND"
-      | _ -> ""
+                    match Pprz.int_assoc "resolve" vs with
+                        1 -> "=> LEVEL"
+                      | 2 -> "=> CLIMB"
+                      | 3 -> "=> DESCEND"
+                      | _ -> ""
       with _ -> "" in
     log_and_say a ac.ac_name (sprintf "%s : %s -> %s %s" txt ac.ac_speech_name other_ac.ac_speech_name resolve)
   in
@@ -1366,8 +1366,8 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
     let ac_page = ac_notebook#get_nth_page i in
     Hashtbl.iter
       (fun ac_id ac ->
-    if ac.pages#get_oid = ac_page#get_oid
-    then select_ac ac_notebook ac_id)
+        if ac.pages#get_oid = ac_page#get_oid
+        then select_ac ac_notebook ac_id)
       aircrafts in
   ignore (ac_notebook#connect#switch_page ~callback);
 
@@ -1378,6 +1378,6 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
       center geomap ac.track () in
   let key_press = fun ev ->
     match GdkEvent.Key.keyval ev with
-    | k when k = GdkKeysyms._c -> center_active () ; true
-    | _ -> false in
+      | k when k = GdkKeysyms._c -> center_active () ; true
+      | _ -> false in
   ignore (geomap#canvas#event#connect#after#key_press key_press)

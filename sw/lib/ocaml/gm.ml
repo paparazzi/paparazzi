@@ -34,16 +34,16 @@ let zoom_min = 18
 let cache_path = ref "/var/tmp"
 
 type tile_t = {
-    key : string;
-    sw_corner : Latlong.geographic;
-    width : float; (* Longitude difference *)
-    height : float (* Latitude difference *)
-  }
+  key : string;
+  sw_corner : Latlong.geographic;
+  width : float; (* Longitude difference *)
+  height : float (* Latitude difference *)
+}
 
 type maps_source = Google | OSM | MS | MQ | MQ_Aerial
 let maps_sources = [Google; OSM; MS; MQ; MQ_Aerial]
 let string_of_maps_source = function
-    Google -> "Google" | OSM -> "OpenStreetMap" | MS -> "Bing" | MQ -> "MapQuest OSM" | MQ_Aerial -> "MapQuest Open Aerial"
+Google -> "Google" | OSM -> "OpenStreetMap" | MS -> "Bing" | MQ -> "MapQuest OSM" | MQ_Aerial -> "MapQuest Open Aerial"
 
 let maps_source = ref Google
 let set_maps_source = fun s -> maps_source := s
@@ -78,7 +78,7 @@ let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
 
 
 (** Returns a keyhole string for a longitude (x), latitude (y), and zoom
-   for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
+    for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
 let tile_of_geo = fun ?level wgs84 zoom ->
   let max = match level with
     | None -> zoom_max
@@ -135,13 +135,13 @@ let tile_of_key = fun keyholeStr ->
     latLonSize /.= 2.;
 
     match keyholeStr.[i] with
-      's' -> lon +.= !latLonSize
-    | 'r' ->
+        's' -> lon +.= !latLonSize
+      | 'r' ->
         lat +.= !latLonSize;
         lon +.= !latLonSize
-    | 'q' -> lat +.= !latLonSize
-    | 't' -> ()
-    | _ -> invalid_arg ("gm_get_lat_long " ^ keyholeStr)
+      | 'q' -> lat +.= !latLonSize
+      | 't' -> ()
+      | _ -> invalid_arg ("gm_get_lat_long " ^ keyholeStr)
   done;
 
   gm_pos_and_scale keyholeStr !lat !latLonSize !lon !latLonSize
@@ -149,7 +149,7 @@ let tile_of_key = fun keyholeStr ->
 
 let is_prefix = fun a b ->
   String.length b >= String.length a &&
-  a = String.sub b 0 (String.length a)
+    a = String.sub b 0 (String.length a)
 
 
 (** Get the tile or one which contains it from the cache *)
@@ -168,7 +168,7 @@ let get_from_cache = fun dir f ->
         loop (i+1)
     else
       raise Not_found
-    in
+  in
   loop 0
 
 (** Translate the old quadtree naming policy into new (x,y) coordinates
@@ -181,11 +181,11 @@ let xyz_of_qsrt = fun s ->
     x := !x * 2;
     y := !y * 2;
     match s.[i] with
-      'q' -> ()
-    | 'r' -> incr x
-    | 's' -> incr x; incr y
-    | 't' -> incr y
-    | _ -> failwith "xyz_of_qsrt"
+        'q' -> ()
+      | 'r' -> incr x
+      | 's' -> incr x; incr y
+      | 't' -> incr y
+      | _ -> failwith "xyz_of_qsrt"
   done;
   (!x, !y, n-1)
 
@@ -196,11 +196,11 @@ let ms_key = fun key ->
   for i = 1 to n - 1 do
     ms_key.[i-1] <-
       match key.[i] with
-    'q' -> '0'
-      |	'r' -> '1'
-      | 's' -> '3'
-      | 't' -> '2'
-      | _ -> invalid_arg "Gm.ms_key"
+          'q' -> '0'
+        | 'r' -> '1'
+        | 's' -> '3'
+        | 't' -> '2'
+        | _ -> invalid_arg "Gm.ms_key"
   done;
   (ms_key, ms_key.[n-2])
 
@@ -209,22 +209,22 @@ let google_version = Maps_support.google_version
 let url_of_tile_key = fun maps_source s ->
   let (x, y, z) = xyz_of_qsrt s in
   match maps_source with
-    Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
-  | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
-  | MQ -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/osm/%d/%d/%d.png" z x y
-  | MQ_Aerial -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/sat/%d/%d/%d.png" z x y
-  | MS ->
+      Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
+    | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
+    | MQ -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/osm/%d/%d/%d.png" z x y
+    | MQ_Aerial -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/sat/%d/%d/%d.png" z x y
+    | MS ->
       let (key, last_char) = ms_key s in
       (* That's the old naming scheme, that still works as of 1st August 2010
-      sprintf "http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d" key (z+32)
+         sprintf "http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d" key (z+32)
       *)
       (* That's the new code, which conforms to MS naming scheme as of 1st August 2010 *)
       sprintf "http://ecn.t%c.tiles.virtualearth.net/tiles/a%s.jpeg?g=516" last_char key
-      (**)
+(**)
 
 
 let get_cache_dir = function
-    Google -> !cache_path (* Historic ! Should be // Google *)
+Google -> !cache_path (* Historic ! Should be // Google *)
   | OSM -> !cache_path // "OSM"
   | MQ -> !cache_path // "MapQuest"
   | MQ_Aerial -> !cache_path // "MapQuestAerial"
@@ -235,7 +235,7 @@ exception Not_available
 
 type policy = CacheOrHttp | NoHttp | NoCache
 let string_of_policy = function
-    CacheOrHttp -> "CacheOrHttp"
+CacheOrHttp -> "CacheOrHttp"
   | NoHttp -> "NoHttp"
   | NoCache -> "NoCache"
 let policies = [CacheOrHttp; NoHttp; NoCache]
@@ -277,7 +277,7 @@ let get_image = fun key ->
       try get_from_http key with _ -> (t, f)
     else (t, f)
   with
-  | Not_found ->
+    | Not_found ->
       if !policy = NoHttp then raise Not_available;
       get_from_http key
 

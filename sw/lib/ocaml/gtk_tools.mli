@@ -22,25 +22,25 @@
  *
  *)
 (** GTK utilities
- *)
+*)
 
 (** Allocate a drawing area and filling pixmap on request.
     if ~drawing_area is provided, width, heigh and packing are ignored *)
 class pixmap_in_drawin_area :
-    ?drawing_area:GMisc.drawing_area ->
+  ?drawing_area:GMisc.drawing_area ->
     ?width:int ->
-    ?height:int ->
-    ?packing:(GObj.widget -> unit) ->
-    unit ->
-      object
-	method drawing_area : GMisc.drawing_area
+      ?height:int ->
+        ?packing:(GObj.widget -> unit) ->
+          unit ->
+object
+  method drawing_area : GMisc.drawing_area
 
-	method get_pixmap : unit -> GDraw.pixmap
-	(** Lazyly allocate a pixmap filling the drawing area *)
+  method get_pixmap : unit -> GDraw.pixmap
+    (** Lazyly allocate a pixmap filling the drawing area *)
 
-	method redraw : unit -> unit
-        (** Redraw the pixmap *)
-      end
+  method redraw : unit -> unit
+      (** Redraw the pixmap *)
+end
 
 
 (*** Utilities for a combo box widget ***)

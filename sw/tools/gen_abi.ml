@@ -32,10 +32,10 @@ type field = _name * _type
 type fields = field list
 
 type message = {
-    name : string;
-    id : int;
-    fields : fields
-  }
+  name : string;
+  id : int;
+  fields : fields
+}
 
 module Syntax = struct
   (** Translates a "message" XML element into a value of the 'message' type *)
@@ -72,7 +72,7 @@ module Syntax = struct
       check_single_ids msgs;
       msgs
     with
-      Not_found -> failwith (sprintf "No class '%s' found" class_)
+        Not_found -> failwith (sprintf "No class '%s' found" class_)
 end (* module Suntax *)
 
 
@@ -98,9 +98,9 @@ module Gen_onboard = struct
   let print_args = fun h fields starter ->
     let rec args = fun h l ->
       match l with
-        [] -> Printf.fprintf h ")"
-      | [(n,t)] -> Printf.fprintf h "const %s %s)" t n
-      | (n,t)::l' -> Printf.fprintf h "const %s %s, " t n; args h l'
+          [] -> Printf.fprintf h ")"
+        | [(n,t)] -> Printf.fprintf h "const %s %s)" t n
+        | (n,t)::l' -> Printf.fprintf h "const %s %s, " t n; args h l'
     in
     Printf.fprintf h "(%s" starter;
     args h fields
@@ -128,9 +128,9 @@ module Gen_onboard = struct
     (* print arguments *)
     let rec args = fun h l ->
       match l with
-        [] -> Printf.fprintf h ");\n"
-      | [(n,_)] -> Printf.fprintf h "%s);\n" n
-      | (n,_)::l' -> Printf.fprintf h "%s, " n; args h l'
+          [] -> Printf.fprintf h ");\n"
+        | [(n,_)] -> Printf.fprintf h "%s);\n" n
+        | (n,_)::l' -> Printf.fprintf h "%s, " n; args h l'
     in
     let name = String.capitalize msg.name in
     Printf.fprintf h "\nstatic inline void AbiSendMsg%s" name;
@@ -196,4 +196,4 @@ let () =
 
     Printf.fprintf h "\n#endif // ABI_MESSAGES_H\n"
   with
-    Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))
+      Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

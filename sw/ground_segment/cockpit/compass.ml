@@ -1,26 +1,26 @@
 (*
-* Compass display for a manned vehicle
-*
-* Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
-*
-* This file is part of paparazzi.
-*
-* paparazzi is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2, or (at your option)
-* any later version.
-*
-* paparazzi is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with paparazzi; see the file COPYING.  If not, write to
-* the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA.
-*
-*)
+ * Compass display for a manned vehicle
+ *
+ * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ *)
 
 open Printf
 open Latlong
@@ -45,9 +45,9 @@ let n = 100
 let circle = fun (dr:GDraw.pixmap) (x,y) r ->
   let r = float r in
   let points = Array.init n
-      (fun i ->
-	let a = float i /. float n *. 2.*.pi in
-	(x + truncate (r*.cos a), y + truncate (r*.sin a))) in
+    (fun i ->
+      let a = float i /. float n *. 2.*.pi in
+      (x + truncate (r*.cos a), y + truncate (r*.sin a))) in
   dr#polygon (Array.to_list points)
 
 let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course_opt distance ->
@@ -79,14 +79,14 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
   (* Arrow *)
   if distance > 5. then
     match course_opt with
-      None ->
-	print_string (4*s) (4*s) "?"
-    | Some _ ->
-	let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
-	dr#set_foreground fore;
-	dr#polygon ~filled:true points;
-	circle dr (4*s,4*s) (2*s);
-	circle dr (4*s,4*s) (3*s)
+        None ->
+          print_string (4*s) (4*s) "?"
+      | Some _ ->
+        let points = List.map (fun (x, y) -> translate (rotation (x*s/2,y*s/2))) arrow in
+        dr#set_foreground fore;
+        dr#polygon ~filled:true points;
+        circle dr (4*s,4*s) (2*s);
+        circle dr (4*s,4*s) (3*s)
   else
     print_string (4*s) (4*s) "STOP";
 
@@ -101,7 +101,7 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
   (* Cardinal points *)
   let rotation = rot (-. course) in
   let cards = [(0, 10, "N"); (0, -10, "S"); (10, 0, "E"); (-10, 0, "W");
-	       (7, 7, "NE"); (7, -7, "SE");(-7,-7,"SW");(-7,7,"NW")] in
+               (7, 7, "NE"); (7, -7, "SE");(-7,-7,"SW");(-7,7,"NW")] in
   List.iter (fun (x,y,string)->
     let (x,y) = translate (rotation ((x*5*s)/20, (y*5*s)/20)) in
     print_string x y string)
@@ -141,9 +141,9 @@ let _ =
     (* if speed < 1m/s, the course information is not relevant *)
     course :=
       if Pprz.int_assoc "speed" values > 100 then
-	Some (float (Pprz.int_assoc "course" values) /. 10.)
+        Some (float (Pprz.int_assoc "course" values) /. 10.)
       else
-	None in
+        None in
   ignore (Tm_Pprz.message_bind "GPS" get_gps);
   let get_desired = fun _ values ->
     desired_course := (Rad>>Deg) (Pprz.float_assoc "course" values) in

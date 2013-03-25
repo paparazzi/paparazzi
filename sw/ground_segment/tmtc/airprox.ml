@@ -44,7 +44,7 @@ let airprox = fun aircraft1 aircraft2 ->
       z1 = aircraft1.alt and z2 = aircraft2.alt in
   let alt_difference = abs_float (z1 -. z2) and
       dist =  distance (x1, y1) (x2, y2) in
- ((alt_difference < 10.0) && (dist < 100.0))
+  ((alt_difference < 10.0) && (dist < 100.0))
 
 (** return airprox level                                                      *)
 (** level is warning if the distance between both aircraft is increasing      *)
@@ -64,8 +64,8 @@ let airprox_level = fun aircraft1 aircraft2 ->
       vy1 = speed1 *. (sin (halfpi -. course1)) and
       vy2 = speed2 *. (sin (halfpi -. course2)) in
   let d1 = distance
-      (x1+. vx1 *. 0.2, x2+. vx2 *. 0.2)
-      (y1+. vy1 *. 0.2, y2+. vy2 *. 0.2) in
+    (x1+. vx1 *. 0.2, x2+. vx2 *. 0.2)
+    (y1+. vy1 *. 0.2, y2+. vy2 *. 0.2) in
   if d1 < d0 then "CRITICAL" else "WARNING"
 
 (** send a airprox alert on ivy if there is an airprox between ac_name1 and   *)
