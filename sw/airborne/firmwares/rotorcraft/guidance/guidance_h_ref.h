@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 ENAC <poinix@gmail.com>
+ * Copyright (C) 2008-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmware/rotorcraft/guidance/guidance_h_ref.h
+/** @file firmwares/rotorcraft/guidance/guidance_h_ref.h
  *  Reference generation for horizontal guidance.
  *
  */
@@ -36,41 +36,50 @@
 #define B2_GH_FREQ_FRAC 9
 #define B2_GH_FREQ (1<<B2_GH_FREQ_FRAC)
 
-/* reference model accel in meters/sec2 (output) */
-/* Q23.8 : accuracy 0.0039 , range 8388km/s2      */
-/* int32_4_8_t */
+/** Reference model acceleration.
+ * in meters/sec2 (output)
+ * fixed point representation: Q23.8
+ * accuracy 0.0039, range 8388km/s2
+ */
 extern struct Int32Vect2 b2_gh_accel_ref;
 #define B2_GH_ACCEL_REF_FRAC 8
 
-/* reference model speed in meters/sec (output)  */
-/* Q14.17 : accuracy 0.0000076 , range 16384m/s  */
+/** Reference model speed.
+ * in meters/sec
+ * with fixedpoint representation: Q14.17
+ * accuracy 0.0000076 , range 16384m/s
+ */
 extern struct Int32Vect2 b2_gh_speed_ref;
 #define B2_GH_SPEED_REF_FRAC (B2_GH_ACCEL_REF_FRAC + B2_GH_FREQ_FRAC)
 
-/* reference model position in meters (output)    */
-/* Q37.26 :                                       */
+/* Reference model position.
+ * in meters
+ * with fixedpoint representation: Q37.26
+ */
 extern struct Int64Vect2 b2_gh_pos_ref;
 #define B2_GH_POS_REF_FRAC (B2_GH_SPEED_REF_FRAC + B2_GH_FREQ_FRAC)
 
-/* Accel saturation */
-/* tanf(RadOfDeg(30.))*9.81 = 5.66 */
+/** Accel saturation.
+ * tanf(RadOfDeg(30.))*9.81 = 5.66
+ */
 #ifndef GUIDANCE_H_REF_MAX_ACCEL
-#define GUIDANCE_H_REF_MAX_ACCEL 5.66 
+#define GUIDANCE_H_REF_MAX_ACCEL 5.66
 #endif
-#define  B2_GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
+#define B2_GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
 
-/*Speed saturation*/
+/** Speed saturation */
 #ifndef GUIDANCE_H_REF_MAX_SPEED
 #define GUIDANCE_H_REF_MAX_SPEED 5.
 #endif
-/*FIX ME :B2_GH_MAX_SPEED must be limited to 2^14 to avoid overflow*/
+/** @todo B2_GH_MAX_SPEED must be limited to 2^14 to avoid overflow */
 #define B2_GH_MAX_SPEED_REF_FRAC 7
-#define B2_GH_MAX_SPEED BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, B2_GH_MAX_SPEED_REF_FRAC) 
+#define B2_GH_MAX_SPEED BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, B2_GH_MAX_SPEED_REF_FRAC)
 
-/* second order model natural frequency and damping */
+/** second order model natural frequency */
 #ifndef GUIDANCE_H_REF_OMEGA
 #define GUIDANCE_H_REF_OMEGA RadOfDeg(67.)
 #endif
+/** second order model damping */
 #ifndef GUIDANCE_H_REF_ZETA
 #define GUIDANCE_H_REF_ZETA  0.85
 #endif
@@ -79,7 +88,7 @@ extern struct Int64Vect2 b2_gh_pos_ref;
 #define B2_GH_OMEGA_2_FRAC 7
 #define B2_GH_OMEGA_2    BFP_OF_REAL((GUIDANCE_H_REF_OMEGA*GUIDANCE_H_REF_OMEGA), B2_GH_OMEGA_2_FRAC)
 
-/* first order time constant */
+/** first order time constant */
 #define B2_GH_REF_THAU_F  0.5
 #define B2_GH_REF_INV_THAU_FRAC 16
 #define B2_GH_REF_INV_THAU  BFP_OF_REAL((1./B2_GH_REF_THAU_F), B2_GH_REF_INV_THAU_FRAC)
@@ -91,12 +100,14 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp);
 
 struct Int64Vect2 b2_gh_pos_ref;
 struct Int32Vect2 b2_gh_speed_ref;
-struct Int32Vect2 b2_gh_max_speed_ref;
 struct Int32Vect2 b2_gh_accel_ref;
-struct Int32Vect2 b2_gh_max_accel_ref;
 
-int32_t route_ref;  
-int32_t s_route_ref, c_route_ref;
+static struct Int32Vect2 b2_gh_max_speed_ref;
+static struct Int32Vect2 b2_gh_max_accel_ref;
+
+static int32_t route_ref;
+static int32_t s_route_ref;
+static int32_t c_route_ref;
 
 static inline void b2_gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel) {
   struct Int64Vect2 new_pos;
@@ -129,23 +140,23 @@ static inline void b2_gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   INT32_VECT2_RSHIFT(pos, pos, B2_GH_OMEGA_2_FRAC);
   // sum accel
   VECT2_SUM(b2_gh_accel_ref, speed, pos);
-  
+
   /* Compute route reference before saturation */
   // use metric precision or values are too large
-  INT32_ATAN2(route_ref,-pos_err.y,-pos_err.x);
+  INT32_ATAN2(route_ref, -pos_err.y, -pos_err.x);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
-  c_route_ref=abs(c_route_ref);
-  s_route_ref=abs(s_route_ref);
-  /* Compute maximum acceleration*/    
-  b2_gh_max_accel_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,c_route_ref,INT32_TRIG_FRAC);
-  b2_gh_max_accel_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,s_route_ref,INT32_TRIG_FRAC);
-  /* Compute maximum speed*/    
-  b2_gh_max_speed_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,c_route_ref,INT32_TRIG_FRAC);
-  b2_gh_max_speed_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,s_route_ref,INT32_TRIG_FRAC);
+  c_route_ref = abs(c_route_ref);
+  s_route_ref = abs(s_route_ref);
+  /* Compute maximum acceleration*/
+  b2_gh_max_accel_ref.x = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL, c_route_ref, INT32_TRIG_FRAC);
+  b2_gh_max_accel_ref.y = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL, s_route_ref, INT32_TRIG_FRAC);
+  /* Compute maximum speed*/
+  b2_gh_max_speed_ref.x = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED, c_route_ref, INT32_TRIG_FRAC);
+  b2_gh_max_speed_ref.y = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED, s_route_ref, INT32_TRIG_FRAC);
   /* restore b2_gh_speed_ref range (Q14.17) */
-  INT32_VECT2_LSHIFT(b2_gh_max_speed_ref, b2_gh_max_speed_ref,B2_GH_SPEED_REF_FRAC - B2_GH_MAX_SPEED_REF_FRAC);
+  INT32_VECT2_LSHIFT(b2_gh_max_speed_ref, b2_gh_max_speed_ref, (B2_GH_SPEED_REF_FRAC - B2_GH_MAX_SPEED_REF_FRAC));
 
  /* Saturate accelerations */
   if (b2_gh_accel_ref.x <= -b2_gh_max_accel_ref.x) {
@@ -160,7 +171,7 @@ static inline void b2_gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   else if (b2_gh_accel_ref.y >= b2_gh_max_accel_ref.y) {
     b2_gh_accel_ref.y = b2_gh_max_accel_ref.y;
   }
- 
+
    /* Saturate speed and adjust acceleration accordingly */
     if (b2_gh_speed_ref.x <= -b2_gh_max_speed_ref.x) {
     b2_gh_speed_ref.x = -b2_gh_max_speed_ref.x;
@@ -201,22 +212,22 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
 
   /* Compute route reference before saturation */
   // use metric precision or values are too large
-  INT32_ATAN2(route_ref,-speed_sp.y,-speed_sp.x);
+  INT32_ATAN2(route_ref, -speed_sp.y, -speed_sp.x);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
-  c_route_ref=abs(c_route_ref);
-  s_route_ref=abs(s_route_ref);
-  
-  /* Compute maximum acceleration*/    
-  b2_gh_max_accel_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,c_route_ref,INT32_TRIG_FRAC);
-  b2_gh_max_accel_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,s_route_ref,INT32_TRIG_FRAC);
-  /* Compute maximum speed*/    
-  b2_gh_max_speed_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,c_route_ref,INT32_TRIG_FRAC);
-  b2_gh_max_speed_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,s_route_ref,INT32_TRIG_FRAC);
+  c_route_ref = abs(c_route_ref);
+  s_route_ref = abs(s_route_ref);
+
+  /* Compute maximum acceleration*/
+  b2_gh_max_accel_ref.x = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL, c_route_ref, INT32_TRIG_FRAC);
+  b2_gh_max_accel_ref.y = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL, s_route_ref, INT32_TRIG_FRAC);
+  /* Compute maximum speed*/
+  b2_gh_max_speed_ref.x = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED, c_route_ref, INT32_TRIG_FRAC);
+  b2_gh_max_speed_ref.y = INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED, s_route_ref, INT32_TRIG_FRAC);
   /* restore b2_gh_speed_ref range (Q14.17) */
-  INT32_VECT2_LSHIFT(b2_gh_max_speed_ref, b2_gh_max_speed_ref,B2_GH_SPEED_REF_FRAC - B2_GH_MAX_SPEED_REF_FRAC);
-  
+  INT32_VECT2_LSHIFT(b2_gh_max_speed_ref, b2_gh_max_speed_ref, (B2_GH_SPEED_REF_FRAC - B2_GH_MAX_SPEED_REF_FRAC));
+
   /* Saturate accelerations */
   if (b2_gh_accel_ref.x <= -b2_gh_max_accel_ref.x) {
     b2_gh_accel_ref.x = -b2_gh_max_accel_ref.x;
@@ -232,7 +243,7 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   }
 
   /* Saturate speed and adjust acceleration accordingly */
-    if (b2_gh_speed_ref.x <= -b2_gh_max_speed_ref.x) {
+  if (b2_gh_speed_ref.x <= -b2_gh_max_speed_ref.x) {
     b2_gh_speed_ref.x = -b2_gh_max_speed_ref.x;
     if (b2_gh_accel_ref.x < 0)
       b2_gh_accel_ref.x = 0;
