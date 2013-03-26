@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/guidance/guidance_h_ref.h
+/** @file firmware/rotorcraft/guidance/guidance_h_ref.h
  *  Reference generation for horizontal guidance.
  *
  */
@@ -43,7 +43,7 @@ extern struct Int32Vect2 b2_gh_accel_ref;
 #define B2_GH_ACCEL_REF_FRAC 8
 
 /* reference model speed in meters/sec (output)  */
-/* Q14.17 : accuracy 0.0000076 , range 16384m/s2  */
+/* Q14.17 : accuracy 0.0000076 , range 16384m/s  */
 extern struct Int32Vect2 b2_gh_speed_ref;
 #define B2_GH_SPEED_REF_FRAC (B2_GH_ACCEL_REF_FRAC + B2_GH_FREQ_FRAC)
 
@@ -52,17 +52,20 @@ extern struct Int32Vect2 b2_gh_speed_ref;
 extern struct Int64Vect2 b2_gh_pos_ref;
 #define B2_GH_POS_REF_FRAC (B2_GH_SPEED_REF_FRAC + B2_GH_FREQ_FRAC)
 
-/* Saturations definition */
-#ifndef GUIDANCE_H_REF_MAX_ACCEL
+/* Accel saturation */
 /* tanf(RadOfDeg(30.))*9.81 = 5.66 */
-#define GUIDANCE_H_REF_MAX_ACCEL 5.66
+#ifndef GUIDANCE_H_REF_MAX_ACCEL
+#define GUIDANCE_H_REF_MAX_ACCEL 5.66 
 #endif
-#define B2_GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
+#define  B2_GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
 
+/*Speed saturation*/
 #ifndef GUIDANCE_H_REF_MAX_SPEED
-#define GUIDANCE_H_REF_MAX_SPEED ( 5. )
+#define GUIDANCE_H_REF_MAX_SPEED 5.
 #endif
-#define B2_GH_MAX_SPEED BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, B2_GH_SPEED_REF_FRAC)
+/*FIX ME :B2_GH_MAX_SPEED must be limited to 2^14 to avoid overflow*/
+#define B2_GH_MAX_SPEED_REF_FRAC 7
+#define B2_GH_MAX_SPEED BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, B2_GH_MAX_SPEED_REF_FRAC) 
 
 /* second order model natural frequency and damping */
 #ifndef GUIDANCE_H_REF_OMEGA
@@ -88,7 +91,12 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp);
 
 struct Int64Vect2 b2_gh_pos_ref;
 struct Int32Vect2 b2_gh_speed_ref;
+struct Int32Vect2 b2_gh_max_speed_ref;
 struct Int32Vect2 b2_gh_accel_ref;
+struct Int32Vect2 b2_gh_max_accel_ref;
+
+int32_t route_ref;  
+int32_t s_route_ref, c_route_ref;
 
 static inline void b2_gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel) {
   struct Int64Vect2 new_pos;
@@ -121,36 +129,63 @@ static inline void b2_gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   INT32_VECT2_RSHIFT(pos, pos, B2_GH_OMEGA_2_FRAC);
   // sum accel
   VECT2_SUM(b2_gh_accel_ref, speed, pos);
+  
+  /* Compute route reference before saturation */
+  // use metric precision or values are too large
+  INT32_ATAN2(route_ref,-pos_err.y,-pos_err.x);
+  /* Compute North and East route components */
+  PPRZ_ITRIG_SIN(s_route_ref, route_ref);
+  PPRZ_ITRIG_COS(c_route_ref, route_ref);
+  c_route_ref=abs(c_route_ref);
+  s_route_ref=abs(s_route_ref);
+  /* Compute maximum acceleration*/    
+  b2_gh_max_accel_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,c_route_ref,INT32_TRIG_FRAC);
+  b2_gh_max_accel_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,s_route_ref,INT32_TRIG_FRAC);
+  /* Compute maximum speed*/    
+  b2_gh_max_speed_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,c_route_ref,INT32_TRIG_FRAC);
+  b2_gh_max_speed_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,s_route_ref,INT32_TRIG_FRAC);
+  /* restore b2_gh_speed_ref range (Q14.17) */
+  INT32_VECT2_LSHIFT(b2_gh_max_speed_ref, b2_gh_max_speed_ref,B2_GH_SPEED_REF_FRAC - B2_GH_MAX_SPEED_REF_FRAC);
 
-  /* Saturate accelerations */
-  VECT2_STRIM(b2_gh_accel_ref, -B2_GH_MAX_ACCEL, B2_GH_MAX_ACCEL);
-
-  /* Saturate speed and adjust acceleration accordingly */
-  if (b2_gh_speed_ref.x <= -B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.x = -B2_GH_MAX_SPEED;
+ /* Saturate accelerations */
+  if (b2_gh_accel_ref.x <= -b2_gh_max_accel_ref.x) {
+    b2_gh_accel_ref.x = -b2_gh_max_accel_ref.x;
+  }
+  else if (b2_gh_accel_ref.x >=  b2_gh_max_accel_ref.x) {
+    b2_gh_accel_ref.x =  b2_gh_max_accel_ref.x;
+  }
+  if (b2_gh_accel_ref.y <= -b2_gh_max_accel_ref.y) {
+    b2_gh_accel_ref.y = -b2_gh_max_accel_ref.y;
+  }
+  else if (b2_gh_accel_ref.y >= b2_gh_max_accel_ref.y) {
+    b2_gh_accel_ref.y = b2_gh_max_accel_ref.y;
+  }
+ 
+   /* Saturate speed and adjust acceleration accordingly */
+    if (b2_gh_speed_ref.x <= -b2_gh_max_speed_ref.x) {
+    b2_gh_speed_ref.x = -b2_gh_max_speed_ref.x;
     if (b2_gh_accel_ref.x < 0)
       b2_gh_accel_ref.x = 0;
   }
-  else if (b2_gh_speed_ref.x >= B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.x = B2_GH_MAX_SPEED;
+  else if (b2_gh_speed_ref.x >=  b2_gh_max_speed_ref.x) {
+    b2_gh_speed_ref.x =  b2_gh_max_speed_ref.x;
     if (b2_gh_accel_ref.x > 0)
       b2_gh_accel_ref.x = 0;
   }
-  if (b2_gh_speed_ref.y <= -B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.y = -B2_GH_MAX_SPEED;
+  if (b2_gh_speed_ref.y <= -b2_gh_max_speed_ref.y) {
+    b2_gh_speed_ref.y = -b2_gh_max_speed_ref.y;
     if (b2_gh_accel_ref.y < 0)
       b2_gh_accel_ref.y = 0;
   }
-  else if (b2_gh_speed_ref.y >= B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.y = B2_GH_MAX_SPEED;
+  else if (b2_gh_speed_ref.y >= b2_gh_max_speed_ref.y) {
+    b2_gh_speed_ref.y = b2_gh_max_speed_ref.y;
     if (b2_gh_accel_ref.y > 0)
       b2_gh_accel_ref.y = 0;
   }
 }
 
-
 static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
-
+/* WARNING: SPEED SATURATION UNTESTED */
   VECT2_ADD(b2_gh_pos_ref, b2_gh_speed_ref);
   VECT2_ADD(b2_gh_speed_ref, b2_gh_accel_ref);
 
@@ -164,27 +199,56 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   VECT2_SMUL(b2_gh_accel_ref, speed_err, -B2_GH_REF_INV_THAU);
   INT32_VECT2_RSHIFT(b2_gh_accel_ref, b2_gh_accel_ref, B2_GH_REF_INV_THAU_FRAC);
 
+  /* Compute route reference before saturation */
+  // use metric precision or values are too large
+  INT32_ATAN2(route_ref,-speed_sp.y,-speed_sp.x);
+  /* Compute North and East route components */
+  PPRZ_ITRIG_SIN(s_route_ref, route_ref);
+  PPRZ_ITRIG_COS(c_route_ref, route_ref);
+  c_route_ref=abs(c_route_ref);
+  s_route_ref=abs(s_route_ref);
+  
+  /* Compute maximum acceleration*/    
+  b2_gh_max_accel_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,c_route_ref,INT32_TRIG_FRAC);
+  b2_gh_max_accel_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_ACCEL,s_route_ref,INT32_TRIG_FRAC);
+  /* Compute maximum speed*/    
+  b2_gh_max_speed_ref.x= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,c_route_ref,INT32_TRIG_FRAC);
+  b2_gh_max_speed_ref.y= INT_MULT_RSHIFT((int32_t)B2_GH_MAX_SPEED,s_route_ref,INT32_TRIG_FRAC);
+  /* restore b2_gh_speed_ref range (Q14.17) */
+  INT32_VECT2_LSHIFT(b2_gh_max_speed_ref, b2_gh_max_speed_ref,B2_GH_SPEED_REF_FRAC - B2_GH_MAX_SPEED_REF_FRAC);
+  
   /* Saturate accelerations */
-  VECT2_STRIM(b2_gh_accel_ref, -B2_GH_MAX_ACCEL, B2_GH_MAX_ACCEL);
+  if (b2_gh_accel_ref.x <= -b2_gh_max_accel_ref.x) {
+    b2_gh_accel_ref.x = -b2_gh_max_accel_ref.x;
+  }
+  else if (b2_gh_accel_ref.x >=  b2_gh_max_accel_ref.x) {
+    b2_gh_accel_ref.x =  b2_gh_max_accel_ref.x;
+  }
+  if (b2_gh_accel_ref.y <= -b2_gh_max_accel_ref.y) {
+    b2_gh_accel_ref.y = -b2_gh_max_accel_ref.y;
+  }
+  else if (b2_gh_accel_ref.y >= b2_gh_max_accel_ref.y) {
+    b2_gh_accel_ref.y = b2_gh_max_accel_ref.y;
+  }
 
   /* Saturate speed and adjust acceleration accordingly */
-  if (b2_gh_speed_ref.x <= -B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.x = -B2_GH_MAX_SPEED;
+    if (b2_gh_speed_ref.x <= -b2_gh_max_speed_ref.x) {
+    b2_gh_speed_ref.x = -b2_gh_max_speed_ref.x;
     if (b2_gh_accel_ref.x < 0)
       b2_gh_accel_ref.x = 0;
   }
-  else if (b2_gh_speed_ref.x >= B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.x = B2_GH_MAX_SPEED;
+  else if (b2_gh_speed_ref.x >=  b2_gh_max_speed_ref.x) {
+    b2_gh_speed_ref.x =  b2_gh_max_speed_ref.x;
     if (b2_gh_accel_ref.x > 0)
       b2_gh_accel_ref.x = 0;
   }
-  if (b2_gh_speed_ref.y <= -B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.y = -B2_GH_MAX_SPEED;
+  if (b2_gh_speed_ref.y <= -b2_gh_max_speed_ref.y) {
+    b2_gh_speed_ref.y = -b2_gh_max_speed_ref.y;
     if (b2_gh_accel_ref.y < 0)
       b2_gh_accel_ref.y = 0;
   }
-  else if (b2_gh_speed_ref.y >= B2_GH_MAX_SPEED) {
-    b2_gh_speed_ref.y = B2_GH_MAX_SPEED;
+  else if (b2_gh_speed_ref.y >= b2_gh_max_speed_ref.y) {
+    b2_gh_speed_ref.y = b2_gh_max_speed_ref.y;
     if (b2_gh_accel_ref.y > 0)
       b2_gh_accel_ref.y = 0;
   }
