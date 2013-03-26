@@ -31,6 +31,13 @@ XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
+
 all: paparazzicenter
 
 paparazzicenter : $(PAPARAZZICENTERCMO)
@@ -39,14 +46,14 @@ paparazzicenter : $(PAPARAZZICENTERCMO)
 
 gtk_pc.ml : paparazzicenter.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)lablgladecc2 -hide-default -root window $($@_TMP) > $@
 	$(Q)rm -f $($@_TMP)
 
 gtk_process.ml : paparazzicenter.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)lablgladecc2 -hide-default -root hbox_program $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)

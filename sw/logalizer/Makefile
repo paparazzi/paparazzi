@@ -78,9 +78,16 @@ openlog2tlm: openlog2tlm.c
 export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
+
 gtk_export.ml : export.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)lablgladecc2 -root export -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)

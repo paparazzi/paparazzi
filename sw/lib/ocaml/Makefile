@@ -143,31 +143,37 @@ expr_lexer.cmi : expr_lexer.ml expr_syntax.cmi
 expr_lexer.cmo : expr_lexer.cmi
 expr_syntax.cmo : expr_syntax.cmi
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
 
 gtk_papget_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)lablgladecc2 -root papget_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
 gtk_papget_text_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)lablgladecc2 -root table_text_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
 gtk_papget_gauge_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)lablgladecc2 -root table_gauge_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
 gtk_papget_led_editor.ml : widgets.glade
 	@echo GLADE $@
-	$(eval $@_TMP := $(shell mktemp))
+	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)grep -v invisible_char $< > $($@_TMP)
 	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
