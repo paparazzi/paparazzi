@@ -48,6 +48,13 @@ AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	CAML_CFLAGS = -I/opt/local/lib/ocaml
+else
+	CAML_CFLAGS =
+endif
+
 
 all : gaia sitl.cma simhitl
 
@@ -81,7 +88,7 @@ diffusion : stdlib.cmo diffusion.cmo
 
 %.o : %.c
 	@echo CC $<
-	$(Q)$(CC) $(FPIC) -c $<
+	$(Q)$(CC) $(FPIC) -c $< $(CAML_CFLAGS)
 
 %.cmx : %.ml
 	@echo OOC $<
