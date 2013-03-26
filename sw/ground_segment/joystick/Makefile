@@ -46,13 +46,25 @@ GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
 SDL_LDIRS = $(shell pkg-config sdl --libs-only-L)
 SDL_LIBS = -lSDL
-SDL_LDFLAGS = $(SDL_LDIRS) $(SDL_LIBS)
+# we do however need -lSDLmain for test_stick, which is just c
+SDL_LDFLAGS = $(shell sdl-config --libs)
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
 ML_SDL_LFLAGS = $(foreach u,$(SDL_LDIRS),-ccopt $(u)) $(foreach u,$(SDL_LIBS),-cclib $(u)) libSDL.so
 ML_SDL_LFLAGS += -dllpath ${PAPARAZZI_SRC}/sw/ground_segment/joystick
 INCLUDES += -I $(shell ocamlc -where)
 
+SDL_STICK_DEPS = sdl_stick.o ml_sdl_stick.o
+# apparently on OSX you cannot dynamically link with SDL, see ocamlsdl readme
+UNAME = $(shell uname -s)
+
+ifeq ("$(UNAME)","Darwin")
+	ML_SDL_OCAMLFLAGS = -custom
+	INPUT2IVY_DEPS = $(SDL_STICK_DEPS) input2ivy.cmo
+else
+	ML_SDL_OCAMLFLAGS =
+	INPUT2IVY_DEPS = sdl_stick.so input2ivy.cmo
+endif
 
 all: test_stick input2ivy
 
@@ -60,14 +72,14 @@ test_stick: test_sdl_stick.o
 	@echo BUILD $@
 	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: sdl_stick.so input2ivy.cmo
+input2ivy: $(INPUT2IVY_DEPS)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_LFLAGS)
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
 
 # dependency of input2ivy
 input2ivy: $(TOOLSDIR)/fp_proc.cmo
 
-sdl_stick.so : sdl_stick.o ml_sdl_stick.o
+sdl_stick.so : $(SDL_STICK_DEPS)
 	@echo BUILD $@
 	$(Q)$(CC) -shared -o $@ $^
 
