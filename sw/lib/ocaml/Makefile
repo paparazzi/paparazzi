@@ -43,10 +43,21 @@ else
   FPIC =
 endif
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+	LABLGTK2GNOMECANVAS = lablgtk2.gnomecanvas
+	METAFILE = META.pprz.osx
+else
+	MKTEMP = mktemp
+	LABLGTK2GNOMECANVAS = lablgtk2-gnome.gnomecanvas
+	METAFILE = META.pprz.deb
+endif
+
 INCLUDES=
 PKGCOMMON=xml-light,netclient,glibivy,lablgtk2
 XINCLUDES=
-XPKGCOMMON=xml-light,glibivy,lablgtk2-gnome.gnomecanvas,lablgtk2.glade
+XPKGCOMMON=xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
@@ -60,7 +71,7 @@ TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
 all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
-opt : lib-pprz.cmxa xlib-pprz.cmxa
+opt : lib-pprz.cmxa xlib-pprz.cmxa copyMETA
 
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
@@ -143,13 +154,6 @@ expr_lexer.cmi : expr_lexer.ml expr_syntax.cmi
 expr_lexer.cmo : expr_lexer.cmi
 expr_syntax.cmo : expr_syntax.cmi
 
-UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Darwin")
-	MKTEMP = gmktemp
-else
-	MKTEMP = mktemp
-endif
-
 gtk_papget_editor.ml : widgets.glade
 	@echo GLADE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -178,9 +182,12 @@ gtk_papget_led_editor.ml : widgets.glade
 	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
+copyMETA : $(METAFILE)
+	@echo COPY $<
+	$(shell cp $< META.pprz)
 
 clean :
-	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
+	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
 
 .PHONY: all opt clean
 

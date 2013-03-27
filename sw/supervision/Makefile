@@ -25,18 +25,20 @@ Q=@
 
 include ../Makefile.ocaml
 
-INCLUDES =
-XPKG = -package pprz.xlib,lablgtk2-gnome.gnomeui
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
-
-PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
-
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
 	MKTEMP = gmktemp
+	LABLGTK2GNOMEUI = lablgtk2.gnomeui
 else
 	MKTEMP = mktemp
+	LABLGTK2GNOMEUI = lablgtk2-gnome.gnomeui
 endif
+
+INCLUDES =
+XPKG = -package pprz.xlib,$(LABLGTK2GNOMEUI)
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
+
+PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 
 all: paparazzicenter
 
