@@ -151,7 +151,6 @@ let is_prefix = fun a b ->
   String.length b >= String.length a &&
     a = String.sub b 0 (String.length a)
 
-
 (** Get the tile or one which contains it from the cache *)
 let get_from_cache = fun dir f ->
   let files = Sys.readdir dir in
@@ -170,6 +169,19 @@ let get_from_cache = fun dir f ->
       raise Not_found
   in
   loop 0
+
+(** Get the tile or one which contains it from the a hash table *)
+let get_from_hashtbl = fun tbl key ->
+  let l = String.length key in
+  let rec loop = fun i ->
+    if i = 0 then raise Not_found;
+    try
+      let subkey = String.sub key 0 i in
+      let file = Hashtbl.find tbl subkey in
+      (tile_of_key subkey, file)
+    with _ -> loop (i-1)
+  in
+  loop l
 
 (** Translate the old quadtree naming policy into new (x,y) coordinates
     if z is the zoom level, 0 <= x, y < 2^z are the coordinates of the tile *)
@@ -224,7 +236,7 @@ let url_of_tile_key = fun maps_source s ->
 
 
 let get_cache_dir = function
-Google -> !cache_path (* Historic ! Should be // Google *)
+    Google -> !cache_path (* Historic ! Should be // Google *)
   | OSM -> !cache_path // "OSM"
   | MQ -> !cache_path // "MapQuest"
   | MQ_Aerial -> !cache_path // "MapQuestAerial"
@@ -235,7 +247,7 @@ exception Not_available
 
 type policy = CacheOrHttp | NoHttp | NoCache
 let string_of_policy = function
-CacheOrHttp -> "CacheOrHttp"
+    CacheOrHttp -> "CacheOrHttp"
   | NoHttp -> "NoHttp"
   | NoCache -> "NoCache"
 let policies = [CacheOrHttp; NoHttp; NoCache]
@@ -248,7 +260,20 @@ let get_policy = fun () ->
 let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 
 
-let get_image = fun key ->
+type hashtbl_cache = (string, string) Hashtbl.t
+
+let get_hashtbl_of_cache = fun () ->
+  let cache_dir = get_cache_dir !maps_source in
+  mkdir cache_dir;
+  let files = Sys.readdir cache_dir in
+  let tbl = Hashtbl.create (Array.length files) in
+  Array.iter (fun e ->
+    let key = try Filename.chop_extension e with _ -> e in
+    if key <> "" then Hashtbl.add tbl key (cache_dir // e);
+  ) files;
+  tbl
+
+let get_image = fun ?tbl key ->
   let cache_dir = get_cache_dir !maps_source in
   mkdir cache_dir;
   let rec get_from_http = fun k ->
@@ -271,7 +296,10 @@ let get_image = fun key ->
   in
   try
     if !policy = NoCache then raise Not_found;
-    let (t, f) = get_from_cache cache_dir key in
+    let (t, f) = match tbl with
+      | None -> get_from_cache cache_dir key
+      | Some ht -> get_from_hashtbl ht key
+    in
     (* if not exact match from cache, try http if CacheOrHttp policy *)
     if !policy = CacheOrHttp && (String.length t.key < String.length key) then
       try get_from_http key with _ -> (t, f)

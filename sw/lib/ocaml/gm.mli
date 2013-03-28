@@ -61,7 +61,11 @@ val get_policy : unit -> policy
 
 exception Not_available
 
-val get_image : string -> tile_t * string
+type hashtbl_cache = (string, string)Hashtbl.t
+
+val get_hashtbl_of_cache : unit -> hashtbl_cache
+
+val get_image : ?tbl:hashtbl_cache -> string -> tile_t * string
 (** [get_image key] Returns the tile description and the image file name.
     May raise [Not_available] *)
 
