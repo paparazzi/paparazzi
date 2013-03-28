@@ -113,7 +113,9 @@ nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 
 nps.CFLAGS += -DUSE_NAVIGATION
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 
 #
 # INS choice

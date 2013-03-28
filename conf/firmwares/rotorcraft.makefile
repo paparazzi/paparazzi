@@ -239,7 +239,9 @@ ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 ap.CFLAGS += -DUSE_NAVIGATION
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 
 #
 # INS choice
