@@ -384,8 +384,11 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:s
     try (
       let ac_name = Gtk_tools.combo_value ac_combo
       and target = Gtk_tools.combo_value target_combo in
-      let target = if target="sim" then target else sprintf "%s.compile" target in
-      Utils.command ~file gui log ac_name target
+      let target_cmd = if gui#checkbutton_printconfig#active then
+          sprintf "PRINT_CONFIG=1 %s.compile" target
+        else
+          sprintf "%s.compile" target in
+      Utils.command ~file gui log ac_name target_cmd
     ) with _ -> log "ERROR: Nothing to build!!!\n" in
     ignore (gui#button_build#connect#clicked ~callback);
 

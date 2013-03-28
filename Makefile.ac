@@ -155,7 +155,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
 
-jsbsim jsbsim.compile: jsbsim.ac_h
+jsbsim jsbsim.compile: jsbsim.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim ARCH=jsbsim all
 
 sim sim.compile: sim.ac_h print_version

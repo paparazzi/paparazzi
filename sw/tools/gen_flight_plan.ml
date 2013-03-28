@@ -48,11 +48,11 @@ let parse = fun s ->
       exit 1 in
     begin
       try
-    Expr_syntax.check_expression e
+        Expr_syntax.check_expression e
       with
-    Expr_syntax.Unknown_operator x -> unexpected "operator" x
-      | Expr_syntax.Unknown_ident x -> unexpected "ident" x
-      | Expr_syntax.Unknown_function x -> unexpected "function" x
+          Expr_syntax.Unknown_operator x -> unexpected "operator" x
+        | Expr_syntax.Unknown_ident x -> unexpected "ident" x
+        | Expr_syntax.Unknown_function x -> unexpected "function" x
     end
   end;
   Expr_syntax.sprint e
@@ -80,8 +80,8 @@ let float_attrib = fun xml a ->
   try
     float_of_string (Xml.attrib xml a)
   with
-    Failure "float_of_string" ->
-      failwith (sprintf "Float expected in attribute '%s' from %s" a (Xml.to_string_fmt xml))
+      Failure "float_of_string" ->
+        failwith (sprintf "Float expected in attribute '%s' from %s" a (Xml.to_string_fmt xml))
 let name_of = fun wp -> ExtXml.attrib wp "name"
 
 
@@ -99,14 +99,14 @@ let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
   try
     let (x, y) =
       rel_utm_of_wgs84
-    (Latlong.make_geo_deg
-       (Latlong.deg_of_string (Xml.attrib waypoint "lat"))
-       (Latlong.deg_of_string (Xml.attrib waypoint "lon"))) in
+        (Latlong.make_geo_deg
+           (Latlong.deg_of_string (Xml.attrib waypoint "lat"))
+           (Latlong.deg_of_string (Xml.attrib waypoint "lon"))) in
     let x = sprintf "%.2f" x and y = sprintf "%.2f" y in
     ExtXml.subst_attrib "y" y (ExtXml.subst_attrib "x" x waypoint)
   with
-    Xml.No_attribute "lat" | Xml.No_attribute "lon" ->
-      waypoint
+      Xml.No_attribute "lat" | Xml.No_attribute "lon" ->
+        waypoint
 
 
 let print_waypoint = fun default_alt waypoint ->
@@ -132,7 +132,7 @@ let get_index_block = fun x ->
   try
     List.assoc x !index_of_blocks
   with
-    Not_found -> failwith (sprintf "Unknown block: '%s'" x)
+      Not_found -> failwith (sprintf "Unknown block: '%s'" x)
 
 let print_exception = fun x ->
   let i = get_index_block (ExtXml.attrib x "deroute") in
@@ -152,16 +152,16 @@ let get_index_waypoint = fun x l ->
   try
     string_of_int (List.assoc x l)
   with
-    Not_found -> failwith (sprintf "Unknown waypoint: %s" x)
+      Not_found -> failwith (sprintf "Unknown waypoint: %s" x)
 
 let pprz_throttle = fun s ->
   begin
     try
       let g = float_of_string s in
       if g < 0. || g > 1. then
-    failwith "throttle must be > 0 and < 1"
+        failwith "throttle must be > 0 and < 1"
     with
-      Failure "float_of_string" -> () (* No possible check on expression *)
+        Failure "float_of_string" -> () (* No possible check on expression *)
   end;
   sprintf "9600*(%s)" s
 
@@ -178,44 +178,44 @@ let output_vmode = fun stage_xml wp last_wp ->
   let vmode = try ExtXml.attrib stage_xml "vmode" with _ -> "alt" in
   begin
     match vmode with
-      "climb" ->
-    lprintf "NavVerticalClimbMode(%s);\n" (parsed_attrib stage_xml "climb")
-    | "alt" ->
-    let alt =
-      try
-        let a = parsed_attrib stage_xml "alt" in
-        begin
+        "climb" ->
+          lprintf "NavVerticalClimbMode(%s);\n" (parsed_attrib stage_xml "climb")
+      | "alt" ->
+        let alt =
           try
-        check_altitude (float_of_string a) stage_xml
-          with
+            let a = parsed_attrib stage_xml "alt" in
+            begin
+              try
+                check_altitude (float_of_string a) stage_xml
+              with
         (* Impossible to check the altitude on an expression: *)
-        Failure "float_of_string" -> ()
-        end;
-        a
-      with _ ->
-      try
-        let h = parsed_attrib stage_xml "height" in
-        begin
-          try
-            check_altitude ((float_of_string h) +. !ground_alt) stage_xml
-          with
+                  Failure "float_of_string" -> ()
+            end;
+            a
+          with _ ->
+            try
+              let h = parsed_attrib stage_xml "height" in
+              begin
+                try
+                  check_altitude ((float_of_string h) +. !ground_alt) stage_xml
+                with
           (* Impossible to check the altitude on an expression: *)
-          Failure "float_of_string" -> ()
-          end;
-          sprintf "Height(%s)" h
-      with _ ->
-          if wp = ""
-          then failwith "alt or waypoint required in alt vmode"
-          else sprintf "WaypointAlt(%s)" wp in
-    lprintf "NavVerticalAltitudeMode(%s, 0.);\n" alt;
-    | "xyz" -> () (** Handled in Goto3D() *)
-    | "glide" ->
-    lprintf "NavGlide(%s, %s);\n" last_wp wp
-    | "throttle" ->
-    if (pitch = "auto") then
-      failwith "auto pich mode not compatible with vmode=throttle";
-    lprintf "NavVerticalThrottleMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
-    | x -> failwith (sprintf "Unknown vmode '%s'" x)
+                    Failure "float_of_string" -> ()
+              end;
+              sprintf "Height(%s)" h
+            with _ ->
+              if wp = ""
+              then failwith "alt or waypoint required in alt vmode"
+              else sprintf "WaypointAlt(%s)" wp in
+        lprintf "NavVerticalAltitudeMode(%s, 0.);\n" alt;
+      | "xyz" -> () (** Handled in Goto3D() *)
+      | "glide" ->
+        lprintf "NavGlide(%s, %s);\n" last_wp wp
+      | "throttle" ->
+        if (pitch = "auto") then
+          failwith "auto pich mode not compatible with vmode=throttle";
+        lprintf "NavVerticalThrottleMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
+      | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode
 
@@ -225,16 +225,16 @@ let output_hmode x wp last_wp =
     let hmode = ExtXml.attrib x "hmode" in
     begin
       match hmode with
-    "route" ->
-      if last_wp = "last_wp" then
-        fprintf stderr "Warning: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
-      lprintf "NavSegment(%s, %s);\n" last_wp wp
-      | "direct" -> lprintf "NavGotoWaypoint(%s);\n" wp
-      | x -> failwith (sprintf "Unknown hmode '%s'" x)
+          "route" ->
+            if last_wp = "last_wp" then
+              fprintf stderr "Warning: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
+            lprintf "NavSegment(%s, %s);\n" last_wp wp
+        | "direct" -> lprintf "NavGotoWaypoint(%s);\n" wp
+        | x -> failwith (sprintf "Unknown hmode '%s'" x)
     end;
     hmode
   with
-    ExtXml.Error _ -> lprintf "NavGotoWaypoint(%s);\n" wp; "direct" (* Default behaviour *)
+      ExtXml.Error _ -> lprintf "NavGotoWaypoint(%s);\n" wp; "direct" (* Default behaviour *)
 
 
 
@@ -242,29 +242,29 @@ let output_hmode x wp last_wp =
 let rec index_stage = fun x ->
   begin
     match Xml.tag x with
-     "for" ->
-       incr stage; (* Init of i *)
-       incr stage;
-       let n = !stage in
-       let l = List.map index_stage (Xml.children x) in
-       incr stage; (* To count the loop stage *)
-       Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-    | "while" ->
-       incr stage;
-       let n = !stage in
-       let l = List.map index_stage (Xml.children x) in
-       incr stage; (* To count the loop stage *)
-       Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-    | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
-    | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
-    incr stage;
-    Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
-    | "survey_rectangle" | "eight" | "oval"->
-    incr stage; incr stage;
-    Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
-    | "exception" ->
-    x
-    | s -> failwith (sprintf "Unknown stage: %s\n" s)
+        "for" ->
+          incr stage; (* Init of i *)
+          incr stage;
+          let n = !stage in
+          let l = List.map index_stage (Xml.children x) in
+          incr stage; (* To count the loop stage *)
+          Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
+      | "while" ->
+        incr stage;
+        let n = !stage in
+        let l = List.map index_stage (Xml.children x) in
+        incr stage; (* To count the loop stage *)
+        Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
+      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "home"
+      | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" ->
+        incr stage;
+        Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
+      | "survey_rectangle" | "eight" | "oval"->
+        incr stage; incr stage;
+        Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
+      | "exception" ->
+        x
+      | s -> failwith (sprintf "Unknown stage: %s\n" s)
   end
 
 
@@ -274,229 +274,229 @@ let rec print_stage = fun index_of_waypoints x ->
   let stage () = incr stage;lprintf "Stage(%d)\n" !stage; right () in
   begin
     match String.lowercase (Xml.tag x) with
-      "return" ->
-    stage ();
-    lprintf "Return()\n";
-    lprintf "break\n";
-    | "goto" ->
-    stage ();
-    lprintf "Goto(%s)\n" (name_of x)
-    | "deroute" ->
-    stage ();
-    lprintf "GotoBlock(%d);\n" (get_index_block (ExtXml.attrib x "block"));
-    lprintf "break;\n"
-    | "exit_block" ->
-    lprintf "default:\n";
-    stage ();
-    lprintf "NextBlock();\n";
-    lprintf "break;\n"
-    | "while" ->
-    let w = gen_label "while" in
-    let e = gen_label "endwhile" in
-    output_label w;
-    stage ();
-    let c = try parsed_attrib x "cond" with _ -> "TRUE" in
-    lprintf "if (! (%s)) Goto(%s) else NextStageAndBreak();\n" c e;
-    List.iter (print_stage index_of_waypoints) (Xml.children x);
-    print_stage index_of_waypoints (goto w);
-    output_label e
-    | "for" ->
-    let f = gen_label "for" in
-    let e = gen_label "endfor" in
-    let v = Expr_syntax.c_var_of_ident (ExtXml.attrib x "var")
-    and from_ = parsed_attrib x "from"
-    and to_expr = parsed_attrib x "to"  in
-    let to_var = v ^ "_to" in
-    lprintf "static int8_t %s;\n" v;
-    lprintf "static int8_t %s;\n" to_var;
+        "return" ->
+          stage ();
+          lprintf "Return()\n";
+          lprintf "break\n";
+      | "goto" ->
+        stage ();
+        lprintf "Goto(%s)\n" (name_of x)
+      | "deroute" ->
+        stage ();
+        lprintf "GotoBlock(%d);\n" (get_index_block (ExtXml.attrib x "block"));
+        lprintf "break;\n"
+      | "exit_block" ->
+        lprintf "default:\n";
+        stage ();
+        lprintf "NextBlock();\n";
+        lprintf "break;\n"
+      | "while" ->
+        let w = gen_label "while" in
+        let e = gen_label "endwhile" in
+        output_label w;
+        stage ();
+        let c = try parsed_attrib x "cond" with _ -> "TRUE" in
+        lprintf "if (! (%s)) Goto(%s) else NextStageAndBreak();\n" c e;
+        List.iter (print_stage index_of_waypoints) (Xml.children x);
+        print_stage index_of_waypoints (goto w);
+        output_label e
+      | "for" ->
+        let f = gen_label "for" in
+        let e = gen_label "endfor" in
+        let v = Expr_syntax.c_var_of_ident (ExtXml.attrib x "var")
+        and from_ = parsed_attrib x "from"
+        and to_expr = parsed_attrib x "to"  in
+        let to_var = v ^ "_to" in
+        lprintf "static int8_t %s;\n" v;
+        lprintf "static int8_t %s;\n" to_var;
 
     (* init *)
-    stage ();
-    lprintf "%s = %s - 1;\n" v from_;
-    lprintf "%s = %s;\n" to_var to_expr;
-    left ();
+        stage ();
+        lprintf "%s = %s - 1;\n" v from_;
+        lprintf "%s = %s;\n" to_var to_expr;
+        left ();
 
-    output_label f;
-    stage ();
-    lprintf "if (++%s > %s) Goto(%s) else NextStageAndBreak();\n" v to_var e;
-    List.iter (print_stage index_of_waypoints) (Xml.children x);
-    print_stage index_of_waypoints (goto f);
-    output_label e
-    | "heading" ->
-    stage ();
-    let until = parsed_attrib x "until" in
-    lprintf "if (%s) NextStageAndBreak() else {\n" until;
-    right ();
-    lprintf "NavHeading(RadOfDeg(%s));\n" (parsed_attrib x "course");
-    ignore (output_vmode x "" "");
-    left (); lprintf "}\n";
-    lprintf "break;\n"
-    | "follow" ->
-    stage ();
-    let id = ExtXml.attrib x "ac_id"
-    and d = ExtXml.attrib x "distance"
-    and h = ExtXml.attrib x "height" in
-    lprintf "NavFollow(%s, %s, %s);\n" id d h;
-    lprintf "break;\n"
-    | "attitude" ->
-    stage ();
-    begin
-      try
+        output_label f;
+        stage ();
+        lprintf "if (++%s > %s) Goto(%s) else NextStageAndBreak();\n" v to_var e;
+        List.iter (print_stage index_of_waypoints) (Xml.children x);
+        print_stage index_of_waypoints (goto f);
+        output_label e
+      | "heading" ->
+        stage ();
         let until = parsed_attrib x "until" in
         lprintf "if (%s) NextStageAndBreak() else {\n" until;
-      with ExtXml.Error _ ->
-        lprintf "{\n"
-    end;
-    right ();
-    lprintf "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
-    ignore (output_vmode x "" "");
-    left (); lprintf "}\n";
-    lprintf "break;\n"
-    | "go" ->
-    stage ();
-    let wp =
-      try
-        get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints
-      with
-        ExtXml.Error _ ->
-          lprintf "waypoints[0].x = %s;\n" (parsed_attrib x "x");
-          lprintf "waypoints[0].y = %s;\n" (parsed_attrib x "y");
-          "0"
-    in
-    let at = try ExtXml.attrib x "approaching_time" with _ -> "CARROT" in
-    let last_wp =
-      try
-        get_index_waypoint (ExtXml.attrib x "from") index_of_waypoints
-      with ExtXml.Error _ -> "last_wp" in
-    if last_wp = "last_wp" then
-      lprintf "if (NavApproaching(%s,%s)) NextStageAndBreakFrom(%s) else {\n" wp at wp
-    else
-      lprintf "if (NavApproachingFrom(%s,%s,%s)) NextStageAndBreakFrom(%s) else {\n" wp last_wp at wp;
-    right ();
-    let hmode = output_hmode x wp last_wp in
-    let vmode = output_vmode x wp last_wp in
-    if vmode = "glide" && hmode <> "route" then
-      failwith "glide vmode requires route hmode";
-    left (); lprintf "}\n";
-    begin
-      try
-        let c = parsed_attrib x "until" in
-        lprintf "if (%s) NextStageAndBreak();\n" c
-      with
-        ExtXml.Error _ -> ()
-    end;
-    lprintf "break;\n"
-    | "stay" ->
-    stage ();
-    begin
-      try
+        right ();
+        lprintf "NavHeading(RadOfDeg(%s));\n" (parsed_attrib x "course");
+        ignore (output_vmode x "" "");
+        left (); lprintf "}\n";
+        lprintf "break;\n"
+      | "follow" ->
+        stage ();
+        let id = ExtXml.attrib x "ac_id"
+        and d = ExtXml.attrib x "distance"
+        and h = ExtXml.attrib x "height" in
+        lprintf "NavFollow(%s, %s, %s);\n" id d h;
+        lprintf "break;\n"
+      | "attitude" ->
+        stage ();
+        begin
+          try
+            let until = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak() else {\n" until;
+          with ExtXml.Error _ ->
+            lprintf "{\n"
+        end;
+        right ();
+        lprintf "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
+        ignore (output_vmode x "" "");
+        left (); lprintf "}\n";
+        lprintf "break;\n"
+      | "go" ->
+        stage ();
+        let wp =
+          try
+            get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints
+          with
+              ExtXml.Error _ ->
+                lprintf "waypoints[0].x = %s;\n" (parsed_attrib x "x");
+                lprintf "waypoints[0].y = %s;\n" (parsed_attrib x "y");
+                "0"
+        in
+        let at = try ExtXml.attrib x "approaching_time" with _ -> "CARROT" in
+        let last_wp =
+          try
+            get_index_waypoint (ExtXml.attrib x "from") index_of_waypoints
+          with ExtXml.Error _ -> "last_wp" in
+        if last_wp = "last_wp" then
+          lprintf "if (NavApproaching(%s,%s)) NextStageAndBreakFrom(%s) else {\n" wp at wp
+        else
+          lprintf "if (NavApproachingFrom(%s,%s,%s)) NextStageAndBreakFrom(%s) else {\n" wp last_wp at wp;
+        right ();
+        let hmode = output_hmode x wp last_wp in
+        let vmode = output_vmode x wp last_wp in
+        if vmode = "glide" && hmode <> "route" then
+          failwith "glide vmode requires route hmode";
+        left (); lprintf "}\n";
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
+        lprintf "break;\n"
+      | "stay" ->
+        stage ();
+        begin
+          try
+            let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
+            ignore (output_hmode x wp "");
+            ignore (output_vmode x wp "");
+          with
+              Xml2h.Error _ ->
+                lprintf "NavGotoXY(last_x, last_y);\n";
+                ignore(output_vmode x "" "")
+        end;
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
+        lprintf "break;\n"
+      | "xyz" ->
+        stage ();
+        let r = try parsed_attrib  x "radius" with _ -> "100" in
+        lprintf "Goto3D(%s)\n" r;
+        let x = ExtXml.subst_attrib "vmode" "xyz" x in
+        ignore (output_vmode x "" ""); (** To handle "pitch" *)
+        lprintf "break;\n"
+      | "home" ->
+        stage ();
+        lprintf "nav_home();\n";
+        lprintf "break;\n"
+      | "circle" ->
+        stage ();
         let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
-        ignore (output_hmode x wp "");
-        ignore (output_vmode x wp "");
-      with
-        Xml2h.Error _ ->
-          lprintf "NavGotoXY(last_x, last_y);\n";
-        ignore(output_vmode x "" "")
-    end;
-    begin
-      try
-        let c = parsed_attrib x "until" in
-        lprintf "if (%s) NextStageAndBreak();\n" c
-      with
-        ExtXml.Error _ -> ()
-    end;
-    lprintf "break;\n"
-    | "xyz" ->
-    stage ();
-    let r = try parsed_attrib  x "radius" with _ -> "100" in
-    lprintf "Goto3D(%s)\n" r;
-    let x = ExtXml.subst_attrib "vmode" "xyz" x in
-    ignore (output_vmode x "" ""); (** To handle "pitch" *)
-    lprintf "break;\n"
-    | "home" ->
-    stage ();
-    lprintf "nav_home();\n";
-    lprintf "break;\n"
-    | "circle" ->
-    stage ();
-    let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
-    let r = parsed_attrib  x "radius" in
-    let _vmode = output_vmode x wp "" in
-    lprintf "NavCircleWaypoint(%s, %s);\n" wp r;
-    begin
-      try
-        let c = parsed_attrib x "until" in
-        lprintf "if (%s) NextStageAndBreak();\n" c
-      with
-        ExtXml.Error _ -> ()
-    end;
-    lprintf "break;\n"
-    | "eight" ->
-    stage ();
-    lprintf "nav_eight_init();\n";
-    lprintf "NextStageAndBreak();\n";
-    left ();
-    stage ();
-    let center = get_index_waypoint (ExtXml.attrib x "center") index_of_waypoints
-    and turn_about = get_index_waypoint (ExtXml.attrib x "turn_around") index_of_waypoints in
-    let r = parsed_attrib  x "radius" in
-    let _vmode = output_vmode x center "" in
-    lprintf "Eight(%s, %s, %s);\n" center turn_about r;
-    begin
-      try
-        let c = parsed_attrib x "until" in
-        lprintf "if (%s) NextStageAndBreak();\n" c
-      with
-        ExtXml.Error _ -> ()
-    end;
-    lprintf "break;\n"
-    | "oval" ->
-    stage ();
-    lprintf "nav_oval_init();\n";
-    lprintf "NextStageAndBreak();\n";
-    left ();
-    stage ();
-    let p1 = get_index_waypoint (ExtXml.attrib x "p1") index_of_waypoints
-    and p2 = get_index_waypoint (ExtXml.attrib x "p2") index_of_waypoints in
-    let r = parsed_attrib  x "radius" in
-    let _vmode = output_vmode x p1 "" in
-    lprintf "Oval(%s, %s, %s);\n" p1 p2 r;
-    begin
-      try
-        let c = parsed_attrib x "until" in
-        lprintf "if (%s) NextStageAndBreak();\n" c
-      with
-        ExtXml.Error _ -> ()
-    end;
-    lprintf "break;\n"
-    | "set" ->
-    stage ();
-    let var = ExtXml.attrib  x "var"
-    and value = parsed_attrib  x "value" in
-    lprintf "%s = %s;\n" var value;
-    lprintf "NextStageAndBreak();\n";
-    lprintf "break;\n"
-    | "call" ->
-    stage ();
-    let statement = ExtXml.attrib  x "fun" in
-    lprintf "if (! (%s))\n" statement;
-    lprintf "  NextStageAndBreak();\n";
-    lprintf "break;\n"
-    | "survey_rectangle" ->
-    let grid = parsed_attrib x "grid"
-    and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
-    and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints
-    and orientation = ExtXml.attrib_or_default x "orientation" "NS" in
-    stage ();
-    if orientation <> "NS" && orientation <> "WE" then
-      failwith (sprintf "Unknown survey orientation (NS or WE): %s" orientation);
-    lprintf "NavSurveyRectangleInit(%s, %s, %s, %s);\n" wp1 wp2 grid orientation;
-    lprintf "NextStageAndBreak();\n";
-    left ();
-    stage ();
-    lprintf "NavSurveyRectangle(%s, %s);\n" wp1 wp2;
-    lprintf "break;\n"
-    | _s -> failwith "Unreachable"
+        let r = parsed_attrib  x "radius" in
+        let _vmode = output_vmode x wp "" in
+        lprintf "NavCircleWaypoint(%s, %s);\n" wp r;
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
+        lprintf "break;\n"
+      | "eight" ->
+        stage ();
+        lprintf "nav_eight_init();\n";
+        lprintf "NextStageAndBreak();\n";
+        left ();
+        stage ();
+        let center = get_index_waypoint (ExtXml.attrib x "center") index_of_waypoints
+        and turn_about = get_index_waypoint (ExtXml.attrib x "turn_around") index_of_waypoints in
+        let r = parsed_attrib  x "radius" in
+        let _vmode = output_vmode x center "" in
+        lprintf "Eight(%s, %s, %s);\n" center turn_about r;
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
+        lprintf "break;\n"
+      | "oval" ->
+        stage ();
+        lprintf "nav_oval_init();\n";
+        lprintf "NextStageAndBreak();\n";
+        left ();
+        stage ();
+        let p1 = get_index_waypoint (ExtXml.attrib x "p1") index_of_waypoints
+        and p2 = get_index_waypoint (ExtXml.attrib x "p2") index_of_waypoints in
+        let r = parsed_attrib  x "radius" in
+        let _vmode = output_vmode x p1 "" in
+        lprintf "Oval(%s, %s, %s);\n" p1 p2 r;
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
+        lprintf "break;\n"
+      | "set" ->
+        stage ();
+        let var = ExtXml.attrib  x "var"
+        and value = parsed_attrib  x "value" in
+        lprintf "%s = %s;\n" var value;
+        lprintf "NextStageAndBreak();\n";
+        lprintf "break;\n"
+      | "call" ->
+        stage ();
+        let statement = ExtXml.attrib  x "fun" in
+        lprintf "if (! (%s))\n" statement;
+        lprintf "  NextStageAndBreak();\n";
+        lprintf "break;\n"
+      | "survey_rectangle" ->
+        let grid = parsed_attrib x "grid"
+        and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
+        and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints
+        and orientation = ExtXml.attrib_or_default x "orientation" "NS" in
+        stage ();
+        if orientation <> "NS" && orientation <> "WE" then
+          failwith (sprintf "Unknown survey orientation (NS or WE): %s" orientation);
+        lprintf "NavSurveyRectangleInit(%s, %s, %s, %s);\n" wp1 wp2 grid orientation;
+        lprintf "NextStageAndBreak();\n";
+        left ();
+        stage ();
+        lprintf "NavSurveyRectangle(%s, %s);\n" wp1 wp2;
+        lprintf "break;\n"
+      | _s -> failwith "Unreachable"
   end;
   left ()
 
@@ -508,16 +508,16 @@ let indexed_stages = fun blocks ->
       let block_name = name_of b
       and block_no = ExtXml.attrib b "no" in
       let rec f = fun stage ->
-    try
-      let stage_no = Xml.attrib stage "no" in
-      lstages :=
-        Xml.Element ("stage", [ "block", block_no;
-                    "block_name", block_name;
-                    "stage", stage_no], [stage]):: !lstages;
-      if (ExtXml.tag_is stage "for" || ExtXml.tag_is stage "while") then
-        List.iter f (Xml.children stage)
-    with Xml.No_attribute "no" ->
-      assert (ExtXml.tag_is stage "exception")
+        try
+          let stage_no = Xml.attrib stage "no" in
+          lstages :=
+            Xml.Element ("stage", [ "block", block_no;
+                                    "block_name", block_name;
+                                    "stage", stage_no], [stage]):: !lstages;
+          if (ExtXml.tag_is stage "for" || ExtXml.tag_is stage "while") then
+            List.iter f (Xml.children stage)
+        with Xml.No_attribute "no" ->
+          assert (ExtXml.tag_is stage "exception")
       in
       List.iter f (Xml.children b))
     blocks;
@@ -531,14 +531,14 @@ let index_blocks = fun xml ->
   let indexed_blocks =
     List.map
       (fun b ->
-    incr block;
-    let name = name_of b in
-    if List.mem_assoc name !index_of_blocks then
-      failwith (Printf.sprintf "Error in flight plan: Block '%s' defined twice" name);
-    index_of_blocks := (name, !block) :: !index_of_blocks;
-    stage := -1;
-    let indexed_stages = List.map index_stage (Xml.children b) in
-    Xml.Element (Xml.tag b, Xml.attribs b@["no", soi !block], indexed_stages))
+        incr block;
+        let name = name_of b in
+        if List.mem_assoc name !index_of_blocks then
+          failwith (Printf.sprintf "Error in flight plan: Block '%s' defined twice" name);
+        index_of_blocks := (name, !block) :: !index_of_blocks;
+        stage := -1;
+        let indexed_stages = List.map index_stage (Xml.children b) in
+        Xml.Element (Xml.tag b, Xml.attribs b@["no", soi !block], indexed_stages))
       (Xml.children xml) in
   Xml.Element (Xml.tag xml, Xml.attribs xml, indexed_blocks)
 
@@ -590,12 +590,12 @@ let define_waypoints_indices = fun wpts ->
 
 let home = fun waypoints ->
   let rec loop i = function
-      [] -> failwith "Waypoint 'HOME' required"
+  [] -> failwith "Waypoint 'HOME' required"
     | w::ws ->
-    if name_of w = "HOME" then
-      (float_attrib w "x", float_attrib w "y")
-    else
-      loop (i+1) ws in
+      if name_of w = "HOME" then
+        (float_attrib w "x", float_attrib w "y")
+      else
+        loop (i+1) ws in
   loop 0 waypoints
 
 
@@ -628,10 +628,10 @@ let check_geo_ref = fun wgs84 xml ->
 
 let dummy_waypoint =
   Xml.Element ("waypoint",
-           ["name", "dummy";
-        "x", "42.";
-        "y", "42." ],
-           [])
+               ["name", "dummy";
+                "x", "42.";
+                "y", "42." ],
+               [])
 
 
 
@@ -641,12 +641,12 @@ let print_inside_polygon = fun pts ->
     if i = j then
       let {G2D.top=yl; left_side=(xg, ag); right_side=(xd, ad)} = layers.(i) in
       if xg > xd then begin
-    lprintf "return FALSE;\n"
+        lprintf "return FALSE;\n"
       end else begin
-    if ad <> 0. || ag <> 0. then
-      lprintf "float dy = _y - %.1f;\n" yl;
-    let dy_times = fun f -> if f = 0. then "" else sprintf "+dy*%f" f in
-    lprintf "return (%.1f%s<= _x && _x <= %.1f%s);\n" xg (dy_times ag) xd (dy_times ad)
+        if ad <> 0. || ag <> 0. then
+          lprintf "float dy = _y - %.1f;\n" yl;
+        let dy_times = fun f -> if f = 0. then "" else sprintf "+dy*%f" f in
+        lprintf "return (%.1f%s<= _x && _x <= %.1f%s);\n" xg (dy_times ag) xd (dy_times ad)
       end
     else
       let ij2 = (i+j) / 2 in
@@ -679,7 +679,7 @@ let parse_wpt_sector = fun waypoints xml ->
       and y = float_attrib wp "y" in
       {G2D.x2D = x; G2D.y2D = y }
     with
-      Not_found -> failwith (sprintf "Error: corner '%s' of sector '%s' not found" name sector_name)
+        Not_found -> failwith (sprintf "Error: corner '%s' of sector '%s' not found" name sector_name)
   in
   (sector_name, List.map p2D_of (Xml.children xml))
 
@@ -689,7 +689,7 @@ let () =
   let xml_file = ref "fligh_plan.xml"
   and dump = ref false in
   Arg.parse [ ("-check", Arg.Set check_expressions, "Enable expression checking");
-          ("-dump", Arg.Set dump, "Dump compile result") ]
+              ("-dump", Arg.Set dump, "Dump compile result") ]
     (fun f -> xml_file := f)
     "Usage:";
   if !xml_file = "" then
@@ -739,10 +739,10 @@ let () =
       printf "#include \"generated/modules.h\"\n";
 
       begin
-    try
-      let header = ExtXml.child (ExtXml.child xml "header") "0" in
-      printf "%s\n" (Xml.pcdata header)
-    with _ -> ()
+        try
+          let header = ExtXml.child (ExtXml.child xml "header") "0" in
+          printf "%s\n" (Xml.pcdata header)
+        with _ -> ()
       end;
 
       let name = ExtXml.attrib xml "name" in
@@ -756,8 +756,8 @@ let () =
       security_height := get_float "security_height";
       ground_alt := get_float "ground_alt";
       let home_mode_height = try
-        max (get_float "home_mode_height") !security_height
-      with _ -> !security_height in
+                               max (get_float "home_mode_height") !security_height
+        with _ -> !security_height in
 
       check_altitude (float_of_string alt) xml;
 
@@ -795,8 +795,8 @@ let () =
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
 
       let index_of_waypoints =
-    let i = ref (-1) in
-    List.map (fun w -> incr i; (name_of w, !i)) waypoints in
+        let i = ref (-1) in
+        List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
       let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
       let sectors = List.filter (fun x -> String.lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
@@ -822,11 +822,11 @@ let () =
           let airspace = Xml.attrib xml "airspace" in
           lprintf "#define InAirspace(_x, _y) %s(_x, _y)\n" (inside_function airspace)
         with
-          _ -> ()
+            _ -> ()
       end;
 
       Xml2h.finish h_name
     end
   with
-    Failure x ->
-      fprintf stderr "%s: %s\n" !xml_file x; exit 1
+      Failure x ->
+        fprintf stderr "%s: %s\n" !xml_file x; exit 1

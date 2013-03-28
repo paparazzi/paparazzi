@@ -39,9 +39,9 @@ let default_freq = 60
 let singletonize = fun l ->
   let rec loop = fun l ->
     match l with
-      [] | [_] -> l
-    | x::((x'::_) as xs) ->
-    if x = x' then loop xs else x::loop xs in
+        [] | [_] -> l
+      | x::((x'::_) as xs) ->
+        if x = x' then loop xs else x::loop xs in
   loop (List.sort compare l)
 
 (** union of two lists *)
@@ -56,75 +56,75 @@ let union_of_lists = fun l ->
   singletonize sl
 
 (** [targets_of_field]
- * Returns the targets of a makefile node in modules
- * Default "ap|sim" *)
+    * Returns the targets of a makefile node in modules
+    * Default "ap|sim" *)
 let pipe_regexp = Str.regexp "|"
 let targets_of_field = fun field default ->
   try
     Str.split pipe_regexp (ExtXml.attrib_or_default field "target" default)
   with
-    _ -> []
+      _ -> []
 
 (** [get_autopilot_of_airframe xml]
- * Returns (autopilot xml, main freq) from airframe xml file *)
+    * Returns (autopilot xml, main freq) from airframe xml file *)
 let get_autopilot_of_airframe = fun xml ->
   (* extract all "modules" sections *)
   let section = List.filter (fun s -> compare (Xml.tag s) "autopilot" = 0) (Xml.children xml) in
   (* Raise error if more than one modules section *)
   match section with
-    [autopilot] ->
-      let freq = try int_of_string (Xml.attrib autopilot "freq") with _ -> default_freq in
-      let ap = try Xml.attrib autopilot "name" with _ -> raise Not_found in
-      (autopilot_dir // ap, freq)
-  | [] -> raise Not_found
-  | _ -> failwith "Error: you have more than one 'autopilot' section in your airframe file"
+      [autopilot] ->
+        let freq = try int_of_string (Xml.attrib autopilot "freq") with _ -> default_freq in
+        let ap = try Xml.attrib autopilot "name" with _ -> raise Not_found in
+        (autopilot_dir // ap, freq)
+    | [] -> raise Not_found
+    | _ -> failwith "Error: you have more than one 'autopilot' section in your airframe file"
 
 (** [get_modules_of_airframe xml]
- * Returns a list of module configuration from airframe file *)
+    * Returns a list of module configuration from airframe file *)
 let rec get_modules_of_airframe = fun xml ->
   (* extract all "modules" sections *)
   let section = List.filter (fun s -> compare (Xml.tag s) "modules" = 0) (Xml.children xml) in
   (* get autopilot file if any *)
   let ap_file = try
-    let (ap, _) = get_autopilot_of_airframe xml in
-    ap
-  with _ -> "" in
+                  let (ap, _) = get_autopilot_of_airframe xml in
+                  ap
+    with _ -> "" in
   (* Raise error if more than one modules section *)
   match section with
-    [modules] ->
+      [modules] ->
       (* if only one section, returns a list of configuration *)
-      let t_global = targets_of_field modules "" in
-      let get_module = fun m t ->
-        let file = modules_dir // ExtXml.attrib m "name" in
-        let targets = singletonize (t @ targets_of_field m "") in
-        { xml = ExtXml.parse_file file; file = file; param = Xml.children m; extra_targets = targets }
-      in
-      let modules_list = List.map (fun m ->
-        if compare (Xml.tag m) "load" <> 0 then Xml2h.xml_error "load";
-        get_module m t_global
-      ) (Xml.children modules) in
-      let ap_modules = try
-        get_modules_of_airframe (ExtXml.parse_file ap_file)
-      with _ -> [] in
-      modules_list @ ap_modules
-  | [] -> []
-  | _ -> failwith "Error: you have more than one 'modules' section in your airframe file"
+        let t_global = targets_of_field modules "" in
+        let get_module = fun m t ->
+          let file = modules_dir // ExtXml.attrib m "name" in
+          let targets = singletonize (t @ targets_of_field m "") in
+          { xml = ExtXml.parse_file file; file = file; param = Xml.children m; extra_targets = targets }
+        in
+        let modules_list = List.map (fun m ->
+          if compare (Xml.tag m) "load" <> 0 then Xml2h.xml_error "load";
+          get_module m t_global
+        ) (Xml.children modules) in
+        let ap_modules = try
+                           get_modules_of_airframe (ExtXml.parse_file ap_file)
+          with _ -> [] in
+        modules_list @ ap_modules
+    | [] -> []
+    | _ -> failwith "Error: you have more than one 'modules' section in your airframe file"
 
 (** [get_targets_of_module xml]
- * Returns the list of targets of a module *)
+    * Returns the list of targets of a module *)
 let get_targets_of_module = fun conf ->
   let targets = List.map (fun x ->
     match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x default_module_targets
-    | _ -> []
+        "makefile" -> targets_of_field x default_module_targets
+      | _ -> []
   ) (Xml.children conf.xml) in
   let targets = (List.flatten targets) @ conf.extra_targets in
   (* return a singletonized list *)
   singletonize (List.sort compare targets)
 
 (** [unload_unused_modules modules ?print_error]
- * Returns a list of [modules] where unused modules are removed
- * If [print_error] is true, a warning is printed *)
+    * Returns a list of [modules] where unused modules are removed
+    * If [print_error] is true, a warning is printed *)
 let unload_unused_modules = fun modules print_error ->
   let target = try Sys.getenv "TARGET" with _ -> "" in
   let is_target_in_module = fun m ->
@@ -139,7 +139,7 @@ let unload_unused_modules = fun modules print_error ->
     List.find_all is_target_in_module modules
 
 (** [get_modules_name xml]
- * Returns a list of loaded modules' name *)
+    * Returns a list of loaded modules' name *)
 let get_modules_name = fun xml ->
   (* extract all "modules" sections *)
   let modules = get_modules_of_airframe xml in
@@ -149,7 +149,7 @@ let get_modules_name = fun xml ->
   List.map (fun m -> ExtXml.attrib m.xml "name") modules
 
 (** [get_modules_dir xml]
- * Returns the list of modules directories *)
+    * Returns the list of modules directories *)
 let get_modules_dir = fun modules ->
   let dir = List.map (fun m -> try Xml.attrib m.xml "dir" with _ -> ExtXml.attrib m.xml "name") modules in
   singletonize (List.sort compare dir)

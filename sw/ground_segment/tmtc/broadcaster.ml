@@ -27,15 +27,15 @@ let () =
     let buffer = String.create buffer_size in
     let get_tcp = fun _ ->
       begin
-	try
-	  let n = input i buffer 0 buffer_size in
-	  let data = String.sub buffer 0 n in
+        try
+          let n = input i buffer 0 buffer_size in
+          let data = String.sub buffer 0 n in
 
-	  Ivy.send (sprintf "%s %s" !ivy_to (Base64.encode_string data))
-	with
-	  exc -> prerr_endline (Printexc.to_string exc)
+          Ivy.send (sprintf "%s %s" !ivy_to (Base64.encode_string data))
+        with
+            exc -> prerr_endline (Printexc.to_string exc)
       end;
-    true in
+      true in
 
     let ginput = GMain.Io.channel_of_descr (Unix.descr_of_in_channel i) in
     ignore (Glib.Io.add_watch [`IN] get_tcp ginput);
@@ -45,7 +45,7 @@ let () =
     (* Forward datalink on Tcp *)
     let get_ivy = fun _ args ->
       try fprintf o "%s%!" (Base64.decode_string args.(0)) with
-	exc -> prerr_endline (Printexc.to_string exc) in
+          exc -> prerr_endline (Printexc.to_string exc) in
     ignore (Ivy.bind get_ivy (sprintf "^%s (.*)" !ivy_from));
 
     (* Main Loop *)

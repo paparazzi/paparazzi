@@ -44,7 +44,7 @@ type poly_2D = pt_2D list
 (* T_OUT_SEG_PTx : intersection hors d'un segment. Le point d'intersection se  *)
 (*                 situe du cote du point x                                    *)
 type t_crossing = T_IN_SEG1 | T_IN_SEG2 | T_ON_PT1 | T_ON_PT2 | T_ON_PT3
-| T_ON_PT4 | T_OUT_SEG_PT1 | T_OUT_SEG_PT2 | T_OUT_SEG_PT3 | T_OUT_SEG_PT4
+                  | T_ON_PT4 | T_OUT_SEG_PT1 | T_OUT_SEG_PT2 | T_OUT_SEG_PT3 | T_OUT_SEG_PT4
 
 (* Type de polygone : convexe, concave ou indefini *)
 type t_conv = CONVEX | CONCAVE | CONV_UNDEFINED
@@ -57,10 +57,10 @@ let cc x = x*.x
 
 (* Type des points utilises pour la triangulation *)
 type vertex = {pos : pt_2D;
-			   num : int ;
-			   mutable prev : int ;
-			   mutable next : int ;
-			   mutable ear  : bool}
+               num : int ;
+               mutable prev : int ;
+               mutable next : int ;
+               mutable ear  : bool}
 
 (* ============================================================================= *)
 (* = Manipulations d'angles                                                    = *)
@@ -156,8 +156,8 @@ let barycenter lst_pts =
 
 let weighted_barycenter lst_pts lst_coeffs =
   let (v, somme_coeffs) =
-	List.fold_left2 (fun (p, s) pt c -> (vect_add_mul_scal c p pt, s+.c))
-	  (null_vector, 0.0) lst_pts lst_coeffs in
+    List.fold_left2 (fun (p, s) pt c -> (vect_add_mul_scal c p pt, s+.c))
+      (null_vector, 0.0) lst_pts lst_coeffs in
   vect_mul_scal v (1.0/.somme_coeffs)
 
 (* ============================================================================= *)
@@ -202,21 +202,21 @@ let point_project_on_segment pt a b =
 let point_project_on_segments_list pt lst_points =
   let proj = ref None and dist = ref 0. in
   let rec f l =
-	match l with
-	  a::b::reste ->
-		(match point_project_on_segment pt a b with
-		  None   -> ()
-		| Some p ->
-			(* Le point se projete sur le segment ab, on teste si la distance *)
-			(* de pt au segment ab est inferieure a la distance courante, si  *)
-			(* oui alors le point p est le point recherche                    *)
-			let d = distance p pt in
-			(match !proj with
-			  None   -> dist:= d; proj:=Some p
-			| Some _ -> if d < !dist then begin dist:= d; proj:=Some p end
-			)) ;
-		f (b::reste)
-	| _ -> !proj
+    match l with
+        a::b::reste ->
+          (match point_project_on_segment pt a b with
+              None   -> ()
+            | Some p ->
+            (* Le point se projete sur le segment ab, on teste si la distance *)
+            (* de pt au segment ab est inferieure a la distance courante, si  *)
+            (* oui alors le point p est le point recherche                    *)
+              let d = distance p pt in
+              (match !proj with
+                  None   -> dist:= d; proj:=Some p
+                | Some _ -> if d < !dist then begin dist:= d; proj:=Some p end
+              )) ;
+          f (b::reste)
+      | _ -> !proj
   in
   f lst_points
 
@@ -239,8 +239,8 @@ let distance_point_line pt a u =
 (* ============================================================================= *)
 let distance_point_segments_list pt lst_points =
   match point_project_on_segments_list pt lst_points with
-	None   -> None
-  | Some p -> Some (distance p pt)
+      None   -> None
+    | Some p -> Some (distance p pt)
 
 
 (* ============================================================================= *)
@@ -261,27 +261,27 @@ let crossing_point a u c v =
   and denom = -.(cross_product u v) in
 
   if denom = 0. then
-	(* Les deux vecteurs sont paralleles *)
-	None
+    (* Les deux vecteurs sont paralleles *)
+    None
   else begin
-	let r = num1 /. denom and s = num2 /. denom in
-	let type_intersection_seg1 =
-	  if abs_float r < epsilon then T_ON_PT1
-	  else if abs_float (r-.1.0) < epsilon then T_ON_PT2
-	  else if r<0.0 then T_OUT_SEG_PT1
-	  else if r>1.0 then T_OUT_SEG_PT2
-	  else T_IN_SEG1
+    let r = num1 /. denom and s = num2 /. denom in
+    let type_intersection_seg1 =
+      if abs_float r < epsilon then T_ON_PT1
+      else if abs_float (r-.1.0) < epsilon then T_ON_PT2
+      else if r<0.0 then T_OUT_SEG_PT1
+      else if r>1.0 then T_OUT_SEG_PT2
+      else T_IN_SEG1
 
-	and	type_intersection_seg2 =
-	  if abs_float s < epsilon then T_ON_PT3
-	  else if abs_float (s-.1.0) < epsilon then T_ON_PT4
-	  else if s<0.0 then T_OUT_SEG_PT3
-	  else if s>1.0 then T_OUT_SEG_PT4
-	  else T_IN_SEG2
+    and type_intersection_seg2 =
+      if abs_float s < epsilon then T_ON_PT3
+      else if abs_float (s-.1.0) < epsilon then T_ON_PT4
+      else if s<0.0 then T_OUT_SEG_PT3
+      else if s>1.0 then T_OUT_SEG_PT4
+      else T_IN_SEG2
 
-	and pt_intersection = vect_add_mul_scal r a u in
+    and pt_intersection = vect_add_mul_scal r a u in
 
-	Some (type_intersection_seg1, type_intersection_seg2, pt_intersection)
+    Some (type_intersection_seg1, type_intersection_seg2, pt_intersection)
   end
 
 (* ============================================================================= *)
@@ -289,7 +289,7 @@ let crossing_point a u c v =
 (* ============================================================================= *)
 let test_in_segment t =
   (t=T_IN_SEG1)||(t=T_ON_PT1)||(t=T_ON_PT2)||
-  (t=T_IN_SEG2)||(t=T_ON_PT3)||(t=T_ON_PT4)
+    (t=T_IN_SEG2)||(t=T_ON_PT3)||(t=T_ON_PT4)
 let test_on_hl t = (test_in_segment t)||(t=T_OUT_SEG_PT4)||(t=T_OUT_SEG_PT2)
 
 (* ============================================================================= *)
@@ -297,18 +297,18 @@ let test_on_hl t = (test_in_segment t)||(t=T_OUT_SEG_PT4)||(t=T_OUT_SEG_PT2)
 (* ============================================================================= *)
 let crossing_seg_seg a b c d =
   match crossing_point a (vect_make a b) c (vect_make c d) with
-	None -> false
-  |	Some (type1, type2, _pt) -> (test_in_segment type1)&&(test_in_segment type2)
+      None -> false
+    | Some (type1, type2, _pt) -> (test_in_segment type1)&&(test_in_segment type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection d'un segment (a,b) et d'une demi-droite (c,v)        = *)
 (* ============================================================================= *)
 let crossing_seg_hl a b c v =
   match crossing_point a (vect_make a b) c v with
-	None -> false
-  |	Some (type1, type2, _pt) ->
-	  (* OK si intersection sur la demi-droite *)
-	  (test_in_segment type1) && (test_on_hl type2)
+      None -> false
+    | Some (type1, type2, _pt) ->
+      (* OK si intersection sur la demi-droite *)
+      (test_in_segment type1) && (test_on_hl type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection de deux demi-droites                                 = *)
@@ -316,16 +316,16 @@ let crossing_seg_hl a b c v =
 let crossing_hl_hl a u c v =
   let inter = crossing_point a u c v in
   match inter with
-	None -> false
-  |	Some (type1, type2, _pt) -> (test_on_hl type1) && (test_on_hl type2)
+      None -> false
+    | Some (type1, type2, _pt) -> (test_on_hl type1) && (test_on_hl type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection de deux droites et renvoie le point s'il existe      = *)
 (* ============================================================================= *)
 let crossing_lines a u c v =
   match crossing_point a u c v with
-	None -> (false, null_vector)
-  |	Some (_type1, _type2, pt) -> (true, pt)
+      None -> (false, null_vector)
+    | Some (_type1, _type2, pt) -> (true, pt)
 
 
 (* ============================================================================= *)
@@ -353,8 +353,8 @@ let poly_close poly =
 (* ============================================================================= *)
 let poly_close2 poly =
   if List.length poly < 2 then Array.of_list poly else begin
-	let poly = if poly_is_closed poly then poly else poly@[List.hd poly] in
-	Array.of_list (poly@[List.hd (List.tl poly)])
+    let poly = if poly_is_closed poly then poly else poly@[List.hd poly] in
+    Array.of_list (poly@[List.hd (List.tl poly)])
   end
 
 (* ============================================================================= *)
@@ -364,9 +364,9 @@ let point_in_poly pt poly =
   let p = Array.of_list poly in
 
   let do_func {x2D=xi; y2D=yi} {x2D=xj; y2D=yj} {x2D=x; y2D=y} c =
-	if (((yi<=y) && (y<yj)) || ((yj<=y) && (y<yi))) &&
-	  (x<((xj-.xi)*.(y-.yi)/.(yj-.yi)+.xi)) then
-	  c := not !c in
+    if (((yi<=y) && (y<yj)) || ((yj<=y) && (y<yi))) &&
+      (x<((xj-.xi)*.(y-.yi)/.(yj-.yi)+.xi)) then
+      c := not !c in
 
   let is_in = ref false and j = ref (List.length poly -1) in
   Array.iteri (fun i p0 -> do_func p0 p.(!j) pt is_in ; j := i) p ;
@@ -384,32 +384,32 @@ let point_in_circle pt (center, r) = distance pt center <= r
 (* ============================================================================= *)
 let convex_hull poly =
   let det a b =
-	match cross_product a b with 0.0 -> 0.0 | n when n>0.0 -> 1.0 | _ -> -1.0
+    match cross_product a b with 0.0 -> 0.0 | n when n>0.0 -> 1.0 | _ -> -1.0
   in
 
   let du_meme_cote a b c d =
-	let u = vect_make a b and v = vect_make a c and w = vect_make a d in
-	(det u v)*.(det u w)>0.0
+    let u = vect_make a b and v = vect_make a c and w = vect_make a d in
+    (det u v)*.(det u w)>0.0
   in
 
   let plus_proche a b c d =
-	(d=a) or ((not(c=a)) &
-			  ((du_meme_cote b c d a) or (
-			   let u = vect_make b c and v = vect_make b d in
-			   (det u v)=0.0 & (abs_float(u.x2D)+.abs_float(u.y2D)>
-								abs_float(v.x2D)+.abs_float(v.y2D)))))
+    (d=a) or ((not(c=a)) &
+                 ((du_meme_cote b c d a) or (
+                   let u = vect_make b c and v = vect_make b d in
+                   (det u v)=0.0 & (abs_float(u.x2D)+.abs_float(u.y2D)>
+                                      abs_float(v.x2D)+.abs_float(v.y2D)))))
   in
 
   let extract_mini p l =
-	let rec aux reste vu mini =
+    let rec aux reste vu mini =
       match reste with
-		t::q ->
-		  if (try(p mini t) with _ -> false) then aux q (t::vu) mini
-		  else aux q (mini::vu) t
-      | [] -> mini,vu
-	in match l with
-      t::q -> aux q [] t
-	| [] -> raise Exit
+          t::q ->
+            if (try(p mini t) with _ -> false) then aux q (t::vu) mini
+            else aux q (mini::vu) t
+        | [] -> mini,vu
+    in match l with
+        t::q -> aux q [] t
+      | [] -> raise Exit
   in
 
   let p a b = a.x2D<b.x2D or (a.x2D=b.x2D & a.y2D>b.y2D) in
@@ -428,28 +428,28 @@ let convex_hull poly =
 let crossing_seg_poly a b poly =
   (* Supprime les doublons dans une liste triee *)
   let supprime_doublons_points l =
-	let (_p, new_l) = List.fold_left (fun (old, lst) pt ->
-	  match old with
-		None ->   (Some pt, [pt])
-	  |	Some p -> if point_same p pt then (old, lst) else (Some pt, pt :: lst)
-									) (None, []) l in
-	List.rev new_l
+    let (_p, new_l) = List.fold_left (fun (old, lst) pt ->
+      match old with
+          None ->   (Some pt, [pt])
+        | Some p -> if point_same p pt then (old, lst) else (Some pt, pt :: lst)
+    ) (None, []) l in
+    List.rev new_l
   in
 
   let u = vect_make a b and pol = Array.of_list poly
   and lst_pts_inter = ref [] in
 
   for i = 0 to (Array.length pol-1) do
-	let c = pol.(i) and
-		(* Rappel : le polygone n'est pas ferme... *)
-		d = if i < (Array.length pol) -1 then pol.(i+1) else pol.(0) in
-	let inter = crossing_point a u c (vect_make c d) in
-	match inter with
-	  None -> () (* Pas d'intersection entre le segment et l'arrete *)
-	| Some (type1, type2, pt) ->
-		if (test_in_segment type1) && (test_in_segment type2) then
-		  (* L'intersection est bien sur les 2 segments *)
-		  lst_pts_inter := pt :: !lst_pts_inter
+    let c = pol.(i) and
+        (* Rappel : le polygone n'est pas ferme... *)
+        d = if i < (Array.length pol) -1 then pol.(i+1) else pol.(0) in
+    let inter = crossing_point a u c (vect_make c d) in
+    match inter with
+        None -> () (* Pas d'intersection entre le segment et l'arrete *)
+      | Some (type1, type2, pt) ->
+        if (test_in_segment type1) && (test_in_segment type2) then
+          (* L'intersection est bien sur les 2 segments *)
+          lst_pts_inter := pt :: !lst_pts_inter
   done ;
 
   (* Suppression des doublons dans la liste des points d'intersection *)
@@ -461,20 +461,20 @@ let crossing_seg_poly a b poly =
 (* ============================================================================= *)
 let crossing_seg_poly_exclusive a b poly =
   let u = vect_make a b and
-	  pol = Array.of_list poly and
-	  lst_pts_inter = ref [] in
+      pol = Array.of_list poly and
+      lst_pts_inter = ref [] in
 
   for i = 0 to (Array.length pol-1) do
-	let c = pol.(i) and
-		(* Rappel : le polygone n'est pas ferme... *)
-		d = if i < (Array.length pol) -1 then pol.(i+1) else pol.(0) in
-	let inter = crossing_point a u c (vect_make c d) in
-	match inter with
-	  None -> () (* Pas d'intersection entre le segment et l'arrete *)
-	| Some (type1, type2, pt) ->
-		if (type1=T_IN_SEG1) && (type2=T_IN_SEG2) then
-		  (* L'intersection est bien sur les 2 segments *)
-		  lst_pts_inter := pt :: !lst_pts_inter ;
+    let c = pol.(i) and
+        (* Rappel : le polygone n'est pas ferme... *)
+        d = if i < (Array.length pol) -1 then pol.(i+1) else pol.(0) in
+    let inter = crossing_point a u c (vect_make c d) in
+    match inter with
+        None -> () (* Pas d'intersection entre le segment et l'arrete *)
+      | Some (type1, type2, pt) ->
+        if (type1=T_IN_SEG1) && (type2=T_IN_SEG2) then
+          (* L'intersection est bien sur les 2 segments *)
+          lst_pts_inter := pt :: !lst_pts_inter ;
   done ;
 
   !lst_pts_inter
@@ -485,13 +485,13 @@ let crossing_seg_poly_exclusive a b poly =
 let circumcircle {x2D=x1; y2D=y1} {x2D=x2; y2D=y2} {x2D=x3; y2D=y3} =
   (* Determinants de matrices 3x3 *)
   let eval_det a1 a2 a3 b1 b2 b3 c1 c2 c3 =
-	a1*.b2*.c3-.a1*.b3*.c2-.a2*.b1*.c3+.a2*.b3*.c1+.a3*.b1*.c2-.a3*.b2*.c1 in
+    a1*.b2*.c3-.a1*.b3*.c2-.a2*.b1*.c3+.a2*.b3*.c1+.a3*.b1*.c2-.a3*.b2*.c1 in
   let eval_det1 a1 a2 b1 b2 c1 c2 = eval_det a1 a2 1. b1 b2 1. c1 c2 1. in
 
   let a = eval_det1 x1 y1 x2 y2 x3 y3 in
   let s1 = (cc x1)+.(cc y1) and s2 = (cc x2)+.(cc y2) and s3 = (cc x3)+.(cc y3) in
   let bx = eval_det1 s1 y1 s2 y2 s3 y3 in
-  let by = -.(eval_det1 s1 x1 s2 x2	s3 x3) in
+  let by = -.(eval_det1 s1 x1 s2 x2 s3 x3) in
   let c = -.(eval_det s1 x1 y1 s2 x2 y2 s3 x3 y3) in
   let a = 2.*.a in
   let xc = bx/.a and yc = by/.a in
@@ -513,12 +513,12 @@ let ccw_angle p0 p1 p2 =
 (* ============================================================================= *)
 let poly_test_convex l =
   if List.length l > 2 then begin
-	(* l = [A; B; C; D] -> t = [|A; B; C; D; A; B|] *)
-	let t = poly_close2 l in
-	let n = Array.length t in
-	let sign = ccw_angle t.(0) t.(1) t.(2) and i = ref 1 in
-	while !i<n-2 && ccw_angle t.(!i) t.(!i+1) t.(!i+2) = sign do incr i done ;
-	if !i<n-2 then CONCAVE else CONVEX
+    (* l = [A; B; C; D] -> t = [|A; B; C; D; A; B|] *)
+    let t = poly_close2 l in
+    let n = Array.length t in
+    let sign = ccw_angle t.(0) t.(1) t.(2) and i = ref 1 in
+    while !i<n-2 && ccw_angle t.(!i) t.(!i+1) t.(!i+2) = sign do incr i done ;
+    if !i<n-2 then CONCAVE else CONVEX
   end else CONV_UNDEFINED
 
 (* ============================================================================= *)
@@ -526,15 +526,15 @@ let poly_test_convex l =
 (* ============================================================================= *)
 let poly_test_ccw l =
   if List.length l > 2 then begin
-	let t = Array.of_list (poly_close l) in
-	if poly_test_convex l = CONVEX then ccw_angle t.(0) t.(1) t.(2)
-	else begin
-	  let s = ref 0. in
-	  for i = 0 to (Array.length t-2) do
-		s:= !s+.cross_product t.(i) t.(i+1)
-	  done ;
-	  if !s>0. then CCW else if !s<0. then CW else CCW_UNDEFINED
-	end
+    let t = Array.of_list (poly_close l) in
+    if poly_test_convex l = CONVEX then ccw_angle t.(0) t.(1) t.(2)
+    else begin
+      let s = ref 0. in
+      for i = 0 to (Array.length t-2) do
+        s:= !s+.cross_product t.(i) t.(i+1)
+      done ;
+      if !s>0. then CCW else if !s<0. then CW else CCW_UNDEFINED
+    end
   end else CCW_UNDEFINED
 
 (* ============================================================================= *)
@@ -545,12 +545,12 @@ let poly_signed_area poly =
   (* plus efficace et plus precise *)
 
   if List.length poly < 2 then 0. else begin
-	let poly = poly_close2 poly in
-	let n = Array.length poly -2 and area = ref 0. in
-	for i = 1 to n do
-	  area:=!area+.poly.(i).x2D*.(poly.(i+1).y2D-.poly.(i-1).y2D)
-	done ;
-	!area/.2.
+    let poly = poly_close2 poly in
+    let n = Array.length poly -2 and area = ref 0. in
+    for i = 1 to n do
+      area:=!area+.poly.(i).x2D*.(poly.(i+1).y2D-.poly.(i-1).y2D)
+    done ;
+    !area/.2.
   end
 
 (* ============================================================================= *)
@@ -569,29 +569,29 @@ let poly_centroid poly =
 
   (* Centroide d'un triangle *)
   let centroid_triangle p1 p2 p3 =
-	{x2D=(p1.x2D+.p2.x2D+.p3.x2D)/.3.; y2D=(p1.y2D+.p2.y2D+.p3.y2D)/.3.} in
+    {x2D=(p1.x2D+.p2.x2D+.p3.x2D)/.3.; y2D=(p1.y2D+.p2.y2D+.p3.y2D)/.3.} in
 
   (* Aire signee d'un triangle, pas besoin de poly_area... *)
   let area_triangle p1 p2 p3 =
-	(cross_product (vect_make p1 p2) (vect_make p1 p3))/.2.
+    (cross_product (vect_make p1 p2) (vect_make p1 p3))/.2.
   in
 
   let rec f p0 l centroid =
-	match l with
-	  p1::p2::reste ->
-		let new_centroid = vect_add_mul_scal (area_triangle p0 p1 p2) centroid
-			(centroid_triangle p0 p1 p2) in
-		f p0 (p2::reste) new_centroid
-	| _ ->
-		let area = poly_signed_area poly in
-		vect_mul_scal centroid (1./.area)
+    match l with
+        p1::p2::reste ->
+          let new_centroid = vect_add_mul_scal (area_triangle p0 p1 p2) centroid
+            (centroid_triangle p0 p1 p2) in
+          f p0 (p2::reste) new_centroid
+      | _ ->
+        let area = poly_signed_area poly in
+        vect_mul_scal centroid (1./.area)
   in
 
   match poly with
-	[]         -> null_vector
-  | p::[]      -> p
-  | p1::p2::[] -> point_middle p1 p2
-  | _          -> f (List.hd poly) (List.tl poly) null_vector
+      []         -> null_vector
+    | p::[]      -> p
+    | p1::p2::[] -> point_middle p1 p2
+    | _          -> f (List.hd poly) (List.tl poly) null_vector
 
 (* ============================================================================= *)
 (* =                                                                           = *)
@@ -607,51 +607,51 @@ let poly_centroid poly =
 let in_tesselation poly =
   (* On teste si le polygone est bien CCW, s'il ne l'est pas on l'inverse *)
   let (switched, l)=
-	match poly_test_ccw poly with
-	  CW -> (true, List.rev poly)
-	| _  -> (false, poly)
+    match poly_test_ccw poly with
+        CW -> (true, List.rev poly)
+      | _  -> (false, poly)
   in
 
   (* Creation du tableau des points sous la forme necessaire a la triangulation *)
   let vertices =
-	let t = Array.of_list l and n = List.length l and vertices = ref [] in
-	Array.iteri (fun i pt ->
-	  vertices:={pos=pt; num=i; ear=false;
-				 prev=if i=0 then n-1 else i-1;
-				 next=if i=n-1 then 0 else i+1}::!vertices) t ;
-	Array.of_list (List.rev !vertices)
+    let t = Array.of_list l and n = List.length l and vertices = ref [] in
+    Array.iteri (fun i pt ->
+      vertices:={pos=pt; num=i; ear=false;
+                 prev=if i=0 then n-1 else i-1;
+                 next=if i=n-1 then 0 else i+1}::!vertices) t ;
+    Array.of_list (List.rev !vertices)
   in
 
   (* Fonction testant si les points d'indices n1 et n2 forment une diagonale *)
   (* completement contenue dans le polygone *)
   let is_diagonal n1 n2 =
-	let lefton a b c = cross_product (vect_make a b) (vect_make a c) >= 0. in
-	let left a b c   = cross_product (vect_make a b) (vect_make a c) > 0. in
+    let lefton a b c = cross_product (vect_make a b) (vect_make a c) >= 0. in
+    let left a b c   = cross_product (vect_make a b) (vect_make a c) > 0. in
 
-	let is_in_cone a b =
-	  let a1=vertices.(a.next) and a0=vertices.(a.prev) in
+    let is_in_cone a b =
+      let a1=vertices.(a.next) and a0=vertices.(a.prev) in
 
-	  (* Point A convexe ? *)
-	  if lefton a.pos a1.pos a0.pos then
-		(left a.pos b.pos a0.pos) && (left b.pos a.pos a1.pos)
-	  else not ((lefton a.pos b.pos a1.pos) && (lefton b.pos a.pos a0.pos))
-	in
+      (* Point A convexe ? *)
+      if lefton a.pos a1.pos a0.pos then
+        (left a.pos b.pos a0.pos) && (left b.pos a.pos a1.pos)
+      else not ((lefton a.pos b.pos a1.pos) && (lefton b.pos a.pos a0.pos))
+    in
 
-	let a = vertices.(n1) and b = vertices.(n2) in
+    let a = vertices.(n1) and b = vertices.(n2) in
 
-(* AAA	if is_in_cone a b && is_in_cone b a then begin *)
-	if is_in_cone a b or is_in_cone b a then begin
-	  let rec f l =
-		match l with
-		  c::reste ->
-			let c1 = vertices.(c.next) in
-			if c.num<>a.num && c1.num<>a.num && c.num<>b.num && c1.num<>b.num &&
-			  crossing_seg_seg a.pos b.pos c.pos c1.pos then false
-			else f reste
-		| [] -> true
-	  in
-	  f (Array.to_list vertices)
-	end else false
+    (* AAA  if is_in_cone a b && is_in_cone b a then begin *)
+    if is_in_cone a b or is_in_cone b a then begin
+      let rec f l =
+        match l with
+            c::reste ->
+              let c1 = vertices.(c.next) in
+              if c.num<>a.num && c1.num<>a.num && c.num<>b.num && c1.num<>b.num &&
+                crossing_seg_seg a.pos b.pos c.pos c1.pos then false
+              else f reste
+          | [] -> true
+      in
+      f (Array.to_list vertices)
+    end else false
   in
 
   (* Initialisation des oreilles *)
@@ -661,37 +661,37 @@ let in_tesselation poly =
   let current_idx = ref 0 and earfound = ref false and lst_triangles = ref []
   and n = ref (Array.length vertices) in
   while !n>=3 do
-	earfound:=false ;
-	let v2 = ref !current_idx and finished = ref false in
-	while not !finished && not !earfound do
-	  if vertices.(!v2).ear then begin
-		(* Le point courant correspond a une oreille, on va le supprimer *)
-		earfound:=true ;
+    earfound:=false ;
+    let v2 = ref !current_idx and finished = ref false in
+    while not !finished && not !earfound do
+      if vertices.(!v2).ear then begin
+        (* Le point courant correspond a une oreille, on va le supprimer *)
+        earfound:=true ;
 
-		(* 5 points consecutifs, v2 est au 'milieu' des 5 *)
-		let v1=vertices.(!v2).prev and v3=vertices.(!v2).next in
-		let v0=vertices.(v1).prev  and v4=vertices.(v3).next in
+        (* 5 points consecutifs, v2 est au 'milieu' des 5 *)
+        let v1=vertices.(!v2).prev and v3=vertices.(!v2).next in
+        let v0=vertices.(v1).prev  and v4=vertices.(v3).next in
 
-		(* Sauvegarde du triangle. Pas sous la forme v1, v2, v3 sinon      *)
-		(* il n'est pas CCW et donc pb de normale exterieure a l'affichage *)
-		lst_triangles := (v3, !v2, v1)::!lst_triangles ;
+        (* Sauvegarde du triangle. Pas sous la forme v1, v2, v3 sinon      *)
+        (* il n'est pas CCW et donc pb de normale exterieure a l'affichage *)
+        lst_triangles := (v3, !v2, v1)::!lst_triangles ;
 
-		(* Mise a jour des oreilles *)
-		vertices.(v1).ear <- is_diagonal v0 v3 ;
-		vertices.(v3).ear <- is_diagonal v1 v4 ;
+        (* Mise a jour des oreilles *)
+        vertices.(v1).ear <- is_diagonal v0 v3 ;
+        vertices.(v3).ear <- is_diagonal v1 v4 ;
 
-		(* Suppression du point v2 *)
-		vertices.(v1).next <- v3 ;
-		vertices.(v3).prev <- v1 ;
-		current_idx:=v3 ;
+        (* Suppression du point v2 *)
+        vertices.(v1).next <- v3 ;
+        vertices.(v3).prev <- v1 ;
+        current_idx:=v3 ;
 
-		(* Un triangle de moins a chercher *)
-		decr n
-	  end else v2:=vertices.(!v2).next ;
+        (* Un triangle de moins a chercher *)
+        decr n
+      end else v2:=vertices.(!v2).next ;
 
-	  (* C'est fini quand on revient sur le point initial *)
-	  finished:= !v2 = !current_idx
-	done ;
+      (* C'est fini quand on revient sur le point initial *)
+      finished:= !v2 = !current_idx
+    done ;
   done ;
 
   if not !earfound then begin Printf.printf "No ear !\n"; flush stdout end ;
@@ -701,9 +701,9 @@ let in_tesselation poly =
   (* par l'utilisateur. On remet alors les numeros comme ils etaients lors *)
   (* de l'appel a la fonction de triangulation                             *)
   if switched then begin
-	let n = List.length poly in
-	lst_triangles:=List.map (fun (p1, p2, p3) -> (n-1-p1, n-1-p2, n-1-p3)
-							) !lst_triangles
+    let n = List.length poly in
+    lst_triangles:=List.map (fun (p1, p2, p3) -> (n-1-p1, n-1-p2, n-1-p3)
+    ) !lst_triangles
   end ;
 
   !lst_triangles
@@ -724,63 +724,63 @@ let in_tesselation_fans l =
   let tt = Array.mapi (fun i _x -> (i, 0)) t in
   let add_val x = let (p, n) = tt.(x) in tt.(x) <- (p, n+1) in
   List.iter (fun (p1, p2, p3) ->
-	add_val p1; add_val p2; add_val p3) l ;
+    add_val p1; add_val p2; add_val p3) l ;
   let lst = List.fast_sort (fun (_, n1) (_, n2) -> n2-n1) (Array.to_list tt) in
 
   let tt2 = Array.create (Array.length tt) (0, []) in
   let i = ref 0 in
   List.iter (fun (x, _) -> tt2.(x) <- (!i, []); incr i) lst ;
   List.iter (fun (p1, p2, p3) ->
-	let (t1, l1) = tt2.(p1) and (t2, l2) = tt2.(p2) and (t3, l3) = tt2.(p3) in
-	if t1<t2&&t1<t3 then tt2.(p1) <- (t1, (p2, p3)::l1)
-	else if t2<t1&&t2<t3 then tt2.(p2) <- (t2, (p3, p1)::l2)
-	else tt2.(p3) <- (t3, (p1, p2)::l3)) l ;
+    let (t1, l1) = tt2.(p1) and (t2, l2) = tt2.(p2) and (t3, l3) = tt2.(p3) in
+    if t1<t2&&t1<t3 then tt2.(p1) <- (t1, (p2, p3)::l1)
+    else if t2<t1&&t2<t3 then tt2.(p2) <- (t2, (p3, p1)::l2)
+    else tt2.(p3) <- (t3, (p1, p2)::l3)) l ;
 
   let lst_fans = ref [] in
   Array.iteri (fun i (_, l) ->
-	let l0 = ref [] in
-	let add_element (a, b) =
-	  let rec f deb fin =
-	  match fin with
-		[] -> (a, b, [a; b])::!l0
-	  | (c, d, lst)::reste ->
-		  if b=c then begin
-			(* Insertion avant *)
-			(List.rev ((a, d, a::lst)::deb))@reste
-		  end else if a=d then begin
-			(* Insertion apres *)
-			(List.rev ((c, b, lst@[b])::deb))@reste
-		  end else f ((c, d, lst)::deb) reste
-	  in
-	  l0:=f [] !l0
-	in
-	let merge_lists () =
-	  let rec in_merge (a, b, l1) ll0 ll =
-		match ll with
-		  (c, d, l2)::reste ->
-			if b=c then
-			  (true, ((a, d, l1@(List.tl l2))::ll0)@reste)
-			else if d=a then
-			  (true, ((c, b, l2@(List.tl l1))::ll0)@reste)
-			else in_merge (a, b, l1) ((c, d, l2)::ll0) reste
-		| [] -> (false, ll0)
-	  in
-	  let rec f l ll =
-		match l with
-		  l1::reste ->
-			let (merged, newl) = in_merge l1 [] reste in
-			if merged then f newl ll
-			else f reste (l1::ll)
-		| [] -> ll
-	  in
-	  l0:=f !l0 []
-	in
+    let l0 = ref [] in
+    let add_element (a, b) =
+      let rec f deb fin =
+        match fin with
+            [] -> (a, b, [a; b])::!l0
+          | (c, d, lst)::reste ->
+            if b=c then begin
+            (* Insertion avant *)
+              (List.rev ((a, d, a::lst)::deb))@reste
+            end else if a=d then begin
+            (* Insertion apres *)
+              (List.rev ((c, b, lst@[b])::deb))@reste
+            end else f ((c, d, lst)::deb) reste
+      in
+      l0:=f [] !l0
+    in
+    let merge_lists () =
+      let rec in_merge (a, b, l1) ll0 ll =
+        match ll with
+            (c, d, l2)::reste ->
+              if b=c then
+                (true, ((a, d, l1@(List.tl l2))::ll0)@reste)
+              else if d=a then
+                (true, ((c, b, l2@(List.tl l1))::ll0)@reste)
+              else in_merge (a, b, l1) ((c, d, l2)::ll0) reste
+          | [] -> (false, ll0)
+      in
+      let rec f l ll =
+        match l with
+            l1::reste ->
+              let (merged, newl) = in_merge l1 [] reste in
+              if merged then f newl ll
+              else f reste (l1::ll)
+          | [] -> ll
+      in
+      l0:=f !l0 []
+    in
 
-	if l<>[] then begin
-	  List.iter (fun x -> add_element x; merge_lists ()) l ;
-	  List.iter (fun (_, _, l) ->
-		lst_fans := (i::l)::!lst_fans) !l0
-	end) tt2 ;
+    if l<>[] then begin
+      List.iter (fun x -> add_element x; merge_lists ()) l ;
+      List.iter (fun (_, _, l) ->
+        lst_fans := (i::l)::!lst_fans) !l0
+    end) tt2 ;
 
   (t, !lst_fans)
 
@@ -791,7 +791,7 @@ let in_tesselation_fans l =
    triangle_fan OpenGL. En sortie est renvoyee une liste contenant des listes
    de points. Chacune de ces listes de points contient soit 3 points (triangle)
    soit plus de 3 points (pour un triangle_fan)
- *)
+*)
 
 let tesselation_fans l =
   let (t, l) = in_tesselation_fans l in
@@ -902,26 +902,26 @@ let slice_polygon = fun poly ->
   begin
     try
       while !i <= n do
-	while poly.(!d).y2D = !last_y && !i <= n do
-	  let d' = prev !d in
-	  if (d' = !g && poly.(!d).y2D = poly.(!g).y2D) then raise Exit;
-	  alpha_d := slope !d d';
-	  d := d';
-	  incr i
-	done;
-	while poly.(!g).y2D = !last_y && !i <= n do
-	  let g' = next !g in
-	  alpha_g := slope !g g';
-	  g := g';
-	  incr i
-	done;
-	let yd = poly.(!d).y2D
-	and yg = poly.(!g).y2D in
-	let ym = min yd yg in
-	let xd = poly.(!d).x2D -. !alpha_d *. (yd -. ym) in
-	let xg = poly.(!g).x2D -. !alpha_g *. (yg -. ym) in
-	l :=  {top = ym; left_side=(xg, !alpha_g); right_side=(xd, !alpha_d)} :: !l;
-	last_y := ym
+        while poly.(!d).y2D = !last_y && !i <= n do
+          let d' = prev !d in
+          if (d' = !g && poly.(!d).y2D = poly.(!g).y2D) then raise Exit;
+          alpha_d := slope !d d';
+          d := d';
+          incr i
+        done;
+        while poly.(!g).y2D = !last_y && !i <= n do
+          let g' = next !g in
+          alpha_g := slope !g g';
+          g := g';
+          incr i
+        done;
+        let yd = poly.(!d).y2D
+        and yg = poly.(!g).y2D in
+        let ym = min yd yg in
+        let xd = poly.(!d).x2D -. !alpha_d *. (yd -. ym) in
+        let xg = poly.(!g).x2D -. !alpha_g *. (yg -. ym) in
+        l :=  {top = ym; left_side=(xg, !alpha_g); right_side=(xd, !alpha_d)} :: !l;
+        last_y := ym
       done
     with Exit -> () (* Flat polygon *)
   end;

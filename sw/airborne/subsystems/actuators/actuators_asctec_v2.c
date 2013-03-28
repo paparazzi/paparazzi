@@ -45,7 +45,7 @@ void actuators_asctec_v2_init(void) {
 }
 
 
-void actuators_asctec_v2_set(bool_t motors_on) {
+void actuators_asctec_v2_set(void) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) {

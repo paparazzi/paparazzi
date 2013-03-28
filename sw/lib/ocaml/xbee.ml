@@ -159,12 +159,12 @@ let at_set_my = fun addr ->
   assert (addr >= 0 && addr < 0x10000);
   Printf.sprintf "ATMY%04x\r" addr
 let baud_rates = [1200, 0; 2400, 1; 4800, 2; 9600, 3; 19200, 4;
-		  38400, 5; 57600, 6; 115200,  7]
+                  38400, 5; 57600, 6; 115200,  7]
 let at_set_baud_rate = fun baud ->
   try
     Printf.sprintf "ATBD%d\r" (List.assoc baud baud_rates)
   with
-    Not_found -> invalid_arg "at_set_baud_rate"
+      Not_found -> invalid_arg "at_set_baud_rate"
 
 let at_exit = "ATCN\r"
 let at_api_enable = "ATAP1\r"
@@ -173,29 +173,29 @@ let api_parse_frame = fun s ->
   let n = String.length s in
   assert(n>0);
   match s.[0] with
-    x when x = api_at_command_response_id ->
-      assert(n >= 5);
-      AT_Command_Response (Char.code s.[1], String.sub s 2 2,
-			   Char.code s.[4], String.sub s 5 (n-5))
-  | x when not !mode868 && x = api_tx_status_id ->
+      x when x = api_at_command_response_id ->
+        assert(n >= 5);
+        AT_Command_Response (Char.code s.[1], String.sub s 2 2,
+                             Char.code s.[4], String.sub s 5 (n-5))
+    | x when not !mode868 && x = api_tx_status_id ->
       assert(n = 3);
       TX_Status (Char.code s.[1], Char.code s.[2])
-  | x when !mode868 && x = api868_tx_status_id ->
+    | x when !mode868 && x = api868_tx_status_id ->
       assert(n = 7);
       TX868_Status (Char.code s.[1], Char.code s.[5], Char.code s.[4])
-  | x when x = api_modem_status_id ->
+    | x when x = api_modem_status_id ->
       Modem_Status (Char.code s.[1])
-  | x when not !mode868 && x = api_rx64_id ->
+    | x when not !mode868 && x = api_rx64_id ->
       assert(n >= 11);
       RX_Packet_64 (read_int64 s 1, Char.code s.[9],
-		    Char.code s.[10], String.sub s 11 (n-11))
-  | x when !mode868 && x = api868_rx64_id ->
+                    Char.code s.[10], String.sub s 11 (n-11))
+    | x when !mode868 && x = api868_rx64_id ->
       let idx_data = 12 in
       assert(n >= idx_data);
       RX868_Packet (read_int64 s 1,
-		    Char.code s.[11], String.sub s idx_data (n-idx_data))
-  | x when not !mode868 && (x = api_rx16_id || x = api_tx16_id) ->
+                    Char.code s.[11], String.sub s idx_data (n-idx_data))
+    | x when not !mode868 && (x = api_rx16_id || x = api_tx16_id) ->
       (* tx16 here allows to receive simulated xbee messages *)
       RX_Packet_16 (read_int16 s 1, Char.code s.[3], Char.code  s.[4], String.sub s 5 (n-5))
-  | x -> failwith (Printf.sprintf "Xbee.parse_frame: unknown frame id '%d'" (Char.code x))
+    | x -> failwith (Printf.sprintf "Xbee.parse_frame: unknown frame id '%d'" (Char.code x))
 

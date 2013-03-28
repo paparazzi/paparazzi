@@ -99,7 +99,7 @@ void imu_periodic(void)
   }
 }
 
-static void trans_cb( struct spi_transaction *trans ) {
+static void trans_cb(struct spi_transaction *trans __attribute__ ((unused))) {
   if ( imu_aspirin2.status != Aspirin2StatusUninit ) {
     imu_aspirin2.imu_available = TRUE;
   }

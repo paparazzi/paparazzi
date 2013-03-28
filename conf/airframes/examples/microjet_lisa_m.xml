@@ -20,9 +20,6 @@
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
 
-    <!-- print config info at compile time -->
-    <define name="PRINT_CONFIG"/>
-
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->

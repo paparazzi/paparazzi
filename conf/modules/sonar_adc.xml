@@ -7,8 +7,8 @@
      output - Sonar_distance in [m]
     </description>
     <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
-    <define name="SONAR_OFFSET" value="0"  description="sensor offset in [m] - default is 0"/>
-    <define name="SONAR_SCALE" value="166" description="sensor scale factor[] - default is 166"/>
+    <define name="SONAR_OFFSET" value="0.0"  description="sensor offset in [m] - default is 0.0"/>
+    <define name="SONAR_SCALE" value="0.0166" description="sensor scale factor [m/adc] - default is 0.0166"/>
   </doc>
 
   <header>

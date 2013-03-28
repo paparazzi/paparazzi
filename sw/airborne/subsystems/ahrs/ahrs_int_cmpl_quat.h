@@ -45,12 +45,7 @@ struct AhrsIntCmplQuat {
   struct Int64Quat   high_rez_quat;
   struct Int64Rates  high_rez_bias;
   struct Int32Quat   ltp_to_imu_quat;
-  struct Int32Eulers ltp_to_imu_euler; // FIXME to compile telemetry
-  struct Int32Vect3  mag_h;
-  uint32_t accel_inv_omega;          ///< filter cut-off frequency for correcting the attitude from accels (pseudo-gravity measurement)
-  uint32_t accel_inv_zeta;           ///< filter damping correcting the gyro-bias from accels (pseudo-gravity measurement)
-  uint32_t mag_attitude_gain;    ///< gain for correcting the attitude (heading) from magnetometer
-  uint32_t mag_gyrobias_gain;    ///< gain for correcting the gyro bias from magnetometer
+  struct Int32Vect3 mag_h;
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;

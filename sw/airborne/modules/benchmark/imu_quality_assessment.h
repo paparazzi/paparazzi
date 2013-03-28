@@ -34,6 +34,8 @@ struct imu_quality_assessment_data_struct {
     int q_az;
 
     int q_m;
+
+    int q;
 };
 
 extern struct imu_quality_assessment_data_struct imu_quality_assessment_data;

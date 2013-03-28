@@ -23,14 +23,14 @@
  *)
 
 (*  1/26/2011 - Additional functionality added by jpeverill:
-      Joystick xml config files now loaded from PAPARAZZI_HOME/conf/joystick/
-      Exponential output setting (per channel)
-      Limit output setting (per channel)
-      Per channel trim, controlled through joystick buttons
-        Trim can also be saved into auxilliary file, based on aircraft, and loaded at runtime if it exists
-        File will be called <xml joystick profile name>.<A/C name>.trim and is saved in the conf/joystick directory as well
-      Division in channel mapping
-      Interactive keyboard trim control (primitive)
+    Joystick xml config files now loaded from PAPARAZZI_HOME/conf/joystick/
+    Exponential output setting (per channel)
+    Limit output setting (per channel)
+    Per channel trim, controlled through joystick buttons
+    Trim can also be saved into auxilliary file, based on aircraft, and loaded at runtime if it exists
+    File will be called <xml joystick profile name>.<A/C name>.trim and is saved in the conf/joystick directory as well
+    Division in channel mapping
+    Interactive keyboard trim control (primitive)
 *)
 
 open Printf
@@ -64,7 +64,7 @@ let index_of_blocks = Hashtbl.create 13
 (** External C functions to access the input device *)
 external stick_init : int -> int = "ml_stick_init"
 (** [stick_init device] Return 0 on success. Search for a device if [device]
- is the empty string *)
+    is the empty string *)
 
 external stick_read : unit -> int * int * int array = "ml_stick_read"
 (** Return the number of buttons, an integer of bits for the buttons values
@@ -82,13 +82,13 @@ type input =
 
 (** Description of a message *)
 type msg = {
-    msg_name : string;
-    msg_class : string;
-    fields : (string * Syntax.expression) list;
-    on_event : Syntax.expression option;
-    send_always : bool;
-    has_ac_id : bool
-  }
+  msg_name : string;
+  msg_class : string;
+  fields : (string * Syntax.expression) list;
+  on_event : Syntax.expression option;
+  send_always : bool;
+  has_ac_id : bool
+}
 
 (** Representation of a variable *)
 type var = {
@@ -98,11 +98,11 @@ type var = {
 
 (** Represenation of an input device, the messages to send and the variables *)
 type actions = {
-    period_ms : int;
-    inputs : (string*input) list;
-    messages : msg list;
-    variables : (string*var) list;
-  }
+  period_ms : int;
+  inputs : (string*input) list;
+  messages : msg list;
+  variables : (string*var) list;
+}
 
 (** adjust the trim on an axis given its name *)
 let trim_adjust = fun axis_name adjustment ->
@@ -111,20 +111,20 @@ let trim_adjust = fun axis_name adjustment ->
 (** Get message class type *)
 let get_message_type = fun class_name ->
   match class_name with
-    "datalink" -> "Message"
-  | "ground" -> "Message"
-  | "trim_plus" -> "Trim"
-  | "trim_minus" -> "Trim"
-  | "trim_save" -> "Trim"
-  | _ -> failwith class_name
+      "datalink" -> "Message"
+    | "ground" -> "Message"
+    | "trim_plus" -> "Trim"
+    | "trim_minus" -> "Trim"
+    | "trim_save" -> "Trim"
+    | _ -> failwith class_name
 
 (** Get a message description from its name (and class name) *)
 (**   class_names with entries above as "Message" should be listed here  *)
 let get_message = fun class_name msg_name ->
   match class_name with
-    "datalink" -> snd (DL.message_of_name msg_name)
-  | "ground" -> snd (G.message_of_name msg_name)
-  | _ -> failwith class_name
+      "datalink" -> snd (DL.message_of_name msg_name)
+    | "ground" -> snd (G.message_of_name msg_name)
+    | _ -> failwith class_name
 
 (** Get the A/C id from its name in conf/conf.xml *)
 let ac_id_of_name = fun ac_name ->
@@ -133,8 +133,8 @@ let ac_id_of_name = fun ac_name ->
     let aircraft = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = ac_name) conf_xml "aircraft" in
     ExtXml.int_attrib aircraft "ac_id"
   with
-    Not_found ->
-      failwith (sprintf "A/C '%s' not found" ac_name)
+      Not_found ->
+        failwith (sprintf "A/C '%s' not found" ac_name)
 
 (** Fill the index_of_settings table from var/AC/settings.xml *)
 let hash_index_of_settings = fun ac_name ->
@@ -168,29 +168,29 @@ let hash_index_of_blocks = fun ac_name ->
 (* Return the rank of an element in a list, first is 0 *)
 let rank = fun x l ->
   let rec loop i = function
-      [] -> raise Not_found
+  [] -> raise Not_found
     | y::ys -> if x = y then i else loop (i+1) ys in
   loop 0 l
 
 (** Eval IndexOfEnum, IndexOfSetting and IndexOfBlock built-in functions
-   in an expression *)
+    in an expression *)
 let eval_settings_and_blocks = fun field_descr expr ->
   let rec loop = function
-    Syntax.Call ("IndexOfEnum", [Syntax.Ident enum]) -> begin
-      try Syntax.Int (rank enum field_descr.Pprz.enum) with
-    Not_found -> failwith (sprintf "IndexOfEnum: unknown value '%s'" enum)
-    end
-  | Syntax.Call ("IndexOfSetting", [Syntax.Ident var]) -> begin
+  Syntax.Call ("IndexOfEnum", [Syntax.Ident enum]) -> begin
+    try Syntax.Int (rank enum field_descr.Pprz.enum) with
+        Not_found -> failwith (sprintf "IndexOfEnum: unknown value '%s'" enum)
+  end
+    | Syntax.Call ("IndexOfSetting", [Syntax.Ident var]) -> begin
       try Syntax.Int (Hashtbl.find index_of_settings var) with
-    Not_found -> failwith (sprintf "IndexOfSetting: unknown var '%s'" var)
+          Not_found -> failwith (sprintf "IndexOfSetting: unknown var '%s'" var)
     end
-  | Syntax.Call ("IndexOfBlock", [Syntax.Ident name]) -> begin
+    | Syntax.Call ("IndexOfBlock", [Syntax.Ident name]) -> begin
       try Syntax.Int (Hashtbl.find index_of_blocks name) with
-    Not_found -> failwith (sprintf "IndexOfBlock: unknown block '%s'" name)
+          Not_found -> failwith (sprintf "IndexOfBlock: unknown block '%s'" name)
     end
-  | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
+    | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
       Syntax.Call (ident, List.map loop exprs)
-  | e -> e in
+    | e -> e in
   loop expr
 
 (** Parse an XML list of input channels *)
@@ -200,16 +200,16 @@ let parse_input = fun input ->
     and index = ExtXml.int_attrib x "index" in
     let value =
       match Xml.tag x with
-        "axis" ->
-          let trim = try ExtXml.float_attrib x "trim" with _ -> 0.0 in
-          let exponent = try ExtXml.float_attrib x "exponent" with _ -> 0.0 in
-          let limit = try ExtXml.float_attrib x "limit" with _ -> 1.0 in
-          let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
-          Axis (index, deadband, limit, exponent, ref trim)
-      | "button" -> Button index
-      | _ -> failwith "parse_input: unexepcted tag" in
+          "axis" ->
+            let trim = try ExtXml.float_attrib x "trim" with _ -> 0.0 in
+            let exponent = try ExtXml.float_attrib x "exponent" with _ -> 0.0 in
+            let limit = try ExtXml.float_attrib x "limit" with _ -> 1.0 in
+            let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
+            Axis (index, deadband, limit, exponent, ref trim)
+        | "button" -> Button index
+        | _ -> failwith "parse_input: unexepcted tag" in
     (name, value))
-  (Xml.children input)
+    (Xml.children input)
 
 (** Parse a 'à la C' expression *)
 let parse_value = fun s ->
@@ -231,12 +231,12 @@ let parse_msg = fun msg ->
 
   let fields, has_ac_id =
     match get_message_type msg_class with
-      "Message" ->
-        let msg_descr = get_message msg_class msg_name in
-        (List.map (parse_msg_field msg_descr) (Xml.children msg),
-        List.mem_assoc "ac_id" msg_descr.Pprz.fields)
-    | "Trim" -> ([], false)
-    | _ -> failwith ("Unknown message class type") in
+        "Message" ->
+          let msg_descr = get_message msg_class msg_name in
+          (List.map (parse_msg_field msg_descr) (Xml.children msg),
+           List.mem_assoc "ac_id" msg_descr.Pprz.fields)
+      | "Trim" -> ([], false)
+      | _ -> failwith ("Unknown message class type") in
 
   let on_event =
     try Some (parse_value (Xml.attrib msg "on_event")) with _ -> None in
@@ -254,23 +254,23 @@ let parse_variables = fun variables ->
   let l = ref [] in
   List.iter (fun x ->
     match Xml.tag x with
-      "var" ->
-        let name = Xml.attrib x "name"
-        and default = ExtXml.int_attrib x "default" in
-        if List.mem_assoc name !l then failwith (sprintf "Variable %s already declared" name);
+        "var" ->
+          let name = Xml.attrib x "name"
+          and default = ExtXml.int_attrib x "default" in
+          if List.mem_assoc name !l then failwith (sprintf "Variable %s already declared" name);
         (* filter all "set" node for this variable *)
-        let set = List.filter (fun vs ->
+          let set = List.filter (fun vs ->
             (ExtXml.tag_is vs "set") &&
-            (compare (ExtXml.attrib_or_default vs "var" "") name) = 0)
-          (Xml.children variables) in
-        let var_event = List.map (fun s ->
-          let value = ExtXml.int_attrib s "value"
-          and on_event = parse_value (Xml.attrib s "on_event") in
-          (value, on_event)
+              (compare (ExtXml.attrib_or_default vs "var" "") name) = 0)
+            (Xml.children variables) in
+          let var_event = List.map (fun s ->
+            let value = ExtXml.int_attrib s "value"
+            and on_event = parse_value (Xml.attrib s "on_event") in
+            (value, on_event)
           ) set in
-        l := (name, { value = default; var_event = var_event; }) :: !l;
-        ()
-    | _ -> ()
+          l := (name, { value = default; var_event = var_event; }) :: !l;
+          ()
+      | _ -> ()
   ) (Xml.children variables);
   !l
 
@@ -288,8 +288,8 @@ let second_of_two (_,x) = x
 let trim_set = fun inputs value ->
   let input = my_assoc (first_of_two value) inputs in
   match input with
-    Axis (i, deadband, limit, exponent, trim) -> trim := (second_of_two value)
-  | Button i -> failwith "No trim for buttons"
+      Axis (i, deadband, limit, exponent, trim) -> trim := (second_of_two value)
+    | Button i -> failwith "No trim for buttons"
 
 
 (** Input the trim file if it exists *)
@@ -298,10 +298,10 @@ let parse_trim_file = fun trim_file_name inputs ->
     let trim = Xml.parse_file trim_file_name in
     let trim_values = List.map
       (fun x ->
-         let axis = ExtXml.attrib x "axis"
-         and trimval = ExtXml.float_attrib x "value" in
-         (axis, trimval))
-    (Xml.children trim) in
+        let axis = ExtXml.attrib x "axis"
+        and trimval = ExtXml.float_attrib x "value" in
+        (axis, trimval))
+      (Xml.children trim) in
     List.iter (trim_set inputs) trim_values;
   end
 
@@ -343,8 +343,8 @@ let apply_trim = fun x trim ->
 (** Access to an input value, button or axis *)
 let eval_input = fun buttons axis input ->
   match input with
-    Axis (i, deadband, limit, exponent, trim) ->  (apply_trim (apply_limit (apply_exponent (apply_deadband axis.(i) deadband) exponent) limit) trim.contents)
-  | Button i -> (buttons lsr i) land 0x1
+      Axis (i, deadband, limit, exponent, trim) ->  (apply_trim (apply_limit (apply_exponent (apply_deadband axis.(i) deadband) exponent) limit) trim.contents)
+    | Button i -> (buttons lsr i) land 0x1
 
 (** Scale a value in the given bounds *)
 let scale = fun x min max ->
@@ -360,10 +360,10 @@ let fit = fun x min max min_input max_input ->
   bound v min_input max_input
 
 (** Return a pprz RC mode
-  * mode > max -> 2
-  * mode < min -> 0
-  * else 1
-  *)
+    * mode > max -> 2
+    * mode < min -> 0
+    * else 1
+*)
 let pprz_threshold = max_input / 2
 let pprz_mode = fun mode ->
   if mode > pprz_threshold then 2
@@ -373,39 +373,39 @@ let pprz_mode = fun mode ->
 (** Eval a function call (TO BE COMPLETED) *)
 let eval_call = fun f args ->
   match f, args with
-    "-", [a] -> - a
-  | "-", [a1; a2] -> a1 - a2
-  | "+", [a1; a2] -> a1 + a2
-  | "*", [a1; a2] -> a1 * a2
-  | "%", [a1; a2] -> a1 / a2
-  | "&&", [a1; a2] -> a1 land a2
-  | "||", [a1; a2] -> a1 lor a2
-  | "<",  [a1; a2] -> if a1 < a2 then 1 else 0
-  | ">",  [a1; a2] -> if a1 > a2 then 1 else 0
-  | "Scale", [x; min; max] -> scale (x) (min) (max)
-  | "Fit", [x; min; max; min_input; max_input] -> fit (x) (min) (max) (min_input) (max_input)
-  | "Bound", [x; min; max] -> bound (x) (min) (max)
-  | "PprzMode", [x] -> pprz_mode (x)
-  | "JoystickID", [] -> !joystick_id
-  | f, args -> failwith (sprintf "eval_call: unknown function '%s'" f)
+      "-", [a] -> - a
+    | "-", [a1; a2] -> a1 - a2
+    | "+", [a1; a2] -> a1 + a2
+    | "*", [a1; a2] -> a1 * a2
+    | "%", [a1; a2] -> a1 / a2
+    | "&&", [a1; a2] -> a1 land a2
+    | "||", [a1; a2] -> a1 lor a2
+    | "<",  [a1; a2] -> if a1 < a2 then 1 else 0
+    | ">",  [a1; a2] -> if a1 > a2 then 1 else 0
+    | "Scale", [x; min; max] -> scale (x) (min) (max)
+    | "Fit", [x; min; max; min_input; max_input] -> fit (x) (min) (max) (min_input) (max_input)
+    | "Bound", [x; min; max] -> bound (x) (min) (max)
+    | "PprzMode", [x] -> pprz_mode (x)
+    | "JoystickID", [] -> !joystick_id
+    | f, args -> failwith (sprintf "eval_call: unknown function '%s'" f)
 
 (** Eval an expression *)
 let eval_expr = fun buttons axis inputs variables expr ->
   let rec eval = function
-      Syntax.Ident ident ->
+  Syntax.Ident ident ->
         (* try input first, then variables *)
-        let i = match (List.mem_assoc ident inputs, List.mem_assoc ident variables) with
-          (true, _) -> eval_input buttons axis (List.assoc ident inputs)
-        | (false, true) ->
-            let v = List.assoc ident variables in
-            v.value
-        | (false, false) -> failwith (sprintf "eval_expr: %s not found" ident)
-        in
-        i
+    let i = match (List.mem_assoc ident inputs, List.mem_assoc ident variables) with
+        (true, _) -> eval_input buttons axis (List.assoc ident inputs)
+      | (false, true) ->
+        let v = List.assoc ident variables in
+        v.value
+      | (false, false) -> failwith (sprintf "eval_expr: %s not found" ident)
+    in
+    i
     | Syntax.Int int -> int
     | Syntax.Float float -> failwith "eval_expr: float"
     | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
-        eval_call ident (List.map eval exprs)
+      eval_call ident (List.map eval exprs)
     | Syntax.Index _ -> failwith "eval_expr: index"
     | Syntax.Field _ -> failwith "eval_expr: Field"
     | Syntax.Deref _ -> failwith "eval_expr: deref" in
@@ -431,8 +431,8 @@ let trim_save_add_leaf = fun x channel_pair ->
   let chan_name = first_list channel_pair in
   let channel = second_list channel_pair in
   match channel with
-    Axis (i, deadband, limit, exponent, trim) -> x := x.contents ^ (Printf.sprintf "<trim axis='%s' value = '%f'/>" chan_name trim.contents)
-  | Button i -> Printf.printf "%d" i
+      Axis (i, deadband, limit, exponent, trim) -> x := x.contents ^ (Printf.sprintf "<trim axis='%s' value = '%f'/>" chan_name trim.contents)
+    | Button i -> Printf.printf "%d" i
 
 (** save trim settings to file *)
 let trim_save = fun inputs ->
@@ -449,8 +449,8 @@ let trim_save = fun inputs ->
 let trim_adjust = fun axis_name adjustment inputs ->
   let input = my_assoc axis_name inputs in
   match input with
-    Axis (i, deadband, limit, exponent, trim) -> trim := trim.contents +. adjustment
-  | Button i -> failwith "No trim for buttons"
+      Axis (i, deadband, limit, exponent, trim) -> trim := trim.contents +. adjustment
+    | Button i -> failwith "No trim for buttons"
 
 (** Update variables state *)
 let update_variables = fun inputs buttons axis variables ->
@@ -473,20 +473,20 @@ let execute_action = fun ac_id inputs buttons axis variables message ->
 
   and on_event =
     match message.on_event with
-      None -> true
-    | Some expr -> eval_expr buttons axis inputs variables expr <> 0 in
+        None -> true
+      | Some expr -> eval_expr buttons axis inputs variables expr <> 0 in
 
   let previous_values = get_previous_values message.msg_name in
   (* FIXME ((value <> previous) && on_event) || send_always ??? *)
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
     let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
     match message.msg_class with
-      "datalink" -> DL.message_send "input2ivy" message.msg_name vs
-    | "ground" -> G.message_send "input2ivy" message.msg_name vs
-    | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
-    | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
-    | "trim_save" -> trim_save inputs
-    | c -> failwith (sprintf "execute_action: unknown class '%s'" c)
+        "datalink" -> DL.message_send "input2ivy" message.msg_name vs
+      | "ground" -> G.message_send "input2ivy" message.msg_name vs
+      | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
+      | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
+      | "trim_save" -> trim_save inputs
+      | c -> failwith (sprintf "execute_action: unknown class '%s'" c)
   end;
   record_values message.msg_name (on_event, values)
 
@@ -505,7 +505,7 @@ let print_inputs = fun nb_buttons buttons axis ->
 
 
 (** Get the values from the input values and send messages
-     This is called at a rate programmed in the xml  *)
+    This is called at a rate programmed in the xml  *)
 let execute_actions = fun actions ac_id ->
   try
     let (nb_buttons, buttons, axis) = stick_read () in
@@ -517,7 +517,7 @@ let execute_actions = fun actions ac_id ->
     update_variables actions.inputs buttons axis actions.variables;
     List.iter (execute_action ac_id actions.inputs buttons axis actions.variables) actions.messages
   with
-    exc -> prerr_endline (Printexc.to_string exc)
+      exc -> prerr_endline (Printexc.to_string exc)
 
 
 (**  process keyboard commands *)
@@ -530,16 +530,16 @@ let execute_kb_action = fun actions conditions ->
       ijkm for right  *)
 
   if true then begin
-  match ch with
-    101 -> trim_adjust "ly" 1.0 actions.inputs
-  | 115 -> trim_adjust "lx" (-1.0) actions.inputs
-  | 100 -> trim_adjust "lx" 1.0 actions.inputs
-  | 120 -> trim_adjust "ly" (-1.0) actions.inputs
-  | 105 -> trim_adjust "ry" 1.0 actions.inputs
-  | 106 -> trim_adjust "rx" (-1.0) actions.inputs
-  | 107 -> trim_adjust "rx" 1.0 actions.inputs
-  | 109 -> trim_adjust "ry" (-1.0) actions.inputs
-  | _ -> trim_adjust "ly" 0.0 actions.inputs
+    match ch with
+        101 -> trim_adjust "ly" 1.0 actions.inputs
+      | 115 -> trim_adjust "lx" (-1.0) actions.inputs
+      | 100 -> trim_adjust "lx" 1.0 actions.inputs
+      | 120 -> trim_adjust "ly" (-1.0) actions.inputs
+      | 105 -> trim_adjust "ry" 1.0 actions.inputs
+      | 106 -> trim_adjust "rx" (-1.0) actions.inputs
+      | 107 -> trim_adjust "rx" 1.0 actions.inputs
+      | 109 -> trim_adjust "ry" (-1.0) actions.inputs
+      | _ -> trim_adjust "ly" 0.0 actions.inputs
   end;
 
   true
@@ -593,8 +593,8 @@ let () =
 
   (** setup stdin *) (* TODO find a better way to change trim, use a GUI ? *)
   (*let tstatus = (Unix.tcgetattr Unix.stdin) in
-  tstatus.c_icanon <- false;
-  Unix.tcsetattr Unix.stdin Unix.TCSANOW tstatus;*)
+    tstatus.c_icanon <- false;
+    Unix.tcsetattr Unix.stdin Unix.TCSANOW tstatus;*)
 
   ignore (Glib.Timeout.add actions.period_ms (fun () -> execute_actions actions ac_id; true));
   (*ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:(fun x -> execute_kb_action actions x) (Glib.Io.channel_of_descr Unix.stdin));*)

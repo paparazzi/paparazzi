@@ -30,8 +30,8 @@ let say = fun s ->
     match os with
         (* If the os is Darwin, then use "say" *)
         "Linux" -> ignore (Sys.command (Printf.sprintf "spd-say '%s'&" s))
-        (* If the os is Linux, use "spd-say" *)
+      (* If the os is Linux, use "spd-say" *)
       | "Darwin" -> ignore (Sys.command (Printf.sprintf "say '%s'&" s))
-        (* Add more cases here to enhance support *)
+      (* Add more cases here to enhance support *)
       | _ -> ignore (Sys.command (Printf.sprintf "echo Current OS not supported by -speech option"))
   )

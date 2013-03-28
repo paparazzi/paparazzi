@@ -70,9 +70,9 @@ let attribs_of_model = fun (store:GTree.tree_store) ->
 let editable_renderer = fun (model:GTree.tree_store) column ->
   let r = GTree.cell_renderer_text [`EDITABLE true] in
   let _ = r#connect#edited ~callback:
-      (fun path s ->
-	model#set ~row:(model#get_iter path) ~column s
-      ) in
+    (fun path s ->
+      model#set ~row:(model#get_iter path) ~column s
+    ) in
   r
 
 let attribs_view = fun model ->
@@ -80,7 +80,7 @@ let attribs_view = fun model ->
   view#set_rules_hint true;
   let r = editable_renderer model attribute in
   let col = GTree.view_column ~title:"Attribute" ()
-      ~renderer:(r, ["text",attribute]) in
+    ~renderer:(r, ["text",attribute]) in
 
   ignore (view#append_column col);
   col#set_max_width 100;
@@ -102,8 +102,8 @@ let id = cols#add Gobject.Data.int
 
 let string_of_attribs = fun attribs ->
   match attribs with
-    ["PCData", data] -> data
-  | _ ->
+      ["PCData", data] -> data
+    | _ ->
       String.concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
 
 type id = int
@@ -124,9 +124,9 @@ let encode_crs =
     Str.global_replace r "\\n" s
 
 (** Doesn' work. OCaml bug ?
-let recode_crs =
-  let r = Str.regexp "\\n" in
-  fun s ->
+    let recode_crs =
+    let r = Str.regexp "\\n" in
+    fun s ->
     Str.global_replace r "\n" s
 *)
 
@@ -149,11 +149,11 @@ let recode_crs = fun s ->
 
 let rec insert_xml = fun (store:GTree.tree_store) parent xml ->
   match xml with
-    Xml.Element _ ->
-      let row = store#append ~parent () in
-      set_xml store row xml;
-      List.iter (fun x -> insert_xml store row x) (Xml.children xml)
-  | Xml.PCData data ->
+      Xml.Element _ ->
+        let row = store#append ~parent () in
+        set_xml store row xml;
+        List.iter (fun x -> insert_xml store row x) (Xml.children xml)
+    | Xml.PCData data ->
       let row = store#append ~parent () in
       store#set ~row ~column:tag_col "PCData";
       store#set ~row ~column:background default_background;
@@ -186,9 +186,9 @@ let tree_view = fun format_attribs ?(edit=true) (model:GTree.tree_store) window 
   let col = GTree.view_column ~title:"Tag" () ~renderer:(r, ["text",tag_col]) in
   col#set_cell_data_func r (set_bg_color r);
   let _ = r#connect#edited ~callback:
-      (fun path s ->
-	model#set ~row:(model#get_iter path) ~column:tag_col s
-      ) in
+    (fun path s ->
+      model#set ~row:(model#get_iter path) ~column:tag_col s
+    ) in
   ignore (view#append_column col);
   let r = GTree.cell_renderer_text [] in
   let col = GTree.view_column ~title:"Attributes" () ~renderer:(r, []) in
@@ -200,42 +200,42 @@ let tree_view = fun format_attribs ?(edit=true) (model:GTree.tree_store) window 
 
 (** Returns the list of all the tags appearing in the given DTD element *)
 let rec tags r = function
-    Dtd.DTDTag s -> s::r
+Dtd.DTDTag s -> s::r
   | Dtd.DTDPCData -> r
   | Dtd.DTDOptional dtd_child | Dtd.DTDZeroOrMore dtd_child | Dtd.DTDOneOrMore dtd_child ->
-      tags r dtd_child
+    tags r dtd_child
   | Dtd.DTDChoice dtd_childs | Dtd.DTDChildren dtd_childs ->
-      List.fold_right (fun dc r -> tags r dc) dtd_childs r
+    List.fold_right (fun dc r -> tags r dc) dtd_childs r
 
 (** Returns the list of tags of possible children of the given [tag] *)
 let dtd_children = fun tag dtd ->
   let rec search = function
-      Dtd.DTDElement (t,det)::_ when t = tag -> det
+  Dtd.DTDElement (t,det)::_ when t = tag -> det
     | _::is -> search is
     | [] -> raise Not_found in
   match search dtd with
-    Dtd.DTDChild dc ->
-      tags [] dc
-  | _ -> []
+      Dtd.DTDChild dc ->
+        tags [] dc
+    | _ -> []
 
 
 (** Make a submenu with labels from [labels]. Attach the generic [callback]
-which argument is the selected label *)
+    which argument is the selected label *)
 let submenu = fun ?(filter = fun _ -> true) menuitem ss connect ->
   let submenu = GMenu.menu () in
   List.iter
     (fun tag ->
       if filter tag then
-	let menuitem = GMenu.menu_item ~label:tag ~packing:submenu#append () in
-	let _c = menuitem#connect#activate ~callback:(fun () -> connect tag) in
-	())
+        let menuitem = GMenu.menu_item ~label:tag ~packing:submenu#append () in
+        let _c = menuitem#connect#activate ~callback:(fun () -> connect tag) in
+        ())
     ss;
   menuitem#set_submenu submenu
 
 (** Returns the compulsory attributes of a given tag *)
 let required_attributes = fun tag dtd ->
   let rec filter = function
-      Dtd.DTDAttribute (t, a, _, (Dtd.DTDDefault s|Dtd.DTDFixed s))::dis when t = tag -> (a,s)::filter dis
+  Dtd.DTDAttribute (t, a, _, (Dtd.DTDDefault s|Dtd.DTDFixed s))::dis when t = tag -> (a,s)::filter dis
     | Dtd.DTDAttribute (t, a, _, Dtd.DTDRequired)::dis when t = tag -> (a,"???")::filter dis
     | _::dis -> filter dis
     | [] -> [] in
@@ -249,59 +249,59 @@ let allowed_attributes = fun tag dtd ->
   filter dtd
 
 let attr_submenu = fun ?filter menuitem tag dtd connect ->
-   submenu ?filter menuitem (allowed_attributes tag dtd) connect
+  submenu ?filter menuitem (allowed_attributes tag dtd) connect
 
 
 let selection = fun (tree_store, tree_view) ->
   match tree_view#selection#get_selected_rows with
-    path::_ ->
-      tree_store, path
-  | _ -> raise Not_found
+      path::_ ->
+        tree_store, path
+    | _ -> raise Not_found
 
 let attribs_menu_popup = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) (attrib_row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
   begin
     match tree_view#selection#get_selected_rows with
-      path::_ ->
-	let tree_model = tree_view#model in
-	let row = tree_model#get_iter path in
-	let current_tag = tree_model#get ~row ~column:tag_col in
-	let menuitem = GMenu.menu_item ~label:"Add after" ~packing:menu#append () in
-	let current_attrib = model#get ~row:attrib_row ~column:attribute in
-	if not (List.mem_assoc current_attrib (required_attributes current_tag dtd)) then begin
-	  let menuitem = GMenu.menu_item ~label:"Delete" ~packing:menu#append () in
-	  ignore (menuitem#connect#activate ~callback:(fun () -> ignore (model#remove attrib_row)))
-	end;
+        path::_ ->
+          let tree_model = tree_view#model in
+          let row = tree_model#get_iter path in
+          let current_tag = tree_model#get ~row ~column:tag_col in
+          let menuitem = GMenu.menu_item ~label:"Add after" ~packing:menu#append () in
+          let current_attrib = model#get ~row:attrib_row ~column:attribute in
+          if not (List.mem_assoc current_attrib (required_attributes current_tag dtd)) then begin
+            let menuitem = GMenu.menu_item ~label:"Delete" ~packing:menu#append () in
+            ignore (menuitem#connect#activate ~callback:(fun () -> ignore (model#remove attrib_row)))
+          end;
 
-	let l = ref [] in
-	model#foreach (fun _path row ->
-	  l := model#get ~row ~column:attribute :: !l; false);
-	let filter = fun x -> not (List.mem x !l) in
+          let l = ref [] in
+          model#foreach (fun _path row ->
+            l := model#get ~row ~column:attribute :: !l; false);
+          let filter = fun x -> not (List.mem x !l) in
 
-	let connect = fun a ->
-	  let row = model#insert_after attrib_row in
-	  let av = (a, "???") in
-	  set_attr_value model row av in
-	attr_submenu ~filter menuitem current_tag dtd connect
-    | _ -> ()
+          let connect = fun a ->
+            let row = model#insert_after attrib_row in
+            let av = (a, "???") in
+            set_attr_value model row av in
+          attr_submenu ~filter menuitem current_tag dtd connect
+      | _ -> ()
   end;
   menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
 
 let add_one_menu = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) ->
-   match tree_view#selection#get_selected_rows with
+  match tree_view#selection#get_selected_rows with
       path::_ ->
-	let tree_model = tree_view#model in
-	let row = tree_model#get_iter path in
-	let current_tag = tree_model#get ~row ~column:tag_col in
-	let menu = GMenu.menu () in
-	let menuitem = GMenu.menu_item ~label:"Add one" ~packing:menu#append () in
-	let connect = fun a ->
-	  let row = model#append () in
-	  let av = (a, "???") in
-	  set_attr_value model row av in
-	attr_submenu menuitem current_tag dtd connect;
-	menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
-   | _ -> ()
+        let tree_model = tree_view#model in
+        let row = tree_model#get_iter path in
+        let current_tag = tree_model#get ~row ~column:tag_col in
+        let menu = GMenu.menu () in
+        let menuitem = GMenu.menu_item ~label:"Add one" ~packing:menu#append () in
+        let connect = fun a ->
+          let row = model#append () in
+          let av = (a, "???") in
+          set_attr_value model row av in
+        attr_submenu menuitem current_tag dtd connect;
+        menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
+    | _ -> ()
 
 
 
@@ -310,34 +310,34 @@ let add_context_menu = fun model view ?noselection_menu menu ->
   view#event#connect#button_press ~callback:
     (fun ev ->
       GdkEvent.Button.button ev = 3
-	&&
-      match view#selection#get_selected_rows, noselection_menu with
-	path::_, _ ->
-	  let row = model#get_iter path in
-	  menu model row;
-	  true
-      | [], Some menu ->
-	  menu model;
-	  true
-      | _ -> false)
+      &&
+        match view#selection#get_selected_rows, noselection_menu with
+            path::_, _ ->
+              let row = model#get_iter path in
+              menu model row;
+              true
+          | [], Some menu ->
+            menu model;
+            true
+          | _ -> false)
 
 let add_delete_key = fun (model:GTree.tree_store) (view:GTree.view) ->
   view#event#connect#key_press (fun ev ->
     if GdkEvent.Key.keyval ev = GdkKeysyms._Delete then
       match view#selection#get_selected_rows with
-	path::_ ->
-	  let row = model#get_iter path in
-	  model#get ~row ~column:event Deleted;
-	  ignore (model#remove row);
-	  true
-      | _ -> false
+          path::_ ->
+            let row = model#get_iter path in
+            model#get ~row ~column:event Deleted;
+            ignore (model#remove row);
+            true
+        | _ -> false
     else false)
 
 
 let root = fun ((model:GTree.tree_store), _) ->
   match model#get_iter_first with
-    None -> invalid_arg "XmlEdit.root"
-  | Some i -> (model, model#get_path i)
+      None -> invalid_arg "XmlEdit.root"
+    | Some i -> (model, model#get_path i)
 
 
 let attribs = fun ((model, path):node) ->
@@ -349,11 +349,11 @@ let set_attribs = fun ((model, path):node) attribs ->
   model#set ~row ~column:attributes attribs
 
 let rec replace_assoc a v = function
-    [] -> [(a, v)]
+[] -> [(a, v)]
   | (a', v')::l ->
-      if a = String.uppercase a'
-      then (a, v)::l
-      else (a', v')::replace_assoc a v l
+    if a = String.uppercase a'
+    then (a, v)::l
+    else (a', v')::replace_assoc a v l
 
 let set_attrib = fun node (a, v) ->
   let atbs = attribs node in
@@ -363,9 +363,9 @@ let attrib = fun node at ->
   let at = String.uppercase at in
   let ats = attribs node in
   let rec loop = function
-      [] -> raise Not_found
+  [] -> raise Not_found
     | (a,v)::avs ->
-	if String.uppercase a = at then v else loop avs in
+      if String.uppercase a = at then v else loop avs in
   loop ats
 
 let tag = fun ((model, path):node) ->
@@ -389,8 +389,8 @@ let rec xml_of_node = fun (node:node) ->
   and tag = tag node in
   if tag = "PCData" then
     match attrs with
-      ["PCData", data] -> Xml.PCData (sprintf "\n%s\n" (recode_crs data))
-    | _ -> failwith (sprintf "Wrong data in %s\n" tag)
+        ["PCData", data] -> Xml.PCData (sprintf "\n%s\n" (recode_crs data))
+      | _ -> failwith (sprintf "Wrong data in %s\n" tag)
   else
     let children = List.map xml_of_node (children node) in
     Xml.Element (tag, List.sort compare attrs, children)
@@ -404,9 +404,9 @@ let child = fun ((model, path):node) (t:string) ->
     let i = model#iter_children (Some row) in
     let rec loop = fun () ->
       if model#get ~row:i ~column:tag_col = t then
-	(model, model#get_path i)
+        (model, model#get_path i)
       else if model#iter_next i then
-	loop ()
+        loop ()
       else failwith (sprintf "XmlEdit.child: %s" t) in
     loop ()
   else
@@ -419,9 +419,9 @@ let rec parent = fun ((model, path):node) (t:string) ->
     (model, path)
   else
     match model#iter_parent row with
-      None -> failwith (sprintf "XmlEdit.parent: %s" t)
-    | Some p ->
-	parent (model, model#get_path p) t
+        None -> failwith (sprintf "XmlEdit.parent: %s" t)
+      | Some p ->
+        parent (model, model#get_path p) t
 
 
 let delete = fun (model, path) ->
@@ -481,29 +481,29 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
   end;
   begin
     match model#iter_parent row with
-      Some parent ->
-	let copy = fun () ->
-	  let xml = xml_of_node (model,(model#get_path row)) in
-	  let row = model#insert_after ~parent row in
-	  set_xml model row xml;
-	  model#get ~row:parent ~column:event (New_child (model, model#get_path row));
-	  List.iter (insert_xml model row) (Xml.children xml)
-	in
-	let menuitem = GMenu.menu_item ~label:"Copy after" ~packing:menu#append () in
-	ignore (menuitem#connect#activate ~callback:copy);
+        Some parent ->
+          let copy = fun () ->
+            let xml = xml_of_node (model,(model#get_path row)) in
+            let row = model#insert_after ~parent row in
+            set_xml model row xml;
+            model#get ~row:parent ~column:event (New_child (model, model#get_path row));
+            List.iter (insert_xml model row) (Xml.children xml)
+          in
+          let menuitem = GMenu.menu_item ~label:"Copy after" ~packing:menu#append () in
+          ignore (menuitem#connect#activate ~callback:copy);
 
-	let menuitem = GMenu.menu_item ~label:"Add after" ~packing:menu#append () in
-	let parent_tag = model#get ~row:parent ~column:tag_col in
-	let connect = fun t ->
-	  let row = model#insert_after ~parent row in
-	  let attrs = required_attributes t dtd in
-	  let xml = Xml.Element (t, attrs, []) in
-	  set_xml model row xml;
-	  model#get ~row:parent ~column:event (New_child (model, model#get_path row))
-	in
-	let tags = dtd_children parent_tag dtd in
-	submenu menuitem tags connect
-    | _ -> ()
+          let menuitem = GMenu.menu_item ~label:"Add after" ~packing:menu#append () in
+          let parent_tag = model#get ~row:parent ~column:tag_col in
+          let connect = fun t ->
+            let row = model#insert_after ~parent row in
+            let attrs = required_attributes t dtd in
+            let xml = Xml.Element (t, attrs, []) in
+            set_xml model row xml;
+            model#get ~row:parent ~column:event (New_child (model, model#get_path row))
+          in
+          let tags = dtd_children parent_tag dtd in
+          submenu menuitem tags connect
+      | _ -> ()
   end;
   menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
 
@@ -515,12 +515,12 @@ let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width 
   let attribs_model = model_of_attribs () in
   let hbox = GPack.hbox () in
   let sw = GBin.scrolled_window ~width ~hpolicy:`AUTOMATIC
-      ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
+    ~vpolicy:`AUTOMATIC ~packing:hbox#add () in
   let tree_view = tree_view format_attribs ~edit:editable tree_model sw in
   tree_view#set_border_width 10;
 
   let sw = GBin.scrolled_window ~width:150 ~hpolicy:`AUTOMATIC
-      ~vpolicy:`AUTOMATIC () in
+    ~vpolicy:`AUTOMATIC () in
   let attribs_view = attribs_view attribs_model in
   attribs_view#set_border_width 10;
   sw#add attribs_view#coerce;
@@ -529,12 +529,12 @@ let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width 
 
   let update_tree = fun _path ->
     match tree_view#selection#get_selected_rows with
-      path::_ ->
-	let row = tree_model#get_iter path in
-	let new_attribs = attribs_of_model attribs_model in
-	tree_model#set ~row ~column:attributes new_attribs;
-	tree_model#get ~row ~column:event (Modified new_attribs)
-    | _ -> ()
+        path::_ ->
+          let row = tree_model#get_iter path in
+          let new_attribs = attribs_of_model attribs_model in
+          tree_model#set ~row ~column:attributes new_attribs;
+          tree_model#get ~row ~column:event (Modified new_attribs)
+      | _ -> ()
   in
   let _attribs_changed = attribs_model#connect#row_changed ~callback:(fun p _i -> update_tree p) in
   ignore (attribs_model#connect#row_deleted ~callback:update_tree);
@@ -543,20 +543,20 @@ let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width 
 
   let selection_changed = fun () ->
     match tree_view#selection#get_selected_rows with
-      path::_ ->
-	let row = tree_model#get_iter path in
-	let attribs = tree_model#get ~row ~column:attributes in
-	attribs_model#clear ();
-	tag_of_last_selection := tree_model#get ~row ~column:tag_col;
-	set_attributes attribs_model attribs
-    | _ -> () in
+        path::_ ->
+          let row = tree_model#get_iter path in
+          let attribs = tree_model#get ~row ~column:attributes in
+          attribs_model#clear ();
+          tag_of_last_selection := tree_model#get ~row ~column:tag_col;
+          set_attributes attribs_model attribs
+      | _ -> () in
 
   let _c = tree_view#selection#connect#after#changed ~callback:selection_changed in
 
   let _ = tree_view#connect#after#row_activated ~callback:
-      (fun path vcol ->
-	let cbs = try  (Hashtbl.find activated_cbs tree_model) with Not_found -> [] in
-	List.iter (fun cb -> cb (tree_model, path)) cbs) in
+    (fun path vcol ->
+      let cbs = try  (Hashtbl.find activated_cbs tree_model) with Not_found -> [] in
+      List.iter (fun cb -> cb (tree_model, path)) cbs) in
 
   if editable then begin
     let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in
@@ -577,20 +577,20 @@ let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width 
       let row = tree_model#get_iter path in
       let row_tag = (tree_model#get ~row ~column:tag_col) in
       dropable := begin
-	match i with
-	  GTK_TREE_VIEW_DROP_INTO_OR_BEFORE
-	| GTK_TREE_VIEW_DROP_INTO_OR_AFTER ->
-	    List.mem !tag_of_last_selection (dtd_children row_tag dtd)
-	| _ ->
-	    match tree_model#iter_parent row with
-	      None -> false
-	    | Some parent ->
-		let parent_tag = tree_model#get ~row:parent ~column:tag_col in
-		List.mem !tag_of_last_selection (dtd_children parent_tag dtd)
+        match i with
+            GTK_TREE_VIEW_DROP_INTO_OR_BEFORE
+          | GTK_TREE_VIEW_DROP_INTO_OR_AFTER ->
+            List.mem !tag_of_last_selection (dtd_children row_tag dtd)
+          | _ ->
+            match tree_model#iter_parent row with
+                None -> false
+              | Some parent ->
+                let parent_tag = tree_model#get ~row:parent ~column:tag_col in
+                List.mem !tag_of_last_selection (dtd_children parent_tag dtd)
       end;
       false
     with
-      Gpointer.Null -> false in
+        Gpointer.Null -> false in
   let drop = fun (context:GObj.drag_context) ~x ~y ~time ->
     if !dropable then
       false

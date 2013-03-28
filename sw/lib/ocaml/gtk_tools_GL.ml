@@ -45,7 +45,7 @@ open Gtk_tools
 let create_draw_glarea_base width height pack_method =
   (* Creation des widgets *)
   GlGtk.area [`DEPTH_SIZE 1; `RGBA; `DOUBLEBUFFER]
-	~width:width ~height:height ~packing:pack_method ()
+    ~width:width ~height:height ~packing:pack_method ()
 
 (* ============================================================================= *)
 (* = Connection des fonctions de base a une drawing area OpenGL                = *)
@@ -56,11 +56,11 @@ let create_draw_glarea_base width height pack_method =
 (* = reshape_func = appelee lors d'un changement de taille                     = *)
 (* ============================================================================= *)
 let connect_draw_glarea_simple area
-	init_func display_func reshape_func =
+    init_func display_func reshape_func =
   (* La nouvelle fonction de dessin appelle celle qui est passee en parametre quand *)
   (* necessaire et fait le flush ensuite *)
   let draw = (fun () -> if (area:GlGtk.area)#misc#visible then begin
-	display_func (); Gl.flush (); area#swap_buffers ()
+    display_func (); Gl.flush (); area#swap_buffers ()
   end) in
 
   (* Connection des fonctions *)
@@ -82,12 +82,12 @@ let connect_draw_glarea_simple area
 (* = reshape_func = appelee lors d'un changement de taille                     = *)
 (* ============================================================================= *)
 let create_draw_glarea_simple width height pack_method
-	init_func display_func reshape_func =
+    init_func display_func reshape_func =
   (* Creation des widgets *)
   let area = create_draw_glarea_base width height pack_method in
 
   let draw = connect_draw_glarea_simple area
-	  init_func display_func reshape_func in
+    init_func display_func reshape_func in
 
   (* Renvoie la zone de dessin et la nouvelle fonction de dessin *)
   (area, draw)
@@ -118,9 +118,9 @@ let glarea_key_connect area key_press key_release =
   (* Par defaut l'evenement key_release n'est pas associe au widget *)
   (area:GlGtk.area)#event#add [`KEY_RELEASE] ;
   ignore(area#event#connect#key_press
-		   ~callback:(fun ev -> key_press   (GdkEvent.Key.keyval ev))) ;
+           ~callback:(fun ev -> key_press   (GdkEvent.Key.keyval ev))) ;
   ignore(area#event#connect#key_release
-		   ~callback:(fun ev -> key_release (GdkEvent.Key.keyval ev))) ;
+           ~callback:(fun ev -> key_release (GdkEvent.Key.keyval ev))) ;
   area#misc#set_can_focus true ;
   area#misc#grab_focus ()
 
@@ -142,6 +142,6 @@ let gtk_to_gl_color color =
 (* ============================================================================= *)
 let gl_to_gtk_color (r, g, b) =
   `RGB(int_of_float (r*.65535.0), int_of_float (g*.65535.0),
-	   int_of_float (b*.65535.0))
+       int_of_float (b*.65535.0))
 
 (* =============================== FIN ========================================= *)

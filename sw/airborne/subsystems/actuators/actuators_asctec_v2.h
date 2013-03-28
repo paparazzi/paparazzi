@@ -65,11 +65,11 @@ extern struct ActuatorsAsctecV2 actuators_asctec_v2;
   }
 
 extern void actuators_asctec_v2_init(void);
-extern void actuators_asctec_v2_set(bool_t motors_on);
+extern void actuators_asctec_v2_set(void);
 
 #define ActuatorAsctec_v2Set(_i, _v) { actuators_asctec_v2.cmds[_i] = _v; }
 #define ActuatorsAsctec_v2Init() actuators_asctec_v2_init()
-#define ActuatorsAsctec_v2Commit() actuators_asctec_v2_set(autopilot_motors_on)
+#define ActuatorsAsctec_v2Commit() actuators_asctec_v2_set()
 
 
 #endif /* ACTUATORS_ASCTEC_H */

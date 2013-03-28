@@ -42,36 +42,36 @@ let check_unique_id_and_name = fun conf ->
   List.iter
     (fun x ->
       if String.lowercase (Xml.tag x) = "aircraft" then
-    let id = ExtXml.attrib x "ac_id"
-    and name = ExtXml.attrib x "name" in
-    if Hashtbl.mem ids id then begin
-      let other_name = Hashtbl.find ids id in
-      failwith (sprintf "Error: A/C Id '%s' duplicated in %s (%s and %s)" id conf_xml name other_name)
-    end;
-    if Hashtbl.mem names name then begin
-      let other_id = Hashtbl.find names name in
-      failwith (sprintf "Error: A/C name '%s' duplicated in %s (ids %s and %s)" name conf_xml id other_id)
-    end;
-    Hashtbl.add ids id name;
-    Hashtbl.add names name id)
+        let id = ExtXml.attrib x "ac_id"
+        and name = ExtXml.attrib x "name" in
+        if Hashtbl.mem ids id then begin
+          let other_name = Hashtbl.find ids id in
+          failwith (sprintf "Error: A/C Id '%s' duplicated in %s (%s and %s)" id conf_xml name other_name)
+        end;
+        if Hashtbl.mem names name then begin
+          let other_id = Hashtbl.find names name in
+          failwith (sprintf "Error: A/C name '%s' duplicated in %s (ids %s and %s)" name conf_xml id other_id)
+        end;
+        Hashtbl.add ids id name;
+        Hashtbl.add names name id)
     (Xml.children conf)
 
 
 
 (** [get_modules dir xml]
- * [dir] is the conf directory for modules, [xml] is the parsed airframe.xml *)
+    * [dir] is the conf directory for modules, [xml] is the parsed airframe.xml *)
 (*let get_modules = fun dir xml ->
   let modules = Gen_common.get_modules_of_airframe xml in
-  (* build a list (file name, (xml, xml list of flags)) *)
+(* build a list (file name, (xml, xml list of flags)) *)
   let extract = List.map Gen_common.get_full_module_conf modules in
-  (* return a list of name and a list of pairs (xml, xml list) *)
+(* return a list of name and a list of pairs (xml, xml list) *)
   List.split extract*)
 
 (**
    Search and dump the module section :
-     xml : the parsed airframe.xml
-     f   : makefile.ac
- **)
+   xml : the parsed airframe.xml
+   f   : makefile.ac
+**)
 let dump_module_section = fun xml f ->
   (* get modules *)
   let modules = Gen_common.get_modules_of_airframe xml in
@@ -82,10 +82,10 @@ let dump_module_section = fun xml f ->
   fprintf f "\n# include modules directory for all targets\n";
   (* get dir and target list *)
   let dir_list = Gen_common.get_modules_dir modules in
-(**
-  let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
-  List.iter (fun target -> fprintf f "%s.CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n" target) target_list;
-**)
+  (**
+     let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
+     List.iter (fun target -> fprintf f "%s.CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n" target) target_list;
+  **)
   (** include modules directory for ALL targets and not just the defined ones **)
   fprintf f "$(TARGET).CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n";
   List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) dir_list;
@@ -100,17 +100,17 @@ let dump_module_section = fun xml f ->
     fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
     List.iter (fun flag ->
       match String.lowercase (Xml.tag flag) with
-        "configure" ->
-          let value = Xml.attrib flag "value"
-          and name = Xml.attrib flag "name" in
-          fprintf f "%s = %s\n" name value
-      | "define" ->
+          "configure" ->
+            let value = Xml.attrib flag "value"
+            and name = Xml.attrib flag "name" in
+            fprintf f "%s = %s\n" name value
+        | "define" ->
           List.iter (fun target ->
             let name = ExtXml.attrib flag "name"
             and value = try "="^(Xml.attrib flag "value") with _ -> "" in
             fprintf f "%s.CFLAGS += -D%s%s\n" target name value
           ) module_target_list
-      | _ -> ()
+        | _ -> ()
     ) m.param;
     (* Look for makefile section *)
     List.iter (fun l ->
@@ -122,11 +122,11 @@ let dump_module_section = fun xml f ->
         (* Look for defines, flags, files, ... *)
         List.iter (fun field ->
           match String.lowercase (Xml.tag field) with
-            "configure" ->
-              let value = Xml.attrib field "value"
-              and name = Xml.attrib field "name" in
-              fprintf f "%s = %s\n" name value
-          | "define" ->
+              "configure" ->
+                let value = Xml.attrib field "value"
+                and name = Xml.attrib field "name" in
+                fprintf f "%s = %s\n" name value
+            | "define" ->
               List.iter (fun target ->
                 let value = try "="^(Xml.attrib field "value") with _ -> ""
                 and name = Xml.attrib field "name" in
@@ -135,48 +135,48 @@ let dump_module_section = fun xml f ->
                   | "include" | "I" -> "I"
                   | _ -> "D" in
                 fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value
-                ) targets
-          | "file" ->
+              ) targets
+            | "file" ->
               let name = Xml.attrib field "name" in
               let dir_name = ExtXml.attrib_or_default field "dir" ("$("^dir_name^")") in
               List.iter (fun target -> fprintf f "%s.srcs += %s/%s\n" target dir_name name) targets
-          | "file_arch" ->
+            | "file_arch" ->
               let name = Xml.attrib field "name" in
               let dir_name = ExtXml.attrib_or_default field "dir" ("$("^dir_name^")") in
               List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/%s/%s\n" target dir_name name) targets
-          | "raw" ->
+            | "raw" ->
               begin match Xml.children field with
-                [Xml.PCData s] -> fprintf f "%s\n" s
-              | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
+                  [Xml.PCData s] -> fprintf f "%s\n" s
+                | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
               end
-          | _ -> ()
-          ) (Xml.children l)
+            | _ -> ()
+        ) (Xml.children l)
       end) (Xml.children m.xml)
-    ) modules;
+  ) modules;
   (** returns a list of modules file name *)
   List.map (fun m -> m.file) modules
 
 (**
-    Search and dump the makefile sections
+   Search and dump the makefile sections
 **)
 let dump_makefile_section = fun xml makefile_ac airframe_infile location ->
   List.iter (fun x ->
     if ExtXml.tag_is x "makefile" then begin
       let loc = ExtXml.attrib_or_default x "location" "before" in
       match (location, loc) with
-        ("before", "before") | ("after", "after") ->
-          fprintf makefile_ac "\n# raw makefile\n";
-          begin match Xml.children x with
-            [Xml.PCData s] -> fprintf makefile_ac "%s\n" s
-          | _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_infile (Xml.to_string_fmt x))
-          end
-      | (_, _) -> ()
+          ("before", "before") | ("after", "after") ->
+            fprintf makefile_ac "\n# raw makefile\n";
+            begin match Xml.children x with
+                [Xml.PCData s] -> fprintf makefile_ac "%s\n" s
+              | _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_infile (Xml.to_string_fmt x))
+            end
+        | (_, _) -> ()
     end)
-  (Xml.children xml)
+    (Xml.children xml)
 
 (**
- * Firmware Children
- * **)
+   * Firmware Children
+   * **)
 
 (* print a configure (firmware) *)
 let print_firmware_configure = fun f p ->
@@ -248,7 +248,7 @@ let parse_firmware = fun makefile_ac firmware ->
 
 (**
    Search and dump the firmware section
- **)
+**)
 let dump_firmware_sections = fun xml makefile_ac ->
   List.iter (fun tag ->
     if ExtXml.tag_is tag "firmware" then begin
@@ -259,7 +259,7 @@ let dump_firmware_sections = fun xml makefile_ac ->
         parse_firmware makefile_ac tag
       with _ -> failwith "Warning: firmware name is undeclared"
     end)
-  (Xml.children xml)
+    (Xml.children xml)
 
 
 
@@ -287,13 +287,13 @@ let extract_makefile = fun airframe_file makefile_ac ->
 
 let is_older = fun target_file dep_files ->
   not (Sys.file_exists target_file) ||
-  let target_file_time = (U.stat target_file).U.st_mtime in
-  let rec loop = function
-      [] -> false
-    | f::fs ->
-    target_file_time < (U.stat f).U.st_mtime ||
-    loop fs in
-  loop dep_files
+    let target_file_time = (U.stat target_file).U.st_mtime in
+    let rec loop = function
+    [] -> false
+      | f::fs ->
+        target_file_time < (U.stat f).U.st_mtime ||
+          loop fs in
+    loop dep_files
 
 
 let make_element = fun t a c -> Xml.Element (t,a,c)
@@ -309,9 +309,9 @@ let () =
     check_unique_id_and_name conf;
     let aircraft_xml =
       try
-    ExtXml.child conf ~select:(fun x -> Xml.attrib x "name" = aircraft) "aircraft"
+        ExtXml.child conf ~select:(fun x -> Xml.attrib x "name" = aircraft) "aircraft"
       with
-    Not_found -> failwith (sprintf "Aircraft '%s' not found in '%s'" aircraft conf_xml)
+          Not_found -> failwith (sprintf "Aircraft '%s' not found in '%s'" aircraft conf_xml)
     in
 
     let value = fun attrib -> ExtXml.attrib aircraft_xml attrib in
@@ -333,17 +333,17 @@ let () =
 
     let settings =
       try value "settings" with
-    _ ->
-      fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/basic.xml'\n\n%!" aircraft;
-      "settings/basic.xml" in
+          _ ->
+            fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/basic.xml'\n\n%!" aircraft;
+            "settings/basic.xml" in
 
     (** Expands the configuration of the A/C into one single file *)
     let conf_aircraft = Env.expand_ac_xml aircraft_xml in
     let configuration =
       make_element
-    "configuration"
-    []
-    [make_element "conf" [] [conf_aircraft]; Pprz.messages_xml ()] in
+        "configuration"
+        []
+        [make_element "conf" [] [conf_aircraft]; Pprz.messages_xml ()] in
     let conf_aircraft_file = aircraft_conf_dir // "conf_aircraft.xml" in
     let f = open_out conf_aircraft_file in
     Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
@@ -354,19 +354,19 @@ let () =
     let md5sum_file = aircraft_conf_dir // "aircraft.md5" in
     (* Store only if different from previous one *)
     if not (Sys.file_exists md5sum_file
-          && md5sum = input_line (open_in md5sum_file)) then begin
-        let f = open_out md5sum_file in
-        Printf.fprintf f "%s\n" md5sum;
-        close_out f;
+            && md5sum = input_line (open_in md5sum_file)) then begin
+      let f = open_out md5sum_file in
+      Printf.fprintf f "%s\n" md5sum;
+      close_out f;
 
         (** Save the configuration for future use *)
-        let d = U.localtime (U.gettimeofday ()) in
-        let filename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_%s_%s.conf" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) md5sum aircraft in
-        let d = Env.paparazzi_home // "var" // "conf" in
-        mkdir d;
-        let f = open_out (d // filename) in
-        Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
-        close_out f end;
+      let d = U.localtime (U.gettimeofday ()) in
+      let filename = sprintf "%02d_%02d_%02d__%02d_%02d_%02d_%s_%s.conf" (d.U.tm_year mod 100) (d.U.tm_mon+1) (d.U.tm_mday) (d.U.tm_hour) (d.U.tm_min) (d.U.tm_sec) md5sum aircraft in
+      let d = Env.paparazzi_home // "var" // "conf" in
+      mkdir d;
+      let f = open_out (d // filename) in
+      Printf.fprintf f "%s\n" (ExtXml.to_string_fmt configuration);
+      close_out f end;
 
     let airframe_file = value "airframe" in
 
@@ -379,20 +379,20 @@ let () =
     let make = fun target options ->
       let c = sprintf "make -f Makefile.ac AIRCRAFT=%s AC_ID=%s AIRFRAME_XML=%s TELEMETRY=%s SETTINGS=\"%s\" MD5SUM=\"%s\" %s %s" aircraft (value "ac_id") airframe_file (value "telemetry") settings md5sum options target in
       begin (** Quiet is speficied in the Makefile *)
-    try if Sys.getenv "Q" <> "@" then raise Not_found with
-      Not_found -> prerr_endline c
+        try if Sys.getenv "Q" <> "@" then raise Not_found with
+            Not_found -> prerr_endline c
       end;
       let returned_code = Sys.command c in
       if returned_code <> 0 then
-    exit returned_code in
+        exit returned_code in
 
     (** Calls the makefile if the optional attribute is available *)
     let make_opt = fun target var attr ->
       try
-    let value = Xml.attrib aircraft_xml attr in
-    make target (sprintf "%s=%s" var value)
+        let value = Xml.attrib aircraft_xml attr in
+        make target (sprintf "%s=%s" var value)
       with
-    Xml.No_attribute _ -> () in
+          Xml.No_attribute _ -> () in
 
     let temp_makefile_ac = Filename.temp_file "Makefile.ac" "tmp" in
     let abs_airframe_file = paparazzi_conf // airframe_file in
@@ -411,6 +411,6 @@ let () =
     make_opt "radio_ac_h" "RADIO" "radio";
     make_opt "flight_plan_ac_h" "FLIGHT_PLAN" "flight_plan"
   with
-    Failure f ->
-      prerr_endline f;
-      exit 1
+      Failure f ->
+        prerr_endline f;
+        exit 1

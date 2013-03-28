@@ -25,7 +25,7 @@
 type state = A | B | C | D | D' | D'' | E
 
 let children = function
-    Nethtml.Element (_tag, _params, children) -> children
+Nethtml.Element (_tag, _params, children) -> children
   | _ -> invalid_arg "XmlCom.children"
 
 
@@ -54,30 +54,30 @@ let parse_file = fun file ->
       automata state
     in
     match state, char with
-      A, '<' -> copy_and_continue B
-    | A, _   -> copy_and_continue A
+        A, '<' -> copy_and_continue B
+      | A, _   -> copy_and_continue A
 
-    | B, '!' -> copy_and_continue A
-    | B, (' ' | '\t' | '\n') -> copy_and_continue B
-    | B, _   -> Buffer.add_char name char; copy_and_continue C
+      | B, '!' -> copy_and_continue A
+      | B, (' ' | '\t' | '\n') -> copy_and_continue B
+      | B, _   -> Buffer.add_char name char; copy_and_continue C
 
-    | C, (' ' | '\t' | '\n') -> copy_and_continue D
-    | C, '>' -> Buffer.clear name; copy_and_continue A
-    | C, '/' -> mem_and_continue E
-    | C, _   -> Buffer.add_char name char; copy_and_continue C
+      | C, (' ' | '\t' | '\n') -> copy_and_continue D
+      | C, '>' -> Buffer.clear name; copy_and_continue A
+      | C, '/' -> mem_and_continue E
+      | C, _   -> Buffer.add_char name char; copy_and_continue C
 
-    | D, '/' -> mem_and_continue E
-    | D, '>' -> Buffer.clear name; copy_and_continue A
-    | D, '"' -> copy_and_continue D'
+      | D, '/' -> mem_and_continue E
+      | D, '>' -> Buffer.clear name; copy_and_continue A
+      | D, '"' -> copy_and_continue D'
     | D, _   -> copy_and_continue D
 
     (* Inside a quoted string *)
     | D', '"' -> copy_and_continue D
-    | D', '\\' -> automata D''
-    | D', _  -> copy_and_continue D'
+      | D', '\\' -> automata D''
+      | D', _  -> copy_and_continue D'
 
     (* Inside a quoted string, just after a \ (backslash) *)
-    | D'', '"' -> Buffer.add_string buff "&quot;"; automata D'
+      | D'', '"' -> Buffer.add_string buff "&quot;"; automata D'
     | D'', _  -> Buffer.add_char buff '\\'; copy_and_continue D'
 
     | E, '>' -> replace_and_continue A
