@@ -24,8 +24,6 @@
  *
  */
 
-#define GUIDANCE_H_C
-
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -84,7 +82,7 @@ static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
-    b2_gh_set_ref(_pos, _speed, _accel);        \
+    gh_set_ref(_pos, _speed, _accel);        \
     VECT2_COPY(guidance_h_pos_ref,   _pos);     \
     VECT2_COPY(guidance_h_speed_ref, _speed);   \
     VECT2_COPY(guidance_h_accel_ref, _accel);   \
@@ -242,10 +240,10 @@ void guidance_h_run(bool_t  in_flight) {
 static inline void guidance_h_update_reference(bool_t use_ref) {
   /* convert our reference to generic representation */
   if (use_ref) {
-    b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
-    INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
+    gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+    INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
+    INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
+    INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
   } else {
     VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
     INT_VECT2_ZERO(guidance_h_speed_ref);
