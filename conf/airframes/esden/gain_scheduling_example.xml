@@ -25,13 +25,13 @@
     <set servo="A2"  value="motor_mixing.commands[SERVO_A2]"/>
     <set servo="B1" value="motor_mixing.commands[SERVO_B1]"/>
     <set servo="B2"  value="motor_mixing.commands[SERVO_B2]"/>
-    
+
     <let var="aileron_feedback_left"  value="-@YAW"/>
     <let var="aileron_feedback_right" value="-@YAW"/>
-    
+
     <let var="elevator_feedback_left"  value="-@PITCH * (9600 + @THRUST)/9600"/>
     <let var="elevator_feedback_right" value="+@PITCH * (9600 + @THRUST)/9600"/>
-    
+
     <let var="hover_left"  value="6*$aileron_feedback_left+$elevator_feedback_left"/>
     <let var="hover_right" value="6*$aileron_feedback_right+$elevator_feedback_right"/>
 
@@ -63,7 +63,7 @@
    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
-   
+
    <define name="AUTOPILOT_KILL_WITHOUT_AHRS" value="TRUE"/>
    <define name="LOBATT_WING_WAGGLE" value="TRUE"/>
    <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
@@ -83,24 +83,24 @@
     <define name="GAIN_Q" value="400"/>
     <define name="GAIN_R" value="350"/>
   </section>
-  
+
   <!--////////////////THIS SECTION CONTAINS THE GAINS FOR DIFFERENT SETPOINTS\\\\\\\\\\\\\\\\\\-->
   <section name ="GAIN_SETS">
     <define name="NUMBER_OF_GAINSETS" value="2"/>
     <define name="SCHEDULING_VARIABLE" value="stab_att_sp_euler.theta"/>
     <define name="SCHEDULING_POINTS" value="{0, 20*M_PI/180}"/>
     <define name="SCHEDULING_VARIABLE_FRAC" value="12"/>
-  
+
     <define name="PHI_P" value="{0, 1000}"/>
     <define name="PHI_D" value="{0, 1000}"/>
     <define name="PHI_I" value="{0, 1000}"/>
     <define name="PHI_DD" value="{0, 1000}"/>
-    
+
     <define name="PSI_P" value="{0, 1000}"/>
     <define name="PSI_D" value="{0, 1000}"/>
     <define name="PSI_I" value="{0, 1000}"/>
     <define name="PSI_DD" value="{0, 1000}"/>
-    
+
     <define name="THETA_P" value="{0, 1000}"/>
     <define name="THETA_D" value="{0, 1000}"/>
     <define name="THETA_I" value="{0, 1000}"/>
@@ -134,7 +134,7 @@
     <define name="REF_ZETA_R"   value="0.9"/>
     <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
-    
+
     <define name="PHI_PGAIN"  value="230"/>
     <define name="PHI_DGAIN"  value="170"/>
     <define name="PHI_IGAIN"  value="30"/>
@@ -146,7 +146,7 @@
     <define name="PSI_PGAIN"  value="300"/>
     <define name="PSI_DGAIN"  value="150"/>
     <define name="PSI_IGAIN"  value="0"/>
-    
+
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 0"/>
     <define name="THETA_DDGAIN" value=" 140"/>
@@ -163,7 +163,7 @@
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP"    value="200"/> 
+   <define name="HOVER_KP"    value="200"/>
    <define name="HOVER_KD"    value="175"/>
    <define name="HOVER_KI"    value="72"/>
    <define name="RC_CLIMB_COEF" value ="163"/>
@@ -198,7 +198,7 @@
 <!--//////////////INCLUDE THE GAIN SCHEDULING MODULE\\\\\\\\\\\\\\\\-->
  <modules main_freq="512">
    <load name="gps_ubx_ucenter.xml"/>
-   <load name="led_safety_status.xml"> 
+   <load name="led_safety_status.xml">
    	 <define name="USE_LED_BODY" value="1"/>
          <define name="SAFETY_WARNING_LED" value="BODY"/>
    </load>

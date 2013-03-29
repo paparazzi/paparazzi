@@ -112,7 +112,7 @@
     <define name="REF_ZETA_R"   value="0.9"/>
     <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="900." unit="deg/s"/>
-    
+
     <!-- feedback -->
     <!--350/310-->
     <define name="PHI_PGAIN"  value="450"/>
@@ -184,7 +184,7 @@
  <modules main_freq="512">
    <!--load name="vehicle_interface_overo_link.xml"/-->
    <load name="gps_ubx_ucenter.xml"/>
-   <load name="led_safety_status.xml"> 
+   <load name="led_safety_status.xml">
      <define name="USE_LED_BODY" value="1"/>
      <define name="SAFETY_WARNING_LED" value="5"/>
    </load>
