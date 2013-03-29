@@ -42,7 +42,6 @@
 /debian/changelog
 /debian/files
 /debian/paparazzi-arm7
-/debian/paparazzi-avr
 /debian/paparazzi-dev
 /debian/paparazzi-bin
 /sw/lib/ocaml/ivy/debian/changelog
