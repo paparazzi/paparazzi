@@ -241,19 +241,12 @@ paparazzi:
 	chmod a+x $@
 
 
-install: all
-	$(MAKE) -f Makefile.install PREFIX=$(PREFIX)
-
-uninstall:
-	$(MAKE) -f Makefile.install PREFIX=$(PREFIX) uninstall
-
-
 #
 # Cleaning
 #
 
 clean:
-	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin paparazzi
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
@@ -298,6 +291,6 @@ test: all replace_current_conf_xml run_tests restore_conf_xml
 
 .PHONY: all print_build_version update_google_version ground_segment \
 subdirs $(SUBDIRS) conf ext libpprz multimon cockpit tmtc tools\
-static sim_static lpctools commands install uninstall \
+static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test replace_current_conf_xml run_tests restore_conf_xml

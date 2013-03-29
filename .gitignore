@@ -31,22 +31,6 @@
 /build.properties
 /META-INF
 
-# Debian related files
-*.deb
-*.dsc
-*.changes
-*.substvars
-*.debhelper.log
-*-stamp
-/debian/control
-/debian/changelog
-/debian/files
-/debian/paparazzi-arm7
-/debian/paparazzi-dev
-/debian/paparazzi-bin
-/sw/lib/ocaml/ivy/debian/changelog
-/sw/lib/ocaml/ivy/debian/files
-/sw/lib/ocaml/ivy/debian/ivy-ocaml
 
 /var
 /dox
