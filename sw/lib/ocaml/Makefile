@@ -70,8 +70,9 @@ XCMX = $(XSRC:.ml=.cmx)
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
-opt : lib-pprz.cmxa xlib-pprz.cmxa copyMETA
+all : byte native
+byte : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out META.pprz
+native : lib-pprz.cmxa xlib-pprz.cmxa META.pprz
 
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
@@ -96,7 +97,7 @@ lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
 
 xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
-xml_get.out : lib-pprz.cma xml_get.cmo | opt
+xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^
 
@@ -182,14 +183,14 @@ gtk_papget_led_editor.ml : widgets.glade
 	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
 	$(Q)rm -f $($@_TMP)
 
-copyMETA : $(METAFILE)
+META.pprz : $(METAFILE)
 	@echo COPY $<
 	$(shell cp $< META.pprz)
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
 
-.PHONY: all opt clean
+.PHONY: all byte native clean
 
 #
 # Dependencies
