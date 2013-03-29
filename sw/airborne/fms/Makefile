@@ -1,4 +1,7 @@
 
+# Quiet compilation
+Q=@
+
 CFLAGS = -Wall $(shell pkg-config --cflags glib-2.0) -g
 LDFLAGS = $(shell pkg-config --libs glib-2.0)
 
@@ -49,4 +52,4 @@ onboard_logger: onboard_logger.c
 	$(CC) $(CFLAGS) -o $@ $^ -lpcap
 
 clean:
-	rm -f *~ fms test_telemetry
+	$(Q)rm -f *~ fms test_telemetry

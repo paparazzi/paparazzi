@@ -1,4 +1,7 @@
 
+# Quiet compilation
+Q=@
+
 #LIBNAME	= efsl
 APPNAME = linuxtest
 
@@ -24,7 +27,7 @@ SOURCES =	linuxtest.c
 all: $(APPNAME)
 
 clean:
-	$(RM) -f core $(APPNAME).o $(APPNAME) $(APPNAME).obj $(APPNAME).exe
+	$(Q)$(RM) -f core $(APPNAME).o $(APPNAME) $(APPNAME).obj $(APPNAME).exe
 
 app: $(APPNAME)
 

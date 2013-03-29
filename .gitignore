@@ -118,6 +118,7 @@
 /sw/lib/ocaml/expr_parser.mli
 /sw/lib/ocaml/gtk_papget_led_editor.ml
 /sw/lib/ocaml/expr_lexer.ml
+/sw/lib/ocaml/META.pprz
 
 # /sw/logalizer/
 /sw/logalizer/plot

@@ -1,3 +1,6 @@
+# Quiet compilation
+Q=@
+
 #PROC_AP PROC_FBW PROC_TINY PROC_TINYJ
 #PROC = TINYJ
 ALLFLAGS = -DPROC_$(PROC)
@@ -37,9 +40,9 @@ LIBOBJS =	usbhw_lpc.o usbcontrol.o usbstdreq.o usbinit.o usbdescrip.o
 all: lib app app_ram
 
 clean:
-	$(RM) -f $(LIBNAME).a $(LIBOBJS)
-	$(RM) -f $(APPNAME).hex $(APPNAME).elf $(OBJS) *.lst $(APPNAME).dmp $(APPNAME).map
-	$(RM) -f $(APPNAME_RAM).hex $(APPNAME_RAM).elf $(APPNAME_RAM).dmp $(APPNAME_RAM).map
+	$(Q)$(RM) -f $(LIBNAME).a $(LIBOBJS)
+	$(Q)$(RM) -f $(APPNAME).hex $(APPNAME).elf $(OBJS) *.lst $(APPNAME).dmp $(APPNAME).map
+	$(Q)$(RM) -f $(APPNAME_RAM).hex $(APPNAME_RAM).elf $(APPNAME_RAM).dmp $(APPNAME_RAM).map
 
 # build lib
 lib: $(LIBOBJS)
