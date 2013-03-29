@@ -58,12 +58,9 @@ void l3g4200_init(struct L3g4200 *l3g, struct i2c_periph *i2c_p, uint8_t addr)
 
 static void l3g4200_i2c_tx_reg(struct L3g4200 *l3g, uint8_t reg, uint8_t val)
 {
-  l3g->i2c_trans.type = I2CTransTx;
   l3g->i2c_trans.buf[0] = reg;
   l3g->i2c_trans.buf[1] = val;
-  l3g->i2c_trans.len_r = 0;
-  l3g->i2c_trans.len_w = 2;
-  i2c_submit(l3g->i2c_p, &(l3g->i2c_trans));
+  i2c_transmit(l3g->i2c_p, &(l3g->i2c_trans), l3g->i2c_trans.slave_addr, 2);
 }
 
 // Configuration function called once before normal use
@@ -103,10 +100,7 @@ void l3g4200_read(struct L3g4200 *l3g)
 {
   if (l3g->initialized && l3g->i2c_trans.status == I2CTransDone) {
     l3g->i2c_trans.buf[0] = L3G4200_REG_STATUS_REG;
-    l3g->i2c_trans.type = I2CTransTxRx;
-    l3g->i2c_trans.len_r = 9;
-    l3g->i2c_trans.len_w = 1;
-    i2c_submit(l3g->i2c_p, &(l3g->i2c_trans));
+    i2c_transceive(l3g->i2c_p, &(l3g->i2c_trans), l3g->i2c_trans.slave_addr, 1, 9);
   }
 }
 
