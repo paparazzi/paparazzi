@@ -14,7 +14,7 @@
     <target name="ap" board="navgo_1.0">
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
-      <define name="ACTUATORS_START_DELAY" value="10"/>
+      <define name="ACTUATORS_START_DELAY" value="5"/>
     </target>
     <target name="nps" board="pc">
       <subsystem name="fdm"         type="jsbsim"/>
@@ -25,13 +25,13 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="mkk">
     <define name="I2C_TRANSACTION_QUEUE_LEN"  value="20"/>
-    <define name="MKK_I2C_SCL_TIME" value="20"/> <!--19 = 400kbit-->
+    <configure name="MKK_I2C_SCL_TIME" value="60"/> <!--19 = 400kbit / 60 = 120khz-->
     </subsystem>
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="USE_PWM0"/>
     </subsystem>
-    <subsystem name="imu"           type="navgo"/>
+    <subsystem name="imu"           type="prop1"/><!--navgo-->
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B38400"/>
     </subsystem>
@@ -58,14 +58,14 @@
   </section>
 
   <servos driver="Mkk">
-    <servo name="FRONT_RIGHT"      no="0"    min="0" neutral="12" max="255"/>
-    <servo name="FRONT_MID_RIGHT"  no="1"    min="0" neutral="12" max="255"/>
-    <servo name="BACK_MID_RIGHT"   no="2"    min="0" neutral="12" max="255"/>
-    <servo name="BACK_RIGHT"       no="3"    min="0" neutral="12" max="255"/>
-    <servo name="BACK_LEFT"        no="4"    min="0" neutral="12" max="255"/>
-    <servo name="BACK_MID_LEFT"    no="5"    min="0" neutral="12" max="255"/>
-    <servo name="FRONT_MID_LEFT"   no="6"    min="0" neutral="12" max="255"/>
-    <servo name="FRONT_LEFT"       no="7"    min="0" neutral="12" max="255"/>
+    <servo name="FRONT_RIGHT"      no="0"    min="0" neutral="6" max="255"/>
+    <servo name="FRONT_MID_RIGHT"  no="1"    min="0" neutral="6" max="255"/>
+    <servo name="BACK_MID_RIGHT"   no="2"    min="0" neutral="6" max="255"/>
+    <servo name="BACK_RIGHT"       no="3"    min="0" neutral="6" max="255"/>
+    <servo name="BACK_LEFT"        no="4"    min="0" neutral="6" max="255"/>
+    <servo name="BACK_MID_LEFT"    no="5"    min="0" neutral="0" max="0"/>
+    <servo name="FRONT_MID_LEFT"   no="6"    min="0" neutral="6" max="255"/>
+    <servo name="FRONT_LEFT"       no="7"    min="0" neutral="6" max="255"/>
   </servos>
 
   <servos driver="Pwm">
@@ -87,7 +87,7 @@
     <set servo="BACK_RIGHT"        value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
     <set servo="BACK_LEFT"         value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
     <set servo="BACK_MID_LEFT"     value="motor_mixing.commands[SERVO_BACK_MID_LEFT]"/>
-   <set servo="FRONT_MID_LEFT"    value="motor_mixing.commands[SERVO_FRONT_MID_LEFT]"/>
+    <set servo="FRONT_MID_LEFT"    value="motor_mixing.commands[SERVO_FRONT_MID_LEFT]"/>
     <set servo="FRONT_LEFT"        value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
   </command_laws>
 
@@ -161,16 +161,67 @@
 
   </section>
 
-  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
+   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
-    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
-    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
-    <define name="DEADBAND_R"     value="250"/>
+    <define name="SP_MAX_PHI"     value="45."  unit="deg"/> <!--45-->
+    <define name="SP_MAX_THETA"   value="45."  unit="deg"/> 
+    <define name="SP_MAX_R"       value="260." unit="deg/s"/>
+    <define name="DEADBAND_A"     value="5"/>
+    <define name="DEADBAND_E"     value="5"/>
+    <define name="DEADBAND_R"     value="600"/><!--600-->
+
+<!--
+SP_MAX: bound for angle input
+REF_OMEGA: natural frequency of the second order
+REF_ZETA: damping factor (should not be less than 0.8-0.7, maximum is 1)
+REF_MAX_X: bound on angular speed
+REF_MAX_XDOT: bound on angular acceleration
+The response time (95% of the final value when doing a step input): ~ 3/(freq*damp)
+To increase response time, you can increase the frequency, and the bounds.
+-->
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="1400" unit="deg/s"/><!-- velocidade do stick-->
+    <define name="REF_ZETA_P"   value=".8"/> <!--.85-->
+    <define name="REF_MAX_P"    value="800." unit="deg/s"/> 
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="1400" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value=".8"/>
+    <define name="REF_MAX_Q"    value="800." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(4000.)"/>
+
+    <define name="REF_OMEGA_R"  value="2200" unit="deg/s"/> <!--500-->
+    <define name="REF_ZETA_R"   value="0.8"/>
+    <define name="REF_MAX_R"    value="880." unit="deg/s"/><!--480 180-->
+    <define name="REF_MAX_RDOT" value="RadOfDeg(4000.)"/> <!--4000-->
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="700"/> <!--700   valores bons para 3s-->   
+    <define name="PHI_DGAIN"  value="100"/> <!--250-->
+    <define name="PHI_IGAIN"  value="50"/> <!--350-->
+
+    <define name="THETA_PGAIN"  value="700"/>
+    <define name="THETA_DGAIN"  value="100"/> 
+    <define name="THETA_IGAIN"  value="10"/>
+
+    <define name="PSI_PGAIN"  value="1000"/><!-- 2800 2200 1800-->
+    <define name="PSI_DGAIN"  value="400"/><!--800   valor muito alto deixa pid muito sensivel a vibracao.-->
+    <define name="PSI_IGAIN"  value="0"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value="170"/><!--500-->
+    <define name="THETA_DDGAIN" value="170"/>
+    <define name="PSI_DDGAIN"   value="170"/>
+
+    <define name="PHI_AGAIN"   value="0"/>
+    <define name="THETA_AGAIN" value="0"/>
+    <define name="PSI_AGAIN"   value="0"/>
+  </section>
+
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+ <!--   <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
     <define name="REF_MAX_P"    value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
@@ -184,29 +235,8 @@
     <define name="REF_ZETA_R"   value="0.85"/>
     <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+-->
 
-    <!-- feedback -->
-    <define name="PHI_PGAIN"  value="800"/>
-    <define name="PHI_DGAIN"  value="240"/>
-    <define name="PHI_IGAIN"  value="100"/>
-
-    <define name="THETA_PGAIN"  value="800"/>
-    <define name="THETA_DGAIN"  value="240"/>
-    <define name="THETA_IGAIN"  value="100"/>
-
-    <define name="PSI_PGAIN"  value="600"/>
-    <define name="PSI_DGAIN"  value="450"/>
-    <define name="PSI_IGAIN"  value="20"/>
-
-    <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value="170"/>
-    <define name="THETA_DDGAIN" value="170"/>
-    <define name="PSI_DDGAIN"   value="170"/>
-
-    <define name="PHI_AGAIN"   value="0"/>
-    <define name="THETA_AGAIN" value="0"/>
-    <define name="PSI_AGAIN"   value="0"/>
-  </section>
 
   <section name="GUIDANCE_V"   prefix="GUIDANCE_V_">
 

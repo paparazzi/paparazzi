@@ -23,6 +23,9 @@
  *  Actuators driver for Mikrokopter motor controllers.
  */
 
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+
 #include "subsystems/actuators.h"
 #include "subsystems/actuators/actuators_mkk.h"
 
@@ -33,6 +36,7 @@
 struct ActuatorsMkk actuators_mkk;
 
 void actuators_mkk_init(void) {
+ // const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
   actuators_mkk.submit_err_cnt = 0;
 }
 
@@ -50,7 +54,7 @@ void actuators_mkk_set(void) {
   }
 #endif
 
-  uint8_t cur_idx = last_idx;
+/*  uint8_t cur_idx = last_idx;
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
     if(cur_idx >= ACTUATORS_MKK_NB) {
       cur_idx = 0;
@@ -66,6 +70,21 @@ void actuators_mkk_set(void) {
     }
     cur_idx++;
   }
-  /* successfully submitted all transactions */
+  // successfully submitted all transactions
   last_idx = ACTUATORS_MKK_NB;
+ */ 
+
+  for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
+#ifdef KILL_MOTORS
+    actuators_mkk.trans[i].buf[0] = 0;
+#else
+   if (!i2c_transmit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i],
+                      actuators_addr[i], 1)) {
+      actuators_mkk.submit_err_cnt++;
+      //return;
+    }
+  }
+#endif
+
+
 }
