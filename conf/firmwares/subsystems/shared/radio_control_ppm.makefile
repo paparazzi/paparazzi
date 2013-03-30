@@ -36,6 +36,19 @@ ifeq ($(NORADIO), False)
     else
         $(error unknown configuration for RADIO_CONTROL_PPM_PIN)
     endif
-endif
-endif
+  endif
 
+  ifeq ($(ARCH),sim)
+  	UNAME = $(shell uname -s)
+	ifeq ("$(UNAME)","Darwin")
+	  $(TARGET).CFLAGS += -I$(shell ocamlc -where)
+	endif
+  endif
+  ifeq ($(ARCH),jsbsim)
+  	UNAME = $(shell uname -s)
+	ifeq ("$(UNAME)","Darwin")
+	  $(TARGET).CFLAGS += -I$(shell ocamlc -where)
+	endif
+  endif
+
+endif
