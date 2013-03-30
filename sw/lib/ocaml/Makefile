@@ -26,7 +26,7 @@ Q=@
 
 OCAMLC=ocamlfind ocamlc
 OCAMLOPT=ocamlfind ocamlopt
-OCAMLDEP=ocamldep
+OCAMLDEP=ocamlfind ocamldep
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 OCAMLMKLIB=ocamlmklib
@@ -66,6 +66,9 @@ CMX = $(SRC:.ml=.cmx)
 XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
+
+# files to generate before running ocamldep
+GEN_DEP = expr_parser.ml expr_lexer.ml
 
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
@@ -146,15 +149,6 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	@echo OCY $<
 	$(Q)$(OCAMLYACC) $<
 
-# dependencies not covered by ocamldep
-# since these files are generated
-expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
-expr_parser.cmi : expr_parser.ml expr_syntax.cmi
-expr_lexer.ml : expr_parser.ml
-expr_lexer.cmi : expr_lexer.ml expr_syntax.cmi
-expr_lexer.cmo : expr_lexer.cmi
-expr_syntax.cmo : expr_syntax.cmi
-
 gtk_papget_editor.ml : widgets.glade
 	@echo GLADE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -196,7 +190,7 @@ clean :
 # Dependencies
 #
 
-.depend: Makefile
+.depend: Makefile $(GEN_DEP)
 	$(OCAMLDEP) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
