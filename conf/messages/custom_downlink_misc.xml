@@ -359,7 +359,7 @@
     <field name="mag_cal_status" type="uint8"/>
   </message>
 -->
-  <message name="TEST_BOARD_RESULTS" ID="71">
+  <message name="TEST_BOARD_RESULTS" id="71">
     <description></description>
     <field name="uart" type="uint8"/>
     <field name="ppm" type="uint8"/>
