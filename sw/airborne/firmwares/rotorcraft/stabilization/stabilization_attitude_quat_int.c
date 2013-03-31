@@ -74,8 +74,11 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_enter(void) {
 
+  int32_t heading;
+  stabilization_attitude_get_heading_i(&heading);
+
   /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
+  stab_att_sp_euler.psi = heading;
 
   stabilization_attitude_ref_enter();
 
@@ -177,6 +180,10 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
   struct FloatQuat q_sp;
+#if USE_EARTH_BOUND_RC_SETPOINT
+  stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(&q_sp, in_flight);
+#else
   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
+#endif
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
