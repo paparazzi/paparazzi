@@ -48,6 +48,7 @@
 #define GUIDANCE_H_MODE_NAV         4
 #define GUIDANCE_H_MODE_RC_DIRECT   5
 #define GUIDANCE_H_MODE_CARE_FREE   6
+#define GUIDANCE_H_MODE_FORWARD     7
 
 
 extern uint8_t guidance_h_mode;
@@ -77,6 +78,8 @@ extern int32_t guidance_h_dgain;
 extern int32_t guidance_h_igain;
 extern int32_t guidance_h_again;
 
+extern int32_t transition_percentage;
+extern int32_t transition_theta_offset;
 
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
