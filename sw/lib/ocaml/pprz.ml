@@ -704,9 +704,10 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
           with
             Xml.No_attribute("link") -> None
         in
+        let xml_msg_filtered = List.filter (fun e -> Xml.tag e = "field") (Xml.children xml_msg) in
         let msg = {
           name = name;
-          fields = List.map field_of_xml (Xml.children xml_msg);
+          fields = List.map field_of_xml xml_msg_filtered;
           link = link
         } in
         let id = int_of_string (ExtXml.attrib xml_msg "id") in
