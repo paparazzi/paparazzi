@@ -1,4 +1,4 @@
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, print_function, division
 
 import wx
 from ivy.std_api import *
@@ -85,8 +85,10 @@ class plot_data:
             (x_min, x_max) = x_axis.GetXMinMax()
 
         dc.SetPen(wx.Pen(self.color,1))
-        if _max_ < _min_: (_min_, _max_) = (-1,1) #prevent divide by zero or inversion
-        if _max_ == _min_: (_min_, _max_) = (_max_-0.5, _max_+0.5)
+        if _max_ < _min_:
+            (_min_, _max_) = (-1,1) #prevent divide by zero or inversion
+        if _max_ == _min_:
+            (_min_, _max_) = (_max_-0.5, _max_+0.5)
         delta = _max_-_min_
         dy = (height - margin*2) / delta
 
@@ -98,14 +100,16 @@ class plot_data:
         for i in range(self.size):
             ix = (i+self.index) % self.size
             point = self.data[ix]
-            if point == None: continue
+            if point == None:
+                continue
             n += 1
             sums = sums + point
             sum_squares = sum_squares + (point*point)
 
             if x_axis != None:
                 x = x_axis.data[ix]
-                if x == None: continue
+                if x == None:
+                    continue
                 dx = (width-1) / (x_max-x_min)
                 x = int((x-x_min) * dx)
 

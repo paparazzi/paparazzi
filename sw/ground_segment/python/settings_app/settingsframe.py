@@ -1,5 +1,7 @@
 #Boa:Frame:PlotFrame
 
+from __future__ import division
+
 import wx
 import sys
 import os
@@ -92,7 +94,7 @@ class SettingCtrl(wx.Slider):
         if (self.setting.step < 1):
             return float(self.GetValue()) / SLIDER_FACTOR
         else:
-            return int(self.GetValue()) / SLIDER_FACTOR
+            return int(self.GetValue()) // SLIDER_FACTOR
 
 class SettingsFrame(wx.Frame):
     edits = []

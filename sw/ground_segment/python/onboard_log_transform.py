@@ -32,7 +32,7 @@ class OnboardLogTransformTool():
     def ProcessLine(self, line):
         fields = line.strip().split(' ')
         [timestamp, pprz_tstamp, ac_id, msg_id] = fields[0:4]
-        data_fields = map(lambda x: chr(int(x, 16)), fields[5:])
+        data_fields = list(map(lambda x: chr(int(x, 16)), fields[5:]))
         ac_id = int(ac_id)
         timestamp = float(pprz_tstamp)
         msg_id = int(msg_id)

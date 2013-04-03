@@ -1,5 +1,7 @@
 #Boa:Frame:PlotFrame
 
+from __future__ import division
+
 import wx
 import plotpanel
 
@@ -190,41 +192,41 @@ class PlotFrame(wx.Frame):
         self.dynamic_menus[menu_id] = self.menuCurves.AppendSubMenu(submenu=curveMenu, text=title)
 
     def OnMenuDeleteCurve(self, event):
-        menu_id = event.GetId() / 10
-        item = self.dynamic_menus[ menu_id]
-        self.canvas.RemovePlot( menu_id)
+        menu_id = event.GetId() // 10
+        item = self.dynamic_menus[menu_id]
+        self.canvas.RemovePlot(menu_id)
         self.menuCurves.DestroyItem(item)
         del self.dynamic_menus[menu_id]
 
     def OnMenuOffsetCurve(self, event):
-        menu_id = (event.GetId()-1) / 10
+        menu_id = (event.GetId()-1) // 10
 
         default_value = str(self.canvas.FindPlot(menu_id).offset)
         value = wx.GetTextFromUser("Enter a value to offset the plot", "Offset", default_value)
         try:
             value = float(value)
-            self.canvas.OffsetPlot( menu_id, value)
+            self.canvas.OffsetPlot(menu_id, value)
         except:
             pass
 
     def OnMenuScaleCurve(self, event):
-        menu_id = (event.GetId()-2) / 10
+        menu_id = (event.GetId()-2) // 10
 
         default_value = str(self.canvas.FindPlot(menu_id).scale)
         value = wx.GetTextFromUser("Enter a factor to scale the plot", "Scale", default_value)
         try:
             value = float(value)
-            self.canvas.ScalePlot( menu_id, value)
+            self.canvas.ScalePlot(menu_id, value)
         except:
             pass
 
     def OnMenuRealTime(self,event):
-        menu_id = (event.GetId()-3) / 10
-        self.canvas.SetRealTime( menu_id, event.IsChecked())
+        menu_id = (event.GetId()-3) // 10
+        self.canvas.SetRealTime(menu_id, event.IsChecked())
 
     def OnMenuUseAsXAxis(self,event):
         event_id = event.GetId()
-        menu_id = (event_id-4) / 10
+        menu_id = (event_id-4) // 10
         value = event.IsChecked()
 
         if value:
