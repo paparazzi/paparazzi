@@ -176,15 +176,17 @@ extern void   i2c_event(void);
  * Convenience functions.
  * Usually these are preferred over i2c_submit,
  * as they explicitly set the transaction type again.
+ *
+ * Return FALSE if submitting the transaction failed.
  */
-extern void i2c_transmit(struct i2c_periph* p, struct i2c_transaction* t,
-                         uint8_t s_addr, uint8_t len);
+extern bool_t i2c_transmit(struct i2c_periph* p, struct i2c_transaction* t,
+                           uint8_t s_addr, uint8_t len);
 
-extern void i2c_receive(struct i2c_periph* p, struct i2c_transaction* t,
-                        uint8_t s_addr, uint16_t len);
+extern bool_t i2c_receive(struct i2c_periph* p, struct i2c_transaction* t,
+                          uint8_t s_addr, uint16_t len);
 
-extern void i2c_transceive(struct i2c_periph* p, struct i2c_transaction* t,
-                           uint8_t s_addr, uint8_t len_w, uint16_t len_r);
+extern bool_t i2c_transceive(struct i2c_periph* p, struct i2c_transaction* t,
+                             uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
 /** @}*/
 /** @}*/

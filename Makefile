@@ -45,6 +45,14 @@ OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
 BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
 
+# default mktemp in OS X doesn't work, use gmktemp with macports coreutils
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
+
 #
 # define some paths
 #
@@ -57,6 +65,7 @@ MULTIMON=sw/ground_segment/multimon
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
+JOYSTICK=sw/ground_segment/joystick
 EXT=sw/ext
 
 #
@@ -92,9 +101,6 @@ ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 GEN_HEADERS = $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
 
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
 all: ground_segment ext lpctools
 
 print_build_version:
@@ -111,26 +117,29 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
 
-ground_segment: print_build_version update_google_version conf lib subdirs commands static
+ground_segment: print_build_version update_google_version conf libpprz subdirs commands static
 
-static: cockpit tmtc tools sim_static static_h
+static: cockpit tmtc tools sim_static joystick static_h
 
-lib:
+libpprz:
 	$(MAKE) -C $(LIB)/ocaml
 
 multimon:
 	$(MAKE) -C $(MULTIMON)
 
-cockpit: lib
+cockpit: libpprz
 	$(MAKE) -C $(COCKPIT)
 
-tmtc: lib cockpit multimon
+tmtc: libpprz cockpit multimon
 	$(MAKE) -C $(TMTC)
 
-tools: lib
+tools: libpprz
 	$(MAKE) -C $(TOOLS)
 
-sim_static: lib
+joystick: libpprz
+	$(MAKE) -C $(JOYSTICK)
+
+sim_static: libpprz
 	$(MAKE) -C $(SIMULATOR)
 
 ext:
@@ -144,56 +153,70 @@ subdirs: $(SUBDIRS)
 $(SUBDIRS):
 	$(MAKE) -C $@
 
-$(PPRZCENTER): lib
+$(PPRZCENTER): libpprz
 
-$(LOGALIZER): lib
+$(LOGALIZER): libpprz
 
 
 static_h: $(GEN_HEADERS)
 
 $(MESSAGES_H) : $(MESSAGES_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > $(TMPDIR)/msg.h
-	$(Q)mv $(TMPDIR)/msg.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
 $(MESSAGES2_H) : $(MESSAGES_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > $(TMPDIR)/msg2.h
-	$(Q)mv $(TMPDIR)/msg2.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_ubx.out $< > $(TMPDIR)/ubx.h
-	$(Q)mv $(TMPDIR)/ubx.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_ubx.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(MTK_PROTOCOL_H) : $(MTK_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_mtk.out $< > $(TMPDIR)/mtk.h
-	$(Q)mv $(TMPDIR)/mtk.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_mtk.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > $(TMPDIR)/xsens.h
-	$(Q)mv $(TMPDIR)/xsens.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > $(TMPDIR)/dl.h
-	$(Q)mv $(TMPDIR)/dl.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > $(TMPDIR)/dl2.h
-	$(Q)mv $(TMPDIR)/dl2.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > $(TMPDIR)/abi.h
-	$(Q)mv $(TMPDIR)/abi.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 
 include Makefile.ac
@@ -218,19 +241,12 @@ paparazzi:
 	chmod a+x $@
 
 
-install :
-	$(MAKE) -f Makefile.install PREFIX=$(PREFIX)
-
-uninstall :
-	$(MAKE) -f Makefile.install PREFIX=$(PREFIX) uninstall
-
-
 #
 # Cleaning
 #
 
 clean:
-	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin paparazzi
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
@@ -274,7 +290,7 @@ test: all replace_current_conf_xml run_tests restore_conf_xml
 
 
 .PHONY: all print_build_version update_google_version ground_segment \
-subdirs $(SUBDIRS) conf ext lib multimon cockpit tmtc tools\
-static sim_static lpctools commands install uninstall \
+subdirs $(SUBDIRS) conf ext libpprz multimon cockpit tmtc tools\
+static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test replace_current_conf_xml run_tests restore_conf_xml

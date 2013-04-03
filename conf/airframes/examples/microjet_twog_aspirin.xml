@@ -26,9 +26,6 @@
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
-    <!-- print configuration options at compile time -->
-    <define name="PRINT_CONFIG"/>
-
     <subsystem name="imu"    type="aspirin_v1.5"/>
     <subsystem name="ahrs"   type="float_dcm"/>
     <subsystem name="ins"    type="alt_float"/>

@@ -33,6 +33,7 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
+#include "subsystems/nav.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -42,9 +43,9 @@
 #define MS5611_I2C_DEV i2c0
 #endif
 
-/* address can be 0xEC or 0xEE (CSB\ high = 0xEC) */
+/* address can be 0xEC or 0xEE (CSB\ low = 0xEE) */
 #ifndef MS5611_SLAVE_ADDR
-#define MS5611_SLAVE_ADDR 0xEC
+#define MS5611_SLAVE_ADDR 0xEE
 #endif
 
 

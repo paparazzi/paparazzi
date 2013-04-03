@@ -1,3 +1,6 @@
+# Quiet compilation
+Q=@
+
 LIBNAME	= ../libusbstack
 APPNAME = main
 
@@ -41,7 +44,7 @@ crt.o: crt.s
 	$(CC) -c $(AFLAGS) -Wa,-ahlms=crt.lst crt.s -o crt.o
 
 clean:
-	rm -f *.hex *.elf *.o *.lst *.dmp *.map .depend
+	$(Q)rm -f *.hex *.elf *.o *.lst *.dmp *.map .depend
 
 # recompile if the Makefile changes
 $(OBJS): Makefile

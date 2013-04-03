@@ -38,7 +38,7 @@ endif
 all: davis2ivy kestrel2ivy
 
 clean:
-	rm -f *.o davis2ivy kestrel2ivy
+	$(Q)rm -f *.o davis2ivy kestrel2ivy
 
 davis2ivy: davis2ivy.o
 	$(Q)$(CC) -o davis2ivy davis2ivy.o  $(LIBRARYS)  -livy

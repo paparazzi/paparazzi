@@ -54,20 +54,48 @@ float    ir_mlx_temp_obj;
 uint32_t ir_mlx_id_01;
 uint32_t ir_mlx_id_23;
 
-/* I2C address is set to 3 */
+/* I2C address is set to 6 (8 bit) */
 #ifndef MLX90614_ADDR
 #define MLX90614_ADDR 0x06
 #endif
 
+#define MLX90614_GENERAL_ADDR 0
+
 //    printf("Ta    = %2.2f°C (0x%04X)\n", (tp*0.02)-273.15, tp);
 
+void ir_mlx_crc(unsigned char addr, volatile unsigned char* data) {
+  unsigned char i, bit, crc = 0;
+
+  for (i = 0; i < 4; i++) {
+    if (i != 0) crc ^= (data[i-1]);
+    else crc ^= addr;
+    for (bit = 8; bit > 0; bit--) {
+      if (crc & 0x80)
+        /* SMBus x^8 + x^2 + x + 1 */
+        crc = (crc << 1) ^ 0x107;
+      else
+        crc = (crc << 1);
+    }
+  }
+  data[3] = crc;
+}
 
 void ir_mlx_init( void ) {
+#ifdef IR_MLX_ONE_TIME_CONFIG
+#warning Starting MLX90614 in CONFIGURATION MODE, do this only once for
+#warning setup, then turn this MODE off again and recompile/flash
+  ir_mlx_status = IR_MLX_ADDR_CHANGE;
+#else
   ir_mlx_status = IR_MLX_UNINIT;
+#endif
 }
 
 void ir_mlx_periodic( void ) {
+#ifdef IR_MLX_ONE_TIME_CONFIG
+  if (sys_time.nb_sec > 4) {
+#else
   if (sys_time.nb_sec > 1) {
+#endif
     if (ir_mlx_status >= IR_MLX_IDLE) {
       /* start two byte case temperature */
       mlx_trans.buf[0] = MLX90614_TA;
@@ -82,6 +110,29 @@ void ir_mlx_periodic( void ) {
       ir_mlx_status = IR_MLX_RD_ID_0;
     }
   }
+#ifdef IR_MLX_ONE_TIME_CONFIG
+  else if ((sys_time.nb_sec > 1) && (ir_mlx_status == IR_MLX_ADDR_CHANGE)) {
+    /* erase address by writing zero to SMBus address register */
+    ir_mlx_status = IR_MLX_ADDR_ERASE;
+    mlx_trans.buf[0] = MLX90614_SADR;
+    mlx_trans.buf[1] = 0;
+    mlx_trans.buf[2] = 0;
+    ir_mlx_crc(MLX90614_GENERAL_ADDR, mlx_trans.buf);
+    i2c_transmit(&MLX_I2C_DEV, &mlx_trans, MLX90614_GENERAL_ADDR, 4);
+  } else
+  if ((sys_time.nb_sec > 2) && (ir_mlx_status == IR_MLX_ADDR_ERASE)) {
+    /* set address by writing it to AMBus address register */
+    ir_mlx_status = IR_MLX_ADDR_SET;
+    mlx_trans.buf[0] = MLX90614_SADR;
+    mlx_trans.buf[1] = MLX90614_ADDR >> 1;
+    mlx_trans.buf[2] = 0;
+    ir_mlx_crc(MLX90614_GENERAL_ADDR, mlx_trans.buf);
+    i2c_transmit(&MLX_I2C_DEV, &mlx_trans, MLX90614_GENERAL_ADDR, 4);
+  } else
+  if ((sys_time.nb_sec > 3) && (ir_mlx_status == IR_MLX_ADDR_SET)) {
+    ir_mlx_status = IR_MLX_UNINIT;
+  }
+#endif
 }
 
 void ir_mlx_event( void ) {

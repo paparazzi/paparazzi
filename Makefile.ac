@@ -49,6 +49,13 @@ MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AUTOPILOT_H=$(AC_GENERATED)/autopilot_core.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
+
 # "make Q=''" to get full echo
 Q=@
 
@@ -61,9 +68,6 @@ endif
 
 # telemetry periodic frequency defaults to 60Hz
 TELEMETRY_FREQUENCY ?= 60
-
-# default directory for temporary files
-TMPDIR ?= /tmp
 
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
@@ -89,56 +93,70 @@ makefile_ac: $(MAKEFILE_AC)
 
 $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $(TMPDIR)/airframe.h
-	$(Q)mv $(TMPDIR)/airframe.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_radio.out $< > $(TMPDIR)/radio.h
-	$(Q)mv $(TMPDIR)/radio.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_radio.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
 
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
-	$(Q)cp $< $(AIRCRAFT_CONF_DIR)
 	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry
 
 $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_flight_plan.out $< > $(TMPDIR)/$(AC_ID)_fp.h
-	$(Q)mv $(TMPDIR)/$(AC_ID)_fp.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_flight_plan.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
 
 $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan.out
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
 $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(TOOLS)/gen_settings.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 
 $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_modules.out $(SETTINGS_MODULES) $< > $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_modules.out $(SETTINGS_MODULES) $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
 $(AUTOPILOT_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_autopilot.out $(CONF)/autopilot/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)$(TOOLS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
 $(SETTINGS_MODULES) : $(MODULES_H)
@@ -155,7 +173,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
 
-jsbsim jsbsim.compile: jsbsim.ac_h
+jsbsim jsbsim.compile: jsbsim.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim ARCH=jsbsim all
 
 sim sim.compile: sim.ac_h print_version

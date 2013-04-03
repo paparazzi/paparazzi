@@ -35,4 +35,4 @@ fms_steps_attitude: fms_steps_attitude.c
 
 
 clean:
-	rm -f *~ core *.o *.bak .depend fdm_step fms_steps_attitude
+	$(Q)rm -f *~ core *.o *.bak .depend fdm_step fms_steps_attitude

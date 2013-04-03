@@ -23,83 +23,80 @@
 # Launch with "make Q=''" to get full command display
 Q=@
 
-DEBUG		=n
-MACHINE := $(shell uname -m)
-AS86		=as86 -0 -a
-LD86		=ld86 -0
-AS		=as
-LD		=ld
-LDFLAGS		=-lm
-HOSTCC		=gcc
-CC		=gcc
-MAKE		=make
-CPP		=$(CC) -E
-AR		=ar
-STRIP		=strip
-MKDIR		=mkdir
-OCAMLC	 	=ocamlc
+DEBUG=n
+MACHINE:=$(shell uname -m)
+AS86=as86 -0 -a
+LD86=ld86 -0
+AS=as
+LD=ld
+LDFLAGS=-lm
+HOSTCC=gcc
+CC=gcc
+MAKE=make
+CPP=$(CC) -E
+AR=ar
+STRIP=strip
+MKDIR=mkdir
 
-CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I`$(OCAMLC) -where`
+include ../../Makefile.ocaml
+
+CFLAGS=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I`$(OCAMLC) -where`
 ifeq ($(DEBUG),y)
-  CFLAGS		+=-g -O
+  CFLAGS += -g -O
 else
-  CFLAGS		+=-O3
+  CFLAGS += -O3
 endif
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  CFLAGS          += -fPIC
+  CFLAGS += -fPIC
 else ifeq ($(MACHINE),'i686')
-  CFLAGS          += -march=i486 -falign-loops=2 -falign-jumps=2 -falign-functions=2 -DARCH_I386
+  CFLAGS += -march=i486 -falign-loops=2 -falign-jumps=2 -falign-functions=2 -DARCH_I386
 endif
 
-LDFLAGSX	=-lX11 -L/usr/X11R6/lib
+LDFLAGSX = -lX11 -L/usr/X11R6/lib
 
-#BINDIR		=bin-$(shell uname -m)
-BINDIR		=.
+#BINDIR = bin-$(shell uname -m)
+BINDIR =.
 
 UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Linux")
+ifneq (,$(findstring $(UNAME),linux Linux))
   OBJFILES=pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
   ALLTARGETS=$(BINDIR)/multimon multimon.cma
 endif
-ifeq ("$(UNAME)","linux")
-  OBJFILES=pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
-  ALLTARGETS=$(BINDIR)/multimon multimon.cma
-endif
-ifeq ("$(UNAME)","Darwin")
+ifeq ($(UNAME),Darwin)
   OBJFILES=demodml.o ml_hdlc.o demod.cmo hdlc.cmo
   ALLTARGETS=multimon.cma
 endif
 
-all:    $(ALLTARGETS)
+all: $(ALLTARGETS)
 
-multimon.cma:   $(OBJFILES)
+multimon.cma: $(OBJFILES)
 	@echo OLD $@
 	$(Q)ocamlmklib -o multimon $^
 
 
 $(BINDIR)/%.s:	%.c
-		$(CC) $(CFLAGS) -S -o $@ $<
+	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(BINDIR)/%.o:	$(BINDIR)/%.s
-		$(AS) -c -o $@ $<
+	$(AS) -c -o $@ $<
 
 $(BINDIR)/%.o:	%.c
 	@echo CC $<
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
-SRC_L2		= hdlc.c pprz.c
-SRC_L1		= demod_afsk48p.c demod_display.c
-SRC_MISC	= unixinput.c xdisplay.c
+SRC_L2 = hdlc.c pprz.c
+SRC_L1 = demod_afsk48p.c demod_display.c
+SRC_MISC = unixinput.c xdisplay.c
 
-SRC_GEN		=gen.c gen_dtmf.c gen_sin.c gen_zvei.c gen_hdlc.c costabi.c
+SRC_GEN = gen.c gen_dtmf.c gen_sin.c gen_zvei.c gen_hdlc.c costabi.c
 
-OBJ_L2		=$(SRC_L2:%.c=$(BINDIR)/%.o)
-OBJ_L1		=$(SRC_L1:%.c=$(BINDIR)/%.o)
-OBJ_MISC	=$(SRC_MISC:%.c=$(BINDIR)/%.o)
+OBJ_L2 = $(SRC_L2:%.c=$(BINDIR)/%.o)
+OBJ_L1 = $(SRC_L1:%.c=$(BINDIR)/%.o)
+OBJ_MISC = $(SRC_MISC:%.c=$(BINDIR)/%.o)
 
-OBJ_GEN		=$(SRC_GEN:%.c=$(BINDIR)/%.o)
+OBJ_GEN = $(SRC_GEN:%.c=$(BINDIR)/%.o)
 
 $(BINDIR):
 		$(MKDIR) $(BINDIR)
@@ -108,14 +105,14 @@ $(BINDIR)/multimon:	$(OBJ_L2) $(OBJ_L1) $(OBJ_MISC)
 	@echo LD $@
 	$(Q)$(CC) $^ $(LDFLAGS) $(LDFLAGSX) -o $@
 
-$(BINDIR)/gen:		$(OBJ_GEN)
-			$(CC) $^ $(LDFLAGS) -o $@
+$(BINDIR)/gen: $(OBJ_GEN)
+	$(CC) $^ $(LDFLAGS) -o $@
 
 $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
-			$(CC) $^ $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
 costabi.c costabf.c:	$(BINDIR)/mkcostab
-			$(BINDIR)/mkcostab
+	$(BINDIR)/mkcostab
 
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
@@ -133,11 +130,11 @@ hdlc.cmo : hdlc.cmi
 	$(OCAMLC) $<
 
 clean:
-	rm -fr *.cm* mkcostab .depend
-	$(RM) -f core `find . -name '*.[oas]' -print`
-	$(RM) -f core `find . -name 'core' -print`
-	$(RM) -f core costabi.c costabf.c *~
-	$(RM) $(BINDIR)/multimon
+	$(Q)rm -fr *.cm* mkcostab .depend
+	$(Q)$(RM) -f core `find . -name '*.[oas]' -print` *.so
+	$(Q)$(RM) -f core `find . -name 'core' -print`
+	$(Q)$(RM) -f core costabi.c costabf.c *~
+	$(Q)$(RM) $(BINDIR)/multimon
 
 .PHONY: all clean depend dep
 

@@ -18,10 +18,10 @@ let print_p = fun c p ->
 
 let print_pattern = fun a ->
   match a with
-    Circle (p, r) -> printf "Circle (%a %d) " print_p p r
-  | Eight (p1, p2, r) -> printf "Eight (%a %a %d) " print_p p1 print_p p2 r
-  | Line (p1, p2) -> printf "Line (%a %a) " print_p p1 print_p p2
-  | Nop -> printf "Nop "
+      Circle (p, r) -> printf "Circle (%a %d) " print_p p r
+    | Eight (p1, p2, r) -> printf "Eight (%a %a %d) " print_p p1 print_p p2 r
+    | Line (p1, p2) -> printf "Line (%a %a) " print_p p1 print_p p2
+    | Nop -> printf "Nop "
 
 let print_patterns = fun t ->
   let i = ref 0 in
@@ -56,41 +56,41 @@ let geo_of = fun p -> of_utm WGS84 (utm_add utm_ref (float p.x, float p.y))
 let send_circle = fun ac_id p r ->
   let wgs84 = geo_of p in
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "wp_id", Pprz.Int 1; (* FIXME *)
-	     "alt", Pprz.Float (float p.z);
-	     "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-	     "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long)] in
+             "wp_id", Pprz.Int 1; (* FIXME *)
+             "alt", Pprz.Float (float p.z);
+             "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+             "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "index", Pprz.Int nav_radius_id;
-	     "value", Pprz.Float (float r) ] in
+             "index", Pprz.Int nav_radius_id;
+             "value", Pprz.Float (float r) ] in
   GroundPprz.message_send "ihm" "DL_SETTING" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "block_id", Pprz.Int circle_block ] in
-	  GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
+             "block_id", Pprz.Int circle_block ] in
+  GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
 
 
 let send_line = fun ac_id p1 p2 ->
   let wgs84_1 = geo_of p1
   and wgs84_2 = geo_of p2 in
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "wp_id", Pprz.Int 1; (* FIXME *)
-	     "alt", Pprz.Float (float p1.z);
-	     "lat", Pprz.Float ((Rad>>Deg)wgs84_1.posn_lat);
-	     "long", Pprz.Float ((Rad>>Deg)wgs84_1.posn_long)] in
+             "wp_id", Pprz.Int 1; (* FIXME *)
+             "alt", Pprz.Float (float p1.z);
+             "lat", Pprz.Float ((Rad>>Deg)wgs84_1.posn_lat);
+             "long", Pprz.Float ((Rad>>Deg)wgs84_1.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "wp_id", Pprz.Int 2; (* FIXME *)
-	     "alt", Pprz.Float (float p2.z);
-	     "lat", Pprz.Float ((Rad>>Deg)wgs84_2.posn_lat);
-	     "long", Pprz.Float ((Rad>>Deg)wgs84_2.posn_long)] in
+             "wp_id", Pprz.Int 2; (* FIXME *)
+             "alt", Pprz.Float (float p2.z);
+             "lat", Pprz.Float ((Rad>>Deg)wgs84_2.posn_lat);
+             "long", Pprz.Float ((Rad>>Deg)wgs84_2.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "block_id", Pprz.Int glide_block ] in
+             "block_id", Pprz.Int glide_block ] in
   GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
 
 
@@ -98,26 +98,26 @@ let send_eight = fun ac_id p1 p2 r ->
   let wgs84_1 = geo_of p1
   and wgs84_2 = geo_of p2 in
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "wp_id", Pprz.Int 1; (* FIXME *)
-	     "alt", Pprz.Float (float p1.z);
-	     "lat", Pprz.Float ((Rad>>Deg)wgs84_1.posn_lat);
-	     "long", Pprz.Float ((Rad>>Deg)wgs84_1.posn_long)] in
+             "wp_id", Pprz.Int 1; (* FIXME *)
+             "alt", Pprz.Float (float p1.z);
+             "lat", Pprz.Float ((Rad>>Deg)wgs84_1.posn_lat);
+             "long", Pprz.Float ((Rad>>Deg)wgs84_1.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "wp_id", Pprz.Int 2; (* FIXME *)
-	     "alt", Pprz.Float (float p2.z);
-	     "lat", Pprz.Float ((Rad>>Deg)wgs84_2.posn_lat);
-	     "long", Pprz.Float ((Rad>>Deg)wgs84_2.posn_long)] in
+             "wp_id", Pprz.Int 2; (* FIXME *)
+             "alt", Pprz.Float (float p2.z);
+             "lat", Pprz.Float ((Rad>>Deg)wgs84_2.posn_lat);
+             "long", Pprz.Float ((Rad>>Deg)wgs84_2.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "index", Pprz.Int nav_radius_id;
-	     "value", Pprz.Float (float r) ] in
+             "index", Pprz.Int nav_radius_id;
+             "value", Pprz.Float (float r) ] in
   GroundPprz.message_send "ihm" "DL_SETTING" vs;
 
   let vs = [ "ac_id", Pprz.String ac_id;
-	     "block_id", Pprz.Int eight_block ] in
+             "block_id", Pprz.Int eight_block ] in
   GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
 
 
@@ -126,33 +126,33 @@ let send_pattern_up = fun ac_id ->
     let tl = Hashtbl.find timelines ac_id in
     begin
       match tl with
-	Circle (p, r) :: _ -> send_circle ac_id p r
-      | Eight (p1, p2, r) :: _ -> send_eight ac_id p1 p2 r
-      | Line (p1, p2) :: _ -> send_line ac_id p1 p2
-      | Nop :: _ ->
-	  let vs = [ "ac_id", Pprz.String ac_id;
-		     "block_id", Pprz.Int nop_block ] in
-	  GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
-      | [] -> failwith (Printf.sprintf "send_pattern_up: %s - empty list" ac_id)
+          Circle (p, r) :: _ -> send_circle ac_id p r
+        | Eight (p1, p2, r) :: _ -> send_eight ac_id p1 p2 r
+        | Line (p1, p2) :: _ -> send_line ac_id p1 p2
+        | Nop :: _ ->
+          let vs = [ "ac_id", Pprz.String ac_id;
+                     "block_id", Pprz.Int nop_block ] in
+          GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
+        | [] -> failwith (Printf.sprintf "send_pattern_up: %s - empty list" ac_id)
     end
   with
-    Not_found -> failwith (Printf.sprintf "send_pattern_up: %s" ac_id)
+      Not_found -> failwith (Printf.sprintf "send_pattern_up: %s" ac_id)
 
 let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   try
     Hashtbl.find timelines ac_id
   with
-    Not_found ->
-      add_timeline ac_id
+      Not_found ->
+        add_timeline ac_id
 
 let insert_in_timeline values idx action =
   let t = get_ac values in
   let rec iter t i =
     if i = 0 then action :: t else
-    match t with
-      [] -> failwith "insert_in_timeline"
-    | x :: xs -> x :: iter xs (i-1) in
+      match t with
+          [] -> failwith "insert_in_timeline"
+        | x :: xs -> x :: iter xs (i-1) in
   let newt = iter t idx in
 
   (***)print_patterns newt;
@@ -207,25 +207,25 @@ let ihm_eight_cb = fun _sender values ->
   if idx = 0 then
     send_pattern_up (Pprz.string_assoc "ac_id" values)
 (*
-let delete = fun timeline idx values ->
-  (* Shift left *)
+  let delete = fun timeline idx values ->
+(* Shift left *)
   for i = max 0 idx to timeline_max_length - 2 do
-    timeline.(i) <- timeline.(i+1)
+  timeline.(i) <- timeline.(i+1)
   done;
   if idx = 0 then
-    send_pattern_up (Pprz.string_assoc "ac_id" values)
+  send_pattern_up (Pprz.string_assoc "ac_id" values)
 *)
 
 let delete_in_timeline values idx =
   let rec iter t idx =
     if idx = 0 then
       match t with
-	[] -> failwith "delete_in_timeline"
-      | x :: xs -> xs
+          [] -> failwith "delete_in_timeline"
+        | x :: xs -> xs
     else
       match t with
-	[] -> failwith "delete_in_timeline"
-      | x :: xs -> x :: iter xs (idx-1) in
+          [] -> failwith "delete_in_timeline"
+        | x :: xs -> x :: iter xs (idx-1) in
   let t = get_ac values in
   let newt = iter t idx in
   let ac_id = Pprz.string_assoc "ac_id" values in

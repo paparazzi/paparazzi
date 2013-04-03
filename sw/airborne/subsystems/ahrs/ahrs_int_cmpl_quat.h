@@ -45,7 +45,6 @@ struct AhrsIntCmplQuat {
   struct Int64Quat   high_rez_quat;
   struct Int64Rates  high_rez_bias;
   struct Int32Quat   ltp_to_imu_quat;
-  struct Int32Eulers ltp_to_imu_euler; // FIXME to compile telemetry
   struct Int32Vect3  mag_h;
   float accel_omega;  ///< filter cut-off frequency for correcting the attitude from accels (pseudo-gravity measurement)
   float accel_zeta;   ///< filter damping for correcting the gyro-bias from accels (pseudo-gravity measurement)

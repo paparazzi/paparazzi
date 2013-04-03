@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2010  Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -21,9 +20,8 @@
  *
  */
 
-/** \file sonar_maxbotix.h
- *
- * simple driver to deal with one maxbotix sensor
+/** @file sonar_adc.h
+ *  @brief simple driver to deal with one sonar sensor on ADC
  */
 
 #ifndef SONAR_ADC_H
@@ -31,8 +29,16 @@
 
 #include "std.h"
 
+/** Raw ADC value.
+ */
 extern uint16_t sonar_meas;
+
+/** New data available.
+ */
 extern bool_t sonar_data_available;
+
+/** Sonar distance in m.
+ */
 extern float sonar_distance;
 
 extern void sonar_adc_init(void);

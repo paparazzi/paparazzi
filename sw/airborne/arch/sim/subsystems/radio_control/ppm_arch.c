@@ -27,7 +27,7 @@
 
 #if USE_NPS
 #include "nps_radio_control.h"
-#else
+#elif !USE_JSBSIM
 #include <caml/mlvalues.h>
 #endif
 
@@ -74,7 +74,7 @@ void radio_control_feed(void) {
 void radio_control_feed(void) {}
 #endif //RADIO_CONTROL
 
-#else //!USE_NPS
+#elif !USE_JSBSIM // not NPS and not JSBSIM -> simple ocaml sim
 #ifdef RADIO_CONTROL
 value update_rc_channel(value c, value v) {
   ppm_pulses[Int_val(c)] = Double_val(v);

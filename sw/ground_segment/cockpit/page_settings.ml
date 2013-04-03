@@ -1,26 +1,26 @@
 (*
-* Widget to pack settings buttons
-*
-* Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
-*
-* This file is part of paparazzi.
-*
-* paparazzi is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2, or (at your option)
-* any later version.
-*
-* paparazzi is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with paparazzi; see the file COPYING.  If not, write to
-* the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA.
-*
-*)
+ * Widget to pack settings buttons
+ *
+ * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ *)
 
 open Printf
 
@@ -73,6 +73,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
       fprintf stderr "Warning: 'step' attribute missing in '%s' setting. Default to 1\n%!" (Xml.to_string dl_setting);
       1.
   in
+  let digits = try ignore(int_of_string (ExtXml.attrib dl_setting "step")); 0 with _ -> 3 in
   let page_incr = step_incr
   and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
@@ -121,21 +122,21 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
         let group = (GButton.radio_button ())#group in (* Group shared by the buttons *)
         let buttons = Array.init (iupper-ilower+1)
           (fun j ->
-              (* Build the button *)
+            (* Build the button *)
             let label =
               if Array.length values = 0
               then Printf.sprintf "%d" (ilower + j)
               else values.(j) in
             let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
 
-              (* Connect the event *)
+            (* Connect the event *)
             ignore (b#connect#pressed (fun () -> update_value (ilower + j)));
             b) in
         (callback, fun j -> try buttons.(truncate j - ilower)#set_active true with _ -> ())
     else (* slider *)
       let value = (lower +. upper) /. 2. in
       let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size () in
-      let _scale = GRange.scale `HORIZONTAL ~digits:3 ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
+      let _scale = GRange.scale `HORIZONTAL ~digits ~update_policy:`DELAYED ~adjustment:adj ~packing:hbox#add () in
       let f = fun _ -> do_change i ((adj#value-.alt_b)/.alt_a)  in
       let callback = fun () -> modified := true; if auto_but#active then f () in
       ignore (adj#connect#value_changed ~callback);
@@ -195,14 +196,14 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
               let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
               ignore (GMisc.image ~pixbuf ~packing:b#add ());
 
-            (* Drag for Drop *)
+              (* Drag for Drop *)
               let papget = Papget_common.xml "variable_setting" "button"
                 ["variable", varname;
                  "value", ExtXml.attrib x "value";
                  "icon", icon] in
               Papget_common.dnd_source b#coerce papget;
 
-            (* Associates the label as a tooltip *)
+              (* Associates the label as a tooltip *)
               tooltips#set_tip b#coerce ~text:label;
               b
             with

@@ -42,7 +42,7 @@ let xml_error s = failwith ("Bad XML tag: "^s^ " expected")
 
 let sprint_float_array = fun l ->
   let rec loop = function
-      [] -> "}"
+  [] -> "}"
     | [x] -> x ^ "}"
     | x::xs -> x ^","^ loop xs in
   "{" ^ loop l

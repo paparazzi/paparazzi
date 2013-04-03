@@ -31,9 +31,6 @@
 #include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
 
-#include <inttypes.h>
-#include <caml/mlvalues.h>
-
 extern float sim_phi;
 extern float sim_theta;
 extern float sim_psi;

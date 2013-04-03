@@ -42,7 +42,7 @@ let contains s substring =
   with Not_found -> false
 
 let os_name = String.copy (
-    if contains !current_os "not_set" then (
-      current_os := read_process_output "uname" );
-    !current_os
-  )
+  if contains !current_os "not_set" then (
+    current_os := read_process_output "uname" );
+  !current_os
+)

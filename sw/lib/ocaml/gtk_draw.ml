@@ -52,7 +52,7 @@ let gd_color_of_rgb (r, g, b) = `RGB (r, g, b)
 (* = Creation d'une GDraw.color a partir de ces composantes (r, g, b)          = *)
 (* ============================================================================= *)
 let gd_color_of_float_rgb (r, g, b) = `RGB (int_of_float r, int_of_float g,
-											int_of_float b)
+                                            int_of_float b)
 (* ============================================================================= *)
 (* = Mise a jour de la couleur de dessin                                       = *)
 (* ============================================================================= *)
@@ -82,7 +82,7 @@ let gd_set_style_double_dash p =
 (* = Modification du mode de trace                                             = *)
 (* ============================================================================= *)
 (*let gd_set_mode_xor p = (gd_do_cast p)#set_gc_xor
-let gd_set_mode_std p = (gd_do_cast p)#set_gc_copy*)
+  let gd_set_mode_std p = (gd_do_cast p)#set_gc_copy*)
 
 (* ============================================================================= *)
 (* = Modification de l'epaisseur du trace                                      = *)
@@ -152,31 +152,31 @@ let gd_draw_filled_circle p (x, y) r =
 (* ============================================================================= *)
 let gd_draw_rect p (x1, y1, x2, y2) =
   (gd_do_cast p)#rectangle ~filled:false ~x:x1 ~y:y1
-	~width:(x2-x1) ~height:(y2-y1) ()
+    ~width:(x2-x1) ~height:(y2-y1) ()
 
 (* ============================================================================= *)
 (* = Dessin d'un rectangle plein                                               = *)
 (* ============================================================================= *)
 let gd_draw_filled_rect p (x1, y1, x2, y2) =
-  (gd_do_cast p)#rectangle ~filled:true ~x:x1 ~y:y1	~width:(x2-x1) ~height:(y2-y1) ()
+  (gd_do_cast p)#rectangle ~filled:true ~x:x1 ~y:y1 ~width:(x2-x1) ~height:(y2-y1) ()
 
 (* ============================================================================= *)
 (* = Dessin d'un triangle                                                      = *)
 (* ============================================================================= *)
 let gd_draw_triangle p (x, y) size =
   let size0 = int_of_float ((float_of_int size) *. 1.5) and
-	  size1 = int_of_float ((float_of_int size) *. 0.5) in
+      size1 = int_of_float ((float_of_int size) *. 0.5) in
   (gd_do_cast p)#polygon ~filled:false
-	[(x, y-size); (x-size0, y+size1); (x+size0, y+size1)]
+    [(x, y-size); (x-size0, y+size1); (x+size0, y+size1)]
 
 (* ============================================================================= *)
 (* = Dessin d'un triangle plein                                                = *)
 (* ============================================================================= *)
 let gd_draw_filled_triangle p (x, y) size =
   let size0 = int_of_float ((float_of_int size) *. 1.5) and
-	  size1 = int_of_float ((float_of_int size) *. 0.5) in
+      size1 = int_of_float ((float_of_int size) *. 0.5) in
   (gd_do_cast p)#polygon ~filled:true
-	[(x, y-size); (x-size0, y+size1); (x+size0, y+size1)]
+    [(x, y-size); (x-size0, y+size1); (x+size0, y+size1)]
 
 (* ============================================================================= *)
 (* = Efface une pixmap                                                         = *)
@@ -196,8 +196,8 @@ let gd_set_background_pixmap p dest = (gd_do_cast dest)#put_pixmap ~x:0 ~y:0 p
 let gd_put_transp_pixmap p dest x y =
   (* Indispensable d'utiliser le masque pour la transparence *)
   (match p#mask with
-	None -> () |
-	Some m -> (gd_do_cast dest)#set_clip_origin ~x:x ~y:y; dest#set_clip_mask m) ;
+      None -> () |
+          Some m -> (gd_do_cast dest)#set_clip_origin ~x:x ~y:y; dest#set_clip_mask m) ;
 
   (* Mise en place du pixmap transparent *)
   dest#put_pixmap ~x:x ~y:y p#pixmap ;

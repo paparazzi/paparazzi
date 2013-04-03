@@ -42,7 +42,7 @@ void nps_ivy_init(char* ivy_bus) {
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
   IvyBindMsg(on_DL_PING, NULL, "^(\\S*) DL_PING");
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
-  IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) DL_GET_SETTING (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) GET_DL_SETTING (\\S*) (\\S*)");
   IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
   IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 

@@ -1,26 +1,26 @@
 (*
-* Multi aircrafts map display and flight plan editor
-*
-* Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin / 2011 Tobias Muench, Rolf Noellenburg
-*
-* This file is part of paparazzi.
-*
-* paparazzi is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2, or (at your option)
-* any later version.
-*
-* paparazzi is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with paparazzi; see the file COPYING.  If not, write to
-* the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA.
-*
-*)
+ * Multi aircrafts map display and flight plan editor
+ *
+ * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin / 2011 Tobias Muench, Rolf Noellenburg
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ *)
 
 open Printf
 open Latlong
@@ -71,8 +71,8 @@ let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width 
     let v = truncate v / step in
     for i = Pervasives.max 0 (v - 5) to min (v + 5) (Array.length tab - 1) do (* FIXME *)
       if not tab.(i) then begin
-    tab.(i) <- true;
-    draw i
+        tab.(i) <- true;
+        draw i
       end
     done in
 
@@ -116,7 +116,7 @@ class h = fun ?packing size  ->
   and _bottom = GnoCanvas.rect ~x1:(-.size) ~y1:0. ~x2:size ~y2:(size2*.5.) ~fill_color:"#986701" disc
   and _line = GnoCanvas.line ~props:[`WIDTH_PIXELS 4] ~points:[|-.size;0.;size;0.|] ~fill_color:"white" disc
   and _ = GnoCanvas.line ~points:[|0.;-.size;0.;size|] ~fill_color:"white" disc
- in
+  in
   let grads = fun ?(text=false) n s a b ->
     for i = 0 to n do
       let deg = float i *. a +. b in
@@ -124,13 +124,13 @@ class h = fun ?packing size  ->
       ignore (GnoCanvas.line ~points:[|-.s; y; s; y|] ~fill_color:"white" disc);
       ignore (GnoCanvas.line ~points:[|-.s; -.y; s; -.y|] ~fill_color:"white" disc);
       if text then
-    let text = Printf.sprintf "%d" (truncate deg)
-    and x = 2.*.s in
-    ignore (GnoCanvas.text ~props:text_props ~text ~y:(-.y) ~x disc);
-    ignore (GnoCanvas.text ~props:text_props ~text ~y:(-.y) ~x:(-.x) disc);
-    let text = "-"^text in
-    ignore (GnoCanvas.text ~props:text_props ~text ~y ~x disc);
-    ignore (GnoCanvas.text ~props:text_props ~text ~y ~x:(-.x) disc);
+        let text = Printf.sprintf "%d" (truncate deg)
+        and x = 2.*.s in
+        ignore (GnoCanvas.text ~props:text_props ~text ~y:(-.y) ~x disc);
+        ignore (GnoCanvas.text ~props:text_props ~text ~y:(-.y) ~x:(-.x) disc);
+        let text = "-"^text in
+        ignore (GnoCanvas.text ~props:text_props ~text ~y ~x disc);
+        ignore (GnoCanvas.text ~props:text_props ~text ~y ~x:(-.x) disc);
     done in
 
   let _ =
@@ -156,8 +156,8 @@ class h = fun ?packing size  ->
     ignore (GnoCanvas.line  ~props:[`WIDTH_PIXELS 4] ~points:[|-.x;0.;-.x-.s;0.;-.x-.s;s|] ~fill_color:"black" mask);
     ignore (GnoCanvas.line  ~props:[`WIDTH_PIXELS 4] ~points:[|x;0.;x+.s;0.;x+.s;s|] ~fill_color:"black" mask);
 
-    (* Top and bottom graduations *)
-  let g = fun a ->
+  (* Top and bottom graduations *)
+    let g = fun a ->
       let l = GnoCanvas.line~props:[`WIDTH_PIXELS 1]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.07*.size2|] mask in
       l#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
     for i = 1 to 5 do
@@ -168,13 +168,13 @@ class h = fun ?packing size  ->
     let gg = fun a  ->
       let l = GnoCanvas.line~props:[`WIDTH_PIXELS 2]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.15*.size2|] mask in
       l#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
-      gg 30.; gg (-30.);
-      gg 0.; gg 0.;
+    gg 30.; gg (-30.);
+    gg 0.; gg 0.;
 
     let _30 = fun a  ->
       let t = GnoCanvas.text ~text:"30" ~props:text_props ~x:0. ~y:(-1.28*.size2) mask in
       t#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
-      _30  30.; _30 (-30.)
+    _30  30.; _30 (-30.)
   in
 
 
@@ -197,31 +197,31 @@ class h = fun ?packing size  ->
     ruler ~text_props ~max:3000 ~scale:alt_scale ~w:alt_width ~step:10 ~index_width ~h:(0.75*.size2) g
   in
 
-  object
-    method set_attitude = fun roll pitch ->
-      disc#affine_absolute (affine_pos_and_angle (xc+.((sin roll)*.(pitch_scale pitch))) (yc+.pitch_scale pitch*.(cos roll)) (-.roll))
-    val mutable max_speed = 0.
-    val mutable min_speed = max_float
-    method set_speed = fun (s:float) ->
-      speed#affine_absolute (affine_pos 0. 0.);
-      lazy_speed s;
-      speed#affine_absolute (affine_pos 0. (speed_scale*.s));
-      min_speed <- min min_speed s;
-      max_speed <- max max_speed s;
-      mi#set [`TEXT (sprintf "%.1f" min_speed)];
-      mx#set [`TEXT (sprintf "%.1f" max_speed)]
-    initializer
-      ignore (speed#connect#event (function
-      `BUTTON_PRESS _ev ->
-        max_speed <- 0.; min_speed <- max_float; true
-    | _ -> false))
+object
+  method set_attitude = fun roll pitch ->
+    disc#affine_absolute (affine_pos_and_angle (xc+.((sin roll)*.(pitch_scale pitch))) (yc+.pitch_scale pitch*.(cos roll)) (-.roll))
+  val mutable max_speed = 0.
+  val mutable min_speed = max_float
+  method set_speed = fun (s:float) ->
+    speed#affine_absolute (affine_pos 0. 0.);
+    lazy_speed s;
+    speed#affine_absolute (affine_pos 0. (speed_scale*.s));
+    min_speed <- min min_speed s;
+    max_speed <- max max_speed s;
+    mi#set [`TEXT (sprintf "%.1f" min_speed)];
+    mx#set [`TEXT (sprintf "%.1f" max_speed)]
+  initializer
+    ignore (speed#connect#event (function
+    `BUTTON_PRESS _ev ->
+      max_speed <- 0.; min_speed <- max_float; true
+      | _ -> false))
 
-    method set_alt = fun (s:float) ->
-      alt#affine_absolute (affine_pos 0. 0.);
-      lazy_alt s;
-      alt#affine_absolute (affine_pos 0. (alt_scale*.s))
+  method set_alt = fun (s:float) ->
+    alt#affine_absolute (affine_pos 0. 0.);
+    lazy_alt s;
+    alt#affine_absolute (affine_pos 0. (alt_scale*.s))
 
-  end
+end
 
 (*****************************************************************************)
 (* pfd page                                                                  *)

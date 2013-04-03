@@ -32,13 +32,13 @@ let paparazzi_src =
   try
     Sys.getenv "PAPARAZZI_SRC"
   with
-    _ -> "/usr/share/paparazzi"
+      _ -> "/usr/share/paparazzi"
 
 let paparazzi_home =
   try
     Sys.getenv "PAPARAZZI_HOME"
   with
-    _ -> Filename.concat (Sys.getenv "HOME") "paparazzi"
+      _ -> Filename.concat (Sys.getenv "HOME") "paparazzi"
 
 
 let flight_plans_path = paparazzi_home // "conf" // "flight_plans"
@@ -59,13 +59,13 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
     try
       ExtXml.parse_file file
     with
-      Failure msg ->
-	if raise_exception then
-	  failwith msg
-	else begin
-	  prerr_endline msg;
-	  make_element "parse error" ["file",a; "msg", msg] []
-	end in
+        Failure msg ->
+          if raise_exception then
+            failwith msg
+          else begin
+            prerr_endline msg;
+            make_element "parse error" ["file",a; "msg", msg] []
+          end in
 
   let parse = fun a ->
     List.map

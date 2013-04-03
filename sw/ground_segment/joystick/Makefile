@@ -24,38 +24,75 @@
 # Quiet compilation
 Q=@
 
-OCAMLC = ocamlc
-OCAMLDEP = ocamldep
-LIBPPRZDIR = ../../lib/ocaml
+include ../../Makefile.ocaml
 TOOLSDIR = ../../tools
-OCAMLINCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+
+CC = gcc
+
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC=-fpic
+else
+  FPIC=
+endif
+
+OCAMLINCLUDES= -I $(TOOLSDIR)
+PKG = -package pprz,glibivy
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+
+GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) $(FPIC)
+GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
-#ML_SDL_LFLAGS = $(foreach u,$(shell sdl-config --libs),-cclib $(u))
-ML_SDL_LFLAGS = $(foreach u,$(shell pkg-config sdl --libs-only-L) -lSDL,-cclib $(u))
-INCLUDES += -I `ocamlc -where`
+SDL_LDIRS = $(shell pkg-config sdl --libs-only-L)
+SDL_LIBS = -lSDL
+# we do however need -lSDLmain for test_stick, which is just c
+SDL_LDFLAGS = $(shell sdl-config --libs)
+
+# apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
+ML_SDL_LFLAGS = $(foreach u,$(SDL_LDIRS),-ccopt $(u)) $(foreach u,$(SDL_LIBS),-cclib $(u)) libSDL.so
+ML_SDL_LFLAGS += -dllpath ${PAPARAZZI_SRC}/sw/ground_segment/joystick
+INCLUDES += -I $(shell ocamlc -where)
+
+SDL_STICK_DEPS = sdl_stick.o ml_sdl_stick.o
+# apparently on OSX you cannot dynamically link with SDL, see ocamlsdl readme
+UNAME = $(shell uname -s)
+
+ifeq ("$(UNAME)","Darwin")
+	ML_SDL_OCAMLFLAGS = -custom
+	INPUT2IVY_DEPS = $(SDL_STICK_DEPS) input2ivy.cmo
+else
+	ML_SDL_OCAMLFLAGS =
+	INPUT2IVY_DEPS = sdl_stick.so input2ivy.cmo
+endif
 
 all: test_stick input2ivy
 
 test_stick: test_sdl_stick.o
-	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ sdl_stick.c `pkg-config glib-2.0 --libs` -lglibivy `sdl-config --libs`
+	@echo BUILD $@
+	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: sdl_stick.o ml_sdl_stick.o input2ivy.cmo
-	$(OCAMLC) $(OCAMLINCLUDES) -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^ -custom $(ML_SDL_LFLAGS)
+input2ivy: $(INPUT2IVY_DEPS)
+	@echo OL $@
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
 
 # dependency of input2ivy
-input2ivy: $(LIBPPRZCMA) $(TOOLSDIR)/fp_proc.cmo
+input2ivy: $(TOOLSDIR)/fp_proc.cmo
+
+sdl_stick.so : $(SDL_STICK_DEPS)
+	@echo BUILD $@
+	$(Q)$(CC) -shared -o $@ $^
 
 %.o : %.c
-	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $(INCLUDES) $<
+	@echo CC $@
+	$(Q)$(CC) -c -O2 $(GLIB_CFLAGS) $(INCLUDES) $<
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $(PKG) $<
 
 clean:
-	rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
+	$(Q)rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
 
 .PHONY: all clean
 

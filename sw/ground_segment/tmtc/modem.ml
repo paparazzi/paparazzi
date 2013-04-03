@@ -25,9 +25,9 @@
 open Printf
 
 module Protocol = struct
-(* Header: STX, length of (payload + checksum) *)
-(* Payload: tag, data *)
-(* Trailer : checksum, ETX *)
+  (* Header: STX, length of (payload + checksum) *)
+  (* Payload: tag, data *)
+  (* Trailer : checksum, ETX *)
 
   let stx = Char.chr 0x02
   let etx = 0x03
@@ -68,15 +68,15 @@ let msg_debug = 3
 let msg_valim = 4
 
 type status = {
-    mutable valim : float;
-    mutable cd : int;
-    mutable error : int;
-    mutable debug : int;
-    mutable nb_byte : int;
-    mutable nb_msg : int;
-    mutable nb_err : int;
-    mutable detected : int
-  }
+  mutable valim : float;
+  mutable cd : int;
+  mutable error : int;
+  mutable debug : int;
+  mutable nb_byte : int;
+  mutable nb_msg : int;
+  mutable nb_err : int;
+  mutable detected : int
+}
 
 let status = {
   valim = 0.;
@@ -88,8 +88,8 @@ let status = {
   nb_err = 0;
   detected = 0;
 }
-(* FIXME *)
-  let valim = fun x -> float x *. 0.0162863 -. 1.17483
+  (* FIXME *)
+let valim = fun x -> float x *. 0.0162863 -. 1.17483
 (* FIXME *)
 
 let parse_payload = fun payload ->
@@ -104,16 +104,16 @@ let parse_payload = fun payload ->
   else begin
     begin
       match id with
-      | x when x = msg_error ->
-	  status.error <- (Char.code payload.[1])
-      | x when x = msg_cd ->
-	  status.cd <- (Char.code payload.[1])
-      | x when x = msg_debug ->
-	  status.debug <- (Char.code payload.[1])
-      | x when x = msg_valim ->
-	  status.valim <- (valim (Char.code payload.[2] * 0x100 + Char.code payload.[1]));
-      | _ -> (* Uncorrect id *)
-	  status.nb_err <- status.nb_err + 1
+        | x when x = msg_error ->
+          status.error <- (Char.code payload.[1])
+        | x when x = msg_cd ->
+          status.cd <- (Char.code payload.[1])
+        | x when x = msg_debug ->
+          status.debug <- (Char.code payload.[1])
+        | x when x = msg_valim ->
+          status.valim <- (valim (Char.code payload.[2] * 0x100 + Char.code payload.[1]));
+        | _ -> (* Uncorrect id *)
+          status.nb_err <- status.nb_err + 1
     end;
     None
   end

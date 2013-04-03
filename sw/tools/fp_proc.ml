@@ -29,22 +29,22 @@ module G2D = Geometry_2d
 open Expr_syntax
 
 let rec list_split3 = function
-    [] -> ([], [], [])
+[] -> ([], [], [])
   | (x,y,z)::l ->
-      let (rx, ry, rz) = list_split3 l in (x::rx, y::ry, z::rz)
+    let (rx, ry, rz) = list_split3 l in (x::rx, y::ry, z::rz)
 
 let parse_expression = fun s ->
   let lexbuf = Lexing.from_string s in
   try
     Expr_parser.expression Expr_lexer.token lexbuf
   with
-    Failure("lexing: empty token") ->
-      fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
-	s (Lexing.lexeme_char lexbuf 0);
-      exit 1
-  | Parsing.Parse_error ->
+      Failure("lexing: empty token") ->
+        fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
+          s (Lexing.lexeme_char lexbuf 0);
+        exit 1
+    | Parsing.Parse_error ->
       fprintf stderr "Parsing error in '%s', token '%s' ?\n"
-	s (Lexing.lexeme lexbuf);
+        s (Lexing.lexeme lexbuf);
       exit 1
 
 
@@ -53,12 +53,12 @@ open Latlong
 let subst_expression = fun env e ->
   let rec sub = fun e ->
     match e with
-      Ident i -> Ident (try List.assoc i env with Not_found -> i)
-    | Int _ | Float _ | Field _ -> e
-    | Call (i, es) -> Call (i, List.map sub es)
-    | CallOperator (i, es) -> CallOperator (i, List.map sub es)
-    | Index (i,e) -> Index (i,sub e)
-    | Deref (e,f) -> Deref (sub e, f) in
+        Ident i -> Ident (try List.assoc i env with Not_found -> i)
+      | Int _ | Float _ | Field _ -> e
+      | Call (i, es) -> Call (i, List.map sub es)
+      | CallOperator (i, es) -> CallOperator (i, List.map sub es)
+      | Index (i,e) -> Index (i,sub e)
+      | Deref (e,f) -> Deref (sub e, f) in
   sub e
 
 
@@ -72,9 +72,9 @@ let transform_values = fun attribs_not_modified env attribs ->
     (fun (a, v) ->
       let e = parse_expression v in
       let v' =
-	if List.mem (String.lowercase a) attribs_not_modified
-	then v
-	else transform_expression env e in
+        if List.mem (String.lowercase a) attribs_not_modified
+        then v
+        else transform_expression env e in
       (a, v'))
     attribs
 
@@ -83,70 +83,70 @@ let prefix_or_deroute = fun prefix reroutes name attribs ->
   List.map
     (fun (a, v) ->
       let v' =
-	if String.lowercase a = name then
-	  try List.assoc v reroutes with
-	    Not_found -> prefix v
-	else v in
+        if String.lowercase a = name then
+          try List.assoc v reroutes with
+              Not_found -> prefix v
+        else v in
       (a, v'))
     attribs
 
 let transform_exception = fun prefix reroutes env xml  ->
   match xml with
-    Xml.Element (tag, attribs, children) ->
-      assert (children=[]);
-      let attribs = prefix_or_deroute prefix reroutes "deroute" attribs in
-      let attribs = transform_values [] env attribs in
-      Xml.Element (tag, attribs, children)
-  | _ -> failwith "transform_exception"
+      Xml.Element (tag, attribs, children) ->
+        assert (children=[]);
+        let attribs = prefix_or_deroute prefix reroutes "deroute" attribs in
+        let attribs = transform_values [] env attribs in
+        Xml.Element (tag, attribs, children)
+    | _ -> failwith "transform_exception"
 
 
 
 let transform_stage = fun prefix reroutes env xml ->
   let rec tr = fun xml ->
     match xml with
-      Xml.Element (tag, attribs, children) -> begin
-	match String.lowercase tag with
-	  "exception" ->
-	    transform_exception prefix reroutes env xml
-	| "while" ->
-	    let attribs = transform_values [] env attribs in
-	  Xml.Element (tag, attribs, List.map tr children)
-	| "heading" ->
-	    assert (children=[]);
-	    let attribs = transform_values ["vmode"] env attribs in
-	    Xml.Element (tag, attribs, children)
-	| "attitude" ->
-	  let attribs = transform_values ["vmode"] env attribs in
-	  Xml.Element (tag, attribs, children)
-	| "go" ->
-	  assert (children=[]);
-	  let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
-	  Xml.Element (tag, attribs, children)
-      | "xyz" ->
-	  assert (children=[]);
-	  let attribs = transform_values [] env attribs in
-	  Xml.Element (tag, attribs, children)
-      | "circle" ->
-	  assert (children=[]);
-	  let attribs = transform_values ["wp";"hmode";"vmode"] env attribs in
-	  Xml.Element (tag, attribs, children)
-      | "eight" ->
-	  let attribs = transform_values ["center";"turn_around";"radius"] env attribs in
-	  Xml.Element (tag, attribs, children)
-      | "deroute" ->
-	  assert (children=[]);
-	  let attribs = prefix_or_deroute prefix reroutes "block" attribs in
-	  Xml.Element (tag, attribs, children)
-      | "stay" ->
-	  assert (children=[]);
-	  let attribs = transform_values ["wp"; "vmode"] env attribs in
-	  Xml.Element (tag, attribs, children)
-      | "call" | "set" ->
-	  let attribs = transform_values [] env attribs in
-	  Xml.Element (tag, attribs, children)
-      | _ -> failwith (sprintf "Fp_proc: Unexpected tag: '%s'" tag)
-    end
-  | _ -> failwith "Fp_proc: Xml.Element expected"
+        Xml.Element (tag, attribs, children) -> begin
+          match String.lowercase tag with
+              "exception" ->
+                transform_exception prefix reroutes env xml
+            | "while" ->
+              let attribs = transform_values [] env attribs in
+              Xml.Element (tag, attribs, List.map tr children)
+            | "heading" ->
+              assert (children=[]);
+              let attribs = transform_values ["vmode"] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "attitude" ->
+              let attribs = transform_values ["vmode"] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "go" ->
+              assert (children=[]);
+              let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "xyz" ->
+              assert (children=[]);
+              let attribs = transform_values [] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "circle" ->
+              assert (children=[]);
+              let attribs = transform_values ["wp";"hmode";"vmode"] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "eight" ->
+              let attribs = transform_values ["center";"turn_around";"radius"] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "deroute" ->
+              assert (children=[]);
+              let attribs = prefix_or_deroute prefix reroutes "block" attribs in
+              Xml.Element (tag, attribs, children)
+            | "stay" ->
+              assert (children=[]);
+              let attribs = transform_values ["wp"; "vmode"] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "call" | "set" ->
+              let attribs = transform_values [] env attribs in
+              Xml.Element (tag, attribs, children)
+            | _ -> failwith (sprintf "Fp_proc: Unexpected tag: '%s'" tag)
+        end
+      | _ -> failwith "Fp_proc: Xml.Element expected"
   in
   tr xml
 
@@ -175,7 +175,7 @@ let get_pc_data = fun tag xml ->
   try
     Xml.pcdata (ExtXml.child (ExtXml.child xml tag) "0")
   with
-    Not_found -> ""
+      Not_found -> ""
 
 
 let append_children = fun (tag, new_children) xml ->
@@ -194,8 +194,8 @@ let parse_include = fun dir flight_plan include_xml ->
   let f =
     let procedure = ExtXml.attrib include_xml "procedure" in
     try Ocaml_tools.find_file [dir; Env.flight_plans_path] procedure with
-      Not_found ->
-	failwith (sprintf "parse_include: %s not found\n" procedure) in
+        Not_found ->
+          failwith (sprintf "parse_include: %s not found\n" procedure) in
   let proc_name = ExtXml.attrib include_xml "name" in
   let prefix = fun x -> proc_name ^ "." ^ x in
 
@@ -205,20 +205,20 @@ let parse_include = fun dir flight_plan include_xml ->
   try
     let proc = ExtXml.parse_file ~noprovedtd:true f in
     let params = List.filter
-	(fun x -> ExtXml.tag_is x "param")
-	(Xml.children proc) in
+      (fun x -> ExtXml.tag_is x "param")
+      (Xml.children proc) in
 
     (* Build the environment with arguments and default values *)
     let make_assoc = fun xml ->
       let name = ExtXml.attrib xml "name" in
       try
-	(name, List.assoc name args_assocs)
+        (name, List.assoc name args_assocs)
       with
-	Not_found ->
-	  try
-	    (name, Xml.attrib xml "default_value")
-	  with
-	    _  -> failwith (sprintf "Value required for param '%s' in %s" name (Xml.to_string include_xml)) in
+          Not_found ->
+            try
+              (name, Xml.attrib xml "default_value")
+            with
+                _  -> failwith (sprintf "Value required for param '%s' in %s" name (Xml.to_string include_xml)) in
     let env =  List.map make_assoc params in
 
     let waypoints = get_children "waypoints" proc
@@ -238,21 +238,21 @@ let parse_include = fun dir flight_plan include_xml ->
        "sectors", sectors]
       (append_pc_data "header" header flight_plan)
   with
-    Failure msg -> fprintf stderr "Error: %s\n" msg; exit 1
+      Failure msg -> fprintf stderr "Error: %s\n" msg; exit 1
 
 
 
 let replace_children = fun xml new_children_assoc ->
   Xml.Element (Xml.tag xml, Xml.attribs xml,
-	       List.map
-		 (fun x ->
-		   try
-		     let new_children = List.assoc (Xml.tag x) new_children_assoc in
-		     new_children
-		   with
-		     Not_found -> x
-		 )
-		 (Xml.children xml))
+               List.map
+                 (fun x ->
+                   try
+                     let new_children = List.assoc (Xml.tag x) new_children_assoc in
+                     new_children
+                   with
+                       Not_found -> x
+                 )
+                 (Xml.children xml))
 
 
 let process_includes = fun dir xml ->
@@ -297,7 +297,7 @@ let replace_wp = fun stage waypoints ->
     let other_attribs = remove_attribs stage ["wp";"wp_qdr";"wp_dist"] in
     Xml.Element (Xml.tag stage, ("wp", name)::other_attribs, [])
   with
-    _ -> stage
+      _ -> stage
 
 
 let replace_from = fun stage waypoints ->
@@ -311,18 +311,18 @@ let replace_from = fun stage waypoints ->
     let other_attribs = remove_attribs stage ["from";"from_qdr";"from_dist"] in
     Xml.Element (Xml.tag stage, ("from", name)::other_attribs, [])
   with
-    _ -> stage
+      _ -> stage
 
 
 let process_stage = fun stage waypoints ->
   let rec do_it = fun stage ->
     match String.lowercase (Xml.tag stage) with
-      "go" | "stay" | "circle" ->
-	replace_from (replace_wp stage waypoints) waypoints
+        "go" | "stay" | "circle" ->
+          replace_from (replace_wp stage waypoints) waypoints
 
-    | "while" ->
-	Xml.Element("while", Xml.attribs stage, List.map do_it (Xml.children stage))
-    | _ -> stage in
+      | "while" ->
+        Xml.Element("while", Xml.attribs stage, List.map do_it (Xml.children stage))
+      | _ -> stage in
   do_it stage
 
 
@@ -337,11 +337,11 @@ let process_relative_waypoints = fun xml ->
   let blocks_list =
     List.map
       (fun block ->
-	let new_children =
-	  List.map
-	    (fun stage -> process_stage stage waypoints_list)
-	    (Xml.children block) in
-	Xml.Element (Xml.tag block, Xml.attribs block, new_children)
+        let new_children =
+          List.map
+            (fun stage -> process_stage stage waypoints_list)
+            (Xml.children block) in
+        Xml.Element (Xml.tag block, Xml.attribs block, new_children)
       )
       blocks_list in
 
@@ -359,14 +359,14 @@ let stage_process_path = fun stage rest ->
     let waypoints = Str.split regexp_path (ExtXml.attrib stage "wpts") in
     let attribs = Xml.attribs stage in
     let rec loop = function
-      [] -> failwith "Waypoint expected in path stage"
-    | [wp] -> (* Just go to this single point *)
-	Xml.Element("go", ("wp", wp)::attribs, [])::rest
-    | wp1::wp2::ps ->
-	Xml.Element("go", ["from", wp1;
-			   "hmode","route";
-			   "wp", wp2]@attribs, [])::
-	if ps = [] then rest else loop (wp2::ps) in
+    [] -> failwith "Waypoint expected in path stage"
+      | [wp] -> (* Just go to this single point *)
+        Xml.Element("go", ("wp", wp)::attribs, [])::rest
+      | wp1::wp2::ps ->
+        Xml.Element("go", ["from", wp1;
+                           "hmode","route";
+                           "wp", wp2]@attribs, [])::
+          if ps = [] then rest else loop (wp2::ps) in
     loop waypoints
   else
     stage::rest

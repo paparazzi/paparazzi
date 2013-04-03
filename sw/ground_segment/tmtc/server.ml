@@ -52,9 +52,9 @@ let get_indexed_value = fun t i ->
 
 let modes_of_type = fun vt ->
   match vt with
-    FixedWing -> fixedwing_ap_modes
-  | Rotorcraft -> rotorcraft_ap_modes
-  | UnknownVehicleType -> [| |]
+      FixedWing -> fixedwing_ap_modes
+    | Rotorcraft -> rotorcraft_ap_modes
+    | UnknownVehicleType -> [| |]
 
 (** The aircrafts store *)
 let aircrafts = Hashtbl.create 3
@@ -89,7 +89,7 @@ let make_element = fun t a c -> Xml.Element (t,a,c)
 let log_xml = fun timeofday data_file ->
   let conf_children =
     List.map
-      (fun x ->	  if Xml.tag x = "aircraft" then expand_aicraft x else x)
+      (fun x ->   if Xml.tag x = "aircraft" then expand_aicraft x else x)
       (Xml.children conf_xml) in
   let expanded_conf = make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) conf_children in
   make_element
@@ -122,14 +122,14 @@ let logger = fun () ->
 
 let log = fun ?timestamp logging ac_name msg_name values ->
   match logging with
-    Some log ->
-      let s = string_of_values values in
-      let t =
-	match timestamp with
-	  Some x -> x
-	| None   -> U.gettimeofday () -. start_time in
-      fprintf log "%.3f %s %s %s\n" t ac_name msg_name s; flush log
-  | None -> ()
+      Some log ->
+        let s = string_of_values values in
+        let t =
+          match timestamp with
+              Some x -> x
+            | None   -> U.gettimeofday () -. start_time in
+        fprintf log "%.3f %s %s %s\n" t ac_name msg_name s; flush log
+    | None -> ()
 
 
 (** Callback for a message from a registered A/C *)
@@ -144,55 +144,55 @@ let ac_msg = fun messages_xml logging ac_name ac ->
       Fw_server.log_and_parse ac_name ac msg values;
       Rotorcraft_server.log_and_parse ac_name ac msg values
     with
-      Telemetry_error (ac_name, msg) ->
-	Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
-	prerr_endline msg
-    | Pprz.Unknown_msg_name (x, c) ->
-	fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
-    | x -> prerr_endline (Printexc.to_string x)
+        Telemetry_error (ac_name, msg) ->
+          Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
+          prerr_endline msg
+      | Pprz.Unknown_msg_name (x, c) ->
+        fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
+      | x -> prerr_endline (Printexc.to_string x)
 
 
 (** If you are 1km above the ground, an angle of 89 degrees between the vertical and
-your camera axis allow you to look 57km away: it should be enough ! **)
+    your camera axis allow you to look 57km away: it should be enough ! **)
 let cam_max_angle = (Deg>>Rad) 89.
 
 let send_cam_status = fun a ->
   if a.gps_mode = gps_mode_3D then
     match a.nav_ref with
-      None -> () (* No geo ref for camera target *)
-    | Some nav_ref ->
-	let h = a.agl in
-	let phi_absolute = a.cam.phi -. a.roll
-	and theta_absolute = a.cam.theta +. a.pitch in
-	if phi_absolute > -. cam_max_angle && phi_absolute < cam_max_angle &&
-	  theta_absolute > -. cam_max_angle && theta_absolute < cam_max_angle then
-	  let dx = h *. tan phi_absolute
-	  and dy = h *. tan theta_absolute in
-	  let alpha = -. a.course in
-	  let east = dx *. cos alpha -. dy *. sin alpha
-	  and north = dx *. sin alpha +. dy *. cos alpha in
-    let wgs84 = Aircraft.add_pos_to_nav_ref (Geo a.pos) (east, north) in
-	  let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
-	  let values = ["ac_id", Pprz.String a.id;
-			"cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-			"cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
-			"cam_target_lat", Pprz.Float ((Rad>>Deg)twgs84.posn_lat);
-			"cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
-	  Ground_Pprz.message_send my_id "CAM_STATUS" values
+        None -> () (* No geo ref for camera target *)
+      | Some nav_ref ->
+        let h = a.agl in
+        let phi_absolute = a.cam.phi -. a.roll
+        and theta_absolute = a.cam.theta +. a.pitch in
+        if phi_absolute > -. cam_max_angle && phi_absolute < cam_max_angle &&
+          theta_absolute > -. cam_max_angle && theta_absolute < cam_max_angle then
+          let dx = h *. tan phi_absolute
+          and dy = h *. tan theta_absolute in
+          let alpha = -. a.course in
+          let east = dx *. cos alpha -. dy *. sin alpha
+          and north = dx *. sin alpha +. dy *. cos alpha in
+          let wgs84 = Aircraft.add_pos_to_nav_ref (Geo a.pos) (east, north) in
+          let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
+          let values = ["ac_id", Pprz.String a.id;
+                        "cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
+                        "cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
+                        "cam_target_lat", Pprz.Float ((Rad>>Deg)twgs84.posn_lat);
+                        "cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
+          Ground_Pprz.message_send my_id "CAM_STATUS" values
 
 let send_if_calib = fun a ->
   let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
   let values = ["ac_id", Pprz.String a.id;
-		         "if_mode", Pprz.String if_mode;
-		         "if_value1", Pprz.Float a.inflight_calib.if_val1;
-		         "if_value2", Pprz.Float a.inflight_calib.if_val2] in
+                "if_mode", Pprz.String if_mode;
+                "if_value1", Pprz.Float a.inflight_calib.if_val1;
+                "if_value2", Pprz.Float a.inflight_calib.if_val2] in
   Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
 
 let send_fbw = fun a ->
   let values = [ "ac_id", Pprz.String a.id;
-		 "rc_mode", Pprz.String a.fbw.rc_mode;
-     "rc_status", Pprz.String a.fbw.rc_status;
-     "rc_rate", Pprz.Int a.fbw.rc_rate ] in
+                 "rc_mode", Pprz.String a.fbw.rc_mode;
+                 "rc_status", Pprz.String a.fbw.rc_status;
+                 "rc_rate", Pprz.Int a.fbw.rc_rate ] in
   Ground_Pprz.message_send my_id "FLY_BY_WIRE"  values
 
 let send_dl_values = fun a ->
@@ -225,38 +225,38 @@ let send_svsinfo = fun a ->
   done;
   let f = fun s r -> (s, Pprz.String !r) in
   let vs = ["ac_id", Pprz.String a.id;
-	    "pacc", Pprz.Int a.gps_Pacc;
-	    f "svid" svid; f "flags" flags; f "qi" qi;  f "msg_age" age;
-	    f "cno" cno; f "elev" elev; f "azim" azim] in
+            "pacc", Pprz.Int a.gps_Pacc;
+            f "svid" svid; f "flags" flags; f "qi" qi;  f "msg_age" age;
+            f "cno" cno; f "elev" elev; f "azim" azim] in
   Ground_Pprz.message_send my_id "SVSINFO" vs
 
 let send_horiz_status = fun a ->
   match a.horiz_mode with
-    Circle (geo, r) ->
+      Circle (geo, r) ->
+        let vs = [ "ac_id", Pprz.String a.id;
+                   "circle_lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
+                   "circle_long", Pprz.Float ((Rad>>Deg)geo.posn_long);
+                   "radius", Pprz.Int r ] in
+        Ground_Pprz.message_send my_id "CIRCLE_STATUS" vs
+    | Segment (geo1, geo2) ->
       let vs = [ "ac_id", Pprz.String a.id;
-        "circle_lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
-        "circle_long", Pprz.Float ((Rad>>Deg)geo.posn_long);
-        "radius", Pprz.Int r ] in
-       Ground_Pprz.message_send my_id "CIRCLE_STATUS" vs
-  | Segment (geo1, geo2) ->
-      let vs = [ "ac_id", Pprz.String a.id;
-        "segment1_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
-        "segment1_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
-        "segment2_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
-        "segment2_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
+                 "segment1_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
+                 "segment1_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
+                 "segment2_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
+                 "segment2_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
       Ground_Pprz.message_send my_id "SEGMENT_STATUS" vs
-  | UnknownHorizMode -> ()
+    | UnknownHorizMode -> ()
 
 let send_survey_status = fun a ->
   match a.survey with
-    None ->
-      Ground_Pprz.message_send my_id "SURVEY_STATUS" ["ac_id", Pprz.String a.id]
-  | Some (geo1, geo2) ->
+      None ->
+        Ground_Pprz.message_send my_id "SURVEY_STATUS" ["ac_id", Pprz.String a.id]
+    | Some (geo1, geo2) ->
       let vs = [ "ac_id", Pprz.String a.id;
-		 "south_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
-		 "west_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
-		 "north_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
-		 "east_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
+                 "south_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
+                 "west_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
+                 "north_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
+                 "east_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
       Ground_Pprz.message_send my_id "SURVEY_STATUS" vs
 
 
@@ -273,7 +273,7 @@ let send_wind = fun a ->
        "stddev", Pprz.Float stddev] in
     Ground_Pprz.message_send my_id "WIND" vs
   with
-    _exc -> ()
+      _exc -> ()
 
 let send_telemetry_status = fun a ->
   let id = a.id in
@@ -283,18 +283,18 @@ let send_telemetry_status = fun a ->
        "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date)] in
     Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
   with
-    _exc -> ()
+      _exc -> ()
 
 let send_moved_waypoints = fun a ->
   Hashtbl.iter
     (fun wp_id wp ->
       let geo = wp.wp_geo in
       let vs =
-	["ac_id", Pprz.String a.id;
-	 "wp_id", Pprz.Int wp_id;
-	 "long", Pprz.Float ((Rad>>Deg)geo.posn_long);
-	 "lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
-	 "alt", Pprz.Float wp.altitude] in
+        ["ac_id", Pprz.String a.id;
+         "wp_id", Pprz.Int wp_id;
+         "long", Pprz.Float ((Rad>>Deg)geo.posn_long);
+         "lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
+         "alt", Pprz.Float wp.altitude] in
       Ground_Pprz.message_send my_id "WAYPOINT_MOVED" vs)
     a.waypoints
 
@@ -308,18 +308,18 @@ let send_aircraft_msg = fun ac ->
     let f = fun x -> Pprz.Float x in
     let wgs84 = try a.pos with _ -> LL.make_geo 0. 0. in
     let values = ["ac_id", Pprz.String ac;
-		  "roll", f (Geometry_2d.rad2deg a.roll);
-		  "pitch", f (Geometry_2d.rad2deg a.pitch);
-		  "heading", f (Geometry_2d.rad2deg a.heading);
-		  "lat", f ((Rad>>Deg)wgs84.posn_lat);
-		  "long", f ((Rad>>Deg) wgs84.posn_long);
-		  "unix_time", f a.unix_time;
-      "itow", Pprz.Int32 a.itow;
-		  "speed", f a.gspeed;
-		  "course", f (Geometry_2d.rad2deg a.course);
-		  "alt", f a.alt;
-		  "agl", f a.agl;
-		  "climb", f a.climb] in
+                  "roll", f (Geometry_2d.rad2deg a.roll);
+                  "pitch", f (Geometry_2d.rad2deg a.pitch);
+                  "heading", f (Geometry_2d.rad2deg a.heading);
+                  "lat", f ((Rad>>Deg)wgs84.posn_lat);
+                  "long", f ((Rad>>Deg) wgs84.posn_long);
+                  "unix_time", f a.unix_time;
+                  "itow", Pprz.Int32 a.itow;
+                  "speed", f a.gspeed;
+                  "course", f (Geometry_2d.rad2deg a.course);
+                  "alt", f a.alt;
+                  "agl", f a.agl;
+                  "climb", f a.climb] in
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
     (** send ACINFO messages if more than one A/C registered *)
@@ -328,13 +328,13 @@ let send_aircraft_msg = fun ac ->
         let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
         let pos = LL.utm_of WGS84 a.pos in
         let ac_info = ["ac_id", Pprz.String ac;
-          "utm_east", cm_of_m pos.utm_x;
-          "utm_north", cm_of_m pos.utm_y;
-          "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
-          "alt", cm_of_m a.alt;
-          "speed", cm_of_m a.gspeed;
-          "climb", cm_of_m a.climb;
-          "itow", Pprz.Int32 a.itow] in
+                       "utm_east", cm_of_m pos.utm_x;
+                       "utm_north", cm_of_m pos.utm_y;
+                       "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
+                       "alt", cm_of_m a.alt;
+                       "speed", cm_of_m a.gspeed;
+                       "climb", cm_of_m a.climb;
+                       "itow", Pprz.Int32 a.itow] in
         Dl_Pprz.message_send my_id "ACINFO" ac_info;
       end;
 
@@ -343,31 +343,31 @@ let send_aircraft_msg = fun ac ->
 
     begin
       match a.nav_ref with
-	Some nav_ref ->
-	  let values = ["ac_id", Pprz.String ac;
-			"cur_block", Pprz.Int a.cur_block;
-			"cur_stage", Pprz.Int a.cur_stage;
-			"stage_time", Pprz.Int a.stage_time;
-			"block_time", Pprz.Int a.block_time;
-			"target_lat", f ((Rad>>Deg)a.desired_pos.posn_lat);
-			"target_long", f ((Rad>>Deg)a.desired_pos.posn_long);
-			"target_alt", Pprz.Float a.desired_altitude;
-			"target_climb", Pprz.Float a.desired_climb;
-			"target_course", Pprz.Float ((Rad>>Deg)a.desired_course);
-			"dist_to_wp", Pprz.Float a.dist_to_wp
-		      ] in
-	  Ground_Pprz.message_send my_id "NAV_STATUS" values
-      | None -> () (* No nav_ref yet *)
+          Some nav_ref ->
+            let values = ["ac_id", Pprz.String ac;
+                          "cur_block", Pprz.Int a.cur_block;
+                          "cur_stage", Pprz.Int a.cur_stage;
+                          "stage_time", Pprz.Int a.stage_time;
+                          "block_time", Pprz.Int a.block_time;
+                          "target_lat", f ((Rad>>Deg)a.desired_pos.posn_lat);
+                          "target_long", f ((Rad>>Deg)a.desired_pos.posn_long);
+                          "target_alt", Pprz.Float a.desired_altitude;
+                          "target_climb", Pprz.Float a.desired_climb;
+                          "target_course", Pprz.Float ((Rad>>Deg)a.desired_course);
+                          "dist_to_wp", Pprz.Float a.dist_to_wp
+                         ] in
+            Ground_Pprz.message_send my_id "NAV_STATUS" values
+        | None -> () (* No nav_ref yet *)
     end;
 
     let values = ["ac_id", Pprz.String ac;
-		  "throttle", f a.throttle;
-		  "throttle_accu", f a.throttle_accu;
-		  "rpm", f a.rpm;
-		  "temp", f a.temp;
-		  "bat", f a.bat;
-		  "amp", f a.amp;
-		  "energy", Pprz.Int a.energy] in
+                  "throttle", f a.throttle;
+                  "throttle_accu", f a.throttle_accu;
+                  "rpm", f a.rpm;
+                  "temp", f a.temp;
+                  "bat", f a.bat;
+                  "amp", f a.amp;
+                  "energy", Pprz.Int a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
     let ap_mode = get_indexed_value (modes_of_type a.vehicle_type) a.ap_mode in
@@ -378,15 +378,15 @@ let send_aircraft_msg = fun ac ->
     let state_filter_mode = get_indexed_value state_filter_modes a.state_filter_mode
     and kill_mode = if a.kill_mode then "ON" else "OFF" in
     let values = ["ac_id", Pprz.String ac;
-		  "flight_time", Pprz.Int a.flight_time;
-		  "ap_mode", Pprz.String ap_mode;
-		  "gaz_mode", Pprz.String gaz_mode;
-		  "lat_mode", Pprz.String lat_mode;
-		  "horiz_mode", Pprz.String horiz_mode;
-		  "gps_mode", Pprz.String gps_mode;
+                  "flight_time", Pprz.Int a.flight_time;
+                  "ap_mode", Pprz.String ap_mode;
+                  "gaz_mode", Pprz.String gaz_mode;
+                  "lat_mode", Pprz.String lat_mode;
+                  "horiz_mode", Pprz.String horiz_mode;
+                  "gps_mode", Pprz.String gps_mode;
                   "state_filter_mode", Pprz.String state_filter_mode;
-		  "kill_mode", Pprz.String kill_mode
-		] in
+                  "kill_mode", Pprz.String kill_mode
+                 ] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;
@@ -406,8 +406,8 @@ let send_aircraft_msg = fun ac ->
       Kml.update_waypoints a;
     send_telemetry_status a
   with
-    Not_found -> prerr_endline ac
-  | x -> prerr_endline (Printexc.to_string x)
+      Not_found -> prerr_endline ac
+    | x -> prerr_endline (Printexc.to_string x)
 
 (** Check if it is a replayed A/C (c.f. sw/logalizer/play.ml) *)
 let replayed = fun ac_id ->
@@ -424,9 +424,9 @@ let get_conf = fun real_id id conf_xml ->
   try
     ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = id)
   with
-    Not_found ->
-      Hashtbl.add unknown_aircrafts real_id ();
-      failwith (sprintf "Error: A/C '%s' not found" id)
+      Not_found ->
+        Hashtbl.add unknown_aircrafts real_id ();
+        failwith (sprintf "Error: A/C '%s' not found" id)
 
 let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
   (* Read the digest generated by sw/tools/gen_aircraft *)
@@ -436,32 +436,32 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
 
   try
     match alive_md5sum with
-      Pprz.Array array ->
-	let n = Array.length array in
-	assert(n = String.length md5sum / 2);
-	for i = 0 to n - 1 do
-	  let x = int_of_string (sprintf "0x%c%c" md5sum.[2*i] md5sum.[2*i+1]) in
-	  assert (x = Pprz.int_of_value array.(i))
-	done
-    | _ -> failwith "Array expected here"
+        Pprz.Array array ->
+          let n = Array.length array in
+          assert(n = String.length md5sum / 2);
+          for i = 0 to n - 1 do
+            let x = int_of_string (sprintf "0x%c%c" md5sum.[2*i] md5sum.[2*i+1]) in
+            assert (x = Pprz.int_of_value array.(i))
+          done
+      | _ -> failwith "Array expected here"
   with _ ->
     try
       match alive_md5sum with
-        Pprz.Array array ->
-	  let n = Array.length array in
-	  assert(n = String.length md5sum / 2);
-	  for i = 0 to n - 1 do
-	    let x = 0 in
-	    assert (x = Pprz.int_of_value array.(i))
-  	  done;
-          fprintf stderr "MD5 is ZERO, be carefull with configurations\n%!"
-      | _ -> failwith "Array expected here"
+          Pprz.Array array ->
+            let n = Array.length array in
+            assert(n = String.length md5sum / 2);
+            for i = 0 to n - 1 do
+              let x = 0 in
+              assert (x = Pprz.int_of_value array.(i))
+            done;
+            fprintf stderr "MD5 is ZERO, be carefull with configurations\n%!"
+        | _ -> failwith "Array expected here"
     with _ ->
-    let error_message = sprintf "WARNING: live md5 signature for %s does not match current configuration, please reload your code (disable check with -no_md5_check option)" ac_name in
-    if !no_md5_check then
-      fprintf stderr "%s; continuing anyway as requested\n%!" error_message
-    else
-      failwith  error_message
+      let error_message = sprintf "WARNING: live md5 signature for %s does not match current configuration, please reload your code (disable check with -no_md5_check option)" ac_name in
+      if !no_md5_check then
+        fprintf stderr "%s; continuing anyway as requested\n%!" error_message
+      else
+        failwith  error_message
 
 
 let new_aircraft = fun get_alive_md5sum real_id ->
@@ -471,7 +471,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
   let var_aircraft_dir = Env.paparazzi_home // root_dir // "var" // ac_name in
 
   if not (Sys.file_exists var_aircraft_dir) then begin
-    (* Let's look for a backup configuration with the md5 signature *)
+  (* Let's look for a backup configuration with the md5 signature *)
   end;
 
   let fp_file =  var_aircraft_dir // "flight_plan.xml" in
@@ -506,8 +506,8 @@ let check_alerts = fun a ->
 
   let send = fun level ->
     let vs = [ "ac_id", Pprz.String a.id;
-	       "level", Pprz.String level;
-	       "value", Pprz.Float a.bat] in
+               "level", Pprz.String level;
+               "value", Pprz.Float a.bat] in
     Alerts_Pprz.message_send my_id "BAT_LOW" vs in
   if a.bat < catastrophic_level then send "CATASTROPHIC"
   else if a.bat < critic_level then send "CRITIC"
@@ -537,15 +537,15 @@ let periodic_airprox_check = fun name ->
   let check_airprox = fun ac ->
     try
       match Airprox.check_airprox thisac ac with
-	None -> ()
-      | Some level ->
-	  let vs =
-	    ["ac_id", Pprz.String (thisac.id ^ "," ^ ac.id) ; "level", Pprz.String level] in
-	  Alerts_Pprz.message_send my_id "AIR_PROX" vs
+          None -> ()
+        | Some level ->
+          let vs =
+            ["ac_id", Pprz.String (thisac.id ^ "," ^ ac.id) ; "level", Pprz.String level] in
+          Alerts_Pprz.message_send my_id "AIR_PROX" vs
     with
-      x -> fprintf stderr "check_airprox: %s\n%!" (Printexc.to_string x)
+        x -> fprintf stderr "check_airprox: %s\n%!" (Printexc.to_string x)
 
- in
+  in
 
   List.iter
     (fun ac ->
@@ -578,7 +578,7 @@ let ident_msg = fun log name vs ->
       register_aircraft name ac;
       Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
   with
-    exc -> prerr_endline (Printexc.to_string exc)
+      exc -> prerr_endline (Printexc.to_string exc)
 
 let new_color = fun () ->
   sprintf "#%02x%02x%02x" (Random.int 256) (Random.int 256) (Random.int 256)
@@ -600,9 +600,9 @@ let send_config = fun http _asker args ->
     let ac_name = ExtXml.attrib conf "name" in
     let protocol =
       if http then
-	sprintf "http://%s:8889" (Unix.gethostname ())
+        sprintf "http://%s:8889" (Unix.gethostname ())
       else
-	sprintf "file://%s" Env.paparazzi_home in
+        sprintf "file://%s" Env.paparazzi_home in
     let prefix = fun s -> sprintf "%s/%s%s" protocol root_dir s in
 
     (** Expanded flight plan and settings have been compiled in var/ *)
@@ -610,7 +610,7 @@ let send_config = fun http _asker args ->
     and af = prefix ("conf" // ExtXml.attrib conf "airframe")
     and rc = prefix ("conf" // ExtXml.attrib conf "radio")
     and settings = if not _is_replayed then prefix ("var" // ac_name //
-    "settings.xml") else "file://replay" in
+                                                       "settings.xml") else "file://replay" in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
     [ "ac_id", Pprz.String ac_id;
@@ -621,8 +621,8 @@ let send_config = fun http _asker args ->
       "default_gui_color", Pprz.String col;
       "ac_name", Pprz.String ac_name ]
   with
-    Not_found ->
-      failwith (sprintf "ground UNKNOWN %s" ac_id')
+      Not_found ->
+        failwith (sprintf "ground UNKNOWN %s" ac_id')
 
 let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);

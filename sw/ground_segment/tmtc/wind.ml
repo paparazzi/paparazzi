@@ -24,26 +24,26 @@
 
 (*
   Wind speed and direction are estimated from a dataset of ground speeds,
-with the hypothesis that the airspeed is constant. This estimation is computed
-by solving an optimization problem. The Nelder-Mead method is used
-(http://en.wikipedia.org/wiki/Nelder-Mead_method).
+  with the hypothesis that the airspeed is constant. This estimation is computed
+  by solving an optimization problem. The Nelder-Mead method is used
+  (http://en.wikipedia.org/wiki/Nelder-Mead_method).
 
- Let GS(i) a set of n recorded ground speed vectors and W the wind speed.
-The norm of the (hypothetically constant) mean airspeed is
+  Let GS(i) a set of n recorded ground speed vectors and W the wind speed.
+  The norm of the (hypothetically constant) mean airspeed is
 
   as = 1/n sum(norm(GS(i)-W))
 
-Let
+  Let
 
   stderr = 1/n sum (norm(GS(i)-W)-as)^2
 
-The minimization of stderr, on the W decision variable, returns an estimation
-of W.
+  The minimization of stderr, on the W decision variable, returns an estimation
+  of W.
 
-Remarks:
- - GS(i) actually is the sequence of the _last_ recorded ground speeds.
- - In the "isotropic" implementation, each sample is weighted by its relative
-difference in direction to the other samples.
+  Remarks:
+  - GS(i) actually is the sequence of the _last_ recorded ground speeds.
+  - In the "isotropic" implementation, each sample is weighted by its relative
+  difference in direction to the other samples.
 *)
 
 
@@ -91,23 +91,23 @@ let simplex p fmax step max_iter precision =
       let vr = calcnew vs.c.p vb (-1.) in
       let fvr = f vr in
       let new_vs =
-	if fvr > vs.a.f then
-	  let ve = calcnew vs.c.p vb (-2.) in
-	  let fve = f ve in
-	  if fve > fvr then shift ve fve vs
-	  else shift vr fvr vs
-	else
-	  let vc = calcnew vs.c.p vb 0.5 in
-	  let fvc = f vc in
-	  if fvc > vs.b.f || fvr > vs.b.f then
-	    let v = if fvr > fvc then {p = vr; f = fvr} else {p = vc; f = fvc} in
-	    if v.f <= vs.b.f then {vs with c = v}
-	    else if v.f > vs.a.f then shiftpv v vs
-	    else {vs with b = v; c = vs.b}
-	  else
-	    let vcb = calcnew vs.b.p vs.a.p 0.5
-	    and vcc = calcnew vs.c.p vs.a.p 0.5 in
-	    triangle_sort {vs with b = {p = vcb; f = f vcb}; c = {p = vcc; f = f vcc}} in
+        if fvr > vs.a.f then
+          let ve = calcnew vs.c.p vb (-2.) in
+          let fve = f ve in
+          if fve > fvr then shift ve fve vs
+          else shift vr fvr vs
+        else
+          let vc = calcnew vs.c.p vb 0.5 in
+          let fvc = f vc in
+          if fvc > vs.b.f || fvr > vs.b.f then
+            let v = if fvr > fvc then {p = vr; f = fvr} else {p = vc; f = fvc} in
+            if v.f <= vs.b.f then {vs with c = v}
+            else if v.f > vs.a.f then shiftpv v vs
+            else {vs with b = v; c = vs.b}
+            else
+              let vcb = calcnew vs.b.p vs.a.p 0.5
+              and vcc = calcnew vs.c.p vs.a.p 0.5 in
+              triangle_sort {vs with b = {p = vcb; f = f vcb}; c = {p = vcc; f = f vcc}} in
 
       loop (num_iter + 1) new_vs end
     else vs.a in
@@ -123,15 +123,15 @@ let isotropic_wind wind_init speeds precision =
     let air_speeds = Array.map (fun speed -> cart2polar (vect_sub speed wind)) speeds in
     let weights =
       Array.mapi
-	(fun i airi ->
-	  let sum = ref 0. in
-	  for j = 0 to n-1 do
-	    if j <> i then
-	      sum := !sum +.
-		  norm_angle_rad (abs_float (airi.theta2D -. air_speeds.(j).theta2D)) /. m_pi
-	  done;
-	  !sum /. (float (n-1)))
-	air_speeds in
+        (fun i airi ->
+          let sum = ref 0. in
+          for j = 0 to n-1 do
+            if j <> i then
+              sum := !sum +.
+                norm_angle_rad (abs_float (airi.theta2D -. air_speeds.(j).theta2D)) /. m_pi
+          done;
+          !sum /. (float (n-1)))
+        air_speeds in
     let sum_weights = Array.fold_left (+.) 0. weights in
 
     let mean = ref 0. in
@@ -157,7 +157,7 @@ let isotropic_wind wind_init speeds precision =
 
 
 (* val wind : Geometry_2d.pt_2D -> Geometry_2d.pt_2D array -> float
-  -> (Geometry_2d.pt_2Dfloat * float * float) *)
+   -> (Geometry_2d.pt_2Dfloat * float * float) *)
 (** [wind wind_init speeds precision] returns the wind and air speed mean and std dev. *)
 let wind wind_init speeds precision =
   let mean wind =
@@ -171,10 +171,10 @@ let wind wind_init speeds precision =
     let m = mean wind in
     let sum =
       Array.fold_left
-	(fun acc speed ->
-	  let err = vect_norm (vect_sub speed wind) -. m in
-	  acc +. err *. err)
-	0. speeds in
+        (fun acc speed ->
+          let err = vect_norm (vect_sub speed wind) -. m in
+          acc +. err *. err)
+        0. speeds in
     sum /. float (Array.length speeds) in
 
   let step = 2. and max_iter = 100 in
@@ -183,11 +183,11 @@ let wind wind_init speeds precision =
   (wind.p, mean wind.p, -.wind.f)
 
 type wind_ac = {
-    speeds : Geometry_2d.pt_2D option array;
-    mutable index : int;
-    mutable length : int;
-    mutable wind_init : Geometry_2d.pt_2D
-  }
+  speeds : Geometry_2d.pt_2D option array;
+  mutable index : int;
+  mutable length : int;
+  mutable wind_init : Geometry_2d.pt_2D
+}
 
 let h = Hashtbl.create 17
 
@@ -210,7 +210,7 @@ let update = fun id r course ->
   let speed = polar2cart {r2D = r; theta2D = theta} in
   let wind_ac = Hashtbl.find h id in
   let i = truncate (float (Array.length wind_ac.speeds) *. course /. 2. /. Latlong.pi) in
-(*  Printf.printf "i=%d\n%!" i; *)
+  (*  Printf.printf "i=%d\n%!" i; *)
   wind_ac.speeds.(i) <- Some speed
 
 let compute = fun compute_wind id ->
@@ -218,7 +218,7 @@ let compute = fun compute_wind id ->
     let wind_ac = Hashtbl.find h id in
     let speeds = List.fold_right (fun s r -> match s with Some s -> s::r | None -> r) (Array.to_list wind_ac.speeds) [] in
     let speeds = Array.of_list speeds in
-(*     Printf.printf "l=%d\n%!" (Array.length speeds); *)
+    (*     Printf.printf "l=%d\n%!" (Array.length speeds); *)
     if Array.length speeds >= 3 then begin
       let wind_init = wind_ac.wind_init in
       let (wind, mean, stddev) = compute_wind wind_init speeds precision in

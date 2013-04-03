@@ -33,19 +33,15 @@ else
 endif
 FPIC=-fPIC
 
-OCAMLC=ocamlc
-OCAMLOPT=ocamlopt
-OCAMLDEP=ocamldep
-OCAMLOPTFLAGS=-thread
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
-OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring) $(shell ocamlfind query -r -a-format -predicates byte netclient)
-LIBPPRZDIR=../../lib/ocaml
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format pcre) $(OCAMLNETINCLUDES)
-LIBS=$(OCAMLNETCMA) glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
-CMXA=$(LIBS:.cma=.cmxa)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
-XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
+include ../../Makefile.ocaml
+
+INCLUDES=
+LIBS=
+LIBSX=$(LIBS:.cma=.cmxa)
+
+INCLUDES= -I ../multimon
+PKG = -package pprz.xlib
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
@@ -56,45 +52,49 @@ all : $(MAIN)
 
 opt : $(MAIN).opt
 
-$(MAIN) : $(CMO) $(XLIBPPRZCMA) $(LIBPPRZCMA)
+$(MAIN) : $(CMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) -custom $(INCLUDES) $(OCAMLNETINCLUDES) unix.cma str.cma netstring.cma netclient.cma xml-light.cma $(LIBS) threads.cma gtkThread.cmo myGtkInit.cmo $(CMO) -o $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) myGtkInit.cmo $(CMO) -o $@
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) str.cmxa unix.cmxa xml-light.cmxa $(LIBS:.cma=.cmxa) threads.cmxa gtkThread.cmx gtkInit.cmx $(CMX) -o $@
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,lablgtk2.init -linkpkg $(CMX) -o $@
 
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(PKG) -c $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(PKG) -c $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(PKG) -c $<
 
 saveSettings.cmo : gtk_save_settings.cmo
 saveSettings.cmx: gtk_save_settings.cmx
 
 gtk_strip.ml : gcs.glade
-	lablgladecc2 -root eventbox_strip -hide-default $< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(Q)lablgladecc2 -root eventbox_strip -hide-default $< | grep -B 1000000 "  end" > $@
 
 gtk_setting_time.ml : gcs.glade
-	lablgladecc2 -root setting_time -hide-default $< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(Q)lablgladecc2 -root setting_time -hide-default $< | grep -B 1000000 "  end" > $@
 
 gtk_save_settings.ml : gcs.glade
-	lablgladecc2 -root save_settings -hide-default $< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(Q)lablgladecc2 -root save_settings -hide-default $< | grep -B 1000000 "  end" > $@
 
 strip.cmo : gtk_strip.cmo gtk_setting_time.cmo
 
 compass : compass.ml
-	$(OCAMLC) -custom $(OCAMLCFLAGS) $(INCLUDES) unix.cma str.cma xml-light.cma $(LIBS) gtkInit.cmo $^ -o $@
+	@echo OL $@
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LINKPKG) gtkInit.cmo $^ -o $@
 
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml compass ant_track ant_track_pmm test_enose actuators
+	$(Q)rm -f *~* *.cm* *.o *.out *.opt map2d gcs .depend gtk_strip.ml gtk_setting_time.ml gtk_save_settings.ml compass ant_track ant_track_pmm test_enose actuators
 
 .PHONY: all opt clean
 

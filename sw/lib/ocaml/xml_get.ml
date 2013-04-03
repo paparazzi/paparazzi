@@ -9,8 +9,8 @@ let _ =
     try
       Xml.parse_file xml_file
     with
-      Xml.Error e ->
-	Printf.fprintf stderr "\nError in \"%s\": %s\n\n" xml_file (Xml.error e);
-	exit 1
+        Xml.Error e ->
+          Printf.fprintf stderr "\nError in \"%s\": %s\n\n" xml_file (Xml.error e);
+          exit 1
   in
   Printf.printf "%s\n" (ExtXml.get_attrib xml path attribute)
