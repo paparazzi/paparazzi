@@ -108,7 +108,7 @@ class PlotFrame(wx.Frame):
 
     def __init__(self, parent):
         self._init_ctrls(parent)
-        
+
         self.canvas = plotpanel.create(self.panel1, self)
         self.dynamic_menus = {}
 
@@ -128,21 +128,21 @@ class PlotFrame(wx.Frame):
         self.editMax.SetValue(str(max_))
 
     def OnClose(self, event):
-      # need to forward close to canvas so that ivy is shut down, otherwise ivy hangs the shutdown
-      self.canvas.OnClose()
-      self.Destroy()
-      
+        # need to forward close to canvas so that ivy is shut down, otherwise ivy hangs the shutdown
+        self.canvas.OnClose()
+        self.Destroy()
+
     def OnErase(self, event):
         pass
-    
+
     def OnSize(self, event):
-      self.canvas.OnSize( event.GetSize())
+        self.canvas.OnSize( event.GetSize())
 
     def OnSliderTimeCommandScroll(self, event):
         value = event.GetPosition()
         self.canvas.SetPlotInterval(value)
         self.editTime.SetValue( '%.3f' % (value/1000.0))
-        
+
     def OnEditTimeTextEnter(self, event):
         try:
             value = int(float(event.GetString()) * 1000.0)
@@ -169,7 +169,7 @@ class PlotFrame(wx.Frame):
 
     def OnMenu1Item_pauseMenu(self, event):
         self.canvas.Pause(event.IsChecked())
-        
+
     def AddCurve(self, menu_id, title, use_as_x = False):
         curveMenu = wx.Menu(title='')
 
@@ -186,7 +186,7 @@ class PlotFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnMenuScaleCurve, id=menu_id*10+2)
         self.Bind(wx.EVT_MENU, self.OnMenuRealTime, id=menu_id*10+3)
         self.Bind(wx.EVT_MENU, self.OnMenuUseAsXAxis, id=menu_id*10+4)
- 
+
         self.dynamic_menus[menu_id] = self.menuCurves.AppendSubMenu(submenu=curveMenu, text=title)
 
     def OnMenuDeleteCurve(self, event):
@@ -198,25 +198,25 @@ class PlotFrame(wx.Frame):
 
     def OnMenuOffsetCurve(self, event):
         menu_id = (event.GetId()-1) / 10
-        
+
         default_value = str(self.canvas.FindPlot(menu_id).offset)
         value = wx.GetTextFromUser("Enter a value to offset the plot", "Offset", default_value)
         try:
-          value = float(value)
-          self.canvas.OffsetPlot( menu_id, value)
+            value = float(value)
+            self.canvas.OffsetPlot( menu_id, value)
         except:
-          pass
+            pass
 
     def OnMenuScaleCurve(self, event):
         menu_id = (event.GetId()-2) / 10
-        
+
         default_value = str(self.canvas.FindPlot(menu_id).scale)
         value = wx.GetTextFromUser("Enter a factor to scale the plot", "Scale", default_value)
         try:
-          value = float(value)
-          self.canvas.ScalePlot( menu_id, value)
+            value = float(value)
+            self.canvas.ScalePlot( menu_id, value)
         except:
-          pass
+            pass
 
     def OnMenuRealTime(self,event):
         menu_id = (event.GetId()-3) / 10
@@ -227,15 +227,15 @@ class PlotFrame(wx.Frame):
         menu_id = (event_id-4) / 10
         value = event.IsChecked()
 
-        if value: 
-          # go through and clear the checks from any other curves
-          for i in self.dynamic_menus:
-            for item in self.dynamic_menus[i].GetSubMenu().GetMenuItems():
-              if item.GetText() == u'_Use as X-axis' and event_id != item.GetId():
-                item.Check(False)
-          self.canvas.SetXAxis(menu_id)
+        if value:
+            # go through and clear the checks from any other curves
+            for i in self.dynamic_menus:
+                for item in self.dynamic_menus[i].GetSubMenu().GetMenuItems():
+                    if item.GetText() == u'_Use as X-axis' and event_id != item.GetId():
+                        item.Check(False)
+            self.canvas.SetXAxis(menu_id)
         else:
-          self.canvas.ClearXAxis()
+            self.canvas.ClearXAxis()
 
 
     def OnEditMinText(self, event):
