@@ -30,6 +30,7 @@ class IvyMessagesInterface():
 
     def Stop(self):
         IvyUnBindMsg(self.ivy_id)
+        IvyStop()
 
     def __init__del__(self):
         try:

@@ -125,6 +125,7 @@ class MessagesFrame(wx.Frame):
 
     def __init__(self):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'MessagesFrame', size=wx.Size(WIDTH, HEIGHT), style=wx.DEFAULT_FRAME_STYLE, title=u'Messages')
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.notebook = wx.Notebook(self)
         self.aircrafts = {}
 
@@ -135,3 +136,8 @@ class MessagesFrame(wx.Frame):
         self.timer = threading.Timer(0.1, self.update_leds)
         self.timer.start()
         self.interface = messages_tool.IvyMessagesInterface(self.message_recv)
+
+    def OnClose(self, event):
+        self.timer.cancel()
+        self.interface.Stop()
+        self.Destroy()
