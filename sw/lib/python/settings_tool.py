@@ -42,14 +42,14 @@ class IvySettingsInterface(PaparazziACSettings):
     # Called for DL_VALUE (from aircraft)
     def OnValueMsg(self, agent, *larg):
         # Extract field values
-        message_values = filter(None, larg[0].split(' '))
+        message_values = list(filter(None, larg[0].split(' ')))
         message_values = message_values[0:1] + message_values[2:]
         self.ProcessMessage(message_values, True)
 
     # Called for DL_SETTING (from ground)
     def OnSettingMsg(self, agent, *larg):
         # Extract field values
-        message_values = filter(None, larg[0].split(' '))
+        message_values = list(filter(None, larg[0].split(' ')))
         self.ProcessMessage(message_values, False)
 
     def RegisterCallback(self, callback_function):
