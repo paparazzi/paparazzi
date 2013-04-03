@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from ivy.std_api import *
 import os
@@ -29,6 +29,9 @@ class IvySettingsInterface(PaparazziACSettings):
         setting_index = int(message_values[1])
         setting_value = message_values[2]
 
+        if _SHOW_IVY_MSGS_:
+            print("Got setting with index: %s   value %s   " % (setting_index, setting_value))
+
         # Store value from message
         self.lookup[setting_index].value = setting_value
 
@@ -36,20 +39,17 @@ class IvySettingsInterface(PaparazziACSettings):
         if self.update_callback != None:
             self.update_callback(setting_index, setting_value, fromRemote)
 
-        if _SHOW_IVY_MSGS_:
-            print("index: %s   value %s   " % (setting_index, setting_value))
-
     # Called for DL_VALUE (from aircraft)
     def OnValueMsg(self, agent, *larg):
         # Extract field values
-        message_values = larg[0].split(' ')
+        message_values = filter(None, larg[0].split(' '))
         message_values = message_values[0:1] + message_values[2:]
         self.ProcessMessage(message_values, True)
 
     # Called for DL_SETTING (from ground)
     def OnSettingMsg(self, agent, *larg):
         # Extract field values
-        message_values = larg[0].split(' ')
+        message_values = filter(None, larg[0].split(' '))
         self.ProcessMessage(message_values, False)
 
     def RegisterCallback(self, callback_function):
