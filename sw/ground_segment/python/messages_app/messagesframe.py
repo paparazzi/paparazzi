@@ -139,5 +139,5 @@ class MessagesFrame(wx.Frame):
 
     def OnClose(self, event):
         self.timer.cancel()
-        self.interface.Stop()
+        self.interface.Shutdown()
         self.Destroy()
