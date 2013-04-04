@@ -123,10 +123,11 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   /* Compute route reference before saturation */
   // use metric precision or values are too large
   INT32_ATAN2(route_ref, -pos_err.y, -pos_err.x);
-  route_ref = abs(route_ref);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
+  c_route_ref = abs(c_route_ref);
+  s_route_ref = abs(s_route_ref);
   /* Compute maximum acceleration*/
   gh_max_accel_ref.x = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, c_route_ref, INT32_TRIG_FRAC);
   gh_max_accel_ref.y = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, s_route_ref, INT32_TRIG_FRAC);
@@ -191,11 +192,11 @@ void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   /* Compute route reference before saturation */
   // use metric precision or values are too large
   INT32_ATAN2(route_ref, -speed_sp.y, -speed_sp.x);
-  route_ref = abs(route_ref);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
-
+  c_route_ref = abs(c_route_ref);
+  s_route_ref = abs(s_route_ref);
   /* Compute maximum acceleration*/
   gh_max_accel_ref.x = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, c_route_ref, INT32_TRIG_FRAC);
   gh_max_accel_ref.y = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, s_route_ref, INT32_TRIG_FRAC);
