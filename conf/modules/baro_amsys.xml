@@ -1,14 +1,12 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Baro ETS module (I2C)
-     @param BARO_ETS_I2C_DEV i2c device (default i2c0)
-     -->
-
 <module name="baro_amsys" dir="sensors">
   <doc>
-    <description>Baro ETS module (I2C)</description>
-    <define name="BARO_ETS_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+    <description>
+      Baro AMSYS (I2C).
+      Module to read a Amsys AMS 5812-0150-A barometric sensor via I2C.
+    </description>
+    <define name="BARO_AMSYS_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
   </doc>
 
   <header>

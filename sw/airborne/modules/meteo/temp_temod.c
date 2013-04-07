@@ -55,7 +55,7 @@ void temod_init(void) {
 }
 
 void temod_periodic( void ) {
-    I2CReceive(TEMOD_I2C_DEV, tmd_trans, TEMOD_SLAVE_ADDR, 2);
+    i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
 }
 
 void temod_event( void ) {

@@ -32,23 +32,18 @@ endif
 
 
 include ../../../conf/Makefile.local
+include ../../Makefile.ocaml
 CONF = ../../../conf
 VAR = ../../../var
 
-OCAMLC = ocamlc
-OCAMLOPT = ocamlopt
-OCAMLDEP = ocamldep
-LIBPPRZDIR = ../../lib/ocaml
-OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient)
-OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
-INCLUDES= -I $(LIBPPRZDIR) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
-
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
-XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
-XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
+INCLUDES= -I ../multimon
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+XPKG = -package pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 LIBMULTIMONCMA=../multimon/multimon.cma
+LIBMULTIMONDLL= multimon.cma -dllpath $(PAPARAZZI_SRC)/sw/ground_segment/multimon
 
 SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo server_msg_v1.cmo server_msg_v2.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
@@ -57,7 +52,7 @@ SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
 
 clean:
-	rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
+	$(Q)rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
 
 
 $(VAR)/boa.conf :$(CONF)/boa.conf
@@ -65,77 +60,75 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $< > $@
 
 
-messages : messages.cmo $(XLIBPPRZCMA) $(LIBPPRZCMA)
+messages : messages.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
-
-settings : settings.cmo $(XLIBPPRZCMA) $(LIBPPRZCMA) ../cockpit/page_settings.cmo
+settings : settings.cmo ../cockpit/page_settings.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -I ../cockpit -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma $(OCAMLNETCMA) glibivy-ocaml.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma gtkInit.cmo gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo -I ../cockpit gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
 
-
-server : $(SERVERCMO) $(LIBPPRZCMA)
+server : $(SERVERCMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $(SERVERCMO)
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(SERVERCMO)
 
-server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
+server.opt :  $(SERVERCMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ str.cmxa unix.cmxa xml-light.cmxa lablgtk.cmxa glibivy-ocaml.cmxa lib-pprz.cmxa $(SERVERCMX)
+	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ -package glibivy,pprz -linkpkg $(SERVERCMX)
 
-link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+link : link.cmo $(LIBMULTIMONCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-broadcaster : broadcaster.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+broadcaster : broadcaster.cmo $(LIBMULTIMONCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
+ivy2udp : ivy2udp.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-dia : dia.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+dia : dia.cmo $(LIBMULTIMONCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-diadec : diadec.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
+diadec : diadec.cmo $(LIBMULTIMONCMA)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-150m : 150m.cmo $(LIBPPRZCMA)
+150m : 150m.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma gtkInit.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 settings.cmo : INCLUDES += -I ../cockpit
 settings.cmo : ../cockpit/page_settings.cmi
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) $(PKG) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $<
+	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) $<
 
 
 CC = gcc

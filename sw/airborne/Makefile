@@ -21,6 +21,9 @@
 # Boston, MA 02111-1307, USA.
 #
 
+# Quiet compilation
+Q=@
+
 
 OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -44,15 +47,17 @@ ifneq ($(MAKECMDGOALS),clean)
       include ../../conf/Makefile.$($(TARGET).ARCHDIR)
     endif
   endif
+
+  ifdef PRINT_CONFIG
+    $(TARGET).CFLAGS += -DPRINT_CONFIG
+  endif
+
+  # sort cflags and sources to throw out duplicates
+  #
+  $(TARGET).CFLAGS := $(sort $($(TARGET).CFLAGS))
+  $(TARGET).srcs := $(sort $($(TARGET).srcs))
 endif
 
-# check for obsolete MODEM_UART_NR and GPS_UART_NR makefile vars
-ifdef GPS_UART_NR
-  $(error GPS_UART_NR is obsolete, please use GPS_PORT instead to define the Uart to use, e.g. <configure name="GPS_PORT" value="UART1"/>)
-endif
-ifdef MODEM_UART_NR
-  $(error MODEM_UART_NR is obsolete, please use MODEM_PORT instead to define the Uart to use, e.g. <configure name="MODEM_PORT" value="UART1"/>)
-endif
 
 $(TARGET).install : warn_conf
 
@@ -66,5 +71,5 @@ warn_conf :
 	@echo
 
 clean :
-	rm -f *~ a.out *.elf
+	$(Q)rm -f *~ a.out *.elf
 .PHONY: clean

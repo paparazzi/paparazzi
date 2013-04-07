@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins.c
+ * Integrated Navigation System interface.
+ */
+
+
 #include "subsystems/ins.h"
 
 struct Ins ins;

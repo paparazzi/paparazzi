@@ -2,7 +2,10 @@
 
 <module name="gain_scheduling">
   <doc>
-    <description> Module that interpolates between different gain sets </description>
+    <description>
+      Gain set interpolation.
+      Interpolate between different gain sets for rotorcrafts.
+    </description>
   </doc>
   <header>
     <file name="gain_scheduling.h"/>

@@ -32,23 +32,12 @@
 struct ActuatorsSkiron actuators_skiron;
 
 
-uint32_t actuators_delay_time;
-bool_t   actuators_delay_done;
-
 void actuators_skiron_init(void) {
 
   actuators_skiron.trans.type = I2CTransTx;
   actuators_skiron.trans.len_w = SERVOS_SKIRON_NB;
   actuators_skiron.trans.slave_addr = ACTUATORS_SKIRON_I2C_ADDR;
   actuators_skiron.trans.status = I2CTransDone;
-
-#if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_delay_done = FALSE;
-  SysTimeTimerStart(actuators_delay_time);
-#else
-  actuators_delay_done = TRUE;
-  actuators_delay_time = 0;
-#endif
 
 }
 

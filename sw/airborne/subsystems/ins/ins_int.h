@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins/ins_int.h
+ *
+ * INS for rotorcrafts combining vertical and horizontal filters.
+ *
+ */
+
 #ifndef INS_INT_H
 #define INS_INT_H
 

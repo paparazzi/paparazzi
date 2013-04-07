@@ -1,9 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     EzOSD current sensor module (I2C)
--->
-
 <module name="ezcurrent" dir="sensors">
   <doc>
     <description>EzOSD Current sensor (I2C).</description>
@@ -17,7 +13,7 @@
   <periodic fun="ezcurrent_read_periodic()" freq="1."/>
   <event fun="ezcurrent_read_event()"/>
 
-  <makefile>
+  <makefile target="ap">
     <file name="ezcurrent.c"/>
     <!-- This disables the standard electrical monitoring system -->
     <define name="DISABLE_ELECTRICAL" description="Disable default electrical handling"/>

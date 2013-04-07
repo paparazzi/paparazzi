@@ -121,6 +121,10 @@ extern void gps_ubx_parse(uint8_t c);
 #define CFG_RST_Reset_Controlled_GPS_stop 0x08
 #define CFG_RST_Reset_Controlled_GPS_start 0x09
 
+#define CFG_RST_BBR_Hotstart  0x0000
+#define CFG_RST_BBR_Warmstart 0x0001
+#define CFG_RST_BBR_Coldstart 0xffff
+
 extern void ubxsend_cfg_rst(uint16_t, uint8_t);
 
 #define gps_ubx_Reset(_val) {                               \

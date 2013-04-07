@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins/vf_int.h
+ *
+ * Vertical filter (fixed-point) estimating altitude, velocity and accel bias.
+ *
+ */
+
 #ifndef VF_INT_H
 #define VF_INT_H
 

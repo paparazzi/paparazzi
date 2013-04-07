@@ -1,14 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Measurement Specialties MS5611-01BA pressure sensor (I2C)
-     @param MS5611_I2C_DEV i2c device (default i2c0)
-     -->
-
 <module name="baro_ms5611_i2c" dir="sensors">
   <doc>
-    <description>Measurement Specialties MS5611-01BA pressure sensor (I2C)</description>
+    <description>
+      Baro MS5611 (I2C)
+      Measurement Specialties MS5611-01BA pressure sensor (I2C)
+    </description>
     <define name="MS5611_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
   <header>
     <file name="baro_ms5611_i2c.h"/>

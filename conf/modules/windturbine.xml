@@ -12,7 +12,6 @@
   <makefile>
     <file name="windturbine.c"/>
     <define name="TURBINE_ID" value="42"/>
-    <define name="GPS_TIMESTAMP"/>
   </makefile>
 </module>
 

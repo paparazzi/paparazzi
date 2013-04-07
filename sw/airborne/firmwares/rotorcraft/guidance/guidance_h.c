@@ -19,12 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmware/rotorcraft/guidance/guidance_h.c
+/** @file firmwares/rotorcraft/guidance/guidance_h.c
  *  Horizontal guidance for rotorcrafts.
  *
  */
-
-#define GUIDANCE_H_C
 
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 
@@ -59,8 +57,8 @@ int32_t guidance_h_igain;
 int32_t guidance_h_again;
 
 /* warn if some gains are still negative */
-#if (GUIDANCE_H_PGAIN < 0) || \
-  (GUIDANCE_H_DGAIN < 0)   || \
+#if (GUIDANCE_H_PGAIN < 0) ||                   \
+  (GUIDANCE_H_DGAIN < 0)   ||                   \
   (GUIDANCE_H_IGAIN < 0)
 #warning "ALL control gains are now positive!!!"
 #endif
@@ -84,10 +82,10 @@ static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
-    b2_gh_set_ref(_pos, _speed, _accel); \
-    VECT2_COPY(guidance_h_pos_ref,   _pos); \
-    VECT2_COPY(guidance_h_speed_ref, _speed); \
-    VECT2_COPY(guidance_h_accel_ref, _accel); \
+    gh_set_ref(_pos, _speed, _accel);        \
+    VECT2_COPY(guidance_h_pos_ref,   _pos);     \
+    VECT2_COPY(guidance_h_speed_ref, _speed);   \
+    VECT2_COPY(guidance_h_accel_ref, _accel);   \
   }
 
 
@@ -111,28 +109,29 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     return;
 
   switch (new_mode) {
+    case GUIDANCE_H_MODE_RC_DIRECT:
+      stabilization_none_enter();
+      break;
 
-  case GUIDANCE_H_MODE_RC_DIRECT:
-    stabilization_none_enter();
-    break;
+    case GUIDANCE_H_MODE_RATE:
+      stabilization_rate_enter();
+      break;
 
-  case GUIDANCE_H_MODE_RATE:
-    stabilization_rate_enter();
-    break;
+    case GUIDANCE_H_MODE_CARE_FREE:
+      stabilization_attitude_reset_care_free_heading();
+    case GUIDANCE_H_MODE_ATTITUDE:
+      stabilization_attitude_enter();
+      break;
 
-  case GUIDANCE_H_MODE_ATTITUDE:
-    stabilization_attitude_enter();
-    break;
+    case GUIDANCE_H_MODE_HOVER:
+      guidance_h_hover_enter();
+      break;
 
-  case GUIDANCE_H_MODE_HOVER:
-    guidance_h_hover_enter();
-    break;
-
-  case GUIDANCE_H_MODE_NAV:
-    guidance_h_nav_enter();
-    break;
-  default:
-    break;
+    case GUIDANCE_H_MODE_NAV:
+      guidance_h_nav_enter();
+      break;
+    default:
+      break;
   }
 
   guidance_h_mode = new_mode;
@@ -144,32 +143,33 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
   switch ( guidance_h_mode ) {
 
-  case GUIDANCE_H_MODE_RC_DIRECT:
-    stabilization_none_read_rc();
-    break;
+    case GUIDANCE_H_MODE_RC_DIRECT:
+      stabilization_none_read_rc();
+      break;
 
-  case GUIDANCE_H_MODE_RATE:
-    stabilization_rate_read_rc();
-    break;
+    case GUIDANCE_H_MODE_RATE:
+      stabilization_rate_read_rc();
+      break;
 
-  case GUIDANCE_H_MODE_ATTITUDE:
-    stabilization_attitude_read_rc(in_flight);
-    break;
+    case GUIDANCE_H_MODE_CARE_FREE:
+    case GUIDANCE_H_MODE_ATTITUDE:
+      stabilization_attitude_read_rc(in_flight);
+      break;
 
-  case GUIDANCE_H_MODE_HOVER:
-    stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
-    break;
-
-  case GUIDANCE_H_MODE_NAV:
-    if (radio_control.status == RC_OK) {
+    case GUIDANCE_H_MODE_HOVER:
       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
-    }
-    else {
-      INT_EULERS_ZERO(guidance_h_rc_sp);
-    }
-    break;
-  default:
-    break;
+      break;
+
+    case GUIDANCE_H_MODE_NAV:
+      if (radio_control.status == RC_OK) {
+        stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+      }
+      else {
+        INT_EULERS_ZERO(guidance_h_rc_sp);
+      }
+      break;
+    default:
+      break;
   }
 
 }
@@ -178,31 +178,31 @@ void guidance_h_read_rc(bool_t  in_flight) {
 void guidance_h_run(bool_t  in_flight) {
   switch ( guidance_h_mode ) {
 
-  case GUIDANCE_H_MODE_RC_DIRECT:
-    stabilization_none_run(in_flight);
-    break;
+    case GUIDANCE_H_MODE_RC_DIRECT:
+      stabilization_none_run(in_flight);
+      break;
 
-  case GUIDANCE_H_MODE_RATE:
-    stabilization_rate_run(in_flight);
-    break;
+    case GUIDANCE_H_MODE_RATE:
+      stabilization_rate_run(in_flight);
+      break;
 
-  case GUIDANCE_H_MODE_ATTITUDE:
-    stabilization_attitude_run(in_flight);
-    break;
+    case GUIDANCE_H_MODE_CARE_FREE:
+    case GUIDANCE_H_MODE_ATTITUDE:
+      stabilization_attitude_run(in_flight);
+      break;
 
-  case GUIDANCE_H_MODE_HOVER:
-    guidance_h_update_reference(FALSE);
+    case GUIDANCE_H_MODE_HOVER:
+      guidance_h_update_reference(FALSE);
 
-    /* set psi command */
-    guidance_h_command_body.psi = guidance_h_rc_sp.psi;
-    /* compute roll and pitch commands and set final attitude setpoint */
-    guidance_h_traj_run(in_flight);
+      /* set psi command */
+      guidance_h_command_body.psi = guidance_h_rc_sp.psi;
+      /* compute roll and pitch commands and set final attitude setpoint */
+      guidance_h_traj_run(in_flight);
 
-    stabilization_attitude_run(in_flight);
-    break;
+      stabilization_attitude_run(in_flight);
+      break;
 
-  case GUIDANCE_H_MODE_NAV:
-    {
+    case GUIDANCE_H_MODE_NAV:
       if (!in_flight) guidance_h_nav_enter();
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
@@ -230,9 +230,9 @@ void guidance_h_run(bool_t  in_flight) {
       }
       stabilization_attitude_run(in_flight);
       break;
-    }
-  default:
-    break;
+
+    default:
+      break;
   }
 
 }
@@ -240,10 +240,10 @@ void guidance_h_run(bool_t  in_flight) {
 static inline void guidance_h_update_reference(bool_t use_ref) {
   /* convert our reference to generic representation */
   if (use_ref) {
-    b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
-    INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
+    gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+    INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
+    INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
+    INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
   } else {
     VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
     INT_VECT2_ZERO(guidance_h_speed_ref);
@@ -286,15 +286,15 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
   /* run PID */
   guidance_h_command_earth.x =
-    guidance_h_pgain * (guidance_h_pos_err.x >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_dgain * (guidance_h_speed_err.x >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_igain * (guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_again * (guidance_h_accel_ref.x >> 8); /* feedforward gain */
+    ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
+    ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
   guidance_h_command_earth.y =
-    guidance_h_pgain * (guidance_h_pos_err.y >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_dgain * (guidance_h_speed_err.y >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_igain * (guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_again * (guidance_h_accel_ref.y >> 8); /* feedforward gain */
+    ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
+    ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
   VECT2_STRIM(guidance_h_command_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
 
@@ -306,7 +306,7 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
   // Restore angle ref resolution after rotation
   guidance_h_command_body.phi =
-      ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
+    ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
   guidance_h_command_body.theta =
     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
 

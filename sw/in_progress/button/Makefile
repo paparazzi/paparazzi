@@ -53,9 +53,19 @@ plot : ../../lib/ocaml/lib-pprz.cmxa
 export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
+
 gtk_export.ml : export.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -root export -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root export -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 pt : ahrsview imuview ahrs2fg
 
@@ -68,7 +78,7 @@ MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/incl
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* panic
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* panic
 
 #FGFS_PREFIX=/home/poine/local
 FGFS_PREFIX=/home/poine/flightgear

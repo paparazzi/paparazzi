@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ *               2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,240 +20,60 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/imu/imu_aspirin.h
+ * Interface for the Aspirin v1.x IMU using SPI for the accelerometer.
+ */
+
+
 #ifndef IMU_ASPIRIN_H
 #define IMU_ASPIRIN_H
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-#include "mcu_periph/i2c.h"
 #include "peripherals/itg3200.h"
-#include "peripherals/hmc5843.h"
-#include "peripherals/adxl345.h"
+#include "peripherals/hmc58xx.h"
+#include "peripherals/adxl345_spi.h"
 
-#ifdef IMU_ASPIRIN_VERSION_1_0
-#define IMU_MAG_X_CHAN 0
-#define IMU_MAG_Y_CHAN 1
-#define IMU_MAG_Z_CHAN 2
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN 1
-#define IMU_MAG_Z_SIGN 1
-#endif
-#endif
-
-#ifdef IMU_ASPIRIN_VERSION_1_5
-#define IMU_MAG_X_CHAN 2
-#define IMU_MAG_Y_CHAN 0
-#define IMU_MAG_Z_CHAN 1
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN -1
-#define IMU_MAG_Z_SIGN 1
-#endif
-#endif
-
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN   1
-#define IMU_GYRO_Q_SIGN   1
-#define IMU_GYRO_R_SIGN   1
-#endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
-#endif
-
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#ifdef IMU_ASPIRIN_VERSION_1_5
-/** default gyro sensitivy and neutral from the datasheet
- * IMU-3000 has 16.4 LSB/(deg/s) at 2000deg/s range
- * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
- * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
- */
-#define IMU_GYRO_P_SENS 4.359
-#define IMU_GYRO_P_SENS_NUM 4359
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.359
-#define IMU_GYRO_Q_SENS_NUM 4359
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.359
-#define IMU_GYRO_R_SENS_NUM 4359
-#define IMU_GYRO_R_SENS_DEN 1000
-#else
-/** default gyro sensitivy and neutral from the datasheet
- * ITG3200 has 14.375 LSB/(deg/s)
- * sens = 1/14.375 * pi/180 * 2^INT32_RATE_FRAC
- * sens = 1/14.375 * pi/180 * 4096 = 4.973126
- */
-#define IMU_GYRO_P_SENS 4.973
-#define IMU_GYRO_P_SENS_NUM 4973
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.973
-#define IMU_GYRO_Q_SENS_NUM 4973
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.973
-#define IMU_GYRO_R_SENS_NUM 4973
-#define IMU_GYRO_R_SENS_DEN 1000
-#endif // IMU_ASPIRIN_VERSION_1_5
-#endif
-
-
-/** default accel sensitivy from the ADXL345 datasheet
- * sensitivity of x & y axes depends on supply voltage:
- *   - 256 LSB/g @ 2.5V
- *   - 265 LSB/g @ 3.3V
- * z sensitivity stays at 256 LSB/g
- * fixed point sens: 9.81 [m/s^2] / 256 [LSB/g] * 2^INT32_ACCEL_FRAC
- * x/y sens = 9.81 / 265 * 1024 = 37.91
- * z sens   = 9.81 / 256 * 1024 = 39.24
- *
- * what about the offset at 3.3V?
- */
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 37.91
-#define IMU_ACCEL_X_SENS_NUM 3791
-#define IMU_ACCEL_X_SENS_DEN 100
-#define IMU_ACCEL_Y_SENS 37.91
-#define IMU_ACCEL_Y_SENS_NUM 3791
-#define IMU_ACCEL_Y_SENS_DEN 100
-#define IMU_ACCEL_Z_SENS 39.24
-#define IMU_ACCEL_Z_SENS_NUM 3924
-#define IMU_ACCEL_Z_SENS_DEN 100
-#endif
-
-/* Default I2C address and device for the ITG3200/IMU300 gyro */
-#ifndef ITG3200_I2C_ADDR
-#define ITG3200_I2C_ADDR ITG3200_ADDR
-#endif
-#ifndef ITG3200_I2C_DEV
-#define ITG3200_I2C_DEV i2c2
-#endif
-
-
-enum AspirinStatus
-  { AspirinStatusUninit,
-    AspirinStatusIdle,
-    AspirinStatusReadingGyro,
-    AspirinStatusReadingMag
-  };
+/* include default aspirin sensitivity/channel definitions */
+#include "subsystems/imu/imu_aspirin_defaults.h"
 
 struct ImuAspirin {
-  volatile enum AspirinStatus status;
-  struct i2c_transaction i2c_trans_gyro;
-  struct i2c_transaction i2c_trans_mag;
-  volatile uint8_t accel_available;
-  volatile uint8_t accel_tx_buf[7];
-  volatile uint8_t accel_rx_buf[7];
-  uint32_t time_since_last_reading;
-  uint32_t time_since_last_accel_reading;
-  uint8_t mag_available;
-  uint8_t reading_gyro;
-  uint8_t gyro_available_blaaa;
+  volatile uint8_t accel_valid;
+  volatile uint8_t gyro_valid;
+  volatile uint8_t mag_valid;
+  struct Adxl345_Spi acc_adxl;
+  struct Itg3200 gyro_itg;
+  struct Hmc58xx mag_hmc;
 };
 
 extern struct ImuAspirin imu_aspirin;
-#define ASPIRIN_GYRO_TIMEOUT 3
-#define ASPIRIN_ACCEL_TIMEOUT 3
 
-#define foo_handler() {}
-#define ImuMagEvent(_mag_handler) {					\
-    MagEvent(foo_handler);                          \
-    if (hmc5843.data_available) {			\
-      imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
-      imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
-      imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];		\
-      _mag_handler();							\
-      hmc5843.data_available = FALSE;		\
-    }									\
-}
+extern void imu_aspirin_event(void);
 
+#if !ASPIRIN_ARCH_INDEP
 /* underlying architecture */
 #include "subsystems/imu/imu_aspirin_arch.h"
 /* must be implemented by underlying architecture */
 extern void imu_aspirin_arch_init(void);
-
-static inline void gyro_read_i2c(void)
-{
-  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
-  I2CTransceive(ITG3200_I2C_DEV, imu_aspirin.i2c_trans_gyro, ITG3200_I2C_ADDR, 1, 6);
-  imu_aspirin.reading_gyro = 1;
-}
-
-static inline void gyro_copy_i2c(void)
-{
-  const int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1];
-  const int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3];
-  const int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
-  RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);
-}
-
-static inline void accel_copy_spi(void)
-{
-  const int16_t ax = imu_aspirin.accel_rx_buf[1] | (imu_aspirin.accel_rx_buf[2]<<8);
-  const int16_t ay = imu_aspirin.accel_rx_buf[3] | (imu_aspirin.accel_rx_buf[4]<<8);
-  const int16_t az = imu_aspirin.accel_rx_buf[5] | (imu_aspirin.accel_rx_buf[6]<<8);
-  VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
-}
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  if (imu_aspirin.status == AspirinStatusUninit) return;
-
-  //imu_aspirin_arch_int_disable();
-  if (imu_aspirin.accel_available) {
-    imu_aspirin.time_since_last_accel_reading = 0;
-    imu_aspirin.accel_available = FALSE;
-    accel_copy_spi();
-    _accel_handler();
-  }
-  //imu_aspirin_arch_int_enable();
-
-#if 0
-  // Reset everything if we've been waiting too long
-  if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
-    // FIXME: there should be no arch specific code like that here!
-    i2c2_er_isr();
-    gyro_read_i2c();
-    imu_aspirin.time_since_last_reading = 0;
-    return;
-  }
 #endif
 
-  // Try again later if transaction is in progress
-  if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning)
-  {
-    return;
+
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+  imu_aspirin_event();
+  if (imu_aspirin.gyro_valid) {
+    imu_aspirin.gyro_valid = FALSE;
+    _gyro_handler();
   }
-
-  ImuMagEvent(_mag_handler);
-
-  // Try back later if things are not idle
-  if ((i2c2.status != I2CIdle) || !i2c_idle(&i2c2)) {
-    return;
+  if (imu_aspirin.accel_valid) {
+    imu_aspirin.accel_valid = FALSE;
+    _accel_handler();
   }
-
-  if (imu_aspirin.reading_gyro) {
-    if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
-      gyro_copy_i2c();
-      if (imu_aspirin.gyro_available_blaaa) {
-        imu_aspirin.gyro_available_blaaa = FALSE;
-        _gyro_handler();
-      }
-    }
-    imu_aspirin.reading_gyro = 0;
-    return;
+  if (imu_aspirin.mag_valid) {
+    imu_aspirin.mag_valid = FALSE;
+    _mag_handler();
   }
-
-  // If we're not already waiting for read, schedule a read
-  if (!imu_aspirin.reading_gyro && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
-    if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
-      imu_aspirin.time_since_last_reading = 0;
-    }
-    gyro_read_i2c();
-    return;
-  }
-
 }
 
 #endif /* IMU_ASPIRIN_H */

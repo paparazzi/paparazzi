@@ -19,14 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_sim.c
+ *
+ * Dummy plug to set the AHRS from the simple OCaml simulator.
+ *
+ */
 
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_sim.h"
 #include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
-
-#include <inttypes.h>
-#include <caml/mlvalues.h>
 
 extern float sim_phi;
 extern float sim_theta;

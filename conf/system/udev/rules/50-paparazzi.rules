@@ -9,6 +9,9 @@ SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", SYMLINK+="paparazzi/serial"
 # MaxStream xbee pro box
 SUBSYSTEM=="tty", ATTRS{product}=="MaxStream PKG-U", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
+# Recent Digi XBee pro modems (XBP24-PKC-001-UA)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{product}=="USB <-> Serial", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
+
 LABEL="tty_FTDI232_end"
 
 SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"

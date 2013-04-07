@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * @file arch/lpc21/mcu_periph/adc_arch.c
+ * @ingroup lpc21_arch
+ *
+ * Handling of ADC hardware for lpc21xx.
+ */
+
 #include "mcu_periph/adc.h"
 
 #include "LPC21xx.h"

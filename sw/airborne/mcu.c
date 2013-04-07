@@ -1,7 +1,5 @@
 /*
- * Paparazzi microcontroller initialisation function
- *
- * Copyright (C) 2010 The Paparazzi team
+ * Copyright (C) 2010-2012 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -20,6 +18,11 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file mcu.c
+ * @brief Arch independent mcu ( Micro Controller Unit ) utilities.
  */
 
 #include "mcu.h"
@@ -46,7 +49,7 @@
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
-#if USE_SPI0 || USE_SPI1 || USE_SPI2 || USE_SPI0_SLAVE || USE_SPI1_SLAVE || USE_SPI2_SLAVE
+#if USE_SPI
 #include "mcu_periph/spi.h"
 #endif
 #ifdef USE_DAC
@@ -100,6 +103,10 @@ void mcu_init(void) {
 #ifdef USE_USB_SERIAL
   VCOM_init();
 #endif
+
+#if USE_SPI
+#if SPI_MASTER
+
 #if USE_SPI0
   spi0_init();
 #endif
@@ -109,9 +116,13 @@ void mcu_init(void) {
 #if USE_SPI2
   spi2_init();
 #endif
-#if USE_SPI0 || USE_SPI1 || USE_SPI2
-  spi_init_slaves();
+#if USE_SPI3
+  spi3_init();
 #endif
+  spi_init_slaves();
+#endif // SPI_MASTER
+
+#if SPI_SLAVE
 #if USE_SPI0_SLAVE
   spi0_slave_init();
 #endif
@@ -121,9 +132,17 @@ void mcu_init(void) {
 #if USE_SPI2_SLAVE
   spi2_slave_init();
 #endif
+#if USE_SPI3_SLAVE
+  spi3_slave_init();
+#endif
+#endif // SPI_SLAVE
+#endif // USE_SPI
+
 #ifdef USE_DAC
   dac_init();
 #endif
+#else
+#pragma message "Info: Not auto-initializing mcu peripherals including sys_time"
 #endif /* PERIPHERALS_AUTO_INIT */
 
 }

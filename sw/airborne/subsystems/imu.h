@@ -18,8 +18,10 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-/** \file imu.h
- * \brief Inertial Measurement Unit interface
+
+/**
+ * @file subsystems/imu.h
+ * Inertial Measurement Unit interface.
  */
 
 #ifndef IMU_H
@@ -122,8 +124,18 @@ extern void imu_init(void);
     _imu.mag.y = msx + msy;						\
     _imu.mag.z = ((_imu.mag_unscaled.z - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
   }
-#else
+#elif defined IMU_MAG_X_CURRENT_COEF && defined IMU_MAG_Y_CURRENT_COEF && defined IMU_MAG_Z_CURRENT_COEF
 #define ImuScaleMag(_imu) {						\
+    struct Int32Vect3 _mag_correction;                                  \
+    _mag_correction.x = (int32_t) (IMU_MAG_X_CURRENT_COEF * (float) electrical.current); \
+    _mag_correction.y = (int32_t) (IMU_MAG_Y_CURRENT_COEF * (float) electrical.current); \
+    _mag_correction.z = (int32_t) (IMU_MAG_Z_CURRENT_COEF * (float) electrical.current); \
+    _imu.mag.x = (((_imu.mag_unscaled.x - _mag_correction.x) - _imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
+    _imu.mag.y = (((_imu.mag_unscaled.y - _mag_correction.y) - _imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
+    _imu.mag.z = (((_imu.mag_unscaled.z - _mag_correction.z) - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
+ }
+#else
+#define ImuScaleMag(_imu) {                                             \
     _imu.mag.x = ((_imu.mag_unscaled.x - _imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
     _imu.mag.y = ((_imu.mag_unscaled.y - _imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
     _imu.mag.z = ((_imu.mag_unscaled.z - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \

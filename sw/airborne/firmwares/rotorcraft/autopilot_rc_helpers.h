@@ -19,9 +19,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/autopilot_rc_helpers.h
+ *
+ * Some helper functions to check RC sticks.
+ */
+
 #ifndef AUTOPILOT_RC_HELPERS_H
 #define AUTOPILOT_RC_HELPERS_H
 
+#include "generated/airframe.h"
 #include "subsystems/radio_control.h"
 
 #define AUTOPILOT_THROTTLE_THRESHOLD      (MAX_PPRZ / 20)

@@ -18,7 +18,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/**
+ * @file subsystems/ins/ins_alt_float.h
+ * Filters altitude and climb rate for fixedwings.
  */
 
 #ifndef INS_ALT_FLOAT_H
@@ -42,6 +46,10 @@
 
 #if USE_BARO_BMP
 #include "modules/sensors/baro_bmp.h"
+#endif
+
+#if USE_BARO_MS5611
+#include "modules/sensors/baro_ms5611_i2c.h"
 #endif
 
 extern int32_t ins_qfe;

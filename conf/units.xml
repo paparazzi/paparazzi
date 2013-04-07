@@ -18,6 +18,8 @@
   <unit from="angle_int" to="deg" coef="0.0139882"/>
   <unit from="rate_int" to="deg/s" coef="0.0139882"/>
   <unit from="quat_int" to="quat" coef="3.05176e-05"/>
+  <unit from="centideg" to="deg" coef="0.01"/>
+  <unit from="deg" to="centideg" coef="100."/>
   <unit from="deg" to="rad" coef="0.0174532925" auto="code"/>
   <unit from="rad" to="deg" coef="57.2957795131" auto="display"/>
   <unit from="deg/s" to="rad/s" coef="0.0174532925" auto="code"/>

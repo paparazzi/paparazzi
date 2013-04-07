@@ -28,11 +28,12 @@ module U = Unix
 let cols = new GTree.column_list
 let col_index = cols#add Gobject.Data.int
 let col_param = cols#add Gobject.Data.string
-and col_airframe_value = cols#add Gobject.Data.float
-and col_settings_value = cols#add Gobject.Data.float
-and col_airframe_value_new = cols#add Gobject.Data.float
+and col_airframe_value = cols#add Gobject.Data.string
+and col_settings_value = cols#add Gobject.Data.string
+and col_airframe_value_new = cols#add Gobject.Data.string
 and col_code_value = cols#add Gobject.Data.float
 and col_to_save = cols#add Gobject.Data.boolean
+and col_integer = cols#add Gobject.Data.boolean
 
 let (//) = Filename.concat
 
@@ -94,7 +95,7 @@ let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
     if model#get ~row ~column:col_to_save then begin
       let new_value = model#get ~row ~column:col_airframe_value_new
       and param = model#get ~row ~column:col_param in
-      new_xml := EditAirframe.set !new_xml param (string_of_float new_value)
+      new_xml := EditAirframe.set !new_xml param new_value
     end;
     false);
   if old_file = file then begin
@@ -133,15 +134,15 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
         try
           let unit_code =
             match code_unit, unit_setting with
-            | Some uc, Some us ->
+              | Some uc, Some us ->
                 if uc = us then uc
                 else invalid_arg (Printf.sprintf "Warning: code unit in airframe (%s) and setting file (%s) are not matching for param %s\n" uc us param) (* raise Invalid_argument *)
-            | Some u, None | None, Some u -> u
-            | None, None -> ""
+              | Some u, None | None, Some u -> u
+              | None, None -> ""
           and unit_airframe =
             match airframe_unit with
-            | Some u -> u
-            | None -> ""
+              | Some u -> u
+              | None -> ""
           in
           (* Printf.fprintf stderr "param %s: unit_code=%s unit_airframe=%s\n" param unit_code unit_airframe; flush stderr; *)
           Pprz.scale_of_units unit_airframe unit_code
@@ -171,15 +172,24 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
             Failure "float_of_string" -> raise (EditAirframe.No_param param)
       in
       let airframe_value_new = value /. airframe_scale in
+      (* test if is has to be saved as integer or float *)
+      let integer = try ignore(int_of_string (attrib "step")); true with _ -> false in
       (* Printf.fprintf stderr "param %s: airframe_scale=%f display_scale=%f extra_scale=%f\n" param airframe_scale display_scale extra_scale; flush stderr; *)
       let row = model#append () in
       model#set ~row ~column:col_index index;
       model#set ~row ~column:col_param param;
-      model#set ~row ~column:col_airframe_value (airframe_value_scaled *. display_scale);
-      model#set ~row ~column:col_settings_value (value *. display_scale);
-      model#set ~row ~column:col_airframe_value_new airframe_value_new;
+      model#set ~row ~column:col_airframe_value (string_of_float (airframe_value_scaled *. display_scale));
+      if integer then begin
+        model#set ~row ~column:col_settings_value (string_of_int (truncate (floor (value *. display_scale +. 0.5))));
+        model#set ~row ~column:col_airframe_value_new (string_of_int (truncate (floor (airframe_value_new +. 0.5))))
+      end
+      else begin
+        model#set ~row ~column:col_settings_value (string_of_float (value *. display_scale));
+        model#set ~row ~column:col_airframe_value_new (string_of_float airframe_value_new)
+      end;
       model#set ~row ~column:col_code_value value;
-      model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value)
+      model#set ~row ~column:col_to_save (floats_not_equal airframe_value_scaled value);
+      model#set ~row ~column:col_integer integer
     with
         Xml.No_attribute _ | Exit -> ()
       | EditAirframe.No_param param ->
@@ -188,7 +198,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
 
   (* Warning if needed *)
   if !not_in_airframe_file <> [] then begin
-    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Parameter(s) '%s' not writable in the airframe file" (String.concat "," !not_in_airframe_file));
+    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Some parameters not writable in the airframe file:\n\n%s" (String.concat "\n" !not_in_airframe_file));
   end
 
 

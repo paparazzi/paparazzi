@@ -46,4 +46,4 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 	$(Q)$(OCAMLYACC) $<
 
 clean:
-	rm -f *.cm* *.out *~
+	$(Q)rm -f *.cm* *.out *~

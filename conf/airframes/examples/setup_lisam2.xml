@@ -9,7 +9,8 @@
 
   <firmware name="lisa_test_progs">
     <target name="test_led"	                board="lisa_m_2.0"/>
-    <target name="test_sys_time"            board="lisa_m_2.0"/>
+    <target name="test_sys_time_timer"      board="lisa_m_2.0"/>
+	<target name="test_sys_time_usleep"     board="lisa_m_2.0"/>
     <target name="test_uart"                board="lisa_m_2.0"/>
     <target name="test_servos"              board="lisa_m_2.0"/>
     <target name="test_telemetry"           board="lisa_m_2.0"/>

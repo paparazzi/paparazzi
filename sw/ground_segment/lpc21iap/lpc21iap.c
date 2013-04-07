@@ -24,7 +24,7 @@
 
 
 #define LPC21IAP_VER_MAJ    1
-#define LPC21IAP_VER_MIN    3
+#define LPC21IAP_VER_MIN    4
 
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
 
         if ((size > 0) &&
             (src != 0) &&
-            (type & PT_LOAD) &&
+            (type == PT_LOAD) &&
             (flag & (PF_X | PF_W | PF_R)) &&
             (start+size <= maxFlash))
         {
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
 
         if ((size > 0) &&
             (src != 0) &&
-            (type & PT_LOAD) &&
+            (type == PT_LOAD) &&
             (flag & (PF_X | PF_W | PF_R)))
         {
 

@@ -4,7 +4,7 @@
 # SITL Simulator
 #
 
-JSBSIM_ROOT = /opt/jsbsim
+JSBSIM_ROOT ?= /opt/jsbsim
 JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
 JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 
@@ -21,18 +21,16 @@ nps.ARCHDIR = sim
 nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
-nps.CFLAGS  += `pkg-config glib-2.0 --cflags`
-nps.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lgsl -lgslcblas
+nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
+nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy -lgsl -lgslcblas
 nps.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
-nps.LDFLAGS += `sdl-config --libs`
+nps.LDFLAGS += $(shell sdl-config --libs)
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
-ifndef JSBSIM_PKG
-JSBSIM_PKG = $(shell pkg-config JSBSim --exists && echo 'yes')
-endif
+JSBSIM_PKG ?= $(shell pkg-config JSBSim --exists && echo 'yes')
 ifeq ($(JSBSIM_PKG), yes)
-	nps.CFLAGS  += `pkg-config JSBSim --cflags`
-	nps.LDFLAGS += `pkg-config JSBSim --libs`
+	nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)
+	nps.LDFLAGS += $(shell pkg-config JSBSim --libs)
 else
 	JSBSIM_PKG = no
 	nps.CFLAGS  += -I$(JSBSIM_INC)
@@ -59,15 +57,14 @@ nps.srcs += $(NPSDIR)/nps_main.c                      \
 
 
 
-nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 
 nps.srcs   += firmwares/rotorcraft/main.c
 nps.srcs   += mcu.c
 nps.srcs   += $(SRC_ARCH)/mcu_arch.c
 
-ifeq ($(TARGET), nps)
-  include $(CFG_SHARED)/i2c_select.makefile
-endif
+nps.srcs += mcu_periph/i2c.c
+nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 nps.CFLAGS += -DPERIODIC_FREQUENCY=512
@@ -98,13 +95,6 @@ nps.srcs += $(SRC_BOARD)/baro_board.c
 nps.CFLAGS += -DUSE_ADC
 nps.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 nps.srcs   += subsystems/electrical.c
-# baro has variable offset amplifier on booz board
-#nps.CFLAGS += -DUSE_DAC
-#nps.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-
-
-#nps.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-#nps.CFLAGS += -DIMU_B2_VERSION_1_1
 
 nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
@@ -121,42 +111,11 @@ nps.srcs += $(SRC_FIRMWARE)/stabilization.c
 nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 
-
-NUM_TYPE=integer
-#NUM_TYPE=float
-
-STAB_TYPE=euler
-#STAB_TYPE=quaternion
-
-ifeq ($(NUM_TYPE), integer)
-  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_INT
-  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_int.h\"
-  ifeq ($(STAB_TYPE), euler)
-    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
-  else ifeq ($(STAB_TYPE), quaternion)
-    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_quat_int.h\"
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_int.c
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_int.c
-  endif
-else ifeq ($(NUM_TYPE), float)
-  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_FLOAT
-  nps.CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_float.h\"
-  ifeq ($(STAB_TYPE), euler)
-    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_euler_float.h\"
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_float.c
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_float.c
-  else ifeq ($(STAB_TYPE), quaternion)
-    nps.CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_quat_float.h\"
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_float.c
-    nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_float.c
-  endif
-endif
-
 nps.CFLAGS += -DUSE_NAVIGATION
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 
 #
 # INS choice

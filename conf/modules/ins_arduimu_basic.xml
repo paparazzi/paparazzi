@@ -1,8 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<!-- optional flags:
-    - USE_HIGH_ACCEL_FLAG: will disable accelerometers on high acceleration detection (low speed, high thrust)
-    - ARDUIMU_SYNC_SEND: downlink imu gyro and accels
--->
+
 <module name="ins_ArduIMU" dir="ins">
   <doc>
     <description>ArduIMU v2</description>

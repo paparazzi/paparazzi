@@ -35,10 +35,9 @@
 #define ASCTEC_MIN_THROTTLE 0
 #define ASCTEC_MAX_THROTTLE 200
 
-struct ActuatorsAsctec actuators_asctec;
+#define ACTUATORS_ASCTEC_SLAVE_ADDR 0x02
 
-uint32_t actuators_delay_time;
-bool_t   actuators_delay_done;
+struct ActuatorsAsctec actuators_asctec;
 
 void actuators_asctec_init(void) {
   actuators_asctec.cmd = NONE;
@@ -46,25 +45,11 @@ void actuators_asctec_init(void) {
   actuators_asctec.new_addr = FRONT;
   actuators_asctec.i2c_trans.status = I2CTransSuccess;
   actuators_asctec.i2c_trans.type = I2CTransTx;
-  actuators_asctec.i2c_trans.slave_addr = 0x02;
-#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-  actuators_asctec.i2c_trans.len_w = 5;
-#else
+  actuators_asctec.i2c_trans.slave_addr = ACTUATORS_ASCTEC_SLAVE_ADDR;
   actuators_asctec.i2c_trans.len_w = 4;
-#endif
   actuators_asctec.nb_err = 0;
-
-#if defined ACTUATORS_START_DELAY && ! defined SITL
-  actuators_delay_done = FALSE;
-  SysTimeTimerStart(actuators_delay_time);
-#else
-  actuators_delay_done = TRUE;
-  actuators_delay_time = 0;
-#endif
-
 }
 
-#ifndef ACTUATORS_ASCTEC_V2_PROTOCOL
 void actuators_asctec_set(bool_t motors_on) {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
@@ -97,7 +82,7 @@ void actuators_asctec_set(bool_t motors_on) {
   Bound(actuators_asctec.cmds[ROLL], ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   Bound(actuators_asctec.cmds[YAW],  ASCTEC_MIN_CMD, ASCTEC_MAX_CMD);
   if (motors_on) {
-    Bound(actuators_asctec.cmds[THRUST],  ASCTEC_MIN_THROTTLE + 1, ASCTEC_MAX_THROTTLE);
+    Bound(actuators_asctec.cmds[THRUST], ASCTEC_MIN_THROTTLE + 1, ASCTEC_MAX_THROTTLE);
   }
   else
     actuators_asctec.cmds[THRUST] = 0;
@@ -120,7 +105,8 @@ void actuators_asctec_set(bool_t motors_on) {
     actuators_asctec.i2c_trans.buf[0] = 250;
     actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cur_addr;
     actuators_asctec.i2c_trans.buf[2] = actuators_asctec.new_addr;
-    actuators_asctec.i2c_trans.buf[3] = 230 + actuators_asctec.cur_addr + actuators_asctec.new_addr;
+    actuators_asctec.i2c_trans.buf[3] = 230 + actuators_asctec.cur_addr +
+                                        actuators_asctec.new_addr;
     actuators_asctec.cur_addr = actuators_asctec.new_addr;
     break;
   case NONE:
@@ -134,53 +120,7 @@ void actuators_asctec_set(bool_t motors_on) {
   }
   actuators_asctec.cmd = NONE;
 
-  i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
+  i2c_transmit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans,
+              ACTUATORS_ASCTEC_SLAVE_ADDR, 4);
 
 }
-#else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
-void actuators_asctec_set(bool_t motors_on) {
-#if defined ACTUATORS_START_DELAY && ! defined SITL
-  if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) {
-      //Lisa-L with Asctech v2 motors only start after reflashing when a bus error was sensed on stm32-i2c.
-      //multiple re-init solves the problem.
-      i2c1_init();
-      return;
-    }
-    else actuators_delay_done = TRUE;
-  }
-#endif
-
-  switch (actuators_asctec.i2c_trans.status) {
-    case I2CTransFailed:
-      actuators_asctec.nb_err++;
-      actuators_asctec.i2c_trans.status = I2CTransDone;
-      break;
-    case I2CTransSuccess:
-    case I2CTransDone:
-      actuators_asctec.i2c_trans.status = I2CTransDone;
-      break;
-    default:
-      actuators_asctec.nb_err++;
-      return;
-  }
-
-#ifdef KILL_MOTORS
-  actuators_asctec.i2c_trans.buf[0] = 0;
-  actuators_asctec.i2c_trans.buf[1] = 0;
-  actuators_asctec.i2c_trans.buf[2] = 0;
-  actuators_asctec.i2c_trans.buf[3] = 0;
-  actuators_asctec.i2c_trans.buf[4] = 0xAA;
-#else
-  actuators_asctec.i2c_trans.buf[0] = actuators_asctec.cmds[SERVO_FRONT];
-  actuators_asctec.i2c_trans.buf[1] = actuators_asctec.cmds[SERVO_BACK];
-  actuators_asctec.i2c_trans.buf[2] = actuators_asctec.cmds[SERVO_LEFT];
-  actuators_asctec.i2c_trans.buf[3] = actuators_asctec.cmds[SERVO_RIGHT];
-  actuators_asctec.i2c_trans.buf[4] = 0xAA + actuators_asctec.i2c_trans.buf[0] + actuators_asctec.i2c_trans.buf[1] +
-                                             actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
-#endif
-
-  i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
-
-}
-#endif /* ACTUATORS_ASCTEC_V2_PROTOCOL */

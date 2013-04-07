@@ -23,42 +23,57 @@
 # Launch with "make Q=''" to get full echo
 Q=@
 
-OCAMLC = ocamlc
-OCAMLOPT = ocamlopt
-OCAMLDEP = ocamldep
-LIBPPRZDIR = ../lib/ocaml
-INCLUDES= -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
+include ../Makefile.ocaml
+
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+	LABLGTK2GNOMEUI = lablgtk2.gnomeui
+else
+	MKTEMP = mktemp
+	LABLGTK2GNOMEUI = lablgtk2-gnome.gnomeui
+endif
+
+INCLUDES =
+XPKG = -package pprz.xlib,$(LABLGTK2GNOMEUI)
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
+
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 
 all: paparazzicenter
 
-paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZDIR)/lib-pprz.cma
+paparazzicenter : $(PAPARAZZICENTERCMO)
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma lablgnomeui.cma $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 gtk_pc.ml : paparazzicenter.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -hide-default -root window /tmp/$< > $@
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -hide-default -root window $($@_TMP) > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_process.ml : paparazzicenter.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -hide-default -root hbox_program /tmp/$< | grep -B 1000000 "  end" > $@
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -hide-default -root hbox_program $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(XPKG) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(XPKG) $<
 
 pc_common.cmo: gtk_process.cmo
 
 paparazzicenter.cmo : gtk_pc.cmo
 
 clean:
-	\rm -f *.cm* gtk_pc.ml gtk_process.ml .depend paparazzicenter
+	$(Q)rm -f *.cm* gtk_pc.ml gtk_process.ml .depend paparazzicenter
 
 .PHONY: all clean
 

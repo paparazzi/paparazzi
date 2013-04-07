@@ -38,7 +38,7 @@ PWM6        PWM2  SSEL0  EINT2   P0.7
 
 */
 
-#define SERVOS_TICS_OF_USEC(s) CPU_TICKS_OF_USEC(s)
+#define SERVOS_TICS_OF_USEC(s) cpu_ticks_of_usec(s)
 
 /* default definition of servo (from classix order) */
 #ifndef SERVO_REG_0

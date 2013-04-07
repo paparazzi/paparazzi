@@ -25,7 +25,7 @@
 
 // Peripherials
 #include "peripherals/mpu60X0.h"
-#include "peripherals/hmc58xx.h"
+#include "peripherals/hmc58xx_regs.h"
 #include "peripherals/ms5611.h"
 
 #ifndef MPU6000_SLAVE_IDX
@@ -35,6 +35,23 @@
 #ifndef MPU6000_SPI_DEV
 #define MPU6000_SPI_DEV spi2
 #endif
+
+/* HMC58XX default conf */
+#ifndef HMC58XX_DO
+#define HMC58XX_DO 0x6 // Data Output Rate (6 -> 50Hz with HMC5843, 75Hz with HMC5883)
+#endif
+#ifndef HMC58XX_MS
+#define HMC58XX_MS 0x0 // Measurement configuration
+#endif
+#ifndef HMC58XX_GN
+#define HMC58XX_GN 0x1 // Gain configuration (1 -> +- 1 Gauss)
+#endif
+#ifndef HMC58XX_MD
+#define HMC58XX_MD 0x0 // Continious measurement mode
+#endif
+
+#define HMC58XX_CRA ((HMC58XX_DO<<2)|(HMC58XX_MS))
+#define HMC58XX_CRB (HMC58XX_GN<<5)
 
 struct ImuAspirin2 imu_aspirin2;
 
@@ -82,7 +99,7 @@ void imu_periodic(void)
   }
 }
 
-static void trans_cb( struct spi_transaction *trans ) {
+static void trans_cb(struct spi_transaction *trans __attribute__ ((unused))) {
   if ( imu_aspirin2.status != Aspirin2StatusUninit ) {
     imu_aspirin2.imu_available = TRUE;
   }
@@ -190,6 +207,7 @@ static void mpu_configure(void)
            (3 << 3) );			// Full Scale = 16g
 
 #ifndef MPU6000_NO_SLAVES
+PRINT_CONFIG_MSG("Reading MPU slaves")
 
   /////////////////////////////////////
   // SPI Slave Configuration Section
@@ -206,16 +224,16 @@ static void mpu_configure(void)
   // Enable the aux i2c
   mpu_set( MPU60X0_REG_I2C_MST_CTRL,
            (0 << 7) | 		// no multimaster
-	   (0 << 6) |		// do not delay IRQ waiting for all external slaves
-	   (0 << 5) | 		// no slave 3 FIFO
-	   (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
-	   (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
+           (0 << 6) |		// do not delay IRQ waiting for all external slaves
+           (0 << 5) | 		// no slave 3 FIFO
+           (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
+           (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
 
   mpu_set( MPU60X0_REG_I2C_MST_DELAY,
            (0 << 2) |		// No Delay Slave 2
            (1 << 3) );		// Delay Slave 3
 
-#ifdef IMU_ASPIRIN_VERSION_2_1
+#if defined IMU_ASPIRIN_VERSION_2_1 && USE_IMU_ASPIRIN2_BARO_SLAVE
 
   // MS5611 Send Reset
   mpu_set( MPU60X0_REG_I2C_SLV4_ADDR, (MS5611_ADDR0));
@@ -230,7 +248,7 @@ static void mpu_configure(void)
 
   // Wait at least 2.8ms
 
-#endif
+#endif // read MS5611 as MPU slave
 
   // HMC5883 Magnetometer Configuration
 
@@ -276,9 +294,8 @@ static void mpu_configure(void)
 
 	// Slave 0 Control:
 
-#if !IMU_ASPIRIN_DISABLE_BARO
-#ifdef IMU_ASPIRIN_VERSION_2_1
-#pragma message "Reading the MS5611"
+#if defined IMU_ASPIRIN_VERSION_2_1 && USE_IMU_ASPIRIN2_BARO_SLAVE
+PRINT_CONFIG_MSG("Reading the MS5611 as MPU slave")
 /*
 
 
@@ -321,10 +338,7 @@ static void mpu_configure(void)
            (0 << 6) |		// Byte Swap
            (3 << 0) );		// Read 6 bytes
 
-
-
-#endif
-#endif
+#endif // read MS5611 as MPU slave
 
 #endif
 

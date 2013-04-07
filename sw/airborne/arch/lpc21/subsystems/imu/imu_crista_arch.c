@@ -53,6 +53,8 @@
 static void SPI1_ISR(void) __attribute__((naked));
 static uint8_t channel;
 
+#warning "This driver should be updated to use the new SPI peripheral"
+
 void imu_crista_arch_init(void) {
   channel = 0;
 
@@ -67,8 +69,8 @@ void imu_crista_arch_init(void) {
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI1);     // SPI1 interrupt enabled
-  VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
-  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
+  _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
+  _VIC_ADDR(SPI1_VIC_SLOT) = (uint32_t)SPI1_ISR;    // address of the ISR
 
   /* setup slave select */
   /* configure SS pin */

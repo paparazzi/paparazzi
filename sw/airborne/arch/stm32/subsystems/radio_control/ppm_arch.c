@@ -19,6 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/stm32/subsystems/radio_control/ppm_arch.c
+ * @ingroup stm32_arch
+ *
+ * STM32 ppm decoder.
+ *
+ * Input signal either on:
+ *  - PA1 TIM2/CH2 (uart1 trig on Lisa/L)  (Servo 6 on Lisa/M)
+ *  - PA10 TIM1/CH3 (uart1 trig on Lisa/L) (uart1 rx on Lisa/M)
+ *
+ */
+
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
@@ -29,20 +41,15 @@
 
 #include "mcu_periph/sys_time.h"
 
-/*
- *
- * This a radio control ppm driver for stm32
- * signal on PA1 TIM2/CH2 (uart1 trig on lisa/L)
- *
- */
+
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
-#ifdef USE_TIM2_IRQ
+#if USE_PPM_TIM2
 
-#pragma message "Using PPM input on SERVO6 pin!"
+INFO("Using TIM2 for PPM input on PA_10 (SERVO6) pin.")
 
 #define PPM_RCC			&RCC_APB1ENR
 #define PPM_PERIPHERAL		RCC_APB1ENR_TIM2EN
@@ -55,9 +62,9 @@ static uint32_t timer_rollover_cnt;
 #define PPM_GPIO_PORT		GPIOA
 #define PPM_GPIO_PIN		GPIO1
 
-#elif defined USE_TIM1_IRQ
+#elif USE_PPM_TIM1
 
-#pragma message "Using PPM input on UART1_RX pin!"
+INFO("Using TIM1 for PPM input on PA_01 (UART1_RX) pin.")
 
 #define PPM_RCC			&RCC_APB2ENR
 #define PPM_PERIPHERAL		RCC_APB2ENR_TIM1EN
@@ -90,13 +97,20 @@ void ppm_arch_init ( void ) {
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
 		 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
-  timer_set_prescaler(PPM_TIMER, 0x8);
+  /* run ppm timer at cpu freq / 9 = 8MHz */
+  timer_set_prescaler(PPM_TIMER, 8);
 
- /* TIM2 configuration: Input Capture mode ---------------------
-     The external signal is connected to TIM2 CH2 pin (PA.01)
+ /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge,
+     Intput pin is either PA1 or PA10
   ------------------------------------------------------------ */
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_RISING);
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_FALLING);
+#else
+#error "Unknown PM_PULSE_TYPE"
+#endif
   timer_ic_set_input(PPM_TIMER, PPM_CHANNEL, PPM_TIMER_INPUT);
   timer_ic_set_prescaler(PPM_TIMER, PPM_CHANNEL, TIM_IC_PSC_OFF);
   timer_ic_set_filter(PPM_TIMER, PPM_CHANNEL, TIM_IC_OFF);
@@ -116,7 +130,7 @@ void ppm_arch_init ( void ) {
   /* Enable capture channel. */
   timer_ic_enable(PPM_TIMER, PPM_CHANNEL);
 
-  /* TIM2 enable counter */
+  /* TIM enable counter */
   timer_enable_counter(PPM_TIMER);
 
   ppm_last_pulse_time = 0;
@@ -125,7 +139,7 @@ void ppm_arch_init ( void ) {
 
 }
 
-#ifdef USE_TIM2_IRQ
+#if USE_PPM_TIM2
 
 void tim2_isr(void) {
 
@@ -142,7 +156,7 @@ void tim2_isr(void) {
 
 }
 
-#elif defined (USE_TIM1_IRQ)
+#elif USE_PPM_TIM1
 
 void tim1_up_isr(void) {
   if((TIM1_SR & TIM_SR_UIF) != 0) {

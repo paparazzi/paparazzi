@@ -24,8 +24,8 @@
 
 module Protocol = struct
   (** SYNC1 SYNC2 CLASS ID LENGTH(2) UBX_PAYLOAD CK_A CK_B
-     LENGTH is the lentgh of UBX_PAYLOAD
-     For us, the 'payload' includes also CLASS, ID and the LENGTH *)
+      LENGTH is the lentgh of UBX_PAYLOAD
+      For us, the 'payload' includes also CLASS, ID and the LENGTH *)
   let sync1 = Char.chr 0xb5
   let sync2 = Char.chr 0x62
   let offset_payload=2
@@ -34,9 +34,9 @@ module Protocol = struct
     let rec loop = fun i ->
       let i' = String.index_from buf i sync1 in
       if String.length buf > i'+1 && buf.[i'+1] = sync2 then
-	i'
+        i'
       else
-	loop (i'+1) in
+        loop (i'+1) in
     loop 0
 
   let payload_length = fun buf start ->
@@ -113,19 +113,19 @@ let usr_irsim () = ubx_usr_id (), ubx_get_usr_msg "IRSIM"
 
 
 let sizeof = function
-    "U4" | "I4" -> 4
+"U4" | "I4" -> 4
   | "U2" | "I2" -> 2
   | "U1" | "I1" -> 1
   | x -> failwith (Printf.sprintf "Ubx.sizeof: unknown format '%s'" x)
 
 let assoc = fun label fields ->
   let rec loop o = function
-      [] -> raise Not_found
+  [] -> raise Not_found
     | f::fs ->
-	let format = ExtXml.attrib f "format" in
-	if ExtXml.attrib f "name" = label
-	then (o, format)
-	else loop (o + sizeof format) fs in
+      let format = ExtXml.attrib f "format" in
+      if ExtXml.attrib f "name" = label
+      then (o, format)
+      else loop (o + sizeof format) fs in
   loop 0 fields
 
 let byte = fun x -> Char.chr (x land 0xff)
@@ -139,28 +139,28 @@ let ubx_payload = fun msg_xml values ->
   List.iter
     (fun (label, value) ->
       let (pos, fmt) =
-	try
-	  assoc label fields
-	with
-	  Not_found -> failwith (Printf.sprintf "Field '%s' not found in %s" label (Xml.to_string msg_xml))
+        try
+          assoc label fields
+        with
+            Not_found -> failwith (Printf.sprintf "Field '%s' not found in %s" label (Xml.to_string msg_xml))
       in
       match fmt with
-      |	"U1" ->
-	  assert(value >= 0 && value < 0x100);
-	  p.[pos] <- byte value
-      |	"I1" ->
-	  assert(value >= -0x80 && value <= 0x80);
-	  p.[pos] <- byte value
-      |	"I4" | "U4" ->
-	  assert(fmt <> "U4" || value >= 0);
-	  p.[pos+3] <- byte (value asr 24);
-	  p.[pos+2] <- byte (value lsr 16);
-	  p.[pos+1] <- byte (value lsr 8);
-	  p.[pos+0] <- byte value
-      |	"U2" | "I2" ->
-	  p.[pos+1] <- byte (value lsr 8);
-	  p.[pos+0] <- byte value
-      |	_ -> failwith (Printf.sprintf "Ubx.make_payload: unknown format '%s'" fmt)
+        | "U1" ->
+          assert(value >= 0 && value < 0x100);
+          p.[pos] <- byte value
+        | "I1" ->
+          assert(value >= -0x80 && value <= 0x80);
+          p.[pos] <- byte value
+        | "I4" | "U4" ->
+          assert(fmt <> "U4" || value >= 0);
+          p.[pos+3] <- byte (value asr 24);
+          p.[pos+2] <- byte (value lsr 16);
+          p.[pos+1] <- byte (value lsr 8);
+          p.[pos+0] <- byte value
+        | "U2" | "I2" ->
+          p.[pos+1] <- byte (value lsr 8);
+          p.[pos+0] <- byte value
+        | _ -> failwith (Printf.sprintf "Ubx.make_payload: unknown format '%s'" fmt)
     )
     values;
   p

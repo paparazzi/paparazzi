@@ -104,6 +104,8 @@ void rotorcraft_cam_periodic(void) {
       }
 #endif
       break;
+    default:
+      break;
   }
 #if ROTORCRAFT_CAM_USE_TILT
   ActuatorSet(ROTORCRAFT_CAM_TILT_SERVO, rotorcraft_cam_tilt_pwm);

@@ -18,7 +18,6 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
@@ -40,7 +39,7 @@
  * 1 - only efective with useairspeed flag
  * 2 - defauld is a approach angle of 5 degree which should be fine for most planes
  * 3 - distance between approach fix and top of decent
-*/
+ */
 
 
 
@@ -74,7 +73,7 @@ bool_t init = TRUE;
 static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
   if ((WaypointX(_af)==WaypointX(_td))&&(WaypointY(_af)==WaypointY(_td))){
-  WaypointX(_af)=WaypointX(_td)-1;
+    WaypointX(_af)=WaypointX(_td)-1;
   }
 
   float td_af_x = WaypointX(_af) - WaypointX(_td);
@@ -124,15 +123,12 @@ bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
 bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
-
   if (init){
-
 #if USE_AIRSPEED
     v_ctl_auto_airspeed_setpoint = target_speed;			// set target speed for approach
 #endif
     init = FALSE;
   }
-
 
   float final_x = WaypointX(_td) - WaypointX(_tod);
   float final_y = WaypointY(_td) - WaypointY(_tod);
@@ -151,27 +147,16 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
   Bound(alt, WaypointAlt(_td), start_alt +(pre_climb/(-v_ctl_altitude_pgain))) // to prevent climbing before intercept
 
 
-
-
   if(nav_final_progress < -0.5) {			// for smooth intercept
-
     NavVerticalAltitudeMode(WaypointAlt(_tod), 0);	// vertical mode (fly straigt and intercept glideslope)
-
     NavVerticalAutoThrottleMode(0);		// throttle mode
-
     NavSegment(_af, _td);				// horizontal mode (stay on localiser)
   }
-
   else {
-
     NavVerticalAltitudeMode(alt, pre_climb);	// vertical mode (folow glideslope)
-
     NavVerticalAutoThrottleMode(0);		// throttle mode
-
     NavSegment(_af, _td);				// horizontal mode (stay on localiser)
   }
 
-
-return TRUE;
-
+  return TRUE;
 }	// end of gls()

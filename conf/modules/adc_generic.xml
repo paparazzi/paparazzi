@@ -1,11 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Generic ADC module
-     @configure ADC_CHANNEL_GENERIC1 on which ADC input 1 is measured
-     @configure ADC_CHANNEL_GENERIC2 on which ADC input 2 is measured
-     -->
-
 <module name="adc_generic" dir="adcs">
   <doc>
     <description>Generic ADC</description>

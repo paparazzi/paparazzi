@@ -60,7 +60,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
     (* Bind to values updates *)
     let get_dl_value = fun _sender vs ->
       settings#set (Pprz.int_assoc "index" vs) (Pprz.float_assoc "value" vs)
-      in
+    in
     ignore (Tele_Pprz.message_bind "DL_VALUE" get_dl_value);
 
     (* Get the aiframe file *)

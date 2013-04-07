@@ -25,10 +25,10 @@
 open Printf
 
 type message = {
-    source : int;
-    timestamp : int32;
-    pprz_data : Serial.payload
-  }
+  source : int;
+  timestamp : int32;
+  pprz_data : Serial.payload
+}
 
 
 module Transport = struct

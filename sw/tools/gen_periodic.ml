@@ -50,20 +50,20 @@ let output_modes = fun out_h process_name modes freq modules ->
       (** Filter message list to remove messages linked to unloaded modules *)
       let filtered_msg = List.filter (fun msg ->
         try let att = Xml.attrib msg "module" in List.exists (fun name -> String.compare name att = 0) modules with _ -> true
-        ) (Xml.children mode) in
+      ) (Xml.children mode) in
       (** Computes the required modulos *)
       let messages = List.map (fun x ->
         let p = float_of_string (ExtXml.attrib x "period") in
         if p < min_period || p > max_period then
           fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
         (x, min 65535 (max 1 (int_of_float (p*.float_of_int freq))))
-        ) filtered_msg in
+      ) filtered_msg in
       let modulos = GC.singletonize (List.map snd messages) in
       List.iter (fun m ->
         let v = sprintf "i%d" m in
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
         lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
-        ) modulos;
+      ) modulos;
 
       (** For each message in this mode *)
       let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
@@ -104,14 +104,14 @@ let write_settings = fun xml_file out_set telemetry_xml ->
     let modes = List.map (fun m -> Xml.attrib m "name") (Xml.children p) in
     let nb_modes = List.length modes in
     match nb_modes with
-      0 | 1 -> () (* Nothing to do if 1 or zero mode *)
-    | _ -> (* add settings with all modes *)
+        0 | 1 -> () (* Nothing to do if 1 or zero mode *)
+      | _ -> (* add settings with all modes *)
         fprintf out_set "   <dl_setting min=\"0\" step=\"1\" max=\"%d\" var=\"telemetry_mode_%s\" shortname=\"%s\" values=\"%s\">\n" (nb_modes-1) process_name process_name (String.concat "|" modes);
         let i = ref 0 in
         List.iter (fun m -> try
-            let key = Xml.attrib m "key_press" in
-            fprintf out_set "    <key_press key=%S value=%S/>\n" key (string_of_int !i);
-            incr i
+                              let key = Xml.attrib m "key_press" in
+                              fprintf out_set "    <key_press key=%S value=%S/>\n" key (string_of_int !i);
+                              incr i
           with _ -> incr i) (Xml.children p);
         fprintf out_set "   </dl_setting>\n"
   ) (Xml.children telemetry_xml);

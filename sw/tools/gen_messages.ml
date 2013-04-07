@@ -38,11 +38,11 @@ type field = _type  * string * format option
 type fields = field list
 
 type message = {
-    name : string;
-    id : int;
-    period : float option;
-    fields : fields
-  }
+  name : string;
+  id : int;
+  period : float option;
+  fields : fields
+}
 
 module Syntax = struct
   (** Parse a type name and returns a _type value *)
@@ -63,16 +63,16 @@ module Syntax = struct
     try
       List.assoc t Pprz.types
     with
-      Not_found ->
-  failwith (sprintf "Error: '%s' unknown type" t)
+        Not_found ->
+          failwith (sprintf "Error: '%s' unknown type" t)
 
   let rec sizeof = function
-      Basic t -> string_of_int (assoc_types t).Pprz.size
+  Basic t -> string_of_int (assoc_types t).Pprz.size
     | Array (t, varname) -> sprintf "1+%s*%s" (length_name varname) (sizeof (Basic t))
     | FixedArray (t, varname, len) -> sprintf "0+%d*%s" len (sizeof (Basic t))
 
   let rec nameof = function
-      Basic t -> String.capitalize t
+  Basic t -> String.capitalize t
     | Array _ -> failwith "nameof"
     | FixedArray _ -> failwith "nameof"
 
@@ -112,7 +112,7 @@ module Syntax = struct
       check_single_ids msgs;
       msgs
     with
-      Not_found -> failwith (sprintf "No class '%s' found" class_)
+        Not_found -> failwith (sprintf "No class '%s' found" class_)
 end (* module Syntax *)
 
 
@@ -120,14 +120,14 @@ end (* module Syntax *)
 module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
     match t with
-      Basic _ ->
-  fprintf h "\t  DownlinkPut%sByAddr(_trans, _dev, (%s)); \\\n" (Syntax.nameof t) name
-    | Array (t, varname) ->
-      let _s = Syntax.sizeof (Basic t) in
-      fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
-    | FixedArray (t, varname, len) ->
-      let _s = Syntax.sizeof (Basic t) in
-      fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name
+        Basic _ ->
+          fprintf h "\t  DownlinkPut%sByAddr(_trans, _dev, (%s)); \\\n" (Syntax.nameof t) name
+      | Array (t, varname) ->
+        let _s = Syntax.sizeof (Basic t) in
+        fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
+      | FixedArray (t, varname, len) ->
+        let _s = Syntax.sizeof (Basic t) in
+        fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name
 
   let print_parameter h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
@@ -135,32 +135,32 @@ module Gen_onboard = struct
     | (_, s, _) -> fprintf h "%s" s
 
   let print_macro_parameters h = function
-      [] -> ()
+  [] -> ()
     | f::fields ->
-  print_parameter h f;
-  List.iter (fun f -> fprintf h ", "; print_parameter h f) fields
+      print_parameter h f;
+      List.iter (fun f -> fprintf h ", "; print_parameter h f) fields
 
   let rec size_fields = fun fields size ->
     match fields with
-      [] -> size
-    | (t, _, _)::fields -> size_fields fields (size ^"+"^Syntax.sizeof t)
+        [] -> size
+      | (t, _, _)::fields -> size_fields fields (size ^"+"^Syntax.sizeof t)
 
   let size_of_message = fun m -> size_fields m.fields "0"
 
   let estimated_size_of_message = fun m ->
     try
       List.fold_right
-  (fun (t, _, _)  r ->  int_of_string (Syntax.sizeof t)+r)
-  m.fields
-  0
+        (fun (t, _, _)  r ->  int_of_string (Syntax.sizeof t)+r)
+        m.fields
+        0
     with
-      Failure "int_of_string" -> 0
+        Failure "int_of_string" -> 0
 
   let print_downlink_macro = fun h class_ class_id {name=s; fields = fields} ->
     if List.length fields > 0 then begin
       fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev, " s;
     end else
-       fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev " s;
+      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev " s;
     print_macro_parameters h fields;
     fprintf h "){ \\\n";
     let size = (size_fields fields "0") in
@@ -180,7 +180,7 @@ module Gen_onboard = struct
         fprintf stderr "Error: message %s has id %d but should be between 0 and 255\n" m.name m.id; exit 1;
       end
       else fprintf h "#define DL_%s %d\n" m.name m.id
-      ) messages;
+    ) messages;
     fprintf h "#define DL_MSG_%s_NB %d\n\n" class_ (List.length messages)
 
   (** Prints the table of the messages lengths *)
@@ -199,8 +199,8 @@ module Gen_onboard = struct
 
     let sizes =
       List.map
-  (fun m -> (estimated_size_of_message m, m.name))
-  messages in
+        (fun m -> (estimated_size_of_message m, m.name))
+        messages in
     let sizes = List.sort (fun (s1,_) (s2,_) -> compare s2 s1) sizes in
 
     List.iter
@@ -228,44 +228,44 @@ module Gen_onboard = struct
         if check_alignment && o mod (min size 4) <> 0 then failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 
         match size with
-          1 -> sprintf "(%s)(*((uint8_t*)_payload+%d))" pprz_type.Pprz.inttype o
-        | 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" pprz_type.Pprz.inttype o o
-        | 4 when pprz_type.Pprz.inttype = "float" ->
-            sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24); _f.f; })" o o o o
-        | 8 when pprz_type.Pprz.inttype = "double" ->
+          | 1 -> sprintf "(%s)(*((uint8_t*)_payload+%d))" pprz_type.Pprz.inttype o
+          | 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" pprz_type.Pprz.inttype o o
+          | 4 when pprz_type.Pprz.inttype = "float" ->
+              sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24); _f.f; })" o o o o
+          | 8 when pprz_type.Pprz.inttype = "double" ->
             let s = ref (sprintf "*((uint8_t*)_payload+%d)" o) in
             for i = 1 to 7 do
               s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
             done;
             sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
-        | 4 ->
+          | 4 ->
             sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
-        | 8 ->
+          | 8 ->
             let s = ref (sprintf "(%s)(*((uint8_t*)_payload+%d)" pprz_type.Pprz.inttype o) in
             for i = 1 to 7 do
               s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
             done;
             sprintf "%s)" !s
-        | _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
+          | _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
         (** To be an array or not to be an array: *)
-        match _type with
+      match _type with
           Basic t ->
             let pprz_type = Syntax.assoc_types t in
             fprintf h "#define DL_%s_%s(_payload) (%s)\n" msg_name field_name (typed !offset pprz_type);
             offset := !offset + pprz_type.Pprz.size
 
         | Array (t, _varname) ->
-            (** The macro to access to the length of the array *)
-            fprintf h "#define DL_%s_%s_length(_payload) (%s)\n" msg_name field_name (typed !offset (Syntax.assoc_types "uint8"));
-            incr offset;
-            (** The macro to access to the array itself *)
-            let pprz_type = Syntax.assoc_types t in
-            if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
-              failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
+          (** The macro to access to the length of the array *)
+          fprintf h "#define DL_%s_%s_length(_payload) (%s)\n" msg_name field_name (typed !offset (Syntax.assoc_types "uint8"));
+          incr offset;
+          (** The macro to access to the array itself *)
+          let pprz_type = Syntax.assoc_types t in
+          if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
+            failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 
-            fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
-            offset := -1 (** Mark for no more fields *)
+          fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
+          offset := -1 (** Mark for no more fields *)
         | FixedArray (t, _varname, len) ->
             (** The macro to access to the length of the array *)
             fprintf h "#define DL_%s_%s_length(_payload) (%d)\n" msg_name field_name len;
@@ -276,11 +276,11 @@ module Gen_onboard = struct
 
             fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
             offset := !offset + (pprz_type.Pprz.size*len)
-            in
+    in
 
-        fprintf h "\n";
-        (** Do it for all the fields of the message *)
-        List.iter parse_field message.fields
+    fprintf h "\n";
+    (** Do it for all the fields of the message *)
+    List.iter parse_field message.fields
 
 end (* module Gen_onboard *)
 
@@ -318,4 +318,4 @@ let () =
     | er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er )
 
   with
-    Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))
+      Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

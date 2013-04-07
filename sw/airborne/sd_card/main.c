@@ -37,7 +37,7 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
-  Uart0Init();
+  uart_init(&uart0);
 
   spi_init();
   sd_card_init();

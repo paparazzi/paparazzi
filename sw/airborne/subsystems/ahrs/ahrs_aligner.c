@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_aligner.c
+ *
+ * Low-pass IMU measurements at startup to align the AHRS.
+ *
+ */
+
 #include "ahrs_aligner.h"
 
 #include <stdlib.h> /* for abs() */

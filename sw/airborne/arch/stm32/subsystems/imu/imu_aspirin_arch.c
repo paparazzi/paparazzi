@@ -44,12 +44,15 @@ void imu_aspirin_arch_int_disable(void) {
 
 void imu_aspirin_arch_init(void) {
 
+  // This was needed for Lisa/L????
+#if 0
   /* Set "mag ss" and "mag reset" as floating inputs ------------------------*/
   /* "mag ss"    (PC12) is shorted to I2C2 SDA       */
   /* "mag reset" (PC13) is shorted to I2C2 SCL       */
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
   gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
 	        GPIO_CNF_INPUT_FLOAT, GPIO12 | GPIO13);
+#endif
 
   /* Gyro --------------------------------------------------------------------*/
   /* configure external interrupt exti15_10 on PC14( gyro int ) */
@@ -74,10 +77,11 @@ void imu_aspirin_arch_init(void) {
 
 }
 
+
+/****** the interrupts should be handled in the peripheral drivers *******/
+
 /*
- *
  * Gyro data ready
- *
  */
 void exti15_10_isr(void) {
 
@@ -92,9 +96,7 @@ void exti15_10_isr(void) {
 }
 
 /*
- *
  * Accel data ready
- *
  */
 void exti2_isr(void) {
 
@@ -102,6 +104,5 @@ void exti2_isr(void) {
   exti_reset_request(EXTI2);
 
   //adxl345_start_reading_data();
-
 }
 

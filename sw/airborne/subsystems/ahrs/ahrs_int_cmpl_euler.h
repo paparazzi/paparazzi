@@ -19,6 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_int_cmpl_euler.h
+ *
+ * Complementary filter in euler representation (fixed-point).
+ *
+ */
+
+
 #ifndef AHRS_INT_CMPL_EULER_H
 #define AHRS_INT_CMPL_EULER_H
 

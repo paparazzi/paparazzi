@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/navigation.c
+ *
+ * Rotorcraft navigation functions.
+ */
+
+
 #define NAV_C
 
 #include "firmwares/rotorcraft/navigation.h"
@@ -116,6 +123,7 @@ void nav_run(void) {
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
 
 #if !GUIDANCE_H_USE_REF
+  PRINT_CONFIG_MSG("NOT using horizontal guidance reference :-(")
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
@@ -129,6 +137,7 @@ void nav_run(void) {
     VECT2_SUM(navigation_carrot, path_to_carrot, *stateGetPositionEnu_i());
   }
 #else
+  PRINT_CONFIG_MSG("Using horizontal guidance reference :-)")
   // if H_REF is used, CARROT_DIST is not used
   VECT2_COPY(navigation_carrot, navigation_target);
 #endif

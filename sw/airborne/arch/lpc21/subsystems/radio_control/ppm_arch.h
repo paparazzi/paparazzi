@@ -34,9 +34,9 @@
  * Let's add a pair of macros to make it possible for them to be different.
  *
  */
-#define RC_PPM_TICKS_OF_USEC        CPU_TICKS_OF_USEC
-#define RC_PPM_SIGNED_TICKS_OF_USEC SIGNED_CPU_TICKS_OF_USEC
-#define USEC_OF_RC_PPM_TICKS        USEC_OF_CPU_TICKS
+#define RC_PPM_TICKS_OF_USEC(_v)        cpu_ticks_of_usec(_v)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) signed_cpu_ticks_of_usec(_v)
+#define USEC_OF_RC_PPM_TICKS(_v)        usec_of_cpu_ticks(_v)
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 
@@ -46,6 +46,10 @@
   uint32_t now = PPM_CR;  \
   DecodePpmFrame(now);    \
 }
+
+#ifdef USE_PPM_RSSI_GPIO
+#define RssiValid() (bit_is_set(PPM_RSSI_IOPIN, PPM_RSSI_PIN) == PPM_RSSI_VALID_LEVEL)
+#endif
 
 
 #endif /* PPM_ARCH_H */

@@ -57,9 +57,9 @@ void dust_gp2y_init( void ) {
 
 void dust_gp2y_periodic( void ) {
   if (dust_gp2y_status == DUST_GP2Y_IDLE) {
-    I2CReceive(GP2Y_I2C_DEV, gp2y_trans, GP2Y_SLAVE_ADDR, 2);
+    i2c_receive(&GP2Y_I2C_DEV, &gp2y_trans, GP2Y_SLAVE_ADDR, 2);
   }
-  else if (dust_gp2y_status == DUST_GP2Y_UNINIT && cpu_time_sec > 1) {
+  else if (dust_gp2y_status == DUST_GP2Y_UNINIT && sys_time.nb_sec > 1) {
     dust_gp2y_status = DUST_GP2Y_IDLE;
   }
 }

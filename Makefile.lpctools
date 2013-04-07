@@ -1,21 +1,17 @@
 # Hey Emacs, this is a -*- makefile -*-
 
-usb_lib:
-	@[ -d sw/airborne/arch/lpc21/lpcusb ] && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE)) || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
-
 bl:
 	cd $(AIRBORNE)/arch/lpc21/test/bootloader; $(MAKE) clean; $(MAKE)
 
-BOOTLOADER_DEV=/dev/ttyUSB0
+BOOTLOADER_DEV ?= /dev/ttyUSB0
 upload_bl bl.upload: bl
 	lpc21isp -control $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex $(BOOTLOADER_DEV) 38400 12000
 
-JTAG_INTERFACE = olimex-jtag-tiny.cfg
+JTAG_INTERFACE ?= olimex-jtag-tiny.cfg
 #JTAG_INTERFACE = olimex-arm-usb-ocd.cfg
 
 upload_jtag: bl
 	openocd -f interface/$(JTAG_INTERFACE)  -f board/olimex_lpc_h2148.cfg -c init -c halt -c "flash write_image erase $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex"  -c reset -c shutdown
-
 
 
 lpc21iap:
@@ -32,4 +28,4 @@ ms:
 upload_ms ms.upload: ms
 	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/lpcusb/examples/msc.elf
 
-.PHONY: usb_lib bl upload_bl upload_jtag ms upload_ms lpc21iap upgrade_bl
+.PHONY: bl upload_bl upload_jtag ms upload_ms lpc21iap upgrade_bl

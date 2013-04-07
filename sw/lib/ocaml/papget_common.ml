@@ -36,7 +36,7 @@ let property = fun name value ->
 
 let xml = fun type_ display_ properties ->
   Xml.Element ("papget", ["type", type_; "display", display_],
-	       List.map (fun (x, y) -> property x y) properties)
+               List.map (fun (x, y) -> property x y) properties)
 
 let float_property = fun name value ->
   property name (string_of_float value)

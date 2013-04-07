@@ -85,7 +85,7 @@ static void mb_modes_manual( void ) {
 }
 
 static void mb_modes_ramp( void ) {
-  float now = GET_CUR_TIME_FLOAT();
+  float now = get_sys_time_float();
   float elapsed = now - mb_modes_last_change_time;
   if ( elapsed < mb_modes_ramp_duration)
     mb_modes_throttle = elapsed/mb_modes_ramp_duration;
@@ -99,7 +99,7 @@ static void mb_modes_ramp( void ) {
 
 
 static void mb_modes_step( void ) {
-  float now = GET_CUR_TIME_FLOAT();
+  float now = get_sys_time_float();
   float elapsed = now - mb_modes_last_change_time;
   if ( elapsed < mb_modes_step_duration)
     mb_modes_throttle = mb_modes_step_low_throttle;
@@ -112,7 +112,7 @@ static void mb_modes_step( void ) {
 }
 
 static void mb_modes_sine( void ) {
-  float now = GET_CUR_TIME_FLOAT();
+  float now = get_sys_time_float();
   float alpha = 2. * M_PI * mb_modes_sine_freq * now;
   mb_modes_throttle = mb_modes_sine_mean + mb_modes_sine_ampl * sin(alpha);
 }

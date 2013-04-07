@@ -192,6 +192,13 @@
                   &imu.mag_unscaled.z);		\
   }
 
+#define PERIODIC_SEND_IMU_MAG_CURRENT_CALIBRATION(_trans, _dev) {                               \
+    DOWNLINK_SEND_IMU_MAG_CURRENT_CALIBRATION(_trans, _dev,                                     \
+                  &imu.mag_unscaled.x,                  \
+                  &imu.mag_unscaled.y,                  \
+                  &imu.mag_unscaled.z,                  \
+                  &electrical.current);               \
+  }
 
 #include "subsystems/sensors/baro.h"
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {         \
@@ -361,6 +368,17 @@
 #define PERIODIC_SEND_AHRS_EULER_DEBUG(_trans, _dev) {}
 #endif
 
+#if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
+#define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {    \
+  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev,            \
+                                   &ahrs_impl.gyro_bias.p,  \
+                                   &ahrs_impl.gyro_bias.q,  \
+                                   &ahrs_impl.gyro_bias.r); \
+  }
+#else
+#define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {}
+#endif
+
 #if USE_AHRS_LKF
 #include "subsystems/ahrs.h"
 #include "ahrs/ahrs_float_lkf.h"
@@ -456,6 +474,7 @@
                   &(stateGetNedToBodyQuat_i()->qz));  \
   }
 
+#if USE_AHRS_CMPL_EULER
 #define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {      \
     DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,            \
                    &ahrs_impl.ltp_to_imu_euler.phi,       \
@@ -465,6 +484,19 @@
                    &(stateGetNedToBodyEulers_i()->theta), \
                    &(stateGetNedToBodyEulers_i()->psi));  \
   }
+#else
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {                    \
+    struct Int32Eulers ltp_to_imu_euler;                                \
+    INT32_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);  \
+    DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,                          \
+                                 &ltp_to_imu_euler.phi,                 \
+                                 &ltp_to_imu_euler.theta,               \
+                                 &ltp_to_imu_euler.psi,                 \
+                                 &(stateGetNedToBodyEulers_i()->phi),   \
+                                 &(stateGetNedToBodyEulers_i()->theta), \
+                                 &(stateGetNedToBodyEulers_i()->psi));  \
+}
+#endif
 
 #define PERIODIC_SEND_AHRS_RMAT_INT(_trans, _dev) {       \
   struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i(); \

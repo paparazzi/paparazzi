@@ -1,40 +1,75 @@
+/*
+ * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file peripherals/adxl345.h
+ *
+ * Analog Devices ADXL345 accelerometer driver common interface (I2C and SPI).
+ */
+
 #ifndef ADXL345_H
 #define ADXL345_H
 
-/* default I2C address */
-#define ADXL345_ADDR            0xA6
-#define ADXL345_ADDR_ALT        0x3A
+#include "std.h"
 
-/* Registers */
-#define ADXL345_REG_BW_RATE     0x2C
-#define ADXL345_REG_POWER_CTL   0x2D
-#define ADXL345_REG_INT_ENABLE  0x2E
-#define ADXL345_REG_DATA_FORMAT 0x31
-#define ADXL345_REG_DATA_X0     0x32
-#define ADXL345_REG_DATA_X1     0x33
-#define ADXL345_REG_DATA_Y0     0x34
-#define ADXL345_REG_DATA_Y1     0x35
-#define ADXL345_REG_DATA_Z0     0x36
-#define ADXL345_REG_DATA_Z1     0x37
+/* Include address and register definition */
+#include "peripherals/adxl345_regs.h"
 
-/* Selectable data rates in ADXL345_REG_BW_RATE
- * bandwith is always half of data rate
- */
-#define ADXL345_RATE_3200 0x0F
-#define ADXL345_RATE_1600 0x0E
-#define ADXL345_RATE_800  0x0D
-#define ADXL345_RATE_400  0x0C
-#define ADXL345_RATE_200  0x0B
-#define ADXL345_RATE_100  0x0A
-#define ADXL345_RATE_50   0x09
+enum Adxl345ConfStatus {
+  ADXL_CONF_UNINIT = 0,
+  ADXL_CONF_RATE   = 1,
+  ADXL_CONF_INT    = 2,
+  ADXL_CONF_FORMAT = 3,
+  ADXL_CONF_ENABLE = 4,
+  ADXL_CONF_DONE   = 5
+};
 
-/* data format bits, range */
-#define ADXL345_INT_INVERT  0x20
-#define ADXL345_FULL_RES    0x08
-#define ADXL345_JUSTIFY_MSB 0x04
-#define ADXL345_RANGE_16G   0x03
-#define ADXL345_RANGE_8G    0x02
-#define ADXL345_RANGE_4G    0x01
-#define ADXL345_RANGE_2G    0x00
+struct Adxl345Config {
+  bool_t drdy_int_enable;   ///< Enable Data Ready Interrupt
+  bool_t int_invert;        ///< Invert Interrupt FALSE: active high, TRUE: active low
+  bool_t full_res;          ///< Full Resolution: FALSE: 10bit, TRUE: full with 4mg/LSB
+  bool_t justify_msb;       ///< justify: FALSE: right with sign-extension, TRUE: MSB (left)
+  bool_t self_test;         ///< Enable self-test-force causing shift in output data.
+  bool_t spi_3_wire;        ///< Set 3-wire SPI mode, if FALSE: 4-wire SPI mode
+  enum Adxl345Ranges range; ///< g Range
+  enum Adxl345Rates rate;   ///< Data Output Rate
+};
 
-#endif /* ADXL345_H */
+static inline void adxl345_set_default_config(struct Adxl345Config *c)
+{
+  c->drdy_int_enable = FALSE;
+  c->int_invert = TRUE;
+  c->full_res = TRUE;
+  c->justify_msb = FALSE;
+  c->self_test = FALSE;
+  c->spi_3_wire = FALSE;
+
+  c->rate = ADXL345_RATE_100HZ;
+  c->range = ADXL345_RANGE_16G;
+}
+
+static inline uint8_t adxl345_data_format(struct Adxl345Config *c)
+{
+  return ((c->self_test << 7) | (c->spi_3_wire << 6) | (c->int_invert << 5) |
+          (c->full_res << 3) | (c->justify_msb << 2) | (c->range));
+}
+
+#endif // ADXL345_H

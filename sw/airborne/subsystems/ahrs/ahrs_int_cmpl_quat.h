@@ -19,6 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_int_cmpl_quat.h
+ *
+ * Quaternion complementary filter (fixed-point).
+ *
+ * Estimate the attitude, heading and gyro bias.
+ *
+ */
+
 #ifndef AHRS_INT_CMPL_H
 #define AHRS_INT_CMPL_H
 
@@ -33,7 +42,6 @@ struct AhrsIntCmpl {
   struct Int64Quat   high_rez_quat;
   struct Int64Rates  high_rez_bias;
   struct Int32Quat   ltp_to_imu_quat;
-  struct Int32Eulers ltp_to_imu_euler; // FIXME to compile telemetry
   struct Int32Vect3 mag_h;
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;

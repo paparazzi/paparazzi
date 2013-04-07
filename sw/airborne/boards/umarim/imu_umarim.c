@@ -18,7 +18,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file boards/umarim/imu_umarim.c
  *
+ * Driver for the IMU on the Umarim board.
+ *
+ *  - Gyroscope: Invensense ITG-3200
+ *  - Accelerometer: Analog Devices ADXL345
  */
 
 #include <math.h>
@@ -35,48 +43,52 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
-// Peripherials
+#ifndef UMARIM_ACCEL_RATE
+#define UMARIM_ACCEL_RATE ADXL345_RATE_50HZ
+#endif
+PRINT_CONFIG_VAR(UMARIM_ACCEL_RATE)
 
-// Configure ITG3200
-// ITG3200_I2C_DEVICE IMU_UMARIM_I2C_DEVICE
-// ITG3200_I2C_ADDR ITG3200_ADDR_ALT
-// ITG3200_SMPLRT_DIV 19
-// ITG3200_DLPF_CFG 4
-#include "peripherals/itg3200.extra.h"
 
-// Configure ADXL345
-// ADXL345_I2C_DEVICE IMU_UMARIM_I2C_DEVICE
-// ADXL345_I2C_ADDR ADXL345_ADDR_ALT
-// ADXL345_BW_RATE 0x09 (50Hz rate, 25Hz BW)
-#include "peripherals/adxl345.extra_i2c.h"
+/* default gyro internal lowpass frequency and sample rate divider */
+#if !defined UMARIM_GYRO_LOWPASS && !defined  UMARIM_GYRO_SMPLRT_DIV
+#define UMARIM_GYRO_LOWPASS ITG3200_DLPF_20HZ
+#define UMARIM_GYRO_SMPLRT_DIV 19
+PRINT_CONFIG_MSG("Gyro output rate is 50Hz")
+#endif
+PRINT_CONFIG_VAR(UMARIM_GYRO_LOWPASS)
+PRINT_CONFIG_VAR(UMARIM_GYRO_SMPLRT_DIV)
 
-// Results
-volatile bool_t gyr_valid;
-volatile bool_t acc_valid;
+struct ImuUmarim imu_umarim;
 
 void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
-  itg3200_init();
+  itg3200_init(&imu_umarim.itg, &(IMU_UMARIM_I2C_DEV), ITG3200_ADDR_ALT);
+  // change the default configuration
+  imu_umarim.itg.config.smplrt_div = UMARIM_GYRO_SMPLRT_DIV;
+  imu_umarim.itg.config.dlpf_cfg = UMARIM_GYRO_LOWPASS;
 
   /////////////////////////////////////////////////////////////////////
   // ADXL345
-  adxl345_init();
+  adxl345_i2c_init(&imu_umarim.adxl, &(IMU_UMARIM_I2C_DEV), ADXL345_ADDR_ALT);
+  // change the default data rate
+  imu_umarim.adxl.config.rate = UMARIM_ACCEL_RATE;
 
+  imu_umarim.gyr_valid = FALSE;
+  imu_umarim.acc_valid = FALSE;
 }
 
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  Itg3200Periodic();
+  itg3200_periodic(&imu_umarim.itg);
 
   // Start reading the latest accelerometer data
-  Adxl345Periodic();
+  adxl345_i2c_periodic(&imu_umarim.adxl);
 
   //RunOnceEvery(10,imu_umarim_downlink_raw());
 }
-
 
 void imu_umarim_downlink_raw( void )
 {
@@ -87,23 +99,20 @@ void imu_umarim_downlink_raw( void )
 
 void imu_umarim_event( void )
 {
-
   // If the itg3200 I2C transaction has succeeded: convert the data
-  itg3200_event();
-  if (itg3200_data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled, itg3200_data.p, itg3200_data.q, itg3200_data.r);
-    itg3200_data_available = FALSE;
-    gyr_valid = TRUE;
+  itg3200_event(&imu_umarim.itg);
+  if (imu_umarim.itg.data_available) {
+    RATES_COPY(imu.gyro_unscaled, imu_umarim.itg.data.rates);
+    imu_umarim.itg.data_available = FALSE;
+    imu_umarim.gyr_valid = TRUE;
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
-  adxl345_event();
-  if (adxl345_data_available) {
-    // Be careful with orientation of the ADXL (ITG axes are taken as default reference)
-    VECT3_ASSIGN(imu.accel_unscaled, adxl345_data.y, -adxl345_data.x, adxl345_data.z);
-    adxl345_data_available = FALSE;
-    acc_valid = TRUE;
+  adxl345_i2c_event(&imu_umarim.adxl);
+  if (imu_umarim.adxl.data_available) {
+    VECT3_ASSIGN(imu.accel_unscaled, imu_umarim.adxl.data.vect.y, -imu_umarim.adxl.data.vect.x, imu_umarim.adxl.data.vect.z);
+    imu_umarim.adxl.data_available = FALSE;
+    imu_umarim.acc_valid = TRUE;
   }
-
 }
 

@@ -12,6 +12,15 @@
 
 #define PROM_NB                 8
 
+#define BARO_MS5611_DT 0.05
+#define BARO_MS5611_R 20
+#define BARO_MS5611_SIGMA2 1
+extern float baro_ms5611_alt;
+extern bool_t baro_ms5611_valid;
+extern bool_t baro_ms5611_enabled;
+extern float baro_ms5611_r;
+extern float baro_ms5611_sigma2;
+
 enum ms5611_stat{
   MS5611_UNINIT,
   MS5611_RESET,
@@ -31,5 +40,7 @@ void baro_ms5611_periodic(void);
 void baro_ms5611_d1(void);
 void baro_ms5611_d2(void);
 void baro_ms5611_event(void);
+
+#define BaroMs5611Update(_b) { if (baro_ms5611_valid) { _b = baro_ms5611_alt; baro_ms5611_valid = FALSE; } }
 
 #endif

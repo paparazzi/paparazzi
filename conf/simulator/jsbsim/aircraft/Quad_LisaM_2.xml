@@ -3,10 +3,10 @@
 <fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
 
     <fileheader>
-        <author> Gustavo Violato &amp; Antoine Drouin</author>
-        <filecreationdate> 24-02-2009 </filecreationdate>
-        <version> Version 0.9 - beta</version>
-        <description> Simple Quadrotor without rotor dynamic </description>
+        <author>Gustavo Violato &amp; Antoine Drouin</author>
+        <filecreationdate>24-02-2009</filecreationdate>
+        <version>Version 0.9 - beta</version>
+        <description>Simple Quadrotor without rotor dynamic (front/back motors turning CW, left/right CCW)</description>
     </fileheader>
 
     <metrics>

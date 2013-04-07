@@ -2,7 +2,10 @@
 
 <module name="charge_sens" dir="meteo">
   <doc>
-    <description></description>
+    <description>
+      Charge sensor.
+      I2C interface for University of Reading charge sensor
+    </description>
   </doc>
   <header>
     <file name="charge_sens.h"/>

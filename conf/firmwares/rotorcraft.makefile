@@ -100,7 +100,8 @@ ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # I2C is needed for speed controllers and barometers on lisa
 ifeq ($(TARGET), ap)
-  include $(CFG_SHARED)/i2c_select.makefile
+$(TARGET).srcs += mcu_periph/i2c.c
+$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 endif
 
 ap.srcs += subsystems/commands.c
@@ -137,19 +138,51 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
-ap.srcs += $(SRC_BOARD)/baro_board.c
+# booz baro
 ifeq ($(BOARD), booz)
+ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
+ap.srcs += $(SRC_BOARD)/baro_board.c
+
+# Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
-ap.CFLAGS += -DUSE_I2C2
+# defaults to i2c baro bmp085 on the board
+LISA_M_BARO ?= BARO_BOARD_BMP085
+  ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
+    include $(CFG_SHARED)/spi_master.makefile
+    ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
+    ap.srcs += $(SRC_BOARD)/baro_ms5611_spi.c
+  else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DUSE_I2C2
+    ap.srcs += $(SRC_BOARD)/baro_ms5611_i2c.c
+  else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
+    ap.srcs += $(SRC_BOARD)/baro_board.c
+	ap.CFLAGS += -DUSE_I2C2
+  endif
+  ap.CFLAGS += -D$(LISA_M_BARO)
+
+# Lia baro (no bmp onboard)
+else ifeq ($(BOARD), lia)
+# fixme, reuse the baro drivers in lisa_m dir
+LIA_BARO ?= BARO_MS5611_SPI
+  ifeq ($(LIA_BARO), BARO_MS5611_SPI)
+    include $(CFG_SHARED)/spi_master.makefile
+    ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
+    ap.srcs += boards/lisa_m/baro_ms5611_spi.c
+  else ifeq ($(LIA_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DUSE_I2C2
+    ap.srcs += boards/lisa_m/baro_ms5611_i2c.c
+  endif
+  ap.CFLAGS += -D$(LIA_BARO)
+
+# navgo baro
 else ifeq ($(BOARD), navgo)
-ap.CFLAGS += -DUSE_SPI
+include $(CFG_SHARED)/spi_master.makefile
 ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DUSE_SPI1
-ap.CFLAGS += -DSPI_MASTER
-ap.srcs += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 ap.srcs += peripherals/mcp355x.c
+ap.srcs += $(SRC_BOARD)/baro_board.c
 endif
 ifneq ($(BARO_LED),none)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
@@ -160,8 +193,6 @@ endif
 #
 
 ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -DADC0_VIC_SLOT=2
-ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.CFLAGS += -DUSE_ADC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
@@ -208,7 +239,9 @@ ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 ap.CFLAGS += -DUSE_NAVIGATION
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 
 #
 # INS choice

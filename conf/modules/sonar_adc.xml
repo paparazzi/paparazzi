@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sonar">
+  <doc>
+    <description>
+     Sonar ADC driver
+     output - Sonar_distance in [m]
+    </description>
+    <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
+    <define name="SONAR_OFFSET" value="0.0"  description="sensor offset in [m] - default is 0.0"/>
+    <define name="SONAR_SCALE" value="0.0166" description="sensor scale factor [m/adc] - default is 0.0166"/>
+  </doc>
+
+  <header>
+    <file name="sonar_adc.h"/>
+  </header>
+
+  <init fun="sonar_adc_init()"/>
+  <periodic fun="sonar_adc_read()" freq="10"/>
+
+  <makefile>
+    <file name="sonar_adc.c"/>
+  </makefile>
+  <makefile target="ap">
+    <define name="ADC_CHANNEL_SONAR" value="$(ADC_SONAR)"/>
+    <define name="USE_$(ADC_SONAR)"/>
+    <define name="USE_SONAR"/>
+  </makefile>
+
+</module>

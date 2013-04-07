@@ -2,9 +2,7 @@
 
 # attitude estimation for fixedwings via dcm algorithm
 
-ifndef USE_MAGNETOMETER
-USE_MAGNETOMETER = 0
-endif
+USE_MAGNETOMETER ?= 0
 
 ifeq ($(TARGET), ap)
 
@@ -24,19 +22,6 @@ ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
 ifneq ($(AHRS_ALIGNER_LED),none)
   ap.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
-
-ifdef AHRS_PROPAGATE_FREQUENCY
-else
-  AHRS_PROPAGATE_FREQUENCY = 60
-endif
-
-ifdef AHRS_CORRECT_FREQUENCY
-else
-  AHRS_CORRECT_FREQUENCY = 60
-endif
-
-ap.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 
 endif
 

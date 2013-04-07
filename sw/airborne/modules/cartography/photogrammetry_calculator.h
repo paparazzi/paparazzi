@@ -20,10 +20,11 @@
  *
  */
 
-/** \file photogrammetry_calculator.h
+/** @file modules/cartography/photogrammetry_calculator.h
 
 Add to airframe file:
 
+@verbatim
   <section name="Photogrammetry" prefix="PHOTOGRAMMETRY_">
     <!-- Camera Parameters -->
     <define name="FOCAL_LENGTH" value="35" unit="mm"/>
@@ -40,17 +41,18 @@ Add to airframe file:
   <modules>
     <load name="photogrammetry_calculator.xml" />
   </modules>
+@endverbatim
 
 Add to flightplan or airframe file:
-
-    <!-- Photogrammetry Parameters: define these in the flightplan
+@verbatim
+    <!-- Photogrammetry Parameters: define these in the flightplan-->
     <define name="OVERLAP" value="0.5" unit="PROCENT"/>
     <define name="SIDELAP" value="0.5" unit="PROCENT"/>
     <define name="RESOLUTION" value="50" unit="mm pixel projection"/>
-     -->
+@endverbatim
 
 Add to flightplan
-
+@verbatim
   <header>
 #define PHOTOGRAMMETRY_SWEEP_ANGLE 53		// Degrees from the North
 #define PHOTOGRAMMETRY_OVERLAP 50		// 1-99 Procent
@@ -66,7 +68,7 @@ Add to flightplan
       <call fun="PhotogrammetryCalculatorPolygonSurveyADV(WP_1, 4)"/>
       <call fun="poly_survey_adv()"/>
     </block>
-
+@endverbatim
 
  */
 

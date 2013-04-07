@@ -20,6 +20,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/lpc21/peripherals/ms2100_arch.h
+ *
+ * LPC21xx specific functions for the ms2100 magnetic sensor from PNI.
+ */
+
 #ifndef MS2100_ARCH_H
 #define MS2100_ARCH_H
 

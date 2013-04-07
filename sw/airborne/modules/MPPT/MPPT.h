@@ -20,8 +20,9 @@
  *
  */
 
-/** \file MPTT.h
- *  \brief Solar cells MPTT monitoring
+/**
+ * @file modules/MPPT/MPPT.h
+ * @brief Solar cells MPTT monitoring
  *
  */
 

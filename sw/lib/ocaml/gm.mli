@@ -23,30 +23,32 @@
  *)
 
 val tile_size : int * int
+val zoom_max : int
+val zoom_min : int
 val tile_coverage : float -> int -> float * float
 (** [tile_coverage wgs84_lat zoom] Returns (width,height) *)
 
 type tile_t = {
-    key : string; (* [qrst] string *)
-    sw_corner : Latlong.geographic;
-    width : float; (* Longitude difference *)
-    height : float (* Latitude difference *)
-  }
+  key : string; (* [qrst] string *)
+  sw_corner : Latlong.geographic;
+  width : float; (* Longitude difference *)
+  height : float (* Latitude difference *)
+}
 
-type maps_source = Google | OSM | MS
+type maps_source = Google | OSM | MS | MQ | MQ_Aerial
 val string_of_maps_source : maps_source -> string
 val maps_sources : maps_source list
 val set_maps_source : maps_source -> unit
 val get_maps_source : unit -> maps_source
 (** Initialized to Google *)
 
-val tile_of_geo : Latlong.geographic -> int -> tile_t
+val tile_of_geo : ?level:int -> Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
-  given point with a the smallest available zoom greater or equal to [zoom]. *)
+    given point with a the smallest available zoom greater or equal to [zoom]. *)
 
 val tile_of_key : string -> tile_t
 (** [tile_of_key google_maps_tile_key] Returns tile description of a
-   named tile. *)
+    named tile. *)
 
 val cache_path : string ref
 
@@ -59,7 +61,11 @@ val get_policy : unit -> policy
 
 exception Not_available
 
-val get_image : string -> tile_t * string
+type hashtbl_cache = (string, string)Hashtbl.t
+
+val get_hashtbl_of_cache : unit -> hashtbl_cache
+
+val get_image : ?tbl:hashtbl_cache -> string -> tile_t * string
 (** [get_image key] Returns the tile description and the image file name.
     May raise [Not_available] *)
 

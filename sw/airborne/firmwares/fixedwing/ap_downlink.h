@@ -17,11 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file ap_downlink.h
- *  \brief Set of macros defining the periodic telemetry messages of AP process
+/**
+ * @file firmwares/fixedwing/ap_downlink.h
+ *
+ * Set of macros defining the periodic telemetry messages of AP process.
  *
  * The PeriodicSendAp() macro is generated from the telemetry description
  * (named in conf.xml, usually in conf/telemetry directory). This macro
@@ -255,7 +256,7 @@
     DOWNLINK_SEND_GPS_UTM(_trans, _dev, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.hmsl, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
     if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
     if (i >= gps.nb_channels * 2) i = 0;                                    \
-    if (i < gps.nb_channels && gps.svinfos[i].cno > 0) { \
+    if (i < gps.nb_channels && ((gps.fix != GPS_FIX_3D) || (gps.svinfos[i].cno > 0))) { \
       DOWNLINK_SEND_SVINFO(_trans, _dev, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
     }                                                                   \
     i++;                                                                \

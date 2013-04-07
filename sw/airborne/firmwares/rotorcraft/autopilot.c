@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/autopilot.c
+ *
+ * Autopilot.
+ *
+ */
+
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "subsystems/radio_control.h"
@@ -88,7 +95,8 @@ void autopilot_init(void) {
 void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
-#ifdef FAILSAFE_GROUND_DETECT
+#if FAILSAFE_GROUND_DETECT
+INFO("Using FAILSAFE_GROUND_DETECT")
   if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
     autopilot_set_mode(AP_MODE_KILL);
     autopilot_detect_ground = FALSE;
@@ -96,7 +104,7 @@ void autopilot_periodic(void) {
 #endif
 
   /* set failsafe commands, if in FAILSAFE or KILL mode */
-#ifndef FAILSAFE_GROUND_DETECT
+#if !FAILSAFE_GROUND_DETECT
   if (autopilot_mode == AP_MODE_KILL ||
       autopilot_mode == AP_MODE_FAILSAFE) {
 #else
@@ -107,9 +115,8 @@ void autopilot_periodic(void) {
   else {
     guidance_v_run( autopilot_in_flight );
     guidance_h_run( autopilot_in_flight );
-    SetCommands(stabilization_cmd);
+    SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
-  RotorcraftCommandsTest(commands, autopilot_in_flight, autopilot_motors_on);
 
 }
 
@@ -123,77 +130,82 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */
     switch (new_autopilot_mode) {
-    case AP_MODE_FAILSAFE:
+      case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-      stab_att_sp_euler.phi = 0;
-      stab_att_sp_euler.theta = 0;
-      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-      break;
+        stab_att_sp_euler.phi = 0;
+        stab_att_sp_euler.theta = 0;
+        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+        break;
 #endif
-    case AP_MODE_KILL:
-      autopilot_set_motors_on(FALSE);
-      autopilot_in_flight = FALSE;
-      autopilot_in_flight_counter = 0;
-      guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
-      break;
-    case AP_MODE_RC_DIRECT:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
-      break;
-    case AP_MODE_RATE_DIRECT:
-    case AP_MODE_RATE_Z_HOLD:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
-      break;
-    case AP_MODE_ATTITUDE_DIRECT:
-    case AP_MODE_ATTITUDE_CLIMB:
-    case AP_MODE_ATTITUDE_Z_HOLD:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-      break;
-    case AP_MODE_HOVER_DIRECT:
-    case AP_MODE_HOVER_CLIMB:
-    case AP_MODE_HOVER_Z_HOLD:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
-      break;
-    case AP_MODE_NAV:
-      guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
-      break;
-    default:
-      break;
+      case AP_MODE_KILL:
+        autopilot_set_motors_on(FALSE);
+        autopilot_in_flight = FALSE;
+        autopilot_in_flight_counter = 0;
+        guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
+        break;
+      case AP_MODE_RC_DIRECT:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+        break;
+      case AP_MODE_RATE_DIRECT:
+      case AP_MODE_RATE_Z_HOLD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+        break;
+      case AP_MODE_ATTITUDE_RC_CLIMB:
+      case AP_MODE_ATTITUDE_DIRECT:
+      case AP_MODE_ATTITUDE_CLIMB:
+      case AP_MODE_ATTITUDE_Z_HOLD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+        break;
+      case AP_MODE_CARE_FREE_DIRECT:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
+        break;
+      case AP_MODE_HOVER_DIRECT:
+      case AP_MODE_HOVER_CLIMB:
+      case AP_MODE_HOVER_Z_HOLD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
+        break;
+      case AP_MODE_NAV:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
+        break;
+      default:
+        break;
     }
     /* vertical mode */
     switch (new_autopilot_mode) {
-    case AP_MODE_FAILSAFE:
+      case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-      guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
-      guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-      break;
+        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
+        guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        break;
 #endif
-    case AP_MODE_KILL:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
-      break;
-    case AP_MODE_RC_DIRECT:
-    case AP_MODE_RATE_DIRECT:
-    case AP_MODE_ATTITUDE_DIRECT:
-    case AP_MODE_HOVER_DIRECT:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
-      break;
-    case AP_MODE_RATE_RC_CLIMB:
-    case AP_MODE_ATTITUDE_RC_CLIMB:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
-      break;
-    case AP_MODE_ATTITUDE_CLIMB:
-    case AP_MODE_HOVER_CLIMB:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-      break;
-    case AP_MODE_RATE_Z_HOLD:
-    case AP_MODE_ATTITUDE_Z_HOLD:
-    case AP_MODE_HOVER_Z_HOLD:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
-      break;
-    case AP_MODE_NAV:
-      guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
-      break;
-    default:
-      break;
+      case AP_MODE_KILL:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
+        break;
+      case AP_MODE_RC_DIRECT:
+      case AP_MODE_RATE_DIRECT:
+      case AP_MODE_ATTITUDE_DIRECT:
+      case AP_MODE_HOVER_DIRECT:
+      case AP_MODE_CARE_FREE_DIRECT:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
+        break;
+      case AP_MODE_RATE_RC_CLIMB:
+      case AP_MODE_ATTITUDE_RC_CLIMB:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
+        break;
+      case AP_MODE_ATTITUDE_CLIMB:
+      case AP_MODE_HOVER_CLIMB:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        break;
+      case AP_MODE_RATE_Z_HOLD:
+      case AP_MODE_ATTITUDE_Z_HOLD:
+      case AP_MODE_HOVER_Z_HOLD:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
+        break;
+      case AP_MODE_NAV:
+        guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
+        break;
+      default:
+        break;
     }
     autopilot_mode = new_autopilot_mode;
   }
@@ -249,12 +261,28 @@ void autopilot_on_rc_frame(void) {
     uint8_t new_autopilot_mode = 0;
     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
-    if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost()))
+    if (!(new_autopilot_mode == AP_MODE_NAV
+#if USE_GPS
+          && GpsIsLost()
+#endif
+       ))
       autopilot_set_mode(new_autopilot_mode);
   }
 
   /* if not in FAILSAFE mode check motor and in_flight status, read RC */
   if (autopilot_mode > AP_MODE_FAILSAFE) {
+
+    /* if there are some commands that should always be set from RC, do it */
+#ifdef SetAutoCommandsFromRC
+    SetAutoCommandsFromRC(commands, radio_control.values);
+#endif
+
+    /* if not in NAV_MODE set commands from the rc */
+#ifdef SetCommandsFromRC
+    if (autopilot_mode != AP_MODE_NAV) {
+      SetCommandsFromRC(commands, radio_control.values);
+    }
+#endif
 
     /* an arming sequence is used to start/stop motors */
     autopilot_arming_check_motors_on();

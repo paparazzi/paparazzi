@@ -61,10 +61,18 @@
  *  LED_OFF set GPIO high on some boards (lpc)
  */
 #ifndef ROTORCRAFT_CAM_ON
+#ifdef CAM_SWITCH_LED
 #define ROTORCRAFT_CAM_ON LED_OFF(CAM_SWITCH_LED)
+#else
+#define ROTORCRAFT_CAM_ON {}
+#endif
 #endif
 #ifndef ROTORCRAFT_CAM_OFF
+#ifdef CAM_SWITCH_LED
 #define ROTORCRAFT_CAM_OFF LED_ON(CAM_SWITCH_LED)
+#else
+#define ROTORCRAFT_CAM_OFF {}
+#endif
 #endif
 
 /** Cam tilt control.

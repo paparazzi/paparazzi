@@ -23,51 +23,59 @@
 # This is the common Makefile for finding the arm compiler and OpenOcd
 #
 
-#
-# try to pick up the compiler from the path
-#
-CC   = $(shell which arm-none-eabi-gcc)
-LD   = $(shell which arm-none-eabi-gcc)
-AR   = $(shell which arm-none-eabi-ar)
-CP   = $(shell which arm-none-eabi-objcopy)
-DMP  = $(shell which arm-none-eabi-objdump)
-NM   = $(shell which arm-none-eabi-nm)
-SIZE = $(shell which arm-none-eabi-size)
-GDB  = $(shell which arm-none-eabi-gdb)
-TOOLCHAIN_DIR=$(shell dirname `which arm-none-eabi-gcc`)
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
+include  $(PAPARAZZI_SRC)/conf/Makefile.arm-toolchain
 
 #
-# if not found in path, try the paparazzi toolchain in /opt
+# some generic and informative targets
 #
-ifeq ($(CC),)
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
+printcommands:
+	@echo ""
+	@echo "Using CC   = $(CC)"
+	@echo "Using LD   = $(LD)"
+	@echo "Using CP   = $(CP)"
+	@echo "Using DMP  = $(DMP)"
+	@echo "Using NM   = $(NM)"
+	@echo "Using SIZE = $(SIZE)"
+	@echo "GCC version:"
+	@$(CC) --version | head -1
+	@echo ""
 
-# Define programs and commands.
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
-CC   = $(GCC_BIN_PREFIX)-gcc
-LD   = $(GCC_BIN_PREFIX)-gcc
-AR   = $(GCC_BIN_PREFIX)-ar
-CP   = $(GCC_BIN_PREFIX)-objcopy
-DMP  = $(GCC_BIN_PREFIX)-objdump
-NM   = $(GCC_BIN_PREFIX)-nm
-SIZE = $(GCC_BIN_PREFIX)-size
-GDB  = $(GCC_BIN_PREFIX)-gdb
-else
-# toolchain not found...
-endif
-endif
+# Display size of file.
+HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
+ELFSIZE = $(SIZE) -A -x $(OBJDIR)/$(TARGET).elf
+sizebefore:
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
-MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+sizeafter:
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
 
-# some general commands
-RM = rm
+# Target: clean project.
+clean: clean_list
 
+clean_list :
+	@echo
+	$(RM) $(OBJDIR)/$(TARGET).hex
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).elf
+	$(RM) $(OBJDIR)/$(TARGET).map
+	$(RM) $(OBJDIR)/$(TARGET).obj
+	$(RM) $(OBJDIR)/$(TARGET).a90
+	$(RM) $(OBJDIR)/$(TARGET).sym
+	$(RM) $(OBJDIR)/$(TARGET).lnk
+	$(RM) $(OBJDIR)/$(TARGET).lss
+	$(RM) $(COBJ)
+	$(RM) $(AOBJ)
+	$(RM) $(COBJARM)
+	$(RM) $(AOBJARM)
+	$(RM) $(LST)
+	$(RM) $(SRC:.c=.s)
+	$(RM) $(SRC:.c=.d)
+	$(RM) $(SRCARM:.c=.s)
+	$(RM) $(SRCARM:.c=.d)
+	$(RM) .dep/*
+	$(RM) *~
 
+.PHONY : printcommands sizebefore sizeafter clean clean_list
 
 #
 # Find OpenOCD

@@ -31,9 +31,8 @@ else
 endif
 # -----------------------------------------------------------------------
 
-ifndef FLASH_MODE
-FLASH_MODE = JTAG
-endif
+# default flash mode is the onboard JTAG
+FLASH_MODE ?= JTAG
 
 #
 #
@@ -71,10 +70,10 @@ GPS_BAUD ?= B38400
 #
 # you can use different actuators by adding a configure option to your firmware section
 # e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+# and by setting the correct "driver" attribute in servo section
+# e.g. <servo driver="Ppm">
 #
-ifndef ACTUATORS
-ACTUATORS = actuators_pwm
-endif
+ACTUATORS ?= actuators_pwm
 
 
 ifndef ADC_IR1
@@ -89,6 +88,4 @@ ifndef ADC_IR3
 ADC_IR_TOP      = 4
 ADC_IR_TOP_CHAN = 3
 endif
-ifndef ADC_IR_NB_SAMPLES
-ADC_IR_NB_SAMPLES = 16
-endif
+ADC_IR_NB_SAMPLES ?= 16

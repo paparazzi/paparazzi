@@ -19,20 +19,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/*
- *\brief STM32 usart functions
+/**
+ * @file arch/stm32/mcu_periph/uart_arch.h
+ * @ingroup stm32_arch
  *
+ * Handling of UART hardware for STM32.
  */
 
 #ifndef STM32_UART_ARCH_H
 #define STM32_UART_ARCH_H
 
 #include "std.h"
-
-#define B4800     4800
-#define B9600     9600
-#define B38400   38400
-#define B57600   57600
-#define B115200 115200
 
 #endif /* STM32_UART_ARCH_H */

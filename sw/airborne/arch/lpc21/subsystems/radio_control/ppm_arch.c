@@ -35,10 +35,16 @@ void ppm_arch_init ( void ) {
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
 #else
-#error "ppm_arch.h: Unknown PM_PULSE_TYPE"
+#error "ppm_arch.h: Unknown PPM_PULSE_TYPE"
 #endif
   ppm_last_pulse_time = 0;
   ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
   ppm_data_valid = FALSE;
   ppm_frame_available = FALSE;
+
+#ifdef USE_PPM_RSSI_GPIO
+  /* select pin as GPIO (input) : should be default ?*/
+  //PPM_RSSI_PINSEL |= PPM_RSSI_VAL << PPM_RSSI_PINSEL_BIT;
+  //ClearBit(PPM_RSSI_IODIR, PPM_RSSI_BIT);
+#endif
 }

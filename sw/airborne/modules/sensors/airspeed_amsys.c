@@ -99,9 +99,9 @@ void airspeed_amsys_read_periodic( void ) {
 #ifndef SITL
 	if (airspeed_amsys_i2c_trans.status == I2CTransDone)
 #ifndef MEASURE_AMSYS_TEMPERATURE
-		I2CReceive(AIRSPEED_AMSYS_I2C_DEV, airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 2);
+		i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 2);
 #else
-		I2CReceive(AIRSPEED_AMSYS_I2C_DEV, airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
+		i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
 #endif
 
 #else // SITL

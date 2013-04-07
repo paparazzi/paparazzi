@@ -42,6 +42,7 @@
   <!-- Using Geo Mag module -->
   <modules>
     <load name="geo_mag.xml"/>
+    <load name="rotorcraft_cam.xml"/>
   </modules>
 
   <servos driver="Pwm">
@@ -49,6 +50,7 @@
     <servo name="BACK"    no="1" min="1000" neutral="1100" max="1900"/>
     <servo name="RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
     <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="CAM"     no="4" min="1000" neutral="1500" max="2300"/>
   </servos>
 
   <commands>
@@ -219,6 +221,14 @@
     <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+
+  <section name="CAM" prefix="ROTORCRAFT_CAM_">
+    <define name="ON" value="{}"/>
+    <define name="OFF" value="{}"/>
+    <define name="TILT_SERVO" value="CAM"/>
+    <define name="TILT_ANGLE_MAX" value="-90." unit="deg"/>
+    <define name="TILT_ANGLE_MIN" value=" 10." unit="deg"/>
   </section>
 
 </airframe>

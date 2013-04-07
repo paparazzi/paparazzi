@@ -19,16 +19,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/lpc21/mcu_periph/spi_slave_hs_arch.h
+ * @ingroup lpc21_arch
+ *
+ * Highspeed SPI Slave Interface.
+ * SS on P0.20
+ * Circular Buffer
+ */
+
 #ifndef SPI_SLAVE_HS_ARCH_H
 #define SPI_SLAVE_HS_ARCH_H
-
-/*
-
-  Highspeed SPI Slave Interface
-  SS on P0.20
-  Circular Buffer
-
-*/
 
 #include "std.h"
 

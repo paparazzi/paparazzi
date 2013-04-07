@@ -1,20 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-Airspeed AMSYS module (I2C)
-@param AIRSPEED_AMSYS_SCALE scale factor (default 1.8)
-@param AIRSPEED_AMSYS_OFFSET offset (default 0)
-@param AIRSPEED_AMSYS_I2C_DEV i2c device (default i2c0)
-@flag USE_AIRSPEED to use the data for airspeed control loop
-@flag SENSOR_SYNC_SEND to transmit the data as it is acquired
--->
-
 <module name="airspeed_amsys" dir="sensors">
   <doc>
-    <description>Airspeed AMSYS module (I2C)</description>
-    <define name="AIRSPEED_AMSYS_I2C_DEV" value="i2cX" description="change default i2c peripheral"/>
-    <define name="AIRSPEED_AMSYS_OFFSET" value="sensor offset"/>
-    <define name="AIRSPEED_AMSYS_SCALE" value="sensor scale factor"/>
+    <description>
+      Airspeed AMSYS (I2C)
+      Driver for a Amsys Differential Presure Sensor I2C
+      (AMS 5812-0003-D)
+    </description>
+    <define name="AIRSPEED_AMSYS_I2C_DEV" value="i2c0" description="change default i2c peripheral"/>
+    <define name="AIRSPEED_AMSYS_OFFSET" value="0" description="sensor offset (default: 0)"/>
+    <define name="AIRSPEED_AMSYS_SCALE" value="1.0" description="sensor scale factor (default: 1.0)"/>
     <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
     <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>

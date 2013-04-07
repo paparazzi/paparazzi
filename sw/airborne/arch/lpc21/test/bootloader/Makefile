@@ -1,3 +1,6 @@
+# Quiet compilation
+Q=@
+
 #PROC_AP PROC_FBW PROC_TINY PROC_TINYJ
 #PROC = TINYJ
 ALLFLAGS = -DPROC_$(PROC)
@@ -18,7 +21,7 @@ LINKFILE_RAM	= lpc2148-ram.ld
 #
 # try to find the paparazzi multilib toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-toolchain
 
 TAR = tar
 
@@ -37,9 +40,9 @@ LIBOBJS =	usbhw_lpc.o usbcontrol.o usbstdreq.o usbinit.o usbdescrip.o
 all: lib app app_ram
 
 clean:
-	$(RM) -f $(LIBNAME).a $(LIBOBJS)
-	$(RM) -f $(APPNAME).hex $(APPNAME).elf $(OBJS) *.lst $(APPNAME).dmp $(APPNAME).map
-	$(RM) -f $(APPNAME_RAM).hex $(APPNAME_RAM).elf $(APPNAME_RAM).dmp $(APPNAME_RAM).map
+	$(Q)$(RM) -f $(LIBNAME).a $(LIBOBJS)
+	$(Q)$(RM) -f $(APPNAME).hex $(APPNAME).elf $(OBJS) *.lst $(APPNAME).dmp $(APPNAME).map
+	$(Q)$(RM) -f $(APPNAME_RAM).hex $(APPNAME_RAM).elf $(APPNAME_RAM).dmp $(APPNAME_RAM).map
 
 # build lib
 lib: $(LIBOBJS)
@@ -49,7 +52,7 @@ lib: $(LIBOBJS)
 app: $(APPNAME).elf
 	$(Q)echo "...copying"
 	$(CP) $(CPFLAGS) $(APPNAME).elf $(APPNAME).hex
-	$(OD) $(ODFLAGS) $(APPNAME).elf > $(APPNAME).dmp
+	$(DMP) $(ODFLAGS) $(APPNAME).elf > $(APPNAME).dmp
 #	$(Q)echo "....loading"
 #	./lpc21isp -control bl.hex com4 38400 12000
 #	./lpc21isp -control -termonly bl.hex com4 115200 12000
@@ -57,7 +60,7 @@ app: $(APPNAME).elf
 app_ram: $(APPNAME_RAM).elf
 	$(Q)echo "...copying"
 	$(CP) $(CPFLAGS) $(APPNAME_RAM).elf $(APPNAME_RAM).hex
-	$(OD) $(ODFLAGS) $(APPNAME_RAM).elf > $(APPNAME_RAM).dmp
+	$(DMP) $(ODFLAGS) $(APPNAME_RAM).elf > $(APPNAME_RAM).dmp
 
 $(APPNAME).elf: $(OBJS) $(LIBNAME).a $(LINKFILE)
 	$(Q)echo "..linking"
@@ -81,3 +84,5 @@ dist: clean
 
 # recompile if the Makefile changes
 $(OBJS) $(LIBOBJS): Makefile
+
+.PHONY: all clean lib app app_ram arch dist

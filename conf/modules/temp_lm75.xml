@@ -2,7 +2,7 @@
 
 <module name="temp_lm75" dir="meteo">
   <doc>
-    <description></description>
+    <description>LM75 temparature sensor</description>
   </doc>
   <header>
     <file name="temp_lm75.h"/>

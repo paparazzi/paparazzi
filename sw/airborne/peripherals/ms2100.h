@@ -20,59 +20,57 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file peripherals/ms2100.h
+ * Driver for the ms2100 magnetic sensor from PNI.
+ */
+
 #ifndef MS2100_H
 #define MS2100_H
 
-/**
- * @file peripherals/ms2100.h
- * Driver for the ms2100 magnetic sensor from PNI
- */
-
 #include "std.h"
+#include "mcu_periph/spi.h"
+#include "math/pprz_algebra_int.h"
 
-#define MS2100_NB_AXIS 3
 
-#ifndef MS2100_SLAVE_IDX
-#define MS2100_SLAVE_IDX SPI_SLAVE1
-#endif
+enum Ms2100Status {
+  MS2100_IDLE,
+  MS2100_SENDING_REQ,
+  MS2100_GOT_EOC,
+  MS2100_READING_RES,
+  MS2100_DATA_AVAILABLE
+};
 
-#ifndef MS2100_SPI_DEV
-#define MS2100_SPI_DEV spi1
-#endif
+struct Ms2100 {
+  struct spi_periph *spi_p;
+  struct spi_transaction req_trans;
+  struct spi_transaction read_trans;
+  volatile uint8_t req_buf[1];        ///< SPI buffer for the command byte
+  volatile uint8_t read_buf[2];       ///< SPI buffer for reading a single axis
+  volatile enum Ms2100Status status;
+  volatile uint8_t cur_axe;
+  union {
+    struct Int16Vect3 vect;           ///< data vector in mag coordinate system
+    int16_t value[3];                 ///< data values accessible by channel index
+  } data;
+};
 
-extern void ms2100_init( void );
-extern void ms2100_read( void );
-extern void ms2100_event( void );
+// keep gobal var for now...
+extern struct Ms2100 ms2100;
 
-#define MS2100_IDLE            0
-#define MS2100_SENDING_REQ     1
-#define MS2100_GOT_EOC         2
-#define MS2100_READING_RES     3
-#define MS2100_DATA_AVAILABLE  4
+extern void ms2100_init(struct Ms2100 *ms, struct spi_periph *spi_p, uint8_t slave_idx);
+extern void ms2100_read(struct Ms2100 *ms);
+extern void ms2100_event(struct Ms2100 *ms);
 
-extern volatile uint8_t ms2100_status;
-extern volatile int16_t ms2100_values[MS2100_NB_AXIS];
-extern volatile uint8_t ms2100_cur_axe;
-
-#define Ms2100Periodic() {            \
-  if (ms2100_status == MS2100_IDLE) { \
-    ms2100_read();                    \
-  }                                   \
+static inline void ms2100_periodic(struct Ms2100 *ms) {
+  if (ms->status == MS2100_IDLE) {
+    ms2100_read(ms);
+  }
 }
 
 /* underlying architecture */
 #include "peripherals/ms2100_arch.h"
 /* must be implemented by underlying architecture */
 extern void ms2100_arch_init( void );
-
-#define MS2100_DIVISOR_128  2
-#define MS2100_DIVISOR_256  3
-#define MS2100_DIVISOR_512  4
-#define MS2100_DIVISOR_1024 5
-
-#ifndef MS2100_DIVISOR
-#define MS2100_DIVISOR MS2100_DIVISOR_1024
-#endif
-
 
 #endif /* MS2100_H */

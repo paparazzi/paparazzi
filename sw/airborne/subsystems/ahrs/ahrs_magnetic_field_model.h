@@ -1,3 +1,6 @@
+#ifndef AHRS_MAGNETIC_FIELD_MODEL_H
+#define AHRS_MAGNETIC_FIELD_MODEL_H
+
 #include "generated/airframe.h"
 
 #ifndef AHRS_H_X
@@ -8,3 +11,4 @@
 #define AHRS_H_Y 0
 #endif
 
+#endif

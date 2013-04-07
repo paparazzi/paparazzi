@@ -22,7 +22,7 @@
 
 (*
  * XML preprocessing for core autopilot
- *)  
+ *)
 open Printf
 open Xml2h
 
@@ -67,8 +67,8 @@ let print_modes = fun modes out_h ->
       lprintf out_h "#define %s %d\n" (print_mode_name name) !mode_idx;
       mode_idx := !mode_idx + 1;
     with _ -> ()
-    )
-  modes
+  )
+    modes
 
 (** Init function: set last_mode to initial ap_mode *) (* TODO really needed ? *)
 let print_ap_init = fun modes out_h ->
@@ -78,9 +78,9 @@ let print_ap_init = fun modes out_h ->
       List.exists (fun s -> if Xml.tag s = "select" then Xml.attrib s "cond" = "$DEFAULT_MODE" else false) (Xml.children m)
     ) modes in
     match List.length default with
-      0 -> List.hd modes
-    | 1 -> List.hd default
-    | _ -> failwith "Autopilot Core Error: only one default mode can be set"
+        0 -> List.hd modes
+      | 1 -> List.hd default
+      | _ -> failwith "Autopilot Core Error: only one default mode can be set"
   in
 
   let default = find_default_mode () in
@@ -101,13 +101,13 @@ let print_test_select = fun modes out_h ->
     List.iter (fun s -> (* In each mode, build condition and exceptions' list *)
       let cond = Xml.attrib s "cond" in
       let except = try String.concat " || "
-        (List.map (fun e -> Printf.sprintf "private_autopilot_mode != %s" (print_mode_name e))
-          (Str.split (Str.regexp "|") (Xml.attrib s "exception"))
-        ) with _ -> "" in
+                         (List.map (fun e -> Printf.sprintf "private_autopilot_mode != %s" (print_mode_name e))
+                            (Str.split (Str.regexp "|") (Xml.attrib s "exception"))
+                         ) with _ -> "" in
       match (cond, String.length except) with
-        ("$DEFAULT_MODE", _) -> ()
-      | (_, 0) -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name (Xml.attrib m "name"))
-      | (_, _) -> lprintf out_h "if ((%s) && (%s)) { return %s; }\n" cond except (print_mode_name (Xml.attrib m "name"))
+          ("$DEFAULT_MODE", _) -> ()
+        | (_, 0) -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name (Xml.attrib m "name"))
+        | (_, _) -> lprintf out_h "if ((%s) && (%s)) { return %s; }\n" cond except (print_mode_name (Xml.attrib m "name"))
     ) select;
   ) modes;
   lprintf out_h "return private_autopilot_mode;\n";
@@ -116,16 +116,16 @@ let print_test_select = fun modes out_h ->
 
 
 (** Function to test exceptions on modes
- *  The generated function returns the new mode if an exception is true
- *)
+    *  The generated function returns the new mode if an exception is true
+*)
 let print_test_exception = fun modes out_h ->
   (** Test condition and deroute to given mode or last mode *)
   let print_exception = fun ex ->
     let name = Xml.attrib ex "deroute"
     and cond = Xml.attrib ex "cond" in
     match name with
-      "$LAST_MODE" -> lprintf out_h "if (%s) { return last_autopilot_mode; }\n" cond
-    | _ -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name name)
+        "$LAST_MODE" -> lprintf out_h "if (%s) { return last_autopilot_mode; }\n" cond
+      | _ -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name name)
   in
 
   lprintf out_h "\nstatic inline uint8_t autopilot_core_mode_exceptions(uint8_t mode) {\n";
@@ -153,8 +153,8 @@ let print_test_exception = fun modes out_h ->
   lprintf out_h "}\n"
 
 (** Function to test global exceptions
- *  The generated function returns the mode of the last true exception in the list
- *)
+    *  The generated function returns the mode of the last true exception in the list
+*)
 let print_global_exceptions = fun exceptions out_h ->
   lprintf out_h "\nstatic inline uint8_t autopilot_core_global_exceptions(uint8_t mode) {\n";
   right ();
@@ -206,12 +206,12 @@ let print_set_mode = fun modes out_h ->
 (** Peridiodic function: calls control loops according to the ap_mode *)
 let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
 
- (** Print function *)
+  (** Print function *)
   let print_call = fun call ->
     try
       let f = Xml.attrib call "fun" in
       let cond = try String.concat "" ["if ("; (Xml.attrib call "cond"); ") { "; f; "; }\n"]
-           with _ -> String.concat "" [f; ";\n"] in
+        with _ -> String.concat "" [f; ";\n"] in
       lprintf out_h "%s" cond
     with _ -> ()
   in
@@ -219,9 +219,9 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
   let print_ctrl = fun ctrl ->
     List.iter (fun c ->
       match (Xml.tag c) with
-        "call" -> print_call c
-      | "call_block" -> List.iter print_call (Xml.children (List.find (fun n -> (Xml.attrib c "name") = (Xml.attrib n "name")) ctrl_block))
-      | _ -> ()
+          "call" -> print_call c
+        | "call_block" -> List.iter print_call (Xml.children (List.find (fun n -> (Xml.attrib c "name") = (Xml.attrib n "name")) ctrl_block))
+        | _ -> ()
     ) (Xml.children ctrl)
   in
   (** Equivalent to the RunOnceEvery macro *)
@@ -261,9 +261,9 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
       let ctrl_freq = try int_of_string (Xml.attrib c "freq") with _ -> main_freq in
       let prescaler = main_freq / ctrl_freq in
       match prescaler with
-        0 -> failwith "Autopilot Core Error: control freq higher than main freq"
-      | 1 -> print_ctrl c (* no prescaler if running at main_freq *)
-      | _ -> print_prescaler prescaler c
+          0 -> failwith "Autopilot Core Error: control freq higher than main freq"
+        | 1 -> print_ctrl c (* no prescaler if running at main_freq *)
+        | _ -> print_prescaler prescaler c
     ) (get_control m);
     left ();
     lprintf out_h "}\n";
@@ -296,16 +296,16 @@ let parse_modes ap freq out_h =
 let h_name = "AUTOPILOT_CORE_H"
 
 (** Main generation function
-  * Usage: main_freq xml_file_input h_file_output
-  *)
+    * Usage: main_freq xml_file_input h_file_output
+*)
 let gen_autopilot main_freq xml_file h_file =
   let out_h = open_out h_file in
   try
     let ap_xml = start_and_begin_out xml_file h_name out_h in
     let _ = try
-      let ap_name = Xml.attrib ap_xml "name" in
-      fprintf out_h "/*** %s ***/\n\n" ap_name;
-    with _ -> () in
+              let ap_name = Xml.attrib ap_xml "name" in
+              fprintf out_h "/*** %s ***/\n\n" ap_name;
+      with _ -> () in
     fprintf out_h "#ifdef AUTOPILOT_CORE_C\n";
     fprintf out_h "#define EXTERN_AP\n";
     fprintf out_h "#else\n";
@@ -315,10 +315,10 @@ let gen_autopilot main_freq xml_file h_file =
     fprintf out_h "\n#endif // %s\n" h_name;
     close_out out_h
   with
-    Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
-  | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
+      Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
+    | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
+    | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
+    | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
 
 (* Main call *)
 let () =
@@ -332,14 +332,12 @@ let () =
     gen_autopilot ap_freq autopilot h_file;
     ()
   with
-    Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
-  | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
-  | Not_found ->
+      Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
+    | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
+    | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
+    | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
+    | Not_found ->
       let out_h = open_out h_file in
       fprintf out_h "/*** Sorry, no autopilot file found ***/\n";
       close_out out_h;
       exit 0
-
-

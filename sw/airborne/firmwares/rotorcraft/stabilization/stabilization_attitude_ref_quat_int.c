@@ -19,8 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_attitude_ref_int.c
- * Rotorcraft attitude reference generation (quaternion int version)
+/**
+ * @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c
+ *
+ * Rotorcraft attitude reference generation.
+ * (quaternion int version)
  *
  */
 
@@ -28,10 +31,6 @@
 #include "firmwares/rotorcraft/stabilization.h"
 
 #include "stabilization_attitude_ref_int.h"
-
-#if USE_SETPOINTS_WITH_TRANSITIONS
-#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
-#endif
 
 #define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
 #define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)
@@ -98,16 +97,11 @@ void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
 
-#if USE_SETPOINTS_WITH_TRANSITIONS
-  stabilization_attitude_sp_enter();
-  memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
-#else
   /* convert reference attitude with REF_ANGLE_FRAC to eulers with normal INT32_ANGLE_FRAC */
   struct Int32Eulers ref_eul;
   INT32_EULERS_RSHIFT(ref_eul, stab_att_ref_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   INT32_QUAT_OF_EULERS(stab_att_ref_quat, ref_eul);
   INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
-#endif
 
   /* set reference rate and acceleration to zero */
   memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));

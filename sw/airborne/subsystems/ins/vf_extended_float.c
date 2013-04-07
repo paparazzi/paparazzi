@@ -20,6 +20,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ins/vf_extended_float.c
+ *
+ * Extended vertical filter (in float).
+ *
+ * Estimates altitude, vertical speed, accelerometer bias
+ * and barometer offset.
+ */
+
 #include "subsystems/ins/vf_extended_float.h"
 
 #define DEBUG_VFF_EXTENDED 1

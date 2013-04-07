@@ -3,12 +3,6 @@
 #generic spi driver
 $(TARGET).CFLAGS += -DUSE_SPI
 
-
-ifeq ($(ARCH), lpc21)
-$(TARGET).CFLAGS += -DSSP_VIC_SLOT=9
-else ifeq ($(ARCH), stm32)
-endif
-
 ifeq ($(TARGET), sim)
 else
 

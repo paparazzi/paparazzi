@@ -17,7 +17,7 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
   baro_trans.buf[0] = addr;
   baro_trans.buf[1] = value;
 
-  I2CTransmit(i2c2, baro_trans, BMP085_ADDR, 2);
+  i2c_transmit(&i2c2, &baro_trans, BMP085_ADDR, 2);
 
   // FIXME, no while loops without timeout!!
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
@@ -26,7 +26,7 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
 static inline void bmp085_read_reg16(uint8_t addr)
 {
   baro_trans.buf[0] = addr;
-  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 2);
+  i2c_transceive(&i2c2, &baro_trans, BMP085_ADDR, 1, 2);
 }
 
 static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
@@ -49,7 +49,7 @@ static inline int16_t bmp085_read_reg16_blocking(uint8_t addr, uint32_t timeout)
 static inline void bmp085_read_reg24(uint8_t addr)
 {
   baro_trans.buf[0] = addr;
-  I2CTransceive(i2c2, baro_trans, BMP085_ADDR, 1, 3);
+  i2c_transceive(&i2c2, &baro_trans, BMP085_ADDR, 1, 3);
 }
 
 static void bmp085_baro_read_calibration(void)
@@ -145,4 +145,51 @@ void baro_periodic(void) {
 
 void baro_board_send_reset(void) {
   // This is a NOP at the moment
+}
+
+// Apply temp calibration and sensor calibration to raw measurement to get Pa (from BMP085 datasheet)
+static int32_t baro_apply_calibration(int32_t raw)
+{
+  int32_t b6 = calibration.b5 - 4000;
+  int x1 = (calibration.b2 * (b6 * b6 >> 12)) >> 11;
+  int x2 = calibration.ac2 * b6 >> 11;
+  int32_t x3 = x1 + x2;
+  int32_t b3 = (((calibration.ac1 * 4 + x3) << BMP085_OSS) + 2)/4;
+  x1 = calibration.ac3 * b6 >> 13;
+  x2 = (calibration.b1 * (b6 * b6 >> 12)) >> 16;
+  x3 = ((x1 + x2) + 2) >> 2;
+  uint32_t b4 = (calibration.ac4 * (uint32_t) (x3 + 32768)) >> 15;
+  uint32_t b7 = (raw - b3) * (50000 >> BMP085_OSS);
+  int32_t p = b7 < 0x80000000 ? (b7 * 2) / b4 : (b7 / b4) * 2;
+  x1 = (p >> 8) * (p >> 8);
+  x1 = (x1 * 3038) >> 16;
+  x2 = (-7357 * p) >> 16;
+  return p + ((x1 + x2 + 3791) >> 4);
+}
+
+void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void))
+{
+  if (baro_board.status == LBS_READING &&
+      baro_trans.status != I2CTransPending && baro_trans.status != I2CTransRunning) {
+    baro_board.status = LBS_REQUEST_TEMP;
+    if (baro_trans.status == I2CTransSuccess) {
+      int32_t tmp = (baro_trans.buf[0]<<16) | (baro_trans.buf[1] << 8) | baro_trans.buf[2];
+      tmp = tmp >> (8 - BMP085_OSS);
+      baro.absolute = baro_apply_calibration(tmp);
+      b_abs_handler();
+    }
+  }
+  if (baro_board.status == LBS_READING_TEMP &&
+      baro_trans.status != I2CTransPending && baro_trans.status != I2CTransRunning) {
+    baro_board.status = LBS_REQUEST;
+    if (baro_trans.status == I2CTransSuccess) {
+      // abuse differential to store temp in 0.1C for now
+      int32_t tmp = (baro_trans.buf[0] << 8) | baro_trans.buf[1];
+      int32_t x1 = ((tmp - calibration.ac6) * calibration.ac5) >> 15;
+      int32_t x2 = (calibration.mc << 11) / (x1 + calibration.md);
+      calibration.b5 = x1 + x2;
+      baro.differential = (calibration.b5 + 8) >> 4;
+      b_diff_handler();
+    }
+  }
 }

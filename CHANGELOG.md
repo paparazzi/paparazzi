@@ -1,4 +1,4 @@
-Paparazzi 4.1 - development branch
+Paparazzi 4.9 - development branch
 ==================================
 
 - STM libs completely replaced by libopencm3
@@ -6,6 +6,98 @@ Paparazzi 4.1 - development branch
   [#220] (https://github.com/paparazzi/paparazzi/pull/220)
 - Option to change text papget color using a combobox
   [#194] (https://github.com/paparazzi/paparazzi/pull/194)
+
+
+Paparazzi 4.2.0_stable
+======================
+
+Stable version release
+
+Since last stable v4.0:
+- Total energy control
+- Improve Google map tiles download
+- Several updates on the Digital Cam and photogrammetry modules
+- WMM210 model
+- Rate limiter in airframes control laws
+- Uart flow control (stm32)
+- Bug fix for INS and AHRS filters
+- AP/FBW separation using spi or uart
+- Sensors fix and addition (GPS, current, baro)
+
+Paparazzi 4.1.1_testing
+=======================
+
+Second release candidate for next stable release.
+
+- Run AP and FBW on separate boards
+  [#297] (https://github.com/paparazzi/paparazzi/pull/297)
+- Separate Board Files for yapa_v2.0
+  [#303] (https://github.com/paparazzi/paparazzi/pull/303)
+- Add UART hardware flow control (for STM32 only)
+  [#289] (https://github.com/paparazzi/paparazzi/pull/289)
+- Add ezosd current sensor module
+  [#292] (https://github.com/paparazzi/paparazzi/pull/292)
+- Paparazzi Center: fix coloration by passing input buffer line by line, set language to english
+- Rate limiter bugfix
+- DC_SHOT message photo numbers shown in GCS
+- home mode height can be set different from security height
+- Ahrs float_dcm uses magnetic heading while not inflight for better initial guess
+  [#299] (https://github.com/paparazzi/paparazzi/pull/299)
+- Outback Challenge "Safety" Rules 1 and 2
+- Added WMM2010 Geo model used in ahrs int_cmpl_quat for rotorcrafts
+  [#288] (https://github.com/paparazzi/paparazzi/pull/288)
+- Fix missing gain definitions from airframe file in total energy control
+- Added stm32loader to sw/tools
+- Change vsupply to be a uint16 to enable reporting of voltages higher than 25.5V
+  [#294] (https://github.com/paparazzi/paparazzi/issues/294)
+- Digital cam module: release camera button on init
+- Fix second order term in propagation of x-position in HFF
+
+Paparazzi 4.1.0_testing
+=======================
+
+First release candidate for next stable release.
+
+- Total energy control
+  [#251] (https://github.com/paparazzi/paparazzi/pull/251)
+- PPM input on UART1 RX for Lisa/M autopilots
+- Rate Limiter for Flaps, Gears and servo hatches
+  [#252] (https://github.com/paparazzi/paparazzi/pull/252)
+- GPS acceleration compensation in ahrs_float_dcm
+  [#255] (https://github.com/paparazzi/paparazzi/pull/255)
+- Improved gravity heuristic for int_cmpl_quat
+- Some updates on digital_cam and photogrammetry modules
+  [#250] (https://github.com/paparazzi/paparazzi/pull/250)
+- Replace wget by OCaml Http_client from netclient lib to download files
+  [#276] (https://github.com/paparazzi/paparazzi/pull/276)
+
+
+Paparazzi 4.0.3
+===============
+
+Maintenance release
+
+- fix google map version download
+- fix BMP scripts for stm32
+- fix lisa/m 2.0 default voltage
+- fix gpsd2ivy for libgps3.5
+- improve some makefiles
+
+
+Paparazzi 4.0.2
+===============
+
+Maintenance release
+
+- fix some illegal xml chars in xml description for xtend_rssi and pwm_meas modules
+- fix ins_arduimu_basic by adding an empty ahrs_update_gps function
+- fix some ivy includes on OSX for weird installation cases
+- fix ACTUATORS_PWM_NB for fixedwings with USE_SERVOS_7AND8
+- updated kestrel weather meter agent
+- fix uart_tunnel if leds are not available on some boards
+- fix GPS_LLA message
+- fix make failure when trying to get google maps version, but no internet connection
+  [#187] (https://github.com/paparazzi/paparazzi/issues/187)
 
 
 Paparazzi 4.0.1
@@ -20,7 +112,6 @@ Maintenance release
 - Fixes for photogrammetry module.
 - Fixes for digital_cam modules.
 - Tool added: mergelogs
-
 
 
 Paparazzi 4.0

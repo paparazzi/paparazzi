@@ -37,11 +37,18 @@
 #define INT32_MAX (2147483647)
 #endif
 
+#if defined MOTOR_MIXING_MIN_MOTOR || defined MOTOR_MIXING_MAX_MOTOR
+#error MIN_MOTOR and MAX_MOTOR have to be set via neutral/max of the respective servo
+#endif
 #define MOTOR_MIXING_MIN_MOTOR 0
 #define MOTOR_MIXING_MAX_MOTOR MAX_PPRZ
 
 #ifndef MOTOR_MIXING_STOP_MOTOR
 #define MOTOR_MIXING_STOP_MOTOR -MAX_PPRZ
+#endif
+
+#ifndef MOTOR_MIXING_MAX_SATURATION_OFFSET
+#define MOTOR_MIXING_MAX_SATURATION_OFFSET MAX_PPRZ/3
 #endif
 
 #ifndef MOTOR_MIXING_MIN_MOTOR_STARTUP
@@ -161,12 +168,20 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
       if (motor_mixing.commands[i] > max_cmd)
         max_cmd = motor_mixing.commands[i];
     }
+
     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR)
       motor_mixing.nb_failure++;
-    if (min_cmd < MOTOR_MIXING_MIN_MOTOR)
-      offset_commands(-(min_cmd - MOTOR_MIXING_MIN_MOTOR));
-    if (max_cmd > MOTOR_MIXING_MAX_MOTOR)
-      offset_commands(-(max_cmd - MOTOR_MIXING_MAX_MOTOR));
+
+    if (min_cmd < MOTOR_MIXING_MIN_MOTOR) {
+      int32_t saturation_offset = MOTOR_MIXING_MIN_MOTOR - min_cmd;
+      BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
+      offset_commands(saturation_offset);
+    }
+    if (max_cmd > MOTOR_MIXING_MAX_MOTOR) {
+      int32_t saturation_offset = MOTOR_MIXING_MAX_MOTOR - max_cmd;
+      BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
+      offset_commands(saturation_offset);
+    }
 
     /* For testing motor failure */
     if (motors_on && override_on) {

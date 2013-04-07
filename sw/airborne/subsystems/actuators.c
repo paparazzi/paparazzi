@@ -26,12 +26,24 @@
  */
 
 #include "subsystems/actuators.h"
+#include "mcu_periph/sys_time.h"
 
 #if ACTUATORS_NB
 
 int16_t actuators[ACTUATORS_NB];
 
+uint32_t actuators_delay_time;
+bool_t   actuators_delay_done;
+
 void actuators_init(void) {
+
+#if defined ACTUATORS_START_DELAY && ! defined SITL
+  actuators_delay_done = FALSE;
+  SysTimeTimerStart(actuators_delay_time);
+#else
+  actuators_delay_done = TRUE;
+  actuators_delay_time = 0;
+#endif
 
   // Init macro from generated airframe.h
   AllActuatorsInit();

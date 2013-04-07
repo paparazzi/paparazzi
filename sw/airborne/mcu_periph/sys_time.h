@@ -40,6 +40,20 @@
 #define SYS_TIME_NB_TIMER 8
 #endif
 
+
+/**
+ * (Default) sys_time timer frequency in Hz.
+ * sys_time.resolution is set from this define.
+ */
+#ifndef SYS_TIME_FREQUENCY
+#if defined PERIODIC_FREQUENCY
+#define SYS_TIME_FREQUENCY (2 * PERIODIC_FREQUENCY)
+#else
+#define SYS_TIME_FREQUENCY 1000
+#endif
+#endif
+
+
 typedef uint8_t tid_t; ///< sys_time timer id type
 typedef void (*sys_time_cb) (uint8_t id);
 
@@ -47,22 +61,24 @@ struct sys_time_timer {
   bool_t          in_use;
   sys_time_cb     cb;
   volatile bool_t elapsed;
-  uint32_t        end_time; ///< in SYS_TICKS
-  uint32_t        duration; ///< in SYS_TICKS
+  uint32_t        end_time; ///< in SYS_TIME_TICKS
+  uint32_t        duration; ///< in SYS_TIME_TICKS
 };
 
 struct sys_time {
   volatile uint32_t nb_sec;       ///< full seconds since startup
-  volatile uint32_t nb_sec_rem;   ///< remainder of second in CPU_TICKS
-  volatile uint32_t nb_tick;      ///< in SYS_TICKS with SYS_TIME_RESOLUTION
+  volatile uint32_t nb_sec_rem;   ///< remainder of seconds since startup in CPU_TICKS
+  volatile uint32_t nb_tick;      ///< SYS_TIME_TICKS since startup
   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
+
+  float resolution;               ///< sys_time_timer resolution in seconds
+  uint32_t ticks_per_sec;         ///< sys_time ticks per second (SYS_TIME_FREQUENCY)
+  uint32_t resolution_cpu_ticks;  ///< sys_time_timer resolution in cpu ticks
+  uint32_t cpu_ticks_per_sec;     ///< cpu ticks per second
 };
 
 extern struct sys_time sys_time;
 
-//FIXME temporary hack
-#define cpu_time_sec sys_time.nb_sec
-#define cpu_time_ticks sys_time.nb_sec_rem
 
 extern void sys_time_init(void);
 
@@ -87,6 +103,11 @@ extern void sys_time_cancel_timer(tid_t id);
  */
 extern void sys_time_update_timer(tid_t id, float duration);
 
+/**
+ * Check if timer has elapsed.
+ * @param id Timer id
+ * @return TRUE if timer has elapsed
+ */
 static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
   if (sys_time.timer[id].elapsed) {
     sys_time.timer[id].elapsed = FALSE;
@@ -95,34 +116,78 @@ static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
   return FALSE;
 }
 
-#define GET_CUR_TIME_FLOAT() ((float)sys_time.nb_sec + SEC_OF_CPU_TICKS((float)sys_time.nb_sec_rem))
+/**
+ * Get the time in seconds since startup.
+ * @return current system time as float
+ */
+static inline float get_sys_time_float(void) {
+  return (float)(sys_time.nb_sec + sys_time.nb_sec_rem * sys_time.resolution_cpu_ticks);
+}
 
 
-/* CPU clock */
-#define CPU_TICKS_OF_USEC(us) CPU_TICKS_OF_SEC((us) * 1e-6)
-#define CPU_TICKS_OF_NSEC(ns) CPU_TICKS_OF_SEC((ns) * 1e-9)
-#define SIGNED_CPU_TICKS_OF_USEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-6)
-#define SIGNED_CPU_TICKS_OF_NSEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-9)
+/*
+ * Convenience functions to convert between seconds and sys_time ticks.
+ */
+static inline uint32_t sys_time_ticks_of_sec(float seconds) {
+  return (uint32_t)(seconds * sys_time.ticks_per_sec + 0.5);
+}
 
-#define CPU_TICKS_PER_SEC CPU_TICKS_OF_SEC( 1.)
+static inline uint32_t sys_time_ticks_of_msec(uint32_t msec) {
+  return msec * sys_time.ticks_per_sec / 1000;
+}
+
+static inline uint32_t sys_time_ticks_of_usec(uint32_t usec) {
+  return usec * sys_time.ticks_per_sec / 1000000;
+}
+
+static inline float sec_of_sys_time_ticks(uint32_t ticks) {
+  return (float)ticks * sys_time.resolution;
+}
+
+static inline uint32_t msec_of_sys_time_ticks(uint32_t ticks) {
+  return ticks * 1000 / sys_time.ticks_per_sec;
+}
+
+static inline uint32_t usec_of_sys_time_ticks(uint32_t ticks) {
+  return ticks * 1000 / sys_time.ticks_per_sec * 1000;
+}
 
 
-/* paparazzi sys_time timers */
-#ifndef SYS_TIME_RESOLUTION
-#define SYS_TIME_RESOLUTION ( 1./1024. )
-#endif
-#define SYS_TIME_RESOLUTION_CPU_TICKS CPU_TICKS_OF_SEC(SYS_TIME_RESOLUTION)
 
-#define SYS_TIME_TICKS_OF_SEC(s) (uint32_t)((s) / SYS_TIME_RESOLUTION + 0.5)
-#define SYS_TIME_TICKS_OF_USEC(us) SYS_TIME_TICKS_OF_SEC((us) * 1e-6)
-#define SYS_TIME_TICKS_OF_NSEC(ns) SYS_TIME_TICKS_OF_SEC((ns) * 1e-9)
+/*
+ * Convenience functions to convert between seconds and CPU ticks.
+ */
+static inline uint32_t cpu_ticks_of_sec(float seconds) {
+  return (uint32_t)(seconds * sys_time.cpu_ticks_per_sec + 0.5);
+}
 
-#define SEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION)
-#define USEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-6)
-#define NSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-9)
+static inline uint32_t cpu_ticks_of_usec(uint32_t usec) {
+  return usec * (sys_time.cpu_ticks_per_sec / 1000000);
+}
+
+static inline int32_t signed_cpu_ticks_of_usec(int32_t usec) {
+  return usec * ((int32_t)sys_time.cpu_ticks_per_sec / 1000000);
+}
+
+static inline uint32_t cpu_ticks_of_nsec(uint32_t nsec) {
+  return nsec * (sys_time.cpu_ticks_per_sec / 1000000) / 1000;
+}
+
+static inline uint32_t msec_of_cpu_ticks(uint32_t cpu_ticks) {
+  return cpu_ticks / (sys_time.cpu_ticks_per_sec / 1000);
+}
+
+static inline uint32_t usec_of_cpu_ticks(uint32_t cpu_ticks) {
+  return cpu_ticks / (sys_time.cpu_ticks_per_sec / 1000000);
+}
+
+static inline uint32_t nsec_of_cpu_ticks(uint32_t cpu_ticks) {
+  return cpu_ticks / (sys_time.cpu_ticks_per_sec / 1000000) / 1000;
+}
+
+
 
 #define USEC_OF_SEC(sec) ((sec) * 1e6)
-
 
 #include "mcu_periph/sys_time_arch.h"
 

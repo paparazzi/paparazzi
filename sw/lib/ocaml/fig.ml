@@ -49,15 +49,15 @@ let cap_style_of_int = Obj.magic
 type polyline =
     Polyline | Box | Polygon | ArcBox | PictureBB of int*string
 let int_of_polyline = function
-    Polyline -> 1 | Box -> 2 | Polygon -> 3 | ArcBox -> 4 | PictureBB _ -> 5
+Polyline -> 1 | Box -> 2 | Polygon -> 3 | ArcBox -> 4 | PictureBB _ -> 5
 let polyline_of_int = fun ?(flipped=0) ?(pict="") i ->
   match i with
-    1 -> Polyline
-  | 2 -> Box
-  | 3 -> Polygon
-  | 4 -> ArcBox
-  | 5 -> PictureBB (flipped, pict)
-  | _ -> invalid_arg "polyline_of_int"
+      1 -> Polyline
+    | 2 -> Box
+    | 3 -> Polygon
+    | 4 -> ArcBox
+    | 5 -> PictureBB (flipped, pict)
+    | _ -> invalid_arg "polyline_of_int"
 
 type arc = Open | Closed
 let int_of_arc x = Obj.magic x + 1
@@ -65,14 +65,14 @@ let arc_of_int x = Obj.magic (x - 1)
 
 type spline = Approximated | Interpolated | XSpline
 let int_of_spline = function
-    (Open, Approximated) -> 0
+(Open, Approximated) -> 0
   | (Closed, Approximated) -> 1
   | (Open, Interpolated) -> 2
   | (Closed, Interpolated) -> 3
   | (Open, XSpline) -> 4
   | (Closed, XSpline) -> 5
 let spline_of_int = function
-    0 -> (Open, Approximated)
+0 -> (Open, Approximated)
   | 1 -> (Closed, Approximated)
   | 2 -> (Open, Interpolated)
   | 3-> (Closed, Interpolated)
@@ -86,12 +86,12 @@ let ellipse_of_int x = (Obj.magic (x-1) : ellipse)
 
 
 type arrow = {
-    arrow_type:	int;
-    arrow_style:	int;
-    arrow_thickness:	float;
-    arrow_width:	float;
-    arrow_height:	float
-  }
+  arrow_type: int;
+  arrow_style:    int;
+  arrow_thickness:    float;
+  arrow_width:    float;
+  arrow_height:   float
+}
 
 type depth = int
 
@@ -171,7 +171,7 @@ type latex_font =
 type font = Postscript of postscript_font | Latex of latex_font
 
 let int_of_font = function
-    Postscript f -> Obj.magic f
+Postscript f -> Obj.magic f
   | Latex f -> Obj.magic f
 
 let font_of_int ps i =
@@ -196,37 +196,37 @@ type papersize = string
 type multiple_page = Single | Multiple
 
 let string_of_orientation = function
-    Landscape -> "Landscape" | Portrait -> "Portrait"
+Landscape -> "Landscape" | Portrait -> "Portrait"
 let string_of_just = function
- Center -> "Center" | FlushLeft -> "FlushLeft"
+Center -> "Center" | FlushLeft -> "FlushLeft"
 let string_of_units_name = function
-    Metric -> "Metric" | Inches -> "Inches"
+Metric -> "Metric" | Inches -> "Inches"
 let string_of_multiple_page = function
-    Single -> "Single" | Multiple -> "Multiple"
+Single -> "Single" | Multiple -> "Multiple"
 
 let orientation_of_string = function
-    "Landscape" -> Landscape | "Portrait" -> Portrait | _ -> invalid_arg "orientation_of_string"
+"Landscape" -> Landscape | "Portrait" -> Portrait | _ -> invalid_arg "orientation_of_string"
 let just_of_string = function
- "Center" -> Center | "Flush Left" -> FlushLeft | "Flush left" -> FlushLeft | _ -> invalid_arg "just_of_string"
+"Center" -> Center | "Flush Left" -> FlushLeft | "Flush left" -> FlushLeft | _ -> invalid_arg "just_of_string"
 let units_name_of_string = function
-    "Metric" -> Metric | "Inches" -> Inches | _ -> invalid_arg "units_name_of_string"
+"Metric" -> Metric | "Inches" -> Inches | _ -> invalid_arg "units_name_of_string"
 let multiple_page_of_string = function
-    "Single" -> Single | "Multiple" -> Multiple | _ -> invalid_arg "multiple_page_of_string"
+"Single" -> Single | "Multiple" -> Multiple | _ -> invalid_arg "multiple_page_of_string"
 
 
 type t = {
-    version : string;
-    orientation : orientation;
-    justification : just;
-    units : units_name;
-    papersize : papersize;
-    magnification : float;
-    multiple_page : multiple_page;
-    transparent_color : int;
-    comments : string list;
-    resolution : units * int;
-    body : fig_object list
-  }
+  version : string;
+  orientation : orientation;
+  justification : just;
+  units : units_name;
+  papersize : papersize;
+  magnification : float;
+  multiple_page : multiple_page;
+  transparent_color : int;
+  comments : string list;
+  resolution : units * int;
+  body : fig_object list
+}
 
 let black = 0
 let blue = 1
@@ -247,7 +247,7 @@ let color = fun ?number r g b ->
   short b;
   let n =
     match number with
-      None -> incr user_color; !user_color
+        None -> incr user_color; !user_color
       | Some x -> x in
   if n < 32 || n > 543 then invalid_arg "Fig.color: color number out of bound";
   (n, (["User color"], UserColor (n, (r, g, b))))
@@ -268,8 +268,8 @@ let one = fun x -> if x = None then 0 else 1
 
 let arrow = fun f x ->
   match x with
-    None -> ()
-  | Some t -> fprintf f "\t%d %d %.2f %.2f %.2f\n" t.arrow_type t.arrow_style t.arrow_thickness t.arrow_width t.arrow_height
+      None -> ()
+    | Some t -> fprintf f "\t%d %d %.2f %.2f %.2f\n" t.arrow_type t.arrow_style t.arrow_thickness t.arrow_width t.arrow_height
 
 let point = fun f (x,y) -> fprintf f " %d %d" x y
 
@@ -278,183 +278,183 @@ let comment = fun lines (c, o) -> (c @ lines, o)
 (* Environment *)
 let create = fun
   ?(comments = ["Generated by fig.ml"])
-    ?(orientation = Landscape)
-    ?(justification = Center)
-    ?(units = Metric)
-    ?(papersize = "A4")
-    ?(magnification = 100.0)
-    ?(multiple_page = Single)
-    ?(transparent_color = -2)
-    ?(resolution=(1200,2))
-    objects ->
-  { version = "3.2";
-    orientation = orientation;
-    justification = justification;
-    units = units;
-    papersize = papersize;
-    magnification = magnification;
-    multiple_page = multiple_page;
-    transparent_color = transparent_color;
-    comments = comments;
-    resolution = resolution;
-    body = objects }
+  ?(orientation = Landscape)
+  ?(justification = Center)
+  ?(units = Metric)
+  ?(papersize = "A4")
+  ?(magnification = 100.0)
+  ?(multiple_page = Single)
+  ?(transparent_color = -2)
+  ?(resolution=(1200,2))
+  objects ->
+    { version = "3.2";
+      orientation = orientation;
+      justification = justification;
+      units = units;
+      papersize = papersize;
+      magnification = magnification;
+      multiple_page = multiple_page;
+      transparent_color = transparent_color;
+      comments = comments;
+      resolution = resolution;
+      body = objects }
 
 
 (* Polyline *)
 let polyline = fun
-    ?(sub_type = Polyline)
-    ?(line_style = Solid)
-    ?(thickness = 1)
-    ?(pen_color = black)
-    ?(fill_color = white)
-    ?(depth = 50)
-    ?(area_fill = -1)
-    ?(style_val = 4.0)
-    ?(join_style = Miter)
-    ?(cap_style = Butt)
-    ?(radius = 7)
-    ?forward_arrow
-    ?backward_arrow
-    list ->
-      let list = (* Checking and fixing nb of points *)
-	match sub_type, list with
-	  Polyline, _::_ -> list
-	| Polygon, first::rest ->
-	    if List.hd (List.rev list) <> first then begin
-	      prerr_endline "Fig.polyline: closing Polygon";
-	      list @ [first]
-	    end else
-	      list
-	| _box, [(x0,y0);(x1, y1)] -> (* Opposed corners *)
-	    [(x0,y0);(x1, y0);(x1,y1);(x0,y1);(x0,y0)]
-	| _ -> invalid_arg "Fig.polyline"
-      in
-      let attributes = {
-    	line_style = line_style;
-    	line_thickness = thickness;
-    	pen_color = pen_color;
-    	fill_color = fill_color;
-    	depth = depth;
-    	area_fill = area_fill;
-    	style_val = style_val;
-    	cap_style = cap_style;
-    	forward_arrow = forward_arrow;
-    	backward_arrow = backward_arrow
-      } in
+  ?(sub_type = Polyline)
+  ?(line_style = Solid)
+  ?(thickness = 1)
+  ?(pen_color = black)
+  ?(fill_color = white)
+  ?(depth = 50)
+  ?(area_fill = -1)
+  ?(style_val = 4.0)
+  ?(join_style = Miter)
+  ?(cap_style = Butt)
+  ?(radius = 7)
+  ?forward_arrow
+  ?backward_arrow
+  list ->
+    let list = (* Checking and fixing nb of points *)
+      match sub_type, list with
+          Polyline, _::_ -> list
+        | Polygon, first::rest ->
+          if List.hd (List.rev list) <> first then begin
+            prerr_endline "Fig.polyline: closing Polygon";
+            list @ [first]
+          end else
+            list
+        | _box, [(x0,y0);(x1, y1)] -> (* Opposed corners *)
+          [(x0,y0);(x1, y0);(x1,y1);(x0,y1);(x0,y0)]
+        | _ -> invalid_arg "Fig.polyline"
+    in
+    let attributes = {
+      line_style = line_style;
+      line_thickness = thickness;
+      pen_color = pen_color;
+      fill_color = fill_color;
+      depth = depth;
+      area_fill = area_fill;
+      style_val = style_val;
+      cap_style = cap_style;
+      forward_arrow = forward_arrow;
+      backward_arrow = backward_arrow
+    } in
 
-      (["Polyline"], GrObj (attributes, Polylines (sub_type, join_style, (if sub_type = ArcBox then radius else -1), list)))
+    (["Polyline"], GrObj (attributes, Polylines (sub_type, join_style, (if sub_type = ArcBox then radius else -1), list)))
 
 
 (* Arc *)
 let arc = fun
-    ?(sub_type = Open)
-    ?(line_style = Solid)
-    ?(thickness = 1)
-    ?(pen_color = black)
-    ?(fill_color = white)
-    ?(depth = 50)
-    ?(area_fill = -1)
-    ?(style_val = 0.0)
-    ?(cap_style = Butt)
-    ?forward_arrow
-    ?backward_arrow
-    (center_x, center_y) radius alpha1 alpha2 ->
-      let attributes = {
-    	line_style = line_style;
-    	line_thickness = thickness;
-    	pen_color = pen_color;
-    	fill_color = fill_color;
-    	depth = depth;
-    	area_fill = area_fill;
-    	style_val = style_val;
-    	cap_style = cap_style;
-    	forward_arrow = forward_arrow;
-    	backward_arrow = backward_arrow
-      } in
-      let direction = if alpha2 >0. then Clockwise else CounterClockwise in
-      let p1 = (int_of_float (center_x +. (radius *. cos alpha1)),
-	       int_of_float (center_y +. (radius *. sin alpha1)))
-      and p2 = (int_of_float (center_x +. (radius *. cos (alpha1+.alpha2/.2.))),
-	       	int_of_float (center_y +. (radius *. sin (alpha1+.alpha2/.2.))))
-      and p3 = (int_of_float (center_x +. (radius *. cos (alpha1+.alpha2))),
-	       int_of_float (center_y +. (radius *. sin (alpha1+.alpha2)))) in
-      (["Arc"], GrObj (attributes, Arc (sub_type, direction, (center_x, center_y), p1, p2, p3)))
+  ?(sub_type = Open)
+  ?(line_style = Solid)
+  ?(thickness = 1)
+  ?(pen_color = black)
+  ?(fill_color = white)
+  ?(depth = 50)
+  ?(area_fill = -1)
+  ?(style_val = 0.0)
+  ?(cap_style = Butt)
+  ?forward_arrow
+  ?backward_arrow
+  (center_x, center_y) radius alpha1 alpha2 ->
+    let attributes = {
+      line_style = line_style;
+      line_thickness = thickness;
+      pen_color = pen_color;
+      fill_color = fill_color;
+      depth = depth;
+      area_fill = area_fill;
+      style_val = style_val;
+      cap_style = cap_style;
+      forward_arrow = forward_arrow;
+      backward_arrow = backward_arrow
+    } in
+    let direction = if alpha2 >0. then Clockwise else CounterClockwise in
+    let p1 = (int_of_float (center_x +. (radius *. cos alpha1)),
+              int_of_float (center_y +. (radius *. sin alpha1)))
+    and p2 = (int_of_float (center_x +. (radius *. cos (alpha1+.alpha2/.2.))),
+              int_of_float (center_y +. (radius *. sin (alpha1+.alpha2/.2.))))
+    and p3 = (int_of_float (center_x +. (radius *. cos (alpha1+.alpha2))),
+              int_of_float (center_y +. (radius *. sin (alpha1+.alpha2)))) in
+    (["Arc"], GrObj (attributes, Arc (sub_type, direction, (center_x, center_y), p1, p2, p3)))
 
 (* Ellipse *)
 let ellipse = fun
-    ?(line_style = Solid)
-    ?(thickness = 1)
-    ?(pen_color = black)
-    ?(fill_color = white)
-    ?(depth = 50)
-    ?(area_fill = -1)
-    ?(style_val = 0.0)
-    ?(direction = Clockwise)
-    ?(angle = 0.0)
-    (center_x, center_y) radius_x radius_y ->
-      let attributes = {
-    	line_style = line_style;
-    	line_thickness = thickness;
-    	pen_color = pen_color;
-    	fill_color = fill_color;
-    	depth = depth;
-    	area_fill = area_fill;
-    	style_val = style_val;
-    	cap_style = Butt; (* Unused *)
-    	forward_arrow = None;
-    	backward_arrow = None
-      } in
-      (["Ellipse"], GrObj (attributes, Ellipse (EllipseRadius, direction, angle, (center_x, center_y), radius_x, radius_y, (center_x, center_y), (center_x + radius_x, center_y + radius_y))))
+  ?(line_style = Solid)
+  ?(thickness = 1)
+  ?(pen_color = black)
+  ?(fill_color = white)
+  ?(depth = 50)
+  ?(area_fill = -1)
+  ?(style_val = 0.0)
+  ?(direction = Clockwise)
+  ?(angle = 0.0)
+  (center_x, center_y) radius_x radius_y ->
+    let attributes = {
+      line_style = line_style;
+      line_thickness = thickness;
+      pen_color = pen_color;
+      fill_color = fill_color;
+      depth = depth;
+      area_fill = area_fill;
+      style_val = style_val;
+      cap_style = Butt; (* Unused *)
+      forward_arrow = None;
+      backward_arrow = None
+    } in
+    (["Ellipse"], GrObj (attributes, Ellipse (EllipseRadius, direction, angle, (center_x, center_y), radius_x, radius_y, (center_x, center_y), (center_x + radius_x, center_y + radius_y))))
 
 let factors = fun points spline ->
   let _f = match spline with (_, Interpolated) -> -1.0 | _ -> 1.0 in
   let rec loop = function
-      []  -> []
+  []  -> []
     | [_] -> [0.]
     | _ :: xs -> -1. :: loop xs in
   match points with
-    [] -> []
-  | _ :: xs -> 0. :: loop xs
+      [] -> []
+    | _ :: xs -> 0. :: loop xs
 
 
 (* Spline *)
 let spline = fun
-    ?(sub_type = Open, Approximated)
-    ?(line_style = Solid)
-    ?(thickness = 1)
-    ?(pen_color = black)
-    ?(fill_color = white)
-    ?(depth = 50)
-    ?(area_fill = -1)
-    ?(style_val = 0.0)
-    ?(cap_style = Butt)
-    ?forward_arrow
-    ?backward_arrow
-    list ->
-      let list = (* Checking and fixing nb of points *)
-	match fst sub_type, list with
-	  Open, _::_ -> list
-	| Closed, first::rest ->
-	    if List.hd (List.rev list) <> first then begin
-	      prerr_endline "Fig.spline: closing spline";
-	      list @ [first]
-	    end else
-	      list
-	| _ -> invalid_arg "Fig.spline"
-      in
-      let attributes = {
-    	line_style = line_style;
-    	line_thickness = thickness;
-    	pen_color = pen_color;
-    	fill_color = fill_color;
-    	depth = depth;
-    	area_fill = area_fill;
-    	style_val = style_val;
-    	cap_style = cap_style;
-    	forward_arrow = forward_arrow;
-    	backward_arrow = backward_arrow
-      } in
-      (["Spline"], GrObj (attributes, Spline (sub_type, list, factors list sub_type)))
+  ?(sub_type = Open, Approximated)
+  ?(line_style = Solid)
+  ?(thickness = 1)
+  ?(pen_color = black)
+  ?(fill_color = white)
+  ?(depth = 50)
+  ?(area_fill = -1)
+  ?(style_val = 0.0)
+  ?(cap_style = Butt)
+  ?forward_arrow
+  ?backward_arrow
+  list ->
+    let list = (* Checking and fixing nb of points *)
+      match fst sub_type, list with
+          Open, _::_ -> list
+        | Closed, first::rest ->
+          if List.hd (List.rev list) <> first then begin
+            prerr_endline "Fig.spline: closing spline";
+            list @ [first]
+          end else
+            list
+        | _ -> invalid_arg "Fig.spline"
+    in
+    let attributes = {
+      line_style = line_style;
+      line_thickness = thickness;
+      pen_color = pen_color;
+      fill_color = fill_color;
+      depth = depth;
+      area_fill = area_fill;
+      style_val = style_val;
+      cap_style = cap_style;
+      forward_arrow = forward_arrow;
+      backward_arrow = backward_arrow
+    } in
+    (["Spline"], GrObj (attributes, Spline (sub_type, list, factors list sub_type)))
 
 (* Text *)
 let bit x d =
@@ -474,19 +474,19 @@ let code_string = fun f s ->
   done
 
 let text = fun
-    ?(sub_type = LeftJustified)
-    ?(color = black)
-    ?(depth = 50)
-    ?(font = Postscript TimesRoman)
-    ?(font_size = 12)
-    ?(angle = 0.0)
-    ?(rigid = true)
-    ?(special = false)
-    ?(hidden = false)
-    (x,y) string ->
+  ?(sub_type = LeftJustified)
+  ?(color = black)
+  ?(depth = 50)
+  ?(font = Postscript TimesRoman)
+  ?(font_size = 12)
+  ?(angle = 0.0)
+  ?(rigid = true)
+  ?(special = false)
+  ?(hidden = false)
+  (x,y) string ->
       (* Null height and length automatically updated by xfig *)
-      let ff = font_flags rigid special font hidden in
-      (["Text"], Text (sub_type, color, depth, font, font_size, angle, ff, 0., 0., (x, y), string))
+    let ff = font_flags rigid special font hidden in
+    (["Text"], Text (sub_type, color, depth, font, font_size, angle, ff, 0., 0., (x, y), string))
 
 let compound = fun objects ->
   (* Null box automatically updated by xfig *)
@@ -499,8 +499,8 @@ let rec read_comments = fun s ->
   bscanf s " %0c" (fun c ->
     if c = '#' then
       bscanf s " %s@\n" (fun l ->
-  	let n = String.length l in
-	String.sub l 2 (n-2) :: read_comments s)
+        let n = String.length l in
+        String.sub l 2 (n-2) :: read_comments s)
     else
       [])
 
@@ -521,37 +521,37 @@ let read_ellipse = fun s ->
     let p1 = read_point s in
     let p2 = read_point s in
     GrObj ({line_style = line_style_of_int ls;
-      line_thickness = thick;
-      pen_color = pc;
-      fill_color = fc;
-      depth = depth;
-      area_fill = af;
-      style_val = sv;
-      cap_style = Butt; (* Unused *)
-      forward_arrow = None;
-      backward_arrow = None}, (Ellipse (ellipse_of_int st, direction_of_int dirct, angle, c, rx, ry, p1, p2))))
+            line_thickness = thick;
+            pen_color = pc;
+            fill_color = fc;
+            depth = depth;
+            area_fill = af;
+            style_val = sv;
+            cap_style = Butt; (* Unused *)
+            forward_arrow = None;
+            backward_arrow = None}, (Ellipse (ellipse_of_int st, direction_of_int dirct, angle, c, rx, ry, p1, p2))))
 
 let read_arrow = fun s flag ->
   if flag = 0 then None else
-  bscanf s " %d %d %f %f %f" (fun at s thick w h ->
-    Some { arrow_type = at;
-      arrow_style= s;
-      arrow_thickness= thick;
-      arrow_width = w;
-      arrow_height= h
-   })
+    bscanf s " %d %d %f %f %f" (fun at s thick w h ->
+      Some { arrow_type = at;
+             arrow_style= s;
+             arrow_thickness= thick;
+             arrow_width = w;
+             arrow_height= h
+           })
 
 let read_picture = fun s ->
   bscanf s " %d %s" (fun flip name -> PictureBB (flip, name))
 
 let rec read_points s n =
   if n = 0 then [] else
-  let p = read_point s in
-  p :: read_points s (n-1)
+    let p = read_point s in
+    p :: read_points s (n-1)
 
 let rec read_floats s n =
   if n = 0 then [] else
-  bscanf s " %f" (fun f -> f :: read_floats s (n-1))
+    bscanf s " %f" (fun f -> f :: read_floats s (n-1))
 
 
 let read_polyline = fun s ->
@@ -561,15 +561,15 @@ let read_polyline = fun s ->
     let st = if st = 5 then read_picture s else polyline_of_int st in
     let points = read_points s n in
     let com = {line_style = line_style_of_int ls;
-      line_thickness = thick;
-      pen_color = pc;
-      fill_color = fc;
-      depth = depth;
-      area_fill = af;
-      style_val = sv;
-      cap_style = cap_style_of_int cs;
-      forward_arrow = fa;
-      backward_arrow = ba} in
+               line_thickness = thick;
+               pen_color = pc;
+               fill_color = fc;
+               depth = depth;
+               area_fill = af;
+               style_val = sv;
+               cap_style = cap_style_of_int cs;
+               forward_arrow = fa;
+               backward_arrow = ba} in
     GrObj (com, Polylines (st, join_style_of_int js, rad, points)))
 
 
@@ -580,15 +580,15 @@ let read_spline = fun s ->
     let points = read_points s n in
     let shape_factors = read_floats s n in
     let com = {line_style = line_style_of_int ls;
-      line_thickness = thick;
-      pen_color = pc;
-      fill_color = fc;
-      depth = depth;
-      area_fill = af;
-      style_val = sv;
-      cap_style = cap_style_of_int cs;
-      forward_arrow = fa;
-      backward_arrow = ba} in
+               line_thickness = thick;
+               pen_color = pc;
+               fill_color = fc;
+               depth = depth;
+               area_fill = af;
+               style_val = sv;
+               cap_style = cap_style_of_int cs;
+               forward_arrow = fa;
+               backward_arrow = ba} in
     GrObj (com, Spline (spline_of_int st, points, shape_factors)))
 
 let read_arc = fun s ->
@@ -600,15 +600,15 @@ let read_arc = fun s ->
     let ba = read_arrow s baf in
 
     let com = { line_style = line_style_of_int ls;
-		line_thickness = thick;
-		pen_color = pc;
-		fill_color = fc;
-		depth = depth;
-		area_fill = af;
-		style_val = sv;
-		cap_style = cap_style_of_int cs;
-	       forward_arrow = fa;
-	       backward_arrow = ba} in
+                line_thickness = thick;
+                pen_color = pc;
+                fill_color = fc;
+                depth = depth;
+                area_fill = af;
+                style_val = sv;
+                cap_style = cap_style_of_int cs;
+                forward_arrow = fa;
+                backward_arrow = ba} in
 
     GrObj(com, Arc (arc_of_int st, direction_of_int dirct, (cx, cy), p1, p2, p3)))
 
@@ -633,12 +633,12 @@ let rec read_objects = fun s ->
     let comments = read_comments s in
     bscanf s " %d" (fun code ->
       if 0 <= code && code <= 6 then
-      	let o = read_object.(code) s in
-      	(comments, o) :: read_objects s
+        let o = read_object.(code) s in
+        (comments, o) :: read_objects s
       else if code = -6 then []
       else failwith ("read_objects: "^string_of_int code))
   with
-    End_of_file -> []
+      End_of_file -> []
 and read_compound = fun s ->
   bscanf s " %d %d %d %d" (fun x1 y1 x2 y2 -> Compound ((x1,y1), (x2,y2), read_objects s))
 
@@ -657,105 +657,105 @@ let read = fun file ->
       let os = read_objects s in
 
       {
-       version = v;
-       orientation = orientation_of_string o;
-       justification = just_of_string j;
-       units = units_name_of_string u;
-       papersize = p;
-       magnification = m;
-       multiple_page = multiple_page_of_string multi;
-       transparent_color = t;
-       comments = comments;
-       resolution = (resolution, coord_system);
-       body = os
-     }))
+        version = v;
+        orientation = orientation_of_string o;
+        justification = just_of_string j;
+        units = units_name_of_string u;
+        papersize = p;
+        magnification = m;
+        multiple_page = multiple_page_of_string multi;
+        transparent_color = t;
+        comments = comments;
+        resolution = (resolution, coord_system);
+        body = os
+      }))
 
 let fprint_point f (x, y) = fprintf f " %d %d" x y
 
 let arrow_flag = function
-    None -> 0
+None -> 0
   | Some _ -> 1
 
 let fprint_arrow f = function
-    None -> ()
+None -> ()
   | Some a ->
-      fprintf f "\t%d %d %.2f %.2f %.2f\n" a.arrow_type a.arrow_style a.arrow_thickness a.arrow_width a.arrow_height
+    fprintf f "\t%d %d %.2f %.2f %.2f\n" a.arrow_type a.arrow_style a.arrow_thickness a.arrow_width a.arrow_height
 
 let fprint_picture f = function
-    PictureBB (flip, name) ->
-      fprintf f "%d %s\n" flip name
+PictureBB (flip, name) ->
+  fprintf f "%d %s\n" flip name
   | _ -> ()
 
 let write_graphic_object f com = function
-    Ellipse (ellipse, direction, angle, center, rx, ry, p1, p2) ->
-      fprintf f "1 %d %d %d %d %d %d -1 %d %.3f "
-	(int_of_ellipse ellipse)
-	(int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
-	com.depth com.area_fill com.style_val;
-      fprintf f "%d %.4f%a%a%a%a\n"
-	(int_of_direction direction) angle fprint_point center fprint_point (rx,ry)
-	fprint_point p1 fprint_point p2
+Ellipse (ellipse, direction, angle, center, rx, ry, p1, p2) ->
+  fprintf f "1 %d %d %d %d %d %d -1 %d %.3f "
+    (int_of_ellipse ellipse)
+    (int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
+    com.depth com.area_fill com.style_val;
+  fprintf f "%d %.4f%a%a%a%a\n"
+    (int_of_direction direction) angle fprint_point center fprint_point (rx,ry)
+    fprint_point p1 fprint_point p2
   | Polylines (polyline,  join_style, radius, points) ->
-      fprintf f "2 %d %d %d %d %d %d 0 %d %.3f "
-	(int_of_polyline polyline)
-	(int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
-	com.depth com.area_fill com.style_val;
-      fprintf f "%d %d %d " (int_of_join_style join_style) (int_of_cap_style com.cap_style) radius;
-      fprintf f "%d %d %d\n" (arrow_flag com.forward_arrow) (arrow_flag com.backward_arrow) (List.length points);
-      fprint_arrow f com.forward_arrow;
-      fprint_arrow f com.backward_arrow;
-      fprint_picture f polyline;
-      fprintf f "\t"; List.iter (fprint_point f) points; fprintf f "\n";
+    fprintf f "2 %d %d %d %d %d %d 0 %d %.3f "
+      (int_of_polyline polyline)
+      (int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
+      com.depth com.area_fill com.style_val;
+    fprintf f "%d %d %d " (int_of_join_style join_style) (int_of_cap_style com.cap_style) radius;
+    fprintf f "%d %d %d\n" (arrow_flag com.forward_arrow) (arrow_flag com.backward_arrow) (List.length points);
+    fprint_arrow f com.forward_arrow;
+    fprint_arrow f com.backward_arrow;
+    fprint_picture f polyline;
+    fprintf f "\t"; List.iter (fprint_point f) points; fprintf f "\n";
   | Spline ((arc,spline), points, factors) ->
-      fprintf f "3 %d %d %d %d %d %d 0 %d %f "
-	(int_of_spline (arc,spline))
-	(int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
-	com.depth com.area_fill com.style_val;
-      fprintf f "%d " (int_of_cap_style com.cap_style);
-      fprintf f "%d %d %d\n" (arrow_flag com.forward_arrow) (arrow_flag com.backward_arrow) (List.length points);
-      fprint_arrow f com.forward_arrow;
-      fprint_arrow f com.backward_arrow;
-      fprintf f "\t"; List.iter (fprint_point f) points; fprintf f "\n";
-      fprintf f "\t"; List.iter (fun x -> fprintf f " %.3f" x) factors; fprintf f "\n"
+    fprintf f "3 %d %d %d %d %d %d 0 %d %f "
+      (int_of_spline (arc,spline))
+      (int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
+      com.depth com.area_fill com.style_val;
+    fprintf f "%d " (int_of_cap_style com.cap_style);
+    fprintf f "%d %d %d\n" (arrow_flag com.forward_arrow) (arrow_flag com.backward_arrow) (List.length points);
+    fprint_arrow f com.forward_arrow;
+    fprint_arrow f com.backward_arrow;
+    fprintf f "\t"; List.iter (fprint_point f) points; fprintf f "\n";
+    fprintf f "\t"; List.iter (fun x -> fprintf f " %.3f" x) factors; fprintf f "\n"
 
   | Arc (arc, direction, (cx, cy),  p1, p2, p3) ->
-      fprintf f "5 %d %d %d %d %d %d 0 %d %f "
-	(int_of_arc arc)
-	(int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
-	com.depth com.area_fill com.style_val;
-      fprintf f "%d %d " (int_of_cap_style com.cap_style) (direction_of_int direction);
-      fprintf f "%d %d " (arrow_flag com.forward_arrow) (arrow_flag com.backward_arrow);
-      fprintf f "%f %f " cx cy;
-      fprintf f "%a %a %a\n" fprint_point p1 fprint_point p2 fprint_point p3;
-      fprint_arrow f com.forward_arrow;
-      fprint_arrow f com.backward_arrow
+    fprintf f "5 %d %d %d %d %d %d 0 %d %f "
+      (int_of_arc arc)
+      (int_of_line_style com.line_style) com.line_thickness com.pen_color com.fill_color
+      com.depth com.area_fill com.style_val;
+    fprintf f "%d %d " (int_of_cap_style com.cap_style) (direction_of_int direction);
+    fprintf f "%d %d " (arrow_flag com.forward_arrow) (arrow_flag com.backward_arrow);
+    fprintf f "%f %f " cx cy;
+    fprintf f "%a %a %a\n" fprint_point p1 fprint_point p2 fprint_point p3;
+    fprint_arrow f com.forward_arrow;
+    fprint_arrow f com.backward_arrow
 
 let rec write_object f (comments, obj) =
   List.iter (fun x -> fprintf f "# %s\n" x) comments;
   match obj with
-    UserColor (color, (r, g, b)) -> fprintf f "0 %d #%02x%02x%02x\n" color r g b
-  | Compound (p1, p2, objects) ->
+      UserColor (color, (r, g, b)) -> fprintf f "0 %d #%02x%02x%02x\n" color r g b
+    | Compound (p1, p2, objects) ->
       fprintf f "6%a%a\n" fprint_point p1 fprint_point p2;
       List.iter (write_object f) objects;
       fprintf f "-6\n"
-  | Text (justification, color, depth, font, font_size, angle, font_flags, h, l, point, string) ->
+    | Text (justification, color, depth, font, font_size, angle, font_flags, h, l, point, string) ->
       fprintf f "4 %d %d %d 0 %d %d %.4f %d %.0f %.0f%a %a\\001\n"
- 	(int_of_justification justification) color depth (int_of_font font) font_size angle font_flags h l fprint_point point code_string string
-  | GrObj (graphic_common, graphic_object) ->
+        (int_of_justification justification) color depth (int_of_font font) font_size angle font_flags h l fprint_point point code_string string
+    | GrObj (graphic_common, graphic_object) ->
       write_graphic_object f graphic_common  graphic_object
 
 let write_out f { version = v;
-	    orientation = o;
-	    justification = j;
-	    units = u;
-	    papersize = p;
-	    magnification = m;
-	    multiple_page = multi;
-	    transparent_color = t;
-	    comments = comments;
-	    resolution = (resolution, coord_system);
-	    body = os
-	  } =
+                  orientation = o;
+                  justification = j;
+                  units = u;
+                  papersize = p;
+                  magnification = m;
+                  multiple_page = multi;
+                  transparent_color = t;
+                  comments = comments;
+                  resolution = (resolution, coord_system);
+                  body = os
+                } =
   fprintf f "#FIG %s\n%s\n%s\n%s\n%s\n%.2f\n%s\n%d\n" v (string_of_orientation o) (string_of_just j) (string_of_units_name u) p m (string_of_multiple_page multi) t;
   List.iter (fun x -> fprintf f "# %s\n" x) comments;
   fprintf f "%d %d\n" resolution coord_system;

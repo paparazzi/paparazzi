@@ -449,10 +449,10 @@ int do_log(void)
 
 #ifdef USE_UART0
         temp = 0;
-        while (Uart0ChAvailable() && (temp++ < 128))
+        while (uart_char_available(&uart0) && (temp++ < 128))
         {
 //			LED_TOGGLE(LED_GREEN);
-			inc = Uart0Getch();
+			inc = uart_getch(&uart1);
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART0);
 #else
@@ -466,10 +466,10 @@ int do_log(void)
 #endif
 #ifdef USE_UART1
         temp = 0;
-        while (Uart1ChAvailable() && (temp++ < 128))
+        while (uart_char_available(&uart1) && (temp++ < 128))
         {
 //			LED_TOGGLE(LED_GREEN);
-			inc = Uart1Getch();
+			inc = uart_getch(&uart1);
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART1);
 #else

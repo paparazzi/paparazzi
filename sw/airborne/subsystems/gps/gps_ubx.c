@@ -93,12 +93,10 @@ void gps_ubx_read_message(void) {
 
   if (gps_ubx.msg_class == UBX_NAV_ID) {
     if (gps_ubx.msg_id == UBX_NAV_SOL_ID) {
-#ifdef GPS_TIMESTAMP
       /* get hardware clock ticks */
-      SysTimeTimerStart(gps.t0);
-      gps.t0_tow        = UBX_NAV_SOL_ITOW(gps_ubx.msg_buf);
-      gps.t0_tow_frac   = UBX_NAV_SOL_Frac(gps_ubx.msg_buf);
-#endif
+      gps_time_sync.t0_ticks      = sys_time.nb_tick;
+      gps_time_sync.t0_tow        = UBX_NAV_SOL_ITOW(gps_ubx.msg_buf);
+      gps_time_sync.t0_tow_frac   = UBX_NAV_SOL_Frac(gps_ubx.msg_buf);
       gps.tow        = UBX_NAV_SOL_ITOW(gps_ubx.msg_buf);
       gps.week       = UBX_NAV_SOL_week(gps_ubx.msg_buf);
       gps.fix        = UBX_NAV_SOL_GPSfix(gps_ubx.msg_buf);

@@ -39,7 +39,7 @@ static void baro_scp_start_high_res_measurement(void) {
   /* switch to high resolution */
   scp_trans.buf[0] = SCP1000_OPERATION;
   scp_trans.buf[1] = SCP1000_HIGH_RES;
-  I2CTransmit(SCP_I2C_DEV, scp_trans, SCP1000_SLAVE_ADDR, 2);
+  i2c_transmit(&SCP_I2C_DEV, &scp_trans, SCP1000_SLAVE_ADDR, 2);
 }
 
 void baro_scp_init( void ) {
@@ -48,7 +48,7 @@ void baro_scp_init( void ) {
 
 void baro_scp_periodic( void ) {
 
-  if (baro_scp_status == BARO_SCP_UNINIT && cpu_time_sec > 1) {
+  if (baro_scp_status == BARO_SCP_UNINIT && sys_time.nb_sec > 1) {
 
     baro_scp_start_high_res_measurement();
     baro_scp_status = BARO_SCP_IDLE;
@@ -57,7 +57,7 @@ void baro_scp_periodic( void ) {
     /* init: start two byte temperature */
     scp_trans.buf[0] = SCP1000_TEMPOUT;
     baro_scp_status = BARO_SCP_RD_TEMP;
-    I2CTransceive(SCP_I2C_DEV, scp_trans, SCP1000_SLAVE_ADDR, 1, 2);
+    i2c_transceive(&SCP_I2C_DEV, &scp_trans, SCP1000_SLAVE_ADDR, 1, 2);
   }
 }
 
@@ -78,7 +78,7 @@ void baro_scp_event( void ) {
       /* start one byte msb pressure */
       scp_trans.buf[0] = SCP1000_DATARD8;
       baro_scp_status = BARO_SCP_RD_PRESS_0;
-      I2CTransceive(SCP_I2C_DEV, scp_trans, SCP1000_SLAVE_ADDR, 1, 1);
+      i2c_transceive(&SCP_I2C_DEV, &scp_trans, SCP1000_SLAVE_ADDR, 1, 1);
     }
 
     else if (baro_scp_status == BARO_SCP_RD_PRESS_0) {
@@ -89,7 +89,7 @@ void baro_scp_event( void ) {
       /* start two byte lsb pressure */
       scp_trans.buf[0] = SCP1000_DATARD16;
       baro_scp_status = BARO_SCP_RD_PRESS_1;
-      I2CTransceive(SCP_I2C_DEV, scp_trans, SCP1000_SLAVE_ADDR, 1, 2);
+      i2c_transceive(&SCP_I2C_DEV, &scp_trans, SCP1000_SLAVE_ADDR, 1, 2);
     }
 
     else if (baro_scp_status == BARO_SCP_RD_PRESS_1) {

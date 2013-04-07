@@ -28,6 +28,7 @@
 #define ACTUATORS_H
 
 #include "paparazzi.h"
+#include "std.h"
 
 /*
  * Defines SetActuatorsFromCommands() macro
@@ -39,6 +40,9 @@
 #if ACTUATORS_NB
 
 extern void actuators_init(void);
+
+extern uint32_t actuators_delay_time;
+extern bool_t   actuators_delay_done;
 
 /** Actuators array.
  * Temporary storage (for debugging purpose, downlinked via telemetry)

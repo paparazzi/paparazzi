@@ -19,6 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file firmwares/rotorcraft/main.h
+ *
+ * Rotorcraft main loop.
+ */
+
 #ifndef MAIN_H
 #define MAIN_H
 

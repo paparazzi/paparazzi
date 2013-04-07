@@ -1,10 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     TronSens HTM-B71 humidity sensor (I2C)
-     @param HTM_I2C_DEV i2c device (default i2c0)
-     -->
-
 <module name="humid_htm_b71" dir="meteo">
   <doc>
     <description>TronSens HTM-B71 humidity sensor (I2C)</description>

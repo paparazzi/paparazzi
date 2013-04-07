@@ -38,9 +38,9 @@
 #endif
 
 #ifndef BAT_CHECKER_DELAY
-#pragma message "BAT_CHECKER_DELAY is undefined. Falling back to 5 seconds."
 #define BAT_CHECKER_DELAY 5
 #endif
+PRINT_CONFIG_VAR(BAT_CHECKER_DELAY)
 
 // at this level, the buzzer will be activated periodically
 #define WARN_BAT_LEVEL1 (LOW_BAT_LEVEL*10)

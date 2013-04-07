@@ -19,11 +19,15 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-/** \file servos_ppm_out.h
- *  \Efficient driving of the MAT0.1 pin (SERVO_CLOCK_PIN) using TIMER0 to produce
- *  \PPM for a R/C receiver which has a microcontroller to drive the servos
- *  \(not a 4015 or 4017 decade counter chip).
+
+/**
+ * @file arch/lpc21/subsystems/actuators/servos_ppm_hw.h
+ *
+ * Efficient driving of MAT0.1 (SERVO_CLOCK_PIN) using TIMER0 to produce PPM
+ * for a R/C receiver which has a microcontroller to drive the servos
+ * (not a 4015 or 4017 decade counter chip).
  */
+
 #ifndef SERVOS_PPM_HW_H
 #define SERVOS_PPM_HW_H
 
@@ -33,7 +37,7 @@
 
 #include BOARD_CONFIG
 
-#define SERVOS_TICS_OF_USEC(s) CPU_TICKS_OF_USEC(s)
+#define SERVOS_TICS_OF_USEC(s) cpu_ticks_of_usec(s)
 #define ChopServo(x,a,b) Chop(x, a, b)
 
 #define _PPM_NB_CHANNELS 8

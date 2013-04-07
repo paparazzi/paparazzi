@@ -19,8 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** \file ahrs.h
- * \brief Attitude and Heading Reference System interface
+/**
+ * @file subsystems/ahrs.h
+ * Attitude and Heading Reference System interface.
  */
 
 #ifndef AHRS_H

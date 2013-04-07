@@ -20,7 +20,7 @@
  */
 
 /**
- * @file baro.h
+ * @file subsystems/sensors/baro.h
  *
  * Common barometric sensor implementation.
  *
@@ -44,6 +44,7 @@ struct Baro {
 };
 
 extern struct Baro baro;
+
 
 #include BOARD_CONFIG
 #if defined BOARD_HAS_BARO

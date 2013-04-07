@@ -1,4 +1,7 @@
 
+# Quiet compilation
+Q=@
+
 MCU = attiny25
 
 PROG = dragon_isp
@@ -19,7 +22,7 @@ SOURCES =	blitzer.c
 all: $(APPNAME)
 
 clean:
-	$(RM) -f core $(APPNAME).o $(APPNAME) $(APPNAME).elf $(APPNAME).hex
+	$(Q)$(RM) -f core $(APPNAME).o $(APPNAME) $(APPNAME).elf $(APPNAME).hex
 
 app: $(APPNAME)
 

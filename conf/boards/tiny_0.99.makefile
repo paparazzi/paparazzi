@@ -11,11 +11,8 @@ BOARD_VERSION=0.99
 
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
-
-ifndef FLASH_MODE
-FLASH_MODE = IAP
-endif
-
+# default flash mode is via usb bootloader
+FLASH_MODE ?= IAP
 
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
@@ -41,22 +38,21 @@ GPS_BAUD ?= B38400
 
 
 
-ADC_IR_TOP = ADC_0
-ADC_IR1 = ADC_1
-ADC_IR2 = ADC_2
-ADC_IR_NB_SAMPLES = 16
-ADC_GYRO_NB_SAMPLES = 16
+ADC_IR_TOP ?= ADC_0
+ADC_IR1 ?= ADC_1
+ADC_IR2 ?= ADC_2
+ADC_IR_NB_SAMPLES ?= 16
+ADC_GYRO_NB_SAMPLES ?= 16
 
-ADC_GENERIC_NB_SAMPLES = 16
+ADC_GENERIC_NB_SAMPLES ?= 16
 
 #
 # you can use different actuators by adding a configure option to your firmware section
 # e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+# and by setting the correct "driver" attribute in servo section
+# e.g. <servo driver="Ppm">
 #
-ifndef ACTUATORS
-ACTUATORS = actuators_4015
-endif
-
+ACTUATORS ?= actuators_4015
 
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)

@@ -25,12 +25,12 @@ my $server = Proc::Background->new($server_command, @server_options);
 sleep 2; # The service should die in this time if there's an error
 ok($server->alive(), "The server process started successfully");
 
-# Start the launchsitl process
-my $launchsitl_command = "$ENV{'PAPARAZZI_HOME'}/sw/simulator/launchsitl";
-my @launchsitl_options = qw(-a Microjet -boot -norc);
+# Start the pprzsim-launch process
+my $pprzsim_command = "$ENV{'PAPARAZZI_HOME'}/sw/simulator/pprzsim-launch";
+my @pprzsim_options = qw(-a Microjet --boot --norc);
 sleep 2; # The service should die in this time if there's an error
-my $launchsitl = Proc::Background->new($launchsitl_command, @launchsitl_options);
-ok($launchsitl->alive(), "The launchsitl process started successfully");
+my $pprzsim = Proc::Background->new($pprzsim_command, @pprzsim_options);
+ok($pprzsim->alive(), "The pprzsim-launch process started successfully");
 
 # Open the Ivy bus and read from it...
 SKIP : {
@@ -39,9 +39,9 @@ SKIP : {
 	# TODO: learn how to read and write to the Ivy bus
 }
 
-# Shutdown the server and launchsitl processes
+# Shutdown the server and pprzsim-launch processes
 ok($server->die(), "The server process shutdown successfully.");
-ok($launchsitl->die(), "The launchsitl process shutdown successfully.");
+ok($pprzsim->die(), "The pprzsim-launch process shutdown successfully.");
 
 ################################################################################
 # functions used by this test script.

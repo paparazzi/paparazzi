@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="benchmark">
+  <doc>
+    <description>
+      Give comparable with IMU Health information.
+      - saturation information
+      - vibration level
+      - magnetic field hard iron offset
+    </description>
+  </doc>
+  <header>
+    <file name="imu_quality_assessment.h"/>
+  </header>
+  <init fun="imu_quality_assessment_init()"/>
+  <periodic fun="imu_quality_assessment_periodic()" autorun="TRUE"/>
+  <makefile>
+    <file name="imu_quality_assessment.c"/>
+  </makefile>
+</module>
+

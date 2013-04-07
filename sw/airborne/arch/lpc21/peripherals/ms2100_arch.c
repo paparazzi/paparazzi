@@ -20,7 +20,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** PNI ms2100.
+/**
+ * @file arch/lpc21/peripherals/ms2100_arch.c
+ *
+ * LPC21xx specific functions for the ms2100 magnetic sensor from PNI.
  */
 
 #include "peripherals/ms2100.h"
@@ -56,7 +59,7 @@ void ms2100_arch_init( void ) {
 void EXTINT_ISR(void) {
   ISR_ENTRY();
   /* no, we won't do anything asynchronously, so just notify */
-  ms2100_status = MS2100_GOT_EOC;
+  ms2100.status = MS2100_GOT_EOC;
   /* clear EINT */
   EXTINT = (1<<MS2100_DRDY_EINT);
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
@@ -69,7 +72,7 @@ void ms2100_reset_cb( struct spi_transaction * t __attribute__ ((unused)) ) {
   // storing start and dt is probably long enough...
   Ms2100Set();
   uint32_t start = T0TC;
-  uint32_t dt = CPU_TICKS_OF_NSEC(110);
+  uint32_t dt = cpu_ticks_of_nsec(110);
   while ((uint32_t)(T0TC - start) < dt);
   Ms2100Reset();
 }

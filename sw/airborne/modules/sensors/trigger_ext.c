@@ -20,11 +20,12 @@
  *
  */
 
-/** \file trigger_ext.c
- *  \brief Measure external trigger pulse at PPM input
+/**
+ * @file modules/sensors/trigger_ext.c
+ * Measure external trigger pulse at PPM input
  *
- *   This measures a trigger pulse length (e.g. duration of a wind turbine
- *   rotation) and sends a message with the info.
+ * This measures a trigger pulse length (e.g. duration of a wind turbine
+ * rotation) and sends a message with the info.
  */
 
 
@@ -47,8 +48,8 @@ void trigger_ext_periodic( void ) {
     uint8_t turb_id = TURBINE_ID;
     uint32_t sync_itow, cycle_time;
 
-    sync_itow = gps_tow_from_ticks(trigger_t0);
-    cycle_time =  MSEC_OF_CPU_TICKS(delta_t0);
+    sync_itow = gps_tow_from_sys_ticks(trigger_t0);
+    cycle_time = msec_of_sys_time_ticks(delta_t0);
 
     DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
                 &ac_id,

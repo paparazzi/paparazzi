@@ -1,7 +1,5 @@
 /*
- * Paparazzi stm32 arch dependant microcontroller initialisation function
- *
- * Copyright (C) 2010 The Paparazzi team
+ * Copyright (C) 2010-2012 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -22,6 +20,12 @@
  *
  */
 
+/**
+ * @file arch/stm32/mcu_arch.c
+ * @brief stm32 arch dependant microcontroller initialisation functions.
+ * @ingroup stm32_arch
+ */
+
 #include "mcu.h"
 
 #include BOARD_CONFIG
@@ -32,16 +36,18 @@
 #include <libopencm3/stm32/f1/flash.h>
 #include <libopencm3/cm3/scb.h>
 
+#include "std.h"
+
 void mcu_arch_init(void) {
 #if LUFTBOOT
-#pragma message "We are running luftboot, the interrupt vector is being relocated."
+PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
   SCB_VTOR = 0x00002000;
 #endif
 #if EXT_CLK == 8000000
-#pragma message "Using 8MHz external clock to PLL it to 72MHz."
+PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 72MHz.")
   rcc_clock_setup_in_hse_8mhz_out_72mhz();
 #elif EXT_CLK == 12000000
-#pragma message "Using 12MHz external clock to PLL it to 72MHz."
+PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 72MHz.")
   rcc_clock_setup_in_hse_12mhz_out_72mhz();
 #else
 #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!

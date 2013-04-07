@@ -39,7 +39,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
-#include "peripherals/itg3200.h"
+#include "peripherals/itg3200_regs.h"
 #include "my_debug_servo.h"
 #include "led.h"
 

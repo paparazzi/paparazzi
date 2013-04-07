@@ -46,29 +46,37 @@ extern void max1168_init( void ) {
     max1168_values[i] = 0;
 
   // init spi transaction parameters
-  max1168_req_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_req_trans.cpol = SPICpolIdleLow;
   max1168_req_trans.cpha = SPICphaEdge1;
   max1168_req_trans.dss = SPIDss16bit;
+  max1168_req_trans.bitorder = SPIMSBFirst;
+  max1168_req_trans.cdiv = SPIDiv64;
+
+  max1168_req_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_req_trans.select = SPISelect;
   max1168_conv_req = MAX1168_CONF_CR << 8;
   max1168_req_trans.output_buf = (uint8_t*)(&max1168_conv_req);
   max1168_req_trans.output_length = 1;
-  max1168_req_trans.input_buf = 0;
+  max1168_req_trans.input_buf = NULL;
   max1168_req_trans.input_length = 0;
   max1168_req_trans.after_cb = max1168_lock_cb;
+  max1168_req_trans.status = SPITransDone;
 
-  max1168_read_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_read_trans.cpol = SPICpolIdleLow;
   max1168_read_trans.cpha = SPICphaEdge1;
   max1168_read_trans.dss = SPIDss16bit;
+  max1168_read_trans.bitorder = SPIMSBFirst;
+  max1168_read_trans.cdiv = SPIDiv64;
+
+  max1168_read_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_read_trans.select = SPIUnselect;
   // read 8 16bit frames
   // FIXME should be function of control register options
-  max1168_read_trans.output_buf = 0;
+  max1168_read_trans.output_buf = NULL;
   max1168_read_trans.output_length = 0;
   max1168_read_trans.input_buf = (uint8_t*)max1168_values;
   max1168_read_trans.input_length = 8;
+  max1168_read_trans.status = SPITransDone;
 
   max1168_status = MAX1168_IDLE;
 }
@@ -85,7 +93,6 @@ void max1168_read( void ) {
   spi_submit(&(MAX1168_SPI_DEV),&max1168_read_trans);
 
   max1168_status = MAX1168_SENDING_REQ;
-
 }
 
 void max1168_event( void ) {
@@ -103,15 +110,7 @@ void max1168_event( void ) {
   // handle reading transaction
   if (max1168_read_trans.status == SPITransSuccess) {
     if (max1168_status == MAX1168_READING_RES) {
-      // store values
-      //max1168_values[0] = max1168_read_trans.input_buf[0];
-      //max1168_values[1] = max1168_read_trans.input_buf[1];
-      //max1168_values[2] = max1168_read_trans.input_buf[2];
-      //max1168_values[3] = max1168_read_trans.input_buf[3];
-      //max1168_values[4] = max1168_read_trans.input_buf[4];
-      //max1168_values[5] = max1168_read_trans.input_buf[5];
-      //max1168_values[6] = max1168_read_trans.input_buf[6];
-      //max1168_values[7] = max1168_read_trans.input_buf[7];
+      // result was already written to max1168_values by DMA
       max1168_status = MAX1168_DATA_AVAILABLE;
       max1168_read_trans.status = SPITransDone;
     }

@@ -20,8 +20,10 @@
  *
  */
 
-/** \file baro_MS5534A.h
- *  \brief Handling of the MS5534a pressure sensor
+/**
+ * @file arch/sim/baro_MS5534A.h
+ *
+ * Dummy Handling of the MS5534a pressure sensor for the sim.
  *
  */
 

@@ -125,4 +125,14 @@
    settings=" settings/test_fixedwing_actuators.xml"
    gui_color="blue"
   />
+<aircraft
+   name="Twinstar_energyadaptive"
+   ac_id="13"
+   airframe="airframes/examples/Twinstar_energyadaptive.xml"
+   radio="radios/Corona_24_DIY.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml"
+   gui_color="blue"
+  />
 </conf>

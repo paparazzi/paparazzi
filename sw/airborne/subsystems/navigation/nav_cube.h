@@ -17,6 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/navigation/nav_cube.h
+ *
+ * Fixedwing Navigation in a cube towards a center.
  *
  */
 
@@ -33,22 +39,22 @@ bool_t nav_cube(int8_t j, int8_t i,
                 uint8_t dest_b, uint8_t dest_e,
                 uint8_t src_b, uint8_t src_e);
 
-extern int32_t cube_alpha;     /* angle of flight direction to north, clockwise */
-extern int32_t cube_size_x;    /* size of the cube x (perpendicular to flight dir) */
-extern int32_t cube_size_y;    /* size of the cube y (in flight dir) */
-extern int32_t cube_size_z;    /* height of the cube z */
-extern int32_t cube_grid_x;    /* grid distance x (horizontal) */
-extern int32_t cube_grid_z;    /* grid distance z (vertical) */
-extern int32_t cube_offs_x;    /* offset to center x (horizontal) */
-extern int32_t cube_offs_y;    /* offset to center y (in direction) */
-extern int32_t cube_offs_z;    /* offset to center z (vertical) */
+extern int32_t cube_alpha;     ///< angle of flight direction to north, clockwise
+extern int32_t cube_size_x;    ///< size of the cube x (perpendicular to flight dir)
+extern int32_t cube_size_y;    ///< size of the cube y (in flight dir)
+extern int32_t cube_size_z;    ///< height of the cube z
+extern int32_t cube_grid_x;    ///< grid distance x (horizontal)
+extern int32_t cube_grid_z;    ///< grid distance z (vertical)
+extern int32_t cube_offs_x;    ///< offset to center x (horizontal)
+extern int32_t cube_offs_y;    ///< offset to center y (in direction)
+extern int32_t cube_offs_z;    ///< offset to center z (vertical)
 
-extern int32_t cube_sect;      /* sector to fly in (1..[nsect_x*nsect_z]) */
-extern int32_t cube_nsect_x;   /* number of sectors horizontal */
-extern int32_t cube_nsect_z;   /* number of sectors vertical */
+extern int32_t cube_sect;      ///< sector to fly in (1..[nsect_x*nsect_z])
+extern int32_t cube_nsect_x;   ///< number of sectors horizontal
+extern int32_t cube_nsect_z;   ///< number of sectors vertical
 
-extern int32_t cube_nline_x;   /* number of lines x (horizontal) */
-extern int32_t cube_nline_z;   /* number of lines z (vertical) */
+extern int32_t cube_nline_x;   ///< number of lines x (horizontal)
+extern int32_t cube_nline_z;   ///< number of lines z (vertical)
 
 #define nav_cube_SetAlpha(i) { cube_alpha=i; }
 #define nav_cube_SetSect(i)  { cube_sect=i; }

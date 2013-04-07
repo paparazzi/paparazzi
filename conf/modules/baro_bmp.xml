@@ -1,11 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Bosch BMP085 pressure sensor
-     @define BMP_I2C_DEV i2c device (default i2c0)
-     @define SENSOR_SYNC_SEND to transmit the data as it is acquired
-     -->
-
 <module name="baro_bmp" dir="sensors">
   <doc>
     <description>Bosch BMP085 pressure sensor</description>

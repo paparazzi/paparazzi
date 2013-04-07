@@ -55,7 +55,7 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c commands.c
 ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B19200
+ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=UART0 -DDOWNLINK_AP_DEVICE=UART0 -DPPRZ_UART=UART0 -DDATALINK=PPRZ -DUART0_BAUD=B19200
 ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/pprz_transport.c
 
 ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A

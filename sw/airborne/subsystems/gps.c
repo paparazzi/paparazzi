@@ -28,11 +28,11 @@
 
 #include "led.h"
 
+#define MSEC_PER_WEEK (1000*60*60*24*7)
+
 struct GpsState gps;
 
-#ifdef GPS_TIMESTAMP
-struct GpsTimeSync gps_time;
-#endif
+struct GpsTimeSync gps_time_sync;
 
 void gps_init(void) {
   gps.fix = GPS_FIX_NONE;
@@ -43,4 +43,26 @@ void gps_init(void) {
 #ifdef GPS_TYPE_H
   gps_impl_init();
 #endif
+}
+
+uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
+{
+  uint32_t clock_delta;
+  uint32_t time_delta;
+  uint32_t itow_now;
+
+  if (sys_ticks < gps_time_sync.t0_ticks) {
+    clock_delta = (0xFFFFFFFF - sys_ticks) + gps_time_sync.t0_ticks + 1;
+  } else {
+    clock_delta = sys_ticks - gps_time_sync.t0_ticks;
+  }
+
+  time_delta = msec_of_sys_time_ticks(clock_delta);
+
+  itow_now = gps_time_sync.t0_tow + time_delta;
+  if (itow_now > MSEC_PER_WEEK) {
+    itow_now %= MSEC_PER_WEEK;
+  }
+
+  return itow_now;
 }

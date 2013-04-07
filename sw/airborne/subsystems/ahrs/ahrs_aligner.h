@@ -19,6 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_aligner.h
+ *
+ * Interface to align the AHRS via low-passed measurements at startup.
+ *
+ */
+
 #ifndef AHRS_ALIGNER_H
 #define AHRS_ALIGNER_H
 

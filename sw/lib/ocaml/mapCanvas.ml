@@ -57,7 +57,7 @@ type projection =
   | LambertIIe (* 1m = 1 world unit, y axis reversed *)
 
 let string_of_projection = function
-    UTM -> "UTM"
+UTM -> "UTM"
   | Mercator -> "Mercator"
   | LambertIIe -> "LBT2e"
 
@@ -103,29 +103,29 @@ let pvect (x1,y1) (x2,y2) = x1*.y2-.y1*.x2
 
 let rec convexify = fun l ->
   match l with
-    [] | [_] | [_;_] -> l
-  | (x1,y1)::(x2,y2)::(x3,y3)::l ->
+      [] | [_] | [_;_] -> l
+    | (x1,y1)::(x2,y2)::(x3,y3)::l ->
       if pvect (x3-.x2, y3-.y2) (x1-.x2,y1-.y2) < 0.
       then convexify ((x1,y1)::(x3,y3)::l)
       else (x1,y1)::convexify ((x2,y2)::(x3,y3)::l)
 
 let convex = fun l ->
   match convexify l with
-    [] -> []
-  | (x3,y3)::ps ->
+      [] -> []
+    | (x3,y3)::ps ->
       (** Remove last bad points *)
       let rec loop = fun l ->
-	match l with
-	  [] | [_] -> l
-	| (x2,y2)::(x1,y1)::pts ->
-	    if pvect (x3-.x2, y3-.y2) (x1-.x2,y1-.y2) < 0.
-	    then loop ((x1,y1)::pts)
-	    else l in
+        match l with
+            [] | [_] -> l
+          | (x2,y2)::(x1,y1)::pts ->
+            if pvect (x3-.x2, y3-.y2) (x1-.x2,y1-.y2) < 0.
+            then loop ((x1,y1)::pts)
+            else l in
       (x3,y3)::List.rev (loop (List.rev ps))
 
 
 class type geographic = object
-    method pos : Latlong.geographic
+  method pos : Latlong.geographic
 end
 
 
@@ -152,6 +152,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let canvas = GnoCanvas.canvas ~packing:(frame#pack ~expand:true) () in
   let background = GnoCanvas.group canvas#root
   and still = GnoCanvas.group canvas#root in
+  (* create several layers of canvas group to display the map in correct order *)
+  let maps = Array.init (Gm.zoom_max - Gm.zoom_min + 1) (fun _ -> GnoCanvas.group background) in
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
   let region_rectangle = GnoCanvas.rect canvas#root ~props:[`WIDTH_PIXELS 2; `OUTLINE_COLOR "red"] in
 
@@ -175,446 +177,456 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   (* Time *)
   let utc_time = GnoCanvas.text ~x:0. ~y:0. ~props:[`TEXT "00:00:00"; `FILL_COLOR "green"; `ANCHOR `NW] still in
 
-  object (self)
+object (self)
 
-(** GUI attributes *)
+  (** GUI attributes *)
 
-    val background = background
-    val toolbar = toolbar
-    method toolbar = toolbar
-    method background = background
-    method still = still
-    method top_still = 3.5*.s
-    method utc_time = utc_time
-    method set_utc_time = fun h m s ->
-      let string = sprintf "%02d:%02d:%02d" h m s in
-      utc_time#set [`TEXT string]
+  val background = background
+  val toolbar = toolbar
+  method toolbar = toolbar
+  method background = background
+  method still = still
+  method maps = maps
+  method top_still = 3.5*.s
+  method utc_time = utc_time
+  method set_utc_time = fun h m s ->
+    let string = sprintf "%02d:%02d:%02d" h m s in
+    utc_time#set [`TEXT string]
 
-    method wind_sock = wind_sock
-    method set_wind_sock = fun angle_deg string  ->
-      let angle_rad = (Deg>>Rad) (90. +. angle_deg) in
-      wind_sock#item#affine_absolute (affine_pos_and_angle 60. 60. angle_rad);
-      wind_sock#label#set [`TEXT string]
+  method wind_sock = wind_sock
+  method set_wind_sock = fun angle_deg string  ->
+    let angle_rad = (Deg>>Rad) (90. +. angle_deg) in
+    wind_sock#item#affine_absolute (affine_pos_and_angle 60. 60. angle_rad);
+    wind_sock#label#set [`TEXT string]
 
-    val adj = GData.adjustment
-	~value:1. ~lower:0.005 ~upper:10.
-	~step_incr:0.25 ~page_incr:1.0 ~page_size:0. ()
+  val adj = GData.adjustment
+    ~value:1. ~lower:0.005 ~upper:10.
+    ~step_incr:0.25 ~page_incr:1.0 ~page_size:0. ()
 
-    method info = info
+  method info = info
 
-(** other attributes *)
+  (** other attributes *)
 
-    val mutable projection = projection
-    val mutable georef = georef
-    val mutable dragging = None
-    val mutable drawing  = NotDrawing
-    val mutable region = None (* Rectangle selected region *)
-    val mutable last_mouse_x = 0
-    val mutable last_mouse_y = 0
+  val mutable projection = projection
+  val mutable georef = georef
+  val mutable dragging = None
+  val mutable drawing  = NotDrawing
+  val mutable region = None (* Rectangle selected region *)
+  val mutable last_mouse_x = 0
+  val mutable last_mouse_y = 0
 
-    val mutable fitted_objects = ([] : geographic list)
+  val mutable fitted_objects = ([] : geographic list)
 
-    method region = region
-    method register_to_fit = fun o -> fitted_objects <- o :: fitted_objects
+  method region = region
+  method register_to_fit = fun o -> fitted_objects <- o :: fitted_objects
 
-    method fit_to_window () =
-      let min_lat, max_lat, min_long, max_long =
-	List.fold_right
-	  (fun p (min_lat, max_lat, min_long, max_long) ->
-	    let pos = p#pos in
-	    let lat = pos.LL.posn_lat
-	    and long = pos.LL.posn_long in
-	    (* Processing over positive longitudes *)
-	    let long = if long < 0. then long +. 2. *. pi else long in
-	    (min min_lat lat, max max_lat lat,
-	     min min_long long, max max_long long))
-	  fitted_objects
-	  (max_float, -.max_float, max_float, -. max_float) in
+  method fit_to_window () =
+    let min_lat, max_lat, min_long, max_long =
+      List.fold_right
+        (fun p (min_lat, max_lat, min_long, max_long) ->
+          let pos = p#pos in
+          let lat = pos.LL.posn_lat
+          and long = pos.LL.posn_long in
+          (* Processing over positive longitudes *)
+          let long = if long < 0. then long +. 2. *. pi else long in
+          (min min_lat lat, max max_lat lat,
+           min min_long long, max max_long long))
+        fitted_objects
+        (max_float, -.max_float, max_float, -. max_float) in
 
-      (* Over 0° ? *)
-      let min_long, max_long =
-	if max_long -. min_long > pi
-	then (max_long -. 2. *. pi, min_long)
-	else (min_long, max_long) in
+    (* Over 0° ? *)
+    let min_long, max_long =
+      if max_long -. min_long > pi
+      then (max_long -. 2. *. pi, min_long)
+      else (min_long, max_long) in
 
-      (* Longitude is renormalized here *)
-      let c = LL.make_geo ((min_lat+.max_lat)/.2.) ((min_long+.max_long)/.2.)
-      and nw_xw, nw_yw = self#world_of (LL.make_geo max_lat min_long)
-      and se_xw, se_yw = self#world_of (LL.make_geo min_lat max_long) in
-      let width, height = Gdk.Drawable.get_size canvas#misc#window in
-      let margin = 10 in
-      let width = width - 2*margin and height = height - 2*margin in
-      let zoom = min (float width/.(se_xw-.nw_xw)) (float height/.(se_yw-.nw_yw)) in
-      self#zoom zoom;
-      self#center c
+    (* Longitude is renormalized here *)
+    let c = LL.make_geo ((min_lat+.max_lat)/.2.) ((min_long+.max_long)/.2.)
+    and nw_xw, nw_yw = self#world_of (LL.make_geo max_lat min_long)
+    and se_xw, se_yw = self#world_of (LL.make_geo min_lat max_long) in
+    let width, height = Gdk.Drawable.get_size canvas#misc#window in
+    let margin = 10 in
+    let width = width - 2*margin and height = height - 2*margin in
+    let zoom = min (float width/.(se_xw-.nw_xw)) (float height/.(se_yw-.nw_yw)) in
+    self#zoom zoom;
+    self#center c
 
-(** initialization of instance attributes *)
+  (** initialization of instance attributes *)
 
-    initializer (
+  initializer (
 
-      spin_button#set_adjustment adj;
+    spin_button#set_adjustment adj;
 
-      utc_time#hide ();
+    utc_time#hide ();
 
-      ignore (GMisc.separator ~packing:(toolbar#pack ~from:`END) `VERTICAL ());
+    ignore (GMisc.separator ~packing:(toolbar#pack ~from:`END) `VERTICAL ());
 
-(** callback bindings *)
+    (** callback bindings *)
 
-      canvas#coerce#misc#modify_bg [`NORMAL, `BLACK];
-      ignore (background#connect#event self#background_event);
+    canvas#coerce#misc#modify_bg [`NORMAL, `BLACK];
+    ignore (background#connect#event self#background_event);
 
-      ignore (canvas#event#connect#motion_notify self#mouse_motion);
-      ignore (canvas#event#connect#after#key_press self#key_press) ;
-      ignore (canvas#event#connect#enter_notify (fun _ -> self#canvas#misc#grab_focus () ; false));
-      ignore (canvas#event#connect#any self#any_event);
-      ignore (adj#connect#value_changed (fun () -> canvas#set_pixels_per_unit adj#value));
+    ignore (canvas#event#connect#motion_notify self#mouse_motion);
+    ignore (canvas#event#connect#after#key_press self#key_press) ;
+    ignore (canvas#event#connect#enter_notify (fun _ -> self#canvas#misc#grab_focus () ; false));
+    ignore (canvas#event#connect#any self#any_event);
+    ignore (adj#connect#value_changed (fun () -> canvas#set_pixels_per_unit adj#value));
 
-      canvas#set_center_scroll_region false ;
-      canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
-(*       ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background); *)
+    canvas#set_center_scroll_region false ;
+    canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
+  (*       ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background); *)
 
-     )
-
-
-
-(** methods *)
-
-(** accessors to instance variables *)
-    method current_zoom = adj#value
-    method canvas = canvas
-    method frame = frame
-    method factory = factory
-    method menubar = menubar
-    method file_menu = file_menu
-    method window_to_world = canvas#window_to_world
-    method root = canvas#root
-    method zoom_adj = adj
-
-(** following display functions can be redefined by subclasses.
-   they do nothing in the basic_widget *)
-    method display_geo = fun _s -> ()
-    method display_alt = fun _wgs84 -> ()
-    method display_group = fun _s -> ()
-
-    method georef = georef
-    method set_georef = fun wgs84 -> georef <- Some wgs84
-
-    method projection = string_of_projection projection
+  )
 
 
-    method world_of = fun wgs84 ->
-      assert (LL.valid_geo wgs84);
-      match georef with
-	Some georef -> begin
-	  match projection with
-	    UTM ->
-	      let utmref = LL.utm_of LL.WGS84 georef
-	      and utm = LL.utm_of LL.WGS84 wgs84 in
-	      let (wx, y) = LL.utm_sub utm utmref in
-	      (wx, -.y)
-	  | Mercator ->
-	      let mlref = LL.mercator_lat georef.LL.posn_lat
-	      and ml = LL.mercator_lat wgs84.LL.posn_lat in
-	      let dl = LL.norm_angle (wgs84.LL.posn_long -. georef.LL.posn_long) in
-	      let xw = dl *. mercator_coeff
-	      and yw = -. (ml -. mlref) *. mercator_coeff in
-	      (xw, yw)
-	  | LambertIIe ->
-	      let lbtref = LL.lambertIIe_of georef
-	      and lbt = LL.lambertIIe_of wgs84 in
-	      let (wx, y) = LL.lbt_sub lbt lbtref in
-	      (wx, -.y)
-	end
+
+  (** methods *)
+
+  (** accessors to instance variables *)
+  method current_zoom = adj#value
+  method canvas = canvas
+  method frame = frame
+  method factory = factory
+  method menubar = menubar
+  method file_menu = file_menu
+  method window_to_world = canvas#window_to_world
+  method root = canvas#root
+  method zoom_adj = adj
+
+  (** following display functions can be redefined by subclasses.
+      they do nothing in the basic_widget *)
+  method display_geo = fun _s -> ()
+  method display_alt = fun _wgs84 -> ()
+  method display_group = fun _s -> ()
+
+  method georef = georef
+  method set_georef = fun wgs84 -> georef <- Some wgs84
+
+  method projection = string_of_projection projection
+
+
+  method world_of = fun wgs84 ->
+    assert (LL.valid_geo wgs84);
+    match georef with
+        Some georef -> begin
+          match projection with
+              UTM ->
+                let utmref = LL.utm_of LL.WGS84 georef
+                and utm = LL.utm_of LL.WGS84 wgs84 in
+                let (wx, y) = LL.utm_sub utm utmref in
+                (wx, -.y)
+            | Mercator ->
+              let mlref = LL.mercator_lat georef.LL.posn_lat
+              and ml = LL.mercator_lat wgs84.LL.posn_lat in
+              let dl = LL.norm_angle (wgs84.LL.posn_long -. georef.LL.posn_long) in
+              let xw = dl *. mercator_coeff
+              and yw = -. (ml -. mlref) *. mercator_coeff in
+              (xw, yw)
+            | LambertIIe ->
+              let lbtref = LL.lambertIIe_of georef
+              and lbt = LL.lambertIIe_of wgs84 in
+              let (wx, y) = LL.lbt_sub lbt lbtref in
+              (wx, -.y)
+        end
       | None -> failwith "#world_of : no georef"
 
-    method pt2D_of = fun wgs84 ->
-      let (x, y) = self#world_of wgs84 in
-      {G2D.x2D = x; y2D = y}
+  method pt2D_of = fun wgs84 ->
+    let (x, y) = self#world_of wgs84 in
+    {G2D.x2D = x; y2D = y}
 
-    method of_world = fun (wx, wy) ->
-      match georef with
-	Some georef -> begin
-	  match projection with
-	    UTM ->
-	      let utmref = LL.utm_of LL.WGS84 georef in
-	      LL.of_utm LL.WGS84 (LL.utm_add utmref (wx, -.wy))
-	  | LambertIIe ->
-	      let utmref = LL.lambertIIe_of georef in
-	      LL.of_lambertIIe (LL.lbt_add utmref (wx, -.wy))
-	  | Mercator ->
-	      let mlref = LL.mercator_lat georef.LL.posn_lat in
-	      let ml = mlref -. wy /. mercator_coeff in
-	      let lat = LL.inv_mercator_lat ml
-	      and long = wx /. mercator_coeff +. georef.LL.posn_long in
-	      LL.make_geo lat long
-	end
+  method of_world = fun (wx, wy) ->
+    match georef with
+        Some georef -> begin
+          match projection with
+              UTM ->
+                let utmref = LL.utm_of LL.WGS84 georef in
+                LL.of_utm LL.WGS84 (LL.utm_add utmref (wx, -.wy))
+            | LambertIIe ->
+              let utmref = LL.lambertIIe_of georef in
+              LL.of_lambertIIe (LL.lbt_add utmref (wx, -.wy))
+            | Mercator ->
+              let mlref = LL.mercator_lat georef.LL.posn_lat in
+              let ml = mlref -. wy /. mercator_coeff in
+              let lat = LL.inv_mercator_lat ml
+              and long = wx /. mercator_coeff +. georef.LL.posn_long in
+              LL.make_geo lat long
+        end
       | None -> failwith "#of_world : no georef"
 
-    method move_item = fun (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
-      let (xw,yw) = self#world_of wgs84 in
-      item#affine_absolute (affine_pos_and_angle xw yw 0.);
+  method move_item = fun (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
+    let (xw,yw) = self#world_of wgs84 in
+    item#affine_absolute (affine_pos_and_angle xw yw 0.);
 
-    method moveto = fun wgs84 ->
-      let (xw, yw) = self#world_of wgs84 in
-      let (xc, yc) = canvas#world_to_window xw yw in
-      canvas#scroll_to (truncate xc) (truncate yc)
+  method moveto = fun wgs84 ->
+    let (xw, yw) = self#world_of wgs84 in
+    let (xc, yc) = canvas#world_to_window xw yw in
+    canvas#scroll_to (truncate xc) (truncate yc)
 
-    method center = fun wgs84 ->
-      self#moveto wgs84;
-      let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window
-      and (x, y) = canvas#get_scroll_offsets in
-      canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
+  method center = fun wgs84 ->
+    self#moveto wgs84;
+    let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window
+    and (x, y) = canvas#get_scroll_offsets in
+    canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
 
-    method get_center = fun () ->
-      let (x, y) = canvas#get_scroll_offsets
-      and (sx_w, sy_w) = Gdk.Drawable.get_size canvas#misc#window in
-      let xc = x + sx_w/2 and yc = y + sy_w/2 in
-      let (xw, yw) = canvas#window_to_world  (float xc) (float yc) in
-      self#of_world (xw, yw)
+  method get_center = fun () ->
+    let (x, y) = canvas#get_scroll_offsets
+    and (sx_w, sy_w) = Gdk.Drawable.get_size canvas#misc#window in
+    let xc = x + sx_w/2 and yc = y + sy_w/2 in
+    let (xw, yw) = canvas#window_to_world  (float xc) (float yc) in
+    self#of_world (xw, yw)
 
 
-    method display_pixbuf = fun ?opacity ((x1,y1), geo1) ((x2,y2), geo2) image ->
-      let x1 = float x1 and x2 = float x2
-      and y1 = float y1 and y2 = float y2 in
-      let image =
-	match opacity with
-	  None -> image
-	| Some o -> set_opacity image o in
-      let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1)~pixbuf:image ~props:[`ANCHOR `NW] background in
-      let xw1, yw1 = self#world_of geo1
-      and xw2, yw2 = self#world_of geo2 in
+  method display_pixbuf = fun ?opacity ?level ((x1,y1), geo1) ((x2,y2), geo2) image ->
+    let x1 = float x1 and x2 = float x2
+    and y1 = float y1 and y2 = float y2 in
+    let image =
+      match opacity with
+          None -> image
+        | Some o -> set_opacity image o in
+    let map_layer = match level with
+      | None -> 0
+      | Some l ->
+        if l > Gm.zoom_max then
+          Array.length maps - 1
+        else if l < Gm.zoom_min then
+          0
+        else l - Gm.zoom_min
+    in
+    let pix = GnoCanvas.pixbuf ~x:(-.x1) ~y:(-.y1) ~pixbuf:image ~props:[`ANCHOR `NW] maps.(map_layer) in
+    let xw1, yw1 = self#world_of geo1
+    and xw2, yw2 = self#world_of geo2 in
 
-      let scale = distance (xw1, yw1) (xw2, yw2) /. distance (x1,y1) (x2,y2) in
-      let a = atan2 (yw2-.yw1) (xw2-.xw1) -. atan2 (y2-.y1) (x2-.x1) in
-      let cos_a = cos a *. scale and sin_a = sin a *. scale in
-      pix#move xw1 yw1;
-      pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
-      pix
+    let scale = distance (xw1, yw1) (xw2, yw2) /. distance (x1,y1) (x2,y2) in
+    let a = atan2 (yw2-.yw1) (xw2-.xw1) -. atan2 (y2-.y1) (x2-.x1) in
+    let cos_a = cos a *. scale and sin_a = sin a *. scale in
+    pix#move xw1 yw1;
+    pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
+    pix
 
-    method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)
-      let z = self#current_zoom in
-      ((xw +. 25000000.) *. z, (yw +. 25000000.) *. z)
+  method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)
+    let z = self#current_zoom in
+    ((xw +. 25000000.) *. z, (yw +. 25000000.) *. z)
 
-    method zoom = fun value ->
-      adj#set_value value
+  method zoom = fun value ->
+    adj#set_value value
 
-   (**  events *******************************************)
-    method background_event = fun ev ->
-      match ev with
+  (**  events *******************************************)
+  method background_event = fun ev ->
+    match ev with
       | `BUTTON_PRESS ev when GdkEvent.Button.button ev = 1 ->
-	  begin
-	    let xc = GdkEvent.Button.x ev
-	    and yc = GdkEvent.Button.y ev
-	    and state = GdkEvent.Button.state ev in
-	    let (xw,yw) = self#window_to_world xc yc in
-	    let (xw, yw) = self#fix_bg_coords (xw, yw) in
-	    if Gdk.Convert.test_modifier `SHIFT state then begin
-	      drawing <- Rectangle (xw,yw);
-	      region_rectangle#set [`X1 xw; `Y1 yw; `X2 xw; `Y2 yw];
-	      region_rectangle#raise_to_top ()
-	    end else begin (* panning *)
-	      drawing <- Panning (xc, yc);
-	      let curs = Gdk.Cursor.create `FLEUR in
-	      background#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs
-		(GdkEvent.Button.time ev)
-	    end;
-	    true
-	  end
+        begin
+          let xc = GdkEvent.Button.x ev
+          and yc = GdkEvent.Button.y ev
+          and state = GdkEvent.Button.state ev in
+          let (xw,yw) = self#window_to_world xc yc in
+          let (xw, yw) = self#fix_bg_coords (xw, yw) in
+          if Gdk.Convert.test_modifier `SHIFT state then begin
+            drawing <- Rectangle (xw,yw);
+            region_rectangle#set [`X1 xw; `Y1 yw; `X2 xw; `Y2 yw];
+            region_rectangle#raise_to_top ()
+          end else begin (* panning *)
+            drawing <- Panning (xc, yc);
+            let curs = Gdk.Cursor.create `FLEUR in
+            background#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs
+              (GdkEvent.Button.time ev)
+          end;
+          true
+        end
       | `MOTION_NOTIFY ev ->
-	  begin
-	    let xc = GdkEvent.Motion.x ev
-	    and yc = GdkEvent.Motion.y ev in
-	    let (xw, yw) = self#window_to_world xc yc in
-	    let (xw, yw) = self#fix_bg_coords (xw, yw) in
-	    match drawing with
-	      Rectangle (x1,y1) ->
-		let starting_point = self#of_world (x1,y1) in
-		let starting_point = LL.utm_of LL.WGS84 starting_point in
-		let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
-		let (east, north) = LL.utm_sub current_point starting_point in
-		region_rectangle#set [`X2 xw; `Y2 yw];
-		self#display_group (sprintf "[%.0fm %.0fm]" east north)
-	    | Panning (x0, y0) ->
-		let xc = GdkEvent.Motion.x ev
-		and yc = GdkEvent.Motion.y ev in
-		let dx = self#current_zoom *. (xc -. x0)
-		and dy = self#current_zoom *. (yc -. y0) in
-		let (x, y) = canvas#get_scroll_offsets in
-		canvas#scroll_to (x-truncate dx) (y-truncate dy)
-	    | _ -> ()
-	  end;
-	  false
+        begin
+          let xc = GdkEvent.Motion.x ev
+          and yc = GdkEvent.Motion.y ev in
+          let (xw, yw) = self#window_to_world xc yc in
+          let (xw, yw) = self#fix_bg_coords (xw, yw) in
+          match drawing with
+              Rectangle (x1,y1) ->
+                let starting_point = self#of_world (x1,y1) in
+                let starting_point = LL.utm_of LL.WGS84 starting_point in
+                let current_point = LL.utm_of LL.WGS84 (self#of_world (xw, yw)) in
+                let (east, north) = LL.utm_sub current_point starting_point in
+                region_rectangle#set [`X2 xw; `Y2 yw];
+                self#display_group (sprintf "[%.0fm %.0fm]" east north)
+            | Panning (x0, y0) ->
+              let xc = GdkEvent.Motion.x ev
+              and yc = GdkEvent.Motion.y ev in
+              let dx = self#current_zoom *. (xc -. x0)
+              and dy = self#current_zoom *. (yc -. y0) in
+              let (x, y) = canvas#get_scroll_offsets in
+              canvas#scroll_to (x-truncate dx) (y-truncate dy)
+            | _ -> ()
+        end;
+        false
       | `BUTTON_RELEASE ev when GdkEvent.Button.button ev = 1 ->
-	  begin
-	    let xc = GdkEvent.Button.x ev in
-	    let yc = GdkEvent.Button.y ev in
-	    let current_point = self#window_to_world xc yc in
-	    let current_point = self#fix_bg_coords  current_point in
-	    match drawing with
-	      Rectangle (x1,y1) ->
-		region <- Some ((x1,y1), current_point);
-		self#display_group "";
-		drawing <- NotDrawing;
-		true
-	    | Panning _ ->
-		drawing <- NotDrawing;
-		background#ungrab (GdkEvent.Button.time ev);
-		true
-	    | _ -> false
-	  end
+        begin
+          let xc = GdkEvent.Button.x ev in
+          let yc = GdkEvent.Button.y ev in
+          let current_point = self#window_to_world xc yc in
+          let current_point = self#fix_bg_coords  current_point in
+          match drawing with
+              Rectangle (x1,y1) ->
+                region <- Some ((x1,y1), current_point);
+                self#display_group "";
+                drawing <- NotDrawing;
+                true
+            | Panning _ ->
+              drawing <- NotDrawing;
+              background#ungrab (GdkEvent.Button.time ev);
+              true
+            | _ -> false
+        end
       | _ -> false
 
 
-    method mouse_motion = fun ev ->
-      if georef <> None then begin
-	let xc = GdkEvent.Motion.x ev
-	and yc = GdkEvent.Motion.y ev in
-	let (xw, yw) = self#window_to_world xc yc in
-	self#display_geo (self#of_world (xw,yw));
-	self#display_alt (self#of_world (xw,yw));
-	let (x, y) = canvas#get_scroll_offsets in
-	last_mouse_x <- truncate xc - x;
-	last_mouse_y <- truncate yc - y
-      end;
-      false
-
-    method switch_background = fun x -> if x then background#show () else background#hide ()
-
-
-   method key_press = fun ev ->
+  method mouse_motion = fun ev ->
+    if georef <> None then begin
+      let xc = GdkEvent.Motion.x ev
+      and yc = GdkEvent.Motion.y ev in
+      let (xw, yw) = self#window_to_world xc yc in
+      self#display_geo (self#of_world (xw,yw));
+      self#display_alt (self#of_world (xw,yw));
       let (x, y) = canvas#get_scroll_offsets in
-      match GdkEvent.Key.keyval ev with
+      last_mouse_x <- truncate xc - x;
+      last_mouse_y <- truncate yc - y
+    end;
+    false
+
+  method switch_background = fun x -> if x then background#show () else background#hide ()
+
+
+  method key_press = fun ev ->
+    let (x, y) = canvas#get_scroll_offsets in
+    match GdkEvent.Key.keyval ev with
       | k when k = GdkKeysyms._Up -> canvas#scroll_to x (y-pan_step) ; true
       | k when k = GdkKeysyms._Down -> canvas#scroll_to x (y+pan_step) ; true
       | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-pan_step) y ; true
       | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+pan_step) y ; true
       | k when k = GdkKeysyms._f -> self#fit_to_window () ; true
       | k when k = GdkKeysyms._Page_Up ->
-	  self#zoom_up ();
-	  true
+        self#zoom_up ();
+        true
       | k when k = GdkKeysyms._Page_Down ->
-	  self#zoom_down ();
-	  true
+        self#zoom_down ();
+        true
       | _ -> false
 
-    method connect_view = fun cb ->
-      Hashtbl.add view_cbs cb ()
+  method connect_view = fun cb ->
+    Hashtbl.add view_cbs cb ()
 
-    method zoom_in_place = fun z ->
+  method zoom_in_place = fun z ->
+    let (x, y) = canvas#get_scroll_offsets in
+    canvas#scroll_to (x+last_mouse_x) (y+last_mouse_y);
+
+    adj#set_value z;
+
+    let (x, y) = canvas#get_scroll_offsets in
+    canvas#scroll_to (x-last_mouse_x) (y-last_mouse_y)
+
+  method zoom_up () =
+    self#zoom_in_place (adj#value*.zoom_factor);
+  method zoom_down () =
+    self#zoom_in_place (adj#value/.zoom_factor);
+
+  method any_event =
+    let rec last_view = ref (0,0,0,0) in
+    fun ev ->
+      let width_c, height_c = Gdk.Drawable.get_size canvas#misc#window
+      and (xc0, yc0) = canvas#get_scroll_offsets in
+      let view = (xc0, yc0, width_c, height_c) in
+      (** View has changed ? *)
+      if view <> !last_view then begin
+        last_view := view;
+        Hashtbl.iter (fun cb _ -> cb ()) view_cbs
+      end;
+      try
+        match GdkEvent.get_type ev with
+          | `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
+            let scroll_event = GdkEvent.Scroll.cast ev in
+            match GdkEvent.Scroll.direction scroll_event with
+                `UP   -> self#zoom_up (); true
+              | `DOWN -> self#zoom_down (); true
+              | _     -> false
+          end
+          | _ ->    false
+      with
+          Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
+            false
+
+
+
+  method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color geo1 geo2 ->
+    let (x1, y1) = self#world_of geo1
+    and (x2, y2) = self#world_of geo2 in
+    let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] group in
+    l#show ();
+    l
+
+  method arc = fun ?(nb_points=5) ?(width=1) ?fill_color (xw,yw) r a1 a2 ->
+    let c = {G2D.x2D = xw; y2D = yw } in
+    let pts = G2D.arc ~nb_points c r a1 a2 in
+    let points = Array.init (2*nb_points)
+      (fun j ->
+        let i = j / 2 in
+        if j = i * 2 then pts.(i).G2D.x2D else pts.(i).G2D.y2D) in
+    let _p = points in
+    let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points canvas#root in
+    l#show ();
+    l
+
+
+  method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
+    let (x, y) = self#world_of geo in
+
+    (** Compute the actual radius in a UTM projection *)
+    let utm = LL.utm_of LL.WGS84 geo in
+    let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
+    let (xe, _) = self#world_of geo_east in
+    let rad = xe -. x in
+    let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
+    l#show ();
+    l
+
+  method photoprojection = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") ?(number="1") geo radius ->
+    let (x, y) = self#world_of geo in
+
+    (** Compute the actual radius in a UTM projection *)
+    let utm = LL.utm_of LL.WGS84 geo in
+    let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
+    let (xe, _) = self#world_of geo_east in
+    let rad = xe -. x in
+    let l1 = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
+    let l2 = GnoCanvas.text ~x:(x) ~y:(y) ~text:number ~props:[`FILL_COLOR color; `X_OFFSET 0.0; `Y_OFFSET 0.0] group in
+    l1#show ();
+    l2#show ();
+    l2
+
+  method text = fun ?(group = canvas#root) ?(fill_color = "blue") ?(x_offset = 0.0) ?(y_offset = 0.0) geo text ->
+    let (x1, y1) = self#world_of geo in
+    let t = GnoCanvas.text ~x:x1 ~y:y1 ~text:text ~props:[`FILL_COLOR fill_color; `X_OFFSET x_offset; `Y_OFFSET y_offset] group in
+    t#show ();
+    t
+
+  initializer
+  let replace_still = fun _ ->
+    let (x, y) = canvas#get_scroll_offsets in
+    let (xc, yc) = canvas#window_to_world (float x) (float y) in
+    let z = 1./.self#current_zoom in
+    still#affine_absolute [|z;0.;0.;z;xc;yc|]
+  in
+  self#connect_view replace_still;
+  let move_timer = ref (Glib.Timeout.add 0 (fun _ -> false)) in
+  let move dx dy = function
+  `BUTTON_PRESS _ ->
+    let scroll = fun _ ->
       let (x, y) = canvas#get_scroll_offsets in
-      canvas#scroll_to (x+last_mouse_x) (y+last_mouse_y);
-
-      adj#set_value z;
-
-      let (x, y) = canvas#get_scroll_offsets in
-      canvas#scroll_to (x-last_mouse_x) (y-last_mouse_y)
-
-    method zoom_up () =
-      self#zoom_in_place (adj#value*.zoom_factor);
-    method zoom_down () =
-      self#zoom_in_place (adj#value/.zoom_factor);
-
-    method any_event =
-      let rec last_view = ref (0,0,0,0) in
-      fun ev ->
-	let width_c, height_c = Gdk.Drawable.get_size canvas#misc#window
-	and (xc0, yc0) = canvas#get_scroll_offsets in
-	let view = (xc0, yc0, width_c, height_c) in
-	(** View has changed ? *)
-	if view <> !last_view then begin
-	  last_view := view;
-	  Hashtbl.iter (fun cb _ -> cb ()) view_cbs
-	end;
-	try
-	  match GdkEvent.get_type ev with
-	  | `SCROLL when not (Gdk.Convert.test_modifier `SHIFT (GdkEvent.Scroll.state (GdkEvent.Scroll.cast ev))) -> begin
-	      let scroll_event = GdkEvent.Scroll.cast ev in
-	      match GdkEvent.Scroll.direction scroll_event with
-		`UP   -> self#zoom_up (); true
-	      | `DOWN -> self#zoom_down (); true
-	    | _     -> false
-	  end
-	  | _ -> 	false
-	with
-	  Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
-	    false
-
-
-
-    method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color geo1 geo2 ->
-      let (x1, y1) = self#world_of geo1
-      and (x2, y2) = self#world_of geo2 in
-      let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points:[|x1;y1;x2;y2|] group in
-      l#show ();
-      l
-
-    method arc = fun ?(nb_points=5) ?(width=1) ?fill_color (xw,yw) r a1 a2 ->
-      let c = {G2D.x2D = xw; y2D = yw } in
-      let pts = G2D.arc ~nb_points c r a1 a2 in
-      let points = Array.init (2*nb_points)
-	  (fun j ->
-	    let i = j / 2 in
-	    if j = i * 2 then pts.(i).G2D.x2D else pts.(i).G2D.y2D) in
-      let _p = points in
-      let l = GnoCanvas.line ?fill_color ~props:[`WIDTH_PIXELS width] ~points canvas#root in
-      l#show ();
-      l
-
-
-    method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
-      let (x, y) = self#world_of geo in
-
-      (** Compute the actual radius in a UTM projection *)
-      let utm = LL.utm_of LL.WGS84 geo in
-      let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
-      let (xe, _) = self#world_of geo_east in
-      let rad = xe -. x in
-      let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
-      l#show ();
-      l
-
-    method photoprojection = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") ?(number="1") geo radius ->
-      let (x, y) = self#world_of geo in
-
-      (** Compute the actual radius in a UTM projection *)
-      let utm = LL.utm_of LL.WGS84 geo in
-      let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
-      let (xe, _) = self#world_of geo_east in
-      let rad = xe -. x in
-      let l1 = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
-      let l2 = GnoCanvas.text ~x:(x) ~y:(y) ~text:number ~props:[`FILL_COLOR color; `X_OFFSET 0.0; `Y_OFFSET 0.0] group in
-      l1#show ();
-      l2#show ();
-      l2
-
-    method text = fun ?(group = canvas#root) ?(fill_color = "blue") ?(x_offset = 0.0) ?(y_offset = 0.0) geo text ->
-      let (x1, y1) = self#world_of geo in
-      let t = GnoCanvas.text ~x:x1 ~y:y1 ~text:text ~props:[`FILL_COLOR fill_color; `X_OFFSET x_offset; `Y_OFFSET y_offset] group in
-      t#show ();
-      t
-
-    initializer
-      let replace_still = fun _ ->
-	let (x, y) = canvas#get_scroll_offsets in
-	let (xc, yc) = canvas#window_to_world (float x) (float y) in
-	let z = 1./.self#current_zoom in
-	still#affine_absolute [|z;0.;0.;z;xc;yc|]
-      in
-      self#connect_view replace_still;
-      let move_timer = ref (Glib.Timeout.add 0 (fun _ -> false)) in
-      let move dx dy = function
-	  `BUTTON_PRESS _ ->
-	    let scroll = fun _ ->
-	      let (x, y) = canvas#get_scroll_offsets in
-	      canvas#scroll_to (x+dx) (y+dy) ; true in
-	    move_timer := Glib.Timeout.add 50 scroll;
-	    true
-	| `BUTTON_RELEASE _ ->
-	    Glib.Timeout.remove !move_timer;
-	    true
-	| _ -> false in
-      let up = move 0 (-pan_step)
-      and down = move 0 pan_step
+      canvas#scroll_to (x+dx) (y+dy) ; true in
+    move_timer := Glib.Timeout.add 50 scroll;
+    true
+    | `BUTTON_RELEASE _ ->
+      Glib.Timeout.remove !move_timer;
+      true
+    | _ -> false in
+  let up = move 0 (-pan_step)
+  and down = move 0 pan_step
       and left = move (-pan_step) 0
       and right = move pan_step 0 in
       ignore (north_arrow#connect#event up);
@@ -690,36 +702,36 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
 
     method switch_utm_grid = fun flag ->
       match georef with
-	None -> ()
-      |	Some georef ->
-	  match utm_grid_group with
-	    None ->
-	      if flag then (** Create and show *)
-		let g = GnoCanvas.group self#canvas#root in
-		let u0 = LL.utm_of LL.WGS84 (self#get_center ()) in
-		let u0 = { LL.utm_x = align u0.LL.utm_x 1000;
-			   LL.utm_zone = u0.LL.utm_zone;
-			   LL.utm_y = align u0.LL.utm_y 1000 } in
-		for i = -size_utm_grid to size_utm_grid do
-		  let h = Array.create (2*(2*size_utm_grid+1)) 0.
-		  and v = Array.create (2*(2*size_utm_grid+1)) 0. in
-		  for j = -size_utm_grid to size_utm_grid do
-		    let k = 2*(j+size_utm_grid) in
-		    let p = fun i j ->
-		      let u = LL.utm_add u0 (float (i*1000), float (j*1000)) in
-		      let wgs84 = LL.of_utm LL.WGS84 u in
-		      self#world_of wgs84 in
-		    let (xw,yw) = p i j in
-		    h.(k) <- xw; h.(k+1) <- yw;
-		    let (xw,yw) = p j i in
-		    v.(k) <- xw; v.(k+1) <- yw
-		  done;
-		  let h = GnoCanvas.line ~fill_color:grid_color ~props:[`WIDTH_PIXELS 1] ~points:h g
-		  and v = GnoCanvas.line ~fill_color:grid_color ~props:[`WIDTH_PIXELS 1] ~points:v g in
-		  h#show (); v#show ()
-		done;
-		utm_grid_group <- Some g
-	  | Some g -> if flag then g#show () else g#hide ()
+    None -> ()
+      | Some georef ->
+      match utm_grid_group with
+        None ->
+          if flag then (** Create and show *)
+        let g = GnoCanvas.group self#canvas#root in
+        let u0 = LL.utm_of LL.WGS84 (self#get_center ()) in
+        let u0 = { LL.utm_x = align u0.LL.utm_x 1000;
+               LL.utm_zone = u0.LL.utm_zone;
+               LL.utm_y = align u0.LL.utm_y 1000 } in
+        for i = -size_utm_grid to size_utm_grid do
+          let h = Array.create (2*(2*size_utm_grid+1)) 0.
+          and v = Array.create (2*(2*size_utm_grid+1)) 0. in
+          for j = -size_utm_grid to size_utm_grid do
+            let k = 2*(j+size_utm_grid) in
+            let p = fun i j ->
+              let u = LL.utm_add u0 (float (i*1000), float (j*1000)) in
+              let wgs84 = LL.of_utm LL.WGS84 u in
+              self#world_of wgs84 in
+            let (xw,yw) = p i j in
+            h.(k) <- xw; h.(k+1) <- yw;
+            let (xw,yw) = p j i in
+            v.(k) <- xw; v.(k+1) <- yw
+          done;
+          let h = GnoCanvas.line ~fill_color:grid_color ~props:[`WIDTH_PIXELS 1] ~points:h g
+          and v = GnoCanvas.line ~fill_color:grid_color ~props:[`WIDTH_PIXELS 1] ~points:v g in
+          h#show (); v#show ()
+        done;
+        utm_grid_group <- Some g
+      | Some g -> if flag then g#show () else g#hide ()
 
     (** ground altitude extraction from srtm data *)
     method altitude = fun wgs84 ->
@@ -763,17 +775,17 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
 
     method display_alt = fun wgs84 ->
       if srtm#active then
-	lbl_alt#set_text (sprintf " SRTM:%dm"(self#altitude wgs84))
+    lbl_alt#set_text (sprintf " SRTM:%dm"(self#altitude wgs84))
 
     method display_group = fun s ->  lbl_group#set_text s
 
     method goto = fun () ->
       match GToolbox.input_string ~title:"Geo ref" ~text:"WGS84 " "Geo ref" with
-	Some s ->
-	  let wgs84 = Latlong.of_string s in
-	  if georef = None then
-	    self#set_georef wgs84;
-	  self#moveto wgs84
+    Some s ->
+      let wgs84 = Latlong.of_string s in
+      if georef = None then
+        self#set_georef wgs84;
+      self#moveto wgs84
       | None -> ()
 
 end

@@ -56,11 +56,10 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  if (Uart2ChAvailable())
-    Uart1Transmit(Uart2Getch());
+  if (uart_char_available(&uart2))
+    uart_transmit(&uart1, uart_getch(&uart2));
 
-  if (Uart1ChAvailable())
-    Uart2Transmit(Uart1Getch());
-
+  if (uart_char_available(&uart1))
+    uart_transmit(&uart2, uart_getch(&uart1));
 
 }

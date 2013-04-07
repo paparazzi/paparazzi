@@ -91,7 +91,7 @@ switch( state )
 @endcode
 
 @section stylecpp Preprocessor directives
-- For conditional compilation use @c #if instead of @c #ifdef.
+- For conditional compilation use @c \#if instead of @c \#ifdef.
 Someone might write code like:
 @code
 #ifdef USE_FOO
@@ -102,7 +102,7 @@ Someone else might compile the code with turned-off foo info like:
 @verbatim
  gcc stuff.c -DUSE_FOO=0
 @endverbatim
-So use @c #if not @c #ifdef to turn a feature on or off. This works fine, and does the right thing, even if USE_FOO is not defined at all (!)
+So use @c \#if not @c \#ifdef to turn a feature on or off. This works fine, and does the right thing, even if USE_FOO is not defined at all (!)
 @code
 #if USE_FOO
   bar();

@@ -39,7 +39,7 @@ let get_servo_driver = fun servo_name ->
   try
     Hashtbl.find servos_drivers servo_name
   with
-    Not_found -> failwith (sprintf "gen_airframe, Unknown servo: %s" servo_name)
+      Not_found -> failwith (sprintf "gen_airframe, Unknown servo: %s" servo_name)
 let get_list_of_drivers = fun () ->
   let l = ref [] in
   Hashtbl.iter
@@ -52,10 +52,10 @@ let define_macro name n x =
   let a = fun s -> ExtXml.attrib x s in
   printf "#define %s(" name;
   match n with   (* Do we really need more ??? *)
-    1 -> printf "x1) (%s*(x1))\n" (a "coeff1")
-  | 2 -> printf "x1,x2) (%s*(x1)+ %s*(x2))\n" (a "coeff1") (a "coeff2")
-  | 3 -> printf "x1,x2,x3) (%s*(x1)+ %s*(x2)+%s*(x3))\n" (a "coeff1") (a "coeff2") (a "coeff3")
-  | _ -> failwith "define_macro"
+      1 -> printf "x1) (%s*(x1))\n" (a "coeff1")
+    | 2 -> printf "x1,x2) (%s*(x1)+ %s*(x2))\n" (a "coeff1") (a "coeff2")
+    | 3 -> printf "x1,x2,x3) (%s*(x1)+ %s*(x2)+%s*(x3))\n" (a "coeff1") (a "coeff2") (a "coeff3")
+    | _ -> failwith "define_macro"
 
 let define_integer name v n =
   let max_val = 1 lsl n in
@@ -78,15 +78,18 @@ let define_integer name v n =
   in
   continious_frac (truncate v) v (1, (truncate v)) (0, 1)
 
-let code_unit_coef_of_xml = function xml ->
+let convert_value_with_code_unit_coef_of_xml = function xml ->
   (* if unit attribute is not specified don't even attempt to convert the units *)
   let u = try Xml.attrib xml "unit" with _ -> failwith "Unit conversion error" in
   let cu = ExtXml.attrib_or_default xml "code_unit" "" in
   (* default value for code_unit is rad[/s] when unit is deg[/s] *)
-  try Pprz.scale_of_units u cu with
-  | Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
-  | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
-  | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error"
+  let conv = try (Pprz.scale_of_units u cu) with
+    | Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+    | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
+    | Pprz.No_automatic_conversion _ | _ -> failwith "Unit conversion error" in
+  let v = try ExtXml.float_attrib xml "value" with _ -> prerr_endline (sprintf "Error: Unit conversion of parameter %s impossible because '%s' is not a float" (Xml.attrib xml "name") (Xml.attrib xml "value")); flush stderr; exit 1 in
+  v *. conv
+
 
 let parse_element = fun prefix s ->
   match Xml.tag s with
@@ -96,7 +99,7 @@ let parse_element = fun prefix s ->
             (* fail if units conversion is not found and just copy value instead,
                this is important for integer values, you can't just multiply them with 1.0 *)
             try
-              let value = (ExtXml.float_attrib s "value") *. (code_unit_coef_of_xml s) in
+              let value = (convert_value_with_code_unit_coef_of_xml s) in
               define (prefix^ExtXml.attrib s "name") (string_of_float value);
             with
                 _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
@@ -165,74 +168,74 @@ let print_actuators_idx = fun () ->
 
 let parse_command_laws = fun command ->
   let a = fun s -> ExtXml.attrib command s in
-   match Xml.tag command with
-     "set" ->
-       let servo = a "servo"
-       and value = a "value" in
-       let v = preprocess_value value "values" "COMMAND" in
-       printf "  command_value = %s; \\\n" v;
-       printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
-       printf "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
-       printf "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
-       printf "  Set_%s_Servo(servo_value); \\\n\\\n" servo
-   | "let" ->
-       let var = a "var"
-       and value = a "value" in
-       let v = preprocess_value value "values" "COMMAND" in
-       printf "  int16_t _var_%s = %s; \\\n" var v
-   | "call" ->
-       let f = a "fun" in
-       printf "  %s; \\\n\\\n" f
-   | "ratelimit" ->
-       let var = a "var"
-       and value = a "value"
-       and rate_min = a "rate_min"
-       and rate_max = a "rate_max" in
-       let v = preprocess_value value "values" "COMMAND" in
-       printf "  static int16_t _var_%s = 0; _var_%s += Chop((%s) - (_var_%s), (%s), (%s)); \\\n" var var v var rate_min rate_max
-   | "define" ->
-       parse_element "" command
-   | _ -> xml_error "set|let"
+  match Xml.tag command with
+      "set" ->
+        let servo = a "servo"
+        and value = a "value" in
+        let v = preprocess_value value "values" "COMMAND" in
+        printf "  command_value = %s; \\\n" v;
+        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
+        printf "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
+        printf "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
+        printf "  Set_%s_Servo(servo_value); \\\n\\\n" servo
+    | "let" ->
+      let var = a "var"
+      and value = a "value" in
+      let v = preprocess_value value "values" "COMMAND" in
+      printf "  int16_t _var_%s = %s; \\\n" var v
+    | "call" ->
+      let f = a "fun" in
+      printf "  %s; \\\n\\\n" f
+    | "ratelimit" ->
+      let var = a "var"
+      and value = a "value"
+      and rate_min = a "rate_min"
+      and rate_max = a "rate_max" in
+      let v = preprocess_value value "values" "COMMAND" in
+      printf "  static int16_t _var_%s = 0; _var_%s += Chop((%s) - (_var_%s), (%s), (%s)); \\\n" var var v var rate_min rate_max
+    | "define" ->
+      parse_element "" command
+    | _ -> xml_error "set|let"
 
 let parse_rc_commands = fun rc ->
   let a = fun s -> ExtXml.attrib rc s in
   match Xml.tag rc with
-    "set" ->
-      let com = a "command"
+      "set" ->
+        let com = a "command"
+        and value = a "value" in
+        let v = preprocess_value value "_rc_array" "RADIO" in
+        printf "  _commands_array[COMMAND_%s] = %s;\\\n" com v;
+    | "let" ->
+      let var = a "var"
       and value = a "value" in
-      let v = preprocess_value value "_rc_array" "RADIO" in
-      printf "  _commands_array[COMMAND_%s] = %s;\\\n" com v;
-   | "let" ->
-       let var = a "var"
-       and value = a "value" in
-       let v = preprocess_value value "rc_values" "RADIO" in
-       printf "  int16_t _var_%s = %s;\\\n" var v
-   | "define" ->
-       parse_element "" rc
-   | _ -> xml_error "set|let"
+      let v = preprocess_value value "rc_values" "RADIO" in
+      printf "  int16_t _var_%s = %s;\\\n" var v
+    | "define" ->
+      parse_element "" rc
+    | _ -> xml_error "set|let"
 
 let parse_ap_only_commands = fun ap_only ->
   let a = fun s -> ExtXml.attrib ap_only s in
   match Xml.tag ap_only with
-    "copy" ->
-      let com = a "command" in
-      printf "  commands[COMMAND_%s] = ap_commands[COMMAND_%s];\\\n" com com
-   | _ -> xml_error "copy"
+      "copy" ->
+        let com = a "command" in
+        printf "  commands[COMMAND_%s] = ap_commands[COMMAND_%s];\\\n" com com
+    | _ -> xml_error "copy"
 
 let parse_command = fun command no ->
-   let command_name = "COMMAND_"^ExtXml.attrib command "name" in
-   define command_name (string_of_int no);
-   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
-   { failsafe_value = failsafe_value; foo = 0}
+  let command_name = "COMMAND_"^ExtXml.attrib command "name" in
+  define command_name (string_of_int no);
+  let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
+  { failsafe_value = failsafe_value; foo = 0}
 
 let rec parse_section = fun s ->
   match Xml.tag s with
-    "section" ->
-      let prefix = ExtXml.attrib_or_default s "prefix" "" in
-      define ("SECTION_"^ExtXml.attrib s "name") "1";
-      List.iter (parse_element prefix) (Xml.children s);
-      nl ()
-  | "servos" ->
+      "section" ->
+        let prefix = ExtXml.attrib_or_default s "prefix" "" in
+        define ("SECTION_"^ExtXml.attrib s "name") "1";
+        List.iter (parse_element prefix) (Xml.children s);
+        nl ()
+    | "servos" ->
       let driver = ExtXml.attrib_or_default s "driver" "Default" in
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
@@ -242,25 +245,25 @@ let rec parse_section = fun s ->
       nl ();
       List.iter (parse_servo driver) servos;
       nl ()
-  | "commands" ->
+    | "commands" ->
       let commands = Array.of_list (Xml.children s) in
       let commands_params = Array.mapi (fun i c -> parse_command c i) commands in
       define "COMMANDS_NB" (string_of_int (Array.length commands));
       define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       nl (); nl ()
-  | "rc_commands" ->
+    | "rc_commands" ->
       printf "#define SetCommandsFromRC(_commands_array, _rc_array) { \\\n";
       List.iter parse_rc_commands (Xml.children s);
       printf "}\n\n"
-  | "auto_rc_commands" ->
+    | "auto_rc_commands" ->
       printf "#define SetAutoCommandsFromRC(_commands_array, _rc_array) { \\\n";
       List.iter parse_rc_commands (Xml.children s);
       printf "}\n\n"
-  | "ap_only_commands" ->
+    | "ap_only_commands" ->
       printf "#define SetApOnlyCommands(ap_commands) { \\\n";
       List.iter parse_ap_only_commands (Xml.children s);
       printf "}\n\n"
-  | "command_laws" ->
+    | "command_laws" ->
       print_actuators_idx ();
 
       printf "#define SetActuatorsFromCommands(values) { \\\n";
@@ -276,16 +279,16 @@ let rec parse_section = fun s ->
       printf "#define AllActuatorsInit() { \\\n";
       List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
       printf "}\n\n";
-  | "include" ->
+    | "include" ->
       let filename = ExtXml.attrib s "href" in
       let subxml = Xml.parse_file filename in
       printf "/* XML %s */" filename;
       nl ();
       List.iter parse_section (Xml.children subxml)
-  | "makefile" ->
+    | "makefile" ->
       ()
-      (** Ignoring this section *)
-  | _ -> ()
+  (** Ignoring this section *)
+    | _ -> ()
 
 
 let h_name = "AIRFRAME_H"
@@ -298,7 +301,7 @@ let hex_to_bin = fun s ->
     b.[4*i] <- '\\';
     Scanf.sscanf (String.sub s (2*i) 2) "%2x"
       (fun x ->
-    String.blit (sprintf "%03o" x) 0 b (4*i+1) 3)
+        String.blit (sprintf "%03o" x) 0 b (4*i+1) 3)
   done;
   b
 
@@ -319,7 +322,7 @@ let _ =
     List.iter parse_section (Xml.children xml);
     finish h_name
   with
-    Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
-  | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
-  | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
-  | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
+      Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
+    | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
+    | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
+    | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1

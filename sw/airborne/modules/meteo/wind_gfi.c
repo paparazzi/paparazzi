@@ -64,7 +64,7 @@ void wind_gfi_periodic( void ) {
   pcf_trans.buf[0] = 0xFF;
   pcf_trans.buf[1] = 0xBF;
   pcf_status = PCF_SET_OE_LSB;
-  I2CTransmit(PCF_I2C_DEV, pcf_trans, PCF_SLAVE_ADDR, 2);
+  i2c_transmit(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
 }
 
 void wind_gfi_event( void ) {
@@ -72,7 +72,7 @@ void wind_gfi_event( void ) {
 
     if (pcf_status == PCF_SET_OE_LSB) {
       pcf_status = PCF_READ_LSB;
-      I2CReceive(PCF_I2C_DEV, pcf_trans, PCF_SLAVE_ADDR, 2);
+      i2c_receive(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
     }
     else if (pcf_status == PCF_READ_LSB) {
       /* read lower byte direction info */
@@ -82,11 +82,11 @@ void wind_gfi_event( void ) {
       pcf_trans.buf[0] = 0xFF;
       pcf_trans.buf[1] = 0x3F;
       pcf_status = PCF_SET_OE_MSB;
-      I2CTransmit(PCF_I2C_DEV, pcf_trans, PCF_SLAVE_ADDR, 2);
+      i2c_transmit(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
     }
     else if (pcf_status == PCF_SET_OE_MSB) {
       pcf_status = PCF_READ_MSB;
-      I2CReceive(PCF_I2C_DEV, pcf_trans, PCF_SLAVE_ADDR, 2);
+      i2c_receive(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
     }
     else if (pcf_status == PCF_READ_MSB) {
       float fpcf_direction;
@@ -98,7 +98,7 @@ void wind_gfi_event( void ) {
       pcf_trans.buf[0] = 0xFF;
       pcf_trans.buf[1] = 0xFF;
       pcf_status = PCF_IDLE;
-      I2CTransmit(PCF_I2C_DEV, pcf_trans, PCF_SLAVE_ADDR, 2);
+      i2c_transmit(&PCF_I2C_DEV, &pcf_trans, PCF_SLAVE_ADDR, 2);
 
       /* 2048 digits per 360 degrees */
       fpcf_direction = fmod((pcf_direction * (360./2048.)) + ZERO_OFFSET_DEGREES, 360.);

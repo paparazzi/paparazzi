@@ -37,7 +37,7 @@ stm_passthrough.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_ar
 
 # Telemetry
 stm_passthrough.CFLAGS += -DDOWNLINK
-stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART2
 stm_passthrough.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 stm_passthrough.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 stm_passthrough.srcs += mcu_periph/uart.c
@@ -112,8 +112,7 @@ stm_passthrough.CFLAGS += -DUSE_AD1 \
     -DUSE_AD1_1 \
     -DUSE_AD1_2 \
     -DUSE_AD1_3 \
-    -DUSE_AD1_4 \
-    -DUSE_ADC1_2_IRQ_HANDLER
+    -DUSE_AD1_4
 
 
 # Battery monitor

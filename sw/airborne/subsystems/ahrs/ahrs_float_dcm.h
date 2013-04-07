@@ -12,9 +12,12 @@
  *
  */
 
-/** \file ahrs_float_dcm.h
- *  \brief Attitude estimation for fixedwings based on the DCM
- *  Theory: http://code.google.com/p/gentlenav/downloads/list  file DCMDraft2.pdf
+/**
+ * @file subsystems/ahrs/ahrs_float_dcm.h
+ *
+ * Attitude estimation for fixedwings based on the DCM.
+ *
+ * Theory: http://code.google.com/p/gentlenav/downloads/list  file DCMDraft2.pdf
  *
  */
 

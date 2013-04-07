@@ -19,6 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_int_cmpl_quat.c
+ *
+ * Quaternion complementary filter (fixed-point).
+ *
+ * Estimate the attitude, heading and gyro bias.
+ *
+ */
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_aligner.h"

@@ -1,7 +1,5 @@
 /*
- * Paparazzi microcontroller functions
- *
- * Copyright (C) 2010 The Paparazzi team
+ * Copyright (C) 2010-2012 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -22,8 +20,9 @@
  *
  */
 
-/** \file mcu.h
- *  \brief arch independent mcu ( Micro Controller Unit ) utilities
+/**
+ * @file mcu.h
+ * @brief Arch independent mcu ( Micro Controller Unit ) utilities.
  */
 
 #ifndef MCU_H
@@ -32,13 +31,19 @@
 
 #include <mcu_arch.h>
 
-/*
- * Microcontroller initialisation
+/**
+ * @defgroup mcu_periph MCU Peripherals
+ * @{
+ */
+
+/**
+ * Microcontroller peripherals initialization.
  * This function is responisble for setting up the microcontroller
  * after Reset.
  */
 extern void mcu_init(void);
 
+/** @}*/
 
 #endif /* MCU_H */
 

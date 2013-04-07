@@ -17,7 +17,6 @@
       <configure name="GPS_LED" value="none"/>
       <!-- for airspeed sensor
       <define name="USE_I2C0"/>
-      <define name="I2C0_VIC_SLOT" value="12"/>
       -->
     </target>
     <target name="sim"          board="pc"/>
@@ -62,11 +61,7 @@
 
 <!-- ******************* MODULES ********************************** -->
   <modules main_freq="60">
-    <load name="servo_switch.xml">
-      <define name="SERVO_SWITCH_ON_VALUE"  value="1100"/>
-      <define name="SERVO_SWITCH_OFF_VALUE" value="1900"/>
-      <define name="SERVO_SWITCH_SERVO"     value="SERVO_HATCH"/>
-    </load>
+    <load name="servo_switch.xml"/>
     <load name="sys_mon.xml"/>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
@@ -84,8 +79,14 @@
     <servo name="AILERON_RIGHT" no="3" min="1000" neutral="1500" max="1000"/>
     <servo name="AILERON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER"        no="6" min="1000" neutral="1500" max="2000"/>
-    <servo name="HATCH"     no="7" min="1100" neutral="1100" max="1900"/>
+    <servo name="HATCH"         no="7" min="1100" neutral="1100" max="1900"/>
   </servos>
+
+  <section name="SERVO_SWITCH" PREFIX="SERVO_SWITCH_">
+    <define name="SERVO" value="HATCH"/>
+    <define name="ON_VALUE" value="SERVO_HATCH_MIN"/>
+    <define name="OFF_VALUE" value="SERVO_HATCH_MAX"/>
+  </section>
 
 <!-- commands section -->
   <commands>

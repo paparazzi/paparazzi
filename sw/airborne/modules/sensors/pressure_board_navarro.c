@@ -30,8 +30,8 @@
 
 /* Default I2C device on tiny is i2c0
  */
-#ifndef PBN_I2C_DEVICE
-#define PBN_I2C_DEVICE i2c0
+#ifndef PBN_I2C_DEV
+#define PBN_I2C_DEV i2c0
 #endif
 
 /* Sensor I2C slave address */
@@ -96,7 +96,7 @@ void pbn_periodic( void ) {
 
   // Initiate next read
   pbn_trans.buf[0] = 0;
-  I2CTransceive(PBN_I2C_DEVICE, pbn_trans, PBN_I2C_ADDR, 1, 4);
+  i2c_transceive(&PBN_I2C_DEV, &pbn_trans, PBN_I2C_ADDR, 1, 4);
 
 }
 

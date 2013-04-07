@@ -111,7 +111,7 @@ void baro_ets_read_periodic( void ) {
   // Initiate next read
 #ifndef SITL
   if (baro_ets_i2c_trans.status == I2CTransDone)
-    I2CReceive(BARO_ETS_I2C_DEV, baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
+    i2c_receive(&BARO_ETS_I2C_DEV, &baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
   /* fake an offset so sim works for under hmsl as well */
   if (!baro_ets_offset_init) {

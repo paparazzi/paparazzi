@@ -20,6 +20,18 @@
  *
  */
 
+/** @file modules/benchmark/i2c_abuse_test.c
+ *
+ * Total I2C Abuse:
+ *
+ * -all transaction types: T1 T2 T3 T4 R1 R2 R3 R4 T1R1 T2R1 T1R2 T1R3 T1R4 T1R5 T2R5
+ * -all bitrates: 1k (way too slow) to 1M (way to fast)
+ * -occasional Short circuit (simulate bus capacitance or EMI errors)
+ * -variable bus load: from empty to full stack
+ *
+ * -Connect LED to MosFet that pulls-down the SCL and SDA lines
+ */
+
 #include "i2c_abuse_test.h"
 #include "led.h"
 #include "mcu_periph/i2c.h"

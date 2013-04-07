@@ -54,12 +54,12 @@ struct __attribute__ ((packed)) spistream_uart_msg {
 // Use 3 static instances of this struct in uart_transfer_event
 // instead of a myriad of repetitive static vars:
 struct uart_state {
-	struct spistream_uart_msg * msg;
-	uint32_t timeout;
-	uint32_t num_rx_bytes;
-	uint8_t enabled;
-	uint8_t has_data;
-	uint8_t sent;
+  struct spistream_uart_msg * msg;
+  uint32_t timeout;
+  uint32_t num_rx_bytes;
+  uint8_t enabled;
+  uint8_t has_data;
+  uint8_t sent;
 };
 
 static struct spistream_uart_msg spistream_uart1_msg;
@@ -103,7 +103,7 @@ static inline void main_init(void) {
   spistream_uart3_msg.uart_id = 3;
 
 #ifdef SPISTREAM_DEBUG
-	uart_debug_transfer_init();
+  uart_debug_transfer_init();
 #endif
 
   spistream_init(&on_spistream_msg_received,
@@ -120,13 +120,13 @@ static inline void on_spistream_msg_received(uint8_t msg_id,
                                              uint8_t * data,
                                              uint16_t num_bytes)
 {
-	spistream_send_msg(data, num_bytes, SPISTREAM_NO_WAIT);
+  spistream_send_msg(data, num_bytes, SPISTREAM_NO_WAIT);
 }
 
 static inline void on_spistream_msg_sent(uint8_t msg_id) {
-	if(spistream_wait_for_num_transfers > 0) {
+  if(spistream_wait_for_num_transfers > 0) {
   	spistream_wait_for_num_transfers--;
-	}
+  }
 }
 
 static inline void main_periodic(void)
@@ -135,7 +135,7 @@ static inline void main_periodic(void)
 
   RunOnceEvery(1, {
       LED_PERIODIC();
-  });
+    });
 }
 
 /**
@@ -165,18 +165,18 @@ static inline void main_event(void)
   OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
 
 #ifdef SPISTREAM_DEBUG
-	uart_debug_transfer_event();
+  uart_debug_transfer_event();
 #else
-	uart_transfer_event();
+  uart_transfer_event();
 #endif
 }
 
 #ifdef SPISTREAM_DEBUG
 static inline void uart_debug_transfer_init(void) {
-	uint16_t idx;
-	for(idx = 1; idx < 700; idx++) {
-		spistream_debug_msg.uart_data[idx] = idx % 40;
-	}
+  uint16_t idx;
+  for(idx = 1; idx < 700; idx++) {
+    spistream_debug_msg.uart_data[idx] = idx % 40;
+  }
 }
 #endif
 
@@ -189,40 +189,40 @@ static inline void uart_debug_transfer_init(void) {
  */
 #ifdef SPISTREAM_DEBUG
 static inline void uart_debug_transfer_event(void) {
-	static uint16_t len = 0;
-	static uint16_t timeout = 1;
+  static uint16_t len = 0;
+  static uint16_t timeout = 1;
 
-	if(timeout-- == 0) {
-		timeout = 8000;
-		if(spistream_wait_for_num_transfers == 0)
-		{
-			LED_OFF(6);
-			len++;
-			if(len > 700) { len = 500; }
+  if(timeout-- == 0) {
+    timeout = 8000;
+    if(spistream_wait_for_num_transfers == 0)
+    {
+      LED_OFF(6);
+      len++;
+      if(len > 700) { len = 500; }
 
-			spistream_debug_msg.uart_id = 1;
-			if(spistream_send_msg((uint8_t *)&spistream_debug_msg,
-														len+1-20,
-														SPISTREAM_WAIT_FOR_READ)) { // +1 for UART id byte
-				spistream_wait_for_num_transfers++;
-			}
-			spistream_debug_msg.uart_id = 2;
-			if(spistream_send_msg((uint8_t *)&spistream_debug_msg,
-														len+1,
-														SPISTREAM_WAIT_FOR_READ)) { // +1 for UART id byte
-				spistream_wait_for_num_transfers++;
-			}
-			spistream_debug_msg.uart_id = 3;
-			if(spistream_send_msg((uint8_t *)&spistream_debug_msg,
-														len+1+20,
-														SPISTREAM_WAIT_FOR_READ)) { // +1 for UART id byte
-				spistream_wait_for_num_transfers++;
-			}
-		}
-		else {
-			LED_ON(6);
-		}
-	}
+      spistream_debug_msg.uart_id = 1;
+      if(spistream_send_msg((uint8_t *)&spistream_debug_msg,
+                            len+1-20,
+                            SPISTREAM_WAIT_FOR_READ)) { // +1 for UART id byte
+        spistream_wait_for_num_transfers++;
+      }
+      spistream_debug_msg.uart_id = 2;
+      if(spistream_send_msg((uint8_t *)&spistream_debug_msg,
+                            len+1,
+                            SPISTREAM_WAIT_FOR_READ)) { // +1 for UART id byte
+        spistream_wait_for_num_transfers++;
+      }
+      spistream_debug_msg.uart_id = 3;
+      if(spistream_send_msg((uint8_t *)&spistream_debug_msg,
+                            len+1+20,
+                            SPISTREAM_WAIT_FOR_READ)) { // +1 for UART id byte
+        spistream_wait_for_num_transfers++;
+      }
+    }
+    else {
+      LED_ON(6);
+    }
+  }
 }
 #endif
 
@@ -243,106 +243,106 @@ static inline void uart_transfer_event(void) {
   static uint8_t uart3_has_data = 0;
   static uint8_t trigger_send = 0;
 
-	static uint8_t uart1_enabled = 1;
-	static uint8_t uart2_enabled = 1;
-	static uint8_t uart3_enabled = 1;
+  static uint8_t uart1_enabled = 1;
+  static uint8_t uart2_enabled = 1;
+  static uint8_t uart3_enabled = 1;
 
   // We cache data availability, so it doesn't change between checks:
-  uart1_has_data = Uart1ChAvailable();
-  uart2_has_data = Uart2ChAvailable();
-  uart3_has_data = Uart3ChAvailable();
+  uart1_has_data = uart_char_available(&uart1);
+  uart2_has_data = uart_char_available(&uart2);
+  uart3_has_data = uart_char_available(&uart3);
 
-	// Fill stage: Read data from UARTs into buffers, or increment
-	// their timeouts if no data is available:
-	if(!uart1_sent && uart1_has_data) {
-		spistream_uart1_msg.uart_data[uart1_num_rx_bytes] = Uart1Getch();
-		timeout_uart1 = 0;
-		if(uart1_num_rx_bytes < SPISTREAM_MAX_MESSAGE_LENGTH)
-			{ uart1_num_rx_bytes++; }
-	} else { if(timeout_uart1 < timeout_trig) { timeout_uart1++; } }
+  // Fill stage: Read data from UARTs into buffers, or increment
+  // their timeouts if no data is available:
+  if(!uart1_sent && uart1_has_data) {
+    spistream_uart1_msg.uart_data[uart1_num_rx_bytes] = uart_getch(&uart1);
+    timeout_uart1 = 0;
+    if(uart1_num_rx_bytes < SPISTREAM_MAX_MESSAGE_LENGTH)
+    { uart1_num_rx_bytes++; }
+  } else { if(timeout_uart1 < timeout_trig) { timeout_uart1++; } }
 
-	if(!uart2_sent && uart2_has_data) {
-		spistream_uart2_msg.uart_data[uart2_num_rx_bytes] = Uart2Getch();
-		timeout_uart2 = 0;
-		if(uart2_num_rx_bytes < SPISTREAM_MAX_MESSAGE_LENGTH)
-			{ uart2_num_rx_bytes++; }
-	} else { if(timeout_uart2 < timeout_trig) { timeout_uart2++; } }
+  if(!uart2_sent && uart2_has_data) {
+    spistream_uart2_msg.uart_data[uart2_num_rx_bytes] = uart_getch(&uart2);
+    timeout_uart2 = 0;
+    if(uart2_num_rx_bytes < SPISTREAM_MAX_MESSAGE_LENGTH)
+    { uart2_num_rx_bytes++; }
+  } else { if(timeout_uart2 < timeout_trig) { timeout_uart2++; } }
 
-	if(!uart3_sent && uart3_has_data) {
-		spistream_uart3_msg.uart_data[uart3_num_rx_bytes] = Uart3Getch();
-		timeout_uart3 = 0;
-		if(uart3_num_rx_bytes < SPISTREAM_MAX_MESSAGE_LENGTH)
-			{ uart3_num_rx_bytes++; }
-	} else { if(timeout_uart3 < timeout_trig) { timeout_uart3++; } }
+  if(!uart3_sent && uart3_has_data) {
+    spistream_uart3_msg.uart_data[uart3_num_rx_bytes] =  uart_getch(&uart3);
+    timeout_uart3 = 0;
+    if(uart3_num_rx_bytes < SPISTREAM_MAX_MESSAGE_LENGTH)
+    { uart3_num_rx_bytes++; }
+  } else { if(timeout_uart3 < timeout_trig) { timeout_uart3++; } }
 
-	trigger_send = ((!uart1_enabled ||
-									(timeout_uart1 >= timeout_trig)) &&
-								 (!uart2_enabled ||
-									(timeout_uart2 >= timeout_trig)) &&
-								 (!uart3_enabled ||
-									(timeout_uart3 >= timeout_trig)));
+  trigger_send = ((!uart1_enabled ||
+                   (timeout_uart1 >= timeout_trig)) &&
+                  (!uart2_enabled ||
+                   (timeout_uart2 >= timeout_trig)) &&
+                  (!uart3_enabled ||
+                   (timeout_uart3 >= timeout_trig)));
 
-	// Send stage: If all UART timeouts reach the timeout
-	// trigger value and have accumulated data to send
-	if(trigger_send) {
+  // Send stage: If all UART timeouts reach the timeout
+  // trigger value and have accumulated data to send
+  if(trigger_send) {
 
     // If there was no new data on any UART for some time
     // and there is data in every rx buffer:
 
-		if(spistream_wait_for_num_transfers > 0)
-		{
-			// Warning LED: Could not finish all transactions
-			// from last call.
-			LED_ON(6);
-		}
-		else
-		{
-			LED_OFF(6);
+    if(spistream_wait_for_num_transfers > 0)
+    {
+      // Warning LED: Could not finish all transactions
+      // from last call.
+      LED_ON(6);
+    }
+    else
+    {
+      LED_OFF(6);
 
-			uart1_sent = !uart1_enabled; // If we set uartX_sent to 1 here, it
-			uart2_sent = !uart2_enabled; // is just ignored for every read poll
-			uart3_sent = !uart3_enabled; // as it seems to have been read already.
+      uart1_sent = !uart1_enabled; // If we set uartX_sent to 1 here, it
+      uart2_sent = !uart2_enabled; // is just ignored for every read poll
+      uart3_sent = !uart3_enabled; // as it seems to have been read already.
 
       if(!uart1_sent && uart1_num_rx_bytes > 0) {
-				if(spistream_send_msg((uint8_t *)&spistream_uart1_msg,
-					    							  uart1_num_rx_bytes+1, // +1 for UART id
-						 									SPISTREAM_WAIT_FOR_READ)) {
-					 uart1_sent = 1;
-					 spistream_wait_for_num_transfers++;
-				 }
-			}
+        if(spistream_send_msg((uint8_t *)&spistream_uart1_msg,
+                              uart1_num_rx_bytes+1, // +1 for UART id
+                              SPISTREAM_WAIT_FOR_READ)) {
+          uart1_sent = 1;
+          spistream_wait_for_num_transfers++;
+        }
+      }
 
       if(!uart2_sent && uart1_num_rx_bytes > 0) {
-				if(spistream_send_msg((uint8_t *)&spistream_uart2_msg,
-						    							uart1_num_rx_bytes+1, // +1 for UART id
-						 									SPISTREAM_WAIT_FOR_READ)) {
-					 uart2_sent = 1;
-					 spistream_wait_for_num_transfers++;
-				}
-			}
+        if(spistream_send_msg((uint8_t *)&spistream_uart2_msg,
+                              uart1_num_rx_bytes+1, // +1 for UART id
+                              SPISTREAM_WAIT_FOR_READ)) {
+          uart2_sent = 1;
+          spistream_wait_for_num_transfers++;
+        }
+      }
 
       if(!uart3_sent && uart3_num_rx_bytes > 0) {
-				if(spistream_send_msg((uint8_t *)&spistream_uart3_msg,
-															uart3_num_rx_bytes+1, // +1 for UART id
-															SPISTREAM_WAIT_FOR_READ)) {
-					uart3_sent = 1;
-					spistream_wait_for_num_transfers++;
-				}
-			}
+        if(spistream_send_msg((uint8_t *)&spistream_uart3_msg,
+                              uart3_num_rx_bytes+1, // +1 for UART id
+                              SPISTREAM_WAIT_FOR_READ)) {
+          uart3_sent = 1;
+          spistream_wait_for_num_transfers++;
+        }
+      }
 
-			// Transaction completed, reset state.
-			// Note: Only reset when all uart buffers have been transmitted,
-			// otherwise the timeout would start from the beginning and the
-			// loop phase shifts (aka "you're in the deep").
-			uart1_num_rx_bytes = 0;
-			uart2_num_rx_bytes = 0;
-			uart3_num_rx_bytes = 0;
-			timeout_uart1 = 0;
-			timeout_uart2 = 0;
-			timeout_uart3 = 0;
-			uart1_sent = 0;
-			uart2_sent = 0;
-			uart3_sent = 0;
+      // Transaction completed, reset state.
+      // Note: Only reset when all uart buffers have been transmitted,
+      // otherwise the timeout would start from the beginning and the
+      // loop phase shifts (aka "you're in the deep").
+      uart1_num_rx_bytes = 0;
+      uart2_num_rx_bytes = 0;
+      uart3_num_rx_bytes = 0;
+      timeout_uart1 = 0;
+      timeout_uart2 = 0;
+      timeout_uart3 = 0;
+      uart1_sent = 0;
+      uart2_sent = 0;
+      uart3_sent = 0;
     }
   }
 }

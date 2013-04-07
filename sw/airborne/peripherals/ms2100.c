@@ -30,89 +30,118 @@
 
 #include <stdlib.h>  // for abs
 
-volatile uint8_t ms2100_status;
-volatile int16_t ms2100_values[MS2100_NB_AXIS];
-volatile uint8_t ms2100_cur_axe;
 
-struct spi_transaction ms2100_trans;
+#define MS2100_DIVISOR_128  2
+#define MS2100_DIVISOR_256  3
+#define MS2100_DIVISOR_512  4
+#define MS2100_DIVISOR_1024 5
 
-uint8_t ms2100_control_byte;
-uint8_t ms2100_val[2];
+#ifndef MS2100_DIVISOR
+#define MS2100_DIVISOR MS2100_DIVISOR_1024
+#endif
+
+// keep stupid global variable for now...
+struct Ms2100 ms2100;
 
 
-void ms2100_init( void ) {
+void ms2100_init(struct Ms2100 *ms, struct spi_periph *spi_p, uint8_t slave_idx) {
+
+  /* set spi_peripheral */
+  ms->spi_p = spi_p;
+
+  /* configure spi transaction for the request */
+  ms->req_trans.cpol = SPICpolIdleLow;
+  ms->req_trans.cpha = SPICphaEdge1;
+  ms->req_trans.dss = SPIDss8bit;
+  ms->req_trans.bitorder = SPIMSBFirst;
+  ms->req_trans.cdiv = SPIDiv64;
+
+  ms->req_trans.slave_idx = slave_idx;
+  ms->req_trans.select = SPISelectUnselect;
+  ms->req_trans.output_buf = ms->req_buf;
+  ms->req_trans.output_length = 1;
+  ms->req_trans.input_buf = NULL;
+  ms->req_trans.input_length = 0;
+  // ms2100 has to be reset before each measurement: implemented in ms2100_arch.c
+  ms->req_trans.before_cb = ms2100_reset_cb;
+  ms->req_trans.status = SPITransDone;
+
+  /* configure spi transaction to read the result */
+  ms->read_trans.cpol = SPICpolIdleLow;
+  ms->read_trans.cpha = SPICphaEdge1;
+  ms->read_trans.dss = SPIDss8bit;
+  ms->read_trans.bitorder = SPIMSBFirst;
+  ms->read_trans.cdiv = SPIDiv64;
+
+  ms->read_trans.slave_idx = slave_idx;
+  ms->read_trans.select = SPISelectUnselect;
+  ms->read_trans.output_buf = NULL;
+  ms->read_trans.output_length = 0;
+  ms->read_trans.input_buf = ms->read_buf;
+  ms->read_trans.input_length = 2;
+  ms->read_trans.before_cb = NULL;
+  ms->read_trans.after_cb = NULL;
+  ms->read_trans.status = SPITransDone;
 
   ms2100_arch_init();
 
-  uint8_t i;
-  for (i=0; i<MS2100_NB_AXIS; i++)
-    ms2100_values[i] = 0;
-  ms2100_cur_axe = 0;
+  INT_VECT3_ZERO(ms->data.vect);
+  ms->cur_axe = 0;
 
-  // init spi transaction parameters
-  ms2100_trans.slave_idx = MS2100_SLAVE_IDX;
-  ms2100_trans.select = SPISelectUnselect;
-  ms2100_trans.cpol = SPICpolIdleLow;
-  ms2100_trans.cpha = SPICphaEdge1;
-  ms2100_trans.dss = SPIDss8bit;
-  ms2100_trans.status = SPITransDone;
-
-  ms2100_status = MS2100_IDLE;
+  ms->status = MS2100_IDLE;
 }
 
-void ms2100_read( void ) {
-
-  /* set SPI transaction */
-  ms2100_control_byte = (ms2100_cur_axe+1) << 0 | MS2100_DIVISOR << 4;
-  ms2100_trans.output_buf = &ms2100_control_byte;
-  ms2100_trans.output_length = 1;
-  ms2100_trans.input_buf = 0;
-  ms2100_trans.input_length = 0;
-  ms2100_trans.before_cb = ms2100_reset_cb; // implemented in ms2100_arch.c
-
-  spi_submit(&(MS2100_SPI_DEV),&ms2100_trans);
-
-  ms2100_status = MS2100_SENDING_REQ;
+/// send request to read next axis
+void ms2100_read(struct Ms2100 *ms) {
+  ms->req_buf[0] = (ms->cur_axe+1) << 0 | MS2100_DIVISOR << 4;
+  spi_submit(ms->spi_p, &(ms->req_trans));
+  ms->status = MS2100_SENDING_REQ;
 }
 
-void ms2100_event( void ) {
-  if (ms2100_trans.status == SPITransSuccess) {
-    if (ms2100_status == MS2100_GOT_EOC) {
+#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
+
+void ms2100_event(struct Ms2100 *ms) {
+  // handle request transaction
+  if (ms->req_trans.status == SPITransDone) {
+    if (ms->status == MS2100_GOT_EOC) {
       // eoc occurs, submit reading req
-      // read 2 bytes
-      ms2100_trans.output_buf = 0;
-      ms2100_trans.output_length = 0;
-      ms2100_trans.input_buf = ms2100_val;
-      ms2100_trans.input_length = 2;
-      ms2100_trans.before_cb = 0; // no reset when reading values
-      spi_submit(&(MS2100_SPI_DEV),&ms2100_trans);
-
-      ms2100_status = MS2100_READING_RES;
-      ms2100_trans.status = SPITransDone;
+      spi_submit(ms->spi_p, &(ms->read_trans));
+      ms->status = MS2100_READING_RES;
     }
-    else if (ms2100_status == MS2100_READING_RES) {
+  }
+  else if (ms->req_trans.status == SPITransSuccess) {
+    ms->req_trans.status = SPITransDone;
+  }
+  else if (ms->req_trans.status == SPITransFailed) {
+    ms->status = MS2100_IDLE;
+    ms->cur_axe = 0;
+    ms->req_trans.status = SPITransDone;
+  }
+
+  // handle reading transaction
+  if (ms->read_trans.status == SPITransSuccess) {
+    if (ms->status == MS2100_READING_RES) {
       // store value
-      int16_t new_val;
-      new_val = ms2100_trans.input_buf[0] << 8;
-      new_val += ms2100_trans.input_buf[1];
-      if (abs(new_val) < 2000)
-        ms2100_values[ms2100_cur_axe] = new_val;
-      ms2100_cur_axe++;
-      if (ms2100_cur_axe > 2) {
-        ms2100_cur_axe = 0;
-        ms2100_status = MS2100_DATA_AVAILABLE;
+      int16_t new_val = Int16FromBuf(ms->read_buf,0);
+      // what is this check about?
+      if (abs(new_val) < 2000) {
+        ms->data.value[ms->cur_axe] = new_val;
+      }
+      ms->cur_axe++;
+      if (ms->cur_axe > 2) {
+        ms->cur_axe = 0;
+        ms->status = MS2100_DATA_AVAILABLE;
       }
       else {
-        ms2100_status = MS2100_IDLE;
+        ms->status = MS2100_IDLE;
       }
-      ms2100_trans.status = SPITransDone;
+      ms->read_trans.status = SPITransDone;
     }
-    else { /* TODO ? */ }
   }
-  else if (ms2100_trans.status == SPITransFailed) {
-    // TODO is it enough ?
-    ms2100_status = MS2100_IDLE;
-    ms2100_trans.status = SPITransDone;
+  else if (ms->read_trans.status == SPITransFailed) {
+    ms->status = MS2100_IDLE;
+    ms->cur_axe = 0;
+    ms->read_trans.status = SPITransDone;
   }
 }
 

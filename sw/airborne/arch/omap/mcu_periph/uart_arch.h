@@ -30,14 +30,6 @@
 #define B115200 115200
 */
 
-//junk for gps_configure_uart in gps_ubx.c to compile
-#define UART_BAUD(baud) (baud)
-
-
-#define Uart1_init uart1_init()
-#define Uart2_init uart2_init()
-#define Uart3_init uart3_init()
-#define Uart5_init uart5_init()
 
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler

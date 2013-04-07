@@ -21,6 +21,9 @@
 # Boston, MA 02111-1307, USA.
 ##
 
+# Quiet compilation
+Q=@
+
 CC = gcc
 CFLAGS = -std=gnu99 -Wall -I.. -I../.. -I../../test/ -I../../../include -I../../booz_priv
 LDFLAGS = -lm
@@ -51,4 +54,4 @@ test_att_ref: test_att_ref.c ../stabilization/booz_stabilization_attitude_ref_qu
 
 
 clean:
-	rm -f *~ test_att_ref
+	$(Q)rm -f *~ test_att_ref

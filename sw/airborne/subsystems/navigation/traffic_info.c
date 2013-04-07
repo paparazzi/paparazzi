@@ -17,10 +17,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
-/** \file traffic_info.c
- *  \brief Informations relative to the other aircrafts
+
+/**
+ * @file subsystems/naviation/traffic_info.c
+ *
+ * Information relative to the other aircrafts.
  *
  */
 

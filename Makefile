@@ -45,6 +45,14 @@ OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
 BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
 
+# default mktemp in OS X doesn't work, use gmktemp with macports coreutils
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
+
 #
 # define some paths
 #
@@ -57,6 +65,7 @@ MULTIMON=sw/ground_segment/multimon
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
+JOYSTICK=sw/ground_segment/joystick
 EXT=sw/ext
 
 #
@@ -95,7 +104,7 @@ MESSAGES_FILES = $(CONF)/messages
 GEN_HEADERS = $(MESSAGES_XML) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
 
 
-all: print_build_version update_google_version conf ext lib subdirs lpctools commands static
+all: ground_segment ext lpctools
 
 print_build_version:
 	@echo "------------------------------------------------------------"
@@ -111,24 +120,29 @@ conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
 
-static: cockpit tmtc tools sim_static static_h
+ground_segment: print_build_version update_google_version conf libpprz subdirs commands static
 
-lib:
+static: cockpit tmtc tools sim_static joystick static_h
+
+libpprz:
 	$(MAKE) -C $(LIB)/ocaml
 
 multimon:
 	$(MAKE) -C $(MULTIMON)
 
-cockpit: lib
+cockpit: libpprz
 	$(MAKE) -C $(COCKPIT)
 
-tmtc: lib cockpit multimon
+tmtc: libpprz cockpit multimon
 	$(MAKE) -C $(TMTC)
 
-tools: lib
+tools: libpprz
 	$(MAKE) -C $(TOOLS)
 
-sim_static: lib
+joystick: libpprz
+	$(MAKE) -C $(JOYSTICK)
+
+sim_static: libpprz
 	$(MAKE) -C $(SIMULATOR)
 
 ext:
@@ -142,44 +156,52 @@ subdirs: $(SUBDIRS)
 $(SUBDIRS):
 	$(MAKE) -C $@
 
-$(PPRZCENTER): lib
+$(PPRZCENTER): libpprz
 
-$(LOGALIZER): lib
+$(LOGALIZER): libpprz
 
 
 static_h: $(GEN_HEADERS)
 
 $(MESSAGES_XML) : $(MESSAGES_XML_CONF) $(MESSAGES_FILES)/* tools
-	@echo BUILD $@
+	@echo GENERATE $@
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages_xml.out $(MESSAGES_XML_CONF) $(MESSAGES_FILES) $@ $(STATICINCLUDE) $(UPLINK_MSG_H) $(DOWNLINK_MSG_H)
 
 $(MACROS_TARGET): $(MESSAGES_XML_CONF) $(MESSAGES_FILES)/*
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > /tmp/msg.h
-	$(Q)mv /tmp/msg.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
-	$(Q)mv /tmp/ubx.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_ubx.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(MTK_PROTOCOL_H) : $(MTK_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_mtk.out $< > /tmp/mtk.h
-	$(Q)mv /tmp/mtk.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_mtk.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > /tmp/xsens.h
-	$(Q)mv /tmp/xsens.h $@
-
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 $(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
-	$(Q)mv /tmp/abi.h $@
+	@echo GENERATE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > $($@_TMP)
+	$(Q)mv $($@_TMP) $@
+	$(Q)chmod a+r $@
 
 
 include Makefile.ac
@@ -195,26 +217,13 @@ sim: sim_static
 
 # stuff to build and upload the lpc bootloader ...
 include Makefile.lpctools
-lpctools: lpc21iap usb_lib
+lpctools: lpc21iap
 
-commands: paparazzi sw/simulator/launchsitl
+commands: paparazzi
 
 paparazzi:
 	cat src/paparazzi | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
-
-sw/simulator/launchsitl:
-	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
-	chmod a+x $@
-
-run_sitl :
-	$(PAPARAZZI_HOME)/var/$(AIRCRAFT)/sim/simsitl
-
-install :
-	$(MAKE) -f Makefile.install PREFIX=$(PREFIX)
-
-uninstall :
-	$(MAKE) -f Makefile.install PREFIX=$(PREFIX) uninstall
 
 
 #
@@ -222,12 +231,11 @@ uninstall :
 #
 
 clean:
-	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
-	$(Q)rm -f paparazzi sw/simulator/launchsitl
 	$(Q)rm -f $(STATICINCLUDE)/*
 
 cleanspaces:
@@ -268,9 +276,8 @@ run_tests:
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
 
-.PHONY: all print_build_version update_google_version \
-subdirs $(SUBDIRS) conf ext lib multimon cockpit tmtc tools\
-static sim_static lpctools \
-commands run_sitl install uninstall \
+.PHONY: all print_build_version update_google_version ground_segment \
+subdirs $(SUBDIRS) conf ext libpprz multimon cockpit tmtc tools\
+static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test replace_current_conf_xml run_tests restore_conf_xml $(MESSAGES_XML)

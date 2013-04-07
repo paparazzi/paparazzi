@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="75" ground_alt="0" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
+<flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
 #include "subsystems/navigation/nav_line.h"
 #include "subsystems/datalink/datalink.h"
@@ -13,8 +13,8 @@
     <waypoint name="MOB" x="137.0" y="-11.6"/>
     <waypoint name="S1" x="-119.2" y="69.6"/>
     <waypoint name="S2" x="274.4" y="209.5"/>
-    <waypoint alt="30.0" name="AF" x="177.4" y="45.1"/>
-    <waypoint alt="0.0" name="TD" x="28.8" y="57.0"/>
+    <waypoint alt="215.0" name="AF" x="177.4" y="45.1"/>
+    <waypoint alt="185.0" name="TD" x="28.8" y="57.0"/>
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
     <waypoint name="CLIMB" x="-114.5" y="162.3"/>
   </waypoints>

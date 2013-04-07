@@ -267,9 +267,9 @@ static void test_uart_periodic(void) {
 
   if (idx_tx<sizeof(buf_src)) {
     switch (direction) {
-    case OneToThree : Uart1Transmit(buf_src[idx_tx]); break;
-    case ThreeToOne : Uart3Transmit(buf_src[idx_tx]); break;
-    default: break;
+      case OneToThree : uart_transmit(&uart1, buf_src[idx_tx]); break;
+      case ThreeToOne : uart_transmit(&uart3, buf_src[idx_tx]); break;
+      default: break;
     }
     idx_tx++;
   }
@@ -278,8 +278,8 @@ static void test_uart_periodic(void) {
 
 static void test_uart_event(void) {
 
-  if (Uart3ChAvailable()) {
-    buf_dest[idx_rx] = Uart3Getch();
+  if (uart_char_available(&uart3)) {
+    buf_dest[idx_rx] = uart_getch(&uart3);
     if (idx_rx<sizeof(buf_src)) {
       DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, sizeof(buf_src), buf_dest);
       idx_rx++;
@@ -296,8 +296,8 @@ static void test_uart_event(void) {
     }
   }
 
-  if (Uart1ChAvailable()) {
-    buf_dest[idx_rx] = Uart1Getch();
+  if (uart_char_available(&uart1)) {
+    buf_dest[idx_rx] = uart_getch(&uart1);
     if (idx_rx<sizeof(buf_src)) {
       DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, sizeof(buf_src), buf_dest);
       idx_rx++;

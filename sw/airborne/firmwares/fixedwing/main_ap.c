@@ -17,15 +17,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- * @file main_ap.c
+ * @file firmwares/fixedwing/main_ap.c
+ *
  * AP ( AutoPilot ) tasks
  *
- * This process is reponsible for the collecting the different sensors data, fusing them to obtain
- * aircraft attitude and running the different control loops
+ * This process is reponsible for the collecting the different sensors data,
+ * calling the appropriate estimation algorithms and running the different control loops.
  */
 
 #define MODULES_C
@@ -85,15 +85,34 @@
 #include "gpio.h"
 #include "led.h"
 
+/* if PRINT_CONFIG is defined, print some config options */
+PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
+PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
+PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 
-#if USE_AHRS
-#if USE_IMU
+#ifndef MODULES_FREQUENCY
+#define MODULES_FREQUENCY 60
+#endif
+PRINT_CONFIG_VAR(MODULES_FREQUENCY)
+
+
+#if USE_AHRS && USE_IMU
+
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+#ifndef AHRS_CORRECT_FREQUENCY
+#define AHRS_CORRECT_FREQUENCY PERIODIC_FREQUENCY
+#endif
+PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
+
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#endif // USE_IMU
-#endif // USE_AHRS
+
+#endif // USE_AHRS && USE_IMU
 
 #if USE_GPS
 static inline void on_gps_solution( void );
@@ -254,7 +273,7 @@ static inline uint8_t pprz_mode_update( void ) {
 #ifndef RADIO_AUTO_MODE
     return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]));
 #else
-#pragma message "Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2."
+    INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
     /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between two switches/channels
      * RADIO_MODE will switch between PPRZ_MODE_MANUAL and any PPRZ_MODE_AUTO mode selected by RADIO_AUTO_MODE.
      *
@@ -590,7 +609,7 @@ void event_task_ap( void ) {
 #endif
 
 #ifdef InsEvent
-#pragma message "calling InsEvent, remove me.."
+  TODO("calling InsEvent, remove me..")
   InsEvent(NULL);
 #endif
 

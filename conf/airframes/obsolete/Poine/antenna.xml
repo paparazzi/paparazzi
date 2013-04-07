@@ -28,15 +28,15 @@ ant.CFLAGS += -DUSE_LED
 ant.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 ant.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-ant.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
+ant.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART0
 ant.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
-ant.CFLAGS += -DDOWNLINK_AP_DEVICE=Uart0 -DAP
-ant.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
+ant.CFLAGS += -DDOWNLINK_AP_DEVICE=UART0 -DAP
+ant.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=UART0
 ant.srcs += datalink.c
 ant.srcs += subsystems/navigation/traffic_info.c
 
-ant.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600
+ant.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=UART1 -DUART1_BAUD=B9600
 ant.srcs += estimator.c gps_ubx.c gps.c
 
 ant.srcs += avr/ant_tracker.c

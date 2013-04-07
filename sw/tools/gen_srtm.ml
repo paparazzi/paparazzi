@@ -58,23 +58,23 @@ let () =
     ()
   ) area_list;
   (* reading file names in dir *)
-  let file_names = Sys.readdir srtm_tmp_dir in
+    let file_names = Sys.readdir srtm_tmp_dir in
 
   (* Open temporary file *)
-  let file, out = Filename.open_temp_file ~temp_dir:var_dir "srtm" ".data" in
+    let file, out = Filename.open_temp_file ~temp_dir:var_dir "srtm" ".data" in
 
   (* Parse files for xml and read them *)
-  Array.iter (read_file_and_print out) file_names;
+    Array.iter (read_file_and_print out) file_names;
 
   (* Close file *)
-  close_out out;
+    close_out out;
 
   (* Compress file *)
-  let _ = Sys.command ("bzip2 -z "^file) in
+    let _ = Sys.command ("bzip2 -z "^file) in
 
   (* Move to final name *)
-  Unix.rename (file^".bz2") srtm_data;
-  prerr_endline ("Srtm data: "^srtm_data)
+    Unix.rename (file^".bz2") srtm_data;
+    prerr_endline ("Srtm data: "^srtm_data)
 
 
 

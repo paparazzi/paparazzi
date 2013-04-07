@@ -22,6 +22,8 @@
 
 /**
  * @file arch/lpc21/mcu_periph/spi_arch.h
+ * @ingroup lpc21_arch
+ *
  * Handling of SPI hardware for lpc21xx.
  * for now only SPI1 ( aka SSP )
  */
@@ -32,14 +34,5 @@
 #include "std.h"
 #include "LPC21xx.h"
 #include BOARD_CONFIG
-
-// SSP is on SPI1 on lpc
-#if defined USE_SSP & !USE_SPI1
-#define USE_SP11 1
-#endif
-
-#if defined SSP_VIC_SLOT & !SPI1_VIC_SLOT
-#define SPI1_VIC_SLOT SSP_VIC_SLOT
-#endif
 
 #endif /* SPI_ARCH_H */

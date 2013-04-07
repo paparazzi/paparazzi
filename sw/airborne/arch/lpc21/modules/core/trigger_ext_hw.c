@@ -23,7 +23,7 @@
 
 #include "core/trigger_ext_hw.h"
 #include "std.h"
-#include "mcu_periph/sys_time.hw.h"
+#include "mcu_periph/sys_time.h"
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
@@ -32,7 +32,7 @@ void TRIG_ISR() {
   uint32_t delta_t0_temp;
   trigger_t0 = TRIGGER_CR;
   delta_t0_temp = trigger_t0 - last;
-  if (MSEC_OF_CPU_TICKS(delta_t0_temp) > 10) {
+  if (msec_of_cpu_ticks(delta_t0_temp) > 10) {
     trigger_delta_t0 = delta_t0_temp;
     last = trigger_t0;
     trigger_ext_valid = TRUE;

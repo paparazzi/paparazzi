@@ -48,6 +48,11 @@ static void SPI1_ISR(void) __attribute__((naked));
 #define SSPCPSR_VAL 0x04
 #endif
 
+#warning "This driver should be updated to use the new SPI peripheral"
+
+#ifndef SPI1_VIC_SLOT
+#define SPI1_VIC_SLOT 7
+#endif
 
 void lcd_spi_tx(uint8_t data) {
   SpiClearRti();
@@ -74,8 +79,8 @@ void lcd_dogm_init_hw( void ) {
   /* Configure interrupt vector for SPI */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
   VICIntEnable = VIC_BIT(VIC_SPI1);     /* SPI1 interrupt enabled */
-  VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
-  VICVectAddr7 = (uint32_t)SPI1_ISR;    /* address of the ISR */
+  _VIC_CNTL(SPI1_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
+  _VIC_CNTL(SPI1_VIC_SLOT) = (uint32_t)SPI1_ISR;    /* address of the ISR */
 }
 
 void SPI1_ISR(void) {

@@ -16,10 +16,6 @@
 // FIXME, this is just to make it compile
 #define POWER_SWITCH_LED 5
 
-/* configuration for aspirin - and more generaly IMUs */
-#define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2Periph_GPIOD
-#define IMU_ACC_DRDY_GPIO             GPIOD
-#define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOD
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"

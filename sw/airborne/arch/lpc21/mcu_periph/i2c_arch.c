@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -18,6 +18,13 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file arch/lpc21/mcu_periph/i2c_arch.c
+ * @ingroup lpc21_arch
+ *
+ * Handling of I2C hardware for LPC21xx.
  */
 
 #include "mcu_periph/i2c.h"
@@ -189,7 +196,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
 #endif
 
 #ifndef I2C0_VIC_SLOT
-#define I2C0_VIC_SLOT 9
+#define I2C0_VIC_SLOT 8
 #endif
 
 
@@ -272,7 +279,7 @@ void i2c0_hw_init ( void ) {
 #endif
 
 #ifndef I2C1_VIC_SLOT
-#define I2C1_VIC_SLOT 11
+#define I2C1_VIC_SLOT 9
 #endif
 
 

@@ -56,13 +56,6 @@ struct Imu imu;
 
 void imu_impl_init(void)
 {
-  /////////////////////////////////////////////////////////////////////
-  // MPU60X0
-  aspirin2_mpu60x0.type = I2CTransTx;
-  aspirin2_mpu60x0.slave_addr = MPU60X0_ADDR;
-  aspirin2_mpu60x0.len_r = 0;
-  aspirin2_mpu60x0.len_w = 2;
-
 
   ///////////////////
   // Configure power:
@@ -77,8 +70,8 @@ void imu_impl_init(void)
   // -switch to gyroX clock
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_PWR_MGMT_1;
   aspirin2_mpu60x0.buf[1] = 0x01;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
 
@@ -97,29 +90,29 @@ void imu_impl_init(void)
 #endif
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_CONFIG;
   aspirin2_mpu60x0.buf[1] = (2 << 3) | (3 << 0);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_SMPLRT_DIV
   // -100Hz output = 1kHz / (9 + 1)
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_SMPLRT_DIV;
   aspirin2_mpu60x0.buf[1] = 9;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_GYRO_CONFIG
   // -2000deg/sec
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_GYRO_CONFIG;
   aspirin2_mpu60x0.buf[1] = (3<<3);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  while(aspirin2_mpu60x0.status == I2CTransPending);
 
   // MPU60X0_REG_ACCEL_CONFIG
   // 16g, no HPFL
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_ACCEL_CONFIG;
   aspirin2_mpu60x0.buf[1] = (3<<3);
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
+  i2c_transmit(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 2);
+  while(aspirin2_mpu60x0.status == I2CTransPending);
 
 
 
@@ -129,7 +122,7 @@ void imu_impl_init(void)
   // no interrupts for now, but set data ready interrupt to enable reading status bits
   aspirin2_mpu60x0.buf[0] = ITG3200_REG_INT_CFG;
   aspirin2_mpu60x0.buf[1] = 0x01;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status == I2CTransPending);
 */
 
@@ -141,21 +134,21 @@ void imu_impl_init(void)
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_CFGA;  // set to rate to max speed: 50Hz no bias
   ppzuavimu_hmc5843.buf[1] = 0x00 | (0x06 << 2);
   ppzuavimu_hmc5843.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_hmc5843);
     while(ppzuavimu_hmc5843.status == I2CTransPending);
 
   ppzuavimu_hmc5843.type = I2CTransTx;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
   ppzuavimu_hmc5843.buf[1] = 0x01<<5;
   ppzuavimu_hmc5843.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_hmc5843);
     while(ppzuavimu_hmc5843.status == I2CTransPending);
 
   ppzuavimu_hmc5843.type = I2CTransTx;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
   ppzuavimu_hmc5843.buf[1] = 0x00;
   ppzuavimu_hmc5843.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV,&ppzuavimu_hmc5843);
     while(ppzuavimu_hmc5843.status == I2CTransPending);
 */
 }
@@ -163,19 +156,13 @@ void imu_impl_init(void)
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  aspirin2_mpu60x0.type = I2CTransTxRx;
-  aspirin2_mpu60x0.len_r = 21;
-  aspirin2_mpu60x0.len_w = 1;
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_INT_STATUS;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &aspirin2_mpu60x0);
+  i2c_transceive(&PPZUAVIMU_I2C_DEV, &aspirin2_mpu60x0, MPU60X0_ADDR, 1, 21);
 
 /*
   // Start reading the latest accelerometer data
-  ppzuavimu_adxl345.type = I2CTransTxRx;
-  ppzuavimu_adxl345.len_r = 6;
-  ppzuavimu_adxl345.len_w = 1;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_DATA_X0;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_adxl345);
+  i2c_transceive(&PPZUAVIMU_I2C_DEV, &ppzuavimu_adxl345, ADXL345_ADDR, 1, 6);
 */
   // Start reading the latest magnetometer data
 #if PERIODIC_FREQUENCY > 60
@@ -185,7 +172,7 @@ void imu_periodic( void )
   ppzuavimu_hmc5843.len_r = 6;
   ppzuavimu_hmc5843.len_w = 1;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_DATXM;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_hmc5843);
+  i2c_submit(&PPZUAVIMU_I2C_DEV, &ppzuavimu_hmc5843);
 */
 #if PERIODIC_FREQUENCY > 60
   });

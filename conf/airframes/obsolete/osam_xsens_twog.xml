@@ -10,7 +10,7 @@
       <define name="WIND_INFO"/>
       <define name="UGEAR"/>
       <define name="UGEAR_LED" value="2"/>
-      <define name="UGEAR_LINK" value="Uart0"/>
+      <define name="UGEAR_LINK" value="UART0"/>
       <define name="USE_UART0"/>
       <define name="UART0_BAUD" value="B115200"/>
     </target>

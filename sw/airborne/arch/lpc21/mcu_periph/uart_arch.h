@@ -20,24 +20,19 @@
  *
  */
 
+/**
+ * @file arch/lpc21/mcu_periph/uart_arch.h
+ * @ingroup lpc21_arch
+ *
+ * Handling of UART hardware for lpc21xx.
+ */
+
 #ifndef LPC21_UART_ARCH_H
 #define LPC21_UART_ARCH_H
 
 #include "types.h"
 #include "LPC21xx.h"
 #include BOARD_CONFIG
-
-#define UART_BAUD(baud) (uint16_t)((PCLK / ((baud) * 16.0)) + 0.5)
-
-#define B1200         UART_BAUD(1200)
-#define B2400         UART_BAUD(2400)
-#define B4800         UART_BAUD(4800)
-#define B9600         UART_BAUD(9600)
-#define B19200        UART_BAUD(19200)
-#define B38400        UART_BAUD(38400)
-#define B57600        UART_BAUD(57600)
-#define B115200       UART_BAUD(115200)
-#define B230400       UART_BAUD(230400)
 
 #define UART_8N1      (uint8_t)(ULCR_CHAR_8 + ULCR_PAR_NO   + ULCR_STOP_1)
 #define UART_7N1      (uint8_t)(ULCR_CHAR_7 + ULCR_PAR_NO   + ULCR_STOP_1)

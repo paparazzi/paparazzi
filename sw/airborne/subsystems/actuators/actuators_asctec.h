@@ -31,21 +31,21 @@
 #include "generated/airframe.h"
 
 enum actuators_asctec_cmd { NONE,
-                           TEST,
-                           REVERSE,
-                           SET_ADDR };
+                            TEST,
+                            REVERSE,
+                            SET_ADDR };
 
 enum actuators_asctec_addr { FRONT,
-                            BACK,
-                            LEFT,
-                            RIGHT };
+                             BACK,
+                             LEFT,
+                             RIGHT };
 
 /* this is for the v1 protocol which does its own mixing */
 enum actuators_asctec_cmds { PITCH,
-                            ROLL,
-                            YAW,
-                            THRUST,
-                            CMD_NB };
+                             ROLL,
+                             YAW,
+                             THRUST,
+                             CMD_NB };
 
 struct ActuatorsAsctec {
   enum actuators_asctec_cmd cmd;

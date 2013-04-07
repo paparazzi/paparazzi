@@ -98,7 +98,7 @@ void baro_bmp_init( void ) {
   baro_bmp_cnt = BARO_BMP_OFFSET_NBSAMPLES_INIT + BARO_BMP_OFFSET_NBSAMPLES_AVRG;
   /* read calibration values */
   bmp_trans.buf[0] = BMP085_EEPROM_AC1;
-  I2CTransceive(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 1, 22);
+  i2c_transceive(&BMP_I2C_DEV, &bmp_trans, BMP085_SLAVE_ADDR, 1, 22);
 }
 
 void baro_bmp_periodic( void ) {
@@ -107,19 +107,19 @@ void baro_bmp_periodic( void ) {
     /* start temp measurement (once) */
     bmp_trans.buf[0] = BMP085_CTRL_REG;
     bmp_trans.buf[1] = BMP085_START_TEMP;
-    I2CTransmit(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 2);
+    i2c_transmit(&BMP_I2C_DEV, &bmp_trans, BMP085_SLAVE_ADDR, 2);
     baro_bmp_status = BARO_BMP_START_TEMP;
   }
   else if (baro_bmp_status == BARO_BMP_START_TEMP) {
     /* read temp measurement */
     bmp_trans.buf[0] = BMP085_DAT_MSB;
-    I2CTransceive(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 1, 2);
+    i2c_transceive(&BMP_I2C_DEV, &bmp_trans, BMP085_SLAVE_ADDR, 1, 2);
     baro_bmp_status = BARO_BMP_READ_TEMP;
   }
   else if (baro_bmp_status == BARO_BMP_START_PRESS) {
     /* read press measurement */
     bmp_trans.buf[0] = BMP085_DAT_MSB;
-    I2CTransceive(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 1, 3);
+    i2c_transceive(&BMP_I2C_DEV, &bmp_trans, BMP085_SLAVE_ADDR, 1, 3);
     baro_bmp_status = BARO_BMP_READ_PRESS;
   }
 #else // SITL
@@ -155,7 +155,7 @@ void baro_bmp_event( void ) {
       /* start high res pressure measurement */
       bmp_trans.buf[0] = BMP085_CTRL_REG;
       bmp_trans.buf[1] = BMP085_START_P3;
-      I2CTransmit(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 2);
+      i2c_transmit(&BMP_I2C_DEV, &bmp_trans, BMP085_SLAVE_ADDR, 2);
       baro_bmp_status = BARO_BMP_START_PRESS;
     }
     else if (baro_bmp_status == BARO_BMP_READ_PRESS) {
@@ -171,7 +171,7 @@ void baro_bmp_event( void ) {
       /* start temp measurement */
       bmp_trans.buf[0] = BMP085_CTRL_REG;
       bmp_trans.buf[1] = BMP085_START_TEMP;
-      I2CTransmit(BMP_I2C_DEV, bmp_trans, BMP085_SLAVE_ADDR, 2);
+      i2c_transmit(&BMP_I2C_DEV, &bmp_trans, BMP085_SLAVE_ADDR, 2);
       baro_bmp_status = BARO_BMP_START_TEMP;
 
       /* compensate temperature */

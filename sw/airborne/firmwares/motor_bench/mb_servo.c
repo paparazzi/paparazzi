@@ -1,7 +1,7 @@
 #include "mb_servo.h"
 
 #include "mcu_periph/sys_time.h"
-#define MY_NB_CLOCK_TIMER_PWM(time_us) CPU_TICKS_OF_USEC(time_us)
+#define MY_NB_CLOCK_TIMER_PWM(time_us) cpu_ticks_of_usec(time_us)
 
 uint32_t mb_servo_max_pulse_ns, mb_servo_min_pulse_ns;
 
@@ -36,7 +36,7 @@ void mb_servo_set_us(uint32_t duration_us) {
 
 void mb_servo_set_ns(uint32_t duration_ns) {
   /* set Match5 value (pulse duration )*/
-  PWMMR5 = CPU_TICKS_OF_NSEC(duration_ns);
+  PWMMR5 = cpu_ticks_of_nsec(duration_ns);
  /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH5;
 }

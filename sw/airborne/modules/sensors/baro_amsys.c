@@ -119,9 +119,9 @@ void baro_amsys_read_periodic( void ) {
 #ifndef SITL
 	if (baro_amsys_i2c_trans.status == I2CTransDone){
 #ifndef MEASURE_AMSYS_TEMPERATURE
-	I2CReceive(BARO_AMSYS_I2C_DEV, baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 2);
+	i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 2);
 #else
-	I2CReceive(BARO_AMSYS_I2C_DEV, baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 4);
+	i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 4);
 #endif
 		}
 #else // SITL

@@ -20,9 +20,13 @@
  *
  */
 
-/*
- * Brief LPC21 uart code
+/**
+ * @file arch/lpc21/mcu_periph/uart_arch.c
+ * @ingroup lpc21_arch
+ *
+ * Handling of UART hardware for lpc21xx.
  */
+
 
 #include "mcu_periph/uart.h"
 #include "armVIC.h"
@@ -41,10 +45,14 @@ static inline void uart_enable_interrupts(struct uart_periph* p) {
 }
 
 static inline void uart_set_baudrate(struct uart_periph* p, uint32_t baud) {
-  // set the baudrate
-  ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;     // select divisor latches
-  ((uartRegs_t *)(p->reg_addr))->dll = (uint8_t)baud;        // set for baud low byte
-  ((uartRegs_t *)(p->reg_addr))->dlm = (uint8_t)(baud >> 8); // set for baud high byte
+  /* calculate the baudrate */
+  uint32_t _baud_reg_val = (uint16_t)((PCLK / (((float)baud) * 16.0)) + 0.5);
+  /* select divisor latches */
+  ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;
+  /* set for baud low byte */
+  ((uartRegs_t *)(p->reg_addr))->dll = (uint8_t)_baud_reg_val;
+  /* set for baud high byte */
+  ((uartRegs_t *)(p->reg_addr))->dlm = (uint8_t)(_baud_reg_val >> 8);
 
   // set the number of characters and other
   // user specified operating parameters

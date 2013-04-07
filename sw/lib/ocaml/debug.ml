@@ -1,4 +1,4 @@
- (*
+(*
  * Debugging facilities
  *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
@@ -26,12 +26,12 @@ let level = ref (try Sys.getenv "PPRZ_DEBUG" with Not_found -> "")
 let log = ref stderr
 let call lev f =
   assert( (* assert permet au compilo de tout virer avec l'option -noassert *)
-  if (String.contains !level '*' || String.contains !level lev)
-  then begin
-    f !log;
-    flush !log
-  end;
-  true)
+    if (String.contains !level '*' || String.contains !level lev)
+    then begin
+      f !log;
+      flush !log
+    end;
+    true)
 
 let trace lev s = call lev (fun f -> Printf.fprintf f "%s\n" s)
 

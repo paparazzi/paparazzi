@@ -1,7 +1,5 @@
 /*
- * Paparazzi stm32 arch dependant microcontroller initialisation function
- *
- * Copyright (C) 2010 The Paparazzi team
+ * Copyright (C) 2010-2012 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -20,6 +18,13 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file arch/stm32/mcu_arch.h
+ * @brief stm32 arch dependant microcontroller initialisation functions.
+ * @defgroup stm32_arch STM32 architecture
+ * @ingroup stm32_arch
  */
 
 #ifndef STM32_MCU_ARCH_H

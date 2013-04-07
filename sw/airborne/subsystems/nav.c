@@ -17,10 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
-/** \file subsystems/nav.c
- *  \brief Regroup functions to compute navigation
+
+/**
+ * @file subsystems/nav.c
+ * Fixedwing functions to compute navigation.
  *
  */
 
@@ -125,7 +126,7 @@ void nav_circle_XY(float x, float y, float radius) {
   /** Computes a prebank. Go straight if inside or outside the circle */
   circle_bank =
     (dist2_center > Square(abs_radius + dist_carrot)
-      || dist2_center < Square(abs_radius - dist_carrot)) ?
+     || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
     atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (G*radius));
 
@@ -135,10 +136,11 @@ void nav_circle_XY(float x, float y, float radius) {
   float alpha_carrot = nav_circle_trigo_qdr - sign_radius * carrot_angle;
   horizontal_mode = HORIZONTAL_MODE_CIRCLE;
   float radius_carrot = abs_radius;
-  if (nav_mode == NAV_MODE_COURSE)
+  if (nav_mode == NAV_MODE_COURSE) {
     radius_carrot += (abs_radius / cos(carrot_angle) - abs_radius);
+  }
   fly_to_xy(x+cos(alpha_carrot)*radius_carrot,
-	    y+sin(alpha_carrot)*radius_carrot);
+            y+sin(alpha_carrot)*radius_carrot);
   nav_in_circle = TRUE;
   nav_circle_x = x;
   nav_circle_y = y;
@@ -146,13 +148,13 @@ void nav_circle_XY(float x, float y, float radius) {
 }
 
 
-#define NavGlide(_last_wp, _wp) { \
-  float start_alt = waypoints[_last_wp].a; \
-  float diff_alt = waypoints[_wp].a - start_alt; \
-  float alt = start_alt + nav_leg_progress * diff_alt; \
-  float pre_climb = (*stateGetHorizontalSpeedNorm_f()) * diff_alt / nav_leg_length; \
-  NavVerticalAltitudeMode(alt, pre_climb); \
-}
+#define NavGlide(_last_wp, _wp) {                                       \
+    float start_alt = waypoints[_last_wp].a;                            \
+    float diff_alt = waypoints[_wp].a - start_alt;                      \
+    float alt = start_alt + nav_leg_progress * diff_alt;                \
+    float pre_climb = (*stateGetHorizontalSpeedNorm_f()) * diff_alt / nav_leg_length; \
+    NavVerticalAltitudeMode(alt, pre_climb);                            \
+  }
 
 
 
@@ -161,33 +163,33 @@ void nav_circle_XY(float x, float y, float radius) {
 #define MIN_HEIGHT_CARROT 50.
 #define MAX_HEIGHT_CARROT 150.
 
-#define Goto3D(radius) { \
-  if (pprz_mode == PPRZ_MODE_AUTO2) { \
-    int16_t yaw = fbw_state->channels[RADIO_YAW]; \
-    if (yaw > MIN_DX || yaw < -MIN_DX) { \
-      carrot_x += FLOAT_OF_PPRZ(yaw, 0, -20.); \
-      carrot_x = Min(carrot_x, MAX_DIST_CARROT); \
-      carrot_x = Max(carrot_x, -MAX_DIST_CARROT); \
-    } \
-    int16_t pitch = fbw_state->channels[RADIO_PITCH]; \
-    if (pitch > MIN_DX || pitch < -MIN_DX) { \
-      carrot_y += FLOAT_OF_PPRZ(pitch, 0, -20.); \
-      carrot_y = Min(carrot_y, MAX_DIST_CARROT); \
-      carrot_y = Max(carrot_y, -MAX_DIST_CARROT); \
-    } \
-    v_ctl_mode = V_CTL_MODE_AUTO_ALT; \
-    int16_t roll =  fbw_state->channels[RADIO_ROLL]; \
-    if (roll > MIN_DX || roll < -MIN_DX) { \
-      nav_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);	\
-      nav_altitude = Max(nav_altitude, MIN_HEIGHT_CARROT+ground_alt); \
-      nav_altitude = Min(nav_altitude, MAX_HEIGHT_CARROT+ground_alt); \
-    } \
-  } \
-  nav_circle_XY(carrot_x, carrot_y, radius); \
-}
+#define Goto3D(radius) {                                                \
+    if (pprz_mode == PPRZ_MODE_AUTO2) {                                 \
+      int16_t yaw = fbw_state->channels[RADIO_YAW];                     \
+      if (yaw > MIN_DX || yaw < -MIN_DX) {                              \
+        carrot_x += FLOAT_OF_PPRZ(yaw, 0, -20.);                        \
+        carrot_x = Min(carrot_x, MAX_DIST_CARROT);                      \
+        carrot_x = Max(carrot_x, -MAX_DIST_CARROT);                     \
+      }                                                                 \
+      int16_t pitch = fbw_state->channels[RADIO_PITCH];                 \
+      if (pitch > MIN_DX || pitch < -MIN_DX) {                          \
+        carrot_y += FLOAT_OF_PPRZ(pitch, 0, -20.);                      \
+        carrot_y = Min(carrot_y, MAX_DIST_CARROT);                      \
+        carrot_y = Max(carrot_y, -MAX_DIST_CARROT);                     \
+      }                                                                 \
+      v_ctl_mode = V_CTL_MODE_AUTO_ALT;                                 \
+      int16_t roll =  fbw_state->channels[RADIO_ROLL];                  \
+      if (roll > MIN_DX || roll < -MIN_DX) {                            \
+        nav_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);                   \
+        nav_altitude = Max(nav_altitude, MIN_HEIGHT_CARROT+ground_alt); \
+        nav_altitude = Min(nav_altitude, MAX_HEIGHT_CARROT+ground_alt); \
+      }                                                                 \
+    }                                                                   \
+    nav_circle_XY(carrot_x, carrot_y, radius);                          \
+  }
 
 
-#define NavFollow(_ac_id, _distance, _height) \
+#define NavFollow(_ac_id, _distance, _height)   \
   nav_follow(_ac_id, _distance, _height);
 
 
@@ -620,18 +622,18 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   /* The half circle centers and the other leg */
   struct point p1_center = { waypoints[p1].x + radius * -u_y,
-			     waypoints[p1].y + radius * u_x,
-			     alt  };
+                             waypoints[p1].y + radius * u_x,
+                             alt  };
   struct point p1_out = { waypoints[p1].x + 2*radius * -u_y,
-			  waypoints[p1].y + 2*radius * u_x,
-			  alt  };
+                          waypoints[p1].y + 2*radius * u_x,
+                          alt  };
 
   struct point p2_in = { waypoints[p2].x + 2*radius * -u_y,
-			 waypoints[p2].y + 2*radius * u_x,
-			 alt  };
+                         waypoints[p2].y + 2*radius * u_x,
+                         alt  };
   struct point p2_center = { waypoints[p2].x + radius * -u_y,
-			     waypoints[p2].y + radius * u_x,
-			     alt  };
+                             waypoints[p2].y + radius * u_x,
+                             alt  };
 
   float qdr_out_2 = M_PI - atan2(u_y, u_x);
   float qdr_out_1 = qdr_out_2 + M_PI;
@@ -668,7 +670,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
       InitStage();
       LINE_START_FUNCTION;
     }
-   return;
+    return;
 
   case OR21:
     nav_route_xy(waypoints[p2].x, waypoints[p2].y, waypoints[p1].x, waypoints[p1].y);
@@ -679,7 +681,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     }
     return;
 
- default: /* Should not occur !!! Doing nothing */
-   return;
+  default: /* Should not occur !!! Doing nothing */
+    return;
   }
 }

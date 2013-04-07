@@ -56,19 +56,23 @@ void ezcurrent_init( void ) {
 }
 
 void ezcurrent_read_periodic( void ) {
-#ifndef SITL
   if (ezcurrent_i2c_trans.status == I2CTransDone) {
-    I2CReceive(EZCURRENT_I2C_DEV, ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
+    i2c_receive(&EZCURRENT_I2C_DEV, &ezcurrent_i2c_trans, ezcurrent_i2c_trans.slave_addr, 10);
   }
-#endif //SITL
 }
+
+#define Uint16FromBuf(_buf,_idx) ((uint16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
+#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
 
 void ezcurrent_read_event( void ) {
   if (ezcurrent_i2c_trans.status == I2CTransSuccess) {
-    // Get electrical information from buffer
-    electrical.vsupply = ((uint16_t)( (((ezcurrent_i2c_trans.buf[3]) << 8) + ezcurrent_i2c_trans.buf[2]) * 0.01f) );
-    electrical.current = ((int32_t)(ezcurrent_i2c_trans.buf[9]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[8]);
-    electrical.consumed = ((int32_t)(ezcurrent_i2c_trans.buf[7]) << 8) + (int32_t)(ezcurrent_i2c_trans.buf[6]);
+    /* voltage of EzOSD sensor is provided in mV, convert to deciVolt */
+    electrical.vsupply = Uint16FromBuf(ezcurrent_i2c_trans.buf, 2) / 100;
+    /* consumed ? in mAh */
+    electrical.consumed = Int16FromBuf(ezcurrent_i2c_trans.buf, 6);
+    /* sensor provides current in 1e-1 Ampere, convert to mA */
+    electrical.current = Int16FromBuf(ezcurrent_i2c_trans.buf, 8) * 100;
+
     // Transaction has been read
     ezcurrent_i2c_trans.status = I2CTransDone;
   } else if ( ezcurrent_i2c_trans.status == I2CTransFailed ) {

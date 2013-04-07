@@ -19,6 +19,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/ahrs/ahrs_infrared.c
+ *
+ * Attitude estimation using infrared sensors detecting the horizon.
+ * For fixedwings only:
+ * - GPS course is used as heading.
+ * - ADC channels can be used for gyros.
+ *
+ */
+
 #include "subsystems/ahrs/ahrs_infrared.h"
 
 #include "subsystems/sensors/infrared.h"

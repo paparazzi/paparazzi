@@ -20,6 +20,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/imu/imu_b2.h
+ *
+ * Interface for the Booz2 IMUs.
+ */
+
+
 #ifndef IMU_B2_H
 #define IMU_B2_H
 
@@ -35,6 +42,9 @@
 #define IMU_B2_MAG_HMC5843  3
 #define IMU_B2_MAG_HMC58XX  4
 
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
+#include "peripherals/hmc58xx.h"
+#endif
 
 #ifdef IMU_B2_VERSION_1_0
 /* Default IMU b2 sensors connection */
@@ -143,20 +153,28 @@
 #endif /* IMU_B2_VERSION_1_2 */
 
 
+struct ImuBooz2 {
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
+  struct Hmc58xx mag_hmc;
+#endif
+};
+
+extern struct ImuBooz2 imu_b2;
+
 /** Event functions and macros for imu_b2.
  */
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
 #include "peripherals/ms2100.h"
-#define ImuMagEvent(_mag_handler) {                     \
-  ms2100_event();                                       \
-  if (ms2100_status == MS2100_DATA_AVAILABLE) {         \
-    imu.mag_unscaled.x = ms2100_values[IMU_MAG_X_CHAN]; \
-    imu.mag_unscaled.y = ms2100_values[IMU_MAG_Y_CHAN]; \
-    imu.mag_unscaled.z = ms2100_values[IMU_MAG_Z_CHAN]; \
-    ms2100_status = MS2100_IDLE;                        \
-    _mag_handler();                                     \
-  }                                                     \
+static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+  ms2100_event(&ms2100);
+  if (ms2100.status == MS2100_DATA_AVAILABLE) {
+    imu.mag_unscaled.x = ms2100.data.value[IMU_MAG_X_CHAN];
+    imu.mag_unscaled.y = ms2100.data.value[IMU_MAG_Y_CHAN];
+    imu.mag_unscaled.z = ms2100.data.value[IMU_MAG_Z_CHAN];
+    ms2100.status = MS2100_IDLE;
+    _mag_handler();
+  }
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
 #include "peripherals/ami601.h"
@@ -185,38 +203,36 @@
   }                                                           \
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-#include "peripherals/hmc58xx.h"
-#define foo_handler() {}
-#define ImuMagEvent(_mag_handler) {       \
-  MagEvent(foo_handler);                  \
-  if (hmc58xx_data_available) {           \
-    imu.mag_unscaled.x = hmc58xx_data.x;  \
-    imu.mag_unscaled.y = hmc58xx_data.y;  \
-    imu.mag_unscaled.z = hmc58xx_data.z;  \
-    _mag_handler();                       \
-    hmc58xx_data_available = FALSE;       \
-  }                                       \
+static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+  hmc58xx_event(&imu_b2.mag_hmc);
+  if (imu_b2.mag_hmc.data_available) {
+    imu.mag_unscaled.x = imu_b2.mag_hmc.data.value[IMU_MAG_X_CHAN];
+    imu.mag_unscaled.y = imu_b2.mag_hmc.data.value[IMU_MAG_Y_CHAN];
+    imu.mag_unscaled.z = imu_b2.mag_hmc.data.value[IMU_MAG_Z_CHAN];
+    _mag_handler();
+    imu_b2.mag_hmc.data_available = FALSE;
+  }
 }
 #else
 #define ImuMagEvent(_mag_handler) {}
 #define ImuScaleMag(_imu) {}
 #endif
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-  max1168_event();                                              \
-  if (max1168_status == MAX1168_DATA_AVAILABLE) {               \
-    imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN];     \
-    imu.gyro_unscaled.q  = max1168_values[IMU_GYRO_Q_CHAN];     \
-    imu.gyro_unscaled.r  = max1168_values[IMU_GYRO_R_CHAN];     \
-    imu.accel_unscaled.x = max1168_values[IMU_ACCEL_X_CHAN];    \
-    imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN];    \
-    imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN];    \
-    max1168_status = MAX1168_IDLE;                              \
-    _gyro_handler();                                            \
-    _accel_handler();                                           \
-  }                                                             \
-  ImuMagEvent(_mag_handler);                                    \
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+{
+  max1168_event();
+  if (max1168_status == MAX1168_DATA_AVAILABLE) {
+    imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN];
+    imu.gyro_unscaled.q  = max1168_values[IMU_GYRO_Q_CHAN];
+    imu.gyro_unscaled.r  = max1168_values[IMU_GYRO_R_CHAN];
+    imu.accel_unscaled.x = max1168_values[IMU_ACCEL_X_CHAN];
+    imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN];
+    imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN];
+    max1168_status = MAX1168_IDLE;
+    _gyro_handler();
+    _accel_handler();
+  }
+  ImuMagEvent(_mag_handler);
 }
-
 
 #endif /* IMU_B2_H */
