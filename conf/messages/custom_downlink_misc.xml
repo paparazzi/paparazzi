@@ -1,0 +1,702 @@
+<?xml version="1.0"?>
+<class type="downlink">
+<!-- IMU Messages: Inertial Measurement Unit -->
+
+  <message name="IMU_TURNTABLE" id="4">
+    <description></description>
+    <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+  </message>
+
+<!-- BLMC Messages: BrushLess Motor Controller -->
+<!--
+  <message name="BLMC_FAULT_STATUS" id="7">
+    <description></description>
+    <field name="raw_fault"  type="uint16[]"/>
+  </message>
+
+  <message name="BLMC_SPEEDS" id="8">
+    <description></description>
+    <field name="speeds" type="int16[]"/>
+  </message>
+
+  <message name="BLMC_BUSVOLTS" id="9">
+    <description></description>
+    <field name="busvolts"  type="uint16[]"/>
+  </message>
+-->
+  <message name="ANTENNA_STATUS" id="5">
+    <description></description>
+    <field name="azim_sp" type="float"/>
+    <field name="elev_sp" type="float"/>
+    <field name="id_sp" type="uint8"/>
+    <field name="mode" type="uint8"/>
+  </message>
+
+  <message name="POTENTIAL" id="82">
+    <description></description>
+    <field name="east" type="float"/>
+    <field name="north" type="float"/>
+    <field name="alt" type="float"/>
+    <field name="speed" type="float"/>
+    <field name="climb" type="float"/>
+  </message>
+
+<!-- MOTOR Messages -->
+
+  <message name="MOTOR_STATUS" id="22">
+    <description></description>
+    <field name="rpm" type="uint16"/>
+    <field name="current" type="int32" unit="mA"/>
+  </message>
+
+  <message name="MOTOR_BENCH_STATUS" id="11">
+    <description></description>
+    <field name="time_ticks" type="uint32"/>
+    <field name="throttle" type="float" format="%.3f"/>
+    <field name="rpm" type="float"/>
+    <field name="current" type="float"/>
+    <field name="thrust" type="float"/>
+    <field name="torque" type="float"/>
+    <field name="time_s" type="uint16"/>
+    <field name="mode" type="uint8"/>
+  </message>
+
+  <message name="MOTOR_BENCH_STATIC" id="12">
+    <description></description>
+    <field name="av_rpm"     type="float"/>
+    <field name="av_thrust"  type="float"/>
+    <field name="av_current" type="float"/>
+    <field name="throttle"   type="uint16"/>
+  </message>
+
+  <message name="TURB_PRESSURE_RAW" id="15">
+    <description></description>
+    <field name="ch_0" type="int32" unit="adc"/>
+    <field name="ch_1" type="int32" unit="adc"/>
+    <field name="ch_2" type="int32" unit="adc"/>
+    <field name="ch_3" type="int32" unit="adc"/>
+    <field name="ch_4" type="int32" unit="adc"/>
+    <field name="ch_5" type="int32" unit="adc"/>
+    <field name="ch_6" type="int32" unit="adc"/>
+    <field name="ch_7" type="int32" unit="adc"/>
+    <field name="ch_8" type="int32" unit="adc"/>
+    <field name="ch_9" type="int32" unit="adc"/>
+    <field name="ch_10" type="int32" unit="adc"/>
+    <field name="ch_11" type="int32" unit="adc"/>
+    <field name="ch_12" type="int32" unit="adc"/>
+    <field name="ch_13" type="int32" unit="adc"/>
+    <field name="ch_14" type="int32" unit="adc"/>
+    <field name="ch_15" type="int32" unit="adc"/>
+  </message>
+
+  <message name="TURB_PRESSURE_VOLTAGE" id="16">
+    <description></description>
+    <field name="ch_1_p" type="float"/>
+    <field name="ch_1_t" type="float"/>
+    <field name="ch_2_p" type="float"/>
+    <field name="ch_2_t" type="float"/>
+    <field name="ch_3_p" type="float"/>
+    <field name="ch_3_t" type="float"/>
+    <field name="ch_4_p" type="float"/>
+    <field name="ch_4_t" type="float"/>
+    <field name="ch_5_p" type="float"/>
+    <field name="ch_5_t" type="float"/>
+    <field name="ch_6_p" type="float"/>
+    <field name="ch_6_t" type="float"/>
+    <field name="ch_7_p" type="float"/>
+    <field name="ch_7_t" type="float"/>
+    <field name="gnd1"   type="float"/>
+    <field name="gnd2"   type="float"/>
+  </message>
+
+
+<!-- EKF7 Messages: Extended Kalman Fileter -->
+  <message name="EKF7_XHAT" id="19">
+    <description></description>
+    <field name="c"   type="float"/>
+    <field name="s1"  type="float"/>
+    <field name="s2"  type="float"/>
+    <field name="s3"  type="float"/>
+    <field name="p"   type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="q"   type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="r"   type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bp"  type="float"/>
+    <field name="bq"  type="float"/>
+    <field name="br"  type="float"/>
+  </message>
+
+  <message name="EKF7_Y" id="20">
+    <description></description>
+    <field name="timecount" type="uint16"/>
+    <field name="g1"  type="float"/>
+    <field name="g2"  type="float"/>
+    <field name="g3"  type="float"/>
+    <field name="m1"  type="float"/>
+    <field name="m2"  type="float"/>
+    <field name="m3"  type="float"/>
+    <field name="p"   type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="q"   type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="r"   type="float" unit="rad/s" alt_unit="deg/s"/>
+  </message>
+
+  <message name="EKF7_P_DIAG" id="21">
+    <description></description>
+    <field name="c"   type="float"/>
+    <field name="s1"  type="float"/>
+    <field name="s2"  type="float"/>
+    <field name="s3"  type="float"/>
+    <field name="p"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+    <field name="q"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+    <field name="r"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+    <field name="bp"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+    <field name="bq"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+    <field name="br"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+  </message>
+
+<!-- CAMERA Messages -->
+  <message name="CAM_POINT" id="26">
+    <description></description>
+    <field name="cam_point_distance_from_home" type="uint16" unit="m"/>
+    <field name="cam_point_lat" type="float" unit="deg"/>
+    <field name="cam_point_lon" type="float" unit="deg"/>
+  </message>
+
+  <message name="DC_INFO" id="27">
+    <description></description>
+    <field name="mode" type="int16" unit=""/>
+    <field name="utm_east" type="float" unit="m"/>
+    <field name="utm_north" type="float" unit="m"/>
+    <field name="course" type="float" unit="deg"/>
+    <field name="buffer" type="int8"/>
+    <field name="dist" type="float" unit="m"/>
+    <field name="next_dist" type="float" unit="m"/>
+    <field name="start_x" type="float" unit="m"/>
+    <field name="start_y" type="float" unit="m"/>
+    <field name="start_angle" type="float" unit="deg"/>
+    <field name="angle" type="float" unit="deg"/>
+    <field name="last_block" type="float"/>
+    <field name="count" type="int16" unit=""/>
+    <field name="shutter" type="uint8" unit="s"/>
+  </message>
+
+  <message name="DC_SHOT" id="28">
+    <description></description>
+    <field name="photo_nr" type="int16"/>
+    <field name="utm_east"  type="int32" unit="cm"/>
+    <field name="utm_north" type="int32" unit="cm"/>
+    <field name="z" type="float" unit="m"/>
+    <field name="utm_zone"  type="uint8"/>
+    <field name="phi" type="int16" unit="decideg"/>
+    <field name="theta" type="int16" unit="decideg"/>
+    <field name="course" type="int16" unit="decideg"/>
+    <field name="speed"  type="uint16" unit="cm/s"/>
+    <field name="itow"  type="uint32" unit="ms"/>
+  </message>
+
+  <message name="CAMERA_SNAPSHOT" id="29">
+    <description></description>
+    <field name="snapshot_image_number" type="uint16"/>
+  </message>
+
+  <message name="ROTORCRAFT_CAM" id="30">
+    <description></description>
+    <field name="tilt" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="pan" type="int16" unit="2^12rad" alt_unit="deg" alt_unit_coef="0.0139882"/>
+  </message>
+
+<!-- BETH Messages -->
+  <message name="BETH" id="35">
+    <description></description>
+    <field name="azimuth" type="int16"/>
+    <field name="elevation" type="int16"/>
+    <field name="tilt" type="int16"/>
+    <field name="counter" type="uint32"/>
+    <field name="can_errs" type="uint16"/>
+    <field name="spi_errs" type="uint16"/>
+    <field name="thrust_out" type="int8"/>
+    <field name="pitch_out" type="int8"/>
+  </message>
+
+  <message name="BETH_ESTIMATOR" id="36">
+    <description></description>
+    <field name="tilt" type="float" unit="rad" alt_unit="deg"/>
+    <field name="tilt_dot" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="elevation" type="float" unit="rad" alt_unit="deg"/>
+    <field name="elevation_dot" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="azimuth" type="float" unit="rad" alt_unit="deg"/>
+    <field name="azimuth_dot" type="float" unit="rad/s" alt_unit="deg/s"/>
+  </message>
+
+  <message name="BETH_CONTROLLER" id="37">
+    <description></description>
+    <field name="pitch" type="float"/>
+    <field name="thrust" type="float"/>
+    <field name="pitch_ff" type="float"/>
+    <field name="pitch_fb" type="float"/>
+    <field name="thrust_ff" type="float"/>
+    <field name="thrust_fb" type="float"/>
+    <field name="tilt_sp" type="float" unit="rad" alt_unit="deg"/>
+    <field name="tilt_ref" type="float" unit="rad" alt_unit="deg"/>
+    <field name="tilt_dot_ref" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="elevation_sp " type="float" unit="rad" alt_unit="deg"/>
+    <field name="elevation_ref " type="float" unit="rad" alt_unit="deg"/>
+    <field name="elevation_dot_ref" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="azimuth_sp" type="float" unit="rad" alt_unit="deg"/>
+  </message>
+
+  <message name="BETH_CONTROLLER_TWIST" id="38">
+    <description></description>
+    <field name="S" type="float"/>
+    <field name="S_dot" type="float"/>
+    <field name="U_twt" type="float"/>
+    <field name="error" type="float"/>
+  </message>
+
+  <message name="BETH_CONTROLLER_SFB" id="39">
+    <description></description>
+    <field name="one" type="float"/>
+  </message>
+
+<!-- UNTYPICAL MEASUREMENTS Messages -->
+  <message name="TEMP_TCOUPLE" id="50">
+    <description></description>
+    <field name="fval0" type="float"/>
+    <field name="fval1" type="float"/>
+    <field name="fval2" type="float"/>
+    <field name="fval3" type="float"/>
+    <field name="fref0" type="float"/>
+    <field name="fref1" type="float"/>
+    <field name="fref2" type="float"/>
+    <field name="fref3" type="float"/>
+    <field name="val0"  type="uint16"/>
+    <field name="val1"  type="uint16"/>
+    <field name="val2"  type="uint16"/>
+    <field name="val3"  type="uint16"/>
+    <field name="ref0"  type="uint16"/>
+    <field name="ref1"  type="uint16"/>
+    <field name="ref2"  type="uint16"/>
+    <field name="ref3"  type="uint16"/>
+  </message>
+
+  <message name="ATMOSPHERE_CHARGE" id="51">
+    <description></description>
+    <field name="t0" type="uint16"/>
+    <field name="t1" type="uint16"/>
+    <field name="t2" type="uint16"/>
+    <field name="t3" type="uint16"/>
+    <field name="t4" type="uint16"/>
+    <field name="t5" type="uint16"/>
+    <field name="t6" type="uint16"/>
+    <field name="t7" type="uint16"/>
+    <field name="t8" type="uint16"/>
+    <field name="t9" type="uint16"/>
+  </message>
+
+  <message name="SOLAR_RADIATION" id="52">
+    <description></description>
+    <field name="up_t0" type="uint16"/>
+    <field name="dn_t0" type="uint16"/>
+    <field name="up_t1" type="uint16"/>
+    <field name="dn_t1" type="uint16"/>
+    <field name="up_t2" type="uint16"/>
+    <field name="dn_t2" type="uint16"/>
+    <field name="up_t3" type="uint16"/>
+    <field name="dn_t3" type="uint16"/>
+    <field name="up_t4" type="uint16"/>
+    <field name="dn_t4" type="uint16"/>
+    <field name="up_t5" type="uint16"/>
+    <field name="dn_t5" type="uint16"/>
+    <field name="up_t6" type="uint16"/>
+    <field name="dn_t6" type="uint16"/>
+    <field name="up_t7" type="uint16"/>
+    <field name="dn_t7" type="uint16"/>
+    <field name="up_t8" type="uint16"/>
+    <field name="dn_t8" type="uint16"/>
+    <field name="up_t9" type="uint16"/>
+    <field name="dn_t9" type="uint16"/>
+  </message>
+
+  <message name="GEIGER_COUNTER" id="53">
+    <description></description>
+    <field name="tube1"   type="uint32" unit="events"/>
+    <field name="tube2"   type="uint32" unit="events"/>
+    <field name="vsupply" type="uint16" unit="volts"/>
+  </message>
+
+  <message name="VANE_SENSOR" id="54">
+    <description></description>
+    <field name="alpha"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="alpha_filtered"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="alpha_target"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg"/>
+    <field name="alpha2"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="beta"    type="float" unit="rad" alt_unit="deg"/>
+    <field name="beta_filtered"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="beta_target"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="beta_vane_error" type="float" unit="rad" alt_unit="deg"/>
+    <field name="beta2"   type="float" unit="rad" alt_unit="deg"/>
+  </message>
+
+  <message name="WEATHER" id="55">
+    <description></description>
+    <field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>
+    <field name="t_amb" type="float" unit="deg C"/>
+    <field name="windspeed" type="float" unit="m/s"/>
+    <field name="wind_from" type="float" unit="deg"/>
+  </message>
+
+<!-- SPECIFIC DEBUG Messages -->
+<!--  <message name="ANTENNA_DEBUG" id="70">
+    <description></description>
+    <field name="mag_xraw" type="int32"/>
+    <field name="mag_yraw" type="int32"/>
+    <field name="mag_xcal" type="float"/>
+    <field name="mag_ycal" type="float"/>
+    <field name="mag_heading" type="float"/>
+    <field name="mag_magnitude" type="float"/>
+    <field name="mag_temp" type="float"/>
+    <field name="mag_distor" type="uint8"/>
+    <field name="mag_cal_status" type="uint8"/>
+  </message>
+-->
+  <message name="TEST_BOARD_RESULTS" id="71">
+    <description></description>
+    <field name="uart" type="uint8"/>
+    <field name="ppm" type="uint8"/>
+    <field name="servo" type="uint16[]"/>
+  </message>
+
+  <message name="DEBUG_MCU_LINK" id="72">
+    <description></description>
+    <field name="i2c_nb_err" type="uint8"/>
+    <field name="i2c_mcu1_nb_err" type="uint8"/>
+    <field name="ppm_rate" type="uint8"/>
+  </message>
+
+  <message name="DEBUG_IR_I2C" id="73">
+    <description></description>
+    <field name="ir1" type="int16" unit="adc"/>
+    <field name="ir2" type="int16" unit="adc"/>
+    <field name="top" type="int16" unit="adc"/>
+  </message>
+
+  <message name="FLA_DEBUG" id="74">
+    <description></description>
+    <field name="past_input"    type="float"/>
+    <field name="imu_rate"      type="float"/>
+    <field name="desired_accel" type="float"/>
+    <field name="motor_command" type="float"/>
+  </message>
+
+  <message name="RMAT_DEBUG" id="75">
+    <description></description>
+    <field name="a"   type="float" />
+    <field name="b"   type="float" />
+    <field name="c"   type="float" />
+    <field name="d"   type="float" />
+    <field name="e"   type="float" />
+    <field name="f"   type="float" />
+    <field name="g"   type="float" />
+    <field name="h"   type="float" />
+    <field name="i"   type="float" />
+  </message>
+
+  <message name="I2C_ERRORS" id="76">
+    <description></description>
+    <field name="acknowledge_failure_cnt"     type="uint16"/>
+    <field name="misplaced_start_or_stop_cnt" type="uint16"/>
+    <field name="arbitration_lost_cnt"        type="uint16"/>
+    <field name="overrun_or_underrun_cnt"     type="uint16"/>
+    <field name="pec_error_in_reception_cnt"  type="uint16"/>
+    <field name="timeout_or_tlow_error_cnt"   type="uint16"/>
+    <field name="smbus_alert_cnt"             type="uint16"/>
+    <field name="unexpected_event_cnt"        type="uint16"/>
+    <field name="last_unexpected_event"       type="uint32"/>
+    <field name="bus_number"                  type="uint8"/>
+  </message>
+
+  <message name="SHT_I2C_SERIAL" id="77">
+    <description></description>
+    <field name="serial0" type="uint32"/>
+    <field name="serial1" type="uint32"/>
+  </message>
+
+  <message name="MLX_SERIAL" id="78">
+    <description></description>
+    <field name="serial0" type="uint32"/>
+    <field name="serial1" type="uint32"/>
+  </message>
+
+  <message name="MS5611_COEFF" id="79">
+    <description></description>
+    <field name="c0" type="uint16"/>
+    <field name="c1" type="uint16"/>
+    <field name="c2" type="uint16"/>
+    <field name="c3" type="uint16"/>
+    <field name="c4" type="uint16"/>
+    <field name="c5" type="uint16"/>
+    <field name="c6" type="uint16"/>
+    <field name="c7" type="uint16"/>
+  </message>
+
+<!-- HFF PPZ Messages -->
+
+  <message name="HFF" id="100">
+    <description></description>
+    <field name="x"              type="float"/>
+    <field name="y"              type="float"/>
+    <field name="xd"             type="float"/>
+    <field name="yd"             type="float"/>
+    <field name="xdd"            type="float"/>
+    <field name="ydd"            type="float"/>
+  </message>
+
+  <message name="HFF_DBG" id="101">
+    <description></description>
+    <field name="x_measure"      type="float"/>
+    <field name="y_measure"      type="float"/>
+    <field name="yd_measure"     type="float"/>
+    <field name="xd_measure"     type="float"/>
+    <field name="Pxx"            type="float"/>
+    <field name="Pyy"            type="float"/>
+    <field name="Pxdxd"          type="float"/>
+    <field name="Pydyd"          type="float"/>
+  </message>
+
+  <message name="HFF_GPS" id="102">
+    <description></description>
+    <field name="lag_cnt"     type="uint16"/>
+    <field name="lag_cnt_err" type="int16"/>
+    <field name="save_cnt"    type="int16"/>
+  </message>
+
+<!-- ************************************************ -->
+
+  <message name="LOADCELL" id="151">
+    <description></description>
+    <field name="load" type="int32"/>
+  </message>
+
+  <message name="CONTROLLER_GAINS" id="152">
+    <description></description>
+    <field name="roll_gamma_p"     type="float" />
+    <field name="roll_gamma_d"     type="float" />
+    <field name="roll_gamma_i"     type="float" />
+    <field name="pitch_gamma_p"    type="float" />
+    <field name="pitch_gamma_d"    type="float" />
+    <field name="pitch_gamma_i"    type="float" />
+    <field name="yaw_gamma_p"      type="float" />
+    <field name="yaw_gamma_d"      type="float" />
+    <field name="yaw_gamma_i"      type="float" />
+  </message>
+
+  <message name="VISUALTARGET" id="153">
+    <description></description>
+    <field name="x" type="uint16"/>
+    <field name="y" type="uint16"/>
+  </message>
+
+  <message name="AFL_COEFFS" id="154">
+    <description></description>
+    <field name="roll_a"   type="float"/>
+    <field name="roll_b"  type="float"/>
+    <field name="roll_c"  type="float"/>
+    <field name="pitch_a"  type="float"/>
+    <field name="pitch_b"   type="float"/>
+    <field name="pitch_c"   type="float"/>
+    <field name="yaw_a"   type="float"/>
+    <field name="yaw_b"  type="float"/>
+    <field name="yaw_c"  type="float"/>
+  </message>
+
+  <message name="RDYB_TRAJECTORY" id="155">
+    <description></description>
+    <field name="commanded_phi" type="float" unit="rad" alt_unit="deg"/>
+    <field name="commanded_theta" type="float" unit="rad" alt_unit="deg"/>
+    <field name="commanded_psi" type="float" unit="rad" alt_unit="deg"/>
+    <field name="setpoint_x" type="float" unit="m N"/>
+    <field name="setpoint_y" type="float" unit="m E"/>
+    <field name="setpoint_z" type="float" unit="m D"/>
+  </message>
+
+<!--  <message name="HENRY_GNSS" id="156">
+    <description></description>
+    <field name="last_imu_update" type="uint32"/>
+    <field name="GPS_time" type="double"/>
+    <field name="GPS_solution_valid" type="uint8"/>
+    <field name="latitude" type="double" unit="rad" alt_unit="deg"/>
+    <field name="longitude" type="double" unit="rad" alt_unit="deg"/>
+    <field name="altitude" type="double" />
+    <field name="North" type="double" />
+    <field name="East" type="double" />
+    <field name="Down" type="double" />
+    <field name="SVs_Tracked" type="uint8" />
+    <field name="SVs_PVT" type="uint8" />
+    <field name="V_North" type="double"/>
+    <field name="V_East" type="double"/>
+    <field name="V_Down" type="double"/>
+  </message>-->
+
+  <message name="FMS_TIME" id="157">
+    <description></description>
+    <field name="tv_sec"   type="uint32"/>
+    <field name="tv_nsec"  type="uint32"/>
+    <field name="delay_ns" type="uint32"/>
+  </message>
+
+  <message name="WIND_TUNNEL" id="158">
+    <description></description>
+    <field name="rpm"      type="float"/>
+  </message>
+
+<!--  <message name="DYNAMIXEL" id="159">
+    <description></description>
+    <field name="left_wing"    type="uint16"/>
+    <field name="right_wing"   type="uint16"/>
+    <field name="left_wing_flag"    type="uint8"/>
+    <field name="right_wing_flag"   type="uint8"/>
+    <field name="invalid_position"   type="uint32"/>
+    <field name="timeout_events"   type="uint32"/>
+    <field name="checksum_errors"   type="uint32"/>
+    <field name="fuse_rotation_angle"  type="float"/>
+    <field name="fuse_rotation_rate"   type="float"/>
+  </message>-->
+
+  <message name="AHRS_DEBUG_QUAT" id="159">
+    <description></description>
+    <field name="jqi"   type="float"/>
+    <field name="jqx"   type="float"/>
+    <field name="jqy"   type="float"/>
+    <field name="jqz"   type="float"/>
+    <field name="xqi"   type="float"/>
+    <field name="xqx"   type="float"/>
+    <field name="xqy"   type="float"/>
+    <field name="xqz"   type="float"/>
+    <field name="mqi"   type="float"/>
+    <field name="mqx"   type="float"/>
+    <field name="mqy"   type="float"/>
+    <field name="mqz"   type="float"/>
+  </message>
+
+  <message name="FILTER2" id="160">
+    <description></description>
+    <field name="px"  type="int32"/>
+    <field name="py"  type="int32"/>
+    <field name="pz"  type="int32"/>
+    <field name="gsx" type="int32"/>
+    <field name="gsy" type="int32"/>
+    <field name="gsz" type="int32"/>
+  </message>
+
+  <message name="FILTER_Q" id="161">
+    <description></description>
+    <field name="qi"  type="int32"/>
+    <field name="qx"  type="int32"/>
+    <field name="qy"  type="int32"/>
+    <field name="qz"  type="int32"/>
+  </message>
+
+  <message name="FILTER_COR" id="162">
+    <description></description>
+    <field name="mphi"   type="int32"/>
+    <field name="mtheta" type="int32"/>
+    <field name="mpsi"   type="int32"/>
+    <field name="qi"  type="int32"/>
+    <field name="qx"  type="int32"/>
+    <field name="qy"  type="int32"/>
+    <field name="qz"  type="int32"/>
+  </message>
+
+
+  <message name="AHRS_LKF" id="163">
+    <description></description>
+    <field name="phi"   type="float" unit="rad"   alt_unit="deg"/>
+    <field name="theta" type="float" unit="rad"   alt_unit="deg"/>
+    <field name="psi"   type="float" unit="rad"   alt_unit="deg"/>
+    <field name="qi"    type="float"/>
+    <field name="qx"    type="float"/>
+    <field name="qy"    type="float"/>
+    <field name="qz"    type="float"/>
+    <field name="p"     type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="q"     type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="r"     type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="ax"    type="float"/>
+    <field name="ay"    type="float"/>
+    <field name="az"    type="float"/>
+    <field name="mx"    type="float"/>
+    <field name="my"    type="float"/>
+    <field name="mz"    type="float"/>
+  </message>
+
+  <message name="AHRS_LKF_DEBUG" id="164">
+    <description></description>
+    <field name="phi_err"   type="float" unit="rad"   alt_unit="deg"/>
+    <field name="theta_err" type="float" unit="rad"   alt_unit="deg"/>
+    <field name="psi_err"   type="float" unit="rad"   alt_unit="deg"/>
+    <field name="bp"        type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bq"        type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="br"        type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="quat_norm" type="float"/>
+    <field name="phi_accel" type="float" unit="rad"   alt_unit="deg"/>
+    <field name="theta_accel" type="float" unit="rad"   alt_unit="deg"/>
+    <field name="phi_cov"   type="float"/>
+    <field name="theta_cov" type="float"/>
+    <field name="psi_cov"   type="float"/>
+    <field name="bp_cov"    type="float"/>
+    <field name="bq_cov"    type="float"/>
+    <field name="br_cov"    type="float"/>
+  </message>
+
+  <message name="AHRS_LKF_ACC_DBG" id="165">
+    <description></description>
+    <field name="qi_err"    type="float"/>
+    <field name="qx_err"    type="float"/>
+    <field name="qy_err"    type="float"/>
+    <field name="qz_err"    type="float"/>
+    <field name="bp_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bq_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+  </message>
+
+  <message name="AHRS_LKF_MAG_DBG" id="166">
+    <description></description>
+    <field name="qi_err"    type="float"/>
+    <field name="qx_err"    type="float"/>
+    <field name="qy_err"    type="float"/>
+    <field name="qz_err"    type="float"/>
+    <field name="bp_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bq_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="br_err"    type="float" unit="rad/s" alt_unit="deg/s"/>
+  </message>
+
+  <message name="AHRS_EULER_DEBUG" id="167">
+    <description></description>
+    <field name="phi"              type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="theta"            type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="psi"              type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="measure_phi"      type="int32" alt_unit="deg" alt_unit_coef="0.0000273"/>
+    <field name="measure_theta"    type="int32" alt_unit="deg" alt_unit_coef="0.0000273"/>
+    <field name="measure_psi"      type="int32" alt_unit="deg" alt_unit_coef="0.0000273"/>
+    <field name="corrected_phi"    type="int32" alt_unit="deg" alt_unit_coef="0.0000273"/>
+    <field name="corrected_theta"  type="int32" alt_unit="deg" alt_unit_coef="0.0000273"/>
+    <field name="corrected_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0000273"/>
+    <field name="correction_phi"   type="int32"/>
+    <field name="correction_theta" type="int32"/>
+    <field name="correction_psi"   type="int32"/>
+    <field name="bp"               type="int32"/>
+    <field name="bq"               type="int32"/>
+    <field name="br"               type="int32"/>
+  </message>
+
+  <message name="VFF_DEBUG" id="168">
+    <description></description>
+    <field name="measure"        type="float"/>
+    <field name="z"              type="float"/>
+    <field name="zd"             type="float"/>
+    <field name="bias"           type="float"/>
+    <field name="Pzz"            type="float"/>
+    <field name="Pzdzd"          type="float"/>
+    <field name="Pbb"            type="float"/>
+  </message>
+
+</class>

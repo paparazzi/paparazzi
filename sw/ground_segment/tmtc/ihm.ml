@@ -1,9 +1,9 @@
 open Printf
 open Latlong
 
-module GroundPprz = Pprz.Messages(struct let name = "ground" end)
-module IhmUpPprz = Pprz.Messages(struct let name = "ihm_up" end)
-module IhmDownPprz = Pprz.Messages(struct let name = "ihm_down" end)
+module GroundPprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
+module IhmUpPprz = Pprz.Messages_of_name(struct let class_name = "ihm_up" end)
+module IhmDownPprz = Pprz.Messages_of_name(struct let class_name = "ihm_down" end)
 
 
 type point = { x: int; y: int; z: int }

@@ -24,8 +24,8 @@
 
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
+module Dl_Pprz = Pprz.Messages_of_type(struct let class_type = "uplink" end)
 
 let ground_id = 0 (* cf tmtc/link.ml *)
 
@@ -165,7 +165,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let get_message = fun name link_mode _sender vs ->
     let set = fun () ->
       let msg_id, _ = Dl_Pprz.message_of_name name in
-      let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
+      let s = Dl_Pprz.payload_of_values ground_id ~class_id:(Dl_Pprz.class_id_of_msg name) msg_id vs in
       set_message (Serial.string_of_payload s) in
     let ac_id = Pprz.int_assoc "ac_id" vs in
     match link_mode with
@@ -184,11 +184,11 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter
-      (fun _m_id msg ->
+      (fun _m_c_id msg ->
 	match msg.Pprz.link with
 	  Some x -> message_bind msg.Pprz.name x
 	| _ -> ())
-      Dl_Pprz.messages;;
+      Dl_Pprz.messages
 
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s

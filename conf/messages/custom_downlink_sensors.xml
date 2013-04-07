@@ -1,0 +1,440 @@
+<?xml version="1.0"?>
+<class type="downlink">
+
+<!-- ___________________________________________ GENERIC SENSOR ______________________________________________ -->
+<!-- IR Messages: Infrared Sensors -->
+  <message name="IR_SENSORS" id="51">
+    <description></description>
+    <field name="ir1" type="int16"/>
+    <field name="ir2" type="int16"/>
+    <field name="longitudinal" type="int16"/>
+    <field name="lateral" type="int16"/>
+    <field name="vertical" type="int16"/>
+  </message>
+
+<!-- IMU Messages: Inertial Measurement Unit -->
+  <message name="IMU_GYRO" id="52">
+    <description></description>
+    <field name="gp" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="gq" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="gr" type="float" unit="rad/s" alt_unit="deg/s"/>
+  </message>
+
+  <message name="IMU_MAG" id="53">
+    <description></description>
+    <field name="mx" type="float" />
+    <field name="my" type="float" />
+    <field name="mz" type="float" />
+  </message>
+
+  <message name="IMU_ACCEL" id="54">
+    <description></description>
+    <field name="ax" type="float" unit="m/s-2"/>
+    <field name="ay" type="float" unit="m/s-2"/>
+    <field name="az" type="float" unit="m/s-2"/>
+  </message>
+
+  <message name="IMU_GYRO_RAW" id="55">
+    <description></description>
+    <field name="gp" type="int32" unit="adc"/>
+    <field name="gq" type="int32" unit="adc"/>
+    <field name="gr" type="int32" unit="adc"/>
+  </message>
+
+  <message name="IMU_ACCEL_RAW" id="56">
+    <description></description>
+    <field name="ax" type="int32" unit="adc"/>
+    <field name="ay" type="int32" unit="adc"/>
+    <field name="az" type="int32" unit="adc"/>
+  </message>
+
+  <message name="IMU_MAG_RAW" id="57">
+    <description></description>
+    <field name="mx" type="int32" unit="adc"/>
+    <field name="my" type="int32" unit="adc"/>
+    <field name="mz" type="int32" unit="adc"/>
+  </message>
+
+  <message name="IMU_MAG_SETTINGS" id="58">
+    <description></description>
+    <field name="inclination" type="float" />
+    <field name="declination" type="float" />
+    <field name="hardiron_x" type="float" />
+    <field name="hardiron_y" type="float" />
+    <field name="hardiron_z" type="float" />
+  </message>
+
+  <message name="IMU_HS_GYRO" id="59">
+    <description></description>
+    <field name="axis" type="uint8"/>
+    <field name="samples"  type="uint32[]"/>
+  </message>
+
+<!-- IMU Messages: Inertial Measurement Unit -->
+  <message name="IMU_GYRO_INT" id="60">
+    <description></description>
+    <field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gq"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gr"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="IMU_ACCEL_INT" id="61">
+    <description></description>
+    <field name="ax"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="ay"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="az"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+  </message>
+
+  <message name="IMU_MAG_INT" id="62">
+    <description></description>
+    <field name="mx"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+    <field name="my"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+    <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
+  </message>
+
+  <message name="OPTICFLOW" id="1">
+    <description></description>
+    <field name="flow" type="uint16"/>
+    <field name="ref_alt" type="float"/>
+  </message>
+
+<!-- ____GPS ____ -->
+
+  <message name="GPS_UTM" id="33">
+    <description></description>
+    <field name="fix"       type="uint8"  unit="byte_mask" values="NONE|UKN1|UKN2|3D"/>
+    <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
+    <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="week"       type="uint16" unit="weeks"/>
+    <field name="itow"       type="uint32" unit="ms"/>
+    <field name="utm_zone"   type="uint8"/>
+    <field name="gps_nb_err" type="uint8"/>
+  </message>
+
+  <message name="GPS_LLA" id="34">
+    <description></description>
+    <field name="lat"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
+    <field name="lon"        type="int32"  unit="rad*e7" alt_unit="deg" alt_unit_coef="0.00000573"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="week"       type="uint16" unit="weeks"/>
+    <field name="itow"       type="uint32" unit="ms"/>
+    <field name="fix"       type="uint8"  unit="byte_mask" values="NONE|UKN1|UKN2|3D"/>
+  </message>
+
+  <message name="GPS_INT" id="35">
+    <description></description>
+    <field name="ecef_x"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_y"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_z"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="alt"     type="int32" unit="mm"   alt_unit="m"/>
+    <field name="hmsl"    type="int32" unit="mm"   alt_unit="m"/>
+    <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_yd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_zd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="pacc"    type="int32" unit="cm"   alt_unit="m"/>
+    <field name="sacc"    type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="tow"     type="uint32"/>
+    <field name="pdop"    type="uint16"/>
+    <field name="numsv"   type="uint8"/>
+    <field name="fix"     type="uint8" values="NONE|UKN1|UKN2|3D"/>
+  </message>
+
+<!-- GPS Messages: Global Positioning System (OTHERS)  -->
+
+
+  <message name="GPS_SOL" id="38">
+    <description></description>
+    <field name="Pacc" type="uint32" unit="cm"/>
+    <field name="Sacc" type="uint32" unit="cm/s"/>
+    <field name="PDOP" type="uint16"/>
+    <field name="numSV" type="uint8"/>
+  </message>
+
+
+  <message name="GPS_ERROR" id="39">
+    <description></description>
+    <field name="x_position"    type="float" unit="m"/>
+    <field name="y_position"    type="float" unit="m"/>
+    <field name="z_position"    type="float" unit="m"/>
+    <field name="x_velocity"    type="float" unit="m"/>
+    <field name="y_velocity"    type="float" unit="m"/>
+    <field name="z_velocity"    type="float" unit="m"/>
+  </message>
+
+<!-- ___________________________________________ BARO _____________________________________________ -->
+  <message name="PRESSURE" id="43">
+    <description></description>
+    <field name="airspeed_adc" type="float"/>
+    <field name="airspeed" type="float" unit="m/s"/>
+    <field name="altitude_adc" type="float"/>
+    <field name="altitude" type="float" unit="m"/>
+  </message>
+
+  <message name="BARO_RAW" id="44">
+    <description></description>
+    <field name="abs"          type="int32"/>
+    <field name="diff"         type="int32"/>
+  </message>
+
+  <!-- ___________ SPECIFIC SENSORS _____________ -->
+  <message name="XSENS" id="2">
+    <description></description>
+    <field name="counter" type="int16" unit=""/>
+
+    <field name="p" type="float" unit="deg/s"/>
+    <field name="q" type="float" unit="deg/s"/>
+    <field name="r" type="float" unit="deg/s"/>
+
+    <field name="phi" type="float" unit="deg"/>
+    <field name="theta" type="float" unit="deg"/>
+    <field name="psi" type="float" unit="deg"/>
+
+    <field name="ax" type="float" unit="m/s2"/>
+    <field name="ay" type="float" unit="m/s2"/>
+    <field name="az" type="float" unit="m/s2"/>
+
+    <field name="vx" type="float" unit="m/s"/>
+    <field name="vy" type="float" unit="m/s"/>
+    <field name="vz" type="float" unit="m/s"/>
+
+    <field name="lat" type="float" unit="deg"/>
+    <field name="lon" type="float" unit="deg"/>
+    <field name="alt" type="float" unit="m"/>
+
+    <field name="status" type="uint8" unit=""/>
+
+    <field name="hour" type="uint8" unit=""/>
+    <field name="min" type="uint8" unit=""/>
+    <field name="sec" type="uint8" unit=""/>
+    <field name="nanosec" type="uint32" unit=""/>
+    <field name="year" type="uint16" unit=""/>
+    <field name="month" type="uint8" unit=""/>
+    <field name="day" type="uint8" unit=""/>
+  </message>
+
+  <message name="WINDTURBINE_STATUS_" id="3">
+    <description></description>
+    <field name="ac_id" type="uint8"/>
+    <field name="tb_id" type="uint8"/>
+    <field name="sync_itow"  type="uint32" unit="ms"/>
+    <field name="cycle_time" type="uint32" unit="ms"/>
+  </message>
+
+  <message name="BMP_STATUS" id="4">
+    <description></description>
+    <field name="UP"    type="int32"/>
+    <field name="UT"    type="int32"/>
+    <field name="press" type="int32" unit="Pa"/>
+    <field name="temp"  type="int32" unit="10x_deg_celsius"/>
+  </message>
+
+  <message name="MLX_STATUS" id="5">
+    <description></description>
+    <field name="itemp_case" type="uint16"/>
+    <field name="temp_case"  type="float" unit="deg_celsius" format="%.2f"/>
+    <field name="itemp_obj"  type="uint16"/>
+    <field name="temp_obj"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="TMP_STATUS" id="6">
+    <description></description>
+    <field name="itemp"  type="uint16"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="SCP_STATUS" id="7">
+    <description></description>
+    <field name="press" type="uint32" unit="Pa"/>
+    <field name="temp"  type="int16" unit="100x_deg_celsius"/>
+  </message>
+
+  <message name="SHT_STATUS" id="8">
+    <description></description>
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="ENOSE_STATUS" id="9">
+    <description></description>
+    <field name="val1" type="uint16"/>
+    <field name="val2" type="uint16"/>
+    <field name="val3" type="uint16"/>
+    <field name="PID" type="uint16"/>
+    <field name="heat" type="uint8[]"/>
+  </message>
+
+  <message name="DPICCO_STATUS" id="10">
+    <description></description>
+    <field name="humid" type="uint16"/>
+    <field name="temp" type="uint16"/>
+    <field name="fhumid" type="float" unit="rel_hum" format="%.2f"/>
+    <field name="ftemp" type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="HIH_STATUS" id="11">
+    <description></description>
+    <field name="humid" type="uint16"/>
+    <field name="fhumid" type="float" unit="rel_hum" format="%.2f"/>
+    <field name="ftemp" type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="TEMT_STATUS" id="12">
+    <description></description>
+    <field name="light"  type="uint16"/>
+    <field name="f_light" type="float" unit="percent" format="%.2f"/>
+  </message>
+
+  <message name="GP2Y_STATUS" id="13">
+    <description></description>
+    <field name="idensity"  type="uint16"/>
+    <field name="density"   type="float" unit="mg/m3" format="%.2f"/>
+  </message>
+
+  <message name="HTM_STATUS" id="14">
+    <description></description>
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="SHT_I2C_STATUS" id="15">
+    <description></description>
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="PCAP01_STATUS" id="16">
+    <description></description>
+    <field name="ihumid" type="uint32"/>
+    <field name="itemp"  type="uint32"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="TEST_PASSTHROUGH_STATUS" id="17">
+    <description></description>
+    <field name="io_proc_msg_cnt" type="uint32"/>
+    <field name="io_proc_err_cnt" type="uint32"/>
+    <field name="io_link_msg_cnt" type="uint32"/>
+    <field name="io_link_err_cnt" type="uint32"/>
+    <field name="rc_status"       type="uint8" values="OK|LOST|REALLY_LOST"/>
+  </message>
+
+  <message name="BARO_BMP85_CALIB" id="18">
+    <description></description>
+    <field name="a1"  type="int16"/>
+    <field name="a2"  type="int16"/>
+    <field name="a3"  type="int16"/>
+    <field name="a4"  type="uint16"/>
+    <field name="a5"  type="uint16"/>
+    <field name="a6"  type="uint16"/>
+    <field name="b1"  type="int16"/>
+    <field name="b2"  type="int16"/>
+    <field name="mb"  type="int16"/>
+    <field name="mc"  type="int16"/>
+    <field name="md"  type="int16"/>
+  </message>
+
+  <message name="BARO_BMP85" id="19">
+    <description></description>
+    <field name="UT"  type="int32"/>
+    <field name="UP"  type="int32"/>
+    <field name="P"  type="uint32"/>
+    <field name="T"  type="float"/>
+    <field name="MSL"  type="float"/>
+  </message>
+
+  <message name="BARO_MS5534A" id="20">
+    <description></description>
+    <field name="pressure" type="uint32" unit="P"/>
+    <field name="temp" type="uint16" unit="dC"/>
+    <field name="alt" type="float" unit="m"/>
+  </message>
+
+  <message name="BARO_WORDS" id="21">
+    <description></description>
+    <field name="w1"  type="uint16"/>
+    <field name="w2"  type="uint16"/>
+    <field name="w3"  type="uint16"/>
+    <field name="w4"  type="uint16"/>
+  </message>
+
+  <message name="BARO_ETS" id="22">
+    <description></description>
+    <field name="adc" type="uint16"/>
+    <field name="offset" type="uint16"/>
+    <field name="scaled" type="float"/>
+  </message>
+
+  <message name="AMSYS_BARO" id="23">
+    <description></description>
+    <field name="pBaroRaw" type="uint16"/>
+    <field name="pBaro" type="float" unit="Pa"/>
+    <field name="pHomePressure" type="float" unit="Pa"/>
+    <field name="AltOffset" type="float" unit="m"/>
+    <field name="aktuell" type="float" unit="m"/>
+    <field name="Over_Ground" type="float" unit="m"/>
+    <field name="tempBaro" type="float" unit="°C"/>
+  </message>
+
+  <message name="AIRSPEED_ETS" id="49">
+    <description></description>
+    <field name="adc" type="uint16"/>
+    <field name="offset" type="uint16"/>
+    <field name="scaled" type="float"/>
+  </message>
+
+  <message name="AMSYS_AIRSPEED" id="24">
+    <description></description>
+    <field name="asRaw" type="uint16"/>
+    <field name="asPresure" type="float" unit="Pa"/>
+    <field name="asAirspeed" type="float" unit="m/s"/>
+    <field name="asAirsFilt" type="float" unit="m/s"/>
+    <field name="asTemp" type="float" unit="°C"/>
+  </message>
+
+  <message name="BARO_MS5611" id="25">
+    <description></description>
+    <field name="d1"       type="uint32"/>
+    <field name="d2"       type="uint32"/>
+    <field name="pressure" type="float" unit="hPa" format="%.2f"/>
+    <field name="temp"     type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="MPL3115_BARO" id="26">
+    <description></description>
+    <field name="pressure" type="uint32" alt_unit="Pa" alt_unit_coef="0.25"/>
+    <field name="temp" type="int16" alt_unit="degC" alt_unit_coef="0.0625"/>
+    <field name="alt" type="float" unit="m"/>
+  </message>
+
+  <message name="AOA_adc" id="27">
+    <description></description>
+    <field name="adcVal" type="uint16"/>
+    <field name="AOA" type="float" unit="rad"/>
+  </message>
+
+  <message name="PBN" id="45">
+    <description></description>
+    <field name="airspeed_adc" type="uint16"/>
+    <field name="altitude_adc" type="uint16"/>
+    <field name="airspeed" type="float"/>
+    <field name="altitude" type="float"/>
+    <field name="airspeed_offset" type="uint16"/>
+    <field name="altitude_offset" type="uint16"/>
+  </message>
+</class>

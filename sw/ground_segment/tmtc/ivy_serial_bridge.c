@@ -87,10 +87,10 @@ volatile unsigned char new_serial_data = 0;
 static void on_Attitude(IvyClientPtr app, void *user_data, int argc, char *argv[])
 {
 /*
-   <message name="ATTITUDE" id="6">
+   <message name="ATTITUDE_EULER" id="6">
      <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
-     <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
      <field name="theta" type="float" unit="rad" alt_unit="deg"/>
+     <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
    </message>
 */
 
@@ -98,7 +98,7 @@ static void on_Attitude(IvyClientPtr app, void *user_data, int argc, char *argv[
   local_uav.psi   = (short int) (atof(argv[1]) * 1000.0);
   local_uav.theta = (short int) (atof(argv[2]) * 1000.0);
 
-  //Dprintf("ATTITUDE ac=%d phi=%d theta=%d psi=%d ",local_uav.ac_id, local_uav.phi, local_uav.theta, local_uav.psi);
+  //Dprintf("ATTITUDE_EULER ac=%d phi=%d theta=%d psi=%d ",local_uav.ac_id, local_uav.phi, local_uav.theta, local_uav.psi);
 }
 
 static void on_Estimator(IvyClientPtr app, void *user_data, int argc, char *argv[])
@@ -152,7 +152,7 @@ static void on_Desired(IvyClientPtr app, void *user_data, int argc, char *argv[]
 static void on_Gps(IvyClientPtr app, void *user_data, int argc, char *argv[])
 {
 /*
-   <message name="GPS" id="8">
+   <message name="GPS_UTM" id="8">
      <field name="mode"       type="uint8"  unit="byte_mask"/>
      <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
      <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
@@ -172,8 +172,8 @@ static void on_Gps(IvyClientPtr app, void *user_data, int argc, char *argv[])
   local_uav.utm_zone = atoi(argv[9]);
   local_uav.speed = atoi(argv[5]);
 
-  //Dprintf("ATTITUDE ac=%d phi=%d theta=%d psi=%d ",local_uav.ac_id, local_uav.phi, local_uav.theta, local_uav.psi);
-  //Dprintf("GPS ac=%d %d %d %d %d\n",local_uav.ac_id, local_uav.utm_east, local_uav.utm_north, local_uav.utm_z, local_uav.utm_zone);
+  //Dprintf("ATTITUDE_EULER ac=%d phi=%d theta=%d psi=%d ",local_uav.ac_id, local_uav.phi, local_uav.theta, local_uav.psi);
+  //Dprintf("GPS_UTM ac=%d %d %d %d %d\n",local_uav.ac_id, local_uav.utm_east, local_uav.utm_north, local_uav.utm_z, local_uav.utm_zone);
 
   new_ivy_data = 1;
 }
@@ -197,8 +197,8 @@ void send_ivy(void)
 
   IvySendMsg("%d ALIVE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n", remote_uav.ac_id);
 
-  IvySendMsg("%d ATTITUDE %f %f %f\n", remote_uav.ac_id, phi, psi, theta);
-
+  IvySendMsg("%d ATTITUDE_EULER %f %f %f\n", remote_uav.ac_id, phi, theta, psi);
+  
 /*
   remote_uav.utm_east = local_uav.utm_east;
   remote_uav.utm_north = local_uav.utm_north + 5000;
@@ -209,7 +209,7 @@ void send_ivy(void)
 */
 
 /*
-   <message name="GPS" id="8">
+   <message name="GPS_UTM" id="8">
      <field name="mode"       type="uint8"  unit="byte_mask"/>
      <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
      <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
@@ -224,8 +224,8 @@ void send_ivy(void)
    </message>
 */
 
-  IvySendMsg("%d GPS 3 %d %d 0 %d %d 0 0 0 %d 0\n", remote_uav.ac_id, remote_uav.utm_east, remote_uav.utm_north, remote_uav.utm_z, remote_uav.speed, remote_uav.utm_zone);
-
+  IvySendMsg("%d GPS_UTM 3 %d %d 0 %d %d 0 0 0 %d 0\n", remote_uav.ac_id, remote_uav.utm_east, remote_uav.utm_north, remote_uav.utm_z, remote_uav.speed, remote_uav.utm_zone);
+  
 /*
   <message name="FBW_STATUS" id="103">
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
@@ -793,8 +793,8 @@ int main ( int argc, char** argv)
   IvyBindMsg(on_Desired, NULL, "^%d DESIRED (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)",local_uav.ac_id);
   IvyBindMsg(on_Estimator, NULL, "^%d ESTIMATOR (\\S*) (\\S*)",local_uav.ac_id);
   IvyBindMsg(on_Navigation, NULL, "^%d NAVIGATION (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)",local_uav.ac_id);
-  IvyBindMsg(on_Attitude, NULL, "^%d ATTITUDE (\\S*) (\\S*) (\\S*)", local_uav.ac_id);
-  IvyBindMsg(on_Gps, NULL, "^%d GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)",local_uav.ac_id);
+  IvyBindMsg(on_Attitude, NULL, "^%d ATTITUDE_EULER (\\S*) (\\S*) (\\S*)", local_uav.ac_id);
+  IvyBindMsg(on_Gps, NULL, "^%d GPS_UTM (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)",local_uav.ac_id);
   IvyStart("127.255.255.255");
 
   // Add Timer

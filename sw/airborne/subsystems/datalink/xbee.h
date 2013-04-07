@@ -45,6 +45,7 @@
 
 extern uint8_t xbee_cs;
 extern uint8_t xbee_rssi;
+extern uint8_t xbee_down_packet_seq;
 
 /** Initialisation in API mode and setting of the local address
  * FIXME: busy wait */
@@ -61,6 +62,16 @@ void xbee_init( void );
 #define XBeeTransportPutUint8(_dev, _x) { \
   xbee_cs += _x; \
   XBeeTransportPut1Byte(_dev, _x); \
+}
+
+#define XBeeTransportPutAcId(_dev, _x) { \
+  XBeeTransportPutUint8(_dev, _x); \
+}
+
+#define XBeeTransportPutPacketSequence(_dev) { \
+    xbee_down_packet_seq++;	\
+    if(xbee_down_packet_seq==0){ xbee_down_packet_seq++; } \
+    XBeeTransportPut1Byte(_dev, xbee_down_packet_seq); \
 }
 
 #define XBeeTransportPut1ByteByAddr(_dev, _byte) { \
@@ -89,8 +100,24 @@ void xbee_init( void );
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
   }
+#define XBeeTransportPutUint64ByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+  }
+#define XBeeTransportPutInt64ByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+  }
 #else
 #define XBeeTransportPutDoubleByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+  }
+#define XBeeTransportPutUint64ByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+  }
+#define XBeeTransportPutInt64ByAddr(_dev, _byte) { \
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
   }
@@ -105,6 +132,8 @@ void xbee_init( void );
 #define XBeeTransportPutUint32ByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define XBeeTransportPutFloatByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define XBeeTransportPutNamedUint8(_dev, _name, _byte) XBeeTransportPutUint8(_dev, _byte)
+#define XBeeTransportPutClassUint8(_dev, _name, _byte) XBeeTransportPutUint8(_dev, _byte)
+#define XBeeTransportPutCharByAddr(_dev, _x) XBeeTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
 
 #define XBeeTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
@@ -114,13 +143,23 @@ void xbee_init( void );
   } \
 }
 
-#define XBeeTransportPutInt16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt16ByAddr, _n, _x)
-
-#define XBeeTransportPutUint16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint16ByAddr, _n, _x)
+#define XBeeTransportPutInt8Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt8ByAddr, _n, _x)
 #define XBeeTransportPutUint8Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint8ByAddr, _n, _x)
-#define XBeeTransportPutFloatArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutFloatByAddr, _n, _x)
-#define XBeeTransportPutDoubleArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutDoubleByAddr, _n, _x)
 
+#define XBeeTransportPutCharArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutCharByAddr, _n, _x)
+
+#define XBeeTransportPutInt16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt16ByAddr, _n, _x)
+#define XBeeTransportPutUint16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint16ByAddr, _n, _x)
+
+#define XBeeTransportPutInt32Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt32ByAddr, _n, _x)
+#define XBeeTransportPutUint32Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint32ByAddr, _n, _x)
+
+#define XBeeTransportPutFloatArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutFloatByAddr, _n, _x)
+
+#define XBeeTransportPutInt64Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt64ByAddr, _n, _x)
+#define XBeeTransportPutUint64Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint64ByAddr, _n, _x)
+
+#define XBeeTransportPutDoubleArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutDoubleByAddr, _n, _x)
 
 
 #define XBeeTransportHeader(_dev, _len) { \
@@ -212,6 +251,16 @@ static inline void xbee_parse_payload(struct xbee_transport * t) {
     for(i = XBEE_RFDATA_OFFSET; i < t->trans.payload_len; i++)
       dl_buffer[i-XBEE_RFDATA_OFFSET] = t->trans.payload[i];
     dl_msg_available = TRUE;
+    if((dl_buffer[0]!=t->trans.packet_seq+1)&&(dl_buffer[0]!=0)){
+	if((t->trans.packet_seq+1)<dl_buffer[0]){
+		//uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
+		//XGGDEBUG:SEQ: Do something like increment counter
+	}else{
+		//uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
+		//XGGDEBUG:SEQ: Do something like increment counter
+	}
+    }
+    t->trans.packet_seq = dl_buffer[0];
     break;
   default:
     return;

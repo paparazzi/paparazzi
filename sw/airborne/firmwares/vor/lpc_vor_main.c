@@ -5,7 +5,7 @@
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/uart_print.h"
-//#include "messages.h"
+//#include "downlink_msg.h"
 //#include "subsystems/datalink/downlink.h"
 
 #include "lpc_vor_convertions.h"
@@ -26,8 +26,8 @@ int main( void ) {
       vor_int_demod_run (off_sample);
 
       if (vid_qdr_available) {
-      	vid_qdr_available = FALSE;
-	main_report();
+        vid_qdr_available = FALSE;
+        main_report();
       }
 
       VorDacSet(vor_adc_sample);

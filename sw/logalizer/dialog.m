@@ -823,7 +823,7 @@ global id_Devices;
 axes(handles.axes1);
 k=get(handles.ListDevices,'Value'); k=id_Devices(k);
 
-[m,n]=set2Plot(handles,'GPS','course');
+[m,n]=set2Plot(handles,'GPS_UTM','course');
 if m*n~=0, 
     [x,y]=setXY2plot(m,n,k);
     h=plotlog(x,y);
@@ -863,7 +863,7 @@ global id_Devices;
 axes(handles.axes1);
 k=get(handles.ListDevices,'Value'); k=id_Devices(k);
 
-[m,n]=set2Plot(handles,'GPS','alt');
+[m,n]=set2Plot(handles,'GPS_UTM','alt');
 if m*n~=0, 
     [x,y]=setXY2plot(m,n,k);
     h=plotlog(x,y);
@@ -918,7 +918,7 @@ if m*n~=0,
     [ty,yy]=setXY2plot(m,n,k);
     yy=interp1(ty,yy,tx);
 end;
-[m,n]=set2Plot(handles,'GPS','alt');
+[m,n]=set2Plot(handles,'GPS_UTM','alt');
 if m*n~=0,
     [tz,zz]=setXY2plot(m,n,k);
     zz=interp1(tz,zz,tx);
@@ -964,7 +964,7 @@ k=get(handles.ListDevices,'Value');
 global id_Devices;
 k=id_Devices(k);
 
-[m,n]=set2Plot(handles,'GPS','speed');
+[m,n]=set2Plot(handles,'GPS_UTM','speed');
 if m*n~=0, 
     [x,y]=setXY2plot(m,n,k);
     h=plotlog(x,y);
@@ -987,7 +987,7 @@ if m*n~=0,
     [ty,yy]=setXY2plot(m,n,k);
     yy=interp1(ty,yy,tx);
 end;
-[m,n]=set2Plot(handles,'GPS','alt');
+[m,n]=set2Plot(handles,'GPS_UTM','alt');
 if m*n~=0,
     [tz,zz]=setXY2plot(m,n,k);
     zz=interp1(tz,zz,tx);

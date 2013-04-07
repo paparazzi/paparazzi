@@ -41,7 +41,7 @@ It has 9 buttons.
 <messages period="0.0333333333">
 
 
-  <message class="datalink" name="RC_4CH" send_always="true">
+  <message class="common_commands" name="RC_4CH" send_always="true">
    <field name="joystick_id" value="JoystickID()"/>
    <field name="throttle"    value="Scale(ly,-10,127)"/>
    <field name="roll"        value="rx"/>

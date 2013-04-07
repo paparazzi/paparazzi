@@ -45,6 +45,7 @@
 /conf/maps_data/*
 /conf/maps.xml
 /conf/gps/ublox_conf
+/conf/messages_conf.xml
 
 # /doc/pprz_algebra/
 /doc/pprz_algebra/headfile.log

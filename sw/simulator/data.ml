@@ -31,13 +31,25 @@ let user_conf_path = Env.paparazzi_home // "conf"
 
 let conf_xml = Xml.parse_file (user_conf_path // "conf.xml")
 
+
+type _class = {
+	class_id : int;
+	class_name : string;
+	class_type : string;
+	class_xml : Xml.xml;
+}
+
+
 let messages_ap =
 (*  let xml = Xml.parse_file (pprz_conf_path // "messages.xml") in *)
-  let xml = Xml.parse_file (user_conf_path // "messages.xml") in
+  let xml = Pprz.messages_xml () in
   try
-    ExtXml.child xml ~select:(fun x -> Xml.attrib x "name" = "telemetry") "class"
+  	let version_xml = Pprz.get_downlink_messages_in_one_class xml in
+    ExtXml.child version_xml ~select:(fun x -> Xml.attrib x "name" = "telemetry") "class"
   with
-    Not_found -> failwith "'telemetry' class missing in messages.xml"
+    Not_found -> (*failwith "'telemetry' class missing in messages.xml"*) failwith "Data.messages_ap error loading messages.xml"
+		| Xml.Error er -> failwith (sprintf "Data.ml XML Error (Error: %s)" (Xml.error er))
+		| e -> failwith (sprintf "Data.ml Unhandled exception (Exception: %s)" (Printexc.to_string e))
 
 type aircraft = {
     name : string;

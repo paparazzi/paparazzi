@@ -49,8 +49,8 @@ let trim_file_name = ref ""
 let joystick_id = ref (Random.int 255)
 
 (** Messages libraries *)
-module DL = Pprz.Messages(struct let name = "datalink" end)
-module G = Pprz.Messages(struct let name = "ground" end)
+module DL = Pprz.Messages_of_type(struct let class_type = "uplink" end)
+module G = Pprz.Messages_of_type(struct let class_type = "ground" end)
 
 (** Syntax for expressions *)
 module Syntax = Expr_syntax
@@ -110,21 +110,29 @@ let trim_adjust = fun axis_name adjustment ->
 
 (** Get message class type *)
 let get_message_type = fun class_name ->
-  match class_name with
-      "datalink" -> "Message"
-    | "ground" -> "Message"
+	match class_name with
     | "trim_plus" -> "Trim"
     | "trim_minus" -> "Trim"
     | "trim_save" -> "Trim"
-    | _ -> failwith class_name
+    | _ -> "Message"
+ (* match class_name with
+    "datalink" -> "Message"
+  | "ground" -> "Message"
+  | "trim_plus" -> "Trim"
+  | "trim_minus" -> "Trim"
+  | "trim_save" -> "Trim"
+  | _ -> failwith class_name*)
 
 (** Get a message description from its name (and class name) *)
 (**   class_names with entries above as "Message" should be listed here  *)
 let get_message = fun class_name msg_name ->
-  match class_name with
-      "datalink" -> snd (DL.message_of_name msg_name)
+	match class_name with
     | "ground" -> snd (G.message_of_name msg_name)
-    | _ -> failwith class_name
+    | _ ->  snd (DL.message_of_name msg_name)
+  (*match class_name with
+    "datalink" -> snd (DL.message_of_name msg_name)
+  | "ground" -> snd (G.message_of_name msg_name)
+  | _ -> failwith class_name*)
 
 (** Get the A/C id from its name in conf/conf.xml *)
 let ac_id_of_name = fun ac_name ->
@@ -211,7 +219,7 @@ let parse_input = fun input ->
     (name, value))
     (Xml.children input)
 
-(** Parse a 'à la C' expression *)
+(** Parse a 'Ã  la C' expression *)
 let parse_value = fun s ->
   Fp_proc.parse_expression s
 
@@ -481,12 +489,18 @@ let execute_action = fun ac_id inputs buttons axis variables message ->
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
     let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
     match message.msg_class with
-        "datalink" -> DL.message_send "input2ivy" message.msg_name vs
       | "ground" -> G.message_send "input2ivy" message.msg_name vs
       | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
       | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
       | "trim_save" -> trim_save inputs
-      | c -> failwith (sprintf "execute_action: unknown class '%s'" c)
+      | _ -> DL.message_send "input2ivy" message.msg_name vs
+    (*match message.msg_class with
+      "datalink" -> DL.message_send "input2ivy" message.msg_name vs
+    | "ground" -> G.message_send "input2ivy" message.msg_name vs
+    | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
+    | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
+    | "trim_save" -> trim_save inputs
+    | c -> failwith (sprintf "execute_action: unknown class '%s'" c)*)
   end;
   record_values message.msg_name (on_event, values)
 

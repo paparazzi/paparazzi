@@ -3,27 +3,26 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
-      <message name="ESTIMATOR"      period="3."	phase="0."/>
-      <message name="NAVIGATION"     period="3."	phase="0."/>
-      <message name="GPS"	     period="3."	phase="0."/>
+      <message name="FLIGHT_PLAN_STATUS" period="3."	phase="0."/>
+      <message name="GPS_UTM"	       period="3."	phase="0."/>
 
-      <message name="ATTITUDE"       period="6."	phase="0"/>
+      <message name="ATTITUDE_EULER" period="6."	phase="0"/>
       <message name="DL_VALUE"       period="3."	phase="0"/>
       <message name="WP_MOVED"       period="6."	phase="3"/>
 
-      <message name="DESIRED"        period="6."	phase="0"/>
+      <message name="LOCAL_POSITION_DESIRED"        period="6."	phase="0"/>
       <message name="SEGMENT"        period="6."	phase="0"/>
       <message name="CIRCLE"         period="6."	phase="0"/>
       <message name="SURVEY"         period="6."	phase="0"/>
 
-      <message name="PPRZ_MODE"      period="12."	phase="0"/>
-      <message name="BAT"            period="12."	phase="0"/>
+      <message name="FIXEDWING_STATUS"      period="12."	phase="0"/>
+      <message name="ELECTRICAL_STATUS"         period="12."	phase="0"/>
 
       <message name="ALIVE"          period="18."	phase="0"/>
-      <message name="CALIBRATION"    period="18."	phase="0"/>
+      <message name="V_CTL_CALIBRATION" period="18."	phase="0"/>
       <message name="DOWNLINK"       period="18."	phase="0"/>
       <message name="GPS_SOL"        period="18."	phase="0"/>
-      <message name="NAVIGATION_REF" period="18."	phase="0"/>
+      <message name="GLOBAL_ORIGIN_UTM" period="18."	phase="0"/>
     </mode>
   </process>
   <process name="Fbw">

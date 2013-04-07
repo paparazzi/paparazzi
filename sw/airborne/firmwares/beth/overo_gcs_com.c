@@ -6,7 +6,7 @@
 #include "downlink_transport.h"
 #include "messages2.h"
 #include "udp_transport2.h"
-#include "dl_protocol.h"
+#include "uplink_msg.h"
 #include "generated/settings.h"
 
 //bill laptop

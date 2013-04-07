@@ -1,7 +1,5 @@
-(*
- * Server part specific to fixed wing vehicles
- *
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+/*
+ * Copyright (C) 2012 Xavier Gibert
  *
  * This file is part of paparazzi.
  *
@@ -20,9 +18,11 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- *)
+ */
 
-val log_and_parse :
-  string -> Aircraft.aircraft -> Pprz.message -> Pprz.values -> unit
-(** [log_and_parse ac_id ac msg vs] *)
+/* PERIODIC_C_MAVLINK is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Mavlink_*
+ */
+#define PERIODIC_C_MAVLINK
 
+#include "generated/periodic_telemetry.h"

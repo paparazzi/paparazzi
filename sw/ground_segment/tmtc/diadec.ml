@@ -24,7 +24,7 @@
 
 open Printf
 
-module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
+module Sub_Pprz = Pprz.Messages_of_name(struct let class_name = "DIA" end)
 module PprzTransport = Serial.Transport(Pprz.Transport)
 
 
@@ -32,7 +32,7 @@ let use_tele_message = fun buf ->
   let payload = Serial.payload_of_string buf in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
-    let (msg_id, ac_id, values) = Sub_Pprz.values_of_payload payload in
+    let (packet_seq, ac_id, class_id, msg_id, values) = Sub_Pprz.values_of_payload payload in
     let msg = Sub_Pprz.message_of_id msg_id in
     printf "%d %s\n%!" ac_id (Sub_Pprz.string_of_message msg values)
   with

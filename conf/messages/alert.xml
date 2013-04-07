@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<class type="ground">
+  <message name="BAT_LOW" id="1">
+    <description></description>
+    <field name="ac_id" type="string"/>
+    <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
+    <field name="value" type="float"/>
+  </message>
+  <message name="AIR_PROX" id="2">
+    <description></description>
+    <field name="ac_id" type="string"/>
+    <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
+  </message>
+</class>

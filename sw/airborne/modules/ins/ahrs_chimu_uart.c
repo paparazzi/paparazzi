@@ -19,7 +19,7 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 #endif
 
@@ -90,7 +90,8 @@ void parse_ins_msg( void )
         };
         stateSetNedToBodyEulers_f(&att);
 #if CHIMU_DOWNLINK_IMMEDIATE
-        DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
+        float foo = 0;
+        DOWNLINK_SEND_ATTITUDE_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi, &foo, &foo, &foo);
 #endif
 
       }

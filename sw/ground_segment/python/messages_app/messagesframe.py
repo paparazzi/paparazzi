@@ -141,3 +141,4 @@ class MessagesFrame(wx.Frame):
         self.timer.cancel()
         self.interface.Shutdown()
         self.Destroy()
+

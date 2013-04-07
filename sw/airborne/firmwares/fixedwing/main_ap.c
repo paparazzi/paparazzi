@@ -353,7 +353,7 @@ static inline void telecommand_task( void ) {
   }
   mode_changed |= mcu1_status_update();
   if ( mode_changed )
-    PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
+    PERIODIC_SEND_FIXEDWING_STATUS(DefaultChannel, DefaultDevice);
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
@@ -394,21 +394,11 @@ static inline void telecommand_task( void ) {
 /**************************** Periodic tasks ***********************************/
 
 /**
- * Send a series of initialisation messages followed by a stream of periodic ones.
+ * Send periodic messages.
  * Called at 60Hz.
  */
 void reporting_task( void ) {
-  static uint8_t boot = TRUE;
-
-  /** initialisation phase during boot */
-  if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
-    boot = FALSE;
-  }
-  /** then report periodicly */
-  else {
-    PeriodicSendAp(DefaultChannel, DefaultDevice);
-  }
+  PeriodicSendAp(DefaultChannel, DefaultDevice);
 }
 
 
@@ -431,7 +421,7 @@ void navigation_task( void ) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-        PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
+        PERIODIC_SEND_FIXEDWING_STATUS(DefaultChannel, DefaultDevice);
         gps_lost = TRUE;
       }
     } else if (gps_lost) { /* GPS is ok */
@@ -439,7 +429,7 @@ void navigation_task( void ) {
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
 
-      PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
+      PERIODIC_SEND_FIXEDWING_STATUS(DefaultChannel, DefaultDevice);
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
@@ -457,7 +447,7 @@ void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
-  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+  SEND_FLIGHT_PLAN_STATUS(DefaultChannel, DefaultDevice);
 #endif
 
   SEND_CAM(DefaultChannel, DefaultDevice);

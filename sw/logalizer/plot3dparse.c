@@ -33,7 +33,7 @@ pause -1
 int main( int argc, char* argv[] )
 {
 /*
-   <message name="GPS" ID="8">
+   <message name="GPS_UTM" ID="8">
      <field name="mode"   type="uint8" unit="byte_mask"></field>
      <field name="utm_east"  type="int32" unit="cm"></field>
      <field name="utm_north"  type="int32" unit="cm"></field>
@@ -46,16 +46,16 @@ int main( int argc, char* argv[] )
      <field name="gps_nb_err" type="uint8"></field>
    </message>
 
-7.73 11 GPS 0 55577549 665183336 0 -4310 0 0 345957748 31 0
+7.73 11 GPS_UTM 0 55577549 665183336 0 -4310 0 0 345957748 31 0
 
 
-   <message name="ATTITUDE" ID="6">
+   <message name="ATTITUDE_EULER" ID="6">
      <field name="phi" type="int16" unit="deg"></field>
-     <field name="psi" type="int16" unit="deg"></field>
      <field name="theta" type="int16" unit="deg"></field>
+     <field name="psi" type="int16" unit="deg"></field>
    </message>
 
-230.41 23 ATTITUDE -22 0 -4
+230.41 23 ATTITUDE_EULER -22 0 -4
 
    <message name="NAVIGATION_REF" ID="0x09">
      <field name="utm_east"  type="int32" unit="m"></field>
@@ -155,7 +155,7 @@ int main( int argc, char* argv[] )
 			}
 #endif
 
-			if (!strcmp( "GPS", id_name))
+			if (!strcmp( "GPS_UTM", id_name))
 			{
 				sscanf( line_in,  "%e %i %s %i %i %i %i %i %i %i %i %i %i\n",
 					&rtime,
@@ -174,7 +174,7 @@ int main( int argc, char* argv[] )
 
 			}
 
-			if (!strcmp( "ATTITUDE", id_name))
+			if (!strcmp( "ATTITUDE_EULER", id_name))
 			{
 				sscanf( line_in,  "%e %i %s %i %i %i\n",
 					&rtime,

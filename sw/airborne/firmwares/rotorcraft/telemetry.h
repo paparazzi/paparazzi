@@ -23,7 +23,7 @@
 #define TELEMETRY_H
 
 #include "std.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "mcu_periph/uart.h"
 
 #include "subsystems/datalink/downlink.h"
@@ -51,50 +51,60 @@
 // I2C Error counters
 #include "mcu_periph/i2c.h"
 
+#if defined DOWNLINK
+#define Downlink(x) x
+#else
+#define Downlink(x) {}
+#endif
+
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
-#if USE_GPS
+#include "subsystems/ins.h"
+#define PERIODIC_SEND_POSITION_SPEED_ACCEL(_trans, _dev) Downlink({ \
+  int32_t ref = 0;\
+	DOWNLINK_SEND_POSITION_SPEED_ACCEL(_trans, _dev, &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z, &ins_ltp_speed.x, &ins_ltp_speed.y, &ins_ltp_speed.z, &ins_ltp_accel.x, &ins_ltp_accel.y, &ins_ltp_accel.z, &ref, &ref, &ref);\
+})
+
+#define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({                   \
+      uint16_t vsup = electrical.vsupply*10;                            \
+      int16_t amps = (int16_t) (electrical.current/10);                 \
+      int16_t pwr = (int16_t) (vsup*amps*100);                          \
+      int16_t e = 0;                                                    \
+      DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &amps, &pwr, &e, &e);   \
+    })
+
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
-    uint32_t imu_nb_err = 0;						\
-    uint8_t _twi_blmc_nb_err = 0;					\
-    uint16_t time_sec = sys_time.nb_sec; \
-    DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,				\
-                    &imu_nb_err,			\
-                    &_twi_blmc_nb_err,			\
-                    &radio_control.status,		\
-                    &radio_control.frame_rate,		\
-                    &gps.fix,		\
-                    &autopilot_mode,			\
-                    &autopilot_in_flight,		\
-                    &autopilot_motors_on,		\
-                    &guidance_h_mode,			\
-                    &guidance_v_mode,			\
-                    &electrical.vsupply,		\
-                    &time_sec			\
-                    );					\
-  }
-#else /* !USE_GPS */
-#define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
-    uint32_t imu_nb_err = 0;						\
-    uint8_t twi_blmc_nb_err = 0;					\
-    uint8_t  fix = GPS_FIX_NONE;					\
-    uint16_t time_sec = sys_time.nb_sec;                            \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
-                  &imu_nb_err,				\
-                  &twi_blmc_nb_err,				\
                   &radio_control.status,			\
                   &radio_control.frame_rate,			\
-                  &fix,					\
                   &autopilot_mode,			\
                   &autopilot_in_flight,		\
                   &autopilot_motors_on,		\
-                  &guidance_h_mode,			\
-                  &guidance_v_mode,			\
-                  &electrical.vsupply,		\
-                  &time_sec    \
+                  &guidance_v_mode			\
                   );					\
   }
-#endif /* USE_GPS */
+
+#define SEND_FLIGHT_PLAN_STATUS(_trans, _dev) {             \
+	uint8_t _circle_count = NavCircleCount();                 \
+    uint8_t _foo8 = 0;                                      \
+    float _foo = 0.0;                                       \
+	DOWNLINK_SEND_FLIGHT_PLAN_STATUS(_trans, _dev,            \
+                                 &autopilot_flight_time,    \
+                                 &nav_block,                \
+                                 &nav_stage,                \
+                                 &block_time,               \
+                                 &stage_time,               \
+                                 &_foo,                     \
+                                 &_foo,                     \
+                                 &guidance_h_mode,          \
+                                 &_circle_count,            \
+                                 &_foo8);                   \
+  }
+
+#define PERIODIC_SEND_FLIGHT_PLAN_STATUS(_trans, _dev) Downlink({ \
+  SEND_FLIGHT_PLAN_STATUS(_trans, _dev); \
+})
+
 
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_trans, _dev) DOWNLINK_SEND_RC(_trans, _dev, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
@@ -140,22 +150,22 @@
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
-    DOWNLINK_SEND_IMU_GYRO_SCALED(_trans, _dev,			\
+#define PERIODIC_SEND_IMU_GYRO_INT(_trans, _dev) {		\
+    DOWNLINK_SEND_IMU_GYRO_INT(_trans, _dev,			\
                  &imu.gyro.p,		\
                  &imu.gyro.q,		\
                  &imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_IMU_ACCEL_SCALED(_trans, _dev) {			\
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(_trans, _dev,				\
+#define PERIODIC_SEND_IMU_ACCEL_INT(_trans, _dev) {			\
+    DOWNLINK_SEND_IMU_ACCEL_INT(_trans, _dev,				\
                   &imu.accel.x,		\
                   &imu.accel.y,		\
                   &imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_IMU_MAG_SCALED(_trans, _dev) {			\
-    DOWNLINK_SEND_IMU_MAG_SCALED(_trans, _dev,				\
+#define PERIODIC_SEND_IMU_MAG_INT(_trans, _dev) {			\
+    DOWNLINK_SEND_IMU_MAG_INT(_trans, _dev,				\
                 &imu.mag.x,			\
                 &imu.mag.y,			\
                 &imu.mag.z);			\
@@ -336,8 +346,8 @@
 
 #if USE_AHRS_CMPL_EULER
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
-#define PERIODIC_SEND_FILTER(_trans, _dev) {					\
-    DOWNLINK_SEND_FILTER(_trans, _dev,						\
+#define PERIODIC_SEND_AHRS_EULER_DEBUG(_trans, _dev) {					\
+    DOWNLINK_SEND_AHRS_EULER_DEBUG(_trans, _dev,						\
              &ahrs_impl.ltp_to_imu_euler.phi,			\
              &ahrs_impl.ltp_to_imu_euler.theta,			\
              &ahrs_impl.ltp_to_imu_euler.psi,			\
@@ -355,7 +365,7 @@
              &ahrs_impl.gyro_bias.r);			\
   }
 #else
-#define PERIODIC_SEND_FILTER(_trans, _dev) {}
+#define PERIODIC_SEND_AHRS_EULER_DEBUG(_trans, _dev) {}
 #endif
 
 #if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
@@ -515,8 +525,8 @@
 
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
-#define PERIODIC_SEND_VFF(_trans, _dev) {		\
-    DOWNLINK_SEND_VFF(_trans, _dev,			\
+#define PERIODIC_SEND_VFF_DEBUG(_trans, _dev) {		\
+    DOWNLINK_SEND_VFF_DEBUG(_trans, _dev,			\
                 &vff_z_meas,		\
                 &vff_z,			\
                 &vff_zdot,		\
@@ -526,7 +536,7 @@
                 & vff_P[2][2]);		\
   }
 #else
-#define PERIODIC_SEND_VFF(_trans, _dev) {}
+#define PERIODIC_SEND_VFF_DEBUG(_trans, _dev) {}
 #endif
 
 #if USE_VFF_EXTENDED
@@ -590,16 +600,16 @@
                  &guidance_h_held_pos.y);		\
   }
 
-#define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
-    DOWNLINK_SEND_INS_Z(_trans, _dev,					\
+#define PERIODIC_SEND_INS_Z_INT(_trans, _dev) {				\
+    DOWNLINK_SEND_INS_Z_INT(_trans, _dev,					\
                 &ins_baro_alt,				\
                 &ins_ltp_pos.z,			\
                 &ins_ltp_speed.z,			\
                 &ins_ltp_accel.z);			\
   }
 
-#define PERIODIC_SEND_INS(_trans, _dev) {			\
-    DOWNLINK_SEND_INS(_trans, _dev,				\
+#define PERIODIC_SEND_INS_INT(_trans, _dev) {			\
+    DOWNLINK_SEND_INS_INT(_trans, _dev,				\
                        &ins_ltp_pos.x,		\
                        &ins_ltp_pos.y,      \
                        &ins_ltp_pos.z,		\
@@ -733,28 +743,8 @@
 #define PERIODIC_SEND_GPS_INT(_trans, _dev) {}
 #endif
 
+/* Used for old ROTORCRAFT_NAV_STATUS, maybe is not used anymore */
 #include "firmwares/rotorcraft/navigation.h"
-#define PERIODIC_SEND_ROTORCRAFT_NAV_STATUS(_trans, _dev) {				\
-    DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(_trans, _dev,                      \
-                   &block_time,				\
-                   &stage_time,				\
-                   &nav_block,				\
-                   &nav_stage,				\
-                   &horizontal_mode);			\
-    if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {			\
-      float sx = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].x);	\
-      float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);	\
-      float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);	\
-      float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);	\
-      DOWNLINK_SEND_SEGMENT(_trans, _dev, &sx, &sy, &ex, &ey);			\
-    }									\
-    else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {			\
-      float cx = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].x);	\
-      float cy = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].y);	\
-      float r = POS_FLOAT_OF_BFP(nav_circle_radius); \
-      DOWNLINK_SEND_CIRCLE(_trans, _dev, &cx, &cy, &r);			\
-    }									\
-  }
 
 #define PERIODIC_SEND_WP_MOVED(_trans, _dev) {					\
     static uint8_t i;							\

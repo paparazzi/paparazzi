@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mavlink">
+  <header>
+    <file name="mavlink.h"/>
+  </header>
+  <periodic fun="PeriodicSendMavlink(MavlinkTransport, DefaultDevice)" freq="60"/>
+  <event fun="MavlinkDatalinkEvent()"/>
+  <makefile>
+    <file name="mavlink.c"/>
+    <file name="mavlink_transport.c"/>
+  </makefile>
+</module>
+

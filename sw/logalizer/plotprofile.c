@@ -27,7 +27,7 @@ int32_t humid[HEIGHT_SPAN] = {0};
 
 void on_GPS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
 /*
-   <message name="GPS" id="8">
+   <message name="GPS_UTM" id="8">
      <field name="mode"       type="uint8"  unit="byte_mask"/>
      <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
      <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
@@ -41,7 +41,7 @@ void on_GPS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
      <field name="gps_nb_err" type="uint8"/>
    </message>
 
-7.73 11 GPS 0 55577549 665183336 0 -4310 0 0 1642 345957748 31 0
+7.73 11 GPS_UTM 0 55577549 665183336 0 -4310 0 0 1642 345957748 31 0
 */
 
   int32_t _alt;
@@ -107,7 +107,7 @@ int main( int argc, char* argv[] )
   ml =  g_main_loop_new(NULL, FALSE);
 
   IvyInit ("IvyPlotProfile", "IvyPlotProfile READY", NULL, NULL, NULL, NULL);
-  IvyBindMsg(on_GPS, NULL, "^(\\S*) GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_GPS, NULL, "^(\\S*) GPS_UTM (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_TMP_STATUS, NULL, "^(\\S*) TMP_STATUS (\\S*) (\\S*)");
   IvyBindMsg(on_SHT_STATUS, NULL, "^(\\S*) SHT_STATUS (\\S*) (\\S*) (\\S*) (\\S*)");
 //  IvyBindMsg(on_SHT_STATUS, NULL, "^(\\S*) DPICCO_STATUS (\\S*) (\\S*) (\\S*) (\\S*)");

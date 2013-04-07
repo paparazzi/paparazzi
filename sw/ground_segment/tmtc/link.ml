@@ -28,11 +28,12 @@ open Latlong
 open Printf
 
 (* Handlers for the modem and Ivy messages *)
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
-module Ground_Pprz = Pprz.Messages (struct let name = "ground" end)
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
+module Ground_Pprz = Pprz.Messages_of_type (struct let class_type = "ground" end)
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 module PprzTransport = Serial.Transport (Pprz.Transport)
 module PprzTransportExtended = Serial.Transport (Pprz.TransportExtended)
+
 
 (* Modem transport layer *)
 type transport =
@@ -40,7 +41,7 @@ type transport =
   | Pprz2  (* Paparazzi protocol, with timestamp, A/C id, message id and CRC *)
   | XBee  (* Maxstream protocol, API mode *)
 let transport_of_string = function
-"pprz" -> Pprz
+    "pprz" -> Pprz
   | "pprz2" -> Pprz2
   | "xbee" -> XBee
   | x -> invalid_arg (sprintf "transport_of_string: %s" x)
@@ -71,6 +72,45 @@ let send_message_over_ivy = fun sender name vs ->
         None -> None
       | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
   Tm_Pprz.message_send ?timestamp sender name vs
+
+(*********** Packet Sequence ********************************************)
+let up_packet_sequences = Hashtbl.create 1
+let down_packet_sequences = Hashtbl.create 1
+
+let increase_sequence_loop = fun value ->
+	let new_val = value + 1 in
+	if new_val >=256 then 1
+	else new_val
+
+let store_seq_jump = fun jump -> (* XGGDEBUG:SEQ: Do something, receiving down seq with jump *)
+	jump
+
+let sequence_jump = fun suposed actual -> (* Considering that the jump is less than 256 *)
+  if suposed < actual then
+		ignore (store_seq_jump (actual-suposed))
+	else begin
+		ignore (store_seq_jump (actual + (255-suposed)));
+	end
+
+let check_down_packet_sequence = fun ac_id seq ->
+	if seq <> 0 then
+		if (Hashtbl.mem down_packet_sequences ac_id = false) then Hashtbl.add down_packet_sequences ac_id 1;
+		try
+			let old = Hashtbl.find down_packet_sequences ac_id in
+			if increase_sequence_loop old <> seq then sequence_jump (increase_sequence_loop old) seq;
+			Hashtbl.replace down_packet_sequences ac_id seq;
+		with
+			| Not_found -> failwith ( sprintf "Aircraft Id not found in packet sequence hash table (ID=%d)" ac_id )
+
+let get_up_packet_sequence = fun ac_id ->
+	if (Hashtbl.mem up_packet_sequences ac_id = false) then Hashtbl.add up_packet_sequences ac_id 1;
+	try
+		let old = Hashtbl.find up_packet_sequences ac_id in
+		let current = increase_sequence_loop old in
+		Hashtbl.replace up_packet_sequences ac_id current;
+		current
+	with
+		| Not_found -> failwith ( sprintf "Aircraft Id not found in packet sequence hash table (ID=%d)" ac_id )
 
 
 (*********** Monitoring *************************************************)
@@ -163,8 +203,9 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   let buf = Serial.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
-    let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
-    let msg = Tm_Pprz.message_of_id msg_id in
+    let (packet_seq ,ac_id, class_id, msg_id, values) = Tm_Pprz.values_of_payload payload in
+		ignore (check_down_packet_sequence ac_id packet_seq);
+		let msg = Tm_Pprz.message_of_id ~class_id:class_id msg_id in
     send_message_over_ivy (string_of_int ac_id) msg.Pprz.name values;
     update_status ?udp_peername ac_id raw_data_size (msg.Pprz.name = "PONG")
   with
@@ -301,13 +342,13 @@ let send = fun ac_id device payload _priority ->
           udp_send device.fd payload peername
       | _ ->
         match device.transport with
-            Pprz ->
-              let o = Unix.out_channel_of_descr device.fd in
-              let buf = Pprz.Transport.packet payload in
-              Printf.fprintf o "%s" buf; flush o;
-              Debug.call 's' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-          | XBee ->
-            XB.send ~ac_id device payload
+          Pprz | Pprz2->
+            let o = Unix.out_channel_of_descr device.fd in
+            let buf = Pprz.Transport.packet payload in
+            Printf.fprintf o "%s" buf; flush o;
+            Debug.call 's' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+        | XBee ->
+          XB.send ~ac_id device payload
 
 
 let broadcast = fun device payload _priority ->
@@ -385,23 +426,26 @@ let message_uplink = fun device ->
   let forwarder = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
     let ac_id = Pprz.int_assoc "ac_id" vs in
+		let class_id = Dl_Pprz.class_id_of_msg name in
     let msg_id, _ = Dl_Pprz.message_of_name name in
-    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+		let gen_packet_seq = get_up_packet_sequence ac_id in
+    let s = Dl_Pprz.payload_of_values ~gen_packet_seq:gen_packet_seq my_id ~class_id:class_id msg_id vs in
     send ac_id device s High in
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
 
   let broadcaster = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
+		let class_id = Dl_Pprz.class_id_of_msg name in
     let msg_id, _ = Dl_Pprz.message_of_name name in
-    let payload = Dl_Pprz.payload_of_values msg_id my_id vs in
+    let payload = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence 0) my_id ~class_id:class_id msg_id vs in
     broadcast device payload Low in
   let set_broadcaster = fun name ->
     ignore (Dl_Pprz.message_bind name (broadcaster name)) in
 
   (* Set a forwarder or a broadcaster for all messages tagged in messages.xml *)
   Hashtbl.iter
-    (fun _m_id msg ->
+    (fun _m_c_id msg ->
       match msg.Pprz.link with
           Some Pprz.Forwarded -> set_forwarder msg.Pprz.name
         | Some Pprz.Broadcasted -> if !ac_info then set_broadcaster msg.Pprz.name
@@ -411,8 +455,9 @@ let message_uplink = fun device ->
 let send_ping_msg = fun device ->
   Hashtbl.iter
     (fun ac_id status ->
+		  let class_id = Dl_Pprz.class_id_of_msg "PING" in
       let msg_id, _ = Dl_Pprz.message_of_name "PING" in
-      let s = Dl_Pprz.payload_of_values msg_id my_id [] in
+      let s = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence ac_id) my_id ~class_id:class_id msg_id [] in
       send ac_id device s High;
       status.last_ping <- Unix.gettimeofday ()
     )

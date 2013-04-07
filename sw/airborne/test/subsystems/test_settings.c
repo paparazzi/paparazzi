@@ -30,7 +30,7 @@
 #include "subsystems/settings.h"
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 
 #include "my_debug_servo.h"
 

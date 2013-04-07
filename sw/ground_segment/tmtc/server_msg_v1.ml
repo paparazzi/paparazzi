@@ -22,64 +22,16 @@
  *
  *)
 
+(* Server part specific to version 1 of PPRZ messages *)
+
+
 open Printf
 open Server_globals
 open Aircraft
 open Latlong
 module LL = Latlong
 module U = Unix
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
-
-
-(* FIXME: bound the loop *)
-let rec norm_course =
-  let _2pi = 2. *. LL.pi in
-  fun c ->
-    if c < 0. then norm_course (c +. _2pi)
-    else if c >= _2pi then norm_course (c -. _2pi)
-    else c
-
-
-let fvalue = fun x ->
-  match x with
-      Pprz.Float x -> x
-    | Pprz.Int32 x -> Int32.to_float x
-    | Pprz.Int x -> float_of_int x
-    | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
-
-
-let ivalue = fun x ->
-  match x with
-      Pprz.Int x -> x
-    | Pprz.Int32 x -> Int32.to_int x
-    | _ -> failwith "Receive.log_and_parse: int expected"
-
-let format_string_field = fun s ->
-  let s = String.copy s in
-  for i = 0 to String.length s - 1 do
-    match s.[i] with
-        ' ' -> s.[i] <- '_'
-      | _ -> ()
-  done;
-  s
-
-let check_index = fun i t where ->
-  if i < 0 || i >= Array.length t then begin
-    Debug.call 'E' (fun f -> fprintf f "Wrong index in %s: %d" where i);
-    -1
-  end else
-    i
-
-
-let update_waypoint = fun ac wp_id p alt ->
-  let new_wp = { altitude = alt; wp_geo = p } in
-  try
-    let prev_wp = Hashtbl.find ac.waypoints wp_id in
-    if new_wp <> prev_wp then
-      Hashtbl.replace ac.waypoints wp_id new_wp
-  with
-      Not_found ->
-        Hashtbl.add ac.waypoints wp_id new_wp
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 
 
 
@@ -94,14 +46,14 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         FP_infinite | FP_nan ->
           let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
           raise (Telemetry_error (ac_name, format_string_field msg))
-
       | _ -> f
-  and ivalue = fun x -> ivalue (value x) in
+  and ivalue = fun x -> ivalue (value x)
+  and foi32value = fun x -> foi32value (value x) in
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
     a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
-      "GPS" ->
-        a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
+      "GPS_UTM" ->
+        a.gps_mode <- check_index (ivalue "fix") gps_modes "GPS_MODE";
         if a.gps_mode = _3D then begin
           let p = { LL.utm_x = fvalue "utm_east" /. 100.;
                     utm_y = fvalue "utm_north" /. 100.;
@@ -115,7 +67,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
             a.heading <- a.course;
           a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
           if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-            Wind.update ac_name a.gspeed a.course
+  	        Wind.update ac_name a.gspeed a.course
         end
     | "GPS_LLA" ->
       let lat = ivalue "lat"
@@ -129,7 +81,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       if !heading_from_course then
         a.heading <- a.course;
       a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
-      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
+      a.gps_mode <- check_index (ivalue "fix") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
         Wind.update ac_name a.gspeed a.course
     | "GPS_SOL" ->
@@ -156,7 +108,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and lon = ivalue "lon" in
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
       a.nav_ref <- Some (Geo geo)
-    | "ATTITUDE" ->
+    | "ATTITUDE_EULER" ->
       let roll = fvalue "phi"
       and pitch = fvalue "theta" in
       if (List.assoc "phi" msg.Pprz.fields).Pprz._type = Pprz.Scalar "int16" then begin (* Compatibility with old message in degrees *)
@@ -186,17 +138,9 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
       a.fbw.rc_rate <- ivalue "frame_rate";
       let fbw_rc_mode = ivalue "rc_status" in
-      a.fbw.rc_status <- (
-        match fbw_rc_mode with
-            2 -> "NONE"
-          | 1 -> "LOST"
-          | _ -> "OK" );
+      a.fbw.rc_status <- rc_modes.(fbw_rc_mode);
       let fbw_mode = ivalue "mode" in
-      a.fbw.rc_mode <- (
-        match fbw_mode with
-            2 -> "FAILSAFE"
-          | 1 -> "AUTO"
-          | _ -> "MANUAL" )
+      a.fbw.rc_mode <- fbw_modes.(fbw_mode);
     | "STATE_FILTER_STATUS" ->
       a.state_filter_mode <- check_index (ivalue "state_filter_mode") state_filter_modes "STATE_FILTER_MODES"
     | "PPRZ_MODE" ->
@@ -275,7 +219,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
               a.survey <- Some (p1, p2)
           | None -> ()
       end
-    | "CALIBRATION" ->
+    | "V_CTL_CALIBRATION" ->
       a.throttle_accu <- fvalue "climb_sum_err"
     | "DL_VALUE" ->
       let i = ivalue "index" in
@@ -283,8 +227,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.dl_setting_values.(i) <- fvalue "value";
         a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
       end else
-        failwith "Too much dl_setting values !!!"
-    | "WP_MOVED" ->
+	      failwith "Too much dl_setting values !!!"
+    | "WP_MOVED_UTM" ->
       begin
         match a.nav_ref with
             Some Utm nav_ref ->
@@ -332,5 +276,76 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         "resolve", Pprz.Int (ivalue "resolve")
       ] in
       Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
+    | "ROTORCRAFT_FP" ->
+        begin match a.nav_ref with
+          None -> (); (* No nav_ref yet *)
+          | Some nav_ref ->
+            let north = foi32value "north" /. pos_frac
+            and east  = foi32value "east" /. pos_frac
+            and up    = foi32value "up" /. pos_frac in
+            let (geo, h) = geo_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) nav_ref a.d_hmsl in
+            a.pos <- geo;
+            a.alt <- h;
+            let desired_east  = foi32value "carrot_east" /. pos_frac
+            and desired_north = foi32value "carrot_north" /. pos_frac
+            and desired_alt = foi32value "carrot_up" /. pos_frac in
+            a.desired_pos <- Aircraft.add_pos_to_nav_ref nav_ref ~z:desired_alt (desired_east, desired_north);
+            a.desired_altitude <- desired_alt +. (hmsl_of_ref nav_ref a.d_hmsl);
+            a.desired_course   <- foi32value "carrot_psi" /. angle_frac
+            (* a.desired_climb <-  ?? *)
+        end;
+        let veast  = foi32value "veast" /. speed_frac
+        and vnorth = foi32value "vnorth" /. speed_frac in
+        a.gspeed  <- sqrt(vnorth*.vnorth +. veast*.veast);
+        a.climb   <- foi32value "vup" /. speed_frac;
+        a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+        a.course  <- norm_course ((Rad>>Deg) (foi32value "psi" /. angle_frac));
+        a.heading <- norm_course (foi32value "psi" /. angle_frac);
+        a.roll    <- foi32value "phi" /. angle_frac;
+        a.pitch   <- foi32value "theta" /. angle_frac;
+        a.throttle <- foi32value "thrust" /. 9600. *. 100.;
+        a.flight_time   <- ivalue "flight_time";
+        (*if a.gspeed > 3. && a.ap_mode = _AUTO2 then
+            Wind.update ac_name a.gspeed a.course*)
+    | "GPS_INT" ->
+        a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "tow" /. 1000.));
+        a.itow <- Int32.of_float (fvalue "tow");
+        a.gps_Pacc <- ivalue "pacc"
+    | "ROTORCRAFT_STATUS" ->
+        a.vehicle_type  <- Rotorcraft;
+        a.fbw.rc_status <- rc_modes.(ivalue "rc_status");
+        a.fbw.rc_rate   <- ivalue "frame_rate";
+        a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
+        a.ap_mode       <- check_index (ivalue "ap_mode") rotorcraft_ap_modes "ROTORCRAFT_AP_MODE";
+        a.kill_mode     <- ivalue "ap_motors_on" == 0;
+        a.bat           <- fvalue "vsupply" /. 10.;
+    | "INS_REF" ->
+        let x = foi32value "ecef_x0" /. 100.
+        and y = foi32value "ecef_y0" /. 100.
+        and z = foi32value "ecef_z0" /. 100.
+        and alt = foi32value "alt0" /. 1000.
+        and hmsl = foi32value "hmsl0" /. 1000. in
+        let nav_ref_ecef = LL.make_ecef [| x; y; z |] in
+        a.nav_ref <- Some (Ltp nav_ref_ecef);
+        a.d_hmsl <- hmsl -. alt;
+    | "ROTORCRAFT_NAV_STATUS" ->
+        a.block_time <- ivalue "block_time";
+        a.stage_time <- ivalue "stage_time";
+        a.cur_block <- ivalue "cur_block";
+        a.cur_stage <- ivalue "cur_stage";
+        a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
+        (*a.dist_to_wp <- sqrt (fvalue "dist2_wp")*)
+    | "WP_MOVED_ENU" ->
+        begin
+          match a.nav_ref with
+          Some nav_ref ->
+            let east  = foi32value "east"   /. pos_frac
+            and north = foi32value "north"  /. pos_frac
+            and up    = foi32value "up"     /. pos_frac in
+            let (geo, h) = geo_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) nav_ref a.d_hmsl in
+            update_waypoint a (ivalue "wp_id") geo h;
+          | None -> (); (** Can't use this message  *)
+        end
     | _ -> ()
+
 

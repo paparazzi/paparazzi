@@ -10,7 +10,7 @@
   <button index="4" name="Y"/>
 </input>
 <messages period="0.1">
-  <message class="datalink" name="BOOZ2_FMS_COMMAND">
+  <message class="common_commands" name="ROTORCRAFT_FMS_COMMAND">
    <field name="h_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_sp"   value="(up-down)*127"/>

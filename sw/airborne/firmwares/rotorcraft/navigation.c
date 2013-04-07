@@ -298,7 +298,7 @@ void nav_periodic_task() {
 }
 
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "mcu_periph/uart.h"
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {

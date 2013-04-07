@@ -518,13 +518,15 @@ let pprz_float = function
     Pprz.Int i -> float i
   | Pprz.Float f -> f
   | Pprz.Int32 i -> Int32.to_float i
+	| Pprz.Int64 i -> Int64.to_float i
   | Pprz.String s -> float_of_string s
+	| Pprz.Char c -> float_of_string (String.make 1 c)
   | Pprz.Array _ -> 0.
 
 
 let rec select_gps_values = function
     [] -> []
-  | (m, values)::_ when m.Pprz.name = "GPS" ->
+  | (m, values)::_ when m.Pprz.name = "GPS_UTM" ->
       let xs = List.assoc "utm_east" values
       and ys = List.assoc "utm_north" values
       and zs = List.assoc "utm_zone" values
@@ -659,6 +661,10 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
   if export then
     callback ~no_gui:true ()
 
+type msg_and_class_id = {
+	msg_id : int;
+	cls_id : int;
+}
 
 let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
   Debug.call 'p' (fun f ->  fprintf f "load_log: %s\n" xml_file);
@@ -667,21 +673,14 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
   Debug.call 'p' (fun f ->  fprintf f "data_file: %s\n" data_file);
 
-  let protocol = ExtXml.child xml "protocol" in
+  let _protocol = ExtXml.child xml "protocol" in
 
-  (* In the old days, telemetry class was named telemetry_ap ... *)
-  let class_name =
-    try
-      let name = "telemetry_ap" in
-      let _ = ExtXml.child protocol ~select:(fun x -> Xml.attrib x "name" = name) "class" in
-      name
-    with _ -> "telemetry" in
+	let class_type = "downlink" in
+	Debug.call 'p' (fun f ->  fprintf f "class_type: %s\n" class_type);
 
-  Debug.call 'p' (fun f ->  fprintf f "class_name: %s\n" class_name);
-
-  let module M = struct let name = class_name let xml = protocol end in
+	let module M = struct let selection = class_type and mode = Pprz.Type and sel_class_id = None let xml = _protocol end in
   let module P = Pprz.MessagesOfXml(M) in
-
+	let protocol = P.formated_xml in
   let f =
     try
       Ocaml_tools.find_file [Filename.dirname xml_file] data_file
@@ -709,9 +708,12 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
 	    (*Elements of [acs] are assoc lists of [fields] indexed by msg id*)
 	    let msg_id, vs = P.values_of_string m in
-	    if not (Hashtbl.mem msgs msg_id) then
-	      Hashtbl.add msgs msg_id (Hashtbl.create 97);
-	    let fields = Hashtbl.find msgs msg_id in
+			let cls_id = P.class_id_of_msg_args m in
+			let ids_of_msg = { msg_id = msg_id; cls_id = cls_id} in
+
+			if not (Hashtbl.mem msgs ids_of_msg) then
+	      Hashtbl.add msgs ids_of_msg (Hashtbl.create 97);
+	    let fields = Hashtbl.find msgs ids_of_msg in
 
 	    (* Elements of [fields] are values indexed by field name *)
 	    List.iter
@@ -726,8 +728,8 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		| scalar ->
 		    Hashtbl.add fields f (t, scalar))
 	      vs;
-
-	    let msg_name = (P.message_of_id msg_id).Pprz.name in
+			let msg_temp = P.message_of_id ~class_id:cls_id msg_id in
+	    let msg_name = msg_temp.Pprz.name in
 	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
 	  )
       with
@@ -746,11 +748,12 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
 	  (* First sort by message id *)
 	  let l = ref [] in
-	  Hashtbl.iter (fun msg fields -> l := (P.message_of_id msg, fields):: !l) msgs;
-	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
 
+		Hashtbl.iter (fun msg_ids fields -> l := (P.message_of_id ~class_id:msg_ids.cls_id msg_ids.msg_id, fields):: !l) msgs;
+
+	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
 	  let msgs =
-	    List.map (fun (msg, fields) ->
+	    List.map (fun (msg_ids, fields) ->
 	      let l = ref [] in
 	      Hashtbl.iter
 		(fun f v -> if not (List.mem f !l) then l := f :: !l)
@@ -766,12 +769,10 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		    Array.sort compare values;
 		    (f, values))
 		  sorted_fields in
-	      (msg, field_values_assoc))
+	      (msg_ids, field_values_assoc))
 	      msgs in
-
 	  (* Store data for other windows *)
 	  logs_menus :=  !logs_menus @ [(ac, menu_name, (msgs, raw_msgs), protocol)];
-
 	  add_ac_submenu ?export protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
 	acs

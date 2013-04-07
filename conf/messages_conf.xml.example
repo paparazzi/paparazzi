@@ -1,0 +1,21 @@
+<!-- MESSAGES CONFIGURATION FILE: Include the desired messages classes -->
+<!-- Ids from 0 to 31. No repeated ids or names. -->
+<!-- Only ground type classes can exceed Id=31 -->
+<includes>
+  <!-- STANDARD CLASSES -->
+  <include file="standard_downlink.xml"  class_name="standard_telemetry" class_id="0"/>
+  <include file="standard_uplink.xml"    class_name="standard_commands"  class_id="1"/>
+  <include file="standard_datalink.xml"  class_name="standard_datalink"  class_id="2"/>
+  <include file="airborne.xml"           class_name="airborne"           class_id="3"/>
+  <!-- CUSTOM CLASSES -->
+  <include file="custom_downlink_sensors.xml" class_name="custom_sensors"   class_id="4"/>
+  <include file="custom_downlink_debug.xml"   class_name="custom_debug"     class_id="5"/>
+  <include file="custom_downlink_misc.xml"    class_name="custom_telemetry" class_id="6"/>
+  <include file="custom_uplink.xml"           class_name="custom_commands"  class_id="7"/>
+  <include file="custom_datalink.xml"         class_name="custom_datalink"  class_id="8"/>
+  <include file="simulator.xml"               class_name="simulator"        class_id="9"/>
+  <!-- GROUND CLASSES -->
+  <include file="ground.xml"    class_name="ground"           class_id="10"/>
+  <include file="alert.xml"     class_name="alert"            class_id="11"/>
+  <include file="DIA.xml"       class_name="DIA"              class_id="12"/>
+</includes>

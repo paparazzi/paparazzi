@@ -86,7 +86,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
           let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
             let scale = Pprz.alt_unit_coef_of_xml ~auto:"display" f in
             let field_descr =
-              if Pprz.is_array_type type_ then
+              if (Pprz.is_array_type type_ || Pprz.is_fixed_array_type type_) then (* XGGDEBUG:FIXARRAY: I don't know what is doing but I prepered it for fixed arrays also*)
                 match GToolbox.input_string ~title:"Index of value to drag" ~text:"0" "Index in the array ?" with
                     None -> field_name
                   | Some i -> sprintf "%s[%s]" field_name i
@@ -154,7 +154,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
-  let module P = Pprz.Messages (struct let name = class_name end) in
+  let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in
   let senders = Hashtbl.create 5 in
   match sender with
     | Some "*" ->
@@ -164,7 +164,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
           Hashtbl.add senders sender ();
           one_class notebook (ident,  xml_class, Some sender)
         end in
-      List.iter
+        List.iter
         (fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
         messages
     | _ ->
@@ -173,7 +173,7 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
       let label = GMisc.label ~text:(ident^l) () in
       ignore (notebook#append_page ~tab_label:label#coerce class_notebook#coerce);
       let bind, sender_name = match sender with
-          None -> (fun m cb -> (P.message_bind m cb)), "*"
+        | None -> (fun m cb -> (P.message_bind m cb)), "*"
         | Some sender -> (fun m cb -> (P.message_bind ~sender m cb)), sender in
 
       (** Forall messages in the class *)
@@ -186,7 +186,13 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 (*********************** Main ************************************************)
 let _ =
   let ivy_bus = ref Defivybus.default_ivy_bus in
-  let classes = ref ["telemetry:*"] in
+  let class_names = List.map (fun _class -> if ("downlink" = ExtXml.attrib _class "type")||("datalink" = ExtXml.attrib _class "type") then ExtXml.attrib _class "name" else "" ) (Xml.children (Pprz.messages_xml ())) in
+  let classes = ref [] in
+  ignore (List.map (fun c_name -> match c_name with
+    | "" -> ()
+    | name -> classes := List.append !classes [name^":*"]
+    ) class_names);
+
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]
@@ -203,7 +209,7 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
+  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in 
 
   (** Get the XML description of the required classes *)
   let xml_classes =

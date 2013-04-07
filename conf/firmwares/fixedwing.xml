@@ -15,7 +15,7 @@
 
  <subsystem name="radio_control" 	types="ppm"/>
     <!-- Communication -->
- <subsystem name="telemetry" 	types="transparent|xbee_api|transparent_usb">
+ <subsystem name="telemetry" 	types="transparent|xbee_api|transparent_usb|dummy">
    <configure name="MODEM_BAUD"     values="B9600|B38400|B57600|B115200"/>
  </subsystem>
  <!-- Actuators (automatically used according to board) -->

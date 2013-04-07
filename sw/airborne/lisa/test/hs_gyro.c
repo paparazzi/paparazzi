@@ -26,7 +26,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/imu.h"

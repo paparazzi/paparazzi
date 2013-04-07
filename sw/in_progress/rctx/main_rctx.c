@@ -76,7 +76,7 @@ LED_TOGGLE(3);
 #include "autopilot.h"
 #include "subsystems/datalink/datalink.h"
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #if ((AC_ID > 0x108) || (AC_ID < (0x101)))

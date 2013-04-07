@@ -51,32 +51,32 @@ extern void vi_update_wp(uint8_t wp_id);
 
 #define VI_PARSE_DATALINK(_dl_buffer) {					\
     vi.last_msg = 0;							\
-    vi.input.h_mode = DL_BOOZ2_FMS_COMMAND_h_mode(_dl_buffer);		\
-    vi.input.v_mode = DL_BOOZ2_FMS_COMMAND_v_mode(_dl_buffer);		\
+    vi.input.h_mode = DL_ROTORCRAFT_FMS_COMMAND_h_mode(_dl_buffer);		\
+    vi.input.v_mode = DL_ROTORCRAFT_FMS_COMMAND_v_mode(_dl_buffer);		\
     switch (vi.input.h_mode) {						\
     case GUIDANCE_H_MODE_KILL:					\
     case GUIDANCE_H_MODE_RATE :					\
       break;								\
     case GUIDANCE_H_MODE_ATTITUDE :				\
       {									\
-	vi.input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);	\
-	      vi.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
-	      vi.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
+	vi.input.h_sp.attitude.phi   = DL_ROTORCRAFT_FMS_COMMAND_h_sp_1(_dl_buffer);	\
+	      vi.input.h_sp.attitude.theta = DL_ROTORCRAFT_FMS_COMMAND_h_sp_2(_dl_buffer); \
+	      vi.input.h_sp.attitude.psi   = DL_ROTORCRAFT_FMS_COMMAND_h_sp_3(_dl_buffer); \
 	      ANGLE_REF_NORMALIZE(vi.input.h_sp.attitude.psi);		\
         VI_LIMIT_ATTITUDE(vi.input.h_sp.attitude);			\
       }									\
       break;								\
     case GUIDANCE_H_MODE_HOVER :					\
       {									\
-	vi.input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
-	      vi.input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
+	vi.input.h_sp.pos.x   = DL_ROTORCRAFT_FMS_COMMAND_h_sp_1(_dl_buffer); \
+	      vi.input.h_sp.pos.y   = DL_ROTORCRAFT_FMS_COMMAND_h_sp_2(_dl_buffer); \
       }									\
       break;								\
     case GUIDANCE_H_MODE_NAV :					\
       {									\
-        vi.input.h_sp.speed.x = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
-        vi.input.h_sp.speed.y = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
-        vi.input.h_sp.speed.z = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
+        vi.input.h_sp.speed.x = DL_ROTORCRAFT_FMS_COMMAND_h_sp_1(_dl_buffer); \
+        vi.input.h_sp.speed.y = DL_ROTORCRAFT_FMS_COMMAND_h_sp_2(_dl_buffer); \
+        vi.input.h_sp.speed.z = DL_ROTORCRAFT_FMS_COMMAND_h_sp_3(_dl_buffer); \
       }									\
       break;								\
     default:								\
@@ -88,13 +88,13 @@ extern void vi_update_wp(uint8_t wp_id);
     case GUIDANCE_V_MODE_RC_CLIMB:				\
       break;								\
     case GUIDANCE_V_MODE_CLIMB :					\
-      vi.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer);	\
+      vi.input.v_sp.climb = DL_ROTORCRAFT_FMS_COMMAND_v_sp(_dl_buffer);	\
       break;								\
     case GUIDANCE_V_MODE_HOVER :					\
-      vi.input.v_sp.height = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer);	\
+      vi.input.v_sp.height = DL_ROTORCRAFT_FMS_COMMAND_v_sp(_dl_buffer);	\
       break;								\
     case GUIDANCE_V_MODE_NAV :					\
-      vi.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer);	\
+      vi.input.v_sp.climb = DL_ROTORCRAFT_FMS_COMMAND_v_sp(_dl_buffer);	\
       break;								\
     default:								\
       break;								\
@@ -105,10 +105,10 @@ extern void vi_update_wp(uint8_t wp_id);
   vi.last_msg = 0; \
   vi.input.h_mode = GUIDANCE_H_MODE_NAV;	\
   vi.input.v_mode = GUIDANCE_V_MODE_NAV;	\
-  vi.input.h_sp.speed.x = DL_BOOZ_NAV_STICK_vx_sp(_dl_buffer); \
-  vi.input.h_sp.speed.y = DL_BOOZ_NAV_STICK_vy_sp(_dl_buffer); \
-  vi.input.h_sp.speed.z = DL_BOOZ_NAV_STICK_r_sp(_dl_buffer); \
-  vi.input.v_sp.climb   = DL_BOOZ_NAV_STICK_vz_sp(_dl_buffer); \
+  vi.input.h_sp.speed.x = DL_ROTORCRAFT_NAV_STICK_vx_sp(_dl_buffer); \
+  vi.input.h_sp.speed.y = DL_ROTORCRAFT_NAV_STICK_vy_sp(_dl_buffer); \
+  vi.input.h_sp.speed.z = DL_ROTORCRAFT_NAV_STICK_r_sp(_dl_buffer); \
+  vi.input.v_sp.climb   = DL_ROTORCRAFT_NAV_STICK_vz_sp(_dl_buffer); \
 }
 
 #define NavUpdateWPFromVI(_wp) { if (vi.enabled) { vi_update_wp(uint8_t _wp); } }

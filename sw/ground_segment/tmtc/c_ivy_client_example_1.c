@@ -17,7 +17,7 @@ int main ( int argc, char** argv) {
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
 
   IvyInit ("Example1", "Example1 READY", NULL, NULL, NULL, NULL);
-  IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_Attitude, NULL, "^(\\S*) ATTITUDE_EULER (\\S*) (\\S*) (\\S*)");
 
   IvyStart("127.255.255.255");
 

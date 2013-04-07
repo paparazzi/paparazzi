@@ -28,7 +28,7 @@
  */
 
 #include "openlog.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 
@@ -41,7 +41,7 @@ uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
 void init_openlog(void) {
 }
 
-void periodic_2Hz_openlog(void) 	{
+void periodic_2Hz_openlog(void) {
   timestamp=timestamp+500;
-  DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
+  DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &timestamp);
 }

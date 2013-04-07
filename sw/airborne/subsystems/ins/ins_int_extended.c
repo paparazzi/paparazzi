@@ -245,7 +245,7 @@ void ins_update_gps(void) {
 
 #ifdef INS_SONAR_VARIANCE_THRESHOLD
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 

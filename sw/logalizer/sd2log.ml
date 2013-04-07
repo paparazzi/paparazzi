@@ -30,8 +30,8 @@ let logs_path = var_path // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 
 module Parser = Serial.Transport(Logpprz.Transport)
 
@@ -131,7 +131,7 @@ let convert_file = fun file ->
 
   let use_payload = fun payload ->
     let log_msg = Logpprz.parse payload in
-    let (msg_id, ac_id, vs) = values_of_payload log_msg log_msg.Logpprz.pprz_data in
+    let (packet_seq, ac_id, class_id, msg_id, vs) = values_of_payload log_msg log_msg.Logpprz.pprz_data in
 
     if log_msg.Logpprz.source = 0 && !single_ac_id < 0 then
       single_ac_id := ac_id;
@@ -139,7 +139,7 @@ let convert_file = fun file ->
     if ac_id <> !single_ac_id && log_msg.Logpprz.source = 0 then
       fprintf stderr "Discarding message with ac_id %d, previous one was %d\n%!" ac_id !single_ac_id
     else
-      let msg_descr = message_of_id log_msg msg_id in
+      let msg_descr = message_of_id log_msg ~class_id:class_id msg_id in
       let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
       fprintf f_out "%.4f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
 

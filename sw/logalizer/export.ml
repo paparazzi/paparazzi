@@ -86,10 +86,10 @@ type timestamp =
 (****************************************************************************)
 (** Returns the last available WGS84 position or raise a Failure exception *)
 let get_last_geo_pos = fun lookup ->
-  if lookup "GPS" "mode" <> "" then
-    let utm_east = float_of_string (lookup "GPS" "utm_east") /. 100.
-    and utm_north = float_of_string (lookup "GPS" "utm_north") /. 100.
-    and utm_zone = int_of_string (lookup "GPS" "utm_zone") in
+  if lookup "GPS_UTM" "mode" <> "" then
+    let utm_east = float_of_string (lookup "GPS_UTM" "utm_east") /. 100.
+    and utm_north = float_of_string (lookup "GPS_UTM" "utm_north") /. 100.
+    and utm_zone = int_of_string (lookup "GPS_UTM" "utm_zone") in
     Latlong.of_utm WGS84 {utm_x=utm_east; utm_y=utm_north; utm_zone=utm_zone}
   else if lookup "INS_REF" "ecef_x0" <>"" && lookup "ROTORCRAFT_FP" "east" <>"" then
     let getf = fun m f -> float_of_string (lookup m f) in
@@ -258,7 +258,8 @@ let save_values = fun w filename save ->
 
 (*****************************************************************************)
 (** The popup window displaying values to export *)
-let popup = fun ?(no_gui = false) xml log_filename data ->
+let popup = fun ?(no_gui = false) _xml log_filename data ->
+	let xml = Pprz.get_downlink_messages_in_one_class _xml in
   (* Build the list window *)
   let file = Env.paparazzi_src // "sw" // "logalizer" // "export.glade" in
   let w = new Gtk_export.export ~file () in

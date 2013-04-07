@@ -28,7 +28,7 @@ open Latlong
 let my_id = "gaia"
 let sending_period = 5000 (* ms *)
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
 
 let ivy_bus = ref Defivybus.default_ivy_bus
 

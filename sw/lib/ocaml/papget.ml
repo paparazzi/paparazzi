@@ -54,7 +54,7 @@ let base_and_index =
       (field_descr, 0)
 
 
-class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr ->
+class message_field = fun ?sender ?(class_type="downlink") msg_name field_descr ->
 object
   val mutable callbacks = []
   val mutable last_value = "0."
@@ -68,25 +68,25 @@ object
   method type_ = "message_field"
 
   initializer
-  let module P = Pprz.Messages (struct let name = class_name end) in
-  let process_message = fun _sender values ->
-    let (field_name, index) = base_and_index field_descr in
-    let value =
-      match Pprz.assoc field_name values with
-          Pprz.Array array -> array.(index)
-        | scalar -> scalar in
+    let module P = Pprz.Messages_of_type (struct let class_type = class_type end) in
+    let process_message = fun _sender values ->
+      let (field_name, index) = base_and_index field_descr in
+      let value =
+        match Pprz.assoc field_name values with
+            Pprz.Array array -> array.(index)
+          | scalar -> scalar in
 
-    last_value <- Pprz.string_of_value value;
+      last_value <- Pprz.string_of_value value;
 
-    List.iter (fun cb -> cb last_value) callbacks in
-  ignore (P.message_bind ?sender msg_name process_message)
+      List.iter (fun cb -> cb last_value) callbacks in
+    ignore (P.message_bind ?sender msg_name process_message)
 end
 
 
 let hash_vars = fun expr ->
   let htable = Hashtbl.create 3 in
   let rec loop = function
-  E.Ident i -> prerr_endline i
+      E.Ident i -> prerr_endline i
     | E.Int _ | E.Float _ -> ()
     | E.Call (_id, list) | E.CallOperator (_id, list) -> List.iter loop list
     | E.Index (_id, e) -> loop e
@@ -102,7 +102,7 @@ let hash_vars = fun expr ->
 let wrap = fun f ->
   fun x y -> string_of_float (f (float_of_string x) (float_of_string y))
 let eval_bin_op = function
-"*" -> wrap ( *. )
+    "*" -> wrap ( *. )
   | "+" -> wrap ( +. )
   | "-" -> wrap ( -. )
   | "/" -> wrap ( /. )
@@ -110,7 +110,7 @@ let eval_bin_op = function
 
 let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h e ->
   let rec loop = function
-  E.Ident ident -> failwith (sprintf "Papget.eval_expr '%s'" ident)
+      E.Ident ident -> failwith (sprintf "Papget.eval_expr '%s'" ident)
     | E.Int int -> string_of_int int
     | E.Float float -> string_of_float float
     | E.CallOperator (ident, [e1; e2]) ->

@@ -11,6 +11,13 @@
   <unit from="mm/s" to="m/s" coef="0.001"/>
   <unit from="decideg" to="deg" coef="0.1"/>
   <unit from="deg" to="decideg" coef="10."/>
+  <unit from="1e7rad" to="deg" coef="5.72958e-06"/>
+  <unit from="pos_int" to="m" coef="0.00390625"/>
+  <unit from="speed_int" to="m/s" coef="1.90735e-06"/>
+  <unit from="accel_int" to="m/s^2" coef="0.000976562"/>
+  <unit from="angle_int" to="deg" coef="0.0139882"/>
+  <unit from="rate_int" to="deg/s" coef="0.0139882"/>
+  <unit from="quat_int" to="quat" coef="3.05176e-05"/>
   <unit from="centideg" to="deg" coef="0.01"/>
   <unit from="deg" to="centideg" coef="100."/>
   <unit from="deg" to="rad" coef="0.0174532925" auto="code"/>

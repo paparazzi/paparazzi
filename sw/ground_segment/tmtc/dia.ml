@@ -30,8 +30,8 @@ open Printf
 let msg_period = 500 (* ms *)
 let ac_id = ref 1
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
+module Sub_Pprz = Pprz.Messages_of_name(struct let class_name = "DIA" end)
 
 type state = {
   mutable lat : float;
@@ -67,7 +67,7 @@ let send_msg = fun () ->
     "cam_roll", Pprz.Int state.cam_roll;
     "cam_pitch", Pprz.Int state.cam_pitch
   ] in
-  let s = Sub_Pprz.payload_of_values msg_id !ac_id vs in
+  let s = Sub_Pprz.payload_of_values !ac_id msg_id vs in
   Debug.call 'l' (fun f ->  fprintf f "sending: %s\n" (Debug.xprint (Serial.string_of_payload s)));
   Hdlc.write_data (Serial.string_of_payload s)
 

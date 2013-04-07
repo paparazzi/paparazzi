@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+  <process name="Ap"><mode name="default"/></process>
+  <process name="Mavlink">
+    <mode name="default">
+      <message name="HEARTBEAT"                period="0.2"/>
+      <message name="SYSTEM_TIME"              period="0.1"/>
+      <message name="SYS_STATUS"               period="1"/>
+      <message name="MAV_ATTITUDE"             period="0.2"/>
+      <message name="VFR_HUD"                  period="0.1"/>
+      <message name="GLOBAL_POSITION_INT"      period="0.3"/>
+      <message name="LOCAL_POSITION_NED"       period="0.3"/>
+      <message name="LOCAL_POSITION_SETPOINT"  period="1"/>
+    </mode>
+    <mode name="minimal">
+      <message name="HEARTBEAT"                period="5"/>
+      <!--<message name="SYS_STATUS"               period="1"/>
+      <message name="MAV_ATTITUDE"                 period="0.5"/>
+      <message name="VFR_HUD"                  period="0.5"/>
+      <message name="LOCAL_POSITION_NED"       period="0.5"/>-->
+      <!--<message name="LOCAL_POSITION_SETPOINT"  period="3"/>-->
+    </mode>
+    <mode name="extremal">
+      <message name="HEARTBEAT"                period="5"/>
+    </mode>
+  </process>
+  <process name="Fbw">
+    <mode name="default">
+      <!--<message name="HEARTBEAT"                period="5"/>-->
+      <!--<message name="RC_CHANNELS_RAW"          period="0.5"/>-->
+    </mode>
+    <mode name="debug">
+      <!--<message name="HEARTBEAT"                period="5"/>-->
+      <!--<message name="RC_CHANNELS_RAW"          period="0.5"/>-->
+    </mode>
+  </process>
+</telemetry>

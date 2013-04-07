@@ -5,7 +5,7 @@
 #include "interrupt_hw.h"
 #include "mcu_periph/usb_serial.h"
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 static inline void main_init( void );

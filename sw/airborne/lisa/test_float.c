@@ -61,7 +61,7 @@ static inline void main_periodic( void ) {
 
   uint16_t  blaaa = f+d;
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &blaaa);});
+  //RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &blaaa);});
   LED_PERIODIC();
 }
 

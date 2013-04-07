@@ -27,9 +27,9 @@ open Stdlib
 module LL = Latlong
 open LL
 
-module TelePprz = Pprz.Messages(struct let name = "telemetry" end)
-module DatalinkPprz = Pprz.Messages(struct let name = "datalink" end)
-module GroundPprz = Pprz.Messages(struct let name = "ground" end)
+module TelePprz = Pprz.Messages_of_type(struct let class_type = "downlink" end)
+module DatalinkPprz = Pprz.Messages_of_type(struct let class_type = "uplink" end)
+module GroundPprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
 
 module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let my_id = ref (-1)

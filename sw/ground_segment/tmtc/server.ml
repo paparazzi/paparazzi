@@ -1,6 +1,4 @@
 (*
- * Multi aircrafts receiver, logger and broadcaster
- *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -22,6 +20,11 @@
  *
  *)
 
+(*
+ * Multi aircrafts receiver, logger and broadcaster
+ *
+ *)
+
 let my_id = "ground"
 let gps_mode_3D = 3
 let no_md5_check = ref false
@@ -34,11 +37,11 @@ open Aircraft
 module U = Unix
 module LL = Latlong
 
-module Ground = struct let name = "ground" end
-module Ground_Pprz = Pprz.Messages(Ground)
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
-module Alerts_Pprz = Pprz.Messages(struct let name = "alert" end)
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Ground = struct let class_type = "ground" end
+module Ground_Pprz = Pprz.Messages_of_type(Ground)
+module Tm_Pprz = Pprz.Messages_of_name (struct let class_name = "standard_telemetry" end)
+module Alerts_Pprz = Pprz.Messages_of_name(struct let class_name = "alert" end)
+module Dl_Pprz = Pprz.Messages_of_name (struct let class_name = "standard_commands" end)
 
 
 
@@ -52,7 +55,8 @@ let get_indexed_value = fun t i ->
 
 let modes_of_type = fun vt ->
   match vt with
-      FixedWing -> fixedwing_ap_modes
+    | GCS -> [| |]
+    | FixedWing -> fixedwing_ap_modes
     | Rotorcraft -> rotorcraft_ap_modes
     | UnknownVehicleType -> [| |]
 
@@ -134,15 +138,19 @@ let log = fun ?timestamp logging ac_name msg_name values ->
 
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
-  let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let name="telemetry" end) in
+  let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let selection = "downlink" and mode = Pprz.Type and sel_class_id = None end) in 
   fun ts m ->
     try
       let timestamp = try Some (float_of_string ts) with _ -> None in
       let (msg_id, values) = Tele_Pprz.values_of_string m in
-      let msg = Tele_Pprz.message_of_id msg_id in
+			let cls_id = Tele_Pprz.class_id_of_msg_args m in
+			let msg = Tele_Pprz.message_of_id ~class_id:cls_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
-      Fw_server.log_and_parse ac_name ac msg values;
-      Rotorcraft_server.log_and_parse ac_name ac msg values
+			match Tele_Pprz.message_version with
+  			| "1.0" ->
+					Server_msg_v1.log_and_parse ac_name ac msg values
+				| _ -> Server_msg_v2.log_and_parse ac_name ac msg values
+
     with
         Telemetry_error (ac_name, msg) ->
           Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
@@ -492,7 +500,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
 
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
 
-  let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "conf" // "messages.xml") in
+  let messages_xml = Xml.parse_file (Env.paparazzi_home // root_dir // "var" // "messages.xml") in
   ac, messages_xml
 
 let check_alerts = fun a ->
@@ -643,7 +651,7 @@ let move_wp = fun logging _sender vs ->
              "lon", deg7 "long";
              "alt", cm_of_m (Pprz.float_assoc "alt" vs) ] in
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
-  log logging ac_id "MOVE_WP" vs
+  log logging ac_id "MOVE_WP" (Dl_Pprz.sort_values "MOVE_WP" vs)
 
 (** Got a DL_SETTING, and send an SETTING *)
 let setting = fun logging _sender vs ->
@@ -652,7 +660,7 @@ let setting = fun logging _sender vs ->
              "ac_id", Pprz.String ac_id;
              "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
-  log logging ac_id "SETTING" vs
+  log logging ac_id "SETTING" (Dl_Pprz.sort_values "SETTING" vs)
 
 
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)
@@ -669,19 +677,17 @@ let jump_block = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = ["block_id", List.assoc "block_id" vs; "ac_id", Pprz.String ac_id] in
   Dl_Pprz.message_send dl_id "BLOCK" vs;
-  log logging ac_id "BLOCK" vs
+  log logging ac_id "BLOCK" (Dl_Pprz.sort_values "BLOCK" vs)
 
 (** Got a RAW_DATALINK,send its contents *)
 let raw_datalink = fun logging _sender vs ->
-  let ac_id = Pprz.string_assoc "ac_id" vs
-  and m = Pprz.string_assoc "message" vs in
-  for i = 0 to String.length m - 1 do
-    if m.[i] = ';' then m.[i] <- ' '
-  done;
-  let msg_id, vs = Dl_Pprz.values_of_string m in
-  let msg = Dl_Pprz.message_of_id msg_id in
-  Dl_Pprz.message_send dl_id msg.Pprz.name vs;
-  log logging ac_id msg.Pprz.name vs
+	let ac_id = Pprz.string_assoc "ac_id" vs
+	and m = Pprz.string_assoc "message" vs in
+	let msg_id, vs = Dl_Pprz.values_of_string_unsorted m in
+	let cls_id = Dl_Pprz.class_id_of_msg_args_unsorted m in
+	let msg = Dl_Pprz.message_of_id ~class_id:cls_id msg_id in
+	Dl_Pprz.message_send dl_id msg.Pprz.name vs;
+  log logging ac_id msg.Pprz.name (Dl_Pprz.sort_values msg.Pprz.name vs)
 
 (** Get the 'ground' uplink messages, log them and send 'datalink' messages *)
 let ground_to_uplink = fun logging ->

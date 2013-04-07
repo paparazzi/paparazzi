@@ -4,16 +4,16 @@
   <process name="Ap">
     <mode name="default">
       <message name="ALIVE"          period="5"/>
-      <message name="ATTITUDE"       period="0.5"/>
-      <message name="ESTIMATOR"      period="0.5"/>
+      <message name="ATTITUDE_EULER" period="0.5"/>
       <message name="WP_MOVED"       period="0.5"/>
       <message name="CIRCLE"         period="1.05"/>
-      <message name="DESIRED"        period="1.05"/>
-      <message name="BAT"            period="1.1"/>
+      <message name="LOCAL_POSITION_DESIRED"        period="1.05"/>
+      <message name="ELECTRICAL_STATUS"         period="1.1"/>
       <message name="SEGMENT"        period="1.2"/>
-      <message name="CALIBRATION"    period="2.1"/>
-      <message name="NAVIGATION_REF" period="9."/>
-      <message name="PPRZ_MODE"      period="5."/>
+      <message name="V_CTL_CALIBRATION" period="2.1"/>
+      <message name="GLOBAL_ORIGIN_UTM" period="9."/>
+      <message name="FIXEDWING_STATUS"      period="5."/>
+      <message name="FLIGHT_PLAN_STATUS" period="1.8"/>
       <message name="DOWNLINK"       period="5.1"/>
       <message name="DL_VALUE"       period="1.5"/>
       <message name="IR_SENSORS"     period="1.2"/>

@@ -1,7 +1,8 @@
-(*
- * Server part specific to rotorcraft vehicles
+/*
+ * Paparazzi mcu0 $Id: pprz_transport.c 929 2006-06-02 12:11:37Z poine $
  *
- * Copyright (C) ENAC
+ * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010  ENAC
  *
  * This file is part of paparazzi.
  *
@@ -20,9 +21,8 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- *)
+ */
 
-val log_and_parse :
-  string -> Aircraft.aircraft -> Pprz.message -> Pprz.values -> unit
-(** [log_and_parse ac_id ac msg vs] *)
+#define PERIODIC_C_MAVLINK
 
+#include "generated/periodic_telemetry.h"

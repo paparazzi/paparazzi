@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<class type="ground">
+  <message name="NAV_INFO" id="1">
+    <description></description>
+    <field name="unix_time" type="float"/>
+
+    <field name="lat"   type="float" unit="deg"/>
+    <field name="long"  type="float" unit="deg"/>
+    <field name="alt"   type="uint16" unit="m"/>
+
+    <field name="course" type="uint16" unit="deg"/>
+    <field name="speed" type="uint16" unit="cm/s"/>
+
+    <field name="cam_roll"  type="int16" unit="deg"/>
+    <field name="cam_pitch" type="int16" unit="deg"/>
+  </message>
+</class>

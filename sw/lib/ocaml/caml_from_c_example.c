@@ -23,8 +23,8 @@ void print_ascii_to_binary(int n, char* msg)
 
 int main(int argc, char** argv) {
   caml_startup(argv);
-
-  print_ascii_to_binary(42, "ATTITUDE 7 22 33");
-
+  
+  print_ascii_to_binary(42, "ATTITUDE_EULER 7 33 22");
+  
   return 0;
 }

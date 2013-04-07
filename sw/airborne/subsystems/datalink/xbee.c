@@ -30,6 +30,7 @@
 
 uint8_t xbee_cs;
 uint8_t xbee_rssi;
+uint8_t xbee_down_packet_seq = 1;
 
 struct xbee_transport xbee_tp;
 

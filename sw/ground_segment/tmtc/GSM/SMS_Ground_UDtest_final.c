@@ -399,7 +399,7 @@ void Reception_SMS_Continue(int handle)
 		decoupage(data);
 
 		/* Envoi sur le bus Ivy */
-		IvySendMsg("16 GPS 3 %s %s %s %s %s %s 0 335297960 31 0", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb);
+		IvySendMsg("16 GPS_UTM 3 %s %s %s %s %s %s 0 335297960 31 0", extr_gps_utm_east, extr_gps_utm_north, extr_gps_course, extr_gps_alt, extr_gps_gspeed, extr_gps_climb);
     IvySendMsg("16 FBW_STATUS 0 1 %s 0",extr_vsupply);
 
 

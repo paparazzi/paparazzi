@@ -34,8 +34,8 @@
 
 #include "generated/settings.h"
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
-#include "dl_protocol.h"
+#include "downlink_msg.h"
+#include "uplink_msg.h"
 #include "mcu_periph/uart.h"
 
 #ifdef BOOZ_FMS_TYPE
@@ -47,7 +47,10 @@
 #include "math/pprz_geodetic_int.h"
 #include "subsystems/ins.h"
 
-#define IdOfMsg(x) (x[1])
+#define PacketSeq(x) (x[0])
+#define SenderIdOfMsg(x) (x[1])
+#define IdOfClass(x) (x[2])
+#define IdOfMsg(x) (x[3])
 
 void dl_parse_msg(void) {
 

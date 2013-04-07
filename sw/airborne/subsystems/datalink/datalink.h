@@ -40,7 +40,7 @@
 #endif
 
 #include "std.h"
-#include "dl_protocol.h"
+#include "uplink_msg.h"
 
 /** Datalink kinds */
 #define PPRZ 1

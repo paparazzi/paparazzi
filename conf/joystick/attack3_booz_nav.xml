@@ -23,7 +23,7 @@
   </variables>
 
   <messages period="0.1">
-    <!--message class="datalink" name="BOOZ2_FMS_COMMAND">
+    <!--message class="common_commands" name="ROTORCRAFT_FMS_COMMAND">
       <field name="h_mode" value="IndexOfEnum(NAV)"/>
       <field name="v_mode" value="IndexOfEnum(NAV)"/>
       <field name="v_sp"   value="(up-down)*127"/>
@@ -32,7 +32,7 @@
       <field name="h_sp_3" value="(right-left)*127"/>
     </message-->
 
-    <message class="datalink" name="BOOZ_NAV_STICK">
+    <message class="common_commands" name="ROTORCRAFT_NAV_STICK">
       <field name="vx_sp" value="0-pitch"/>
       <field name="vy_sp" value="roll"/>
       <field name="vz_sp"   value="(up-down)*127"/>

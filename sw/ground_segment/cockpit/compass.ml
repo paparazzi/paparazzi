@@ -25,7 +25,7 @@
 open Printf
 open Latlong
 
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
 
 let width = 200
 let height = width
@@ -93,9 +93,9 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
   (* Distance and bearing to target, current track *)
   print_string (7*s) s (sprintf "%.0f m" distance);
   print_string (7*s) (s/2) "Dist.";
-  print_string s s (sprintf "%.0f°" desired_course);
+  print_string s s (sprintf "%.0f<B0>" desired_course);
   print_string s (s/2) "Brg";
-  print_string s (7*s) (match course_opt with None -> "---" | _ -> sprintf "%.0f°" course);
+  print_string s (7*s) (match course_opt with None -> "---" | _ -> sprintf "%.0f<B0>" course);
   print_string s (7*s+s/2) "Track";
 
   (* Cardinal points *)
@@ -136,7 +136,38 @@ let _ =
   let get_navigation = fun _ values ->
     let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
     draw da !desired_course !course distance in
-  ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
+  ignore (Tm_Pprz.message_bind "MISSION_STATUS" get_navigation); (* XGGDEBUG:NEWMESS: Changed NAVIGATION for MISSION_STATUS, seems that something more has to change but lets see if works *)
+
+	(*
+    <message name="NAVIGATION" id="10">
+     <field name="cur_block" type="uint8"/>
+     <field name="cur_stage" type="uint8"/>
+     <field name="pos_x" type="float" unit="m" format="%.1f"/>
+     <field name="pos_y" type="float" unit="m" format="%.1f"/>
+     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
+     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+     <field name="circle_count" type="uint8"/>
+     <field name="oval_count" type="uint8"/>
+   </message>
+	
+<message name="MISSION_STATUS" id="100">
+<field name="flight_time" type="uint16" unit="s"/>
+<field name="cur_block" type="uint8"/>
+<field name="block_time" type="uint16" unit="s"/>
+<field name="cur_stage" type="uint8"/>
+<field name="stage_time" type="uint16" unit="s"/>
+<field name="cpu_time" type="uint16" unit="s"></field>
+<field name="gps_status" type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
+<field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
+<field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+<field name="circle_count" type="uint8"/>
+<field name="oval_count" type="uint8"/>
+<field name="horizontal_mode" type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
+</message> 
+
+*)
+	
+	
   let get_gps = fun _ values ->
     (* if speed < 1m/s, the course information is not relevant *)
     course :=
@@ -144,7 +175,7 @@ let _ =
         Some (float (Pprz.int_assoc "course" values) /. 10.)
       else
         None in
-  ignore (Tm_Pprz.message_bind "GPS" get_gps);
+  ignore (Tm_Pprz.message_bind "GPS_UTM" get_gps);
   let get_desired = fun _ values ->
     desired_course := (Rad>>Deg) (Pprz.float_assoc "course" values) in
   ignore (Tm_Pprz.message_bind "DESIRED" get_desired);

@@ -9,7 +9,7 @@
 #include "std.h"
 #include "LPC21xx.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 #include "humid_sht.h"
 

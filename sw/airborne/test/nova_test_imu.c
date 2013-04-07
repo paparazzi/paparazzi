@@ -5,7 +5,7 @@
 #include "led.h"
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "ADS8344.h"
@@ -42,7 +42,6 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic( void ) {
-  DOWNLINK_SEND_BOOT(&sys_time.nb_sec);
 
 }
 

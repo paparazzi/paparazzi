@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<class type="downlink">
+  <message name="NPS_SENSORS_SCALED" id="197">
+    <description></description>
+    <field name="acc_x"    type="float" />
+    <field name="acc_y"    type="float" />
+    <field name="acc_z"    type="float" />
+    <field name="mag_x"    type="float" />
+    <field name="mag_y"    type="float" />
+    <field name="mag_z"    type="float" />
+  </message>
+
+  <message name="NPS_POS_LLH" id="238">
+    <description></description>
+    <field name="pprz_lat"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="lat_geod"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="lat_geoc"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="pprz_lon"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="lon"        type="float" unit="rad" alt_unit="deg"/>
+    <field name="pprz_alt"   type="float" unit="m"/>
+    <field name="alt_geod"   type="float" unit="m"/>
+    <field name="agl"        type="float" unit="m"/>
+    <field name="asl"        type="float" unit="m"/>
+  </message>
+
+  <message name="NPS_RPMS" id="239">
+    <description></description>
+    <field name="front"    type="float" unit="RPM"/>
+    <field name="back"     type="float" unit="RPM"/>
+    <field name="right"    type="float" unit="RPM"/>
+    <field name="left"     type="float" unit="RPM"/>
+  </message>
+
+  <message name="NPS_SPEED_POS" id="240">
+    <description></description>
+    <field name="ltpp_xdd" type="float" unit="m/s2"/>
+    <field name="ltpp_ydd" type="float" unit="m/s2"/>
+    <field name="ltpp_zdd" type="float" unit="m/s2"/>
+    <field name="ltpp_xd"  type="float" unit="m/s"/>
+    <field name="ltpp_yd"  type="float" unit="m/s"/>
+    <field name="ltpp_zd"  type="float" unit="m/s"/>
+    <field name="ltpp_x"   type="float" unit="m"/>
+    <field name="ltpp_y"   type="float" unit="m"/>
+    <field name="ltpp_z"   type="float" unit="m"/>
+  </message>
+
+  <message name="NPS_RATE_ATTITUDE" id="241">
+    <description></description>
+    <field name="p"     type="float" unit="deg/s"/>
+    <field name="q"     type="float" unit="deg/s"/>
+    <field name="r"     type="float" unit="deg/s"/>
+    <field name="phi"   type="float" unit="deg"/>
+    <field name="theta" type="float" unit="deg"/>
+    <field name="psi"   type="float" unit="deg"/>
+  </message>
+
+  <message name="NPS_GYRO_BIAS" id="242">
+    <description></description>
+    <field name="bp"     type="float" unit="deg/s"/>
+    <field name="bq"     type="float" unit="deg/s"/>
+    <field name="br"     type="float" unit="deg/s"/>
+  </message>
+
+  <message name="NPS_RANGE_METER" id="243">
+    <description></description>
+    <field name="dist"   type="float" unit="adc"/>
+  </message>
+
+  <message name="NPS_WIND" id="244">
+    <description></description>
+    <field name="vx"   type="float" unit="m/s"/>
+    <field name="vy"   type="float" unit="m/s"/>
+    <field name="vz"   type="float" unit="m/s"/>
+  </message>
+
+
+  <message name="NPS_ACCEL_LTP" id="248">
+    <description></description>
+    <field name="xdd"   type="float" unit="m/s2"/>
+    <field name="ydd"   type="float" unit="m/s2"/>
+    <field name="zdd"   type="float" unit="m/s2"/>
+  </message>
+
+</class>

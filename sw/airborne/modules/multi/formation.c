@@ -19,7 +19,7 @@
 #include "subsystems/gps.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "dl_protocol.h"
+#include "uplink_msg.h"
 
 #include <stdio.h>
 

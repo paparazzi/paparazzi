@@ -28,7 +28,7 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 TypeKalman alt_filter;
@@ -75,7 +75,7 @@ void alt_filter_periodic(void) {
     last_gps_alt = ga;
   }
 
-  RunOnceEvery(6,DOWNLINK_SEND_VFF(DefaultChannel, DefaultDevice, &baro_ets_altitude,
+  RunOnceEvery(6,DOWNLINK_SEND_VFF_DEBUG(DefaultChannel, DefaultDevice, &baro_ets_altitude,
         &(alt_filter.X[0]), &(alt_filter.X[1]), &(alt_filter.X[2]),
         &(alt_filter.P[0][0]), &(alt_filter.P[1][1]), &(alt_filter.P[2][2])));
 

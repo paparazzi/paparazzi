@@ -348,21 +348,22 @@ void on_GPS_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]) {
 	gps_alt = atof(argv[4]) / 100.;
 }
 
-/* jump here when a NAVIGATION message is received */
+/* jump here when a MISSION_STATUS message is received */ /* The fields that is trying to get doesn't exist since NAVIGATION was converted to MISSION_STATUS */
+/*
 void on_NAV_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]) {
 
 
 	if (mode == AUTO) {
 		gps_pos_x = atof(argv[2]);
 		gps_pos_y = atof(argv[3]);
-		/* calculate azimuth */
+		//calculate azimuth
 				//should be "atan2(gps_pos_y, gps_pos_x)" but it is reversed to give 0 when North.
 		ant_azim = atan2(gps_pos_x, gps_pos_y) * 180. / M_PI;
 
 		if (ant_azim < 0)
 			ant_azim += 360.;
 
-		/* calculate elevation */
+		// calculate elevation
 		ant_elev = atan2((gps_alt - home_alt), sqrt(atof(argv[5]))) * 180. / M_PI;
 			// Sanity check
 				if (ant_elev < 0){ ant_elev = 0.; }
@@ -375,7 +376,7 @@ void on_NAV_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]) {
 
 
 }
-
+*/
 int open_port(char* port ) {
 	struct termios options;
 
@@ -709,9 +710,9 @@ int main(int argc, char** argv) {
 	IvyBindMsg(
 			on_GPS_STATUS,
 			NULL,
-			"^\\S* GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
-	IvyBindMsg(on_NAV_STATUS, NULL,
-			"^\\S* NAVIGATION (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+			"^\\S* GPS_UTM (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+//	IvyBindMsg(on_NAV_STATUS, NULL,
+//			"^\\S* MISSION_STATUS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 	IvyStart("127.255.255.255");
 	gtk_main();
 

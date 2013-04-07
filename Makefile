@@ -75,13 +75,15 @@ EXT=sw/ext
 PPRZCENTER=sw/supervision
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
+#MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 
 SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER)
 
 #
 # xml files used as input for header generation
 #
-MESSAGES_XML = $(CONF)/messages.xml
+MESSAGES_XML = $(PAPARAZZI_HOME)/var/messages.xml
+MESSAGES_XML_CONF = $(CONF)/messages_conf.xml
 UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
@@ -90,15 +92,16 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 # generated header files
 #
 MESSAGES_H=$(STATICINCLUDE)/messages.h
-MESSAGES2_H=$(STATICINCLUDE)/messages2.h
+UPLINK_MSG_H=$(STATICINCLUDE)/uplink_msg.h
+DOWNLINK_MSG_H=$(STATICINCLUDE)/downlink_msg.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
-DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
-DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
 ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 
-GEN_HEADERS = $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
+MESSAGES_FILES = $(CONF)/messages
+
+GEN_HEADERS = $(MESSAGES_XML) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
 
 
 all: ground_segment ext lpctools
@@ -111,7 +114,7 @@ print_build_version:
 update_google_version:
 	-$(MAKE) -C data/maps
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml
+conf: conf/conf.xml conf/control_panel.xml conf/maps.xml conf/messages_conf.xml
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
@@ -160,19 +163,15 @@ $(LOGALIZER): libpprz
 
 static_h: $(GEN_HEADERS)
 
-$(MESSAGES_H) : $(MESSAGES_XML) tools
-	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+$(MESSAGES_XML) : $(MESSAGES_XML_CONF) $(MESSAGES_FILES)/* tools
 	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
+	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages_xml.out $(MESSAGES_XML_CONF) $(MESSAGES_FILES) $@ $(STATICINCLUDE) $(UPLINK_MSG_H) $(DOWNLINK_MSG_H)
 
-$(MESSAGES2_H) : $(MESSAGES_XML) tools
-	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+$(MACROS_TARGET): $(MESSAGES_XML_CONF) $(MESSAGES_FILES)/*
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > $($@_TMP)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
@@ -194,20 +193,6 @@ $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-$(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-$(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
@@ -251,6 +236,7 @@ clean:
 	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
+	$(Q)rm -f $(STATICINCLUDE)/*
 
 cleanspaces:
 	find sw -path sw/ext -prune -o -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
@@ -267,6 +253,7 @@ dist_clean_irreversible: clean
 	rm -rf conf/maps_data conf/maps.xml
 	rm -rf conf/conf.xml conf/controlpanel.xml
 	rm -rf var
+	rm -f $(MESSAGES_XML_CONF)
 
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
@@ -293,4 +280,4 @@ test: all replace_current_conf_xml run_tests restore_conf_xml
 subdirs $(SUBDIRS) conf ext libpprz multimon cockpit tmtc tools\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test replace_current_conf_xml run_tests restore_conf_xml
+test replace_current_conf_xml run_tests restore_conf_xml $(MESSAGES_XML)

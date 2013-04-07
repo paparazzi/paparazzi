@@ -1,0 +1,544 @@
+<?xml version="1.0"?>
+<class type="downlink">
+<!-- DEBUG Messages -->
+  <message name="DEBUG" id="1">
+    <description></description>
+    <field name="msg" type="uint8[]"/>
+  </message>
+
+  <message name="PAYLOAD" id="15">
+    <description></description>
+    <field name="values" type="uint8[]" unit="none"/>
+  </message>
+
+  <message name="PPRZ_DEBUG" id="2">
+    <description></description>
+    <field name="module"   type="uint8"/>
+    <field name="errno"   type="uint8"/>
+  </message>
+
+  <message name="CHRONO" id="17">
+    <description></description>
+    <field name="tag"  type="uint8"/>
+    <field name="time" type="uint32" unit="us"/>
+  </message>
+
+  <message name="TIME" id="18">
+    <description></description>
+    <field name="t" type="uint32"/>
+  </message>
+
+<!-- ___ ACTUATORS ___ -->
+  <message name="ACTUATORS" id="3">
+    <description></description>
+    <field name="values" type="uint16[]" unit="none"/>
+  </message>
+
+<!-- ___ COMMANDS ____ -->
+  <message name="COMMANDS" id="25">
+    <description></description>
+    <field name="values" type="int16[]" unit="ticks"/>
+  </message>
+
+  <message name="ROTORCRAFT_CMD" id="26">
+    <description></description>
+    <field name="cmd_roll"   type="int32"/>
+    <field name="cmd_pitch"  type="int32"/>
+    <field name="cmd_yaw"    type="int32"/>
+    <field name="cmd_thrust" type="int32"/>
+  </message>
+
+<!-- ___ RC / PPM ___ -->
+  <message name="PPM" id="28">
+    <description></description>
+    <field name="ppm_rate" type="uint8"/>
+    <field name="values" type="uint16[]" unit="usec"/>
+  </message>
+
+  <message name="RC" id="29">
+    <description></description>
+    <field name="values" type="int16[]" unit="pprz" format="%d"/>
+  </message>
+
+  <message name="ROTORCRAFT_RADIO_CONTROL" id="30">
+    <description></description>
+    <field name="roll"     type="int16" unit="pprz"/>
+    <field name="pitch"    type="int16" unit="pprz"/>
+    <field name="yaw"      type="int16" unit="pprz"/>
+    <field name="throttle" type="int16" unit="pprz"/>
+    <field name="mode"     type="int16" unit="pprz"/>
+    <field name="kill"     type="int16" unit="pprz"/>
+    <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
+  </message>
+
+  <message name="SYS_MON" id="4">
+    <description></description>
+    <field name="periodic_time" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_cycle" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_cycle_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="event_number" type="uint16"/>
+    <field name="cpu_load" type="uint8" unit="%"/>
+  </message>
+
+  <message name="ADC" id="8">
+    <description></description>
+    <field name="mcu" type="uint8" values="FBW|AP"/>
+    <field name="values" type="uint16[]" unit="none"/>
+  </message>
+
+  <message name="ADC_GENERIC" id="9">
+    <description></description>
+    <field name="val1" type="uint16"/>
+    <field name="val2" type="uint16"/>
+  </message>
+
+
+  <message name="WC_RSSI" id="144">
+    <description></description>
+    <field name="raw_level" type="uint8"/>
+  </message>
+
+  <message name="MPPT" id="21">
+    <description></description>
+    <field name="values" type="int16[]" alt_unit_coef="1e-3"/>
+  </message>
+
+  <message name="TEST_FORMAT" id="5">
+    <description></description>
+    <field name="val1" type="double"/>
+    <field name="val2" type="float"/>
+  </message>
+
+  <message name="LOST_PACKETS" id="6">
+    <description></description>
+    <field name="lost_percent" type="uint8" unit="%"/>
+  </message>
+
+<!-- ___________________________________________ AHRS _____________________________________________ -->
+
+<!-- AHRS Messages: Attitude and Heading Reference System -->
+  <message name="AHRS_REF_QUAT" id="65">
+    <description></description>
+    <field name="ref_qi"  type="int32"/>
+    <field name="ref_qx"  type="int32"/>
+    <field name="ref_qy"  type="int32"/>
+    <field name="ref_qz"  type="int32"/>
+    <field name="body_qi" type="int32"/>
+    <field name="body_qx" type="int32"/>
+    <field name="body_qy" type="int32"/>
+    <field name="body_qz" type="int32"/>
+  </message>
+
+  <message name="AHRS_MEASUREMENT_EULER" id="67">
+    <description></description>
+    <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="theta" type="float" unit="rad" alt_unit="deg"/>
+    <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
+  </message>
+
+  <message name="AHRS_EULER_INT" id="68">
+    <description></description>
+    <field name="imu_phi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="imu_theta"  type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="imu_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_phi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_psi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="AHRS_QUAT_INT" id="69">
+    <description></description>
+    <field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="imu_qz"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qi" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qx" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qy" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+  </message>
+
+  <message name="AHRS_RMAT_INT" id="70">
+    <description></description>
+    <field name="imu_m00"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m01"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m02"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m10"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m11"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m12"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m20"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m21"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="imu_m22"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m00" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m01" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m02" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m10" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m11" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m12" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m20" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m21" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+    <field name="body_m22" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
+  </message>
+
+
+  <message name="AHRS_GYRO_BIAS_INT" id="71">
+    <description></description>
+    <field name="bp"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="bq"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="br"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="FILTER_ALIGNER" id="161">
+    <description></description>
+    <field name="lp_gp" type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="lp_gq" type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="lp_gr" type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gp" type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gq" type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="gr" type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="noise" type="int32"/>
+    <field name="cnt" type="int32"/>
+    <field name="status" type="uint8" values="UNINIT|RUNNING|LOCKED"/>
+  </message>
+
+<!-- ____________________________________________ INS _____________________________________________ -->
+
+<!-- INS Messages: Inertial Navigation System -->
+  <message name="INS_Z_INT" id="78">
+    <description></description>
+    <field name="baro_alt"  type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ins_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+  </message>
+
+  <message name="INS_REF" id="79">
+    <description></description>
+    <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_y0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_z0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="lat0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
+    <field name="lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
+    <field name="alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
+    <field name="hmsl0"   type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
+    <field name="baro_qfe"    type="int32"/>
+  </message>
+
+  <message name="INS_INT" id="80">
+    <description></description>
+    <field name="ins_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ins_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ins_xd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="ins_yd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="ins_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="ins_xdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="ins_ydd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+  </message>
+
+<!-- ******************************* CONTROL, NAVIGATION & GUIDANCE ******************************* -->
+
+<!-- LOOP Messages -->
+  <message name="SPEED_LOOP" id="120">
+    <description></description>
+    <field name="ve_set_point" type="float" unit="m/s"/>
+    <field name="ve" type="float" unit="m/s"/>
+    <field name="vn_set_point" type="float" unit="m/s"/>
+    <field name="vn" type="float" unit="m/s"/>
+    <field name="north_sp" type="float" unit="rad"/>
+    <field name="east_sp" type="float" unit="rad"/>
+  </message>
+
+  <message name="RATE_LOOP" id="121">
+    <description></description>
+    <field name="sp_p" type="int32"/>
+    <field name="sp_q" type="int32"/>
+    <field name="sp_r" type="int32"/>
+    <field name="ref_p" type="int32"/>
+    <field name="ref_q" type="int32"/>
+    <field name="ref_r" type="int32"/>
+    <field name="refdot_p" type="int32"/>
+    <field name="refdot_q" type="int32"/>
+    <field name="refdot_r" type="int32"/>
+    <field name="sumerr_p" type="int32"/>
+    <field name="sumerr_q" type="int32"/>
+    <field name="sumerr_r" type="int32"/>
+    <field name="ff_p" type="int32"/>
+    <field name="ff_q" type="int32"/>
+    <field name="ff_r" type="int32"/>
+    <field name="fb_p" type="int32"/>
+    <field name="fb_q" type="int32"/>
+    <field name="fb_r" type="int32"/>
+    <field name="delta_t" type="int32"/>
+  </message>
+
+  <message name="VERT_LOOP" id="122">
+    <description></description>
+    <field name="z_sp"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="zd_sp"     type="int32" alt_unit="m"    alt_unit_coef="0.0000019"/>
+    <field name="est_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="est_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="ref_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="ref_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+    <field name="adp_inv_m" type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
+    <field name="adp_cov"   type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
+    <field name="adp_meas"  type="int32" alt_unit="foo"  alt_unit_coef="0.0000038"/>
+    <field name="sum_err"   type="int32" />
+    <field name="ff_cmd"    type="int32"/>
+    <field name="fb_cmd"    type="int32"/>
+    <field name="delta_t"   type="int32"/>
+  </message>
+
+  <message name="VERTICAL_ENERGY" id="123">
+    <description></description>
+    <field name="Epot_err" type="float"/>
+    <field name="Ekin_err" type="float"/>
+    <field name="Etot_err" type="float"/>
+    <field name="Edis_err" type="float"/>
+    <field name="throttle" type="float"/>
+    <field name="nav_pitch" type="float"/>
+    <field name="speed_sp" type="float"/>
+  </message>
+
+  <message name="HOVER_LOOP" id="124">
+    <description></description>
+    <field name="sp_x"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="sp_y"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_xd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="est_yd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="est_xdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009765"/>
+    <field name="est_ydd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009765"/>
+    <field name="err_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="err_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="err_xd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="err_yd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+    <field name="err_sum_x" type="int32"/>
+    <field name="err_sum_y" type="int32"/>
+    <field name="err_nav_x" type="int32"/>
+    <field name="err_nav_y" type="int32"/>
+    <field name="cmd_x"     type="int32"/>
+    <field name="cmd_y"     type="int32"/>
+    <field name="cmd_phi"   type="int32"/>
+    <field name="cmd_theta" type="int32"/>
+    <field name="cmd_psi"   type="int32"/>
+  </message>
+
+<!-- STABILIZATION Messages -->
+  <message name="STAB_ATTITUDE_INT" id="128">
+    <description></description>
+    <field name="est_p"         type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="est_q"         type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="est_r"         type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="est_phi"       type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="est_theta"     type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="est_psi"       type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="sp_phi"        type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="sp_theta"      type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="sp_psi"        type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="sum_err_phi"   type="int32"/>
+    <field name="sum_err_theta" type="int32"/>
+    <field name="sum_err_psi"   type="int32"/>
+    <field name="delta_a_fb"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_fb"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_fb"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_a_ff"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_ff"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_ff"    type="int32" alt_unit_coef="0.0000153"/>
+    <field name="delta_a"       type="int32"/>
+    <field name="delta_e"       type="int32"/>
+    <field name="delta_r"       type="int32"/>
+  </message>
+
+  <message name="STAB_ATTITUDE_REF_INT" id="129">
+    <description></description>
+    <field name="sp_phi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="sp_theta"  type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="sp_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="ref_phi"   type="int32" alt_unit="deg" alt_unit_coef="0.0000546"/>
+    <field name="ref_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0000546"/>
+    <field name="ref_psi"   type="int32" alt_unit="deg" alt_unit_coef="0.0000546"/>
+    <field name="ref_p"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0008743"/>
+    <field name="ref_q"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0008743"/>
+    <field name="ref_r"     type="int32" alt_unit="deg/s" alt_unit_coef="0.0008743"/>
+    <field name="ref_pd"    type="int32" alt_unit="deg/s2" alt_unit_coef="0.0139882"/>
+    <field name="ref_qd"    type="int32" alt_unit="deg/s2" alt_unit_coef="0.0139882"/>
+    <field name="ref_rd"    type="int32" alt_unit="deg/s2" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="STAB_ATTITUDE_REF_FLOAT" id="130">
+    <description></description>
+    <field name="sp_phi"    type="float" unit="rad" alt_unit="deg"/>
+    <field name="sp_theta"  type="float" unit="rad" alt_unit="deg"/>
+    <field name="sp_psi"    type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_phi"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_theta" type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_psi"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_p"     type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="ref_q"     type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="ref_r"     type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="ref_pd"    type="float" unit="rad/s2" alt_unit="deg/s2"/>
+    <field name="ref_qd"    type="float" unit="rad/s2" alt_unit="deg/s2"/>
+    <field name="ref_rd"    type="float" unit="rad/s2" alt_unit="deg/s2"/>
+  </message>
+
+  <message name="STAB_ATTITUDE_FLOAT" id="131">
+    <description></description>
+    <field name="est_p"         type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="est_q"         type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="est_r"         type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="est_phi"       type="float" unit="rad" alt_unit="deg"/>
+    <field name="est_theta"     type="float" unit="rad" alt_unit="deg"/>
+    <field name="est_psi"       type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_phi"       type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_theta"     type="float" unit="rad" alt_unit="deg"/>
+    <field name="ref_psi"       type="float" unit="rad" alt_unit="deg"/>
+    <field name="sum_err_phi"   type="float"/>
+    <field name="sum_err_theta" type="float"/>
+    <field name="sum_err_psi"   type="float"/>
+    <field name="delta_a_fb"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_fb"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_fb"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_a_ff"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_e_ff"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_r_ff"    type="float" alt_unit="motor" alt_unit_coef="0.0000153"/>
+    <field name="delta_a"       type="int32"/>
+    <field name="delta_e"       type="int32"/>
+    <field name="delta_r"       type="int32"/>
+    <field name="est_p_d"       type="float" unit="rad/s2" alt_unit="deg/s2"/>
+    <field name="est_q_d"       type="float" unit="rad/s2" alt_unit="deg/s2"/>
+    <field name="est_r_d"       type="float" unit="rad/s2" alt_unit="deg/s2"/>
+  </message>
+
+  <!-- Missing STAB_ATTITUDE_REF -->
+
+  <message name="CROSS_TRACK_ERROR" id="136">
+    <description></description>
+    <field name="cross_track_error" type="float" unit="m"/>
+    <field name="cte_int" type="float"/>
+  </message>
+
+<!-- GUIDANCE Messages -->
+
+<!--  <message name="GUIDANCE" id="144">
+    <description></description>
+    <field name="pos_n"    type="int32"/>
+    <field name="pos_e"    type="int32"/>
+    <field name="sp_pos_n" type="int32"/>
+    <field name="sp_pos_e" type="int32"/>
+  </message>
+-->
+  <message name="GUIDANCE_H_REF_INT" id="140">
+    <description></description>
+    <field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
+    <field name="ref_x"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
+    <field name="ref_xd"  type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>
+    <field name="ref_xdd" type="int32" alt_unit="m/s2"  alt_unit_coef="0.0009766"/>
+    <field name="sp_y"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
+    <field name="ref_y"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
+    <field name="ref_yd"  type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>
+    <field name="ref_ydd" type="int32" alt_unit="m/s2"  alt_unit_coef="0.0009766"/>
+  </message>
+
+<!-- ___ AIRSPEED ___ -->
+  <message name="AIRSPEED_CONTROL" id="48">
+    <description></description>
+    <field name="airspeed" type="float" unit="m/s"/>
+    <field name="airspeed_sp" type="float" unit="m/s"/>
+    <field name="airspeed_cnt" type="float" unit="m/s"/>
+    <field name="groundspeed_sp" type="float" unit="m/s"/>
+  </message>
+
+
+  <message name="V_CTL_CALIBRATION" id="221">
+    <description></description>
+    <field name="climb_sum_err" type="float" format="%.1f"/>
+    <field name="climb_gaz_submode" type="uint8"/>
+  </message>
+
+  <message name="RANGEFINDER" id="222">
+    <description></description>
+    <field name="range" type="uint16" unit="cm"/>
+    <field name="z_dot" type="float" unit="m/s"/>
+    <field name="z_dot_sum_err" type="float" unit="m/s"/>
+    <field name="z_dot_setpoint" type="float" unit="m/s"/>
+    <field name="z_sum_err" type="float" unit="m/s"/>
+    <field name="z_setpoint" type="float" unit="m"/>
+    <field name="flying" type="uint8" unit="bool"/>
+  </message>
+
+  <message name="ALT_KALMAN" id="223">
+    <description></description>
+    <field name="p00" type="float"/>
+    <field name="p01" type="float"/>
+    <field name="p10" type="float"/>
+    <field name="p11" type="float"/>
+  </message>
+
+  <message name="TUNE_ROLL" id="224">
+    <description></description>
+    <field name="p" type="float"/>
+    <field name="phi" type="float"/>
+    <field name="phi_sp" type="float"/>
+  </message>
+
+  <message name="H_CTL_A" id="225">
+    <description></description>
+    <field name="roll_sum_err" type="float"/>
+    <field name="ref_roll_angle" type="float" unit="rad" alt_unit="deg"/>
+    <field name="pitch_sum_err" type="float"/>
+    <field name="ref_pitch_angle" type="float" unit="rad" alt_unit="deg"/>
+  </message>
+
+  <message name="FLIGHT_BENCHMARK" id="226">
+    <description></description>
+    <field name="SE_As" type="float"/>
+    <field name="SE_Alt" type="float"/>
+    <field name="SE_Pos" type="float"/>
+    <field name="Err_As" type="float"/>
+    <field name="Err_Alt" type="float"/>
+    <field name="Err_Pos" type="float"/>
+  </message>
+
+  <!-- 227 is free -->
+
+  <message name="VF_UPDATE" id="228">
+    <description></description>
+    <field name="baro" type="float" unit="m"/>
+    <field name="range_meter" type="float" unit="m"/>
+  </message>
+
+  <message name="VF_PREDICT" id="229">
+    <description></description>
+    <field name="accel" type="float" unit="m/s/s"/>
+  </message>
+
+  <message name="ROTORCRAFT_TUNE_HOVER" id="230">
+    <description></description>
+    <field name="rc_roll"    type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
+    <field name="rc_pitch"   type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
+    <field name="rc_yaw"     type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
+    <field name="cmd_roll"   type="int32"/>
+    <field name="cmd_pitch"  type="int32"/>
+    <field name="cmd_yaw"    type="int32"/>
+    <field name="cmd_thrust" type="int32"/>
+    <field name="imu_phi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="imu_theta"  type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="imu_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_phi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_theta" type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    <field name="body_psi"   type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+  </message>
+
+  <message name="TCAS_DEBUG" id="231">
+    <description></description>
+    <field name="ac_id" type="uint8"/>
+    <field name="tau" type="float"/>
+  </message>
+
+</class>

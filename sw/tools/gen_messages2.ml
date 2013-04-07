@@ -299,12 +299,13 @@ end (* module Gen_onboard *)
 
 (********************* Main **************************************************)
 let () =
-  if Array.length Sys.argv <> 3 then begin
-    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0))
+  if Array.length Sys.argv <> 5 then begin
+    failwith (sprintf "Usage: %s <.xml file> <class_name> <class_id> <check alignment [0,1]>" Sys.argv.(0))
   end;
 
   let filename = Sys.argv.(1)
-  and class_name = Sys.argv.(2) in
+  and class_name = Sys.argv.(2)
+	and check_align = Sys.argv.(4) in
 
   try
     let messages = Syntax.read filename class_name in
@@ -315,26 +316,19 @@ let () =
     Printf.fprintf h "/* Please DO NOT EDIT */\n";
 
     Printf.fprintf h "/* Macros to send and receive messages of class %s */\n" class_name;
-    Printf.fprintf h "#ifndef _VAR_MESSAGES2_%s_H_\n" class_name;
-    Printf.fprintf h "#define _VAR_MESSAGES2_%s_H_\n" class_name;
+		let u_class_name = String.uppercase class_name in
+    Printf.fprintf h "#ifndef _VAR_MESSAGES2_%s_H_\n" u_class_name;
+    Printf.fprintf h "#define _VAR_MESSAGES2_%s_H_\n" u_class_name;
     Printf.fprintf h "#include \"downlink_transport.h\"\n";
 
     (** Macros for airborne downlink (sending) *)
-    if class_name = "telemetry" then begin (** FIXME *)
-      Printf.fprintf h "#ifdef DOWNLINK\n"
-    end;
     Gen_onboard.print_downlink_macros h class_name messages;
-    if class_name = "telemetry" then begin
-      Printf.fprintf h "#else // DOWNLINK\n";
-      Gen_onboard.print_null_downlink_macros h messages;
-      Printf.fprintf h "#endif // DOWNLINK\n"
-    end;
 
     (** Macros for airborne datalink (receiving) *)
-    let check_alignment = class_name <> "telemetry" in
-    List.iter (Gen_onboard.print_get_macros h check_alignment) messages;
-
-    Printf.fprintf h "#endif // _VAR_MESSAGES2_%s_H_\n" class_name
+		match check_align with
+		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages; Printf.fprintf h "#endif // _VAR_MESSAGES2_%s_H_\n" u_class_name
+		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages; Printf.fprintf h "#endif // _VAR_MESSAGES2_%s_H_\n" u_class_name
+		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er )
 
   with
       Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

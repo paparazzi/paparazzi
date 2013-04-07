@@ -21,7 +21,7 @@
   </input>
 
   <messages period="0.1">
-    <!--message class="datalink" name="BOOZ2_FMS_COMMAND">
+    <!--message class="common_commands" name="ROTORCRAFT_FMS_COMMAND">
       <field name="h_mode" value="IndexOfEnum(NAV)"/>
       <field name="v_mode" value="IndexOfEnum(NAV)"/>
       <field name="v_sp"   value="(up-down)*127"/>
@@ -30,11 +30,11 @@
       <field name="h_sp_3" value="(right-left)*127"/>
     </message-->
 
-    <message class="datalink" name="SET_ACTUATOR" on_event="circle">
+    <message class="common_commands" name="SET_ACTUATOR" on_event="circle">
       <field name="value" value="Scale(two,1400,1200)"/>
       <field name="no" value="2"/>
     </message>
-    <message class="datalink" name="SET_ACTUATOR" on_event="cross">
+    <message class="common_commands" name="SET_ACTUATOR" on_event="cross">
       <field name="value" value="Scale(one,2000,1000)"/>
       <field name="no" value="3"/>
     </message>

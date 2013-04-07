@@ -63,7 +63,7 @@ void nps_ivy_init(char* ivy_bus) {
 
 
 #include "generated/settings.h"
-#include "dl_protocol.h"
+#include "uplink_msg.h"
 #include "subsystems/datalink/downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),

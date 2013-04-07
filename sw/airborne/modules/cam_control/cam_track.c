@@ -47,7 +47,7 @@ struct FloatVect3 last_pos_ned;
 #define GOT_DATA      4
 #define GOT_END       5
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 volatile uint8_t cam_msg_received;

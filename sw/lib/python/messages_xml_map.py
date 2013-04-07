@@ -6,7 +6,7 @@ import os
 import sys
 import getopt
 
-messages_path = '%s/conf/messages.xml' % os.getenv("PAPARAZZI_HOME")
+messages_path = '%s/var/messages.xml' % os.getenv("PAPARAZZI_HOME")
 
 message_dictionary = {}
 message_dictionary_types = {}
@@ -36,7 +36,7 @@ def GetOptions():
         elif o in ("-f", "--file"):
             messages_path = a
 
-
+#No repeated message names so it wont clasify by class what is clasified by message name.(To be able to show different class messages)
 def ParseMessages():
     from lxml import etree
     tree = etree.parse( messages_path)

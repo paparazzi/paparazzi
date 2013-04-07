@@ -38,7 +38,7 @@ class type value =
 
 class message_field :
   ?sender:string ->
-  ?class_name:string ->
+  ?class_type:string ->
   string ->
   string ->
     value

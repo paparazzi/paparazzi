@@ -26,7 +26,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/imu.h"
@@ -106,11 +106,11 @@ static inline void on_imu_event(void) {
                 &imu_accel_unscaled.z);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_GYRO_SCALED(&imu_gyro.x,
+    DOWNLINK_SEND_IMU_GYRO_INT(&imu_gyro.x,
                  &imu_gyro.y,
                  &imu_gyro.z);
 
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(&imu_accel.x,
+    DOWNLINK_SEND_IMU_ACCEL_INT(&imu_accel.x,
                   &imu_accel.y,
                   &imu_accel.z);
   }
