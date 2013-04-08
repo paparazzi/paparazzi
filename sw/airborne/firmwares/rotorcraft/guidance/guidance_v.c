@@ -25,7 +25,6 @@
  */
 
 #define GUIDANCE_V_C
-#define GUIDANCE_V_USE_REF 1
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 
 

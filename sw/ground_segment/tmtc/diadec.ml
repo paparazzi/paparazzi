@@ -36,8 +36,8 @@ let use_tele_message = fun buf ->
     let msg = Sub_Pprz.message_of_id msg_id in
     printf "%d %s\n%!" ac_id (Sub_Pprz.string_of_message msg values)
   with
-    _ ->
-      Debug.call 'W' (fun f ->  fprintf f "Warning, cannot use: %s\n" (Debug.xprint buf))
+      _ ->
+        Debug.call 'W' (fun f ->  fprintf f "Warning, cannot use: %s\n" (Debug.xprint buf))
 
 
 let _ =

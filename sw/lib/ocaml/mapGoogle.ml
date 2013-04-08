@@ -38,10 +38,10 @@ let gm_tiles = Node (Array.create 4 Empty)
 
 (** Google Maps paths in the quadtree are coded with q,r,s and t*)
 let index_of = function
-    'q' -> 0 | 'r' -> 1 | 's' -> 2 | 't' -> 3
+'q' -> 0 | 'r' -> 1 | 's' -> 2 | 't' -> 3
   | _ -> invalid_arg "index_of"
 let char_of = function
-      0 -> 'q' | 1 -> 'r' | 2 -> 's' | 3 -> 't'
+0 -> 'q' | 1 -> 'r' | 2 -> 's' | 3 -> 't'
   | _ -> invalid_arg "char_of"
 
 (** Checking that a tile is already displayed *)
@@ -50,9 +50,9 @@ let mem_tile = fun tile_key ->
     tree = Tile ||
     i < String.length tile_key &&
     match tree with
-      Empty -> false
-    | Tile -> true
-    | Node sons -> loop (i+1) sons.(index_of tile_key.[i]) in
+        Empty -> false
+      | Tile -> true
+      | Node sons -> loop (i+1) sons.(index_of tile_key.[i]) in
   loop 0 gm_tiles
 
 (** Adding a tile to the store *)
@@ -60,19 +60,19 @@ let add_tile = fun tile_key ->
   let rec loop = fun i tree j ->
     if i < String.length tile_key then
       match tree.(j) with
-	Empty ->
-	  let sons = Array.create 4 Empty in
-	  tree.(j) <- Node sons;
-	  loop (i+1) sons (index_of tile_key.[i])
-      | Tile -> () (* Already there *)
-      | Node sons ->
-	  loop (i+1) sons (index_of tile_key.[i])
+          Empty ->
+            let sons = Array.create 4 Empty in
+            tree.(j) <- Node sons;
+            loop (i+1) sons (index_of tile_key.[i])
+        | Tile -> () (* Already there *)
+        | Node sons ->
+          loop (i+1) sons (index_of tile_key.[i])
     else
       tree.(j) <- Tile in
   loop 0 [|gm_tiles|] 0
 
 
-let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
+let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file level ->
   let south_lat = tile.Gm.sw_corner.LL.posn_lat
   and west_long = tile.Gm.sw_corner.LL.posn_long in
   let north_lat = south_lat +. tile.Gm.height
@@ -83,33 +83,33 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   try
     let pixbuf = GdkPixbuf.from_file jpg_file in
     ignore (GMain.Idle.add (fun () ->
-      let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) pixbuf in
+      let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) pixbuf ~level in
       map#raise 1;
       false));
     add_tile tile.Gm.key
   with
-    GdkPixbuf.GdkPixbufError(_, msg) ->
-      match GToolbox.question_box ~title:"Corrupted file" ~buttons:["Erase"; "Cancel"] (sprintf "%s. Erase ?" msg) with
-	1 ->
-	  Sys.remove jpg_file
-      | _ -> ()
+      GdkPixbuf.GdkPixbufError(_, msg) ->
+        match GToolbox.question_box ~title:"Corrupted file" ~buttons:["Erase"; "Cancel"] (sprintf "%s. Erase ?" msg) with
+            1 ->
+              Sys.remove jpg_file
+          | _ -> ()
 
 
 
 (** Displaying the tile around the given point *)
-let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
-  let desired_tile = Gm.tile_of_geo wgs84 1 in
+let display_tile = fun (geomap:MapCanvas.widget) wgs84 level ->
+  let desired_tile = Gm.tile_of_geo ~level wgs84 1 in
 
   let key = desired_tile.Gm.key in
   if not (mem_tile key) then
-    let (tile, jpg_file) = Gm.get_tile wgs84 1 in
-    display_the_tile geomap tile jpg_file
+    let (tile, jpg_file) = Gm.get_image key in
+    display_the_tile geomap tile jpg_file (String.length tile.Gm.key)
 
 
 exception New_displayed of int
 (** [New_displayed zoom] Raised when a new is loadded *)
 
-let fill_window = fun (geomap:MapCanvas.widget) ->
+let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
   (** First estimate the coverage of the window *)
   let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window
   and (xc0, yc0) = geomap#canvas#get_scroll_offsets in
@@ -124,41 +124,45 @@ let fill_window = fun (geomap:MapCanvas.widget) ->
 
   let east = if east < west then east +. 2. else east in
 
+  (** Get Hashtbl from cache *)
+  let tbl = Gm.get_hashtbl_of_cache () in
+
   (** Go through the quadtree and look for the holes *)
   let rec loop = fun twest tsouth tsize trees i zoom key ->
     (* Check for intersection *)
     if not (twest > east || (twest+.tsize < west && (east < 1. (* Standard case *) || twest+.2.>east (* Over 180° *))) || tsouth > north || tsouth+.tsize < south) then
       let tsize2 = tsize /. 2. in
       try
-	match trees.(i) with
-	  Tile -> ()
-	| Empty ->
-	    if zoom = 1 then
-	      let tile, image = Gm.get_image key in
-	      display_the_tile geomap tile image;
-	      raise (New_displayed (19-String.length tile.Gm.key))
-	    else begin
-	      trees.(i) <- Node (Array.create 4 Empty);
-	      loop twest tsouth tsize trees i zoom key
-	    end
-	| Node sons ->
-	    let continue = fun j tw ts ->
-	      loop tw ts tsize2 sons j (zoom-1) (key^String.make 1 (char_of j)) in
+        match trees.(i) with
+            Tile -> ()
+          | Empty ->
+            if zoom = 1 then
+              let tile, image = Gm.get_image ~tbl key in
+              let level = String.length tile.Gm.key in
+              display_the_tile geomap tile image level;
+              raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))
+            else begin
+              trees.(i) <- Node (Array.create 4 Empty);
+              loop twest tsouth tsize trees i zoom key
+            end
+          | Node sons ->
+            let continue = fun j tw ts ->
+              loop tw ts tsize2 sons j (zoom-1) (key^String.make 1 (char_of j)) in
 
-	    continue 0 twest (tsouth+.tsize2);
-	    continue 1 (twest+.tsize2) (tsouth+.tsize2);
-	    continue 2 (twest+.tsize2) tsouth;
-	    continue 3 twest tsouth;
+            continue 0 twest (tsouth+.tsize2);
+            continue 1 (twest+.tsize2) (tsouth+.tsize2);
+            continue 2 (twest+.tsize2) tsouth;
+            continue 3 twest tsouth;
 
-	    (* If the current node is complete, replace it by a Tile *)
-	    if array_forall (fun x -> x = Tile) sons then begin
-	      trees.(i) <- Tile
-	    end
+            (* If the current node is complete, replace it by a Tile *)
+            if array_forall (fun x -> x = Tile) sons then begin
+              trees.(i) <- Tile
+            end
       with
-	New_displayed z when z = zoom ->
-	  trees.(i) <- Tile
-      | Gm.Not_available -> () in
-  loop (-1.) (-1.)  2. [|gm_tiles|] 0 18 "t"
+          New_displayed z when z = zoom ->
+            trees.(i) <- Tile
+        | Gm.Not_available -> () in
+  loop (-1.) (-1.)  2. [|gm_tiles|] 0 zoomlevel "t"
 
 
 exception To_copy of int * string
@@ -172,7 +176,7 @@ let gdk_pixbuf_safe_copy_area ~dest ~dest_x ~dest_y ~width ~height ~src_x ~src_y
   and height = min height (GdkPixbuf.get_height dest -dest_y) in
   GdkPixbuf.copy_area ~dest ~dest_x ~dest_y ~width ~height ~src_x ~src_y pixbuf
 
-let pixbuf = fun sw ne ->
+let pixbuf = fun sw ne zoomlevel->
   assert (sw.LL.posn_lat < ne.LL.posn_lat);
   assert (sw.LL.posn_long < ne.LL.posn_long);
   let west = sw.LL.posn_long /. LL.pi
@@ -185,30 +189,30 @@ let pixbuf = fun sw ne ->
   and height = truncate ((north -. south) /. pixel_size) in
   let dest = GdkPixbuf.create ~width ~height () in
   let rec loop = fun twest tsouth tsize zoom key ->
-  if not (twest > east || twest+.tsize < west || tsouth > north || tsouth+.tsize < south) then
-    let tsize2 = tsize /. 2. in
+    if not (twest > east || twest+.tsize < west || tsouth > north || tsouth+.tsize < south) then
+      let tsize2 = tsize /. 2. in
       try
-	if zoom = 1
-	then
-	  let tile, image = Gm.get_image key in
-	  raise (To_copy (19-String.length tile.Gm.key, image))
-	else begin
-	  let continue = fun j tw ts ->
-	    loop tw ts tsize2 (zoom-1) (key^String.make 1 (char_of j)) in
-	  continue 0 twest (tsouth+.tsize2);
-	  continue 1 (twest+.tsize2) (tsouth+.tsize2);
-	  continue 2 (twest+.tsize2) tsouth;
-	  continue 3 twest tsouth;
-	end
+        if zoom = 1
+        then
+          let tile, image = Gm.get_image key in
+          raise (To_copy (zoomlevel+1-String.length tile.Gm.key, image))
+        else begin
+          let continue = fun j tw ts ->
+            loop tw ts tsize2 (zoom-1) (key^String.make 1 (char_of j)) in
+          continue 0 twest (tsouth+.tsize2);
+          continue 1 (twest+.tsize2) (tsouth+.tsize2);
+          continue 2 (twest+.tsize2) tsouth;
+          continue 3 twest tsouth;
+        end
       with
-	To_copy (z, image) when z = zoom ->
-	  let dest_x = truncate ((twest -. west) /. pixel_size)
-	  and dest_y = truncate ((north -. (tsouth+.tsize)) /. pixel_size) in
-	  let width = truncate (tsize /. pixel_size) in
-	  let src_x = 0
-	  and src_y = 0 in
-	  let pixbuf = GdkPixbuf.from_file image in
-	  gdk_pixbuf_safe_copy_area ~dest ~dest_x ~dest_y ~width ~height:width ~src_x ~src_y pixbuf
-      | Gm.Not_available -> () in
-  loop (-1.) (-1.)  2. 18 "t";
+          To_copy (z, image) when z = zoom ->
+            let dest_x = truncate ((twest -. west) /. pixel_size)
+            and dest_y = truncate ((north -. (tsouth+.tsize)) /. pixel_size) in
+            let width = truncate (tsize /. pixel_size) in
+            let src_x = 0
+            and src_y = 0 in
+            let pixbuf = GdkPixbuf.from_file image in
+            gdk_pixbuf_safe_copy_area ~dest ~dest_x ~dest_y ~width ~height:width ~src_x ~src_y pixbuf
+        | Gm.Not_available -> () in
+  loop (-1.) (-1.)  2. zoomlevel "t";
   dest

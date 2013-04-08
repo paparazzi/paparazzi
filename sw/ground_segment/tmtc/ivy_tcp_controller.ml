@@ -32,21 +32,21 @@ let () =
   let get_message = fun _ ->
     begin
       try
-	let n = input i buffer 0 buffer_size in
-	let b = String.sub buffer 0 n in
-	Debug.trace 'x' (Debug.xprint b);
+        let n = input i buffer 0 buffer_size in
+        let b = String.sub buffer 0 n in
+        Debug.trace 'x' (Debug.xprint b);
 
-	let use_tele_message = fun payload ->
-	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
-	  let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
-	  let msg = Tm_Pprz.message_of_id msg_id in
-	  Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values in
+        let use_tele_message = fun payload ->
+          Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
+          let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
+          let msg = Tm_Pprz.message_of_id msg_id in
+          Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values in
 
-	ignore (PprzTransport.parse use_tele_message b)
+        ignore (PprzTransport.parse use_tele_message b)
       with
-	exc ->
-	    prerr_endline (Printexc.to_string exc)
-      end;
+          exc ->
+            prerr_endline (Printexc.to_string exc)
+    end;
     true in
 
   let ginput = GMain.Io.channel_of_descr (Unix.descr_of_in_channel i) in

@@ -24,6 +24,7 @@
 
 
 #include STABILIZATION_ATTITUDE_TYPE_H
+
 extern void stabilization_attitude_init(void);
 extern void stabilization_attitude_read_rc(bool_t in_flight);
 extern void stabilization_attitude_enter(void);

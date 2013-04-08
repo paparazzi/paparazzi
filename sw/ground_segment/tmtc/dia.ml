@@ -21,8 +21,8 @@
  *)
 
 (** Encode telemetry messages in an audio stream (to be mixed with a
-   video stream). Listen messages from the "ground" class (a server
-   must be running) and write message(s) of the "DIA" class.
+    video stream). Listen messages from the "ground" class (a server
+    must be running) and write message(s) of the "DIA" class.
 *)
 
 open Printf
@@ -34,16 +34,16 @@ module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
 
 type state = {
-    mutable lat : float;
-    mutable long : float;
-    mutable alt : int;
+  mutable lat : float;
+  mutable long : float;
+  mutable alt : int;
 
-    mutable course : int;
-    mutable speed : int;
+  mutable course : int;
+  mutable speed : int;
 
-    mutable cam_roll : int;
-    mutable cam_pitch : int;
-  }
+  mutable cam_roll : int;
+  mutable cam_pitch : int;
+}
 
 let state = {
   lat = 0.; long = 0.; alt = 0;
@@ -115,8 +115,8 @@ let _ =
   ignore (Glib.Timeout.add msg_period (fun () -> send_msg (); true));
 
 
- (* Main Loop *)
-    let loop = Glib.Main.create true in
-    while Glib.Main.is_running loop do
-      ignore (Glib.Main.iteration true)
-    done
+    (* Main Loop *)
+  let loop = Glib.Main.create true in
+  while Glib.Main.is_running loop do
+    ignore (Glib.Main.iteration true)
+  done

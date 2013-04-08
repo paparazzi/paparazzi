@@ -31,20 +31,20 @@ let fos = float_of_string
 type us = int
 
 type channel = {
-    name : string;
-    min : us;
-    max : us;
-    neutral : us;
-    averaged : bool }
+  name : string;
+  min : us;
+  max : us;
+  neutral : us;
+  averaged : bool }
 
 
 (* Characters used in Gen_airframe.pprz_value *)
 let check_function_name = fun s ->
   for i = 0 to String.length s - 1 do
     match s.[i] with
-      'A'..'Z' | '0'..'9' | '_' -> ()
-    | _ ->
-	failwith (sprintf "Character '%c' not allowed in function name '%s'" s.[i] s)
+        'A'..'Z' | '0'..'9' | '_' -> ()
+      | _ ->
+        failwith (sprintf "Character '%c' not allowed in function name '%s'" s.[i] s)
   done
 
 let parse_channel =
@@ -125,7 +125,7 @@ let gen_normalize_ppm_iir = fun channels ->
         printf "  _rc.values[RADIO_%s] = (pprz_t)((RADIO_FILTER * _rc.values[RADIO_%s] + tmp_value) / (RADIO_FILTER + 1));\\\n\\\n" c.name c.name
       else
         printf "  _rc.values[RADIO_%s] = (pprz_t)(tmp_value);\\\n\\\n" c.name
-      )
+    )
     channels;
   (*printf "  rc_values_contains_avg_channels = TRUE;\\\n";*)
   printf "}\n"

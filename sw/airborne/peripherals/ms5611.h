@@ -38,7 +38,7 @@
 #define MS5611_ADDR0 0x77
 #define MS5611_ADDR1 0x76
 
-/* SPI SLAVE3 is on pin PC13 
+/* SPI SLAVE3 is on pin PC13
  * Aspirin 2.2 has ms5611 on SPI bus
  */
 #ifndef MS5611_SLAVE_DEV

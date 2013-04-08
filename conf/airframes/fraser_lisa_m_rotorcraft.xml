@@ -30,9 +30,6 @@
     </subsystem>
     <subsystem name="ins"/>
 
-    <!-- print the configuration during compiling -->
-    <define name="PRINT_CONFIG"/>
-
 	<define name="KILL_ON_GROUND_DETECT" value="TRUE"/>
   </firmware>
 

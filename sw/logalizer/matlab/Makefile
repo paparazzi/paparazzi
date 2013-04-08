@@ -1,2 +1,5 @@
+# Quiet compilation
+Q=@
+
 clean:
-	rm -f *~
+	$(Q)rm -f *~

@@ -46,35 +46,35 @@ let used_messages_id = fun xml ->
     if Xml.tag xml = "message"
     then (id_of_message xml) ::ids
     else List.fold_right
-           (fun c l -> find_message_ids c l) (Xml.children xml) ids
+      (fun c l -> find_message_ids c l) (Xml.children xml) ids
   in
-    List.map
-      (fun c -> ((Xml.attrib c "name"), find_message_ids c [])) class_xmls
+  List.map
+    (fun c -> ((Xml.attrib c "name"), find_message_ids c [])) class_xmls
 
 (* useful to display grouped ids *)
 let group = fun l ->
   let gl = ref [] in
-    try
-      let s = ref (List.hd l) in
-      let n = List.length l in
-        for i=1 to n-1 do
-          let li = List.nth l i and
-                     li1= List.nth l (i-1) in
-            if (li - li1 > 1)
-            then begin
-              gl :=
-              (
-                if !s = li1
-                then Printf.sprintf "%d" !s
-                else Printf.sprintf "%d-%d" !s li1) :: !gl;
-              s := li;
-            end
-            else if i = n -1
-            then
-              gl := (Printf.sprintf "%d-%d" !s li) :: !gl;
-        done;
-        List.rev !gl
-    with Not_found -> []
+  try
+    let s = ref (List.hd l) in
+    let n = List.length l in
+    for i=1 to n-1 do
+      let li = List.nth l i and
+          li1= List.nth l (i-1) in
+      if (li - li1 > 1)
+      then begin
+        gl :=
+          (
+            if !s = li1
+            then Printf.sprintf "%d" !s
+            else Printf.sprintf "%d-%d" !s li1) :: !gl;
+        s := li;
+      end
+      else if i = n -1
+      then
+        gl := (Printf.sprintf "%d-%d" !s li) :: !gl;
+    done;
+    List.rev !gl
+  with Not_found -> []
 
 (* MAIN *)
 let () =
@@ -92,16 +92,16 @@ let () =
     List.map (fun (c,_) ->
       if List.mem_assoc c umi
       then let used = List.assoc c umi in
-	   (c,List.filter (fun i -> not (List.mem i used)) id_list)
+           (c,List.filter (fun i -> not (List.mem i used)) id_list)
       else (c,id_list)
     ) messages in
 
   (* print free IDs *)
   List.iter (fun (c, l) ->
-      Printf.printf "Class : %s \n" c;
+    Printf.printf "Class : %s \n" c;
       (*group l*)
-      List.iter (fun id -> Printf.printf " %d," id) l;
-      Printf.printf "\n\n"
+    List.iter (fun id -> Printf.printf " %d," id) l;
+    Printf.printf "\n\n"
   ) free_msg_id
 
 

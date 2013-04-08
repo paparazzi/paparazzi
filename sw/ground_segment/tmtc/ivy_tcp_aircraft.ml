@@ -44,20 +44,20 @@ let () =
   let get_datalink_message = fun _ ->
     begin
       try
-	let n = input i buffer 0 buffer_size in
-	let b = String.sub buffer 0 n in
-	Debug.trace 'x' (Debug.xprint b);
+        let n = input i buffer 0 buffer_size in
+        let b = String.sub buffer 0 n in
+        Debug.trace 'x' (Debug.xprint b);
 
-	let use_dl_message = fun payload ->
-	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
-	  let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
-	  let msg = Dl_Pprz.message_of_id msg_id in
-	  Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
+        let use_dl_message = fun payload ->
+          Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
+          let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
+          let msg = Dl_Pprz.message_of_id msg_id in
+          Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
 
-	assert (PprzTransport.parse use_dl_message b = n)
+        assert (PprzTransport.parse use_dl_message b = n)
       with
-	exc ->
-	  prerr_endline (Printexc.to_string exc)
+          exc ->
+            prerr_endline (Printexc.to_string exc)
     end;
     true in
 

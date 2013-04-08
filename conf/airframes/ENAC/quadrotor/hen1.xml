@@ -3,6 +3,11 @@
 <airframe name="Hummingbird (Asctec) Enac-Navgo 1">
 
   <modules main_freq="512">
+    <load name="mavlink_decoder.xml">
+      <configure name="MAVLINK_PORT" value="UART0"/>
+      <configure name="MAVLINK_BAUD" value="B115200"/>
+    </load>
+    <load name="px4flow.xml"/>
     <!--load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_0"/>
     </load-->
@@ -29,9 +34,9 @@
     <subsystem name="actuators"     type="asctec_v2"/>
     <subsystem name="motor_mixing"/>
     <subsystem name="imu"           type="navgo"/>
-    <subsystem name="gps"           type="ublox">
+    <!--subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B57600"/>
-    </subsystem>
+    </subsystem-->
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
@@ -113,7 +118,6 @@
 
   <!-- Magnetic field for Toulouse (declination -16°) -->
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
     <define name="H_X" value=" 0.513081"/>
     <define name="H_Y" value="-0.00242783"/>
@@ -164,12 +168,12 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1800"/>
-    <define name="PHI_DGAIN"  value="240"/>
+    <define name="PHI_PGAIN"  value="1500"/>
+    <define name="PHI_DGAIN"  value="200"/>
     <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="1800"/>
-    <define name="THETA_DGAIN"  value="240"/>
+    <define name="THETA_PGAIN"  value="1500"/>
+    <define name="THETA_DGAIN"  value="200"/>
     <define name="THETA_IGAIN"  value="200"/>
 
     <define name="PSI_PGAIN"  value="1000"/>

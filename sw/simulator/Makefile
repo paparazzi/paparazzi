@@ -24,12 +24,18 @@ Q=@
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  FPIC = -ccopt -fPIC
+  FPIC = -fPIC
 else
   FPIC =
 endif
 
 include ../../conf/Makefile.local
+include ../Makefile.ocaml
+
+OCAMLC += -g
+INCLUDES =
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
 SIMML = stdlib.ml data.ml flightModel.ml gps.ml
 SIMHML = $(SIMML) hitl.ml sim.ml
@@ -38,63 +44,62 @@ SIMSML = $(SIMML) sitl.ml sim.ml
 SIMSCMO=$(SIMSML:%.ml=%.cmo)
 SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
-
-OCAMLC = ocamlc -g
-OCAMLOPT = ocamlopt
-OCAMLDEP = ocamldep
-OCAML=$(shell which ocaml)
-OCAMLRUN=$(shell which ocamlrun)
-LIBPPRZDIR=../lib/ocaml
-INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR) $(shell ocamlfind query -r -i-format xml-light)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	CAML_CFLAGS = -I/opt/local/lib/ocaml
+else
+	CAML_CFLAGS =
+endif
+
 
 all : gaia sitl.cma simhitl
 
-simhitl : fg.o $(SIMHCMO) simhitl.cmo
+fg.so : fg.o
+	@echo BUILD $@
+	$(Q)$(CC) -shared -o $@ $^
+
+simhitl : fg.so $(SIMHCMO) simhitl.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ str.cma xml-light.cma unix.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@
-	$(Q)ocamlmklib -o sitl $^
+	$(Q)$(OCAMLMKLIB) -o sitl $^
 
 sitl.cmxa : $(SIMSCMX)
-	ocamlopt -o $@ -a $^
+	@echo OC $@
+	$(Q)$(OCAMLOPT) -o $@ -a $^
 
 gaia : gaia.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
 diffusion : stdlib.cmo diffusion.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
 %.o : %.c
-	@echo OC $<
-	$(Q)$(OCAMLC) $(FPIC) -c $<
+	@echo CC $<
+	$(Q)$(CC) $(FPIC) -c $< $(CAML_CFLAGS)
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -c $(PKG) $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
-
-# dependency on lib-pprz
-simhitl diffusion gaia:  $(LIBPPRZCMA)
+	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
 
 clean :
-	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl diffusion
+	$(Q)rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl diffusion
 
 .PHONY: all clean
 

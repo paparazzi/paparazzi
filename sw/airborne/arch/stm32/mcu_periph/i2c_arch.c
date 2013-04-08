@@ -861,6 +861,10 @@ I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
 */
 
 
+#ifdef USE_I2C0
+#error "The STM32 doesn't have I2C0, use I2C1 or I2C2"
+#endif
+
 #ifdef USE_I2C1
 
 /** default I2C1 clock speed */

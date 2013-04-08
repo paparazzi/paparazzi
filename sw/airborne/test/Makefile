@@ -1,4 +1,7 @@
 
+# Quiet compilation
+Q=@
+
 
 CC = gcc
 CFLAGS = -std=c99 -I.. -I../../include -I../booz -I../../booz  -Wall
@@ -33,4 +36,4 @@ test_fmul: test_fmul.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *~ test_geodetic test_algebra *.exe
+	$(Q)rm -f *~ test_geodetic test_algebra *.exe

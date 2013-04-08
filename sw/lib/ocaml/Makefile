@@ -23,6 +23,19 @@
 
 Q=@
 
+
+OCAMLC=ocamlfind ocamlc
+OCAMLOPT=ocamlfind ocamlopt
+OCAMLDEP=ocamlfind ocamldep
+OCAMLLEX=ocamllex
+OCAMLYACC=ocamlyacc
+OCAMLMKLIB=ocamlmklib
+OCAMLLIBDIR=$(shell $(OCAMLC) -where)
+
+# verbose ocamlmklib: Print commands before executing them
+#VERBOSITY = -verbose
+VERBOSITY =
+
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
   FPIC = -ccopt -fPIC
@@ -30,15 +43,21 @@ else
   FPIC =
 endif
 
-INCLUDES=  $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format netclient) $(shell ocamlfind query -r -i-format pcre)
-XINCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
-OCAMLC=ocamlc
-OCAMLDEP=ocamldep
-OCAMLOPT=ocamlopt
-OCAMLLEX=ocamllex
-OCAMLYACC=ocamlyacc
-OCAMLLIBDIR=$(shell $(OCAMLC) -where)
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+	LABLGTK2GNOMECANVAS = lablgtk2.gnomecanvas
+	METAFILE = META.pprz.osx
+else
+	MKTEMP = mktemp
+	LABLGTK2GNOMECANVAS = lablgtk2-gnome.gnomecanvas
+	METAFILE = META.pprz.deb
+endif
 
+INCLUDES=
+PKGCOMMON=xml-light,netclient,glibivy,lablgtk2
+XINCLUDES=
+XPKGCOMMON=xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
 CMO = $(SRC:.ml=.cmo)
@@ -48,33 +67,32 @@ XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_tex
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
+# files to generate before running ocamldep
+GEN_DEP = expr_parser.ml expr_lexer.ml
+
 TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
-# default directory for temporary files
-TMPDIR ?= /tmp
-
-$(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
-
-all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
-opt : lib-pprz.cmxa xlib-pprz.cmxa
+all : byte native
+byte : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out META.pprz
+native : lib-pprz.cmxa xlib-pprz.cmxa META.pprz
 
 
 lib-pprz.cma liblib-pprz.a: $(CMO)
 	@echo OL $@
-	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
 lib-pprz.cmxa dlllib-pprz.so: $(CMX)
 	@echo OOL $@
-	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(INCLUDES) -o lib-pprz $^
 
 xlib-pprz.cma libxlib-pprz.a: $(XCMO)
 	@echo OL $@
-	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
 xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 	@echo OOL $@
-	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
+	$(Q)$(OCAMLMKLIB) $(VERBOSITY) $(XINCLUDES) -o xlib-pprz $^
 
 # trying to set correct dependencies for parallel build
 # these are order only depedencies
@@ -82,50 +100,46 @@ lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
 
 xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
-xml_get.out : lib-pprz.cma xml_get.cmo | opt
+xml_get.out : lib-pprz.cma xml_get.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ str.cma xml-light.cma -I . $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package str,xml-light -linkpkg -I . $^
 
 tests : lib-pprz.cma $(TESTS_CMO)
-	$(OCAMLC) $(INCLUDES) -custom -I . -o $@ str.cma unix.cma ivy-ocaml.cma xml-light.cma $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ -package unix,str,xml-light,ivy -linkpkg -I . -dllpath . $^
 
-GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
-#GTKCFLAGS := -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I/usr/include/cairo
-# GTKCFLAGS := $(shell gtk-config --cflags)
-
-%.o   : %.c
+%.o : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
+$(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
+
+
+GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0)
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
-ml_gtkgl_hack.o   : ml_gtkgl_hack.c
+ml_gtkgl_hack.o : ml_gtkgl_hack.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c -ccopt "$(GTKCFLAGS)" $<
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
 
 camltm.o : register_example.cmo
-	$(OCAMLC) $(INCLUDES) -output-obj -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
+	$(OCAMLC) $(INCLUDES) -output-obj -o $@ -package unix,str,xml-light,ivy debug.cmo serial.cmo extXml.cmo env.cmo pprz.cmo tm.cmo
 
 caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	$(CC) -o $@ $^ -L$(OCAMLLIBDIR) -lunix -lstr -livy-ocaml -lcamlrun -lm -livy -lcurses
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $<
+	$(Q)$(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) $<
-
-%.cmi : %.ml
-	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) -c $<
+	$(Q)$(OCAMLC) $(XINCLUDES) $(INCLUDES) -package $(PKGCOMMON),$(XPKGCOMMON) $<
 
 %.ml : %.mll
 	@echo OCL $<
@@ -135,44 +149,48 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 	@echo OCY $<
 	$(Q)$(OCAMLYACC) $<
 
-expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
-expr_parser.cmi : expr_parser.ml expr_syntax.cmi
-expr_lexer.ml : expr_parser.ml
-expr_lexer.cmi : expr_lexer.ml expr_syntax.cmi
-expr_lexer.cmo : expr_lexer.cmi
-expr_syntax.cmo : expr_syntax.cmi
-
-
 gtk_papget_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root papget_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root papget_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_papget_text_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root table_text_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root table_text_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_papget_gauge_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root table_gauge_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root table_gauge_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 gtk_papget_led_editor.ml : widgets.glade
-	grep -v invisible_char $< > $(TMPDIR)/$@_$<
-	lablgladecc2 -root table_led_editor -hide-default $(TMPDIR)/$@_$< | grep -B 1000000 "  end" > $@
-	@rm $(TMPDIR)/$@_$<
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)$(Q)lablgladecc2 -root table_led_editor -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
+
+META.pprz : $(METAFILE)
+	@echo COPY $<
+	$(shell cp $< META.pprz)
 
 clean :
-	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
+	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so caml_from_c_example tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz
 
-.PHONY: all opt clean
+.PHONY: all byte native clean
 
 #
 # Dependencies
 #
 
-.depend: Makefile
+.depend: Makefile $(GEN_DEP)
 	$(OCAMLDEP) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)

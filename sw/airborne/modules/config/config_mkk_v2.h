@@ -44,7 +44,7 @@ struct config_mkk_v2_struct
 
 extern struct config_mkk_v2_struct config_mkk_v2;
 
-void config_mkk_v2_init(void); 
+void config_mkk_v2_init(void);
 void config_mkk_v2_periodic_read_status(void);
 void config_mkk_v2_periodic_telemetry(void);
 

@@ -1,4 +1,7 @@
 
+# Quiet compilation
+Q=@
+
 raw_log_to_ascii: raw_log_to_ascii.c
 	gcc -I../../ -I../../../include -std=gnu99 -Wall raw_log_to_ascii.c -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown -o raw_log_to_ascii
 
@@ -26,4 +29,4 @@ run_filter_on_log: ./libeknav_from_log.cpp $(LIBEKNAV_SRCS) ../../math/pprz_geod
 	g++ -I/usr/include/eigen2 -I../.. -I../../../include -I../../../../var/FY  $(eknavOnLogFlags) -o $@ $^
 
 clean:
-	-rm -f *.o *~ *.d
+	$(Q)rm -f *.o *~ *.d

@@ -23,52 +23,42 @@
 # Quiet compilation
 Q=@
 
-OCAMLC = ocamlc
-OCAMLDEP = ocamldep
-OCAMLOPT = ocamlopt
-LIBPPRZDIR = ../lib/ocaml
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I $(LIBPPRZDIR)
-LIBPPRZCMA=$(LIBPPRZDIR)/lib-pprz.cma
-LIBPPRZCMXA=$(LIBPPRZCMA:.cma=.cmxa)
-XLIBPPRZCMA=$(LIBPPRZDIR)/xlib-pprz.cma
-XLIBPPRZCMXA=$(XLIBPPRZCMA:.cma=.cmxa)
-
-# default directory for temporary files
-TMPDIR ?= /tmp
+include ../Makefile.ocaml
+INCLUDES=
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+XPKG = -package pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
 play-nox : play_core.cmo play-nox.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml lablgtk.cma lib-pprz.cma  $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
 plotter : plotter.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lablgtk.cma lib-pprz.cma xlib-pprz.cma gtkInit.cmo  $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
+plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
 	@echo OL $@
-	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ unix.cmxa str.cmxa xml-light.cmxa glibivy-ocaml.cmxa lablgtk.cmxa lib-pprz.cmxa xlib-pprz.cmxa lablglade.cmxa gtkInit.cmx  $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
 sd2log : sd2log.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
 CC = gcc
 CFLAGS=-g -O2 -Wall
 LDFLAGS=
 
 openlog2tlm: openlog2tlm.c
-	$(CC) $(CFLAGS) -g -o $@ $^
-
-# depedency on lib-pprz
-play play-nox sd2log : $(LIBPPRZCMA)
-plotter : $(LIBPPRZCMA) $(XLIBPPRZCMA)
-plot : $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -g -o $@ $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -77,21 +67,30 @@ plot : $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
 
 %.cmo: %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 %.cmi: %.mli
 	@echo OCI $<
-	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 %.cmx: %.ml
 	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $(PKG) $<
 
 export.cmo : gtk_export.cmo
 export.cmx : gtk_export.cmx
 
-gtk_export.ml : export.glade
-	grep -v invisible_char $< > $(TMPDIR)/$<
-	lablgladecc2 -root export -hide-default $(TMPDIR)/$< | grep -B 1000000 "  end" > $@
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	MKTEMP = gmktemp
+else
+	MKTEMP = mktemp
+endif
 
+gtk_export.ml : export.glade
+	@echo GLADE $@
+	$(eval $@_TMP := $(shell $(MKTEMP)))
+	$(Q)grep -v invisible_char $< > $($@_TMP)
+	$(Q)lablgladecc2 -root export -hide-default $($@_TMP) | grep -B 1000000 "  end" > $@
+	$(Q)rm -f $($@_TMP)
 
 
 pt : ahrsview imuview ahrs2fg
@@ -128,16 +127,20 @@ MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/incl
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 disp3d: disp3d.c
-	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
+	@echo CC $@
+	$(Q)$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
 
 plotprofile: plotprofile.c
-	$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	@echo CC $@
+	$(Q)$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lpcre
 
 test1: test1.c
-	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
+	@echo CC $@
+	$(Q)$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
 
 test3: test3.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 
 #FGFS_PREFIX=/home/poine/local
@@ -188,7 +191,7 @@ ctrlstick: ctrlstick.c
 	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
 
 .PHONY: all clean pt run_fg
 
@@ -197,7 +200,7 @@ clean:
 #
 
 .depend: Makefile
-	ocamldep -I $(LIBPPRZDIR) *.ml* > .depend
+	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

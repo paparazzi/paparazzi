@@ -5,7 +5,9 @@ stm_passthrough.srcs += $(SRC_FIRMWARE)/stabilization.c
 stm_passthrough.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 stm_passthrough.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+stm_passthrough.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 stm_passthrough.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
+stm_passthrough.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 
 stm_passthrough.CFLAGS += -DUSE_NAVIGATION
 stm_passthrough.srcs += $(SRC_SUBSYSTEMS)/ins.c
