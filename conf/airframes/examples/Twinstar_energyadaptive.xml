@@ -33,7 +33,9 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <subsystem name="radio_control" type="ppm"/>          <!-- Radio -->
     <subsystem name="gps" type="ublox"/>                  <!-- GPS -->
     <subsystem name="telemetry"     type="transparent"/>  <!-- Communication -->
-    <subsystem name="imu"	type="aspirin_i2c_v1.5"/>      <!-- IMU -->
+    <subsystem name="imu"	type="aspirin_i2c_v1.5">      <!-- IMU -->
+      <configure name="ASPIRIN_I2C_DEV" value="i2c0"/>
+    </subsystem>
     <subsystem name="ahrs"      type="int_cmpl_quat"/>
     <subsystem name="ins"	type="alt_float"/>
     <subsystem name="control" type="energyadaptive"/>
