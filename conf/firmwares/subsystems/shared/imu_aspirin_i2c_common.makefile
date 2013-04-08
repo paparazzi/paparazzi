@@ -38,15 +38,19 @@ IMU_ASPIRIN_SRCS   += peripherals/itg3200.c
 # Magnetometer
 IMU_ASPIRIN_SRCS   += peripherals/hmc58xx.c
 
-ifeq ($(ARCH), lpc21)
+# set default i2c bus
 ifndef ASPIRIN_I2C_DEV
+ifeq ($(ARCH), lpc21)
 ASPIRIN_I2C_DEV=i2c0
+else ifeq ($(ARCH), stm32)
+ASPIRIN_I2C_DEV=i2c2
 endif
+endif
+
+# convert i2cx to upper case
 ASPIRIN_I2C_DEV_UPPER=$(shell echo $(ASPIRIN_I2C_DEV) | tr a-z A-Z)
+
 IMU_ASPIRIN_CFLAGS += -DASPIRIN_I2C_DEV=$(ASPIRIN_I2C_DEV)
 IMU_ASPIRIN_CFLAGS += -DUSE_$(ASPIRIN_I2C_DEV_UPPER)
-else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
-endif
 
 include $(CFG_SHARED)/imu_nps.makefile
