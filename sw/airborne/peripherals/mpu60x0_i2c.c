@@ -22,7 +22,7 @@
 /**
  * @file peripherals/mpu60x0_i2c.c
  *
- * Driver for the MPU-60X0 using SPI.
+ * Driver for the MPU-60X0 using I2C.
  *
  */
 
@@ -51,10 +51,7 @@ static void mpu60x0_i2c_write_to_reg(void* mpu, uint8_t _reg, uint8_t _val) {
   struct Mpu60x0_I2c* mpu_i2c = (struct Mpu60x0_I2c*)(mpu);
   mpu_i2c->i2c_trans.buf[0] = _reg;
   mpu_i2c->i2c_trans.buf[1] = _val;
-  mpu_i2c->i2c_trans.len_r = 0;
-  mpu_i2c->i2c_trans.len_w = 2;
-  mpu_i2c->i2c_trans.type = I2CTransTx;
-  i2c_submit(mpu_i2c->i2c_p, &(mpu_i2c->i2c_trans));
+  i2c_transmit(mpu_i2c->i2c_p, &(mpu_i2c->i2c_trans), mpu->i2c_trans.slave_addr, 2);
 }
 
 // Configuration function called once before normal use
@@ -71,12 +68,9 @@ void mpu60x0_i2c_start_configure(struct Mpu60x0_I2c *mpu)
 void mpu60x0_i2c_read(struct Mpu60x0_I2c *mpu)
 {
   if (mpu->config.initialized && mpu->i2c_trans.status == I2CTransDone) {
-    mpu->i2c_trans.len_w = 1;
-    mpu->i2c_trans.len_r = 15; // FIXME external data
-    mpu->i2c_trans.type = I2CTransTxRx;
     /* set read bit and multiple byte bit, then address */
     mpu->i2c_trans.buf[0] = MPU60X0_REG_INT_STATUS;
-    i2c_submit(mpu->i2c_p, &(mpu->i2c_trans));
+    i2c_transceive(mpu->i2c_p, &(mpu->i2c_trans), mpu->i2c_trans.slave_addr, 1, 15);
   }
 }
 
