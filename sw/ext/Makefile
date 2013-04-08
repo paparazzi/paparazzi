@@ -40,7 +40,7 @@ ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 	TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
 	ifneq ($(TOOLCHAIN),)
 		TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-		PREFIX = $(TOOLCHAIN_DIR)/bin/arm-none-eabi-
+		PREFIX = $(TOOLCHAIN_DIR)/bin/arm-none-eabi
 	endif
 endif
 
