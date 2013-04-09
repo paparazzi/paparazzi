@@ -26,6 +26,7 @@
  */
 
 #include "mcu.h"
+#include "std.h"
 
 #ifdef PERIPHERALS_AUTO_INIT
 #include "mcu_periph/sys_time.h"
