@@ -37,6 +37,7 @@
 #ifndef ASPIRIN_I2C_DEV
 #define ASPIRIN_I2C_DEV i2c2
 #endif
+PRINT_CONFIG_VAR(ASPIRIN_I2C_DEV)
 
 /** adxl345 accelerometer output rate, lowpass is set to half of rate */
 #ifndef ASPIRIN_ACCEL_RATE
