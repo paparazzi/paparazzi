@@ -342,10 +342,9 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   }
   t->status = I2CTransPending;
 
+  /* disable I2C interrupt */
   uint8_t* vic = (uint8_t*)(p->init_struct);
-  cpsr = disableIRQ();                                // disable global interrupts
   VICIntEnClear = VIC_BIT(*vic);
-  restoreIRQ(cpsr);                                   // restore global interrupts
 
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
@@ -355,10 +354,8 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   /* else it will be started by the interrupt handler */
   /* when the previous transactions completes         */
 
-  //int_enable();
-  cpsr = disableIRQ();                                // disable global interrupts
+  /* enable I2C interrupt again */
   VICIntEnable = VIC_BIT(*vic);
-  restoreIRQ(cpsr);                                   // restore global interrupts
 
   return TRUE;
 }
