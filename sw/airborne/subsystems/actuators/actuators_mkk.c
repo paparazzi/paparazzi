@@ -29,8 +29,10 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
+PRINT_CONFIG_VAR(ACTUATORS_MKK_I2C_DEV)
 
 struct ActuatorsMkk actuators_mkk;
+
 
 void actuators_mkk_init(void) {
   actuators_mkk.submit_err_cnt = 0;
@@ -58,7 +60,7 @@ void actuators_mkk_set(void) {
 #ifdef KILL_MOTORS
     actuators_mkk.trans[cur_idx].buf[0] = 0;
 #endif
-    if (!i2c_transmit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[cur_idx],
+    if (!i2c_transmit(&ACTUATORS_MKK_I2C_DEV, &actuators_mkk.trans[cur_idx],
                       actuators_addr[cur_idx], 1)) {
       actuators_mkk.submit_err_cnt++;
       last_idx = cur_idx;

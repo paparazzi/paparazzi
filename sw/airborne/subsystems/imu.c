@@ -39,7 +39,7 @@ void imu_init(void) {
   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
 #else
 #if USE_MAGNETOMETER
-INFO("Magnetomter neutrals are set to zero!")
+INFO("Magnetometer neutrals are set to zero, you should calibrate!")
 #endif
   INT_VECT3_ZERO(imu.mag_neutral);
 #endif
