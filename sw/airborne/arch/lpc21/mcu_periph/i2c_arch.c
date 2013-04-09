@@ -213,15 +213,15 @@ void i2c0_ISR(void) {
   ISR_EXIT();                           // recover registers and return
 }
 
-uint8_t i2c0_vic_slot;
+uint8_t i2c0_vic_channel;
 
 /* SDA0 on P0.3 */
 /* SCL0 on P0.2 */
 void i2c0_hw_init ( void ) {
 
   i2c0.reg_addr = I2C0;
-  i2c0_vic_slot = VIC_I2C0;
-  i2c0.init_struct = (void*)(&i2c0_vic_slot);
+  i2c0_vic_channel = VIC_I2C0;
+  i2c0.init_struct = (void*)(&i2c0_vic_channel);
 
   /* set P0.2 and P0.3 to I2C0 */
   PINSEL0 |= 1 << 4 | 1 << 6;
@@ -296,15 +296,15 @@ void i2c1_ISR(void) {
   ISR_EXIT();                           // recover registers and return
 }
 
-uint8_t i2c1_vic_slot;
+uint8_t i2c1_vic_channel;
 
 /* SDA1 on P0.14 */
 /* SCL1 on P0.11 */
 void i2c1_hw_init ( void ) {
 
   i2c1.reg_addr = I2C1;
-  i2c1_vic_slot = VIC_I2C1;
-  i2c1.init_struct = (void*)(&i2c1_vic_slot);
+  i2c1_vic_channel = VIC_I2C1;
+  i2c1.init_struct = (void*)(&i2c1_vic_channel);
 
   /* set P0.11 and P0.14 to I2C1 */
   PINSEL0 |= 3 << 22 | 3 << 28;
