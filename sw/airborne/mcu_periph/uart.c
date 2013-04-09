@@ -38,8 +38,16 @@ struct uart_periph uart2;
 struct uart_periph uart3;
 #endif
 
+#ifdef USE_UART4
+struct uart_periph uart4;
+#endif
+
 #ifdef USE_UART5
 struct uart_periph uart5;
+#endif
+
+#ifdef USE_UART6
+struct uart_periph uart6;
 #endif
 
 void uart_periph_init(struct uart_periph* p) {

@@ -143,6 +143,21 @@ extern void uart3_init(void);
 
 #endif // USE_UART3
 
+#ifdef USE_UART4
+extern struct uart_periph uart4;
+extern void uart4_init(void);
+
+#define UART4Init() uart_periph_init(&uart4)
+#define UART4CheckFreeSpace(_x) uart_check_free_space(&uart4, _x)
+#define UART4Transmit(_x) uart_transmit(&uart4, _x)
+#define UART4SendMessage() {}
+#define UART4ChAvailable() uart_char_available(&uart4)
+#define UART4Getch() uart_getch(&uart4)
+#define UART4TxRunning uart4.tx_running
+#define UART4SetBaudrate(_b) uart_periph_set_baudrate(&uart4, _b, FALSE)
+
+#endif // USE_UART4
+
 #ifdef USE_UART5
 extern struct uart_periph uart5;
 extern void uart5_init(void);
@@ -157,5 +172,20 @@ extern void uart5_init(void);
 #define UART5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b, FALSE)
 
 #endif // USE_UART5
+
+#ifdef USE_UART6
+extern struct uart_periph uart6;
+extern void uart6_init(void);
+
+#define UART6Init() uart_periph_init(&uart6)
+#define UART6CheckFreeSpace(_x) uart_check_free_space(&uart6, _x)
+#define UART6Transmit(_x) uart_transmit(&uart6, _x)
+#define UART6SendMessage() {}
+#define UART6ChAvailable() uart_char_available(&uart6)
+#define UART6Getch() uart_getch(&uart6)
+#define UART6TxRunning uart6.tx_running
+#define UART6SetBaudrate(_b) uart_periph_set_baudrate(&uart6, _b, FALSE)
+
+#endif // USE_UART6
 
 #endif /* MCU_PERIPH_UART_H */

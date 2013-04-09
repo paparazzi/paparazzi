@@ -35,6 +35,8 @@
 
 #include "std.h"
 
+#include BOARD_CONFIG
+
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control) {
 
   /* Configure USART */
@@ -119,6 +121,54 @@ static inline void usart_enable_irq(u8 IRQn) {
   nvic_enable_irq(IRQn);
 }
 
+/* Set RCC and GPIO mode
+ */
+static inline void set_uart_pin(u32 gpioport, u16 gpio, u8 alt_func_num, u8 uart) {
+  switch (uart) {
+    case 1:
+      rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
+      break;
+    case 2:
+      rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+      break;
+    case 3:
+      rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART3EN);
+      break;
+    case 4:
+      rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART4EN);
+      break;
+    case 5:
+      rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART5EN);
+      break;
+    case 6:
+      rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART6EN);
+      break;
+    default:
+      break;
+  };
+
+  switch (gpioport) {
+    case GPIOA:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
+      break;
+    case GPIOB:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
+      break;
+    case GPIOC:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
+      break;
+    case GPIOD:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+      break;
+    default:
+      break;
+  };
+
+  gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, gpio);
+  gpio_set_af(gpioport, alt_func_num, gpio);
+}
+
+
 #ifdef USE_UART1
 
 void uart1_init( void ) {
@@ -126,29 +176,41 @@ void uart1_init( void ) {
   uart_periph_init(&uart1);
   uart1.reg_addr = (void *)USART1;
 
-  /* init RCC */
+  /* init RCC and GPIOS */
 #if defined(STM32F4)
+  set_uart_pin(UART1_GPIO_PORT_RX, UART1_GPIO_RX, UART1_GPIO_AF, 1);
+  set_uart_pin(UART1_GPIO_PORT_TX, UART1_GPIO_TX, UART1_GPIO_AF, 1);
+#ifdef UART1_GPIO_CTS
+  set_uart_pin(UART1_GPIO_PORT_CTS, UART1_GPIO_CTS, UART1_GPIO_AF, 1);
+#endif
+#ifdef UART1_GPIO_RTS
+  set_uart_pin(UART1_GPIO_PORT_RTS, UART1_GPIO_RTS, UART1_GPIO_AF, 1);
+#endif
+
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART1EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
+
 #elif defined(STM32F1)
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-#endif
 
-  /* Enable USART interrupts in the interrupt controller */
-  usart_enable_irq(NVIC_USART1_IRQ);
-
-  /* Init GPIOS */
-#if defined(STM32F4)
-  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE,
-      GPIO13 | GPIO14 | GPIO15);
-  gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
-#elif defined(STM32F1)
   gpio_set_mode(GPIO_BANK_USART1_TX, GPIO_MODE_OUTPUT_50_MHZ,
       GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
   gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_INPUT,
       GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
 #endif
+
+  /* Init GPIOS */
+#if defined(STM32F4)
+  // FIXME possible bug ??? mode and af ports not matching
+  //gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE,
+  //    GPIO13 | GPIO14 | GPIO15);
+  //gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
+#elif defined(STM32F1)
+#endif
+
+  /* Enable USART interrupts in the interrupt controller */
+  usart_enable_irq(NVIC_USART1_IRQ);
 
 #if UART1_HW_FLOW_CONTROL
 #warning "USING UART1 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
@@ -244,6 +306,35 @@ void usart3_isr(void) { usart_isr(&uart3); }
 
 #endif /* USE_UART3 */
 
+#ifdef USE_UART4
+
+void uart4_init( void ) {
+
+  uart_periph_init(&uart4);
+  uart4.reg_addr = (void *)UART4;
+
+  /* init RCC */
+#if defined(STM32F4)
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART4EN);
+#endif
+  /* Enable USART interrupts in the interrupt controller */
+  usart_enable_irq(NVIC_UART4_IRQ);
+
+  /* Init GPIOS */
+#if defined(STM32F4)
+  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO0 | GPIO1);
+  gpio_set_af(GPIOA, GPIO_AF8, GPIO0 | GPIO1);
+#endif
+
+  /* Configure USART */
+  uart_periph_set_baudrate(&uart4, UART4_BAUD, FALSE);
+}
+
+void uart4_isr(void) { usart_isr(&uart4); }
+
+#endif /* USE_UART4 */
+
 #ifdef USE_UART5
 
 void uart5_init( void ) {
@@ -284,4 +375,33 @@ void uart5_init( void ) {
 void uart5_isr(void) { usart_isr(&uart5); }
 
 #endif /* USE_UART5 */
+
+#ifdef USE_UART6
+
+void uart6_init( void ) {
+
+  uart_periph_init(&uart6);
+  uart6.reg_addr = (void *)USART6;
+
+  /* init RCC */
+#if defined(STM32F4)
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART6EN);
+#endif
+
+  /* Enable USART interrupts in the interrupt controller */
+  usart_enable_irq(NVIC_USART6_IRQ);
+
+  /* Init GPIOS */
+#if defined(STM32F4)
+  gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO6 | GPIO7);
+  gpio_set_af(GPIOC, GPIO_AF8, GPIO6 | GPIO7);
+#endif
+
+  uart_periph_set_baudrate(&uart6, UART6_BAUD, FALSE);
+}
+
+void usart6_isr(void) { usart_isr(&uart6); }
+
+#endif /* USE_UART6 */
 

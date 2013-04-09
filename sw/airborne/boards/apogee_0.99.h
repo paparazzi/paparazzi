@@ -41,6 +41,14 @@
 
 #define DefaultVoltageOfAdc(adc) (0.006185*adc)
 
+/* UART */
+#define UART1_GPIO_AF GPIO_AF7
+#define UART1_GPIO_PORT_RX GPIOA
+#define UART1_GPIO_RX GPIO10
+#define UART1_GPIO_PORT_TX GPIOB
+#define UART1_GPIO_TX GPIO6
+
+
 /* Onboard ADCs */
 /*
    ADC1 PB0/?ADC13
