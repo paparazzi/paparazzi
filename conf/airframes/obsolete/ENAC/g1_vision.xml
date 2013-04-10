@@ -4,7 +4,7 @@
 
   <modules main_freq="512">
     <!--load name="vision_cmucam.xml"/-->
-    <load name="sonar_maxbotix_booz.xml"/>
+    <load name="sonar_adc_ins.xml"/>
     <load name="booz_extra_dl.xml"/>
     <load name="booz_gumstix_com.xml"/>
   </modules>

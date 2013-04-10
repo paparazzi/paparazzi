@@ -3,8 +3,9 @@
 <module name="sonar">
   <doc>
     <description>
-     Sonar ADC INS.
-     On Booz board, ADC_0 should be use by default (payload connector)
+     Sonar ADC driver with INS binding.
+     Does the same than sonar_adc module with an event function to feed INS subsystem.
+     Even if SONAR_OFFSET and _SCALE can be set, currently only the raw value and the INS_SONAR_SENS will be used in ins filters.
     </description>
     <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
   </doc>
@@ -19,12 +20,6 @@
     <file name="sonar_adc.c"/>
   </makefile>
   <makefile target="ap">
-    <raw>
-# set ADC_SONAR to ADC_0 as default
-ifeq ($(ADC_SONAR),)
-ADC_SONAR = ADC_0
-endif
-    </raw>
     <define name="ADC_CHANNEL_SONAR" value="$(ADC_SONAR)"/>
     <define name="USE_$(ADC_SONAR)"/>
     <define name="USE_SONAR"/>

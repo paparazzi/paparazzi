@@ -3,9 +3,9 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
-    <load name="sonar_adc.xml">
+    <load name="sonar_adc_ins.xml">
       <configure name="ADC_SONAR" value="ADC_0"/>
-      <define name="SENSOR_SYNC_SEND_SONAR"/>
+      <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
     </load>
     <!--load name="baro_mpl3115.xml">
       <define name="MPL3115_I2C_DEV" value="i2c1"/>
