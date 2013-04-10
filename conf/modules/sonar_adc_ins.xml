@@ -3,8 +3,8 @@
 <module name="sonar">
   <doc>
     <description>
-     Sonar ADC driver with INS binding.
-     Does the same than sonar_adc module with an event function to feed INS subsystem.
+     Sonar ADC (INS bindings).
+     Sonar ADC driver with INS binding, wich oes the same than sonar_adc module with an event function to feed INS subsystem.
      Even if SONAR_OFFSET and _SCALE can be set, currently only the raw value and the INS_SONAR_SENS will be used in ins filters.
     </description>
     <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
