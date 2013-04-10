@@ -331,7 +331,6 @@ bool_t i2c_idle(struct i2c_periph* p) {
 }
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
-  unsigned cpsr;
 
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
@@ -343,8 +342,9 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   t->status = I2CTransPending;
 
   /* disable I2C interrupt */
-  uint8_t* vic = (uint8_t*)(p->init_struct);
-  VICIntEnClear = VIC_BIT(*vic);
+  //uint8_t* vic = (uint8_t*)(p->init_struct);
+  //VICIntEnClear = VIC_BIT(*vic);
+  disableIRQ();
 
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
@@ -355,7 +355,8 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   /* when the previous transactions completes         */
 
   /* enable I2C interrupt again */
-  VICIntEnable = VIC_BIT(*vic);
+  //VICIntEnable = VIC_BIT(*vic);
+  enableIRQ();
 
   return TRUE;
 }
