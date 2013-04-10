@@ -17,6 +17,7 @@
 
   <init fun="sonar_adc_init()"/>
   <periodic fun="sonar_adc_read()" freq="10"/>
+  <event fun="SonarEvent(ins_update_sonar)"/>
 
   <makefile>
     <file name="sonar_adc.c"/>

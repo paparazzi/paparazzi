@@ -3,7 +3,10 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
-    <load name="sonar_adc.xml"/>
+    <load name="sonar_adc.xml">
+      <configure name="ADC_SONAR" value="ADC_0"/>
+      <define name="SENSOR_SYNC_SEND_SONAR"/>
+    </load>
     <!--load name="baro_mpl3115.xml">
       <define name="MPL3115_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
@@ -176,7 +179,7 @@
   <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
     <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
-    <define name="SONAR_SENS" value="0.009856" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
+    <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
     <define name="SONAR_MAX_RANGE" value="5.0"/>
     <define name="SONAR_MIN_RANGE" value="0.25"/>
     <!--define name="SONAR_VARIANCE_THRESHOLD" value="0.01"/-->
