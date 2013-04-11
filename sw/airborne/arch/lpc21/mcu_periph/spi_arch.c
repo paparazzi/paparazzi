@@ -479,7 +479,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
   t->status = SPITransPending;
 
   // Disable interrupts
-  uint8_t* vic = (uint8_t*)(p->init_struct);
+  //uint8_t* vic = (uint8_t*)(p->init_struct);
   //cpsr = disableIRQ();                                // disable global interrupts
   //VICIntEnClear = VIC_BIT(*vic);
   //restoreIRQ(cpsr);                                   // restore global interrupts
