@@ -1,3 +1,6 @@
+# Quiet compilation
+Q=@
+
 all: email2udp udp2tcp tcp2ivy
 
 email2udp: email2udp.c
@@ -10,4 +13,4 @@ tcp2ivy_generic: tcp2ivy_generic.c
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -I../../../var/${AIRCRAFT} -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lm
 
 clean:
-	rm -f email2udp udp2tcp tcp2ivy
+	$(Q)rm -f email2udp udp2tcp tcp2ivy

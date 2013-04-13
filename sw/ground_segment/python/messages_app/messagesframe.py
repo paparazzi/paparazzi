@@ -19,7 +19,7 @@ BORDER = 1
 
 class MessagesFrame(wx.Frame):
     def message_recv(self, ac_id, name, values):
-        if self.aircrafts.has_key(ac_id) and self.aircrafts[ac_id].messages.has_key(name):
+        if ac_id in self.aircrafts and name in self.aircrafts[ac_id].messages:
             if time.time() - self.aircrafts[ac_id].messages[name].last_seen < 0.2:
                 return
 
@@ -109,12 +109,12 @@ class MessagesFrame(wx.Frame):
         field_panel.Layout()
 
     def gui_update(self, ac_id, name, values):
-        if not self.aircrafts.has_key(ac_id):
+        if ac_id not in self.aircrafts:
             self.add_new_aircraft(ac_id)
 
         aircraft = self.aircrafts[ac_id]
 
-        if not aircraft.messages.has_key(name):
+        if name not in aircraft.messages:
             self.add_new_message(aircraft, name)
 
         aircraft.messages_book.SetPageImage(aircraft.messages[name].index, 1)
@@ -125,6 +125,7 @@ class MessagesFrame(wx.Frame):
 
     def __init__(self):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'MessagesFrame', size=wx.Size(WIDTH, HEIGHT), style=wx.DEFAULT_FRAME_STYLE, title=u'Messages')
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.notebook = wx.Notebook(self)
         self.aircrafts = {}
 
@@ -135,3 +136,8 @@ class MessagesFrame(wx.Frame):
         self.timer = threading.Timer(0.1, self.update_leds)
         self.timer.start()
         self.interface = messages_tool.IvyMessagesInterface(self.message_recv)
+
+    def OnClose(self, event):
+        self.timer.cancel()
+        self.interface.Shutdown()
+        self.Destroy()

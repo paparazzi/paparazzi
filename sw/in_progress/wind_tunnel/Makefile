@@ -1,4 +1,7 @@
 
+# Quiet compilation
+Q=@
+
 CC = gcc
 GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags`
 GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre
@@ -8,4 +11,4 @@ main: main.c serial_port.c
 
 
 clean:
-	rm -f main
+	$(Q)rm -f main

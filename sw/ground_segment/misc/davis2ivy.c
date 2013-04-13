@@ -101,7 +101,8 @@ void open_port(const char* device) {
 
 /// disable transactions and empty queue
 void reset_station() {
-  char newline = '\n', bytes = 0;
+  char newline = '\n';
+  char bytes __attribute__ ((unused));
   fprintf(stderr, "Resetting communication\n");
   // send a \n (wakeup and cancel all running transmits)
   bytes = write(fd, &newline, 1);

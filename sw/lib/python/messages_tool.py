@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import messages_xml_map
 from ivy.std_api import *
@@ -31,6 +31,10 @@ class IvyMessagesInterface():
     def Stop(self):
         IvyUnBindMsg(self.ivy_id)
 
+    def Shutdown(self):
+        self.Stop()
+        IvyStop()
+
     def __init__del__(self):
         try:
             IvyUnBindMsg(self.ivy_id)
@@ -49,7 +53,7 @@ class IvyMessagesInterface():
         try:
             ac_id = int(data[0])
             name = data[1]
-            values = filter(None, data[2:])
+            values = list(filter(None, data[2:]))
             self.callback(ac_id, name, values)
         except ValueError:
             pass

@@ -1,6 +1,6 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
-#   modem $Id$
-#   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+# Copyright (C) 2013 Gautier Hattenberger
 #
 # This file is part of paparazzi.
 #
@@ -20,22 +20,19 @@
 # Boston, MA 02111-1307, USA.
 #
 
-ARCH		= atmega8
-TARGET		= modem_gnd
-TARGETDIR       = modem_gnd
-LOW_FUSE =  3f
-HIGH_FUSE = cb
-EXT_FUSE=   ff
-LOCK_FUSE=  ff
-INCLUDES= -I../../include
+# General ocaml compiling tools and pprz lib
 
-$(TARGET).srcs	=							\
-	main.c								\
-	uart.c								\
-	soft_uart.c							\
-	adc.c								\
+OCAML = ocaml
+OCAMLC = ocamlfind ocamlc
+OCAMLOPT = ocamlfind ocamlopt
+OCAMLDEP = ocamlfind ocamldep
+OCAMLMKLIB = ocamlmklib
+LIBPPRZDIR = $(PAPARAZZI_SRC)/sw/lib/ocaml
+LIBPPRZCMA = $(LIBPPRZDIR)/lib-pprz.cma
+LIBPPRZCMXA = $(LIBPPRZCMA:.cma=.cmxa)
+XLIBPPRZCMA = $(LIBPPRZDIR)/xlib-pprz.cma
+XLIBPPRZCMXA = $(XLIBPPRZCMA:.cma=.cmxa)
+OCAMLDLL = -dllpath $(LIBPPRZDIR)
+OCAMLXDLL = -dllpath $(LIBPPRZDIR)
 
-include ../../../conf/Makefile.local
-include ../../../conf/Makefile.avr
-
-clean : avr_clean
+export OCAMLPATH=$(LIBPPRZDIR):$OCAMLPATH

@@ -124,6 +124,9 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
 
   let east = if east < west then east +. 2. else east in
 
+  (** Get Hashtbl from cache *)
+  let tbl = Gm.get_hashtbl_of_cache () in
+
   (** Go through the quadtree and look for the holes *)
   let rec loop = fun twest tsouth tsize trees i zoom key ->
     (* Check for intersection *)
@@ -134,7 +137,7 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
             Tile -> ()
           | Empty ->
             if zoom = 1 then
-              let tile, image = Gm.get_image key in
+              let tile, image = Gm.get_image ~tbl key in
               let level = String.length tile.Gm.key in
               display_the_tile geomap tile image level;
               raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))

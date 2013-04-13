@@ -129,7 +129,7 @@ void ahrs_init(void) {
   ahrs_impl.accel_zeta = AHRS_ACCEL_ZETA;
   ahrs_impl.mag_omega = AHRS_MAG_OMEGA;
   ahrs_impl.mag_zeta = AHRS_MAG_ZETA;
-  
+
   /* set default gravity heuristic */
   ahrs_impl.weight = 1.0;
 
@@ -166,7 +166,7 @@ void ahrs_align(void) {
 
   /* Use low passed gyro value as initial bias */
   RATES_COPY( ahrs_impl.gyro_bias, ahrs_aligner.lp_gyro);
-  RATES_COPY( ahrs_impl.high_rez_bias, ahrs_aligner.lp_gyro); 
+  RATES_COPY( ahrs_impl.high_rez_bias, ahrs_aligner.lp_gyro);
   INT_RATES_LSHIFT(ahrs_impl.high_rez_bias, ahrs_impl.high_rez_bias, 28);
 
   ahrs.status = AHRS_RUNNING;
@@ -254,10 +254,10 @@ void ahrs_update_accel(void) {
   VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, FIR_FILTER_SIZE);
 
 
-  
+
   if (ahrs_impl.use_gravity_heuristic) {
     /* heuristic on acceleration (gravity estimate) norm */
-    /* Factor how strongly to change the weight. 
+    /* Factor how strongly to change the weight.
      * e.g. for WEIGHT_FACTOR 3:
      * <0.66G = 0, 1G = 1.0, >1.33G = 0
      */
@@ -270,7 +270,7 @@ void ahrs_update_accel(void) {
     Bound(ahrs_impl.weight, 0.15, 1.0);
   }
 
-  /* Complementary filter proportionnal gain. 
+  /* Complementary filter proportional gain.
    * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY
    * residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
    * rate_correction FRAC: RATE_FRAC = 12
@@ -278,7 +278,7 @@ void ahrs_update_accel(void) {
    * Feedback_FRAC: 4
    *
    * Kp = 1 / inv_rate_scale / FRAC_conversion * feedback_FRAC
-   * inv_rate_scale= 4096 * 4 / (2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY ) 
+   * inv_rate_scale= 4096 * 4 / (2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY )
    * inv_rate_scale= 8192 * AHRS_CORRECT_FREQUENCY / (omega * zeta * weight * AHRS_PROPAGATE_FREQUENCY )
    */
 
@@ -332,37 +332,37 @@ static inline void ahrs_update_mag_full(void) {
   struct Int32Vect3 residual;
   INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
 
-   /* Complementary filter proportionnal gain. 
+  /* Complementary filter proportionnal gain.
    * Kp = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY
    * residual FRAC: 2 * MAG_FRAC = 22
    * rate_correction FRAC: RATE_FRAC = 12
    * FRAC conversion: 2^12 / 2^22 = 1/1024
    * Feedback_FRAC: 4
    *
-   * Kp = 1/ inv_rate_gain / FRAC_conversion * Feedback_FRAC 
-   * inv_rate_gain = 1 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY 
-   *                 / FRAC_conversion * Feedback_FRAC 
-   * inv_rate_gain = 1024 * 4 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY    
+   * Kp = 1/ inv_rate_gain / FRAC_conversion * Feedback_FRAC
+   * inv_rate_gain = 1 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY
+   *                 / FRAC_conversion * Feedback_FRAC
+   * inv_rate_gain = 1024 * 4 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY
    */
- 
+
   int32_t inv_rate_gain = 2048 / (ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY;
 
   ahrs_impl.rate_correction.p += residual.x / inv_rate_gain;
   ahrs_impl.rate_correction.q += residual.y / inv_rate_gain;
   ahrs_impl.rate_correction.r += residual.z / inv_rate_gain;
 
-/* Complementary filter integral gain
+  /* Complementary filter integral gain
    * Correct the gyro bias.
    * Ki = omega^2 / AHRS_MAG_CORRECT_FREQUENCY
    * residual FRAC: 2* MAG_FRAC = 22
    * high_rez_bias FRAC: RATE_FRAC+28 = 40
    * FRAC conversion: 2^40 / 2^22 = 2^18
    * Feedback_FRAC: 4
-   * 
+   *
    * Ki = bias_gain / FRAC_conversion * Feedback_FRAC = ahrs_impl.omega * ahrs_impl.omega / AHRS_MAG_CORRECT_FREQUENCY
    * bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * FRAC_conversion / Feedback_FRAC
-   * bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * 2^16  
-   */ 
+   * bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * 2^16
+   */
   int32_t bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * 65536;
   ahrs_impl.high_rez_bias.p -= residual.x * bias_gain;
   ahrs_impl.high_rez_bias.q -= residual.y * bias_gain;
@@ -390,21 +390,21 @@ static inline void ahrs_update_mag_2d(void) {
 
   struct Int32Vect3 residual_imu;
   INT32_RMAT_VMULT(residual_imu, ltp_to_imu_rmat, residual_ltp);
-   
-   /* Complementary filter proportionnal gain. 
-   * Kp = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY/ AHRS_MAG_CORRECT_FREQUENCY 
+
+  /* Complementary filter proportionnal gain.
+   * Kp = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY/ AHRS_MAG_CORRECT_FREQUENCY
    * residual_imu FRAC = residual_ltp FRAC = 17
    * rate_correction FRAC: RATE_FRAC = 12
    * FRAC conversion: 2^12 / 2^17 = 1/32
    * Feedback_FRAC: 4
-   * 
-   * Kp = 1/ inv_rate_gain / FRAC_conversion * Feedback_FRAC 
-   * inv_rate_gain = 1 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY )* AHRS_MAG_CORRECT_FREQUENCY 
-   *                 / FRAC_conversion * Feedback_FRAC 
-   * inv_rate_gain = 32 * 4 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY 
-   *        
+   *
+   * Kp = 1/ inv_rate_gain / FRAC_conversion * Feedback_FRAC
+   * inv_rate_gain = 1 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY )* AHRS_MAG_CORRECT_FREQUENCY
+   *                 / FRAC_conversion * Feedback_FRAC
+   * inv_rate_gain = 32 * 4 / (2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY
+   *
    */
-  
+
    int32_t inv_rate_gain = 64 / (ahrs_impl.mag_zeta * ahrs_impl.mag_omega * AHRS_PROPAGATE_FREQUENCY) * AHRS_MAG_CORRECT_FREQUENCY;
 
    ahrs_impl.rate_correction.p += residual_imu.x / inv_rate_gain;
@@ -412,18 +412,18 @@ static inline void ahrs_update_mag_2d(void) {
    ahrs_impl.rate_correction.r += residual_imu.z / inv_rate_gain;
 
 
-   /* Complementary filter integral gain
+  /* Complementary filter integral gain
    * Correct the gyro bias.
    * Ki = omega^2 / AHRS_MAG_CORRECT_FREQUENCY
    * residual_imu FRAC = residual_ltp FRAC = 17
    * high_rez_bias FRAC: RATE_FRAC+28 = 40
    * FRAC conversion: 2^40 / 2^17 = 2^23
    * Feedback_FRAC: 4
-   * 
+   *
    * Ki = bias_gain / FRAC_conversion * Feedback_FRAC = ahrs_impl.omega * ahrs_impl.omega / AHRS_MAG_CORRECT_FREQUENCY
    * bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * FRAC_conversion / Feedback_FRAC
-   * bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * 2^21   
-   */ 
+   * bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * 2^21
+   */
   int32_t bias_gain = ahrs_impl.mag_omega * ahrs_impl.mag_omega / AHRS_MAG_CORRECT_FREQUENCY * 2097152;
   ahrs_impl.high_rez_bias.p -= residual_imu.x * bias_gain;
   ahrs_impl.high_rez_bias.q -= residual_imu.y * bias_gain;

@@ -1,5 +1,8 @@
 #MS VC: cl lpc21iap.c elf.c lpcusb.c libusb.lib
 
+# Quiet compilation
+Q=@
+
 LIBNAME	= usb
 APPNAME = lpc21iap
 
@@ -38,7 +41,7 @@ SOURCES =	lpc21iap.c elf.c lpcusb.c
 all: $(APPNAME)
 
 clean:
-	$(RM) -f core $(APPNAME).o $(APPNAME) $(APPNAME).obj $(APPNAME).exe
+	$(Q)$(RM) -f core $(APPNAME).o $(APPNAME) $(APPNAME).obj $(APPNAME).exe
 
 app: $(APPNAME)
 

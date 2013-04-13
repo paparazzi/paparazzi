@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import os
 import sys
@@ -19,57 +19,80 @@ class PaparazziACSettings:
     def __init__(self, ac_id):
         self.ac_id = ac_id
         paparazzi_home = os.getenv("PAPARAZZI_HOME")
-        conf_xml_path = "%s/conf/conf.xml" % paparazzi_home
+        paparazzi_conf = os.path.join(paparazzi_home, 'conf')
+        conf_xml_path = os.path.join(paparazzi_conf, 'conf.xml')
         conf_tree = etree.parse(conf_xml_path)
         # extract aircraft node from conf.xml file
         ac_node = conf_tree.xpath('/conf/aircraft[@ac_id=%i]' % ac_id)
         if (len(ac_node) != 1):
             print("Aircraft ID %i not found." % ac_id)
-
-        # get settings file path from aircraft xml node
-        settings_xml_path = "%s/conf/%s" % (paparazzi_home, ac_node[0].attrib['settings'])
+            sys.exit(1)
 
         # save AC name for reference
         self.name = ac_node[0].attrib['name']
 
-        tree = etree.parse(settings_xml_path)
+        # get settings.xml file path from var/<ac_name> directory
+        settings_xml_path = os.path.join(paparazzi_home, 'var/' + self.name + '/settings.xml')
+
+        if not os.path.isfile(settings_xml_path):
+            print("Could not find %s, did you build it?" % settings_xml_path)
+            sys.exit(1)
 
         index = 0 # keep track of index/id of setting starting at 0
+        tree = etree.parse(settings_xml_path)
+
         for the_tab in tree.xpath("//dl_settings"):
-            if the_tab.attrib.has_key('NAME'):
-                setting_group = PaparazziSettingsGroup(the_tab.attrib['NAME'])
-            elif the_tab.attrib.has_key('NAME'):
-                setting_group = PaparazziSettingsGroup(the_tab.attrib['name'])
-            else:
+            try:
+                if 'NAME' in the_tab.attrib:
+                    setting_group_name = the_tab.attrib['NAME']
+                else:
+                    setting_group_name = the_tab.attrib['name']
+            except:
+                #print("Could not read name of settings group")
                 continue
 
+            #print("parsing setting group:", setting_group_name)
+            setting_group = PaparazziSettingsGroup(setting_group_name)
+
             for the_setting in the_tab.xpath('dl_setting'):
-                if the_setting.attrib.has_key('shortname'):
-                    name = the_setting.attrib['shortname']
-                elif the_setting.attrib.has_key('VAR'):
-                    name = the_setting.attrib['VAR']
-                else:
-                    name = the_setting.attrib['var']
+                try:
+                    if 'shortname' in the_setting.attrib:
+                        name = the_setting.attrib['shortname']
+                    elif 'VAR' in the_setting.attrib:
+                        name = the_setting.attrib['VAR']
+                    else:
+                        name = the_setting.attrib['var']
+                except:
+                    print("Could not get name for setting in group", setting_group)
+                    continue
+
                 settings = PaparazziSetting(name)
                 settings.index = index
-                if the_setting.attrib.has_key('MIN'):
-                    settings.min_value = float(the_setting.attrib['MIN'])
-                else:
-                    settings.min_value = float(the_setting.attrib['min'])
-                if the_setting.attrib.has_key('MAX'):
-                    settings.max_value = float(the_setting.attrib['MAX'])
-                else:
-                    settings.max_value = float(the_setting.attrib['max'])
-                if the_setting.attrib.has_key('STEP'):
-                    settings.step = float(the_setting.attrib['STEP'])
-                else:
-                    settings.step = float(the_setting.attrib['step'])
 
-        if (the_setting.attrib.has_key('values')):
-            settings.values = the_setting.attrib['values'].split('|')
-            count = int((settings.max_value - settings.min_value + settings.step) / settings.step)
-            if (len(settings.values) != count):
-                print("Warning: wrong number of values (%i) for %s (expected %i)" % (len(settings.values), name, count))
+                try:
+                    if 'MIN' in the_setting.attrib:
+                        settings.min_value = float(the_setting.attrib['MIN'])
+                    else:
+                        settings.min_value = float(the_setting.attrib['min'])
+
+                    if 'MAX' in the_setting.attrib:
+                        settings.max_value = float(the_setting.attrib['MAX'])
+                    else:
+                        settings.max_value = float(the_setting.attrib['max'])
+
+                    if 'STEP' in the_setting.attrib:
+                        settings.step = float(the_setting.attrib['STEP'])
+                    else:
+                        settings.step = float(the_setting.attrib['step'])
+                except:
+                    print("Could not get min/max/step for setting", name)
+                    continue
+
+                if 'values' in the_setting.attrib:
+                    settings.values = the_setting.attrib['values'].split('|')
+                    count = int((settings.max_value - settings.min_value + settings.step) / settings.step)
+                    if (len(settings.values) != count):
+                        print("Warning: possibly wrong number of values (%i) for %s (expected %i)" % (len(settings.values), name, count))
 
                 setting_group.member_list.append(settings)
                 self.lookup.append(settings)

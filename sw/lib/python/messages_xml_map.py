@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import os
 import sys
@@ -42,14 +42,14 @@ def ParseMessages():
     tree = etree.parse( messages_path)
     for the_class in tree.xpath("//class[@name]"):
         class_name = the_class.attrib['name']
-        if not message_dictionary.has_key(class_name):
+        if class_name not in message_dictionary:
             message_dictionary_id_name[class_name] = {}
             message_dictionary_name_id[class_name] = {}
             message_dictionary[class_name] = {}
             message_dictionary_types[class_name] = {}
         for the_message in the_class.xpath("message[@name]"):
             message_name = the_message.attrib['name']
-            if the_message.attrib.has_key('id'):
+            if 'id' in the_message.attrib:
                 message_id = the_message.attrib['id']
             else:
                 message_id = the_message.attrib['ID']

@@ -1,6 +1,9 @@
 # Build shared pprz math library
 #
 
+# Quiet compilation
+Q=@
+
 CC= gcc
 CFLAGS= -fpic
 INCLUDES= -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne
@@ -43,5 +46,5 @@ $(BUILDDIR)/%.o: %.c
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
 clean:
-	rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(LIBNAME).so
+	$(Q)rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(LIBNAME).so
 
