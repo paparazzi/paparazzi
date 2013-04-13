@@ -56,6 +56,9 @@ int32_t guidance_h_dgain;
 int32_t guidance_h_igain;
 int32_t guidance_h_again;
 
+int32_t transition_status;
+int32_t theta_offset;
+
 /* warn if some gains are still negative */
 #if (GUIDANCE_H_PGAIN < 0) ||                   \
   (GUIDANCE_H_DGAIN < 0)   ||                   \
@@ -80,6 +83,7 @@ static inline void guidance_h_update_reference(bool_t use_ref);
 static inline void guidance_h_traj_run(bool_t in_flight);
 static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
+static inline void transition_run(void); 
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
     gh_set_ref(_pos, _speed, _accel);        \
@@ -100,13 +104,19 @@ void guidance_h_init(void) {
   guidance_h_igain = GUIDANCE_H_IGAIN;
   guidance_h_dgain = GUIDANCE_H_DGAIN;
   guidance_h_again = GUIDANCE_H_AGAIN;
-
+  transition_status = 0;
+  theta_offset = 0;
 }
 
 
 void guidance_h_mode_changed(uint8_t new_mode) {
   if (new_mode == guidance_h_mode)
     return;
+
+  if(new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
+     transition_status = 0;
+     theta_offset = 0;
+   }
 
   switch (new_mode) {
     case GUIDANCE_H_MODE_RC_DIRECT:
@@ -119,6 +129,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
     case GUIDANCE_H_MODE_CARE_FREE:
       stabilization_attitude_reset_care_free_heading();
+    case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_ATTITUDE:
       stabilization_attitude_enter();
       break;
@@ -151,6 +162,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
       stabilization_rate_read_rc();
       break;
 
+    case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
       stabilization_attitude_read_rc(in_flight);
@@ -186,6 +198,10 @@ void guidance_h_run(bool_t  in_flight) {
       stabilization_rate_run(in_flight);
       break;
 
+    case GUIDANCE_H_MODE_FORWARD:
+      if(transition_status < (100<<INT32_PERCENTAGE_FRAC)) {
+        transition_run();
+      }
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
       stabilization_attitude_run(in_flight);
@@ -351,4 +367,14 @@ static inline void guidance_h_nav_enter(void) {
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
+}
+
+static inline void transition_run(void) {
+  //Add 0.00625%
+  transition_status += 1<<(INT32_PERCENTAGE_FRAC-4);
+
+#ifdef TRANSITION_MAX_OFFSET
+  int32_t max_offset = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET)/180,INT32_ANGLE_PI, INT32_ANGLE_FRAC);
+  theta_offset = INT_MULT_RSHIFT((transition_status<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, max_offset, INT32_ANGLE_FRAC);
+#endif
 }
