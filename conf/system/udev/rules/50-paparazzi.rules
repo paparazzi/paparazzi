@@ -34,3 +34,5 @@ KERNEL=="event*", IMPORT{program}="input_event.sh %p", NAME="input/%k", GROUP="p
 ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a5", KERNEL=="ttyACM*", SYMLINK+="paparazzi/acm", GROUP="plugdev"
 
 LABEL="paparazzi_rules_end"
+# Recent Digi XBee pro modems (XBP24-PKC-001-UA)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{product}=="USB <-> Serial", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
