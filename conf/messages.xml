@@ -1135,11 +1135,13 @@
     <field name="cmd_thrust" type="int32"/>
  </message>
 
-  <message name="GUIDANCE" id="144">
-    <field name="pos_n"    type="int32"/>
-    <field name="pos_e"    type="int32"/>
-    <field name="sp_pos_n" type="int32"/>
-    <field name="sp_pos_e" type="int32"/>
+  <message name="GUIDANCE_H_INT" id="144">
+    <field name="sp_x"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="sp_y"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
   </message>
 
   <message name="VERT_LOOP" id="145">

@@ -582,12 +582,14 @@
 #define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_GUIDANCE(_trans, _dev) {				\
-    DOWNLINK_SEND_GUIDANCE(_trans, _dev,					\
-                 &guidance_h_cur_pos.x,		\
-                 &guidance_h_cur_pos.y,		\
-                 &guidance_h_held_pos.x,		\
-                 &guidance_h_held_pos.y);		\
+#define PERIODIC_SEND_GUIDANCE_H_INT(_trans, _dev) {   \
+  DOWNLINK_SEND_GUIDANCE_H_INT(_trans, _dev,           \
+                               &guidance_h_pos_sp.x,   \
+                               &guidance_h_pos_sp.y,   \
+                               &guidance_h_pos_ref.x,  \
+                               &guidance_h_pos_ref.y,  \
+                               &ins_ltp_pos.x,         \
+                               &ins_ltp_pos.y);        \
   }
 
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
