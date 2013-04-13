@@ -29,6 +29,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
+PRINT_CONFIG_VAR(ACTUATORS_MKK_V2_I2C_DEV)
 
 struct actuators_mkk_v2_struct actuators_mkk_v2;
 

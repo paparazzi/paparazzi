@@ -26,6 +26,7 @@
  */
 
 #include "mcu.h"
+#include "std.h"
 
 #ifdef PERIPHERALS_AUTO_INIT
 #include "mcu_periph/sys_time.h"
@@ -142,7 +143,7 @@ void mcu_init(void) {
   dac_init();
 #endif
 #else
-#pragma message "Info: Not auto-initializing mcu peripherals including sys_time"
+INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */
 
 }
