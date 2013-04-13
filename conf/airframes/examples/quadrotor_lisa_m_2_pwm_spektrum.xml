@@ -193,9 +193,10 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="PGAIN" value="100"/>
+    <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="0"/>
+    <define name="AGAIN" value="100"/>
+    <define name="IGAIN" value="20"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
