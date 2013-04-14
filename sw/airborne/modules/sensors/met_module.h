@@ -34,9 +34,6 @@
 #include "std.h"
 #include "led.h"
 
-extern volatile uint8_t ins_msg_received;
-extern volatile uint8_t new_ins_attitude;
-
 #ifndef SITL
 #include "mcu_periph/uart.h"
 
@@ -54,17 +51,5 @@ extern volatile uint8_t new_ins_attitude;
 
 #endif /** !SITL */
 
-#define InsEventCheckAndHandle(handler) {			\
-    if (InsBuffer()) {						\
-      ReadInsBuffer();						\
-    }						                \
-    if (ins_msg_received) {					\
-      LED_TOGGLE(2);						\
-      parse_ins_msg();						\
-      handler;							\
-      ins_msg_received = FALSE;					\
-    }						                \
-  }
-
-
 #endif /* MET_H */
+

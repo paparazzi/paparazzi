@@ -2,8 +2,17 @@
 
 <module name="airspeed_otf" dir="sensors">
   <doc>
-    <description></description>
-  </doc>
+    <description>
+      OTF! airspeed/flow angle sensor 
+      Driver for the Aeroprobe On-The-Fly! air data computer.
+
+      The Aeroprobe On-The-Fly! air data computer measures 
+      air pressure from a 5-hole pitot tube and can write
+      resulting data to an SD card or transmit it through an
+      UART. It outputs speed, angle of attack, angle of
+      sideslip and altitude. 
+    </description>
+    <configure name="OTF_UART_NR" value="x" description="UART on which computer is connected"/>   </doc>
   <header>
     <file name="met_module.h"/>
     <file name="airspeed_otf.h"/>
