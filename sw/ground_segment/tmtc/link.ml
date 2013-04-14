@@ -54,7 +54,8 @@ type ground_device = {
 let my_id = 0
 
 (* Here we set the default id of the link*)
-let link_id = ref 1
+let link_id = ref 0
+let red_link = ref false
 
 (* enable broadcast messages by default *)
 let ac_info = ref true
@@ -73,7 +74,10 @@ let send_message_over_ivy = fun sender name vs ->
     match !add_timestamp with
         None -> None
       | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
-  Tm_Pprz.message_send ?timestamp ~link_id:!link_id sender name vs
+  if !red_link then
+    Tm_Pprz.message_send ?timestamp ~link_id:!link_id sender name vs
+  else
+    Tm_Pprz.message_send ?timestamp sender name vs
 
 
 (*********** Monitoring *************************************************)
@@ -457,13 +461,17 @@ let () =
       "-xbee_addr", Arg.Set_int XB.my_addr, (sprintf "<my_addr> (%d)" !XB.my_addr);
       "-xbee_retries", Arg.Set_int XB.my_addr, (sprintf "<nb retries> (%d)" !XB.nb_retries);
       "-xbee_868", Arg.Set Xbee.mode868, (sprintf "Enables the 868 protocol");
-      "-id", Arg.Set_int link_id, (sprintf "Sets the link id. This must be set if multiple links are to be used.")
+      "-redlink", Arg.Set red_link, (sprintf "Sets whether the link is a redundant link. Set this flag and the id flag to use multiple links");
+      "-id", Arg.Set_int link_id, (sprintf "Sets the link id. If multiple links are used, each must have a unique id. Default is %i" !link_id)
     ] in
   Arg.parse options (fun _x -> ()) "Usage: ";
 
   (** Connect to Ivy bus *)
   Ivy.init "Link" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
+
+  if (!link_id <> 0) && (not !red_link) then
+    fprintf stderr "\nLINK WARNING: The link id was set to %i but the -redlink flag wasn't set. To use this link as a redundant link, set the -redlink flag.%!" !link_id;
 
   try
     let transport = transport_of_string !transport in

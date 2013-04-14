@@ -40,6 +40,7 @@ type aircraft = private {
     ir_page : Pages.infrared;
     gps_page : Pages.gps;
     pfd_page : Horizon.pfd;
+    link_page : Pages.link;
     misc_page : Pages.misc;
     dl_settings_page : Page_settings.settings option;
     rc_settings_page : Pages.rc_settings option;

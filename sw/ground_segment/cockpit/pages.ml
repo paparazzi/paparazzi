@@ -1,5 +1,5 @@
 (*
- * Copyright (C) 2006 ENAC, Pierre-Sélim Huard, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2006 ENAC, Pierre-SÃ©lim Huard, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -293,3 +293,96 @@ class rc_settings = fun ?(visible = fun _ -> true) xmls ->
       values.(i).(j).(1)#set_text s2
   end
 
+(*****************************************************************************)
+(* link page                                                                 *)
+(*****************************************************************************)
+type link_change = Linkup | Nochange | Linkdown
+
+class link ?(visible = fun _ -> true) (widget: GBin.frame) =
+  let scrolled = GBin.scrolled_window
+    ~hpolicy: `AUTOMATIC
+    ~vpolicy: `AUTOMATIC
+    ~packing: widget#add
+    ()
+  in
+  let table = GPack.table ~rows:1 ~columns:1 ~row_spacings:5 ~col_spacings:10 ~packing:scrolled#add_with_viewport () in
+  let _init = 
+    ignore (GMisc.label ~text: "Link id:" ~justify: `RIGHT ~packing: (table#attach ~top:0 ~left: 0) ());
+    ignore (GMisc.label ~text: "Status:" ~justify: `RIGHT ~packing: (table#attach ~top:1 ~left: 0) ());
+    ignore (GMisc.label ~text: "Ping time [ms]:" ~justify: `RIGHT ~packing: (table#attach ~top:2 ~left: 0) ());
+    ignore (GMisc.label ~text: "Rx messages/s:" ~justify: `RIGHT ~packing: (table#attach ~top:3 ~left: 0) ());
+  in
+  object
+    val table = table
+    val mutable links = []  (* Stores the GUI elements that need to be updated and whether the link is connected or not*)
+    val mutable links_up = 0 (* Stores the number of links that are connected*)
+
+    method link_exists link_id = 
+      try
+        let link = List.assoc link_id links in
+        ignore link;
+        true
+      with
+        Not_found -> false
+
+    method add_link link_id = 
+      let number_of_links = List.length links in
+      let link_id_label = GMisc.label ~text: (sprintf "%i" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
+      let link_status_eventbox = GBin.event_box ~width: 50 ~packing: (table#attach ~top:1 ~left: (number_of_links+1) ) () in
+      let link_status_label = GMisc.label ~text: "   " ~packing: link_status_eventbox#add () in
+      let rx_msgs_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:2 ~left: (number_of_links+1) ) () in 
+      let ping_time_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:3 ~left: (number_of_links+1) ) () in 
+      let up = true in
+      ignore (links <- (link_id, (up, link_status_eventbox, link_status_label, rx_msgs_rate_label, ping_time_label)) :: links);
+      links_up <- links_up + 1;
+
+
+    method update_link link_id time_since_last_msg rx_msgs_rate ping_time =
+      let (up, link_status_event_box, link_status_label, rx_msgs_rate_label, ping_time_label) = List.assoc link_id links in
+      begin
+        let link_status_string = sprintf "%.0f" time_since_last_msg in
+        if link_status_label#text <> link_status_string then (* Updating the link status light*)
+          begin
+            link_status_label#set_label (if time_since_last_msg > 2. then link_status_string else "   ");
+            let color = (if time_since_last_msg > 5. then "red" else "green") in
+            link_status_event_box#coerce#misc#modify_bg [`NORMAL, `NAME color];
+          end;
+
+        let rx_msgs_rate_string = sprintf "%.1f" rx_msgs_rate in
+        if rx_msgs_rate_label#text <> rx_msgs_rate_string then (* Updating the rx_msgs_rate field*)
+          rx_msgs_rate_label#set_label rx_msgs_rate_string;
+
+        let ping_time_string = sprintf "%.1f" ping_time in
+        if ping_time_label#text <> ping_time_string then (* Updating the ping_time field*)
+          ping_time_label#set_label ping_time_string;
+
+        let update_list = fun list_to_update up ->
+          let (_, dummy1, dummy2, dummy3, dummy4) = List.assoc link_id list_to_update in
+          (link_id, (up, dummy1, dummy2, dummy3, dummy4)) :: List.remove_assoc link_id list_to_update in
+        if up then  (* Updating the stored value of whether this link is connected or not*)
+          if time_since_last_msg > 5. then
+            begin
+              links <- update_list links false;
+              links_up <- links_up -1;
+              Linkdown;
+            end
+          else
+            Nochange
+        else
+          if time_since_last_msg < 5. then
+            begin
+              links <- update_list links true;
+              links_up <- links_up + 1;
+              Linkup
+            end
+          else
+            Nochange
+      end
+
+      method links_ratio () =
+        (links_up, List.length links)
+
+      method multiple_links () = 
+        if (List.length links) > 0 then true else false
+
+  end;;

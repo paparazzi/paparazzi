@@ -22,20 +22,18 @@ when the link's -name arguement is set. It combines messages received from
 any number of link agents and sends ivy messages to the Server and other 
 agents."""
 
-#To-do:
-# 1. Implement timestamp on buffer
-# 2. Record and print statistics. Necessary to test functionality. 
-# 3. Move the regex into the message class to make things more modular
-# 4. Implement command line options
-# 5. Read the link status messages, create new link status data, and send it out over the ivy bus
-
+from __future__ import print_function
 import logging
 import sys
 import os
+import argparse
+from time import time
+import threading
 from ivy.std_api import *
 
-#Options (will be implemented as command line options later):
-BUFFER_SIZE = 10        #The number of elements messages to be stored in the circular buffer for each link. 
+PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
+sys.path.append(PPRZ_HOME + "/sw/lib/python")
+import messages_xml_map
 
 class Circular_Buffer:
     def __init__(self, size):
@@ -82,15 +80,25 @@ class Circular_Buffer:
     def displayContents(self):
         for counter in xrange(0,self.size):
             if self.index != counter:
-                print("   %s" %self.buffer[counter])
+                print("   %s" %self.buffer[counter], file=sys.stderr)
             else:
-                print("-> %s" %self.buffer[counter])
+                print("-> %s" %self.buffer[counter], file=sys.stderr)
 
 class Message:
     def __init__(self, sender, link_name, raw_message):
 
         self.link_name = link_name
+        self.raw_sender = sender
         self.raw_message = " ".join(raw_message.split(";"))
+
+        if self.name() not in messages_xml_map.message_dictionary['telemetry']:
+            raise(Exception("Error in link_combiner: unknown message name: %s" %self.name()))
+
+        value_names = messages_xml_map.message_dictionary['telemetry'][self.name()]
+        values = self.raw_message.split(" ")[1:-1]
+        self.raw_values = {}
+        map(lambda k, v: self.raw_values.update({k: v}), value_names, values)
+        # self.raw_values = dict(zip(value_names, values))  #This doesn't work for some reason. It gives weird errors, seemingly related to the ivy bus
 
     def linkName(self):
         return self.link_name
@@ -98,13 +106,34 @@ class Message:
     def message(self):
         return self.raw_message
 
+    def sender(self):
+        return self.raw_sender
+
+    def name(self):
+        return self.raw_message.split(" ")[1]
+
+    def values(self):
+        return self.raw_values
+
+
 
 class Link:
-    def __init__(self, name, buffer_size=10, verbose=1):
+    def __init__(self, name, ac_id, buffer_size=10, verbose=0):
         self.buffer = Circular_Buffer(buffer_size)
         self.name = name
+        self.ac_id = ac_id
+        self.time_of_last_message = time()
         self.verbose = verbose
-        pass
+
+        # The following are stored values from the DOWNLINK_STATUS message:
+        self.run_time = 0
+        self.rx_bytes = 0
+        self.rx_msgs = 0
+        self.rx_err = 0
+        self.rx_bytes_rate = 0
+        self.rx_msgs_rate = 0
+        self.ping_time = 0
+
 
     def checkBuffer(self,message):
         return self.buffer.contains(message.message())
@@ -112,11 +141,52 @@ class Link:
     def addToBuffer(self,message):
         self.buffer.add(message.message())
         if self.verbose:
-            print("%s Buffer:" % self.name)
+            print("%s Buffer:" % self.name, file=sys.stderr)
             self.buffer.displayContents();
 
     def removeFromBuffer(self,message):
         self.buffer.remove(message.message())
+
+    def updateTimeOfLastMessage(self):
+        self.time_of_last_message = time()
+
+    def timeSinceLastMessage(self):
+        return time() - self.time_of_last_message
+
+    def sendLinkStatusMessage(self):
+        values = (  self.name, 
+                    self.ac_id, 
+                    self.timeSinceLastMessage(), 
+                    self.run_time, 
+                    self.rx_bytes, 
+                    self.rx_msgs, 
+                    self.rx_err, 
+                    self.rx_bytes_rate, 
+                    self.rx_msgs_rate,
+                    self.ping_time)
+
+        IvySendMsg("ground LINK_STATUS %s %s %f %s %s %s %s %s %s %s" % values)
+        threading.Timer(LINK_STATUS_PERIOD, self.sendLinkStatusMessage).start()
+
+
+
+    def updateStatus(self, downlink_status_message):
+
+        if downlink_status_message.name() != "DOWNLINK_STATUS":
+            raise(Exception("function called with message of name other than DOWNLINK_STATUS"))
+
+        message_values = downlink_status_message.values()
+
+        self.run_time = message_values['run_time']
+        self.rx_bytes = message_values['rx_bytes']
+        self.rx_msgs = message_values['rx_msgs']
+        self.rx_err = message_values['rx_err']
+        self.rx_bytes_rate = message_values['rx_bytes_rate']
+        self.rx_msgs_rate = message_values['rx_msgs_rate']
+        self.ping_time = message_values['ping_time']
+
+
+
 
 class Link_Combiner:
 
@@ -145,12 +215,18 @@ class Link_Combiner:
         message = Message(larg[1], larg[2], larg[3])
 
         if message.linkName() not in self.links: #Adding a new link
-            self.links[message.linkName()] = Link(message.linkName(), BUFFER_SIZE)
-            print("Link Combiner Detected a New Link: %s" %message.linkName())
+            self.links[message.linkName()] = Link(message.linkName(), message.sender(), BUFFER_SIZE)
+            # print("NEW LINK DETECTED: %s" %message.linkName(), file=sys.stderr)
+            self.repeatSendLinkStatusMessage(message)
 
         #Processing messages from an already added link
         sent = self.sendMessage(message)
         self.bufferMessage(message)
+        if message.name() != "DOWNLINK_STATUS":
+            self.links[message.linkName()].updateTimeOfLastMessage()
+        else:
+            self.links[message.linkName()].updateStatus(message)
+
 
     def sendMessage(self, message):
 
@@ -179,10 +255,7 @@ class Link_Combiner:
                     match = self.links[link_name].checkBuffer(message)
                     if match:
                         return True
-
             return False
-
-
 
         if match_count == 0:
             return False
@@ -191,11 +264,31 @@ class Link_Combiner:
                 self.links[link_name].removeFromBuffer(message)
 
     def bufferMessage(self, message):
-        self.links[message.linkName()].addToBuffer(message)            
+        self.links[message.linkName()].addToBuffer(message)
+
+    def repeatSendLinkStatusMessage(self, message):
+        link_name = message.linkName()
+        self.links[link_name].sendLinkStatusMessage()
+
 
 
 def main():
-    link = Link_Combiner()
+    messages_xml_map.ParseMessages()
+
+
+    #Command line options
+    parser = argparse.ArgumentParser(description="Link_Combiner listens to the ivy messages received from multiple Link agents (set each of their -id options to a unique number), and sends a combined stream of messages to the other agents.")
+    parser.add_argument("-b", "-buffer_size", "--buffer_size", help="The number of elements messages to be stored in the circular buffer for each link", default=10)
+    parser.add_argument("-t", "-link_status_period", "--link_status_period", help="The number of miliseconds in between LINK_STATUS messages being sent to the GCS", default=1000)
+    args = parser.parse_args()
+
+    global BUFFER_SIZE
+    global LINK_STATUS_PERIOD
+    BUFFER_SIZE = int(args.buffer_size)            #The number of elements messages to be stored in the circular buffer for each link. 
+    LINK_STATUS_PERIOD = float(args.link_status_period)/1000    #The number of seconds in between LINK_STATUS messages being sent to the GCS.
+
+
+    link_combiner = Link_Combiner()
 
 
 if __name__ == '__main__':

@@ -2474,6 +2474,19 @@
     <field name="message" type="string" format=";sv"/>
   </message>
 
+  <message name="LINK_STATUS" id="36">
+    <field name="link_id" type="uint8"/>
+    <field name="ac_id" type="string"/>
+    <field name="time_since_last_msg" type="float" unit="s"/>
+    <field name="run_time" type="uint32" unit="s"/>
+    <field name="rx_bytes" type="uint32"/>
+    <field name="rx_msgs" type="uint32"/>
+    <field name="rx_err" type="uint32"/>
+    <field name="rx_bytes_rate" type="float" format="%.1f"/>
+    <field name="rx_msgs_rate" type="float" format="%.1f"/>
+    <field name="ping_time" type="float" format="%.2f" unit="ms"/>
+  </message>
+
   <message name="PLUMES" id="100">
     <field name="ids" type="string" format="csv"/>
     <field name="lats" type="string" format="csv"/>

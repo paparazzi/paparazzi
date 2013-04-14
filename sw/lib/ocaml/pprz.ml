@@ -530,7 +530,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
               if index = String.length buffer then
                 []
               else
-                failwith (sprintf "Pprz.values_of_payload, too many bytes: %s" (Debug.xprint buffer))
+                failwith (sprintf "Pprz.values_of_payload, too many bytes in message %s: %s" message.name (Debug.xprint buffer))
           | (field_name, field_descr)::fs ->
             let (value, n) = value_field buffer index field_descr in
             (field_name, value) :: loop (index+n) fs in
