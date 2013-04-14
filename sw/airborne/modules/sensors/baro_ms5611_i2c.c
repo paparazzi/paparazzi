@@ -50,10 +50,6 @@
 #define MS5611_SLAVE_ADDR 0xEE
 #endif
 
-#if PERIODIC_FREQUENCY > 60
-#error baro_ms5611_i2c assumes a PERIODIC_FREQUENCY of 60Hz
-#endif
-
 struct i2c_transaction ms5611_trans;
 uint8_t ms5611_status;
 uint16_t ms5611_c[PROM_NB];
