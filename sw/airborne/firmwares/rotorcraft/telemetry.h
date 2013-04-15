@@ -904,4 +904,82 @@
 #include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
+/*
+ * Sending of UART errors.
+ */
+#ifdef USE_UART1
+#define PERIODIC_SEND_UART1_ERRORS(_trans, _dev) {   \
+    const uint8_t _bus1 = 1;                         \
+    DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
+                             &uart1.ore,             \
+                             &uart1.ne_err,          \
+                             &uart1.fe_err,          \
+                             &_bus1);                \
+  }
+#else
+#define PERIODIC_SEND_UART1_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_UART2
+#define PERIODIC_SEND_UART2_ERRORS(_trans, _dev) {   \
+    const uint8_t _bus2 = 2;                         \
+    DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
+                             &uart2.ore,             \
+                             &uart2.ne_err,          \
+                             &uart2.fe_err,          \
+                             &_bus2);                \
+  }
+#else
+#define PERIODIC_SEND_UART2_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_UART3
+#define PERIODIC_SEND_UART3_ERRORS(_trans, _dev) {   \
+    const uint8_t _bus3 = 3;                         \
+    DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
+                             &uart3.ore,             \
+                             &uart3.ne_err,          \
+                             &uart3.fe_err,          \
+                             &_bus3);                \
+  }
+#else
+#define PERIODIC_SEND_UART3_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_UART5
+#define PERIODIC_SEND_UART5_ERRORS(_trans, _dev) {   \
+    const uint8_t _bus5 = 5;                         \
+    DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
+                             &uart5.ore,             \
+                             &uart5.ne_err,          \
+                             &uart5.fe_err,          \
+                             &_bus5);                \
+  }
+#else
+#define PERIODIC_SEND_UART5_ERRORS(_trans, _dev) {}
+#endif
+
+
+#ifndef SITL
+#define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {           \
+    static uint8_t uart_nb_cnt = 0;                         \
+    switch (uart_nb_cnt) {                                  \
+      case 0:                                               \
+        PERIODIC_SEND_UART1_ERRORS(_trans, _dev); break;    \
+      case 1:                                               \
+        PERIODIC_SEND_UART2_ERRORS(_trans, _dev); break;    \
+      case 2:                                               \
+        PERIODIC_SEND_UART3_ERRORS(_trans, _dev); break;    \
+      case 3:                                               \
+        PERIODIC_SEND_UART5_ERRORS(_trans, _dev); break;    \
+      default: break;                                       \
+    }                                                       \
+    uart_nb_cnt++;                                          \
+    if (uart_nb_cnt == 4)                                   \
+      uart_nb_cnt = 0;                                      \
+  }
+#else
+#define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {}
+#endif
+
 #endif /* TELEMETRY_H */

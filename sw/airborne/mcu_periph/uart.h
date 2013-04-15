@@ -48,25 +48,30 @@
 #define B57600   57600
 #define B115200  115200
 #define B230400  230400
+#define B921600  921600
 
 /**
  * UART peripheral
  */
 struct uart_periph {
-  /* Receive buffer */
+  /** Receive buffer */
   uint8_t rx_buf[UART_RX_BUFFER_SIZE];
   uint16_t rx_insert_idx;
   uint16_t rx_extract_idx;
-  /* Transmit buffer */
+  /** Transmit buffer */
   uint8_t tx_buf[UART_TX_BUFFER_SIZE];
   uint16_t tx_insert_idx;
   uint16_t tx_extract_idx;
   uint8_t tx_running;
-  /* UART Register */
+  /** UART Register */
   void* reg_addr;
-  /* UART Dev (linux) */
+  /** UART Dev (linux) */
   char dev[UART_DEV_NAME_SIZE];
+  volatile uint16_t ore;    ///< overrun error counter
+  volatile uint16_t ne_err; ///< noise error counter
+  volatile uint16_t fe_err; ///< framing error counter
 };
+
 
 extern void uart_periph_init(struct uart_periph* p);
 extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control);

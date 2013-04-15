@@ -50,6 +50,12 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_fl
     usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_NONE);
   }
 
+  /* Disable Idle Line interrupt */
+  USART_CR1((u32)p->reg_addr) &= ~USART_CR1_IDLEIE;
+
+  /* Disable LIN break detection interrupt */
+  USART_CR2((u32)p->reg_addr) &= ~USART_CR2_LBDIE;
+
   /* Enable USART1 Receive interrupts */
   USART_CR1((u32)p->reg_addr) |= USART_CR1_RXNEIE;
 
@@ -85,7 +91,7 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 static inline void usart_isr(struct uart_periph* p) {
 
   if (((USART_CR1((u32)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
-	  ((USART_SR((u32)p->reg_addr) & USART_SR_TXE) != 0)) {
+      ((USART_SR((u32)p->reg_addr) & USART_SR_TXE) != 0)) {
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
       usart_send((u32)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
@@ -99,14 +105,34 @@ static inline void usart_isr(struct uart_periph* p) {
   }
 
   if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-		  ((USART_SR((u32)p->reg_addr) & USART_SR_RXNE) != 0)) {
+      ((USART_SR((u32)p->reg_addr) & USART_SR_RXNE) != 0) &&
+      ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) == 0) &&
+      ((USART_SR((u32)p->reg_addr) & USART_SR_NE) == 0) &&
+      ((USART_SR((u32)p->reg_addr) & USART_SR_FE) == 0)) {
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
     p->rx_buf[p->rx_insert_idx] = usart_recv((u32)p->reg_addr);
     // check for more room in queue
     if (temp != p->rx_extract_idx)
       p->rx_insert_idx = temp; // update insert index
   }
-
+  else {
+    /* ORE, NE or FE error - read USART_DR reg and log the error */
+    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+        ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) != 0)) {
+      usart_recv((u32)p->reg_addr);
+      p->ore++;
+    }
+    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+        ((USART_SR((u32)p->reg_addr) & USART_SR_NE) != 0)) {
+      usart_recv((u32)p->reg_addr);
+      p->ne_err++;
+    }
+    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+        ((USART_SR((u32)p->reg_addr) & USART_SR_FE) != 0)) {
+      usart_recv((u32)p->reg_addr);
+      p->fe_err++;
+    }
+  }
 }
 
 static inline void usart_enable_irq(u8 IRQn) {
@@ -134,16 +160,16 @@ void uart1_init( void ) {
 
   /* Init GPIOS */
   gpio_set_mode(GPIO_BANK_USART1_TX, GPIO_MODE_OUTPUT_50_MHZ,
-	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
   gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_INPUT,
-	  GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
+                GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
 
 #if UART1_HW_FLOW_CONTROL
 #warning "USING UART1 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   gpio_set_mode(GPIO_BANK_USART1_RTS, GPIO_MODE_OUTPUT_50_MHZ,
-          GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_RTS);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_RTS);
   gpio_set_mode(GPIO_BANK_USART1_CTS, GPIO_MODE_INPUT,
-          GPIO_CNF_INPUT_FLOAT, GPIO_USART1_CTS);
+                GPIO_CNF_INPUT_FLOAT, GPIO_USART1_CTS);
 
   /* Configure USART1, enable hardware flow control*/
   uart_periph_set_baudrate(&uart1, UART1_BAUD, TRUE);
@@ -173,9 +199,9 @@ void uart2_init( void ) {
 
   /* Init GPIOS */
   gpio_set_mode(GPIO_BANK_USART2_TX, GPIO_MODE_OUTPUT_50_MHZ,
-	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART2_TX);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART2_TX);
   gpio_set_mode(GPIO_BANK_USART2_RX, GPIO_MODE_INPUT,
-	  GPIO_CNF_INPUT_FLOAT, GPIO_USART2_RX);
+                GPIO_CNF_INPUT_FLOAT, GPIO_USART2_RX);
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart2, UART2_BAUD, FALSE);
@@ -203,9 +229,9 @@ void uart3_init( void ) {
   /* Init GPIOS */
   AFIO_MAPR |= AFIO_MAPR_USART3_REMAP_PARTIAL_REMAP;
   gpio_set_mode(GPIO_BANK_USART3_PR_TX, GPIO_MODE_OUTPUT_50_MHZ,
-	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART3_PR_TX);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART3_PR_TX);
   gpio_set_mode(GPIO_BANK_USART3_PR_RX, GPIO_MODE_INPUT,
-	  GPIO_CNF_INPUT_FLOAT, GPIO_USART3_PR_RX);
+                GPIO_CNF_INPUT_FLOAT, GPIO_USART3_PR_RX);
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart3, UART3_BAUD, FALSE);
@@ -232,9 +258,9 @@ void uart5_init( void ) {
 
   /* Init GPIOS */
   gpio_set_mode(GPIO_BANK_UART5_TX, GPIO_MODE_OUTPUT_50_MHZ,
-	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_UART5_TX);
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_UART5_TX);
   gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_INPUT,
-	  GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
+                GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
 
   /* Configure USART */
   uart_periph_set_baudrate(&uart5, UART5_BAUD, FALSE);
@@ -243,4 +269,3 @@ void uart5_init( void ) {
 void uart5_isr(void) { usart_isr(&uart5); }
 
 #endif /* USE_UART5 */
-
