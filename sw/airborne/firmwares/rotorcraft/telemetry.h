@@ -276,9 +276,9 @@
       &stab_att_ref_euler.phi,                            \
       &stab_att_ref_euler.theta,                          \
       &stab_att_ref_euler.psi,                            \
-      &stabilization_att_sum_err_eulers.phi,              \
-      &stabilization_att_sum_err_eulers.theta,            \
-      &stabilization_att_sum_err_eulers.psi,              \
+      &stabilization_att_sum_err.phi,              \
+      &stabilization_att_sum_err.theta,            \
+      &stabilization_att_sum_err.psi,              \
       &stabilization_att_fb_cmd[COMMAND_ROLL],            \
       &stabilization_att_fb_cmd[COMMAND_PITCH],           \
       &stabilization_att_fb_cmd[COMMAND_YAW],             \
@@ -903,6 +903,17 @@
 
 #include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
+
+#ifdef USE_GX3
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
+    &GX3_freq,			\
+    &GX3_packet.chksm_error,	\
+    &GX3_packet.hdr_error,	\
+    &GX3_chksm,			\
+    &GX3_calcsm)
+#else
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
+#endif
 
 #define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {			\
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,				\

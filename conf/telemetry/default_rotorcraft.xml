@@ -46,7 +46,7 @@
       <message name="IMU_ACCEL_SCALED"       period=".075"/>
       <message name="IMU_MAG_SCALED"         period=".1"/>
     </mode>
-
+<!--
     <mode name="ahrs">
       <message name="ROTORCRAFT_STATUS"  period="1.2"/>
       <message name="DL_VALUE"           period="0.5"/>
@@ -54,10 +54,9 @@
       <message name="FILTER_ALIGNER"     period="2.2"/>
       <message name="FILTER"             period=".5"/>
       <message name="AHRS_GYRO_BIAS_INT" period="0.08"/>
-<!--      <message name="AHRS_QUAT_INT"   period=".25"/> -->
       <message name="AHRS_EULER_INT"     period=".1"/>
-<!--      <message name="AHRS_RMAT_INT"   period=".5"/> -->
     </mode>
+-->
 
     <mode name="rate_loop">
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
@@ -97,12 +96,10 @@
       <message name="HOVER_LOOP"            period="0.062"/>
       <message name="GUIDANCE_H_REF"        period="0.062"/>
       <message name="STAB_ATTITUDE"         period="0.4"/>
-      <!--<message name="STAB_ATTITUDE_REF" period="0.4"/>-->
       <message name="ROTORCRAFT_FP"         period="0.8"/>
       <message name="ROTORCRAFT_STATUS"     period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS" period="1.6"/>
       <message name="INS_REF"               period="5.1"/>
-      <!-- HFF messages are only sent if USE_HFF -->
       <message name="HFF"                   period=".05"/>
 	  <message name="HFF_GPS"               period=".03"/>
       <message name="HFF_DBG"               period=".2"/>
@@ -117,7 +114,6 @@
       <message name="ROTORCRAFT_STATUS"           period="1.2"/>
       <message name="ALIVE"                       period="0.9"/>
       <message name="DL_VALUE"                    period="0.5"/>
-<!--      <message name="STAB_ATTITUDE_HS_ROLL" period="0.02"/> -->
     </mode>
 
     <mode name="tune_hover">
@@ -125,10 +121,6 @@
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="GUIDANCE_H_INT"    period="0.05"/>
-      <!--<message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>-->
-      <!-- <message name="GPS_INT"               period=".20"/> -->
-      <!--<message name="INS2"              period=".05"/>
-      <message name="INS3"              period=".20"/>-->
       <message name="INS_REF"           period="5.1"/>
     </mode>
 
@@ -142,4 +134,3 @@
   </process>
 
 </telemetry>
-

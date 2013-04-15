@@ -558,7 +558,15 @@
     <field name="rssi_fade_margin" type="uint8" unit="dB"/>
     <field name="duty" type="uint8" unit="%"/>
   </message>
- <!-- 71 is free -->
+
+   <message name="GX3_INFO" id="71">
+    <field name="GX3_freq" 	type="float" 	unit="hz"/>
+    <field name="chksm_error" 	type="uint32"/>
+    <field name="hdr_error" 	type="uint32"/>
+    <field name="GX3_chksm"	type="uint16"/>
+    <field name="GX3_calcm"	type="uint16"/>
+  </message>
+
  <!-- 72 is free -->
  <!-- 73 is free -->
  <!-- 74 is free -->
