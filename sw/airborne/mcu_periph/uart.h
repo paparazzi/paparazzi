@@ -48,6 +48,14 @@
 #define B57600   57600
 #define B115200  115200
 #define B230400  230400
+#define B921600  921600
+
+/*
+ * Error logging variables
+ */
+extern volatile int32_t usart_ore;
+extern volatile int32_t usart_ne_err;
+extern volatile int32_t usart_fe_err;
 
 /**
  * UART peripheral

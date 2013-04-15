@@ -904,4 +904,11 @@
 #include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
+#define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {			\
+    DOWNLINK_SEND_UART_ERRORS(_trans, _dev,				\
+                      &usart_ore, \
+                      &usart_ne_err, \
+                      &usart_fe_err);		\
+  }
+
 #endif /* TELEMETRY_H */

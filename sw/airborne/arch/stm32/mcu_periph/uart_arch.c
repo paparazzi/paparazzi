@@ -34,6 +34,11 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include "std.h"
 
+/* Error logging variables  */
+volatile int32_t usart_ore = 0;
+volatile int32_t usart_ne_err = 0;
+volatile int32_t usart_fe_err = 0;
+
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control) {
 
   /* Configure USART */
@@ -49,6 +54,12 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_fl
   else {
     usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_NONE);
   }
+  
+  /* Disable Idle Line interrupt */
+  usart_disable_flag((u32)p->reg_addr, USART_CR1_IDLEIE, USART_CR1_REG);
+  
+  /* Disable LIN break detection interrupt */
+  usart_disable_flag((u32)p->reg_addr, USART_CR2_LBDIE, USART_CR2_REG);
 
   /* Enable USART1 Receive interrupts */
   USART_CR1((u32)p->reg_addr) |= USART_CR1_RXNEIE;
@@ -97,16 +108,36 @@ static inline void usart_isr(struct uart_periph* p) {
       USART_CR1((u32)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
     }
   }
-
-  if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-		  ((USART_SR((u32)p->reg_addr) & USART_SR_RXNE) != 0)) {
+  
+  if (
+      ((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_RXNE) != 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) == 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_NE) == 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_FE) == 0)) {
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
     p->rx_buf[p->rx_insert_idx] = usart_recv((u32)p->reg_addr);
     // check for more room in queue
     if (temp != p->rx_extract_idx)
       p->rx_insert_idx = temp; // update insert index
   }
-
+  else { // ORE, NE or FE error - read USART_DR reg and log the error
+    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) != 0)) {
+		        usart_recv((u32)p->reg_addr);
+		        usart_ore++;
+    }
+    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_NE) != 0)) {
+		        usart_recv((u32)p->reg_addr);
+		        usart_ne_err++;
+    }
+    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+		  ((USART_SR((u32)p->reg_addr) & USART_SR_FE) != 0)) {
+		        usart_recv((u32)p->reg_addr);
+		        usart_fe_err++;
+    }
+  }
 }
 
 static inline void usart_enable_irq(u8 IRQn) {
