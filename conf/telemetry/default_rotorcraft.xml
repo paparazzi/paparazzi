@@ -46,8 +46,9 @@
       <message name="IMU_ACCEL_SCALED"       period=".075"/>
       <message name="IMU_MAG_SCALED"         period=".1"/>
     </mode>
-<!--
+
     <mode name="ahrs">
+    
       <message name="ROTORCRAFT_STATUS"  period="1.2"/>
       <message name="DL_VALUE"           period="0.5"/>
       <message name="ALIVE"              period="2.1"/>
@@ -56,7 +57,7 @@
       <message name="AHRS_GYRO_BIAS_INT" period="0.08"/>
       <message name="AHRS_EULER_INT"     period=".1"/>
     </mode>
--->
+
 
     <mode name="rate_loop">
       <message name="ROTORCRAFT_STATUS" period="1.2"/>

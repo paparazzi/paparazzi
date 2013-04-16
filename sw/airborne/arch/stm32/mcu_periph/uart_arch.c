@@ -56,10 +56,10 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_fl
   }
   
   /* Disable Idle Line interrupt */
-  usart_disable_flag((u32)p->reg_addr, USART_CR1_IDLEIE, USART_CR1_REG);
+  USART_CR1((u32)p->reg_addr) &= ~USART_CR1_IDLEIE;
   
   /* Disable LIN break detection interrupt */
-  usart_disable_flag((u32)p->reg_addr, USART_CR2_LBDIE, USART_CR2_REG);
+  USART_CR2((u32)p->reg_addr) &= ~USART_CR2_LBDIE;
 
   /* Enable USART1 Receive interrupts */
   USART_CR1((u32)p->reg_addr) |= USART_CR1_RXNEIE;
@@ -125,17 +125,17 @@ static inline void usart_isr(struct uart_periph* p) {
     if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
 		  ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) != 0)) {
 		        usart_recv((u32)p->reg_addr);
-		        usart_ore++;
+		        p->ore++;
     }
     if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
 		  ((USART_SR((u32)p->reg_addr) & USART_SR_NE) != 0)) {
 		        usart_recv((u32)p->reg_addr);
-		        usart_ne_err++;
+		        p->ne_err++;
     }
     if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
 		  ((USART_SR((u32)p->reg_addr) & USART_SR_FE) != 0)) {
 		        usart_recv((u32)p->reg_addr);
-		        usart_fe_err++;
+		        p->fe_err++;
     }
   }
 }

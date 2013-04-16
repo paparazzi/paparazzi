@@ -1,12 +1,8 @@
 # AHRS module for GX3
 # 2013, Utah State University, http://aggieair.usu.edu/
 
-ifndef GX3_PORT
-  GX3_PORT=UART3
-endif
-ifndef GX3_BAUD
-  GX3_BAUD=B921600
-endif
+GX3_PORT ?= UART3
+GX3_BAUD ?= B921600
 
 AHRS_CFLAGS  = -DUSE_AHRS
 AHRS_CFLAGS += -DUSE_IMU
