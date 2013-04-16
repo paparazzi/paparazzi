@@ -34,6 +34,7 @@
 /* must be defined by underlying hardware */
 extern void imu_impl_init(void);
 extern void imu_periodic(void);
+extern void imu_align(void);
 
 /** abstract IMU interface providing fixed point interface  */
 struct Imu {
@@ -58,16 +59,22 @@ struct ImuFloat {
   struct FloatVect3   accel;
   struct FloatVect3   mag;
   struct FloatRates   gyro_prev;
+  struct FloatVect3   accel_prev;       ///< previous accelerometer measurements
+  struct FloatRates   gyro_neutral;     ///< gyroscope bias
+  struct FloatVect3   accel_neutral;    ///< accelerometer bias
+  struct FloatVect3   mag_neutral;      ///< magnetometer neutral readings (bias)
+  struct FloatRates   gyro_unscaled;    ///< unscaled gyroscope measurements
+  struct FloatVect3   accel_unscaled;   ///< unscaled accelerometer measurements
+  struct FloatVect3   mag_unscaled;     ///< unscaled magnetometer measurements
   struct FloatEulers  body_to_imu_eulers;
   struct FloatQuat    body_to_imu_quat;
   struct FloatRMat    body_to_imu_rmat;
   uint32_t sample_count;
 };
 
-extern void imu_float_init(struct ImuFloat* imuf);
-
 /** global IMU state */
 extern struct Imu imu;
+extern struct ImuFloat imuf;
 
 /* underlying hardware */
 #ifdef IMU_TYPE_H
@@ -75,7 +82,7 @@ extern struct Imu imu;
 #endif
 
 extern void imu_init(void);
-
+extern void imu_float_init(void);
 
 #if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
 #define IMU_BODY_TO_IMU_PHI   0
