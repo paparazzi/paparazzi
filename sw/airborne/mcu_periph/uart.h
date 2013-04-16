@@ -50,13 +50,6 @@
 #define B230400  230400
 #define B921600  921600
 
-/*
- * Error logging variables
- */
-extern volatile int32_t usart_ore;
-extern volatile int32_t usart_ne_err;
-extern volatile int32_t usart_fe_err;
-
 /**
  * UART peripheral
  */
@@ -74,7 +67,11 @@ struct uart_periph {
   void* reg_addr;
   /* UART Dev (linux) */
   char dev[UART_DEV_NAME_SIZE];
+  volatile uint16_t ore;
+  volatile uint16_t ne_err;
+  volatile uint16_t fe_err;
 };
+
 
 extern void uart_periph_init(struct uart_periph* p);
 extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud, bool_t hw_flow_control);
