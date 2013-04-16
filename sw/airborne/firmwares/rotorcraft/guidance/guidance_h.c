@@ -80,7 +80,7 @@ int32_t guidance_h_igain;
 int32_t guidance_h_again;
 
 
-static void guidance_h_update_reference();
+static void guidance_h_update_reference(void);
 static void guidance_h_traj_run(bool_t in_flight);
 static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
@@ -240,7 +240,7 @@ void guidance_h_run(bool_t  in_flight) {
 
 }
 
-static void guidance_h_update_reference() {
+static void guidance_h_update_reference(void) {
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
 #if GUIDANCE_H_USE_REF
   gh_update_ref_from_pos_sp(guidance_h_pos_sp);
