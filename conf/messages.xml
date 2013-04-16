@@ -1755,7 +1755,11 @@
     <field name="electrical_current" type="int32" unit="mA"/>
   </message>
 
-  <!--208 is free -->
+  <message name="UART_ERRORS" id="208">
+    <field name="ORE" type="int32" unit="errs"/>
+    <field name="NE_ERR" type="int32" unit="errs"/>
+    <field name="FE_ERR" type="int32" unit="errs"/>
+  </message>
 
   <message name="IMU_GYRO_LP" id="209">
     <field name="gp" type="float" unit="rad/s"/>
