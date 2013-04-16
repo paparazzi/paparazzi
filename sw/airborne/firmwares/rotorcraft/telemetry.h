@@ -876,11 +876,22 @@
 #endif
 
 #ifndef SITL
-#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) { \
-    PERIODIC_SEND_I2C0_ERRORS(_trans, _dev);     \
-    PERIODIC_SEND_I2C1_ERRORS(_trans, _dev);     \
-    PERIODIC_SEND_I2C2_ERRORS(_trans, _dev);     \
-}
+#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {        \
+    static uint8_t _i2c_nb_cnt = 0;                     \
+    switch (_i2c_nb_cnt) {                              \
+      case 0:                                           \
+        PERIODIC_SEND_I2C0_ERRORS(_trans, _dev); break; \
+      case 1:                                           \
+        PERIODIC_SEND_I2C1_ERRORS(_trans, _dev); break; \
+      case 2:                                           \
+        PERIODIC_SEND_I2C2_ERRORS(_trans, _dev); break; \
+      default:                                          \
+        break;                                          \
+    }                                                   \
+    _i2c_nb_cnt++;                                      \
+    if (_i2c_nb_cnt == 3)                               \
+      _i2c_nb_cnt = 0;                                  \
+  }
 #else
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {}
 #endif
