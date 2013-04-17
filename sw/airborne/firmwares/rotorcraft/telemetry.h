@@ -977,6 +977,8 @@
 #define MAX_UART_NUMBER 3
 #define PERIODIC_SEND_UART_ERRORS(_trans, _dev) { \
   static uint8_t uart_nb_cnt = 0; \
+    if (uart_nb_cnt == MAX_UART_NUMBER) \
+    uart_nb_cnt = 0; \
   switch (uart_nb_cnt) { \
     case 0: \
       PERIODIC_SEND_UART1_ERRORS(_trans, _dev); break; \
@@ -989,8 +991,6 @@
     default: break; \
   } \
   uart_nb_cnt++; \
-  if (uart_nb_cnt == MAX_UART_NUMBER) \
-    uart_nb_cnt = 0; \
 } 
 #else
 #define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {}

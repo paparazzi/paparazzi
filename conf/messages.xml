@@ -1764,9 +1764,10 @@
   </message>
 
   <message name="UART_ERRORS" id="208">
-    <field name="ORE" type="int32" unit="errs"/>
-    <field name="NE_ERR" type="int32" unit="errs"/>
-    <field name="FE_ERR" type="int32" unit="errs"/>
+    <field name="OverrunErrors" type="uint16"/>
+    <field name="NoiseErrors" type="uint16"/>
+    <field name="FrameErrors" type="uint16"/>
+    <field name="BusNumber" type="uint8"/>
   </message>
 
   <message name="IMU_GYRO_LP" id="209">
