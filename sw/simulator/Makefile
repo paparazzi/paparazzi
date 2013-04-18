@@ -50,7 +50,7 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
-	CAML_CFLAGS = -I/opt/local/lib/ocaml
+	CAML_CFLAGS = -I $(shell $(OCAMLC) -where)
 else
 	CAML_CFLAGS =
 endif
