@@ -52,7 +52,7 @@ else
   FPIC =
 endif
 
-INCLUDES += -I `ocamlc -where`
+INCLUDES += -I $(shell $(OCAMLC) -where)
 
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
@@ -65,6 +65,11 @@ CFLAGS += -std=gnu99
 
 LDFLAGS		=	-lm
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	CAMLINCLUDES += $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
+	CAMLCMAS = unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma
+endif
 
 #
 # General rules
@@ -81,9 +86,15 @@ autopilot.so : $($(TARGET).objs)
 	@echo BUILD $@
 	$(Q)$(CC) -shared -o $(OBJDIR)/$@ $^
 
+ifeq ("$(UNAME)","Darwin")
+$(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
+	@echo LD $@
+	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $(MYGTKINITCMO) $^
+else
 $(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
 	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
+endif
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)
