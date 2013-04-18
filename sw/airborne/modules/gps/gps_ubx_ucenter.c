@@ -359,7 +359,9 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     gps_ubx_ucenter.replies[3] = gps_ubx_ucenter.sw_ver_l;
     gps_ubx_ucenter.replies[4] = gps_ubx_ucenter.hw_ver_h;
     gps_ubx_ucenter.replies[5] = gps_ubx_ucenter.hw_ver_l;
+#if DEBUG_GPS_UBX_UCENTER
     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,6,gps_ubx_ucenter.replies);
+#endif
 
     //////////////////////////////////
     // Actual configuration start
@@ -407,8 +409,10 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     UbxSend_CFG_CFG(0x00000000,0xffffffff,0x00000000);
     break;
   case 16:
+#if DEBUG_GPS_UBX_UCENTER
     // Debug Downlink the result of all configuration steps: see messages
     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,GPS_UBX_UCENTER_CONFIG_STEPS,gps_ubx_ucenter.replies);
+#endif
     return FALSE;
   default:
     break;

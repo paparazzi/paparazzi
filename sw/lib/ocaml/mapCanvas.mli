@@ -43,6 +43,7 @@ class widget :
       float * float -> float -> float -> float -> GnoCanvas.line
     method background : GnoCanvas.group
     method background_event : GnoCanvas.item_event -> bool
+    method maps : GnoCanvas.group array
     method canvas : GnoCanvas.canvas
     method center : Latlong.geographic -> unit
     method circle :
@@ -57,6 +58,7 @@ class widget :
     method display_group : string -> unit
     method display_pixbuf :
       ?opacity:int ->
+      ?level:int ->
       (int * int) * Latlong.geographic ->
       (int * int) * Latlong.geographic -> GdkPixbuf.pixbuf -> GnoCanvas.pixbuf
     method display_xy : string -> unit

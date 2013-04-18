@@ -47,26 +47,26 @@ type speed =
 
 let speed_of_baudrate = fun baudrate ->
   match baudrate with
-    "0" -> B0
-  | "50" -> B50
-  | "75" -> B75
-  | "110" -> B110
-  | "134" -> B134
-  | "150" -> B150
-  | "200" -> B200
-  | "300" -> B300
-  | "600" -> B600
-  | "1200" -> B1200
-  | "1800" -> B1800
-  | "2400" -> B2400
-  | "4800" -> B4800
-  | "9600" -> B9600
-  | "19200" -> B19200
-  | "38400" -> B38400
-  | "57600" -> B57600
-  | "115200" -> B115200
-  | "230400" -> B230400
-  | _ -> invalid_arg "Serial.speed_of_baudrate"
+      "0" -> B0
+    | "50" -> B50
+    | "75" -> B75
+    | "110" -> B110
+    | "134" -> B134
+    | "150" -> B150
+    | "200" -> B200
+    | "300" -> B300
+    | "600" -> B600
+    | "1200" -> B1200
+    | "1800" -> B1800
+    | "2400" -> B2400
+    | "4800" -> B4800
+    | "9600" -> B9600
+    | "19200" -> B19200
+    | "38400" -> B38400
+    | "57600" -> B57600
+    | "115200" -> B115200
+    | "230400" -> B230400
+    | _ -> invalid_arg "Serial.speed_of_baudrate"
 
 
 type payload = string
@@ -83,8 +83,8 @@ let opendev device speed hw_flow_control =
   try
     init_serial device speed hw_flow_control
   with
-    Failure x ->
-      failwith (Printf.sprintf "Error %s (%s)" x device)
+      Failure x ->
+        failwith (Printf.sprintf "Error %s (%s)" x device)
 
 let close = Unix.close
 
@@ -109,15 +109,15 @@ let input = fun ?(read = Unix.read) f ->
     let rec parse = fun start n ->
       Debug.call 'T' (fun f -> fprintf f "input parse: %d %d\n" start n);
       let nb_used = f (String.sub buffer start n) in
-(* 	Printf.fprintf stderr "n'=%d\n" nb_used; flush stderr; *)
+      (*  Printf.fprintf stderr "n'=%d\n" nb_used; flush stderr; *)
       if nb_used > 0 then
-	parse (start + nb_used) (n - nb_used)
+        parse (start + nb_used) (n - nb_used)
       else if n = buffer_len then
-	(* The buffer is full and the user does not consume any. We have to
-	   discard one char to avoid a dead lock *)
+        (* The buffer is full and the user does not consume any. We have to
+           discard one char to avoid a dead lock *)
         parse (start + 1) (n - 1)
       else
-	wait start n in
+        wait start n in
     parse 0 n)
 
 
@@ -152,25 +152,25 @@ module Transport(Protocol:PROTOCOL) = struct
 
       (* Checks if the complete frame is available in the buffer. *)
       if n < end_ then
-	raise Not_enough;
+        raise Not_enough;
 
       (* Extracts the complete frame *)
       let msg = String.sub buf !start length in
 
       (* Checks sum *)
       if Protocol.checksum msg then begin
-	(* Calls the handler with the message *)
-	use (Protocol.payload msg)
+        (* Calls the handler with the message *)
+        use (Protocol.payload msg)
       end else begin
-	(* Reports the error *)
-	incr nb_err;
-	discarded_bytes := !discarded_bytes + length;
-	Debug.call 'T' (fun f -> fprintf f "Transport.chk: %s\n" (Debug.xprint msg))
+        (* Reports the error *)
+        incr nb_err;
+        discarded_bytes := !discarded_bytes + length;
+        Debug.call 'T' (fun f -> fprintf f "Transport.chk: %s\n" (Debug.xprint msg))
       end;
 
       (* Continues with the rest of the message *)
       end_ + parse use (String.sub buf end_ (String.length buf - end_))
     with
-      Not_found -> String.length buf
-    | Not_enough -> !start
+        Not_found -> String.length buf
+      | Not_enough -> !start
 end

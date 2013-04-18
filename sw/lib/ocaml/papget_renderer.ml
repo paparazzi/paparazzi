@@ -27,63 +27,63 @@ module PC = Papget_common
 let (//) = Filename.concat
 
 class type movable_item =
-    object
-      inherit GnoCanvas.base_item
-      method set : GnomeCanvas.group_p list -> unit
-    end
+object
+  inherit GnoCanvas.base_item
+  method set : GnomeCanvas.group_p list -> unit
+end
 
 class type t =
-  object
-    method tag : string
-    method edit : (GObj.widget -> unit) -> unit
-    method item : movable_item
-    method update : string -> unit
-    method config : unit -> Xml.xml list
-  end
+object
+  method tag : string
+  method edit : (GObj.widget -> unit) -> unit
+  method item : movable_item
+  method update : string -> unit
+  method config : unit -> Xml.xml list
+end
 
 
 (*************************** Text ***********************************)
 class canvas_text = fun ?(config=[]) canvas_group x y ->
   let group = GnoCanvas.group ~x ~y canvas_group in
   let text = GnoCanvas.text ~text:"_" group in
-  object (self)
-    val mutable format = PC.get_prop "format" config "%.2f"
-    val mutable size = float_of_string (PC.get_prop "size" config "15.")
-    val mutable color = PC.get_prop "color" config "green"
+object (self)
+  val mutable format = PC.get_prop "format" config "%.2f"
+  val mutable size = float_of_string (PC.get_prop "size" config "15.")
+  val mutable color = PC.get_prop "color" config "green"
 
-    method tag = "Text"
-    method item = (group :> movable_item)
-    method config = fun () ->
-      [ PC.property "format" format;
-	PC.float_property "size" size;
-	PC.property "color" color ]
-    method update = fun (value : string) ->
-      let renderer = fun x ->
-	try sprintf (Obj.magic format) (float_of_string x) with _ -> x in
-      text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR color; `ANCHOR `NW]
+  method tag = "Text"
+  method item = (group :> movable_item)
+  method config = fun () ->
+    [ PC.property "format" format;
+      PC.float_property "size" size;
+      PC.property "color" color ]
+  method update = fun (value : string) ->
+    let renderer = fun x ->
+      try sprintf (Obj.magic format) (float_of_string x) with _ -> x in
+    text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR color; `ANCHOR `NW]
 
 
-    method edit = fun (pack:GObj.widget -> unit) ->
-      let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
-      let text_editor = new Gtk_papget_text_editor.table_text_editor ~file () in
-      pack text_editor#table_text_editor#coerce;
+  method edit = fun (pack:GObj.widget -> unit) ->
+    let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
+    let text_editor = new Gtk_papget_text_editor.table_text_editor ~file () in
+    pack text_editor#table_text_editor#coerce;
 
       (* Initialize the entries *)
-      text_editor#entry_format#set_text format;
-      text_editor#spinbutton_size#set_value size;
-      text_editor#comboboxentry_color#set_active 0;
+    text_editor#entry_format#set_text format;
+    text_editor#spinbutton_size#set_value size;
+    text_editor#comboboxentry_color#set_active 0;
 
       (* Connect the entries *)
-      let callback = fun () ->
-	format <- text_editor#entry_format#text in
-      ignore (text_editor#entry_format#connect#activate ~callback);
-      let callback = fun () ->
-        size <- text_editor#spinbutton_size#value in
-      ignore (text_editor#spinbutton_size#connect#value_changed ~callback);
-      let callback = fun () ->
-        color <- text_editor#comboboxentry_color#entry#text in
-      ignore (text_editor#comboboxentry_color#connect#changed ~callback);
-  end
+    let callback = fun () ->
+      format <- text_editor#entry_format#text in
+    ignore (text_editor#entry_format#connect#activate ~callback);
+    let callback = fun () ->
+      size <- text_editor#spinbutton_size#value in
+    ignore (text_editor#spinbutton_size#connect#value_changed ~callback);
+    let callback = fun () ->
+      color <- text_editor#comboboxentry_color#entry#text in
+    ignore (text_editor#comboboxentry_color#connect#changed ~callback);
+end
 
 
 (***************************Vertical Ruler ***********************************)
@@ -140,20 +140,20 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
     if index_on_right then
       idx#affine_absolute (affine_pos_and_angle w 0. Latlong.pi) in
 
-  object
-    method tag = "Ruler"
-    method edit = fun (pack:GObj.widget -> unit) -> ()
-    method update = fun value ->
-      let value = float_of_string value in
-      drawer value
-    method item = (root :> movable_item)
-    method config = fun () ->
-      [ PC.float_property "height" h;
-	PC.property "index_on_right" (sprintf "%b" index_on_right);
-	PC.float_property "width" w;
-	PC.float_property "point_per_unit" point_per_unit;
-	PC.property "step" (sprintf "%d" step) ]
-  end
+object
+  method tag = "Ruler"
+  method edit = fun (pack:GObj.widget -> unit) -> ()
+  method update = fun value ->
+    let value = float_of_string value in
+    drawer value
+  method item = (root :> movable_item)
+  method config = fun () ->
+    [ PC.float_property "height" h;
+      PC.property "index_on_right" (sprintf "%b" index_on_right);
+      PC.float_property "width" w;
+      PC.float_property "point_per_unit" point_per_unit;
+      PC.property "step" (sprintf "%d" step) ]
+end
 
 (*************************** Gauge ***********************************)
 class canvas_gauge = fun ?(config=[]) canvas_group x y ->
@@ -193,54 +193,54 @@ class canvas_gauge = fun ?(config=[]) canvas_group x y ->
   let text_mid = GnoCanvas.text ~x:0. ~y:(-.r2-.3.) ~props:[`ANCHOR `SOUTH; `FILL_COLOR "green"] root in
   let text_text = GnoCanvas.text ~x:0. ~y:(r2+.3.) ~props:[`ANCHOR `NORTH; `FILL_COLOR "green"] root in
 
-  object
-    val mutable min = PC.get_prop "min" config "-50."
-    val mutable max = PC.get_prop "max" config "50."
-    val mutable text = PC.get_prop "text" config ""
+object
+  val mutable min = PC.get_prop "min" config "-50."
+  val mutable max = PC.get_prop "max" config "50."
+  val mutable text = PC.get_prop "text" config ""
 
-    method tag = "Gauge"
-    method edit = fun (pack:GObj.widget -> unit) ->
-      let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
-      let gauge_editor = new Gtk_papget_gauge_editor.table_gauge_editor ~file () in
-      pack gauge_editor#table_gauge_editor#coerce;
+  method tag = "Gauge"
+  method edit = fun (pack:GObj.widget -> unit) ->
+    let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
+    let gauge_editor = new Gtk_papget_gauge_editor.table_gauge_editor ~file () in
+    pack gauge_editor#table_gauge_editor#coerce;
 
       (* Initialize the entries *)
-      gauge_editor#entry_min#set_text min;
-      gauge_editor#entry_max#set_text max;
-      gauge_editor#entry_text#set_text text;
+    gauge_editor#entry_min#set_text min;
+    gauge_editor#entry_max#set_text max;
+    gauge_editor#entry_text#set_text text;
 
       (* Connect the entries *)
-      let callback = fun () ->
-        min <- gauge_editor#entry_min#text in
-      ignore (gauge_editor#entry_min#connect#activate ~callback);
-      let callback = fun () ->
-        max <- gauge_editor#entry_max#text in
-      ignore (gauge_editor#entry_max#connect#activate ~callback);
-      let callback = fun () ->
-        text <- gauge_editor#entry_text#text in
-      ignore (gauge_editor#entry_text#connect#activate ~callback);
+    let callback = fun () ->
+      min <- gauge_editor#entry_min#text in
+    ignore (gauge_editor#entry_min#connect#activate ~callback);
+    let callback = fun () ->
+      max <- gauge_editor#entry_max#text in
+    ignore (gauge_editor#entry_max#connect#activate ~callback);
+    let callback = fun () ->
+      text <- gauge_editor#entry_text#text in
+    ignore (gauge_editor#entry_text#connect#activate ~callback);
 
-    method update = fun value ->
-      let value = float_of_string value in
+  method update = fun value ->
+    let value = float_of_string value in
       (* Gauge drawer *)
-      let fmin = float_of_string min in
-      let fmax = float_of_string max in
-      let rot = ref (-.max_rot +. 2. *. max_rot *. (value -. fmin) /. (fmax -. fmin)) in
-      if !rot > max_rot then rot := max_rot;
-      if !rot < -.max_rot then rot := -.max_rot;
-      idx#affine_absolute (affine_pos_and_angle 0. 0. !rot);
-      text_min#set [`TEXT min];
-      text_max#set [`TEXT max];
-      text_mid#set [`TEXT (string_of_float ((fmin +. fmax)/.2.))];
-      text_text#set [`TEXT text]
+    let fmin = float_of_string min in
+    let fmax = float_of_string max in
+    let rot = ref (-.max_rot +. 2. *. max_rot *. (value -. fmin) /. (fmax -. fmin)) in
+    if !rot > max_rot then rot := max_rot;
+    if !rot < -.max_rot then rot := -.max_rot;
+    idx#affine_absolute (affine_pos_and_angle 0. 0. !rot);
+    text_min#set [`TEXT min];
+    text_max#set [`TEXT max];
+    text_mid#set [`TEXT (string_of_float ((fmin +. fmax)/.2.))];
+    text_text#set [`TEXT text]
 
-    method item = (root :> movable_item)
-    method config = fun () ->
-      [ PC.property "min" min;
-        PC.property "max" max;
-        PC.property "size" size;
-        PC.property "text" text ]
-  end
+  method item = (root :> movable_item)
+  method config = fun () ->
+    [ PC.property "min" min;
+      PC.property "max" max;
+      PC.property "size" size;
+      PC.property "text" text ]
+end
 
 (*************************** Led ***********************************)
 class canvas_led = fun ?(config=[]) canvas_group x y ->
@@ -255,52 +255,52 @@ class canvas_led = fun ?(config=[]) canvas_group x y ->
 
   let led_text = GnoCanvas.text ~x:(-.r-.3.) ~y:0. ~props:[`ANCHOR `EAST; `FILL_COLOR "green"] root in
 
-  object
-    val mutable size = float_of_string (PC.get_prop "size" config "15.")
-    val mutable text = PC.get_prop "text" config ""
-    val mutable test_value = float_of_string (PC.get_prop "test_value" config "0.")
-    val mutable test_inv = bool_of_string (PC.get_prop "test_invert" config "false")
+object
+  val mutable size = float_of_string (PC.get_prop "size" config "15.")
+  val mutable text = PC.get_prop "text" config ""
+  val mutable test_value = float_of_string (PC.get_prop "test_value" config "0.")
+  val mutable test_inv = bool_of_string (PC.get_prop "test_invert" config "false")
 
-    method tag = "Led"
-    method edit = fun (pack:GObj.widget -> unit) ->
-      let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
-      let led_editor = new Gtk_papget_led_editor.table_led_editor ~file () in
-      pack led_editor#table_led_editor#coerce;
+  method tag = "Led"
+  method edit = fun (pack:GObj.widget -> unit) ->
+    let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
+    let led_editor = new Gtk_papget_led_editor.table_led_editor ~file () in
+    pack led_editor#table_led_editor#coerce;
 
       (* Initialize the entries *)
-      led_editor#entry_text#set_text text;
-      led_editor#spinbutton_size#set_value size;
-      led_editor#spinbutton_test#set_value test_value;
+    led_editor#entry_text#set_text text;
+    led_editor#spinbutton_size#set_value size;
+    led_editor#spinbutton_test#set_value test_value;
 
       (* Connect the entries *)
-      let callback = fun () ->
-        text <- led_editor#entry_text#text in
-      ignore (led_editor#entry_text#connect#activate ~callback);
-      let callback = fun () ->
-        size <- led_editor#spinbutton_size#value in
-      ignore (led_editor#spinbutton_size#connect#activate ~callback);
-      let callback = fun () ->
-        test_value <- led_editor#spinbutton_test#value in
-      ignore (led_editor#spinbutton_test#connect#activate ~callback);
-      let callback = fun () ->
-        test_inv <- led_editor#check_invert#active in
-      ignore (led_editor#check_invert#connect#toggled ~callback);
+    let callback = fun () ->
+      text <- led_editor#entry_text#text in
+    ignore (led_editor#entry_text#connect#activate ~callback);
+    let callback = fun () ->
+      size <- led_editor#spinbutton_size#value in
+    ignore (led_editor#spinbutton_size#connect#activate ~callback);
+    let callback = fun () ->
+      test_value <- led_editor#spinbutton_test#value in
+    ignore (led_editor#spinbutton_test#connect#activate ~callback);
+    let callback = fun () ->
+      test_inv <- led_editor#check_invert#active in
+    ignore (led_editor#check_invert#connect#toggled ~callback);
 
-    method update = fun value ->
-      let value = float_of_string value in
-      let inv = if test_inv then not else (fun x -> x) in
+  method update = fun value ->
+    let value = float_of_string value in
+    let inv = if test_inv then not else (fun x -> x) in
       (* Led drawer *)
-      if inv (value = test_value) then led#set [`FILL_COLOR "red"]
-      else led#set [`FILL_COLOR "green"];
-      let r = (Pervasives.max 2. (size /. 2.)) +. 1. in
-      led#set [`X1 r; `Y1 r; `X2 (-.r); `Y2 (-.r)];
-      led_text#set [`TEXT text; `SIZE_POINTS size; `X (-.r-.3.)]
+    if inv (value = test_value) then led#set [`FILL_COLOR "red"]
+    else led#set [`FILL_COLOR "green"];
+    let r = (Pervasives.max 2. (size /. 2.)) +. 1. in
+    led#set [`X1 r; `Y1 r; `X2 (-.r); `Y2 (-.r)];
+    led_text#set [`TEXT text; `SIZE_POINTS size; `X (-.r-.3.)]
 
-    method item = (root :> movable_item)
-    method config = fun () ->
-      [ PC.float_property "size" size;
-        PC.property "text" text ]
-  end
+  method item = (root :> movable_item)
+  method config = fun () ->
+    [ PC.float_property "size" size;
+      PC.property "text" text ]
+end
 
 (****************************************************************************)
 class canvas_button = fun ?(config=[]) canvas_group x y ->
@@ -308,16 +308,16 @@ class canvas_button = fun ?(config=[]) canvas_group x y ->
   let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
   let group = GnoCanvas.group ~x ~y canvas_group in
   let _item = GnoCanvas.pixbuf ~pixbuf group in
-  object
-    method tag = "Button"
-    method item = (group :> movable_item)
-    method edit = fun (pack:GObj.widget -> unit) -> ()
-    method update = fun (value:string) -> ()
-    method config = fun () ->
-      [ PC.property "icon" icon]
-    initializer
-      group#raise_to_top ();
-  end
+object
+  method tag = "Button"
+  method item = (group :> movable_item)
+  method edit = fun (pack:GObj.widget -> unit) -> ()
+  method update = fun (value:string) -> ()
+  method config = fun () ->
+    [ PC.property "icon" icon]
+  initializer
+    group#raise_to_top ();
+end
 
 
 (****************************************************************************)
@@ -329,21 +329,21 @@ class canvas_mplayer = fun ?(config=[]) canvas_group x y ->
   let group = GnoCanvas.group ~x ~y canvas_group in
   let _item = GnoCanvas.widget ~width ~height ~widget:socket group in
 
-  object
-    method tag = "Mplayer"
-    method item = (group :> movable_item)
-    method edit = fun (pack:GObj.widget -> unit) -> ()
-    method update = fun (value:string) -> ()
-    method config = fun () ->
-      [ PC.property "video_feed" video_feed;
-	PC.float_property "width" width;
-	PC.float_property "height" height ]
-    initializer
-      group#lower_to_bottom ();
-      let com = sprintf "exec mplayer -vo xv -really-quiet -nomouseinput %s -wid 0x%lx -geometry %.0fx%.0f" video_feed socket#xwindow width height in
-      let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
-      ignore (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null)
-  end
+object
+  method tag = "Mplayer"
+  method item = (group :> movable_item)
+  method edit = fun (pack:GObj.widget -> unit) -> ()
+  method update = fun (value:string) -> ()
+  method config = fun () ->
+    [ PC.property "video_feed" video_feed;
+      PC.float_property "width" width;
+      PC.float_property "height" height ]
+  initializer
+    group#lower_to_bottom ();
+    let com = sprintf "exec mplayer -vo xv -really-quiet -nomouseinput %s -wid 0x%lx -geometry %.0fx%.0f" video_feed socket#xwindow width height in
+    let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
+    ignore (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null)
+end
 
 
 (****************************************************************************)
@@ -355,21 +355,21 @@ class canvas_plugin = fun ?(config=[]) canvas_group x y ->
   let group = GnoCanvas.group ~x ~y canvas_group in
   let _item = GnoCanvas.widget ~width ~height ~widget:socket group in
 
-  object
-    method tag = "Plugin"
-    method item = (group :> movable_item)
-    method edit = fun (pack:GObj.widget -> unit) -> ()
-    method update = fun (value:string) -> ()
-    method config = fun () ->
-      [ PC.property "command" command;
-	PC.float_property "width" width;
-	PC.float_property "height" height ]
-    initializer
-      group#lower_to_bottom ();
-      let com = sprintf "exec %s0x%lx" command socket#xwindow in
-      let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
-      ignore (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null)
-  end
+object
+  method tag = "Plugin"
+  method item = (group :> movable_item)
+  method edit = fun (pack:GObj.widget -> unit) -> ()
+  method update = fun (value:string) -> ()
+  method config = fun () ->
+    [ PC.property "command" command;
+      PC.float_property "width" width;
+      PC.float_property "height" height ]
+  initializer
+    group#lower_to_bottom ();
+    let com = sprintf "exec %s0x%lx" command socket#xwindow in
+    let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
+    ignore (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null)
+end
 
 
 
@@ -380,11 +380,11 @@ let renderers =
     (new canvas_led :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ]
 
 let lazy_tagged_renderers = lazy
-    (let x = 0. and y = 0.
-    and group = (GnoCanvas.canvas ())#root in
-    List.map
-      (fun constructor ->
-	let o = constructor ?config:None group x y in
-	(o#tag, constructor))
-      renderers)
+  (let x = 0. and y = 0.
+  and group = (GnoCanvas.canvas ())#root in
+   List.map
+     (fun constructor ->
+       let o = constructor ?config:None group x y in
+       (o#tag, constructor))
+     renderers)
 

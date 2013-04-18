@@ -52,21 +52,21 @@ let waypoint = fun utm0 alt0 wp ->
      data "styleUrl" "#msn_wp_icon";
      el "Point" []
        [data "extrude" "1";
-	data "coordinates" (coordinates wgs84 a)]]
+        data "coordinates" (coordinates wgs84 a)]]
 
 let icon_style = fun ?(heading=0) ?(color="ffffffff") id icon ->
   el "Style" ["id", id]
     [el "IconStyle" []
-       [data "heading" (string_of_int heading);
-	data "color" color;
-	el "Icon" []
-	  [data "href" (sprintf "http://maps.google.com/mapfiles/kml/%s" icon)]]]
+        [data "heading" (string_of_int heading);
+         data "color" color;
+         el "Icon" []
+           [data "href" (sprintf "http://maps.google.com/mapfiles/kml/%s" icon)]]]
 
 let line_style = fun id ?(width = 2) color ->
   el "Style" ["id", id]
     [el "LineStyle" []
-       [data "color" color;
-	data "width" (string_of_int width)]]
+        [data "color" color;
+         data "width" (string_of_int width)]]
 
 let pair = fun key icon ->
   el "Pair" []
@@ -104,8 +104,8 @@ let ring_around_home = fun utm0 fp ->
      line_style "red" "800000ff";
      el "LinearRing" []
        [ data "extrude" "1";
-	 data "altitudeMode" "relativeToGround";
-	 data "coordinates" coords]]
+         data "altitudeMode" "relativeToGround";
+         data "coordinates" coords]]
 
 
 let horiz_mode =
@@ -114,7 +114,7 @@ let horiz_mode =
      line_style ~width:4 "green" "8000ff00";
      el "LineString" []
        [ data "altitudeMode" "absolute";
-	 data "coordinates" ""]]
+         data "coordinates" ""]]
 
 let georef_of_xml = fun xml ->
   let lat0 = Latlong.deg_of_string (ExtXml.attrib xml "lat0")
@@ -152,34 +152,34 @@ let aircraft = fun ac url_flight_plan url_changes ->
   let dyn_links =
     List.map (fun url ->
       el "NetworkLink" []
-	  [data "name" ("Update "^ac);
-	   el "Link" []
-	     [data "refreshMode" "onInterval";
-	      data "refreshInterval" "0.5";
-	      data "href" url]])
+        [data "name" ("Update "^ac);
+         el "Link" []
+           [data "refreshMode" "onInterval";
+            data "refreshInterval" "0.5";
+            data "href" url]])
       url_changes in
   let description = data "description" "Beta version. Open and double-click on flight plan. You may need to refresh following Update objects on errors" in
   kml
     [el "Document" []
-       (description::(el "NetworkLink" []
-	  [data "name" (ac^" flight plan");
-	   el "Link" []
-	     [data "href" url_flight_plan]]):: dyn_links)]
+        (description::(el "NetworkLink" []
+                         [data "name" (ac^" flight plan");
+                          el "Link" []
+                            [data "href" url_flight_plan]]):: dyn_links)]
 
 
 let change_placemark = fun ?(description="") id wgs84 alt ->
   el "Change" []
     [el "Placemark" ["targetId", id]
-       [data "description" description;
-	el "Point" []
-	  [data "altitudeMode" "absolute";
-	   data "coordinates" (coordinates wgs84 alt)]]]
+        [data "description" description;
+         el "Point" []
+           [data "altitudeMode" "absolute";
+            data "coordinates" (coordinates wgs84 alt)]]]
 
 
 let link_update = fun target_href changes ->
   kml
     [el "NetworkLinkControl" []
-       [el "Update" [] (data "targetHref" target_href :: changes)]]
+        [el "Update" [] (data "targetHref" target_href :: changes)]]
 
 
 
@@ -190,12 +190,12 @@ let change_waypoint = fun ac_name wp_id wgs84 alt ->
 let update_linear_ring = fun target_href id coordinates ->
   kml
     [el "NetworkLinkControl" []
-       [el "Update" []
-	  [data "targetHref" target_href;
-	   el "Change" []
-	     [el "Placemark" ["targetId", id]
-		[el "LineString" []
-		   [data "coordinates" coordinates]]]]]]
+        [el "Update" []
+            [data "targetHref" target_href;
+             el "Change" []
+               [el "Placemark" ["targetId", id]
+                   [el "LineString" []
+                       [data "coordinates" coordinates]]]]]]
 
 
 let print_xml = fun ac_name file xml ->
@@ -236,15 +236,15 @@ let update_horiz_mode =
       in
       let alt = ac.desired_altitude in
       match ac.horiz_mode with
-	Segment (p1, p2) ->
-	  let coordinates = String.concat " " (List.map (fun p -> coordinates p alt) [p1; p2]) in
-	  let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
-	  print_xml ac.name "route_changes.kml" kml_changes
-      | Circle (p, r) ->
-	  let coordinates = circle p (float r) alt in
-	  let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
-	  print_xml ac.name "route_changes.kml" kml_changes
-      | _ -> ()
+          Segment (p1, p2) ->
+            let coordinates = String.concat " " (List.map (fun p -> coordinates p alt) [p1; p2]) in
+            let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
+            print_xml ac.name "route_changes.kml" kml_changes
+        | Circle (p, r) ->
+          let coordinates = circle p (float r) alt in
+          let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
+          print_xml ac.name "route_changes.kml" kml_changes
+        | _ -> ()
     end
 
 
@@ -270,7 +270,7 @@ let update_ac = fun ac ->
     let kml_changes = link_update url_flight_plan [change] in
     print_xml ac.name "ac_changes.kml" kml_changes
   with
-    _ -> ()
+      _ -> ()
 
 
 let build_files = fun a ->

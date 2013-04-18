@@ -40,18 +40,18 @@ type expression =
 let c_var_of_ident = fun x -> "_var_" ^ x
 
 let rec sprint = function
-    Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
+Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
   | Ident i -> sprintf "%s" i
   | Int i -> sprintf "%d" i
   | Float i -> sprintf "%f" i
   | CallOperator (op, [e1;e2]) ->
-      sprintf "(%s%s%s)" (sprint e1) op (sprint e2)
+    sprintf "(%s%s%s)" (sprint e1) op (sprint e2)
   | CallOperator (op, [e1]) ->
-      sprintf "%s(%s)" op (sprint e1)
+    sprintf "%s(%s)" op (sprint e1)
   | CallOperator (_,_) -> failwith "Operator should be binary or unary"
   | Call (i, es) ->
-      let ses = List.map sprint es in
-      sprintf "%s(%s)" i (String.concat "," ses)
+    let ses = List.map sprint es in
+    sprintf "%s(%s)" i (String.concat "," ses)
   | Index (i,e) -> sprintf "%s[%s]" i (sprint e)
   | Field (i,f) -> sprintf "%s.%s" i f
   | Deref (e,f) -> sprintf "(%s)->%s" (sprint e) f
@@ -97,21 +97,21 @@ let unexpected = fun kind x ->
 
 let rec check_expression = fun e ->
   match e with
-    Ident i when i.[0] = '$' -> ()
-  | Ident i ->
+      Ident i when i.[0] = '$' -> ()
+    | Ident i ->
       if not (List.mem i variables) then
-	unexpected "ident" i
-  | Int _  | Float _ | CallOperator _ -> ()
-  | Call (i, es) ->
+        unexpected "ident" i
+    | Int _  | Float _ | CallOperator _ -> ()
+    | Call (i, es) ->
       if not (List.mem i functions) then
-	unexpected "function" i;
+        unexpected "function" i;
       List.iter check_expression es
-  | Index (i,e) ->
+    | Index (i,e) ->
       if not (List.mem i variables) then
-	unexpected "ident" i;
+        unexpected "ident" i;
       check_expression e
-  | Field (i, _field) ->
+    | Field (i, _field) ->
       if not (List.mem i variables) then
-	unexpected "ident" i
-  | Deref (e, _field) ->
+        unexpected "ident" i
+    | Deref (e, _field) ->
       check_expression e

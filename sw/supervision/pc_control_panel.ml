@@ -39,7 +39,11 @@ let programs =
 let program_command = fun x ->
   try
     let xml = Hashtbl.find programs x in
-    Env.paparazzi_src // ExtXml.attrib xml "command"
+    let cmd = ExtXml.attrib xml "command" in
+    if cmd.[0] = '/' then
+      cmd
+    else
+      Env.paparazzi_src // cmd
   with Not_found ->
     failwith (sprintf "Fatal Error: Program '%s' not found in control_panel.xml" x)
 
@@ -161,17 +165,21 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     run_and_monitor ?file gui log "GCS" ""
   and run_server = fun args ->
     run_and_monitor ?file gui log "Server" args
-  and run_sitl = fun ac_name ->
+  and choose_and_run_sitl = fun ac_name ->
     let get_args = fun simtype ac_name ->
       match simtype with
           "sim" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
         | "jsbsim" -> sprintf "-a %s -t %s" ac_name simtype
         | "nps" -> sprintf "-a %s -t %s" ac_name simtype
-        | _ -> sprintf "-a %s" ac_name
+        | _ -> "none"
     in
     let sim_type = get_simtype target_combo in
     let args = get_args sim_type ac_name in
-    run_and_monitor ?file gui log "Simulator" args
+    if args <> "none" then begin
+      run_and_monitor ?file gui log "Simulator" args;
+      run_and_monitor ?file gui log "GCS" "";
+      run_and_monitor ?file gui log "Server" "-n"
+    end
   in
 
   (* Sessions *)
@@ -219,9 +227,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
 
   (* Simulations *)
   let simulation = fun () ->
-    run_sitl (Gtk_tools.combo_value ac_combo);
-    run_gcs ();
-    run_server "-n" in
+    choose_and_run_sitl (Gtk_tools.combo_value ac_combo) in
 
   (* Run session *)
   let callback = fun () ->

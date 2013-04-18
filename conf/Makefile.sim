@@ -27,10 +27,13 @@
 # this should not be needed
 SRC_ARCH = arch/sim
 
+include $(PAPARAZZI_SRC)/sw/Makefile.ocaml
+
 CC = gcc
-OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
-CAMLINCLUDES = $(shell ocamlfind query -r -i-format lablgtk2) -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) $(shell ocamlfind query -r -i-format xml-light)
+CAMLINCLUDES = -I $(LIBPPRZDIR) -I $(SIMDIR) -I $(OBJDIR)
+PKG = -package glibivy,pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 SIMSITLML = $(OBJDIR)/simsitl.ml
 MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
@@ -42,18 +45,31 @@ Q=@
 # End of configuration part.
 #
 
-INCLUDES += -I `ocamlc -where`
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC = -fPIC
+else
+  FPIC =
+endif
+
+INCLUDES += -I $(shell $(OCAMLC) -where)
 
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
+CFLAGS += $(FPIC)
 CFLAGS += -O2
 CFLAGS += -g
 CFLAGS += -std=gnu99
 
 LDFLAGS		=	-lm
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+	CAMLINCLUDES += $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
+	CAMLCMAS = unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma
+endif
 
 #
 # General rules
@@ -65,10 +81,20 @@ $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
 all compile: $(OBJDIR)/simsitl
 
+# shared library of the C autopilot part
+autopilot.so : $($(TARGET).objs)
+	@echo BUILD $@
+	$(Q)$(CC) -shared -o $(OBJDIR)/$@ $^
 
+ifeq ("$(UNAME)","Darwin")
 $(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
-	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma $($(TARGET).objs) $(MYGTKINITCMO) $(SITLCMA) $(SIMSITLML)
+	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $(MYGTKINITCMO) $^
+else
+$(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
+	@echo LD $@
+	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
+endif
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)

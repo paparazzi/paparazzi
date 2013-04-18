@@ -39,6 +39,9 @@
 #include "generated/modules.h"
 #include "generated/flight_plan.h"
 
+/* for default GUIDANCE_H_USE_REF */
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+
 #include "math/pprz_algebra_int.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
@@ -123,6 +126,7 @@ void nav_run(void) {
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
 
 #if !GUIDANCE_H_USE_REF
+  PRINT_CONFIG_MSG("NOT using horizontal guidance reference :-(")
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
@@ -136,6 +140,7 @@ void nav_run(void) {
     VECT2_SUM(navigation_carrot, path_to_carrot, *stateGetPositionEnu_i());
   }
 #else
+  PRINT_CONFIG_MSG("Using horizontal guidance reference :-)")
   // if H_REF is used, CARROT_DIST is not used
   VECT2_COPY(navigation_carrot, navigation_target);
 #endif

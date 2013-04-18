@@ -42,7 +42,7 @@ bool_t optical_flow_available;
 struct mavlink_msg_req req;
 
 // callback function on message reception
-static void decode_optical_flow_msg(struct mavlink_message * msg) {
+static void decode_optical_flow_msg(struct mavlink_message * msg __attribute__ ((unused))) {
   optical_flow_available = TRUE;
 }
 

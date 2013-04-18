@@ -234,7 +234,7 @@ endif
 jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 
-jsbsim.CFLAGS 		+= -DSITL
+jsbsim.CFLAGS 		+= -DSITL -DUSE_JSBSIM
 jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_ac_flightgear.c
 
 # external libraries

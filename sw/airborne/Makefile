@@ -21,6 +21,9 @@
 # Boston, MA 02111-1307, USA.
 #
 
+# Quiet compilation
+Q=@
+
 
 OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -45,12 +48,12 @@ ifneq ($(MAKECMDGOALS),clean)
     endif
   endif
 
+  ifdef PRINT_CONFIG
+    $(TARGET).CFLAGS += -DPRINT_CONFIG
+  endif
+
   # sort cflags and sources to throw out duplicates
   #
-  #$(info CFLAGS_orig = $($(TARGET).CFLAGS))
-  #$(info CFLAGS_sort = $(sort $($(TARGET).CFLAGS)))
-  #$(info srcs_orig = $($(TARGET).srcs))
-  #$(info srcs_sort = $(sort $($(TARGET).srcs)))
   $(TARGET).CFLAGS := $(sort $($(TARGET).CFLAGS))
   $(TARGET).srcs := $(sort $($(TARGET).srcs))
 endif
@@ -68,5 +71,5 @@ warn_conf :
 	@echo
 
 clean :
-	rm -f *~ a.out *.elf
+	$(Q)rm -f *~ a.out *.elf
 .PHONY: clean

@@ -27,10 +27,10 @@ let (//) = Filename.concat
 module LL = Latlong
 
 type tile_t = {
-    key : int * int; (* LambertIIe meters / size_m *)
-    sw_corner : Latlong.geographic;
-    ne_corner : Latlong.geographic
-  };;
+  key : int * int; (* LambertIIe meters / size_m *)
+  sw_corner : Latlong.geographic;
+  ne_corner : Latlong.geographic
+};;
 
 let size_px = 250
 let size_m = (size_px * 25) / 10

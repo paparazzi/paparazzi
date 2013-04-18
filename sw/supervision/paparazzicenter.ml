@@ -135,7 +135,7 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
 	  Sys.rename Utils.backup_xml_file Utils.conf_xml_file;
 	  quit_callback gui ac_combo session_combo target_combo ()
       | 3 ->
-	  ignore (Sys.command (sprintf "tkdiff %s %s" Utils.backup_xml_file Utils.conf_xml_file));
+	  ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file));
 	  question_box ()
       | 1 ->
 	  Sys.remove Utils.backup_xml_file;
@@ -175,7 +175,7 @@ let () =
     let rec question_box = fun () ->
       match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 "Configuration changes made during the last session were not saved. ?" with
       | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
-      | 3 -> ignore (Sys.command (sprintf "tkdiff %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
+      | 3 -> ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
       | _ -> Sys.remove Utils.backup_xml_file in
     question_box ()
   end;

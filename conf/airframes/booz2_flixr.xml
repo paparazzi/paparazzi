@@ -40,7 +40,7 @@
     <load name="booz_drop.xml"/>
     <load name="sys_mon.xml"/>
     <!--load name="booz_cam.xml"/-->
-    <load name="sonar_maxbotix_booz.xml">
+    <load name="sonar_adc_ins.xml">
       <configure name="ADC_SONAR" value="ADC_0"/>
     </load>
   </modules>

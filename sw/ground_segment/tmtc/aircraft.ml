@@ -23,47 +23,47 @@
 open Latlong
 
 type ac_cam = {
-    mutable phi : float; (* Rad, right = >0 *)
-    mutable theta : float; (* Rad, front = >0 *)
-    mutable target : (float * float) (* meter*meter relative *)
-  }
+  mutable phi : float; (* Rad, right = >0 *)
+  mutable theta : float; (* Rad, front = >0 *)
+  mutable target : (float * float) (* meter*meter relative *)
+}
 
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
 type fbw = {
-    mutable rc_status : rc_status;
-    mutable rc_mode : rc_mode;
-    mutable rc_rate : int;
-    mutable pprz_mode_msgs_since_last_fbw_status_msg : int;
-  }
+  mutable rc_status : rc_status;
+  mutable rc_mode : rc_mode;
+  mutable rc_rate : int;
+  mutable pprz_mode_msgs_since_last_fbw_status_msg : int;
+}
 
 let gps_nb_channels = 16
 type svinfo = {
-    svid : int;
-    flags : int;
-    qi : int;
-    cno : int;
-    elev : int;
-    azim : int;
-    mutable age : int
-  }
+  svid : int;
+  flags : int;
+  qi : int;
+  cno : int;
+  elev : int;
+  azim : int;
+  mutable age : int
+}
 
 let svinfo_init = fun () ->
   {
-     svid = 0 ;
-     flags = 0;
-     qi = 0;
-     cno = 0;
-     elev = 0;
-     azim = 0;
-     age = 0
-   }
+    svid = 0 ;
+    flags = 0;
+    qi = 0;
+    cno = 0;
+    elev = 0;
+    azim = 0;
+    age = 0
+  }
 
 type inflight_calib = {
-     mutable if_mode : int; (* DOWN|OFF|UP *)
-     mutable if_val1 : float;
-     mutable if_val2 : float
-   }
+  mutable if_mode : int; (* DOWN|OFF|UP *)
+  mutable if_val1 : float;
+  mutable if_val2 : float
+}
 
 type horiz_mode =
     Circle of Latlong.geographic * int
@@ -88,13 +88,13 @@ let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
       lat
   in
   match nav_ref with
-    Geo geo ->
-      let m_to_rad = 0.0005399568034557235 *. 0.00029088820866572159 in
-      let lat = lat_of_xy (geo.posn_lat +. asin (y*.m_to_rad)) 0. geo (x*.m_to_rad, y *.m_to_rad) 10 1.e-7 in
-      Latlong.make_geo lat (geo.posn_long +. asin (x*.m_to_rad /. cos lat))
-  | Utm utm ->
+      Geo geo ->
+        let m_to_rad = 0.0005399568034557235 *. 0.00029088820866572159 in
+        let lat = lat_of_xy (geo.posn_lat +. asin (y*.m_to_rad)) 0. geo (x*.m_to_rad, y *.m_to_rad) 10 1.e-7 in
+        Latlong.make_geo lat (geo.posn_long +. asin (x*.m_to_rad /. cos lat))
+    | Utm utm ->
       Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm (x, y))
-  | Ltp ecef ->
+    | Ltp ecef ->
       let ned = Latlong.make_ned [| y; x; 0. |] in (* FIXME z=0 *)
       let (geo, _) = Latlong.geo_of_ecef Latlong.WGS84 (Latlong.ecef_of_ned ecef ned) in
       geo
@@ -102,62 +102,62 @@ let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
 type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
 type aircraft = {
-    mutable vehicle_type : vehicle_type;
-    id : string;
-    name : string;
-    flight_plan : Xml.xml;
-    airframe : Xml.xml;
-    mutable pos : Latlong.geographic;
-    mutable unix_time : float;
-    mutable itow : int32; (* ms *)
-    mutable roll    : float;
-    mutable pitch   : float;
-    mutable heading  : float; (* rad, CW 0=N *)
-    mutable gspeed  : float; (* m/s *)
-    mutable course : float; (* rad *)
-    mutable alt     : float;
-    mutable agl     : float;
-    mutable climb   : float;
-    mutable nav_ref : nav_ref option;
-    mutable d_hmsl : float;
-    mutable desired_pos    : Latlong.geographic;
-    mutable desired_altitude    : float;
-    mutable desired_course : float;
-    mutable desired_climb : float;
-    mutable cur_block : int;
-    mutable cur_stage : int;
-    mutable throttle : float;
-    mutable kill_mode : bool;
-    mutable throttle_accu : float;
-    mutable rpm  : float;
-    mutable temp : float;
-    mutable bat  : float;
-    mutable amp : float;
-    mutable energy  : int;
-    mutable ap_mode : int;
-    mutable gaz_mode : int;
-    mutable lateral_mode : int;
-    mutable horizontal_mode : int;
-    mutable periodic_callbacks : Glib.Timeout.id list;
-    cam : ac_cam;
-    mutable gps_mode : int;
-    mutable gps_Pacc : int;
-    mutable state_filter_mode : int;
-    fbw : fbw;
-    svinfo : svinfo array;
-    waypoints : (int, waypoint) Hashtbl.t;
-    mutable flight_time : int;
-    mutable stage_time : int;
-    mutable block_time : int;
-    mutable horiz_mode : horiz_mode;
-    dl_setting_values : float array;
-    mutable nb_dl_setting_values : int;
-    mutable survey : (Latlong.geographic * Latlong.geographic) option;
-    mutable last_msg_date : float;
-    mutable time_since_last_survey_msg : float;
-    mutable dist_to_wp : float;
-    inflight_calib : inflight_calib
-  }
+  mutable vehicle_type : vehicle_type;
+  id : string;
+  name : string;
+  flight_plan : Xml.xml;
+  airframe : Xml.xml;
+  mutable pos : Latlong.geographic;
+  mutable unix_time : float;
+  mutable itow : int32; (* ms *)
+  mutable roll    : float;
+  mutable pitch   : float;
+  mutable heading  : float; (* rad, CW 0=N *)
+  mutable gspeed  : float; (* m/s *)
+  mutable course : float; (* rad *)
+  mutable alt     : float;
+  mutable agl     : float;
+  mutable climb   : float;
+  mutable nav_ref : nav_ref option;
+  mutable d_hmsl : float;
+  mutable desired_pos    : Latlong.geographic;
+  mutable desired_altitude    : float;
+  mutable desired_course : float;
+  mutable desired_climb : float;
+  mutable cur_block : int;
+  mutable cur_stage : int;
+  mutable throttle : float;
+  mutable kill_mode : bool;
+  mutable throttle_accu : float;
+  mutable rpm  : float;
+  mutable temp : float;
+  mutable bat  : float;
+  mutable amp : float;
+  mutable energy  : int;
+  mutable ap_mode : int;
+  mutable gaz_mode : int;
+  mutable lateral_mode : int;
+  mutable horizontal_mode : int;
+  mutable periodic_callbacks : Glib.Timeout.id list;
+  cam : ac_cam;
+  mutable gps_mode : int;
+  mutable gps_Pacc : int;
+  mutable state_filter_mode : int;
+  fbw : fbw;
+  svinfo : svinfo array;
+  waypoints : (int, waypoint) Hashtbl.t;
+  mutable flight_time : int;
+  mutable stage_time : int;
+  mutable block_time : int;
+  mutable horiz_mode : horiz_mode;
+  dl_setting_values : float array;
+  mutable nb_dl_setting_values : int;
+  mutable survey : (Latlong.geographic * Latlong.geographic) option;
+  mutable last_msg_date : float;
+  mutable time_since_last_survey_msg : float;
+  mutable dist_to_wp : float;
+  inflight_calib : inflight_calib
+}
 
 let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
 
