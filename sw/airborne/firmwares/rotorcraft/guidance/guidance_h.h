@@ -68,8 +68,8 @@ extern int32_t guidance_h_dgain;
 extern int32_t guidance_h_igain;
 extern int32_t guidance_h_again;
 
-extern int32_t transition_status;
-extern int32_t theta_offset;
+extern int32_t transition_percentage;
+extern int32_t transition_theta_offset;
 
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);

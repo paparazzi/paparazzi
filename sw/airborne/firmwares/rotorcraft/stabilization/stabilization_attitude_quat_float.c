@@ -125,8 +125,7 @@ void stabilization_attitude_gain_schedule(uint8_t idx)
 
 void stabilization_attitude_enter(void) {
 
-  float heading;
-  stabilization_attitude_get_heading_f(&heading);
+  float heading = stabilization_attitude_get_heading_f();
 
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = heading;

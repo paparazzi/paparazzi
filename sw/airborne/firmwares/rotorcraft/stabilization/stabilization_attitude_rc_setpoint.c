@@ -57,34 +57,38 @@ void stabilization_attitude_reset_care_free_heading(void) {
 /*   This is a different way to obtain yaw. It will not switch when going beyond 90 degrees pitch.
      However, when rolling more then 90 degrees in combination with pitch it switches. For a
      transition vehicle this is better as 90 degrees pitch will occur, but more than 90 degrees roll probably not. */
-void stabilization_attitude_get_heading_i(int32_t* heading) {
-  int32_t phi = stateGetNedToBodyEulers_i()->phi;
-  int32_t theta = stateGetNedToBodyEulers_i()->theta;
-  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+int32_t stabilization_attitude_get_heading_i(void) {
+  struct Int32Eulers* att = stateGetNedToBodyEulers_i();
 
-  if(abs(phi) < INT32_ANGLE_PI_2) {
+  int32_t heading;
+
+  if(abs(att->phi) < INT32_ANGLE_PI_2) {
     int32_t sin_theta;
-    PPRZ_ITRIG_SIN(sin_theta, theta);
-    *heading = psi - INT_MULT_RSHIFT(sin_theta, phi, INT32_TRIG_FRAC);
+    PPRZ_ITRIG_SIN(sin_theta, att->theta);
+    heading = att->psi - INT_MULT_RSHIFT(sin_theta, att->phi, INT32_TRIG_FRAC);
   }
-  else if(ANGLE_FLOAT_OF_BFP(theta) > 0)
-    *heading = psi - phi;
+  else if(ANGLE_FLOAT_OF_BFP(att->theta) > 0)
+    heading = att->psi - att->phi;
   else
-    *heading = psi + phi;
+    heading = att->psi + att->phi;
+
+  return heading;
 }
 
-void stabilization_attitude_get_heading_f(float* heading) {
-  float phi = stateGetNedToBodyEulers_f()->phi;
-  int32_t theta = stateGetNedToBodyEulers_f()->theta;
-  int32_t psi = stateGetNedToBodyEulers_f()->psi;
+float stabilization_attitude_get_heading_f(void) {
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
 
-  if(abs(phi) < M_PI/2) {
-    *heading = psi - sin(theta)*phi;
+  float heading;
+
+  if(abs(att->phi) < M_PI/2) {
+    heading = att->psi - sin(att->theta)*att->phi;
   }
-  else if(theta > 0)
-    *heading = psi - phi;
+  else if(att->theta > 0)
+    heading = att->psi - att->phi;
   else
-    *heading = psi + phi;
+    heading = att->psi + att->phi;
+
+  return heading;
 }
 
 /** Read attitude setpoint from RC as euler angles.
@@ -106,7 +110,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
       int32_t omega;
-      if(abs(sp->phi) < ANGLE_BFP_OF_REAL(60.0/180.0*M_PI))
+      if(abs(sp->phi) < ANGLE_BFP_OF_REAL(85.0/180.0*M_PI))
         omega = ANGLE_BFP_OF_REAL(1.3*tan(ANGLE_FLOAT_OF_BFP(sp->phi)));
       else //max 60 degrees roll, then take constant omega
         omega = ANGLE_BFP_OF_REAL(1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0)));
@@ -116,8 +120,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
     // Make sure the yaw setpoint does not differ too much from the real yaw
     // to prevent a sudden switch at 180 deg
-    int32_t heading;
-    stabilization_attitude_get_heading_i(&heading);
+    int32_t heading = stabilization_attitude_get_heading_i();
 
     int32_t delta_psi = sp->psi - heading;
     int32_t delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
@@ -181,8 +184,7 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
     // Make sure the yaw setpoint does not differ too much from the real yaw
     // to prevent a sudden switch at 180 deg
-    float heading;
-    stabilization_attitude_get_heading_f(&heading);
+    float heading = stabilization_attitude_get_heading_f();
 
     float delta_psi = sp->psi - heading;
     FLOAT_ANGLE_NORMALIZE(delta_psi);
@@ -248,7 +250,7 @@ void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat* q)
 
   //An offset is added if in forward mode 
   /* only non-zero entries for pitch quaternion */
-  float pitch2 = (ANGLE_FLOAT_OF_BFP(theta_offset) + radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) / 2; 
+  float pitch2 = (ANGLE_FLOAT_OF_BFP(transition_theta_offset) + radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) / 2; 
   float qy_pitch = sinf(pitch2);
   float qi_pitch = cosf(pitch2);
 

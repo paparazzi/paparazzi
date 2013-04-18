@@ -74,8 +74,7 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_enter(void) {
 
-  int32_t heading;
-  stabilization_attitude_get_heading_i(&heading);
+  int32_t heading = stabilization_attitude_get_heading_i();
 
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = heading;

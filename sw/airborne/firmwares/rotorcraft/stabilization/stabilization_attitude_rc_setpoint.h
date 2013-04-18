@@ -56,8 +56,8 @@
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
 extern void stabilization_attitude_reset_care_free_heading(void);
-extern void stabilization_attitude_get_heading_i(int32_t* heading);
-extern void stabilization_attitude_get_heading_f(float* heading);
+extern int32_t stabilization_attitude_get_heading_i(void);
+extern float stabilization_attitude_get_heading_f(void);
 extern void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight);
 extern void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight);
 extern void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat* q);
