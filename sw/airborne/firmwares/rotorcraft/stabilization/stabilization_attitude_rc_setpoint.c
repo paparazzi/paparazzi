@@ -81,7 +81,7 @@ float stabilization_attitude_get_heading_f(void) {
   float heading;
 
   if(abs(att->phi) < M_PI/2) {
-    heading = att->psi - sin(att->theta)*att->phi;
+    heading = att->psi - sinf(att->theta)*att->phi;
   }
   else if(att->theta > 0)
     heading = att->psi - att->phi;
@@ -110,8 +110,9 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
       int32_t omega;
-      if(abs(sp->phi) < ANGLE_BFP_OF_REAL(85.0/180.0*M_PI))
-        omega = ANGLE_BFP_OF_REAL(1.3*tan(ANGLE_FLOAT_OF_BFP(sp->phi)));
+      const int32_t max_phi = ANGLE_BFP_OF_REAL(RadOfDeg(85.0));
+      if(abs(sp->phi) < max_phi)
+        omega = ANGLE_BFP_OF_REAL(1.3*tanf(ANGLE_FLOAT_OF_BFP(sp->phi)));
       else //max 60 degrees roll, then take constant omega
         omega = ANGLE_BFP_OF_REAL(1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0)));
 
@@ -174,8 +175,9 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
       float omega;
-      if(abs(sp->phi) < (60.0/180.0*M_PI))
-        omega = 1.3*tan(sp->phi);
+      const float max_phi = RadOfDeg(85.0);
+      if(abs(sp->phi) < max_phi)
+        omega = 1.3*tanf(sp->phi);
       else //max 60 degrees roll, then take constant omega
         omega = 1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0));
 
@@ -207,8 +209,8 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
 
       FLOAT_ANGLE_NORMALIZE(care_free_delta_psi_f);
 
-      sin_psi = sin(care_free_delta_psi_f);
-      cos_psi = cos(care_free_delta_psi_f);
+      sin_psi = sinf(care_free_delta_psi_f);
+      cos_psi = cosf(care_free_delta_psi_f);
 
       temp_theta = cos_psi*sp->theta - sin_psi*sp->phi;
       sp->phi = cos_psi*sp->phi - sin_psi*sp->theta;
@@ -248,9 +250,9 @@ void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat* q)
   float qx_roll = sinf(roll2);
   float qi_roll = cosf(roll2);
 
-  //An offset is added if in forward mode 
+  //An offset is added if in forward mode
   /* only non-zero entries for pitch quaternion */
-  float pitch2 = (ANGLE_FLOAT_OF_BFP(transition_theta_offset) + radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) / 2; 
+  float pitch2 = (ANGLE_FLOAT_OF_BFP(transition_theta_offset) + radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) / 2;
   float qy_pitch = sinf(pitch2);
   float qi_pitch = cosf(pitch2);
 

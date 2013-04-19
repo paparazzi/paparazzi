@@ -192,12 +192,11 @@
  </section>
 
  <section name="MISC">
-   <define name="FACE_REINJ_1"  value="1024"/>
    <define name="REF_QUAT_INFINITESIMAL_STEP" value="TRUE"/>
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
 <!--    <define name="USE_REFERENCE_SYSTEM" value="FALSE"/> -->
 <!--    <define name="SWITCH_STICKS_FOR_RATE_CONTROL" value="TRUE"/> -->
-   <define name="TRANSITION_MAX_OFFSET" value="-82.0"/>
+   <define name="TRANSITION_MAX_OFFSET" value="-82.0" unit="deg"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

@@ -381,7 +381,7 @@ static inline void transition_run(void) {
   transition_percentage += 1<<(INT32_PERCENTAGE_FRAC-4);
 
 #ifdef TRANSITION_MAX_OFFSET
-  int32_t max_offset = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET)/180,INT32_ANGLE_PI, INT32_ANGLE_FRAC);
+  const int32_t max_offset = ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET);
   transition_theta_offset = INT_MULT_RSHIFT((transition_percentage<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, max_offset, INT32_ANGLE_FRAC);
 #endif
 }
