@@ -266,7 +266,7 @@ let rec parse_section = fun s ->
     | "command_laws" ->
       print_actuators_idx ();
 
-      printf "#define SetActuatorsFromCommands(values) { \\\n";
+      printf "#define SetActuatorsFromCommands(values, RC_MODE) { \\\n";
       printf "  int32_t servo_value;\\\n";
       printf "  int32_t command_value;\\\n\\\n";
 
