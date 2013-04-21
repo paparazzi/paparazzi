@@ -23,14 +23,6 @@
 # Quiet
 Q=@
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -fPIC
-else
-  FPIC =
-endif
-
-
 include ../../../conf/Makefile.local
 include ../../Makefile.ocaml
 CONF = ../../../conf
@@ -132,10 +124,10 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 
 CC = gcc
-GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags` $(FPIC)
-GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre $(FPIC)
-GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` $(FPIC)
-GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre $(FPIC)
+GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags` -fPIC
+GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre -fPIC
+GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` -fPIC
+GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre -fPIC
 
 UNAME = $(shell uname -s)
 

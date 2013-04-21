@@ -23,15 +23,7 @@
 # Quiet compilation
 Q=@
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-   FPIC=-fPIC
-   OCAMLCFLAGS=-thread -ccopt -fPIC
-else
-   FPIC=
-   OCAMLCFLAGS=-thread
-endif
-FPIC=-fPIC
+OCAMLCFLAGS=-thread -ccopt -fPIC
 
 include ../../Makefile.ocaml
 
@@ -100,7 +92,7 @@ clean:
 
 
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` $(FPIC)
+CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` -fPIC
 LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lglibivy
 
 

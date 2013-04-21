@@ -36,13 +36,6 @@ OCAMLLIBDIR=$(shell $(OCAMLC) -where)
 #VERBOSITY = -verbose
 VERBOSITY =
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -ccopt -fPIC
-else
-  FPIC =
-endif
-
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
 	MKTEMP = gmktemp
@@ -112,7 +105,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 
 %.o : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLC) -ccopt -fPIC $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 $(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
 
