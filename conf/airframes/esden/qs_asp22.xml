@@ -38,8 +38,8 @@
     <let var="forward_left"  value="6*$aileron_feedback_left+4*$elevator_feedback_left"/>
     <let var="forward_right" value="6*$aileron_feedback_right+4*$elevator_feedback_right"/>
 
-    <set servo="ELEVON_LEFT"    value="RC_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
-    <set servo="ELEVON_RIGHT"   value="RC_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_right  : $forward_right" />
+    <set servo="ELEVON_LEFT"    value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
+    <set servo="ELEVON_RIGHT"   value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_right  : $forward_right" />
   </command_laws>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
