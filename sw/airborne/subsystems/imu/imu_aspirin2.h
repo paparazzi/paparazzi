@@ -164,4 +164,9 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
   imu_aspirin2_event(_gyro_handler, _accel_handler, _mag_handler); \
 }
 
+/* underlying architecture */
+#include "subsystems/imu/imu_aspirin2_arch.h"
+/* must be implemented by underlying architecture */
+extern void imu_aspirin2_arch_init(void);
+
 #endif /* IMU_ASPIRIN_2_H */

@@ -40,6 +40,7 @@ IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
 IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\" -DIMU_OVERRIDE_CHANNELS
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c \
+                      $(SRC_ARCH)/subsystems/imu/imu_aspirin2_arch.c \
                       $(SRC_ARCH)/mcu_periph/spi_arch.c \
                       mcu_periph/spi.c
 
