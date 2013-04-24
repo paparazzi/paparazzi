@@ -67,8 +67,8 @@ void imu_impl_init(void)
   // MPU-60X0
   mpu60x0_i2c_init(&imu_apogee.mpu, &(IMU_APOGEE_I2C_DEV), MPU60X0_ADDR_ALT);
   // change the default configuration
-  imu_apogee.mpu.smplrt_div = APOGEE_SMPLRT_DIV;
-  imu_apogee.mpu.dlpf_cfg = APOGEE_LOWPASS_FILTER;
+  imu_apogee.mpu.config.smplrt_div = APOGEE_SMPLRT_DIV;
+  imu_apogee.mpu.config.dlpf_cfg = APOGEE_LOWPASS_FILTER;
   imu_apogee.mpu.config.gyro_range = APOGEE_GYRO_RANGE;
   imu_apogee.mpu.config.accel_range = APOGEE_ACCEL_RANGE;
 
@@ -79,7 +79,7 @@ void imu_impl_init(void)
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  mpu60x0_i2c_periodic(&imu_apogee.imu);
+  mpu60x0_i2c_periodic(&imu_apogee.mpu);
 
   //RunOnceEvery(10,imu_apogee_downlink_raw());
 }
@@ -91,7 +91,7 @@ void imu_apogee_downlink_raw( void )
 }
 
 
-void imu_umarim_event( void )
+void imu_apogee_event( void )
 {
   // If the itg3200 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_apogee.mpu);

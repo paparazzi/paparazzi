@@ -70,7 +70,7 @@ struct Mpu60x0Config {
   bool_t initialized;                   ///< config done flag
 };
 
-static inline void mpu60X0_set_default_config(struct Mpu60x0Config *c)
+static inline void mpu60x0_set_default_config(struct Mpu60x0Config *c)
 {
   c->smplrt_div = MPU60X0_DEFAULT_SMPLRT_DIV;
   c->dlpf_cfg = MPU60X0_DEFAULT_DLPF_CFG;

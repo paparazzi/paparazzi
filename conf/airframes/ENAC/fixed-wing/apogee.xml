@@ -42,9 +42,9 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR" no="7" min="1040" neutral="1040" max="2000"/>
-    <servo name="AILEVON_LEFT" no="6" min="1900" neutral="1543" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1100" neutral="1561" max="1900"/>
+    <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
+    <servo name="AILEVON_LEFT" no="1" min="1900" neutral="1543" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1561" max="1900"/>
   </servos>
 
   <commands>
@@ -205,7 +205,7 @@
 
     <define name="PITCH_OF_ROLL" value="RadOfDeg(0.0)"/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <!--define name="ELEVATOR_OF_ROLL" value="1400"/-->
+    <define name="ELEVATOR_OF_ROLL" value="1400"/>
   </section>
 
   <section name="NAV">

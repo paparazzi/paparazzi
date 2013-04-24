@@ -51,7 +51,7 @@ static void mpu60x0_i2c_write_to_reg(void* mpu, uint8_t _reg, uint8_t _val) {
   struct Mpu60x0_I2c* mpu_i2c = (struct Mpu60x0_I2c*)(mpu);
   mpu_i2c->i2c_trans.buf[0] = _reg;
   mpu_i2c->i2c_trans.buf[1] = _val;
-  i2c_transmit(mpu_i2c->i2c_p, &(mpu_i2c->i2c_trans), mpu->i2c_trans.slave_addr, 2);
+  i2c_transmit(mpu_i2c->i2c_p, &(mpu_i2c->i2c_trans), mpu_i2c->i2c_trans.slave_addr, 2);
 }
 
 // Configuration function called once before normal use
@@ -60,7 +60,7 @@ void mpu60x0_i2c_start_configure(struct Mpu60x0_I2c *mpu)
   if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
     mpu->config.init_status++;
     if (mpu->i2c_trans.status == I2CTransSuccess || mpu->i2c_trans.status == I2CTransDone) {
-      mpu60x0_send_config(mpu60x0_i2c_write_to_reg, (void*)mpu, mpu->config);
+      mpu60x0_send_config(mpu60x0_i2c_write_to_reg, (void*)mpu, &(mpu->config));
     }
   }
 }
@@ -104,7 +104,7 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
       case I2CTransSuccess:
       case I2CTransDone:
         mpu->i2c_trans.status = I2CTransDone;
-        mpu60x0_send_config(mpu60x0_i2c_write_to_reg, (void*)mpu, mpu->config);
+        mpu60x0_send_config(mpu60x0_i2c_write_to_reg, (void*)mpu, &(mpu->config));
         if (mpu->config.initialized) mpu->i2c_trans.status = I2CTransDone;
         break;
       default:
