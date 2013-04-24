@@ -123,6 +123,7 @@ static inline void usart_enable_irq(u8 IRQn) {
 
 /* Set RCC and GPIO mode
  */
+#ifdef STM32F4
 static inline void set_uart_pin(u32 gpioport, u16 gpio, u8 alt_func_num, u8 uart) {
   switch (uart) {
     case 1:
@@ -167,7 +168,7 @@ static inline void set_uart_pin(u32 gpioport, u16 gpio, u8 alt_func_num, u8 uart
   gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, gpio);
   gpio_set_af(gpioport, alt_func_num, gpio);
 }
-
+#endif /* STM32F4 */
 
 #ifdef USE_UART1
 
