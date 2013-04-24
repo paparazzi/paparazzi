@@ -28,7 +28,7 @@
     <subsystem name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="aspirin_v1.0"/>
+    <subsystem name="imu"     type="apogee"/>
     <subsystem name="ahrs"    type="float_dcm">
       <define name="USE_HIGH_ACCEL_FLAG"/>
     </subsystem>

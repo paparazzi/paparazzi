@@ -61,8 +61,8 @@ enum Mpu60x0ConfStatus {
 struct Mpu60x0Config {
   uint8_t smplrt_div;                   ///< Sample rate divider
   enum Mpu60x0DLPF dlpf_cfg;            ///< Digital Low Pass Filter
-  enum Adxl345GyroRanges gyro_range;    ///< deg/s Range
-  enum Adxl345AccelRanges accel_range;  ///< g Range
+  enum Mpu60x0GyroRanges gyro_range;    ///< deg/s Range
+  enum Mpu60x0AccelRanges accel_range;  ///< g Range
   bool_t i2c_bypass;                    ///< bypass mpu i2c
   bool_t drdy_int_enable;               ///< Enable Data Ready Interrupt
   uint8_t clk_sel;                      ///< Clock select
@@ -113,7 +113,7 @@ static inline void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, stru
       config->init_status++;
       break;
     case MPU60X0_CONF_PWR:
-      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->config.clk_sel)|(0<<6));
+      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->clk_sel)|(0<<6)));
       config->init_status++;
       break;
     case MPU60X0_CONF_DONE:

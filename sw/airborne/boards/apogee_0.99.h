@@ -50,42 +50,92 @@
 
 
 /* Onboard ADCs */
-/*
-   ADC1 PB0/?ADC13
-   ADC2 PB1/?ADC10
-   ADC3 PB15/?ADC11
-   ADC4 PC4/?ADC15
-   BATT PA4/ADC4
-*/
-#define BOARD_ADC_CHANNEL_1 12
-#define BOARD_ADC_CHANNEL_2 10
-#define BOARD_ADC_CHANNEL_3 11
-#define BOARD_ADC_CHANNEL_4 13 //15
-#define BOARD_ADC_CHANNEL_5 14
-// we can only use ADC1,2,3; the last channel is for bat monitoring
-#define BOARD_ADC_CHANNEL_6 15 //13
+#define USE_AD_TIM1 1
+
+#define BOARD_ADC_CHANNEL_1 8
+#define BOARD_ADC_CHANNEL_2 9
+#define BOARD_ADC_CHANNEL_3 14
+#define BOARD_ADC_CHANNEL_4 4
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above
  * 4th (index 3) is used for bat monitoring by default
  */
 #define ADC_1 0
+#ifdef USE_ADC_1
+#ifndef ADC_1_GPIO_PORT
+#define ADC_1_GPIO_PORT RCC_AHB1ENR_IOPBEN
+#endif
+#else
+#define ADC_1_GPIO_PORT 0
+#endif
+
 #define ADC_2 1
+#ifdef USE_ADC_2
+#ifndef ADC_2_GPIO_PORT
+#define ADC_2_GPIO_PORT RCC_AHB1ENR_IOPBEN
+#endif
+#else
+#define ADC_2_GPIO_PORT 0
+#endif
+
 #define ADC_3 2
+#ifdef USE_ADC_3
+#ifndef ADC_3_GPIO_PORT
+#define ADC_3_GPIO_PORT RCC_AHB1ENR_IOPCEN
+#endif
+#else
+#define ADC_3_GPIO_PORT 0
+#endif
+
 #define ADC_4 3
-#define ADC_5 4
-#define ADC_6 5
+#ifdef USE_ADC_4
+#ifndef ADC_4_GPIO_PORT
+#define ADC_4_GPIO_PORT RCC_AHB1ENR_IOPAEN
+#endif
+#else
+#define ADC_4_GPIO_PORT 0
+#endif
+
+#define ADC_GPIO_PORT (ADC_1_GPIO_PORT | ADC_2_GPIO_PORT | ADC_3_GPIO_PORT | ADC_4_GPIO_PORT)
 
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_4
 #endif
 
+
 /* I2C mapping (really at this place ?) */
 #define GPIO_I2C1_SCL GPIO8
 #define GPIO_I2C1_SDA GPIO7
 #define GPIO_I2C2_SCL GPIO10
 #define GPIO_I2C2_SDA GPIO11
+
+
+/* SPI slave pin declaration */
+//#define SPI_SELECT_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
+//#define SPI_SELECT_SLAVE0_PORT GPIOA
+//#define SPI_SELECT_SLAVE0_PIN GPIO15
+//
+//#define SPI_SELECT_SLAVE1_PERIPH RCC_APB2ENR_IOPAEN
+//#define SPI_SELECT_SLAVE1_PORT GPIOA
+//#define SPI_SELECT_SLAVE1_PIN GPIO4
+
+#define SPI_SELECT_SLAVE2_PERIPH RCC_AHB1ENR_IOPBEN
+#define SPI_SELECT_SLAVE2_PORT GPIOB
+#define SPI_SELECT_SLAVE2_PIN GPIO12
+
+//#define SPI_SELECT_SLAVE3_PERIPH RCC_APB2ENR_IOPCEN
+//#define SPI_SELECT_SLAVE3_PORT GPIOC
+//#define SPI_SELECT_SLAVE3_PIN GPIO13
+//
+//#define SPI_SELECT_SLAVE4_PERIPH RCC_APB2ENR_IOPCEN
+//#define SPI_SELECT_SLAVE4_PORT GPIOC
+//#define SPI_SELECT_SLAVE4_PIN GPIO12
+//
+//#define SPI_SELECT_SLAVE5_PERIPH RCC_APB2ENR_IOPCEN
+//#define SPI_SELECT_SLAVE5_PORT GPIOC
+//#define SPI_SELECT_SLAVE5_PIN GPIO4
 
 
 #define BOARD_HAS_BARO 1
