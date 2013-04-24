@@ -55,15 +55,15 @@
  I*/
 #if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
 // FIXME
-#define IMU_GYRO_P_SENS 4.973
-#define IMU_GYRO_P_SENS_NUM 4973
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.973
-#define IMU_GYRO_Q_SENS_NUM 4973
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.973
-#define IMU_GYRO_R_SENS_NUM 4973
-#define IMU_GYRO_R_SENS_DEN 1000
+#define IMU_GYRO_P_SENS 2.17953
+#define IMU_GYRO_P_SENS_NUM 18271
+#define IMU_GYRO_P_SENS_DEN 8383
+#define IMU_GYRO_Q_SENS 2.17953
+#define IMU_GYRO_Q_SENS_NUM 18271
+#define IMU_GYRO_Q_SENS_DEN 8383
+#define IMU_GYRO_R_SENS 2.17953
+#define IMU_GYRO_R_SENS_NUM 18271
+#define IMU_GYRO_R_SENS_DEN 8383
 #endif
 #if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
 #define IMU_GYRO_P_NEUTRAL 0
@@ -73,20 +73,20 @@
 
 
 /** default accel sensitivy from the datasheet
- * MPU with 8g has 4.096 LSB/g
- * sens = 9.81 [m/s^2] / 4.096 [LSB/g] * 2^INT32_ACCEL_FRAC = 306.263
+ * MPU with 8g has 4096 LSB/g
+ * sens = 9.81 [m/s^2] / 4096 [LSB/g] * 2^INT32_ACCEL_FRAC = 2.4525
  */
 #if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
 // FIXME
-#define IMU_ACCEL_X_SENS 37.91
-#define IMU_ACCEL_X_SENS_NUM 3791
-#define IMU_ACCEL_X_SENS_DEN 100
-#define IMU_ACCEL_Y_SENS 37.91
-#define IMU_ACCEL_Y_SENS_NUM 3791
-#define IMU_ACCEL_Y_SENS_DEN 100
-#define IMU_ACCEL_Z_SENS 39.24
-#define IMU_ACCEL_Z_SENS_NUM 39.24
-#define IMU_ACCEL_Z_SENS_DEN 100
+#define IMU_ACCEL_X_SENS 2.4525
+#define IMU_ACCEL_X_SENS_NUM 981
+#define IMU_ACCEL_X_SENS_DEN 400
+#define IMU_ACCEL_Y_SENS 2.4525
+#define IMU_ACCEL_Y_SENS_NUM 981
+#define IMU_ACCEL_Y_SENS_DEN 400
+#define IMU_ACCEL_Z_SENS 2.4525
+#define IMU_ACCEL_Z_SENS_NUM 981
+#define IMU_ACCEL_Z_SENS_DEN 400
 #endif
 #if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
 #define IMU_ACCEL_X_NEUTRAL 0
