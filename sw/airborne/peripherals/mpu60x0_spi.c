@@ -28,8 +28,6 @@
 
 #include "peripherals/mpu60x0_spi.h"
 
-static void trans_cb( struct spi_transaction *trans );
-
 void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t slave_idx)
 {
   /* set spi_peripheral */
@@ -47,7 +45,7 @@ void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t
   mpu->spi_trans.output_length = MPU60X0_BUFFER_LEN; //FIXME
   mpu->spi_trans.input_length = MPU60X0_BUFFER_LEN;
   mpu->spi_trans.before_cb = NULL;
-  mpu->spi_trans.after_cb = trans_cb;
+  mpu->spi_trans.after_cb = NULL;
   mpu->spi_trans.input_buf = &(mpu->rx_buf[0]);
   mpu->spi_trans.output_buf = &(mpu->tx_buf[0]);
 
@@ -78,7 +76,7 @@ void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu)
   if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
     mpu->config.init_status++;
     if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
-      mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
+      mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, &(mpu->config));
     }
   }
 }
@@ -87,7 +85,7 @@ void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu)
 {
   if (mpu->config.initialized && mpu->spi_trans.status == SPITransDone) {
     mpu->spi_trans.output_length = 1;
-    mpu->spi_trans.input_length = 15; // FIXME external data
+    mpu->spi_trans.input_length = 16; // FIXME external data
     /* set read bit and multiple byte bit, then address */
     mpu->tx_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
     spi_submit(mpu->spi_p, &(mpu->spi_trans));
@@ -104,14 +102,14 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
     }
     else if (mpu->spi_trans.status == SPITransSuccess) {
       // Successfull reading
-      if (bit_is_set(mpu->rx_buf[0],0)) {
+      if (bit_is_set(mpu->rx_buf[1],0)) {
         // new data
-        mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf,1);
-        mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf,3);
-        mpu->data_accel.vect.z = Int16FromBuf(mpu->rx_buf,5);
-        mpu->data_rates.rates.p = Int16FromBuf(mpu->rx_buf,9);
-        mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf,11);
-        mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf,13);
+        mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf,2);
+        mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf,4);
+        mpu->data_accel.vect.z = Int16FromBuf(mpu->rx_buf,6);
+        mpu->data_rates.rates.p = Int16FromBuf(mpu->rx_buf,10);
+        mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf,12);
+        mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf,14);
         mpu->data_available = TRUE;
       }
       mpu->spi_trans.status = SPITransDone;
@@ -124,7 +122,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
       case SPITransSuccess:
       case SPITransDone:
         mpu->spi_trans.status = SPITransDone;
-        mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, mpu->config);
+        mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, &(mpu->config));
         if (mpu->config.initialized) mpu->spi_trans.status = SPITransDone;
         break;
       default:

@@ -41,7 +41,7 @@
 #define MPU60X0_DEFAULT_AFS_SEL MPU60X0_ACCEL_RANGE_16G
 /// Default internal sampling (1kHz, 42Hz LP Bandwidth)
 #define MPU60X0_DEFAULT_DLPF_CFG MPU60X0_DLPF_42HZ
-/// Default interrupt config: RAW_RDY_EN
+/// Default interrupt config: DATA_RDY_EN
 #define MPU60X0_DEFAULT_INT_CFG 1
 /// Default clock: PLL with X gyro reference
 #define MPU60X0_DEFAULT_CLK_SEL 1
