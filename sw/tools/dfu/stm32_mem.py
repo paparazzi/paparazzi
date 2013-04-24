@@ -129,8 +129,9 @@ if __name__ == "__main__":
             man = dfudev.handle.getString(dfudev.dev.iManufacturer, 30)
             product = dfudev.handle.getString(dfudev.dev.iProduct, 30)
             serial = dfudev.handle.getString(dfudev.dev.iSerialNumber, 40)
-        except:
+        except Exception as e:
             print("Whoops... could not get device description.")
+            print("Exception:", e)
             continue
 
         if options.verbose:

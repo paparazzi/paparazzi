@@ -16,7 +16,8 @@
       <message name="ROTORCRAFT_CAM"         period="1."/>
       <message name="GPS_INT"                period=".25"/>
       <message name="INS"                    period=".25"/>
-      <message name="I2C_ERRORS"             period="6."/>
+      <message name="I2C_ERRORS"             period="4.1"/>
+      <message name="UART_ERRORS"            period="3.1"/>
     </mode>
 
     <mode name="ppm">
@@ -94,14 +95,17 @@
     <mode name="h_loop" key_press="h">
       <message name="ALIVE"                 period="0.9"/>
       <message name="HOVER_LOOP"            period="0.062"/>
-      <message name="STAB_ATTITUDE"         period=".4"/>
-      <message name="HFF_DBG"               period=".2"/>
-      <!--<message name="STAB_ATTITUDE_REF" period=".4"/>-->
+      <message name="GUIDANCE_H_REF"        period="0.062"/>
+      <message name="STAB_ATTITUDE"         period="0.4"/>
+      <!--<message name="STAB_ATTITUDE_REF" period="0.4"/>-->
       <message name="ROTORCRAFT_FP"         period="0.8"/>
       <message name="ROTORCRAFT_STATUS"     period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS" period="1.6"/>
-	  <message name="HFF_GPS"               period=".03"/>
       <message name="INS_REF"               period="5.1"/>
+      <!-- HFF messages are only sent if USE_HFF -->
+      <message name="HFF"                   period=".05"/>
+	  <message name="HFF_GPS"               period=".03"/>
+      <message name="HFF_DBG"               period=".2"/>
     </mode>
 
     <mode name="aligner">
@@ -120,6 +124,7 @@
       <message name="DL_VALUE"          period="1.1"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="ALIVE"             period="2.1"/>
+      <message name="GUIDANCE_H_INT"    period="0.05"/>
       <!--<message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>-->
       <!-- <message name="GPS_INT"               period=".20"/> -->
       <!--<message name="INS2"              period=".05"/>

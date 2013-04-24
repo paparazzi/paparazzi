@@ -39,7 +39,7 @@ struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
 
 #ifndef NPS_BYPASS_AHRS
-#define NPS_BYPASS_AHRS TRUE
+#define NPS_BYPASS_AHRS FALSE
 #endif
 
 

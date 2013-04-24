@@ -39,6 +39,9 @@
 #include "generated/modules.h"
 #include "generated/flight_plan.h"
 
+/* for default GUIDANCE_H_USE_REF */
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+
 #include "math/pprz_algebra_int.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;

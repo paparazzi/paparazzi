@@ -36,22 +36,18 @@ OCAMLLIBDIR=$(shell $(OCAMLC) -where)
 #VERBOSITY = -verbose
 VERBOSITY =
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -ccopt -fPIC
-else
-  FPIC =
-endif
-
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
 	MKTEMP = gmktemp
-	LABLGTK2GNOMECANVAS = lablgtk2.gnomecanvas
-	METAFILE = META.pprz.osx
 else
 	MKTEMP = mktemp
-	LABLGTK2GNOMECANVAS = lablgtk2-gnome.gnomecanvas
-	METAFILE = META.pprz.deb
+endif
+
+LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomecanvas 2>/dev/null)
+METAFILE = META.pprz.deb
+ifeq ($(LABLGTK2GNOMECANVAS),)
+LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
+METAFILE = META.pprz.osx
 endif
 
 INCLUDES=
@@ -109,7 +105,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 
 %.o : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -package $(PKGCOMMON) -c $<
+	$(Q)$(OCAMLC) -ccopt -fPIC $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 $(XCMO) $(XCMX) myGtkInit.cmo : PKGCOMMON=$(XPKGCOMMON)
 
