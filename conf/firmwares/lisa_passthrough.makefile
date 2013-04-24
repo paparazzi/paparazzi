@@ -76,7 +76,7 @@ stm_passthrough.srcs += subsystems/commands.c
 #stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 #stm_passthrough.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
-#stm_passthrough.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
+#stm_passthrough.CFLAGS += -DACTUATORS_ASCTEC_I2C_DEV=i2c1
 #stm_passthrough.CFLAGS += -DUSE_I2C1
 
 # PWM actuator

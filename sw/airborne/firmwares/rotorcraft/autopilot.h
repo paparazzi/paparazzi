@@ -51,6 +51,7 @@
 #define AP_MODE_NAV               12
 #define AP_MODE_RC_DIRECT         13	// Safety Pilot Direct Commands for helicopter direct control: appropriately chosen as mode "13"
 #define AP_MODE_CARE_FREE_DIRECT  14
+#define AP_MODE_FORWARD           15
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;

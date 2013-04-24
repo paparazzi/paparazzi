@@ -31,6 +31,15 @@
 #include "math/pprz_algebra_int.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_h_ref.h"
+#include "generated/airframe.h"
+#include "std.h"
+
+/** Use horizontal guidance reference trajectory.
+ * Default is TRUE, define to FALSE to always disable it.
+ */
+#ifndef GUIDANCE_H_USE_REF
+#define GUIDANCE_H_USE_REF TRUE
+#endif
 
 #define GUIDANCE_H_MODE_KILL        0
 #define GUIDANCE_H_MODE_RATE        1
@@ -39,9 +48,11 @@
 #define GUIDANCE_H_MODE_NAV         4
 #define GUIDANCE_H_MODE_RC_DIRECT   5
 #define GUIDANCE_H_MODE_CARE_FREE   6
+#define GUIDANCE_H_MODE_FORWARD     7
 
 
 extern uint8_t guidance_h_mode;
+extern bool_t guidance_h_use_ref;
 
 /** horizontal position setpoint in NED.
  *  fixed point representation: Q23.8
@@ -67,16 +78,25 @@ extern int32_t guidance_h_dgain;
 extern int32_t guidance_h_igain;
 extern int32_t guidance_h_again;
 
+extern int32_t transition_percentage;
+extern int32_t transition_theta_offset;
 
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
-extern void guidance_h_read_rc(bool_t  in_flight);
-extern void guidance_h_run(bool_t  in_flight);
+extern void guidance_h_read_rc(bool_t in_flight);
+extern void guidance_h_run(bool_t in_flight);
 
 
-#define guidance_h_SetKi(_val) {			\
-    guidance_h_igain = _val;			\
+#define guidance_h_SetKi(_val) {            \
+    guidance_h_igain = _val;                \
     INT_VECT2_ZERO(guidance_h_pos_err_sum);	\
+  }
+
+/* Make sure that ref can only be temporarily disabled for testing,
+ * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.
+ */
+#define guidance_h_SetUseRef(_val) {                    \
+    guidance_h_use_ref = _val && GUIDANCE_H_USE_REF;    \
   }
 
 #endif /* GUIDANCE_H_H */

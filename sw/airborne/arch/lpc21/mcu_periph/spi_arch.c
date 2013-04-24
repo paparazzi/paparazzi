@@ -467,7 +467,7 @@ void spi1_arch_init(void) {
 
 
 bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
-  unsigned cpsr;
+  //unsigned cpsr;
 
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
@@ -479,10 +479,11 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
   t->status = SPITransPending;
 
   // Disable interrupts
-  uint8_t* vic = (uint8_t*)(p->init_struct);
-  cpsr = disableIRQ();                                // disable global interrupts
-  VICIntEnClear = VIC_BIT(*vic);
-  restoreIRQ(cpsr);                                   // restore global interrupts
+  //uint8_t* vic = (uint8_t*)(p->init_struct);
+  //cpsr = disableIRQ();                                // disable global interrupts
+  //VICIntEnClear = VIC_BIT(*vic);
+  //restoreIRQ(cpsr);                                   // restore global interrupts
+  disableIRQ();
 
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
@@ -491,9 +492,10 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
     SpiStart(p,p->trans[p->trans_extract_idx]);
   }
 
-  cpsr = disableIRQ();                                // disable global interrupts
-  VICIntEnable = VIC_BIT(*vic);
-  restoreIRQ(cpsr);                                   // restore global interrupts
+  //cpsr = disableIRQ();                                // disable global interrupts
+  //VICIntEnable = VIC_BIT(*vic);
+  //restoreIRQ(cpsr);                                   // restore global interrupts
+  enableIRQ();
   return TRUE;
 }
 

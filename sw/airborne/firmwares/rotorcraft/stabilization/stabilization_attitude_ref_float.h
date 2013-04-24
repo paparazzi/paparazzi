@@ -40,7 +40,8 @@ struct FloatRefModel {
 extern struct FloatRefModel stab_att_ref_model[];
 
 static inline void reset_psi_ref_from_body(void) {
-  stab_att_ref_euler.psi = stateGetNedToBodyEulers_f()->psi;
+//sp has been set from body using stabilization_attitude_get_yaw_f, use that value
+  stab_att_ref_euler.psi = stab_att_sp_euler.psi;
   stab_att_ref_rate.r = 0;
   stab_att_ref_accel.r = 0;
 }

@@ -29,18 +29,11 @@ TOOLSDIR = ../../tools
 
 CC = gcc
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC=-fpic
-else
-  FPIC=
-endif
-
 OCAMLINCLUDES= -I $(TOOLSDIR)
 PKG = -package pprz,glibivy
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
-GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) $(FPIC)
+GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) -fPIC
 GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want

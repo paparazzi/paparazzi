@@ -49,7 +49,7 @@ static uint32_t timer_rollover_cnt;
 
 #if USE_PPM_TIM2
 
-INFO("Using TIM2 for PPM input on PA_10 (SERVO6) pin.")
+PRINT_CONFIG_MSG("Using TIM2 for PPM input on PA_10 (SERVO6) pin.")
 
 #define PPM_RCC			&RCC_APB1ENR
 #define PPM_PERIPHERAL		RCC_APB1ENR_TIM2EN
@@ -64,7 +64,7 @@ INFO("Using TIM2 for PPM input on PA_10 (SERVO6) pin.")
 
 #elif USE_PPM_TIM1
 
-INFO("Using TIM1 for PPM input on PA_01 (UART1_RX) pin.")
+PRINT_CONFIG_MSG("Using TIM1 for PPM input on PA_01 (UART1_RX) pin.")
 
 #define PPM_RCC			&RCC_APB2ENR
 #define PPM_PERIPHERAL		RCC_APB2ENR_TIM1EN

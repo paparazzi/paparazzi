@@ -199,9 +199,10 @@ if __name__ == "__main__":
             man = handle.getString(dfu[0].iManufacturer, 30)
             product = handle.getString(dfu[0].iProduct, 30)
             serial = handle.getString(dfu[0].iSerialNumber, 40)
-        except:
+        except Exception as e:
             print("Could not access descriptions strings of a DFU device. " +
                   "Maybe the OS driver is claiming it?")
+            print("Exception:", e)
             continue
 
         print("Device %s: ID %04x:%04x %s - %s - %s" % (dfu[0].filename,

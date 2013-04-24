@@ -34,7 +34,30 @@
 
 #include "generated/airframe.h"
 
+/* error if some gains are negative */
+#if (GUIDANCE_H_PGAIN < 0) ||                   \
+  (GUIDANCE_H_DGAIN < 0)   ||                   \
+  (GUIDANCE_H_IGAIN < 0)
+#error "ALL control gains have to be positive!!!"
+#endif
+
+#ifndef GUIDANCE_H_AGAIN
+#define GUIDANCE_H_AGAIN 0
+#else
+#if (GUIDANCE_H_AGAIN < 0)
+#error "ALL control gains have to be positive!!!"
+#endif
+#endif
+
+#ifndef GUIDANCE_H_MAX_BANK
+#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
+#endif
+
+PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
+
+
 uint8_t guidance_h_mode;
+bool_t guidance_h_use_ref;
 
 struct Int32Vect2 guidance_h_pos_sp;
 struct Int32Vect2 guidance_h_pos_ref;
@@ -56,33 +79,17 @@ int32_t guidance_h_dgain;
 int32_t guidance_h_igain;
 int32_t guidance_h_again;
 
-/* warn if some gains are still negative */
-#if (GUIDANCE_H_PGAIN < 0) ||                   \
-  (GUIDANCE_H_DGAIN < 0)   ||                   \
-  (GUIDANCE_H_IGAIN < 0)
-#warning "ALL control gains are now positive!!!"
-#endif
+int32_t transition_percentage;
+int32_t transition_theta_offset;
 
-
-#ifndef GUIDANCE_H_AGAIN
-#define GUIDANCE_H_AGAIN 0
-#else
-#if (GUIDANCE_H_AGAIN < 0)
-#warning "ALL control gains are now positive!!!"
-#endif
-#endif
-
-#ifndef GUIDANCE_H_MAX_BANK
-#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
-#endif
-
-static inline void guidance_h_update_reference(bool_t use_ref);
-static inline void guidance_h_traj_run(bool_t in_flight);
-static inline void guidance_h_hover_enter(void);
-static inline void guidance_h_nav_enter(void);
+static void guidance_h_update_reference(void);
+static void guidance_h_traj_run(bool_t in_flight);
+static void guidance_h_hover_enter(void);
+static void guidance_h_nav_enter(void);
+static inline void transition_run(void);
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
-    gh_set_ref(_pos, _speed, _accel);        \
+    gh_set_ref(_pos, _speed, _accel);           \
     VECT2_COPY(guidance_h_pos_ref,   _pos);     \
     VECT2_COPY(guidance_h_speed_ref, _speed);   \
     VECT2_COPY(guidance_h_accel_ref, _accel);   \
@@ -92,6 +99,8 @@ static inline void guidance_h_nav_enter(void);
 void guidance_h_init(void) {
 
   guidance_h_mode = GUIDANCE_H_MODE_KILL;
+  guidance_h_use_ref = GUIDANCE_H_USE_REF;
+
   INT_VECT2_ZERO(guidance_h_pos_sp);
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
   INT_EULERS_ZERO(guidance_h_rc_sp);
@@ -100,13 +109,19 @@ void guidance_h_init(void) {
   guidance_h_igain = GUIDANCE_H_IGAIN;
   guidance_h_dgain = GUIDANCE_H_DGAIN;
   guidance_h_again = GUIDANCE_H_AGAIN;
-
+  transition_percentage = 0;
+  transition_theta_offset = 0;
 }
 
 
 void guidance_h_mode_changed(uint8_t new_mode) {
   if (new_mode == guidance_h_mode)
     return;
+
+  if(new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
+     transition_percentage = 0;
+     transition_theta_offset = 0;
+   }
 
   switch (new_mode) {
     case GUIDANCE_H_MODE_RC_DIRECT:
@@ -119,6 +134,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
     case GUIDANCE_H_MODE_CARE_FREE:
       stabilization_attitude_reset_care_free_heading();
+    case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_ATTITUDE:
       stabilization_attitude_enter();
       break;
@@ -151,6 +167,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
       stabilization_rate_read_rc();
       break;
 
+    case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
       stabilization_attitude_read_rc(in_flight);
@@ -186,13 +203,17 @@ void guidance_h_run(bool_t  in_flight) {
       stabilization_rate_run(in_flight);
       break;
 
+    case GUIDANCE_H_MODE_FORWARD:
+      if(transition_percentage < (100<<INT32_PERCENTAGE_FRAC)) {
+        transition_run();
+      }
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
       stabilization_attitude_run(in_flight);
       break;
 
     case GUIDANCE_H_MODE_HOVER:
-      guidance_h_update_reference(FALSE);
+      guidance_h_update_reference();
 
       /* set psi command */
       guidance_h_command_body.psi = guidance_h_rc_sp.psi;
@@ -218,11 +239,8 @@ void guidance_h_run(bool_t  in_flight) {
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
 
-#if GUIDANCE_H_USE_REF
-        guidance_h_update_reference(TRUE);
-#else
-        guidance_h_update_reference(FALSE);
-#endif
+        guidance_h_update_reference();
+
         /* set psi command */
         guidance_h_command_body.psi = nav_heading;
         /* compute roll and pitch commands and set final attitude setpoint */
@@ -237,10 +255,15 @@ void guidance_h_run(bool_t  in_flight) {
 
 }
 
-static inline void guidance_h_update_reference(bool_t use_ref) {
-  /* convert our reference to generic representation */
-  if (use_ref) {
-    gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+static void guidance_h_update_reference(void) {
+  /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
+#if GUIDANCE_H_USE_REF
+  gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+#endif
+
+  /* either use the reference or simply copy the pos setpoint */
+  if (guidance_h_use_ref) {
+    /* convert our reference to generic representation */
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
@@ -263,7 +286,7 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
 /** maximum bank angle: default 20 deg */
 #define TRAJ_MAX_BANK BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC)
 
-static inline void guidance_h_traj_run(bool_t in_flight) {
+static void guidance_h_traj_run(bool_t in_flight) {
 
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
@@ -325,7 +348,7 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
 
 }
 
-static inline void guidance_h_hover_enter(void) {
+static void guidance_h_hover_enter(void) {
 
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
@@ -336,7 +359,7 @@ static inline void guidance_h_hover_enter(void) {
 
 }
 
-static inline void guidance_h_nav_enter(void) {
+static void guidance_h_nav_enter(void) {
 
   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
   struct Int32Vect2 pos,speed,zero;
@@ -351,4 +374,14 @@ static inline void guidance_h_nav_enter(void) {
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
+}
+
+static inline void transition_run(void) {
+  //Add 0.00625%
+  transition_percentage += 1<<(INT32_PERCENTAGE_FRAC-4);
+
+#ifdef TRANSITION_MAX_OFFSET
+  const int32_t max_offset = ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET);
+  transition_theta_offset = INT_MULT_RSHIFT((transition_percentage<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, max_offset, INT32_ANGLE_FRAC);
+#endif
 }
