@@ -261,8 +261,8 @@ static inline void adc_init_rcc( void )
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN |
                               RCC_APB2ENR_IOPCEN);
 #elif defined(STM32F4)
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN |
-                              RCC_AHB1ENR_IOPCEN);
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, ADC_GPIO_CLOCK_PORT);
+  //RCC_AHB1ENR_IOPBEN | RCC_AHB1ENR_IOPCEN); // KROOZ
   adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
 #endif
 
@@ -380,21 +380,21 @@ static inline void adc_init_single(uint32_t adc,
   /* Clear CONT */
   adc_set_single_conversion_mode(adc);
 
-  rank = 0;
+  rank = 3;
   if (chan1) {
     adc_set_sample_time(adc, adc_channel_map[0], ADC_SMPR1_SMP_41DOT5CYC);
     channels[rank] = adc_channel_map[0];
-    rank++;
+    rank--;
   }
   if (chan2) {
     adc_set_sample_time(adc, adc_channel_map[1], ADC_SMPR1_SMP_41DOT5CYC);
     channels[rank] = adc_channel_map[1];
-    rank++;
+    rank--;
   }
   if (chan3) {
     adc_set_sample_time(adc, adc_channel_map[2], ADC_SMPR1_SMP_41DOT5CYC);
     channels[rank] = adc_channel_map[2];
-    rank++;
+    rank--;
   }
   if (chan4) {
     adc_set_sample_time(adc, adc_channel_map[3], ADC_SMPR1_SMP_41DOT5CYC);
