@@ -126,6 +126,12 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
   /* force kill mode as long as AHRS is not aligned */
   if (!ahrs_is_aligned())
     new_autopilot_mode = AP_MODE_KILL;
+    
+#ifdef USE_GX3    
+  /* force kill mode as long as GX3 is not ready */
+  if ((GX3_freq < GX3_MIN_FREQ) && !autopilot_in_flight)
+    new_autopilot_mode = AP_MODE_KILL;
+#endif
 
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */
@@ -177,8 +183,8 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
         break;
 #endif
       case AP_MODE_KILL:

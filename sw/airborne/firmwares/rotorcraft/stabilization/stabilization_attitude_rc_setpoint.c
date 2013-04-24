@@ -96,13 +96,17 @@ float stabilization_attitude_get_heading_f(void) {
  * @param[out] sp         attitude setpoint as euler angles
  */
 void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
-
-  sp->phi = ((int32_t) radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
-  sp->theta = ((int32_t) radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);
+  // FIXME: Float hack to get actual rc setpoints in rads
+  float phi_f, theta_f, dpsi_f;
+  phi_f = (radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
+  theta_f = (radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);
+  sp->phi = ANGLE_BFP_OF_REAL(phi_f);
+  sp->theta = ANGLE_BFP_OF_REAL(theta_f);
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
-      sp->psi += ((int32_t) radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      dpsi_f = (radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      sp->psi += ANGLE_BFP_OF_REAL(dpsi_f);
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
     if (autopilot_mode == AP_MODE_FORWARD) {
