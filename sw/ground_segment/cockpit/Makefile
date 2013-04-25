@@ -35,6 +35,11 @@ INCLUDES= -I ../multimon
 PKG = -package pprz.xlib
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib
 
+LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.init 2>/dev/null)
+ifeq ($(LABLGTK2INIT),)
+LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.auto-init 2>/dev/null)
+endif
+
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
@@ -50,7 +55,7 @@ $(MAIN) : $(CMO)
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,lablgtk2.init -linkpkg $(CMX) -o $@
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,$(LABLGTK2INIT) -linkpkg $(CMX) -o $@
 
 
 %.cmo: %.ml
