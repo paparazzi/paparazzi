@@ -19,7 +19,7 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- /**
+/**
  * @file ahrs_gx3.h
  *
  * Driver for Microstrain GX3 IMU/AHRS subsystem
@@ -57,7 +57,7 @@
 #undef ImuScaleAccel
 #endif
 #define ImuScaleAccel(_imu) {}
-  
+
 #ifdef ImuScaleMag
 #undef ImuScaleMag
 #endif
@@ -91,8 +91,8 @@ struct GX3_packet {
 };
 
 enum GX36PacketStatus {
-    GX3PacketWaiting,
-    GX3PacketReading
+  GX3PacketWaiting,
+  GX3PacketReading
 };
 
 enum GX3Status {
@@ -110,26 +110,22 @@ struct AhrsFloatQuat {
 
 extern struct AhrsFloatQuat ahrs_impl;
 
-#define imu_gx3_event(_callback1, _callback2, _callback3) {				\
-    if (GX3Buffer()) {							\
-      ReadGX3Buffer();							\
-    }									\
-    if (GX3_packet.msg_available) {					\
-      GX3_packet_read_message();					\
-      _callback1();			\
-      _callback2();			\
-      _callback3();     \
-      GX3_packet.msg_available = FALSE;					\
-    } \
+static inline void ReadGX3Buffer(void) {
+  while (GX3Link(ChAvailable()) && !GX3_packet.msg_available)
+    GX3_packet_parse(GX3Link(Getch()));
 }
 
-#define ReadGX3Buffer() {						\
-    while (GX3Link(ChAvailable())&&!GX3_packet.msg_available)		\
-      GX3_packet_parse(GX3Link(Getch()));				\
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+  if (GX3Buffer()) {
+    ReadGX3Buffer();
   }
-
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
-  imu_gx3_event(_gyro_handler, _accel_handler, _mag_handler); \
+  if (GX3_packet.msg_available) {
+    GX3_packet_read_message();
+    _gyro_handler();
+    _accel_handler();
+    _mag_handler();
+    GX3_packet.msg_available = FALSE;
+  }
 }
 
 #endif /* AHRS_GX3_H*/
