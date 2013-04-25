@@ -1,0 +1,38 @@
+<joystick>
+	<input>
+		<axis index="0" name="roll" />
+		<axis index="1" name="pitch" />
+		<axis index="2" name="yaw" />
+		<axis index="3" name="throttle" />
+		<button index="0" name="shoot" />
+		<button index="1" name="b2" />
+		<button index="2" name="b3" />
+		<button index="3" name="b4" />
+		<button index="4" name="b5" />
+		<button index="5" name="b6" />
+		<button index="6" name="b7" />
+		<button index="7" name="b8" />
+		<button index="8" name="b9" />
+		<button index="9" name="b10" />
+		<button index="10" name="b11" />
+		<button index="11" name="b12" />
+	</input>
+
+	<variables>
+		<var name="mode" default="0" />
+		<set var="mode" value="0" on_event="b3" />
+		<set var="mode" value="1" on_event="b4" />
+		<set var="mode" value="2" on_event="b5" />
+	</variables>
+
+	<messages period="0.025">
+		<message class="datalink" name="RC_4CH" send_always="true">
+			<field name="mode" value="mode" />
+			<field name="throttle" value="127-Scale(throttle,0,128)" />
+			<field name="roll" value="roll" />
+			<field name="yaw" value="yaw" />
+			<field name="pitch" value="pitch" />
+		</message>
+	</messages>
+
+</joystick>
