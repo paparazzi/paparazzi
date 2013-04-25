@@ -31,6 +31,7 @@
 extern int32_t ins_qfe;
 extern int32_t ins_baro_alt;
 
+extern struct NedCoor_i ins_ltp_pos;
 extern struct LtpDef_i ins_ltp_def;
 extern bool_t ins_ltp_initialised;
 
