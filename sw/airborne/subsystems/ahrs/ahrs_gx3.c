@@ -56,6 +56,7 @@ struct FloatQuat GX3_quat;
 struct FloatEulers GX3_euler;
 
 struct AhrsFloatQuat ahrs_impl;
+struct AhrsAligner ahrs_aligner;
 
 static inline bool_t GX3_verify_chk(volatile uint8_t *buff_add);
 static inline float bef(volatile uint8_t *c);
@@ -283,12 +284,23 @@ void ahrs_init(void) {
     ahrs_impl.mag_offset = 0.;
   #endif
 
-  //Needed to set orientations
-  ahrs.status = AHRS_RUNNING;
+  ahrs_aligner.status = AHRS_ALIGNER_LOCKED;
+}
 
+void ahrs_aligner_run(void) {
   #ifdef AHRS_ALIGNER_LED
-      LED_ON(AHRS_ALIGNER_LED);
+    LED_TOGGLE(AHRS_ALIGNER_LED);
   #endif
+  
+  if (GX3_freq > GX3_MIN_FREQ) {
+    ahrs.status = AHRS_RUNNING;
+    #ifdef AHRS_ALIGNER_LED
+      LED_ON(AHRS_ALIGNER_LED);
+    #endif
+  }
+}
+
+void ahrs_aligner_init(void) {
 }
 
 void ahrs_propagate(void) {

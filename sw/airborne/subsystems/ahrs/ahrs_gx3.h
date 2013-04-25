@@ -37,6 +37,7 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
 #include "mcu_periph/uart.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "state.h"
 #include "led.h"

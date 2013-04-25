@@ -16,7 +16,6 @@ endif
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_gx3.h\"
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs.c
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/imu.c     
-AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_gx3.c
 
 AHRS_CFLAGS += -DUSE_$(GX3_PORT) -D$(GX3_PORT)_BAUD=$(GX3_BAUD)
