@@ -156,6 +156,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       case AP_MODE_ATTITUDE_Z_HOLD:
         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
         break;
+      case AP_MODE_FORWARD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
+        break;
       case AP_MODE_CARE_FREE_DIRECT:
         guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
         break;
@@ -174,8 +177,8 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
         break;
 #endif
       case AP_MODE_KILL:
@@ -186,6 +189,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       case AP_MODE_ATTITUDE_DIRECT:
       case AP_MODE_HOVER_DIRECT:
       case AP_MODE_CARE_FREE_DIRECT:
+      case AP_MODE_FORWARD:
         guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
         break;
       case AP_MODE_RATE_RC_CLIMB:

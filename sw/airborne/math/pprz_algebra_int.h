@@ -61,6 +61,8 @@ struct Int16Vect3 {
 #define INT32_ACCEL_FRAC 10
 #define INT32_MAG_FRAC 11
 
+#define INT32_PERCENTAGE_FRAC 10
+
 struct Int32Vect2 {
   int32_t x;
   int32_t y;

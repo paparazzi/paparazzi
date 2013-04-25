@@ -157,8 +157,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0.144" unit="rad"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="4." unit="deg"/>
   </section>
 
   <section name="BAT">

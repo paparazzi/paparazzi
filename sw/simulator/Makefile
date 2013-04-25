@@ -22,12 +22,6 @@
 # Quiet compilation
 Q=@
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -fPIC
-else
-  FPIC =
-endif
 
 include ../../conf/Makefile.local
 include ../Makefile.ocaml
@@ -88,7 +82,7 @@ diffusion : stdlib.cmo diffusion.cmo
 
 %.o : %.c
 	@echo CC $<
-	$(Q)$(CC) $(FPIC) -c $< $(CAML_CFLAGS)
+	$(Q)$(CC) -fPIC -c $< $(CAML_CFLAGS)
 
 %.cmx : %.ml
 	@echo OOC $<

@@ -125,7 +125,7 @@ extern void imu_umarim_event( void );
 extern void imu_umarim_downlink_raw( void );
 
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void) __attribute__((unused))) {
   imu_umarim_event();
   if (imu_umarim.gyr_valid) {
     imu_umarim.gyr_valid = FALSE;
