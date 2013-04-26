@@ -34,34 +34,43 @@
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-//#define PCLK 72000000
 #if defined(STM32F1)
+//#define PCLK 72000000
 #define PCLK AHB_CLK
 #elif defined(STM32F4)
+//#define PCLK 84000000
 #define PCLK AHB_CLK/2
 #endif
 
 #define ONE_MHZ_CLK 1000000
+// Default servo update rate
 #ifndef SERVO_HZ
 #define SERVO_HZ 40
 #endif
 
-#ifndef SERVO_HZ_CAM
-#define SERVO_HZ_CAM SERVO_HZ
+// Update rate can be adapted for each timer
+#ifndef TIM1_SERVO_HZ
+#define TIM1_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM2_SERVO_HZ
+#define TIM2_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM3_SERVO_HZ
+#define TIM3_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM4_SERVO_HZ
+#define TIM4_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM5_SERVO_HZ
+#define TIM5_SERVO_HZ SERVO_HZ
 #endif
 
-#define _TIM_OC_INIT(n) TIM_OC##n##Init
-#define TIM_OC_INIT(n) _TIM_OC_INIT(n)
-
-#define _TIM_OC_PRELOADCONFIG(n) TIM_OC##n##PreloadConfig
-#define TIM_OC_PRELOADCONFIG(n) _TIM_OC_PRELOADCONFIG(n)
-
-#define _TIM_SETCOMPARE(n) TIM_SetCompare##n
-#define TIM_SETCOMPARE(n) _TIM_SETCOMPARE(n)
-
+/** Set PWM channel configuration
+ */
 static inline void actuators_pwm_arch_channel_init(u32 timer_peripheral,
 						enum tim_oc_id oc_id) {
 
+  timer_disable_oc_output(timer_peripheral, oc_id);
   timer_disable_oc_clear(timer_peripheral, oc_id);
   timer_enable_oc_preload(timer_peripheral, oc_id);
   timer_set_oc_slow_mode(timer_peripheral, oc_id);
@@ -70,37 +79,93 @@ static inline void actuators_pwm_arch_channel_init(u32 timer_peripheral,
   timer_enable_oc_output(timer_peripheral, oc_id);
 }
 
+/** Set GPIO configuration
+ */
+static inline void set_servo_gpio(u32 gpio, u16 pin, u8 af_num, u32 en) {
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, en);
+  gpio_mode_setup(gpio, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
+  gpio_set_af(gpio, af_num, pin);
+}
+
+/** Set Timer configuration
+ */
+static inline void set_servo_timer(u32 timer, u32 period, u8 channels_mask) {
+  timer_reset(timer);
+
+  /* Timer global mode:
+   * - No divider.
+   * - Alignement edge.
+   * - Direction up.
+   */
+  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+
+  timer_set_prescaler(timer, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
+
+  timer_disable_preload(timer);
+
+  timer_continuous_mode(timer);
+
+  timer_set_period(timer, (ONE_MHZ_CLK / period) - 1);
+
+  /* Disable outputs and configure channel if needed. */
+  if (bit_is_set(channels_mask, 0)) {
+    actuators_pwm_arch_channel_init(timer, TIM_OC1);
+  }
+  if (bit_is_set(channels_mask, 1)) {
+    actuators_pwm_arch_channel_init(timer, TIM_OC2);
+  }
+  if (bit_is_set(channels_mask, 2)) {
+    actuators_pwm_arch_channel_init(timer, TIM_OC3);
+  }
+  if (bit_is_set(channels_mask, 3)) {
+    actuators_pwm_arch_channel_init(timer, TIM_OC4);
+  }
+
+  /*
+   * Set initial output compare values.
+   * Note: Maybe we should preload the compare registers with some sensible
+   * values before we enable the timer?
+   */
+  //timer_set_oc_value(timer, TIM_OC1, 1000);
+  //timer_set_oc_value(timer, TIM_OC2, 1000);
+  //timer_set_oc_value(timer, TIM_OC3, 1000);
+  //timer_set_oc_value(timer, TIM_OC4, 1000);
+
+  /* -- Enable timer -- */
+  /*
+   * ARR reload enable.
+   * Note: In our case it does not matter much if we do preload or not. As it
+   * is unlikely we will want to change the frequency of the timer during
+   * runtime anyways.
+   */
+  timer_enable_preload(timer);
+
+  /* Counter enable. */
+  timer_enable_counter(timer);
+}
+
+/** PWM arch init called by generic pwm driver
+ */
 void actuators_pwm_arch_init(void) {
 
   /*-----------------------------------
    * Configure timer peripheral clocks
    *-----------------------------------*/
-#ifndef BOARD_KROOZ
-  /* TIM3, TIM4 and TIM5 clock enable */
+#if PWM_USE_TIM1
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM1EN);
+#endif
+#if PWM_USE_TIM2
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+#endif
+#if PWM_USE_TIM3
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM3EN);
-#if REMAP_SERVOS_5AND6
+#endif
+#if PWM_USE_TIM4
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM4EN);
+#endif
+#if PWM_USE_TIM5
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM5EN);
-#else
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM4EN);
 #endif
-#if USE_SERVOS_7AND8
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM4EN);
-#endif
-#else // BOARD_KROOZ
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_1_4_RCC_TIM);
-#if USE_SERVOS_5AND6
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_5AND6_RCC_TIM);
-#endif
-#if USE_SERVOS_7AND8
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_7AND8_RCC_TIM);
-#endif
-#if USE_SERVOS_9AND10
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_9AND10_RCC_TIM);
-#endif
-#if USE_SERVO_11
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, PWM_11_RCC_TIM);
-#endif
-#endif // BOARD_KROOZ
 
   /*----------------
    * Configure GPIO
@@ -121,33 +186,7 @@ void actuators_pwm_arch_init(void) {
       GPIO_TIM3_FR_CH2 |
       GPIO_TIM3_FR_CH3 |
       GPIO_TIM3_FR_CH4);
-#elif defined(STM32F4)
-#ifdef BOARD_KROOZ
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_1_4_RCC_IOP);
-  gpio_mode_setup(PWM_1_4_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_1_4_Pins);
-  gpio_set_af(PWM_1_4_GPIO, GPIO_AF2, PWM_1_4_Pins);
-#endif
-#endif
 
-  /* TIM4 GPIO for PWM7..8 */
-#if USE_SERVOS_7AND8
-#if defined(STM32F1)
-  gpio_set_mode(GPIO_BANK_TIM4,
-      GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-      GPIO_TIM4_CH1 |
-      GPIO_TIM4_CH2);
-#elif defined(STM32F4)
-#ifdef BOARD_KROOZ
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_7AND8_RCC_IOP);
-  gpio_mode_setup(PWM_7AND8_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_7AND8_Pins);
-  gpio_set_af(PWM_7AND8_GPIO, GPIO_AF2, PWM_7AND8_Pins);
-#endif
-#endif
-#endif
-
-  /* TIM4/5 GPIO for PWM6..7 */
-#if defined(STM32F1)
 #if REMAP_SERVOS_5AND6
   gpio_set_mode(GPIO_BANK_TIM5,
       GPIO_MODE_OUTPUT_50_MHZ,
@@ -161,299 +200,91 @@ void actuators_pwm_arch_init(void) {
       GPIO_TIM4_CH3 |
       GPIO_TIM4_CH4);
 #endif
+
+#if USE_SERVOS_7AND8
+  gpio_set_mode(GPIO_BANK_TIM4,
+      GPIO_MODE_OUTPUT_50_MHZ,
+      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+      GPIO_TIM4_CH1 |
+      GPIO_TIM4_CH2);
+#endif
+
 #elif defined(STM32F4)
-#if USE_SERVOS_5AND6
-#ifdef BOARD_KROOZ
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_5AND6_RCC_IOP);
-  gpio_mode_setup(PWM_5AND6_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_5AND6_Pins);
-  gpio_set_af(PWM_5AND6_GPIO, GPIO_AF2, PWM_5AND6_Pins);
+#ifdef PWM_SERVO_0
+  set_servo_gpio(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, PWM_SERVO_0_RCC_IOP);
 #endif
+#ifdef PWM_SERVO_1
+  set_servo_gpio(PWM_SERVO_1_GPIO, PWM_SERVO_1_PIN, PWM_SERVO_1_AF, PWM_SERVO_1_RCC_IOP);
 #endif
+#ifdef PWM_SERVO_2
+  set_servo_gpio(PWM_SERVO_2_GPIO, PWM_SERVO_2_PIN, PWM_SERVO_2_AF, PWM_SERVO_2_RCC_IOP);
 #endif
+#ifdef PWM_SERVO_3
+  set_servo_gpio(PWM_SERVO_3_GPIO, PWM_SERVO_3_PIN, PWM_SERVO_3_AF, PWM_SERVO_3_RCC_IOP);
+#endif
+#ifdef PWM_SERVO_4
+  set_servo_gpio(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, PWM_SERVO_4_RCC_IOP);
+#endif
+#ifdef PWM_SERVO_5
+  set_servo_gpio(PWM_SERVO_5_GPIO, PWM_SERVO_5_PIN, PWM_SERVO_5_AF, PWM_SERVO_5_RCC_IOP);
+#endif
+#ifdef PWM_SERVO_6
+  set_servo_gpio(PWM_SERVO_6_GPIO, PWM_SERVO_6_PIN, PWM_SERVO_6_AF, PWM_SERVO_6_RCC_IOP);
+#endif
+#ifdef PWM_SERVO_7
+  set_servo_gpio(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, PWM_SERVO_7_RCC_IOP);
+#endif
+#endif // STM32F4
 
-  /* PWM9..10 */
-#if USE_SERVOS_9AND10
-#if defined(STM32F1)
-#warning "No servo 9 and 10 outputs on this hardware"
-#elif defined(STM32F4)
-#ifdef BOARD_KROOZ
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_9AND10_RCC_IOP);
-  gpio_mode_setup(PWM_9AND10_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_9AND10_Pins);
-  gpio_set_af(PWM_9AND10_GPIO, GPIO_AF2, PWM_9AND10_Pins);
-#endif
-#endif
-#endif
 
-  /* PWM11 */
-#if USE_SERVO_11
-#if defined(STM32F1)
-#warning "No servo 11 output on this hardware"
-#elif defined(STM32F4)
-#ifdef BOARD_KROOZ
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, PWM_11_RCC_IOP);
-  gpio_mode_setup(PWM_11_GPIO, GPIO_MODE_AF, GPIO_PUPD_NONE, PWM_11_Pin);
-  gpio_set_af(PWM_11_GPIO, GPIO_AF2, PWM_11_Pin);
-#endif
-#endif
+#if PWM_USE_TIM1
+  set_servo_timer(TIM1, TIM1_SERVO_HZ, PWM_TIM1_CHAN_MASK);
 #endif
 
-  /*---------------
-   * Timer 3 setup
-   *---------------*/
-  timer_reset(TIM3);
-
-  /* Timer global mode:
-   * - No divider.
-   * - Alignement edge.
-   * - Direction up.
-   */
-  timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT,
-      TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-
-  timer_set_prescaler(TIM3, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
-
-  timer_disable_preload(TIM3);
-
-  timer_continuous_mode(TIM3);
-
-  timer_set_period(TIM3, (ONE_MHZ_CLK / SERVO_HZ) - 1);
-
-  /* Disable outputs. */
-  timer_disable_oc_output(TIM3, TIM_OC1);
-  timer_disable_oc_output(TIM3, TIM_OC2);
-  timer_disable_oc_output(TIM3, TIM_OC3);
-  timer_disable_oc_output(TIM3, TIM_OC4);
-
-  /* -- Channel configuration -- */
-  actuators_pwm_arch_channel_init(TIM3, TIM_OC1);
-  actuators_pwm_arch_channel_init(TIM3, TIM_OC2);
-  actuators_pwm_arch_channel_init(TIM3, TIM_OC3);
-  actuators_pwm_arch_channel_init(TIM3, TIM_OC4);
-
-  /*
-   * Set initial output compare values.
-   * Note: Maybe we should preload the compare registers with some sensible
-   * values before we enable the timer?
-   */
-  //timer_set_oc_value(TIM3, TIM_OC1, 1000);
-  //timer_set_oc_value(TIM3, TIM_OC2, 1000);
-  //timer_set_oc_value(TIM3, TIM_OC3, 1000);
-  //timer_set_oc_value(TIM3, TIM_OC4, 1000);
-
-  /* -- Enable timer -- */
-  /*
-   * ARR reload enable.
-   * Note: In our case it does not matter much if we do preload or not. As it
-   * is unlikely we will want to change the frequency of the timer during
-   * runtime anyways.
-   */
-  timer_enable_preload(TIM3);
-
-  /* Counter enable. */
-  timer_enable_counter(TIM3);
-
-#if (!REMAP_SERVOS_5AND6 || USE_SERVOS_7AND8)
-#if !REMAP_SERVOS_5AND6
-PRINT_CONFIG_MSG("Not remapping servos 5 and 6 using PB8 and PB9 -> TIM4")
-#endif
-#if USE_SERVOS_7AND8
-PRINT_CONFIG_MSG("Enabling sevros 7 and 8 on PB6, PB7 -> TIM4")
-#endif
-  /*---------------
-   * Timer 4 setup
-   *---------------*/
-  timer_reset(TIM4);
-
-  /* Timer global mode:
-   * - No divider.
-   * - Alignement edge.
-   * - Direction up.
-   */
-  timer_set_mode(TIM4, TIM_CR1_CKD_CK_INT,
-      TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-
-  timer_set_prescaler(TIM4, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
-
-  timer_disable_preload(TIM4);
-
-  timer_continuous_mode(TIM4);
-
-#ifdef SERVO_HZ_SECONDARY
-  timer_set_period(TIM4, (ONE_MHZ_CLK / SERVO_HZ_SECONDARY) - 1);
-#elif defined SERVO_HZ_CAM
-  timer_set_period(TIM4, (ONE_MHZ_CLK / SERVO_HZ_CAM) - 1);
-#else
-  timer_set_period(TIM4, (ONE_MHZ_CLK / SERVO_HZ) - 1);
+#if PWM_USE_TIM2
+  set_servo_timer(TIM2, TIM2_SERVO_HZ, PWM_TIM2_CHAN_MASK);
 #endif
 
-  /* Disable outputs. */
-#if USE_SERVOS_7AND8
-  timer_disable_oc_output(TIM4, TIM_OC1);
-  timer_disable_oc_output(TIM4, TIM_OC2);
-#endif
-#ifndef BOARD_KROOZ
-#if !REMAP_SERVOS_5AND6
-  timer_disable_oc_output(TIM4, TIM_OC3);
-  timer_disable_oc_output(TIM4, TIM_OC4);
-#endif
+#if PWM_USE_TIM3
+  set_servo_timer(TIM3, TIM3_SERVO_HZ, PWM_TIM3_CHAN_MASK);
 #endif
 
-  /* -- Channel configuration -- */
-#if USE_SERVOS_7AND8
-  actuators_pwm_arch_channel_init(TIM4, TIM_OC1);
-  actuators_pwm_arch_channel_init(TIM4, TIM_OC2);
-#endif
-#ifndef BOARD_KROOZ
-#if !REMAP_SERVOS_5AND6
-  actuators_pwm_arch_channel_init(TIM4, TIM_OC3);
-  actuators_pwm_arch_channel_init(TIM4, TIM_OC4);
-#endif
+#if PWM_USE_TIM4
+  set_servo_timer(TIM4, TIM4_SERVO_HZ, PWM_TIM4_CHAN_MASK);
 #endif
 
-  /*
-   * Set initial output compare values.
-   * Note: Maybe we should preload the compare registers with some sensible
-   * values before we enable the timer?
-   */
-#if USE_SERVOS_7AND8
-  //timer_set_oc_value(TIM4, TIM_OC1, 1000);
-  //timer_set_oc_value(TIM4, TIM_OC2, 1000);
-#endif
-#if ! REMAP_SERVOS_5AND6
-  //timer_set_oc_value(TIM4, TIM_OC3, 1000);
-  //timer_set_oc_value(TIM4, TIM_OC4, 1000);
-#endif
-
-  /* -- Enable timer -- */
-  /*
-   * ARR reload enable.
-   * Note: In our case it does not matter much if we do preload or not. As it
-   * is unlikely we will want to change the frequency of the timer during
-   * runtime anyways.
-   */
-  timer_enable_preload(TIM4);
-
-  /* Counter enable. */
-  timer_enable_counter(TIM4);
-
-#endif
-
-#if REMAP_SERVOS_5AND6 || defined(BOARD_KROOZ)
-#ifdef REMAP_SERVOS_5AND6
-PRINT_CONFIG_MSG("Remapping servo outputs 5 and 6 to PA0,PA1 -> TIM5")
-#endif
-#ifdef BOARD_KROOZ
-PRINT_CONFIG_MSG("Using servo outputs 5 and 6 to PA0,PA1 -> TIM5")
-#endif
-  /*---------------
-   * Timer 5 setup
-   *---------------*/
-  timer_reset(TIM5);
-
-  /* Timer global mode:
-   * - No divider.
-   * - Alignement edge.
-   * - Direction up.
-   */
-  timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT,
-      TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-
-  timer_set_prescaler(TIM5, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
-
-  timer_disable_preload(TIM5);
-
-  timer_continuous_mode(TIM5);
-
-#ifdef SERVO_HZ_SECONDARY
-  timer_set_period(TIM5, (ONE_MHZ_CLK / SERVO_HZ_SECONDARY) - 1);
-#else
-  timer_set_period(TIM5, (ONE_MHZ_CLK / SERVO_HZ) - 1);
-#endif
-
-  /* Disable outputs. */
-  timer_disable_oc_output(TIM5, TIM_OC1);
-  timer_disable_oc_output(TIM5, TIM_OC2);
-#ifdef BOARD_KROOZ
-  timer_disable_oc_output(TIM5, TIM_OC3);
-  timer_disable_oc_output(TIM5, TIM_OC4);
-#endif
-
-  /* -- Channel configuration -- */
-  actuators_pwm_arch_channel_init(TIM5, TIM_OC1);
-  actuators_pwm_arch_channel_init(TIM5, TIM_OC2);
-#ifdef BOARD_KROOZ
-  actuators_pwm_arch_channel_init(TIM5, TIM_OC3);
-  actuators_pwm_arch_channel_init(TIM5, TIM_OC4);
-#endif
-
-  /*
-   * Set the capture compare value for OC1.
-   * Note: Maybe we should preload the compare registers with some sensible
-   * values before we enable the timer?
-   */
-  //timer_set_oc_value(TIM5, TIM_OC1, 1000);
-  //timer_set_oc_value(TIM5, TIM_OC2, 1000);
-
-  /* -- Enable timer -- */
-  /*
-   * ARR reload enable.
-   * Note: In our case it does not matter much if we do preload or not. As it
-   * is unlikely we will want to change the frequency of the timer during
-   * runtime anyways.
-   */
-  timer_enable_preload(TIM5);
-
-  /* Counter enable. */
-  timer_enable_counter(TIM5);
-
-#endif
-
-#if defined(BOARD_KROOZ) && defined(USE_SERVO_11)
-  timer_reset(PWM_11_TIMER);
-  /* Timer global mode:
-   * - No divider.
-   * - Alignement edge.
-   * - Direction up.
-   */
-  timer_set_mode(PWM_11_TIMER, TIM_CR1_CKD_CK_INT,
-      TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-  timer_set_prescaler(PWM_11_TIMER, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
-  timer_disable_preload(PWM_11_TIMER);
-  timer_continuous_mode(PWM_11_TIMER);
-#ifdef SERVO_HZ_SECONDARY
-  timer_set_period(PWM_11_TIMER, (ONE_MHZ_CLK / SERVO_HZ_SECONDARY) - 1);
-#else
-  timer_set_period(PWM_11_TIMER, (ONE_MHZ_CLK / SERVO_HZ) - 1);
-#endif
-  /* Disable outputs. */
-  timer_disable_oc_output(PWM_11_TIMER, PWM11_OC);
-  /* -- Channel configuration -- */
-  actuators_pwm_arch_channel_init(PWM_11_TIMER, PWM11_OC);
-  /* -- Enable timer -- */
-  timer_enable_preload(PWM_11_TIMER);
-  /* Counter enable. */
-  timer_enable_counter(PWM_11_TIMER);
+#if PWM_USE_TIM5
+  set_servo_timer(TIM5, TIM5_SERVO_HZ, PWM_TIM5_CHAN_MASK);
 #endif
 
 }
 
-/* set pulse widths from actuator values, assumed to be in us */
+/** Set pulse widths from actuator values, assumed to be in us
+ */
 void actuators_pwm_commit(void) {
-  timer_set_oc_value(TIM3, TIM_OC1, actuators_pwm_values[0]);
-  timer_set_oc_value(TIM3, TIM_OC2, actuators_pwm_values[1]);
-  timer_set_oc_value(TIM3, TIM_OC3, actuators_pwm_values[2]);
-  timer_set_oc_value(TIM3, TIM_OC4, actuators_pwm_values[3]);
-
-#if USE_SERVOS_7AND8
-  timer_set_oc_value(TIM4, TIM_OC1, actuators_pwm_values[6]);
-  timer_set_oc_value(TIM4, TIM_OC2, actuators_pwm_values[7]);
+#if PWM_SERVO_0
+  timer_set_oc_value(PWM_SERVO_0_TIMER, PWM_SERVO_0_OC, actuators_pwm_values[PWM_SERVO_0-1]);
 #endif
-#if REMAP_SERVOS_5AND6
-  timer_set_oc_value(TIM5, TIM_OC1, actuators_pwm_values[4]);
-  timer_set_oc_value(TIM5, TIM_OC2, actuators_pwm_values[5]);
-#else
-  timer_set_oc_value(TIM4, TIM_OC3, actuators_pwm_values[4]);
-  timer_set_oc_value(TIM4, TIM_OC4, actuators_pwm_values[5]);
+#if PWM_SERVO_1
+  timer_set_oc_value(PWM_SERVO_1_TIMER, PWM_SERVO_1_OC, actuators_pwm_values[PWM_SERVO_1-1]);
+#endif
+#if PWM_SERVO_2
+  timer_set_oc_value(PWM_SERVO_2_TIMER, PWM_SERVO_2_OC, actuators_pwm_values[PWM_SERVO_2-1]);
+#endif
+#if PWM_SERVO_3
+  timer_set_oc_value(PWM_SERVO_3_TIMER, PWM_SERVO_3_OC, actuators_pwm_values[PWM_SERVO_3-1]);
+#endif
+#if PWM_SERVO_4
+  timer_set_oc_value(PWM_SERVO_4_TIMER, PWM_SERVO_4_OC, actuators_pwm_values[PWM_SERVO_4-1]);
+#endif
+#if PWM_SERVO_5
+  timer_set_oc_value(PWM_SERVO_5_TIMER, PWM_SERVO_5_OC, actuators_pwm_values[PWM_SERVO_5-1]);
+#endif
+#if PWM_SERVO_6
+  timer_set_oc_value(PWM_SERVO_6_TIMER, PWM_SERVO_6_OC, actuators_pwm_values[PWM_SERVO_6-1]);
+#endif
+#if PWM_SERVO_7
+  timer_set_oc_value(PWM_SERVO_7_TIMER, PWM_SERVO_7_OC, actuators_pwm_values[PWM_SERVO_7-1]);
 #endif
 
 }
