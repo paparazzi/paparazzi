@@ -1,6 +1,8 @@
 #ifndef CONFIG_LISA_M_1_0_H
 #define CONFIG_LISA_M_1_0_H
 
+#include "boards/lisa_m_common.h"
+
 #define BOARD_LISA_M
 
 /* Lisa/M has a 12MHz external clock and 72MHz internal. */
