@@ -168,17 +168,5 @@
 // FIXME, using baro_board right now to include the appropriate header
 #define BOARD_HAS_BARO 0
 
-#define PWM_5AND6_TIMER TIM5
-#define PWM_5AND6_RCC RCC_APB1ENR_TIM5EN
-#define PWM5_OC 1
-#define PWM6_OC 2
-#define PWM_5AND6_GPIO GPIOA
-#define PWM5_Pin GPIO0
-#define PWM6_Pin GPIO1
-
-// Remap the servos 5 and 6 to TIM5 CH1 and CH2
-#if !defined REMAP_SERVOS_5AND6
-#define REMAP_SERVOS_5AND6 1
-#endif
 
 #endif /* CONFIG_LIA_1_1_H */

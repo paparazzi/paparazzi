@@ -30,8 +30,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 
-#include BOARD_CONFIG
-
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 #if defined(STM32F1)
@@ -43,7 +41,7 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 #endif
 
 #define ONE_MHZ_CLK 1000000
-// Default servo update rate
+/** Default servo update rate in Hz */
 #ifndef SERVO_HZ
 #define SERVO_HZ 40
 #endif
@@ -81,11 +79,19 @@ static inline void actuators_pwm_arch_channel_init(u32 timer_peripheral,
 
 /** Set GPIO configuration
  */
-static inline void set_servo_gpio(u32 gpio, u16 pin, u8 af_num, u32 en) {
+#if defined(STM32F4)
+static inline void set_servo_gpio(u32 gpioport, u16 pin, u8 af_num, u32 en) {
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, en);
-  gpio_mode_setup(gpio, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
-  gpio_set_af(gpio, af_num, pin);
+  gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
+  gpio_set_af(gpioport, af_num, pin);
 }
+#elif defined(STM32F1)
+static inline void set_servo_gpio(u32 gpioport, u16 pin, u8 none, u32 en) {
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, en | RCC_APB2ENR_AFIOEN);
+  gpio_set_mode(gpioport, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, pin);
+}
+#endif
 
 /** Set Timer configuration
  */
@@ -171,45 +177,10 @@ void actuators_pwm_arch_init(void) {
    * Configure GPIO
    *----------------*/
 #if defined(STM32F1)
-  /* GPIO A,B and C clock enable */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN |
-      RCC_APB2ENR_IOPBEN |
-      RCC_APB2ENR_IOPCEN |
-      RCC_APB2ENR_AFIOEN);
-
   /* TIM3 GPIO for PWM1..4 */
   AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
-  gpio_set_mode(GPIO_BANK_TIM3_FR,
-      GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-      GPIO_TIM3_FR_CH1 |
-      GPIO_TIM3_FR_CH2 |
-      GPIO_TIM3_FR_CH3 |
-      GPIO_TIM3_FR_CH4);
-
-#if REMAP_SERVOS_5AND6
-  gpio_set_mode(GPIO_BANK_TIM5,
-      GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-      GPIO_TIM5_CH1 |
-      GPIO_TIM5_CH2);
-#else
-  gpio_set_mode(GPIO_BANK_TIM4,
-      GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-      GPIO_TIM4_CH3 |
-      GPIO_TIM4_CH4);
 #endif
 
-#if USE_SERVOS_7AND8
-  gpio_set_mode(GPIO_BANK_TIM4,
-      GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-      GPIO_TIM4_CH1 |
-      GPIO_TIM4_CH2);
-#endif
-
-#elif defined(STM32F4)
 #ifdef PWM_SERVO_0
   set_servo_gpio(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, PWM_SERVO_0_RCC_IOP);
 #endif
@@ -234,7 +205,9 @@ void actuators_pwm_arch_init(void) {
 #ifdef PWM_SERVO_7
   set_servo_gpio(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, PWM_SERVO_7_RCC_IOP);
 #endif
-#endif // STM32F4
+#ifdef PWM_SERVO_8
+  set_servo_gpio(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, PWM_SERVO_8_RCC_IOP);
+#endif
 
 
 #if PWM_USE_TIM1
@@ -285,6 +258,9 @@ void actuators_pwm_commit(void) {
 #endif
 #if PWM_SERVO_7
   timer_set_oc_value(PWM_SERVO_7_TIMER, PWM_SERVO_7_OC, actuators_pwm_values[PWM_SERVO_7-1]);
+#endif
+#if PWM_SERVO_8
+  timer_set_oc_value(PWM_SERVO_8_TIMER, PWM_SERVO_8_OC, actuators_pwm_values[PWM_SERVO_8-1]);
 #endif
 
 }

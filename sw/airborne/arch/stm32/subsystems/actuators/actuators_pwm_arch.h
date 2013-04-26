@@ -28,6 +28,8 @@
 
 #include "std.h"
 
+#include BOARD_CONFIG
+
 #ifndef ACTUATORS_PWM_NB
 #define ACTUATORS_PWM_NB 8
 #endif
