@@ -13,26 +13,13 @@ ARCH_L=f4
 ARCH_DIR=stm32
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
-# not needed?
-$(TARGET).OOCD_INTERFACE=flossjtag
-#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/apogee.ld
 
-# -----------------------------------------------------------------------
+HARD_FLOAT=yes
 
-# default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: JTAG, SWD, SERIAL
+# default flash mode is via usb dfu bootloader
+# other possibilities: SWD
 FLASH_MODE ?= DFU
-
-ifndef NO_LUFTBOOT
-$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8000000
-endif
-
-#
-#
-# some default values shared between different firmwares
-#
-#
 
 #
 # default LED configuration
@@ -43,6 +30,9 @@ AHRS_ALIGNER_LED   ?= 2
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
 
+#
+# default MODEM and GPS configuration
+#
 
 MODEM_PORT ?= UART1
 MODEM_BAUD ?= B57600
