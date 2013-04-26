@@ -30,6 +30,8 @@
 #ifndef ADC_ARCH_H
 #define ADC_ARCH_H
 
+#include BOARD_CONFIG
+
 // NB_ADCx_CHANNELS
 enum adc1_channels {
 #ifdef USE_AD1_1
