@@ -61,5 +61,15 @@
 
 #endif // PPM_CONFIG
 
+/* ADC */
+
+// active ADC
+#define USE_AD1 1
+#define USE_AD1_1 1
+#define USE_AD1_2 1
+#define USE_AD1_3 1
+#define USE_AD1_4 1
+
+
 #endif
 
