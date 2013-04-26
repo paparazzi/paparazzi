@@ -98,7 +98,7 @@
 
 #if USE_SERVOS_7AND8
   #if USE_I2C1
-    #error "You cannot use Servos 7and8 and I2C1 at the same time"
+    #error "You cannot USE_SERVOS_7AND8 and USE_I2C1 at the same time"
   #else
     #define ACTUATORS_PWM_NB 8
     #define USE_PWM7 1
@@ -109,9 +109,11 @@
   #define ACTUATORS_PWM_NB 6
 #endif
 
-// PWM_SERVO_X should be the internal servo position (starting from 0) + 1 (meaning the servo is activated)
+// Servo numbering on LisaM silkscreen/docs starts with 1
+
+// PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM1
-#define PWM_SERVO_1 1
+#define PWM_SERVO_1 0
 #define PWM_SERVO_1_TIMER TIM3
 #define PWM_SERVO_1_RCC_IOP RCC_APB2ENR_IOPCEN
 #define PWM_SERVO_1_GPIO GPIOC
@@ -124,7 +126,7 @@
 #endif
 
 #if USE_PWM2
-#define PWM_SERVO_2 2
+#define PWM_SERVO_2 1
 #define PWM_SERVO_2_TIMER TIM3
 #define PWM_SERVO_2_RCC_IOP RCC_APB2ENR_IOPCEN
 #define PWM_SERVO_2_GPIO GPIOC
@@ -137,7 +139,7 @@
 #endif
 
 #if USE_PWM3
-#define PWM_SERVO_3 3
+#define PWM_SERVO_3 2
 #define PWM_SERVO_3_TIMER TIM3
 #define PWM_SERVO_3_RCC_IOP RCC_APB2ENR_IOPCEN
 #define PWM_SERVO_3_GPIO GPIOC
@@ -150,7 +152,7 @@
 #endif
 
 #if USE_PWM4
-#define PWM_SERVO_4 4
+#define PWM_SERVO_4 3
 #define PWM_SERVO_4_TIMER TIM3
 #define PWM_SERVO_4_RCC_IOP RCC_APB2ENR_IOPCEN
 #define PWM_SERVO_4_GPIO GPIOC
@@ -163,7 +165,7 @@
 #endif
 
 #if USE_PWM5
-#define PWM_SERVO_5 5
+#define PWM_SERVO_5 4
 #define PWM_SERVO_5_TIMER TIM5
 #define PWM_SERVO_5_RCC_IOP RCC_APB2ENR_IOPAEN
 #define PWM_SERVO_5_GPIO GPIOA
@@ -176,7 +178,7 @@
 #endif
 
 #if USE_PWM6
-#define PWM_SERVO_6 6
+#define PWM_SERVO_6 5
 #define PWM_SERVO_6_TIMER TIM5
 #define PWM_SERVO_6_RCC_IOP RCC_APB2ENR_IOPAEN
 #define PWM_SERVO_6_GPIO GPIOA
@@ -189,7 +191,7 @@
 #endif
 
 #if USE_PWM7
-#define PWM_SERVO_7 7
+#define PWM_SERVO_7 6
 #define PWM_SERVO_7_TIMER TIM4
 #define PWM_SERVO_7_RCC_IOP RCC_APB2ENR_IOPBEN
 #define PWM_SERVO_7_GPIO GPIOB
@@ -202,7 +204,7 @@
 #endif
 
 #if USE_PWM8
-#define PWM_SERVO_8 8
+#define PWM_SERVO_8 7
 #define PWM_SERVO_8_TIMER TIM4
 #define PWM_SERVO_8_RCC_IOP RCC_APB2ENR_IOPBEN
 #define PWM_SERVO_8_GPIO GPIOB

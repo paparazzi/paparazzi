@@ -176,9 +176,9 @@
 #define USE_PWM4 1
 #define USE_PWM5 1
 
-// PWM_SERVO_X should be the internal servo position (starting from 0) + 1 (meaning the servo is activated)
+// PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0
-#define PWM_SERVO_0 1
+#define PWM_SERVO_0 0
 #define PWM_SERVO_0_TIMER TIM2
 #define PWM_SERVO_0_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_0_GPIO GPIOA
@@ -191,7 +191,7 @@
 #endif
 
 #if USE_PWM1
-#define PWM_SERVO_1 2
+#define PWM_SERVO_1 1
 #define PWM_SERVO_1_TIMER TIM2
 #define PWM_SERVO_1_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_1_GPIO GPIOA
@@ -204,7 +204,7 @@
 #endif
 
 #if USE_PWM2
-#define PWM_SERVO_2 3
+#define PWM_SERVO_2 2
 #define PWM_SERVO_2_TIMER TIM3
 #define PWM_SERVO_2_RCC_IOP RCC_AHB1ENR_IOPBEN
 #define PWM_SERVO_2_GPIO GPIOB
@@ -217,7 +217,7 @@
 #endif
 
 #if USE_PWM3
-#define PWM_SERVO_3 4
+#define PWM_SERVO_3_IDX 3
 #define PWM_SERVO_3_TIMER TIM3
 #define PWM_SERVO_3_RCC_IOP RCC_AHB1ENR_IOPBEN
 #define PWM_SERVO_3_GPIO GPIOB
@@ -230,7 +230,7 @@
 #endif
 
 #if USE_PWM4
-#define PWM_SERVO_4 5
+#define PWM_SERVO_4 4
 #define PWM_SERVO_4_TIMER TIM2
 #define PWM_SERVO_4_RCC_IOP RCC_AHB1ENR_IOPBEN
 #define PWM_SERVO_4_GPIO GPIOB
@@ -243,7 +243,7 @@
 #endif
 
 #if USE_PWM5
-#define PWM_SERVO_5 6
+#define PWM_SERVO_5 5
 #define PWM_SERVO_5_TIMER TIM2
 #define PWM_SERVO_5_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_5_GPIO GPIOA
