@@ -32,7 +32,7 @@ DATE		= $$(date +%Y%m%d)
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-toolchain
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 #
 # if the new arm-none-eabi multilib compiler was not found try the old arm-elf one
