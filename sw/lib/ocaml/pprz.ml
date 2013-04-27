@@ -597,7 +597,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
        formatted_string_of_value field.fformat v)
      msg.fields)
 
-  let message_send = fun ?timestamp sender msg_name values ->
+  let message_send = fun ?timestamp ?link_id sender msg_name values ->
     let m = snd (message_of_name msg_name) in
     let s = string_of_message m values in
     let timestamp_string =

@@ -118,7 +118,7 @@ let find_ac = fun ac_id ->
 let active_ac = ref ""
 let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  find_ac ac_id
+    find_ac ac_id
 
 let show_fp = fun ac ->
   ac.fp_group#show ();
@@ -825,8 +825,8 @@ let get_fbw_msg = fun alarm _sender vs ->
     log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_speech_name)
   end
 
-let get_link_status_msg = fun alarm _sender vs ->
-  let ac = get_ac vs in
+let get_link_status_msg = fun alarm sender vs ->
+  let ac = find_ac sender in
   let link_id = Pprz.int_assoc "link_id" vs in
   let time_since_last_msg = Pprz.float_assoc "time_since_last_msg" vs in
   let rx_msgs_rate = Pprz.float_assoc "rx_msgs_rate" vs in
@@ -869,7 +869,7 @@ let listen_if_calib_msg = fun () ->
   safe_bind "INFLIGH_CALIB" get_if_calib_msg
 
 let listen_link_status_msg = fun a ->
-  safe_bind "LINK_STATUS" (get_link_status_msg a)
+  tele_bind "LINK_STATUS" (get_link_status_msg a)
 
 let list_separator = Str.regexp ","
 

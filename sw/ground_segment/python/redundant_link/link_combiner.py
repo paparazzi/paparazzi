@@ -121,9 +121,9 @@ class Link:
     def __init__(self, name, ac_id, buffer_size=10, verbose=0):
         self.buffer = Circular_Buffer(buffer_size)
         self.name = name
-        self.ac_id = ac_id
         self.time_of_last_message = time()
         self.verbose = verbose
+        self.acs = [ac_id]  #Storing a list of the aircrafts that use this link. Usually it's just one.
 
         # The following are stored values from the DOWNLINK_STATUS message:
         self.run_time = 0
@@ -153,22 +153,26 @@ class Link:
     def timeSinceLastMessage(self):
         return time() - self.time_of_last_message
 
+    def acAc(self, ac_id):
+        self.acs = self.acs + [ac_id]
+
+    def aircrafts(self):
+        return self.acs
+
     def sendLinkStatusMessage(self):
-        values = (  self.name, 
-                    self.ac_id, 
-                    self.timeSinceLastMessage(), 
-                    self.run_time, 
-                    self.rx_bytes, 
-                    self.rx_msgs, 
-                    self.rx_err, 
-                    self.rx_bytes_rate, 
-                    self.rx_msgs_rate,
-                    self.ping_time)
+        for ac_id in self.acs:
+            values = (  self.name, 
+                        self.timeSinceLastMessage(), 
+                        self.run_time, 
+                        self.rx_bytes, 
+                        self.rx_msgs, 
+                        self.rx_err, 
+                        self.rx_bytes_rate, 
+                        self.rx_msgs_rate,
+                        self.ping_time)
 
-        IvySendMsg("ground LINK_STATUS %s %s %f %s %s %s %s %s %s %s" % values)
-        threading.Timer(LINK_STATUS_PERIOD, self.sendLinkStatusMessage).start()
-
-
+            IvySendMsg("%s LINK_STATUS %s %f %s %s %s %s %s %s %s" % ((ac_id,) + values))
+            threading.Timer(LINK_STATUS_PERIOD, self.sendLinkStatusMessage).start()
 
     def updateStatus(self, downlink_status_message):
 
@@ -220,12 +224,15 @@ class Link_Combiner:
             self.repeatSendLinkStatusMessage(message)
 
         #Processing messages from an already added link
-        sent = self.sendMessage(message)
+        link = self.links[message.linkName()]
+        self.sendMessage(message)
         self.bufferMessage(message)
         if message.name() != "DOWNLINK_STATUS":
-            self.links[message.linkName()].updateTimeOfLastMessage()
+            link.updateTimeOfLastMessage()
         else:
-            self.links[message.linkName()].updateStatus(message)
+            link.updateStatus(message)
+        if message.sender() not in link.aircrafts():
+            link.addAc(message.sender())
 
 
     def sendMessage(self, message):
