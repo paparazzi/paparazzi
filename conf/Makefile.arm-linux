@@ -1,7 +1,10 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 #
 # Copyright (C) 2012 - TU Delft Robotics Minor - Dino Hensen and Freek van Tienen
 #
-# Minimal makefile for arm-linux-gnueabi or arm-none-linux-gnueabi toolchain. Assuming installed in default location.
+# Minimal makefile for arm-linux-gnueabi or arm-none-linux-gnueabi toolchain.
+# Assuming installed in default location.
 
 
 #
@@ -52,5 +55,5 @@ MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then e
 # some general commands
 RM = rm
 
-	@echo "Using CC   = $(CC)"
 
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
