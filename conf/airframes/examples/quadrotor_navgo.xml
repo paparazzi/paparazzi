@@ -32,8 +32,9 @@
       <define name="USE_PWM0"/>
     </subsystem>
     <subsystem name="imu"           type="prop1"/><!--navgo-->
+    <define name="L3G_GYRO_LOWPASS" value="L3G4200_DLPF_1"/>
     <subsystem name="gps"           type="ublox">
-      <configure name="GPS_BAUD" value="B38400"/>
+      <configure name="GPS_BAUD"    value="B38400"/>
     </subsystem>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
@@ -92,30 +93,28 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
+    <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 = (4.97312)    (1/8.5)*(3.1415/180)*4096
+250dps = 8.41
+500dps = 4.08
+2000dps = 1.02
+-->
 
-    <define name="GYRO_P_NEUTRAL" value="10"/>
-    <define name="GYRO_Q_NEUTRAL" value="-32"/>
-    <define name="GYRO_R_NEUTRAL" value="11"/>
-
-    <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
-    <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
-    <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
-    <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
+    <define name="GYRO_P_SENS"  value="4.08" integer="16"/>
+    <define name="GYRO_Q_SENS"  value="4.08" integer="16"/>
+    <define name="GYRO_R_SENS"  value="4.08" integer="16"/>
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
     <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
     <define name="GYRO_R_SIGN" value="-1"/> 
 
-    <define name="ACCEL_X_NEUTRAL" value="-45"/>
-    <define name="ACCEL_Y_NEUTRAL" value="108"/>
-    <define name="ACCEL_Z_NEUTRAL" value="650"/>
-    <define name="ACCEL_X_SIGN"  value="-1"/>
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="13"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+    <define name="ACCEL_X_SIGN"  value="1"/>
     <define name="ACCEL_Y_SIGN"  value="-1"/>
     <define name="ACCEL_Z_SIGN"  value="-1"/>
-
-    <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 = 31.9488-->
-    <define name="ACCEL_X_SENS" value="38.5866088465" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="38.7212932023" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39.403098907"  integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
@@ -126,7 +125,7 @@
 
     <define name="BODY_TO_IMU_PHI"   value="0."  unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0."  unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="90." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="90."  unit="deg"/>
 
   </section>
 

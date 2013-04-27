@@ -38,18 +38,20 @@
 #include "peripherals/l3g4200_regs.h"
 
 
-/// Default Output rate 800hz
-#define L3G4200_DEFAULT_DR L3G4200_DR_800Hz
-/// Default digital lowpass filter 35hz
-#define L3G4200_DEFAULT_DLPF L3G4200_DLPF_2
+/// Default Output rate 400hz
+#define L3G4200_DEFAULT_DR L3G4200_DR_400Hz
+/// Default digital lowpass filter 20hz
+#define L3G4200_DEFAULT_DLPF L3G4200_DLPF_0
 
 
 /* Default conf */
 #define L3G4200_DEFAULT_CTRL_REG1 0x8f // 400hz ODR, 20hz filter, run!
-#define L3G4200_DEFAULT_CTRL_REG5 0x02 // low pass filter enable
+#define L3G4200_DEFAULT_CTRL_REG4 (L3G4200_2000DPS<<4) | (0x00); //0x20 // 2000dps
+#define L3G4200_DEFAULT_CTRL_REG5 0x00 //0x02 low pass filter enable
 
 struct L3g4200Config {
   uint8_t ctrl_reg1;     ///<
+  uint8_t ctrl_reg4;     ///<  
   uint8_t ctrl_reg5;     ///<
 };
 
@@ -57,6 +59,7 @@ struct L3g4200Config {
 enum L3g4200ConfStatus {
   L3G_CONF_UNINIT,
   L3G_CONF_REG1,
+  L3G_CONF_REG4,
   L3G_CONF_REG5,
   L3G_CONF_DONE
 };

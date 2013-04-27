@@ -45,30 +45,33 @@
 PRINT_CONFIG_VAR(ADXL_ACCEL_RATE)
 
 
-/** gyro internal lowpass frequency */
+/** gyro internal lowpass filter */
 #ifndef L3G_GYRO_LOWPASS
 #  if PERIODIC_FREQUENCY <= 60
-#    define L3G_GYRO_LOWPASS L3G4200_DLPF_20HZ
+#    define L3G_GYRO_LOWPASS L3G4200_DLPF_1
 #  elif PERIODIC_FREQUENCY <= 120
-#    define L3G_GYRO_LOWPASS L3G4200_DLPF_42HZ
+#    define L3G_GYRO_LOWPASS L3G4200_DLPF_2
 #  else
-#    define L3G_GYRO_LOWPASS L3G4200_DLPF_98HZ
+#    define L3G_GYRO_LOWPASS L3G4200_DLPF_3
 #  endif
 #endif
 PRINT_CONFIG_VAR(L3G_GYRO_LOWPASS)
 
 
-/** gyro sample rate divider */
-#ifndef L3G_GYRO_SMPLRT_DIV
+/** gyro output rate */
+#ifndef L3G_GYRO_DR
 #  if PERIODIC_FREQUENCY <= 60
-#    define L3G_GYRO_SMPLRT_DIV 19
-     PRINT_CONFIG_MSG("Gyro output rate is 50Hz")
-#  else
-#    define L3G_GYRO_SMPLRT_DIV 9
+#    define L3G_GYRO_DR L3G4200_DR_100Hz
      PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
+#  elseif PERIODIC_FREQUENCY <= 120
+#    define L3G_GYRO_DR L3G4200_DR_200Hz
+     PRINT_CONFIG_MSG("Gyro output rate is 200Hz")
+#  else
+#    define L3G_GYRO_DR L3G4200_DR_800Hz
+     PRINT_CONFIG_MSG("Gyro output rate is 800Hz")    
 #  endif
 #endif
-//PRINT_CONFIG_VAR(L3G_GYRO_SMPLRT_DIV)
+PRINT_CONFIG_VAR(L3G_GYRO_DR)
 
 
 struct ImuProp1 imu_prop1;
@@ -84,13 +87,16 @@ void imu_impl_init(void)
   // set the data rate
   imu_prop1.acc_adxl.config.rate = ADXL_ACCEL_RATE;
 
+  
   /* Gyro configuration and initalization */
- // l3g4200_init(&imu_prop1.gyro_l3g, &(IMU_PROP1_I2C_DEV), ITG3200_ADDR);
+  l3g4200_init(&imu_prop1.gyro_l3g, &(IMU_PROP1_I2C_DEV), L3G4200_ADDR);
   /* change the default config */
-  // Aspirin sample rate divider
- // imu_prop1.gyro_l3g.config.smplrt_div = L3G_GYRO_SMPLRT_DIV;
-  // digital low pass filter
- // imu_prop1.gyro_l3g.config.dlpf_cfg = L3G_GYRO_LOWPASS;
+  // output rate and lowpass filter
+  imu_prop1.gyro_l3g.config.ctrl_reg1 = (L3G_GYRO_DR<<6) | (L3G_GYRO_LOWPASS<<4) | (0x0f);//L3G4200_DEFAULT_CTRL_REG1;
+  // 2000dps
+  imu_prop1.gyro_l3g.config.ctrl_reg4 = (L3G4200_500DPS<<4) | (0x00); 
+  
+  imu_prop1.gyro_l3g.config.ctrl_reg5 = L3G4200_DEFAULT_CTRL_REG5;
 
 
   /* initialize mag and set default options */

@@ -33,6 +33,7 @@
 
 void l3g4200_set_default_config(struct L3g4200Config *c) {
   c->ctrl_reg1 = L3G4200_DEFAULT_CTRL_REG1;
+  c->ctrl_reg4 = L3G4200_DEFAULT_CTRL_REG4;
   c->ctrl_reg5 = L3G4200_DEFAULT_CTRL_REG5;
 }
 
@@ -74,6 +75,10 @@ static void l3g4200_send_config(struct L3g4200 *l3g)
       l3g4200_i2c_tx_reg(l3g, L3G4200_REG_CTRL_REG1, l3g->config.ctrl_reg1);
       l3g->init_status++;
       break;
+     case L3G_CONF_REG4:
+      l3g4200_i2c_tx_reg(l3g, L3G4200_REG_CTRL_REG4, l3g->config.ctrl_reg4);
+      l3g->init_status++;
+      break;     
     case L3G_CONF_REG5:
       l3g4200_i2c_tx_reg(l3g, L3G4200_REG_CTRL_REG5, l3g->config.ctrl_reg5);
       l3g->init_status++;
@@ -102,15 +107,15 @@ void l3g4200_start_configure(struct L3g4200 *l3g)
 void l3g4200_read(struct L3g4200 *l3g)
 {
   if (l3g->initialized && l3g->i2c_trans.status == I2CTransDone) {
-    l3g->i2c_trans.buf[0] = L3G4200_REG_STATUS_REG;
+    l3g->i2c_trans.buf[0] = L3G4200_REG_OUT_TEMP | 0x80;
     l3g->i2c_trans.type = I2CTransTxRx;
-    l3g->i2c_trans.len_r = 9;
+    l3g->i2c_trans.len_r = 8;
     l3g->i2c_trans.len_w = 1;
     i2c_submit(l3g->i2c_p, &(l3g->i2c_trans));
   }
 }
 
-#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
+  #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
 
 void l3g4200_event(struct L3g4200 *l3g)
 {
@@ -120,11 +125,11 @@ void l3g4200_event(struct L3g4200 *l3g)
     }
     else if (l3g->i2c_trans.status == I2CTransSuccess) {
       // Successfull reading and new data available
-      if (l3g->i2c_trans.buf[0] & 0x01) {   // ver oque é o sinal antes do &
-        // New data available
-        l3g->data.rates.p = Int16FromBuf(l3g->i2c_trans.buf,3);
-        l3g->data.rates.q = Int16FromBuf(l3g->i2c_trans.buf,5);
-        l3g->data.rates.r = Int16FromBuf(l3g->i2c_trans.buf,7);
+      if (l3g->i2c_trans.buf[1] & 0x08) {   // if new data available
+        #define offset_data 2
+        l3g->data.rates.p = Int16FromBuf(l3g->i2c_trans.buf,0 + offset_data);
+        l3g->data.rates.q = Int16FromBuf(l3g->i2c_trans.buf,2 + offset_data);
+        l3g->data.rates.r = Int16FromBuf(l3g->i2c_trans.buf,4 + offset_data);
         l3g->data_available = TRUE;
       }
       l3g->i2c_trans.status = I2CTransDone;

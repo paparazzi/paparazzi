@@ -72,10 +72,23 @@ enum L3g4200_DR {
 };
 /** Digital Low Pass Filter Options */
 enum L3g4200_DLPF {
-  L3G4200_DLPF_1 = 0x0,
-  L3G4200_DLPF_2 = 0x1,
-  L3G4200_DLPF_3 = 0x2,
-  L3G4200_DLPF_4 = 0x3
+  L3G4200_DLPF_1 = 0x0,  //20
+  L3G4200_DLPF_2 = 0x1,  //25
+  L3G4200_DLPF_3 = 0x2,  //50
+  L3G4200_DLPF_4 = 0x3   //110
 };
+/** Full Scale Selection Options */
+enum L3g4200_FULL_SCALE {
+  L3G4200_250DPS = 0x0,
+  L3G4200_500DPS = 0x1,
+  L3G4200_2000DPS = 0x3
+};
+
+
+
+
+
+
+
 
 #endif /* L3G4200_REGS_H */

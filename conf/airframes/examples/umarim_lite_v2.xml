@@ -24,7 +24,6 @@
     <subsystem name="imu"     type="umarim"/>
     <subsystem name="ahrs"    type="float_dcm"/>
     <subsystem name="control"/>
-    <subsystem name="navigation"/>
     <!-- Sensors -->
     <subsystem name="gps" type="ublox"/>
     <subsystem name="ins" type="alt_float"/>

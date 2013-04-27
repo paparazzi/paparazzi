@@ -46,22 +46,23 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
+
 /** default gyro sensitivy and neutral from the datasheet
- * IMU-L3G4200 has 16.4 LSB/(deg/s) at 2000deg/s range????????
- * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC???????
- * sens = 1/16.4 * pi/180 * 4096 = 4.359066229????????  numeros do itg3200
+ * IMU-L3G4200 has 70 LSB/(deg/s) at 2000deg/s range
+ * sens = 1/70 * pi/180 * 2^INT32_RATE_FRAC
+ * sens = 1/70 * pi/180 * 2^12 = 1.02123
  */
 //numeros ja corretos para l3g4200
-#define IMU_GYRO_P_SENS 5.0040
-#define IMU_GYRO_P_SENS_NUM 5004
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 5.0040
-#define IMU_GYRO_Q_SENS_NUM 5004
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 5.0040
-#define IMU_GYRO_R_SENS_NUM 5004
-#define IMU_GYRO_R_SENS_DEN 1000
+  #if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
+#define IMU_GYRO_P_SENS 
+#define IMU_GYRO_P_SENS_NUM 
+#define IMU_GYRO_P_SENS_DEN 
+#define IMU_GYRO_Q_SENS 
+#define IMU_GYRO_Q_SENS_NUM 
+#define IMU_GYRO_Q_SENS_DEN 
+#define IMU_GYRO_R_SENS 
+#define IMU_GYRO_R_SENS_NUM 
+#define IMU_GYRO_R_SENS_DEN 
 #endif
 
 
