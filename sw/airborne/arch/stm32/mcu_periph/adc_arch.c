@@ -181,15 +181,6 @@ static struct adc_buf * adc1_buffers[NB_ADC1_CHANNELS];
 static struct adc_buf * adc2_buffers[NB_ADC2_CHANNELS];
 #endif
 
-#ifdef BOARD_KROOZ
-#undef USE_AD_TIM1
-#undef USE_AD_TIM4
-#endif
-
-/*
-  Static mapping from channel index to channel injection
-  index:
-*/
 
 /**
  * Maps integer value x to ADC_InjectedChannel_x.
@@ -262,7 +253,6 @@ static inline void adc_init_rcc( void )
                               RCC_APB2ENR_IOPCEN);
 #elif defined(STM32F4)
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, ADC_GPIO_CLOCK_PORT);
-  //RCC_AHB1ENR_IOPBEN | RCC_AHB1ENR_IOPCEN); // KROOZ
   adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
 #endif
 
