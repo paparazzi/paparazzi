@@ -96,8 +96,8 @@ void imu_apogee_event( void )
   // If the itg3200 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_apogee.mpu);
   if (imu_apogee.mpu.data_available) {
-    RATES_COPY(imu.gyro_unscaled, imu_apogee.mpu.data_rates.rates);
-    VECT3_COPY(imu.accel_unscaled, imu_apogee.mpu.data_accel.vect);
+    RATES_ASSIGN(imu.gyro_unscaled, imu_apogee.mpu.data_rates.rates.p, -imu_apogee.mpu.data_rates.rates.q, -imu_apogee.mpu.data_rates.rates.r);
+    VECT3_ASSIGN(imu.accel_unscaled, imu_apogee.mpu.data_accel.vect.x, -imu_apogee.mpu.data_accel.vect.y, -imu_apogee.mpu.data_accel.vect.z);
     imu_apogee.mpu.data_available = FALSE;
     imu_apogee.gyr_valid = TRUE;
     imu_apogee.acc_valid = TRUE;
