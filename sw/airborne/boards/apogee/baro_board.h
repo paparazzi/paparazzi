@@ -39,7 +39,7 @@
 #define BaroAbs(_handler) {                 \
   mpl3115_event();                          \
   if (mpl3115_data_available) {             \
-    baro.absolute = mpl3115_pressure_data;  \
+    baro.absolute = mpl3115_pressure;       \
     if (baro.status == BS_RUNNING) {        \
       _handler();                           \
       mpl3115_data_available = FALSE;       \
