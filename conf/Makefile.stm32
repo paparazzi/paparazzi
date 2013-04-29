@@ -110,7 +110,7 @@ else ifeq ($(ARCH_L),f4)
 ifndef HARD_FLOAT
 CFLAGS += -msoft-float
 else
-CFLAGS += -g -mfloat-abi=hard -mfpu=fpv4-sp-d16 -MD
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 endif
 CFLAGS += -Wl,--gc-sections
