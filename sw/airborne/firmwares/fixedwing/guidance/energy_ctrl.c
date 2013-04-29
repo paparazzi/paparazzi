@@ -300,12 +300,10 @@ static float low_pass_vdot(float v)
  */
 void v_ctl_climb_loop( void )
 {
-#ifdef AIRSPEED_SETPOINT_SLEW
   // airspeed_setpoint ratelimiter:
   float airspeed_incr = v_ctl_auto_airspeed_setpoint - v_ctl_auto_airspeed_setpoint_slew; // FIXME
   BoundAbs(airspeed_incr, AIRSPEED_SETPOINT_SLEW * NOMINAL_AIRSPEED);
   v_ctl_auto_airspeed_setpoint_slew += airspeed_incr;
-#endif
 
 #ifdef V_CTL_AUTO_GROUNDSPEED_SETPOINT
  // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
