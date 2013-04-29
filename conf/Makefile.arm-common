@@ -23,8 +23,6 @@
 # This is the common Makefile for finding the arm compiler and OpenOcd
 #
 
-include  $(PAPARAZZI_SRC)/conf/Makefile.arm-toolchain
-
 #
 # some generic and informative targets
 #
@@ -40,51 +38,6 @@ printcommands:
 	@$(CC) --version | head -1
 	@echo ""
 
-# Display size of file.
-HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
-ELFSIZE = $(SIZE) -A -x $(OBJDIR)/$(TARGET).elf
-sizebefore:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
-sizeafter:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
+.PHONY : printcommands
 
-# Target: clean project.
-clean: clean_list
-
-clean_list :
-	@echo
-	$(RM) $(OBJDIR)/$(TARGET).hex
-	$(RM) $(OBJDIR)/$(TARGET).obj
-	$(RM) $(OBJDIR)/$(TARGET).elf
-	$(RM) $(OBJDIR)/$(TARGET).map
-	$(RM) $(OBJDIR)/$(TARGET).obj
-	$(RM) $(OBJDIR)/$(TARGET).a90
-	$(RM) $(OBJDIR)/$(TARGET).sym
-	$(RM) $(OBJDIR)/$(TARGET).lnk
-	$(RM) $(OBJDIR)/$(TARGET).lss
-	$(RM) $(COBJ)
-	$(RM) $(AOBJ)
-	$(RM) $(COBJARM)
-	$(RM) $(AOBJARM)
-	$(RM) $(LST)
-	$(RM) $(SRC:.c=.s)
-	$(RM) $(SRC:.c=.d)
-	$(RM) $(SRCARM:.c=.s)
-	$(RM) $(SRCARM:.c=.d)
-	$(RM) .dep/*
-	$(RM) *~
-
-.PHONY : printcommands sizebefore sizeafter clean clean_list
-
-#
-# Find OpenOCD
-#
-# first try in the path
-OOCD = $(shell which openocd)
-#if OpenOCD could not be found in the path, try the toolchain dir (for backwards compatibility)
-ifeq ($(OOCD),)
-ifneq ($(TOOLCHAIN),)
-OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_DIR)/bin/openocd ; else echo "Warning: OpenOCD not found"; fi)
-endif
-endif

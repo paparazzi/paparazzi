@@ -396,6 +396,10 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:s
   let callback = fun () ->
     let ac_name = Gtk_tools.combo_value ac_combo
     and target = Gtk_tools.combo_value target_combo in
-    Utils.command ~file gui log ac_name (sprintf "%s.upload" target) in
+    let target_cmd = if gui#checkbutton_printconfig#active then
+        sprintf "PRINT_CONFIG=1 %s.upload" target
+      else
+        sprintf "%s.upload" target in
+    Utils.command ~file gui log ac_name target_cmd in
   ignore (gui#button_upload#connect#clicked ~callback)
 

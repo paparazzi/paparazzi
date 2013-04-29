@@ -34,7 +34,7 @@ Q=@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded
 
 
 ifeq ($(ARCH_L),f4)

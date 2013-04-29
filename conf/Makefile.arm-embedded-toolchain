@@ -1,8 +1,11 @@
 # Hey Emacs, this is a -*- makefile -*-
+#
+# Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+
 
 #
-# This is the common Makefile for finding the arm compiler
-#
+# This is the common Makefile for finding the arm compiler and OpenOcd
+# for bare metal systems like on the ARM7TDMI, cortex M3/4
 
 #
 # try to pick up the compiler from the path

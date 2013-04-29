@@ -43,6 +43,8 @@ SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
 
+opt: server.opt
+
 clean:
 	$(Q)rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
 
@@ -152,7 +154,7 @@ ivy_serial_bridge: ivy_serial_bridge.c
 	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 
-.PHONY: all clean
+.PHONY: all opt clean
 
 #
 # Dependencies
