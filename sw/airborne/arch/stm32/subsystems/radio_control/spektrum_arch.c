@@ -536,31 +536,33 @@ void SpektrumUartInit(void) {
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART5EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SecondaryUart(_RCC_GPIO));
+  rcc_peripheral_enable_clock(SecondaryUart(_RCC_REG), SecondaryUart(_RCC_DEV));
 
   /* Enable USART interrupts */
-  nvic_set_priority(NVIC_UART5_IRQ, 3);
-  nvic_enable_irq(NVIC_UART5_IRQ);
+  nvic_set_priority(SecondaryUart(_IRQ), 3);
+  nvic_enable_irq(SecondaryUart(_IRQ));
 
   /* Init GPIOS */;
   /* Secondary UART Rx pin as floating input */
-  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
+  gpio_set_mode(SecondaryUart(_BANK), GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_FLOAT, SecondaryUart(_PIN));
+
+  SecondaryUart(_REMAP);
 
   /* Configure secondary UART */
-  usart_set_baudrate(UART5, 115200);
-  usart_set_databits(UART5, 8);
-  usart_set_stopbits(UART5, USART_STOPBITS_1);
-  usart_set_parity(UART5, USART_PARITY_NONE);
-  usart_set_flow_control(UART5, USART_FLOWCONTROL_NONE);
-  usart_set_mode(UART5, USART_MODE_RX);
+  usart_set_baudrate(SecondaryUart(_DEV), 115200);
+  usart_set_databits(SecondaryUart(_DEV), 8);
+  usart_set_stopbits(SecondaryUart(_DEV), USART_STOPBITS_1);
+  usart_set_parity(SecondaryUart(_DEV), USART_PARITY_NONE);
+  usart_set_flow_control(SecondaryUart(_DEV), USART_FLOWCONTROL_NONE);
+  usart_set_mode(SecondaryUart(_DEV), USART_MODE_RX);
 
   /* Enable Secondary UART Receive interrupts */
-  USART_CR1(UART5) |= USART_CR1_RXNEIE;
+  USART_CR1(SecondaryUart(_DEV)) |= USART_CR1_RXNEIE;
 
   /* Enable the Primary UART */
-  usart_enable(UART5);
+  usart_enable(SecondaryUart(_DEV));
 #endif
 
 }
@@ -593,16 +595,16 @@ void PrimaryUart(_ISR)(void) {
  *
  *****************************************************************************/
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-void uart5_isr(void) {
+void SecondaryUart(_ISR)(void) {
 
-  if (((USART_CR1(UART5) & USART_CR1_TXEIE) != 0) &&
-      ((USART_SR(UART5) & USART_SR_TXE) != 0)) {
-    USART_CR1(UART5) &= ~USART_CR1_TXEIE;
+  if (((USART_CR1(SecondaryUart(_DEV)) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(SecondaryUart(_DEV)) & USART_SR_TXE) != 0)) {
+    USART_CR1(SecondaryUart(_DEV)) &= ~USART_CR1_TXEIE;
   }
 
-  if (((USART_CR1(UART5) & USART_CR1_RXNEIE) != 0) &&
-      ((USART_SR(UART5) & USART_SR_RXNE) != 0)) {
-    uint8_t b = usart_recv(UART5);
+  if (((USART_CR1(SecondaryUart(_DEV)) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(SecondaryUart(_DEV)) & USART_SR_RXNE) != 0)) {
+    uint8_t b = usart_recv(SecondaryUart(_DEV));
     SpektrumParser(b, &SecondarySpektrumState, TRUE);
   }
 
@@ -667,14 +669,14 @@ void radio_control_spektrum_try_bind(void) {
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SecondaryUart(_RCC_GPIO));
 
   /* Slave receiver Rx push-pull */
-  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, GPIO_UART5_RX);
+  gpio_set_mode(SecondaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL,  SecondaryUart(_PIN));
 
   /* Slave receiver RX line, drive high */
-  gpio_set(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
+  gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
 #endif
 
   /* We have no idea how long the window for allowing binding after
@@ -692,9 +694,9 @@ void radio_control_spektrum_try_bind(void) {
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++)
   {
-    gpio_clear(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
+    gpio_clear(SecondaryUart(_BANK), SecondaryUart(_PIN));
     DelayUs(120);
-    gpio_set(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
+    gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
     DelayUs(120);
   }
 #endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */
