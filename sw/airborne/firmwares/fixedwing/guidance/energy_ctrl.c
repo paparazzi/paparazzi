@@ -278,7 +278,7 @@ void v_ctl_altitude_loop( void )
 }
 
 
-const float dt = 1. / (CONTROL_FREQUENCY);
+const float dt = 1.0 / ((float)CONTROL_FREQUENCY);
 
 float lp_vdot[5];
 
@@ -388,8 +388,8 @@ void v_ctl_climb_loop( void )
                 + v_ctl_energy_diff_pgain * en_dis_err
                 + v_ctl_auto_throttle_nominal_cruise_pitch;
 
-  nav_pitch = v_ctl_pitch_of_vz;
-  Bound(nav_pitch,H_CTL_PITCH_MIN_SETPOINT,H_CTL_PITCH_MAX_SETPOINT)
+  v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + nav_pitch;
+  Bound(v_ctl_pitch_setpoint,H_CTL_PITCH_MIN_SETPOINT,H_CTL_PITCH_MAX_SETPOINT)
 
   ac_char_update(controlled_throttle, v_ctl_pitch_of_vz, v_ctl_climb_setpoint, v_ctl_desired_acceleration);
 
