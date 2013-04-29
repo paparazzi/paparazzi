@@ -142,6 +142,7 @@ float v_ctl_pitch_setpoint;
 #warning "V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s"
 #endif
 #ifndef STALL_AIRSPEED
+#warning "No STALL_AIRSPEED defined. Using NOMINAL_AIRSPEED"
 #define STALL_AIRSPEED NOMINAL_AIRSPEED
 #endif
 #ifndef AIRSPEED_SETPOINT_SLEW
