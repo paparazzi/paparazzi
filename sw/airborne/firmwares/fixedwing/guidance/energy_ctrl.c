@@ -278,12 +278,7 @@ void v_ctl_altitude_loop( void )
 }
 
 
-/**
- * auto throttle inner loop
- * \brief
- */
-
-const float dt = CONTROL_FREQUENCY;
+const float dt = 1. / (CONTROL_FREQUENCY);
 
 float lp_vdot[5];
 
@@ -299,6 +294,10 @@ static float low_pass_vdot(float v)
   return lp_vdot[0];
 }
 
+/**
+ * auto throttle inner loop
+ * \brief
+ */
 void v_ctl_climb_loop( void )
 {
 #ifdef AIRSPEED_SETPOINT_SLEW
