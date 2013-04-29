@@ -188,6 +188,7 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), apogee)
 ap.CFLAGS += -DUSE_I2C1
 ap.CFLAGS += -DMPL3115_I2C_DEV=i2c1
+ap.CFLAGS += -DMPL3115_ALT_MODE=0
 ap.srcs += peripherals/mpl3115.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
 endif
