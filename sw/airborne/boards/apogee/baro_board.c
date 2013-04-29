@@ -20,8 +20,7 @@
  *
  */
 
-
-/*
+/**
  * @file boards/apogee/baro_board.c
  *
  * integrated barometer for Apogee boards (mpl3115)
@@ -29,11 +28,14 @@
 
 #include "subsystems/sensors/baro.h"
 
+// to get MPU status
+#include "boards/apogee/imu_apogee.h"
+
 
 /* Common Baro struct */
 struct Baro baro;
 
-/* Counter to init ads1114 at startup */
+/** Counter to init ads1114 at startup */
 #define BARO_STARTUP_COUNTER 200
 uint16_t startup_cnt;
 
@@ -55,7 +57,9 @@ void baro_periodic( void ) {
       baro.status = BS_RUNNING;
     }
   }
-  // Read the ADC
-  Mpl3115Periodic();
+
+  // Baro is slave of the MPU, only start reading it after MPU is configured
+  if (imu_apogee.mpu.config.initialized)
+    Mpl3115Periodic();
 }
 

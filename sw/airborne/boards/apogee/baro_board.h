@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
  * @file boards/apogee/baro_board.h
  *
  * integrated barometer for Apogee boards (mpl3115)
