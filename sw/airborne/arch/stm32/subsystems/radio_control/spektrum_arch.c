@@ -20,14 +20,17 @@
  */
 
 #include <stdint.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/cm3/nvic.h>
+
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
+
+#include BOARD_CONFIG
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
 #define MAX_SPEKTRUM_FRAMES 2
@@ -39,11 +42,6 @@
 /* Number of low pulses sent to satellite receivers */
 #define MASTER_RECEIVER_PULSES 5
 #define SLAVE_RECEIVER_PULSES 6
-
-/* The line that is pulled low at power up to initiate the bind process */
-#define BIND_PIN GPIO_Pin_3
-#define BIND_PIN_PORT GPIOC
-#define BIND_PIN_PERIPH RCC_APB2Periph_GPIOC
 
 #define TIM_FREQ_1000000 1000000
 #define TIM_TICS_FOR_100us 100
@@ -643,15 +641,15 @@ void DebugInit(void) {
 void radio_control_spektrum_try_bind(void) {
 
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPEKTRUM_BIND_PIN_RCC_IOP);
 
   /* Init GPIO for the bind pin */
-  gpio_set(GPIOC, GPIO3);
-  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
-            GPIO_CNF_INPUT_PULL_UPDOWN, GPIO3);
+  gpio_set(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
+  gpio_set_mode(SPEKTRUM_BIND_PIN_PORT, GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_PULL_UPDOWN, SPEKTRUM_BIND_PIN);
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */
-  if (gpio_get(GPIOC, GPIO3) != 0)
+  if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
     return;
 
   /* bind initiated, initialise the delay timer */
@@ -662,7 +660,7 @@ void radio_control_spektrum_try_bind(void) {
 
   /* Master receiver Rx push-pull */
   gpio_set_mode(PrimaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_PUSHPULL, PrimaryUart(_PIN));
+                GPIO_CNF_OUTPUT_PUSHPULL, PrimaryUart(_PIN));
 
   /* Master receiver RX line, drive high */
   gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));

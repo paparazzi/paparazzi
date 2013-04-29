@@ -287,4 +287,12 @@
 #define PPM_GPIO_PIN        GPIO8
 #define PPM_GPIO_AF         GPIO_AF1
 
+/*
+ * Spektrum
+ */
+/* The line that is pulled low at power up to initiate the bind process */
+#define SPEKTRUM_BIND_PIN GPIO8
+#define SPEKTRUM_BIND_PIN_PORT GPIOA
+#define SPEKTRUM_BIND_PIN_RCC_IOP RCC_AHB1ENR_IOPAEN
+
 #endif /* CONFIG_APOGEE_0_99_H */
