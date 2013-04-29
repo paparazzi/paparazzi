@@ -133,7 +133,7 @@ void dc_send_shot_position(void);
 
 /* Default values for buffer control */
 #ifndef DC_IMAGE_BUFFER
-#define DC_IMAGE_BUFFER 255
+#define DC_IMAGE_BUFFER 65535
 #endif
 
 #ifndef DC_IMAGE_BUFFER_TPI
