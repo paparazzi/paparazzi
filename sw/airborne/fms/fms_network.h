@@ -17,6 +17,6 @@ struct FmsNetwork {
 
 extern struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const int port_in, const int broadcast);
 extern int network_write(struct FmsNetwork* me, char* buf, int len);
+extern int network_read(struct FmsNetwork* me, unsigned char* buf, int len);
 
 #endif /* FMS_NETWORK_H */
-
