@@ -21,8 +21,8 @@ ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_logger.
 ap.CFLAGS += -DLOG_XBEE
 
 #set the speed
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUSE_UART0_RX_ONLY
-ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUSE_UART1_RX_ONLY
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUSE_UART0_TX=FALSE
+ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUSE_UART1_TX=FALSE
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
   </makefile>
