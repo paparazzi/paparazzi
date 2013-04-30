@@ -1,8 +1,6 @@
 #ifndef CONFIG_LISA_M_COMMON_H
 #define CONFIG_LISA_M_COMMON_H
 
-#include "generated/airframe.h"
-
 /* SPI slave mapping */
 
 #define SPI_SELECT_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
