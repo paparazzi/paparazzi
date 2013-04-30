@@ -443,19 +443,50 @@ void adc_init( void ) {
 #ifdef USE_AD1
   for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
     adc1_buffers[channel] = NULL;
-  adc_injected_channels[0] = &ADC_JDR1(ADC1);
-  adc_injected_channels[1] = &ADC_JDR2(ADC1);
-  adc_injected_channels[2] = &ADC_JDR3(ADC1);
-  adc_injected_channels[3] = &ADC_JDR4(ADC1);
+  volatile uint32_t* tmp_channels_1[] = {
+    &ADC_JDR1(ADC1),
+    &ADC_JDR2(ADC1),
+    &ADC_JDR3(ADC1),
+    &ADC_JDR4(ADC1)
+  };
+#ifdef USE_AD1_1
+  adc_injected_channels[ADC1_C1] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C1];
 #endif
+#ifdef USE_AD1_2
+  adc_injected_channels[ADC1_C2] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C2];
+#endif
+#ifdef USE_AD1_3
+  adc_injected_channels[ADC1_C3] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C3];
+#endif
+#ifdef USE_AD1_4
+  adc_injected_channels[ADC1_C4] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C4];
+#endif
+
+#endif // USE_AD1
+
 #ifdef USE_AD2
   for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
     adc2_buffers[channel] = NULL;
-  adc_injected_channels[0] = &ADC_JDR1(ADC2);
-  adc_injected_channels[1] = &ADC_JDR2(ADC2);
-  adc_injected_channels[2] = &ADC_JDR3(ADC2);
-  adc_injected_channels[3] = &ADC_JDR4(ADC2);
+  volatile uint32_t* tmp_channels_2[] = {
+    &ADC_JDR1(ADC2),
+    &ADC_JDR2(ADC2),
+    &ADC_JDR3(ADC2),
+    &ADC_JDR4(ADC2)
+  };
+#ifdef USE_AD2_1
+  adc_injected_channels[ADC2_C1] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C1];
 #endif
+#ifdef USE_AD2_2
+  adc_injected_channels[ADC2_C2] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C2];
+#endif
+#ifdef USE_AD2_3
+  adc_injected_channels[ADC2_C3] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C3];
+#endif
+#ifdef USE_AD2_4
+  adc_injected_channels[ADC2_C4] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C4];
+#endif
+
+#endif // USE_AD2
 
   adc_new_data_trigger = FALSE;
   adc_channel_map[0] = BOARD_ADC_CHANNEL_1;
