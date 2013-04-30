@@ -231,15 +231,14 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 # check which flash mode is configured
 #
 ifeq ($(FLASH_MODE),DFU)
+ifdef DFU_ADDR
+DFU_ADDR_CMD = --addr=$(DFU_ADDR)
+endif
 #
 # DFU flash mode
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using stm32 mem dfu loader"
-ifeq ($(ARCH_L), )
-	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
-else ifeq ($(ARCH_L),f4)
-	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_f4_mem.py $^
-endif
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_ADDR_CMD) $^
 
 #
 # serial flash mode
@@ -283,6 +282,12 @@ endif
 # SWD flash mode
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
+ifeq ($(STLINK),y)
+STLINK_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
+	$(Q)st-flash write $^ $(STLINK_ADDR)
+else
 BMP_PORT ?= /dev/ttyACM0
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
@@ -294,6 +299,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
+endif
 #
 # no known flash mode
 else

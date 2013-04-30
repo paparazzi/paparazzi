@@ -18,8 +18,9 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/apogee.ld
 HARD_FLOAT=yes
 
 # default flash mode is via usb dfu bootloader
-# other possibilities: SWD
-FLASH_MODE ?= DFU
+# possibilities: DFU, SWD
+FLASH_MODE ?= SWD
+STLINK ?= y
 
 #
 # default LED configuration
