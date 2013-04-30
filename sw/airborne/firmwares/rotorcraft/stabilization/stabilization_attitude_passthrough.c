@@ -20,9 +20,11 @@
  */
 
 /**
- * @file stabilization_attitude_none.c
- * @brief no attitude stabilization
+ * @file stabilization_attitude_passthrough.c
+ * @brief passthrough attitude stabilization
  *
+ * This is usefull for instance when having an AC that has needs no stabilization because it is
+ * allready been done by other stabilization software onboard or just does not need it at all.
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
