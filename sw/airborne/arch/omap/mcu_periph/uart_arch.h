@@ -22,14 +22,8 @@
 #ifndef UART_ARCH_H
 #define UART_ARCH_H
 
+#include "mcu_periph/uart.h"
 #include "std.h"
-//coment to avoid redefinition
-/*#define B9600     9600
-#define B38400   38400
- #define B57600   57600
-#define B115200 115200
-*/
-
 
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
@@ -40,21 +34,8 @@
 extern void uart0_handler(void);
 #endif
 
-#ifdef USE_UART0
-
-void uart0_init( void );
-
-#endif /* USE_UART0 */
-
-
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
 extern void uart1_handler(void);
 #endif
-
-#ifdef USE_UART1
-
-void uart1_init( void );
-
-#endif /* USE_UART1 */
 
 #endif /* UART_ARCH_H */
