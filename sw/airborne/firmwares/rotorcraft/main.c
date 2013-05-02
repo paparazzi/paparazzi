@@ -78,11 +78,12 @@
 #include "generated/modules.h"
 
 #if USE_ACTUATORS_AT
-#include "arch/omap_ardrone2/subsystems/actuators/actuators_at.h"
+#include "subsystems/actuators/actuators_at.h"
 #endif
 
 #if ARDRONE2
 #include "navdata.h"
+#include "mcu_periph/uart.h"
 #include <stdio.h>
 #endif
 
@@ -405,8 +406,8 @@ static inline void on_gps_event(void) {
 
 #if ARDRONE2
 static inline void on_navdata_event(void) {
-	// when executing here, navdata is done reading...
-	// what should happen now? update IMU?
-	// notify navdata available?
+  #ifdef USE_UART1
+    uart1_handler();
+  #endif
 }
 #endif
