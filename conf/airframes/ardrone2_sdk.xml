@@ -18,7 +18,7 @@
 		<subsystem name="ahrs" type="ardrone2" />
 		<subsystem name="ins" type="ardrone2" />
 		<subsystem name="actuators" type="ardrone2" />
-		<subsystem name="stabilization" type="none"/>
+		<subsystem name="stabilization" type="passthrough"/>
 		
 	</firmware>
 
