@@ -18,6 +18,12 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/** @file stabilization_attitude_ref_float.h
+ *  Rotorcraft attitude reference generation API.
+ *  Common to all floating-point reference generators (euler and quaternion)
+ */
+
 #ifndef STABILIZATION_ATTITUDE_REF_FLOAT_H
 #define STABILIZATION_ATTITUDE_REF_FLOAT_H
 
@@ -39,11 +45,7 @@ struct FloatRefModel {
 
 extern struct FloatRefModel stab_att_ref_model[];
 
-static inline void reset_psi_ref_from_body(void) {
-//sp has been set from body using stabilization_attitude_get_yaw_f, use that value
-  stab_att_ref_euler.psi = stab_att_sp_euler.psi;
-  stab_att_ref_rate.r = 0;
-  stab_att_ref_accel.r = 0;
-}
+extern void stabilization_attitude_ref_init(void);
+extern void stabilization_attitude_ref_update(void);
 
 #endif /* STABILIZATION_ATTITUDE_REF_FLOAT_H */

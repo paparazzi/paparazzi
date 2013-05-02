@@ -185,7 +185,6 @@
 
  <section name="MISC">
    <define name="FACE_REINJ_1"  value="1024"/>
-   <define name="REF_QUAT_INFINITESIMAL_STEP" value="TRUE"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

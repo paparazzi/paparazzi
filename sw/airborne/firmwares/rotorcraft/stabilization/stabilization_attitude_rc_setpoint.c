@@ -28,20 +28,8 @@
 #include "subsystems/radio_control.h"
 #include "state.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/autopilot.h"
-
-#if defined STABILIZATION_ATTITUDE_TYPE_INT
-#define SP_MAX_PHI     (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI)
-#define SP_MAX_THETA   (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA)
-#define SP_MAX_R       (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R)
-#elif defined STABILIZATION_ATTITUDE_TYPE_FLOAT
-#define SP_MAX_PHI   STABILIZATION_ATTITUDE_SP_MAX_PHI
-#define SP_MAX_THETA STABILIZATION_ATTITUDE_SP_MAX_THETA
-#define SP_MAX_R     STABILIZATION_ATTITUDE_SP_MAX_R
-#else
-#error "STABILIZATION_ATTITUDE_TYPE not defined"
-#endif
 
 #ifndef RC_UPDATE_FREQ
 #define RC_UPDATE_FREQ 40
@@ -96,13 +84,16 @@ float stabilization_attitude_get_heading_f(void) {
  * @param[out] sp         attitude setpoint as euler angles
  */
 void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
+  const int32_t max_phi_scale = (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI) /  MAX_PPRZ;
+  const int32_t max_theta_scale = (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA) /  MAX_PPRZ;
+  const int32_t max_r_scale = (int32_t)ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R) /  MAX_PPRZ;
 
-  sp->phi = ((int32_t) radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
-  sp->theta = ((int32_t) radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);
+  sp->phi = ((int32_t) radio_control.values[RADIO_ROLL]  * max_phi_scale);
+  sp->theta = ((int32_t) radio_control.values[RADIO_PITCH] * max_theta_scale);
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
-      sp->psi += ((int32_t) radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      sp->psi += ((int32_t) radio_control.values[RADIO_YAW] * max_r_scale / RC_UPDATE_FREQ);
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
     if (autopilot_mode == AP_MODE_FORWARD) {
@@ -121,10 +112,11 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
     // Make sure the yaw setpoint does not differ too much from the real yaw
     // to prevent a sudden switch at 180 deg
+    const int32_t delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
+
     int32_t heading = stabilization_attitude_get_heading_i();
 
     int32_t delta_psi = sp->psi - heading;
-    int32_t delta_limit = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT);
     INT32_ANGLE_NORMALIZE(delta_psi);
     if (delta_psi > delta_limit){
       sp->psi = heading + delta_limit;
@@ -162,12 +154,12 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
 
 
 void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight) {
-  sp->phi = (radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
-  sp->theta = (radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);
+  sp->phi = (radio_control.values[RADIO_ROLL]  * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ);
+  sp->theta = (radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ);
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
-      sp->psi += (radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      sp->psi += (radio_control.values[RADIO_YAW] * STABILIZATION_ATTITUDE_SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
       FLOAT_ANGLE_NORMALIZE(sp->psi);
     }
     if (autopilot_mode == AP_MODE_FORWARD) {

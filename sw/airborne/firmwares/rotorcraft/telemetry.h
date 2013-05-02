@@ -223,6 +223,7 @@
                                   &stabilization_cmd[COMMAND_THRUST]); \
   }
 
+#ifdef STABILIZATION_ATTITUDE_REF_TYPE_H
 #ifdef STABILIZATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct Int32Rates* body_rate = stateGetBodyRates_i();   \
@@ -263,9 +264,9 @@
                           &stab_att_ref_accel.q, \
                           &stab_att_ref_accel.r); \
   }
-#endif /* STABILIZATION_ATTITUDE_TYPE_INT */
 
-#ifdef STABILIZATION_ATTITUDE_TYPE_FLOAT
+#elif defined STABILIZATION_ATTITUDE_TYPE_FLOAT
+
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct FloatRates* body_rate = stateGetBodyRates_f();   \
   struct FloatEulers* att = stateGetNedToBodyEulers_f();  \
@@ -308,6 +309,10 @@
   }
 
 #endif /* STABILIZATION_ATTITUDE_TYPE_FLOAT */
+#else /* STABILIZATION_ATTITUDE_REF_TYPE_H */
+#define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {}
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {}
+#endif
 
 
 #include "subsystems/ahrs/ahrs_aligner.h"

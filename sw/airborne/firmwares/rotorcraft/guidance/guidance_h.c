@@ -82,18 +82,12 @@ int32_t guidance_h_again;
 int32_t transition_percentage;
 int32_t transition_theta_offset;
 
+
 static void guidance_h_update_reference(void);
 static void guidance_h_traj_run(bool_t in_flight);
 static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
-
-#define GuidanceHSetRef(_pos, _speed, _accel) { \
-    gh_set_ref(_pos, _speed, _accel);           \
-    VECT2_COPY(guidance_h_pos_ref,   _pos);     \
-    VECT2_COPY(guidance_h_speed_ref, _speed);   \
-    VECT2_COPY(guidance_h_accel_ref, _accel);   \
-  }
 
 
 void guidance_h_init(void) {
@@ -113,6 +107,20 @@ void guidance_h_init(void) {
   transition_theta_offset = 0;
 }
 
+
+static inline void reset_reference_from_current_position(void) {
+
+  VECT2_COPY(guidance_h_pos_ref, *stateGetPositionNed_i());
+  VECT2_COPY(guidance_h_speed_ref, *stateGetSpeedNed_i());
+  INT_VECT2_ZERO(guidance_h_accel_ref);
+  gh_set_ref(guidance_h_pos_ref, guidance_h_speed_ref, guidance_h_accel_ref);
+
+  /* reset attitude psi reference, set psi setpoint to current psi */
+  // FIXME
+  //reset_psi_ref_from_body();
+
+  INT_VECT2_ZERO(guidance_h_pos_err_sum);
+}
 
 void guidance_h_mode_changed(uint8_t new_mode) {
   if (new_mode == guidance_h_mode)
@@ -217,6 +225,9 @@ void guidance_h_run(bool_t  in_flight) {
       break;
 
     case GUIDANCE_H_MODE_HOVER:
+      if (!in_flight)
+        guidance_h_hover_enter();
+
       guidance_h_update_reference();
 
       /* set psi command */
@@ -228,17 +239,16 @@ void guidance_h_run(bool_t  in_flight) {
       break;
 
     case GUIDANCE_H_MODE_NAV:
-      if (!in_flight) guidance_h_nav_enter();
+      if (!in_flight)
+        guidance_h_nav_enter();
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
-        stab_att_sp_euler.phi = nav_roll;
-        stab_att_sp_euler.theta = nav_pitch;
+        struct Int32Eulers sp_euler_i;
+        sp_euler_i.phi = nav_roll;
+        sp_euler_i.theta = nav_pitch;
         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
-        stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
-#ifdef STABILIZATION_ATTITUDE_TYPE_QUAT
-        INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
-        INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-#endif
+        sp_euler_i.psi = stateGetNedToBodyEulers_i()->psi;
+        stabilization_attitude_set_from_eulers_i(&sp_euler_i);
       }
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
@@ -256,8 +266,8 @@ void guidance_h_run(bool_t  in_flight) {
     default:
       break;
   }
-
 }
+
 
 static void guidance_h_update_reference(void) {
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
@@ -342,42 +352,28 @@ static void guidance_h_traj_run(bool_t in_flight) {
   guidance_h_command_body.phi += guidance_h_rc_sp.phi;
   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
 
-  /* Set attitude setpoint in eulers and as quaternion */
-  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
-
-#ifdef STABILIZATION_ATTITUDE_TYPE_QUAT
-  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
-  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-#endif /* STABILIZATION_ATTITUDE_TYPE_QUAT */
-
+  /* Set attitude setpoint from pseudo-eulers */
+  stabilization_attitude_set_from_eulers_i(&guidance_h_command_body);
 }
 
 static void guidance_h_hover_enter(void) {
 
+  /* set horizontal setpoint to current position */
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
+  reset_reference_from_current_position();
+
   guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
-  reset_psi_ref_from_body();
-
-  INT_VECT2_ZERO(guidance_h_pos_err_sum);
-
 }
 
 static void guidance_h_nav_enter(void) {
 
+  /* horizontal position setpoint from navigation/flightplan */
   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
-  struct Int32Vect2 pos,speed,zero;
-  INT_VECT2_ZERO(zero);
-  VECT2_COPY(pos, *stateGetPositionNed_i());
-  VECT2_COPY(speed, *stateGetSpeedNed_i());
-  GuidanceHSetRef(pos, speed, zero);
 
-  /* reset psi reference, set psi setpoint to current psi */
-  reset_psi_ref_from_body();
+  reset_reference_from_current_position();
+
   nav_heading = stateGetNedToBodyEulers_i()->psi;
-
-  INT_VECT2_ZERO(guidance_h_pos_err_sum);
-
 }
 
 static inline void transition_run(void) {

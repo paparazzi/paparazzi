@@ -20,6 +20,7 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
 #include "math/pprz_algebra_float.h"
 #include "state.h"
@@ -40,24 +41,24 @@ void stabilization_attitude_init(void) {
   stabilization_attitude_ref_init();
 
   VECT3_ASSIGN(stabilization_gains.p,
-               STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN);
+               STABILIZATION_ATTITUDE_PHI_PGAIN,
+               STABILIZATION_ATTITUDE_THETA_PGAIN,
+               STABILIZATION_ATTITUDE_PSI_PGAIN);
 
   VECT3_ASSIGN(stabilization_gains.d,
-               STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN);
+               STABILIZATION_ATTITUDE_PHI_DGAIN,
+               STABILIZATION_ATTITUDE_THETA_DGAIN,
+               STABILIZATION_ATTITUDE_PSI_DGAIN);
 
   VECT3_ASSIGN(stabilization_gains.i,
-               STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN);
+               STABILIZATION_ATTITUDE_PHI_IGAIN,
+               STABILIZATION_ATTITUDE_THETA_IGAIN,
+               STABILIZATION_ATTITUDE_PSI_IGAIN);
 
   VECT3_ASSIGN(stabilization_gains.dd,
-               STABILIZATION_ATTITUDE_FLOAT_PHI_DDGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_THETA_DDGAIN,
-               STABILIZATION_ATTITUDE_FLOAT_PSI_DDGAIN);
+               STABILIZATION_ATTITUDE_PHI_DDGAIN,
+               STABILIZATION_ATTITUDE_THETA_DDGAIN,
+               STABILIZATION_ATTITUDE_PSI_DDGAIN);
 
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
@@ -65,17 +66,28 @@ void stabilization_attitude_init(void) {
 
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
-
   stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight);
-
 }
 
 
 void stabilization_attitude_enter(void) {
 
-  STABILIZATION_ATTITUDE_FLOAT_RESET_PSI_REF(  stab_att_sp_euler );
-  FLOAT_EULERS_ZERO( stabilization_att_sum_err );
+  /* reset psi setpoint to current psi angle */
+  stab_att_sp_euler.psi = stabilization_attitude_get_heading_f();
 
+  stabilization_attitude_ref_enter();
+
+  FLOAT_EULERS_ZERO(stabilization_att_sum_err);
+}
+
+void stabilization_attitude_set_failsafe_setpoint(void) {
+  stab_att_sp_euler.phi = 0.0;
+  stab_att_sp_euler.theta = 0.0;
+  stab_att_sp_euler.psi = stateGetNedToBodyEulers_f()->psi;
+}
+
+void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_euler);
 }
 
 
@@ -95,7 +107,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* Compute feedback                  */
   /* attitude error            */
-  struct FloatEulers att_float* = stateGetNedToBodyEulers_f();
+  struct FloatEulers *att_float = stateGetNedToBodyEulers_f();
   struct FloatEulers att_err;
   EULERS_DIFF(att_err, stab_att_ref_euler, *att_float);
   FLOAT_ANGLE_NORMALIZE(att_err.psi);

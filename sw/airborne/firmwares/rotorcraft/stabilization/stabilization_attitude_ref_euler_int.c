@@ -24,7 +24,8 @@
  *
  */
 
-#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "generated/airframe.h"
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Eulers stab_att_ref_euler;  ///< with #REF_ANGLE_FRAC

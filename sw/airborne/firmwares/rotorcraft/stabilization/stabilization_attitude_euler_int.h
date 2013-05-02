@@ -19,23 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/stabilization_attitude.h
- *  General attitude stabilization interface for rotorcrafts.
- *  The actual implementation is automatically included.
- */
+#ifndef STABILIZATION_ATTITUDE_EULER_INT_H
+#define STABILIZATION_ATTITUDE_EULER_INT_H
 
-#ifndef STABILIZATION_ATTITUDE_H
-#define STABILIZATION_ATTITUDE_H
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_int.h"
 
-
-#include STABILIZATION_ATTITUDE_TYPE_H
-
-extern void stabilization_attitude_init(void);
-extern void stabilization_attitude_read_rc(bool_t in_flight);
-extern void stabilization_attitude_enter(void);
-extern void stabilization_attitude_set_failsafe_setpoint(void);
-extern void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler);
-extern void stabilization_attitude_run(bool_t  in_flight);
-
-
-#endif /* STABILIZATION_ATTITUDE_H */
+#endif /* STABILIZATION_ATTITUDE_EULER_INT_H */
