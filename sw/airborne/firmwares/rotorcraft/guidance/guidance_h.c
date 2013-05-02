@@ -108,16 +108,11 @@ void guidance_h_init(void) {
 }
 
 
-static inline void reset_reference_from_current_position(void) {
-
+static inline void reset_guidance_reference_from_current_position(void) {
   VECT2_COPY(guidance_h_pos_ref, *stateGetPositionNed_i());
   VECT2_COPY(guidance_h_speed_ref, *stateGetSpeedNed_i());
   INT_VECT2_ZERO(guidance_h_accel_ref);
   gh_set_ref(guidance_h_pos_ref, guidance_h_speed_ref, guidance_h_accel_ref);
-
-  /* reset attitude psi reference, set psi setpoint to current psi */
-  // FIXME
-  //reset_psi_ref_from_body();
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 }
@@ -126,7 +121,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   if (new_mode == guidance_h_mode)
     return;
 
-  if(new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
+  if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
      transition_percentage = 0;
      transition_theta_offset = 0;
    }
@@ -149,11 +144,22 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
     case GUIDANCE_H_MODE_HOVER:
       guidance_h_hover_enter();
+      /* reset attitude stabilization if previous mode was not using it */
+      if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+          guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+        stabilization_attitude_enter();
+      }
       break;
 
     case GUIDANCE_H_MODE_NAV:
       guidance_h_nav_enter();
+      /* reset attitude stabilization if previous mode was not using it */
+      if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+          guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+        stabilization_attitude_enter();
+      }
       break;
+
     default:
       break;
   }
@@ -361,7 +367,7 @@ static void guidance_h_hover_enter(void) {
   /* set horizontal setpoint to current position */
   VECT2_COPY(guidance_h_pos_sp, *stateGetPositionNed_i());
 
-  reset_reference_from_current_position();
+  reset_guidance_reference_from_current_position();
 
   guidance_h_rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
 }
@@ -371,7 +377,7 @@ static void guidance_h_nav_enter(void) {
   /* horizontal position setpoint from navigation/flightplan */
   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
 
-  reset_reference_from_current_position();
+  reset_guidance_reference_from_current_position();
 
   nav_heading = stateGetNedToBodyEulers_i()->psi;
 }
