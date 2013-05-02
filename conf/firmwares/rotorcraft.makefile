@@ -213,7 +213,8 @@ ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
-else ifeq ($(ARCH), omap_ardrone2)
+else ifeq ($(ARCH), omap)
+ifeq ($(BOARD), ardrone)
 ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 ifeq ($(BOARD_TYPE), raw)
 ap.srcs   += $(SRC_BOARD)/vbat.c
@@ -221,6 +222,7 @@ ap.srcs   += $(SRC_BOARD)/navdata.c
 ap.srcs   += $(SRC_BOARD)/gpio.c
 ap.srcs   += $(SRC_BOARD)/motorboard.c
 ap.CFLAGS +=-DARDRONE2
+endif
 endif
 endif
 
@@ -282,7 +284,7 @@ ap.srcs += subsystems/navigation/common_flight_plan.c
 # or
 # nothing
 #
-ifeq ($(ARCH), omap_ardrone2)
+ifeq ($(ARCH), omap)
 SRC_FMS=fms
 ap.CFLAGS += -I. -I$(SRC_FMS)
 ap.srcs   += $(SRC_FMS)/fms_serial_port.c
