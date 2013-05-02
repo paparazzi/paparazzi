@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Dino Hensen <dino.hensen@gmail.com>
+ * Copyright (C) 2012-2013 Freek van Tienen
  *
  * This file is part of paparazzi.
  *
@@ -19,11 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_OMAP_ARDRONE2_ARCH_H
-#define IMU_OMAP_ARDRONE2_ARCH_H
+/**
+ * @file arch/omap/subsystems/actuators/actuators_at.c
+ * ardrone2-sdk actuators are driven by external software controller by AT-commands
+ */
 
-#include "subsystems/imu.h"
+#ifndef BOARDS_ARDRONE_ACTUATORS_AT_H
+#define BOARDS_ARDRONE_ACTUATORS_AT_H
 
-#define ImuArdrone2ArchPeriodic() { }
+#include "paparazzi.h"
 
-#endif /* IMU_OMAP_ARDRONE2_ARCH_H */
+extern void actuators_init(void);
+extern void actuators_set(pprz_t commands[]);
+#define SetActuatorsFromCommands(commands) actuators_set(commands)
+
+#endif /* BOARDS_ARDRONE_ACTUATORS_AT_H */

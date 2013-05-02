@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2012 Dino Hensen <dino.hensen@gmail.com>
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,18 +18,40 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#include "subsystems/imu/imu_ardrone2_arch.h"
+/** @file arch/omap/mcu_periph/i2c_arch.h
+ * I2C functionality (unimplemented)
+ */
 
-/*void imu_ardrone2_arch_init(void) {
+#ifndef OMAP_MCU_PERIPH_I2C_ARCH_H
+#define OMAP_MCU_PERIPH_I2C_ARCH_H
 
-}*/
+#include "mcu_periph/i2c.h"
 
-void imu_impl_init(void) {
+#define I2cSendStart() {}
 
-}
 
-void imu_periodic(void) {
+#ifdef USE_I2C0
 
-}
+extern void i2c0_hw_init(void);
+
+#endif /* USE_I2C0 */
+
+
+#ifdef USE_I2C1
+
+extern void i2c1_hw_init(void);
+
+#endif /* USE_I2C1 */
+
+
+#ifdef USE_I2C2
+
+extern void i2c2_hw_init(void);
+
+#endif /* USE_I2C2 */
+
+
+#endif /* OMAP_MCU_PERIPH_I2C_ARCH_H */

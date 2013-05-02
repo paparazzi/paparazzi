@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2009-2011 The Paparazzi Team
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,8 +21,8 @@
  *
  */
 
-/** @file arch/omap_ardrone2/mcu_periph/sys_time_arch.h
- * omap_ardrone2 timing functions
+/** @file arch/omap/mcu_periph/sys_time_arch.h
+ * omap timing functions
  */
 
 #ifndef SYS_TIME_ARCH_H

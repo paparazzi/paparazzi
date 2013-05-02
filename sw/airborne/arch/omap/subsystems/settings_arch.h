@@ -1,5 +1,5 @@
 /*
- * Paparazzi persistent settings low level flash routines lpc21
+ * Paparazzi persistent settings for ARDrone2
  *
  * Copyright (C) 2013 Dino Hensen <dino.hensen@gmail.com>
  *
