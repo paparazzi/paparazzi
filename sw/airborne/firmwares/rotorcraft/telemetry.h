@@ -223,8 +223,13 @@
                                   &stabilization_cmd[COMMAND_THRUST]); \
   }
 
-#ifdef STABILIZATION_ATTITUDE_REF_TYPE_H
-#ifdef STABILIZATION_ATTITUDE_TYPE_INT
+
+#ifdef STABILIZATION_ATTITUDE_NO_REF
+#define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {}
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {}
+
+#elif defined STABILIZATION_ATTITUDE_TYPE_INT
+
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct Int32Rates* body_rate = stateGetBodyRates_i();   \
   struct Int32Eulers* att = stateGetNedToBodyEulers_i();  \
@@ -248,21 +253,20 @@
       &stabilization_cmd[COMMAND_YAW]);                   \
 }
 
-
-#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\
-    DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_trans, _dev,			\
-                          &stab_att_sp_euler.phi, \
-                          &stab_att_sp_euler.theta, \
-                          &stab_att_sp_euler.psi, \
-                          &stab_att_ref_euler.phi, \
-                          &stab_att_ref_euler.theta, \
-                          &stab_att_ref_euler.psi, \
-                          &stab_att_ref_rate.p, \
-                          &stab_att_ref_rate.q, \
-                          &stab_att_ref_rate.r, \
-                          &stab_att_ref_accel.p, \
-                          &stab_att_ref_accel.q, \
-                          &stab_att_ref_accel.r); \
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {             \
+    DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_trans, _dev,               \
+                                        &stab_att_sp_euler.phi,     \
+                                        &stab_att_sp_euler.theta,   \
+                                        &stab_att_sp_euler.psi,     \
+                                        &stab_att_ref_euler.phi,    \
+                                        &stab_att_ref_euler.theta,  \
+                                        &stab_att_ref_euler.psi,    \
+                                        &stab_att_ref_rate.p,       \
+                                        &stab_att_ref_rate.q,       \
+                                        &stab_att_ref_rate.r,       \
+                                        &stab_att_ref_accel.p,      \
+                                        &stab_att_ref_accel.q,      \
+                                        &stab_att_ref_accel.r);     \
   }
 
 #elif defined STABILIZATION_ATTITUDE_TYPE_FLOAT
@@ -292,27 +296,23 @@
       &foo, &foo, &foo);                                  \
   }
 
-#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\
-    DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_trans, _dev,			\
-                        &stab_att_sp_euler.phi, \
-                        &stab_att_sp_euler.theta, \
-                        &stab_att_sp_euler.psi, \
-                        &stab_att_ref_euler.phi, \
-                        &stab_att_ref_euler.theta, \
-                        &stab_att_ref_euler.psi, \
-                        &stab_att_ref_rate.p,	\
-                        &stab_att_ref_rate.q,	\
-                        &stab_att_ref_rate.r,	\
-                        &stab_att_ref_accel.p, \
-                        &stab_att_ref_accel.q, \
-                        &stab_att_ref_accel.r); \
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {                 \
+    DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_trans, _dev,                 \
+                                          &stab_att_sp_euler.phi,       \
+                                          &stab_att_sp_euler.theta,     \
+                                          &stab_att_sp_euler.psi,       \
+                                          &stab_att_ref_euler.phi,      \
+                                          &stab_att_ref_euler.theta,    \
+                                          &stab_att_ref_euler.psi,      \
+                                          &stab_att_ref_rate.p,         \
+                                          &stab_att_ref_rate.q,         \
+                                          &stab_att_ref_rate.r,         \
+                                          &stab_att_ref_accel.p,        \
+                                          &stab_att_ref_accel.q,        \
+                                          &stab_att_ref_accel.r);       \
   }
 
 #endif /* STABILIZATION_ATTITUDE_TYPE_FLOAT */
-#else /* STABILIZATION_ATTITUDE_REF_TYPE_H */
-#define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {}
-#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {}
-#endif
 
 
 #include "subsystems/ahrs/ahrs_aligner.h"
