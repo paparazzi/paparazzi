@@ -27,7 +27,7 @@ GPS_PORT=UART1
 endif
 
 ifndef GPS_BAUD
-GPS_BAUD=B38400
+GPS_BAUD=B57600
 endif
 
 # This is a (temporary) fix for uart_arch.c to compile with a device name
