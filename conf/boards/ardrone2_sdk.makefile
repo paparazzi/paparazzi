@@ -10,7 +10,7 @@ BOARD_VERSION=2
 BOARD_TYPE=sdk
 BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION)_$(BOARD_TYPE).h\"
 
-ARCH=omap_ardrone2
+ARCH=omap
 $(TARGET).ARCHDIR = $(ARCH)
 
 # -----------------------------------------------------------------------
