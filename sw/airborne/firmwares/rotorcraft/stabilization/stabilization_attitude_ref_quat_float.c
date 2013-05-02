@@ -62,14 +62,9 @@ static inline void reset_psi_ref_from_body(void) {
   stab_att_ref_accel.r = 0;
 }
 
-static void update_ref_quat_from_eulers(void) {
+static inline void update_ref_quat_from_eulers(void) {
   struct FloatRMat ref_rmat;
-
-#ifdef STICKS_RMAT312
-  FLOAT_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
-#else
-  FLOAT_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
-#endif
+  FLOAT_RMAT_OF_EULERS(ref_rmat, stab_att_ref_euler);
   FLOAT_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
   FLOAT_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 }
@@ -90,16 +85,12 @@ void stabilization_attitude_ref_init(void) {
 
 }
 
-void stabilization_attitude_ref_schedule(uint8_t idx)
-{
+void stabilization_attitude_ref_schedule(uint8_t idx) {
   ref_idx = idx;
 }
 
-void stabilization_attitude_ref_enter()
-{
+void stabilization_attitude_ref_enter(void) {
   reset_psi_ref_from_body();
-  //FIXME
-  //stabilization_attitude_sp_enter();
   update_ref_quat_from_eulers();
 }
 
@@ -113,7 +104,7 @@ void stabilization_attitude_ref_enter()
 #define STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP TRUE
 #endif
 
-void stabilization_attitude_ref_update() {
+void stabilization_attitude_ref_update(void) {
 
   /* integrate reference attitude            */
 #if STABILIZATION_ATTITUDE_REF_QUAT_INFINITESIMAL_STEP

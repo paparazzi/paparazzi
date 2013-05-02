@@ -99,7 +99,7 @@ void stabilization_attitude_ref_init(void) {
 
 }
 
-void stabilization_attitude_ref_enter()
+void stabilization_attitude_ref_enter(void)
 {
   reset_psi_ref_from_body();
 
@@ -122,7 +122,7 @@ void stabilization_attitude_ref_enter()
 // which is equal to >> 9
 #define F_UPDATE_RES 9
 
-void stabilization_attitude_ref_update() {
+void stabilization_attitude_ref_update(void) {
 
   /* integrate reference attitude            */
   struct Int32Quat qdot;
