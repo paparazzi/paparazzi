@@ -50,10 +50,10 @@ enum Mpu60x0ConfStatus {
   MPU60X0_CONF_UNINIT,
   MPU60X0_CONF_PWR,
   MPU60X0_CONF_SD,
-  MPU60X0_CONF_CONFIG,
+  MPU60X0_CONF_DLPF,
   MPU60X0_CONF_GYRO,
   MPU60X0_CONF_ACCEL,
-  MPU60X0_CONF_INT_PIN,
+  MPU60X0_CONF_I2C_BYPASS,
   MPU60X0_CONF_INT_ENABLE,
   MPU60X0_CONF_DONE
 };
@@ -70,59 +70,12 @@ struct Mpu60x0Config {
   bool_t initialized;                   ///< config done flag
 };
 
-static inline void mpu60x0_set_default_config(struct Mpu60x0Config *c)
-{
-  c->smplrt_div = MPU60X0_DEFAULT_SMPLRT_DIV;
-  c->dlpf_cfg = MPU60X0_DEFAULT_DLPF_CFG;
-  c->gyro_range = MPU60X0_DEFAULT_FS_SEL;
-  c->accel_range = MPU60X0_DEFAULT_AFS_SEL;
-  c->i2c_bypass = TRUE;
-  c->drdy_int_enable = FALSE;
-  c->clk_sel = MPU60X0_DEFAULT_CLK_SEL;
-}
+extern void mpu60x0_set_default_config(struct Mpu60x0Config *c);
 
 /// Configuration function prototype
 typedef void (*Mpu60x0ConfigSet)(void* mpu, uint8_t _reg, uint8_t _val);
 
 /// Configuration sequence called once before normal use
-static inline void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Config* config)
-{
-  switch (config->init_status) {
-    case MPU60X0_CONF_SD:
-      mpu_set(mpu, MPU60X0_REG_SMPLRT_DIV, config->smplrt_div);
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_CONFIG:
-      mpu_set(mpu, MPU60X0_REG_CONFIG, config->dlpf_cfg);
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_GYRO:
-      mpu_set(mpu, MPU60X0_REG_GYRO_CONFIG, (config->gyro_range<<3));
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_ACCEL:
-      mpu_set(mpu, MPU60X0_REG_ACCEL_CONFIG, (config->accel_range<<3));
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_INT_PIN:
-      mpu_set(mpu, MPU60X0_REG_INT_PIN_CFG, (config->i2c_bypass<<1));
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_INT_ENABLE:
-      mpu_set(mpu, MPU60X0_REG_INT_ENABLE, (config->drdy_int_enable<<0));
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_PWR:
-      mpu_set(mpu, MPU60X0_REG_PWR_MGMT_1, ((config->clk_sel)|(0<<6)));
-      config->init_status++;
-      break;
-    case MPU60X0_CONF_DONE:
-      config->initialized = TRUE;
-      break;
-    default:
-      break;
-  }
-}
-
+extern void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void* mpu, struct Mpu60x0Config* config);
 
 #endif // MPU60X0_H

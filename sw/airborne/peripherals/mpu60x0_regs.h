@@ -117,7 +117,11 @@
 // MPU60X0 Definitions
 
 #define MPU60X0_REG_WHO_AM_I        0X75
-#define MPU60X0_WHOAMI_REPLY		0x68
+#define MPU60X0_WHOAMI_REPLY	    0x68
+
+// Bit positions
+#define MPU60X0_I2C_BYPASS_EN       1
+#define MPU60X0_I2C_MST_EN		    5
 
 /** Digital Low Pass Filter Options
  *  DLFP is affecting both gyro and accels,
