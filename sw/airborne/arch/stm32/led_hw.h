@@ -39,11 +39,15 @@
 #define _LED_GPIO_CLK(i)  i
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
+#define _LED_GPIO_ON(i) i
+#define _LED_GPIO_OFF(i) i
 #define _LED_AFIO_REMAP(i) i
 
 #define LED_GPIO_CLK(i) _LED_GPIO_CLK(LED_ ## i ## _GPIO_CLK)
 #define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
 #define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
+#define LED_GPIO_ON(i) _LED_GPIO_ON(LED_ ## i ## _GPIO_ON)
+#define LED_GPIO_OFF(i) _LED_GPIO_OFF(LED_ ## i ## _GPIO_OFF)
 #define LED_AFIO_REMAP(i) _LED_AFIO_REMAP(LED_ ## i ## _AFIO_REMAP)
 
 /* set pin as output */
@@ -69,9 +73,9 @@
   }
 #endif
 
-#define LED_ON(i) { gpio_clear(LED_GPIO(i), LED_GPIO_PIN(i)); }
-#define LED_OFF(i) { gpio_set(LED_GPIO(i), LED_GPIO_PIN(i)); }
-#define LED_TOGGLE(i) {	gpio_toggle(LED_GPIO(i), LED_GPIO_PIN(i)); }
+#define LED_ON(i) LED_GPIO_ON(i)(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_OFF(i) LED_GPIO_OFF(i)(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_TOGGLE(i) gpio_toggle(LED_GPIO(i), LED_GPIO_PIN(i))
 
 #define LED_PERIODIC() {}
 
@@ -111,11 +115,11 @@ extern uint8_t led_status[NB_LED];
 #define LED_PERIODIC() {                                    \
     for (uint8_t _cnt = 0; _cnt < NB_LED; _cnt++) {         \
       if (led_status[_cnt])                                 \
-        GPIO_BSRR(GPIOC) = GPIO15;                          \
+        gpio_set(GPIOC, GPIO15);                            \
       else                                                  \
-        GPIO_BRR(GPIOC) = GPIO15;                           \
-      GPIO_BSRR(GPIOA) = GPIO8; /* clock rising edge */     \
-      GPIO_BRR(GPIOA) = GPIO8;  /* clock falling edge */    \
+        gpio_clear(GPIOC, GPIO15);                          \
+      gpio_set(GPIOA, GPIO8); /* clock rising edge */       \
+      gpio_clear(GPIOA, GPIO8);  /* clock falling edge */   \
     }                                                       \
   }
 
