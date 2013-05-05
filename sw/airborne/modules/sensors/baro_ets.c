@@ -115,11 +115,11 @@ void baro_ets_read_periodic( void ) {
 #else // SITL
   /* fake an offset so sim works for under hmsl as well */
   if (!baro_ets_offset_init) {
-    baro_ets_offset = 200;
+    baro_ets_offset = 12400;
     baro_ets_offset_init = TRUE;
   }
   baro_ets_altitude = gps.hmsl / 1000.0;
-  baro_ets_adc = baro_ets_offset - baro_ets_altitude / BARO_ETS_SCALE;
+  baro_ets_adc = baro_ets_offset - ((baro_ets_altitude - ground_alt) / BARO_ETS_SCALE);
   baro_ets_valid = TRUE;
 #endif
 
