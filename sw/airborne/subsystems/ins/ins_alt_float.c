@@ -40,9 +40,9 @@
 #include "ap_downlink.h"
 #endif
 
-/* vertical position and speed in meters */
-float estimator_z;
-float estimator_z_dot;
+/* vertical position and speed in meters (z-up)*/
+float ins_alt;
+float ins_alt_dot;
 
 #if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
@@ -115,7 +115,7 @@ void ins_update_gps(void) {
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif
-  utm.alt = estimator_z;
+  utm.alt = ins_alt;
   // set position
   stateSetPositionUtm_f(&utm);
 
@@ -205,7 +205,7 @@ void alt_kalman(float z_meas) {
 
 
   /* predict */
-  estimator_z += estimator_z_dot * DT;
+  ins_alt += ins_alt_dot * DT;
   p[0][0] = p[0][0]+p[1][0]*DT+DT*(p[0][1]+p[1][1]*DT) + SIGMA2*q[0][0];
   p[0][1] = p[0][1]+p[1][1]*DT + SIGMA2*q[0][1];
   p[1][0] = p[1][0]+p[1][1]*DT + SIGMA2*q[1][0];
@@ -217,11 +217,11 @@ void alt_kalman(float z_meas) {
   if (fabs(e) > 1e-5) {
     float k_0 = p[0][0] / e;
     float k_1 =  p[1][0] / e;
-    e = z_meas - estimator_z;
+    e = z_meas - ins_alt;
 
     /* correction */
-    estimator_z += k_0 * e;
-    estimator_z_dot += k_1 * e;
+    ins_alt += k_0 * e;
+    ins_alt_dot += k_1 * e;
 
     p[1][0] = -p[0][0]*k_1+p[1][0];
     p[1][1] = -p[0][1]*k_1+p[1][1];
