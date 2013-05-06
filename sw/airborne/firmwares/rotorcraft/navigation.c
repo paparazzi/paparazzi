@@ -117,8 +117,7 @@ void nav_init(void) {
 
 }
 
-void nav_run(void) {
-
+static inline void nav_advance_carrot(void) {
   /* compute a vector to the waypoint */
   struct Int32Vect2 path_to_waypoint;
   VECT2_DIFF(path_to_waypoint, navigation_target, *stateGetPositionEnu_i());
@@ -126,8 +125,6 @@ void nav_run(void) {
   /* saturate it */
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
 
-#if !GUIDANCE_H_USE_REF
-  PRINT_CONFIG_MSG("NOT using horizontal guidance reference :-(")
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
@@ -140,6 +137,13 @@ void nav_run(void) {
     VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
     VECT2_SUM(navigation_carrot, path_to_carrot, *stateGetPositionEnu_i());
   }
+}
+
+void nav_run(void) {
+
+#if !GUIDANCE_H_USE_REF
+  PRINT_CONFIG_MSG("NOT using horizontal guidance reference :-(")
+  nav_advance_carrot();
 #else
   PRINT_CONFIG_MSG("Using horizontal guidance reference :-)")
   // if H_REF is used, CARROT_DIST is not used
