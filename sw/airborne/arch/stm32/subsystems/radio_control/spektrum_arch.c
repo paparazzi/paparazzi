@@ -78,10 +78,10 @@ struct SpektrumStateStruct {
 
 typedef struct SpektrumStateStruct SpektrumStateType;
 
-SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0};
+SpektrumStateType PrimarySpektrumState;
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 PRINT_CONFIG_MSG("Using secondary spektrum receiver.")
-SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0};
+SpektrumStateType SecondarySpektrumState;
 #else
 PRINT_CONFIG_MSG("NOT using secondary spektrum receiver.")
 #endif
@@ -131,6 +131,13 @@ static void SpektrumDelayInit( void );
  *
  *****************************************************************************/
 void radio_control_impl_init(void) {
+
+  PrimarySpektrumState.ReSync = 1;
+
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
+  SecondarySpektrumState.ReSync = 1;
+#endif
+
   SpektrumTimerInit();
   // DebugInit();
   SpektrumUartInit();
