@@ -53,7 +53,7 @@ float ins_baro_alt;
 
 void ins_init() {
 
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
 
   stateSetPositionUtm_f(&utm0);
@@ -96,8 +96,15 @@ void ins_update_baro() {
       ins_qfe = baro.absolute;
     }
     else { /* not realigning, so normal update with baro measurement */
-      ins_baro_alt = ground_alt + (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      /* altitude decreases with increasing baro.absolute pressure */
+      ins_baro_alt = ground_alt - (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      /* run the filter */
       EstimatorSetAlt(ins_baro_alt);
+      /* set new altitude, just copy old horizontal position */
+      struct UtmCoor_f utm;
+      UTM_COPY(utm, *stateGetPositionUtm_f());
+      utm.alt = ins_alt;
+      stateSetPositionUtm_f(&utm);
     }
   }
 #endif
@@ -139,8 +146,10 @@ bool_t alt_kalman_enabled;
 #define ALT_KALMAN_ENABLED FALSE
 #endif
 
-#define GPS_SIGMA2 1.
+#ifndef GPS_DT
 #define GPS_DT 0.25
+#endif
+#define GPS_SIGMA2 1.
 #define GPS_R 2.
 
 #define BARO_DT 0.1

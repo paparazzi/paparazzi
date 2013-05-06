@@ -27,6 +27,14 @@
     (_def1).hmsl = (_def2).hmsl;                                \
   }
 
+#define UTM_COPY(_u1, _u2) {     \
+    (_u1).north = (_u2).north;   \
+    (_u1).east = (_u2).east;     \
+    (_u1).alt = (_u2).alt;       \
+    (_u1).zone = (_u2).zone;     \
+  }
+
+
 #define ENU_OF_UTM_DIFF(_pos, _utm1, _utm2) { \
   (_pos).x = (_utm1).east - (_utm2).east;     \
   (_pos).y = (_utm1).north - (_utm2).north;   \
