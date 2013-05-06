@@ -41,7 +41,6 @@
 extern struct EnuCoor_i navigation_target;
 extern struct EnuCoor_i navigation_carrot;
 
-extern struct EnuCoor_f waypoints_float[];
 extern struct EnuCoor_i waypoints[];
 extern const uint8_t nb_waypoint;
 

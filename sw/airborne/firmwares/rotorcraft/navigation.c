@@ -45,7 +45,6 @@
 #include "math/pprz_algebra_int.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
-struct EnuCoor_f waypoints_float[NB_WAYPOINT] = WAYPOINTS;
 struct EnuCoor_i waypoints[NB_WAYPOINT];
 
 struct EnuCoor_i navigation_target;
@@ -85,12 +84,14 @@ static inline void nav_set_altitude( void );
 #define CARROT_DIST (12 << 8)
 
 void nav_init(void) {
+  // convert to
+  const struct EnuCoor_f wp_tmp_float[NB_WAYPOINT] = WAYPOINTS;
   // init int32 waypoints
   uint8_t i = 0;
   for (i = 0; i < nb_waypoint; i++) {
-    waypoints[i].x = POS_BFP_OF_REAL(waypoints_float[i].x);
-    waypoints[i].y = POS_BFP_OF_REAL(waypoints_float[i].y);
-    waypoints[i].z = POS_BFP_OF_REAL((waypoints_float[i].z - GROUND_ALT));
+    waypoints[i].x = POS_BFP_OF_REAL(wp_tmp_float[i].x);
+    waypoints[i].y = POS_BFP_OF_REAL(wp_tmp_float[i].y);
+    waypoints[i].z = POS_BFP_OF_REAL((wp_tmp_float[i].z - GROUND_ALT));
   }
   nav_block = 0;
   nav_stage = 0;
