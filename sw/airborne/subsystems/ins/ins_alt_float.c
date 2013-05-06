@@ -96,7 +96,7 @@ void ins_update_baro() {
       ins_qfe = baro.absolute;
     }
     else { /* not realigning, so normal update with baro measurement */
-      ins_baro_alt = (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      ins_baro_alt = ground_alt + (baro.absolute - ins_qfe) * INS_BARO_SENS;
       EstimatorSetAlt(ins_baro_alt);
     }
   }
