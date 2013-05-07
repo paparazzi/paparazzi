@@ -121,9 +121,10 @@ void baro_ets_read_periodic( void ) {
   baro_ets_altitude = gps.hmsl / 1000.0;
   baro_ets_adc = baro_ets_offset - baro_ets_altitude / BARO_ETS_SCALE;
   baro_ets_valid = TRUE;
+#endif
+
 #ifdef BARO_ETS_TELEMETRY
   DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
-#endif
 #endif
 }
 
