@@ -257,6 +257,8 @@ void v_ctl_init( void ) {
   v_ctl_throttle_setpoint = 0;
 }
 
+const float dt = 1.0 / ((float)CONTROL_FREQUENCY);
+
 /**
  * outer loop
  * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode
@@ -273,12 +275,11 @@ void v_ctl_altitude_loop( void )
   BoundAbs(sp, v_ctl_max_climb);
 
   float incr = sp - v_ctl_climb_setpoint;
-  BoundAbs(incr, 2.0 / 4.0);
+  BoundAbs(incr, 10 * dt);
   v_ctl_climb_setpoint += incr;
 }
 
 
-const float dt = 1.0 / ((float)CONTROL_FREQUENCY);
 
 float lp_vdot[5];
 
@@ -301,6 +302,7 @@ static float low_pass_vdot(float v)
 void v_ctl_climb_loop( void )
 {
   // airspeed_setpoint ratelimiter:
+  // AIRSPEED_SETPOINT_SLEW in m/s/s - a change from 15m/s to 18m/s takes 3s with the default value of 1
   float airspeed_incr = v_ctl_auto_airspeed_setpoint - v_ctl_auto_airspeed_setpoint_slew;
   BoundAbs(airspeed_incr, AIRSPEED_SETPOINT_SLEW * dt);
   v_ctl_auto_airspeed_setpoint_slew += airspeed_incr;
@@ -365,12 +367,16 @@ void v_ctl_climb_loop( void )
     + v_ctl_auto_throttle_of_airspeed_pgain * speed_error
     + v_ctl_energy_total_pgain * en_tot_err;
 
-
-  if ((controlled_throttle >= 1.0f) || (controlled_throttle <= 0.0f))
+  if ((controlled_throttle >= 1.0f) || (controlled_throttle <= 0.0f) || (kill_throttle==1))
   {
     // If your energy supply is not sufficient, then neglect the climb requirement
     en_dis_err = -vdot_err;
+
+    // adjust climb_setpoint to maintain airspeed in case of an engine failure or an unrestriced climb
+     if(v_ctl_climb_setpoint>0) v_ctl_climb_setpoint += - 10.5 * dt;
+     if(v_ctl_climb_setpoint<0) v_ctl_climb_setpoint +=   10.5 * dt;
   }
+
 
   /* pitch pre-command */
   if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB))
