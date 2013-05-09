@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,27 +20,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/omap/mcu_periph/uart_arch.h
- * omap uart handling
+/**
+ * @file arch/omap/subsystems/settings_arch.h
+ * OMAP arch Persistent settings.
+ *
+ * Unimplemented.
  */
 
-#ifndef UART_ARCH_H
-#define UART_ARCH_H
+#ifndef ARDRONE2_SUBSYSTEMS_SETTINGS_H
+#define ARDRONE2_SUBSYSTEMS_SETTINGS_H
 
-#include "mcu_periph/uart.h"
-#include "std.h"
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
 
-#if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
-extern void uart0_handler(void);
-#endif
-
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void uart1_handler(void);
-#endif
-
-#endif /* UART_ARCH_H */
+#endif /* ARDRONE2_SUBSYSTEMS_SETTINGS_H */

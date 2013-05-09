@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,27 +20,19 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/omap/mcu_periph/uart_arch.h
- * omap uart handling
+/**
+ * @file arch/omap/led_hw.h
+ * omap arch dependant LED macros.
  */
 
-#ifndef UART_ARCH_H
-#define UART_ARCH_H
+#ifndef LED_HW_H_
+#define LED_HW_H_
 
-#include "mcu_periph/uart.h"
-#include "std.h"
+#define LED_INIT(i) { }
+#define LED_ON(i) { }
+#define LED_OFF(i) { }
+#define LED_TOGGLE(i) { }
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
+#define LED_PERIODIC() {}
 
-#if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
-extern void uart0_handler(void);
-#endif
-
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void uart1_handler(void);
-#endif
-
-#endif /* UART_ARCH_H */
+#endif /* LED_HW_H_ */

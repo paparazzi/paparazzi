@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   Copyright (C) 2009-2010 The Paparazzi Team
+#   Copyright (C) 2009-2013 The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -20,21 +20,13 @@
 # Boston, MA 02111-1307, USA.
 #
 
+
+#
+# find compiler toolchain
+#
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
+
 # Define programs and commands.
-
-# Look for an open embedded directory
-OVERO_OE := $(shell find -L /opt/paparazzi/omap ~ / -maxdepth 1 -type d -name overo-oe 2>/dev/null | head -n 1)
-
-# Multiple places to look for compiler within oe directory structure
-CC_NAME = arm-angstrom-linux-gnueabi-gcc
-CCPATH1 = $(OVERO_OE)/tmp/cross/armv7a/bin
-CCPATH2 = $(OVERO_OE)/tmp/sysroots/i686-linux/usr/armv7a/bin
-CCPATH3 = $(OVERO_OE)/tmp/sysroots/x86_64-linux/usr/armv7a/bin
-CC := $(shell find -L $(CCPATH1) $(CCPATH2) $(CCPATH3) -name $(CC_NAME) -type f 2>/dev/null | head -n 1)
-LD = $(CC)
-
-GLIB_INC = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/include/glib-2.0
-GLIB_LIB = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/lib/
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -46,27 +38,29 @@ CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 # Compiler flags.
 CFLAGS += $(CINCS)
 CFLAGS += -O$(OPT) -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
+CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wno-unused-result
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
+CFLAGS += -lm
+
 # flags only for C
-CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
+CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 
+LDFLAGS += -lm
 
-CXX = /opt/paparazzi/omap/overo-oe/tmp/sysroots/i686-linux/usr/armv7a/bin/arm-angstrom-linux-gnueabi-g++
 CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
 CXXFLAGS += -g -ffunction-sections -fdata-sections
 CXXFLAGS += -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)
-
 
 SRC_C_OMAP  = $($(TARGET).srcs)
 OBJ_C_OMAP = $(SRC_C_OMAP:%.c=$(OBJDIR)/%.o)
@@ -80,9 +74,44 @@ build: elf
 
 elf: $(OBJDIR)/$(TARGET).elf
 
-# Program the device.
+# Program the device and start it.
 load upload program: $(OBJDIR)/$(TARGET).elf
-	scp $(OBJDIR)/$(TARGET).elf $(USER)@$(HOST):$(TARGET_DIR)
+
+# If it is not the SDK version, then kill program.elf
+ifneq ($(BOARD_TYPE), sdk)
+	-echo "killall -9 program.elf" | telnet $(HOST)
+endif
+
+	# Kill the application
+	-echo "killall -9 $(TARGET).elf" | telnet $(HOST)
+
+		# Upload the modules and start the application
+	-{ 												\
+	  echo "mkdir -p $(TARGET_DIR)";						\
+	} | telnet $(HOST)
+
+	# Upload the drivers and new application
+	{																								\
+	  echo "binary";																				\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko /$(SUB_DIR)/cdc-acm.ko";		\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/usbserial.ko /$(SUB_DIR)/usbserial.ko";	\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/pl2303.ko /$(SUB_DIR)/pl2303.ko";			\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/ftdi-sio.ko /$(SUB_DIR)/ftdi-sio.ko";		\
+	  echo "put $(OBJDIR)/$(TARGET).elf /$(SUB_DIR)/$(TARGET).elf";									\
+	  echo "quit";																					\
+	} | ftp -n $(HOST)
+
+	# Upload the modules and start the application
+	-{ 												\
+	  echo "cd $(TARGET_DIR)";						\
+	  echo "insmod cdc-acm.ko";						\
+	  echo "insmod usbserial.ko";					\
+	  echo "insmod pl2303.ko";						\
+	  echo "insmod ftdi-sio.ko";					\
+	  echo "chmod 777 $(TARGET).elf";				\
+	  echo "./$(TARGET).elf > /dev/null 2>&1 &";	\
+	} | telnet $(HOST)
+
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
@@ -118,5 +147,7 @@ $(OBJDIR)/.depend:
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
+endif
 endif

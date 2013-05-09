@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012-2013 Freek van Tienen
  *
  * This file is part of paparazzi.
  *
@@ -19,27 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/omap/mcu_periph/uart_arch.h
- * omap uart handling
+/**
+ * @file arch/omap/subsystems/actuators/actuators_at.c
+ * ardrone2-sdk actuators are driven by external software controller by AT-commands
  */
 
-#ifndef UART_ARCH_H
-#define UART_ARCH_H
+#ifndef BOARDS_ARDRONE_ACTUATORS_AT_H
+#define BOARDS_ARDRONE_ACTUATORS_AT_H
 
-#include "mcu_periph/uart.h"
-#include "std.h"
+#include "paparazzi.h"
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
+extern void actuators_init(void);
+extern void actuators_set(pprz_t commands[]);
+#define SetActuatorsFromCommands(commands) actuators_set(commands)
 
-#if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
-extern void uart0_handler(void);
-#endif
-
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void uart1_handler(void);
-#endif
-
-#endif /* UART_ARCH_H */
+#endif /* BOARDS_ARDRONE_ACTUATORS_AT_H */

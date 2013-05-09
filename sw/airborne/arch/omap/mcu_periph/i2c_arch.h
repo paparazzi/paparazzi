@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,29 +18,40 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-/** @file arch/omap/mcu_periph/uart_arch.h
- * omap uart handling
+/** @file arch/omap/mcu_periph/i2c_arch.h
+ * I2C functionality (unimplemented)
  */
 
-#ifndef UART_ARCH_H
-#define UART_ARCH_H
+#ifndef OMAP_MCU_PERIPH_I2C_ARCH_H
+#define OMAP_MCU_PERIPH_I2C_ARCH_H
 
-#include "mcu_periph/uart.h"
-#include "std.h"
+#include "mcu_periph/i2c.h"
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
+#define I2cSendStart() {}
 
-#if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
-extern void uart0_handler(void);
-#endif
 
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void uart1_handler(void);
-#endif
+#ifdef USE_I2C0
 
-#endif /* UART_ARCH_H */
+extern void i2c0_hw_init(void);
+
+#endif /* USE_I2C0 */
+
+
+#ifdef USE_I2C1
+
+extern void i2c1_hw_init(void);
+
+#endif /* USE_I2C1 */
+
+
+#ifdef USE_I2C2
+
+extern void i2c2_hw_init(void);
+
+#endif /* USE_I2C2 */
+
+
+#endif /* OMAP_MCU_PERIPH_I2C_ARCH_H */

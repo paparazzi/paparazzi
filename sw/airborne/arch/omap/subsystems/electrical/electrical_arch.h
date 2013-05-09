@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,29 +18,17 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-/** @file arch/omap/mcu_periph/uart_arch.h
- * omap uart handling
+/**
+ * @file arch/omap/subsystems/electrical/electrical_arch.h
+ * arch specific electrical status readings
  */
 
-#ifndef UART_ARCH_H
-#define UART_ARCH_H
+#ifndef ELECTRICAL_ARCH_H_
+#define ELECTRICAL_ARCH_H_
 
-#include "mcu_periph/uart.h"
-#include "std.h"
+#include "subsystems/electrical.h"
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
-
-#if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
-extern void uart0_handler(void);
-#endif
-
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void uart1_handler(void);
-#endif
-
-#endif /* UART_ARCH_H */
+#endif /* ELECTRICAL_ARCH_H_ */

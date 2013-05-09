@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Dino Hensen <dino.hensen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,27 +19,29 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/omap/mcu_periph/uart_arch.h
- * omap uart handling
+/**
+ * @file arch/omap/subsystems/actuators/actuators_ardrone2_raw.h
+ * Actuator driver for ardrone2-raw version
  */
 
-#ifndef UART_ARCH_H
-#define UART_ARCH_H
+#ifndef ACTUATORS_ARDRONE2_RAW_H_
+#define ACTUATORS_ARDRONE2_RAW_H_
 
-#include "mcu_periph/uart.h"
-#include "std.h"
+#include <stdint.h>
 
-#define UART1_irq_handler usart1_irq_handler
-#define UART2_irq_handler usart2_irq_handler
-#define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler
-
-#if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
-extern void uart0_handler(void);
+#ifndef ACTUATORS_ARDRONE_NB
+#define ACTUATORS_ARDRONE_NB 4
 #endif
 
-#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-extern void uart1_handler(void);
-#endif
+#define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#endif /* UART_ARCH_H */
+#define ActuatorArdroneSet(_i, _v) { actuators_pwm_values[_i] = _v; }
+#define ActuatorsArdroneCommit() actuators_ardrone_commit();
+#define ActuatorsArdroneInit() actuators_ardrone_init();
+
+uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
+
+extern void actuators_ardrone_commit(void);
+extern void actuators_ardrone_init(void);
+
+#endif /* ACTUATORS_ARDRONE2_RAW_H_ */
