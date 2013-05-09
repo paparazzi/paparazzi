@@ -45,6 +45,7 @@
 /** Datalink kinds */
 #define PPRZ 1
 #define XBEE 2
+#define WIFI 3
 
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
@@ -59,22 +60,22 @@ EXTERN void dl_parse_msg(void);
 
 /** Check for new message and parse */
 #define DlCheckAndParse() {   \
-  if (dl_msg_available) {			\
-    dl_parse_msg();				    \
-    dl_msg_available = FALSE;	\
-  }						                \
+  if (dl_msg_available) {      \
+    dl_parse_msg();            \
+    dl_msg_available = FALSE;  \
+  }                            \
 }
 
 #if defined DATALINK && DATALINK == PPRZ
 
-#define DatalinkEvent() {			            \
+#define DatalinkEvent() {                       \
     PprzCheckAndParse(PPRZ_UART, pprz_tp);      \
     DlCheckAndParse();                          \
   }
 
 #elif defined DATALINK && DATALINK == XBEE
 
-#define DatalinkEvent() {			            \
+#define DatalinkEvent() {                       \
     XBeeCheckAndParse(XBEE_UART, xbee_tp);      \
     DlCheckAndParse();                          \
   }
@@ -85,6 +86,14 @@ EXTERN void dl_parse_msg(void);
     W5100CheckAndParse(W5100, w5100_tp);        \
     DlCheckAndParse();                          \
   }
+
+#elif defined DATALINK && DATALINK == WIFI
+
+#define DatalinkEvent() {                       \
+    WifiCheckAndParse();                        \
+    DlCheckAndParse();                          \
+  }
+
 
 #else
 
