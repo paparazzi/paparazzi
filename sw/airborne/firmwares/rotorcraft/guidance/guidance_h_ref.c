@@ -121,8 +121,8 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   VECT2_SUM(gh_accel_ref, speed, pos);
 
   /* Compute route reference before saturation */
-  // use metric precision or values are too large
-  INT32_ATAN2(route_ref, -pos_err.y, -pos_err.x);
+  float f_route_ref = atan2f(-pos_err.y, -pos_err.x);
+  route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
@@ -190,8 +190,8 @@ void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   INT32_VECT2_RSHIFT(gh_accel_ref, gh_accel_ref, GH_REF_INV_THAU_FRAC);
 
   /* Compute route reference before saturation */
-  // use metric precision or values are too large
-  INT32_ATAN2(route_ref, -speed_sp.y, -speed_sp.x);
+  float f_route_ref = atan2f(-speed_sp.y, -speed_sp.x);
+  route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);

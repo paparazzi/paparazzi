@@ -55,7 +55,7 @@
 #endif
 
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
-#warning "Using magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
+#warning "Using magnetometer _and_ GPS course to update heading. Probably better to <configure name="USE_MAGNETOMETER" value="0"/> if you want to use GPS course."
 #endif
 
 #ifndef AHRS_PROPAGATE_FREQUENCY

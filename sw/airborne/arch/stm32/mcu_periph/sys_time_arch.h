@@ -39,8 +39,6 @@
 #include <libopencm3/cm3/systick.h>
 #include "std.h"
 
-extern void sys_tick_handler(void);
-
 /**
  * Get the time in microseconds since startup.
  * WARNING: overflows after 70min!

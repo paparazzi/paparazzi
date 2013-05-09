@@ -23,8 +23,9 @@
  * @file stabilization_attitude_passthrough.c
  * @brief passthrough attitude stabilization
  *
- * This is usefull for instance when having an AC that has needs no stabilization because it is
- * allready been done by other stabilization software onboard or just does not need it at all.
+ * This is usefull for instance when having an AC that has needs no
+ * stabilization because it is allready been done by other stabilization
+ * software onboard or just does not need it at all.
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -47,17 +48,17 @@ int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
 void stabilization_attitude_init(void) {
-	INT_EULERS_ZERO(stabilization_att_sum_err);
-	INT_EULERS_ZERO(stab_att_sp_euler);
-	INT_EULERS_ZERO(stab_att_ref_euler);
-	INT_RATES_ZERO(stab_att_ref_rate);
-	INT_RATES_ZERO(stab_att_ref_accel);
+  INT_EULERS_ZERO(stabilization_att_sum_err);
+  INT_EULERS_ZERO(stab_att_sp_euler);
+  INT_EULERS_ZERO(stab_att_ref_euler);
+  INT_RATES_ZERO(stab_att_ref_rate);
+  INT_RATES_ZERO(stab_att_ref_accel);
 }
 
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
-	//Read from RC
-	stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  //Read from RC
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
 }
 
 
@@ -66,20 +67,20 @@ void stabilization_attitude_enter(void) {
 }
 
 void stabilization_attitude_run(bool_t  in_flight __attribute__ ((unused))) {
-	/* For roll an pitch we pass truough the desired angles as stabilization command */
-	EULERS_SMUL(stab_att_ref_euler, stab_att_sp_euler, MAX_PPRZ/TRAJ_MAX_BANK);
-	stabilization_cmd[COMMAND_ROLL] = stab_att_ref_euler.phi;
-	stabilization_cmd[COMMAND_PITCH] = stab_att_ref_euler.theta;
+  /* For roll an pitch we pass truough the desired angles as stabilization command */
+  EULERS_SMUL(stab_att_ref_euler, stab_att_sp_euler, MAX_PPRZ/TRAJ_MAX_BANK);
+  stabilization_cmd[COMMAND_ROLL] = stab_att_ref_euler.phi;
+  stabilization_cmd[COMMAND_PITCH] = stab_att_ref_euler.theta;
 
-	//TODO: Fix yaw with PID controller
-	int32_t yaw_error = stateGetNedToBodyEulers_i()->psi-stab_att_sp_euler.psi;
-	INT32_ANGLE_NORMALIZE(yaw_error);
-//	stabilization_cmd[COMMAND_YAW] = yaw_error * MAX_PPRZ / INT32_ANGLE_PI;
+  //TODO: Fix yaw with PID controller
+  int32_t yaw_error = stateGetNedToBodyEulers_i()->psi-stab_att_sp_euler.psi;
+  INT32_ANGLE_NORMALIZE(yaw_error);
+  //	stabilization_cmd[COMMAND_YAW] = yaw_error * MAX_PPRZ / INT32_ANGLE_PI;
 
-	/* bound the result */
-	BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-	BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-	BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
 void stabilization_attitude_ref_init(void) {

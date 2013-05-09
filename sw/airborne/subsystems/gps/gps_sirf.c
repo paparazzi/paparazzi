@@ -1,8 +1,4 @@
 /*
-<<<<<<< HEAD
- *
-=======
->>>>>>> gps_sirf
  * Copyright (C) 2012 Freek van Tienen
  *
  * This file is part of paparazzi.

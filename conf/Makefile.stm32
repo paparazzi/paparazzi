@@ -34,7 +34,7 @@ Q=@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded
 
 
 MCU   = cortex-m3

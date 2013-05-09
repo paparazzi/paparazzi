@@ -33,8 +33,8 @@
 #include "paparazzi.h"
 
 /** Adapt noise factor.
- *  Smaller values will make the filter to adapter faster
- *  Bigger values (slower adaptation) make the filter more robust to external perturbations
+ *  Smaller values will make the filter to adapter faster.
+ *  Bigger values (slower adaptation) make the filter more robust to external perturbations.
  *  Factor should always be >0
  */
 #ifndef GUIDANCE_V_ADAPT_NOISE_FACTOR
@@ -42,9 +42,9 @@
 #endif
 
 /** Initial estimation.
- *  The initial value can be adapted for faster converging time
- *  It is usually recommended to start with a higher value (overestimation of the mass),
- *  as it is helping for a smooth takeoff
+ *  The initial value can be adapted for faster converging time.
+ *  It is usually recommended to start with a low value (overestimation of the mass),
+ *  as it is helping for a smooth takeoff.
  */
 #ifndef GUIDANCE_V_ADAPT_X0
 #define GUIDANCE_V_ADAPT_X0 0.003

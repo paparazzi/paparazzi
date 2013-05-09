@@ -21,7 +21,7 @@ LINKFILE_RAM	= lpc2148-ram.ld
 #
 # try to find the paparazzi multilib toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-toolchain
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 TAR = tar
 

@@ -142,6 +142,7 @@ float v_ctl_pitch_setpoint;
 #warning "V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s"
 #endif
 #ifndef STALL_AIRSPEED
+#warning "No STALL_AIRSPEED defined. Using NOMINAL_AIRSPEED"
 #define STALL_AIRSPEED NOMINAL_AIRSPEED
 #endif
 #ifndef AIRSPEED_SETPOINT_SLEW
@@ -278,12 +279,7 @@ void v_ctl_altitude_loop( void )
 }
 
 
-/**
- * auto throttle inner loop
- * \brief
- */
-
-const float dt = CONTROL_FREQUENCY;
+const float dt = 1.0 / ((float)CONTROL_FREQUENCY);
 
 float lp_vdot[5];
 
@@ -299,14 +295,16 @@ static float low_pass_vdot(float v)
   return lp_vdot[0];
 }
 
+/**
+ * auto throttle inner loop
+ * \brief
+ */
 void v_ctl_climb_loop( void )
 {
-#ifdef AIRSPEED_SETPOINT_SLEW
   // airspeed_setpoint ratelimiter:
   float airspeed_incr = v_ctl_auto_airspeed_setpoint - v_ctl_auto_airspeed_setpoint_slew; // FIXME
   BoundAbs(airspeed_incr, AIRSPEED_SETPOINT_SLEW * NOMINAL_AIRSPEED);
   v_ctl_auto_airspeed_setpoint_slew += airspeed_incr;
-#endif
 
 #ifdef V_CTL_AUTO_GROUNDSPEED_SETPOINT
  // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
@@ -389,8 +387,8 @@ void v_ctl_climb_loop( void )
                 + v_ctl_energy_diff_pgain * en_dis_err
                 + v_ctl_auto_throttle_nominal_cruise_pitch;
 
-  nav_pitch = v_ctl_pitch_of_vz;
-  Bound(nav_pitch,H_CTL_PITCH_MIN_SETPOINT,H_CTL_PITCH_MAX_SETPOINT)
+  v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + nav_pitch;
+  Bound(v_ctl_pitch_setpoint,H_CTL_PITCH_MIN_SETPOINT,H_CTL_PITCH_MAX_SETPOINT)
 
   ac_char_update(controlled_throttle, v_ctl_pitch_of_vz, v_ctl_climb_setpoint, v_ctl_desired_acceleration);
 

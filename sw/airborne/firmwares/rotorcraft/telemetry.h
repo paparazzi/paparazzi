@@ -521,6 +521,7 @@
                    &(stateGetNedToBodyEulers_i()->psi));  \
   }
 #else
+#ifndef AHRS_FLOAT
 #define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {                    \
     struct Int32Eulers ltp_to_imu_euler;                                \
     INT32_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);  \
@@ -532,6 +533,21 @@
                                  &(stateGetNedToBodyEulers_i()->theta), \
                                  &(stateGetNedToBodyEulers_i()->psi));  \
 }
+#else
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {                    \
+    struct FloatEulers ltp_to_imu_euler;                                \
+    FLOAT_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);  \
+    struct Int32Eulers euler_i;                                         \
+    EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);                \
+    DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,                          \
+                                 &euler_i.phi,                          \
+                                 &euler_i.theta,                        \
+                                 &euler_i.psi,                          \
+                                 &(stateGetNedToBodyEulers_i()->phi),   \
+                                 &(stateGetNedToBodyEulers_i()->theta), \
+                                 &(stateGetNedToBodyEulers_i()->psi));  \
+  }
+#endif
 #endif
 
 #if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
@@ -822,6 +838,7 @@
 #define PERIODIC_SEND_ROTORCRAFT_CAM(_trans, _dev) {}
 #endif
 
+#ifndef AHRS_FLOAT
 #define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
     DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev,                   \
                                         &radio_control.values[RADIO_ROLL], \
@@ -838,6 +855,7 @@
                                         &(stateGetNedToBodyEulers_i()->theta),  \
                                         &(stateGetNedToBodyEulers_i()->psi));   \
   }
+#endif
 
 #ifdef USE_I2C0
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                             \

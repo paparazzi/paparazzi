@@ -59,10 +59,11 @@ let define_macro name n x =
 
 let define_integer name v n =
   let max_val = 1 lsl n in
+  let (v,s) = if v >= 0. then (v, 1) else (-.v, -1) in
   let print = fun name num den ->
     define (name^"_NUM") (string_of_int num);
     define (name^"_DEN") (string_of_int den) in
-  let rec continious_frac = fun a x num den ->
+  let rec continious_frac = fun a x num den s ->
     let x1 = 1. /. (x -. (float_of_int a)) in
     let a1 = truncate x1 in
     let (num1, num2) = num in
@@ -70,13 +71,13 @@ let define_integer name v n =
     let (den1, den2) = den in
     let den3 = a1 * den2 + den1 in
     if num3 > max_val || den3 > max_val then
-      print name num2 den2
+      print name num2 (s*den2)
     else if (float_of_int num3) /. (float_of_int den3) = v then
-      print name num3 den3
+      print name num3 (s*den3)
     else
-      continious_frac a1 x1 (num2, num3) (den2, den3)
+      continious_frac a1 x1 (num2, num3) (den2, den3) s
   in
-  continious_frac (truncate v) v (1, (truncate v)) (0, 1)
+  continious_frac (truncate v) v (1, (truncate v)) (0, 1) s
 
 let convert_value_with_code_unit_coef_of_xml = function xml ->
   (* if unit attribute is not specified don't even attempt to convert the units *)
@@ -266,7 +267,7 @@ let rec parse_section = fun s ->
     | "command_laws" ->
       print_actuators_idx ();
 
-      printf "#define SetActuatorsFromCommands(values) { \\\n";
+      printf "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
       printf "  int32_t servo_value;\\\n";
       printf "  int32_t command_value;\\\n\\\n";
 

@@ -40,9 +40,9 @@
 #include "ap_downlink.h"
 #endif
 
-/* vertical position and speed in meters */
-float estimator_z;
-float estimator_z_dot;
+/* vertical position and speed in meters (z-up)*/
+float ins_alt;
+float ins_alt_dot;
 
 #if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
@@ -53,7 +53,7 @@ float ins_baro_alt;
 
 void ins_init() {
 
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
 
   stateSetPositionUtm_f(&utm0);
@@ -96,8 +96,15 @@ void ins_update_baro() {
       ins_qfe = baro.absolute;
     }
     else { /* not realigning, so normal update with baro measurement */
-      ins_baro_alt = (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      /* altitude decreases with increasing baro.absolute pressure */
+      ins_baro_alt = ground_alt - (baro.absolute - ins_qfe) * INS_BARO_SENS;
+      /* run the filter */
       EstimatorSetAlt(ins_baro_alt);
+      /* set new altitude, just copy old horizontal position */
+      struct UtmCoor_f utm;
+      UTM_COPY(utm, *stateGetPositionUtm_f());
+      utm.alt = ins_alt;
+      stateSetPositionUtm_f(&utm);
     }
   }
 #endif
@@ -115,7 +122,7 @@ void ins_update_gps(void) {
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif
-  utm.alt = estimator_z;
+  utm.alt = ins_alt;
   // set position
   stateSetPositionUtm_f(&utm);
 
@@ -139,8 +146,10 @@ bool_t alt_kalman_enabled;
 #define ALT_KALMAN_ENABLED FALSE
 #endif
 
-#define GPS_SIGMA2 1.
+#ifndef GPS_DT
 #define GPS_DT 0.25
+#endif
+#define GPS_SIGMA2 1.
 #define GPS_R 2.
 
 #define BARO_DT 0.1
@@ -205,7 +214,7 @@ void alt_kalman(float z_meas) {
 
 
   /* predict */
-  estimator_z += estimator_z_dot * DT;
+  ins_alt += ins_alt_dot * DT;
   p[0][0] = p[0][0]+p[1][0]*DT+DT*(p[0][1]+p[1][1]*DT) + SIGMA2*q[0][0];
   p[0][1] = p[0][1]+p[1][1]*DT + SIGMA2*q[0][1];
   p[1][0] = p[1][0]+p[1][1]*DT + SIGMA2*q[1][0];
@@ -217,11 +226,11 @@ void alt_kalman(float z_meas) {
   if (fabs(e) > 1e-5) {
     float k_0 = p[0][0] / e;
     float k_1 =  p[1][0] / e;
-    e = z_meas - estimator_z;
+    e = z_meas - ins_alt;
 
     /* correction */
-    estimator_z += k_0 * e;
-    estimator_z_dot += k_1 * e;
+    ins_alt += k_0 * e;
+    ins_alt_dot += k_1 * e;
 
     p[1][0] = -p[0][0]*k_1+p[1][0];
     p[1][1] = -p[0][1]*k_1+p[1][1];
