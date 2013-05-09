@@ -1,7 +1,5 @@
 /*
- * Paparazzi persistent settings for ARDrone2
- *
- * Copyright (C) 2013 Dino Hensen <dino.hensen@gmail.com>
+ * Copyright (C) 2013 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -19,9 +17,12 @@
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
+/**
+ * @file arch/omap/subsystems/settings_arch.h
+ * @brief Paparazzi persistent settings for ARDrone2.
+ */
 
 #ifndef ARDRONE2_SUBSYSTEMS_SETTINGS_H
 #define ARDRONE2_SUBSYSTEMS_SETTINGS_H
