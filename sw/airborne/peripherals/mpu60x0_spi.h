@@ -37,12 +37,22 @@
 
 
 #define MPU60X0_BUFFER_LEN 32
+#define MPU60X0_BUFFER_EXT_LEN 16
+
+enum Mpu60x0SpiSlaveInitStatus {
+  MPU60X0_SPI_CONF_UNINIT,
+  MPU60X0_SPI_CONF_I2C_MST_CLK,
+  MPU60X0_SPI_CONF_I2C_MST_DELAY,
+  MPU60X0_SPI_CONF_I2C_MST_EN,
+  MPU60X0_SPI_CONF_SLAVES_CONFIGURE,
+  MPU60X0_SPI_CONF_DONE
+};
 
 struct Mpu60x0_Spi {
   struct spi_periph *spi_p;
   struct spi_transaction spi_trans;
-  volatile uint8_t tx_buf[MPU60X0_BUFFER_LEN]; // FIXME correct length
-  volatile uint8_t rx_buf[MPU60X0_BUFFER_LEN]; // FIXME idem
+  volatile uint8_t tx_buf[2];
+  volatile uint8_t rx_buf[MPU60X0_BUFFER_LEN];
   volatile bool_t data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system
@@ -52,7 +62,9 @@ struct Mpu60x0_Spi {
     struct Int16Rates rates;          ///< rates data as angular rates in gyro coordinate system
     int16_t value[3];                 ///< rates data values accessible by channel index
   } data_rates;
+  uint8_t data_ext[MPU60X0_BUFFER_EXT_LEN];
   struct Mpu60x0Config config;
+  enum Mpu60x0SpiSlaveInitStatus slave_init_status;
 };
 
 // Functions

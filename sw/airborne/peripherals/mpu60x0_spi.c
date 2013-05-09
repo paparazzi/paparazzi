@@ -42,7 +42,7 @@ void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t
 
   mpu->spi_trans.select = SPISelectUnselect;
   mpu->spi_trans.slave_idx = slave_idx;
-  mpu->spi_trans.output_length = MPU60X0_BUFFER_LEN; //FIXME
+  mpu->spi_trans.output_length = 2;
   mpu->spi_trans.input_length = MPU60X0_BUFFER_LEN;
   mpu->spi_trans.before_cb = NULL;
   mpu->spi_trans.after_cb = NULL;
@@ -58,6 +58,8 @@ void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t
   mpu->data_available = FALSE;
   mpu->config.initialized = FALSE;
   mpu->config.init_status = MPU60X0_CONF_UNINIT;
+
+  mpu->slave_init_status = MPU60X0_SPI_CONF_UNINIT;
 }
 
 
@@ -85,9 +87,9 @@ void mpu60x0_spi_read(struct Mpu60x0_Spi *mpu)
 {
   if (mpu->config.initialized && mpu->spi_trans.status == SPITransDone) {
     mpu->spi_trans.output_length = 1;
-    mpu->spi_trans.input_length = 16; // FIXME external data
+    mpu->spi_trans.input_length = 1 + mpu->config.nb_bytes;
     /* set read bit and multiple byte bit, then address */
-    mpu->tx_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
+    mpu->tx_buf[0] = MPU60X0_REG_INT_STATUS | MPU60X0_SPI_READ;
     spi_submit(mpu->spi_p, &(mpu->spi_trans));
   }
 }
@@ -102,14 +104,19 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
     }
     else if (mpu->spi_trans.status == SPITransSuccess) {
       // Successfull reading
-      if (bit_is_set(mpu->rx_buf[1],0)) {
+      if (bit_is_set(mpu->rx_buf[1], 0)) {
         // new data
-        mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf,2);
-        mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf,4);
-        mpu->data_accel.vect.z = Int16FromBuf(mpu->rx_buf,6);
-        mpu->data_rates.rates.p = Int16FromBuf(mpu->rx_buf,10);
-        mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf,12);
-        mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf,14);
+        mpu->data_accel.vect.x = Int16FromBuf(mpu->rx_buf, 2);
+        mpu->data_accel.vect.y = Int16FromBuf(mpu->rx_buf, 4);
+        mpu->data_accel.vect.z = Int16FromBuf(mpu->rx_buf, 6);
+        mpu->data_rates.rates.p = Int16FromBuf(mpu->rx_buf, 10);
+        mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf, 12);
+        mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
+
+        // if we are reading slaves, copy the ext_sens_data
+        if (mpu->config.nb_slaves > 0)
+          memcpy(mpu->data_ext, (void *) &(mpu->rx_buf[16]), mpu->config.nb_bytes - 15);
+
         mpu->data_available = TRUE;
       }
       mpu->spi_trans.status = SPITransDone;
@@ -121,12 +128,50 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
         mpu->config.init_status--; // Retry config (TODO max retry)
       case SPITransSuccess:
       case SPITransDone:
-        mpu->spi_trans.status = SPITransDone;
         mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void*)mpu, &(mpu->config));
-        if (mpu->config.initialized) mpu->spi_trans.status = SPITransDone;
+        if (mpu->config.initialized)
+          mpu->spi_trans.status = SPITransDone;
         break;
       default:
         break;
     }
   }
+}
+
+/** @todo: only one slave so far. */
+bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void* mpu)
+{
+  struct Mpu60x0_Spi* mpu_spi = (struct Mpu60x0_Spi*)(mpu);
+
+  if (mpu_spi->slave_init_status == MPU60X0_SPI_CONF_UNINIT)
+    mpu_spi->slave_init_status++;
+
+  switch (mpu_spi->slave_init_status) {
+    case MPU60X0_SPI_CONF_I2C_MST_CLK:
+      /* configure MPU I2C master clock and stop/start between slave reads */
+      mpu_set(mpu, MPU60X0_REG_I2C_MST_CTRL, ((1<<4) | mpu_spi->config.i2c_mst_clk));
+      mpu_spi->slave_init_status++;
+      break;
+    case MPU60X0_SPI_CONF_I2C_MST_DELAY:
+      /* Set I2C slaves delayed sample rate */
+      mpu_set(mpu, MPU60X0_REG_I2C_MST_DELAY, mpu_spi->config.i2c_mst_delay);
+      mpu_spi->slave_init_status++;
+      break;
+    case MPU60X0_SPI_CONF_I2C_MST_EN:
+      /* enable internal I2C master and disable primary I2C interface */
+      mpu_set(mpu, MPU60X0_REG_USER_CTRL, ((1 << MPU60X0_I2C_IF_DIS) |
+                                           (1 << MPU60X0_I2C_MST_EN)));
+      mpu_spi->slave_init_status++;
+      break;
+    case MPU60X0_SPI_CONF_SLAVES_CONFIGURE:
+      /* configure first slave, only one slave supported so far */
+      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu))
+        mpu_spi->slave_init_status++;
+      break;
+    case MPU60X0_SPI_CONF_DONE:
+      return TRUE;
+    default:
+      break;
+  }
+  return FALSE;
 }
