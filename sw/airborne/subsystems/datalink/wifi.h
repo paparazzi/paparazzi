@@ -47,21 +47,21 @@ void wifi_receive( void );
 #define WifiTransportPut1Byte(_dev, x) TransportLink(_dev, Transmit(x))
 #define WifiTransportSendMessage(_dev) TransportLink(_dev, SendMessage())
 
-#define WifiTransportPutUint8(_dev, _byte) {   \
+#define WifiTransportPutUint8(_dev, _byte) {    \
     ck_a += _byte;                              \
     ck_b += ck_a;                               \
-    WifiTransportPut1Byte(_dev, _byte);        \
+    WifiTransportPut1Byte(_dev, _byte);         \
   }
 
-#define WifiTransportPut1ByteByAddr(_dev, _byte) { \
+#define WifiTransportPut1ByteByAddr(_dev, _byte) {  \
     uint8_t _x = *(_byte);                          \
-    WifiTransportPutUint8(_dev, _x);               \
+    WifiTransportPutUint8(_dev, _x);                \
   }
 
-#define WifiTransportPut2Bytes(_dev, _x) {     \
+#define WifiTransportPut2Bytes(_dev, _x) {      \
     uint16_t x16 = _x;                          \
-    WifiTransportPut1Byte(_dev, x16>>8);       \
-    WifiTransportPut1Byte(_dev, x16 & 0xff);   \
+    WifiTransportPut1Byte(_dev, x16>>8);        \
+    WifiTransportPut1Byte(_dev, x16 & 0xff);    \
   }
 
 #define WifiTransportPut2ByteByAddr(_dev, _byte) {                 \
@@ -97,12 +97,12 @@ void wifi_receive( void );
 #define WifiTransportPutNamedUint8(_dev, _name, _byte) WifiTransportPutUint8(_dev, _byte)
 
 #define WifiTransportPutArray(_dev, _put, _n, _x) { \
-uint8_t _i; \
-WifiTransportPutUint8(_dev, _n); \
-for(_i = 0; _i < _n; _i++) { \
-_put(_dev, &_x[_i]); \
-} \
-}
+    uint8_t _i; \
+    WifiTransportPutUint8(_dev, _n); \
+    for(_i = 0; _i < _n; _i++) { \
+      _put(_dev, &_x[_i]); \
+    } \
+  }
 
 #define WifiTransportPutInt16Array(_dev, _n, _x) WifiTransportPutArray(_dev, WifiTransportPutInt16ByAddr, _n, _x)
 
@@ -112,22 +112,21 @@ _put(_dev, &_x[_i]); \
 #define WifiTransportPutDoubleArray(_dev, _n, _x) WifiTransportPutArray(_dev, WifiTransportPutDoubleByAddr, _n, _x)
 
 
-#define WifiTransportHeader(_dev, payload_len) {				\
-	WifiTransportPut1Byte(_dev, STX);							\
-	uint8_t msg_len = WifiTransportSizeOf(_dev, payload_len);	\
-	WifiTransportPut1Byte(_dev, msg_len);						\
-	ck_a = msg_len; ck_b = msg_len;								\
-}
+#define WifiTransportHeader(_dev, payload_len) { \
+    WifiTransportPut1Byte(_dev, STX); \
+    uint8_t msg_len = WifiTransportSizeOf(_dev, payload_len); \
+    WifiTransportPut1Byte(_dev, msg_len); \
+    ck_a = msg_len; ck_b = msg_len; \
+  }
 
 #define WifiTransportTrailer(_dev) { \
-	WifiTransportPut1Byte(_dev, ck_a); \
-	WifiTransportPut1Byte(_dev, ck_b); \
-	WifiTransportSendMessage(_dev); \
-}
+    WifiTransportPut1Byte(_dev, ck_a); \
+    WifiTransportPut1Byte(_dev, ck_b); \
+    WifiTransportSendMessage(_dev); \
+  }
 
 #define WifiCheckAndParse() {       \
-		wifi_receive(); \
+    wifi_receive(); \
   }
 
 #endif /* WIFI_TELEM_H */
-

@@ -20,4 +20,3 @@ extern int network_write(struct FmsNetwork* me, char* buf, int len);
 extern int network_read(struct FmsNetwork* me, unsigned char* buf, int len);
 
 #endif /* FMS_NETWORK_H */
-

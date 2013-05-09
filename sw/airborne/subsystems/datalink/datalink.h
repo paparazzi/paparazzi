@@ -60,22 +60,22 @@ EXTERN void dl_parse_msg(void);
 
 /** Check for new message and parse */
 #define DlCheckAndParse() {   \
-  if (dl_msg_available) {			\
-    dl_parse_msg();				    \
-    dl_msg_available = FALSE;	\
-  }						                \
+  if (dl_msg_available) {      \
+    dl_parse_msg();            \
+    dl_msg_available = FALSE;  \
+  }                            \
 }
 
 #if defined DATALINK && DATALINK == PPRZ
 
-#define DatalinkEvent() {			            \
+#define DatalinkEvent() {                       \
     PprzCheckAndParse(PPRZ_UART, pprz_tp);      \
     DlCheckAndParse();                          \
   }
 
 #elif defined DATALINK && DATALINK == XBEE
 
-#define DatalinkEvent() {			            \
+#define DatalinkEvent() {                       \
     XBeeCheckAndParse(XBEE_UART, xbee_tp);      \
     DlCheckAndParse();                          \
   }
@@ -90,7 +90,7 @@ EXTERN void dl_parse_msg(void);
 #elif defined DATALINK && DATALINK == WIFI
 
 #define DatalinkEvent() {                       \
-    WifiCheckAndParse();        \
+    WifiCheckAndParse();                        \
     DlCheckAndParse();                          \
   }
 
