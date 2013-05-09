@@ -156,7 +156,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <define name="GLIDE_AIRSPEED" value="12." unit="m/s"/>
     <define name="RACE_AIRSPEED" value="25." unit="m/s"/>
     <define name="STALL_AIRSPEED" value="8." unit="m/s"/>
-    <define name="AIRSPEED_SETPOINT_SLEW" value="1" unit="s"/> <!--default is 1-->
+    <define name="AIRSPEED_SETPOINT_SLEW" value="0.2" unit="m/s/s"/> <!--default is 1-->
 
     <define name="CARROT" value="4." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
@@ -183,6 +183,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <define name="ALTITUDE_MAX_CLIMB" value="5."/> <!--default 2-->
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.3"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_PITCH" value="0."/> <!-- default 0 -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15"/>
 
