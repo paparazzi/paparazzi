@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Aspirin IMU v2.1
+# Drotek 10DOF V2 IMU via I2C
 #
 #
 # required xml:
@@ -39,37 +39,40 @@
 
 # for fixedwing firmware and ap only
 ifeq ($(TARGET), ap)
-  IMU_ASPIRIN_2_CFLAGS  = -DUSE_IMU
+  IMU_DROTEK_2_CFLAGS  = -DUSE_IMU
 endif
 
-IMU_ASPIRIN_2_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin_2_spi.h\"
-IMU_ASPIRIN_2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_ASPIRIN_2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin_2_spi.c
-IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0.c
-IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0_spi.c
+IMU_DROTEK_2_CFLAGS += -DIMU_TYPE_H=\"imu/imu_drotek_10dof_v2.h\"
+IMU_DROTEK_2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
+IMU_DROTEK_2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_drotek_10dof_v2.c
+IMU_DROTEK_2_SRCS   += peripherals/mpu60x0.c
+IMU_DROTEK_2_SRCS   += peripherals/mpu60x0_i2c.c
 
 # Magnetometer
-#IMU_ASPIRIN_2_SRCS   += peripherals/hmc58xx.c
+IMU_DROTEK_2_SRCS   += peripherals/hmc58xx.c
 
-include $(CFG_SHARED)/spi_master.makefile
 
+# set default i2c bus
+ifndef DROTEK_2_I2C_DEV
 ifeq ($(ARCH), lpc21)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE0
-IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_SLAVE_IDX=SPI_SLAVE0
-IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_DEV=spi1
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI1
+DROTEK_2_I2C_DEV=i2c0
 else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI2
-# Slave select configuration
-# SLAVE2 is on PB12 (NSS) (MPU600 CS)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE2
+DROTEK_2_I2C_DEV=i2c2
 endif
+endif
+
+# convert i2cx to upper case
+DROTEK_2_I2C_DEV_UPPER=$(shell echo $(DROTEK_2_I2C_DEV) | tr a-z A-Z)
+
+IMU_DROTEK_2_CFLAGS += -DDROTEK_2_I2C_DEV=$(DROTEK_2_I2C_DEV)
+IMU_DROTEK_2_CFLAGS += -DUSE_$(DROTEK_2_I2C_DEV_UPPER)
+
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
 # see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 
-ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_2_SRCS)
+ap.CFLAGS += $(IMU_DROTEK_2_CFLAGS)
+ap.srcs   += $(IMU_DROTEK_2_SRCS)
 
 
 #

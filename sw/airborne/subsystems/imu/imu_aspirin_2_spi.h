@@ -20,24 +20,19 @@
  */
 
 /**
- * @file subsystems/imu/imu_aspirin_2.h
+ * @file subsystems/imu/imu_aspirin_2_spi.h
  * Driver for the Aspirin v2.x IMU using SPI for the MPU6000.
  */
 
-#ifndef IMU_ASPIRIN_2_H
-#define IMU_ASPIRIN_2_H
+#ifndef IMU_ASPIRIN_2_SPI_H
+#define IMU_ASPIRIN_2_SPI_H
 
 #include "std.h"
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
+#include "subsystems/imu/imu_mpu60x0_defaults.h"
 #include "peripherals/mpu60x0_spi.h"
-
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN 1
-#define IMU_MAG_Z_SIGN 1
-#endif
 
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
 #define IMU_GYRO_P_SIGN   1
@@ -49,60 +44,25 @@
 #define IMU_ACCEL_Y_SIGN  1
 #define IMU_ACCEL_Z_SIGN  1
 #endif
-
-/** default gyro sensitivy and neutral from the datasheet
- * MPU60X0 has 16.4 LSB/(deg/s) at 2000deg/s range
- * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
- * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
- */
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS 4.359
-#define IMU_GYRO_P_SENS_NUM 4359
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.359
-#define IMU_GYRO_Q_SENS_NUM 4359
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.359
-#define IMU_GYRO_R_SENS_NUM 4359
-#define IMU_GYRO_R_SENS_DEN 1000
-#endif
-#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
+#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
+#define IMU_MAG_X_SIGN 1
+#define IMU_MAG_Y_SIGN 1
+#define IMU_MAG_Z_SIGN 1
 #endif
 
-/** default accel sensitivy from the datasheet
- * MPU60X0 has 2048 LSB/g
- * fixed point sens: 9.81 [m/s^2] / 2048 [LSB/g] * 2^INT32_ACCEL_FRAC
- * sens = 9.81 / 2048 * 1024 = 4.905
- */
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 4.905
-#define IMU_ACCEL_X_SENS_NUM 4905
-#define IMU_ACCEL_X_SENS_DEN 1000
-#define IMU_ACCEL_Y_SENS 4.905
-#define IMU_ACCEL_Y_SENS_NUM 4905
-#define IMU_ACCEL_Y_SENS_DEN 1000
-#define IMU_ACCEL_Z_SENS 4.905
-#define IMU_ACCEL_Z_SENS_NUM 4905
-#define IMU_ACCEL_Z_SENS_DEN 1000
-#endif
-#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
-#endif
-
-
-struct ImuAspirin2 {
+struct ImuAspirin2Spi {
   volatile bool_t gyro_valid;
   volatile bool_t accel_valid;
   volatile bool_t mag_valid;
   struct Mpu60x0_Spi mpu;
+
+  struct spi_transaction wait_slave4_trans;
+  volatile uint8_t wait_slave4_tx_buf[1];
+  volatile uint8_t wait_slave4_rx_buf[2];
+  volatile bool_t slave4_ready;
 };
 
-extern struct ImuAspirin2 imu_aspirin2;
+extern struct ImuAspirin2Spi imu_aspirin2;
 
 extern void imu_aspirin2_event(void);
 
