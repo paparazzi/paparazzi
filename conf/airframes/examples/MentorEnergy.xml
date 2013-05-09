@@ -192,6 +192,8 @@
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
+    <define name="AIRSPEED_PGAIN" value="0."/>
+
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.36700001359"/>
@@ -199,7 +201,14 @@
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.518000006676" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.307000011206"/>
 
-    <define name="THROTTLE_SLEW_LIMITER" value="1" unit="s"/>
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.0"/>
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_IGAIN" value="0.0"/>
+
+    <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
+
+    <define name="THROTTLE_SLEW_LIMITER" value="1" unit="m/s/s"/>
 
     <!--define name="AUTO_GROUNDSPEED_SETPOINT" value="15." unit="m/s"/>
     <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
