@@ -217,7 +217,6 @@ else ifeq ($(ARCH), omap)
 ifeq ($(BOARD), ardrone)
 ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 ifeq ($(BOARD_TYPE), raw)
-ap.srcs   += $(SRC_BOARD)/vbat.c
 ap.srcs   += $(SRC_BOARD)/navdata.c
 ap.srcs   += $(SRC_BOARD)/gpio.c
 ap.srcs   += $(SRC_BOARD)/motorboard.c
