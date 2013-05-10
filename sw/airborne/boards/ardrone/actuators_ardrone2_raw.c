@@ -20,28 +20,28 @@
  */
 
 /**
- * @file arch/omap/subsystems/actuators/actuators_ardrone2_raw.h
+ * @file boards/ardrone/actuators_ardrone2_raw.c
  * Actuator driver for ardrone2-raw version
  */
 
-#ifndef ACTUATORS_ARDRONE2_RAW_H_
-#define ACTUATORS_ARDRONE2_RAW_H_
+#include "subsystems/actuators.h"
+#include "actuators_ardrone2_raw.h"
 
+#include <stdio.h>   /* Standard input/output definitions */
+#include <string.h>  /* String function definitions */
+#include <unistd.h>  /* UNIX standard function definitions */
+#include <fcntl.h>   /* File control definitions */
+#include <errno.h>   /* Error number definitions */
+#include <termios.h> /* POSIX terminal control definitions */
 #include <stdint.h>
 
-#ifndef ACTUATORS_ARDRONE_NB
-#define ACTUATORS_ARDRONE_NB 4
-#endif
+#include "motorboard.h"
+#include "gpio.h"
 
-#define SERVOS_TICS_OF_USEC(_v) (_v)
+void actuators_ardrone_init(void) {
+  motorboard_Init();
+}
 
-#define ActuatorArdroneSet(_i, _v) { actuators_pwm_values[_i] = _v; }
-#define ActuatorsArdroneCommit() actuators_ardrone_commit();
-#define ActuatorsArdroneInit() actuators_ardrone_init();
-
-uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
-
-extern void actuators_ardrone_commit(void);
-extern void actuators_ardrone_init(void);
-
-#endif /* ACTUATORS_ARDRONE2_RAW_H_ */
+void actuators_ardrone_commit(void) {
+  motorboard_SetPWM(actuators_pwm_values[0], actuators_pwm_values[1], actuators_pwm_values[2], actuators_pwm_values[3]);
+}

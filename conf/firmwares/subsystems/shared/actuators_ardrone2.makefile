@@ -7,5 +7,5 @@ ifeq ($(BOARD_TYPE), sdk)
   $(TARGET).srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_at.c
 else ifeq ($(BOARD_TYPE), raw)
   $(TARGET).CFLAGS += -DACTUATORS
-  $(TARGET).srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_ardrone2_raw.c
+  $(TARGET).srcs   += $(SRC_BOARD)/actuators_ardrone2_raw.c
 endif
