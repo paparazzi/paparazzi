@@ -20,7 +20,7 @@
  */
 
 /**
- * @file arch/omap/subsystems/actuators/actuators_at.c
+ * @file boards/ardrone/actuators_at.c
  * ardrone2-sdk actuators are driven by external software controller by AT-commands
  */
 

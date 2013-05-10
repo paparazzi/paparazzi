@@ -78,7 +78,7 @@
 #include "generated/modules.h"
 
 #if USE_ACTUATORS_AT
-#include "subsystems/actuators/actuators_at.h"
+#include "boards/ardrone/actuators_at.h"
 #endif
 
 #if ARDRONE2
