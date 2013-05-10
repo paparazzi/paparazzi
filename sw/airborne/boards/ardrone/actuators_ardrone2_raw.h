@@ -1,4 +1,8 @@
 /*
+ * Original Code from:
+ * Copyright (C) 2011 Hugo Perquin - http://blog.perquin.com
+ *
+ * Adapated for Paparazzi by:
  * Copyright (C) 2012 Dino Hensen <dino.hensen@gmail.com>
  *
  * This file is part of paparazzi.
@@ -39,9 +43,19 @@
 #define ActuatorsArdroneCommit() actuators_ardrone_commit();
 #define ActuatorsArdroneInit() actuators_ardrone_init();
 
+#define MOT_LEDOFF 0
+#define MOT_LEDRED 1
+#define MOT_LEDGREEN 2
+#define MOT_LEDORANGE 3
+
 uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 extern void actuators_ardrone_commit(void);
 extern void actuators_ardrone_init(void);
+
+int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen);
+void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint16_t pwm3);
+void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_t led3);
+void actuators_ardrone_close(void);
 
 #endif /* ACTUATORS_ARDRONE2_RAW_H_ */
