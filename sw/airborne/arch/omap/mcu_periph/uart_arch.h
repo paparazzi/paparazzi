@@ -19,9 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file arc/mcu_periph/uart_arch.h
- * UART handling for OMAP
+/** @file arch/omap/mcu_periph/uart_arch.h
+ * omap uart handling
  */
 
 #ifndef UART_ARCH_H

@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2012 Dino Hensen <dino.hensen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -21,15 +20,28 @@
  */
 
 /**
- * @file arch/omap/subsystems/settings_arch.h
- * OMAP arch Persistent settings.
- *
- * Unimplemented.
+ * @file arch/omap/subsystems/actuators/actuators_ardrone2_raw.h
+ * Actuator driver for ardrone2-raw version
  */
 
-#ifndef ARDRONE2_SUBSYSTEMS_SETTINGS_H
-#define ARDRONE2_SUBSYSTEMS_SETTINGS_H
+#ifndef ACTUATORS_ARDRONE2_RAW_H_
+#define ACTUATORS_ARDRONE2_RAW_H_
 
+#include <stdint.h>
 
+#ifndef ACTUATORS_ARDRONE_NB
+#define ACTUATORS_ARDRONE_NB 4
+#endif
 
-#endif /* ARDRONE2_SUBSYSTEMS_SETTINGS_H */
+#define SERVOS_TICS_OF_USEC(_v) (_v)
+
+#define ActuatorArdroneSet(_i, _v) { actuators_pwm_values[_i] = _v; }
+#define ActuatorsArdroneCommit() actuators_ardrone_commit();
+#define ActuatorsArdroneInit() actuators_ardrone_init();
+
+uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
+
+extern void actuators_ardrone_commit(void);
+extern void actuators_ardrone_init(void);
+
+#endif /* ACTUATORS_ARDRONE2_RAW_H_ */

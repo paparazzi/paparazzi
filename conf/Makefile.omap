@@ -24,7 +24,7 @@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-none-linux-gnueabi
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
 
 # Define programs and commands.
 
