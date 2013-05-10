@@ -20,7 +20,7 @@
 
 		<subsystem name="motor_mixing"/>
 
-		<subsystem name="actuators" type="pwm"/>
+		<subsystem name="actuators" type="ardrone2"/>
 		<subsystem name="imu" type="ardrone2"/>
 		<subsystem name="gps" type="ublox"/>
 		<subsystem name="stabilization" type="int_quat"/>
@@ -40,7 +40,7 @@
 		<axis name="THRUST" failsafe_value="0"/>
 	</commands>
 
-	<servos driver="Pwm">
+	<servos driver="Default">
 		<servo name="TOP_LEFT" no="0" min="0" neutral="1" max="500"/>
 		<servo name="TOP_RIGHT" no="1" min="0" neutral="1" max="500"/>
 		<servo name="BOTTOM_LEFT" no="3" min="0" neutral="1" max="500"/>
