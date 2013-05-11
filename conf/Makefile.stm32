@@ -160,12 +160,12 @@ endif
 endif
 
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc
 ifneq ($(ARCH_L), )
 LDLIBS  += -lopencm3_stm32$(ARCH_L)
 else
 LDLIBS  += -lopencm3_stm32f1
 endif
+LDLIBS  += -lc -lm -lgcc
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary

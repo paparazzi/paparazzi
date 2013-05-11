@@ -2,7 +2,7 @@
 #
 # krooz_1.0.makefile
 #
-#
+# 
 #
 
 BOARD=krooz
@@ -11,18 +11,22 @@ BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ARCH=stm32
 ARCH_L=f4
+HARD_FLOAT=1
 ARCH_DIR=stm32
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
+# not needed?
+$(TARGET).OOCD_INTERFACE=flossjtag
+#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/krooz.ld
-
-HARD_FLOAT=yes
 
 # -----------------------------------------------------------------------
 
-# default flash mode is via usb dfu bootloader
-FLASH_MODE ?= DFU
-
+ifndef FLASH_MODE
+FLASH_MODE = DFU
+#FLASH_MODE = JTAG
+#FLASH_MODE = SERIAL
+endif
 
 ifndef NO_LUFTBOOT
 $(TARGET).LDFLAGS+=-Wl,-Ttext=0x8004000
@@ -38,30 +42,48 @@ endif
 #
 # default LED configuration
 #
-RADIO_CONTROL_LED ?= none
-BARO_LED          ?= none
-AHRS_ALIGNER_LED  ?= 2
-GPS_LED           ?= none
-SYS_TIME_LED      ?= 1
+ifndef RADIO_CONTROL_LED
+RADIO_CONTROL_LED = none
+endif
+
+ifndef BARO_LED
+BARO_LED = none
+endif
+
+ifndef AHRS_ALIGNER_LED
+AHRS_ALIGNER_LED = 2
+endif
+
+ifndef GPS_LED
+GPS_LED = none
+endif
+
+ifndef SYS_TIME_LED
+SYS_TIME_LED = 1
+endif
 
 #
 # default uart configuration
 #
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART1
-RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT ?= UART2
+ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART1
+endif
 
-MODEM_PORT ?= UART5
-MODEM_BAUD ?= B57600
+ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
+RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART2
+endif
 
-GPS_PORT ?= UART3
-GPS_BAUD ?= B38400
+ifndef MODEM_PORT
+MODEM_PORT=UART5
+endif
 
-#
-# default actuator configuration
-#
-# you can use different actuators by adding a configure option to your firmware section
-# e.g. <configure name="ACTUATORS" value="actuators_ppm/>
-# and by setting the correct "driver" attribute in servo section
-# e.g. <servo driver="Ppm">
-#
-ACTUATORS ?= actuators_pwm
+ifndef MODEM_BAUD
+MODEM_BAUD=B57600
+endif
+
+ifndef GPS_PORT
+GPS_PORT=UART3
+endif
+ifndef GPS_BAUD
+GPS_BAUD=B38400
+endif
