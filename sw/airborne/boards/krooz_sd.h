@@ -78,40 +78,41 @@
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
-//#define DefaultVoltageOfAdc(adc) (0.006185*adc)
 #define DefaultVoltageOfAdc(adc) (0.008874*adc)
 
+/* UART */
+#define UART1_GPIO_AF GPIO_AF7
+#define UART1_GPIO_PORT_RX GPIOA
+#define UART1_GPIO_RX GPIO10
+#define UART1_GPIO_PORT_TX GPIOA
+#define UART1_GPIO_TX GPIO9
 
+#define UART3_GPIO_AF GPIO_AF7
+#define UART3_GPIO_PORT_RX GPIOC
+#define UART3_GPIO_RX GPIO11
+#define UART3_GPIO_PORT_TX GPIOC
+#define UART3_GPIO_TX GPIO10
+
+#define UART5_GPIO_AF GPIO_AF8
+#define UART5_GPIO_PORT_RX GPIOD
+#define UART5_GPIO_RX GPIO2
+#define UART5_GPIO_PORT_TX GPIOC
+#define UART5_GPIO_TX GPIO12
 
 /* Onboard ADCs */
-#define USE_AD_TIM4 1
-/*
-   ADC1 PC3/ADC13
-   ADC2 PC0/ADC10
-   ADC3 PC1/ADC11
-   ADC4 PC5/ADC15
-   ADC6 PC2/ADC12
-   BATT PC4/ADC14
-*/
+#define USE_AD_TIM1 1
+
 #define BOARD_ADC_CHANNEL_1 12
 #define BOARD_ADC_CHANNEL_2 10
 #define BOARD_ADC_CHANNEL_3 11
-#define BOARD_ADC_CHANNEL_4 13 //15
+#define BOARD_ADC_CHANNEL_4 13
 #define BOARD_ADC_CHANNEL_5 14
-// we can only use ADC1,2,3; the last channel is for bat monitoring
-#define BOARD_ADC_CHANNEL_6 15 //13
+#define BOARD_ADC_CHANNEL_6 15
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above
  * 4th (index 3) is used for bat monitoring by default
  */
-#define ADC_1 0
-#define ADC_2 1
-#define ADC_3 2
-#define ADC_4 3
-#define ADC_5 4
-#define ADC_6 5
-
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_4
@@ -129,8 +130,8 @@
 #define ADC_1 ADC1_C1
 #ifdef USE_ADC_1
 #ifndef ADC_1_GPIO_CLOCK_PORT
-#define ADC_1_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPBEN
-#define ADC_1_INIT() gpio_mode_setup(GPIOB, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0)
+#define ADC_1_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
+#define ADC_1_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO2)
 #endif
 #define USE_AD1_1 1
 #else
@@ -141,8 +142,8 @@
 #define ADC_2 ADC1_C2
 #ifdef USE_ADC_2
 #ifndef ADC_2_GPIO_CLOCK_PORT
-#define ADC_2_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPBEN
-#define ADC_2_INIT() gpio_mode_setup(GPIOB, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1)
+#define ADC_2_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
+#define ADC_2_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0)
 #endif
 #define USE_AD1_2 1
 #else
@@ -154,7 +155,7 @@
 #ifdef USE_ADC_3
 #ifndef ADC_3_GPIO_CLOCK_PORT
 #define ADC_3_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
-#define ADC_3_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4)
+#define ADC_3_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1)
 #endif
 #define USE_AD1_3 1
 #else
@@ -165,14 +166,16 @@
 #define ADC_4 ADC1_C4
 //#ifdef USE_ADC_4
 #ifndef ADC_4_GPIO_CLOCK_PORT
-#define ADC_4_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPAEN
-#define ADC_4_INIT() gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4)
+#define ADC_4_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
+#define ADC_4_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO3)
 #endif
 #define USE_AD1_4 1
 //#else
 //#define ADC_4_GPIO_CLOCK_PORT 0
 //#define ADC_4_INIT() {}
 //#endif
+
+#define ADC_GPIO_CLOCK_PORT (ADC_1_GPIO_CLOCK_PORT | ADC_2_GPIO_CLOCK_PORT | ADC_3_GPIO_CLOCK_PORT | ADC_4_GPIO_CLOCK_PORT)
 
 #ifdef USE_AD1
 #define ADC1_GPIO_INIT(gpio) { \
@@ -183,15 +186,17 @@
   }
 #endif // USE_AD1
 
-#define BOARD_HAS_BARO 1
-
 
 /* I2C mapping */
 #define GPIO_I2C1_SCL GPIO8
-#define GPIO_I2C1_SDA GPIO7
+#define GPIO_I2C1_SDA GPIO9
 #define GPIO_I2C2_SCL GPIO10
 #define GPIO_I2C2_SDA GPIO11
+#define GPIO_I2C3_SCL GPIO8 //PA8
+#define GPIO_I2C3_SDA GPIO9 //PC9
 
+/* Activate onboard baro */
+#define BOARD_HAS_BARO 1
 
 /* PWM */
 #define PWM_USE_TIM2 1
@@ -209,7 +214,9 @@
 #define USE_PWM7 1
 #define USE_PWM8 1
 #define USE_PWM9 1
-#define USE_PWM10 1
+//#define USE_PWM10 1
+
+#define ACTUATORS_PWM_NB 10
 
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0
@@ -360,20 +367,19 @@
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_4_OC_BIT|PWM_SERVO_5_OC_BIT)
 #define PWM_TIM5_CHAN_MASK (PWM_SERVO_6_OC_BIT|PWM_SERVO_7_OC_BIT|PWM_SERVO_8_OC_BIT|PWM_SERVO_9_OC_BIT)
 
-
 /* PPM */
 
-#define USE_PPM_TIM1 1
+#define USE_PPM_TIM2 1
 
-#define PPM_CHANNEL         TIM_IC1
+#define PPM_CHANNEL         TIM_IC2
 #define PPM_TIMER_INPUT     TIM_IC_IN_TI1
-#define PPM_IRQ             NVIC_TIM1_CC_IRQ
-#define PPM_IRQ2            NVIC_TIM1_UP_TIM10_IRQ
-#define PPM_IRQ_FLAGS       TIM_DIER_CC1IE
-#define PPM_IRQ_CCIF        TIM_SR_CC1IF
-#define PPM_GPIO_PERIPHERAL RCC_AHB1ENR_IOPAEN
-#define PPM_GPIO_PORT       GPIOA
-#define PPM_GPIO_PIN        GPIO8
+#define PPM_IRQ             NVIC_TIM2_IRQ
+//#define PPM_IRQ2            NVIC_TIM2_UP_TIM10_IRQ
+#define PPM_IRQ_FLAGS       TIM_DIER_CC2IE
+#define PPM_IRQ_CCIF        TIM_SR_CC2IF
+#define PPM_GPIO_PERIPHERAL RCC_AHB1ENR_IOPBEN
+#define PPM_GPIO_PORT       GPIOB
+#define PPM_GPIO_PIN        GPIO3
 #define PPM_GPIO_AF         GPIO_AF1
 
 /*
