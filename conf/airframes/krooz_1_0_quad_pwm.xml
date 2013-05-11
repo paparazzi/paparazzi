@@ -203,7 +203,7 @@
     <define name="USE_REF" value="1"/>
     <!--<define name="USE_SPEED_REF" value="1"/>-->
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="MAX_SPEED" value="SPEED_BFP_OF_REAL(5.)" unit="deg"/>
+    <define name="MAX_SPEED" value="SPEED_BFP_OF_REAL(5.)"/>
     <define name="RC_SPEED_DEAD_BAND" value="160000"/>
     <define name="PGAIN" value="80"/>
     <define name="DGAIN" value="80"/>

@@ -34,7 +34,12 @@
 		<load name="geo_mag.xml"/>-->
 	</modules>
 	
-  <servos driver="Pwm">
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+  
+  <servos driver="Mkk">
     <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
     <servo name="RIGHT"   no="2" min="1000" neutral="1000" max="2000"/>
@@ -47,11 +52,6 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-  
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-  </section>
   
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>

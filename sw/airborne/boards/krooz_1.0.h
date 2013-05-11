@@ -189,9 +189,11 @@
 
 /* I2C mapping */
 #define GPIO_I2C1_SCL GPIO8
-#define GPIO_I2C1_SDA GPIO7
+#define GPIO_I2C1_SDA GPIO9
 #define GPIO_I2C2_SCL GPIO10
 #define GPIO_I2C2_SDA GPIO11
+#define GPIO_I2C3_SCL GPIO8 //PA8
+#define GPIO_I2C3_SDA GPIO9 //PC9
 
 /* Activate onboard baro */
 #define BOARD_HAS_BARO 1
@@ -213,6 +215,8 @@
 #define USE_PWM8 1
 #define USE_PWM9 1
 #define USE_PWM10 1
+
+#define ACTUATORS_PWM_NB 10
 
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0

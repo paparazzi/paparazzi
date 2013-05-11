@@ -184,6 +184,11 @@ ap.CFLAGS += -DUSE_SPI1
 ap.srcs += peripherals/mcp355x.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
 
+# krooz baro
+else ifeq ($(BOARD), krooz)
+ap.CFLAGS += -DUSE_I2C2
+ap.srcs += $(SRC_BOARD)/baro_board.c
+
 # apogee baro
 else ifeq ($(BOARD), apogee)
 ap.CFLAGS += -DUSE_I2C1
