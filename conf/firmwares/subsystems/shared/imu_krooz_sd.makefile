@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Krooz IMU v1.1
+# Krooz IMU v1.0
 #
 #
 # required xml:
