@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
+#from __future__ import print_function
 
 from time import sleep
 import struct
@@ -29,6 +29,7 @@ from optparse import OptionParser
 
 import usb
 import dfu
+import time
 
 APP_ADDRESS = 0x08002000
 SECTOR_SIZE = 2048
@@ -101,12 +102,13 @@ if __name__ == "__main__":
     if options.verbose:
         print_copyright()
 
-    devs = dfu.finddevs()
-    if not devs:
-        print("No DFU devices found!")
-        exit(1)
-    elif options.verbose:
-        print("Found %i DFU devices." % len(devs))
+    for i in range(1,60):
+      devs = dfu.finddevs()
+      if not devs:
+        print ".",
+        stdout.flush()
+        time.sleep(0.5)
+    print
 
     valid_manufacturers = []
     valid_manufacturers.append("Transition Robotics Inc.")
@@ -186,8 +188,12 @@ if __name__ == "__main__":
 
     #addr = APP_ADDRESS
     addr = options.addr
+    if options.verbose:
+      print ("Programming memory from 0x%08X...\r" % addr)
+    
     while bin:
-        print("Programming memory at 0x%08X\r" % addr)
+#        print("Programming memory at 0x%08X\r" % addr),
+        print "#",
         stdout.flush()
         stm32_erase(target, addr)
         stm32_write(target, bin[:SECTOR_SIZE])

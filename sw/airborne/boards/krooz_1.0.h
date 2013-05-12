@@ -100,7 +100,7 @@
 #define UART5_GPIO_TX GPIO12
 
 /* Onboard ADCs */
-#define USE_AD_TIM4 1
+#define USE_AD_TIM1 1
 
 #define BOARD_ADC_CHANNEL_1 12
 #define BOARD_ADC_CHANNEL_2 10
@@ -130,8 +130,8 @@
 #define ADC_1 ADC1_C1
 #ifdef USE_ADC_1
 #ifndef ADC_1_GPIO_CLOCK_PORT
-#define ADC_1_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPBEN
-#define ADC_1_INIT() gpio_mode_setup(GPIOB, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0)
+#define ADC_1_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
+#define ADC_1_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO2)
 #endif
 #define USE_AD1_1 1
 #else
@@ -142,8 +142,8 @@
 #define ADC_2 ADC1_C2
 #ifdef USE_ADC_2
 #ifndef ADC_2_GPIO_CLOCK_PORT
-#define ADC_2_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPBEN
-#define ADC_2_INIT() gpio_mode_setup(GPIOB, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1)
+#define ADC_2_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
+#define ADC_2_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0)
 #endif
 #define USE_AD1_2 1
 #else
@@ -155,7 +155,7 @@
 #ifdef USE_ADC_3
 #ifndef ADC_3_GPIO_CLOCK_PORT
 #define ADC_3_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
-#define ADC_3_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4)
+#define ADC_3_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1)
 #endif
 #define USE_AD1_3 1
 #else
@@ -166,8 +166,8 @@
 #define ADC_4 ADC1_C4
 //#ifdef USE_ADC_4
 #ifndef ADC_4_GPIO_CLOCK_PORT
-#define ADC_4_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPAEN
-#define ADC_4_INIT() gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4)
+#define ADC_4_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
+#define ADC_4_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO3)
 #endif
 #define USE_AD1_4 1
 //#else
@@ -214,7 +214,7 @@
 #define USE_PWM7 1
 #define USE_PWM8 1
 #define USE_PWM9 1
-#define USE_PWM10 1
+//#define USE_PWM10 1
 
 #define ACTUATORS_PWM_NB 10
 
@@ -367,20 +367,19 @@
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_4_OC_BIT|PWM_SERVO_5_OC_BIT)
 #define PWM_TIM5_CHAN_MASK (PWM_SERVO_6_OC_BIT|PWM_SERVO_7_OC_BIT|PWM_SERVO_8_OC_BIT|PWM_SERVO_9_OC_BIT)
 
-
 /* PPM */
 
-#define USE_PPM_TIM1 1
+#define USE_PPM_TIM2 1
 
-#define PPM_CHANNEL         TIM_IC1
+#define PPM_CHANNEL         TIM_IC2
 #define PPM_TIMER_INPUT     TIM_IC_IN_TI1
-#define PPM_IRQ             NVIC_TIM1_CC_IRQ
-#define PPM_IRQ2            NVIC_TIM1_UP_TIM10_IRQ
-#define PPM_IRQ_FLAGS       TIM_DIER_CC1IE
-#define PPM_IRQ_CCIF        TIM_SR_CC1IF
-#define PPM_GPIO_PERIPHERAL RCC_AHB1ENR_IOPAEN
-#define PPM_GPIO_PORT       GPIOA
-#define PPM_GPIO_PIN        GPIO8
+#define PPM_IRQ             NVIC_TIM2_IRQ
+//#define PPM_IRQ2            NVIC_TIM2_UP_TIM10_IRQ
+#define PPM_IRQ_FLAGS       TIM_DIER_CC2IE
+#define PPM_IRQ_CCIF        TIM_SR_CC2IF
+#define PPM_GPIO_PERIPHERAL RCC_AHB1ENR_IOPBEN
+#define PPM_GPIO_PORT       GPIOB
+#define PPM_GPIO_PIN        GPIO3
 #define PPM_GPIO_AF         GPIO_AF1
 
 /*

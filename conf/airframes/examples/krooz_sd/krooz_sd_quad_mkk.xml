@@ -1,9 +1,9 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<airframe name="Quadrotor Krooz 1.0 mkk">
+<airframe name="Quadrotor KroozSD Mkk">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="krooz_1.0">
+    <target name="ap" board="krooz_sd">
     </target>
 
     <target name="nps" board="pc">
@@ -13,14 +13,14 @@
 
 		<subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="krooz_v1.0"/>
+    <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
 		<subsystem name="ins"           type="hff"/>
     <subsystem name="actuators"     type="mkk">
-			<configure name="MKK_I2C_SCL_TIME" value="150"/>
-		</subsystem>
+      <define name="I2C1_CLOCK_SPEED" value="42000"/>
+    </subsystem>
     <subsystem name="motor_mixing"/>
 		
 		<define name="NO_RC_THRUST_LIMIT"/>
@@ -28,22 +28,22 @@
     <define name="USE_ATTITUDE_REF" value="0"/>
   </firmware>
 	
-<!--									 Using Geo Mag module										 -->
 	<modules main_freq="512">
 		<!--<load name="gps_ubx_ucenter.xml"/>
+    <load name="sys_mon.xml"/>
 		<load name="geo_mag.xml"/>-->
-	</modules>
-	
+  </modules>
+  
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
-  
+	
   <servos driver="Mkk">
-    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="RIGHT"   no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="LEFT"    no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="FRONT"   no="0" min="0" neutral="3" max="210"/>
+    <servo name="BACK"    no="1" min="0" neutral="3" max="210"/>
+    <servo name="RIGHT"   no="2" min="0" neutral="3" max="210"/>
+    <servo name="LEFT"    no="3" min="0" neutral="3" max="210"/>
   </servos>
 
   <commands>
@@ -52,7 +52,7 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-  
+
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
     <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
@@ -72,13 +72,15 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{    0,  MOTOR_MIXING_SCALE,    0, -MOTOR_MIXING_SCALE }"/>
-    <define name="PITCH_COEF"  value="{  MOTOR_MIXING_SCALE,    0, -MOTOR_MIXING_SCALE,    0 }"/>
-    <define name="YAW_COEF"    value="{ -MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE, -MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE }"/>
+    <define name="ROLL_COEF"   value="{  0, 0, -MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE }"/>
+    <define name="PITCH_COEF"  value="{  MOTOR_MIXING_SCALE, -MOTOR_MIXING_SCALE,  0, 0 }"/>
+    <define name="YAW_COEF"    value="{ -MOTOR_MIXING_SCALE, -MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE }"/>
     <define name="THRUST_COEF" value="{  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE,  MOTOR_MIXING_SCALE }"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
+  
+  <!-- replace this with your own calibration -->  
     <define name="GYRO_P_NEUTRAL" value="0"/>
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>
@@ -86,20 +88,19 @@
     <define name="GYRO_Q_SENS" value=" 4.41" integer="16"/>
     <define name="GYRO_R_SENS" value=" 4.41" integer="16"/>
     
-    <!-- replace this with your own calibration -->
-<define name="ACCEL_X_NEUTRAL" value="-24"/>
-<define name="ACCEL_Y_NEUTRAL" value="122"/>
-<define name="ACCEL_Z_NEUTRAL" value="-130"/>
-<define name="ACCEL_X_SENS" value="4.90555515454" integer="16"/>
-<define name="ACCEL_Y_SENS" value="4.90893349017" integer="16"/>
-<define name="ACCEL_Z_SENS" value="4.75238978393" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-48"/>
+    <define name="ACCEL_Y_NEUTRAL" value="86"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-479"/>
+    <define name="ACCEL_X_SENS" value="4.86549375955" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.89290708897" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.83749812474" integer="16"/>
 
-<define name="MAG_X_NEUTRAL" value="-136"/>
-<define name="MAG_Y_NEUTRAL" value="-103"/>
-<define name="MAG_Z_NEUTRAL" value="6"/>
-<define name="MAG_X_SENS" value="3.18492472198" integer="16"/>
-<define name="MAG_Y_SENS" value="3.42471474617" integer="16"/>
-<define name="MAG_Z_SENS" value="3.42088446936" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-282"/>
+    <define name="MAG_Y_NEUTRAL" value="-78"/>
+    <define name="MAG_Z_NEUTRAL" value="109"/>
+    <define name="MAG_X_SENS" value="3.33430456557" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.53180739126" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.68297143457" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -107,6 +108,8 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
+    <define name="GRAVITY_UPDATE_NORM_HEURISTIC" value="1"/>
     <define name="H_X" value="0.3586845"/>
     <define name="H_Y" value="0.0168651"/>
     <define name="H_Z" value="0.933303"/>
@@ -192,7 +195,6 @@
     <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="TILT_COEFF"  value="BFP_OF_REAL(0.25, 8)"/>
     <define name="REF_MIN_ZDD" value="-0.2*9.81"/> <!-- max descent acceleration -->
     <define name="REF_MAX_ZDD" value="0.2*9.81"/>  <!-- max climb acceleration -->
     <define name="REF_MIN_ZD" value="-3."/> <!-- max descent speed -->
@@ -209,13 +211,13 @@
 		<define name="USE_REF" value="1"/>
     <define name="USE_SPEED_REF" value="1"/> <!-- using RC to control horizontal setpoint -->
     <define name="MAX_BANK" value="20" unit="deg"/>
-		<define name="MAX_SPEED" value="SPEED_BFP_OF_REAL(3.)"/>
-    <define name="REF_MAX_ACCEL" value=".7"/> <!-- max reference horizontal acceleration in m/s2 -->
-    <define name="REF_MAX_SPEED" value="1."/> <!-- max reference horizontal speed in m/s -->
+    <define name="REF_MAX_ACCEL" value="7."/> <!-- max reference horizontal acceleration in m/s2 -->
+    <define name="REF_MAX_SPEED" value="2."/> <!-- max reference horizontal speed in m/s -->
 		<define name="RC_SPEED_DEAD_BAND" value="200000"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="120"/>
     <define name="IGAIN" value="10"/>
+    <define name="AGAIN" value="10"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -231,7 +233,6 @@
   </section>
 
   <section name="BAT">
-		<define name="CATASTROPHIC_BAT_LEVEL" value="12.8" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="13.0" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="13.2" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
