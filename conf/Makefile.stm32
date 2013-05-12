@@ -160,12 +160,12 @@ endif
 endif
 
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc
 ifneq ($(ARCH_L), )
 LDLIBS  += -lopencm3_stm32$(ARCH_L)
 else
 LDLIBS  += -lopencm3_stm32f1
 endif
+LDLIBS  += -lc -lm -lgcc
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary
@@ -234,11 +234,14 @@ ifeq ($(FLASH_MODE),DFU)
 ifdef DFU_ADDR
 DFU_ADDR_CMD = --addr=$(DFU_ADDR)
 endif
+ifdef DFU_PRODUCT
+DFU_PRODUCT_CMD = --product=$(DFU_PRODUCT)
+endif
 #
 # DFU flash mode
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using stm32 mem dfu loader"
-	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_ADDR_CMD) $^
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_PRODUCT_CMD) $(DFU_ADDR_CMD) $^
 
 #
 # serial flash mode
