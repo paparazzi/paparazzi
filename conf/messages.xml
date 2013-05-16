@@ -1849,7 +1849,7 @@
 
  <!--228 is free -->
  <!--229 is free -->
- 
+
   <message name="AHRS_ARDRONE2" id="230">
     <field name="state" type="uint32" />
     <field name="control_state" type="uint32" values="DEFAULT|INIT|LANDING|FLYING|HOVERING|TEST|TRANS_TAKEOFF|TRANS_GOTOFIX|TRANS_LANDING|TRANS_LOOPING"/>

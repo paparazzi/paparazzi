@@ -19,7 +19,7 @@
 		<subsystem name="ins" type="ardrone2" />
 		<subsystem name="actuators" type="ardrone2" />
 		<subsystem name="stabilization" type="passthrough"/>
-		
+
 	</firmware>
 
 	<modules main_freq="512">
@@ -81,7 +81,7 @@
 		<define name="RC_CLIMB_COEF" value="163" />
 		<!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
 		<define name="RC_CLIMB_DEAD_BAND" value="160000" />
-		<!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive 
+		<!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive
 			estimation -->
 		<define name="NOMINAL_HOVER_THROTTLE" value="0.5" />
 	</section>
