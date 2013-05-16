@@ -159,9 +159,7 @@ STATIC_INLINE void main_init( void ) {
 #endif
   autopilot_init();
 
-#if ARDRONE2
   nav_init();
-#endif
 
   guidance_h_init();
   guidance_v_init();
