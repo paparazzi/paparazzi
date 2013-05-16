@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# ardrone2.makefile
+# ardrone2_raw.makefile
 #
 # http://paparazzi.enac.fr/wiki/AR.Drone_2_-_Specifications
 #
@@ -21,16 +21,7 @@ FTP_DIR=/data/video
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
 
-# Do we need to disable modem? We don't have a modem.
-#ifndef MODEM_PORT
-#MODEM_PORT=UART0
-#endif
-
-#ifndef MODEM_BAUD
-#MODEM_BAUD=B57600
-#endif
-
-# The GPS sensor is connected trough USB, we have to fix this
+# The GPS sensor is connected trough USB so we have to define the device
 ifndef GPS_PORT
 GPS_PORT=UART1
 endif
@@ -39,9 +30,9 @@ ifndef GPS_BAUD
 GPS_BAUD=B57600
 endif
 
-# This is a (temporary) fix for uart_arch.c to compile with a device name
-#$(TARGET).CFLAGS += -DUART0_DEV=\"/dev/ttyO3\"
+# Here we define what the UART1_DEV device mapping
 $(TARGET).CFLAGS += -DUART1_DEV=\"/dev/ttyUSB0\"
+#$(TARGET).CFLAGS += -DUART0_DEV=\"/dev/ttyO3\"
 
 # for telemetry
 $(TARGET).CFLAGS += -DARDRONE_NAVDATA
@@ -49,25 +40,8 @@ $(TARGET).CFLAGS += -DARDRONE_NAVDATA
 # -----------------------------------------------------------------------
 
 # default LED configuration
-
-ifndef RADIO_CONTROL_LED
-RADIO_CONTROL_LED  = none
-endif
-
-ifndef BARO_LED
-BARO_LED = none
-endif
-
-ifndef AHRS_ALIGNER_LED
-AHRS_ALIGNER_LED = none
-endif
-
-ifndef GPS_LED
-GPS_LED = none
-endif
-
-ifndef SYS_TIME_LED
-SYS_TIME_LED = none
-endif
-
-# -----------------------------------------------------------------------
+RADIO_CONTROL_LED  ?= none
+BARO_LED           ?= none
+AHRS_ALIGNER_LED   ?= none
+GPS_LED            ?= none
+SYS_TIME_LED       ?= none

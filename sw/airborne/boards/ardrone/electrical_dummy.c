@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2012-2013 Freek van Tienen
+ *
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,20 +18,20 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 /**
- * @file boards/ardrone/actuators_at.h
- * ardrone2-sdk actuators are driven by external software controller by AT-commands
+ * @file boards/ardrone/electrical_dummy.c
+ * dummy electrical status readings for ardrone-sdk version.
+ *
+ * Because ardrone2-sdk version does its battery updating in ahrs_adrone2.c.
  */
 
-#ifndef BOARDS_ARDRONE_ACTUATORS_AT_H
-#define BOARDS_ARDRONE_ACTUATORS_AT_H
+#include "subsystems/electrical.h"
 
-#include "paparazzi.h"
+struct Electrical electrical;
 
-extern void actuators_init(void);
-extern void actuators_set(pprz_t commands[]);
-#define SetActuatorsFromCommands(commands) actuators_set(commands)
+void electrical_init(void) { }
 
-#endif /* BOARDS_ARDRONE_ACTUATORS_AT_H */
+void electrical_periodic(void) { }

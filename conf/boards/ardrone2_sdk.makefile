@@ -21,7 +21,7 @@ FTP_DIR=/data/video
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
 
-# The GPS sensor is connected trough USB, we have to fix this
+# The GPS sensor is connected trough USB so we have to define the device
 ifndef GPS_PORT
 GPS_PORT=UART1
 endif
@@ -30,6 +30,6 @@ ifndef GPS_BAUD
 GPS_BAUD=B57600
 endif
 
-# This is a (temporary) fix for uart_arch.c to compile with a device name
+# Here we define what the UART1_DEV device mapping
 $(TARGET).CFLAGS += -DUART1_DEV=\"/dev/ttyUSB0\"
 # -----------------------------------------------------------------------

@@ -215,11 +215,13 @@ ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
 else ifeq ($(ARCH), omap)
 ifeq ($(BOARD), ardrone)
-ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 ifeq ($(BOARD_TYPE), raw)
+ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 ap.srcs   += $(SRC_BOARD)/navdata.c
 ap.srcs   += $(SRC_BOARD)/gpio.c
 ap.CFLAGS +=-DARDRONE2
+else ifeq ($(BOARD_TYPE), sdk)
+ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
 endif
 endif
 endif
