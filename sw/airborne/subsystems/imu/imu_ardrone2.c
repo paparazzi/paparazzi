@@ -39,7 +39,7 @@ void imu_periodic(void) {
     navdata_imu_available = FALSE;
     RATES_ASSIGN(imu.gyro_unscaled, navdata->vx, navdata->vy, navdata->vz);
     VECT3_ASSIGN(imu.accel_unscaled, navdata->ax, navdata->ay, navdata->az);
-    VECT3_ASSIGN(imu.mag_unscaled, navdata->my, navdata->mx, navdata->mz); // notice that mx and my are switched
+    VECT3_ASSIGN(imu.mag_unscaled, navdata->mx, navdata->my, navdata->mz);
     imu_data_available = TRUE;
   }
   else {
