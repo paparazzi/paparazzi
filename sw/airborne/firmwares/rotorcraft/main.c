@@ -243,7 +243,7 @@ STATIC_INLINE void main_periodic( void ) {
   autopilot_periodic();
   /* set actuators     */
   //actuators_set(autopilot_motors_on);
-  SetActuatorsFromCommands(commands);
+  SetActuatorsFromCommands(commands, autopilot_mode);
 
   if (autopilot_in_flight) {
     RunOnceEvery(PERIODIC_FREQUENCY, { autopilot_flight_time++; datalink_time++; });
