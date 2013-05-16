@@ -382,8 +382,8 @@
 #include "subsystems/ahrs/ahrs_ardrone2.h"
 #define PERIODIC_SEND_AHRS_ARDRONE2(_trans, _dev) {	\
     DOWNLINK_SEND_AHRS_ARDRONE2(_trans, _dev,	\
-    		 &ahrs_impl.state,					\
-    		 &ahrs_impl.control_state,			\
+             &ahrs_impl.state,					\
+             &ahrs_impl.control_state,			\
              &ahrs_impl.eulers.phi,				\
              &ahrs_impl.eulers.theta,			\
              &ahrs_impl.eulers.psi,				\
