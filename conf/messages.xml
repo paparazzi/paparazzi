@@ -1287,12 +1287,12 @@
   </message>
 
   <message name="INS_REF" id="154">
-    <field name="ecef_x0" type="int32" alt_unit="m" alt_unit_coef="0.01" />
-    <field name="ecef_y0" type="int32" alt_unit="m" alt_unit_coef="0.01" />
-    <field name="ecef_z0" type="int32" alt_unit="m" alt_unit_coef="0.01" />
-    <field name="lat0"    type="int32" alt_unit="deg" alt_unit_coef="0.0000057296" />
-    <field name="lon0"    type="int32" alt_unit="deg" alt_unit_coef="0.0000057296" />
-    <field name="alt0"    type="int32" alt_unit="m" alt_unit_coef="0.01" />
+    <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_y0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="ecef_z0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="lat0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
+    <field name="lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
+    <field name="alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
     <field name="hmsl0"   type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
     <field name="baro_qfe"    type="int32"/>
   </message>
@@ -1712,15 +1712,15 @@
     </message>
 
     <message name="INS" id="198">
-      <field name="ins_x"     type="float" unit="m" />
-      <field name="ins_y"     type="float" unit="m" />
-      <field name="ins_z"     type="float" unit="m" />
-      <field name="ins_xd"    type="float" unit="m/s" />
-      <field name="ins_yd"    type="float" unit="m/s" />
-      <field name="ins_zd"    type="float" unit="m/s" />
-      <field name="ins_xdd"   type="float" unit="m/s2" />
-      <field name="ins_ydd"   type="float" unit="m/s2" />
-      <field name="ins_zdd"   type="float" unit="m/s2" />
+      <field name="ins_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+      <field name="ins_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+      <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+      <field name="ins_xd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+      <field name="ins_yd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+      <field name="ins_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+      <field name="ins_xdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+      <field name="ins_ydd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
+      <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     </message>
 
     <message name="GPS_ERROR" id="199">
@@ -1849,7 +1849,7 @@
 
  <!--228 is free -->
  <!--229 is free -->
- 
+
   <message name="AHRS_ARDRONE2" id="230">
     <field name="state" type="uint32" />
     <field name="control_state" type="uint32" values="DEFAULT|INIT|LANDING|FLYING|HOVERING|TEST|TRANS_TAKEOFF|TRANS_GOTOFIX|TRANS_LANDING|TRANS_LOOPING"/>
