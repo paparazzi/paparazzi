@@ -61,3 +61,13 @@ class rc_settings :
     method widget : GObj.widget
   end
 
+type link_change = Linkup | Nochange | Linkdown
+class link : ?visible:(GBin.frame -> bool) -> GBin.frame ->
+  object
+    method link_exists : int -> bool
+    method add_link : int -> unit
+    method update_link : int -> float -> float -> float -> link_change
+    method links_ratio : unit -> (int * int)
+    method multiple_links : unit -> bool
+  end
+

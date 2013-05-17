@@ -213,7 +213,7 @@
                                         <child>
                                           <widget class="GtkEventBox" id="eventbox_telemetry">
                                             <property name="visible">True</property>
-                                            <property name="tooltip" translatable="yes">Telemetry status: seconds since the last battery level message</property>
+                                            <property name="tooltip" translatable="yes">Telemetry status: ratio of connected links to number of links (if multiple links used) or seconds since the last message (if link lost)</property>
                                             <child>
                                               <widget class="GtkLabel" id="label_telemetry">
                                                 <property name="visible">True</property>

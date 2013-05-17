@@ -242,7 +242,7 @@ module Gen_onboard = struct
             sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
           | 4 ->
             sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
-          | _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
+          | _ -> failwith "unexpected size in Gen_messages.print_get_macros. Possibly since a Telemetry message was defined with a field type of string." in
 
       (** To be an array or not to be an array: *)
       match _type with

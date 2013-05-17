@@ -1,0 +1,28 @@
+Created by Cameron Lee (cwlee1@ualberta.ca)
+
+This software enables multiple downlinks in order to provide redundancy in the plane to ground communication (it does not change the ground to plane communication at all). If the same data is sent by the autopilot over two or more radio links, then this software lets these two streams of data be combined into one stream. The resultant string will have all of information transmitted by the autopilot as long as at least one link receives the data. The status of each link can be monitored in the GCS in the LINK tab of the notebook. Various types of links can be used, for example:
+- 900 MHz modem
+- 2.4 GHz modem
+- UDP packets sent over a Wi-Fi network
+- Modulated audio signal in a video feed
+- Satellite modem
+
+
+TO USE:
+1. First, implement the hardware to have multiple independant streams of data sent to the ground station computer. 
+2. In Paparazzi Center, run an instance of the Link agent for each stream of data. Configure each Link agent according to it's stream. Also, use the -id flag to give each link a unique id (an integer number) and the -redlink flag to tell the link it should be a redundant link.
+3. Run the Link Combiner agent.
+
+For example, the following agents run in Paparazzi center will allow 2 links to be used, each of which is connected to it's own USB serial port:
+
+sw/ground_segment/tmtc/server
+sw/ground_segment/cockpit/gcs
+sw/ground_segment/tmtc/link  -d /dev/ttyUSB0 -id 1 -redlink
+sw/ground_segment/tmtc/link  -d /dev/ttyUSB1 -id 2 -redlink
+sw/ground_segment/python/redundant_link/link_combiner.py 
+
+
+HOW IT WORKS:
+When the link agent is run with the -redlink flag set, instead of transmitting the data it receives over the ivy bus like normal, it encapsulates it in a TELEMETRY_MESSAGE message which also contains the link id. The Link Combiner listens to these messages from each link and sends data over the ivy bus to the other agents as if it was a link. The Link Combiner also sends the LINK_STATUS message so that the GCS can display the status of each link. 
+
+The Link Combiner uses an algorithm to filter out duplicate messages. In other words, if a message is sent by the autopilot over both links and it is received by both links, then it's the same message and should only be handled once by other agents such as the GCS. The Link Combiner's algorithm therefore ignores a message received over any link if it's identical to a message received by another link. This is achieved by keeping a buffer of the last N messages for each link. Once a message has been received by all links, it's removed from the buffer. Also, the buffer is circular, so even if a message isn't received by all links, it will be overwritten after N more messages are received. This algorithm isn't guaranteed to be perfect, but in typical operation, it seems to work very well. And for the application of displaying aircraft data, some missing or duplicate data is acceptable.

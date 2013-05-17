@@ -83,6 +83,7 @@ type aircraft = {
   ir_page : Pages.infrared;
   gps_page : Pages.gps;
   pfd_page : Horizon.pfd;
+  link_page : Pages.link;
   misc_page : Pages.misc;
   dl_settings_page : Page_settings.settings option;
   rc_settings_page : Pages.rc_settings option;
@@ -117,7 +118,7 @@ let find_ac = fun ac_id ->
 let active_ac = ref ""
 let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
-  find_ac ac_id
+    find_ac ac_id
 
 let show_fp = fun ac ->
   ac.fp_group#show ();
@@ -573,6 +574,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let pfd_page = new Horizon.pfd pfd_frame
   and _pfd_page_num = ac_notebook#page_num pfd_frame#coerce in
 
+  let link_label = GMisc.label ~text: "Link" () in
+  let link_frame = GBin.frame ~shadow_type: `NONE () in
+  ignore (ac_notebook#append_page ~tab_label: link_label#coerce link_frame#coerce);
+  let link_page = new Pages.link link_frame in
+
   let misc_label = GMisc.label ~text: "Misc" () in
   let misc_frame = GBin.frame ~shadow_type: `NONE () in
   ignore (ac_notebook#append_page ~tab_label:misc_label#coerce misc_frame#coerce);
@@ -647,6 +653,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
              ir_page = ir_page; flight_time = 0;
              gps_page = gps_page;
              pfd_page = pfd_page;
+             link_page = link_page;
              misc_page = misc_page;
              dl_settings_page = dl_settings_page;
              rc_settings_page = rc_settings_page;
@@ -818,8 +825,24 @@ let get_fbw_msg = fun alarm _sender vs ->
     log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_speech_name)
   end
 
-
-
+let get_link_status_msg = fun alarm sender vs ->
+  let ac = find_ac sender in
+  let link_id = Pprz.int_assoc "link_id" vs in
+  let time_since_last_msg = Pprz.float_assoc "time_since_last_msg" vs in
+  let rx_msgs_rate = Pprz.float_assoc "rx_msgs_rate" vs in
+  let ping_time = Pprz.float_assoc "ping_time" vs in
+  if (not (ac.link_page#link_exists link_id)) then begin
+      ac.link_page#add_link link_id;
+      log_and_say alarm ac.ac_name (sprintf "%s, new link detected: %i" ac.ac_speech_name link_id)
+    end;
+  let link_changed = ac.link_page#update_link link_id time_since_last_msg rx_msgs_rate ping_time in
+  let (links_up, _) = ac.link_page#links_ratio () in
+  match (link_changed, links_up) with
+    (_, 0) -> log_and_say alarm ac.ac_name (sprintf "%s, all links lost" ac.ac_speech_name)
+  | (Pages.Linkup, _)-> log_and_say alarm ac.ac_name (sprintf "%s, link %i re-connected" ac.ac_speech_name link_id)
+  | (Pages.Nochange, _) -> ()
+  | (Pages.Linkdown, _) -> log_and_say alarm ac.ac_name (sprintf "%s, link %i lost" ac.ac_speech_name link_id)
+  
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in
   ac.strip#set_throttle ~kill:ac.in_kill_mode (Pprz.float_assoc "throttle" vs);
@@ -844,6 +867,9 @@ let listen_engine_status_msg = fun () ->
 
 let listen_if_calib_msg = fun () ->
   safe_bind "INFLIGH_CALIB" get_if_calib_msg
+
+let listen_link_status_msg = fun a ->
+  tele_bind "LINK_STATUS" (get_link_status_msg a)
 
 let list_separator = Str.regexp ","
 
@@ -1289,9 +1315,18 @@ let message_request = Ground_Pprz.message_req
 let get_ts = fun _sender vs ->
   let ac = get_ac vs in
   let t = Pprz.float_assoc "time_since_last_msg" vs in
-  ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else "   ");
-  ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
-
+  if ac.link_page#multiple_links () then 
+    begin
+      let (links_up, total_links) = ac.link_page#links_ratio () in
+      let link_ratio_string = sprintf "%i/%i" links_up total_links in
+      ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else link_ratio_string);
+      ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else if links_up < total_links then warning_color else ok_color)
+    end
+  else
+    begin
+      ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else "   ");
+      ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
+    end
 
 let listen_telemetry_status = fun () ->
   safe_bind "TELEMETRY_STATUS" get_ts
@@ -1352,6 +1387,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_wind_msg geomap;
   listen_fbw_msg my_alert;
   listen_engine_status_msg ();
+  listen_link_status_msg my_alert;
   listen_if_calib_msg ();
   listen_waypoint_moved ();
   listen_svsinfo my_alert;
