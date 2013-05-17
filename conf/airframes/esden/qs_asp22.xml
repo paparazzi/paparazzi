@@ -175,7 +175,7 @@
    <define name="HOVER_KI"    value="72"/>
    <define name="RC_CLIMB_COEF" value ="163"/>
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value ="0.5"/>
+<!--    <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value ="0.3"/> -->
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -195,7 +195,7 @@
    <define name="REF_QUAT_INFINITESIMAL_STEP" value="TRUE"/>
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
 <!--    <define name="USE_REFERENCE_SYSTEM" value="FALSE"/> -->
-<!--    <define name="SWITCH_STICKS_FOR_RATE_CONTROL" value="TRUE"/> -->
+   <define name="SWITCH_STICKS_FOR_RATE_CONTROL" value="TRUE"/>
    <define name="TRANSITION_MAX_OFFSET" value="-82.0" unit="deg"/>
  </section>
 
