@@ -151,6 +151,7 @@
   </message>
 
   <message name="DOWNLINK_STATUS" id="23">
+    <field name="link_id" type="int8"/>
     <field name="run_time" type="uint32" unit="s"/>
     <field name="rx_bytes" type="uint32"/>
     <field name="rx_msgs" type="uint32"/>
@@ -558,7 +559,20 @@
     <field name="rssi_fade_margin" type="uint8" unit="dB"/>
     <field name="duty" type="uint8" unit="%"/>
   </message>
- <!-- 71 is free -->
+
+  <message name="LINK_STATUS" id="71">
+      <field name="link_id" type="uint8"/>
+      <field name="time_since_last_msg" type="float" unit="s"/>
+      <field name="run_time" type="uint32" unit="s"/>
+      <field name="rx_bytes" type="uint32"/>
+      <field name="rx_msgs" type="uint32"/>
+      <field name="rx_err" type="uint32"/>
+      <field name="rx_bytes_rate" type="float" format="%.1f"/>
+      <field name="rx_msgs_rate" type="float" format="%.1f"/>
+      <field name="ping_time" type="float" format="%.2f" unit="ms"/>
+    </message>
+
+
  <!-- 72 is free -->
  <!-- 73 is free -->
  <!-- 74 is free -->
@@ -2459,6 +2473,18 @@
   <message name="TELEMETRY_ERROR" id="33">
     <field name="ac_id" type="string"/>
     <field name="message" type="string"/>
+  </message>
+
+   <message name="TELEMETRY_MESSAGE" id="34">
+    <field name="ac_id" type="string"/>
+    <field name="link_id" type="string" />
+    <field name="message" type="string" format=";sv"/>
+   </message>
+
+  <message name="DATALINK_MESSAGE" id="35">
+    <field name="ac_id" type="string"/>
+    <field name="link_id" type="string"/>
+    <field name="message" type="string" format=";sv"/>
   </message>
 
   <message name="PLUMES" id="100">

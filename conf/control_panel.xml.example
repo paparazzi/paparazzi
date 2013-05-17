@@ -20,6 +20,8 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
+    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
+    
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
@@ -120,6 +122,23 @@
       </program>
       <program name="Server"/>
     </session>
+
+    <session name="Flight USB-serial Redundant">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-id" constant="1"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-id" constant="2"/>
+        <arg flag="-redlink"/>
+      </program>
+      <program name="Link Combiner"/>
+    </session>
+
 
   </section>
 
