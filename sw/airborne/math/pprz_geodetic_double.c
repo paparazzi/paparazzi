@@ -74,7 +74,7 @@ void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla) {
   const double cos_lat = cos(lla->lat);
   const double sin_lon = sin(lla->lon);
   const double cos_lon = cos(lla->lon);
-  const double chi = sqrtf(1. - e2*sin_lat*sin_lat);
+  const double chi = sqrt(1. - e2*sin_lat*sin_lat);
   const double a_chi = a / chi;
 
   ecef->x = (a_chi + lla->alt) * cos_lat * cos_lon;
