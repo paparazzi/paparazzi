@@ -43,7 +43,7 @@
 #endif
 
 #ifdef SITL
-#include "gps.h"
+#include "subsystems/gps.h"
 #endif
 
 #define BARO_AMSYS_ADDR 0xF2
