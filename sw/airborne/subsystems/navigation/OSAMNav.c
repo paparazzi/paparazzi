@@ -573,7 +573,7 @@ bool_t PolygonSurvey(void)
 		//follow the circle
 		nav_circle_XY(C.x, C.y, SurveyRadius);
 
-		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > .1 && estimator_z > waypoints[SurveyEntryWP].a-10)
+		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCountNoRewind() > .1 && estimator_z > waypoints[SurveyEntryWP].a-10)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
