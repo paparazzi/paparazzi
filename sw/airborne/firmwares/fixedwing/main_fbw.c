@@ -70,6 +70,7 @@ uint8_t fbw_mode;
 
 pprz_t command_roll_trim;
 pprz_t command_pitch_trim;
+pprz_t command_yaw_trim;
 
 
 volatile uint8_t fbw_new_actuators = 0;
@@ -158,6 +159,7 @@ void event_task_fbw( void) {
     inter_mcu_event_task();
     command_roll_trim = ap_state->command_roll_trim;
     command_pitch_trim = ap_state->command_pitch_trim;
+    command_yaw_trim = ap_state->command_yaw_trim;
 #ifndef OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP
     if (ap_ok && fbw_mode == FBW_MODE_FAILSAFE) {
       fbw_mode = FBW_MODE_AUTO;
@@ -202,6 +204,9 @@ void event_task_fbw( void) {
     #endif
     #ifdef COMMAND_PITCH
     trimmed_commands[COMMAND_PITCH] += ChopAbs(command_pitch_trim, MAX_PPRZ/10);
+    #endif
+    #ifdef COMMAND_YAW
+    trimmed_commands[COMMAND_YAW] = ChopAbs(command_yaw_trim, MAX_PPRZ);
     #endif
 
     SetActuatorsFromCommands(trimmed_commands, autopilot_mode);
