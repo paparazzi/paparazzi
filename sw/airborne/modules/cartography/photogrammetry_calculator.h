@@ -54,7 +54,7 @@ Add to flightplan or airframe file:
 Add to flightplan
 
   <header>
-#define PHOTOGRAMMETRY_SWEEP_ANGLE 53		// Degrees from the North
+#define PHOTOGRAMMETRY_SWEEP_ANGLE RadOfDeg(53)	// Radians from the North
 #define PHOTOGRAMMETRY_OVERLAP 50		// 1-99 Procent
 #define PHOTOGRAMMETRY_SIDELAP 50		// 1-99 Procent
 #define PHOTOGRAMMETRY_RESOLUTION 80		// mm pixel projection size
