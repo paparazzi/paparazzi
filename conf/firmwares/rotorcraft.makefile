@@ -72,6 +72,11 @@ ifeq ($(ARCH), stm32)
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
+ifeq ($(BOARD), ardroneraw)
+ap.srcs   += $(SRC_BOARD)/gpio.c
+ap.CFLAGS +=-DARDRONE2
+endif
+
 # frequency of main periodic
 PERIODIC_FREQUENCY ?= 512
 ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
@@ -212,16 +217,10 @@ ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
-else ifeq ($(ARCH), omap)
-ifeq ($(BOARD), ardrone)
-ifeq ($(BOARD_TYPE), raw)
-ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
-ap.srcs   += $(SRC_BOARD)/gpio.c
-ap.CFLAGS +=-DARDRONE2
-else ifeq ($(BOARD_TYPE), sdk)
+else ifdeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
 ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
-endif
-endif
+else ifdeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
+ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 endif
 
 
