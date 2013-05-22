@@ -375,20 +375,6 @@ static inline void on_gps_event(void) {
 #endif
 }
 
-//static inline void on_mag_event(void) {
-//  ImuScaleMag(imu);
-//
-//#if USE_MAGNETOMETER
-//  if (ahrs.status == AHRS_RUNNING) {
-//    ahrs_update_mag();
-//  }
-//#endif
-//
-//#ifdef USE_VEHICLE_INTERFACE
-//  vi_notify_mag_available();
-//#endif
-//}
-
 #if ARDRONE2
 static inline void on_navdata_event(void) {
   #ifdef USE_UART1
