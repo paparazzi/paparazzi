@@ -146,8 +146,11 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 ap.srcs += $(SRC_BOARD)/baro_board.c
+
+# Ardrone baro
 else ifeq($(BOARD)$(BOARD_TYPE), ardroneraw)
 ap.srcs += $(SRC_BOARD)/baro_board.c
+
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
 # defaults to i2c baro bmp085 on the board
@@ -213,7 +216,6 @@ else ifeq ($(ARCH), omap)
 ifeq ($(BOARD), ardrone)
 ifeq ($(BOARD_TYPE), raw)
 ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
-ap.srcs   += $(SRC_BOARD)/navdata.c
 ap.srcs   += $(SRC_BOARD)/gpio.c
 ap.CFLAGS +=-DARDRONE2
 else ifeq ($(BOARD_TYPE), sdk)
