@@ -72,7 +72,7 @@ ifeq ($(ARCH), stm32)
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
-ifeq ($(BOARD), ardroneraw)
+ifeq ($(BOARD)$(BOARDTYPE), ardroneraw)
 ap.srcs   += $(SRC_BOARD)/gpio.c
 ap.CFLAGS +=-DARDRONE2
 endif

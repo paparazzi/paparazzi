@@ -42,7 +42,8 @@ CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wno-unused-result
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused 
+#-Wno-unused-result
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
