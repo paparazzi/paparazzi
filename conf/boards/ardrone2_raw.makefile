@@ -22,20 +22,15 @@ TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
 
 # The GPS sensor is connected trough USB so we have to define the device
-ifndef GPS_PORT
-GPS_PORT=UART1
-endif
-
-ifndef GPS_BAUD
-GPS_BAUD=B57600
-endif
+GPS_PORT           ?= UART1
+GPS_BAUD           ?= B57600
 
 # Here we define what the UART1_DEV device mapping
-$(TARGET).CFLAGS += -DUART1_DEV=\"/dev/ttyUSB0\"
-#$(TARGET).CFLAGS += -DUART0_DEV=\"/dev/ttyO3\"
+$(TARGET).CFLAGS   += -DUART1_DEV=\"/dev/ttyUSB0\"
+#$(TARGET).CFLAGS  += -DUART0_DEV=\"/dev/ttyO3\"
 
 # for telemetry
-$(TARGET).CFLAGS += -DARDRONE_NAVDATA
+$(TARGET).CFLAGS   += -DARDRONE_NAVDATA
 
 # -----------------------------------------------------------------------
 
