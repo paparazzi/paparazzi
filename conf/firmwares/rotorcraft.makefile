@@ -138,11 +138,6 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
-ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
-ap.srcs += $(SRC_BOARD)/at_com.c
-else
-ap.srcs += $(SRC_BOARD)/baro_board.c
-endif
 
 BARO = BARO_I2C
 # booz baro
@@ -151,7 +146,8 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 ap.srcs += $(SRC_BOARD)/baro_board.c
-
+else ifeq($(BOARD)$(BOARD_TYPE), ardroneraw)
+ap.srcs += $(SRC_BOARD)/baro_board.c
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
 # defaults to i2c baro bmp085 on the board
