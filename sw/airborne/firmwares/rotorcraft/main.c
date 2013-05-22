@@ -128,6 +128,7 @@ tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
 #ifndef SITL
 int main( void ) {
   main_init();
+
   while(1) {
     handle_periodic_tasks();
     main_event();
@@ -225,6 +226,7 @@ STATIC_INLINE void handle_periodic_tasks( void ) {
 }
 
 STATIC_INLINE void main_periodic( void ) {
+
 #if USE_IMU
   imu_periodic();
 #endif
