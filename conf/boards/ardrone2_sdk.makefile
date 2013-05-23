@@ -27,4 +27,8 @@ GPS_BAUD         ?= B57600
 
 # Here we define what the UART1_DEV device mapping
 $(TARGET).CFLAGS += -DUART1_DEV=\"/dev/ttyUSB0\"
+
+# for distinction between SDK and RAW version
+ap.CFLAGS +=-DARDRONE2_SDK
+
 # -----------------------------------------------------------------------

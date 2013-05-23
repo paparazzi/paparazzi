@@ -54,18 +54,21 @@
 #if USE_IMU
 #include "subsystems/imu.h"
 #endif
-#include "subsystems/ahrs.h"
+
 #if USE_BAROMETERMETER
 #include "subsystems/sensors/baro.h"
-#include "baro_board.h"
 #endif
-#include "subsystems/ins.h"
+
 
 #include "subsystems/electrical.h"
 
 #include "firmwares/rotorcraft/autopilot.h"
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
+
+#include "subsystems/ahrs.h"
+#include "subsystems/ins.h"
 
 #include "state.h"
 
@@ -77,7 +80,7 @@
 
 #include "generated/modules.h"
 
-#if ARDRONE2
+#if ARDRONE2_RAW
 #include "navdata.h"
 #include "mcu_periph/uart.h"
 #include <stdio.h>
@@ -109,7 +112,7 @@ static inline void on_baro_dif_event( void );
 #endif
 static inline void on_gps_event( void );
 
-#if ARDRONE2
+#if ARDRONE2_RAW
 static inline void on_navdata_event( void );
 #endif
 
@@ -135,7 +138,7 @@ int main( void ) {
 
 STATIC_INLINE void main_init( void ) {
 
-#if ARDRONE2
+#if ARDRONE2_RAW
   navdata_init();
 #endif
 
@@ -277,15 +280,17 @@ STATIC_INLINE void main_event( void ) {
 #if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #else
+#if ARDRONE2_SDK
   ahrs_propagate();
   ins_periodic();
+#endif
 #endif
 
 #if USE_BAROMETER
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 #endif
 
-#if ARDRONE2
+#if ARDRONE2_RAW
   NavdataEvent(on_navdata_event);
 #endif
 
@@ -373,7 +378,7 @@ static inline void on_gps_event(void) {
 #endif
 }
 
-#if ARDRONE2
+#if ARDRONE2_RAW
 static inline void on_navdata_event(void) {
   #ifdef USE_UART1
     uart1_handler();

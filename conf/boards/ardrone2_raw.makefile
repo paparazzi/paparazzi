@@ -29,6 +29,9 @@ GPS_BAUD           ?= B57600
 $(TARGET).CFLAGS   += -DUART1_DEV=\"/dev/ttyUSB0\"
 #$(TARGET).CFLAGS  += -DUART0_DEV=\"/dev/ttyO3\"
 
+# for distinction between RAW and SDK version
+ap.CFLAGS +=-DARDRONE2_RAW
+
 # for telemetry
 $(TARGET).CFLAGS   += -DARDRONE_NAVDATA
 

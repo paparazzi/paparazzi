@@ -74,7 +74,6 @@ endif
 
 ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
 ap.srcs   += $(SRC_BOARD)/gpio.c
-ap.CFLAGS +=-DARDRONE2
 endif
 
 # frequency of main periodic

@@ -6,9 +6,10 @@
     <target name="ap" board="ardrone2_raw">
       <define name="USE_INS_NAV_INIT" />
       <!--configure name="USE_NEW_I2C_DRIVER" value="1"/ -->
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="200" />
       <configure name="USE_MAGNETOMETER" value="0" />
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="200" />
       <define name="AHRS_PROPAGATE_FREQUENCY" value="200" />
+      <define name="USE_BAROMETER" />
       <subsystem name="telemetry" type="wifi" />
       <subsystem name="radio_control" type="datalink" />
     </target>
