@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# ardrone2.makefile
+# ardrone2_sdk.makefile
 #
 # http://paparazzi.enac.fr/wiki/AR.Drone_2_-_Specifications
 #
