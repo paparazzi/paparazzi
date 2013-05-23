@@ -31,6 +31,6 @@
 
 extern void actuators_init(void);
 extern void actuators_set(pprz_t commands[]);
-#define SetActuatorsFromCommands(commands) actuators_set(commands)
+#define SetActuatorsFromCommands(commands, AP_MODE) actuators_set(commands)
 
 #endif /* BOARDS_ARDRONE_ACTUATORS_AT_H */

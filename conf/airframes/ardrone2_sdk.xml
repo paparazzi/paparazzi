@@ -33,6 +33,8 @@
 		<axis name="THRUST" failsafe_value="0" />
 	</commands>
 
+    <servos driver="Default" />
+
 	<section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
 		<define name="SP_MAX_P" value="10000" />
 		<define name="SP_MAX_Q" value="10000" />

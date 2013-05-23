@@ -9,4 +9,10 @@
 #define ARDRONE_NAVDATA_BUFFER_SIZE 2048
 #define ARDRONE_IP "192.168.1.1"
 
+/* Default actuators driver */
+#define DEFAULT_ACTUATORS "boards/ardrone/actuators_at.h"
+#define ActuatorDefaultSet(_x,_y) {}
+#define ActuatorsDefaultInit() {}
+#define ActuatorsDefaultCommit() {}
+
 #endif /* CONFIG_ARDRONE2_SDK */

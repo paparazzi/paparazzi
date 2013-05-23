@@ -77,10 +77,6 @@
 
 #include "generated/modules.h"
 
-#if USE_ACTUATORS_AT
-#include "boards/ardrone/actuators_at.h"
-#endif
-
 #if ARDRONE2
 #include "navdata.h"
 #include "mcu_periph/uart.h"

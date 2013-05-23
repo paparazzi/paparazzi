@@ -510,6 +510,7 @@
 #define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {}
 #endif
 
+#ifndef USE_AHRS_ARDRONE2
 #if USE_AHRS_CMPL_EULER
 #define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {      \
     DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,            \
@@ -548,6 +549,9 @@
                                  &(stateGetNedToBodyEulers_i()->psi));  \
   }
 #endif
+#endif
+#else
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {} // FOR ARDRONE2 LOOK AT PERIODIC_SEND_AHRS_ARDRONE2
 #endif
 
 #if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
