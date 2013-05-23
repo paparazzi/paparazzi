@@ -150,7 +150,7 @@ STATIC_INLINE void main_init( void ) {
 
   actuators_init();
 #if USE_MOTOR_MIXING
-    motor_mixing_init();
+  motor_mixing_init();
 #endif
 
   radio_control_init();
