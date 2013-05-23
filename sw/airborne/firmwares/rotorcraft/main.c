@@ -148,6 +148,11 @@ STATIC_INLINE void main_init( void ) {
 
   stateInit();
 
+  actuators_init();
+#if USE_MOTOR_MIXING
+    motor_mixing_init();
+#endif
+
   radio_control_init();
 
 #if USE_BAROMETER
@@ -158,9 +163,7 @@ STATIC_INLINE void main_init( void ) {
   imu_init();
 #endif
   autopilot_init();
-
   nav_init();
-
   guidance_h_init();
   guidance_v_init();
   stabilization_init();
@@ -174,11 +177,6 @@ STATIC_INLINE void main_init( void ) {
 
 #if USE_GPS
   gps_init();
-#endif
-
-  actuators_init();
-#if USE_MOTOR_MIXING
-    motor_mixing_init();
 #endif
 
   modules_init();
