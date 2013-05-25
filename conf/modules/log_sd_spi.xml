@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Host part for SD card logger through SPI
+     -->
+
+<module name="log_sd_spi" dir="log_sd">
+  <doc>
+    <description>SD card logger through SPI</description>
+  </doc>
+  <header>
+    <file name="log_sd_spi.h"/>
+  </header>
+  <init fun="log_sd_spi_init()"/>
+  <periodic fun="log_sd_spi_periodic()" freq="1"/>
+  <periodic fun="log_sd_spi_dummy()" start="log_sd_spi_start()" stop="log_sd_spi_stop()" autorun="TRUE"/>
+  <event fun="log_sd_spi_event()"/>
+  <makefile target="ap">
+    <file name="log_sd_spi.c"/>
+    <define name="SPI_MASTER"/>
+    <define name="USE_SPI"/>
+  </makefile>
+</module>
