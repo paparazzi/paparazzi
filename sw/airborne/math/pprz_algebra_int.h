@@ -61,6 +61,8 @@ struct Int16Vect3 {
 #define INT32_ACCEL_FRAC 10
 #define INT32_MAG_FRAC 11
 
+#define INT32_PERCENTAGE_FRAC 10
+
 struct Int32Vect2 {
   int32_t x;
   int32_t y;
@@ -211,10 +213,17 @@ struct Int64Vect3 {
 
 #define INT_VECT2_ASSIGN(_a, _x, _y) VECT2_ASSIGN(_a, _x, _y)
 
-#define INT32_VECT2_NORM(n, v) {			\
-    int32_t n2 = (v).x*(v).x + (v).y*(v).y; \
-    INT32_SQRT(n, n2);					\
+#define INT32_VECT2_NORM(_n, _v) {			\
+    int32_t n2 = (_v).x*(_v).x + (_v).y*(_v).y; 		\
+    INT32_SQRT(_n, n2);					\
   }
+
+#define INT32_VECT2_NORMALIZE(_v,_frac) {				\
+    int32_t n;								\
+    INT32_VECT2_NORM(n, _v);						\
+    INT32_VECT2_SCALE_2(_v, _v, BFP_OF_REAL((1.),_frac) , n);		\
+  }
+
 
 #define INT32_VECT2_RSHIFT(_o, _i, _r) { \
   (_o).x = ((_i).x >> (_r)); \
