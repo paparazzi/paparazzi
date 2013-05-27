@@ -39,7 +39,11 @@ let programs =
 let program_command = fun x ->
   try
     let xml = Hashtbl.find programs x in
-    Env.paparazzi_src // ExtXml.attrib xml "command"
+    let cmd = ExtXml.attrib xml "command" in
+    if cmd.[0] = '/' then
+      cmd
+    else
+      Env.paparazzi_src // cmd
   with Not_found ->
     failwith (sprintf "Fatal Error: Program '%s' not found in control_panel.xml" x)
 

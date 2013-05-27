@@ -31,6 +31,8 @@
 
 #define ACTUATORS_ASCTEC_V2_SLAVE_ADDR 0x02
 
+PRINT_CONFIG_VAR(ACTUATORS_ASCTEC_V2_I2C_DEV)
+
 struct ActuatorsAsctecV2 actuators_asctec_v2;
 
 void actuators_asctec_v2_init(void) {
@@ -123,7 +125,7 @@ void actuators_asctec_v2_set(void) {
 #endif
 
   actuators_asctec_v2.i2c_trans.type = I2CTransTx;   // Can be reset I2C driver
-  i2c_submit(&ACTUATORS_ASCTEC_V2_DEVICE, &actuators_asctec_v2.i2c_trans);
+  i2c_submit(&ACTUATORS_ASCTEC_V2_I2C_DEV, &actuators_asctec_v2.i2c_trans);
 
 }
 

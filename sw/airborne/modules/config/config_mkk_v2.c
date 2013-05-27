@@ -143,7 +143,7 @@ void config_mkk_v2_read_eeprom(void)
     config_mkk_v2.trans.buf[1] = (BL_READMODE_CONFIG<<3);
     config_mkk_v2.trans.len_r = 8;
 
-    i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &config_mkk_v2.trans);
+    i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &config_mkk_v2.trans);
 }
 
 void config_mkk_v2_parse_eeprom(void)
@@ -190,6 +190,6 @@ void config_mkk_v2_send_eeprom(void)
     config_mkk_v2.trans.buf[8] = config_mkk_v2_eeprom.BitConfig;
     config_mkk_v2.trans.buf[9] = config_mkk_v2_crc(2);
 
-    i2c_submit(&ACTUATORS_MKK_V2_DEVICE, &config_mkk_v2.trans);
+    i2c_submit(&ACTUATORS_MKK_V2_I2C_DEV, &config_mkk_v2.trans);
 
 }

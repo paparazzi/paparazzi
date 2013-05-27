@@ -29,6 +29,8 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
+PRINT_CONFIG_VAR(ACTUATORS_SKIRON_I2C_DEV)
+
 struct ActuatorsSkiron actuators_skiron;
 
 
@@ -55,5 +57,5 @@ void actuators_skiron_set(void) {
   }
 #endif
 
-  i2c_submit(&ACTUATORS_SKIRON_DEVICE, &actuators_skiron.trans);
+  i2c_submit(&ACTUATORS_SKIRON_I2C_DEV, &actuators_skiron.trans);
 }

@@ -132,7 +132,7 @@ disp3d: disp3d.c
 
 plotprofile: plotprofile.c
 	@echo CC $@
-	$(Q)$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(Q)$(CC) $(IVY_C_LIBRARYS) $(IVY_C_INCLUDES) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lpcre
 
 test1: test1.c
 	@echo CC $@
