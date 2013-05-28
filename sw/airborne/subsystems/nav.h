@@ -61,6 +61,7 @@ extern float fp_pitch; /* Degrees */
 extern float carrot_x, carrot_y;
 
 extern float nav_circle_radians; /* Cumulated */
+extern float nav_circle_radians_no_rewind; /* Cumulated */
 extern bool_t nav_in_circle;
 extern bool_t nav_in_segment;
 extern float nav_circle_x, nav_circle_y, nav_circle_radius; /* m */
@@ -123,6 +124,7 @@ extern void nav_circle_XY(float x, float y, float radius);
   while (x >= 360 && ++dont_loop_forever) x -= 360; \
 }
 
+#define NavCircleCountNoRewind() (nav_circle_radians_no_rewind / (2*M_PI))
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
 
