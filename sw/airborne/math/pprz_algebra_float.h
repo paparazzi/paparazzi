@@ -127,6 +127,12 @@ struct FloatRates {
     n = sqrtf((v).x*(v).x + (v).y*(v).y);      \
   }
 
+#define FLOAT_VECT2_NORMALIZE(_v) {			\
+    float n;						\
+    FLOAT_VECT2_NORM(n, _v);				\
+    FLOAT_VECT2_SMUL(_v, _v, 1 / n);			\
+  }
+
 
 /*
  * Dimension 3 Vectors
