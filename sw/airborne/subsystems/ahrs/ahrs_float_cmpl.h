@@ -40,9 +40,14 @@ struct AhrsFloatCmpl {
   struct FloatRMat ltp_to_imu_rmat;
   /* for gravity correction during coordinated turns */
   float ltp_vel_norm;
+  float accel_omega;  ///< filter cut-off frequency for correcting the attitude from accels (pseudo-gravity measurement)
+  float accel_zeta;   ///< filter damping for correcting the gyro-bias from accels (pseudo-gravity measurement)
+  float mag_omega;    ///< filter cut-off frequency for correcting the attitude (heading) from magnetometer
+  float mag_zeta;     ///< filter damping for correcting the gyro bias from magnetometer
+  float weight;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
-
+  bool_t use_gravity_heuristic;
   bool_t heading_aligned;
 
   /*
