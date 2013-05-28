@@ -327,7 +327,7 @@ class link ?(visible = fun _ -> true) (widget: GBin.frame) =
 
     method add_link link_id = 
       let number_of_links = List.length links in
-      let link_id_label = GMisc.label ~text: (sprintf "%i" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
+      let _ = GMisc.label ~text: (sprintf "%i" link_id) ~packing: (table#attach ~top:0 ~left: (number_of_links+1) ) () in
       let link_status_eventbox = GBin.event_box ~width: 50 ~packing: (table#attach ~top:1 ~left: (number_of_links+1) ) () in
       let link_status_label = GMisc.label ~text: "   " ~packing: link_status_eventbox#add () in
       let rx_msgs_rate_label = GMisc.label ~text: "   " ~packing: (table#attach ~top:2 ~left: (number_of_links+1) ) () in 
@@ -340,21 +340,23 @@ class link ?(visible = fun _ -> true) (widget: GBin.frame) =
     method update_link link_id time_since_last_msg rx_msgs_rate ping_time =
       let (up, link_status_event_box, link_status_label, rx_msgs_rate_label, ping_time_label) = List.assoc link_id links in
       begin
-        let link_status_string = sprintf "%.0f" time_since_last_msg in
-        if link_status_label#text <> link_status_string then (* Updating the link status light*)
-          begin
-            link_status_label#set_label (if time_since_last_msg > 2. then link_status_string else "   ");
-            let color = (if time_since_last_msg > 5. then "red" else "green") in
-            link_status_event_box#coerce#misc#modify_bg [`NORMAL, `NAME color];
-          end;
+        if visible widget then begin (* display only if page is visible *)
+          let link_status_string = sprintf "%.0f" time_since_last_msg in
+          if link_status_label#text <> link_status_string then (* Updating the link status light*)
+            begin
+              link_status_label#set_label (if time_since_last_msg > 2. then link_status_string else "   ");
+              let color = (if time_since_last_msg > 5. then "red" else "green") in
+              link_status_event_box#coerce#misc#modify_bg [`NORMAL, `NAME color];
+            end;
 
-        let rx_msgs_rate_string = sprintf "%.1f" rx_msgs_rate in
-        if rx_msgs_rate_label#text <> rx_msgs_rate_string then (* Updating the rx_msgs_rate field*)
-          rx_msgs_rate_label#set_label rx_msgs_rate_string;
+          let rx_msgs_rate_string = sprintf "%.1f" rx_msgs_rate in
+          if rx_msgs_rate_label#text <> rx_msgs_rate_string then (* Updating the rx_msgs_rate field*)
+            rx_msgs_rate_label#set_label rx_msgs_rate_string;
 
-        let ping_time_string = sprintf "%.1f" ping_time in
-        if ping_time_label#text <> ping_time_string then (* Updating the ping_time field*)
-          ping_time_label#set_label ping_time_string;
+          let ping_time_string = sprintf "%.1f" ping_time in
+          if ping_time_label#text <> ping_time_string then (* Updating the ping_time field*)
+            ping_time_label#set_label ping_time_string;
+        end;
 
         let update_list = fun list_to_update up ->
           let (_, dummy1, dummy2, dummy3, dummy4) = List.assoc link_id list_to_update in

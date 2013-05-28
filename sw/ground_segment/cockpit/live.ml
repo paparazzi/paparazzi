@@ -577,7 +577,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let link_label = GMisc.label ~text: "Link" () in
   let link_frame = GBin.frame ~shadow_type: `NONE () in
   ignore (ac_notebook#append_page ~tab_label: link_label#coerce link_frame#coerce);
-  let link_page = new Pages.link link_frame in
+  let link_page = new Pages.link ~visible link_frame in
 
   let misc_label = GMisc.label ~text: "Misc" () in
   let misc_frame = GBin.frame ~shadow_type: `NONE () in
