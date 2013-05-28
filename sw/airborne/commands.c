@@ -36,8 +36,14 @@
 #define COMMAND_PITCH_TRIM 0
 #endif
 
+#ifndef COMMAND_YAW_TRIM
+#define COMMAND_YAW_TRIM 0
+#endif
+
 pprz_t command_roll_trim = COMMAND_ROLL_TRIM;
 pprz_t command_pitch_trim = COMMAND_PITCH_TRIM;
+pprz_t command_yaw_trim = COMMAND_YAW_TRIM;
+
 
 pprz_t commands[COMMANDS_NB];
 const pprz_t commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
