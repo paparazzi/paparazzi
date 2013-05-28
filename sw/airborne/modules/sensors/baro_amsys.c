@@ -43,10 +43,10 @@
 #endif
 
 #ifdef SITL
-#include "gps.h"
+#include "subsystems/gps.h"
 #endif
 
-#define BARO_AMSYS_ADDR 0xF2
+#define BARO_AMSYS_ADDR 0xE4
 #define BARO_AMSYS_REG 0x07
 #define BARO_AMSYS_SCALE 0.32
 #define BARO_AMSYS_MAX_PRESSURE 103400 // Pascal
