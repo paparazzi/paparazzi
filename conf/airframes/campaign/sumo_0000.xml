@@ -52,6 +52,8 @@
     <subsystem name="navigation"/>
     <!-- Sensors -->
     <subsystem name="gps" type="ublox"/>
+    <!-- Interfaces -->
+    <subsystem name="spi"/>
   </firmware>
 
   <firmware name="setup">
@@ -69,6 +71,7 @@
       <define name="DAT_PIN" value="15"/>
       <define name="SCK_PIN" value="13"/>
     </load>
+    <load name="log_sd_spi.xml"/>
   </modules>
 
   <!-- commands section -->
