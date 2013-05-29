@@ -80,10 +80,10 @@ struct SpektrumStateStruct {
 
 typedef struct SpektrumStateStruct SpektrumStateType;
 
-SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0};
+SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0,{0}};
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 PRINT_CONFIG_MSG("Using secondary spektrum receiver.")
-SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0};
+SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0,{0}};
 #else
 PRINT_CONFIG_MSG("NOT using secondary spektrum receiver.")
 #endif
