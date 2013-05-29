@@ -71,7 +71,7 @@ void high_speed_logger_spi_link_periodic(void)
   high_speed_logger_spi_link_data.id++;
 }
 
-static void high_speed_logger_spi_link_trans_cb( struct spi_transaction *trans ) {
+static void high_speed_logger_spi_link_trans_cb( struct spi_transaction *trans __attribute__ ((unused)) ) {
   high_speed_logger_spi_link_ready = TRUE;
 }
 
