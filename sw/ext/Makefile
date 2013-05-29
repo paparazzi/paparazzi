@@ -58,6 +58,9 @@ libopencm3.module: update_submodules
 luftboot.module: update_submodules libopencm3.module
 	$(Q)$(MAKE) -C luftboot/src all LIBOPENCM3=../../libopencm3 PREFIX=$(PREFIX)
 
+luftboot_flash: luftboot.module libopencm3.module
+	$(Q)$(MAKE) -C luftboot/src flash BMP_PORT?=/dev/ttyACM0 LIBOPENCM3=../../libopencm3 PREFIX=$(PREFIX)
+
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
 		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \
