@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Dino Hensen
+ * Copyright (C) 2013 Dino Hensen
  *
  * This file is part of Paparazzi.
  *

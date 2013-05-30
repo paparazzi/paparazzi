@@ -42,6 +42,8 @@ void ahrs_init(void) {
   //Set navdata_demo to FALSE and flat trim the ar drone
   at_com_send_config("general:navdata_demo", "FALSE");
   at_com_send_ftrim();
+
+  ahrs.status = AHRS_RUNNING;
 }
 
 void ahrs_align(void) {

@@ -220,6 +220,10 @@ STATIC_INLINE void main_periodic( void ) {
 
   imu_periodic();
 
+#if ARDRONE2_RAW
+  ins_periodic();
+#endif
+
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */

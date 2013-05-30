@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2013 Dino Hensen, Vincent van Hoek
+ * Copyright (C) 2013 Dino Hensen
  *
  * This file is part of Paparazzi.
  *
@@ -30,17 +30,10 @@
 #include "subsystems/imu.h"
 #include "generated/airframe.h"
 
-
-/*static inline void imu_ardrone2_event ( void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  if (imu_data_available) {
-    imu_data_available = FALSE;
-    _gyro_handler();
-    _accel_handler();
-    _mag_handler();
-  }
-}*/
-
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {}
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+  _gyro_handler();
+  _accel_handler();
+  _mag_handler();
+}
 
 #endif /* IMU_ARDRONE2_SDK_H_ */
