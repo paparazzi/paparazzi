@@ -51,9 +51,7 @@
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
-#if USE_IMU
 #include "subsystems/imu.h"
-#endif
 
 #if USE_BAROMETERMETER
 #include "subsystems/sensors/baro.h"
@@ -100,17 +98,15 @@ PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
 
-#if USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
-static inline void on_mag_event( void );
-#endif
 
 #if USE_BAROMETER
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
 #endif
 static inline void on_gps_event( void );
+static inline void on_mag_event( void );
 
 #if ARDRONE2_RAW
 static inline void on_navdata_event( void );
@@ -275,14 +271,7 @@ STATIC_INLINE void main_event( void ) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
-#if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-#else
-#if ARDRONE2_SDK
-  ahrs_propagate();
-  ins_periodic();
-#endif
-#endif
 
 #if USE_BAROMETER
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
@@ -304,7 +293,6 @@ STATIC_INLINE void main_event( void ) {
 
 }
 
-#if USE_IMU
 static inline void on_accel_event( void ) {
   ImuScaleAccel(imu);
 
@@ -336,21 +324,6 @@ static inline void on_gyro_event( void ) {
 #endif
 }
 
-static inline void on_mag_event(void) {
-  ImuScaleMag(imu);
-
-#if USE_MAGNETOMETER
-  if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag();
-  }
-#endif
-
-#ifdef USE_VEHICLE_INTERFACE
-  vi_notify_mag_available();
-#endif
-}
-#endif
-
 #if USE_BAROMETER
 static inline void on_baro_abs_event( void ) {
   ins_update_baro();
@@ -373,6 +346,20 @@ static inline void on_gps_event(void) {
 #ifdef USE_VEHICLE_INTERFACE
   if (gps.fix == GPS_FIX_3D)
     vi_notify_gps_available();
+#endif
+}
+
+static inline void on_mag_event(void) {
+  ImuScaleMag(imu);
+
+#if USE_MAGNETOMETER
+  if (ahrs.status == AHRS_RUNNING) {
+    ahrs_update_mag();
+  }
+#endif
+
+#ifdef USE_VEHICLE_INTERFACE
+  vi_notify_mag_available();
 #endif
 }
 
