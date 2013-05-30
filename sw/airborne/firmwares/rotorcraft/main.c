@@ -47,11 +47,7 @@
 #endif
 
 #include "subsystems/imu.h"
-
-//Sensors
-#if USE_GPS
 #include "subsystems/gps.h"
-#endif
 
 #if USE_BAROMETERMETER
 #include "subsystems/sensors/baro.h"
