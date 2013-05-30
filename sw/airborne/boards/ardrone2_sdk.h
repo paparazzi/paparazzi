@@ -15,4 +15,6 @@
 #define ActuatorsDefaultInit() {}
 #define ActuatorsDefaultCommit() {}
 
+#define BOARD_HAS_BARO 0
+
 #endif /* CONFIG_ARDRONE2_SDK */

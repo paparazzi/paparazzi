@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 TU Delft Quatrotor Team 1
+ * Copyright (C) 2013 Dino Hensen
  *
  * This file is part of Paparazzi.
  *
@@ -20,32 +20,16 @@
  */
 
 /**
- * @file boards/ardrone/baro_board.h
- * Paparazzi AR Drone 2 Baro Sensor implementation:.
+ * @file boards/ardrone/baro_board_dummy.c
+ * Dummy Baro Board.
  *
- * These functions are mostly empty because of the calibration and calculations
- * done by the Parrot Navigation board.
+ * These functions are mostly empty because this is a dummy.
  */
 
-#ifndef BOARDS_ARDRONE2_BARO_H
-#define BOARDS_ARDRONE2_BARO_H
+#include "subsystems/sensors/baro.h"
 
-#if BOARD_HAS_BARO
-#include "navdata.h"
-
-int baro_data_available;
-
-static inline void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
-  if (baro_data_available) {
-    b_abs_handler();
-  }
+void baro_init(void) {
 }
 
-#define BaroEvent(_b_abs_handler, _b_diff_handler) {\
-  baro_event(_b_abs_handler,_b_diff_handler);\
+void baro_periodic(void) {
 }
-#else
-#define BaroEvent(_b_abs_handler, _b_diff_handler) {}
-#endif
-
-#endif /* BOARDS_ARDRONE2_BARO_H */

@@ -49,10 +49,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
 
-#if USE_BAROMETERMETER
 #include "subsystems/sensors/baro.h"
-#endif
-
 
 #include "subsystems/electrical.h"
 
@@ -90,13 +87,11 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
-
-#if USE_BAROMETER
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
-#endif
 static inline void on_gps_event( void );
 static inline void on_mag_event( void );
+
 
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t modules_tid;       ///< id for modules_periodic_task() timer
@@ -133,10 +128,7 @@ STATIC_INLINE void main_init( void ) {
 
   radio_control_init();
 
-#if USE_BAROMETER
   baro_init();
-#endif
-
   imu_init();
   autopilot_init();
   nav_init();
@@ -190,10 +182,8 @@ STATIC_INLINE void handle_periodic_tasks( void ) {
     failsafe_check();
   if (sys_time_check_and_ack_timer(electrical_tid))
     electrical_periodic();
-#if USE_BAROMETER
   if (sys_time_check_and_ack_timer(baro_tid))
     baro_periodic();
-#endif
   if (sys_time_check_and_ack_timer(telemetry_tid))
     telemetry_periodic();
 }
@@ -251,9 +241,7 @@ STATIC_INLINE void main_event( void ) {
 
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 
-#if USE_BAROMETER
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
-#endif
 
 #if USE_GPS
   GpsEvent(on_gps_event);
@@ -298,7 +286,6 @@ static inline void on_gyro_event( void ) {
 #endif
 }
 
-#if USE_BAROMETER
 static inline void on_baro_abs_event( void ) {
   ins_update_baro();
 #ifdef USE_VEHICLE_INTERFACE
@@ -309,7 +296,6 @@ static inline void on_baro_abs_event( void ) {
 static inline void on_baro_dif_event( void ) {
 
 }
-#endif
 
 static inline void on_gps_event(void) {
   ins_update_gps();
