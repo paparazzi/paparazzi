@@ -78,12 +78,6 @@
 
 #include "generated/modules.h"
 
-#if ARDRONE2_RAW
-#include "navdata.h"
-#include "mcu_periph/uart.h"
-#include <stdio.h>
-#endif
-
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -108,10 +102,6 @@ static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
 static inline void on_mag_event( void );
 
-#if ARDRONE2_RAW
-static inline void on_navdata_event( void );
-#endif
-
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t modules_tid;       ///< id for modules_periodic_task() timer
 tid_t failsafe_tid;      ///< id for failsafe_check() timer
@@ -133,10 +123,6 @@ int main( void ) {
 #endif /* SITL */
 
 STATIC_INLINE void main_init( void ) {
-
-#if ARDRONE2_RAW
-  navdata_init();
-#endif
 
   mcu_init();
 
@@ -273,10 +259,6 @@ STATIC_INLINE void main_event( void ) {
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 #endif
 
-#if ARDRONE2_RAW
-  NavdataEvent(on_navdata_event);
-#endif
-
 #if USE_GPS
   GpsEvent(on_gps_event);
 #endif
@@ -354,11 +336,3 @@ static inline void on_mag_event(void) {
   vi_notify_mag_available();
 #endif
 }
-
-#if ARDRONE2_RAW
-static inline void on_navdata_event(void) {
-  #ifdef USE_UART1
-    uart1_handler();
-  #endif
-}
-#endif

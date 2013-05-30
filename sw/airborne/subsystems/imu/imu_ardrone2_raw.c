@@ -27,13 +27,15 @@
 #include "subsystems/imu.h"
 #include "navdata.h"
 #include "imu_ardrone2_raw.h"
-
+#include "mcu_periph/uart.h"
 
 void imu_impl_init(void) {
   imu_data_available = FALSE;
+  navdata_init();
 }
 
 void imu_periodic(void) {
+  navdata_update();
   //checks if the navboard has a new dataset ready
   if (navdata_imu_available == TRUE) {
     navdata_imu_available = FALSE;
@@ -45,4 +47,8 @@ void imu_periodic(void) {
   else {
     imu_data_available = FALSE;
   }
+
+#ifdef USE_UART1
+  uart1_handler();
+#endif
 }

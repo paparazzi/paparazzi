@@ -104,13 +104,6 @@ void navdata_update(void);
 void navdata_CropBuffer(int cropsize);
 
 uint16_t navdata_checksum(void);
-
-void navdata_event(void (* _navdata_handler)(void));
-
 int16_t navdata_getHeight(void);
-
-#define NavdataEvent(_navdata_handler) { \
-  navdata_event(_navdata_handler); \
-}
 
 #endif /* NAVDATA_H_ */

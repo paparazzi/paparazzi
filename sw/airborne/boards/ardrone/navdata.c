@@ -168,11 +168,6 @@ void navdata_CropBuffer(int cropsize)
   port->bytesRead -= cropsize;
 }
 
-void navdata_event(void (* _navdata_handler)(void)) {
-  navdata_update();
-  _navdata_handler();
-}
-
 int16_t navdata_getHeight() {
 
   if (navdata->ultrasound > 10000) {
