@@ -142,8 +142,6 @@ ap.srcs += subsystems/actuators.c
 #
 # BARO
 #
-
-BARO = BARO_I2C
 # booz baro
 ifeq ($(BOARD), booz)
 ap.srcs += $(SRC_BOARD)/baro_board.c
