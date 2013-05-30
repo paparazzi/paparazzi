@@ -77,6 +77,18 @@ void ins_init() {
 }
 
 void ins_periodic( void ) {
+
+}
+
+void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
+
+}
+
+void ins_realign_v(float z __attribute__ ((unused))) {
+
+}
+
+void ins_propagate() {
   /* untilt accels and speeds */
   struct NedCoor_f ins_ltp_accel;
   struct NedCoor_f ins_ltp_speed;
@@ -95,18 +107,6 @@ void ins_periodic( void ) {
   ins_ltp_pos.z = -(ahrs_impl.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
   stateSetPositionNed_i(&ins_ltp_pos);
 #endif
-}
-
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
-
-}
-
-void ins_realign_v(float z __attribute__ ((unused))) {
-
-}
-
-void ins_propagate() {
-
 }
 
 void ins_update_baro() {
