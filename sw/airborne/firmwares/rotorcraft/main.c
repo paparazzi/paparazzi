@@ -71,6 +71,7 @@
 
 #include "generated/modules.h"
 
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
