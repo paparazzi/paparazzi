@@ -954,7 +954,7 @@
 #define PERIODIC_SEND_CAM_TRACK(_trans, _dev) {}
 #endif
 
-#ifdef ARDRONE_NAVDATA
+#ifdef ARDRONE2_RAW
 #include "navdata.h"
 #define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) DOWNLINK_SEND_ARDRONE_NAVDATA(_trans, _dev, \
 	&navdata->taille, \
