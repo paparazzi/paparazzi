@@ -137,9 +137,7 @@ STATIC_INLINE void main_init( void ) {
   guidance_v_init();
   stabilization_init();
 
-#if USE_AHRS_ALIGNER
   ahrs_aligner_init();
-#endif
   ahrs_init();
 
   ins_init();
@@ -269,11 +267,9 @@ static inline void on_gyro_event( void ) {
   ImuScaleGyro(imu);
 
   if (ahrs.status == AHRS_UNINIT) {
-#if USE_AHRS_ALIGNER
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
       ahrs_align();
-#endif
   }
   else {
     ahrs_propagate();
