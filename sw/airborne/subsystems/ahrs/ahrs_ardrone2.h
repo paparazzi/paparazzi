@@ -31,6 +31,7 @@
 #define AHRS_ARDRONE2_H
 
 #include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
@@ -42,6 +43,7 @@ struct AhrsARDrone {
   struct NedCoor_f accel;    // in m/s^2
   int32_t altitude;           // in cm above ground
   uint32_t battery;           // in percentage
+  struct Int32Quat ltp_to_imu_quat;
 };
 extern struct AhrsARDrone ahrs_impl;
 
