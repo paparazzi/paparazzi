@@ -44,6 +44,10 @@ int32_t ins_baro_alt;
 struct NedCoor_i ins_ltp_pos;
 struct LtpDef_i ins_ltp_def;
 
+// Keep track of INS LTP accel and speed
+struct NedCoor_f ins_ltp_accel;
+struct NedCoor_f ins_ltp_speed;
+
 bool_t ins_ltp_initialised;
 
 void ins_init() {
@@ -90,8 +94,6 @@ void ins_realign_v(float z __attribute__ ((unused))) {
 
 void ins_propagate() {
   /* untilt accels and speeds */
-  struct NedCoor_f ins_ltp_accel;
-  struct NedCoor_f ins_ltp_speed;
   FLOAT_RMAT_VECT3_TRANSP_MUL(ins_ltp_accel, (*stateGetNedToBodyRMat_f()), ahrs_impl.accel);
   FLOAT_RMAT_VECT3_TRANSP_MUL(ins_ltp_speed, (*stateGetNedToBodyRMat_f()), ahrs_impl.speed);
 

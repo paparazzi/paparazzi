@@ -42,9 +42,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
-#if USE_IMU
 #include "subsystems/imu.h"
-#endif
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
@@ -142,7 +140,6 @@
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
 #endif
 
-#if USE_IMU
 #define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
     DOWNLINK_SEND_IMU_GYRO_SCALED(_trans, _dev,			\
                  &imu.gyro.p,		\
@@ -192,28 +189,15 @@
                   &imu.mag_unscaled.z,                  \
                   &electrical.current);               \
   }
-#else
-#define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {}
-#define PERIODIC_SEND_IMU_ACCEL_SCALED(_trans, _dev) {}
-#define PERIODIC_SEND_IMU_MAG_SCALED(_trans, _dev) {}
-#define PERIODIC_SEND_IMU_GYRO_RAW(_trans, _dev) {}
-#define PERIODIC_SEND_IMU_ACCEL_RAW(_trans, _dev) {}
-#define PERIODIC_SEND_IMU_MAG_RAW(_trans, _dev) {}
-#define PERIODIC_SEND_IMU_MAG_CURRENT_CALIBRATION(_trans, _dev) {}
-#endif
 
-
-
-#if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {         \
     DOWNLINK_SEND_BARO_RAW(_trans, _dev,               \
                            &baro.absolute,      \
                            &baro.differential); \
   }
-#else
-#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {}
-#endif
+
+
 
 #include "firmwares/rotorcraft/stabilization.h"
 #define PERIODIC_SEND_RATE_LOOP(_trans, _dev) {                          \
@@ -663,33 +647,33 @@
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
     DOWNLINK_SEND_INS_Z(_trans, _dev,					\
                 &ins_baro_alt,				\
-                &(stateGetPositionNed_i()->z),			\
-                &(stateGetSpeedNed_i()->z),			\
-                &(stateGetAccelNed_i()->z);			\
+                &ins_ltp_pos.z,			\
+                &ins_ltp_speed.z,			\
+                &ins_ltp_accel.z);			\
   }
 
 #define PERIODIC_SEND_INS(_trans, _dev) {			\
     DOWNLINK_SEND_INS(_trans, _dev,				\
-                       &(stateGetPositionNed_f()->x),		\
-                       &(stateGetPositionNed_f()->y),      \
-                       &(stateGetPositionNed_f()->z),		\
-                       &(stateGetSpeedNed_f()->x),	\
-                       &(stateGetSpeedNed_f()->y),	\
-                       &(stateGetSpeedNed_f()->z),	\
-                       &(stateGetAccelNed_f()->x),	\
-                       &(stateGetAccelNed_f()->y),	\
-                       &(stateGetAccelNed_f()->z));	\
+                       &ins_ltp_pos.x,		\
+                       &ins_ltp_pos.y,      \
+                       &ins_ltp_pos.z,		\
+                       &ins_ltp_speed.x,	\
+                       &ins_ltp_speed.y,	\
+                       &ins_ltp_speed.z,	\
+                       &ins_ltp_accel.x,	\
+                       &ins_ltp_accel.y,	\
+                       &ins_ltp_accel.z);	\
   }
 
 #define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
     if (ins_ltp_initialised)                        \
       DOWNLINK_SEND_INS_REF(_trans, _dev,           \
-                            &(stateGetLocalOriginEcef_i()->x),    \
-                            &(stateGetLocalOriginEcef_i()->y),    \
-                            &(stateGetLocalOriginEcef_i()->z),    \
-                            &(stateGetLocalOriginLla_i()->lat),   \
-                            &(stateGetLocalOriginLla_i()->lon),   \
-                            &(stateGetLocalOriginLla_i()->alt),   \
+                            &ins_ltp_def.ecef.x,    \
+                            &ins_ltp_def.ecef.y,    \
+                            &ins_ltp_def.ecef.z,    \
+                            &ins_ltp_def.lla.lat,   \
+                            &ins_ltp_def.lla.lon,   \
+                            &ins_ltp_def.lla.alt,   \
                             &ins_ltp_def.hmsl,		\
                             &ins_qfe);				\
   }
@@ -698,9 +682,9 @@
     DOWNLINK_SEND_VERT_LOOP(_trans, _dev,				\
                   &guidance_v_z_sp,		\
                   &guidance_v_zd_sp,		\
-                  &(stateGetPositionNed_i()->z),			\
-                  &(stateGetSpeedNed_i()->z),			\
-                  &(stateGetAccelNed_i()->z),			\
+                  &ins_ltp_pos.z,			\
+                  &ins_ltp_speed.z,		\
+                  &ins_ltp_accel.z,		\
                   &guidance_v_z_ref,		\
                   &guidance_v_zd_ref,		\
                   &guidance_v_zdd_ref,		\
@@ -717,12 +701,12 @@
     DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
                    &guidance_h_pos_sp.x,		\
                    &guidance_h_pos_sp.y,		\
-                   &(stateGetPositionNed_i()->x),			\
-                   &(stateGetPositionNed_i()->y),			\
-                   &(stateGetSpeedNed_i()->x),		\
-                   &(stateGetSpeedNed_i()->y),		\
-                   &(stateGetAccelNed_i()->x),		\
-                   &(stateGetAccelNed_i()->y),		\
+                   &ins_ltp_pos.x,			\
+                   &ins_ltp_pos.y,			\
+                   &ins_ltp_speed.x,		\
+                   &ins_ltp_speed.y,		\
+                   &ins_ltp_accel.x,		\
+                   &ins_ltp_accel.y,		\
                    &guidance_h_pos_err.x,		\
                    &guidance_h_pos_err.y,		\
                    &guidance_h_speed_err.x,	\

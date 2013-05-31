@@ -28,7 +28,12 @@
 
 #include "subsystems/sensors/baro.h"
 
+struct Baro baro;
+
 void baro_init(void) {
+  baro.status = BS_UNINITIALIZED;
+  baro.absolute     = 0;
+  baro.differential = 0;
 }
 
 void baro_periodic(void) {
