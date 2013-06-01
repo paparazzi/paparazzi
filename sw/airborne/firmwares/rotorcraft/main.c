@@ -38,7 +38,9 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
+#if DATALINK == WIFI
 #include "subsystems/datalink/wifi.h"
+#endif
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
