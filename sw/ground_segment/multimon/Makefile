@@ -47,11 +47,11 @@ else
   CFLAGS += -O3
 endif
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  CFLAGS += -fPIC
-else ifeq ($(MACHINE),'i686')
+ifeq ($(MACHINE),'i686')
   CFLAGS += -march=i486 -falign-loops=2 -falign-jumps=2 -falign-functions=2 -DARCH_I386
+else
+# PositionIndependentCode for all other architectures
+  CFLAGS += -fPIC
 endif
 
 LDFLAGSX = -lX11 -L/usr/X11R6/lib
