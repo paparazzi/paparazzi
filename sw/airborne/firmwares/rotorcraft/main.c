@@ -38,6 +38,9 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
+#if DATALINK == WIFI
+#include "subsystems/datalink/wifi.h"
+#endif
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
@@ -153,6 +156,10 @@ STATIC_INLINE void main_init( void ) {
 
 #if DATALINK == XBEE
   xbee_init();
+#endif
+
+#if DATALINK == WIFI
+  wifi_init();
 #endif
 
   // register the timers for the periodic functions

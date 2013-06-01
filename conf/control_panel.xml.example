@@ -83,6 +83,30 @@
 
   <section name="sessions">
 
+   <session name="ARDrone2 RAW Flight">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="ardrone2_raw"/>
+        <arg flag="extreme_3d_pro.xml"/>
+      </program>
+    </session>
+
+   <session name="ARDrone2 SDK Flight">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="ardrone2_sdk"/>
+        <arg flag="extreme_3d_pro.xml"/>
+      </program>
+    </session>
+    
    <session name="Flight USB-serial@9600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>

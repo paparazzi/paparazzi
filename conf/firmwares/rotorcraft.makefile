@@ -72,6 +72,10 @@ ifeq ($(ARCH), stm32)
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
+ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
+ap.srcs   += $(SRC_BOARD)/gpio.c
+endif
+
 # frequency of main periodic
 PERIODIC_FREQUENCY ?= 512
 ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
@@ -145,6 +149,12 @@ else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 ap.srcs += $(SRC_BOARD)/baro_board.c
 
+# Ardrone baro
+else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
+ap.srcs += $(SRC_BOARD)/baro_board.c
+else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
+ap.srcs += $(SRC_BOARD)/baro_board_dummy.c
+
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
 # defaults to i2c baro bmp085 on the board
@@ -206,6 +216,10 @@ ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
+else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
+ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
+else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
+ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
 endif
 
 
@@ -266,3 +280,8 @@ ap.srcs += subsystems/navigation/common_flight_plan.c
 # or
 # nothing
 #
+ifeq ($(ARCH), omap)
+SRC_FMS=fms
+ap.CFLAGS += -I. -I$(SRC_FMS)
+ap.srcs   += $(SRC_FMS)/fms_serial_port.c
+endif

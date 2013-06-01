@@ -358,6 +358,28 @@
 #define PERIODIC_SEND_FILTER(_trans, _dev) {}
 #endif
 
+#if USE_AHRS_ARDRONE2
+#include "subsystems/ahrs/ahrs_ardrone2.h"
+#define PERIODIC_SEND_AHRS_ARDRONE2(_trans, _dev) {	\
+    DOWNLINK_SEND_AHRS_ARDRONE2(_trans, _dev,	\
+             &ahrs_impl.state,					\
+             &ahrs_impl.control_state,			\
+             &ahrs_impl.eulers.phi,				\
+             &ahrs_impl.eulers.theta,			\
+             &ahrs_impl.eulers.psi,				\
+             &ahrs_impl.speed.x,				\
+             &ahrs_impl.speed.y,				\
+             &ahrs_impl.speed.z,				\
+             &ahrs_impl.accel.x,				\
+             &ahrs_impl.accel.y,				\
+             &ahrs_impl.accel.z,				\
+             &ahrs_impl.altitude,				\
+             &ahrs_impl.battery);				\
+  }
+#else
+#define PERIODIC_SEND_AHRS_ARDRONE2(_trans, _dev) {}
+#endif
+
 #if USE_AHRS_CMPL_EULER || USE_AHRS_CMPL_QUAT
 #define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {    \
   DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev,            \
@@ -930,6 +952,42 @@
     &target_pos_ned.z)
 #else
 #define PERIODIC_SEND_CAM_TRACK(_trans, _dev) {}
+#endif
+
+#ifdef ARDRONE2_RAW
+#include "navdata.h"
+#define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) DOWNLINK_SEND_ARDRONE_NAVDATA(_trans, _dev, \
+	&navdata->taille, \
+	&navdata->nu_trame, \
+	&navdata->ax, \
+	&navdata->ay, \
+	&navdata->az, \
+	&navdata->vx, \
+	&navdata->vy, \
+	&navdata->vz, \
+	&navdata->temperature_acc, \
+	&navdata->temperature_gyro, \
+	&navdata->ultrasound, \
+	&navdata->us_debut_echo, \
+	&navdata->us_fin_echo, \
+	&navdata->us_association_echo, \
+	&navdata->us_distance_echo, \
+	&navdata->us_curve_time, \
+	&navdata->us_curve_value, \
+	&navdata->us_curve_ref, \
+	&navdata->nb_echo, \
+	&navdata->sum_echo, \
+	&navdata->gradient, \
+	&navdata->flag_echo_ini, \
+	&navdata->pressure, \
+	&navdata->temperature_pressure, \
+	&navdata->mx, \
+	&navdata->my, \
+	&navdata->mz, \
+	&navdata->chksum \
+	)
+#else
+#define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) {}
 #endif
 
 #include "generated/settings.h"

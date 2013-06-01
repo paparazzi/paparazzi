@@ -19,7 +19,36 @@
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
 
-   <!-- 5 is free -->
+   <message name="ARDRONE_NAVDATA" id="5">
+     <field name="taille" type="uint16" />
+     <field name="nu_trame" type="uint16" />
+     <field name="ax" type="uint16" />
+     <field name="ay" type="uint16" />
+     <field name="az" type="uint16" />
+     <field name="vx" type="int16" />
+     <field name="vy" type="int16" />
+     <field name="vz" type="int16" />
+     <field name="temperature_acc" type="uint16" />
+     <field name="temperature_gyro" type="uint16" />
+     <field name="ultrasound" type="uint16" />
+     <field name="us_debut_echo" type="uint16" />
+     <field name="us_fin_echo" type="uint16" />
+     <field name="us_association_echo" type="uint16" />
+     <field name="us_distance_echo" type="uint16" />
+     <field name="us_curve_time" type="uint16" />
+     <field name="us_curve_value" type="uint16" />
+     <field name="us_curve_ref" type="uint16" />
+     <field name="nb_echo" type="uint16" />
+     <field name="sum_echo" type="uint32" />
+     <field name="gradient" type="int16" />
+     <field name="flag_echo_ini" type="uint16" />
+     <field name="pressure" type="int32" />
+     <field name="temperature_pressure" type="int16" />
+     <field name="mx" type="int16" />
+     <field name="my" type="int16" />
+     <field name="mz" type="int16" />
+     <field name="chksum" type="uint16" />
+   </message>
 
    <message name="ATTITUDE" id="6">
      <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
@@ -1834,7 +1863,22 @@
 
  <!--228 is free -->
  <!--229 is free -->
- <!--230 is free -->
+
+  <message name="AHRS_ARDRONE2" id="230">
+    <field name="state" type="uint32" />
+    <field name="control_state" type="uint32" values="DEFAULT|INIT|LANDING|FLYING|HOVERING|TEST|TRANS_TAKEOFF|TRANS_GOTOFIX|TRANS_LANDING|TRANS_LOOPING"/>
+    <field name="phi" type="float" unit="mdeg"/>
+    <field name="theta" type="float" unit="mdeg"/>
+    <field name="psi" type="float" unit="mdeg"/>
+    <field name="speed_x" type="float" unit="m/s"/>
+    <field name="speed_y" type="float" unit="m/s"/>
+    <field name="speed_z" type="float" unit="m/s"/>
+    <field name="accel_x" type="float" unit="m/s^2"/>
+    <field name="accel_y" type="float" unit="m/s^2"/>
+    <field name="accel_z" type="float" unit="m/s^2"/>
+    <field name="altitude" type="int32" unit="cm"/>
+    <field name="battery" type="uint32" unit="%"/>
+  </message>
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
