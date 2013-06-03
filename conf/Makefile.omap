@@ -42,7 +42,8 @@ CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused -Wno-unused-result
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused 
+#-Wno-unused-result
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 
@@ -97,6 +98,7 @@ endif
 	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/usbserial.ko /$(SUB_DIR)/usbserial.ko";	\
 	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/pl2303.ko /$(SUB_DIR)/pl2303.ko";			\
 	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/ftdi-sio.ko /$(SUB_DIR)/ftdi-sio.ko";		\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cp210x.ko /$(SUB_DIR)/cp210x.ko";	\
 	  echo "put $(OBJDIR)/$(TARGET).elf /$(SUB_DIR)/$(TARGET).elf";									\
 	  echo "quit";																					\
 	} | ftp -n $(HOST)
@@ -106,6 +108,7 @@ endif
 	  echo "cd $(TARGET_DIR)";						\
 	  echo "insmod cdc-acm.ko";						\
 	  echo "insmod usbserial.ko";					\
+	  echo "insmod cp210x.ko";					\
 	  echo "insmod pl2303.ko";						\
 	  echo "insmod ftdi-sio.ko";					\
 	  echo "chmod 777 $(TARGET).elf";				\
