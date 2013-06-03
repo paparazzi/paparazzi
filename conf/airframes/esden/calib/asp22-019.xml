@@ -1,0 +1,17 @@
+<airframe>
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_X_NEUTRAL" value="40"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-11"/>
+    <define name="ACCEL_Z_NEUTRAL" value="250"/>
+    <define name="ACCEL_X_SENS" value="4.86864977158" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.90451364272" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.85134642596" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="-178"/>
+    <define name="MAG_Y_NEUTRAL" value="73"/>
+    <define name="MAG_Z_NEUTRAL" value="-11"/>
+    <define name="MAG_X_SENS" value="4.19385009207" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.32306399648" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.63243801309" integer="16"/>
+  </section>
+</airframe>

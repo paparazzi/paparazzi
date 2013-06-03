@@ -164,7 +164,11 @@ void guidance_h_read_rc(bool_t  in_flight) {
       break;
 
     case GUIDANCE_H_MODE_RATE:
+#if SWITCH_STICKS_FOR_RATE_CONTROL
+      stabilization_rate_read_rc_switched_sticks();
+#else
       stabilization_rate_read_rc();
+#endif
       break;
 
     case GUIDANCE_H_MODE_FORWARD:
