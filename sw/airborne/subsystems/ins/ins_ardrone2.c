@@ -36,6 +36,12 @@
 #include <stdio.h>
 #endif
 
+#ifndef USE_INS_NAV_INIT
+#define USE_INS_NAV_INIT TRUE
+PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
+#endif
+
+
 /* TODO: implement in state */
 int32_t ins_qfe;
 int32_t ins_baro_alt;
