@@ -81,6 +81,7 @@
 /*
  * PPM input
  */
+#define USE_PPM_TIM2 1
 #define PPM_CHANNEL         TIM_IC2
 #define PPM_TIMER_INPUT     TIM_IC_IN_TI2
 #define PPM_IRQ             NVIC_TIM2_IRQ
