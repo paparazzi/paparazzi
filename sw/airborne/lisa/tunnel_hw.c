@@ -72,7 +72,7 @@ int main(void) {
   gpio_set_mode(B_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
 	        GPIO_CNF_OUTPUT_PUSHPULL, B_TX_PIN);
 
-  GPIO_BRR(A_TX_PORT) = A_TX_PIN;
+  gpio_clear(A_TX_PORT, A_TX_PIN);
 
   /* */
   while (1) {
@@ -104,17 +104,17 @@ static inline void main_event( void ) {
 
 #if 0
   if (!(foo%2))
-    GPIO_BRR(A_TX_PORT) = A_TX_PIN;
+    gpio_clear(A_TX_PORT, A_TX_PIN);
   else
-    GPIO_BSRR(A_TX_PORT) = A_TX_PIN;
+    gpio_set(A_TX_PORT, A_TX_PIN);
 #endif
 
 #if 1
   /* passthrough B_RX to A_TX */
   if (GPIO_IDR(B_RX_PORT) & B_RX_PIN)
-    GPIO_BSRR(A_TX_PORT) = A_TX_PIN;
+    gpio_set(A_TX_PORT, A_TX_PIN);
   else
-    GPIO_BRR(A_TX_PORT) = A_TX_PIN;
+    gpio_clear(A_TX_PORT, A_TX_PIN);
 #endif
   /* passthrough A_RX to B_TX */
   if (gpio_get(A_RX_PORT, A_RX_PIN)) {

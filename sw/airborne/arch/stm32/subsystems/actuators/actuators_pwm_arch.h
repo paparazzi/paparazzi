@@ -28,14 +28,10 @@
 
 #include "std.h"
 
-#if USE_SERVOS_7AND8
-#if (defined(BOARD_LISA_M) || defined(BOARD_LIA)) && USE_I2C1
-#error "You cannot use Servos 7and8 and I2C1 at the same time"
-#else
+#include BOARD_CONFIG
+
+#ifndef ACTUATORS_PWM_NB
 #define ACTUATORS_PWM_NB 8
-#endif
-#else
-#define ACTUATORS_PWM_NB 6
 #endif
 
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];

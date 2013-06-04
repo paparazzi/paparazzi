@@ -51,14 +51,16 @@
  * - The after_cb callback happens BEFORE the slave is unselected as configured.
  */
 
-#include <libopencm3/stm32/f1/nvic.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/f1/dma.h>
 
 #include "mcu_periph/spi.h"
+
+#include BOARD_CONFIG
 
 #ifdef SPI_MASTER
 
@@ -122,61 +124,37 @@ static void spi_arch_int_disable(struct spi_periph *spi);
  * Handling of Slave Select outputs
  *
  *****************************************************************************/
-/// @todo move the SS gpio defines to the board files
-#define SPI_SELECT_SLAVE0_PERIPH RCC_APB2ENR_IOPAEN
-#define SPI_SELECT_SLAVE0_PORT GPIOA
-#define SPI_SELECT_SLAVE0_PIN GPIO15
-
-#define SPI_SELECT_SLAVE1_PERIPH RCC_APB2ENR_IOPAEN
-#define SPI_SELECT_SLAVE1_PORT GPIOA
-#define SPI_SELECT_SLAVE1_PIN GPIO4
-
-#define SPI_SELECT_SLAVE2_PERIPH RCC_APB2ENR_IOPBEN
-#define SPI_SELECT_SLAVE2_PORT GPIOB
-#define SPI_SELECT_SLAVE2_PIN GPIO12
-
-#define SPI_SELECT_SLAVE3_PERIPH RCC_APB2ENR_IOPCEN
-#define SPI_SELECT_SLAVE3_PORT GPIOC
-#define SPI_SELECT_SLAVE3_PIN GPIO13
-
-#define SPI_SELECT_SLAVE4_PERIPH RCC_APB2ENR_IOPCEN
-#define SPI_SELECT_SLAVE4_PORT GPIOC
-#define SPI_SELECT_SLAVE4_PIN GPIO12
-
-#define SPI_SELECT_SLAVE5_PERIPH RCC_APB2ENR_IOPCEN
-#define SPI_SELECT_SLAVE5_PORT GPIOC
-#define SPI_SELECT_SLAVE5_PIN GPIO4
 
 static inline void SpiSlaveUnselect(uint8_t slave) {
   switch(slave) {
 #if USE_SPI_SLAVE0
     case 0:
-      GPIO_BSRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
+      gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
       break;
 #endif // USE_SPI_SLAVE0
 #if USE_SPI_SLAVE1
     case 1:
-      GPIO_BSRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
+      gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
       break;
 #endif //USE_SPI_SLAVE1
 #if USE_SPI_SLAVE2
     case 2:
-      GPIO_BSRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
+      gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
       break;
 #endif //USE_SPI_SLAVE2
 #if USE_SPI_SLAVE3
     case 3:
-      GPIO_BSRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
+      gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
       break;
 #endif //USE_SPI_SLAVE3
 #if USE_SPI_SLAVE4
     case 4:
-      GPIO_BSRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
+      gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
       break;
 #endif //USE_SPI_SLAVE4
 #if USE_SPI_SLAVE5
     case 5:
-      GPIO_BSRR(SPI_SELECT_SLAVE5_PORT) = SPI_SELECT_SLAVE5_PIN;
+      gpio_set(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
       break;
 #endif //USE_SPI_SLAVE5
     default:
@@ -188,32 +166,32 @@ static inline void SpiSlaveSelect(uint8_t slave) {
   switch(slave) {
 #if USE_SPI_SLAVE0
     case 0:
-      GPIO_BRR(SPI_SELECT_SLAVE0_PORT) = SPI_SELECT_SLAVE0_PIN;
+      gpio_clear(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
       break;
 #endif // USE_SPI_SLAVE0
 #if USE_SPI_SLAVE1
     case 1:
-      GPIO_BRR(SPI_SELECT_SLAVE1_PORT) = SPI_SELECT_SLAVE1_PIN;
+      gpio_clear(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
       break;
 #endif //USE_SPI_SLAVE1
 #if USE_SPI_SLAVE2
     case 2:
-      GPIO_BRR(SPI_SELECT_SLAVE2_PORT) = SPI_SELECT_SLAVE2_PIN;
+      gpio_clear(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
       break;
 #endif //USE_SPI_SLAVE2
 #if USE_SPI_SLAVE3
     case 3:
-      GPIO_BRR(SPI_SELECT_SLAVE3_PORT) = SPI_SELECT_SLAVE3_PIN;
+      gpio_clear(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
       break;
 #endif //USE_SPI_SLAVE3
 #if USE_SPI_SLAVE4
     case 4:
-      GPIO_BRR(SPI_SELECT_SLAVE4_PORT) = SPI_SELECT_SLAVE4_PIN;
+      gpio_clear(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
       break;
 #endif //USE_SPI_SLAVE4
 #if USE_SPI_SLAVE5
     case 5:
-      GPIO_BRR(SPI_SELECT_SLAVE5_PORT) = SPI_SELECT_SLAVE5_PIN;
+      gpio_clear(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
       break;
 #endif //USE_SPI_SLAVE5
     default:
