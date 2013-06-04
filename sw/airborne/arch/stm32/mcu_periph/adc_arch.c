@@ -89,8 +89,10 @@
 #include <libopencm3/stm32/gpio.h>
 #if defined(STM32F1)
 #include <libopencm3/stm32/f1/adc.h>
+#define ADC_SAMPLE_TIME ADC_SMPR_SMP_41DOT5CYC
 #elif defined(STM32F4)
 #include <libopencm3/stm32/f4/adc.h>
+#define ADC_SAMPLE_TIME ADC_SMPR_SMP_56CYC
 #endif
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/timer.h>
@@ -372,22 +374,22 @@ static inline void adc_init_single(uint32_t adc,
 
   rank = 3;
   if (chan1) {
-    adc_set_sample_time(adc, adc_channel_map[0], ADC_SMPR1_SMP_41DOT5CYC);
+    adc_set_sample_time(adc, adc_channel_map[0], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[0];
     rank--;
   }
   if (chan2) {
-    adc_set_sample_time(adc, adc_channel_map[1], ADC_SMPR1_SMP_41DOT5CYC);
+    adc_set_sample_time(adc, adc_channel_map[1], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[1];
     rank--;
   }
   if (chan3) {
-    adc_set_sample_time(adc, adc_channel_map[2], ADC_SMPR1_SMP_41DOT5CYC);
+    adc_set_sample_time(adc, adc_channel_map[2], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[2];
     rank--;
   }
   if (chan4) {
-    adc_set_sample_time(adc, adc_channel_map[3], ADC_SMPR1_SMP_41DOT5CYC);
+    adc_set_sample_time(adc, adc_channel_map[3], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[3];
   }
 
