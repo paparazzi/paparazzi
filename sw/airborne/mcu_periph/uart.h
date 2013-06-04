@@ -126,7 +126,7 @@ extern void uart2_init(void);
 #define UART2ChAvailable() uart_char_available(&uart2)
 #define UART2Getch() uart_getch(&uart2)
 #define UART2TxRunning uart2.tx_running
-#define UART2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b, FALSE)
+#define UART2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b)
 
 #endif // USE_UART2
 
