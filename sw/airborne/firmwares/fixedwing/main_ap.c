@@ -90,6 +90,11 @@ PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 
+#ifndef TELEMETRY_FREQUENCY
+#define TELEMETRY_FREQUENCY 60
+#endif
+PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
+
 #ifndef MODULES_FREQUENCY
 #define MODULES_FREQUENCY 60
 #endif
@@ -203,7 +208,7 @@ void init_ap( void ) {
   navigation_tid = sys_time_register_timer(1./NAVIGATION_FREQUENCY, NULL);
   attitude_tid = sys_time_register_timer(1./CONTROL_FREQUENCY, NULL);
   modules_tid = sys_time_register_timer(1./MODULES_FREQUENCY, NULL);
-  telemetry_tid = sys_time_register_timer(1./60, NULL);
+  telemetry_tid = sys_time_register_timer(1./TELEMETRY_FREQUENCY, NULL);
   monitor_tid = sys_time_register_timer(1.0, NULL);
 
   /** - start interrupt task */

@@ -77,6 +77,11 @@
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
+#ifndef TELEMETRY_FREQUENCY
+#define TELEMETRY_FREQUENCY 60
+#endif
+PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
+
 #ifndef MODULES_FREQUENCY
 #define MODULES_FREQUENCY 512
 #endif
@@ -169,7 +174,7 @@ STATIC_INLINE void main_init( void ) {
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
   baro_tid = sys_time_register_timer(1./BARO_PERIODIC_FREQUENCY, NULL);
-  telemetry_tid = sys_time_register_timer((1./60.), NULL);
+  telemetry_tid = sys_time_register_timer((1./TELEMETRY_FREQUENCY), NULL);
 }
 
 STATIC_INLINE void handle_periodic_tasks( void ) {
