@@ -178,8 +178,8 @@ let (//) = Filename.concat;;
 
 let dir_name = if dir = "" then name else dir;;
 let xml_name = "conf/modules" // name^".xml";;
-let header_name = "sw/airborne/modules"// dir_name // name^".c";;
-let code_name = "sw/airborne/modules" // dir_name // name^".h";;
+let header_name = "sw/airborne/modules"// dir_name // name^".h";;
+let code_name = "sw/airborne/modules" // dir_name // name^".c";;
 
 let test_filename = fun () ->
   let ask_confirm = ref false in
