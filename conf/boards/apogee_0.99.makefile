@@ -19,8 +19,9 @@ HARD_FLOAT=yes
 
 # default flash mode is via usb dfu bootloader
 # possibilities: DFU, SWD
-FLASH_MODE ?= SWD
+FLASH_MODE ?= DFU
 STLINK ?= y
+DFU_UTIL ?= y
 
 #
 # default LED configuration
