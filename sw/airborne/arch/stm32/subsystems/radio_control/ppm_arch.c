@@ -164,8 +164,11 @@ void tim1_up_tim10_isr(void) {
 }
 
 void tim1_cc_isr(void) {
-  if((TIM1_SR & PPM_IRQ_CCIF) != 0) {
-    timer_clear_flag(TIM1, PPM_IRQ_CCIF);
+//  if((TIM1_SR & PPM_IRQ_CCIF) != 0) {
+//    timer_clear_flag(TIM1, PPM_IRQ_CCIF);
+
+    if((TIM1_SR & TIM_SR_CC3IF) != 0) {
+    timer_clear_flag(TIM1, TIM_SR_CC3IF);
 
     uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
     DecodePpmFrame(now);
