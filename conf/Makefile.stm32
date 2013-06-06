@@ -237,7 +237,7 @@ ifeq ($(DFU_UTIL),y)
 DFU_ADDR ?= 0x08000000
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using dfu-util at $(DFU_ADDR)"
-	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^ -v
+	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
 else
 #
 # DFU flash mode paparazzi stm32_mem
