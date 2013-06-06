@@ -84,6 +84,7 @@
 #define PPM_IRQ             NVIC_TIM1_UP_IRQ
 #define PPM_IRQ2            NVIC_TIM1_CC_IRQ
 #define PPM_IRQ_FLAGS       (TIM_DIER_CC3IE | TIM_DIER_UIE)
+#define PPM_IRQ_CCIF        TIM_SR_CC3IF
 #define PPM_GPIO_PERIPHERAL RCC_APB2ENR_IOPAEN
 #define PPM_GPIO_PORT       GPIOA
 #define PPM_GPIO_PIN        GPIO10
@@ -95,6 +96,7 @@
 #define PPM_TIMER_INPUT     TIM_IC_IN_TI2
 #define PPM_IRQ             NVIC_TIM2_IRQ
 #define PPM_IRQ_FLAGS       (TIM_DIER_CC2IE | TIM_DIER_UIE)
+#define PPM_IRQ_CCIF        TIM_SR_CC2IF
 #define PPM_GPIO_PERIPHERAL RCC_APB2ENR_IOPAEN
 #define PPM_GPIO_PORT       GPIOA
 #define PPM_GPIO_PIN        GPIO1
