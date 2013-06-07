@@ -22,6 +22,7 @@
 
 #include "subsystems/datalink/wifi.h"
 #include "fms/fms_network.h"
+#include <string.h>
 
 //Check if variables are set and else define them
 #ifndef LINK_HOST
@@ -88,5 +89,6 @@ void wifi_receive( void ) {
 
   }
 
+  memset(&udp_read_buffer[0], 0, sizeof(udp_read_buffer));
 }
 
