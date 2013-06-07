@@ -42,16 +42,16 @@
 #ifndef AIRSPEED_AMSYS_SCALE
 #define AIRSPEED_AMSYS_SCALE 1
 #endif
-#ifndef AIRSPEED_AMSYS_OFFSET
-#define AIRSPEED_AMSYS_OFFSET 0
-#endif
 #define AIRSPEED_AMSYS_OFFSET_MAX 29491
 #define AIRSPEED_AMSYS_OFFSET_MIN 3277
 #define AIRSPEED_AMSYS_OFFSET_NBSAMPLES_INIT 40
 #define AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG 60
 #define AIRSPEED_AMSYS_NBSAMPLES_AVRG 10
 #ifndef AIRSPEED_AMSYS_MAXPRESURE
-#define AIRSPEED_AMSYS_MAXPRESURE 2068//2073 //Pascal
+#define AIRSPEED_AMSYS_MAXPRESURE 2068 //003-2068, 001-689 //Pascal
+#endif
+#ifndef AIRSPEED_AMSYS_FILTER
+#define AIRSPEED_AMSYS_FILTER 0
 #endif
 #ifndef AIRSPEED_AMSYS_I2C_DEV
 #define AIRSPEED_AMSYS_I2C_DEV i2c0
@@ -71,8 +71,9 @@
 uint16_t airspeed_amsys_raw;
 uint16_t tempAS_amsys_raw;
 bool_t airspeed_amsys_valid;
-float airspeed_tmp;
-float pressure_amsys; //Pascal
+float airspeed_amsys_offset;
+float airspeed_amsys_tmp;
+float airspeed_amsys_p; //Pascal
 float airspeed_amsys; //mps
 float airspeed_scale;
 float airspeed_filter;
@@ -82,17 +83,23 @@ struct i2c_transaction airspeed_amsys_i2c_trans;
 volatile bool_t airspeed_amsys_i2c_done;
 float airspeed_temperature = 0.0;
 float airspeed_old = 0.0;
-
+bool_t airspeed_amsys_offset_init;
+double airspeed_amsys_offset_tmp;
+uint16_t airspeed_amsys_cnt;
 
 void airspeed_amsys_init( void ) {
 	airspeed_amsys_raw = 0;
 	airspeed_amsys = 0.0;
-	pressure_amsys = 0.0;
+	airspeed_amsys_p = 0.0;
+	airspeed_amsys_offset = 0;
+	airspeed_amsys_offset_tmp = 0;
 	airspeed_amsys_i2c_done = TRUE;
 	airspeed_amsys_valid = TRUE;
-	airspeed_scale = AIRSPEED_SCALE;
-	airspeed_filter = AIRSPEED_FILTER;
+	airspeed_amsys_offset_init = FALSE;
+	airspeed_scale = AIRSPEED_AMSYS_SCALE;
+	airspeed_filter = AIRSPEED_AMSYS_FILTER;
 	airspeed_amsys_i2c_trans.status = I2CTransDone;
+	airspeed_amsys_cnt = AIRSPEED_AMSYS_OFFSET_NBSAMPLES_INIT + AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG;
 }
 
 void airspeed_amsys_read_periodic( void ) {
@@ -104,10 +111,21 @@ void airspeed_amsys_read_periodic( void ) {
 		i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
 #endif
 
+#if USE_AIRSPEED
+		stateSetAirspeed_f(&airspeed_amsys);
+#endif
+
 #else // SITL
 		extern float sim_air_speed;
 		stateSetAirspeed_f(&sim_air_speed);
 #endif //SITL
+
+
+#ifdef AIRSPEED_AMSYS_SYNC_SEND
+		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &airspeed_amsys_p, &airspeed_amsys_tmp, &airspeed_amsys, &airspeed_amsys_offset);
+#else
+		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &airspeed_amsys_p, &airspeed_amsys_tmp, &airspeed_amsys, &airspeed_temperature));
+#endif
 }
 
 void airspeed_amsys_read_event( void ) {
@@ -137,23 +155,38 @@ void airspeed_amsys_read_event( void ) {
 			airspeed_amsys_raw = AIRSPEED_AMSYS_OFFSET_MAX;
 
 		// calculate raw to pressure
-		pressure_amsys = (float)(airspeed_amsys_raw-AIRSPEED_AMSYS_OFFSET_MIN)*AIRSPEED_AMSYS_MAXPRESURE/(float)(AIRSPEED_AMSYS_OFFSET_MAX-AIRSPEED_AMSYS_OFFSET_MIN);
+		airspeed_amsys_p = (float)(airspeed_amsys_raw-AIRSPEED_AMSYS_OFFSET_MIN)*AIRSPEED_AMSYS_MAXPRESURE/(float)(AIRSPEED_AMSYS_OFFSET_MAX-AIRSPEED_AMSYS_OFFSET_MIN);
+		if (!airspeed_amsys_offset_init) {
+			--airspeed_amsys_cnt;
+			// Check if averaging completed
+			if (airspeed_amsys_cnt == 0) {
+				// Calculate average
+				airspeed_amsys_offset = (float)(airspeed_amsys_offset_tmp / AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG);
+				airspeed_amsys_offset_init = TRUE;
+			}
+			// Check if averaging needs to continue
+			else if (airspeed_amsys_cnt <= AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG)
+				airspeed_amsys_offset_tmp += airspeed_amsys_p;
 
-		airspeed_tmp = sqrtf(2*(pressure_amsys)*airspeed_scale/1.2041); //without offset
+			airspeed_amsys = 0.;
 
-	// 	Lowpass filter
-		airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
-		airspeed_old = airspeed_amsys;
+		}
+		else {
+			airspeed_amsys_p =  airspeed_amsys_p - airspeed_amsys_offset;
+			if (airspeed_amsys_p <= 0) airspeed_amsys_p=0.000000001;
+			airspeed_amsys_tmp = sqrtf(2*(airspeed_amsys_p)*airspeed_scale/1.2041); // convert pressure to airspeed
+			// Lowpassfiltering
+			airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_amsys_tmp;
+			airspeed_old = airspeed_amsys;
+			//New value available
+		}
 
-#if USE_AIRSPEED
-		stateSetAirspeed_f(&airspeed_amsys);
-#endif
-#ifdef SENSOR_SYNC_SEND
-		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
-#else
-		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
-#endif
-	}
+	} /*else {
+		airspeed_amsys = 0.0;
+	}*/
+
+
+
 
 	// Transaction has been read
 	airspeed_amsys_i2c_trans.status = I2CTransDone;
