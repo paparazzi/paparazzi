@@ -6,7 +6,6 @@
     <target name="ap" board="ardrone2_raw">
       <define name="USE_INS_NAV_INIT" />
       <!--configure name="USE_NEW_I2C_DRIVER" value="1"/ -->
-      <configure name="USE_MAGNETOMETER" value="0" />
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="200" />
       <define name="AHRS_PROPAGATE_FREQUENCY" value="200" />
       <define name="USE_BAROMETER" />
@@ -151,7 +150,7 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="15" unit="deg" />
     <define name="SP_MAX_THETA" value="15" unit="deg" />
-    <define name="SP_MAX_R" value="15" unit="deg/s" />
+    <define name="SP_MAX_R" value="90" unit="deg/s" />
     <define name="DEADBAND_A" value="0" />
     <define name="DEADBAND_E" value="0" />
     <define name="DEADBAND_R" value="250" />
