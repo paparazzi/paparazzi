@@ -231,6 +231,7 @@ void guidance_h_run(bool_t  in_flight) {
       if (!in_flight) guidance_h_nav_enter();
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+#if defined STABILIZATION_ATTITUDE_TYPE_INT
         stab_att_sp_euler.phi = nav_roll;
         stab_att_sp_euler.theta = nav_pitch;
         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
@@ -238,6 +239,14 @@ void guidance_h_run(bool_t  in_flight) {
 #ifdef STABILIZATION_ATTITUDE_TYPE_QUAT
         INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
         INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+#endif
+#elif defined STABILIZATION_ATTITUDE_TYPE_FLOAT
+       stab_att_sp_euler.phi = ANGLE_FLOAT_OF_BFP(nav_roll);
+       stab_att_sp_euler.theta = ANGLE_FLOAT_OF_BFP(nav_pitch);
+       /* FIXME: heading can't be set via attitude block yet, use current heading for now */
+       stab_att_sp_euler.psi = stateGetNedToBodyEulers_f()->psi;
+#else
+#error "STABILIZATION_ATTITUDE_TYPE not defined"
 #endif
       }
       else {
@@ -343,13 +352,19 @@ static void guidance_h_traj_run(bool_t in_flight) {
   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
 
   /* Set attitude setpoint in eulers and as quaternion */
+#if defined STABILIZATION_ATTITUDE_TYPE_INT
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
-
 #ifdef STABILIZATION_ATTITUDE_TYPE_QUAT
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
   INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 #endif /* STABILIZATION_ATTITUDE_TYPE_QUAT */
-
+#elif defined STABILIZATION_ATTITUDE_TYPE_FLOAT
+  stab_att_sp_euler.phi = ANGLE_FLOAT_OF_BFP(guidance_h_command_body.phi);
+  stab_att_sp_euler.psi = ANGLE_FLOAT_OF_BFP(guidance_h_command_body.psi);
+  stab_att_sp_euler.theta = ANGLE_FLOAT_OF_BFP(guidance_h_command_body.theta);
+#else
+#error "STABILIZATION_ATTITUDE_TYPE not defined"
+#endif
 }
 
 static void guidance_h_hover_enter(void) {
