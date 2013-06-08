@@ -192,6 +192,12 @@ void alt_kalman(float z_meas) {
     R = baro_ms5611_r;
     SIGMA2 = baro_ms5611_sigma2;
   } else
+#elif USE_BARO_AMSYS
+  if (baro_amsys_enabled) {
+    DT = BARO_AMSYS_DT;
+    R = baro_amsys_r;
+    SIGMA2 = baro_amsys_sigma2;
+  } else
 #elif USE_BARO_BMP
   if (baro_bmp_enabled) {
     DT = BARO_BMP_DT;
