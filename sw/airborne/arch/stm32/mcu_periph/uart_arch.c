@@ -475,7 +475,7 @@ void uart6_init( void ) {
   /* Configure USART Tx,Rx and hardware flow control*/
   uart_periph_set_mode(&uart6, USE_UART6_TX, USE_UART6_RX, UART6_HW_FLOW_CONTROL);
 
-  uart_periph_set_baudrate(&uart6, UART6_BAUD, FALSE);
+  uart_periph_set_baudrate(&uart6, UART6_BAUD);
 }
 
 void usart6_isr(void) { usart_isr(&uart6); }
