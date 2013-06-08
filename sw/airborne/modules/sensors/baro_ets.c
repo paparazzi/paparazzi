@@ -43,6 +43,7 @@
 #include "mcu_periph/i2c.h"
 #include "state.h"
 #include <math.h>
+#include "mcu_periph/sys_time.h"
 
 #include "subsystems/nav.h"
 
@@ -91,13 +92,15 @@ struct i2c_transaction baro_ets_i2c_trans;
 bool_t baro_ets_offset_init;
 uint32_t baro_ets_offset_tmp;
 uint16_t baro_ets_cnt;
+uint32_t baro_ets_delay_time;
+bool_t   baro_ets_delay_done;
 
 void baro_ets_init( void ) {
   baro_ets_adc = 0;
   baro_ets_altitude = 0.0;
   baro_ets_offset = 0;
   baro_ets_offset_tmp = 0;
-  baro_ets_valid = TRUE;
+  baro_ets_valid = FALSE;
   baro_ets_offset_init = FALSE;
   baro_ets_enabled = TRUE;
   baro_ets_cnt = BARO_ETS_OFFSET_NBSAMPLES_INIT + BARO_ETS_OFFSET_NBSAMPLES_AVRG;
@@ -105,15 +108,29 @@ void baro_ets_init( void ) {
   baro_ets_sigma2 = BARO_ETS_SIGMA2;
 
   baro_ets_i2c_trans.status = I2CTransDone;
+
+#if defined BARO_ETS_START_DELAY && ! defined SITL
+  baro_ets_delay_done = FALSE;
+  SysTimeTimerStart(baro_ets_delay_time);
+#else
+  baro_ets_delay_done = TRUE;
+  baro_ets_delay_time = 0;
+#endif
 }
 
 void baro_ets_read_periodic( void ) {
   // Initiate next read
 #ifndef SITL
+#if defined BARO_ETS_START_DELAY
+  if (!baro_ets_delay_done) {
+    if (SysTimeTimer(baro_ets_delay_time) < USEC_OF_SEC(BARO_ETS_START_DELAY)) return;
+    else baro_ets_delay_done = TRUE;
+  }
+#endif
   if (baro_ets_i2c_trans.status == I2CTransDone)
     i2c_receive(&BARO_ETS_I2C_DEV, &baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
-  /* fake an offset so sim works for under hmsl as well */
+  /* fake an offset so sim works as well */
   if (!baro_ets_offset_init) {
     baro_ets_offset = 12400;
     baro_ets_offset_init = TRUE;
