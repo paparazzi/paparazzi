@@ -19,20 +19,20 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STABILIZATION_ATTITUDE_FLOAT_H
-#define STABILIZATION_ATTITUDE_FLOAT_H
+/**
+ * @file stabilization_attitude_common_float.h
+ *
+ * Common data structures shared by euler and quaternion float implementations.
+ */
+
+
+#ifndef STABILIZATION_ATTITUDE_COMMON_FLOAT_H
+#define STABILIZATION_ATTITUDE_COMMON_FLOAT_H
 
 #include "math/pprz_algebra_float.h"
 
 #include "generated/airframe.h"
 
-#ifndef STABILIZATION_ATTITUDE_FLOAT_GAIN_NB
-#define STABILIZATION_ATTITUDE_FLOAT_GAIN_NB 1
-#endif
-
-#ifndef STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT
-#define STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT 0
-#endif
 
 struct FloatAttitudeGains {
   struct FloatVect3  p;
@@ -46,12 +46,9 @@ struct FloatAttitudeGains {
   struct FloatVect3  surface_i;
 };
 
-extern struct FloatAttitudeGains stabilization_gains[];
 extern struct FloatEulers stabilization_att_sum_err_eulers;
 
 extern float stabilization_att_fb_cmd[COMMANDS_NB];
 extern float stabilization_att_ff_cmd[COMMANDS_NB];
 
-void stabilization_attitude_gain_schedule(uint8_t idx);
-
-#endif /* STABILIZATION_ATTITUDE_FLOAT_H */
+#endif /* STABILIZATION_ATTITUDE_COMMON_FLOAT_H */

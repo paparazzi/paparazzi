@@ -67,7 +67,10 @@ nps.srcs += mcu_periph/i2c.c
 nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
-nps.CFLAGS += -DPERIODIC_FREQUENCY=512
+PERIODIC_FREQUENCY ?= 512
+TELEMETRY_FREQUENCY ?= 60
+nps.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+nps.CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
 #nps.CFLAGS += -DUSE_LED
 nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 

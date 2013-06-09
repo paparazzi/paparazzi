@@ -132,8 +132,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-        stab_att_sp_euler.phi = 0;
-        stab_att_sp_euler.theta = 0;
+        stabilization_attitude_set_failsafe_setpoint();
         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
         break;
 #endif

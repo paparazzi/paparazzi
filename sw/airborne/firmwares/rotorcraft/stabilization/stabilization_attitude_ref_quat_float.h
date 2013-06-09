@@ -30,8 +30,6 @@
 #ifndef STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H
 #define STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H
 
-#include "firmwares/rotorcraft/stabilization.h"
-
 #include "subsystems/radio_control.h"
 #include "math/pprz_algebra_float.h"
 

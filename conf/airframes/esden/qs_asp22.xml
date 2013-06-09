@@ -192,7 +192,6 @@
  </section>
 
  <section name="MISC">
-   <define name="REF_QUAT_INFINITESIMAL_STEP" value="TRUE"/>
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
 <!--    <define name="USE_REFERENCE_SYSTEM" value="FALSE"/> -->
    <define name="SWITCH_STICKS_FOR_RATE_CONTROL" value="TRUE"/>

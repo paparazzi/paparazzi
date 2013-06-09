@@ -80,6 +80,9 @@ endif
 PERIODIC_FREQUENCY ?= 512
 ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
+TELEMETRY_FREQUENCY ?= 60
+ap.CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
+
 #
 # Systime
 #
@@ -193,7 +196,16 @@ ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DUSE_SPI1
 ap.srcs += peripherals/mcp355x.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
+
+# apogee baro
+else ifeq ($(BOARD), apogee)
+ap.CFLAGS += -DUSE_I2C1
+ap.CFLAGS += -DMPL3115_I2C_DEV=i2c1
+ap.CFLAGS += -DMPL3115_ALT_MODE=0
+ap.srcs += peripherals/mpl3115.c
+ap.srcs += $(SRC_BOARD)/baro_board.c
 endif
+
 ifneq ($(BARO_LED),none)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 endif
@@ -213,7 +225,6 @@ ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 endif
 else ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DUSE_ADC
-ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)

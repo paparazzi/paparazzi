@@ -19,24 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STABILIZATION_ATTITUDE_INT_H
-#define STABILIZATION_ATTITUDE_INT_H
+#ifndef STABILIZATION_ATTITUDE_QUAT_INT_H
+#define STABILIZATION_ATTITUDE_QUAT_INT_H
+
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
 
 #include "math/pprz_algebra_int.h"
 
-#include "generated/airframe.h"
+extern struct Int32Quat   stab_att_sp_quat;   ///< with #INT32_QUAT_FRAC
 
-struct Int32AttitudeGains {
-  struct Int32Vect3  p;
-  struct Int32Vect3  d;
-  struct Int32Vect3  dd;
-  struct Int32Vect3  i;
-};
-
-extern struct Int32AttitudeGains  stabilization_gains;
-extern struct Int32Eulers stabilization_att_sum_err;
-
-extern int32_t stabilization_att_fb_cmd[COMMANDS_NB];
-extern int32_t stabilization_att_ff_cmd[COMMANDS_NB];
-
-#endif /* STABILIZATION_ATTITUDE_INT_H */
+#endif /* STABILIZATION_ATTITUDE_QUAT_INT_H */

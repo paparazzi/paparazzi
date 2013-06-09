@@ -1,6 +1,8 @@
 #ifndef CONFIG_LISA_M_1_0_H
 #define CONFIG_LISA_M_1_0_H
 
+#include "boards/lisa_m_common.h"
+
 #define BOARD_LISA_M
 
 /* Lisa/M has a 12MHz external clock and 72MHz internal. */
@@ -15,8 +17,8 @@
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
 #define LED_1_GPIO_PIN GPIO4
-#define LED_1_GPIO_ON GPIO_BRR
-#define LED_1_GPIO_OFF GPIO_BSRR
+#define LED_1_GPIO_ON gpio_clear
+#define LED_1_GPIO_OFF gpio_set
 #define LED_1_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
 
 /* blue */
@@ -26,8 +28,8 @@
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_2_GPIO_PIN GPIO5
-#define LED_2_GPIO_ON GPIO_BRR
-#define LED_2_GPIO_OFF GPIO_BSRR
+#define LED_2_GPIO_ON gpio_clear
+#define LED_2_GPIO_OFF gpio_set
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* blue */
@@ -37,8 +39,8 @@
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_3_GPIO_PIN GPIO2
-#define LED_3_GPIO_ON GPIO_BRR
-#define LED_3_GPIO_OFF GPIO_BSRR
+#define LED_3_GPIO_ON gpio_clear
+#define LED_3_GPIO_OFF gpio_set
 #define LED_3_AFIO_REMAP ((void)0)
 
 // GPIO pins
@@ -48,8 +50,8 @@
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_4_GPIO_PIN GPIO12
-#define LED_4_GPIO_ON GPIO_BRR
-#define LED_4_GPIO_OFF GPIO_BSRR
+#define LED_4_GPIO_ON gpio_clear
+#define LED_4_GPIO_OFF gpio_set
 #define LED_4_AFIO_REMAP ((void)0)
 
 #ifndef USE_LED_5
@@ -58,16 +60,16 @@
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_CLK RCC_APB2ENR_IOPCEN
 #define LED_5_GPIO_PIN GPIO10
-#define LED_5_GPIO_ON GPIO_BRR
-#define LED_5_GPIO_OFF GPIO_BSRR
+#define LED_5_GPIO_ON gpio_clear
+#define LED_5_GPIO_OFF gpio_set
 #define LED_5_AFIO_REMAP ((void)0)
 
 /* PB1, DRDY on EXT SPI connector*/
 #define LED_BODY_GPIO GPIOB
 #define LED_BODY_GPIO_CLK RCC_APB2ENR_IOPBEN
 #define LED_BODY_GPIO_PIN GPIO1
-#define LED_BODY_GPIO_ON GPIO_BSRR
-#define LED_BODY_GPIO_OFF GPIO_BRR
+#define LED_BODY_GPIO_ON gpio_set
+#define LED_BODY_GPIO_OFF gpio_clear
 #define LED_BODY_AFIO_REMAP ((void)0)
 
 
@@ -119,10 +121,5 @@
 #endif // USE_AD1
 
 #define BOARD_HAS_BARO 1
-
-// Remap the servos 5 and 6 to TIM5 CH1 and CH2
-#if !defined REMAP_SERVOS_5AND6
-#define REMAP_SERVOS_5AND6 1
-#endif
 
 #endif /* CONFIG_LISA_M_1_0_H */

@@ -37,7 +37,11 @@ Q=@
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded
 
 
+ifeq ($(ARCH_L),f4)
+MCU   = cortex-m4
+else
 MCU   = cortex-m3
+endif
 #DEBUG = dwarf-2
 OPT   = s
 #OPT   = 2
@@ -98,7 +102,17 @@ $(info Using "$($(TARGET).LDSCRIPT)" as ldscript for target "$(TARGET)".)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -msoft-float -O$(OPT)
+CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
+CFLAGS += -D__thumb2__ -Wall -O$(OPT)
+ifeq ($(ARCH_L), )
+CFLAGS += -msoft-float
+else ifeq ($(ARCH_L),f4)
+ifndef HARD_FLOAT
+CFLAGS += -msoft-float
+else
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+endif
+endif
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mfix-cortex-m3-ldrd
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
@@ -107,33 +121,51 @@ CFLAGS += -std=gnu99
 CFLAGS += -fno-common
 CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
-
-# flags for warnings
-CFLAGS += -Wall -Wextra
 CFLAGS += -Wimplicit
 CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += -Wnested-externs
 CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 CFLAGS += -Wswitch-default
-
-CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
+ifneq ($(ARCH_L), )
+ifeq ($(ARCH_L),f4)
+CFLAGS += -DSTM32F4
+endif
+else
 CFLAGS += -DSTM32F1
+endif
 
 CFLAGS += $($(TARGET).CFLAGS)
 
-AFLAGS  = -ahls
+AFLAGS  = -ahls -mapcs-32
 AFLAGS += -mcpu=$(MCU) -mthumb
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS = -L../ext/libopencm3/lib
-LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT)
-LDFLAGS += -mthumb -mcpu=$(MCU) -msoft-float -mfix-cortex-m3-ldrd
+LDFLAGS += -L../ext/libopencm3/lib
+LDFLAGS += -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -mcpu=$(MCU)
+
+ifeq ($(ARCH_L), )
+LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
+else ifeq ($(ARCH_L),f4)
+ifndef HARD_FLOAT
+LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
+else
+LDFLAGS += -lnosys -D__thumb2__\
+           -mfloat-abi=hard -mfpu=fpv4-sp-d16
+endif
+endif
+
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc -lopencm3_stm32f1
+ifneq ($(ARCH_L), )
+LDLIBS  += -lopencm3_stm32$(ARCH_L)
+else
+LDLIBS  += -lopencm3_stm32f1
+endif
+LDLIBS  += -lc -lm -lgcc
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary
@@ -199,11 +231,27 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 # check which flash mode is configured
 #
 ifeq ($(FLASH_MODE),DFU)
+ifeq ($(DFU_UTIL),y)
 #
-# DFU flash mode
+# DFU flash mode using dfu-util
+DFU_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using dfu-util at $(DFU_ADDR)"
+	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
+else
+#
+# DFU flash mode paparazzi stm32_mem
+ifdef DFU_ADDR
+DFU_ADDR_CMD = --addr=$(DFU_ADDR)
+endif
+ifdef DFU_PRODUCT
+DFU_PRODUCT_CMD = --product=$(DFU_PRODUCT)
+endif
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using stm32 mem dfu loader"
-	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $^
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_PRODUCT_CMD) $(DFU_ADDR_CMD) $^
+endif
+
 #
 # serial flash mode
 else ifeq ($(FLASH_MODE),SERIAL)
@@ -246,6 +294,12 @@ endif
 # SWD flash mode
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
+ifeq ($(STLINK),y)
+STLINK_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
+	$(Q)st-flash write $^ $(STLINK_ADDR)
+else
 BMP_PORT ?= /dev/ttyACM0
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
@@ -257,6 +311,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
+endif
 #
 # no known flash mode
 else

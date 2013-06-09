@@ -1,12 +1,3 @@
-STAB_ATT_CFLAGS  = -DSTABILIZATION_ATTITUDE_TYPE_INT
-STAB_ATT_CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_int.h\"
-STAB_ATT_CFLAGS += -DSTABILIZATION_ATTITUDE_REF_TYPE_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
-STAB_ATT_SRCS  = $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
-STAB_ATT_SRCS += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
-STAB_ATT_SRCS += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_rc_setpoint.c
+$(warning Warning: The stabilization euler subsystem has been renamed, please replace <subsystem name="stabilization" type="euler"/> with <subsystem name="stabilization" type="int_euler"/> in your airframe file.)
 
-ap.CFLAGS += $(STAB_ATT_CFLAGS)
-ap.srcs += $(STAB_ATT_SRCS)
-
-nps.CFLAGS += $(STAB_ATT_CFLAGS)
-nps.srcs += $(STAB_ATT_SRCS)
+include $(PAPARAZZI_SRC)/conf/firmwares/subsystems/rotorcraft/stabilization_int_euler.makefile

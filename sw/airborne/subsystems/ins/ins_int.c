@@ -52,6 +52,11 @@
 
 #include "generated/flight_plan.h"
 
+#ifndef USE_INS_NAV_INIT
+#define USE_INS_NAV_INIT TRUE
+PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
+#endif
+
 /* gps transformed to LTP-NED  */
 struct LtpDef_i  ins_ltp_def;
          bool_t  ins_ltp_initialised;

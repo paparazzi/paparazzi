@@ -74,15 +74,29 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_enter(void) {
 
-  int32_t heading = stabilization_attitude_get_heading_i();
-
   /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = heading;
+  stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
   stabilization_attitude_ref_enter();
 
   INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
   INT_EULERS_ZERO(stabilization_att_sum_err);
+}
+
+void stabilization_attitude_set_failsafe_setpoint(void) {
+  /* set failsafe to zero roll/pitch and current heading */
+  int32_t heading2 = stabilization_attitude_get_heading_i() / 2;
+  PPRZ_ITRIG_COS(stab_att_sp_quat.qi, heading2);
+  stab_att_sp_quat.qx = 0;
+  stab_att_sp_quat.qy = 0;
+  PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
+}
+
+void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+  // copy euler setpoint for debugging
+  memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, *sp_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))

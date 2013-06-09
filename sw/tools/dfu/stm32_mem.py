@@ -29,6 +29,7 @@ from optparse import OptionParser
 
 import usb
 import dfu
+import time
 
 APP_ADDRESS = 0x08002000
 SECTOR_SIZE = 2048
@@ -84,6 +85,8 @@ if __name__ == "__main__":
                       action="store", default="Lisa/Lia",
                       help="only upload to device where idProduct contains PRODUCT\n"
                       "choices: (any, Lisa/Lia), default: Lisa/Lia")
+    parser.add_option("--addr", type="int", action="store", dest="addr", default=APP_ADDRESS,
+                      help="Upload start address (default: 0x08002000)")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="Dry run to check which board is found without actually flashing.")
     (options, args) = parser.parse_args()
@@ -99,7 +102,13 @@ if __name__ == "__main__":
     if options.verbose:
         print_copyright()
 
-    devs = dfu.finddevs()
+    for i in range(1,60):
+      devs = dfu.finddevs()
+      if not devs:
+        print('.', end="")
+        stdout.flush()
+        time.sleep(0.5)
+    print("")
     if not devs:
         print("No DFU devices found!")
         exit(1)
@@ -182,9 +191,13 @@ if __name__ == "__main__":
         print("Could not open binary file.")
         raise
 
-    addr = APP_ADDRESS
+    #addr = APP_ADDRESS
+    addr = options.addr
+    print ("Programming memory from 0x%08X...\r" % addr)
+    
     while bin:
-        print("Programming memory at 0x%08X\r" % addr)
+#        print("Programming memory at 0x%08X\r" % addr),
+        print('#', end="")
         stdout.flush()
         stm32_erase(target, addr)
         stm32_write(target, bin[:SECTOR_SIZE])

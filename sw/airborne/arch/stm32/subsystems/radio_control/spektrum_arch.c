@@ -20,14 +20,17 @@
  */
 
 #include <stdint.h>
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/cm3/nvic.h>
+
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
+
+#include BOARD_CONFIG
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
 #define MAX_SPEKTRUM_FRAMES 2
@@ -39,11 +42,6 @@
 /* Number of low pulses sent to satellite receivers */
 #define MASTER_RECEIVER_PULSES 5
 #define SLAVE_RECEIVER_PULSES 6
-
-/* The line that is pulled low at power up to initiate the bind process */
-#define BIND_PIN GPIO_Pin_3
-#define BIND_PIN_PORT GPIOC
-#define BIND_PIN_PERIPH RCC_APB2Periph_GPIOC
 
 #define TIM_FREQ_1000000 1000000
 #define TIM_TICS_FOR_100us 100
@@ -133,6 +131,13 @@ static void SpektrumDelayInit( void );
  *
  *****************************************************************************/
 void radio_control_impl_init(void) {
+
+  PrimarySpektrumState.ReSync = 1;
+
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
+  SecondarySpektrumState.ReSync = 1;
+#endif
+
   SpektrumTimerInit();
   // DebugInit();
   SpektrumUartInit();
@@ -538,31 +543,33 @@ void SpektrumUartInit(void) {
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART5EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SecondaryUart(_RCC_GPIO));
+  rcc_peripheral_enable_clock(SecondaryUart(_RCC_REG), SecondaryUart(_RCC_DEV));
 
   /* Enable USART interrupts */
-  nvic_set_priority(NVIC_UART5_IRQ, 3);
-  nvic_enable_irq(NVIC_UART5_IRQ);
+  nvic_set_priority(SecondaryUart(_IRQ), 3);
+  nvic_enable_irq(SecondaryUart(_IRQ));
 
   /* Init GPIOS */;
   /* Secondary UART Rx pin as floating input */
-  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
+  gpio_set_mode(SecondaryUart(_BANK), GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_FLOAT, SecondaryUart(_PIN));
+
+  SecondaryUart(_REMAP);
 
   /* Configure secondary UART */
-  usart_set_baudrate(UART5, 115200);
-  usart_set_databits(UART5, 8);
-  usart_set_stopbits(UART5, USART_STOPBITS_1);
-  usart_set_parity(UART5, USART_PARITY_NONE);
-  usart_set_flow_control(UART5, USART_FLOWCONTROL_NONE);
-  usart_set_mode(UART5, USART_MODE_RX);
+  usart_set_baudrate(SecondaryUart(_DEV), 115200);
+  usart_set_databits(SecondaryUart(_DEV), 8);
+  usart_set_stopbits(SecondaryUart(_DEV), USART_STOPBITS_1);
+  usart_set_parity(SecondaryUart(_DEV), USART_PARITY_NONE);
+  usart_set_flow_control(SecondaryUart(_DEV), USART_FLOWCONTROL_NONE);
+  usart_set_mode(SecondaryUart(_DEV), USART_MODE_RX);
 
   /* Enable Secondary UART Receive interrupts */
-  USART_CR1(UART5) |= USART_CR1_RXNEIE;
+  USART_CR1(SecondaryUart(_DEV)) |= USART_CR1_RXNEIE;
 
   /* Enable the Primary UART */
-  usart_enable(UART5);
+  usart_enable(SecondaryUart(_DEV));
 #endif
 
 }
@@ -595,16 +602,16 @@ void PrimaryUart(_ISR)(void) {
  *
  *****************************************************************************/
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-void uart5_isr(void) {
+void SecondaryUart(_ISR)(void) {
 
-  if (((USART_CR1(UART5) & USART_CR1_TXEIE) != 0) &&
-      ((USART_SR(UART5) & USART_SR_TXE) != 0)) {
-    USART_CR1(UART5) &= ~USART_CR1_TXEIE;
+  if (((USART_CR1(SecondaryUart(_DEV)) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(SecondaryUart(_DEV)) & USART_SR_TXE) != 0)) {
+    USART_CR1(SecondaryUart(_DEV)) &= ~USART_CR1_TXEIE;
   }
 
-  if (((USART_CR1(UART5) & USART_CR1_RXNEIE) != 0) &&
-      ((USART_SR(UART5) & USART_SR_RXNE) != 0)) {
-    uint8_t b = usart_recv(UART5);
+  if (((USART_CR1(SecondaryUart(_DEV)) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(SecondaryUart(_DEV)) & USART_SR_RXNE) != 0)) {
+    uint8_t b = usart_recv(SecondaryUart(_DEV));
     SpektrumParser(b, &SecondarySpektrumState, TRUE);
   }
 
@@ -643,15 +650,15 @@ void DebugInit(void) {
 void radio_control_spektrum_try_bind(void) {
 
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPEKTRUM_BIND_PIN_RCC_IOP);
 
   /* Init GPIO for the bind pin */
-  gpio_set(GPIOC, GPIO3);
-  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
-            GPIO_CNF_INPUT_PULL_UPDOWN, GPIO3);
+  gpio_set(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
+  gpio_set_mode(SPEKTRUM_BIND_PIN_PORT, GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_PULL_UPDOWN, SPEKTRUM_BIND_PIN);
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */
-  if (gpio_get(GPIOC, GPIO3) != 0)
+  if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
     return;
 
   /* bind initiated, initialise the delay timer */
@@ -662,21 +669,21 @@ void radio_control_spektrum_try_bind(void) {
 
   /* Master receiver Rx push-pull */
   gpio_set_mode(PrimaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
-      GPIO_CNF_OUTPUT_PUSHPULL, PrimaryUart(_PIN));
+                GPIO_CNF_OUTPUT_PUSHPULL, PrimaryUart(_PIN));
 
   /* Master receiver RX line, drive high */
   gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, SecondaryUart(_RCC_GPIO));
 
   /* Slave receiver Rx push-pull */
-  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, GPIO_UART5_RX);
+  gpio_set_mode(SecondaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL,  SecondaryUart(_PIN));
 
   /* Slave receiver RX line, drive high */
-  gpio_set(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
+  gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
 #endif
 
   /* We have no idea how long the window for allowing binding after
@@ -694,9 +701,9 @@ void radio_control_spektrum_try_bind(void) {
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++)
   {
-    gpio_clear(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
+    gpio_clear(SecondaryUart(_BANK), SecondaryUart(_PIN));
     DelayUs(120);
-    gpio_set(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
+    gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
     DelayUs(120);
   }
 #endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */

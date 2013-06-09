@@ -1,0 +1,100 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="35" ground_alt="0" lat0="54.117477" lon0="12.184862" max_dist_from_home="100" name="Krooz Test" security_height="10">
+  <header>
+#include "autopilot.h"
+#include "../../subsystems/electrical.h"
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
+    <waypoint name="CAM" x="-20" y="-50" height="11."/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
+		<waypoint name="LAND" x="5.6" y="-10.9"/>
+    <waypoint name="1" x="3.6" y="-13.9"/>
+    <waypoint name="2" x="27.5" y="-48.2"/>
+    <waypoint name="3" x="16.7" y="-19.6"/>
+    <waypoint name="4" x="13.7" y="-40.7"/>
+  </waypoints>
+	<exceptions>
+    <exception cond="!autopilot_in_flight && !autopilot_motors_on" deroute="Holding point"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <exception cond="autopilot_motors_on" deroute="Start Engine"/>
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+			<exception cond="!RcCommand(RC_MODE_CHANGE) && autopilot_in_flight" deroute="Takeoff"/>
+			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_in_flight" deroute="Standby"/>
+      <call fun="NavResurrect()"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+			<call fun="NavSetWaypointHere(WP_TD)"/>
+      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+			<!--<call fun="NavStopDetectGround()"/>-->
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <stay vmode="climb" climb="1.0" wp="CLIMB"/>
+    </block>
+		<block name="Come Home">
+			<call fun="NavSetWpCurAlt(WP_STDBY)"/>
+		</block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+			<exception cond="!autopilot_motors_on" deroute="Holding point"/>
+      <exception cond="LowBatLevel()" deroute="Land"/>
+      <exception cond="RcCommand(RC_ROUTE)" deroute="Route"/>
+			<exception cond="RcCommand(RC_CIRCLE)" deroute="Circle"/>
+      <exception cond="RcCommand(RC_LAND)" deroute="Land"/>
+			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on && !autopilot_in_flight" deroute="Start Engine"/>
+			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on && autopilot_in_flight" deroute="Come Home"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Route">
+			<exception cond="LowBatLevel()" deroute="Land"/>
+      <exception cond="RcCommand(RC_LAND)" deroute="Land"/>
+			<exception cond="RcCommand(RC_HOME)" deroute="Come Home"/>
+			<exception cond="!autopilot_motors_on" deroute="Holding point"/>
+			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on && !autopilot_in_flight" deroute="Start Engine"/>
+			<!--<call fun="NavStopDetectGround()"/>-->
+      <go wp="1"/>
+      <go from="1" hmode="route" wp="2"/>
+			<go from="2" hmode="route" wp="3"/>
+      <go from="3" hmode="route" wp="4"/>
+      <go from="4" hmode="route" wp="1"/>
+      <deroute block="Land"/>
+    </block>
+    <block name="Circle">
+			<exception cond="LowBatLevel()" deroute="Land"/>
+      <exception cond="RcCommand(RC_LAND)" deroute="Land"/>
+			<exception cond="RcCommand(RC_HOME)" deroute="Come Home"/>
+			<exception cond="!autopilot_motors_on" deroute="Holding point"/>
+			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on && !autopilot_in_flight" deroute="Start Engine"/><!--  -->
+      <circle radius="nav_radius" wp="CAM"/>
+    </block>
+    <block name="Land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="Land">
+			<call fun="NavSetWpCurAlt(WP_TD)"/>
+      <go wp="TD"/>
+    </block>
+    <block name="Flare">
+			<exception cond="RcCommand(RC_MODE_CHANGE) && autopilot_motors_on" deroute="Land here"/>
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.8" vmode="climb" wp="TD"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -28,6 +28,7 @@
 #define STABILIZATION_ATTITUDE_REF_EULER_INT_H
 
 #include "stabilization_attitude_ref_int.h"
+#include "stabilization_attitude_ref_euler.h"
 
 
 #endif /* STABILIZATION_ATTITUDE_REF_EULER_INT_H */

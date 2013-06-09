@@ -69,6 +69,10 @@ endif
 #
 PERIODIC_FREQUENCY ?= 60
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+
+TELEMETRY_FREQUENCY ?= 60
+$(TARGET).CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
+
 $(TARGET).srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 $(TARGET).CFLAGS += -DUSE_SYS_TIME
 
@@ -131,11 +135,7 @@ ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 # ANALOG
 #
 ns_CFLAGS 		+= -DUSE_ADC
-#ifeq ($(ARCH), lpc21)
-  ns_srcs 		+= $(SRC_ARCH)/mcu_periph/adc_arch.c
-ifeq ($(ARCH), stm32)
-  ns_CFLAGS 		+= -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
-endif
+ns_srcs 			+= $(SRC_ARCH)/mcu_periph/adc_arch.c
 
 ######################################################################
 ##
