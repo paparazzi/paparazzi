@@ -23,11 +23,6 @@
 #define STABILIZATION_ATTITUDE_PASSTHROUGH_H
 
 #include "math/pprz_algebra_int.h"
-
-#include "generated/airframe.h"
-
-
-extern struct Int32Eulers stab_att_sp_euler;  ///< with #INT32_ANGLE_FRAC
-
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 
 #endif /* STABILIZATION_ATTITUDE_PASSTHROUGH_H */

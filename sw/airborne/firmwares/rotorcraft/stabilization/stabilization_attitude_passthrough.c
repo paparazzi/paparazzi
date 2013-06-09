@@ -23,8 +23,8 @@
  * @file stabilization_attitude_passthrough.c
  * @brief passthrough attitude stabilization
  *
- * This is usefull for instance when having an AC that has needs no
- * stabilization because it is allready been done by other stabilization
+ * This is useful for instance when having an AC that has needs no
+ * stabilization because it is already been done by other stabilization
  * software onboard or just does not need it at all.
  */
 
@@ -70,5 +70,15 @@ void stabilization_attitude_run(bool_t  in_flight __attribute__ ((unused))) {
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
   BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+}
+
+void stabilization_attitude_set_failsafe_setpoint(void) {
+  stab_att_sp_euler.phi = 0;
+  stab_att_sp_euler.theta = 0;
+  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
+}
+
+void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+  memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
 }
 
