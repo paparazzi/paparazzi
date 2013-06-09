@@ -20,7 +20,7 @@
 *
 */
 
-#include "subsystems/datalink/wifi.h"
+#include "subsystems/datalink/udp.h"
 #include "fms/fms_network.h"
 #include <string.h>
 
@@ -45,22 +45,22 @@ uint16_t udp_buffer_id;
 uint8_t ck_a, ck_b;
 struct FmsNetwork* network;
 
-void wifi_init( void ) {
+void udp_init( void ) {
   network = network_new(LINK_HOST, LINK_PORT, DATALINK_PORT, FMS_NETWORK_BROADCAST);
   udp_buffer_id = 0;
 }
 
-void wifi_transmit( uint8_t data ) {
+void udp_transmit( uint8_t data ) {
   udp_buffer[udp_buffer_id] = data;
   udp_buffer_id++;
 }
 
-void wifi_send( void ) {
+void udp_send( void ) {
   network_write(network, udp_buffer, udp_buffer_id);
   udp_buffer_id =0;
 }
 
-void wifi_receive( void ) {
+void udp_receive( void ) {
   //First check if it isn't already having a message
   if(dl_msg_available == TRUE) {
     return;
