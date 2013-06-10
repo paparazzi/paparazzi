@@ -66,9 +66,9 @@ external stick_init : int -> int = "ml_stick_init"
 (** [stick_init device] Return 0 on success. Search for a device if [device]
     is the empty string *)
 
-external stick_read : unit -> int * int * int array = "ml_stick_read"
-(** Return the number of buttons, an integer of bits for the buttons values
-    and an array of signed integers for the axis *)
+external stick_read : unit -> int * int * int * int array = "ml_stick_read"
+(** Return the number of buttons, an integer of bits for the buttons values,
+    an integer for the hat and an array of signed integers for the axis *)
 
 (** Range for the input axis *)
 let max_input = 127
@@ -79,6 +79,7 @@ let trim_step = 0.2
 type input =
     Axis of int * int * float * float * float ref (* (index, deadband, limit, exponent, trim ) *)
   | Button of int
+  | Hat of int
 
 (** Description of a message *)
 type msg = {
@@ -207,6 +208,7 @@ let parse_input = fun input ->
             let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
             Axis (index, deadband, limit, exponent, ref trim)
         | "button" -> Button index
+        | "hat" -> Hat index
         | _ -> failwith "parse_input: unexepcted tag" in
     (name, value))
     (Xml.children input)
@@ -290,6 +292,7 @@ let trim_set = fun inputs value ->
   match input with
       Axis (i, deadband, limit, exponent, trim) -> trim := (second_of_two value)
     | Button i -> failwith "No trim for buttons"
+    | Hat _ -> failwith "No trim for hats"
 
 
 (** Input the trim file if it exists *)
@@ -341,10 +344,11 @@ let apply_trim = fun x trim ->
   if x_new > max_input then max_input else (if x_new < min_input then min_input else x_new)
 
 (** Access to an input value, button or axis *)
-let eval_input = fun buttons axis input ->
+let eval_input = fun buttons hat axis input ->
   match input with
       Axis (i, deadband, limit, exponent, trim) ->  (apply_trim (apply_limit (apply_exponent (apply_deadband axis.(i) deadband) exponent) limit) trim.contents)
     | Button i -> (buttons lsr i) land 0x1
+    | Hat _ -> hat
 
 (** Scale a value in the given bounds *)
 let scale = fun x min max ->
@@ -371,7 +375,7 @@ let pprz_mode = fun mode ->
   else 1
 
 (** Eval a function call (TO BE COMPLETED) *)
-let eval_call = fun f args ->
+let eval_call = fun f args hat->
   match f, args with
       "-", [a] -> - a
     | "-", [a1; a2] -> a1 - a2
@@ -382,6 +386,15 @@ let eval_call = fun f args ->
     | "||", [a1; a2] -> a1 lor a2
     | "<",  [a1; a2] -> if a1 < a2 then 1 else 0
     | ">",  [a1; a2] -> if a1 > a2 then 1 else 0
+    | "HatCentered",  [_] -> if hat = 0 then 1 else 0
+    | "HatUp",        [_] -> if hat = 1 then 1 else 0
+    | "HatRight",     [_] -> if hat = 2 then 1 else 0
+    | "HatRightUp",   [_] -> if hat = 3 then 1 else 0
+    | "HatDown",      [_] -> if hat = 4 then 1 else 0
+    | "HatRightDown", [_] -> if hat = 6 then 1 else 0
+    | "HatLeft",      [_] -> if hat = 8 then 1 else 0
+    | "HatLeftUp",    [_] -> if hat = 9 then 1 else 0
+    | "HatLeftDown",  [_] -> if hat = 12 then 1 else 0
     | "Scale", [x; min; max] -> scale (x) (min) (max)
     | "Fit", [x; min; max; min_input; max_input] -> fit (x) (min) (max) (min_input) (max_input)
     | "Bound", [x; min; max] -> bound (x) (min) (max)
@@ -390,22 +403,22 @@ let eval_call = fun f args ->
     | f, args -> failwith (sprintf "eval_call: unknown function '%s'" f)
 
 (** Eval an expression *)
-let eval_expr = fun buttons axis inputs variables expr ->
+let eval_expr = fun buttons hat axis inputs variables expr ->
   let rec eval = function
-  Syntax.Ident ident ->
-        (* try input first, then variables *)
-    let i = match (List.mem_assoc ident inputs, List.mem_assoc ident variables) with
-        (true, _) -> eval_input buttons axis (List.assoc ident inputs)
+    | Syntax.Ident ident ->
+      (* try input first, then variables and hat position *)
+      let i = match (List.mem_assoc ident inputs, List.mem_assoc ident variables) with
+      | (true, _) -> eval_input buttons hat axis (List.assoc ident inputs)
       | (false, true) ->
-        let v = List.assoc ident variables in
-        v.value
+          let v = List.assoc ident variables in
+          v.value
       | (false, false) -> failwith (sprintf "eval_expr: %s not found" ident)
-    in
-    i
+      in
+      i
     | Syntax.Int int -> int
     | Syntax.Float float -> failwith "eval_expr: float"
     | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
-      eval_call ident (List.map eval exprs)
+      eval_call ident (List.map eval exprs) hat
     | Syntax.Index _ -> failwith "eval_expr: index"
     | Syntax.Field _ -> failwith "eval_expr: Field"
     | Syntax.Deref _ -> failwith "eval_expr: deref" in
@@ -433,6 +446,7 @@ let trim_save_add_leaf = fun x channel_pair ->
   match channel with
       Axis (i, deadband, limit, exponent, trim) -> x := x.contents ^ (Printf.sprintf "<trim axis='%s' value = '%f'/>" chan_name trim.contents)
     | Button i -> Printf.printf "%d" i
+    | Hat _ -> Printf.printf "hat"
 
 (** save trim settings to file *)
 let trim_save = fun inputs ->
@@ -450,13 +464,14 @@ let trim_adjust = fun axis_name adjustment inputs ->
   let input = my_assoc axis_name inputs in
   match input with
       Axis (i, deadband, limit, exponent, trim) -> trim := trim.contents +. adjustment
-    | Button i -> failwith "No trim for buttons"
+    | Button _ -> failwith "No trim for buttons"
+    | Hat _ -> failwith "No trim for hats"
 
 (** Update variables state *)
-let update_variables = fun inputs buttons axis variables ->
+let update_variables = fun inputs buttons hat axis variables ->
   List.iter (fun (_,var) ->
     List.iter (fun (value, expr) ->
-      let event = eval_expr buttons axis inputs variables expr in
+      let event = eval_expr buttons hat axis inputs variables expr in
       if event <> 0 then begin
         (* remove and add again ? *)
         var.value <- value
@@ -465,16 +480,16 @@ let update_variables = fun inputs buttons axis variables ->
   ) variables
 
 (** Send an ivy message if needed: new values and/or 'on_event' condition true*)
-let execute_action = fun ac_id inputs buttons axis variables message ->
+let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let values =
     List.map
-      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons axis inputs variables expr)))
+      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons hat axis inputs variables expr)))
       message.fields
 
   and on_event =
     match message.on_event with
         None -> true
-      | Some expr -> eval_expr buttons axis inputs variables expr <> 0 in
+      | Some expr -> eval_expr buttons hat axis inputs variables expr <> 0 in
 
   let previous_values = get_previous_values message.msg_name in
   (* FIXME ((value <> previous) && on_event) || send_always ??? *)
@@ -492,14 +507,15 @@ let execute_action = fun ac_id inputs buttons axis variables message ->
 
 
 (** Output on stderr the values from the input device *)
-let print_inputs = fun nb_buttons buttons axis ->
+let print_inputs = fun nb_buttons buttons hat axis ->
   print_string "buttons: ";
   for i = 0 to nb_buttons - 1 do
-    printf "%d:%d " i (eval_input buttons axis (Button i))
+    printf "%d:%d " i (eval_input buttons hat axis (Button i))
   done;
+  printf "\nhat: %d" (eval_input buttons hat axis (Hat 0));
   print_string "\naxis: ";
   for i = 0 to Array.length axis - 1 do
-    printf "%d:%d " i (eval_input buttons axis (Axis (i, 0, 1.0, 0.0, ref 0.0)))
+    printf "%d:%d " i (eval_input buttons hat axis (Axis (i, 0, 1.0, 0.0, ref 0.0)))
   done;
   ignore (print_newline ())
 
@@ -508,14 +524,14 @@ let print_inputs = fun nb_buttons buttons axis ->
     This is called at a rate programmed in the xml  *)
 let execute_actions = fun actions ac_id ->
   try
-    let (nb_buttons, buttons, axis) = stick_read () in
+    let (nb_buttons, buttons, hat, axis) = stick_read () in
 
     if !verbose then
-      print_inputs nb_buttons buttons axis;
+      print_inputs nb_buttons buttons hat axis;
 
     (* TODO update variables before msg *)
-    update_variables actions.inputs buttons axis actions.variables;
-    List.iter (execute_action ac_id actions.inputs buttons axis actions.variables) actions.messages
+    update_variables actions.inputs buttons hat axis actions.variables;
+    List.iter (execute_action ac_id actions.inputs buttons hat axis actions.variables) actions.messages
   with
       exc -> prerr_endline (Printexc.to_string exc)
 

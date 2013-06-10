@@ -50,6 +50,7 @@ SDL_Joystick *sdl_joystick;
 SDL_Event sdl_event;
 
 int8_t stick_axis_values[AXIS_COUNT] = {0, 0, 0, 0, 0, 0};
+uint8_t stick_hat_value = 0;
 int32_t stick_button_values = 0;
 
 int stick_axis_count = 0;
@@ -82,6 +83,13 @@ int init_sdl_device(int device_index)
   dbgprintf(stderr,"Available button: %d (0x%x)\n",stick_button_count,stick_button_count);
   if (stick_button_count == 0) {
     dbgprintf(stderr,"ERROR: no suitable buttons found [%s:%d]\n",__FILE__,__LINE__);
+  }
+
+  /* How many POV hats available */
+  int stick_hat_count = SDL_JoystickNumHats(sdl_joystick);
+  dbgprintf(stderr,"Available hats: %d (0x%x)\n",stick_hat_count,stick_hat_count);
+  if (stick_hat_count > 1) {
+    dbgprintf(stderr,"ERROR: only one POV hat supported [%s:%d]\n",__FILE__,__LINE__);
   }
 
   /* How many axes available */
@@ -123,9 +131,8 @@ int stick_read( void ) {
     switch(sdl_event.type)
     {
       case SDL_JOYBUTTONDOWN:
-      //falls through to JOYBUTTONUP
+        //falls through to JOYBUTTONUP
       case SDL_JOYBUTTONUP:
-      {
         for (cnt = 0; cnt < stick_button_count; cnt++) {
           if (sdl_event.jbutton.button == cnt) {
             if (sdl_event.jbutton.state == SDL_PRESSED) {
@@ -134,8 +141,15 @@ int stick_read( void ) {
             break;
           }
         }
-      }
-      break;
+        break;
+
+      case SDL_JOYHATMOTION:
+        // only one hat (with index 0) supported
+        if (sdl_event.jhat.hat == 0) {
+          stick_hat_value = sdl_event.jhat.value;
+          break;
+        }
+        break;
 
       case SDL_JOYAXISMOTION:
         for (cnt = 0; cnt < stick_axis_count; cnt++) {
@@ -144,31 +158,34 @@ int stick_read( void ) {
             break;
           }
         }
-      break;
+        break;
 
       case SDL_QUIT:
-      printf("Quitting...\n");
-      exit(1);
-      break;
+        printf("Quitting...\n");
+        exit(1);
+        break;
 
       default:
-      //do nothing
-      //printf("unknown SDL event!!!\n");
-      break;
+        //do nothing
+        //printf("unknown SDL event!!!\n");
+        break;
     }
   }
 
-  dbgprintf(stderr,"buttons ");
+  dbgprintf(stderr, "buttons ");
   for (cnt = 0; cnt < stick_button_count; cnt++) {
-    dbgprintf(stderr,"%d ",(stick_button_values >> cnt) & 1 );
+    dbgprintf(stderr, "%d ", (stick_button_values >> cnt) & 1 );
   }
 
-  dbgprintf(stderr,"| axes ");
+  dbgprintf(stderr, "| hat ");
+  dbgprintf(stderr, "%d ", stick_hat_value);
+
+  dbgprintf(stderr, "| axes ");
   for (cnt = 0; cnt < stick_axis_count; cnt++) {
-    dbgprintf(stderr,"%d ",stick_axis_values[cnt]);
+    dbgprintf(stderr, "%d ", stick_axis_values[cnt]);
   }
 
-  dbgprintf(stderr,"\n");
+  dbgprintf(stderr, "\n");
 
   return 0;
 }
