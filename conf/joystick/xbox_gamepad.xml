@@ -1,0 +1,91 @@
+<!-- Generic X-Box gamepad
+  e.g. Logitech wireless gamepad F710
+
+This config is for Xinput mode. Make sure slider switch on back of controller is on X (not D)
+Also make sure controller not in sports mode (mode light should be off)
+
+  Has six axes:
+  axis 0: LTS_H (left thumb stick horizontal) (or DPad horizontal in sports mode)
+  axis 1: LTS_V (left thumb stick vertical) (or DPad vertical in sports mode)
+  axis 2: LT (left trigger)
+  axis 3: RTS_H (right thumb stick horizontal)
+  axis 4: RTS_V (right thumb stick vertical)
+  axis 5: RT (right trigger)
+
+It has 11 buttons.
+ b0  - A (green)
+ b1  - B (red)
+ b2  - X (blue)
+ b3  - Y (yellow)
+ b4  - LB (left shoulder button)
+ b5  - RB (right shoulder button)
+ b6  - back
+ b7  - start
+ b8  - ?
+ b9  - LSB (left stick button)
+ b10 - RSB (right stick button)
+
+and the DPad as a hat (in normal mode)
+You can use the Hat<Position>(<hat_name>) function to trigger events,
+where <Position> is one of
+Centered/Up/Right/Down/Left/RightUp/RightDown/LeftUp/LeftDown
+so e.g. HatDown(dpad)
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="yaw" limit="1.00" exponent="0.7" trim="0"/>
+    <axis index="1" name="throttle"/>
+    <axis index="2" name="LT" limit="1.00" trim="127"/>
+    <axis index="3" name="roll" limit="1.00" exponent="0.7" trim="0"/>
+    <axis index="4" name="pitch" limit="1.00" exponent="0.7" trim="0"/>
+    <axis index="5" name="RT" limit="1.00" trim="127"/>
+    <button index="0" name="A"/>
+    <button index="1" name="B"/>
+    <button index="2" name="X"/>
+    <button index="3" name="Y"/>
+    <button index="4" name="LB"/>
+    <button index="5" name="RB"/>
+    <button index="6" name="back"/>
+    <button index="7" name="start"/>
+    <button index="9" name="LSB"/>
+    <button index="10" name="RSB"/>
+    <hat index="0" name="dpad"/>
+  </input>
+
+  <variables>
+    <!-- manual by default and when pressing A, AUTO1 on B, AUTO2 on Y -->
+    <var name="mode" default="0"/>
+    <set var="mode" value="0" on_event="A"/>
+    <set var="mode" value="1" on_event="B"/>
+    <set var="mode" value="2" on_event="Y"/>
+  </variables>
+
+  <messages period="0.05">
+
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode" value="mode"/>
+      <field name="throttle" value="Fit(-throttle,-127,127,0,127)"/>
+      <field name="roll" value="roll"/>
+      <field name="pitch" value="pitch"/>
+      <field name="yaw" value="yaw"/>
+    </message>
+
+    <!-- go to "Start Engine" block if in AUTO2 and pressing start button -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && start">
+      <field name="block_id" value="IndexOfBlock('Start Engine')"/>
+    </message>
+
+    <!-- go to "Takeoff" block if in AUTO2 and pressing up on dpad -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatUp(dpad)">
+      <field name="block_id" value="IndexOfBlock('Takeoff')"/>
+    </message>
+
+    <!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
+      <field name="block_id" value="IndexOfBlock('land here')"/>
+    </message>
+
+  </messages>
+</joystick>
