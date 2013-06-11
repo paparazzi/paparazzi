@@ -100,8 +100,20 @@ void link_mcu_event_task( void ) {
 #define LINK_MCU_SLAVE_IDX SPI_SLAVE0
 #endif
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
+
 uint8_t link_mcu_nb_err;
 uint8_t link_mcu_fbw_nb_err;
+
+static void send_debug_link(void) {
+  uint8_t mcu1_ppm_cpt_foo = 0; //FIXME
+  DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, DefaultDevice,
+      &link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt_foo);
+}
 
 void link_mcu_init(void) {
   link_mcu_nb_err = 0;
@@ -115,6 +127,8 @@ void link_mcu_init(void) {
   link_mcu_trans.output_buf = (uint8_t*)&link_mcu_from_ap_msg;
   link_mcu_trans.input_length = LINK_MCU_FRAME_LENGTH;
   link_mcu_trans.output_length = LINK_MCU_FRAME_LENGTH;
+
+  register_periodic_telemetry(DefaultPeriodic, "DEBUG_MCU_LINK", send_debug_link);
 }
 
 void link_mcu_send(void) {

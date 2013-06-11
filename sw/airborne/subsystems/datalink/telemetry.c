@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006- Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2013 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -17,32 +17,31 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/**
- * @file firmwares/fixedwing/fbw_downlink.h
- *
- * Set of macros defining the periodic telemetry messages of FBW process.
- *
- * The PeriodicSendAp() macro is generated from the telemetry description
- * (named in conf.xml, usually in conf/telemetry directory). This macro
- * is a sequence of calls to PERIODIC_SEND_message() which have to be defined
- * in the present file.
  *
  */
 
-#ifndef FBW_DOWNLINK_H
-#define FBW_DOWNLINK_H
+#include "subsystems/datalink/telemetry_common.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
-#endif
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+//struct pprz_telemetry telemetry[PERIODIC_TELEMETRY_NB];
 
-static inline void fbw_downlink_periodic_task(void) {
-  periodic_telemetry_send_Fbw();
+//void periodic_telemetry_init(void) {
+//  telemetry = PERIODIC_TELEMETRY_MESSAGES;
+//}
+
+bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, char * _msg, telemetry_cb _cb) {
+  // look for message name
+  uint8_t i;
+  for (i = 0; i < _pt->nb; i++) {
+    if (str_equal(_pt->msgs[i].msg, _msg)) {
+      // register callback if not already done
+      if (_pt->msgs[i].cb == NULL) {
+        _pt->msgs[i].cb = _cb;
+        return TRUE;
+      }
+      else { return FALSE; }
+    }
+  }
+  // message name is not in telemetry file
+  return FALSE;
 }
 
-
-#endif /* FBW_DOWNLINK_H */

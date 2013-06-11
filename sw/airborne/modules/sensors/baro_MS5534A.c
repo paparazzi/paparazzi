@@ -259,6 +259,9 @@ void baro_MS5534A_event( void ) {
     if (baro_MS5534A_available) {
     //  baro_MS5534A_available = FALSE; // Checked by INS
       baro_MS5534A_z = ground_alt +((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure)*0.084;
+#if SENSO_SYNC_SEND
+      DOWNLINK_SEND_BARO_MS5534A(DefaultChannel, DefaultDevice, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z);
+#endif
     //  if (alt_baro_enabled) {
     //    EstimatorSetAlt(baro_MS5534A_z); // Updated by INS
     //  }

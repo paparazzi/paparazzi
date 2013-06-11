@@ -78,6 +78,35 @@ volatile uint8_t fbw_new_actuators = 0;
 tid_t fbw_periodic_tid; ///< id for periodic_task_fbw() timer
 tid_t electrical_tid;   ///< id for electrical_periodic() timer
 
+/********** PERIODIC MESSAGES ************************************************/
+static void send_commands(void) {
+  DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);
+}
+
+#ifdef RADIO_CONTROL
+static void send_fbw_status(void) {
+  DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
+      &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current);
+}
+
+static void send_rc(void) {
+  DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
+}
+
+#else
+static void send_fbw_status(void) {
+  uint8_t dummy = 0;
+  DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
+      &dummy, &dummy, &fbw_mode, &electrical.vsupply, &electrical.current);
+}
+#endif
+
+#ifdef ACTUATORS
+static void send_actuators(void) {
+  DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice , ACTUATORS_NB, actuators);
+}
+#endif
+
 /********** INIT *************************************************************/
 void init_fbw( void ) {
 
@@ -87,14 +116,19 @@ void init_fbw( void ) {
   electrical_init();
 #endif
 
+  register_periodic_telemetry(&telemetry_Fbw, "FBW_STATUS", send_fbw_status);
+  register_periodic_telemetry(&telemetry_Fbw, "COMMANDS", send_commands);
+
 #ifdef ACTUATORS
   actuators_init();
   /* Load the failsafe defaults */
   SetCommands(commands_failsafe);
   fbw_new_actuators = 1;
+  register_periodic_telemetry(&telemetry_Fbw, "ACTUATORS", send_actuators);
 #endif
 #ifdef RADIO_CONTROL
   radio_control_init();
+  register_periodic_telemetry(&telemetry_Fbw, "RC", send_rc);
 #endif
 #ifdef INTER_MCU
   inter_mcu_init();

@@ -26,6 +26,52 @@
 
 #include "subsystems/imu.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
+
+static void send_accel_raw(void) {
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
+      &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z);
+}
+
+static void send_gyro_raw(void) {
+  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
+      &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r);
+}
+
+#ifdef USE_MAGNETOMETER
+static void send_mag_raw(void) {
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
+      &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z);
+}
+#endif
+
+static void send_accel(void) {
+  struct FloatVect3 accel_float;
+  ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
+  DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice,
+      &accel_float.x, &accel_float.y, &accel_float.z);
+}
+
+static void send_gyro(void) {
+  struct FloatRates gyro_float;
+  RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
+  DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice,
+      &gyro_float.p, &gyro_float.q, &gyro_float.r);
+}
+
+#ifdef USE_MAGNETOMETER
+static void send_mag(void) {
+  struct FloatVect3 mag_float;
+  MAGS_FLOAT_OF_BFP(mag_float, imu.mag);
+  DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice,
+      &mag_float.x, &mag_float.y, &mag_float.z);
+}
+#endif
+
 struct Imu imu;
 
 void imu_init(void) {
@@ -55,6 +101,17 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
+
+  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO_RAW", send_gyro_raw);
+#ifdef USE_MAGNETOMETER
+  register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_RAW", send_mag_raw);
+#endif
+  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
+#ifdef USE_MAGNETOMETER
+  register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
+#endif
 
   imu_impl_init();
 }

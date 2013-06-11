@@ -239,7 +239,12 @@ typedef uint8_t unit_t;
     }									\
   }
 
-
-
+static inline bool_t str_equal(char * a, char * b) {
+  while (!(*a == 0 && *b == 0)) {
+    if (*a != *b) return FALSE;
+    a++; b++;
+  }
+  return TRUE;
+}
 
 #endif /* STD_H */

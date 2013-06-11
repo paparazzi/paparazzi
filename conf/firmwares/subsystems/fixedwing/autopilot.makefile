@@ -115,6 +115,7 @@ endif
 # Main
 #
 ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
+ns_srcs	   	+= subsystems/datalink/telemetry.c
 
 #
 # LEDs
@@ -156,6 +157,7 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 ##
 
 ap_CFLAGS 		+= -DAP
+ap_CFLAGS 		+= -DDefaultPeriodic='&telemetry_Ap'
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
 ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
@@ -201,8 +203,9 @@ sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
-sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
+sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DDefaultPeriodic='&telemetry_Ap'
+sim.srcs 		+= subsystems/datalink/telemetry.c subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c
+sim.srcs		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
 
 sim.srcs 		+= subsystems/settings.c
 sim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
