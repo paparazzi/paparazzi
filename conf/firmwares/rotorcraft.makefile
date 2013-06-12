@@ -64,6 +64,10 @@ ifeq ($(ARCH), lpc21)
 ap.srcs += $(SRC_ARCH)/armVIC.c
 endif
 
+ifeq ($(ARCH), stm32)
+ap.srcs += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
+
 #
 # LEDs
 #
@@ -73,7 +77,7 @@ ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
 ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-ap.srcs   += $(SRC_BOARD)/gpio.c
+ap.srcs   += $(SRC_BOARD)/gpio_ardrone.c
 endif
 
 # frequency of main periodic

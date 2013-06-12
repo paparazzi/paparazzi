@@ -107,6 +107,7 @@ endif
 
 ifeq ($(ARCH), stm32)
   ns_srcs 		+= lisa/plug_sys.c
+  ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
 

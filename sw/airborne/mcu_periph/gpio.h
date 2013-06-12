@@ -20,36 +20,21 @@
  */
 
 /**
- * @file arch/lpc21/mcu_periph/gpio_arch.h
+ * @file mcu_periph/gpio.h
  *
- * GPIO helper functions for LPC21xx.
+ * Some architecture independent helper functions for GPIOs.
  */
-
-#ifndef GPIO_ARCH_H
-#define GPIO_ARCH_H
 
 #include "std.h"
-#include "LPC21xx.h"
+#include "mcu_periph/gpio_arch.h"
 
 /**
- * Set a gpio output to high level.
+ * Setup gpio pin as generic output.
  */
-static inline void gpio_output_high(uint32_t port, uint16_t pin) {
-  if (port == 0)
-    IO0SET = _BV(pin);
-  else if (port == 1)
-    IO1SET = _BV(pin);
-}
+extern void gpio_setup_output(uint32_t port, uint16_t pin);
 
 /**
- * Clear a gpio output to low level.
+ * Setup a gpio pin as generic input.
  */
-static inline void gpio_output_low(uint32_t port, uint16_t pin) {
-  if (port == 0)
-    IO0CLR = _BV(pin);
-  else if (port == 1)
-    IO1CLR = _BV(pin);
-}
+extern void gpio_setup_input(uint32_t port, uint16_t pin);
 
-
-#endif /* GPIO_ARCH_H */

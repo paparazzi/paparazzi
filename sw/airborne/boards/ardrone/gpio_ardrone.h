@@ -18,22 +18,16 @@
  */
 
 /**
- * @file boards/ardrone/gpio.c
+ * @file boards/ardrone/gpio_ardrone.h
  * ardrone GPIO driver
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "gpio.h"
+#ifndef GPIO_ARDRONE_H
+#define GPIO_ARDRONE_H
 
 //val=0 -> set gpio output lo
 //val=1 -> set gpio output hi
 //val=-1 -> set gpio as input (output hi-Z)
-int gpio_set(int nr,int val)
-{
-  char cmdline[200];
-  if(val<0) sprintf(cmdline,"/usr/sbin/gpio %d -d i",nr);
-  else if(val>0) sprintf(cmdline,"/usr/sbin/gpio %d -d ho 1",nr);
-  else sprintf(cmdline,"/usr/sbin/gpio %d -d ho 0",nr);
-  return system(cmdline);
-}
+int gpio_set(int nr,int val);
+
+#endif /* GPIO_ARDRONE_H */

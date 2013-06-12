@@ -30,7 +30,7 @@
 
 #include "subsystems/actuators.h"
 #include "actuators_ardrone2_raw.h"
-#include "gpio.h"
+#include "gpio_ardrone.h"
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <string.h>  /* String function definitions */

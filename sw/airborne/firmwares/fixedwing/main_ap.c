@@ -82,7 +82,6 @@
 #include "rc_settings.h"
 #endif
 
-#include "gpio.h"
 #include "led.h"
 
 /* if PRINT_CONFIG is defined, print some config options */
@@ -159,10 +158,6 @@ void init_ap( void ) {
   /************* Sensors initialization ***************/
 #if USE_GPS
   gps_init();
-#endif
-
-#ifdef USE_GPIO
-  GpioInit();
 #endif
 
 #if USE_IMU
@@ -604,9 +599,6 @@ void monitor_task( void ) {
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
   }
 
-#ifdef USE_GPIO
-   GpioUpdate1();
-#endif
 }
 
 

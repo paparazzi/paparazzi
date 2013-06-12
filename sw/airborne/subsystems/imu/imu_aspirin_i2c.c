@@ -30,7 +30,7 @@
 #include "mcu_periph/i2c.h"
 
 // Set SPI_CS High to enable I2C mode of ADXL345
-#include "mcu_periph/gpio_arch.h"
+#include "mcu_periph/gpio.h"
 
 
 /* i2c default suitable for Lisa */
@@ -94,7 +94,10 @@ void imu_impl_init(void)
   //imu_aspirin.acc_adxl.config.drdy_int_enable = TRUE;
 
   // With CS tied high to VDD I/O, the ADXL345 is in I2C mode
-  GPIO_ARCH_SET_SPI_CS_HIGH();
+#ifdef ASPIRIN_I2C_CS_PORT
+  gpio_setup_output(ASPIRIN_I2C_CS_PORT, ASPIRIN_I2C_CS_PIN);
+  gpio_output_high(ASPIRIN_I2C_CS_PORT, ASPIRIN_I2C_CS_PIN);
+#endif
 
   /* Gyro configuration and initalization */
   itg3200_init(&imu_aspirin.gyro_itg, &(ASPIRIN_I2C_DEV), ITG3200_ADDR);

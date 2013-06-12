@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2012 The Paparazzi Team
+ * Copyright (C) 2005-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -56,9 +56,10 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/f1/dma.h>
+#include <libopencm3/stm32/dma.h>
 
 #include "mcu_periph/spi.h"
+#include "mcu_periph/gpio.h"
 
 #include BOARD_CONFIG
 
@@ -210,57 +211,33 @@ void spi_slave_unselect(uint8_t slave) {
 void spi_init_slaves(void) {
 
 #if USE_SPI_SLAVE0
-  rcc_peripheral_enable_clock(&RCC_APB2ENR,
-                              SPI_SELECT_SLAVE0_PERIPH | RCC_APB2ENR_AFIOEN);
+  gpio_setup_output(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
   SpiSlaveUnselect(0);
-  gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE0_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE0_PIN);
 #endif
 
 #if USE_SPI_SLAVE1
-  rcc_peripheral_enable_clock(&RCC_APB2ENR,
-                              SPI_SELECT_SLAVE1_PERIPH | RCC_APB2ENR_AFIOEN);
+  gpio_setup_output(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
   SpiSlaveUnselect(1);
-  gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE1_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE1_PIN);
 #endif
 
 #if USE_SPI_SLAVE2
-  rcc_peripheral_enable_clock(&RCC_APB2ENR,
-                              SPI_SELECT_SLAVE2_PERIPH | RCC_APB2ENR_AFIOEN);
+  gpio_setup_output(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
   SpiSlaveUnselect(2);
-  gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE2_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE2_PIN);
 #endif
 
 #if USE_SPI_SLAVE3
-  rcc_peripheral_enable_clock(&RCC_APB2ENR,
-                              SPI_SELECT_SLAVE3_PERIPH | RCC_APB2ENR_AFIOEN);
+  gpio_setup_output(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
   SpiSlaveUnselect(3);
-  gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE3_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE3_PIN);
 #endif
 
 #if USE_SPI_SLAVE4
-  rcc_peripheral_enable_clock(&RCC_APB2ENR,
-                              SPI_SELECT_SLAVE4_PERIPH | RCC_APB2ENR_AFIOEN);
+  gpio_setup_output(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
   SpiSlaveUnselect(4);
-  gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE4_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE4_PIN);
 #endif
 
 #if USE_SPI_SLAVE5
-  rcc_peripheral_enable_clock(&RCC_APB2ENR,
-                              SPI_SELECT_SLAVE5_PERIPH | RCC_APB2ENR_AFIOEN);
+  gpio_setup_output(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
   SpiSlaveUnselect(5);
-  gpio_set(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
-  gpio_set_mode(SPI_SELECT_SLAVE5_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, SPI_SELECT_SLAVE5_PIN);
 #endif
 }
 

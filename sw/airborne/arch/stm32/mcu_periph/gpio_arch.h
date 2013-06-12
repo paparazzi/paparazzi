@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Piotr Esden-Tempski <piotr@esden.net>
+ * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -17,29 +17,39 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
  * @file arch/stm32/mcu_periph/gpio_arch.h
  * @ingroup stm32_arch
  *
- * Handling of GPIOs for STM32.
+ * GPIO helper functions for STM32F1 and STM32F4.
  */
 
-#ifndef MY_GPIO_ARCH_H
-#define MY_GPIO_ARCH_H
+#ifndef GPIO_ARCH_H
+#define GPIO_ARCH_H
 
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 
-#define GPIO_ARCH_SET_SPI_CS_HIGH()					\
-{									\
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);        \
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,                         \
-	        GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);                      \
-  gpio_set(GPIOB, GPIO12);                                              \
+/**
+ * Set a gpio output to high level.
+ */
+static inline void gpio_output_high(uint32_t port, uint16_t pin) {
+  gpio_set(port, pin);
 }
 
+/**
+ * Clear a gpio output to low level.
+ */
+static inline void gpio_output_low(uint32_t port, uint16_t pin) {
+  gpio_clear(port, pin);
+}
 
-#endif /* MY_GPIO_ARCH_H */
+/**
+ * Setup a gpio for input or output with alternate function.
+ */
+extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output);
+
+extern void gpio_enable_clock(uint32_t port);
+
+#endif /* GPIO_ARCH_H */
