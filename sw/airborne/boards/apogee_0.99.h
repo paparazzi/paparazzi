@@ -269,17 +269,18 @@
 #define PWM_TIM2_CHAN_MASK (PWM_SERVO_0_OC_BIT|PWM_SERVO_1_OC_BIT|PWM_SERVO_4_OC_BIT|PWM_SERVO_5_OC_BIT)
 #define PWM_TIM3_CHAN_MASK (PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT)
 
-/* PPM */
-
+/*
+ * PPM
+ */
 #define USE_PPM_TIM1 1
 
 #define PPM_CHANNEL         TIM_IC1
 #define PPM_TIMER_INPUT     TIM_IC_IN_TI1
 #define PPM_IRQ             NVIC_TIM1_CC_IRQ
 #define PPM_IRQ2            NVIC_TIM1_UP_TIM10_IRQ
-#define PPM_IRQ_FLAGS       TIM_DIER_CC1IE
-#define PPM_IRQ_CCIF        TIM_SR_CC1IF
-#define PPM_GPIO_PERIPHERAL RCC_AHB1ENR_IOPAEN
+// Capture/Compare InteruptEnable and InterruptFlag
+#define PPM_CC_IE           TIM_DIER_CC1IE
+#define PPM_CC_IF           TIM_SR_CC1IF
 #define PPM_GPIO_PORT       GPIOA
 #define PPM_GPIO_PIN        GPIO8
 #define PPM_GPIO_AF         GPIO_AF1

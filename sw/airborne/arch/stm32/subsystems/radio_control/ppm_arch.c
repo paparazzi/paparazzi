@@ -42,6 +42,7 @@
 #include <libopencm3/cm3/nvic.h>
 
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/gpio.h"
 
 
 #define ONE_MHZ_CLK 1000000
@@ -74,24 +75,16 @@ void ppm_arch_init ( void ) {
   /* timer clock enable */
   rcc_peripheral_enable_clock(PPM_RCC, PPM_PERIPHERAL);
 
-#if defined(STM32F1)
-  /* GPIOA clock enable */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, PPM_GPIO_PERIPHERAL);
-  /* timer gpio configuration */
-  gpio_set_mode(PPM_GPIO_PORT, GPIO_MODE_INPUT,
-      GPIO_CNF_INPUT_FLOAT, PPM_GPIO_PIN);
-#elif defined(STM32F4)
   /* GPIO clock enable */
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, PPM_GPIO_PERIPHERAL);
+  gpio_enable_clock(PPM_GPIO_PORT);
+
   /* timer gpio configuration */
-  gpio_mode_setup(PPM_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, PPM_GPIO_PIN);
-  gpio_set_af(PPM_GPIO_PORT, PPM_GPIO_AF, PPM_GPIO_PIN);
-#endif
+  gpio_setup_pin_af(PPM_GPIO_PORT, PPM_GPIO_PIN, PPM_GPIO_AF, FALSE);
 
   /* Time Base configuration */
   timer_reset(PPM_TIMER);
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
-      TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+                 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
   timer_set_prescaler(PPM_TIMER, (AHB_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
 
@@ -118,8 +111,8 @@ void ppm_arch_init ( void ) {
   nvic_enable_irq(PPM_IRQ2);
 #endif
 
-  /* Enable the CC2 and Update interrupt requests. */
-  timer_enable_irq(PPM_TIMER, (PPM_IRQ_FLAGS | TIM_DIER_UIE));
+  /* Enable the Capture/Compare and Update interrupt requests. */
+  timer_enable_irq(PPM_TIMER, (PPM_CC_IE | TIM_DIER_UIE));
 
   /* Enable capture channel. */
   timer_ic_enable(PPM_TIMER, PPM_CHANNEL);
@@ -137,8 +130,8 @@ void ppm_arch_init ( void ) {
 
 void tim2_isr(void) {
 
-  if((TIM2_SR & TIM_SR_CC2IF) != 0) {
-    timer_clear_flag(TIM2, TIM_SR_CC2IF);
+  if((TIM2_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM2, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM2) + timer_rollover_cnt;
     DecodePpmFrame(now);
@@ -164,13 +157,13 @@ void tim1_up_tim10_isr(void) {
 }
 
 void tim1_cc_isr(void) {
-  if((TIM1_SR & PPM_IRQ_CCIF) != 0) {
-    timer_clear_flag(TIM1, PPM_IRQ_CCIF);
+  if((TIM1_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM1, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
     DecodePpmFrame(now);
   }
 }
 
-#endif
+#endif /* USE_PPM_TIM1 */
 
