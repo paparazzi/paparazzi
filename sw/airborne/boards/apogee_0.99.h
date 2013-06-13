@@ -143,10 +143,13 @@
 
 
 /* I2C mapping */
-#define GPIO_I2C1_SCL GPIO8
-#define GPIO_I2C1_SDA GPIO7
-#define GPIO_I2C2_SCL GPIO10
-#define GPIO_I2C2_SDA GPIO11
+#define I2C1_GPIO_PORT GPIOB
+#define I2C1_GPIO_SCL GPIO8
+#define I2C1_GPIO_SDA GPIO7
+
+#define I2C2_GPIO_PORT GPIOB
+#define I2C2_GPIO_SCL GPIO10
+#define I2C2_GPIO_SDA GPIO11
 
 
 /* SPI slave pin declaration */

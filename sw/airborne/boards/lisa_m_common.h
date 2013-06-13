@@ -143,6 +143,19 @@
 
 
 /*
+ * I2C
+ *
+ */
+#define I2C1_GPIO_PORT GPIOB
+#define I2C1_GPIO_SCL GPIO6
+#define I2C1_GPIO_SDA GPIO7
+
+#define I2C2_GPIO_PORT GPIOB
+#define I2C2_GPIO_SCL GPIO10
+#define I2C2_GPIO_SDA GPIO11
+
+
+/*
  * PWM
  *
  */

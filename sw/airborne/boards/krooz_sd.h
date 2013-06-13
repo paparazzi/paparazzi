@@ -99,6 +99,17 @@
 #define UART5_GPIO_PORT_TX GPIOC
 #define UART5_GPIO_TX GPIO12
 
+
+/* I2C mapping */
+#define I2C1_GPIO_PORT GPIOB
+#define I2C1_GPIO_SCL GPIO8
+#define I2C1_GPIO_SDA GPIO7
+
+#define I2C2_GPIO_PORT GPIOB
+#define I2C2_GPIO_SCL GPIO10
+#define I2C2_GPIO_SDA GPIO11
+
+
 /* Onboard ADCs */
 #define USE_AD_TIM1 1
 

@@ -880,8 +880,6 @@ void i2c1_hw_init(void) {
 
   i2c1.reg_addr = (void *)I2C1;
   i2c1.init_struct = NULL;
-  i2c1.scl_pin = GPIO_I2C1_SCL;
-  i2c1.sda_pin = GPIO_I2C1_SDA;
   i2c1.errors = &i2c1_errors;
   i2c1_watchdog_counter = 0;
 
@@ -910,17 +908,18 @@ void i2c1_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C1 clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C1EN);
-  /* Enable GPIOB clock */
+  /* Enable GPIO clock */
+  gpio_enable_clock(I2C1_GPIO_PORT);
 #if defined(STM32F1)
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
+  gpio_set_mode(I2C1_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-                i2c1.scl_pin | i2c1.sda_pin);
+                I2C1_GPIO_SCL | I2C1_GPIO_SDA);
 #elif defined(STM32F4)
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
-  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, i2c1.scl_pin | i2c1.sda_pin);
-  gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ, i2c1.scl_pin | i2c1.sda_pin);
-  gpio_set_af(GPIOB, GPIO_AF4, i2c1.scl_pin | i2c1.sda_pin);
+  gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                  I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                          I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+  gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
 #endif
 
   i2c_reset(I2C1);
@@ -975,8 +974,6 @@ void i2c2_hw_init(void) {
 
   i2c2.reg_addr = (void *)I2C2;
   i2c2.init_struct = NULL;
-  i2c2.scl_pin = GPIO_I2C2_SCL;
-  i2c2.sda_pin = GPIO_I2C2_SDA;
   i2c2.errors = &i2c2_errors;
   i2c2_watchdog_counter = 0;
 
@@ -1000,17 +997,19 @@ void i2c2_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C2 clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C2EN);
-  /* Enable GPIOB clock */
+  /* Enable GPIO clock */
+  gpio_enable_clock(I2C2_GPIO_PORT);
 #if defined(STM32F1)
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
+  gpio_set_mode(I2C2_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-                i2c2.scl_pin | i2c2.sda_pin);
+                I2C2_GPIO_SCL | I2C2_GPIO_SDA);
 #elif defined(STM32F4)
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
-  gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, i2c2.scl_pin | i2c2.sda_pin);
-  gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ, i2c2.scl_pin | i2c2.sda_pin);
-  gpio_set_af(GPIOB, GPIO_AF4, i2c2.scl_pin | i2c2.sda_pin);
+  gpio_mode_setup(I2C2_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                  I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+  gpio_set_output_options(I2C2_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                          I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+  gpio_set_af(I2C2_GPIO_PORT, GPIO_AF4,
+              I2C2_GPIO_SCL | I2C2_GPIO_SDA);
 #endif
 
   i2c_reset(I2C2);
