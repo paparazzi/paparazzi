@@ -33,7 +33,7 @@ GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
 
 #
-# default MODEM and GPS configuration
+# default UART configuration (modem, gps, spektrum)
 #
 
 MODEM_PORT ?= UART1
@@ -41,6 +41,8 @@ MODEM_BAUD ?= B57600
 
 GPS_PORT ?= UART4
 GPS_BAUD ?= B38400
+
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
 
 
 #

@@ -29,6 +29,7 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
+#include "mcu_periph/gpio.h"
 
 #include BOARD_CONFIG
 
@@ -79,8 +80,11 @@ struct SpektrumStateStruct {
 typedef struct SpektrumStateStruct SpektrumStateType;
 
 SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0,{0}};
+PRINT_CONFIG_VAR(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
+
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 PRINT_CONFIG_MSG("Using secondary spektrum receiver.")
+PRINT_CONFIG_VAR(RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT)
 SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0,{0}};
 #else
 PRINT_CONFIG_MSG("NOT using secondary spektrum receiver.")
@@ -114,8 +118,7 @@ static uint8_t ExpectedFrames = 0;
 void SpektrumUartInit(void);
 /* initialise the timer used by the parser to ensure sync */
 void SpektrumTimerInit(void);
-/* sets a GPIO pin as output for debugging */
-void DebugInit(void);
+
 void tim6_irq_handler(void);
 /* wait busy loop, microseconds */
 static void DelayUs( uint16_t uSecs );
@@ -139,7 +142,6 @@ void radio_control_impl_init(void) {
 #endif
 
   SpektrumTimerInit();
-  // DebugInit();
   SpektrumUartInit();
 }
 
@@ -478,8 +480,14 @@ void SpektrumTimerInit( void ) {
   timer_set_prescaler(TIM6, ((AHB_CLK / TIM_FREQ_1000000) - 1));
 
   /* Enable TIM6 interrupts */
+#ifdef STM32F1
   nvic_set_priority(NVIC_TIM6_IRQ, 2);
   nvic_enable_irq(NVIC_TIM6_IRQ);
+#elif defined STM32F4
+  /* the define says DAC IRQ, but it is also the global TIM6 IRQ*/
+  nvic_set_priority(NVIC_TIM6_DAC_IRQ, 2);
+  nvic_enable_irq(NVIC_TIM6_DAC_IRQ);
+#endif
 
   /* Enable TIM6 Update interrupt */
   timer_enable_irq(TIM6, TIM_DIER_UIE);
@@ -494,7 +502,11 @@ void SpektrumTimerInit( void ) {
  * TIM6 interrupt request handler updates times used by SpektrumParser
  *
  *****************************************************************************/
+#ifdef STM32F1
 void tim6_isr( void ) {
+#elif defined STM32F4
+void tim6_dac_isr( void ) {
+#endif
 
   timer_clear_flag(TIM6, TIM_SR_UIF);
 
@@ -513,7 +525,7 @@ void tim6_isr( void ) {
  *****************************************************************************/
 void SpektrumUartInit(void) {
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, PrimaryUart(_RCC_GPIO));
+  gpio_enable_clock(PrimaryUart(_BANK));
   rcc_peripheral_enable_clock(PrimaryUart(_RCC_REG), PrimaryUart(_RCC_DEV));
 
   /* Enable USART interrupts */
@@ -522,10 +534,7 @@ void SpektrumUartInit(void) {
 
   /* Init GPIOS */
   /* Primary UART Rx pin as floating input */
-  gpio_set_mode(PrimaryUart(_BANK), GPIO_MODE_INPUT,
-            GPIO_CNF_INPUT_FLOAT, PrimaryUart(_PIN));
-
-  PrimaryUart(_REMAP);
+  gpio_setup_pin_af(PrimaryUart(_BANK), PrimaryUart(_PIN), PrimaryUart(_AF), FALSE);
 
   /* Configure Primary UART */
   usart_set_baudrate(PrimaryUart(_DEV), 115200);
@@ -543,7 +552,7 @@ void SpektrumUartInit(void) {
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SecondaryUart(_RCC_GPIO));
+  gpio_enable_clock(SecondaryUart(_BANK));
   rcc_peripheral_enable_clock(SecondaryUart(_RCC_REG), SecondaryUart(_RCC_DEV));
 
   /* Enable USART interrupts */
@@ -552,10 +561,7 @@ void SpektrumUartInit(void) {
 
   /* Init GPIOS */;
   /* Secondary UART Rx pin as floating input */
-  gpio_set_mode(SecondaryUart(_BANK), GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT, SecondaryUart(_PIN));
-
-  SecondaryUart(_REMAP);
+  gpio_setup_pin_af(SecondaryUart(_BANK), SecondaryUart(_PIN), SecondaryUart(_AF), FALSE);
 
   /* Configure secondary UART */
   usart_set_baudrate(SecondaryUart(_DEV), 115200);
@@ -618,19 +624,6 @@ void SecondaryUart(_ISR)(void) {
 }
 #endif
 
-/*****************************************************************************
- *
- * Use pin to output debug information.
- *
- *****************************************************************************/
-void DebugInit(void) {
-
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
-
-  gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
-            GPIO_CNF_OUTPUT_PUSHPULL, GPIO5);
-  gpio_clear(GPIOC, GPIO5);
-}
 
 /*****************************************************************************
  *
@@ -649,13 +642,9 @@ void DebugInit(void) {
  *****************************************************************************/
 void radio_control_spektrum_try_bind(void) {
 
-  /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SPEKTRUM_BIND_PIN_RCC_IOP);
-
   /* Init GPIO for the bind pin */
-  gpio_set(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
-  gpio_set_mode(SPEKTRUM_BIND_PIN_PORT, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_PULL_UPDOWN, SPEKTRUM_BIND_PIN);
+  gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, GPIO_MODE_INPUT);
+
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
@@ -665,22 +654,20 @@ void radio_control_spektrum_try_bind(void) {
   SpektrumDelayInit();
 
   /* initialise the uarts rx pins as  GPIOS */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, PrimaryUart(_RCC_GPIO));
+  gpio_enable_clock(PrimaryUart(_BANK));
 
   /* Master receiver Rx push-pull */
-  gpio_set_mode(PrimaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, PrimaryUart(_PIN));
+  gpio_setup_output(PrimaryUart(_BANK), PrimaryUart(_PIN));
 
   /* Master receiver RX line, drive high */
   gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, SecondaryUart(_RCC_GPIO));
+  gpio_enable_clock(SecondaryUart(_BANK));
 
   /* Slave receiver Rx push-pull */
-  gpio_set_mode(SecondaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL,  SecondaryUart(_PIN));
+  gpio_setup_output(SecondaryUart(_BANK), SecondaryUart(_PIN));
 
   /* Slave receiver RX line, drive high */
   gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
