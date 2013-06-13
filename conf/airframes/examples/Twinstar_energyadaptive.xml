@@ -170,8 +170,8 @@ twog_1.0 + aspirin + ETS baro + ETS speed
 
   <section name="GLS_APPROACH" prefix="APP_">
     <define name="ANGLE" value="10" unit="deg"/>
-    <define name="INTERCEPT_AF_TOD" value="100"/>
-    <define name="TARGET_SPEED" value="13"/>
+    <define name="INTERCEPT_AF_SD" value="100" unit="m"/>
+    <define name="TARGET_SPEED" value="13" unit="m/s"/>
   </section>
 
 <!-- ########################################################################################### -->
