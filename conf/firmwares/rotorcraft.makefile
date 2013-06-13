@@ -232,6 +232,12 @@ ap.srcs += peripherals/ms5611.c
 ap.srcs += peripherals/ms5611_i2c.c
 ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
 
+else ifeq ($(BOARD), px4fmu)
+ap.CFLAGS += -DUSE_I2C2 -DMS5611_I2C_DEV=i2c2
+ap.srcs += peripherals/ms5611.c
+ap.srcs += peripherals/ms5611_i2c.c
+ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
+
 # apogee baro
 else ifeq ($(BOARD), apogee)
 ap.CFLAGS += -DUSE_I2C1
