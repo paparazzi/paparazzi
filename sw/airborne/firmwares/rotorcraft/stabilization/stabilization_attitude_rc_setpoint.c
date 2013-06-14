@@ -87,7 +87,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
   const int32_t max_rc_phi = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI);
   const int32_t max_rc_theta = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA);
   const int32_t max_rc_r = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R);
-  
+
   sp->phi = (int32_t) ((radio_control.values[RADIO_ROLL] * max_rc_phi) /  MAX_PPRZ);
   sp->theta = (int32_t) ((radio_control.values[RADIO_PITCH] * max_rc_theta) /  MAX_PPRZ);
 
