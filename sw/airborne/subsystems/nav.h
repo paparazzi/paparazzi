@@ -41,7 +41,7 @@
 #include "subsystems/navigation/common_flight_plan.h"
 #include "subsystems/navigation/common_nav.h"
 
-#define GRAVITY 9.806
+#define NAV_GRAVITY 9.806
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 

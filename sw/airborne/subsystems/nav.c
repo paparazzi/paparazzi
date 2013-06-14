@@ -139,7 +139,7 @@ void nav_circle_XY(float x, float y, float radius) {
     (dist2_center > Square(abs_radius + dist_carrot)
      || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
-    atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (GRAVITY*radius));
+    atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (NAV_GRAVITY*radius));
 
   float carrot_angle = dist_carrot / abs_radius;
   carrot_angle = Min(carrot_angle, M_PI/4);
