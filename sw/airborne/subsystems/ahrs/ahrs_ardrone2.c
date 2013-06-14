@@ -33,9 +33,13 @@
 #include "boards/ardrone/at_com.h"
 #include "subsystems/electrical.h"
 
+#ifdef USE_GPS_ARDRONE2
+#include "subsystems/gps/gps_ardrone2.h"
+#endif
+
 struct AhrsARDrone ahrs_impl;
 struct AhrsAligner ahrs_aligner;
-unsigned char buffer[2048]; //Packet buffer
+unsigned char buffer[4096]; //Packet buffer
 
 void ahrs_init(void) {
   init_at_com();
@@ -55,6 +59,12 @@ void ahrs_propagate(void) {
   //Recieve the main packet
   at_com_recieve_navdata(buffer);
   navdata_t* main_packet = (navdata_t*) &buffer;
+
+  //When this isn't a valid packet return
+  if(main_packet->header != NAVDATA_HEADER)
+    return;
+
+  //Set the state
   ahrs_impl.state = main_packet->ardrone_state;
 
   //Init the option
@@ -63,10 +73,11 @@ void ahrs_propagate(void) {
 
   //The possible packets
   navdata_demo_t* navdata_demo;
+  navdata_gps_t* navdata_gps;
   navdata_phys_measures_t* navdata_phys_measures;
 
   //Read the navdata until packet is fully readed
-  while(!full_read) {
+  while(!full_read && navdata_option->size > 0) {
     //Check the tag for the right option
     switch(navdata_option->tag) {
     case 0: //NAVDATA_DEMO
@@ -99,6 +110,14 @@ void ahrs_propagate(void) {
       //Set the AHRS accel state
       INT32_VECT3_SCALE_2(ahrs_impl.accel, navdata_phys_measures->phys_accs, 9.81, 1000)
       break;
+#ifdef USE_GPS_ARDRONE2
+    case 27: //NAVDATA_GPS
+      navdata_gps = (navdata_gps_t*) navdata_option;
+
+      // Send the data to the gps parser
+      gps_ardrone2_parse(navdata_gps);
+      break;
+#endif
     case 0xFFFF: //CHECKSUM
       //TODO: Check the checksum
       full_read = TRUE;
@@ -107,7 +126,7 @@ void ahrs_propagate(void) {
       //printf("NAVDATA UNKNOWN TAG: %d %d\n", navdata_option->tag, navdata_option->size);
       break;
     }
-    navdata_option = (navdata_option_t*) ((int)navdata_option + navdata_option->size);
+    navdata_option = (navdata_option_t*) ((uint32_t)navdata_option + navdata_option->size);
   }
 }
 
