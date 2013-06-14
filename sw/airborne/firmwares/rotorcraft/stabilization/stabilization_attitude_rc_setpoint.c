@@ -84,8 +84,8 @@ float stabilization_attitude_get_heading_f(void) {
  * @param[out] sp         attitude setpoint as euler angles
  */
 void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
-  sp->phi = (int32_t) (radio_control.values[RADIO_ROLL] * (ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI) /  MAX_PPRZ));
-  sp->theta = (int32_t) (radio_control.values[RADIO_PITCH] * (ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA) /  MAX_PPRZ));
+  sp->phi = (int32_t) (radio_control.values[RADIO_ROLL] * ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI) /  MAX_PPRZ);
+  sp->theta = (int32_t) (radio_control.values[RADIO_PITCH] * ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA) /  MAX_PPRZ);
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
