@@ -120,7 +120,7 @@ void sys_time_arch_init( void ) {
   T0EMR = 0;
 
   /* set first sys tick interrupt    */
-  T0MR0 = sys_time.resolution_cpu_ticks;
+  T0MR0 = 4*sys_time.resolution_cpu_ticks;
 
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
