@@ -36,7 +36,42 @@
 #include <math.h>
 #include "navdata.h"
 
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
+
 int nav_fd;
+
+static void send_navdata(void) {
+  DOWNLINK_SEND_ARDRONE_NAVDATA(DefaultChannel, DefaultDevice,
+      &navdata->taille,
+      &navdata->nu_trame,
+      &navdata->ax,
+      &navdata->ay,
+      &navdata->az,
+      &navdata->vx,
+      &navdata->vy,
+      &navdata->vz,
+      &navdata->temperature_acc,
+      &navdata->temperature_gyro,
+      &navdata->ultrasound,
+      &navdata->us_debut_echo,
+      &navdata->us_fin_echo,
+      &navdata->us_association_echo,
+      &navdata->us_distance_echo,
+      &navdata->us_curve_time,
+      &navdata->us_curve_value,
+      &navdata->us_curve_ref,
+      &navdata->nb_echo,
+      &navdata->sum_echo,
+      &navdata->gradient,
+      &navdata->flag_echo_ini,
+      &navdata->pressure,
+      &navdata->temperature_pressure,
+      &navdata->mx,
+      &navdata->my,
+      &navdata->mz,
+      &navdata->chksum);
+}
 
 int navdata_init()
 {
@@ -87,6 +122,7 @@ int navdata_init()
 
   previousUltrasoundHeight = 0;
 
+  register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
   return 0;
 }
 

@@ -47,10 +47,12 @@
 #include <stdio.h>
 #endif
 
-
 #include "math/pprz_geodetic_int.h"
 
 #include "generated/flight_plan.h"
+
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
 
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
@@ -84,6 +86,26 @@ struct NedCoor_i ins_ltp_pos;
 struct NedCoor_i ins_ltp_speed;
 struct NedCoor_i ins_ltp_accel;
 
+static void send_ins(void) {
+  DOWNLINK_SEND_INS(DefaultChannel, DefaultDevice,
+      &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z,
+      &ins_ltp_speed.x, &ins_ltp_speed.y, &ins_ltp_speed.z,
+      &ins_ltp_accel.x, &ins_ltp_accel.y, &ins_ltp_accel.z);
+}
+
+static void send_ins_z(void) {
+  DOWNLINK_SEND_INS_Z(DefaultChannel, DefaultDevice,
+      &ins_baro_alt, &ins_ltp_pos.z, &ins_ltp_speed.z, &ins_ltp_accel.z);
+}
+
+static void send_ins_ref(void) {
+  if (ins_ltp_initialised) {
+    DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,
+        &ins_ltp_def.ecef.x, &ins_ltp_def.ecef.y, &ins_ltp_def.ecef.z,
+        &ins_ltp_def.lla.lat, &ins_ltp_def.lla.lon, &ins_ltp_def.lla.alt,
+        &ins_ltp_def.hmsl, &ins_qfe);
+  }
+}
 
 void ins_init() {
 #if USE_INS_NAV_INIT
@@ -124,6 +146,9 @@ void ins_init() {
   // TODO correct init
   ins.status = INS_RUNNING;
 
+  register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
+  register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
+  register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
 }
 
 void ins_periodic( void ) {

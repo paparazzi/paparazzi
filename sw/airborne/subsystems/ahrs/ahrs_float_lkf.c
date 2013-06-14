@@ -35,6 +35,9 @@
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
 
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
+
 #include <stdio.h>
 
 
@@ -214,6 +217,67 @@ float bafl_R_mag;
 	INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate); \
   }
 
+static void send_lkf(void) {
+  DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,
+      DefaultChannel, DefaultDevice,
+      &bafl_eulers.theta,
+      &bafl_eulers.psi,
+      &bafl_quat.qi,
+      &bafl_quat.qx,
+      &bafl_quat.qy,
+      &bafl_quat.qz,
+      &bafl_rates.p,
+      &bafl_rates.q,
+      &bafl_rates.r,
+      &bafl_accel_measure.x,
+      &bafl_accel_measure.y,
+      &bafl_accel_measure.z,
+      &bafl_mag.x,
+      &bafl_mag.y,
+      &bafl_mag.z);
+}
+
+static void send_lkf_debug(void) {
+  DOWNLINK_SEND_AHRS_LKF_DEBUG(DefaultChannel, DefaultDevice,
+      &bafl_X[0],
+      &bafl_X[1],
+      &bafl_X[2],
+      &bafl_bias.p,
+      &bafl_bias.q,
+      &bafl_bias.r,
+      &bafl_qnorm,
+      &bafl_phi_accel,
+      &bafl_theta_accel,
+      &bafl_P[0][0],
+      &bafl_P[1][1],
+      &bafl_P[2][2],
+      &bafl_P[3][3],
+      &bafl_P[4][4],
+      &bafl_P[5][5]);
+}
+
+static void send_lkf_acc(void) {
+  DOWNLINK_SEND_AHRS_LKF_ACC_DBG(DefaultChannel, DefaultDevice,
+      &bafl_q_a_err.qi,
+      &bafl_q_a_err.qx,
+      &bafl_q_a_err.qy,
+      &bafl_q_a_err.qz,
+      &bafl_b_a_err.p,
+      &bafl_b_a_err.q,
+      &bafl_b_a_err.r);
+}
+
+static void send_lkf_mag(void) {
+  DOWNLINK_SEND_AHRS_LKF_MAG_DBG(DefaultChannel, DefaultDevice,
+      &bafl_q_m_err.qi,
+      &bafl_q_m_err.qx,
+      &bafl_q_m_err.qy,
+      &bafl_q_m_err.qz,
+      &bafl_b_m_err.p,
+      &bafl_b_m_err.q,
+      &bafl_b_m_err.r);
+}
+
 
 void ahrs_init(void) {
   int i, j;
@@ -251,6 +315,10 @@ void ahrs_init(void) {
 
   FLOAT_VECT3_ASSIGN(bafl_h, BAFL_hx,BAFL_hy, BAFL_hz);
 
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF", send_lkf);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF_DEBUG", send_lkf_debug);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF_ACC_DBG", send_lkf_acc);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF_MAG_DBG", send_lkf_mag);
 }
 
 void ahrs_align(void) {

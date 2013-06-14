@@ -57,10 +57,13 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
+#include "subsystems/radio_control.h"
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
 
 #include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ins.h"
 
 #include "state.h"
@@ -212,7 +215,7 @@ STATIC_INLINE void main_periodic( void ) {
 }
 
 STATIC_INLINE void telemetry_periodic(void) {
-  PeriodicSendMain(DefaultChannel,DefaultDevice);
+  periodic_telemetry_send_Main();
 }
 
 STATIC_INLINE void failsafe_check( void ) {

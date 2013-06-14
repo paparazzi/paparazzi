@@ -34,6 +34,10 @@
 
 #include "generated/airframe.h"
 
+#include "mcu_periph/uart.h"
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
+
 /* error if some gains are negative */
 #if (GUIDANCE_H_PGAIN < 0) ||                   \
   (GUIDANCE_H_DGAIN < 0)   ||                   \
@@ -89,6 +93,40 @@ static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
 
+static void send_gh(void) {
+  struct NedCoor_i* pos = stateGetPositionNed_i();
+  DOWNLINK_SEND_GUIDANCE_H_INT(DefaultChannel, DefaultDevice,
+      &guidance_h_pos_sp.x, &guidance_h_pos_sp.y,
+      &guidance_h_pos_ref.x, &guidance_h_pos_ref.y,
+      &(pos->x), &(pos->y));
+}
+
+static void send_hover_loop(void) {
+  struct NedCoor_i* pos = stateGetPositionNed_i();
+  struct NedCoor_i* speed = stateGetSpeedNed_i();
+  struct NedCoor_i* accel = stateGetAccelNed_i();
+  DOWNLINK_SEND_HOVER_LOOP(DefaultChannel, DefaultDevice,
+    &guidance_h_pos_sp.x, &guidance_h_pos_sp.y,
+    &(pos->x), &(pos->y),
+    &(speed->x), &(speed->y),
+    &(accel->x), &(accel->y),
+    &guidance_h_pos_err.x, &guidance_h_pos_err.y,
+    &guidance_h_speed_err.x, &guidance_h_speed_err.y,
+    &guidance_h_pos_err_sum.x, &guidance_h_pos_err_sum.y,
+    &guidance_h_nav_err.x, &guidance_h_nav_err.y,
+    &guidance_h_command_earth.x, &guidance_h_command_earth.y,
+    &guidance_h_command_body.phi,
+    &guidance_h_command_body.theta,
+    &guidance_h_command_body.psi);
+}
+
+static void send_href(void) {
+  DOWNLINK_SEND_GUIDANCE_H_REF_INT(DefaultChannel, DefaultDevice,
+      &guidance_h_pos_sp.x, &guidance_h_pos_ref.x,
+      &guidance_h_speed_ref.x, &guidance_h_accel_ref.x,
+      &guidance_h_pos_sp.y, &guidance_h_pos_ref.y,
+      &guidance_h_speed_ref.y, &guidance_h_accel_ref.y);
+}
 
 void guidance_h_init(void) {
 
@@ -105,6 +143,10 @@ void guidance_h_init(void) {
   guidance_h_again = GUIDANCE_H_AGAIN;
   transition_percentage = 0;
   transition_theta_offset = 0;
+
+  register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_INT", send_gh);
+  register_periodic_telemetry(DefaultPeriodic, "HOVER_LOOP", send_hover_loop);
+  register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_REF", send_href);
 }
 
 

@@ -27,9 +27,36 @@
 
 #include "mcu_periph/i2c.h"
 
+#include "subsystems/datalink/downlink.h"
+#include "generated/periodic_telemetry.h"
+
 #ifdef USE_I2C0
 
 struct i2c_periph i2c0;
+
+static void send_i2c0_err(void) {
+  uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;
+  uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;
+  uint16_t i2c0_arb_lost_cnt          = i2c0.errors->arb_lost_cnt;
+  uint16_t i2c0_over_under_cnt        = i2c0.errors->over_under_cnt;
+  uint16_t i2c0_pec_recep_cnt         = i2c0.errors->pec_recep_cnt;
+  uint16_t i2c0_timeout_tlow_cnt      = i2c0.errors->timeout_tlow_cnt;
+  uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt;
+  uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt;
+  uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event;
+  const uint8_t _bus0 = 0;
+  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+      &i2c0_ack_fail_cnt,
+      &i2c0_miss_start_stop_cnt,
+      &i2c0_arb_lost_cnt,
+      &i2c0_over_under_cnt,
+      &i2c0_pec_recep_cnt,
+      &i2c0_timeout_tlow_cnt,
+      &i2c0_smbus_alert_cnt,
+      &i2c0_unexpected_event_cnt,
+      &i2c0_last_unexpected_event,
+      &_bus0);
+}
 
 void i2c0_init(void) {
   i2c_init(&i2c0);
@@ -43,6 +70,30 @@ void i2c0_init(void) {
 
 struct i2c_periph i2c1;
 
+static void send_i2c1_err(void) {
+  uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
+  uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
+  uint16_t i2c1_arb_lost_cnt          = i2c1.errors->arb_lost_cnt;
+  uint16_t i2c1_over_under_cnt        = i2c1.errors->over_under_cnt;
+  uint16_t i2c1_pec_recep_cnt         = i2c1.errors->pec_recep_cnt;
+  uint16_t i2c1_timeout_tlow_cnt      = i2c1.errors->timeout_tlow_cnt;
+  uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt;
+  uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt;
+  uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
+  const uint8_t _bus1 = 1;
+  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+      &i2c1_ack_fail_cnt,
+      &i2c1_miss_start_stop_cnt,
+      &i2c1_arb_lost_cnt,
+      &i2c1_over_under_cnt,
+      &i2c1_pec_recep_cnt,
+      &i2c1_timeout_tlow_cnt,
+      &i2c1_smbus_alert_cnt,
+      &i2c1_unexpected_event_cnt,
+      &i2c1_last_unexpected_event,
+      &_bus1);
+}
+
 void i2c1_init(void) {
   i2c_init(&i2c1);
   i2c1_hw_init();
@@ -55,6 +106,30 @@ void i2c1_init(void) {
 
 struct i2c_periph i2c2;
 
+static void send_i2c2_err(void) {
+  uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
+  uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
+  uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
+  uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
+  uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
+  uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
+  uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
+  uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
+  uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
+  const uint8_t _bus2 = 2;
+  DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+      &i2c2_ack_fail_cnt,
+      &i2c2_miss_start_stop_cnt,
+      &i2c2_arb_lost_cnt,
+      &i2c2_over_under_cnt,
+      &i2c2_pec_recep_cnt,
+      &i2c2_timeout_tlow_cnt,
+      &i2c2_smbus_alert_cnt,
+      &i2c2_unexpected_event_cnt,
+      &i2c2_last_unexpected_event,
+      &_bus2);
+}
+
 void i2c2_init(void) {
   i2c_init(&i2c2);
   i2c2_hw_init();
@@ -62,10 +137,39 @@ void i2c2_init(void) {
 
 #endif /* USE_I2C2 */
 
+static void send_i2c_err(void) {
+  static uint8_t _i2c_nb_cnt = 0;
+  switch (_i2c_nb_cnt) {
+    case 0:
+#if USE_I2C0
+      send_i2c0_err();
+#endif
+      break;
+    case 1:
+#if USE_I2C1
+      send_i2c1_err();
+#endif
+      break;
+    case 2:
+#if USE_I2C2
+      send_i2c2_err();
+#endif
+      break;
+    default:
+      break;
+  }
+  _i2c_nb_cnt++;
+  if (_i2c_nb_cnt == 3)
+    _i2c_nb_cnt = 0;
+}
+
 void i2c_init(struct i2c_periph* p) {
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = I2CIdle;
+
+  // the first to register do it for the others
+  register_periodic_telemetry(DefaultPeriodic, "I2C_ERRORS", send_i2c_err);
 }
 
 
