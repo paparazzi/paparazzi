@@ -84,12 +84,16 @@ float stabilization_attitude_get_heading_f(void) {
  * @param[out] sp         attitude setpoint as euler angles
  */
 void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
-  sp->phi = (int32_t) (radio_control.values[RADIO_ROLL] * ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI) /  MAX_PPRZ);
-  sp->theta = (int32_t) (radio_control.values[RADIO_PITCH] * ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA) /  MAX_PPRZ);
+  const int32_t max_rc_phi = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI);
+  const int32_t max_rc_theta = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA);
+  const int32_t max_rc_r = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R);
+  
+  sp->phi = (int32_t) ((radio_control.values[RADIO_ROLL] * max_rc_phi) /  MAX_PPRZ);
+  sp->theta = (int32_t) ((radio_control.values[RADIO_PITCH] * max_rc_theta) /  MAX_PPRZ);
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
-      sp->psi += (int32_t) (radio_control.values[RADIO_YAW] * ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R) /  MAX_PPRZ / RC_UPDATE_FREQ);
+      sp->psi += (int32_t) ((radio_control.values[RADIO_YAW] * max_rc_r) /  MAX_PPRZ / RC_UPDATE_FREQ);
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
     if (autopilot_mode == AP_MODE_FORWARD) {
