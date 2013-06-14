@@ -39,39 +39,32 @@
 
 # for fixedwing firmware and ap only
 ifeq ($(TARGET), ap)
-  IMU_ASPIRIN_2_CFLAGS  = -DUSE_IMU
+  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
 endif
 
-IMU_ASPIRIN_2_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin_2.h\"
-IMU_ASPIRIN_2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
-IMU_ASPIRIN_2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin_2.c
-IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0.c
-IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0_spi.c
-
-# Magnetometer
-#IMU_ASPIRIN_2_SRCS   += peripherals/hmc58xx.c
+IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\"
+IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
+                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c
 
 include $(CFG_SHARED)/spi_master.makefile
 
 ifeq ($(ARCH), lpc21)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE0
-IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_SLAVE_IDX=SPI_SLAVE0
-IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_DEV=spi1
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI1
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
 else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI2
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (MPU600 CS)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE2
+IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
 endif
 
-#IMU_ASPIRIN_2_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1
+IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
 # see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 
-ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_2_SRCS)
+ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
+ap.srcs   += $(IMU_ASPIRIN_SRCS)
 
 
 #

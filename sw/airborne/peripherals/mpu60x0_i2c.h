@@ -36,6 +36,21 @@
 #include "peripherals/mpu60x0.h"
 
 
+#define MPU60X0_BUFFER_EXT_LEN 16
+
+enum Mpu60x0I2cSlaveInitStatus {
+  MPU60X0_I2C_CONF_UNINIT,
+  MPU60X0_I2C_CONF_I2C_MST_DIS,
+  MPU60X0_I2C_CONF_I2C_BYPASS_EN,
+  MPU60X0_I2C_CONF_SLAVES_CONFIGURE,
+  MPU60X0_I2C_CONF_I2C_BYPASS_DIS,
+  MPU60X0_I2C_CONF_I2C_MST_CLK,
+  MPU60X0_I2C_CONF_I2C_MST_DELAY,
+  MPU60X0_I2C_CONF_I2C_SMPLRT,
+  MPU60X0_I2C_CONF_I2C_MST_EN,
+  MPU60X0_I2C_CONF_DONE
+};
+
 struct Mpu60x0_I2c {
   struct i2c_periph *i2c_p;
   struct i2c_transaction i2c_trans;
@@ -48,7 +63,9 @@ struct Mpu60x0_I2c {
     struct Int16Rates rates;          ///< rates data as angular rates in gyro coordinate system
     int16_t value[3];                 ///< rates data values accessible by channel index
   } data_rates;
+  uint8_t data_ext[MPU60X0_BUFFER_EXT_LEN];
   struct Mpu60x0Config config;
+  enum Mpu60x0I2cSlaveInitStatus slave_init_status;
 };
 
 // Functions
