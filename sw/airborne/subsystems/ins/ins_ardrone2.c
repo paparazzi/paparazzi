@@ -110,6 +110,7 @@ void ins_propagate() {
   stateSetAccelNed_f(&ins_ltp_accel);
   stateSetSpeedNed_f(&ins_ltp_speed);
 
+  //Don't set the height if we use the one from the gps
 #if !USE_GPS_HEIGHT
   //Set the height and save the position
   ins_ltp_pos.z = -(ahrs_impl.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
@@ -138,11 +139,15 @@ void ins_update_gps(void) {
     //Set the x and y and maybe z position in ltp and save
     struct NedCoor_i ins_gps_pos_cm_ned;
     ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
+
+    //When we don't want to use the height of the navdata we can use the gps height
 #if USE_GPS_HEIGHT
     INT32_VECT3_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 #else
     INT32_VECT2_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 #endif
+
+    //Set the local origin
     stateSetPositionNed_i(&ins_ltp_pos);
   }
 #endif /* USE_GPS */
