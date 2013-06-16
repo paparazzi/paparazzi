@@ -27,8 +27,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "std.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#include "subsystems/datalink/telemetry.h"
 
 uint8_t rotorcraft_cam_mode;
 

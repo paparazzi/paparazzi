@@ -35,12 +35,6 @@
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
 float h_ctl_course_pre_bank;
@@ -118,9 +112,13 @@ float h_ctl_roll_rate_gain;
 static float nav_ratio;
 #endif
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_calibration(void) {
   DOWNLINK_SEND_CALIBRATION(DefaultChannel, DefaultDevice,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
 }
+#endif
 
 void h_ctl_init( void ) {
   h_ctl_course_setpoint = 0.;
@@ -178,7 +176,9 @@ void h_ctl_init( void ) {
 nav_ratio=0;
 #endif
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "CALIBRATION", send_calibration);
+#endif
 }
 
 /**

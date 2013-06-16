@@ -34,10 +34,6 @@
 
 #include "generated/airframe.h"
 
-#include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 /* error if some gains are negative */
 #if (GUIDANCE_H_PGAIN < 0) ||                   \
   (GUIDANCE_H_DGAIN < 0)   ||                   \
@@ -93,6 +89,9 @@ static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_gh(void) {
   struct NedCoor_i* pos = stateGetPositionNed_i();
   DOWNLINK_SEND_GUIDANCE_H_INT(DefaultChannel, DefaultDevice,
@@ -127,6 +126,7 @@ static void send_href(void) {
       &guidance_h_pos_sp.y, &guidance_h_pos_ref.y,
       &guidance_h_speed_ref.y, &guidance_h_accel_ref.y);
 }
+#endif
 
 void guidance_h_init(void) {
 
@@ -144,9 +144,11 @@ void guidance_h_init(void) {
   transition_percentage = 0;
   transition_theta_offset = 0;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_INT", send_gh);
   register_periodic_telemetry(DefaultPeriodic, "HOVER_LOOP", send_hover_loop);
   register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_REF", send_href);
+#endif
 }
 
 

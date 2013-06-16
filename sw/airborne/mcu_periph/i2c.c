@@ -27,13 +27,15 @@
 
 #include "mcu_periph/i2c.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 #ifdef USE_I2C0
 
 struct i2c_periph i2c0;
 
+#if DOWNLINK
 static void send_i2c0_err(void) {
   uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;
   uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;
@@ -57,6 +59,7 @@ static void send_i2c0_err(void) {
       &i2c0_last_unexpected_event,
       &_bus0);
 }
+#endif
 
 void i2c0_init(void) {
   i2c_init(&i2c0);
@@ -70,6 +73,7 @@ void i2c0_init(void) {
 
 struct i2c_periph i2c1;
 
+#if DOWNLINK
 static void send_i2c1_err(void) {
   uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
   uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
@@ -93,6 +97,7 @@ static void send_i2c1_err(void) {
       &i2c1_last_unexpected_event,
       &_bus1);
 }
+#endif
 
 void i2c1_init(void) {
   i2c_init(&i2c1);
@@ -106,6 +111,7 @@ void i2c1_init(void) {
 
 struct i2c_periph i2c2;
 
+#if DOWNLINK
 static void send_i2c2_err(void) {
   uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
   uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
@@ -129,6 +135,7 @@ static void send_i2c2_err(void) {
       &i2c2_last_unexpected_event,
       &_bus2);
 }
+#endif
 
 void i2c2_init(void) {
   i2c_init(&i2c2);
@@ -137,6 +144,7 @@ void i2c2_init(void) {
 
 #endif /* USE_I2C2 */
 
+#if DOWNLINK
 static void send_i2c_err(void) {
   static uint8_t _i2c_nb_cnt = 0;
   switch (_i2c_nb_cnt) {
@@ -162,14 +170,17 @@ static void send_i2c_err(void) {
   if (_i2c_nb_cnt == 3)
     _i2c_nb_cnt = 0;
 }
+#endif
 
 void i2c_init(struct i2c_periph* p) {
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = I2CIdle;
 
+#if DOWNLINK
   // the first to register do it for the others
   register_periodic_telemetry(DefaultPeriodic, "I2C_ERRORS", send_i2c_err);
+#endif
 }
 
 

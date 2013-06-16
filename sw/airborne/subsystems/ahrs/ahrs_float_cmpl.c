@@ -40,10 +40,6 @@
 #include "subsystems/gps.h"
 #endif
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
-
 //#include "../../test/pprz_algebra_print.h"
 
 #if AHRS_PROPAGATE_RMAT && AHRS_PROPAGATE_QUAT
@@ -87,6 +83,9 @@ static inline void compute_body_orientation_and_rates(void);
 
 struct AhrsFloatCmpl ahrs_impl;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_att(void) {
   struct FloatEulers ltp_to_imu_euler;
   FLOAT_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);
@@ -127,6 +126,7 @@ static void send_rmat(void) {
       &(att_rmat->m[8]));
 }
 */
+#endif
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
@@ -151,7 +151,9 @@ void ahrs_init(void) {
   ahrs_impl.correct_gravity = FALSE;
 #endif
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
+#endif
 }
 
 void ahrs_align(void) {

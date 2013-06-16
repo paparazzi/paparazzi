@@ -36,12 +36,6 @@
 #include "inter_mcu.h"
 #include "subsystems/navigation/traffic_info.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 #define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
 
 enum oval_status oval_status;
@@ -440,6 +434,9 @@ void nav_periodic_task(void) {
 /**
  * \brief Periodic telemetry
  */
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_nav_ref(void) {
   DOWNLINK_SEND_NAVIGATION_REF(DefaultChannel, DefaultDevice,
       &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
@@ -475,6 +472,7 @@ static void send_survey(void) {
         &nav_survey_east, &nav_survey_north, &nav_survey_west, &nav_survey_south);
   }
 }
+#endif
 
 /**
  *  \brief Navigation Initialisation
@@ -493,12 +491,14 @@ void nav_init(void) {
   nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
 #endif
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "NAVIGATION_REF", send_nav_ref);
   register_periodic_telemetry(DefaultPeriodic, "NAVIGATION", send_nav);
   register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);
   register_periodic_telemetry(DefaultPeriodic, "CIRCLE", send_circle);
   register_periodic_telemetry(DefaultPeriodic, "SEGMENT", send_segment);
   register_periodic_telemetry(DefaultPeriodic, "SURVEY", send_survey);
+#endif
 }
 
 /**

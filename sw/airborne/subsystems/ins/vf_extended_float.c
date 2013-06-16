@@ -39,9 +39,6 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 /*
 
 X = [ z zdot accel_bias baro_offset ]
@@ -74,12 +71,16 @@ float vff_P[VFF_STATE_SIZE][VFF_STATE_SIZE];
 float vff_z_meas;
 float vff_z_meas_baro;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_vffe(void) {
   DOWNLINK_SEND_VFF_EXTENDED(DefaultChannel, DefaultDevice,
       &vff_z_meas, &vff_z_meas_baro,
       &vff_z, &vff_zdot, &vff_zdotdot,
       &vff_bias, &vff_offset);
 }
+#endif
 
 void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_baro_offset) {
   vff_z = init_z;
@@ -93,7 +94,9 @@ void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_b
     vff_P[i][i] = INIT_PXX;
   }
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "VFF_EXTENDED", send_vffe);
+#endif
 }
 
 

@@ -29,8 +29,7 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#include "subsystems/datalink/telemetry.h"
 
 struct FloatVect3 target_pos_ned;
 struct FloatVect3 target_speed_ned;

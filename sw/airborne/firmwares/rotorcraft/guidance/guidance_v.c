@@ -39,9 +39,6 @@
 
 #include "generated/airframe.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 
 /* warn if some gains are still negative */
 #if (GUIDANCE_V_HOVER_KP < 0) ||                   \
@@ -96,6 +93,9 @@ int32_t guidance_v_z_sum_err;
 
 __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flight);
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_vert_loop(void) {
   DOWNLINK_SEND_VERT_LOOP(DefaultChannel, DefaultDevice,
       &guidance_v_z_sp, &guidance_v_zd_sp,
@@ -112,6 +112,7 @@ static void send_vert_loop(void) {
       &guidance_v_fb_cmd,
       &guidance_v_delta_t);
 }
+#endif
 
 void guidance_v_init(void) {
 
@@ -129,7 +130,9 @@ void guidance_v_init(void) {
 
   gv_adapt_init();
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "VERT_LOOP", send_vert_loop);
+#endif
 }
 
 

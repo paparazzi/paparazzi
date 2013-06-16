@@ -36,10 +36,10 @@
 #include <math.h>
 #include "navdata.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 int nav_fd;
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_navdata(void) {
   DOWNLINK_SEND_ARDRONE_NAVDATA(DefaultChannel, DefaultDevice,
@@ -72,6 +72,7 @@ static void send_navdata(void) {
       &navdata->mz,
       &navdata->chksum);
 }
+#endif
 
 int navdata_init()
 {
@@ -122,7 +123,10 @@ int navdata_init()
 
   previousUltrasoundHeight = 0;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
+#endif
+
   return 0;
 }
 

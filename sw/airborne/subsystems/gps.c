@@ -26,12 +26,6 @@
 
 #include "subsystems/gps.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 #include "led.h"
 
 #define MSEC_PER_WEEK (1000*60*60*24*7)
@@ -39,6 +33,9 @@
 struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_gps(void) {
   static uint8_t i;
@@ -97,6 +94,7 @@ static void send_gps_lla(void) {
 static void send_gps_sol(void) {
   DOWNLINK_SEND_GPS_SOL(DefaultChannel, DefaultDevice, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv);
 }
+#endif
 
 void gps_init(void) {
   gps.fix = GPS_FIX_NONE;
@@ -108,10 +106,12 @@ void gps_init(void) {
   gps_impl_init();
 #endif
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "GPS", send_gps);
   register_periodic_telemetry(DefaultPeriodic, "GPS_INT", send_gps_int);
   register_periodic_telemetry(DefaultPeriodic, "GPS_LLA", send_gps_lla);
   register_periodic_telemetry(DefaultPeriodic, "GPS_SOL", send_gps_sol);
+#endif
 }
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)

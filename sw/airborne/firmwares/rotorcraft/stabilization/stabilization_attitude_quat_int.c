@@ -32,9 +32,6 @@
 #include "state.h"
 #include "generated/airframe.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 struct Int32AttitudeGains stabilization_gains = {
   {STABILIZATION_ATTITUDE_PHI_PGAIN, STABILIZATION_ATTITUDE_THETA_PGAIN, STABILIZATION_ATTITUDE_PSI_PGAIN },
   {STABILIZATION_ATTITUDE_PHI_DGAIN, STABILIZATION_ATTITUDE_THETA_DGAIN, STABILIZATION_ATTITUDE_PSI_DGAIN },
@@ -66,6 +63,9 @@ int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 #define GAIN_PRESCALER_P 48
 #define GAIN_PRESCALER_D 48
 #define GAIN_PRESCALER_I 48
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) { //FIXME really use this message here ?
   struct Int32Rates* body_rate = stateGetBodyRates_i();
@@ -102,6 +102,7 @@ static void send_att_ref(void) {
       &(quat->qy),
       &(quat->qz));
 }
+#endif
 
 void stabilization_attitude_init(void) {
 
@@ -121,8 +122,10 @@ void stabilization_attitude_enter(void) {
   INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
   INT_EULERS_ZERO(stabilization_att_sum_err);
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
   register_periodic_telemetry(DefaultPeriodic, "STAB_AHRS_REF_QUAT", send_att_ref);
+#endif
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void) {

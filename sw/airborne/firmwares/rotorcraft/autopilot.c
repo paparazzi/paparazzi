@@ -35,10 +35,10 @@
 #include "subsystems/actuators.h"
 #include "subsystems/electrical.h"
 #include "subsystems/settings.h"
+#include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/telemetry.h"
 #include "led.h"
 
 uint8_t  autopilot_mode;

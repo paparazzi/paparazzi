@@ -27,9 +27,6 @@
 
 #include "generated/airframe.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 struct Int32AttitudeGains  stabilization_gains;
 
 /* warn if some gains are still negative */
@@ -56,6 +53,9 @@ static inline void reset_psi_ref_from_body(void) {
   stab_att_ref_rate.r = 0;
   stab_att_ref_accel.r = 0;
 }
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) {
   struct Int32Rates* body_rate = stateGetBodyRates_i();
@@ -95,6 +95,7 @@ static void send_att_ref(void) {
       &stab_att_ref_accel.q,
       &stab_att_ref_accel.r);
 }
+#endif
 
 void stabilization_attitude_init(void) {
 
@@ -124,8 +125,10 @@ void stabilization_attitude_init(void) {
 
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+#endif
 }
 
 

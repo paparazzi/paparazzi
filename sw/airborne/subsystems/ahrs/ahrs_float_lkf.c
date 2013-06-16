@@ -35,9 +35,6 @@
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 #include <stdio.h>
 
 
@@ -217,6 +214,9 @@ float bafl_R_mag;
 	INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate); \
   }
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_lkf(void) {
   DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,
       DefaultChannel, DefaultDevice,
@@ -277,7 +277,7 @@ static void send_lkf_mag(void) {
       &bafl_b_m_err.q,
       &bafl_b_m_err.r);
 }
-
+#endif
 
 void ahrs_init(void) {
   int i, j;
@@ -315,10 +315,12 @@ void ahrs_init(void) {
 
   FLOAT_VECT3_ASSIGN(bafl_h, BAFL_hx,BAFL_hy, BAFL_hz);
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF", send_lkf);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF_DEBUG", send_lkf_debug);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF_ACC_DBG", send_lkf_acc);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_LKF_MAG_DBG", send_lkf_mag);
+#endif
 }
 
 void ahrs_align(void) {

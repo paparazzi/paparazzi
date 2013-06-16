@@ -33,12 +33,12 @@
 #include "boards/ardrone/at_com.h"
 #include "subsystems/electrical.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 struct AhrsARDrone ahrs_impl;
 struct AhrsAligner ahrs_aligner;
 unsigned char buffer[2048]; //Packet buffer
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_ahrs_ad2(void) {
   DOWNLINK_SEND_AHRS_ARDRONE2(DefaultChannel, DefaultDevice,
@@ -56,6 +56,7 @@ static void send_ahrs_ad2(void) {
       &ahrs_impl.altitude,
       &ahrs_impl.battery);
 }
+#endif
 
 void ahrs_init(void) {
   init_at_com();
@@ -66,7 +67,9 @@ void ahrs_init(void) {
 
   ahrs.status = AHRS_RUNNING;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "AHRS_ARDRONE2", send_ahrs_ad2);
+#endif
 }
 
 void ahrs_align(void) {

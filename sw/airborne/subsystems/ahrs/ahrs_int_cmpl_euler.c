@@ -38,9 +38,6 @@
 
 #include "generated/airframe.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 #ifndef FACE_REINJ_1
 #define FACE_REINJ_1 1024
 #endif
@@ -77,6 +74,9 @@ static inline void set_body_state_from_euler(void);
     while (_a < -PI_INTEG_EULER)  _a += TWO_PI_INTEG_EULER; \
   }
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_filter(void) {
   DOWNLINK_SEND_FILTER(DefaultChannel, DefaultDevice,
       &ahrs_impl.ltp_to_imu_euler.phi,
@@ -111,6 +111,7 @@ static void send_bias(void) {
   DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
       &ahrs_impl.gyro_bias.p, &ahrs_impl.gyro_bias.q, &ahrs_impl.gyro_bias.r);
 }
+#endif
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
@@ -124,9 +125,11 @@ void ahrs_init(void) {
 
   ahrs_impl.mag_offset = AHRS_MAG_OFFSET;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "FILTER", send_filter);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
+#endif
 }
 
 void ahrs_align(void) {

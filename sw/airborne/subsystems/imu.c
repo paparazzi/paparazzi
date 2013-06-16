@@ -26,11 +26,8 @@
 
 #include "subsystems/imu.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_accel_raw(void) {
   DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
@@ -93,6 +90,8 @@ static void send_mag_calib(void) {
 }
 #endif
 
+#endif
+
 struct Imu imu;
 
 void imu_init(void) {
@@ -123,6 +122,7 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
@@ -134,6 +134,7 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_CURRENT_CALIBRATION", send_mag_calib);
+#endif
 #endif
 
   imu_impl_init();

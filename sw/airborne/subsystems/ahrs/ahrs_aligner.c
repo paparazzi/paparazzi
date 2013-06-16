@@ -32,9 +32,6 @@
 #include "subsystems/imu.h"
 #include "led.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 struct AhrsAligner ahrs_aligner;
 
 #define SAMPLES_NB PERIODIC_FREQUENCY
@@ -44,6 +41,9 @@ static struct Int32Vect3 accel_sum;
 static struct Int32Vect3 mag_sum;
 static int32_t ref_sensor_samples[SAMPLES_NB];
 static uint32_t samples_idx;
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
 static void send_aligner(void) {
   DOWNLINK_SEND_FILTER_ALIGNER(DefaultChannel, DefaultDevice,
@@ -57,6 +57,7 @@ static void send_aligner(void) {
       &ahrs_aligner.low_noise_cnt,
       &ahrs_aligner.status);
 }
+#endif
 
 void ahrs_aligner_init(void) {
 
@@ -68,7 +69,9 @@ void ahrs_aligner_init(void) {
   ahrs_aligner.noise = 0;
   ahrs_aligner.low_noise_cnt = 0;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "FILTER_ALIGNER", send_aligner);
+#endif
 }
 
 #ifndef LOW_NOISE_THRESHOLD

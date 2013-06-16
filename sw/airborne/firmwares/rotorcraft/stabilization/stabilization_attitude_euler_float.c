@@ -35,6 +35,9 @@ struct FloatEulers stabilization_att_sum_err;
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_att(void) {
   struct FloatRates* body_rate = stateGetBodyRates_i();
   struct FloatEulers* att = stateGetNedToBodyEulers_i();
@@ -75,7 +78,7 @@ static void send_att_ref(void) {
       &stab_att_ref_accel.q,
       &stab_att_ref_accel.r);
 }
-
+#endif
 
 void stabilization_attitude_init(void) {
 
@@ -103,8 +106,10 @@ void stabilization_attitude_init(void) {
 
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+#endif
 }
 
 

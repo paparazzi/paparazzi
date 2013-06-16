@@ -51,9 +51,6 @@
 
 #include "generated/flight_plan.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
@@ -86,6 +83,9 @@ struct NedCoor_i ins_ltp_pos;
 struct NedCoor_i ins_ltp_speed;
 struct NedCoor_i ins_ltp_accel;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_ins(void) {
   DOWNLINK_SEND_INS(DefaultChannel, DefaultDevice,
       &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z,
@@ -106,6 +106,7 @@ static void send_ins_ref(void) {
         &ins_ltp_def.hmsl, &ins_qfe);
   }
 }
+#endif
 
 void ins_init() {
 #if USE_INS_NAV_INIT
@@ -146,9 +147,11 @@ void ins_init() {
   // TODO correct init
   ins.status = INS_RUNNING;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
   register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
+#endif
 }
 
 void ins_periodic( void ) {

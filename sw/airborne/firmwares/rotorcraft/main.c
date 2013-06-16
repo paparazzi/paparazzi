@@ -33,8 +33,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "firmwares/rotorcraft/telemetry.h"
+#include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"

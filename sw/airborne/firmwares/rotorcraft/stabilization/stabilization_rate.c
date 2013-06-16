@@ -34,9 +34,6 @@
 #include "subsystems/radio_control.h"
 #include "generated/airframe.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 #define F_UPDATE_RES 9
 #define REF_DOT_FRAC 11
 #define REF_FRAC  16
@@ -122,6 +119,9 @@ struct Int32Rates stabilization_rate_ff_cmd;
   (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_rate(void) {
   DOWNLINK_SEND_RATE_LOOP(DefaultChannel, DefaultDevice,
       &stabilization_rate_sp.p,
@@ -144,6 +144,7 @@ static void send_rate(void) {
       &stabilization_rate_fb_cmd.r,
       &stabilization_cmd[COMMAND_THRUST]);
 }
+#endif
 
 void stabilization_rate_init(void) {
 
@@ -166,7 +167,9 @@ void stabilization_rate_init(void) {
   INT_RATES_ZERO(stabilization_rate_refdot);
   INT_RATES_ZERO(stabilization_rate_sum_err);
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "RATE_LOOP", send_rate);
+#endif
 }
 
 

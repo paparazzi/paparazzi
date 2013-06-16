@@ -35,11 +35,7 @@
 #include "point.h"
 #endif // POINT_CAM
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#include "subsystems/datalink/telemetry.h"
 
 #ifdef TEST_CAM
 float test_cam_estimator_x;

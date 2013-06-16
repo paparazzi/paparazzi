@@ -44,9 +44,6 @@
 
 #include "math/pprz_algebra_int.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
-
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct EnuCoor_i waypoints[NB_WAYPOINT];
 
@@ -86,6 +83,9 @@ static inline void nav_set_altitude( void );
 #define ARRIVED_AT_WAYPOINT (3 << 8)
 #define CARROT_DIST (12 << 8)
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
 static void send_nav_status(void) {
   DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(DefaultChannel, DefaultDevice,
       &block_time, &stage_time,
@@ -115,6 +115,7 @@ static void send_wp_moved(void) {
       &(waypoints[i].y),
       &(waypoints[i].z));
 }
+#endif
 
 void nav_init(void) {
   // convert to
@@ -148,8 +149,10 @@ void nav_init(void) {
   nav_leg_progress = 0;
   nav_leg_length = 1;
 
+#if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_NAV_STATUS", send_nav_status);
   register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);
+#endif
 }
 
 static inline void nav_advance_carrot(void) {

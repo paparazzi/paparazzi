@@ -22,12 +22,14 @@
 
 #include "mcu_periph/uart.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "generated/periodic_telemetry.h"
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 #ifdef USE_UART0
 struct uart_periph uart0;
 
+#if DOWNLINK
 static void send_uart0_err(void) {
   uint16_t ore    = uart0.ore;
   uint16_t ne_err = uart0.ne_err;
@@ -36,12 +38,14 @@ static void send_uart0_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus0);
 }
+#endif
 
 #endif
 
 #ifdef USE_UART1
 struct uart_periph uart1;
 
+#if DOWNLINK
 static void send_uart1_err(void) {
   uint16_t ore    = uart1.ore;
   uint16_t ne_err = uart1.ne_err;
@@ -50,12 +54,14 @@ static void send_uart1_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus1);
 }
+#endif
 
 #endif
 
 #ifdef USE_UART2
 struct uart_periph uart2;
 
+#if DOWNLINK
 static void send_uart2_err(void) {
   uint16_t ore    = uart2.ore;
   uint16_t ne_err = uart2.ne_err;
@@ -64,12 +70,14 @@ static void send_uart2_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus2);
 }
+#endif
 
 #endif
 
 #ifdef USE_UART3
 struct uart_periph uart3;
 
+#if DOWNLINK
 static void send_uart3_err(void) {
   uint16_t ore    = uart3.ore;
   uint16_t ne_err = uart3.ne_err;
@@ -78,12 +86,14 @@ static void send_uart3_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus3);
 }
+#endif
 
 #endif
 
 #ifdef USE_UART4
 struct uart_periph uart4;
 
+#if DOWNLINK
 static void send_uart4_err(void) {
   uint16_t ore    = uart4.ore;
   uint16_t ne_err = uart4.ne_err;
@@ -92,12 +102,14 @@ static void send_uart4_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus4);
 }
+#endif
 
 #endif
 
 #ifdef USE_UART5
 struct uart_periph uart5;
 
+#if DOWNLINK
 static void send_uart5_err(void) {
   uint16_t ore    = uart5.ore;
   uint16_t ne_err = uart5.ne_err;
@@ -106,12 +118,14 @@ static void send_uart5_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus5);
 }
+#endif
 
 #endif
 
 #ifdef USE_UART6
 struct uart_periph uart6;
 
+#if DOWNLINK
 static void send_uart6_err(void) {
   const uint8_t _bus6 = 6;
   uint16_t ore    = uart6.ore;
@@ -120,9 +134,11 @@ static void send_uart6_err(void) {
   DOWNLINK_SEND_UART_ERRORS(DefaultChannel, DefaultDevice,
       &ore, &ne_err, &fe_err, &_bus6);
 }
+#endif
 
 #endif
 
+#if DOWNLINK
 static void send_uart_err(void) {
   static uint8_t uart_nb_cnt = 0;
   switch (uart_nb_cnt) {
@@ -160,6 +176,7 @@ static void send_uart_err(void) {
   if (uart_nb_cnt == 6)
     uart_nb_cnt = 0;
 }
+#endif
 
 void uart_periph_init(struct uart_periph* p) {
   p->rx_insert_idx = 0;
@@ -171,8 +188,10 @@ void uart_periph_init(struct uart_periph* p) {
   p->ne_err = 0;
   p->fe_err = 0;
 
+#if DOWNLINK
   // the first to register do it for the others
   register_periodic_telemetry(DefaultPeriodic, "UART_ERRORS", send_uart_err);
+#endif
 }
 
 bool_t uart_check_free_space(struct uart_periph* p, uint8_t len) {
