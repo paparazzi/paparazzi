@@ -83,15 +83,7 @@
 
   <section name="sessions">
 
-   <session name="ARDrone2 RAW Flight">
-      <program name="Server"/>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-    </session>
-
-   <session name="ARDrone2 SDK Flight">
+   <session name="ARDrone2 Flight">
       <program name="Server"/>
       <program name="GCS"/>
       <program name="Data Link">
