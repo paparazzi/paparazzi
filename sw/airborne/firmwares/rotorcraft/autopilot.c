@@ -92,6 +92,36 @@ void autopilot_init(void) {
 }
 
 
+static inline void autopilot_check_in_flight_no_rc( bool_t motors_on ) {
+  if (autopilot_in_flight) {
+    if (autopilot_in_flight_counter > 0) {
+      if (stabilization_cmd[COMMAND_THRUST] == 0) {
+        autopilot_in_flight_counter--;
+        if (autopilot_in_flight_counter == 0) {
+          autopilot_in_flight = FALSE;
+        }
+      }
+      else {  /* !THROTTLE_STICK_DOWN */
+        autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+      }
+    }
+  }
+  else { /* not in flight */
+    if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
+        motors_on) {
+      if (stabilization_cmd[COMMAND_THRUST] > 0) {
+        autopilot_in_flight_counter++;
+        if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+          autopilot_in_flight = TRUE;
+      }
+      else { /*  THROTTLE_STICK_DOWN */
+        autopilot_in_flight_counter = 0;
+      }
+    }
+  }
+}
+
+
 void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
@@ -118,6 +148,10 @@ INFO("Using FAILSAFE_GROUND_DETECT")
     SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
 
+  // when we dont have RC, check in flight by looking at throttle
+  if (radio_control.status != RC_OK) {
+    autopilot_check_in_flight_no_rc(autopilot_motors_on);
+  }
 }
 
 
