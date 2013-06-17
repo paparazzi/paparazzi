@@ -198,14 +198,6 @@ void pcap01readRegister(uint8_t reg)
 *
 *         function where current measurement data from pcap01 is read into
 *         global sensor variable
-*
-* \param       control   Control command
-*						 possible commands:
-*						 PCAP01_PU_RESET : Hard reset of the device
-*						 PCAP01_IN_RESET : Software reset
-*						 PCAP01_START : Start measurement
-*						 PCAP01_START : Start measurement
-*						 PCAP01_TERM : Stop measurement
 */
 void pcap01_periodic(void)
 {

@@ -20,8 +20,9 @@
  *
  */
 
-/** \file baro_ms5611_i2c.c
- *  \brief Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for I2C
+/**
+ * @file modules/sensors/baro_ms5611_i2c.c
+ * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for I2C.
  *
  */
 
