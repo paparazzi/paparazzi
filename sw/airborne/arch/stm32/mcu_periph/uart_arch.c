@@ -42,40 +42,40 @@
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
 
   /* Configure USART */
-  usart_set_baudrate((u32)p->reg_addr, baud);
-  usart_set_databits((u32)p->reg_addr, 8);
-  usart_set_stopbits((u32)p->reg_addr, USART_STOPBITS_1);
-  usart_set_parity((u32)p->reg_addr, USART_PARITY_NONE);
+  usart_set_baudrate((uint32_t)p->reg_addr, baud);
+  usart_set_databits((uint32_t)p->reg_addr, 8);
+  usart_set_stopbits((uint32_t)p->reg_addr, USART_STOPBITS_1);
+  usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_NONE);
 
   /* Disable Idle Line interrupt */
-  USART_CR1((u32)p->reg_addr) &= ~USART_CR1_IDLEIE;
+  USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_IDLEIE;
 
   /* Disable LIN break detection interrupt */
-  USART_CR2((u32)p->reg_addr) &= ~USART_CR2_LBDIE;
+  USART_CR2((uint32_t)p->reg_addr) &= ~USART_CR2_LBDIE;
 
   /* Enable USART1 Receive interrupts */
-  USART_CR1((u32)p->reg_addr) |= USART_CR1_RXNEIE;
+  USART_CR1((uint32_t)p->reg_addr) |= USART_CR1_RXNEIE;
 
   /* Enable the USART */
-  usart_enable((u32)p->reg_addr);
+  usart_enable((uint32_t)p->reg_addr);
 
 }
 
 void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control) {
-  u32 mode = 0;
+  uint32_t mode = 0;
   if (tx_enabled)
     mode |= USART_MODE_TX;
   if (rx_enabled)
     mode |= USART_MODE_RX;
 
   /* set mode to Tx, Rx or TxRx */
-  usart_set_mode((u32)p->reg_addr, mode);
+  usart_set_mode((uint32_t)p->reg_addr, mode);
 
   if (hw_flow_control) {
-    usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_RTS_CTS);
+    usart_set_flow_control((uint32_t)p->reg_addr, USART_FLOWCONTROL_RTS_CTS);
   }
   else {
-    usart_set_flow_control((u32)p->reg_addr, USART_FLOWCONTROL_NONE);
+    usart_set_flow_control((uint32_t)p->reg_addr, USART_FLOWCONTROL_NONE);
   }
 }
 
@@ -86,7 +86,7 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
   if (temp == p->tx_extract_idx)
     return;                          // no room
 
-  USART_CR1((u32)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
+  USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
 
   // check if in process of sending data
   if (p->tx_running) { // yes, add to queue
@@ -95,61 +95,61 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
   }
   else { // no, set running flag and write to output register
     p->tx_running = TRUE;
-    usart_send((u32)p->reg_addr, data);
+    usart_send((uint32_t)p->reg_addr, data);
   }
 
-  USART_CR1((u32)p->reg_addr) |= USART_CR1_TXEIE; // Enable TX interrupt
+  USART_CR1((uint32_t)p->reg_addr) |= USART_CR1_TXEIE; // Enable TX interrupt
 
 }
 
 static inline void usart_isr(struct uart_periph* p) {
 
-  if (((USART_CR1((u32)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
-      ((USART_SR((u32)p->reg_addr) & USART_SR_TXE) != 0)) {
+  if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_TXE) != 0)) {
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
-      usart_send((u32)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
+      usart_send((uint32_t)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
       p->tx_extract_idx++;
       p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     }
     else {
       p->tx_running = FALSE;   // clear running flag
-      USART_CR1((u32)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
+      USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
     }
   }
 
-  if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-      ((USART_SR((u32)p->reg_addr) & USART_SR_RXNE) != 0) &&
-      ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) == 0) &&
-      ((USART_SR((u32)p->reg_addr) & USART_SR_NE) == 0) &&
-      ((USART_SR((u32)p->reg_addr) & USART_SR_FE) == 0)) {
+  if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_RXNE) != 0) &&
+      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) == 0) &&
+      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) == 0) &&
+      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) == 0)) {
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
-    p->rx_buf[p->rx_insert_idx] = usart_recv((u32)p->reg_addr);
+    p->rx_buf[p->rx_insert_idx] = usart_recv((uint32_t)p->reg_addr);
     // check for more room in queue
     if (temp != p->rx_extract_idx)
       p->rx_insert_idx = temp; // update insert index
   }
   else {
     /* ORE, NE or FE error - read USART_DR reg and log the error */
-    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-        ((USART_SR((u32)p->reg_addr) & USART_SR_ORE) != 0)) {
-      usart_recv((u32)p->reg_addr);
+    if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+        ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) != 0)) {
+      usart_recv((uint32_t)p->reg_addr);
       p->ore++;
     }
-    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-        ((USART_SR((u32)p->reg_addr) & USART_SR_NE) != 0)) {
-      usart_recv((u32)p->reg_addr);
+    if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+        ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) != 0)) {
+      usart_recv((uint32_t)p->reg_addr);
       p->ne_err++;
     }
-    if (((USART_CR1((u32)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-        ((USART_SR((u32)p->reg_addr) & USART_SR_FE) != 0)) {
-      usart_recv((u32)p->reg_addr);
+    if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+        ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) != 0)) {
+      usart_recv((uint32_t)p->reg_addr);
       p->fe_err++;
     }
   }
 }
 
-static inline void usart_enable_irq(u8 IRQn) {
+static inline void usart_enable_irq(uint8_t IRQn) {
   /* Note:
    * In libstm32 times the priority of this interrupt was set to
    * preemption priority 2 and sub priority 1

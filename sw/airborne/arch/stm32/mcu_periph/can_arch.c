@@ -166,9 +166,9 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 
 void usb_lp_can_rx0_isr(void)
 {
-  u32 id, fmi;
+  uint32_t id, fmi;
   bool ext, rtr;
-  u8 length, data[8];
+  uint8_t length, data[8];
 
   can_receive(CAN1,
               0,     /* FIFO: 0 */
