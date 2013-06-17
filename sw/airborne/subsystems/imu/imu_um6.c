@@ -26,7 +26,7 @@
  *
  * Takes care of configuration of the IMU, communication and parsing
  * the received packets. See UM6 datasheet for configuration options.
- * Should be used with @ahrs_extern_euler AHRS subsystem.
+ * Should be used with ahrs_extern_euler AHRS subsystem.
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
