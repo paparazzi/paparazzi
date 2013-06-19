@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006- Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2013 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -19,30 +19,21 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef TELEMETRY_H
+#define TELEMETRY_H
+
 /**
- * @file firmwares/fixedwing/fbw_downlink.h
+ * @file subsystems/datalink/telemetry.h
  *
- * Set of macros defining the periodic telemetry messages of FBW process.
+ * Periodic telemetry system header.
  *
- * The PeriodicSendAp() macro is generated from the telemetry description
- * (named in conf.xml, usually in conf/telemetry directory). This macro
- * is a sequence of calls to PERIODIC_SEND_message() which have to be defined
- * in the present file.
- *
+ * include downlink utility and generated code
  */
 
-#ifndef FBW_DOWNLINK_H
-#define FBW_DOWNLINK_H
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
-#endif
+#include "std.h"
+#include "messages.h"
+#include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #include "generated/periodic_telemetry.h"
 
-static inline void fbw_downlink_periodic_task(void) {
-  periodic_telemetry_send_Fbw();
-}
-
-
-#endif /* FBW_DOWNLINK_H */
+#endif /* TELEMETRY_H */

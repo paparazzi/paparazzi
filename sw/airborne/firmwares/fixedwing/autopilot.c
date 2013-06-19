@@ -29,7 +29,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 
 #include "state.h"
-#include "firmwares/fixedwing/ap_downlink.h"
+#include "subsystems/datalink/telemetry.h"
 #include "subsystems/nav.h"
 #include "generated/settings.h"
 

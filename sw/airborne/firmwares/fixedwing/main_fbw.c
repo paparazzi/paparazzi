@@ -41,9 +41,12 @@
 #include "subsystems/electrical.h"
 #include "subsystems/radio_control.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "fbw_downlink.h"
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"
+
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 #ifdef MCU_SPI_LINK
 #include "link_mcu_spi.h"
@@ -79,6 +82,7 @@ tid_t fbw_periodic_tid; ///< id for periodic_task_fbw() timer
 tid_t electrical_tid;   ///< id for electrical_periodic() timer
 
 /********** PERIODIC MESSAGES ************************************************/
+#if DOWNLINK
 static void send_commands(void) {
   DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);
 }
@@ -107,6 +111,8 @@ static void send_actuators(void) {
 }
 #endif
 
+#endif
+
 /********** INIT *************************************************************/
 void init_fbw( void ) {
 
@@ -116,19 +122,14 @@ void init_fbw( void ) {
   electrical_init();
 #endif
 
-  register_periodic_telemetry(&telemetry_Fbw, "FBW_STATUS", send_fbw_status);
-  register_periodic_telemetry(&telemetry_Fbw, "COMMANDS", send_commands);
-
 #ifdef ACTUATORS
   actuators_init();
   /* Load the failsafe defaults */
   SetCommands(commands_failsafe);
   fbw_new_actuators = 1;
-  register_periodic_telemetry(&telemetry_Fbw, "ACTUATORS", send_actuators);
 #endif
 #ifdef RADIO_CONTROL
   radio_control_init();
-  register_periodic_telemetry(&telemetry_Fbw, "RC", send_rc);
 #endif
 #ifdef INTER_MCU
   inter_mcu_init();
@@ -151,6 +152,18 @@ void init_fbw( void ) {
 #ifndef SINGLE_MCU
   mcu_int_enable();
 #endif
+
+#if DOWNLINK
+  register_periodic_telemetry(&telemetry_Fbw, "FBW_STATUS", send_fbw_status);
+  register_periodic_telemetry(&telemetry_Fbw, "COMMANDS", send_commands);
+#ifdef ACTUATORS
+  register_periodic_telemetry(&telemetry_Fbw, "ACTUATORS", send_actuators);
+#endif
+#ifdef RADIO_CONTROL
+  register_periodic_telemetry(&telemetry_Fbw, "RC", send_rc);
+#endif
+#endif
+
 }
 
 
@@ -297,7 +310,7 @@ set_failsafe_mode();
 #endif
 
 #ifdef DOWNLINK
-  fbw_downlink_periodic_task();
+  periodic_telemetry_send_Fbw();
 #endif
 
 }

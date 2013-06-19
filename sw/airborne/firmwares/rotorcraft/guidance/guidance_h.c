@@ -126,6 +126,27 @@ static void send_href(void) {
       &guidance_h_pos_sp.y, &guidance_h_pos_ref.y,
       &guidance_h_speed_ref.y, &guidance_h_accel_ref.y);
 }
+
+// FIXME no idea where to put this one
+//#ifndef AHRS_FLOAT
+//#define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(DefaultChannel, DefaultDevice) {
+//  DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(DefaultChannel, DefaultDevice,
+//      &radio_control.values[RADIO_ROLL],
+//      &radio_control.values[RADIO_PITCH],
+//      &radio_control.values[RADIO_YAW],
+//      &stabilization_cmd[COMMAND_ROLL],
+//      &stabilization_cmd[COMMAND_PITCH],
+//      &stabilization_cmd[COMMAND_YAW],
+//      &stabilization_cmd[COMMAND_THRUST],
+//      &ahrs_impl.ltp_to_imu_euler.phi,
+//      &ahrs_impl.ltp_to_imu_euler.theta,
+//      &ahrs_impl.ltp_to_imu_euler.psi,
+//      &(stateGetNedToBodyEulers_i()->phi),
+//      &(stateGetNedToBodyEulers_i()->theta),
+//      &(stateGetNedToBodyEulers_i()->psi));
+//}
+//#endif
+
 #endif
 
 void guidance_h_init(void) {

@@ -70,10 +70,10 @@
 
 // datalink & telemetry
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/telemetry.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
-#include "firmwares/fixedwing/ap_downlink.h"
 
 // modules & settings
 #include "generated/modules.h"

@@ -78,7 +78,7 @@ nps.srcs += subsystems/settings.c
 nps.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-nps.srcs += $(SRC_FIRMWARE)/telemetry.c \
+nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c \
             subsystems/datalink/downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
