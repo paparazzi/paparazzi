@@ -23,7 +23,7 @@
 /**
  * @file subsystems/ahrs/ahrs_float_mlkf.c
  *
- * Mulitplicative linearized Kalman Filter in quaternion formulation.
+ * Multiplicative linearized Kalman Filter in quaternion formulation.
  *
  * Estimate the attitude, heading and gyro bias.
  */
@@ -45,6 +45,10 @@
 #include "generated/airframe.h"
 
 //#include <stdio.h>
+
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
 
 static inline void propagate_ref(void);
 static inline void propagate_state(void);
@@ -144,10 +148,12 @@ static inline void propagate_ref(void) {
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
-  //  printf("propagate_ref %f\n", gyro_float.p);
+
   /* unbias measurement */
   RATES_SUB(gyro_float, ahrs_impl.gyro_bias);
+
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
+  /* lowpass angular rates */
   const float alpha = 0.1;
   FLOAT_RATES_LIN_CMB(ahrs_impl.imu_rate, ahrs_impl.imu_rate,
                       (1.-alpha), gyro_float, alpha);
