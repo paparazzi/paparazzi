@@ -12,6 +12,10 @@
 #include "subsystems/ins.h"
 #include "firmwares/rotorcraft/navigation.h"
 
+#ifdef RADIO_CONTROL_TYPE_DATALINK
+#include "subsystems/radio_control.h"
+#endif
+
 #include NPS_SENSORS_PARAMS
 
 
@@ -36,6 +40,16 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]);
 
+#ifdef RADIO_CONTROL_TYPE_DATALINK
+static void on_DL_RC_3CH(IvyClientPtr app __attribute__ ((unused)),
+                         void *user_data __attribute__ ((unused)),
+                         int argc __attribute__ ((unused)), char *argv[]);
+
+static void on_DL_RC_4CH(IvyClientPtr app __attribute__ ((unused)),
+                         void *user_data __attribute__ ((unused)),
+                         int argc __attribute__ ((unused)), char *argv[]);
+#endif
+
 void nps_ivy_init(char* ivy_bus) {
   const char* agent_name = AIRFRAME_NAME"_NPS";
   const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
@@ -45,6 +59,11 @@ void nps_ivy_init(char* ivy_bus) {
   IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) GET_DL_SETTING (\\S*) (\\S*)");
   IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
   IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+
+#ifdef RADIO_CONTROL_TYPE_DATALINK
+  IvyBindMsg(on_DL_RC_3CH, NULL, "^(\\S*) RC_3CH (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_RC_4CH, NULL, "^(\\S*) RC_4CH (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+#endif
 
 #ifdef __APPLE__
   const char* default_ivy_bus = "224.255.255.255";
@@ -116,6 +135,30 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
   DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &enu.x, &enu.y, &enu.z);
   printf("move wp id=%d x=%d y=%d z=%d\n", wp_id, enu.x, enu.y, enu.z);
 }
+
+#ifdef RADIO_CONTROL_TYPE_DATALINK
+static void on_DL_RC_3CH(IvyClientPtr app __attribute__ ((unused)),
+                         void *user_data __attribute__ ((unused)),
+                         int argc __attribute__ ((unused)), char *argv[]){
+  uint8_t throttle_mode = atoi(argv[2]);
+  int8_t roll = atoi(argv[3]);
+  int8_t pitch = atoi(argv[4]);
+  parse_rc_3ch_datalink(throttle_mode, roll, pitch);
+  //printf("rc_3ch: throttle_mode %d, roll %d, pitch %d\n", throttle_mode, roll, pitch);
+}
+
+static void on_DL_RC_4CH(IvyClientPtr app __attribute__ ((unused)),
+                         void *user_data __attribute__ ((unused)),
+                         int argc __attribute__ ((unused)), char *argv[]){
+  uint8_t mode = atoi(argv[2]);
+  uint8_t throttle = atoi(argv[3]);
+  int8_t roll = atoi(argv[4]);
+  int8_t pitch = atoi(argv[5]);
+  int8_t yaw = atoi(argv[6]);
+  parse_rc_4ch_datalink(mode, throttle, roll, pitch, yaw);
+  //printf("rc_4ch: mode %d, throttle %d, roll %d, pitch %d, yaw %d\n", mode, throttle, roll, pitch, yaw);
+}
+#endif
 
 
 void nps_ivy_display(void) {
