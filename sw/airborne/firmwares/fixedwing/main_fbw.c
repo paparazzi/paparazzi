@@ -206,7 +206,7 @@ void event_task_fbw( void) {
     trimmed_commands[COMMAND_PITCH] += ChopAbs(command_pitch_trim, MAX_PPRZ/10);
     #endif
     #ifdef COMMAND_YAW
-    trimmed_commands[COMMAND_YAW] = ChopAbs(command_yaw_trim, MAX_PPRZ);
+    trimmed_commands[COMMAND_YAW] += ChopAbs(command_yaw_trim, MAX_PPRZ);
     #endif
 
     SetActuatorsFromCommands(trimmed_commands, autopilot_mode);
