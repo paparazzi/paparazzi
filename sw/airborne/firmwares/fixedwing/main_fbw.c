@@ -57,6 +57,9 @@ uint8_t fbw_mode;
 
 #include "inter_mcu.h"
 
+#ifdef SITL
+#include "nps_autopilot_fixedwing.h"
+#endif
 
 /** Trim commands for roll and pitch/
  */

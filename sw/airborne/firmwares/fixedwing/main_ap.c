@@ -84,6 +84,10 @@
 
 #include "led.h"
 
+#ifdef SITL
+#include "nps_autopilot_fixedwing.h"
+#endif
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
