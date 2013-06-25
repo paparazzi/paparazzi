@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mission messages" dir="mission">
+  <doc>
+    <description>New messages for Mission Planner</description>
+  </doc>
+  <header>
+    <file name="mission_msg.h"/>
+  </header>
+  <init fun="mission_msg_init()"/>
+  <datalink message="MISSION_GOTO_WP" fun="ParseMissionGotoWp()"/>
+  <datalink message="MISSION_PATH" fun="ParseMissionPath()"/>
+  <datalink message="MISSION_SEGMENT" fun="ParseMissionSegment()"/>
+  
+  <makefile>
+    <file name="mission_msg.c"/>
+  </makefile>
+</module>
