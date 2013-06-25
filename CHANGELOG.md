@@ -1,3 +1,20 @@
+Paparazzi 4.2.2_stable
+======================
+
+Maintenance release
+
+- DFU upload matches Lia board by default as well
+- partial compatibilty with Aspirin2.2
+  [#369] (https://github.com/paparazzi/paparazzi/pull/369)
+- fix failsafe vertical setpoint in rotorcraft firmware
+- fix plotprofile building on Ubuntu 13.04
+- circle-count without rewinding when flying in opposite direction
+  [#441] (https://github.com/paparazzi/paparazzi/pull/441)
+- add yaw trim
+  [#444] (https://github.com/paparazzi/paparazzi/pull/444)
+- add XSens Mti-G 700 support
+  [#443] (https://github.com/paparazzi/paparazzi/pull/443)
+
 Paparazzi 4.2.1_stable
 ======================
 
