@@ -72,7 +72,7 @@ struct _mission_element {
 
 #define MISSION_ELEMENT_NB 20
 struct _mission {
-  struct _mission_element[MISSION_ELEMENT_NB] mission_tasks;
+  struct _mission_element[MISSION_ELEMENT_NB] elements;
   uint8_t mission_insert_idx;
   uint8_t mission_extract_idx;
 
@@ -81,7 +81,7 @@ struct _mission {
 extern struct _mission mission;
 
 
-extern void mission_msg_init(void);
+extern void mission_init(void);
 
 extern int mission_msg_GOTO_WP(float x, float y);
 
