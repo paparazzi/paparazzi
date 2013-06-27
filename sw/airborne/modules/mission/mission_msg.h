@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 ENAC
+ * Copyright (C) 2013 ENAC
  *
  * This file is part of paparazzi.
  *
@@ -22,19 +20,65 @@
  *
  */
 
-/** \file mission_msg.h
- *  \brief the new messages for mission planner library
- *  \ edited by Anh Truong
+/** @file mission_msg.h
+ *  @brief the new messages for mission planner library
  */
 
 #ifndef MISSION_H
 #define MISSION_H
 
-
-
 #include "std.h"
-#include "subsystems/nav.h"
-#include "subsystems/navigation/traffic_info.h"
+#include "subsystems/navigation/common_nav.h"
+
+enum MissionType {
+  MissionWP,
+  MissionCircle,
+  MissionSegment,
+  MissionPath,
+  MissionSurvey,
+  MissionEight,
+  MissionOval
+};
+
+struct _mission_wp {
+  struct point wp;
+};
+
+struct _mission_circle {
+  struct point center;
+  float radius;
+};
+
+struct _mission_segment {
+  struct point from;
+  struct point to;
+};
+
+#define MISSION_PATH_NB 5
+struct _mission_path {
+  struct point[MISSION_PATH_NB] path;
+};
+
+struct _mission_element {
+  enum MissionType type;
+  union {
+    struct _mission_wp mission_wp;
+    struct _mission_circle mission_circle;
+    struct _mission_segment mission_segment;
+    struct _mission_path mission_path;
+  } element;
+  uint16_t duration;
+};
+
+#define MISSION_ELEMENT_NB 20
+struct _mission {
+  struct _mission_element[MISSION_ELEMENT_NB] mission_tasks;
+  uint8_t mission_insert_idx;
+  uint8_t mission_extract_idx;
+
+};
+
+extern struct _mission mission;
 
 
 extern void mission_msg_init(void);
