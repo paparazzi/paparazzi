@@ -108,6 +108,8 @@ if __name__ == "__main__":
         print('.', end="")
         stdout.flush()
         time.sleep(0.5)
+      else:
+        break
     print("")
     if not devs:
         print("No DFU devices found!")
