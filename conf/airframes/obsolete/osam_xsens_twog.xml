@@ -136,7 +136,7 @@
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
-    <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
+    <define name="MODE_RC_LOST" value="PPRZ_MODE_AUTO2"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="75."/>
   </section>
