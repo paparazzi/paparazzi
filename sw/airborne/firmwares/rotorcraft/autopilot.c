@@ -250,16 +250,32 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 }
 
 
+#ifndef AP_IN_FLIGHT_MIN_SPEED
+#define AP_IN_FLIGHT_MIN_SPEED SPEED_BFP_OF_REAL(0.2)
+#endif
+#ifndef AP_IN_FLIGHT_MIN_ACCEL
+#define AP_IN_FLIGHT_MIN_ACCEL ACCEL_BFP_OF_REAL(2.0)
+#endif
+
 static inline void autopilot_check_in_flight( bool_t motors_on ) {
+  static int32_t accel_filter;
   if (autopilot_in_flight) {
+    if(!motors_on) {
+      autopilot_in_flight = FALSE;
+      autopilot_in_flight_counter = 0;
+      return;
+    }
     if (autopilot_in_flight_counter > 0) {
-      if (THROTTLE_STICK_DOWN()) {
+      if (THROTTLE_STICK_DOWN() && ((autopilot_mode == AP_MODE_HOVER_Z_HOLD
+                                     && (abs(ins_ltp_speed.z) < AP_IN_FLIGHT_MIN_SPEED)
+                                     && (((accel_filter*9 + abs(ins_ltp_accel.z))/10) < AP_IN_FLIGHT_MIN_ACCEL))
+                                   || (autopilot_mode != AP_MODE_NAV && autopilot_mode != AP_MODE_HOVER_Z_HOLD))) {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
           autopilot_in_flight = FALSE;
         }
       }
-      else {	/* !THROTTLE_STICK_DOWN */
+      else {  /* !THROTTLE_STICK_DOWN */
         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
       }
     }
@@ -267,7 +283,9 @@ static inline void autopilot_check_in_flight( bool_t motors_on ) {
   else { /* not in flight */
     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
         motors_on) {
-      if (!THROTTLE_STICK_DOWN()) {
+      if ((autopilot_mode != AP_MODE_HOVER_Z_HOLD && autopilot_mode != AP_MODE_NAV && !THROTTLE_STICK_DOWN()) ||
+          (autopilot_mode == AP_MODE_HOVER_Z_HOLD && THROTTLE_STICK_CENTER_UP()) || 
+          (autopilot_mode == AP_MODE_NAV && THROTTLE_STICK_UP())) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
           autopilot_in_flight = TRUE;
