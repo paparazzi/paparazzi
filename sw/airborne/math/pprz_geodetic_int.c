@@ -145,9 +145,9 @@ void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ecef
 
 void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
 
-  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * enu-> +
-                       (int64_t)def->ltp_of_ecef.m[3] * enu-> +
-                       (int64_t)def->ltp_of_ecef.m[6] * enu->;
+  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * enu->x +
+                       (int64_t)def->ltp_of_ecef.m[3] * enu->y +
+                       (int64_t)def->ltp_of_ecef.m[6] * enu->z;
   ecef->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
 
   const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[1] * enu->x +
