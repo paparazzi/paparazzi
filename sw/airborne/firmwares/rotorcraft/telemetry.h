@@ -134,6 +134,18 @@
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
+#ifdef RADIO_CONTROL_TYPE_SUPERBITRF
+#include "subsystems/radio_control/superbitrf.h"
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {        \
+    DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
+                      &superbitrf.status,               \
+                      &superbitrf.cyrf6936.status,      \
+                      6,                                \
+                      superbitrf.cyrf6936.mfg_id);}
+#else
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {}
+#endif
+
 #ifdef ACTUATORS
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
 #else
