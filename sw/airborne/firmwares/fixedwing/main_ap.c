@@ -319,9 +319,19 @@ static inline void copy_from_to_fbw ( void ) {
 #endif
 }
 
+
+/** depricated RC_LOST_MODE */
+#ifdef RC_LOST_MODE
+#warning The RC_LOST_MODE is replaced by MODE_RC_LOST, please change your airframe file!
+
+#ifndef MODE_RC_LOST
+#define MODE_RC_LOST RC_LOST_MODE
+#endif
+#endif
+
 /** mode to enter when RC is lost in PPRZ_MODE_MANUAL or PPRZ_MODE_AUTO1 */
-#ifndef RC_LOST_MODE
-#define RC_LOST_MODE PPRZ_MODE_HOME
+#ifndef MODE_RC_LOST
+#define MODE_RC_LOST PPRZ_MODE_HOME
 #endif
 
 /**
@@ -338,7 +348,7 @@ static inline void telecommand_task( void ) {
       mode_changed = TRUE;
     }
     if  (really_lost) {
-      pprz_mode = RC_LOST_MODE;
+      pprz_mode = MODE_RC_LOST;
       mode_changed = TRUE;
     }
   }

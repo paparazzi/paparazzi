@@ -219,10 +219,10 @@
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
     <!--define name="UNLOCKED_HOME_MODE" value="TRUE"/-->
-    <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
+    <!-- MODE_RC_LOST means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
      or  fly a long range mission you define the wanted mode behaviour here.
      If you do not define it, it defaults to flying to the flightplan HOME -->
-    <!--define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/-->
+    <!--define name="MODE_RC_LOST" value="PPRZ_MODE_AUTO2"/-->
 
 
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>

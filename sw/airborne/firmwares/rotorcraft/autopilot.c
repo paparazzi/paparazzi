@@ -74,7 +74,11 @@ static inline int ahrs_is_aligned(void) {
 #endif
 
 void autopilot_init(void) {
+#ifdef MODE_STARTUP
+  autopilot_mode = MODE_STARTUP;
+#else
   autopilot_mode = AP_MODE_KILL;
+#endif
   autopilot_motors_on = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_in_flight = FALSE;
