@@ -233,6 +233,8 @@ STATIC_INLINE void failsafe_check( void ) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
+
+  autopilot_check_in_flight(autopilot_motors_on);
 }
 
 STATIC_INLINE void main_event( void ) {
