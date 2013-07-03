@@ -329,8 +329,16 @@ void superbitrf_event(void) {
     switch (superbitrf.state) {
     case 0:
       // When there is a timeout
-      if (superbitrf.timer < get_sys_time_usec())
+      if (superbitrf.timer < get_sys_time_usec()) {
+        superbitrf.timeouts++;
+        superbitrf.state++;
+      }
+
+      // We really lost it
+      if(superbitrf.timeouts > 1) {
+        superbitrf.state = 0;
         superbitrf.status = SUPERBITRF_SYNCING_A;
+      }
       break;
     case 1:
       // Abort the receive
@@ -477,6 +485,7 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
 
     // Go to next receive
     superbitrf.state = 1;
+    superbitrf.timeouts = 0;
     break;
 
   /* Should not come here */

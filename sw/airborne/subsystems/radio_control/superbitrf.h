@@ -85,6 +85,7 @@ struct SuperbitRF {
   volatile enum SuperbitRFStatus status;    /**< The status of the superbitRF */
   uint8_t state;                            /**< The states each status can be in */
   uint32_t timer;                           /**< The timer in usec */
+  uint8_t timeouts;                         /**< The amount of timeouts */
 
   uint8_t channels[23];                     /**< The channels used for DSM2/DSMX */
   uint8_t channel_idx;                      /**< The current channel index */
