@@ -28,6 +28,7 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/gpio_arch.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/radio_control.h"
 
 #include "mcu_periph/uart.h"
@@ -40,21 +41,6 @@ static bool_t cyrf6936_write_block(struct Cyrf6936 *cyrf, const uint8_t addr, co
 static bool_t cyrf6936_read_register(struct Cyrf6936 *cyrf, const uint8_t addr);
 static bool_t cyrf6936_read_block(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t length);
 
-//FIXME
-void Delay(uint32_t x);
-void Delay(uint32_t x)
-{
-    (void)x;
-    __asm ("mov r1, #24;"
-         "mul r0, r0, r1;"
-         "b _delaycmp;"
-         "_delayloop:"
-         "subs r0, r0, #1;"
-         "_delaycmp:;"
-         "cmp r0, #0;"
-         " bne _delayloop;");
-}
-
 /**
  * Initializing the cyrf chip
  */
@@ -62,6 +48,7 @@ void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_
   /* Set spi_peripheral and the status */
   cyrf->spi_p = spi_p;
   cyrf->status = CYRF6936_UNINIT;
+  cyrf->has_packet = FALSE;
 
   /* Set the spi transaction */
   cyrf->spi_t.cpol = SPICpolIdleLow;
@@ -78,12 +65,12 @@ void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_
   cyrf->spi_t.select = SPISelectUnselect;
   cyrf->spi_t.status = SPITransDone;
 
-  /* Reset the CYRF6936 chip */
+  /* Reset the CYRF6936 chip (busy waiting) */
   gpio_setup_output(rst_port, rst_pin);
   gpio_output_high(rst_port, rst_pin);
-  Delay(100);
+  sys_time_usleep(100);
   gpio_output_low(rst_port, rst_pin);
-  Delay(100);
+  sys_time_usleep(100);
 
   /* Get the MFG ID */
   cyrf->status = CYRF6936_GET_MFG_ID;
@@ -156,6 +143,10 @@ void cyrf6936_event(struct Cyrf6936 *cyrf) {
         ((uint8_t (*)[2])cyrf->buffer)[cyrf->buffer_idx][1]);
     break;
 
+  /* Do a write of the data code */
+  case CYRF6936_DATA_CODE:
+    break;
+
   /* Do a write of channel, sop, data and crc */
   case CYRF6936_CHAN_SOP_DATA_CRC:
     // When the last transaction isn't failed send the next
@@ -213,6 +204,7 @@ void cyrf6936_event(struct Cyrf6936 *cyrf) {
       for(i = 0; i < 16; i++)
         cyrf->rx_packet[i] = cyrf->input_buf[i+1];
 
+      cyrf->has_packet = TRUE;
       cyrf->status = CYRF6936_IDLE;
       break;
     }
@@ -276,6 +268,15 @@ static bool_t cyrf6936_read_block(struct Cyrf6936 *cyrf, const uint8_t addr, con
   return spi_submit(cyrf->spi_p, &(cyrf->spi_t));
 }
 
+/**
+ * Write to one register
+ */
+bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data) {
+  const uint8_t data_multi[][2] = {
+      {addr, data}
+  };
+  return cyrf6936_multi_write(cyrf, data_multi, 1);
+}
 
 /**
  * Write to multiple registers one byte

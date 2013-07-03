@@ -140,6 +140,8 @@
     DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
                       &superbitrf.status,               \
                       &superbitrf.cyrf6936.status,      \
+                      &superbitrf.packet_count,         \
+                      &superbitrf.packet_count,          \
                       6,                                \
                       superbitrf.cyrf6936.mfg_id);}
 #else
