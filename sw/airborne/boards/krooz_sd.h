@@ -387,7 +387,7 @@
 #define PPM_IRQ             NVIC_TIM2_IRQ
 //#define PPM_IRQ2            NVIC_TIM2_UP_TIM10_IRQ
 // Capture/Compare InteruptEnable and InterruptFlag
-#define PPM_CC_EN           TIM_DIER_CC2IE
+#define PPM_CC_IE           TIM_DIER_CC2IE
 #define PPM_CC_IF           TIM_SR_CC2IF
 #define PPM_GPIO_PORT       GPIOB
 #define PPM_GPIO_PIN        GPIO3
