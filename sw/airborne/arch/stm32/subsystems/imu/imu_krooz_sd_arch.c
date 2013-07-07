@@ -17,7 +17,7 @@ void imu_krooz_sd_arch_init(void) {
 	nvic_enable_irq(NVIC_EXTI9_5_IRQ);
 	exti_select_source(EXTI5, GPIOB);
   exti_select_source(EXTI6, GPIOC);
-  exti_set_trigger(EXTI5, EXTI_TRIGGER_FALLING);
+  exti_set_trigger(EXTI5, EXTI_TRIGGER_RISING);
   exti_set_trigger(EXTI6, EXTI_TRIGGER_FALLING);
   exti_enable_request(EXTI5);
   exti_enable_request(EXTI6);

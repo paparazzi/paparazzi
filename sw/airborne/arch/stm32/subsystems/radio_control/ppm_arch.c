@@ -28,6 +28,7 @@
  * Input signal either on:
  *  - PA1 TIM2/CH2 (uart1 trig on Lisa/L)  (Servo 6 on Lisa/M)
  *  - PA10 TIM1/CH3 (uart1 trig on Lisa/L) (uart1 rx on Lisa/M)
+ *  - PB3 TIM2/CH2 (Servo 11 on KroozSD) 
  *
  */
 
@@ -87,6 +88,7 @@ void ppm_arch_init ( void ) {
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
   timer_set_prescaler(PPM_TIMER, (AHB_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+  //timer_set_prescaler(PPM_TIMER, 0x53); that works with RC_PPM_TICKS_PER_USEC=1 in ppm_arch.h
 
  /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge

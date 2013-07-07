@@ -25,6 +25,7 @@
  * Driver for the IMU on the KroozSD board.
  *
  * Invensense MPU-6050
+ * Honeywell HMC-5883
  */
 
 #include <math.h>
@@ -61,6 +62,12 @@ PRINT_CONFIG_VAR(KROOZ_ACCEL_RANGE)
 
 struct ImuKrooz imu_krooz;
 
+
+#if KROOZ_USE_MEDIAN_FILTER
+#include "filters/median_filter.h"
+struct MedianFilter3Int median_gyro, median_accel, median_mag;
+#endif
+
 void imu_impl_init( void )
 {
   /////////////////////////////////////////////////////////////////////
@@ -75,6 +82,17 @@ void imu_impl_init( void )
   
   hmc58xx_init(&imu_krooz.hmc, &(IMU_KROOZ_I2C_DEV), HMC58XX_ADDR);
   
+#if KROOZ_USE_MEDIAN_FILTER
+  // Init median filters
+  InitMedianFilterRatesInt(median_gyro);
+  InitMedianFilterVect3Int(median_accel);
+  InitMedianFilterVect3Int(median_mag);
+#endif
+  
+  RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
+  VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
+  imu_krooz.meas_nb = 0;
+  
   imu_krooz.gyr_valid = FALSE;
   imu_krooz.acc_valid = FALSE;
   imu_krooz.mag_valid = FALSE;
@@ -85,8 +103,29 @@ void imu_impl_init( void )
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  mpu60x0_i2c_periodic(&imu_krooz.mpu);
-
+  if (!imu_krooz.mpu.config.initialized)
+    mpu60x0_i2c_start_configure(&imu_krooz.mpu);
+  
+  if (!imu_krooz.hmc.initialized)
+    hmc58xx_start_configure(&imu_krooz.hmc);
+  
+  if (imu_krooz.meas_nb) {
+    RATES_ASSIGN(imu.gyro_unscaled, imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
+#if KROOZ_USE_MEDIAN_FILTER
+    UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
+#endif
+    VECT3_ASSIGN(imu.accel_unscaled, imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
+#if KROOZ_USE_MEDIAN_FILTER
+    UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
+#endif
+    RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
+    VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
+    imu_krooz.meas_nb = 0;
+    
+    imu_krooz.gyr_valid = TRUE;
+    imu_krooz.acc_valid = TRUE;
+  }
+  
   //RunOnceEvery(10,imu_krooz_downlink_raw());
 }
 
@@ -102,11 +141,21 @@ void imu_krooz_event( void )
   // If the MPU6050 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_krooz.mpu);
   if (imu_krooz.mpu.data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled, imu_krooz.mpu.data_rates.rates.p, -imu_krooz.mpu.data_rates.rates.q, -imu_krooz.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled, imu_krooz.mpu.data_accel.vect.x, -imu_krooz.mpu.data_accel.vect.y, -imu_krooz.mpu.data_accel.vect.z);
+    RATES_ADD(imu_krooz.rates_sum, imu_krooz.mpu.data_rates.rates);
+    VECT3_ADD(imu_krooz.accel_sum, imu_krooz.mpu.data_accel.vect);
+    imu_krooz.meas_nb++;
     imu_krooz.mpu.data_available = FALSE;
-    imu_krooz.gyr_valid = TRUE;
-    imu_krooz.acc_valid = TRUE;
+  }
+  
+  // If the HMC5883 I2C transaction has succeeded: convert the data
+  hmc58xx_event(&imu_krooz.hmc);
+  if (imu_krooz.hmc.data_available) {
+    VECT3_COPY(imu.mag_unscaled, imu_krooz.hmc.data.vect);
+#if KROOZ_USE_MEDIAN_FILTER
+    UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
+#endif
+    imu_krooz.hmc.data_available = FALSE;
+    imu_krooz.mag_valid = TRUE;
   }
 }
 
