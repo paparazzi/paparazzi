@@ -73,8 +73,13 @@ static inline int ahrs_is_aligned(void) {
 #include "autopilot_arming_yaw.h"
 #endif
 
+#ifndef MODE_STARTUP
+#define MODE_STARTUP AP_MODE_KILL
+PRINT_CONFIG_MSG("Using AP_MODE_KILL as MODE_STARTUP")
+#endif
+
 void autopilot_init(void) {
-  autopilot_mode = AP_MODE_KILL;
+  autopilot_mode = MODE_STARTUP;
   autopilot_motors_on = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_in_flight = FALSE;
