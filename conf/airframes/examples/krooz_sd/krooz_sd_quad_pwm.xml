@@ -19,7 +19,7 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     <subsystem name="motor_mixing"/>

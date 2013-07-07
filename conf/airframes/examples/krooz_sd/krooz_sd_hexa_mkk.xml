@@ -17,7 +17,7 @@
       <define name="I2C_TRANSACTION_QUEUE_LEN" value="10"/>
       <define name="I2C1_CLOCK_SPEED" value="42000"/>
     </subsystem>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
