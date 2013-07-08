@@ -87,8 +87,11 @@ void ppm_arch_init ( void ) {
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
+#if defined(STM32F1)
   timer_set_prescaler(PPM_TIMER, (AHB_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
-  //timer_set_prescaler(PPM_TIMER, 0x53); that works with RC_PPM_TICKS_PER_USEC=1 in ppm_arch.h
+#elif defined(STM32F4)
+  timer_set_prescaler(PPM_TIMER, (AHB_CLK / 2 / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+#endif
 
  /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge
