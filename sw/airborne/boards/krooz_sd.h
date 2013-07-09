@@ -210,7 +210,7 @@
 #define BOARD_HAS_BARO 1
 
 /* PWM */
-#define PWM_USE_TIM2 1
+//#define PWM_USE_TIM2 1
 #define PWM_USE_TIM3 1
 #define PWM_USE_TIM4 1
 #define PWM_USE_TIM5 1
