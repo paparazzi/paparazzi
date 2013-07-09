@@ -10,24 +10,24 @@
  *
  * paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
+ * along with paparazzi; see the file COPYING. If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
 
 /**
- * @file subsystems/radio_control/superbitrf.c
- * DSM2 and DSMX implementation for the cyrf6936 2.4GHz radio chip trough SPI
+ * @file subsystems/datalink/superbitrf.c
+ * DSM2 and DSMX datalink implementation for the cyrf6936 2.4GHz radio chip trough SPI
  */
 
-#include "superbitrf.h"
+#include "subsystems/datalink/superbitrf.h"
 
 #include <string.h>
-#include "subsystems/radio_control.h"
+#include "paparazzi.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
 #include <libopencm3/stm32/gpio.h>
@@ -57,8 +57,9 @@
 struct SuperbitRF superbitrf;
 
 /* The internal functions */
-static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]);
-static inline void superbitrf_radio_to_channels(char* data, uint8_t nb_channels, bool_t is_11bit, int16_t* channels);
+static inline void superbitrf_radio_to_channels(uint8_t* data, uint8_t nb_channels, bool_t is_11bit, int16_t* channels);
+static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, uint8_t packet[]);
+static inline void superbitrf_send_packet_cb(bool_t error);
 
 /* The startup configuration for the cyrf6936 */
 static const uint8_t cyrf_stratup_config[][2] = {
@@ -163,12 +164,16 @@ static const uint8_t pn_bind[] = { 0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x8
 /**
  * Initialize the superbitrf
  */
-void radio_control_impl_init(void) {
+void superbitrf_init(void) {
   // Set the status to uninitialized and set the timer to 0
   superbitrf.status = SUPERBITRF_UNINIT;
   superbitrf.state = 0;
   superbitrf.timer = 0;
   superbitrf.packet_count = 0;
+
+  // Setup the transmit buffer
+  superbitrf.tx_insert_idx = 0;
+  superbitrf.tx_extract_idx = 0;
 
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
@@ -184,27 +189,38 @@ void radio_control_impl_init(void) {
  * The superbitrf on event call
  */
 void superbitrf_event(void) {
-  uint8_t data_code[16];
+  uint8_t i, packet_size, data_code[16], tx_packet[16];
 
-  // Check if the cyrf6936 isn't busy
+  // Check if the cyrf6936 isn't busy and the uperbitrf is initialized
   if(superbitrf.cyrf6936.status != CYRF6936_IDLE)
     return;
 
-  // First handle the IRQ
-  if(gpio_get(SUPERBITRF_DRDY_PORT, SUPERBITRF_DRDY_PIN) == 0) {
-    // Receive the packet
-    cyrf6936_read_rx_irq_status_packet(&superbitrf.cyrf6936);
-  }
+  // When the device is initialized handle the IRQ
+  if(superbitrf.status != SUPERBITRF_UNINIT) {
+    // First handle the IRQ
+    if(gpio_get(SUPERBITRF_DRDY_PORT, SUPERBITRF_DRDY_PIN) == 0) {
+      // Receive the packet
+      cyrf6936_read_rx_irq_status_packet(&superbitrf.cyrf6936);
+    }
 
-  /* Check if it is a valid receive */
-  if(superbitrf.cyrf6936.has_packet && (superbitrf.cyrf6936.rx_irq_status & CYRF_RXC_IRQ)) {
-    superbitrf.packet_count++;
+    /* Check if it is a valid receive */
+    if(superbitrf.cyrf6936.has_irq && (superbitrf.cyrf6936.rx_irq_status & CYRF_RXC_IRQ)) {
+      // Handle the packet received
+      superbitrf_receive_packet_cb((superbitrf.cyrf6936.rx_irq_status & CYRF_RXE_IRQ), superbitrf.cyrf6936.rx_status, superbitrf.cyrf6936.rx_packet);
+      superbitrf.packet_count++;
 
-    // Handle the packet received
-    superbitrf_receive_packet_cb(superbitrf.cyrf6936.rx_status, superbitrf.cyrf6936.rx_packet);
+      // Reset the packet receiving
+      superbitrf.cyrf6936.has_irq = FALSE;
+    }
 
-    // Reset the packet receiving
-    superbitrf.cyrf6936.has_packet = FALSE;
+    /* Check if it has a valid send */
+    if(superbitrf.cyrf6936.has_irq && (superbitrf.cyrf6936.tx_irq_status & CYRF_TXC_IRQ)) {
+      // Handle the send packet
+      superbitrf_send_packet_cb((superbitrf.cyrf6936.rx_irq_status & CYRF_TXE_IRQ));
+
+      // Reset the packet receiving
+      superbitrf.cyrf6936.has_irq = FALSE;
+    }
   }
 
   // Check the status of the superbitrf
@@ -248,9 +264,9 @@ void superbitrf_event(void) {
 
     /* When the superbitrf is initializing transfer */
     case SUPERBITRF_INIT_TRANSFER:
-        // Try to write the transfer config
-        cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_transfer_config, 4);
-        superbitrf.status = SUPERBITRF_SYNCING_A;
+      // Try to write the transfer config
+      cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_transfer_config, 4);
+      superbitrf.status = SUPERBITRF_SYNCING_A;
       break;
 
   /* When the superbitrf is in binding mode */
@@ -259,20 +275,29 @@ void superbitrf_event(void) {
     switch (superbitrf.state) {
     case 0:
       // When there is a timeout
-      if (superbitrf.timer < get_sys_time_usec()) {
-        // Abort the receive
-        cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
+      if (superbitrf.timer < get_sys_time_usec())
         superbitrf.state++;
-      }
       break;
     case 1:
-      // Switch channel
-      superbitrf.channel = (superbitrf.channel + 2) % 0x4F; //TODO fix define
-      cyrf6936_write(&superbitrf.cyrf6936, CYRF_CHANNEL, superbitrf.channel);
+      // Abort the receive
+      cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
 
       superbitrf.state++;
       break;
     case 2:
+      // Switch channel
+      superbitrf.channel = (superbitrf.channel + 2) % 0x4F; //TODO fix define
+      cyrf6936_write(&superbitrf.cyrf6936, CYRF_CHANNEL, superbitrf.channel);
+
+      superbitrf.state += 2; // Already aborted
+      break;
+    case 3:
+      // Abort the receive
+      cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
+
+      superbitrf.state++;
+      break;
+    case 4:
       // Start receiving
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       superbitrf.state++;
@@ -292,16 +317,18 @@ void superbitrf_event(void) {
     switch (superbitrf.state) {
     case 0:
       // When there is a timeout
-      if (superbitrf.timer < get_sys_time_usec()) {
-        // Abort the receive
-        cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
+      if (superbitrf.timer < get_sys_time_usec())
         superbitrf.state++;
-      }
       break;
     case 1:
+      // Abort the receive
+      cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
+      superbitrf.state++;
+      break;
+    case 2:
       // Switch channel, sop code, data code and crc
-      superbitrf.channel = (superbitrf.channel + 1) % 0x4F; //TODO fix define
-      superbitrf.crc_seed = ~ superbitrf.crc_seed;
+      superbitrf.channel = (superbitrf.channel + 1) % 0x62; //TODO fix define
+      superbitrf.crc_seed = ~superbitrf.crc_seed;
 
       cyrf6936_write_chan_sop_data_crc(&superbitrf.cyrf6936, superbitrf.channel,
           pn_codes[superbitrf.channel % 5][superbitrf.sop_col],
@@ -310,7 +337,7 @@ void superbitrf_event(void) {
 
       superbitrf.state++;
       break;
-    case 2:
+    case 3:
       // Start receiving
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       superbitrf.state++;
@@ -346,6 +373,24 @@ void superbitrf_event(void) {
       superbitrf.state++;
       break;
     case 2:
+      // Send a packet
+      tx_packet[0] = ~superbitrf.bind_mfg_id[2];
+      tx_packet[1] = (~superbitrf.bind_mfg_id[3])+1;
+      packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
+      if(packet_size > 14)
+        packet_size = 14;
+
+      for(i = 0; i < packet_size; i++)
+        tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
+
+      cyrf6936_send(&superbitrf.cyrf6936, tx_packet, packet_size+2);
+      superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+      superbitrf.state++;
+      break;
+    case 3:
+      //TODO: check timeout? (Waiting for send)
+      break;
+    case 4:
       // Switch channel, sop code, data code and crc
       superbitrf.channel_idx = (superbitrf.channel_idx + 1) %2;
       superbitrf.channel = superbitrf.channels[superbitrf.channel_idx];
@@ -358,7 +403,7 @@ void superbitrf_event(void) {
 
       superbitrf.state++;
       break;
-    case 3:
+    case 5:
       // Start receiving
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       superbitrf.state++;
@@ -380,7 +425,7 @@ void superbitrf_event(void) {
 /**
  * When we receive a packet this callback is called
  */
-static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]) {
+static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, uint8_t packet[]) {
   int i;
   uint16_t sum;
 
@@ -392,7 +437,7 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
     // Check if the MFG id is exactly the same
     if (packet[0] != packet[4] || packet[1] != packet[5] || packet[2] != packet[6] || packet[3] != packet[7]) {
       // Start receiving without changing channel
-      superbitrf.state = 2;
+      superbitrf.state = 3;
       break;
     }
 
@@ -404,7 +449,7 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
     // Check the first sum
     if (packet[8] != sum >> 8 || packet[9] != (sum & 0xFF)) {
       // Start receiving without changing channel
-       superbitrf.state = 2;
+       superbitrf.state = 3;
       break;
     }
 
@@ -415,7 +460,7 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
     // Check the second sum
     if (packet[14] != sum >> 8 || packet[15] != (sum & 0xFF)) {
       // Start receiving without changing channel
-      superbitrf.state = 2;
+      superbitrf.state = 3;
       break;
     }
 
@@ -424,6 +469,8 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
     superbitrf.bind_mfg_id[1] = ~packet[1];
     superbitrf.bind_mfg_id[2] = ~packet[2];
     superbitrf.bind_mfg_id[3] = ~packet[3];
+    superbitrf.bind_mfg_id32 = ((superbitrf.bind_mfg_id[3] &0xFF) << 24 | (superbitrf.bind_mfg_id[2] &0xFF) << 16 |
+        (superbitrf.bind_mfg_id[1] &0xFF) << 8 | (superbitrf.bind_mfg_id[0] &0xFF)) &0xFFFFFFFF;
     superbitrf.num_channels = packet[11];
     superbitrf.protocol = packet[12];
     superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
@@ -441,23 +488,34 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
   /* When we receive a packet during syncing first channel A */
   case SUPERBITRF_SYNCING_A:
     // Check the MFG id
-    if(packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))
+    if((error && !(status & CYRF_BAD_CRC)) ||
+        packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))
       break;
+
+    // If the CRC is wrong invert
+    if (error && (status & CYRF_BAD_CRC))
+      superbitrf.crc_seed = ~superbitrf.crc_seed;
 
     superbitrf.channels[0] = superbitrf.channel;
     superbitrf.channels[1] = superbitrf.channel;
 
-    superbitrf.status = SUPERBITRF_SYNCING_B; //TODO: Fix it
+    superbitrf.state = 1;
+    superbitrf.status = SUPERBITRF_SYNCING_B;
     break;
 
   /* When we receive a packet during syncing second channel B */
   case SUPERBITRF_SYNCING_B:
     // Check the MFG id
-    if(packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))
+    if((error && !(status & CYRF_BAD_CRC)) ||
+        packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))
       break;
 
+    // If the CRC is wrong invert
+    if (error && (status & CYRF_BAD_CRC))
+      superbitrf.crc_seed = ~superbitrf.crc_seed;
+
     // Set the channel
-    if (superbitrf.crc_seed == ~((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1])) {
+    if(superbitrf.crc_seed == ~((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1])) {
       superbitrf.channels[0] = superbitrf.channel;
       superbitrf.channel_idx = 0;
     }
@@ -470,6 +528,7 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
     if(superbitrf.channels[1] != superbitrf.channels[0]) {
       superbitrf.state = 1;
       superbitrf.status = SUPERBITRF_TRANSFER;
+      superbitrf.timeouts = 0;
     }
     break;
 
@@ -481,7 +540,13 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
 
     // Parse the packet
     superbitrf_radio_to_channels(&packet[2], superbitrf.num_channels, superbitrf.resolution, superbitrf.rc_values);
-    superbitrf.frame_available = TRUE;
+    superbitrf.rc_frame_available = TRUE;
+
+    // Calculate the timing (seperately for the channel switches)
+    if(superbitrf.channels[0] == superbitrf.channel)
+      superbitrf.timing1 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
+    else
+      superbitrf.timing2 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
 
     // Go to next receive
     superbitrf.state = 1;
@@ -494,10 +559,27 @@ static inline void superbitrf_receive_packet_cb(uint8_t status, uint8_t packet[]
   }
 }
 
+static inline void superbitrf_send_packet_cb(bool_t error) {
+  /* Switch on the status of the superbitRF */
+  switch (superbitrf.status) {
+
+  /* When we are in transfer mode */
+  case SUPERBITRF_TRANSFER:
+    // When we successfully or unsuccessfully send a packet
+    if(superbitrf.state == 3)
+      superbitrf.state++;
+    break;
+
+  /* Should not come here */
+  default:
+    break;
+  }
+}
+
 /**
  * Parse a radio channel packet
  */
-static inline void superbitrf_radio_to_channels(char* data, uint8_t nb_channels, bool_t is_11bit, int16_t* channels) {
+static inline void superbitrf_radio_to_channels(uint8_t* data, uint8_t nb_channels, bool_t is_11bit, int16_t* channels) {
     int i;
     uint8_t bit_shift = (is_11bit)? 11:10;
     int16_t value_max = (is_11bit)? 0x07FF: 0x03FF;
@@ -521,3 +603,6 @@ static inline void superbitrf_radio_to_channels(char* data, uint8_t nb_channels,
       }
     }
 }
+
+
+

@@ -20,7 +20,7 @@
  */
 
 /**
- * @file peripherals/yrf6936c.h
+ * @file peripherals/cyrf6936.h
  * Driver for the cyrf6936 2.4GHz radio chip
  */
 
@@ -40,7 +40,8 @@ enum Cyrf6936Status {
   CYRF6936_MULTIWRITE,              /**< The chip is writing multiple registers */
   CYRF6936_DATA_CODE,               /**< The chip is writing a data code */
   CYRF6936_CHAN_SOP_DATA_CRC,       /**< The chip is setting the channel, SOP code, DATA code and the CRC seed */
-  CYRF6936_RX_IRQ_STATUS_PACKET     /**< The chip is getting the receive irq status, receive status and the receive packet */
+  CYRF6936_RX_IRQ_STATUS_PACKET,    /**< The chip is getting the receive irq status, receive status and the receive packet */
+  CYRF6936_SEND                     /**< The chip is busy sending a packet */
 };
 
 /* The structure for the cyrf6936 chip that handles all the buffers and requests */
@@ -55,8 +56,9 @@ struct Cyrf6936 {
   uint8_t buffer_length;                    /**< The length of the buffer used for MULTIWRITE */
   uint8_t buffer_idx;                       /**< The index of the buffer used for MULTIWRITE and used as sub-status for other statuses */
 
-  bool_t has_packet;                        /**< When the CYRF6936 is done reading the receive registers */
+  bool_t has_irq;                           /**< When the CYRF6936 is done reading the irq */
   uint8_t mfg_id[6];                        /**< The manufacturer id of the CYRF6936 chip */
+  uint8_t tx_irq_status;                    /**< The last send interrupt status */
   uint8_t rx_irq_status;                    /**< The last receive interrupt status */
   uint8_t rx_status;                        /**< The last receive status */
   uint8_t rx_packet[16];                    /**< The last received packet */
@@ -69,5 +71,6 @@ bool_t cyrf6936_write(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t d
 bool_t cyrf6936_multi_write(struct Cyrf6936 *cyrf, const uint8_t data[][2], const uint8_t length);
 bool_t cyrf6936_write_chan_sop_data_crc(struct Cyrf6936 *cyrf, const uint8_t chan, const uint8_t sop_code[], const uint8_t data_code[], const uint16_t crc_seed);
 bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf);
+bool_t cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length);
 
 #endif /* CYRF6936_H */

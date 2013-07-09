@@ -134,14 +134,16 @@
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
-#ifdef RADIO_CONTROL_TYPE_SUPERBITRF
-#include "subsystems/radio_control/superbitrf.h"
+#ifdef USE_SUPERBITRF
+#include "subsystems/datalink/superbitrf.h"
 #define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {        \
     DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
                       &superbitrf.status,               \
                       &superbitrf.cyrf6936.status,      \
                       &superbitrf.packet_count,         \
-                      &superbitrf.packet_count,          \
+                      &superbitrf.timing1,              \
+                      &superbitrf.timing2,              \
+                      &superbitrf.bind_mfg_id32,        \
                       6,                                \
                       superbitrf.cyrf6936.mfg_id);}
 #else

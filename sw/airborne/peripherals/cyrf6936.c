@@ -48,7 +48,7 @@ void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_
   /* Set spi_peripheral and the status */
   cyrf->spi_p = spi_p;
   cyrf->status = CYRF6936_UNINIT;
-  cyrf->has_packet = FALSE;
+  cyrf->has_irq = FALSE;
 
   /* Set the spi transaction */
   cyrf->spi_t.cpol = SPICpolIdleLow;
@@ -191,11 +191,15 @@ void cyrf6936_event(struct Cyrf6936 *cyrf) {
     case 0: // Read the receive IRQ status
       cyrf6936_read_register(cyrf, CYRF_RX_IRQ_STATUS);
       break;
-    case 1: // Read the receive status
+    case 1: // Read the send IRQ status
       cyrf->rx_irq_status = cyrf->input_buf[1];
+      cyrf6936_read_register(cyrf, CYRF_TX_IRQ_STATUS);
+      break;
+    case 2: // Read the receive status
+      cyrf->tx_irq_status = cyrf->input_buf[1];
       cyrf6936_read_register(cyrf, CYRF_RX_STATUS);
       break;
-    case 2: // Read the receive packet
+    case 3: // Read the receive packet
       cyrf->rx_status = cyrf->input_buf[1];
       cyrf6936_read_block(cyrf, CYRF_RX_BUFFER, 16);
       break;
@@ -204,7 +208,35 @@ void cyrf6936_event(struct Cyrf6936 *cyrf) {
       for(i = 0; i < 16; i++)
         cyrf->rx_packet[i] = cyrf->input_buf[i+1];
 
-      cyrf->has_packet = TRUE;
+      cyrf->has_irq = TRUE;
+      cyrf->status = CYRF6936_IDLE;
+      break;
+    }
+    break;
+
+  /* The CYRF6936 is busy sending a packet */
+  case CYRF6936_SEND:
+    // When the last transaction isn't failed send the next
+    if(cyrf->spi_t.status != SPITransFailed)
+      cyrf->buffer_idx++;
+
+    cyrf->spi_t.status = SPITransDone;
+
+    // Switch for the different states
+    switch (cyrf->buffer_idx) {
+    case 0: // Set the packet length
+      cyrf6936_write_register(cyrf, CYRF_TX_LENGTH, cyrf->buffer[0]);
+      break;
+    case 1: // Clear the TX buffer
+      cyrf6936_write_register(cyrf, CYRF_TX_CTRL, CYRF_TX_CLR);
+      break;
+    case 2: // Write the send packet
+      cyrf6936_write_block(cyrf, CYRF_TX_BUFFER, &cyrf->buffer[1], 16);
+      break;
+    case 3: // Send the packet
+      cyrf6936_write_register(cyrf, CYRF_TX_CTRL, CYRF_TX_GO | CYRF_TXC_IRQEN | CYRF_TXE_IRQEN);
+      break;
+    default:
       cyrf->status = CYRF6936_IDLE;
       break;
     }
@@ -355,6 +387,31 @@ bool_t cyrf6936_read_rx_irq_status_packet(struct Cyrf6936 *cyrf) {
   /* Try to read the RX status */
   cyrf->buffer_idx = 0;
   cyrf6936_read_register(cyrf, CYRF_RX_IRQ_STATUS);
+
+  return TRUE;
+}
+
+/**
+ * Send a packet with a certain length
+ */
+bool_t cyrf6936_send(struct Cyrf6936 *cyrf, const uint8_t data[], const uint8_t length) {
+  int i;
+
+  /* Check if the cyrf6936 isn't busy */
+  if(cyrf->status != CYRF6936_IDLE)
+    return FALSE;
+
+  // Set the status
+  cyrf->status = CYRF6936_SEND;
+
+  // Copy the length and the data
+  cyrf->buffer[0] = length;
+  for(i = 0; i < length; i++)
+    cyrf->buffer[i+1] = data[i];
+
+  /* Try to set the packet length */
+  cyrf->buffer_idx = 0;
+  cyrf6936_write_register(cyrf, CYRF_TX_LENGTH, cyrf->buffer[0]);
 
   return TRUE;
 }
