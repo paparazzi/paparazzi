@@ -3,7 +3,7 @@
 
 #define BOARD_KROOZ
 
-/* Krooz/M has a 12MHz external clock and 168MHz internal. */
+/* KroozSD has a 12MHz external clock and 168MHz internal. */
 #define EXT_CLK 12000000
 #define AHB_CLK 168000000
 
@@ -383,7 +383,7 @@
 #define USE_PPM_TIM2 1
 
 #define PPM_CHANNEL         TIM_IC2
-#define PPM_TIMER_INPUT     TIM_IC_IN_TI1
+#define PPM_TIMER_INPUT     TIM_IC_IN_TI2
 #define PPM_IRQ             NVIC_TIM2_IRQ
 //#define PPM_IRQ2            NVIC_TIM2_UP_TIM10_IRQ
 // Capture/Compare InteruptEnable and InterruptFlag
