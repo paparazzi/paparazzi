@@ -397,7 +397,7 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO8
+#define SPEKTRUM_BIND_PIN GPIO9
 #define SPEKTRUM_BIND_PIN_PORT GPIOA
 
 #endif /* CONFIG_KROOZ_1_0_H */
