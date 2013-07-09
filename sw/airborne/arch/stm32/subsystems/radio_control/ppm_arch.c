@@ -52,6 +52,20 @@ uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
+/*
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+
+#ifdef STM32F1
+/**
+ * HCLK = 72MHz, Timer clock also 72MHz since
+ * TIM1_CLK = APB2 = 72MHz
+ * TIM2_CLK = 2 * APB1 = 2 * 32MHz
+ */
+#define PPM_TIMER_CLK       AHB_CLK
+#endif
+
 #if USE_PPM_TIM2
 
 PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
@@ -59,6 +73,14 @@ PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #define PPM_RCC             &RCC_APB1ENR
 #define PPM_PERIPHERAL      RCC_APB1ENR_TIM2EN
 #define PPM_TIMER           TIM2
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
 
 #elif USE_PPM_TIM1
 
@@ -68,6 +90,12 @@ PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
 #define PPM_PERIPHERAL      RCC_APB2ENR_TIM1EN
 #define PPM_TIMER           TIM1
 
+#ifdef STM32F4
+#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
+#endif
+
+#else
+#error Unknown PPM input timer configuration.
 #endif
 
 void ppm_arch_init ( void ) {
@@ -86,7 +114,7 @@ void ppm_arch_init ( void ) {
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
-  timer_set_prescaler(PPM_TIMER, (AHB_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+  timer_set_prescaler(PPM_TIMER, (PPM_TIMER_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
 
  /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge
@@ -96,7 +124,7 @@ void ppm_arch_init ( void ) {
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_FALLING);
 #else
-#error "Unknown PM_PULSE_TYPE"
+#error "Unknown PPM_PULSE_TYPE"
 #endif
   timer_ic_set_input(PPM_TIMER, PPM_CHANNEL, PPM_TIMER_INPUT);
   timer_ic_set_prescaler(PPM_TIMER, PPM_CHANNEL, TIM_IC_PSC_OFF);
