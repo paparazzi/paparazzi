@@ -57,6 +57,15 @@ static uint32_t timer_rollover_cnt;
  * of the APB domain to which the timer is connected.
  */
 
+#ifdef STM32F1
+/**
+ * HCLK = 72MHz, Timer clock also 72MHz since
+ * TIM1_CLK = APB2 = 72MHz
+ * TIM2_CLK = 2 * APB1 = 2 * 32MHz
+ */
+#define PPM_TIMER_CLK       AHB_CLK
+#endif
+
 #if USE_PPM_TIM2
 
 PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
@@ -64,7 +73,14 @@ PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #define PPM_RCC             &RCC_APB1ENR
 #define PPM_PERIPHERAL      RCC_APB1ENR_TIM2EN
 #define PPM_TIMER           TIM2
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
 #define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
 
 #elif USE_PPM_TIM1
 
@@ -73,8 +89,13 @@ PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
 #define PPM_RCC             &RCC_APB2ENR
 #define PPM_PERIPHERAL      RCC_APB2ENR_TIM1EN
 #define PPM_TIMER           TIM1
-#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
 
+#ifdef STM32F4
+#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
+#endif
+
+#else
+#error Unknown PPM input timer configuration.
 #endif
 
 void ppm_arch_init ( void ) {
