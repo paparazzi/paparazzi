@@ -6,7 +6,7 @@
       Baro MS5611 (I2C)
       Measurement Specialties MS5611-01BA pressure sensor (I2C)
     </description>
-    <define name="MS5611_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <define name="MS5611_I2C_DEV" value="i2c2" description="select i2c peripheral to use (default i2c0)"/>
     <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
   <header>

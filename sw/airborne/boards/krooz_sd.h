@@ -210,7 +210,6 @@
 #define BOARD_HAS_BARO 1
 
 /* PWM */
-//#define PWM_USE_TIM2 1
 #define PWM_USE_TIM3 1
 #define PWM_USE_TIM4 1
 #define PWM_USE_TIM5 1
@@ -227,7 +226,12 @@
 #define USE_PWM9 1
 //#define USE_PWM10 1
 
+#if USE_PWM10
+#define ACTUATORS_PWM_NB 11
+#define PWM_USE_TIM2 1
+#else
 #define ACTUATORS_PWM_NB 10
+#endif
 
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0
