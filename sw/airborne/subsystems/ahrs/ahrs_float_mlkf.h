@@ -21,9 +21,9 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_mlkf.h
+ * @file subsystems/ahrs/ahrs_float_mlkf_opt.h
  *
- * Mulitplicative linearized Kalman Filter in quaternion formulation.
+ * Multiplicative linearized Kalman Filter in quaternion formulation.
  *
  * Estimate the attitude, heading and gyro bias.
  */

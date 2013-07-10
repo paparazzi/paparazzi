@@ -22,8 +22,9 @@
  *
  */
 
-/** \file xsens.c
- * \brief Parser for the Xsens protocol
+/**
+ * @file modules/ins/ins_xsens700.c
+ * Parser for the Xsens protocol.
  */
 
 #include "ins_module.h"

@@ -62,8 +62,8 @@ void high_speed_logger_spi_link_periodic(void)
     high_speed_logger_spi_link_data.acc_y      = imu.accel_unscaled.y;
     high_speed_logger_spi_link_data.acc_z      = imu.accel_unscaled.z;
     high_speed_logger_spi_link_data.mag_x      = imu.mag_unscaled.x;
-    high_speed_logger_spi_link_data.mag_y      = imu.mag_unscaled.x;
-    high_speed_logger_spi_link_data.mag_z      = imu.mag_unscaled.x;
+    high_speed_logger_spi_link_data.mag_y      = imu.mag_unscaled.y;
+    high_speed_logger_spi_link_data.mag_z      = imu.mag_unscaled.z;
 
     spi_submit(&(HIGH_SPEED_LOGGER_SPI_LINK_DEVICE), &high_speed_logger_spi_link_transaction);
   }

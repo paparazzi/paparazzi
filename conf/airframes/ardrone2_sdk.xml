@@ -14,7 +14,7 @@
 
 		<subsystem name="radio_control" type="datalink" />
 		<subsystem name="telemetry" type="udp" />
-		<subsystem name="gps" type="sirf" />
+		<subsystem name="gps" type="ardrone2" />
 		<subsystem name="ahrs" type="ardrone2" />
 		<subsystem name="ins" type="ardrone2" />
 		<subsystem name="actuators" type="ardrone2" />
@@ -97,6 +97,7 @@
 	</section>
 
 	<section name="AUTOPILOT">
+		<define name="MODE_STARTUP" value="AP_MODE_NAV" />
 		<define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT" />
 		<define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
 		<define name="MODE_AUTO2" value="AP_MODE_NAV" />

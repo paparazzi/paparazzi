@@ -20,25 +20,28 @@
  */
 
 /**
- * @file subsystems/imu/imu_aspirin_2.h
- * Driver for the Aspirin v2.x IMU using SPI for the MPU6000.
+ * @file subsystems/imu/imu_drotek_10dof_v2.h
+ *
+ * Driver for the Drotek 10DOF V2 IMU.
+ * MPU6050 + HMC5883 + MS5611
  */
 
-#ifndef IMU_ASPIRIN_2_H
-#define IMU_ASPIRIN_2_H
+#ifndef IMU_DROTEK_10DOF_V2_H
+#define IMU_DROTEK_10DOF_V2_H
 
 #include "std.h"
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-#include "peripherals/mpu60x0_spi.h"
+#include "peripherals/mpu60x0_i2c.h"
+#include "peripherals/hmc58xx.h"
+
 
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN 1
-#define IMU_MAG_Z_SIGN 1
+#define IMU_MAG_X_SIGN  1
+#define IMU_MAG_Y_SIGN  1
+#define IMU_MAG_Z_SIGN  1
 #endif
-
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
 #define IMU_GYRO_P_SIGN   1
 #define IMU_GYRO_Q_SIGN   1
@@ -50,21 +53,23 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 
+
 /** default gyro sensitivy and neutral from the datasheet
- * MPU60X0 has 16.4 LSB/(deg/s) at 2000deg/s range
- * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
- * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
- */
+ * MPU with 1000 deg/s has 32.8 LSB/(deg/s)
+ * sens = 1/32.8 * pi/180 * 2^INT32_RATE_FRAC
+ * sens = 1/32.8 * pi/180 * 4096 = 2.17953
+ I*/
 #if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS 4.359
-#define IMU_GYRO_P_SENS_NUM 4359
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.359
-#define IMU_GYRO_Q_SENS_NUM 4359
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.359
-#define IMU_GYRO_R_SENS_NUM 4359
-#define IMU_GYRO_R_SENS_DEN 1000
+// FIXME
+#define IMU_GYRO_P_SENS 2.17953
+#define IMU_GYRO_P_SENS_NUM 18271
+#define IMU_GYRO_P_SENS_DEN 8383
+#define IMU_GYRO_Q_SENS 2.17953
+#define IMU_GYRO_Q_SENS_NUM 18271
+#define IMU_GYRO_Q_SENS_DEN 8383
+#define IMU_GYRO_R_SENS 2.17953
+#define IMU_GYRO_R_SENS_NUM 18271
+#define IMU_GYRO_R_SENS_DEN 8383
 #endif
 #if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
 #define IMU_GYRO_P_NEUTRAL 0
@@ -73,20 +78,20 @@
 #endif
 
 /** default accel sensitivy from the datasheet
- * MPU60X0 has 2048 LSB/g
- * fixed point sens: 9.81 [m/s^2] / 2048 [LSB/g] * 2^INT32_ACCEL_FRAC
- * sens = 9.81 / 2048 * 1024 = 4.905
+ * MPU with 8g has 4096 LSB/g
+ * sens = 9.81 [m/s^2] / 4096 [LSB/g] * 2^INT32_ACCEL_FRAC = 2.4525
  */
 #if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 4.905
-#define IMU_ACCEL_X_SENS_NUM 4905
-#define IMU_ACCEL_X_SENS_DEN 1000
-#define IMU_ACCEL_Y_SENS 4.905
-#define IMU_ACCEL_Y_SENS_NUM 4905
-#define IMU_ACCEL_Y_SENS_DEN 1000
-#define IMU_ACCEL_Z_SENS 4.905
-#define IMU_ACCEL_Z_SENS_NUM 4905
-#define IMU_ACCEL_Z_SENS_DEN 1000
+// FIXME
+#define IMU_ACCEL_X_SENS 2.4525
+#define IMU_ACCEL_X_SENS_NUM 981
+#define IMU_ACCEL_X_SENS_DEN 400
+#define IMU_ACCEL_Y_SENS 2.4525
+#define IMU_ACCEL_Y_SENS_NUM 981
+#define IMU_ACCEL_Y_SENS_DEN 400
+#define IMU_ACCEL_Z_SENS 2.4525
+#define IMU_ACCEL_Z_SENS_NUM 981
+#define IMU_ACCEL_Z_SENS_DEN 400
 #endif
 #if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
 #define IMU_ACCEL_X_NEUTRAL 0
@@ -95,32 +100,34 @@
 #endif
 
 
-struct ImuAspirin2 {
+struct ImuDrotek2 {
   volatile bool_t gyro_valid;
   volatile bool_t accel_valid;
   volatile bool_t mag_valid;
-  struct Mpu60x0_Spi mpu;
+  struct Mpu60x0_I2c mpu;
+  struct Hmc58xx hmc;
 };
 
-extern struct ImuAspirin2 imu_aspirin2;
+extern struct ImuDrotek2 imu_drotek2;
 
-extern void imu_aspirin2_event(void);
+extern void imu_drotek2_event(void);
+extern bool_t imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void* mpu);
 
 
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
-  imu_aspirin2_event();
-  if (imu_aspirin2.gyro_valid) {
-    imu_aspirin2.gyro_valid = FALSE;
+  imu_drotek2_event();
+  if (imu_drotek2.gyro_valid) {
+    imu_drotek2.gyro_valid = FALSE;
     _gyro_handler();
   }
-  if (imu_aspirin2.accel_valid) {
-    imu_aspirin2.accel_valid = FALSE;
+  if (imu_drotek2.accel_valid) {
+    imu_drotek2.accel_valid = FALSE;
     _accel_handler();
   }
-  if (imu_aspirin2.mag_valid) {
-    imu_aspirin2.mag_valid = FALSE;
+  if (imu_drotek2.mag_valid) {
+    imu_drotek2.mag_valid = FALSE;
     _mag_handler();
   }
 }
 
-#endif /* IMU_ASPIRIN_2_H */
+#endif /* IMU_DROTEK_10DOF_V2_H */

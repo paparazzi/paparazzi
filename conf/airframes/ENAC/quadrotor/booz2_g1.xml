@@ -47,7 +47,7 @@
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-    <subsystem name="stabilization"   type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"           type="extended"/>
   </firmware>
@@ -102,13 +102,13 @@
     <define name="ACCEL_Y_SENS" value="2.55480391706" integer="16"/>
     <define name="ACCEL_Z_SENS" value="2.57076132924" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-12"/>
-    <define name="MAG_Y_NEUTRAL" value="-10"/>
-    <define name="MAG_Z_NEUTRAL" value="-11"/>
+    <define name="MAG_X_NEUTRAL" value="19"/>
+    <define name="MAG_Y_NEUTRAL" value="-91"/>
+    <define name="MAG_Z_NEUTRAL" value="-40"/>
 
-    <define name="MAG_X_SENS" value="22.008352" integer="16"/>
-    <define name="MAG_Y_SENS" value="21.79885" integer="16"/>
-    <define name="MAG_Z_SENS" value="14.675745" integer="16"/>
+    <define name="MAG_X_SENS" value="4.93239693731" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.91905188125" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.3560174578" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="1.3" unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="-2.6" unit="deg"/>
@@ -206,9 +206,10 @@
 
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="USE_REF" value="FALSE"/>
     <define name="MAX_BANK" value="30" unit="deg"/>
-    <define name="PGAIN" value="50"/>
-    <define name="DGAIN" value="100"/>
+    <define name="PGAIN" value="40"/>
+    <define name="DGAIN" value="70"/>
     <define name="IGAIN" value="15"/>
     <define name="NGAIN" value="0"/>
     <!-- feedforward -->

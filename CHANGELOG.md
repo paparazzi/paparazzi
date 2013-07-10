@@ -1,11 +1,86 @@
-Paparazzi 4.9 - development branch
-==================================
+Paparazzi 5.0.0_stable
+======================
+
+Stable version release
+
+General
+-------
 
 - STM libs completely replaced by libopencm3
+- [gcc-arm-embedded] (https://launchpad.net/gcc-arm-embedded) is the new recommended toolchain
+- Use findlib (ocamlfind) for ocaml packages. Faster build.
+  [#274] (https://github.com/paparazzi/paparazzi/pull/274)
+- Building/Running the groundsegment on an ARM (e.g. RaspberryPi).
 - Input2ivy uses SDL for joysticks (cross-platform, works on OSX as well now)
   [#220] (https://github.com/paparazzi/paparazzi/pull/220)
 - Option to change text papget color using a combobox
   [#194] (https://github.com/paparazzi/paparazzi/pull/194)
+- Redundant communications
+  [#429] (https://github.com/paparazzi/paparazzi/pull/429)
+- Log also contains includes like procedures now, so replay if these missions is possible.
+  [#227] (https://github.com/paparazzi/paparazzi/issues/227)
+- Paparazzi Center
+    - New simulation launcher with dialog and detection of available ones.
+      [#354] (https://github.com/paparazzi/paparazzi/pull/354)
+    - Checkbox to print extra configuration information during build.
+- GCS:
+    - Fix panning with mouse if there are no background tiles.
+      [#9] (https://github.com/paparazzi/paparazzi/issues/9)
+    - Higher zoom level for maps.
+      [#277] (https://github.com/paparazzi/paparazzi/issues/277)
+
+Hardware support
+----------------
+
+- initial support for STM32F4
+    - Apogee autopilot
+    - KroozSD autopilot
+- Parrot AR Drone 2 support: raw and sdk versions
+- CH Robotics UM6 IMU/AHRS
+- GPS/INS XSens Mti-G support
+- GPS Sirf support
+- GPS Skytraq now usable for fixedwings as well
+  [#167] (https://github.com/paparazzi/paparazzi/issues/167)
+- Mikrokopter V2 BLDC
+  [#377] (https://github.com/paparazzi/paparazzi/pull/377)
+- PX4Flow sensor
+  [#379] (https://github.com/paparazzi/paparazzi/pull/379)
+- Dropped AVR support
+
+Airborne
+--------
+
+- State interface with automatic coordinate transformations
+  [#237] (https://github.com/paparazzi/paparazzi/pull/237)
+- New AHRS filter: Multiplicative quaternion linearized Kalman Filter
+- New SPI driver with transaction queues.
+    - Fix transactions with zero length input.
+      [#348] (https://github.com/paparazzi/paparazzi/issues/348)
+- Peripherals: Cleanup and refactoring.
+    - MPU60x0 peripheral supporting SPI and I2C with slave.
+- UDP datalink.
+- Magnetometer current offset calibration.
+  [#346] (https://github.com/paparazzi/paparazzi/pull/346)
+- Gain scheduling module.
+  [#335] (https://github.com/paparazzi/paparazzi/pull/335)
+
+Rotorcraft firmware specific
+----------------------------
+
+- Quadshot transitioning vehicle support.
+- Care Free Mode
+
+
+Paparazzi 4.2.1_stable
+======================
+
+Maintenance release
+
+- fix elf PT_LOAD type in lpc21iap LPC USB download
+- fix electrical.current estimate in sim
+- fix LPC+xbee_api in rotorcraft
+- fix conversion of vsupply to decivolts if offset is used
+- more robust dfu flash script, only upload to Lisa/M
 
 
 Paparazzi 4.2.0_stable

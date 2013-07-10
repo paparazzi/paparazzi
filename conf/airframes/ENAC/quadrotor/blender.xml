@@ -37,7 +37,7 @@
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B57600"/>
     </subsystem>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
@@ -133,7 +133,6 @@
 
   <!-- Magnetic field for Gifhorn (declination 2°) -->
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
     <define name="H_X" value="0.3794131"/>
     <define name="H_Y" value="0.0141005"/>

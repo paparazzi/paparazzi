@@ -4,8 +4,6 @@
   axis 1: pitch
   axis 2: yaw
   axis 3: throttle (reversed)
-  axis 4: hat switch left/right (right is positive)
-  axis 5: hat switch up/down (down is positive)
 
 It has 9 buttons.
  b0  - fire
@@ -18,6 +16,11 @@ It has 9 buttons.
  b7  - button D
  b8  - shift button
 
+and a POV hat.
+You can use the Hat<Position>(<hat_name>) function to trigger events,
+where <Position> is one of
+Centered/Up/Right/Down/Left/RightUp/RightDown/LeftUp/LeftDown
+so e.g. HatDown(hat)
 -->
 
 <joystick>
@@ -26,8 +29,6 @@ It has 9 buttons.
     <axis index="1" name="pitch" limit="1.00" exponent="0.7" trim="0"/>
     <axis index="2" name="yaw" limit="1.00" exponent="0.7" trim="0"/>
     <axis index="3" name="throttle"/>
-    <axis index="4" name="hat_lr"/>
-    <axis index="5" name="hat_ud"/>
     <button index="0" name="fire"/>
     <button index="1" name="fire2"/>
     <button index="2" name="up"/>
@@ -37,22 +38,40 @@ It has 9 buttons.
     <button index="6" name="C"/>
     <button index="7" name="D"/>
     <button index="8" name="shift"/>
+    <hat index="0" name="hat"/>
   </input>
+
+  <variables>
+    <!-- manual by default and when pressing A, AUTO1 on B, AUTO2 on C -->
+    <var name="mode" default="0"/>
+    <set var="mode" value="0" on_event="A"/>
+    <set var="mode" value="1" on_event="B"/>
+    <set var="mode" value="2" on_event="C"/>
+  </variables>
 
   <messages period="0.1">
 
-    <!--message class="datalink" name="RC_4CH" send_always="true">
-      <field name="mode" value="1-fire+A"/>
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode" value="mode"/>
       <field name="throttle" value="Fit(-throttle,-127,127,0,127)"/>
       <field name="roll" value="roll"/>
       <field name="pitch" value="pitch"/>
       <field name="yaw" value="yaw"/>
-    </message-->
+    </message>
 
-    <message class="datalink" name="RC_3CH" send_always="true">
-      <field name="throttle_mode" value="0"/>
-      <field name="roll" value="roll"/>
-      <field name="pitch" value="pitch"/>
+    <!-- go to "Start Engine" block if in AUTO2 and pressing shift + fire2 -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && shift && fire2">
+      <field name="block_id" value="IndexOfBlock('Start Engine')"/>
+    </message>
+
+    <!-- go to "Takeoff" block if in AUTO2 and pressing shift + up -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && shift && up">
+      <field name="block_id" value="IndexOfBlock('Takeoff')"/>
+    </message>
+
+    <!-- go to "land here" block if in AUTO2 and pressing shift + down -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && shift && down">
+      <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
 
   </messages>

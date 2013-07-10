@@ -29,6 +29,8 @@
 #ifndef BOARDS_ARDRONE_AT_COM_H
 #define BOARDS_ARDRONE_AT_COM_H
 
+#define NAVDATA_HEADER  (0x55667788)
+
 //Define the AT_REF bits
 typedef enum {
   REF_TAKEOFF    = 1U << 9,
@@ -148,6 +150,55 @@ typedef struct _navdata_phys_measures_t {
   uint32_t        vrefEpson;            // ref volt Epson gyro [LSB]
   uint32_t        vrefIDG;              // ref volt IDG gyro [LSB]
 } __attribute__ ((packed)) navdata_phys_measures_t;
+
+//Navdata gps packet
+typedef double float64_t;               //TODO: Fix this nicely, but this is only used here
+typedef float float32_t;               //TODO: Fix this nicely, but this is only used here
+typedef struct _navdata_gps_t {
+  uint16_t      tag;                    /*!< Navdata block ('option') identifier */
+  uint16_t      size;                   /*!< set this to the size of this structure */
+  float64_t     lat;                    /*!< Latitude */
+  float64_t     lon;                    /*!< Longitude */
+  float64_t     elevation;              /*!< Elevation */
+  float64_t     hdop;                   /*!< hdop */
+  int32_t       data_available;         /*!< When there is data available */
+  uint8_t       unk_0[8];
+  float64_t     lat0;                   /*!< Latitude ??? */
+  float64_t     lon0;                   /*!< Longitude ??? */
+  float64_t     lat_fuse;               /*!< Latitude fused */
+  float64_t     lon_fuse;               /*!< Longitude fused */
+  uint32_t      gps_state;              /*!< State of the GPS, still need to figure out */
+  uint8_t       unk_1[40];
+  float64_t     vdop;                   /*!< vdop */
+  float64_t     pdop;                   /*!< pdop */
+  float32_t     speed;                  /*!< speed */
+  uint32_t      last_frame_timestamp;   /*!< Timestamp from the last frame */
+  float32_t     degree;                 /*!< Degree */
+  float32_t     degree_mag;             /*!< Degree of the magnetic */
+  uint8_t       unk_2[16];
+  struct{
+    uint8_t     sat;
+    uint8_t     unk;
+  }channels[12];
+  int32_t       gps_plugged;            /*!< When the gps is plugged */
+  uint8_t       unk_3[108];
+  float64_t     gps_time;               /*!< The gps time of week */
+  uint16_t      week;                   /*!< The gps week */
+  uint8_t       gps_fix;                /*!< The gps fix */
+  uint8_t       num_sattelites;         /*!< Number of sattelites */
+  uint8_t       unk_4[24];
+  float64_t     ned_vel_c0;             /*!< NED velocity */
+  float64_t     ned_vel_c1;             /*!< NED velocity */
+  float64_t     ned_vel_c2;             /*!< NED velocity */
+  float64_t     pos_accur_c0;           /*!< Position accuracy */
+  float64_t     pos_accur_c1;           /*!< Position accuracy */
+  float64_t     pos_accur_c2;           /*!< Position accuracy */
+  float32_t     speed_acur;             /*!< Speed accuracy */
+  float32_t     time_acur;              /*!< Time accuracy */
+  uint8_t       unk_5[72];
+  float32_t     temprature;
+  float32_t     pressure;
+} __attribute__ ((packed)) navdata_gps_t;
 
 //External functions
 extern void init_at_com(void);
