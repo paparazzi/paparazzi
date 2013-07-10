@@ -37,7 +37,7 @@
 
 #ifdef DEBUG_ALT_KALMAN
 #include "mcu_periph/uart.h"
-#include "ap_downlink.h"
+#include "subsystems/datalink/downlink.h"
 #endif
 
 /* vertical position and speed in meters (z-up)*/

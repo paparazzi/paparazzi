@@ -38,7 +38,7 @@
 
 #include "generated/airframe.h"
 #include "state.h"
-#include "ap_downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "modules/nav/nav_catapult.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"

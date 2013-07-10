@@ -24,7 +24,7 @@
 #include "interrupt_hw.h"
 #include "max3100_hw.h"
 
-#include "ap_downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 
 

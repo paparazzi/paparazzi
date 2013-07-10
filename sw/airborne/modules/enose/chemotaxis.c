@@ -4,7 +4,7 @@
 #include "std.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
-#include "ap_downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "modules/enose/chemo_detect.h"
 
 #define MAX_RADIUS 250
