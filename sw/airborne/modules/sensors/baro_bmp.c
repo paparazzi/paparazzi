@@ -42,9 +42,6 @@
 #include "subsystems/gps.h"
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #if !defined(SENSOR_SYNC_SEND) && !defined(USE_BARO_BMP)
 #warning set SENSOR_SYNC_SEND to use baro_bmp

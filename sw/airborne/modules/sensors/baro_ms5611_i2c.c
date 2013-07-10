@@ -35,9 +35,6 @@
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/nav.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef MS5611_I2C_DEV
 #define MS5611_I2C_DEV i2c0

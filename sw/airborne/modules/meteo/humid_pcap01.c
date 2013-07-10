@@ -39,9 +39,6 @@
 #include "modules/meteo/humid_pcap01_firmware.h"
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 uint8_t  pcap01_meas_started;
 struct i2c_transaction pcap01_trans;

@@ -57,9 +57,6 @@ float AOA_offset, AOA_filter;
 float AOA, AOA_old;
 
 // Downlink
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef SITL // Use ADC if not in simulation
 

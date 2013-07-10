@@ -37,9 +37,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #if !defined APOGEE_LOWPASS_FILTER && !defined  APOGEE_SMPLRT_DIV
 #define APOGEE_LOWPASS_FILTER MPU60X0_DLPF_42HZ

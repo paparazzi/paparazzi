@@ -33,9 +33,6 @@
 #include "generated/flight_plan.h"
 
 #include "messages.h"
-
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-
 #include "subsystems/datalink/downlink.h"
 
 float tcas_alt_setpoint;

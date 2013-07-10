@@ -29,9 +29,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #define BARO_HCA_ADDR 0xF0
 #define BARO_HCA_MAX_PRESSURE 1100 // mBar

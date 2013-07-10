@@ -8,9 +8,6 @@
 
 #include "firmwares/fixedwing/main_fbw.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #define DATALINK_C
 #include "subsystems/datalink/datalink.h"

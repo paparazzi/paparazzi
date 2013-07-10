@@ -29,9 +29,6 @@ int32_t GPS_Data[14];
 //da ArduIMU das Read/Write Bit selber anfügt.
 #define ArduIMU_SLAVE_ADDR 0x22
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #include "mcu_periph/uart.h"
 #include "messages.h"

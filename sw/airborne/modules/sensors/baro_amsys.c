@@ -38,9 +38,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 //#include "gps.h"
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifdef SITL
 #include "subsystems/gps.h"

@@ -22,9 +22,6 @@
 
 
 #include "MPPT.h"
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 

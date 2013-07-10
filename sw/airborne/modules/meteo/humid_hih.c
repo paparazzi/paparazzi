@@ -36,9 +36,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef ADC_CHANNEL_HUMID_HIH
 #define ADC_CHANNEL_HUMID_HIH ADC_3

@@ -136,9 +136,6 @@ bool_t ProjectionInsideLimitOfRail;
 #include "modules/cartography/cartography.h"
 #include "generated/modules.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 #include "std.h"
