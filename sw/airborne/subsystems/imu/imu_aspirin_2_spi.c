@@ -145,10 +145,11 @@ void imu_aspirin2_event(void)
 {
   mpu60x0_spi_event(&imu_aspirin2.mpu);
   if (imu_aspirin2.mpu.data_available) {
+    /* HMC5883 has xzy order of axes in returned data */
     struct Int32Vect3 mag;
     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
-    mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
-    mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
+    mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
+    mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
 #ifdef LISA_M_LONGITUDINAL_X
     RATES_ASSIGN(imu.gyro_unscaled,
                  imu_aspirin2.mpu.data_rates.rates.q,
@@ -158,11 +159,11 @@ void imu_aspirin2_event(void)
                  imu_aspirin2.mpu.data_accel.vect.y,
                  -imu_aspirin2.mpu.data_accel.vect.x,
                  imu_aspirin2.mpu.data_accel.vect.z);
-    VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.z, mag.y);
+    VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
 #else
     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
-    VECT3_ASSIGN(imu.mag_unscaled, mag.z, -mag.x, mag.y)
+    VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
 #endif
     imu_aspirin2.mpu.data_available = FALSE;
     imu_aspirin2.gyro_valid = TRUE;
