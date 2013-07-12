@@ -8,6 +8,9 @@
 
   <modules>
     <!--load name="sys_mon.xml"/-->
+    <load name="mcp355x.xml">
+      <define name="USE_SPI1"/>
+    </load>
   </modules>
 
   <firmware name="fixedwing">
@@ -21,6 +24,7 @@
 
     <target name="sim" board="pc"/>
     <target name="ap" board="apogee_0.99"/>
+    <configure name="FLASH_MODE" value="SWD"/>
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -38,6 +42,7 @@
     <!-- Sensors -->
     <subsystem name="gps" type="ublox"/>
 
+    <subsystem name="spi_master"/>
   </firmware>
 
 <!-- commands section -->
