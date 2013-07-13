@@ -1,6 +1,11 @@
 
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
+/*
+#include "subsystems/datalink/downlink.h"
+#include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
+*/
 
 struct Baro baro;
 
@@ -21,9 +26,6 @@ void baro_periodic(void) {
       break;
       case 2:
       baro_ms5611_d2();
-      cnt = 0;
-      break;
-      default:
       cnt = 0;
       break;
     }

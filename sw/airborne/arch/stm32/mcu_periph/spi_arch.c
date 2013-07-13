@@ -84,15 +84,17 @@ struct spi_periph_dma {
   uint32_t spi;                    ///< SPI peripheral identifier
   uint32_t spidr;                  ///< SPI DataRegister address for DMA
   uint32_t dma;                    ///< DMA controller base address (DMA1 or DMA2)
-  uint8_t  rx_chan;                ///< receive DMA channel number
-  uint8_t  tx_chan;                ///< transmit DMA channel number
+  uint8_t  rx_chan;                ///< receive DMA channel (or stream on F4) number
+  uint8_t  tx_chan;                ///< transmit DMA channel (or stream on F4) number
+  uint32_t rx_chan_sel;            ///< F4 only: actual receive DMA channel number
+  uint32_t tx_chan_sel;            ///< F4 only: actual transmit DMA channel number
   uint8_t  rx_nvic_irq;            ///< receive interrupt
   uint8_t  tx_nvic_irq;            ///< transmit interrupt
   uint16_t tx_dummy_buf;           ///< dummy tx buffer for receive only cases
-  bool_t tx_extra_dummy_dma;  ///< extra tx dummy dma flag for tx_len < rx_len
+  bool_t tx_extra_dummy_dma;       ///< extra tx dummy dma flag for tx_len < rx_len
   uint16_t rx_dummy_buf;           ///< dummy rx buffer for receive only cases
-  bool_t rx_extra_dummy_dma;  ///< extra rx dummy dma flag for tx_len > rx_len
-  struct locm3_spi_comm comm; ///< current communication paramters
+  bool_t rx_extra_dummy_dma;       ///< extra rx dummy dma flag for tx_len > rx_len
+  struct locm3_spi_comm comm;      ///< current communication paramters
   uint8_t  comm_sig;               ///< comm config signature used to check for changes
 };
 
@@ -439,12 +441,17 @@ static void set_comm_from_transaction(struct locm3_spi_comm* c, struct spi_trans
 static void spi_configure_dma(uint32_t dma, uint8_t chan, uint32_t periph_addr, uint32_t buf_addr,
                               uint16_t len, enum SPIDataSizeSelect dss, bool_t increment)
 {
+#ifdef STM32F1
   dma_channel_reset(dma, chan);
+#elif defined STM32F4
+  dma_stream_reset(dma, chan);
+#endif
   dma_set_peripheral_address(dma, chan, periph_addr);
   dma_set_memory_address(dma, chan, buf_addr);
   dma_set_number_of_data(dma, chan, len);
 
   /* Set the dma transfer size based on SPI transaction DSS */
+#ifdef STM32F1
   if (dss == SPIDss8bit) {
     dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_8BIT);
     dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_8BIT);
@@ -452,6 +459,15 @@ static void spi_configure_dma(uint32_t dma, uint8_t chan, uint32_t periph_addr, 
     dma_set_peripheral_size(dma, chan, DMA_CCR_PSIZE_16BIT);
     dma_set_memory_size(dma, chan, DMA_CCR_MSIZE_16BIT);
   }
+#elif defined STM32F4
+  if (dss == SPIDss8bit) {
+    dma_set_peripheral_size(dma, chan, DMA_SxCR_PSIZE_8BIT);
+    dma_set_memory_size(dma, chan, DMA_SxCR_MSIZE_8BIT);
+  } else {
+    dma_set_peripheral_size(dma, chan, DMA_SxCR_PSIZE_16BIT);
+    dma_set_memory_size(dma, chan, DMA_SxCR_MSIZE_16BIT);
+  }
+#endif
 
   if (increment)
     dma_enable_memory_increment_mode(dma, chan);
@@ -566,8 +582,14 @@ static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_tran
       dma->rx_extra_dummy_dma = TRUE;
     }
   }
+#ifdef STM32F1
   dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
   dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
+#elif defined STM32F4
+  dma_channel_select(dma->dma, dma->rx_chan, dma->rx_chan_sel);
+  dma_set_transfer_mode(dma->dma, dma->rx_chan, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
+  dma_set_priority(dma->dma, dma->rx_chan, DMA_SxCR_PL_VERY_HIGH);
+#endif
 
 
   /*
@@ -591,17 +613,27 @@ static void spi_start_dma_transaction(struct spi_periph* periph, struct spi_tran
       dma->tx_extra_dummy_dma = TRUE;
     }
   }
+#ifdef STM32F1
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
-
+#elif defined STM32F4
+  dma_channel_select(dma->dma, dma->tx_chan, dma->tx_chan_sel);
+  dma_set_transfer_mode(dma->dma, dma->tx_chan, DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
+  dma_set_priority(dma->dma, dma->tx_chan, DMA_SxCR_PL_MEDIUM);
+#endif
 
   /* Enable DMA transfer complete interrupts. */
   dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
   dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
 
   /* Enable DMA channels */
+#ifdef STM32F1
   dma_enable_channel(dma->dma, dma->rx_chan);
   dma_enable_channel(dma->dma, dma->tx_chan);
+#elif defined STM32F4
+  dma_enable_stream(dma->dma, dma->rx_chan);
+  dma_enable_stream(dma->dma, dma->tx_chan);
+#endif
 
   /* Enable SPI transfers via DMA */
   spi_enable_rx_dma((uint32_t)periph->reg_addr);
@@ -620,11 +652,22 @@ void spi1_arch_init(void) {
 
   // set dma options
   spi1_dma.spidr = (uint32_t)&SPI1_DR;
+#ifdef STM32F1
   spi1_dma.dma = DMA1;
   spi1_dma.rx_chan = DMA_CHANNEL2;
   spi1_dma.tx_chan = DMA_CHANNEL3;
   spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
   spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
+#elif defined STM32F4
+  spi1_dma.dma = DMA2;
+  // TODO make a macro to configure this from board/airframe file ?
+  spi1_dma.rx_chan = DMA_STREAM0;
+  spi1_dma.tx_chan = DMA_STREAM3;
+  spi1_dma.rx_chan_sel = DMA_SxCR_CHSEL_3;
+  spi1_dma.tx_chan_sel = DMA_SxCR_CHSEL_3;
+  spi1_dma.rx_nvic_irq = NVIC_DMA2_STREAM0_IRQ;
+  spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM3_IRQ;
+#endif
   spi1_dma.tx_dummy_buf = 0;
   spi1_dma.tx_extra_dummy_dma = FALSE;
   spi1_dma.rx_dummy_buf = 0;
@@ -646,12 +689,22 @@ void spi1_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
 
   // Configure GPIOs: SCK, MISO and MOSI
+#ifdef STM32F1
+  // TODO configure lisa board files to use gpio_setup_pin_af function
   gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
                 GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
                 GPIO_SPI1_MISO);
+#elif defined STM32F4
+  gpio_setup_pin_af(SPI1_GPIO_PORT_MISO, SPI1_GPIO_MISO, SPI1_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI1_GPIO_PORT_MOSI, SPI1_GPIO_MOSI, SPI1_GPIO_AF, TRUE);
+  gpio_setup_pin_af(SPI1_GPIO_PORT_SCK, SPI1_GPIO_SCK, SPI1_GPIO_AF, TRUE);
+
+  gpio_set_output_options(SPI1_GPIO_PORT_MOSI, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_GPIO_MOSI);
+  gpio_set_output_options(SPI1_GPIO_PORT_SCK, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_GPIO_SCK);
+#endif
 
   // reset SPI
   spi_reset(SPI1);
@@ -677,7 +730,11 @@ void spi1_arch_init(void) {
   spi_set_nss_high(SPI1);
 
   // Enable SPI_1 DMA clock
+#ifdef STM32F1
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+#elif defined STM32F4
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA2EN);
+#endif
 
   // Enable SPI1 periph.
   spi_enable(SPI1);
@@ -692,10 +749,19 @@ void spi2_arch_init(void) {
   // set dma options
   spi2_dma.spidr = (uint32_t)&SPI2_DR;
   spi2_dma.dma = DMA1;
+#ifdef STM32F1
   spi2_dma.rx_chan = DMA_CHANNEL4;
   spi2_dma.tx_chan = DMA_CHANNEL5;
   spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
   spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
+#elif defined STM32F4
+  spi2_dma.rx_chan = DMA_STREAM3;
+  spi2_dma.tx_chan = DMA_STREAM4;
+  spi2_dma.rx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi2_dma.tx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi2_dma.rx_nvic_irq = NVIC_DMA1_STREAM3_IRQ;
+  spi2_dma.tx_nvic_irq = NVIC_DMA1_STREAM4_IRQ;
+#endif
   spi2_dma.tx_dummy_buf = 0;
   spi2_dma.tx_extra_dummy_dma = FALSE;
   spi2_dma.rx_dummy_buf = 0;
@@ -717,12 +783,22 @@ void spi2_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
 
   // Configure GPIOs: SCK, MISO and MOSI
+#ifdef STM32F1
+  // TODO configure lisa board files to use gpio_setup_pin_af function
   gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
                 GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
                 GPIO_SPI2_MISO);
+#elif defined STM32F4
+  gpio_setup_pin_af(SPI2_GPIO_PORT_MISO, SPI2_GPIO_MISO, SPI2_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI2_GPIO_PORT_MOSI, SPI2_GPIO_MOSI, SPI2_GPIO_AF, TRUE);
+  gpio_setup_pin_af(SPI2_GPIO_PORT_SCK, SPI2_GPIO_SCK, SPI2_GPIO_AF, TRUE);
+
+  gpio_set_output_options(SPI2_GPIO_PORT_MOSI, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI2_GPIO_MOSI);
+  gpio_set_output_options(SPI2_GPIO_PORT_SCK, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI2_GPIO_SCK);
+#endif
 
   // reset SPI
   spi_reset(SPI2);
@@ -747,7 +823,11 @@ void spi2_arch_init(void) {
   spi_set_nss_high(SPI2);
 
   // Enable SPI_2 DMA clock
+#ifdef STM32F1
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+#elif defined STM32F4
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA1EN);
+#endif
 
   // Enable SPI2 periph.
   spi_enable(SPI2);
@@ -761,11 +841,21 @@ void spi3_arch_init(void) {
 
   // set the default configuration
   spi3_dma.spidr = (uint32_t)&SPI3_DR;
+#ifdef STM32F1
   spi3_dma.dma = DMA2;
   spi3_dma.rx_chan = DMA_CHANNEL1;
   spi3_dma.tx_chan = DMA_CHANNEL2;
   spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
   spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
+#elif defined STM32F4
+  spi3_dma.dma = DMA1;
+  spi3_dma.rx_chan = DMA_STREAM0;
+  spi3_dma.tx_chan = DMA_STREAM5;
+  spi3_dma.rx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi3_dma.tx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi3_dma.rx_nvic_irq = NVIC_DMA1_STREAM0_IRQ;
+  spi3_dma.tx_nvic_irq = NVIC_DMA1_STREAM5_IRQ;
+#endif
   spi3_dma.tx_dummy_buf = 0;
   spi3_dma.tx_extra_dummy_dma = FALSE;
   spi3_dma.rx_dummy_buf = 0;
@@ -787,12 +877,22 @@ void spi3_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
 
   // Configure GPIOs: SCK, MISO and MOSI
+#ifdef STM32F1
+  // TODO configure lisa board files to use gpio_setup_pin_af function
   gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
                 GPIO_SPI3_SCK | GPIO_SPI3_MOSI);
 
   gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
                 GPIO_SPI3_MISO);
+#elif defined STM32F4
+  gpio_setup_pin_af(SPI3_GPIO_PORT_MISO, SPI3_GPIO_MISO, SPI3_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI3_GPIO_PORT_MOSI, SPI3_GPIO_MOSI, SPI3_GPIO_AF, TRUE);
+  gpio_setup_pin_af(SPI3_GPIO_PORT_SCK, SPI3_GPIO_SCK, SPI3_GPIO_AF, TRUE);
+
+  gpio_set_output_options(SPI3_GPIO_PORT_MOSI, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI3_GPIO_MOSI);
+  gpio_set_output_options(SPI3_GPIO_PORT_SCK, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI3_GPIO_SCK);
+#endif
 
   /// @todo disable JTAG so the pins can be used?
 
@@ -819,7 +919,11 @@ void spi3_arch_init(void) {
   spi_set_nss_high(SPI3);
 
   // Enable SPI_3 DMA clock
+#ifdef STM32F1
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
+#elif defined STM32F4
+  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA1EN);
+#endif
 
   // Enable SPI3 periph.
   spi_enable(SPI3);
@@ -838,22 +942,40 @@ void spi3_arch_init(void) {
  *****************************************************************************/
 #ifdef USE_SPI1
 /// receive transferred over DMA
+#ifdef STM32F1
 void dma1_channel2_isr(void)
 {
   if ((DMA1_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF2;
   }
+#elif defined STM32F4
+void dma2_stream0_isr(void)
+{
+  if ((DMA2_LISR & DMA_LISR_TCIF0) != 0) {
+    // clear int pending bit
+    DMA2_LIFCR |= DMA_LIFCR_CTCIF0;
+  }
+#endif
   process_rx_dma_interrupt(&spi1);
 }
 
 /// transmit transferred over DMA
+#ifdef STM32F1
 void dma1_channel3_isr(void)
 {
   if ((DMA1_ISR & DMA_ISR_TCIF3) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF3;
   }
+#elif defined STM32F4
+void dma2_stream3_isr(void)
+{
+  if ((DMA2_LISR & DMA_LISR_TCIF3) != 0) {
+    // clear int pending bit
+    DMA2_LIFCR |= DMA_LIFCR_CTCIF3;
+  }
+#endif
   process_tx_dma_interrupt(&spi1);
 }
 
@@ -861,22 +983,40 @@ void dma1_channel3_isr(void)
 
 #ifdef USE_SPI2
 /// receive transferred over DMA
+#ifdef STM32F1
 void dma1_channel4_isr(void)
 {
   if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF4;
   }
+#elif defined STM32F4
+void dma1_stream3_isr(void)
+{
+  if ((DMA1_LISR & DMA_LISR_TCIF3) != 0) {
+    // clear int pending bit
+    DMA1_LIFCR |= DMA_LIFCR_CTCIF3;
+  }
+#endif
   process_rx_dma_interrupt(&spi2);
 }
 
 /// transmit transferred over DMA
+#ifdef STM32F1
 void dma1_channel5_isr(void)
 {
   if ((DMA1_ISR & DMA_ISR_TCIF5) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF5;
   }
+#elif defined STM32F4
+void dma1_stream4_isr(void)
+{
+  if ((DMA1_HISR & DMA_HISR_TCIF4) != 0) {
+    // clear int pending bit
+    DMA1_HIFCR |= DMA_HIFCR_CTCIF4;
+  }
+#endif
   process_tx_dma_interrupt(&spi2);
 }
 
@@ -884,22 +1024,40 @@ void dma1_channel5_isr(void)
 
 #if USE_SPI3
 /// receive transferred over DMA
+#ifdef STM32F1
 void dma2_channel1_isr(void)
 {
   if ((DMA2_ISR & DMA_ISR_TCIF1) != 0) {
     // clear int pending bit
     DMA2_IFCR |= DMA_IFCR_CTCIF1;
   }
+#elif defined STM32F4
+void dma1_stream0_isr(void)
+{
+  if ((DMA1_LISR & DMA_LISR_TCIF0) != 0) {
+    // clear int pending bit
+    DMA1_LIFCR |= DMA_LIFCR_CTCIF0;
+  }
+#endif
   process_rx_dma_interrupt(&spi3);
 }
 
 /// transmit transferred over DMA
+#ifdef STM32F1
 void dma2_channel2_isr(void)
 {
   if ((DMA2_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA2_IFCR |= DMA_IFCR_CTCIF2;
   }
+#elif defined STM32F4
+void dma1_stream5_isr(void)
+{
+  if ((DMA1_HISR & DMA_HISR_TCIF5) != 0) {
+    // clear int pending bit
+    DMA1_HIFCR |= DMA_HIFCR_CTCIF5;
+  }
+#endif
   process_tx_dma_interrupt(&spi3);
 }
 
@@ -917,7 +1075,11 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
   spi_disable_rx_dma((uint32_t)periph->reg_addr);
 
   /* Disable DMA rx channel */
+#ifdef STM32F1
   dma_disable_channel(dma->dma, dma->rx_chan);
+#elif defined STM32F4
+  dma_disable_stream(dma->dma, dma->rx_chan);
+#endif
 
 
   if (dma->rx_extra_dummy_dma) {
@@ -935,13 +1097,23 @@ void process_rx_dma_interrupt(struct spi_periph *periph) {
 
     spi_configure_dma(dma->dma, dma->rx_chan, (uint32_t)dma->spidr,
                       (uint32_t)&(dma->rx_dummy_buf), len_remaining, trans->dss, FALSE);
+#ifdef STM32F1
     dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
     dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_HIGH);
+#elif defined STM32F4
+    dma_channel_select(dma->dma, dma->rx_chan, dma->rx_chan_sel);
+    dma_set_transfer_mode(dma->dma, dma->rx_chan, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
+    dma_set_priority(dma->dma, dma->rx_chan, DMA_SxCR_PL_HIGH);
+#endif
 
     /* Enable DMA transfer complete interrupts. */
     dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
     /* Enable DMA channels */
+#ifdef STM32F1
     dma_enable_channel(dma->dma, dma->rx_chan);
+#elif defined STM32F4
+    dma_enable_stream(dma->dma, dma->rx_chan);
+#endif
     /* Enable SPI transfers via DMA */
     spi_enable_rx_dma((uint32_t)periph->reg_addr);
   }
@@ -979,7 +1151,11 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
   spi_disable_tx_dma((uint32_t)periph->reg_addr);
 
   /* Disable DMA tx channel */
+#ifdef STM32F1
   dma_disable_channel(dma->dma, dma->tx_chan);
+#elif defined STM32F4
+  dma_disable_stream(dma->dma, dma->tx_chan);
+#endif
 
   if (dma->tx_extra_dummy_dma) {
     /*
@@ -996,13 +1172,23 @@ void process_tx_dma_interrupt(struct spi_periph *periph) {
 
     spi_configure_dma(dma->dma, dma->tx_chan, (uint32_t)dma->spidr,
                       (uint32_t)&(dma->tx_dummy_buf), len_remaining, trans->dss, FALSE);
+#ifdef STM32F1
     dma_set_read_from_memory(dma->dma, dma->tx_chan);
     dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
+#elif defined STM32F4
+    dma_channel_select(dma->dma, dma->tx_chan, dma->tx_chan_sel);
+    dma_set_transfer_mode(dma->dma, dma->tx_chan, DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
+    dma_set_priority(dma->dma, dma->tx_chan, DMA_SxCR_PL_MEDIUM);
+#endif
 
     /* Enable DMA transfer complete interrupts. */
     dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
     /* Enable DMA channels */
+#ifdef STM32F1
     dma_enable_channel(dma->dma, dma->tx_chan);
+#elif defined STM32F4
+    dma_enable_stream(dma->dma, dma->tx_chan);
+#endif
     /* Enable SPI transfers via DMA */
     spi_enable_tx_dma((uint32_t)periph->reg_addr);
 

@@ -79,24 +79,24 @@ void imu_impl_init( void )
   imu_krooz.mpu.config.gyro_range = KROOZ_GYRO_RANGE;
   imu_krooz.mpu.config.accel_range = KROOZ_ACCEL_RANGE;
   imu_krooz.mpu.config.drdy_int_enable = TRUE;
-  
+
   hmc58xx_init(&imu_krooz.hmc, &(IMU_KROOZ_I2C_DEV), HMC58XX_ADDR);
-  
+
 #if KROOZ_USE_MEDIAN_FILTER
   // Init median filters
   InitMedianFilterRatesInt(median_gyro);
   InitMedianFilterVect3Int(median_accel);
   InitMedianFilterVect3Int(median_mag);
 #endif
-  
+
   RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
   VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
   imu_krooz.meas_nb = 0;
-  
+
   imu_krooz.gyr_valid = FALSE;
   imu_krooz.acc_valid = FALSE;
   imu_krooz.mag_valid = FALSE;
-  
+
   imu_krooz_sd_arch_init();
 }
 
@@ -105,10 +105,10 @@ void imu_periodic( void )
   // Start reading the latest gyroscope data
   if (!imu_krooz.mpu.config.initialized)
     mpu60x0_i2c_start_configure(&imu_krooz.mpu);
-  
+
   if (!imu_krooz.hmc.initialized)
     hmc58xx_start_configure(&imu_krooz.hmc);
-  
+
   if (imu_krooz.meas_nb) {
     RATES_ASSIGN(imu.gyro_unscaled, imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
 #if KROOZ_USE_MEDIAN_FILTER
@@ -121,11 +121,11 @@ void imu_periodic( void )
     RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
     VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
-    
+
     imu_krooz.gyr_valid = TRUE;
     imu_krooz.acc_valid = TRUE;
   }
-  
+
   //RunOnceEvery(10,imu_krooz_downlink_raw());
 }
 
@@ -146,7 +146,7 @@ void imu_krooz_event( void )
     imu_krooz.meas_nb++;
     imu_krooz.mpu.data_available = FALSE;
   }
-  
+
   // If the HMC5883 I2C transaction has succeeded: convert the data
   hmc58xx_event(&imu_krooz.hmc);
   if (imu_krooz.hmc.data_available) {
@@ -158,4 +158,3 @@ void imu_krooz_event( void )
     imu_krooz.mag_valid = TRUE;
   }
 }
-

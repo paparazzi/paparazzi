@@ -106,7 +106,7 @@ struct ImuKrooz {
   volatile bool_t mag_valid;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
-	struct Int32Rates rates_sum;  
+  struct Int32Rates rates_sum;
   struct Int32Vect3 accel_sum;
   volatile uint8_t  meas_nb;
 };
