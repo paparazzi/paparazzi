@@ -23,9 +23,21 @@
 #include "nps_autopilot_fixedwing.h"
 
 //#include "firmwares/rotorcraft/main.h"
-/////// #include "firmwares/fixedwing/main.h"
+
+#ifdef FBW
 #include "firmwares/fixedwing/main_fbw.h"
+#define Fbw(f) f ## _fbw()
+#else
+#define Fbw(f)
+#endif
+
+#ifdef AP
 #include "firmwares/fixedwing/main_ap.h"
+#define Ap(f) f ## _ap()
+#else
+#define Ap(f)
+#endif
+
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "subsystems/radio_control.h"
@@ -56,8 +68,8 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
 
   //main_init();
-  init_fbw();
-  init_ap();
+  Fbw(init);
+  Ap(init);
 
 
 #ifdef MAX_BAT_LEVEL
@@ -80,36 +92,36 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   if (nps_radio_control_available(time)) {
     radio_control_feed();
     //main_event();
-    event_task_fbw();
-    event_task_ap();
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
     //main_event();
-    event_task_fbw();
-    event_task_ap();
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_sensors_mag_available()) {
     imu_feed_mag();
     //main_event();
-    event_task_fbw();
-    event_task_ap();
+    Fbw(event_task);
+    Ap(event_task);
  }
 
   if (nps_sensors_baro_available()) {
     baro_feed_value(sensors.baro.value);
     //main_event();
-    event_task_fbw();
-    event_task_ap();
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_sensors_gps_available()) {
     gps_feed_value();
     //main_event();
-    event_task_fbw();
-    event_task_ap();
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_bypass_ahrs) {
@@ -117,11 +129,12 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   }
 
   //handle_periodic_tasks();
-  handle_periodic_tasks_fbw();
-  handle_periodic_tasks_ap();
+  Fbw(handle_periodic_tasks);
+  Ap(handle_periodic_tasks);
 
   /* scale final motor commands to 0-1 for feeding the fdm */
   /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
+  /***************** HOW TO HANDLE THIS FOR FW ********************/
   for (uint8_t i=0; i<NB_COMMANDS; i++)
     autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
 
