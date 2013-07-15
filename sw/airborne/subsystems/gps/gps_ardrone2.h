@@ -30,7 +30,7 @@
 
 #include "boards/ardrone/at_com.h"
 
-//#define GPS_NB_CHANNELS 12 // TODO: Get channels out of packet
+#define GPS_NB_CHANNELS 12
 extern bool_t gps_ardrone2_available;
 
 /*
