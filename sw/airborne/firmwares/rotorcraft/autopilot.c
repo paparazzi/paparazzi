@@ -60,6 +60,7 @@ static inline int ahrs_is_aligned(void) {
   return (ahrs.status == AHRS_RUNNING);
 }
 #else
+PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")
 static inline int ahrs_is_aligned(void) {
   return TRUE;
 }
@@ -75,11 +76,12 @@ static inline int ahrs_is_aligned(void) {
 
 #ifndef MODE_STARTUP
 #define MODE_STARTUP AP_MODE_KILL
-PRINT_CONFIG_MSG("Using AP_MODE_KILL as MODE_STARTUP")
+PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
 #endif
 
 void autopilot_init(void) {
-  autopilot_mode = MODE_STARTUP;
+  /* mode is finally set at end of init if MODE_STARTUP is not KILL */
+  autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_in_flight = FALSE;
@@ -93,7 +95,16 @@ void autopilot_init(void) {
 #ifdef POWER_SWITCH_LED
   LED_ON(POWER_SWITCH_LED); // POWER OFF
 #endif
+
   autopilot_arming_init();
+
+  nav_init();
+  guidance_h_init();
+  guidance_v_init();
+  stabilization_init();
+
+  /* set startup mode, propagats through to guidance h/v */
+  autopilot_set_mode(MODE_STARTUP);
 }
 
 
