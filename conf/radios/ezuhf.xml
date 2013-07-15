@@ -1,15 +1,16 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
-  <!-- sync-max == based on 8ch radio output from ezuhf, assuming a 7c futaba radio:
-       22500 - (7*1080) = 14940. 1080 being the "minimum" for the futaba. -->
-<radio name="ezuhf" data_min="800" data_max="2200" sync_min="5000" sync_max="14940" pulse_type="NEGATIVE">
-  <channel ctl="right_stick_horiz" function="ROLL" min="1080" neutral="1500" max="1920" average="0"/>
-  <channel ctl="right_stick_vert" function="PITCH" min="1080" neutral="1500" max="1920" average="0"/>
-  <channel ctl="left_stick_vert" function="THROTTLE" min="1080" neutral="1000" max="1916" average="0"/>
-  <channel ctl="left_stick_horiz" function="YAW" min="1080" neutral="1500" max="1912" average="0"/>
-  <channel ctl="switch_E" function="MODE" min="1002" neutral="1500" max="1984" average="10"/>
-  <channel ctl="NOTUSEDA" function="NOTUSEDA" min="0" neutral="1500" max="2000" average="0"/>
-  <channel ctl="switch_G" function="CALIB" min="1002" neutral="1500" max="1984" average="10"/>
+  <!-- sync_max should be high enough if frame timing is fixed and all controls are minimal.
+       for ezuhf, 8ch radio with 7ch transmitter in this case it's 22500-(7*1080). Futaba's minimum is 1080.
+       if the sync_max is too low, the servo's may remain in their last pos as the frame is deemed invalid. -->
+<radio name="ezuhf" data_min="800" data_max="2200" sync_min="6000" sync_max="15000" pulse_type="NEGATIVE">
+  <channel ctl="right_stick_horiz" function="ROLL" min="1050" neutral="1525" max="1980" average="0"/>
+  <channel ctl="right_stick_vert" function="PITCH" min="1050" neutral="1525" max="1980" average="0"/>
+  <channel ctl="left_stick_vert" function="THROTTLE" min="1050" neutral="1080" max="1980" average="0"/>
+  <channel ctl="left_stick_horiz" function="YAW" min="1050" neutral="1525" max="1980" average="0"/>
+  <channel ctl="switch_E" function="MODE" min="1050" neutral="1525" max="1980" average="5"/>
+  <channel ctl="switch_F" function="CALIB" min="1050" neutral="1525" max="1980" average="1"/>
+  <channel ctl="switch_G" function="FLAPS" min="1050" neutral="1525" max="1980" average="5"/>
+  <channel ctl="notused_A" function="NOTUSED" min="1050" neutral="1525" max="1980" average="5"/>
 </radio>
-
