@@ -35,6 +35,7 @@
  *   <define name="DC_ZOOM_IN_LED" value="7"/>
  *   <define name="DC_ZOOM_OUT_LED" value="8"/>
  *   <define name="DC_POWER_LED" value="9"/>
+ *   <define name="DC_POWER_OFF_LED" value="10"/>
  * @endverbatim
  *  Related bank and pin must also be defined:
  * @verbatim
@@ -68,6 +69,10 @@ extern uint8_t dc_timer;
 #define DC_SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
 #endif
 
+#ifndef DC_POWER_OFF_DELAY
+#define DC_POWER_OFF_DELAY 3
+#endif
+
 #ifndef DC_SHUTTER_LED
 #error DC: Please specify at least a SHUTTER LED
 #endif
@@ -89,6 +94,9 @@ static inline void led_cam_ctrl_init(void)
 #endif
 #ifdef DC_POWER_LED
     DC_RELEASE(DC_POWER_LED);
+#endif
+#ifdef DC_POWER_OFF_LED
+    DC_RELEASE(DC_POWER_OFF_LED);
 #endif
 }
 
@@ -114,6 +122,9 @@ static inline void led_cam_ctrl_periodic( void )
 #endif
 #ifdef DC_POWER_LED
     DC_RELEASE(DC_POWER_LED);
+#endif
+#ifdef DC_POWER_OFF_LED
+    DC_RELEASE(DC_POWER_OFF_LED);
 #endif
   }
 
