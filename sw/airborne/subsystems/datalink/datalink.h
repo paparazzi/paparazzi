@@ -95,6 +95,12 @@ EXTERN void dl_parse_msg(void);
     DlCheckAndParse();                          \
   }
 
+#elif defined DATALINK && DATALINK == SUPERBITRF
+
+#define DatalinkEvent() {                       \
+    SuperbitRFCheckAndParse();                  \
+    DlCheckAndParse();                          \
+  }
 
 #else
 

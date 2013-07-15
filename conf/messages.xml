@@ -607,6 +607,10 @@
       <field name="status" type="uint8" values="UNINIT|INIT_BINDING|INIT_TRANSFER|BINDING|SYNCING_A|SYNCING_B|TRANSFER"/>
       <field name="cyrf_status" type="uint8" values="UNINIT|IDLE|GET_MFG_ID|MULTIWRITE|DATA_CODE|CHAN_SOP_DATA_CRC|RX_IRQ_STATUS_PACKET|SEND"/>
       <field name="packet_count" type="uint32"/>
+      <field name="transfer_timeouts" type="uint32"/>
+      <field name="resync_count" type="uint32"/>
+      <field name="uplink_count" type="uint32"/>
+      <field name="rc_count" type="uint32"/>
       <field name="timing1" type="uint32"/>
       <field name="timing2" type="uint32"/>
       <field name="bind_mfg_id" type="uint32"/>

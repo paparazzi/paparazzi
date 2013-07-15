@@ -61,6 +61,7 @@ struct Cyrf6936 {
   uint8_t tx_irq_status;                    /**< The last send interrupt status */
   uint8_t rx_irq_status;                    /**< The last receive interrupt status */
   uint8_t rx_status;                        /**< The last receive status */
+  uint8_t rx_count;                         /**< The length of the received packet */
   uint8_t rx_packet[16];                    /**< The last received packet */
 };
 

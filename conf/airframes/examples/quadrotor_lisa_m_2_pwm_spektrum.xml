@@ -159,7 +159,7 @@
 
     <define name="THETA_PGAIN"  value="100"/>
     <define name="THETA_DGAIN"  value="160"/>
-    <define name="THETA_IGAIN"  value="170"/>
+    <define name="THETA_IGAIN"  value="70"/>
 
     <define name="PSI_PGAIN"  value="300"/>
     <define name="PSI_DGAIN"  value="150"/>
@@ -189,7 +189,7 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="100"/>

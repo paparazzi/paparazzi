@@ -34,8 +34,10 @@
 
 /* The timings in microseconds */
 #define SUPERBITRF_BIND_RECV_TIME       10000       /**< The time to wait for a bind packet on a channel in microseconds */
-#define SUPERBITRF_SYNC_RECV_TIME       12000       /**< The time to wait for a sync packet on a channel in microseconds */
-#define SUPERBITRF_RECV_TIME            24000       /**< The time to wait for a transfer packet on a channel in microseconds */
+#define SUPERBITRF_SYNC_RECV_TIME       7000        /**< The time to wait for a sync packet on a channel in microseconds */
+#define SUPERBITRF_RECV_TIME            25000       /**< The time to wait for a transfer packet on a channel in microseconds */
+#define SUPERBITRF_DATAWAIT_TIME        500         /**< The time to wait after RC receive to send a data packet in microseconds */
+#define SUPERBITRF_DATARECV_TIME        2000        /**< The time to wait for a data packet on a channel in microseconds */
 
 /* The different statuses the superbitRF can be in */
 enum SuperbitRFStatus {
@@ -54,6 +56,18 @@ enum dsm_resolution {
     SUPERBITRF_11_BIT_RESOLUTION           = 0x01,     /**< The transmitter has a 11 bit resolution */
 };
 
+/* The different protocols a transmitter can send */
+enum dsm_protocol {
+    DSM_DSM2_1          = 0x01,     /**< The original DSM2 protocol with 1 packet of data */
+    DSM_DSM2_2          = 0x02,     /**< The original DSM2 protocol with 2 packets of data */
+    DSM_DSM2P           = 0x10,     /**< Our own DSM2 Paparazzi protocol */
+    DSM_DSMXP           = 0x11,     /**< Our own DSMX Paparazzi protocol */
+    DSM_DSMX_1          = 0xA2,     /**< The original DSMX protocol with 1 packet of data */
+    DSM_DSMX_2          = 0xB2,     /**< The original DSMX protocol with 2 packets of data */
+};
+#define IS_DSM2(x)          (x == DSM_DSM2P || x == DSM_DSM2_1 || x == DSM_DSM2_2)
+#define IS_DSMX(x)          (!IS_DSM2(x))
+
 /* The superbitrf structure */
 struct SuperbitRF {
   struct Cyrf6936 cyrf6936;                 /**< The cyrf chip used */
@@ -61,16 +75,20 @@ struct SuperbitRF {
   uint8_t state;                            /**< The states each status can be in */
   uint32_t timer;                           /**< The timer in microseconds */
   uint8_t timeouts;                         /**< The amount of timeouts */
+  uint32_t transfer_timeouts;               /**< The amount of timeouts during transfer */
+  uint32_t resync_count;                    /**< The amount of resyncs needed during transfer */
 
   uint8_t channels[23];                     /**< The channels used for DSM2/DSMX */
   uint8_t channel_idx;                      /**< The current channel index */
   uint8_t channel;                          /**< The current channel number */
   uint32_t packet_count;                    /**< How many packets are received(also the invalid) */
+  uint32_t uplink_count;                    /**< How many valid uplink packages are received */
+  uint32_t rc_count;                        /**< How many valid RC packages are received */
 
   uint8_t bind_mfg_id[4];                   /**< The MFG id where the receiver is bound to */
   uint32_t bind_mfg_id32;                   /**< The MFG id where the receiver is bound to in uint32 */
   uint8_t num_channels;                     /**< The number of channels the transmitter has */
-  uint8_t protocol;                         /**< The protocol the transmitter uses */
+  volatile enum dsm_protocol protocol;      /**< The protocol the transmitter uses */
   volatile enum dsm_resolution resolution;  /**< The resolution that the transmitter has */
   uint16_t crc_seed;                        /**< The CRC seed that is calculated with the bind MFG id */
   uint8_t sop_col;                          /**< The sop code column number calculated with the bind MFG id */
@@ -80,6 +98,8 @@ struct SuperbitRF {
   uint32_t timing1;                         /**< Time between last receive in microseconds */
   uint32_t timing2;                         /**< Time between second last receive in microseconds */
   int16_t rc_values[14];                    /**< The rc values from the packet */
+
+  struct pprz_transport rx_transport;       /**< The receive transport */
 
   uint8_t tx_buffer[128];                   /**< The transmit buffer */
   uint8_t tx_insert_idx;                    /**< The transmit buffer insert index */

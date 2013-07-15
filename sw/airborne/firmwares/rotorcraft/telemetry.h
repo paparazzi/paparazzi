@@ -141,6 +141,10 @@
                       &superbitrf.status,               \
                       &superbitrf.cyrf6936.status,      \
                       &superbitrf.packet_count,         \
+                      &superbitrf.transfer_timeouts,    \
+                      &superbitrf.resync_count,         \
+                      &superbitrf.uplink_count,         \
+                      &superbitrf.rc_count,             \
                       &superbitrf.timing1,              \
                       &superbitrf.timing2,              \
                       &superbitrf.bind_mfg_id32,        \

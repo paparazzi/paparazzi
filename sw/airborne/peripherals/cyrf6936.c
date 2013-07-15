@@ -199,8 +199,12 @@ void cyrf6936_event(struct Cyrf6936 *cyrf) {
       cyrf->tx_irq_status = cyrf->input_buf[1];
       cyrf6936_read_register(cyrf, CYRF_RX_STATUS);
       break;
-    case 3: // Read the receive packet
+    case 3: // Set the packet length
       cyrf->rx_status = cyrf->input_buf[1];
+      cyrf6936_read_register(cyrf, CYRF_RX_COUNT);
+      break;
+    case 4: // Read the receive packet
+      cyrf->rx_count = cyrf->input_buf[1];
       cyrf6936_read_block(cyrf, CYRF_RX_BUFFER, 16);
       break;
     default:
