@@ -481,6 +481,13 @@ let rec print_stage = fun index_of_waypoints x ->
         let statement = ExtXml.attrib  x "fun" in
         lprintf "if (! (%s))\n" statement;
         lprintf "  NextStageAndBreak();\n";
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
         lprintf "break;\n"
       | "survey_rectangle" ->
         let grid = parsed_attrib x "grid"
@@ -495,6 +502,13 @@ let rec print_stage = fun index_of_waypoints x ->
         left ();
         stage ();
         lprintf "NavSurveyRectangle(%s, %s);\n" wp1 wp2;
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
         lprintf "break;\n"
       | _s -> failwith "Unreachable"
   end;
