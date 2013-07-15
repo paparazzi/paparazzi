@@ -84,7 +84,7 @@
 
 #include "led.h"
 
-#ifdef SITL
+#ifdef USE_NPS
 #include "nps_autopilot_fixedwing.h"
 #endif
 

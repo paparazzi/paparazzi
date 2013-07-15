@@ -20,6 +20,10 @@ nps.ARCHDIR = sim
 # include Makefile.nps instead of Makefile.sim
 nps.MAKEFILE = nps
 
+# add normal ap and fbw sources define in autopilot.makefile
+nps.CFLAGS  += $(fbw_CFLAGS) $(ap_CFLAGS)
+nps.srcs    += $(fbw_srcs) $(ap_srcs)
+
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
 nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy -lpcre -lgsl -lgslcblas
@@ -38,7 +42,7 @@ else
 endif
 
 
-nps.srcs += $(NPSDIR)/nps_main.c                      \
+nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_fdm_jsbsim.c                \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
@@ -51,85 +55,11 @@ nps.srcs += $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_autopilot_fixedwing.c            \
-       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_autopilot_fixedwing.c       \
+       $(NPSDIR)/nps_ivy_fixedwing.c             \
        $(NPSDIR)/nps_flightgear.c                \
 
 
-
-nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
-
-nps.srcs   += firmwares/fixedwing/main_ap.c firmwares/fixedwing/main_fbw.c
-nps.srcs   += mcu.c
-nps.srcs   += $(SRC_ARCH)/mcu_arch.c
-
-nps.srcs += mcu_periph/i2c.c
-nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
-
-
-PERIODIC_FREQUENCY ?= 60
-TELEMETRY_FREQUENCY ?= 60
-nps.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-nps.CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
-#nps.CFLAGS += -DUSE_LED
-nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
-
-nps.srcs += subsystems/settings.c
-nps.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
-
 nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-nps.srcs += $(SRC_FIRMWARE)/telemetry.c \
-            subsystems/datalink/downlink.c \
-            $(SRC_ARCH)/ivy_transport.c
+nps.srcs   += subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/ivy_transport.c
 
-nps.srcs   += subsystems/actuators.c
-nps.srcs   += subsystems/commands.c
-
-nps.srcs += $(SRC_FIRMWARE)/datalink.c
-
-#
-# Math functions
-#
-nps.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
-
-nps.CFLAGS += -DROTORCRAFT_BARO_LED=2
-nps.srcs += $(SRC_BOARD)/baro_board.c
-
-nps.CFLAGS += -DUSE_ADC
-nps.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-nps.srcs   += subsystems/electrical.c
-
-nps.srcs += $(SRC_FIRMWARE)/autopilot.c
-
-nps.srcs += state.c
-
-#
-# in makefile section of airframe xml
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile
-# or
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-#
-
-# nps.srcs += $(SRC_FIRMWARE)/stabilization.c
-# nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
-# nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
-
-# nps.CFLAGS += -DUSE_NAVIGATION
-# nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
-# nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
-# nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
-# nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
-
-#
-# INS choice
-#
-# include subsystems/rotorcraft/ins.makefile
-# or
-# include subsystems/rotorcraft/ins_extended.makefile
-#
-# extra:
-# include subsystems/rotorcraft/ins_hff.makefile
-#
-
-nps.srcs += $(SRC_FIRMWARE)/navigation.c
-nps.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

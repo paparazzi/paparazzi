@@ -47,8 +47,7 @@
 #include "subsystems/electrical.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-
-//#include "subsystems/actuators/motor_mixing.h"
+#include "subsystems/commands.h"
 
 
 struct NpsAutopilot autopilot;
@@ -111,7 +110,8 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
  }
 
   if (nps_sensors_baro_available()) {
-    baro_feed_value(sensors.baro.value);
+    /** @todo feed baro values */
+    //baro_feed_value(sensors.baro.value);
     //main_event();
     Fbw(event_task);
     Ap(event_task);
@@ -133,9 +133,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   Ap(handle_periodic_tasks);
 
   /* scale final motor commands to 0-1 for feeding the fdm */
-  /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
-  /***************** HOW TO HANDLE THIS FOR FW ********************/
-  for (uint8_t i=0; i<NB_COMMANDS; i++)
+  for (uint8_t i=0; i < COMMANDS_NB; i++)
     autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
 
 }
