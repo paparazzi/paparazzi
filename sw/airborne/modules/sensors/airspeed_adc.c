@@ -60,7 +60,7 @@ void airspeed_adc_update( void ) {
   float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
 #endif
   stateSetAirspeed_f(&airspeed);
-#else // SITL
+#elif !defined USE_NPS
   extern float sim_air_speed;
   stateSetAirspeed_f(&sim_air_speed);
   adc_airspeed_val = 0;

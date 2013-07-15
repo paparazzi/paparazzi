@@ -85,77 +85,77 @@ float airspeed_old = 0.0;
 
 
 void airspeed_amsys_init( void ) {
-	airspeed_amsys_raw = 0;
-	airspeed_amsys = 0.0;
-	pressure_amsys = 0.0;
-	airspeed_amsys_i2c_done = TRUE;
-	airspeed_amsys_valid = TRUE;
-	airspeed_scale = AIRSPEED_SCALE;
-	airspeed_filter = AIRSPEED_FILTER;
-	airspeed_amsys_i2c_trans.status = I2CTransDone;
+  airspeed_amsys_raw = 0;
+  airspeed_amsys = 0.0;
+  pressure_amsys = 0.0;
+  airspeed_amsys_i2c_done = TRUE;
+  airspeed_amsys_valid = TRUE;
+  airspeed_scale = AIRSPEED_SCALE;
+  airspeed_filter = AIRSPEED_FILTER;
+  airspeed_amsys_i2c_trans.status = I2CTransDone;
 }
 
 void airspeed_amsys_read_periodic( void ) {
 #ifndef SITL
-	if (airspeed_amsys_i2c_trans.status == I2CTransDone)
+  if (airspeed_amsys_i2c_trans.status == I2CTransDone)
 #ifndef MEASURE_AMSYS_TEMPERATURE
-		i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 2);
+    i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 2);
 #else
-		i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
+  i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
 #endif
 
-#else // SITL
-		extern float sim_air_speed;
-		stateSetAirspeed_f(&sim_air_speed);
+#elif !defined USE_NPS
+  extern float sim_air_speed;
+  stateSetAirspeed_f(&sim_air_speed);
 #endif //SITL
 }
 
 void airspeed_amsys_read_event( void ) {
 
-	// Get raw airspeed from buffer
-	airspeed_amsys_raw = 0;
-	airspeed_amsys_raw = (airspeed_amsys_i2c_trans.buf[0]<<8) | airspeed_amsys_i2c_trans.buf[1];
+  // Get raw airspeed from buffer
+  airspeed_amsys_raw = 0;
+  airspeed_amsys_raw = (airspeed_amsys_i2c_trans.buf[0]<<8) | airspeed_amsys_i2c_trans.buf[1];
 #ifdef MEASURE_AMSYS_TEMPERATURE
-	tempAS_amsys_raw = (airspeed_amsys_i2c_trans.buf[2]<<8) | airspeed_amsys_i2c_trans.buf[3];
-	airspeed_temperature = (float)((float)(tempAS_amsys_raw-TEMPERATURE_AMSYS_OFFSET_MIN)/((float)(TEMPERATURE_AMSYS_OFFSET_MAX-TEMPERATURE_AMSYS_OFFSET_MIN)/TEMPERATURE_AMSYS_MAX)+TEMPERATURE_AMSYS_MIN);// Tmin=-25, Tmax=85
+  tempAS_amsys_raw = (airspeed_amsys_i2c_trans.buf[2]<<8) | airspeed_amsys_i2c_trans.buf[3];
+  airspeed_temperature = (float)((float)(tempAS_amsys_raw-TEMPERATURE_AMSYS_OFFSET_MIN)/((float)(TEMPERATURE_AMSYS_OFFSET_MAX-TEMPERATURE_AMSYS_OFFSET_MIN)/TEMPERATURE_AMSYS_MAX)+TEMPERATURE_AMSYS_MIN);// Tmin=-25, Tmax=85
 #endif
 
-	// Check if this is valid airspeed
-	if (airspeed_amsys_raw == 0)
-		airspeed_amsys_valid = FALSE;
-	else
-		airspeed_amsys_valid = TRUE;
+  // Check if this is valid airspeed
+  if (airspeed_amsys_raw == 0)
+    airspeed_amsys_valid = FALSE;
+  else
+    airspeed_amsys_valid = TRUE;
 
-	// Continue only if a new airspeed value was received
-	if (airspeed_amsys_valid) {
+  // Continue only if a new airspeed value was received
+  if (airspeed_amsys_valid) {
 
-		// raw not under offest min
-		if (airspeed_amsys_raw<AIRSPEED_AMSYS_OFFSET_MIN)
-			airspeed_amsys_raw = AIRSPEED_AMSYS_OFFSET_MIN;
-		// raw not over offest max
-		if (airspeed_amsys_raw>AIRSPEED_AMSYS_OFFSET_MAX)
-			airspeed_amsys_raw = AIRSPEED_AMSYS_OFFSET_MAX;
+    // raw not under offest min
+    if (airspeed_amsys_raw<AIRSPEED_AMSYS_OFFSET_MIN)
+      airspeed_amsys_raw = AIRSPEED_AMSYS_OFFSET_MIN;
+    // raw not over offest max
+    if (airspeed_amsys_raw>AIRSPEED_AMSYS_OFFSET_MAX)
+      airspeed_amsys_raw = AIRSPEED_AMSYS_OFFSET_MAX;
 
-		// calculate raw to pressure
-		pressure_amsys = (float)(airspeed_amsys_raw-AIRSPEED_AMSYS_OFFSET_MIN)*AIRSPEED_AMSYS_MAXPRESURE/(float)(AIRSPEED_AMSYS_OFFSET_MAX-AIRSPEED_AMSYS_OFFSET_MIN);
+    // calculate raw to pressure
+    pressure_amsys = (float)(airspeed_amsys_raw-AIRSPEED_AMSYS_OFFSET_MIN)*AIRSPEED_AMSYS_MAXPRESURE/(float)(AIRSPEED_AMSYS_OFFSET_MAX-AIRSPEED_AMSYS_OFFSET_MIN);
 
-		airspeed_tmp = sqrtf(2*(pressure_amsys)*airspeed_scale/1.2041); //without offset
+    airspeed_tmp = sqrtf(2*(pressure_amsys)*airspeed_scale/1.2041); //without offset
 
-	// 	Lowpass filter
-		airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
-		airspeed_old = airspeed_amsys;
+    //  Lowpass filter
+    airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
+    airspeed_old = airspeed_amsys;
 
 #if USE_AIRSPEED
-		stateSetAirspeed_f(&airspeed_amsys);
+    stateSetAirspeed_f(&airspeed_amsys);
 #endif
 #ifdef SENSOR_SYNC_SEND
-		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
+    DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
 #else
-		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
+    RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
 #endif
-	}
+  }
 
-	// Transaction has been read
-	airspeed_amsys_i2c_trans.status = I2CTransDone;
+  // Transaction has been read
+  airspeed_amsys_i2c_trans.status = I2CTransDone;
 }
 
