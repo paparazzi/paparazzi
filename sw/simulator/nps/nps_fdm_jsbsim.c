@@ -60,7 +60,6 @@ static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_
 static void llh_from_jsbsim(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 static void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 static void lla_from_jsbsim_geocentric(LlaCoor_d* fdm_lla, FGPropagate* propagate);
-//static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate);
 
 static void init_jsbsim(double dt);
 static void init_ltp(void);
@@ -472,14 +471,3 @@ void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
   fdm_lla->alt = MetersOfFeet(propagate->GetGeodeticAltitude());
 
 }
-
-
-#if 0
-static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
-
-  vector->x = rate->p;
-  vector->y = rate->q;
-  vector->z = rate->r;
-
-}
-#endif

@@ -22,8 +22,6 @@
 
 #include "nps_autopilot_fixedwing.h"
 
-//#include "firmwares/rotorcraft/main.h"
-
 #ifdef FBW
 #include "firmwares/fixedwing/main_fbw.h"
 #define Fbw(f) f ## _fbw()
@@ -66,7 +64,6 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
 
-  //main_init();
   Fbw(init);
   Ap(init);
 
@@ -90,21 +87,18 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   if (nps_radio_control_available(time)) {
     radio_control_feed();
-    //main_event();
     Fbw(event_task);
     Ap(event_task);
   }
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
-    //main_event();
     Fbw(event_task);
     Ap(event_task);
   }
 
   if (nps_sensors_mag_available()) {
     imu_feed_mag();
-    //main_event();
     Fbw(event_task);
     Ap(event_task);
  }
@@ -112,14 +106,12 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   if (nps_sensors_baro_available()) {
     /** @todo feed baro values */
     //baro_feed_value(sensors.baro.value);
-    //main_event();
     Fbw(event_task);
     Ap(event_task);
   }
 
   if (nps_sensors_gps_available()) {
     gps_feed_value();
-    //main_event();
     Fbw(event_task);
     Ap(event_task);
   }
@@ -128,7 +120,6 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     sim_overwrite_ahrs();
   }
 
-  //handle_periodic_tasks();
   Fbw(handle_periodic_tasks);
   Ap(handle_periodic_tasks);
 
