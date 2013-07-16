@@ -197,7 +197,7 @@
   <section name="DIGITAL_CAMERA" prefix="DC_">
     <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="8" unit="quarter_second"/>
     <define name="AUTOSHOOT_METER_GRID" value="60" unit="meter"/>
-    <define name="SHUTTER_DELAY" value="1" unit="quarter_second"/>
+    <define name="SHUTTER_DELAY" value="0" unit="quarter_second"/>
     <define name="POWER_OFF_DELAY" value="3" unit="quarter_second"/>
   </section>
 
