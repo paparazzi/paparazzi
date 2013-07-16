@@ -336,15 +336,9 @@ void superbitrf_event(void) {
       superbitrf.state++;
       break;
     case 2:
-      // When DSMX we don't need to switch
-      if(IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) {
-        superbitrf.state++;
-        break;
-      }
-
       // Switch channel, sop code, data code and crc
-      superbitrf.channel_idx = (superbitrf.channel_idx + 1) %2;
-      pn_row = superbitrf.channels[superbitrf.channel_idx] % 5;
+      superbitrf.channel_idx = (IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2)? (superbitrf.channel_idx + 1) %2 : (superbitrf.channel_idx + 1) %23;
+      pn_row = (IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2)? superbitrf.channels[superbitrf.channel_idx] % 5 : (superbitrf.channels[superbitrf.channel_idx]-2) % 5;
 
       cyrf6936_write_chan_sop_data_crc(&superbitrf.cyrf6936, superbitrf.channels[superbitrf.channel_idx],
           pn_codes[pn_row][superbitrf.sop_col],
@@ -377,13 +371,15 @@ void superbitrf_event(void) {
       //TODO: check timeout? (Waiting for send)
       break;
     case 5:
-      // Switch channel, sop code, data code and crc
-      if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2)
-        superbitrf.channel = (superbitrf.channel + 1) % 0x62; //TODO fix define
-      else {
-        superbitrf.channel_idx = (superbitrf.channel_idx + 1) %23;
+      // When DSMX we don't need to switch
+      if(IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) {
+        superbitrf.state++;
         superbitrf.channel = superbitrf.channels[superbitrf.channel_idx];
+        break;
       }
+
+      // Switch channel, sop code, data code and crc
+      superbitrf.channel = (superbitrf.channel + 1) % 0x62; //TODO fix define
       superbitrf.crc_seed = ~superbitrf.crc_seed;
       pn_row = (IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2)? superbitrf.channel % 5 : (superbitrf.channel-2) % 5;
 
@@ -596,13 +592,15 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       break;
     }
     if((IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) &&
-        (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))) {
+        (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) &&
+            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
     }
     if((IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) &&
-            (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (superbitrf.bind_mfg_id[3]&0xFF))) {
+            (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (superbitrf.bind_mfg_id[3]&0xFF) &&
+                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
@@ -611,6 +609,25 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     // If the CRC is wrong invert
     if (error && (status & CYRF_BAD_CRC))
       superbitrf.crc_seed = ~superbitrf.crc_seed;
+
+    // When we receive a data packet
+    if(packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) && packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)) {
+      superbitrf.uplink_count++;
+
+      // When it is a data packet, parse the packet if not busy already
+      if(!dl_msg_available) {
+        for(i = 2; i < superbitrf.cyrf6936.rx_count; i++) {
+          parse_pprz(&superbitrf.rx_transport, packet[i]);
+
+          // When we have a full message
+          if (superbitrf.rx_transport.trans.msg_received) {
+            pprz_parse_payload(&superbitrf.rx_transport);
+            superbitrf.rx_transport.trans.msg_received = FALSE;
+          }
+        }
+      }
+      break;
+    }
 
     if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) {
       superbitrf.channels[0] = superbitrf.channel;
@@ -634,13 +651,15 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       break;
     }
     if((IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) &&
-        (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))) {
+        (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) &&
+            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
     }
     if((IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) &&
-            (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (superbitrf.bind_mfg_id[3]&0xFF))) {
+            (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (superbitrf.bind_mfg_id[3]&0xFF) &&
+                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
@@ -649,6 +668,25 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     // If the CRC is wrong invert
     if (error && (status & CYRF_BAD_CRC))
       superbitrf.crc_seed = ~superbitrf.crc_seed;
+
+    // When we receive a data packet
+    if(packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) && packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)) {
+      superbitrf.uplink_count++;
+
+      // When it is a data packet, parse the packet if not busy already
+      if(!dl_msg_available) {
+        for(i = 2; i < superbitrf.cyrf6936.rx_count; i++) {
+          parse_pprz(&superbitrf.rx_transport, packet[i]);
+
+          // When we have a full message
+          if (superbitrf.rx_transport.trans.msg_received) {
+            pprz_parse_payload(&superbitrf.rx_transport);
+            superbitrf.rx_transport.trans.msg_received = FALSE;
+          }
+        }
+      }
+      break;
+    }
 
     // Set the channel
     if(superbitrf.channels[0] != superbitrf.channel) {
@@ -676,18 +714,20 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
     }
-    /*if((IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) &&
-        (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF))) {
+    if((IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) &&
+        (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) &&
+            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
     }
     if((IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) &&
-            (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || packet[1] != (superbitrf.bind_mfg_id[3]&0xFF))) {
+            (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (superbitrf.bind_mfg_id[3]&0xFF) &&
+                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
-    }*/
+    }
 
     // If the CRC is wrong invert
     if (error && (status & CYRF_BAD_CRC))
@@ -708,7 +748,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       // Go to next receive
       superbitrf.state = 1;
       superbitrf.timeouts = 0;
-    } else if(superbitrf.state == 5) {
+    } else {
       superbitrf.uplink_count++;
 
       // When it is a data packet, parse the packet if not busy already

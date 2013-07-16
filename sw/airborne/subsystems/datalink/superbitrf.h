@@ -37,7 +37,7 @@
 #define SUPERBITRF_SYNC_RECV_TIME       7000        /**< The time to wait for a sync packet on a channel in microseconds */
 #define SUPERBITRF_RECV_TIME            25000       /**< The time to wait for a transfer packet on a channel in microseconds */
 #define SUPERBITRF_DATAWAIT_TIME        500         /**< The time to wait after RC receive to send a data packet in microseconds */
-#define SUPERBITRF_DATARECV_TIME        2000        /**< The time to wait for a data packet on a channel in microseconds */
+#define SUPERBITRF_DATARECV_TIME        9000        /**< The time to wait for a data packet on a channel in microseconds */
 
 /* The different statuses the superbitRF can be in */
 enum SuperbitRFStatus {
