@@ -138,11 +138,6 @@ STATIC_INLINE void main_init( void ) {
 
   baro_init();
   imu_init();
-  autopilot_init();
-  nav_init();
-  guidance_h_init();
-  guidance_v_init();
-  stabilization_init();
 
   ahrs_aligner_init();
   ahrs_init();
@@ -152,6 +147,8 @@ STATIC_INLINE void main_init( void ) {
 #if USE_GPS
   gps_init();
 #endif
+
+  autopilot_init();
 
   modules_init();
 
@@ -225,6 +222,7 @@ STATIC_INLINE void failsafe_check( void ) {
 
 #if USE_GPS
   if (autopilot_mode == AP_MODE_NAV &&
+      autopilot_motors_on &&
 #if NO_GPS_LOST_WITH_RC_VALID
       radio_control.status != RC_OK &&
 #endif
