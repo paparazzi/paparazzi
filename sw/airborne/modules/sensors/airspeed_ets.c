@@ -42,6 +42,7 @@
 #include "state.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
@@ -88,6 +89,8 @@ volatile bool_t airspeed_ets_i2c_done;
 bool_t airspeed_ets_offset_init;
 uint32_t airspeed_ets_offset_tmp;
 uint16_t airspeed_ets_cnt;
+uint32_t airspeed_ets_delay_time;
+bool_t   airspeed_ets_delay_done;
 
 void airspeed_ets_init( void ) {
   int n;
@@ -96,7 +99,7 @@ void airspeed_ets_init( void ) {
   airspeed_ets_offset = 0;
   airspeed_ets_offset_tmp = 0;
   airspeed_ets_i2c_done = TRUE;
-  airspeed_ets_valid = TRUE;
+  airspeed_ets_valid = FALSE;
   airspeed_ets_offset_init = FALSE;
   airspeed_ets_cnt = AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT + AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG;
 
@@ -105,10 +108,23 @@ void airspeed_ets_init( void ) {
     airspeed_ets_buffer[n] = 0.0;
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
+#if defined AIRSPEED_ETS_START_DELAY && ! defined SITL
+  airspeed_ets_delay_done = FALSE;
+  SysTimeTimerStart(airspeed_ets_delay_time);
+#else
+  airspeed_ets_delay_done = TRUE;
+  airspeed_ets_delay_time = 0;
+#endif
 }
 
 void airspeed_ets_read_periodic( void ) {
 #ifndef SITL
+#if defined AIRSPEED_ETS_START_DELAY
+  if (!airspeed_ets_delay_done) {
+    if (SysTimeTimer(airspeed_ets_delay_time) < USEC_OF_SEC(AIRSPEED_ETS_START_DELAY)) return;
+    else airspeed_ets_delay_done = TRUE;
+  }
+#endif
   if (airspeed_ets_i2c_trans.status == I2CTransDone)
     i2c_receive(&AIRSPEED_ETS_I2C_DEV, &airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
 #else // SITL
@@ -173,7 +189,7 @@ void airspeed_ets_read_event( void ) {
 #if USE_AIRSPEED
     stateSetAirspeed_f(&airspeed_ets);
 #endif
-#ifdef SENSOR_SYNC_SEND
+#ifdef AIRSPEED_ETS_SYNC_SEND
     DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
 #endif
   } else {

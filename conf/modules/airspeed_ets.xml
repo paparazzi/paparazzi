@@ -17,11 +17,12 @@
       - Yellow wire: SDA
       - Brown wire: SCL
     </description>
-    <define name="AIRSPEED_ETS_I2C_DEV" value="i2c0" description="change default i2c peripheral"/>
-    <define name="AIRSPEED_ETS_OFFSET" value="0" description="sensor offset (default: 0)"/>
-    <define name="AIRSPEED_ETS_SCALE" value="1.8" description="sensor scale factor (default: 1.8)"/>
+    <define name="AIRSPEED_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
+    <define name="AIRSPEED_ETS_OFFSET" value="offset" description="sensor reading offset (default: 0)"/>
+    <define name="AIRSPEED_ETS_SCALE" value="scale" description="sensor scale factor (default: 1.8)"/>
+    <define name="AIRSPEED_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
     <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
-    <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+    <define name="AIRSPEED_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
 
   <header>
