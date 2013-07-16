@@ -21,7 +21,7 @@
     <define name="BARO_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
     <define name="BARO_ETS_SCALE" value="scale" description="sensor scale factor (default: 1.8)"/>
     <define name="BARO_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
-    <define name="BARO_ETS_TELEMETRY" description="flag to transmit the data as it is acquired"/>
+    <define name="BARO_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
 
   <header>

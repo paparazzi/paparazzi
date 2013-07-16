@@ -51,7 +51,7 @@
 #include "subsystems/gps.h"
 #endif
 
-#ifdef BARO_ETS_TELEMETRY
+#ifdef BARO_ETS_SYNC_SEND
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
@@ -59,7 +59,7 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
-#endif //BARO_ETS_TELEMETRY
+#endif //BARO_ETS_SYNC_SEND
 
 #define BARO_ETS_ADDR 0xE8
 #define BARO_ETS_REG 0x07
@@ -76,6 +76,13 @@
 #ifndef BARO_ETS_I2C_DEV
 #define BARO_ETS_I2C_DEV i2c0
 #endif
+PRINT_CONFIG_VAR(BARO_ETS_I2C_DEV)
+
+/** delay in seconds until sensor is read after startup */
+#ifndef BARO_ETS_START_DELAY
+#define BARO_ETS_START_DELAY 0.2
+#endif
+PRINT_CONFIG_VAR(BARO_ETS_START_DELAY)
 
 // Global variables
 uint16_t baro_ets_adc;
@@ -89,7 +96,7 @@ float baro_ets_sigma2;
 struct i2c_transaction baro_ets_i2c_trans;
 
 // Local variables
-bool_t baro_ets_offset_init;
+bool_t   baro_ets_offset_init;
 uint32_t baro_ets_offset_tmp;
 uint16_t baro_ets_cnt;
 uint32_t baro_ets_delay_time;
@@ -109,24 +116,17 @@ void baro_ets_init( void ) {
 
   baro_ets_i2c_trans.status = I2CTransDone;
 
-#if defined BARO_ETS_START_DELAY && ! defined SITL
   baro_ets_delay_done = FALSE;
   SysTimeTimerStart(baro_ets_delay_time);
-#else
-  baro_ets_delay_done = TRUE;
-  baro_ets_delay_time = 0;
-#endif
 }
 
 void baro_ets_read_periodic( void ) {
   // Initiate next read
 #ifndef SITL
-#if defined BARO_ETS_START_DELAY
   if (!baro_ets_delay_done) {
     if (SysTimeTimer(baro_ets_delay_time) < USEC_OF_SEC(BARO_ETS_START_DELAY)) return;
     else baro_ets_delay_done = TRUE;
   }
-#endif
   if (baro_ets_i2c_trans.status == I2CTransDone)
     i2c_receive(&BARO_ETS_I2C_DEV, &baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
@@ -140,7 +140,7 @@ void baro_ets_read_periodic( void ) {
   baro_ets_valid = TRUE;
 #endif
 
-#ifdef BARO_ETS_TELEMETRY
+#ifdef BARO_ETS_SYNC_SEND
   DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
 #endif
 }
@@ -178,7 +178,7 @@ void baro_ets_read_event( void ) {
     if (baro_ets_offset_init) {
       baro_ets_altitude = ground_alt + BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
       // New value available
-#ifdef BARO_ETS_TELEMETRY
+#ifdef BARO_ETS_SYNC_SEND
       DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
 #endif
     } else {

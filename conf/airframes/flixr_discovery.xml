@@ -67,7 +67,7 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
     </load>
     <!--load name="airspeed_ets.xml">
-      <define name="SENSOR_SYNC_SEND"/>
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <define name="USE_AIRSPEED"/>
     </load-->
   </modules>

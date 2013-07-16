@@ -48,8 +48,8 @@
 #include <math.h>
 
 #if !USE_AIRSPEED
-#ifndef SENSOR_SYNC_SEND
-#warning either set USE_AIRSPEED or SENSOR_SYNC_SEND to use ets_airspeed
+#ifndef AIRSPEED_ETS_SYNC_SEND
+#warning either set USE_AIRSPEED or AIRSPEED_ETS_SYNC_SEND to use ets_airspeed
 #endif
 #endif
 
@@ -69,6 +69,13 @@
 #ifndef AIRSPEED_ETS_I2C_DEV
 #define AIRSPEED_ETS_I2C_DEV i2c0
 #endif
+PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
+
+/** delay in seconds until sensor is read after startup */
+#ifndef AIRSPEED_ETS_START_DELAY
+#define AIRSPEED_ETS_START_DELAY 0.2
+#endif
+PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -108,23 +115,17 @@ void airspeed_ets_init( void ) {
     airspeed_ets_buffer[n] = 0.0;
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
-#if defined AIRSPEED_ETS_START_DELAY && ! defined SITL
+
   airspeed_ets_delay_done = FALSE;
   SysTimeTimerStart(airspeed_ets_delay_time);
-#else
-  airspeed_ets_delay_done = TRUE;
-  airspeed_ets_delay_time = 0;
-#endif
 }
 
 void airspeed_ets_read_periodic( void ) {
 #ifndef SITL
-#if defined AIRSPEED_ETS_START_DELAY
   if (!airspeed_ets_delay_done) {
     if (SysTimeTimer(airspeed_ets_delay_time) < USEC_OF_SEC(AIRSPEED_ETS_START_DELAY)) return;
     else airspeed_ets_delay_done = TRUE;
   }
-#endif
   if (airspeed_ets_i2c_trans.status == I2CTransDone)
     i2c_receive(&AIRSPEED_ETS_I2C_DEV, &airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
 #else // SITL
