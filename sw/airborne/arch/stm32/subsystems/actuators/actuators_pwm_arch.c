@@ -208,6 +208,9 @@ void actuators_pwm_arch_init(void) {
 #ifdef PWM_SERVO_8
   set_servo_gpio(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, PWM_SERVO_8_RCC_IOP);
 #endif
+#ifdef PWM_SERVO_9
+  set_servo_gpio(PWM_SERVO_9_GPIO, PWM_SERVO_9_PIN, PWM_SERVO_9_AF, PWM_SERVO_9_RCC_IOP);
+#endif
 
 
 #if PWM_USE_TIM1
@@ -261,6 +264,9 @@ void actuators_pwm_commit(void) {
 #endif
 #ifdef PWM_SERVO_8
   timer_set_oc_value(PWM_SERVO_8_TIMER, PWM_SERVO_8_OC, actuators_pwm_values[PWM_SERVO_8]);
+#endif
+#ifdef PWM_SERVO_9
+  timer_set_oc_value(PWM_SERVO_9_TIMER, PWM_SERVO_9_OC, actuators_pwm_values[PWM_SERVO_9]);
 #endif
 
 }
