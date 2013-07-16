@@ -52,6 +52,10 @@
 #include "modules/sensors/baro_ms5611_i2c.h"
 #endif
 
+#if USE_BARO_AMSYS
+#include "modules/sensors/baro_amsys.h"
+#endif
+
 extern int32_t ins_qfe;
 extern float   ins_baro_alt;
 extern bool_t  ins_baro_initialised;
