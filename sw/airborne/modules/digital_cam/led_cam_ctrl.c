@@ -53,6 +53,12 @@ void dc_send_command(uint8_t cmd)
       DC_PUSH(DC_POWER_LED);
       break;
 #endif
+#ifdef DC_POWER_OFF_LED
+    case DC_OFF:
+      DC_PUSH(DC_POWER_OFF_LED);
+      dc_timer = DC_POWER_OFF_DELAY;
+      break;
+#endif
     default:
       break;
   }

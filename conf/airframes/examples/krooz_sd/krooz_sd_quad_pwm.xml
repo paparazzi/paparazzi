@@ -19,7 +19,7 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     <subsystem name="motor_mixing"/>
@@ -79,27 +79,27 @@
     <define name="GYRO_P_NEUTRAL" value="0"/>
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>
-    <define name="GYRO_P_SENS" value=" 4.41" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 4.41" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 4.41" integer="16"/>
+    <define name="GYRO_P_SENS" value="0.5454" integer="16"/>
+    <define name="GYRO_Q_SENS" value="0.5454" integer="16"/>
+    <define name="GYRO_R_SENS" value="0.5454" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="-17"/>
-    <define name="ACCEL_Y_NEUTRAL" value="137"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-112"/>
-    <define name="ACCEL_X_SENS" value="4.90163520863" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.92641947248" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.75672568963" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-48"/>
+    <define name="ACCEL_Y_NEUTRAL" value="86"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-479"/>
+    <define name="ACCEL_X_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.6131" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-183"/>
-    <define name="MAG_Y_NEUTRAL" value="-106"/>
-    <define name="MAG_Z_NEUTRAL" value="-75"/>
-    <define name="MAG_X_SENS" value="3.22557142458" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.52708642214" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.54627027156" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-282"/>
+    <define name="MAG_Y_NEUTRAL" value="-78"/>
+    <define name="MAG_Z_NEUTRAL" value="109"/>
+    <define name="MAG_X_SENS" value="3.33430456557" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.53180739126" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.68297143457" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -111,7 +111,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="20." integer="16"/>
+    <define name="BARO_SENS" value="22." integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">

@@ -17,7 +17,7 @@
       <define name="I2C_TRANSACTION_QUEUE_LEN" value="10"/>
       <define name="I2C1_CLOCK_SPEED" value="42000"/>
     </subsystem>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
@@ -91,23 +91,23 @@
     <define name="GYRO_P_NEUTRAL" value="0"/>
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>
-    <define name="GYRO_P_SENS" value=" 4.41" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 4.41" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 4.41" integer="16"/>
+    <define name="GYRO_P_SENS" value="0.5454" integer="16"/>
+    <define name="GYRO_Q_SENS" value="0.5454" integer="16"/>
+    <define name="GYRO_R_SENS" value="0.5454" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="-24"/>
-    <define name="ACCEL_Y_NEUTRAL" value="122"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-130"/>
-    <define name="ACCEL_X_SENS" value="4.90555515454" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.90893349017" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.75238978393" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-48"/>
+    <define name="ACCEL_Y_NEUTRAL" value="86"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-479"/>
+    <define name="ACCEL_X_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.6131" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-136"/>
-    <define name="MAG_Y_NEUTRAL" value="-103"/>
-    <define name="MAG_Z_NEUTRAL" value="6"/>
-    <define name="MAG_X_SENS" value="3.18492472198" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.42471474617" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.42088446936" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-282"/>
+    <define name="MAG_Y_NEUTRAL" value="-78"/>
+    <define name="MAG_Z_NEUTRAL" value="109"/>
+    <define name="MAG_X_SENS" value="3.33430456557" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.53180739126" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.68297143457" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -123,7 +123,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="20." integer="16"/>
+    <define name="BARO_SENS" value="22." integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">

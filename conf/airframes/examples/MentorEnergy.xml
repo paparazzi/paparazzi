@@ -9,7 +9,6 @@
   <firmware name="fixedwing">
     <target name="ap" board="lisa_m_1.0">
       <define name="LISA_M_LONGITUDINAL_X"/>
-      <define name="SENSOR_SYNC_SEND"/>
 
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
@@ -27,7 +26,6 @@
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
-    <define name="SENSOR_SYNC_SEND"/>
     <!-- Sensors -->
     <!--
     <subsystem name="ahrs" type="int_cmpl_quat">
@@ -60,7 +58,9 @@
 
   <modules>
     <load name="gps_ubx_ucenter.xml"/>
-    <load name="airspeed_ets.xml"/>
+    <load name="airspeed_ets.xml">
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
+    </load>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="0"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="1"/>
