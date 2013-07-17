@@ -66,25 +66,23 @@ OCAMLRUN=$(shell which ocamlrun)
 BUILD_DATETIME:=$(shell date +%Y%m%d-%H%M%S)
 
 
-all: print_build_version conf commands static
+all: print_build_version update_google_version conf commands static
 
 print_build_version:
 	@echo "------------------------------------------------------------"
 	@echo "Building Paparazzi version" $(shell ./paparazzi_version)
 	@echo "------------------------------------------------------------"
 
-static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
+update_google_version:
+	-$(MAKE) -C data/maps
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml FORCE
+conf: conf/conf.xml conf/control_panel.xml conf/maps.xml
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
-conf/maps.xml: conf/maps.xml.example FORCE
-	-cd data/maps; $(MAKE)
-	$(Q)if test ! -e $@; then cp $< $@; fi
 
-FORCE:
+static: lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
