@@ -1,0 +1,91 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="75" ground_alt="0" lat0="-8.094825" lon0="-34.891915" max_dist_from_home="1200" name="Basic" security_height="25">
+  <header>
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/navigation/gls.h"
+#include "subsystems/navigation/OSAMNav.h"
+#include "generated/airframe.h"
+
+#ifdef DC_AUTOSHOOT_QUARTERSEC_PERIOD
+#include "modules/digital_cam/dc.h"
+#define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_PERIODIC;
+//#define LINE_START_FUNCTION dc_Survey(dc_gps_dist);
+#define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+#endif
+
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-147.3" y="70.9"/>
+    <waypoint name="STDBY" x="20" y="80"/>
+    <waypoint name="1" x="100.0" y="100.0"/>
+    <waypoint name="2" x="-100.0" y="100.0"/>
+    <waypoint name="MOB" x="308.5" y="-229.5"/>
+    <waypoint name="S1" x="-237.7" y="-507.4"/>
+    <waypoint name="S2" x="227.7" y="699.6"/>
+    <waypoint alt="65" name="AF" x="200" y="-10"/>
+    <waypoint alt="30" name="_TOD" x="200" y="-10"/>
+    <waypoint alt="0.0" name="TD" x="-147.7" y="42.1"/>
+    <waypoint name="_BASELEG" x="308.9" y="-187.2"/>
+    <waypoint name="P1" x="300" y="0"/>
+    <waypoint name="P2" x="0" y="-300"/>
+    <waypoint name="P3" x="-300" y="0"/>
+    <waypoint name="P4" x="0" y="300"/>
+    <waypoint name="CLIMB" x="-504.8" y="149.5"/>
+    <waypoint name="TO" x="-241.7" y="519.9"/>
+  </waypoints>
+  <exceptions/>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point" strip_button="Landing Point" strip_icon="target.png">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <!--<block name="Arm Catapult" strip_button="Takeoff (wp CLIMB)" strip_icon="bungee_launch.png">
+      <exception cond="GetPosAlt() > ground_alt+20" deroute="Takeoff"/>
+      <set value="0" var="kill_throttle"/>
+      <call fun="nav_catapult_init()" />
+      <call fun="nav_catapult(WP_TO, WP_CLIMB)"/>
+    </block>!-->
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() > ground_alt+35" deroute="Standby"/>
+      <go wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <set value="0" var="kill_throttle"/>
+      <set var="v_ctl_auto_throttle_cruise_throttle" value="0.35"/>
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
