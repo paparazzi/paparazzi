@@ -32,7 +32,8 @@
 #include <inttypes.h>
 #include "std.h"
 
-/** Telemetry callback definition */
+/** Telemetry callback definition
+ */
 typedef void (*telemetry_cb)(void);
 
 /** Telemetry header
@@ -42,16 +43,16 @@ struct telemetry_msg {
   telemetry_cb cb;  ///< callback funtion
 };
 
+/** Telemetry structure.
+ *  Contains the total number of messages (from generated telemetry file)
+ *  and the list of registered callbacks
+ */
 struct pprz_telemetry {
-  uint8_t nb;       ///< number of messages
+  uint8_t nb;                 ///< number of messages
   struct telemetry_msg* msgs; ///< the list of (msg name, callbacks)
 };
 
-/** Telemetry init function
- */
-//void periodic_telemetry_init(void);
-
-/** Register function
+/** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
  * @param _msg message name (string) as defined in telemetry xml file
  * @param _cb callback function, called according to telemetry mode and specified period

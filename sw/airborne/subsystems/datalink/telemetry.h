@@ -25,9 +25,27 @@
 /**
  * @file subsystems/datalink/telemetry.h
  *
- * Periodic telemetry system header.
+ * Periodic telemetry system header (includes downlink utility and generated code).
  *
- * include downlink utility and generated code
+ * In order to use it a subsystem/module:
+ * - include this header:
+ *
+ *    #include "susystems/datalink/telemetry.h"
+ *
+ * - write a callback function:
+ *
+ *    void your_callback(void) {
+ *      // your code to send a telemetry message goes here
+ *    }
+ *
+ * - register your callback function (if the message name doesn't match
+ *   one of the names in your telemetry xml file or is already registered,
+ *   the function return FALSE)
+ *
+ *    register_periodic_telemetry(&your_telemetry_struct, "YOUR_MESSAGE_NAME", your_callback);
+ *
+ * In most cases, the default telemetry structure should be used
+ * (replace &your_telemetry_struct by DefaultPeriodic in the register function).
  */
 
 #include "std.h"

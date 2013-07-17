@@ -120,6 +120,13 @@ void sys_time_arch_init( void ) {
   T0EMR = 0;
 
   /* set first sys tick interrupt    */
+  /* We need to wait long enough to be sure
+   * that all the init part is finished before
+   * the first interrupt. Since the global
+   * interrupts are enable at the end of the init
+   * phase, if we miss the first one, the
+   * sys_tick_handler is not called afterward
+   */
   T0MR0 = 4*sys_time.resolution_cpu_ticks;
 
   /* enable timer 0                  */

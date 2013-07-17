@@ -20,14 +20,21 @@
  *
  */
 
+/**
+ * @file subsystems/datalink/telemetry.c
+ *
+ * Periodic telemetry system utility function.
+ *
+ */
+
 #include "subsystems/datalink/telemetry_common.h"
 
-//struct pprz_telemetry telemetry[PERIODIC_TELEMETRY_NB];
-
-//void periodic_telemetry_init(void) {
-//  telemetry = PERIODIC_TELEMETRY_MESSAGES;
-//}
-
+/** Register a telemetry callback function.
+ * @param _pt periodic telemetry structure to register
+ * @param _msg message name (string) as defined in telemetry xml file
+ * @param _cb callback function, called according to telemetry mode and specified period
+ * @return TRUE if message registered with success, FALSE otherwise
+ */
 bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, char * _msg, telemetry_cb _cb) {
   // look for message name
   uint8_t i;
