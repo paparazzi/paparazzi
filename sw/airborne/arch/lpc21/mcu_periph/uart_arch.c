@@ -68,6 +68,10 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   uart_enable_interrupts(p);
 }
 
+void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t __attribute__((unused)) bits, uint8_t __attribute__((unused)) stop, uint8_t __attribute__((unused)) parity) {
+  // TBD
+}
+
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
   uint16_t temp;
   unsigned cpsr;
