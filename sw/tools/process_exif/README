@@ -1,0 +1,67 @@
+
+This is a script which loads GPS info into photo files (EXIF) based on the DC_SHOT messages
+in the telemetry data. The .data file contains DC_SHOT messages (possibly not all emitted by telemetry,
+but I'll get back to that later). This file together with the files in jpeg format are
+copied to a processing directory, where this script extracts the GPS position from each DC_SHOT message
+and edits the exif photo data in place, so effectively loads the GPS position into the EXIF data for
+each photo.
+
+This script allows for gaps in DC_SHOT photo numbers and has some rudimentary error checking.
+
+
+Instructions for use (on Ubuntu):
+
+1. Make sure python is installed.
+2. Install the necessary python packages:
+
+# sudo apt-get install python-gdal
+# sudo apt-get install gir1.2-gexiv2-0.4
+
+3. Create a directory for processing. The photo's EXIF data will be edited in place.
+4. Copy the .data file from the <paparazzi-dir>/var/log directory into this processing directory.
+5. Copy all photos taken during the session to the directory. 
+
+Verification:
+- Sort photos by name. Since most cameras output the photo name with a number at the end, this should
+  show a list of photo names with consecutive numbers.
+- Verify that the first photo corresponds to the first DC_SHOT message (photonr == 1).
+- Add some dummy photos at the start to make up for any missing photos that may exist (such that they get
+  sorted before the real actual one).
+
+6. Run the script:
+
+# python sw/tools/process_exif/process_exif.py /<processing-dir>
+
+Verification of processing:
+- Look at the logs!  These include the GPS positions calculated from UTM paparazzi positions. 
+  It has been tested on the southern+western hemispheres, but not yet on eastern and northern hemispheres.
+- Verify the tags in the photo:
+  exiftool -v2 <processing-dir>/<some-photo-name>.jpg
+
+----
+
+Considerations:
+
+The Ivy telemetry bus can get a little clogged up and this will result in discarded messages. This means that 
+not all DC_SHOT messages actually emitted by telemetry need to be there on the ground station, so some photos
+won't have GPS coordinates loaded. Not all processing software for orthomosaics however require GPS positions 
+for all photos, for example if they rely on recognizing corresponding features in overlapping photos.
+
+Having more GPS coordinates in photos helps to improve accuracy, as the error in measurements approximates zero
+over time if the error follows a normal distribution. 
+
+Having many GPS coordinates is not enough however to achieve correct precision down to centimeters. Atmospheric conditions
+need to be eliminated by applying 3-5 ground control points in strategic locations. These conditions can easily 
+cause the entire orthomosaic to be shifted over a meter.
+
+
+If your processing software does require the GPS coordinates per photo, you need to look into the use of a 
+telemetry logger onboard. This logger can be hooked up separately on the tx+gnd lines of telemetry and "listen in" on
+the connection.
+
+
+The timing between actually taking a picture and the pulse event being sent is also an important consideration.
+Obviously the GPS frequency is also an issue. If this is used on a fixedwing, obviously if the plane is underway
+at 12m/s, 250ms will introduce a 3m bias on the position. Another reason to rely on GPS positions only as hints
+and apply ground control points to "set" the orthomosaic to the right location.
+
