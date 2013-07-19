@@ -66,6 +66,14 @@
                     PPM_NB_CHANNEL,                          \
                     ppm_pulses_usec);                        \
 }
+#elif defined RADIO_CONTROL_TYPE_SBUS
+#include "subsystems/radio_control/sbus.h"
+#define PERIODIC_SEND_PPM(_trans, _dev) {                           \
+  DOWNLINK_SEND_PPM(_trans, _dev,                            \
+                    &radio_control.frame_rate,               \
+                    SBUS_NB_CHANNEL,                          \
+                    sbus.pulses);                        \
+}
 #else
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
