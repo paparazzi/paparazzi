@@ -28,6 +28,7 @@
 #include "subsystems/radio_control/sbus.h"
 #include BOARD_CONFIG
 #include "mcu_periph/uart.h"
+#include "led.h"
 #include <string.h>
 
 /*
@@ -37,6 +38,8 @@
 #define SBUS_END_BYTE 0x00
 #define SBUS_BIT_PER_CHANNEL 11
 #define SBUS_BIT_PER_BYTE 8
+#define SBUS_FLAGS_BYTE 22
+#define SBUS_FRAME_LOST_BIT 2
 
 #define SBUS_STATUS_UNINIT      0
 #define SBUS_STATUS_GOT_START   1
@@ -81,7 +84,7 @@ void radio_control_impl_init(void) {
 #define SBusGet() SBusLink(Getch())
 
 // Decode the raw buffer
-static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst)
+static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *available)
 {
   // reset counters
   uint8_t byteInRawBuf = 0;
@@ -109,6 +112,8 @@ static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst)
       channel++;
     }
   }
+  // test frame lost flag
+  *available = !bit_is_set(src[SBUS_FLAGS_BYTE],SBUS_FRAME_LOST_BIT);
 }
 
 // Decoding event function
@@ -132,7 +137,9 @@ void sbus_decode_event(void) {
           sbus.idx++;
           if (sbus.idx == SBUS_BUF_LENGTH) {
             // Decode if last byte is the correct end byte
-            if (rbyte == SBUS_END_BYTE) decode_sbus_buffer(sbus.buffer, sbus.pulses);
+            if (rbyte == SBUS_END_BYTE) {
+              decode_sbus_buffer(sbus.buffer, sbus.pulses, &sbus.frame_available);
+            }
             sbus.status = SBUS_STATUS_UNINIT;
           }
           break;
