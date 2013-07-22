@@ -29,13 +29,6 @@
 
 #include "std.h"
 
-///**
-// * Architecture dependant code
-// */
-//#include "subsystems/radio_control/ppm_arch.h"
-///* must be implemented by arch dependant code */
-//extern void ppm_arch_init(void);
-
 /**
  * Dummy macro to use radio.h file
  */
@@ -50,7 +43,13 @@
 #include "generated/radio.h"
 
 /**
- * Define number of channels
+ * Define number of channels.
+ *
+ * SBUS frame always have 16 channels
+ * but only the X first one will be available
+ * depending of the RC transmitter.
+ * The radio XML file is used to assign the
+ * input values to RC channels.
  */
 #define SBUS_BUF_LENGTH 24
 #define SBUS_NB_CHANNEL 16
