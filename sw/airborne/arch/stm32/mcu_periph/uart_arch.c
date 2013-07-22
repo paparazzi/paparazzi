@@ -41,11 +41,8 @@
 
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
 
-  /* Configure USART */
+  /* Configure USART baudrate */
   usart_set_baudrate((uint32_t)p->reg_addr, baud);
-  //usart_set_databits((uint32_t)p->reg_addr, 8);
-  //usart_set_stopbits((uint32_t)p->reg_addr, USART_STOPBITS_1);
-  //usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_NONE);
 
   /* Disable Idle Line interrupt */
   USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_IDLEIE;
@@ -62,6 +59,7 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
 }
 
 void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t bits, uint8_t stop, uint8_t parity) {
+  /* Configure USART parity and data bits */
   if (parity == UPARITY_EVEN) {
     usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_EVEN);
     if (bits == UBITS_7)
@@ -80,6 +78,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t bits, uint8
     usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_NONE);
     usart_set_databits((uint32_t)p->reg_addr, 8); // is 7bits without parity possible ?
   }
+  /* Configure USART stop bits */
   if (stop == USTOP_2)
     usart_set_stopbits((uint32_t)p->reg_addr, USART_STOPBITS_2);
   else // 1 stop bit by default
