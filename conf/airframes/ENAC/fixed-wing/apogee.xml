@@ -23,10 +23,10 @@
     <define name="USE_GYRO_PITCH_RATE"/>
 
     <target name="sim" board="pc"/>
-    <target name="ap" board="apogee_0.99"/>
-    <configure name="FLASH_MODE" value="SWD"/>
+    <target name="ap" board="apogee_1.0"/>
+    <!--configure name="FLASH_MODE" value="SWD"/-->
 
-    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="radio_control" type="sbus"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="transparent"/>

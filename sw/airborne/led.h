@@ -74,6 +74,16 @@ static inline void led_init ( void ) {
   LED_OFF(8);
 #endif /* LED_8 */
 
+#if USE_LED_9
+  LED_INIT(9);
+  LED_OFF(9);
+#endif /* LED_9 */
+
+#if USE_LED_10
+  LED_INIT(10);
+  LED_OFF(10);
+#endif /* LED_10 */
+
 #ifdef USE_LED_BODY
   LED_INIT(BODY);
   LED_OFF(BODY);
