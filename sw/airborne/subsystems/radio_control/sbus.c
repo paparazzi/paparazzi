@@ -48,11 +48,11 @@
  * SBUS signal has a reversed polarity compared to normal UART
  * this allows to using hardware UART peripheral by changing
  * the input signal polarity.
- * Setting this gpio ouput low inverts the signal,
- * output high sets it to normal polarity.
+ * Setting this gpio ouput high inverts the signal,
+ * output low sets it to normal polarity.
  */
 #ifndef RC_SET_POLARITY
-#define RC_SET_POLARITY gpio_output_low
+#define RC_SET_POLARITY gpio_output_high
 #endif
 
 
