@@ -112,18 +112,11 @@
 
 #define POWER_SWITCH_LED 9
 
-/* Uart2 RX polarity, on PB13, 1 on LED_ON, 0 on LED_OFF */
-#ifndef USE_LED_10
-#define USE_LED_10 1
-#endif
-#define LED_10_GPIO GPIOB
-#define LED_10_GPIO_CLK RCC_AHB1ENR_IOPBEN
-#define LED_10_GPIO_PIN GPIO13
-#define LED_10_GPIO_ON gpio_set
-#define LED_10_GPIO_OFF gpio_clear
-#define LED_10_AFIO_REMAP ((void)0)
 
-#define RC_POLARITY_LED 10
+/* Uart2 RX polarity, on PB13, 1 on LED_ON, 0 on LED_OFF */
+#define RC_POLARITY_GPIO_PORT GPIOB
+#define RC_POLARITY_GPIO_PIN GPIO13
+
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"

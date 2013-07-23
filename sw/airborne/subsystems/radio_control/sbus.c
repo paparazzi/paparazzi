@@ -28,7 +28,7 @@
 #include "subsystems/radio_control/sbus.h"
 #include BOARD_CONFIG
 #include "mcu_periph/uart.h"
-#include "led.h"
+#include "mcu_periph/gpio.h"
 #include <string.h>
 
 /*
@@ -44,13 +44,15 @@
 #define SBUS_STATUS_UNINIT      0
 #define SBUS_STATUS_GOT_START   1
 
-/** Set polarity using RC_POLARITY_LED.
- *  SBUS signal has a reversed polarity compared to normal UART
- *  this allow to using hardware UART peripheral by changing
- * the input signal polarity
+/** Set polarity using RC_POLARITY_GPIO.
+ * SBUS signal has a reversed polarity compared to normal UART
+ * this allows to using hardware UART peripheral by changing
+ * the input signal polarity.
+ * Setting this gpio ouput low inverts the signal,
+ * output high sets it to normal polarity.
  */
 #ifndef RC_SET_POLARITY
-#define RC_SET_POLARITY LED_ON
+#define RC_SET_POLARITY gpio_output_low
 #endif
 
 
@@ -67,8 +69,9 @@ void radio_control_impl_init(void) {
   uart_periph_set_baudrate(&SBUS_UART_DEV, B100000);
 
   // Set polarity
-#ifdef RC_POLARITY_LED
-  RC_SET_POLARITY(RC_POLARITY_LED);
+#ifdef RC_POLARITY_GPIO_PORT
+  gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
+  RC_SET_POLARITY(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
 #endif
 }
 
