@@ -53,13 +53,8 @@
 #define RC_SET_POLARITY LED_ON
 #endif
 
-/** UART selecting
- */
-#define __SBusLink(dev, _x) dev##_x
-#define _SBusLink(dev, _x)  __SBusLink(dev, _x)
-#define SBusLink(_x) _SBusLink(SBUS_LINK, _x)
 
-/* SBUS struct */
+/** SBUS struct */
 struct _sbus sbus;
 
 // Init function
@@ -68,8 +63,8 @@ void radio_control_impl_init(void) {
   sbus.status = SBUS_STATUS_UNINIT;
 
   // Set UART parameters (100K, 8 bits, 2 stops, even parity)
-  SBusLink(SetBitsStopParity(UBITS_8, USTOP_2, UPARITY_EVEN));
-  SBusLink(SetBaudrate(B100000));
+  uart_periph_set_bits_stop_parity(&SBUS_UART_DEV, UBITS_8, USTOP_2, UPARITY_EVEN);
+  uart_periph_set_baudrate(&SBUS_UART_DEV, B100000);
 
   // Set polarity
 #ifdef RC_POLARITY_LED
@@ -77,13 +72,8 @@ void radio_control_impl_init(void) {
 #endif
 }
 
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#define SBusBuffer() SBusLink(ChAvailable())
-#define SBusGet() SBusLink(Getch())
 
-// Decode the raw buffer
+/** Decode the raw buffer */
 static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *available)
 {
   // reset counters
@@ -113,16 +103,16 @@ static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *avail
     }
   }
   // test frame lost flag
-  *available = !bit_is_set(src[SBUS_FLAGS_BYTE],SBUS_FRAME_LOST_BIT);
+  *available = !bit_is_set(src[SBUS_FLAGS_BYTE], SBUS_FRAME_LOST_BIT);
 }
 
 // Decoding event function
 // Reading from UART
 void sbus_decode_event(void) {
   uint8_t rbyte;
-  if (SBusBuffer()) {
+  if (uart_char_available(&SBUS_UART_DEV)) {
     do {
-      rbyte = SBusGet();
+      rbyte = uart_getch(&SBUS_UART_DEV);
       switch (sbus.status) {
         case SBUS_STATUS_UNINIT:
           // Wait for the start byte
@@ -146,6 +136,7 @@ void sbus_decode_event(void) {
         default:
           break;
       }
-    } while (SBusBuffer());
+    } while (uart_char_available(&SBUS_UART_DEV));
   }
 }
+
