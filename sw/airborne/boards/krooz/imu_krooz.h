@@ -62,9 +62,9 @@
 #endif
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
 #ifdef IMU_KROOZ_UPSD
-#define IMU_MAG_X_SIGN  1
-#define IMU_MAG_Y_SIGN -1
-#define IMU_MAG_Z_SIGN -1
+#define IMU_MAG_X_SIGN   1
+#define IMU_MAG_Y_SIGN  -1  //-1
+#define IMU_MAG_Z_SIGN  -1  //-1
 #else
 #define IMU_MAG_X_SIGN  1
 #define IMU_MAG_Y_SIGN  1
