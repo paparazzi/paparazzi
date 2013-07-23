@@ -32,9 +32,7 @@
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="float_dcm">
-      <define name="USE_HIGH_ACCEL_FLAG"/>
-    </subsystem>
+    <subsystem name="ahrs"    type="float_dcm"/>
     <subsystem name="ins" type="alt_float">
       <!--define name="USE_BAROMETER"/-->
     </subsystem>
