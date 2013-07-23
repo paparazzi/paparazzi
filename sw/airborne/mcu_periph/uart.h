@@ -51,15 +51,15 @@
 #define B230400  230400
 #define B921600  921600
 
-#define UBITS_7 0
-#define UBITS_8 1
+#define UBITS_7 7
+#define UBITS_8 8
 
-#define USTOP_1 0
-#define USTOP_2 1
+#define USTOP_1 1
+#define USTOP_2 2
 
 #define UPARITY_NO    0
-#define UPARITY_EVEN  1
-#define UPARITY_ODD   2
+#define UPARITY_ODD   1
+#define UPARITY_EVEN  2
 
 /**
  * UART peripheral

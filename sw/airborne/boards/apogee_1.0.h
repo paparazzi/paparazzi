@@ -113,7 +113,7 @@
 #define POWER_SWITCH_LED 9
 
 
-/* Uart2 RX polarity, on PB13, 1 on LED_ON, 0 on LED_OFF */
+/* Pint to set Uart2 RX polarity, on PB13, output low inverts, high doesn't */
 #define RC_POLARITY_GPIO_PORT GPIOB
 #define RC_POLARITY_GPIO_PIN GPIO13
 
