@@ -188,8 +188,8 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), CMD_SHIFT);
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ /3);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ /3);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ /3);
 
 }

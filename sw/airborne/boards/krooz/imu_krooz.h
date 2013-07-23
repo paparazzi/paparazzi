@@ -39,19 +39,37 @@
 
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
+#ifdef IMU_KROOZ_UPSD
+#define IMU_GYRO_P_SIGN   1
+#define IMU_GYRO_Q_SIGN   1
+#define IMU_GYRO_R_SIGN  -1
+#else
 #define IMU_GYRO_P_SIGN  -1
 #define IMU_GYRO_Q_SIGN   1
 #define IMU_GYRO_R_SIGN   1
 #endif
+#endif
 #if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
+#ifdef IMU_KROOZ_UPSD
+#define IMU_ACCEL_X_SIGN  1
+#define IMU_ACCEL_Y_SIGN  1
+#define IMU_ACCEL_Z_SIGN -1
+#else
 #define IMU_ACCEL_X_SIGN -1
 #define IMU_ACCEL_Y_SIGN  1
 #define IMU_ACCEL_Z_SIGN  1
 #endif
+#endif
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN    1
-#define IMU_MAG_Y_SIGN    1
-#define IMU_MAG_Z_SIGN    1
+#ifdef IMU_KROOZ_UPSD
+#define IMU_MAG_X_SIGN  1
+#define IMU_MAG_Y_SIGN -1
+#define IMU_MAG_Z_SIGN -1
+#else
+#define IMU_MAG_X_SIGN  1
+#define IMU_MAG_Y_SIGN  1
+#define IMU_MAG_Z_SIGN  1
+#endif
 #endif
 
 /** default gyro sensitivy and neutral from the datasheet
