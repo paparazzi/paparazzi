@@ -20,7 +20,6 @@
  * Theory: http://code.google.com/p/gentlenav/downloads/list  file DCMDraft2.pdf
  *
  * Options:
- *  - USE_HIGH_ACCEL_FLAG: no compensation when high accelerations present
  *  - USE_MAGNETOMETER_ONGROUND: use magnetic compensation before takeoff only while GPS course not good
  *  - USE_AHRS_GPS_ACCELERATIONS: forward acceleration compensation from GPS speed
  *
@@ -114,18 +113,6 @@ int renorm_blowup_count = 0;
 float imu_health = 0.;
 #endif
 
-#if USE_HIGH_ACCEL_FLAG
-// High Accel Flag
-#define HIGH_ACCEL_LOW_SPEED 15.0
-#define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
-#define HIGH_ACCEL_HIGH_THRUST (0.8*MAX_PPRZ)
-#define HIGH_ACCEL_HIGH_THRUST_RESUME (0.1*MAX_PPRZ) // Hysteresis
-bool_t high_accel_done;
-bool_t high_accel_flag;
-// Command vector for thrust (fixed_wing)
-#include "inter_mcu.h"
-#endif
-
 
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 {
@@ -154,11 +141,6 @@ void ahrs_init(void) {
 
   /* set inital filter dcm */
   set_dcm_matrix_from_rmat(&ahrs_impl.body_to_imu_rmat);
-
-#if USE_HIGH_ACCEL_FLAG
-  high_accel_done = FALSE;
-  high_accel_flag = FALSE;
-#endif
 
   ahrs_impl.gps_speed = 0;
   ahrs_impl.gps_acceleration = 0;
@@ -436,25 +418,6 @@ void Drift_correction(void)
   // Dynamic weighting of accelerometer info (reliability filter)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
   Accel_weight = Chop(1 - 2*fabs(1 - Accel_magnitude),0,1);  //
-
-#if USE_HIGH_ACCEL_FLAG
-  // Test for high acceleration:
-  //  - low speed
-  //  - high thrust
-  float speed = *stateGetHorizontalSpeedNorm_f();
-  if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
-    high_accel_flag = TRUE;
-  } else {
-    high_accel_flag = FALSE;
-    if (speed > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
-      high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
-    }
-    if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
-      high_accel_done = FALSE; // Activate high accel after landing
-    }
-  }
-  if (high_accel_flag) { Accel_weight = 0.; }
-#endif
 
 
   #if PERFORMANCE_REPORTING == 1
