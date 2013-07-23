@@ -155,6 +155,10 @@ void init_ap( void ) {
   mcu_init();
 #endif /* SINGLE_MCU */
 
+  /****** initialize and reset state interface ********/
+
+  stateInit();
+
   /************* Sensors initialization ***************/
 #if USE_GPS
   gps_init();
@@ -177,8 +181,6 @@ void init_ap( void ) {
 #endif
 
   ins_init();
-
-  stateInit();
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK
