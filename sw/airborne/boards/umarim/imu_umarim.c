@@ -32,7 +32,7 @@
 #include <math.h>
 #include "imu_umarim.h"
 #include "mcu_periph/i2c.h"
-#include "led.h"
+#include "generated/airframe.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -42,6 +42,11 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
+
+#ifndef UMARIM_ACCEL_RANGE
+#define UMARIM_ACCEL_RANGE ADXL345_RANGE_16G
+#endif
+PRINT_CONFIG_VAR(UMARIM_ACCEL_RANGE)
 
 #ifndef UMARIM_ACCEL_RATE
 #define UMARIM_ACCEL_RATE ADXL345_RATE_50HZ
@@ -74,6 +79,7 @@ void imu_impl_init(void)
   adxl345_i2c_init(&imu_umarim.adxl, &(IMU_UMARIM_I2C_DEV), ADXL345_ADDR_ALT);
   // change the default data rate
   imu_umarim.adxl.config.rate = UMARIM_ACCEL_RATE;
+  imu_umarim.adxl.config.range = UMARIM_ACCEL_RANGE;
 
   imu_umarim.gyr_valid = FALSE;
   imu_umarim.acc_valid = FALSE;
