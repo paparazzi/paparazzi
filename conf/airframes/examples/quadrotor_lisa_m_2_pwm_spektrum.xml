@@ -16,8 +16,7 @@
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       </subsystem>
-      <!-- MPU6000 is configured to output data at 500Hz -->
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+      <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
     <target name="nps" board="pc">

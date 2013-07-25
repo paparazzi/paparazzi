@@ -6,8 +6,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
       <configure name="FLASH_MODE" value="SWD"/>
-      <!-- MPU6000 is configured to output data at 500Hz -->
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <configure name="USE_MAGNETOMETER" value="1"/>
     </target>
 
