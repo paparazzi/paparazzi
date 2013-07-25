@@ -40,11 +40,25 @@ PRINT_CONFIG_VAR(ASPIRIN_2_SPI_SLAVE_IDX)
 #endif
 PRINT_CONFIG_VAR(ASPIRIN_2_SPI_DEV)
 
-/* gyro internal lowpass frequency */
+/* MPU60x0 gyro/accel internal lowpass frequency */
 #if !defined ASPIRIN_2_LOWPASS_FILTER && !defined  ASPIRIN_2_SMPLRT_DIV
+#if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
+/* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
+ * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
+ */
+#define ASPIRIN_2_LOWPASS_FILTER MPU60X0_DLPF_42HZ
+#define ASPIRIN_2_SMPLRT_DIV 9
+PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
+#elif PERIODIC_FREQUENCY == 512
+/* Accelerometer: Bandwidth 260Hz, Delay 0ms
+ * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
+ */
 #define ASPIRIN_2_LOWPASS_FILTER MPU60X0_DLPF_256HZ
-#define ASPIRIN_2_SMPLRT_DIV 1
-//PRINT_CONFIG_MSG("Gyro/Accel output rate is 500Hz")
+#define ASPIRIN_2_SMPLRT_DIV 3
+PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
+#else
+#error Non-default PERIODIC_FREQUENCY: please define ASPIRIN_2_LOWPASS_FILTER and ASPIRIN_2_SMPLRT_DIV.
+#endif
 #endif
 PRINT_CONFIG_VAR(ASPIRIN_2_LOWPASS_FILTER)
 PRINT_CONFIG_VAR(ASPIRIN_2_SMPLRT_DIV)
