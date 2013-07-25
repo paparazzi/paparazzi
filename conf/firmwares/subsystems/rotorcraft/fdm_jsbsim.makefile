@@ -38,7 +38,7 @@ else
 endif
 
 
-nps.srcs += $(NPSDIR)/nps_main.c                      \
+nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_fdm_jsbsim.c                \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
@@ -51,7 +51,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_autopilot_rotorcraft.c            \
+       $(NPSDIR)/nps_autopilot_rotorcraft.c      \
        $(NPSDIR)/nps_ivy.c                       \
        $(NPSDIR)/nps_flightgear.c                \
 
@@ -77,15 +77,15 @@ nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 nps.srcs += subsystems/settings.c
 nps.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
-nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c \
-            subsystems/datalink/downlink.c \
-            $(SRC_ARCH)/ivy_transport.c
+nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DDefaultPeriodic='&telemetry_Main'
+nps.srcs += $(SRC_ARCH)/ivy_transport.c
+nps.srcs += subsystems/datalink/downlink.c subsystems/datalink/telemetry.c
+nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
+nps.srcs += $(SRC_FIRMWARE)/datalink.c
 
 nps.srcs   += subsystems/actuators.c
 nps.srcs   += subsystems/commands.c
 
-nps.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
 # Math functions

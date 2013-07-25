@@ -80,9 +80,11 @@ COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
 
 COMMON_TELEMETRY_CFLAGS  = -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+COMMON_TELEMETRY_CFLAGS += -DDefaultPeriodic='&telemetry_Main'
 COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
-COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+COMMON_TELEMETRY_SRCS   += subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
+COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c $(SRC_FIRMWARE)/rotorcraft_telemetry.c
 
 #COMMON_TEST_SRCS   += math/pprz_trig_int.c
 
