@@ -20,26 +20,27 @@
     <define name="USE_I2C1"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="ALT_KALMAN"/>
-    <define name="USE_AIRSPEED"/>
+    <!--define name="USE_AIRSPEED"/-->
     <!--define name="USE_BAROMETER"/-->
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
 
     <target name="sim" board="pc"/>
-    <target name="ap" board="umarim_1.0">
-      <configure name="FLASH_MODE" value="IAP"/>
-    </target>
+    <target name="ap" board="umarim_1.0"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="radio_control" type="ppm">
+      <define name="USE_PPM_RSSI_GPIO"/>
+      <define name="PPM_RSSI_IOPIN" value="IO0PIN"/>
+      <define name="PPM_RSSI_PIN" value="17"/>
+      <define name="PPM_RSSI_VALID_LEVEL" value="0"/>
+    </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="float_dcm">
-      <define name="USE_HIGH_ACCEL_FLAG"/>
-    </subsystem>
+    <subsystem name="imu" type="umarim"/>
+    <subsystem name="ahrs" type="float_dcm"/>
     <subsystem name="ins" type="alt_float"/>
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
@@ -49,17 +50,11 @@
     <!--subsystem name="spi"/-->
   </firmware>
 
-
-  <firmware name="setup">
-    <target name="setup_actuators" board="umarim_1.0"/>
-    <target name="tunnel" board="umarim_1.0"/>
-  </firmware>
-
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="7" min="1040" neutral="1040" max="2000"/>
-    <servo name="AILEVON_LEFT" no="6" min="1900" neutral="1543" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="3" min="1100" neutral="1561" max="1900"/>
+    <servo name="AILEVON_LEFT" no="6" min="1750" neutral="1543" max="1250"/>
+    <servo name="AILEVON_RIGHT" no="3" min="1250" neutral="1561" max="1750"/>
   </servos>
 
   <commands>
@@ -83,13 +78,13 @@
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR" value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
-    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    <set servo="AILEVON_LEFT" value="$elevator - $aileron"/>
+    <set servo="AILEVON_RIGHT" value="$elevator + $aileron"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.85"/>
-    <define name="MAX_PITCH" value="0.6"/>
+    <define name="MAX_ROLL" value="45" unit="deg"/>
+    <define name="MAX_PITCH" value="30" unit="deg"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -123,8 +118,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0.048" unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="rad"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="3." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/>
     <define name="BARO_SENS" value="1.0"/> <!-- TODO calibration -->
   </section>
 
@@ -161,15 +156,15 @@
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="0.004"/> <!-- -0.005 -->
-    <define name="AUTO_THROTTLE_DGAIN" value="0.01"/> <!-- 0.005 -->
-    <define name="AUTO_THROTTLE_IGAIN" value="0.004"/> <!-- 0.005 -->
+    <define name="AUTO_THROTTLE_PGAIN" value="0.003"/> <!-- -0.005 -->
+    <define name="AUTO_THROTTLE_DGAIN" value="0.007"/> <!-- 0.005 -->
+    <define name="AUTO_THROTTLE_IGAIN" value="0.002"/> <!-- 0.005 -->
 
     <!-- Climb loop (pitch) -->
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.02"/>
-    <define name="AUTO_PITCH_PGAIN" value="0.038"/> <!-- -0.03 -->
-    <define name="AUTO_PITCH_DGAIN" value="0.036"/> <!-- -0.03 -->
-    <define name="AUTO_PITCH_IGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.006"/> <!-- -0.03 -->
+    <define name="AUTO_PITCH_DGAIN" value="0.0"/> <!-- -0.03 -->
+    <define name="AUTO_PITCH_IGAIN" value="0.002"/>
 
     <!-- airspeed control -->
     <define name="AUTO_AIRSPEED_SETPOINT" value="16."/>
@@ -206,8 +201,8 @@
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 
-    <define name="PITCH_PGAIN" value="10000."/>
-    <define name="PITCH_DGAIN" value="0."/>
+    <define name="PITCH_PGAIN" value="8000"/>
+    <define name="PITCH_DGAIN" value="500"/>
     <define name="PITCH_IGAIN" value="250."/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
@@ -234,7 +229,7 @@
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
     <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
-    <define name="JSBSIM_LAUNCHSPEED"	value="15.0"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>

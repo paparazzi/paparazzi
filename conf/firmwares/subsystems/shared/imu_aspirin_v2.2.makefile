@@ -2,13 +2,14 @@
 #
 # Aspirin IMU v2.2
 #
-# actually identical with v2.1 since baro is not read in IMU driver
+# nearly identical with v2.1, only has the MS5611 baro on SPI.
+# The Baro CS line is
 #
 #
 # required xml:
 #  <section name="IMU" prefix="IMU_">
 #
-#    <!-- these gyro and accel calib values are the defaults for aspirin2.1 -->
+#    <!-- these gyro and accel calib values are the defaults for aspirin2.1/2.2 -->
 #    <define name="GYRO_X_NEUTRAL" value="0"/>
 #    <define name="GYRO_Y_NEUTRAL" value="0"/>
 #    <define name="GYRO_Z_NEUTRAL" value="0"/>
@@ -39,4 +40,18 @@
 #
 
 
-include $(CFG_SHARED)/imu_aspirin_v2.1.makefile
+include $(CFG_SHARED)/imu_aspirin_v2_common.makefile
+
+#
+# Baro is connected via SPI, so additionally specify the slave select line for it,
+# so that it will be unselected at init (baro CS line high)
+#
+ifeq ($(ARCH), lpc21)
+IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE1
+else ifeq ($(ARCH), stm32)
+# SLAVE3 is on PC13, which is the baro CS
+IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE3
+endif
+
+ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
+ap.srcs   += $(IMU_ASPIRIN_2_SRCS)
