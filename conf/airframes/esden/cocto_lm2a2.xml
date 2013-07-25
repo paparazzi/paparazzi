@@ -249,7 +249,7 @@ B2L -> CW
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"/>
     <!--define name="USE_INS_NAV_INIT"/-->
-    <!--subsystem name="stabilization"   type="euler"/>
+    <!--subsystem name="stabilization"   type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/-->
   </firmware>
 
