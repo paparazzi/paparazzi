@@ -55,7 +55,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/> 
-    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
  
  <!--     <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>-->
@@ -260,8 +260,8 @@ To increase response time, you can increase the frequency, and the bounds.
     <define name="THETA_DGAIN"  value="250"/> 
     <define name="THETA_IGAIN"  value="2500"/>
 
-    <define name="PSI_PGAIN"  value="1500"/><!-- 2800 2200 1800-->
-    <define name="PSI_DGAIN"  value="800"/><!-- 800   valor muito alto deixa pid muito sensivel a vibracao.-->
+    <define name="PSI_PGAIN"  value="1200"/><!-- 2800 2200 1800-->
+    <define name="PSI_DGAIN"  value="800"/><!-- 800   -   valor muito alto deixa pid muito sensivel a vibracao.-->
     <define name="PSI_IGAIN"  value="0000"/>
 
     <!-- feedforward -->
@@ -276,8 +276,8 @@ To increase response time, you can increase the frequency, and the bounds.
     <define name="USE_REF" value="1"/>
     <define name="USE_SPEED_REF" value="1"/> <!-- nao tinha - using RC to control horizontal setpoint -->
     <define name="MAX_BANK" value="15" unit="deg"/>  <!--20-->
-    <define name="REF_MAX_ACCEL" value="7."/> <!-- nao tinha   max reference horizontal acceleration in m/s2 -->
-    <define name="REF_MAX_SPEED" value="2."/> <!-- 5 eu usava com lisa_m max reference horizontal speed in m/s -->
+    <define name="REF_MAX_ACCEL" value="7."/> <!-- nao tinha   -  max reference horizontal acceleration in m/s2 -->
+    <define name="REF_MAX_SPEED" value="2."/> <!-- 5 eu usava com lisa_m  -  max reference horizontal speed in m/s -->
     <define name="RC_SPEED_DEAD_BAND" value="200000"/>
     <define name="PGAIN" value="30"/> <!--100 -->
     <define name="DGAIN" value="60"/> <!--120 -->
