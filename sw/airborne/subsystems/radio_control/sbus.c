@@ -59,6 +59,23 @@
 /** SBUS struct */
 struct _sbus sbus;
 
+// Telemetry function
+#if DOWNLINK
+#ifdef FBW
+#define DOWNLINK_TELEMETRY &telemetry_Fbw
+#else
+#define DOWNLINK_TELEMETRY DefaultPeriodic
+#endif
+
+#include "subsystems/datalink/telemetry.h"
+
+static void send_sbus(void) {
+  // Using PPM message for simplicity
+  DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,
+      &radio_control.frame_rate, SBUS_NB_CHANNEL, sbus.pulses);
+}
+#endif
+
 // Init function
 void radio_control_impl_init(void) {
   sbus.frame_available = FALSE;
@@ -72,6 +89,11 @@ void radio_control_impl_init(void) {
 #ifdef RC_POLARITY_GPIO_PORT
   gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
   RC_SET_POLARITY(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
+#endif
+
+  // Register telemetry message
+#if DOWNLINK
+  register_periodic_telemetry(DOWNLINK_TELEMETRY, "PPM", send_sbus);
 #endif
 }
 
