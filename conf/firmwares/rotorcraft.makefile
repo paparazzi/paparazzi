@@ -238,7 +238,7 @@ ap.srcs   += subsystems/electrical.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
 ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
+ap.srcs   += $(SRC_BOARD)/electrical_raw.c
 endif
 
 
