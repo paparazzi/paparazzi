@@ -1,0 +1,104 @@
+<layout width="1308" height="719">
+  <columns>
+    <rows SIZE="400">
+      <widget SIZE="300" NAME="strips"/>
+      <widget SIZE="300" NAME="aircraft"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget SIZE="500" NAME="map2d">
+        <papget type="message_field" display="text" x="721" y="90">
+          <property name="scale" value="1."/>
+          <property name="field" value="VF_UPDATE:range_meter"/>
+          <property name="format" value="Baro_ASL: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="737" y="175">
+          <property name="scale" value="1."/>
+          <property name="field" value="CIRCLE:radius"/>
+          <property name="format" value="RADiUS: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="red"/>
+        </papget>
+        <papget type="message_field" display="text" x="655" y="635">
+          <property name="scale" value="1."/>
+          <property name="field" value="ADC_GENERIC:val1"/>
+          <property name="format" value="ENGiNE Temp: %.f"/>
+          <property name="size" value="20."/>
+          <property name="color" value="orange"/>
+        </papget>
+        <papget type="message_field" display="text" x="761" y="25">
+          <property name="scale" value="1."/>
+          <property name="field" value="GPS_SOL:numSV"/>
+          <property name="format" value="SATs: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="text" x="717" y="89">
+          <property name="scale" value="1."/>
+          <property name="field" value="BARO_BMP85:ASL"/>
+          <property name="format" value="BARO ASL: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="719" y="108">
+          <property name="scale" value="1."/>
+          <property name="field" value="VF_UPDATE:baro"/>
+          <property name="format" value="Baro_AGL: %.1f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="orange"/>
+        </papget>
+        <papget type="message_field" display="text" x="719" y="212">
+          <property name="scale" value="1."/>
+          <property name="field" value="DESIRED:airspeed"/>
+          <property name="format" value="AiRSPEED: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="red"/>
+        </papget>
+        <papget type="message_field" display="text" x="726" y="108">
+          <property name="scale" value="1."/>
+          <property name="field" value="BARO_BMP85:AGL"/>
+          <property name="format" value="Baro AGL: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="774" y="305">
+          <property name="scale" value="57.2957795131"/>
+          <property name="field" value="ATTITUDE:psi"/>
+          <property name="format" value="PSi: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="text" x="722" y="194">
+          <property name="scale" value="1."/>
+          <property name="field" value="DESIRED:altitude"/>
+          <property name="format" value="ALTiTUDE: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="red"/>
+        </papget>
+        <papget type="message_field" display="text" x="750" y="129">
+          <property name="scale" value="1."/>
+          <property name="field" value="ESTIMATOR:z"/>
+          <property name="format" value="Alt ins: %.1f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+        <papget type="message_field" display="text" x="743" y="286">
+          <property name="scale" value="57.3"/>
+          <property name="field" value="DESIRED:course"/>
+          <property name="format" value="Course: %.f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="text" x="735" y="70">
+          <property name="scale" value="0.001"/>
+          <property name="field" value="GPS:alt"/>
+          <property name="format" value="GPS_Alt: %.1f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="yellow"/>
+        </papget>
+      </widget>
+    </rows>
+  </columns>
+</layout>
