@@ -76,7 +76,7 @@
       <message name="ALIVE"             period="2.1"/>
       <message name="IMU_GYRO"          period=".075"/>
       <message name="IMU_ACCEL"         period=".075"/>
-      <message name="IMU_MAG"           period=".1"/>
+      <message name="IMU_MAG"           period=".05"/>
     </mode>
     <mode name="debug_imu">
       <message name="ATTITUDE"            period="0.1"/>

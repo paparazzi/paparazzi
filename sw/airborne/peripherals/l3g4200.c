@@ -103,8 +103,8 @@ void l3g4200_start_configure(struct L3g4200 *l3g)
 void l3g4200_read(struct L3g4200 *l3g)
 {
   if (l3g->initialized && l3g->i2c_trans.status == I2CTransDone) {
-    l3g->i2c_trans.buf[0] = 0x80 | L3G4200_REG_OUT_X_L; //L3G4200_REG_STATUS_REG;
-    i2c_transceive(l3g->i2c_p, &(l3g->i2c_trans), l3g->i2c_trans.slave_addr, 1, 6);
+    l3g->i2c_trans.buf[0] = 0x80 | L3G4200_REG_STATUS_REG;
+    i2c_transceive(l3g->i2c_p, &(l3g->i2c_trans), l3g->i2c_trans.slave_addr, 1, 7);
   }
 }
 
@@ -118,13 +118,13 @@ void l3g4200_event(struct L3g4200 *l3g)
     }
     else if (l3g->i2c_trans.status == I2CTransSuccess) {
       // Successfull reading and new data available
-    //  if (l3g->i2c_trans.buf[0] & 0x08) {
+      if (l3g->i2c_trans.buf[0] & 0x08) {
         // New data available
-        l3g->data.rates.p = Int16FromBuf(l3g->i2c_trans.buf,0);
-        l3g->data.rates.q = Int16FromBuf(l3g->i2c_trans.buf,2);
-        l3g->data.rates.r = Int16FromBuf(l3g->i2c_trans.buf,4);
+        l3g->data.rates.p = Int16FromBuf(l3g->i2c_trans.buf,1);
+        l3g->data.rates.q = Int16FromBuf(l3g->i2c_trans.buf,3);
+        l3g->data.rates.r = Int16FromBuf(l3g->i2c_trans.buf,5);
         l3g->data_available = TRUE;
-      //}
+      }
       l3g->i2c_trans.status = I2CTransDone;
     }
   }

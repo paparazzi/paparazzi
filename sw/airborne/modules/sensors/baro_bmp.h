@@ -51,6 +51,6 @@ void baro_bmp_init(void);
 void baro_bmp_periodic(void);
 void baro_bmp_event(void);
 
-#define BaroBmpUpdate(_b) { if (baro_bmp_valid) { _b = baro_bmp_pressure; baro_bmp_valid = FALSE; } }
+#define BaroBmpUpdate(_b) { if (baro_bmp_valid) { _b = baro_bmp; baro_bmp_valid = FALSE; } }
 
 #endif

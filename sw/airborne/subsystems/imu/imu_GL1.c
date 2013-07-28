@@ -58,15 +58,21 @@ PRINT_CONFIG_VAR(GL1_GYRO_LOWPASS)
 /** gyro sample rate divider */
 #ifndef GL1_GYRO_SMPLRT
 #  if PERIODIC_FREQUENCY <= 60
-#    define GL1_GYRO_SMPLRT L3G4200_DR_100Hz &
+#    define GL1_GYRO_SMPLRT L3G4200_DR_100Hz
      PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
 #  else
-#    define GL1_GYRO_SMPLRT L3G4200_DR_200Hz & 
-     PRINT_CONFIG_MSG("Gyro output rate is 200Hz")
+#    define GL1_GYRO_SMPLRT L3G4200_DR_100Hz 
+     PRINT_CONFIG_MSG("Gyro output rate is 100Hz")
 #  endif
 #endif
 PRINT_CONFIG_VAR(GL1_GYRO_SMPLRT)
 
+#ifdef GL1_GYRO_SCALE
+#  define  L3G4200_SCALE  GL1_GYRO_SCALE
+#  else
+#  define L3G4200_SCALE L3G4200_SCALE_2000
+#endif
+PRINT_CONFIG_VAR(L3G4200_SCALE)
 
 struct ImuGL1I2c imu_GL1;
 
@@ -87,16 +93,17 @@ void imu_impl_init(void)
   /* Gyro configuration and initalization */
   l3g4200_init(&imu_GL1.gyro_l3g, &(GL1_I2C_DEV), L3G4200_ADDR_ALT);
   /* change the default config */
-  // output data rate, bandwidth, enable axis
-  imu_GL1.gyro_l3g.config.ctrl_reg1 = 0x1f;   //(GL1_GYRO_SMPLRT<<6) | (GL1_GYRO_LOWPASS<<4) | 0xf; 
+  // output data rate, bandwidth, enable axis  (0x1f = 100 ODR, 25hz) (0x5f = 200hz ODR, 25hz)
+  imu_GL1.gyro_l3g.config.ctrl_reg1 = ((GL1_GYRO_SMPLRT<<6) | (GL1_GYRO_LOWPASS<<4) | 0xf); 
   // senstivity
-  imu_GL1.gyro_l3g.config.ctrl_reg4 = 0x30;  //  2000dps
+  imu_GL1.gyro_l3g.config.ctrl_reg4 = (L3G4200_SCALE<<4) | 0x00;
   // filter config
   imu_GL1.gyro_l3g.config.ctrl_reg5 = 0x00;  //  only first LPF active
 
 
   /* initialize mag and set default options */
   hmc58xx_init(&imu_GL1.mag_hmc, &(GL1_I2C_DEV), HMC58XX_ADDR);
+  imu_GL1.mag_hmc.type = HMC_TYPE_5883;
 }
 
 
@@ -116,6 +123,9 @@ void imu_GL1_i2c_event(void)
   adxl345_i2c_event(&imu_GL1.acc_adxl);
   if (imu_GL1.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_GL1.acc_adxl.data.vect);
+    imu.accel_unscaled.x =  imu_GL1.acc_adxl.data.vect.y;
+    imu.accel_unscaled.y =  imu_GL1.acc_adxl.data.vect.x;
+    imu.accel_unscaled.z = -imu_GL1.acc_adxl.data.vect.z;
     imu_GL1.acc_adxl.data_available = FALSE;
     imu_GL1.accel_valid = TRUE;
   }
@@ -124,6 +134,9 @@ void imu_GL1_i2c_event(void)
   l3g4200_event(&imu_GL1.gyro_l3g);
   if (imu_GL1.gyro_l3g.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_GL1.gyro_l3g.data.rates);
+    imu.gyro_unscaled.p =  imu_GL1.gyro_l3g.data.rates.q;
+    imu.gyro_unscaled.q =  imu_GL1.gyro_l3g.data.rates.p;
+    imu.gyro_unscaled.r = -imu_GL1.gyro_l3g.data.rates.r;
     imu_GL1.gyro_l3g.data_available = FALSE;
     imu_GL1.gyro_valid = TRUE;
   }
@@ -131,10 +144,10 @@ void imu_GL1_i2c_event(void)
   /* HMC58XX event task */
   hmc58xx_event(&imu_GL1.mag_hmc);
   if (imu_GL1.mag_hmc.data_available) {
-    VECT3_COPY(imu.mag_unscaled, imu_GL1.mag_hmc.data.vect);
-//    imu.mag_unscaled.x =  imu_GL1.mag_hmc.data.vect.y;
-//    imu.mag_unscaled.y = -imu_GL1.mag_hmc.data.vect.x;
-//    imu.mag_unscaled.z =  imu_GL1.mag_hmc.data.vect.z;
+   // VECT3_COPY(imu.mag_unscaled, imu_GL1.mag_hmc.data.vect);
+    imu.mag_unscaled.y =  imu_GL1.mag_hmc.data.vect.x;
+    imu.mag_unscaled.x =  imu_GL1.mag_hmc.data.vect.y;
+    imu.mag_unscaled.z = -imu_GL1.mag_hmc.data.vect.z;
     imu_GL1.mag_hmc.data_available = FALSE;
     imu_GL1.mag_valid = TRUE;
   }
