@@ -76,6 +76,21 @@ def print_copyright():
     print("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>")
     print("")
 
+def init_progress_bar():
+    max_symbols = 50
+    print("[0%" + "="*int(max_symbols/2 - 4) + "50%" + "="*int(max_symbols/2 - 4) + "100%]")
+    print(" ", end="")
+    update_progress_bar.count = 0
+    update_progress_bar.symbol_limit = max_symbols
+
+def update_progress_bar(completed, total):
+    if completed and total:
+        percent = 100 * (float(completed)/float(total))
+        if (percent >= (update_progress_bar.count + (100.0 / update_progress_bar.symbol_limit))):
+            update_progress_bar.count += (100.0 / update_progress_bar.symbol_limit)
+            print("#", end="")
+        stdout.flush()
+
 if __name__ == "__main__":
     usage = "Usage: %prog [options] firmware.bin" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage, version='%prog version 1.3')
@@ -193,19 +208,25 @@ if __name__ == "__main__":
         print("Could not open binary file.")
         raise
 
+    # Get the file length for progress bar
+    bin_length = len(bin)
+
     #addr = APP_ADDRESS
     addr = options.addr
     print ("Programming memory from 0x%08X...\r" % addr)
     
+    init_progress_bar()
+
     while bin:
-#        print("Programming memory at 0x%08X\r" % addr),
-        print('#', end="")
-        stdout.flush()
+        update_progress_bar((addr - options.addr),bin_length)
         stm32_erase(target, addr)
         stm32_write(target, bin[:SECTOR_SIZE])
 
         bin = bin[SECTOR_SIZE:]
         addr += SECTOR_SIZE
+
+    # Need to check all the way to 100% complete
+    update_progress_bar((addr - options.addr),bin_length)
 
     stm32_manifest(target)
 

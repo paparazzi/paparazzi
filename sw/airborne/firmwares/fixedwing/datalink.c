@@ -74,6 +74,9 @@ uint8_t joystick_block;
   }
 #endif
 
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
+#include "subsystems/radio_control/rc_datalink.h"
+#endif
 
 #define MOfCm(_x) (((float)(_x))/100.)
 

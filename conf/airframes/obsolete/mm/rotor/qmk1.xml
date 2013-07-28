@@ -200,7 +200,7 @@
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_PORT"     value="UART3"/>
     </subsystem>
-    <subsystem name="stabilization"   type="euler"/>
+    <subsystem name="stabilization"   type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"/>
   </firmware>

@@ -46,9 +46,20 @@
 #define B19200   19200
 #define B38400   38400
 #define B57600   57600
+#define B100000  100000
 #define B115200  115200
 #define B230400  230400
 #define B921600  921600
+
+#define UBITS_7 7
+#define UBITS_8 8
+
+#define USTOP_1 1
+#define USTOP_2 2
+
+#define UPARITY_NO    0
+#define UPARITY_ODD   1
+#define UPARITY_EVEN  2
 
 /**
  * UART peripheral
@@ -75,6 +86,7 @@ struct uart_periph {
 
 extern void uart_periph_init(struct uart_periph* p);
 extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud);
+extern void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t bits, uint8_t stop, uint8_t parity);
 extern void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control);
 extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
@@ -97,6 +109,7 @@ extern void uart0_init(void);
 #define UART0Getch() uart_getch(&uart0)
 #define UART0TxRunning uart0.tx_running
 #define UART0SetBaudrate(_b) uart_periph_set_baudrate(&uart0, _b)
+#define UART0SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart0, _b, _s, _p)
 
 #endif // USE_UART0
 
@@ -112,6 +125,7 @@ extern void uart1_init(void);
 #define UART1Getch() uart_getch(&uart1)
 #define UART1TxRunning uart1.tx_running
 #define UART1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b)
+#define UART1SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart1, _b, _s, _p)
 
 #endif // USE_UART1
 
@@ -127,6 +141,7 @@ extern void uart2_init(void);
 #define UART2Getch() uart_getch(&uart2)
 #define UART2TxRunning uart2.tx_running
 #define UART2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b)
+#define UART2SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart2, _b, _s, _p)
 
 #endif // USE_UART2
 
@@ -142,6 +157,7 @@ extern void uart3_init(void);
 #define UART3Getch() uart_getch(&uart3)
 #define UART3TxRunning uart3.tx_running
 #define UART3SetBaudrate(_b) uart_periph_set_baudrate(&uart3, _b)
+#define UART3SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart3, _b, _s, _p)
 
 #endif // USE_UART3
 
@@ -157,6 +173,7 @@ extern void uart4_init(void);
 #define UART4Getch() uart_getch(&uart4)
 #define UART4TxRunning uart4.tx_running
 #define UART4SetBaudrate(_b) uart_periph_set_baudrate(&uart4, _b)
+#define UART4SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart4, _b, _s, _p)
 
 #endif // USE_UART4
 
@@ -172,6 +189,7 @@ extern void uart5_init(void);
 #define UART5Getch() uart_getch(&uart5)
 #define UART5TxRunning uart5.tx_running
 #define UART5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b)
+#define UART5SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart5, _b, _s, _p)
 
 #endif // USE_UART5
 
@@ -187,6 +205,7 @@ extern void uart6_init(void);
 #define UART6Getch() uart_getch(&uart6)
 #define UART6TxRunning uart6.tx_running
 #define UART6SetBaudrate(_b) uart_periph_set_baudrate(&uart6, _b)
+#define UART6SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart6, _b, _s, _p)
 
 #endif // USE_UART6
 
