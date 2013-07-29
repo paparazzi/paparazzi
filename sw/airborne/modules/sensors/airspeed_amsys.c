@@ -111,10 +111,6 @@ void airspeed_amsys_read_periodic( void ) {
 		i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
 #endif
 
-#if USE_AIRSPEED
-		stateSetAirspeed_f(&airspeed_amsys);
-#endif
-
 #else // SITL
 		extern float sim_air_speed;
 		stateSetAirspeed_f(&sim_air_speed);
@@ -179,6 +175,9 @@ void airspeed_amsys_read_event( void ) {
 			airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_amsys_tmp;
 			airspeed_old = airspeed_amsys;
 			//New value available
+#if USE_AIRSPEED
+    stateSetAirspeed_f(&airspeed_amsys);
+#endif
 		}
 
 	} /*else {
