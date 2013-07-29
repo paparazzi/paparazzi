@@ -353,7 +353,7 @@ void v_ctl_climb_loop( void )
   float vdot_err = low_pass_vdot( v_ctl_desired_acceleration - vdot );
 
   // Flight Path Outerloop: positive means needs to climb more: needs extra energy
-  float gamma_err  = (v_ctl_climb_setpoint - stateGetSpeedEnu_f()->z) / (*stateGetAirspeed_f());
+  float gamma_err  = (v_ctl_climb_setpoint - stateGetSpeedEnu_f()->z) / v_ctl_auto_airspeed_controlled;
 
   // Total Energy Error: positive means energy should be added
   float en_tot_err = gamma_err + vdot_err;
