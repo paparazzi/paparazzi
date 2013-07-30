@@ -1,5 +1,5 @@
-#ifndef CONFIG_APOGEE_0_99_H
-#define CONFIG_APOGEE_0_99_H
+#ifndef CONFIG_APOGEE_1_00_H
+#define CONFIG_APOGEE_1_00_H
 
 #define BOARD_APOGEE
 
@@ -396,4 +396,4 @@
 #define SPEKTRUM_UART2_ISR usart2_isr
 #define SPEKTRUM_UART2_DEV USART2
 
-#endif /* CONFIG_APOGEE_0_99_H */
+#endif /* CONFIG_APOGEE_1_00_H */
