@@ -68,7 +68,7 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   uart_enable_interrupts(p);
 }
 
-void uart_periph_set_bits_stop_parity(struct uart_periph* __attribute__((unused)) p, uint8_t __attribute__((unused)) bits, uint8_t __attribute__((unused)) stop, uint8_t __attribute__((unused)) parity) {
+void uart_periph_set_bits_stop_parity(struct uart_periph* p __attribute__((unused)), uint8_t bits __attribute__((unused)), uint8_t stop __attribute__((unused)), uint8_t __attribute__((unused)) parity) {
   // TBD
 }
 
