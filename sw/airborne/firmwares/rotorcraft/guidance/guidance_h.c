@@ -139,7 +139,11 @@ void guidance_h_mode_changed(uint8_t new_mode) {
       stabilization_attitude_reset_care_free_heading();
     case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_ATTITUDE:
-      stabilization_attitude_enter();
+      /* reset attitude stabilization if previous mode was not using it */
+      if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
+          guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+        stabilization_attitude_enter();
+      }
       break;
 
     case GUIDANCE_H_MODE_HOVER:
