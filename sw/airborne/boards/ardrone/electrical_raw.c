@@ -89,14 +89,9 @@ void electrical_periodic(void) {
   // we know from spec sheet that ADCIN0 has no prescaler
   // so that the max voltage range is 1.5 volt
   // multiply by ten to get decivolts
-  electrical.vsupply = 10 * electrical_calculate_voltage(raw_voltage, 1.5);
-}
 
-float electrical_calculate_voltage(int raw, float range_max)
-{
-  float step_size = 1.5/(pow(2,10)-1);
-  float R = ( 1.5 / range_max );
-  float output = (float)raw * ( step_size / R );
-
-  return 6.6 + (3 * output);  // todo improve this line to get more accurate voltage readings
+  //from raw measurement we got quite a lineair response
+  //9.0V=662, 9.5V=698, 10.0V=737,10.5V=774, 11.0V=811, 11.5V=848, 12.0V=886, 12.5V=923
+  //leading to our 0.13595166 magic number for decivolts conversion
+  electrical.vsupply = raw_voltage*0.13595166;
 }

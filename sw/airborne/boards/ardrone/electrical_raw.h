@@ -32,6 +32,5 @@
 #include "subsystems/electrical.h"
 
 void electrical_setup(void);
-float electrical_calculate_voltage(int raw, float range_max);
 
 #endif /* ELECTRICAL_RAW_H_ */
