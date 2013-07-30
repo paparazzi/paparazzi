@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_mlkf_opt.h
+ * @file subsystems/ahrs/ahrs_float_mlkf.h
  *
  * Multiplicative linearized Kalman Filter in quaternion formulation.
  *
