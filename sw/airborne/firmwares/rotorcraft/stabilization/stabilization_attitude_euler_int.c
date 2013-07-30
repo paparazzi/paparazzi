@@ -93,7 +93,8 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 void stabilization_attitude_enter(void) {
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();
-  INT_EULERS_ZERO( stabilization_att_sum_err );
+  /*causes reset integration when HMODE change  - VERY DANGEROUS */
+  //INT_EULERS_ZERO( stabilization_att_sum_err );
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void) {
@@ -188,8 +189,8 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), CMD_SHIFT);
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ /3);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ /3);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ /4);
 
 }

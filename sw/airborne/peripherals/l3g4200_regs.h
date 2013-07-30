@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Eduardo Lavratti  <agressiva@hotmail.com>
+ * Copyright (C) 2013 Eduardo Lavratti   <agressiva@hotmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -28,8 +28,8 @@
 #define L3G4200_REGS_H
 
 /* default I2C address */
-#define L3G4200_ADDR            0xD2
-#define L3G4200_ADDR_ALT        0xD0
+#define L3G4200_ADDR            0xD0
+#define L3G4200_ADDR_ALT        0xD2
 
 /* Registers */
 #define L3G4200_WHO_AM_I 0x0F
@@ -40,7 +40,7 @@
 #define L3G4200_REG_CTRL_REG4 0x23
 #define L3G4200_REG_CTRL_REG5 0x24
 #define L3G4200_REG_REFERENCE 0x25
-#define L3G4200_REG_OUT_TEMP 0x26
+#define L3G4200_REG_OUT_TEMP  0x26
 #define L3G4200_REG_STATUS_REG 0x27
 
 #define L3G4200_REG_OUT_X_L 0x28
@@ -70,12 +70,19 @@ enum L3g4200_DR {
   L3G4200_DR_400Hz = 0x2,
   L3G4200_DR_800Hz = 0x3
 };
+
 /** Digital Low Pass Filter Options */
 enum L3g4200_DLPF {
   L3G4200_DLPF_1 = 0x0,
   L3G4200_DLPF_2 = 0x1,
   L3G4200_DLPF_3 = 0x2,
   L3G4200_DLPF_4 = 0x3
+};
+
+enum L3g4200_SCALE {
+  L3G4200_SCALE_250 = 0x0,
+  L3G4200_SCALE_500 = 0x1,
+  L3G4200_SCALE_2000 = 0x2,
 };
 
 #endif /* L3G4200_REGS_H */

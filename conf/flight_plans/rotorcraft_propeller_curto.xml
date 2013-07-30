@@ -1,0 +1,112 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="20" ground_alt="0" lat0="-29.997720" lon0="-51.123426" max_dist_from_home="120" name="Propeller AERiAL" security_height="5">
+  <header>
+#include "autopilot.h"
+#include "subsystems/ins.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="0.1" y="6.3"/>
+    <waypoint name="p1" x="16.3" y="14.9"/>
+    <waypoint name="p2" x="25.0" y="56.3"/>
+    <waypoint name="p3" x="12.9" y="58.1"/>
+    <waypoint name="p4" x="4.2" y="17.1"/>
+    <waypoint alt="25.0" name="p5" x="-7.2" y="19.4"/>
+    <waypoint alt="25.0" name="p6" x="-2.0" y="59.4"/>
+    <waypoint alt="20.0" name="p7" x="11.0" y="42.9"/>
+    <waypoint alt="20.0" name="p8" x="8.4" y="29.0"/>
+    <waypoint name="p9" x="-54.1" y="61.8"/>
+    <waypoint name="p10" x="-42.4" y="86.9"/>
+    <waypoint height="2." name="CAM" x="-20" y="-50"/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+<!--      <set var="ins_update_on_agl" value="true"/>-->
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 15)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <deroute block="route"/>
+    </block>
+   <block name="SONAR">
+      <set var="ins_update_on_agl" value="true"/>
+      <deroute block="route"/>
+    </block>
+    <block name="BARO">
+      <set var="ins_update_on_agl" value="false"/>
+      <deroute block="route"/>
+    </block>
+
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="0.5" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="stay_p1">
+      <stay wp="p1"/>
+    </block>
+    <block name="go_p2">
+      <go wp="p2"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="line_p1_p2">
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay until="stage_time>10" wp="p2"/>
+      <go from="p2" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route">
+      <go wp="STDBY"/>
+      <stay until="stage_time>5" wp="STDBY"/>
+      <go wp="p1"/>
+      <stay until="stage_time>3" wp="p1"/>
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay until="stage_time>3" wp="p2"/>
+      <go from="p2" hmode="route" wp="p3"/>
+      <stay until="stage_time>3" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <stay until="stage_time>3" wp="p4"/>
+      <go from="p4" hmode="route" wp="p5"/>
+      <stay until="stage_time>3" wp="p5"/>
+      <go from="p5" hmode="route" wp="p6"/>
+      <stay until="stage_time>3" wp="p6"/>
+      <go from="p6" hmode="route" wp="p7"/>
+      <circle radius="8" until="stage_time>20" wp="p7"/>
+      <circle radius="8" until="stage_time>30" wp="p8"/>
+      <go wp="STDBY"/>
+      <stay until="stage_time>6" wp="STDBY"/>
+      <deroute block="land here"/>
+    </block>
+    <block name="circle">
+      <circle radius="nav_radius" wp="p1"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <stay climb="-1.6" until="stage_time>20" vmode="climb" wp="TD"/>
+    </block>
+    <block name="final">
+      <while cond="TRUE"/>
+    </block>
+  </blocks>
+</flight_plan>

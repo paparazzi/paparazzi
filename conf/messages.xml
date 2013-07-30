@@ -305,11 +305,10 @@
   </message>
 
   <message name="BARO_BMP85" id="39">
-    <field name="UT"  type="int32"/>
-    <field name="UP"  type="int32"/>
-    <field name="P"  type="uint32"/>
-    <field name="T"  type="float"/>
-    <field name="MSL"  type="float"/>
+    <field name="press" type="int32" unit="Pa"/>
+    <field name="temp"  type="int32" unit="10x_deg_celsius"/>
+    <field name="AGL"  type="float"  unit="Meter AGL"/>
+    <field name="ASL"  type="float"  unit="Meter ASL"/>
   </message>
 
   <message name="SPEED_LOOP" id="40">

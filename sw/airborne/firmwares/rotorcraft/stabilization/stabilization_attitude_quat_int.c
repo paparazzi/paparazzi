@@ -79,8 +79,9 @@ void stabilization_attitude_enter(void) {
 
   stabilization_attitude_ref_enter();
 
-  INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
-  INT_EULERS_ZERO(stabilization_att_sum_err);
+  /*causes reset integration when HMODE change  - VERY DANGEROUS */
+  //INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
+  //INT_EULERS_ZERO(stabilization_att_sum_err);
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void) {
@@ -186,9 +187,9 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ /3);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ /3);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ /4);
 }
 
 void stabilization_attitude_read_rc(bool_t in_flight) {

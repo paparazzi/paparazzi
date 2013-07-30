@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *               2013 Felix Ruess <felix.ruess@gmail.com>
+ *               2013 Eduardo Lavratti <agressiva@hotmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -21,51 +22,51 @@
  */
 
 /**
- * @file subsystems/imu/imu_aspirin.h
- * Interface for the Aspirin v1.x IMU using I2C for the accelerometer.
+ * @file subsystems/imu/imu_GL1.h
+ * Interface for I2c IMU using using L3G4200, ADXL345, HMC5883 and BMP085.
  */
 
 
-#ifndef IMU_ASPIRIN_I2C_H
-#define IMU_ASPIRIN_I2C_H
+#ifndef IMU_GL1_I2C_H
+#define IMU_GL1_I2C_H
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-/* include default aspirin sensitivity/channel definitions */
-#include "subsystems/imu/imu_aspirin_defaults.h"
+/* include default GL1 sensitivity/channel definitions */
+#include "subsystems/imu/imu_GL1_defaults.h"
 
-#include "peripherals/itg3200.h"
+#include "peripherals/l3g4200.h"
 #include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345_i2c.h"
 
-struct ImuAspirinI2c {
+struct ImuGL1I2c {
   volatile uint8_t accel_valid;
   volatile uint8_t gyro_valid;
   volatile uint8_t mag_valid;
   struct Adxl345_I2c acc_adxl;
-  struct Itg3200 gyro_itg;
+  struct L3g4200 gyro_l3g;
   struct Hmc58xx mag_hmc;
 };
 
-extern struct ImuAspirinI2c imu_aspirin;
+extern struct ImuGL1I2c imu_GL1;
 
-extern void imu_aspirin_i2c_event(void);
+extern void imu_GL1_i2c_event(void);
 
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
-  imu_aspirin_i2c_event();
-  if (imu_aspirin.gyro_valid) {
-    imu_aspirin.gyro_valid = FALSE;
+  imu_GL1_i2c_event();
+  if (imu_GL1.gyro_valid) {
+    imu_GL1.gyro_valid = FALSE;
     _gyro_handler();
   }
-  if (imu_aspirin.accel_valid) {
-    imu_aspirin.accel_valid = FALSE;
+  if (imu_GL1.accel_valid) {
+    imu_GL1.accel_valid = FALSE;
     _accel_handler();
   }
-  if (imu_aspirin.mag_valid) {
-    imu_aspirin.mag_valid = FALSE;
+  if (imu_GL1.mag_valid) {
+    imu_GL1.mag_valid = FALSE;
     _mag_handler();
   }
 }
 
-#endif /* IMU_ASPIRIN_I2C_H */
+#endif /* IMU_GL1_I2C_H */
