@@ -143,6 +143,10 @@ void mcu_init(void) {
   spi3_slave_init();
 #endif
 #endif // SPI_SLAVE
+
+#if SPI_SLAVE_HS
+  spi_slave_hs_init();
+#endif
 #endif // USE_SPI
 
 #ifdef USE_DAC
