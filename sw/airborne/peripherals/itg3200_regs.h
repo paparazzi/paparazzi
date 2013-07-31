@@ -28,8 +28,8 @@
 #define ITG3200_REGS_H
 
 /* default I2C address */
-#define ITG3200_ADDR            0xD2
-#define ITG3200_ADDR_ALT        0xD0
+#define ITG3200_ADDR            0xD0
+#define ITG3200_ADDR_ALT        0xD2
 
 /* Registers */
 #define ITG3200_REG_WHO_AM_I    0X00

@@ -11,7 +11,6 @@
 
 // for right now we abuse this file for the ms5611 baro on aspirin as well
 #if !BARO_MS5611_I2C && !BARO_MS5611
-
 #include "mcu_periph/i2c.h"
 
 // absolute addr

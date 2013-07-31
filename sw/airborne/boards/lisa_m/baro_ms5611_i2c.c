@@ -15,6 +15,15 @@
 #define MS5611_I2C_DEV i2c2
 #endif
 
+#ifdef MS5611_USE_ALT_ADDR
+#define MS5611_ADDR 0xEC
+#else
+#define MS5611_ADDR 0xEE
+#endif
+PRINT_CONFIG_MSG("Using i2C MS5611 Baro")
+PRINT_CONFIG_VAR(MS5611_I2C_DEV)
+PRINT_CONFIG_VAR(MS5611_ADDR)
+
 #ifdef DEBUG
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -62,7 +71,7 @@ void baro_periodic(void) {
       /* start D1 conversion */
       ms5611_status = MS5611_CONV_D1;
       ms5611_trans.buf[0] = MS5611_START_CONV_D1;
-      i2c_transmit(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1);
+      i2c_transmit(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1);
     #ifdef DEBUG
     RunOnceEvery(60, { DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
               &ms5611_c[0], &ms5611_c[1], &ms5611_c[2], &ms5611_c[3],
@@ -77,7 +86,7 @@ void baro_periodic(void) {
       /* read D1 adc */
       ms5611_status = MS5611_ADC_D1;
       ms5611_trans.buf[0] = MS5611_ADC_READ;
-      i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1, 3);
+      i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1, 3);
     }
     else if (ms5611_status == MS5611_CONV_D2) {
     /* assume D2 conversion is done */
@@ -87,19 +96,19 @@ void baro_periodic(void) {
       /* read D2 adc */
       ms5611_status = MS5611_ADC_D2;
       ms5611_trans.buf[0] = MS5611_ADC_READ;
-      i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1, 3);
+      i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1, 3);
     }
     else if (ms5611_status == MS5611_UNINIT) {
       /* reset sensor */
       ms5611_status = MS5611_RESET;
       ms5611_trans.buf[0] = MS5611_SOFT_RESET;
-      i2c_transmit(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1);
+      i2c_transmit(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1);
     }
     else if (ms5611_status == MS5611_RESET_OK) {
       /* start getting prom data */
       ms5611_status = MS5611_PROM;
       ms5611_trans.buf[0] = MS5611_PROM_READ | (prom_cnt << 1);
-      i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1, 2);
+      i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1, 2);
     }
   }
 }
@@ -107,7 +116,7 @@ void baro_periodic(void) {
 void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
   if (ms5611_trans.status == I2CTransSuccess) {
   #ifdef ROTORCRAFT_BARO_LED
-    RunOnceEvery(10,LED_TOGGLE(ROTORCRAFT_BARO_LED));
+   RunOnceEvery(10,LED_TOGGLE(ROTORCRAFT_BARO_LED));
   #endif
     switch (ms5611_status) {
 
@@ -122,7 +131,7 @@ void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
       if (prom_cnt < PROM_NB) {//8 bytes at PROM
         /* get next prom data */
         ms5611_trans.buf[0] = MS5611_PROM_READ | (prom_cnt << 1);
-        i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1, 2);
+        i2c_transceive(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1, 2);
       }
       else {
         /* done reading prom */
@@ -147,7 +156,7 @@ void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
       /* start D2 conversion */
       ms5611_status = MS5611_CONV_D2;
       ms5611_trans.buf[0] = MS5611_START_CONV_D2;
-      i2c_transmit(&MS5611_I2C_DEV, &ms5611_trans, MS5611_SLAVE_ADDR, 1);
+      i2c_transmit(&MS5611_I2C_DEV, &ms5611_trans, MS5611_ADDR, 1);
       break;
 
     case  MS5611_ADC_D2: {
@@ -193,7 +202,7 @@ void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
       ftempms = tempms / 100.;
       fbaroms = baroms / 100.;
       DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                                 &ms5611_d1, &ms5611_d2, &fbaroms, &ftempms, &baro.status);
+                                 &ms5611_d1, &ms5611_d2, &fbaroms, &ftempms);//, &baro.status
       #endif
       break;
     }

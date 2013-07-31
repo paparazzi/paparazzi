@@ -2,6 +2,8 @@
 #include "subsystems/sensors/baro.h"
 #include <libopencm3/stm32/f1/gpio.h>
 
+PRINT_CONFIG_MSG("Using BARO_BMP")
+PRINT_CONFIG_VAR(BMP085_ADDR)
 struct Baro baro;
 struct BaroBoard baro_board;
 struct i2c_transaction baro_trans;

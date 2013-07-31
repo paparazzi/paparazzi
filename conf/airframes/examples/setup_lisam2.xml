@@ -3,7 +3,7 @@
 <airframe name="setup_lisam2">
 
   <firmware name="setup">
-    <target name="tunnel"           board="lisa_m_2.0"/>
+    <target name="tunnel"           board="lisa_m_1.0"/>
     <!--target name="setup_actuators"  board="lisa_m_2.0"/-->
   </firmware>
 
@@ -14,7 +14,7 @@
     <target name="test_uart"                board="lisa_m_2.0"/>
     <target name="test_servos"              board="lisa_m_2.0"/>
     <target name="test_telemetry"           board="lisa_m_2.0"/>
-    <target name="test_baro"                board="lisa_m_2.0"/>
+    <target name="test_baro"                board="lisa_m_1.0"/>
     <target name="test_rc_spektrum"         board="lisa_m_2.0"/>
     <target name="test_rc_ppm"              board="lisa_m_2.0"/>
     <target name="test_adc"                 board="lisa_m_2.0"/>
