@@ -50,17 +50,35 @@ IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0_spi.c
 
 include $(CFG_SHARED)/spi_master.makefile
 
+#
+# SPI device and slave select defaults
+#
 ifeq ($(ARCH), lpc21)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE0
-IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_SLAVE_IDX=SPI_SLAVE0
-IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_DEV=spi1
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI1
+ifndef ASPIRIN_2_SPI_DEV
+ASPIRIN_2_SPI_DEV = spi1
+endif
+ifndef ASPIRIN_2_SPI_SLAVE_IDX
+ASPIRIN_2_SPI_SLAVE_IDX = SPI_SLAVE0
+endif
 else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI2
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (MPU600 CS)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE2
+ifndef ASPIRIN_2_SPI_DEV
+ASPIRIN_2_SPI_DEV = spi2
 endif
+ifndef ASPIRIN_2_SPI_SLAVE_IDX
+ASPIRIN_2_SPI_SLAVE_IDX = SPI_SLAVE2
+endif
+endif
+
+ASPIRIN_2_SPI_DEV_UPPER=$(shell echo $(ASPIRIN_2_SPI_DEV) | tr a-z A-Z)
+ASPIRIN_2_SPI_DEV_LOWER=$(shell echo $(ASPIRIN_2_SPI_DEV) | tr A-Z a-z)
+
+IMU_ASPIRIN_2_CFLAGS += -DUSE_$(ASPIRIN_2_SPI_DEV_UPPER)
+IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_DEV=$(ASPIRIN_2_SPI_DEV_LOWER)
+
+IMU_ASPIRIN_2_CFLAGS += -DUSE_$(ASPIRIN_2_SPI_SLAVE_IDX)
+IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_SLAVE_IDX=$(ASPIRIN_2_SPI_SLAVE_IDX)
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
 # and re-use that in the imu_aspirin_v2.1 and imu_aspirin_v2.2 makefiles
