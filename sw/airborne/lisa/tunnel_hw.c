@@ -27,6 +27,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
+/* UART1 */
 #define A_PERIPH   RCC_APB2ENR_IOPAEN
 #define A_PORT     GPIOA
 #define A_RX_PIN   GPIO10
@@ -34,6 +35,7 @@
 #define A_TX_PIN   GPIO9
 #define A_TX_PORT  A_PORT
 
+/* UART2 */
 #define B_PERIPH   RCC_APB2ENR_IOPAEN
 #define B_PORT     GPIOA
 #define B_RX_PIN   GPIO3
