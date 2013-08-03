@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler.h
- *  Common rotorcraft attitude euler reference generation include.
+/** @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h
+ *  Common rotorcraft attitude reference generation include.
  */
 
-#ifndef STABILIZATION_ATTITUDE_REF_EULER_H
-#define STABILIZATION_ATTITUDE_REF_EULER_H
+#ifndef STABILIZATION_ATTITUDE_REF_H
+#define STABILIZATION_ATTITUDE_REF_H
 
 #define SATURATE_SPEED_TRIM_ACCEL() {                   \
     if (stab_att_ref_rate.p >= REF_RATE_MAX_P) {		\
@@ -60,4 +60,4 @@
   }
 
 
-#endif /* STABILIZATION_ATTITUDE_REF_EULER_H */
+#endif /* STABILIZATION_ATTITUDE_REF_H */

@@ -178,6 +178,9 @@ void stabilization_attitude_ref_update(void) {
   const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
   RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
 
+  /* saturate angular speed and trim accel accordingly */
+  SATURATE_SPEED_TRIM_ACCEL();
+
 
   /* compute ref_euler for debugging and telemetry */
   struct Int32Eulers ref_eul;

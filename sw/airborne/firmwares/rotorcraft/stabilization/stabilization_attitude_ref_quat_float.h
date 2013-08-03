@@ -34,6 +34,7 @@
 #include "math/pprz_algebra_float.h"
 
 #include "stabilization_attitude_ref_float.h"
+#include "stabilization_attitude_ref.h"
 
 #define DEADBAND_EXCEEDED(VARIABLE, VALUE) ((VARIABLE > VALUE) || (VARIABLE < -VALUE))
 #define APPLY_DEADBAND(VARIABLE, VALUE) (DEADBAND_EXCEEDED(VARIABLE, VALUE) ? VARIABLE : 0.0)

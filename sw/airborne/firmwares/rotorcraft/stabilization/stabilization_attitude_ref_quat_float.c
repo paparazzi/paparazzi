@@ -37,6 +37,10 @@
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
 #define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
 
+#define REF_RATE_MAX_P STABILIZATION_ATTITUDE_REF_MAX_P
+#define REF_RATE_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_Q
+#define REF_RATE_MAX_R STABILIZATION_ATTITUDE_REF_MAX_R
+
 struct FloatEulers stab_att_sp_euler;
 struct FloatQuat   stab_att_sp_quat;
 struct FloatEulers stab_att_ref_euler;
@@ -145,6 +149,9 @@ void stabilization_attitude_ref_update(void) {
   const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
   const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
   RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
+
+  /* saturate angular speed and trim accel accordingly */
+  SATURATE_SPEED_TRIM_ACCEL();
 
   /* compute ref_euler */
   FLOAT_EULERS_OF_QUAT(stab_att_ref_euler, stab_att_ref_quat);
