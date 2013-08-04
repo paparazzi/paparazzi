@@ -84,7 +84,7 @@ extern int32_t guidance_v_fb_cmd;    ///< feed-back command
 extern int32_t guidance_v_delta_t;
 
 /** nominal throttle for hover.
- * This is only used if #"GUIDANCE_V_NOMINAL_HOVER_THROTTLE is defined!
+ * This is only used if #GUIDANCE_V_NOMINAL_HOVER_THROTTLE is defined!
  * Unit: factor of #MAX_PPRZ with range 0.1 : 0.9
  */
 extern float guidance_v_nominal_throttle;

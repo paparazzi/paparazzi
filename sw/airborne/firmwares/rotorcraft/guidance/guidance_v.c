@@ -44,11 +44,11 @@
 #if (GUIDANCE_V_HOVER_KP < 0) ||                   \
   (GUIDANCE_V_HOVER_KD < 0)   ||                   \
   (GUIDANCE_V_HOVER_KI < 0)
-#warning "ALL control gains are now positive!!!"
+#error "ALL control gains are now positive!!!"
 #endif
 
-#if defined GUIDANCE_V_INV_M
-#warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+PRINT_CONFIG_VAR(GUIDANCE_V_NOMINAL_HOVER_THROTTLE)
 #endif
 
 uint8_t guidance_v_mode;
