@@ -483,9 +483,11 @@ void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
 
 }
 
-/* Why isn't this there when we include math.h? */
+#ifdef __APPLE__
+/* Why isn't this there when we include math.h (on osx with clang)? */
 /// Check if a double is NaN.
 static int isnan(double f) { return (f != f); }
+#endif
 
 /**
  * Checks NpsFdm struct for NaNs.
