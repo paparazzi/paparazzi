@@ -52,6 +52,7 @@ using namespace JSBSim;
 
 static void feed_jsbsim(double* commands);
 static void fetch_state(void);
+static int check_for_nan(void);
 
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector);
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_location);
@@ -85,6 +86,8 @@ void nps_fdm_init(double dt) {
   //Sets up the high fidelity timestep as a multiple of the normal timestep
   for (min_dt = (1.0/dt); min_dt < (1/MIN_DT); min_dt += (1/dt)){}
   min_dt = (1/min_dt);
+
+  fdm.nan_count = 0;
 
   init_jsbsim(dt);
 
@@ -145,6 +148,14 @@ void nps_fdm_run_step(double* commands) {
   }
 
   fetch_state();
+
+  /* Check the current state to make sure it is valid (no NaNs) */
+  if (check_for_nan()) {
+    printf("Error: FDM simulation encountered a total of %i NaN values at simulation time %f.\n", fdm.nan_count, fdm.time);
+    printf("It is likely the simulation diverged and gave non-physical results. If you did\n");
+    printf("not crash, check your model and/or initial conditions. Exiting with status 1.\n");
+    exit(1);
+  }
 
 }
 
@@ -470,4 +481,87 @@ void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
   fdm_lla->lon = propagate->GetLongitude();
   fdm_lla->alt = MetersOfFeet(propagate->GetGeodeticAltitude());
 
+}
+
+/* Why isn't this there when we include math.h? */
+/// Check if a double is NaN.
+static int isnan(double f) { return (f != f); }
+
+/**
+ * Checks NpsFdm struct for NaNs.
+ *
+ * Increments the NaN count on each new NaN
+ *
+ * @return Count of new NaNs. 0 for no new NaNs.
+ */
+static int check_for_nan(void) {
+  int orig_nan_count = fdm.nan_count;
+  /* Check all elements for nans */
+  if (isnan(fdm.ecef_pos.x)) fdm.nan_count++;
+  if (isnan(fdm.ecef_pos.y)) fdm.nan_count++;
+  if (isnan(fdm.ecef_pos.z)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_pos.x)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_pos.y)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_pos.z)) fdm.nan_count++;
+  if (isnan(fdm.lla_pos.lon)) fdm.nan_count++;
+  if (isnan(fdm.lla_pos.lat)) fdm.nan_count++;
+  if (isnan(fdm.lla_pos.alt)) fdm.nan_count++;
+  if (isnan(fdm.hmsl)) fdm.nan_count++;
+  // Skip debugging elements
+  if (isnan(fdm.ecef_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qi)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qx)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qy)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qz)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qi)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qx)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qy)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qz)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_eulers.phi)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_eulers.theta)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_eulers.psi)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qi)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qx)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qy)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qz)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_eulers.phi)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_eulers.theta)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_eulers.psi)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotvel.p)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotvel.q)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotvel.r)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotaccel.p)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotaccel.q)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotaccel.r)) fdm.nan_count++;
+  if (isnan(fdm.ltp_g.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_g.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_g.z)) fdm.nan_count++;
+  if (isnan(fdm.ltp_h.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_h.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_h.z)) fdm.nan_count++;
+
+  return (fdm.nan_count - orig_nan_count);
 }
