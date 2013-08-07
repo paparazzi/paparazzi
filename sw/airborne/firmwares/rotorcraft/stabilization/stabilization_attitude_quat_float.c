@@ -142,9 +142,25 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   stab_att_sp_quat.qz = sinf(heading2);
 }
 
-void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
-  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_euler);
-  FLOAT_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
+  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_cmd);
+
+  /* orientation vector describing simultaneous rotation of roll/pitch */
+  struct FloatVect3 ov;
+  ov.x = stab_att_sp_euler.phi;
+  ov.y = stab_att_sp_euler.theta;
+  ov.z = 0.0;
+  /* quaternion from that orientation vector */
+  struct FloatQuat q_rp;
+  FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
+
+  /* quaternion with only heading setpoint */
+  const float yaw2 = stab_att_sp_euler.psi / 2.0;
+  struct FloatQuat q_yaw;
+  QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
+
+  /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
+  FLOAT_QUAT_COMP(stab_att_sp_quat, q_yaw, q_rp);
   FLOAT_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
