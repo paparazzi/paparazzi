@@ -33,7 +33,7 @@
 #include "paparazzi.h"
 
 /** Adapt noise factor.
- *  Smaller values will make the filter to adapter faster.
+ *  Smaller values will make the filter to adapt faster.
  *  Bigger values (slower adaptation) make the filter more robust to external perturbations.
  *  Factor should always be >0
  */
@@ -65,6 +65,22 @@
 #endif
 #ifndef GUIDANCE_V_ADAPT_MIN_CMD
 #define GUIDANCE_V_ADAPT_MIN_CMD 0.1
+#endif
+
+/** Minimum hover throttle as factor of MAX_PPRZ.
+ *  With the default of 0.2 the nominal hover throttle will
+ *  never go lower than 20%.
+ */
+#ifndef GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE
+#define GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE 0.2
+#endif
+
+/** Maximum hover throttle as factor of MAX_PPRZ.
+ *  With the default of 0.75 the nominal hover throttle will
+ *  never go over 75% of max throttle.
+ */
+#ifndef GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE
+#define GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE 0.75
 #endif
 
 /** State of the estimator.
@@ -109,27 +125,6 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_HOVER_F, GV_ADAPT_P_FRAC)
 #define GV_ADAPT_MEAS_NOISE_OF_ZD (100.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 
-/* Max accel */
-#define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL)
-
-/* Command bounds */
-#define GV_ADAPT_MAX_CMD ((int32_t)(GUIDANCE_V_ADAPT_MAX_CMD*MAX_PPRZ))
-#define GV_ADAPT_MIN_CMD ((int32_t)(GUIDANCE_V_ADAPT_MIN_CMD*MAX_PPRZ))
-
-/* Output bounds.
- * Don't let it climb over a value that would
- * give less than zero throttle and don't let it down to zero.
- * Worst cases:
- *   MIN_ACCEL / MAX_THROTTLE
- *   MAX_ACCEL / MIN_THROTTLE
- * ex:
- *   9.81*2^18/255 = 10084
- *   9.81*2^18/1 = 2571632
- */
-// TODO Check this properly
-#define GV_ADAPT_MAX_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC))
-#define GV_ADAPT_MIN_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) / MAX_PPRZ)
-
 
 static inline void gv_adapt_init(void) {
   gv_adapt_X = GV_ADAPT_X0;
@@ -145,10 +140,14 @@ static inline void gv_adapt_init(void) {
  */
 static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
+  static const int32_t gv_adapt_min_cmd = GUIDANCE_V_ADAPT_MIN_CMD * MAX_PPRZ;
+  static const int32_t gv_adapt_max_cmd = GUIDANCE_V_ADAPT_MAX_CMD * MAX_PPRZ;
+  static const int32_t gv_adapt_max_accel = ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL);
+
   /* Update only if accel and commands are in a valid range */
   /* This also ensures we don't divide by zero */
-  if (thrust_applied < GV_ADAPT_MIN_CMD || thrust_applied > GV_ADAPT_MAX_CMD
-      || zdd_meas < -GV_ADAPT_MAX_ACCEL || zdd_meas > GV_ADAPT_MAX_ACCEL) {
+  if (thrust_applied < gv_adapt_min_cmd || thrust_applied > gv_adapt_max_cmd
+      || zdd_meas < -gv_adapt_max_accel || zdd_meas > gv_adapt_max_accel) {
     return;
   }
 
@@ -178,15 +177,23 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
   /* Update Covariance  Pnew = P - K * P   */
   gv_adapt_P = gv_adapt_P - ((K * gv_adapt_P)>>K_FRAC);
   /* Don't let covariance climb over initial value */
-  if (gv_adapt_P > GV_ADAPT_P0) gv_adapt_P = GV_ADAPT_P0;
+  if (gv_adapt_P > GV_ADAPT_P0) {
+    gv_adapt_P = GV_ADAPT_P0;
+  }
 
   /* Update State */
   gv_adapt_X = gv_adapt_X + (((int64_t)(K * residual))>>K_FRAC);
 
-  /* Again don't let it climb over a value that would
-   * give less than zero throttle and don't let it down to zero.
+  /* Output bounds.
+   * Don't let it climb over a value that would
+   * give less than #GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE % throttle
+   * or more than #GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE % throttle.
    */
-  Bound(gv_adapt_X, GV_ADAPT_MIN_OUT, GV_ADAPT_MAX_OUT);
+  static const int32_t max_out = BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) /
+    (GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE * MAX_PPRZ);
+  static const int32_t min_out = BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) /
+    (GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE * MAX_PPRZ);
+  Bound(gv_adapt_X, min_out, max_out);
 }
 
 
