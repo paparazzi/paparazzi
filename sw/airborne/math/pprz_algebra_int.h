@@ -558,13 +558,15 @@ struct Int64Vect3 {
       QUAT_EXPLEMENTARY(q,q);                       \
   }
 
-#define INT32_QUAT_NORMALIZE(q) {                               \
-    int32_t n;                              \
-    INT32_QUAT_NORM(n, q);                      \
-    (q).qi = (q).qi * QUAT1_BFP_OF_REAL(1) / n;             \
-    (q).qx = (q).qx * QUAT1_BFP_OF_REAL(1) / n;             \
-    (q).qy = (q).qy * QUAT1_BFP_OF_REAL(1) / n;             \
-    (q).qz = (q).qz * QUAT1_BFP_OF_REAL(1) / n;             \
+#define INT32_QUAT_NORMALIZE(q) {                   \
+    int32_t n;                                      \
+    INT32_QUAT_NORM(n, q);                          \
+    if (n > 0) {                                    \
+      (q).qi = (q).qi * QUAT1_BFP_OF_REAL(1) / n;   \
+      (q).qx = (q).qx * QUAT1_BFP_OF_REAL(1) / n;   \
+      (q).qy = (q).qy * QUAT1_BFP_OF_REAL(1) / n;   \
+      (q).qz = (q).qz * QUAT1_BFP_OF_REAL(1) / n;   \
+    }                                               \
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
