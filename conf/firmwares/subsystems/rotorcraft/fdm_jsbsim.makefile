@@ -38,7 +38,7 @@ else
 endif
 
 
-nps.srcs += $(NPSDIR)/nps_main.c                      \
+nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_fdm_jsbsim.c                \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
@@ -51,17 +51,18 @@ nps.srcs += $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_autopilot_rotorcraft.c            \
-       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_autopilot_rotorcraft.c      \
+       $(NPSDIR)/nps_ivy_common.c                \
+       $(NPSDIR)/nps_ivy_rotorcraft.c            \
        $(NPSDIR)/nps_flightgear.c                \
 
 
 
 nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 
-nps.srcs   += firmwares/rotorcraft/main.c
-nps.srcs   += mcu.c
-nps.srcs   += $(SRC_ARCH)/mcu_arch.c
+nps.srcs += firmwares/rotorcraft/main.c
+nps.srcs += mcu.c
+nps.srcs += $(SRC_ARCH)/mcu_arch.c
 
 nps.srcs += mcu_periph/i2c.c
 nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c

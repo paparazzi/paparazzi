@@ -85,11 +85,12 @@ void nps_autopilot_run_systime_step( void ) {
 
 void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
+#ifdef RADIO_CONTROL_TYPE_PPM
   if (nps_radio_control_available(time)) {
     radio_control_feed();
     Fbw(event_task);
-    Ap(event_task);
   }
+#endif
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
