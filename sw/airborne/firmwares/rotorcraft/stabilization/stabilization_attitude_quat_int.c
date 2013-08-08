@@ -152,9 +152,13 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   INT32_QUAT_NORMALIZE(att_err);
 
   /*  rate error                */
+  const struct Int32Rates rate_ref_scaled = {
+    OFFSET_AND_ROUND(stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   struct Int32Rates* body_rate = stateGetBodyRates_i();
-  RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
+  RATES_DIFF(rate_err, rate_ref_scaled, (*body_rate));
 
   /* integrated error */
   if (enable_integrator) {

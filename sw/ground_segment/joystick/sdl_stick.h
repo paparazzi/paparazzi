@@ -40,6 +40,7 @@
 /* Global variables about the initialized device */
 extern int8_t stick_axis_values[STICK_AXIS_COUNT];
 extern int32_t stick_button_values;
+extern uint8_t stick_hat_value;
 extern int stick_axis_count, stick_button_count;
 
 /** Initialize a joystick with SDL.

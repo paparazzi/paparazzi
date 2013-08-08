@@ -19,7 +19,6 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
@@ -38,25 +37,29 @@
 #include "peripherals/l3g4200_regs.h"
 
 
-/// Default Output rate 800hz
-#define L3G4200_DEFAULT_DR L3G4200_DR_800Hz
-/// Default digital lowpass filter 35hz
-#define L3G4200_DEFAULT_DLPF L3G4200_DLPF_2
-
+// Default Output rate 100hz
+#define L3G4200_DEFAULT_DR L3G4200_DR_100Hz
+// Default digital lowpass filter 25hz
+#define L3G4200_DEFAULT_DLPF L3G4200_DLPF_1
+// Default Scale
+#define L3G4200_DEFAULT_SCALE L3G4200_SCALE_2000
 
 /* Default conf */
-#define L3G4200_DEFAULT_CTRL_REG1 0x8f // 400hz ODR, 20hz filter, run!
-#define L3G4200_DEFAULT_CTRL_REG5 0x02 // low pass filter enable
+#define L3G4200_DEFAULT_CTRL_REG1 ((L3G4200_DEFAULT_DR<<6) | (L3G4200_DEFAULT_DLPF<<4) | 0xf);
+#define L3G4200_DEFAULT_CTRL_REG4 (L3G4200_DEFAULT_SCALE<<4) | 0x00; // 2000deg = 0x30
+#define L3G4200_DEFAULT_CTRL_REG5 0x00 // first low pass filter enable
 
 struct L3g4200Config {
-  uint8_t ctrl_reg1;     ///<
-  uint8_t ctrl_reg5;     ///<
+  uint8_t ctrl_reg1;
+  uint8_t ctrl_reg4;
+  uint8_t ctrl_reg5;
 };
 
 /** config status states */
 enum L3g4200ConfStatus {
   L3G_CONF_UNINIT,
   L3G_CONF_REG1,
+  L3G_CONF_REG4,
   L3G_CONF_REG5,
   L3G_CONF_DONE
 };
@@ -75,7 +78,7 @@ struct L3g4200 {
 };
 
 // Functions
-extern void l3g4200_init(struct L3g4200 *itg, struct i2c_periph *i2c_p, uint8_t i2c_address);
+extern void l3g4200_init(struct L3g4200 *l3g, struct i2c_periph *i2c_p, uint8_t i2c_address);
 extern void l3g4200_set_default_config(struct L3g4200Config *conf);
 extern void l3g4200_start_configure(struct L3g4200 *l3g);
 extern void l3g4200_read(struct L3g4200 *l3g);

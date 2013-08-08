@@ -8,6 +8,9 @@
 
   <modules>
     <!--load name="sys_mon.xml"/-->
+    <load name="mcp355x.xml">
+      <define name="USE_SPI1"/>
+    </load>
   </modules>
 
   <firmware name="fixedwing">
@@ -20,24 +23,24 @@
     <define name="USE_GYRO_PITCH_RATE"/>
 
     <target name="sim" board="pc"/>
-    <target name="ap" board="apogee_0.99"/>
+    <target name="ap" board="apogee_1.0"/>
+    <!--configure name="FLASH_MODE" value="SWD"/-->
 
-    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="radio_control" type="sbus"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="apogee"/>
-    <subsystem name="ahrs"    type="float_dcm">
-      <define name="USE_HIGH_ACCEL_FLAG"/>
-    </subsystem>
+    <subsystem name="ahrs"    type="float_dcm"/>
     <subsystem name="ins"     type="alt_float"/>
     <subsystem name="control"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->
     <subsystem name="gps" type="ublox"/>
 
+    <subsystem name="spi_master"/>
   </firmware>
 
 <!-- commands section -->

@@ -1,9 +1,9 @@
-#ifndef CONFIG_KROOZ_1_0_H
-#define CONFIG_KROOZ_1_0_H
+#ifndef CONFIG_KROOZ_SD_H
+#define CONFIG_KROOZ_SD_H
 
 #define BOARD_KROOZ
 
-/* Krooz/M has a 12MHz external clock and 168MHz internal. */
+/* KroozSD has a 12MHz external clock and 168MHz internal. */
 #define EXT_CLK 12000000
 #define AHB_CLK 168000000
 
@@ -99,16 +99,43 @@
 #define UART5_GPIO_PORT_TX GPIOC
 #define UART5_GPIO_TX GPIO12
 
+/* SPI */
+#define SPI1_GPIO_AF GPIO_AF5
+#define SPI1_GPIO_PORT_MISO GPIOA
+#define SPI1_GPIO_MISO GPIO6
+#define SPI1_GPIO_PORT_MOSI GPIOA
+#define SPI1_GPIO_MOSI GPIO7
+#define SPI1_GPIO_PORT_SCK GPIOA
+#define SPI1_GPIO_SCK GPIO5
+
+#define SPI2_GPIO_AF GPIO_AF5
+#define SPI2_GPIO_PORT_MISO GPIOB
+#define SPI2_GPIO_MISO GPIO14
+#define SPI2_GPIO_PORT_MOSI GPIOB
+#define SPI2_GPIO_MOSI GPIO15
+#define SPI2_GPIO_PORT_SCK GPIOB
+#define SPI2_GPIO_SCK GPIO13
+
+#define SPI_SELECT_SLAVE0_PORT GPIOA
+#define SPI_SELECT_SLAVE0_PIN GPIO4
+#define SPI_SELECT_SLAVE1_PORT GPIOB
+#define SPI_SELECT_SLAVE1_PIN GPIO12
+#define SPI_SELECT_SLAVE2_PORT GPIOB
+#define SPI_SELECT_SLAVE2_PIN GPIO2
 
 /* I2C mapping */
 #define I2C1_GPIO_PORT GPIOB
 #define I2C1_GPIO_SCL GPIO8
-#define I2C1_GPIO_SDA GPIO7
+#define I2C1_GPIO_SDA GPIO9
 
 #define I2C2_GPIO_PORT GPIOB
 #define I2C2_GPIO_SCL GPIO10
 #define I2C2_GPIO_SDA GPIO11
 
+#define I2C3_GPIO_PORT_SCL GPIOA
+#define I2C3_GPIO_PORT_SDA GPIOC
+#define I2C3_GPIO_SCL GPIO8
+#define I2C3_GPIO_SDA GPIO9
 
 /* Onboard ADCs */
 #define USE_AD_TIM1 1
@@ -197,20 +224,10 @@
   }
 #endif // USE_AD1
 
-
-/* I2C mapping */
-#define GPIO_I2C1_SCL GPIO8
-#define GPIO_I2C1_SDA GPIO9
-#define GPIO_I2C2_SCL GPIO10
-#define GPIO_I2C2_SDA GPIO11
-#define GPIO_I2C3_SCL GPIO8 //PA8
-#define GPIO_I2C3_SDA GPIO9 //PC9
-
 /* Activate onboard baro */
 #define BOARD_HAS_BARO 1
 
 /* PWM */
-#define PWM_USE_TIM2 1
 #define PWM_USE_TIM3 1
 #define PWM_USE_TIM4 1
 #define PWM_USE_TIM5 1
@@ -227,18 +244,23 @@
 #define USE_PWM9 1
 //#define USE_PWM10 1
 
+#if USE_PWM10
+#define ACTUATORS_PWM_NB 11
+#define PWM_USE_TIM2 1
+#else
 #define ACTUATORS_PWM_NB 10
+#endif
 
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0
 #define PWM_SERVO_0 0
 #define PWM_SERVO_0_TIMER TIM3
-#define PWM_SERVO_0_RCC_IOP RCC_AHB1ENR_IOPCEN
-#define PWM_SERVO_0_GPIO GPIOC
-#define PWM_SERVO_0_PIN GPIO6
-#define PWM_SERVO_0_AF GPIO_AF1
-#define PWM_SERVO_0_OC TIM_OC1
-#define PWM_SERVO_0_OC_BIT (1<<0)
+#define PWM_SERVO_0_RCC_IOP RCC_AHB1ENR_IOPBEN
+#define PWM_SERVO_0_GPIO GPIOB
+#define PWM_SERVO_0_PIN GPIO1
+#define PWM_SERVO_0_AF GPIO_AF2
+#define PWM_SERVO_0_OC TIM_OC4
+#define PWM_SERVO_0_OC_BIT (1<<3)
 #else
 #define PWM_SERVO_0_OC_BIT 0
 #endif
@@ -248,10 +270,10 @@
 #define PWM_SERVO_1_TIMER TIM3
 #define PWM_SERVO_1_RCC_IOP RCC_AHB1ENR_IOPCEN
 #define PWM_SERVO_1_GPIO GPIOC
-#define PWM_SERVO_1_PIN GPIO7
-#define PWM_SERVO_1_AF GPIO_AF1
-#define PWM_SERVO_1_OC TIM_OC2
-#define PWM_SERVO_1_OC_BIT (1<<1)
+#define PWM_SERVO_1_PIN GPIO8
+#define PWM_SERVO_1_AF GPIO_AF2
+#define PWM_SERVO_1_OC TIM_OC3
+#define PWM_SERVO_1_OC_BIT (1<<2)
 #else
 #define PWM_SERVO_1_OC_BIT 0
 #endif
@@ -261,23 +283,23 @@
 #define PWM_SERVO_2_TIMER TIM3
 #define PWM_SERVO_2_RCC_IOP RCC_AHB1ENR_IOPCEN
 #define PWM_SERVO_2_GPIO GPIOC
-#define PWM_SERVO_2_PIN GPIO8
-#define PWM_SERVO_2_AF GPIO_AF1
-#define PWM_SERVO_2_OC TIM_OC3
-#define PWM_SERVO_2_OC_BIT (1<<2)
+#define PWM_SERVO_2_PIN GPIO7
+#define PWM_SERVO_2_AF GPIO_AF2
+#define PWM_SERVO_2_OC TIM_OC2
+#define PWM_SERVO_2_OC_BIT (1<<1)
 #else
 #define PWM_SERVO_2_OC_BIT 0
 #endif
 
 #if USE_PWM3
-#define PWM_SERVO_3_IDX 3
+#define PWM_SERVO_3 3
 #define PWM_SERVO_3_TIMER TIM3
-#define PWM_SERVO_3_RCC_IOP RCC_AHB1ENR_IOPCEN
-#define PWM_SERVO_3_GPIO GPIOC
-#define PWM_SERVO_3_PIN GPIO9
-#define PWM_SERVO_3_AF GPIO_AF1
-#define PWM_SERVO_3_OC TIM_OC4
-#define PWM_SERVO_3_OC_BIT (1<<3)
+#define PWM_SERVO_3_RCC_IOP RCC_AHB1ENR_IOPBEN
+#define PWM_SERVO_3_GPIO GPIOB
+#define PWM_SERVO_3_PIN GPIO4
+#define PWM_SERVO_3_AF GPIO_AF2
+#define PWM_SERVO_3_OC TIM_OC1
+#define PWM_SERVO_3_OC_BIT (1<<0)
 #else
 #define PWM_SERVO_3_OC_BIT 0
 #endif
@@ -287,10 +309,10 @@
 #define PWM_SERVO_4_TIMER TIM4
 #define PWM_SERVO_4_RCC_IOP RCC_AHB1ENR_IOPBEN
 #define PWM_SERVO_4_GPIO GPIOB
-#define PWM_SERVO_4_PIN GPIO6
-#define PWM_SERVO_4_AF GPIO_AF1
-#define PWM_SERVO_4_OC TIM_OC1
-#define PWM_SERVO_4_OC_BIT (1<<0)
+#define PWM_SERVO_4_PIN GPIO7
+#define PWM_SERVO_4_AF GPIO_AF2
+#define PWM_SERVO_4_OC TIM_OC2
+#define PWM_SERVO_4_OC_BIT (1<<1)
 #else
 #define PWM_SERVO_4_OC_BIT 0
 #endif
@@ -300,10 +322,10 @@
 #define PWM_SERVO_5_TIMER TIM4
 #define PWM_SERVO_5_RCC_IOP RCC_AHB1ENR_IOPBEN
 #define PWM_SERVO_5_GPIO GPIOB
-#define PWM_SERVO_5_PIN GPIO7
-#define PWM_SERVO_5_AF GPIO_AF1
-#define PWM_SERVO_5_OC TIM_OC2
-#define PWM_SERVO_5_OC_BIT (1<<1)
+#define PWM_SERVO_5_PIN GPIO6
+#define PWM_SERVO_5_AF GPIO_AF2
+#define PWM_SERVO_5_OC TIM_OC1
+#define PWM_SERVO_5_OC_BIT (1<<0)
 #else
 #define PWM_SERVO_5_OC_BIT 0
 #endif
@@ -313,10 +335,10 @@
 #define PWM_SERVO_6_TIMER TIM5
 #define PWM_SERVO_6_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_6_GPIO GPIOA
-#define PWM_SERVO_6_PIN GPIO0
-#define PWM_SERVO_6_AF GPIO_AF1
-#define PWM_SERVO_6_OC TIM_OC1
-#define PWM_SERVO_6_OC_BIT (1<<0)
+#define PWM_SERVO_6_PIN GPIO3
+#define PWM_SERVO_6_AF GPIO_AF2
+#define PWM_SERVO_6_OC TIM_OC4
+#define PWM_SERVO_6_OC_BIT (1<<3)
 #else
 #define PWM_SERVO_6_OC_BIT 0
 #endif
@@ -326,10 +348,10 @@
 #define PWM_SERVO_7_TIMER TIM5
 #define PWM_SERVO_7_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_7_GPIO GPIOA
-#define PWM_SERVO_7_PIN GPIO1
-#define PWM_SERVO_7_AF GPIO_AF1
-#define PWM_SERVO_7_OC TIM_OC2
-#define PWM_SERVO_7_OC_BIT (1<<1)
+#define PWM_SERVO_7_PIN GPIO2
+#define PWM_SERVO_7_AF GPIO_AF2
+#define PWM_SERVO_7_OC TIM_OC3
+#define PWM_SERVO_7_OC_BIT (1<<2)
 #else
 #define PWM_SERVO_7_OC_BIT 0
 #endif
@@ -339,10 +361,10 @@
 #define PWM_SERVO_8_TIMER TIM5
 #define PWM_SERVO_8_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_8_GPIO GPIOA
-#define PWM_SERVO_8_PIN GPIO2
-#define PWM_SERVO_8_AF GPIO_AF1
-#define PWM_SERVO_8_OC TIM_OC3
-#define PWM_SERVO_8_OC_BIT (1<<2)
+#define PWM_SERVO_8_PIN GPIO1
+#define PWM_SERVO_8_AF GPIO_AF2
+#define PWM_SERVO_8_OC TIM_OC2
+#define PWM_SERVO_8_OC_BIT (1<<1)
 #else
 #define PWM_SERVO_8_OC_BIT 0
 #endif
@@ -352,10 +374,10 @@
 #define PWM_SERVO_9_TIMER TIM5
 #define PWM_SERVO_9_RCC_IOP RCC_AHB1ENR_IOPAEN
 #define PWM_SERVO_9_GPIO GPIOA
-#define PWM_SERVO_9_PIN GPIO3
-#define PWM_SERVO_9_AF GPIO_AF1
-#define PWM_SERVO_9_OC TIM_OC4
-#define PWM_SERVO_9_OC_BIT (1<<3)
+#define PWM_SERVO_9_PIN GPIO0
+#define PWM_SERVO_9_AF GPIO_AF2
+#define PWM_SERVO_9_OC TIM_OC1
+#define PWM_SERVO_9_OC_BIT (1<<0)
 #else
 #define PWM_SERVO_9_OC_BIT 0
 #endif
@@ -383,11 +405,11 @@
 #define USE_PPM_TIM2 1
 
 #define PPM_CHANNEL         TIM_IC2
-#define PPM_TIMER_INPUT     TIM_IC_IN_TI1
+#define PPM_TIMER_INPUT     TIM_IC_IN_TI2
 #define PPM_IRQ             NVIC_TIM2_IRQ
 //#define PPM_IRQ2            NVIC_TIM2_UP_TIM10_IRQ
 // Capture/Compare InteruptEnable and InterruptFlag
-#define PPM_CC_EN           TIM_DIER_CC2IE
+#define PPM_CC_IE           TIM_DIER_CC2IE
 #define PPM_CC_IF           TIM_SR_CC2IF
 #define PPM_GPIO_PORT       GPIOB
 #define PPM_GPIO_PIN        GPIO3
@@ -397,7 +419,7 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO8
+#define SPEKTRUM_BIND_PIN GPIO9
 #define SPEKTRUM_BIND_PIN_PORT GPIOA
 
-#endif /* CONFIG_KROOZ_1_0_H */
+#endif /* CONFIG_KROOZ_SD_H */

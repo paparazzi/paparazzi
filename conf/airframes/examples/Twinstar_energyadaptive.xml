@@ -44,14 +44,14 @@ twog_1.0 + aspirin + ETS baro + ETS speed
 
   <modules>
     <load name="airspeed_ets.xml">
-      <define name="SENSOR_SYNC_SEND"/>
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <define name="AIRSPEED_ETS_SCALE"   value="1.44"/> <!-- default 1.8-->
      <!-- <define name="AIRSPEED_ETS_OFFSET"  value="50"/> --> <!-- default 0 -->
      <!-- <define name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/> -->
     </load>
     <load name="baro_ets.xml">
       <define name="BARO_ETS_SCALE" value="0.3"/>
-      <define name="BARO_ETS_TELEMETRY"/>
+      <define name="BARO_ETS_SYNC_SEND"/>
     </load>
     <load name="baro_board.xml">
       <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>

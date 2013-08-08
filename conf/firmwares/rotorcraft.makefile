@@ -201,6 +201,10 @@ ap.CFLAGS += -DUSE_SPI1
 ap.srcs += peripherals/mcp355x.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
 
+# krooz baro
+else ifeq ($(BOARD), krooz)
+ap.srcs += $(SRC_BOARD)/baro_board.c
+
 # apogee baro
 else ifeq ($(BOARD), apogee)
 ap.CFLAGS += -DUSE_I2C1
@@ -234,7 +238,7 @@ ap.srcs   += subsystems/electrical.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
 ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-ap.srcs   += $(SRC_ARCH)/subsystems/electrical/electrical_arch.c
+ap.srcs   += $(SRC_BOARD)/electrical_raw.c
 endif
 
 

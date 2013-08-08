@@ -24,6 +24,7 @@
 #include "subsystems/radio_control.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+#include "paparazzi.h"
 
 #include "generated/airframe.h"
 

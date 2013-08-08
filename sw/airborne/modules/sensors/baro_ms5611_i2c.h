@@ -20,6 +20,7 @@ extern bool_t baro_ms5611_valid;
 extern bool_t baro_ms5611_enabled;
 extern float baro_ms5611_r;
 extern float baro_ms5611_sigma2;
+extern int64_t baroms;
 
 enum ms5611_stat{
   MS5611_UNINIT,
@@ -35,11 +36,11 @@ enum ms5611_stat{
   MS5611_ADC_D2
 };
 
-void baro_ms5611_init(void);
-void baro_ms5611_periodic(void);
-void baro_ms5611_d1(void);
-void baro_ms5611_d2(void);
-void baro_ms5611_event(void);
+extern void baro_ms5611_init(void);
+extern void baro_ms5611_periodic(void);
+extern void baro_ms5611_d1(void);
+extern void baro_ms5611_d2(void);
+extern void baro_ms5611_event(void);
 
 #define BaroMs5611Update(_b) { if (baro_ms5611_valid) { _b = baro_ms5611_alt; baro_ms5611_valid = FALSE; } }
 

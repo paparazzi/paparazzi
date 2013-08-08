@@ -246,7 +246,7 @@ More information on the Quadshot can be found at transition-robotics.com -->
 
  <!--Use an airspeed sensor and get the measured airspeed in the messages-->
    <load name="airspeed_ets.xml">
-     <define name="SENSOR_SYNC_SEND"/>
+     <define name="AIRSPEED_ETS_SYNC_SEND"/>
    </load>
 
  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->

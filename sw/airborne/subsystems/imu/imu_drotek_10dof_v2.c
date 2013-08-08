@@ -24,8 +24,12 @@
  *
  * Driver for the Drotek 10DOF V2 IMU.
  * MPU6050 + HMC5883 + MS5611
+ * Reading the baro is not part of the IMU driver.
  *
- * @todo MS5611 baro not read yet
+ * By default the axes orientation should be as printed on the pcb,
+ * meaning z-axis pointing down if ICs are facing down.
+ * The orientation can be switched so that the IMU can be mounted ICs facing up
+ * by defining IMU_DROTEK_2_ORIENTATION_IC_UP.
  */
 
 #include "subsystems/imu.h"
@@ -50,12 +54,23 @@ PRINT_CONFIG_VAR(DROTEK_2_GYRO_RANGE)
 #endif
 PRINT_CONFIG_VAR(DROTEK_2_ACCEL_RANGE)
 
+#ifndef DROTEK_2_MPU_I2C_ADDR
+#define DROTEK_2_MPU_I2C_ADDR MPU60X0_ADDR_ALT
+#endif
+PRINT_CONFIG_VAR(DROTEK_2_MPU_I2C_ADDR)
+
+#ifndef DROTEK_2_HMC_I2C_ADDR
+#define DROTEK_2_HMC_I2C_ADDR HMC58XX_ADDR
+#endif
+PRINT_CONFIG_VAR(DROTEK_2_HMC_I2C_ADDR)
+
+
 struct ImuDrotek2 imu_drotek2;
 
 void imu_impl_init(void)
 {
   /* MPU-60X0 */
-  mpu60x0_i2c_init(&imu_drotek2.mpu, &(DROTEK_2_I2C_DEV), MPU60X0_ADDR_ALT);
+  mpu60x0_i2c_init(&imu_drotek2.mpu, &(DROTEK_2_I2C_DEV), DROTEK_2_MPU_I2C_ADDR);
   // change the default configuration
   imu_drotek2.mpu.config.smplrt_div = DROTEK_2_SMPLRT_DIV;
   imu_drotek2.mpu.config.dlpf_cfg = DROTEK_2_LOWPASS_FILTER;
@@ -63,19 +78,17 @@ void imu_impl_init(void)
   imu_drotek2.mpu.config.accel_range = DROTEK_2_ACCEL_RANGE;
 
   /* HMC5883 magnetometer */
-  hmc58xx_init(&imu_drotek2.hmc, &(DROTEK_2_I2C_DEV), HMC58XX_ADDR);
+  hmc58xx_init(&imu_drotek2.hmc, &(DROTEK_2_I2C_DEV), DROTEK_2_HMC_I2C_ADDR);
+
+  /* mag is declared as slave to call the configure function,
+   * regardless if it is an actual MPU slave or passthrough
+   */
+  imu_drotek2.mpu.config.nb_slaves = 1;
   /* set callback function to configure mag */
   imu_drotek2.mpu.config.slaves[0].configure = &imu_drotek2_configure_mag_slave;
 
-#if DROTEK_2_MAG_SLAVE
-  /* Set MPU I2C master clock to 400kHz */
-  imu_drotek2.mpu.config.mst_clk = MPU60X0_MST_CLK_400KHZ;
-  /* Enable I2C slave0 delayed sample rate */
-  imu_drotek2.mpu.config.mst_delay = 1;
-#else
   // use hmc mag via passthrough
   imu_drotek2.mpu.config.i2c_bypass = TRUE;
-#endif
 
   imu_drotek2.gyro_valid = FALSE;
   imu_drotek2.accel_valid = FALSE;
@@ -88,17 +101,31 @@ void imu_periodic(void)
   mpu60x0_i2c_periodic(&imu_drotek2.mpu);
 
   // Read HMC58XX at ~50Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(10, hmc58xx_periodic(&imu_drotek2.hmc));
-
+  if (imu_drotek2.mpu.config.initialized) {
+    RunOnceEvery(10, hmc58xx_read(&imu_drotek2.hmc));
+  }
 }
 
 void imu_drotek2_event(void)
 {
   // If the MPU6050 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_drotek2.mpu);
+
   if (imu_drotek2.mpu.data_available) {
-    memcpy(&imu.gyro_unscaled, &imu_drotek2.mpu.data_rates.rates, sizeof(struct Int32Rates));
-    memcpy(&imu.accel_unscaled, &imu_drotek2.mpu.data_accel.vect, sizeof(struct Int32Vect3));
+#if IMU_DROTEK_2_ORIENTATION_IC_UP
+    /* change orientation, so if ICs face up, z-axis is down */
+    imu.gyro_unscaled.p = imu_drotek2.mpu.data_rates.rates.p;
+    imu.gyro_unscaled.q = -imu_drotek2.mpu.data_rates.rates.q;
+    imu.gyro_unscaled.r = -imu_drotek2.mpu.data_rates.rates.r;
+    imu.accel_unscaled.x = imu_drotek2.mpu.data_accel.vect.x;
+    imu.accel_unscaled.y = -imu_drotek2.mpu.data_accel.vect.y;
+    imu.accel_unscaled.z = -imu_drotek2.mpu.data_accel.vect.z;
+#else
+    /* default orientation as should be printed on the pcb, z-down, ICs down */
+    RATES_COPY(imu.gyro_unscaled, imu_drotek2.mpu.data_rates.rates);
+    VECT3_COPY(imu.accel_unscaled, imu_drotek2.mpu.data_accel.vect);
+#endif
+
     imu_drotek2.mpu.data_available = FALSE;
     imu_drotek2.gyro_valid = TRUE;
     imu_drotek2.accel_valid = TRUE;
@@ -107,7 +134,13 @@ void imu_drotek2_event(void)
   /* HMC58XX event task */
   hmc58xx_event(&imu_drotek2.hmc);
   if (imu_drotek2.hmc.data_available) {
+#if IMU_DROTEK_2_ORIENTATION_IC_UP
+    imu.mag_unscaled.x = imu_drotek2.hmc.data.vect.x;
+    imu.mag_unscaled.y = -imu_drotek2.hmc.data.vect.y;
+    imu.mag_unscaled.z = -imu_drotek2.hmc.data.vect.z;
+#else
     VECT3_COPY(imu.mag_unscaled, imu_drotek2.hmc.data.vect);
+#endif
     imu_drotek2.hmc.data_available = FALSE;
     imu_drotek2.mag_valid = TRUE;
   }
@@ -116,7 +149,7 @@ void imu_drotek2_event(void)
 /** callback function to configure hmc5883 mag
  * @return TRUE if mag configuration finished
  */
-bool_t imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void* mpu)
+bool_t imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set __attribute__ ((unused)), void* mpu __attribute__ ((unused)))
 {
   hmc58xx_start_configure(&imu_drotek2.hmc);
   if (imu_drotek2.hmc.initialized)

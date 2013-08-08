@@ -142,9 +142,34 @@ void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ecef
   ENU_OF_TO_NED(*ned, enu);
 }
 
-/* check if resolution of INT32_TRIG_FRAC (14) is enough here */
+
+void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+
+  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * enu->x +
+                       (int64_t)def->ltp_of_ecef.m[3] * enu->y +
+                       (int64_t)def->ltp_of_ecef.m[6] * enu->z;
+  ecef->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
+
+  const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[1] * enu->x +
+                       (int64_t)def->ltp_of_ecef.m[4] * enu->y +
+                       (int64_t)def->ltp_of_ecef.m[7] * enu->z;
+  ecef->y = (int32_t)(tmpy>>HIGH_RES_TRIG_FRAC);
+
+  /* first element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ENU_to_ECEF */
+  const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[5] * enu->y +
+                       (int64_t)def->ltp_of_ecef.m[8] * enu->z;
+  ecef->z = (int32_t)(tmpz>>HIGH_RES_TRIG_FRAC);
+
+}
+
+void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+  struct EnuCoor_i enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_vect_i(ecef, def, &enu);
+}
+
 void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
-  INT32_RMAT_TRANSP_VMULT(*ecef, def->ltp_of_ecef, *enu);
+  ecef_of_enu_vect_i(ecef, def, enu);
   INT32_VECT3_ADD(*ecef, def->ecef);
 }
 
@@ -152,16 +177,6 @@ void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct N
   struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_point_i(ecef, def, &enu);
-}
-
-void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
-  INT32_RMAT_TRANSP_VMULT(*ecef, def->ltp_of_ecef, *enu);
-}
-
-void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
-  struct EnuCoor_i enu;
-  ENU_OF_TO_NED(enu, *ned);
-  ecef_of_enu_vect_i(ecef, def, &enu);
 }
 
 

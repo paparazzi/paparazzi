@@ -8,10 +8,11 @@
       (AMS 5812-0003-D)
     </description>
     <define name="AIRSPEED_AMSYS_I2C_DEV" value="i2c0" description="change default i2c peripheral"/>
-    <define name="AIRSPEED_AMSYS_OFFSET" value="0" description="sensor offset (default: 0)"/>
+    <define name="AIRSPEED_AMSYS_MAXPRESURE" value="2068" description="max sensor pressure (Pa) (default: 2068 for -003)(for -001 use 689)"/>
     <define name="AIRSPEED_AMSYS_SCALE" value="1.0" description="sensor scale factor (default: 1.0)"/>
+    <define name="AIRSPEED_AMSYS_FILTER" value="0." description="sensor filter (default: 0. max:1)"/>
     <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
-    <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+    <define name="AIRSPEED_AMSYS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
 
   <header>

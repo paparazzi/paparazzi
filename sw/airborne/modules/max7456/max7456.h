@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2013 Chris
  *
  * This file is part of paparazzi.
  *
@@ -21,14 +20,16 @@
  *
  */
 
-/**
- * @file arch/omap/subsystems/electrical/electrical_arch.h
- * arch specific electrical status readings
- */
+#ifndef MAX7456_H
+#define MAX7456_H
 
-#ifndef ELECTRICAL_ARCH_H_
-#define ELECTRICAL_ARCH_H_
+#include "std.h"
 
-#include "subsystems/electrical.h"
+extern void max7456_init(void);
+extern void max7456_periodic(void);
+extern void max7456_event(void);
 
-#endif /* ELECTRICAL_ARCH_H_ */
+extern uint8_t osd_enable;
+
+
+#endif //MAX7456_H

@@ -213,7 +213,7 @@
     <define name="IGAIN" value="15"/>
     <define name="NGAIN" value="0"/>
     <!-- feedforward -->
-    <define name="AGAIN" value="100"/>
+    <define name="AGAIN" value="0"/>
   </section>
 
   <section name="BAT">

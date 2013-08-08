@@ -55,6 +55,7 @@ uint8_t ms5611_status;
 uint16_t ms5611_c[PROM_NB];
 uint32_t ms5611_d1, ms5611_d2;
 int32_t prom_cnt;
+int64_t baroms;
 float fbaroms, ftempms;
 float baro_ms5611_alt;
 bool_t baro_ms5611_enabled;
@@ -193,7 +194,7 @@ void baro_ms5611_event( void ) {
       break;
 
     case  MS5611_ADC_D2: {
-      int64_t dt, baroms, tempms, off, sens, t2, off2, sens2;
+      int64_t dt, tempms, off, sens, t2, off2, sens2;
       /* read D2 (temperature) */
       ms5611_d2 = (ms5611_trans.buf[0] << 16) |
                   (ms5611_trans.buf[1] << 8) |

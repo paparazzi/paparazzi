@@ -74,6 +74,14 @@ void stabilization_attitude_ref_init(void) {
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
 
 
+#define REF_ANGLE_PI      BFP_OF_REAL(3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
+#define REF_ANGLE_TWO_PI  BFP_OF_REAL(2.*3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
+#define ANGLE_REF_NORMALIZE(_a) {                       \
+    while (_a >  REF_ANGLE_PI)  _a -= REF_ANGLE_TWO_PI; \
+    while (_a < -REF_ANGLE_PI)  _a += REF_ANGLE_TWO_PI; \
+  }
+
+
 /** explicitly define to zero to disable attitude reference generation */
 #ifndef USE_ATTITUDE_REF
 #define USE_ATTITUDE_REF 1

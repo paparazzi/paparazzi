@@ -101,6 +101,9 @@ void mcu_init(void) {
 #ifdef USE_I2C2
   i2c2_init();
 #endif
+#ifdef USE_I2C3
+  i2c3_init();
+#endif
 #ifdef USE_ADC
   adc_init();
 #endif
@@ -140,6 +143,10 @@ void mcu_init(void) {
   spi3_slave_init();
 #endif
 #endif // SPI_SLAVE
+
+#if SPI_SLAVE_HS
+  spi_slave_hs_init();
+#endif
 #endif // USE_SPI
 
 #ifdef USE_DAC

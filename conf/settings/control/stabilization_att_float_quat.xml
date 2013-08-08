@@ -1,0 +1,27 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="Att Loop">
+      <dl_setting var="stabilization_gains[0].p.x" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude" shortname="pgain phi" param="STABILIZATION_ATTITUDE_PHI_PGAIN"/>
+      <dl_setting var="stabilization_gains[0].i.x" min="0" step="1" max="800"    module="stabilization/stabilization_attitude" shortname="igain phi" param="STABILIZATION_ATTITUDE_PHI_IGAIN" />
+      <dl_setting var="stabilization_gains[0].d.x" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain p" param="STABILIZATION_ATTITUDE_PHI_DGAIN"/>
+      <dl_setting var="stabilization_gains[0].rates_d.x" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind p" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D"/>
+      <dl_setting var="stabilization_gains[0].dd.x" min="0" step="1" max="1000" module="stabilization/stabilization_attitude" shortname="ddgain p" param="STABILIZATION_ATTITUDE_PHI_DDGAIN"/>
+
+      <dl_setting var="stabilization_gains[0].p.y" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude" shortname="pgain theta" param="STABILIZATION_ATTITUDE_THETA_PGAIN"/>
+      <dl_setting var="stabilization_gains[0].i.y" min="0"  step="1" max="800"    module="stabilization/stabilization_attitude" shortname="igain theta" param="STABILIZATION_ATTITUDE_THETA_IGAIN"/>
+      <dl_setting var="stabilization_gains[0].d.y" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain q" param="STABILIZATION_ATTITUDE_THETA_DGAIN"/>
+      <dl_setting var="stabilization_gains[0].rates_d.y" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind q" param="STABILIZATION_ATTITUDE_THETA_DGAIN_D"/>
+      <dl_setting var="stabilization_gains[0].dd.y" min="0"    step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain q" param="STABILIZATION_ATTITUDE_THETA_DDGAIN"/>
+
+      <dl_setting var="stabilization_gains[0].p.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="pgain psi" param="STABILIZATION_ATTITUDE_PSI_PGAIN"/>
+      <dl_setting var="stabilization_gains[0].i.z" min="0"  step="1" max="400"    module="stabilization/stabilization_attitude" shortname="igain psi" param="STABILIZATION_ATTITUDE_PSI_IGAIN"/>
+      <dl_setting var="stabilization_gains[0].d.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain r" param="STABILIZATION_ATTITUDE_PSI_DGAIN"/>
+      <dl_setting var="stabilization_gains[0].rates_d.z" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind r" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D"/>
+      <dl_setting var="stabilization_gains[0].dd.z" min="0" step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain r" param="STABILIZATION_ATTITUDE_PSI_DDGAIN"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>

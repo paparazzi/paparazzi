@@ -22,16 +22,15 @@
  */
 
 /**
- * @file arch/omap/subsystems/electrical/electrical_arch.c
+ * @file boards/ardrone/electrical_raw.h
  * arch specific electrical status readings
  */
 
-#include "subsystems/electrical/electrical_arch.h"
+#ifndef ELECTRICAL_RAW_H_
+#define ELECTRICAL_RAW_H_
 
-struct Electrical electrical;
+#include "subsystems/electrical.h"
 
-void electrical_init(void) { }
+void electrical_setup(void);
 
-void electrical_periodic(void) {
-  electrical.vsupply = 120;
-}
+#endif /* ELECTRICAL_RAW_H_ */

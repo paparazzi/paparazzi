@@ -172,13 +172,17 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
     if (min_cmd < MOTOR_MIXING_MIN_MOTOR && max_cmd > MOTOR_MIXING_MAX_MOTOR)
       motor_mixing.nb_failure++;
 
-    if (min_cmd < MOTOR_MIXING_MIN_MOTOR) {
-      int32_t saturation_offset = MOTOR_MIXING_MIN_MOTOR - min_cmd;
+    /* In case of both min and max saturation, only lower the throttle
+     * instead of applying both. This should prevent your quad shooting up,
+     * but it might loose altitude in case of such a saturation failure.
+     */
+    if (max_cmd > MOTOR_MIXING_MAX_MOTOR) {
+      int32_t saturation_offset = MOTOR_MIXING_MAX_MOTOR - max_cmd;
       BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
       offset_commands(saturation_offset);
     }
-    if (max_cmd > MOTOR_MIXING_MAX_MOTOR) {
-      int32_t saturation_offset = MOTOR_MIXING_MAX_MOTOR - max_cmd;
+    else if (min_cmd < MOTOR_MIXING_MIN_MOTOR) {
+      int32_t saturation_offset = MOTOR_MIXING_MIN_MOTOR - min_cmd;
       BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
       offset_commands(saturation_offset);
     }

@@ -1,12 +1,12 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Aspirin IMU v2.1
+# Common part for Aspirin IMU v2.1 and v2.2
 #
 #
 # required xml:
 #  <section name="IMU" prefix="IMU_">
 #
-#    <!-- these gyro and accel calib values are the defaults for aspirin2.1 -->
+#    <!-- these gyro and accel calib values are the defaults for aspirin2.1/2.2 -->
 #    <define name="GYRO_X_NEUTRAL" value="0"/>
 #    <define name="GYRO_Y_NEUTRAL" value="0"/>
 #    <define name="GYRO_Z_NEUTRAL" value="0"/>
@@ -39,32 +39,49 @@
 
 # for fixedwing firmware and ap only
 ifeq ($(TARGET), ap)
-  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
+  IMU_ASPIRIN_2_CFLAGS  = -DUSE_IMU
 endif
 
-IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\"
-IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c
+IMU_ASPIRIN_2_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin_2_spi.h\"
+IMU_ASPIRIN_2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
+IMU_ASPIRIN_2_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin_2_spi.c
+IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0.c
+IMU_ASPIRIN_2_SRCS   += peripherals/mpu60x0_spi.c
 
 include $(CFG_SHARED)/spi_master.makefile
 
+#
+# SPI device and slave select defaults
+#
 ifeq ($(ARCH), lpc21)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
+ifndef ASPIRIN_2_SPI_DEV
+ASPIRIN_2_SPI_DEV = spi1
+endif
+ifndef ASPIRIN_2_SPI_SLAVE_IDX
+ASPIRIN_2_SPI_SLAVE_IDX = SPI_SLAVE0
+endif
 else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (MPU600 CS)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
+ifndef ASPIRIN_2_SPI_DEV
+ASPIRIN_2_SPI_DEV = spi2
+endif
+ifndef ASPIRIN_2_SPI_SLAVE_IDX
+ASPIRIN_2_SPI_SLAVE_IDX = SPI_SLAVE2
+endif
 endif
 
-IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_1
+ASPIRIN_2_SPI_DEV_UPPER=$(shell echo $(ASPIRIN_2_SPI_DEV) | tr a-z A-Z)
+ASPIRIN_2_SPI_DEV_LOWER=$(shell echo $(ASPIRIN_2_SPI_DEV) | tr A-Z a-z)
+
+IMU_ASPIRIN_2_CFLAGS += -DUSE_$(ASPIRIN_2_SPI_DEV_UPPER)
+IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_DEV=$(ASPIRIN_2_SPI_DEV_LOWER)
+
+IMU_ASPIRIN_2_CFLAGS += -DUSE_$(ASPIRIN_2_SPI_SLAVE_IDX)
+IMU_ASPIRIN_2_CFLAGS += -DASPIRIN_2_SPI_SLAVE_IDX=$(ASPIRIN_2_SPI_SLAVE_IDX)
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
-
-ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_SRCS)
+# and re-use that in the imu_aspirin_v2.1 and imu_aspirin_v2.2 makefiles
 
 
 #

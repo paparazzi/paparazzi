@@ -30,7 +30,7 @@
         <subsystem name="gps"           type="ublox">
             <configure name="GPS_BAUD"    value="B57600"/>
         </subsystem>
-        <subsystem name="stabilization"   type="euler"/>
+        <subsystem name="stabilization"   type="int_euler"/>
         <subsystem name="ahrs"            type="int_cmpl_quat"/>
         <subsystem name="ins"/>
         <define name="PRINT_CONFIG"/>

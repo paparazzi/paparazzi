@@ -21,14 +21,14 @@ $(DATADIR):
 $(DATADIR)/maps.google.com: $(DATADIR) FORCE
 	@echo "-----------------------------------------------"
 	@echo "DOWNLOAD: google maps version code";
-	$(Q)wget -q -O $(@) http://maps.google.com/ || \
+	$(Q)wget -q -t 2 -T 20 -O $(@) http://maps.google.com/ || \
 		(rm -f $(@) && \
 		echo "Could not download google maps version code" && \
 		echo "-----------------------------------------------" && \
 		exit 1)
 
 $(PAPARAZZI_HOME)/conf/maps.xml: $(DATADIR)/maps.google.com
-	$(eval GOOGLE_VERSION := $(shell grep -E "http://khm[0-9]+.google.com/kh/v=[0-9]+.x26" $(DATADIR)/maps.google.com | sed -E 's#.*http://khm[0-9]+.google.com/kh/v=##;s#.x26.*##'))
+	$(eval GOOGLE_VERSION := $(shell tr -s '[[:space:]]' '\n' < $(DATADIR)/maps.google.com | grep -E "http[s]?://khm[s]?[0-9]+.google.com/kh/v=[0-9]+.x26" | sed -E 's#.*http[s]?://khm[s]?[0-9]+.google.com/kh/v=##;s#.x26.*##'))
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	@echo "Updated google maps version to $(GOOGLE_VERSION)"
 	@echo "-----------------------------------------------"

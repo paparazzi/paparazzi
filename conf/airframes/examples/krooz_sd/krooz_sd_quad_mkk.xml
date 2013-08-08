@@ -15,7 +15,7 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
 		<subsystem name="ins"           type="hff"/>
     <subsystem name="actuators"     type="mkk">
@@ -84,16 +84,16 @@
     <define name="GYRO_P_NEUTRAL" value="0"/>
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>
-    <define name="GYRO_P_SENS" value=" 4.41" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 4.41" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 4.41" integer="16"/>
+    <define name="GYRO_P_SENS" value="0.5454" integer="16"/>
+    <define name="GYRO_Q_SENS" value="0.5454" integer="16"/>
+    <define name="GYRO_R_SENS" value="0.5454" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="-48"/>
     <define name="ACCEL_Y_NEUTRAL" value="86"/>
     <define name="ACCEL_Z_NEUTRAL" value="-479"/>
-    <define name="ACCEL_X_SENS" value="4.86549375955" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.89290708897" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.83749812474" integer="16"/>
+    <define name="ACCEL_X_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.6131" integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="-282"/>
     <define name="MAG_Y_NEUTRAL" value="-78"/>
@@ -116,7 +116,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="20." integer="16"/>
+    <define name="BARO_SENS" value="22." integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
