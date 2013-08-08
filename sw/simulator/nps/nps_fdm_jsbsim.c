@@ -26,22 +26,41 @@
  * This is an FDM for NPS that uses JSBSim as the simulation engine.
  */
 
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
-#include <stdlib.h>
+
 #include "nps_fdm.h"
-#include "generated/airframe.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+#include "generated/airframe.h"
+#include "generated/flight_plan.h"
+
 /// Macro to convert from feet to metres
 #define MetersOfFeet(_f) ((_f)/3.2808399)
+#define FeetOfMeters(_m) ((_m)*3.2808399)
+
+/** Name of the JSBSim model.
+ *  Defaults to the AIRFRAME_NAME
+ */
+#ifndef NPS_JSBSIM_MODEL
+#define NPS_JSBSIM_MODEL AIRFRAME_NAME
+#endif
+
+#ifdef NPS_INITIAL_CONDITITONS
+#warning NPS_INITIAL_CONDITITONS was replaced by NPS_JSBSIM_INIT!
+#warning Defaulting to flight plan location.
+#endif
 
 /** Minimum JSBSim timestep
   * Around 1/10000 seems to be good for ground impacts
@@ -49,6 +68,7 @@
 #define MIN_DT (1.0/10240.0)
 
 using namespace JSBSim;
+using namespace std;
 
 static void feed_jsbsim(double* commands);
 static void fetch_state(void);
@@ -294,9 +314,18 @@ static void init_jsbsim(double dt) {
 
   char buf[1024];
   string rootdir;
+  string jsbsim_ic_name;
 
   sprintf(buf,"%s/conf/simulator/jsbsim/",getenv("PAPARAZZI_HOME"));
   rootdir = string(buf);
+
+  /* if jsbsim initial conditions are defined, use them
+   * otherwise use flightplan location
+   */
+#ifdef NPS_JSBSIM_INIT
+  jsbsim_ic_name = NPS_JSBSIM_INIT;
+#endif
+
   FDMExec = new FGFDMExec();
 
   FDMExec->Setsim_time(0.);
@@ -308,7 +337,7 @@ static void init_jsbsim(double dt) {
   if ( ! FDMExec->LoadModel( rootdir + "aircraft",
                              rootdir + "engine",
                              rootdir + "systems",
-                             AIRFRAME_NAME,
+                             NPS_JSBSIM_MODEL,
                              false)){
 #ifdef DEBUG
     cerr << "  JSBSim could not be started" << endl << endl;
@@ -321,12 +350,39 @@ static void init_jsbsim(double dt) {
   FDMExec->GetPropulsion()->InitRunning(-1);
 
   JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
-  if ( ! IC->Load(NPS_INITIAL_CONDITITONS)) {
+  if(!jsbsim_ic_name.empty()) {
+    if ( ! IC->Load(jsbsim_ic_name)) {
 #ifdef DEBUG
-    cerr << "Initialization unsuccessful" << endl;
+      cerr << "Initialization unsuccessful" << endl;
 #endif
-    delete FDMExec;
-    exit(-1);
+      delete FDMExec;
+      exit(-1);
+    }
+  }
+  else {
+    // FGInitialCondition::SetAltitudeASLFtIC
+    // requires this function to be called
+    // before itself
+    IC->SetVgroundFpsIC(0.);
+
+    // Use flight plan initial conditions
+    // convert geodetic lat from flight plan to geocentric
+    double gd_lat = RadOfDeg(NAV_LAT0 / 1e7);
+    double gc_lat = gc_of_gd_lat_d(gd_lat, GROUND_ALT);
+    IC->SetLatitudeDegIC(DegOfRad(gc_lat));
+    IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
+
+    IC->SetAltitudeASLFtIC(FeetOfMeters(GROUND_ALT + 2.0));
+    IC->SetTerrainElevationFtIC(FeetOfMeters(GROUND_ALT));
+    IC->SetPsiDegIC(QFU);
+    IC->SetVgroundFpsIC(0.);
+
+    //initRunning for all engines
+    FDMExec->GetPropulsion()->InitRunning(-1);
+    if (!FDMExec->RunIC()) {
+      cerr << "Initialization from flight plan unsuccessful" << endl;
+      exit(-1);
+    }
   }
 
   // calculate vehicle max radius in m
