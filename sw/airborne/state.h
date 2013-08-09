@@ -1156,7 +1156,7 @@ static inline void stateSetAirspeed_f(float* airspeed) {
   SetBit(state.wind_air_status, AIRSPEED_F);
 }
 
-/// Set angle of attack (float).
+/// Set angle of attack in radians (float).
 static inline void stateSetAngleOfAttack_f(float* aoa) {
   state.angle_of_attack_f = *aoa;
   /* clear bits for all AOA representations and only set the new one */
@@ -1164,7 +1164,7 @@ static inline void stateSetAngleOfAttack_f(float* aoa) {
   SetBit(state.wind_air_status, AOA_F);
 }
 
-/// Set angle of attack (float).
+/// Set sideslip angle in radians (float).
 static inline void stateSetSideslip_f(float* sideslip) {
   state.sideslip_f = *sideslip;
   /* clear bits for all sideslip representations and only set the new one */
