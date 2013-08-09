@@ -578,10 +578,10 @@
     <field name="alt" type="float" unit="m"/>
   </message>
 
-	<message name="AOA_adc" id="69">
-		<field name="adcVal" type="uint16"></field>
-		<field name="AOA" type="float" unit="rad"></field>
-	</message>
+  <message name="AOA_ADC" id="69">
+    <field name="adcVal" type="uint16"/>
+    <field name="AOA" type="float" unit="rad"/>
+  </message>
 
   <message name="XTEND_RSSI" id="70">
     <field name="datalink_time" type="uint16" unit="s"/>

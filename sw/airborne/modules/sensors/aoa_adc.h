@@ -21,7 +21,7 @@
  */
 
 /**
- * @file modules/sensors/AOA_adc.c
+ * @file modules/sensors/aoa_adc.c
  * @brief Angle of Attack sensor on ADC
  * Autor: Bruzzlee
  *
@@ -32,20 +32,27 @@
 #define AOA_ADC_H
 
 #include "std.h"
+#include "mcu_periph/adc.h"
 
-/** Raw ADC value */
-extern uint16_t adc_AOA_val;
-
-/** Angle of Attack offset */
-extern float AOA_offset;
-
-/** Filtering value [0-1[
- * 0: no filtering
- * 1: output is a constant value
+/** Angle of Attack sensor via ADC.
  */
-extern float AOA_filter;
+struct Aoa_Adc {
+  struct adc_buf buf;
+  uint16_t raw; ///< raw ADC value
+  float angle;  ///< Angle of attack in radians
+  float offset; ///< Angle of attack offset in radians
+  float sens;   ///< sensitiviy, i.e. scale to conver raw to angle
 
-void AOA_adc_init( void );
-void AOA_adc_update( void );
+  /** Filtering value [0-1]
+   * 0: no filtering
+   * 1: output is a constant value
+   */
+  float filter;
+};
+
+extern struct Aoa_Adc aoa_adc;
+
+void aoa_adc_init(void);
+void aoa_adc_update(void);
 
 #endif /* AOA_ADC_H */

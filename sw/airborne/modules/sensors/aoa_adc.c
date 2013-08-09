@@ -21,14 +21,14 @@
  */
 
 /**
- * @file modules/sensors/AOA_adc.c
+ * @file modules/sensors/aoa_adc.c
  * @brief Angle of Attack sensor on ADC
  * Autor: Bruzzlee
  *
  * ex: US DIGITAL MA3-A10-236-N
  */
 
-#include "modules/sensors/AOA_adc.h"
+#include "modules/sensors/aoa_adc.h"
 #include "generated/airframe.h"
 #include "state.h"
 
@@ -37,33 +37,24 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-// Default offset value (assuming 0 AOA is in the middle of the range)
+/// Default offset value (assuming 0 AOA is in the middle of the range)
 #ifndef AOA_OFFSET
 #define AOA_OFFSET M_PI
 #endif
-// Default filter value
+/// Default filter value
 #ifndef AOA_FILTER
 #define AOA_FILTER 0.5
 #endif
-// Default sensitivity (2*pi on a 10 bit ADC)
+/// Default sensitivity (2*pi on a 10 bit ADC)
 #ifndef AOA_SENS
 #define AOA_SENS ((2.0*M_PI)/1024)
 #endif
 
-uint16_t adc_AOA_val;
-float AOA_offset, AOA_filter;
-
-// Internal values
-float AOA, AOA_old;
 
 // Downlink
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-
-#ifndef SITL // Use ADC if not in simulation
-
-#include "mcu_periph/adc.h"
 
 #ifndef ADC_CHANNEL_AOA
 #error "ADC_CHANNEL_AOA needs to be defined to use AOA_adc module"
@@ -73,32 +64,30 @@ float AOA, AOA_old;
 #define ADC_CHANNEL_AOA_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
-struct adc_buf buf_AOA;
-#endif
+struct Aoa_Adc aoa_adc;
 
-
-void AOA_adc_init( void ) {
-	AOA_offset = AOA_OFFSET;
-	AOA_filter = AOA_FILTER;
-	AOA_old = 0.0;
-  AOA = 0.0;
-#ifndef SITL
-	adc_buf_channel(ADC_CHANNEL_AOA, &buf_AOA, ADC_CHANNEL_AOA_NB_SAMPLES);
-#endif
+void aoa_adc_init(void) {
+  aoa_adc.offset = AOA_OFFSET;
+  aoa_adc.filter = AOA_FILTER;
+  aoa_adc.sens = AOA_SENS;
+  aoa_adc.angle = 0.0;
+  adc_buf_channel(ADC_CHANNEL_AOA, &aoa_adc.buf, ADC_CHANNEL_AOA_NB_SAMPLES);
 }
 
-void AOA_adc_update( void ) {
-#ifndef SITL
-	adc_AOA_val = buf_AOA.sum / buf_AOA.av_nb_sample;
+void aoa_adc_update(void) {
+  static float prev_aoa = 0.0;
+
+  aoa_adc.raw = aoa_adc.buf.sum / aoa_adc.buf.av_nb_sample;
 
   // PT1 filter and convert to rad
-	AOA = AOA_filter * AOA_old + (1 - AOA_filter) * (adc_AOA_val*AOA_SENS - AOA_offset);
-	AOA_old = AOA;
-#endif
-	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, DefaultDevice, &adc_AOA_val, &AOA));
+  aoa_adc.angle = aoa_adc.filter * prev_aoa +
+    (1.0 - aoa_adc.filter) * (aoa_adc.raw * aoa_adc.sens - aoa_adc.offset);
+  prev_aoa = aoa_adc.angle;
 
 #ifdef USE_AOA
-	stateSetAngleOfAttack_f(AOA);
+  stateSetAngleOfAttack_f(&aoa_adc.angle);
 #endif
+
+  RunOnceEvery(30, DOWNLINK_SEND_AOA_ADC(DefaultChannel, DefaultDevice, &aoa_adc.raw, &aoa_adc.angle));
 }
 
