@@ -28,7 +28,7 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
-#define BARO_AMSYS_DT 0.05
+#define BARO_AMSYS_DT BARO_AMSYS_READ_PERIODIC_PERIOD
 
 extern uint16_t baro_amsys_adc;
 // extern float baro_amsys_offset;
