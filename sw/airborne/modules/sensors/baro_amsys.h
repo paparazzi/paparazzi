@@ -28,6 +28,7 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
+/// new measurement every baro_amsys_read_periodic
 #define BARO_AMSYS_DT BARO_AMSYS_READ_PERIODIC_PERIOD
 
 extern uint16_t baro_amsys_adc;
