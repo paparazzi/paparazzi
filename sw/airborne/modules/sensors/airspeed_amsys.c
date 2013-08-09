@@ -179,6 +179,9 @@ void airspeed_amsys_read_event( void ) {
 			airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_amsys_tmp;
 			airspeed_old = airspeed_amsys;
 			//New value available
+#if USE_AIRSPEED
+    stateSetAirspeed_f(&airspeed_amsys);
+#endif
 		}
 
 	} /*else {
