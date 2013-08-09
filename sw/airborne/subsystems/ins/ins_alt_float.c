@@ -105,6 +105,10 @@ void ins_update_baro() {
       UTM_COPY(utm, *stateGetPositionUtm_f());
       utm.alt = ins_alt;
       stateSetPositionUtm_f(&utm);
+      struct NedCoor_f ned_vel;
+      memcpy(&ned_vel, stateGetSpeedNed_f(), sizeof(struct NedCoor_f));
+      ned_vel.z = -ins_alt_dot;
+      stateSetSpeedNed_f(&ned_vel);
     }
   }
 #endif
@@ -129,7 +133,7 @@ void ins_update_gps(void) {
   struct NedCoor_f ned_vel = {
     gps.ned_vel.x / 100.,
     gps.ned_vel.y / 100.,
-    gps.ned_vel.z / 100.
+    -ins_alt_dot
   };
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
