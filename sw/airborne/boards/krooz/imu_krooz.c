@@ -67,7 +67,10 @@ struct ImuKrooz imu_krooz;
 #if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
 struct MedianFilter3Int median_gyro;
 #endif
-struct MedianFilter3Int median_accel, median_mag;
+#if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
+struct MedianFilter3Int median_accel;
+#endif
+struct MedianFilter3Int median_mag;
 
 void imu_impl_init( void )
 {
@@ -86,8 +89,10 @@ void imu_impl_init( void )
   // Init median filters
 #if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
   InitMedianFilterRatesInt(median_gyro);
-#endif  
+#endif 
+#if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
   InitMedianFilterVect3Int(median_accel);
+#endif
   InitMedianFilterVect3Int(median_mag);
 
   RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
@@ -116,7 +121,9 @@ void imu_periodic( void )
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
 #endif
     VECT3_ASSIGN(imu.accel_unscaled, -imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
+#if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
+#endif
     
     RATES_SMUL(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, IMU_KROOZ_GYRO_AVG_FILTER);
     RATES_ADD(imu_krooz.gyro_filtered, imu.gyro_unscaled);

@@ -31,8 +31,8 @@
 	<modules main_freq="512">
 		<!--<load name="gps_ubx_ucenter.xml"/>
     <load name="sys_mon.xml"/>
-		<load name="geo_mag.xml"/>
-    <load name="osd_max7456.xml"/>-->
+		<load name="geo_mag.xml"/>-->
+    <load name="osd_max7456.xml"/>
   </modules>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
