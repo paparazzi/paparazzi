@@ -33,6 +33,7 @@
 #include "subsystems/imu/imu_krooz_sd_arch.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+#include "filters/median_filter.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -63,10 +64,10 @@ PRINT_CONFIG_VAR(KROOZ_ACCEL_RANGE)
 struct ImuKrooz imu_krooz;
 
 
-#if KROOZ_USE_MEDIAN_FILTER
-#include "filters/median_filter.h"
-struct MedianFilter3Int median_gyro, median_accel, median_mag;
+#if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
+struct MedianFilter3Int median_gyro;
 #endif
+struct MedianFilter3Int median_accel, median_mag;
 
 void imu_impl_init( void )
 {
@@ -82,12 +83,12 @@ void imu_impl_init( void )
 
   hmc58xx_init(&imu_krooz.hmc, &(IMU_KROOZ_I2C_DEV), HMC58XX_ADDR);
 
-#if KROOZ_USE_MEDIAN_FILTER
   // Init median filters
+#if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
   InitMedianFilterRatesInt(median_gyro);
+#endif  
   InitMedianFilterVect3Int(median_accel);
   InitMedianFilterVect3Int(median_mag);
-#endif
 
   RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
   VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
@@ -110,14 +111,23 @@ void imu_periodic( void )
     hmc58xx_start_configure(&imu_krooz.hmc);
 
   if (imu_krooz.meas_nb) {
-    RATES_ASSIGN(imu.gyro_unscaled, imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
-#if KROOZ_USE_MEDIAN_FILTER
+    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
+#if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
     UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
 #endif
-    VECT3_ASSIGN(imu.accel_unscaled, imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
-#if KROOZ_USE_MEDIAN_FILTER
+    VECT3_ASSIGN(imu.accel_unscaled, -imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
-#endif
+    
+    RATES_SMUL(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, IMU_KROOZ_GYRO_AVG_FILTER);
+    RATES_ADD(imu_krooz.gyro_filtered, imu.gyro_unscaled);
+    RATES_SDIV(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, (IMU_KROOZ_GYRO_AVG_FILTER + 1));
+    RATES_COPY(imu.gyro_unscaled, imu_krooz.gyro_filtered);
+    
+    VECT3_SMUL(imu_krooz.accel_filtered, imu_krooz.accel_filtered, IMU_KROOZ_ACCEL_AVG_FILTER);
+    VECT3_ADD(imu_krooz.accel_filtered, imu.accel_unscaled);
+    VECT3_SDIV(imu_krooz.accel_filtered, imu_krooz.accel_filtered, (IMU_KROOZ_ACCEL_AVG_FILTER + 1));
+    VECT3_COPY(imu.accel_unscaled, imu_krooz.accel_filtered);
+    
     RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
     VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
@@ -150,10 +160,8 @@ void imu_krooz_event( void )
   // If the HMC5883 I2C transaction has succeeded: convert the data
   hmc58xx_event(&imu_krooz.hmc);
   if (imu_krooz.hmc.data_available) {
-    VECT3_COPY(imu.mag_unscaled, imu_krooz.hmc.data.vect);
-#if KROOZ_USE_MEDIAN_FILTER
+    VECT3_ASSIGN(imu.mag_unscaled, imu_krooz.hmc.data.vect.z, -imu_krooz.hmc.data.vect.x, imu_krooz.hmc.data.vect.y);
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
-#endif
     imu_krooz.hmc.data_available = FALSE;
     imu_krooz.mag_valid = TRUE;
   }
