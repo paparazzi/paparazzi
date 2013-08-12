@@ -74,7 +74,6 @@ void ahrs_init(void) {
 
   /* Set ltp_to_imu so that body is zero */
   QUAT_COPY(ahrs_impl.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
-  RMAT_COPY(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
 
   FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
 
@@ -98,9 +97,6 @@ void ahrs_align(void) {
 
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_impl.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
-
-  /* Convert initial orientation from quat to rotation matrix representations. */
-  FLOAT_RMAT_OF_QUAT(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
 
   /* set initial body orientation */
   set_body_state_from_quat();
@@ -185,8 +181,6 @@ static inline void propagate_ref(void) {
     ahrs_impl.ltp_to_imu_quat.qz = dr*qi + dq*qx - dp*qy + ca*qz;
 
     //    printf("%f\n",  ahrs_impl.ltp_to_imu_quat.qi);
-
-    FLOAT_RMAT_OF_QUAT(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
   }
 
 }
@@ -228,7 +222,7 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  FLOAT_RMAT_VECT3_MUL(b_expected, ahrs_impl.ltp_to_imu_rmat, *i_expected);
+  FLOAT_QUAT_VMULT(b_expected, ahrs_impl.ltp_to_imu_quat, *i_expected);
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
@@ -288,7 +282,6 @@ static inline void reset_state(void) {
   FLOAT_QUAT_NORMALIZE(q_tmp);
   memcpy(&ahrs_impl.ltp_to_imu_quat, &q_tmp, sizeof(ahrs_impl.ltp_to_imu_quat));
   FLOAT_QUAT_ZERO(ahrs_impl.gibbs_cor);
-  FLOAT_RMAT_OF_QUAT(ahrs_impl.ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
 
 }
 
