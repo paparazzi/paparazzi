@@ -92,11 +92,33 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
 }
 
-void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   // copy euler setpoint for debugging
-  memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
-  INT32_QUAT_OF_EULERS(stab_att_sp_quat, *sp_euler);
-  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+  memcpy(&stab_att_sp_euler, sp_cmd, sizeof(struct Int32Eulers));
+
+  /// @todo calc sp_quat in fixed-point
+
+  /* orientation vector describing simultaneous rotation of roll/pitch */
+  struct FloatVect3 ov;
+  ov.x = ANGLE_FLOAT_OF_BFP(sp_cmd->phi);
+  ov.y = ANGLE_FLOAT_OF_BFP(sp_cmd->theta);
+  ov.z = 0.0;
+  /* quaternion from that orientation vector */
+  struct FloatQuat q_rp;
+  FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
+
+  /* quaternion with only heading setpoint */
+  const float yaw2 = ANGLE_FLOAT_OF_BFP(sp_cmd->psi) / 2.0;
+  struct FloatQuat q_yaw;
+  QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
+
+  /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
+  struct FloatQuat q_sp;
+  FLOAT_QUAT_COMP(q_sp, q_yaw, q_rp);
+  FLOAT_QUAT_WRAP_SHORTEST(q_sp);
+
+  /* convert to fixed point */
+  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
