@@ -588,35 +588,35 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_INTEGRATE(_q, _omega, _dt) {				\
     const float no = FLOAT_RATES_NORM(_omega);				\
     if (no > FLT_MIN) {							\
-      const float a  = 0.5*no*_dt;					\
+      const float a  = 0.5*no*(_dt);                \
       const float ca = cosf(a);						\
       const float sa_ov_no = sinf(a)/no;				\
-      const float dp = sa_ov_no*_omega.p;				\
-      const float dq = sa_ov_no*_omega.q;				\
-      const float dr = sa_ov_no*_omega.r;				\
-      const float qi = _q.qi;						\
-      const float qx = _q.qx;						\
-      const float qy = _q.qy;						\
-      const float qz = _q.qz;						\
-      _q.qi = ca*qi - dp*qx - dq*qy - dr*qz;				\
-      _q.qx = dp*qi + ca*qx + dr*qy - dq*qz;				\
-      _q.qy = dq*qi - dr*qx + ca*qy + dp*qz;				\
-      _q.qz = dr*qi + dq*qx - dp*qy + ca*qz;				\
+      const float dp = sa_ov_no*(_omega).p;				\
+      const float dq = sa_ov_no*(_omega).q;				\
+      const float dr = sa_ov_no*(_omega).r;				\
+      const float qi = (_q).qi;						\
+      const float qx = (_q).qx;						\
+      const float qy = (_q).qy;						\
+      const float qz = (_q).qz;						\
+      (_q).qi = ca*qi - dp*qx - dq*qy - dr*qz;				\
+      (_q).qx = dp*qi + ca*qx + dr*qy - dq*qz;				\
+      (_q).qy = dq*qi - dr*qx + ca*qy + dp*qz;				\
+      (_q).qz = dr*qi + dq*qx - dp*qy + ca*qz;				\
     }									\
   }
 
 #ifdef ALGEBRA_FLOAT_USE_SLOW_FUNCTIONS
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
-    const float qi2  = q.qi*q.qi;					\
-    const float qiqx = q.qi*q.qx;					\
-    const float qiqy = q.qi*q.qy;					\
-    const float qiqz = q.qi*q.qz;					\
-    const float qx2  = q.qx*q.qx;					\
-    const float qxqy = q.qx*q.qy;					\
-    const float qxqz = q.qx*q.qz;					\
-    const float qy2  = q.qy*q.qy;					\
-    const float qyqz = q.qy*q.qz;					\
-    const float qz2 = q.qz*q.qz;					\
+    const float qi2  = (q).qi*(q).qi;					\
+    const float qiqx = (q).qi*(q).qx;					\
+    const float qiqy = (q).qi*(q).qy;					\
+    const float qiqz = (q).qi*(q).qz;					\
+    const float qx2  = (q).qx*(q).qx;					\
+    const float qxqy = (q).qx*(q).qy;					\
+    const float qxqz = (q).qx*(q).qz;					\
+    const float qy2  = (q).qy*(q).qy;					\
+    const float qyqz = (q).qy*(q).qz;					\
+    const float qz2 = (q).qz*(q).qz;					\
     const float m00 = qi2 + qx2 - qy2 - qz2;				\
     const float m01 = 2 * ( qxqy + qiqz );				\
     const float m02 = 2 * ( qxqz - qiqy );				\
@@ -626,32 +626,32 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     const float m20 = 2 * ( qxqz + qiqy );				\
     const float m21 = 2 * ( qyqz - qiqx );				\
     const float m22 = qi2 - qx2 - qy2 + qz2;				\
-    v_out.x = m00 * v_in.x + m01 * v_in.y + m02 * v_in.z;		\
-    v_out.y = m10 * v_in.x + m11 * v_in.y + m12 * v_in.z;		\
-    v_out.z = m20 * v_in.x + m21 * v_in.y + m22 * v_in.z;		\
+    (v_out).x = m00 * (v_in).x + m01 * (v_in).y + m02 * (v_in).z;		\
+    (v_out).y = m10 * (v_in).x + m11 * (v_in).y + m12 * (v_in).z;		\
+    (v_out).z = m20 * (v_in).x + m21 * (v_in).y + m22 * (v_in).z;		\
   }
 #else
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {			\
-    const float qi2_M1_2  = q.qi*q.qi - 0.5;				\
-    const float qiqx = q.qi*q.qx;					\
-    const float qiqy = q.qi*q.qy;					\
-    const float qiqz = q.qi*q.qz;					\
-    	  float m01  = q.qx*q.qy;	/* aka qxqy */			\
-    	  float m02  = q.qx*q.qz;	/* aka qxqz */			\
-    	  float m12  = q.qy*q.qz;	/* aka qyqz */			\
+    const float qi2_M1_2  = (q).qi*(q).qi - 0.5;				\
+    const float qiqx = (q).qi*(q).qx;					\
+    const float qiqy = (q).qi*(q).qy;					\
+    const float qiqz = (q).qi*(q).qz;					\
+    	  float m01  = (q).qx*(q).qy;	/* aka qxqy */			\
+    	  float m02  = (q).qx*(q).qz;	/* aka qxqz */			\
+    	  float m12  = (q).qy*(q).qz;	/* aka qyqz */			\
 \
-    const float m00  = qi2_M1_2 + q.qx*q.qx;				\
+    const float m00  = qi2_M1_2 + (q).qx*(q).qx;				\
     const float m10  = m01 - qiqz;					\
     const float m20  = m02 + qiqy;					\
     const float m21  = m12 - qiqx;					\
     		m01 += qiqz;						\
     		m02 -= qiqy;						\
     		m12 += qiqx;						\
-    const float m11  = qi2_M1_2 + q.qy*q.qy;				\
-    const float m22  = qi2_M1_2 + q.qz*q.qz;				\
-    v_out.x = 2*(m00 * v_in.x + m01 * v_in.y + m02 * v_in.z);		\
-    v_out.y = 2*(m10 * v_in.x + m11 * v_in.y + m12 * v_in.z);		\
-    v_out.z = 2*(m20 * v_in.x + m21 * v_in.y + m22 * v_in.z);		\
+    const float m11  = qi2_M1_2 + (q).qy*(q).qy;				\
+    const float m22  = qi2_M1_2 + (q).qz*(q).qz;				\
+    (v_out).x = 2*(m00 * (v_in).x + m01 * (v_in).y + m02 * (v_in).z);		\
+    (v_out).y = 2*(m10 * (v_in).x + m11 * (v_in).y + m12 * (v_in).z);		\
+    (v_out).z = 2*(m20 * (v_in).x + m21 * (v_in).y + m22 * (v_in).z);		\
   }
 #endif
 
@@ -693,55 +693,55 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     									\
   }
 
-#define FLOAT_QUAT_OF_AXIS_ANGLE(_q, _uv, _an) {		\
-    const float san = sinf(_an/2.);				\
-    _q.qi = cosf(_an/2.);					\
-    _q.qx = san * _uv.x;					\
-    _q.qy = san * _uv.y;					\
-    _q.qz = san * _uv.z;					\
+#define FLOAT_QUAT_OF_AXIS_ANGLE(_q, _uv, _an) {    \
+    const float san = sinf((_an)/2.);               \
+    (_q).qi = cosf((_an)/2.);                       \
+    (_q).qx = san * (_uv).x;                        \
+    (_q).qy = san * (_uv).y;                        \
+    (_q).qz = san * (_uv).z;                        \
   }
 
 #define FLOAT_QUAT_OF_RMAT(_q, _r) {					\
-    const float tr = RMAT_TRACE(_r);					\
+    const float tr = RMAT_TRACE((_r));					\
     if (tr > 0) {							\
       const float two_qi = sqrtf(1.+tr);				\
       const float four_qi = 2. * two_qi;				\
-      _q.qi = 0.5 * two_qi;						\
-      _q.qx =  (RMAT_ELMT(_r, 1, 2)-RMAT_ELMT(_r, 2, 1))/four_qi;	\
-      _q.qy =  (RMAT_ELMT(_r, 2, 0)-RMAT_ELMT(_r, 0, 2))/four_qi;	\
-      _q.qz =  (RMAT_ELMT(_r, 0, 1)-RMAT_ELMT(_r, 1, 0))/four_qi;	\
+      (_q).qi = 0.5 * two_qi;						\
+      (_q).qx =  (RMAT_ELMT((_r), 1, 2)-RMAT_ELMT((_r), 2, 1))/four_qi;	\
+      (_q).qy =  (RMAT_ELMT((_r), 2, 0)-RMAT_ELMT((_r), 0, 2))/four_qi;	\
+      (_q).qz =  (RMAT_ELMT((_r), 0, 1)-RMAT_ELMT((_r), 1, 0))/four_qi;	\
       /*printf("tr > 0\n");*/						\
     }									\
     else {								\
-      if (RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 1, 1) &&			\
-	  RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 2, 2)) {			\
-	const float two_qx = sqrtf(RMAT_ELMT(_r, 0, 0) -RMAT_ELMT(_r, 1, 1) \
-				   -RMAT_ELMT(_r, 2, 2) + 1);		\
+      if (RMAT_ELMT((_r), 0, 0) > RMAT_ELMT((_r), 1, 1) &&			\
+	  RMAT_ELMT((_r), 0, 0) > RMAT_ELMT((_r), 2, 2)) {			\
+	const float two_qx = sqrtf(RMAT_ELMT((_r), 0, 0) -RMAT_ELMT((_r), 1, 1) \
+				   -RMAT_ELMT((_r), 2, 2) + 1);		\
 	const float four_qx = 2. * two_qx;				\
-	_q.qi = (RMAT_ELMT(_r, 1, 2)-RMAT_ELMT(_r, 2, 1))/four_qx;	\
-	_q.qx = 0.5 * two_qx;						\
-	_q.qy = (RMAT_ELMT(_r, 0, 1)+RMAT_ELMT(_r, 1, 0))/four_qx;	\
-	_q.qz = (RMAT_ELMT(_r, 2, 0)+RMAT_ELMT(_r, 0, 2))/four_qx;	\
+	(_q).qi = (RMAT_ELMT((_r), 1, 2)-RMAT_ELMT((_r), 2, 1))/four_qx;	\
+	(_q).qx = 0.5 * two_qx;						\
+	(_q).qy = (RMAT_ELMT((_r), 0, 1)+RMAT_ELMT((_r), 1, 0))/four_qx;	\
+	(_q).qz = (RMAT_ELMT((_r), 2, 0)+RMAT_ELMT((_r), 0, 2))/four_qx;	\
 	/*printf("m00 largest\n");*/					\
       }									\
-      else if (RMAT_ELMT(_r, 1, 1) > RMAT_ELMT(_r, 2, 2)) {		\
+      else if (RMAT_ELMT((_r), 1, 1) > RMAT_ELMT((_r), 2, 2)) {		\
 	const float two_qy =						\
-	  sqrtf(RMAT_ELMT(_r, 1, 1) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 2, 2) + 1); \
+	  sqrtf(RMAT_ELMT((_r), 1, 1) - RMAT_ELMT((_r), 0, 0) - RMAT_ELMT((_r), 2, 2) + 1); \
 	const float four_qy = 2. * two_qy;				\
-	_q.qi = (RMAT_ELMT(_r, 2, 0) - RMAT_ELMT(_r, 0, 2))/four_qy;	\
-	_q.qx = (RMAT_ELMT(_r, 0, 1) + RMAT_ELMT(_r, 1, 0))/four_qy;	\
-	_q.qy = 0.5 * two_qy;						\
-	_q.qz = (RMAT_ELMT(_r, 1, 2) + RMAT_ELMT(_r, 2, 1))/four_qy;	\
+	(_q).qi = (RMAT_ELMT((_r), 2, 0) - RMAT_ELMT((_r), 0, 2))/four_qy;	\
+	(_q).qx = (RMAT_ELMT((_r), 0, 1) + RMAT_ELMT((_r), 1, 0))/four_qy;	\
+	(_q).qy = 0.5 * two_qy;						\
+	(_q).qz = (RMAT_ELMT((_r), 1, 2) + RMAT_ELMT((_r), 2, 1))/four_qy;	\
 	/*printf("m11 largest\n");*/					\
       }									\
       else {								\
 	const float two_qz =						\
-	  sqrtf(RMAT_ELMT(_r, 2, 2) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 1, 1) + 1); \
+	  sqrtf(RMAT_ELMT((_r), 2, 2) - RMAT_ELMT((_r), 0, 0) - RMAT_ELMT((_r), 1, 1) + 1); \
 	const float four_qz = 2. * two_qz;				\
-	_q.qi = (RMAT_ELMT(_r, 0, 1)- RMAT_ELMT(_r, 1, 0))/four_qz;	\
-	_q.qx = (RMAT_ELMT(_r, 2, 0)+ RMAT_ELMT(_r, 0, 2))/four_qz;	\
-	_q.qy = (RMAT_ELMT(_r, 1, 2)+ RMAT_ELMT(_r, 2, 1))/four_qz;	\
-	_q.qz = 0.5 * two_qz;						\
+	(_q).qi = (RMAT_ELMT((_r), 0, 1)- RMAT_ELMT((_r), 1, 0))/four_qz;	\
+	(_q).qx = (RMAT_ELMT((_r), 2, 0)+ RMAT_ELMT((_r), 0, 2))/four_qz;	\
+	(_q).qy = (RMAT_ELMT((_r), 1, 2)+ RMAT_ELMT((_r), 2, 1))/four_qz;	\
+	(_q).qz = 0.5 * two_qz;						\
      	/*printf("m22 largest\n");*/					\
       }									\
     }									\
