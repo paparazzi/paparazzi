@@ -41,6 +41,8 @@ struct AhrsMlkf {
   struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
   struct FloatRates  gyro_bias;
 
+  struct FloatVect3  mag_h;
+
   struct FloatQuat  gibbs_cor;
   float P[6][6];
   float lp_accel;

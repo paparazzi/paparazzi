@@ -77,6 +77,8 @@ void ahrs_init(void) {
 
   FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
 
+  VECT3_ASSIGN(ahrs_impl.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
+
   /*
    * Initialises our state
    */
@@ -136,9 +138,8 @@ void ahrs_update_accel(void) {
 void ahrs_update_mag(void) {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, imu.mag);
-  const struct FloatVect3 earth_h = { AHRS_H_X , AHRS_H_Y,  AHRS_H_Z };
   const float h_noise[] =  { 0.1610,  0.1771, 0.2659};
-  update_state(&earth_h, &imu_h, h_noise);
+  update_state(&ahrs_impl.mag_h, &imu_h, h_noise);
   reset_state();
 }
 
