@@ -166,6 +166,10 @@ void guidance_v_run(bool_t in_flight) {
   if (in_flight) {
     gv_adapt_run(stateGetAccelNed_i()->z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
   }
+  else {
+    /* reset estimate while not in_flight */
+    gv_adapt_init();
+  }
 
   switch (guidance_v_mode) {
 
