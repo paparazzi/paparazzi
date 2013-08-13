@@ -31,7 +31,7 @@ PAPARAZZI_SRC=$(shell pwd)
 empty=
 space=$(empty) $(empty)
 ifneq ($(findstring $(space),$(PAPARAZZI_SRC)),)
-  $(error No fucking spaces allowed in the current directory name)
+  $(error No spaces allowed in the current directory name)
 endif
 ifeq ($(PAPARAZZI_HOME),)
 PAPARAZZI_HOME=$(PAPARAZZI_SRC)
