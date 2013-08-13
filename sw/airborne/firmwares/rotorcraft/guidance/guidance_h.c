@@ -267,6 +267,7 @@ void guidance_h_run(bool_t  in_flight) {
 
         /* set psi command */
         guidance_h_command_body.psi = nav_heading;
+        INT32_ANGLE_NORMALIZE(guidance_h_command_body.psi);
         /* compute roll and pitch commands and set final attitude setpoint */
         guidance_h_traj_run(in_flight);
       }
