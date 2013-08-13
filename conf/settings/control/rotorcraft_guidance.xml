@@ -7,7 +7,8 @@
       <dl_setting var="guidance_v_kp" min="0" step="1" max="600"   module="guidance/guidance_v" shortname="kp" param="GUIDANCE_V_HOVER_KP"/>
       <dl_setting var="guidance_v_kd" min="0" step="1" max="600"   module="guidance/guidance_v" shortname="kd" param="GUIDANCE_V_HOVER_KD"/>
       <dl_setting var="guidance_v_ki" min="0" step="1" max="300"   module="guidance/guidance_v" shortname="ki" handler="SetKi" param="GUIDANCE_V_HOVER_KI"/>
-      <dl_setting var="guidance_v_nominal_throttle" min="0.1" step="0.01" max="0.9" module="guidance/guidance_v" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE"/>
+      <dl_setting var="guidance_v_nominal_throttle" min="0.2" step="0.01" max="0.8" module="guidance/guidance_v" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE"/>
+      <dl_setting var="guidance_v_adapt_throttle_enabled" min="0" step="1" max="1" module="guidance/guidance_v" shortname="adapt_throttle" param="GUIDANCE_V_ADAPT_THROTTLE_ENABLED" values="FALSE|TRUE"/>
       <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" module="guidance/guidance_v" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       <dl_setting var="ins.vf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="vf_realign" values="OFF|ON"/>
     </dl_settings>

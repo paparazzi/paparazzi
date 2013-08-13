@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 The Paparazzi Team
+ * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,18 +19,47 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/guidance/guidance_v_adpt.h
- *  Adaptation bloc of the vertical guidance.
+/** @file firmwares/rotorcraft/guidance/guidance_v_adapt.c
+ *  Adaptation block of the vertical guidance.
  *
  *  This is a dimension one kalman filter estimating
- *  the ratio of vertical acceleration over thrust command ( ~ invert of the mass )
- *  needed by the invert dynamic model to produce a nominal command
+ *  the ratio of vertical acceleration over thrust command ( ~ inverse of the mass )
+ *  needed by the invert dynamic model to produce a nominal command.
  */
 
-#ifndef GUIDANCE_V_ADPT
-#define GUIDANCE_V_ADPT
-
+#include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 #include "paparazzi.h"
+#include "math/pprz_algebra_int.h"
+
+
+/** Initial hover throttle as factor of MAX_PPRZ.
+ *  Should be a value between #GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE and
+ *  #GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE.
+ *  It is better to start with low thrust and let it rise as the adaptive filter
+ *  finds the vehicle needs more thrust.
+ */
+#ifndef GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE
+#define GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE 0.3
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE)
+
+/** Minimum hover throttle as factor of MAX_PPRZ.
+ *  With the default of 0.2 the nominal hover throttle will
+ *  never go lower than 20%.
+ */
+#ifndef GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE
+#define GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE 0.2
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE)
+
+/** Maximum hover throttle as factor of MAX_PPRZ.
+ *  With the default of 0.75 the nominal hover throttle will
+ *  never go over 75% of max throttle.
+ */
+#ifndef GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE
+#define GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE 0.75
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE)
 
 /** Adapt noise factor.
  *  Smaller values will make the filter to adapt faster.
@@ -41,14 +70,6 @@
 #define GUIDANCE_V_ADAPT_NOISE_FACTOR 1.0
 #endif
 
-/** Initial estimation.
- *  The initial value can be adapted for faster converging time.
- *  It is usually recommended to start with a low value (overestimation of the mass),
- *  as it is helping for a smooth takeoff.
- */
-#ifndef GUIDANCE_V_ADAPT_X0
-#define GUIDANCE_V_ADAPT_X0 0.003
-#endif
 
 /** Filter is not fed if accel values are more than +/- MAX_ACCEL.
  *  MAX_ACCEL is a positive value in m/s^2
@@ -67,52 +88,11 @@
 #define GUIDANCE_V_ADAPT_MIN_CMD 0.1
 #endif
 
-/** Minimum hover throttle as factor of MAX_PPRZ.
- *  With the default of 0.2 the nominal hover throttle will
- *  never go lower than 20%.
- */
-#ifndef GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE
-#define GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE 0.2
-#endif
 
-/** Maximum hover throttle as factor of MAX_PPRZ.
- *  With the default of 0.75 the nominal hover throttle will
- *  never go over 75% of max throttle.
- */
-#ifndef GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE
-#define GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE 0.75
-#endif
-
-/** State of the estimator.
- *  fixed point representation with #GV_ADAPT_X_FRAC
- *  Q13.18
- */
-extern int32_t gv_adapt_X;
-#define GV_ADAPT_X_FRAC 24
-
-/** Covariance.
- *  fixed point representation with #GV_ADAPT_P_FRAC
- *  Q13.18
- */
-extern int32_t gv_adapt_P;
-#define GV_ADAPT_P_FRAC 18
-
-/** Measurement */
-extern int32_t gv_adapt_Xmeas;
-
-
-#ifdef GUIDANCE_V_C
 
 int32_t gv_adapt_X;
 int32_t gv_adapt_P;
 int32_t gv_adapt_Xmeas;
-
-
-/* Initial State and Covariance    */
-#define GV_ADAPT_X0_F GUIDANCE_V_ADAPT_X0
-#define GV_ADAPT_X0 BFP_OF_REAL(GV_ADAPT_X0_F, GV_ADAPT_X_FRAC)
-#define GV_ADAPT_P0_F 0.1
-#define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)
 
 /* System  noises */
 #ifndef GV_ADAPT_SYS_NOISE_F
@@ -125,10 +105,15 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_HOVER_F, GV_ADAPT_P_FRAC)
 #define GV_ADAPT_MEAS_NOISE_OF_ZD (100.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 
+/* Initial Covariance    */
+#define GV_ADAPT_P0_F 0.1
+static const int32_t gv_adapt_P0 = BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC);
+static const int32_t gv_adapt_X0 = BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) /
+  (GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE * MAX_PPRZ);
 
-static inline void gv_adapt_init(void) {
-  gv_adapt_X = GV_ADAPT_X0;
-  gv_adapt_P = GV_ADAPT_P0;
+void gv_adapt_init(void) {
+  gv_adapt_X = gv_adapt_X0;
+  gv_adapt_P = gv_adapt_P0;
 }
 
 #define K_FRAC 12
@@ -138,7 +123,7 @@ static inline void gv_adapt_init(void) {
  * @param thrust_applied  controller input [0 : MAX_PPRZ]
  * @param zd_ref          vertical speed reference in m/s with #INT32_SPEED_FRAC
  */
-static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
+void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
   static const int32_t gv_adapt_min_cmd = GUIDANCE_V_ADAPT_MIN_CMD * MAX_PPRZ;
   static const int32_t gv_adapt_max_cmd = GUIDANCE_V_ADAPT_MAX_CMD * MAX_PPRZ;
@@ -177,8 +162,8 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
   /* Update Covariance  Pnew = P - K * P   */
   gv_adapt_P = gv_adapt_P - ((K * gv_adapt_P)>>K_FRAC);
   /* Don't let covariance climb over initial value */
-  if (gv_adapt_P > GV_ADAPT_P0) {
-    gv_adapt_P = GV_ADAPT_P0;
+  if (gv_adapt_P > gv_adapt_P0) {
+    gv_adapt_P = gv_adapt_P0;
   }
 
   /* Update State */
@@ -195,8 +180,3 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
     (GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE * MAX_PPRZ);
   Bound(gv_adapt_X, min_out, max_out);
 }
-
-
-#endif /* GUIDANCE_V_C */
-
-#endif /* GUIDANCE_V_ADPT */

@@ -24,15 +24,13 @@
  *
  */
 
-#ifndef GUIDANCE_V
-#define GUIDANCE_V
+#ifndef GUIDANCE_V_H
+#define GUIDANCE_V_H
 
 #include "std.h"
 
-#include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_ref.h"
-
-#include "firmwares/rotorcraft/guidance/guidance_v_adpt.h"
+#include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 
 #define GUIDANCE_V_MODE_KILL      0
 #define GUIDANCE_V_MODE_RC_DIRECT 1
@@ -89,6 +87,10 @@ extern int32_t guidance_v_delta_t;
  */
 extern float guidance_v_nominal_throttle;
 
+/** Use adaptive throttle command estimation.
+ */
+extern bool_t guidance_v_adapt_throttle_enabled;
+
 extern int32_t guidance_v_kp; ///< vertical control P-gain
 extern int32_t guidance_v_kd; ///< vertical control D-gain
 extern int32_t guidance_v_ki; ///< vertical control I-gain
@@ -104,4 +106,4 @@ extern void guidance_v_run(bool_t in_flight);
     guidance_v_z_sum_err = 0;			\
   }
 
-#endif /* GUIDANCE_V */
+#endif /* GUIDANCE_V_H */

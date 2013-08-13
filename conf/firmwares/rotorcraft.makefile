@@ -275,6 +275,7 @@ ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
 #
 # INS choice
