@@ -274,7 +274,7 @@
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct FloatRates* body_rate = stateGetBodyRates_f();   \
   struct FloatEulers* att = stateGetNedToBodyEulers_f();  \
-  float foo;                                              \
+  float foo = 0.0;                                       \
   DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(_trans, _dev,         \
       &(body_rate->p), &(body_rate->q), &(body_rate->r),  \
       &(att->phi), &(att->theta), &(att->psi),            \
