@@ -30,6 +30,7 @@
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 #include "paparazzi.h"
 #include "math/pprz_algebra_int.h"
+#include "generated/airframe.h"
 
 
 /** Initial hover throttle as factor of MAX_PPRZ.
