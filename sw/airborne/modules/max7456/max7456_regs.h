@@ -1,5 +1,5 @@
 #ifndef MAX7456_REGS_H
-#define MAX7456_REG_H
+#define MAX7456_REGS_H
 
 //OSD REGISTER ADDRESSES
 #define OSD_VM0_REG			0x00
@@ -13,17 +13,17 @@
 #define OSD_STAT_REG			0xA0
 
 //OSD BIT POSITIONS
-#define OSD_VIDEO_MODE_PAL		(1<<6)          // Default = NTSC 
+#define OSD_VIDEO_MODE_PAL		(1<<6)          // Default = NTSC
 #define OSD_SYNC_INTERNAL		((1<<5)|(1<<4)) // Default = AUTO
 #define OSD_SYNC_EXTERNAL		((1<<5)		// Default = AUTO
 #define OSD_IMAGE_ENABLE		(1<<3)		// Default = OSD OFF
 #define OSD_REFRESH_ON_NEXT_VSYNC	(1<<2)		// Default = immediately refresh video
-#define OSD_RESET			(1<<1)		// VM0 reg, hardware set to 0 after reset 
+#define OSD_RESET			(1<<1)		// VM0 reg, hardware set to 0 after reset
 #define OSD_VOUT_DISABLE		(1<<0)		// default= VIDEO OUT ENABLED
 #define OSD_8BIT_MODE			(1<<6)		// default= 16 BIT MODE
 #define OSD_BLINK_CHAR			(1<<4)		// default= No BLINKING
 #define OSD_INVERT_PIXELS		(1<<3)		// default= No INVERSION
-#define OSD_CLEAR_DISPLAY_MEMORY	(1<<2)		// DMM reg, default = 0	
+#define OSD_CLEAR_DISPLAY_MEMORY	(1<<2)		// DMM reg, default = 0
 #define OSD_AUTO_INCREMENT_MODE		(1<<0)	        // default = NO AUTO INCREMENT
 
 // MAX7456 VIDEO_MODE_0 register
@@ -104,5 +104,4 @@
 #define OSDBL_RD                        0xEC
 #define OSDBL_10_DisableAutoBlackLevel  0x10
 
-#endif
-
+#endif //MAX7456_REGS_H
