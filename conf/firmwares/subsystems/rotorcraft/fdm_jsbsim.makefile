@@ -119,6 +119,7 @@ nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
 #
 # INS choice
