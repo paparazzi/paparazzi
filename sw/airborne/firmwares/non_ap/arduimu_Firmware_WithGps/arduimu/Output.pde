@@ -14,7 +14,7 @@ void requestEvent(){
 
       byte* pointer;
       pointer = (byte*) &I2C_Message_ar;
-      Wire.send(pointer, 9);
+      Wire.send(pointer, 8);
       
 #if PRINT_DEBUG != 0
       /* for ground debug only, do not call Serial.print() from irq */

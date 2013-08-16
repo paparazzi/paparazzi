@@ -152,7 +152,7 @@ void Drift_correction(void)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
   Accel_weight = constrain(1 - 2*abs(1 - Accel_magnitude),0,1);  //  
   // Set to 0 if high_accel_flag is true
-  if (high_accel_flag) Accel_weight = 0.;
+//  if (high_accel_flag) Accel_weight = 0.;
   
   #if PERFORMANCE_REPORTING == 1
     tempfloat = ((Accel_weight - 0.5) * 256.0f);    //amount added was determined to give imu_health a time constant about twice the time constant of the roll/pitch drift correction
