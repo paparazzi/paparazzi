@@ -24,6 +24,8 @@
 #include "firmwares/rotorcraft/main.h"
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
+#include "nps_fdm.h"
+
 #include "subsystems/radio_control.h"
 #include "subsystems/imu.h"
 #include "subsystems/sensors/baro.h"
@@ -107,17 +109,14 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
 }
 
-#include "nps_fdm.h"
-#include "subsystems/ahrs.h"
-#include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 
-  struct Int32Quat quat;
-  QUAT_BFP_OF_REAL(quat, fdm.ltp_to_body_quat);
-  stateSetNedToBodyQuat_i(&quat);
+  struct FloatQuat quat_f;
+  QUAT_COPY(quat_f, fdm.ltp_to_body_quat);
+  stateSetNedToBodyQuat_f(&quat_f);
 
-  struct Int32Rates rates;
-  RATES_BFP_OF_REAL(rates, fdm.body_ecef_rotvel);
-  stateSetBodyRates_i(&rates);
+  struct FloatRates rates_f;
+  RATES_COPY(rates_f, fdm.body_ecef_rotvel);
+  stateSetBodyRates_f(&rates_f);
 
 }
