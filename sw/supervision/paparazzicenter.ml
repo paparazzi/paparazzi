@@ -173,7 +173,8 @@ let () =
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
-      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 "Configuration changes made during the last session were not saved. ?" with
+      let message = "Configuration changes to conf/conf.xml were not saved during the last session.\nIf you made any manual changes to conf/conf.xml and choose [Discard changes] you will also lose these." in
+      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 message with
       | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
       | 3 -> ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
       | _ -> Sys.remove Utils.backup_xml_file in
