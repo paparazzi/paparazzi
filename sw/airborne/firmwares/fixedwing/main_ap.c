@@ -556,7 +556,7 @@ void sensors_task( void ) {
 #endif // USE_IMU
 
   //FIXME: this is just a kludge
-#if USE_AHRS && defined SITL
+#if USE_AHRS && defined SITL && !USE_NPS
   ahrs_propagate();
 #endif
 
@@ -702,10 +702,6 @@ static inline void on_gyro_event( void ) {
   ahrs_propagate();
   ahrs_update_accel();
 
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
-#endif
-
 #else //PERIODIC_FREQUENCY
   static uint8_t _reduced_propagation_rate = 0;
   static uint8_t _reduced_correction_rate = 0;
@@ -718,6 +714,7 @@ static inline void on_gyro_event( void ) {
   _reduced_propagation_rate++;
   if (_reduced_propagation_rate < (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY))
   {
+    return;
   }
   else
   {
@@ -739,12 +736,16 @@ static inline void on_gyro_event( void ) {
       ImuScaleAccel(imu);
       ahrs_update_accel();
     }
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-    new_ins_attitude = 1;
-#endif
   }
 #endif //PERIODIC_FREQUENCY
+
+#if defined SITL && USE_NPS
+  if (nps_bypass_ahrs) sim_overwrite_ahrs();
+#endif
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  new_ins_attitude = 1;
+#endif
 
 }
 
