@@ -1,3 +1,46 @@
+Paparazzi 5.0.1_stable
+======================
+
+Maintenance release
+
+General
+-------
+
+- joystick hat support for input2ivy
+  [#460] (https://github.com/paparazzi/paparazzi/pull/460)
+- high speed logger: fix mag channels
+- math: fix ecef_of_[ned|enu]_i
+- fix google maps version download parsing
+
+Rotorcraft/Fixedwing firmwares
+------------------------------
+
+- rotorcraft: add MODE_STARTUP
+  [#467] (https://github.com/paparazzi/paparazzi/pull/467)
+- ARDrone2: GPS satellite informaton
+  [#474] (https://github.com/paparazzi/paparazzi/pull/474)
+- fixedwing: init state interface before sensors and ins
+- fixedwing: don't overwrite yaw command with trim
+
+Simulator
+---------
+
+- NPS: explicitly add pcre lib
+- NPS: make radio_control tpye datalink work
+- don't try to use ADC_CHANNEL_CURRENT in SITL
+
+Drivers and architecture specific
+---------------------------------
+
+- fixes for imu_drotek_10dof_v2
+- init spi_slave_hs for imu_chimu
+- mpu60x0_i2c: only copy ext data if i2c_bypass is false
+- aspirin_v2.2: unselect baro at startup
+- aspirin_2_spi: default AHRS_PROPAGATE_FREQUENCY is 512
+- STM32F4: fix ppm input timer frequency for TIM2
+- add i2c3 initialization
+
+
 Paparazzi 5.0.0_stable
 ======================
 
