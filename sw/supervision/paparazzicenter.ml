@@ -258,6 +258,11 @@ let () =
     ignore (GToolbox.message_box ~title:"About Paparazzi Center" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "Copyright (C) 2007-2008 ENAC, Pascal Brisset\nhttp://paparazzi.enac.fr") in
   ignore (gui#menu_item_about#connect#activate ~callback);
 
+  (* Help/Get Help menu entry *)
+  let callback = fun () ->
+    ignore (GToolbox.message_box ~title:"Getting Help with Paparazzi" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "The primary documentation for Paparazzi is on the wiki:\nhttp://paparazzi.enac.fr\n\nCommunity-based support is through the paparazzi-devel mailing list:\nhttp://paparazzi.enac.fr/wiki/Contact\n\nThe Paparazzi auto-generated developer documentation is found on GitHub:\nhttp://paparazzi.github.io/docs/\n\nThe Paparazzi sourcecode can be found on GitHub:\nhttps://github.com/paparazzi/paparazzi\n\nIf you think you have found a bug or would like to make a feature request, feel\nfree to visit the Issues page found on GitHub (link found on the above webpage).") in
+  ignore (gui#menu_item_get_help#connect#activate ~callback);
+
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
     read_preferences gui Env.gconf_file ac_combo session_combo target_combo
