@@ -43,12 +43,6 @@
 #include "state.h"
 #include "led.h"
 
-#define __GX3Link(dev, _x) dev##_x
-#define _GX3Link(dev, _x)  __GX3Link(dev, _x)
-#define GX3Link(_x) _GX3Link(GX3_LINK, _x)
-
-#define GX3Buffer() GX3Link(ChAvailable())
-
 #ifdef ImuScaleGyro
 #undef ImuScaleGyro
 #endif
@@ -71,16 +65,8 @@
 
 #define IMU_GX3_LONG_DELAY 4000000
 
-extern struct GX3_packet GX3_packet;
-extern enum GX3Status GX3_status;
-
 extern void GX3_packet_read_message(void);
 extern void GX3_packet_parse(uint8_t c);
-
-extern float GX3_freq;
-extern uint16_t GX3_chksm;
-extern uint16_t GX3_calcsm;
-extern uint32_t GX3_time;
 
 struct GX3_packet {
   bool_t  msg_available;
@@ -106,26 +92,39 @@ struct AhrsFloatQuat {
   struct FloatEulers ltp_to_imu_euler; ///< Rotation from LocalTangentPlane to IMU frame as Euler angles
   struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as quaternions
   struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
-  float mag_offset;
+  float mag_offset;                    ///< Difference between true and magnetic north
+
+  struct GX3_packet GX3_packet;       ///< Packet struct
+  enum GX3Status GX3_status;          ///< GX3 status
+  float GX3_freq;                     ///< data frequency
+  uint16_t GX3_chksm;                 ///< aux variable for checksum
+  uint16_t GX3_calcsm;                ///< aux variable for checksum
+  uint32_t GX3_time;                  ///< GX3 time stamp
+  uint32_t GX3_ltime;                 ///< aux time stamp
+  struct FloatVect3 GX3_accel;        ///< measured acceleration in IMU frame
+  struct FloatRates GX3_rate;         ///< measured angular rates in IMU frame
+  struct FloatRMat  GX3_rmat;         ///< measured attitude in IMU frame (rotational matrix)
+  struct FloatQuat GX3_quat;          ///< measured attitude in IMU frame (quaternions)
+  struct FloatEulers GX3_euler;       ///< measured attitude in IMU frame (eulers)
 };
 
 extern struct AhrsFloatQuat ahrs_impl;
 
 static inline void ReadGX3Buffer(void) {
-  while (GX3Link(ChAvailable()) && !GX3_packet.msg_available)
-    GX3_packet_parse(GX3Link(Getch()));
+  while (uart_char_available(&GX3_PORT) && !ahrs_impl.GX3_packet.msg_available)
+    GX3_packet_parse(uart_getch(&GX3_PORT));
 }
 
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
-  if (GX3Buffer()) {
+  if (uart_char_available(&GX3_PORT)) {
     ReadGX3Buffer();
   }
-  if (GX3_packet.msg_available) {
+  if (ahrs_impl.GX3_packet.msg_available) {
     GX3_packet_read_message();
     _gyro_handler();
     _accel_handler();
     _mag_handler();
-    GX3_packet.msg_available = FALSE;
+    ahrs_impl.GX3_packet.msg_available = FALSE;
   }
 }
 

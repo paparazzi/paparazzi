@@ -153,7 +153,7 @@
 #ifdef USE_IMU_FLOAT
 #  include "subsystems/imu.h"
 #  define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) { DOWNLINK_SEND_IMU_ACCEL(_trans, _dev, &imuf.accel.x, &imuf.accel.y, &imuf.accel.z)}
-#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &(stateGetBodyRates_f()->p), &(stateGetBodyRates_f()->q), &(stateGetBodyRates_f()->r))}
+#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &ahrs_impl.imu_rate.p, &ahrs_impl.imu_rate.q, &ahrs_impl.imu_rate.r)}
 #else
 #ifdef IMU_TYPE_H
 #  ifdef INS_MODULE_H
@@ -325,11 +325,11 @@
 
 #ifdef USE_GX3
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
-    &GX3_freq,			\
-    &GX3_packet.chksm_error,	\
-    &GX3_packet.hdr_error,	\
-    &GX3_chksm,			\
-    &GX3_calcsm)
+    &ahrs_impl.GX3_freq,			\
+    &ahrs_impl.GX3_packet.chksm_error,	\
+    &ahrs_impl.GX3_packet.hdr_error,	\
+    &ahrs_impl.GX3_chksm,			\
+    &ahrs_impl.GX3_calcsm)
 #else
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
