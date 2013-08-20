@@ -248,16 +248,12 @@ void gx3_packet_read_message(void) {
   stateSetBodyRates_f(&body_rate);
 
   // Attitude
-  // Quaternions from rotation matrix
-  FLOAT_QUAT_OF_RMAT(ahrs_impl.gx3_quat, ahrs_impl.gx3_rmat);
-  ahrs_impl.ltp_to_imu_quat = ahrs_impl.gx3_quat;
-  /* Compute LTP to BODY quaternion */
-  struct FloatQuat ltp_to_body_quat;
-  FLOAT_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, imuf.body_to_imu_quat);
-  /* Set state */
+  struct FloatRMat ltp_to_body_rmat;
+  FLOAT_RMAT_COMP(ltp_to_body_rmat, ahrs_impl.gx3_rmat, imuf.body_to_imu_rmat);
+ // stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 #ifdef AHRS_UPDATE_FW_ESTIMATOR // fixedwing
   struct FloatEulers ltp_to_body_eulers;
-  FLOAT_EULERS_OF_QUAT(ltp_to_body_eulers, ltp_to_body_quat);
+  FLOAT_EULERS_OF_RMAT(ltp_to_body_eulers, ltp_to_body_rmat);
   ltp_to_body_eulers.phi -= ins_roll_neutral;
   ltp_to_body_eulers.theta -= ins_pitch_neutral;
 #ifdef AHRS_USE_GPS_HEADING && USE_GPS
@@ -271,11 +267,11 @@ void gx3_packet_read_message(void) {
 #else
 #ifdef IMU_MAG_OFFSET //rotorcraft
   struct FloatEulers ltp_to_body_eulers;
-  FLOAT_EULERS_OF_QUAT(ltp_to_body_eulers, ltp_to_body_quat);
+  FLOAT_EULERS_OF_RMAT(ltp_to_body_eulers, ltp_to_body_rmat);
   ltp_to_body_eulers.psi -= ahrs_impl.mag_offset;
   stateSetNedToBodyEulers_f(&ltp_to_body_eulers);
 #else
-  stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+  stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 #endif
 #endif
 }

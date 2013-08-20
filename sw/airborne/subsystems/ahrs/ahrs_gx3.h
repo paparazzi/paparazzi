@@ -89,7 +89,6 @@ enum GX3Status {
 
 //AHRS
 struct AhrsFloatQuat {
-  struct FloatEulers ltp_to_imu_euler; ///< Rotation from LocalTangentPlane to IMU frame as Euler angles
   struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as quaternions
   struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
   float mag_offset;                    ///< Difference between true and magnetic north
