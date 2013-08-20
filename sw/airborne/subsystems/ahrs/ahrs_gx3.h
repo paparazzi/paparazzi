@@ -98,7 +98,6 @@ struct AhrsFloatQuat {
   enum GX3Status gx3_status;          ///< GX3 status
   float gx3_freq;                     ///< data frequency
   uint16_t gx3_chksm;                 ///< aux variable for checksum
-  uint16_t gx3_calcsm;                ///< aux variable for checksum
   uint32_t gx3_time;                  ///< GX3 time stamp
   uint32_t gx3_ltime;                 ///< aux time stamp
   struct FloatVect3 gx3_accel;        ///< measured acceleration in IMU frame

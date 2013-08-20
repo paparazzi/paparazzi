@@ -609,7 +609,6 @@
     <field name="chksm_error" 	type="uint32"/>
     <field name="hdr_error" 	type="uint32"/>
     <field name="GX3_chksm"	type="uint16"/>
-    <field name="GX3_calcm"	type="uint16"/>
   </message>
 
  <!-- 74 is free -->
