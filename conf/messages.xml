@@ -603,7 +603,14 @@
 
 
  <!-- 72 is free -->
- <!-- 73 is free -->
+
+  <message name="GX3_INFO" id="73">
+    <field name="GX3_freq" 	type="float" 	unit="hz"/>
+    <field name="chksm_error" 	type="uint32"/>
+    <field name="hdr_error" 	type="uint32"/>
+    <field name="GX3_chksm"	type="uint16"/>
+  </message>
+
  <!-- 74 is free -->
  <!-- 75 is free -->
 
