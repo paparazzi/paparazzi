@@ -65,10 +65,10 @@
 
 #define IMU_GX3_LONG_DELAY 4000000
 
-extern void GX3_packet_read_message(void);
-extern void GX3_packet_parse(uint8_t c);
+extern void gx3_packet_read_message(void);
+extern void gx3_packet_parse(uint8_t c);
 
-struct GX3_packet {
+struct GX3Packet {
   bool_t  msg_available;
   uint32_t chksm_error;
   uint32_t hdr_error;
@@ -77,7 +77,7 @@ struct GX3_packet {
   uint8_t  msg_idx;
 };
 
-enum GX36PacketStatus {
+enum GX3PacketStatus {
   GX3PacketWaiting,
   GX3PacketReading
 };
@@ -94,37 +94,37 @@ struct AhrsFloatQuat {
   struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
   float mag_offset;                    ///< Difference between true and magnetic north
 
-  struct GX3_packet GX3_packet;       ///< Packet struct
-  enum GX3Status GX3_status;          ///< GX3 status
-  float GX3_freq;                     ///< data frequency
-  uint16_t GX3_chksm;                 ///< aux variable for checksum
-  uint16_t GX3_calcsm;                ///< aux variable for checksum
-  uint32_t GX3_time;                  ///< GX3 time stamp
-  uint32_t GX3_ltime;                 ///< aux time stamp
-  struct FloatVect3 GX3_accel;        ///< measured acceleration in IMU frame
-  struct FloatRates GX3_rate;         ///< measured angular rates in IMU frame
-  struct FloatRMat  GX3_rmat;         ///< measured attitude in IMU frame (rotational matrix)
-  struct FloatQuat GX3_quat;          ///< measured attitude in IMU frame (quaternions)
-  struct FloatEulers GX3_euler;       ///< measured attitude in IMU frame (eulers)
+  struct GX3Packet gx3_packet;       ///< Packet struct
+  enum GX3Status gx3_status;          ///< GX3 status
+  float gx3_freq;                     ///< data frequency
+  uint16_t gx3_chksm;                 ///< aux variable for checksum
+  uint16_t gx3_calcsm;                ///< aux variable for checksum
+  uint32_t gx3_time;                  ///< GX3 time stamp
+  uint32_t gx3_ltime;                 ///< aux time stamp
+  struct FloatVect3 gx3_accel;        ///< measured acceleration in IMU frame
+  struct FloatRates gx3_rate;         ///< measured angular rates in IMU frame
+  struct FloatRMat  gx3_rmat;         ///< measured attitude in IMU frame (rotational matrix)
+  struct FloatQuat gx3_quat;          ///< measured attitude in IMU frame (quaternions)
+  struct FloatEulers gx3_euler;       ///< measured attitude in IMU frame (eulers)
 };
 
 extern struct AhrsFloatQuat ahrs_impl;
 
 static inline void ReadGX3Buffer(void) {
-  while (uart_char_available(&GX3_PORT) && !ahrs_impl.GX3_packet.msg_available)
-    GX3_packet_parse(uart_getch(&GX3_PORT));
+  while (uart_char_available(&GX3_PORT) && !ahrs_impl.gx3_packet.msg_available)
+    gx3_packet_parse(uart_getch(&GX3_PORT));
 }
 
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
   if (uart_char_available(&GX3_PORT)) {
     ReadGX3Buffer();
   }
-  if (ahrs_impl.GX3_packet.msg_available) {
-    GX3_packet_read_message();
+  if (ahrs_impl.gx3_packet.msg_available) {
+    gx3_packet_read_message();
     _gyro_handler();
     _accel_handler();
     _mag_handler();
-    ahrs_impl.GX3_packet.msg_available = FALSE;
+    ahrs_impl.gx3_packet.msg_available = FALSE;
   }
 }
 
