@@ -381,37 +381,6 @@ struct FloatRates {
 
 
 /* C n->b rotation matrix */
-#ifdef ALGEBRA_FLOAT_USE_SLOW_FUNCTIONS
-#define FLOAT_RMAT_OF_QUAT(_rm, _q) {                                   \
-    const float qx2  = (_q).qx*(_q).qx;                 \
-    const float qy2  = (_q).qy*(_q).qy;                 \
-    const float qz2  = (_q).qz*(_q).qz;                 \
-    const float qiqx = (_q).qi*(_q).qx;                 \
-    const float qiqy = (_q).qi*(_q).qy;                 \
-    const float qiqz = (_q).qi*(_q).qz;                 \
-    const float qxqy = (_q).qx*(_q).qy;                 \
-    const float qxqz = (_q).qx*(_q).qz;                 \
-    const float qyqz = (_q).qy*(_q).qz;                 \
-    /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */             \
-    RMAT_ELMT(_rm, 0, 0) =  1. - 2.*(  qy2 +  qz2 );            \
-    /* dcm01 =       2.*( qxqy + qiqz ); */             \
-    RMAT_ELMT(_rm, 0, 1) = 2.*( qxqy + qiqz );              \
-    /* dcm02 =       2.*( qxqz - qiqy ); */             \
-    RMAT_ELMT(_rm, 0, 2) = 2.*( qxqz - qiqy );              \
-    /* dcm10 = 2.*( qxqy - qiqz );       */             \
-    RMAT_ELMT(_rm, 1, 0) = 2.*( qxqy - qiqz );              \
-    /* dcm11 = 1.0 - 2.*(qx2+qz2);       */             \
-    RMAT_ELMT(_rm, 1, 1) = 1.0 - 2.*(qx2+qz2);              \
-    /* dcm12 =       2.*( qyqz + qiqx ); */             \
-    RMAT_ELMT(_rm, 1, 2) = 2.*( qyqz + qiqx );              \
-    /* dcm20 =       2.*( qxqz + qiqy ); */             \
-    RMAT_ELMT(_rm, 2, 0) = 2.*( qxqz + qiqy );              \
-    /* dcm21 =       2.*( qyqz - qiqx ); */             \
-    RMAT_ELMT(_rm, 2, 1) = 2.*( qyqz - qiqx );              \
-    /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */             \
-    RMAT_ELMT(_rm, 2, 2) = 1.0 - 2.*(  qx2 +  qy2 );            \
-  }
-#else
 #define FLOAT_RMAT_OF_QUAT(_rm, _q) {                   \
     const float _a = M_SQRT2*(_q).qi;                   \
     const float _b = M_SQRT2*(_q).qx;                   \
@@ -434,7 +403,6 @@ struct FloatRates {
     RMAT_ELMT(_rm, 2, 1) = cd-ab;                   \
     RMAT_ELMT(_rm, 2, 2) = a2_1+_d*_d;                  \
   }
-#endif
 
 /* in place first order integration of a rotation matrix */
 #define FLOAT_RMAT_INTEGRATE_FI(_rm, _omega, _dt ) {            \
@@ -605,32 +573,6 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     }                                   \
   }
 
-#ifdef ALGEBRA_FLOAT_USE_SLOW_FUNCTIONS
-#define FLOAT_QUAT_VMULT(v_out, q, v_in) {              \
-    const float qi2  = (q).qi*(q).qi;                   \
-    const float qiqx = (q).qi*(q).qx;                   \
-    const float qiqy = (q).qi*(q).qy;                   \
-    const float qiqz = (q).qi*(q).qz;                   \
-    const float qx2  = (q).qx*(q).qx;                   \
-    const float qxqy = (q).qx*(q).qy;                   \
-    const float qxqz = (q).qx*(q).qz;                   \
-    const float qy2  = (q).qy*(q).qy;                   \
-    const float qyqz = (q).qy*(q).qz;                   \
-    const float qz2 = (q).qz*(q).qz;                    \
-    const float m00 = qi2 + qx2 - qy2 - qz2;                \
-    const float m01 = 2 * ( qxqy + qiqz );              \
-    const float m02 = 2 * ( qxqz - qiqy );              \
-    const float m10 = 2 * ( qxqy - qiqz );              \
-    const float m11 = qi2 - qx2 + qy2 - qz2;                \
-    const float m12 = 2 * ( qyqz + qiqx );              \
-    const float m20 = 2 * ( qxqz + qiqy );              \
-    const float m21 = 2 * ( qyqz - qiqx );              \
-    const float m22 = qi2 - qx2 - qy2 + qz2;                \
-    (v_out).x = m00 * (v_in).x + m01 * (v_in).y + m02 * (v_in).z;       \
-    (v_out).y = m10 * (v_in).x + m11 * (v_in).y + m12 * (v_in).z;       \
-    (v_out).z = m20 * (v_in).x + m21 * (v_in).y + m22 * (v_in).z;       \
-  }
-#else
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {          \
     const float qi2_M1_2  = (q).qi*(q).qi - 0.5;                \
     const float qiqx = (q).qi*(q).qx;                   \
@@ -653,7 +595,6 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     (v_out).y = 2*(m10 * (v_in).x + m11 * (v_in).y + m12 * (v_in).z);       \
     (v_out).z = 2*(m20 * (v_in).x + m21 * (v_in).y + m22 * (v_in).z);       \
   }
-#endif
 
 /* _qd = -0.5*omega(_r) * _q  */
 #define FLOAT_QUAT_DERIVATIVE(_qd, _r, _q) {                \
