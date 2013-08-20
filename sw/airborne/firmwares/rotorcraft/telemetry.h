@@ -140,7 +140,9 @@
     DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
                       &superbitrf.status,               \
                       &superbitrf.cyrf6936.status,      \
-                      &superbitrf.packet_count,         \
+                      &superbitrf.irq_count,            \
+                      &superbitrf.rx_packet_count,      \
+                      &superbitrf.tx_packet_count,      \
                       &superbitrf.transfer_timeouts,    \
                       &superbitrf.resync_count,         \
                       &superbitrf.uplink_count,         \

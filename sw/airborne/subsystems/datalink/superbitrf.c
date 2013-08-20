@@ -36,27 +36,33 @@
 #ifndef SUPERBITRF_SPI_DEV
 #define SUPERBITRF_SPI_DEV      spi1
 #endif
+PRINT_CONFIG_VAR(SUPERBITRF_SPI_DEV);
 
 /* Default SuperbitRF RST PORT and PIN */
 #ifndef SUPERBITRF_RST_PORT
 #define SUPERBITRF_RST_PORT     GPIOC
 #endif
+PRINT_CONFIG_VAR(SUPERBITRF_RST_PORT);
 #ifndef SUPERBITRF_RST_PIN
 #define SUPERBITRF_RST_PIN      GPIO12
 #endif
+PRINT_CONFIG_VAR(SUPERBITRF_RST_PIN);
 
 /* Default SuperbitRF DRDY(IRQ) PORT and PIN */
 #ifndef SUPERBITRF_DRDY_PORT
 #define SUPERBITRF_DRDY_PORT     GPIOB
 #endif
+PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PORT);
 #ifndef SUPERBITRF_DRDY_PIN
 #define SUPERBITRF_DRDY_PIN      GPIO1
 #endif
+PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PIN);
 
 /* Default forcing in DSM2 mode is false */
 #ifndef SUPERBITRF_FORCE_DSM2
 #define SUPERBITRF_FORCE_DSM2   FALSE
 #endif
+PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2);
 
 /* The superbitRF structure */
 struct SuperbitRF superbitrf;
@@ -175,7 +181,8 @@ void superbitrf_init(void) {
   superbitrf.status = SUPERBITRF_UNINIT;
   superbitrf.state = 0;
   superbitrf.timer = 0;
-  superbitrf.packet_count = 0;
+  superbitrf.rx_packet_count = 0;
+  superbitrf.tx_packet_count = 0;
 
   // Setup the transmit buffer
   superbitrf.tx_insert_idx = 0;
@@ -188,7 +195,7 @@ void superbitrf_init(void) {
   gpio_setup_input(SUPERBITRF_DRDY_PORT, SUPERBITRF_DRDY_PIN);
 
   // Initialize the cyrf6936 chip
-  cyrf6936_init(&superbitrf.cyrf6936, &(SUPERBITRF_SPI_DEV), 1, SUPERBITRF_RST_PORT, SUPERBITRF_RST_PIN);
+  cyrf6936_init(&superbitrf.cyrf6936, &(SUPERBITRF_SPI_DEV), 2, SUPERBITRF_RST_PORT, SUPERBITRF_RST_PIN);
 }
 
 /**
@@ -196,6 +203,7 @@ void superbitrf_init(void) {
  */
 void superbitrf_event(void) {
   uint8_t i, pn_row, packet_size, data_code[16], tx_packet[16];
+  static bool_t start_transfer = TRUE;
 
   // Check if the cyrf6936 isn't busy and the uperbitrf is initialized
   if(superbitrf.cyrf6936.status != CYRF6936_IDLE)
@@ -207,13 +215,14 @@ void superbitrf_event(void) {
     if(gpio_get(SUPERBITRF_DRDY_PORT, SUPERBITRF_DRDY_PIN) == 0) {
       // Receive the packet
       cyrf6936_read_rx_irq_status_packet(&superbitrf.cyrf6936);
+      superbitrf.irq_count++;
     }
 
     /* Check if it is a valid receive */
     if(superbitrf.cyrf6936.has_irq && (superbitrf.cyrf6936.rx_irq_status & CYRF_RXC_IRQ)) {
       // Handle the packet received
       superbitrf_receive_packet_cb((superbitrf.cyrf6936.rx_irq_status & CYRF_RXE_IRQ), superbitrf.cyrf6936.rx_status, superbitrf.cyrf6936.rx_packet);
-      superbitrf.packet_count++;
+      superbitrf.rx_packet_count++;
 
       // Reset the packet receiving
       superbitrf.cyrf6936.has_irq = FALSE;
@@ -223,6 +232,7 @@ void superbitrf_event(void) {
     if(superbitrf.cyrf6936.has_irq && (superbitrf.cyrf6936.tx_irq_status & CYRF_TXC_IRQ)) {
       // Handle the send packet
       superbitrf_send_packet_cb((superbitrf.cyrf6936.rx_irq_status & CYRF_TXE_IRQ));
+      superbitrf.tx_packet_count++;
 
       // Reset the packet receiving
       superbitrf.cyrf6936.has_irq = FALSE;
@@ -238,9 +248,9 @@ void superbitrf_event(void) {
     if(cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_stratup_config, 11)) {
       // Check if need to go to bind or transfer
       if(gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) == 0)
-        superbitrf.status = SUPERBITRF_INIT_BINDING;
-      else
-        superbitrf.status = SUPERBITRF_INIT_TRANSFER;
+        start_transfer = FALSE;
+
+      superbitrf.status = SUPERBITRF_INIT_BINDING;
     }
     break;
 
@@ -268,16 +278,18 @@ void superbitrf_event(void) {
     }
     break;
 
-    /* When the superbitrf is initializing transfer */
-    case SUPERBITRF_INIT_TRANSFER:
-      // Generate the DSMX channels
-      superbitrf_gen_dsmx_channels();
+  /* When the superbitrf is initializing transfer */
+  case SUPERBITRF_INIT_TRANSFER:
+    // Generate the DSMX channels
+    superbitrf_gen_dsmx_channels();
 
-      // Try to write the transfer config
-      cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_transfer_config, 4);
+    // Try to write the transfer config
+    if(cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_transfer_config, 4)) {
       superbitrf.resync_count = 0;
       superbitrf.status = SUPERBITRF_SYNCING_A;
-      break;
+      superbitrf.state = 1;
+    }
+    break;
 
   /* When the superbitrf is in binding mode */
   case SUPERBITRF_BINDING:
@@ -313,6 +325,38 @@ void superbitrf_event(void) {
       superbitrf.state++;
       break;
     default:
+      // Check if need to go to transfer
+      if(start_transfer) {
+        // Initialize the binding values
+      #ifdef RADIO_TRANSMITTER_ID
+        PRINT_CONFIG_VAR(RADIO_TRANSMITTER_ID);
+        superbitrf.bind_mfg_id32 = RADIO_TRANSMITTER_ID;
+        superbitrf.bind_mfg_id[0] = (superbitrf.bind_mfg_id32 &0xFF);
+        superbitrf.bind_mfg_id[1] = (superbitrf.bind_mfg_id32 >>8 &0xFF);
+        superbitrf.bind_mfg_id[2] = (superbitrf.bind_mfg_id32 >>16 &0xFF);
+        superbitrf.bind_mfg_id[3] = (superbitrf.bind_mfg_id32 >>24 &0xFF);
+
+        // Calculate some values based on the bind MFG id
+        superbitrf.crc_seed = ~((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]);
+        superbitrf.sop_col = (superbitrf.bind_mfg_id[0] + superbitrf.bind_mfg_id[1] + superbitrf.bind_mfg_id[2] + 2) & 0x07;
+        superbitrf.data_col = 7 - superbitrf.sop_col;
+      #endif
+      #ifdef RADIO_TRANSMITTER_CHAN
+        PRINT_CONFIG_VAR(RADIO_TRANSMITTER_CHAN);
+        superbitrf.num_channels = RADIO_TRANSMITTER_CHAN;
+      #endif
+      #ifdef RADIO_TRANSMITTER_PROTOCOL
+        PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
+        superbitrf.protocol = RADIO_TRANSMITTER_PROTOCOL;
+        superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
+      #endif
+
+        // Start transfer
+        superbitrf.state = 0;
+        superbitrf.status = SUPERBITRF_INIT_TRANSFER;
+        break;
+      }
+
       // Set the timer
       superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_BIND_RECV_TIME) % 0xFFFFFFFF;
       superbitrf.state = 0;
@@ -568,7 +612,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     superbitrf.bind_mfg_id[2] = ~packet[2];
     superbitrf.bind_mfg_id[3] = ~packet[3];
     superbitrf.bind_mfg_id32 = ((superbitrf.bind_mfg_id[3] &0xFF) << 24 | (superbitrf.bind_mfg_id[2] &0xFF) << 16 |
-        (superbitrf.bind_mfg_id[1] &0xFF) << 8 | (superbitrf.bind_mfg_id[0] &0xFF)) &0xFFFFFFFF;
+        (superbitrf.bind_mfg_id[1] &0xFF) << 8 | (superbitrf.bind_mfg_id[0] &0xFF));
     superbitrf.num_channels = packet[11];
     superbitrf.protocol = packet[12];
     superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;

@@ -37,7 +37,7 @@
 #define SUPERBITRF_SYNC_RECV_TIME       7000        /**< The time to wait for a sync packet on a channel in microseconds */
 #define SUPERBITRF_RECV_TIME            25000       /**< The time to wait for a transfer packet on a channel in microseconds */
 #define SUPERBITRF_DATAWAIT_TIME        500         /**< The time to wait after RC receive to send a data packet in microseconds */
-#define SUPERBITRF_DATARECV_TIME        9000        /**< The time to wait for a data packet on a channel in microseconds */
+#define SUPERBITRF_DATARECV_TIME        10000       /**< The time to wait for a data packet on a channel in microseconds */
 
 /* The different statuses the superbitRF can be in */
 enum SuperbitRFStatus {
@@ -81,7 +81,9 @@ struct SuperbitRF {
   uint8_t channels[23];                     /**< The channels used for DSM2/DSMX */
   uint8_t channel_idx;                      /**< The current channel index */
   uint8_t channel;                          /**< The current channel number */
-  uint32_t packet_count;                    /**< How many packets are received(also the invalid) */
+  uint32_t irq_count;                       /**< How many interrupts are made */
+  uint32_t rx_packet_count;                 /**< How many packets are received(also the invalid) */
+  uint32_t tx_packet_count;                 /**< How many packets are send(also the invalid) */
   uint32_t uplink_count;                    /**< How many valid uplink packages are received */
   uint32_t rc_count;                        /**< How many valid RC packages are received */
 
