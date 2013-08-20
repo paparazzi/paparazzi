@@ -36,6 +36,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
+#include "subsystems/gps.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 
@@ -127,5 +128,10 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
     GX3_packet.msg_available = FALSE;
   }
 }
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
+#endif
 
 #endif /* AHRS_GX3_H*/

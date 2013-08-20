@@ -64,10 +64,11 @@ struct ImuFloat {
   uint32_t sample_count;
 };
 
-extern void imu_float_init(struct ImuFloat* imuf);
+
 
 /** global IMU state */
 extern struct Imu imu;
+extern struct ImuFloat imuf;
 
 /* underlying hardware */
 #ifdef IMU_TYPE_H
@@ -75,7 +76,7 @@ extern struct Imu imu;
 #endif
 
 extern void imu_init(void);
-
+extern void imu_float_init(void);
 
 #if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
 #define IMU_BODY_TO_IMU_PHI   0
