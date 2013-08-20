@@ -107,8 +107,46 @@ void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   struct FloatQuat q_rp;
   FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
 
-  /* quaternion with only heading setpoint */
-  const float yaw2 = ANGLE_FLOAT_OF_BFP(sp_cmd->psi) / 2.0;
+  const float psi_sp = ANGLE_FLOAT_OF_BFP(sp_cmd->psi);
+
+  /// @todo optimize yaw angle calculation
+
+  /*
+   * Instead of using the psi setpoint angle to rotate around the body z-axis,
+   * calculate the real angle needed to align the projection of the body x-axis
+   * onto the horizontal plane with the psi setpoint.
+   *
+   * angle between two vectors a and b:
+   * angle = atan2(norm(cross(a,b)), dot(a,b))
+   */
+  const struct FloatVect3 xaxis = {1.0, 0.0, 0.0};
+  const struct FloatVect3 zaxis = {0.0, 0.0, 1.0};
+  struct FloatVect3 a;
+  FLOAT_QUAT_VMULT(a, q_rp, xaxis);
+
+  // desired heading vect in earth x-y plane
+  struct FloatVect3 psi_vect;
+  psi_vect.x = cosf(psi_sp);
+  psi_vect.y = sinf(psi_sp);
+  psi_vect.z = 0.0;
+  struct FloatVect3 normal;
+  FLOAT_QUAT_VMULT(normal, q_rp, zaxis);
+  // projection of desired heading onto body x-y plane
+  // b = v - dot(v,n)*n
+  float dot = FLOAT_VECT3_DOT_PRODUCT(psi_vect, normal);
+  struct FloatVect3 dotn;
+  FLOAT_VECT3_SMUL(dotn, normal, dot);
+
+  struct FloatVect3 b;
+  FLOAT_VECT3_DIFF(b, psi_vect, dotn);
+  dot = FLOAT_VECT3_DOT_PRODUCT(a, b);
+  struct FloatVect3 cross;
+  VECT3_CROSS_PRODUCT(cross, a, b);
+  // norm of the cross product
+  float nc = FLOAT_VECT3_NORM(cross);
+  float yaw2 = atan2(nc, dot) / 2.0;
+
+  /* quaternion with yaw command */
   struct FloatQuat q_yaw;
   QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
 
