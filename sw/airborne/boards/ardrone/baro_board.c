@@ -32,20 +32,12 @@
 
 struct Baro baro;
 
-// Over sample setting (0-3)
-#define BMP180_OSS 0
-
-int32_t pressure;
-int32_t temperature;
-int32_t pres_raw = 0;
-int32_t tmp_raw  = 0;
-int32_t pr0      = 0;
+#define BMP180_OSS 0  // Parrot ARDrone uses no oversampling
 
 void baro_init(void) {
   baro.status = BS_UNINITIALIZED;
   baro.absolute       = 0;
   baro.differential   = 0;
-  baro_data_available = 0;
 }
 
 static inline int32_t baro_apply_calibration(int32_t raw)
@@ -67,36 +59,26 @@ static inline int32_t baro_apply_calibration(int32_t raw)
   return p + ((x1 + x2 + 3791L) >> 4);
 }
 
-static inline void baro_read_temp(void)
+static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
 {
-  tmp_raw = (navdata->temperature_pressure & 0x00FF) << 8 | (navdata->temperature_pressure >> 8);
   int32_t x1 = ((tmp_raw - ((int32_t)baro_calibration.ac6)) * ((int32_t)baro_calibration.ac5)) >> 15;
   int32_t x2 = (((int32_t)baro_calibration.mc) << 11) / (x1 + ((int32_t)baro_calibration.md));
   baro_calibration.b5 = x1 + x2;
-  temperature = (baro_calibration.b5 + 8) >> 4;
+  return (baro_calibration.b5 + 8) >> 4;
 }
 
-static inline void baro_read_pressure(void)
+void baro_periodic(void) 
 {
-  pres_raw = navdata->pressure >> 8;
-  pres_raw = pres_raw >> (8 - BMP180_OSS);
-  pressure = baro_apply_calibration(pres_raw);
-  if ((pr0 != 0) && (pressure != 0))
-    pr0 = pressure;
-  pressure -= pr0;
 }
 
-void baro_periodic(void) {
-  if(baro.status == BS_RUNNING && navdata_baro_available == 1) {
-    navdata_baro_available = 0;
-
-    baro_read_temp(); // first read temperature because pressure calibration depends on temperature
-    baro_read_pressure();
-    baro.absolute = pressure;
-    baro_data_available = TRUE;
+void process_ardrone_baro(void)
+{
+  if(baro.status == BS_RUNNING) {
+    // first read temperature because pressure calibration depends on temperature
+    baro.differential = baro_apply_calibration_temp(navdata->temperature_pressure);   // We store the temperature in Baro-Diff
+    baro.absolute = baro_apply_calibration(navdata->pressure);
   }
   else {
-    baro_data_available = FALSE;
     if (baro_calibrated == TRUE) {
       baro.status = BS_RUNNING;
     }

@@ -43,7 +43,7 @@
      <field name="gradient" type="int16" />
      <field name="flag_echo_ini" type="uint16" />
      <field name="pressure" type="int32" />
-     <field name="temperature_pressure" type="int16" />
+     <field name="temperature_pressure" type="uint16" />
      <field name="mx" type="int16" />
      <field name="my" type="int16" />
      <field name="mz" type="int16" />
