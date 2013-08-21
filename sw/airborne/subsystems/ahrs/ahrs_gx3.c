@@ -230,8 +230,7 @@ void gx3_packet_read_message(void) {
      ahrs_impl.gx3_packet.msg_buf[62] << 16 | ahrs_impl.gx3_packet.msg_buf[63] << 8 | ahrs_impl.gx3_packet.msg_buf[64]);
   ahrs_impl.gx3_chksm	= GX3_CHKSM(ahrs_impl.gx3_packet.msg_buf);
 
-  ahrs_impl.gx3_freq = ((float)(ahrs_impl.gx3_time - ahrs_impl.gx3_ltime))/62500.0;
-	ahrs_impl.gx3_freq = 1.0/ahrs_impl.gx3_freq;
+  ahrs_impl.gx3_freq = 62500.0 / (float)(ahrs_impl.gx3_time - ahrs_impl.gx3_ltime);
   ahrs_impl.gx3_ltime = ahrs_impl.gx3_time;
 
   // Acceleration
