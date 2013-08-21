@@ -28,7 +28,7 @@ void serial_port_flush(struct FmsSerialPort* me) {
    * flush any input that might be on the port so we start fresh.
    */
   if (tcflush(me->fd, TCIFLUSH)) {
-    TRACE(TRACE_ERROR,"%s, set term attr failed: %s (%d)\n", device, strerror(errno), errno);
+    TRACE(TRACE_ERROR,"%s, set term attr failed: %s (%d)\n", "", strerror(errno), errno);
     fprintf(stderr, "flush (%d) failed: %s (%d)\n", me->fd, strerror(errno), errno);
   }
 }
@@ -38,7 +38,7 @@ void serial_port_flush_output(struct FmsSerialPort* me) {
    * flush any input that might be on the port so we start fresh.
    */
   if (tcflush(me->fd, TCOFLUSH)) {
-    TRACE(TRACE_ERROR,"%s, set term attr failed: %s (%d)\n", device, strerror(errno), errno);
+    TRACE(TRACE_ERROR,"%s, set term attr failed: %s (%d)\n", "", strerror(errno), errno);
     fprintf(stderr, "flush (%d) failed: %s (%d)\n", me->fd, strerror(errno), errno);
   }
 }
