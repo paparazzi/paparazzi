@@ -381,40 +381,7 @@ struct Int64Vect3 {
 /*
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
  */
-#ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
-#define INT32_RMAT_OF_QUAT(_rm, _q) {                       \
-    const int32_t qx2  = INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC); \
-    const int32_t qy2  = INT_MULT_RSHIFT((_q).qy,(_q).qy, INT32_QUAT_FRAC); \
-    const int32_t qz2  = INT_MULT_RSHIFT((_q).qz,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t qiqx = INT_MULT_RSHIFT((_q).qi,(_q).qx, INT32_QUAT_FRAC); \
-    const int32_t qiqy = INT_MULT_RSHIFT((_q).qi,(_q).qy, INT32_QUAT_FRAC); \
-    const int32_t qiqz = INT_MULT_RSHIFT((_q).qi,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t qxqy = INT_MULT_RSHIFT((_q).qx,(_q).qy, INT32_QUAT_FRAC); \
-    const int32_t qxqz = INT_MULT_RSHIFT((_q).qx,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t qyqz = INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC); \
-    const int32_t one = TRIG_BFP_OF_REAL( 1);                   \
-    const int32_t two = TRIG_BFP_OF_REAL( 2);                   \
-    /* dcm00 = 1.0 - 2.*(  qy2 +  qz2 ); */                 \
-    (_rm).m[0] =  one - INT_MULT_RSHIFT( two, (qy2+qz2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm01 =       2.*( qxqy + qiqz ); */                 \
-    (_rm).m[1] = INT_MULT_RSHIFT( two, (qxqy+qiqz), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm02 =       2.*( qxqz - qiqy ); */                 \
-    (_rm).m[2] = INT_MULT_RSHIFT( two, (qxqz-qiqy), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm10 = 2.*( qxqy - qiqz );       */                 \
-    (_rm).m[3] = INT_MULT_RSHIFT( two, (qxqy-qiqz), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm11 = 1.0 - 2.*(qx2+qz2);       */                 \
-    (_rm).m[4] = one - INT_MULT_RSHIFT( two, (qx2+qz2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm12 =       2.*( qyqz + qiqx ); */                 \
-    (_rm).m[5] = INT_MULT_RSHIFT( two, (qyqz+qiqx), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm20 =       2.*( qxqz + qiqy ); */                 \
-    (_rm).m[6] = INT_MULT_RSHIFT( two, (qxqz+qiqy), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm21 =       2.*( qyqz - qiqx ); */                 \
-    (_rm).m[7] = INT_MULT_RSHIFT( two, (qyqz-qiqx), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-    /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */                 \
-    (_rm).m[8] = one - INT_MULT_RSHIFT( two, (qx2+qy2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
-  }
-#else
-  #define INT32_RMAT_OF_QUAT(_rm, _q) {                                 \
+#define INT32_RMAT_OF_QUAT(_rm, _q) {                                   \
     const int32_t _2qi2_m1  = INT_MULT_RSHIFT((_q).qi,(_q).qi, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1)-TRIG_BFP_OF_REAL( 1); \
     (_rm).m[0]      = INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);  \
     (_rm).m[4]      = INT_MULT_RSHIFT((_q).qy,(_q).qy, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);  \
@@ -437,7 +404,6 @@ struct Int64Vect3 {
     (_rm).m[5] += _2qiqx;               \
     (_rm).m[8] += _2qi2_m1;             \
   }
-#endif
 
 
 /*
@@ -643,32 +609,6 @@ struct Int64Vect3 {
   }
 
 
-#ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
-#define INT32_QUAT_VMULT(v_out, q, v_in) {              \
-    const int32_t qi2  = ((q).qi*(q).qi)>>INT32_QUAT_FRAC;          \
-    const int32_t qx2  = ((q).qx*(q).qx)>>INT32_QUAT_FRAC;          \
-    const int32_t qy2  = ((q).qy*(q).qy)>>INT32_QUAT_FRAC;          \
-    const int32_t qz2  = ((q).qz*(q).qz)>>INT32_QUAT_FRAC;          \
-    const int32_t qiqx = ((q).qi*(q).qx)>>INT32_QUAT_FRAC;          \
-    const int32_t qiqy = ((q).qi*(q).qy)>>INT32_QUAT_FRAC;          \
-    const int32_t qiqz = ((q).qi*(q).qz)>>INT32_QUAT_FRAC;          \
-    const int32_t qxqy = ((q).qx*(q).qy)>>INT32_QUAT_FRAC;          \
-    const int32_t qxqz = ((q).qx*(q).qz)>>INT32_QUAT_FRAC;          \
-    const int32_t qyqz = ((q).qy*(q).qz)>>INT32_QUAT_FRAC;          \
-    const int32_t m00 = qi2 + qx2 - qy2 - qz2;              \
-    const int32_t m01 = 2 * (qxqy + qiqz );             \
-    const int32_t m02 = 2 * (qxqz - qiqy );             \
-    const int32_t m10 = 2 * (qxqy - qiqz );             \
-    const int32_t m11 = qi2 - qx2 + qy2 - qz2;              \
-    const int32_t m12 = 2 * (qyqz + qiqx );             \
-    const int32_t m20 = 2 * (qxqz + qiqy );             \
-    const int32_t m21 = 2 * (qyqz - qiqx );             \
-    const int32_t m22 = qi2 - qx2 - qy2 + qz2;              \
-    (v_out).x = (m00 * (v_in).x + m01 * (v_in).y + m02 * (v_in).z)>>INT32_QUAT_FRAC; \
-    (v_out).y = (m10 * (v_in).x + m11 * (v_in).y + m12 * (v_in).z)>>INT32_QUAT_FRAC; \
-    (v_out).z = (m20 * (v_in).x + m21 * (v_in).y + m22 * (v_in).z)>>INT32_QUAT_FRAC; \
-  }
-#else
 #define INT32_QUAT_VMULT(v_out, q, v_in) {              \
     const int32_t _2qi2_m1 = (((q).qi*(q).qi)>>(INT32_QUAT_FRAC-1)) - QUAT1_BFP_OF_REAL( 1);    \
     const int32_t _2qx2    =  ((q).qx*(q).qx)>>(INT32_QUAT_FRAC-1);     \
@@ -684,7 +624,6 @@ struct Int64Vect3 {
     (v_out).y = (_2qi2_m1*(v_in).y + m01 * (v_in).x -2*_2qiqz*(v_in).x + _2qy2 * (v_in).y + m12 * (v_in).z)>>INT32_QUAT_FRAC; \
     (v_out).z = (_2qi2_m1*(v_in).z + m02 * (v_in).x +2*_2qiqy*(v_in).x+ m12 * (v_in).y -2*_2qiqx*(v_in).y+ _2qz2 * (v_in).z)>>INT32_QUAT_FRAC; \
   }
-#endif
 
 
 

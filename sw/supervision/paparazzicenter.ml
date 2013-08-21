@@ -173,7 +173,8 @@ let () =
 
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
-      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 "Configuration changes made during the last session were not saved. ?" with
+      let message = "Configuration changes to conf/conf.xml were not saved during the last session.\nIf you made any manual changes to conf/conf.xml and choose [Discard changes] you will also lose these." in
+      match GToolbox.question_box ~title:"Backup" ~buttons:["Keep changes"; "Discard changes"; "View changes"] ~default:2 message with
       | 2 -> Sys.rename Utils.backup_xml_file Utils.conf_xml_file
       | 3 -> ignore (Sys.command (sprintf "meld %s %s" Utils.backup_xml_file Utils.conf_xml_file)); question_box ()
       | _ -> Sys.remove Utils.backup_xml_file in
@@ -256,6 +257,11 @@ let () =
   let callback = fun () ->
     ignore (GToolbox.message_box ~title:"About Paparazzi Center" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "Copyright (C) 2007-2008 ENAC, Pascal Brisset\nhttp://paparazzi.enac.fr") in
   ignore (gui#menu_item_about#connect#activate ~callback);
+
+  (* Help/Get Help menu entry *)
+  let callback = fun () ->
+    ignore (GToolbox.message_box ~title:"Getting Help with Paparazzi" ~icon:(GMisc.image ~pixbuf:paparazzi_pixbuf ())#coerce "The primary documentation for Paparazzi is on the wiki:\nhttp://paparazzi.enac.fr\n\nCommunity-based support is through the paparazzi-devel mailing list:\nhttp://paparazzi.enac.fr/wiki/Contact\n\nThe Paparazzi auto-generated developer documentation is found on GitHub:\nhttp://paparazzi.github.io/docs/\n\nThe Paparazzi sourcecode can be found on GitHub:\nhttps://github.com/paparazzi/paparazzi\n\nIf you think you have found a bug or would like to make a feature request, feel\nfree to visit the Issues page found on GitHub (link found on the above webpage).") in
+  ignore (gui#menu_item_get_help#connect#activate ~callback);
 
   (* Read preferences *)
   if Sys.file_exists Env.gconf_file then begin
