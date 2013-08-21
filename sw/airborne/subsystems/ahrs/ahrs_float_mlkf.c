@@ -161,28 +161,9 @@ static inline void propagate_ref(void) {
   RATES_COPY(ahrs_impl.imu_rate, gyro_float);
 #endif
 
-
-  /* propagate reference quaternion only if rate is non null */
-  const float no = FLOAT_RATES_NORM(ahrs_impl.imu_rate);
-  if (no > FLT_MIN) {
-    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-    const float a  = 0.5*no*dt;
-    const float ca = cosf(a);
-    const float sa_ov_no = sinf(a)/no;
-    const float dp = sa_ov_no*ahrs_impl.imu_rate.p;
-    const float dq = sa_ov_no*ahrs_impl.imu_rate.q;
-    const float dr = sa_ov_no*ahrs_impl.imu_rate.r;
-    const float qi = ahrs_impl.ltp_to_imu_quat.qi;
-    const float qx = ahrs_impl.ltp_to_imu_quat.qx;
-    const float qy = ahrs_impl.ltp_to_imu_quat.qy;
-    const float qz = ahrs_impl.ltp_to_imu_quat.qz;
-    ahrs_impl.ltp_to_imu_quat.qi = ca*qi - dp*qx - dq*qy - dr*qz;
-    ahrs_impl.ltp_to_imu_quat.qx = dp*qi + ca*qx + dr*qy - dq*qz;
-    ahrs_impl.ltp_to_imu_quat.qy = dq*qi - dr*qx + ca*qy + dp*qz;
-    ahrs_impl.ltp_to_imu_quat.qz = dr*qi + dq*qx - dp*qy + ca*qz;
-
-    //    printf("%f\n",  ahrs_impl.ltp_to_imu_quat.qi);
-  }
+  /* propagate reference quaternion */
+  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
+  FLOAT_QUAT_INTEGRATE(ahrs_impl.ltp_to_imu_quat, ahrs_impl.imu_rate, dt);
 
 }
 
