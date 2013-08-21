@@ -27,8 +27,8 @@
   </commands>
 
   <command_laws>
-    <let var="hoverpower" value=".75*MAX_PPRZ"/>
-    <let var="hoverstick" value=".35*MAX_PPRZ"/>
+    <let var="hoverpower" value=".75*MAX_PPRZ" />
+    <let var="hoverstick" value=".35*MAX_PPRZ" />
     <let var="halfway" value="(@THRUST >= ($hoverstick) ? 1 : 0)"/>
     <let var="collective" value="@THRUST * 0.4 + (MAX_PPRZ*0.01)"/>
     <let var="gas" value="($hoverpower) + $halfway * (((@THRUST) - ($hoverstick)) * (MAX_PPRZ - ($hoverpower))) / (MAX_PPRZ - ($hoverstick))  + (1 - $halfway) * ((@THRUST - ($hoverstick)) * ($hoverpower)) / ($hoverstick)"/>
@@ -73,9 +73,9 @@
     <define name="MAG_Z_SENS" value="3.52339566014" integer="16"/>
 
     <!-- Current correction -->
-    <define name="MAG_X_CURRENT_COEF" value="-0.390312445109"/>
-    <define name="MAG_Y_CURRENT_COEF" value="-0.068976232866"/>
-    <define name="MAG_Z_CURRENT_COEF" value="-0.181415585657"/>
+    <define name= "MAG_X_CURRENT_COEF" value="-0.390312445109"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="-0.068976232866"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.181415585657"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -162,9 +162,9 @@
    <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD" value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP" value="281"/>
-   <define name="HOVER_KD" value="66"/>
-   <define name="HOVER_KI" value="0"/>
+   <define name="HOVER_KP" value="400"/>
+   <define name="HOVER_KD" value="350"/>
+   <define name="HOVER_KI" value="144"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->

@@ -202,7 +202,8 @@ void superbitrf_init(void) {
  * The superbitrf on event call
  */
 void superbitrf_event(void) {
-  uint8_t i, pn_row, packet_size, data_code[16], tx_packet[16];
+  uint8_t i, pn_row, data_code[16];
+  static uint8_t packet_size, tx_packet[16];
   static bool_t start_transfer = TRUE;
 
   // Check if the cyrf6936 isn't busy and the uperbitrf is initialized
@@ -286,6 +287,8 @@ void superbitrf_event(void) {
     // Try to write the transfer config
     if(cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_transfer_config, 4)) {
       superbitrf.resync_count = 0;
+      superbitrf.packet_loss = FALSE;
+      superbitrf.packet_loss_bit = 0;
       superbitrf.status = SUPERBITRF_SYNCING_A;
       superbitrf.state = 1;
     }
@@ -391,24 +394,32 @@ void superbitrf_event(void) {
       superbitrf.state++;
       break;
     case 3:
-      // Send a packet
-      if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) {
-        tx_packet[0] = ~superbitrf.bind_mfg_id[2];
-        tx_packet[1] = (~superbitrf.bind_mfg_id[3])+1;
-      } else {
-        tx_packet[0] = superbitrf.bind_mfg_id[2];
-        tx_packet[1] = (superbitrf.bind_mfg_id[3])+1;
+      // Create a new packet when no packet loss
+      if(!superbitrf.packet_loss) {
+        superbitrf.packet_loss_bit = !superbitrf.packet_loss_bit;
+        if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) {
+          tx_packet[0] = ~superbitrf.bind_mfg_id[2];
+          tx_packet[1] = (~superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
+        } else {
+          tx_packet[0] = superbitrf.bind_mfg_id[2];
+          tx_packet[1] = (superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
+        }
+
+        packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
+        if(packet_size > 14)
+          packet_size = 14;
+
+        for(i = 0; i < packet_size; i++)
+          tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
       }
 
-      packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
-      if(packet_size > 14)
-        packet_size = 14;
-
-      for(i = 0; i < packet_size; i++)
-        tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
-
+      // Send a packet
       cyrf6936_send(&superbitrf.cyrf6936, tx_packet, packet_size+2);
-      superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+
+      // Update the packet extraction
+      if(!superbitrf.packet_loss)
+        superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+
       superbitrf.state++;
       break;
     case 4:
@@ -485,29 +496,37 @@ void superbitrf_event(void) {
       break;
     case 2:
       // Wait before sending
-      superbitrf.state++;
-      //if (superbitrf.timer < get_sys_time_usec())
-        //superbitrf.state++;
+      //superbitrf.state++;
+      if (superbitrf.timer < get_sys_time_usec())
+        superbitrf.state++;
       break;
     case 3:
-      // Send a packet
-      if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) {
-        tx_packet[0] = ~superbitrf.bind_mfg_id[2];
-        tx_packet[1] = (~superbitrf.bind_mfg_id[3])+1;
-      } else {
-        tx_packet[0] = superbitrf.bind_mfg_id[2];
-        tx_packet[1] = (superbitrf.bind_mfg_id[3])+1;
+      // Create a new packet when no packet loss
+      if(!superbitrf.packet_loss) {
+        superbitrf.packet_loss_bit = !superbitrf.packet_loss_bit;
+        if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) {
+          tx_packet[0] = ~superbitrf.bind_mfg_id[2];
+          tx_packet[1] = (~superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
+        } else {
+          tx_packet[0] = superbitrf.bind_mfg_id[2];
+          tx_packet[1] = (superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
+        }
+
+        packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
+        if(packet_size > 14)
+          packet_size = 14;
+
+        for(i = 0; i < packet_size; i++)
+          tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
       }
 
-      packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
-      if(packet_size > 14)
-        packet_size = 14;
-
-      for(i = 0; i < packet_size; i++)
-        tx_packet[i+2] = superbitrf.tx_buffer[(superbitrf.tx_extract_idx+i) %128];
-
+      // Send a packet
       cyrf6936_send(&superbitrf.cyrf6936, tx_packet, packet_size+2);
-      superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+
+      // Update the packet extraction
+      if(!superbitrf.packet_loss)
+        superbitrf.tx_extract_idx = (superbitrf.tx_extract_idx+packet_size) %128;
+
       superbitrf.state++;
       break;
     case 4:
@@ -658,8 +677,14 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     if(packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) && packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)) {
       superbitrf.uplink_count++;
 
+      // Check if it is a data loss packet
+      if(packet[1] != (~superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit) && packet[1] != (superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit))
+        superbitrf.packet_loss = TRUE;
+      else
+        superbitrf.packet_loss = FALSE;
+
       // When it is a data packet, parse the packet if not busy already
-      if(!dl_msg_available) {
+      if(!dl_msg_available && !superbitrf.packet_loss) {
         for(i = 2; i < superbitrf.cyrf6936.rx_count; i++) {
           parse_pprz(&superbitrf.rx_transport, packet[i]);
 
@@ -696,14 +721,14 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     }
     if((IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) &&
         (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) &&
-            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1))) {
+            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1 && packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+2))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
     }
     if((IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) &&
             (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (superbitrf.bind_mfg_id[3]&0xFF) &&
-                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1))) {
+                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1 && packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+2))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
@@ -760,14 +785,14 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     }
     if((IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) &&
         (packet[0] != (~superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF) &&
-            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1))) {
+            packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+1 && packet[1] != (~superbitrf.bind_mfg_id[3]&0xFF)+2))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
     }
     if((IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) &&
             (packet[0] != (superbitrf.bind_mfg_id[2]&0xFF) || (packet[1] != (superbitrf.bind_mfg_id[3]&0xFF) &&
-                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1))) {
+                packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+1 && packet[1] != (superbitrf.bind_mfg_id[3]&0xFF)+2))) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
@@ -795,8 +820,14 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     } else {
       superbitrf.uplink_count++;
 
+      // Check if it is a data loss packet
+      if(packet[1] != (~superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit) && packet[1] != (superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit))
+        superbitrf.packet_loss = TRUE;
+      else
+        superbitrf.packet_loss = FALSE;
+
       // When it is a data packet, parse the packet if not busy already
-      if(!dl_msg_available) {
+      if(!dl_msg_available && !superbitrf.packet_loss) {
         for(i = 2; i < superbitrf.cyrf6936.rx_count; i++) {
           parse_pprz(&superbitrf.rx_transport, packet[i]);
 

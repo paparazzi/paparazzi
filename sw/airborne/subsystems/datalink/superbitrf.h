@@ -36,7 +36,7 @@
 #define SUPERBITRF_BIND_RECV_TIME       10000       /**< The time to wait for a bind packet on a channel in microseconds */
 #define SUPERBITRF_SYNC_RECV_TIME       7000        /**< The time to wait for a sync packet on a channel in microseconds */
 #define SUPERBITRF_RECV_TIME            25000       /**< The time to wait for a transfer packet on a channel in microseconds */
-#define SUPERBITRF_DATAWAIT_TIME        500         /**< The time to wait after RC receive to send a data packet in microseconds */
+#define SUPERBITRF_DATAWAIT_TIME        100         /**< The time to wait after RC receive to send a data packet in microseconds */
 #define SUPERBITRF_DATARECV_TIME        10000       /**< The time to wait for a data packet on a channel in microseconds */
 
 /* The different statuses the superbitRF can be in */
@@ -77,6 +77,8 @@ struct SuperbitRF {
   uint8_t timeouts;                         /**< The amount of timeouts */
   uint32_t transfer_timeouts;               /**< The amount of timeouts during transfer */
   uint32_t resync_count;                    /**< The amount of resyncs needed during transfer */
+  uint8_t packet_loss_bit;                  /**< The packet loss indicating bit */
+  bool_t packet_loss;                       /**< When we have packet loss last packet */
 
   uint8_t channels[23];                     /**< The channels used for DSM2/DSMX */
   uint8_t channel_idx;                      /**< The current channel index */

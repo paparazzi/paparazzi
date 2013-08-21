@@ -179,9 +179,9 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_0.1">
       <subsystem name="radio_control" type="superbitrf_rc">
-        <define name="RADIO_TRANSMITTER_ID" value="425044546"/>
-        <define name="RADIO_TRANSMITTER_CHAN" value="9"/>
-        <define name="RADIO_TRANSMITTER_PROTOCOL" value="0xA2"/>
+        <define name="RADIO_TRANSMITTER_ID" value="626371286"/>  <!-- 425044546 -->
+        <define name="RADIO_TRANSMITTER_CHAN" value="9"/> <!-- 9 -->
+        <define name="RADIO_TRANSMITTER_PROTOCOL" value="0xB2"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
       </subsystem>
 

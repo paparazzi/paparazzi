@@ -99,13 +99,7 @@
     </mode>
 
     <mode name="vert_loop" key_press="v">
-      <message name="ROTORCRAFT_STATUS" period="1.2"/>
-      <message name="DL_VALUE"          period="0.5"/>
-      <message name="ALIVE"             period="0.9"/>
-      <message name="VFF"               period=".05"/>
-      <message name="VERT_LOOP"         period=".05"/>
-      <message name="INS"               period=".05"/>
-      <message name="INS_REF"           period="5.1"/>
+      <message name="VERT_LOOP"         period="0.5"/>
     </mode>
 
     <mode name="h_loop" key_press="h">
