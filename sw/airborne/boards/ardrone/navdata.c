@@ -170,7 +170,6 @@ void navdata_read()
     port->bytesRead += newbytes;
     port->totalBytesRead += newbytes;
   }
-
 }
 
 void navdata_update()
@@ -187,11 +186,24 @@ void navdata_update()
 //      if ( navdata_checksum() == 0 )
       {
         memcpy(navdata, port->buffer, NAVDATA_PACKET_SIZE);
+        
+        // Invert byte order so that TELEMETRY works better
+        uint8_t tmp;
+        uint8_t* p = (uint8_t*) &(navdata->pressure);
+        tmp = p[0];
+        p[0] = p[1];
+        p[1] = tmp;
+        p = (uint8_t*) &(navdata->temperature_pressure);
+        tmp = p[0];
+        p[0] = p[1];
+        p[1] = tmp;
+
         navdata_imu_available = 1;
         navdata_baro_available = 1;
+
         port->packetsRead++;
 //        printf("CCRC=%d, GCRC=%d, error=%d\n", crc, navdata->chksum, abs(crc-navdata->chksum));
-        navdata_getHeight();
+        //navdata_getHeight();
       }
       navdata_CropBuffer(60);
     }
@@ -215,7 +227,7 @@ void navdata_CropBuffer(int cropsize)
 {
   if (port->bytesRead - cropsize < 0) {
     // TODO think about why the amount of bytes read minus the cropsize gets below zero
-    printf("BytesRead(=%d) - Cropsize(=%d) may not be below zero. port->buffer=%d\n", port->bytesRead, cropsize, port->buffer);
+    printf("BytesRead(=%d) - Cropsize(=%d) may not be below zero. port->buffer=%p\n", port->bytesRead, cropsize, port->buffer);
     return;
   }
 

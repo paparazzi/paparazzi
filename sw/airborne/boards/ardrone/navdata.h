@@ -79,7 +79,7 @@ typedef struct
   uint16_t flag_echo_ini;
 
   int32_t pressure;
-  int16_t temperature_pressure;
+  uint16_t temperature_pressure;
 
   int16_t mx;
   int16_t my;
