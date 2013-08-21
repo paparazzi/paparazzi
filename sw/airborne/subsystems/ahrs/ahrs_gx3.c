@@ -249,13 +249,12 @@ void gx3_packet_read_message(void) {
   // Attitude
   struct FloatRMat ltp_to_body_rmat;
   FLOAT_RMAT_COMP(ltp_to_body_rmat, ahrs_impl.gx3_rmat, imuf.body_to_imu_rmat);
- // stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 #ifdef AHRS_UPDATE_FW_ESTIMATOR // fixedwing
   struct FloatEulers ltp_to_body_eulers;
   FLOAT_EULERS_OF_RMAT(ltp_to_body_eulers, ltp_to_body_rmat);
   ltp_to_body_eulers.phi -= ins_roll_neutral;
   ltp_to_body_eulers.theta -= ins_pitch_neutral;
-#if (defined AHRS_USE_GPS_HEADING) && (defined USE_GPS)
+#if AHRS_USE_GPS_HEADING && USE_GPS
   float course_f = (float)DegOfRad(gps.course / 1e7);
   if (course_f > 180.0) {
 	course_f -= 360.0;
