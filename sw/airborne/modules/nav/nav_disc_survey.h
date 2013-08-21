@@ -20,16 +20,16 @@
  */
 
 /**
- * @file subsystems/navigation/discsurvey.h
+ * @file modules/nav/nav_disc_survey.h
  *
  */
 
-#ifndef DISCSURVEY_H
-#define DISCSURVEY_H
+#ifndef NAV_DISC_SURVEY_H
+#define NAV_DISC_SURVEY_H
 
 #include "std.h"
 
-extern bool_t disc_survey_init( float grid );
-extern bool_t disc_survey(uint8_t c, float radius);
+extern bool_t nav_disc_survey_start( float grid );
+extern bool_t nav_disc_survey_run(uint8_t c, float radius);
 
-#endif /* DISCSURVEY_H */
+#endif /* NAV_DISC_SURVEY_H */

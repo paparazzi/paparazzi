@@ -137,9 +137,6 @@ typedef uint8_t unit_t;
 
 #define Blend(a, b, rho) (((rho)*(a))+(1-(rho))*(b))
 
-#define ScalarProduct(x1,y1,x2,y2) ((x1)*(x2)+(y1)*(y2))
-
-
 #define RunOnceEvery(_prescaler, _code) {		\
     static uint16_t prescaler = 0;			\
     prescaler++;					\
