@@ -230,7 +230,7 @@ void gx3_packet_read_message(void) {
      ahrs_impl.gx3_packet.msg_buf[62] << 16 | ahrs_impl.gx3_packet.msg_buf[63] << 8 | ahrs_impl.gx3_packet.msg_buf[64]);
   ahrs_impl.gx3_chksm	= GX3_CHKSM(ahrs_impl.gx3_packet.msg_buf);
 
-  ahrs_impl.gx3_freq = 62500.0 / (float)(ahrs_impl.gx3_time - ahrs_impl.gx3_ltime);
+	ahrs_impl.gx3_freq = 62500.0 / (float)(ahrs_impl.gx3_time - ahrs_impl.gx3_ltime);
   ahrs_impl.gx3_ltime = ahrs_impl.gx3_time;
 
   // Acceleration
@@ -240,9 +240,9 @@ void gx3_packet_read_message(void) {
 
   // Rates
   struct FloatRates body_rate;
-  ahrs_impl.imu_rate = ahrs_impl.gx3_rate;
+  imuf.gyro = ahrs_impl.gx3_rate;
   /* compute body rates */
-  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, imuf.body_to_imu_rmat, ahrs_impl.imu_rate);
+  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, imuf.body_to_imu_rmat, imuf.gyro);
   /* Set state */
   stateSetBodyRates_f(&body_rate);
 
@@ -310,17 +310,13 @@ void gx3_packet_parse( uint8_t c ) {
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
-
   /* set ltp_to_imu so that body is zero */
   QUAT_COPY(ahrs_impl.ltp_to_imu_quat, imuf.body_to_imu_quat);
-  FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
-
 #ifdef IMU_MAG_OFFSET
   ahrs_impl.mag_offset = IMU_MAG_OFFSET;
 #else
   ahrs_impl.mag_offset = 0.0;
 #endif
-
   ahrs_aligner.status = AHRS_ALIGNER_LOCKED;
 }
 

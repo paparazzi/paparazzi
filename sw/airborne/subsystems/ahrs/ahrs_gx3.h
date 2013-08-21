@@ -90,7 +90,6 @@ enum GX3Status {
 //AHRS
 struct AhrsFloatQuat {
   struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as quaternions
-  struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
   float mag_offset;                    ///< Difference between true and magnetic north
 
   struct GX3Packet gx3_packet;       ///< Packet struct
@@ -102,8 +101,6 @@ struct AhrsFloatQuat {
   struct FloatVect3 gx3_accel;        ///< measured acceleration in IMU frame
   struct FloatRates gx3_rate;         ///< measured angular rates in IMU frame
   struct FloatRMat  gx3_rmat;         ///< measured attitude in IMU frame (rotational matrix)
-  struct FloatQuat gx3_quat;          ///< measured attitude in IMU frame (quaternions)
-  struct FloatEulers gx3_euler;       ///< measured attitude in IMU frame (eulers)
 };
 
 extern struct AhrsFloatQuat ahrs_impl;

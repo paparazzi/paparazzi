@@ -153,7 +153,7 @@
 #ifdef USE_IMU_FLOAT
 #  include "subsystems/imu.h"
 #  define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) { DOWNLINK_SEND_IMU_ACCEL(_trans, _dev, &imuf.accel.x, &imuf.accel.y, &imuf.accel.z)}
-#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &ahrs_impl.imu_rate.p, &ahrs_impl.imu_rate.q, &ahrs_impl.imu_rate.r)}
+#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r)}
 #else
 #ifdef IMU_TYPE_H
 #  ifdef INS_MODULE_H
