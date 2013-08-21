@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/zamboni_survey.h
+ * @file modules/nav/zamboni_survey.h
  *
  * Zamboni pattern survey for fixedwings.
  */

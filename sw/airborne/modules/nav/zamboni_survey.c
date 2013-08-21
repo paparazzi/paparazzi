@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/navigation/zamboni_survey.c
+ * @file modules/nav/zamboni_survey.c
  *
  * Zamboni pattern survey for fixedwings.
  */
 
-#include "zamboni_survey.h"
+#include "modules/nav/zamboni_survey.h"
 
 #include "subsystems/nav.h"
 #include "autopilot.h"
