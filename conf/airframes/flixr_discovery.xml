@@ -228,9 +228,6 @@
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="50.0"/>
 
-    <!-- only for spiral -->
-    <define name="MIN_CIRCLE_RADIUS" value="35.0"/>
-
     <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
     <!--
     -->
