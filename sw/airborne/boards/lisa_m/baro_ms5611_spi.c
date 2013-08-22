@@ -5,7 +5,7 @@
  * Utah State University, http://aggieair.usu.edu/
  */
 #include "subsystems/sensors/baro.h"
-#include "peripherals/ms5611.h"
+#include "peripherals/ms5611_regs.h"
 #include "led.h"
 #include "std.h"
 #include "mcu_periph/sys_time.h"
@@ -14,6 +14,15 @@
 #ifndef MS5611_SPI_DEV
 #define MS5611_SPI_DEV spi2
 #endif
+
+/* SPI SLAVE3 is on pin PC13
+ * Aspirin 2.2 has ms5611 on SPI bus
+ */
+#ifndef MS5611_SLAVE_DEV
+#define MS5611_SLAVE_DEV SPI_SLAVE3
+#endif
+
+
 #define MS5611_BUFFER_LENGTH    4
 
 #ifdef DEBUG

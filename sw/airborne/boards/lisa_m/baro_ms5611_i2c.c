@@ -5,7 +5,7 @@
  * Utah State University, http://aggieair.usu.edu/
  */
 #include "subsystems/sensors/baro.h"
-#include "peripherals/ms5611.h"
+#include "peripherals/ms5611_regs.h"
 #include "led.h"
 #include "std.h"
 #include "mcu_periph/sys_time.h"
@@ -14,6 +14,14 @@
 #ifndef MS5611_I2C_DEV
 #define MS5611_I2C_DEV i2c2
 #endif
+
+/* default i2c address
+ * when CSB is set to GND addr is 0xEE
+ * when CSB is set to VCC addr is 0xEC
+ *
+ * Note: Aspirin 2.1 has CSB bound to GND.
+ */
+#define MS5611_SLAVE_ADDR 0xEE
 
 #ifdef DEBUG
 #ifndef DOWNLINK_DEVICE
