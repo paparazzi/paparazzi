@@ -29,6 +29,16 @@
 #ifndef STM32_UART_ARCH_H
 #define STM32_UART_ARCH_H
 
-#include "std.h"
+#define B1200    1200
+#define B2400    2400
+#define B4800    4800
+#define B9600    9600
+#define B19200   19200
+#define B38400   38400
+#define B57600   57600
+#define B100000  100000
+#define B115200  115200
+#define B230400  230400
+#define B921600  921600
 
 #endif /* STM32_UART_ARCH_H */
