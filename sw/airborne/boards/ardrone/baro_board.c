@@ -56,7 +56,9 @@ static inline int32_t baro_apply_calibration(int32_t raw)
   x1 = (p >> 8) * (p >> 8);
   x1 = (x1 * 3038UL) >> 16;
   x2 = (-7357L * p) >> 16;
-  return p + ((x1 + x2 + 3791L) >> 4);
+  int32_t press = p + ((x1 + x2 + 3791L) >> 4);
+  // Zero at sealevel
+  return press - 101325;
 }
 
 static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
