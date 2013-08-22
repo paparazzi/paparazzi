@@ -23,6 +23,7 @@
  * omap uart handling
  */
 
+// FIXME: uart.h defines B9600 as 9600
 #include "mcu_periph/uart.h"
 
 #include <stdint.h>
@@ -31,10 +32,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+// FIXME: fms_serial_port includes termios.h that with omap defines B9600 as 12
+// Include termios.h AFTER uart.h. This OVERWRITES (without warning) the paparazzi uart.h B9600
 #include "fms/fms_serial_port.h"
 
 // #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(fmt,args...)
+
+// Convert the paparazzi B9600 which becomes 9600 to termios B9600 which becomes 12
+// FIXME: not all possible baudrate are available yet.
+speed_t baudconvert_drone(uint32_t baud);
+speed_t baudconvert_drone(uint32_t baud)
+{
+  if (baud <= 4800)
+    return B4800;
+  else if (baud <= 9600)
+    return B9600;
+  else if (baud <= 19200)
+    return B19200;
+  else if (baud <= 38400)
+    return B38400;
+  else if (baud <= 57600)
+    return B57600;
+  return B115200;
+}
 
 
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
@@ -51,9 +72,9 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   p->reg_addr = (void*)fmssp;
 
   //TODO: set device name in application and pass as argument
-  // FIXME: baudrate B9600 defined double
-  printf("opening %s on uart0 at %d\n",p->dev,baud);
-  int ret = serial_port_open_raw(fmssp,p->dev,baud);
+  // FIXME: paparazzi baud is 9600 for B9600 while open_raw needs 12 for B9600
+  printf("opening %s on uart0 at %d (termios.h value=%d)\n",p->dev,baud,baudconvert_drone(baud));
+  int ret = serial_port_open_raw(fmssp,p->dev,baudconvert_drone(baud));
   if (ret != 0)
   {
     TRACE("Error opening %s code %d\n",p->dev,ret);
@@ -75,7 +96,10 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
     p->tx_running = TRUE;
     struct FmsSerialPort* fmssp = (struct FmsSerialPort*)(p->reg_addr);
     int ret = write((int)(fmssp->fd),&data,1);
-    TRACE("w %x [%d]\n",data,ret);
+    if (ret < 1)
+    {
+      TRACE("w %x [%d]\n",data,ret);
+    }
   }
 }
 
@@ -92,7 +116,10 @@ static inline void uart_handler(struct uart_periph* p) {
   // check if more data to send
   if (p->tx_insert_idx != p->tx_extract_idx) {
     int ret = write(fd,&(p->tx_buf[p->tx_extract_idx]),1);
-    TRACE("w %x [%d: %s]\n",p->tx_buf[p->tx_extract_idx],ret,strerror(errno));
+    if (ret < 1)
+    {
+      TRACE("w %x [%d: %s]\n",p->tx_buf[p->tx_extract_idx],ret,strerror(errno));
+    }
     p->tx_extract_idx++;
     p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
   }
