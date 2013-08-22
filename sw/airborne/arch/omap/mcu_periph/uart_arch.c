@@ -33,6 +33,9 @@
 
 #include "fms/fms_serial_port.h"
 
+// #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
+#define TRACE(fmt,args...)
+
 
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   struct FmsSerialPort* fmssp;
@@ -48,8 +51,13 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   p->reg_addr = (void*)fmssp;
 
   //TODO: set device name in application and pass as argument
+  // FIXME: baudrate B9600 defined double
   printf("opening %s on uart0 at %d\n",p->dev,baud);
-  serial_port_open_raw(fmssp,p->dev,baud);
+  int ret = serial_port_open_raw(fmssp,p->dev,baud);
+  if (ret != 0)
+  {
+    TRACE("Error opening %s code %d\n",p->dev,ret);
+  }
 }
 
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
@@ -66,10 +74,12 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
   else { // no, set running flag and write to output register
     p->tx_running = TRUE;
     struct FmsSerialPort* fmssp = (struct FmsSerialPort*)(p->reg_addr);
-    write((int)(fmssp->fd),&data,1);
-    //printf("w %x\n",data);
+    int ret = write((int)(fmssp->fd),&data,1);
+    TRACE("w %x [%d]\n",data,ret);
   }
 }
+
+#include <errno.h>
 
 static inline void uart_handler(struct uart_periph* p) {
   unsigned char c='D';
@@ -81,8 +91,8 @@ static inline void uart_handler(struct uart_periph* p) {
 
   // check if more data to send
   if (p->tx_insert_idx != p->tx_extract_idx) {
-    write(fd,&(p->tx_buf[p->tx_extract_idx]),1);
-    //printf("w %x\n",p->tx_buf[p->tx_extract_idx]);
+    int ret = write(fd,&(p->tx_buf[p->tx_extract_idx]),1);
+    TRACE("w %x [%d: %s]\n",p->tx_buf[p->tx_extract_idx],ret,strerror(errno));
     p->tx_extract_idx++;
     p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
   }
