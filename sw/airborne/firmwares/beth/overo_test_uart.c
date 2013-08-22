@@ -37,7 +37,7 @@
 
 #include "fms_periodic.h"
 #include "fms_debug.h"
-#include "fms_serial_port.h"
+#include "serial_port.h"
 
 #include "overo_gcs_com.h"
 #include "uart_hw.h"
@@ -57,7 +57,7 @@ void check_gps(void);
 uint8_t nav_utm_zone0 = 31;
 
 static uint16_t foo = 0;
-//struct FmsSerialPort* fmssp;
+//struct SerialPort* fmssp;
 //int spfd;
 uint8_t portnum;
 #ifdef GPS_CONFIGURE

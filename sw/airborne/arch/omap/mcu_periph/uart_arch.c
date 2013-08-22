@@ -34,7 +34,7 @@
 
 // FIXME: fms_serial_port includes termios.h that with omap defines B9600 as 12
 // Include termios.h AFTER uart.h. This OVERWRITES (without warning) the paparazzi uart.h B9600
-#include "fms/fms_serial_port.h"
+#include "serial_port.h"
 
 // #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(fmt,args...)
@@ -59,10 +59,10 @@ speed_t baudconvert_drone(uint32_t baud)
 
 
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
-  struct FmsSerialPort* fmssp;
+  struct SerialPort* fmssp;
   // close serial port if already open
   if (p->reg_addr != NULL) {
-    fmssp = (struct FmsSerialPort*)(p->reg_addr);
+    fmssp = (struct SerialPort*)(p->reg_addr);
     serial_port_close(fmssp);
     serial_port_free(fmssp);
   }
@@ -94,7 +94,7 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
   }
   else { // no, set running flag and write to output register
     p->tx_running = TRUE;
-    struct FmsSerialPort* fmssp = (struct FmsSerialPort*)(p->reg_addr);
+    struct SerialPort* fmssp = (struct SerialPort*)(p->reg_addr);
     int ret = write((int)(fmssp->fd),&data,1);
     if (ret < 1)
     {
@@ -110,7 +110,7 @@ static inline void uart_handler(struct uart_periph* p) {
 
   if (p->reg_addr == NULL) return; // device not initialized ?
 
-  struct FmsSerialPort* fmssp = (struct FmsSerialPort*)(p->reg_addr);
+  struct SerialPort* fmssp = (struct SerialPort*)(p->reg_addr);
   int fd = fmssp->fd;
 
   // check if more data to send
