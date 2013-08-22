@@ -99,6 +99,7 @@ struct LtpDef_i {
   int32_t hmsl;                  ///< Height above mean sea level in mm
 };
 
+extern void ltp_of_ecef_rmat_from_lla_i(struct Int32Mat33* ltp_of_ecef, struct LlaCoor_i* lla);
 extern void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef);
 extern void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla);
 extern void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in);
