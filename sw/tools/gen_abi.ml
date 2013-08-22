@@ -92,7 +92,7 @@ module Gen_onboard = struct
   let print_struct = fun h size ->
     Printf.fprintf h "\n/* Array and linked list structure */\n";
     Printf.fprintf h "#define ABI_MESSAGE_NB %d\n\n" (size+1);
-    Printf.fprintf h "EXTERN abi_event* abi_queues[ABI_MESSAGE_NB];\n"
+    Printf.fprintf h "ABI_EXTERN abi_event* abi_queues[ABI_MESSAGE_NB];\n"
 
   (* Print arguments' function from fields *)
   let print_args = fun h fields starter ->

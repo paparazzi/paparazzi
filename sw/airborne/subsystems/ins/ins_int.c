@@ -28,6 +28,8 @@
 
 #include "subsystems/ins/ins_int.h"
 
+#include "subsystems/abi.h"
+
 #include "subsystems/imu.h"
 #include "subsystems/sensors/baro.h"
 #include "subsystems/gps.h"
@@ -49,6 +51,7 @@
 
 
 #include "math/pprz_geodetic_int.h"
+#include "math/pprz_isa.h"
 
 #include "generated/flight_plan.h"
 
@@ -73,6 +76,11 @@ struct FloatVect2 ins_gps_speed_m_s_ned;
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
+#ifndef INS_BARO_ID
+#define INS_BARO_ID ABI_BROADCAST
+#endif
+abi_event baro_ev;
+static void baro_cb(const int32_t pressure);
 #endif
 
 /* output                      */
@@ -102,6 +110,8 @@ void ins_init() {
   ins_ltp_initialised  = FALSE;
 #endif
 #if USE_VFF
+  // Bind to BARO_ABS message
+  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
   ins_baro_initialised = FALSE;
   vff_init(0., 0., 0.);
 #endif
@@ -168,29 +178,51 @@ void ins_propagate() {
   INS_NED_TO_STATE();
 }
 
-void ins_update_baro() {
 #if USE_VFF
-  if (baro.status == BS_RUNNING) {
-    if (!ins_baro_initialised) {
-      ins_qfe = baro.absolute;
-      ins_baro_initialised = TRUE;
-    }
-    if (ins.vf_realign) {
-      ins.vf_realign = FALSE;
-      ins_qfe = baro.absolute;
-      vff_realign(0.);
-      ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
-      ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
-      ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
-    }
-    else { /* not realigning, so normal update with baro measurement */
-      ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
-      float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
-      vff_update(alt_float);
-    }
+static void baro_cb(int32_t pressure) {
+  if (!ins_baro_initialised) {
+    ins_qfe = pressure;
+    ins_baro_initialised = TRUE;
+  }
+  if (ins.vf_realign) {
+    ins.vf_realign = FALSE;
+    ins_qfe = pressure;
+    vff_realign(0.);
+    ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
+    ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
+    ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+  }
+  else {
+    float alt = pprz_isa_meters_of_pressure_i(pressure);
+    vff_update(alt);
   }
   INS_NED_TO_STATE();
+}
 #endif
+
+void ins_update_baro() {
+//#if USE_VFF
+//  if (baro.status == BS_RUNNING) {
+//    if (!ins_baro_initialised) {
+//      ins_qfe = baro.absolute;
+//      ins_baro_initialised = TRUE;
+//    }
+//    if (ins.vf_realign) {
+//      ins.vf_realign = FALSE;
+//      ins_qfe = baro.absolute;
+//      vff_realign(0.);
+//      ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
+//      ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
+//      ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+//    }
+//    else { /* not realigning, so normal update with baro measurement */
+//      ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
+//      float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
+//      vff_update(alt_float);
+//    }
+//  }
+//  INS_NED_TO_STATE();
+//#endif
 }
 
 

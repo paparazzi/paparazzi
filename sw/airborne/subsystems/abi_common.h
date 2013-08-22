@@ -35,9 +35,9 @@
 
 /* Some magic to avoid to compile C code, only headers */
 #ifdef ABI_C
-#define EXTERN
+#define ABI_EXTERN
 #else
-#define EXTERN extern
+#define ABI_EXTERN extern
 #endif
 
 /** Generic callback definition */

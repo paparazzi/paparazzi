@@ -31,12 +31,23 @@
 
 #include <std.h>
 
+/*
+ * Status of the baro
+ */
 enum BaroStatus {
   BS_UNINITIALIZED,
   BS_RUNNING
 };
 
-/* pressure in which units ? */
+/*
+ * Baro structure
+ *
+ * pressures are in deciPa
+ *
+ * vertical resolution is around 1cm at sea level
+ * with standard atmospheric model
+ *
+ */
 struct Baro {
   int32_t absolute;
   int32_t differential;

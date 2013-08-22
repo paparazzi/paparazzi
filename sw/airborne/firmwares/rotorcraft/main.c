@@ -28,6 +28,8 @@
 
 #define MODULES_C
 
+#define ABI_C
+
 #include <inttypes.h>
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -72,6 +74,7 @@
 #endif
 
 #include "generated/modules.h"
+#include "subsystems/abi.h"
 
 
 /* if PRINT_CONFIG is defined, print some config options */
