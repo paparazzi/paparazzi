@@ -27,6 +27,7 @@
 #include "subsystems/imu.h"
 
 struct Imu imu;
+struct ImuFloat imuf;
 
 void imu_init(void) {
 
@@ -60,16 +61,14 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
 }
 
 
-void imu_float_init(struct ImuFloat* imuf) {
-
+void imu_float_init(void) {
   /*
     Compute quaternion and rotation matrix
     for conversions between body and imu frame
   */
-  EULERS_ASSIGN(imuf->body_to_imu_eulers,
+  EULERS_ASSIGN(imuf.body_to_imu_eulers,
 		IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
-  FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
-  FLOAT_QUAT_NORMALIZE(imuf->body_to_imu_quat);
-  FLOAT_RMAT_OF_EULERS(imuf->body_to_imu_rmat, imuf->body_to_imu_eulers);
-
+  FLOAT_QUAT_OF_EULERS(imuf.body_to_imu_quat, imuf.body_to_imu_eulers);
+  FLOAT_QUAT_NORMALIZE(imuf.body_to_imu_quat);
+  FLOAT_RMAT_OF_EULERS(imuf.body_to_imu_rmat, imuf.body_to_imu_eulers);
 }

@@ -138,7 +138,9 @@ STATIC_INLINE void main_init( void ) {
 
   baro_init();
   imu_init();
-
+  #ifdef USE_IMU_FLOAT
+    imu_float_init();
+  #endif
   ahrs_aligner_init();
   ahrs_init();
 
