@@ -27,7 +27,7 @@
  *
  */
 
-#include "subsystems/ins/ins_int.h"
+#include "subsystems/ins/ins_int_extended.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/sensors/baro.h"
@@ -270,8 +270,8 @@ uint8_t var_idx = 0;
 #endif
 
 
-#if USE_SONAR
 void ins_update_sonar() {
+#if USE_SONAR
   static float last_offset = 0.;
   // new value filtered with median_filter
   ins_sonar_alt = update_median_filter(&sonar_median, sonar_meas);
@@ -318,5 +318,6 @@ void ins_update_sonar() {
     /* update offset with last value to avoid divergence */
     vff_update_offset(last_offset);
   }
-}
 #endif // USE_SONAR
+}
+
