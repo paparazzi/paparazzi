@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/gls.h
+ * @file modules/nav/nav_gls.h
  * @brief gps landing system
  */
 
