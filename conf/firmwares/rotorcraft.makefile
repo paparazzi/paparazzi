@@ -172,17 +172,17 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
   ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-	ap.srcs += peripherals/ms5611.c
-	ap.srcs += peripherals/ms5611_spi.c
-    ap.srcs += $(SRC_BOARD)/baro_ms5611_spi.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_spi.c
+    ap.srcs += subsystems/sensors/baro_ms5611_spi.c
   else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
     ap.CFLAGS += -DUSE_I2C2
-	ap.srcs += peripherals/ms5611.c
-	ap.srcs += peripherals/ms5611_i2c.c
-    ap.srcs += $(SRC_BOARD)/baro_ms5611_i2c.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_i2c.c
+    ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
     ap.srcs += $(SRC_BOARD)/baro_board.c
-	ap.CFLAGS += -DUSE_I2C2
+    ap.CFLAGS += -DUSE_I2C2
   endif
   ap.CFLAGS += -D$(LISA_M_BARO)
 
@@ -193,14 +193,14 @@ LIA_BARO ?= BARO_MS5611_SPI
   ifeq ($(LIA_BARO), BARO_MS5611_SPI)
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-	ap.srcs += peripherals/ms5611.c
-	ap.srcs += peripherals/ms5611_spi.c
-    ap.srcs += boards/lisa_m/baro_ms5611_spi.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_spi.c
+    ap.srcs += subsystems/sensors/baro_ms5611_spi.c
   else ifeq ($(LIA_BARO), BARO_MS5611_I2C)
     ap.CFLAGS += -DUSE_I2C2
-	ap.srcs += peripherals/ms5611.c
-	ap.srcs += peripherals/ms5611_i2c.c
-    ap.srcs += boards/lisa_m/baro_ms5611_i2c.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_i2c.c
+    ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
   endif
   ap.CFLAGS += -D$(LIA_BARO)
 
@@ -214,7 +214,10 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 
 # krooz baro
 else ifeq ($(BOARD), krooz)
-ap.srcs += $(SRC_BOARD)/baro_board.c
+ap.CFLAGS += -DMS5611_I2C_DEV=i2c0
+ap.srcs += peripherals/ms5611.c
+ap.srcs += peripherals/ms5611_i2c.c
+ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
 
 # apogee baro
 else ifeq ($(BOARD), apogee)

@@ -93,7 +93,7 @@ void baro_periodic(void) {
   }
 }
 
-void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
+void baro_event(void (*b_abs_handler)(void)){
   if (sys_time.nb_sec > 1) {
     ms5611_spi_event(&baro_ms5611);
 

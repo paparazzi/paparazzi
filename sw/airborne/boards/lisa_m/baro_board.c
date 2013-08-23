@@ -167,7 +167,7 @@ static int32_t baro_apply_calibration(int32_t raw)
   return p + ((x1 + x2 + 3791) >> 4);
 }
 
-void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void))
+void baro_event(void (*b_abs_handler)(void))
 {
   if (baro_board.status == LBS_READING &&
       baro_trans.status != I2CTransPending && baro_trans.status != I2CTransRunning) {
@@ -183,13 +183,11 @@ void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void))
       baro_trans.status != I2CTransPending && baro_trans.status != I2CTransRunning) {
     baro_board.status = LBS_REQUEST;
     if (baro_trans.status == I2CTransSuccess) {
-      // abuse differential to store temp in 0.1C for now
       int32_t tmp = (baro_trans.buf[0] << 8) | baro_trans.buf[1];
       int32_t x1 = ((tmp - calibration.ac6) * calibration.ac5) >> 15;
       int32_t x2 = (calibration.mc << 11) / (x1 + calibration.md);
       calibration.b5 = x1 + x2;
-      baro.differential = (calibration.b5 + 8) >> 4;
-      b_diff_handler();
+      baro_board.temp = (calibration.b5 + 8) >> 4;
     }
   }
 }

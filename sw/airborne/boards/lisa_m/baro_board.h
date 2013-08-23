@@ -31,6 +31,7 @@ enum LisaBaroStatus {
 
 struct BaroBoard {
   enum LisaBaroStatus status;
+  int32_t temp;  ///< temperature in 0.1C
 };
 
 struct bmp085_baro_calibration {
@@ -60,8 +61,8 @@ extern void baro_board_send_config(void);
 
 #endif  // !BARO_MS5611_xx
 
-extern void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void));
+extern void baro_event(void (*b_abs_handler)(void));
 
-#define BaroEvent(_b_abs_handler, _b_diff_handler) baro_event(_b_abs_handler,_b_diff_handler)
+#define BaroEvent(_b_abs_handler, _b_diff_handler) baro_event(_b_abs_handler)
 
 #endif /* BOARDS_LISA_M_BARO_H */

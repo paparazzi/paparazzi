@@ -23,7 +23,7 @@
 /**
  * @file boards/lisa_m/baro_ms5611_i2c.c
  *
- * Driver for MS5611 baro on LisaM/Aspirin2.1 via I2C.
+ * Driver for MS5611 baro via I2C.
  *
  */
 
@@ -94,7 +94,7 @@ void baro_periodic(void) {
   }
 }
 
-void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
+void baro_event(void (*b_abs_handler)(void)){
   if (sys_time.nb_sec > 1) {
     ms5611_i2c_event(&baro_ms5611);
 
