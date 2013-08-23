@@ -44,8 +44,9 @@
  *
  * Note: Aspirin 2.1 has CSB bound to GND.
  */
+#ifndef MS5611_SLAVE_ADDR
 #define MS5611_SLAVE_ADDR 0xEE
-
+#endif
 
 #ifdef DEBUG
 
