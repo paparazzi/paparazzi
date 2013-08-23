@@ -37,7 +37,7 @@ void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t ad
 
   /* slave address */
   ms->i2c_trans.slave_addr = addr;
-  /* set inital status: Success or Done */
+  /* set initial status: Success or Done */
   ms->i2c_trans.status = I2CTransDone;
 
   ms->data_available = FALSE;

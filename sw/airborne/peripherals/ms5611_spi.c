@@ -51,7 +51,7 @@ void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t sl
   ms->spi_trans.input_buf = ms->rx_buf;
   ms->spi_trans.output_buf = ms->tx_buf;
 
-  /* set inital status: Success or Done */
+  /* set initial status: Success or Done */
   ms->spi_trans.status = SPITransDone;
 
   ms->data_available = FALSE;
@@ -63,7 +63,7 @@ void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t sl
 void ms5611_spi_start_configure(struct Ms5611_Spi *ms)
 {
   if (ms->status == MS5611_STATUS_UNINIT) {
-    ms->initalized = FALSE;
+    ms->initialized = FALSE;
     ms->prom_cnt = 0;
     ms->tx_buf[0] = MS5611_SOFT_RESET;
     spi_submit(ms->spi_p, &(ms->spi_trans));
