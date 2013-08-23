@@ -129,34 +129,12 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
 void ms5611_spi_event(struct Ms5611_Spi *ms) {
   if (ms->initialized) {
     if (ms->spi_trans.status == SPITransFailed) {
+      ms->status = MS5611_STATUS_IDLE;
       ms->spi_trans.status = SPITransDone;
     }
     else if (ms->spi_trans.status == SPITransSuccess) {
       // Successfull reading
       switch (ms->status) {
-
-        case MS5611_STATUS_PROM:
-          /* read prom data */
-          ms->data.c[ms->prom_cnt++] = (ms->rx_buf[1] << 8) |
-                                        ms->rx_buf[2];
-          if (ms->prom_cnt < PROM_NB) {
-            /* get next prom data */
-            ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
-            spi_submit(ms->spi_p, &(ms->spi_trans));
-          }
-          else {
-            /* done reading prom, check prom crc */
-            if (ms5611_prom_crc_ok(ms->data.c)) {
-              ms->initialized = TRUE;
-              ms->status = MS5611_STATUS_IDLE;
-            }
-            else {
-              /* checksum error, try again */
-              ms->prom_cnt = 0;
-              ms->status = MS5611_STATUS_UNINIT;
-            }
-          }
-          break;
 
         case MS5611_STATUS_ADC_D1:
           /* read D1 (pressure) */
@@ -193,6 +171,28 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
         ms->prom_cnt = 0;
         ms->status = MS5611_STATUS_UNINIT;
       case SPITransSuccess:
+        if (ms->status == MS5611_STATUS_PROM) {
+          /* read prom data */
+          ms->data.c[ms->prom_cnt++] = (ms->rx_buf[1] << 8) |
+                                        ms->rx_buf[2];
+          if (ms->prom_cnt < PROM_NB) {
+            /* get next prom data */
+            ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
+            spi_submit(ms->spi_p, &(ms->spi_trans));
+          }
+          else {
+            /* done reading prom, check prom crc */
+            if (ms5611_prom_crc_ok(ms->data.c)) {
+              ms->initialized = TRUE;
+              ms->status = MS5611_STATUS_IDLE;
+            }
+            else {
+              /* checksum error, try again */
+              ms->prom_cnt = 0;
+              ms->status = MS5611_STATUS_UNINIT;
+            }
+          }
+        }
       case SPITransDone:
         ms->spi_trans.status = SPITransDone;
         break;

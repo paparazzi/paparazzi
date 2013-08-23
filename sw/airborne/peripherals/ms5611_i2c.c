@@ -115,34 +115,12 @@ void ms5611_i2c_periodic_check(struct Ms5611_I2c *ms)
 void ms5611_i2c_event(struct Ms5611_I2c *ms) {
   if (ms->initialized) {
     if (ms->i2c_trans.status == I2CTransFailed) {
+      ms->status = MS5611_STATUS_IDLE;
       ms->i2c_trans.status = I2CTransDone;
     }
     else if (ms->i2c_trans.status == I2CTransSuccess) {
       // Successfull reading
       switch (ms->status) {
-
-        case MS5611_STATUS_PROM:
-          /* read prom data */
-          ms->data.c[ms->prom_cnt++] = (ms->i2c_trans.buf[0] << 8) |
-                                             ms->i2c_trans.buf[1];
-          if (ms->prom_cnt < PROM_NB) {
-            /* get next prom data */
-            ms->i2c_trans.buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
-            i2c_transceive(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1, 2);
-          }
-          else {
-            /* done reading prom, check prom crc */
-            if (ms5611_prom_crc_ok(ms->data.c)) {
-              ms->initialized = TRUE;
-              ms->status = MS5611_STATUS_IDLE;
-            }
-            else {
-              /* checksum error, try again */
-              ms->prom_cnt = 0;
-              ms->status = MS5611_STATUS_UNINIT;
-            }
-          }
-          break;
 
         case MS5611_STATUS_ADC_D1:
           /* read D1 (pressure) */
@@ -179,6 +157,28 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
         ms->prom_cnt = 0;
         ms->status = MS5611_STATUS_UNINIT;
       case I2CTransSuccess:
+        if (ms->status == MS5611_STATUS_PROM) {
+          /* read prom data */
+          ms->data.c[ms->prom_cnt++] = (ms->i2c_trans.buf[0] << 8) |
+                                        ms->i2c_trans.buf[1];
+          if (ms->prom_cnt < PROM_NB) {
+            /* get next prom data */
+            ms->i2c_trans.buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
+            i2c_transceive(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1, 2);
+          }
+          else {
+            /* done reading prom, check prom crc */
+            if (ms5611_prom_crc_ok(ms->data.c)) {
+              ms->initialized = TRUE;
+              ms->status = MS5611_STATUS_IDLE;
+            }
+            else {
+              /* checksum error, try again */
+              ms->prom_cnt = 0;
+              ms->status = MS5611_STATUS_UNINIT;
+            }
+          }
+        }
       case I2CTransDone:
         ms->i2c_trans.status = I2CTransDone;
         break;
