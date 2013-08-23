@@ -25,12 +25,20 @@
  * Navarro & Gorraz & Hattenberger
  */
 
+#include "std.h"
+#include "baro_board.h"
 #include "subsystems/sensors/baro.h"
+#include "peripherals/mcp355x.h"
+#include "subsystems/abi.h"
 #include "led.h"
-#include "mcu_periph/spi.h"
 
-/* Common Baro struct */
-struct Baro baro;
+#ifndef NAVGO_BARO_SENS
+#define NAVGO_BARO_SENS 0.0274181
+#endif
+
+#ifndef NAVGO_BARO_SENDER_ID
+#define NAVGO_BARO_SENDER_ID 10
+#endif
 
 /* Counter to init mcp355x at startup */
 #define BARO_STARTUP_COUNTER 200
@@ -38,9 +46,6 @@ uint16_t startup_cnt;
 
 void baro_init( void ) {
   mcp355x_init();
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 0; /* not handled on this board */
 #ifdef ROTORCRAFT_BARO_LED
   LED_OFF(ROTORCRAFT_BARO_LED);
 #endif
@@ -48,21 +53,28 @@ void baro_init( void ) {
 }
 
 void baro_periodic( void ) {
-
-  if (baro.status == BS_UNINITIALIZED) {
-    // Run some loops to get correct readings from the adc
+  // Run some loops to get correct readings from the adc
+  if (startup_cnt > 0) {
     --startup_cnt;
 #ifdef ROTORCRAFT_BARO_LED
     LED_TOGGLE(ROTORCRAFT_BARO_LED);
-#endif
     if (startup_cnt == 0) {
-      baro.status = BS_RUNNING;
-#ifdef ROTORCRAFT_BARO_LED
       LED_ON(ROTORCRAFT_BARO_LED);
-#endif
     }
+#endif
   }
   // Read the ADC (at 50/4 Hz, conversion time is 68 ms)
   RunOnceEvery(4,mcp355x_read());
 }
 
+void navgo_baro_event(void) {
+  mcp355x_event();
+  if (mcp355x_data_available) {
+    if (startup_cnt == 0) {
+      // Send data when init phase is done
+      uint32_t pressure = 10*NAVGO_BARO_SENS*mcp355x_data;
+      AbiSendMsgBARO_ABS(NAVGO_BARO_SENDER_ID, pressure);
+    }
+    mcp355x_data_available = FALSE;
+  }
+}

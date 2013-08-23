@@ -73,6 +73,9 @@ struct FloatVect2 ins_gps_speed_m_s_ned;
 
 /* barometer                   */
 #if USE_VFF
+/* Common Baro struct for telemetry*/
+struct Baro baro;
+
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
@@ -153,7 +156,7 @@ void ins_propagate() {
 
 #if USE_VFF
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
-  if (baro.status == BS_RUNNING && ins_baro_initialised) {
+  if (ins_baro_initialised) {
     vff_propagate(z_accel_meas_float);
     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
     ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
@@ -180,6 +183,7 @@ void ins_propagate() {
 
 #if USE_VFF
 static void baro_cb(int32_t pressure) {
+  baro.absolute = pressure; // for BARO_RAW message
   if (!ins_baro_initialised) {
     ins_qfe = pressure;
     ins_baro_initialised = TRUE;
@@ -201,28 +205,6 @@ static void baro_cb(int32_t pressure) {
 #endif
 
 void ins_update_baro() {
-//#if USE_VFF
-//  if (baro.status == BS_RUNNING) {
-//    if (!ins_baro_initialised) {
-//      ins_qfe = baro.absolute;
-//      ins_baro_initialised = TRUE;
-//    }
-//    if (ins.vf_realign) {
-//      ins.vf_realign = FALSE;
-//      ins_qfe = baro.absolute;
-//      vff_realign(0.);
-//      ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
-//      ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
-//      ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
-//    }
-//    else { /* not realigning, so normal update with baro measurement */
-//      ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
-//      float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
-//      vff_update(alt_float);
-//    }
-//  }
-//  INS_NED_TO_STATE();
-//#endif
 }
 
 
