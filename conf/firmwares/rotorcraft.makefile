@@ -214,7 +214,7 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 
 # krooz baro
 else ifeq ($(BOARD), krooz)
-ap.CFLAGS += -DMS5611_I2C_DEV=i2c0
+ap.CFLAGS += -DMS5611_I2C_DEV=i2c2 -DMS5611_SLAVE_ADDR=0xEC
 ap.srcs += peripherals/ms5611.c
 ap.srcs += peripherals/ms5611_i2c.c
 ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
