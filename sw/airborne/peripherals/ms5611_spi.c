@@ -63,6 +63,8 @@ void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t sl
 void ms5611_spi_start_configure(struct Ms5611_Spi *ms)
 {
   if (ms->status == MS5611_STATUS_UNINIT) {
+    ms->initalized = FALSE;
+    ms->prom_cnt = 0;
     ms->tx_buf[0] = MS5611_SOFT_RESET;
     spi_submit(ms->spi_p, &(ms->spi_trans));
     ms->status = MS5611_STATUS_RESET;
@@ -166,10 +168,13 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
   }
   else if (ms->status != MS5611_STATUS_UNINIT) { // Configuring but not yet initialized
     switch (ms->spi_trans.status) {
+
       case SPITransFailed:
         /* try again */
-        ms->prom_cnt = 0;
         ms->status = MS5611_STATUS_UNINIT;
+        ms->spi_trans.status = SPITransDone;
+        break;
+
       case SPITransSuccess:
         if (ms->status == MS5611_STATUS_PROM) {
           /* read prom data */
@@ -188,14 +193,13 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
             }
             else {
               /* checksum error, try again */
-              ms->prom_cnt = 0;
               ms->status = MS5611_STATUS_UNINIT;
             }
           }
         }
-      case SPITransDone:
         ms->spi_trans.status = SPITransDone;
         break;
+
       default:
         break;
     }

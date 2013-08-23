@@ -100,6 +100,7 @@ void baro_event(void (*b_abs_handler)(void)){
     ms5611_i2c_event(&baro_ms5611);
 
     if (baro_ms5611.data_available) {
+      baro.absolute = baro_ms5611.data.pressure;
       b_abs_handler();
       baro_ms5611.data_available = FALSE;
 
