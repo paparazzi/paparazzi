@@ -1,4 +1,4 @@
-#include "fms_serial_port.h"
+#include "serial_port.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,17 +13,17 @@
 #define TRACE(type,fmt,args...)
 #define TRACE_ERROR 1
 
-struct FmsSerialPort* serial_port_new(void) {
-  struct FmsSerialPort* me = malloc(sizeof(struct FmsSerialPort));
+struct SerialPort* serial_port_new(void) {
+  struct SerialPort* me = malloc(sizeof(struct SerialPort));
   return me;
 }
 
-void serial_port_free(struct FmsSerialPort* me) {
+void serial_port_free(struct SerialPort* me) {
   free(me);
 }
 
 
-void serial_port_flush(struct FmsSerialPort* me) {
+void serial_port_flush(struct SerialPort* me) {
   /*
    * flush any input that might be on the port so we start fresh.
    */
@@ -33,7 +33,7 @@ void serial_port_flush(struct FmsSerialPort* me) {
   }
 }
 
-void serial_port_flush_output(struct FmsSerialPort* me) {
+void serial_port_flush_output(struct SerialPort* me) {
   /*
    * flush any input that might be on the port so we start fresh.
    */
@@ -43,7 +43,7 @@ void serial_port_flush_output(struct FmsSerialPort* me) {
   }
 }
 
-int  serial_port_open_raw(struct FmsSerialPort* me, const char* device, speed_t speed) {
+int  serial_port_open_raw(struct SerialPort* me, const char* device, speed_t speed) {
   if ((me->fd = open(device, O_RDWR | O_NONBLOCK | O_NOCTTY)) < 0) {
     TRACE(TRACE_ERROR,"%s, open failed: %s (%d)\n", device, strerror(errno), errno);
     return -1;
@@ -78,7 +78,7 @@ int  serial_port_open_raw(struct FmsSerialPort* me, const char* device, speed_t 
   return 0;
 }
 
-int  serial_port_open(struct FmsSerialPort* me, const char* device,
+int  serial_port_open(struct SerialPort* me, const char* device,
 		      void(*term_conf_callback)(struct termios*, speed_t*)) {
 
   speed_t speed;
@@ -108,7 +108,7 @@ int  serial_port_open(struct FmsSerialPort* me, const char* device,
 
 }
 
-void serial_port_close(struct FmsSerialPort* me) {
+void serial_port_close(struct SerialPort* me) {
 
   /* if null pointer or file descriptor indicates error just bail */
   if (!me || me->fd < 0)
