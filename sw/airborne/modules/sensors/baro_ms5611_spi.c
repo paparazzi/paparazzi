@@ -21,13 +21,13 @@
  */
 
 /**
- * @file modules/sensors/baro_ms5611_i2c.c
- * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for I2C.
+ * @file modules/sensors/baro_ms5611_spi.c
+ * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for SPI.
  *
  */
 
 
-#include "modules/sensors/baro_ms5611_i2c.h"
+#include "modules/sensors/baro_ms5611_spi.h"
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
@@ -38,16 +38,16 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
-#ifndef MS5611_I2C_DEV
-#define MS5611_I2C_DEV i2c0
+#ifndef MS5611_SPI_DEV
+#define MS5611_SPI_DEV spi1
 #endif
 
-/* address can be 0xEC or 0xEE (CSB\ low = 0xEE) */
-#ifndef MS5611_SLAVE_ADDR
-#define MS5611_SLAVE_ADDR 0xEE
+#ifndef MS5611_SLAVE_DEV
+#define MS5611_SLAVE_DEV SPI_SLAVE0
 #endif
 
-struct Ms5611_I2c baro_ms5611;
+
+struct Ms5611_Spi baro_ms5611;
 
 float fbaroms, ftempms;
 float baro_ms5611_alt;
@@ -59,7 +59,7 @@ float baro_ms5611_sigma2;
 
 
 void baro_ms5611_init(void) {
-  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
+  ms5611_spi_init(&baro_ms5611, &MS5611_SPI_DEV, MS5611_SLAVE_DEV);
 
   baro_ms5611_enabled = TRUE;
   baro_ms5611_alt_valid = FALSE;
@@ -72,7 +72,7 @@ void baro_ms5611_periodic( void ) {
   if (sys_time.nb_sec > 1) {
 
     /* call the convenience periodic that initializes the sensor and starts reading*/
-    ms5611_i2c_periodic(&baro_ms5611);
+    ms5611_spi_periodic(&baro_ms5611);
 
     if (baro_ms5611.initialized) {
       RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
@@ -91,7 +91,7 @@ void baro_ms5611_periodic( void ) {
 
 void baro_ms5611_event( void ) {
 
-  ms5611_i2c_event(&baro_ms5611);
+  ms5611_spi_event(&baro_ms5611);
 
   if (baro_ms5611.data_available) {
     float tmp_float = baro_ms5611.data.pressure / 101325.0; //pressure at sea level
