@@ -23,7 +23,6 @@
  * omap uart handling
  */
 
-// FIXME: uart.h defines B9600 as 9600
 #include "mcu_periph/uart.h"
 
 #include <stdint.h>
@@ -32,70 +31,50 @@
 #include <stdlib.h>
 #include <string.h>
 
-// FIXME: fms_serial_port includes termios.h that with omap defines B9600 as 12
-// Include termios.h AFTER uart.h. This OVERWRITES (without warning) the paparazzi uart.h B9600
-#include "fms/fms_serial_port.h"
+#include "serial_port.h"
 
 // #define TRACE(fmt,args...)    fprintf(stderr, fmt, args)
 #define TRACE(fmt,args...)
 
-// Convert the paparazzi B9600 which becomes 9600 to termios B9600 which becomes 12
-// FIXME: not all possible baudrate are available yet.
-speed_t baudconvert_drone(uint32_t baud);
-speed_t baudconvert_drone(uint32_t baud)
-{
-  if (baud <= 4800)
-    return B4800;
-  else if (baud <= 9600)
-    return B9600;
-  else if (baud <= 19200)
-    return B19200;
-  else if (baud <= 38400)
-    return B38400;
-  else if (baud <= 57600)
-    return B57600;
-  return B115200;
-}
 
-
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
-  struct FmsSerialPort* fmssp;
+void uart_periph_set_baudrate(struct uart_periph* periph, uint32_t baud) {
+  struct SerialPort* port;
   // close serial port if already open
-  if (p->reg_addr != NULL) {
-    fmssp = (struct FmsSerialPort*)(p->reg_addr);
-    serial_port_close(fmssp);
-    serial_port_free(fmssp);
+  if (periph->reg_addr != NULL) {
+    port = (struct SerialPort*)(periph->reg_addr);
+    serial_port_close(port);
+    serial_port_free(port);
   }
   // open serial port
-  fmssp = serial_port_new();
+  port = serial_port_new();
   // use register address to store SerialPort structure pointer...
-  p->reg_addr = (void*)fmssp;
+  periph->reg_addr = (void*)port;
 
   //TODO: set device name in application and pass as argument
   // FIXME: paparazzi baud is 9600 for B9600 while open_raw needs 12 for B9600
-  printf("opening %s on uart0 at %d (termios.h value=%d)\n",p->dev,baud,baudconvert_drone(baud));
-  int ret = serial_port_open_raw(fmssp,p->dev,baudconvert_drone(baud));
+  printf("opening %s on uart0 at termios.h baud value=%d\n", periph->dev, baud);
+  int ret = serial_port_open_raw(port,periph->dev, baud);
   if (ret != 0)
   {
-    TRACE("Error opening %s code %d\n",p->dev,ret);
+    TRACE("Error opening %s code %d\n",periph->dev,ret);
   }
 }
 
-void uart_transmit(struct uart_periph* p, uint8_t data ) {
-  uint16_t temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
+void uart_transmit(struct uart_periph* periph, uint8_t data) {
+  uint16_t temp = (periph->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
-  if (temp == p->tx_extract_idx)
+  if (temp == periph->tx_extract_idx)
     return;                          // no room
 
   // check if in process of sending data
-  if (p->tx_running) { // yes, add to queue
-    p->tx_buf[p->tx_insert_idx] = data;
-    p->tx_insert_idx = temp;
+  if (periph->tx_running) { // yes, add to queue
+    periph->tx_buf[periph->tx_insert_idx] = data;
+    periph->tx_insert_idx = temp;
   }
   else { // no, set running flag and write to output register
-    p->tx_running = TRUE;
-    struct FmsSerialPort* fmssp = (struct FmsSerialPort*)(p->reg_addr);
-    int ret = write((int)(fmssp->fd),&data,1);
+    periph->tx_running = TRUE;
+    struct SerialPort* port = (struct SerialPort*)(periph->reg_addr);
+    int ret = write((int)(port->fd), &data, 1);
     if (ret < 1)
     {
       TRACE("w %x [%d]\n",data,ret);
@@ -105,35 +84,35 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 
 #include <errno.h>
 
-static inline void uart_handler(struct uart_periph* p) {
+static inline void uart_handler(struct uart_periph* periph) {
   unsigned char c='D';
 
-  if (p->reg_addr == NULL) return; // device not initialized ?
+  if (periph->reg_addr == NULL) return; // device not initialized ?
 
-  struct FmsSerialPort* fmssp = (struct FmsSerialPort*)(p->reg_addr);
-  int fd = fmssp->fd;
+  struct SerialPort* port = (struct SerialPort*)(periph->reg_addr);
+  int fd = port->fd;
 
   // check if more data to send
-  if (p->tx_insert_idx != p->tx_extract_idx) {
-    int ret = write(fd,&(p->tx_buf[p->tx_extract_idx]),1);
+  if (periph->tx_insert_idx != periph->tx_extract_idx) {
+    int ret = write(fd, &(periph->tx_buf[periph->tx_extract_idx]), 1);
     if (ret < 1)
     {
-      TRACE("w %x [%d: %s]\n",p->tx_buf[p->tx_extract_idx],ret,strerror(errno));
+      TRACE("w %x [%d: %s]\n", periph->tx_buf[periph->tx_extract_idx], ret, strerror(errno));
     }
-    p->tx_extract_idx++;
-    p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
+    periph->tx_extract_idx++;
+    periph->tx_extract_idx %= UART_TX_BUFFER_SIZE;
   }
   else {
-    p->tx_running = FALSE;   // clear running flag
+    periph->tx_running = FALSE;   // clear running flag
   }
 
   if(read(fd,&c,1) > 0){
     //printf("r %x %c\n",c,c);
-    uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;
-    p->rx_buf[p->rx_insert_idx] = c;
+    uint16_t temp = (periph->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;
+    periph->rx_buf[periph->rx_insert_idx] = c;
     // check for more room in queue
-    if (temp != p->rx_extract_idx)
-      p->rx_insert_idx = temp; // update insert index
+    if (temp != periph->rx_extract_idx)
+      periph->rx_insert_idx = temp; // update insert index
   }
 
 }
