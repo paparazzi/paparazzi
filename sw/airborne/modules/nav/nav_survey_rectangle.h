@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/nav_survey_rectangle.c
+ * @file modules/nav/nav_survey_rectangle.c
  *
  * Automatic survey of a rectangle for fixedwings.
  *
