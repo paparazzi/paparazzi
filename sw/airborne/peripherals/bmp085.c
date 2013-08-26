@@ -100,6 +100,11 @@ void bmp085_init(struct Bmp085* bmp, struct i2c_periph *i2c_p, uint8_t addr)
   bmp->eoc = &bmp085_eoc_true;
 }
 
+/**
+ * Start new measurement if idle or read temp/pressure.
+ * Should run at < 40Hz unless eoc check function is provided.
+ * At ultra high resolution (oss = 3) conversion time is max 25.5ms.
+ */
 void bmp085_periodic(struct Bmp085* bmp)
 {
   switch (bmp->status) {
