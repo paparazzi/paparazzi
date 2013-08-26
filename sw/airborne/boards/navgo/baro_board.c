@@ -32,6 +32,7 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
+// FIXME
 #ifndef NAVGO_BARO_SENS
 #define NAVGO_BARO_SENS 0.0274181
 #endif
@@ -46,8 +47,8 @@ uint16_t startup_cnt;
 
 void baro_init( void ) {
   mcp355x_init();
-#ifdef ROTORCRAFT_BARO_LED
-  LED_OFF(ROTORCRAFT_BARO_LED);
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
 #endif
   startup_cnt = BARO_STARTUP_COUNTER;
 }
@@ -56,10 +57,10 @@ void baro_periodic( void ) {
   // Run some loops to get correct readings from the adc
   if (startup_cnt > 0) {
     --startup_cnt;
-#ifdef ROTORCRAFT_BARO_LED
-    LED_TOGGLE(ROTORCRAFT_BARO_LED);
+#ifdef BARO_LED
+    LED_TOGGLE(BARO_LED);
     if (startup_cnt == 0) {
-      LED_ON(ROTORCRAFT_BARO_LED);
+      LED_ON(BARO_LED);
     }
 #endif
   }
@@ -72,8 +73,8 @@ void navgo_baro_event(void) {
   if (mcp355x_data_available) {
     if (startup_cnt == 0) {
       // Send data when init phase is done
-      uint32_t pressure = 10*NAVGO_BARO_SENS*mcp355x_data;
-      AbiSendMsgBARO_ABS(NAVGO_BARO_SENDER_ID, pressure);
+      float pressure = NAVGO_BARO_SENS*mcp355x_data;
+      AbiSendMsgBARO_ABS(NAVGO_BARO_SENDER_ID, &pressure);
     }
     mcp355x_data_available = FALSE;
   }

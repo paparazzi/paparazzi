@@ -9,6 +9,6 @@
 #define ActuatorsDefaultInit() ActuatorsArdroneInit()
 #define ActuatorsDefaultCommit() ActuatorsArdroneCommit()
 
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 #endif /* CONFIG_ARDRONE2_RAW */

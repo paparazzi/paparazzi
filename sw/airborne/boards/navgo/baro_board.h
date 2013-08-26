@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2012 Gautier Hattenberger
+ * Copyright (C) 2011-2013 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -31,6 +31,7 @@
 
 extern void navgo_baro_event(void);
 
-#define BaroEvent(_b_abs_handler, _b_diff_handler) navgo_baro_event()
+// define BaroEvent macro
+#define BaroEvent navgo_baro_event
 
 #endif // BOARDS_NAVGO_BARO_H

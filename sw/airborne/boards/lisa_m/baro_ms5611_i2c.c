@@ -106,8 +106,8 @@ void baro_periodic(void) {
 
 void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
   if (ms5611_trans.status == I2CTransSuccess) {
-  #ifdef ROTORCRAFT_BARO_LED
-    RunOnceEvery(10,LED_TOGGLE(ROTORCRAFT_BARO_LED));
+  #ifdef BARO_LED
+    RunOnceEvery(10,LED_TOGGLE(BARO_LED));
   #endif
     switch (ms5611_status) {
 

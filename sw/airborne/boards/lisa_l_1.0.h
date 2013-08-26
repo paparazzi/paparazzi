@@ -156,7 +156,7 @@
 #define BOARD_ADC_CHANNEL_3 0
 #define BOARD_ADC_CHANNEL_4 15
 
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 
 /* Default actuators driver */

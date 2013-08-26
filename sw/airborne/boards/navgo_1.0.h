@@ -105,6 +105,6 @@
 #define SERVO_REG_1 PWMMR5
 #endif
 
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 #endif /* CONFIG_NAVGO_V1_0_H */

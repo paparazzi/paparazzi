@@ -254,7 +254,7 @@
 
 
 /* Activate onboard baro */
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 /* PWM */
 #define PWM_USE_TIM2 1

@@ -225,7 +225,7 @@
 #endif // USE_AD1
 
 /* Activate onboard baro */
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 /* PWM */
 #define PWM_USE_TIM3 1

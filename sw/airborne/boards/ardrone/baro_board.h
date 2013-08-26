@@ -30,7 +30,7 @@
 #ifndef BOARDS_ARDRONE2_BARO_H
 #define BOARDS_ARDRONE2_BARO_H
 
-#if BOARD_HAS_BARO
+#if USE_BARO_BOARD
 #include "navdata.h"
 
 void process_ardrone_baro(void);

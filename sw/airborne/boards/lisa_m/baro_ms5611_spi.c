@@ -55,8 +55,8 @@ static int8_t baro_ms5611_crc(uint16_t* prom) {
 }
 
 static void trans_cb_ms5611( struct spi_transaction *trans ) {
-#ifdef ROTORCRAFT_BARO_LED
-  RunOnceEvery(10,LED_TOGGLE(ROTORCRAFT_BARO_LED));
+#ifdef BARO_LED
+  RunOnceEvery(10,LED_TOGGLE(BARO_LED));
 #endif
 }
 

@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2010 ENAC
+ * Copyright (C) 2013 Gautier Hattenberger (ENAC)
  *
  * This file is part of paparazzi.
  *
@@ -26,14 +26,25 @@
  * integrated barometer for Apogee boards (mpl3115)
  */
 
+#include "std.h"
 #include "subsystems/sensors/baro.h"
+#include "peripherals/mpl3115.h"
 
 // to get MPU status
 #include "boards/apogee/imu_apogee.h"
 
+#include "subsystems/abi.h"
+#include "led.h"
 
-/* Common Baro struct */
-struct Baro baro;
+
+// FIXME
+#ifndef APOGEE_BARO_SENS
+#define APOGEE_BARO_SENS 0.0274181
+#endif
+
+#ifndef APOGEE_BARO_SENDER_ID
+#define APOGEE_BARO_SENDER_ID 12
+#endif
 
 /** Counter to init ads1114 at startup */
 #define BARO_STARTUP_COUNTER 200
@@ -41,25 +52,41 @@ uint16_t startup_cnt;
 
 void baro_init( void ) {
   mpl3115_init();
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 1; /* not handled on this board, use extra module */
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
+#endif
   startup_cnt = BARO_STARTUP_COUNTER;
 }
 
 void baro_periodic( void ) {
 
-  if (baro.status == BS_UNINITIALIZED && mpl3115_data_available) {
-    // Run some loops to get correct readings from the adc
-    --startup_cnt;
-    mpl3115_data_available = FALSE;
-    if (startup_cnt == 0) {
-      baro.status = BS_RUNNING;
-    }
-  }
-
   // Baro is slave of the MPU, only start reading it after MPU is configured
-  if (imu_apogee.mpu.config.initialized)
+  if (imu_apogee.mpu.config.initialized) {
+
+    if (startup_cnt > 0 && mpl3115_data_available) {
+      // Run some loops to get correct readings from the adc
+      --startup_cnt;
+      mpl3115_data_available = FALSE;
+#ifdef BARO_LED
+      LED_TOGGLE(BARO_LED);
+      if (startup_cnt == 0) {
+        LED_ON(BARO_LED);
+      }
+#endif
+    }
+    // Read the sensor
     Mpl3115Periodic();
+  }
+}
+
+void apogee_baro_event(void) {
+  mpl3115_event();
+  if (mpl3115_data_available) {
+    if (startup_cnt == 0) {
+      float pressure = ((float)mpl3115_pressure/(1<<2));
+      AbiSendMsgBARO_ABS(UMARIM_BARO_SENDER_ID, &pressure);
+    }
+    mpl3115_data_available = FALSE;
+  }
 }
 

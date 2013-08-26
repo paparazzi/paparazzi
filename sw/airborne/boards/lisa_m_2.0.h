@@ -165,6 +165,6 @@
 #endif // USE_AD1
 
 
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 #endif /* CONFIG_LISA_M_2_0_H */

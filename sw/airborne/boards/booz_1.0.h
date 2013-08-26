@@ -182,6 +182,6 @@
 #endif
 
 
-#define BOARD_HAS_BARO 1
+#define USE_BARO_BOARD 1
 
 #endif /* CONFIG_BOOZ2_V1_0_H */
