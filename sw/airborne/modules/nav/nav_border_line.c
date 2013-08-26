@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Tobias Muench
- * modified nav_linie by Anton Kochevar, ENAC
+ * modified nav_line by Anton Kochevar, ENAC
  *
  * This file is part of paparazzi.
  *
@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/navigation/border_line.c
+ * @file modules/nav/nav_border_line.c
  * @brief navigate along a border line (line 1-2) with turns in the same direction
  *
  * you can use this function to navigate along a border if it is essetial not to cross it
@@ -29,7 +29,7 @@
  * take care youre navigation radius is not to small in strong wind conditions!
  */
 
-#include "subsystems/navigation/border_line.h"
+#include "modules/nav/nav_border_line.h"
 #include "generated/airframe.h"
 #include "subsystems/nav.h"
 

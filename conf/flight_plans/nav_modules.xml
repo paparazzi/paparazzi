@@ -77,11 +77,11 @@
       <call fun="init_poly_survey_adv(WP_S1,5,0,30,10,50,100)"/>
       <call fun="poly_survey_adv()"/>
     </block>
-    <block group="extra_pattern" name="Path 1,2,S1,S2,STDBY" strip_button="Path (1,2,S1,S2,STDBY)" strip_icon="path.png">
-      <path wpts="1,2 S1"/>
-      <path approaching_time="1" pitch="auto" throttle="0.4" wpts="S1, S2 STDBY"/>
-      <deroute block="Standby"/>
+    <block name="Border line 1-2" strip_button="Border Line (wp 1-2)">
+      <call fun="border_line_init()"/>
+      <call fun="border_line(WP_1, WP_2, nav_radius)"/>
     </block>
+
     <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>

@@ -13,5 +13,5 @@ $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/nav_line.c
 
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/OSAMNav.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/snav.c
-$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/border_line.c
+
 
