@@ -20,13 +20,13 @@
  */
 
 /**
- * @file subsystems/navigation/poly_survey_adv.c
+ * @file modules/nav/nav_survey_poly_adv.c
  *
  * Advanced polygon survey for fixedwings from Uni Stuttgart.
  *
  */
 
-#include "poly_survey_adv.h"
+#include "nav_survey_poly_adv.h"
 
 #include "subsystems/nav.h"
 #include "state.h"
