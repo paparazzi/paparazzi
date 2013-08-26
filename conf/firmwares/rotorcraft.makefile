@@ -181,6 +181,7 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
     ap.srcs += peripherals/ms5611_i2c.c
     ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
+	ap.srcs += peripherals/bmp085.c
     ap.srcs += $(SRC_BOARD)/baro_board.c
     ap.CFLAGS += -DUSE_I2C2
   endif
