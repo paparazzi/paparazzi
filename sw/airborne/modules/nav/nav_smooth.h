@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/snav.h
+ * @file modules/nav/nav_smooth.h
  *
  * Smooth navigation to wp_a along an arc (around wp_cd),
  * a segment (from wp_rd to wp_ta) and a second arc (around wp_ca).
@@ -31,6 +31,7 @@
 
 #include "std.h"
 
+
 extern float snav_desired_tow; /* time of week, s */
 
 bool_t snav_init(uint8_t wp_a, float desired_course_rad, float radius);
@@ -40,5 +41,3 @@ bool_t snav_circle2(void);
 bool_t snav_on_time(float radius);
 
 #endif // SNAV_H
-
-

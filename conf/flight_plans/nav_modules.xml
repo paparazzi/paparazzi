@@ -80,6 +80,16 @@
       <call fun="border_line_init()"/>
       <call fun="border_line(WP_1, WP_2, nav_radius)"/>
     </block>
+    <block name="Smooth nav">
+      <set var="snav_desired_tow" value="gps.tow / 1000. + 200."/>
+      <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), DEFAULT_CIRCLE_RADIUS/2.)"/>
+      <call fun="snav_circle1()"/>
+      <call fun="snav_route()"/>
+      <call fun="snav_circle2()"/>
+      <call fun="snav_on_time(DEFAULT_CIRCLE_RADIUS)"/>
+      <go from="1" hmode="route" wp="2"/>
+      <deroute block="Standby"/>
+    </block>
 
     <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>

@@ -20,13 +20,13 @@
  */
 
 /**
- * @file subsystems/navigation/nav_line.c
+ * @file modules/nav/nav_line.c
  *
  * Fixedwing navigation along a line with nice U-turns.
  */
 
 #include "generated/airframe.h"
-#include "subsystems/navigation/nav_line.h"
+#include "modules/nav/nav_line.h"
 #include "subsystems/nav.h"
 
 /** Status along the pattern */
