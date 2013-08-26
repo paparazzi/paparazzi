@@ -24,6 +24,31 @@
 
 #define HIGH_RES_TRIG_FRAC  20
 
+void ltp_of_ecef_rmat_from_lla_i(struct Int32Mat33* ltp_of_ecef, struct LlaCoor_i* lla) {
+
+#if USE_DOUBLE_PRECISION_TRIG
+  int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)lla->lat)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)lla->lat)), HIGH_RES_TRIG_FRAC));
+  int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)lla->lon)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)lla->lon)), HIGH_RES_TRIG_FRAC));
+#else
+  int32_t sin_lat = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)lla->lat)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)lla->lat)), HIGH_RES_TRIG_FRAC));
+  int32_t sin_lon = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)lla->lon)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)lla->lon)), HIGH_RES_TRIG_FRAC));
+#endif
+
+  ltp_of_ecef->m[0] = -sin_lon;
+  ltp_of_ecef->m[1] =  cos_lon;
+  ltp_of_ecef->m[2] =  0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
+  ltp_of_ecef->m[3] = (int32_t)((-(int64_t)sin_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[4] = (int32_t)((-(int64_t)sin_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[5] =  cos_lat;
+  ltp_of_ecef->m[6] = (int32_t)(( (int64_t)cos_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[7] = (int32_t)(( (int64_t)cos_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[8] =  sin_lat;
+}
+
 void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
   /* store the origin of the tangeant plane */
@@ -31,29 +56,7 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
   /* compute the lla representation of the origin */
   lla_of_ecef_i(&def->lla, &def->ecef);
   /* store the rotation matrix                    */
-
-#if 1
-  int32_t sin_lat = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t sin_lon = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-#else
-  int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-#endif
-
-
-  def->ltp_of_ecef.m[0] = -sin_lon;
-  def->ltp_of_ecef.m[1] =  cos_lon;
-  def->ltp_of_ecef.m[2] =  0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
-  def->ltp_of_ecef.m[3] = (int32_t)((-(int64_t)sin_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[4] = (int32_t)((-(int64_t)sin_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[5] =  cos_lat;
-  def->ltp_of_ecef.m[6] = (int32_t)(( (int64_t)cos_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[7] = (int32_t)(( (int64_t)cos_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[8] =  sin_lat;
+  ltp_of_ecef_rmat_from_lla_i(&def->ltp_of_ecef, &def->lla);
 
 }
 
@@ -64,29 +67,7 @@ void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla) {
   /* compute the ecef representation of the origin */
   ecef_of_lla_i(&def->ecef, &def->lla);
   /* store the rotation matrix                    */
-
-#if 1
-  int32_t sin_lat = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t sin_lon = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-#else
-  int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-#endif
-
-
-  def->ltp_of_ecef.m[0] = -sin_lon;
-  def->ltp_of_ecef.m[1] =  cos_lon;
-  def->ltp_of_ecef.m[2] =  0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
-  def->ltp_of_ecef.m[3] = (int32_t)((-(int64_t)sin_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[4] = (int32_t)((-(int64_t)sin_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[5] =  cos_lat;
-  def->ltp_of_ecef.m[6] = (int32_t)(( (int64_t)cos_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[7] = (int32_t)(( (int64_t)cos_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
-  def->ltp_of_ecef.m[8] =  sin_lat;
+  ltp_of_ecef_rmat_from_lla_i(&def->ltp_of_ecef, &def->lla);
 
 }
 

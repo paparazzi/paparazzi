@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2005-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,19 +17,15 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#ifndef AHRS_FLOAT_EKF_H
-#define AHRS_FLOAT_EKF_H
+#ifndef QR_CODE_SPI_LINK_H_
+#define QR_CODE_SPI_LINK_H_
 
+#include "std.h"
 
+extern void qr_code_spi_link_init(void);
+extern void qr_code_spi_link_periodic(void);
 
-extern void ahrs_init(void);
-extern void ahrs_align(void);
-extern void ahrs_propagate(void);
-extern void ahrs_update(void);
-
-
-
-
-#endif /* AHRS_FLOAT_EKF_H */
+#endif /* QR_CODE_SPI_LINK_H_ */

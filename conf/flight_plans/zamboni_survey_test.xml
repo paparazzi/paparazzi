@@ -1,0 +1,82 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="310" ground_alt="185" lat0="59.81" lon0="10.3578" max_dist_from_home="550" name="Test zamboni" security_height="60" qfu="110">
+  <header>
+#include "subsystems/datalink/datalink.h"
+#include "modules/digital_cam/dc.h"
+//#define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_DISTANCE;
+//#define LINE_START_FUNCTION dc_Survey(dc_gps_dist);
+#define LINE_START_FUNCTION dc_Survey(40);
+#define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-20" y="-40"/>
+    <waypoint name="STDBY" x="-40" y="-60"/>
+    <waypoint name="Z_CENTER" x="170" y="-90"/>
+    <waypoint name="Z1_DIR" x="270" y="-120"/>
+    <waypoint name="Z2_DIR" x="270" y="-120"/>
+    <waypoint name="CLIMB" x="0" y="-70"/>
+    <waypoint alt="240" name="AF" x="-180" y="160"/>
+    <waypoint alt="170.0" name="TD" x="-20" y="10"/>
+    <waypoint name="_BASELEG" x="1" y="1"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot_flight_time"/>
+      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
+    </block>
+
+    <!-- init_zamboni_survey(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude) /-->
+    <block name="ZamboniSurvey1" strip_button="Zamboni1" strip_icon="survey.png">
+      <call fun="init_zamboni_survey(WP_Z_CENTER, WP_Z1_DIR, 200, 40, 7, 290)"/>
+      <call fun="zamboni_survey()"/>
+    </block>
+
+    <!-- init_zamboni_survey(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude) /-->
+    <block name="ZamboniSurvey2" strip_button="Zamboni2" strip_icon="survey.png">
+      <call fun="init_zamboni_survey(WP_Z_CENTER, WP_Z2_DIR, 200, -40, 7, 290)"/>
+      <call fun="zamboni_survey()"/>
+    </block>
+    
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png" group="land">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png" group="land">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+
+
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block group="home" key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+  </blocks>
+</flight_plan>

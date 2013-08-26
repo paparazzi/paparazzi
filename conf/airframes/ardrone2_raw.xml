@@ -29,7 +29,11 @@
 
   </firmware>
 
-  <!-- <modules main_freq="512"> <load name="sys_mon.xml" /> </modules> -->
+<!--
+  <modules main_freq="512" >
+    <load name="gps_ubx_ucenter.xml" /> 
+  </modules>
+-->
 
   <commands>
     <axis name="PITCH" failsafe_value="0" />
@@ -117,7 +121,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="22.3" integer="16" />
+    <define name="BARO_SENS" value="22.4" integer="16" />
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -202,10 +206,9 @@
     <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
     <define name="RC_CLIMB_COEF" value="163" />
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
-    <define name="RC_CLIMB_DEAD_BAND" value="160000" />
-    <!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive
-      estimation -->
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.4" />
+    <define name="RC_CLIMB_DEAD_BAND" value="160000"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.4"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">

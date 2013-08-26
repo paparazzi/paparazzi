@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Dino Hensen, Vincent van Hoek
+ * Copyright (C) 2013 Dino Hensen, Vincent van Hoek
  *
  * This file is part of Paparazzi.
  *
@@ -78,8 +78,8 @@ typedef struct
 
   uint16_t flag_echo_ini;
 
-  int32_t pressure; //long
-  int16_t temperature_pressure;
+  int32_t pressure;
+  uint16_t temperature_pressure;
 
   int16_t mx;
   int16_t my;
@@ -89,12 +89,32 @@ typedef struct
 
 } __attribute__ ((packed)) measures_t;
 
+struct bmp180_baro_calibration
+{
+  int16_t ac1;
+  int16_t ac2;
+  int16_t ac3;
+  uint16_t ac4;
+  uint16_t ac5;
+  uint16_t ac6;
+  int16_t b1;
+  int16_t b2;
+  int16_t mb;
+  int16_t mc;
+  int16_t md;
+
+  // These values are calculated
+  int32_t b5;
+};
+
 measures_t* navdata;
+struct bmp180_baro_calibration baro_calibration;
 navdata_port* port;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
 uint8_t navdata_baro_available;
 int16_t previousUltrasoundHeight;
+uint8_t baro_calibrated;
 
 int navdata_init(void);
 void navdata_close(void);
@@ -105,5 +125,7 @@ void navdata_CropBuffer(int cropsize);
 
 uint16_t navdata_checksum(void);
 int16_t navdata_getHeight(void);
+
+void acquire_baro_calibration(void);
 
 #endif /* NAVDATA_H_ */

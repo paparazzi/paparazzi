@@ -108,6 +108,9 @@ ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+ifeq ($(ARCH), omap)
+ap.srcs   += $(SRC_ARCH)/serial_port.c
+endif
 
 # I2C is needed for speed controllers and barometers on lisa
 ifeq ($(TARGET), ap)
@@ -275,6 +278,7 @@ ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
 #
 # INS choice
@@ -290,17 +294,3 @@ ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 ap.srcs += $(SRC_FIRMWARE)/navigation.c
 ap.srcs += subsystems/navigation/common_flight_plan.c
 
-#
-# FMS  choice
-#
-# include booz2_fms_test_signal.makefile
-# or
-# include booz2_fms_datalink.makefile
-# or
-# nothing
-#
-ifeq ($(ARCH), omap)
-SRC_FMS=fms
-ap.CFLAGS += -I. -I$(SRC_FMS)
-ap.srcs   += $(SRC_FMS)/fms_serial_port.c
-endif

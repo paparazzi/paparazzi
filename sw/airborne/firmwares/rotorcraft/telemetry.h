@@ -274,7 +274,7 @@
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct FloatRates* body_rate = stateGetBodyRates_f();   \
   struct FloatEulers* att = stateGetNedToBodyEulers_f();  \
-  float foo;                                              \
+  float foo = 0.0;                                       \
   DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(_trans, _dev,         \
       &(body_rate->p), &(body_rate->q), &(body_rate->r),  \
       &(att->phi), &(att->theta), &(att->psi),            \
@@ -396,72 +396,6 @@
 #define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {}
 #endif
 
-#if USE_AHRS_LKF
-#include "subsystems/ahrs.h"
-#include "ahrs/ahrs_float_lkf.h"
-#define PERIODIC_SEND_AHRS_LKF(_trans, _dev) {				\
-    DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,			\
-                _trans, _dev,					\
-                &bafl_eulers.theta,			\
-                &bafl_eulers.psi,			\
-                &bafl_quat.qi,				\
-                &bafl_quat.qx,				\
-                &bafl_quat.qy,				\
-                &bafl_quat.qz,				\
-                &bafl_rates.p,				\
-                &bafl_rates.q,				\
-                &bafl_rates.r,				\
-                &bafl_accel_measure.x,			\
-                &bafl_accel_measure.y,			\
-                &bafl_accel_measure.z,			\
-                &bafl_mag.x,				\
-                &bafl_mag.y,				\
-                &bafl_mag.z);				\
-  }
-#define PERIODIC_SEND_AHRS_LKF_DEBUG(_trans, _dev) {           \
-    DOWNLINK_SEND_AHRS_LKF_DEBUG(_trans, _dev,             \
-                      &bafl_X[0],          \
-                      &bafl_X[1],          \
-                      &bafl_X[2],          \
-                      &bafl_bias.p,        \
-                      &bafl_bias.q,        \
-                      &bafl_bias.r,        \
-                      &bafl_qnorm,         \
-                      &bafl_phi_accel,         \
-                      &bafl_theta_accel,       \
-                      &bafl_P[0][0],           \
-                      &bafl_P[1][1],           \
-                      &bafl_P[2][2],           \
-                      &bafl_P[3][3],           \
-                      &bafl_P[4][4],           \
-                      &bafl_P[5][5]);          \
-  }
-#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {          \
-    DOWNLINK_SEND_AHRS_LKF_ACC_DBG(_trans, _dev,                \
-                    &bafl_q_a_err.qi,       \
-                    &bafl_q_a_err.qx,       \
-                    &bafl_q_a_err.qy,       \
-                    &bafl_q_a_err.qz,       \
-                    &bafl_b_a_err.p,        \
-                    &bafl_b_a_err.q,        \
-                    &bafl_b_a_err.r);       \
-  }
-#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_trans, _dev) {      \
-    DOWNLINK_SEND_AHRS_LKF_MAG_DBG(_trans, _dev,            \
-                    &bafl_q_m_err.qi,   \
-                    &bafl_q_m_err.qx,   \
-                    &bafl_q_m_err.qy,   \
-                    &bafl_q_m_err.qz,   \
-                    &bafl_b_m_err.p,    \
-                    &bafl_b_m_err.q,    \
-                    &bafl_b_m_err.r);   \
-  }
-#else
-#define PERIODIC_SEND_AHRS_LKF(_trans, _dev) {}
-#define PERIODIC_SEND_AHRS_LKF_DEBUG(_trans, _dev) {}
-#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_trans, _dev) {}
-#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {}
-#endif
 
 #if defined STABILIZATION_ATTITUDE_TYPE_QUAT && defined STABILIZATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {   \
@@ -1074,6 +1008,16 @@
   }
 #else
 #define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_GX3
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
+    &ahrs_impl.GX3_freq,			\
+    &ahrs_impl.GX3_packet.chksm_error,	\
+    &ahrs_impl.GX3_packet.hdr_error,	\
+    &ahrs_impl.GX3_chksm)
+#else
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
 
 #endif /* TELEMETRY_H */

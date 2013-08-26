@@ -31,16 +31,23 @@
 #include "generated/airframe.h"
 #include "navdata.h"
 
-int imu_data_available;
+void navdata_event(void);
 
 static inline void imu_ardrone2_event ( void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
-  if (imu_data_available) {
-    imu_data_available = FALSE;
+  navdata_update();
+  //checks if the navboard has a new dataset ready
+  if (navdata_imu_available == TRUE) {
+    navdata_imu_available = FALSE;
+    RATES_ASSIGN(imu.gyro_unscaled, navdata->vx, navdata->vy, navdata->vz);
+    VECT3_ASSIGN(imu.accel_unscaled, navdata->ax, navdata->ay, navdata->az);
+    VECT3_ASSIGN(imu.mag_unscaled, navdata->mx, navdata->my, navdata->mz);
+
     _gyro_handler();
     _accel_handler();
     _mag_handler();
   }
+  navdata_event();
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {  \

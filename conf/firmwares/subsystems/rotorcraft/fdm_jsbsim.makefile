@@ -103,12 +103,6 @@ nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 nps.srcs += state.c
 
-#
-# in makefile section of airframe xml
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile
-# or
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-#
 
 nps.srcs += $(SRC_FIRMWARE)/stabilization.c
 nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
@@ -119,17 +113,8 @@ nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
-#
-# INS choice
-#
-# include subsystems/rotorcraft/ins.makefile
-# or
-# include subsystems/rotorcraft/ins_extended.makefile
-#
-# extra:
-# include subsystems/rotorcraft/ins_hff.makefile
-#
 
 nps.srcs += $(SRC_FIRMWARE)/navigation.c
 nps.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

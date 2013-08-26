@@ -43,7 +43,7 @@
      <field name="gradient" type="int16" />
      <field name="flag_echo_ini" type="uint16" />
      <field name="pressure" type="int32" />
-     <field name="temperature_pressure" type="int16" />
+     <field name="temperature_pressure" type="uint16" />
      <field name="mx" type="int16" />
      <field name="my" type="int16" />
      <field name="mz" type="int16" />
@@ -255,6 +255,8 @@
 
   <message name="SYS_MON" id="33">
     <field name="periodic_time" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_time_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_time_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
@@ -603,7 +605,14 @@
 
 
  <!-- 72 is free -->
- <!-- 73 is free -->
+
+  <message name="GX3_INFO" id="73">
+    <field name="GX3_freq" 	type="float" 	unit="hz"/>
+    <field name="chksm_error" 	type="uint32"/>
+    <field name="hdr_error" 	type="uint32"/>
+    <field name="GX3_chksm"	type="uint16"/>
+  </message>
+
  <!-- 74 is free -->
  <!-- 75 is free -->
 

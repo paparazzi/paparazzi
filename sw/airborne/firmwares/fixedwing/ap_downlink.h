@@ -150,6 +150,11 @@
 
 #define PERIODIC_SEND_SEGMENT(_trans, _dev) if (nav_in_segment) { DOWNLINK_SEND_SEGMENT(_trans, _dev, &nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2); }
 
+#if USE_IMU_FLOAT
+#  include "subsystems/imu.h"
+#  define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) { DOWNLINK_SEND_IMU_ACCEL(_trans, _dev, &imuf.accel.x, &imuf.accel.y, &imuf.accel.z)}
+#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r)}
+#else
 #ifdef IMU_TYPE_H
 #  ifdef INS_MODULE_H
 #  include "modules/ins/ins_module.h"
@@ -179,6 +184,7 @@
 #    define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) {}
 #    define PERIODIC_SEND_IMU_GYRO(_trans, _dev) {}
 #    define PERIODIC_SEND_IMU_MAG(_trans, _dev) {}
+#endif
 #endif
 
 #ifdef IMU_ANALOG
@@ -317,5 +323,14 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #define PERIODIC_SEND_H_CTL_A(_trans, _dev) DOWNLINK_SEND_H_CTL_A(_trans, _dev, &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
 
+#ifdef USE_GX3
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
+    &ahrs_impl.GX3_freq,			\
+    &ahrs_impl.GX3_packet.chksm_error,	\
+    &ahrs_impl.GX3_packet.hdr_error,	\
+    &ahrs_impl.GX3_chksm)
+#else
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
+#endif
 
 #endif /* AP_DOWNLINK_H */

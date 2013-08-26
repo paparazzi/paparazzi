@@ -27,7 +27,9 @@
 #define UART_ARCH_H
 
 #include "mcu_periph/uart.h"
-#include "std.h"
+
+// for definition of baud rates
+#include <termios.h>
 
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Dino Hensen, Vincent van Hoek
+ * Copyright (C) 2013 Dino Hensen, Vincent van Hoek
  *
  * This file is part of Paparazzi.
  *
@@ -72,6 +72,9 @@ int navdata_init()
   uint8_t cmd=0x02;
   write(nav_fd, &cmd, 1);
 
+  baro_calibrated = 0;
+  acquire_baro_calibration();
+
   // start acquisition
   cmd=0x01;
   write(nav_fd, &cmd, 1);
@@ -88,6 +91,59 @@ int navdata_init()
   previousUltrasoundHeight = 0;
 
   return 0;
+}
+
+void acquire_baro_calibration()
+{
+  read(nav_fd, NULL, 100); // read some potential dirt
+
+  // start baro calibration acquisition
+  uint8_t cmd=0x17; // send cmd 23
+  write(nav_fd, &cmd, 1);
+
+  uint8_t calibBuffer[22];
+  int calib_bytes_read, calib_bytes_left, readcount;
+  calib_bytes_read = 0;
+  calib_bytes_left = 22;
+  readcount = 0;
+
+  while(calib_bytes_read != 22) {
+    readcount = read(nav_fd, calibBuffer+(22-calib_bytes_left), calib_bytes_left);
+    if (readcount > 0) {
+      calib_bytes_read += readcount;
+      calib_bytes_left -= readcount;
+    }
+  }
+
+  baro_calibration.ac1 = calibBuffer[0]  << 8 | calibBuffer[1];
+  baro_calibration.ac2 = calibBuffer[2]  << 8 | calibBuffer[3];
+  baro_calibration.ac3 = calibBuffer[4]  << 8 | calibBuffer[5];
+  baro_calibration.ac4 = calibBuffer[6]  << 8 | calibBuffer[7];
+  baro_calibration.ac5 = calibBuffer[8]  << 8 | calibBuffer[9];
+  baro_calibration.ac6 = calibBuffer[10] << 8 | calibBuffer[11];
+  baro_calibration.b1  = calibBuffer[12] << 8 | calibBuffer[13];
+  baro_calibration.b2  = calibBuffer[14] << 8 | calibBuffer[15];
+  baro_calibration.mb  = calibBuffer[16] << 8 | calibBuffer[17];
+  baro_calibration.mc  = calibBuffer[18] << 8 | calibBuffer[19];
+  baro_calibration.md  = calibBuffer[20] << 8 | calibBuffer[21];
+
+  printf("Calibration bytes read: %d\n", calib_bytes_read);
+
+  printf("Calibration AC1: %d\n", baro_calibration.ac1);
+  printf("Calibration AC2: %d\n", baro_calibration.ac2);
+  printf("Calibration AC3: %d\n", baro_calibration.ac3);
+  printf("Calibration AC4: %d\n", baro_calibration.ac4);
+  printf("Calibration AC5: %d\n", baro_calibration.ac5);
+  printf("Calibration AC6: %d\n", baro_calibration.ac6);
+
+  printf("Calibration B1: %d\n", baro_calibration.b1);
+  printf("Calibration B2: %d\n", baro_calibration.b2);
+
+  printf("Calibration MB: %d\n", baro_calibration.mb);
+  printf("Calibration MC: %d\n", baro_calibration.mc);
+  printf("Calibration MD: %d\n", baro_calibration.md);
+
+  baro_calibrated = 1;
 }
 
 void navdata_close()
@@ -114,7 +170,6 @@ void navdata_read()
     port->bytesRead += newbytes;
     port->totalBytesRead += newbytes;
   }
-
 }
 
 void navdata_update()
@@ -131,11 +186,24 @@ void navdata_update()
 //      if ( navdata_checksum() == 0 )
       {
         memcpy(navdata, port->buffer, NAVDATA_PACKET_SIZE);
+        
+        // Invert byte order so that TELEMETRY works better
+        uint8_t tmp;
+        uint8_t* p = (uint8_t*) &(navdata->pressure);
+        tmp = p[0];
+        p[0] = p[1];
+        p[1] = tmp;
+        p = (uint8_t*) &(navdata->temperature_pressure);
+        tmp = p[0];
+        p[0] = p[1];
+        p[1] = tmp;
+
         navdata_imu_available = 1;
         navdata_baro_available = 1;
+
         port->packetsRead++;
 //        printf("CCRC=%d, GCRC=%d, error=%d\n", crc, navdata->chksum, abs(crc-navdata->chksum));
-        navdata_getHeight();
+        //navdata_getHeight();
       }
       navdata_CropBuffer(60);
     }
@@ -146,7 +214,6 @@ void navdata_update()
       pint = memchr(port->buffer, NAVDATA_START_BYTE, port->bytesRead);
 
       if (pint != NULL) {
-        port->bytesRead -= pint - port->buffer;
         navdata_CropBuffer(pint - port->buffer);
       } else {
         // if the start byte was not found, it means there is junk in the buffer
@@ -160,7 +227,7 @@ void navdata_CropBuffer(int cropsize)
 {
   if (port->bytesRead - cropsize < 0) {
     // TODO think about why the amount of bytes read minus the cropsize gets below zero
-    printf("BytesRead - Cropsize may not be below zero...");
+    printf("BytesRead(=%d) - Cropsize(=%d) may not be below zero. port->buffer=%p\n", port->bytesRead, cropsize, port->buffer);
     return;
   }
 

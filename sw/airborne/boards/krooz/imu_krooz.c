@@ -124,17 +124,16 @@ void imu_periodic( void )
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
 #endif
-    
     RATES_SMUL(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, IMU_KROOZ_GYRO_AVG_FILTER);
     RATES_ADD(imu_krooz.gyro_filtered, imu.gyro_unscaled);
     RATES_SDIV(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, (IMU_KROOZ_GYRO_AVG_FILTER + 1));
     RATES_COPY(imu.gyro_unscaled, imu_krooz.gyro_filtered);
-    
+
     VECT3_SMUL(imu_krooz.accel_filtered, imu_krooz.accel_filtered, IMU_KROOZ_ACCEL_AVG_FILTER);
     VECT3_ADD(imu_krooz.accel_filtered, imu.accel_unscaled);
     VECT3_SDIV(imu_krooz.accel_filtered, imu_krooz.accel_filtered, (IMU_KROOZ_ACCEL_AVG_FILTER + 1));
     VECT3_COPY(imu.accel_unscaled, imu_krooz.accel_filtered);
-    
+
     RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
     VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
