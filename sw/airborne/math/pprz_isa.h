@@ -49,24 +49,33 @@
 #define PPRZ_ISA_M_OF_P_CONST (PPRZ_ISA_AIR_GAS_CONSTANT*PPRZ_ISA_SEA_LEVEL_TEMP/PPRZ_ISA_GRAVITY)
 
 /**
- * Get meters from pressure (using simplified equation)
+ * Get absolute altitude from pressure (using simplified equation).
+ * Referrence pressure is standard pressure at sea level
  *
- * @param pressure pressure (float) in Pascal (Pa)
+ * @param pressure current pressure in Pascal (Pa)
  * @return altitude in pressure in ISA conditions
  */
-static inline float pprz_isa_meters_of_pressure_f(float pressure) {
-  return (PPRZ_ISA_M_OF_P_CONST*logf(PPRZ_ISA_SEA_LEVEL_PRESSURE/pressure));
+static inline float pprz_isa_altitude_of_pressure(float pressure) {
+  if (pressure > 0.) {
+    return (PPRZ_ISA_M_OF_P_CONST*logf(PPRZ_ISA_SEA_LEVEL_PRESSURE/pressure));
+  } else {
+    return 0.;
+  }
 }
 
 /**
- * Get meters from pressure (using simplified equation)
+ * Get relative altitude from pressure (using simplified equation).
  *
- * @param pressure pressure (int) in deci Pascal (10*Pa)
+ * @param pressure current pressure in Pascal (Pa)
+ * @param ref reference pressure
  * @return altitude in pressure in ISA conditions
  */
-static inline float pprz_isa_meters_of_pressure_i(int32_t pressure) {
-  float p = (float)pressure/10.;
-  return pprz_isa_meters_of_pressure_f(p);
+static inline float pprz_isa_height_of_pressure(float pressure, float ref) {
+  if (pressure > 0. && ref > 0.) {
+    return (PPRZ_ISA_M_OF_P_CONST*logf(ref/pressure));
+  } else {
+    return 0.;
+  }
 }
 
 
