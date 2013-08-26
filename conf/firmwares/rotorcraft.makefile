@@ -147,8 +147,10 @@ ap.srcs += subsystems/actuators.c
 #
 
 #
-# BARO
+# AIR DATA and BARO (if needed)
 #
+ap.srcs += subsystems/air_data.c
+
 # booz baro
 ifeq ($(BOARD), booz)
 ap.srcs += $(SRC_BOARD)/baro_board.c
@@ -215,7 +217,7 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 endif
 
 ifneq ($(BARO_LED),none)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
+ap.CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
 
 #

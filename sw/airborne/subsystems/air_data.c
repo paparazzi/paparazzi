@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2013 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -20,23 +20,36 @@
  */
 
 /**
- * @file subsystems/sensors/baro.h
- *
- * Common barometric sensor implementation.
- * Used with baro integrated to the autopilot board.
- * Implementation is in boards/<board_name>/baro_board.[ch]
- *
+ * @file subsystems/air_data.c
+ * Air Data interface
+ *  - pressures
+ *  - airspeed
+ *  - angle of attack and sideslip
+ *  - wind
  */
 
-#ifndef SUBSYSTEMS_SENSORS_BARO_H
-#define SUBSYSTEMS_SENSORS_BARO_H
+#include "subsystems/air_data.h"
+#include "subsystems/abi.h"
 
-#include BOARD_CONFIG
-#if USE_BARO_BOARD
-#include "baro_board.h"
+/** global AirData state
+ */
+struct AirData air_data;
+
+/** ABI bindings
+ */
+#ifndef AIR_DATA_BARO_ABS_ID
+#define AIR_DATA_BARO_ABS_ID ABI_BROADCAST
 #endif
+static abi_event pressure_abs_ev;
 
-extern void baro_init(void);
-extern void baro_periodic(void);
+static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const float * pressure) {
+  air_data.pressure = *pressure;
+}
 
-#endif /* SUBSYSTEMS_SENSORS_BARO_H */
+/** AirData initialization. Called at startup.
+ *  Bind ABI messages
+ */
+void air_data_init( void ) {
+  AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
+}
+

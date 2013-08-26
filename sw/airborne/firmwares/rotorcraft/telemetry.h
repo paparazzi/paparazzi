@@ -190,11 +190,11 @@
                   &electrical.current);               \
   }
 
-#include "subsystems/sensors/baro.h"
-#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {         \
-    DOWNLINK_SEND_BARO_RAW(_trans, _dev,               \
-                           &baro.absolute,      \
-                           &baro.differential); \
+#include "subsystems/air_data.h"
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {      \
+    DOWNLINK_SEND_BARO_RAW(_trans, _dev,            \
+                           &air_data.pressure,      \
+                           &air_data.differential); \
   }
 
 

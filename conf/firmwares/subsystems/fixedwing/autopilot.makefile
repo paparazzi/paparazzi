@@ -163,6 +163,9 @@ ap_srcs 		+= state.c
 ap_srcs 		+= subsystems/settings.c
 ap_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 
+# AIR DATA
+ap_srcs += subsystems/air_data.c
+
 # BARO
 ifeq ($(BOARD), umarim)
 ifeq ($(BOARD_VERSION), 1.0)
@@ -173,6 +176,10 @@ ap_srcs 	+= peripherals/ads1114.c
 endif
 else ifeq ($(BOARD), lisa_l)
 ap_CFLAGS += -DUSE_I2C2
+endif
+
+ifneq ($(BARO_LED),none)
+ap_CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
 
 # ahrs frequencies if configured
