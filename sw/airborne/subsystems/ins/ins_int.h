@@ -50,8 +50,8 @@ extern struct NedCoor_i ins_gps_speed_cm_s_ned;
 
 /* barometer                   */
 #if USE_VFF
-extern int32_t ins_baro_alt;  ///< altitude calculated from baro in meters with #INT32_POS_FRAC
-extern int32_t ins_qfe;
+extern float ins_baro_alt;  ///< altitude calculated from baro in meters
+extern float ins_qfe;
 extern bool_t  ins_baro_initialised;
 #endif
 

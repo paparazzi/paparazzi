@@ -29,17 +29,21 @@
 
 #include "subsystems/ins/ins_int_extended.h"
 
+#include "subsystems/abi.h"
+
 #include "subsystems/imu.h"
-#include "subsystems/sensors/baro.h"
 #include "subsystems/gps.h"
 
 #include "generated/airframe.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_isa.h"
 
 #include "state.h"
 
 #include "subsystems/ins/vf_extended_float.h"
+#include "filters/median_filter.h"
 
 #if USE_HFF
 #include "subsystems/ins/hf_float.h"
@@ -53,8 +57,6 @@
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
 #include "firmwares/rotorcraft/stabilization.h"
 #endif
-
-#include "math/pprz_geodetic_int.h"
 
 #include "generated/flight_plan.h"
 
@@ -76,11 +78,17 @@ struct FloatVect2 ins_gps_speed_m_s_ned;
 #endif
 
 /* barometer                   */
-int32_t ins_qfe;
-bool_t  ins_baro_initialised;
-int32_t ins_baro_alt;
-#include "filters/median_filter.h"
-struct MedianFilterInt baro_median;
+bool_t ins_baro_initialised;
+float ins_qfe;
+float ins_baro_alt;
+#ifndef INS_BARO_ID
+#define INS_BARO_ID ABI_BROADCAST
+#endif
+abi_event baro_ev;
+static void baro_cb(uint8_t sender_id, const float *pressure);
+
+// if median filter really needed, implement in float first
+//struct MedianFilterInt baro_median;
 
 #if USE_SONAR
 /* sonar                       */
@@ -122,8 +130,10 @@ void ins_init() {
   ins_ltp_initialised  = FALSE;
 #endif
 
+  // Bind to BARO_ABS message
+  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
   ins_baro_initialised = FALSE;
-  init_median_filter(&baro_median);
+  //init_median_filter(&baro_median);
 
 #if USE_SONAR
   ins_update_on_agl = FALSE;
@@ -166,7 +176,7 @@ void ins_propagate() {
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, *stateGetNedToBodyRMat_i(), accel_meas_body);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
-  if (baro.status == BS_RUNNING && ins_baro_initialised) {
+  if (ins_baro_initialised) {
     vff_propagate(z_accel_meas_float);
     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
     ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
@@ -188,28 +198,29 @@ void ins_propagate() {
   INS_NED_TO_STATE();
 }
 
-void ins_update_baro() {
-  int32_t baro_pressure = update_median_filter(&baro_median, baro.absolute);
-  if (baro.status == BS_RUNNING) {
-    if (!ins_baro_initialised) {
-      ins_qfe = baro_pressure;
-      ins_baro_initialised = TRUE;
-    }
-    if (ins.vf_realign) {
-      ins.vf_realign = FALSE;
-      ins_qfe = baro_pressure;
-      vff_realign(0.);
-      ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
-      ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
-      ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
-    }
-    else { /* not realigning, so normal update with baro measurement */
-      ins_baro_alt = ((baro_pressure - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
-      float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
-      vff_update_baro(alt_float);
-    }
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
+  // if median filter really needed, implement in float first
+  //int32_t baro_pressure = update_median_filter(&baro_median, baro.absolute);
+  if (!ins_baro_initialised) {
+    ins_qfe = *pressure;
+    ins_baro_initialised = TRUE;
+  }
+  if (ins.vf_realign) {
+    ins.vf_realign = FALSE;
+    ins_qfe = *pressure;
+    vff_realign(0.);
+    ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
+    ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
+    ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+  }
+  else {
+    ins_baro_alt = pprz_isa_height_of_pressure(*pressure, ins_qfe);
+    vff_update_baro(ins_baro_alt);
   }
   INS_NED_TO_STATE();
+}
+
+void ins_update_baro() {
 }
 
 
@@ -279,8 +290,8 @@ void ins_update_sonar() {
 
 #ifdef INS_SONAR_VARIANCE_THRESHOLD
   /* compute variance of error between sonar and baro alt */
-  int32_t err = POS_BFP_OF_REAL(sonar) + ins_baro_alt; // sonar positive up, baro positive down !!!!
-  var_err[var_idx] = POS_FLOAT_OF_BFP(err);
+  float err = sonar + ins_baro_alt; // sonar positive up, baro positive down !!!!
+  var_err[var_idx] = err;
   var_idx = (var_idx + 1) % VAR_ERR_MAX;
   float var = variance_float(var_err, VAR_ERR_MAX);
   DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice,&err, &sonar, &var);
@@ -304,13 +315,13 @@ void ins_update_sonar() {
       && stabilization_cmd[COMMAND_YAW] > -INS_SONAR_STAB_THRESHOLD
 #endif
 #ifdef INS_SONAR_BARO_THRESHOLD
-      && ins_baro_alt > -POS_BFP_OF_REAL(INS_SONAR_BARO_THRESHOLD) /* z down */
+      && ins_baro_alt > -INS_SONAR_BARO_THRESHOLD /* z down */
 #endif
 #ifdef INS_SONAR_VARIANCE_THRESHOLD
       && var < INS_SONAR_VARIANCE_THRESHOLD
 #endif
       && ins_update_on_agl
-      && baro.status == BS_RUNNING) {
+      && ins_baro_initialised) {
     vff_update_alt_conf(-sonar, VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabs(sonar));
     last_offset = vff_offset;
   }

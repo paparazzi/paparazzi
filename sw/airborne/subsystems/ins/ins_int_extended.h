@@ -54,8 +54,8 @@ extern struct NedCoor_i ins_gps_pos_cm_ned;
 extern struct NedCoor_i ins_gps_speed_cm_s_ned;
 
 /* barometer                   */
-extern int32_t ins_baro_alt;  ///< altitude calculated from baro in meters with #INT32_POS_FRAC
-extern int32_t ins_qfe;
+extern float ins_baro_alt;  ///< altitude calculated from baro in meters
+extern float ins_qfe;
 extern bool_t  ins_baro_initialised;
 #if USE_SONAR
 extern bool_t  ins_update_on_agl; /* use sonar to update agl if available */
