@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/border_line.h
+ * @file modules/nav/nav_border_line.h
  * @brief navigate along a border line (line 1-2) with turns in the same direction
  */
 
