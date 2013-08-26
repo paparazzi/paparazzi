@@ -22,18 +22,16 @@
 
     <subsystem name="actuators" type="ardrone2" />
     <subsystem name="imu" type="ardrone2" />
-    <subsystem name="gps" type="sirf" />
+    <subsystem name="gps" type="ublox" />
     <subsystem name="stabilization" type="int_quat" />
     <subsystem name="ahrs" type="int_cmpl_quat" />
     <subsystem name="ins" />
 
   </firmware>
 
-<!--
   <modules main_freq="512" >
     <load name="gps_ubx_ucenter.xml" /> 
   </modules>
--->
 
   <commands>
     <axis name="PITCH" failsafe_value="0" />
@@ -71,16 +69,16 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="2072" />
-    <define name="ACCEL_Y_NEUTRAL" value="2040" />
-    <define name="ACCEL_Z_NEUTRAL" value="2047" />
+    <define name="ACCEL_X_NEUTRAL" value="2056" />
+    <define name="ACCEL_Y_NEUTRAL" value="2060" />
+    <define name="ACCEL_Z_NEUTRAL" value="2052" />
     <define name="ACCEL_X_SENS" value="19.1079036954" integer="16" />
     <define name="ACCEL_Y_SENS" value="19.5393623518" integer="16" />
     <define name="ACCEL_Z_SENS" value="19.6539180847" integer="16" />
 
     <define name="ACCEL_X_SIGN" value="1" />
-    <define name="ACCEL_Y_SIGN" value="-1" />
-    <define name="ACCEL_Z_SIGN" value="-1" />
+    <define name="ACCEL_Y_SIGN" value="1" />
+    <define name="ACCEL_Z_SIGN" value="1" />
 
     <define name="GYRO_P_SENS_NUM" value="4359" />
     <define name="GYRO_P_SENS_DEN" value="1000" />
@@ -90,19 +88,19 @@
     <define name="GYRO_R_SENS_DEN" value="1000" />
 
     <define name="GYRO_P_SIGN" value="1" />
-    <define name="GYRO_Q_SIGN" value="-1" />
-    <define name="GYRO_R_SIGN" value="-1" />
+    <define name="GYRO_Q_SIGN" value="1" />
+    <define name="GYRO_R_SIGN" value="1" />
 
-    <define name="MAG_X_NEUTRAL" value="118" />
-    <define name="MAG_Y_NEUTRAL" value="-65" />
-    <define name="MAG_Z_NEUTRAL" value="110" />
-    <define name="MAG_X_SENS" value="14.6416865144" integer="16" />
-    <define name="MAG_Y_SENS" value="14.5167340835" integer="16" />
-    <define name="MAG_Z_SENS" value="15.1670335124" integer="16" />
+    <define name="MAG_X_NEUTRAL" value="-9"/>
+	<define name="MAG_Y_NEUTRAL" value="1"/>
+	<define name="MAG_Z_NEUTRAL" value="97"/>
+	<define name="MAG_X_SENS" value="15.5831909917" integer="16"/>
+	<define name="MAG_Y_SENS" value="15.518618593" integer="16"/>
+	<define name="MAG_Z_SENS" value="16.1875786042" integer="16"/>
 
-    <define name="MAG_X_SIGN" value="-1" />
+    <define name="MAG_X_SIGN" value="1" />
     <define name="MAG_Y_SIGN" value="1" />
-    <define name="MAG_Z_SIGN" value="-1" />
+    <define name="MAG_Z_SIGN" value="1" />
 
     <!-- roll -->
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg" />
@@ -232,6 +230,7 @@
   </section>
 
   <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="7500"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V" />
     <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V" />
     <define name="LOW_BAT_LEVEL" value="9.7" unit="V" />
