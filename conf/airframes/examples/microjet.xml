@@ -191,7 +191,6 @@
 
   <modules>
     <load name="openlog.xml"/>
-    <load name="nav_survey_rectangle.xml"/>
     <load name="nav_survey_poly_adv.xml"/>
     <load name="nav_border_line.xml"/>
     <load name="infrared_adc.xml"/>
