@@ -194,6 +194,7 @@
     <load name="nav_survey_poly_adv.xml"/>
     <load name="nav_border_line.xml"/>
     <load name="nav_line.xml"/>
+    <load name="nav_smooth.xml"/>
     <load name="infrared_adc.xml"/>
     <load name="digital_cam_servo.xml">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />

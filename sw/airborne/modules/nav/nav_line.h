@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/nav_line.h
+ * @file modules/nav/nav_line.h
  *
  * Fixedwing navigation along a line with nice U-turns.
  */
