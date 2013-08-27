@@ -66,8 +66,8 @@
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block group="extra_pattern" name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+      <call fun="nav_line_start()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
@@ -78,8 +78,8 @@
       <call fun="poly_survey_adv_run()"/>
     </block>
     <block name="Border line 1-2" strip_button="Border Line (wp 1-2)">
-      <call fun="border_line_init()"/>
-      <call fun="border_line(WP_1, WP_2, nav_radius)"/>
+      <call fun="border_line_start()"/>
+      <call fun="border_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Smooth nav" strip_button="Smooth nav (wp 1-2)">
       <set var="snav_desired_tow" value="gps.tow / 1000. + 200."/>

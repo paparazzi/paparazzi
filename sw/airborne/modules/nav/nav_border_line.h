@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-extern bool_t border_line_init( void );
-extern bool_t border_line(uint8_t wp1, uint8_t wp2, float radius);
+extern bool_t border_line_start( void );
+extern bool_t border_line_run(uint8_t wp1, uint8_t wp2, float radius);
 
 #endif /* BORDER_LINE_H */
