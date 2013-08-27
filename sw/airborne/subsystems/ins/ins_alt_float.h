@@ -33,7 +33,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "state.h"
-
+#include "generated/modules.h"
 
 #if USE_BAROMETER
 #ifdef BARO_MS5534A

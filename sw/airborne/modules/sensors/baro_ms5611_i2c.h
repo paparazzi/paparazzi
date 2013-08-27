@@ -12,7 +12,9 @@
 
 #define PROM_NB                 8
 
-#define BARO_MS5611_DT 0.05
+/// new measurement every baro_ms5611_periodic
+#define BARO_MS5611_DT BARO_MS5611_PERIODIC_PERIOID
+
 #define BARO_MS5611_R 20
 #define BARO_MS5611_SIGMA2 1
 extern float baro_ms5611_alt;
@@ -42,6 +44,6 @@ extern void baro_ms5611_d1(void);
 extern void baro_ms5611_d2(void);
 extern void baro_ms5611_event(void);
 
-#define BaroMs5611Update(_b) { if (baro_ms5611_valid) { _b = baro_ms5611_alt; baro_ms5611_valid = FALSE; } }
+#define BaroMs5611Update(_b, _h) { if (baro_ms5611_valid) { _b = baro_ms5611_alt; _h(); baro_ms5611_valid = FALSE; } }
 
 #endif

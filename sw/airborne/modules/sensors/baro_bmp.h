@@ -34,7 +34,13 @@
 #define BARO_BMP_START_PRESS  4
 #define BARO_BMP_READ_PRESS   5
 
-#define BARO_BMP_DT 0.05
+/// new measurement every 3rd baro_bmp_periodic
+#ifndef SITL
+#define BARO_BMP_DT (BARO_BMP_PERIODIC_PERIOID / 3)
+#else
+#define BARO_BMP_DT BARO_BMP_PERIODIC_PERIOID
+#endif
+
 extern bool_t baro_bmp_enabled;
 extern float baro_bmp_r;
 extern float baro_bmp_sigma2;
@@ -51,6 +57,6 @@ void baro_bmp_init(void);
 void baro_bmp_periodic(void);
 void baro_bmp_event(void);
 
-#define BaroBmpUpdate(_b) { if (baro_bmp_valid) { _b = baro_bmp_pressure; baro_bmp_valid = FALSE; } }
+#define BaroBmpUpdate(_b, _h) { if (baro_bmp_valid) { _b = baro_bmp_pressure; _h(); baro_bmp_valid = FALSE; } }
 
 #endif
