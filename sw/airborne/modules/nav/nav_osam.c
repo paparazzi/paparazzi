@@ -20,11 +20,11 @@
  */
 
 /**
- * @file subsystems/navigation/OSAMNav.c
+ * @file modules/nav/nav_osam.c
  *
  */
 
-#include "subsystems/navigation/OSAMNav.h"
+#include "modules/nav/nav_osam.h"
 
 #include "subsystems/nav.h"
 #include "state.h"
@@ -63,7 +63,7 @@ static uint8_t Edge;
 #define LINE_STOP_FUNCTION {}
 #endif
 
-bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
+bool_t flower_start(uint8_t CenterWP, uint8_t EdgeWP)
 {
   Center = CenterWP;
   Edge = EdgeWP;
@@ -93,7 +93,7 @@ bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
   return FALSE;
 }
 
-bool_t FlowerNav(void)
+bool_t flower_run(void)
 {
   TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
@@ -203,7 +203,7 @@ static float BungeeAlt;
 static float TDistance;
 static uint8_t BungeeWaypoint;
 
-bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
+bool_t bungee_takeoff_start(uint8_t BungeeWP)
 {
   float ThrottleB;
 
@@ -257,7 +257,7 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
   return FALSE;
 }
 
-bool_t BungeeTakeoff(void)
+bool_t bungee_takeoff_run(void)
 {
   //Translate current position so Throttle point is (0,0)
   float Currentx = stateGetPositionEnu_f()->x-throttlePx;
@@ -375,7 +375,7 @@ static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 
-bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+bool_t osam_poly_survey_start(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -571,7 +571,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
   return FALSE;
 }
 
-bool_t PolygonSurvey(void)
+bool_t osam_poly_survey_run(void)
 {
   struct Point2D C;
   struct Point2D ToP;
@@ -768,12 +768,12 @@ bool_t PolygonSurvey(void)
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_status line_status;
 
-bool_t InitializeVerticalRaster( void ) {
+bool_t vertical_raster_start( void ) {
   line_status = LR12;
   return FALSE;
 }
 
-bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
+bool_t vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
   radius = fabs(radius);
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;
@@ -914,7 +914,7 @@ static float ApproachQDR;
 static float FinalLandAltitude;
 static uint8_t FinalLandCount;
 
-bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
+bool_t skid_landing_start(uint8_t AFWP, uint8_t TDWP, float radius)
 {
   AFWaypoint = AFWP;
   TDWaypoint = TDWP;
@@ -953,7 +953,7 @@ bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
   return FALSE;
 }
 
-bool_t SkidLanding(void)
+bool_t skid_landing_run(void)
 {
   switch(CLandingStatus)
   {
@@ -1029,7 +1029,7 @@ static struct Point2D FLTOWP;
 static float FLQDR;
 static float FLRadius;
 
-bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After)
+bool_t osam_flight_line_run(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After)
 {
   struct Point2D V;
   struct Point2D P;
@@ -1136,11 +1136,11 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 
 static uint8_t FLBlockCount = 0;
 
-bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After)
+bool_t osam_flight_line_block_run(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After)
 {
   if(First_WP < Last_WP)
   {
-    FlightLine(First_WP+FLBlockCount, First_WP+FLBlockCount+1, radius, Space_Before, Space_After);
+    osam_flight_line_run(First_WP+FLBlockCount, First_WP+FLBlockCount+1, radius, Space_Before, Space_After);
 
     if(CFLStatus == FLInitialize)
     {
@@ -1154,7 +1154,7 @@ bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Sp
   }
   else
   {
-    FlightLine(First_WP-FLBlockCount, First_WP-FLBlockCount-1, radius, Space_Before, Space_After);
+    osam_flight_line_run(First_WP-FLBlockCount, First_WP-FLBlockCount-1, radius, Space_Before, Space_After);
 
     if(CFLStatus == FLInitialize)
     {
