@@ -45,7 +45,8 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
-#define BARO_ETS_DT 0.05
+/// new measurement every baro_ets_read_periodic
+#define BARO_ETS_DT BARO_ETS_READ_PERIODIC_PERIOD
 
 extern uint16_t baro_ets_adc;
 extern uint16_t baro_ets_offset;

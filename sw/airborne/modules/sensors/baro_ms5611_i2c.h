@@ -12,7 +12,9 @@
 
 #define PROM_NB                 8
 
-#define BARO_MS5611_DT 0.05
+/// new measurement every baro_ms5611_periodic
+#define BARO_MS5611_DT BARO_MS5611_PERIODIC_PERIOID
+
 #define BARO_MS5611_R 20
 #define BARO_MS5611_SIGMA2 1
 extern float baro_ms5611_alt;
