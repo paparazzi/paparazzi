@@ -129,10 +129,16 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           ms->data.d1 = (ms->i2c_trans.buf[0] << 16) |
                         (ms->i2c_trans.buf[1] << 8) |
                          ms->i2c_trans.buf[2];
-          /* start D2 conversion */
-          ms->i2c_trans.buf[0] = MS5611_START_CONV_D2;
-          i2c_transmit(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1);
-          ms->status = MS5611_STATUS_CONV_D2;
+          if (ms->data.d1 == 0) {
+            /* if value is zero, it was read to soon and is invalid, back to idle */
+            ms->status = MS5611_STATUS_IDLE;
+          }
+          else {
+            /* start D2 conversion */
+            ms->i2c_trans.buf[0] = MS5611_START_CONV_D2;
+            i2c_transmit(ms->i2c_p, &(ms->i2c_trans), ms->i2c_trans.slave_addr, 1);
+            ms->status = MS5611_STATUS_CONV_D2;
+          }
           break;
 
         case MS5611_STATUS_ADC_D2:
@@ -140,10 +146,16 @@ void ms5611_i2c_event(struct Ms5611_I2c *ms) {
           ms->data.d2 = (ms->i2c_trans.buf[0] << 16) |
                         (ms->i2c_trans.buf[1] << 8) |
                          ms->i2c_trans.buf[2];
-          /* calculate temp and pressure from measurements */
-          ms5611_calc(&(ms->data));
-          ms->status = MS5611_STATUS_IDLE;
-          ms->data_available = TRUE;
+          if (ms->data.d2 == 0) {
+            /* if value is zero, it was read to soon and is invalid, back to idle */
+            ms->status = MS5611_STATUS_IDLE;
+          }
+          else {
+            /* calculate temp and pressure from measurements */
+            ms5611_calc(&(ms->data));
+            ms->status = MS5611_STATUS_IDLE;
+            ms->data_available = TRUE;
+          }
           break;
 
         default:

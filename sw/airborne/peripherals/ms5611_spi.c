@@ -143,10 +143,16 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
           ms->data.d1 = (ms->rx_buf[1] << 16) |
                         (ms->rx_buf[2] << 8) |
                          ms->rx_buf[3];
-          /* start D2 conversion */
-          ms->tx_buf[0] = MS5611_START_CONV_D2;
-          spi_submit(ms->spi_p, &(ms->spi_trans));
-          ms->status = MS5611_STATUS_CONV_D2;
+          if (ms->data.d1 == 0) {
+            /* if value is zero, it was read to soon and is invalid, back to idle */
+            ms->status = MS5611_STATUS_IDLE;
+          }
+          else {
+            /* start D2 conversion */
+            ms->tx_buf[0] = MS5611_START_CONV_D2;
+            spi_submit(ms->spi_p, &(ms->spi_trans));
+            ms->status = MS5611_STATUS_CONV_D2;
+          }
           break;
 
         case MS5611_STATUS_ADC_D2:
@@ -154,10 +160,16 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
           ms->data.d2 = (ms->rx_buf[1] << 16) |
                         (ms->rx_buf[2] << 8) |
                          ms->rx_buf[3];
-          /* calculate temp and pressure from measurements */
-          ms5611_calc(&(ms->data));
-          ms->status = MS5611_STATUS_IDLE;
-          ms->data_available = TRUE;
+          if (ms->data.d2 == 0) {
+            /* if value is zero, it was read to soon and is invalid, back to idle */
+            ms->status = MS5611_STATUS_IDLE;
+          }
+          else {
+            /* calculate temp and pressure from measurements */
+            ms5611_calc(&(ms->data));
+            ms->status = MS5611_STATUS_IDLE;
+            ms->data_available = TRUE;
+          }
           break;
 
         default:
