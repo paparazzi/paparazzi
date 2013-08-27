@@ -74,8 +74,8 @@
     </block>
     <!--===================== Nav modules example blocks =================================-->
     <block name="Poly Survey S1-S2" strip_button="Poly Survey">
-      <call fun="init_poly_survey_adv(WP_S1,5,0,30,10,50,100)"/>
-      <call fun="poly_survey_adv()"/>
+      <call fun="poly_survey_adv_start(WP_S1,5,180,30,10,50,100)"/>
+      <call fun="poly_survey_adv_run()"/>
     </block>
     <block name="Border line 1-2" strip_button="Border Line (wp 1-2)">
       <call fun="border_line_init()"/>
@@ -111,10 +111,6 @@
     </block>
     <block name="Flight Line block">
       <call fun="osam_flight_line_block_run(WP_S1, WP_S5, nav_radius, 30, 10)"/>
-    </block>
-    <block name="Vertical Raster">
-      <call fun="vertical_raster_start()"/>
-      <call fun="vertical_raster_run(WP_S1, WP_S2, nav_radius, 50)"/>
     </block>
     <block name="Vertical Raster">
       <call fun="vertical_raster_start()"/>
