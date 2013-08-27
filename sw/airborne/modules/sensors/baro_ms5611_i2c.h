@@ -42,6 +42,6 @@ extern void baro_ms5611_d1(void);
 extern void baro_ms5611_d2(void);
 extern void baro_ms5611_event(void);
 
-#define BaroMs5611Update(_b) { if (baro_ms5611_valid) { _b = baro_ms5611_alt; baro_ms5611_valid = FALSE; } }
+#define BaroMs5611Update(_b, _h) { if (baro_ms5611_valid) { _b = baro_ms5611_alt; _h(); baro_ms5611_valid = FALSE; } }
 
 #endif

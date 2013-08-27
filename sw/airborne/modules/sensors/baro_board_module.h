@@ -56,10 +56,8 @@
  *  Need to be maped to one the external baro running has a module
  */
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
-  BARO_ABS_EVENT(baro.absolute);                      \
-  BARO_DIFF_EVENT(baro.differential);                 \
-  _b_abs_handler();                                   \
-  _b_diff_handler();                                  \
+    BARO_ABS_EVENT(baro.absolute, _b_abs_handler);       \
+    BARO_DIFF_EVENT(baro.differential, _b_diff_handler); \
 }
 
 
