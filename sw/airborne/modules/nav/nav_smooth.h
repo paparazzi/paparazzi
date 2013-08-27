@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/snav.h
+ * @file modules/nav/nav_smooth.h
  *
  * Smooth navigation to wp_a along an arc (around wp_cd),
  * a segment (from wp_rd to wp_ta) and a second arc (around wp_ca).
@@ -30,6 +30,7 @@
 #define SNAV_H
 
 #include "std.h"
+
 
 extern float snav_desired_tow; /* time of week, s */
 

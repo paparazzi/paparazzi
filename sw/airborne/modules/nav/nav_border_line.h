@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007  Anton Kochevar, ENAC
+ * Copyright (C) 2012, Tobias Muench
  *
  * This file is part of paparazzi.
  *
@@ -20,17 +20,16 @@
  */
 
 /**
- * @file subsystems/navigation/nav_line.h
- *
- * Fixedwing navigation along a line with nice U-turns.
+ * @file modules/nav/nav_border_line.h
+ * @brief navigate along a border line (line 1-2) with turns in the same direction
  */
 
-#ifndef NAV_LINE_H
-#define NAV_LINE_H
+#ifndef BORDER_LINE_H
+#define BORDER_LINE_H
 
 #include "std.h"
 
-extern bool_t nav_line_init( void );
-extern bool_t nav_line(uint8_t wp1, uint8_t wp2, float radius);
+extern bool_t border_line_start( void );
+extern bool_t border_line_run(uint8_t wp1, uint8_t wp2, float radius);
 
-#endif /* NAV_LINE_H */
+#endif /* BORDER_LINE_H */

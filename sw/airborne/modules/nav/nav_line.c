@@ -20,25 +20,25 @@
  */
 
 /**
- * @file subsystems/navigation/nav_line.c
+ * @file modules/nav/nav_line.c
  *
  * Fixedwing navigation along a line with nice U-turns.
  */
 
 #include "generated/airframe.h"
-#include "subsystems/navigation/nav_line.h"
+#include "modules/nav/nav_line.h"
 #include "subsystems/nav.h"
 
 /** Status along the pattern */
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_status line_status;
 
-bool_t nav_line_init( void ) {
+bool_t nav_line_start( void ) {
   line_status = LR12;
   return FALSE;
 }
 
-bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
+bool_t nav_line_run(uint8_t l1, uint8_t l2, float radius) {
   radius = fabs(radius);
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;

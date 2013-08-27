@@ -132,7 +132,7 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _sd, uint8_t _tod, uin
 }	/* end of gls_copute_TOD */
 
 
-bool_t gls_init(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
+bool_t gls_start(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
 
   init = TRUE;
 
@@ -157,7 +157,7 @@ bool_t gls_init(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
 }  /* end of gls_init() */
 
 
-bool_t gls(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
+bool_t gls_run(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
 
 
   // set target speed for approach on final

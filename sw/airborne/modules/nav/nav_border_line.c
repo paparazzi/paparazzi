@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012 Tobias Muench
- * modified nav_linie by Anton Kochevar, ENAC
+ * modified nav_line by Anton Kochevar, ENAC
  *
  * This file is part of paparazzi.
  *
@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/navigation/border_line.c
+ * @file modules/nav/nav_border_line.c
  * @brief navigate along a border line (line 1-2) with turns in the same direction
  *
  * you can use this function to navigate along a border if it is essetial not to cross it
@@ -29,7 +29,7 @@
  * take care youre navigation radius is not to small in strong wind conditions!
  */
 
-#include "subsystems/navigation/border_line.h"
+#include "modules/nav/nav_border_line.h"
 #include "generated/airframe.h"
 #include "subsystems/nav.h"
 
@@ -37,12 +37,12 @@
 enum border_line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum border_line_status border_line_status;
 
-bool_t border_line_init( void ) {
+bool_t border_line_start( void ) {
   border_line_status = LR12;
   return FALSE;
 }
 
-bool_t border_line(uint8_t l1, uint8_t l2, float radius) {
+bool_t border_line_run(uint8_t l1, uint8_t l2, float radius) {
   radius = fabs(radius);
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;
