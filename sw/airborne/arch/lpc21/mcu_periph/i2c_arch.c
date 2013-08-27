@@ -337,7 +337,7 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   if (idx >= I2C_TRANSACTION_QUEUE_LEN) idx = 0;
   if (idx == p->trans_extract_idx) {
     /* queue full */
-    periph->errors->queue_full_cnt++;
+    p->errors->queue_full_cnt++;
     t->status = I2CTransFailed;
     return FALSE;
   }
