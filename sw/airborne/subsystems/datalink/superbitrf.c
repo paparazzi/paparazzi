@@ -60,7 +60,7 @@ PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PIN);
 
 /* Default forcing in DSM2 mode is false */
 #ifndef SUPERBITRF_FORCE_DSM2
-#define SUPERBITRF_FORCE_DSM2   FALSE
+#define SUPERBITRF_FORCE_DSM2   TRUE
 #endif
 PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2);
 
@@ -434,7 +434,7 @@ void superbitrf_event(void) {
       }
 
       // Switch channel, sop code, data code and crc
-      superbitrf.channel = (superbitrf.channel + 1) % 0x62; //TODO fix define
+      superbitrf.channel = (superbitrf.channel + 2) % 0x4F; //TODO fix define
       superbitrf.crc_seed = ~superbitrf.crc_seed;
       pn_row = (IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2)? superbitrf.channel % 5 : (superbitrf.channel-2) % 5;
 
@@ -483,8 +483,8 @@ void superbitrf_event(void) {
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
       superbitrf.state++;
 
-      // When we don't have enough time
-      if(superbitrf.timeouts > 0 || superbitrf.timing2 < 10000 || superbitrf.timing1 > 10000) {
+      // Only send on channel 2
+      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1])) {
         superbitrf.state = 8;
         // Set the timer
         superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATARECV_TIME) % 0xFFFFFFFF;
@@ -506,10 +506,10 @@ void superbitrf_event(void) {
         superbitrf.packet_loss_bit = !superbitrf.packet_loss_bit;
         if(IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2) {
           tx_packet[0] = ~superbitrf.bind_mfg_id[2];
-          tx_packet[1] = (~superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
+          tx_packet[1] = ((~superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit) % 0xFF;
         } else {
           tx_packet[0] = superbitrf.bind_mfg_id[2];
-          tx_packet[1] = (superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit;
+          tx_packet[1] = ((superbitrf.bind_mfg_id[3])+1+superbitrf.packet_loss_bit) % 0xFF;
         }
 
         packet_size = (superbitrf.tx_insert_idx-superbitrf.tx_extract_idx+128 %128);
@@ -678,7 +678,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       superbitrf.uplink_count++;
 
       // Check if it is a data loss packet
-      if(packet[1] != (~superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit) && packet[1] != (superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit))
+      if(packet[1] != (~superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit)%0xFF && packet[1] != (superbitrf.bind_mfg_id[3] + 1 + superbitrf.packet_loss_bit)%0xFF)
         superbitrf.packet_loss = TRUE;
       else
         superbitrf.packet_loss = FALSE;
