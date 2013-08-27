@@ -50,7 +50,7 @@
 #define BARO_DIFF_EVENT NoBaro
 #endif
 
-#define NoBaro(_b) {}
+#define NoBaro(_b, _h) {}
 
 /** BaroEvent macro.
  *  Need to be maped to one the external baro running has a module
