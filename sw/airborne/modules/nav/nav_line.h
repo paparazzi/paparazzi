@@ -30,7 +30,7 @@
 
 #include "std.h"
 
-extern bool_t nav_line_init( void );
-extern bool_t nav_line(uint8_t wp1, uint8_t wp2, float radius);
+extern bool_t nav_line_start( void );
+extern bool_t nav_line_run(uint8_t wp1, uint8_t wp2, float radius);
 
 #endif /* NAV_LINE_H */

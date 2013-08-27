@@ -37,12 +37,12 @@
 enum border_line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum border_line_status border_line_status;
 
-bool_t border_line_init( void ) {
+bool_t border_line_start( void ) {
   border_line_status = LR12;
   return FALSE;
 }
 
-bool_t border_line(uint8_t l1, uint8_t l2, float radius) {
+bool_t border_line_run(uint8_t l1, uint8_t l2, float radius) {
   radius = fabs(radius);
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;
