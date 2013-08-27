@@ -11,7 +11,5 @@ $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/traffic_info.c
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/nav_survey_rectangle.c
 
-$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/OSAMNav.c
-
 
 

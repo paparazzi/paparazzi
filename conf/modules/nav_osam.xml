@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_osam" dir="nav">
+  <doc>
+    <description>
+       OSAM collection of advanced navigation routines.
+       -Flower
+       -Bungee take-off
+       -Polygon survey
+       -Vertical raster
+       -Skid landing
+    </description>
+  </doc>
+  <header>
+    <file name="nav_osam.h"/>
+  </header>
+  <makefile>
+    <file name="nav_osam.c"/>
+  </makefile>
+</module>
+
