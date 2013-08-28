@@ -76,6 +76,11 @@
     <define name="MAG_X_SENS" value="4.12281780645" integer="16"/>
     <define name="MAG_Y_SENS" value="4.2491445745" integer="16"/>
     <define name="MAG_Z_SENS" value="4.44132606171" integer="16"/>
+
+    <!-- MAGNETO CURRENT CALIBRATION -->
+    <define name= "MAG_X_CURRENT_COEF" value="0.0103422023767"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.0084568317783"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.01935617335"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -85,6 +90,7 @@
  </section>
 
  <section name="BAT">
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="14000"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
  </section>
 

@@ -12,9 +12,9 @@
 <airframe name="quady_lm2a2pwm">
 
   <servos driver="Pwm">
-    <servo name="CIC_FRONT" no="5" min="2000" neutral="1600" max="900"/>
-    <servo name="CIC_RIGHT" no="0" min="900" neutral="1400" max="2000"/>
-    <servo name="CIC_LEFT" no="1" min="900" neutral="1600" max="2000"/>
+    <servo name="CIC_FRONT" no="5" min="2000" neutral="1550" max="900"/>
+    <servo name="CIC_RIGHT" no="0" min="900" neutral="1550" max="2000"/>
+    <servo name="CIC_LEFT" no="1" min="900" neutral="1550" max="2000"/>
     <servo name="TAIL" no="2" min="1000" neutral="1400" max="1800"/>
     <servo name="GAS" no="3" min="900" neutral="980" max="2200"/>
   </servos>
@@ -34,9 +34,9 @@
     <let var="gas" value="($hoverpower) + $halfway * (((@THRUST) - ($hoverstick)) * (MAX_PPRZ - ($hoverpower))) / (MAX_PPRZ - ($hoverstick))  + (1 - $halfway) * ((@THRUST - ($hoverstick)) * ($hoverpower)) / ($hoverstick)"/>
 
     <set servo="GAS" value="$gas"/>
-    <set servo="CIC_LEFT" value="((@PITCH*0.3)-(@ROLL*0.3))-($collective)"/>
-    <set servo="CIC_RIGHT" value="((-@PITCH*0.3)-(@ROLL*0.3))+($collective)"/>
-    <set servo="CIC_FRONT" value="-@PITCH*0.3-($collective)"/>
+    <set servo="CIC_LEFT" value="((@PITCH*0.3)-(@ROLL*0.3))+($collective)"/>
+    <set servo="CIC_RIGHT" value="((-@PITCH*0.3)-(@ROLL*0.3))-($collective)"/>
+    <set servo="CIC_FRONT" value="-@PITCH*0.3+($collective)"/>
     <set servo="TAIL" value="@YAW"/>
   </command_laws>
 
@@ -195,10 +195,10 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_0.1">
       <subsystem name="radio_control" type="superbitrf_rc">
-        <define name="RADIO_TRANSMITTER_ID" value="626371286"/>  <!-- 425044546 -->
-        <define name="RADIO_TRANSMITTER_CHAN" value="9"/> <!-- 9 -->
-        <define name="RADIO_TRANSMITTER_PROTOCOL" value="0xB2"/>
-        <!-- define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/ -->
+        <define name="RADIO_TRANSMITTER_ID" value="2008496626"/>  <!-- 425044546 -->
+        <define name="RADIO_TRANSMITTER_CHAN" value="6"/> <!-- 9 -->
+        <define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>
+        <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
       </subsystem>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
