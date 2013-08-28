@@ -172,6 +172,60 @@ void navdata_read()
   }
 }
 
+void baro_update_logic(void);
+void baro_update_logic(void)
+{
+  static int32_t lastpressval = 0;
+  static uint16_t lasttempval = 0;
+  static uint8_t temp_or_press_was_updated_last = 0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
+
+  static int sync_errors;
+
+  if (temp_or_press_was_updated_last == 0)  // Last update was press so we are now waiting for temp
+  {
+    // temp was updated
+    temp_or_press_was_updated_last = 1;
+    
+    // This means that press must remain constant
+    if (lastpressval != 0)
+    {
+      // If pressure was updated: this is a sync error
+      if (lastpressval != navdata->pressure)
+      {
+        // wait for temp again
+        temp_or_press_was_updated_last = 0;
+        sync_errors++;
+        navdata_baro_available = 1;
+      }
+    }
+  }
+  else
+  {
+    // press was updated
+    temp_or_press_was_updated_last = 0;
+
+    // This means that temp must remain constant
+    if (lasttempval != 0)
+    {
+      // If temp was updated: this is a sync error
+      if (lasttempval != navdata->temperature_pressure)
+      {
+        // wait for press again
+        temp_or_press_was_updated_last = 1;
+        sync_errors++;
+      }
+    }
+
+    navdata_baro_available = 1;
+  }
+
+  lastpressval = navdata->pressure;
+  lasttempval = navdata->temperature_pressure;
+
+  // debug
+  // navdata->temperature_pressure = sync_errors;
+}
+
 void navdata_update()
 {
   navdata_read();
@@ -198,8 +252,9 @@ void navdata_update()
         p[0] = p[1];
         p[1] = tmp;
 
+        baro_update_logic();
+
         navdata_imu_available = 1;
-        navdata_baro_available = 1;
 
         port->packetsRead++;
 //        printf("CCRC=%d, GCRC=%d, error=%d\n", crc, navdata->chksum, abs(crc-navdata->chksum));
