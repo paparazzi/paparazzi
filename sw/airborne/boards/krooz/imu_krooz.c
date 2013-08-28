@@ -103,6 +103,9 @@ void imu_impl_init( void )
   imu_krooz.acc_valid = FALSE;
   imu_krooz.mag_valid = FALSE;
 
+  imu_krooz.hmc_eoc = FALSE;
+  imu_krooz.mpu_eoc = FALSE;
+
   imu_krooz_sd_arch_init();
 }
 
@@ -155,6 +158,11 @@ void imu_krooz_downlink_raw( void )
 
 void imu_krooz_event( void )
 {
+  if (imu_krooz.mpu_eoc) {
+    mpu60x0_i2c_read(&imu_krooz.mpu);
+    imu_krooz.mpu_eoc = FALSE;
+  }
+
   // If the MPU6050 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_krooz.mpu);
   if (imu_krooz.mpu.data_available) {
@@ -162,6 +170,11 @@ void imu_krooz_event( void )
     VECT3_ADD(imu_krooz.accel_sum, imu_krooz.mpu.data_accel.vect);
     imu_krooz.meas_nb++;
     imu_krooz.mpu.data_available = FALSE;
+  }
+
+  if (imu_krooz.hmc_eoc) {
+    hmc58xx_read(&imu_krooz.hmc);
+    imu_krooz.hmc_eoc = FALSE;
   }
 
   // If the HMC5883 I2C transaction has succeeded: convert the data

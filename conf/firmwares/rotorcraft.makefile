@@ -108,6 +108,9 @@ ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+ifeq ($(ARCH), omap)
+ap.srcs   += $(SRC_ARCH)/serial_port.c
+endif
 
 # I2C is needed for speed controllers and barometers on lisa
 ifeq ($(TARGET), ap)
@@ -171,13 +174,18 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
   ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-    ap.srcs += $(SRC_BOARD)/baro_ms5611_spi.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_spi.c
+    ap.srcs += subsystems/sensors/baro_ms5611_spi.c
   else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
     ap.CFLAGS += -DUSE_I2C2
-    ap.srcs += $(SRC_BOARD)/baro_ms5611_i2c.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_i2c.c
+    ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
+	ap.srcs += peripherals/bmp085.c
     ap.srcs += $(SRC_BOARD)/baro_board.c
-	ap.CFLAGS += -DUSE_I2C2
+    ap.CFLAGS += -DUSE_I2C2
   endif
   ap.CFLAGS += -D$(LISA_M_BARO)
 
@@ -188,10 +196,14 @@ LIA_BARO ?= BARO_MS5611_SPI
   ifeq ($(LIA_BARO), BARO_MS5611_SPI)
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-    ap.srcs += boards/lisa_m/baro_ms5611_spi.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_spi.c
+    ap.srcs += subsystems/sensors/baro_ms5611_spi.c
   else ifeq ($(LIA_BARO), BARO_MS5611_I2C)
     ap.CFLAGS += -DUSE_I2C2
-    ap.srcs += boards/lisa_m/baro_ms5611_i2c.c
+    ap.srcs += peripherals/ms5611.c
+    ap.srcs += peripherals/ms5611_i2c.c
+    ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
   endif
   ap.CFLAGS += -D$(LIA_BARO)
 
@@ -205,7 +217,10 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 
 # krooz baro
 else ifeq ($(BOARD), krooz)
-ap.srcs += $(SRC_BOARD)/baro_board.c
+ap.CFLAGS += -DMS5611_I2C_DEV=i2c2 -DMS5611_SLAVE_ADDR=0xEC
+ap.srcs += peripherals/ms5611.c
+ap.srcs += peripherals/ms5611_i2c.c
+ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
 
 # apogee baro
 else ifeq ($(BOARD), apogee)
@@ -293,17 +308,3 @@ ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 ap.srcs += $(SRC_FIRMWARE)/navigation.c
 ap.srcs += subsystems/navigation/common_flight_plan.c
 
-#
-# FMS  choice
-#
-# include booz2_fms_test_signal.makefile
-# or
-# include booz2_fms_datalink.makefile
-# or
-# nothing
-#
-ifeq ($(ARCH), omap)
-SRC_FMS=fms
-ap.CFLAGS += -I. -I$(SRC_FMS)
-ap.srcs   += $(SRC_FMS)/fms_serial_port.c
-endif

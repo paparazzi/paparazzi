@@ -36,8 +36,34 @@
 #include <unistd.h>
 #include <math.h>
 #include "i2c-dev.h"
+#include "subsystems/commands.h"
+#include "generated/airframe.h"
 
 struct Electrical electrical;
+
+#if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
+static struct {
+#ifdef ADC_CHANNEL_VSUPPLY
+  struct adc_buf vsupply_adc_buf;
+#endif
+#ifdef ADC_CHANNEL_CURRENT
+  struct adc_buf current_adc_buf;
+#endif
+#ifdef MILLIAMP_AT_FULL_THROTTLE
+  float nonlin_factor;
+#endif
+} electrical_priv;
+#endif
+
+#if defined COMMAND_THROTTLE
+#define COMMAND_CURRENT_ESTIMATION COMMAND_THROTTLE
+#elif defined COMMAND_THRUST
+#define COMMAND_CURRENT_ESTIMATION COMMAND_THRUST
+#endif
+
+#ifndef CURRENT_ESTIMATION_NONLINEARITY
+#define CURRENT_ESTIMATION_NONLINEARITY 1.2
+#endif
 
 int fd;
 
@@ -51,6 +77,7 @@ void electrical_init(void) {
   }
 
   electrical_setup();
+  electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
 }
 
 void electrical_setup(void) {
@@ -94,4 +121,21 @@ void electrical_periodic(void) {
   //9.0V=662, 9.5V=698, 10.0V=737,10.5V=774, 11.0V=811, 11.5V=848, 12.0V=886, 12.5V=923
   //leading to our 0.13595166 magic number for decivolts conversion
   electrical.vsupply = raw_voltage*0.13595166;
+
+  /*
+   * Superellipse: abs(x/a)^n + abs(y/b)^n = 1
+   * with a = 1
+   * b = mA at full throttle
+   * n = 1.2     This defines nonlinearity (1 = linear)
+   * x = throttle
+   * y = current
+   *
+   * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
+   */
+  float b = (float)MILLIAMP_AT_FULL_THROTTLE;
+  float x = ((float)commands[COMMAND_CURRENT_ESTIMATION]) / ((float)MAX_PPRZ);
+  /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
+   * a=1, n = electrical_priv.nonlin_factor
+   */
+  electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
 }

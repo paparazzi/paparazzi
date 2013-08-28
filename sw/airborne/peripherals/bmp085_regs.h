@@ -18,39 +18,42 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/**
- * @file modules/sensors/baro_bmp.h
- * Bosch BMP085 I2C sensor interface.
- *
- * This reads the values for pressure and temperature from the Bosch BMP085 sensor through I2C.
+/** @file peripherals/bmp085_regs.h
+ *  Bosch BMP085 register definitions.
  */
 
-#ifndef BARO_BMP_H
-#define BARO_BMP_H
+#ifndef BMP085_REGS_H
+#define BMP085_REGS_H
 
-#include "peripherals/bmp085.h"
+#define BMP085_EEPROM_AC1   0xAA
+#define BMP085_EEPROM_AC2   0xAC
+#define BMP085_EEPROM_AC3   0xAE
+#define BMP085_EEPROM_AC4   0xB0
+#define BMP085_EEPROM_AC5   0xB2
+#define BMP085_EEPROM_AC6   0xB4
+#define BMP085_EEPROM_B1    0xB6
+#define BMP085_EEPROM_B2    0xB8
+#define BMP085_EEPROM_MB    0xBA
+#define BMP085_EEPROM_MC    0xBC
+#define BMP085_EEPROM_MD    0xBE
 
-extern struct Bmp085 baro_bmp;
+#define BMP085_CTRL_REG     0xF4
 
-/// new measurement every 3rd baro_bmp_periodic
-#ifndef SITL
-#define BARO_BMP_DT (BARO_BMP_PERIODIC_PERIOD / 3)
-#else
-#define BARO_BMP_DT BARO_BMP_PERIODIC_PERIOID
-#endif
+#define BMP085_START_TEMP   0x2E
+#define BMP085_START_P0     0x34
+#define BMP085_START_P1     0x74
+#define BMP085_START_P2     0xB4
+#define BMP085_START_P3     0xF4
 
-extern bool_t baro_bmp_enabled;
-extern float baro_bmp_r;
-extern float baro_bmp_sigma2;
-extern int32_t baro_bmp_alt;
+#define BMP085_DAT_MSB      0xF6
+#define BMP085_DAT_LSB      0xF7
+#define BMP085_DAT_XLSB     0xF8
 
-void baro_bmp_init(void);
-void baro_bmp_periodic(void);
-void baro_bmp_event(void);
+/// Over sample setting (0-3)
+#define BMP085_OSS 3
 
-#define BaroBmpUpdate(_b, _h) { if (baro_bmp.data_available) { _b = baro_bmp.pressure; _h(); baro_bmp.data_available = FALSE; } }
+#define BMP085_SLAVE_ADDR 0xEE
 
 #endif

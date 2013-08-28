@@ -255,6 +255,8 @@
 
   <message name="SYS_MON" id="33">
     <field name="periodic_time" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_time_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_time_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
@@ -2074,6 +2076,7 @@
   </message>
 
   <message name="I2C_ERRORS" id="253">
+    <field name="queue_full_cnt"              type="uint16"/>
     <field name="acknowledge_failure_cnt"     type="uint16"/>
     <field name="misplaced_start_or_stop_cnt" type="uint16"/>
     <field name="arbitration_lost_cnt"        type="uint16"/>

@@ -36,20 +36,8 @@
 #define UART_DEV_NAME_SIZE 16
 
 /*
- * UART Baud rates
- * defines because the stupid c preprocessor can't handle enums
-*/
-#define B1200    1200
-#define B2400    2400
-#define B4800    4800
-#define B9600    9600
-#define B19200   19200
-#define B38400   38400
-#define B57600   57600
-#define B100000  100000
-#define B115200  115200
-#define B230400  230400
-#define B921600  921600
+ * UART Baud rate defines in arch/x/mcu_periph/uart_arch.h
+ */
 
 #define UBITS_7 7
 #define UBITS_8 8
