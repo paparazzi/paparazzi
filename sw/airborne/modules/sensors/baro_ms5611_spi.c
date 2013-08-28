@@ -68,26 +68,29 @@ void baro_ms5611_init(void) {
   baro_ms5611_sigma2 = BARO_MS5611_SIGMA2;
 }
 
-void baro_ms5611_periodic( void ) {
-  if (sys_time.nb_sec > 1) {
+void baro_ms5611_periodic_check( void ) {
 
-    /* call the convenience periodic that initializes the sensor and starts reading*/
-    ms5611_spi_periodic(&baro_ms5611);
+  ms5611_spi_periodic_check(&baro_ms5611);
 
-    if (baro_ms5611.initialized) {
-      RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
-                                                      &baro_ms5611.data.c[0],
-                                                      &baro_ms5611.data.c[1],
-                                                      &baro_ms5611.data.c[2],
-                                                      &baro_ms5611.data.c[3],
-                                                      &baro_ms5611.data.c[4],
-                                                      &baro_ms5611.data.c[5],
-                                                      &baro_ms5611.data.c[6],
-                                                      &baro_ms5611.data.c[7]));
-    }
+  if (baro_ms5611.initialized) {
+    RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
+                                                    &baro_ms5611.data.c[0],
+                                                    &baro_ms5611.data.c[1],
+                                                    &baro_ms5611.data.c[2],
+                                                    &baro_ms5611.data.c[3],
+                                                    &baro_ms5611.data.c[4],
+                                                    &baro_ms5611.data.c[5],
+                                                    &baro_ms5611.data.c[6],
+                                                    &baro_ms5611.data.c[7]));
   }
 }
 
+/// trigger new measurement or initialize if needed
+void baro_ms5611_read(void) {
+  if (sys_time.nb_sec > 1) {
+    ms5611_spi_read(&baro_ms5611);
+  }
+}
 
 void baro_ms5611_event( void ) {
 
