@@ -25,7 +25,7 @@
     <subsystem name="control"/>
     <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="navigation"    type="extra"/>
+    <subsystem name="navigation"/>
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 

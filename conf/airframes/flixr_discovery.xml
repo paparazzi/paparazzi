@@ -34,7 +34,7 @@
 
     <!-- Control -->
     <subsystem name="control" type="new"/>
-    <subsystem name="navigation" type="extra"/>
+    <subsystem name="navigation"/>
 
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="0"/>

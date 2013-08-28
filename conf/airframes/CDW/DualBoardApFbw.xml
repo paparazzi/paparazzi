@@ -248,7 +248,7 @@
       </subsystem>
 
       <subsystem name="control"/>
-      <subsystem name="navigation" type="extra"/>
+      <subsystem name="navigation"/>
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
@@ -271,7 +271,7 @@
     <target name="sim" board="pc">
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="control"/>
-      <subsystem name="navigation" type="extra"/>
+      <subsystem name="navigation"/>
     </target>
 
     <configure name="FLASH_MODE" value="JTAG"/>

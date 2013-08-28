@@ -189,7 +189,7 @@
       <define name="ADC_6" value="AdcBank0\(3\)"/>
 
       <subsystem name="control"/>
-      <subsystem name="navigation" type="extra"/>
+      <subsystem name="navigation"/>
     </target>
 
     <target name="fbw" board="classix">
@@ -206,7 +206,7 @@
     <target name="sim" board="pc">
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="control"/>
-      <subsystem name="navigation" type="extra"/>
+      <subsystem name="navigation"/>
     </target>
 
     <define name="DC_IMAGE_BUFFER" value="65000" />
