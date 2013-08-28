@@ -26,6 +26,7 @@
 #include "std.h"
 
 #include "subsystems/sensors/baro.h"
+#include "peripherals/bmp085.h"
 #include "peripherals/bmp085_regs.h"
 #include <libopencm3/stm32/gpio.h>
 #include "subsystems/abi.h"
@@ -70,13 +71,13 @@ void baro_periodic(void) {
 
 
 
-void baro_event(void (*b_abs_handler)(void))
+void baro_event(void)
 {
   bmp085_event(&baro_bmp085);
 
   if (baro_bmp085.data_available) {
     float pressure = (float)baro_bmp085.pressure;
-    AbiSendMsgBARO_ABS(UMARIM_BARO_SENDER_ID, &pressure);
+    AbiSendMsgBARO_ABS(LISA_M_BARO_SENDER_ID, &pressure);
     baro_bmp085.data_available = FALSE;
 #ifdef BARO_LED
     RunOnceEvery(10,LED_TOGGLE(BARO_LED));
