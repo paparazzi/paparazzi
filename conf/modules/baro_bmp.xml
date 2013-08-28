@@ -10,10 +10,11 @@
     <file name="baro_bmp.h"/>
   </header>
   <init fun="baro_bmp_init()"/>
-  <periodic fun="baro_bmp_periodic()" freq="8"/>
+  <periodic fun="baro_bmp_periodic()" freq="15"/>
   <event fun="baro_bmp_event()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="baro_bmp.c"/>
+    <file name="bmp085.c" dir="peripherals"/>
   </makefile>
 </module>
 
