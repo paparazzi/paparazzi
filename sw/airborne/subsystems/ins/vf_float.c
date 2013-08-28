@@ -28,6 +28,7 @@
 
 #include "subsystems/ins/vf_float.h"
 #include "generated/airframe.h"
+#include "std.h"
 
 #ifndef INS_PROPAGATE_FREQUENCY
 #define INS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
