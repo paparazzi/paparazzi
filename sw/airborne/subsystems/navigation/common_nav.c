@@ -61,6 +61,36 @@ void compute_dist2_to_home(void) {
 
 static float previous_ground_alt;
 
+/** Reset the UTM zone to current GPS fix */
+unit_t nav_reset_utm_zone(void) {
+
+  struct UtmCoor_f utm0_old;
+  utm0_old.zone = nav_utm_zone0;
+  utm0_old.north = nav_utm_north0;
+  utm0_old.east = nav_utm_east0;
+  utm0_old.alt = ground_alt;
+  struct LlaCoor_f lla0;
+  lla_of_utm_f(&lla0, &utm0_old);
+
+#ifdef GPS_USE_LATLONG
+  /* Set the real UTM zone */
+  nav_utm_zone0 = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+#else
+  nav_utm_zone0 = gps.utm_pos.zone;
+#endif
+
+  struct UtmCoor_f utm0;
+  utm0.zone = nav_utm_zone0;
+  utm_of_lla_f(&utm0, &lla0);
+
+  nav_utm_east0 = utm0.east;
+  nav_utm_north0 = utm0.north;
+
+  stateSetLocalUtmOrigin_f(&utm0);
+
+  return 0;
+}
+
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
 #ifdef GPS_USE_LATLONG
