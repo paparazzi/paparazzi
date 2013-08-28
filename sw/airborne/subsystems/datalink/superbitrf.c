@@ -426,6 +426,19 @@ void superbitrf_event(void) {
       //TODO: check timeout? (Waiting for send)
       break;
     case 5:
+      superbitrf.state = 7;
+      break;
+      // Start receiving
+      cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
+      superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATARECVB_TIME) % 0xFFFFFFFF;
+      superbitrf.state++;
+      break;
+    case 6:
+      // Wait for telemetry data
+      if (superbitrf.timer < get_sys_time_usec())
+        superbitrf.state++;
+      break;
+    case 7:
       // When DSMX we don't need to switch
       if(IS_DSMX(superbitrf.protocol) && !SUPERBITRF_FORCE_DSM2) {
         superbitrf.state++;
@@ -445,7 +458,7 @@ void superbitrf_event(void) {
 
       superbitrf.state++;
       break;
-    case 6:
+    case 8:
       // Start receiving
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       superbitrf.state++;
@@ -825,6 +838,8 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
         superbitrf.packet_loss = TRUE;
       else
         superbitrf.packet_loss = FALSE;
+
+      superbitrf.packet_loss = FALSE;
 
       // When it is a data packet, parse the packet if not busy already
       if(!dl_msg_available && !superbitrf.packet_loss) {

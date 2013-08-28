@@ -45,12 +45,37 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/ls01-default.xml"/>
-
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="184." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="3." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="-90." unit="deg"/>
+
+    <!-- Calibration Neutral -->
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+
+    <!-- SENS = 16.4 LSB/(deg/sec) * 57.6 deg/rad = 939.650 LSB/rad/sec / 12bit FRAC: 4096 / 939.65 -->
+    <define name="GYRO_P_SENS" value="4.359" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.359" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
+    <define name="ACCEL_X_SENS" value="4.905" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.905" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.905" integer="16"/>
+
+    <!-- MAGNETO CALIBRATION DELFT -->
+    <define name="MAG_X_NEUTRAL" value="302"/>
+    <define name="MAG_Y_NEUTRAL" value="-69"/>
+    <define name="MAG_Z_NEUTRAL" value="100"/>
+    <define name="MAG_X_SENS" value="4.12281780645" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.2491445745" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.44132606171" integer="16"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -179,9 +204,9 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_0.1">
       <subsystem name="radio_control" type="superbitrf_rc">
-        <define name="RADIO_TRANSMITTER_ID" value="626371286"/>  <!-- 425044546 -->
-        <define name="RADIO_TRANSMITTER_CHAN" value="9"/> <!-- 9 -->
-        <define name="RADIO_TRANSMITTER_PROTOCOL" value="0xB2"/>
+        <define name="RADIO_TRANSMITTER_ID" value="2008496626"/>  <!-- 425044546 -->
+        <define name="RADIO_TRANSMITTER_CHAN" value="6"/> <!-- 9 -->
+        <define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
       </subsystem>
 
