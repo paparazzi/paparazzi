@@ -84,7 +84,7 @@ void apogee_baro_event(void) {
   if (mpl3115_data_available) {
     if (startup_cnt == 0) {
       float pressure = ((float)mpl3115_pressure/(1<<2));
-      AbiSendMsgBARO_ABS(UMARIM_BARO_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(APOGEE_BARO_SENDER_ID, &pressure);
     }
     mpl3115_data_available = FALSE;
   }

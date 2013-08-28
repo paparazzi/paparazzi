@@ -164,8 +164,6 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 # Ardrone baro
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
 ap.srcs += $(SRC_BOARD)/baro_board.c
-else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
-ap.srcs += $(SRC_BOARD)/baro_board_dummy.c
 
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
