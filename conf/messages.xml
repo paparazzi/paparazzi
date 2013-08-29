@@ -614,7 +614,11 @@
   </message>
 
  <!-- 74 is free -->
- <!-- 75 is free -->
+
+  <message name="VIDEO_TELEMETRY" id="75">
+    <field name="Max_x" 	type="uint32" 	unit="pixels"/>
+    <field name="Max_y" 	type="uint32" 	unit="pixels"/>
+  </message>
 
   <message name="VF_UPDATE" id="76">
     <field name="baro" type="float" unit="m"/>
