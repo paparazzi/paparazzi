@@ -1,15 +1,15 @@
-<!-- this is a quadrocopter frame equiped with Lisa/S 0.1 and generic china pwm motor controllers -->
+<!-- this is a default Walkera V120D02S frame equiped with Lisa/S 0.1 -->
 
 <!--
      Applicable configuration:
-     airframe="airframes/esden/quady_ls01pwm.xml"
+     airframe="airframes/TUDelft/IMAV2013/walkera_V120D02S.xml"
      radio="radios/cockpitSX.xml"
      telemetry="telemetry/default_rotorcraft.xml"
-     flight_plan="flight_plans/dummy.xml"
-     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+     flight_plan="flight_plans/rotorcraft_basic.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
 -->
 
-<airframe name="quady_lm2a2pwm">
+<airframe name="walkera_v120d02s">
 
   <servos driver="Pwm">
     <servo name="CIC_FRONT" no="5" min="2000" neutral="1550" max="900"/>
@@ -64,18 +64,13 @@
     <define name="ACCEL_Y_SENS" value="4.905" integer="16"/>
     <define name="ACCEL_Z_SENS" value="4.905" integer="16"/>
 
-    <!-- From delft MAVLab -->
+    <!-- From delft MAVLab (TODO) -->
     <define name="MAG_X_NEUTRAL" value="396"/>
     <define name="MAG_Y_NEUTRAL" value="-260"/>
     <define name="MAG_Z_NEUTRAL" value="-91"/>
     <define name="MAG_X_SENS" value="3.71635905504" integer="16"/>
     <define name="MAG_Y_SENS" value="3.5526454063" integer="16"/>
     <define name="MAG_Z_SENS" value="3.52339566014" integer="16"/>
-
-    <!-- Current correction -->
-    <define name="MAG_X_CURRENT_COEF" value="-0.390312445109"/>
-    <define name="MAG_Y_CURRENT_COEF" value="-0.068976232866"/>
-    <define name="MAG_Z_CURRENT_COEF" value="-0.181415585657"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -85,13 +80,12 @@
  </section>
 
  <section name="BAT">
-   <define name="MILLIAMP_AT_FULL_THROTTLE" value="3700"/>
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="10"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
  </section>
 
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-
     <define name="SP_MAX_P" value="80000"/>
     <define name="SP_MAX_Q" value="80000"/>
     <define name="SP_MAX_R" value="80000"/>
@@ -99,7 +93,6 @@
     <define name="GAIN_P" value="400"/>
     <define name="GAIN_Q" value="400"/>
     <define name="GAIN_R" value="350"/>
-
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -195,8 +188,8 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_0.1">
       <subsystem name="radio_control" type="superbitrf_rc">
-        <define name="RADIO_TRANSMITTER_ID" value="2008496626"/>  <!-- 425044546 -->
-        <define name="RADIO_TRANSMITTER_CHAN" value="6"/> <!-- 9 -->
+        <define name="RADIO_TRANSMITTER_ID" value="2008496626"/> <!-- TUDelft Dx6i: TX 4 -->
+        <define name="RADIO_TRANSMITTER_CHAN" value="6"/>
         <define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
       </subsystem>
@@ -216,33 +209,5 @@
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins"/>
-    <!--define name="USE_INS_NAV_INIT"/-->
-    <!--subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/-->
-  </firmware>
-
-
-  <firmware name="lisa_test_progs">
-    <target name="test_led" board="lisa_s_0.1">
-        <configure name="SYS_TIME_LED" value="none"/>
-    </target>
-    <target name="test_uart" board="lisa_s_0.1"/>
-    <target name="test_servos" board="lisa_s_0.1"/>
-    <target name="test_telemetry" board="lisa_s_0.1"/>
-    <target name="test_imu_aspirin" board="lisa_s_0.1"/>
-    <target name="test_rc_spektrum" board="lisa_s_0.1"/>
-    <target name="test_baro" board="lisa_s_0.1"/>
-    <target name="test_imu_b2" board="lisa_s_0.1"/>
-    <target name="test_can" board="lisa_s_0.1"/>
-    <!--<target name="test_imu"			board="lisa_s_0.1"/>
-    <target name="test_rc_ppm"			board="lisa_s_0.1"/>
-    <target name="test_adc"			board="lisa_s_0.1"/>
-    <target name="test_hmc5843"			board="lisa_s_0.1"/>
-    <target name="test_itg3200"			board="lisa_s_0.1"/>
-    <target name="test_adxl345"			board="lisa_s_0.1"/>
-    <target name="test_esc_mkk_simple"		board="lisa_s_0.1"/>
-    <target name="test_esc_asctecv1_simple"	board="lisa_s_0.1"/>
-    <target name="test_actuators_mkk"		board="lisa_s_0.1"/>
-    <target name="test_actuators_asctecv1"	board="lisa_s_0.1"/-->
   </firmware>
 </airframe>

@@ -12,7 +12,9 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <subsystem name="radio_control" type="superbitrf_rc">
+      <subsystem name="radio_control" type="spektrum">
+        <define name="RADIO_MODE" value="RADIO_AUX1"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       </subsystem>
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
@@ -39,10 +41,10 @@
   </firmware>
 
   <servos driver="Pwm">
-    <servo name="FRONT" no="0" min="1000" neutral="1080" max="1900"/>
-    <servo name="BACK"  no="1" min="1000" neutral="1080" max="1900"/>
-    <servo name="RIGHT" no="2" min="1000" neutral="1080" max="1900"/>
-    <servo name="LEFT"  no="3" min="1000" neutral="1080" max="1900"/>
+    <servo name="FRONT"   no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK"    no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>
@@ -59,9 +61,9 @@
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <!-- front/back turning CW, right/left CCW -->
-    <define name="ROLL_COEF"   value="{ -256, -256,  256,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256, -256, -256,  256 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
+    <define name="ROLL_COEF"   value="{    0,    0, -256,  256 }"/>
+    <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
+    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
@@ -88,7 +90,7 @@
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="-45." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -153,22 +155,22 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="100"/>
-    <define name="PHI_DGAIN"  value="160"/>
-    <define name="PHI_IGAIN"  value="70"/>
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="100"/>
-    <define name="THETA_DGAIN"  value="160"/>
-    <define name="THETA_IGAIN"  value="70"/>
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="300"/>
-    <define name="PSI_DGAIN"  value="150"/>
-    <define name="PSI_IGAIN"  value="2"/>
+    <define name="PSI_PGAIN"  value="500"/>
+    <define name="PSI_DGAIN"  value="300"/>
+    <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value="100"/>
-    <define name="THETA_DDGAIN" value="100"/>
-    <define name="PSI_DDGAIN"   value="100"/>
+    <define name="PHI_DDGAIN"   value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN"   value="300"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -189,7 +191,7 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="30" unit="deg"/>
+    <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="100"/>

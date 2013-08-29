@@ -194,7 +194,9 @@ else ifeq ($(BOARD), lisa_s)
   ap.CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE1
   ap.CFLAGS += -DMS5611_SPI_DEV=spi1
   ap.CFLAGS += -DMS5611_SLAVE_DEV=SPI_SLAVE1
-  ap.srcs += boards/lisa_m/baro_ms5611_spi.c
+  ap.srcs += peripherals/ms5611.c
+  ap.srcs += peripherals/ms5611_spi.c
+  ap.srcs += subsystems/sensors/baro_ms5611_spi.c
   ap.CFLAGS += -DBARO_MS5611_SPI
 
 # Lia baro (no bmp onboard)
