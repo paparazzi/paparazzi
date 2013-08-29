@@ -36,7 +36,7 @@
   <modules>
     <load name="airspeed_ets.xml">
       <!--define name="USE_AIRSPEED" value="1"/-->
-      <define name="SENSOR_SYNC_SEND" value="1"/>
+      <define name="AIRSPEED_ETS_SYNC_SEND" value="1"/>
     </load>
     <load name="infrared_adc.xml"/>
   </modules>

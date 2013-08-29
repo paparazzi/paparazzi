@@ -2,11 +2,14 @@
 #
 # Aspirin IMU v2.2
 #
+# nearly identical with v2.1, only has the MS5611 baro on SPI.
+# The Baro CS line is
+#
 #
 # required xml:
 #  <section name="IMU" prefix="IMU_">
 #
-#    <!-- these gyro and accel calib values are the defaults for aspirin2.2 -->
+#    <!-- these gyro and accel calib values are the defaults for aspirin2.1/2.2 -->
 #    <define name="GYRO_X_NEUTRAL" value="0"/>
 #    <define name="GYRO_Y_NEUTRAL" value="0"/>
 #    <define name="GYRO_Z_NEUTRAL" value="0"/>
@@ -37,37 +40,18 @@
 #
 
 
-# for fixedwing firmware and ap only
-ifeq ($(TARGET), ap)
-  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
-endif
+include $(CFG_SHARED)/imu_aspirin_v2_common.makefile
 
-IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin2.h\"
-IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin2.c
-
-include $(CFG_SHARED)/spi_master.makefile
-
+#
+# Baro is connected via SPI, so additionally specify the slave select line for it,
+# so that it will be unselected at init (baro CS line high)
+#
 ifeq ($(ARCH), lpc21)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI1
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE0
+IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE1
 else ifeq ($(ARCH), stm32)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
-# Slave select configuration
-# SLAVE2 is on PB12 (NSS) (MPU600 CS)
-IMU_ASPIRIN_CFLAGS += -DUSE_SPI_SLAVE2
+# SLAVE3 is on PC13, which is the baro CS
+IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE3
 endif
 
-IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_2_2
-
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
-
-ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_SRCS)
-
-
-#
-# NPS simulator
-#
-include $(CFG_SHARED)/imu_nps.makefile
+ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
+ap.srcs   += $(IMU_ASPIRIN_2_SRCS)

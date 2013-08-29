@@ -63,10 +63,11 @@ SRC_AIRBORNE=.
 #
 PERIODIC_FREQUENCY = 512
 
-COMMON_TEST_CFLAGS  = -I$(SRC_FIRMWARE) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+COMMON_TEST_CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
 COMMON_TEST_CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 COMMON_TEST_SRCS    = $(SRC_AIRBORNE)/mcu.c            \
                       $(SRC_ARCH)/mcu_arch.c
+COMMON_TEST_SRCS   += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 COMMON_TEST_CFLAGS += -DUSE_SYS_TIME
 ifneq ($(SYS_TIME_LED),none)
   COMMON_TEST_CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
@@ -187,7 +188,7 @@ test_baro.srcs    = $(COMMON_TEST_SRCS)
 test_baro.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_baro.srcs   += $(COMMON_TELEMETRY_SRCS)
 
-test_baro.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOARD)
+test_baro.CFLAGS += -I$(SRC_LISA)
 
 ifeq ($(BOARD), lisa_l)
 test_baro.CFLAGS += -DUSE_I2C2
@@ -202,16 +203,21 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
   ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
     include $(CFG_SHARED)/spi_master.makefile
     test_baro.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-    test_baro.srcs += $(SRC_BOARD)/baro_ms5611_spi.c
+    test_baro.srcs += peripherals/ms5611.c
+    test_baro.srcs += peripherals/ms5611_spi.c
+    test_baro.srcs += subsystems/sensors/baro_ms5611_spi.c
     test_baro.srcs += $(SRC_LISA)/test_baro_spi.c
   else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
     test_baro.CFLAGS += -DUSE_I2C2
     test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-    test_baro.srcs += $(SRC_BOARD)/baro_ms5611_i2c.c
+    test_baro.srcs += peripherals/ms5611.c
+    test_baro.srcs += peripherals/ms5611_i2c.c
+    test_baro.srcs += subsystems/sensors/baro_ms5611_i2c.c
     test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
 	test_baro.CFLAGS += -DUSE_I2C2
     test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.srcs += peripherals/bmp085.c
     test_baro.srcs += $(SRC_BOARD)/baro_board.c
     test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
   endif
@@ -243,9 +249,9 @@ ifneq ($(RADIO_CONTROL_LED),none)
 endif
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
-test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
-test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_SECONDARY_PORT=$(RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT)
-test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=SPEKTRUM_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_SECONDARY_PORT=SPEKTRUM_$(RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT)
+test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER
 test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT)_IRQ_HANDLER
 test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c
 test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control/spektrum.c
@@ -655,7 +661,7 @@ test_can.CFLAGS  = $(COMMON_TEST_CFLAGS)
 test_can.srcs    = $(COMMON_TEST_SRCS)
 test_can.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_can.srcs   += $(COMMON_TELEMETRY_SRCS)
-test_can.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOARD)
+test_can.CFLAGS += -I$(SRC_LISA)
 
 test_can.CFLAGS += -I$(SRC_LISA)
 test_can.srcs   += lisa/test_can.c

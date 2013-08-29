@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/naviation/traffic_info.c
+ * @file subsystems/navigation/traffic_info.c
  *
  * Information relative to the other aircrafts.
  *

@@ -152,8 +152,7 @@ void ahrs_init(void) {
   ahrs_impl.use_gravity_heuristic = FALSE;
 #endif
 
-/* TO DO add local magnetic field
-  VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X), MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z)); */
+  VECT3_ASSIGN(ahrs_impl.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
 }
 
 void ahrs_align(void) {
@@ -301,9 +300,8 @@ void ahrs_update_mag(void) {
 
 void ahrs_update_mag_full(void) {
 
-  const struct FloatVect3 expected_ltp = {AHRS_H_X, AHRS_H_Y, AHRS_H_Z};
   struct FloatVect3 expected_imu;
-  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_impl.ltp_to_imu_rmat, expected_ltp);
+  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_impl.ltp_to_imu_rmat, ahrs_impl.mag_h);
 
   struct FloatVect3 measured_imu;
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
@@ -332,7 +330,8 @@ void ahrs_update_mag_full(void) {
 
 void ahrs_update_mag_2d(void) {
 
-  struct FloatVect2 expected_ltp = {AHRS_H_X, AHRS_H_Y};
+  struct FloatVect2 expected_ltp;
+  VECT2_COPY(expected_ltp, ahrs_impl.mag_h);
   // normalize expected ltp in 2D (x,y)
   FLOAT_VECT2_NORMALIZE(expected_ltp);
 

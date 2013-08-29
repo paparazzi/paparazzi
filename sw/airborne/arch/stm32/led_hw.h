@@ -22,13 +22,12 @@
 #ifndef LED_HW_H
 #define LED_HW_H
 
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 
 #include BOARD_CONFIG
 
 #include "std.h"
-
 
 /*
  *
@@ -52,19 +51,31 @@
 #define LED_AFIO_REMAP(i) _LED_AFIO_REMAP(LED_ ## i ## _AFIO_REMAP)
 
 /* set pin as output */
+#if defined(STM32F1) || defined(STM32F2)
 #define LED_INIT(i) {                               \
     rcc_peripheral_enable_clock(&RCC_APB2ENR,       \
-                                LED_GPIO_CLK(i));	\
+                                LED_GPIO_CLK(i));	  \
     gpio_set_mode(LED_GPIO(i),                      \
                   GPIO_MODE_OUTPUT_50_MHZ,          \
                   GPIO_CNF_OUTPUT_PUSHPULL,         \
                   LED_GPIO_PIN(i));                 \
     LED_AFIO_REMAP(i);                              \
   }
+#elif defined(STM32F4)
+#define LED_INIT(i) {                             \
+    rcc_peripheral_enable_clock(&RCC_AHB1ENR,     \
+                                LED_GPIO_CLK(i));	\
+    gpio_mode_setup(LED_GPIO(i),                  \
+                  GPIO_MODE_OUTPUT,			          \
+                  GPIO_PUPD_NONE,                 \
+                  LED_GPIO_PIN(i));               \
+    LED_AFIO_REMAP(i);                            \
+  }
+#endif
 
-#define LED_ON(i) { LED_GPIO_ON(i)(LED_GPIO(i)) = LED_GPIO_PIN(i);}
-#define LED_OFF(i) { LED_GPIO_OFF(i)(LED_GPIO(i)) = LED_GPIO_PIN(i);}
-#define LED_TOGGLE(i) {	GPIO_ODR(LED_GPIO(i)) ^= LED_GPIO_PIN(i);}
+#define LED_ON(i) LED_GPIO_ON(i)(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_OFF(i) LED_GPIO_OFF(i)(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_TOGGLE(i) gpio_toggle(LED_GPIO(i), LED_GPIO_PIN(i))
 
 #define LED_PERIODIC() {}
 
@@ -104,11 +115,11 @@ extern uint8_t led_status[NB_LED];
 #define LED_PERIODIC() {                                    \
     for (uint8_t _cnt = 0; _cnt < NB_LED; _cnt++) {         \
       if (led_status[_cnt])                                 \
-        GPIO_BSRR(GPIOC) = GPIO15;                          \
+        gpio_set(GPIOC, GPIO15);                            \
       else                                                  \
-        GPIO_BRR(GPIOC) = GPIO15;                           \
-      GPIO_BSRR(GPIOA) = GPIO8; /* clock rising edge */     \
-      GPIO_BRR(GPIOA) = GPIO8;  /* clock falling edge */    \
+        gpio_clear(GPIOC, GPIO15);                          \
+      gpio_set(GPIOA, GPIO8); /* clock rising edge */       \
+      gpio_clear(GPIOA, GPIO8);  /* clock falling edge */   \
     }                                                       \
   }
 

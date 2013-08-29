@@ -16,7 +16,8 @@
       <message name="ROTORCRAFT_CAM"         period="1."/>
       <message name="GPS_INT"                period=".25"/>
       <message name="INS"                    period=".25"/>
-      <message name="I2C_ERRORS"             period="6."/>
+      <message name="I2C_ERRORS"             period="4.1"/>
+      <message name="UART_ERRORS"            period="3.1"/>
     </mode>
 
     <mode name="ppm">

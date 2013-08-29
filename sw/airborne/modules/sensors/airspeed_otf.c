@@ -20,8 +20,9 @@
  *
  */
 
-/** \file met_ap_otf.c
- *  \brief UART interface for Aeroprobe On-The-Fly! air data computer
+/**
+ * @file modules/sensors/airspeed_otf.c
+ * UART interface for Aeroprobe On-The-Fly! air data computer.
  *
  */
 

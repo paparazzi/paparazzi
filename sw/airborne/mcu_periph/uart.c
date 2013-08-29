@@ -38,8 +38,16 @@ struct uart_periph uart2;
 struct uart_periph uart3;
 #endif
 
+#ifdef USE_UART4
+struct uart_periph uart4;
+#endif
+
 #ifdef USE_UART5
 struct uart_periph uart5;
+#endif
+
+#ifdef USE_UART6
+struct uart_periph uart6;
 #endif
 
 void uart_periph_init(struct uart_periph* p) {
@@ -48,6 +56,9 @@ void uart_periph_init(struct uart_periph* p) {
   p->tx_insert_idx = 0;
   p->tx_extract_idx = 0;
   p->tx_running = FALSE;
+  p->ore = 0;
+  p->ne_err = 0;
+  p->fe_err = 0;
 }
 
 bool_t uart_check_free_space(struct uart_periph* p, uint8_t len) {

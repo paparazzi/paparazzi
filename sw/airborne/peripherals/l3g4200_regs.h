@@ -70,12 +70,19 @@ enum L3g4200_DR {
   L3G4200_DR_400Hz = 0x2,
   L3G4200_DR_800Hz = 0x3
 };
+
 /** Digital Low Pass Filter Options */
 enum L3g4200_DLPF {
   L3G4200_DLPF_1 = 0x0,
   L3G4200_DLPF_2 = 0x1,
   L3G4200_DLPF_3 = 0x2,
   L3G4200_DLPF_4 = 0x3
+};
+
+enum L3g4200_SCALE {
+  L3G4200_SCALE_250 = 0x0,
+  L3G4200_SCALE_500 = 0x1,
+  L3G4200_SCALE_2000 = 0x2,
 };
 
 #endif /* L3G4200_REGS_H */

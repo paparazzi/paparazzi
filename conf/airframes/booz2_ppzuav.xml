@@ -204,7 +204,7 @@
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="euler"/>
+    <subsystem name="stabilization"   type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"/>
 </firmware>

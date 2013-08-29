@@ -45,25 +45,34 @@ Q=@
 # End of configuration part.
 #
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -fPIC
-else
-  FPIC =
-endif
-
-INCLUDES += -I `ocamlc -where`
+INCLUDES += -I $(shell $(OCAMLC) -where)
 
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
-CFLAGS += $(FPIC)
+CFLAGS += -fPIC
 CFLAGS += -O2
 CFLAGS += -g
 CFLAGS += -std=gnu99
 
 LDFLAGS		=	-lm
+
+# build sim in custom mode for Darwin and ARM systems for now...
+UNAME = $(shell uname -s)
+ifeq ($(UNAME),Darwin)
+SIMSITLCUSTOM=TRUE
+endif
+
+MNAME = $(shell uname -m)
+ifneq (,$(findstring arm,$(MNAME)))
+SIMSITLCUSTOM=TRUE
+endif
+
+ifdef SIMSITLCUSTOM
+	CAMLINCLUDES += $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format glibivy)
+	CAMLCMAS = unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma lablgtk.cma
+endif
 
 
 #
@@ -81,9 +90,15 @@ autopilot.so : $($(TARGET).objs)
 	@echo BUILD $@
 	$(Q)$(CC) -shared -o $(OBJDIR)/$@ $^
 
+ifdef SIMSITLCUSTOM
+$(OBJDIR)/simsitl : $($(TARGET).objs) $(SITLCMA) $(SIMSITLML)
+	@echo LD $@
+	$(Q)$(OCAMLC) -g -custom $(CAMLINCLUDES) -o $@ $(CAMLCMAS) $(MYGTKINITCMO) $^
+else
 $(OBJDIR)/simsitl : autopilot.so $(SITLCMA) $(SIMSITLML)
 	@echo LD $@
 	$(Q)$(OCAMLC) -g $(CAMLINCLUDES) -o $@ $(LINKPKG) $(MYGTKINITCMO) $^ -dllpath $(OBJDIR) -dllpath $(SIMDIR)
+endif
 
 
 # The id of the A/C is hardcoded in the code (to be improved with dynlink ?)

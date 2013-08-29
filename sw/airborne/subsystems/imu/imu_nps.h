@@ -56,6 +56,19 @@
 #endif
 
 
+#if !defined IMU_MAG_X_SENS & !defined IMU_MAG_Y_SENS & !defined IMU_MAG_Z_SENS
+#define IMU_MAG_X_SENS 3.5
+#define IMU_MAG_X_SENS_NUM 7
+#define IMU_MAG_X_SENS_DEN 2
+#define IMU_MAG_Y_SENS 3.5
+#define IMU_MAG_Y_SENS_NUM 7
+#define IMU_MAG_Y_SENS_DEN 2
+#define IMU_MAG_Z_SENS 3.5
+#define IMU_MAG_Z_SENS_NUM 7
+#define IMU_MAG_Z_SENS_DEN 2
+#endif
+
+
 struct ImuNps {
   uint8_t mag_available;
   uint8_t accel_available;

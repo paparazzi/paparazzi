@@ -24,7 +24,8 @@
  *
  */
 
-#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "generated/airframe.h"
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Eulers stab_att_ref_euler;  ///< with #REF_ANGLE_FRAC
@@ -71,6 +72,14 @@ void stabilization_attitude_ref_init(void) {
 #define ZETA_OMEGA_R BFP_OF_REAL((ZETA_R*OMEGA_R), ZETA_OMEGA_R_RES)
 #define OMEGA_2_R_RES 7
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
+
+
+#define REF_ANGLE_PI      BFP_OF_REAL(3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
+#define REF_ANGLE_TWO_PI  BFP_OF_REAL(2.*3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
+#define ANGLE_REF_NORMALIZE(_a) {                       \
+    while (_a >  REF_ANGLE_PI)  _a -= REF_ANGLE_TWO_PI; \
+    while (_a < -REF_ANGLE_PI)  _a += REF_ANGLE_TWO_PI; \
+  }
 
 
 /** explicitly define to zero to disable attitude reference generation */

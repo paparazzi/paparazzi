@@ -33,11 +33,21 @@
 #include "mcu_periph/sys_time.h"
 
 /**
- * The ppm counter is running at cpu freq / 9
+ * The ppm counter is set-up to have 1/6 us resolution.
+ *
+ * The timer clock frequency (before prescaling):
+ * STM32F1:
+ *   TIM1 -> APB2 = HCLK = 72MHz
+ *   TIM2 -> 2 * APB1 = 2 * 36MHz = 72MHz
+ * STM32F4:
+ *   TIM1 -> 2 * APB2 = 2 * 84MHz = 168MHz
+ *   TIM2 -> 2 * APB1 = 2 * 42MHz = 84MHz
  */
-#define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * (AHB_CLK / 9000000))
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v) * (AHB_CLK / 9000000))
-#define USEC_OF_RC_PPM_TICKS(_v)        ((_v) / (AHB_CLK / 9000000))
+#define RC_PPM_TICKS_PER_USEC 6
+
+#define RC_PPM_TICKS_OF_USEC(_v)        ((_v)*RC_PPM_TICKS_PER_USEC)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v)*RC_PPM_TICKS_PER_USEC)
+#define USEC_OF_RC_PPM_TICKS(_v)        ((_v)/RC_PPM_TICKS_PER_USEC)
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 

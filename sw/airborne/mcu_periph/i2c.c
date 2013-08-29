@@ -62,6 +62,19 @@ void i2c2_init(void) {
 
 #endif /* USE_I2C2 */
 
+
+#ifdef USE_I2C3
+
+struct i2c_periph i2c3;
+
+void i2c3_init(void) {
+  i2c_init(&i2c3);
+  i2c3_hw_init();
+}
+
+#endif /* USE_I2C2 */
+
+
 void i2c_init(struct i2c_periph* p) {
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;

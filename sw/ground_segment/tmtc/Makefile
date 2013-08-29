@@ -23,14 +23,6 @@
 # Quiet
 Q=@
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC = -fPIC
-else
-  FPIC =
-endif
-
-
 include ../../../conf/Makefile.local
 include ../../Makefile.ocaml
 CONF = ../../../conf
@@ -50,6 +42,8 @@ SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
 all: link server messages settings dia diadec $(VAR)/boa.conf ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
+
+opt: server.opt
 
 clean:
 	$(Q)rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
@@ -132,10 +126,10 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 
 CC = gcc
-GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags` $(FPIC)
-GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre $(FPIC)
-GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` $(FPIC)
-GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre $(FPIC)
+GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags` -fPIC
+GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre -fPIC
+GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` -fPIC
+GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre -fPIC
 
 UNAME = $(shell uname -s)
 
@@ -160,7 +154,7 @@ ivy_serial_bridge: ivy_serial_bridge.c
 	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 
-.PHONY: all clean
+.PHONY: all opt clean
 
 #
 # Dependencies

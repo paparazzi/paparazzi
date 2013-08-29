@@ -3,6 +3,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "fms_debug.h"
 
@@ -16,7 +17,7 @@ struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const
   setsockopt(me->socket_out, SOL_SOCKET, SO_REUSEADDR,
              &so_reuseaddr, sizeof(so_reuseaddr));
 
-	/* only set broadcast option if explicitly enabled */
+  /* only set broadcast option if explicitly enabled */
   if (broadcast)
     setsockopt(me->socket_out, SOL_SOCKET, SO_BROADCAST,
                &broadcast, sizeof(broadcast));
@@ -41,9 +42,20 @@ struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const
 
 int network_write(struct FmsNetwork* me, char* buf, int len) {
   ssize_t byte_written = sendto(me->socket_out, buf, len, MSG_DONTWAIT,
-				(struct sockaddr*)&me->addr_out, sizeof(me->addr_out));
+                                (struct sockaddr*)&me->addr_out, sizeof(me->addr_out));
   if ( byte_written != len) {
-    TRACE(TRACE_ERROR, "error sending to network %d\n", byte_written);
+    TRACE(TRACE_ERROR, "error sending to network %d (%d)\n", byte_written, errno);
   }
   return len;
+}
+
+int network_read(struct FmsNetwork* me, unsigned char* buf, int len) {
+
+  // MSG_DONTWAIT => nonblocking flag
+  ssize_t byte_read = recvfrom(me->socket_in, buf, len, MSG_DONTWAIT,
+                                (struct sockaddr*)&me->addr_in, (socklen_t *) sizeof(me->addr_in));
+
+  // @TODO: maybe fix if byte_read == -1 => check errno == EWOULDBLOCK and do something accordingly
+
+  return byte_read;
 }

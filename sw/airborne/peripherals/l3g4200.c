@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2011 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *               2013 Felix Ruess <felix.ruess@gmail.com>
  *               2013 Eduardo Lavratti <agressiva@hotmail.com>
@@ -33,6 +32,7 @@
 
 void l3g4200_set_default_config(struct L3g4200Config *c) {
   c->ctrl_reg1 = L3G4200_DEFAULT_CTRL_REG1;
+  c->ctrl_reg4 = L3G4200_DEFAULT_CTRL_REG4;
   c->ctrl_reg5 = L3G4200_DEFAULT_CTRL_REG5;
 }
 
@@ -71,6 +71,10 @@ static void l3g4200_send_config(struct L3g4200 *l3g)
       l3g4200_i2c_tx_reg(l3g, L3G4200_REG_CTRL_REG1, l3g->config.ctrl_reg1);
       l3g->init_status++;
       break;
+    case L3G_CONF_REG4:
+      l3g4200_i2c_tx_reg(l3g, L3G4200_REG_CTRL_REG4, l3g->config.ctrl_reg4);
+      l3g->init_status++;
+      break;
     case L3G_CONF_REG5:
       l3g4200_i2c_tx_reg(l3g, L3G4200_REG_CTRL_REG5, l3g->config.ctrl_reg5);
       l3g->init_status++;
@@ -99,12 +103,12 @@ void l3g4200_start_configure(struct L3g4200 *l3g)
 void l3g4200_read(struct L3g4200 *l3g)
 {
   if (l3g->initialized && l3g->i2c_trans.status == I2CTransDone) {
-    l3g->i2c_trans.buf[0] = L3G4200_REG_STATUS_REG;
-    i2c_transceive(l3g->i2c_p, &(l3g->i2c_trans), l3g->i2c_trans.slave_addr, 1, 9);
+    l3g->i2c_trans.buf[0] = 0x80 | L3G4200_REG_STATUS_REG;
+    i2c_transceive(l3g->i2c_p, &(l3g->i2c_trans), l3g->i2c_trans.slave_addr, 1, 7);
   }
 }
 
-#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
+#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
 
 void l3g4200_event(struct L3g4200 *l3g)
 {
@@ -114,11 +118,11 @@ void l3g4200_event(struct L3g4200 *l3g)
     }
     else if (l3g->i2c_trans.status == I2CTransSuccess) {
       // Successfull reading and new data available
-      if (l3g->i2c_trans.buf[0] & 0x01) {   // ver oque é o sinal antes do &
+      if (l3g->i2c_trans.buf[0] & 0x08) {
         // New data available
-        l3g->data.rates.p = Int16FromBuf(l3g->i2c_trans.buf,3);
-        l3g->data.rates.q = Int16FromBuf(l3g->i2c_trans.buf,5);
-        l3g->data.rates.r = Int16FromBuf(l3g->i2c_trans.buf,7);
+        l3g->data.rates.p = Int16FromBuf(l3g->i2c_trans.buf,1);
+        l3g->data.rates.q = Int16FromBuf(l3g->i2c_trans.buf,3);
+        l3g->data.rates.r = Int16FromBuf(l3g->i2c_trans.buf,5);
         l3g->data_available = TRUE;
       }
       l3g->i2c_trans.status = I2CTransDone;

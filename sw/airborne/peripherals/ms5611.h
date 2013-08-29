@@ -1,6 +1,5 @@
 /*
- *
- * Copyright (C) 2012 Piotr Esden-Tempski
+ * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,82 +19,44 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Register definition for MS5611
+/**
+ * @file peripherals/ms5611.h
+ *
+ * MS5611 barometer driver common interface (I2C and SPI).
  */
 
 #ifndef MS5611_H
 #define MS5611_H
 
-/* default i2c address
- * when CSB is set to GND addr is 0xEE
- * when CSB is set to VCC addr is 0xEC
- *
- * Note: Aspirin 2.1 has CSB bound to GND.
- */
-#define MS5611_SLAVE_ADDR 0xEE
+#include "std.h"
 
-/* FIXME: For backwards compatibility with Aspirin driver (it doesnt talk to baro either) */
-#define MS5611_ADDR0 0x77
-#define MS5611_ADDR1 0x76
+/* Include address and register definition */
+#include "peripherals/ms5611_regs.h"
 
-/* SPI SLAVE3 is on pin PC13
- * Aspirin 2.2 has ms5611 on SPI bus
- */
-#ifndef MS5611_SLAVE_DEV
-#define MS5611_SLAVE_DEV SPI_SLAVE3
-#endif
 
-/* Number of 16bit calibration coefficients */
-#define PROM_NB                 8
-
-/* OSR definitions */
-#define MS5611_OSR256        0x02
-#define MS5611_OSR512        0x02
-#define MS5611_OSR1024       0x04
-#define MS5611_OSR2048       0x06
-#define MS5611_OSR4096       0x08
-
-/* D1 Register defines */
-#define MS5611_REG_D1R       0x40 // Request D1 (pressure) conversion
-#define MS5611_REG_D1(_osr)  (MS5611_REG_D1R | _osr)
-#define MS5611_REG_D1OSR256  MS5611_REG_D1(MS5611_ORS256)
-#define MS5611_REG_D1OSR512  MS5611_REG_D1(MS5611_OSR512)
-#define MS5611_REG_D1OSR1024 MS5611_REG_D1(MS5611_OSR1024)
-#define MS5611_REG_D1OSR2048 MS5611_REG_D1(MS5611_OSR2048)
-#define MS5611_REG_D1OSR4096 MS5611_REG_D1(MS5611_OSR4096)
-
-/* D2 register defines */
-#define MS5611_REG_D2R       0x50 // Request D2 (temperature) conversion
-#define MS5611_REG_D2(_osr)  (MS5611_REG_D2R | _osr)
-#define MS5611_REG_D2OSR256  MS5611_REG_D2(MS5611_ORS256)
-#define MS5611_REG_D2OSR512  MS5611_REG_D2(MS5611_OSR512)
-#define MS5611_REG_D2OSR1024 MS5611_REG_D2(MS5611_OSR1024)
-#define MS5611_REG_D2OSR2048 MS5611_REG_D2(MS5611_OSR2048)
-#define MS5611_REG_D2OSR4096 MS5611_REG_D2(MS5611_OSR4096)
-
-/* Commands */
-#define MS5611_ADC_READ         0x00 // Read converted value
-#define MS5611_SOFT_RESET       0x1E // Reset command
-#define MS5611_PROM_READ        0xA0 // Start reading PROM
-#define MS5611_START_CONV_D1    MS5611_REG_D1OSR4096 /* we use OSR=4096 for maximum resolution */
-#define MS5611_START_CONV_D2    MS5611_REG_D2OSR4096 /* we use OSR=4096 for maximum resolution */
-
-/* FIXME: backwards compatibility with Aspirin driver */
-#define MS5611_REG_RESET MS5611_SOFT_RESET
-#define MS5611_REG_ADCREAD MS5611_ADC_READ
-
-enum ms5611_stat{
-  MS5611_UNINIT,
-  MS5611_RESET,
-  MS5611_RESET_OK,
-  MS5611_PROM,
-  MS5611_IDLE,
-  MS5611_CONV_D1,
-  MS5611_CONV_D1_OK,
-  MS5611_ADC_D1,
-  MS5611_CONV_D2,
-  MS5611_CONV_D2_OK,
-  MS5611_ADC_D2
+enum Ms5611Status {
+  MS5611_STATUS_UNINIT,
+  MS5611_STATUS_RESET,
+  MS5611_STATUS_RESET_OK,
+  MS5611_STATUS_PROM,
+  MS5611_STATUS_IDLE,
+  MS5611_STATUS_CONV_D1,
+  MS5611_STATUS_CONV_D1_OK,
+  MS5611_STATUS_ADC_D1,
+  MS5611_STATUS_CONV_D2,
+  MS5611_STATUS_CONV_D2_OK,
+  MS5611_STATUS_ADC_D2
 };
+
+struct Ms5611Data {
+  uint32_t pressure;    ///< pressure in Pascal (0.01mbar)
+  int32_t temperature;  ///< temperature with 0.01 degrees Celsius resolution
+  uint16_t c[PROM_NB];
+  uint32_t d1;
+  uint32_t d2;
+};
+
+extern bool_t ms5611_prom_crc_ok(uint16_t* prom);
+extern void ms5611_calc(struct Ms5611Data* ms);
 
 #endif /* MS5611_H */

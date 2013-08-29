@@ -22,7 +22,7 @@ nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
-nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy -lgsl -lgslcblas
+nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy -lpcre -lgsl -lgslcblas
 nps.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 nps.LDFLAGS += $(shell sdl-config --libs)
 
@@ -67,7 +67,10 @@ nps.srcs += mcu_periph/i2c.c
 nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
-nps.CFLAGS += -DPERIODIC_FREQUENCY=512
+PERIODIC_FREQUENCY ?= 512
+TELEMETRY_FREQUENCY ?= 60
+nps.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+nps.CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
 #nps.CFLAGS += -DUSE_LED
 nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
@@ -100,12 +103,6 @@ nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 nps.srcs += state.c
 
-#
-# in makefile section of airframe xml
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile
-# or
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-#
 
 nps.srcs += $(SRC_FIRMWARE)/stabilization.c
 nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
@@ -116,17 +113,8 @@ nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
-#
-# INS choice
-#
-# include subsystems/rotorcraft/ins.makefile
-# or
-# include subsystems/rotorcraft/ins_extended.makefile
-#
-# extra:
-# include subsystems/rotorcraft/ins_hff.makefile
-#
 
 nps.srcs += $(SRC_FIRMWARE)/navigation.c
 nps.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

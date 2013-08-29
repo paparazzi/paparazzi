@@ -162,7 +162,7 @@ module type MESSAGES = sig
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 
-  val message_send : ?timestamp:float -> string -> string -> values -> unit
+  val message_send : ?timestamp:float -> ?link_id:int -> string -> string -> values -> unit
   (** [message_send sender msg_name values] *)
 
   val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding

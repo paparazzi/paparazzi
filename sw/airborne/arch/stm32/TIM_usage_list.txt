@@ -14,10 +14,10 @@ TIM2        adc (default)
 TIM3        actuators/pwm (PWM1..4)
 
 TIM4        adc (if USE_AD_TIM4)
-            actuators/pwm (PWM6..7) (if ! REMAP_SERVOS_5AND6)
+            actuators/pwm (PWM6..7 on LisaL)
                           (PWM7..8) (if USE_SERVOS_7AND8)
 
-TIM5        actuators/pwm (PWM6..7) (if REMAP_SERVOS_5AND6)
+TIM5        actuators/pwm (PWM/Servos 5..6 on LisaM)
 
 TIM6        radio_control/spektrum
 

@@ -33,7 +33,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "state.h"
-
+#include "generated/modules.h"
 
 #if USE_BAROMETER
 #ifdef BARO_MS5534A
@@ -52,16 +52,18 @@
 #include "modules/sensors/baro_ms5611_i2c.h"
 #endif
 
+#if USE_BARO_AMSYS
+#include "modules/sensors/baro_amsys.h"
+#endif
+
 extern int32_t ins_qfe;
 extern float   ins_baro_alt;
 extern bool_t  ins_baro_initialised;
 #endif //USE_BAROMETER
 
-/* position in meters, ENU frame, relative to reference */
-extern float estimator_z; ///< altitude above MSL in meters
+extern float ins_alt; ///< estimated altitude above MSL in meters
 
-/* speed in meters per second */
-extern float estimator_z_dot;
+extern float ins_alt_dot; ///< estimated vertical speed in m/s (positive-up)
 
 extern bool_t alt_kalman_enabled;
 extern void alt_kalman_reset( void );
@@ -74,7 +76,7 @@ extern void alt_kalman( float );
 #else /* USE_BAROMETER */
 #define EstimatorSetAlt(z) { \
   if (!alt_kalman_enabled) { \
-    estimator_z = z; \
+    ins_alt = z; \
   } else { \
     alt_kalman(z); \
   } \

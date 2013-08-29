@@ -19,7 +19,6 @@
 uint8_t gps_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 //float alt_roll_pgain;
 //float roll_rate_pgain;
-//bool_t gpio1_status;
 uint16_t adc_generic_val1;
 uint16_t adc_generic_val2;
 //uint16_t ppm_pulses[ PPM_NB_PULSES ];

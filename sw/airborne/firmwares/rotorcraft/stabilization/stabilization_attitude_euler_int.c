@@ -24,6 +24,7 @@
 #include "subsystems/radio_control.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+#include "paparazzi.h"
 
 #include "generated/airframe.h"
 
@@ -46,6 +47,13 @@ struct Int32Eulers stabilization_att_sum_err;
 
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
+
+static inline void reset_psi_ref_from_body(void) {
+  //sp has been set from body using stabilization_attitude_get_yaw_i, use that value
+  stab_att_ref_euler.psi = stab_att_sp_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+  stab_att_ref_rate.r = 0;
+  stab_att_ref_accel.r = 0;
+}
 
 void stabilization_attitude_init(void) {
 
@@ -79,18 +87,23 @@ void stabilization_attitude_init(void) {
 
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
-
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
-
 }
 
-
 void stabilization_attitude_enter(void) {
-
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
   reset_psi_ref_from_body();
   INT_EULERS_ZERO( stabilization_att_sum_err );
+}
 
+void stabilization_attitude_set_failsafe_setpoint(void) {
+  stab_att_sp_euler.phi = 0;
+  stab_att_sp_euler.theta = 0;
+  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
+}
+
+void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+  memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
 }
 
 
@@ -100,7 +113,6 @@ void stabilization_attitude_enter(void) {
 #define MAX_SUM_ERR 4000000
 
 void stabilization_attitude_run(bool_t  in_flight) {
-
 
   /* update reference */
   stabilization_attitude_ref_update();

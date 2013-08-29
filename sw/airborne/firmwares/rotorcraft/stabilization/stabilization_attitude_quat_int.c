@@ -75,12 +75,28 @@ void stabilization_attitude_init(void) {
 void stabilization_attitude_enter(void) {
 
   /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
+  stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
   stabilization_attitude_ref_enter();
 
   INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
   INT_EULERS_ZERO(stabilization_att_sum_err);
+}
+
+void stabilization_attitude_set_failsafe_setpoint(void) {
+  /* set failsafe to zero roll/pitch and current heading */
+  int32_t heading2 = stabilization_attitude_get_heading_i() / 2;
+  PPRZ_ITRIG_COS(stab_att_sp_quat.qi, heading2);
+  stab_att_sp_quat.qx = 0;
+  stab_att_sp_quat.qy = 0;
+  PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
+}
+
+void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+  // copy euler setpoint for debugging
+  memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, *sp_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
@@ -136,9 +152,13 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   INT32_QUAT_NORMALIZE(att_err);
 
   /*  rate error                */
+  const struct Int32Rates rate_ref_scaled = {
+    OFFSET_AND_ROUND(stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   struct Int32Rates* body_rate = stateGetBodyRates_i();
-  RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
+  RATES_DIFF(rate_err, rate_ref_scaled, (*body_rate));
 
   /* integrated error */
   if (enable_integrator) {
@@ -177,6 +197,10 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
   struct FloatQuat q_sp;
+#if USE_EARTH_BOUND_RC_SETPOINT
+  stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(&q_sp, in_flight);
+#else
   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight);
+#endif
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }

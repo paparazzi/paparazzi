@@ -163,6 +163,7 @@
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
    <define name="NOMINAL_HOVER_THROTTLE" value="0.4"/>
+   <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
 
@@ -207,7 +208,7 @@
 
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="euler"/>
+    <subsystem name="stabilization"   type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"/>
   </firmware>

@@ -54,6 +54,7 @@
 /sw/ground_segment/cockpit/gtk_save_settings.ml
 /sw/ground_segment/cockpit/gtk_setting_time.ml
 /sw/ground_segment/cockpit/gcs
+/sw/ground_segment/cockpit/gcs.opt
 /sw/ground_segment/cockpit/gtk_strip.ml
 /sw/ground_segment/cockpit/ant_track
 /sw/ground_segment/cockpit/compass
@@ -80,6 +81,7 @@
 /sw/ground_segment/tmtc/dia
 /sw/ground_segment/tmtc/ivy2udp
 /sw/ground_segment/tmtc/server
+/sw/ground_segment/tmtc/server.opt
 /sw/ground_segment/tmtc/diadec
 /sw/ground_segment/tmtc/ivy_serial_bridge
 /sw/ground_segment/tmtc/GSM/SMS_GS

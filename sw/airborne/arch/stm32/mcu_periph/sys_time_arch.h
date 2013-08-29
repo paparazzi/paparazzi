@@ -34,12 +34,10 @@
 
 #include "mcu_periph/sys_time.h"
 
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/cm3/systick.h>
 #include "std.h"
-
-extern void sys_tick_handler(void);
 
 /**
  * Get the time in microseconds since startup.

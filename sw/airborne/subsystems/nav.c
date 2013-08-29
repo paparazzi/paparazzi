@@ -50,6 +50,7 @@ float carrot_x, carrot_y;
 
 /** Status on the current circle */
 float nav_circle_radians; /* Cumulated */
+float nav_circle_radians_no_rewind; /* Cumulated */
 float nav_circle_trigo_qdr; /* Angle from center to mobile */
 float nav_radius, nav_course, nav_climb, nav_shift;
 
@@ -91,6 +92,7 @@ void nav_init_stage( void ) {
   last_y = stateGetPositionEnu_f()->y;
   stage_time = 0;
   nav_circle_radians = 0;
+  nav_circle_radians_no_rewind = 0;
   nav_in_circle = FALSE;
   nav_in_segment = FALSE;
   nav_shift = 0;
@@ -108,16 +110,19 @@ void nav_circle_XY(float x, float y, float radius) {
   struct EnuCoor_f* pos = stateGetPositionEnu_f();
   float last_trigo_qdr = nav_circle_trigo_qdr;
   nav_circle_trigo_qdr = atan2(pos->y - y, pos->x - x);
+  float sign_radius = radius > 0 ? 1 : -1;
 
   if (nav_in_circle) {
     float trigo_diff = nav_circle_trigo_qdr - last_trigo_qdr;
     NormRadAngle(trigo_diff);
     nav_circle_radians += trigo_diff;
+    trigo_diff *= - sign_radius;
+    if (trigo_diff > 0) // do not rewind if the change in angle is in the opposite sense than nav_radius
+      nav_circle_radians_no_rewind += trigo_diff;
   }
 
   float dist2_center = DistanceSquare(pos->x, pos->y, x, y);
   float dist_carrot = CARROT*NOMINAL_AIRSPEED;
-  float sign_radius = radius > 0 ? 1 : -1;
 
   radius += -nav_shift;
 

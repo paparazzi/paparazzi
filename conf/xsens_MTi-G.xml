@@ -73,6 +73,8 @@
     <field name="period" format="U2"/>
   </message>
 
+  <message name="SetOutputConfiguration" ID="0xC0" to="MT"/>
+
   <message name="SetPeriod" ID="0x04" to="MT" length="2">
     <field name="period" format="U2"/>
   </message>
@@ -100,6 +102,10 @@
 
   <message name="ReqData" ID="0x34" to="MT"/>
   <message name="MTData" ID="0x32" to="host">
+    <field name="data" format="V"/>
+  </message>
+
+  <message name="MTData2" ID="0x36" to="host">
     <field name="data" format="V"/>
   </message>
 
@@ -146,6 +152,7 @@
       <field name="cnr" format="I1"/>
     </block>
   </message>
+
 
   <message name="ReqUTCTime" ID="0x60" to="MT"/>
   <message name="UTCTime" ID="0x61" to="host">
@@ -256,6 +263,75 @@
     <field name="min" format="U1"/>
     <field name="sec" format="U1"/>
     <field name="valid" format="U1"/>
+  </data>
+
+  <data name="RateOfTurn" length="12">
+    <field name="x" format="R4" unit="m"/>
+    <field name="y" format="R4" unit="m"/>
+    <field name="z" format="R4" unit="m"/>
+  </data>
+
+  <data name="Acceleration" length="12">
+    <field name="x" format="R4" unit="m"/>
+    <field name="y" format="R4" unit="m"/>
+    <field name="z" format="R4" unit="m"/>
+  </data>
+
+  <message name="XDI_GpsSvInfo" id="88A0" to="host">
+    <field name="iTOW" format="U4"/>
+    <field name="nch" format="U1"/>
+    <field name="res1" format="U1"/>
+    <field name="res2" format="U2"/>
+    <block times="nch" length="12">
+      <field name="chn" format="U1"/>
+      <field name="svid" format="U1"/>
+      <field name="bitmask" format="U1"/>
+      <field name="qi" format="U1"/>
+      <field name="cnr" format="U1"/>
+      <field name="elev" format="I1"/>
+      <field name="azim" format="I2"/>
+      <field name="prRes" format="I4"/>
+    </block>
+  </message>
+
+  <data name="GpsSol" length="49">
+    <field name="iTOW" format="U4"/>
+    <field name="fTOW" format="I4"/>
+    <field name="week" format="I2"/>
+    <field name="fix" format="U1"/>
+    <field name="flags" format="U1"/>
+    <field name="ecef_x" format="I4"/>
+    <field name="ecef_y" format="I4"/>
+    <field name="ecef_z" format="I4"/>
+    <field name="pAcc" format="U4"/>
+    <field name="ecef_vx" format="I4"/>
+    <field name="ecef_vy" format="I4"/>
+    <field name="ecef_vz" format="I4"/>
+    <field name="sAcc" format="U4"/>
+    <field name="pDop" format="U2"/>
+    <field name="res1" format="U1"/>
+    <field name="numSv" format="U1"/>
+    <field name="res2" format="U1"/>
+  </data>
+
+
+  <data name="StatusWord" length="4">
+    <field name="status" format="U4"/>
+  </data>
+
+  <data name="LatLon" length="8">
+    <field name="lat" format="R4" unit="deg"/>
+    <field name="lon" format="R4" unit="deg"/>
+  </data>
+
+  <data name="Altitude" length="4">
+    <field name="h" format="R4" unit="m"/>
+  </data>
+
+  <data name="VelocityXYZ" length="12">
+    <field name="x" format="R4" unit="m/s"/>
+    <field name="y" format="R4" unit="m/s"/>
+    <field name="z" format="R4" unit="m/s"/>
   </data>
 
   <mask name="Temp"         bitmask="0x0001"/>

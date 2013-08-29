@@ -29,6 +29,7 @@ from optparse import OptionParser
 
 import usb
 import dfu
+import time
 
 APP_ADDRESS = 0x08002000
 SECTOR_SIZE = 2048
@@ -75,6 +76,21 @@ def print_copyright():
     print("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>")
     print("")
 
+def init_progress_bar():
+    max_symbols = 50
+    print("[0%" + "="*int(max_symbols/2 - 4) + "50%" + "="*int(max_symbols/2 - 4) + "100%]")
+    print(" ", end="")
+    update_progress_bar.count = 0
+    update_progress_bar.symbol_limit = max_symbols
+
+def update_progress_bar(completed, total):
+    if completed and total:
+        percent = 100 * (float(completed)/float(total))
+        if (percent >= (update_progress_bar.count + (100.0 / update_progress_bar.symbol_limit))):
+            update_progress_bar.count += (100.0 / update_progress_bar.symbol_limit)
+            print("#", end="")
+        stdout.flush()
+
 if __name__ == "__main__":
     usage = "Usage: %prog [options] firmware.bin" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage, version='%prog version 1.3')
@@ -84,6 +100,8 @@ if __name__ == "__main__":
                       action="store", default="Lisa/Lia",
                       help="only upload to device where idProduct contains PRODUCT\n"
                       "choices: (any, Lisa/Lia), default: Lisa/Lia")
+    parser.add_option("--addr", type="int", action="store", dest="addr", default=APP_ADDRESS,
+                      help="Upload start address (default: 0x08002000)")
     parser.add_option("-n", "--dry-run", action="store_true",
                       help="Dry run to check which board is found without actually flashing.")
     (options, args) = parser.parse_args()
@@ -99,7 +117,15 @@ if __name__ == "__main__":
     if options.verbose:
         print_copyright()
 
-    devs = dfu.finddevs()
+    for i in range(1,60):
+      devs = dfu.finddevs()
+      if not devs:
+        print('.', end="")
+        stdout.flush()
+        time.sleep(0.5)
+      else:
+        break
+    print("")
     if not devs:
         print("No DFU devices found!")
         exit(1)
@@ -182,15 +208,25 @@ if __name__ == "__main__":
         print("Could not open binary file.")
         raise
 
-    addr = APP_ADDRESS
+    # Get the file length for progress bar
+    bin_length = len(bin)
+
+    #addr = APP_ADDRESS
+    addr = options.addr
+    print ("Programming memory from 0x%08X...\r" % addr)
+    
+    init_progress_bar()
+
     while bin:
-        print("Programming memory at 0x%08X\r" % addr)
-        stdout.flush()
+        update_progress_bar((addr - options.addr),bin_length)
         stm32_erase(target, addr)
         stm32_write(target, bin[:SECTOR_SIZE])
 
         bin = bin[SECTOR_SIZE:]
         addr += SECTOR_SIZE
+
+    # Need to check all the way to 100% complete
+    update_progress_bar((addr - options.addr),bin_length)
 
     stm32_manifest(target)
 

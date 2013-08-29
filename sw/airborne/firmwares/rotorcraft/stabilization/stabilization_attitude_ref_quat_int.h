@@ -30,9 +30,8 @@
 #ifndef STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
 #define STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
 
-#include "firmwares/rotorcraft/stabilization.h"
 #include "stabilization_attitude_ref_int.h"
-
+#include "stabilization_attitude_ref.h"
 
 void stabilization_attitude_ref_enter(void);
 

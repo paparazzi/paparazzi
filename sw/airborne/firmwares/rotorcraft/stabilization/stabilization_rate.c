@@ -164,6 +164,28 @@ void stabilization_rate_read_rc( void ) {
   INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
 }
 
+//Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sticks are desired
+void stabilization_rate_read_rc_switched_sticks( void ) {
+
+  if(ROLL_RATE_DEADBAND_EXCEEDED())
+    stabilization_rate_sp.r = (int32_t) -radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+  else
+    stabilization_rate_sp.r = 0;
+
+  if(PITCH_RATE_DEADBAND_EXCEEDED())
+    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
+  else
+    stabilization_rate_sp.q = 0;
+
+  if(YAW_RATE_DEADBAND_EXCEEDED())
+    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+  else
+    stabilization_rate_sp.p = 0;
+
+  // Setpoint at ref resolution
+    INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
+}
+
 void stabilization_rate_enter(void) {
   RATES_COPY(stabilization_rate_ref, stabilization_rate_sp);
   INT_RATES_ZERO(stabilization_rate_sum_err);

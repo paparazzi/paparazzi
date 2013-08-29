@@ -38,7 +38,7 @@
 #include "subsystems/radio_control.h"
 #endif
 #endif
-#if defined USE_UART0 || defined USE_UART1  || defined USE_UART2 || defined USE_UART3 || defined USE_UART4  || defined USE_UART5
+#if defined USE_UART0 || defined USE_UART1 || defined USE_UART2 || defined USE_UART3 || defined USE_UART4 || defined USE_UART5 || defined USE_UART6
 #include "mcu_periph/uart.h"
 #endif
 #if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2
@@ -89,6 +89,9 @@ void mcu_init(void) {
 #ifdef USE_UART5
   uart5_init();
 #endif
+#ifdef USE_UART6
+  uart6_init();
+#endif
 #ifdef USE_I2C0
   i2c0_init();
 #endif
@@ -97,6 +100,9 @@ void mcu_init(void) {
 #endif
 #ifdef USE_I2C2
   i2c2_init();
+#endif
+#ifdef USE_I2C3
+  i2c3_init();
 #endif
 #ifdef USE_ADC
   adc_init();
@@ -137,6 +143,10 @@ void mcu_init(void) {
   spi3_slave_init();
 #endif
 #endif // SPI_SLAVE
+
+#if SPI_SLAVE_HS
+  spi_slave_hs_init();
+#endif
 #endif // USE_SPI
 
 #ifdef USE_DAC

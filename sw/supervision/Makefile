@@ -28,10 +28,13 @@ include ../Makefile.ocaml
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
 	MKTEMP = gmktemp
-	LABLGTK2GNOMEUI = lablgtk2.gnomeui
 else
 	MKTEMP = mktemp
-	LABLGTK2GNOMEUI = lablgtk2-gnome.gnomeui
+endif
+
+LABLGTK2GNOMEUI = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomeui 2>/dev/null)
+ifeq ($(LABLGTK2GNOMEUI),)
+LABLGTK2GNOMEUI = $(shell ocamlfind query -p-format lablgtk2.gnomeui 2>/dev/null)
 endif
 
 INCLUDES =

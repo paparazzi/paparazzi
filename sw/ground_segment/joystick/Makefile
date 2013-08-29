@@ -29,18 +29,11 @@ TOOLSDIR = ../../tools
 
 CC = gcc
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-  FPIC=-fpic
-else
-  FPIC=
-endif
-
 OCAMLINCLUDES= -I $(TOOLSDIR)
 PKG = -package pprz,glibivy
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
-GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) $(FPIC)
+GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) -fPIC
 GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 # apparently on OSX `sdl-config --libs` also has -lSDLmain which we don't want
@@ -57,13 +50,20 @@ INCLUDES += -I $(shell ocamlc -where)
 SDL_STICK_DEPS = sdl_stick.o ml_sdl_stick.o
 # apparently on OSX you cannot dynamically link with SDL, see ocamlsdl readme
 UNAME = $(shell uname -s)
+MNAME = $(shell uname -m)
 
-ifeq ("$(UNAME)","Darwin")
+ifeq ($(UNAME),Darwin)
 	ML_SDL_OCAMLFLAGS = -custom
 	INPUT2IVY_DEPS = $(SDL_STICK_DEPS) input2ivy.cmo
 else
-	ML_SDL_OCAMLFLAGS =
-	INPUT2IVY_DEPS = sdl_stick.so input2ivy.cmo
+# on ARM also link in custom mode for now...
+	ifneq (,$(findstring arm,$(MNAME)))
+		ML_SDL_OCAMLFLAGS = -custom
+		INPUT2IVY_DEPS = $(SDL_STICK_DEPS) input2ivy.cmo
+	else
+		ML_SDL_OCAMLFLAGS =
+		INPUT2IVY_DEPS = sdl_stick.so input2ivy.cmo
+	endif
 endif
 
 all: test_stick input2ivy
@@ -72,12 +72,10 @@ test_stick: test_sdl_stick.o
 	@echo BUILD $@
 	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: $(INPUT2IVY_DEPS)
+input2ivy: $(TOOLSDIR)/fp_proc.cmo $(INPUT2IVY_DEPS)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $(TOOLSDIR)/fp_proc.cmo $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
 
-# dependency of input2ivy
-input2ivy: $(TOOLSDIR)/fp_proc.cmo
 
 sdl_stick.so : $(SDL_STICK_DEPS)
 	@echo BUILD $@

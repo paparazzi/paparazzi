@@ -31,7 +31,7 @@ PAPARAZZI_SRC=$(shell pwd)
 empty=
 space=$(empty) $(empty)
 ifneq ($(findstring $(space),$(PAPARAZZI_SRC)),)
-  $(error No fucking spaces allowed in the current directory name)
+  $(error No spaces allowed in the current directory name)
 endif
 ifeq ($(PAPARAZZI_HOME),)
 PAPARAZZI_HOME=$(PAPARAZZI_SRC)
@@ -118,6 +118,7 @@ conf/%.xml :conf/%.xml.example
 
 
 ground_segment: print_build_version update_google_version conf libpprz subdirs commands static
+ground_segment.opt: ground_segment cockpit.opt tmtc.opt
 
 static: cockpit tmtc tools sim_static joystick static_h
 
@@ -130,8 +131,14 @@ multimon:
 cockpit: libpprz
 	$(MAKE) -C $(COCKPIT)
 
+cockpit.opt: libpprz
+	$(MAKE) -C $(COCKPIT) opt
+
 tmtc: libpprz cockpit multimon
 	$(MAKE) -C $(TMTC)
+
+tmtc.opt: libpprz cockpit.opt multimon
+	$(MAKE) -C $(TMTC) opt
 
 tools: libpprz
 	$(MAKE) -C $(TOOLS)
@@ -289,8 +296,8 @@ run_tests:
 test: all replace_current_conf_xml run_tests restore_conf_xml
 
 
-.PHONY: all print_build_version update_google_version ground_segment \
-subdirs $(SUBDIRS) conf ext libpprz multimon cockpit tmtc tools\
+.PHONY: all print_build_version update_google_version ground_segment ground_segment.opt \
+subdirs $(SUBDIRS) conf ext libpprz multimon cockpit cockpit.opt tmtc tmtc.opt tools\
 static sim_static lpctools commands \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test replace_current_conf_xml run_tests restore_conf_xml

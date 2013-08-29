@@ -60,6 +60,7 @@ static inline int ahrs_is_aligned(void) {
   return (ahrs.status == AHRS_RUNNING);
 }
 #else
+PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")
 static inline int ahrs_is_aligned(void) {
   return TRUE;
 }
@@ -67,13 +68,22 @@ static inline int ahrs_is_aligned(void) {
 
 #if USE_KILL_SWITCH_FOR_MOTOR_ARMING
 #include "autopilot_arming_switch.h"
+PRINT_CONFIG_MSG("Using kill switch for motor arming")
 #elif USE_THROTTLE_FOR_MOTOR_ARMING
 #include "autopilot_arming_throttle.h"
+PRINT_CONFIG_MSG("Using throttle for motor arming")
 #else
 #include "autopilot_arming_yaw.h"
+PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
+#endif
+
+#ifndef MODE_STARTUP
+#define MODE_STARTUP AP_MODE_KILL
+PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
 #endif
 
 void autopilot_init(void) {
+  /* mode is finally set at end of init if MODE_STARTUP is not KILL */
   autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
   kill_throttle = ! autopilot_motors_on;
@@ -88,7 +98,46 @@ void autopilot_init(void) {
 #ifdef POWER_SWITCH_LED
   LED_ON(POWER_SWITCH_LED); // POWER OFF
 #endif
+
   autopilot_arming_init();
+
+  nav_init();
+  guidance_h_init();
+  guidance_v_init();
+  stabilization_init();
+
+  /* set startup mode, propagats through to guidance h/v */
+  autopilot_set_mode(MODE_STARTUP);
+}
+
+
+static inline void autopilot_check_in_flight_no_rc( bool_t motors_on ) {
+  if (autopilot_in_flight) {
+    if (autopilot_in_flight_counter > 0) {
+      if (stabilization_cmd[COMMAND_THRUST] == 0) {
+        autopilot_in_flight_counter--;
+        if (autopilot_in_flight_counter == 0) {
+          autopilot_in_flight = FALSE;
+        }
+      }
+      else {  /* !THROTTLE_STICK_DOWN */
+        autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+      }
+    }
+  }
+  else { /* not in flight */
+    if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
+        motors_on) {
+      if (stabilization_cmd[COMMAND_THRUST] > 0) {
+        autopilot_in_flight_counter++;
+        if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
+          autopilot_in_flight = TRUE;
+      }
+      else { /*  THROTTLE_STICK_DOWN */
+        autopilot_in_flight_counter = 0;
+      }
+    }
+  }
 }
 
 
@@ -118,6 +167,10 @@ INFO("Using FAILSAFE_GROUND_DETECT")
     SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
 
+  // when we dont have RC, check in flight by looking at throttle
+  if (radio_control.status != RC_OK) {
+    autopilot_check_in_flight_no_rc(autopilot_motors_on);
+  }
 }
 
 
@@ -132,8 +185,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-        stab_att_sp_euler.phi = 0;
-        stab_att_sp_euler.theta = 0;
+        stabilization_attitude_set_failsafe_setpoint();
         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
         break;
 #endif
@@ -156,6 +208,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       case AP_MODE_ATTITUDE_Z_HOLD:
         guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
         break;
+      case AP_MODE_FORWARD:
+        guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
+        break;
       case AP_MODE_CARE_FREE_DIRECT:
         guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
         break;
@@ -174,8 +229,8 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
+        guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
         break;
 #endif
       case AP_MODE_KILL:
@@ -186,6 +241,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       case AP_MODE_ATTITUDE_DIRECT:
       case AP_MODE_HOVER_DIRECT:
       case AP_MODE_CARE_FREE_DIRECT:
+      case AP_MODE_FORWARD:
         guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
         break;
       case AP_MODE_RATE_RC_CLIMB:

@@ -55,7 +55,7 @@ void electrical_init(void) {
 #endif
 
   /* measure current if available, otherwise estimate it */
-#if defined ADC_CHANNEL_CURRENT
+#if defined ADC_CHANNEL_CURRENT && !defined SITL
   adc_buf_channel(ADC_CHANNEL_CURRENT, &electrical_priv.current_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #elif defined MILLIAMP_AT_FULL_THROTTLE
 PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)

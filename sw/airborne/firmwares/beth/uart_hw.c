@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "fms_serial_port.h"
+#include "serial_port.h"
 
 
 #ifdef USE_UART0
@@ -39,7 +39,7 @@ volatile uint16_t uart0_tx_insert_idx, uart0_tx_extract_idx;
 volatile bool_t uart0_tx_running;
 uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
 
-struct FmsSerialPort* fmssp0;
+struct SerialPort* fmssp0;
 int uart0_fd;
 extern uint8_t portnum;
 
@@ -165,7 +165,7 @@ volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 volatile bool_t uart1_tx_running;
 uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 
-struct FmsSerialPort* fmssp1;
+struct SerialPort* fmssp1;
 int uart1_fd;
 
 void uart1_init( void ) {

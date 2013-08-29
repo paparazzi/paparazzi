@@ -9,7 +9,6 @@
   <firmware name="fixedwing">
     <target name="ap" board="lisa_m_1.0">
       <define name="LISA_M_LONGITUDINAL_X"/>
-      <define name="SENSOR_SYNC_SEND"/>
 
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
@@ -27,7 +26,6 @@
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
-    <define name="SENSOR_SYNC_SEND"/>
     <!-- Sensors -->
     <!--
     <subsystem name="ahrs" type="int_cmpl_quat">
@@ -60,7 +58,9 @@
 
   <modules>
     <load name="gps_ubx_ucenter.xml"/>
-    <load name="airspeed_ets.xml"/>
+    <load name="airspeed_ets.xml">
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
+    </load>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="0"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="1"/>
@@ -180,9 +180,9 @@
   </section>
 
   <section name="GLS_APPROACH" prefix="APP_">
-    <define name="ANGLE" value="5"/>
-    <define name="INTERCEPT_AF_TOD" value="10"/>
-    <define name="TARGET_SPEED" value="13"/>
+    <define name="ANGLE" value="5" unit="deg"/>
+    <define name="INTERCEPT_AF_SD" value="10" unit="m"/>
+    <define name="TARGET_SPEED" value="13" unit="m/s"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -192,6 +192,8 @@
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
+    <define name="AIRSPEED_PGAIN" value="0."/>
+
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.36700001359"/>
@@ -199,7 +201,14 @@
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.518000006676" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.307000011206"/>
 
-    <define name="THROTTLE_SLEW_LIMITER" value="1" unit="s"/>
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.0"/>
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_IGAIN" value="0.0"/>
+
+    <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
+
+    <define name="THROTTLE_SLEW_LIMITER" value="1" unit="m/s/s"/>
 
     <!--define name="AUTO_GROUNDSPEED_SETPOINT" value="15." unit="m/s"/>
     <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>

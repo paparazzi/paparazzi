@@ -32,6 +32,7 @@
 
 extern void stabilization_rate_init(void);
 extern void stabilization_rate_read_rc(void);
+extern void stabilization_rate_read_rc_switched_sticks(void);
 extern void stabilization_rate_run(bool_t in_flight);
 extern void stabilization_rate_enter(void);
 

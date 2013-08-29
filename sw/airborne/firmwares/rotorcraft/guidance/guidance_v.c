@@ -24,32 +24,43 @@
  *
  */
 
-#define GUIDANCE_V_C
+#include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
-
 
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
-// #include "booz_fms.h" FIXME
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "state.h"
 
 #include "math/pprz_algebra_int.h"
 
-#include "generated/airframe.h"
 
-
-/* warn if some gains are still negative */
+/* error if some gains are negative */
 #if (GUIDANCE_V_HOVER_KP < 0) ||                   \
   (GUIDANCE_V_HOVER_KD < 0)   ||                   \
   (GUIDANCE_V_HOVER_KI < 0)
-#warning "ALL control gains are now positive!!!"
+#error "ALL control gains must be positive!!!"
 #endif
 
-#if defined GUIDANCE_V_INV_M
-#warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
+
+/* If only GUIDANCE_V_NOMINAL_HOVER_THROTTLE is defined,
+ * disable the adaptive throttle estimation by default.
+ * Otherwise enable adaptive estimation by default.
+ */
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+#  ifndef GUIDANCE_V_ADAPT_THROTTLE_ENABLED
+#    define GUIDANCE_V_ADAPT_THROTTLE_ENABLED FALSE
+#  endif
+#else
+#  define GUIDANCE_V_NOMINAL_HOVER_THROTTLE 0.4
+#  ifndef GUIDANCE_V_ADAPT_THROTTLE_ENABLED
+#    define GUIDANCE_V_ADAPT_THROTTLE_ENABLED TRUE
+#  endif
 #endif
+PRINT_CONFIG_VAR(GUIDANCE_V_NOMINAL_HOVER_THROTTLE)
+PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_THROTTLE_ENABLED)
+
 
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
@@ -57,6 +68,7 @@ int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
 
 float guidance_v_nominal_throttle;
+bool_t guidance_v_adapt_throttle_enabled;
 
 
 /** Direct throttle from radio control.
@@ -91,7 +103,7 @@ int32_t guidance_v_z_sum_err;
   }
 
 
-__attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flight);
+void run_hover_loop(bool_t in_flight);
 
 
 void guidance_v_init(void) {
@@ -104,9 +116,8 @@ void guidance_v_init(void) {
 
   guidance_v_z_sum_err = 0;
 
-#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
   guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
-#endif
+  guidance_v_adapt_throttle_enabled = GUIDANCE_V_ADAPT_THROTTLE_ENABLED;
 
   gv_adapt_init();
 }
@@ -165,6 +176,10 @@ void guidance_v_run(bool_t in_flight) {
   // AKA SUPERVISION and co
   if (in_flight) {
     gv_adapt_run(stateGetAccelNed_i()->z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
+  }
+  else {
+    /* reset estimate while not in_flight */
+    gv_adapt_init();
   }
 
   switch (guidance_v_mode) {
@@ -250,7 +265,7 @@ void guidance_v_run(bool_t in_flight) {
 
 #define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
 
-__attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flight) {
+void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
   int64_t tmp  = gv_z_ref>>(GV_Z_REF_FRAC - INT32_POS_FRAC);
@@ -271,13 +286,17 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
     guidance_v_z_sum_err = 0;
 
   /* our nominal command : (g + zdd)*m   */
-#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
-  const int32_t inv_m = BFP_OF_REAL(9.81/(guidance_v_nominal_throttle*MAX_PPRZ), FF_CMD_FRAC);
-#else
-  const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
-#endif
+  int32_t inv_m;
+  if (guidance_v_adapt_throttle_enabled) {
+    inv_m =  gv_adapt_X >> (GV_ADAPT_X_FRAC - FF_CMD_FRAC);
+  }
+  else {
+    /* use the fixed nominal throttle */
+    inv_m = BFP_OF_REAL(9.81 / (guidance_v_nominal_throttle * MAX_PPRZ), FF_CMD_FRAC);
+  }
+
   const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
-                          (guidance_v_zdd_ref<<(FF_CMD_FRAC - INT32_ACCEL_FRAC));
+                          (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
   guidance_v_ff_cmd = g_m_zdd / inv_m;
   int32_t cphi,ctheta,cphitheta;

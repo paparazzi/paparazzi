@@ -49,6 +49,7 @@ struct AhrsFloatCmpl {
   bool_t correct_gravity;
   bool_t use_gravity_heuristic;
   bool_t heading_aligned;
+  struct FloatVect3 mag_h;
 
   /*
      Holds float version of IMU alignement

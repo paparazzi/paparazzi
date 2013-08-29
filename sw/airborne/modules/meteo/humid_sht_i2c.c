@@ -145,7 +145,7 @@ void humid_sht_event_i2c( void ) {
       else {
         /* checksum error, restart */
         sht_status = SHT2_IDLE;
-        sht_trans.status == I2CTransDone;
+        sht_trans.status = I2CTransDone;
       }
       break;
 

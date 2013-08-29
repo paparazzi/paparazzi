@@ -2,10 +2,26 @@
 
 <module name="baro_ets" dir="sensors">
   <doc>
-    <description>Baro ETS (I2C)</description>
-    <define name="BARO_ETS_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
-    <define name="BARO_ETS_SCALE" value="sensor scale factor"/>
-    <define name="BARO_ETS_TELEMETRY" description="flag to transmit the data as it is acquired"/>
+    <description>
+      Baro ETS (I2C).
+      Driver for the EagleTree Systems Baro Sensor.
+      Has only been tested with V3 of the sensor hardware.
+
+      Notes:
+      Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
+      Sensor should be in the proprietary mode (default) and not in 3rd party mode.
+
+      Sensor module wire assignments:
+      - Red wire: 5V
+      - White wire: Ground
+      - Yellow wire: SDA
+      - Brown wire: SCL
+
+    </description>
+    <define name="BARO_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
+    <define name="BARO_ETS_SCALE" value="scale" description="sensor scale factor (default: 1.8)"/>
+    <define name="BARO_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
+    <define name="BARO_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
 
   <header>

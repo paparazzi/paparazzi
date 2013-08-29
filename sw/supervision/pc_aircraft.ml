@@ -331,7 +331,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
         | Tree t ->
             List.iter (fun n -> Gtk_tools.add_to_tree t n) names
         );
-	save_callback gui ac_combo model ()
+        save_callback gui ac_combo model ();
+        let ac_name = Gtk_tools.combo_value ac_combo in
+        update_params ac_name
       in
       Utils.choose_xml_file name subdir cb in
     ignore (button_browse#connect#clicked ~callback);
@@ -396,6 +398,10 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:s
   let callback = fun () ->
     let ac_name = Gtk_tools.combo_value ac_combo
     and target = Gtk_tools.combo_value target_combo in
-    Utils.command ~file gui log ac_name (sprintf "%s.upload" target) in
+    let target_cmd = if gui#checkbutton_printconfig#active then
+        sprintf "PRINT_CONFIG=1 %s.upload" target
+      else
+        sprintf "%s.upload" target in
+    Utils.command ~file gui log ac_name target_cmd in
   ignore (gui#button_upload#connect#clicked ~callback)
 

@@ -359,4 +359,8 @@ extern bool_t spi_slave_wait(struct spi_periph* p);
 /** @}*/
 /** @}*/
 
+#if SPI_SLAVE_HS
+extern void spi_slave_hs_init(void);
+#endif
+
 #endif /* SPI_H */

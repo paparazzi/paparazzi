@@ -23,15 +23,7 @@
 # Quiet compilation
 Q=@
 
-LBITS := $(shell getconf LONG_BIT)
-ifeq ($(LBITS),64)
-   FPIC=-fPIC
-   OCAMLCFLAGS=-thread -ccopt -fPIC
-else
-   FPIC=
-   OCAMLCFLAGS=-thread
-endif
-FPIC=-fPIC
+OCAMLCFLAGS=-thread -ccopt -fPIC
 
 include ../../Makefile.ocaml
 
@@ -42,6 +34,11 @@ LIBSX=$(LIBS:.cma=.cmxa)
 INCLUDES= -I ../multimon
 PKG = -package pprz.xlib
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib
+
+LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.init 2>/dev/null)
+ifeq ($(LABLGTK2INIT),)
+LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.auto-init 2>/dev/null)
+endif
 
 ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
@@ -58,7 +55,7 @@ $(MAIN) : $(CMO)
 
 $(MAIN).opt : $(CMX)
 	@echo OOL $@
-	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,lablgtk2.init -linkpkg $(CMX) -o $@
+	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,$(LABLGTK2INIT) -linkpkg $(CMX) -o $@
 
 
 %.cmo: %.ml
@@ -100,7 +97,7 @@ clean:
 
 
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` $(FPIC)
+CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` -fPIC
 LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lglibivy
 
 

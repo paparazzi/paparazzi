@@ -20,14 +20,11 @@
  */
 
 /** @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h
- *  Top level Rotorcraft attitude reference generation include.
- *  Automatically includes the actual implementation headers.
+ *  Common rotorcraft attitude reference generation include.
  */
 
 #ifndef STABILIZATION_ATTITUDE_REF_H
 #define STABILIZATION_ATTITUDE_REF_H
-
-#include STABILIZATION_ATTITUDE_REF_TYPE_H
 
 #define SATURATE_SPEED_TRIM_ACCEL() {                   \
     if (stab_att_ref_rate.p >= REF_RATE_MAX_P) {		\
@@ -61,5 +58,6 @@
         stab_att_ref_accel.r = 0;                       \
     }                                                   \
   }
+
 
 #endif /* STABILIZATION_ATTITUDE_REF_H */

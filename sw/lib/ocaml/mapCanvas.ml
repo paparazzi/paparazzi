@@ -152,6 +152,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let canvas = GnoCanvas.canvas ~packing:(frame#pack ~expand:true) () in
   let background = GnoCanvas.group canvas#root
   and still = GnoCanvas.group canvas#root in
+  (* set a black rectangle as background to catch mouse event even without maps loaded *)
+  let _ = GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background in
   (* create several layers of canvas group to display the map in correct order *)
   let maps = Array.init (Gm.zoom_max - Gm.zoom_min + 1) (fun _ -> GnoCanvas.group background) in
   let view_cbs = Hashtbl.create 3 in (* Store for view event callback *)
@@ -274,7 +276,6 @@ object (self)
 
     canvas#set_center_scroll_region false ;
     canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
-  (*       ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background); *)
 
   )
 
@@ -490,7 +491,7 @@ object (self)
     end;
     false
 
-  method switch_background = fun x -> if x then background#show () else background#hide ()
+  method switch_background = fun x -> if x then Array.iter (fun m -> m#show ()) maps else Array.iter (fun m -> m#hide ()) maps
 
 
   method key_press = fun ev ->

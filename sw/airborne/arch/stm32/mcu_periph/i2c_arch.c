@@ -28,10 +28,14 @@
 
 #include "mcu_periph/i2c.h"
 
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/f1/gpio.h>
+#include BOARD_CONFIG
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/scb.h>
-#include <libopencm3/stm32/f1/nvic.h>
+
+#include "mcu_periph/gpio.h"
 
 
 #ifdef I2C_DEBUG_LED
@@ -67,7 +71,7 @@ static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
 #define __I2C_REG_CRITICAL_ZONE_STOP	__enable_irq();
 
 
-static inline void PPRZ_I2C_SEND_STOP(u32 i2c)
+static inline void PPRZ_I2C_SEND_STOP(uint32_t i2c)
 {
   // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
   I2C_CR1(i2c) |= I2C_CR1_STOP;
@@ -84,7 +88,7 @@ static inline void PPRZ_I2C_SEND_STOP(u32 i2c)
 
 static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 {
-  u32 i2c = (u32) periph->reg_addr;
+  uint32_t i2c = (uint32_t) periph->reg_addr;
 
   // Reset the buffer pointer to the first byte
   periph->idx_buf = 0;
@@ -130,7 +134,7 @@ enum STMI2CSubTransactionStatus {
 
 // Doc ID 13902 Rev 11 p 710/1072
 // Transfer Sequence Diagram for Master Transmitter
-static inline enum STMI2CSubTransactionStatus stmi2c_send(u32 i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
+static inline enum STMI2CSubTransactionStatus stmi2c_send(uint32_t i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
 {
   uint16_t SR1 = I2C_SR1(i2c);
 
@@ -211,7 +215,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_send(u32 i2c, struct i2c_pe
 
 // Doc ID 13902 Rev 11 p 714/1072
 // Transfer Sequence Diagram for Master Receiver for N=1
-static inline enum STMI2CSubTransactionStatus stmi2c_read1(u32 i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
+static inline enum STMI2CSubTransactionStatus stmi2c_read1(uint32_t i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
 {
   uint16_t SR1 = I2C_SR1(i2c);
 
@@ -274,7 +278,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(u32 i2c, struct i2c_p
 
 // Doc ID 13902 Rev 11 p 713/1072
 // Transfer Sequence Diagram for Master Receiver for N=2
-static inline enum STMI2CSubTransactionStatus stmi2c_read2(u32 i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
+static inline enum STMI2CSubTransactionStatus stmi2c_read2(uint32_t i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
 {
   uint16_t SR1 = I2C_SR1(i2c);
 
@@ -344,7 +348,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(u32 i2c, struct i2c_p
 
 // Doc ID 13902 Rev 11 p 712/1072
 // Transfer Sequence Diagram for Master Receiver for N>2
-static inline enum STMI2CSubTransactionStatus stmi2c_readmany(u32 i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
+static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, struct i2c_periph *periph, struct i2c_transaction *trans)
 {
   uint16_t SR1 = I2C_SR1(i2c);
 
@@ -469,51 +473,51 @@ static inline void i2c_error(struct i2c_periph *periph)
   uint8_t err_nr = 0;
 #endif
   periph->errors->er_irq_cnt;
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
     periph->errors->ack_fail_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_AF;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_AF;
 #ifdef I2C_DEBUG_LED
     err_nr = 1;
 #endif
   }
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_BERR) != 0) {     /* Misplaced Start or Stop condition */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_BERR) != 0) {     /* Misplaced Start or Stop condition */
     periph->errors->miss_start_stop_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_BERR;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_BERR;
 #ifdef I2C_DEBUG_LED
     err_nr = 2;
 #endif
   }
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_ARLO) != 0) {     /* Arbitration lost */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_ARLO) != 0) {     /* Arbitration lost */
     periph->errors->arb_lost_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_ARLO;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_ARLO;
 #ifdef I2C_DEBUG_LED
     err_nr = 3;
 #endif
   }
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_OVR) != 0) {      /* Overrun/Underrun */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_OVR) != 0) {      /* Overrun/Underrun */
     periph->errors->over_under_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_OVR;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_OVR;
 #ifdef I2C_DEBUG_LED
     err_nr = 4;
 #endif
   }
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_PECERR) != 0) {   /* PEC Error in reception */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_PECERR) != 0) {   /* PEC Error in reception */
     periph->errors->pec_recep_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_PECERR;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_PECERR;
 #ifdef I2C_DEBUG_LED
     err_nr = 5;
 #endif
   }
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_TIMEOUT) != 0) {  /* Timeout or Tlow error */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_TIMEOUT) != 0) {  /* Timeout or Tlow error */
     periph->errors->timeout_tlow_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_TIMEOUT;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_TIMEOUT;
 #ifdef I2C_DEBUG_LED
     err_nr = 6;
 #endif
   }
-  if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_SMBALERT) != 0) { /* SMBus alert */
+  if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_SMBALERT) != 0) { /* SMBus alert */
     periph->errors->smbus_alert_cnt++;
-    I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_SMBALERT;
+    I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_SMBALERT;
 #ifdef I2C_DEBUG_LED
     err_nr = 7;
 #endif
@@ -527,7 +531,7 @@ static inline void i2c_error(struct i2c_periph *periph)
 }
 
 
-static inline void stmi2c_clear_pending_interrupts(u32 i2c)
+static inline void stmi2c_clear_pending_interrupts(uint32_t i2c)
 {
   uint16_t SR1 = I2C_SR1(i2c);
 
@@ -644,7 +648,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
 #endif
 
   // Save Some Direct Access to the I2C Registers ...
-  u32 i2c = (u32) periph->reg_addr;
+  uint32_t i2c = (uint32_t) periph->reg_addr;
 
   /////////////////////////////
   // Check if we were ready ...
@@ -878,8 +882,6 @@ void i2c1_hw_init(void) {
 
   i2c1.reg_addr = (void *)I2C1;
   i2c1.init_struct = NULL;
-  i2c1.scl_pin = GPIO_I2C1_SCL;
-  i2c1.sda_pin = GPIO_I2C1_SDA;
   i2c1.errors = &i2c1_errors;
   i2c1_watchdog_counter = 0;
 
@@ -908,12 +910,19 @@ void i2c1_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C1 clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C1EN);
-  /* Enable GPIOB clock */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
+  /* Enable GPIO clock */
+  gpio_enable_clock(I2C1_GPIO_PORT);
+#if defined(STM32F1)
+  gpio_set_mode(I2C1_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-                i2c1.scl_pin | i2c1.sda_pin);
+                I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+#elif defined(STM32F4)
+  gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                  I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+  gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                          I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+  gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+#endif
 
   i2c_reset(I2C1);
 
@@ -935,7 +944,7 @@ void i2c1_hw_init(void) {
 }
 
 void i2c1_ev_isr(void) {
-  u32 i2c = (u32) i2c1.reg_addr;
+  uint32_t i2c = (uint32_t) i2c1.reg_addr;
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c_irq(&i2c1);
   i2c1_watchdog_counter = 0;
@@ -943,7 +952,7 @@ void i2c1_ev_isr(void) {
 }
 
 void i2c1_er_isr(void) {
-  u32 i2c = (u32) i2c1.reg_addr;
+  uint32_t i2c = (uint32_t) i2c1.reg_addr;
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c_irq(&i2c1);
   i2c1_watchdog_counter = 0;
@@ -967,8 +976,6 @@ void i2c2_hw_init(void) {
 
   i2c2.reg_addr = (void *)I2C2;
   i2c2.init_struct = NULL;
-  i2c2.scl_pin = GPIO_I2C2_SCL;
-  i2c2.sda_pin = GPIO_I2C2_SDA;
   i2c2.errors = &i2c2_errors;
   i2c2_watchdog_counter = 0;
 
@@ -992,12 +999,20 @@ void i2c2_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C2 clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C2EN);
-  /* Enable GPIOB clock */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_2_MHZ,
+  /* Enable GPIO clock */
+  gpio_enable_clock(I2C2_GPIO_PORT);
+#if defined(STM32F1)
+  gpio_set_mode(I2C2_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-                i2c2.scl_pin | i2c2.sda_pin);
+                I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+#elif defined(STM32F4)
+  gpio_mode_setup(I2C2_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                  I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+  gpio_set_output_options(I2C2_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                          I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+  gpio_set_af(I2C2_GPIO_PORT, GPIO_AF4,
+              I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+#endif
 
   i2c_reset(I2C2);
 
@@ -1018,7 +1033,7 @@ void i2c2_hw_init(void) {
 }
 
 void i2c2_ev_isr(void) {
-  u32 i2c = (u32) i2c2.reg_addr;
+  uint32_t i2c = (uint32_t) i2c2.reg_addr;
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c_irq(&i2c2);
   i2c2_watchdog_counter = 0;
@@ -1026,7 +1041,7 @@ void i2c2_ev_isr(void) {
 }
 
 void i2c2_er_isr(void) {
-  u32 i2c = (u32) i2c2.reg_addr;
+  uint32_t i2c = (uint32_t) i2c2.reg_addr;
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c_irq(&i2c2);
   i2c2_watchdog_counter = 0;
@@ -1034,6 +1049,94 @@ void i2c2_er_isr(void) {
 }
 
 #endif /* USE_I2C2 */
+
+
+#if defined USE_I2C3 && defined STM32F4
+
+/** default I2C3 clock speed */
+#ifndef I2C3_CLOCK_SPEED
+#define I2C3_CLOCK_SPEED 300000
+#endif
+PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
+
+struct i2c_errors i2c3_errors;
+volatile uint32_t i2c3_watchdog_counter;
+
+void i2c3_hw_init(void) {
+
+  i2c3.reg_addr = (void *)I2C3;
+  i2c3.init_struct = NULL;
+  i2c3.errors = &i2c3_errors;
+  i2c3_watchdog_counter = 0;
+
+  /* zeros error counter */
+  ZEROS_ERR_COUNTER(i2c3_errors);
+
+  /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
+  //i2c_reset(I2C3);
+
+  /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
+  scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+
+  /* Configure and enable I2C3 event interrupt --------------------------------*/
+  nvic_set_priority(NVIC_I2C3_EV_IRQ, 0);
+  nvic_enable_irq(NVIC_I2C3_EV_IRQ);
+
+  /* Configure and enable I2C3 err interrupt ----------------------------------*/
+  nvic_set_priority(NVIC_I2C3_ER_IRQ, 1);
+  nvic_enable_irq(NVIC_I2C3_ER_IRQ);
+
+  /* Enable peripheral clocks -------------------------------------------------*/
+  /* Enable I2C3 clock */
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C3EN);
+  /* Enable GPIO clock */
+  gpio_enable_clock(I2C3_GPIO_PORT_SCL);
+  gpio_mode_setup(I2C3_GPIO_PORT_SCL, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
+  gpio_set_output_options(I2C3_GPIO_PORT_SCL, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                          I2C3_GPIO_SCL);
+  gpio_set_af(I2C3_GPIO_PORT_SCL, GPIO_AF4, I2C3_GPIO_SCL);
+
+  gpio_enable_clock(I2C3_GPIO_PORT_SDA);
+  gpio_mode_setup(I2C3_GPIO_PORT_SDA, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
+  gpio_set_output_options(I2C3_GPIO_PORT_SDA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                          I2C3_GPIO_SDA);
+  gpio_set_af(I2C3_GPIO_PORT_SDA, GPIO_AF4, I2C3_GPIO_SDA);
+
+  i2c_reset(I2C3);
+
+  // enable peripheral
+  i2c_peripheral_enable(I2C3);
+
+  /*
+   * XXX: there is a function to do that already in libopencm3 but I am not
+   * sure if it is correct, using direct register instead (esden)
+   */
+  //i2c_set_own_7bit_slave_address(I2C3, 0);
+  I2C_OAR1(I2C3) = 0 | 0x4000;
+
+  // enable error interrupts
+  I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+
+  i2c_setbitrate(&i2c3, I2C3_CLOCK_SPEED);
+}
+
+void i2c3_ev_isr(void) {
+  uint32_t i2c = (uint32_t) i2c3.reg_addr;
+  I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
+  i2c_irq(&i2c3);
+  i2c3_watchdog_counter = 0;
+  I2C_CR2(i2c) |= I2C_CR2_ITERREN;
+}
+
+void i2c3_er_isr(void) {
+  uint32_t i2c = (uint32_t) i2c3.reg_addr;
+  I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
+  i2c_irq(&i2c3);
+  i2c3_watchdog_counter = 0;
+  I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
+}
+
+#endif /* USE_I2C3 */
 
 //////////////////////////////////////////////////
 // Set Bitrate to Match your application:
@@ -1048,7 +1151,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
     volatile int devider;
     volatile int risetime;
 
-    u32 i2c = (u32) periph->reg_addr;
+    uint32_t i2c = (uint32_t) periph->reg_addr;
 
     /*****************************************************
     Bitrate:
@@ -1199,6 +1302,10 @@ void i2c_event(void)
     }
   }
 #endif
+
+#ifdef USE_I2C3
+  i2c3_watchdog_counter++;
+#endif
 }
 
 /////////////////////////////////////////////////////////
@@ -1209,8 +1316,12 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
   uint8_t temp;
   temp = periph->trans_insert_idx + 1;
   if (temp >= I2C_TRANSACTION_QUEUE_LEN) temp = 0;
-  if (temp == periph->trans_extract_idx)
-    return FALSE;                          // queue full
+  if (temp == periph->trans_extract_idx) {
+    // queue full
+    periph->errors->queue_full_cnt++;
+    t->status = I2CTransFailed;
+    return FALSE;
+  }
 
   t->status = I2CTransPending;
 
@@ -1254,7 +1365,7 @@ bool_t i2c_idle(struct i2c_periph* periph)
   // This is actually a difficult function:
   // -simply reading the status flags can clear bits and corrupt the transaction
 
-  u32 i2c = (u32) periph->reg_addr;
+  uint32_t i2c = (uint32_t) periph->reg_addr;
 
 #ifdef I2C_DEBUG_LED
 #ifdef USE_I2C1

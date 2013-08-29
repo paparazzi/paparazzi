@@ -35,6 +35,8 @@
 #include "led.h"
 #endif
 
+void sys_tick_handler(void);
+
 /** Initialize SysTick.
  * Generate SysTick interrupt every sys_time.resolution_cpu_ticks
  */

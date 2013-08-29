@@ -382,6 +382,7 @@ __attribute__ ((always_inline)) static inline void SpiSlaveAutomaton(struct spi_
 #if SPI_MASTER
 
 #if USE_SPI0
+#error "SPI0 is currently not implemented in the mcu_periph/spi HAL for the LPC!"
 
 // void spi0_ISR(void) __attribute__((naked));
 //

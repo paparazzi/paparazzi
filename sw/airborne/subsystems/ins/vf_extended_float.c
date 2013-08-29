@@ -30,6 +30,8 @@
  */
 
 #include "subsystems/ins/vf_extended_float.h"
+#include "generated/airframe.h"
+#include "std.h"
 
 #define DEBUG_VFF_EXTENDED 1
 
@@ -38,6 +40,14 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 #endif
+
+#ifndef INS_PROPAGATE_FREQUENCY
+#define INS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+PRINT_CONFIG_VAR(INS_PROPAGATE_FREQUENCY)
+
+#define DT_VFILTER (1./(INS_PROPAGATE_FREQUENCY))
+
 
 /*
 

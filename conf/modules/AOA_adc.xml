@@ -10,15 +10,13 @@
   </doc>
 
   <header>
-    <file name="AOA_adc.h"/>
+    <file name="aoa_adc.h"/>
   </header>
-  <init fun="AOA_adc_init()"/>
-  <periodic fun="AOA_adc_update()" freq="60."/>
+  <init fun="aoa_adc_init()"/>
+  <periodic fun="aoa_adc_update()" freq="60."/>
 
-  <makefile>
-    <file name="AOA_adc.c"/>
-  </makefile>
   <makefile target="ap">
+    <file name="aoa_adc.c"/>
     <define name="ADC_CHANNEL_AOA" value="$(ADC_AOA)"/>
     <define name="USE_$(ADC_AOA)"/>
   </makefile>

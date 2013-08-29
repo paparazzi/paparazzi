@@ -149,7 +149,7 @@ void CHIMU_Init(CHIMU_PARSER_DATA   *pstData)
 
 unsigned char CHIMU_Parse(
                           unsigned char btData,           /* input byte stream buffer */
-                          unsigned char bInputType,       /* for future use if special builds of CHIMU data are performed */
+                          unsigned char bInputType __attribute__((unused)),       /* for future use if special builds of CHIMU data are performed */
                           CHIMU_PARSER_DATA   *pstData)   /* resulting data           */
 {
 
@@ -287,7 +287,7 @@ static unsigned char BitTest (unsigned char input, unsigned char n)
   //Test a bit in n and return TRUE or FALSE
   if ( input & (1 << n)) return TRUE; else return FALSE;
 }
-unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA *pstData)
+unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID __attribute__((unused)), unsigned char *pPayloadData, CHIMU_PARSER_DATA *pstData)
 {
   //Msgs from CHIMU are off limits (i.e.any CHIMU messages sent up the uplink should go to
   //CHIMU).
