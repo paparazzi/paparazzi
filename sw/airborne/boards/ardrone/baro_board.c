@@ -69,7 +69,7 @@ static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
   return (baro_calibration.b5 + 8) >> 4;
 }
 
-void baro_periodic(void) 
+void baro_periodic(void)
 {
 }
 

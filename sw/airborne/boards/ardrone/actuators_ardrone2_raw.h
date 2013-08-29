@@ -52,6 +52,8 @@ uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 extern void actuators_ardrone_commit(void);
 extern void actuators_ardrone_init(void);
+extern void actuators_ardrone_error(void);
+
 
 int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen);
 void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint16_t pwm3);

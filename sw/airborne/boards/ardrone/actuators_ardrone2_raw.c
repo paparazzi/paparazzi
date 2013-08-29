@@ -123,7 +123,10 @@ void actuators_ardrone_init(void)
   gpio_set(107,1);
 
   //all leds green
-//  actuators_ardrone_set_leds(MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDGREEN);
+  //actuators_ardrone_set_leds(0,0,0,0);
+  //actuators_ardrone_set_leds(MOT_LEDRED, MOT_LEDRED, MOT_LEDRED, MOT_LEDRED);
+  //actuators_ardrone_set_leds(MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDGREEN);
+  actuators_ardrone_set_leds(MOT_LEDRED,MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDRED);
 }
 
 int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen) {
@@ -134,6 +137,13 @@ int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen) {
 void actuators_ardrone_commit(void)
 {
   actuators_ardrone_set_pwm(actuators_pwm_values[0], actuators_pwm_values[1], actuators_pwm_values[2], actuators_pwm_values[3]);
+}
+
+uint8_t ardrone_error_flag = 0;
+
+void actuators_ardrone_error(void)
+{
+  ardrone_error_flag = 1;
 }
 
 /**
@@ -149,17 +159,49 @@ void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint
   cmd[3] = ((pwm2&0x1ff)<<2) | ((pwm3&0x1ff)>>7);
   cmd[4] = ((pwm3&0x1ff)<<1);
   write(mot_fd, cmd, 5);
+
+  if (ardrone_error_flag == 1)
+  {
+    static uint8_t blink = 0;
+    blink++;
+    if (blink == 80)
+    {
+      actuators_ardrone_set_leds(MOT_LEDRED, MOT_LEDRED, MOT_LEDRED, MOT_LEDRED);
+      blink = 0;
+    }
+    else if (blink == 40)
+    {
+      actuators_ardrone_set_leds(MOT_LEDOFF, MOT_LEDOFF, MOT_LEDOFF, MOT_LEDOFF);
+    }
+    else if (blink == 20)
+    {
+      //actuators_ardrone_set_leds(MOT_LEDORANGE, MOT_LEDORANGE, MOT_LEDOFF, MOT_LEDORANGE);
+    }
+  }
+
 }
 
 /**
  * Write LED command
  * cmd = 011grgrg rgrxxxxx (this is ardrone1 format, we need ardrone2 format)
  */
+
+/*
+
+led0 = RearLeft
+led1 = RearRight
+led2 = FrontRight
+led3 = FrontLeft
+
+*/
+
 void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_t led3)
 {
   uint8_t cmd[2];
-  cmd[0]=0x60 | ((led0&3)<<3) | ((led1&3)<<1) | ((led2&3)>>1);
-  cmd[1]=((led2&3)<<7) | ((led3&3)<<5);
+
+  cmd[0]=0x60 | ((led0&1)<<4) | ((led1&1)<<3) | ((led2&1)<<2) | ((led3&1) <<1);
+  cmd[1]=((led0&2)<<3) | ((led1&2)<<2) | ((led2&2)<<1) | ((led3&2)<<0);
+
   write(mot_fd, cmd, 2);
 }
 
