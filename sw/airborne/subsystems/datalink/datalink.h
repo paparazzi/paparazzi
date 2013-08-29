@@ -46,6 +46,7 @@
 #define PPRZ 1
 #define XBEE 2
 #define UDP 3
+#define SUPERBITRF 4
 
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
@@ -90,10 +91,16 @@ EXTERN void dl_parse_msg(void);
 #elif defined DATALINK && DATALINK == UDP
 
 #define DatalinkEvent() {                       \
-    UdpCheckAndParse();                        \
+    UdpCheckAndParse();                         \
     DlCheckAndParse();                          \
   }
 
+#elif defined DATALINK && DATALINK == SUPERBITRF
+
+#define DatalinkEvent() {                       \
+    SuperbitRFCheckAndParse();                  \
+    DlCheckAndParse();                          \
+  }
 
 #else
 

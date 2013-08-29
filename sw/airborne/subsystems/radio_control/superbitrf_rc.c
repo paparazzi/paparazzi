@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2013 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,25 +20,18 @@
  */
 
 /**
- * @file mcu_periph/gpio.h
- *
- * Some architecture independent helper functions for GPIOs.
+ * @file subsystems/radio_control/superbitrf_rc.c
+ * DSM2 and DSMX radio control implementation for the cyrf6936 2.4GHz radio chip trough SPI
  */
 
-#ifndef MCU_PERIPH_GPIO_H
-#define MCU_PERIPH_GPIO_H
-
-#include "std.h"
-#include "mcu_periph/gpio_arch.h"
+#include "superbitrf_rc.h"
+#include "subsystems/radio_control.h"
 
 /**
- * Setup gpio pin as generic output.
+ * Initialization
  */
-extern void gpio_setup_output(uint32_t port, uint16_t pin);
-
-/**
- * Setup a gpio pin as generic input.
- */
-extern void gpio_setup_input(uint32_t port, uint16_t pin);
-
-#endif /* MCU_PERIPH_GPIO_H */
+//#if DATALINK == SUPERBITRF
+//void radio_control_impl_init(void) {}
+//#else
+void radio_control_impl_init(void) { superbitrf_init(); }
+//#endif
