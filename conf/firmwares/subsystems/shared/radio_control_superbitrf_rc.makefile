@@ -12,4 +12,4 @@ endif
 ap.srcs += peripherals/cyrf6936.c \
 		   $(SRC_SUBSYSTEMS)/datalink/superbitrf.c\
            $(SRC_SUBSYSTEMS)/radio_control.c \
-           $(SRC_SUBSYSTEMS)/radio_control/superbitrf_rc.c 
+           $(SRC_SUBSYSTEMS)/radio_control/superbitrf_rc.c
