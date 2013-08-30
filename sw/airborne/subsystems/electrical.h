@@ -5,9 +5,11 @@
 
 struct Electrical {
 
-  uint16_t vsupply;  ///< supply voltage in decivolts
-  int32_t current;   ///< current in milliamps
-  int32_t consumed;  ///< consumption in mAh
+  uint16_t vsupply;       ///< supply voltage in decivolts
+  int32_t  current;       ///< current in milliamps
+  int32_t  consumed;      ///< consumption in mAh
+  bool_t   bat_low;       ///< battery low status
+  bool_t   bat_critic;  ///< battery critical status
 
 };
 
