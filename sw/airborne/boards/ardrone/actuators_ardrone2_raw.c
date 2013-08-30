@@ -81,7 +81,7 @@ void actuators_ardrone_init(void)
   tcsetattr(mot_fd, TCSANOW, &options);
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
-  gpio_set(176,-1);
+  gpio_set_input(176);
   gpio_set(175,0);
   gpio_set(175,1);
 
@@ -105,10 +105,10 @@ void actuators_ardrone_init(void)
   }
 
   //all select lines active
-  gpio_set(171,-1);
-  gpio_set(172,-1);
-  gpio_set(173,-1);
-  gpio_set(174,-1);
+  gpio_set(171,0);
+  gpio_set(172,0);
+  gpio_set(173,0);
+  gpio_set(174,0);
 
   //start multicast
   actuators_ardrone_cmd(0xa0,reply,1);
@@ -118,7 +118,6 @@ void actuators_ardrone_init(void)
   actuators_ardrone_cmd(0xa0,reply,1);
 
   //reset IRQ flipflop - on error 176 reads 1, this code resets 176 to 0
-  gpio_set(176,-1);
   gpio_set(175,0);
   gpio_set(175,1);
 
