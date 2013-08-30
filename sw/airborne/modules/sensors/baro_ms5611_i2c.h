@@ -21,6 +21,7 @@ extern void baro_ms5611_init(void);
 extern void baro_ms5611_read(void);
 extern void baro_ms5611_periodic_check(void);
 extern void baro_ms5611_event(void);
+extern void baro_ms5611_send_coeff(void);
 
 #define BaroMs5611UpdatePressure(_b, _h) { if (baro_ms5611.data_available) { _b = baro_ms5611.data.pressure; _h(); baro_ms5611.data_available = FALSE; } }
 
