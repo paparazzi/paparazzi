@@ -38,7 +38,15 @@ int gpio_set(int nr,int val)
   return system(cmdline);
 }
 
-#define WE_HAVE_NO_CLUE_YET
+// Option 1:
+//#define WE_HAVE_NO_CLUE_YET
+
+// Option 2:
+#define WE_MUST_TO_USE_THE_TERRIBLE_HACK
+
+// Option 3:
+//#define WE_KNOW_HOW_ARDRONE_IOCTL_WORKS_ON_DEV_GPIO
+
 
 
 #ifdef WE_HAVE_NO_CLUE_YET
@@ -46,6 +54,89 @@ int gpio_set(int nr,int val)
 int gpio_get(int nr)
 {
   return 0;
+}
+
+#endif
+
+
+
+
+#ifdef WE_MUST_TO_USE_THE_TERRIBLE_HACK
+
+FILE* ardrone_system_pipe = 0;
+
+int gpio_get(int nr)
+{
+
+  if (ardrone_system_pipe == 0)
+  {
+	  char cmdline[200];
+	  sprintf(cmdline,"/usr/sbin/gpio %d -r",nr);
+	  ardrone_system_pipe = popen(cmdline,"r");
+	  if (!ardrone_system_pipe)
+	  {
+		  return -1;
+	  }
+  }
+  else
+  {
+	  // TODO: we now call this with a large delay expecting that all data is present
+	  // if (!feof(pipe)) // Still busy
+
+	  char buff[128];
+	  char* ret = fgets(buff, 128, ardrone_system_pipe);
+	  ret = fgets(buff, 128, ardrone_system_pipe);
+	  pclose(ardrone_system_pipe);
+	  ardrone_system_pipe = 0;
+
+	  if (ret == NULL)
+	  {
+	    return -2;
+	  }
+
+	  int pin = ret[25] - '0';
+
+	  printf("GPIO_GET: %d '%d' \n", nr, pin);
+
+	  return pin;
+  }
+  return -3;
+}
+
+#endif
+
+
+
+
+
+#ifdef WE_KNOW_HOW_ARDRONE_IOCTL_WORKS_ON_DEV_GPIO
+
+#include <fcntl.h>   /* File control definitions */
+#include <errno.h>   /* Error number definitions */
+#include <sys/ioctl.h>
+
+
+#define GPIO_IOCTL_COUNT 0
+#define GPIO_IOCTL_GET 2
+
+int gpiofp = 0;
+int gpio_get(int nr)
+{
+	if (gpiofp == 0)
+	{
+		gpiofp = open("/dev/gpio",O_RDWR);
+		printf("GPIO open %d\n", gpiofp);
+		// printf("%s", errno() );
+	}
+	else
+	{
+		int gpio = nr;
+		int ret = ioctl(gpiofp, GPIO_IOCTL_GET, &gpio);
+		printf("GPIO_ %d = %d %d \n",nr,gpio, ret);
+	}
+
+	// We don't know yet
+	return 0;
 }
 
 #endif
