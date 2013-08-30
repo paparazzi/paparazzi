@@ -29,5 +29,6 @@
 //val=1 -> set gpio output hi
 //val=-1 -> set gpio as input (output hi-Z)
 int gpio_set(int nr,int val);
+int gpio_get(int nr);
 
 #endif /* GPIO_ARDRONE_H */

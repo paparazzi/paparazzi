@@ -37,3 +37,15 @@ int gpio_set(int nr,int val)
   else sprintf(cmdline,"/usr/sbin/gpio %d -d ho 0",nr);
   return system(cmdline);
 }
+
+#define WE_HAVE_NO_CLUE_YET
+
+
+#ifdef WE_HAVE_NO_CLUE_YET
+
+int gpio_get(int nr)
+{
+  return 0;
+}
+
+#endif

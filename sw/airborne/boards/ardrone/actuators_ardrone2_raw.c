@@ -117,15 +117,12 @@ void actuators_ardrone_init(void)
   actuators_ardrone_cmd(0xa0,reply,1);
   actuators_ardrone_cmd(0xa0,reply,1);
 
-  //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
+  //reset IRQ flipflop - on error 176 reads 1, this code resets 176 to 0
   gpio_set(176,-1);
   gpio_set(175,0);
   gpio_set(175,1);
 
-  //all leds green
-  //actuators_ardrone_set_leds(0,0,0,0);
-  //actuators_ardrone_set_leds(MOT_LEDRED, MOT_LEDRED, MOT_LEDRED, MOT_LEDRED);
-  //actuators_ardrone_set_leds(MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDGREEN);
+  // Left Red, Right Green
   actuators_ardrone_set_leds(MOT_LEDRED,MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDRED);
 }
 
@@ -134,13 +131,34 @@ int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen) {
   return read(mot_fd, reply, replylen);
 }
 
+#include "autopilot.h"
+
+void actuators_ardrone_motor_status(void);
+void actuators_ardrone_motor_status(void)
+{
+  // If a motor IRQ lines is set
+  if (gpio_get(176) == 1)
+  {
+    if (autopilot_motors_on)
+    {
+      // Tell paparazzi that one motor has stalled
+      autopilot_set_motors_on(FALSE);
+
+      // Toggle Flipflop reset so motors can be re-enabled
+	  gpio_set(175,0);
+      gpio_set(175,1);
+    }
+  }
+}
+
+
 void actuators_ardrone_commit(void)
 {
   actuators_ardrone_set_pwm(actuators_pwm_values[0], actuators_pwm_values[1], actuators_pwm_values[2], actuators_pwm_values[3]);
+  RunOnceEvery(100,actuators_ardrone_motor_status());
 }
 
 uint8_t ardrone_error_flag = 0;
-
 void actuators_ardrone_error(void)
 {
   ardrone_error_flag = 1;
@@ -173,27 +191,19 @@ void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint
     {
       actuators_ardrone_set_leds(MOT_LEDOFF, MOT_LEDOFF, MOT_LEDOFF, MOT_LEDOFF);
     }
-    else if (blink == 20)
-    {
-      //actuators_ardrone_set_leds(MOT_LEDORANGE, MOT_LEDORANGE, MOT_LEDOFF, MOT_LEDORANGE);
-    }
   }
-
 }
 
 /**
  * Write LED command
- * cmd = 011grgrg rgrxxxxx (this is ardrone1 format, we need ardrone2 format)
+ * cmd = 011rrrr0 000gggg0 (this is ardrone1 format, we need ardrone2 format)
+ *
+ *
+ *	led0 = RearLeft
+ *	led1 = RearRight
+ *	led2 = FrontRight
+ *	led3 = FrontLeft
  */
-
-/*
-
-led0 = RearLeft
-led1 = RearRight
-led2 = FrontRight
-led3 = FrontLeft
-
-*/
 
 void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_t led3)
 {
