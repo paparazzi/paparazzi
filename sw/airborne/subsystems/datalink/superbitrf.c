@@ -30,7 +30,7 @@
 #include "paparazzi.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
-#include <libopencm3/stm32/gpio.h>
+#include "mcu_periph/gpio.h"
 
 /* Default SuperbitRF SPI DEV */
 #ifndef SUPERBITRF_SPI_DEV

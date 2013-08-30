@@ -27,7 +27,6 @@
 #include "cyrf6936.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
-#include "mcu_periph/gpio_arch.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/radio_control.h"
 
