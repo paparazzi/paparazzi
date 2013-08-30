@@ -81,34 +81,34 @@ void actuators_ardrone_init(void)
   tcsetattr(mot_fd, TCSANOW, &options);
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
-  gpio_set(106,-1);
-  gpio_set(107,0);
-  gpio_set(107,1);
+  gpio_set(176,-1);
+  gpio_set(175,0);
+  gpio_set(175,1);
 
   //all select lines inactive
-  gpio_set(68,1);
-  gpio_set(69,1);
-  gpio_set(70,1);
-  gpio_set(71,1);
+  gpio_set(171,1);
+  gpio_set(172,1);
+  gpio_set(173,1);
+  gpio_set(174,1);
 
   //configure motors
   uint8_t reply[256];
   for(int m=0;m<4;m++) {
-    gpio_set(68+m,-1);
+    gpio_set(171+m,-1);
     actuators_ardrone_cmd(0xe0,reply,2);
     if(reply[0]!=0xe0 || reply[1]!=0x00)
     {
       printf("motor%d cmd=0x%02x reply=0x%02x\n",m+1,(int)reply[0],(int)reply[1]);
     }
     actuators_ardrone_cmd(m+1,reply,1);
-    gpio_set(68+m,1);
+    gpio_set(171+m,1);
   }
 
   //all select lines active
-  gpio_set(68,-1);
-  gpio_set(69,-1);
-  gpio_set(70,-1);
-  gpio_set(71,-1);
+  gpio_set(171,-1);
+  gpio_set(172,-1);
+  gpio_set(173,-1);
+  gpio_set(174,-1);
 
   //start multicast
   actuators_ardrone_cmd(0xa0,reply,1);
@@ -118,9 +118,9 @@ void actuators_ardrone_init(void)
   actuators_ardrone_cmd(0xa0,reply,1);
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
-  gpio_set(106,-1);
-  gpio_set(107,0);
-  gpio_set(107,1);
+  gpio_set(176,-1);
+  gpio_set(175,0);
+  gpio_set(175,1);
 
   //all leds green
   //actuators_ardrone_set_leds(0,0,0,0);
