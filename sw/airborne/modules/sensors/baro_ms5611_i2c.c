@@ -72,17 +72,10 @@ void baro_ms5611_periodic_check( void ) {
 
   ms5611_i2c_periodic_check(&baro_ms5611);
 
-  if (baro_ms5611.initialized) {
-    RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
-                                                    &baro_ms5611.data.c[0],
-                                                    &baro_ms5611.data.c[1],
-                                                    &baro_ms5611.data.c[2],
-                                                    &baro_ms5611.data.c[3],
-                                                    &baro_ms5611.data.c[4],
-                                                    &baro_ms5611.data.c[5],
-                                                    &baro_ms5611.data.c[6],
-                                                    &baro_ms5611.data.c[7]));
-  }
+#if BARO_MS5611_SEND_COEFF
+  // send coeff every 5s
+  RunOnceEvery((5*BARO_MS5611_PERIODIC_CHECK_FREQUENCY), baro_ms5611_send_coeff());
+#endif
 }
 
 /// trigger new measurement or initialize if needed
@@ -108,5 +101,19 @@ void baro_ms5611_event( void ) {
     DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
                               &baro_ms5611.data.d1, &baro_ms5611.data.d2, &fbaroms, &ftempms);
 #endif
+  }
+}
+
+void baro_ms5611_send_coeff(void) {
+  if (baro_ms5611.initialized) {
+    DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
+                               &baro_ms5611.data.c[0],
+                               &baro_ms5611.data.c[1],
+                               &baro_ms5611.data.c[2],
+                               &baro_ms5611.data.c[3],
+                               &baro_ms5611.data.c[4],
+                               &baro_ms5611.data.c[5],
+                               &baro_ms5611.data.c[6],
+                               &baro_ms5611.data.c[7]);
   }
 }
