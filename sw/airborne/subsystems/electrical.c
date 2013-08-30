@@ -19,6 +19,21 @@
 #define COMMAND_CURRENT_ESTIMATION COMMAND_THRUST
 #endif
 
+#ifndef BAT_CHECKER_DELAY
+#define BAT_CHECKER_DELAY 5
+#endif
+
+#ifndef CRITIC_BAT_LEVEL
+#error You must define CRITIC_BAT_LEVEL in airframe setup!
+#endif
+
+#ifndef LOW_BAT_LEVEL
+#error You must define LOW_BAT_LEVEL in airframe setup!
+#endif
+
+#define BAT_LOW_LEVEL     (LOW_BAT_LEVEL*10)
+#define BAT_CRIRIC_LEVEL  (CRITIC_BAT_LEVEL*10)
+
 struct Electrical electrical;
 
 #if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
@@ -49,6 +64,9 @@ static struct {
 void electrical_init(void) {
   electrical.vsupply = 0;
   electrical.current = 0;
+  
+  electrical.bat_low = FALSE;
+  electrical.bat_critic = FALSE;
 
 #if defined ADC_CHANNEL_VSUPPLY
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
@@ -64,6 +82,8 @@ PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
 }
 
 void electrical_periodic(void) {
+  static uint8_t bat_low_counter = 0;
+  static uint8_t bat_critic_counter = 0;
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
 #endif
@@ -93,4 +113,26 @@ void electrical_periodic(void) {
   electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
 #endif /* ADC_CHANNEL_CURRENT */
 
+  
+  if(electrical.vsupply < BAT_LOW_LEVEL) {
+    if(bat_low_counter)
+      bat_low_counter--;
+  } else
+    bat_low_counter = BAT_CHECKER_DELAY * 10;
+
+  if(!bat_low_counter)
+    electrical.bat_low = TRUE;
+  else
+    electrical.bat_low = FALSE;
+  
+  if(electrical.vsupply < BAT_CRIRIC_LEVEL) {
+    if(bat_critic_counter)
+      bat_critic_counter--;
+  } else
+    bat_critic_counter = BAT_CHECKER_DELAY * 10;
+
+  if(!bat_critic_counter)
+    electrical.bat_critic = TRUE;
+  else
+    electrical.bat_critic = FALSE;
 }
