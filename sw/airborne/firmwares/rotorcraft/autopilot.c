@@ -106,7 +106,7 @@ void autopilot_init(void) {
   guidance_v_init();
   stabilization_init();
 
-  /* set startup mode, propagats through to guidance h/v */
+  /* set startup mode, propagates through to guidance h/v */
   autopilot_set_mode(MODE_STARTUP);
 }
 
