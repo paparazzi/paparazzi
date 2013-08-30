@@ -21,7 +21,7 @@
  */
 
 /**
- * @file boards/lisa_m/baro_ms5611_i2c.c
+ * @file subsystems/sensors/baro_ms5611_i2c.c
  *
  * Driver for MS5611 baro via I2C.
  *
