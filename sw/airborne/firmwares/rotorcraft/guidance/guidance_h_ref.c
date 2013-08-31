@@ -190,8 +190,10 @@ void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   INT32_VECT2_RSHIFT(gh_accel_ref, gh_accel_ref, GH_REF_INV_THAU_FRAC);
 
   /* Compute route reference before saturation */
-  float f_route_ref = atan2f(-speed_sp.y, -speed_sp.x);
-  route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
+  if(speed_sp.y != 0 || speed_sp.x != 0) {
+    float f_route_ref = atan2f(-speed_sp.y, -speed_sp.x);
+    route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
+  }
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
