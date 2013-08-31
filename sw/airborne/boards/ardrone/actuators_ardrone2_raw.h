@@ -52,7 +52,6 @@ uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 extern void actuators_ardrone_commit(void);
 extern void actuators_ardrone_init(void);
-extern void actuators_ardrone_error(void);
 
 
 int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen);
