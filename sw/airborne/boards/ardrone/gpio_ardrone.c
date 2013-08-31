@@ -25,7 +25,8 @@
 #include <fcntl.h>   /* File control definitions */
 #include <errno.h>   /* Error number definitions */
 #include <sys/ioctl.h>
-#include "gpio_ardrone.h"
+
+#include "mcu_periph/gpio.h"
 
 #define GPIO_MAGIC 'p'
 #define GPIO_DIRECTION _IOW(GPIO_MAGIC, 0, struct gpio_direction)
@@ -49,22 +50,36 @@ struct gpio_direction {
     enum gpio_mode mode;
 };
 
-//val=0 -> set gpio output lo
-//val=1 -> set gpio output hi
-void gpio_set(int nr, int val)
+
+void gpio_set(uint32_t port, uint16_t pin)
 {
   struct gpio_data data;
   // Open the device if not open
   if (gpiofp == 0)
-    gpiofp = open("/dev/gpio",O_RDWR);
+	gpiofp = open("/dev/gpio",O_RDWR);
 
   // Read the GPIO value
-  data.pin = nr;
-  data.value = val;
+  data.pin = pin;
+  data.value = 1;
   ioctl(gpiofp, GPIO_WRITE, &data);
 }
 
-void gpio_set_input(int nr)
+
+void gpio_clear(uint32_t port, uint16_t pin)
+{
+  struct gpio_data data;
+  // Open the device if not open
+  if (gpiofp == 0)
+	gpiofp = open("/dev/gpio",O_RDWR);
+
+  // Read the GPIO value
+  data.pin = pin;
+  data.value = 0;
+  ioctl(gpiofp, GPIO_WRITE, &data);
+}
+
+
+void gpio_setup_input(uint32_t port, uint16_t pin)
 {
   struct gpio_direction dir;
   // Open the device if not open
@@ -72,12 +87,28 @@ void gpio_set_input(int nr)
     gpiofp = open("/dev/gpio",O_RDWR);
 
   // Read the GPIO value
-  dir.pin = nr;
+  dir.pin = pin;
   dir.mode = GPIO_INPUT;
   ioctl(gpiofp, GPIO_DIRECTION, &dir);
 }
 
-int gpio_get(int nr)
+
+void gpio_setup_output(uint32_t port, uint16_t pin)
+{
+  struct gpio_direction dir;
+  // Open the device if not open
+  if (gpiofp == 0)
+    gpiofp = open("/dev/gpio",O_RDWR);
+
+  // Read the GPIO value
+  dir.pin = pin;
+  dir.mode = GPIO_OUTPUT_HIGH;
+  ioctl(gpiofp, GPIO_DIRECTION, &dir);
+}
+
+
+
+uint16_t gpio_get(uint32_t gpioport, uint16_t pin)
 {
   struct gpio_data data;
   // Open the device if not open
@@ -85,7 +116,7 @@ int gpio_get(int nr)
     gpiofp = open("/dev/gpio",O_RDWR);
 
   // Read the GPIO value
-  data.pin = nr;
+  data.pin = pin;
   ioctl(gpiofp, GPIO_READ, &data);
   return data.value;
 }

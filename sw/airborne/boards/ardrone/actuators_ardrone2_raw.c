@@ -30,7 +30,7 @@
 
 #include "subsystems/actuators.h"
 #include "actuators_ardrone2_raw.h"
-#include "gpio_ardrone.h"
+#include "mcu_periph/gpio.h"
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <string.h>  /* String function definitions */
@@ -51,6 +51,16 @@
  * 130  3.0
  */
 int mot_fd; /**< File descriptor for the port */
+
+#define ARDRONE_GPIO_PORT	0		// Dummy for paparazzi compatibility
+
+#define ARDRONE_GPIO_PIN_MOTOR1			171
+#define ARDRONE_GPIO_PIN_MOTOR2			172
+#define ARDRONE_GPIO_PIN_MOTOR3			173
+#define ARDRONE_GPIO_PIN_MOTOR4			174
+
+#define ARDRONE_GPIO_PIN_IRQ_FLIPFLOP	175
+#define ARDRONE_GPIO_PIN_IRQ_INPUT		176
 
 void actuators_ardrone_init(void)
 {
@@ -81,34 +91,34 @@ void actuators_ardrone_init(void)
   tcsetattr(mot_fd, TCSANOW, &options);
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
-  gpio_set_input(176);
-  gpio_set(175,0);
-  gpio_set(175,1);
+  gpio_setup_input(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_INPUT);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
 
   //all select lines inactive
-  gpio_set(171,1);
-  gpio_set(172,1);
-  gpio_set(173,1);
-  gpio_set(174,1);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR1);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR2);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR3);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR4);
 
   //configure motors
   uint8_t reply[256];
   for(int m=0;m<4;m++) {
-    gpio_set(171+m,-1);
+    gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR1 + m);
     actuators_ardrone_cmd(0xe0,reply,2);
     if(reply[0]!=0xe0 || reply[1]!=0x00)
     {
       printf("motor%d cmd=0x%02x reply=0x%02x\n",m+1,(int)reply[0],(int)reply[1]);
     }
     actuators_ardrone_cmd(m+1,reply,1);
-    gpio_set(171+m,1);
+    gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR1 + m);
   }
 
   //all select lines active
-  gpio_set(171,0);
-  gpio_set(172,0);
-  gpio_set(173,0);
-  gpio_set(174,0);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR1);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR2);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR3);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR4);
 
   //start multicast
   actuators_ardrone_cmd(0xa0,reply,1);
@@ -118,8 +128,8 @@ void actuators_ardrone_init(void)
   actuators_ardrone_cmd(0xa0,reply,1);
 
   //reset IRQ flipflop - on error 176 reads 1, this code resets 176 to 0
-  gpio_set(175,0);
-  gpio_set(175,1);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
 
   // Left Red, Right Green
   actuators_ardrone_set_leds(MOT_LEDRED,MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDRED);
@@ -136,7 +146,7 @@ void actuators_ardrone_motor_status(void);
 void actuators_ardrone_motor_status(void)
 {
   // If a motor IRQ lines is set
-  if (gpio_get(176) == 1)
+  if (gpio_get(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_INPUT) == 1)
   {
     if (autopilot_motors_on)
     {
@@ -144,8 +154,8 @@ void actuators_ardrone_motor_status(void)
       autopilot_set_motors_on(FALSE);
 
       // Toggle Flipflop reset so motors can be re-enabled
-	  gpio_set(175,0);
-      gpio_set(175,1);
+	  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
     }
   }
 }
