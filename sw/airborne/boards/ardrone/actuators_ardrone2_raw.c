@@ -52,7 +52,7 @@
  */
 int mot_fd; /**< File descriptor for the port */
 
-#define ARDRONE_GPIO_PORT	0		// Dummy for paparazzi compatibility
+#define ARDRONE_GPIO_PORT				0x32524
 
 #define ARDRONE_GPIO_PIN_MOTOR1			171
 #define ARDRONE_GPIO_PIN_MOTOR2			172

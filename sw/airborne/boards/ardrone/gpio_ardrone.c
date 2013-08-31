@@ -53,6 +53,7 @@ struct gpio_direction {
 
 void gpio_set(uint32_t port, uint16_t pin)
 {
+  if (port != 0x32524) return;	// protect ardrone board from unauthorized use
   struct gpio_data data;
   // Open the device if not open
   if (gpiofp == 0)
@@ -67,6 +68,7 @@ void gpio_set(uint32_t port, uint16_t pin)
 
 void gpio_clear(uint32_t port, uint16_t pin)
 {
+  if (port != 0x32524) return;	// protect ardrone board from unauthorized use
   struct gpio_data data;
   // Open the device if not open
   if (gpiofp == 0)
@@ -81,6 +83,7 @@ void gpio_clear(uint32_t port, uint16_t pin)
 
 void gpio_setup_input(uint32_t port, uint16_t pin)
 {
+  if (port != 0x32524) return;	// protect ardrone board from unauthorized use
   struct gpio_direction dir;
   // Open the device if not open
   if (gpiofp == 0)
@@ -95,6 +98,7 @@ void gpio_setup_input(uint32_t port, uint16_t pin)
 
 void gpio_setup_output(uint32_t port, uint16_t pin)
 {
+  if (port != 0x32524) return;	// protect ardrone board from unauthorized use
   struct gpio_direction dir;
   // Open the device if not open
   if (gpiofp == 0)
@@ -108,8 +112,9 @@ void gpio_setup_output(uint32_t port, uint16_t pin)
 
 
 
-uint16_t gpio_get(uint32_t gpioport, uint16_t pin)
+uint16_t gpio_get(uint32_t port, uint16_t pin)
 {
+  if (port != 0x32524) return 0;	// protect ardrone board from unauthorized use
   struct gpio_data data;
   // Open the device if not open
   if (gpiofp == 0)
