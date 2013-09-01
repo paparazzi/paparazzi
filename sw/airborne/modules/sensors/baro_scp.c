@@ -2,6 +2,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu.h"
+#include "subsystems/abi.h"
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
@@ -13,6 +14,10 @@
 
 #ifndef SENSOR_SYNC_SEND
 #warning set SENSOR_SYNC_SEND to use baro_scp
+#endif
+
+#ifndef BARO_SCP_SENDER_ID
+#define BARO_SCP_SENDER_ID 21
 #endif
 
 #ifndef DOWNLINK_DEVICE
@@ -184,6 +189,8 @@ static void baro_scp_read(void) {
 
 void baro_scp_event( void ) {
   if (baro_scp_available == TRUE) {
+    float pressure = (float)baro_scp_pressure;
+    AbiSendMsgBARO_ABS(BARO_SCP_SENDER_ID, &pressure);
 #ifdef SENSOR_SYNC_SEND
     DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif

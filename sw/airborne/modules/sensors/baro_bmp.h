@@ -51,6 +51,4 @@ void baro_bmp_init(void);
 void baro_bmp_periodic(void);
 void baro_bmp_event(void);
 
-#define BaroBmpUpdate(_b, _h) { if (baro_bmp.data_available) { _b = baro_bmp.pressure; _h(); baro_bmp.data_available = FALSE; } }
-
 #endif

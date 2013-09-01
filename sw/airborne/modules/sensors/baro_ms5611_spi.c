@@ -30,12 +30,17 @@
 #include "modules/sensors/baro_ms5611_spi.h"
 
 #include "mcu_periph/sys_time.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+#ifndef BARO_MS5611_SENDER_ID
+#define BARO_MS5611_SENDER_ID 20
 #endif
 
 #ifndef MS5611_SPI_DEV
@@ -97,6 +102,8 @@ void baro_ms5611_event( void ) {
   ms5611_spi_event(&baro_ms5611);
 
   if (baro_ms5611.data_available) {
+    float pressure = (float)baro_ms5611.data.pressure;
+    AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, &pressure);
     float tmp_float = baro_ms5611.data.pressure / 101325.0; //pressure at sea level
     tmp_float = pow(tmp_float, 0.190295);
     baro_ms5611_alt = 44330 * (1.0 - tmp_float); //altitude above MSL

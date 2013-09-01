@@ -42,6 +42,7 @@
 #include "sensors/baro_ets.h"
 #include "mcu_periph/i2c.h"
 #include "state.h"
+#include "subsystems/abi.h"
 #include <math.h>
 #include "mcu_periph/sys_time.h"
 
@@ -73,10 +74,20 @@
 #define BARO_ETS_R 0.5
 #define BARO_ETS_SIGMA2 0.1
 
+// Pressure offset to convert raw adc to real pressure (FIXME find real value)
+#ifndef BARO_ETS_PRESSURE_OFFSET
+#define BARO_ETS_PRESSURE_OFFSET 101325.0
+#endif
+
 #ifndef BARO_ETS_I2C_DEV
 #define BARO_ETS_I2C_DEV i2c0
 #endif
 PRINT_CONFIG_VAR(BARO_ETS_I2C_DEV)
+
+#ifndef BARO_ETS_SENDER_ID
+#define BARO_ETS_SENDER_ID 18
+#endif
+PRINT_CONFIG_VAR(BARO_ETS_SENDER_ID)
 
 /** delay in seconds until sensor is read after startup */
 #ifndef BARO_ETS_START_DELAY
@@ -178,6 +189,8 @@ void baro_ets_read_event( void ) {
     if (baro_ets_offset_init) {
       baro_ets_altitude = ground_alt + BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
       // New value available
+      float pressure = BARO_ETS_SCALE * (float) baro_ets_adc + BARO_ETS_PRESSURE_OFFSET;
+      AbiSendMsgBARO_ABS(BARO_ETS_SENDER_ID, &pressure);
 #ifdef BARO_ETS_SYNC_SEND
       DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
 #endif

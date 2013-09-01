@@ -25,6 +25,7 @@
 
 #include "sensors/baro_amsys.h"
 #include "mcu_periph/i2c.h"
+#include "subsystems/abi.h"
 #include "state.h"
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
@@ -41,10 +42,6 @@
 //#include "gps.h"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
-#ifdef SITL
-#include "subsystems/gps.h"
 #endif
 
 #define BARO_AMSYS_ADDR 0xE4
@@ -75,6 +72,10 @@
 //#define BARO_ALT_CORRECTION 0.0
 #ifndef BARO_AMSYS_I2C_DEV
 #define BARO_AMSYS_I2C_DEV i2c0
+#endif
+
+#ifndef BARO_AMSYS_SENDER_ID
+#define BARO_AMSYS_SENDER_ID 16
 #endif
 
 // Global variables
@@ -180,6 +181,9 @@ void baro_amsys_read_event( void ) {
 
     //Convert to pressure
     baro_amsys_p = (float)(pBaroRaw-BARO_AMSYS_OFFSET_MIN)*BARO_AMSYS_MAX_PRESSURE/(float)(BARO_AMSYS_OFFSET_MAX-BARO_AMSYS_OFFSET_MIN);
+    // Send pressure over ABI
+    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, &baro_amsys_p);
+    // compute altitude localy
     if (!baro_amsys_offset_init) {
       --baro_amsys_cnt;
       // Check if averaging completed

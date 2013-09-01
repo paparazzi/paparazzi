@@ -64,6 +64,4 @@ extern void baro_ets_read_event( void );
 
 #define BaroEtsEvent() { if (baro_ets_i2c_trans.status == I2CTransSuccess) baro_ets_read_event(); }
 
-#define BaroEtsUpdate(_b, _h) { if (baro_ets_valid) { _b = baro_ets_adc; _h(); baro_ets_valid = FALSE; } }
-
 #endif // BARO_ETS_H

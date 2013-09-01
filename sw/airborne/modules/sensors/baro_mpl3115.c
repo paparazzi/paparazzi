@@ -21,6 +21,7 @@
  */
 
 #include "modules/sensors/baro_mpl3115.h"
+#include "subsystems/abi.h"
 
 //Messages
 #include "mcu_periph/uart.h"
@@ -31,23 +32,30 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
+#ifndef BARO_MPL3115_SENDER_ID
+#define BARO_MPL3115_SENDER_ID 20
+#endif
+
 void baro_mpl3115_init( void ) {
   mpl3115_init();
 }
 
 
 void baro_mpl3115_read_periodic( void ) {
-#ifdef SENSOR_SYNC_SEND
-  if (mpl3115_data_available) {
-    DOWNLINK_SEND_MPL3115_BARO(DefaultChannel, DefaultDevice, &mpl3115_pressure, &mpl3115_temperature, &mpl3115_alt);
-  }
-#endif
   Mpl3115Periodic();
 }
 
 
 void baro_mpl3115_read_event( void ) {
   mpl3115_event();
+  if (mpl3115_data_available) {
+    float pressure = (float)mpl3115_pressure;
+    AbiSendMsgBARO_ABS(BARO_MPL3115_SENDER_ID, &pressure);
+#ifdef SENSOR_SYNC_SEND
+    DOWNLINK_SEND_MPL3115_BARO(DefaultChannel, DefaultDevice, &mpl3115_pressure, &mpl3115_temperature, &mpl3115_alt);
+#endif
+    mpl3115_data_available = FALSE;
+  }
 }
 
 
