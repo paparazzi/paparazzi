@@ -647,6 +647,22 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     (_q).qz = san * (_uv).z;                        \
   }
 
+#define FLOAT_QUAT_OF_ORIENTATION_VECT(_q, _ov) {                       \
+    const float ov_norm = sqrtf((_ov).x*(_ov).x + (_ov).y*(_ov).y + (_ov).z*(_ov).z); \
+    if (ov_norm < 1e-8) {                                               \
+      (_q).qi = 1;                                                      \
+      (_q).qx = 0;                                                      \
+      (_q).qy = 0;                                                      \
+      (_q).qz = 0;                                                      \
+    } else {                                                            \
+      const float s2_normalized = sinf(ov_norm/2.0) / ov_norm;          \
+      (_q).qi = cosf(ov_norm/2.0);                                      \
+      (_q).qx = (_ov).x * s2_normalized;                                \
+      (_q).qy = (_ov).y * s2_normalized;                                \
+      (_q).qz = (_ov).z * s2_normalized;                                \
+    }                                                                   \
+  }
+
 #define FLOAT_QUAT_OF_RMAT(_q, _r) {                                    \
     const float tr = RMAT_TRACE((_r));                                  \
     if (tr > 0) {                                                       \

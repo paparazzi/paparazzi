@@ -34,7 +34,7 @@ extern void stabilization_attitude_init(void);
 extern void stabilization_attitude_read_rc(bool_t in_flight);
 extern void stabilization_attitude_enter(void);
 extern void stabilization_attitude_set_failsafe_setpoint(void);
-extern void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler);
+extern void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd);
 extern void stabilization_attitude_run(bool_t  in_flight);
 
 

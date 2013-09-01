@@ -217,6 +217,7 @@ void guidance_v_run(bool_t in_flight) {
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_HOVER)
       guidance_v_z_sp = fms.input.v_sp.height;
 #endif
+    guidance_v_zd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v_z_sp);
     run_hover_loop(in_flight);
 #if NO_RC_THRUST_LIMIT
@@ -231,6 +232,7 @@ void guidance_v_run(bool_t in_flight) {
     {
       if (vertical_mode == VERTICAL_MODE_ALT) {
         guidance_v_z_sp = -nav_flight_altitude;
+        guidance_v_zd_sp = 0;
         gv_update_ref_from_z_sp(guidance_v_z_sp);
         run_hover_loop(in_flight);
       }
