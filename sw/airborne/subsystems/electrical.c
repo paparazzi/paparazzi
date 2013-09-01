@@ -84,7 +84,7 @@ void electrical_init(void) {
   electrical.current = 0;
 
   electrical.bat_low = FALSE;
-  electrical.bat_critic = FALSE;
+  electrical.bat_critical = FALSE;
 
 #if defined ADC_CHANNEL_VSUPPLY
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
