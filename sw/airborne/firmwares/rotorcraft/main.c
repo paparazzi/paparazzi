@@ -222,6 +222,14 @@ STATIC_INLINE void failsafe_check( void ) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 
+#if FAILSAFE_ON_BAT_CRITICAL
+  if (autopilot_mode != AP_MODE_KILL &&
+      electrical.bat_critical)
+  {
+    autopilot_set_mode(AP_MODE_FAILSAFE);
+  }
+#endif
+
 #if USE_GPS
   if (autopilot_mode == AP_MODE_NAV &&
       autopilot_motors_on &&
