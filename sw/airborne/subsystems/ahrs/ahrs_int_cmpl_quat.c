@@ -431,12 +431,12 @@ static inline void ahrs_update_mag_2d(void) {
    * rate_correction FRAC: RATE_FRAC = 12
    * FRAC conversion: 2^12 / 2^17 = 1/32
    *
-   * Kp = 1/ inv_rate_gain / FRAC_conversion * 2^5
+   * Kp = 1/ inv_rate_gain / FRAC_conversion
    * inv_rate_gain = 1 / (2 * mag_zeta * mag_omega * AHRS_PROPAGATE_FREQUENCY) *
-   *                 AHRS_MAG_CORRECT_FREQUENCY / FRAC_conversion *  2^5
-   * inv_rate_gain = 32 * 32 * AHRS_MAG_CORRECT_FREQUENCY /
+   *                 AHRS_MAG_CORRECT_FREQUENCY / FRAC_conversion
+   * inv_rate_gain = 32 * AHRS_MAG_CORRECT_FREQUENCY /
    *                (2 * mag_zeta * mag_omega * AHRS_PROPAGATE_FREQUENCY)
-   * inv_rate_gain = 512 * AHRS_MAG_CORRECT_FREQUENCY /
+   * inv_rate_gain = 16 * AHRS_MAG_CORRECT_FREQUENCY /
    *                 (mag_zeta * mag_omega * AHRS_PROPAGATE_FREQUENCY)
    */
 
