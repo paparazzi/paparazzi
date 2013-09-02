@@ -187,6 +187,18 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
   endif
   ap.CFLAGS += -D$(LISA_M_BARO)
 
+# Lisa/S baro
+else ifeq ($(BOARD), lisa_s)
+# defaults to SPI baro MS5611 on the board
+  include $(CFG_SHARED)/spi_master.makefile
+  ap.CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE1
+  ap.CFLAGS += -DMS5611_SPI_DEV=spi1
+  ap.CFLAGS += -DMS5611_SLAVE_DEV=SPI_SLAVE1
+  ap.srcs += peripherals/ms5611.c
+  ap.srcs += peripherals/ms5611_spi.c
+  ap.srcs += subsystems/sensors/baro_ms5611_spi.c
+  ap.CFLAGS += -DBARO_MS5611_SPI
+
 # Lia baro (no bmp onboard)
 else ifeq ($(BOARD), lia)
 # fixme, reuse the baro drivers in lisa_m dir
@@ -216,6 +228,12 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 # krooz baro
 else ifeq ($(BOARD), krooz)
 ap.CFLAGS += -DMS5611_I2C_DEV=i2c2 -DMS5611_SLAVE_ADDR=0xEC
+ap.srcs += peripherals/ms5611.c
+ap.srcs += peripherals/ms5611_i2c.c
+ap.srcs += subsystems/sensors/baro_ms5611_i2c.c
+
+else ifeq ($(BOARD), px4fmu)
+ap.CFLAGS += -DUSE_I2C2 -DMS5611_I2C_DEV=i2c2
 ap.srcs += peripherals/ms5611.c
 ap.srcs += peripherals/ms5611_i2c.c
 ap.srcs += subsystems/sensors/baro_ms5611_i2c.c

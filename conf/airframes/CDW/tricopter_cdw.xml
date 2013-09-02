@@ -2,6 +2,8 @@
 
 <!--
 
+Tricopter Frame, MKK2 BLDC x3 + Servo x1, Lisa-m-2.
+
 http://www.robbe.de/roxxy-bl-outrunner-2827-34.html
 
 Technische Daten
@@ -21,7 +23,7 @@ LiPo/LiIo-Zellen: 2-3
 
 -->
 
-<airframe name="BOOZ2_a1">
+<airframe name="TriCopter_CDW">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="rotorcraft">

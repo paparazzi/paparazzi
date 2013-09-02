@@ -31,6 +31,7 @@
 
 #include "subsystems/ins/vf_extended_float.h"
 #include "generated/airframe.h"
+#include "std.h"
 
 #define DEBUG_VFF_EXTENDED 1
 

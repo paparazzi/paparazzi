@@ -253,12 +253,12 @@ void guidance_h_run(bool_t  in_flight) {
         guidance_h_nav_enter();
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
-        struct Int32Eulers sp_euler_i;
-        sp_euler_i.phi = nav_roll;
-        sp_euler_i.theta = nav_pitch;
+        struct Int32Eulers sp_cmd_i;
+        sp_cmd_i.phi = nav_roll;
+        sp_cmd_i.theta = nav_pitch;
         /* FIXME: heading can't be set via attitude block yet, use current heading for now */
-        sp_euler_i.psi = stateGetNedToBodyEulers_i()->psi;
-        stabilization_attitude_set_from_eulers_i(&sp_euler_i);
+        sp_cmd_i.psi = stateGetNedToBodyEulers_i()->psi;
+        stabilization_attitude_set_cmd_i(&sp_cmd_i);
       }
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
@@ -267,6 +267,7 @@ void guidance_h_run(bool_t  in_flight) {
 
         /* set psi command */
         guidance_h_command_body.psi = nav_heading;
+        INT32_ANGLE_NORMALIZE(guidance_h_command_body.psi);
         /* compute roll and pitch commands and set final attitude setpoint */
         guidance_h_traj_run(in_flight);
       }
@@ -362,8 +363,8 @@ static void guidance_h_traj_run(bool_t in_flight) {
   guidance_h_command_body.phi += guidance_h_rc_sp.phi;
   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
 
-  /* Set attitude setpoint from pseudo-eulers */
-  stabilization_attitude_set_from_eulers_i(&guidance_h_command_body);
+  /* Set attitude setpoint from pseudo-euler commands */
+  stabilization_attitude_set_cmd_i(&guidance_h_command_body);
 }
 
 static void guidance_h_hover_enter(void) {

@@ -603,8 +603,21 @@
       <field name="ping_time" type="float" format="%.2f" unit="ms"/>
     </message>
 
-
- <!-- 72 is free -->
+  <message name="SUPERBITRF" id="72">
+      <field name="status" type="uint8" values="UNINIT|INIT_BINDING|INIT_TRANSFER|BINDING|SYNCING_A|SYNCING_B|TRANSFER"/>
+      <field name="cyrf_status" type="uint8" values="UNINIT|IDLE|GET_MFG_ID|MULTIWRITE|DATA_CODE|CHAN_SOP_DATA_CRC|RX_IRQ_STATUS_PACKET|SEND"/>
+      <field name="irq_count" type="uint32"/>
+      <field name="rx_packet_count" type="uint32"/>
+      <field name="tx_packet_count" type="uint32"/>
+      <field name="transfer_timeouts" type="uint32"/>
+      <field name="resync_count" type="uint32"/>
+      <field name="uplink_count" type="uint32"/>
+      <field name="rc_count" type="uint32"/>
+      <field name="timing1" type="uint32"/>
+      <field name="timing2" type="uint32"/>
+      <field name="bind_mfg_id" type="uint32"/>
+      <field name="mfg_id" type="uint8[]"/>
+  </message>
 
   <message name="GX3_INFO" id="73">
     <field name="GX3_freq" 	type="float" 	unit="hz"/>
@@ -614,7 +627,11 @@
   </message>
 
  <!-- 74 is free -->
- <!-- 75 is free -->
+
+  <message name="VIDEO_TELEMETRY" id="75">
+    <field name="Max_x" 	type="uint32" 	unit="pixels"/>
+    <field name="Max_y" 	type="uint32" 	unit="pixels"/>
+  </message>
 
   <message name="VF_UPDATE" id="76">
     <field name="baro" type="float" unit="m"/>

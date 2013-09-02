@@ -185,7 +185,7 @@ void baro_update_logic(void)
   {
     // temp was updated
     temp_or_press_was_updated_last = 1;
-    
+
     // This means that press must remain constant
     if (lastpressval != 0)
     {
@@ -240,7 +240,7 @@ void navdata_update()
 //      if ( navdata_checksum() == 0 )
       {
         memcpy(navdata, port->buffer, NAVDATA_PACKET_SIZE);
-        
+
         // Invert byte order so that TELEMETRY works better
         uint8_t tmp;
         uint8_t* p = (uint8_t*) &(navdata->pressure);

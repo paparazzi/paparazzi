@@ -134,6 +134,28 @@
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
+#ifdef USE_SUPERBITRF
+#include "subsystems/datalink/superbitrf.h"
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {        \
+    DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
+                      &superbitrf.status,               \
+                      &superbitrf.cyrf6936.status,      \
+                      &superbitrf.irq_count,            \
+                      &superbitrf.rx_packet_count,      \
+                      &superbitrf.tx_packet_count,      \
+                      &superbitrf.transfer_timeouts,    \
+                      &superbitrf.resync_count,         \
+                      &superbitrf.uplink_count,         \
+                      &superbitrf.rc_count,             \
+                      &superbitrf.timing1,              \
+                      &superbitrf.timing2,              \
+                      &superbitrf.bind_mfg_id32,        \
+                      6,                                \
+                      superbitrf.cyrf6936.mfg_id);}
+#else
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {}
+#endif
+
 #ifdef ACTUATORS
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
 #else

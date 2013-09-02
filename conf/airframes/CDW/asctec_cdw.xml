@@ -1,12 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is an asctec frame equiped with  Lisa/L#3 and asctec V2 controllers -->
+<!-- this is an Asctec frame equipped with  Lisa/L v0.9 and Asctec V2 controllers -->
 
-<airframe name="lisa_asctec">
+<airframe name="asctec_cdw">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
+      <configure name="MODEM_PORT" value="UART3"/>
+      <configure name="GPS_PORT" value="UART2"/>
       <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="motor_mixing"/>
@@ -61,6 +63,7 @@
   <modules main_freq="512">
     <!--   <load name="high_speed_logger_spi_link.xml"/> -->
     <load name="imu_quality_assessment.xml"/>
+    <load name="gps_ubx_ucenter.xml" />
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
@@ -194,7 +197,7 @@
 
   <!-- ************************* MISC ************************* -->
 
-  <!-- for the sim -->
+  <!-- for the sim target -->
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
@@ -221,4 +224,4 @@
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
   </section>
 
-  </airframe>
+</airframe>

@@ -89,7 +89,7 @@ PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
 #ifndef MODULES_FREQUENCY
-#define MODULES_FREQUENCY 512
+#define MODULES_FREQUENCY PERIODIC_FREQUENCY
 #endif
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
@@ -234,6 +234,14 @@ STATIC_INLINE void failsafe_check( void ) {
   {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
+
+#if FAILSAFE_ON_BAT_CRITICAL
+  if (autopilot_mode != AP_MODE_KILL &&
+      electrical.bat_critical)
+  {
+    autopilot_set_mode(AP_MODE_FAILSAFE);
+  }
+#endif
 
 #if USE_GPS
   if (autopilot_mode == AP_MODE_NAV &&
