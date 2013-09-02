@@ -34,16 +34,17 @@
 /**
  * Set a gpio output to high level.
  */
-static inline void gpio_set(uint32_t port, uint16_t pin) {
-
-}
+extern void gpio_set(uint32_t port, uint16_t pin);
 
 /**
  * Clear a gpio output to low level.
  */
-static inline void gpio_clear(uint32_t port, uint16_t pin) {
+extern void gpio_clear(uint32_t port, uint16_t pin);
 
-}
 
+/**
+ * Read a gpio value.
+ */
+uint16_t gpio_get(uint32_t gpioport, uint16_t gpios);
 
 #endif /* GPIO_ARCH_H */
