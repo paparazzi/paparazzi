@@ -67,7 +67,7 @@ static inline float pprz_isa_altitude_of_pressure(float pressure) {
  * Get relative altitude from pressure (using simplified equation).
  *
  * @param pressure current pressure in Pascal (Pa)
- * @param ref reference pressure
+ * @param ref reference pressure (QFE) when height = 0
  * @return altitude in pressure in ISA conditions
  */
 static inline float pprz_isa_height_of_pressure(float pressure, float ref) {
@@ -78,5 +78,25 @@ static inline float pprz_isa_height_of_pressure(float pressure, float ref) {
   }
 }
 
+/**
+ * Get pressure in Pa from absolute altitude (using simplified equation).
+ *
+ * @param altitude current absolute altitude in meters
+ * @return static pressure in Pa in ISA conditions
+ */
+static inline float pprz_isa_pressure_of_altitude(float altitude) {
+  return (PPRZ_ISA_SEA_LEVEL_PRESSURE*expf((-1./PPRZ_ISA_M_OF_P_CONST)*altitude));
+}
+
+/**
+ * Get pressure in Pa from height (using simplified equation).
+ *
+ * @param altitude current relative altitude in meters
+ * @param ref reference pressure (QFE) when height = 0
+ * @return static pressure in Pa in ISA conditions
+ */
+static inline float pprz_isa_pressure_of_height(float altitude, float ref) {
+  return (ref*expf((-1./PPRZ_ISA_M_OF_P_CONST)*altitude));
+}
 
 #endif /* PPRZ_ISA_H */

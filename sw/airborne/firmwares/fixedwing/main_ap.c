@@ -30,6 +30,8 @@
 
 #define MODULES_C
 
+#define ABI_C
+
 #include <math.h>
 
 #include "firmwares/fixedwing/main_ap.h"
@@ -82,6 +84,7 @@
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 #include "rc_settings.h"
 #endif
+#include "subsystems/abi.h"
 
 #include "led.h"
 
