@@ -180,7 +180,7 @@ void imu_krooz_event( void )
   // If the HMC5883 I2C transaction has succeeded: convert the data
   hmc58xx_event(&imu_krooz.hmc);
   if (imu_krooz.hmc.data_available) {
-    VECT3_ASSIGN(imu.mag_unscaled, imu_krooz.hmc.data.vect.z, -imu_krooz.hmc.data.vect.x, imu_krooz.hmc.data.vect.y);
+    VECT3_ASSIGN(imu.mag_unscaled, imu_krooz.hmc.data.vect.y, -imu_krooz.hmc.data.vect.x, imu_krooz.hmc.data.vect.z);
     UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
     imu_krooz.hmc.data_available = FALSE;
     imu_krooz.mag_valid = TRUE;
