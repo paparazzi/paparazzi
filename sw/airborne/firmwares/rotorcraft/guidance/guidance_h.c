@@ -140,8 +140,9 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_ATTITUDE:
       /* reset attitude stabilization if previous mode was not using it */
-      if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
-          guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+      if (guidance_h_mode == GUIDANCE_H_MODE_KILL ||
+          guidance_h_mode == GUIDANCE_H_MODE_RATE ||
+          guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT) {
         stabilization_attitude_enter();
       }
       break;
@@ -149,8 +150,9 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     case GUIDANCE_H_MODE_HOVER:
       guidance_h_hover_enter();
       /* reset attitude stabilization if previous mode was not using it */
-      if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
-          guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+      if (guidance_h_mode == GUIDANCE_H_MODE_KILL ||
+          guidance_h_mode == GUIDANCE_H_MODE_RATE ||
+          guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT) {
         stabilization_attitude_enter();
       }
       break;
@@ -158,8 +160,9 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     case GUIDANCE_H_MODE_NAV:
       guidance_h_nav_enter();
       /* reset attitude stabilization if previous mode was not using it */
-      if (guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT ||
-          guidance_h_mode == GUIDANCE_H_MODE_RATE) {
+      if (guidance_h_mode == GUIDANCE_H_MODE_KILL ||
+          guidance_h_mode == GUIDANCE_H_MODE_RATE ||
+          guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT) {
         stabilization_attitude_enter();
       }
       break;
