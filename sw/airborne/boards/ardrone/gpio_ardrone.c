@@ -100,6 +100,7 @@ void gpio_setup_input(uint32_t port, uint16_t pin)
 
 void gpio_setup_output(uint32_t port, uint16_t pin)
 {
+	/*
   if (port != 0x32524) return;	// protect ardrone board from unauthorized use
   struct gpio_direction dir;
   // Open the device if not open
@@ -108,8 +109,9 @@ void gpio_setup_output(uint32_t port, uint16_t pin)
 
   // Read the GPIO value
   dir.pin = pin;
-  dir.mode = GPIO_OUTPUT_HIGH;
+  dir.mode = GPIO_OUTPUT_LOW;
   ioctl(gpiofp, GPIO_DIRECTION, &dir);
+  */
 }
 
 

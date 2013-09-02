@@ -32,6 +32,7 @@
 #include "actuators_ardrone2_raw.h"
 #include "mcu_periph/gpio.h"
 #include "led_hw.h"
+#include "mcu_periph/sys_time.h"
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <string.h>  /* String function definitions */
@@ -65,6 +66,17 @@ int actuator_ardrone2_raw_fd; /**< File descriptor for the port */
 
 uint32_t led_hw_values;
 
+static inline void actuators_ardrone_reset_flipflop(void)
+{
+  gpio_setup_output(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  int32_t stop = sys_time.nb_sec + 2;
+  while (sys_time.nb_sec < stop);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+}
+
+
+
 void actuators_ardrone_init(void)
 {
   led_hw_values = 0;
@@ -97,10 +109,14 @@ void actuators_ardrone_init(void)
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
   gpio_setup_input(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_INPUT);
-  gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
-  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  actuators_ardrone_reset_flipflop();
 
-  //all select lines inactive
+
+  //all select lines active
+  gpio_setup_output(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR1);
+  gpio_setup_output(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR2);
+  gpio_setup_output(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR3);
+  gpio_setup_output(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR4);
   gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR1);
   gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR2);
   gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_MOTOR3);
@@ -150,29 +166,60 @@ int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen) {
 void actuators_ardrone_motor_status(void);
 void actuators_ardrone_motor_status(void)
 {
-  // If a motor IRQ lines is set
+  static bool_t last_motor_on = FALSE;
+
+  // Reset Flipflop sequence
+  static bool_t reset_flipflop_counter = 0;
+  if (reset_flipflop_counter > 0)
+  {
+    reset_flipflop_counter--;
+
+    if (reset_flipflop_counter == 10)
+    {
+      // Reset flipflop
+      gpio_setup_output(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+      gpio_clear(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+    }
+    else if (reset_flipflop_counter == 1)
+    {
+      // Listen to IRQ again
+      gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+    }
+    return;
+  }
+
+  // If a motor IRQ line is set
   if (gpio_get(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_INPUT) == 1)
   {
     if (autopilot_motors_on)
     {
-      // Tell paparazzi that one motor has stalled
-      autopilot_set_motors_on(FALSE);
+      if (last_motor_on)
+      {
+        // Tell paparazzi that one motor has stalled
+        autopilot_set_motors_on(FALSE);
+      }
+      else
+      {
+        // Toggle Flipflop reset so motors can be re-enabled
+        reset_flipflop_counter = 20;
+      }
 
-      // Toggle Flipflop reset so motors can be re-enabled
-	  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
-      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
     }
   }
+  last_motor_on = autopilot_motors_on;
+
 }
+
+#define BIT_NUMBER(VAL,BIT) (((VAL)>>BIT)&0x03)
 
 void actuators_ardrone_led_run(void);
 void actuators_ardrone_led_run(void)
 {
-	static uint32_t previous_led_hw_values;
+	static uint32_t previous_led_hw_values = 0x00;
 	if (previous_led_hw_values != led_hw_values)
 	{
 		previous_led_hw_values = led_hw_values;
-		actuators_ardrone_set_leds(led_hw_values & 0x01, led_hw_values & 0x02, led_hw_values & 0x04, led_hw_values & 0x08);
+		actuators_ardrone_set_leds(BIT_NUMBER(led_hw_values,0), BIT_NUMBER(led_hw_values,2), BIT_NUMBER(led_hw_values,4), BIT_NUMBER(led_hw_values,6) );
 	}
 }
 
@@ -212,6 +259,13 @@ void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint
 void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_t led3)
 {
   uint8_t cmd[2];
+
+  led0 &= 0x03;
+  led1 &= 0x03;
+  led2 &= 0x03;
+  led3 &= 0x03;
+
+  printf("LEDS: %d %d %d %d \n", led0, led1, led2, led3);
 
   cmd[0]=0x60 | ((led0&1)<<4) | ((led1&1)<<3) | ((led2&1)<<2) | ((led3&1) <<1);
   cmd[1]=((led0&2)<<3) | ((led1&2)<<2) | ((led2&2)<<1) | ((led3&2)<<0);
