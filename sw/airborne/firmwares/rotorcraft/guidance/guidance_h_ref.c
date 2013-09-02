@@ -53,7 +53,7 @@ struct Int64Vect2 gh_pos_ref;
 #ifndef GUIDANCE_H_REF_MAX_ACCEL
 #define GUIDANCE_H_REF_MAX_ACCEL 5.66
 #endif
-#define GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, GH_ACCEL_REF_FRAC)
+static const int32_t gh_max_accel =  BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, GH_ACCEL_REF_FRAC);
 
 /** Speed saturation */
 #ifndef GUIDANCE_H_REF_MAX_SPEED
@@ -61,7 +61,7 @@ struct Int64Vect2 gh_pos_ref;
 #endif
 /** @todo GH_MAX_SPEED must be limited to 2^14 to avoid overflow */
 #define GH_MAX_SPEED_REF_FRAC 7
-#define GH_MAX_SPEED BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, GH_MAX_SPEED_REF_FRAC)
+static const int32_t gh_max_speed = BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, GH_MAX_SPEED_REF_FRAC);
 
 /** second order model natural frequency */
 #ifndef GUIDANCE_H_REF_OMEGA
@@ -72,14 +72,16 @@ struct Int64Vect2 gh_pos_ref;
 #define GUIDANCE_H_REF_ZETA  0.85
 #endif
 #define GH_ZETA_OMEGA_FRAC 10
-#define GH_ZETA_OMEGA BFP_OF_REAL((GUIDANCE_H_REF_ZETA*GUIDANCE_H_REF_OMEGA), GH_ZETA_OMEGA_FRAC)
 #define GH_OMEGA_2_FRAC 7
-#define GH_OMEGA_2    BFP_OF_REAL((GUIDANCE_H_REF_OMEGA*GUIDANCE_H_REF_OMEGA), GH_OMEGA_2_FRAC)
+static const int32_t gh_zeta_omega = BFP_OF_REAL((GUIDANCE_H_REF_ZETA*GUIDANCE_H_REF_OMEGA), GH_ZETA_OMEGA_FRAC);
+static const int32_t gh_omega_2= BFP_OF_REAL((GUIDANCE_H_REF_OMEGA*GUIDANCE_H_REF_OMEGA), GH_OMEGA_2_FRAC);
 
 /** first order time constant */
-#define GH_REF_THAU_F  0.5
-#define GH_REF_INV_THAU_FRAC 16
-#define GH_REF_INV_THAU  BFP_OF_REAL((1./GH_REF_THAU_F), GH_REF_INV_THAU_FRAC)
+#ifndef GUIDANCE_H_REF_TAU
+#define GUIDANCE_H_REF_TAU 0.5
+#endif
+#define GH_REF_INV_TAU_FRAC 16
+static const int32_t gh_ref_inv_tau = BFP_OF_REAL((1./GUIDANCE_H_REF_TAU), GH_REF_INV_TAU_FRAC);
 
 static struct Int32Vect2 gh_max_speed_ref;
 static struct Int32Vect2 gh_max_accel_ref;
@@ -87,6 +89,13 @@ static struct Int32Vect2 gh_max_accel_ref;
 static int32_t route_ref;
 static int32_t s_route_ref;
 static int32_t c_route_ref;
+
+static void gh_compute_route_ref(struct Int32Vect2* ref_vector);
+static void gh_compute_ref_max(struct Int32Vect2* ref_vector);
+static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector);
+static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector);
+static void gh_saturate_ref_accel(void);
+static void gh_saturate_ref_speed(void);
 
 void gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel) {
   struct Int64Vect2 new_pos;
@@ -105,7 +114,7 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   // compute the "speed part" of accel = -2*zeta*omega*speed -omega^2(pos - pos_sp)
   struct Int32Vect2 speed;
   INT32_VECT2_RSHIFT(speed, gh_speed_ref, (GH_SPEED_REF_FRAC - GH_ACCEL_REF_FRAC));
-  VECT2_SMUL(speed, speed, -2*GH_ZETA_OMEGA);
+  VECT2_SMUL(speed, speed, -2 * gh_zeta_omega);
   INT32_VECT2_RSHIFT(speed, speed, GH_ZETA_OMEGA_FRAC);
   // compute pos error in pos_sp resolution
   struct Int32Vect2 pos_err;
@@ -115,64 +124,18 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   INT32_VECT2_RSHIFT(pos_err, pos_err, (INT32_POS_FRAC - GH_ACCEL_REF_FRAC));
   // compute the "pos part" of accel
   struct Int32Vect2 pos;
-  VECT2_SMUL(pos, pos_err, (-GH_OMEGA_2));
+  VECT2_SMUL(pos, pos_err, -gh_omega_2);
   INT32_VECT2_RSHIFT(pos, pos, GH_OMEGA_2_FRAC);
   // sum accel
   VECT2_SUM(gh_accel_ref, speed, pos);
 
-  /* Compute route reference before saturation */
-  float f_route_ref = atan2f(-pos_err.y, -pos_err.x);
-  route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
-  /* Compute North and East route components */
-  PPRZ_ITRIG_SIN(s_route_ref, route_ref);
-  PPRZ_ITRIG_COS(c_route_ref, route_ref);
-  c_route_ref = abs(c_route_ref);
-  s_route_ref = abs(s_route_ref);
-  /* Compute maximum acceleration*/
-  gh_max_accel_ref.x = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, c_route_ref, INT32_TRIG_FRAC);
-  gh_max_accel_ref.y = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, s_route_ref, INT32_TRIG_FRAC);
-  /* Compute maximum speed*/
-  gh_max_speed_ref.x = INT_MULT_RSHIFT((int32_t)GH_MAX_SPEED, c_route_ref, INT32_TRIG_FRAC);
-  gh_max_speed_ref.y = INT_MULT_RSHIFT((int32_t)GH_MAX_SPEED, s_route_ref, INT32_TRIG_FRAC);
-  /* restore gh_speed_ref range (Q14.17) */
-  INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
+  /* Compute max ref accel/speed along route before saturation */
+  gh_compute_ref_max(&pos_err);
 
- /* Saturate accelerations */
-  if (gh_accel_ref.x <= -gh_max_accel_ref.x) {
-    gh_accel_ref.x = -gh_max_accel_ref.x;
-  }
-  else if (gh_accel_ref.x >=  gh_max_accel_ref.x) {
-    gh_accel_ref.x =  gh_max_accel_ref.x;
-  }
-  if (gh_accel_ref.y <= -gh_max_accel_ref.y) {
-    gh_accel_ref.y = -gh_max_accel_ref.y;
-  }
-  else if (gh_accel_ref.y >= gh_max_accel_ref.y) {
-    gh_accel_ref.y = gh_max_accel_ref.y;
-  }
-
-  /* Saturate speed and adjust acceleration accordingly */
-  if (gh_speed_ref.x <= -gh_max_speed_ref.x) {
-    gh_speed_ref.x = -gh_max_speed_ref.x;
-    if (gh_accel_ref.x < 0)
-      gh_accel_ref.x = 0;
-  }
-  else if (gh_speed_ref.x >=  gh_max_speed_ref.x) {
-    gh_speed_ref.x =  gh_max_speed_ref.x;
-    if (gh_accel_ref.x > 0)
-      gh_accel_ref.x = 0;
-  }
-  if (gh_speed_ref.y <= -gh_max_speed_ref.y) {
-    gh_speed_ref.y = -gh_max_speed_ref.y;
-    if (gh_accel_ref.y < 0)
-      gh_accel_ref.y = 0;
-  }
-  else if (gh_speed_ref.y >= gh_max_speed_ref.y) {
-    gh_speed_ref.y = gh_max_speed_ref.y;
-    if (gh_accel_ref.y > 0)
-      gh_accel_ref.y = 0;
-  }
+  gh_saturate_ref_accel();
+  gh_saturate_ref_speed();
 }
+
 
 void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
 /* WARNING: SPEED SATURATION UNTESTED */
@@ -186,26 +149,80 @@ void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   // convert to accel resolution
   INT32_VECT2_RSHIFT(speed_err, speed_err, (GH_SPEED_REF_FRAC - GH_ACCEL_REF_FRAC));
   // compute accel from speed_sp
-  VECT2_SMUL(gh_accel_ref, speed_err, -GH_REF_INV_THAU);
-  INT32_VECT2_RSHIFT(gh_accel_ref, gh_accel_ref, GH_REF_INV_THAU_FRAC);
+  VECT2_SMUL(gh_accel_ref, speed_err, -gh_ref_inv_tau);
+  INT32_VECT2_RSHIFT(gh_accel_ref, gh_accel_ref, GH_REF_INV_TAU_FRAC);
 
-  /* Compute route reference before saturation */
-  float f_route_ref = atan2f(-speed_sp.y, -speed_sp.x);
+  /* Compute max ref accel/speed along route before saturation */
+  gh_compute_ref_max_speed(&speed_sp);
+  gh_compute_ref_max_accel(&speed_err);
+
+  gh_saturate_ref_accel();
+  gh_saturate_ref_speed();
+}
+
+static void gh_compute_route_ref(struct Int32Vect2* ref_vector) {
+  float f_route_ref = atan2f(-ref_vector->y, -ref_vector->x);
   route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
   /* Compute North and East route components */
   PPRZ_ITRIG_SIN(s_route_ref, route_ref);
   PPRZ_ITRIG_COS(c_route_ref, route_ref);
   c_route_ref = abs(c_route_ref);
   s_route_ref = abs(s_route_ref);
-  /* Compute maximum acceleration*/
-  gh_max_accel_ref.x = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, c_route_ref, INT32_TRIG_FRAC);
-  gh_max_accel_ref.y = INT_MULT_RSHIFT((int32_t)GH_MAX_ACCEL, s_route_ref, INT32_TRIG_FRAC);
-  /* Compute maximum speed*/
-  gh_max_speed_ref.x = INT_MULT_RSHIFT((int32_t)GH_MAX_SPEED, c_route_ref, INT32_TRIG_FRAC);
-  gh_max_speed_ref.y = INT_MULT_RSHIFT((int32_t)GH_MAX_SPEED, s_route_ref, INT32_TRIG_FRAC);
-  /* restore gh_speed_ref range (Q14.17) */
-  INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
+}
 
+static void gh_compute_ref_max(struct Int32Vect2* ref_vector) {
+  /* Compute route reference before saturation */
+  if (ref_vector->x == 0 && ref_vector->y == 0) {
+    gh_max_accel_ref.x = 0;
+    gh_max_accel_ref.y = 0;
+    gh_max_speed_ref.x = 0;
+    gh_max_speed_ref.y = 0;
+  }
+  else {
+    gh_compute_route_ref(ref_vector);
+    /* Compute maximum acceleration*/
+    gh_max_accel_ref.x = INT_MULT_RSHIFT(gh_max_accel, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_accel_ref.y = INT_MULT_RSHIFT(gh_max_accel, s_route_ref, INT32_TRIG_FRAC);
+    /* Compute maximum speed*/
+    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed, s_route_ref, INT32_TRIG_FRAC);
+    /* restore gh_speed_ref range (Q14.17) */
+    INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
+  }
+}
+
+static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector) {
+  /* Compute route reference before saturation */
+  if (ref_vector->x == 0 && ref_vector->y == 0) {
+    gh_max_accel_ref.x = 0;
+    gh_max_accel_ref.y = 0;
+  }
+  else {
+    gh_compute_route_ref(ref_vector);
+    /* Compute maximum acceleration*/
+    gh_max_accel_ref.x = INT_MULT_RSHIFT(gh_max_accel, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_accel_ref.y = INT_MULT_RSHIFT(gh_max_accel, s_route_ref, INT32_TRIG_FRAC);
+  }
+}
+
+static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector) {
+  /* Compute route reference before saturation */
+  if (ref_vector->x == 0 && ref_vector->y == 0) {
+    gh_max_speed_ref.x = 0;
+    gh_max_speed_ref.y = 0;
+  }
+  else {
+    gh_compute_route_ref(ref_vector);
+    /* Compute maximum speed*/
+    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed, s_route_ref, INT32_TRIG_FRAC);
+    /* restore gh_speed_ref range (Q14.17) */
+    INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
+  }
+}
+
+/** saturate reference accelerations */
+static void gh_saturate_ref_accel(void) {
   /* Saturate accelerations */
   if (gh_accel_ref.x <= -gh_max_accel_ref.x) {
     gh_accel_ref.x = -gh_max_accel_ref.x;
@@ -219,8 +236,10 @@ void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   else if (gh_accel_ref.y >= gh_max_accel_ref.y) {
     gh_accel_ref.y = gh_max_accel_ref.y;
   }
+}
 
-  /* Saturate speed and adjust acceleration accordingly */
+/** Saturate ref speed and adjust acceleration accordingly */
+static void gh_saturate_ref_speed(void) {
   if (gh_speed_ref.x <= -gh_max_speed_ref.x) {
     gh_speed_ref.x = -gh_max_speed_ref.x;
     if (gh_accel_ref.x < 0)
