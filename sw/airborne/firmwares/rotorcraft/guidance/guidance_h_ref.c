@@ -90,9 +90,12 @@ static int32_t route_ref;
 static int32_t s_route_ref;
 static int32_t c_route_ref;
 
+static void gh_compute_route_ref(struct Int32Vect2* ref_vector);
+static void gh_compute_ref_max(struct Int32Vect2* ref_vector);
+static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector);
+static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector);
 static void gh_saturate_ref_accel(void);
 static void gh_saturate_ref_speed(void);
-static void gh_compute_max_ref(struct Int32Vect2* ref_vector);
 
 void gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel) {
   struct Int64Vect2 new_pos;
@@ -127,7 +130,7 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp) {
   VECT2_SUM(gh_accel_ref, speed, pos);
 
   /* Compute max ref accel/speed along route before saturation */
-  gh_compute_max_ref(&pos_err);
+  gh_compute_ref_max(&pos_err);
 
   gh_saturate_ref_accel();
   gh_saturate_ref_speed();
@@ -150,31 +153,66 @@ void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   INT32_VECT2_RSHIFT(gh_accel_ref, gh_accel_ref, GH_REF_INV_TAU_FRAC);
 
   /* Compute max ref accel/speed along route before saturation */
-  gh_compute_max_ref(&speed_sp);
+  gh_compute_ref_max_speed(&speed_sp);
+  gh_compute_ref_max_accel(&speed_err);
 
   gh_saturate_ref_accel();
   gh_saturate_ref_speed();
 }
 
-static void gh_compute_max_ref(struct Int32Vect2* ref_vector) {
+static void gh_compute_route_ref(struct Int32Vect2* ref_vector) {
+  float f_route_ref = atan2f(-ref_vector->y, -ref_vector->x);
+  route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
+  /* Compute North and East route components */
+  PPRZ_ITRIG_SIN(s_route_ref, route_ref);
+  PPRZ_ITRIG_COS(c_route_ref, route_ref);
+  c_route_ref = abs(c_route_ref);
+  s_route_ref = abs(s_route_ref);
+}
+
+static void gh_compute_ref_max(struct Int32Vect2* ref_vector) {
   /* Compute route reference before saturation */
   if (ref_vector->x == 0 && ref_vector->y == 0) {
-    gh_max_accel_ref.x = gh_max_accel;
-    gh_max_accel_ref.y = gh_max_accel;
-    gh_max_speed_ref.x = gh_max_speed;
-    gh_max_speed_ref.y = gh_max_speed;
+    gh_max_accel_ref.x = 0;
+    gh_max_accel_ref.y = 0;
+    gh_max_speed_ref.x = 0;
+    gh_max_speed_ref.y = 0;
   }
   else {
-    float f_route_ref = atan2f(-ref_vector->y, -ref_vector->x);
-    route_ref = ANGLE_BFP_OF_REAL(f_route_ref);
-    /* Compute North and East route components */
-    PPRZ_ITRIG_SIN(s_route_ref, route_ref);
-    PPRZ_ITRIG_COS(c_route_ref, route_ref);
-    c_route_ref = abs(c_route_ref);
-    s_route_ref = abs(s_route_ref);
+    gh_compute_route_ref(ref_vector);
     /* Compute maximum acceleration*/
     gh_max_accel_ref.x = INT_MULT_RSHIFT(gh_max_accel, c_route_ref, INT32_TRIG_FRAC);
     gh_max_accel_ref.y = INT_MULT_RSHIFT(gh_max_accel, s_route_ref, INT32_TRIG_FRAC);
+    /* Compute maximum speed*/
+    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed, s_route_ref, INT32_TRIG_FRAC);
+    /* restore gh_speed_ref range (Q14.17) */
+    INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
+  }
+}
+
+static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector) {
+  /* Compute route reference before saturation */
+  if (ref_vector->x == 0 && ref_vector->y == 0) {
+    gh_max_accel_ref.x = 0;
+    gh_max_accel_ref.y = 0;
+  }
+  else {
+    gh_compute_route_ref(ref_vector);
+    /* Compute maximum acceleration*/
+    gh_max_accel_ref.x = INT_MULT_RSHIFT(gh_max_accel, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_accel_ref.y = INT_MULT_RSHIFT(gh_max_accel, s_route_ref, INT32_TRIG_FRAC);
+  }
+}
+
+static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector) {
+  /* Compute route reference before saturation */
+  if (ref_vector->x == 0 && ref_vector->y == 0) {
+    gh_max_speed_ref.x = 0;
+    gh_max_speed_ref.y = 0;
+  }
+  else {
+    gh_compute_route_ref(ref_vector);
     /* Compute maximum speed*/
     gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed, c_route_ref, INT32_TRIG_FRAC);
     gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed, s_route_ref, INT32_TRIG_FRAC);
