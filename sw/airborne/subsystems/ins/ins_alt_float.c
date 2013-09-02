@@ -24,7 +24,9 @@
  * Filters altitude and climb rate for fixedwings.
  */
 
-#include "subsystems/ins.h"
+#include "subsystems/ins/ins_alt_float.h"
+
+#include "subsystems/abi.h"
 
 #include <inttypes.h>
 #include <math.h>
@@ -46,9 +48,18 @@ float ins_alt_dot;
 
 #if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
-int32_t ins_qfe;
+#include "math/pprz_isa.h"
+float ins_qfe;
 bool_t  ins_baro_initialised;
 float ins_baro_alt;
+
+// Baro event on ABI
+#ifndef INS_BARO_ID
+#define INS_BARO_ID ABI_BROADCAST
+#endif
+abi_event baro_ev;
+static void baro_cb(uint8_t sender_id, const float *pressure);
+
 #endif
 
 void ins_init() {
@@ -64,6 +75,8 @@ void ins_init() {
   ins_qfe = 0;;
   ins_baro_initialised = FALSE;
   ins_baro_alt = 0.;
+  // Bind to BARO_ABS message
+  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
 #endif
   ins.vf_realign = FALSE;
 
@@ -83,36 +96,37 @@ void ins_realign_v(float z __attribute__ ((unused))) {
 void ins_propagate() {
 }
 
-void ins_update_baro() {
+void ins_update_baro() {}
+
 #if USE_BAROMETER
-  // TODO update kalman filter with baro struct
-  if (baro.status == BS_RUNNING) {
-    if (!ins_baro_initialised) {
-      ins_qfe = baro.absolute;
-      ins_baro_initialised = TRUE;
-    }
-    if (ins.vf_realign) {
-      ins.vf_realign = FALSE;
-      ins_qfe = baro.absolute;
-    }
-    else { /* not realigning, so normal update with baro measurement */
-      /* altitude decreases with increasing baro.absolute pressure */
-      ins_baro_alt = ground_alt - (baro.absolute - ins_qfe) * INS_BARO_SENS;
-      /* run the filter */
-      EstimatorSetAlt(ins_baro_alt);
-      /* set new altitude, just copy old horizontal position */
-      struct UtmCoor_f utm;
-      UTM_COPY(utm, *stateGetPositionUtm_f());
-      utm.alt = ins_alt;
-      stateSetPositionUtm_f(&utm);
-      struct NedCoor_f ned_vel;
-      memcpy(&ned_vel, stateGetSpeedNed_f(), sizeof(struct NedCoor_f));
-      ned_vel.z = -ins_alt_dot;
-      stateSetSpeedNed_f(&ned_vel);
-    }
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
+  if (!ins_baro_initialised) {
+    ins_qfe = *pressure;
+    ins_baro_initialised = TRUE;
   }
-#endif
+  if (ins.vf_realign) {
+    ins.vf_realign = FALSE;
+    ins_alt = ground_alt;
+    ins_alt_dot = 0.;
+    ins_qfe = *pressure;
+    alt_kalman_reset();
+  }
+  else { /* not realigning, so normal update with baro measurement */
+    ins_baro_alt = ground_alt + pprz_isa_height_of_pressure(*pressure, ins_qfe);
+    /* run the filter */
+    EstimatorSetAlt(ins_baro_alt);
+    /* set new altitude, just copy old horizontal position */
+    struct UtmCoor_f utm;
+    UTM_COPY(utm, *stateGetPositionUtm_f());
+    utm.alt = ins_alt;
+    stateSetPositionUtm_f(&utm);
+    struct NedCoor_f ned_vel;
+    memcpy(&ned_vel, stateGetSpeedNed_f(), sizeof(struct NedCoor_f));
+    ned_vel.z = -ins_alt_dot;
+    stateSetSpeedNed_f(&ned_vel);
+  }
 }
+#endif
 
 
 void ins_update_gps(void) {
