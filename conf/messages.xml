@@ -1873,8 +1873,8 @@
   </message>
 
   <message name="BARO_RAW" id="221">
-    <field name="abs"          type="int32"/>
-    <field name="diff"         type="int32"/>
+    <field name="abs"          type="float"/>
+    <field name="diff"         type="float"/>
   </message>
 
  <!--222 is free -->
