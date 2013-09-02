@@ -162,7 +162,8 @@ void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
    * onto the horizontal plane with the psi setpoint.
    *
    * angle between two vectors a and b:
-   * angle = atan2(norm(cross(a,b)), dot(a,b))
+   * angle = atan2(norm(cross(a,b)), dot(a,b)) * sign(dot(cross(a,b), n))
+   * where n is the thrust vector (i.e. both a and b lie in that plane)
    */
   const struct FloatVect3 xaxis = {1.0, 0.0, 0.0};
   const struct FloatVect3 zaxis = {0.0, 0.0, 1.0};
@@ -174,14 +175,17 @@ void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   psi_vect.x = cosf(stab_att_sp_euler.psi);
   psi_vect.y = sinf(stab_att_sp_euler.psi);
   psi_vect.z = 0.0;
+  // normal is the direction of the thrust vector
   struct FloatVect3 normal;
   FLOAT_QUAT_VMULT(normal, q_rp, zaxis);
+
   // projection of desired heading onto body x-y plane
   // b = v - dot(v,n)*n
   float dot = FLOAT_VECT3_DOT_PRODUCT(psi_vect, normal);
   struct FloatVect3 dotn;
   FLOAT_VECT3_SMUL(dotn, normal, dot);
 
+  // b = v - dot(v,n)*n
   struct FloatVect3 b;
   FLOAT_VECT3_DIFF(b, psi_vect, dotn);
   dot = FLOAT_VECT3_DOT_PRODUCT(a, b);
@@ -189,7 +193,15 @@ void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   VECT3_CROSS_PRODUCT(cross, a, b);
   // norm of the cross product
   float nc = FLOAT_VECT3_NORM(cross);
+  // angle = atan2(norm(cross(a,b)), dot(a,b))
   float yaw2 = atan2(nc, dot) / 2.0;
+
+  // negative angle if needed
+  // sign(dot(cross(a,b), n)
+  float dot_cross_ab = FLOAT_VECT3_DOT_PRODUCT(cross, normal);
+  if (dot_cross_ab < 0) {
+    yaw2 = -yaw2;
+  }
 
   /* quaternion with yaw command */
   struct FloatQuat q_yaw;
@@ -197,6 +209,7 @@ void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
 
   /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
   FLOAT_QUAT_COMP(stab_att_sp_quat, q_yaw, q_rp);
+  FLOAT_QUAT_NORMALIZE(stab_att_sp_quat);
   FLOAT_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
