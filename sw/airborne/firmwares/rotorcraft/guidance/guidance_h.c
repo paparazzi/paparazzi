@@ -155,8 +155,8 @@ void guidance_h_mode_changed(uint8_t new_mode) {
       if (guidance_h_mode == GUIDANCE_H_MODE_KILL ||
           guidance_h_mode == GUIDANCE_H_MODE_RATE ||
           guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT)
-        stabilization_attitude_enter();
 #endif
+        stabilization_attitude_enter();
       break;
 
     case GUIDANCE_H_MODE_NAV:
@@ -166,8 +166,8 @@ void guidance_h_mode_changed(uint8_t new_mode) {
       if (guidance_h_mode == GUIDANCE_H_MODE_KILL ||
           guidance_h_mode == GUIDANCE_H_MODE_RATE ||
           guidance_h_mode == GUIDANCE_H_MODE_RC_DIRECT)
-        stabilization_attitude_enter();
 #endif
+        stabilization_attitude_enter();
       break;
 
     default:
