@@ -100,7 +100,7 @@ void baro_ms5611_event( void ) {
     ftempms = baro_ms5611.data.temperature / 100.;
     fbaroms = baro_ms5611.data.pressure / 100.;
     DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                              &baro_ms5611.data.d1, &baro_ms5611.data.d2, &fbaroms, &ftempms);
+                              &baro_ms5611.data.d1, &baro_ms5611.data.d2, &fbaroms, &ftempms, &baro_ms5611_alt);
 #endif
   }
 }
