@@ -266,17 +266,29 @@ void guidance_v_run(bool_t in_flight) {
   }
 }
 
-#define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
-
+/// get the cosine of the angle between thrust vector and gravity vector
 static int32_t get_vertical_thrust_coeff(void) {
-  int32_t cphi,ctheta,cphitheta;
-  struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
-  PPRZ_ITRIG_COS(cphi, att_euler->phi);
-  PPRZ_ITRIG_COS(ctheta, att_euler->theta);
-  cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
-  if (cphitheta < MAX_BANK_COEF)
-    cphitheta = MAX_BANK_COEF;
-  return cphitheta;
+  static const int32_t max_bank_coef = BFP_OF_REAL(RadOfDeg(30.), INT32_TRIG_FRAC);
+
+  struct Int32RMat* att = stateGetNedToBodyRMat_i();
+  /* thrust vector:
+   *  INT32_RMAT_VMULT(thrust_vect, att, zaxis)
+   * same as last colum of rmat with INT32_TRIG_FRAC
+   * struct Int32Vect thrust_vect = {att.m[2], att.m[5], att.m[8]};
+   *
+   * Angle between two vectors v1 and v2:
+   *  angle = acos(dot(v1, v2) / (norm(v1) * norm(v2)))
+   * since here both are already of unit length:
+   *  angle = acos(dot(v1, v2))
+   * since we we want the cosine of the angle we simply need
+   *  thrust_coeff = dot(v1, v2)
+   * also can be simplified considering: v1 is zaxis with (0,0,1)
+   *  dot(v1, v2) = v1.z * v2.z = v2.z
+   */
+  int32_t coef = att->m[8];
+  if (coef < max_bank_coef)
+    coef = max_bank_coef;
+  return coef;
 }
 
 
