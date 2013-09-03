@@ -485,7 +485,7 @@ void superbitrf_event(void) {
       }
 
       // We really lost the communication
-      if(superbitrf.timeouts > 5) {
+      if(superbitrf.timeouts > 2) {
         superbitrf.state = 0;
         superbitrf.resync_count++;
         superbitrf.status = SUPERBITRF_SYNCING_A;
@@ -509,9 +509,9 @@ void superbitrf_event(void) {
       break;
     case 2:
       // Wait before sending
-      //superbitrf.state++;
-      if (superbitrf.timer < get_sys_time_usec())
-        superbitrf.state++;
+      superbitrf.state++;
+      //if (superbitrf.timer < get_sys_time_usec())
+        //superbitrf.state++;
       break;
     case 3:
       // Create a new packet when no packet loss
@@ -584,7 +584,10 @@ void superbitrf_event(void) {
       break;
     default:
       // Set the timer
-      superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATARECV_TIME + SUPERBITRF_RECV_TIME) % 0xFFFFFFFF;
+      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]))
+        superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATARECV_TIME + SUPERBITRF_RECV_TIME) % 0xFFFFFFFF;
+      else
+        superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATARECV_TIME + SUPERBITRF_RECV_SHORT_TIME) % 0xFFFFFFFF;
       superbitrf.state = 0;
       break;
     }
@@ -824,8 +827,10 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       superbitrf.rc_frame_available = TRUE;
 
       // Calculate the timing (seperately for the channel switches)
-      superbitrf.timing2 = superbitrf.timing1;
-      superbitrf.timing1 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
+      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]))
+        superbitrf.timing2 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
+      else
+        superbitrf.timing1 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
 
       // Go to next receive
       superbitrf.state = 1;
