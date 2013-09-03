@@ -175,7 +175,8 @@ void guidance_v_run(bool_t in_flight) {
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
   // AKA SUPERVISION and co
   if (in_flight) {
-    gv_adapt_run(stateGetAccelNed_i()->z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
+    int32_t vertical_thrust = stabilization_cmd[COMMAND_THRUST] / get_vertical_thrust_coeff();
+    gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v_zd_ref);
   }
   else {
     /* reset estimate while not in_flight */
@@ -262,10 +263,21 @@ void guidance_v_run(bool_t in_flight) {
   }
 }
 
+#define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
+
+int32_t get_vertical_thrust_coeff(void) {
+  int32_t cphi,ctheta,cphitheta;
+  struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
+  PPRZ_ITRIG_COS(cphi, att_euler->phi);
+  PPRZ_ITRIG_COS(ctheta, att_euler->theta);
+  cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
+  if (cphitheta < MAX_BANK_COEF)
+    cphitheta = MAX_BANK_COEF;
+  return cphitheta;
+}
+
 
 #define FF_CMD_FRAC 18
-
-#define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
 
 void run_hover_loop(bool_t in_flight) {
 
@@ -301,14 +313,8 @@ void run_hover_loop(bool_t in_flight) {
                           (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
   guidance_v_ff_cmd = g_m_zdd / inv_m;
-  int32_t cphi,ctheta,cphitheta;
-  struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
-  PPRZ_ITRIG_COS(cphi, att_euler->phi);
-  PPRZ_ITRIG_COS(ctheta, att_euler->theta);
-  cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
-  if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   /* feed forward command */
-  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
+  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / get_vertical_thrust_coeff();
 
   /* bound the nominal command to 0.9*MAX_PPRZ */
   Bound(guidance_v_ff_cmd, 0, 8640);
