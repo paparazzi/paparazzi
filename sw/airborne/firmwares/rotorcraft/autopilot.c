@@ -66,7 +66,7 @@ bool_t   autopilot_detect_ground_once;
 
 /** minimum thrust for in_flight condition in pprz_t units */
 #ifndef AUTOPILOT_IN_FLIGHT_MIN_THRUST
-#define AUTOPILOT_IN_FLIGHT_MIN_THRUST 50
+#define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
 #endif
 
 #ifndef AUTOPILOT_DISABLE_AHRS_KILL
