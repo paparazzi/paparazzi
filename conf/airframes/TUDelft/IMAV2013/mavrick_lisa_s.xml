@@ -23,7 +23,7 @@
     </subsystem>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="telemetry" type="superbitrf"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="lisa_s_v0.1"/>
@@ -42,8 +42,8 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="1" min="1040" neutral="1040" max="2000"/>
-    <servo name="AILEVON_LEFT" no="0" min="1900" neutral="1543" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1561" max="1900"/>
+    <servo name="AILEVON_LEFT" no="0" min="1200" neutral="1500" max="1800"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1800" neutral="1500" max="1200"/>
   </servos>
 
   <commands>
@@ -86,17 +86,12 @@
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- From delft MAVLab -->
-    <define name="MAG_X_NEUTRAL" value="396"/>
-    <define name="MAG_Y_NEUTRAL" value="-260"/>
-    <define name="MAG_Z_NEUTRAL" value="-91"/>
-    <define name="MAG_X_SENS" value="3.71635905504" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.5526454063" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.52339566014" integer="16"/>
-
-    <!-- Current correction -->
-    <define name="MAG_X_CURRENT_COEF" value="-0.390312445109"/>
-    <define name="MAG_Y_CURRENT_COEF" value="-0.068976232866"/>
-    <define name="MAG_Z_CURRENT_COEF" value="-0.181415585657"/>
+    <define name="MAG_X_NEUTRAL" value="847"/>
+    <define name="MAG_Y_NEUTRAL" value="-415"/>
+    <define name="MAG_Z_NEUTRAL" value="-264"/>
+    <define name="MAG_X_SENS" value="2.43585513661" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.71461295002" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.4639003008" integer="16"/>
   </section>
 
 
@@ -107,7 +102,10 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="3.2" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="3.3" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="3.4" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="3.7" unit="V"/>
   </section>
 
   <section name="MISC">

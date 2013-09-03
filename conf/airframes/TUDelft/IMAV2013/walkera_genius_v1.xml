@@ -71,7 +71,7 @@
 
  <section name="BAT">
    <define name="MILLIAMP_AT_FULL_THROTTLE" value="3700"/>
-   <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="3.4" unit="V"/>
  </section>
 
 

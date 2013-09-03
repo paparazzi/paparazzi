@@ -485,7 +485,7 @@ void superbitrf_event(void) {
       }
 
       // We really lost the communication
-      if(superbitrf.timeouts > 2) {
+      if(superbitrf.timeouts > 5) {
         superbitrf.state = 0;
         superbitrf.resync_count++;
         superbitrf.status = SUPERBITRF_SYNCING_A;
