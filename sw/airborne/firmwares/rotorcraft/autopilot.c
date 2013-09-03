@@ -52,7 +52,22 @@ bool_t   autopilot_power_switch;
 bool_t   autopilot_detect_ground;
 bool_t   autopilot_detect_ground_once;
 
-#define AUTOPILOT_IN_FLIGHT_TIME    40
+#define AUTOPILOT_IN_FLIGHT_TIME    20
+
+/** minimum vertical speed for in_flight condition in m/s */
+#ifndef AUTOPILOT_IN_FLIGHT_MIN_SPEED
+#define AUTOPILOT_IN_FLIGHT_MIN_SPEED 0.2
+#endif
+
+/** minimum vertical acceleration for in_flight condition in m/s^2 */
+#ifndef AUTOPILOT_IN_FLIGHT_MIN_ACCEL
+#define AUTOPILOT_IN_FLIGHT_MIN_ACCEL 2.0
+#endif
+
+/** minimum thrust for in_flight condition in pprz_t units */
+#ifndef AUTOPILOT_IN_FLIGHT_MIN_THRUST
+#define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
+#endif
 
 #ifndef AUTOPILOT_DISABLE_AHRS_KILL
 #include "subsystems/ahrs.h"
@@ -111,36 +126,6 @@ void autopilot_init(void) {
 }
 
 
-static inline void autopilot_check_in_flight_no_rc( bool_t motors_on ) {
-  if (autopilot_in_flight) {
-    if (autopilot_in_flight_counter > 0) {
-      if (stabilization_cmd[COMMAND_THRUST] == 0) {
-        autopilot_in_flight_counter--;
-        if (autopilot_in_flight_counter == 0) {
-          autopilot_in_flight = FALSE;
-        }
-      }
-      else {  /* !THROTTLE_STICK_DOWN */
-        autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
-      }
-    }
-  }
-  else { /* not in flight */
-    if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
-        motors_on) {
-      if (stabilization_cmd[COMMAND_THRUST] > 0) {
-        autopilot_in_flight_counter++;
-        if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
-          autopilot_in_flight = TRUE;
-      }
-      else { /*  THROTTLE_STICK_DOWN */
-        autopilot_in_flight_counter = 0;
-      }
-    }
-  }
-}
-
-
 void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
@@ -167,10 +152,6 @@ INFO("Using FAILSAFE_GROUND_DETECT")
     SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
 
-  // when we dont have RC, check in flight by looking at throttle
-  if (radio_control.status != RC_OK) {
-    autopilot_check_in_flight_no_rc(autopilot_motors_on);
-  }
 }
 
 
@@ -269,29 +250,37 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 }
 
 
-static inline void autopilot_check_in_flight( bool_t motors_on ) {
+void autopilot_check_in_flight(bool_t motors_on) {
   if (autopilot_in_flight) {
     if (autopilot_in_flight_counter > 0) {
-      if (THROTTLE_STICK_DOWN()) {
+      /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
+      if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
+          (abs(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
+          (abs(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL))
+      {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
           autopilot_in_flight = FALSE;
         }
       }
-      else {	/* !THROTTLE_STICK_DOWN */
+      else {  /* thrust, speed or accel not above min threshold, reset counter */
         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
       }
     }
   }
-  else { /* not in flight */
+  else { /* currently not in flight */
     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
-        motors_on) {
-      if (!THROTTLE_STICK_DOWN()) {
+        motors_on)
+    {
+      /* if thrust above min threshold, assume in_flight.
+       * Don't check for velocity and acceleration above threshold here...
+       */
+      if (stabilization_cmd[COMMAND_THRUST] > AUTOPILOT_IN_FLIGHT_MIN_THRUST) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
           autopilot_in_flight = TRUE;
       }
-      else { /*  THROTTLE_STICK_DOWN */
+      else { /* currently not in_flight and thrust below threshold, reset counter */
         autopilot_in_flight_counter = 0;
       }
     }
@@ -343,8 +332,6 @@ void autopilot_on_rc_frame(void) {
     /* an arming sequence is used to start/stop motors */
     autopilot_arming_check_motors_on();
     kill_throttle = ! autopilot_motors_on;
-
-    autopilot_check_in_flight(autopilot_motors_on);
 
     guidance_v_read_rc();
     guidance_h_read_rc(autopilot_in_flight);

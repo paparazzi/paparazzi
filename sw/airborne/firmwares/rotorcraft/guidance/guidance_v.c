@@ -237,13 +237,16 @@ void guidance_v_run(bool_t in_flight) {
         run_hover_loop(in_flight);
       }
       else if (vertical_mode == VERTICAL_MODE_CLIMB) {
+        guidance_v_z_sp = stateGetPositionNed_i()->z;
         guidance_v_zd_sp = -nav_climb;
         gv_update_ref_from_zd_sp(guidance_v_zd_sp);
-        nav_flight_altitude = -guidance_v_z_sp;
         run_hover_loop(in_flight);
       }
       else if (vertical_mode == VERTICAL_MODE_MANUAL) {
-        guidance_v_z_sp = -nav_flight_altitude; // For display only
+        guidance_v_z_sp = stateGetPositionNed_i()->z;
+        guidance_v_zd_sp = stateGetSpeedNed_i()->z;
+        GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
+        guidance_v_z_sum_err = 0;
         guidance_v_delta_t = nav_throttle;
       }
 #if NO_RC_THRUST_LIMIT
