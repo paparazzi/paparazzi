@@ -906,6 +906,7 @@
     <field name="d2"       type="uint32"/>
     <field name="pressure" type="float" unit="hPa" format="%.2f"/>
     <field name="temp"     type="float" unit="deg_celsius" format="%.2f"/>
+    <field name="altitude"     type="float" unit="meters" format="%.2f"/>
   </message>
 
   <message name="MS5611_COEFF" id="117">
