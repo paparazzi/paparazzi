@@ -102,8 +102,8 @@ int32_t guidance_v_z_sum_err;
     guidance_v_zdd_ref = _accel;		     \
   }
 
-
-void run_hover_loop(bool_t in_flight);
+static int32_t get_vertical_thrust_coeff(void);
+static void run_hover_loop(bool_t in_flight);
 
 
 void guidance_v_init(void) {
@@ -265,7 +265,7 @@ void guidance_v_run(bool_t in_flight) {
 
 #define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
 
-int32_t get_vertical_thrust_coeff(void) {
+static int32_t get_vertical_thrust_coeff(void) {
   int32_t cphi,ctheta,cphitheta;
   struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
   PPRZ_ITRIG_COS(cphi, att_euler->phi);
@@ -279,7 +279,7 @@ int32_t get_vertical_thrust_coeff(void) {
 
 #define FF_CMD_FRAC 18
 
-void run_hover_loop(bool_t in_flight) {
+static void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
   int64_t tmp  = gv_z_ref>>(GV_Z_REF_FRAC - INT32_POS_FRAC);
