@@ -476,16 +476,19 @@ void superbitrf_event(void) {
     /* Switch the different states */
     switch (superbitrf.state) {
     case 0:
+      // Fixing timer overflow
+      if(superbitrf.timer_overflow && get_sys_time_usec() <= superbitrf.timer)
+        superbitrf.timer_overflow = FALSE;
+
       // When there is a timeout
-      if (superbitrf.timer < get_sys_time_usec()) {
-        superbitrf.channel_idx = (IS_DSM2(superbitrf.protocol) || SUPERBITRF_FORCE_DSM2)? (superbitrf.channel_idx + 2) %2 : (superbitrf.channel_idx + 2) %23;
+      if(superbitrf.timer < get_sys_time_usec() && !superbitrf.timer_overflow) {
         superbitrf.transfer_timeouts++;
         superbitrf.timeouts++;
         superbitrf.state++;
       }
 
       // We really lost the communication
-      if(superbitrf.timeouts > 2) {
+      if(superbitrf.timeouts > 100) {
         superbitrf.state = 0;
         superbitrf.resync_count++;
         superbitrf.status = SUPERBITRF_SYNCING_A;
@@ -496,22 +499,20 @@ void superbitrf_event(void) {
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_abort_receive, 2);
       superbitrf.state++;
 
-      // Only send on channel 2
-      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1])) {
-        superbitrf.state = 8;
-        // Set the timer
-        superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATARECV_TIME) % 0xFFFFFFFF;
-        break;
-      }
+      // Set the timer
+      superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATARECV_TIME) % 0xFFFFFFFF;
+      if(superbitrf.timer < get_sys_time_usec())
+        superbitrf.timer_overflow = TRUE;
+      else
+        superbitrf.timer_overflow = FALSE;
 
-      // Set the timer for sending
-      superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATAWAIT_TIME) % 0xFFFFFFFF;
+      // Only send on channel 2
+      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]))
+        superbitrf.state = 8;
       break;
     case 2:
-      // Wait before sending
-      //superbitrf.state++;
-      if (superbitrf.timer < get_sys_time_usec())
-        superbitrf.state++;
+      // Wait before sending (FIXME??)
+      superbitrf.state++;
       break;
     case 3:
       // Create a new packet when no packet loss
@@ -549,13 +550,14 @@ void superbitrf_event(void) {
       // Start receiving
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       superbitrf.state++;
-
-      // Set the timer
-      superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATAWAIT_TIME + SUPERBITRF_DATARECV_TIME) % 0xFFFFFFFF;
       break;
     case 6:
+      // Fixing timer overflow
+      if(superbitrf.timer_overflow && get_sys_time_usec() <= superbitrf.timer)
+        superbitrf.timer_overflow = FALSE;
+
       // Waiting for data receive
-      if (superbitrf.timer < get_sys_time_usec())
+      if (superbitrf.timer < get_sys_time_usec() && !superbitrf.timer_overflow)
         superbitrf.state++;
       break;
     case 7:
@@ -584,7 +586,15 @@ void superbitrf_event(void) {
       break;
     default:
       // Set the timer
-      superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATARECV_TIME + SUPERBITRF_RECV_TIME) % 0xFFFFFFFF;
+      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]))
+        superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATARECV_TIME + SUPERBITRF_RECV_TIME) % 0xFFFFFFFF;
+      else
+        superbitrf.timer = (superbitrf.timer - SUPERBITRF_DATARECV_TIME + SUPERBITRF_RECV_SHORT_TIME) % 0xFFFFFFFF;
+      if(superbitrf.timer < get_sys_time_usec())
+        superbitrf.timer_overflow = TRUE;
+      else
+        superbitrf.timer_overflow = FALSE;
+
       superbitrf.state = 0;
       break;
     }
@@ -791,7 +801,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
   /* When we receive a packet during transfer */
   case SUPERBITRF_TRANSFER:
     // Check the MFG id
-    if(error && !(status & CYRF_BAD_CRC)) {
+    if(error) {
       // Start receiving TODO: Fix nicely
       cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
       break;
@@ -811,10 +821,6 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       break;
     }
 
-    // If the CRC is wrong invert
-    if (error && (status & CYRF_BAD_CRC))
-      superbitrf.crc_seed = ~superbitrf.crc_seed;
-
     // Check if it is a RC packet
     if(packet[1] == (~superbitrf.bind_mfg_id[3]&0xFF) || packet[1] == (superbitrf.bind_mfg_id[3]&0xFF)) {
       superbitrf.rc_count++;
@@ -824,8 +830,10 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
       superbitrf.rc_frame_available = TRUE;
 
       // Calculate the timing (seperately for the channel switches)
-      superbitrf.timing2 = superbitrf.timing1;
-      superbitrf.timing1 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
+      if(superbitrf.crc_seed != ((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]))
+        superbitrf.timing2 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_TIME);
+      else
+        superbitrf.timing1 = get_sys_time_usec() - (superbitrf.timer - SUPERBITRF_RECV_SHORT_TIME);
 
       // Go to next receive
       superbitrf.state = 1;
