@@ -94,6 +94,8 @@ int32_t guidance_v_ki;
 
 int32_t guidance_v_z_sum_err;
 
+static int32_t guidance_v_thrust_coeff;
+
 
 #define GuidanceVSetRef(_pos, _speed, _accel) { \
     gv_set_ref(_pos, _speed, _accel);	     \
@@ -174,8 +176,9 @@ void guidance_v_run(bool_t in_flight) {
 
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
   // AKA SUPERVISION and co
+  guidance_v_thrust_coeff = get_vertical_thrust_coeff();
   if (in_flight) {
-    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * get_vertical_thrust_coeff()) >> INT32_TRIG_FRAC;
+    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v_thrust_coeff) >> INT32_TRIG_FRAC;
     gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v_zd_ref);
   }
   else {
@@ -314,7 +317,7 @@ static void run_hover_loop(bool_t in_flight) {
 
   guidance_v_ff_cmd = g_m_zdd / inv_m;
   /* feed forward command */
-  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / get_vertical_thrust_coeff();
+  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / guidance_v_thrust_coeff;
 
   /* bound the nominal command to 0.9*MAX_PPRZ */
   Bound(guidance_v_ff_cmd, 0, 8640);
