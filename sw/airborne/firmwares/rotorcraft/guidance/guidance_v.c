@@ -175,7 +175,7 @@ void guidance_v_run(bool_t in_flight) {
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
   // AKA SUPERVISION and co
   if (in_flight) {
-    int32_t vertical_thrust = stabilization_cmd[COMMAND_THRUST] / get_vertical_thrust_coeff();
+    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * get_vertical_thrust_coeff()) >> INT32_TRIG_FRAC;
     gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v_zd_ref);
   }
   else {
