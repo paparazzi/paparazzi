@@ -1334,7 +1334,7 @@
     <field name="lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
     <field name="alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
     <field name="hmsl0"   type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
-    <field name="baro_qfe"    type="int32"/>
+    <field name="baro_qfe" type="float" unit="pascal"/>
   </message>
 
   <message name="GPS_INT" id="155">
