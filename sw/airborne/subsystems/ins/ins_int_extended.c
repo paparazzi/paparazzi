@@ -214,7 +214,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
   }
   else {
-    ins_baro_alt = pprz_isa_height_of_pressure(*pressure, ins_qfe);
+    ins_baro_alt = -pprz_isa_height_of_pressure(*pressure, ins_qfe);
     vff_update_baro(ins_baro_alt);
   }
   INS_NED_TO_STATE();
