@@ -50,7 +50,7 @@ float ins_alt_dot;
 #include "subsystems/sensors/baro.h"
 #include "math/pprz_isa.h"
 float ins_qfe;
-bool_t  ins_baro_initialised;
+bool_t  ins_baro_initialized;
 float ins_baro_alt;
 
 // Baro event on ABI
@@ -73,7 +73,7 @@ void ins_init() {
 
 #if USE_BAROMETER
   ins_qfe = 0;;
-  ins_baro_initialised = FALSE;
+  ins_baro_initialized = FALSE;
   ins_baro_alt = 0.;
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
@@ -100,9 +100,9 @@ void ins_update_baro() {}
 
 #if USE_BAROMETER
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
-  if (!ins_baro_initialised) {
+  if (!ins_baro_initialized) {
     ins_qfe = *pressure;
-    ins_baro_initialised = TRUE;
+    ins_baro_initialized = TRUE;
   }
   if (ins.vf_realign) {
     ins.vf_realign = FALSE;

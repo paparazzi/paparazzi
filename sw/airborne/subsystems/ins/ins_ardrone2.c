@@ -54,7 +54,7 @@ struct LtpDef_i ins_ltp_def;
 struct NedCoor_f ins_ltp_accel;
 struct NedCoor_f ins_ltp_speed;
 
-bool_t ins_ltp_initialised;
+bool_t ins_ltp_initialized;
 
 void ins_init() {
 #if USE_INS_NAV_INIT
@@ -72,9 +72,9 @@ void ins_init() {
   //Set the ltp
   stateSetLocalOrigin_i(&ins_ltp_def);
 
-  ins_ltp_initialised = TRUE;
+  ins_ltp_initialized = TRUE;
 #else
-  ins_ltp_initialised = FALSE;
+  ins_ltp_initialized = FALSE;
 #endif
 
   ins.vf_realign = FALSE;
@@ -128,11 +128,11 @@ void ins_update_gps(void) {
   //Check for GPS fix
   if (gps.fix == GPS_FIX_3D) {
     //Set the initial coordinates
-    if(!ins_ltp_initialised) {
+    if(!ins_ltp_initialized) {
       ltp_def_from_ecef_i(&ins_ltp_def, &gps.ecef_pos);
       ins_ltp_def.lla.alt = gps.lla_pos.alt;
       ins_ltp_def.hmsl = gps.hmsl;
-      ins_ltp_initialised = TRUE;
+      ins_ltp_initialized = TRUE;
       stateSetLocalOrigin_i(&ins_ltp_def);
     }
 

@@ -103,8 +103,8 @@ void dl_parse_msg(void) {
       lla.lat = INT32_RAD_OF_DEG(DL_MOVE_WP_lat(dl_buffer));
       lla.lon = INT32_RAD_OF_DEG(DL_MOVE_WP_lon(dl_buffer));
       /* WP_alt is in cm, lla.alt in mm */
-      lla.alt = DL_MOVE_WP_alt(dl_buffer)*10 - ins_ltp_def.hmsl + ins_ltp_def.lla.alt;
-      enu_of_lla_point_i(&enu,&ins_ltp_def,&lla);
+      lla.alt = DL_MOVE_WP_alt(dl_buffer)*10 - ins_impl.ltp_def.hmsl + ins_impl.ltp_def.lla.alt;
+      enu_of_lla_point_i(&enu,&ins_impl.ltp_def,&lla);
       enu.x = POS_BFP_OF_REAL(enu.x)/100;
       enu.y = POS_BFP_OF_REAL(enu.y)/100;
       enu.z = POS_BFP_OF_REAL(enu.z)/100;

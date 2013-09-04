@@ -58,7 +58,7 @@
 
 extern float ins_qfe;
 extern float ins_baro_alt;
-extern bool_t ins_baro_initialised;
+extern bool_t ins_baro_initialized;
 #endif //USE_BAROMETER
 
 extern float ins_alt; ///< estimated altitude above MSL in meters

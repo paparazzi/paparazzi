@@ -589,51 +589,51 @@
                                &guidance_h_pos_sp.y,   \
                                &guidance_h_pos_ref.x,  \
                                &guidance_h_pos_ref.y,  \
-                               &ins_ltp_pos.x,         \
-                               &ins_ltp_pos.y);        \
+                               &ins_impl.ltp_pos.x,         \
+                               &ins_impl.ltp_pos.y);        \
   }
 
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
     DOWNLINK_SEND_INS_Z(_trans, _dev,					\
                 &ins_baro_alt,				\
-                &ins_ltp_pos.z,			\
-                &ins_ltp_speed.z,			\
-                &ins_ltp_accel.z);			\
+                &ins_impl.ltp_pos.z,			\
+                &ins_impl.ltp_speed.z,			\
+                &ins_impl.ltp_accel.z);			\
   }
 
 #define PERIODIC_SEND_INS(_trans, _dev) {			\
     DOWNLINK_SEND_INS(_trans, _dev,				\
-                       &ins_ltp_pos.x,		\
-                       &ins_ltp_pos.y,      \
-                       &ins_ltp_pos.z,		\
-                       &ins_ltp_speed.x,	\
-                       &ins_ltp_speed.y,	\
-                       &ins_ltp_speed.z,	\
-                       &ins_ltp_accel.x,	\
-                       &ins_ltp_accel.y,	\
-                       &ins_ltp_accel.z);	\
+                       &ins_impl.ltp_pos.x,		\
+                       &ins_impl.ltp_pos.y,      \
+                       &ins_impl.ltp_pos.z,		\
+                       &ins_impl.ltp_speed.x,	\
+                       &ins_impl.ltp_speed.y,	\
+                       &ins_impl.ltp_speed.z,	\
+                       &ins_impl.ltp_accel.x,	\
+                       &ins_impl.ltp_accel.y,	\
+                       &ins_impl.ltp_accel.z);	\
   }
 
 #define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
-    if (ins_ltp_initialised)                        \
+    if (ins_impl.ltp_initialized)                        \
       DOWNLINK_SEND_INS_REF(_trans, _dev,           \
-                            &ins_ltp_def.ecef.x,    \
-                            &ins_ltp_def.ecef.y,    \
-                            &ins_ltp_def.ecef.z,    \
-                            &ins_ltp_def.lla.lat,   \
-                            &ins_ltp_def.lla.lon,   \
-                            &ins_ltp_def.lla.alt,   \
-                            &ins_ltp_def.hmsl,		\
-                            &ins_qfe);				\
+                            &ins_impl.ltp_def.ecef.x,    \
+                            &ins_impl.ltp_def.ecef.y,    \
+                            &ins_impl.ltp_def.ecef.z,    \
+                            &ins_impl.ltp_def.lla.lat,   \
+                            &ins_impl.ltp_def.lla.lon,   \
+                            &ins_impl.ltp_def.lla.alt,   \
+                            &ins_impl.ltp_def.hmsl,		\
+                            &ins_impl.qfe);				\
   }
 
 #define PERIODIC_SEND_VERT_LOOP(_trans, _dev) {				\
     DOWNLINK_SEND_VERT_LOOP(_trans, _dev,				\
                   &guidance_v_z_sp,		\
                   &guidance_v_zd_sp,		\
-                  &ins_ltp_pos.z,			\
-                  &ins_ltp_speed.z,		\
-                  &ins_ltp_accel.z,		\
+                  &ins_impl.ltp_pos.z,			\
+                  &ins_impl.ltp_speed.z,		\
+                  &ins_impl.ltp_accel.z,		\
                   &guidance_v_z_ref,		\
                   &guidance_v_zd_ref,		\
                   &guidance_v_zdd_ref,		\
@@ -650,12 +650,12 @@
     DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
                    &guidance_h_pos_sp.x,		\
                    &guidance_h_pos_sp.y,		\
-                   &ins_ltp_pos.x,			\
-                   &ins_ltp_pos.y,			\
-                   &ins_ltp_speed.x,		\
-                   &ins_ltp_speed.y,		\
-                   &ins_ltp_accel.x,		\
-                   &ins_ltp_accel.y,		\
+                   &ins_impl.ltp_pos.x,			\
+                   &ins_impl.ltp_pos.y,			\
+                   &ins_impl.ltp_speed.x,		\
+                   &ins_impl.ltp_speed.y,		\
+                   &ins_impl.ltp_accel.x,		\
+                   &ins_impl.ltp_accel.y,		\
                    &guidance_h_pos_err.x,		\
                    &guidance_h_pos_err.y,		\
                    &guidance_h_speed_err.x,	\

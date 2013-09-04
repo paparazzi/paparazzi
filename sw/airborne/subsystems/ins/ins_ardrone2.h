@@ -40,6 +40,6 @@ extern struct NedCoor_i ins_ltp_pos;
 extern struct LtpDef_i ins_ltp_def;
 extern struct NedCoor_f ins_ltp_speed;
 extern struct NedCoor_f ins_ltp_accel;
-extern bool_t ins_ltp_initialised;
+extern bool_t ins_ltp_initialized;
 
 #endif /* INS_INT_H */
