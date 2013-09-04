@@ -24,26 +24,14 @@
  * @ingroup stm32_arch
  *
  * GPIO helper functions for STM32F1 and STM32F4.
+ *
+ * The gpio_set and gpio_clear functions are already available from libopencm3.
  */
 
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
 #include <libopencm3/stm32/gpio.h>
-
-/**
- * Set a gpio output to high level.
- */
-static inline void gpio_output_high(uint32_t port, uint16_t pin) {
-  gpio_set(port, pin);
-}
-
-/**
- * Clear a gpio output to low level.
- */
-static inline void gpio_output_low(uint32_t port, uint16_t pin) {
-  gpio_clear(port, pin);
-}
 
 /**
  * Setup a gpio for input or output with alternate function.

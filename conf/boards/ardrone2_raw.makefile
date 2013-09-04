@@ -35,8 +35,8 @@ $(TARGET).CFLAGS +=-DARDRONE2_RAW
 # -----------------------------------------------------------------------
 
 # default LED configuration
-RADIO_CONTROL_LED  ?= none
-BARO_LED           ?= none
-AHRS_ALIGNER_LED   ?= none
-GPS_LED            ?= none
-SYS_TIME_LED       ?= none
+RADIO_CONTROL_LED			?= 6
+BARO_LED           			?= none
+AHRS_ALIGNER_LED   			?= 5
+GPS_LED            			?= 3
+SYS_TIME_LED       			?= 0

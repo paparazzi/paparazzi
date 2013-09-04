@@ -73,10 +73,6 @@ struct FloatVect2 ins_gps_speed_m_s_ned;
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
-#if USE_SONAR
-bool_t  ins_update_on_agl;
-int32_t ins_sonar_offset;
-#endif
 #endif
 
 /* output                      */
@@ -107,9 +103,6 @@ void ins_init() {
 #endif
 #if USE_VFF
   ins_baro_initialised = FALSE;
-#if USE_SONAR
-  ins_update_on_agl = FALSE;
-#endif
   vff_init(0., 0., 0.);
 #endif
   ins.vf_realign = FALSE;
@@ -185,9 +178,6 @@ void ins_update_baro() {
     if (ins.vf_realign) {
       ins.vf_realign = FALSE;
       ins_qfe = baro.absolute;
-#if USE_SONAR
-      ins_sonar_offset = sonar_meas;
-#endif
       vff_realign(0.);
       ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
       ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
@@ -263,13 +253,4 @@ void ins_update_gps(void) {
 }
 
 void ins_update_sonar() {
-#if USE_SONAR && USE_VFF
-  static int32_t sonar_filtered = 0;
-  sonar_filtered = (sonar_meas + 2*sonar_filtered) / 3;
-  /* update baro_qfe assuming a flat ground */
-  if (ins_update_on_agl && baro.status == BS_RUNNING) {
-    int32_t d_sonar = (((int32_t)sonar_filtered - ins_sonar_offset) * INS_SONAR_SENS_NUM) / INS_SONAR_SENS_DEN;
-    ins_qfe = baro.absolute + (d_sonar * (INS_BARO_SENS_DEN))/INS_BARO_SENS_NUM;
-  }
-#endif
 }

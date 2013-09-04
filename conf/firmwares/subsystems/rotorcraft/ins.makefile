@@ -8,5 +8,5 @@ $(TARGET).srcs += $(SRC_SUBSYSTEMS)/ins/ins_int.c
 
 #  vertical filter float version
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
-$(TARGET).CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./$(PERIODIC_FREQUENCY).)'
+$(TARGET).CFLAGS += -DUSE_VFF
 

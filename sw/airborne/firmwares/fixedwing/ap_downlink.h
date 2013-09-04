@@ -47,6 +47,9 @@
 #include "messages.h"
 #include "generated/periodic_telemetry.h"
 
+// I2C Error counters
+#include "mcu_periph/i2c.h"
+
 #if defined DOWNLINK
 #define Downlink(x) x
 #else
@@ -150,6 +153,11 @@
 
 #define PERIODIC_SEND_SEGMENT(_trans, _dev) if (nav_in_segment) { DOWNLINK_SEND_SEGMENT(_trans, _dev, &nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2); }
 
+#if USE_IMU_FLOAT
+#  include "subsystems/imu.h"
+#  define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) { DOWNLINK_SEND_IMU_ACCEL(_trans, _dev, &imuf.accel.x, &imuf.accel.y, &imuf.accel.z)}
+#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r)}
+#else
 #ifdef IMU_TYPE_H
 #  ifdef INS_MODULE_H
 #  include "modules/ins/ins_module.h"
@@ -179,6 +187,7 @@
 #    define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) {}
 #    define PERIODIC_SEND_IMU_GYRO(_trans, _dev) {}
 #    define PERIODIC_SEND_IMU_MAG(_trans, _dev) {}
+#endif
 #endif
 
 #ifdef IMU_ANALOG
@@ -317,5 +326,157 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #define PERIODIC_SEND_H_CTL_A(_trans, _dev) DOWNLINK_SEND_H_CTL_A(_trans, _dev, &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
 
+#ifdef USE_GX3
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
+    &ahrs_impl.GX3_freq,			\
+    &ahrs_impl.GX3_packet.chksm_error,	\
+    &ahrs_impl.GX3_packet.hdr_error,	\
+    &ahrs_impl.GX3_chksm)
+#else
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
+#endif
+
+#ifdef USE_I2C0
+#define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                       \
+    uint16_t i2c0_queue_full_cnt        = i2c0.errors->queue_full_cnt;  \
+    uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;    \
+    uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt; \
+    uint16_t i2c0_arb_lost_cnt          = i2c0.errors->arb_lost_cnt;    \
+    uint16_t i2c0_over_under_cnt        = i2c0.errors->over_under_cnt;  \
+    uint16_t i2c0_pec_recep_cnt         = i2c0.errors->pec_recep_cnt;   \
+    uint16_t i2c0_timeout_tlow_cnt      = i2c0.errors->timeout_tlow_cnt; \
+    uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt; \
+    uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt; \
+    uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event; \
+    const uint8_t _bus0 = 0;                                            \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                              \
+                             &i2c0_queue_full_cnt,                      \
+                             &i2c0_ack_fail_cnt,                        \
+                             &i2c0_miss_start_stop_cnt,                 \
+                             &i2c0_arb_lost_cnt,                        \
+                             &i2c0_over_under_cnt,                      \
+                             &i2c0_pec_recep_cnt,                       \
+                             &i2c0_timeout_tlow_cnt,                    \
+                             &i2c0_smbus_alert_cnt,                     \
+                             &i2c0_unexpected_event_cnt,                \
+                             &i2c0_last_unexpected_event,               \
+                             &_bus0);                                   \
+  }
+#else
+#define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_I2C1
+#define PERIODIC_SEND_I2C1_ERRORS(_trans, _dev) {                       \
+    uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;  \
+    uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;    \
+    uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt; \
+    uint16_t i2c1_arb_lost_cnt          = i2c1.errors->arb_lost_cnt;    \
+    uint16_t i2c1_over_under_cnt        = i2c1.errors->over_under_cnt;  \
+    uint16_t i2c1_pec_recep_cnt         = i2c1.errors->pec_recep_cnt;   \
+    uint16_t i2c1_timeout_tlow_cnt      = i2c1.errors->timeout_tlow_cnt; \
+    uint16_t i2c1_smbus_alert_cnt       = i2c1.errors->smbus_alert_cnt; \
+    uint16_t i2c1_unexpected_event_cnt  = i2c1.errors->unexpected_event_cnt; \
+    uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event; \
+    const uint8_t _bus1 = 1;                                            \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                              \
+                             &i2c1_queue_full_cnt,                      \
+                             &i2c1_ack_fail_cnt,                        \
+                             &i2c1_miss_start_stop_cnt,                 \
+                             &i2c1_arb_lost_cnt,                        \
+                             &i2c1_over_under_cnt,                      \
+                             &i2c1_pec_recep_cnt,                       \
+                             &i2c1_timeout_tlow_cnt,                    \
+                             &i2c1_smbus_alert_cnt,                     \
+                             &i2c1_unexpected_event_cnt,                \
+                             &i2c1_last_unexpected_event,               \
+                             &_bus1);                                   \
+  }
+#else
+#define PERIODIC_SEND_I2C1_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_I2C2
+#define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {                       \
+    uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;  \
+    uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;    \
+    uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt; \
+    uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;    \
+    uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;  \
+    uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;   \
+    uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt; \
+    uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt; \
+    uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt; \
+    uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event; \
+    const uint8_t _bus2 = 2;                                            \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                              \
+                             &i2c2_queue_full_cnt,                      \
+                             &i2c2_ack_fail_cnt,                        \
+                             &i2c2_miss_start_stop_cnt,                 \
+                             &i2c2_arb_lost_cnt,                        \
+                             &i2c2_over_under_cnt,                      \
+                             &i2c2_pec_recep_cnt,                       \
+                             &i2c2_timeout_tlow_cnt,                    \
+                             &i2c2_smbus_alert_cnt,                     \
+                             &i2c2_unexpected_event_cnt,                \
+                             &i2c2_last_unexpected_event,               \
+                             &_bus2);                                   \
+  }
+#else
+#define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_I2C3
+#define PERIODIC_SEND_I2C3_ERRORS(_trans, _dev) {                       \
+    uint16_t i2c3_queue_full_cnt        = i2c3.errors->queue_full_cnt;  \
+    uint16_t i2c3_ack_fail_cnt          = i2c3.errors->ack_fail_cnt;    \
+    uint16_t i2c3_miss_start_stop_cnt   = i2c3.errors->miss_start_stop_cnt; \
+    uint16_t i2c3_arb_lost_cnt          = i2c3.errors->arb_lost_cnt;    \
+    uint16_t i2c3_over_under_cnt        = i2c3.errors->over_under_cnt;  \
+    uint16_t i2c3_pec_recep_cnt         = i2c3.errors->pec_recep_cnt;   \
+    uint16_t i2c3_timeout_tlow_cnt      = i2c3.errors->timeout_tlow_cnt; \
+    uint16_t i2c3_smbus_alert_cnt       = i2c3.errors->smbus_alert_cnt; \
+    uint16_t i2c3_unexpected_event_cnt  = i2c3.errors->unexpected_event_cnt; \
+    uint32_t i2c3_last_unexpected_event = i2c3.errors->last_unexpected_event; \
+    const uint8_t _bus3 = 3;                                            \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                              \
+                             &i2c3_queue_full_cnt,                      \
+                             &i2c3_ack_fail_cnt,                        \
+                             &i2c3_miss_start_stop_cnt,                 \
+                             &i2c3_arb_lost_cnt,                        \
+                             &i2c3_over_under_cnt,                      \
+                             &i2c3_pec_recep_cnt,                       \
+                             &i2c3_timeout_tlow_cnt,                    \
+                             &i2c3_smbus_alert_cnt,                     \
+                             &i2c3_unexpected_event_cnt,                \
+                             &i2c3_last_unexpected_event,               \
+                             &_bus3);                                   \
+  }
+#else
+#define PERIODIC_SEND_I2C3_ERRORS(_trans, _dev) {}
+#endif
+
+#ifndef SITL
+#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {        \
+    static uint8_t _i2c_nb_cnt = 0;                     \
+    switch (_i2c_nb_cnt) {                              \
+      case 0:                                           \
+        PERIODIC_SEND_I2C0_ERRORS(_trans, _dev); break; \
+      case 1:                                           \
+        PERIODIC_SEND_I2C1_ERRORS(_trans, _dev); break; \
+      case 2:                                           \
+        PERIODIC_SEND_I2C2_ERRORS(_trans, _dev); break; \
+      case 3:                                           \
+        PERIODIC_SEND_I2C3_ERRORS(_trans, _dev); break; \
+      default:                                          \
+        break;                                          \
+    }                                                   \
+    _i2c_nb_cnt++;                                      \
+    if (_i2c_nb_cnt == 3)                               \
+      _i2c_nb_cnt = 0;                                  \
+  }
+#else
+#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {}
+#endif
 
 #endif /* AP_DOWNLINK_H */

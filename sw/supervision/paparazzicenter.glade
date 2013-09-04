@@ -276,6 +276,16 @@
                         <signal name="activate" handler="on_about2_activate"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_item_get_help">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">_Get Help</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_about3_activate"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>

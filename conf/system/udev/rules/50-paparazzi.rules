@@ -27,6 +27,9 @@ ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", GROUP="plugdev"
 # FTDI 2232 based jtag for Lisa/L and usb upload
 ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0666", GROUP="plugdev"
 
+# dfu devices
+ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE="0666", GROUP="plugdev"
+
 # all (fake VID 0x7070) LPCUSB devices (access through libusb)
 ATTRS{idVendor}=="7070", GROUP="plugdev"
 

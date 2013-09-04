@@ -88,6 +88,18 @@
 #include "nps_autopilot_fixedwing.h"
 #endif
 
+/* Default trim commands for roll, pitch and yaw */
+#ifndef COMMAND_ROLL_TRIM
+#define COMMAND_ROLL_TRIM 0
+#endif
+
+#ifndef COMMAND_PITCH_TRIM
+#define COMMAND_PITCH_TRIM 0
+#endif
+
+#ifndef COMMAND_YAW_TRIM
+#define COMMAND_YAW_TRIM 0
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
@@ -170,6 +182,9 @@ void init_ap( void ) {
 
 #if USE_IMU
   imu_init();
+#if USE_IMU_FLOAT
+  imu_float_init();
+#endif
 #endif
 
 #if USE_AHRS_ALIGNER
@@ -234,6 +249,13 @@ void init_ap( void ) {
 #ifdef TRAFFIC_INFO
   traffic_info_init();
 #endif
+
+  /* set initial trim values.
+   * these are passed to fbw via inter_mcu.
+   */
+  ap_state->command_roll_trim = COMMAND_ROLL_TRIM;
+  ap_state->command_pitch_trim = COMMAND_PITCH_TRIM;
+  ap_state->command_yaw_trim = COMMAND_YAW_TRIM;
 }
 
 
@@ -653,7 +675,6 @@ void event_task_ap( void ) {
   if (new_ins_attitude > 0)
   {
     attitude_loop();
-    //LED_TOGGLE(3);
     new_ins_attitude = 0;
   }
 #endif

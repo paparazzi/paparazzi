@@ -1316,8 +1316,12 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
   uint8_t temp;
   temp = periph->trans_insert_idx + 1;
   if (temp >= I2C_TRANSACTION_QUEUE_LEN) temp = 0;
-  if (temp == periph->trans_extract_idx)
-    return FALSE;                          // queue full
+  if (temp == periph->trans_extract_idx) {
+    // queue full
+    periph->errors->queue_full_cnt++;
+    t->status = I2CTransFailed;
+    return FALSE;
+  }
 
   t->status = I2CTransPending;
 

@@ -18,12 +18,12 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
+
 /**
  * @file modules/max7456/max7456.c
  * Maxim MAX7456 single-channel monochrome on-screen display driver.
  *
- */ 
+ */
 
 #include "std.h"
 #include "stdio.h"
@@ -66,7 +66,7 @@ uint8_t step = 0;
 uint16_t osd_char_address = 0;
 uint8_t  osd_attr = FALSE;
 
-enum max7456_osd_status_codes { 
+enum max7456_osd_status_codes {
   OSD_UNINIT,
   OSD_INIT1,
   OSD_INIT2,
@@ -118,7 +118,7 @@ void max7456_periodic(void) {
 
   float temp = 0;
 //This code is executed always and checks if the "osd_enable" var has been changed by telemetry.
-//If yes then it commands a reset but this time turns on or off the osd overlay, not the video. 
+//If yes then it commands a reset but this time turns on or off the osd overlay, not the video.
   if (max7456_osd_status == OSD_IDLE) {
     if(osd_enable > 1)
       osd_enable = 1;
@@ -134,8 +134,8 @@ void max7456_periodic(void) {
     max7456_trans.status = SPITransDone;
     max7456_trans.output_buf[0] = OSD_VM0_REG;
     //This operation needs at least 100us but when the periodic function will be invoked again
-    //sufficient time will have elapsed even with at a periodic frequency of 1000 Hz 
-    max7456_trans.output_buf[1] = OSD_RESET; 
+    //sufficient time will have elapsed even with at a periodic frequency of 1000 Hz
+    max7456_trans.output_buf[1] = OSD_RESET;
     max7456_osd_status = OSD_INIT1;
     spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
   }
@@ -145,7 +145,7 @@ void max7456_periodic(void) {
     max7456_trans.input_length = 1;
     max7456_trans.output_buf[0] = OSD_OSDBL_REG_R;
     max7456_osd_status = OSD_INIT3;
-    spi_submit(&(MAX7456_SPI_DEV), &max7456_trans); 
+    spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
   }
   else
   if (max7456_osd_status == OSD_IDLE && osd_enable > 0) { // DRAW THE OSD SCREEN
@@ -199,13 +199,13 @@ void max7456_periodic(void) {
   return;
 }
 
-void max7456_event(void) { 
+void max7456_event(void) {
 
   static uint8_t x = 0;
 
   if (max7456_trans.status == SPITransSuccess) {
      max7456_trans.status = SPITransDone;
-    
+
     switch (max7456_osd_status) {
       case (OSD_INIT1):
         max7456_osd_status = OSD_INIT2;
@@ -240,7 +240,7 @@ void max7456_event(void) {
         max7456_osd_status = OSD_S_STEP2;
         spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
       break;
-      case (OSD_S_STEP2): 
+      case (OSD_S_STEP2):
         max7456_trans.output_length = 2;
         max7456_trans.output_buf[0] = OSD_DMM_REG;
         max7456_trans.output_buf[1] = OSD_AUTO_INCREMENT_MODE | osd_attr;
@@ -248,18 +248,18 @@ void max7456_event(void) {
         spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         x = 0;
       break;
-      case (OSD_S_STEP3):  
+      case (OSD_S_STEP3):
         max7456_trans.output_length = 1; //1 byte tranfers, auto address incrementing.
         if (osd_string[x] != 0XFF) {
           max7456_trans.output_buf[0] = osd_string[x++];
           spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         }
-        else { 
+        else {
           max7456_trans.output_buf[0] = 0xFF; //Exit the auto increment mode
           max7456_osd_status = OSD_FINISHED;
           spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         }
-      break;  
+      break;
       case (OSD_FINISHED):
         osd_attr = 0;
         max7456_trans.status = SPITransDone;
@@ -274,13 +274,13 @@ void max7456_event(void) {
 static char ascii_to_osd_c(char c) {
 
   if (c >= '0' && c <= '9') {
-    if (c == '0') 
-      c -= 38; 
+    if (c == '0')
+      c -= 38;
     else
       c -= 48;
   }
   else {
-    if (c >= 'A' && c <= 'Z') 
+    if (c >= 'A' && c <= 'Z')
       c -= 54;
     else {
       if (c >= 'a' && c <= 'z')
@@ -324,12 +324,12 @@ static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t
   // translate the string and put it to the "osd_string" '\0' = 0xff
   x = 0;
   while (*(string+x) != '\0') {
-    osd_string[x] = ascii_to_osd_c(*(string+x)); 
-    x++; 
+    osd_string[x] = ascii_to_osd_c(*(string+x));
+    x++;
   }
   osd_string[x] = ascii_to_osd_c(*(string+x));
 
-  for (x=0; x < sizeof(osd_string); x++) { 
+  for (x=0; x < sizeof(osd_string); x++) {
     if(osd_string[x] == 0xff)
       break;
   }
@@ -340,7 +340,7 @@ static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t
   }
   osd_string[x] = 0xff;
 
-  osd_attr = attributes;  
+  osd_attr = attributes;
 
   //TRIGGER THE SPI TRANSFERS. The rest of the spi transfers occur in the "max7456_event" function.
   if (max7456_osd_status == OSD_IDLE){
@@ -375,11 +375,11 @@ static bool_t _osd_sprintf(char* buffer, char* string, float value) {
   // Search for the prameter start and stop positions.
   while (*(string+x) != '\0'){
     if (*(string+x) == '%'){
-       param_start = x; 
+       param_start = x;
     }
-    else 
+    else
       if (*(string+x) == 'f') {
-        param_end = x; 
+        param_end = x;
         break;
       }
     x++;
@@ -413,30 +413,30 @@ static bool_t _osd_sprintf(char* buffer, char* string, float value) {
     to_asc[y] = (i_dec % 10) + 48;            //Write at least one digit even if value is zero.
     i_dec /= 10;
     if (i_dec <= 0) {                          // This way the leading zero is ommited.
-      if(value < 0) { 
+      if(value < 0) {
         y--; to_asc[y] = '-';  // Place the minus sign if needed.
       }
       break;
     }
     else
       y--;
-  } while(1); 
+  } while(1);
 
   // Fill the buffer with the characters in the beggining of the string if any.
   for (x=0; x<param_start; x++) {
     *(buffer+x) = *(string+x);
   }
 
-  // x is now pointing to the next character in osd_string. 
+  // x is now pointing to the next character in osd_string.
   // y is already pointing to the first digit or negative sign in "to_asc" array.
   while (y < sizeof(to_asc)) {
     *(buffer + x) = to_asc[y];
     x++; y++;
   }
-  // x is now pointing to the next character in osd_string. 
+  // x is now pointing to the next character in osd_string.
   // "param_end" is pointing to the last format character in the string.
   do {
-    param_end++; 
+    param_end++;
     *(buffer + x++) = *(string+param_end);
   } while(*(string+param_end) != '\0'); //Write the rest of the string including the terminating char.
 

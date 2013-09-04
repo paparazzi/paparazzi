@@ -341,4 +341,11 @@ bool_t nav_detect_ground(void) {
   return TRUE;
 }
 
+bool_t nav_is_in_flight(void) {
+  if (autopilot_in_flight)
+    return TRUE;
+  else
+    return FALSE;
+}
+
 void nav_home(void) {}

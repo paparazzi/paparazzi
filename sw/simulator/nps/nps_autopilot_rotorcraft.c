@@ -33,15 +33,23 @@
 #include "subsystems/electrical.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
+#include "subsystems/ahrs.h"
+#include "subsystems/ins.h"
+#include "math/pprz_algebra.h"
 
 #include "subsystems/actuators/motor_mixing.h"
 
 
 struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
+bool_t nps_bypass_ins;
 
 #ifndef NPS_BYPASS_AHRS
 #define NPS_BYPASS_AHRS FALSE
+#endif
+
+#ifndef NPS_BYPASS_INS
+#define NPS_BYPASS_INS FALSE
 #endif
 
 
@@ -49,6 +57,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
+  nps_bypass_ins = NPS_BYPASS_INS;
 
   main_init();
 
@@ -100,6 +109,10 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     sim_overwrite_ahrs();
   }
 
+  if (nps_bypass_ins) {
+    sim_overwrite_ins();
+  }
+
   handle_periodic_tasks();
 
   /* scale final motor commands to 0-1 for feeding the fdm */
@@ -108,6 +121,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     autopilot.commands[i] = (double)motor_mixing.commands[i]/MAX_PPRZ;
 
 }
+
 
 void sim_overwrite_ahrs(void) {
 
@@ -118,5 +132,21 @@ void sim_overwrite_ahrs(void) {
   struct FloatRates rates_f;
   RATES_COPY(rates_f, fdm.body_ecef_rotvel);
   stateSetBodyRates_f(&rates_f);
+
+}
+
+void sim_overwrite_ins(void) {
+
+  struct NedCoor_f ltp_pos;
+  VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
+  stateSetPositionNed_f(&ltp_pos);
+
+  struct NedCoor_f ltp_speed;
+  VECT3_COPY(ltp_speed, fdm.ltpprz_ecef_vel);
+  stateSetSpeedNed_f(&ltp_speed);
+
+  struct NedCoor_f ltp_accel;
+  VECT3_COPY(ltp_accel, fdm.ltpprz_ecef_accel);
+  stateSetAccelNed_f(&ltp_accel);
 
 }

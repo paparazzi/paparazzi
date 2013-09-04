@@ -163,6 +163,7 @@
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
    <define name="NOMINAL_HOVER_THROTTLE" value="0.4"/>
+   <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
 

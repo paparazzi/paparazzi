@@ -34,6 +34,17 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
+#define B1200    1200
+#define B2400    2400
+#define B4800    4800
+#define B9600    9600
+#define B19200   19200
+#define B38400   38400
+#define B57600   57600
+#define B100000  100000
+#define B115200  115200
+#define B230400  230400
+
 #define UART_8N1      (uint8_t)(ULCR_CHAR_8 + ULCR_PAR_NO   + ULCR_STOP_1)
 #define UART_7N1      (uint8_t)(ULCR_CHAR_7 + ULCR_PAR_NO   + ULCR_STOP_1)
 #define UART_8N2      (uint8_t)(ULCR_CHAR_8 + ULCR_PAR_NO   + ULCR_STOP_2)

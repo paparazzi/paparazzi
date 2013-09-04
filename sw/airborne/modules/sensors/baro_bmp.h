@@ -1,56 +1,56 @@
+/*
+ * Copyright (C) 2010 Martin Mueller
+ * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
+/**
+ * @file modules/sensors/baro_bmp.h
+ * Bosch BMP085 I2C sensor interface.
+ *
+ * This reads the values for pressure and temperature from the Bosch BMP085 sensor through I2C.
+ */
+
 #ifndef BARO_BMP_H
 #define BARO_BMP_H
 
-#include "std.h"
+#include "peripherals/bmp085.h"
 
-#define BMP085_EEPROM_AC1   0xAA
-#define BMP085_EEPROM_AC2   0xAC
-#define BMP085_EEPROM_AC3   0xAE
-#define BMP085_EEPROM_AC4   0xB0
-#define BMP085_EEPROM_AC5   0xB2
-#define BMP085_EEPROM_AC6   0xB4
-#define BMP085_EEPROM_B1    0xB6
-#define BMP085_EEPROM_B2    0xB8
-#define BMP085_EEPROM_MB    0xBA
-#define BMP085_EEPROM_MC    0xBC
-#define BMP085_EEPROM_MD    0xBE
+extern struct Bmp085 baro_bmp;
 
-#define BMP085_CTRL_REG     0xF4
+/// new measurement every 3rd baro_bmp_periodic
+#ifndef SITL
+#define BARO_BMP_DT (BARO_BMP_PERIODIC_PERIOD / 3)
+#else
+#define BARO_BMP_DT BARO_BMP_PERIODIC_PERIOID
+#endif
 
-#define BMP085_START_TEMP   0x2E
-#define BMP085_START_P0     0x34
-#define BMP085_START_P1     0x74
-#define BMP085_START_P2     0xB4
-#define BMP085_START_P3     0xF4
-
-#define BMP085_DAT_MSB      0xF6
-#define BMP085_DAT_LSB      0xF7
-#define BMP085_DAT_XLSB     0xF8
-
-#define BARO_BMP_UNINIT       0
-#define BARO_BMP_IDLE         1
-#define BARO_BMP_START_TEMP   2
-#define BARO_BMP_READ_TEMP    3
-#define BARO_BMP_START_PRESS  4
-#define BARO_BMP_READ_PRESS   5
-
-#define BARO_BMP_DT 0.05
 extern bool_t baro_bmp_enabled;
 extern float baro_bmp_r;
 extern float baro_bmp_sigma2;
-
-extern uint8_t  baro_bmp_status;
-extern bool_t   baro_bmp_valid;
-extern uint32_t baro_bmp_pressure;
-extern uint16_t baro_bmp_temperature;
-extern int32_t  baro_bmp_altitude;
-extern int32_t baro_bmp;
-extern int32_t baro_bmp_offset;
+extern int32_t baro_bmp_alt;
 
 void baro_bmp_init(void);
 void baro_bmp_periodic(void);
 void baro_bmp_event(void);
 
-#define BaroBmpUpdate(_b) { if (baro_bmp_valid) { _b = baro_bmp_pressure; baro_bmp_valid = FALSE; } }
+#define BaroBmpUpdate(_b, _h) { if (baro_bmp.data_available) { _b = baro_bmp.pressure; _h(); baro_bmp.data_available = FALSE; } }
 
 #endif

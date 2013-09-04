@@ -134,6 +134,28 @@
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
+#ifdef USE_SUPERBITRF
+#include "subsystems/datalink/superbitrf.h"
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {        \
+    DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
+                      &superbitrf.status,               \
+                      &superbitrf.cyrf6936.status,      \
+                      &superbitrf.irq_count,            \
+                      &superbitrf.rx_packet_count,      \
+                      &superbitrf.tx_packet_count,      \
+                      &superbitrf.transfer_timeouts,    \
+                      &superbitrf.resync_count,         \
+                      &superbitrf.uplink_count,         \
+                      &superbitrf.rc_count,             \
+                      &superbitrf.timing1,              \
+                      &superbitrf.timing2,              \
+                      &superbitrf.bind_mfg_id32,        \
+                      6,                                \
+                      superbitrf.cyrf6936.mfg_id);}
+#else
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {}
+#endif
+
 #ifdef ACTUATORS
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
 #else
@@ -274,7 +296,7 @@
 #define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {       \
   struct FloatRates* body_rate = stateGetBodyRates_f();   \
   struct FloatEulers* att = stateGetNedToBodyEulers_f();  \
-  float foo;                                              \
+  float foo = 0.0;                                       \
   DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(_trans, _dev,         \
       &(body_rate->p), &(body_rate->q), &(body_rate->r),  \
       &(att->phi), &(att->theta), &(att->psi),            \
@@ -396,72 +418,6 @@
 #define PERIODIC_SEND_AHRS_GYRO_BIAS_INT(_trans, _dev) {}
 #endif
 
-#if USE_AHRS_LKF
-#include "subsystems/ahrs.h"
-#include "ahrs/ahrs_float_lkf.h"
-#define PERIODIC_SEND_AHRS_LKF(_trans, _dev) {				\
-    DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,			\
-                _trans, _dev,					\
-                &bafl_eulers.theta,			\
-                &bafl_eulers.psi,			\
-                &bafl_quat.qi,				\
-                &bafl_quat.qx,				\
-                &bafl_quat.qy,				\
-                &bafl_quat.qz,				\
-                &bafl_rates.p,				\
-                &bafl_rates.q,				\
-                &bafl_rates.r,				\
-                &bafl_accel_measure.x,			\
-                &bafl_accel_measure.y,			\
-                &bafl_accel_measure.z,			\
-                &bafl_mag.x,				\
-                &bafl_mag.y,				\
-                &bafl_mag.z);				\
-  }
-#define PERIODIC_SEND_AHRS_LKF_DEBUG(_trans, _dev) {           \
-    DOWNLINK_SEND_AHRS_LKF_DEBUG(_trans, _dev,             \
-                      &bafl_X[0],          \
-                      &bafl_X[1],          \
-                      &bafl_X[2],          \
-                      &bafl_bias.p,        \
-                      &bafl_bias.q,        \
-                      &bafl_bias.r,        \
-                      &bafl_qnorm,         \
-                      &bafl_phi_accel,         \
-                      &bafl_theta_accel,       \
-                      &bafl_P[0][0],           \
-                      &bafl_P[1][1],           \
-                      &bafl_P[2][2],           \
-                      &bafl_P[3][3],           \
-                      &bafl_P[4][4],           \
-                      &bafl_P[5][5]);          \
-  }
-#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {          \
-    DOWNLINK_SEND_AHRS_LKF_ACC_DBG(_trans, _dev,                \
-                    &bafl_q_a_err.qi,       \
-                    &bafl_q_a_err.qx,       \
-                    &bafl_q_a_err.qy,       \
-                    &bafl_q_a_err.qz,       \
-                    &bafl_b_a_err.p,        \
-                    &bafl_b_a_err.q,        \
-                    &bafl_b_a_err.r);       \
-  }
-#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_trans, _dev) {      \
-    DOWNLINK_SEND_AHRS_LKF_MAG_DBG(_trans, _dev,            \
-                    &bafl_q_m_err.qi,   \
-                    &bafl_q_m_err.qx,   \
-                    &bafl_q_m_err.qy,   \
-                    &bafl_q_m_err.qz,   \
-                    &bafl_b_m_err.p,    \
-                    &bafl_b_m_err.q,    \
-                    &bafl_b_m_err.r);   \
-  }
-#else
-#define PERIODIC_SEND_AHRS_LKF(_trans, _dev) {}
-#define PERIODIC_SEND_AHRS_LKF_DEBUG(_trans, _dev) {}
-#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_trans, _dev) {}
-#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {}
-#endif
 
 #if defined STABILIZATION_ATTITUDE_TYPE_QUAT && defined STABILIZATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {   \
@@ -840,6 +796,7 @@
 
 #ifdef USE_I2C0
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                             \
+    uint16_t i2c0_queue_full_cnt        = i2c0.errors->queue_full_cnt;        \
     uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;          \
     uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;   \
     uint16_t i2c0_arb_lost_cnt          = i2c0.errors->arb_lost_cnt;          \
@@ -851,6 +808,7 @@
     uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event; \
     const uint8_t _bus0 = 0;                                            \
     DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
+                             &i2c0_queue_full_cnt,          \
                              &i2c0_ack_fail_cnt,            \
                              &i2c0_miss_start_stop_cnt,     \
                              &i2c0_arb_lost_cnt,            \
@@ -868,6 +826,7 @@
 
 #ifdef USE_I2C1
 #define PERIODIC_SEND_I2C1_ERRORS(_trans, _dev) {                             \
+    uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;        \
     uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;          \
     uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;   \
     uint16_t i2c1_arb_lost_cnt          = i2c1.errors->arb_lost_cnt;          \
@@ -879,6 +838,7 @@
     uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event; \
     const uint8_t _bus1 = 1;                                            \
     DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
+                             &i2c1_queue_full_cnt,          \
                              &i2c1_ack_fail_cnt,            \
                              &i2c1_miss_start_stop_cnt,     \
                              &i2c1_arb_lost_cnt,            \
@@ -896,6 +856,7 @@
 
 #ifdef USE_I2C2
 #define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {                             \
+    uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;        \
     uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;          \
     uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;   \
     uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;          \
@@ -907,6 +868,7 @@
     uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event; \
     const uint8_t _bus2 = 2;                                            \
     DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
+                             &i2c2_queue_full_cnt,          \
                              &i2c2_ack_fail_cnt,            \
                              &i2c2_miss_start_stop_cnt,     \
                              &i2c2_arb_lost_cnt,            \
@@ -922,6 +884,36 @@
 #define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {}
 #endif
 
+#ifdef USE_I2C3
+#define PERIODIC_SEND_I2C3_ERRORS(_trans, _dev) {                       \
+    uint16_t i2c3_queue_full_cnt        = i2c3.errors->queue_full_cnt;  \
+    uint16_t i2c3_ack_fail_cnt          = i2c3.errors->ack_fail_cnt;    \
+    uint16_t i2c3_miss_start_stop_cnt   = i2c3.errors->miss_start_stop_cnt; \
+    uint16_t i2c3_arb_lost_cnt          = i2c3.errors->arb_lost_cnt;    \
+    uint16_t i2c3_over_under_cnt        = i2c3.errors->over_under_cnt;  \
+    uint16_t i2c3_pec_recep_cnt         = i2c3.errors->pec_recep_cnt;   \
+    uint16_t i2c3_timeout_tlow_cnt      = i2c3.errors->timeout_tlow_cnt; \
+    uint16_t i2c3_smbus_alert_cnt       = i2c3.errors->smbus_alert_cnt; \
+    uint16_t i2c3_unexpected_event_cnt  = i2c3.errors->unexpected_event_cnt; \
+    uint32_t i2c3_last_unexpected_event = i2c3.errors->last_unexpected_event; \
+    const uint8_t _bus3 = 3;                                            \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                              \
+                             &i2c3_queue_full_cnt,                      \
+                             &i2c3_ack_fail_cnt,                        \
+                             &i2c3_miss_start_stop_cnt,                 \
+                             &i2c3_arb_lost_cnt,                        \
+                             &i2c3_over_under_cnt,                      \
+                             &i2c3_pec_recep_cnt,                       \
+                             &i2c3_timeout_tlow_cnt,                    \
+                             &i2c3_smbus_alert_cnt,                     \
+                             &i2c3_unexpected_event_cnt,                \
+                             &i2c3_last_unexpected_event,               \
+                             &_bus3);                                   \
+  }
+#else
+#define PERIODIC_SEND_I2C3_ERRORS(_trans, _dev) {}
+#endif
+
 #ifndef SITL
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {        \
     static uint8_t _i2c_nb_cnt = 0;                     \
@@ -932,6 +924,8 @@
         PERIODIC_SEND_I2C1_ERRORS(_trans, _dev); break; \
       case 2:                                           \
         PERIODIC_SEND_I2C2_ERRORS(_trans, _dev); break; \
+      case 3:                                           \
+        PERIODIC_SEND_I2C3_ERRORS(_trans, _dev); break; \
       default:                                          \
         break;                                          \
     }                                                   \
@@ -1074,6 +1068,16 @@
   }
 #else
 #define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_GX3
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
+    &ahrs_impl.GX3_freq,			\
+    &ahrs_impl.GX3_packet.chksm_error,	\
+    &ahrs_impl.GX3_packet.hdr_error,	\
+    &ahrs_impl.GX3_chksm)
+#else
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
 
 #endif /* TELEMETRY_H */
