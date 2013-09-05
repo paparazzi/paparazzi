@@ -254,6 +254,8 @@ STATIC_INLINE void failsafe_check( void ) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
+
+  autopilot_check_in_flight(autopilot_motors_on);
 }
 
 STATIC_INLINE void main_event( void ) {
@@ -307,6 +309,9 @@ static inline void on_gyro_event( void ) {
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
     ins_propagate();
+#ifdef SITL
+    if (nps_bypass_ins) sim_overwrite_ins();
+#endif
   }
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_imu_available();

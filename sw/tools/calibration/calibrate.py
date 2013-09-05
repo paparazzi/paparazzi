@@ -43,6 +43,9 @@ def main():
     parser.add_option("-p", "--plot",
                       help="Show resulting plots",
                       action="store_true", dest="plot")
+    parser.add_option("-a", "--auto_threshold",
+                      help="Try to automatically determine noise threshold",
+                      action="store_true", dest="auto_threshold")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
@@ -67,12 +70,12 @@ def main():
         sensor_ref = 9.81
         sensor_res = 10
         noise_window = 20;
-        #noise_threshold = 40;
+        noise_threshold = 40;
     elif options.sensor == "MAG":
         sensor_ref = 1.
         sensor_res = 11
         noise_window = 10;
-        #noise_threshold = 1000;
+        noise_threshold = 1000;
 
     if not filename.endswith(".data"):
         parser.error("Please specify a *.data log file")
@@ -89,9 +92,10 @@ def main():
 
     # estimate the noise threshold
     # find the median of measurement vector lenght
-    meas_median = scipy.median(scipy.array([scipy.linalg.norm(v) for v in measurements]))
-    # set noise threshold to be below 10% of that
-    noise_threshold = meas_median * 0.1
+    if options.auto_threshold:
+        meas_median = scipy.median(scipy.array([scipy.linalg.norm(v) for v in measurements]))
+        # set noise threshold to be below 10% of that
+        noise_threshold = meas_median * 0.1
     if options.verbose:
         print("Using noise threshold of", noise_threshold, "for filtering.")
 

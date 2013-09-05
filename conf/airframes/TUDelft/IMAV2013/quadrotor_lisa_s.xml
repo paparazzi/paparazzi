@@ -22,7 +22,7 @@
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
-    <axis name="THRUST" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="1000"/>
   </commands>
 
   <command_laws>
@@ -76,7 +76,7 @@
 
  <section name="BAT">
    <define name="MILLIAMP_AT_FULL_THROTTLE" value="14000"/>
-   <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
  </section>
 
 
@@ -184,7 +184,7 @@
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 

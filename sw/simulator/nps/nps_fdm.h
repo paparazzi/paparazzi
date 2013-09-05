@@ -43,6 +43,7 @@ struct NpsFdm {
   double init_dt;
   double curr_dt;
   bool_t on_ground;
+  int nan_count;
 
   /*  position */
   struct EcefCoor_d  ecef_pos;
