@@ -99,6 +99,7 @@
 
 #ifndef COMMAND_YAW_TRIM
 #define COMMAND_YAW_TRIM 0
+#endif
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
