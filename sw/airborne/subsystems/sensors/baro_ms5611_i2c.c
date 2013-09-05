@@ -33,6 +33,15 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "std.h"
+#include "subsystems/abi.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+
 
 #ifndef MS5611_I2C_DEV
 #define MS5611_I2C_DEV i2c2
@@ -48,71 +57,61 @@
 #define MS5611_SLAVE_ADDR 0xEE
 #endif
 
-#ifdef DEBUG
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-
-float fbaroms, ftempms;
+#ifndef BARO_BOARD_MS5611_SENDER_ID
+#define BARO_BOARD_MS5611_SENDER_ID 7
 #endif
 
-struct Baro baro;
-struct Ms5611_I2c baro_ms5611;
+struct Ms5611_I2c bb_ms5611;
 
 
 void baro_init(void) {
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 0;
+  ms5611_i2c_init(&bb_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
 
-  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
+#endif
 }
 
 void baro_periodic(void) {
   if (sys_time.nb_sec > 1) {
 
     /* call the convenience periodic that initializes the sensor and starts reading*/
-    ms5611_i2c_periodic(&baro_ms5611);
+    ms5611_i2c_periodic(&bb_ms5611);
 
-    if (baro_ms5611.initialized) {
-      baro.status = BS_RUNNING;
 #if DEBUG
-      RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
-                                                      &baro_ms5611.data.c[0],
-                                                      &baro_ms5611.data.c[1],
-                                                      &baro_ms5611.data.c[2],
-                                                      &baro_ms5611.data.c[3],
-                                                      &baro_ms5611.data.c[4],
-                                                      &baro_ms5611.data.c[5],
-                                                      &baro_ms5611.data.c[6],
-                                                      &baro_ms5611.data.c[7]));
+    if (bb_ms5611.initialized)
+      RunOnceEvery((50*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
+                                                       &bb_ms5611.data.c[0],
+                                                       &bb_ms5611.data.c[1],
+                                                       &bb_ms5611.data.c[2],
+                                                       &bb_ms5611.data.c[3],
+                                                       &bb_ms5611.data.c[4],
+                                                       &bb_ms5611.data.c[5],
+                                                       &bb_ms5611.data.c[6],
+                                                       &bb_ms5611.data.c[7]);
 #endif
-    }
   }
 }
 
-void baro_event(void (*b_abs_handler)(void)){
+void baro_event(void){
   if (sys_time.nb_sec > 1) {
-    ms5611_i2c_event(&baro_ms5611);
+    ms5611_i2c_event(&bb_ms5611);
 
-    if (baro_ms5611.data_available) {
-      baro.absolute = baro_ms5611.data.pressure;
-      b_abs_handler();
-      baro_ms5611.data_available = FALSE;
+    if (bb_ms5611.data_available) {
+      float pressure = (float)bb_ms5611.data.pressure;
+      AbiSendMsgBARO_ABS(BARO_BOARD_MS5611_SENDER_ID, &pressure);
+      bb_ms5611.data_available = FALSE;
 
-#ifdef ROTORCRAFT_BARO_LED
-      RunOnceEvery(10,LED_TOGGLE(ROTORCRAFT_BARO_LED));
+#ifdef BARO_LED
+      RunOnceEvery(10,LED_TOGGLE(BARO_LED));
 #endif
 
 #if DEBUG
-      ftempms = baro_ms5611.data.temperature / 100.;
-      fbaroms = baro_ms5611.data.pressure / 100.;
+      float ftempms = bb_ms5611.data.temperature / 100.;
+      float fbaroms = bb_ms5611.data.pressure / 100.;
       DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                                &baro_ms5611.data.d1, &baro_ms5611.data.d2,
+                                &bb_ms5611.data.d1, &bb_ms5611.data.d2,
                                 &fbaroms, &ftempms);
 #endif
     }
