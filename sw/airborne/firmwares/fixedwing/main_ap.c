@@ -89,7 +89,7 @@
 #include "led.h"
 
 #ifdef USE_NPS
-#include "nps_autopilot_fixedwing.h"
+#include "nps_autopilot.h"
 #endif
 
 /* Default trim commands for roll, pitch and yaw */

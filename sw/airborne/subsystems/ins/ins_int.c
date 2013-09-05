@@ -45,8 +45,9 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
-#ifdef SITL
-#include "nps_fdm.h"
+#if defined SITL && USE_NPS
+//#include "nps_fdm.h"
+#include "nps_autopilot.h"
 #include <stdio.h>
 #endif
 
@@ -357,6 +358,11 @@ static void ins_ned_to_state(void) {
   stateSetPositionNed_i(&ins_impl.ltp_pos);
   stateSetSpeedNed_i(&ins_impl.ltp_speed);
   stateSetAccelNed_i(&ins_impl.ltp_accel);
+
+#if defined SITL && USE_NPS
+  if (nps_bypass_ins)
+    sim_overwrite_ins();
+#endif
 }
 
 

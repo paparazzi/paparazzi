@@ -73,7 +73,7 @@
 #include "firmwares/rotorcraft/main.h"
 
 #ifdef SITL
-#include "nps_autopilot_rotorcraft.h"
+#include "nps_autopilot.h"
 #endif
 
 #include "generated/modules.h"
@@ -309,9 +309,6 @@ static inline void on_gyro_event( void ) {
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
     ins_propagate();
-#ifdef SITL
-    if (nps_bypass_ins) sim_overwrite_ins();
-#endif
   }
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_imu_available();
