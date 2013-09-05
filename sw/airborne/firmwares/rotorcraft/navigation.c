@@ -336,8 +336,8 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
 }
 
 bool_t nav_detect_ground(void) {
-  if (!autopilot_detect_ground) return FALSE;
-  autopilot_detect_ground = FALSE;
+  if (!autopilot_ground_detected) return FALSE;
+  autopilot_ground_detected = FALSE;
   return TRUE;
 }
 
