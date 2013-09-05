@@ -55,12 +55,12 @@
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- MAGNETO CALIBRATION DELFT -->
-    <define name="MAG_X_NEUTRAL" value="302"/>
-    <define name="MAG_Y_NEUTRAL" value="-69"/>
-    <define name="MAG_Z_NEUTRAL" value="100"/>
-    <define name="MAG_X_SENS" value="4.12281780645" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.2491445745" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.44132606171" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="286"/>
+    <define name="MAG_Y_NEUTRAL" value="-72"/>
+    <define name="MAG_Z_NEUTRAL" value="97"/>
+    <define name="MAG_X_SENS" value="3.94431833863" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.14629702271" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.54518768636" integer="16"/>
 
     <!-- MAGNETO CURRENT CALIBRATION -->
     <define name= "MAG_X_CURRENT_COEF" value="0.0103422023767"/>
@@ -76,7 +76,10 @@
 
  <section name="BAT">
    <define name="MILLIAMP_AT_FULL_THROTTLE" value="14000"/>
-   <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="4.0" unit="V"/>
+   <define name="CRITIC_BAT_LEVEL" value="4.4" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="4.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="4.8" unit="V"/>
  </section>
 
 
@@ -99,27 +102,25 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45." unit="deg"/>
     <define name="SP_MAX_THETA" value="45." unit="deg"/>
-    <define name="SP_MAX_PSI" value="45." unit="deg"/>
     <define name="SP_MAX_R" value="90." unit="deg/s"/>
-    <define name="SP_MAX_P" value="90." unit="deg/s"/>
     <define name="DEADBAND_R" value="250"/>
     <define name="DEADBAND_A" value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_P" value="1500" unit="deg/s"/>
     <define name="REF_ZETA_P" value="0.85"/>
-    <define name="REF_MAX_P" value="400." unit="deg/s"/>
+    <define name="REF_MAX_P" value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_Q" value="1500" unit="deg/s"/>
     <define name="REF_ZETA_Q" value="0.85"/>
-    <define name="REF_MAX_Q" value="400." unit="deg/s"/>
+    <define name="REF_MAX_Q" value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_OMEGA_R" value="1000" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.85"/>
-    <define name="REF_MAX_R" value="90." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+    <define name="REF_MAX_R" value="180." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(2000.)"/>
 
     <!-- feedback -->
     <define name="PHI_PGAIN" value="399"/>
