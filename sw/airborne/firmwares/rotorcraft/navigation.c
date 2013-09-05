@@ -44,6 +44,10 @@
 
 #include "math/pprz_algebra_int.h"
 
+#include "subsystems/datalink/downlink.h"
+#include "messages.h"
+#include "mcu_periph/uart.h"
+
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct EnuCoor_i waypoints[NB_WAYPOINT];
 
@@ -305,13 +309,22 @@ void nav_periodic_task() {
   ground_alt = POS_BFP_OF_REAL((float)ins_impl.ltp_def.hmsl / 1000.);
 }
 
-#include "subsystems/datalink/downlink.h"
-#include "messages.h"
-#include "mcu_periph/uart.h"
+void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i* new_lla_pos) {
+  if (stateIsLocalCoordinateValid()) {
+    struct EnuCoor_i enu;
+    enu_of_lla_point_i(&enu, &state.ned_origin_i, new_lla_pos);
+    enu.x = POS_BFP_OF_REAL(enu.x)/100;
+    enu.y = POS_BFP_OF_REAL(enu.y)/100;
+    enu.z = POS_BFP_OF_REAL(enu.z)/100;
+    nav_move_waypoint(wp_id, &enu);
+  }
+}
+
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x), &(new_pos->y), &(new_pos->z));
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
+                               &(new_pos->y), &(new_pos->z));
   }
 }
 

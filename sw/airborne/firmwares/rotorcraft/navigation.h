@@ -79,6 +79,7 @@ void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_reset_alt( void ) __attribute__ ((unused));
 void nav_periodic_task(void);
+void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i* new_lla_pos);
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 bool_t nav_detect_ground(void);
 bool_t nav_is_in_flight(void);
