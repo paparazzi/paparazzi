@@ -21,9 +21,9 @@
  */
 
 /**
- * @file subsystems/sensors/baro_ms5611_i2c.c
+ * @file boards/baro_board_ms5611_i2c.c
  *
- * Driver for MS5611 baro via I2C.
+ * Driver for onboard MS5611 baro via I2C.
  *
  */
 
@@ -43,18 +43,14 @@
 #include "subsystems/datalink/downlink.h"
 
 
-#ifndef MS5611_I2C_DEV
-#define MS5611_I2C_DEV i2c2
-#endif
-
 /* default i2c address
  * when CSB is set to GND addr is 0xEE
  * when CSB is set to VCC addr is 0xEC
  *
  * Note: Aspirin 2.1 has CSB bound to GND.
  */
-#ifndef MS5611_SLAVE_ADDR
-#define MS5611_SLAVE_ADDR 0xEE
+#ifndef BB_MS5611_SLAVE_ADDR
+#define BB_MS5611_SLAVE_ADDR 0xEE
 #endif
 
 
@@ -66,7 +62,7 @@ struct Ms5611_I2c bb_ms5611;
 
 
 void baro_init(void) {
-  ms5611_i2c_init(&bb_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
+  ms5611_i2c_init(&bb_ms5611, &BB_MS5611_I2C_DEV, BB_MS5611_SLAVE_ADDR);
 
 #ifdef BARO_LED
   LED_OFF(BARO_LED);

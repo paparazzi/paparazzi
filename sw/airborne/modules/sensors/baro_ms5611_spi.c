@@ -47,8 +47,8 @@
 #define MS5611_SPI_DEV spi1
 #endif
 
-#ifndef MS5611_SLAVE_DEV
-#define MS5611_SLAVE_DEV SPI_SLAVE0
+#ifndef MS5611_SLAVE_IDX
+#define MS5611_SLAVE_IDX SPI_SLAVE0
 #endif
 
 
@@ -64,7 +64,7 @@ float baro_ms5611_sigma2;
 
 
 void baro_ms5611_init(void) {
-  ms5611_spi_init(&baro_ms5611, &MS5611_SPI_DEV, MS5611_SLAVE_DEV);
+  ms5611_spi_init(&baro_ms5611, &MS5611_SPI_DEV, MS5611_SLAVE_IDX);
 
   baro_ms5611_enabled = TRUE;
   baro_ms5611_alt_valid = FALSE;

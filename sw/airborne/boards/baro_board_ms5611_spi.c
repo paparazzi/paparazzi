@@ -21,9 +21,9 @@
  */
 
 /**
- * @file subsystems/sensors/baro_ms5611_spi.c
+ * @file boards/baro_board_ms5611_spi.c
  *
- * Driver for MS5611 baro on LisaM/Aspirin2.2 via SPI.
+ * Driver for onboard MS5611 baro via SPI.
  *
  */
 
@@ -43,18 +43,6 @@
 #include "subsystems/datalink/downlink.h"
 
 
-#ifndef MS5611_SPI_DEV
-#define MS5611_SPI_DEV spi2
-#endif
-
-/* SPI SLAVE3 is on pin PC13
- * Aspirin 2.2 has ms5611 on SPI bus
- */
-#ifndef MS5611_SLAVE_DEV
-#define MS5611_SLAVE_DEV SPI_SLAVE3
-#endif
-
-
 #ifndef BARO_BOARD_MS5611_SENDER_ID
 #define BARO_BOARD_MS5611_SENDER_ID 7
 #endif
@@ -63,7 +51,7 @@ struct Ms5611_Spi bb_ms5611;
 
 
 void baro_init(void) {
-  ms5611_spi_init(&bb_ms5611, &MS5611_SPI_DEV, MS5611_SLAVE_DEV);
+  ms5611_spi_init(&bb_ms5611, &BB_MS5611_SPI_DEV, BB_MS5611_SLAVE_IDX);
 
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
