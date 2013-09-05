@@ -27,6 +27,11 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
+#
+# NPS uses the real algorithm
+#
+nps.CFLAGS += $(AHRS_CFLAGS)
+nps.srcs += $(AHRS_SRCS)
 
 #
 # Simple simulation of the AHRS result

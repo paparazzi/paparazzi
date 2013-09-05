@@ -109,9 +109,13 @@ void airspeed_amsys_read_periodic( void ) {
 #endif
   }
 
-#elif !USE_NPS
-  extern float sim_air_speed;
-  stateSetAirspeed_f(&sim_air_speed);
+#if USE_AIRSPEED
+		stateSetAirspeed_f(&airspeed_amsys);
+#endif
+
+#elif !defined USE_NPS
+		extern float sim_air_speed;
+		stateSetAirspeed_f(&sim_air_speed);
 #endif //SITL
 
 
