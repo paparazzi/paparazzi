@@ -10,6 +10,7 @@
 #include "nps_fdm.h"
 #include "nps_sensors.h"
 #include "subsystems/ins.h"
+#include "subsystems/navigation/common_flight_plan.h"
 
 #ifdef RADIO_CONTROL_TYPE_DATALINK
 #include "subsystems/radio_control.h"
