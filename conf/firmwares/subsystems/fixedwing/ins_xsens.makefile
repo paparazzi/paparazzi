@@ -48,7 +48,7 @@ ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 ## Simulator
 SIM_TARGETS = sim jsbsim nps
 
-ifneq (,$(findstring $(TARGET),$(SIM_TARGETS))
+ifneq (,$(findstring $(TARGET),$(SIM_TARGETS)))
 
 $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
 $(TARGET).CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
