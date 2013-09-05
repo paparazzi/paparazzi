@@ -160,33 +160,7 @@ ap_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 ap_srcs += subsystems/air_data.c
 
 # BARO
-
-# Umarim
-ifeq ($(BOARD), umarim)
-ifeq ($(BOARD_VERSION), 1.0)
-ap_srcs 	+= boards/umarim/baro_board.c
-ap_CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
-ap_CFLAGS += -DADS1114_I2C_DEV=i2c1
-ap_srcs 	+= peripherals/ads1114.c
-endif
-
-# Lisa/L
-else ifeq ($(BOARD), lisa_l)
-ap_CFLAGS += -DUSE_I2C2
-
-# Apogee
-else ifeq ($(BOARD), apogee)
-ap_CFLAGS += -DUSE_I2C1
-ap_CFLAGS += -DMPL3115_I2C_DEV=i2c1
-ap_CFLAGS += -DMPL3115_ALT_MODE=0
-ap_srcs += peripherals/mpl3115.c
-ap_srcs += $(SRC_BOARD)/baro_board.c
-
-endif # End baro
-
-ifneq ($(BARO_LED),none)
-ap_CFLAGS += -DBARO_LED=$(BARO_LED)
-endif
+include $(CFG_SHARED)/baro_board.makefile
 
 # ahrs frequencies if configured
 ifdef AHRS_PROPAGATE_FREQUENCY
