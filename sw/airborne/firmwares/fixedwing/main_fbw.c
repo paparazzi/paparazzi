@@ -57,6 +57,9 @@ uint8_t fbw_mode;
 
 #include "inter_mcu.h"
 
+#ifdef USE_NPS
+#include "nps_autopilot_fixedwing.h"
+#endif
 
 /** Trim commands for roll, pitch and yaw.
  * These are updated from the trim commands in ap_state via inter_mcu

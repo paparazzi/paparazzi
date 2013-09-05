@@ -128,7 +128,7 @@ void airspeed_ets_read_periodic( void ) {
   }
   if (airspeed_ets_i2c_trans.status == I2CTransDone)
     i2c_receive(&AIRSPEED_ETS_I2C_DEV, &airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
-#else // SITL
+#elif !defined USE_NPS
   extern float sim_air_speed;
   stateSetAirspeed_f(&sim_air_speed);
 #endif //SITL

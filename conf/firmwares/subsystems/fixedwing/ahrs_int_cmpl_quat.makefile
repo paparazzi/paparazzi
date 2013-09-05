@@ -36,6 +36,11 @@ ap.srcs += $(AHRS_SRCS)
 #ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 #endif
 
+#
+# NPS uses the real algorithm
+#
+nps.CFLAGS += $(AHRS_CFLAGS)
+nps.srcs += $(AHRS_SRCS)
 
 #
 # Simple simulation of the AHRS result

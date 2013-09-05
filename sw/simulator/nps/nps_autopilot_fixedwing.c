@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,9 +20,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "nps_autopilot_rotorcraft.h"
+#include "nps_autopilot_fixedwing.h"
 
-#include "firmwares/rotorcraft/main.h"
+#ifdef FBW
+#include "firmwares/fixedwing/main_fbw.h"
+#define Fbw(f) f ## _fbw()
+#else
+#define Fbw(f)
+#endif
+
+#ifdef AP
+#include "firmwares/fixedwing/main_ap.h"
+#define Ap(f) f ## _ap()
+#else
+#define Ap(f)
+#endif
+
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "nps_fdm.h"
@@ -33,33 +47,29 @@
 #include "subsystems/electrical.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/ins.h"
-#include "math/pprz_algebra.h"
+#include "subsystems/commands.h"
 
-#include "subsystems/actuators/motor_mixing.h"
 
 
 struct NpsAutopilot autopilot;
 bool_t nps_bypass_ahrs;
-bool_t nps_bypass_ins;
 
 #ifndef NPS_BYPASS_AHRS
 #define NPS_BYPASS_AHRS FALSE
 #endif
 
-#ifndef NPS_BYPASS_INS
-#define NPS_BYPASS_INS FALSE
+#if !defined (FBW) || !defined (AP)
+#error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
 #endif
-
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
-  nps_bypass_ins = NPS_BYPASS_INS;
 
-  main_init();
+  Fbw(init);
+  Ap(init);
+
 
 #ifdef MAX_BAT_LEVEL
   electrical.vsupply = MAX_BAT_LEVEL * 10;
@@ -81,47 +91,47 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 #ifdef RADIO_CONTROL_TYPE_PPM
   if (nps_radio_control_available(time)) {
     radio_control_feed();
-    main_event();
+    Fbw(event_task);
   }
 #endif
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
-    main_event();
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_sensors_mag_available()) {
     imu_feed_mag();
-    main_event();
+    Fbw(event_task);
+    Ap(event_task);
  }
 
   if (nps_sensors_baro_available()) {
-    baro_feed_value(sensors.baro.value);
-    main_event();
+    /** @todo feed baro values */
+    //baro_feed_value(sensors.baro.value);
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_sensors_gps_available()) {
     gps_feed_value();
-    main_event();
+    Fbw(event_task);
+    Ap(event_task);
   }
 
   if (nps_bypass_ahrs) {
     sim_overwrite_ahrs();
   }
 
-  if (nps_bypass_ins) {
-    sim_overwrite_ins();
-  }
-
-  handle_periodic_tasks();
+  Fbw(handle_periodic_tasks);
+  Ap(handle_periodic_tasks);
 
   /* scale final motor commands to 0-1 for feeding the fdm */
-  /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
-  for (uint8_t i=0; i<MOTOR_MIXING_NB_MOTOR; i++)
-    autopilot.commands[i] = (double)motor_mixing.commands[i]/MAX_PPRZ;
+  for (uint8_t i=0; i < COMMANDS_NB; i++)
+    autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
 
 }
-
 
 void sim_overwrite_ahrs(void) {
 
@@ -132,21 +142,5 @@ void sim_overwrite_ahrs(void) {
   struct FloatRates rates_f;
   RATES_COPY(rates_f, fdm.body_ecef_rotvel);
   stateSetBodyRates_f(&rates_f);
-
-}
-
-void sim_overwrite_ins(void) {
-
-  struct NedCoor_f ltp_pos;
-  VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
-  stateSetPositionNed_f(&ltp_pos);
-
-  struct NedCoor_f ltp_speed;
-  VECT3_COPY(ltp_speed, fdm.ltpprz_ecef_vel);
-  stateSetSpeedNed_f(&ltp_speed);
-
-  struct NedCoor_f ltp_accel;
-  VECT3_COPY(ltp_accel, fdm.ltpprz_ecef_accel);
-  stateSetAccelNed_f(&ltp_accel);
 
 }

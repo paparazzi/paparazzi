@@ -10,7 +10,7 @@
 #include "nps_fdm.h"
 #include "nps_sensors.h"
 #include "subsystems/ins.h"
-#include "firmwares/rotorcraft/navigation.h"
+#include "subsystems/navigation/common_flight_plan.h"
 
 #ifdef RADIO_CONTROL_TYPE_DATALINK
 #include "subsystems/radio_control.h"
@@ -36,10 +36,6 @@ static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
                         void *user_data __attribute__ ((unused)),
                         int argc __attribute__ ((unused)), char *argv[]);
 
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
-                          void *user_data __attribute__ ((unused)),
-                          int argc __attribute__ ((unused)), char *argv[]);
-
 #ifdef RADIO_CONTROL_TYPE_DATALINK
 static void on_DL_RC_3CH(IvyClientPtr app __attribute__ ((unused)),
                          void *user_data __attribute__ ((unused)),
@@ -50,7 +46,7 @@ static void on_DL_RC_4CH(IvyClientPtr app __attribute__ ((unused)),
                          int argc __attribute__ ((unused)), char *argv[]);
 #endif
 
-void nps_ivy_init(char* ivy_bus) {
+void nps_ivy_common_init(char* ivy_bus) {
   const char* agent_name = AIRFRAME_NAME"_NPS";
   const char* ready_msg = AIRFRAME_NAME"_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
@@ -58,7 +54,6 @@ void nps_ivy_init(char* ivy_bus) {
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
   IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) GET_DL_SETTING (\\S*) (\\S*)");
   IvyBindMsg(on_DL_BLOCK, NULL,   "^(\\S*) BLOCK (\\S*) (\\S*)");
-  IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 
 #ifdef RADIO_CONTROL_TYPE_DATALINK
   IvyBindMsg(on_DL_RC_3CH, NULL, "^(\\S*) RC_3CH (\\S*) (\\S*) (\\S*) (\\S*)");
@@ -115,25 +110,6 @@ static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
   int block = atoi(argv[1]);
   nav_goto_block(block);
   printf("goto block %d\n", block);
-}
-
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
-                          void *user_data __attribute__ ((unused)),
-                          int argc __attribute__ ((unused)), char *argv[]) {
-  uint8_t wp_id = atoi(argv[1]);
-
-  struct LlaCoor_i lla;
-  struct EnuCoor_i enu;
-  lla.lat = INT32_RAD_OF_DEG(atoi(argv[3]));
-  lla.lon = INT32_RAD_OF_DEG(atoi(argv[4]));
-  lla.alt = atoi(argv[5])*10 - ins_ltp_def.hmsl + ins_ltp_def.lla.alt;
-  enu_of_lla_point_i(&enu,&ins_ltp_def,&lla);
-  enu.x = POS_BFP_OF_REAL(enu.x)/100;
-  enu.y = POS_BFP_OF_REAL(enu.y)/100;
-  enu.z = POS_BFP_OF_REAL(enu.z)/100;
-  VECT3_ASSIGN(waypoints[wp_id], enu.x, enu.y, enu.z);
-  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &enu.x, &enu.y, &enu.z);
-  printf("move wp id=%d x=%d y=%d z=%d\n", wp_id, enu.x, enu.y, enu.z);
 }
 
 #ifdef RADIO_CONTROL_TYPE_DATALINK
