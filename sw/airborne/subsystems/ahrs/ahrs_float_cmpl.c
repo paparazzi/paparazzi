@@ -270,6 +270,9 @@ void ahrs_update_accel(void) {
     ahrs_impl.weight = 1.0 - ahrs_impl.gravity_heuristic_factor * fabs(1.0 - g_meas_norm) / 10.0;
     Bound(ahrs_impl.weight, 0.15, 1.0);
   }
+  else {
+    ahrs_impl.weight = 1.0;
+  }
 
   /* Complementary filter proportional gain.
    * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY
