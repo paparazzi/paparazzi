@@ -3,6 +3,12 @@
 # Drivers for baros already on an autopilot board
 
 
+# check that onboard baro was not explicitly disabled with
+# <configure name="USE_BARO_BOARD" value="FALSE"/>
+
+USE_BARO_BOARD ?= TRUE
+ifeq ($(USE_BARO_BOARD), TRUE)
+
 # booz baro
 ifeq ($(BOARD), booz)
   ap.srcs += $(SRC_BOARD)/baro_board.c
@@ -112,8 +118,14 @@ else ifeq ($(BOARD), umarim)
     ap.srcs += boards/umarim/baro_board.c
   endif
 
-endif # End baro
+endif # check board
 
 ifneq ($(BARO_LED),none)
 ap.CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
+
+else # USE_BARO_BOARD is not TRUE, was explicitly disabled
+
+ap.CFLAGS += -DUSE_BARO_BOARD=FALSE
+
+endif # check USE_BARO_BOARD

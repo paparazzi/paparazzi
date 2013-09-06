@@ -9,6 +9,10 @@
 #define ActuatorsDefaultInit() ActuatorsArdroneInit()
 #define ActuatorsDefaultCommit() ActuatorsArdroneCommit()
 
+
+/* by default activate onboard baro */
+#ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
+#endif
 
 #endif /* CONFIG_ARDRONE2_RAW */

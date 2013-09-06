@@ -156,7 +156,11 @@
 #define BOARD_ADC_CHANNEL_3 0
 #define BOARD_ADC_CHANNEL_4 15
 
+
+/* by default activate onboard baro */
+#ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
+#endif
 
 
 /* Default actuators driver */
