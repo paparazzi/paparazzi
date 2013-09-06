@@ -564,7 +564,7 @@ static inline void stmi2c_clear_pending_interrupts(uint32_t i2c)
     uint8_t dummy __attribute__ ((unused)) = I2C_DR(i2c);
     I2C_DR(i2c) = 0x00;
   }
-
+  I2C_CR1(i2c) |= I2C_CR1_START; ///// start over again
 }
 
 
