@@ -168,9 +168,9 @@ float ac_char_cruise_throttle = 0.0f;
 float ac_char_cruise_pitch = 0.0f;
 int ac_char_cruise_count = 0;
 
-static void ac_char_average(float* last, float new, int count)
+static void ac_char_average(float* last_v, float new_v, int count)
 {
-  *last = (((*last) * (((float)count) - 1.0f)) + new) / ((float) count);
+  *last_v = (((*last_v) * (((float)count) - 1.0f)) + new_v) / ((float) count);
 }
 
 static void ac_char_update(float throttle, float pitch, float climb, float accelerate)

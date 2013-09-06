@@ -81,8 +81,8 @@ typedef struct
   int32_t pressure;
   uint16_t temperature_pressure;
 
-  int16_t mx;
   int16_t my;
+  int16_t mx;
   int16_t mz;
 
   uint16_t chksum;

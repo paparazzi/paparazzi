@@ -6,6 +6,7 @@
 		<target name="ap" board="ardrone2_sdk">
 			<define name="USE_INS_NAV_INIT" />
 			<define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED"/>
+			<!-- <define name="ARDRONE2_DEBUG" /> -->
 			<!-- <define name="USE_GPS_HEIGHT" /> -->
 			<!-- <define name="ARDRONE_FLIGHT_INDOOR" /> -->
 			<!-- <define name="ARDRONE_WITHOUT_SHELL" /> -->

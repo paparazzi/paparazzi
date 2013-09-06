@@ -626,6 +626,18 @@
     (_ri).r = RATE_BFP_OF_REAL((_rf).r);		\
   }
 
+#define POSITIONS_FLOAT_OF_BFP(_ef, _ei) {      \
+    (_ef).x = POS_FLOAT_OF_BFP((_ei).x);		\
+    (_ef).y = POS_FLOAT_OF_BFP((_ei).y);		\
+    (_ef).z = POS_FLOAT_OF_BFP((_ei).z);		\
+  }
+
+#define POSITIONS_BFP_OF_REAL(_ef, _ei) {	\
+    (_ef).x = POS_BFP_OF_REAL((_ei).x);		\
+    (_ef).y = POS_BFP_OF_REAL((_ei).y);		\
+    (_ef).z = POS_BFP_OF_REAL((_ei).z);		\
+  }
+
 #define SPEEDS_FLOAT_OF_BFP(_ef, _ei) {			\
     (_ef).x = SPEED_FLOAT_OF_BFP((_ei).x);		\
     (_ef).y = SPEED_FLOAT_OF_BFP((_ei).y);		\

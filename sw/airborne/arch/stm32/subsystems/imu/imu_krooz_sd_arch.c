@@ -28,10 +28,10 @@ void exti9_5_isr(void) {
   /* clear EXTI */
   if(EXTI_PR & EXTI6) {
     exti_reset_request(EXTI6);
-    hmc58xx_read(&imu_krooz.hmc);
+    imu_krooz.hmc_eoc = TRUE;
   }
   if(EXTI_PR & EXTI5) {
     exti_reset_request(EXTI5);
-    mpu60x0_i2c_read(&imu_krooz.mpu);
+    imu_krooz.mpu_eoc = TRUE;
   }
 }

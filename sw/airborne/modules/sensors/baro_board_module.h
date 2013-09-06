@@ -50,16 +50,20 @@
 #define BARO_DIFF_EVENT NoBaro
 #endif
 
-#define NoBaro(_b) {}
+#define NoBaro(_b, _h) {}
 
 /** BaroEvent macro.
  *  Need to be maped to one the external baro running has a module
+ *
+ *  Undef if necessary (already defined in a baro_board.h file)
  */
+#ifdef BaroEvent
+#undef BaroEvent
+#endif
+
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
-  BARO_ABS_EVENT(baro.absolute);                      \
-  BARO_DIFF_EVENT(baro.differential);                 \
-  _b_abs_handler();                                   \
-  _b_diff_handler();                                  \
+    BARO_ABS_EVENT(baro.absolute, _b_abs_handler);       \
+    BARO_DIFF_EVENT(baro.differential, _b_diff_handler); \
 }
 
 

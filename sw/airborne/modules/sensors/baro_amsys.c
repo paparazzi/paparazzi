@@ -31,6 +31,7 @@
 
 #ifdef SITL
 #include "subsystems/gps.h"
+#include "subsystems/navigation/common_nav.h"
 #endif
 
 //Messages

@@ -26,6 +26,10 @@
  * ARdrone 2 gps trough navdata for the SDK version and only works in combination with the ahrs ardrone2.
  */
 
+#ifdef ARDRONE2_DEBUG
+# include <stdio.h>
+#endif
+
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_double.h"
 
@@ -37,6 +41,10 @@ void gps_impl_init( void ) {
 
 void gps_ardrone2_parse(navdata_gps_t *navdata_gps) {
   int i;
+
+#ifdef ARDRONE2_DEBUG
+  printf("state = %d\n", navdata_gps->gps_state);
+#endif
   // Set the lla double struct from the navdata
   struct LlaCoor_d gps_lla_d;
   gps_lla_d.lat = RadOfDeg(navdata_gps->lat);

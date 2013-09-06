@@ -52,17 +52,7 @@ endif
 
 $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 
-#
-# LEDs
-#
-ifneq ($(ARCH), jsbsim)
-  $(TARGET).CFLAGS 	+= -DUSE_LED
-endif
-ifneq ($(ARCH), lpc21)
-  ifneq ($(ARCH), jsbsim)
-    $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
-  endif
-endif
+
 
 #
 # Sys-time
@@ -122,6 +112,9 @@ ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
 ns_CFLAGS 		+= -DUSE_LED
 ifneq ($(SYS_TIME_LED),none)
   ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
+endif
+ifneq ($(ARCH), lpc21)
+  ns_srcs 	+= $(SRC_ARCH)/led_hw.c
 endif
 
 
@@ -202,10 +195,9 @@ sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
 sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
+sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/ivy_transport.c
 
-sim.srcs 		+= subsystems/settings.c
-sim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
+sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
 
 # hack: always compile some of the sim functions, so ocaml sim does not complain about no-existing functions
 sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
@@ -243,10 +235,9 @@ jsbsim.CFLAGS 		+= -I/usr/include $(shell pkg-config glib-2.0 --cflags)
 jsbsim.LDFLAGS		+= $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
+jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/ivy_transport.c
 
-jsbsim.srcs 		+= subsystems/settings.c
-jsbsim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
+jsbsim.srcs 		+= $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/jsbsim_transport.c
 
 ######################################################################
 ##

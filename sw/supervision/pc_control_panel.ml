@@ -195,10 +195,11 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     Gtk_tools.add_to_combo session_combo "Simulation";
     Gtk_tools.add_to_combo session_combo "Replay";
     Gtk_tools.add_to_combo session_combo Gtk_tools.combo_separator;
-    Hashtbl.iter
-      (fun name _session ->
-	Gtk_tools.add_to_combo session_combo name)
-      sessions in
+    let strings = ref [] in
+    Hashtbl.iter (fun name _session -> strings := name :: !strings) sessions;
+    let ordered = List.sort String.compare !strings in
+    List.iter (fun name -> Gtk_tools.add_to_combo session_combo name) ordered
+  in
 
   register_custom_sessions ();
   Gtk_tools.select_in_combo session_combo "Simulation";

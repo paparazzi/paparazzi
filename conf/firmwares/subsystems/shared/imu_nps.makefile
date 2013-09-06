@@ -20,5 +20,5 @@
 #  </section>
 #
 
-nps.CFLAGS += -DIMU_TYPE_H=\"imu/imu_nps.h\"
+nps.CFLAGS += -DIMU_TYPE_H=\"imu/imu_nps.h\" -DUSE_IMU
 nps.srcs   += $(SRC_SUBSYSTEMS)/imu.c $(SRC_SUBSYSTEMS)/imu/imu_nps.c

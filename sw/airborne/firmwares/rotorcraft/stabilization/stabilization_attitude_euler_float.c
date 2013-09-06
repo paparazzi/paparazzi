@@ -86,8 +86,8 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_f()->psi;
 }
 
-void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
-  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_euler);
+void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
+  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_cmd);
 }
 
 
