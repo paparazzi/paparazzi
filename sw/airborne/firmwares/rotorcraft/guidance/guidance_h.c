@@ -25,6 +25,7 @@
  */
 
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
@@ -349,6 +350,23 @@ static void guidance_h_traj_run(bool_t in_flight) {
     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
     ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
+
+#if GUIDANCE_H_USE_REAL_EULERS
+  if(in_flight) {
+    static int32_t guidance_v_mass_cmd_filt;
+#if GUIDANCE_H_MASS_CMD_FILTER
+    guidance_v_mass_cmd_filt = (guidance_v_mass_cmd_filt * GUIDANCE_H_MASS_CMD_FILTER + guidance_v_mass_cmd) / (GUIDANCE_H_MASS_CMD_FILTER + 1);
+#else
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+    guidance_v_mass_cmd_filt = (int32_t)((float_t)MAX_PPRZ * GUIDANCE_V_NOMINAL_HOVER_THROTTLE);
+#else
+    guidance_v_mass_cmd_filt = MAX_PPRZ * 4 / 10;
+#endif
+#endif
+    guidance_h_command_earth.x = BFP_OF_REAL(atan2f((guidance_h_command_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2), guidance_v_mass_cmd_filt), INT32_ANGLE_FRAC);
+    guidance_h_command_earth.y = BFP_OF_REAL(atan2f((guidance_h_command_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), guidance_v_mass_cmd_filt), INT32_ANGLE_FRAC);
+  }
+#endif
 
   VECT2_STRIM(guidance_h_command_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
 

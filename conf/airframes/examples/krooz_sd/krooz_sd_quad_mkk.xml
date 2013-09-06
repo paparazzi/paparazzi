@@ -206,10 +206,12 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
 		<define name="USE_REF" value="1"/>
     <define name="USE_SPEED_REF" value="1"/> <!-- using RC to control horizontal setpoint -->
+    <define name="USE_REAL_EULERS" value="1"/> <!-- using quasi real horizontal command angles -->
     <define name="MAX_BANK" value="27" unit="deg"/>
     <define name="REF_MAX_ACCEL" value="7."/> <!-- max reference horizontal acceleration in m/s2 -->
     <define name="REF_MAX_SPEED" value="2."/> <!-- max reference horizontal speed in m/s -->
 		<define name="RC_SPEED_DEAD_BAND" value="200000"/>
+    <define name="MASS_CMD_FILTER" value="10"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="120"/>
     <define name="IGAIN" value="10"/>
