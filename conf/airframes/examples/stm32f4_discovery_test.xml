@@ -35,9 +35,6 @@
       <define name="BARO_ETS_SYNC_SEND"/>
       <define name="BARO_ETS_I2C_DEV" value="i2c1"/>
     </load>
-    <load name="baro_board.xml">
-      <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>
-    </load>
   </modules>
 
   <servos driver="Pwm">

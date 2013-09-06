@@ -15,9 +15,6 @@
       <define name="LIGHT_LED_STROBE" value="5"/>
       <define name="LIGHT_LED_NAV" value="3"/>
     </load-->
-    <!--load name="baro_board.xml">
-      <define name="BARO_ABS_EVENT" value="BaroPbnUpdate"/>
-    </load-->
     <load name="pbn.xml"/>
   </modules>
 

@@ -9,7 +9,6 @@
 <airframe name="Funjet">
 
   <modules>
-    <!--load name="baro_board.xml"/-->
     <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="ADC_0"/>
       <define name="AIRSPEED_QUADRATIC_SCALE" value="1.09378"/>

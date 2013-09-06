@@ -37,9 +37,6 @@
   <modules>
     <load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/>
-    <load name="baro_board.xml">
-      <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>
-    </load>
     <load name="infrared_adc.xml"/>
   </modules>
 
