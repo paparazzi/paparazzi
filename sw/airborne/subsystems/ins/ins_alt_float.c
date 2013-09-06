@@ -82,6 +82,7 @@ void ins_init() {
 
   EstimatorSetAlt(0.);
 
+  ins.status = INS_RUNNING;
 }
 
 void ins_periodic( void ) {
