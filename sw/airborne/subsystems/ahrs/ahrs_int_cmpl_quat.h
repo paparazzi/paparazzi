@@ -57,12 +57,35 @@ struct AhrsIntCmplQuat {
   float mag_ki;
 
   /* parameters/options that can be changed */
+  /** enable gravity vector correction by removing centrifugal acceleration */
   bool_t correct_gravity;
-  bool_t use_gravity_heuristic;
-  float accel_omega;  ///< filter cut-off frequency for correcting the attitude from accels (pseudo-gravity measurement)
-  float accel_zeta;   ///< filter damping for correcting the gyro-bias from accels (pseudo-gravity measurement)
-  float mag_omega;    ///< filter cut-off frequency for correcting the attitude (heading) from magnetometer
-  float mag_zeta;     ///< filter damping for correcting the gyro bias from magnetometer
+
+  /** sets how strongly the gravity heuristic reduces accel correction.
+   * Set to zero in order to disable gravity heuristic.
+   */
+  uint8_t gravity_heuristic_factor;
+
+  /** filter cut-off frequency for correcting the attitude from accels.
+   *  (pseudo-gravity measurement)
+   * only update through #ahrs_int_cmpl_quat_SetAccelOmega(omega)
+   */
+  float accel_omega;
+
+  /** filter damping for correcting the gyro-bias from accels.
+   *  (pseudo-gravity measurement)
+   * only update through #ahrs_int_cmpl_quat_SetAccelZeta(zeta)
+   */
+  float accel_zeta;
+
+  /** filter cut-off frequency for correcting the attitude (heading) from magnetometer.
+   * only update through #ahrs_int_cmpl_quat_SetMagOmega(omega)
+   */
+  float mag_omega;
+
+  /** filter damping for correcting the gyro bias from magnetometer.
+   * only update through #ahrs_int_cmpl_quat_SetMagZeta(zeta)
+   */
+  float mag_zeta;
 };
 
 extern struct AhrsIntCmplQuat ahrs_impl;

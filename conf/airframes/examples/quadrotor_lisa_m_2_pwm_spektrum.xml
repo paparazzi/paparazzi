@@ -35,7 +35,7 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
+      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
     </subsystem>
     <subsystem name="ins"/>
   </firmware>

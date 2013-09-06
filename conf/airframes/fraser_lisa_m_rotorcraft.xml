@@ -30,7 +30,7 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
+      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
     </subsystem>
     <subsystem name="ins_extended"/>
 

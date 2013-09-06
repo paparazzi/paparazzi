@@ -101,7 +101,7 @@
 
   <section name="AHRS" prefix="AHRS_">
     <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
-    <define name="GRAVITY_UPDATE_NORM_HEURISTIC" value="1"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="30"/>
     <define name="H_X" value="0.365258"/>
     <define name="H_Y" value="0.015505"/>
     <define name="H_Z" value="0.930777"/>

@@ -94,8 +94,8 @@ PRINT_CONFIG_VAR(AHRS_MAG_OMEGA)
 PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 
 /** by default use the gravity heuristic to reduce gain */
-#ifndef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
-#define AHRS_GRAVITY_UPDATE_NORM_HEURISTIC TRUE
+#ifndef AHRS_GRAVITY_HEURISTIC_FACTOR
+#define AHRS_GRAVITY_HEURISTIC_FACTOR 30
 #endif
 
 
@@ -141,15 +141,13 @@ void ahrs_init(void) {
   ahrs_set_mag_gains();
 
   /* set default gravity heuristic */
-  ahrs_impl.weight = 1.0;
+  ahrs_impl.gravity_heuristic_factor = AHRS_GRAVITY_HEURISTIC_FACTOR;
 
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
   ahrs_impl.correct_gravity = TRUE;
 #else
   ahrs_impl.correct_gravity = FALSE;
 #endif
-
-  ahrs_impl.use_gravity_heuristic = AHRS_GRAVITY_UPDATE_NORM_HEURISTIC;
 
   VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X),
                MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z));
@@ -287,19 +285,21 @@ void ahrs_update_accel(void) {
   VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, FIR_FILTER_SIZE);
 
 
-  if (ahrs_impl.use_gravity_heuristic) {
+  if (ahrs_impl.gravity_heuristic_factor) {
     /* heuristic on acceleration (gravity estimate) norm */
     /* Factor how strongly to change the weight.
-     * e.g. for WEIGHT_FACTOR 3:
+     * e.g. for gravity_heuristic_factor 30:
      * <0.66G = 0, 1G = 1.0, >1.33G = 0
      */
-    #define WEIGHT_FACTOR 5
 
     struct FloatVect3 g_meas_f;
     ACCELS_FLOAT_OF_BFP(g_meas_f, filtered_gravity_measurement);
     const float g_meas_norm = FLOAT_VECT3_NORM(g_meas_f)/9.81;
-    ahrs_impl.weight = 1.0 - WEIGHT_FACTOR * fabs(1.0 - g_meas_norm);
+    ahrs_impl.weight = 1.0 - ahrs_impl.gravity_heuristic_factor * fabs(1.0 - g_meas_norm) / 10;
     Bound(ahrs_impl.weight, 0.15, 1.0);
+  }
+  else {
+    ahrs_impl.weight = 1.0;
   }
 
   /* Complementary filter proportional gain.
