@@ -111,7 +111,7 @@ static inline void main_periodic_task( void ) {
 
 
 static inline void main_event_task( void ) {
-  baro_event();
+  BaroEvent();
 }
 
 
