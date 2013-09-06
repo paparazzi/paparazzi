@@ -144,8 +144,8 @@ void baro_amsys_read_periodic( void ) {
   }
   pBaroRaw = 0;
   baro_amsys_altitude = gps.hmsl / 1000.0;
-  baro_amsys_adc = baro_amsys_offset - ((baro_amsys_altitude - ground_alt) / INS_BARO_SENS);
   baro_amsys_p = pprz_isa_pressure_of_altitude(baro_amsys_altitude);
+  baro_amsys_adc = baro_amsys_p;
   AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, &baro_amsys_p);
   baro_amsys_valid = TRUE;
 #endif

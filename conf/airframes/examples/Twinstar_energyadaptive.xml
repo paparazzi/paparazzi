@@ -121,7 +121,6 @@ twog_1.0 + aspirin + ETS baro + ETS speed
   </section>
 
    <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="0.3"/>
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>

@@ -121,7 +121,6 @@ LiPo/LiIo-Zellen: 2-3
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="15." integer="16"/>
   </section>
 
   <!-- ************************* GAINS ************************* -->

@@ -19,7 +19,6 @@
     <define name="USE_I2C0"/>
     <define name="USE_AIRSPEED"/>
     <define name="USE_BARO_ETS"/>
-    <define name="INS_BARO_SENS" value="0.32"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
