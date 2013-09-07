@@ -32,3 +32,10 @@ $(TARGET).CFLAGS += -DUART1_DEV=\"/dev/ttyUSB0\"
 ap.CFLAGS +=-DARDRONE2_SDK
 
 # -----------------------------------------------------------------------
+
+# default LED configuration
+RADIO_CONTROL_LED			?= none
+BARO_LED           			?= none
+AHRS_ALIGNER_LED   			?= none
+GPS_LED            			?= none
+SYS_TIME_LED       			?= none
