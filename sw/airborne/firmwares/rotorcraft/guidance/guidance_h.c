@@ -363,8 +363,8 @@ static void guidance_h_traj_run(bool_t in_flight) {
     guidance_v_mass_cmd_filt = MAX_PPRZ * 4 / 10;
 #endif
 #endif
-    guidance_h_command_earth.x = BFP_OF_REAL(atan2f((guidance_h_command_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2), guidance_v_mass_cmd_filt), INT32_ANGLE_FRAC);
-    guidance_h_command_earth.y = BFP_OF_REAL(atan2f((guidance_h_command_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), guidance_v_mass_cmd_filt), INT32_ANGLE_FRAC);
+    guidance_h_command_earth.x = ANGLE_BFP_OF_REAL(atan2f((guidance_h_command_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2), guidance_v_mass_cmd_filt));
+    guidance_h_command_earth.y = ANGLE_BFP_OF_REAL(atan2f((guidance_h_command_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), guidance_v_mass_cmd_filt));
   }
 #endif
 
