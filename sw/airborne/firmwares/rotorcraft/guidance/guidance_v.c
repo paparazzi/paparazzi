@@ -188,6 +188,7 @@ void guidance_v_run(bool_t in_flight) {
   case GUIDANCE_V_MODE_RC_DIRECT:
     guidance_v_z_sp = stateGetPositionNed_i()->z; // for display only
     stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
+    guidance_v_mass_cmd = stabilization_cmd[COMMAND_THRUST];
     break;
 
   case GUIDANCE_V_MODE_RC_CLIMB:
@@ -195,6 +196,7 @@ void guidance_v_run(bool_t in_flight) {
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+    guidance_v_mass_cmd = stabilization_cmd[COMMAND_THRUST];
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
