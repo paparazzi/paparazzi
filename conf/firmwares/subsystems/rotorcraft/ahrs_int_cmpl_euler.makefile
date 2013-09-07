@@ -3,9 +3,8 @@
 # Fixed point complementary filter using euler angles for attitude estimation
 #
 
-ifndef USE_MAGNETOMETER
-USE_MAGNETOMETER = 1
-endif
+USE_MAGNETOMETER ?= 1
+AHRS_ALIGNER_LED ?= none
 
 AHRS_CFLAGS  = -DUSE_AHRS -DUSE_AHRS_CMPL_EULER
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER

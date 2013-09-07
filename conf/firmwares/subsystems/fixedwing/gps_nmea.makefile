@@ -2,6 +2,7 @@
 
 # NMEA GPS unit
 
+GPS_LED ?= none
 
 ap.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
