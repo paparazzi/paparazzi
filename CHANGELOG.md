@@ -1,3 +1,13 @@
+Paparazzi 4.0.4
+===============
+
+Maintenance release
+
+- fix google map version parsing for new maps site using https
+- minor fix for hff
+- use GPS_TRIGGERED_FUNCTION for ins_chimu_spi
+
+
 Paparazzi 4.0.3
 ===============
 
