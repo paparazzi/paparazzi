@@ -263,7 +263,7 @@ void navdata_update()
   navdata_read();
 
   // while there is something interesting to do...
-  while (port.bytesRead >= 60)
+  while (port.bytesRead >= NAVDATA_PACKET_SIZE)
   {
     if (port.buffer[0] == NAVDATA_START_BYTE)
     {
@@ -292,7 +292,7 @@ void navdata_update()
 //        printf("CCRC=%d, GCRC=%d, error=%d\n", crc, navdata->chksum, abs(crc-navdata->chksum));
         //navdata_getHeight();
       }
-      navdata_CropBuffer(60);
+      navdata_CropBuffer(NAVDATA_PACKET_SIZE);
     }
     else
     {
