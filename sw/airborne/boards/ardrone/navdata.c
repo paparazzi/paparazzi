@@ -52,6 +52,23 @@ typedef struct {
 static navdata_port port;
 static int nav_fd;
 
+static void navdata_write(const uint8_t *buf, size_t count)
+{
+  size_t written = 0;
+
+  while(written < count)
+  {
+    ssize_t n = write(nav_fd, buf + written, count - written);
+    if (n < 0)
+    {
+      perror("navdata_write: Write failed");
+      // FIXME: what's sensible to do at this point?
+      return;
+    }
+    written += n;
+  }
+}
+
 int navdata_init()
 {
   nav_fd = open("/dev/ttyO1", O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -82,14 +99,14 @@ int navdata_init()
 
   // stop acquisition
   uint8_t cmd=0x02;
-  write(nav_fd, &cmd, 1);
+  navdata_write(&cmd, 1);
 
   baro_calibrated = 0;
   acquire_baro_calibration();
 
   // start acquisition
   cmd=0x01;
-  write(nav_fd, &cmd, 1);
+  navdata_write(&cmd, 1);
 
   navdata = malloc(sizeof(measures_t));
   navdata_imu_available = 0;
@@ -111,7 +128,7 @@ void acquire_baro_calibration()
 
   // start baro calibration acquisition
   uint8_t cmd=0x17; // send cmd 23
-  write(nav_fd, &cmd, 1);
+  navdata_write(&cmd, 1);
 
   uint8_t calibBuffer[22];
   int calib_bytes_read, calib_bytes_left, readcount;
