@@ -35,6 +35,7 @@
 #include <string.h>
 #include <math.h>
 #include <errno.h>
+#include <assert.h>
 #include "navdata.h"
 
 #define NAVDATA_PACKET_SIZE 60
@@ -271,6 +272,7 @@ void navdata_update()
       if ( 1 ) // we dont know how to calculate the checksum
 //      if ( navdata_checksum() == 0 )
       {
+	assert(sizeof navdata == NAVDATA_PACKET_SIZE);
         memcpy(navdata, port.buffer, NAVDATA_PACKET_SIZE);
 
         // Invert byte order so that TELEMETRY works better
