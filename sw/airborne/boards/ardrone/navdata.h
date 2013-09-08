@@ -32,10 +32,6 @@
 
 #include <stdint.h>
 
-#define NAVDATA_PACKET_SIZE 60
-#define NAVDATA_BUFFER_SIZE 80
-#define NAVDATA_START_BYTE 0x3a
-
 typedef struct
 {
   uint16_t taille;
