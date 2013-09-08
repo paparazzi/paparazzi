@@ -54,6 +54,8 @@ typedef struct {
 static navdata_port port;
 static int nav_fd;
 
+measures_t navdata;
+
 static void navdata_write(const uint8_t *buf, size_t count)
 {
   size_t written = 0;
@@ -112,7 +114,6 @@ int navdata_init()
   cmd=0x01;
   navdata_write(&cmd, 1);
 
-  navdata = malloc(sizeof(measures_t));
   navdata_imu_available = 0;
   navdata_baro_available = 0;
 
@@ -223,7 +224,7 @@ static void baro_update_logic(void)
     if (lastpressval != 0)
     {
       // If pressure was updated: this is a sync error
-      if (lastpressval != navdata->pressure)
+      if (lastpressval != navdata.pressure)
       {
         // wait for temp again
         temp_or_press_was_updated_last = 0;
@@ -241,7 +242,7 @@ static void baro_update_logic(void)
     if (lasttempval != 0)
     {
       // If temp was updated: this is a sync error
-      if (lasttempval != navdata->temperature_pressure)
+      if (lasttempval != navdata.temperature_pressure)
       {
         // wait for press again
         temp_or_press_was_updated_last = 1;
@@ -252,8 +253,8 @@ static void baro_update_logic(void)
     navdata_baro_available = 1;
   }
 
-  lastpressval = navdata->pressure;
-  lasttempval = navdata->temperature_pressure;
+  lastpressval = navdata.pressure;
+  lasttempval = navdata.temperature_pressure;
 
   // debug
   // navdata->temperature_pressure = sync_errors;
@@ -273,15 +274,15 @@ void navdata_update()
 //      if ( navdata_checksum() == 0 )
       {
 	assert(sizeof navdata == NAVDATA_PACKET_SIZE);
-        memcpy(navdata, port.buffer, NAVDATA_PACKET_SIZE);
+        memcpy(&navdata, port.buffer, NAVDATA_PACKET_SIZE);
 
         // Invert byte order so that TELEMETRY works better
         uint8_t tmp;
-        uint8_t* p = (uint8_t*) &(navdata->pressure);
+        uint8_t* p = (uint8_t*) &(navdata.pressure);
         tmp = p[0];
         p[0] = p[1];
         p[1] = tmp;
-        p = (uint8_t*) &(navdata->temperature_pressure);
+        p = (uint8_t*) &(navdata.temperature_pressure);
         tmp = p[0];
         p[0] = p[1];
         p[1] = tmp;
@@ -326,13 +327,13 @@ void navdata_CropBuffer(int cropsize)
 
 int16_t navdata_getHeight() {
 
-  if (navdata->ultrasound > 10000) {
+  if (navdata.ultrasound > 10000) {
     return previousUltrasoundHeight;
   }
 
   int16_t ultrasoundHeight = 0;
 
-  ultrasoundHeight = (navdata->ultrasound - 880) / 26.553;
+  ultrasoundHeight = (navdata.ultrasound - 880) / 26.553;
 
   previousUltrasoundHeight = ultrasoundHeight;
 
@@ -342,32 +343,32 @@ int16_t navdata_getHeight() {
 // The checksum should be calculated here: we don't know the algorithm
 uint16_t navdata_checksum() {
   navdata_cks = 0;
-  navdata_cks += navdata->nu_trame;
-  navdata_cks += navdata->ax;
-  navdata_cks += navdata->ay;
-  navdata_cks += navdata->az;
-  navdata_cks += navdata->vx;
-  navdata_cks += navdata->vy;
-  navdata_cks += navdata->vz;
-  navdata_cks += navdata->temperature_acc;
-  navdata_cks += navdata->temperature_gyro;
-  navdata_cks += navdata->ultrasound;
-  navdata_cks += navdata->us_debut_echo;
-  navdata_cks += navdata->us_fin_echo;
-  navdata_cks += navdata->us_association_echo;
-  navdata_cks += navdata->us_distance_echo;
-  navdata_cks += navdata->us_curve_time;
-  navdata_cks += navdata->us_curve_value;
-  navdata_cks += navdata->us_curve_ref;
-  navdata_cks += navdata->nb_echo;
-  navdata_cks += navdata->sum_echo;
-  navdata_cks += navdata->gradient;
-  navdata_cks += navdata->flag_echo_ini;
-  navdata_cks += navdata->pressure;
-  navdata_cks += navdata->temperature_pressure;
-  navdata_cks += navdata->mx;
-  navdata_cks += navdata->my;
-  navdata_cks += navdata->mz;
+  navdata_cks += navdata.nu_trame;
+  navdata_cks += navdata.ax;
+  navdata_cks += navdata.ay;
+  navdata_cks += navdata.az;
+  navdata_cks += navdata.vx;
+  navdata_cks += navdata.vy;
+  navdata_cks += navdata.vz;
+  navdata_cks += navdata.temperature_acc;
+  navdata_cks += navdata.temperature_gyro;
+  navdata_cks += navdata.ultrasound;
+  navdata_cks += navdata.us_debut_echo;
+  navdata_cks += navdata.us_fin_echo;
+  navdata_cks += navdata.us_association_echo;
+  navdata_cks += navdata.us_distance_echo;
+  navdata_cks += navdata.us_curve_time;
+  navdata_cks += navdata.us_curve_value;
+  navdata_cks += navdata.us_curve_ref;
+  navdata_cks += navdata.nb_echo;
+  navdata_cks += navdata.sum_echo;
+  navdata_cks += navdata.gradient;
+  navdata_cks += navdata.flag_echo_ini;
+  navdata_cks += navdata.pressure;
+  navdata_cks += navdata.temperature_pressure;
+  navdata_cks += navdata.mx;
+  navdata_cks += navdata.my;
+  navdata_cks += navdata.mz;
 //  navdata_cks += navdata->chksum;
 
   return 0; // we dont know how to calculate the checksum

@@ -94,7 +94,7 @@ struct bmp180_baro_calibration
   int32_t b5;
 };
 
-measures_t* navdata;
+extern measures_t navdata;
 struct bmp180_baro_calibration baro_calibration;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
