@@ -33,6 +33,7 @@
 #include "mcu_periph/gpio.h"
 #include "led_hw.h"
 #include "mcu_periph/sys_time.h"
+#include "navdata.h" // for full_write
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <string.h>  /* String function definitions */
@@ -157,7 +158,11 @@ void actuators_ardrone_init(void)
 }
 
 int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen) {
-  write(actuator_ardrone2_raw_fd, &cmd, 1);
+  if (full_write(actuator_ardrone2_raw_fd, &cmd, 1) < 0)
+  {
+    perror("actuators_ardrone_cmd: write failed");
+    return -1;
+  }
   return read(actuator_ardrone2_raw_fd, reply, replylen);
 }
 
@@ -241,7 +246,7 @@ void actuators_ardrone_set_pwm(uint16_t pwm0, uint16_t pwm1, uint16_t pwm2, uint
   cmd[2] = ((pwm1&0x1ff)<<3) | ((pwm2&0x1ff)>>6);
   cmd[3] = ((pwm2&0x1ff)<<2) | ((pwm3&0x1ff)>>7);
   cmd[4] = ((pwm3&0x1ff)<<1);
-  write(actuator_ardrone2_raw_fd, cmd, 5);
+  full_write(actuator_ardrone2_raw_fd, cmd, 5);
   RunOnceEvery(20,actuators_ardrone_led_run());
 }
 
@@ -270,7 +275,7 @@ void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_
   cmd[0]=0x60 | ((led0&1)<<4) | ((led1&1)<<3) | ((led2&1)<<2) | ((led3&1) <<1);
   cmd[1]=((led0&2)<<3) | ((led1&2)<<2) | ((led2&2)<<1) | ((led3&2)<<0);
 
-  write(actuator_ardrone2_raw_fd, cmd, 2);
+  full_write(actuator_ardrone2_raw_fd, cmd, 2);
 }
 
 void actuators_ardrone_close(void)

@@ -31,6 +31,7 @@
 #define NAVDATA_H_
 
 #include <stdint.h>
+#include <sys/types.h>
 
 typedef struct
 {
@@ -113,5 +114,7 @@ uint16_t navdata_checksum(void);
 int16_t navdata_getHeight(void);
 
 void acquire_baro_calibration(void);
+
+ssize_t full_write(int fd, const uint8_t *buf, size_t count);
 
 #endif /* NAVDATA_H_ */

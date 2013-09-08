@@ -56,23 +56,29 @@ static int nav_fd;
 
 measures_t navdata;
 
-static void navdata_write(const uint8_t *buf, size_t count)
+// FIXME(ben): there must be a better home for this
+ssize_t full_write(int fd, const uint8_t *buf, size_t count)
 {
   size_t written = 0;
 
   while(written < count)
   {
-    ssize_t n = write(nav_fd, buf + written, count - written);
+    ssize_t n = write(fd, buf + written, count - written);
     if (n < 0)
     {
       if (errno == EAGAIN || errno == EWOULDBLOCK)
 	continue;
-      perror("navdata_write: Write failed");
-      // FIXME: what's sensible to do at this point?
-      return;
+      return n;
     }
     written += n;
   }
+  return written;
+}
+
+static void navdata_write(const uint8_t *buf, size_t count)
+{
+  if (full_write(nav_fd, buf, count) < 0)
+    perror("navdata_write: Write failed");
 }
 
 int navdata_init()
