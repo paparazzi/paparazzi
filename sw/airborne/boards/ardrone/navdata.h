@@ -36,15 +36,6 @@
 #define NAVDATA_BUFFER_SIZE 80
 #define NAVDATA_START_BYTE 0x3a
 
-typedef struct {
-	uint8_t isInitialized;
-	uint8_t isOpen;
-	uint16_t bytesRead;
-	uint32_t totalBytesRead;
-	uint32_t packetsRead;
-	uint8_t buffer[NAVDATA_BUFFER_SIZE];
-} navdata_port;
-
 typedef struct
 {
   uint16_t taille;
@@ -109,7 +100,6 @@ struct bmp180_baro_calibration
 
 measures_t* navdata;
 struct bmp180_baro_calibration baro_calibration;
-navdata_port* port;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
 uint8_t navdata_baro_available;

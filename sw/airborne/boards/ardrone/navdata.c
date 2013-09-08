@@ -36,7 +36,17 @@
 #include <math.h>
 #include "navdata.h"
 
-int nav_fd;
+typedef struct {
+	uint8_t isInitialized;
+	uint8_t isOpen;
+	uint16_t bytesRead;
+	uint32_t totalBytesRead;
+	uint32_t packetsRead;
+	uint8_t buffer[NAVDATA_BUFFER_SIZE];
+} navdata_port;
+
+static navdata_port* port;
+static int nav_fd;
 
 int navdata_init()
 {
