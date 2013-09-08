@@ -205,8 +205,7 @@ void navdata_read()
   }
 }
 
-void baro_update_logic(void);
-void baro_update_logic(void)
+static void baro_update_logic(void)
 {
   static int32_t lastpressval = 0;
   static uint16_t lasttempval = 0;
