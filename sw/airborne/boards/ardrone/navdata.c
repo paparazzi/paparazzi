@@ -124,7 +124,8 @@ int navdata_init()
 
 void acquire_baro_calibration()
 {
-  read(nav_fd, NULL, 100); // read some potential dirt
+  char tmp[100];
+  read(nav_fd, tmp, sizeof tmp); // read some potential dirt
 
   // start baro calibration acquisition
   uint8_t cmd=0x17; // send cmd 23
