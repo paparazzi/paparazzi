@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+#include <errno.h>
 #include "navdata.h"
 
 #define NAVDATA_PACKET_SIZE 60
@@ -61,6 +62,8 @@ static void navdata_write(const uint8_t *buf, size_t count)
     ssize_t n = write(nav_fd, buf + written, count - written);
     if (n < 0)
     {
+      if (errno == EAGAIN || errno == EWOULDBLOCK)
+	continue;
       perror("navdata_write: Write failed");
       // FIXME: what's sensible to do at this point?
       return;
