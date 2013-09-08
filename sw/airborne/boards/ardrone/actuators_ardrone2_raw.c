@@ -163,7 +163,7 @@ int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen) {
     perror("actuators_ardrone_cmd: write failed");
     return -1;
   }
-  return read(actuator_ardrone2_raw_fd, reply, replylen);
+  return full_read(actuator_ardrone2_raw_fd, reply, replylen);
 }
 
 #include "autopilot.h"

@@ -56,7 +56,7 @@ static int nav_fd;
 
 measures_t navdata;
 
-// FIXME(ben): there must be a better home for this
+// FIXME(ben): there must be a better home for these
 ssize_t full_write(int fd, const uint8_t *buf, size_t count)
 {
   size_t written = 0;
@@ -73,6 +73,25 @@ ssize_t full_write(int fd, const uint8_t *buf, size_t count)
     written += n;
   }
   return written;
+}
+
+ssize_t full_read(int fd, uint8_t *buf, size_t count)
+{
+  // Apologies for illiteracy, but we can't overload |read|.
+  size_t readed = 0;
+
+  while(readed < count)
+  {
+    ssize_t n = read(fd, buf + readed, count - readed);
+    if (n < 0)
+    {
+      if (errno == EAGAIN || errno == EWOULDBLOCK)
+	continue;
+      return n;
+    }
+    readed += n;
+  }
+  return readed;
 }
 
 static void navdata_write(const uint8_t *buf, size_t count)
@@ -143,17 +162,11 @@ void acquire_baro_calibration()
   navdata_write(&cmd, 1);
 
   uint8_t calibBuffer[22];
-  int calib_bytes_read, calib_bytes_left, readcount;
-  calib_bytes_read = 0;
-  calib_bytes_left = 22;
-  readcount = 0;
 
-  while(calib_bytes_read != 22) {
-    readcount = read(nav_fd, calibBuffer+(22-calib_bytes_left), calib_bytes_left);
-    if (readcount > 0) {
-      calib_bytes_read += readcount;
-      calib_bytes_left -= readcount;
-    }
+  if (full_read(nav_fd, calibBuffer, sizeof calibBuffer) < 0)
+  {
+    perror("acquire_baro_calibration: read failed");
+    return;
   }
 
   baro_calibration.ac1 = calibBuffer[0]  << 8 | calibBuffer[1];
@@ -167,8 +180,6 @@ void acquire_baro_calibration()
   baro_calibration.mb  = calibBuffer[16] << 8 | calibBuffer[17];
   baro_calibration.mc  = calibBuffer[18] << 8 | calibBuffer[19];
   baro_calibration.md  = calibBuffer[20] << 8 | calibBuffer[21];
-
-  printf("Calibration bytes read: %d\n", calib_bytes_read);
 
   printf("Calibration AC1: %d\n", baro_calibration.ac1);
   printf("Calibration AC2: %d\n", baro_calibration.ac2);
