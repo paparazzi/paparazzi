@@ -629,8 +629,14 @@
  <!-- 74 is free -->
 
   <message name="VIDEO_TELEMETRY" id="75">
-    <field name="Max_x" 	type="uint32" 	unit="pixels"/>
-    <field name="Max_y" 	type="uint32" 	unit="pixels"/>
+    <field name="blob_x1" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y1" 	type="int32" 	unit="pixels"/>
+    <field name="blob_x2" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y2" 	type="int32" 	unit="pixels"/>
+    <field name="blob_x3" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y3" 	type="int32" 	unit="pixels"/>
+    <field name="blob_x4" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y4" 	type="int32" 	unit="pixels"/>
   </message>
 
   <message name="VF_UPDATE" id="76">
