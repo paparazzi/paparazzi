@@ -14,8 +14,10 @@ else ifeq ($(ARCH), stm32)
 IMU_ASPIRIN2_I2C_DEV ?= i2c2
 endif
 
+ifeq ($(TARGET), ap)
 ifndef IMU_ASPIRIN2_I2C_DEV
 $(error Error: IMU_ASPIRIN2_I2C_DEV not configured!)
+endif
 endif
 
 # convert i2cx to upper/lower case

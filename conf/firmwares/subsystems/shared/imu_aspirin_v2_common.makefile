@@ -54,20 +54,21 @@ include $(CFG_SHARED)/spi_master.makefile
 # SPI device and slave select defaults
 #
 ifeq ($(ARCH), lpc21)
-ifndef ASPIRIN_2_SPI_DEV
-ASPIRIN_2_SPI_DEV = spi1
-endif
-ifndef ASPIRIN_2_SPI_SLAVE_IDX
-ASPIRIN_2_SPI_SLAVE_IDX = SPI_SLAVE0
-endif
+ASPIRIN_2_SPI_DEV ?= spi1
+ASPIRIN_2_SPI_SLAVE_IDX ?= SPI_SLAVE0
 else ifeq ($(ARCH), stm32)
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (MPU600 CS)
+ASPIRIN_2_SPI_DEV ?= spi2
+ASPIRIN_2_SPI_SLAVE_IDX ?= SPI_SLAVE2
+endif
+
+ifeq ($(TARGET), ap)
 ifndef ASPIRIN_2_SPI_DEV
-ASPIRIN_2_SPI_DEV = spi2
+$(error Error: ASPIRIN_2_SPI_DEV not configured!)
 endif
 ifndef ASPIRIN_2_SPI_SLAVE_IDX
-ASPIRIN_2_SPI_SLAVE_IDX = SPI_SLAVE2
+$(error Error: ASPIRIN_2_SPI_SLAVE_IDX not configured!)
 endif
 endif
 

@@ -46,8 +46,10 @@ else ifeq ($(ARCH), stm32)
 ASPIRIN_I2C_DEV ?= i2c2
 endif
 
+ifeq ($(TARGET), ap)
 ifndef ASPIRIN_I2C_DEV
 $(error Error: ASPIRIN_I2C_DEV not configured!)
+endif
 endif
 
 # convert i2cx to upper/lower case

@@ -52,8 +52,10 @@ else ifeq ($(ARCH), stm32)
 ASPIRIN_I2C_DEV ?= i2c2
 endif
 
+ifeq ($(TARGET), ap)
 ifndef ASPIRIN_I2C_DEV
 $(error Error: ASPIRIN_I2C_DEV not configured!)
+endif
 endif
 
 # convert i2cx to upper/lower case
@@ -73,6 +75,15 @@ ASPIRIN_SPI_DEV ?= spi2
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (ADXL345 CS)
 ASPIRIN_SPI_SLAVE_IDX ?= SPI_SLAVE2
+endif
+
+ifeq ($(TARGET), ap)
+ifndef ASPIRIN_SPI_DEV
+$(error Error: ASPIRIN_SPI_DEV not configured!)
+endif
+ifndef ASPIRIN_SPI_SLAVE_IDX
+$(error Error: ASPIRIN_SPI_SLAVE_IDX not configured!)
+endif
 endif
 
 # convert spix to upper/lower case

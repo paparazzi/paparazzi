@@ -31,8 +31,10 @@ else ifeq ($(ARCH), stm32)
 ACTUATORS_MKK_V2_I2C_DEV ?= i2c1
 endif
 
+ifeq ($(TARGET), ap)
 ifndef ACTUATORS_MKK_V2_I2C_DEV
 $(error Error: ACTUATORS_MKK_V2_I2C_DEV not configured!)
+endif
 endif
 
 # convert i2cx to upper/lower case
