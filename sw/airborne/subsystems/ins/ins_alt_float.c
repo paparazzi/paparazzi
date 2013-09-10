@@ -45,6 +45,7 @@ float ins_alt;
 float ins_alt_dot;
 
 #if USE_BAROMETER
+#include "generated/modules.h"
 #include "subsystems/sensors/baro.h"
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
