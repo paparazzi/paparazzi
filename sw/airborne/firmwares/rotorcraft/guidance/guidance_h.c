@@ -354,6 +354,7 @@ static void guidance_h_traj_run(bool_t in_flight) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
+//   use the commanded psi instead of the current psi to be compatible with the stabilization_attitude_set_cmd_i function
   int32_t psi = guidance_h_command_body.psi;
   PPRZ_ITRIG_SIN(s_psi, psi);
   PPRZ_ITRIG_COS(c_psi, psi);

@@ -108,14 +108,15 @@ void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
   struct Int32Quat q_rp_i;
   QUAT_BFP_OF_REAL(q_rp_i, q_rp);
-  
+
+//   get the vertical vector to rotate the roll pitch setpoint around
   const struct Int32Vect3 zaxis = {0, 0, 1};
-  
+
   /* get current heading setpoint */
   struct Int32Quat q_yaw_sp;
-  
   INT32_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, sp_cmd->psi);
-  
+
+//   first apply the roll/pitch setpoint and then the yaw
   INT32_QUAT_COMP(stab_att_sp_quat, q_yaw_sp, q_rp_i);
 }
 
