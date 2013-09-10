@@ -354,7 +354,7 @@ static void guidance_h_traj_run(bool_t in_flight) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  int32_t psi = guidance_h_command_body.psi;
   PPRZ_ITRIG_SIN(s_psi, psi);
   PPRZ_ITRIG_COS(c_psi, psi);
 
