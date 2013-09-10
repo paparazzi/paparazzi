@@ -95,9 +95,9 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
 void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   // copy euler setpoint for debugging
   memcpy(&stab_att_sp_euler, sp_cmd, sizeof(struct Int32Eulers));
-  
+
   /// @todo calc sp_quat in fixed-point
-  
+
   /* orientation vector describing simultaneous rotation of roll/pitch */
   struct FloatVect3 ov;
   ov.x = ANGLE_FLOAT_OF_BFP(sp_cmd->phi);
