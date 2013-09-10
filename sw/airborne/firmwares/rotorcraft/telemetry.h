@@ -583,92 +583,96 @@
 #define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_GUIDANCE_H_INT(_trans, _dev) {   \
-  DOWNLINK_SEND_GUIDANCE_H_INT(_trans, _dev,           \
-                               &guidance_h_pos_sp.x,   \
-                               &guidance_h_pos_sp.y,   \
-                               &guidance_h_pos_ref.x,  \
-                               &guidance_h_pos_ref.y,  \
-                               &ins_impl.ltp_pos.x,         \
-                               &ins_impl.ltp_pos.y);        \
+#define PERIODIC_SEND_GUIDANCE_H_INT(_trans, _dev) {                \
+    DOWNLINK_SEND_GUIDANCE_H_INT(_trans, _dev,                      \
+                                 &guidance_h_pos_sp.x,              \
+                                 &guidance_h_pos_sp.y,              \
+                                 &guidance_h_pos_ref.x,             \
+                                 &guidance_h_pos_ref.y,             \
+                                 &(stateGetPositionNed_i()->x),     \
+                                 &(stateGetPositionNed_i()->y));    \
   }
 
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
-    DOWNLINK_SEND_INS_Z(_trans, _dev,					\
-                &ins_baro_alt,				\
-                &ins_impl.ltp_pos.z,			\
-                &ins_impl.ltp_speed.z,			\
-                &ins_impl.ltp_accel.z);			\
+  DOWNLINK_SEND_INS_Z(_trans, _dev,                     \
+                      &ins_baro_alt,                    \
+                      &(stateGetPositionNed_i()->z),    \
+                      &(stateGetSpeedNed_i()->z),       \
+                      &(stateGetAccelNed_i()->z));      \
   }
 
-#define PERIODIC_SEND_INS(_trans, _dev) {			\
-    DOWNLINK_SEND_INS(_trans, _dev,				\
-                       &ins_impl.ltp_pos.x,		\
-                       &ins_impl.ltp_pos.y,      \
-                       &ins_impl.ltp_pos.z,		\
-                       &ins_impl.ltp_speed.x,	\
-                       &ins_impl.ltp_speed.y,	\
-                       &ins_impl.ltp_speed.z,	\
-                       &ins_impl.ltp_accel.x,	\
-                       &ins_impl.ltp_accel.y,	\
-                       &ins_impl.ltp_accel.z);	\
+#define PERIODIC_SEND_INS(_trans, _dev) {                   \
+    struct NedCoor_i* ltp_pos = stateGetPositionNed_i();    \
+    struct NedCoor_i* ltp_speed = stateGetSpeedNed_i();     \
+    struct NedCoor_i* ltp_accel = stateGetAccelNed_i();     \
+    DOWNLINK_SEND_INS(_trans, _dev,                         \
+                      &(ltp_pos->x),                        \
+                      &(ltp_pos->y),                        \
+                      &(ltp_pos->z),                        \
+                      &(ltp_speed->x),                      \
+                      &(ltp_speed->y),                      \
+                      &(ltp_speed->z),                      \
+                      &(ltp_accel->x),                      \
+                      &(ltp_accel->y),                      \
+                      &(ltp_accel->z));                     \
   }
 
-#define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
-    if (ins_impl.ltp_initialized)                        \
-      DOWNLINK_SEND_INS_REF(_trans, _dev,           \
-                            &ins_impl.ltp_def.ecef.x,    \
-                            &ins_impl.ltp_def.ecef.y,    \
-                            &ins_impl.ltp_def.ecef.z,    \
-                            &ins_impl.ltp_def.lla.lat,   \
-                            &ins_impl.ltp_def.lla.lon,   \
-                            &ins_impl.ltp_def.lla.alt,   \
-                            &ins_impl.ltp_def.hmsl,		\
-                            &ins_impl.qfe);				\
+#define PERIODIC_SEND_INS_REF(_trans, _dev) {               \
+    if (state.ned_initialized_i) {                          \
+      DOWNLINK_SEND_INS_REF(_trans, _dev,                   \
+                            &state.ned_origin_i.ecef.x,     \
+                            &state.ned_origin_i.ecef.y,     \
+                            &state.ned_origin_i.ecef.z,     \
+                            &state.ned_origin_i.lla.lat,    \
+                            &state.ned_origin_i.lla.lon,    \
+                            &state.ned_origin_i.lla.alt,    \
+                            &state.ned_origin_i.hmsl,		\
+                            &ins_impl.qfe);                 \
+    }                                                       \
   }
 
 #define PERIODIC_SEND_VERT_LOOP(_trans, _dev) {				\
-    DOWNLINK_SEND_VERT_LOOP(_trans, _dev,				\
-                  &guidance_v_z_sp,		\
-                  &guidance_v_zd_sp,		\
-                  &ins_impl.ltp_pos.z,			\
-                  &ins_impl.ltp_speed.z,		\
-                  &ins_impl.ltp_accel.z,		\
-                  &guidance_v_z_ref,		\
-                  &guidance_v_zd_ref,		\
-                  &guidance_v_zdd_ref,		\
-                  &gv_adapt_X,			\
-                  &gv_adapt_P,			\
-                  &gv_adapt_Xmeas,			\
-                  &guidance_v_z_sum_err,		\
-                  &guidance_v_ff_cmd,		\
-                  &guidance_v_fb_cmd,		\
-                  &guidance_v_delta_t);		\
+    DOWNLINK_SEND_VERT_LOOP(_trans, _dev,                   \
+                            &guidance_v_z_sp,               \
+                            &guidance_v_zd_sp,              \
+                            &(stateGetPositionNed_i()->z),  \
+                            &(stateGetSpeedNed_i()->z),     \
+                            &(stateGetAccelNed_i()->z),     \
+                            &guidance_v_z_ref,              \
+                            &guidance_v_zd_ref,             \
+                            &guidance_v_zdd_ref,            \
+                            &gv_adapt_X,                    \
+                            &gv_adapt_P,                    \
+                            &gv_adapt_Xmeas,                \
+                            &guidance_v_z_sum_err,          \
+                            &guidance_v_ff_cmd,             \
+                            &guidance_v_fb_cmd,             \
+                            &guidance_v_delta_t);           \
   }
 
 #define PERIODIC_SEND_HOVER_LOOP(_trans, _dev) {				\
-    DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
-                   &guidance_h_pos_sp.x,		\
-                   &guidance_h_pos_sp.y,		\
-                   &ins_impl.ltp_pos.x,			\
-                   &ins_impl.ltp_pos.y,			\
-                   &ins_impl.ltp_speed.x,		\
-                   &ins_impl.ltp_speed.y,		\
-                   &ins_impl.ltp_accel.x,		\
-                   &ins_impl.ltp_accel.y,		\
-                   &guidance_h_pos_err.x,		\
-                   &guidance_h_pos_err.y,		\
-                   &guidance_h_speed_err.x,	\
-                   &guidance_h_speed_err.y,	\
-                   &guidance_h_pos_err_sum.x,	\
-                   &guidance_h_pos_err_sum.y,	\
-                   &guidance_h_nav_err.x,	\
-                   &guidance_h_nav_err.y,	\
-                   &guidance_h_command_earth.x,	\
-                   &guidance_h_command_earth.y,	\
-                   &guidance_h_command_body.phi,	\
-                   &guidance_h_command_body.theta, \
-                   &guidance_h_command_body.psi);	\
+    DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,                      \
+                             &guidance_h_pos_sp.x,              \
+                             &guidance_h_pos_sp.y,              \
+                             &(stateGetPositionNed_i()->x),     \
+                             &(stateGetPositionNed_i()->y),     \
+                             &(stateGetSpeedNed_i()->x),        \
+                             &(stateGetSpeedNed_i()->y),        \
+                             &(stateGetAccelNed_i()->x),        \
+                             &(stateGetAccelNed_i()->y),        \
+                             &guidance_h_pos_err.x,             \
+                             &guidance_h_pos_err.y,             \
+                             &guidance_h_speed_err.x,           \
+                             &guidance_h_speed_err.y,           \
+                             &guidance_h_pos_err_sum.x,         \
+                             &guidance_h_pos_err_sum.y,         \
+                             &guidance_h_nav_err.x,             \
+                             &guidance_h_nav_err.y,             \
+                             &guidance_h_command_earth.x,       \
+                             &guidance_h_command_earth.y,       \
+                             &guidance_h_command_body.phi,      \
+                             &guidance_h_command_body.theta,    \
+                             &guidance_h_command_body.psi);     \
   }
 
 #define PERIODIC_SEND_GUIDANCE_H_REF(_trans, _dev) { \
