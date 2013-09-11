@@ -191,8 +191,6 @@ sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/ivy_transport.c
 
-sim.srcs += $(SRC_BOARD)/baro_board.c
-
 sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
 
 # hack: always compile some of the sim functions, so ocaml sim does not complain about no-existing functions
@@ -222,8 +220,6 @@ endif
 
 jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)
-
-jsbsim.srcs += $(SRC_BOARD)/baro_board.c
 
 jsbsim.CFLAGS 		+= -DSITL -DUSE_JSBSIM
 jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_ac_flightgear.c

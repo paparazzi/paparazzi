@@ -124,8 +124,16 @@ ifneq ($(BARO_LED),none)
 ap.CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
 
+#
+# add it for simulators
+#
+sim.srcs += $(SRC_BOARD)/baro_board.c
+jsbsim.srcs += $(SRC_BOARD)/baro_board.c
+nps.srcs += $(SRC_BOARD)/baro_board.c
+
+
 else # USE_BARO_BOARD is not TRUE, was explicitly disabled
 
-ap.CFLAGS += -DUSE_BARO_BOARD=FALSE
+$(TARGET).CFLAGS += -DUSE_BARO_BOARD=FALSE
 
 endif # check USE_BARO_BOARD
