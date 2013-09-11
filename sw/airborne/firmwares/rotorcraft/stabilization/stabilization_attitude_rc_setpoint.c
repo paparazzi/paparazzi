@@ -221,15 +221,14 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
  * @param[out] q quaternion representing the RC roll/pitch input
  */
 void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat* q) {
-  q->qx = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
-  q->qy = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
-  q->qz = 0.0;
+  /* orientation vector describing simultaneous rotation of roll/pitch */
+  struct FloatVect3 ov;
+  ov.x = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
+  ov.y = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
+  ov.z = 0.0;
 
-  /* normalize */
-  float norm = sqrtf(1.0 + SQUARE(q->qx)+ SQUARE(q->qy));
-  q->qi = 1.0 / norm;
-  q->qx /= norm;
-  q->qy /= norm;
+  /* quaternion from that orientation vector */
+  FLOAT_QUAT_OF_ORIENTATION_VECT(*q, ov);
 }
 
 /** Read roll/pitch command from RC as quaternion.

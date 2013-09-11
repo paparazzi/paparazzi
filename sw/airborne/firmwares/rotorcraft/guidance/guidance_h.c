@@ -263,7 +263,9 @@ void guidance_h_run(bool_t  in_flight) {
         struct Int32Eulers sp_cmd_i;
         sp_cmd_i.phi = nav_roll;
         sp_cmd_i.theta = nav_pitch;
-        /* FIXME: heading can't be set via attitude block yet, use current heading for now */
+        /** @todo: heading can't be set via attitude block yet.
+         * use current euler psi for now, should be real heading
+         */
         sp_cmd_i.psi = stateGetNedToBodyEulers_i()->psi;
         stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
       }
