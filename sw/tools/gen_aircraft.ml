@@ -264,12 +264,13 @@ let dump_firmware_sections = fun xml makefile_ac ->
 
 
 (** Extracts the makefile sections of an airframe file *)
-let extract_makefile = fun airframe_file makefile_ac ->
+let extract_makefile = fun ac_id airframe_file makefile_ac ->
   let xml = Xml.parse_file airframe_file in
   let f = open_out makefile_ac in
 
   fprintf f "# This file has been generated from %s by %s\n" airframe_file Sys.argv.(0);
   fprintf f "# Please DO NOT EDIT\n";
+  fprintf f "AC_ID=%s\n" ac_id;
 
   (** Search and dump makefile sections that have a "location" attribute set to "before" or no attribute *)
   dump_makefile_section xml f airframe_file "before";
@@ -397,7 +398,7 @@ let () =
     let temp_makefile_ac = Filename.temp_file "Makefile.ac" "tmp" in
     let abs_airframe_file = paparazzi_conf // airframe_file in
 
-    let modules_files = extract_makefile abs_airframe_file temp_makefile_ac in
+    let modules_files = extract_makefile (value "ac_id") abs_airframe_file temp_makefile_ac in
 
     (* Create Makefile.ac only if needed *)
     let makefile_ac = aircraft_dir // "Makefile.ac" in
