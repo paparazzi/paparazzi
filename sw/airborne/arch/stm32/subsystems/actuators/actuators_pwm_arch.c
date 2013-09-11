@@ -32,7 +32,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 
-int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 #if defined(STM32F1)
 //#define PCLK 72000000
@@ -43,6 +42,26 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 #endif
 
 #define ONE_MHZ_CLK 1000000
+
+#ifdef STM32F1
+/**
+ * HCLK = 72MHz, Timer clock also 72MHz since
+ * TIM1_CLK = APB2 = 72MHz
+ * TIM2_CLK = 2 * APB1 = 2 * 32MHz
+ */
+#define TIMER_APB1_CLK AHB_CLK
+#define TIMER_APB2_CLK AHB_CLK
+#endif
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define TIMER_APB1_CLK (rcc_ppre1_frequency * 2)
+#define TIMER_APB2_CLK (rcc_ppre2_frequency * 2)
+#endif
+
 
 /** Default servo update rate in Hz */
 #ifndef SERVO_HZ
@@ -73,16 +92,21 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 #endif
 
 
+
+int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+
+
 /** Set PWM channel configuration
  */
 static inline void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
                                                    enum tim_oc_id oc_id) {
 
   timer_disable_oc_output(timer_peripheral, oc_id);
+#if STM32F4
   //There is no such register in TIM9 and 12.
-  if (timer_peripheral != TIM9 && timer_peripheral != TIM12){
+  if (timer_peripheral != TIM9 && timer_peripheral != TIM12)
+#endif
     timer_disable_oc_clear(timer_peripheral, oc_id);
-  }
   timer_enable_oc_preload(timer_peripheral, oc_id);
   timer_set_oc_slow_mode(timer_peripheral, oc_id);
   timer_set_oc_mode(timer_peripheral, oc_id, TIM_OCM_PWM1);
@@ -118,21 +142,25 @@ static inline void set_servo_timer(uint32_t timer, uint32_t period, uint8_t chan
    * - Alignement edge.
    * - Direction up.
    */
-  if (timer != TIM9 && timer != TIM12 ) {
-    timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-
-  } else {
+#if STM32F4
+  if ((timer == TIM9) || (timer == TIM12))
     //There are no EDGE and DIR settings in TIM9 and TIM12
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, 0, 0);
-  }
+  else
+#endif
+    timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-  //TIM9, 1 and 8 use APB2 clock which runs at double speed (APB1 X2).
-  if (timer != TIM9 && timer != TIM1 && timer != TIM8) {
-    timer_set_prescaler(timer, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
 
+  // TIM1, 8 and 9 use APB2 clock, all others APB1
+#if STM32F4
+  if (timer != TIM1 && timer != TIM8 && timer != TIM9) {
+#else
+  if (timer != TIM1 && timer != TIM8) {
+#endif
+    timer_set_prescaler(timer, (TIMER_APB1_CLK / ONE_MHZ_CLK) - 1); // 1uS
   } else {
-    // 1uS, APB2 runs on double the frequency of APB1.
-    timer_set_prescaler(timer, ((PCLK / ONE_MHZ_CLK)*2) - 1);
+    // TIM9, 1 and 8 use APB2 clock
+    timer_set_prescaler(timer, (TIMER_APB2_CLK / ONE_MHZ_CLK) - 1);
   }
 
   timer_disable_preload(timer);
