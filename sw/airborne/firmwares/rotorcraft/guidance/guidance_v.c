@@ -66,6 +66,7 @@ uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
+int32_t guidance_v_mass_cmd;
 
 float guidance_v_nominal_throttle;
 bool_t guidance_v_adapt_throttle_enabled;
@@ -175,7 +176,7 @@ void guidance_v_run(bool_t in_flight) {
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
   // AKA SUPERVISION and co
   if (in_flight) {
-    gv_adapt_run(stateGetAccelNed_i()->z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
+    gv_adapt_run(stateGetAccelNed_i()->z, guidance_v_mass_cmd, guidance_v_zd_ref);
   }
   else {
     /* reset estimate while not in_flight */
@@ -187,6 +188,7 @@ void guidance_v_run(bool_t in_flight) {
   case GUIDANCE_V_MODE_RC_DIRECT:
     guidance_v_z_sp = stateGetPositionNed_i()->z; // for display only
     stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
+    guidance_v_mass_cmd = stabilization_cmd[COMMAND_THRUST];
     break;
 
   case GUIDANCE_V_MODE_RC_CLIMB:
@@ -194,6 +196,7 @@ void guidance_v_run(bool_t in_flight) {
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+    guidance_v_mass_cmd = stabilization_cmd[COMMAND_THRUST];
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
@@ -304,6 +307,8 @@ void run_hover_loop(bool_t in_flight) {
                           (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
   guidance_v_ff_cmd = g_m_zdd / inv_m;
+  guidance_v_mass_cmd = guidance_v_ff_cmd;
+  
   int32_t cphi,ctheta,cphitheta;
   struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
   PPRZ_ITRIG_COS(cphi, att_euler->phi);
@@ -324,6 +329,7 @@ void run_hover_loop(bool_t in_flight) {
                       ((-guidance_v_ki * guidance_v_z_sum_err) >> 16);
 
   guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
+  guidance_v_mass_cmd += guidance_v_fb_cmd;
 
   /* bound the result */
   Bound(guidance_v_delta_t, 0, MAX_PPRZ);

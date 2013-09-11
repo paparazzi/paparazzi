@@ -89,7 +89,7 @@ void imu_impl_init( void )
   // Init median filters
 #if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
   InitMedianFilterRatesInt(median_gyro);
-#endif
+#endif 
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
   InitMedianFilterVect3Int(median_accel);
 #endif
@@ -127,7 +127,6 @@ void imu_periodic( void )
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
 #endif
-
     RATES_SMUL(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, IMU_KROOZ_GYRO_AVG_FILTER);
     RATES_ADD(imu_krooz.gyro_filtered, imu.gyro_unscaled);
     RATES_SDIV(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, (IMU_KROOZ_GYRO_AVG_FILTER + 1));

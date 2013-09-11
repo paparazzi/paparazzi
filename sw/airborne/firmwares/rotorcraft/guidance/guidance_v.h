@@ -81,6 +81,12 @@ extern int32_t guidance_v_fb_cmd;    ///< feed-back command
  */
 extern int32_t guidance_v_delta_t;
 
+/** virtuall mass command.
+ *  summation of vertical feed-forward and feed-back commands,
+ *  valid range 0 : #MAX_PPRZ
+ */
+extern int32_t guidance_v_mass_cmd;
+
 /** nominal throttle for hover.
  * This is only used if #GUIDANCE_V_NOMINAL_HOVER_THROTTLE is defined!
  * Unit: factor of #MAX_PPRZ with range 0.1 : 0.9
