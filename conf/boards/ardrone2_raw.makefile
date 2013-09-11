@@ -15,10 +15,16 @@ $(TARGET).ARCHDIR = $(ARCH)
 
 # -----------------------------------------------------------------------
 USER=foobar
-HOST=192.168.1.1
+HOST?=192.168.1.1
 SUB_DIR=raw
 FTP_DIR=/data/video
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
+# -----------------------------------------------------------------------
+ARDRONE2_START_PAPARAZZI ?= 0
+ARDRONE2_WIFI_MODE ?= 0
+ARDRONE2_SSID ?= ardrone2_paparazzi
+ARDRONE2_IP_ADDRESS_BASE ?= 192.168.1.
+ARDRONE2_IP_ADDRESS_PROBE ?= 1
 # -----------------------------------------------------------------------
 
 # The GPS sensor is connected trough USB so we have to define the device
