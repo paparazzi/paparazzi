@@ -94,13 +94,25 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
 }
 
 void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
-  // copy euler setpoint for debugging
+  // stab_att_sp_euler.psi still used in ref..
   memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
 
   quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
 void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+  // stab_att_sp_euler.psi still used in ref..
+  stab_att_sp_euler.psi = heading;
+
+  // compute sp_euler phi/theta for debugging/telemetry
+  /* Rotate horizontal commands to body frame by psi */
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  int32_t s_psi, c_psi;
+  PPRZ_ITRIG_SIN(s_psi, psi);
+  PPRZ_ITRIG_COS(c_psi, psi);
+  stab_att_sp_euler.phi = (-s_psi * cmd->x + c_psi * cmd->y) >> INT32_TRIG_FRAC;
+  stab_att_sp_euler.theta = -(c_psi * cmd->x + s_psi * cmd->y) >> INT32_TRIG_FRAC;
+
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
