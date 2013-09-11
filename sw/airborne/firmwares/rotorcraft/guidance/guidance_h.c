@@ -316,14 +316,18 @@ static void guidance_h_update_reference(void) {
 #define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
 #define MAX_POS_ERR_SUM ((int32_t)(MAX_POS_ERR)<< 12)
 
+#ifndef GUIDANCE_H_THRUST_CMD_FILTER
+#define GUIDANCE_H_THRUST_CMD_FILTER 10
+#endif
+
 /* with a pgain of 100 and a scale of 2,
  * you get an angle of 5.6 degrees for 1m pos error */
 #define GH_GAIN_SCALE 2
 
-/** maximum bank angle: default 20 deg */
-#define TRAJ_MAX_BANK BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC)
-
 static void guidance_h_traj_run(bool_t in_flight) {
+  /* maximum bank angle: default 20 deg, max 40 deg*/
+  static const int32_t traj_max_bank = Max(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
+                                           BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
 
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
@@ -356,7 +360,17 @@ static void guidance_h_traj_run(bool_t in_flight) {
     ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
-  VECT2_STRIM(guidance_h_cmd_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
+  /* compute a better approximation of force commands by taking thrust into account */
+#if GUIDANCE_H_APPROX_FORCE_BY_THRUST
+  if (in_flight) {
+    static int32_t thrust_cmd_filt;
+    thrust_cmd_filt = (thrust_cmd_filt * GUIDANCE_H_THRUST_CMD_FILTER + stabilization_cmd[COMMAND_THRUST]) / (GUIDANCE_H_THRUST_CMD_FILTER + 1);
+    guidance_h_cmd_earth.x = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
+    guidance_h_cmd_earth.y = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
+  }
+#endif
+
+  VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
 }
 
 static void guidance_h_hover_enter(void) {
