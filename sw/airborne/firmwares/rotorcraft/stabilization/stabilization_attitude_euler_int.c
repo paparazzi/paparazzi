@@ -102,10 +102,20 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_i()->psi;
 }
 
-void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
-  memcpy(&stab_att_sp_euler, sp_cmd, sizeof(struct Int32Eulers));
+void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
+  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
 }
 
+void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+  /* Rotate horizontal commands to body frame by psi */
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  int32_t s_psi, c_psi;
+  PPRZ_ITRIG_SIN(s_psi, psi);
+  PPRZ_ITRIG_COS(c_psi, psi);
+  stab_att_sp_euler.phi = (-s_psi * cmd->x + c_psi * cmd->y) >> INT32_TRIG_FRAC;
+  stab_att_sp_euler.theta = -(c_psi * cmd->x + s_psi * cmd->y) >> INT32_TRIG_FRAC;
+  stab_att_sp_euler.psi = heading;
+}
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
