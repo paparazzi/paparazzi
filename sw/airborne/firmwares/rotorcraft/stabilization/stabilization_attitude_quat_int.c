@@ -93,11 +93,15 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
 }
 
-void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
+void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
   // copy euler setpoint for debugging
-  memcpy(&stab_att_sp_euler, sp_cmd, sizeof(struct Int32Eulers));
+  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
 
   quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
+}
+
+void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+  quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))

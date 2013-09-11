@@ -59,8 +59,12 @@ void quat_from_earth_cmd_i(struct Int32Quat *quat, struct Int32Vect2 *cmd, int32
 
 void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float heading) {
 
-  /* orientation vector describing simultaneous rotation of roll/pitch */
-  const struct FloatVect3 ov = {cmd->x, cmd->y, 0.0};
+  /* cmd_x is positive to north = negative pitch
+   * cmd_y is positive to east = positive roll
+   *
+   * orientation vector describing simultaneous rotation of roll/pitch
+   */
+  const struct FloatVect3 ov = {cmd->y, -cmd->x, 0.0};
   /* quaternion from that orientation vector */
   struct FloatQuat q_rp;
   FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);

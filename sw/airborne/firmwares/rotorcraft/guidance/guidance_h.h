@@ -69,9 +69,14 @@ extern struct Int32Vect2 guidance_h_speed_err;
 extern struct Int32Vect2 guidance_h_pos_err_sum;
 extern struct Int32Vect2 guidance_h_nav_err;
 
+
+/** horizontal guidance command.
+ * In north/east with #INT32_ANGLE_FRAC
+ * @todo convert to real force command
+ */
+extern struct Int32Vect2  guidance_h_cmd_earth;
 extern struct Int32Eulers guidance_h_rc_sp;         ///< with #INT32_ANGLE_FRAC
-extern struct Int32Vect2  guidance_h_command_earth;
-extern struct Int32Eulers guidance_h_command_body;  ///< with #INT32_ANGLE_FRAC
+extern int32_t guidance_h_heading_sp;               ///< with #INT32_ANGLE_FRAC
 
 extern int32_t guidance_h_pgain;
 extern int32_t guidance_h_dgain;
