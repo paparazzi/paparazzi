@@ -143,10 +143,21 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   stab_att_sp_quat.qz = sinf(heading2);
 }
 
-void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
-  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_cmd);
+void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
+  // copy euler setpoint for debugging
+  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *rpy);
 
   quat_from_rpy_cmd_f(&stab_att_sp_quat, &stab_att_sp_euler);
+}
+
+void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+  struct FloatVect2 cmd_f;
+  cmd_f.x = ANGLE_FLOAT_OF_BFP(cmd->x);
+  cmd_f.y = ANGLE_FLOAT_OF_BFP(cmd->y);
+  float heading_f;
+  heading_f = ANGLE_FLOAT_OF_BFP(heading);
+
+  quat_from_earth_cmd_f(&stab_att_sp_quat, &cmd_f, heading_f);
 }
 
 #ifndef GAIN_PRESCALER_FF
