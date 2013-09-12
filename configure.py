@@ -8,9 +8,12 @@ pygtk.require('2.0')
 
 
 import os
+import shutil
 import datetime
 from fnmatch import fnmatch
 import subprocess
+
+
 
 
 class ConfChooser:
@@ -57,44 +60,49 @@ class ConfChooser:
         os.system("./paparazzi &");
         gtk.main_quit()
 
-    def backupconf(self, personal=0):
+    def backupconf(self, use_personal=False):
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
-        newname = "conf.xml." + timestr
         if " -> " in self.explain.get_text():
             print("Symlink does not need backup");
         else:
-            os.system("cd " + self.pwd + "/conf && cp conf.xml " + newname)
+            newname = "conf.xml." + timestr
+            backup_file = os.path.join(self.conf_dir, newname)
+            shutil.copyfile(self.conf_xml, backup_file)
             print("Made a backup: " + newname)
 
-        if personal == 1:
-            if os.path.exists(self.pwd + "/conf/conf.xml.personal"):
+        if use_personal:
+            conf_personal = os.path.join(self.conf_dir, "conf.xml.personal")
+            conf_personal_backup = os.path.join(self.conf_dir, "conf.xml.personal." + timestr)
+            if os.path.exists(conf_personal):
                 print("Backup conf.xml.personal to conf.xml.personal." + timestr)
-                os.system("cd " + self.pwd + "/conf && cp conf.xml.personal conf.xml.personal." + timestr)
+                shutil.copyfile(conf_personal, conf_personal_backup)
 
     def delete(self, widget):
-        cmd = "cd " + self.pwd + "/conf && rm -f " + self.conf_file_combo.get_active_text()
+        filename = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
         # TODO: dialog: are you certain?
-        os.system(cmd)
+        os.remove(filename)
         self.find_conf_files()
-        
+
 
     def accept(self, widget):
         self.backupconf()
-        cmd = "cd " + self.pwd + "/conf && ln -f -s " + self.conf_file_combo.get_active_text() + " conf.xml"
-        print(cmd)
-        os.system(cmd)
+        link_source = self.conf_file_combo.get_active_text()
+        os.remove(self.conf_xml)
+        os.symlink(link_source, self.conf_xml)
         self.update_label()
         self.find_conf_files()
 
     def personal(self, widget):
-        self.backupconf(1)
-        cmd = "cd " + self.pwd + "/conf && cp " + self.conf_file_combo.get_active_text() + " conf.xml.personal && ln -f -s conf.xml.personal conf.xml"
-        print(cmd)
-        os.system(cmd)
+        self.backupconf(True)
+        template_file = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
+        personal_file = os.path.join(self.conf_dir, "conf.xml.personal")
+        shutil.copyfile(template_file, personal_file)
+        os.remove(self.conf_xml)
+        os.symlink("conf.xml.personal", self.conf_xml)
         self.update_label()
         self.find_conf_files()
 
-    # Constructor Functions        
+    # Constructor Functions
 
     def destroy(self, widget, data=None):
         gtk.main_quit()
@@ -105,9 +113,12 @@ class ConfChooser:
 
         self.my_vbox = gtk.VBox()
 
-        # Where Am I?
-        self.pwd = subprocess.Popen("pwd", stdout=subprocess.PIPE,stderr=subprocess.STDOUT, shell=True).stdout.read().strip()
-  
+        # if PAPARAZZI_HOME not set, then assume the tree containing this
+        # file is a reasonable substitute
+        self.paparazzi_home = os.getenv("PAPARAZZI_HOME", os.path.dirname(os.path.abspath(__file__)))
+        self.conf_dir = os.path.join(self.paparazzi_home, "conf")
+        self.conf_xml = os.path.join(self.conf_dir, "conf.xml")
+
         # MenuBar
         mb = gtk.MenuBar()
 
@@ -147,7 +158,7 @@ class ConfChooser:
         self.find_conf_files()
 #        self.firmwares_combo.connect("changed", self.parse_list_of_airframes)
         self.conf_file_combo.set_size_request(600,30)
-        
+
         self.confbar = gtk.HBox()
         self.confbar.pack_start(self.conf_label)
         self.confbar.pack_start(self.conf_file_combo)
@@ -194,7 +205,7 @@ class ConfChooser:
 
         self.my_vbox.pack_start(self.toolbar, False)
 
-        ##### Bottom        
+        ##### Bottom
 
         self.window.add(self.my_vbox)
         self.window.show_all()
@@ -210,4 +221,3 @@ if __name__ == "__main__":
         airframe_file = sys.argv[1]
     gui = ConfChooser()
     gui.main()
-
