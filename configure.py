@@ -73,6 +73,10 @@ class ConfChooser:
     def about(self):
         gui_dialogs.about(paparazzi.home_dir)
 
+    def set_backups(self, widget):
+        self.exclude_backups = not widget.get_active()
+        self.find_conf_files()
+
     def launch(self, widget):
         os.system("./paparazzi &");
         gtk.main_quit()
@@ -189,6 +193,11 @@ class ConfChooser:
         self.confbar.pack_start(self.conf_label)
         self.confbar.pack_start(self.conf_file_combo)
         self.my_vbox.pack_start(self.confbar, False)
+
+        ### show backups button
+        self.btnBackups = gtk.CheckButton("show backups")
+        self.btnBackups.connect("toggled", self.set_backups)
+        self.my_vbox.pack_start(self.btnBackups, False)
 
         ##### Explain current config
 
