@@ -50,13 +50,17 @@ class ConfChooser:
         conf_files = []
 
         pattern = "*conf.xml*"
+        backup_pattern = "conf.xml.2[0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+        excludes = ["conf.xml", "%gconf.xml"]
 
         for path, subdirs, files in os.walk(self.conf_dir):
             for name in files:
+                if self.exclude_backups and fnmatch(name, backup_pattern):
+                    continue
                 if fnmatch(name, pattern):
                     filepath = os.path.join(path, name)
                     entry = os.path.relpath(filepath, self.conf_dir)
-                    if not os.path.islink(filepath) and entry != "conf.xml":
+                    if not os.path.islink(filepath) and entry not in excludes:
                         conf_files.append(entry)
 
         conf_files.sort()
@@ -91,6 +95,7 @@ class ConfChooser:
         filename = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
         # TODO: dialog: are you certain?
         os.remove(filename)
+        self.update_label()
         self.find_conf_files()
 
 
@@ -128,6 +133,8 @@ class ConfChooser:
         self.paparazzi_home = os.getenv("PAPARAZZI_HOME", os.path.dirname(os.path.abspath(__file__)))
         self.conf_dir = os.path.join(self.paparazzi_home, "conf")
         self.conf_xml = os.path.join(self.conf_dir, "conf.xml")
+
+        self.exclude_backups = True
 
         # MenuBar
         mb = gtk.MenuBar()
