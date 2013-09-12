@@ -29,28 +29,38 @@ class ConfChooser:
         combo.set_sensitive(True)
 
     def update_label(self):
-        r = subprocess.Popen("ls -altr ./conf/conf.xml", stdout=subprocess.PIPE,stderr=subprocess.STDOUT, shell=True).stdout.read()
-        r = r.strip()
-        self.explain.set_text("Currently set to: " + r)
+        desc = "Current conf: "
+        if not os.path.lexists(self.conf_xml):
+                desc += "does not exist"
+        else:
+            if os.path.islink(self.conf_xml):
+                if os.path.exists(self.conf_xml):
+                    desc += "symlink to "
+                else:
+                    desc += "broken symlink to "
+            real_conf_path = os.path.realpath(self.conf_xml)
+            desc += os.path.relpath(real_conf_path, self.conf_dir)
+        self.explain.set_text(desc)
 
     # CallBack Functions
 
 
     def find_conf_files(self):
 
-        list_of_conf_files = []
+        conf_files = []
 
-        root = './conf/'
         pattern = "*conf.xml*"
 
-        for path, subdirs, files in os.walk(root):
+        for path, subdirs, files in os.walk(self.conf_dir):
             for name in files:
                 if fnmatch(name, pattern):
-                    entry = os.path.join(path, name).replace("./conf/","")
-                    if entry != "conf.xml":
-                        list_of_conf_files.append(entry)
+                    filepath = os.path.join(path, name)
+                    entry = os.path.relpath(filepath, self.conf_dir)
+                    if not os.path.islink(filepath) and entry != "conf.xml":
+                        conf_files.append(entry)
 
-        self.update_combo(self.conf_file_combo,list_of_conf_files)
+        conf_files.sort()
+        self.update_combo(self.conf_file_combo, conf_files)
 
 
     def about(self):
@@ -62,7 +72,7 @@ class ConfChooser:
 
     def backupconf(self, use_personal=False):
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
-        if " -> " in self.explain.get_text():
+        if os.path.islink(self.conf_xml):
             print("Symlink does not need backup");
         else:
             newname = "conf.xml." + timestr
