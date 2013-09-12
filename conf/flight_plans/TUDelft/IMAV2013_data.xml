@@ -1,0 +1,70 @@
+<!DOCTYPE procedure SYSTEM "../flight_plan.dtd">
+<procedure>
+  <waypoints>
+    <waypoint name="Arch1" lat="43.4490384" lon="1.2650034"/>
+    <waypoint name="Arch2" lat="43.4494471" lon="1.2638720"/>
+    <waypoint name="VTOL" lat="43.4488021" lon="1.2656911"/>
+    <waypoint name="DZ1" lat="43.4500248" lon="1.2624849"/>
+    <waypoint name="DZ2" lat="43.4490765" lon="1.2631868"/>
+    <waypoint name="DZ3" lat="43.4483113" lon="1.2647993"/>
+    <waypoint name="DZ4" lat="43.4482531" lon="1.2668969"/>
+    <waypoint name="Pole1" lat="43.4491928" lon="1.2621898"/>
+    <waypoint name="Pole2" lat="43.4477844" lon="1.2660354"/>
+    <waypoint name="Start" lat="43.4493798" lon="1.2625281"/>
+    <waypoint name="QR1" lat="43.4490810" lon="1.2612933"/>
+    <waypoint name="QR2" lat="43.4497230" lon="1.2595940"/>
+    <waypoint name="QR3" lat="43.4513822" lon="1.2609753"/>
+    <waypoint name="QR4" lat="43.4507515" lon="1.2626668"/>
+    <waypoint name="_TZ1" lat="43.4497286" lon="1.2648588"/>
+    <waypoint name="_TZ4" lat="43.4495064" lon="1.2646922"/>
+    <waypoint name="_TZ2" lat="43.4494196" lon="1.2656797"/>
+    <waypoint name="_TZ3" lat="43.4492046" lon="1.2655165"/>
+    <waypoint name="_VZ1" lat="43.4500364" lon="1.2650873"/>
+    <waypoint name="_VZ2" lat="43.4497324" lon="1.2658808"/>
+    <waypoint name="_FA1" lat="43.4517520" lon="1.2609609"/>
+    <waypoint name="_FA2" lat="43.4493667" lon="1.2680120"/>
+    <waypoint name="_FA3" lat="43.4468316" lon="1.2659600"/>
+    <waypoint name="_FA4" lat="43.4493167" lon="1.2589705"/>
+    <waypoint name="_SFA1" lat="43.4517520" lon="1.2609609"/>
+    <waypoint name="_SFA2" lat="43.4493667" lon="1.2680120"/>
+    <waypoint name="_SFA3" lat="43.4468316" lon="1.2659600"/>
+    <waypoint name="_SFA4" lat="43.4493167" lon="1.2589705"/>
+    <waypoint name="NEXT1" lat="43.4491144" lon="1.2656822"/>
+    <waypoint name="NEXT2" lat="43.4491144" lon="1.2656822"/>
+    <waypoint name="NEXT3" lat="43.4491144" lon="1.2656822"/>
+    <waypoint name="NEXT4" lat="43.4491144" lon="1.2656822"/>
+  </waypoints>
+
+  <sectors>
+    <sector color="green" name="QR_Area">
+      <corner name="QR1"/>
+      <corner name="QR2"/>
+      <corner name="QR3"/>
+      <corner name="QR4"/>
+    </sector>
+    <sector color="yellow" name="Team_Zone">
+      <corner name="_TZ1"/>
+      <corner name="_TZ2"/>
+      <corner name="_TZ3"/>
+      <corner name="_TZ4"/>
+    </sector>
+    <sector color="blue" name="Visitor_Zone">
+      <corner name="_VZ1"/>
+      <corner name="_VZ2"/>
+      <corner name="_TZ2"/>
+      <corner name="_TZ1"/>
+    </sector>
+    <sector color="red" name="Flight_Area">
+      <corner name="_FA1"/>
+      <corner name="_FA2"/>
+      <corner name="_FA3"/>
+      <corner name="_FA4"/>
+    </sector>
+    <sector color="orange" name="Small_Flight_Area">
+      <corner name="_SFA1"/>
+      <corner name="_SFA2"/>
+      <corner name="_SFA3"/>
+      <corner name="_SFA4"/>
+    </sector>
+  </sectors>
+</procedure>

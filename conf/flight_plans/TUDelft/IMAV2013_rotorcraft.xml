@@ -1,0 +1,81 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<!-- TU Delft next to LR: lat0="51.991009" lon0="4.378288" -->
+<!-- IMAV2013 location: lat0="43.449546" lon0="1.263386" -->
+<flight_plan lat0="51.991009" lon0="4.378288" ground_alt="180" alt="195" max_dist_from_home="500" name="IMAV2013_ROTORCRAFT" qfu="190" security_height="2.5">
+  <header/>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="0" y="0" height="10"/>
+    <waypoint name="TD" x="0" y="0" height="7"/>
+  </waypoints>
+
+  <includes>
+    <!-- include name="Data" procedure="IMAV2013_data.xml"/ -->
+    <include name="Data" procedure="IMAV2013_data_tudelft.xml"/>
+    <include name="Safety" procedure="IMAV2013_safety.xml">
+      <with from="goto_land" to="Land"/>
+    </include>
+  </includes>
+
+  <exceptions/>
+  <blocks>
+<!-- Establish GPS fix -->
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid() || gps.pacc > 500"/>
+    </block>
+<!-- Update local waypoints with respect to MAV -->
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <set var="waypoints[WP_STDBY].z" value="POS_BFP_OF_REAL(WaypointAlt(WP_STDBY) + ((AC_ID%2)*5))"/>
+    </block>
+<!-- Start the MAV motors -->
+    <block name="Start Engine" strip_button="Takeoff" strip_icon="takeoff.png">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="TRUE"/>
+    </block>
+<!-- Takeoff to a height of 3 meters and deroute to Standby -->
+    <block name="Takeoff">
+      <set value="0" var="autopilot_flight_time"/>
+      <exception cond="!autopilot_motors_on" deroute="Start Engine"/>
+      <exception cond="stateGetPositionEnu_f()->z > 3.0" deroute="Standby"/>
+      <stay vmode="climb" climb="0.7" wp="HOME"/>
+    </block>
+<!-- Standby -->
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+<!-- Fly to VTOL spot and land -->
+    <block name="Go VTOL">
+      <go wp="VTOL"/>
+    </block>
+    <block name="Precision Landing">
+	  <exception cond="!nav_is_in_flight()" deroute="Precision Landed"/>
+	  <stay climb="-0.8" vmode="climb" wp="VTOL"/>
+	</block>
+<!-- Wait for 12 seconds on VTOL spot -->
+	<block name="Precision Landed">
+	  <exception cond="block_time > 12" deroute="Takeoff after VTOL"/>
+	  <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+	</block>
+<!-- Takeoff to a height of 3 meters and deroute to Standby -->
+    <block name="Takeoff after VTOL">
+      <exception cond="stateGetPositionEnu_f()->z > 3.0" deroute="Standby"/>
+      <stay vmode="climb" climb="0.5" wp="VTOL"/>
+    </block>
+<!-- Land the MAV -->
+    <block name="Land">
+      <go wp="TD"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Landed"/>
+      <go climb="-0.7" vmode="climb" wp="TD"/>
+    </block>
+<!-- The MAV is landed -->
+    <block name="Landed">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>
