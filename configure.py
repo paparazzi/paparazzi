@@ -20,12 +20,15 @@ class ConfChooser:
 
     # General Functions
 
-    def update_combo(self,combo,list):
+    def update_combo(self, combo, list):
         combo.set_sensitive(False)
         combo.get_model().clear()
-        for i in list:
-            combo.append_text(i)
-        combo.set_active(0)
+        current_index = 0
+        for (i, text) in enumerate(list):
+            combo.append_text(text)
+            if os.path.join(self.conf_dir, text) == os.path.realpath(self.conf_xml):
+                current_index = i
+        combo.set_active(current_index)
         combo.set_sensitive(True)
 
     def update_label(self):
@@ -50,8 +53,8 @@ class ConfChooser:
         conf_files = []
 
         pattern = "*conf.xml*"
-        backup_pattern = "conf.xml.2[0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
-        excludes = ["conf.xml", "%gconf.xml"]
+        backup_pattern = "conf.xml.*2[0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+        excludes = ["%gconf.xml"]
 
         for path, subdirs, files in os.walk(self.conf_dir):
             for name in files:
@@ -77,7 +80,8 @@ class ConfChooser:
     def backupconf(self, use_personal=False):
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
         if os.path.islink(self.conf_xml):
-            print("Symlink does not need backup");
+            if self.verbose:
+                print("Symlink does not need backup");
         else:
             newname = "conf.xml." + timestr
             backup_file = os.path.join(self.conf_dir, newname)
@@ -100,12 +104,16 @@ class ConfChooser:
 
 
     def accept(self, widget):
-        self.backupconf()
-        link_source = self.conf_file_combo.get_active_text()
-        os.remove(self.conf_xml)
-        os.symlink(link_source, self.conf_xml)
-        self.update_label()
-        self.find_conf_files()
+        selected = self.conf_file_combo.get_active_text()
+        if selected == "conf.xml":
+            print("conf.xml is not a symlink, maybe you want to copy it to your personal file first?")
+        else:
+            self.backupconf()
+            link_source = self.conf_file_combo.get_active_text()
+            os.remove(self.conf_xml)
+            os.symlink(selected, self.conf_xml)
+            self.update_label()
+            self.find_conf_files()
 
     def personal(self, widget):
         self.backupconf(True)
@@ -135,6 +143,7 @@ class ConfChooser:
         self.conf_xml = os.path.join(self.conf_dir, "conf.xml")
 
         self.exclude_backups = True
+        self.verbose = False
 
         # MenuBar
         mb = gtk.MenuBar()
@@ -171,7 +180,7 @@ class ConfChooser:
 
         self.conf_label = gtk.Label("Conf:")
 
-        self.conf_file_combo = gtk.combo_box_entry_new_text()
+        self.conf_file_combo = gtk.combo_box_new_text()
         self.find_conf_files()
 #        self.firmwares_combo.connect("changed", self.parse_list_of_airframes)
         self.conf_file_combo.set_size_request(600,30)
