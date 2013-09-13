@@ -36,12 +36,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-
-// FIXME
-#ifndef APOGEE_BARO_SENS
-#define APOGEE_BARO_SENS 0.0274181
-#endif
-
 #ifndef APOGEE_BARO_SENDER_ID
 #define APOGEE_BARO_SENDER_ID 12
 #endif

@@ -77,7 +77,7 @@ extern bool_t mpl3115_initialized;
 // Data ready flag
 extern volatile bool_t mpl3115_data_available;
 // Data
-extern uint32_t mpl3115_pressure;
+extern uint32_t mpl3115_pressure;  ///< absolute pressure in Pascal
 extern int16_t mpl3115_temperature;
 extern float mpl3115_alt;
 // I2C transaction structure
