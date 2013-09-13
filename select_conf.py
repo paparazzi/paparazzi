@@ -93,11 +93,11 @@ class ConfChooser:
             print("Made a backup: " + newname)
 
         if use_personal:
-            conf_personal = os.path.join(self.conf_dir, "conf.xml.personal")
-            conf_personal_backup = os.path.join(self.conf_dir, "conf.xml.personal." + timestr)
-            if os.path.exists(conf_personal):
-                print("Backup conf.xml.personal to conf.xml.personal." + timestr)
-                shutil.copyfile(conf_personal, conf_personal_backup)
+            backup_name = self.conf_personal_name + "." + timestr
+            conf_personal_backup = os.path.join(self.conf_dir, backup_name)
+            if os.path.exists(self.conf_personal):
+                print("Backup conf.xml.personal to " + backup_name)
+                shutil.copyfile(self.conf_personal, conf_personal_backup)
 
     def delete(self, widget):
         filename = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
@@ -120,14 +120,16 @@ class ConfChooser:
             self.find_conf_files()
 
     def personal(self, widget):
-        self.backupconf(True)
-        template_file = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
-        personal_file = os.path.join(self.conf_dir, "conf.xml.personal")
-        shutil.copyfile(template_file, personal_file)
-        os.remove(self.conf_xml)
-        os.symlink("conf.xml.personal", self.conf_xml)
-        self.update_label()
-        self.find_conf_files()
+        if os.path.exists(self.conf_personal):
+            print("Your personal conf file already exists!")
+        else:
+            self.backupconf(True)
+            template_file = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
+            shutil.copyfile(template_file, self.conf_personal)
+            os.remove(self.conf_xml)
+            os.symlink(self.conf_personal_name, self.conf_xml)
+            self.update_label()
+            self.find_conf_files()
 
     # Constructor Functions
 
@@ -145,6 +147,8 @@ class ConfChooser:
         self.paparazzi_home = os.getenv("PAPARAZZI_HOME", os.path.dirname(os.path.abspath(__file__)))
         self.conf_dir = os.path.join(self.paparazzi_home, "conf")
         self.conf_xml = os.path.join(self.conf_dir, "conf.xml")
+        self.conf_personal_name = "conf.xml.personal"
+        self.conf_personal = os.path.join(self.conf_dir, self.conf_personal_name)
 
         self.exclude_backups = True
         self.verbose = False
