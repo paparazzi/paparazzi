@@ -6,6 +6,7 @@
 #define GPS_NB_CHANNELS 16
 
 extern bool_t gps_available;
+extern bool_t gps_has_fix;
 
 extern void gps_feed_value();
 
