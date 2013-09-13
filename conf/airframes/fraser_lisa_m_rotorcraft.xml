@@ -229,7 +229,8 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="USE_REF" value="1"/>
+    <define name="APPROX_FORCE_BY_THRUST" value="TRUE"/>
+    <define name="USE_REF" value="TRUE"/>
     <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>

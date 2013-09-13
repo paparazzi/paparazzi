@@ -141,13 +141,11 @@ static inline void nav_advance_carrot(void) {
 
 void nav_run(void) {
 
-#if !GUIDANCE_H_USE_REF
-  PRINT_CONFIG_MSG("NOT using horizontal guidance reference :-(")
-  nav_advance_carrot();
-#else
-  PRINT_CONFIG_MSG("Using horizontal guidance reference :-)")
-  // if H_REF is used, CARROT_DIST is not used
+#if GUIDANCE_H_USE_REF
+  // if GUIDANCE_H_USE_REF, CARROT_DIST is not used
   VECT2_COPY(navigation_carrot, navigation_target);
+#else
+  nav_advance_carrot();
 #endif
 
   nav_set_altitude();

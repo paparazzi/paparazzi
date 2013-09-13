@@ -94,7 +94,7 @@ int32_t guidance_v_ki;
 
 int32_t guidance_v_z_sum_err;
 
-static int32_t guidance_v_thrust_coeff;
+int32_t guidance_v_thrust_coeff;
 
 
 #define GuidanceVSetRef(_pos, _speed, _accel) { \

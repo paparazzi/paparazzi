@@ -15,6 +15,7 @@
 
     <dl_settings NAME="Horiz Loop">
       <dl_setting var="guidance_h_use_ref" min="0" step="1" max="1" module="guidance/guidance_h" shortname="use_ref" values="FALSE|TRUE" handler="SetUseRef" param="GUIDANCE_H_USE_REF"/>
+      <dl_setting var="guidance_h_approx_force_by_thrust" min="0" step="1" max="1" module="guidance/guidance_h" shortname="approx_force" values="FALSE|TRUE" param="GUIDANCE_H_APPROX_FORCE_BY_THRUST"/>
       <dl_setting var="guidance_h_pgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kp" param="GUIDANCE_H_PGAIN"/>
       <dl_setting var="guidance_h_dgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kd" param="GUIDANCE_H_DGAIN"/>
       <dl_setting var="guidance_h_igain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ki" handler="SetKi" param="GUIDANCE_H_IGAIN"/>

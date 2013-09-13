@@ -30,6 +30,9 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/navigation.h"
 
+/* for guidance_v_thrust_coeff */
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
+
 #include "state.h"
 
 #include "generated/airframe.h"
@@ -55,9 +58,14 @@
 
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
 
+#ifndef GUIDANCE_H_APPROX_FORCE_BY_THRUST
+#define GUIDANCE_H_APPROX_FORCE_BY_THRUST FALSE
+#endif
+
 
 uint8_t guidance_h_mode;
 bool_t guidance_h_use_ref;
+bool_t guidance_h_approx_force_by_thrust;
 
 struct Int32Vect2 guidance_h_pos_sp;
 struct Int32Vect2 guidance_h_pos_ref;
@@ -93,6 +101,7 @@ void guidance_h_init(void) {
 
   guidance_h_mode = GUIDANCE_H_MODE_KILL;
   guidance_h_use_ref = GUIDANCE_H_USE_REF;
+  guidance_h_approx_force_by_thrust = GUIDANCE_H_APPROX_FORCE_BY_THRUST;
 
   INT_VECT2_ZERO(guidance_h_pos_sp);
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
@@ -361,14 +370,13 @@ static void guidance_h_traj_run(bool_t in_flight) {
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
   /* compute a better approximation of force commands by taking thrust into account */
-#if GUIDANCE_H_APPROX_FORCE_BY_THRUST
-  if (in_flight) {
+  if (guidance_h_approx_force_by_thrust && in_flight) {
     static int32_t thrust_cmd_filt;
-    thrust_cmd_filt = (thrust_cmd_filt * GUIDANCE_H_THRUST_CMD_FILTER + stabilization_cmd[COMMAND_THRUST]) / (GUIDANCE_H_THRUST_CMD_FILTER + 1);
+    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v_thrust_coeff) >> INT32_TRIG_FRAC;
+    thrust_cmd_filt = (thrust_cmd_filt * GUIDANCE_H_THRUST_CMD_FILTER + vertical_thrust) / (GUIDANCE_H_THRUST_CMD_FILTER + 1);
     guidance_h_cmd_earth.x = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
     guidance_h_cmd_earth.y = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
   }
-#endif
 
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
 }

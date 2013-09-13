@@ -53,6 +53,7 @@
 
 extern uint8_t guidance_h_mode;
 extern bool_t guidance_h_use_ref;
+extern bool_t guidance_h_approx_force_by_thrust;
 
 /** horizontal position setpoint in NED.
  *  fixed point representation: Q23.8
