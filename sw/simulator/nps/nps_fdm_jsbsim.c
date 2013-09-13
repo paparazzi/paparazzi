@@ -35,6 +35,7 @@
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
+#include <models/atmosphere/FGWinds.h>
 
 #include "nps_fdm.h"
 #include "math/pprz_geodetic.h"
@@ -179,6 +180,12 @@ void nps_fdm_run_step(double* commands) {
 
 }
 
+void nps_fdm_set_wind(double speed, double dir) {
+  FGWinds* Winds = FDMExec->GetWinds();
+  Winds->SetWindspeed(FeetOfMeters(speed));
+  Winds->SetWindPsi(dir);
+}
+
 /**
  * Feed JSBSim with the latest actuator commands.
  *
@@ -198,6 +205,7 @@ static void feed_jsbsim(double* commands) {
   }
 
 }
+
 
 /**
  * Populates the NPS fdm struct after a simulation step.
@@ -295,9 +303,15 @@ static void fetch_state(void) {
   /*
    * rotational speed and accelerations
    */
-  jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&propagate->GetPQR());
-  jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&accelerations->GetPQRdot());
+  jsbsimvec_to_rate(&fdm.body_ecef_rotvel, &propagate->GetPQR());
+  jsbsimvec_to_rate(&fdm.body_ecef_rotaccel, &accelerations->GetPQRdot());
 
+
+  /*
+   * wind
+   */
+  const FGColumnVector3& fg_wind_ned = FDMExec->GetWinds()->GetTotalWindNED();
+  jsbsimvec_to_vec(&fdm.wind, &fg_wind_ned);
 }
 
 /**

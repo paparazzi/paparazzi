@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file nps_electrical.h
+ * Electrical status (bat voltage) for NPS.
+ */
+
 #ifndef NPS_ELECTRICAL_H
 #define NPS_ELECTRICAL_H
 
