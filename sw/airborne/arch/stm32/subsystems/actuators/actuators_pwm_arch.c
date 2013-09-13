@@ -92,6 +92,9 @@
 #endif
 
 
+/** @todo: these should go into libopencm3 */
+#define TIM9				TIM9_BASE
+#define TIM12				TIM12_BASE
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
@@ -102,10 +105,8 @@ static inline void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
                                                    enum tim_oc_id oc_id) {
 
   timer_disable_oc_output(timer_peripheral, oc_id);
-#if STM32F4
   //There is no such register in TIM9 and 12.
   if (timer_peripheral != TIM9 && timer_peripheral != TIM12)
-#endif
     timer_disable_oc_clear(timer_peripheral, oc_id);
   timer_enable_oc_preload(timer_peripheral, oc_id);
   timer_set_oc_slow_mode(timer_peripheral, oc_id);
@@ -142,21 +143,15 @@ static inline void set_servo_timer(uint32_t timer, uint32_t period, uint8_t chan
    * - Alignement edge.
    * - Direction up.
    */
-#if STM32F4
   if ((timer == TIM9) || (timer == TIM12))
     //There are no EDGE and DIR settings in TIM9 and TIM12
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, 0, 0);
   else
-#endif
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
 
   // TIM1, 8 and 9 use APB2 clock, all others APB1
-#if STM32F4
   if (timer != TIM1 && timer != TIM8 && timer != TIM9) {
-#else
-  if (timer != TIM1 && timer != TIM8) {
-#endif
     timer_set_prescaler(timer, (TIMER_APB1_CLK / ONE_MHZ_CLK) - 1); // 1uS
   } else {
     // TIM9, 1 and 8 use APB2 clock
