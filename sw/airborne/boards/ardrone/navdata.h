@@ -31,19 +31,7 @@
 #define NAVDATA_H_
 
 #include <stdint.h>
-
-#define NAVDATA_PACKET_SIZE 60
-#define NAVDATA_BUFFER_SIZE 80
-#define NAVDATA_START_BYTE 0x3a
-
-typedef struct {
-	uint8_t isInitialized;
-	uint8_t isOpen;
-	uint16_t bytesRead;
-	uint32_t totalBytesRead;
-	uint32_t packetsRead;
-	uint8_t buffer[NAVDATA_BUFFER_SIZE];
-} navdata_port;
+#include <sys/types.h>
 
 typedef struct
 {
@@ -107,9 +95,8 @@ struct bmp180_baro_calibration
   int32_t b5;
 };
 
-measures_t* navdata;
+extern measures_t navdata;
 struct bmp180_baro_calibration baro_calibration;
-navdata_port* port;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
 uint8_t navdata_baro_available;
@@ -127,5 +114,8 @@ uint16_t navdata_checksum(void);
 int16_t navdata_getHeight(void);
 
 void acquire_baro_calibration(void);
+
+ssize_t full_write(int fd, const uint8_t *buf, size_t count);
+ssize_t full_read(int fd, uint8_t *buf, size_t count);
 
 #endif /* NAVDATA_H_ */
