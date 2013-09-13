@@ -52,8 +52,8 @@ class ConfChooser:
 
         conf_files = []
 
-        pattern = "*conf.xml*"
-        backup_pattern = "conf.xml.*2[0-9][0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+        pattern = "conf[._-]*xml*"
+        backup_pattern = "conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
         excludes = ["%gconf.xml"]
 
         for path, subdirs, files in os.walk(self.conf_dir):
@@ -147,7 +147,7 @@ class ConfChooser:
         self.paparazzi_home = os.getenv("PAPARAZZI_HOME", os.path.dirname(os.path.abspath(__file__)))
         self.conf_dir = os.path.join(self.paparazzi_home, "conf")
         self.conf_xml = os.path.join(self.conf_dir, "conf.xml")
-        self.conf_personal_name = "conf.xml.personal"
+        self.conf_personal_name = "conf_personal.xml"
         self.conf_personal = os.path.join(self.conf_dir, self.conf_personal_name)
 
         self.exclude_backups = True
