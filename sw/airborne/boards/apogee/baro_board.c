@@ -44,8 +44,10 @@
 #define BARO_STARTUP_COUNTER 200
 uint16_t startup_cnt;
 
+struct Mpl3115 apogee_baro;
+
 void baro_init( void ) {
-  mpl3115_init();
+  mpl3115_init(&apogee_baro, &i2c1, MPL3115_I2C_ADDR);
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
 #endif
@@ -57,10 +59,10 @@ void baro_periodic( void ) {
   // Baro is slave of the MPU, only start reading it after MPU is configured
   if (imu_apogee.mpu.config.initialized) {
 
-    if (startup_cnt > 0 && mpl3115_data_available) {
+    if (startup_cnt > 0 && apogee_baro.data_available) {
       // Run some loops to get correct readings from the adc
       --startup_cnt;
-      mpl3115_data_available = FALSE;
+      apogee_baro.data_available = FALSE;
 #ifdef BARO_LED
       LED_TOGGLE(BARO_LED);
       if (startup_cnt == 0) {
@@ -69,18 +71,18 @@ void baro_periodic( void ) {
 #endif
     }
     // Read the sensor
-    Mpl3115Periodic();
+    mpl3115_periodic(&apogee_baro);
   }
 }
 
 void apogee_baro_event(void) {
-  mpl3115_event();
-  if (mpl3115_data_available) {
+  mpl3115_event(&apogee_baro);
+  if (apogee_baro.data_available) {
     if (startup_cnt == 0) {
-      float pressure = ((float)mpl3115_pressure/(1<<2));
+      float pressure = ((float)apogee_baro.pressure/(1<<4));
       AbiSendMsgBARO_ABS(APOGEE_BARO_SENDER_ID, &pressure);
     }
-    mpl3115_data_available = FALSE;
+    apogee_baro.data_available = FALSE;
   }
 }
 

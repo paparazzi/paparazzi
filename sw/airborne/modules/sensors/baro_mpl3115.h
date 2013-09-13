@@ -17,13 +17,17 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file modules/sensors/baro_mpl3155.h
+ *
+ * Module for the baro MPL3115A2 from Freescale (i2c)
  *
  */
 
 #ifndef BARO_MPL3115_H
 #define BARO_MPL3115_H
-
-#include "peripherals/mpl3115.h"
 
 extern void baro_mpl3115_init( void );
 extern void baro_mpl3115_read_periodic( void );
