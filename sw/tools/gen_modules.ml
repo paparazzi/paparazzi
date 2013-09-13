@@ -344,9 +344,10 @@ let write_settings = fun xml_file out_set modules ->
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 3 then
-    failwith (Printf.sprintf "Usage: %s out_settings_file xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(2)
+  if Array.length Sys.argv <> 4 then
+    failwith (Printf.sprintf "Usage: %s out_settings_file default_freq xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(3)
+  and default_freq = int_of_string(Sys.argv.(2))
   and out_set = open_out Sys.argv.(1) in
   try
     let xml = start_and_begin xml_file h_name in
@@ -357,7 +358,7 @@ let () =
     nl ();
     (* Extract main_freq parameter *)
     let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
-    let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
+    let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> default_freq in
     freq := main_freq;
     fprintf out_h "#define MODULES_FREQUENCY %d\n" !freq;
     nl ();
