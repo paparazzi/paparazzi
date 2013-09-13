@@ -355,16 +355,18 @@ let () =
     fprintf out_h "#define MODULES_START 2\n";
     fprintf out_h "#define MODULES_STOP  3\n";
     nl ();
+    (* Extract main_freq parameter *)
+    let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
+    let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
+    freq := main_freq;
+    fprintf out_h "#define MODULES_FREQUENCY %d\n" !freq;
+    nl ();
     fprintf out_h "#ifdef MODULES_C\n";
     fprintf out_h "#define EXTERN_MODULES\n";
     fprintf out_h "#else\n";
     fprintf out_h "#define EXTERN_MODULES extern\n";
     fprintf out_h "#endif";
     nl ();
-    (* Extract main_freq parameter *)
-    let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
-    let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
-    freq := main_freq;
     (* Extract modules list *)
     let modules = GC.get_modules_of_airframe xml in
     let modules = GC.unload_unused_modules modules true in

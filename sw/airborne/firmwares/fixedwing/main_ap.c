@@ -111,9 +111,9 @@ PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 #endif
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
-#ifndef MODULES_FREQUENCY
-#define MODULES_FREQUENCY 60
-#endif
+/* MODULES_FREQUENCY is defined in generated/modules.h
+ * according to main_freq parameter set for modules in airframe file
+ */
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
 
