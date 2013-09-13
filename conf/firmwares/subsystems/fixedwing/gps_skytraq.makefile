@@ -1,5 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 
+GPS_LED ?= none
+
 ap.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
 ap.CFLAGS += -DUSE_$(GPS_PORT)

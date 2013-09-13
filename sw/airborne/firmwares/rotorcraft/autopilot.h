@@ -69,7 +69,7 @@ extern void autopilot_set_mode(uint8_t new_autopilot_mode);
 extern void autopilot_set_motors_on(bool_t motors_on);
 extern void autopilot_check_in_flight(bool_t motors_on);
 
-extern bool_t autopilot_detect_ground;
+extern bool_t autopilot_ground_detected;
 extern bool_t autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
@@ -152,7 +152,7 @@ static inline void DetectGroundEvent(void) {
     struct NedCoor_f* accel = stateGetAccelNed_f();
     if (accel->z < -THRESHOLD_GROUND_DETECT ||
         accel->z > THRESHOLD_GROUND_DETECT) {
-      autopilot_detect_ground = TRUE;
+      autopilot_ground_detected = TRUE;
       autopilot_detect_ground_once = FALSE;
     }
   }

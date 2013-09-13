@@ -33,7 +33,7 @@
     <subsystem name="ins"/>
   </firmware>
 
-  <modules>
+  <modules main_freq="512">
     <load name="sys_mon.xml"/>
     <load name="gps_ubx_ucenter.xml"/>
   </modules>

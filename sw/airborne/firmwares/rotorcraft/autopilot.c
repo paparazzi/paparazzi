@@ -49,7 +49,7 @@ bool_t   kill_throttle;
 bool_t   autopilot_rc;
 bool_t   autopilot_power_switch;
 
-bool_t   autopilot_detect_ground;
+bool_t   autopilot_ground_detected;
 bool_t   autopilot_detect_ground_once;
 
 #define AUTOPILOT_IN_FLIGHT_TIME    20
@@ -105,7 +105,7 @@ void autopilot_init(void) {
   autopilot_in_flight = FALSE;
   autopilot_in_flight_counter = 0;
   autopilot_mode_auto2 = MODE_AUTO2;
-  autopilot_detect_ground = FALSE;
+  autopilot_ground_detected = FALSE;
   autopilot_detect_ground_once = FALSE;
   autopilot_flight_time = 0;
   autopilot_rc = TRUE;
@@ -131,9 +131,9 @@ void autopilot_periodic(void) {
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
 #if FAILSAFE_GROUND_DETECT
 INFO("Using FAILSAFE_GROUND_DETECT")
-  if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
+  if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_ground_detected) {
     autopilot_set_mode(AP_MODE_KILL);
-    autopilot_detect_ground = FALSE;
+    autopilot_ground_detected = FALSE;
   }
 #endif
 

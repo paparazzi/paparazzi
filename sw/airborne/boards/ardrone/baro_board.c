@@ -31,10 +31,6 @@
 #include "baro_board.h"
 #include "navdata.h"
 
-// FIXME
-#ifndef ARDRONE2_BARO_SENS
-#define ARDRONE2_BARO_SENS 1.0
-#endif
 
 #ifndef ARDRONE2_BARO_SENDER_ID
 #define ARDRONE2_BARO_SENDER_ID 13
@@ -82,9 +78,8 @@ void ardrone_baro_event(void)
     if (baro_calibrated) {
       // first read temperature because pressure calibration depends on temperature
       // TODO send Temperature message
-      baro_apply_calibration_temp(navdata->temperature_pressure);
-      // FIXME apply correct sensitivity here
-      float pressure = ARDRONE2_BARO_SENS*(float)baro_apply_calibration(navdata->pressure);
+      baro_apply_calibration_temp(navdata.temperature_pressure);
+      float pressure = (float)baro_apply_calibration(navdata.pressure);
       AbiSendMsgBARO_ABS(ARDRONE2_BARO_SENDER_ID, &pressure);
     }
     navdata_baro_available = FALSE;

@@ -2,6 +2,8 @@
 # Makefile for shared radio_control superbitrf subsystem
 #
 
+RADIO_CONTROL_LED ?= none
+
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE_SUPERBITRF -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/superbitrf_rc.h\"
 ap.CFLAGS += -DUSE_SUPERBITRF -DUSE_SPI2 -DUSE_SPI_SLAVE2
 

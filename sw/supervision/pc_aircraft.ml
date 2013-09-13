@@ -79,7 +79,8 @@ let new_ac_id = fun () ->
 let parse_conf_xml = fun vbox ->
   let strings = ref [] in
   Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
-  Gtk_tools.combo ("" :: !strings) vbox
+  let ordered = List.sort String.compare ("" :: !strings) in
+  Gtk_tools.combo ordered vbox
 
 let editor =
   try Sys.getenv "EDITOR" with _ -> (

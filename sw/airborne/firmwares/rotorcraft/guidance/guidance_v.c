@@ -94,6 +94,8 @@ int32_t guidance_v_ki;
 
 int32_t guidance_v_z_sum_err;
 
+static int32_t guidance_v_thrust_coeff;
+
 
 #define GuidanceVSetRef(_pos, _speed, _accel) { \
     gv_set_ref(_pos, _speed, _accel);	     \
@@ -102,8 +104,8 @@ int32_t guidance_v_z_sum_err;
     guidance_v_zdd_ref = _accel;		     \
   }
 
-
-void run_hover_loop(bool_t in_flight);
+static int32_t get_vertical_thrust_coeff(void);
+static void run_hover_loop(bool_t in_flight);
 
 
 void guidance_v_init(void) {
@@ -174,8 +176,10 @@ void guidance_v_run(bool_t in_flight) {
 
   // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
   // AKA SUPERVISION and co
+  guidance_v_thrust_coeff = get_vertical_thrust_coeff();
   if (in_flight) {
-    gv_adapt_run(stateGetAccelNed_i()->z, stabilization_cmd[COMMAND_THRUST], guidance_v_zd_ref);
+    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v_thrust_coeff) >> INT32_TRIG_FRAC;
+    gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v_zd_ref);
   }
   else {
     /* reset estimate while not in_flight */
@@ -265,12 +269,35 @@ void guidance_v_run(bool_t in_flight) {
   }
 }
 
+/// get the cosine of the angle between thrust vector and gravity vector
+static int32_t get_vertical_thrust_coeff(void) {
+  static const int32_t max_bank_coef = BFP_OF_REAL(RadOfDeg(30.), INT32_TRIG_FRAC);
+
+  struct Int32RMat* att = stateGetNedToBodyRMat_i();
+  /* thrust vector:
+   *  INT32_RMAT_VMULT(thrust_vect, att, zaxis)
+   * same as last colum of rmat with INT32_TRIG_FRAC
+   * struct Int32Vect thrust_vect = {att.m[2], att.m[5], att.m[8]};
+   *
+   * Angle between two vectors v1 and v2:
+   *  angle = acos(dot(v1, v2) / (norm(v1) * norm(v2)))
+   * since here both are already of unit length:
+   *  angle = acos(dot(v1, v2))
+   * since we we want the cosine of the angle we simply need
+   *  thrust_coeff = dot(v1, v2)
+   * also can be simplified considering: v1 is zaxis with (0,0,1)
+   *  dot(v1, v2) = v1.z * v2.z = v2.z
+   */
+  int32_t coef = att->m[8];
+  if (coef < max_bank_coef)
+    coef = max_bank_coef;
+  return coef;
+}
+
 
 #define FF_CMD_FRAC 18
 
-#define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
-
-void run_hover_loop(bool_t in_flight) {
+static void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
   int64_t tmp  = gv_z_ref>>(GV_Z_REF_FRAC - INT32_POS_FRAC);
@@ -304,14 +331,8 @@ void run_hover_loop(bool_t in_flight) {
                           (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
   guidance_v_ff_cmd = g_m_zdd / inv_m;
-  int32_t cphi,ctheta,cphitheta;
-  struct Int32Eulers* att_euler = stateGetNedToBodyEulers_i();
-  PPRZ_ITRIG_COS(cphi, att_euler->phi);
-  PPRZ_ITRIG_COS(ctheta, att_euler->theta);
-  cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
-  if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   /* feed forward command */
-  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
+  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / guidance_v_thrust_coeff;
 
   /* bound the nominal command to 0.9*MAX_PPRZ */
   Bound(guidance_v_ff_cmd, 0, 8640);

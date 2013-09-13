@@ -29,7 +29,7 @@
     <subsystem name="ins"/>
   </firmware>
 
-  <modules>
+  <modules main_freq="512">
     <load name="baro_ets.xml">
       <define name="BARO_ETS_SCALE" value="0.3"/>
       <define name="BARO_ETS_SYNC_SEND"/>

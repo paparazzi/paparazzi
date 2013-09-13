@@ -2,10 +2,13 @@
 # Makefile for shared radio_control SBUS subsystem
 #
 
-$(TARGET).CFLAGS	+= -DRADIO_CONTROL
+RADIO_CONTROL_LED ?= none
+
 ifneq ($(RADIO_CONTROL_LED),none)
 	ap.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 endif
+
+$(TARGET).CFLAGS	+= -DRADIO_CONTROL
 
 # convert SBUS_PORT to upper and lower case strings:
 SBUS_PORT_UPPER=$(shell echo $(SBUS_PORT) | tr a-z A-Z)

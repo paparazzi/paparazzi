@@ -53,18 +53,21 @@ IMU_DROTEK_2_SRCS   += peripherals/hmc58xx.c
 
 
 # set default i2c bus
-ifndef DROTEK_2_I2C_DEV
 ifeq ($(ARCH), lpc21)
-DROTEK_2_I2C_DEV=i2c0
+DROTEK_2_I2C_DEV ?= i2c0
 else ifeq ($(ARCH), stm32)
-DROTEK_2_I2C_DEV=i2c2
-endif
+DROTEK_2_I2C_DEV ?= i2c2
 endif
 
-# convert i2cx to upper case
+ifndef DROTEK_2_I2C_DEV
+$(error Error: DROTEK_2_I2C_DEV not configured!)
+endif
+
+# convert i2cx to upper/lower case
 DROTEK_2_I2C_DEV_UPPER=$(shell echo $(DROTEK_2_I2C_DEV) | tr a-z A-Z)
+DROTEK_2_I2C_DEV_LOWER=$(shell echo $(DROTEK_2_I2C_DEV) | tr A-Z a-z)
 
-IMU_DROTEK_2_CFLAGS += -DDROTEK_2_I2C_DEV=$(DROTEK_2_I2C_DEV)
+IMU_DROTEK_2_CFLAGS += -DDROTEK_2_I2C_DEV=$(DROTEK_2_I2C_DEV_LOWER)
 IMU_DROTEK_2_CFLAGS += -DUSE_$(DROTEK_2_I2C_DEV_UPPER)
 
 

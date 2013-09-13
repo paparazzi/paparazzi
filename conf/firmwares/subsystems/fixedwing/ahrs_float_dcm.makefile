@@ -3,6 +3,7 @@
 # attitude estimation for fixedwings via dcm algorithm
 
 USE_MAGNETOMETER ?= 0
+AHRS_ALIGNER_LED ?= none
 
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER

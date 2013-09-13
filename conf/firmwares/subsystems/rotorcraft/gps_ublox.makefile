@@ -1,5 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 
+GPS_LED ?= none
+
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
 ap.srcs += $(SRC_SUBSYSTEMS)/gps/gps_ubx.c

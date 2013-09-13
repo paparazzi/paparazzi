@@ -1,6 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 # UBlox LEA 4P
 
+GPS_LED ?= none
 
 ap.CFLAGS += -DUSE_GPS -DUBX
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)

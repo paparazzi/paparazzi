@@ -2,6 +2,7 @@
 
 # Mediatek MT3329, DIYDrones V1.4/1.6 protocol
 
+GPS_LED ?= none
 
 ap.CFLAGS += -DUSE_GPS -DGPS_CONFIGURE -DGPS_USE_LATLONG
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
