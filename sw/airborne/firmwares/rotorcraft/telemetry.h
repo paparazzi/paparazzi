@@ -956,34 +956,34 @@
 #ifdef ARDRONE2_RAW
 #include "navdata.h"
 #define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) DOWNLINK_SEND_ARDRONE_NAVDATA(_trans, _dev, \
-	&navdata->taille, \
-	&navdata->nu_trame, \
-	&navdata->ax, \
-	&navdata->ay, \
-	&navdata->az, \
-	&navdata->vx, \
-	&navdata->vy, \
-	&navdata->vz, \
-	&navdata->temperature_acc, \
-	&navdata->temperature_gyro, \
-	&navdata->ultrasound, \
-	&navdata->us_debut_echo, \
-	&navdata->us_fin_echo, \
-	&navdata->us_association_echo, \
-	&navdata->us_distance_echo, \
-	&navdata->us_curve_time, \
-	&navdata->us_curve_value, \
-	&navdata->us_curve_ref, \
-	&navdata->nb_echo, \
-	&navdata->sum_echo, \
-	&navdata->gradient, \
-	&navdata->flag_echo_ini, \
-	&navdata->pressure, \
-	&navdata->temperature_pressure, \
-	&navdata->mx, \
-	&navdata->my, \
-	&navdata->mz, \
-	&navdata->chksum \
+	&navdata.taille, \
+	&navdata.nu_trame, \
+	&navdata.ax, \
+	&navdata.ay, \
+	&navdata.az, \
+	&navdata.vx, \
+	&navdata.vy, \
+	&navdata.vz, \
+	&navdata.temperature_acc, \
+	&navdata.temperature_gyro, \
+	&navdata.ultrasound, \
+	&navdata.us_debut_echo, \
+	&navdata.us_fin_echo, \
+	&navdata.us_association_echo, \
+	&navdata.us_distance_echo, \
+	&navdata.us_curve_time, \
+	&navdata.us_curve_value, \
+	&navdata.us_curve_ref, \
+	&navdata.nb_echo, \
+	&navdata.sum_echo, \
+	&navdata.gradient, \
+	&navdata.flag_echo_ini, \
+	&navdata.pressure, \
+	&navdata.temperature_pressure, \
+	&navdata.mx, \
+	&navdata.my, \
+	&navdata.mz, \
+	&navdata.chksum \
 	)
 #else
 #define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) {}

@@ -38,13 +38,13 @@
 
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
+#include "nps_electrical.h"
 #include "nps_fdm.h"
 
 #include "subsystems/radio_control.h"
 #include "subsystems/imu.h"
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
-#include "subsystems/electrical.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 #include "subsystems/commands.h"
@@ -65,17 +65,12 @@ bool_t nps_bypass_ahrs;
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
+  nps_electrical_init();
+
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
 
   Fbw(init);
   Ap(init);
-
-
-#ifdef MAX_BAT_LEVEL
-  electrical.vsupply = MAX_BAT_LEVEL * 10;
-#else
-  electrical.vsupply = 111;
-#endif
 
 }
 
@@ -86,7 +81,9 @@ void nps_autopilot_run_systime_step( void ) {
 #include <stdio.h>
 #include "subsystems/gps.h"
 
-void nps_autopilot_run_step(double time __attribute__ ((unused))) {
+void nps_autopilot_run_step(double time) {
+
+  nps_electrical_run_step(time);
 
 #ifdef RADIO_CONTROL_TYPE_PPM
   if (nps_radio_control_available(time)) {

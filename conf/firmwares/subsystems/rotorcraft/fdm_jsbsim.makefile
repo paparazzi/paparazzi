@@ -48,6 +48,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_sensor_mag.c                \
        $(NPSDIR)/nps_sensor_baro.c               \
        $(NPSDIR)/nps_sensor_gps.c                \
+       $(NPSDIR)/nps_electrical.c                \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
@@ -69,9 +70,7 @@ nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 PERIODIC_FREQUENCY ?= 512
-TELEMETRY_FREQUENCY ?= 60
 nps.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-nps.CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
 #nps.CFLAGS += -DUSE_LED
 nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
