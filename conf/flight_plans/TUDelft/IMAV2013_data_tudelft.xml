@@ -1,0 +1,29 @@
+<!DOCTYPE procedure SYSTEM "../flight_plan.dtd">
+<procedure>
+  <waypoints>
+    <waypoint name="VTOL" lat="51.990856" lon="4.378454"/>
+    <waypoint name="_FA1" lat="51.991280" lon="4.377843"/>
+    <waypoint name="_FA2" lat="51.991401" lon="4.378304"/>
+    <waypoint name="_FA3" lat="51.990684" lon="4.378819"/>
+    <waypoint name="_FA4" lat="51.990588" lon="4.378368"/>
+    <waypoint name="_SFA1" lat="51.991233" lon="4.377966"/>
+    <waypoint name="_SFA2" lat="51.991328" lon="4.378282"/>
+    <waypoint name="_SFA3" lat="51.990744" lon="4.378712"/>
+    <waypoint name="_SFA4" lat="51.990698" lon="4.378368"/>
+  </waypoints>
+
+  <sectors>
+    <sector color="red" name="Flight_Area">
+      <corner name="_FA1"/>
+      <corner name="_FA2"/>
+      <corner name="_FA3"/>
+      <corner name="_FA4"/>
+    </sector>
+    <sector color="orange" name="Small_Flight_Area">
+      <corner name="_SFA1"/>
+      <corner name="_SFA2"/>
+      <corner name="_SFA3"/>
+      <corner name="_SFA4"/>
+    </sector>
+  </sectors>
+</procedure>

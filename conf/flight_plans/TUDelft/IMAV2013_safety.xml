@@ -1,0 +1,28 @@
+<!DOCTYPE procedure SYSTEM "../flight_plan.dtd">
+<procedure>
+  <header>
+#include "subsystems/electrical.h"
+#include "modules/time/flight_time.h"
+  </header>
+  <exceptions>
+    <!-- Check inside small flight area, then goto Center(Standby) -->
+    <exception cond="Or(! InsideSmall_Flight_Area(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 50)" deroute="Center"/>
+    <!-- Check if battery is empty, then Land Here -->
+    <exception cond="electrical.bat_low" deroute="Land_Here"/>
+    <!-- Check if time is up(10 seconds range), then Land Here -->
+    <exception cond="10 > time_until_land" deroute="Land_Here"/>
+  </exceptions>
+
+  <blocks>
+  	<!-- Goto Standby point, or when outside Flight Area kill throttle -->
+    <block name="Center" pre_call="if (!InsideFlight_Area(GetPosX(), GetPosY())) NavKillThrottle();">
+      <stay wp="STDBY"/>
+    </block>
+    <!-- Set Touchdown point here and goto land  -->
+    <block name="Land_Here" strip_button="Land Here" strip_icon="land-right.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <deroute block="goto_land"/>
+    </block>
+  </blocks>
+
+</procedure>
