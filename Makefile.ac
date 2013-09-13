@@ -65,13 +65,14 @@ Q=@
 ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
 
-# telemetry periodic frequency defaults to 60Hz
-TELEMETRY_FREQUENCY ?= 60
-
-ifdef PERIODIC_FREQUENCY
+ifdef PERIODIC_FREQUENC
+# telemetry and module periodic frequency default to PERIODIC_FREQUENCY
+TELEMETRY_FREQUENCY ?= $(PERIODIC_FREQUENCY)
 DEFAULT_MODULES_FREQUENCY = $(PERIODIC_FREQUENCY)
 else
-$(error Error: PERIODIC_FREQUENCY not configured)
+$(warning Info: PERIODIC_FREQUENCY not configured, defaulting to 60Hz for modules and telemetry)
+TELEMETRY_FREQUENCY ?= 60
+DEFAULT_MODULES_FREQUENCY = 60
 endif
 
 endif
