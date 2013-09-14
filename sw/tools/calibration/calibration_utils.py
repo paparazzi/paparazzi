@@ -200,7 +200,6 @@ def plot_mag_3d(measured, calibrated, p):
     mx = measured[:, 0]
     my = measured[:, 1]
     mz = measured[:, 2]
-    m_max = amax(abs(measured))
 
     # calibrated values
     cx = calibrated[:, 0]
@@ -224,17 +223,24 @@ def plot_mag_3d(measured, calibrated, p):
     ax.scatter(mx, my, mz)
     hold(True)
     # plot line from center to ellipsoid center
-    ax.plot([0.0, p[0]], [0.0, p[1]], [0.0, p[2]], color='black', marker='+')
+    ax.plot([0.0, p[0]], [0.0, p[1]], [0.0, p[2]], color='black', marker='+', markersize=10)
     # plot ellipsoid
     ax.plot_wireframe(ex, ey, ez, color='grey', alpha=0.5)
+
+    # Create cubic bounding box to simulate equal aspect ratio
+    max_range = np.array([mx.max()-mx.min(), my.max()-my.min(), mz.max()-mz.min()]).max()
+    Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(mx.max()+mx.min())
+    Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(my.max()+my.min())
+    Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(mz.max()+mz.min())
+    # uncomment following both lines to test the fake bounding box:
+    #for xb, yb, zb in zip(Xb, Yb, Zb):
+    #    ax.plot([xb], [yb], [zb], 'r*')
 
     ax.set_title('MAG raw with fitted ellipsoid and center offset')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
-    ax.set_xlim3d(-m_max, m_max)
-    ax.set_ylim3d(-m_max, m_max)
-    ax.set_zlim3d(-m_max, m_max)
+
 
     if matplotlib.__version__.startswith('0'):
         ax = Axes3D(fig, rect=rect_r)
