@@ -180,10 +180,14 @@ void nps_fdm_run_step(double* commands) {
 
 }
 
-void nps_fdm_set_wind(double speed, double dir) {
+void nps_fdm_set_wind(double speed, double dir, int turbulence_severity) {
   FGWinds* Winds = FDMExec->GetWinds();
   Winds->SetWindspeed(FeetOfMeters(speed));
   Winds->SetWindPsi(dir);
+
+  /* wind speed used for turbulence */
+  Winds->SetWindspeed20ft(FeetOfMeters(speed)/2);
+  Winds->SetProbabilityOfExceedence(turbulence_severity);
 }
 
 /**

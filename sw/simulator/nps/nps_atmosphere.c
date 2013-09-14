@@ -39,6 +39,10 @@
 #define NPS_WIND_DIR 0
 #endif
 
+#ifndef NPS_TURBULENCE_SEVERITY
+#define NPS_TURBULENCE_SEVERITY 0
+#endif
+
 struct NpsAtmosphere nps_atmosphere;
 
 void nps_atmosphere_init(void) {
@@ -46,10 +50,12 @@ void nps_atmosphere_init(void) {
   nps_atmosphere.qnh = NPS_QNH;
   nps_atmosphere.wind_speed = NPS_WIND_SPEED;
   nps_atmosphere.wind_dir = NPS_WIND_DIR;
+  nps_atmosphere.turbulence_severity = NPS_TURBULENCE_SEVERITY;
 
 }
 
 void nps_atmosphere_update(double dt __attribute__((unused))) {
-  nps_fdm_set_wind(nps_atmosphere.wind_speed, nps_atmosphere.wind_dir);
+  nps_fdm_set_wind(nps_atmosphere.wind_speed, nps_atmosphere.wind_dir,
+                   nps_atmosphere.turbulence_severity);
 }
 

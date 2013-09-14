@@ -33,6 +33,7 @@ struct NpsAtmosphere {
   double qnh;         ///< barometric pressure at sea level in Pascal
   double wind_speed;  ///< wind magnitude in m/s
   double wind_dir;    ///< wind direction in radians north=0, increasing CCW
+  int turbulence_severity; ///< turbulence severity from 0-7
 };
 
 extern struct NpsAtmosphere nps_atmosphere;
