@@ -79,7 +79,7 @@ void apogee_baro_event(void) {
   mpl3115_event(&apogee_baro);
   if (apogee_baro.data_available) {
     if (startup_cnt == 0) {
-      float pressure = ((float)apogee_baro.pressure/(1<<4));
+      float pressure = ((float)apogee_baro.pressure/(1<<2));
       AbiSendMsgBARO_ABS(APOGEE_BARO_SENDER_ID, &pressure);
     }
     apogee_baro.data_available = FALSE;

@@ -77,7 +77,7 @@ struct Mpl3115 {
   bool_t raw_mode;                    ///< set to TRUE to enable raw output
   bool_t alt_mode;                    ///< set to TRUE to enable altitude output (otherwise pressure)
   int16_t temperature;                ///< temperature in 1/16 degrees Celcius
-  uint32_t pressure;                  ///< pressure in 1/16 Pascal
+  uint32_t pressure;                  ///< pressure in 1/4 Pascal
   float altitude;                     ///< altitude in meters
 };
 
