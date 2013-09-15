@@ -131,9 +131,12 @@ void guidance_v_read_rc(void) {
   guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE];
 
   /* used in RC_CLIMB */
-  guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
-  DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
-
+  guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]);
+  DeadBand(guidance_v_rc_zd_sp, MAX_PPRZ/10);
+  if(guidance_v_rc_zd_sp > 0)
+    guidance_v_rc_zd_sp = SPEED_BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZD) / (MAX_PPRZ/2 - MAX_PPRZ/10) * guidance_v_rc_zd_sp;
+  else 
+    guidance_v_rc_zd_sp = -SPEED_BFP_OF_REAL(GUIDANCE_V_REF_MIN_ZD) / (MAX_PPRZ/2 - MAX_PPRZ/10) * guidance_v_rc_zd_sp;
 }
 
 void guidance_v_mode_changed(uint8_t new_mode) {
