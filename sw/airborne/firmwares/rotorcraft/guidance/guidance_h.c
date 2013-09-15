@@ -71,7 +71,9 @@ struct Int32Vect2 guidance_h_pos_sp;
 struct Int32Vect2 guidance_h_pos_ref;
 struct Int32Vect2 guidance_h_speed_ref;
 struct Int32Vect2 guidance_h_accel_ref;
-
+#ifdef GUIDANCE_H_USE_SPEED_REF
+struct Int32Vect2 guidance_h_speed_sp;
+#endif
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
 struct Int32Vect2 guidance_h_pos_err_sum;
@@ -211,6 +213,29 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
     case GUIDANCE_H_MODE_HOVER:
       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+#ifdef GUIDANCE_H_USE_SPEED_REF
+      if(in_flight) {
+        int32_t psi, s_psi, c_psi, rc_norm, max_pprz; 
+        int64_t rc_x, rc_y;
+        int64_t max_speed = SPEED_BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED);
+        rc_x   = (int64_t)radio_control.values[RADIO_PITCH];
+        rc_y   = (int64_t)radio_control.values[RADIO_ROLL];
+        DeadBand(rc_x, MAX_PPRZ/20);
+        DeadBand(rc_y, MAX_PPRZ/20);
+        rc_norm = sqrt(pow(rc_x, 2) + pow(rc_y, 2)); 
+        max_pprz = rc_norm * MAX_PPRZ / Max(abs(rc_x), abs(rc_y));
+        rc_x = rc_x * max_speed / max_pprz;
+        rc_y = -rc_y * max_speed / max_pprz;
+        /* Rotate to body frame */
+        psi = stateGetNedToBodyEulers_i()->psi;
+        PPRZ_ITRIG_SIN(s_psi, psi);
+        PPRZ_ITRIG_COS(c_psi, psi);
+        guidance_h_speed_sp.x = (int32_t)(((int64_t)-c_psi * rc_x + (int64_t)s_psi * rc_y) / (1 << INT32_TRIG_FRAC));
+        guidance_h_speed_sp.y = (int32_t)(((int64_t)-s_psi * rc_x - (int64_t)c_psi * rc_y) / (1 << INT32_TRIG_FRAC));
+      }
+      else
+        stabilization_attitude_enter();
+#endif
       break;
 
     case GUIDANCE_H_MODE_NAV:
@@ -304,12 +329,18 @@ void guidance_h_run(bool_t  in_flight) {
 static void guidance_h_update_reference(void) {
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
 #if GUIDANCE_H_USE_REF
+#if GUIDANCE_H_USE_SPEED_REF
+  if(guidance_h_mode == GUIDANCE_H_MODE_HOVER)
+    gh_update_ref_from_speed_sp(guidance_h_speed_sp);
+  else
+#endif
   gh_update_ref_from_pos_sp(guidance_h_pos_sp);
 #endif
 
   /* either use the reference or simply copy the pos setpoint */
   if (guidance_h_use_ref) {
     /* convert our reference to generic representation */
+    VECT2_COPY(guidance_h_pos_sp, guidance_h_pos_ref); // for display only
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
