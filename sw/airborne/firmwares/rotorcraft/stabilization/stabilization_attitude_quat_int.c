@@ -25,6 +25,7 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
@@ -92,85 +93,27 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
 }
 
-void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
-  // copy euler setpoint for debugging
-  memcpy(&stab_att_sp_euler, sp_cmd, sizeof(struct Int32Eulers));
+void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy) {
+  // stab_att_sp_euler.psi still used in ref..
+  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
 
-  /// @todo calc sp_quat in fixed-point
+  quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
+}
 
-  /* orientation vector describing simultaneous rotation of roll/pitch */
-  struct FloatVect3 ov;
-  ov.x = ANGLE_FLOAT_OF_BFP(sp_cmd->phi);
-  ov.y = ANGLE_FLOAT_OF_BFP(sp_cmd->theta);
-  ov.z = 0.0;
-  /* quaternion from that orientation vector */
-  struct FloatQuat q_rp;
-  FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
+void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading) {
+  // stab_att_sp_euler.psi still used in ref..
+  stab_att_sp_euler.psi = heading;
 
-  const float psi_sp = ANGLE_FLOAT_OF_BFP(sp_cmd->psi);
+  // compute sp_euler phi/theta for debugging/telemetry
+  /* Rotate horizontal commands to body frame by psi */
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  int32_t s_psi, c_psi;
+  PPRZ_ITRIG_SIN(s_psi, psi);
+  PPRZ_ITRIG_COS(c_psi, psi);
+  stab_att_sp_euler.phi = (-s_psi * cmd->x + c_psi * cmd->y) >> INT32_TRIG_FRAC;
+  stab_att_sp_euler.theta = -(c_psi * cmd->x + s_psi * cmd->y) >> INT32_TRIG_FRAC;
 
-  /// @todo optimize yaw angle calculation
-
-  /*
-   * Instead of using the psi setpoint angle to rotate around the body z-axis,
-   * calculate the real angle needed to align the projection of the body x-axis
-   * onto the horizontal plane with the psi setpoint.
-   *
-   * angle between two vectors a and b:
-   * angle = atan2(norm(cross(a,b)), dot(a,b)) * sign(dot(cross(a,b), n))
-   * where n is the thrust vector (i.e. both a and b lie in that plane)
-   */
-  const struct FloatVect3 xaxis = {1.0, 0.0, 0.0};
-  const struct FloatVect3 zaxis = {0.0, 0.0, 1.0};
-  struct FloatVect3 a;
-  FLOAT_QUAT_VMULT(a, q_rp, xaxis);
-
-  // desired heading vect in earth x-y plane
-  struct FloatVect3 psi_vect;
-  psi_vect.x = cosf(psi_sp);
-  psi_vect.y = sinf(psi_sp);
-  psi_vect.z = 0.0;
-  // normal is the direction of the thrust vector
-  struct FloatVect3 normal;
-  FLOAT_QUAT_VMULT(normal, q_rp, zaxis);
-
-  // projection of desired heading onto body x-y plane
-  // b = v - dot(v,n)*n
-  float dot = FLOAT_VECT3_DOT_PRODUCT(psi_vect, normal);
-  struct FloatVect3 dotn;
-  FLOAT_VECT3_SMUL(dotn, normal, dot);
-
-  // b = v - dot(v,n)*n
-  struct FloatVect3 b;
-  FLOAT_VECT3_DIFF(b, psi_vect, dotn);
-
-  dot = FLOAT_VECT3_DOT_PRODUCT(a, b);
-  struct FloatVect3 cross;
-  VECT3_CROSS_PRODUCT(cross, a, b);
-  // norm of the cross product
-  float nc = FLOAT_VECT3_NORM(cross);
-  // angle = atan2(norm(cross(a,b)), dot(a,b))
-  float yaw2 = atan2(nc, dot) / 2.0;
-
-  // negative angle if needed
-  // sign(dot(cross(a,b), n)
-  float dot_cross_ab = FLOAT_VECT3_DOT_PRODUCT(cross, normal);
-  if (dot_cross_ab < 0) {
-    yaw2 = -yaw2;
-  }
-
-  /* quaternion with yaw command */
-  struct FloatQuat q_yaw;
-  QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
-
-  /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
-  struct FloatQuat q_sp;
-  FLOAT_QUAT_COMP(q_sp, q_yaw, q_rp);
-  FLOAT_QUAT_NORMALIZE(q_sp);
-  FLOAT_QUAT_WRAP_SHORTEST(q_sp);
-
-  /* convert to fixed point */
-  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
+  quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
