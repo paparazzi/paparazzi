@@ -197,13 +197,10 @@
     <define name="REF_MAX_ZDD" value=" 2.5"/>  <!-- max descent acceleration -->
     <define name="REF_MIN_ZD" value="-3."/> <!-- max climb speed -->
     <define name="REF_MAX_ZD" value="3."/>  <!-- max descent speed -->
+    <define name="ADAPT_INITIAL_HOVER_THROTTLE"    value="0.35"/> <!-- initial takeoff throttle value -->
     <define name="HOVER_KP"    value="130"/>
     <define name="HOVER_KD"    value="120"/>
     <define name="HOVER_KI"    value="20"/>
-    <define name="ADAPT_INITIAL_HOVER_THROTTLE"    value="0.35"/> <!-- initial takeoff throttle value -->
-    <define name="RC_CLIMB_COEF" value ="500"/>
-	  <define name="RC_DESCENT_COEF" value ="200"/>
-    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
