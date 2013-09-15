@@ -222,10 +222,8 @@ void guidance_h_read_rc(bool_t  in_flight) {
         rc_y   = (int64_t)radio_control.values[RADIO_ROLL];
         DeadBand(rc_x, MAX_PPRZ/20);
         DeadBand(rc_y, MAX_PPRZ/20);
-        rc_norm = sqrt(pow(rc_x, 2) + pow(rc_y, 2));
-        rc_x = abs(rc_x);
-        rc_y = abs(rc_y); 
-        max_pprz = rc_norm * MAX_PPRZ / Max(rc_x, rc_y);
+        rc_norm = sqrt(pow(rc_x, 2) + pow(rc_y, 2)); 
+        max_pprz = rc_norm * MAX_PPRZ / Max(abs(rc_x), abs(rc_y));
         rc_x = rc_x * max_speed / max_pprz;
         rc_y = -rc_y * max_speed / max_pprz;
         /* Rotate to body frame */
