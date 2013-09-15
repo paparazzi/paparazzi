@@ -71,7 +71,7 @@ struct Int32Vect2 guidance_h_pos_sp;
 struct Int32Vect2 guidance_h_pos_ref;
 struct Int32Vect2 guidance_h_speed_ref;
 struct Int32Vect2 guidance_h_accel_ref;
-#ifdef GUIDANCE_H_USE_SPEED_REF
+#if GUIDANCE_H_USE_SPEED_REF
 struct Int32Vect2 guidance_h_speed_sp;
 #endif
 struct Int32Vect2 guidance_h_pos_err;
@@ -97,6 +97,7 @@ static void guidance_h_traj_run(bool_t in_flight);
 static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
+static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight);
 
 
 void guidance_h_init(void) {
@@ -213,30 +214,8 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
     case GUIDANCE_H_MODE_HOVER:
       stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
-#ifdef GUIDANCE_H_USE_SPEED_REF
-      if(in_flight) {
-        int32_t psi, s_psi, c_psi, rc_norm, max_pprz; 
-        int64_t rc_x, rc_y;
-        int64_t max_speed = SPEED_BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED);
-        rc_x   = (int64_t)radio_control.values[RADIO_PITCH];
-        rc_y   = (int64_t)radio_control.values[RADIO_ROLL];
-        DeadBand(rc_x, MAX_PPRZ/20);
-        DeadBand(rc_y, MAX_PPRZ/20);
-        rc_norm = sqrt(pow(rc_x, 2) + pow(rc_y, 2));
-        rc_x = abs(rc_x);
-        rc_y = abs(rc_y); 
-        max_pprz = rc_norm * MAX_PPRZ / Max(rc_x, rc_y);
-        rc_x = rc_x * max_speed / max_pprz;
-        rc_y = -rc_y * max_speed / max_pprz;
-        /* Rotate to body frame */
-        psi = stateGetNedToBodyEulers_i()->psi;
-        PPRZ_ITRIG_SIN(s_psi, psi);
-        PPRZ_ITRIG_COS(c_psi, psi);
-        guidance_h_speed_sp.x = (int32_t)(((int64_t)-c_psi * rc_x + (int64_t)s_psi * rc_y) / (1 << INT32_TRIG_FRAC));
-        guidance_h_speed_sp.y = (int32_t)(((int64_t)-s_psi * rc_x - (int64_t)c_psi * rc_y) / (1 << INT32_TRIG_FRAC));
-      }
-      else
-        stabilization_attitude_enter();
+#if GUIDANCE_H_USE_SPEED_REF
+      read_rc_setpoint_speed_i(&guidance_h_speed_sp, in_flight);
 #endif
       break;
 
@@ -342,7 +321,6 @@ static void guidance_h_update_reference(void) {
   /* either use the reference or simply copy the pos setpoint */
   if (guidance_h_use_ref) {
     /* convert our reference to generic representation */
-    VECT2_COPY(guidance_h_pos_sp, guidance_h_pos_ref); // for display only
     INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
     INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
@@ -351,6 +329,12 @@ static void guidance_h_update_reference(void) {
     INT_VECT2_ZERO(guidance_h_speed_ref);
     INT_VECT2_ZERO(guidance_h_accel_ref);
   }
+
+#if GUIDANCE_H_USE_SPEED_REF
+  if(guidance_h_mode == GUIDANCE_H_MODE_HOVER) {
+    VECT2_COPY(guidance_h_pos_sp, guidance_h_pos_ref); // for display only
+  }
+#endif
 }
 
 
@@ -442,4 +426,35 @@ static inline void transition_run(void) {
   const int32_t max_offset = ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET);
   transition_theta_offset = INT_MULT_RSHIFT((transition_percentage<<(INT32_ANGLE_FRAC-INT32_PERCENTAGE_FRAC))/100, max_offset, INT32_ANGLE_FRAC);
 #endif
+}
+
+/// read speed setpoint from RC
+static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight) {
+  if(in_flight) {
+    // negative pitch is forward
+    int64_t rc_x = -radio_control.values[RADIO_PITCH];
+    int64_t rc_y = radio_control.values[RADIO_ROLL];
+    DeadBand(rc_x, MAX_PPRZ/20);
+    DeadBand(rc_y, MAX_PPRZ/20);
+
+    // convert input from MAX_PPRZ range to SPEED_BFP
+    int32_t max_speed = SPEED_BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED);
+    /// @todo calc proper scale while making sure a division by zero can't occur
+    //int32_t rc_norm = sqrtf(rc_x * rc_x + rc_y * rc_y);
+    //int32_t max_pprz = rc_norm * MAX_PPRZ / Max(abs(rc_x), abs(rc_y);
+    rc_x = rc_x * max_speed / MAX_PPRZ;
+    rc_y = rc_y * max_speed / MAX_PPRZ;
+
+    /* Rotate from body to NED frame by negative psi angle */
+    int32_t psi = -stateGetNedToBodyEulers_i()->psi;
+    int32_t s_psi, c_psi;
+    PPRZ_ITRIG_SIN(s_psi, psi);
+    PPRZ_ITRIG_COS(c_psi, psi);
+    speed_sp->x = (int32_t)(((int64_t)c_psi * rc_x - (int64_t)s_psi * rc_y) >> INT32_TRIG_FRAC);
+    speed_sp->y = (int32_t)(((int64_t)s_psi * rc_x + (int64_t)c_psi * rc_y) >> INT32_TRIG_FRAC);
+  }
+  else {
+    speed_sp->x = 0;
+    speed_sp->y = 0;
+  }
 }
