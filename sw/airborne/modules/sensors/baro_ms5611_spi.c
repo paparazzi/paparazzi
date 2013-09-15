@@ -29,6 +29,7 @@
 
 #include "modules/sensors/baro_ms5611_spi.h"
 
+#include "math/pprz_isa.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
@@ -98,9 +99,9 @@ void baro_ms5611_event( void ) {
   if (baro_ms5611.data_available) {
     float pressure = (float)baro_ms5611.data.pressure;
     AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, &pressure);
-    float tmp_float = baro_ms5611.data.pressure / 101325.0; //pressure at sea level
-    tmp_float = pow(tmp_float, 0.190295);
-    baro_ms5611_alt = 44330 * (1.0 - tmp_float); //altitude above MSL
+    baro_ms5611.data_available = FALSE;
+
+    baro_ms5611_alt = pprz_isa_altitude_of_pressure(pressure);
     baro_ms5611_alt_valid = TRUE;
 
 #ifdef SENSOR_SYNC_SEND
