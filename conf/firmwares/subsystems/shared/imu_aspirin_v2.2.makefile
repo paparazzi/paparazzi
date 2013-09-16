@@ -47,7 +47,7 @@ include $(CFG_SHARED)/imu_aspirin_v2_common.makefile
 # so that it will be unselected at init (baro CS line high)
 #
 ifeq ($(ARCH), lpc21)
-IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE1
+#IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE1
 else ifeq ($(ARCH), stm32)
 # SLAVE3 is on PC13, which is the baro CS
 IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE3
