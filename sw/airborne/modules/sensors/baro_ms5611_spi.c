@@ -78,9 +78,9 @@ void baro_ms5611_periodic_check( void ) {
 
   ms5611_spi_periodic_check(&baro_ms5611);
 
-#if BARO_MS5611_SEND_COEFF
-  // send coeff every 5s
-  RunOnceEvery((5*BARO_MS5611_PERIODIC_CHECK_FREQUENCY), baro_ms5611_send_coeff());
+#if SENSOR_SYNC_SEND
+  // send coeff every 30s
+  RunOnceEvery((5*BARO_MS5611_PERIODIC_CHECK_FREQ), baro_ms5611_send_coeff());
 #endif
 
 }
@@ -108,7 +108,8 @@ void baro_ms5611_event( void ) {
     ftempms = baro_ms5611.data.temperature / 100.;
     fbaroms = baro_ms5611.data.pressure / 100.;
     DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                              &baro_ms5611.data.d1, &baro_ms5611.data.d2, &fbaroms, &ftempms);
+                              &baro_ms5611.data.d1, &baro_ms5611.data.d2,
+                              &fbaroms, &ftempms);
 #endif
   }
 }
