@@ -654,6 +654,7 @@ inline static void h_ctl_yaw_loop(void)
 inline static void h_ctl_cl_loop(void)
 {
 
+#if H_CTL_CL_LOOP_INCREASE_FLAPS_WITH_LOADFACTOR
 #ifndef SITL
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
@@ -662,13 +663,15 @@ inline static void h_ctl_cl_loop(void)
   int32_rmat_vmult(&accel_meas_body, ned_to_body_rmat, accel_ned);
   float nz = ACCEL_FLOAT_OF_BFP(accel_meas_body.z) / 9.81f;
   // max load factor to be taken into acount
+  // to prevent negative flap movement du to negative nz
   Bound(nz, 0.5f, 2.f);
 #else
   float nz = 0.f;
 #endif
+#endif
 
   // Compute a corrected airspeed corresponding to the current load factor nz
-  // with Cz the lift coef at 1g, Czn the lift coef a n g, both at the same speed V,
+  // with Cz the lift coef at 1g, Czn the lift coef at n g, both at the same speed V,
   // the corrected airspeed Vn is so that nz = Czn/Cz = V^2 / Vn^2,
   // thus Vn = V / sqrt(nz)
 #if H_CTL_CL_LOOP_USE_AIRSPEED_SETPOINT
@@ -676,7 +679,9 @@ inline static void h_ctl_cl_loop(void)
 #else
   float corrected_airspeed = *stateGetAirspeed_f();
 #endif
+#if H_CTL_CL_LOOP_INCREASE_FLAPS_WITH_LOADFACTOR
   corrected_airspeed /= sqrtf(nz);
+#endif
   Bound(corrected_airspeed, STALL_AIRSPEED, RACE_AIRSPEED);
 
   float cmd = 0.f;
