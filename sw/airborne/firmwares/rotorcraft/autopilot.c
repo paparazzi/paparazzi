@@ -137,13 +137,11 @@ INFO("Using FAILSAFE_GROUND_DETECT")
   }
 #endif
 
-  /* set failsafe commands, if in FAILSAFE or KILL mode */
-#if !FAILSAFE_GROUND_DETECT
-  if (autopilot_mode == AP_MODE_KILL ||
-      autopilot_mode == AP_MODE_FAILSAFE) {
-#else
+  /* Set fixed "failsafe" commands from airframe file if in KILL mode.
+   * If in FAILSAFE mode, run normal loops with failsafe attitude and
+   * downwards velocity setpoints.
+   */
   if (autopilot_mode == AP_MODE_KILL) {
-#endif
     SetCommands(commands_failsafe);
   }
   else {
