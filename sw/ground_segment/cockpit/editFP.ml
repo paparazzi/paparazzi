@@ -50,7 +50,11 @@ let save_fp = fun geomap ->
           None -> ()
         | Some file ->
           let f  = open_out file in
-          fprintf f "<!DOCTYPE flight_plan SYSTEM \"flight_plan.dtd\">\n\n";
+          let fp_path = Str.replace_first (Str.regexp Env.flight_plans_path) "" (Filename.dirname file) in
+          let l = Str.split (Str.regexp Filename.dir_sep) fp_path in
+          let rel_path = String.concat Filename.dir_sep (Array.to_list (Array.make (List.length l) Filename.parent_dir_name)) in
+          let fp_dtd = rel_path // "flight_plan.dtd" in
+          fprintf f "<!DOCTYPE flight_plan SYSTEM \"%s\">\n\n" fp_dtd;
           fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
           close_out f;
           current_fp := Some (fp, file);
