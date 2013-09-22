@@ -646,6 +646,14 @@
                   &guidance_v_delta_t);		\
   }
 
+#define PERIODIC_SEND_TUNE_VERT(_trans, _dev) {     \
+    DOWNLINK_SEND_TUNE_VERT(_trans, _dev,           \
+                            &guidance_v_z_sp,		\
+                            &ins_ltp_pos.z,			\
+                            &guidance_v_z_ref,		\
+                            &guidance_v_zd_ref);   \
+  }
+
 #define PERIODIC_SEND_HOVER_LOOP(_trans, _dev) {				\
     DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
                    &guidance_h_pos_sp.x,		\
