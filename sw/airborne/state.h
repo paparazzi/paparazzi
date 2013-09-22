@@ -148,7 +148,7 @@ struct State {
   /**
    * Position in Latitude, Longitude and Altitude.
    * Units lat,lon: radians*1e7
-   * Units alt: centimeters above MSL
+   * Units alt: milimeters above reference ellipsoid
    */
   struct LlaCoor_i lla_pos_i;
 
@@ -196,7 +196,7 @@ struct State {
   /**
    * Position in Latitude, Longitude and Altitude.
    * Units lat,lon: radians
-   * Units alt: meters above MSL
+   * Units alt: meters above reference ellipsoid
    */
   struct LlaCoor_f lla_pos_f;
 
