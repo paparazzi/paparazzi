@@ -55,12 +55,12 @@
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- MAGNETO CALIBRATION DELFT -->
-    <define name="MAG_X_NEUTRAL" value="302"/>
-    <define name="MAG_Y_NEUTRAL" value="-69"/>
-    <define name="MAG_Z_NEUTRAL" value="100"/>
-    <define name="MAG_X_SENS" value="4.12281780645" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.2491445745" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.44132606171" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-157"/>
+    <define name="MAG_Y_NEUTRAL" value="-379"/>
+    <define name="MAG_Z_NEUTRAL" value="130"/>
+    <define name="MAG_X_SENS" value="3.65789837026" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.85373116155" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.28038049955" integer="16"/>
 
     <!-- MAGNETO CURRENT CALIBRATION -->
     <define name="MAG_X_CURRENT_COEF" value="0.0103422023767"/>
@@ -71,12 +71,12 @@
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
  <section name="BAT">
    <define name="MILLIAMP_AT_FULL_THROTTLE" value="14000"/>
-   <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
  </section>
 
 
@@ -106,29 +106,29 @@
     <define name="DEADBAND_A" value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+   <define name="REF_OMEGA_P" value="1500" unit="deg/s"/>
     <define name="REF_ZETA_P" value="0.85"/>
     <define name="REF_MAX_P" value="400." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_Q" value="1500" unit="deg/s"/>
     <define name="REF_ZETA_Q" value="0.85"/>
     <define name="REF_MAX_Q" value="400." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
     <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.85"/>
-    <define name="REF_MAX_R" value="90." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+    <define name="REF_MAX_R" value="180." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1000.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="150"/>
-    <define name="PHI_DGAIN" value="100"/>
-    <define name="PHI_IGAIN" value="20"/>
+    <define name="PHI_PGAIN" value="180"/>
+    <define name="PHI_DGAIN" value="140"/>
+    <define name="PHI_IGAIN" value="80"/>
 
-    <define name="THETA_PGAIN" value="150"/>
-    <define name="THETA_DGAIN" value="100"/>
-    <define name="THETA_IGAIN" value="20"/>
+    <define name="THETA_PGAIN" value="180"/>
+    <define name="THETA_DGAIN" value="140"/>
+    <define name="THETA_IGAIN" value="80"/>
 
     <define name="PSI_PGAIN" value="500"/>
     <define name="PSI_DGAIN" value="200"/>
@@ -154,14 +154,14 @@
    <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD" value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP" value="400"/>
-   <define name="HOVER_KD" value="350"/>
-   <define name="HOVER_KI" value="144"/>
+   <define name="HOVER_KP" value="531"/>
+   <define name="HOVER_KD" value="356"/>
+   <define name="HOVER_KI" value="0"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value="160000"/>
-   <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value="0.9"/>
+   <define name="NOMINAL_HOVER_THROTTLE" value="0.669"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">

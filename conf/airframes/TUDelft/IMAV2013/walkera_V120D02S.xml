@@ -50,12 +50,12 @@
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- From delft MAVLab (TODO) -->
-    <define name="MAG_X_NEUTRAL" value="396"/>
-    <define name="MAG_Y_NEUTRAL" value="-260"/>
-    <define name="MAG_Z_NEUTRAL" value="-91"/>
-    <define name="MAG_X_SENS" value="3.71635905504" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.5526454063" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.52339566014" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-638"/>
+    <define name="MAG_Y_NEUTRAL" value="-101"/>
+    <define name="MAG_Z_NEUTRAL" value="-307"/>
+    <define name="MAG_X_SENS" value="3.61215021824" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.23407732206" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.28237277804" integer="16"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -85,45 +85,43 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45." unit="deg"/>
     <define name="SP_MAX_THETA" value="45." unit="deg"/>
-    <define name="SP_MAX_PSI" value="45." unit="deg"/>
     <define name="SP_MAX_R" value="90." unit="deg/s"/>
-    <define name="SP_MAX_P" value="90." unit="deg/s"/>
     <define name="DEADBAND_R" value="250"/>
     <define name="DEADBAND_A" value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_P" value="3000" unit="deg/s"/>
     <define name="REF_ZETA_P" value="0.85"/>
-    <define name="REF_MAX_P" value="400." unit="deg/s"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_MAX_P" value="300." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_Q" value="3000" unit="deg/s"/>
     <define name="REF_ZETA_Q" value="0.85"/>
-    <define name="REF_MAX_Q" value="400." unit="deg/s"/>
-    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_MAX_Q" value="300." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_OMEGA_R" value="3000" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.85"/>
-    <define name="REF_MAX_R" value="90." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+    <define name="REF_MAX_R" value="300." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(7000.)"/>
 
     <!-- feedback -->
     <define name="PHI_PGAIN" value="3052"/>
     <define name="PHI_DGAIN" value="108"/>
-    <define name="PHI_IGAIN" value="0"/>
+    <define name="PHI_IGAIN" value="14"/>
 
     <define name="THETA_PGAIN" value="3052"/>
     <define name="THETA_DGAIN" value="108"/>
-    <define name="THETA_IGAIN" value="0"/>
+    <define name="THETA_IGAIN" value="14"/>
 
-    <define name="PSI_PGAIN" value="944"/>
-    <define name="PSI_DGAIN" value="300"/>
-    <define name="PSI_IGAIN" value="10"/>
+    <define name="PSI_PGAIN" value="1099"/>
+    <define name="PSI_DGAIN" value="201"/>
+    <define name="PSI_IGAIN" value="19"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN" value="0"/>
     <define name="THETA_DDGAIN" value="0"/>
-    <define name="PSI_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN" value="0"/>
 
     <define name="PHI_AGAIN" value="0"/>
     <define name="THETA_AGAIN" value="0"/>
@@ -157,9 +155,9 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="50"/>
-   <define name="DGAIN" value="50"/>
-   <define name="IGAIN" value="0"/>
+   <define name="PGAIN" value="16"/>
+   <define name="DGAIN" value="35"/>
+   <define name="IGAIN" value="6"/>
  </section>
 
  <section name="MISC">

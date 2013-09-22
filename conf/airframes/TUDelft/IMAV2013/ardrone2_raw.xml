@@ -11,15 +11,15 @@
       <define name="INS_PROPAGATE_FREQUENCY" value="200"/>
       <define name="USE_BAROMETER"/>
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
-      
+
       <define name="LINK_HOST" value="\\\"192.168.2.255\\\""/>
-      <!--  configure name="HOST" value="192.168.2.$(AC_ID)"/ -->
+      <configure name="HOST" value="192.168.2.$(AC_ID)"/>
       <configure name="ARDRONE2_START_PAPARAZZI" value="1"/>
       <configure name="ARDRONE2_WIFI_MODE" value="2"/>
       <configure name="ARDRONE2_SSID" value="tudelft_swarmhub"/>
       <configure name="ARDRONE2_IP_ADDRESS_BASE" value="192.168.2."/>
       <configure name="ARDRONE2_IP_ADDRESS_PROBE" value="$(AC_ID)"/>
-      <configure name="ARDRONE2_REBOOT" value="1"/>
+
     </target>
 
 	<!-- Subsystem section -->
@@ -36,6 +36,8 @@
 
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
+    <load name="flight_time.xml"/>
+    <load name="TUDelft/imav2013.xml"/>
   </modules>
 
   <commands>
@@ -58,7 +60,7 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="255"/>
-    
+
     <!-- Time cross layout (X), as documented in paparazzi -->
     <define name="ROLL_COEF" value="{   256, -256, -256,  256  }"/>
     <define name="PITCH_COEF" value="{  256,  256, -256,  -256 }"/>
@@ -76,10 +78,6 @@
 
   <include href="conf/airframes/TUDelft/IMAV2013/ARDrone/$AC_ID_calib.xml"/>
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="2056"/>
-    <define name="ACCEL_Y_NEUTRAL" value="2060"/>
-    <define name="ACCEL_Z_NEUTRAL" value="2052"/>
-
     <!-- Body to IMU is no difference -->
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -89,9 +87,9 @@
   <!-- local magnetic field, calculated for: 52°3'56", 4°31'24" -->
   <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
-    <define name="H_X" value="0.3892503"/>
-    <define name="H_Y" value="0.0017972"/>
-    <define name="H_Z" value="0.9211303"/>
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -185,10 +183,10 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="26"/>
+    <define name="IGAIN" value="60"/>
   </section>
 
   <section name="AUTOPILOT">
@@ -200,9 +198,9 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.35" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="9.45" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>
