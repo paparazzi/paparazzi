@@ -129,13 +129,28 @@ void autopilot_init(void) {
 void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
+
+
+  /* If in FAILSAFE mode and either already not in_flight anymore
+   * or just "detected" ground, go to KILL mode.
+   */
+  if (autopilot_mode == AP_MODE_FAILSAFE) {
+    if (!autopilot_in_flight)
+      autopilot_set_mode(AP_MODE_KILL);
+
 #if FAILSAFE_GROUND_DETECT
-INFO("Using FAILSAFE_GROUND_DETECT")
-  if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_ground_detected) {
-    autopilot_set_mode(AP_MODE_KILL);
-    autopilot_ground_detected = FALSE;
-  }
+INFO("Using FAILSAFE_GROUND_DETECT: KILL")
+    if (autopilot_ground_detected)
+      autopilot_set_mode(AP_MODE_KILL);
 #endif
+  }
+
+  /* Reset ground detection _after_ running flight plan
+   */
+  if (!autopilot_in_flight || autopilot_ground_detected) {
+    autopilot_ground_detected = FALSE;
+    autopilot_detect_ground_once = FALSE;
+  }
 
   /* Set fixed "failsafe" commands from airframe file if in KILL mode.
    * If in FAILSAFE mode, run normal loops with failsafe attitude and
@@ -169,7 +184,6 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
         break;
 #endif
       case AP_MODE_KILL:
-        autopilot_set_motors_on(FALSE);
         autopilot_in_flight = FALSE;
         autopilot_in_flight_counter = 0;
         guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
@@ -213,6 +227,8 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
         break;
 #endif
       case AP_MODE_KILL:
+        autopilot_set_motors_on(FALSE);
+        stabilization_cmd[COMMAND_THRUST] = 0;
         guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
         break;
       case AP_MODE_RC_DIRECT:
