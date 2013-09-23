@@ -281,7 +281,7 @@ let rec parse_section = fun ac_id s ->
       List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
       printf "}\n\n";
     | "include" ->
-      let filename = Str.global_replace (Str.regexp "\$AC_ID") ac_id (ExtXml.attrib s "href") in
+      let filename = Str.global_replace (Str.regexp "\\$AC_ID") ac_id (ExtXml.attrib s "href") in
       let subxml = Xml.parse_file filename in
       printf "/* XML %s */" filename;
       nl ();
