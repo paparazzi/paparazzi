@@ -112,7 +112,6 @@ navdata_port* port;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
 uint8_t navdata_baro_available;
-int16_t previousUltrasoundHeight;
 uint8_t baro_calibrated;
 
 bool_t navdata_init(void);
