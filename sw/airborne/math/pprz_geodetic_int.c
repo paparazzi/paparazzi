@@ -111,11 +111,40 @@ void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ece
 
 
 void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
-
   struct EnuCoor_i enu;
   enu_of_ecef_point_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
+}
 
+
+/** Convert a ECEF position to local ENU.
+ * @param[out] enu  ENU position in meter << #INT32_POS_FRAC
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ecef ECEF position in cm
+ */
+void enu_of_ecef_pos_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+  struct EnuCoor_i enu_cm;
+  enu_of_ecef_point_i(&enu_cm, def, ecef);
+
+  /* enu = (enu_cm / 100) << INT32_POS_FRAC
+   * to loose less range:
+   * enu_cm = enu << (INT32_POS_FRAC-2) / 25
+   * which puts max enu output Q23.8 range to 8388km / 25 = 335km
+   */
+  INT32_VECT3_LSHIFT(*enu, enu_cm, INT32_POS_FRAC-2);
+  VECT3_SDIV(*enu, *enu, 25);
+}
+
+
+/** Convert a ECEF position to local NED.
+ * @param[out] ned  NED position in meter << #INT32_POS_FRAC
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ecef ECEF position in cm
+ */
+void ned_of_ecef_pos_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+  struct EnuCoor_i enu;
+  enu_of_ecef_pos_i(&enu, def, ecef);
+  ENU_OF_TO_NED(*ned, enu);
 }
 
 void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
@@ -168,15 +197,58 @@ void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct Ne
   ecef_of_enu_vect_i(ecef, def, &enu);
 }
 
+
+/** Convert a point in local ENU to ECEF.
+ * @param[out] ecef ECEF point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  enu  ENU point in cm
+ */
 void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
   ecef_of_enu_vect_i(ecef, def, enu);
   INT32_VECT3_ADD(*ecef, def->ecef);
 }
 
+
+/** Convert a point in local NED to ECEF.
+ * @param[out] ecef ECEF point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ned  NED point in cm
+ */
 void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
   struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_point_i(ecef, def, &enu);
+}
+
+
+/** Convert a local ENU position to ECEF.
+ * @param[out] ecef ECEF position in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  enu  ENU position in meter << #INT32_POS_FRAC
+ */
+void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+  /* enu_cm = (enu * 100) >> INT32_POS_FRAC
+   * to loose less range:
+   * enu_cm = (enu * 25) >> (INT32_POS_FRAC-2)
+   * which puts max enu input Q23.8 range to 8388km / 25 = 335km
+   */
+  struct EnuCoor_i enu_cm;
+  VECT3_SMUL(enu_cm, *enu, 25);
+  INT32_VECT3_RSHIFT(enu_cm, enu_cm, INT32_POS_FRAC-2);
+  ecef_of_enu_vect_i(ecef, def, &enu_cm);
+  INT32_VECT3_ADD(*ecef, def->ecef);
+}
+
+
+/** Convert a local NED position to ECEF.
+ * @param[out] ecef ECEF position in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ned  NED position in meter << #INT32_POS_FRAC
+ */
+void ecef_of_ned_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+  struct EnuCoor_i enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_pos_i(ecef, def, &enu);
 }
 
 
