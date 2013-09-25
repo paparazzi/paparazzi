@@ -40,10 +40,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 #if !defined KROOZ_LOWPASS_FILTER && !defined  KROOZ_SMPLRT_DIV
 #define KROOZ_LOWPASS_FILTER MPU60X0_DLPF_256HZ
 #define KROOZ_SMPLRT_DIV 1
