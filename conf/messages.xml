@@ -1898,7 +1898,12 @@
  <!--223 is free -->
  <!--224 is free -->
  <!--225 is free -->
- <!--226 is free -->
+
+  <message name="PERIODIC_TELEMETRY_ERR" id="226">
+    <field name="process" type="uint8"/>
+    <field name="mode" type="uint8"/>
+    <field name="id" type="uint8"/>
+  </message>
 
   <message name="TIME" id="227">
     <field name="t" type="uint32"/>

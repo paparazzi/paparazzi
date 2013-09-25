@@ -87,7 +87,7 @@ let output_modes = fun out_h process_name modes freq modules ->
           lprintf out_h "telemetry_%s.msgs[TELEMETRY_%s_MSG_%s_ID].cb();\n" process_name (String.uppercase process_name) message_name;
           left ();
           fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
-          lprintf out_h "else peridodic_telemetry_err_report(TELEMETRY_%s_MSG_%s_ID);\n" (String.uppercase process_name) message_name;
+          lprintf out_h "else periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_%s_MSG_%s_ID);\n" process_name process_name (String.uppercase process_name) message_name;
           fprintf out_h "#endif\n";
           left ();
           lprintf out_h "}\n"
@@ -160,6 +160,9 @@ let _ =
       let messages = Hashtbl.create 5 in
 
       fprintf out_h "\n/* Periodic telemetry: %s process */\n" process_name;
+      let p_id = ref 0 in
+      Xml2h.define (sprintf "TELEMETRY_PROCESS_%s" process_name) (string_of_int !p_id);
+      incr p_id;
 
       let i = ref 0 in
       (** For each mode of this process *)

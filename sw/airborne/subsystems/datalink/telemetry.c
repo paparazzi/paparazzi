@@ -52,3 +52,20 @@ bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, char * _msg, tel
   return FALSE;
 }
 
+#if USE_PERIODIC_TELEMETRY_REPORT
+
+#include "subsystems/datalink/downlink.h"
+
+/** Send an error report when trying to send message that as not been register
+ * @param _process telemetry process id
+ * @param _mode telemetry mode
+ * @param _id id of the message in telemetry system (see var/<AC>/generated/periodic_telemetry.h)
+ */
+void periodic_telemetry_err_report(uint8_t _process, uint8_t _mode, uint8_t _id) {
+  uint8_t process = _process;
+  uint8_t mode = _mode;
+  uint8_t id = _id;
+  DOWNLINK_SEND_PERIODIC_TELEMETRY_ERR(DefaultChannel, DefaultDevice, &process, &mode, &id);
+}
+
+#endif
