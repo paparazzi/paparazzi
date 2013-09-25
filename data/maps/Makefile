@@ -21,7 +21,7 @@ $(DATADIR):
 $(DATADIR)/maps.google.com: $(DATADIR) FORCE
 	@echo "-----------------------------------------------"
 	@echo "DOWNLOAD: google maps version code";
-	$(Q)wget -q -O $(@) http://maps.google.com/ || \
+	$(Q)wget -q -t 1 -T 10 -O $(@) http://maps.google.com/ || \
 		(rm -f $(@) && \
 		echo "Could not download google maps version code" && \
 		echo "-----------------------------------------------" && \

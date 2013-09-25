@@ -43,6 +43,7 @@ struct NpsFdm {
   double init_dt;
   double curr_dt;
   bool_t on_ground;
+  int nan_count;
 
   /*  position */
   struct EcefCoor_d  ecef_pos;
@@ -85,11 +86,14 @@ struct NpsFdm {
   struct DoubleVect3 ltp_g;
   struct DoubleVect3 ltp_h;
 
+  struct DoubleVect3 wind; ///< velocity in m/s in NED
+
 };
 
 extern struct NpsFdm fdm;
 
 extern void nps_fdm_init(double dt);
 extern void nps_fdm_run_step(double* commands);
+extern void nps_fdm_set_wind(double speed, double dir, int turbulence_severity);
 
 #endif /* NPS_FDM */

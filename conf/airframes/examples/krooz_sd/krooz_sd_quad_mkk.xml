@@ -32,6 +32,7 @@
 		<!--<load name="gps_ubx_ucenter.xml"/>
     <load name="sys_mon.xml"/>
 		<load name="geo_mag.xml"/>-->
+    <load name="osd_max7456.xml"/>
   </modules>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
@@ -60,11 +61,6 @@
     <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
     <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
   </command_laws>
-
-	<section name="VERSION" prefix="VERSION_">
-    <define name="MAJOR" value="1"/>
-    <define name="MINOR" value="2"/>
-  </section>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
@@ -95,12 +91,12 @@
     <define name="ACCEL_Y_SENS" value="0.6131" integer="16"/>
     <define name="ACCEL_Z_SENS" value="0.6131" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-282"/>
-    <define name="MAG_Y_NEUTRAL" value="-78"/>
-    <define name="MAG_Z_NEUTRAL" value="109"/>
-    <define name="MAG_X_SENS" value="3.33430456557" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.53180739126" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.68297143457" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="74"/>
+    <define name="MAG_Y_NEUTRAL" value="-118"/>
+    <define name="MAG_Z_NEUTRAL" value="104"/>
+    <define name="MAG_X_SENS" value="3.44419577366" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.40350478221" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.77559859867" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -167,20 +163,20 @@
 
     <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="180." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(180.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1000"/>
-    <define name="PHI_DGAIN"  value="250"/>
-    <define name="PHI_IGAIN"  value="250"/>
+    <define name="PHI_PGAIN"  value="850"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="100"/>
 
-    <define name="THETA_PGAIN"  value="1000"/>
-    <define name="THETA_DGAIN"  value="250"/>
-    <define name="THETA_IGAIN"  value="250"/>
+    <define name="THETA_PGAIN"  value="850"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="100"/>
 
     <define name="PSI_PGAIN"  value="4000"/>
-    <define name="PSI_DGAIN"  value="1000"/>
+    <define name="PSI_DGAIN"  value="1500"/>
     <define name="PSI_IGAIN"  value="300"/>
 
     <!-- feedforward -->
@@ -210,7 +206,7 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
 		<define name="USE_REF" value="1"/>
     <define name="USE_SPEED_REF" value="1"/> <!-- using RC to control horizontal setpoint -->
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="27" unit="deg"/>
     <define name="REF_MAX_ACCEL" value="7."/> <!-- max reference horizontal acceleration in m/s2 -->
     <define name="REF_MAX_SPEED" value="2."/> <!-- max reference horizontal speed in m/s -->
 		<define name="RC_SPEED_DEAD_BAND" value="200000"/>
@@ -222,7 +218,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 

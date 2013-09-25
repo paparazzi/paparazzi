@@ -7,14 +7,31 @@ IMU_ASPIRIN2_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_MODULES)/sensors/imu_aspirin2.c
 
 
-IMU_ASPIRIN2_CFLAGS += -DUSE_I2C
-ifeq ($(ARCH), stm32)
-	IMU_ASPIRIN2_CFLAGS += -DUSE_I2C2
-	IMU_ASPIRIN2_CFLAGS += -DPPZUAVIMU_I2C_DEV=i2c2
-else ifeq ($(ARCH), lpc21)
-	IMU_ASPIRIN2_CFLAGS += -DUSE_I2C0
-	IMU_ASPIRIN2_CFLAGS += -DPPZUAVIMU_I2C_DEV=i2c0
+# set default i2c bus
+ifeq ($(ARCH), lpc21)
+IMU_ASPIRIN2_I2C_DEV ?= i2c0
+else ifeq ($(ARCH), stm32)
+IMU_ASPIRIN2_I2C_DEV ?= i2c2
 endif
+
+ifeq ($(TARGET), ap)
+ifndef IMU_ASPIRIN2_I2C_DEV
+$(error Error: IMU_ASPIRIN2_I2C_DEV not configured!)
+endif
+endif
+
+# convert i2cx to upper/lower case
+IMU_ASPIRIN2_I2C_DEV_UPPER=$(shell echo $(IMU_ASPIRIN2_I2C_DEV) | tr a-z A-Z)
+IMU_ASPIRIN2_I2C_DEV_LOWER=$(shell echo $(IMU_ASPIRIN2_I2C_DEV) | tr A-Z a-z)
+
+IMU_ASPIRIN2_CFLAGS += -DIMU_ASPIRIN2_I2C_DEV=$(IMU_ASPIRIN2_I2C_DEV_LOWER)
+IMU_ASPIRIN2_CFLAGS += -DUSE_$(IMU_ASPIRIN2_I2C_DEV_UPPER)
 
 ap.CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN2_SRCS)
+
+
+#
+# NPS simulator
+#
+include $(CFG_SHARED)/imu_nps.makefile

@@ -6,6 +6,7 @@
 		<target name="ap" board="ardrone2_sdk">
 			<define name="USE_INS_NAV_INIT" />
 			<define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED"/>
+			<!-- <define name="ARDRONE2_DEBUG" /> -->
 			<!-- <define name="USE_GPS_HEIGHT" /> -->
 			<!-- <define name="ARDRONE_FLIGHT_INDOOR" /> -->
 			<!-- <define name="ARDRONE_WITHOUT_SHELL" /> -->
@@ -84,9 +85,8 @@
 		<define name="RC_CLIMB_COEF" value="163" />
 		<!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
 		<define name="RC_CLIMB_DEAD_BAND" value="160000" />
-		<!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive
-			estimation -->
-		<define name="NOMINAL_HOVER_THROTTLE" value="0.5" />
+		<define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
+        <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
 	</section>
 
 	<section name="GUIDANCE_H" prefix="GUIDANCE_H_">

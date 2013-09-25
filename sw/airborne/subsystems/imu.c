@@ -29,6 +29,20 @@
 #if DOWNLINK
 #include "subsystems/datalink/telemetry.h"
 
+#if USE_IMU_FLOAT
+
+static void send_accel(void) {
+  DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice,
+      &imuf.accel.x, &imuf.accel.y, &imuf.accel.z);
+}
+
+static void send_gyro(void) {
+  DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice,
+      &imuf.gyro.p, &imuf.gyro.q, &imuf.gyro.r);
+}
+
+#else // !USE_IMU_FLOAT
+
 static void send_accel_raw(void) {
   DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
       &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z);
@@ -90,9 +104,12 @@ static void send_mag_calib(void) {
 }
 #endif
 
+#endif // !USE_IMU_FLOAT
+
 #endif
 
 struct Imu imu;
+struct ImuFloat imuf;
 
 void imu_init(void) {
 
@@ -123,6 +140,10 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
 
 #if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
+  register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
+#if USE_IMU_FLOAT
+#else // !USE_IMU_FLOAT
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
@@ -134,23 +155,22 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_CURRENT_CALIBRATION", send_mag_calib);
-#endif
-#endif
+#endif // USE_MAGNETOMETER
+#endif // !USE_IMU_FLOAT
+#endif // DOWNLINK
 
   imu_impl_init();
 }
 
 
-void imu_float_init(struct ImuFloat* imuf) {
-
+void imu_float_init(void) {
   /*
     Compute quaternion and rotation matrix
     for conversions between body and imu frame
   */
-  EULERS_ASSIGN(imuf->body_to_imu_eulers,
+  EULERS_ASSIGN(imuf.body_to_imu_eulers,
 		IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
-  FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
-  FLOAT_QUAT_NORMALIZE(imuf->body_to_imu_quat);
-  FLOAT_RMAT_OF_EULERS(imuf->body_to_imu_rmat, imuf->body_to_imu_eulers);
-
+  FLOAT_QUAT_OF_EULERS(imuf.body_to_imu_quat, imuf.body_to_imu_eulers);
+  FLOAT_QUAT_NORMALIZE(imuf.body_to_imu_quat);
+  FLOAT_RMAT_OF_EULERS(imuf.body_to_imu_rmat, imuf.body_to_imu_eulers);
 }

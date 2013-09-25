@@ -38,7 +38,7 @@ else
 endif
 
 
-nps.srcs += $(NPSDIR)/nps_main.c                      \
+nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_fdm_jsbsim.c                \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
@@ -48,29 +48,30 @@ nps.srcs += $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_sensor_mag.c                \
        $(NPSDIR)/nps_sensor_baro.c               \
        $(NPSDIR)/nps_sensor_gps.c                \
+       $(NPSDIR)/nps_electrical.c                \
+       $(NPSDIR)/nps_atmosphere.c                \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_autopilot_rotorcraft.c            \
-       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_autopilot_rotorcraft.c      \
+       $(NPSDIR)/nps_ivy_common.c                \
+       $(NPSDIR)/nps_ivy_rotorcraft.c            \
        $(NPSDIR)/nps_flightgear.c                \
 
 
 
 nps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 
-nps.srcs   += firmwares/rotorcraft/main.c
-nps.srcs   += mcu.c
-nps.srcs   += $(SRC_ARCH)/mcu_arch.c
+nps.srcs += firmwares/rotorcraft/main.c
+nps.srcs += mcu.c
+nps.srcs += $(SRC_ARCH)/mcu_arch.c
 
 nps.srcs += mcu_periph/i2c.c
 nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 PERIODIC_FREQUENCY ?= 512
-TELEMETRY_FREQUENCY ?= 60
 nps.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-nps.CFLAGS += -DTELEMETRY_FREQUENCY=$(TELEMETRY_FREQUENCY)
 #nps.CFLAGS += -DUSE_LED
 nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
@@ -103,12 +104,6 @@ nps.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 nps.srcs += state.c
 
-#
-# in makefile section of airframe xml
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile
-# or
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-#
 
 nps.srcs += $(SRC_FIRMWARE)/stabilization.c
 nps.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
@@ -119,17 +114,8 @@ nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
+nps.srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
 
-#
-# INS choice
-#
-# include subsystems/rotorcraft/ins.makefile
-# or
-# include subsystems/rotorcraft/ins_extended.makefile
-#
-# extra:
-# include subsystems/rotorcraft/ins_hff.makefile
-#
 
 nps.srcs += $(SRC_FIRMWARE)/navigation.c
 nps.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

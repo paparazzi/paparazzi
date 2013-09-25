@@ -41,7 +41,7 @@ float stabilization_att_ff_cmd[COMMANDS_NB];
 static void send_att(void) {
   struct FloatRates* body_rate = stateGetBodyRates_i();
   struct FloatEulers* att = stateGetNedToBodyEulers_i();
-  float foo;
+  float foo = 0.0;
   DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(DefaultChannel, DefaultDevice,
       &(body_rate->p), &(body_rate->q), &(body_rate->r),
       &(att->phi), &(att->theta), &(att->psi),
@@ -134,8 +134,8 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   stab_att_sp_euler.psi = stateGetNedToBodyEulers_f()->psi;
 }
 
-void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
-  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_euler);
+void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
+  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *sp_cmd);
 }
 
 

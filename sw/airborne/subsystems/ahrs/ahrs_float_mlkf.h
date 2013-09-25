@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_float_mlkf_opt.h
+ * @file subsystems/ahrs/ahrs_float_mlkf.h
  *
  * Multiplicative linearized Kalman Filter in quaternion formulation.
  *
@@ -37,20 +37,11 @@
 
 struct AhrsMlkf {
   struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as unit quaternion
-  struct FloatEulers ltp_to_imu_euler; ///< Rotation from LocalTangentPlane to IMU frame as Euler angles
-  struct FloatRMat   ltp_to_imu_rmat;  ///< Rotation from LocalTangentPlane to IMU frame as Rotation Matrix
+  struct FloatQuat   ltp_to_body_quat; ///< Rotation from LocalTangentPlane to body frame as unit quaternion
   struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
-  struct FloatRates  imu_rate_previous;
-  struct FloatRates  imu_rate_d;
-
-  struct FloatQuat   ltp_to_body_quat;  ///< Rotation from LocalTangentPlane to body frame as unit quaternion
-  struct FloatEulers ltp_to_body_euler; ///< Rotation from LocalTangentPlane to body frame as Euler angles
-  struct FloatRMat   ltp_to_body_rmat;  ///< Rotation from LocalTangentPlane to body frame as Rotation Matrix
-  struct FloatRates  body_rate;         ///< Rotational velocity in body frame
-  struct FloatRates  body_rate_d;
-
   struct FloatRates  gyro_bias;
 
+  struct FloatVect3  mag_h;
 
   struct FloatQuat  gibbs_cor;
   float P[6][6];

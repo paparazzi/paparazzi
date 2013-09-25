@@ -84,19 +84,36 @@
 
 #include "led.h"
 
+#ifdef USE_NPS
+#include "nps_autopilot_fixedwing.h"
+#endif
+
+/* Default trim commands for roll, pitch and yaw */
+#ifndef COMMAND_ROLL_TRIM
+#define COMMAND_ROLL_TRIM 0
+#endif
+
+#ifndef COMMAND_PITCH_TRIM
+#define COMMAND_PITCH_TRIM 0
+#endif
+
+#ifndef COMMAND_YAW_TRIM
+#define COMMAND_YAW_TRIM 0
+#endif
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 
-#ifndef TELEMETRY_FREQUENCY
-#define TELEMETRY_FREQUENCY 60
-#endif
+/* TELEMETRY_FREQUENCY is defined in generated/periodic_telemetry.h
+ * defaults to 60Hz or set by TELEMETRY_FREQUENCY configure option in airframe file
+ */
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
-#ifndef MODULES_FREQUENCY
-#define MODULES_FREQUENCY 60
-#endif
+/* MODULES_FREQUENCY is defined in generated/modules.h
+ * according to main_freq parameter set for modules in airframe file
+ */
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
 
@@ -168,6 +185,9 @@ void init_ap( void ) {
 
 #if USE_IMU
   imu_init();
+#if USE_IMU_FLOAT
+  imu_float_init();
+#endif
 #endif
 
 #if USE_AHRS_ALIGNER
@@ -237,6 +257,12 @@ void init_ap( void ) {
   traffic_info_init();
 #endif
 
+  /* set initial trim values.
+   * these are passed to fbw via inter_mcu.
+   */
+  ap_state->command_roll_trim = COMMAND_ROLL_TRIM;
+  ap_state->command_pitch_trim = COMMAND_PITCH_TRIM;
+  ap_state->command_yaw_trim = COMMAND_YAW_TRIM;
 }
 
 
@@ -563,7 +589,7 @@ void sensors_task( void ) {
 #endif // USE_IMU
 
   //FIXME: this is just a kludge
-#if USE_AHRS && defined SITL
+#if USE_AHRS && defined SITL && !USE_NPS
   ahrs_propagate();
 #endif
 
@@ -660,7 +686,6 @@ void event_task_ap( void ) {
   if (new_ins_attitude > 0)
   {
     attitude_loop();
-    //LED_TOGGLE(3);
     new_ins_attitude = 0;
   }
 #endif
@@ -709,10 +734,6 @@ static inline void on_gyro_event( void ) {
   ahrs_propagate();
   ahrs_update_accel();
 
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
-#endif
-
 #else //PERIODIC_FREQUENCY
   static uint8_t _reduced_propagation_rate = 0;
   static uint8_t _reduced_correction_rate = 0;
@@ -725,6 +746,7 @@ static inline void on_gyro_event( void ) {
   _reduced_propagation_rate++;
   if (_reduced_propagation_rate < (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY))
   {
+    return;
   }
   else
   {
@@ -746,12 +768,16 @@ static inline void on_gyro_event( void ) {
       ImuScaleAccel(imu);
       ahrs_update_accel();
     }
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-    new_ins_attitude = 1;
-#endif
   }
 #endif //PERIODIC_FREQUENCY
+
+#if defined SITL && USE_NPS
+  if (nps_bypass_ahrs) sim_overwrite_ahrs();
+#endif
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  new_ins_attitude = 1;
+#endif
 
 }
 

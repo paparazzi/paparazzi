@@ -84,7 +84,7 @@ double time_to_double(struct timeval *t) {
     return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
 }
 
-int main ( int argc, char** argv) {
+int main (int argc, char** argv) {
 
   if (!nps_main_parse_options(argc, argv)) return 1;
 
@@ -121,6 +121,7 @@ static void nps_main_init(void) {
 
   nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
+  nps_atmosphere_init();
   nps_sensors_init(nps_main.sim_time);
   printf("Simulating with dt of %f\n", SIM_DT);
 
@@ -152,6 +153,8 @@ static void nps_main_init(void) {
 
 static void nps_main_run_sim_step(void) {
   //  printf("sim at %f\n", nps_main.sim_time);
+
+  nps_atmosphere_update(SIM_DT);
 
   nps_autopilot_run_systime_step();
 

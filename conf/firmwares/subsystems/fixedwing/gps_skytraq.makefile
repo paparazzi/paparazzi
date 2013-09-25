@@ -1,5 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 
+GPS_LED ?= none
+
 ap.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
 ap.CFLAGS += -DUSE_$(GPS_PORT)
@@ -20,3 +22,8 @@ sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
 
 jsbsim.CFLAGS += -DUSE_GPS -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
 jsbsim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.
+
+nps.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+nps.srcs += $(SRC_SUBSYSTEMS)/gps.c
+nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
+nps.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c

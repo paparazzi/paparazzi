@@ -1,5 +1,5 @@
-#ifndef CONFIG_APOGEE_0_99_H
-#define CONFIG_APOGEE_0_99_H
+#ifndef CONFIG_APOGEE_1_00_H
+#define CONFIG_APOGEE_1_00_H
 
 #define BOARD_APOGEE
 
@@ -308,7 +308,7 @@
 #endif
 
 #if USE_PWM3
-#define PWM_SERVO_3_IDX 3
+#define PWM_SERVO_3 3
 #define PWM_SERVO_3_TIMER TIM3
 #define PWM_SERVO_3_RCC_IOP RCC_AHB1ENR_IOPBEN
 #define PWM_SERVO_3_GPIO GPIOB
@@ -396,4 +396,4 @@
 #define SPEKTRUM_UART2_ISR usart2_isr
 #define SPEKTRUM_UART2_DEV USART2
 
-#endif /* CONFIG_APOGEE_0_99_H */
+#endif /* CONFIG_APOGEE_1_00_H */

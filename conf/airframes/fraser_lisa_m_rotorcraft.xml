@@ -8,14 +8,18 @@
     <configure name="FLASH_MODE" value="SWD"/>
     <target name="ap" board="lisa_m_1.0">
       <define name="ACTUATORS_START_DELAY" value="3"/>
-      <define name="USE_INS_NAV_INIT"/>
+      <subsystem name="radio_control" type="spektrum">
+        <define name="RADIO_MODE" value="RADIO_AUX1"/>
+        <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      </subsystem>
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm"           type="jsbsim"/>
+      <subsystem name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
 
     <subsystem name="motor_mixing"/>
@@ -28,12 +32,13 @@
     <subsystem name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
     </subsystem>
-    <subsystem name="ins"/>
+    <subsystem name="ins_extended"/>
 
-	<define name="KILL_ON_GROUND_DETECT" value="TRUE"/>
+	<!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
 
   <firmware name="setup">
+    <configure name="FLASH_MODE" value="SWD"/>
     <target name="tunnel" board="lisa_m_1.0"/>
   </firmware>
 
@@ -64,6 +69,7 @@
 
   <modules main_freq="512">
     <load name="sys_mon.xml"/>
+    <load name="gps_ubx_ucenter.xml"/>
   </modules>
 
   <commands>
@@ -163,8 +169,8 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
-    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PHI"     value="60." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="60." unit="deg"/>
     <define name="SP_MAX_R"       value="90." unit="deg/s"/>
     <define name="DEADBAND_A"     value="0"/>
     <define name="DEADBAND_E"     value="0"/>
@@ -211,19 +217,20 @@
     <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="HOVER_KP"    value="150"/>
-    <define name="HOVER_KD"    value="80"/>
+    <define name="HOVER_KP"    value="120"/>
+    <define name="HOVER_KD"    value="100"/>
     <define name="HOVER_KI"    value="20"/>
     <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
     <define name="RC_CLIMB_COEF" value ="163"/>
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
     <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-    <!--define name="NOMINAL_HOVER_THROTTLE" value="0.5"/-->
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.38"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="USE_REF" value="1"/>
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="0"/>
@@ -231,9 +238,10 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
-    <define name="JS_MODE_AXIS" value="4"/>
+    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
+    <define name="JS_AXIS_MODE" value="4"/>
   </section>
 
   <section name="AUTOPILOT">

@@ -26,7 +26,7 @@
 
 //Check if variables are set and else define them
 #ifndef LINK_HOST
-#define LINK_HOST     "192.168.1.0"
+#define LINK_HOST     "192.168.1.255"
 #endif
 #ifndef LINK_PORT
 #define LINK_PORT             4242

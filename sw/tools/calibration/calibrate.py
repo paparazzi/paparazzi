@@ -20,6 +20,7 @@
 # Boston, MA 02111-1307, USA.
 #
 
+from __future__ import print_function
 
 import sys
 import os
@@ -42,6 +43,9 @@ def main():
     parser.add_option("-p", "--plot",
                       help="Show resulting plots",
                       action="store_true", dest="plot")
+    parser.add_option("-a", "--auto_threshold",
+                      help="Try to automatically determine noise threshold",
+                      action="store_true", dest="auto_threshold")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
@@ -86,12 +90,21 @@ def main():
     if options.verbose:
        print("found "+str(len(measurements))+" records")
 
+    # estimate the noise threshold
+    # find the median of measurement vector lenght
+    if options.auto_threshold:
+        meas_median = scipy.median(scipy.array([scipy.linalg.norm(v) for v in measurements]))
+        # set noise threshold to be below 10% of that
+        noise_threshold = meas_median * 0.1
+    if options.verbose:
+        print("Using noise threshold of", noise_threshold, "for filtering.")
+
     # filter out noisy measurements
     flt_meas, flt_idx = calibration_utils.filter_meas(measurements, noise_window, noise_threshold)
     if options.verbose:
-        print("remaining "+str(len(flt_meas))+" after low pass")
+        print("remaining "+str(len(flt_meas))+" after filtering")
     if len(flt_meas) == 0:
-        print("Error: found zero IMU_"+options.sensor+"_RAW measurements for aircraft with id "+options.ac_id+" in log file after low pass!")
+        print("Error: found zero IMU_"+options.sensor+"_RAW measurements for aircraft with id "+options.ac_id+" in log file after filtering!")
         sys.exit(1)
 
     # get an initial min/max guess

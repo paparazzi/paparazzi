@@ -22,22 +22,38 @@
 #  max command = 255
 
 $(TARGET).CFLAGS += -DACTUATORS
-ap.srcs += subsystems/actuators/actuators_mkk.c
+
+ACTUATORS_MKK_SRCS = subsystems/actuators/actuators_mkk.c
+
 
 ifeq ($(ARCH), lpc21)
-
-# set default i2c timing if not already configured
-ifeq ($(MKK_I2C_SCL_TIME), )
-MKK_I2C_SCL_TIME=150
-endif
-
-ap.CFLAGS += -DACTUATORS_MKK_I2C_DEV=i2c0
-ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SCL_TIME)
-
+ACTUATORS_MKK_I2C_DEV ?= i2c0
 else ifeq ($(ARCH), stm32)
-ap.CFLAGS += -DACTUATORS_MKK_I2C_DEV=i2c1
-ap.CFLAGS += -DUSE_I2C1
+ACTUATORS_MKK_I2C_DEV ?= i2c1
 endif
+
+ifeq ($(TARGET), ap)
+ifndef ACTUATORS_MKK_I2C_DEV
+$(error Error: ACTUATORS_MKK_I2C_DEV not configured!)
+endif
+endif
+
+# convert i2cx to upper/lower case
+ACTUATORS_MKK_I2C_DEV_UPPER=$(shell echo $(ACTUATORS_MKK_I2C_DEV) | tr a-z A-Z)
+ACTUATORS_MKK_I2C_DEV_LOWER=$(shell echo $(ACTUATORS_MKK_I2C_DEV) | tr A-Z a-z)
+
+ACTUATORS_MKK_CFLAGS += -DACTUATORS_MKK_I2C_DEV=$(ACTUATORS_MKK_I2C_DEV_LOWER)
+ACTUATORS_MKK_CFLAGS += -DUSE_$(ACTUATORS_MKK_I2C_DEV_UPPER)
+
+ifeq ($(ARCH), lpc21)
+# set default i2c timing if not already configured
+ACTUATORS_MKK_I2C_SCL_TIME ?= 150
+ACTUATORS_MKK_CFLAGS += -D$(ACTUATORS_MKK_I2C_DEV_UPPER)_SCLL=$(ACTUATORS_MKK_I2C_SCL_TIME)
+ACTUATORS_MKK_CFLAGS += -D$(ACTUATORS_MKK_I2C_DEV_UPPER)_SCLH=$(ACTUATORS_MKK_I2C_SCL_TIME)
+endif
+
+ap.CFLAGS += $(ACTUATORS_MKK_CFLAGS)
+ap.srcs   += $(ACTUATORS_MKK_SRCS)
 
 # Simulator
 nps.srcs += subsystems/actuators/actuators_mkk.c

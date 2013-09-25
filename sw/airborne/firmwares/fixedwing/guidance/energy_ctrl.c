@@ -95,7 +95,7 @@ float v_ctl_airspeed_pgain;
 float v_ctl_altitude_error;    ///< in meters, (setpoint - alt) -> positive = too low
 
 float v_ctl_max_climb;
-float v_ctl_max_acceleration = 0.5;
+float v_ctl_max_acceleration;
 
 /* inner loop */
 float v_ctl_climb_setpoint;
@@ -145,10 +145,16 @@ float v_ctl_pitch_setpoint;
 #warning "No STALL_AIRSPEED defined. Using NOMINAL_AIRSPEED"
 #define STALL_AIRSPEED NOMINAL_AIRSPEED
 #endif
+#ifndef V_CTL_GLIDE_RATIO
+#define V_CTL_GLIDE_RATIO 8.
+#warning "V_CTL_GLIDE_RATIO not defined - default is 8."
+#endif
 #ifndef AIRSPEED_SETPOINT_SLEW
 #define AIRSPEED_SETPOINT_SLEW 1
 #endif
-
+#ifndef V_CTL_MAX_ACCELERATION
+#define V_CTL_MAX_ACCELERATION 0.5
+#endif
 /////////////////////////////////////////////////
 // Automatically found airplane characteristics
 
@@ -162,9 +168,9 @@ float ac_char_cruise_throttle = 0.0f;
 float ac_char_cruise_pitch = 0.0f;
 int ac_char_cruise_count = 0;
 
-static void ac_char_average(float* last, float new, int count)
+static void ac_char_average(float* last_v, float new_v, int count)
 {
-  *last = (((*last) * (((float)count) - 1.0f)) + new) / ((float) count);
+  *last_v = (((*last_v) * (((float)count) - 1.0f)) + new_v) / ((float) count);
 }
 
 static void ac_char_update(float throttle, float pitch, float climb, float accelerate)
@@ -211,6 +217,8 @@ void v_ctl_init( void ) {
   v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;
   v_ctl_auto_airspeed_setpoint_slew = v_ctl_auto_airspeed_setpoint;
   v_ctl_airspeed_pgain = V_CTL_AIRSPEED_PGAIN;
+
+  v_ctl_max_acceleration = V_CTL_MAX_ACCELERATION;
 
   /* inner loops */
   v_ctl_climb_setpoint = 0.;
@@ -345,7 +353,7 @@ void v_ctl_climb_loop( void )
   float vdot_err = low_pass_vdot( v_ctl_desired_acceleration - vdot );
 
   // Flight Path Outerloop: positive means needs to climb more: needs extra energy
-  float gamma_err  = (v_ctl_climb_setpoint - stateGetSpeedEnu_f()->z) / v_ctl_auto_airspeed_setpoint;
+  float gamma_err  = (v_ctl_climb_setpoint - stateGetSpeedEnu_f()->z) / v_ctl_auto_airspeed_controlled;
 
   // Total Energy Error: positive means energy should be added
   float en_tot_err = gamma_err + vdot_err;
@@ -392,6 +400,7 @@ void v_ctl_climb_loop( void )
                 + v_ctl_auto_pitch_of_airspeed_dgain * vdot
                 + v_ctl_energy_diff_pgain * en_dis_err
                 + v_ctl_auto_throttle_nominal_cruise_pitch;
+if(kill_throttle) v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1/V_CTL_GLIDE_RATIO;
 
   v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + nav_pitch;
   Bound(v_ctl_pitch_setpoint,H_CTL_PITCH_MIN_SETPOINT,H_CTL_PITCH_MAX_SETPOINT)

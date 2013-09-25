@@ -32,8 +32,9 @@
 	<modules main_freq="512">
 		<!--<load name="gps_ubx_ucenter.xml"/>
     <load name="sys_mon.xml"/>
-    <load name="geo_mag.xml"/>-->
-    </modules>
+		<load name="geo_mag.xml"/>
+    <load name="osd_max7456.xml"/>-->
+  </modules>
 
   <commands>
     <axis name="ROLL"   failsafe_value="0"/>
@@ -82,11 +83,6 @@
     <set servo="LL"   value="motor_mixing.commands[SERVO_LL]"/>
     <set servo="FL"   value="motor_mixing.commands[SERVO_FL]"/>
   </command_laws>
-
-	<section name="VERSION" prefix="VERSION_">
-    <define name="MAJOR" value="1"/>
-    <define name="MINOR" value="2"/>
-  </section>
 
   <section name="IMU" prefix="IMU_">
 
@@ -181,16 +177,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(180.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="1000"/>
-    <define name="PHI_DGAIN"  value="350"/>
-    <define name="PHI_IGAIN"  value="250"/>
+    <define name="PHI_PGAIN"  value="850"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="100"/>
 
-    <define name="THETA_PGAIN"  value="1000"/>
-    <define name="THETA_DGAIN"  value="350"/>
-    <define name="THETA_IGAIN"  value="250"/>
+    <define name="THETA_PGAIN"  value="850"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="100"/>
 
     <define name="PSI_PGAIN"  value="4000"/>
-    <define name="PSI_DGAIN"  value="1000"/>
+    <define name="PSI_DGAIN"  value="1500"/>
     <define name="PSI_IGAIN"  value="300"/>
 
     <!-- feedforward -->
@@ -221,7 +217,7 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
 		<define name="USE_REF" value="1"/>
     <define name="USE_SPEED_REF" value="1"/> <!-- using RC to control horizontal setpoint -->
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="27" unit="deg"/>
     <define name="REF_MAX_ACCEL" value="1.2"/> <!-- max reference horizontal acceleration in m/s2 -->
     <define name="REF_MAX_SPEED" value="2."/> <!-- max reference horizontal speed in m/s -->
 		<define name="RC_SPEED_DEAD_BAND" value="200000"/>
@@ -233,7 +229,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 

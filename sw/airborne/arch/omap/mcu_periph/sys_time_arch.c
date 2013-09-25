@@ -29,6 +29,11 @@
 #include <signal.h>
 #include <string.h>
 
+#ifdef SYS_TIME_LED
+#include "led.h"
+#endif
+
+
 void sys_time_arch_init( void ) {
 
   sys_time.cpu_ticks_per_sec = 1e6;
@@ -58,6 +63,10 @@ void sys_tick_handler( int signum ) {
   if (sys_time.nb_sec_rem >= sys_time.cpu_ticks_per_sec) {
     sys_time.nb_sec_rem -= sys_time.cpu_ticks_per_sec;
     sys_time.nb_sec++;
+#ifdef SYS_TIME_LED
+    LED_TOGGLE(SYS_TIME_LED);
+#endif
+
   }
   for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use &&

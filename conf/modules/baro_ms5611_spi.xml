@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_ms5611_spi" dir="sensors">
+  <doc>
+    <description>
+      Baro MS5611 (SPI)
+      Measurement Specialties MS5611-01BA pressure sensor (SPI)
+    </description>
+    <define name="MS5611_SPI_DEV" value="spiX" description="select spi peripheral to use (default spi1)"/>
+    <define name="MS5611_SLAVE_DEV" value="SPI_SLAVE0" description="SPI slave select index"/>
+    <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
+  </doc>
+  <header>
+    <file name="baro_ms5611_spi.h"/>
+  </header>
+  <init fun="baro_ms5611_init()"/>
+  <periodic fun="baro_ms5611_read()" freq="4"/>
+  <periodic fun="baro_ms5611_periodic_check()" freq="40"/>
+  <event fun="baro_ms5611_event()"/>
+  <makefile target="ap">
+    <file name="baro_ms5611_spi.c"/>
+    <file name="ms5611.c" dir="peripherals"/>
+    <file name="ms5611_spi.c" dir="peripherals"/>
+  </makefile>
+</module>

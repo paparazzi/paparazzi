@@ -54,10 +54,25 @@ bool_t   kill_throttle;
 bool_t   autopilot_rc;
 bool_t   autopilot_power_switch;
 
-bool_t   autopilot_detect_ground;
+bool_t   autopilot_ground_detected;
 bool_t   autopilot_detect_ground_once;
 
-#define AUTOPILOT_IN_FLIGHT_TIME    40
+#define AUTOPILOT_IN_FLIGHT_TIME    20
+
+/** minimum vertical speed for in_flight condition in m/s */
+#ifndef AUTOPILOT_IN_FLIGHT_MIN_SPEED
+#define AUTOPILOT_IN_FLIGHT_MIN_SPEED 0.2
+#endif
+
+/** minimum vertical acceleration for in_flight condition in m/s^2 */
+#ifndef AUTOPILOT_IN_FLIGHT_MIN_ACCEL
+#define AUTOPILOT_IN_FLIGHT_MIN_ACCEL 2.0
+#endif
+
+/** minimum thrust for in_flight condition in pprz_t units */
+#ifndef AUTOPILOT_IN_FLIGHT_MIN_THRUST
+#define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
+#endif
 
 #ifndef AUTOPILOT_DISABLE_AHRS_KILL
 #include "subsystems/ahrs.h"
@@ -73,10 +88,13 @@ static inline int ahrs_is_aligned(void) {
 
 #if USE_KILL_SWITCH_FOR_MOTOR_ARMING
 #include "autopilot_arming_switch.h"
+PRINT_CONFIG_MSG("Using kill switch for motor arming")
 #elif USE_THROTTLE_FOR_MOTOR_ARMING
 #include "autopilot_arming_throttle.h"
+PRINT_CONFIG_MSG("Using throttle for motor arming")
 #else
 #include "autopilot_arming_yaw.h"
+PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 #endif
 
 #ifndef MODE_STARTUP
@@ -181,7 +199,7 @@ void autopilot_init(void) {
   autopilot_in_flight = FALSE;
   autopilot_in_flight_counter = 0;
   autopilot_mode_auto2 = MODE_AUTO2;
-  autopilot_detect_ground = FALSE;
+  autopilot_ground_detected = FALSE;
   autopilot_detect_ground_once = FALSE;
   autopilot_flight_time = 0;
   autopilot_rc = TRUE;
@@ -197,7 +215,7 @@ void autopilot_init(void) {
   guidance_v_init();
   stabilization_init();
 
-  /* set startup mode, propagats through to guidance h/v */
+  /* set startup mode, propagates through to guidance h/v */
   autopilot_set_mode(MODE_STARTUP);
 
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
@@ -216,54 +234,37 @@ void autopilot_init(void) {
 }
 
 
-static inline void autopilot_check_in_flight_no_rc( bool_t motors_on ) {
-  if (autopilot_in_flight) {
-    if (autopilot_in_flight_counter > 0) {
-      if (stabilization_cmd[COMMAND_THRUST] == 0) {
-        autopilot_in_flight_counter--;
-        if (autopilot_in_flight_counter == 0) {
-          autopilot_in_flight = FALSE;
-        }
-      }
-      else {  /* !THROTTLE_STICK_DOWN */
-        autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
-      }
-    }
-  }
-  else { /* not in flight */
-    if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
-        motors_on) {
-      if (stabilization_cmd[COMMAND_THRUST] > 0) {
-        autopilot_in_flight_counter++;
-        if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
-          autopilot_in_flight = TRUE;
-      }
-      else { /*  THROTTLE_STICK_DOWN */
-        autopilot_in_flight_counter = 0;
-      }
-    }
-  }
-}
-
-
 void autopilot_periodic(void) {
 
   RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
-#if FAILSAFE_GROUND_DETECT
-INFO("Using FAILSAFE_GROUND_DETECT")
-  if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
-    autopilot_set_mode(AP_MODE_KILL);
-    autopilot_detect_ground = FALSE;
-  }
-#endif
 
-  /* set failsafe commands, if in FAILSAFE or KILL mode */
-#if !FAILSAFE_GROUND_DETECT
-  if (autopilot_mode == AP_MODE_KILL ||
-      autopilot_mode == AP_MODE_FAILSAFE) {
-#else
-  if (autopilot_mode == AP_MODE_KILL) {
+
+  /* If in FAILSAFE mode and either already not in_flight anymore
+   * or just "detected" ground, go to KILL mode.
+   */
+  if (autopilot_mode == AP_MODE_FAILSAFE) {
+    if (!autopilot_in_flight)
+      autopilot_set_mode(AP_MODE_KILL);
+
+#if FAILSAFE_GROUND_DETECT
+INFO("Using FAILSAFE_GROUND_DETECT: KILL")
+    if (autopilot_ground_detected)
+      autopilot_set_mode(AP_MODE_KILL);
 #endif
+  }
+
+  /* Reset ground detection _after_ running flight plan
+   */
+  if (!autopilot_in_flight || autopilot_ground_detected) {
+    autopilot_ground_detected = FALSE;
+    autopilot_detect_ground_once = FALSE;
+  }
+
+  /* Set fixed "failsafe" commands from airframe file if in KILL mode.
+   * If in FAILSAFE mode, run normal loops with failsafe attitude and
+   * downwards velocity setpoints.
+   */
+  if (autopilot_mode == AP_MODE_KILL) {
     SetCommands(commands_failsafe);
   }
   else {
@@ -272,10 +273,6 @@ INFO("Using FAILSAFE_GROUND_DETECT")
     SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
 
-  // when we dont have RC, check in flight by looking at throttle
-  if (radio_control.status != RC_OK) {
-    autopilot_check_in_flight_no_rc(autopilot_motors_on);
-  }
 }
 
 
@@ -295,7 +292,6 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
         break;
 #endif
       case AP_MODE_KILL:
-        autopilot_set_motors_on(FALSE);
         autopilot_in_flight = FALSE;
         autopilot_in_flight_counter = 0;
         guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
@@ -339,6 +335,8 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
         break;
 #endif
       case AP_MODE_KILL:
+        autopilot_set_motors_on(FALSE);
+        stabilization_cmd[COMMAND_THRUST] = 0;
         guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
         break;
       case AP_MODE_RC_DIRECT:
@@ -374,29 +372,37 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 }
 
 
-static inline void autopilot_check_in_flight( bool_t motors_on ) {
+void autopilot_check_in_flight(bool_t motors_on) {
   if (autopilot_in_flight) {
     if (autopilot_in_flight_counter > 0) {
-      if (THROTTLE_STICK_DOWN()) {
+      /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
+      if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
+          (abs(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
+          (abs(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL))
+      {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
           autopilot_in_flight = FALSE;
         }
       }
-      else {	/* !THROTTLE_STICK_DOWN */
+      else {  /* thrust, speed or accel not above min threshold, reset counter */
         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
       }
     }
   }
-  else { /* not in flight */
+  else { /* currently not in flight */
     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
-        motors_on) {
-      if (!THROTTLE_STICK_DOWN()) {
+        motors_on)
+    {
+      /* if thrust above min threshold, assume in_flight.
+       * Don't check for velocity and acceleration above threshold here...
+       */
+      if (stabilization_cmd[COMMAND_THRUST] > AUTOPILOT_IN_FLIGHT_MIN_THRUST) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME)
           autopilot_in_flight = TRUE;
       }
-      else { /*  THROTTLE_STICK_DOWN */
+      else { /* currently not in_flight and thrust below threshold, reset counter */
         autopilot_in_flight_counter = 0;
       }
     }
@@ -448,8 +454,6 @@ void autopilot_on_rc_frame(void) {
     /* an arming sequence is used to start/stop motors */
     autopilot_arming_check_motors_on();
     kill_throttle = ! autopilot_motors_on;
-
-    autopilot_check_in_flight(autopilot_motors_on);
 
     guidance_v_read_rc();
     guidance_h_read_rc(autopilot_in_flight);

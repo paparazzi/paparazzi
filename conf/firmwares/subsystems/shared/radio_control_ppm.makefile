@@ -3,6 +3,7 @@
 #
 
 NORADIO = False
+RADIO_CONTROL_LED ?= none
 
 ifeq ($(BOARD),classix)
   ifeq ($(TARGET),ap)

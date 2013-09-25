@@ -47,13 +47,6 @@ extern struct Int32RefModel stab_att_ref_model;
 #define REF_RATE_FRAC  16
 #define REF_ANGLE_FRAC 20
 
-#define REF_ANGLE_PI      BFP_OF_REAL(3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
-#define REF_ANGLE_TWO_PI  BFP_OF_REAL(2.*3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
-#define ANGLE_REF_NORMALIZE(_a) {                       \
-    while (_a >  REF_ANGLE_PI)  _a -= REF_ANGLE_TWO_PI; \
-    while (_a < -REF_ANGLE_PI)  _a += REF_ANGLE_TWO_PI; \
-  }
-
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
 

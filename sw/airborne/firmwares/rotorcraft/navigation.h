@@ -81,6 +81,7 @@ unit_t nav_reset_alt( void ) __attribute__ ((unused));
 void nav_periodic_task(void);
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 bool_t nav_detect_ground(void);
+bool_t nav_is_in_flight(void);
 
 void nav_home(void);
 

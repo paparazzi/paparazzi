@@ -27,6 +27,15 @@
  */
 
 #include "subsystems/ins/vf_float.h"
+#include "generated/airframe.h"
+#include "std.h"
+
+#ifndef INS_PROPAGATE_FREQUENCY
+#define INS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+PRINT_CONFIG_VAR(INS_PROPAGATE_FREQUENCY)
+
+#define DT_VFILTER (1./(INS_PROPAGATE_FREQUENCY))
 
 /*
 

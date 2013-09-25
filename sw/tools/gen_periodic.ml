@@ -149,6 +149,7 @@ let _ =
   fprintf out_h "#include \"std.h\"\n";
   fprintf out_h "#include \"generated/airframe.h\"\n";
   fprintf out_h "#include \"subsystems/datalink/telemetry_common.h\"\n\n";
+  fprintf out_h "#define TELEMETRY_FREQUENCY %d\n\n" freq;
 
   (** For each process *)
   List.iter

@@ -1,3 +1,30 @@
+/*
+ * Copyright (C) 2010-2013 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/electrical.c
+ *
+ * Implemnetation for electrical status: supply voltage, current, battery status, etc.
+ */
+
 #include "subsystems/electrical.h"
 
 #include "mcu_periph/adc.h"
@@ -18,6 +45,15 @@
 #elif defined COMMAND_THRUST
 #define COMMAND_CURRENT_ESTIMATION COMMAND_THRUST
 #endif
+
+#ifndef BAT_CHECKER_DELAY
+#define BAT_CHECKER_DELAY 5
+#endif
+
+#define ELECTRICAL_PERIODIC_FREQ 10
+
+PRINT_CONFIG_VAR(LOW_BAT_LEVEL)
+PRINT_CONFIG_VAR(CRITIC_BAT_LEVEL)
 
 struct Electrical electrical;
 
@@ -50,6 +86,9 @@ void electrical_init(void) {
   electrical.vsupply = 0;
   electrical.current = 0;
 
+  electrical.bat_low = FALSE;
+  electrical.bat_critical = FALSE;
+
 #if defined ADC_CHANNEL_VSUPPLY
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #endif
@@ -64,6 +103,9 @@ PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
 }
 
 void electrical_periodic(void) {
+  static uint8_t bat_low_counter = 0;
+  static uint8_t bat_critical_counter = 0;
+
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
 #endif
@@ -92,5 +134,30 @@ void electrical_periodic(void) {
    */
   electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
 #endif /* ADC_CHANNEL_CURRENT */
+
+
+  if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
+    if (bat_low_counter > 0)
+      bat_low_counter--;
+    if (bat_low_counter == 0)
+      electrical.bat_low = TRUE;
+  }
+  else {
+    // reset battery low status and counter
+    bat_low_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
+    electrical.bat_low = FALSE;
+  }
+
+  if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
+    if (bat_critical_counter > 0)
+      bat_critical_counter--;
+    if (bat_critical_counter == 0)
+      electrical.bat_critical = TRUE;
+  }
+  else {
+    // reset battery critical status and counter
+    bat_critical_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
+    electrical.bat_critical = FALSE;
+  }
 
 }

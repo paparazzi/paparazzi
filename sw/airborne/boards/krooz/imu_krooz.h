@@ -39,12 +39,12 @@
 
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN  -1
+#define IMU_GYRO_P_SIGN   1
 #define IMU_GYRO_Q_SIGN   1
 #define IMU_GYRO_R_SIGN   1
 #endif
 #if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN -1
+#define IMU_ACCEL_X_SIGN  1
 #define IMU_ACCEL_Y_SIGN  1
 #define IMU_ACCEL_Z_SIGN  1
 #endif
@@ -100,15 +100,26 @@
 #define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
+#ifndef IMU_KROOZ_GYRO_AVG_FILTER
+#define IMU_KROOZ_GYRO_AVG_FILTER       5
+#endif
+#ifndef IMU_KROOZ_ACCEL_AVG_FILTER
+#define IMU_KROOZ_ACCEL_AVG_FILTER      10
+#endif
+
 struct ImuKrooz {
   volatile bool_t gyr_valid;
   volatile bool_t acc_valid;
   volatile bool_t mag_valid;
+  volatile bool_t mpu_eoc;
+  volatile bool_t hmc_eoc;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
   struct Int32Rates rates_sum;
   struct Int32Vect3 accel_sum;
   volatile uint8_t  meas_nb;
+  struct Int32Vect3 accel_filtered;
+  struct Int32Rates gyro_filtered;
 };
 
 extern struct ImuKrooz imu_krooz;

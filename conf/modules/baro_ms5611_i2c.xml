@@ -13,12 +13,13 @@
     <file name="baro_ms5611_i2c.h"/>
   </header>
   <init fun="baro_ms5611_init()"/>
-  <periodic fun="baro_ms5611_periodic()" freq="4" delay="0"/>
-  <periodic fun="baro_ms5611_d1()" freq="4" delay="1"/>
-  <periodic fun="baro_ms5611_d2()" freq="4" delay="2"/>
+  <periodic fun="baro_ms5611_read()" freq="4"/>
+  <periodic fun="baro_ms5611_periodic_check()" freq="40"/>
   <event fun="baro_ms5611_event()"/>
   <makefile target="ap">
     <file name="baro_ms5611_i2c.c"/>
+    <file name="ms5611.c" dir="peripherals"/>
+    <file name="ms5611_i2c.c" dir="peripherals"/>
   </makefile>
 </module>
 

@@ -52,7 +52,7 @@
  * output low sets it to normal polarity.
  */
 #ifndef RC_SET_POLARITY
-#define RC_SET_POLARITY gpio_output_high
+#define RC_SET_POLARITY gpio_set
 #endif
 
 

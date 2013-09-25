@@ -133,10 +133,14 @@ void init_at_config(void) {
 }
 
 //Recieve a navdata packet
-void at_com_recieve_navdata(unsigned char* buffer) {
-  int l;
-  recvfrom(navdata_socket, buffer, ARDRONE_NAVDATA_BUFFER_SIZE, 0x0,
-      (struct sockaddr *) &from, (socklen_t *) &l);
+int at_com_recieve_navdata(unsigned char* buffer) {
+  int l = sizeof(from);
+  int n;
+  // FIXME(ben): not clear why recvfrom() and not recv() is used.
+  n = recvfrom(navdata_socket, buffer, ARDRONE_NAVDATA_BUFFER_SIZE, 0x0,
+	       (struct sockaddr *) &from, (socklen_t *) &l);
+
+  return n;
 }
 
 //Send an AT command

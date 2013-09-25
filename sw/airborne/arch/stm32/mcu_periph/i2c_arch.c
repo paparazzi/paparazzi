@@ -1090,17 +1090,17 @@ void i2c3_hw_init(void) {
   /* Enable I2C3 clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C3EN);
   /* Enable GPIO clock */
-  gpio_enable_clock(I2C3_GPIO_SCL_PORT);
-  gpio_mode_setup(I2C3_GPIO_SCL_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
-  gpio_set_output_options(I2C3_GPIO_SCL_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+  gpio_enable_clock(I2C3_GPIO_PORT_SCL);
+  gpio_mode_setup(I2C3_GPIO_PORT_SCL, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
+  gpio_set_output_options(I2C3_GPIO_PORT_SCL, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                           I2C3_GPIO_SCL);
-  gpio_set_af(I2C3_GPIO_SCL_PORT, GPIO_AF4, I2C3_GPIO_SCL);
+  gpio_set_af(I2C3_GPIO_PORT_SCL, GPIO_AF4, I2C3_GPIO_SCL);
 
-  gpio_enable_clock(I2C3_GPIO_SDA_PORT);
-  gpio_mode_setup(I2C3_GPIO_SDA_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
-  gpio_set_output_options(I2C3_GPIO_SDA_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+  gpio_enable_clock(I2C3_GPIO_PORT_SDA);
+  gpio_mode_setup(I2C3_GPIO_PORT_SDA, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
+  gpio_set_output_options(I2C3_GPIO_PORT_SDA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                           I2C3_GPIO_SDA);
-  gpio_set_af(I2C3_GPIO_SDA_PORT, GPIO_AF4, I2C3_GPIO_SDA);
+  gpio_set_af(I2C3_GPIO_PORT_SDA, GPIO_AF4, I2C3_GPIO_SDA);
 
   i2c_reset(I2C3);
 
@@ -1316,8 +1316,12 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
   uint8_t temp;
   temp = periph->trans_insert_idx + 1;
   if (temp >= I2C_TRANSACTION_QUEUE_LEN) temp = 0;
-  if (temp == periph->trans_extract_idx)
-    return FALSE;                          // queue full
+  if (temp == periph->trans_extract_idx) {
+    // queue full
+    periph->errors->queue_full_cnt++;
+    t->status = I2CTransFailed;
+    return FALSE;
+  }
 
   t->status = I2CTransPending;
 

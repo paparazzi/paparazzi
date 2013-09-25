@@ -1,0 +1,113 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="400" name="Booz Test Enac" security_height="2">
+  <header>
+#include "autopilot.h"
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
+    <waypoint name="p1" x="3.6" y="-13.9"/>
+    <waypoint name="p2" x="27.5" y="-48.2"/>
+    <waypoint name="p3" x="16.7" y="-19.6"/>
+    <waypoint name="p4" x="13.7" y="-40.7"/>
+    <waypoint name="FA1" x="200" y="200"/>
+    <waypoint name="FA2" x="200" y="-200"/>
+    <waypoint name="FA3" x="-200" y="-200"/>
+    <waypoint name="FA4" x="-200" y="200"/>
+    <waypoint name="KILL1" x="280" y="280"/>
+    <waypoint name="KILL2" x="280" y="-280"/>
+    <waypoint name="KILL3" x="-280" y="-280"/>
+    <waypoint name="KILL4" x="-280" y="280"/>
+    <waypoint name="CAM" x="-20" y="-50" height="2."/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Flight_Area">
+      <corner name="FA1"/>
+      <corner name="FA2"/>
+      <corner name="FA3"/>
+      <corner name="FA4"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="KILL1"/>
+      <corner name="KILL2"/>
+      <corner name="KILL3"/>
+      <corner name="KILL4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <!-- Check inside small flight area, then goto Center(Standby) -->
+    <exception cond="Or(! InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 50) && !(nav_block == BLOCK_Init) && !(nav_block == BLOCK_Geo_init) && !(nav_block == BLOCK_Landed)" deroute="Standby"/>
+    <!-- Check if battery is empty, then Land Here -->
+    <exception cond="electrical.bat_low && !(nav_block == BLOCK_Land) && !(nav_block == BLOCK_Flare) && !(nav_block == BLOCK_Landed)" deroute="Land_Here"/>
+    <!-- Check if time is up(10 seconds range), then Land Here -->
+    <exception cond="10 > time_until_land && !(nav_block == BLOCK_Land) && !(nav_block == BLOCK_Flare) && !(nav_block == BLOCK_Landed)" deroute="Land_Here"/>
+  </exceptions>
+  <blocks>
+    <block name="Init">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid() || gps.pacc > 1500 || !(ahrs.status == AHRS_RUNNING)"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Standby"/>
+      <attitude pitch="0" roll="0" throttle="0.5" vmode="throttle"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <go wp="STDBY"/>
+      <deroute block="line_p1_p2"/>
+    </block>
+    <block name="stay_p1">
+      <stay wp="p1"/>
+    </block>
+    <block name="go_p2">
+      <go wp="p2"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="line_p1_p2">
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay wp="p2" until="stage_time>10"/>
+      <go from="p2" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route">
+      <go from="p1" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="circle">
+      <circle radius="nav_radius" wp="p1"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.8" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>

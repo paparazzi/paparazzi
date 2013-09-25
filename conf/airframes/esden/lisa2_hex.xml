@@ -177,7 +177,7 @@
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
@@ -195,8 +195,6 @@
       <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
-
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
     <target name="nps" board="pc">
@@ -220,7 +218,7 @@
     </subsystem>
     <subsystem name="ins"/>
     <!--define name="USE_INS_NAV_INIT"/-->
-    <!--subsystem name="stabilization"   type="euler"/>
+    <!--subsystem name="stabilization"   type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/-->
   </firmware>
 

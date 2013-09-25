@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="flight_time" dir="time">
+  <doc>
+    <description>
+      Flight time calculator
+      Allows to check how much time is left before the end of the competition.
+    </description>
+  </doc>
+  <header>
+    <file name="flight_time.h"/>
+  </header>
+  <init fun="flight_time_init()"/>
+  <periodic fun="flight_time_periodic()" freq="1"/> <!--(0.1171875) 1Hz only valid in case: the modules run a 512Hz but the module generator thinks it runs at 60Hz therefore the scaling factor should be 60/512-->
+  <makefile>
+    <file name="flight_time.c"/>
+  </makefile>
+</module>
