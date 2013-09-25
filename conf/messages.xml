@@ -2214,6 +2214,7 @@
     <field name="wp_east" type="float" unit="m"/>
     <field name="wp_north" type="float" unit="m"/>
     <field name="wp_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="m"/>
   </message>
 
   <message name="MISSION_CIRCLE" id="21" link="forwarded">
@@ -2223,6 +2224,7 @@
     <field name="center_north" type="float" unit="m"/>
     <field name="center_alt" type="float" unit="m"/>
     <field name="radius" type="float" unit="m"/>
+    <field name="duration" type="float" unit="m"/>
   </message>
 
   <message name="MISSION_SEGMENT" id="22" link="forwarded">
@@ -2233,6 +2235,7 @@
     <field name="segment_east_2" type="float" unit="m"/>
     <field name="segment_north_2" type="float" unit="m"/>
     <field name="segment_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="m"/>
   </message>
 
   <message name="MISSION_PATH" id="23" link="forwarded">
@@ -2249,6 +2252,7 @@
     <field name="point_east_5" type="float" unit="m"/>
     <field name="point_north_5" type="float" unit="m"/>
     <field name="path_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="m"/>
   </message>
 
   <message name="MISSION_SURVEY" id="24" link="forwarded">
@@ -2259,6 +2263,12 @@
     <field name="survey_east_2" type="float" unit="m"/>
     <field name="survey_north_2" type="float" unit="m"/>
     <field name="survey_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="m"/>
+  </message>
+  
+  <message name="GOTO_MISSION" id="25" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="mission_id" type="uint8"/>
   </message>
 
 

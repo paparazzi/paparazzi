@@ -6,13 +6,18 @@
   </doc>
   <header>
     <file name="mission_msg.h"/>
+    
+    <!--<file name="mission_nav.h"/>-->
   </header>
-  <init fun="mission_msg_init()"/>
+  <init fun="mission_init()"/>
   <datalink message="MISSION_GOTO_WP" fun="ParseMissionGotoWp()"/>
+  <datalink message="MISSION_CIRCLE" fun="ParseMissionCircle()"/>
   <datalink message="MISSION_PATH" fun="ParseMissionPath()"/>
   <datalink message="MISSION_SEGMENT" fun="ParseMissionSegment()"/>
+  <datalink message="GOTO_MISSION" fun="ParseGotoMission()"/>
   
   <makefile>
     <file name="mission_msg.c"/>
+    <file name="mission_nav.c"/>
   </makefile>
 </module>
