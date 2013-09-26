@@ -367,9 +367,11 @@ static void guidance_h_traj_run(bool_t in_flight) {
 
   /* update pos error integral, zero it if not in_flight */
   if (in_flight) {
-    VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
+	  guidance_h_pos_err_sum.x +=  ((guidance_h_igain * guidance_h_pos_err.x) >> 4);
+	  guidance_h_pos_err_sum.y +=  ((guidance_h_igain * guidance_h_pos_err.y) >> 4);
+    // VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
     /* saturate it               */
-    VECT2_STRIM(guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
+    VECT2_STRIM(guidance_h_pos_err_sum, -traj_max_bank , traj_max_bank);
   } else {
     INT_VECT2_ZERO(guidance_h_pos_err_sum);
   }
@@ -378,12 +380,10 @@ static void guidance_h_traj_run(bool_t in_flight) {
   guidance_h_cmd_earth.x =
     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
-    ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
   guidance_h_cmd_earth.y =
     ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
-    ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
   /* compute a better approximation of force commands by taking thrust into account */
@@ -394,6 +394,9 @@ static void guidance_h_traj_run(bool_t in_flight) {
     guidance_h_cmd_earth.x = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
     guidance_h_cmd_earth.y = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
   }
+
+  guidance_h_cmd_earth.x += guidance_h_pos_err_sum.x;
+  guidance_h_cmd_earth.y += guidance_h_pos_err_sum.y;
 
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
 }
