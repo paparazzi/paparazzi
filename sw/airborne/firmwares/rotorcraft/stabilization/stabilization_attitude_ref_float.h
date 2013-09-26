@@ -27,9 +27,7 @@
 #ifndef STABILIZATION_ATTITUDE_REF_FLOAT_H
 #define STABILIZATION_ATTITUDE_REF_FLOAT_H
 
-#include "generated/airframe.h"
-
-#include "state.h"
+#include "math/pprz_algebra_float.h"
 
 extern struct FloatEulers stab_att_sp_euler;
 extern struct FloatQuat   stab_att_sp_quat;

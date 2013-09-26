@@ -29,8 +29,6 @@
 
 #include "math/pprz_algebra_int.h"
 
-#include "state.h"
-
 extern struct Int32Eulers stab_att_ref_euler; ///< with #REF_ANGLE_FRAC
 extern struct Int32Quat   stab_att_ref_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Rates  stab_att_ref_rate;  ///< with #REF_RATE_FRAC

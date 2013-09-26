@@ -24,7 +24,8 @@
  *
  */
 
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_int.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
 #include "generated/airframe.h"
 
 struct Int32Eulers stab_att_sp_euler;
