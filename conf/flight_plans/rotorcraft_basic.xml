@@ -12,9 +12,32 @@
     <waypoint name="p2" x="27.5" y="-48.2"/>
     <waypoint name="p3" x="16.7" y="-19.6"/>
     <waypoint name="p4" x="13.7" y="-40.7"/>
+    <waypoint name="FLY1" x="200" y="200"/>
+    <waypoint name="FLY2" x="200" y="-200"/>
+    <waypoint name="FLY3" x="-200" y="-200"/>
+    <waypoint name="FLY4" x="-200" y="200"/>
+    <waypoint name="KILL1" x="280" y="280"/>
+    <waypoint name="KILL2" x="280" y="-280"/>
+    <waypoint name="KILL3" x="-280" y="-280"/>
+    <waypoint name="KILL4" x="-280" y="280"/>
     <waypoint name="CAM" x="-20" y="-50" height="2."/>
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
+  <sectors>
+    <sector color="red" name="Flight_Area">
+      <corner name="FLY1"/>
+      <corner name="FLY2"/>
+      <corner name="FLY3"/>
+      <corner name="FLY4"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="KILL1"/>
+      <corner name="KILL2"/>
+      <corner name="KILL3"/>
+      <corner name="KILL4"/>
+    </sector>
+  </sectors>
+  <exceptions/>
   <blocks>
     <block name="Wait GPS">
       <call fun="NavKillThrottle()"/>
@@ -27,11 +50,11 @@
     </block>
     <block name="Holding point">
       <call fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FLYLSE"/>
     </block>
     <block name="Start Engine">
       <call fun="NavResurrect()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FLYLSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
@@ -76,7 +99,7 @@
       <stay climb="-0.8" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FLYLSE"/>
     </block>
   </blocks>
 </flight_plan>
