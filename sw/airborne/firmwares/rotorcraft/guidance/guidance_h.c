@@ -76,7 +76,7 @@ struct Int32Vect2 guidance_h_speed_sp;
 #endif
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
-struct Int32Vect2 guidance_h_pos_err_sum;
+struct Int32Vect2 guidance_h_trim_att_integrator;
 struct Int32Vect2 guidance_h_nav_err;
 
 struct Int32Vect2  guidance_h_cmd_earth;
@@ -107,7 +107,7 @@ void guidance_h_init(void) {
   guidance_h_approx_force_by_thrust = GUIDANCE_H_APPROX_FORCE_BY_THRUST;
 
   INT_VECT2_ZERO(guidance_h_pos_sp);
-  INT_VECT2_ZERO(guidance_h_pos_err_sum);
+  INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   INT_EULERS_ZERO(guidance_h_rc_sp);
   guidance_h_heading_sp = 0;
   guidance_h_pgain = GUIDANCE_H_PGAIN;
@@ -125,7 +125,7 @@ static inline void reset_guidance_reference_from_current_position(void) {
   INT_VECT2_ZERO(guidance_h_accel_ref);
   gh_set_ref(guidance_h_pos_ref, guidance_h_speed_ref, guidance_h_accel_ref);
 
-  INT_VECT2_ZERO(guidance_h_pos_err_sum);
+  INT_VECT2_ZERO(guidance_h_trim_att_integrator);
 }
 
 void guidance_h_mode_changed(uint8_t new_mode) {
@@ -367,13 +367,13 @@ static void guidance_h_traj_run(bool_t in_flight) {
 
   /* update pos error integral, zero it if not in_flight */
   if (in_flight) {
-	  guidance_h_pos_err_sum.x +=  ((guidance_h_igain * guidance_h_pos_err.x) >> 4);
-	  guidance_h_pos_err_sum.y +=  ((guidance_h_igain * guidance_h_pos_err.y) >> 4);
-    // VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
+	  guidance_h_trim_att_integrator.x +=  ((guidance_h_igain * guidance_h_pos_err.x) >> 4);
+	  guidance_h_trim_att_integrator.y +=  ((guidance_h_igain * guidance_h_pos_err.y) >> 4);
+    // VECT2_ADD(guidance_h_trim_att_integrator, guidance_h_pos_err);
     /* saturate it               */
-    VECT2_STRIM(guidance_h_pos_err_sum, -traj_max_bank , traj_max_bank);
+    VECT2_STRIM(guidance_h_trim_att_integrator, -traj_max_bank , traj_max_bank);
   } else {
-    INT_VECT2_ZERO(guidance_h_pos_err_sum);
+    INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   }
 
   /* run PID */
@@ -395,8 +395,8 @@ static void guidance_h_traj_run(bool_t in_flight) {
     guidance_h_cmd_earth.y = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
   }
 
-  guidance_h_cmd_earth.x += guidance_h_pos_err_sum.x;
-  guidance_h_cmd_earth.y += guidance_h_pos_err_sum.y;
+  guidance_h_cmd_earth.x += guidance_h_trim_att_integrator.x;
+  guidance_h_cmd_earth.y += guidance_h_trim_att_integrator.y;
 
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
 }

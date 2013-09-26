@@ -660,8 +660,8 @@
                    &guidance_h_pos_err.y,		\
                    &guidance_h_speed_err.x,	\
                    &guidance_h_speed_err.y,	\
-                   &guidance_h_pos_err_sum.x,	\
-                   &guidance_h_pos_err_sum.y,	\
+                   &guidance_h_trim_att_integrator.x,	\
+                   &guidance_h_trim_att_integrator.y,	\
                    &guidance_h_nav_err.x,	\
                    &guidance_h_nav_err.y,	\
                    &guidance_h_cmd_earth.x,	\
