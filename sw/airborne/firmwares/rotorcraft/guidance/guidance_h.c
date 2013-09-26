@@ -66,7 +66,7 @@ struct Int32Vect2 guidance_h_accel_ref;
 
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
-struct Int32Vect2 guidance_h_pos_err_sum;
+struct Int32Vect2 guidance_h_trim_att_integrator;
 struct Int32Vect2 guidance_h_nav_err;
 
 struct Int32Eulers guidance_h_rc_sp;
@@ -96,7 +96,7 @@ void guidance_h_init(void) {
   guidance_h_use_ref = GUIDANCE_H_USE_REF;
 
   INT_VECT2_ZERO(guidance_h_pos_sp);
-  INT_VECT2_ZERO(guidance_h_pos_err_sum);
+  INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   INT_EULERS_ZERO(guidance_h_rc_sp);
   INT_EULERS_ZERO(guidance_h_command_body);
   guidance_h_pgain = GUIDANCE_H_PGAIN;
@@ -114,7 +114,7 @@ static inline void reset_guidance_reference_from_current_position(void) {
   INT_VECT2_ZERO(guidance_h_accel_ref);
   gh_set_ref(guidance_h_pos_ref, guidance_h_speed_ref, guidance_h_accel_ref);
 
-  INT_VECT2_ZERO(guidance_h_pos_err_sum);
+  INT_VECT2_ZERO(guidance_h_trim_att_integrator);
 }
 
 void guidance_h_mode_changed(uint8_t new_mode) {
@@ -329,28 +329,30 @@ static void guidance_h_traj_run(bool_t in_flight) {
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
-  /* update pos error integral, zero it if not in_flight */
-  if (in_flight) {
-    VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
-    /* saturate it               */
-    VECT2_STRIM(guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
-  } else {
-    INT_VECT2_ZERO(guidance_h_pos_err_sum);
-  }
-
   /* run PID */
   guidance_h_command_earth.x =
     ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
-    ((guidance_h_igain * (guidance_h_pos_err_sum.x >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
   guidance_h_command_earth.y =
     ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
-    ((guidance_h_igain * (guidance_h_pos_err_sum.y >> 12)) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
   VECT2_STRIM(guidance_h_command_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
+
+  /* update pos & speed error integral, zero it if not in_flight */
+  if (in_flight) {
+    guidance_h_trim_att_integrator.x +=  ((guidance_h_igain * guidance_h_cmd_earth.x) >> 10);
+    guidance_h_trim_att_integrator.y +=  ((guidance_h_igain * guidance_h_cmd_earth.y) >> 10);
+    /* saturate it  */
+    VECT2_STRIM(guidance_h_trim_att_integrator, -traj_max_bank , traj_max_bank);
+  } else {
+    INT_VECT2_ZERO(guidance_h_trim_att_integrator);
+  }
+
+  guidance_h_cmd_earth.x += guidance_h_trim_att_integrator.x;
+  guidance_h_cmd_earth.y += guidance_h_trim_att_integrator.y;
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
