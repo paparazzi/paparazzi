@@ -340,7 +340,6 @@ static void guidance_h_update_reference(void) {
 
 #define MAX_POS_ERR   POS_BFP_OF_REAL(16.)
 #define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
-#define MAX_POS_ERR_SUM ((int32_t)(MAX_POS_ERR)<< 12)
 
 #ifndef GUIDANCE_H_THRUST_CMD_FILTER
 #define GUIDANCE_H_THRUST_CMD_FILTER 10
@@ -354,6 +353,7 @@ static void guidance_h_traj_run(bool_t in_flight) {
   /* maximum bank angle: default 20 deg, max 40 deg*/
   static const int32_t traj_max_bank = Max(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
                                            BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
+  static const int32_t total_max_bank = BFP_OF_REAL(RadOfDeg(45), INT32_ANGLE_FRAC);
 
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, *stateGetPositionNed_i());
@@ -375,6 +375,25 @@ static void guidance_h_traj_run(bool_t in_flight) {
     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
 
+  /* trim max bank angle from PD */
+  VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
+
+  /* Update pos & speed error integral, zero it if not in_flight.
+   * Integrate twice as fast when not only POS but also SPEED are wrong,
+   * but do not integrate POS errors when the SPEED is already catching up.
+   */
+  if (in_flight) {
+    guidance_h_trim_att_integrator.x += ((guidance_h_igain * guidance_h_cmd_earth.x) >> 10);
+    guidance_h_trim_att_integrator.y += ((guidance_h_igain * guidance_h_cmd_earth.y) >> 10);
+    /* saturate it  */
+    VECT2_STRIM(guidance_h_trim_att_integrator, -traj_max_bank , traj_max_bank);
+    /* add it to the command */
+    guidance_h_cmd_earth.x += guidance_h_trim_att_integrator.x;
+    guidance_h_cmd_earth.y += guidance_h_trim_att_integrator.y;
+  } else {
+    INT_VECT2_ZERO(guidance_h_trim_att_integrator);
+  }
+
   /* compute a better approximation of force commands by taking thrust into account */
   if (guidance_h_approx_force_by_thrust && in_flight) {
     static int32_t thrust_cmd_filt;
@@ -384,20 +403,7 @@ static void guidance_h_traj_run(bool_t in_flight) {
     guidance_h_cmd_earth.y = ANGLE_BFP_OF_REAL(atan2f((guidance_h_cmd_earth.y * MAX_PPRZ / INT32_ANGLE_PI_2), thrust_cmd_filt));
   }
 
-  /* update pos & speed error integral, zero it if not in_flight */
-  if (in_flight) {
-    guidance_h_trim_att_integrator.x +=  ((guidance_h_igain * guidance_h_cmd_earth.x) >> 10);
-    guidance_h_trim_att_integrator.y +=  ((guidance_h_igain * guidance_h_cmd_earth.y) >> 10);
-    /* saturate it  */
-    VECT2_STRIM(guidance_h_trim_att_integrator, -traj_max_bank , traj_max_bank);
-  } else {
-    INT_VECT2_ZERO(guidance_h_trim_att_integrator);
-  }
-
-  guidance_h_cmd_earth.x += guidance_h_trim_att_integrator.x;
-  guidance_h_cmd_earth.y += guidance_h_trim_att_integrator.y;
-
-  VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
+  VECT2_STRIM(guidance_h_cmd_earth, total_max_bank, total_max_bank);
 }
 
 static void guidance_h_hover_enter(void) {
