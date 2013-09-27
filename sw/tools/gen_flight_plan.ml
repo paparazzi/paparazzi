@@ -800,7 +800,7 @@ let () =
       List.iter
         (fun s ->
         let v = ExtXml.attrib s "name" in
-        lprintf "#define BLOCK_%s %d\n" (Str.global_replace (Str.regexp "[\\. ]") "_" v) !idx; incr idx) blocks;
+        lprintf "#define BLOCK_%s %d\n" (Str.global_replace (Str.regexp "[^A-Za-z0-9]") "_" v) !idx; incr idx) blocks;
         lprintf "\n";
 
       let index_of_waypoints =
