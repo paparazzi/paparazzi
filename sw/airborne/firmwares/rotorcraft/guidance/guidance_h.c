@@ -366,14 +366,16 @@ static void guidance_h_traj_run(bool_t in_flight) {
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
   /* run PID */
-  guidance_h_cmd_earth.x =
-    ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
-    ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* feedforward gain */
-  guidance_h_cmd_earth.y =
-    ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2)) +
-    ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* feedforward gain */
+  int32_t pd_x =
+		    ((guidance_h_pgain * guidance_h_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+		    ((guidance_h_dgain * (guidance_h_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
+  int32_t pd_y =
+      ((guidance_h_pgain * guidance_h_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+      ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
+  guidance_h_cmd_earth.x = pd_x +
+    ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* acceleration feedforward gain */
+  guidance_h_cmd_earth.y = pd_y +
+    ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* acceleration feedforward gain */
 
   /* trim max bank angle from PD */
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
@@ -383,8 +385,9 @@ static void guidance_h_traj_run(bool_t in_flight) {
    * but do not integrate POS errors when the SPEED is already catching up.
    */
   if (in_flight) {
-    guidance_h_trim_att_integrator.x += ((guidance_h_igain * guidance_h_cmd_earth.x) >> 10);
-    guidance_h_trim_att_integrator.y += ((guidance_h_igain * guidance_h_cmd_earth.y) >> 10);
+    /* ANGLE_FRAC (12) * GAIN (8) * LOOP_FREQ (10) -> ANGLE_FRAX (12) */
+    guidance_h_trim_att_integrator.x += ((guidance_h_igain * (pd_x >> 6)) >> 12);
+    guidance_h_trim_att_integrator.y += ((guidance_h_igain * (pd_y >> 6)) >> 12);
     /* saturate it  */
     VECT2_STRIM(guidance_h_trim_att_integrator, -traj_max_bank , traj_max_bank);
     /* add it to the command */
