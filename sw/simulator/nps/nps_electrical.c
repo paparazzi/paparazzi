@@ -19,6 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file nps_electrical.c
+ * Electrical status (bat voltage) for NPS.
+ */
 
 #include "nps_electrical.h"
 #include "generated/airframe.h"

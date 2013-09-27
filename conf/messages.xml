@@ -48,6 +48,7 @@
      <field name="my" type="int16" />
      <field name="mz" type="int16" />
      <field name="chksum" type="uint16" />
+     <field name="checksum_errors" type="uint32" />
    </message>
 
    <message name="ATTITUDE" id="6">
@@ -626,7 +627,11 @@
     <field name="GX3_chksm"	type="uint16"/>
   </message>
 
- <!-- 74 is free -->
+  <message name="EXPLAIN" id="74">
+    <field name="type" type="uint8" values="NAME|SETTING|WAYPOINT|BLOCK|IMAV2013"/>
+    <field name="id" type="uint8"/>
+    <field name="string" type="uint8[]"/>
+  </message>
 
   <message name="VIDEO_TELEMETRY" id="75">
     <field name="blob_x1" 	type="int32" 	unit="pixels"/>
@@ -1860,7 +1865,13 @@
     <field name="rc_status"       type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
- <!--213 is free -->
+  <message name="TUNE_VERT" id="213">
+    <field name="z_sp"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+  </message>
+
  <!--214 is free -->
  <!--215 is free -->
  <!--216 is free -->

@@ -68,6 +68,16 @@ let print_dl_settings = fun settings ->
   lprintf "#include \"generated/periodic_telemetry.h\"\n";
   lprintf "\n";
 
+  (** Datalink knowing what settings mean **)
+  let idx = ref 0 in
+	lprintf "\n";
+  List.iter
+    (fun s ->
+      let v = ExtXml.attrib s "var" in
+      lprintf "#define SETTINGS_%s %d\n" (Str.global_replace (Str.regexp "[^A-Za-z0-9]") "_" v) !idx; incr idx)
+    settings;
+  lprintf "\n";
+
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
   right ();

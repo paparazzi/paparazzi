@@ -9,7 +9,7 @@
     <define name="MAG_X_SENS" value="19.1984157982" integer="16"/>
     <define name="MAG_Y_SENS" value="18.7031225235" integer="16"/>
     <define name="MAG_Z_SENS" value="19.0380688485" integer="16"/>
-    
+
     <!-- Magneto current calibration -->
     <define name="MAG_X_CURRENT_COEF" value="0.00175105205138"/>
     <define name="MAG_Y_CURRENT_COEF" value="0.000172518663485"/>

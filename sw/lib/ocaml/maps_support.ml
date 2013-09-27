@@ -24,9 +24,10 @@
 let home = Env.paparazzi_home
 let (//) = Filename.concat
 let maps_xml_path = home // "conf" // "maps.xml"
+let maps_xml_default_path = home // "conf" // "maps_example.xml"
 
 let maps_xml = ExtXml.parse_file maps_xml_path
-let maps_xml_default = ExtXml.parse_file (maps_xml_path^".example")
+let maps_xml_default = ExtXml.parse_file (maps_xml_default_path)
 let gv = try Some (ExtXml.int_attrib maps_xml "google_version") with _ -> None
 let gv_default = try ExtXml.int_attrib maps_xml_default "google_version" with _ -> 0
 

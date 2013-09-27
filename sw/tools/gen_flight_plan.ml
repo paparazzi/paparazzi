@@ -794,6 +794,15 @@ let () =
       Xml2h.define "HOME_MODE_HEIGHT" (sof home_mode_height);
       Xml2h.define "MAX_DIST_FROM_HOME" (sof mdfh);
 
+      (** Print defines for blocks **)
+      lprintf "\n";
+      let idx = ref 0 in
+      List.iter
+        (fun s ->
+        let v = ExtXml.attrib s "name" in
+        lprintf "#define BLOCK_%s %d\n" (Str.global_replace (Str.regexp "[^A-Za-z0-9]") "_" v) !idx; incr idx) blocks;
+        lprintf "\n";
+
       let index_of_waypoints =
         let i = ref (-1) in
         List.map (fun w -> incr i; (name_of w, !i)) waypoints in

@@ -646,6 +646,14 @@
                   &guidance_v_delta_t);		\
   }
 
+#define PERIODIC_SEND_TUNE_VERT(_trans, _dev) {     \
+    DOWNLINK_SEND_TUNE_VERT(_trans, _dev,           \
+                            &guidance_v_z_sp,		\
+                            &ins_ltp_pos.z,			\
+                            &guidance_v_z_ref,		\
+                            &guidance_v_zd_ref);   \
+  }
+
 #define PERIODIC_SEND_HOVER_LOOP(_trans, _dev) {				\
     DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
                    &guidance_h_pos_sp.x,		\
@@ -983,7 +991,8 @@
 	&navdata.mx, \
 	&navdata.my, \
 	&navdata.mz, \
-	&navdata.chksum \
+	&navdata.chksum, \
+    &nav_port.checksum_errors \
 	)
 #else
 #define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) {}
@@ -998,10 +1007,13 @@
 #ifdef USE_UART1
 #define PERIODIC_SEND_UART1_ERRORS(_trans, _dev) {   \
     const uint8_t _bus1 = 1;                         \
+    uint16_t ore = uart1.ore;                        \
+    uint16_t ne_err = uart1.ne_err;                  \
+    uint16_t fe_err = uart1.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart1.ore,             \
-                             &uart1.ne_err,          \
-                             &uart1.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus1);                \
   }
 #else
@@ -1011,10 +1023,13 @@
 #ifdef USE_UART2
 #define PERIODIC_SEND_UART2_ERRORS(_trans, _dev) {   \
     const uint8_t _bus2 = 2;                         \
+    uint16_t ore = uart2.ore;                        \
+    uint16_t ne_err = uart2.ne_err;                  \
+    uint16_t fe_err = uart2.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart2.ore,             \
-                             &uart2.ne_err,          \
-                             &uart2.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus2);                \
   }
 #else
@@ -1024,10 +1039,13 @@
 #ifdef USE_UART3
 #define PERIODIC_SEND_UART3_ERRORS(_trans, _dev) {   \
     const uint8_t _bus3 = 3;                         \
+    uint16_t ore = uart3.ore;                        \
+    uint16_t ne_err = uart3.ne_err;                  \
+    uint16_t fe_err = uart3.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart3.ore,             \
-                             &uart3.ne_err,          \
-                             &uart3.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus3);                \
   }
 #else
@@ -1037,10 +1055,13 @@
 #ifdef USE_UART5
 #define PERIODIC_SEND_UART5_ERRORS(_trans, _dev) {   \
     const uint8_t _bus5 = 5;                         \
+    uint16_t ore = uart5.ore;                        \
+    uint16_t ne_err = uart5.ne_err;                  \
+    uint16_t fe_err = uart5.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart5.ore,             \
-                             &uart5.ne_err,          \
-                             &uart5.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus5);                \
   }
 #else

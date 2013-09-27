@@ -9,6 +9,7 @@
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 #include "nps_sensors.h"
+#include "nps_atmosphere.h"
 #include "subsystems/ins.h"
 #include "subsystems/navigation/common_flight_plan.h"
 
@@ -186,4 +187,10 @@ void nps_ivy_display(void) {
          h_body.x,
          h_body.y,
          h_body.z);
+
+  IvySendMsg("%d NPS_WIND %f %f %f",
+             AC_ID,
+             fdm.wind.x,
+             fdm.wind.y,
+             fdm.wind.z);
 }

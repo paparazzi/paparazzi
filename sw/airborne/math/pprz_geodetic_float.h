@@ -48,8 +48,6 @@ struct EcefCoor_f {
 
 /**
  * @brief vector in Latitude, Longitude and Altitude
- * @details Units lat,lon: radians
- * Unit alt: meters above MSL
  */
 struct LlaCoor_f {
   float lon; ///< in radians

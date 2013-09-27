@@ -63,15 +63,16 @@
     <define name="MAG_Z_SENS" value="4.54518768636" integer="16"/>
 
     <!-- MAGNETO CURRENT CALIBRATION -->
-    <define name= "MAG_X_CURRENT_COEF" value="0.0103422023767"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.0084568317783"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="-0.01935617335"/>
+    <define name="MAG_X_CURRENT_COEF" value="0.0103422023767"/>
+    <define name="MAG_Y_CURRENT_COEF" value="0.0084568317783"/>
+    <define name="MAG_Z_CURRENT_COEF" value="-0.01935617335"/>
   </section>
 
  <section name="AUTOPILOT">
+   <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
  </section>
 
  <section name="BAT">
@@ -117,10 +118,10 @@
     <define name="REF_MAX_Q" value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R" value="1000" unit="deg/s"/>
+    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.85"/>
     <define name="REF_MAX_R" value="180." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(2000.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1000.)"/>
 
     <!-- feedback -->
     <define name="PHI_PGAIN" value="399"/>
@@ -155,9 +156,9 @@
    <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD" value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP" value="400"/>
-   <define name="HOVER_KD" value="350"/>
-   <define name="HOVER_KI" value="144"/>
+   <define name="HOVER_KP" value="276"/>
+   <define name="HOVER_KD" value="455"/>
+   <define name="HOVER_KI" value="100"/>
    <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value="0.9"/>
   </section>
 
@@ -168,9 +169,9 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="50"/>
+   <define name="PGAIN" value="39"/>
    <define name="DGAIN" value="50"/>
-   <define name="IGAIN" value="0"/>
+   <define name="IGAIN" value="39"/>
  </section>
 
  <section name="MISC">
@@ -197,6 +198,7 @@
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <configure name="LISA_S_BARO" value="BARO_MS5611_SPI"/>
+        <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
     </target>
 
     <target name="nps" board="pc">

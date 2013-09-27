@@ -20,27 +20,42 @@
  */
 
 /**
- * @file nps_atmosphere.h
+ * @file nps_atmosphere.c
  * Atmosphere model (pressure, wind) for NPS.
  */
 
-#ifndef NPS_ATMOSPHERE_H
-#define NPS_ATMOSPHERE_H
+#include "nps_atmosphere.h"
+#include "nps_fdm.h"
 
-#include "math/pprz_algebra_double.h"
+#ifndef NPS_QNH
+#define NPS_QNH 101325.0
+#endif
 
-struct NpsAtmosphere {
-  double qnh;         ///< barometric pressure at sea level in Pascal
-  double wind_speed;  ///< wind magnitude in m/s
-  double wind_dir;    ///< wind direction in radians north=0, increasing CCW
-  int turbulence_severity; ///< turbulence severity from 0-7
-};
+#ifndef NPS_WIND_SPEED
+#define NPS_WIND_SPEED 0.0
+#endif
 
-extern struct NpsAtmosphere nps_atmosphere;
+#ifndef NPS_WIND_DIR
+#define NPS_WIND_DIR 0
+#endif
 
-extern void nps_atmosphere_init(void);
-extern void nps_atmosphere_update(double dt);
+#ifndef NPS_TURBULENCE_SEVERITY
+#define NPS_TURBULENCE_SEVERITY 0
+#endif
 
-#endif /* NPS_ATMOSPHERE_H */
+struct NpsAtmosphere nps_atmosphere;
 
+void nps_atmosphere_init(void) {
+
+  nps_atmosphere.qnh = NPS_QNH;
+  nps_atmosphere.wind_speed = NPS_WIND_SPEED;
+  nps_atmosphere.wind_dir = NPS_WIND_DIR;
+  nps_atmosphere.turbulence_severity = NPS_TURBULENCE_SEVERITY;
+
+}
+
+void nps_atmosphere_update(double dt __attribute__((unused))) {
+  nps_fdm_set_wind(nps_atmosphere.wind_speed, nps_atmosphere.wind_dir,
+                   nps_atmosphere.turbulence_severity);
+}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2013  Elisabeth van der Sman, 2013 Freek van Tienen
  *
  * This file is part of paparazzi.
  *
@@ -17,30 +17,30 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 /**
- * @file nps_atmosphere.h
- * Atmosphere model (pressure, wind) for NPS.
+ * @file modules/time/flight_time.c
+ *
+ * Flight time counter that can be set from the gcs
  */
 
-#ifndef NPS_ATMOSPHERE_H
-#define NPS_ATMOSPHERE_H
+#include "flight_time.h"
+#include "generated/airframe.h"
 
-#include "math/pprz_algebra_double.h"
+uint16_t time_until_land;
 
-struct NpsAtmosphere {
-  double qnh;         ///< barometric pressure at sea level in Pascal
-  double wind_speed;  ///< wind magnitude in m/s
-  double wind_dir;    ///< wind direction in radians north=0, increasing CCW
-  int turbulence_severity; ///< turbulence severity from 0-7
-};
+#ifndef FLIGHT_TIME_LEFT
+#define FLIGHT_TIME_LEFT 10000
+#endif
 
-extern struct NpsAtmosphere nps_atmosphere;
+void flight_time_init(void) {
+  time_until_land = FLIGHT_TIME_LEFT;
+}
 
-extern void nps_atmosphere_init(void);
-extern void nps_atmosphere_update(double dt);
-
-#endif /* NPS_ATMOSPHERE_H */
-
-
+void flight_time_periodic( void ) {
+  // Count downwards
+  if(time_until_land > 0)
+    time_until_land--;
+}

@@ -29,6 +29,7 @@
 #endif
 
 bool_t gps_available;
+bool_t gps_has_fix;
 
 void  gps_feed_value() {
   gps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
@@ -75,10 +76,14 @@ void  gps_feed_value() {
   gps.utm_pos.zone = nav_utm_zone0;
 #endif
 
-  gps.fix = GPS_FIX_3D;
+  if (gps_has_fix)
+    gps.fix = GPS_FIX_3D;
+  else
+    gps.fix = GPS_FIX_NONE;
   gps_available = TRUE;
 }
 
 void gps_impl_init() {
   gps_available = FALSE;
+  gps_has_fix = TRUE;
 }
