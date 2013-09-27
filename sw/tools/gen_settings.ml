@@ -74,7 +74,7 @@ let print_dl_settings = fun settings ->
   List.iter
     (fun s ->
       let v = ExtXml.attrib s "var" in
-      lprintf "#define SETTINGS_%s %d\n" (Str.global_replace (Str.regexp "\\.") "_" v) !idx; incr idx)
+      lprintf "#define SETTINGS_%s %d\n" (Str.global_replace (Str.regexp "[^A-Za-z0-9]") "_" v) !idx; incr idx)
     settings;
   lprintf "\n";
 
