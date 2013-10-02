@@ -4,7 +4,8 @@ Q=@
 
 
 CC = gcc
-CFLAGS = -std=c99 -I.. -I../../include -I../booz -I../../booz  -Wall
+CFLAGS = -std=c99 -I.. -I../../include -Wall
+#CFLAGS += -DDEBUG
 LDFLAGS = -lm
 
 

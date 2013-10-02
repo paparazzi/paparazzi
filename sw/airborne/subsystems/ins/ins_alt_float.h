@@ -33,7 +33,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "state.h"
-
+#include "generated/modules.h"
 
 #if USE_BAROMETER
 #ifdef BARO_MS5534A
@@ -50,6 +50,10 @@
 
 #if USE_BARO_MS5611
 #include "modules/sensors/baro_ms5611_i2c.h"
+#endif
+
+#if USE_BARO_AMSYS
+#include "modules/sensors/baro_amsys.h"
 #endif
 
 extern int32_t ins_qfe;

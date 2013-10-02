@@ -47,7 +47,6 @@ uint8_t spi_slave_hs_tx_insert_idx, spi_slave_hs_tx_extract_idx;
 uint8_t spi_slave_hs_tx_buffer[SPI_SLAVE_HS_TX_BUFFER_SIZE];
 
 /* Prototypes */
-// void spi_init( void ); // -> declared in spi.h
 static void SSP_ISR(void) __attribute__((naked));
 
 /* SSPCR0 settings */
@@ -105,7 +104,7 @@ static void SSP_ISR(void) __attribute__((naked));
 #endif
 
 
-void spi_init(void) {
+void spi_slave_hs_init(void) {
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI | SSP_PINSEL1_SSEL;

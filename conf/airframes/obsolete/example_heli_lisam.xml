@@ -217,7 +217,7 @@ AP_MODE_NAV
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
@@ -252,7 +252,7 @@ AP_MODE_NAV
     <subsystem name="imu" type="aspirin_v1.5"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="ahrs" type="int_cmpl_euler"/>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_euler"/>
 
   </firmware>
 

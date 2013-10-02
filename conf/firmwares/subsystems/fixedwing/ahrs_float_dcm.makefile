@@ -3,28 +3,34 @@
 # attitude estimation for fixedwings via dcm algorithm
 
 USE_MAGNETOMETER ?= 0
+AHRS_ALIGNER_LED ?= none
 
-ifeq ($(TARGET), ap)
-
-ap.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
-ap.CFLAGS += -DUSE_AHRS_ALIGNER
-ap.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
+AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
+AHRS_CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 
 ifneq ($(USE_MAGNETOMETER),0)
-ap.CFLAGS += -DUSE_MAGNETOMETER
+AHRS_CFLAGS += -DUSE_MAGNETOMETER
 endif
 
-ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
-ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
-ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
+AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs.c
+AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
+AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
 
 
 ifneq ($(AHRS_ALIGNER_LED),none)
-  ap.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
+  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-endif
 
+ap.CFLAGS += $(AHRS_CFLAGS)
+ap.srcs += $(AHRS_SRCS)
+
+#
+# NPS uses the real algorithm
+#
+nps.CFLAGS += $(AHRS_CFLAGS)
+nps.srcs += $(AHRS_SRCS)
 
 #
 # Simple simulation of the AHRS result

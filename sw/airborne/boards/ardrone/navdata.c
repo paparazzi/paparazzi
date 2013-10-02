@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Dino Hensen, Vincent van Hoek
+ * Copyright (C) 2013 Dino Hensen, Vincent van Hoek
  *
  * This file is part of Paparazzi.
  *
@@ -34,21 +34,81 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
+#include <errno.h>
+#include <assert.h>
+
+#include "std.h"
 #include "navdata.h"
+#include "subsystems/ins.h"
 
-int nav_fd;
+#define NAVDATA_PACKET_SIZE 60
+#define NAVDATA_START_BYTE 0x3a
 
-int navdata_init()
+static inline bool_t acquire_baro_calibration(void);
+static void navdata_cropbuffer(int cropsize);
+
+navdata_port nav_port;
+static int nav_fd = 0;
+static int16_t previousUltrasoundHeight;
+measures_t navdata;
+
+#include "subsystems/sonar.h"
+uint16_t sonar_meas = 0;
+
+
+// FIXME(ben): there must be a better home for these
+ssize_t full_write(int fd, const uint8_t *buf, size_t count)
 {
-  port = malloc(sizeof(navdata_port));
+  size_t written = 0;
 
-  nav_fd = open("/dev/ttyO1", O_RDWR | O_NOCTTY | O_NONBLOCK);
-  if (nav_fd == -1)
+  while(written < count)
   {
-    perror("navdata_init: Unable to open /dev/ttyO1 - ");
-    return 1;
-  } else {
-    port->isOpen = 1;
+    ssize_t n = write(fd, buf + written, count - written);
+    if (n < 0)
+    {
+      if (errno == EAGAIN || errno == EWOULDBLOCK)
+	continue;
+      return n;
+    }
+    written += n;
+  }
+  return written;
+}
+
+ssize_t full_read(int fd, uint8_t *buf, size_t count)
+{
+  // Apologies for illiteracy, but we can't overload |read|.
+  size_t readed = 0;
+
+  while(readed < count)
+  {
+    ssize_t n = read(fd, buf + readed, count - readed);
+    if (n < 0)
+    {
+      if (errno == EAGAIN || errno == EWOULDBLOCK)
+	continue;
+      return n;
+    }
+    readed += n;
+  }
+  return readed;
+}
+
+static void navdata_write(const uint8_t *buf, size_t count)
+{
+  if (full_write(nav_fd, buf, count) < 0)
+    perror("navdata_write: Write failed");
+}
+
+bool_t navdata_init()
+{
+  if (nav_fd <= 0) {
+    nav_fd = open("/dev/ttyO1", O_RDWR | O_NOCTTY | O_NONBLOCK);
+
+    if (nav_fd == -1) {
+      perror("navdata_init: Unable to open /dev/ttyO1 - ");
+      return FALSE;
+    }
   }
 
   fcntl(nav_fd, F_SETFL, 0); //read calls are non blocking
@@ -70,149 +130,246 @@ int navdata_init()
 
   // stop acquisition
   uint8_t cmd=0x02;
-  write(nav_fd, &cmd, 1);
+  navdata_write(&cmd, 1);
+
+  // read some potential dirt (retry alot of times)
+  char tmp[100];
+  for(int i = 0; i < 100; i++) {
+    uint16_t dirt = read(nav_fd, tmp, sizeof tmp);
+    (void) dirt;
+
+    cmd=0x02;
+    navdata_write(&cmd, 1);
+    usleep(200);
+  }
+
+  baro_calibrated = FALSE;
+  if(!acquire_baro_calibration())
+    return FALSE;
 
   // start acquisition
-  cmd=0x01;
-  write(nav_fd, &cmd, 1);
+  cmd = 0x01;
+  navdata_write(&cmd, 1);
 
-  navdata = malloc(sizeof(measures_t));
-  navdata_imu_available = 0;
-  navdata_baro_available = 0;
-
-  port->bytesRead = 0;
-  port->totalBytesRead = 0;
-  port->packetsRead = 0;
-  port->isInitialized = 1;
+  navdata_imu_available = FALSE;
+  navdata_baro_available = FALSE;
 
   previousUltrasoundHeight = 0;
+  nav_port.checksum_errors = 0;
+  nav_port.bytesRead = 0;
+  nav_port.totalBytesRead = 0;
+  nav_port.packetsRead = 0;
+  nav_port.isInitialized = TRUE;
 
-  return 0;
+  return TRUE;
 }
 
-void navdata_close()
+static inline bool_t acquire_baro_calibration(void)
 {
-  port->isOpen = 0;
-  close(nav_fd);
+  // start baro calibration acquisition
+  uint8_t cmd=0x17; // send cmd 23
+  navdata_write(&cmd, 1);
+
+  uint8_t calibBuffer[22];
+
+  if (full_read(nav_fd, calibBuffer, sizeof calibBuffer) < 0)
+  {
+    perror("acquire_baro_calibration: read failed");
+    return FALSE;
+  }
+
+  baro_calibration.ac1 = calibBuffer[0]  << 8 | calibBuffer[1];
+  baro_calibration.ac2 = calibBuffer[2]  << 8 | calibBuffer[3];
+  baro_calibration.ac3 = calibBuffer[4]  << 8 | calibBuffer[5];
+  baro_calibration.ac4 = calibBuffer[6]  << 8 | calibBuffer[7];
+  baro_calibration.ac5 = calibBuffer[8]  << 8 | calibBuffer[9];
+  baro_calibration.ac6 = calibBuffer[10] << 8 | calibBuffer[11];
+  baro_calibration.b1  = calibBuffer[12] << 8 | calibBuffer[13];
+  baro_calibration.b2  = calibBuffer[14] << 8 | calibBuffer[15];
+  baro_calibration.mb  = calibBuffer[16] << 8 | calibBuffer[17];
+  baro_calibration.mc  = calibBuffer[18] << 8 | calibBuffer[19];
+  baro_calibration.md  = calibBuffer[20] << 8 | calibBuffer[21];
+
+  printf("Calibration AC1: %d\n", baro_calibration.ac1);
+  printf("Calibration AC2: %d\n", baro_calibration.ac2);
+  printf("Calibration AC3: %d\n", baro_calibration.ac3);
+  printf("Calibration AC4: %d\n", baro_calibration.ac4);
+  printf("Calibration AC5: %d\n", baro_calibration.ac5);
+  printf("Calibration AC6: %d\n", baro_calibration.ac6);
+
+  printf("Calibration B1: %d\n", baro_calibration.b1);
+  printf("Calibration B2: %d\n", baro_calibration.b2);
+
+  printf("Calibration MB: %d\n", baro_calibration.mb);
+  printf("Calibration MC: %d\n", baro_calibration.mc);
+  printf("Calibration MD: %d\n", baro_calibration.md);
+
+  baro_calibrated = TRUE;
+  return TRUE;
 }
 
 void navdata_read()
 {
-  int newbytes = 0;
-
-  if (port->isInitialized != 1)
-    navdata_init();
-
-  if (port->isOpen != 1)
-    return;
-
-  newbytes = read(nav_fd, port->buffer+port->bytesRead, NAVDATA_BUFFER_SIZE-port->bytesRead);
+  int newbytes = read(nav_fd, nav_port.buffer+nav_port.bytesRead, NAVDATA_BUFFER_SIZE-nav_port.bytesRead);
 
   // because non-blocking read returns -1 when no bytes available
   if (newbytes > 0)
   {
-    port->bytesRead += newbytes;
-    port->totalBytesRead += newbytes;
+    nav_port.bytesRead += newbytes;
+    nav_port.totalBytesRead += newbytes;
+  }
+}
+
+static void baro_update_logic(void)
+{
+  static int32_t lastpressval = 0;
+  static uint16_t lasttempval = 0;
+  static uint8_t temp_or_press_was_updated_last = 0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
+
+  static int sync_errors;
+
+  if (temp_or_press_was_updated_last == 0)  // Last update was press so we are now waiting for temp
+  {
+    // temp was updated
+    temp_or_press_was_updated_last = TRUE;
+
+    // This means that press must remain constant
+    if (lastpressval != 0)
+    {
+      // If pressure was updated: this is a sync error
+      if (lastpressval != navdata.pressure)
+      {
+        // wait for temp again
+        temp_or_press_was_updated_last = FALSE;
+        sync_errors++;
+        navdata_baro_available = TRUE;
+      }
+    }
+  }
+  else
+  {
+    // press was updated
+    temp_or_press_was_updated_last = FALSE;
+
+    // This means that temp must remain constant
+    if (lasttempval != 0)
+    {
+      // If temp was updated: this is a sync error
+      if (lasttempval != navdata.temperature_pressure)
+      {
+        // wait for press again
+        temp_or_press_was_updated_last = TRUE;
+        sync_errors++;
+      }
+    }
+
+    navdata_baro_available = TRUE;
   }
 
+  lastpressval = navdata.pressure;
+  lasttempval = navdata.temperature_pressure;
 }
 
 void navdata_update()
 {
+  static bool_t last_checksum_wrong = FALSE;
+  // Check if initialized
+  if (!nav_port.isInitialized) {
+    navdata_init();
+    return;
+  }
+
+  // Start reading
   navdata_read();
 
   // while there is something interesting to do...
-  while (port->bytesRead >= 60)
+  while (nav_port.bytesRead >= NAVDATA_PACKET_SIZE)
   {
-    if (port->buffer[0] == NAVDATA_START_BYTE)
+    if (nav_port.buffer[0] == NAVDATA_START_BYTE)
     {
-      // if checksum is OK
-      if ( 1 ) // we dont know how to calculate the checksum
-//      if ( navdata_checksum() == 0 )
-      {
-        memcpy(navdata, port->buffer, NAVDATA_PACKET_SIZE);
-        navdata_imu_available = 1;
-        navdata_baro_available = 1;
-        port->packetsRead++;
-//        printf("CCRC=%d, GCRC=%d, error=%d\n", crc, navdata->chksum, abs(crc-navdata->chksum));
-        navdata_getHeight();
+      assert(sizeof navdata == NAVDATA_PACKET_SIZE);
+      memcpy(&navdata, nav_port.buffer, NAVDATA_PACKET_SIZE);
+
+      // Calculating the checksum
+      uint16_t checksum = 0;
+      for(int i = 2; i < NAVDATA_PACKET_SIZE-2; i += 2) {
+        checksum += nav_port.buffer[i] + (nav_port.buffer[i+1] << 8);
       }
-      navdata_CropBuffer(60);
+
+      // When checksum is incorrect
+      if(navdata.chksum != checksum) {
+        printf("Checksum error [calculated: %d] [packet: %d] [diff: %d]\n",checksum , navdata.chksum, checksum-navdata.chksum);
+        nav_port.checksum_errors++;
+      }
+
+      // When we already dropped a packet or checksum is correct
+      if(last_checksum_wrong || navdata.chksum == checksum) {
+        // Invert byte order so that TELEMETRY works better
+        uint8_t tmp;
+        uint8_t* p = (uint8_t*) &(navdata.pressure);
+        tmp = p[0];
+        p[0] = p[1];
+        p[1] = tmp;
+        p = (uint8_t*) &(navdata.temperature_pressure);
+        tmp = p[0];
+        p[0] = p[1];
+        p[1] = tmp;
+
+        baro_update_logic();
+
+#ifdef USE_SONAR
+        if (navdata.ultrasound < 10000)
+        {
+            sonar_meas = navdata.ultrasound;
+            ins_update_sonar();
+
+        }
+#endif
+
+
+        navdata_imu_available = TRUE;
+        last_checksum_wrong = FALSE;
+        nav_port.packetsRead++;
+      }
+
+      // Crop the buffer
+      navdata_cropbuffer(NAVDATA_PACKET_SIZE);
     }
     else
     {
       // find start byte, copy all data from startbyte to buffer origin, update bytesread
       uint8_t * pint;
-      pint = memchr(port->buffer, NAVDATA_START_BYTE, port->bytesRead);
+      pint = memchr(nav_port.buffer, NAVDATA_START_BYTE, nav_port.bytesRead);
 
       if (pint != NULL) {
-        port->bytesRead -= pint - port->buffer;
-        navdata_CropBuffer(pint - port->buffer);
+        navdata_cropbuffer(pint - nav_port.buffer);
       } else {
         // if the start byte was not found, it means there is junk in the buffer
-        port->bytesRead = 0;
+        nav_port.bytesRead = 0;
       }
     }
   }
 }
 
-void navdata_CropBuffer(int cropsize)
-{
-  if (port->bytesRead - cropsize < 0) {
-    // TODO think about why the amount of bytes read minus the cropsize gets below zero
-    printf("BytesRead - Cropsize may not be below zero...");
-    return;
-  }
-
-  memmove(port->buffer, port->buffer+cropsize, NAVDATA_BUFFER_SIZE-cropsize);
-  port->bytesRead -= cropsize;
-}
-
-int16_t navdata_getHeight() {
-
-  if (navdata->ultrasound > 10000) {
+int16_t navdata_height(void) {
+  if (navdata.ultrasound > 10000) {
     return previousUltrasoundHeight;
   }
 
   int16_t ultrasoundHeight = 0;
-
-  ultrasoundHeight = (navdata->ultrasound - 880) / 26.553;
-
+  ultrasoundHeight = (navdata.ultrasound - 880) / 26.553;
   previousUltrasoundHeight = ultrasoundHeight;
-
   return ultrasoundHeight;
 }
 
-// The checksum should be calculated here: we don't know the algorithm
-uint16_t navdata_checksum() {
-  navdata_cks = 0;
-  navdata_cks += navdata->nu_trame;
-  navdata_cks += navdata->ax;
-  navdata_cks += navdata->ay;
-  navdata_cks += navdata->az;
-  navdata_cks += navdata->vx;
-  navdata_cks += navdata->vy;
-  navdata_cks += navdata->vz;
-  navdata_cks += navdata->temperature_acc;
-  navdata_cks += navdata->temperature_gyro;
-  navdata_cks += navdata->ultrasound;
-  navdata_cks += navdata->us_debut_echo;
-  navdata_cks += navdata->us_fin_echo;
-  navdata_cks += navdata->us_association_echo;
-  navdata_cks += navdata->us_distance_echo;
-  navdata_cks += navdata->us_curve_time;
-  navdata_cks += navdata->us_curve_value;
-  navdata_cks += navdata->us_curve_ref;
-  navdata_cks += navdata->nb_echo;
-  navdata_cks += navdata->sum_echo;
-  navdata_cks += navdata->gradient;
-  navdata_cks += navdata->flag_echo_ini;
-  navdata_cks += navdata->pressure;
-  navdata_cks += navdata->temperature_pressure;
-  navdata_cks += navdata->mx;
-  navdata_cks += navdata->my;
-  navdata_cks += navdata->mz;
-//  navdata_cks += navdata->chksum;
+static void navdata_cropbuffer(int cropsize)
+{
+  if (nav_port.bytesRead - cropsize < 0) {
+    // TODO think about why the amount of bytes read minus the cropsize gets below zero
+    printf("BytesRead(=%d) - Cropsize(=%d) may not be below zero. port->buffer=%p\n", nav_port.bytesRead, cropsize, nav_port.buffer);
+    return;
+  }
 
-  return 0; // we dont know how to calculate the checksum
+  memmove(nav_port.buffer, nav_port.buffer+cropsize, NAVDATA_BUFFER_SIZE-cropsize);
+  nav_port.bytesRead -= cropsize;
 }

@@ -57,33 +57,33 @@ extern uint8_t ppm_pulse; /* 1=start of pulse, 0=end of pulse */
 #define PPM_WIDTH SERVOS_TICS_OF_USEC(550)
 
 #define ACTUATORS_IT TIR_MR1I
-#define ServosPPMMat_ISR() {				\
-  if (servos_PPM_idx == 0) {				\
-    servos_delay = SERVO_REFRESH_TICS;			\
-  }							\
-  if (servos_PPM_idx < _PPM_NB_CHANNELS ) {		\
-    if (ppm_pulse) { 					\
-	T0MR1 += PPM_WIDTH;				\
-        servos_delay -= PPM_WIDTH; 			\
-    } else {						\
-	T0MR1 += servos_values[servos_PPM_idx] - PPM_WIDTH;		\
-    	servos_delay -= servos_values[servos_PPM_idx] - PPM_WIDTH;	\
-    	servos_PPM_idx++;					\
-    }                                                   \
-  } else { /* servos_PPM_idx=_PPM_NB_CHANNELS */ \
-    if (ppm_pulse) { 					\
-	T0MR1 += PPM_WIDTH;				\
-        servos_delay -= PPM_WIDTH; 			\
-    } else {						\
-    servos_PPM_idx = 0;				\
-    T0MR1 += servos_delay - PPM_WIDTH;				\
-    }                                                   \
-  }							\
-  if (!ppm_pulse) {                                     \
-  /* lower clock pin */					\
-  T0EMR &= ~TEMR_EM1;                                   \
-  }					                \
-  /* toggle ppm_pulse flag */				\
-  ppm_pulse ^= 1;                                       \
-}
+#define ServosPPMMat_ISR() {                                        \
+    if (servos_PPM_idx == 0) {                                      \
+      servos_delay = SERVO_REFRESH_TICS;                            \
+    }                                                               \
+    if (servos_PPM_idx < _PPM_NB_CHANNELS ) {                       \
+      if (ppm_pulse) {                                              \
+        T0MR1 += PPM_WIDTH;                                         \
+        servos_delay -= PPM_WIDTH;                                  \
+      } else {                                                      \
+        T0MR1 += servos_values[servos_PPM_idx] - PPM_WIDTH;         \
+        servos_delay -= servos_values[servos_PPM_idx] - PPM_WIDTH;  \
+        servos_PPM_idx++;                                           \
+      }                                                             \
+    } else { /* servos_PPM_idx=_PPM_NB_CHANNELS */                  \
+      if (ppm_pulse) {                                              \
+        T0MR1 += PPM_WIDTH;                                         \
+        servos_delay -= PPM_WIDTH;                                  \
+      } else {                                                      \
+        servos_PPM_idx = 0;                                         \
+        T0MR1 += servos_delay - PPM_WIDTH;                          \
+      }                                                             \
+    }                                                               \
+    if (!ppm_pulse) {                                               \
+      /* lower clock pin */                                         \
+      T0EMR &= ~TEMR_EM1;                                           \
+    }                                                               \
+    /* toggle ppm_pulse flag */                                     \
+    ppm_pulse ^= 1;                                                 \
+  }
 #endif /* SERVOS_PPM_HW_H */

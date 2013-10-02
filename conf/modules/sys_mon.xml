@@ -2,7 +2,29 @@
 
 <module name="sys_mon" dir="core">
   <doc>
-    <description>System monitor</description>
+    <description>
+System monitor.
+The sys_mon module gives you some information about the timing of the periodic tasks and a rough estimate of cpu load (averaged over 1 sec).
+
+The SYS_MON message contains the following information (all times are given in microseconds):
+- @b periodic_time : time between two calls of the modules_periodic_task (averaged over 1s)
+- @b periodic_time_min : minimum time between two calls of the modules_periodic_task() during the last second
+- @b periodic_time_max : maximum time between two calls of the modules_periodic_task() during the last second
+- @b periodic_cycle : time it took to execute the main periodic functions (averaged over 1s)
+- @b periodic_cycle_min : minimum time it took to execute the main periodic functions during the last second
+- @b periodic_cycle_max : maximum time it took to execute the main periodic functions during the last second
+- @b event_number : number of times the event loop was called during the last second
+- @b cpu_load : rough estimate of cpu load (averaged over 1 sec)
+
+
+So your periodic_time should be 1/MODULES_FREQUENCY, which should be the same as 1/PERIODIC_FREQUENCY
+The periodic_cycle_max should not be over the periodic_time, otherwise in at least one cycle it took longer to calculate everything and the next one was slightly delayed.
+
+
+The sys_mon module has to run at the full main frequency!
+
+So either don't specify a main_freq parameter for the modules node or set your actual main frequency
+    </description>
   </doc>
   <header>
     <file name="sys_mon.h"/>

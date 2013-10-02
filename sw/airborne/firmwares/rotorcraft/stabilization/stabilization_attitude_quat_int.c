@@ -92,11 +92,85 @@ void stabilization_attitude_set_failsafe_setpoint(void) {
   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
 }
 
-void stabilization_attitude_set_from_eulers_i(struct Int32Eulers *sp_euler) {
+void stabilization_attitude_set_cmd_i(struct Int32Eulers *sp_cmd) {
   // copy euler setpoint for debugging
-  memcpy(&stab_att_sp_euler, sp_euler, sizeof(struct Int32Eulers));
-  INT32_QUAT_OF_EULERS(stab_att_sp_quat, *sp_euler);
-  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+  memcpy(&stab_att_sp_euler, sp_cmd, sizeof(struct Int32Eulers));
+
+  /// @todo calc sp_quat in fixed-point
+
+  /* orientation vector describing simultaneous rotation of roll/pitch */
+  struct FloatVect3 ov;
+  ov.x = ANGLE_FLOAT_OF_BFP(sp_cmd->phi);
+  ov.y = ANGLE_FLOAT_OF_BFP(sp_cmd->theta);
+  ov.z = 0.0;
+  /* quaternion from that orientation vector */
+  struct FloatQuat q_rp;
+  FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
+
+  const float psi_sp = ANGLE_FLOAT_OF_BFP(sp_cmd->psi);
+
+  /// @todo optimize yaw angle calculation
+
+  /*
+   * Instead of using the psi setpoint angle to rotate around the body z-axis,
+   * calculate the real angle needed to align the projection of the body x-axis
+   * onto the horizontal plane with the psi setpoint.
+   *
+   * angle between two vectors a and b:
+   * angle = atan2(norm(cross(a,b)), dot(a,b)) * sign(dot(cross(a,b), n))
+   * where n is the thrust vector (i.e. both a and b lie in that plane)
+   */
+  const struct FloatVect3 xaxis = {1.0, 0.0, 0.0};
+  const struct FloatVect3 zaxis = {0.0, 0.0, 1.0};
+  struct FloatVect3 a;
+  FLOAT_QUAT_VMULT(a, q_rp, xaxis);
+
+  // desired heading vect in earth x-y plane
+  struct FloatVect3 psi_vect;
+  psi_vect.x = cosf(psi_sp);
+  psi_vect.y = sinf(psi_sp);
+  psi_vect.z = 0.0;
+  // normal is the direction of the thrust vector
+  struct FloatVect3 normal;
+  FLOAT_QUAT_VMULT(normal, q_rp, zaxis);
+
+  // projection of desired heading onto body x-y plane
+  // b = v - dot(v,n)*n
+  float dot = FLOAT_VECT3_DOT_PRODUCT(psi_vect, normal);
+  struct FloatVect3 dotn;
+  FLOAT_VECT3_SMUL(dotn, normal, dot);
+
+  // b = v - dot(v,n)*n
+  struct FloatVect3 b;
+  FLOAT_VECT3_DIFF(b, psi_vect, dotn);
+
+  dot = FLOAT_VECT3_DOT_PRODUCT(a, b);
+  struct FloatVect3 cross;
+  VECT3_CROSS_PRODUCT(cross, a, b);
+  // norm of the cross product
+  float nc = FLOAT_VECT3_NORM(cross);
+  // angle = atan2(norm(cross(a,b)), dot(a,b))
+  float yaw2 = atan2(nc, dot) / 2.0;
+
+  // negative angle if needed
+  // sign(dot(cross(a,b), n)
+  float dot_cross_ab = FLOAT_VECT3_DOT_PRODUCT(cross, normal);
+  if (dot_cross_ab < 0) {
+    yaw2 = -yaw2;
+  }
+
+  /* quaternion with yaw command */
+  struct FloatQuat q_yaw;
+  QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
+
+  /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
+  struct FloatQuat q_sp;
+  FLOAT_QUAT_COMP(q_sp, q_yaw, q_rp);
+  FLOAT_QUAT_NORMALIZE(q_sp);
+  FLOAT_QUAT_WRAP_SHORTEST(q_sp);
+
+  /* convert to fixed point */
+  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
@@ -152,9 +226,13 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   INT32_QUAT_NORMALIZE(att_err);
 
   /*  rate error                */
+  const struct Int32Rates rate_ref_scaled = {
+    OFFSET_AND_ROUND(stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   struct Int32Rates* body_rate = stateGetBodyRates_i();
-  RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
+  RATES_DIFF(rate_err, rate_ref_scaled, (*body_rate));
 
   /* integrated error */
   if (enable_integrator) {

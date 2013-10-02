@@ -20,6 +20,12 @@ SUB_DIR=sdk
 FTP_DIR=/data/video
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
+ARDRONE2_START_PAPARAZZI ?= 0
+ARDRONE2_WIFI_MODE ?= 0
+ARDRONE2_SSID ?= ardrone2_paparazzi
+ARDRONE2_IP_ADDRESS_BASE ?= 192.168.1.
+ARDRONE2_IP_ADDRESS_PROBE ?= 1
+# -----------------------------------------------------------------------
 
 # The GPS sensor is connected trough USB so we have to define the device
 GPS_PORT         ?= UART1
@@ -32,3 +38,10 @@ $(TARGET).CFLAGS += -DUART1_DEV=\"/dev/ttyUSB0\"
 ap.CFLAGS +=-DARDRONE2_SDK
 
 # -----------------------------------------------------------------------
+
+# default LED configuration
+RADIO_CONTROL_LED			?= none
+BARO_LED           			?= none
+AHRS_ALIGNER_LED   			?= none
+GPS_LED            			?= none
+SYS_TIME_LED       			?= none

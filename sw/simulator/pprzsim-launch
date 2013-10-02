@@ -56,6 +56,10 @@ def main():
                              help="Boot the aircraft on start")
     ocamlsim_opts.add_option("--norc", dest="norc", action="store_true",
                               help="Hide the simulated RC")
+    ocamlsim_opts.add_option("--noground", dest="noground", action="store_true",
+                             help="Disable ground detection")
+    ocamlsim_opts.add_option("--launch", dest="launch", action="store_true",
+                             help="Launch the aircraft on startup")
 
     # special options for NPS
     nps_opts = OptionGroup(parser, "NPS Options", "These are only relevant to the NPS sim")
@@ -94,6 +98,10 @@ def main():
             simargs.append("-boot")
         if options.norc:
             simargs.append("-norc")
+        if options.noground:
+            simargs.append("-noground")
+        if options.launch:
+            simargs.append("-launch")
         if options.ivy_bus:
             simargs.append("-b")
             simargs.append(options.ivy_bus)

@@ -178,7 +178,7 @@ typedef struct _navdata_gps_t {
   uint8_t       unk_2[16];
   struct{
     uint8_t     sat;
-    uint8_t     unk;
+    uint8_t     cn0;
   }channels[12];
   int32_t       gps_plugged;            /*!< When the gps is plugged */
   uint8_t       unk_3[108];
@@ -202,7 +202,7 @@ typedef struct _navdata_gps_t {
 
 //External functions
 extern void init_at_com(void);
-extern void at_com_recieve_navdata(unsigned char* buffer);
+extern int at_com_recieve_navdata(unsigned char* buffer);
 extern void at_com_send_config(char* key, char* value);
 extern void at_com_send_ftrim(void);
 extern void at_com_send_ref(int bits);

@@ -27,7 +27,7 @@
  *
  */
 
-#include "subsystems/ins/ins_int.h"
+#include "subsystems/ins/ins_int_extended.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/sensors/baro.h"
@@ -82,6 +82,7 @@ int32_t ins_baro_alt;
 #include "filters/median_filter.h"
 struct MedianFilterInt baro_median;
 
+#if USE_SONAR
 /* sonar                       */
 bool_t  ins_update_on_agl;
 int32_t ins_sonar_alt;
@@ -92,6 +93,7 @@ struct MedianFilterInt sonar_median;
 #endif
 #define VFF_R_SONAR_0 0.1
 #define VFF_R_SONAR_OF_M 0.2
+#endif // USE_SONAR
 
 /* output                      */
 struct NedCoor_i ins_ltp_pos;
@@ -122,9 +124,13 @@ void ins_init() {
 
   ins_baro_initialised = FALSE;
   init_median_filter(&baro_median);
+
+#if USE_SONAR
   ins_update_on_agl = FALSE;
   init_median_filter(&sonar_median);
   ins_sonar_offset = INS_SONAR_OFFSET;
+#endif
+
   vff_init(0., 0., 0., 0.);
   ins.vf_realign = FALSE;
   ins.hf_realign = FALSE;
@@ -203,6 +209,7 @@ void ins_update_baro() {
       vff_update_baro(alt_float);
     }
   }
+  INS_NED_TO_STATE();
 }
 
 
@@ -244,6 +251,7 @@ void ins_update_gps(void) {
 #endif /* hff not used */
 
   }
+  INS_NED_TO_STATE();
 #endif /* USE_GPS */
 }
 
@@ -261,7 +269,9 @@ float var_err[VAR_ERR_MAX];
 uint8_t var_idx = 0;
 #endif
 
+
 void ins_update_sonar() {
+#if USE_SONAR
   static float last_offset = 0.;
   // new value filtered with median_filter
   ins_sonar_alt = update_median_filter(&sonar_median, sonar_meas);
@@ -308,4 +318,6 @@ void ins_update_sonar() {
     /* update offset with last value to avoid divergence */
     vff_update_offset(last_offset);
   }
+#endif // USE_SONAR
 }
+

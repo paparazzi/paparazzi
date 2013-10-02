@@ -78,42 +78,79 @@ elf: $(OBJDIR)/$(TARGET).elf
 # Program the device and start it.
 load upload program: $(OBJDIR)/$(TARGET).elf
 
-# If it is not the SDK version, then kill program.elf
-ifneq ($(BOARD_TYPE), sdk)
-	-echo "killall -9 program.elf" | telnet $(HOST)
-endif
-
 	# Kill the application
 	-echo "killall -9 $(TARGET).elf" | telnet $(HOST)
 
-		# Upload the modules and start the application
+	# Make the target dir and edit the config
 	-{ 												\
-	  echo "mkdir -p $(TARGET_DIR)";						\
+	  echo "mkdir -p $(TARGET_DIR)";				\
 	} | telnet $(HOST)
 
 	# Upload the drivers and new application
 	{																								\
 	  echo "binary";																				\
 	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko /$(SUB_DIR)/cdc-acm.ko";		\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/usbserial.ko /$(SUB_DIR)/usbserial.ko";	\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/pl2303.ko /$(SUB_DIR)/pl2303.ko";			\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/ftdi-sio.ko /$(SUB_DIR)/ftdi-sio.ko";		\
-	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cp210x.ko /$(SUB_DIR)/cp210x.ko";	\
 	  echo "put $(OBJDIR)/$(TARGET).elf /$(SUB_DIR)/$(TARGET).elf";									\
 	  echo "quit";																					\
 	} | ftp -n $(HOST)
 
 	# Upload the modules and start the application
-	-{ 												\
-	  echo "cd $(TARGET_DIR)";						\
-	  echo "insmod cdc-acm.ko";						\
-	  echo "insmod usbserial.ko";					\
-	  echo "insmod cp210x.ko";					\
-	  echo "insmod pl2303.ko";						\
-	  echo "insmod ftdi-sio.ko";					\
-	  echo "chmod 777 $(TARGET).elf";				\
-	  echo "./$(TARGET).elf > /dev/null 2>&1 &";	\
+	-{ 															\
+	  echo "insmod $(TARGET_DIR)/cdc-acm.ko";					\
+	  echo "chmod 777 $(TARGET_DIR)/$(TARGET).elf";				\
+	  echo "$(TARGET_DIR)/$(TARGET).elf > /dev/null 2>&1 &";	\
 	} | telnet $(HOST)
+
+ifeq ($(ARDRONE2_REBOOT),1)
+	-{ 										\
+	  echo "reboot";						\
+	} | telnet $(HOST)
+endif
+
+# Program the device and start it.
+load2 upload2 program2: $(OBJDIR)/$(TARGET).elf
+
+	# Kill the application
+	-echo "killall -9 $(TARGET).elf" | telnet $(HOST)
+
+	# Make the target dir and edit the config
+	-{ 												\
+	  echo "mkdir -p $(TARGET_DIR)";				\
+	  echo "if grep -q \"start_paparazzi *= \" /data/config.ini; then sed -i 's/\(start_paparazzi *= *\).*/\\\1$(ARDRONE2_START_PAPARAZZI)/g' /data/config.ini; else echo \"start_paparazzi = $(ARDRONE2_START_PAPARAZZI)\" >> /data/config.ini; fi"; \
+      echo "if grep -q \"wifi_mode *= \" /data/config.ini; then sed -i 's/\(wifi_mode *= *\).*/\\\1$(ARDRONE2_WIFI_MODE)/g' /data/config.ini; else echo \"wifi_mode = $(ARDRONE2_WIFI_MODE)\" >> /data/config.ini; fi"; \
+      echo "if grep -q \"ssid_single_player *= \" /data/config.ini; then sed -i 's/\(ssid_single_player *= *\).*/\\\1$(ARDRONE2_SSID)/g' /data/config.ini; else echo \"ssid_single_player = $(ARDRONE2_SSID)\" >> /data/config.ini; fi"; \
+      echo "if grep -q \"static_ip_address_base *= \" /data/config.ini; then sed -i 's/\(static_ip_address_base *= *\).*/\\\1$(ARDRONE2_IP_ADDRESS_BASE)/g' /data/config.ini; else echo \"static_ip_address_base = $(ARDRONE2_IP_ADDRESS_BASE)\" >> /data/config.ini; fi"; \
+      echo "if grep -q \"static_ip_address_probe *= \" /data/config.ini; then sed -i 's/\(static_ip_address_probe *= *\).*/\\\1$(ARDRONE2_IP_ADDRESS_PROBE)/g' /data/config.ini; else echo \"static_ip_address_probe = $(ARDRONE2_IP_ADDRESS_PROBE)\" >> /data/config.ini; fi"; \
+	} | telnet $(HOST)
+
+	# Upload the drivers and new application
+	{																								\
+	  echo "binary";																				\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko /$(SUB_DIR)/cdc-acm.ko";		\
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/check_update.sh check_update.sh";		    \
+	  echo "put $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/wifi_setup.sh wifi_setup.sh";		        \
+	  echo "put $(OBJDIR)/$(TARGET).elf /$(SUB_DIR)/$(TARGET).elf";									\
+	  echo "quit";																					\
+	} | ftp -n $(HOST)
+
+	# Upload the modules and start the application
+	-{ 															\
+	  echo "mv /data/video/check_update.sh /bin/";				\
+	  echo "mv /data/video/wifi_setup.sh /bin/";				\
+	  echo "chmod 777 /bin/check_update.sh"         			\
+	  echo "chmod 777 /bin/wifi_setup.sh"          			 	\
+	  echo "insmod $(TARGET_DIR)/cdc-acm.ko";					\
+	  echo "chmod 777 $(TARGET_DIR)/$(TARGET).elf";				\
+	  echo "$(TARGET_DIR)/$(TARGET).elf > /dev/null 2>&1 &";	\
+	} | telnet $(HOST)
+
+ifeq ($(ARDRONE2_REBOOT),1)
+	-{ 										\
+	  echo "reboot";						\
+	} | telnet $(HOST)
+endif
+
+
 
 
 # Link: create ELF output file from object files.
@@ -136,6 +173,7 @@ $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CXX) -c $(CXXFLAGS) $< -o $@
+
 
 # Listing of phony targets.
 .PHONY : all build elf clean clean_list

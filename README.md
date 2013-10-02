@@ -21,7 +21,6 @@ Debian users can use http://paparazzi.enac.fr/debian
 
 - **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.
 - **paparazzi-arm-multilib** ARM cross-compiling toolchain for LPC21 and STM32 based boards.
-- **paparazzi-omap** toolchain for the optional Gumstix Overo module available on lisa/L.
 - **paparazzi-jsbsim** is needed for using JSBSim as flight dynamic model for the simulator.
 
 

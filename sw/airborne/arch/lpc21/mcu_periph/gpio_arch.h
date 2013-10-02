@@ -34,7 +34,7 @@
 /**
  * Set a gpio output to high level.
  */
-static inline void gpio_output_high(uint32_t port, uint16_t pin) {
+static inline void gpio_set(uint32_t port, uint16_t pin) {
   if (port == 0)
     IO0SET = _BV(pin);
   else if (port == 1)
@@ -44,7 +44,7 @@ static inline void gpio_output_high(uint32_t port, uint16_t pin) {
 /**
  * Clear a gpio output to low level.
  */
-static inline void gpio_output_low(uint32_t port, uint16_t pin) {
+static inline void gpio_clear(uint32_t port, uint16_t pin) {
   if (port == 0)
     IO0CLR = _BV(pin);
   else if (port == 1)

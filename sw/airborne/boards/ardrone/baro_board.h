@@ -33,10 +33,14 @@
 #if BOARD_HAS_BARO
 #include "navdata.h"
 
-int baro_data_available;
+void process_ardrone_baro(void);
+
 
 static inline void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void)){
-  if (baro_data_available) {
+  if (navdata_baro_available)
+  {
+    navdata_baro_available = 0;
+    process_ardrone_baro();
     b_abs_handler();
   }
 }

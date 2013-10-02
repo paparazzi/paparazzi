@@ -25,6 +25,9 @@
  * Some architecture independent helper functions for GPIOs.
  */
 
+#ifndef MCU_PERIPH_GPIO_H
+#define MCU_PERIPH_GPIO_H
+
 #include "std.h"
 #include "mcu_periph/gpio_arch.h"
 
@@ -38,3 +41,4 @@ extern void gpio_setup_output(uint32_t port, uint16_t pin);
  */
 extern void gpio_setup_input(uint32_t port, uint16_t pin);
 
+#endif /* MCU_PERIPH_GPIO_H */

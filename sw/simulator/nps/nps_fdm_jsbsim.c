@@ -26,22 +26,42 @@
  * This is an FDM for NPS that uses JSBSim as the simulation engine.
  */
 
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <models/FGAccelerations.h>
-#include <stdlib.h>
+#include <models/atmosphere/FGWinds.h>
+
 #include "nps_fdm.h"
-#include "generated/airframe.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+#include "generated/airframe.h"
+#include "generated/flight_plan.h"
+
 /// Macro to convert from feet to metres
 #define MetersOfFeet(_f) ((_f)/3.2808399)
+#define FeetOfMeters(_m) ((_m)*3.2808399)
+
+/** Name of the JSBSim model.
+ *  Defaults to the AIRFRAME_NAME
+ */
+#ifndef NPS_JSBSIM_MODEL
+#define NPS_JSBSIM_MODEL AIRFRAME_NAME
+#endif
+
+#ifdef NPS_INITIAL_CONDITITONS
+#warning NPS_INITIAL_CONDITITONS was replaced by NPS_JSBSIM_INIT!
+#warning Defaulting to flight plan location.
+#endif
 
 /** Minimum JSBSim timestep
   * Around 1/10000 seems to be good for ground impacts
@@ -49,9 +69,11 @@
 #define MIN_DT (1.0/10240.0)
 
 using namespace JSBSim;
+using namespace std;
 
 static void feed_jsbsim(double* commands);
 static void fetch_state(void);
+static int check_for_nan(void);
 
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector);
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_location);
@@ -60,7 +82,6 @@ static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_
 static void llh_from_jsbsim(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 static void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 static void lla_from_jsbsim_geocentric(LlaCoor_d* fdm_lla, FGPropagate* propagate);
-//static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate);
 
 static void init_jsbsim(double dt);
 static void init_ltp(void);
@@ -86,6 +107,8 @@ void nps_fdm_init(double dt) {
   //Sets up the high fidelity timestep as a multiple of the normal timestep
   for (min_dt = (1.0/dt); min_dt < (1/MIN_DT); min_dt += (1/dt)){}
   min_dt = (1/min_dt);
+
+  fdm.nan_count = 0;
 
   init_jsbsim(dt);
 
@@ -147,6 +170,24 @@ void nps_fdm_run_step(double* commands) {
 
   fetch_state();
 
+  /* Check the current state to make sure it is valid (no NaNs) */
+  if (check_for_nan()) {
+    printf("Error: FDM simulation encountered a total of %i NaN values at simulation time %f.\n", fdm.nan_count, fdm.time);
+    printf("It is likely the simulation diverged and gave non-physical results. If you did\n");
+    printf("not crash, check your model and/or initial conditions. Exiting with status 1.\n");
+    exit(1);
+  }
+
+}
+
+void nps_fdm_set_wind(double speed, double dir, int turbulence_severity) {
+  FGWinds* Winds = FDMExec->GetWinds();
+  Winds->SetWindspeed(FeetOfMeters(speed));
+  Winds->SetWindPsi(dir);
+
+  /* wind speed used for turbulence */
+  Winds->SetWindspeed20ft(FeetOfMeters(speed)/2);
+  Winds->SetProbabilityOfExceedence(turbulence_severity);
 }
 
 /**
@@ -168,6 +209,7 @@ static void feed_jsbsim(double* commands) {
   }
 
 }
+
 
 /**
  * Populates the NPS fdm struct after a simulation step.
@@ -265,9 +307,15 @@ static void fetch_state(void) {
   /*
    * rotational speed and accelerations
    */
-  jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&propagate->GetPQR());
-  jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&accelerations->GetPQRdot());
+  jsbsimvec_to_rate(&fdm.body_ecef_rotvel, &propagate->GetPQR());
+  jsbsimvec_to_rate(&fdm.body_ecef_rotaccel, &accelerations->GetPQRdot());
 
+
+  /*
+   * wind
+   */
+  const FGColumnVector3& fg_wind_ned = FDMExec->GetWinds()->GetTotalWindNED();
+  jsbsimvec_to_vec(&fdm.wind, &fg_wind_ned);
 }
 
 /**
@@ -284,9 +332,18 @@ static void init_jsbsim(double dt) {
 
   char buf[1024];
   string rootdir;
+  string jsbsim_ic_name;
 
   sprintf(buf,"%s/conf/simulator/jsbsim/",getenv("PAPARAZZI_HOME"));
   rootdir = string(buf);
+
+  /* if jsbsim initial conditions are defined, use them
+   * otherwise use flightplan location
+   */
+#ifdef NPS_JSBSIM_INIT
+  jsbsim_ic_name = NPS_JSBSIM_INIT;
+#endif
+
   FDMExec = new FGFDMExec();
 
   FDMExec->Setsim_time(0.);
@@ -298,7 +355,7 @@ static void init_jsbsim(double dt) {
   if ( ! FDMExec->LoadModel( rootdir + "aircraft",
                              rootdir + "engine",
                              rootdir + "systems",
-                             AIRFRAME_NAME,
+                             NPS_JSBSIM_MODEL,
                              false)){
 #ifdef DEBUG
     cerr << "  JSBSim could not be started" << endl << endl;
@@ -311,12 +368,39 @@ static void init_jsbsim(double dt) {
   FDMExec->GetPropulsion()->InitRunning(-1);
 
   JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
-  if ( ! IC->Load(NPS_INITIAL_CONDITITONS)) {
+  if(!jsbsim_ic_name.empty()) {
+    if ( ! IC->Load(jsbsim_ic_name)) {
 #ifdef DEBUG
-    cerr << "Initialization unsuccessful" << endl;
+      cerr << "Initialization unsuccessful" << endl;
 #endif
-    delete FDMExec;
-    exit(-1);
+      delete FDMExec;
+      exit(-1);
+    }
+  }
+  else {
+    // FGInitialCondition::SetAltitudeASLFtIC
+    // requires this function to be called
+    // before itself
+    IC->SetVgroundFpsIC(0.);
+
+    // Use flight plan initial conditions
+    // convert geodetic lat from flight plan to geocentric
+    double gd_lat = RadOfDeg(NAV_LAT0 / 1e7);
+    double gc_lat = gc_of_gd_lat_d(gd_lat, GROUND_ALT);
+    IC->SetLatitudeDegIC(DegOfRad(gc_lat));
+    IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
+
+    IC->SetAltitudeASLFtIC(FeetOfMeters(GROUND_ALT + 2.0));
+    IC->SetTerrainElevationFtIC(FeetOfMeters(GROUND_ALT));
+    IC->SetPsiDegIC(QFU);
+    IC->SetVgroundFpsIC(0.);
+
+    //initRunning for all engines
+    FDMExec->GetPropulsion()->InitRunning(-1);
+    if (!FDMExec->RunIC()) {
+      cerr << "Initialization from flight plan unsuccessful" << endl;
+      exit(-1);
+    }
   }
 
   // calculate vehicle max radius in m
@@ -473,13 +557,87 @@ void lla_from_jsbsim_geodetic(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
 
 }
 
-
-#if 0
-static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
-
-  vector->x = rate->p;
-  vector->y = rate->q;
-  vector->z = rate->r;
-
-}
+#ifdef __APPLE__
+/* Why isn't this there when we include math.h (on osx with clang)? */
+/// Check if a double is NaN.
+static int isnan(double f) { return (f != f); }
 #endif
+
+/**
+ * Checks NpsFdm struct for NaNs.
+ *
+ * Increments the NaN count on each new NaN
+ *
+ * @return Count of new NaNs. 0 for no new NaNs.
+ */
+static int check_for_nan(void) {
+  int orig_nan_count = fdm.nan_count;
+  /* Check all elements for nans */
+  if (isnan(fdm.ecef_pos.x)) fdm.nan_count++;
+  if (isnan(fdm.ecef_pos.y)) fdm.nan_count++;
+  if (isnan(fdm.ecef_pos.z)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_pos.x)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_pos.y)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_pos.z)) fdm.nan_count++;
+  if (isnan(fdm.lla_pos.lon)) fdm.nan_count++;
+  if (isnan(fdm.lla_pos.lat)) fdm.nan_count++;
+  if (isnan(fdm.lla_pos.alt)) fdm.nan_count++;
+  if (isnan(fdm.hmsl)) fdm.nan_count++;
+  // Skip debugging elements
+  if (isnan(fdm.ecef_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.ecef_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_vel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_vel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_vel.z)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_accel.x)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_accel.y)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_ecef_accel.z)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qi)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qx)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qy)) fdm.nan_count++;
+  if (isnan(fdm.ecef_to_body_quat.qz)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qi)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qx)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qy)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_quat.qz)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_eulers.phi)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_eulers.theta)) fdm.nan_count++;
+  if (isnan(fdm.ltp_to_body_eulers.psi)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qi)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qx)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qy)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_quat.qz)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_eulers.phi)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_eulers.theta)) fdm.nan_count++;
+  if (isnan(fdm.ltpprz_to_body_eulers.psi)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotvel.p)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotvel.q)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotvel.r)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotaccel.p)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotaccel.q)) fdm.nan_count++;
+  if (isnan(fdm.body_ecef_rotaccel.r)) fdm.nan_count++;
+  if (isnan(fdm.ltp_g.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_g.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_g.z)) fdm.nan_count++;
+  if (isnan(fdm.ltp_h.x)) fdm.nan_count++;
+  if (isnan(fdm.ltp_h.y)) fdm.nan_count++;
+  if (isnan(fdm.ltp_h.z)) fdm.nan_count++;
+
+  return (fdm.nan_count - orig_nan_count);
+}

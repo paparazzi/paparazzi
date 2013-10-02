@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Dino Hensen, Vincent van Hoek
+ * Copyright (C) 2013 Dino Hensen, Vincent van Hoek
  *
  * This file is part of Paparazzi.
  *
@@ -31,19 +31,7 @@
 #define NAVDATA_H_
 
 #include <stdint.h>
-
-#define NAVDATA_PACKET_SIZE 60
-#define NAVDATA_BUFFER_SIZE 80
-#define NAVDATA_START_BYTE 0x3a
-
-typedef struct {
-	uint8_t isInitialized;
-	uint8_t isOpen;
-	uint16_t bytesRead;
-	uint32_t totalBytesRead;
-	uint32_t packetsRead;
-	uint8_t buffer[NAVDATA_BUFFER_SIZE];
-} navdata_port;
+#include <sys/types.h>
 
 typedef struct
 {
@@ -78,32 +66,60 @@ typedef struct
 
   uint16_t flag_echo_ini;
 
-  int32_t pressure; //long
-  int16_t temperature_pressure;
+  int32_t pressure;
+  uint16_t temperature_pressure;
 
-  int16_t mx;
   int16_t my;
+  int16_t mx;
   int16_t mz;
 
   uint16_t chksum;
 
 } __attribute__ ((packed)) measures_t;
 
-measures_t* navdata;
+struct bmp180_baro_calibration
+{
+  int16_t ac1;
+  int16_t ac2;
+  int16_t ac3;
+  uint16_t ac4;
+  uint16_t ac5;
+  uint16_t ac6;
+  int16_t b1;
+  int16_t b2;
+  int16_t mb;
+  int16_t mc;
+  int16_t md;
+
+  // These values are calculated
+  int32_t b5;
+};
+
+#define NAVDATA_BUFFER_SIZE 80
+typedef struct {
+    uint8_t isInitialized;
+    uint16_t bytesRead;
+    uint32_t totalBytesRead;
+    uint32_t packetsRead;
+    uint32_t checksum_errors;
+    uint8_t buffer[NAVDATA_BUFFER_SIZE];
+} navdata_port;
+
+extern measures_t navdata;
+extern navdata_port nav_port;
+struct bmp180_baro_calibration baro_calibration;
 navdata_port* port;
 uint16_t navdata_cks;
 uint8_t navdata_imu_available;
 uint8_t navdata_baro_available;
-int16_t previousUltrasoundHeight;
+uint8_t baro_calibrated;
 
-int navdata_init(void);
-void navdata_close(void);
-
+bool_t navdata_init(void);
 void navdata_read(void);
 void navdata_update(void);
-void navdata_CropBuffer(int cropsize);
+int16_t navdata_height(void);
 
-uint16_t navdata_checksum(void);
-int16_t navdata_getHeight(void);
+ssize_t full_write(int fd, const uint8_t *buf, size_t count);
+ssize_t full_read(int fd, uint8_t *buf, size_t count);
 
 #endif /* NAVDATA_H_ */

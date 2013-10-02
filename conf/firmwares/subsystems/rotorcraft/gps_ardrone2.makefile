@@ -2,6 +2,7 @@
 
 # ARDrone 2 Flightrecorder GPS unit
 
+GPS_LED ?= none
 
 ap.CFLAGS += -DUSE_GPS -DUSE_GPS_ARDRONE2
 

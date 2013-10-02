@@ -16,8 +16,6 @@
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       </subsystem>
-      <!-- MPU600 is configured to output data at 500Hz -->
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
     <target name="nps" board="pc">
@@ -40,7 +38,7 @@
   </firmware>
 
   <!-- Using Geo Mag module -->
-  <modules>
+  <modules main_freq="512">
     <load name="geo_mag.xml"/>
     <load name="rotorcraft_cam.xml"/>
   </modules>
@@ -206,7 +204,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 

@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gumstix_interface">
+  <doc>
+    <description>QR code gumstix interface</description>
+  </doc>
+  <header>
+    <file name="qr_code_spi_link.h"/>
+  </header>
+  <init fun="qr_code_spi_link_init()"/>
+  <periodic fun="qr_code_spi_link_periodic()" autorun="TRUE"/>
+  <makefile>
+    <define name="SPI_MASTER" value="1" />
+    <define name="SPI_SLAVE" value="1" />
+    <define name="USE_SPI1_SLAVE" value="1" />
+    <file name="qr_code_spi_link.c"/>
+  </makefile>
+</module>
+

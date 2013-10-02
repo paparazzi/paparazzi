@@ -62,6 +62,7 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(256,
     {
+      uint16_t i2c1_queue_full_cnt        = i2c1.errors->queue_full_cnt;
       uint16_t i2c1_ack_fail_cnt          = i2c1.errors->ack_fail_cnt;
       uint16_t i2c1_miss_start_stop_cnt   = i2c1.errors->miss_start_stop_cnt;
       uint16_t i2c1_arb_lost_cnt          = i2c1.errors->arb_lost_cnt;
@@ -73,6 +74,7 @@ static inline void main_periodic_task( void ) {
       uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
       const uint8_t _bus1 = 1;
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
+                               &i2c1_queue_full_cnt,
                                &i2c1_ack_fail_cnt,
                                &i2c1_miss_start_stop_cnt,
                                &i2c1_arb_lost_cnt,

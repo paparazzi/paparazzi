@@ -19,6 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/bat_checker/bat_checker.c
+ *
+ * Activate a buzzer/LED periodically or periodically to warn of low/critical battery level.
+ * At LOW_BAT_LEVEL the buzzer will be activated periodically.
+ * At CRITIC_BAT_LEVEL the buzzer will be activated permanently.
+ */
+
 #ifndef BAT_CHECKER_H
 #define BAT_CHECKER_H
 

@@ -25,7 +25,7 @@
 #include "math/pprz_algebra_float.h"
 
 #include "stabilization_attitude_ref_float.h"
-#include "stabilization_attitude_ref_euler.h"
+#include "stabilization_attitude_ref.h"
 
 void stabilization_attitude_ref_enter(void);
 

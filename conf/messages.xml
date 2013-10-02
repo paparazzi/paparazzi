@@ -43,11 +43,12 @@
      <field name="gradient" type="int16" />
      <field name="flag_echo_ini" type="uint16" />
      <field name="pressure" type="int32" />
-     <field name="temperature_pressure" type="int16" />
+     <field name="temperature_pressure" type="uint16" />
      <field name="mx" type="int16" />
      <field name="my" type="int16" />
      <field name="mz" type="int16" />
      <field name="chksum" type="uint16" />
+     <field name="checksum_errors" type="uint32" />
    </message>
 
    <message name="ATTITUDE" id="6">
@@ -255,6 +256,8 @@
 
   <message name="SYS_MON" id="33">
     <field name="periodic_time" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_time_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
+    <field name="periodic_time_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle_min" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
     <field name="periodic_cycle_max" type="uint16" unit="usec" alt_unit="msec" alt_unit_coef="0.001"/>
@@ -578,10 +581,10 @@
     <field name="alt" type="float" unit="m"/>
   </message>
 
-	<message name="AOA_adc" id="69">
-		<field name="adcVal" type="uint16"></field>
-		<field name="AOA" type="float" unit="rad"></field>
-	</message>
+  <message name="AOA_ADC" id="69">
+    <field name="adcVal" type="uint16"/>
+    <field name="AOA" type="float" unit="rad"/>
+  </message>
 
   <message name="XTEND_RSSI" id="70">
     <field name="datalink_time" type="uint16" unit="s"/>
@@ -601,11 +604,45 @@
       <field name="ping_time" type="float" format="%.2f" unit="ms"/>
     </message>
 
+  <message name="SUPERBITRF" id="72">
+      <field name="status" type="uint8" values="UNINIT|INIT_BINDING|INIT_TRANSFER|BINDING|SYNCING_A|SYNCING_B|TRANSFER"/>
+      <field name="cyrf_status" type="uint8" values="UNINIT|IDLE|GET_MFG_ID|MULTIWRITE|DATA_CODE|CHAN_SOP_DATA_CRC|RX_IRQ_STATUS_PACKET|SEND"/>
+      <field name="irq_count" type="uint32"/>
+      <field name="rx_packet_count" type="uint32"/>
+      <field name="tx_packet_count" type="uint32"/>
+      <field name="transfer_timeouts" type="uint32"/>
+      <field name="resync_count" type="uint32"/>
+      <field name="uplink_count" type="uint32"/>
+      <field name="rc_count" type="uint32"/>
+      <field name="timing1" type="uint32"/>
+      <field name="timing2" type="uint32"/>
+      <field name="bind_mfg_id" type="uint32"/>
+      <field name="mfg_id" type="uint8[]"/>
+  </message>
 
- <!-- 72 is free -->
- <!-- 73 is free -->
- <!-- 74 is free -->
- <!-- 75 is free -->
+  <message name="GX3_INFO" id="73">
+    <field name="GX3_freq" 	type="float" 	unit="hz"/>
+    <field name="chksm_error" 	type="uint32"/>
+    <field name="hdr_error" 	type="uint32"/>
+    <field name="GX3_chksm"	type="uint16"/>
+  </message>
+
+  <message name="EXPLAIN" id="74">
+    <field name="type" type="uint8" values="NAME|SETTING|WAYPOINT|BLOCK|IMAV2013"/>
+    <field name="id" type="uint8"/>
+    <field name="string" type="uint8[]"/>
+  </message>
+
+  <message name="VIDEO_TELEMETRY" id="75">
+    <field name="blob_x1" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y1" 	type="int32" 	unit="pixels"/>
+    <field name="blob_x2" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y2" 	type="int32" 	unit="pixels"/>
+    <field name="blob_x3" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y3" 	type="int32" 	unit="pixels"/>
+    <field name="blob_x4" 	type="int32" 	unit="pixels"/>
+    <field name="blob_y4" 	type="int32" 	unit="pixels"/>
+  </message>
 
   <message name="VF_UPDATE" id="76">
     <field name="baro" type="float" unit="m"/>
@@ -1828,7 +1865,13 @@
     <field name="rc_status"       type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
- <!--213 is free -->
+  <message name="TUNE_VERT" id="213">
+    <field name="z_sp"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="est_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="ref_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
+  </message>
+
  <!--214 is free -->
  <!--215 is free -->
  <!--216 is free -->
@@ -2067,6 +2110,7 @@
   </message>
 
   <message name="I2C_ERRORS" id="253">
+    <field name="queue_full_cnt"              type="uint16"/>
     <field name="acknowledge_failure_cnt"     type="uint16"/>
     <field name="misplaced_start_or_stop_cnt" type="uint16"/>
     <field name="arbitration_lost_cnt"        type="uint16"/>

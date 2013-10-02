@@ -6,6 +6,7 @@
 #
 
 USE_MAGNETOMETER ?= 1
+AHRS_ALIGNER_LED ?= none
 
 AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER -DAHRS_GRAVITY_UPDATE_COORDINATED_TURN
@@ -27,6 +28,11 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
+#
+# NPS uses the real algorithm
+#
+nps.CFLAGS += $(AHRS_CFLAGS)
+nps.srcs += $(AHRS_SRCS)
 
 #
 # Simple simulation of the AHRS result

@@ -19,34 +19,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/bat_checker/bat_checker.c
+ *
+ * Activate a buzzer/LED periodically or periodically to warn of low/critical battery level.
+ * At LOW_BAT_LEVEL the buzzer will be activated periodically.
+ * At CRITIC_BAT_LEVEL the buzzer will be activated permanently.
+ */
+
 #include "bat_checker.h"
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "subsystems/electrical.h"
 #include "led.h"
 
-#ifndef CRITIC_BAT_LEVEL
-#error You must define CRITIC_BAT_LEVEL to use this module!
-#endif
-
-#ifndef LOW_BAT_LEVEL
-#error You must define LOW_BAT_LEVEL to use this module!
-#endif
-
 #ifndef BAT_CHECKER_LED
 #error You must define BAT_CHECKER_LED in your airframe file.
 #endif
 
-#ifndef BAT_CHECKER_DELAY
-#define BAT_CHECKER_DELAY 5
-#endif
-PRINT_CONFIG_VAR(BAT_CHECKER_DELAY)
-
-// at this level, the buzzer will be activated periodically
-#define WARN_BAT_LEVEL1 (LOW_BAT_LEVEL*10)
-
-// at this level, the buzzer will be activated permanently
-#define WARN_BAT_LEVEL2 (CRITIC_BAT_LEVEL*10)
 
 void init_bat_checker(void) {
   LED_INIT(BAT_CHECKER_LED);
@@ -54,22 +44,12 @@ void init_bat_checker(void) {
 }
 
 void bat_checker_periodic(void) {
-  static uint8_t bat_low_counter = 0;
-  if(electrical.vsupply < WARN_BAT_LEVEL1) {
-    if(bat_low_counter)
-      bat_low_counter--;
-  } else {
-    bat_low_counter = BAT_CHECKER_DELAY * BAT_CHECKER_PERIODIC_FREQ;
-  }
 
-  if(!bat_low_counter) {
-    if(electrical.vsupply < WARN_BAT_LEVEL2) {
-      LED_ON(BAT_CHECKER_LED);
-    } else if(electrical.vsupply < WARN_BAT_LEVEL1) {
-      LED_TOGGLE(BAT_CHECKER_LED);
-    }
-  } else {
+  if (electrical.bat_critical)
+    LED_ON(BAT_CHECKER_LED);
+  else if (electrical.bat_low)
+    LED_TOGGLE(BAT_CHECKER_LED);
+  else
     LED_OFF(BAT_CHECKER_LED);
-  }
-}
 
+}
