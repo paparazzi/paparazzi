@@ -69,14 +69,10 @@ let print_dl_settings = fun settings ->
   lprintf "\n";
 
   (** Datalink knowing what settings mean **)
-  let idx = ref 0 in
-	lprintf "\n";
-  List.iter
-    (fun s ->
-      let v = ExtXml.attrib s "var" in
-      lprintf "#define SETTINGS_%s %d\n" (Str.global_replace (Str.regexp "[^A-Za-z0-9]") "_" v) !idx; incr idx)
-    settings;
-  lprintf "\n";
+  Xml2h.define "SETTINGS" "{ \\";
+  List.iter (fun b -> printf " { \"%s\" }, \\\n" (ExtXml.attrib b "var")) settings;
+  lprintf "};\n";
+  Xml2h.define "NB_SETTING" (string_of_int (List.length settings));
 
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
