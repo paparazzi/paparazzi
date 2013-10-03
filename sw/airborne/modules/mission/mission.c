@@ -76,13 +76,11 @@ bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element * e
 
 }
 
-bool_t mission_get(struct _mission_element * element __attribute__((unused))) {
+struct _mission_element * mission_get(void) {
   if (mission.current_idx == mission.insert_idx) {
-    element = NULL;
-    return FALSE;
+    return NULL;
   }
-  element = &(mission.elements[mission.current_idx]);
-  return TRUE;
+  return &(mission.elements[mission.current_idx]);
 }
 
 

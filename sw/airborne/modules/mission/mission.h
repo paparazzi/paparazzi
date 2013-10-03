@@ -104,10 +104,9 @@ extern void mission_init(void);
 extern bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element * element);
 
 /** Get current mission element
- * @param element pointer to the current mission element
- * @return TRUE if valid element, FALSE if mission queue is empty (add element is set to NULL)
+ * @return return a pointer to the next mission element or NULL if no more elements
  */
-extern bool_t mission_get(struct _mission_element * element);
+extern struct _mission_element * mission_get(void);
 
 /** Run mission
  *

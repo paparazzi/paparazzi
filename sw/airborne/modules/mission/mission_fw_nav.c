@@ -105,7 +105,7 @@ static inline bool_t mission_nav_path(struct _mission_path * path) {
 int mission_run() {
   // current element
   struct _mission_element * el = NULL;
-  if (!mission_get(el)) {
+  if ((el = mission_get()) == NULL) {
     // TODO do something special like a waiting circle before ending the mission ?
     return FALSE; // end of mission
   }
