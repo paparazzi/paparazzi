@@ -36,6 +36,8 @@ let georef_of_xml = fun xml ->
 let sof = string_of_float
 let soi = string_of_int
 
+let index_of_blocks = ref []
+
 let check_expressions = ref false
 
 let cm = fun x -> 100. *. x
@@ -55,7 +57,7 @@ let parse = fun s ->
         | Expr_syntax.Unknown_function x -> unexpected "function" x
     end
   end;
-  Expr_syntax.sprint e
+  Expr_syntax.sprint ~call_assoc:("IndexOfBlock", !index_of_blocks) e
 
 let parsed_attrib = fun xml a ->
   parse (ExtXml.attrib xml a)
@@ -125,8 +127,6 @@ let print_waypoint_lla = fun utm0 default_alt waypoint ->
   let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
   printf " {%d, %d, %.0f}, /* 1e7deg, 1e7deg, cm (hmsl=%.2fm) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt) (Egm96.of_wgs84 wgs84)
 
-
-let index_of_blocks = ref []
 
 let get_index_block = fun x ->
   try
