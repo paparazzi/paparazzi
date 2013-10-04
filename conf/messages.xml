@@ -2251,6 +2251,139 @@
     <field name="resolve" type="uint8" values="NONE|LEVEL|CLIMB|DESCEND"/>
   </message>
 
+
+  <message name="MISSION_GOTO_WP" id="20" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="wp_east" type="float" unit="m"/>
+    <field name="wp_north" type="float" unit="m"/>
+    <field name="wp_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+
+  <message name="MISSION_GOTO_WP_LLA" id="21" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="wp_lat" type="float" unit="rad"/>
+    <field name="wp_lon" type="float" unit="rad"/>
+    <field name="wp_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+
+  <message name="MISSION_CIRCLE" id="22" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="center_east" type="float" unit="m"/>
+    <field name="center_north" type="float" unit="m"/>
+    <field name="center_alt" type="float" unit="m"/>
+    <field name="radius" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+
+  <message name="MISSION_CIRCLE_LLA" id="23" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="center_lat" type="float" unit="rad"/>
+    <field name="center_lon" type="float" unit="rad"/>
+    <field name="center_alt" type="float" unit="m"/>
+    <field name="radius" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+
+  <message name="MISSION_SEGMENT" id="24" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="segment_east_1" type="float" unit="m"/>
+    <field name="segment_north_1" type="float" unit="m"/>
+    <field name="segment_east_2" type="float" unit="m"/>
+    <field name="segment_north_2" type="float" unit="m"/>
+    <field name="segment_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+
+  <message name="MISSION_SEGMENT_LLA" id="25" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="segment_lat_1" type="float" unit="rad"/>
+    <field name="segment_lon_1" type="float" unit="rad"/>
+    <field name="segment_lat_2" type="float" unit="rad"/>
+    <field name="segment_lon_2" type="float" unit="rad"/>
+    <field name="segment_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+
+  <message name="MISSION_PATH" id="26" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="point_east_1" type="float" unit="m"/>
+    <field name="point_north_1" type="float" unit="m"/>
+    <field name="point_east_2" type="float" unit="m"/>
+    <field name="point_north_2" type="float" unit="m"/>
+    <field name="point_east_3" type="float" unit="m"/>
+    <field name="point_north_3" type="float" unit="m"/>
+    <field name="point_east_4" type="float" unit="m"/>
+    <field name="point_north_4" type="float" unit="m"/>
+    <field name="point_east_5" type="float" unit="m"/>
+    <field name="point_north_5" type="float" unit="m"/>
+    <field name="path_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+    <field name="nb" type="uint8"/>
+  </message>
+
+  <message name="MISSION_PATH_LLA" id="27" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="point_lat_1" type="float" unit="rad"/>
+    <field name="point_lon_1" type="float" unit="rad"/>
+    <field name="point_lat_2" type="float" unit="rad"/>
+    <field name="point_lon_2" type="float" unit="rad"/>
+    <field name="point_lat_3" type="float" unit="rad"/>
+    <field name="point_lon_3" type="float" unit="rad"/>
+    <field name="point_lat_4" type="float" unit="rad"/>
+    <field name="point_lon_4" type="float" unit="rad"/>
+    <field name="point_lat_5" type="float" unit="rad"/>
+    <field name="point_lon_5" type="float" unit="rad"/>
+    <field name="path_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+    <field name="nb" type="uint8"/>
+  </message>
+
+  <message name="MISSION_SURVEY" id="28" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="survey_east_1" type="float" unit="m"/>
+    <field name="survey_north_1" type="float" unit="m"/>
+    <field name="survey_east_2" type="float" unit="m"/>
+    <field name="survey_north_2" type="float" unit="m"/>
+    <field name="survey_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+  
+  <message name="MISSION_SURVEY_LLA" id="29" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
+    <field name="survey_lat_1" type="float" unit="rad"/>
+    <field name="survey_lon_1" type="float" unit="rad"/>
+    <field name="survey_lat_2" type="float" unit="rad"/>
+    <field name="survey_lon_2" type="float" unit="rad"/>
+    <field name="survey_alt" type="float" unit="m"/>
+    <field name="duration" type="float" unit="s"/>
+  </message>
+  
+  <message name="GOTO_MISSION" id="30" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="mission_id" type="uint8"/>
+  </message>
+
+  <message name="NEXT_MISSION" id="31" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+  </message>
+
+  <message name="END_MISSION" id="32" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+  </message>
+
+
  <message name="WINDTURBINE_STATUS" id="50" link="broadcasted">
    <field name="ac_id" type="uint8"/>
    <field name="tb_id" type="uint8"/>
