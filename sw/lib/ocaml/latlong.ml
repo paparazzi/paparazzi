@@ -477,8 +477,26 @@ let bearing = fun geo1 geo2 ->
  *)
 let leap_seconds = 16
 
+(** leap seconds in GPS time.
+ * There have been 16 leap seconds so far, with the last one at
+ * June 30, 2012 at 23:59:60 UTC which equals 1025136015 in GPS seconds
+ * http://www.leapsecond.com/java/gpsclock.htm
+ * http://www.andrews.edu/~tzs/timeconv/timealgorithm.html
+ *)
+let leap_seconds_list = [46828800.; 78364801.; 109900802.; 173059203.; 252028804.; 315187205.; 346723206.; 393984007.; 425520008.; 457056009.; 504489610.; 551750411.; 599184012.; 820108813.; 914803214.; 1025136015.]
+
+(** Count number of leap seconds when converting gps to unix time *)
+let gps_count_leaps = fun gps_time ->
+  let rec loop = fun l s ->
+    match l with
+    | [] -> s
+    | x::xs -> if gps_time >= x then loop xs (s+1) else s
+  in
+  loop leap_seconds_list 0
+
 (** Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC *)
 let gps_epoch = 315964800.
+
 
 let gps_tow_of_utc = fun ?wday hour min sec ->
   let wday =
@@ -499,9 +517,10 @@ let unix_time_of_tow = fun ?week tow ->
         and unix_now = Unix.gettimeofday () in
         unix_now +. float (tow - host_tow)
     | Some w ->
-      gps_epoch
-      +. float w *. 60. *. 60. *. 24. *. 7.
-      +. float (tow - leap_seconds)
+      let gps_seconds = gps_epoch
+        +. float w *. 60. *. 60. *. 24. *. 7.
+        +. float tow in
+      gps_seconds -. float (gps_count_leaps gps_seconds)
 
 
 
