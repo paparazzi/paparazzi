@@ -48,10 +48,6 @@
 
 #include "subsystems/nav.h"
 
-#ifdef SITL
-#include "subsystems/gps.h"
-#endif
-
 #ifdef BARO_ETS_SYNC_SEND
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -133,23 +129,13 @@ void baro_ets_init( void ) {
 
 void baro_ets_read_periodic( void ) {
   // Initiate next read
-#ifndef SITL
   if (!baro_ets_delay_done) {
     if (SysTimeTimer(baro_ets_delay_time) < USEC_OF_SEC(BARO_ETS_START_DELAY)) return;
     else baro_ets_delay_done = TRUE;
   }
-  if (baro_ets_i2c_trans.status == I2CTransDone)
+  if (baro_ets_i2c_trans.status == I2CTransDone) {
     i2c_receive(&BARO_ETS_I2C_DEV, &baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
-#else // SITL
-  /* fake an offset so sim works as well */
-  if (!baro_ets_offset_init) {
-    baro_ets_offset = 12400;
-    baro_ets_offset_init = TRUE;
   }
-  baro_ets_altitude = gps.hmsl / 1000.0;
-  baro_ets_adc = baro_ets_offset - ((baro_ets_altitude - ground_alt) / BARO_ETS_SCALE);
-  baro_ets_valid = TRUE;
-#endif
 
 #ifdef BARO_ETS_SYNC_SEND
   DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);

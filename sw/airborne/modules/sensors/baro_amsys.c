@@ -30,12 +30,6 @@
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
 
-#ifdef SITL
-#include "subsystems/gps.h"
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_isa.h"
-#endif
-
 //Messages
 #include "mcu_periph/uart.h"
 #include "messages.h"
@@ -128,7 +122,6 @@ void baro_amsys_init( void ) {
 
 void baro_amsys_read_periodic( void ) {
   // Initiate next read
-#ifndef SITL
   if (baro_amsys_i2c_trans.status == I2CTransDone){
 #ifndef MEASURE_AMSYS_TEMPERATURE
     i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 2);
@@ -136,19 +129,6 @@ void baro_amsys_read_periodic( void ) {
     i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 4);
 #endif
   }
-#else // SITL
-  /* fake an offset so sim works for under hmsl as well */
-  if (!baro_amsys_offset_init) {
-    baro_amsys_offset = BARO_AMSYS_OFFSET_MAX;
-    baro_amsys_offset_init = TRUE;
-  }
-  pBaroRaw = 0;
-  baro_amsys_altitude = gps.hmsl / 1000.0;
-  baro_amsys_p = pprz_isa_pressure_of_altitude(baro_amsys_altitude);
-  baro_amsys_adc = baro_amsys_p;
-  AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, &baro_amsys_p);
-  baro_amsys_valid = TRUE;
-#endif
 
 #ifdef BARO_AMSYS_SYNC_SEND
   DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp);
