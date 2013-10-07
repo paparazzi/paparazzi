@@ -1,3 +1,17 @@
+Paparazzi 5.0.2_stable
+======================
+
+Maintenance release
+
+- add launch and noground options to pprzsim-launch
+- fixedwing: fix initialzation of trim commands, including yaw
+- fixedwing: fixes to use ins_alt_dot from ins_alt_float (with USE_BAROMETER)
+  [#511] (https://github.com/paparazzi/paparazzi/pull/511)
+- state interface: fix local/global coordinate validity checks
+- state interface: fix local ned/enu to ecef conversion
+- lib/ocaml: update leap_seconds to 16 (last one was on June 30, 2012)
+
+
 Paparazzi 5.0.1_stable
 ======================
 
