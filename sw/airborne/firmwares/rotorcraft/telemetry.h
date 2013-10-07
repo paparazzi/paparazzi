@@ -668,15 +668,15 @@
                    &guidance_h_pos_err.y,		\
                    &guidance_h_speed_err.x,	\
                    &guidance_h_speed_err.y,	\
-                   &guidance_h_pos_err_sum.x,	\
-                   &guidance_h_pos_err_sum.y,	\
+                   &guidance_h_trim_att_integrator.x,	\
+                   &guidance_h_trim_att_integrator.y,	\
                    &guidance_h_nav_err.x,	\
                    &guidance_h_nav_err.y,	\
-                   &guidance_h_command_earth.x,	\
-                   &guidance_h_command_earth.y,	\
-                   &guidance_h_command_body.phi,	\
-                   &guidance_h_command_body.theta, \
-                   &guidance_h_command_body.psi);	\
+                   &guidance_h_cmd_earth.x,	\
+                   &guidance_h_cmd_earth.y,	\
+                   &guidance_h_cmd_earth.x,	\
+                   &guidance_h_cmd_earth.y, \
+                   &guidance_h_heading_sp);	\
   }
 
 #define PERIODIC_SEND_GUIDANCE_H_REF(_trans, _dev) { \
@@ -707,7 +707,7 @@
                                  &guidance_h_pos_sp.y,                  \
                                  &guidance_h_pos_sp.x,                  \
                                  &carrot_up,                            \
-                                 &guidance_h_command_body.psi,          \
+                                 &guidance_h_heading_sp,          \
                                  &stabilization_cmd[COMMAND_THRUST],    \
                                  &autopilot_flight_time);               \
   }

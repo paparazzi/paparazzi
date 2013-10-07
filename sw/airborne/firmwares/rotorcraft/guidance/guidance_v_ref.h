@@ -32,6 +32,16 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
 
+
+#ifndef GUIDANCE_V_REF_MIN_ZD
+#define GUIDANCE_V_REF_MIN_ZD (-3.)
+#endif
+
+#ifndef GUIDANCE_V_REF_MAX_ZD
+#define GUIDANCE_V_REF_MAX_ZD ( 3.)
+#endif
+
+
 /** Update frequency
  */
 #define GV_FREQ_FRAC 9
