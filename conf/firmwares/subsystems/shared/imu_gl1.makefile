@@ -23,19 +23,20 @@ IMU_GL1_SRCS   += peripherals/l3g4200.c
 IMU_GL1_SRCS   += peripherals/hmc58xx.c
 
 ifeq ($(ARCH), lpc21)
-ifndef GL1_I2C_DEV
-GL1_I2C_DEV=i2c0
-endif
+GL1_I2C_DEV ?= i2c0
 else ifeq ($(ARCH), stm32)
+GL1_I2C_DEV ?= i2c2
+endif
+
 ifndef GL1_I2C_DEV
-GL1_I2C_DEV=i2c2
-endif
+$(error Error: GL1_I2C_DEV not configured!)
 endif
 
-# convert i2cx to upper case
+# convert i2cx to upper/lower case
 GL1_I2C_DEV_UPPER=$(shell echo $(GL1_I2C_DEV) | tr a-z A-Z)
+GL1_I2C_DEV_LOWER=$(shell echo $(GL1_I2C_DEV) | tr A-Z a-z)
 
-IMU_GL1_CFLAGS += -DGL1_I2C_DEV=$(GL1_I2C_DEV)
+IMU_GL1_CFLAGS += -DGL1_I2C_DEV=$(GL1_I2C_DEV_LOWER)
 IMU_GL1_CFLAGS += -DUSE_$(GL1_I2C_DEV_UPPER)
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets

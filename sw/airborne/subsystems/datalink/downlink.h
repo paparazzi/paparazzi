@@ -46,16 +46,21 @@
 #endif
 
 #else /** SITL */
+
 #include "subsystems/datalink/udp.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
+#if USE_SUPERBITRF
+#include "subsystems/datalink/superbitrf.h"
+#endif
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"
 #endif
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
+
 #endif /** !SITL */
 
 #ifndef DefaultChannel

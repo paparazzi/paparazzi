@@ -136,6 +136,7 @@ if __name__ == "__main__":
     valid_manufacturers.append("Transition Robotics Inc.")
     valid_manufacturers.append("STMicroelectronics")
     valid_manufacturers.append("Black Sphere Technologies")
+    valid_manufacturers.append("TUDelft MavLab. 2012->13")
 
     # list of tuples with possible stm32 (autopilot) devices
     stm32devs = []
@@ -167,7 +168,7 @@ if __name__ == "__main__":
             if options.product == "any":
                 stm32devs.append((dfudev, man, product, serial))
             elif options.product == "Lisa/Lia":
-                if "Lisa/M" in product or "Lia" in product:
+                if "Lisa/M" in product or "Lia" in product or "Fireswarm" in product:
                     stm32devs.append((dfudev, man, product, serial))
 
     if not stm32devs:

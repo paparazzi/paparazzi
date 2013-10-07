@@ -21,6 +21,11 @@
     </target>
     <target name="sim" board="pc"/>
 
+    <target name="nps" board="pc">
+      <!-- Note NPS needs the ppm type radio_control subsystem -->
+      <subsystem name="fdm" type="jsbsim"/>
+    </target>
+
     <define name="USE_AIRSPEED"/>
     <define name="AGR_CLIMB"/>
     <define name="STRONG_WIND"/>
@@ -249,6 +254,13 @@
   <section name="DIGITAL_CAMERA" prefix="DC_">
     <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
     <define name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_MODEL" value="&quot;LisaAspirin2&quot;"/>
+    <define name="ACTUATOR_NAMES" value="{&quot;throttle-cmd-norm&quot;, &quot;aileron-cmd-norm&quot;, &quot;elevator-cmd-norm&quot;, &quot;rudder-cmd-norm&quot;}"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="JS_AXIS_MODE" value="4"/>
   </section>
 
 </airframe>

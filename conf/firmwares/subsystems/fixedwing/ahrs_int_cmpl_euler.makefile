@@ -2,6 +2,7 @@
 #
 
 USE_MAGNETOMETER ?= 1
+AHRS_ALIGNER_LED ?= none
 
 AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR -DUSE_AHRS_CMPL_EULER
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
@@ -22,6 +23,8 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
+nps.CFLAGS += $(AHRS_CFLAGS)
+nps.srcs += $(AHRS_SRCS)
 
 #
 # Simple simulation of the AHRS result

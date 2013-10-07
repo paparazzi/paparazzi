@@ -148,7 +148,7 @@ struct State {
   /**
    * Position in Latitude, Longitude and Altitude.
    * Units lat,lon: radians*1e7
-   * Units alt: centimeters above MSL
+   * Units alt: milimeters above reference ellipsoid
    */
   struct LlaCoor_i lla_pos_i;
 
@@ -196,7 +196,7 @@ struct State {
   /**
    * Position in Latitude, Longitude and Altitude.
    * Units lat,lon: radians
-   * Units alt: meters above MSL
+   * Units alt: meters above reference ellipsoid
    */
   struct LlaCoor_f lla_pos_f;
 
@@ -487,12 +487,12 @@ extern void stateCalcPositionLla_f(void);
 
 /// Test if local coordinates are valid.
 static inline bool_t stateIsLocalCoordinateValid(void) {
-  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & ~(POS_LOCAL_COORD)));
+  return ((state.ned_initialized_i || state.utm_initialized_f) && (state.pos_status & (POS_LOCAL_COORD)));
 }
 
 /// Test if global coordinates are valid.
 static inline bool_t stateIsGlobalCoordinateValid(void) {
-  return ((state.pos_status & ~(POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
+  return ((state.pos_status & (POS_GLOBAL_COORD)) || stateIsLocalCoordinateValid());
 }
 
 /************************ Set functions ****************************/

@@ -15,7 +15,7 @@
   </header>
   <init fun="init_light()"/>
   <periodic fun="periodic_light()" period="0.05" autorun="TRUE"/>
-  <makefile>
+  <makefile target="ap">
 
 <!-- these configureeters should be set in the airframe file unless you want the defaults
     <define name="LIGHT_LED_STROBE" value="3"/>

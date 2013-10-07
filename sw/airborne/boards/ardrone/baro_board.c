@@ -69,7 +69,7 @@ static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
   return (baro_calibration.b5 + 8) >> 4;
 }
 
-void baro_periodic(void) 
+void baro_periodic(void)
 {
 }
 
@@ -77,8 +77,8 @@ void process_ardrone_baro(void)
 {
   if(baro.status == BS_RUNNING) {
     // first read temperature because pressure calibration depends on temperature
-    baro.differential = baro_apply_calibration_temp(navdata->temperature_pressure);   // We store the temperature in Baro-Diff
-    baro.absolute = baro_apply_calibration(navdata->pressure);
+    baro.differential = baro_apply_calibration_temp(navdata.temperature_pressure);   // We store the temperature in Baro-Diff
+    baro.absolute = baro_apply_calibration(navdata.pressure);
   }
   else {
     if (baro_calibrated == TRUE) {

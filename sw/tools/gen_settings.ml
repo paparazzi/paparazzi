@@ -68,6 +68,12 @@ let print_dl_settings = fun settings ->
   lprintf "#include \"generated/periodic_telemetry.h\"\n";
   lprintf "\n";
 
+  (** Datalink knowing what settings mean **)
+  Xml2h.define "SETTINGS" "{ \\";
+  List.iter (fun b -> printf " { \"%s\" }, \\\n" (ExtXml.attrib b "var")) settings;
+  lprintf "};\n";
+  Xml2h.define "NB_SETTING" (string_of_int (List.length settings));
+
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
   right ();

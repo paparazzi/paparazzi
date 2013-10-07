@@ -28,10 +28,14 @@
 #ifndef LED_HW_H_
 #define LED_HW_H_
 
-#define LED_INIT(i) { }
-#define LED_ON(i) { }
-#define LED_OFF(i) { }
-#define LED_TOGGLE(i) { }
+#include <stdint.h>
+
+extern uint32_t led_hw_values;
+
+#define LED_INIT(i) { led_hw_values &= ~(1<<i); }
+#define LED_ON(i) { led_hw_values |= (1<<i); }
+#define LED_OFF(i) { led_hw_values &= ~(1<<i); }
+#define LED_TOGGLE(i) { led_hw_values ^= (1<<i); }
 
 #define LED_PERIODIC() {}
 

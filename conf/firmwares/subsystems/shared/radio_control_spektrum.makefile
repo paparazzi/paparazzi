@@ -1,6 +1,9 @@
 #
 # Makefile for shared radio_control spektrum susbsytem
 #
+
+RADIO_CONTROL_LED ?= none
+
 ifndef RADIO_CONTROL_SPEKTRUM_MODEL
 RADIO_CONTROL_SPEKTRUM_MODEL=\"subsystems/radio_control/spektrum_dx7se.h\"
 endif

@@ -87,7 +87,7 @@ def main():
     if options.verbose:
         print("reading file "+filename+" for aircraft "+str(options.ac_id)+" and turntable "+str(options.tt_id))
 
-    samples =  calibration_utils.read_turntable_log(options.ac_id, options.tt_id, filename, 1, 7)
+    samples = calibration_utils.read_turntable_log(options.ac_id, options.tt_id, filename, 1, 7)
 
     if len(samples) == 0:
         print("Error: found zero matching messages in log file!")
@@ -106,13 +106,13 @@ def main():
         parser.error("Specify a valid axis!")
 
     #Linear regression using stats.linregress
-    t  = samples[:, 0]
+    t = samples[:, 0]
     xn = samples[:, axis_idx]
-    (a_s, b_s, r, tt, stderr)=stats.linregress(t, xn)
+    (a_s, b_s, r, tt, stderr) = stats.linregress(t, xn)
     print('Linear regression using stats.linregress')
     print(('regression: a=%.2f b=%.2f, std error= %.3f' % (a_s, b_s, stderr)))
-    print(('<define name="GYRO_X_NEUTRAL" value="%d"/>' % (b_s)));
-    print(('<define name="GYRO_X_SENS" value="%f" integer="16"/>' % (pow(2, 12)/a_s)));
+    print(('<define name="GYRO_X_NEUTRAL" value="%d"/>' % (b_s)))
+    print(('<define name="GYRO_X_SENS" value="%f" integer="16"/>' % (pow(2, 12)/a_s)))
 
     #
     # overlay fited value
@@ -125,7 +125,7 @@ def main():
     plot(samples[:, 1])
     plot(samples[:, 2])
     plot(samples[:, 3])
-    legend(['p', 'q', 'r']);
+    legend(['p', 'q', 'r'])
 
     subplot(3, 1, 2)
     plot(samples[:, 0])
@@ -134,7 +134,7 @@ def main():
     plot(samples[:, 0], samples[:, axis_idx], 'b.')
     plot(ovl_omega, ovl_adc, 'r')
 
-    show();
+    show()
 
 
 if __name__ == "__main__":

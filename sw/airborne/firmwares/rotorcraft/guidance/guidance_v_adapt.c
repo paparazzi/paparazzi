@@ -64,7 +64,7 @@ PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE)
 
 /** Adapt noise factor.
  *  Smaller values will make the filter to adapt faster.
- *  Bigger values (slower adaptation) make the filter more robust to external perturbations.
+ *  Bigger values (slower adaptation) make the filter more robust to external pertubations.
  *  Factor should always be >0
  */
 #ifndef GUIDANCE_V_ADAPT_NOISE_FACTOR

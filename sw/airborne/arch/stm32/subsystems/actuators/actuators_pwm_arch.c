@@ -23,6 +23,8 @@
  *  STM32 PWM servos handling.
  */
 
+//VALID TIMERS ARE TIM1,2,3,4,5,8,9,12
+
 #include "subsystems/actuators/actuators_pwm_arch.h"
 #include "subsystems/actuators/actuators_pwm.h"
 
@@ -30,7 +32,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 
-int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 #if defined(STM32F1)
 //#define PCLK 72000000
@@ -41,6 +42,27 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 #endif
 
 #define ONE_MHZ_CLK 1000000
+
+#ifdef STM32F1
+/**
+ * HCLK = 72MHz, Timer clock also 72MHz since
+ * TIM1_CLK = APB2 = 72MHz
+ * TIM2_CLK = 2 * APB1 = 2 * 32MHz
+ */
+#define TIMER_APB1_CLK AHB_CLK
+#define TIMER_APB2_CLK AHB_CLK
+#endif
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define TIMER_APB1_CLK (rcc_ppre1_frequency * 2)
+#define TIMER_APB2_CLK (rcc_ppre2_frequency * 2)
+#endif
+
+
 /** Default servo update rate in Hz */
 #ifndef SERVO_HZ
 #define SERVO_HZ 40
@@ -62,19 +84,37 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 #ifndef TIM5_SERVO_HZ
 #define TIM5_SERVO_HZ SERVO_HZ
 #endif
+#ifndef TIM9_SERVO_HZ
+#define TIM9_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM12_SERVO_HZ
+#define TIM12_SERVO_HZ SERVO_HZ
+#endif
+
+
+/** @todo: these should go into libopencm3 */
+#define TIM9				TIM9_BASE
+#define TIM12				TIM12_BASE
+
+int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+
 
 /** Set PWM channel configuration
  */
 static inline void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
-						enum tim_oc_id oc_id) {
+                                                   enum tim_oc_id oc_id) {
 
   timer_disable_oc_output(timer_peripheral, oc_id);
-  timer_disable_oc_clear(timer_peripheral, oc_id);
+  //There is no such register in TIM9 and 12.
+  if (timer_peripheral != TIM9 && timer_peripheral != TIM12)
+    timer_disable_oc_clear(timer_peripheral, oc_id);
   timer_enable_oc_preload(timer_peripheral, oc_id);
   timer_set_oc_slow_mode(timer_peripheral, oc_id);
   timer_set_oc_mode(timer_peripheral, oc_id, TIM_OCM_PWM1);
   timer_set_oc_polarity_high(timer_peripheral, oc_id);
   timer_enable_oc_output(timer_peripheral, oc_id);
+  // Used for TIM1 and TIM8, the function does nothing if other timer is specified.
+  timer_enable_break_main_output(timer_peripheral);
 }
 
 /** Set GPIO configuration
@@ -103,9 +143,20 @@ static inline void set_servo_timer(uint32_t timer, uint32_t period, uint8_t chan
    * - Alignement edge.
    * - Direction up.
    */
-  timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  if ((timer == TIM9) || (timer == TIM12))
+    //There are no EDGE and DIR settings in TIM9 and TIM12
+    timer_set_mode(timer, TIM_CR1_CKD_CK_INT, 0, 0);
+  else
+    timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-  timer_set_prescaler(timer, (PCLK / ONE_MHZ_CLK) - 1); // 1uS
+
+  // TIM1, 8 and 9 use APB2 clock, all others APB1
+  if (timer != TIM1 && timer != TIM8 && timer != TIM9) {
+    timer_set_prescaler(timer, (TIMER_APB1_CLK / ONE_MHZ_CLK) - 1); // 1uS
+  } else {
+    // TIM9, 1 and 8 use APB2 clock
+    timer_set_prescaler(timer, (TIMER_APB2_CLK / ONE_MHZ_CLK) - 1);
+  }
 
   timer_disable_preload(timer);
 
@@ -148,6 +199,7 @@ static inline void set_servo_timer(uint32_t timer, uint32_t period, uint8_t chan
 
   /* Counter enable. */
   timer_enable_counter(timer);
+
 }
 
 /** PWM arch init called by generic pwm driver
@@ -158,6 +210,7 @@ void actuators_pwm_arch_init(void) {
    * Configure timer peripheral clocks
    *-----------------------------------*/
 #if PWM_USE_TIM1
+  // APB2 runs on double the frequency of APB1.
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM1EN);
 #endif
 #if PWM_USE_TIM2
@@ -171,6 +224,17 @@ void actuators_pwm_arch_init(void) {
 #endif
 #if PWM_USE_TIM5
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM5EN);
+#endif
+#if PWM_USE_TIM8
+  // APB2 runs on double the frequency of APB1.
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM8EN);
+#endif
+#if PWM_USE_TIM9
+  // APB2 runs on double the frequency of APB1.
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM9EN);
+#endif
+#if PWM_USE_TIM12
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM12EN);
 #endif
 
   /*----------------
@@ -211,6 +275,12 @@ void actuators_pwm_arch_init(void) {
 #ifdef PWM_SERVO_9
   set_servo_gpio(PWM_SERVO_9_GPIO, PWM_SERVO_9_PIN, PWM_SERVO_9_AF, PWM_SERVO_9_RCC_IOP);
 #endif
+#ifdef PWM_SERVO_10
+  set_servo_gpio(PWM_SERVO_10_GPIO, PWM_SERVO_10_PIN, PWM_SERVO_10_AF, PWM_SERVO_10_RCC_IOP);
+#endif
+#ifdef PWM_SERVO_11
+  set_servo_gpio(PWM_SERVO_11_GPIO, PWM_SERVO_11_PIN, PWM_SERVO_11_AF, PWM_SERVO_11_RCC_IOP);
+#endif
 
 
 #if PWM_USE_TIM1
@@ -231,6 +301,18 @@ void actuators_pwm_arch_init(void) {
 
 #if PWM_USE_TIM5
   set_servo_timer(TIM5, TIM5_SERVO_HZ, PWM_TIM5_CHAN_MASK);
+#endif
+
+#if PWM_USE_TIM8
+  set_servo_timer(TIM8, TIM8_SERVO_HZ, PWM_TIM8_CHAN_MASK);
+#endif
+
+#if PWM_USE_TIM9
+  set_servo_timer(TIM9, TIM9_SERVO_HZ, PWM_TIM9_CHAN_MASK);
+#endif
+
+#if PWM_USE_TIM12
+  set_servo_timer(TIM12, TIM12_SERVO_HZ, PWM_TIM12_CHAN_MASK);
 #endif
 
 }
@@ -267,6 +349,12 @@ void actuators_pwm_commit(void) {
 #endif
 #ifdef PWM_SERVO_9
   timer_set_oc_value(PWM_SERVO_9_TIMER, PWM_SERVO_9_OC, actuators_pwm_values[PWM_SERVO_9]);
+#endif
+#ifdef PWM_SERVO_10
+  timer_set_oc_value(PWM_SERVO_10_TIMER, PWM_SERVO_10_OC, actuators_pwm_values[PWM_SERVO_10]);
+#endif
+#ifdef PWM_SERVO_11
+  timer_set_oc_value(PWM_SERVO_11_TIMER, PWM_SERVO_11_OC, actuators_pwm_values[PWM_SERVO_11]);
 #endif
 
 }

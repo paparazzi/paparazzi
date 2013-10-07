@@ -39,22 +39,32 @@ type expression =
 
 let c_var_of_ident = fun x -> "_var_" ^ x
 
-let rec sprint = function
-Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
-  | Ident i -> sprintf "%s" i
-  | Int i -> sprintf "%d" i
-  | Float i -> sprintf "%f" i
-  | CallOperator (op, [e1;e2]) ->
-    sprintf "(%s%s%s)" (sprint e1) op (sprint e2)
-  | CallOperator (op, [e1]) ->
-    sprintf "%s(%s)" op (sprint e1)
-  | CallOperator (_,_) -> failwith "Operator should be binary or unary"
-  | Call (i, es) ->
-    let ses = List.map sprint es in
-    sprintf "%s(%s)" i (String.concat "," ses)
-  | Index (i,e) -> sprintf "%s[%s]" i (sprint e)
-  | Field (i,f) -> sprintf "%s.%s" i f
-  | Deref (e,f) -> sprintf "(%s)->%s" (sprint e) f
+let sprint = fun ?call_assoc expr ->
+  let n, l = match call_assoc with
+  | None -> None, []
+  | Some (n, l) -> Some n, l
+  in
+  let rec eval = function
+    | Ident i when i.[0] = '$' -> sprintf "%s" (c_var_of_ident (String.sub i 1 (String.length i - 1)))
+    | Ident i -> sprintf "%s" i
+    | Int i -> sprintf "%d" i
+    | Float i -> sprintf "%f" i
+    | CallOperator (op, [e1;e2]) ->
+        sprintf "(%s%s%s)" (eval e1) op (eval e2)
+    | CallOperator (op, [e1]) ->
+        sprintf "%s(%s)" op (eval e1)
+    | CallOperator (_,_) -> failwith "Operator should be binary or unary"
+    | Call (i, [Ident s]) when Some i = n ->
+        let index = try List.assoc s l with Not_found -> failwith (sprintf "Unknown block: '%s'" s) in
+        sprintf "%d" index
+    | Call (i, es) ->
+        let ses = List.map eval es in
+        sprintf "%s(%s)" i (String.concat "," ses)
+    | Index (i,e) -> sprintf "%s[%s]" i (eval e)
+    | Field (i,f) -> sprintf "%s.%s" i f
+    | Deref (e,f) -> sprintf "(%s)->%s" (eval e) f
+  in
+  eval expr
 
 (* Valid functions : FIXME *)
 let functions = [

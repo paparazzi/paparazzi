@@ -2,6 +2,8 @@
 
 # Sirf GPS unit
 
+GPS_LED ?= none
+
 ap.CFLAGS += -DUSE_GPS
 ap.CFLAGS += -DGPS_LINK=$(GPS_PORT)
 ap.CFLAGS += -DUSE_$(GPS_PORT)

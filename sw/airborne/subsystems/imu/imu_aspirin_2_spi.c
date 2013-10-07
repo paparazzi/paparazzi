@@ -175,9 +175,27 @@ void imu_aspirin2_event(void)
                  imu_aspirin2.mpu.data_accel.vect.z);
     VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
 #else
+#ifdef LISA_S
+#ifdef LISA_S_UPSIDE_DOWN
+    RATES_ASSIGN(imu.gyro_unscaled,
+                 imu_aspirin2.mpu.data_rates.rates.p,
+                 -imu_aspirin2.mpu.data_rates.rates.q,
+                 -imu_aspirin2.mpu.data_rates.rates.r);
+    VECT3_ASSIGN(imu.accel_unscaled,
+                 imu_aspirin2.mpu.data_accel.vect.x,
+                 -imu_aspirin2.mpu.data_accel.vect.y,
+                 -imu_aspirin2.mpu.data_accel.vect.z);
+    VECT3_ASSIGN(imu.mag_unscaled, mag.x, -mag.y, -mag.z);
+#else
+    RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
+    VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+    VECT3_COPY(imu.mag_unscaled, mag);
+#endif
+#else
     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+#endif
 #endif
     imu_aspirin2.mpu.data_available = FALSE;
     imu_aspirin2.gyro_valid = TRUE;

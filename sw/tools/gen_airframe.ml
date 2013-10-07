@@ -229,7 +229,7 @@ let parse_command = fun command no ->
   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
   { failsafe_value = failsafe_value; foo = 0}
 
-let rec parse_section = fun s ->
+let rec parse_section = fun ac_id s ->
   match Xml.tag s with
       "section" ->
         let prefix = ExtXml.attrib_or_default s "prefix" "" in
@@ -281,11 +281,11 @@ let rec parse_section = fun s ->
       List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
       printf "}\n\n";
     | "include" ->
-      let filename = ExtXml.attrib s "href" in
+      let filename = Str.global_replace (Str.regexp "\\$AC_ID") ac_id (ExtXml.attrib s "href") in
       let subxml = Xml.parse_file filename in
       printf "/* XML %s */" filename;
       nl ();
-      List.iter parse_section (Xml.children subxml)
+      List.iter (parse_section ac_id) (Xml.children subxml)
     | "makefile" ->
       ()
   (** Ignoring this section *)
@@ -320,7 +320,7 @@ let _ =
     define "AC_ID" ac_id;
     define "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
     nl ();
-    List.iter parse_section (Xml.children xml);
+    List.iter (parse_section ac_id) (Xml.children xml);
     finish h_name
   with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1

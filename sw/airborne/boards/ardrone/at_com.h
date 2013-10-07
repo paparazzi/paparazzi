@@ -202,7 +202,7 @@ typedef struct _navdata_gps_t {
 
 //External functions
 extern void init_at_com(void);
-extern void at_com_recieve_navdata(unsigned char* buffer);
+extern int at_com_recieve_navdata(unsigned char* buffer);
 extern void at_com_send_config(char* key, char* value);
 extern void at_com_send_ftrim(void);
 extern void at_com_send_ref(int bits);

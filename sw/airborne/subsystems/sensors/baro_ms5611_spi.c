@@ -21,7 +21,7 @@
  */
 
 /**
- * @file boards/lisa_m/baro_ms5611_spi.c
+ * @file subsystems/sensors/baro_ms5611_spi.c
  *
  * Driver for MS5611 baro on LisaM/Aspirin2.2 via SPI.
  *

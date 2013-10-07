@@ -469,9 +469,16 @@ let bearing = fun geo1 geo2 ->
   ((Rad>>Deg)(atan2 dx dy), sqrt(dx*.dx+.dy*.dy))
 
 
-let leap_seconds = 15 (* http://www.leapsecond.com/java/gpsclock.htm *)
+(** Offset between GPS and UTC times in seconds.
+ * Update when a new leap second is inserted and be careful about times in the
+ * past when this offset was different.
+ * Last leap second was inserted on June 30, 2012 at 23:59:60 UTC
+ * http://www.leapsecond.com/java/gpsclock.htm
+ *)
+let leap_seconds = 16
 
-let gps_epoch = 315964800. (* In seconds, in the unix reference *)
+(** Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC *)
+let gps_epoch = 315964800.
 
 let gps_tow_of_utc = fun ?wday hour min sec ->
   let wday =

@@ -36,6 +36,8 @@ let georef_of_xml = fun xml ->
 let sof = string_of_float
 let soi = string_of_int
 
+let index_of_blocks = ref []
+
 let check_expressions = ref false
 
 let cm = fun x -> 100. *. x
@@ -55,7 +57,7 @@ let parse = fun s ->
         | Expr_syntax.Unknown_function x -> unexpected "function" x
     end
   end;
-  Expr_syntax.sprint e
+  Expr_syntax.sprint ~call_assoc:("IndexOfBlock", !index_of_blocks) e
 
 let parsed_attrib = fun xml a ->
   parse (ExtXml.attrib xml a)
@@ -125,8 +127,6 @@ let print_waypoint_lla = fun utm0 default_alt waypoint ->
   let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
   printf " {%d, %d, %.0f}, /* 1e7deg, 1e7deg, cm (hmsl=%.2fm) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt) (Egm96.of_wgs84 wgs84)
 
-
-let index_of_blocks = ref []
 
 let get_index_block = fun x ->
   try
@@ -481,6 +481,13 @@ let rec print_stage = fun index_of_waypoints x ->
         let statement = ExtXml.attrib  x "fun" in
         lprintf "if (! (%s))\n" statement;
         lprintf "  NextStageAndBreak();\n";
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
         lprintf "break;\n"
       | "survey_rectangle" ->
         let grid = parsed_attrib x "grid"
@@ -495,6 +502,13 @@ let rec print_stage = fun index_of_waypoints x ->
         left ();
         stage ();
         lprintf "NavSurveyRectangle(%s, %s);\n" wp1 wp2;
+        begin
+          try
+            let c = parsed_attrib x "until" in
+            lprintf "if (%s) NextStageAndBreak();\n" c
+          with
+              ExtXml.Error _ -> ()
+        end;
         lprintf "break;\n"
       | _s -> failwith "Unreachable"
   end;
@@ -785,6 +799,9 @@ let () =
       lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
+      Xml2h.define "FP_BLOCKS" "{ \\";
+      List.iter (fun b -> printf " { \"%s\" }, \\\n" (ExtXml.attrib b "name")) blocks;
+      lprintf "};\n";
       Xml2h.define "NB_BLOCK" (string_of_int (List.length blocks));
 
       Xml2h.define "GROUND_ALT" (sof !ground_alt);

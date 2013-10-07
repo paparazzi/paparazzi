@@ -134,6 +134,28 @@
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
+#ifdef USE_SUPERBITRF
+#include "subsystems/datalink/superbitrf.h"
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {        \
+    DOWNLINK_SEND_SUPERBITRF(_trans, _dev,              \
+                      &superbitrf.status,               \
+                      &superbitrf.cyrf6936.status,      \
+                      &superbitrf.irq_count,            \
+                      &superbitrf.rx_packet_count,      \
+                      &superbitrf.tx_packet_count,      \
+                      &superbitrf.transfer_timeouts,    \
+                      &superbitrf.resync_count,         \
+                      &superbitrf.uplink_count,         \
+                      &superbitrf.rc_count,             \
+                      &superbitrf.timing1,              \
+                      &superbitrf.timing2,              \
+                      &superbitrf.bind_mfg_id32,        \
+                      6,                                \
+                      superbitrf.cyrf6936.mfg_id);}
+#else
+#define PERIODIC_SEND_SUPERBITRF(_trans, _dev) {}
+#endif
+
 #ifdef ACTUATORS
 #define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, ACTUATORS_NB, actuators)
 #else
@@ -625,6 +647,14 @@
                   &guidance_v_delta_t);		\
   }
 
+#define PERIODIC_SEND_TUNE_VERT(_trans, _dev) {     \
+    DOWNLINK_SEND_TUNE_VERT(_trans, _dev,           \
+                            &guidance_v_z_sp,		\
+                            &ins_ltp_pos.z,			\
+                            &guidance_v_z_ref,		\
+                            &guidance_v_zd_ref);   \
+  }
+
 #define PERIODIC_SEND_HOVER_LOOP(_trans, _dev) {				\
     DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
                    &guidance_h_pos_sp.x,		\
@@ -935,34 +965,35 @@
 #ifdef ARDRONE2_RAW
 #include "navdata.h"
 #define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) DOWNLINK_SEND_ARDRONE_NAVDATA(_trans, _dev, \
-	&navdata->taille, \
-	&navdata->nu_trame, \
-	&navdata->ax, \
-	&navdata->ay, \
-	&navdata->az, \
-	&navdata->vx, \
-	&navdata->vy, \
-	&navdata->vz, \
-	&navdata->temperature_acc, \
-	&navdata->temperature_gyro, \
-	&navdata->ultrasound, \
-	&navdata->us_debut_echo, \
-	&navdata->us_fin_echo, \
-	&navdata->us_association_echo, \
-	&navdata->us_distance_echo, \
-	&navdata->us_curve_time, \
-	&navdata->us_curve_value, \
-	&navdata->us_curve_ref, \
-	&navdata->nb_echo, \
-	&navdata->sum_echo, \
-	&navdata->gradient, \
-	&navdata->flag_echo_ini, \
-	&navdata->pressure, \
-	&navdata->temperature_pressure, \
-	&navdata->mx, \
-	&navdata->my, \
-	&navdata->mz, \
-	&navdata->chksum \
+	&navdata.taille, \
+	&navdata.nu_trame, \
+	&navdata.ax, \
+	&navdata.ay, \
+	&navdata.az, \
+	&navdata.vx, \
+	&navdata.vy, \
+	&navdata.vz, \
+	&navdata.temperature_acc, \
+	&navdata.temperature_gyro, \
+	&navdata.ultrasound, \
+	&navdata.us_debut_echo, \
+	&navdata.us_fin_echo, \
+	&navdata.us_association_echo, \
+	&navdata.us_distance_echo, \
+	&navdata.us_curve_time, \
+	&navdata.us_curve_value, \
+	&navdata.us_curve_ref, \
+	&navdata.nb_echo, \
+	&navdata.sum_echo, \
+	&navdata.gradient, \
+	&navdata.flag_echo_ini, \
+	&navdata.pressure, \
+	&navdata.temperature_pressure, \
+	&navdata.mx, \
+	&navdata.my, \
+	&navdata.mz, \
+	&navdata.chksum, \
+    &nav_port.checksum_errors \
 	)
 #else
 #define PERIODIC_SEND_ARDRONE_NAVDATA(_trans, _dev) {}
@@ -977,10 +1008,13 @@
 #ifdef USE_UART1
 #define PERIODIC_SEND_UART1_ERRORS(_trans, _dev) {   \
     const uint8_t _bus1 = 1;                         \
+    uint16_t ore = uart1.ore;                        \
+    uint16_t ne_err = uart1.ne_err;                  \
+    uint16_t fe_err = uart1.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart1.ore,             \
-                             &uart1.ne_err,          \
-                             &uart1.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus1);                \
   }
 #else
@@ -990,10 +1024,13 @@
 #ifdef USE_UART2
 #define PERIODIC_SEND_UART2_ERRORS(_trans, _dev) {   \
     const uint8_t _bus2 = 2;                         \
+    uint16_t ore = uart2.ore;                        \
+    uint16_t ne_err = uart2.ne_err;                  \
+    uint16_t fe_err = uart2.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart2.ore,             \
-                             &uart2.ne_err,          \
-                             &uart2.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus2);                \
   }
 #else
@@ -1003,10 +1040,13 @@
 #ifdef USE_UART3
 #define PERIODIC_SEND_UART3_ERRORS(_trans, _dev) {   \
     const uint8_t _bus3 = 3;                         \
+    uint16_t ore = uart3.ore;                        \
+    uint16_t ne_err = uart3.ne_err;                  \
+    uint16_t fe_err = uart3.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart3.ore,             \
-                             &uart3.ne_err,          \
-                             &uart3.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus3);                \
   }
 #else
@@ -1016,10 +1056,13 @@
 #ifdef USE_UART5
 #define PERIODIC_SEND_UART5_ERRORS(_trans, _dev) {   \
     const uint8_t _bus5 = 5;                         \
+    uint16_t ore = uart5.ore;                        \
+    uint16_t ne_err = uart5.ne_err;                  \
+    uint16_t fe_err = uart5.fe_err;                  \
     DOWNLINK_SEND_UART_ERRORS(_trans, _dev,          \
-                             &uart5.ore,             \
-                             &uart5.ne_err,          \
-                             &uart5.fe_err,          \
+                             &ore,                   \
+                             &ne_err,                \
+                             &fe_err,                \
                              &_bus5);                \
   }
 #else

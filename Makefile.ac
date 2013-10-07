@@ -64,10 +64,19 @@ Q=@
 #
 ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
+
+ifdef PERIODIC_FREQUENCY
+# telemetry and module periodic frequency default to PERIODIC_FREQUENCY
+TELEMETRY_FREQUENCY ?= $(PERIODIC_FREQUENCY)
+DEFAULT_MODULES_FREQUENCY = $(PERIODIC_FREQUENCY)
+else
+$(warning Info: PERIODIC_FREQUENCY not configured, defaulting to 60Hz for modules and telemetry)
+TELEMETRY_FREQUENCY ?= 60
+DEFAULT_MODULES_FREQUENCY = 60
 endif
 
-# telemetry periodic frequency defaults to 60Hz
-TELEMETRY_FREQUENCY ?= 60
+endif
+
 
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
@@ -147,7 +156,7 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(TOOLS)/gen_modules.out $(SETTINGS_MODULES) $< > $($@_TMP)
+	$(Q)$(TOOLS)/gen_modules.out $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
