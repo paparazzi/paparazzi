@@ -12,7 +12,7 @@
  * PA7  = FREE
  * PA8  = SPECTRUM BIND
  * PA9  = FREE (ONLY if usb is not active during runtime, PC0 must be high or input )
- * PA10 = UART2
+ * PA10 = UART2 (Spektrum input)
  * PA11 = FREE if usb is not active during runtime
  * PA12 = FREE if usb is not active during runtime
  * PA13 = FREE
@@ -22,7 +22,7 @@
  * PB0  = FREE
  * PB1  = ADC_1 (ADC12 IN 9)
  * PB2  = FREE
- * PB3  = SPI1 SKL
+ * PB3  = SPI1 SCL
  * PB4  = SPI1 MISO
  * PB5  = SPI1 MOSI
  * PB6  = UART1 TX + 4K7 Ohm pull up resistor normaly used for i2c
