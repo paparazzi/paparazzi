@@ -125,8 +125,9 @@ endif
 #
 # add it for simulators
 #
-sim.srcs += $(SRC_BOARD)/baro_board.c
-jsbsim.srcs += $(SRC_BOARD)/baro_board.c
+# only NPS for now...
+#sim.srcs += $(SRC_BOARD)/baro_board.c
+#jsbsim.srcs += $(SRC_BOARD)/baro_board.c
 nps.srcs += $(SRC_BOARD)/baro_board.c
 
 

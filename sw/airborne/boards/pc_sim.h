@@ -11,7 +11,8 @@
 
 #define DefaultVoltageOfAdc(adc) (1.0*adc)
 
-
+#ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
+#endif
 
 #endif /* CONFIG_PC_SIM_H */

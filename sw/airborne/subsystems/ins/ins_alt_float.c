@@ -193,7 +193,11 @@ void alt_kalman(float z_meas) {
   float SIGMA2;
 
 #if USE_BAROMETER
-#if USE_BARO_MS5534A
+#ifdef SITL
+  DT = BARO_SIM_DT;
+  R = 0.5;
+  SIGMA2 = 0.1;
+#elif USE_BARO_MS5534A
   if (alt_baro_enabled) {
     DT = BARO_DT;
     R = baro_MS5534A_r;
