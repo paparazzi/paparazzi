@@ -35,14 +35,20 @@
 #define BOOZ_BARO_SENDER_ID 1
 #endif
 
-/* threshold >0 && <1023 */
+/** threshold >0 && <1023 */
 #ifndef BOOZ_ANALOG_BARO_THRESHOLD
 #define BOOZ_ANALOG_BARO_THRESHOLD 850
 #endif
 
-// FIXME correct scale
+/** scale factor to convert raw ADC measurement to pressure in Pascal.
+ * @todo check value
+ * At low altitudes pressure change is ~1.2 kPa for every 100 meters.
+ * So with previous scale of 15 for ADC -> meters with INT32_POS_FRAC we get:
+ * 12 Pascal = (15 * ADC) << 8
+ * -> SENS = ~ 12 / (15 * 256) = 0.003125
+ */
 #ifndef BOOZ_BARO_SENS
-#define BOOZ_BARO_SENS 1.0
+#define BOOZ_BARO_SENS 0.003125
 #endif
 
 struct BaroBoard baro_board;
