@@ -50,7 +50,8 @@ twog_1.0 + aspirin + ETS baro + ETS speed
      <!-- <define name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/> -->
     </load>
     <load name="baro_ets.xml">
-      <define name="BARO_ETS_SCALE" value="0.3"/>
+      <define name="BARO_ETS_SCALE" value="40.0"/>
+      <define name="BARO_ETS_ALT_SCALE" value="0.3"/>
       <define name="BARO_ETS_SYNC_SEND"/>
     </load>
     <load name="digital_cam.xml">

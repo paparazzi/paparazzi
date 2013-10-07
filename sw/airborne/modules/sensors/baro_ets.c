@@ -60,9 +60,6 @@
 
 #define BARO_ETS_ADDR 0xE8
 #define BARO_ETS_REG 0x07
-#ifndef BARO_ETS_SCALE
-#define BARO_ETS_SCALE 0.32
-#endif
 #define BARO_ETS_OFFSET_MAX 30000
 #define BARO_ETS_OFFSET_MIN 10
 #define BARO_ETS_OFFSET_NBSAMPLES_INIT 20
@@ -70,7 +67,23 @@
 #define BARO_ETS_R 0.5
 #define BARO_ETS_SIGMA2 0.1
 
-// Pressure offset to convert raw adc to real pressure (FIXME find real value)
+/** scale factor to convert raw ADC measurement to pressure in Pascal.
+ * @todo check value
+ * At low altitudes pressure change is ~1.2 kPa for every 100 meters.
+ * So with a scale ADC->meters of 0.32 we get:
+ * 12 Pascal = 0.32 * ADC
+ * -> SCALE = ~ 12 / 0.32 = 37.5
+ */
+#ifndef BARO_ETS_SCALE
+#define BARO_ETS_SCALE 37.5
+#endif
+
+/** scale factor to convert raw ADC measurement to altitude change in meters */
+#ifndef BARO_ETS_ALT_SCALE
+#define BARO_ETS_ALT_SCALE 0.32
+#endif
+
+/** Pressure offset in Pascal when converting raw adc to real pressure (@todo find real value) */
 #ifndef BARO_ETS_PRESSURE_OFFSET
 #define BARO_ETS_PRESSURE_OFFSET 101325.0
 #endif
@@ -136,10 +149,6 @@ void baro_ets_read_periodic( void ) {
   if (baro_ets_i2c_trans.status == I2CTransDone) {
     i2c_receive(&BARO_ETS_I2C_DEV, &baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
   }
-
-#ifdef BARO_ETS_SYNC_SEND
-  DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
-#endif
 }
 
 void baro_ets_read_event( void ) {
@@ -173,7 +182,7 @@ void baro_ets_read_event( void ) {
     }
     // Convert raw to m/s
     if (baro_ets_offset_init) {
-      baro_ets_altitude = ground_alt + BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
+      baro_ets_altitude = ground_alt + BARO_ETS_ALT_SCALE * (float)(baro_ets_offset-baro_ets_adc);
       // New value available
       float pressure = BARO_ETS_SCALE * (float) baro_ets_adc + BARO_ETS_PRESSURE_OFFSET;
       AbiSendMsgBARO_ABS(BARO_ETS_SENDER_ID, &pressure);
