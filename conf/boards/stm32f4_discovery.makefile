@@ -28,8 +28,8 @@ DFU_UTIL ?= y
 #
 RADIO_CONTROL_LED  ?= 4
 BARO_LED           ?= none
-AHRS_ALIGNER_LED   ?= none
-GPS_LED            ?= none
+AHRS_ALIGNER_LED   ?= 5
+GPS_LED            ?= 6
 SYS_TIME_LED       ?= 3
 
 #
@@ -37,9 +37,9 @@ SYS_TIME_LED       ?= 3
 #
 
 MODEM_PORT ?= UART6
-MODEM_BAUD ?= B57600
+MODEM_BAUD ?= B9600
 
-GPS_PORT ?= UART4
+GPS_PORT ?= UART3
 GPS_BAUD ?= B38400
 
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
@@ -54,4 +54,3 @@ RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
-

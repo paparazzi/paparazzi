@@ -65,11 +65,27 @@ enum adc2_channels {
   NB_ADC2_CHANNELS
 };
 
+enum adc3_channels {
+#ifdef USE_AD3_1
+  ADC3_C1,
+#endif
+#ifdef USE_AD3_2
+  ADC3_C2,
+#endif
+#ifdef USE_AD3_3
+  ADC3_C3,
+#endif
+#ifdef USE_AD3_4
+  ADC3_C4,
+#endif
+  NB_ADC3_CHANNELS
+};
+
 #ifdef NB_ADC
 #undef NB_ADC
 #endif
 
-#define NB_ADC (NB_ADC1_CHANNELS + NB_ADC2_CHANNELS)
+#define NB_ADC (NB_ADC1_CHANNELS + NB_ADC2_CHANNELS + NB_ADC3_CHANNELS)
 
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x+NB_ADC)
