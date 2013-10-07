@@ -101,13 +101,175 @@
 #include "led.h"
 #include BOARD_CONFIG
 
+/***************************************************************************************************/
+/***************************   DO NOT EDIT - CONVINIENCE MACROS   **********************************/
+/***************************************************************************************************/
+
+// CONVINIENCE MACROS FOR MAKING EDITING SIMPLER - DO NOT EDIT - IT IS NOT NEEDED! 
+
+#if defined(USE_AD1_1) || defined(USE_AD1_2) || defined(USE_AD1_3) || defined(USE_AD1_4)
+#if !defined(USE_AD1)
+#define USE_AD1   1
+#endif
+#pragma message "Analog to Digital Coverter 1 active"
+#endif
+
+#if defined(USE_AD2_1) || defined(USE_AD2_2) || defined(USE_AD2_3) || defined(USE_AD2_4)
+#if !defined(USE_AD2)
+#define USE_AD2   1
+#endif
+#pragma message "Analog to Digital Coverter 2 active"
+#endif
+
+#if defined(USE_AD3_1) || defined(USE_AD3_2) || defined(USE_AD3_3) || defined(USE_AD3_4)
+#if !defined(USE_AD3)
+#define USE_AD3   1
+#endif
+#pragma message "Analog to Digital Coverter 3 active"
+#endif
+
+#if !defined(AD1_OFFSET)
+#define AD1_OFFSET	0
+#endif	
+#if !defined(AD2_OFFSET)
+#define AD2_OFFSET	4
+#endif	
+#if !defined(AD3_OFFSET)
+#define AD3_OFFSET	8
+#endif	
+
+//#if !defined(USE_ADC_1)
+#if !defined(ADC_1_GPIO_CLOCK_PORT)
+#define ADC_1_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_1_INIT)
+#define ADC_1_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_2)
+#if !defined(ADC_2_GPIO_CLOCK_PORT)
+#define ADC_2_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_2_INIT)
+#define ADC_2_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_3)
+#if !defined(ADC_3_GPIO_CLOCK_PORT)
+#define ADC_3_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_3_INIT)
+#define ADC_3_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_4)
+#if !defined(ADC_4_GPIO_CLOCK_PORT)
+#define ADC_4_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_4_INIT)
+#define ADC_4_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_5)
+#if !defined(ADC_5_GPIO_CLOCK_PORT)
+#define ADC_5_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_5_INIT)
+#define ADC_5_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_6)
+#if !defined(ADC_6_GPIO_CLOCK_PORT)
+#define ADC_6_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_6_INIT)
+#define ADC_6_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_7)
+#if !defined(ADC_7_GPIO_CLOCK_PORT)
+#define ADC_7_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_7_INIT)
+#define ADC_7_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_8)
+#if !defined(ADC_8_GPIO_CLOCK_PORT)
+#define ADC_8_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_8_INIT)
+#define ADC_8_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_9)
+#if !defined(ADC_9_GPIO_CLOCK_PORT)
+#define ADC_9_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_9_INIT)
+#define ADC_9_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_10)
+#if !defined(ADC_10_GPIO_CLOCK_PORT)
+#define ADC_10_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_10_INIT)
+#define ADC_10_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_11)
+#if !defined(ADC_11_GPIO_CLOCK_PORT)
+#define ADC_11_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_11_INIT)
+#define ADC_11_INIT()		{}
+#endif
+//#endif
+
+//#if !defined(USE_ADC_12)
+#if !defined(ADC_12_GPIO_CLOCK_PORT)
+#define ADC_12_GPIO_CLOCK_PORT	0
+#endif
+#if !defined(ADC_12_INIT)
+#define ADC_12_INIT()		{}
+#endif
+//#endif
+
+//#if defined(ADC_GPIO_CLOCK_PORT)
+#undef ADC_GPIO_CLOCK_PORT
+#define ADC_GPIO_CLOCK_PORT ( ADC_1_GPIO_CLOCK_PORT | ADC_2_GPIO_CLOCK_PORT |   \
+                              ADC_3_GPIO_CLOCK_PORT | ADC_4_GPIO_CLOCK_PORT |   \
+                              ADC_5_GPIO_CLOCK_PORT | ADC_6_GPIO_CLOCK_PORT |   \
+                              ADC_7_GPIO_CLOCK_PORT | ADC_8_GPIO_CLOCK_PORT |   \
+                              ADC_9_GPIO_CLOCK_PORT | ADC_10_GPIO_CLOCK_PORT |  \
+                              ADC_11_GPIO_CLOCK_PORT | ADC_12_GPIO_CLOCK_PORT   \
+                            )
+//#endif
+#define ADC_GPIO_INIT(gpio) {   ADC_1_INIT();  ADC_2_INIT();  ADC_3_INIT();  ADC_4_INIT();   \
+				ADC_5_INIT();  ADC_6_INIT();  ADC_7_INIT();  ADC_8_INIT();   \
+				ADC_9_INIT();  ADC_10_INIT(); ADC_11_INIT(); ADC_12_INIT();  \
+			    }
+
+#if !defined(USE_AD1) && !defined(USE_AD2) && !defined(USE_AD3)
+#error ALL ADC CONVERTERS INACTIVE
+#endif
+
 volatile uint8_t adc_new_data_trigger;
 
 /* Static functions */
 
-static inline void adc_init_single(uint32_t adc,
-                                   uint8_t chan1, uint8_t chan2,
-                                   uint8_t chan3, uint8_t chan4);
+static inline void adc_init_single(uint32_t adc);
 
 static inline void adc_push_sample(struct adc_buf * buf,
                                    uint16_t sample);
@@ -115,53 +277,10 @@ static inline void adc_push_sample(struct adc_buf * buf,
 static inline void adc_init_rcc( void );
 static inline void adc_init_irq( void );
 
-#ifdef USE_AD2
-#error NOT_IMPLEMENTED__currently_only_ADC1_is_supported
-#endif
-
 /*
   Only 4 ADC channels may be enabled at the same time
   on each ADC, as there are only 4 injection registers.
 */
-
-// ADCx_GPIO_INIT
-// {{{
-
-/*
-  GPIO mapping for ADC1 pins (PB.1, PB.0, PC.5, PC.3).
-  Can be changed by predefining ADC1_GPIO_INIT.
-*/
-#ifdef USE_AD1
-#ifndef ADC1_GPIO_INIT
-#define ADC1_GPIO_INIT() {                      \
-	gpio_set_mode(GPIOB, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO1 |	GPIO0);             \
-	gpio_set_mode(GPIOC, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO5 |	GPIO3);             \
-  }
-#endif // ADC1_GPIO_INIT
-#endif // USE_AD1
-
-/*
-  GPIO mapping for ADC2 pins.
-  Can be changed by predefining ADC2_GPIO_INIT.
-  Uses the same GPIOs as ADC1 (lisa specific).
-*/
-#ifdef USE_AD2
-#ifndef ADC2_GPIO_INIT
-#define ADC2_GPIO_INIT() {                      \
-    gpio_set_mode(GPIOB, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO1 | GPIO0);               \
-    gpio_set_mode(GPIOC, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO5 | GPIO3);               \
-  }
-#endif // ADC2_GPIO_INIT
-#endif // USE_AD2
-
 
 /*
   Currently, the enums adc1_channels and adc2_channels only
@@ -177,47 +296,62 @@ static inline void adc_init_irq( void );
 #ifdef USE_AD1
 /// List of buffers, one for each active channel.
 static struct adc_buf * adc1_buffers[NB_ADC1_CHANNELS];
+//Maps integer value x to ADC_InjectedChannel_x so they can be iterated safely
+volatile uint32_t *adc1_injected_channels[4];
 #endif
-#ifdef USE_AD2
+#if defined(USE_AD2) && defined(STM32F4)
 /// List of buffers, one for each active channel.
 static struct adc_buf * adc2_buffers[NB_ADC2_CHANNELS];
+//Maps integer value x to ADC_InjectedChannel_x so they can be iterated safely
+volatile uint32_t *adc2_injected_channels[4];
+#endif
+#if defined(USE_AD3) && defined(STM32F4)
+/// List of buffers, one for each active channel.
+static struct adc_buf * adc3_buffers[NB_ADC3_CHANNELS];
+//Maps integer value x to ADC_InjectedChannel_x so they can be iterated safely
+volatile uint32_t *adc3_injected_channels[4];
 #endif
 
 
-/**
- * Maps integer value x to ADC_InjectedChannel_x.
- * so they can be iterated safely
- */
-volatile uint32_t *adc_injected_channels[4];
-
-/**
- * Maps integer value x to ADC_Channel_y.
- * like e.g.
- * - 0 --> ADC_Channel_5
- * - 1 --> ADC_Channel_8
- * - 2 --> ADC_Channel_13
- *
- * so they can be iterated incrementally.
- */
+// Maps integer value x to ADC_Channel_y so they can be iterated incrementally.
+// Example:
+// 0 --> ADC_Channel_5
+// 1 --> ADC_Channel_8
+// 2 --> ADC_Channel_13
 static uint8_t adc_channel_map[4];
 
-/*
-  TODO: Extend interface to allow adressing a
-  specific ADC (at least ADC1 and ADC2)?
-*/
-void adc_buf_channel(uint8_t adc_channel,
-                     struct adc_buf * s,
-                     uint8_t av_nb_sample)
+void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_sample)
 {
-  adc1_buffers[adc_channel] = s;
-  s->av_nb_sample = av_nb_sample;
+
+if (adc_channel < (4+AD1_OFFSET)){
+   adc1_buffers[adc_channel] = s;
+
+}
+#if defined(USE_AD2) && defined(STM32F4)
+else if (adc_channel < (4+AD2_OFFSET)){
+         adc2_buffers[adc_channel-AD2_OFFSET] = s;
+
+      }
+#endif
+#if defined(USE_AD3) && defined(STM32F4)
+       else if (adc_channel < (4+AD3_OFFSET)){
+               adc3_buffers[adc_channel-AD3_OFFSET] = s;
+            }
+#else
+#endif
+
+   s->av_nb_sample = av_nb_sample;
+
+
+
+return;
 }
 
 // #define USE_AD_TIM4
 /* Configure and enable RCC for peripherals (ADC1, ADC2, Timer) */
 static inline void adc_init_rcc( void )
 {
-#if defined (USE_AD1) || defined (USE_AD2)
+#if defined(USE_AD1) || (defined(USE_AD2)&&defined(STM32F4)) || (defined(USE_AD3)&&defined(STM32F4))
   uint32_t timer;
   volatile uint32_t *rcc_apbenr;
   uint32_t rcc_apb;
@@ -235,18 +369,6 @@ static inline void adc_init_rcc( void )
   rcc_apb = RCC_APB1ENR_TIM2EN;
 #endif
 
-  /*
-   * Historic Note:
-   * Previously in libstm32 we were setting the ADC clock here.
-   * It was being set to PCLK2 DIV2 resulting in 36MHz clock on the ADC. I am
-   * pretty sure that this is wrong as based on the datasheet the ADC clock
-   * must not exceed 14MHz! Now the clock is being set by the clock init
-   * routine in libopencm3 so we don't have to set up this clock ourselves any
-   * more. This comment is here just as a reminder and may be removed in the
-   * future when we know that everything is working properly.
-   * (by Esden the historian :D)
-   */
-
   /* Timer peripheral clock enable. */
   rcc_peripheral_enable_clock(rcc_apbenr, rcc_apb);
   /* GPIO peripheral clock enable. */
@@ -262,8 +384,11 @@ static inline void adc_init_rcc( void )
 #ifdef USE_AD1
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
 #endif
-#ifdef USE_AD2
+#if defined(USE_AD2) && defined(STM32F4)
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC2EN);
+#endif
+#if defined(USE_AD3) && defined(STM32F4)
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC3EN);
 #endif
 
   /* Time Base configuration */
@@ -282,7 +407,7 @@ static inline void adc_init_rcc( void )
   timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
   timer_enable_counter(timer);
 
-#endif // defined (USE_AD1) || defined (USE_AD2)
+#endif // defined (USE_AD1) || defined (USE_AD2) || (defined(USE_AD3) && defined(STM32F4))
 }
 
 /* Configure and enable ADC interrupt */
@@ -297,38 +422,37 @@ static inline void adc_init_irq( void )
 #endif
 }
 
-/**
- * Enable selected channels on specified ADC.
- * Usage:
- *
- * adc_init_single(ADC1, 1, 1, 0, 0);
- *
- * ... would enable ADC1, enabling channels 1 and 2,
- * but not 3 and 4.
- */
-static inline void adc_init_single(uint32_t adc,
-                                   uint8_t chan1, uint8_t chan2,
-                                   uint8_t chan3, uint8_t chan4)
+/*1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111*/
+static inline void adc_init_single(uint32_t adc)
 {
-  uint8_t num_channels, rank;
+  uint8_t num_channels = 0, rank = 3;
   uint8_t channels[4];
 
   // Paranoia, must be down for 2+ ADC clock cycles before calibration
   adc_off(adc);
 
-  /* enable adc clock */
+  /* enable adc clock and configure pins as analog inputs */
   if (adc == ADC1) {
 #ifdef USE_AD1
     num_channels = NB_ADC1_CHANNELS;
-    ADC1_GPIO_INIT();
 #endif
+#if defined(USE_AD2) && defined(STM32F4)
   }
   else if (adc == ADC2) {
-#ifdef USE_AD2
-    num_channels = NB_ADC2_CHANNELS;
-    ADC2_GPIO_INIT();
+          num_channels = NB_ADC2_CHANNELS;
+#endif
+#if defined(USE_AD3) && defined(STM32F4)
+  } 
+  else if (adc == ADC3) {
+          num_channels = NB_ADC3_CHANNELS;
 #endif
   }
+
+#if defined(ADC1_GPIO_INIT)
+    ADC1_GPIO_INIT();   // For Lisa m v2
+#else
+    ADC_GPIO_INIT();
+#endif
 
   /* Configure ADC */
 
@@ -372,23 +496,27 @@ static inline void adc_init_single(uint32_t adc,
   /* Clear CONT */
   adc_set_single_conversion_mode(adc);
 
+// Reverse channel order for compensating the stm32's peculiar order for injected channels.
+//all this because stm32 does not start from channel 0 when less then 4 channels are specified
+//which means that if 3 channels are specified, conversion is done to ch 2,3,4 but not 1.
+//EXAMPLE: the first BOARD_ADC_CHANNEL (adc_channel_map[0]) is mapped to JSQ4 and not JSQ1 (channels[0])
   rank = 3;
-  if (chan1) {
+  if (adc_channel_map[0] < 16 ) {
     adc_set_sample_time(adc, adc_channel_map[0], ADC_SAMPLE_TIME);
-    channels[rank] = adc_channel_map[0];
+    channels[rank] = adc_channel_map[0]; 
     rank--;
   }
-  if (chan2) {
+  if (adc_channel_map[1] < 16) {
     adc_set_sample_time(adc, adc_channel_map[1], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[1];
     rank--;
   }
-  if (chan3) {
+  if (adc_channel_map[2] < 16) {
     adc_set_sample_time(adc, adc_channel_map[2], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[2];
     rank--;
   }
-  if (chan4) {
+  if (adc_channel_map[3] < 16) {
     adc_set_sample_time(adc, adc_channel_map[3], ADC_SAMPLE_TIME);
     channels[rank] = adc_channel_map[3];
   }
@@ -441,114 +569,190 @@ void adc_init( void ) {
      buffers registered at the time the ADC trigger
      interrupt is enabled.
   */
+// EXAMPLE OF ADC EXECUTION ORDER WHEN WE HAVE SAY 2 ADC INPUTS USED on ADC1 
+// Because the first board adc channel ADC1_1 is mapped to injected channel 4 and ADC1_2 
+// to injected channel 3 but the conversion starts from the lowest injection channel used, 
+// 3 in our case, injected channel 3 data wiil be located at JDR1 and 4 to JDR2 so 
+// JDR1 = ADC1_2 and JDR2 = ADC1_1
   uint8_t channel;
 #ifdef USE_AD1
-  for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
-    adc1_buffers[channel] = NULL;
-  volatile uint32_t* tmp_channels_1[] = {
-    &ADC_JDR1(ADC1),
-    &ADC_JDR2(ADC1),
-    &ADC_JDR3(ADC1),
-    &ADC_JDR4(ADC1)
-  };
+  for(channel = 0; channel < NB_ADC1_CHANNELS; channel++){  adc1_buffers[channel] = NULL; }
+  volatile uint32_t* tmp_channels_1[]={
+					&ADC_JDR1(ADC1),
+					&ADC_JDR2(ADC1),
+					&ADC_JDR3(ADC1),
+					&ADC_JDR4(ADC1)
+				      };
+
 #ifdef USE_AD1_1
-  adc_injected_channels[ADC1_C1] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C1];
+// For example the below channel has now the address of ADC_JDR4 if all 4 channels are specified.
+// For our 2 channel inputs example adc1_injected_channels[0] = &ADC_JDR2(ADC1) and
+// adc1_injected_channels[1] = &ADC_JDR1(ADC1)
+  adc1_injected_channels[ADC1_C1] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C1];
 #endif
 #ifdef USE_AD1_2
-  adc_injected_channels[ADC1_C2] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C2];
+  adc1_injected_channels[ADC1_C2] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C2];
 #endif
 #ifdef USE_AD1_3
-  adc_injected_channels[ADC1_C3] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C3];
+  adc1_injected_channels[ADC1_C3] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C3];
 #endif
 #ifdef USE_AD1_4
-  adc_injected_channels[ADC1_C4] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C4];
+  adc1_injected_channels[ADC1_C4] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C4];
 #endif
 
 #endif // USE_AD1
 
-#ifdef USE_AD2
-  for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
-    adc2_buffers[channel] = NULL;
-  volatile uint32_t* tmp_channels_2[] = {
-    &ADC_JDR1(ADC2),
-    &ADC_JDR2(ADC2),
-    &ADC_JDR3(ADC2),
-    &ADC_JDR4(ADC2)
-  };
+#if defined(USE_AD2) && defined(STM32F4)
+  for(channel = 0; channel < NB_ADC2_CHANNELS; channel++){  adc2_buffers[channel] = NULL; }
+  volatile uint32_t* tmp_channels_2[]={
+					&ADC_JDR1(ADC2),
+					&ADC_JDR2(ADC2),
+					&ADC_JDR3(ADC2),
+					&ADC_JDR4(ADC2)
+				      };
 #ifdef USE_AD2_1
-  adc_injected_channels[ADC2_C1] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C1];
+  adc2_injected_channels[ADC2_C1] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C1];
 #endif
 #ifdef USE_AD2_2
-  adc_injected_channels[ADC2_C2] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C2];
+  adc2_injected_channels[ADC2_C2] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C2];
 #endif
 #ifdef USE_AD2_3
-  adc_injected_channels[ADC2_C3] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C3];
+  adc2_injected_channels[ADC2_C3] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C3];
 #endif
 #ifdef USE_AD2_4
-  adc_injected_channels[ADC2_C4] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C4];
+  adc2_injected_channels[ADC2_C4] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C4];
 #endif
 
 #endif // USE_AD2
 
-  adc_new_data_trigger = FALSE;
-  adc_channel_map[0] = BOARD_ADC_CHANNEL_1;
-  adc_channel_map[1] = BOARD_ADC_CHANNEL_2;
-  adc_channel_map[2] = BOARD_ADC_CHANNEL_3;
-  adc_channel_map[3] = BOARD_ADC_CHANNEL_4;
+#if defined(USE_AD3) && defined(STM32F4)
+  for(channel = 0; channel < NB_ADC3_CHANNELS; channel++){  adc3_buffers[channel] = NULL; }
+  volatile uint32_t* tmp_channels_3[]={
+					&ADC_JDR1(ADC3),
+					&ADC_JDR2(ADC3),
+					&ADC_JDR3(ADC3),
+					&ADC_JDR4(ADC3)
+				      };
+#ifdef USE_AD3_1
+  adc3_injected_channels[ADC3_C1] = tmp_channels_3[NB_ADC3_CHANNELS-1-ADC3_C1];
+#endif
+#ifdef USE_AD3_2
+  adc3_injected_channels[ADC3_C2] = tmp_channels_3[NB_ADC3_CHANNELS-1-ADC3_C2];
+#endif
+#ifdef USE_AD3_3
+  adc3_injected_channels[ADC3_C3] = tmp_channels_3[NB_ADC3_CHANNELS-1-ADC3_C3];
+#endif
+#ifdef USE_AD3_4
+  adc3_injected_channels[ADC3_C4] = tmp_channels_3[NB_ADC3_CHANNELS-1-ADC3_C4];
+#endif
+
+#endif // USE_AD3
 
   adc_init_rcc();
   adc_init_irq();
 
-  // adc_init_single(ADCx, c1, c2, c3, c4)
 #ifdef USE_AD1
-  adc_init_single(ADC1,
-#ifdef USE_AD1_1
-                  1,
+  adc_new_data_trigger = FALSE;
+  // adc_init_single(ADCx, c1, c2, c3, c4)
+#if defined(BOARD_ADC1_CHANNEL_1)
+  adc_channel_map[0] = BOARD_ADC1_CHANNEL_1;
+#elif defined(USE_AD1_1)
+  adc_channel_map[0] = USE_AD1_1;
 #else
-                  0,
+  adc_channel_map[0] = 0xFF;
 #endif
-#ifdef USE_AD1_2
-                  1,
+#if defined(BOARD_ADC1_CHANNEL_2)
+  adc_channel_map[1] = BOARD_ADC1_CHANNEL_2;
+#elif defined(USE_AD1_2)
+  adc_channel_map[1] = USE_AD1_2;
 #else
-                  0,
+  adc_channel_map[1] = 0xFF;
 #endif
-#ifdef USE_AD1_3
-                  1,
+#if defined(BOARD_ADC1_CHANNEL_3)
+  adc_channel_map[2] = BOARD_ADC1_CHANNEL_3;
+#elif defined(USE_AD1_3)
+  adc_channel_map[2] = USE_AD1_3;
 #else
-                  0,
+  adc_channel_map[2] = 0xFF;
 #endif
-#ifdef USE_AD1_4
-                  1
+#if defined(BOARD_ADC1_CHANNEL_4)
+  adc_channel_map[3] = BOARD_ADC1_CHANNEL_4;
+#elif defined(USE_AD1_4)
+  adc_channel_map[3] = USE_AD1_4;
 #else
-                  0
+  adc_channel_map[3] = 0xFF;
 #endif
-                  );
+
+  adc_init_single(ADC1);
 #endif // USE_AD1
 
-#ifdef USE_AD2
-  adc_init_single(ADC2,
-#ifdef USE_AD2_1
-                  1,
+#if defined(USE_AD2) && defined(STM32F4)
+  adc_new_data_trigger = FALSE;
+#if defined(BOARD_ADC2_CHANNEL_1)
+  adc_channel_map[0] = BOARD_ADC2_CHANNEL_1;
+#elif defined(USE_AD2_1)
+  adc_channel_map[0] = USE_AD2_1;
 #else
-                  0,
+  adc_channel_map[0] = 0xFF;
 #endif
-#ifdef USE_AD2_2
-                  1,
+#if defined(BOARD_ADC2_CHANNEL_2)
+  adc_channel_map[1] = BOARD_ADC2_CHANNEL_2;
+#elif defined(USE_AD2_2)
+  adc_channel_map[1] = USE_AD2_2;
 #else
-                  0,
+  adc_channel_map[1] = 0xFF;
 #endif
-#ifdef USE_AD2_3
-                  1,
+#if defined(BOARD_ADC2_CHANNEL_3)
+  adc_channel_map[2] = BOARD_ADC2_CHANNEL_3;
+#elif defined(USE_AD2_3)
+  adc_channel_map[2] = USE_AD2_3;
 #else
-                  0,
+  adc_channel_map[2] = 0xFF;
 #endif
-#ifdef USE_AD2_4
-                  1
+#if defined(BOARD_ADC2_CHANNEL_4)
+  adc_channel_map[3] = BOARD_ADC2_CHANNEL_4;
+#elif defined(USE_AD2_4)
+  adc_channel_map[3] = USE_AD2_4;
 #else
-                  0
+  adc_channel_map[3] = 0xFF;
 #endif
-                  );
+
+  adc_init_single(ADC2);
 #endif // USE_AD2
+
+#if defined(USE_AD3) && defined(STM32F4)
+  adc_new_data_trigger = FALSE;
+#if defined(BOARD_ADC3_CHANNEL_1)
+  adc_channel_map[0] = BOARD_ADC3_CHANNEL_1;
+#elif defined(USE_AD3_1)
+  adc_channel_map[0] = USE_AD3_1;
+#else
+  adc_channel_map[0] = 0xFF;
+#endif
+#if defined(BOARD_ADC3_CHANNEL_2)
+  adc_channel_map[1] = BOARD_ADC3_CHANNEL_2;
+#elif defined(USE_AD3_2)
+  adc_channel_map[1] = USE_AD3_2;
+#else
+  adc_channel_map[1] = 0xFF;
+#endif
+#if defined(BOARD_ADC3_CHANNEL_3)
+  adc_channel_map[2] = BOARD_ADC3_CHANNEL_3;
+#elif defined(USE_AD3_3)
+  adc_channel_map[2] = USE_AD3_3;
+#else
+  adc_channel_map[2] = 0xFF;
+#endif
+#if defined(BOARD_ADC3_CHANNEL_4)
+  adc_channel_map[3] = BOARD_ADC3_CHANNEL_4;
+#elif defined(USE_AD3_4)
+  adc_channel_map[3] = USE_AD3_4;
+#else
+  adc_channel_map[3] = 0xFF;
+#endif
+
+  adc_init_single(ADC3);
+#endif // USE_AD3
 
 }
 
@@ -564,9 +768,8 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
   buf->head = new_head;
 }
 
-/**
- * ADC1+2 interrupt hander
- */
+/******************************  ADC1+2+3 interrupt hander   *******************************/
+ 
 #if defined(STM32F1)
 void adc1_2_isr(void)
 #elif defined(STM32F4)
@@ -578,27 +781,50 @@ void adc_isr(void)
   struct adc_buf * buf;
 
 #ifdef USE_AD1
+#pragma message "ADC1 active"
   // Clear Injected End Of Conversion
-  ADC_SR(ADC1) &= ~ADC_SR_JEOC;
-  for(channel = 0; channel < NB_ADC1_CHANNELS; channel++) {
-    buf = adc1_buffers[channel];
-    if(buf) {
-      value = *adc_injected_channels[channel];
-      adc_push_sample(buf, value);
-    }
+if (ADC_SR(ADC1) & ADC_SR_JEOC){ 
+   ADC_SR(ADC1) &= ~ADC_SR_JEOC; 
+   for (channel = 0; channel < NB_ADC1_CHANNELS; channel++) {
+       buf = adc1_buffers[channel];
+       if (buf) {
+          value = *adc1_injected_channels[channel];
+          adc_push_sample(buf, value);
+       }
   }
+#if !defined(USE_AD2) && !defined(USE_AD3)
   adc_new_data_trigger = 1;
 #endif
-#ifdef USE_AD2
-  // Clear Injected End Of Conversion
-  ADC_SR(ADC2) &= ~ADC_SR_JEOC;
-  for(channel = 0; channel < NB_ADC2_CHANNELS; channel++) {
-    buf = adc2_buffers[channel];
-    if(buf) {
-      value = *adc_injected_channels[channel];
-      adc_push_sample(buf, value);
-    }
+}
+#endif
+#if defined(USE_AD2) && defined(STM32F4)
+#pragma message "ADC2 active"
+if (ADC_SR(ADC2) & ADC_SR_JEOC){ 
+   ADC_SR(ADC2) &= ~ADC_SR_JEOC; 
+   for (channel = 0; channel < NB_ADC2_CHANNELS; channel++) {
+       buf = adc2_buffers[channel];
+       if (buf) {
+          value = *adc2_injected_channels[channel];
+          adc_push_sample(buf, value);
+       }
+  }
+#if !defined(USE_AD3) 
+  adc_new_data_trigger = 1;
+#endif
+}
+#endif
+#if defined(USE_AD3) && defined(STM32F4)
+#pragma message "ADC3 active"
+if (ADC_SR(ADC3) & ADC_SR_JEOC){ 
+   ADC_SR(ADC3) &= ~ADC_SR_JEOC; 
+   for (channel = 0; channel < NB_ADC3_CHANNELS; channel++) {
+       buf = adc3_buffers[channel];
+       if (buf) {
+          value = *adc3_injected_channels[channel];
+          adc_push_sample(buf, value);
+       }
   }
   adc_new_data_trigger = 1;
+}
 #endif
 }
