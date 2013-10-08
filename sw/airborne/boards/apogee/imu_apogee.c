@@ -61,6 +61,13 @@ PRINT_CONFIG_VAR(APOGEE_ACCEL_RANGE)
 
 struct ImuApogee imu_apogee;
 
+// baro config will be done later in bypass mode
+bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set, void* mpu);
+
+bool_t configure_baro_slave(Mpu60x0ConfigSet mpu_set __attribute__ ((unused)), void* mpu __attribute__ ((unused))) {
+  return TRUE;
+}
+
 void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
@@ -71,6 +78,10 @@ void imu_impl_init(void)
   imu_apogee.mpu.config.dlpf_cfg = APOGEE_LOWPASS_FILTER;
   imu_apogee.mpu.config.gyro_range = APOGEE_GYRO_RANGE;
   imu_apogee.mpu.config.accel_range = APOGEE_ACCEL_RANGE;
+  // set MPU in bypass mode for the baro
+  imu_apogee.mpu.config.nb_slaves = 1;
+  imu_apogee.mpu.config.slaves[0].configure = &configure_baro_slave;
+  imu_apogee.mpu.config.i2c_bypass = TRUE;
 
   imu_apogee.gyr_valid = FALSE;
   imu_apogee.acc_valid = FALSE;
