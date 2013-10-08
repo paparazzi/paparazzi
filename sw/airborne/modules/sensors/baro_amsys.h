@@ -48,6 +48,4 @@ extern void baro_amsys_read_event( void );
 
 #define BaroAmsysEvent() { if (baro_amsys_i2c_trans.status == I2CTransSuccess) baro_amsys_read_event(); }
 
-#define BaroAmsysUpdate(_b, _h) { if (baro_amsys_valid) { _b = baro_amsys_adc; _h(); baro_amsys_valid = FALSE; } }
-
 #endif // BARO_AMSYS_H

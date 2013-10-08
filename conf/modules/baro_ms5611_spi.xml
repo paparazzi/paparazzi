@@ -7,7 +7,7 @@
       Measurement Specialties MS5611-01BA pressure sensor (SPI)
     </description>
     <define name="MS5611_SPI_DEV" value="spiX" description="select spi peripheral to use (default spi1)"/>
-    <define name="MS5611_SLAVE_DEV" value="SPI_SLAVE0" description="SPI slave select index"/>
+    <define name="MS5611_SLAVE_IDX" value="SPI_SLAVE0" description="SPI slave select index"/>
     <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
   <header>

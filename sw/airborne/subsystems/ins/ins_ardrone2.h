@@ -24,22 +24,26 @@
  * INS implementation for ardrone2-sdk.
  */
 
-#ifndef INS_INT_H
-#define INS_INT_H
+#ifndef INS_ARDRONE2_SDK_H
+#define INS_ARDRONE2_SDK_H
 
 #include "subsystems/ins.h"
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"
 
-//TODO: implement in state
-extern int32_t ins_qfe;
-extern int32_t ins_baro_alt;
+struct InsArdrone2 {
+  struct LtpDef_i  ltp_def;
+  bool_t           ltp_initialized;
 
-extern struct NedCoor_i ins_ltp_pos;
-extern struct LtpDef_i ins_ltp_def;
-extern struct NedCoor_f ins_ltp_speed;
-extern struct NedCoor_f ins_ltp_accel;
-extern bool_t ins_ltp_initialised;
+  float qfe; ///< not used, only dummy for INS_REF message
 
-#endif /* INS_INT_H */
+  /* output LTP NED */
+  struct NedCoor_i ltp_pos;
+  struct NedCoor_i ltp_speed;
+  struct NedCoor_i ltp_accel;
+};
+
+extern struct InsArdrone2 ins_impl;
+
+#endif /* INS_ARDRONE2_SDK_H */

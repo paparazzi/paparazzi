@@ -44,6 +44,10 @@
 
 #include "math/pprz_algebra_int.h"
 
+#include "subsystems/datalink/downlink.h"
+#include "messages.h"
+#include "mcu_periph/uart.h"
+
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct EnuCoor_i waypoints[NB_WAYPOINT];
 
@@ -267,7 +271,7 @@ static inline void nav_set_altitude( void ) {
 
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
-  ins_ltp_initialised = FALSE;
+  ins_impl.ltp_initialized = FALSE;
   ins.hf_realign = TRUE;
   ins.vf_realign = TRUE;
   return 0;
@@ -277,9 +281,9 @@ unit_t nav_reset_alt( void ) {
   ins.vf_realign = TRUE;
 
 #if USE_GPS
-  ins_ltp_def.lla.alt = gps.lla_pos.alt;
-  ins_ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_ltp_def);
+  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_impl.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
 #endif
 
   return 0;
@@ -302,16 +306,25 @@ void nav_periodic_task() {
   /* run carrot loop */
   nav_run();
 
-  ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 1000.);
+  ground_alt = POS_BFP_OF_REAL((float)ins_impl.ltp_def.hmsl / 1000.);
 }
 
-#include "subsystems/datalink/downlink.h"
-#include "messages.h"
-#include "mcu_periph/uart.h"
+void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i* new_lla_pos) {
+  if (stateIsLocalCoordinateValid()) {
+    struct EnuCoor_i enu;
+    enu_of_lla_point_i(&enu, &state.ned_origin_i, new_lla_pos);
+    enu.x = POS_BFP_OF_REAL(enu.x)/100;
+    enu.y = POS_BFP_OF_REAL(enu.y)/100;
+    enu.z = POS_BFP_OF_REAL(enu.z)/100;
+    nav_move_waypoint(wp_id, &enu);
+  }
+}
+
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x), &(new_pos->y), &(new_pos->z));
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
+                               &(new_pos->y), &(new_pos->z));
   }
 }
 

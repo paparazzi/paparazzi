@@ -92,17 +92,17 @@ module Gen_onboard = struct
   let print_struct = fun h size ->
     Printf.fprintf h "\n/* Array and linked list structure */\n";
     Printf.fprintf h "#define ABI_MESSAGE_NB %d\n\n" (size+1);
-    Printf.fprintf h "EXTERN abi_event* abi_queues[ABI_MESSAGE_NB];\n"
+    Printf.fprintf h "ABI_EXTERN abi_event* abi_queues[ABI_MESSAGE_NB];\n"
 
   (* Print arguments' function from fields *)
-  let print_args = fun h fields starter ->
+  let print_args = fun h fields ->
     let rec args = fun h l ->
       match l with
           [] -> Printf.fprintf h ")"
-        | [(n,t)] -> Printf.fprintf h "const %s %s)" t n
-        | (n,t)::l' -> Printf.fprintf h "const %s %s, " t n; args h l'
+        | [(n,t)] -> Printf.fprintf h ", const %s * %s)" t n
+        | (n,t)::l' -> Printf.fprintf h ", const %s * %s" t n; args h l'
     in
-    Printf.fprintf h "(%s" starter;
+    Printf.fprintf h "(uint8_t sender_id";
     args h fields
 
   (* Print callbacks prototypes for all messages *)
@@ -110,7 +110,7 @@ module Gen_onboard = struct
     Printf.fprintf h "\n/* Callbacks */\n";
     List.iter (fun msg ->
       Printf.fprintf h "typedef void (*abi_callback%s)" (String.capitalize msg.name);
-      print_args h msg.fields "";
+      print_args h msg.fields;
       Printf.fprintf h ";\n";
     ) messages
 
@@ -129,18 +129,18 @@ module Gen_onboard = struct
     let rec args = fun h l ->
       match l with
           [] -> Printf.fprintf h ");\n"
-        | [(n,_)] -> Printf.fprintf h "%s);\n" n
-        | (n,_)::l' -> Printf.fprintf h "%s, " n; args h l'
+        | [(n,_)] -> Printf.fprintf h ", %s);\n" n
+        | (n,_)::l' -> Printf.fprintf h ", %s" n; args h l'
     in
     let name = String.capitalize msg.name in
     Printf.fprintf h "\nstatic inline void AbiSendMsg%s" name;
-    print_args h msg.fields "uint8_t sender_id, ";
+    print_args h msg.fields;
     Printf.fprintf h " {\n";
     Printf.fprintf h "  abi_event* e;\n";
     Printf.fprintf h "  ABI_FOREACH(abi_queues[ABI_%s_ID],e) {\n" name;
     Printf.fprintf h "    if (e->id == ABI_BROADCAST || e->id == sender_id) {\n";
     Printf.fprintf h "      abi_callback%s cb = (abi_callback%s)(e->cb);\n" name name;
-    Printf.fprintf h "      cb(";
+    Printf.fprintf h "      cb(sender_id";
     args h msg.fields;
     Printf.fprintf h "    };\n";
     Printf.fprintf h "  };\n";

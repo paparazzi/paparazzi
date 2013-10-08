@@ -23,31 +23,16 @@
  * @file subsystems/sensors/baro.h
  *
  * Common barometric sensor implementation.
+ * Used with baro integrated to the autopilot board.
+ * Implementation is in boards/<board_name>/baro_board.[ch]
  *
  */
 
 #ifndef SUBSYSTEMS_SENSORS_BARO_H
 #define SUBSYSTEMS_SENSORS_BARO_H
 
-#include <std.h>
-
-enum BaroStatus {
-  BS_UNINITIALIZED,
-  BS_RUNNING
-};
-
-/* pressure in which units ? */
-struct Baro {
-  int32_t absolute;
-  int32_t differential;
-  enum BaroStatus status;
-};
-
-extern struct Baro baro;
-
-
 #include BOARD_CONFIG
-#if defined BOARD_HAS_BARO
+#if USE_BARO_BOARD
 #include "baro_board.h"
 #endif
 

@@ -36,7 +36,11 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/sensors/baro.h"
+#include "subsystems/air_data.h"
 //#include "my_debug_servo.h"
+
+#define ABI_C
+#include "subsystems/abi.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -107,7 +111,7 @@ static inline void main_periodic_task( void ) {
 
 
 static inline void main_event_task( void ) {
-  BaroEvent(main_on_baro_abs, main_on_baro_diff);
+  BaroEvent();
 }
 
 
@@ -117,5 +121,5 @@ static inline void main_on_baro_diff(void) {
 }
 
 static inline void main_on_baro_abs(void) {
-  RunOnceEvery(5,{DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, &baro.absolute, &baro.differential);});
+  RunOnceEvery(5,{DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, &air_data.pressure, &air_data.differential);});
 }

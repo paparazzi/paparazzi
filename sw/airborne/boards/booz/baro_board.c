@@ -1,5 +1,4 @@
-/* $Id$
- *
+/*
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -20,48 +19,65 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file boards/booz/baro_board.c
+ *
+ */
+
 
 #include "subsystems/sensors/baro.h"
 
 #include "generated/airframe.h"
+#include "subsystems/abi.h"
 #include "led.h"
 
-/* threshold >0 && <1023 */
+#ifndef BOOZ_BARO_SENDER_ID
+#define BOOZ_BARO_SENDER_ID 1
+#endif
+
+/** threshold >0 && <1023 */
 #ifndef BOOZ_ANALOG_BARO_THRESHOLD
 #define BOOZ_ANALOG_BARO_THRESHOLD 850
 #endif
 
-struct Baro baro;
-struct BaroBoard baro_board;
+/** scale factor to convert raw ADC measurement to pressure in Pascal.
+ * @todo check value
+ * At low altitudes pressure change is ~1.2 kPa for every 100 meters.
+ * So with previous scale of 15 for ADC -> meters with INT32_POS_FRAC we get:
+ * 12 Pascal = (15 * ADC) << 8
+ * -> SENS = ~ 12 / (15 * 256) = 0.003125
+ */
+#ifndef BOOZ_BARO_SENS
+#define BOOZ_BARO_SENS 0.003125
+#endif
 
+struct BaroBoard baro_board;
 
 void baro_init( void ) {
 
   adc_buf_channel(ADC_CHANNEL_BARO, &baro_board.buf, DEFAULT_AV_NB_SAMPLE);
 
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 0; /* not handled on this board */
-
+  baro_board.status = BB_UNINITIALIZED;
+  baro_board.absolute = 0;
   baro_board.offset = 1023;
   DACSet(baro_board.offset);
-
   baro_board.value_filtered = 0;
-  baro_board.data_available = FALSE;
-#ifdef ROTORCRAFT_BARO_LED
-  LED_OFF(ROTORCRAFT_BARO_LED);
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
 #endif
 }
 
 void baro_periodic(void) {
 
-  baro.absolute = baro_board.buf.sum/baro_board.buf.av_nb_sample;
-  baro_board.value_filtered = (3*baro_board.value_filtered + baro.absolute)/4;
-  if (baro.status == BS_UNINITIALIZED) {
+  baro_board.absolute = baro_board.buf.sum/baro_board.buf.av_nb_sample;
+  baro_board.value_filtered = (3*baro_board.value_filtered + baro_board.absolute)/4;
+  if (baro_board.status == BB_UNINITIALIZED) {
     RunOnceEvery(10, { baro_board_calibrate();});
   }
-  /*  else */
-  baro_board.data_available = TRUE;
+  else {
+    float pressure = BOOZ_BARO_SENS*baro_board.absolute;
+    AbiSendMsgBARO_ABS(BOOZ_BARO_SENDER_ID, &pressure);
+  }
 }
 
 /* decrement offset until adc reading is over a threshold */
@@ -72,18 +88,15 @@ void baro_board_calibrate(void) {
     else
       baro_board.offset--;
     DACSet(baro_board.offset);
-#ifdef ROTORCRAFT_BARO_LED
-    LED_TOGGLE(ROTORCRAFT_BARO_LED);
+#ifdef BARO_LED
+    LED_TOGGLE(BARO_LED);
 #endif
   }
   else {
-    baro.status = BS_RUNNING;
-#ifdef ROTORCRAFT_BARO_LED
-    LED_ON(ROTORCRAFT_BARO_LED);
+    baro_board.status = BB_RUNNING;
+#ifdef BARO_LED
+    LED_ON(BARO_LED);
 #endif
   }
 }
-
-
-
 

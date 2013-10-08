@@ -190,6 +190,8 @@ test_baro.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_baro.CFLAGS += -I$(SRC_LISA)
 
+test_baro.srcs += subsystems/air_data.c
+
 ifeq ($(BOARD), lisa_l)
 test_baro.CFLAGS += -DUSE_I2C2
 test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
@@ -200,31 +202,36 @@ test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
 else ifeq ($(BOARD), lisa_m)
 # defaults to i2c baro bmp085 on the board
 LISA_M_BARO ?= BARO_BOARD_BMP085
-  ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
-    include $(CFG_SHARED)/spi_master.makefile
-    test_baro.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
-    test_baro.srcs += peripherals/ms5611.c
-    test_baro.srcs += peripherals/ms5611_spi.c
-    test_baro.srcs += subsystems/sensors/baro_ms5611_spi.c
-    test_baro.srcs += $(SRC_LISA)/test_baro_spi.c
-  else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
+  ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
     test_baro.CFLAGS += -DUSE_I2C2
     test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
     test_baro.srcs += peripherals/ms5611.c
     test_baro.srcs += peripherals/ms5611_i2c.c
-    test_baro.srcs += subsystems/sensors/baro_ms5611_i2c.c
+    test_baro.srcs += boards/baro_board_ms5611_i2c.c
     test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
-	test_baro.CFLAGS += -DUSE_I2C2
+    test_baro.CFLAGS += -DUSE_I2C2
     test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
     test_baro.srcs += peripherals/bmp085.c
     test_baro.srcs += $(SRC_BOARD)/baro_board.c
     test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
   endif
-  test_baro.CFLAGS += -D$(LISA_M_BARO)
+
+# Lia baro (no bmp onboard)
+else ifeq ($(BOARD), lia)
+LIA_BARO ?= BARO_MS5611_SPI
+  ifeq ($(LIA_BARO), BARO_MS5611_I2C)
+    test_baro.CFLAGS += -DUSE_I2C2
+    test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
+    test_baro.srcs += peripherals/ms5611.c
+    test_baro.srcs += peripherals/ms5611_i2c.c
+    test_baro.srcs += boards/baro_board_ms5611_i2c.c
+    test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
+  endif
+
 endif
-
-
 
 #
 # test_rc_spektrum : sends RADIO_CONTROL messages on telemetry

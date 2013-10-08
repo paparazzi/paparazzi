@@ -177,7 +177,6 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="15." integer="16"/>
     <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
     <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
     <define name="SONAR_MAX_RANGE" value="5.0"/>

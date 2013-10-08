@@ -1345,7 +1345,7 @@
     <field name="lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
     <field name="alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
     <field name="hmsl0"   type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
-    <field name="baro_qfe"    type="int32"/>
+    <field name="baro_qfe" type="float" unit="pascal"/>
   </message>
 
   <message name="GPS_INT" id="155">
@@ -1890,8 +1890,8 @@
   </message>
 
   <message name="BARO_RAW" id="221">
-    <field name="abs"          type="int32"/>
-    <field name="diff"         type="int32"/>
+    <field name="abs"          type="float"/>
+    <field name="diff"         type="float"/>
   </message>
 
  <!--222 is free -->
@@ -2718,10 +2718,18 @@
 
 
   <class name="airborne">
-    <message name="TEST_ABI" id="0">
+    <!--message name="TEST_ABI" id="0">
       <field name="value" type="int8_t"/>
       <field name="boo" type="struct abi_boo"/>
       <field name="vect" type="struct Int32Vect3 *"/>
+    </message-->
+
+    <message name="BARO_ABS" id="1">
+      <field name="pressure" type="float" unit="Pa"/>
+    </message>
+
+    <message name="BARO_DIFF" id="2">
+      <field name="pressure" type="float" unit="Pa"/>
     </message>
   </class>
 

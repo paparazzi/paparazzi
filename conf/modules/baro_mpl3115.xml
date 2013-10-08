@@ -3,7 +3,10 @@
 <module name="baro_mpl3115" dir="sensors">
   <doc>
     <description>Baro MPL3115A2 (I2C)</description>
-    <define name="MPL3115_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+    <define name="BARO_MPL3115_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+    <define name="BARO_MPL3115_I2C_SLAVE_ADDR" value="0xC0" description="i2c address (default factory: 0xC0)"/>
+    <define name="BARO_MPL3115_SENDER_ID" value="20" description="ABI sender id"/>
+    <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MPL3115 message on every new measurement"/>
   </doc>
 
   <header>
@@ -13,7 +16,7 @@
   <periodic fun="baro_mpl3115_read_periodic()" freq="5."/>
   <event fun="baro_mpl3115_read_event()"/>
 
-  <makefile>
+  <makefile target="ap">
     <file name="baro_mpl3115.c"/>
     <file name="mpl3115.c" dir="peripherals"/>
   </makefile>

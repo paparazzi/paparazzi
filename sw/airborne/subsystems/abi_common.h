@@ -19,7 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Common tools for ABI middelware */
+/**
+ * @file subsystems/abi_common.h
+ *
+ * Common tools for ABI middelware.
+ */
 
 #ifndef ABI_COMMON_H
 #define ABI_COMMON_H
@@ -35,17 +39,17 @@
 
 /* Some magic to avoid to compile C code, only headers */
 #ifdef ABI_C
-#define EXTERN
+#define ABI_EXTERN
 #else
-#define EXTERN extern
+#define ABI_EXTERN extern
 #endif
 
 /** Generic callback definition */
 typedef void (*abi_callback)(void);
 
 /** Broadcast address.
- * When passing broadcast address has a sender id,
- * messages from all sender are received
+ * When passing broadcast address as a sender id,
+ * messages from all senders are received
  */
 #define ABI_BROADCAST 0
 

@@ -36,11 +36,7 @@
 extern struct Bmp085 baro_bmp;
 
 /// new measurement every 3rd baro_bmp_periodic
-#ifndef SITL
 #define BARO_BMP_DT (BARO_BMP_PERIODIC_PERIOD / 3)
-#else
-#define BARO_BMP_DT BARO_BMP_PERIODIC_PERIOID
-#endif
 
 extern bool_t baro_bmp_enabled;
 extern float baro_bmp_r;
@@ -50,7 +46,5 @@ extern int32_t baro_bmp_alt;
 void baro_bmp_init(void);
 void baro_bmp_periodic(void);
 void baro_bmp_event(void);
-
-#define BaroBmpUpdate(_b, _h) { if (baro_bmp.data_available) { _b = baro_bmp.pressure; _h(); baro_bmp.data_available = FALSE; } }
 
 #endif
