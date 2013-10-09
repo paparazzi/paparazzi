@@ -41,14 +41,26 @@
 #endif
 
 /** scale factor to convert raw ADC measurement to pressure in Pascal.
- * @todo check value
- * At low altitudes pressure change is ~1.2 kPa for every 100 meters.
- * So with previous scale of 15 for ADC -> meters with INT32_POS_FRAC we get:
- * 12 Pascal = (15 * ADC) << 8
- * -> SENS = ~ 12 / (15 * 256) = 0.003125
+ *
+ * Sensor Sensitivity -> SS = 0.045 mv / Pa
+ * Sensor Gain -> G = 94.25
+ * Sensitivity -> S = SS*G = 4.24125 mV / Pa
+ * 10 bit ADC -> A = 3.3 V / 1024 = 3.223 mV / LSB
+ * Total Sensitivity SENS = A / S = 0.759837
+ *
+ * For the real pressure you also need to take into account the (variable) offset
+ *
+ * supply voltage Vs = 5V
+ * real sensor sensitivity Vout = Vs * (0.009 P - 0.095)
+ * voltage variable offset Voff(DAC) = Vs / 69.23 + (DAC * 3.3 / 1024) / 21.77
+ * ADC voltage at init Vadc = 3.3*BARO_THRESHOLD/1024 = Vout - Voff
+ *
+ * => Inverting these formulas can give the 'real' pressure
+ *
+ * since we don't care that much in this case, we can take a fixed offset of 101325 Pa
  */
 #ifndef BOOZ_BARO_SENS
-#define BOOZ_BARO_SENS 0.003125
+#define BOOZ_BARO_SENS 0.759837
 #endif
 
 struct BaroBoard baro_board;
@@ -75,7 +87,7 @@ void baro_periodic(void) {
     RunOnceEvery(10, { baro_board_calibrate();});
   }
   else {
-    float pressure = BOOZ_BARO_SENS*baro_board.absolute;
+    float pressure = 101325.0 - BOOZ_BARO_SENS*(BOOZ_ANALOG_BARO_THRESHOLD - baro_board.absolute);
     AbiSendMsgBARO_ABS(BOOZ_BARO_SENDER_ID, &pressure);
   }
 }

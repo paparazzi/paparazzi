@@ -32,9 +32,22 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-// FIXME
+/** scale factor to convert raw ADC measurement to pressure in Pascal.
+ *
+ * supply voltage Vs = 5V
+ * real sensor sensitivity Vout = Vs * (0.009 P - 0.095) with P in kPa
+ * 22 bit signed ADC -> only 21 useful bits ADC = 5/2^21 = 2.384e-6 V / LSB
+ *
+ * offset = 5*0.095/2.384e-6 = 199229 (LSB)
+ * sensitivity = (1000/0.009)*2.384e-6/5 = 0.05298 Pa/LSB
+ *
+ */
 #ifndef NAVGO_BARO_SENS
-#define NAVGO_BARO_SENS 0.0274181
+#define NAVGO_BARO_SENS 0.05298
+#endif
+
+#ifndef NAVGO_BARO_OFFSET
+#define NAVGO_BARO_OFFSET 199229
 #endif
 
 #ifndef NAVGO_BARO_SENDER_ID
@@ -73,7 +86,7 @@ void navgo_baro_event(void) {
   if (mcp355x_data_available) {
     if (startup_cnt == 0) {
       // Send data when init phase is done
-      float pressure = NAVGO_BARO_SENS*mcp355x_data;
+      float pressure = NAVGO_BARO_SENS*(mcp355x_data+NAVGO_BARO_OFFSET);
       AbiSendMsgBARO_ABS(NAVGO_BARO_SENDER_ID, &pressure);
     }
     mcp355x_data_available = FALSE;
