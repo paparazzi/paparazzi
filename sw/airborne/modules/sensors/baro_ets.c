@@ -93,9 +93,7 @@
 #endif
 PRINT_CONFIG_VAR(BARO_ETS_I2C_DEV)
 
-#ifndef BARO_ETS_SENDER_ID
-#define BARO_ETS_SENDER_ID 18
-#endif
+
 PRINT_CONFIG_VAR(BARO_ETS_SENDER_ID)
 
 /** delay in seconds until sensor is read after startup */

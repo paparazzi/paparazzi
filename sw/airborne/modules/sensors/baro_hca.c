@@ -54,10 +54,6 @@
 #define BARO_HCA_I2C_DEV i2c0
 #endif
 
-#ifndef BARO_HCA_SENDER_ID
-#define BARO_HCA_SENDER_ID 19
-#endif
-
 // Global variables
 uint16_t pBaroRaw;
 bool_t baro_hca_valid;

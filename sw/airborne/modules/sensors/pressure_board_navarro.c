@@ -61,9 +61,6 @@
 #define PBN_PRESSURE_OFFSET 101325.0
 #endif
 
-#ifndef BARO_PBN_SENDER_ID
-#define BARO_PBN_SENDER_ID 22
-#endif
 
 // Global variables
 uint16_t altitude_adc;

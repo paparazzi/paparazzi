@@ -52,10 +52,6 @@
 #define BMP_I2C_DEV i2c0
 #endif
 
-#ifndef BARO_BMP_SENDER_ID
-#define BARO_BMP_SENDER_ID 17
-#endif
-
 #define BARO_BMP_R 0.5
 #define BARO_BMP_SIGMA2 0.1
 

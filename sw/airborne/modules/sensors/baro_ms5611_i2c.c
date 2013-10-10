@@ -40,10 +40,6 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
-#ifndef BARO_MS5611_SENDER_ID
-#define BARO_MS5611_SENDER_ID 20
-#endif
-
 #ifndef MS5611_I2C_DEV
 #define MS5611_I2C_DEV i2c0
 #endif

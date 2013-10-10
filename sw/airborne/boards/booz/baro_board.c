@@ -31,9 +31,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-#ifndef BOOZ_BARO_SENDER_ID
-#define BOOZ_BARO_SENDER_ID 1
-#endif
 
 /** threshold >0 && <1023 */
 #ifndef BOOZ_ANALOG_BARO_THRESHOLD
@@ -88,7 +85,7 @@ void baro_periodic(void) {
   }
   else {
     float pressure = 101325.0 - BOOZ_BARO_SENS*(BOOZ_ANALOG_BARO_THRESHOLD - baro_board.absolute);
-    AbiSendMsgBARO_ABS(BOOZ_BARO_SENDER_ID, &pressure);
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
   }
 }
 

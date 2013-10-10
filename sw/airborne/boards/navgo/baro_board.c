@@ -50,10 +50,6 @@
 #define NAVGO_BARO_OFFSET 199229
 #endif
 
-#ifndef NAVGO_BARO_SENDER_ID
-#define NAVGO_BARO_SENDER_ID 10
-#endif
-
 /* Counter to init mcp355x at startup */
 #define BARO_STARTUP_COUNTER 200
 uint16_t startup_cnt;
@@ -87,7 +83,7 @@ void navgo_baro_event(void) {
     if (startup_cnt == 0) {
       // Send data when init phase is done
       float pressure = NAVGO_BARO_SENS*(mcp355x_data+NAVGO_BARO_OFFSET);
-      AbiSendMsgBARO_ABS(NAVGO_BARO_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
     mcp355x_data_available = FALSE;
   }

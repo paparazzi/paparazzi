@@ -36,6 +36,7 @@
  * Ex: '#include "subsystems/gps.h"' in order to use the GpsState structure
  */
 
+#include "subsystems/abi_sender_ids.h"
 
 /* Some magic to avoid to compile C code, only headers */
 #ifdef ABI_C

@@ -54,10 +54,6 @@
 #endif
 
 
-#ifndef BARO_BOARD_MS5611_SENDER_ID
-#define BARO_BOARD_MS5611_SENDER_ID 7
-#endif
-
 struct Ms5611_I2c bb_ms5611;
 
 
@@ -96,7 +92,7 @@ void baro_event(void){
 
     if (bb_ms5611.data_available) {
       float pressure = (float)bb_ms5611.data.pressure;
-      AbiSendMsgBARO_ABS(BARO_BOARD_MS5611_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
       bb_ms5611.data_available = FALSE;
 
 #ifdef BARO_LED

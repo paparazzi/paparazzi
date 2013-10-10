@@ -36,10 +36,6 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
-#ifndef APOGEE_BARO_SENDER_ID
-#define APOGEE_BARO_SENDER_ID 12
-#endif
-
 /** Counter to init ads1114 at startup */
 #define BARO_STARTUP_COUNTER 200
 uint16_t startup_cnt;
@@ -80,7 +76,7 @@ void apogee_baro_event(void) {
   if (apogee_baro.data_available) {
     if (startup_cnt == 0) {
       float pressure = ((float)apogee_baro.pressure/(1<<2));
-      AbiSendMsgBARO_ABS(APOGEE_BARO_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
     apogee_baro.data_available = FALSE;
   }

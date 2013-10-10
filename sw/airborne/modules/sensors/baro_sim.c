@@ -29,9 +29,6 @@
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 
-#ifndef BARO_SIM_SENDER_ID
-#define BARO_SIM_SENDER_ID 1
-#endif
 PRINT_CONFIG_VAR(BARO_SIM_SENDER_ID)
 
 void baro_sim_init(void) {

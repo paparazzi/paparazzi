@@ -16,10 +16,6 @@
 #warning set SENSOR_SYNC_SEND to use baro_scp
 #endif
 
-#ifndef BARO_SCP_SENDER_ID
-#define BARO_SCP_SENDER_ID 21
-#endif
-
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif

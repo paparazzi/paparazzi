@@ -33,9 +33,6 @@
 
 #include "led.h"
 
-#ifndef LISA_M_BARO_SENDER_ID
-#define LISA_M_BARO_SENDER_ID 6
-#endif
 
 struct Bmp085 baro_bmp085;
 
@@ -77,7 +74,7 @@ void baro_event(void)
 
   if (baro_bmp085.data_available) {
     float pressure = (float)baro_bmp085.pressure;
-    AbiSendMsgBARO_ABS(LISA_M_BARO_SENDER_ID, &pressure);
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     baro_bmp085.data_available = FALSE;
 #ifdef BARO_LED
     RunOnceEvery(10,LED_TOGGLE(BARO_LED));

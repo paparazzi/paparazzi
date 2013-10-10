@@ -37,9 +37,6 @@
 #include "subsystems/nav.h"
 #include "state.h"
 
-#ifndef BARO_MS5534A_SENDER_ID
-#define BARO_MS5534A_SENDER_ID 15
-#endif
 
 bool_t baro_MS5534A_do_reset;
 uint32_t baro_MS5534A_pressure;

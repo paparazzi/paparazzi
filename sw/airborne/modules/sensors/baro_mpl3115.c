@@ -47,9 +47,6 @@
 #define BARO_MPL3115_I2C_SLAVE_ADDR MPL3115_I2C_ADDR
 #endif
 
-#ifndef BARO_MPL3115_SENDER_ID
-#define BARO_MPL3115_SENDER_ID 20
-#endif
 
 struct Mpl3115 baro_mpl;
 

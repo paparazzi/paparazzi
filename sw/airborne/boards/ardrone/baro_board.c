@@ -32,11 +32,6 @@
 #include "navdata.h"
 
 
-#ifndef ARDRONE2_BARO_SENDER_ID
-#define ARDRONE2_BARO_SENDER_ID 13
-#endif
-
-
 #define BMP180_OSS 0  // Parrot ARDrone uses no oversampling
 
 void baro_init(void) {}
@@ -80,7 +75,7 @@ void ardrone_baro_event(void)
       // TODO send Temperature message
       baro_apply_calibration_temp(navdata.temperature_pressure);
       float pressure = (float)baro_apply_calibration(navdata.pressure);
-      AbiSendMsgBARO_ABS(ARDRONE2_BARO_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
     navdata_baro_available = FALSE;
   }

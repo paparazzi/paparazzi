@@ -69,9 +69,6 @@
 #define BARO_AMSYS_I2C_DEV i2c0
 #endif
 
-#ifndef BARO_AMSYS_SENDER_ID
-#define BARO_AMSYS_SENDER_ID 16
-#endif
 
 // Global variables
 uint16_t pBaroRaw;

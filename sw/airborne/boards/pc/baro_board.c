@@ -31,15 +31,11 @@
 
 #include "subsystems/abi.h"
 
-#ifndef SIM_BARO_SENDER_ID
-#define SIM_BARO_SENDER_ID 4
-#endif
-
 void baro_init(void) {}
 
 void baro_periodic(void) {}
 
 void baro_feed_value(double value) {
   float pressure = (float) value;
-  AbiSendMsgBARO_ABS(SIM_BARO_SENDER_ID, &pressure);
+  AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
 }

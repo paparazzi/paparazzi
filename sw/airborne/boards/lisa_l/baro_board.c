@@ -71,10 +71,6 @@ static inline void baro_board_read_from_current_register(uint8_t baro_addr);
 #define LISA_L_DIFF_SENS 1.0
 #endif
 
-#ifndef LISA_L_BARO_SENDER_ID
-#define LISA_L_BARO_SENDER_ID 2
-#endif
-
 void baro_init(void) {
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
@@ -141,7 +137,7 @@ void lisa_l_baro_event(void) {
     if (baro_trans.status == I2CTransSuccess) {
       int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1];
       float pressure = LISA_L_BARO_SENS*(float)tmp;
-      AbiSendMsgBARO_ABS(LISA_L_BARO_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
   }
   else if (baro_board.status == LBS_READING_DIFF &&
@@ -150,7 +146,7 @@ void lisa_l_baro_event(void) {
     if (baro_trans.status == I2CTransSuccess) {
       int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1];
       float diff = LISA_L_DIFF_SENS*(float)tmp;
-      AbiSendMsgBARO_DIFF(LISA_L_BARO_SENDER_ID, &diff);
+      AbiSendMsgBARO_DIFF(BARO_BOARD_SENDER_ID, &diff);
     }
   }
 }

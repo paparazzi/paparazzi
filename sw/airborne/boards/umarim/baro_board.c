@@ -42,10 +42,6 @@
 #define UMARIM_BARO_SENS 0.0274181
 #endif
 
-#ifndef UMARIM_BARO_SENDER_ID
-#define UMARIM_BARO_SENDER_ID 11
-#endif
-
 /* Counter to init ads1114 at startup */
 #define BARO_STARTUP_COUNTER 200
 uint16_t startup_cnt;
@@ -79,7 +75,7 @@ void umarim_baro_event(void) {
   if (BARO_ABS_ADS.data_available) {
     if (startup_cnt == 0) {
       float pressure = UMARIM_BARO_SENS*Ads1114GetValue(BARO_ABS_ADS);
-      AbiSendMsgBARO_ABS(UMARIM_BARO_SENDER_ID, &pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
     BARO_ABS_ADS.data_available = FALSE;
   }

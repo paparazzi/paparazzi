@@ -55,7 +55,7 @@ float ins_baro_alt;
 
 // Baro event on ABI
 #ifndef INS_BARO_ID
-#define INS_BARO_ID ABI_BROADCAST
+#define INS_BARO_ID BARO_BOARD_SENDER_ID
 #endif
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);

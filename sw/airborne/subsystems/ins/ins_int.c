@@ -81,9 +81,9 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
 
-/* barometer                   */
+/** default barometer to use in INS */
 #ifndef INS_BARO_ID
-#define INS_BARO_ID ABI_BROADCAST
+#define INS_BARO_ID BARO_BOARD_SENDER_ID
 #endif
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);

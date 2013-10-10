@@ -12,7 +12,6 @@ twog_1.0 + aspirin + ETS baro + ETS speed
 <airframe name="Tob_energyadaptive">
 
   <firmware name="fixedwing">
-    <target name="sim" board="pc"/>
     <target name="ap" board="twog_1.0">
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
@@ -21,6 +20,9 @@ twog_1.0 + aspirin + ETS baro + ETS speed
 
       <define name="USE_I2C0"/>
       <define name="USE_BARO_ETS"/>
+    </target>
+    <target name="sim" board="pc">
+      <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
     </target>
 
     <define name="USE_AIRSPEED"/>
