@@ -602,7 +602,16 @@
     </message>
 
 
- <!-- 72 is free -->
+  <message name="CHIBIOS_INFO" id="72">
+    <field name="heap_fragments" type="uint32"/>
+    <field name="fragmented_free_space" type="uint32"/>
+    <field name="core_free_memory" type="uint32"/>
+    <field name="sys_time" type="uint32"/>
+    <field name="threads" type="uint8"/>
+    <field name="cpu_ticks" type="uint32"/>
+    <field name="idle_ticks" type="uint32"/>
+    <field name="cpu_usage" type="float"/>
+  </message>
  <!-- 73 is free -->
  <!-- 74 is free -->
  <!-- 75 is free -->
