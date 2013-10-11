@@ -438,6 +438,7 @@
 #ifndef AHRS_FLOAT
 #define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {   \
     DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,         \
+                  &ahrs_impl.weight,                  \
                   &ahrs_impl.ltp_to_imu_quat.qi,      \
                   &ahrs_impl.ltp_to_imu_quat.qx,      \
                   &ahrs_impl.ltp_to_imu_quat.qy,      \
