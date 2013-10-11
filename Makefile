@@ -82,6 +82,7 @@ SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER)
 # xml files used as input for header generation
 #
 MESSAGES_XML = $(CONF)/messages.xml
+ABI_XML = $(CONF)/abi.xml
 UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
@@ -218,7 +219,7 @@ $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
-$(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
+$(ABI_MESSAGES_H) : $(ABI_XML) tools
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_abi.out $< airborne > $($@_TMP)

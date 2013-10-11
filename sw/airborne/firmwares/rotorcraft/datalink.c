@@ -49,7 +49,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "math/pprz_geodetic_int.h"
-#include "subsystems/ins.h"
+#include "state.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -97,19 +97,18 @@ void dl_parse_msg(void) {
     {
       uint8_t ac_id = DL_MOVE_WP_ac_id(dl_buffer);
       if (ac_id != AC_ID) break;
-      uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
-      struct LlaCoor_i lla;
-      struct EnuCoor_i enu;
-      lla.lat = INT32_RAD_OF_DEG(DL_MOVE_WP_lat(dl_buffer));
-      lla.lon = INT32_RAD_OF_DEG(DL_MOVE_WP_lon(dl_buffer));
-      /* WP_alt is in cm, lla.alt in mm */
-      lla.alt = DL_MOVE_WP_alt(dl_buffer)*10 - ins_ltp_def.hmsl + ins_ltp_def.lla.alt;
-      enu_of_lla_point_i(&enu,&ins_ltp_def,&lla);
-      enu.x = POS_BFP_OF_REAL(enu.x)/100;
-      enu.y = POS_BFP_OF_REAL(enu.y)/100;
-      enu.z = POS_BFP_OF_REAL(enu.z)/100;
-      VECT3_ASSIGN(waypoints[wp_id], enu.x, enu.y, enu.z);
-      DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &enu.x, &enu.y, &enu.z);
+      if (stateIsLocalCoordinateValid()) {
+        uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
+        struct LlaCoor_i lla;
+        lla.lat = INT32_RAD_OF_DEG(DL_MOVE_WP_lat(dl_buffer));
+        lla.lon = INT32_RAD_OF_DEG(DL_MOVE_WP_lon(dl_buffer));
+        /* WP_alt from message is alt above MSL in cm
+         * lla.alt is above ellipsoid in mm
+         */
+        lla.alt = DL_MOVE_WP_alt(dl_buffer)*10 - state.ned_origin_i.hmsl +
+          state.ned_origin_i.lla.alt;
+        nav_move_waypoint_lla(wp_id, &lla);
+      }
     }
     break;
 #endif /* USE_NAVIGATION */

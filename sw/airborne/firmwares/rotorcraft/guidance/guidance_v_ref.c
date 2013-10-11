@@ -58,14 +58,7 @@ int64_t gv_z_ref;
 #endif
 #define GV_MAX_ZDD BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZDD, GV_ZDD_REF_FRAC)
 
-#ifndef GUIDANCE_V_REF_MIN_ZD
-#define GUIDANCE_V_REF_MIN_ZD (-3.)
-#endif
 #define GV_MIN_ZD  BFP_OF_REAL(GUIDANCE_V_REF_MIN_ZD , GV_ZD_REF_FRAC)
-
-#ifndef GUIDANCE_V_REF_MAX_ZD
-#define GUIDANCE_V_REF_MAX_ZD ( 3.)
-#endif
 #define GV_MAX_ZD  BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZD , GV_ZD_REF_FRAC)
 
 /* second order model natural frequency and damping */

@@ -38,7 +38,7 @@ def get_ids_in_log(filename):
         line = f.readline().strip()
         if line == '':
             break
-        m=re.match(pattern, line)
+        m = re.match(pattern, line)
         if m:
             id = m.group(1)
             if not id in ids:
@@ -56,7 +56,7 @@ def read_log(ac_id, filename, sensor):
         line = f.readline().strip()
         if line == '':
             break
-        m=re.match(pattern, line)
+        m = re.match(pattern, line)
         if m:
             list_meas.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
     return scipy.array(list_meas)
@@ -72,7 +72,7 @@ def read_log_mag_current(ac_id, filename):
         line = f.readline().strip()
         if line == '':
             break
-        m=re.match(pattern, line)
+        m = re.match(pattern, line)
         if m:
             list_meas.append([float(m.group(2)), float(m.group(3)), float(m.group(4)), float(m.group(5))])
     return scipy.array(list_meas)
@@ -106,8 +106,8 @@ def get_min_max_guess(meas, scale):
 # scale the set of measurements
 #
 def scale_measurements(meas, p):
-    l_comp = [];
-    l_norm = [];
+    l_comp = []
+    l_norm = []
     for m in meas[:,]:
         sm = (m - p[0:3])*p[3:6]
         l_comp.append(sm)
@@ -120,7 +120,7 @@ def scale_measurements(meas, p):
 def estimate_mag_current_relation(meas):
     coefficient = []
     for i in range(0,3):
-        gradient, intercept, r_value, p_value, std_err = stats.linregress(meas[:,3],meas[:,i])
+        gradient, intercept, r_value, p_value, std_err = stats.linregress(meas[:,3], meas[:,i])
         coefficient.append(gradient)
     return coefficient
 
@@ -154,26 +154,26 @@ def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sen
     title('Raw sensors')
 
     subplot(3, 2, 3)
-    plot(cp0[:, 0]);
-    plot(cp0[:, 1]);
-    plot(cp0[:, 2]);
-    plot(-sensor_ref*scipy.ones(len(flt_meas)));
-    plot(sensor_ref*scipy.ones(len(flt_meas)));
+    plot(cp0[:, 0])
+    plot(cp0[:, 1])
+    plot(cp0[:, 2])
+    plot(-sensor_ref*scipy.ones(len(flt_meas)))
+    plot(sensor_ref*scipy.ones(len(flt_meas)))
 
     subplot(3, 2, 4)
-    plot(np0);
-    plot(sensor_ref*scipy.ones(len(flt_meas)));
+    plot(np0)
+    plot(sensor_ref*scipy.ones(len(flt_meas)))
 
     subplot(3, 2, 5)
-    plot(cp1[:, 0]);
-    plot(cp1[:, 1]);
-    plot(cp1[:, 2]);
-    plot(-sensor_ref*scipy.ones(len(flt_meas)));
-    plot(sensor_ref*scipy.ones(len(flt_meas)));
+    plot(cp1[:, 0])
+    plot(cp1[:, 1])
+    plot(cp1[:, 2])
+    plot(-sensor_ref*scipy.ones(len(flt_meas)))
+    plot(sensor_ref*scipy.ones(len(flt_meas)))
 
     subplot(3, 2, 6)
-    plot(np1);
-    plot(sensor_ref*scipy.ones(len(flt_meas)));
+    plot(np1)
+    plot(sensor_ref*scipy.ones(len(flt_meas)))
 
     # if we want to have another plot we only draw the figure (non-blocking)
     # also in matplotlib before 1.0.0 there is only one call to show possible
@@ -187,14 +187,14 @@ def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sen
 #
 def plot_mag_3d(measured, calibrated, p):
     # set up points for sphere and ellipsoid wireframes
-    u=r_[0:2*pi:20j]
-    v=r_[0:pi:20j]
-    wx=outer(cos(u),sin(v))
-    wy=outer(sin(u),sin(v))
-    wz=outer(ones(size(u)),cos(v))
-    ex=p[0]*ones(size(u)) + outer(cos(u),sin(v))/p[3]
-    ey=p[1]*ones(size(u)) + outer(sin(u),sin(v))/p[4]
-    ez=p[2]*ones(size(u)) + outer(ones(size(u)),cos(v))/p[5]
+    u = r_[0:2 * pi:20j]
+    v = r_[0:pi:20j]
+    wx = outer(cos(u), sin(v))
+    wy = outer(sin(u), sin(v))
+    wz = outer(ones(size(u)), cos(v))
+    ex = p[0] * ones(size(u)) + outer(cos(u), sin(v)) / p[3]
+    ey = p[1] * ones(size(u)) + outer(sin(u), sin(v)) / p[4]
+    ez = p[2] * ones(size(u)) + outer(ones(size(u)), cos(v)) / p[5]
 
     # measurements
     mx = measured[:, 0]
@@ -228,10 +228,10 @@ def plot_mag_3d(measured, calibrated, p):
     ax.plot_wireframe(ex, ey, ez, color='grey', alpha=0.5)
 
     # Create cubic bounding box to simulate equal aspect ratio
-    max_range = np.array([mx.max()-mx.min(), my.max()-my.min(), mz.max()-mz.min()]).max()
-    Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(mx.max()+mx.min())
-    Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(my.max()+my.min())
-    Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(mz.max()+mz.min())
+    max_range = np.array([mx.max() - mx.min(), my.max() - my.min(), mz.max() - mz.min()]).max()
+    Xb = 0.5 * max_range * np.mgrid[-1:2:2, -1:2:2, -1:2:2][0].flatten() + 0.5 * (mx.max() + mx.min())
+    Yb = 0.5 * max_range * np.mgrid[-1:2:2, -1:2:2, -1:2:2][1].flatten() + 0.5 * (my.max() + my.min())
+    Zb = 0.5 * max_range * np.mgrid[-1:2:2, -1:2:2, -1:2:2][2].flatten() + 0.5 * (mz.max() + mz.min())
     # uncomment following both lines to test the fake bounding box:
     #for xb, yb, zb in zip(Xb, Yb, Zb):
     #    ax.plot([xb], [yb], [zb], 'r*')
@@ -240,7 +240,6 @@ def plot_mag_3d(measured, calibrated, p):
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
-
 
     if matplotlib.__version__.startswith('0'):
         ax = Axes3D(fig, rect=rect_r)
@@ -273,10 +272,10 @@ def read_turntable_log(ac_id, tt_id, filename, _min, _max):
         line = f.readline().strip()
         if line == '':
             break
-        m=re.match(pattern_t, line)
+        m = re.match(pattern_t, line)
         if m:
             last_tt = float(m.group(2))
-        m=re.match(pattern_g, line)
+        m = re.match(pattern_g, line)
         if m and last_tt and last_tt > _min and last_tt < _max:
             list_tt.append([last_tt, float(m.group(2)), float(m.group(3)), float(m.group(4))])
     return scipy.array(list_tt)

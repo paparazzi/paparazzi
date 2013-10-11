@@ -27,18 +27,16 @@
  */
 
 #include "subsystems/sensors/baro.h"
+#include "subsystems/abi.h"
 #include "baro_board.h"
 #include "navdata.h"
 
-struct Baro baro;
 
 #define BMP180_OSS 0  // Parrot ARDrone uses no oversampling
 
-void baro_init(void) {
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute       = 0;
-  baro.differential   = 0;
-}
+void baro_init(void) {}
+
+void baro_periodic(void) {}
 
 static inline int32_t baro_apply_calibration(int32_t raw)
 {
@@ -69,20 +67,16 @@ static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
   return (baro_calibration.b5 + 8) >> 4;
 }
 
-void baro_periodic(void)
+void ardrone_baro_event(void)
 {
-}
-
-void process_ardrone_baro(void)
-{
-  if(baro.status == BS_RUNNING) {
-    // first read temperature because pressure calibration depends on temperature
-    baro.differential = baro_apply_calibration_temp(navdata.temperature_pressure);   // We store the temperature in Baro-Diff
-    baro.absolute = baro_apply_calibration(navdata.pressure);
-  }
-  else {
-    if (baro_calibrated == TRUE) {
-      baro.status = BS_RUNNING;
+  if (navdata_baro_available) {
+    if (baro_calibrated) {
+      // first read temperature because pressure calibration depends on temperature
+      // TODO send Temperature message
+      baro_apply_calibration_temp(navdata.temperature_pressure);
+      float pressure = (float)baro_apply_calibration(navdata.pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
+    navdata_baro_available = FALSE;
   }
 }

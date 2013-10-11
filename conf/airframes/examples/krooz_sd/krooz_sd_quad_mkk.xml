@@ -24,8 +24,6 @@
     <subsystem name="motor_mixing"/>
 
 		<define name="NO_RC_THRUST_LIMIT"/>
-		<define name="USE_RC_FP_BLOCK_SWITCHING"/>
-    <define name="USE_ATTITUDE_REF" value="0"/>
   </firmware>
 
 	<modules main_freq="512">
@@ -105,14 +103,14 @@
 
   <section name="AHRS" prefix="AHRS_">
     <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
-    <define name="GRAVITY_UPDATE_NORM_HEURISTIC" value="1"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="30"/>
+    <define name="MAG_CORRECT_FREQUENCY" value="75"/>
     <define name="H_X" value="0.3586845"/>
     <define name="H_Y" value="0.0168651"/>
     <define name="H_Z" value="0.933303"/>
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="22." integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -145,35 +143,35 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="45." unit="deg"/>
     <define name="SP_MAX_THETA"   value="45." unit="deg"/>
-    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="SP_MAX_R"       value="50." unit="deg/s"/>
     <define name="DEADBAND_A"     value="0"/>
     <define name="DEADBAND_E"     value="0"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
-    <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="400." unit="deg/s"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_OMEGA_P"  value="450" unit="deg/s"/>
+    <define name="REF_ZETA_P"   value="0.87"/>
+    <define name="REF_MAX_P"    value="180." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(400.)"/>
 
-    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
-    <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="400." unit="deg/s"/>
-    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_OMEGA_Q"  value="450" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value="0.87"/>
+    <define name="REF_MAX_Q"    value="180." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(400.)"/>
 
-    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+    <define name="REF_OMEGA_R"  value="400" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_R"    value="70." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(360.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="850"/>
-    <define name="PHI_DGAIN"  value="400"/>
-    <define name="PHI_IGAIN"  value="100"/>
+    <define name="PHI_PGAIN"  value="1700"/>
+    <define name="PHI_DGAIN"  value="500"/>
+    <define name="PHI_IGAIN"  value="250"/>
 
-    <define name="THETA_PGAIN"  value="850"/>
-    <define name="THETA_DGAIN"  value="400"/>
-    <define name="THETA_IGAIN"  value="100"/>
+    <define name="THETA_PGAIN"  value="1700"/>
+    <define name="THETA_DGAIN"  value="500"/>
+    <define name="THETA_IGAIN"  value="250"/>
 
     <define name="PSI_PGAIN"  value="4000"/>
     <define name="PSI_DGAIN"  value="1500"/>
@@ -182,7 +180,7 @@
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value="300"/>
     <define name="THETA_DDGAIN" value="300"/>
-    <define name="PSI_DDGAIN"   value="2000"/>
+    <define name="PSI_DDGAIN"   value="5000"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -191,16 +189,14 @@
     <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="REF_MIN_ZDD" value="-0.2*9.81"/> <!-- max descent acceleration -->
-    <define name="REF_MAX_ZDD" value="0.2*9.81"/>  <!-- max climb acceleration -->
-    <define name="REF_MIN_ZD" value="-3."/> <!-- max descent speed -->
-    <define name="REF_MAX_ZD" value="3."/>  <!-- max climb speed -->
-    <define name="HOVER_KP"    value="120"/>
-    <define name="HOVER_KD"    value="80"/>
+    <define name="REF_MIN_ZDD" value="-2.5"/> <!-- max climb acceleration -->
+    <define name="REF_MAX_ZDD" value=" 2.5"/>  <!-- max descent acceleration -->
+    <define name="REF_MIN_ZD" value="-3."/> <!-- max climb speed -->
+    <define name="REF_MAX_ZD" value="3."/>  <!-- max descent speed -->
+    <define name="ADAPT_INITIAL_HOVER_THROTTLE"    value="0.35"/> <!-- initial takeoff throttle value -->
+    <define name="HOVER_KP"    value="130"/>
+    <define name="HOVER_KD"    value="120"/>
     <define name="HOVER_KI"    value="20"/>
-    <define name="RC_CLIMB_COEF" value ="500"/>
-	  <define name="RC_DESCENT_COEF" value ="200"/>
-    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -209,9 +205,8 @@
     <define name="MAX_BANK" value="27" unit="deg"/>
     <define name="REF_MAX_ACCEL" value="7."/> <!-- max reference horizontal acceleration in m/s2 -->
     <define name="REF_MAX_SPEED" value="2."/> <!-- max reference horizontal speed in m/s -->
-		<define name="RC_SPEED_DEAD_BAND" value="200000"/>
     <define name="PGAIN" value="100"/>
-    <define name="DGAIN" value="120"/>
+    <define name="DGAIN" value="220"/>
     <define name="IGAIN" value="10"/>
     <define name="AGAIN" value="10"/>
   </section>
@@ -229,8 +224,8 @@
   </section>
 
   <section name="BAT">
-    <define name="CRITIC_BAT_LEVEL" value="13.0" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="13.2" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="14.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="14.2" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
   </section>
 

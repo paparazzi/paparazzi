@@ -30,6 +30,8 @@
 
 #define MODULES_C
 
+#define ABI_C
+
 #include <math.h>
 
 #include "firmwares/fixedwing/main_ap.h"
@@ -51,7 +53,8 @@
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
-#if USE_BAROMETER
+#include "subsystems/air_data.h"
+#if USE_BARO_BOARD
 #include "subsystems/sensors/baro.h"
 #endif
 #include "subsystems/ins.h"
@@ -81,11 +84,12 @@
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 #include "rc_settings.h"
 #endif
+#include "subsystems/abi.h"
 
 #include "led.h"
 
 #ifdef USE_NPS
-#include "nps_autopilot_fixedwing.h"
+#include "nps_autopilot.h"
 #endif
 
 /* Default trim commands for roll, pitch and yaw */
@@ -148,11 +152,6 @@ static void send_fliter_status(void) {
 static inline void on_gps_solution( void );
 #endif
 
-#if USE_BAROMETER
-static inline void on_baro_abs_event( void );
-static inline void on_baro_dif_event( void );
-#endif
-
 // what version is this ????
 static const uint16_t version = 1;
 
@@ -202,7 +201,8 @@ void init_ap( void ) {
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_fliter_status);
 #endif
 
-#if USE_BAROMETER
+  air_data_init();
+#if USE_BARO_BOARD
   baro_init();
 #endif
 
@@ -593,7 +593,7 @@ void sensors_task( void ) {
   ahrs_propagate();
 #endif
 
-#if USE_BAROMETER
+#if USE_BARO_BOARD
   baro_periodic();
 #endif
 
@@ -663,8 +663,8 @@ void event_task_ap( void ) {
   GpsEvent(on_gps_solution);
 #endif /* USE_GPS */
 
-#if USE_BAROMETER
-  BaroEvent(on_baro_abs_event, on_baro_dif_event);
+#if USE_BARO_BOARD
+  BaroEvent();
 #endif
 
   DatalinkEvent();
@@ -795,14 +795,3 @@ static inline void on_mag_event(void)
 
 #endif // USE_AHRS
 
-#if USE_BAROMETER
-
-static inline void on_baro_abs_event( void ) {
-  ins_update_baro();
-}
-
-static inline void on_baro_dif_event( void ) {
-
-}
-
-#endif // USE_BAROMETER

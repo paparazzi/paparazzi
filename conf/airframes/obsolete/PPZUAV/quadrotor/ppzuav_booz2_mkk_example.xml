@@ -166,7 +166,6 @@
 
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="14.9" integer="16"/>
   </section>
 
 
@@ -182,9 +181,7 @@
    <define name="HOVER_KD"     value="250"/>
    <define name="HOVER_KI"     value="100"/>
    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-   <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
   </section>
 
 

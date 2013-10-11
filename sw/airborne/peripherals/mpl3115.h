@@ -34,11 +34,6 @@
 /* Device address (8 bits) */
 #define MPL3115_I2C_ADDR 0xC0
 
-/* Default I2C device */
-#ifndef MPL3115_I2C_DEV
-#define MPL3115_I2C_DEV i2c0
-#endif
-
 /* Registers */
 #define MPL3115_REG_STATUS 0x00
 #define MPL3115_REG_OUT_P_MSB 0x01
@@ -63,36 +58,34 @@
 #ifndef MPL3115_OVERSAMPLING
 #define MPL3115_OVERSAMPLING 0x5 // Oversample ratio (0x5: 130ms between data sample)
 #endif
-#ifndef MPL3115_RAW_OUTPUT
-#define MPL3115_RAW_OUTPUT 0x0 // Raw output (disable alt mode if true)
-#endif
-#ifndef MPL3115_ALT_MODE
-#define MPL3115_ALT_MODE 0x1 // 0: baro, 1: alti (disable by raw mode)
-#endif
 
-#define MPL3115_CTRL_REG1 ((MPL3115_OVERSAMPLING<<3)|(MPL3115_RAW_OUTPUT<<6)|(MPL3115_ALT_MODE<<7))
 
-// Config done flag
-extern bool_t mpl3115_initialized;
-// Data ready flag
-extern volatile bool_t mpl3115_data_available;
-// Data
-extern uint32_t mpl3115_pressure;
-extern int16_t mpl3115_temperature;
-extern float mpl3115_alt;
-// I2C transaction structure
-//extern struct i2c_transaction mpl3115_trans;
+enum Mpl3115Status {
+  MPL_CONF_UNINIT,
+  MPL_CONF_PT_DATA,
+  MPL_CONF_CTRL1,
+  MPL_CONF_DONE
+};
+
+struct Mpl3115 {
+  struct i2c_periph *i2c_p;
+  struct i2c_transaction trans;       ///< I2C transaction for reading and configuring
+  struct i2c_transaction req_trans;   ///< I2C transaction for conversion request
+  enum Mpl3115Status init_status;
+  bool_t initialized;                 ///< config done flag
+  volatile bool_t data_available;     ///< data ready flag
+  bool_t raw_mode;                    ///< set to TRUE to enable raw output
+  bool_t alt_mode;                    ///< set to TRUE to enable altitude output (otherwise pressure)
+  int16_t temperature;                ///< temperature in 1/16 degrees Celcius
+  uint32_t pressure;                  ///< pressure in 1/4 Pascal
+  float altitude;                     ///< altitude in meters
+};
 
 // Functions
-extern void mpl3115_init(void);
-extern void mpl3115_configure(void);
-extern void mpl3115_read(void);
-extern void mpl3115_event(void);
-
-// Macro for using MPL3115 in periodic function
-#define Mpl3115Periodic() {                 \
-  if (mpl3115_initialized) mpl3115_read();  \
-  else mpl3115_configure();                 \
-}
+extern void mpl3115_init(struct Mpl3115 *mpl, struct i2c_periph *i2c_p, uint8_t addr);
+extern void mpl3115_configure(struct Mpl3115 *mpl);
+extern void mpl3115_read(struct Mpl3115 *mpl);
+extern void mpl3115_event(struct Mpl3115 *mpl);
+extern void mpl3115_periodic(struct Mpl3115 *mpl);
 
 #endif // MPL3115_H

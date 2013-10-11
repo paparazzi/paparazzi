@@ -35,7 +35,7 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_UPDATE_NORM_HEURISTIC" value="TRUE"/>
+      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
     </subsystem>
     <subsystem name="ins"/>
 
@@ -102,7 +102,6 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="22.3" integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -184,16 +183,13 @@
     <define name="HOVER_KP"    value="150"/>
     <define name="HOVER_KD"    value="80"/>
     <define name="HOVER_KI"    value="20"/>
-    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
-    <define name="RC_CLIMB_COEF" value ="163"/>
-    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
-    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="100"/>

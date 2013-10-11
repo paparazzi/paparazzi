@@ -182,6 +182,9 @@
 #endif
 
 
-#define BOARD_HAS_BARO 1
+/* by default enable onboard baro */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 #endif /* CONFIG_BOOZ2_V1_0_H */

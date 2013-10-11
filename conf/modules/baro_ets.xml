@@ -19,7 +19,9 @@
 
     </description>
     <define name="BARO_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
-    <define name="BARO_ETS_SCALE" value="scale" description="sensor scale factor (default: 1.8)"/>
+    <define name="BARO_ETS_SCALE" value="scale" description="scale factor to convert raw ADC measurement to pressure in Pascal (default: 37.5)"/>
+    <define name="BARO_ETS_ALT_SCALE" value="scale" description="scale factor to convert raw ADC measurement to altitude change in meters (default: 0.32)"/>
+    <define name="BARO_ETS_ALT_SCALE" value="scale" description="pressure offset in Pascal when converting raw adc to real pressure (default: 101325.0="/>
     <define name="BARO_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
     <define name="BARO_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
@@ -31,7 +33,7 @@
   <periodic fun="baro_ets_read_periodic()" freq="10."/>
   <event fun="BaroEtsEvent()"/>
 
-  <makefile>
+  <makefile target="ap">
     <file name="baro_ets.c"/>
   </makefile>
 

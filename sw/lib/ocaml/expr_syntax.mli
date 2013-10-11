@@ -37,7 +37,8 @@ type expression =
 val c_var_of_ident : ident -> string
 (** Encapsulate a user ident into a C variable *)
 
-val sprint : expression -> string
+val sprint : ?call_assoc:(ident * (ident * int) list) -> expression -> string
+(** call_assoc: call an optional association list function *)
 
 exception Unknown_ident of string
 exception Unknown_operator of string

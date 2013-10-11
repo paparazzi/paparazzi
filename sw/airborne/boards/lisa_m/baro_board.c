@@ -23,13 +23,17 @@
  *  Baro board interface for Bosch BMP085 on LisaM I2C2 with EOC check.
  */
 
+#include "std.h"
+
 #include "subsystems/sensors/baro.h"
+#include "peripherals/bmp085.h"
 #include "peripherals/bmp085_regs.h"
 #include <libopencm3/stm32/gpio.h>
+#include "subsystems/abi.h"
 
 #include "led.h"
 
-struct Baro baro;
+
 struct Bmp085 baro_bmp085;
 
 static bool_t baro_eoc(void)
@@ -38,10 +42,6 @@ static bool_t baro_eoc(void)
 }
 
 void baro_init(void) {
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 0;
-
   bmp085_init(&baro_bmp085, &i2c2, BMP085_SLAVE_ADDR);
 
   /* setup eoc check function */
@@ -50,32 +50,34 @@ void baro_init(void) {
   gpio_clear(GPIOB, GPIO0);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
 	        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
+
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
+#endif
 }
 
 
 void baro_periodic(void) {
-
   if (baro_bmp085.initialized) {
-    baro.status = BS_RUNNING;
     bmp085_periodic(&baro_bmp085);
   }
-  else
+  else {
     bmp085_read_eeprom_calib(&baro_bmp085);
+  }
 }
 
 
 
-void baro_event(void (*b_abs_handler)(void))
+void baro_event(void)
 {
   bmp085_event(&baro_bmp085);
 
   if (baro_bmp085.data_available) {
-    baro.absolute = baro_bmp085.pressure;
-    b_abs_handler();
+    float pressure = (float)baro_bmp085.pressure;
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     baro_bmp085.data_available = FALSE;
-
-#ifdef ROTORCRAFT_BARO_LED
-    RunOnceEvery(10,LED_TOGGLE(ROTORCRAFT_BARO_LED));
+#ifdef BARO_LED
+    RunOnceEvery(10,LED_TOGGLE(BARO_LED));
 #endif
   }
 }

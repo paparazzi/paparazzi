@@ -177,7 +177,6 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="15." integer="16"/>
     <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
     <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
     <define name="SONAR_MAX_RANGE" value="5.0"/>
@@ -199,9 +198,7 @@
     <define name="HOVER_KD"     value="80"/>
     <define name="HOVER_KI"     value="0"/>
     <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-    <define name="RC_CLIMB_COEF" value ="163"/>
     <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
   </section>
 
 

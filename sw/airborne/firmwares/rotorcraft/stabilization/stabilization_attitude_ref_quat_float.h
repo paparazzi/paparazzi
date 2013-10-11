@@ -30,14 +30,15 @@
 #ifndef STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H
 #define STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H
 
-#include "subsystems/radio_control.h"
-#include "math/pprz_algebra_float.h"
-
 #include "stabilization_attitude_ref_float.h"
-#include "stabilization_attitude_ref.h"
 
-#define DEADBAND_EXCEEDED(VARIABLE, VALUE) ((VARIABLE > VALUE) || (VARIABLE < -VALUE))
-#define APPLY_DEADBAND(VARIABLE, VALUE) (DEADBAND_EXCEEDED(VARIABLE, VALUE) ? VARIABLE : 0.0)
+#ifndef STABILIZATION_ATTITUDE_GAIN_NB
+#define STABILIZATION_ATTITUDE_GAIN_NB 1
+#endif
+
+#ifndef STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT
+#define STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT 0
+#endif
 
 void stabilization_attitude_ref_enter(void);
 void stabilization_attitude_ref_schedule(uint8_t idx);

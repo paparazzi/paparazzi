@@ -7,7 +7,7 @@
 #
 
 $(TARGET).CFLAGS += -DACTUATORS
-ACTUATORS_ASCTEC_SRCS = subsystems/actuators/actuators_asctec_v2.c
+ACTUATORS_ASCTEC_V2_SRCS = subsystems/actuators/actuators_asctec_v2.c
 
 
 # set default i2c device if not already configured

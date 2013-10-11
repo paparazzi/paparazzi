@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE protocol SYSTEM "messages.dtd">
+<protocol>
+
+  <class name="airborne">
+    <!--message name="TEST_ABI" id="0">
+      <field name="value" type="int8_t"/>
+      <field name="boo" type="struct abi_boo"/>
+      <field name="vect" type="struct Int32Vect3 *"/>
+    </message-->
+
+    <message name="BARO_ABS" id="1">
+      <field name="pressure" type="float" unit="Pa"/>
+    </message>
+
+    <message name="BARO_DIFF" id="2">
+      <field name="pressure" type="float" unit="Pa"/>
+    </message>
+  </class>
+
+
+</protocol>

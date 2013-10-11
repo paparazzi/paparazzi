@@ -36,6 +36,8 @@
     <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
+
+    <configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/>
   </firmware>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -117,7 +119,6 @@
 
   <!-- Magnetic field for Toulouse (declination -16°) -->
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
     <define name="H_X" value=" 0.513081"/>
     <define name="H_Y" value="-0.00242783"/>
@@ -127,7 +128,6 @@
   <section name="INS" prefix="INS_">
     <!-- datasheet 1.4 mm/LSB : 0.0014*2^8 = 0.3584 -->
     <!-- calibration SENS = 1.156 :( -->
-    <define name="BARO_SENS" value="1.156" integer="16"/>
     <define name="SONAR_SENS" value="0.0128633" integer="16"/>
     <define name="SONAR_OFFSET" value="7"/>
     <define name="SONAR_MAX_RANGE" value="4.0"/>
@@ -208,9 +208,7 @@
    <define name="HOVER_KD"     value="80"/>
    <define name="HOVER_KI"     value="0"/>
    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-   <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
    <define name="ADAPT_NOISE_FACTOR" value="1.5"/>
   </section>
 

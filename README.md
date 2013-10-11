@@ -18,10 +18,11 @@ Installation is described in the wiki (http://paparazzi.enac.fr/wiki/Installatio
 For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
 Debian users can use http://paparazzi.enac.fr/debian
 
-
+Debian/Ubuntu packages:
 - **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.
-- **paparazzi-arm-multilib** ARM cross-compiling toolchain for LPC21 and STM32 based boards.
 - **paparazzi-jsbsim** is needed for using JSBSim as flight dynamic model for the simulator.
+
+Recommended cross compiling toolchain: https://launchpad.net/gcc-arm-embedded
 
 
 Directories quick and dirty description:

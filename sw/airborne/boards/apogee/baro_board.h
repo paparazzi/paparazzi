@@ -29,32 +29,7 @@
 #ifndef BOARDS_APOGEE_BARO_H
 #define BOARDS_APOGEE_BARO_H
 
-#include "std.h"
-#include "peripherals/mpl3115.h"
-
-/* There is no differential pressure on the board but
- * it can be available from an external sensor
- * */
-
-#define BaroAbs(_handler) {                 \
-  mpl3115_event();                          \
-  if (mpl3115_data_available) {             \
-    baro.absolute = mpl3115_pressure;       \
-    if (baro.status == BS_RUNNING) {        \
-      _handler();                           \
-      mpl3115_data_available = FALSE;       \
-    }                                       \
-  }                                         \
-}
-
-// TODO handle baro diff
-#ifndef BaroDiff
-#define BaroDiff(_h) {}
-#endif
-
-#define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
-  BaroAbs(_b_abs_handler);                            \
-  BaroDiff(_b_diff_handler);                          \
-}
+extern void apogee_baro_event(void);
+#define BaroEvent apogee_baro_event
 
 #endif // BOARDS_APOGEE_BARO_H

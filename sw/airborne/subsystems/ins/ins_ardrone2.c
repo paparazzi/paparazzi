@@ -41,53 +41,39 @@
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
-
-/* TODO: implement in state */
-int32_t ins_qfe;
-int32_t ins_baro_alt;
-
-//Keep track of gps pos and the init pos
-struct NedCoor_i ins_ltp_pos;
-struct LtpDef_i ins_ltp_def;
-
-// Keep track of INS LTP accel and speed
-struct NedCoor_f ins_ltp_accel;
-struct NedCoor_f ins_ltp_speed;
-
-bool_t ins_ltp_initialised;
+struct InsArdrone2 ins_impl;
 
 void ins_init() {
 #if USE_INS_NAV_INIT
-  struct LlaCoor_i llh_nav;
+  struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
+  llh_nav0.lat = INT32_RAD_OF_DEG(NAV_LAT0);
+  llh_nav0.lon = INT32_RAD_OF_DEG(NAV_LON0);
+  /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
+  llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
 
-  /** FIXME: should use the same code than MOVE_WP in firmwares/rotorcraft/datalink.c */
-  llh_nav.lat = INT32_RAD_OF_DEG(NAV_LAT0);
-  llh_nav.lon = INT32_RAD_OF_DEG(NAV_LON0);
-  llh_nav.alt = NAV_ALT0 + NAV_MSL0;
+  struct EcefCoor_i ecef_nav0;
+  ecef_of_lla_i(&ecef_nav0, &llh_nav0);
 
-  //Convert ltp
-  ltp_def_from_lla_i(&ins_ltp_def, &llh_nav);
-  ins_ltp_def.hmsl = NAV_ALT0;
+  ltp_def_from_ecef_i(&ins_impl.ltp_def, &ecef_nav0);
+  ins_impl.ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
 
-  //Set the ltp
-  stateSetLocalOrigin_i(&ins_ltp_def);
-
-  ins_ltp_initialised = TRUE;
+  ins_impl.ltp_initialized = TRUE;
 #else
-  ins_ltp_initialised = FALSE;
+  ins_impl.ltp_initialized  = FALSE;
 #endif
 
   ins.vf_realign = FALSE;
   ins.hf_realign = FALSE;
 
-  INT32_VECT3_ZERO(ins_ltp_pos);
-
-  // TODO correct init
-  ins.status = INS_RUNNING;
+  INT32_VECT3_ZERO(ins_impl.ltp_pos);
+  INT32_VECT3_ZERO(ins_impl.ltp_speed);
+  INT32_VECT3_ZERO(ins_impl.ltp_accel);
 }
 
 void ins_periodic( void ) {
-
+  if (ins_impl.ltp_initialized)
+    ins.status = INS_RUNNING;
 }
 
 void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
@@ -100,21 +86,21 @@ void ins_realign_v(float z __attribute__ ((unused))) {
 
 void ins_propagate() {
   /* untilt accels and speeds */
-  FLOAT_RMAT_VECT3_TRANSP_MUL(ins_ltp_accel, (*stateGetNedToBodyRMat_f()), ahrs_impl.accel);
-  FLOAT_RMAT_VECT3_TRANSP_MUL(ins_ltp_speed, (*stateGetNedToBodyRMat_f()), ahrs_impl.speed);
+  FLOAT_RMAT_VECT3_TRANSP_MUL(ins_impl.ltp_accel, (*stateGetNedToBodyRMat_f()), ahrs_impl.accel);
+  FLOAT_RMAT_VECT3_TRANSP_MUL(ins_impl.ltp_speed, (*stateGetNedToBodyRMat_f()), ahrs_impl.speed);
 
   //Add g to the accelerations
-  ins_ltp_accel.z += 9.81;
+  ins_impl.ltp_accel.z += 9.81;
 
   //Save the accelerations and speeds
-  stateSetAccelNed_f(&ins_ltp_accel);
-  stateSetSpeedNed_f(&ins_ltp_speed);
+  stateSetAccelNed_f(&ins_impl.ltp_accel);
+  stateSetSpeedNed_f(&ins_impl.ltp_speed);
 
   //Don't set the height if we use the one from the gps
 #if !USE_GPS_HEIGHT
   //Set the height and save the position
-  ins_ltp_pos.z = -(ahrs_impl.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
-  stateSetPositionNed_i(&ins_ltp_pos);
+  ins_impl.ltp_pos.z = -(ahrs_impl.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
+  stateSetPositionNed_i(&ins_impl.ltp_pos);
 #endif
 }
 
@@ -128,27 +114,27 @@ void ins_update_gps(void) {
   //Check for GPS fix
   if (gps.fix == GPS_FIX_3D) {
     //Set the initial coordinates
-    if(!ins_ltp_initialised) {
-      ltp_def_from_ecef_i(&ins_ltp_def, &gps.ecef_pos);
-      ins_ltp_def.lla.alt = gps.lla_pos.alt;
-      ins_ltp_def.hmsl = gps.hmsl;
-      ins_ltp_initialised = TRUE;
-      stateSetLocalOrigin_i(&ins_ltp_def);
+    if(!ins_impl.ltp_initialized) {
+      ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
+      ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+      ins_impl.ltp_def.hmsl = gps.hmsl;
+      ins_impl.ltp_initialized = TRUE;
+      stateSetLocalOrigin_i(&ins_impl.ltp_def);
     }
 
     //Set the x and y and maybe z position in ltp and save
     struct NedCoor_i ins_gps_pos_cm_ned;
-    ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_ltp_def, &gps.ecef_pos);
+    ned_of_ecef_point_i(&ins_gps_pos_cm_ned, &ins_impl.ltp_def, &gps.ecef_pos);
 
     //When we don't want to use the height of the navdata we can use the gps height
 #if USE_GPS_HEIGHT
-    INT32_VECT3_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    INT32_VECT3_SCALE_2(ins_impl.ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 #else
-    INT32_VECT2_SCALE_2(ins_ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    INT32_VECT2_SCALE_2(ins_impl.ltp_pos, ins_gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 #endif
 
     //Set the local origin
-    stateSetPositionNed_i(&ins_ltp_pos);
+    stateSetPositionNed_i(&ins_impl.ltp_pos);
   }
 #endif /* USE_GPS */
 }

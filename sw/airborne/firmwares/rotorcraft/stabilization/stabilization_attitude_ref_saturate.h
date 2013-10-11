@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h
- *  Common rotorcraft attitude reference generation include.
+/** @file firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h
+ *  Common rotorcraft attitude reference saturation include.
  */
 
-#ifndef STABILIZATION_ATTITUDE_REF_H
-#define STABILIZATION_ATTITUDE_REF_H
+#ifndef STABILIZATION_ATTITUDE_REF_SATURATE_H
+#define STABILIZATION_ATTITUDE_REF_SATURATE_H
 
 #define SATURATE_SPEED_TRIM_ACCEL() {                   \
     if (stab_att_ref_rate.p >= REF_RATE_MAX_P) {		\
@@ -60,4 +60,4 @@
   }
 
 
-#endif /* STABILIZATION_ATTITUDE_REF_H */
+#endif /* STABILIZATION_ATTITUDE_REF_SATURATE_H */

@@ -1,4 +1,5 @@
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_float.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_saturate.h"
 #include "generated/airframe.h"
 
 struct FloatEulers stab_att_sp_euler;

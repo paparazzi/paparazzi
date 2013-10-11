@@ -33,8 +33,10 @@
 #ifndef BARO_NO_DOWNLINK
 #include "subsystems/datalink/downlink.h"
 #endif
+#include "subsystems/abi.h"
 #include "subsystems/nav.h"
 #include "state.h"
+
 
 bool_t baro_MS5534A_do_reset;
 uint32_t baro_MS5534A_pressure;
@@ -257,14 +259,13 @@ void baro_MS5534A_event( void ) {
     spi_message_received = FALSE;
     baro_MS5534A_event_task();
     if (baro_MS5534A_available) {
-    //  baro_MS5534A_available = FALSE; // Checked by INS
+      baro_MS5534A_available = FALSE;
       baro_MS5534A_z = ground_alt +((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure)*0.084;
 #if SENSO_SYNC_SEND
       DOWNLINK_SEND_BARO_MS5534A(DefaultChannel, DefaultDevice, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z);
 #endif
-    //  if (alt_baro_enabled) {
-    //    EstimatorSetAlt(baro_MS5534A_z); // Updated by INS
-    //  }
+      float pressure = (float)baro_MS5534A_pressure;
+      AbiSendMsgBARO_ABS(BARO_MS5534A_SENDER_ID, &pressure);
     }
   }
 }

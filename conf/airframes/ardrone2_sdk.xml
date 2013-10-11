@@ -81,10 +81,6 @@
 		<define name="HOVER_KP" value="425" />
 		<define name="HOVER_KD" value="200" />
 		<define name="HOVER_KI" value="125" />
-		<!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
-		<define name="RC_CLIMB_COEF" value="163" />
-		<!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
-		<define name="RC_CLIMB_DEAD_BAND" value="160000" />
 		<define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
         <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
 	</section>

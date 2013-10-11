@@ -1,5 +1,29 @@
+/*
+ * Copyright (C) 2013 Gautier Hattenberger (ENAC)
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
 
 /*
+ * @file boards/lisa_l/baro_board.h
+ *
  * board specific fonctions for the lisa_l board
  *
  */
@@ -7,56 +31,7 @@
 #ifndef BOARDS_LISA_L_BARO_H
 #define BOARDS_LISA_L_BARO_H
 
-#include "std.h"
-#include "mcu_periph/i2c.h"
-
-enum LisaBaroStatus {
-  LBS_UNINITIALIZED,
-  LBS_RESETED,
-  LBS_INITIALIZING_ABS,
-  LBS_INITIALIZING_ABS_1,
-  LBS_INITIALIZING_DIFF,
-  LBS_INITIALIZING_DIFF_1,
-  LBS_IDLE,
-  LBS_READING_ABS,
-  LBS_READ_ABS,
-  LBS_READING_DIFF,
-  LBS_READ_DIFF
-};
-
-struct BaroBoard {
-  enum LisaBaroStatus status;
-};
-
-extern struct BaroBoard baro_board;
-extern struct i2c_transaction baro_trans;
-
-extern void baro_board_send_reset(void);
-extern void baro_board_send_config_abs(void);
-extern void baro_board_send_config_diff(void);
-
-#define BaroEvent(_b_abs_handler, _b_diff_handler) {			\
-    if (baro_board.status == LBS_READING_ABS &&                 \
-        baro_trans.status != I2CTransPending) {                 \
-      baro_board.status = LBS_READ_ABS;                         \
-      if (baro_trans.status == I2CTransSuccess) {               \
-        int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1]; \
-        baro.absolute = tmp;                                    \
-        _b_abs_handler();                                       \
-      }                                                         \
-    }                                                           \
-    else  if (baro_board.status == LBS_READING_DIFF &&			\
-              baro_trans.status != I2CTransPending) {			\
-      baro_board.status = LBS_READ_DIFF;                        \
-      if (baro_trans.status == I2CTransSuccess) {               \
-      	int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1]; \
-      	baro.differential = tmp;                                \
-      	_b_diff_handler();                                      \
-      }                                                         \
-    }                                                           \
-  }
-
-
-
+extern void lisa_l_baro_event(void);
+#define BaroEvent lisa_l_baro_event
 
 #endif /* BOARDS_LISA_L_BARO_H */
