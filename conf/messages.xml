@@ -1258,13 +1258,9 @@
     <field name="err_yd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
     <field name="err_sum_x" type="int32"/>
     <field name="err_sum_y" type="int32"/>
-    <field name="err_nav_x" type="int32"/>
-    <field name="err_nav_y" type="int32"/>
     <field name="cmd_x"     type="int32"/>
     <field name="cmd_y"     type="int32"/>
-    <field name="cmd_phi"   type="int32"/>
-    <field name="cmd_theta" type="int32"/>
-    <field name="cmd_psi"   type="int32"/>
+    <field name="cmd_heading" type="int32"/>
   </message>
 
 

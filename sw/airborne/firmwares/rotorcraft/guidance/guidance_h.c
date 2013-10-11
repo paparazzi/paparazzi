@@ -77,7 +77,6 @@ struct Int32Vect2 guidance_h_speed_sp;
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
 struct Int32Vect2 guidance_h_trim_att_integrator;
-struct Int32Vect2 guidance_h_nav_err;
 
 struct Int32Vect2  guidance_h_cmd_earth;
 struct Int32Eulers guidance_h_rc_sp;
@@ -115,18 +114,20 @@ static void send_hover_loop(void) {
   struct NedCoor_i* speed = stateGetSpeedNed_i();
   struct NedCoor_i* accel = stateGetAccelNed_i();
   DOWNLINK_SEND_HOVER_LOOP(DefaultChannel, DefaultDevice,
-    &guidance_h_pos_sp.x, &guidance_h_pos_sp.y,
-    &(pos->x), &(pos->y),
-    &(speed->x), &(speed->y),
-    &(accel->x), &(accel->y),
-    &guidance_h_pos_err.x, &guidance_h_pos_err.y,
-    &guidance_h_speed_err.x, &guidance_h_speed_err.y,
-    &guidance_h_pos_err_sum.x, &guidance_h_pos_err_sum.y,
-    &guidance_h_nav_err.x, &guidance_h_nav_err.y,
-    &guidance_h_command_earth.x, &guidance_h_command_earth.y,
-    &guidance_h_command_body.phi,
-    &guidance_h_command_body.theta,
-    &guidance_h_command_body.psi);
+                           &guidance_h_pos_sp.x,
+                           &guidance_h_pos_sp.y,
+                           &(pos->x), &(pos->y),
+                           &(speed->x), &(speed->y),
+                           &(accel->x), &(accel->y),
+                           &guidance_h_pos_err.x,
+                           &guidance_h_pos_err.y,
+                           &guidance_h_speed_err.x,
+                           &guidance_h_speed_err.y,
+                           &guidance_h_trim_att_integrator.x,
+                           &guidance_h_trim_att_integrator.y,
+                           &guidance_h_cmd_earth.x,
+                           &guidance_h_cmd_earth.y,
+                           &guidance_h_heading_sp);
 }
 
 static void send_href(void) {
