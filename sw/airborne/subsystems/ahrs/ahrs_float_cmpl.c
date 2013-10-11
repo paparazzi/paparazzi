@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -61,6 +61,39 @@
 #ifndef AHRS_PROPAGATE_FREQUENCY
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+
+#ifndef AHRS_CORRECT_FREQUENCY
+#define AHRS_CORRECT_FREQUENCY AHRS_PROPAGATE_FREQUENCY
+#endif
+PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
+
+#ifndef AHRS_MAG_CORRECT_FREQUENCY
+#define AHRS_MAG_CORRECT_FREQUENCY 50
+#endif
+PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+
+/*
+ * default gains for correcting attitude and bias from accel/mag
+ */
+#ifndef AHRS_ACCEL_OMEGA
+#define AHRS_ACCEL_OMEGA 0.063
+#endif
+#ifndef AHRS_ACCEL_ZETA
+#define AHRS_ACCEL_ZETA 0.9
+#endif
+
+#ifndef AHRS_MAG_OMEGA
+#define AHRS_MAG_OMEGA 0.04
+#endif
+#ifndef AHRS_MAG_ZETA
+#define AHRS_MAG_ZETA 0.9
+#endif
+
+/** by default use the gravity heuristic to reduce gain */
+#ifndef AHRS_GRAVITY_HEURISTIC_FACTOR
+#define AHRS_GRAVITY_HEURISTIC_FACTOR 30
+#endif
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // remotely settable
@@ -101,11 +134,19 @@ void ahrs_init(void) {
 
   FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
 
+  /* set default filter cut-off frequency and damping */
+  ahrs_impl.accel_omega = AHRS_ACCEL_OMEGA;
+  ahrs_impl.accel_zeta = AHRS_ACCEL_ZETA;
+  ahrs_impl.mag_omega = AHRS_MAG_OMEGA;
+  ahrs_impl.mag_zeta = AHRS_MAG_ZETA;
+
 #if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
   ahrs_impl.correct_gravity = TRUE;
 #else
   ahrs_impl.correct_gravity = FALSE;
 #endif
+
+  ahrs_impl.gravity_heuristic_factor = AHRS_GRAVITY_HEURISTIC_FACTOR;
 
   VECT3_ASSIGN(ahrs_impl.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
 }
@@ -132,7 +173,6 @@ void ahrs_align(void) {
   struct Int32Rates bias0;
   RATES_COPY(bias0, ahrs_aligner.lp_gyro);
   RATES_FLOAT_OF_BFP(ahrs_impl.gyro_bias, bias0);
-
   ahrs.status = AHRS_RUNNING;
 }
 
@@ -185,6 +225,8 @@ void ahrs_update_accel(void) {
 
   struct FloatVect3 residual;
 
+  struct FloatVect3 pseudo_gravity_measurement;
+
   if (ahrs_impl.correct_gravity && ahrs_impl.ltp_vel_norm_valid) {
     /*
      * centrifugal acceleration in body frame
@@ -201,30 +243,51 @@ void ahrs_update_accel(void) {
     struct FloatVect3 acc_c_imu;
     FLOAT_RMAT_VECT3_MUL(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body);
 
-    /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
-    struct FloatVect3 corrected_gravity;
-    VECT3_DIFF(corrected_gravity, imu_accel_float, acc_c_imu);
+    /* and subtract it from imu measurement to get a corrected measurement of the gravity vector */
+    VECT3_DIFF(pseudo_gravity_measurement, imu_accel_float, acc_c_imu);
 
-    /* compute the residual of gravity vector in imu frame */
-    FLOAT_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
   } else {
-    FLOAT_VECT3_CROSS_PRODUCT(residual, imu_accel_float, c2);
+    VECT3_COPY(pseudo_gravity_measurement, imu_accel_float);
   }
 
-#ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
-  /* heuristic on acceleration norm */
-  const float acc_norm = FLOAT_VECT3_NORM(imu_accel_float);
-  const float weight = Chop(1.-6*fabs((9.81-acc_norm)/9.81), 0., 1.);
-#else
-  const float weight = 1.;
-#endif
+  FLOAT_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
-  /* compute correction */
-  const float gravity_rate_update_gain = -5e-2; // -5e-2
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, weight*gravity_rate_update_gain);
+  /* FIR filtered pseudo_gravity_measurement */
+  #define FIR_FILTER_SIZE 8
+  static struct FloatVect3 filtered_gravity_measurement = {0., 0., 0.};
+  VECT3_SMUL(filtered_gravity_measurement, filtered_gravity_measurement, FIR_FILTER_SIZE-1);
+  VECT3_ADD(filtered_gravity_measurement, pseudo_gravity_measurement);
+  VECT3_SDIV(filtered_gravity_measurement, filtered_gravity_measurement, FIR_FILTER_SIZE);
 
-  const float gravity_bias_update_gain = 1e-5; // -5e-6
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, weight*gravity_bias_update_gain);
+  if (ahrs_impl.gravity_heuristic_factor) {
+    /* heuristic on acceleration (gravity estimate) norm */
+    /* Factor how strongly to change the weight.
+     * e.g. for gravity_heuristic_factor 30:
+     * <0.66G = 0, 1G = 1.0, >1.33G = 0
+     */
+
+    const float g_meas_norm = FLOAT_VECT3_NORM(filtered_gravity_measurement) / 9.81;
+    ahrs_impl.weight = 1.0 - ahrs_impl.gravity_heuristic_factor * fabs(1.0 - g_meas_norm) / 10.0;
+    Bound(ahrs_impl.weight, 0.15, 1.0);
+  }
+  else {
+    ahrs_impl.weight = 1.0;
+  }
+
+  /* Complementary filter proportional gain.
+   * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY
+   */
+  const float gravity_rate_update_gain = -2 * ahrs_impl.accel_zeta * ahrs_impl.accel_omega *
+    ahrs_impl.weight * AHRS_PROPAGATE_FREQUENCY / (AHRS_CORRECT_FREQUENCY * 9.81);
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, gravity_rate_update_gain);
+
+  /* Complementary filter integral gain
+   * Correct the gyro bias.
+   * Ki = (omega*weight)^2/AHRS_CORRECT_FREQUENCY
+   */
+  const float gravity_bias_update_gain = ahrs_impl.accel_omega * ahrs_impl.accel_omega *
+    ahrs_impl.weight * ahrs_impl.weight / (AHRS_CORRECT_FREQUENCY * 9.81);
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, gravity_bias_update_gain);
 
   /* FIXME: saturate bias */
 
@@ -253,37 +316,66 @@ void ahrs_update_mag_full(void) {
   //  DISPLAY_FLOAT_VECT3("# measured", measured_imu);
   //  DISPLAY_FLOAT_VECT3("# residual", residual);
 
-  const float mag_rate_update_gain = 2.5;
+  /* Complementary filter proportional gain.
+   * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY
+   */
+
+  const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega *
+    AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
-  const float mag_bias_update_gain = -2.5e-3;
+  /* Complementary filter integral gain
+   * Correct the gyro bias.
+   * Ki = (omega*weight)^2/AHRS_CORRECT_FREQUENCY
+   */
+  const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) /
+    AHRS_MAG_CORRECT_FREQUENCY;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
 
 }
 
 void ahrs_update_mag_2d(void) {
 
+  struct FloatVect2 expected_ltp;
+  VECT2_COPY(expected_ltp, ahrs_impl.mag_h);
+  // normalize expected ltp in 2D (x,y)
+  FLOAT_VECT2_NORMALIZE(expected_ltp);
+
   struct FloatVect3 measured_imu;
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
   struct FloatVect3 measured_ltp;
   FLOAT_RMAT_VECT3_TRANSP_MUL(measured_ltp, ahrs_impl.ltp_to_imu_rmat, measured_imu);
 
+  struct FloatVect2 measured_ltp_2d={measured_ltp.x, measured_ltp.y};
+
+  // normalize measured ltp in 2D (x,y)
+  FLOAT_VECT2_NORMALIZE(measured_ltp_2d);
+
   const struct FloatVect3 residual_ltp =
     { 0,
       0,
-      measured_ltp.x * ahrs_impl.mag_h.y - measured_ltp.y * ahrs_impl.mag_h.x };
+      measured_ltp_2d.x * expected_ltp.y - measured_ltp_2d.y * expected_ltp.x };
 
   //  printf("res : %f\n", residual_ltp.z);
 
   struct FloatVect3 residual_imu;
   FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_impl.ltp_to_imu_rmat, residual_ltp);
 
-  const float mag_rate_update_gain = 2.5;
+
+  /* Complementary filter proportional gain.
+   * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY
+   */
+  const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega *
+    AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
-  const float mag_bias_update_gain = -2.5e-3;
+  /* Complementary filter integral gain
+   * Correct the gyro bias.
+   * Ki = (omega*weight)^2/AHRS_CORRECT_FREQUENCY
+   */
+  const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) /
+    AHRS_MAG_CORRECT_FREQUENCY;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
-
 }
 
 
@@ -301,7 +393,8 @@ void ahrs_update_mag_2d_dumb(void) {
   const float mn = ctheta * magf.x + sphi*stheta*magf.y + cphi*stheta*magf.z;
   const float me =     0. * magf.x + cphi       *magf.y - sphi       *magf.z;
 
-  const float res_norm = -RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 0,0)*me + RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 1,0)*mn;
+  const float res_norm = -RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 0,0) * me +
+                          RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 1,0) * mn;
   const struct FloatVect3 r2 = {RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,0),
                                 RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,1),
                                 RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,2)};
@@ -443,5 +536,3 @@ static inline void compute_body_orientation_and_rates(void) {
   FLOAT_RMAT_TRANSP_RATEMULT(body_rate, ahrs_impl.body_to_imu_rmat, ahrs_impl.imu_rate);
   stateSetBodyRates_f(&body_rate);
 }
-
-

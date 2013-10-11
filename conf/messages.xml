@@ -1377,6 +1377,7 @@
   </message>
 
   <message name="AHRS_QUAT_INT" id="157">
+    <field name="weight"  type="float"/>
     <field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
