@@ -28,8 +28,10 @@ else ifeq ($(ARCH), stm32)
 GL1_I2C_DEV ?= i2c2
 endif
 
+ifeq ($(TARGET), ap)
 ifndef GL1_I2C_DEV
 $(error Error: GL1_I2C_DEV not configured!)
+endif
 endif
 
 # convert i2cx to upper/lower case

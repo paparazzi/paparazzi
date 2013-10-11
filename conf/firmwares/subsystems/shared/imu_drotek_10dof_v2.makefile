@@ -59,8 +59,10 @@ else ifeq ($(ARCH), stm32)
 DROTEK_2_I2C_DEV ?= i2c2
 endif
 
+ifeq ($(TARGET), ap)
 ifndef DROTEK_2_I2C_DEV
 $(error Error: DROTEK_2_I2C_DEV not configured!)
+endif
 endif
 
 # convert i2cx to upper/lower case
