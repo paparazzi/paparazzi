@@ -31,13 +31,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_float.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.h"
 
-#ifndef STABILIZATION_ATTITUDE_GAIN_NB
-#define STABILIZATION_ATTITUDE_GAIN_NB 1
-#endif
-
-#ifndef STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT
-#define STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT 0
-#endif
 
 extern struct FloatAttitudeGains stabilization_gains[];
 

@@ -47,18 +47,9 @@ struct Int32Vect2 gh_speed_ref;
  */
 struct Int64Vect2 gh_pos_ref;
 
-/** Accel saturation.
- * tanf(RadOfDeg(30.))*9.81 = 5.66
- */
-#ifndef GUIDANCE_H_REF_MAX_ACCEL
-#define GUIDANCE_H_REF_MAX_ACCEL 5.66
-#endif
+
 static const int32_t gh_max_accel =  BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, GH_ACCEL_REF_FRAC);
 
-/** Speed saturation */
-#ifndef GUIDANCE_H_REF_MAX_SPEED
-#define GUIDANCE_H_REF_MAX_SPEED 5.
-#endif
 /** @todo GH_MAX_SPEED must be limited to 2^14 to avoid overflow */
 #define GH_MAX_SPEED_REF_FRAC 7
 static const int32_t gh_max_speed = BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, GH_MAX_SPEED_REF_FRAC);

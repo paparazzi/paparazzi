@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,14 +19,20 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_attitude_ref_euler_int.h
- *  Rotorcraft attitude reference generation (euler int version)
- *
+/** @file stabilization_attitude_quat_transformations.h
+ *  Quaternion transformation functions.
  */
 
-#ifndef STABILIZATION_ATTITUDE_REF_EULER_INT_H
-#define STABILIZATION_ATTITUDE_REF_EULER_INT_H
+#ifndef STABILIZATION_ATTITUDE_QUAT_TRANSFORMATIONS_H
+#define STABILIZATION_ATTITUDE_QUAT_TRANSFORMATIONS_H
 
-#include "stabilization_attitude_ref_int.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_int.h"
 
-#endif /* STABILIZATION_ATTITUDE_REF_EULER_INT_H */
+extern void quat_from_rpy_cmd_i(struct Int32Quat *quat, struct Int32Eulers *rpy);
+extern void quat_from_rpy_cmd_f(struct FloatQuat *quat, struct FloatEulers *rpy);
+
+extern void quat_from_earth_cmd_i(struct Int32Quat *quat, struct Int32Vect2 *cmd, int32_t heading);
+extern void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float heading);
+
+#endif

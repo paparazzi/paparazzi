@@ -62,6 +62,19 @@ PRINT_CONFIG_VAR(GUIDANCE_V_NOMINAL_HOVER_THROTTLE)
 PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_THROTTLE_ENABLED)
 
 
+#ifndef GUIDANCE_V_CLIMB_RC_DEADBAND
+#define GUIDANCE_V_CLIMB_RC_DEADBAND MAX_PPRZ/10
+#endif
+
+#ifndef GUIDANCE_V_MAX_RC_CLIMB_SPEED
+#define GUIDANCE_V_MAX_RC_CLIMB_SPEED GUIDANCE_V_REF_MIN_ZD
+#endif
+
+#ifndef GUIDANCE_V_MAX_RC_DESCENT_SPEED
+#define GUIDANCE_V_MAX_RC_DESCENT_SPEED GUIDANCE_V_REF_MAX_ZD
+#endif
+
+
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
@@ -94,14 +107,14 @@ int32_t guidance_v_ki;
 
 int32_t guidance_v_z_sum_err;
 
-static int32_t guidance_v_thrust_coeff;
+int32_t guidance_v_thrust_coeff;
 
 
 #define GuidanceVSetRef(_pos, _speed, _accel) { \
-    gv_set_ref(_pos, _speed, _accel);	     \
-    guidance_v_z_ref = _pos;		     \
-    guidance_v_zd_ref = _speed;		     \
-    guidance_v_zdd_ref = _accel;		     \
+    gv_set_ref(_pos, _speed, _accel);        \
+    guidance_v_z_ref = _pos;             \
+    guidance_v_zd_ref = _speed;          \
+    guidance_v_zdd_ref = _accel;             \
   }
 
 static int32_t get_vertical_thrust_coeff(void);
@@ -131,9 +144,18 @@ void guidance_v_read_rc(void) {
   guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE];
 
   /* used in RC_CLIMB */
-  guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
-  DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
+  guidance_v_rc_zd_sp = (MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE];
+  DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_CLIMB_RC_DEADBAND);
 
+  static const int32_t climb_scale = ABS(SPEED_BFP_OF_REAL(GUIDANCE_V_MAX_RC_CLIMB_SPEED) /
+                                         (MAX_PPRZ/2 - GUIDANCE_V_CLIMB_RC_DEADBAND));
+  static const int32_t descent_scale = ABS(SPEED_BFP_OF_REAL(GUIDANCE_V_MAX_RC_DESCENT_SPEED) /
+                                           (MAX_PPRZ/2 - GUIDANCE_V_CLIMB_RC_DEADBAND));
+
+  if(guidance_v_rc_zd_sp > 0)
+    guidance_v_rc_zd_sp *= descent_scale;
+  else
+    guidance_v_rc_zd_sp *= climb_scale;
 }
 
 void guidance_v_mode_changed(uint8_t new_mode) {

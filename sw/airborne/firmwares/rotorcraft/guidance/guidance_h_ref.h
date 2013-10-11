@@ -31,6 +31,18 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
 
+/** Speed saturation */
+#ifndef GUIDANCE_H_REF_MAX_SPEED
+#define GUIDANCE_H_REF_MAX_SPEED 5.
+#endif
+
+/** Accel saturation.
+ * tanf(RadOfDeg(30.))*9.81 = 5.66
+ */
+#ifndef GUIDANCE_H_REF_MAX_ACCEL
+#define GUIDANCE_H_REF_MAX_ACCEL 5.66
+#endif
+
 /** Update frequency
  */
 #define GH_FREQ_FRAC 9

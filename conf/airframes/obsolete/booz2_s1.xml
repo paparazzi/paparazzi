@@ -141,9 +141,7 @@
    <define name="HOVER_KD"    value="200"/>
    <define name="HOVER_KI"    value="0"/>
    <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-   <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
    <!-- NDJD : Valeur mesurée 10/09/2009 -->
    <define name="INV_M" value="0.111"/>
   </section>
