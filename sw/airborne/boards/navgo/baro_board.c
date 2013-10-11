@@ -25,12 +25,30 @@
  * Navarro & Gorraz & Hattenberger
  */
 
+#include "std.h"
+#include "baro_board.h"
 #include "subsystems/sensors/baro.h"
+#include "peripherals/mcp355x.h"
+#include "subsystems/abi.h"
 #include "led.h"
-#include "mcu_periph/spi.h"
 
-/* Common Baro struct */
-struct Baro baro;
+/** scale factor to convert raw ADC measurement to pressure in Pascal.
+ *
+ * supply voltage Vs = 5V
+ * real sensor sensitivity Vout = Vs * (0.009 P - 0.095) with P in kPa
+ * 22 bit signed ADC -> only 21 useful bits ADC = 5/2^21 = 2.384e-6 V / LSB
+ *
+ * offset = 5*0.095/2.384e-6 = 199229 (LSB)
+ * sensitivity = (1000/0.009)*2.384e-6/5 = 0.05298 Pa/LSB
+ *
+ */
+#ifndef NAVGO_BARO_SENS
+#define NAVGO_BARO_SENS 0.05298
+#endif
+
+#ifndef NAVGO_BARO_OFFSET
+#define NAVGO_BARO_OFFSET 199229
+#endif
 
 /* Counter to init mcp355x at startup */
 #define BARO_STARTUP_COUNTER 200
@@ -38,31 +56,35 @@ uint16_t startup_cnt;
 
 void baro_init( void ) {
   mcp355x_init();
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 0; /* not handled on this board */
-#ifdef ROTORCRAFT_BARO_LED
-  LED_OFF(ROTORCRAFT_BARO_LED);
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
 #endif
   startup_cnt = BARO_STARTUP_COUNTER;
 }
 
 void baro_periodic( void ) {
-
-  if (baro.status == BS_UNINITIALIZED) {
-    // Run some loops to get correct readings from the adc
+  // Run some loops to get correct readings from the adc
+  if (startup_cnt > 0) {
     --startup_cnt;
-#ifdef ROTORCRAFT_BARO_LED
-    LED_TOGGLE(ROTORCRAFT_BARO_LED);
-#endif
+#ifdef BARO_LED
+    LED_TOGGLE(BARO_LED);
     if (startup_cnt == 0) {
-      baro.status = BS_RUNNING;
-#ifdef ROTORCRAFT_BARO_LED
-      LED_ON(ROTORCRAFT_BARO_LED);
-#endif
+      LED_ON(BARO_LED);
     }
+#endif
   }
   // Read the ADC (at 50/4 Hz, conversion time is 68 ms)
   RunOnceEvery(4,mcp355x_read());
 }
 
+void navgo_baro_event(void) {
+  mcp355x_event();
+  if (mcp355x_data_available) {
+    if (startup_cnt == 0) {
+      // Send data when init phase is done
+      float pressure = NAVGO_BARO_SENS*(mcp355x_data+NAVGO_BARO_OFFSET);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+    }
+    mcp355x_data_available = FALSE;
+  }
+}

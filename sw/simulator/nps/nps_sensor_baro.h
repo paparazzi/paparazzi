@@ -7,7 +7,7 @@
 #include "std.h"
 
 struct NpsSensorBaro {
-  double  value;
+  double  value;          ///< pressure in Pascal
   double  next_update;
   bool_t  data_available;
 };

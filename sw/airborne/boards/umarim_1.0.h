@@ -114,6 +114,10 @@
 #define SPI1_DRDY_EINT         0
 #define SPI1_DRDY_VIC_IT       VIC_EINT0
 
-#define BOARD_HAS_BARO 1
+
+/* by default enable onboard baro */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 #endif /* CONFIG_UMARIM_V1_0_H */

@@ -181,7 +181,6 @@ AP_MODE_NAV
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="3.3" integer="16"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">

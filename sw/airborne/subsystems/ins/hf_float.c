@@ -28,7 +28,6 @@
  */
 
 #include "subsystems/ins/hf_float.h"
-#include "subsystems/ins.h"
 #include "subsystems/imu.h"
 #include "state.h"
 #include "subsystems/gps.h"
@@ -459,14 +458,6 @@ void b2_hff_propagate(void) {
       b2_hff_propagate_x(&b2_hff_state);
       b2_hff_propagate_y(&b2_hff_state);
 
-      /* update ins state from horizontal filter */
-      ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-      ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-      ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-      ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-      ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-      ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
-
 #ifdef GPS_LAG
       /* increase lag counter on last saved state */
       if (b2_hff_rb_n > 0)
@@ -490,7 +481,7 @@ void b2_hff_propagate(void) {
 
 
 
-void b2_hff_update_gps(void) {
+void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* speed_ned) {
   b2_hff_lost_counter = 0;
 
 #if USE_GPS_ACC4R
@@ -508,20 +499,13 @@ void b2_hff_update_gps(void) {
 #endif
 
     /* update filter state with measurement */
-    b2_hff_update_x(&b2_hff_state, ins_gps_pos_m_ned.x, Rgps_pos);
-    b2_hff_update_y(&b2_hff_state, ins_gps_pos_m_ned.y, Rgps_pos);
+    b2_hff_update_x(&b2_hff_state, pos_ned->x, Rgps_pos);
+    b2_hff_update_y(&b2_hff_state, pos_ned->y, Rgps_pos);
 #ifdef HFF_UPDATE_SPEED
-    b2_hff_update_xdot(&b2_hff_state, ins_gps_speed_m_s_ned.x, Rgps_vel);
-    b2_hff_update_ydot(&b2_hff_state, ins_gps_speed_m_s_ned.y, Rgps_vel);
+    b2_hff_update_xdot(&b2_hff_state, speed_ned->x, Rgps_vel);
+    b2_hff_update_ydot(&b2_hff_state, speed_ned->y, Rgps_vel);
 #endif
 
-    /* update ins state */
-    ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-    ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-    ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-    ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-    ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-    ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 
 #ifdef GPS_LAG
   } else if (b2_hff_rb_n > 0) {
@@ -530,11 +514,11 @@ void b2_hff_update_gps(void) {
     PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter, lag_counter_err));
     if (abs(lag_counter_err) <= GPS_LAG_TOL_N) {
       b2_hff_rb_last->rollback = TRUE;
-      b2_hff_update_x(b2_hff_rb_last, ins_gps_pos_m_ned.x, Rgps_pos);
-      b2_hff_update_y(b2_hff_rb_last, ins_gps_pos_m_ned.y, Rgps_pos);
+      b2_hff_update_x(b2_hff_rb_last, pos_ned->x, Rgps_pos);
+      b2_hff_update_y(b2_hff_rb_last, pos_ned->y, Rgps_pos);
 #ifdef HFF_UPDATE_SPEED
-      b2_hff_update_xdot(b2_hff_rb_last, ins_gps_speed_m_s_ned.x, Rgps_vel);
-      b2_hff_update_ydot(b2_hff_rb_last, ins_gps_speed_m_s_ned.y, Rgps_vel);
+      b2_hff_update_xdot(b2_hff_rb_last, speed_ned->x, Rgps_vel);
+      b2_hff_update_ydot(b2_hff_rb_last, speed_ned->y, Rgps_vel);
 #endif
       past_save_counter = GPS_DT_N-1;// + lag_counter_err;
       PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));

@@ -19,10 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/abi.h
+ *
+ * Main include for ABI (AirBorneInterface).
+ * @todo explain how to use ABI
+ */
+
 #ifndef ABI_H
 #define ABI_H
-
-/* TODO Explain how to use ABI */
 
 #include "abi_messages.h"
 

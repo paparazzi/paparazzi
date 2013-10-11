@@ -9,6 +9,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
+#include "subsystems/abi.h"
 #include "led.h"
 
 #include "mcu_periph/uart.h"
@@ -99,6 +100,8 @@ void baro_scp_event( void ) {
       baro_scp_pressure |= scp_trans.buf[1];
       baro_scp_pressure *= 25;
 
+      float pressure = (float) baro_scp_pressure;
+      AbiSendMsgBARO_ABS(BARO_SCP_SENDER_ID, &pressure);
 #ifdef SENSOR_SYNC_SEND
       DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif

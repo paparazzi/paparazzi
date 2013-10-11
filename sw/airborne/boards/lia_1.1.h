@@ -166,7 +166,7 @@
 
 
 // FIXME, using baro_board right now to include the appropriate header
-#define BOARD_HAS_BARO 0
+#define USE_BARO_BOARD 0
 
 
 #endif /* CONFIG_LIA_1_1_H */

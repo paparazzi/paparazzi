@@ -55,7 +55,7 @@ uint8_t cam_status;
 uint8_t cam_data_len;
 
 void track_init(void) {
-  ins_ltp_initialised = TRUE; // ltp is initialized and centered on the target
+  ins_impl.ltp_initialized = TRUE; // ltp is initialized and centered on the target
   ins_update_on_agl = TRUE;   // use sonar to update agl (assume flat ground)
 
   cam_status = UNINIT;
@@ -119,8 +119,8 @@ void track_periodic_task(void) {
 }
 
 void track_event(void) {
-  if (!ins_ltp_initialised) {
-    ins_ltp_initialised = TRUE;
+  if (!ins_impl.ltp_initialized) {
+    ins_impl.ltp_initialized = TRUE;
     ins.hf_realign = TRUE;
   }
 
@@ -134,24 +134,24 @@ void track_event(void) {
   }
   const stuct FlotVect2 measuremet_noise = { 10.0, 10.0 };
   b2_hff_update_pos(-target_pos_ned, measurement_noise);
-  ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-  ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-  ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-  ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-  ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-  ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
+  ins_impl.ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+  ins_impl.ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+  ins_impl.ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+  ins_impl.ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+  ins_impl.ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+  ins_impl.ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 
   INS_NED_TO_STATE();
 #else
   // store pos in ins
-  ins_ltp_pos.x = -(POS_BFP_OF_REAL(target_pos_ned.x));
-  ins_ltp_pos.y = -(POS_BFP_OF_REAL(target_pos_ned.y));
+  ins_impl.ltp_pos.x = -(POS_BFP_OF_REAL(target_pos_ned.x));
+  ins_impl.ltp_pos.y = -(POS_BFP_OF_REAL(target_pos_ned.y));
   // compute speed from last pos
   // TODO get delta T
   // store last pos
   VECT3_COPY(last_pos_ned, target_pos_ned);
 
-  stateSetPositionNed_i(&ins_ltp_pos);
+  stateSetPositionNed_i(&ins_impl.ltp_pos);
 #endif
 
   b2_hff_lost_counter = 0;

@@ -1,0 +1,111 @@
+/*
+ * Copyright (C) 2011-2013 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
+/**
+ * @file boards/baro_board_ms5611_i2c.c
+ *
+ * Driver for onboard MS5611 baro via I2C.
+ *
+ */
+
+#include "subsystems/sensors/baro.h"
+#include "peripherals/ms5611_i2c.h"
+
+#include "mcu_periph/sys_time.h"
+#include "led.h"
+#include "std.h"
+#include "subsystems/abi.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+
+
+/* default i2c address
+ * when CSB is set to GND addr is 0xEE
+ * when CSB is set to VCC addr is 0xEC
+ *
+ * Note: Aspirin 2.1 has CSB bound to GND.
+ */
+#ifndef BB_MS5611_SLAVE_ADDR
+#define BB_MS5611_SLAVE_ADDR 0xEE
+#endif
+
+
+struct Ms5611_I2c bb_ms5611;
+
+
+void baro_init(void) {
+  ms5611_i2c_init(&bb_ms5611, &BB_MS5611_I2C_DEV, BB_MS5611_SLAVE_ADDR);
+
+#ifdef BARO_LED
+  LED_OFF(BARO_LED);
+#endif
+}
+
+void baro_periodic(void) {
+  if (sys_time.nb_sec > 1) {
+
+    /* call the convenience periodic that initializes the sensor and starts reading*/
+    ms5611_i2c_periodic(&bb_ms5611);
+
+#if DEBUG
+    if (bb_ms5611.initialized)
+      RunOnceEvery((50*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
+                                                       &bb_ms5611.data.c[0],
+                                                       &bb_ms5611.data.c[1],
+                                                       &bb_ms5611.data.c[2],
+                                                       &bb_ms5611.data.c[3],
+                                                       &bb_ms5611.data.c[4],
+                                                       &bb_ms5611.data.c[5],
+                                                       &bb_ms5611.data.c[6],
+                                                       &bb_ms5611.data.c[7]);
+#endif
+  }
+}
+
+void baro_event(void){
+  if (sys_time.nb_sec > 1) {
+    ms5611_i2c_event(&bb_ms5611);
+
+    if (bb_ms5611.data_available) {
+      float pressure = (float)bb_ms5611.data.pressure;
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
+      bb_ms5611.data_available = FALSE;
+
+#ifdef BARO_LED
+      RunOnceEvery(10,LED_TOGGLE(BARO_LED));
+#endif
+
+#if DEBUG
+      float ftempms = bb_ms5611.data.temperature / 100.;
+      float fbaroms = bb_ms5611.data.pressure / 100.;
+      DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
+                                &bb_ms5611.data.d1, &bb_ms5611.data.d2,
+                                &fbaroms, &ftempms);
+#endif
+    }
+  }
+}

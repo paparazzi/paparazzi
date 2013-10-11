@@ -19,7 +19,6 @@
     <define name="USE_I2C0"/>
     <define name="USE_AIRSPEED"/>
     <define name="USE_BARO_ETS"/>
-    <define name="INS_BARO_SENS" value="0.32"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
@@ -37,9 +36,6 @@
   <modules>
     <load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/>
-    <load name="baro_board.xml">
-      <define name="BARO_ABS_EVENT" value="BaroEtsUpdate"/>
-    </load>
     <load name="infrared_adc.xml"/>
   </modules>
 

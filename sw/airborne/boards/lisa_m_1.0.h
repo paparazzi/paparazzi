@@ -111,7 +111,7 @@
 #endif
 
 /* GPIO mapping for ADC1 pins, overwrites the default in arch/stm32/mcu_periph/adc_arch.c */
-// FIXME, this is not very nice, is also stm lib specific
+// FIXME, this is not very nice, is also libopencm3 lib specific
 #ifdef USE_AD1
 #define ADC1_GPIO_INIT(gpio) {                  \
   gpio_set_mode(GPIOC, GPIO_MODE_INPUT,         \
@@ -120,6 +120,10 @@
   }
 #endif // USE_AD1
 
-#define BOARD_HAS_BARO 1
+
+/* by default enable onboard baro */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 #endif /* CONFIG_LISA_M_1_0_H */

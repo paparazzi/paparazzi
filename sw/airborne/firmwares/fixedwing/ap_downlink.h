@@ -298,16 +298,12 @@
 #define PERIODIC_SEND_SCP_STATUS(_trans, _dev) {}
 #endif
 
-#if USE_BAROMETER
-#include "subsystems/sensors/baro.h"
-#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {  \
-    DOWNLINK_SEND_BARO_RAW(_trans, _dev,        \
-                           &baro.absolute,      \
-                           &baro.differential); \
+#include "subsystems/air_data.h"
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {      \
+    DOWNLINK_SEND_BARO_RAW(_trans, _dev,            \
+                           &air_data.pressure,      \
+                           &air_data.differential); \
   }
-#else
-#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {}
-#endif
 
 #ifdef MEASURE_AIRSPEED
 #define PERIODIC_SEND_AIRSPEED(_trans, _dev) { \

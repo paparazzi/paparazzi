@@ -17,10 +17,18 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file modules/sensors/baro_mpl3155.c
+ *
+ * Module for the baro MPL3115A2 from Freescale (i2c)
  *
  */
 
 #include "modules/sensors/baro_mpl3115.h"
+#include "peripherals/mpl3115.h"
+#include "subsystems/abi.h"
 
 //Messages
 #include "mcu_periph/uart.h"
@@ -31,23 +39,37 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
+#ifndef BARO_MPL3115_I2C_DEV
+#define BARO_MPL3115_I2C_DEV i2c0
+#endif
+
+#ifndef BARO_MPL3115_I2C_SLAVE_ADDR
+#define BARO_MPL3115_I2C_SLAVE_ADDR MPL3115_I2C_ADDR
+#endif
+
+
+struct Mpl3115 baro_mpl;
+
 void baro_mpl3115_init( void ) {
-  mpl3115_init();
+  mpl3115_init(&baro_mpl, &BARO_MPL3115_I2C_DEV, BARO_MPL3115_I2C_SLAVE_ADDR);
 }
 
 
 void baro_mpl3115_read_periodic( void ) {
-#ifdef SENSOR_SYNC_SEND
-  if (mpl3115_data_available) {
-    DOWNLINK_SEND_MPL3115_BARO(DefaultChannel, DefaultDevice, &mpl3115_pressure, &mpl3115_temperature, &mpl3115_alt);
-  }
-#endif
-  Mpl3115Periodic();
+  mpl3115_periodic(&baro_mpl);
 }
 
 
 void baro_mpl3115_read_event( void ) {
-  mpl3115_event();
+  mpl3115_event(&baro_mpl);
+  if (baro_mpl.data_available) {
+    float pressure = (float)baro_mpl.pressure/(1<<2);
+    AbiSendMsgBARO_ABS(BARO_MPL3115_SENDER_ID, &pressure);
+#ifdef SENSOR_SYNC_SEND
+    DOWNLINK_SEND_MPL3115_BARO(DefaultChannel, DefaultDevice, &baro_mpl.pressure, &baro_mpl.temperature, &baro_mpl.alt);
+#endif
+    baro_mpl.data_available = FALSE;
+  }
 }
 
 

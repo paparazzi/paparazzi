@@ -29,7 +29,9 @@
 
 #include "modules/sensors/baro_ms5611_i2c.h"
 
+#include "math/pprz_isa.h"
 #include "mcu_periph/sys_time.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
@@ -72,9 +74,9 @@ void baro_ms5611_periodic_check( void ) {
 
   ms5611_i2c_periodic_check(&baro_ms5611);
 
-#if BARO_MS5611_SEND_COEFF
-  // send coeff every 5s
-  RunOnceEvery((5*BARO_MS5611_PERIODIC_CHECK_FREQUENCY), baro_ms5611_send_coeff());
+#if SENSOR_SYNC_SEND
+  // send coeff every 30s
+  RunOnceEvery((30*BARO_MS5611_PERIODIC_CHECK_FREQ), baro_ms5611_send_coeff());
 #endif
 }
 
@@ -90,16 +92,19 @@ void baro_ms5611_event( void ) {
   ms5611_i2c_event(&baro_ms5611);
 
   if (baro_ms5611.data_available) {
-    float tmp_float = baro_ms5611.data.pressure / 101325.0; //pressure at sea level
-    tmp_float = pow(tmp_float, 0.190295);
-    baro_ms5611_alt = 44330 * (1.0 - tmp_float); //altitude above MSL
+    float pressure = (float)baro_ms5611.data.pressure;
+    AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, &pressure);
+    baro_ms5611.data_available = FALSE;
+
+    baro_ms5611_alt = pprz_isa_altitude_of_pressure(pressure);
     baro_ms5611_alt_valid = TRUE;
 
 #ifdef SENSOR_SYNC_SEND
     ftempms = baro_ms5611.data.temperature / 100.;
     fbaroms = baro_ms5611.data.pressure / 100.;
     DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                              &baro_ms5611.data.d1, &baro_ms5611.data.d2, &fbaroms, &ftempms);
+                              &baro_ms5611.data.d1, &baro_ms5611.data.d2,
+                              &fbaroms, &ftempms);
 #endif
   }
 }

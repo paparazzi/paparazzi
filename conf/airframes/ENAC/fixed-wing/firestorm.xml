@@ -124,7 +124,6 @@
   <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="-0.0640000030398" unit="rad"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0.0670000016689" unit="rad"/>
-    <define name="BARO_SENS" value="1.0"/> <!-- TODO calibration -->
   </section>
 
   <section name="BAT">

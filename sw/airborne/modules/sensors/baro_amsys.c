@@ -25,14 +25,10 @@
 
 #include "sensors/baro_amsys.h"
 #include "mcu_periph/i2c.h"
+#include "subsystems/abi.h"
 #include "state.h"
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
-
-#ifdef SITL
-#include "subsystems/gps.h"
-#include "subsystems/navigation/common_nav.h"
-#endif
 
 //Messages
 #include "mcu_periph/uart.h"
@@ -41,10 +37,6 @@
 //#include "gps.h"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
-#ifdef SITL
-#include "subsystems/gps.h"
 #endif
 
 #define BARO_AMSYS_ADDR 0xE4
@@ -76,6 +68,7 @@
 #ifndef BARO_AMSYS_I2C_DEV
 #define BARO_AMSYS_I2C_DEV i2c0
 #endif
+
 
 // Global variables
 uint16_t pBaroRaw;
@@ -126,7 +119,6 @@ void baro_amsys_init( void ) {
 
 void baro_amsys_read_periodic( void ) {
   // Initiate next read
-#ifndef SITL
   if (baro_amsys_i2c_trans.status == I2CTransDone){
 #ifndef MEASURE_AMSYS_TEMPERATURE
     i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 2);
@@ -134,17 +126,6 @@ void baro_amsys_read_periodic( void ) {
     i2c_receive(&BARO_AMSYS_I2C_DEV, &baro_amsys_i2c_trans, BARO_AMSYS_ADDR, 4);
 #endif
   }
-#else // SITL
-  /* fake an offset so sim works for under hmsl as well */
-  if (!baro_amsys_offset_init) {
-    baro_amsys_offset = BARO_AMSYS_OFFSET_MAX;
-    baro_amsys_offset_init = TRUE;
-  }
-  pBaroRaw = 0;
-  baro_amsys_altitude = gps.hmsl / 1000.0;
-  baro_amsys_adc = baro_amsys_offset - ((baro_amsys_altitude - ground_alt) / INS_BARO_SENS);
-  baro_amsys_valid = TRUE;
-#endif
 
 #ifdef BARO_AMSYS_SYNC_SEND
   DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp);
@@ -180,6 +161,9 @@ void baro_amsys_read_event( void ) {
 
     //Convert to pressure
     baro_amsys_p = (float)(pBaroRaw-BARO_AMSYS_OFFSET_MIN)*BARO_AMSYS_MAX_PRESSURE/(float)(BARO_AMSYS_OFFSET_MAX-BARO_AMSYS_OFFSET_MIN);
+    // Send pressure over ABI
+    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, &baro_amsys_p);
+    // compute altitude localy
     if (!baro_amsys_offset_init) {
       --baro_amsys_cnt;
       // Check if averaging completed

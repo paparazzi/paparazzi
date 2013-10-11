@@ -67,7 +67,7 @@ void booz_fms_impl_periodic(void) {
 #if 0
   case BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL: {
     if (guidance_v_mode < GUIDANCE_V_MODE_HOVER)
-      booz_fms_test_signal_start_z = ins_ltp_pos.z;
+      booz_fms_test_signal_start_z = ins_impl.ltp_pos.z;
     else {
       booz_fms_input.v_sp.height = (booz_fms_test_signal_counter < booz_fms_test_signal_period) ?
 	booz_fms_test_signal_start_z :

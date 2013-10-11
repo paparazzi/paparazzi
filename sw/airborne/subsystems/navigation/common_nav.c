@@ -26,6 +26,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "generated/flight_plan.h"
+#include "subsystems/ins.h"
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
 
@@ -115,6 +116,10 @@ unit_t nav_reset_reference( void ) {
   // reset state UTM ref
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
+
+  // realign INS if needed
+  ins.hf_realign = TRUE;
+  ins.vf_realign = TRUE;
 
   previous_ground_alt = ground_alt;
   ground_alt = gps.hmsl/1000.;

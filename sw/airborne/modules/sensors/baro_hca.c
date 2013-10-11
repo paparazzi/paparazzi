@@ -22,6 +22,7 @@
 
 #include "sensors/baro_hca.h"
 #include "mcu_periph/i2c.h"
+#include "subsystems/abi.h"
 #include <math.h>
 
 //Messages
@@ -38,6 +39,16 @@
 #define BARO_HCA_MIN_PRESSURE 800 // mBar
 #define BARO_HCA_MAX_OUT 27852 //dec
 #define BARO_HCA_MIN_OUT 1638 //dec
+
+// FIXME
+#ifndef BARO_HCA_SCALE
+#define BARO_HCA_SCALE 1.0
+#endif
+
+// FIXME
+#ifndef BARO_HCA_PRESSURE_OFFSET
+#define BARO_HCA_PRESSURE_OFFSET 101325.0
+#endif
 
 #ifndef BARO_HCA_I2C_DEV
 #define BARO_HCA_I2C_DEV i2c0
@@ -83,6 +94,8 @@ void baro_hca_read_event( void ) {
     if (pBaroRaw > BARO_HCA_MAX_OUT)
       pBaroRaw = BARO_HCA_MAX_OUT;
 
+    float pressure = BARO_HCA_SCALE*(float)pBaroRaw + BARO_HCA_PRESSURE_OFFSET;
+    AbiSendMsgBARO_ABS(BARO_HCA_SENDER_ID, &pressure);
   }
   baro_hca_i2c_trans.status = I2CTransDone;
 
