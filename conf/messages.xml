@@ -653,7 +653,17 @@
     <field name="accel" type="float" unit="m/s/s"/>
   </message>
 
- <!-- 78 is free -->
+  <message name="CHIBIOS_INFO" id="78">
+    <field name="heap_fragments" type="uint32"/>
+    <field name="fragmented_free_space" type="uint32"/>
+    <field name="core_free_memory" type="uint32"/>
+    <field name="sys_time" type="uint32"/>
+    <field name="threads" type="uint8"/>
+    <field name="cpu_ticks" type="uint32"/>
+    <field name="idle_ticks" type="uint32"/>
+    <field name="cpu_usage" type="float"/>
+  </message>
+
  <!-- 79 is free -->
 
   <message name="CROSS_TRACK_ERROR" id="80">

@@ -1,0 +1,503 @@
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/ap/obj/main_chibios.o: \
+ firmwares/rotorcraft/main_chibios.c \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/ch.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/chconf.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/mcu_periph/sys_time_arch.h \
+ mcu_periph/sys_time.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/inttypes.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/stdint.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/stdint.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/_ansi.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/newlib.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/config.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/ieeefp.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/features.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/stddef.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/stdlib.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/_ansi.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/reent.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/_types.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/_types.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/_default_types.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/lock.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/stdlib.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/alloca.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/include/std.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/math.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/chtypes.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/stdbool.h \
+ boards/lia/chibios/board.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chlists.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/chcore.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/STM32F1xx/cmparams.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/chcore_v7m.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/nvic.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chsys.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chvt.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chschd.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chsem.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chbsem.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmtx.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chcond.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chevents.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmsg.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmboxes.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmemcore.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chheap.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmempools.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chthreads.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chdynamic.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chregistry.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chinline.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chqueues.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chstreams.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chfiles.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chdebug.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/hal.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/board.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/halconf.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/mcuconf.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/hal_lld.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32/stm32.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32f10x.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/CMSIS/include/core_cm3.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/CMSIS/include/core_cmInstr.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/CMSIS/include/core_cmFunc.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/hal_lld_f105_f107.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32_isr.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32_dma.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32_rcc.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/io_channel.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/io_block.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/mmcsd.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/tm.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/pal.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32/GPIOv1/pal_lld.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/adc.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/can.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/ext.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/gpt.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/i2c.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/icu.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/mac.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/pwm.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/rtc.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/serial.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32/USARTv1/serial_lld.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/sdc.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/spi.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/uart.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/usb.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/mmc_spi.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/serial_usb.h \
+ led.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/led_hw.h \
+ mcu.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/mcu_arch.h \
+ subsystems/datalink/downlink.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/modules.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/include/messages.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/airframe.h \
+ subsystems/actuators/actuators_pwm.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/subsystems/actuators/actuators_pwm_arch.h \
+ subsystems/datalink/udp.h subsystems/datalink/datalink.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/include/dl_protocol.h \
+ subsystems/datalink/pprz_transport.h subsystems/datalink/transport.h \
+ subsystems/datalink/xbee.h subsystems/datalink/xbee24.h \
+ subsystems/datalink/w5100.h firmwares/rotorcraft/telemetry.h \
+ mcu_periph/uart.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/mcu_periph/uart_arch.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/periodic_telemetry.h \
+ subsystems/radio_control.h paparazzi.h subsystems/radio_control/ppm.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/subsystems/radio_control/ppm_arch.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/radio.h \
+ state.h math/pprz_algebra_int.h math/pprz_algebra.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/float.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/string.h \
+ /usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/string.h \
+ math/pprz_trig_int.h math/pprz_algebra_int.h math/pprz_algebra_float.h \
+ math/pprz_algebra.h math/pprz_geodetic_int.h math/pprz_geodetic.h \
+ math/pprz_algebra_int.h math/pprz_geodetic_float.h \
+ math/pprz_algebra_float.h math/pprz_orientation_conversion.h \
+ math/pprz_algebra_float.h firmwares/rotorcraft/autopilot.h \
+ subsystems/ins.h math/pprz_geodetic_int.h subsystems/ins/ins_int.h \
+ firmwares/rotorcraft/guidance.h \
+ firmwares/rotorcraft/guidance/guidance_h.h \
+ firmwares/rotorcraft/guidance/guidance_h_ref.h \
+ firmwares/rotorcraft/guidance/guidance_v.h \
+ firmwares/rotorcraft/guidance/guidance_v_ref.h \
+ firmwares/rotorcraft/guidance/guidance_v_adapt.h subsystems/actuators.h \
+ subsystems/electrical.h subsystems/imu.h subsystems/gps.h \
+ subsystems/gps/gps_ubx.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/include/ubx_protocol.h \
+ subsystems/ahrs.h subsystems/ahrs/ahrs_int_cmpl_quat.h \
+ subsystems/sensors/baro.h firmwares/rotorcraft/stabilization.h \
+ firmwares/rotorcraft/stabilization/stabilization_none.h \
+ firmwares/rotorcraft/stabilization/stabilization_rate.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h \
+ subsystems/ahrs/ahrs_aligner.h subsystems/ins/vf_float.h \
+ firmwares/rotorcraft/navigation.h math/pprz_geodetic_float.h \
+ subsystems/navigation/common_flight_plan.h \
+ /home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/settings.h \
+ firmwares/rotorcraft/autopilot.h \
+ firmwares/rotorcraft/guidance/guidance_h.h \
+ firmwares/rotorcraft/guidance/guidance_v.h \
+ firmwares/rotorcraft/navigation.h \
+ firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h \
+ firmwares/rotorcraft/stabilization/stabilization_rate.h \
+ subsystems/settings.h
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/ch.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/chconf.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/mcu_periph/sys_time_arch.h:
+
+mcu_periph/sys_time.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/inttypes.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/stdint.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/stdint.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/_ansi.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/newlib.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/config.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/ieeefp.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/features.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/stddef.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/stdlib.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/_ansi.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/reent.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/_types.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/_types.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/_default_types.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/lock.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/machine/stdlib.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/alloca.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/include/std.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/math.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/chtypes.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/stdbool.h:
+
+boards/lia/chibios/board.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chlists.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/chcore.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/STM32F1xx/cmparams.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/GCC/ARMCMx/chcore_v7m.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/nvic.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chsys.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chvt.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chschd.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chsem.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chbsem.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmtx.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chcond.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chevents.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmsg.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmboxes.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmemcore.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chheap.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chmempools.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chthreads.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chdynamic.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chregistry.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chinline.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chqueues.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chstreams.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chfiles.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/kernel/include/chdebug.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/hal.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/board.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/halconf.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/boards/lia/chibios/mcuconf.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/hal_lld.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32/stm32.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32f10x.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/CMSIS/include/core_cm3.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/CMSIS/include/core_cmInstr.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/ports/common/ARMCMx/CMSIS/include/core_cmFunc.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/hal_lld_f105_f107.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32_isr.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32_dma.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32F1xx/stm32_rcc.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/io_channel.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/io_block.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/mmcsd.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/tm.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/pal.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32/GPIOv1/pal_lld.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/adc.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/can.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/ext.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/gpt.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/i2c.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/icu.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/mac.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/pwm.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/rtc.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/serial.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/platforms/STM32/USARTv1/serial_lld.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/sdc.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/spi.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/uart.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/usb.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/mmc_spi.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/ext/chibios/os/hal/include/serial_usb.h:
+
+led.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/led_hw.h:
+
+mcu.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/mcu_arch.h:
+
+subsystems/datalink/downlink.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/modules.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/include/messages.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/airframe.h:
+
+subsystems/actuators/actuators_pwm.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/subsystems/actuators/actuators_pwm_arch.h:
+
+subsystems/datalink/udp.h:
+
+subsystems/datalink/datalink.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/include/dl_protocol.h:
+
+subsystems/datalink/pprz_transport.h:
+
+subsystems/datalink/transport.h:
+
+subsystems/datalink/xbee.h:
+
+subsystems/datalink/xbee24.h:
+
+subsystems/datalink/w5100.h:
+
+firmwares/rotorcraft/telemetry.h:
+
+mcu_periph/uart.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/mcu_periph/uart_arch.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/periodic_telemetry.h:
+
+subsystems/radio_control.h:
+
+paparazzi.h:
+
+subsystems/radio_control/ppm.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/sw/airborne/arch/chibios/subsystems/radio_control/ppm_arch.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/radio.h:
+
+state.h:
+
+math/pprz_algebra_int.h:
+
+math/pprz_algebra.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/include/float.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/string.h:
+
+/usr/bin/../lib/gcc/arm-none-eabi/4.7.4/../../../../arm-none-eabi/include/sys/string.h:
+
+math/pprz_trig_int.h:
+
+math/pprz_algebra_int.h:
+
+math/pprz_algebra_float.h:
+
+math/pprz_algebra.h:
+
+math/pprz_geodetic_int.h:
+
+math/pprz_geodetic.h:
+
+math/pprz_algebra_int.h:
+
+math/pprz_geodetic_float.h:
+
+math/pprz_algebra_float.h:
+
+math/pprz_orientation_conversion.h:
+
+math/pprz_algebra_float.h:
+
+firmwares/rotorcraft/autopilot.h:
+
+subsystems/ins.h:
+
+math/pprz_geodetic_int.h:
+
+subsystems/ins/ins_int.h:
+
+firmwares/rotorcraft/guidance.h:
+
+firmwares/rotorcraft/guidance/guidance_h.h:
+
+firmwares/rotorcraft/guidance/guidance_h_ref.h:
+
+firmwares/rotorcraft/guidance/guidance_v.h:
+
+firmwares/rotorcraft/guidance/guidance_v_ref.h:
+
+firmwares/rotorcraft/guidance/guidance_v_adapt.h:
+
+subsystems/actuators.h:
+
+subsystems/electrical.h:
+
+subsystems/imu.h:
+
+subsystems/gps.h:
+
+subsystems/gps/gps_ubx.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/include/ubx_protocol.h:
+
+subsystems/ahrs.h:
+
+subsystems/ahrs/ahrs_int_cmpl_quat.h:
+
+subsystems/sensors/baro.h:
+
+firmwares/rotorcraft/stabilization.h:
+
+firmwares/rotorcraft/stabilization/stabilization_none.h:
+
+firmwares/rotorcraft/stabilization/stabilization_rate.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h:
+
+subsystems/ahrs/ahrs_aligner.h:
+
+subsystems/ins/vf_float.h:
+
+firmwares/rotorcraft/navigation.h:
+
+math/pprz_geodetic_float.h:
+
+subsystems/navigation/common_flight_plan.h:
+
+/home/aggieair/paparazzi-github/rt_paparazzi_master/paparazzi/var/rotorcraft_rt/generated/settings.h:
+
+firmwares/rotorcraft/autopilot.h:
+
+firmwares/rotorcraft/guidance/guidance_h.h:
+
+firmwares/rotorcraft/guidance/guidance_v.h:
+
+firmwares/rotorcraft/navigation.h:
+
+firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h:
+
+firmwares/rotorcraft/stabilization/stabilization_rate.h:
+
+subsystems/settings.h:
