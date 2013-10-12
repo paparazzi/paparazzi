@@ -274,7 +274,9 @@ void gps_ubx_parse( uint8_t c ) {
 
 void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 #ifdef GPS_LINK
+#ifndef USE_UART5
   UbxSend_CFG_RST(bbr, reset_mode, 0x00);
+#endif
 #endif /* else less harmful for HITL */
 }
 
