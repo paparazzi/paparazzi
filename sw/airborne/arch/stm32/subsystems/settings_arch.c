@@ -1,277 +1,336 @@
 /*
- * Paparazzi persistent settings low level flash routines stm32
+ * Copyright (C) 2010 The Paparazzi Team
  *
- * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
+ * This file is part of paparazzi.
  *
- * This file is part of Paparazzi.
- *
- * Paparazzi is free software; you can redistribute it and/or modify
+ * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * Paparazzi is distributed in the hope that it will be useful,
+ * paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Paparazzi; see the file COPYING.  If not, write to
+ * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file arch/stm32/subsystems/radio_control/ppm_arch.c
+ * @ingroup stm32_arch
+ *
+ * STM32 ppm decoder.
+ *
+ * Input signal either on:
+ *  - PA1 TIM2/CH2 (uart1 trig on Lisa/L)  (Servo 6 on Lisa/M)
+ *  - PA10 TIM1/CH3 (uart1 trig on Lisa/L) (uart1 rx on Lisa/M)
  *
  */
 
+#include "subsystems/radio_control.h"
+#include "subsystems/radio_control/ppm.h"
+
+#include BOARD_CONFIG
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/timer.h>
+#include <libopencm3/cm3/nvic.h>
+
+#include "mcu_periph/sys_time.h"
+#include "mcu_periph/gpio.h"
+
+
+#define ONE_MHZ_CLK 1000000
+
+uint8_t  ppm_cur_pulse;
+uint32_t ppm_last_pulse_time;
+bool_t   ppm_data_valid;
+static uint32_t timer_rollover_cnt;
+
 /*
-  flash data is located in the last page/sector of flash
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
 
-  data          flash_addr
-  data_size     flash_end - FSIZ
-  checksum      flash_end - FCHK
+#ifdef STM32F1
+/**
+ * HCLK = 72MHz, Timer clock also 72MHz since
+ * TIM1_CLK = APB2 = 72MHz
+ * TIM2_CLK = 2 * APB1 = 2 * 32MHz
+ */
+#define PPM_TIMER_CLK       AHB_CLK
+#endif
 
-  STM32: minimum write size 2 bytes, endurance 10k cycles,
-         max sector erase time 40ms, max prog time 70us per 2 bytes
-*/
+#if USE_PPM_TIM2
 
-#include "subsystems/settings.h"
+PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 
-#include <libopencm3/stm32/flash.h>
-#include <libopencm3/stm32/crc.h>
-#include <libopencm3/stm32/dbgmcu.h>
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM2EN
+#define PPM_TIMER           TIM2
 
-struct FlashInfo {
-    uint32_t addr;
-    uint32_t total_size;
-    uint32_t page_nr;
-    uint32_t page_size;
-};
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM3
+
+PRINT_CONFIG_MSG("Using TIM3 for PPM input.")
+
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM3EN
+#define PPM_TIMER           TIM3
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM4
+
+PRINT_CONFIG_MSG("Using TIM4 for PPM input.")
+
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM4EN
+#define PPM_TIMER           TIM4
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM5
+
+PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
+
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM5EN
+#define PPM_TIMER           TIM5
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM1
+
+PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
+
+#define PPM_RCC             &RCC_APB2ENR
+#define PPM_PERIPHERAL      RCC_APB2ENR_TIM1EN
+#define PPM_TIMER           TIM1
+
+#ifdef STM32F4
+#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM8
+
+PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
+
+#define PPM_RCC             &RCC_APB2ENR
+#define PPM_PERIPHERAL      RCC_APB2ENR_TIM8EN
+#define PPM_TIMER           TIM8
+
+#ifdef STM32F4
+#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
+#endif
 
 
-static uint32_t pflash_checksum(uint32_t ptr, uint32_t size);
-static int32_t flash_detect(struct FlashInfo* flash);
-static int32_t pflash_program_bytes(struct FlashInfo* flash,
-                     uint32_t src,
-                     uint32_t size,
-                     uint32_t chksum);
+#else
+#error Unknown PPM input timer configuration.
+#endif
+
+void ppm_arch_init ( void ) {
+
+  /* timer clock enable */
+  rcc_peripheral_enable_clock(PPM_RCC, PPM_PERIPHERAL);
+
+  /* GPIO clock enable */
+  gpio_enable_clock(PPM_GPIO_PORT);
+
+  /* timer gpio configuration */
+  gpio_setup_pin_af(PPM_GPIO_PORT, PPM_GPIO_PIN, PPM_GPIO_AF, FALSE);
+
+  /* Time Base configuration */
+  timer_reset(PPM_TIMER);
+  timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
+                 TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_set_period(PPM_TIMER, 0xFFFF);
+  timer_set_prescaler(PPM_TIMER, (PPM_TIMER_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+
+ /* TIM configuration: Input Capture mode ---------------------
+     The Rising edge is used as active edge
+  ------------------------------------------------------------ */
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
+  timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_RISING);
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_FALLING);
+#else
+#error "Unknown PPM_PULSE_TYPE"
+#endif
+  timer_ic_set_input(PPM_TIMER, PPM_CHANNEL, PPM_TIMER_INPUT);
+  timer_ic_set_prescaler(PPM_TIMER, PPM_CHANNEL, TIM_IC_PSC_OFF);
+  timer_ic_set_filter(PPM_TIMER, PPM_CHANNEL, TIM_IC_OFF);
+
+  /* Enable timer Interrupt(s). */
+  nvic_set_priority(PPM_IRQ, 2);
+  nvic_enable_irq(PPM_IRQ);
+
+#ifdef PPM_IRQ2
+  nvic_set_priority(PPM_IRQ2, 2);
+  nvic_enable_irq(PPM_IRQ2);
+#endif
+
+  /* Enable the Capture/Compare and Update interrupt requests. */
+  timer_enable_irq(PPM_TIMER, (PPM_CC_IE | TIM_DIER_UIE));
+
+  /* Enable capture channel. */
+  timer_ic_enable(PPM_TIMER, PPM_CHANNEL);
+
+  /* TIM enable counter */
+  timer_enable_counter(PPM_TIMER);
+
+  ppm_last_pulse_time = 0;
+  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  timer_rollover_cnt = 0;
+
+}
+
+#if USE_PPM_TIM2
+
+void tim2_isr(void) {
+
+  if((TIM2_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM2, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM2) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM2_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM2, TIM_SR_UIF);
+  }
+
+}
+
+
+#elif USE_PPM_TIM3
+
+void tim3_isr(void) {
+
+  if((TIM3_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM3, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM3) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM3_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM3, TIM_SR_UIF);
+  }
+
+}
+
+#elif USE_PPM_TIM4
+
+void tim4_isr(void) {
+
+  if((TIM4_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM4, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM4) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM4_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM4, TIM_SR_UIF);
+  }
+
+}
+
+#elif USE_PPM_TIM5
+
+void tim5_isr(void) {
+
+  if((TIM5_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM5, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM5) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM5_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM5, TIM_SR_UIF);
+  }
+
+}
+
+
+#elif USE_PPM_TIM1
 
 #if defined(STM32F1)
-#define FLASH_SIZE_ MMIO16(0x1FFFF7E0)
+void tim1_up_isr(void) {
 #elif defined(STM32F4)
-#define FLASH_SIZE_ MMIO16(0x1FFF7A22)
+void tim1_up_tim10_isr(void) {
 #endif
-
-#define FLASH_BEGIN 0x08000000
-#define FSIZ        8
-#define FCHK        4
-
-
-static uint32_t pflash_checksum(uint32_t ptr, uint32_t size) {
-  uint32_t i;
-
-  /* reset crc */
-  CRC_CR = CRC_CR_RESET;
-
-  if (ptr % 4) {
-    /* calc in 8bit chunks */
-    for (i=0; i<(size & ~3); i+=4) {
-      CRC_DR = (*(uint8_t*) (ptr+i)) |
-               (*(uint8_t*) (ptr+i+1)) << 8 |
-               (*(uint8_t*) (ptr+i+2)) << 16 |
-               (*(uint8_t*) (ptr+i+3)) << 24;
-    }
-  } else {
-    /* calc in 32bit */
-    for (i=0; i<(size & ~3); i+=4) {
-      CRC_DR = *(uint32_t*) (ptr+i);
-    }
+  if((TIM1_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM1, TIM_SR_UIF);
   }
-
-  /* remaining bytes */
-  switch (size % 4) {
-    case 1:
-      CRC_DR = *(uint8_t*) (ptr+i);
-      break;
-    case 2:
-      CRC_DR = (*(uint8_t*) (ptr+i)) |
-               (*(uint8_t*) (ptr+i+1)) << 8;
-      break;
-    case 3:
-      CRC_DR = (*(uint8_t*) (ptr+i)) |
-               (*(uint8_t*) (ptr+i+1)) << 8 |
-               (*(uint8_t*) (ptr+i+2)) << 16;
-      break;
-    default:
-      break;
-  }
-
-  return CRC_DR;
 }
 
-static int32_t flash_detect(struct FlashInfo* flash) {
+void tim1_cc_isr(void) {
+  if((TIM1_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM1, PPM_CC_IF);
 
-  flash->total_size = FLASH_SIZE_ * 0x400;
-
-#if 1
-  /* FIXME This will not work for connectivity line (needs ID, see below), but
-           device ID is only readable when freshly loaded through JTAG?! */
-
-  switch (flash->total_size) {
-    /* low density */
-    case 0x00004000: /* 16 kBytes */
-    case 0x00008000: /* 32 kBytes */
-    /* medium density, e.g. STM32F103RBT6 (Olimex STM32-H103) */
-    case 0x00010000: /* 64 kBytes */
-    case 0x00020000: /* 128 kBytes */
-    {
-      flash->page_size = 0x400;
-      break;
-    }
-    /* high density, e.g. STM32F103RE (Joby Lisa/M, Lisa/L) */
-    case 0x00040000: /* 256 kBytes */
-    case 0x00080000: /* 512 kBytes */
-    /* XL density */
-    case 0x000C0000: /* 768 kBytes */
-    case 0x00100000: /* 1 MByte */
-    {
-      flash->page_size = 0x800;
-      break;
-    }
-    default: {return -1;}
+    uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
+    DecodePpmFrame(now);
   }
-
-#else /* this is the correct way of detecting page sizes */
-  uint32_t device_id;
-
-  /* read device id */
-  device_id = DBGMCU_IDCODE & DBGMCU_IDCODE_DEV_ID_MASK;
-
-  switch (device_id) {
-    /* low density */
-    case 0x412:
-    /* medium density, e.g. STM32F103RB (Olimex STM32-H103) */
-    case 0x410:
-    {
-      flash->page_size = 0x400;
-      break;
-    }
-    /* high density, e.g. STM32F103RE (Joby Lisa/L) */
-    case 0x414:
-    /* XL density */
-    case 0x430:
-    /* connectivity line */
-    case 0x418:
-    {
-      flash->page_size = 0x800;
-      break;
-    }
-    default: return -1;
-  }
-
-  switch (flash->total_size) {
-    case 0x00004000: /* 16 kBytes */
-    case 0x00008000: /* 32 kBytes */
-    case 0x00010000: /* 64 kBytes */
-    case 0x00200000: /* 128 kBytes */
-    case 0x00040000: /* 256 kBytes */
-    case 0x00080000: /* 512 kBytes */
-    case 0x000C0000: /* 768 kBytes */
-    case 0x00100000: /* 1 MByte */
-      break;
-    default: return -1;
-  }
-#endif
-
-  flash->page_nr = (flash->total_size / flash->page_size) - 1;
-  flash->addr = FLASH_BEGIN + flash->page_nr * flash->page_size;
-
-  return 0;
 }
 
-// (gdb) p *flash
-// $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
-//              0x807F800             0x80000
+#elif USE_PPM_TIM8 && defined(STM32F4)
 
-static int32_t pflash_program_bytes(struct FlashInfo* flash,
-                    uint32_t   src,
-                    uint32_t   size,
-                    uint32_t   chksum) {
 #if defined(STM32F1)
-  uint32_t i;
-
-  /* erase */
-  flash_unlock();
-  flash_erase_page(flash->addr);
-  flash_lock();
-
-  /* verify erase */
-  for (i=0; i<flash->page_size; i+=4) {
-    if ((*(uint32_t*) (flash->addr + i)) != 0xFFFFFFFF) return -1;
-  }
-
-  flash_unlock();
-  /* write full 16 bit words */
-  for (i=0; i<(size & ~1); i+=2) {
-    flash_program_half_word(flash->addr+i,
-        (uint16_t)(*(uint8_t*)(src+i) | (*(uint8_t*)(src+i+1)) << 8));
-  }
-  /* fill bytes with a zero */
-  if (size & 1) {
-    flash_program_half_word(flash->addr+i, (uint16_t)(*(uint8_t*)(src+i)));
-  }
-  /* write size */
-  flash_program_half_word(flash->addr+flash->page_size-FSIZ,
-                          (uint16_t)(size & 0xFFFF));
-  flash_program_half_word(flash->addr+flash->page_size-FSIZ+2,
-                          (uint16_t)((size >> 16) & 0xFFFF));
-  /* write checksum */
-  flash_program_half_word(flash->addr+flash->page_size-FCHK,
-                          (uint16_t)(chksum & 0xFFFF));
-  flash_program_half_word(flash->addr+flash->page_size-FCHK+2,
-                          (uint16_t)((chksum >> 16) & 0xFFFF));
-  flash_lock();
-
-  /* verify data */
-  for (i=0; i<size; i++) {
-    if ((*(uint8_t*) (flash->addr+i)) != (*(uint8_t*) (src+i))) return -2;
-  }
-  if (*(uint32_t*) (flash->addr+flash->page_size-FSIZ) != size) return -3;
-  if (*(uint32_t*) (flash->addr+flash->page_size-FCHK) != chksum) return -4;
+void tim8_up_isr(void) {
 #elif defined(STM32F4)
-
+void tim8_up_tim13_isr(void) {
 #endif
-
-  return 0;
-}
-
-int32_t persistent_write(uint32_t ptr, uint32_t size) {
-  struct FlashInfo flash_info;
-  if (flash_detect(&flash_info)) return -1;
-  if ((size > flash_info.page_size-FSIZ) || (size == 0)) return -2;
-
-  return pflash_program_bytes(&flash_info,
-                              ptr,
-                              size,
-                              pflash_checksum(ptr, size));
-}
-
-int32_t persistent_read(uint32_t ptr, uint32_t size) {
-  struct FlashInfo flash;
-  uint32_t i;
-
-  /* check parameters */
-  if (flash_detect(&flash)) return -1;
-  if ((size > flash.page_size-FSIZ) || (size == 0)) return -2;
-
-  /* check consistency */
-  if (size != *(uint32_t*)(flash.addr+flash.page_size-FSIZ)) return -3;
-  if (pflash_checksum(flash.addr, size) !=
-      *(uint32_t*)(flash.addr+flash.page_size-FCHK))
-    return -4;
-
-  /* copy data */
-  for (i=0; i<size; i++) {
-    *(uint8_t*) (ptr+i) = *(uint8_t*) (flash.addr+i);
+  if((TIM8_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM8, TIM_SR_UIF);
   }
 
-  return 0;
+return;
 }
+
+void tim8_cc_isr(void) {
+  if((TIM8_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM8, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM8) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+
+return;
+}
+
+#endif /* USE_PPM_TIM1 */
