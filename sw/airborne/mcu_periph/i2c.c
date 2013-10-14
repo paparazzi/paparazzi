@@ -49,7 +49,7 @@ static void send_i2c0_err(void) {
   uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event;
   const uint8_t _bus0 = 0;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-      $i2c0_queue_full_cnt,
+      &i2c0_queue_full_cnt,
       &i2c0_ack_fail_cnt,
       &i2c0_miss_start_stop_cnt,
       &i2c0_arb_lost_cnt,
@@ -89,7 +89,7 @@ static void send_i2c1_err(void) {
   uint32_t i2c1_last_unexpected_event = i2c1.errors->last_unexpected_event;
   const uint8_t _bus1 = 1;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-      $i2c1_queue_full_cnt,
+      &i2c1_queue_full_cnt,
       &i2c1_ack_fail_cnt,
       &i2c1_miss_start_stop_cnt,
       &i2c1_arb_lost_cnt,
@@ -173,7 +173,7 @@ static void send_i2c3_err(void) {
   uint32_t i2c3_last_unexpected_event = i2c3.errors->last_unexpected_event;
   const uint8_t _bus3 = 3;
   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-      $i2c3_queue_full_cnt,
+      &i2c3_queue_full_cnt,
       &i2c3_ack_fail_cnt,
       &i2c3_miss_start_stop_cnt,
       &i2c3_arb_lost_cnt,
