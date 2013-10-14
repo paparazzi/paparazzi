@@ -123,6 +123,7 @@ static inline void ahrs_update_mag_2d(void);
 static void send_quat(void) {
   struct Int32Quat* quat = stateGetNedToBodyQuat_i();
   DOWNLINK_SEND_AHRS_QUAT_INT(DefaultChannel, DefaultDevice,
+      &ahrs_impl.weight,
       &ahrs_impl.ltp_to_imu_quat.qi,
       &ahrs_impl.ltp_to_imu_quat.qx,
       &ahrs_impl.ltp_to_imu_quat.qy,

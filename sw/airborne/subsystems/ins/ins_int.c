@@ -95,22 +95,22 @@ struct InsInt ins_impl;
 
 static void send_ins(void) {
   DOWNLINK_SEND_INS(DefaultChannel, DefaultDevice,
-      &ins_ltp_pos.x, &ins_ltp_pos.y, &ins_ltp_pos.z,
-      &ins_ltp_speed.x, &ins_ltp_speed.y, &ins_ltp_speed.z,
-      &ins_ltp_accel.x, &ins_ltp_accel.y, &ins_ltp_accel.z);
+      &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
+      &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
+      &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
 }
 
 static void send_ins_z(void) {
   DOWNLINK_SEND_INS_Z(DefaultChannel, DefaultDevice,
-      &ins_baro_alt, &ins_ltp_pos.z, &ins_ltp_speed.z, &ins_ltp_accel.z);
+      &ins_impl.baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
 }
 
 static void send_ins_ref(void) {
-  if (ins_ltp_initialised) {
+  if (ins_impl.ltp_initialized) {
     DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,
-        &ins_ltp_def.ecef.x, &ins_ltp_def.ecef.y, &ins_ltp_def.ecef.z,
-        &ins_ltp_def.lla.lat, &ins_ltp_def.lla.lon, &ins_ltp_def.lla.alt,
-        &ins_ltp_def.hmsl, &ins_qfe);
+        &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
+        &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
+        &ins_impl.ltp_def.hmsl, &ins_impl.qfe);
   }
 }
 #endif

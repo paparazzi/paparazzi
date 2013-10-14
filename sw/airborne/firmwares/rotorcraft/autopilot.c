@@ -139,7 +139,7 @@ static void send_fp(void) {
       &guidance_h_pos_sp.y,
       &guidance_h_pos_sp.x,
       &carrot_up,
-      &guidance_h_command_body.psi,
+      &guidance_h_heading_sp,
       &stabilization_cmd[COMMAND_THRUST],
       &autopilot_flight_time);
 }
@@ -184,12 +184,6 @@ static void send_rotorcraft_cmd(void) {
       &stabilization_cmd[COMMAND_THRUST]);
 }
 
-// FIXME we really need a baro subsystem
-#include "subsystems/sensors/baro.h"
-static void send_baro_raw(void) {
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,
-      &baro.absolute, &baro.differential);
-}
 
 void autopilot_init(void) {
   /* mode is finally set at end of init if MODE_STARTUP is not KILL */
@@ -223,7 +217,6 @@ void autopilot_init(void) {
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_FP", send_fp);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_CMD", send_rotorcraft_cmd);
   register_periodic_telemetry(DefaultPeriodic, "DL_VALUE", send_dl_value);
-  register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
 #ifdef ACTUATORS
   register_periodic_telemetry(DefaultPeriodic, "ACTUATORS", send_actuators);
 #endif

@@ -135,15 +135,6 @@ static void send_downlink(void) {
       &downlink_nb_ovrn, &rate, &downlink_nb_msgs);
 }
 
-#if USE_BAROMETER
-// FIXME we really need a baro subsystem
-#include "subsystems/sensors/baro.h"
-static void send_baro_raw(void) {
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,
-      &baro.absolute, &baro.differential);
-}
-#endif
-
 void autopilot_init(void) {
   pprz_mode = PPRZ_MODE_AUTO2;
   kill_throttle = FALSE;
@@ -167,9 +158,6 @@ void autopilot_init(void) {
   register_periodic_telemetry(DefaultPeriodic, "ENERGY", send_energy);
   register_periodic_telemetry(DefaultPeriodic, "DL_VALUE", send_dl_value);
   register_periodic_telemetry(DefaultPeriodic, "DESIRED", send_desired);
-#if USE_BAROMETER
-  register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
-#endif
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
   register_periodic_telemetry(DefaultPeriodic, "RC_SETTINGS", send_rc_settings);
 #endif

@@ -30,6 +30,7 @@
 
 #include "subsystems/air_data.h"
 #include "subsystems/abi.h"
+#include "subsystems/datalink/telemetry.h"
 
 /** global AirData state
  */
@@ -51,5 +52,10 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const flo
  */
 void air_data_init( void ) {
   AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
+  register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
 }
 
+void send_baro_raw(void) {
+  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,
+                         &air_data.pressure, &air_data.differential);
+}
