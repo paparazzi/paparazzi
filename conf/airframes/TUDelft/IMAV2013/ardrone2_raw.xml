@@ -92,10 +92,6 @@
     <define name="H_Z" value="0.858336"/>
   </section>
 
-  <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="22.4" integer="16"/>
-  </section>
-
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
     <!-- setpoints -->
     <define name="SP_MAX_P" value="10000"/>
