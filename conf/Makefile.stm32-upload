@@ -1,0 +1,119 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+# Copyright (C) 2013 Gautier Hattenberger
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+#
+# This is the common Makefile for STM32 upload rules
+#
+
+#
+# check which flash mode is configured
+#
+ifeq ($(FLASH_MODE),DFU)
+ifeq ($(DFU_UTIL),y)
+#
+# DFU flash mode using dfu-util
+DFU_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using dfu-util at $(DFU_ADDR)"
+	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
+else
+#
+# DFU flash mode paparazzi stm32_mem
+ifdef DFU_ADDR
+DFU_ADDR_CMD = --addr=$(DFU_ADDR)
+endif
+ifdef DFU_PRODUCT
+DFU_PRODUCT_CMD = --product=$(DFU_PRODUCT)
+endif
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using stm32 mem dfu loader"
+	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_PRODUCT_CMD) $(DFU_ADDR_CMD) $^
+endif
+
+#
+# serial flash mode
+else ifeq ($(FLASH_MODE),SERIAL)
+upload: $(OBJDIR)/$(TARGET).bin
+	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
+#
+# JTAG flash mode
+else ifeq ($(FLASH_MODE),JTAG)
+# either via normal jtag or BlackMagicProbe
+ifeq ($(BMP_PORT),)
+# normal jtag via OpenOCD
+upload: $(OBJDIR)/$(TARGET).hex
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
+	@echo "Using OOCD = $(OOCD)"
+	@echo "  OOCD\t$<"
+	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
+		-f board/$(OOCD_BOARD).cfg $(OOCD_OPTIONS) \
+		-c init \
+		-c "reset halt" \
+		-c "reset init" \
+		-c "flash erase_sector 0 $(OOCD_START_SECTOR) last" \
+		-c "flash write_image $<" \
+		-c reset \
+		-c shutdown
+else
+# jtag via BMP
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
+
+upload: $(OBJDIR)/$(TARGET).elf
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
+	@echo "Using Black Magic Probe with JTAG on BMP_PORT $(BMP_PORT)"
+	@echo "Using GDB = $(GDB)"
+	@echo "  BMP\t$<"
+	$(Q)$(GDB) --batch \
+		   -ex 'target extended-remote $(BMP_PORT)' \
+		   -x $(BMP_UPLOAD_SCRIPT) \
+		   $<
+endif
+#
+# SWD flash mode
+else ifeq ($(FLASH_MODE),SWD)
+# only works if BMP_PORT is defined
+ifeq ($(STLINK),y)
+STLINK_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
+	$(Q)st-flash write $^ $(STLINK_ADDR)
+else
+BMP_PORT ?= /dev/ttyACM0
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
+upload: $(OBJDIR)/$(TARGET).elf
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
+	@echo "Using Black Magic Probe with SWD on BMP_PORT $(BMP_PORT)"
+	@echo "Using GDB = $(GDB)"
+	@echo "  BMP\t$<"
+	$(Q)$(GDB) --batch \
+		   -ex 'target extended-remote $(BMP_PORT)' \
+		   -x $(BMP_UPLOAD_SCRIPT) \
+		   $<
+endif
+#
+# no known flash mode
+else
+upload:
+	@echo unknown flash_mode $(FLASH_MODE)
+endif
+
+.PHONY : upload
+
