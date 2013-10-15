@@ -30,6 +30,7 @@
 #
 CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
 CHIBIOS_SPECIFIC_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/chibios
+CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -108,13 +109,14 @@ include $(CHIBIOS)/os/hal/platforms/$(CHIBIOS_BOARD_PLATFORM)
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/$(CHIBIOS_BOARD_PORT)
 include $(CHIBIOS)/os/kernel/kernel.mk
-#include $(CHIBIOS)/test/test.mk
 
 
 # Define linker script file here
+ifdef NO_LUFTBOOT
 LDSCRIPT= $(PORTLD)/$(CHIBIOS_BOARD_LINKER)
-# Define linker script file here
-#LDSCRIPT= $($(TARGET).LDSCRIPT)
+else
+LDSCRIPT= $(CHIBIOS_ARCH_DIR)/$(CHIBIOS_BOARD_LINKER)
+endif
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -251,29 +253,11 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
-# TODO: remove these...
-# Info messages
-#$(info CHIBIOS = $(CHIBIOS))
-#$(info PORTSRC = $(PORTSRC))
-#$(info KERNSRC = $(KERNSRC))
-#$(info TESTSRC = $(TESTSRC))
-#$(info HALSRC = $(HALSRC))
-#$(info PLATFORMSRC = $(PLATFORMSRC))
-#$(info BOARDSRC = $(BOARDSRC))
-$(info INCDIR = $(INCDIR))
-$(info UINCDIR = $(UINCDIR))
-$(info CSRC = $(CSRC))
-$(info UDEFS = $(UDEFS))
-
 #
 # Include upload rules
 ##############################################################################
-# Default upload using black magic probe
-#ifndef FLASH_MODE
-#FLASH_MODE = JTAG
-#endif
-
-# for now, no luftboot
+# default: assume the luftboot bootloader is used
+# if luftboot is not used define NO_LUFTBOOT to a value != 0
 ASSUMING_LUFTBOOT = "yes"
 
 # Settings for GDB
@@ -296,7 +280,6 @@ endif
 # Upload makefile
 include $(PAPARAZZI_HOME)/conf/Makefile.stm32-upload
 
-
 ###############################################################################
 ifeq ($(USE_FPU),yes)
   USE_OPT += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
@@ -306,4 +289,4 @@ else
 endif
 
 # Compile
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/rules.mk
+include $(PAPARAZZI_HOME)/conf/chibios_rules.mk

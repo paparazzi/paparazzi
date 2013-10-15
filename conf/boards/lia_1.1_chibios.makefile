@@ -65,7 +65,6 @@ DFU_UTIL ?= n
 
 ifndef NO_LUFTBOOT
 $(TARGET).CFLAGS+=-DLUFTBOOT
-$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
 endif
 
 ##############################################################################
