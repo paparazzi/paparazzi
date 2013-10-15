@@ -222,7 +222,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 
 
 let same_tag_for_all = function
-[] -> failwith "Page_settings: unreachable, empty dl_settings element"
+    [] -> failwith "Page_settings: unreachable, empty dl_settings element"
   | x::xs ->
     let tag_first = Xml.tag x in
     List.iter (fun y -> assert(ExtXml.tag_is y tag_first)) xs;

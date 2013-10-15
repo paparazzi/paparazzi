@@ -92,31 +92,35 @@ let output_modes = fun out_h process_name modes freq modules ->
     modes
 
 let write_settings = fun xml_file out_set telemetry_xml ->
+  (* filter xml file to remove unneeded process and modes (more than 1 mode per process) *)
+  let filtered_xml = List.filter (fun p -> List.length (Xml.children p) > 1) (Xml.children telemetry_xml) in
   fprintf out_set "<!-- This file has been generated from %s -->\n" xml_file;
   fprintf out_set "<!-- Please DO NOT EDIT -->\n\n";
   fprintf out_set "<settings>\n";
-  fprintf out_set " <dl_settings>\n";
-  fprintf out_set "  <dl_settings name=\"Telemetry\">\n";
-  List.iter (fun p ->
-    (* for each process *)
-    let process_name = Xml.attrib p "name" in
-    (* convert the xml list of mode to a string list *)
-    let modes = List.map (fun m -> Xml.attrib m "name") (Xml.children p) in
-    let nb_modes = List.length modes in
-    match nb_modes with
-        0 | 1 -> () (* Nothing to do if 1 or zero mode *)
+  if List.length filtered_xml > 0 then begin
+    fprintf out_set " <dl_settings>\n";
+    fprintf out_set "  <dl_settings name=\"Telemetry\">\n";
+    List.iter (fun p ->
+      (* for each (pre-filtered) process *)
+      let process_name = Xml.attrib p "name" in
+      (* convert the xml list of mode to a string list *)
+      let modes = List.map (fun m -> Xml.attrib m "name") (Xml.children p) in
+      let nb_modes = List.length modes in
+      match nb_modes with
+      | 0 | 1 -> () (* Nothing to do if 1 or zero mode *)
       | _ -> (* add settings with all modes *)
-        fprintf out_set "   <dl_setting min=\"0\" step=\"1\" max=\"%d\" var=\"telemetry_mode_%s\" shortname=\"%s\" values=\"%s\">\n" (nb_modes-1) process_name process_name (String.concat "|" modes);
-        let i = ref 0 in
-        List.iter (fun m -> try
-                              let key = Xml.attrib m "key_press" in
-                              fprintf out_set "    <key_press key=%S value=%S/>\n" key (string_of_int !i);
-                              incr i
+          fprintf out_set "   <dl_setting min=\"0\" step=\"1\" max=\"%d\" var=\"telemetry_mode_%s\" shortname=\"%s\" values=\"%s\">\n" (nb_modes-1) process_name process_name (String.concat "|" modes);
+          let i = ref 0 in
+          List.iter (fun m -> try
+            let key = Xml.attrib m "key_press" in
+            fprintf out_set "    <key_press key=%S value=%S/>\n" key (string_of_int !i);
+            incr i
           with _ -> incr i) (Xml.children p);
-        fprintf out_set "   </dl_setting>\n"
-  ) (Xml.children telemetry_xml);
-  fprintf out_set "  </dl_settings>\n";
-  fprintf out_set " </dl_settings>\n";
+          fprintf out_set "   </dl_setting>\n"
+      ) filtered_xml;
+    fprintf out_set "  </dl_settings>\n";
+    fprintf out_set " </dl_settings>\n";
+  end;
   fprintf out_set "</settings>\n"
 
 
