@@ -112,7 +112,7 @@ void uart5_init(void) {
  * @note Baudrate is set in sdStart, no need for implementation
  */
 void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
-  (void*) p;
+  (void) p;
   (void) baud;
 }
 
@@ -120,7 +120,7 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
  * Set mode (not necessary, or can be set by SerialConfig)
  */
 void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control) {
-  (void*) p;
+  (void) p;
   (void) tx_enabled;
   (void) rx_enabled;
   (void) hw_flow_control;
