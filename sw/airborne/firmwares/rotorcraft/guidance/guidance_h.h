@@ -41,6 +41,14 @@
 #define GUIDANCE_H_USE_REF TRUE
 #endif
 
+/** Use horizontal guidance speed reference.
+ * This also allows to give velocity commands via RC in GUIDANCE_H_MODE_HOVER.
+ * Default is TRUE, define to FALSE to always disable it.
+ */
+#ifndef GUIDANCE_H_USE_SPEED_REF
+#define GUIDANCE_H_USE_SPEED_REF TRUE
+#endif
+
 #define GUIDANCE_H_MODE_KILL        0
 #define GUIDANCE_H_MODE_RATE        1
 #define GUIDANCE_H_MODE_ATTITUDE    2
