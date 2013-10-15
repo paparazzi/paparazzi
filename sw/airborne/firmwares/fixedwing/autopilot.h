@@ -110,6 +110,9 @@ extern bool_t gps_lost;
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
 
+/** Send mode over telemetry
+ */
+extern void autopilot_send_mode(void);
 
 /** Power switch control.
  */

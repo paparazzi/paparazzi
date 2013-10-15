@@ -66,7 +66,7 @@ static void send_rc_settings(void) {
 uint8_t rc_settings_mode = 0;
 #endif
 
-static void send_mode(void) {
+void autopilot_send_mode(void) {
   DOWNLINK_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice,
       &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
@@ -149,7 +149,7 @@ void autopilot_init(void) {
 
   /* register some periodic message */
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
-  register_periodic_telemetry(DefaultPeriodic, "PPRZ_MODE", send_mode);
+  register_periodic_telemetry(DefaultPeriodic, "PPRZ_MODE", autopilot_send_mode);
   register_periodic_telemetry(DefaultPeriodic, "DOWNLINK", send_downlink);
   register_periodic_telemetry(DefaultPeriodic, "ATTITUDE", send_attitude);
   register_periodic_telemetry(DefaultPeriodic, "ESTIMATOR", send_estimator);

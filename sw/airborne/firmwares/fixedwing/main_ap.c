@@ -387,9 +387,7 @@ static inline void telecommand_task( void ) {
 #endif
   }
   mode_changed |= mcu1_status_update();
-  // FIXME
-  //if ( mode_changed )
-  //  PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
+  if ( mode_changed ) autopilot_send_mode();
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
@@ -468,17 +466,14 @@ void navigation_task( void ) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-        // FIXME
-        //PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
+        autopilot_send_mode();
         gps_lost = TRUE;
       }
     } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
-
-      // FIXME
-      //PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
+      autopilot_send_mode();
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
@@ -495,11 +490,9 @@ void navigation_task( void ) {
   CallTCAS();
 #endif
 
-//#ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
-//  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
-//#endif
-
-  //SEND_CAM(DefaultChannel, DefaultDevice);
+#ifndef PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
+  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+#endif
 
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
