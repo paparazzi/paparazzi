@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="System">
-       <dl_setting var="autopilot_mode_auto2" min="0" step="1" max="14" module="autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav|RC_D|CareFree"/>
+       <dl_setting var="autopilot_mode_auto2" min="0" step="1" max="15" module="autopilot" shortname="auto2" values="KILL|Fail|HOME|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav|RC_D|CareFree"/>
       <dl_setting var="kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
       <dl_setting var="autopilot_power_switch" min="0" step="1" max="1" module="autopilot" values="OFF|ON" handler="SetPowerSwitch">
         <strip_button name="POWER ON" icon="on.png" value="1" group="power_switch"/>

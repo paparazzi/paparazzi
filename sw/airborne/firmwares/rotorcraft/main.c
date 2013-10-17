@@ -240,6 +240,7 @@ STATIC_INLINE void telemetry_periodic(void) {
 STATIC_INLINE void failsafe_check( void ) {
   if (radio_control.status != RC_OK &&
       autopilot_mode != AP_MODE_KILL &&
+      autopilot_mode != AP_MODE_HOME &&
       autopilot_mode != AP_MODE_NAV)
   {
     autopilot_set_mode(AP_MODE_FAILSAFE);
@@ -261,6 +262,12 @@ STATIC_INLINE void failsafe_check( void ) {
       radio_control.status != RC_OK &&
 #endif
       GpsIsLost())
+  {
+    autopilot_set_mode(AP_MODE_FAILSAFE);
+  }
+
+  if (autopilot_mode == AP_MODE_HOME &&
+      autopilot_motors_on && GpsIsLost())
   {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }

@@ -251,9 +251,18 @@ void autopilot_init(void) {
 }
 
 
+#define NAV_PRESCALER (PERIODIC_FREQUENCY / NAV_FREQ)
 void autopilot_periodic(void) {
 
-  RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
+  if (too_far_from_home && autopilot_in_flight)
+    autopilot_set_mode(AP_MODE_HOME);
+
+  if (autopilot_mode == AP_MODE_HOME) {
+    RunOnceEvery(NAV_PRESCALER, nav_home());
+  }
+  else {
+    RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
+  }
 
 
   /* If in FAILSAFE mode and either already not in_flight anymore
@@ -337,6 +346,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       case AP_MODE_HOVER_Z_HOLD:
         guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
         break;
+      case AP_MODE_HOME:
       case AP_MODE_NAV:
         guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
         break;
@@ -377,6 +387,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       case AP_MODE_HOVER_Z_HOLD:
         guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
         break;
+      case AP_MODE_HOME:
       case AP_MODE_NAV:
         guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
         break;
@@ -441,7 +452,7 @@ void autopilot_on_rc_frame(void) {
 
   if (kill_switch_is_on())
     autopilot_set_mode(AP_MODE_KILL);
-  else {
+  else if (autopilot_mode != AP_MODE_HOME) {
     uint8_t new_autopilot_mode = 0;
     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
@@ -453,8 +464,8 @@ void autopilot_on_rc_frame(void) {
       autopilot_set_mode(new_autopilot_mode);
   }
 
-  /* if not in FAILSAFE mode check motor and in_flight status, read RC */
-  if (autopilot_mode > AP_MODE_FAILSAFE) {
+  /* if not in FAILSAFE or HOME mode check motor and in_flight status, read RC */
+  if (autopilot_mode != AP_MODE_FAILSAFE && autopilot_mode != AP_MODE_HOME) {
 
     /* if there are some commands that should always be set from RC, do it */
 #ifdef SetAutoCommandsFromRC

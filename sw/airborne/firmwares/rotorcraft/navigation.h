@@ -35,8 +35,6 @@
 #include "subsystems/navigation/common_flight_plan.h"
 
 #define NAV_FREQ 16
-// FIXME use periodic FREQ
-#define NAV_PRESCALER (512/NAV_FREQ)
 
 extern struct EnuCoor_i navigation_target;
 extern struct EnuCoor_i navigation_carrot;
@@ -74,8 +72,12 @@ extern float flight_altitude;
 #define VERTICAL_MODE_CLIMB       1
 #define VERTICAL_MODE_ALT         2
 
+extern float dist2_to_home;      ///< squared distance to home waypoint
+extern bool_t too_far_from_home;
 
-void compute_dist2_to_home(void);
+extern void compute_dist2_to_home(void);
+extern void nav_home(void);
+
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_reset_alt( void ) __attribute__ ((unused));
 void nav_periodic_task(void);
@@ -84,7 +86,6 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 bool_t nav_detect_ground(void);
 bool_t nav_is_in_flight(void);
 
-void nav_home(void);
 
 #define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } FALSE; })
 #define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } FALSE; })

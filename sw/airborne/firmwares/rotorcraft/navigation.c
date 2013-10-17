@@ -60,6 +60,10 @@ uint8_t last_wp __attribute__ ((unused));
 
 int32_t ground_alt;
 
+const float max_dist_from_home = MAX_DIST_FROM_HOME;
+const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
+float dist2_to_home;
+bool_t too_far_from_home;
 uint8_t horizontal_mode;
 uint8_t nav_segment_start, nav_segment_end;
 uint8_t nav_circle_centre;
@@ -137,8 +141,8 @@ void nav_init(void) {
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
   flight_altitude = SECURITY_ALT;
-  INT32_VECT3_COPY( navigation_target, waypoints[WP_HOME]);
-  INT32_VECT3_COPY( navigation_carrot, waypoints[WP_HOME]);
+  INT32_VECT3_COPY(navigation_target, waypoints[WP_HOME]);
+  INT32_VECT3_COPY(navigation_carrot, waypoints[WP_HOME]);
 
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   vertical_mode = VERTICAL_MODE_ALT;
@@ -153,6 +157,9 @@ void nav_init(void) {
   nav_leg_progress = 0;
   nav_leg_length = 1;
 
+  too_far_from_home = FALSE;
+  dist2_to_home = 0;
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_NAV_STATUS", send_nav_status);
   register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);
@@ -160,9 +167,10 @@ void nav_init(void) {
 }
 
 static inline void nav_advance_carrot(void) {
+  struct EnuCoor_i *pos = stateGetPositionEnu_i();
   /* compute a vector to the waypoint */
   struct Int32Vect2 path_to_waypoint;
-  VECT2_DIFF(path_to_waypoint, navigation_target, *stateGetPositionEnu_i());
+  VECT2_DIFF(path_to_waypoint, navigation_target, *pos);
 
   /* saturate it */
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
@@ -177,7 +185,7 @@ static inline void nav_advance_carrot(void) {
     struct Int32Vect2 path_to_carrot;
     VECT2_SMUL(path_to_carrot, path_to_waypoint, CARROT_DIST);
     VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
-    VECT2_SUM(navigation_carrot, path_to_carrot, *stateGetPositionEnu_i());
+    VECT2_SUM(navigation_carrot, path_to_carrot, *pos);
   }
 }
 
@@ -279,7 +287,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
   struct Int32Vect2 diff;
   static uint8_t time_at_wp = 0;
   VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
-  INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
+  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
   INT32_VECT2_NORM(dist_to_point, diff);
   //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
   //fflush(stdout);
@@ -289,8 +297,8 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
   if (time_at_wp > 20) return TRUE;
   if (from_idx > 0 && from_idx < NB_WAYPOINT) {
     struct Int32Vect2 from_diff;
-    VECT2_DIFF(from_diff, waypoints[wp_idx],waypoints[from_idx]);
-    INT32_VECT2_RSHIFT(from_diff,from_diff,INT32_POS_FRAC);
+    VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
+    INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC);
     return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
   }
   else return FALSE;
@@ -324,9 +332,10 @@ void nav_init_stage( void ) {
 }
 
 #include <stdio.h>
-void nav_periodic_task() {
+void nav_periodic_task(void) {
   RunOnceEvery(16, { stage_time++;  block_time++; });
 
+  compute_dist2_to_home();
   /* from flight_plan.h */
   auto_nav();
 
@@ -362,7 +371,7 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
   PPRZ_ITRIG_COS(c_heading, nav_heading);
   // FIXME : scale POS to SPEED
   struct Int32Vect3 delta_pos;
-  VECT3_SDIV(delta_pos, speed_sp,NAV_FREQ); /* fixme :make sure the division is really a >> */
+  VECT3_SDIV(delta_pos, speed_sp, NAV_FREQ); /* fixme :make sure the division is really a >> */
   INT32_VECT3_RSHIFT(delta_pos, delta_pos, (INT32_SPEED_FRAC-INT32_POS_FRAC));
   waypoints[wp].x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
   waypoints[wp].y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
@@ -385,4 +394,29 @@ bool_t nav_is_in_flight(void) {
   return autopilot_in_flight;
 }
 
-void nav_home(void) {}
+/** Home mode navigation */
+void nav_home(void) {
+  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  INT32_VECT3_COPY(navigation_target, waypoints[WP_HOME]);
+
+  vertical_mode = VERTICAL_MODE_ALT;
+  nav_altitude = waypoints[WP_HOME].z;
+  nav_flight_altitude = nav_altitude;
+
+  compute_dist2_to_home();
+
+  /* run carrot loop */
+  nav_run();
+}
+
+/** Computes squared distance to the HOME waypoint potentially sets
+ * #too_far_from_home
+ */
+void compute_dist2_to_home(void) {
+  struct EnuCoor_i* pos = stateGetPositionEnu_i();
+  struct Int32Vect2 home_d;
+  VECT2_DIFF(home_d, waypoints[WP_HOME], *pos);
+  INT32_VECT2_RSHIFT(home_d, home_d, INT32_POS_FRAC);
+  dist2_to_home = (float)(home_d.x * home_d.x + home_d.y * home_d.y);
+  too_far_from_home = dist2_to_home > max_dist2_from_home;
+}
