@@ -351,23 +351,23 @@ static int get_msg(struct _crrcsim* io, byte* data_buffer)
   return count;
 }
 
-// Long in buffer are little endian
-#define LongOfBuf(_buf,_idx) (signed long)(((unsigned long)_buf[_idx+3]<<24)|((unsigned long)_buf[_idx+2]<<16)|((unsigned short)_buf[_idx+1]<<8)|((unsigned short)_buf[_idx]))
-// Short in buffer are big endian
-#define ShortOfBuf(_buf,_idx) (signed short)(((unsigned short)_buf[_idx]<<8)|((unsigned short)_buf[_idx+1]))
+// Long (32bits) in buffer are little endian in gps message
+#define LongOfBuf(_buf,_idx) (int32_t)(((uint32_t)_buf[_idx+3]<<24)|((uint32_t)_buf[_idx+2]<<16)|((uint32_t)_buf[_idx+1]<<8)|((uint32_t)_buf[_idx]))
+// Unsigned short (16bits) in buffer are little endian in gps message
+#define UShortOfBuf(_buf,_idx) (uint16_t)(((uint16_t)_buf[_idx+1]<<8)|((uint16_t)_buf[_idx]))
+// Short (16bits) in buffer are big endian in other messages
+#define ShortOfBuf(_buf,_idx) (int16_t)(((uint16_t)_buf[_idx]<<8)|((uint16_t)_buf[_idx+1]))
 
 /***************************************************************************************
  *decode the gps data packet
  ***************************************************************************************/
 static void decode_gpspacket(struct NpsFdm * fdm, byte* buffer)
 {
-  //signed long tmp=0;
-
   /* gps velocity (1e2 m/s to  m/s */
   struct NedCoor_d vel;
-  vel.x = (double)LongOfBuf(buffer,3)*1.2e-2;
-  vel.y = (double)LongOfBuf(buffer,7)*1.2e-2;
-  vel.z = (double)LongOfBuf(buffer,11)*1.2e-2;
+  vel.x = (double)LongOfBuf(buffer,3)*1.0e-2;
+  vel.y = (double)LongOfBuf(buffer,7)*1.0e-2;
+  vel.z = (double)LongOfBuf(buffer,11)*1.0e-2;
   fdm->ltp_ecef_vel = vel;
   ecef_of_ned_vect_d(&fdm->ecef_ecef_vel, &ltpdef, &vel);
 
@@ -386,7 +386,7 @@ static void decode_gpspacket(struct NpsFdm * fdm, byte* buffer)
   fdm->hmsl = pos.alt - NAV_MSL0/1000.;
 
   /* gps time */
-  fdm->time = (double)ShortOfBuf(buffer,27);
+  fdm->time = (double)UShortOfBuf(buffer,27);
 
   /* in LTP pprz */
   ned_of_ecef_point_d(&fdm->ltpprz_pos, &ltpdef, &fdm->ecef_pos);
