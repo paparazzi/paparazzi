@@ -460,6 +460,11 @@ void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
 #endif
 }
 
+// compatibility with OSX
+#ifdef __APPLE__
+#define MSG_NOSIGNAL SO_NOSIGPIPE
+#endif
+
 /***************************************************************************************
  * send servo command over udp
  ***************************************************************************************/
