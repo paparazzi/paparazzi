@@ -82,8 +82,8 @@ void stabilization_attitude_ref_update() {
   stab_att_ref_accel.r = -2.*ZETA_R*OMEGA_P*stab_att_ref_rate.r - OMEGA_R*OMEGA_R*ref_err.psi;
 
   /*	saturate acceleration */
-  const struct Int32Rates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
-  const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R }; \
+  const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
+  const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
   RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
 
   /* saturate speed and trim accel accordingly */
