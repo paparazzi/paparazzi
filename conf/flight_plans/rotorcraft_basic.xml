@@ -24,7 +24,7 @@
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="Flight_Area">
+    <sector color="orange" name="Flight_Area">
       <corner name="FLY1"/>
       <corner name="FLY2"/>
       <corner name="FLY3"/>
@@ -37,7 +37,10 @@
       <corner name="KILL4"/>
     </sector>
   </sectors>
-  <exceptions/>
+  <exceptions>
+  	<!-- Check inside Flight Area, then goto Standby -->
+    <exception cond="Or(!InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 50) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('landed')) && !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+  </exceptions>
   <blocks>
     <block name="Wait GPS">
       <call fun="NavKillThrottle()"/>
@@ -50,18 +53,18 @@
     </block>
     <block name="Holding point">
       <call fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FLYLSE"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Start Engine">
       <call fun="NavResurrect()"/>
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FLYLSE"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="0.5" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle();">
       <stay wp="STDBY"/>
     </block>
     <block name="stay_p1">
@@ -99,7 +102,7 @@
       <stay climb="-0.8" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
-      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FLYLSE"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
   </blocks>
 </flight_plan>
