@@ -303,9 +303,9 @@
       &stab_att_ref_euler.phi,                            \
       &stab_att_ref_euler.theta,                          \
       &stab_att_ref_euler.psi,                            \
-      &stabilization_att_sum_err_eulers.phi,              \
-      &stabilization_att_sum_err_eulers.theta,            \
-      &stabilization_att_sum_err_eulers.psi,              \
+      &stabilization_att_sum_err.phi,              \
+      &stabilization_att_sum_err.theta,            \
+      &stabilization_att_sum_err.psi,              \
       &stabilization_att_fb_cmd[COMMAND_ROLL],            \
       &stabilization_att_fb_cmd[COMMAND_PITCH],           \
       &stabilization_att_fb_cmd[COMMAND_YAW],             \
