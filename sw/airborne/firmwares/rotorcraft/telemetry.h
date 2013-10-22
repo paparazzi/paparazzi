@@ -1098,10 +1098,10 @@
 
 #ifdef USE_GX3
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
-    &ahrs_impl.GX3_freq,			\
-    &ahrs_impl.GX3_packet.chksm_error,	\
-    &ahrs_impl.GX3_packet.hdr_error,	\
-    &ahrs_impl.GX3_chksm)
+    &ahrs_impl.gx3_freq,			\
+    &ahrs_impl.gx3_packet.chksm_error,	\
+    &ahrs_impl.gx3_packet.hdr_error,	\
+    &ahrs_impl.gx3_chksm)
 #else
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
