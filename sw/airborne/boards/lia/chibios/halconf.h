@@ -37,6 +37,11 @@
 #include "mcuconf.h"
 
 /**
+ * @brief   Hard define the buffer size for serial ports
+ */
+#define SERIAL_BUFFERS_SIZE         1024
+
+/**
  * @brief   Enables the TM subsystem.
  */
 #if !defined(HAL_USE_TM) || defined(__DOXYGEN__)

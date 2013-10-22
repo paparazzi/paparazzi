@@ -54,7 +54,7 @@ void uart1_init(void) {
 #ifdef USE_UART2
 static const SerialConfig usart2_config =
 {
-57600,                                         		  	  /*     BITRATE    */
+UART2_BAUD,                                      		  	  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
 USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
 0                                                         /*    USART CR3   */
@@ -130,7 +130,7 @@ void uart_periph_set_mode(struct uart_periph* p, bool_t tx_enabled, bool_t rx_en
 * Uart transmit implementation
 */
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
-  sdWrite((SerialDriver*)p->reg_addr, &data, sizeof(data));
+  chnWrite((SerialDriver*)p->reg_addr, &data, sizeof(data));
 }
 
 /*
@@ -140,5 +140,5 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 * uart_transmit_buffer(&uart2, tx_switch, sizeof(tx_switch));
 */
 void uart_transmit_buffer(struct uart_periph* p, uint8_t* data_buffer, size_t length) {
-  sdWrite((SerialDriver*)p->reg_addr, data_buffer, length);
+  chnWrite((SerialDriver*)p->reg_addr, data_buffer, length);
 }

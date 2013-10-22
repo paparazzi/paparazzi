@@ -115,13 +115,13 @@
  * PB9  - 7 - Open Drain output 50MHz.    (CAN_TX).
  * PB10 - 7 - Open Drain output 50MHz.     (I2C2_SCL).
  * PB11 - 7 - Open Drain output 50MHz.  (I2C2_SDA).
- * PB12 - B - Alternate Push Pull output 50MHz  (IMU_ACC_CS).
+ * PB12 - 3 - Push Pull output 50MHz. //B - Alternate Push Pull output 50MHz  (IMU_ACC_CS).
  * PB13 - B - Alternate Push Pull output 50MHz  (IMU_SPI_SCK).
  * PB14 - 4 - Digital input     (IMU_SPI_MISO).
  * PB15 - B - Alternate Push Pull output 50MHz  (IMU_SPI_MOSI).
  */
 #define VAL_GPIOBCRL            0x77474444      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0xB4BB7774      /* PB15...PB8 */
+#define VAL_GPIOBCRH            0xB4B37774      /* PB15...PB8 */
 #define VAL_GPIOBODR            0xFFFFFFFF
 
 /*
@@ -139,12 +139,12 @@
  * PC10 - B - Alternate Push Pull output 50MHz (UART3_TX).
  * PC11 - 4 - Digital input (UART3_RX).
  * PC12 - B - Alternate Push Pull output 50MHz (PC12-UART5_TX).
- * PC13 - B - Alternate Push Pull output 50MHz  (IMU_GYRO_SS).
+ * PC13 - 3 - Push Pull output 50MHz. (IMU_GYRO_SS).
  * PC14 - 4 - Digital input (IMU_GYRO_DRDY).
  * PC15 - 7 - Open Drain output 50MHz  (LED5).
  */
 #define VAL_GPIOCCRL            0xBB700700      /*  PC7...PC0 */
-#define VAL_GPIOCCRH            0x74BB4BBB      /* PC15...PC8 */
+#define VAL_GPIOCCRH            0x743B4BBB      /* PC15...PC8 */
 #define VAL_GPIOCODR            0xFFFFFFFF
 
 /*
