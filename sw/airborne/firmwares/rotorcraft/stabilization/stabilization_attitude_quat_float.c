@@ -36,7 +36,7 @@
 struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_GAIN_NB];
 
 struct FloatQuat stabilization_att_sum_err_quat;
-struct FloatEulers stabilization_att_sum_err_eulers;
+struct FloatEulers stabilization_att_sum_err;
 
 struct FloatRates last_body_rate;
 
@@ -109,7 +109,7 @@ void stabilization_attitude_init(void) {
   }
 
   FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
-  FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
+  FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   FLOAT_RATES_ZERO( last_body_rate );
 }
 
@@ -131,7 +131,7 @@ void stabilization_attitude_enter(void) {
   stabilization_attitude_ref_enter();
 
   FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
-  FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
+  FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void) {
@@ -264,11 +264,11 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     FLOAT_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
     FLOAT_QUAT_NORMALIZE(new_sum_err);
     FLOAT_QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
-    FLOAT_EULERS_OF_QUAT(stabilization_att_sum_err_eulers, stabilization_att_sum_err_quat);
+    FLOAT_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);
   } else {
     /* reset accumulator */
     FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
-    FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
+    FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   }
 
   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains[gain_idx], &stab_att_ref_accel);
