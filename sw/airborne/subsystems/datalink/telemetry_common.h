@@ -58,7 +58,7 @@ struct pprz_telemetry {
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return TRUE if message registered with success, FALSE otherwise
  */
-extern bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, char * _msg, telemetry_cb _cb);
+extern bool_t register_periodic_telemetry(struct pprz_telemetry * _pt, const char * _msg, telemetry_cb _cb);
 
 #if USE_PERIODIC_TELEMETRY_REPORT
 /** Send an error report when trying to send message that as not been register
