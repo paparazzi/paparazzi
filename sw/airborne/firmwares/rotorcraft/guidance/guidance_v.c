@@ -166,7 +166,7 @@ void guidance_v_init(void) {
 
 #if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "VERT_LOOP", send_vert_loop);
-  register_periodic_telemetry(DefaultPeriodic, "TUNE_VERT", send_vert_loop);
+  register_periodic_telemetry(DefaultPeriodic, "TUNE_VERT", send_tune_vert);
 #endif
 }
 
