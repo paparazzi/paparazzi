@@ -332,6 +332,22 @@
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
 
+#if USE_AHRS && !defined AHRS_FLOAT
+#include "subsystems/ahrs.h"
+#define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {                 \
+    DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,                       \
+                                &ahrs_impl.weight,                  \
+                                &ahrs_impl.ltp_to_imu_quat.qi,      \
+                                &ahrs_impl.ltp_to_imu_quat.qx,      \
+                                &ahrs_impl.ltp_to_imu_quat.qy,      \
+                                &ahrs_impl.ltp_to_imu_quat.qz,      \
+                                &(stateGetNedToBodyQuat_i()->qi),   \
+                                &(stateGetNedToBodyQuat_i()->qx),   \
+                                &(stateGetNedToBodyQuat_i()->qy),   \
+                                &(stateGetNedToBodyQuat_i()->qz));  \
+  }
+#endif
+
 #ifdef USE_I2C0
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                       \
     uint16_t i2c0_queue_full_cnt        = i2c0.errors->queue_full_cnt;  \
