@@ -26,7 +26,6 @@
   <periodic fun="rotorcraft_cam_periodic()" freq="10."/>
   <datalink message="ROTORCRAFT_CAM_STICK" fun="ROTORCRAFT_CAM_STICK_PARSE(dl_buffer)"/>
   <makefile>
-    <define name="USE_CAM"/>
     <file name="rotorcraft_cam.c"/>
   </makefile>
 </module>
