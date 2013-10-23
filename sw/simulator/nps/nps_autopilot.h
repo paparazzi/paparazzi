@@ -5,8 +5,22 @@
 
 #include "nps_radio_control.h"
 
+/**
+ * Number of commands sent to the FDM of NPS.
+ * If MOTOR_MIXING_NB_MOTOR is defined (usually rotorcraft firmware)
+ * we have that many commands (one per motor),
+ * otherwise we default to the number of high level commands (COMMANDS_NB).
+ */
+#ifndef NPS_COMMANDS_NB
+#if defined MOTOR_MIXING_NB_MOTOR
+#define NPS_COMMANDS_NB MOTOR_MIXING_NB_MOTOR
+#else
+#define NPS_COMMANDS_NB COMMANDS_NB
+#endif
+#endif
+
 struct NpsAutopilot {
-  double commands[COMMANDS_NB];
+  double commands[NPS_COMMANDS_NB];
 };
 
 extern struct NpsAutopilot autopilot;

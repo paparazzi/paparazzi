@@ -707,7 +707,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
               strip_connect (fun x -> dl_setting_callback id x)
             with Not_found ->
               if warning then
-                fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)" setting_name in
+                fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)\n" setting_name in
 
           connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
           connect "launch" ac.strip#connect_launch;

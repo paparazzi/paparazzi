@@ -99,7 +99,7 @@ void mpl3115_read(struct Mpl3115 *mpl)
       mpl->req_trans.buf[0] = MPL3115_REG_CTRL_REG1;
       mpl->req_trans.buf[1] = ((MPL3115_OVERSAMPLING<<3) | (mpl->raw_mode<<6) |
                                (mpl->alt_mode<<7) | MPL3115_OST_BIT);
-      i2c_transmit(mpl->i2c_p, &mpl->trans, mpl->trans.slave_addr, 2);
+      i2c_transmit(mpl->i2c_p, &mpl->req_trans, mpl->trans.slave_addr, 2);
     }
   }
 }

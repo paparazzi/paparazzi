@@ -36,8 +36,31 @@
 #include "subsystems/abi.h"
 #include "led.h"
 
+/** Normal frequency with the default settings
+ *
+ * the baro read function should be called at 5 Hz
+ */
+#ifndef BARO_BOARD_APOGEE_FREQ
+#define BARO_BOARD_APOGEE_FREQ 5
+#endif
+
+/** Baro periodic prescaler
+ *
+ * different for fixedwing and rotorcraft...
+ */
+#ifdef BARO_PERIODIC_FREQUENCY
+#define MPL_PRESCALER ((BARO_PERIODIC_FREQUENCY)/BARO_BOARD_APOGEE_FREQ)
+#else
+#ifdef PERIODIC_FREQUENCY
+#define MPL_PRESCALER ((PERIODIC_FREQUENCY)/BARO_BOARD_APOGEE_FREQ)
+#else
+// default: assuming 60Hz for a 5Hz baro update
+#define MPL_PRESCALER 12
+#endif
+#endif
+
 /** Counter to init ads1114 at startup */
-#define BARO_STARTUP_COUNTER 200
+#define BARO_STARTUP_COUNTER (200/(MPL_PRESCALER))
 uint16_t startup_cnt;
 
 struct Mpl3115 apogee_baro;
@@ -67,17 +90,15 @@ void baro_periodic( void ) {
 #endif
     }
     // Read the sensor
-    mpl3115_periodic(&apogee_baro);
+    RunOnceEvery(MPL_PRESCALER, mpl3115_periodic(&apogee_baro));
   }
 }
 
 void apogee_baro_event(void) {
   mpl3115_event(&apogee_baro);
-  if (apogee_baro.data_available) {
-    if (startup_cnt == 0) {
-      float pressure = ((float)apogee_baro.pressure/(1<<2));
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
-    }
+  if (apogee_baro.data_available && startup_cnt == 0) {
+    float pressure = ((float)apogee_baro.pressure/(1<<2));
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     apogee_baro.data_available = FALSE;
   }
 }

@@ -81,12 +81,12 @@ void baro_periodic(void) {
                                                        &bb_ms5611.data.c[4],
                                                        &bb_ms5611.data.c[5],
                                                        &bb_ms5611.data.c[6],
-                                                       &bb_ms5611.data.c[7]);
+                                                       &bb_ms5611.data.c[7]));
 #endif
   }
 }
 
-void baro_event(void){
+void baro_event(void) {
   if (sys_time.nb_sec > 1) {
     ms5611_i2c_event(&bb_ms5611);
 

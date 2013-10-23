@@ -140,6 +140,9 @@ void ins_update_gps(void) {
 #if !USE_BAROMETER
   float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
+  if (!alt_kalman_enabled) {
+    ins_alt_dot = -gps.ned_vel.z / 100.;
+  }
 #endif
   utm.alt = ins_alt;
   // set position
