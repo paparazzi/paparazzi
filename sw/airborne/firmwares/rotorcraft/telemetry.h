@@ -596,7 +596,7 @@
 
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
   DOWNLINK_SEND_INS_Z(_trans, _dev,                     \
-                      &ins_baro_alt,                    \
+                      &ins_impl.baro_z,                 \
                       &(stateGetPositionNed_i()->z),    \
                       &(stateGetSpeedNed_i()->z),       \
                       &(stateGetAccelNed_i()->z));      \
