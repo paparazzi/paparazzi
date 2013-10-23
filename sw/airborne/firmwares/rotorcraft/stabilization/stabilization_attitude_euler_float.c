@@ -39,8 +39,8 @@ float stabilization_att_ff_cmd[COMMANDS_NB];
 #include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) {
-  struct FloatRates* body_rate = stateGetBodyRates_i();
-  struct FloatEulers* att = stateGetNedToBodyEulers_i();
+  struct FloatRates* body_rate = stateGetBodyRates_f();
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
   float foo = 0.0;
   DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(DefaultChannel, DefaultDevice,
       &(body_rate->p), &(body_rate->q), &(body_rate->r),
