@@ -67,7 +67,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph* p, uint8_t bits, uint8
     else // 8 data bits by default
       usart_set_databits((uint32_t)p->reg_addr, 9);
   }
-  else if (parity == USART_PARITY_ODD) {
+  else if (parity == UPARITY_ODD) {
     usart_set_parity((uint32_t)p->reg_addr, USART_PARITY_ODD);
     if (bits == UBITS_7)
       usart_set_databits((uint32_t)p->reg_addr, 8);

@@ -1328,7 +1328,7 @@
   </message>
 
   <message name="INS_Z" id="151">
-    <field name="baro_alt"  type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
+    <field name="baro_z"    type="float" unit="m"/>
     <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="ins_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
     <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>

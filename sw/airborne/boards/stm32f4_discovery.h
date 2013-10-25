@@ -65,8 +65,8 @@
  * PD9  = UART3 RX
  * PD10 = FREE
  * PD11 = FREE
- * PD12 = LED_3
- * PD13 = LED_4
+ * PD12 = LED_4
+ * PD13 = LED_3
  * PD14 = LED_5
  * PD15 = LED_6
  *
@@ -110,7 +110,7 @@
 #endif
 #define LED_3_GPIO GPIOD
 #define LED_3_GPIO_CLK RCC_AHB1ENR_IOPDEN
-#define LED_3_GPIO_PIN GPIO12
+#define LED_3_GPIO_PIN GPIO13
 #define LED_3_AFIO_REMAP ((void)0)
 #define LED_3_GPIO_ON gpio_set
 #define LED_3_GPIO_OFF gpio_clear
@@ -121,7 +121,7 @@
 #endif
 #define LED_4_GPIO GPIOD
 #define LED_4_GPIO_CLK RCC_AHB1ENR_IOPDEN
-#define LED_4_GPIO_PIN GPIO13
+#define LED_4_GPIO_PIN GPIO12
 #define LED_4_AFIO_REMAP ((void)0)
 #define LED_4_GPIO_ON gpio_set
 #define LED_4_GPIO_OFF gpio_clear
