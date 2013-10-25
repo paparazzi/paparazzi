@@ -52,6 +52,9 @@ bool_t nps_bypass_ins;
 #define NPS_BYPASS_INS FALSE
 #endif
 
+#if NPS_COMMANDS_NB != MOTOR_MIXING_NB_MOTOR
+#error "NPS_COMMANDS_NB does not match MOTOR_MIXING_NB_MOTOR!"
+#endif
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
 
@@ -114,8 +117,7 @@ void nps_autopilot_run_step(double time) {
   handle_periodic_tasks();
 
   /* scale final motor commands to 0-1 for feeding the fdm */
-  /* FIXME: autopilot.commands is of length NB_COMMANDS instead of number of motors */
-  for (uint8_t i=0; i<MOTOR_MIXING_NB_MOTOR; i++)
+  for (uint8_t i=0; i < NPS_COMMANDS_NB; i++)
     autopilot.commands[i] = (double)motor_mixing.commands[i]/MAX_PPRZ;
 
 }

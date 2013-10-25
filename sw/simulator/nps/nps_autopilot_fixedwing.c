@@ -134,7 +134,7 @@ void nps_autopilot_run_step(double time) {
   Ap(handle_periodic_tasks);
 
   /* scale final motor commands to 0-1 for feeding the fdm */
-  for (uint8_t i=0; i < COMMANDS_NB; i++)
+  for (uint8_t i=0; i < NPS_COMMANDS_NB; i++)
     autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
 
 }

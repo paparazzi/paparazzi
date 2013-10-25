@@ -305,9 +305,9 @@
       &stab_att_ref_euler.phi,                            \
       &stab_att_ref_euler.theta,                          \
       &stab_att_ref_euler.psi,                            \
-      &stabilization_att_sum_err_eulers.phi,              \
-      &stabilization_att_sum_err_eulers.theta,            \
-      &stabilization_att_sum_err_eulers.psi,              \
+      &stabilization_att_sum_err.phi,              \
+      &stabilization_att_sum_err.theta,            \
+      &stabilization_att_sum_err.psi,              \
       &stabilization_att_fb_cmd[COMMAND_ROLL],            \
       &stabilization_att_fb_cmd[COMMAND_PITCH],           \
       &stabilization_att_fb_cmd[COMMAND_YAW],             \
@@ -598,7 +598,7 @@
 
 #define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
   DOWNLINK_SEND_INS_Z(_trans, _dev,                     \
-                      &ins_baro_alt,                    \
+                      &ins_impl.baro_z,                 \
                       &(stateGetPositionNed_i()->z),    \
                       &(stateGetSpeedNed_i()->z),       \
                       &(stateGetAccelNed_i()->z));      \
@@ -1100,10 +1100,10 @@
 
 #ifdef USE_GX3
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
-    &ahrs_impl.GX3_freq,			\
-    &ahrs_impl.GX3_packet.chksm_error,	\
-    &ahrs_impl.GX3_packet.hdr_error,	\
-    &ahrs_impl.GX3_chksm)
+    &ahrs_impl.gx3_freq,			\
+    &ahrs_impl.gx3_packet.chksm_error,	\
+    &ahrs_impl.gx3_packet.hdr_error,	\
+    &ahrs_impl.gx3_chksm)
 #else
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
