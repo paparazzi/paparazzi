@@ -27,7 +27,6 @@
  *
  */
 
-
 #include "gps_ubx_ucenter.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -295,6 +294,9 @@ static inline void gps_ubx_ucenter_config_port(void)
   #if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
     UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
   #endif
+  #if GPS_PORT_ID == GPS_PORT_USB
+    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x0, 0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+  #endif    
 }
 
 #define GPS_SBAS_ENABLED       0x01
@@ -318,6 +320,9 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
   #endif
   #if GPS_PORT_ID == GPS_PORT_UART2
     UbxSend_CFG_MSG(class, id, 0, 0, rate, 0);
+  #endif
+  #if GPS_PORT_ID == GPS_PORT_USB
+    UbxSend_CFG_MSG(class, id, 0, 0, 0, rate);
   #endif
   #if GPS_PORT_ID == GPS_PORT_DDC
     UbxSend_CFG_MSG(class, id, rate, 0, 0, 0);
