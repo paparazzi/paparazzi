@@ -71,7 +71,7 @@
 using namespace JSBSim;
 using namespace std;
 
-static void feed_jsbsim(double* commands);
+static void feed_jsbsim(double* commands, int commands_nb);
 static void fetch_state(void);
 static int check_for_nan(void);
 
@@ -124,9 +124,9 @@ void nps_fdm_init(double dt) {
 
 }
 
-void nps_fdm_run_step(double* commands) {
+void nps_fdm_run_step(double* commands, int commands_nb) {
 
-  feed_jsbsim(commands);
+  feed_jsbsim(commands, commands_nb);
 
   /* To deal with ground interaction issues, we decrease the time
      step as the vehicle is close to the ground. This is done predictively
@@ -193,16 +193,17 @@ void nps_fdm_set_wind(double speed, double dir, int turbulence_severity) {
 /**
  * Feed JSBSim with the latest actuator commands.
  *
- * @param commands   Pointer to array of doubles holding actuator commands
+ * @param commands    Pointer to array of doubles holding actuator commands
+ * @param commands_nb Number of commands (length of array)
  */
-static void feed_jsbsim(double* commands) {
+static void feed_jsbsim(double* commands, int commands_nb) {
 
   char buf[64];
   const char* names[] = NPS_ACTUATOR_NAMES;
   string property;
 
   int i;
-  for (i=0; i<COMMANDS_NB; i++) {
+  for (i=0; i < commands_nb; i++) {
     sprintf(buf,"fcs/%s",names[i]);
     property = string(buf);
     FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);

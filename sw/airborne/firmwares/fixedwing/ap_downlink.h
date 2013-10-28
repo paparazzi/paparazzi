@@ -324,12 +324,28 @@
 
 #ifdef USE_GX3
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
-    &ahrs_impl.GX3_freq,			\
-    &ahrs_impl.GX3_packet.chksm_error,	\
-    &ahrs_impl.GX3_packet.hdr_error,	\
-    &ahrs_impl.GX3_chksm)
+    &ahrs_impl.gx3_freq,			\
+    &ahrs_impl.gx3_packet.chksm_error,	\
+    &ahrs_impl.gx3_packet.hdr_error,	\
+    &ahrs_impl.gx3_chksm)
 #else
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
+#endif
+
+#if USE_AHRS && !defined AHRS_FLOAT
+#include "subsystems/ahrs.h"
+#define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {                 \
+    DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,                       \
+                                &ahrs_impl.weight,                  \
+                                &ahrs_impl.ltp_to_imu_quat.qi,      \
+                                &ahrs_impl.ltp_to_imu_quat.qx,      \
+                                &ahrs_impl.ltp_to_imu_quat.qy,      \
+                                &ahrs_impl.ltp_to_imu_quat.qz,      \
+                                &(stateGetNedToBodyQuat_i()->qi),   \
+                                &(stateGetNedToBodyQuat_i()->qx),   \
+                                &(stateGetNedToBodyQuat_i()->qy),   \
+                                &(stateGetNedToBodyQuat_i()->qz));  \
+  }
 #endif
 
 #ifdef USE_I2C0
