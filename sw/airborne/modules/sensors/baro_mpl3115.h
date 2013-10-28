@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/sensors/baro_mpl3155.h
+ * @file modules/sensors/baro_mpl3115.h
  *
  * Module for the baro MPL3115A2 from Freescale (i2c)
  *
