@@ -32,6 +32,9 @@
 
 #include "stabilization_attitude_ref_int.h"
 
+extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
+extern struct Int32Quat   stab_att_ref_quat;  ///< with #INT32_QUAT_FRAC
+
 void stabilization_attitude_ref_enter(void);
 
 #endif /* STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H */
