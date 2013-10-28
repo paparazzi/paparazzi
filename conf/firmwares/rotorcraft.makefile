@@ -40,9 +40,6 @@ ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 
 ap.ARCHDIR = $(ARCH)
 
-# would be better to auto-generate this
-$(TARGET).CFLAGS 	+= -DFIRMWARE=ROTORCRAFT
-
 ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 ap.srcs    = $(SRC_FIRMWARE)/main.c

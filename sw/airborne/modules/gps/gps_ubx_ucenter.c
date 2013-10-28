@@ -393,10 +393,10 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 4);
     break;
   case 11:
-#if defined FIRMWARE && FIRMWARE == ROTORCRAFT
-    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 1);
-#else
+#if GPS_UBX_UCENTER_SLOW_NAV_SOL
     gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 8);
+#else
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 1);
 #endif
     break;
   case 12:

@@ -35,9 +35,6 @@ $(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
 $(TARGET).CFLAGS 	+= -DPERIPHERALS_AUTO_INIT
 $(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
 
-# would be better to auto-generate this
-$(TARGET).CFLAGS 	+= -DFIRMWARE=FIXEDWING
-
 $(TARGET).srcs 	+= mcu.c
 $(TARGET).srcs 	+= $(SRC_ARCH)/mcu_arch.c
 
