@@ -32,7 +32,6 @@
 #include <inttypes.h>
 #include "std.h"
 #include "paparazzi.h"
-#include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
 
 

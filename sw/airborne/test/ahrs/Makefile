@@ -3,14 +3,13 @@ Q=@
 
 
 CC = gcc
-CFLAGS = -std=c99 -I.. -I../.. -I../../../include -I../../booz -I../../../booz  -Wall
+CFLAGS = -std=c99 -I.. -I../.. -I../../../include  -Wall
 LDFLAGS = -lm -lgsl -lgslcblas
 
 CFLAGS +=
 
 # imu wants airframe to fetch its neutrals
 # ahrs wants airframe to fetch IMU_BODY_TO_IMU_ANGLES
-#CFLAGS += -I../../../../var/BOOZ2_A7
 CFLAGS += -I../../../../var/ahrs_test
 
 
@@ -51,28 +50,15 @@ AHRS_TYPE = AHRS_TYPE_ICQ
 #AHRS_TYPE = AHRS_TYPE_FCR2
 #AHRS_TYPE = AHRS_TYPE_FCQ
 endif
-ifndef PROPAGATE_LOW_PASS_RATES
-PROPAGATE_LOW_PASS_RATES = 0
-endif
-ifndef GRAVITY_UPDATE_NORM_HEURISTIC
-GRAVITY_UPDATE_NORM_HEURISTIC = 0
-endif
-ifndef GRAVITY_UPDATE_COORDINATED_TURN
-GRAVITY_UPDATE_COORDINATED_TURN = 0
-endif
-ifndef MAG_UPDATE_YAW_ONLY
-MAG_UPDATE_YAW_ONLY = 0
-endif
-ifndef DISABLE_MAG_UPDATE
-DISABLE_MAG_UPDATE = 0
-endif
-ifndef USE_GPS_HEADING
-USE_GPS_HEADING = 0
-endif
 
-ifndef FREQUENCY
-FREQENCY = 512
-endif
+PROPAGATE_LOW_PASS_RATES ?= 0
+GRAVITY_UPDATE_NORM_HEURISTIC ?= 0
+GRAVITY_UPDATE_COORDINATED_TURN ?= 0
+MAG_UPDATE_YAW_ONLY ?= 0
+DISABLE_MAG_UPDATE ?= 0
+USE_GPS_HEADING ?= 0
+
+FREQENCY ?= 512
 
 
 AHRS_CFLAGS += -DAHRS_TYPE=$(AHRS_TYPE)
@@ -114,10 +100,6 @@ ifeq ($(AHRS_TYPE), AHRS_TYPE_ICQ)
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
 AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_quat.c
 endif
-ifeq ($(AHRS_TYPE), AHRS_TYPE_FLQ)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_lkf_quat.h\"
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_lkf_quat.c
-endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FCR)
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
 AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_dcm.c
@@ -135,9 +117,14 @@ endif
 
 
 RAOS_SRCS =  ./ahrs_on_synth.c			 \
+			 ../../state.c \
 			 ../../subsystems/imu.c              \
 			 ../../subsystems/imu/imu_dummy.c    \
 			 ../../math/pprz_trig_int.c          \
+			 ../../math/pprz_orientation_conversion.c \
+			 ../../math/pprz_geodetic_int.c \
+			 ../../math/pprz_geodetic_float.c \
+			 ../../math/pprz_geodetic_double.c \
 			 ../../../simulator/nps/nps_random.c
 
 
