@@ -77,7 +77,6 @@ static void send_gyro(void) {
       &gyro_float.p, &gyro_float.q, &gyro_float.r);
 }
 
-#ifdef USE_MAGNETOMETER
 static void send_mag_raw(void) {
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
       &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z);
@@ -102,7 +101,6 @@ static void send_mag_calib(void) {
       &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z,
       &electrical.current);
 }
-#endif
 
 #endif // !USE_IMU_FLOAT
 
@@ -150,12 +148,10 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO_RAW", send_gyro_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO_SCALED", send_gyro_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
-#ifdef USE_MAGNETOMETER
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_RAW", send_mag_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_CURRENT_CALIBRATION", send_mag_calib);
-#endif // USE_MAGNETOMETER
 #endif // !USE_IMU_FLOAT
 #endif // DOWNLINK
 
