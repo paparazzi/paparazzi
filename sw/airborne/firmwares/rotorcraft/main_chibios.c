@@ -47,6 +47,10 @@
 #include "led.h"
 #include "mcu.h"
 
+#define MODULES_C
+
+#define ABI_C
+
 #include "subsystems/datalink/downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
 #include "subsystems/datalink/datalink.h"
@@ -106,6 +110,19 @@ static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg);
 static __attribute__((noreturn)) msg_t thd_gps_rx(void *arg);
 #endif
 
+#ifdef USE_IMU
+static __attribute__((noreturn)) msg_t thd_imu_tx(void *arg);
+static __attribute__((noreturn)) msg_t thd_imu_rx(void *arg);
+#endif
+
+#ifdef USE_AHRS
+static __attribute__((noreturn)) msg_t thd_ahrs(void *arg);
+static Mutex ahrs_mutex_flag;
+#endif
+
+#ifdef MODULES_C
+static __attribute__((noreturn)) msg_t thd_modules_periodic(void *arg);
+#endif
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
@@ -134,21 +151,34 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
   chRegSetThreadName("pprz heartbeat");
   (void) arg;
   systime_t time = chTimeNow();     // Current time
+  static uint32_t last_idle_counter = 0;
+  static uint32_t last_nb_sec = 0;
+
   while (TRUE) {
     time += MS2ST(1000);            // Next deadline, sleep for one sec.
     LED_TOGGLE(SYS_TIME_LED);
+    sys_time.nb_sec++;
+
+    //CPU monitor variables
     core_free_memory = chCoreStatus();
-    heap_fragments = chHeapStatus(NULL, &heap_free_total);
-    Thread *tp;
     thread_counter = 0;
+
+    Thread *tp;
     tp = chRegFirstThread();
     do {
       thread_counter++;
+      if (tp ==chSysGetIdleThread()) {
+    	  idle_counter =  (uint32_t)tp->p_time;
+      }
       tp = chRegNextThread(tp);
     } while (tp != NULL);
-    cpu_frequency = idle_counter/cpu_counter;
-    idle_counter = 0;
-    cpu_counter = 0;
+
+    cpu_counter = (idle_counter-last_idle_counter)/(sys_time.nb_sec-last_nb_sec);
+    cpu_frequency = (1 - (float)cpu_counter/CH_FREQUENCY)*100;
+
+    last_idle_counter = idle_counter;
+    last_nb_sec = sys_time.nb_sec;
+
     chThdSleepUntil(time);
   }
 }
@@ -184,13 +214,9 @@ static __attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg)
   (void) arg;
   systime_t time = chTimeNow();
   while (TRUE) {
-	//Due to integer rounding, the actual frequency is 62.5Hz
-    time += MS2ST(1000/TELEMETRY_FREQUENCY);
-#ifdef BARO_LED
-	LED_TOGGLE(BARO_LED);//DEBUG
-#endif
-	PeriodicSendMain(DefaultChannel,DefaultDevice);
-	chThdSleepUntil(time);
+      time += US2ST(1000000/TELEMETRY_FREQUENCY);
+      PeriodicSendMain(DefaultChannel,DefaultDevice);
+      chThdSleepUntil(time);
   }
 }
 
@@ -211,7 +237,7 @@ static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg)
 
   while (TRUE)
   {
-    chEvtWaitOneTimeout(EVENT_MASK(1), MS2ST(10));
+    chEvtWaitOneTimeout(EVENT_MASK(1), TIME_INFINITE);
     chSysLock();
     flags = chEvtGetAndClearFlags(&elTelemetryRx);
     chSysUnlock();
@@ -234,11 +260,61 @@ static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg)
       pprz_tp.trans.msg_received = FALSE;  \
       dl_parse_msg();
       dl_msg_available = FALSE;
-      LED_TOGGLE(RADIO_CONTROL_LED);//DEBUG
     }
   }
 }
 #endif
+
+
+#ifdef MODULES_C
+/*
+ * Modules periodic tasks
+ */
+static WORKING_AREA(wa_thd_modules_periodic, 1024);
+static __attribute__((noreturn)) msg_t thd_modules_periodic(void *arg)
+{
+  chRegSetThreadName("pprz_modules_periodic");
+  (void) arg;
+  systime_t time = chTimeNow();     // Current time
+
+  while (TRUE) {
+    time += MS2ST(1000/MODULES_FREQUENCY);
+    modules_periodic_task();
+    chThdSleepUntil(time);
+  }
+}
+#endif
+
+/*
+ * Thread initialization
+ */
+void thread_init(void) {
+
+chThdCreateStatic(wa_thd_heartbeat, sizeof(wa_thd_heartbeat), IDLEPRIO, thd_heartbeat, NULL);
+
+#ifdef USE_IMU
+  chThdCreateStatic(wa_thd_imu_rx, sizeof(wa_thd_imu_rx),NORMALPRIO, thd_imu_rx, NULL);
+  chThdCreateStatic(wa_thd_imu_tx, sizeof(wa_thd_imu_tx),NORMALPRIO, thd_imu_tx, NULL);
+#endif
+
+#ifdef DOWNLINK
+  chThdCreateStatic(wa_thd_telemetry_tx, sizeof(wa_thd_telemetry_tx),LOWPRIO, thd_telemetry_tx, NULL);
+  chThdCreateStatic(wa_thd_telemetry_rx, sizeof(wa_thd_telemetry_rx),LOWPRIO, thd_telemetry_rx, NULL);
+#endif
+
+#ifdef USE_GPS
+  chThdCreateStatic(wa_thd_gps_rx, sizeof(wa_thd_gps_rx),NORMALPRIO, thd_gps_rx, NULL);
+#endif
+
+#ifdef USE_AHRS
+  chMtxInit(&ahrs_mutex_flag);
+  chThdCreateStatic(wa_thd_ahrs, sizeof(wa_thd_ahrs),HIGHPRIO, thd_ahrs, NULL);
+#endif
+
+#ifdef MODULES_C
+  chThdCreateStatic(wa_thd_modules_periodic, sizeof(wa_thd_modules_periodic),LOWPRIO, thd_modules_periodic, NULL);
+#endif
+}
 
 /*
  * Main loop
@@ -260,22 +336,49 @@ int main(void) {
    * Paparazzi initialization
    */
   mcu_init();
+  thread_init();
+
   electrical_init();
+  stateInit();
+#ifdef USE_ACTUATORS
+  actuators_init();
+#endif
+#if USE_MOTOR_MIXING
+  motor_mixing_init();
+#endif
+#ifdef USE_RADIO_CONTROL
+  radio_control_init();
+#endif
+  air_data_init();
+#if USE_BARO_BOARD
+  baro_init();
+#endif
+  imu_init();
+#if USE_IMU_FLOAT
+  imu_float_init();
+#endif
+  ahrs_aligner_init();
+  ahrs_init();
+
+  ins_init();
+
 #if USE_GPS
   gps_init();
 #endif
+  autopilot_init();
 
+  modules_init();
 
-  /*
-   * Thread initialization
-   */
-  chThdCreateStatic(wa_thd_heartbeat, sizeof(wa_thd_heartbeat), IDLEPRIO, thd_heartbeat, NULL);
-#ifdef DOWNLINK
-  chThdCreateStatic(wa_thd_telemetry_tx, sizeof(wa_thd_telemetry_tx),LOWPRIO, thd_telemetry_tx, NULL);
-  chThdCreateStatic(wa_thd_telemetry_rx, sizeof(wa_thd_telemetry_rx),NORMALPRIO, thd_telemetry_rx, NULL);
+  settings_init();
+
+  mcu_int_enable();
+
+#if DATALINK == XBEE
+  xbee_init();
 #endif
-#if USE_GPS
-  chThdCreateStatic(wa_thd_gps_rx, sizeof(wa_thd_gps_rx),NORMALPRIO, thd_gps_rx, NULL);
+
+#if DATALINK == UDP
+  udp_init();
 #endif
 
 

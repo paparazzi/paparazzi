@@ -1110,15 +1110,16 @@
 
 #ifdef USE_CHIBIOS_RTOS
 #include "mcu_periph/sys_time_arch.h"
-#define PERIODIC_SEND_CHIBIOS_INFO(_trans, _dev) DOWNLINK_SEND_CHIBIOS_INFO(_trans, _dev, \
-	&heap_fragments, \
-	&heap_free_total, \
+#define PERIODIC_SEND_CHIBIOS_INFO(_trans, _dev) { \
+  static uint16_t time_now = 0;  \
+  time_now = chTimeNow()/CH_FREQUENCY; \
+  DOWNLINK_SEND_CHIBIOS_INFO(_trans, _dev, \
 	&core_free_memory,\
-	&(chTimeNow()), \
+	&time_now, \
 	&thread_counter, \
-	&cpu_counter,   \
-	&idle_counter, 	\
-	&cpu_frequency )
+	&cpu_counter, \
+	&idle_counter, \
+	&cpu_frequency) }
 #else
 #define PERIODIC_SEND_CHIBIOS_INFO(_trans, _dev) {}
 #endif

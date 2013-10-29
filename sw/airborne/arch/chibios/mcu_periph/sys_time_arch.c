@@ -31,20 +31,16 @@
  */
 #include "mcu_periph/sys_time.h"
 
-size_t heap_fragments;
-size_t heap_free_total;
 uint32_t core_free_memory;
 uint8_t thread_counter;
 uint32_t cpu_counter;
 uint32_t idle_counter;
-float cpu_frequency;
+uint8_t cpu_frequency;
 
 void sys_time_arch_init( void ) {
-  heap_fragments = 0;
-  heap_free_total = 0;
   core_free_memory = 0;
   thread_counter = 0;
   cpu_counter = 0;
   idle_counter = 0;
-  cpu_frequency = 0.0;
+  cpu_frequency = 0;
 }

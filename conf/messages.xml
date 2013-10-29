@@ -654,14 +654,12 @@
   </message>
 
   <message name="CHIBIOS_INFO" id="78">
-    <field name="heap_fragments" type="uint32"/>
-    <field name="fragmented_free_space" type="uint32"/>
-    <field name="core_free_memory" type="uint32"/>
-    <field name="sys_time" type="uint32"/>
+    <field name="core_free_memory" type="uint32" unit="bytes"/>
+    <field name="sys_time" type="uint16" unit="s"/>
     <field name="threads" type="uint8"/>
-    <field name="cpu_ticks" type="uint32"/>
-    <field name="idle_ticks" type="uint32"/>
-    <field name="cpu_usage" type="float"/>
+    <field name="cpu_idle_ticks" type="uint32" unit="ticks/s"/>
+    <field name="idle_counter" type="uint32" unit="ticks"/>
+    <field name="cpu_load" type="uint8" unit="%"/>
   </message>
 
  <!-- 79 is free -->

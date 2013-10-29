@@ -91,7 +91,7 @@ ap.srcs   += $(SRC_BOARD)/gpio_ardrone.c
 endif
 
 # frequency of main periodic
-PERIODIC_FREQUENCY ?= 512
+PERIODIC_FREQUENCY ?= 500
 ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
 #

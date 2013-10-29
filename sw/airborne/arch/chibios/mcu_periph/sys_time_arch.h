@@ -34,21 +34,23 @@
 
 #include "mcu_periph/sys_time.h"
 
-extern size_t heap_fragments;
-extern size_t heap_free_total;
 extern uint32_t core_free_memory;
 extern uint8_t thread_counter;
 extern uint32_t cpu_counter;
 extern uint32_t idle_counter;
-extern float cpu_frequency;
+extern uint8_t cpu_frequency;
 
+/*
+ * FIXME: Not implemented
+ */
 static inline uint32_t get_sys_time_usec(void) {
-  //TODO
   return 0;
 }
 
+/*
+ * FIXME: Not implemented
+ */
 static inline void sys_time_usleep(uint32_t us) {
-(void)us;
- //TODO
+  (void)us;
 }
 #endif /* SYS_TIME_ARCH_H */
