@@ -41,7 +41,7 @@ static const SerialConfig usart1_config =
 {
 UART1_BAUD,                                         	  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
-USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
+USART_CR2_STOP1_BITS,                                     /*    USART CR2   */
 0                                                         /*    USART CR3   */
 };
 void uart1_init(void) {
@@ -56,7 +56,7 @@ static const SerialConfig usart2_config =
 {
 UART2_BAUD,                                      		  	  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
-USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
+USART_CR2_STOP1_BITS,                                     /*    USART CR2   */
 0                                                         /*    USART CR3   */
 };
 void uart2_init(void) {
@@ -70,7 +70,7 @@ static const SerialConfig usart3_config =
 {
 UART3_BAUD,                                        		  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
-USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
+USART_CR2_STOP1_BITS,				                      /*    USART CR2   */
 0                                                         /*    USART CR3   */
 };
 void uart3_init(void) {
@@ -84,7 +84,7 @@ static const SerialConfig usart4_config =
 {
 UART4_BAUD,                                    		  	  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
-USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
+USART_CR2_STOP1_BITS,					                  /*    USART CR2   */
 0                                                         /*    USART CR3   */
 };
 void uart4_init(void) {
@@ -98,7 +98,7 @@ static const SerialConfig usart5_config =
 {
 UART5_BAUD,                                        		  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
-USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
+USART_CR2_STOP1_BITS,						              /*    USART CR2   */
 0                                                         /*    USART CR3   */
 };
 void uart5_init(void) {

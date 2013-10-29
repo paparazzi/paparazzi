@@ -106,44 +106,52 @@ extern struct GpsUbx gps_ubx;
       gps_ubx_parse(GpsLink(Getch()));			\
   }
 #else
-#define GpsThread() { \
-   EventListener elGPSdata; \
-   flagsmask_t flags; \
-   chEvtRegisterMask((EventSource *)chnGetEventSource(&SD5), &elGPSdata, EVENT_MASK(1)); \
-   while (TRUE) \
-   { \
-      chEvtWaitOneTimeout(EVENT_MASK(1), MS2ST(100));\
-      chSysLock();\
-      flags = chEvtGetAndClearFlags(&elGPSdata);\
-      chSysUnlock();\
-      if (flags & CHN_INPUT_AVAILABLE)\
-      {\
-         msg_t charbuf;\
-         do \
-         {\
-            charbuf = chnGetTimeout(&SD5, TIME_IMMEDIATE);\
-            if ( charbuf != Q_TIMEOUT )\
-            {\
-		gps_ubx_parse(charbuf);\
-            }\
-         }\
-         while (charbuf != Q_TIMEOUT);\
-      }\
-    if (gps_ubx.msg_available) {                  \
-      gps_ubx_read_message();                     \
-      gps_ubx_ucenter_event();                     \
-      if (gps_ubx.msg_class == UBX_NAV_ID &&       \
-          (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||  \
-           (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
-            gps_ubx.have_velned == 0))) {          \
-        if (gps.fix == GPS_FIX_3D) {               \
-          gps.last_fix_ticks = sys_time.nb_sec_rem; \
-          gps.last_fix_time = sys_time.nb_sec;      \
-        }                                          \
-      }\
-      gps_ubx.msg_available = FALSE;\
-    }\
-   }\
+#define GpsThread() {                                    \
+   EventListener elGPSdata;                               \
+   flagsmask_t flags;                                     \
+   chEvtRegisterMask((EventSource *)chnGetEventSource((SerialDriver*)GPS_PORT.reg_addr), &elGPSdata, EVENT_MASK(1));\
+   while (TRUE) {                                        \
+      chEvtWaitOneTimeout(EVENT_MASK(1), S2ST(1));        \
+      chSysLock();                                        \
+      flags = chEvtGetAndClearFlags(&elGPSdata);          \
+      chSysUnlock();                                      \
+      if ((flags & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR | \
+                    SD_NOISE_ERROR)) != 0) {              \
+          if (flags & SD_OVERRUN_ERROR) {                 \
+              GPS_PORT.ore++;                             \
+          }                                               \
+          if (flags & SD_NOISE_ERROR) {                   \
+               GPS_PORT.ne_err++;                         \
+          }                                               \
+          if (flags & SD_FRAMING_ERROR) {                 \
+               GPS_PORT.fe_err++;                         \
+          }                                               \
+      }                                                   \
+      if (flags & CHN_INPUT_AVAILABLE) {                  \
+         msg_t charbuf;                                   \
+         do {                                             \
+            charbuf = chnGetTimeout((SerialDriver*)GPS_PORT.reg_addr, TIME_IMMEDIATE);\
+            if ( charbuf != Q_TIMEOUT ) {                 \
+		gps_ubx_parse(charbuf);                   \
+            }                                             \
+         }                                                \
+         while (charbuf != Q_TIMEOUT);                  \
+      }                                                 \
+    if (gps_ubx.msg_available) {                        \
+      gps_ubx_read_message();                           \
+      gps_ubx_ucenter_event();                          \
+      if (gps_ubx.msg_class == UBX_NAV_ID &&            \
+          (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||       \
+           (gps_ubx.msg_id == UBX_NAV_SOL_ID &&         \
+            gps_ubx.have_velned == 0))) {               \
+        if (gps.fix == GPS_FIX_3D) {                    \
+          gps.last_fix_ticks = sys_time.nb_sec_rem;     \
+          gps.last_fix_time = sys_time.nb_sec;          \
+        }                                               \
+      }                                                 \
+      gps_ubx.msg_available = FALSE;                    \
+    }                                                   \
+   }                                                    \
 }
 #endif
 
