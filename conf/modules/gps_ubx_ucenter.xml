@@ -26,7 +26,7 @@ Warning: you still need to tell the driver
   <makefile target="ap">
     <file name="gps_ubx_ucenter.c"/>
     <raw>
-      ap.CFLAGS += -DGPS_UBX_UCENTER=\"modules/gps/gps_ubx_ucenter.c\"
+      ap.CFLAGS += -DGPS_UBX_UCENTER
     </raw>
   </makefile>
 </module>
