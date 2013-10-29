@@ -53,30 +53,7 @@
 #define UTM_HEM_SOUTH 1
 
 
-#define GpsUartSend1(c) GpsLink(Transmit(c))
-#define GpsUartSetBaudrate(_a) GpsLink(SetBaudrate(_a))
 #define GpsUartRunning GpsLink(TxRunning)
-#define GpsUartSendMessage GpsLink(SendMessage)
-
-#define UbxInitCheksum() { gps_ubx.send_ck_a = gps_ubx.send_ck_b = 0; }
-#define UpdateChecksum(c) { gps_ubx.send_ck_a += c; gps_ubx.send_ck_b += gps_ubx.send_ck_a; }
-#define UbxTrailer() { GpsUartSend1(gps_ubx.send_ck_a);  GpsUartSend1(gps_ubx.send_ck_b); GpsUartSendMessage(); }
-
-#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
-#define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
-#define UbxSend1ByAddr(x) { UbxSend1(*x); }
-#define UbxSend2ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); }
-#define UbxSend4ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); UbxSend1(*(x+2)); UbxSend1(*(x+3)); }
-
-#define UbxHeader(nav_id, msg_id, len) {        \
-    GpsUartSend1(UBX_SYNC1);                    \
-    GpsUartSend1(UBX_SYNC2);                    \
-    UbxInitCheksum();                           \
-    UbxSend1(nav_id);                           \
-    UbxSend1(msg_id);                           \
-    UbxSend2(len);                              \
-  }
-
 
 struct GpsUbx gps_ubx;
 
@@ -266,11 +243,6 @@ void gps_ubx_parse( uint8_t c ) {
   gps_ubx.status = UNINIT;
   return;
 }
-
-#ifdef GPS_UBX_UCENTER
-#include GPS_UBX_UCENTER
-#endif
-
 
 void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 #ifdef GPS_LINK
