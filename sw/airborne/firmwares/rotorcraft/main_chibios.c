@@ -233,21 +233,31 @@ static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg)
   (void) arg;
   EventListener elTelemetryRx;
   flagsmask_t flags;
-  chEvtRegisterMask((EventSource *)chnGetEventSource(&SD2), &elTelemetryRx, EVENT_MASK(1));
-
+  chEvtRegisterMask((EventSource *)chnGetEventSource((SerialDriver*)DOWNLINK_PORT.reg_addr), &elTelemetryRx, EVENT_MASK(1));
   while (TRUE)
   {
-    chEvtWaitOneTimeout(EVENT_MASK(1), TIME_INFINITE);
+    chEvtWaitOneTimeout(EVENT_MASK(1), S2ST(1));
     chSysLock();
     flags = chEvtGetAndClearFlags(&elTelemetryRx);
     chSysUnlock();
-
+    if ((flags & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |
+                  SD_NOISE_ERROR)) != 0) {
+        if (flags & SD_OVERRUN_ERROR) {
+            DOWNLINK_PORT.ore++;
+        }
+        if (flags & SD_NOISE_ERROR) {
+             DOWNLINK_PORT.ne_err++;
+        }
+        if (flags & SD_FRAMING_ERROR) {
+             DOWNLINK_PORT.fe_err++;
+        }
+    }
     if (flags & CHN_INPUT_AVAILABLE)
     {
       msg_t charbuf;
       do
       {
-        charbuf = chnGetTimeout(&SD2, TIME_IMMEDIATE);
+        charbuf = chnGetTimeout((SerialDriver*)DOWNLINK_PORT.reg_addr, TIME_IMMEDIATE);
         if ( charbuf != Q_TIMEOUT )
         {
           parse_pprz(&pprz_tp, charbuf);
