@@ -39,7 +39,7 @@
 #ifdef USE_UART1
 static const SerialConfig usart1_config =
 {
-57600,                                         		  	  /*     BITRATE    */
+UART1_BAUD,                                         	  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
 USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
 0                                                         /*    USART CR3   */
@@ -68,7 +68,7 @@ void uart2_init(void) {
 #ifdef USE_UART3
 static const SerialConfig usart3_config =
 {
-57600,                                         		  	  /*     BITRATE    */
+UART3_BAUD,                                        		  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
 USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
 0                                                         /*    USART CR3   */
@@ -82,7 +82,7 @@ void uart3_init(void) {
 #ifdef USE_UART4
 static const SerialConfig usart4_config =
 {
-57600,                                         		  	  /*     BITRATE    */
+UART4_BAUD,                                    		  	  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
 USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
 0                                                         /*    USART CR3   */
@@ -96,7 +96,7 @@ void uart4_init(void) {
 #ifdef USE_UART5
 static const SerialConfig usart5_config =
 {
-115200,                                         		  /*     BITRATE    */
+UART5_BAUD,                                        		  /*     BITRATE    */
 0,                                                        /*    USART CR1   */
 USART_CR2_STOP1_BITS | USART_CR2_LINEN,                   /*    USART CR2   */
 0                                                         /*    USART CR3   */
