@@ -28,6 +28,8 @@
 #ifndef GPS_UBX_UCENTER_H
 #define GPS_UBX_UCENTER_H
 
+#include "std.h"
+
 /** U-Center Variables */
 #define GPS_UBX_UCENTER_CONFIG_STEPS	  17
 
