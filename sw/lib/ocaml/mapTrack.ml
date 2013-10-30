@@ -62,6 +62,10 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|0.;-6.;0.;14.|] aircraft);
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-9.;0.;9.;0.|] aircraft);
     ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-4.;10.;4.;10.|] aircraft) in
+  let ac_label_bg =
+    GnoCanvas.text group ~props:[`TEXT name; `X 26.; `Y 26.; `ANCHOR `SW; `FILL_COLOR "black"] in
+  let ac_label_bgn =
+    GnoCanvas.text group ~props:[`TEXT name; `X 24.; `Y 24.; `ANCHOR `SW; `FILL_COLOR "black"] in
   let ac_label =
     GnoCanvas.text group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color] in
   let carrot = GnoCanvas.group group in
@@ -118,7 +122,10 @@ object (self)
   method track = track
   method v_path = v_path
   method aircraft = aircraft
-  method set_label = fun s -> ac_label#set [`TEXT s]
+  method set_label = fun s ->
+          ac_label_bg#set [`TEXT s];
+          ac_label_bgn#set [`TEXT s];
+          ac_label#set [`TEXT s]
   method clear_one = fun i ->
     if segments.(i) != empty then begin
       (snd segments.(i))#destroy ();
@@ -150,6 +157,8 @@ object (self)
   method set_params_state = fun b ->
     params_on <- b;
     if not b then (* Reset to the default simple label *)
+      ac_label_bg#set [`TEXT name; `Y 25.];
+      ac_label_bgn#set [`TEXT name; `Y 25.];
       ac_label#set [`TEXT name; `Y 25.]
   method set_v_params_state = fun b -> v_params_on <- b
   method set_last = fun x -> last <- x
@@ -193,9 +202,13 @@ object (self)
 
     if params_on then begin
       let last_height = self#height () in
+      ac_label_bg#set [`TEXT (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed); `Y 71. ];
+      ac_label_bgn#set [`TEXT (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed); `Y 69. ];
       ac_label#set [`TEXT (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed); `Y 70. ]
     end;
 
+    ac_label_bg#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
+    ac_label_bgn#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
     ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
     self#add_point wgs84 altitude;
 

@@ -26,7 +26,15 @@ module LL = Latlong
 open Printf
 open LL
 
-let s = 6.
+(*
+ * Waypoint label offsets
+ *)
+let s = 6. (* x offset *)
+let s_bg = 7. (* background positive x offset *)
+let s_bgn = 5. (* background negative x offset *)
+let sv = 0. (* y offset *)
+let sv_bg = 1. (* background positive y offset *)
+let sv_bgn = -1. (* background negative y offset *)
 
 class group = fun ?(color="red") ?(editable=true) ?(show_moved=false) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
@@ -66,7 +74,9 @@ object (self)
   val mutable x0 = 0.
   val mutable y0 = 0.
 
-  val label = GnoCanvas.text wpt_group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
+  val label_bg = GnoCanvas.text wpt_group ~props:[`TEXT name; `X s_bg; `Y sv_bg; `ANCHOR `SW; `FILL_COLOR "black"]
+  val label_bgn = GnoCanvas.text wpt_group ~props:[`TEXT name; `X s_bgn; `Y sv_bgn; `ANCHOR `SW; `FILL_COLOR "black"]
+  val label = GnoCanvas.text wpt_group ~props:[`TEXT name; `X s; `Y sv; `ANCHOR `SW; `FILL_COLOR "white"]
   val mutable name = name (* FIXME: already in label ! *)
   val mutable alt = alt
   val mutable moved = None
@@ -84,6 +94,8 @@ object (self)
   method set_name n =
     if n <> name then begin
       name <- n;
+      label_bg#set [`TEXT name];
+      label_bgn#set [`TEXT name];
       label#set [`TEXT name]
     end
   method alt = alt
@@ -150,6 +162,8 @@ object (self)
     let callback = fun _ ->
       self#set_name ename#text;
       alt <- ea#value;
+      label_bg#set [`TEXT name];
+      label_bgn#set [`TEXT name];
       label#set [`TEXT name];
       set_coordinates ();
       updated ();
