@@ -86,15 +86,8 @@
 
 #include "state.h"
 
-#include "firmwares/rotorcraft/main.h"
-
-#ifdef SITL
-#include "nps_autopilot.h"
-#endif
-
 #include "generated/modules.h"
 #include "subsystems/abi.h"
-
 
 /*
  * Thread definitions
@@ -102,26 +95,22 @@
 static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg);
 
 #ifdef DOWNLINK
-static __attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg);
-static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg);
+__attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg);
+__attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg);
 #endif
 
 #if USE_GPS
-static __attribute__((noreturn)) msg_t thd_gps_rx(void *arg);
+static WORKING_AREA(wa_thd_gps_rx, CH_THREAD_AREA_GPS_RX);
 #endif
 
 #ifdef USE_IMU
-static __attribute__((noreturn)) msg_t thd_imu_tx(void *arg);
-static __attribute__((noreturn)) msg_t thd_imu_rx(void *arg);
+static WORKING_AREA(wa_thd_imu_rx, CH_THREAD_AREA_IMU_RX);
+static WORKING_AREA(wa_thd_imu_tx, CH_THREAD_AREA_IMU_TX);
 #endif
 
-#ifdef USE_AHRS
-static __attribute__((noreturn)) msg_t thd_ahrs(void *arg);
-static Mutex ahrs_mutex_flag;
-#endif
 
 #ifdef MODULES_C
-static __attribute__((noreturn)) msg_t thd_modules_periodic(void *arg);
+__attribute__((noreturn)) msg_t thd_modules_periodic(void *arg);
 #endif
 
 /* if PRINT_CONFIG is defined, print some config options */
@@ -148,18 +137,17 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 static WORKING_AREA(wa_thd_heartbeat, 128);
 static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
 {
-  chRegSetThreadName("pprz heartbeat");
+  chRegSetThreadName("pprz_heartbeat");
   (void) arg;
-  systime_t time = chTimeNow();     // Current time
+  systime_t time = chTimeNow();
   static uint32_t last_idle_counter = 0;
   static uint32_t last_nb_sec = 0;
 
   while (TRUE) {
-    time += MS2ST(1000);            // Next deadline, sleep for one sec.
+    time += S2ST(1);
     LED_TOGGLE(SYS_TIME_LED);
     sys_time.nb_sec++;
 
-    //CPU monitor variables
     core_free_memory = chCoreStatus();
     thread_counter = 0;
 
@@ -183,32 +171,13 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
   }
 }
 
-
-#if USE_GPS
-/*
- * GPS, just RX thread for now
- * Replaces GpsEvent()
- * @note _gps_callback() has to be implemented, memory can be probably smaller
- */
-static WORKING_AREA(wa_thd_gps_rx, 1024);
-static __attribute__((noreturn)) msg_t thd_gps_rx(void *arg)
-{
-  chRegSetThreadName("pprz_gps_rx");
-  (void) arg;
-  // Only internals of the thread are defined for now
-  //when it was properly defined in gps file, there were problems with dependencies
-  GpsThread();
-}
-#endif
-
-
 #ifdef DOWNLINK
 /*
  *  Telemetry TX
  *  Replaces telemetryPeriodic()
  */
 static WORKING_AREA(wa_thd_telemetry_tx, 1024);
-static __attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg)
+__attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg)
 {
   chRegSetThreadName("pprz_telemetry_tx");
   (void) arg;
@@ -227,7 +196,7 @@ static __attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg)
  *  @todo General definition for different links
  */
 static WORKING_AREA(wa_thd_telemetry_rx, 1024);
-static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg)
+__attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg)
 {
   chRegSetThreadName("pprz_telemetry_rx");
   (void) arg;
@@ -275,18 +244,16 @@ static __attribute__((noreturn)) msg_t thd_telemetry_rx(void *arg)
 }
 #endif
 
-
 #ifdef MODULES_C
 /*
  * Modules periodic tasks
  */
 static WORKING_AREA(wa_thd_modules_periodic, 1024);
-static __attribute__((noreturn)) msg_t thd_modules_periodic(void *arg)
+__attribute__((noreturn)) msg_t thd_modules_periodic(void *arg)
 {
   chRegSetThreadName("pprz_modules_periodic");
   (void) arg;
-  systime_t time = chTimeNow();     // Current time
-
+  systime_t time = chTimeNow();
   while (TRUE) {
     time += MS2ST(1000/MODULES_FREQUENCY);
     modules_periodic_task();
@@ -299,7 +266,6 @@ static __attribute__((noreturn)) msg_t thd_modules_periodic(void *arg)
  * Thread initialization
  */
 void thread_init(void) {
-
 chThdCreateStatic(wa_thd_heartbeat, sizeof(wa_thd_heartbeat), IDLEPRIO, thd_heartbeat, NULL);
 
 #ifdef USE_IMU
@@ -308,17 +274,12 @@ chThdCreateStatic(wa_thd_heartbeat, sizeof(wa_thd_heartbeat), IDLEPRIO, thd_hear
 #endif
 
 #ifdef DOWNLINK
-  chThdCreateStatic(wa_thd_telemetry_tx, sizeof(wa_thd_telemetry_tx),LOWPRIO, thd_telemetry_tx, NULL);
   chThdCreateStatic(wa_thd_telemetry_rx, sizeof(wa_thd_telemetry_rx),LOWPRIO, thd_telemetry_rx, NULL);
+  chThdCreateStatic(wa_thd_telemetry_tx, sizeof(wa_thd_telemetry_tx),LOWPRIO, thd_telemetry_tx, NULL);
 #endif
 
 #ifdef USE_GPS
   chThdCreateStatic(wa_thd_gps_rx, sizeof(wa_thd_gps_rx),NORMALPRIO, thd_gps_rx, NULL);
-#endif
-
-#ifdef USE_AHRS
-  chMtxInit(&ahrs_mutex_flag);
-  chThdCreateStatic(wa_thd_ahrs, sizeof(wa_thd_ahrs),HIGHPRIO, thd_ahrs, NULL);
 #endif
 
 #ifdef MODULES_C

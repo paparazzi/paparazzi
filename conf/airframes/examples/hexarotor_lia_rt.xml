@@ -38,10 +38,15 @@
     </subsystem-->
 
     <subsystem name="telemetry"     type="transparent"/>
-    <!--subsystem name="imu"           type="aspirin_v2.2"/-->
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="imu"          type="gx3">
+      <define name="GX3_INITIALIZE_DURING_STARTUP"/>
+    </subsystem>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_PORT" value="UART1"/>
+      <configure name="GPS_BAUD" value="B115200"/>
+    </subsystem>
+    <subsystem name="stabilization" type="float_euler"/>
+    <subsystem name="ahrs"          type="aggienav"/>
     <subsystem name="ins"/>
   </firmware>
 
