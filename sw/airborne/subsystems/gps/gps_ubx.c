@@ -77,6 +77,10 @@
     UbxSend2(len);                              \
   }
 
+#ifdef USE_CHIBIOS_RTOS
+Mutex gps_mutex_flag;
+#endif
+
 
 struct GpsUbx gps_ubx;
 
@@ -283,4 +287,41 @@ void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 #endif /* else less harmful for HITL */
 }
 
-
+#ifdef USE_CHIBIOS_RTOS
+/*
+ * GPS Thread
+ * Replaces GpsEvent()
+ */
+__attribute__((noreturn)) msg_t thd_gps_rx(void *arg)
+{
+  chRegSetThreadName("pprz_gps_rx");
+  (void) arg;
+  chMtxInit(&gps_mutex_flag);
+  EventListener elGPSdata;
+  flagsmask_t flags;
+  chEvtRegisterMask((EventSource *)chnGetEventSource((SerialDriver*)GPS_PORT.reg_addr), &elGPSdata, EVENT_MASK(1));
+  while (TRUE) {
+     chEvtWaitOneTimeout(EVENT_MASK(1), S2ST(1));
+     flags = chEvtGetAndClearFlags(&elGPSdata);
+     UART_GETCH(GPS_PORT, flags, gps_ubx_parse);
+   if (gps_ubx.msg_available) {
+     chMtxLock(&gps_mutex_flag);
+     gps_ubx_read_message();
+     gps_ubx_ucenter_event();
+     if (gps_ubx.msg_class == UBX_NAV_ID &&
+         (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||
+          (gps_ubx.msg_id == UBX_NAV_SOL_ID &&
+           gps_ubx.have_velned == 0))) {
+       if (gps.fix == GPS_FIX_3D) {
+         gps.last_fix_ticks = sys_time.nb_sec_rem;
+         gps.last_fix_time = sys_time.nb_sec;
+       }
+       ahrs_update_gps();
+       ins_update_gps();
+     }
+     chMtxUnlock();
+     gps_ubx.msg_available = FALSE;
+   }
+  }
+}
+#endif

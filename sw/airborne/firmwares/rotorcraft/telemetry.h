@@ -1099,11 +1099,19 @@
 #endif
 
 #ifdef USE_GX3
+#ifdef USE_CHIBIOS_RTOS
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
-    &ahrs_impl.gx3_freq,			\
-    &ahrs_impl.gx3_packet.chksm_error,	\
-    &ahrs_impl.gx3_packet.hdr_error,	\
-    &ahrs_impl.gx3_chksm)
+  &imu_gx3.gx3_freq,			\
+  &imu_gx3.gx3_packet.chksm_error,	\
+  &imu_gx3.gx3_packet.hdr_error,	\
+  &imu_gx3.gx3_chksm)
+#else
+#define PERIODIC_SEND_GX3_INFO(_trans, _dev) DOWNLINK_SEND_GX3_INFO(_trans, _dev,\
+  &ahrs_impl.gx3_freq,			\
+  &ahrs_impl.gx3_packet.chksm_error,	\
+  &ahrs_impl.gx3_packet.hdr_error,	\
+  &ahrs_impl.gx3_chksm)
+#endif
 #else
 #define PERIODIC_SEND_GX3_INFO(_trans, _dev) {}
 #endif
