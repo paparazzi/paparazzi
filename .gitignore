@@ -34,6 +34,8 @@
 # JetBrains (PyCharm, etc) IDE project files
 .idea
 
+# Vagrant VM files
+/.vagrant
 
 /var
 /dox
