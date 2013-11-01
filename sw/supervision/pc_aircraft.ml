@@ -174,7 +174,7 @@ let first_word = fun s ->
 
 (** Parse Airframe File for Targets **)
 
-let parse_ac_targets = fun target_combo ac_file ->
+let parse_ac_targets = fun target_combo ac_file (log:string->unit) ->
   let strings = ref [] in
   let count = ref 0 in
   let (store, column) = Gtk_tools.combo_model target_combo in
@@ -182,7 +182,7 @@ let parse_ac_targets = fun target_combo ac_file ->
   (** Clear ComboBox
   **)
   (try
-    let af_xml = Xml.parse_file (Env.paparazzi_src // "conf" // ac_file) in
+    let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // ac_file) in
     List.iter (fun tag ->
       if ExtXml.tag_is tag "firmware" then begin
         begin try
@@ -215,11 +215,11 @@ let parse_ac_targets = fun target_combo ac_file ->
 (**
     Gtk_tools.combo (!strings) target_combo
 **)
-  with _ -> ())
+  with _ -> log (sprintf "Error while parsing targets from file %s\n" ac_file))
 
 
 (* Link A/C to airframe & flight_plan labels *)
-let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
+let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo (log:string->unit) ->
   (* build tree for settings *)
   let tree_set = Gtk_tools.tree gui#tree_settings in
   let model = Gtk_tools.tree_model tree_set in
@@ -249,7 +249,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       current_color := gui_color;
       gui#entry_ac_id#set_text ac_id;
       (Gtk_tools.combo_widget target_combo)#misc#set_sensitive true;
-      parse_ac_targets target_combo (ExtXml.attrib aircraft "airframe");
+      parse_ac_targets target_combo (ExtXml.attrib aircraft "airframe") log;
     with
       Not_found ->
         gui#label_airframe#set_text "";
@@ -294,6 +294,18 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       | _ -> ()
   in
   ignore (gui#delete_ac_menu_item#connect#activate ~callback);
+
+  (* New Target button *)
+  let callback = fun _ ->
+    match GToolbox.input_string ~title:"New Target" ~text:"tunnel" "New build target ?" with
+      None -> ()
+    | Some s ->
+	let (store, column) = Gtk_tools.combo_model target_combo in
+	let row = store#append () in
+	store#set ~row ~column s;
+	(Gtk_tools.combo_widget target_combo)#set_active_iter (Some row)
+  in
+  ignore (gui#menu_item_new_target#connect#activate ~callback);
 
   (* GUI color *)
   let callback = fun _ ->
@@ -364,18 +376,6 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:s
     (fun target ->
       (* if target is sim or nps, deactivate the upload button *)
       gui#button_upload#misc#set_sensitive (target <> "sim" && target <> "nps"));
-
-  (* New Target button *)
-  let callback = fun _ ->
-    match GToolbox.input_string ~title:"New Target" ~text:"tunnel" "New build target ?" with
-      None -> ()
-    | Some s ->
-	let (store, column) = Gtk_tools.combo_model target_combo in
-	let row = store#append () in
-	store#set ~row ~column s;
-	(Gtk_tools.combo_widget target_combo)#set_active_iter (Some row)
-  in
-  ignore (gui#button_new_target#connect#clicked ~callback);
 
   (* Clean button *)
   let callback = fun () ->
