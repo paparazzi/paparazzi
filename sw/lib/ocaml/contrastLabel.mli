@@ -36,3 +36,4 @@ class widget :
     method set_y : float -> unit
     method affine_absolute : float array -> unit
   end
+
