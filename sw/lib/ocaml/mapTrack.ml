@@ -29,6 +29,7 @@ module LL = Latlong
 module G = MapCanvas
 
 module CL = ContrastLabel
+module ACI = AcIcon
 
 let affine_pos_and_angle z xw yw angle =
   let rad_angle = angle /. 180. *. acos(-1.) in
@@ -59,10 +60,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
   let aircraft = GnoCanvas.group group
   and track = GnoCanvas.group group in
-  let _ac_icon =
-    ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|0.;-6.;0.;14.|] aircraft);
-    ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-9.;0.;9.;0.|] aircraft);
-    ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-4.;10.;4.;10.|] aircraft) in
+  let _ac_icon = new ACI.widget ~color:color aircraft in
   let ac_label = new CL.widget ~name:name ~color:color 25. 25. group in
 
   let carrot = GnoCanvas.group group in
