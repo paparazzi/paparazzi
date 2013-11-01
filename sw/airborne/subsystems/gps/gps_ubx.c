@@ -302,31 +302,8 @@ __attribute__((noreturn)) msg_t thd_gps_rx(void *arg)
   chEvtRegisterMask((EventSource *)chnGetEventSource((SerialDriver*)GPS_PORT.reg_addr), &elGPSdata, EVENT_MASK(1));
   while (TRUE) {
      chEvtWaitOneTimeout(EVENT_MASK(1), S2ST(1));
-     chSysLock();
      flags = chEvtGetAndClearFlags(&elGPSdata);
-     chSysUnlock();
-     if ((flags & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |
-                   SD_NOISE_ERROR)) != 0) {
-         if (flags & SD_OVERRUN_ERROR) {
-             GPS_PORT.ore++;
-         }
-         if (flags & SD_NOISE_ERROR) {
-              GPS_PORT.ne_err++;
-         }
-         if (flags & SD_FRAMING_ERROR) {
-              GPS_PORT.fe_err++;
-         }
-     }
-     if (flags & CHN_INPUT_AVAILABLE) {
-        msg_t charbuf;
-        do {
-           charbuf = chnGetTimeout((SerialDriver*)GPS_PORT.reg_addr, TIME_IMMEDIATE);
-           if ( charbuf != Q_TIMEOUT ) {
-               gps_ubx_parse(charbuf);
-           }
-        }
-        while (charbuf != Q_TIMEOUT);
-     }
+     UART_GETCH(GPS_PORT, flags, gps_ubx_parse);
    if (gps_ubx.msg_available) {
      chMtxLock(&gps_mutex_flag);
      gps_ubx_read_message();

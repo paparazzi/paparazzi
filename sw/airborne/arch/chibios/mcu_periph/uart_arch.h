@@ -45,4 +45,29 @@
 #define B230400  230400
 #define B921600  921600
 
+#define UART_GETCH(_port, _flag, _callback) {                   \
+    if ((_flag & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |         \
+                  SD_NOISE_ERROR)) != 0) {                      \
+        if (_flag & SD_OVERRUN_ERROR) {                         \
+            _port.ore++;                                        \
+        }                                                       \
+        if (_flag & SD_NOISE_ERROR) {                           \
+            _port.ne_err++;                                     \
+        }                                                       \
+        if (_flag & SD_FRAMING_ERROR) {                         \
+            _port.fe_err++;                                     \
+        }                                                       \
+    }                                                           \
+    if (_flag & CHN_INPUT_AVAILABLE) {                         \
+       msg_t charbuf;                                           \
+       do {                                                     \
+           charbuf = sdGetTimeout((SerialDriver*)_port.reg_addr, TIME_IMMEDIATE);\
+          if ( charbuf != Q_TIMEOUT ) {                         \
+             _callback(charbuf);                                \
+          }                                                     \
+       }                                                        \
+       while (charbuf != Q_TIMEOUT);                            \
+    }                                                           \
+}
+
 #endif /* STM32_UART_ARCH_H */

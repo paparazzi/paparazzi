@@ -213,19 +213,20 @@ void imu_periodic(void) {
       else {
           imu_gx3.queue.front++;
       }
+      chMtxUnlock();
+      gx3_packet_read_message();
+      //TODO: proper callbacks (ins, ahrs, etc.)
+      // Probably Mailboxes? or EventBroadcast?
+      ahrs_update_accel();
+
+      //Lock mutex for system states (statesSetRates etc.)
+      chMtxLock(&states_mutex_flag);
+      ahrs_propagate();
+      chMtxUnlock();
   }
-  chMtxUnlock();
-  gx3_packet_read_message();
-  //TODO: proper callbacks (ins, ahrs, etc.)
-  // Probably Mailboxes? or EventBroadcast?
-  ahrs_update_accel();
-
-  //Lock mutex for system states (statesSetRates etc.)
-  chMtxLock(&states_mutex_flag);
-  ahrs_propagate();
-  chMtxUnlock();
-
-  LED_TOGGLE(2);
+  else {
+      chMtxUnlock();
+  }
 #else
   /*
    *  IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
@@ -380,7 +381,6 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
   while (TRUE) {
       charbuf = sdGet((SerialDriver*)GX3_PORT.reg_addr);
       gx3_packet_parse(charbuf);
-      //If new packet received, push in into FIFO queue
       if (imu_gx3.gx3_packet.msg_available) {
           chMtxLock(&imu_get_data_flag);
           if (imu_gx3.queue.rear == GX3_QUEUE_SIZE-1) {
@@ -391,10 +391,11 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
           }
           if (!((imu_gx3.queue.front == imu_gx3.queue.rear) && (imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] != 0))) {
               memcpy(&imu_gx3.queue.queue_buf[imu_gx3.queue.rear], imu_gx3.gx3_packet.msg_buf, GX3_MSG_LEN);
+              if (imu_gx3.queue.status < GX3_QUEUE_SIZE ) {
                   imu_gx3.queue.status++;
+              }
           }
           chMtxUnlock();
-
           imu_gx3.gx3_packet.msg_available = FALSE;
       }
   }
