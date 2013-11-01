@@ -31,29 +31,30 @@
 let label_offset_matrix =
   [
    (* X    Y *)
-    [ 0.; -1.]; (* N *)
-    [ 0.;  1.]; (* S *)
-    [ 1.;  0.]; (* E *)
-    [-1.;  0.]; (* W *)
-    [ 1.; -1.]; (* NE *)
-    [ 1.;  1.]; (* SE *)
-    [-1.;  1.]; (* SW *)
-    [-1.; -1.]; (* NW *)
-    [ 0.;  0.]; (* Z *)
+    ( 0., -1.); (* N *)
+    ( 0.,  1.); (* S *)
+    ( 1.,  0.); (* E *)
+    (-1.,  0.); (* W *)
+    ( 1., -1.); (* NE *)
+    ( 1.,  1.); (* SE *)
+    (-1.,  1.); (* SW *)
+    (-1., -1.); (* NW *)
+    ( 0.,  0.); (* Z *)
   ]
 
-class widget = fun ?(name = "Noname") ?(size = 500) ?(bg_color = "black") ?(color = "red") x y (group:GnoCanvas.group) ->
+class widget = fun ?(name = "Noname") ?(size = 500) ?(bg_color = "black") ?(color = "white") x y (group:GnoCanvas.group) ->
   let new_text offset =
     GnoCanvas.text group ~props:[`TEXT name;
-                                 `X (x +. (List.nth offset 0)); `Y (y +. (List.nth offset 1));
+                                 `X (x +. (fst offset)); `Y (y +. (snd offset));
                                  `ANCHOR `SW;
-                                 `FILL_COLOR (if offset = [0.;0.] then color else bg_color)] in
+                                 `FILL_COLOR (if offset = (0., 0.) then color else bg_color)] in
   let labels = List.map new_text label_offset_matrix in
 object(self)
   method set_name s = List.iter (fun label -> label#set [`TEXT s]) labels
-  method set_x x = List.iter2 (fun label offset -> label#set [`X (x +. (List.nth offset 0))])
+  method set_x x = List.iter2 (fun label offset -> label#set [`X (x +. (fst offset))])
                               labels label_offset_matrix
-  method set_y y = List.iter2 (fun label offset -> label#set [`Y (y +. (List.nth offset 1))])
+  method set_y y = List.iter2 (fun label offset -> label#set [`Y (y +. (snd offset))])
                               labels label_offset_matrix
   method affine_absolute a = List.iter (fun label -> label#affine_absolute a) labels
 end
+

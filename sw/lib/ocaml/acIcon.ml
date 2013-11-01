@@ -22,23 +22,61 @@
  *
  *)
 
-let icon_fixedwing_template =
-  [
+type icon = {
+  lines : float array list;
+  ellipse : float array list;
+  width: int
+}
+
+let icon_fixedwing_template = {
+  lines = [
     [|  0.; -6.;  0.; 14.|];
     [| -9.;  0.;  9.;  0.|];
     [| -4.; 10.;  4.; 10.|]
-  ]
+  ];
+  ellipse = [];
+  width = 4
+}
+
+let icon_rotorcraft_template = {
+  lines = [
+    [|  0.; -8.;  0.; 8.|];
+    [| -8.;  0.;  8.; 0.|];
+    [| 6.; -15.; 0.; -24.;  -6.; -15.|];
+  ];
+  ellipse = [
+    [| 8.; -5.; 18.; 5.|];
+    [| -8.; -5.; -18.; 5.|];
+    [| -5.; 8.; 5.; 18.|];
+    [| -5.; -8.; 5.; -18.|];
+  ];
+  width = 2
+}
+
+let icon_home_template = {
+  lines = [
+    [| -9.; -9.; -9.; 9.; 9.; 9.; 9.; -9.|];
+    [| -12.; -7.; 0.; -15.; 12.; -7.|];
+  ];
+  ellipse = [];
+  width = 3;
+}
 
 class widget = fun ?(color="red") ?(icon_template=icon_fixedwing_template) (group:GnoCanvas.group) ->
   let new_line width color points =
     GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS width; `CAP_STYLE `ROUND] ~points:points group in
+  let new_ellipse width color points =
+    GnoCanvas.ellipse ~props:[`OUTLINE_COLOR color; `WIDTH_PIXELS width] ~x1:points.(0) ~y1:points.(1) ~x2:points.(2) ~y2:points.(3) group in
   let icon_bg =
-    List.map (fun points -> new_line 6 "black" points) icon_template in
+    (List.map (fun points -> new_line (icon_template.width+2) "black" points) icon_template.lines,
+    List.map (fun points -> new_ellipse (icon_template.width+2) "black" points) icon_template.ellipse) in
   let icon =
-    List.map (fun points -> new_line 4 color points) icon_template in
+    (List.map (fun points -> new_line icon_template.width color points) icon_template.lines,
+    List.map (fun points -> new_ellipse icon_template.width color points) icon_template.ellipse) in
 object(self)
   method set_color color =
-    List.iter (fun segment -> segment#set [`FILL_COLOR color]) icon
+    List.iter2 (fun segment ellipse -> segment#set [`FILL_COLOR color]; ellipse#set [`FILL_COLOR color]) (fst icon) (snd icon)
   method set_bg_color color =
-    List.iter (fun segment -> segment#set [`FILL_COLOR color]) icon_bg
+    List.iter2 (fun segment ellipse -> segment#set [`FILL_COLOR color]; ellipse#set [`FILL_COLOR color]) (fst icon_bg) (snd icon_bg)
 end
+

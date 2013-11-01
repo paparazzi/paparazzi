@@ -22,11 +22,22 @@
  *
  *)
 
+type icon = {
+  lines : float array list;
+  ellipse : float array list;
+  width: int
+}
+
+val icon_fixedwing_template : icon
+val icon_rotorcraft_template : icon
+val icon_home_template : icon
+
 class widget :
   ?color : string ->
-  ?icon_template : float array list ->
+  ?icon_template : icon ->
   GnoCanvas.group ->
 object
   method set_color : string -> unit
   method set_bg_color : string -> unit
 end
+

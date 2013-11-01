@@ -24,6 +24,7 @@
 
 class track :
   ?name:string ->
+  ?icon:string ->
   ?size:int ->
   ?color:string ->
   MapCanvas.widget ->

@@ -53,15 +53,20 @@ type desired =
   | DesiredCircle of LL.geographic*float*GnoCanvas.ellipse
   | DesiredSegment of LL.geographic*LL.geographic*GnoCanvas.line
 
-class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
+class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({LL.posn_lat=0.; LL.posn_long=0.},  GnoCanvas.line group) in
   let v_empty = ({LL.posn_lat=0.; LL.posn_long=0.},  0.0) in
 
   let aircraft = GnoCanvas.group group
   and track = GnoCanvas.group group in
-  let _ac_icon = new ACI.widget ~color:color aircraft in
-  let ac_label = new CL.widget ~name:name ~color:color 25. 25. group in
+  let icon_template = match icon with
+  | "home" -> ACI.icon_home_template
+  | "rotorcraft" -> ACI.icon_rotorcraft_template
+  | "fixedwing" | _ -> ACI.icon_fixedwing_template
+  in
+  let _ac_icon = new ACI.widget ~color ~icon_template aircraft in
+  let ac_label = new CL.widget ~name ~color 25. 25. group in
 
   let carrot = GnoCanvas.group group in
   let _ac_carrot =
