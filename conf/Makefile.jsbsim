@@ -49,12 +49,15 @@ $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
-all compile: check_jsbsim $(OBJDIR)/simsitl
+all compile: check_jsbsim $(OBJDIR) $(OBJDIR)/simsitl
 
 
 check_jsbsim:
 	@echo Paparazzi jsbsim package found: $(JSBSIM_PKG)
 
+$(OBJDIR):
+	@echo CREATING object dir $(OBJDIR)
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 
 $(OBJDIR)/simsitl : $($(TARGET).objs)
 	@echo LD $@
@@ -80,23 +83,22 @@ $(OBJDIR)/%.s: %.cpp
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CC) -MMD $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CC) -MMD $(CFLAGS) -c -o $@ $<
 
 .PHONY: all compile check_jsbsim
+
 
 #
 # Dependencies
 #
-$(OBJDIR)/.depend:
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	@echo DEPEND $@
-	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(OBJDIR)/.depend
+-include $(DEPS)
 endif

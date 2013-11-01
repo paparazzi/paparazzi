@@ -178,8 +178,12 @@ ODFLAGS = -S
 # Default target.
 all: printcommands sizebefore build sizeafter
 
-build: elf bin hex
+build: $(OBJDIR) elf bin hex
 # lss sym
+
+$(OBJDIR):
+	@echo CREATING object dir $(OBJDIR)
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 
 elf: $(OBJDIR)/$(TARGET).elf
 bin: $(OBJDIR)/$(TARGET).bin
@@ -219,7 +223,7 @@ sym: $(OBJDIR)/$(TARGET).sym
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CFLAGS) $< -o $@
+	$(Q)$(CC) -MMD -c $(CFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(OBJDIR)/%.o : %.S
@@ -237,11 +241,8 @@ include $(PAPARAZZI_SRC)/conf/Makefile.stm32-upload
 # Dependencies
 #
 
-$(OBJDIR)/.depend:
-	@echo DEPEND $@
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(Q)$(CC) -MM -MG $(THUMB) $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(OBJDIR)/.depend
+-include $(DEPS)
 endif
