@@ -28,6 +28,9 @@ module LL = Latlong
 
 module G = MapCanvas
 
+module CL = ContrastLabel
+module ACI = AcIcon
+
 let affine_pos_and_angle z xw yw angle =
   let rad_angle = angle /. 180. *. acos(-1.) in
   let cos_a = cos rad_angle in
@@ -50,7 +53,6 @@ type desired =
   | DesiredCircle of LL.geographic*float*GnoCanvas.ellipse
   | DesiredSegment of LL.geographic*LL.geographic*GnoCanvas.line
 
-
 class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({LL.posn_lat=0.; LL.posn_long=0.},  GnoCanvas.line group) in
@@ -58,12 +60,9 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
   let aircraft = GnoCanvas.group group
   and track = GnoCanvas.group group in
-  let _ac_icon =
-    ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|0.;-6.;0.;14.|] aircraft);
-    ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-9.;0.;9.;0.|] aircraft);
-    ignore (GnoCanvas.line ~fill_color:color ~props:[`WIDTH_PIXELS 4;`CAP_STYLE `ROUND] ~points:[|-4.;10.;4.;10.|] aircraft) in
-  let ac_label =
-    GnoCanvas.text group ~props:[`TEXT name; `X 25.; `Y 25.; `ANCHOR `SW; `FILL_COLOR color] in
+  let _ac_icon = new ACI.widget ~color:color aircraft in
+  let ac_label = new CL.widget ~name:name ~color:color 25. 25. group in
+
   let carrot = GnoCanvas.group group in
   let _ac_carrot =
     ignore (GnoCanvas.polygon ~points:[|0.;0.;-5.;-10.;5.;-10.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
@@ -118,7 +117,8 @@ object (self)
   method track = track
   method v_path = v_path
   method aircraft = aircraft
-  method set_label = fun s -> ac_label#set [`TEXT s]
+  method set_label = fun s ->
+          ac_label#set_name s
   method clear_one = fun i ->
     if segments.(i) != empty then begin
       (snd segments.(i))#destroy ();
@@ -150,7 +150,8 @@ object (self)
   method set_params_state = fun b ->
     params_on <- b;
     if not b then (* Reset to the default simple label *)
-      ac_label#set [`TEXT name; `Y 25.]
+      ac_label#set_name name;
+      ac_label#set_y 25.
   method set_v_params_state = fun b -> v_params_on <- b
   method set_last = fun x -> last <- x
   method last = last
@@ -193,7 +194,8 @@ object (self)
 
     if params_on then begin
       let last_height = self#height () in
-      ac_label#set [`TEXT (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed); `Y 70. ]
+      ac_label#set_name (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed);
+      ac_label#set_y 70.
     end;
 
     ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
