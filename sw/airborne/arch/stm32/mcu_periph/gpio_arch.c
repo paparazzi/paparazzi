@@ -89,6 +89,21 @@ void gpio_enable_clock(uint32_t port) {
     case GPIOD:
       rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
       break;
+    case GPIOE:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPEEN);
+      break;
+    case GPIOF:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPFEN);
+      break;
+    case GPIOG:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPGEN);
+      break;
+    case GPIOH:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPHEN);
+      break;
+    case GPIOI:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPIEN);
+      break;
     default:
       break;
   };
