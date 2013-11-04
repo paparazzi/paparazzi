@@ -20,12 +20,15 @@
  */
 
 /**
- * @file subsystems/navigation/bomb.h
+ * @file modules/nav/bomb.h
  *
  */
 
 #ifndef BOMB_H
 #define BOMB_H
+
+#include "std.h"
+#include "subsystems/nav.h"
 
 #define MY_BOMB_RADIUS DEFAULT_CIRCLE_RADIUS
 
@@ -42,11 +45,5 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
 #define BombShoot() bomb_shoot()
 #define BombCloseHatch() ({ ap_state->commands[COMMAND_HATCH] = MIN_PPRZ; })
 #define BombAligned() Qdr(DegOfRad(bomb_qdr_aligned))
-
-
-extern bool_t compute_tod( void );
-extern unit_t compute_baseleg( void );
-extern float baseleg_alt, downwind_altitude;
-extern const float baseleg_alt_tolerance;
 
 #endif // BOMB_H

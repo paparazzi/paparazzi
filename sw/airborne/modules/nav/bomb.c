@@ -20,13 +20,12 @@
  */
 
 /**
- * @file subsystems/navigation/bomb.c
+ * @file modules/nav/bomb.c
  *
  */
 
 #include "state.h"
-#include "subsystems/nav.h"
-#include "subsystems/navigation/bomb.h"
+#include "modules/nav/bomb.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"
