@@ -48,7 +48,7 @@ static float FLRadius;
 /*
   Translates point so (transX, transY) are (0,0) then rotates the point around z by Zrot
 */
-void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY)
+static void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY)
 {
   float temp;
 

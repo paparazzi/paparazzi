@@ -35,13 +35,12 @@
 struct Point2D {float x; float y;};
 struct Line {float m;float b;float x;};
 
-void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
-void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
-
-void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2);
-float EvaluateLineForY(float x, struct Line L);
-float EvaluateLineForX(float y, struct Line L);
-float DistanceEquation(struct Point2D p1,struct Point2D p2);
+static void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
+static void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
+static void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2);
+static float EvaluateLineForY(float x, struct Line L);
+static float EvaluateLineForX(float y, struct Line L);
+static float DistanceEquation(struct Point2D p1,struct Point2D p2);
 
 #define PolygonSize 10
 #define MaxFloat   1000000000
