@@ -126,7 +126,7 @@
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="GUIDANCE_H_INT"    period="0.05"/>
-      <!--<message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>-->
+      <message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>
       <!-- <message name="GPS_INT"               period=".20"/> -->
       <!--<message name="INS2"              period=".05"/>
       <message name="INS3"              period=".20"/>-->
