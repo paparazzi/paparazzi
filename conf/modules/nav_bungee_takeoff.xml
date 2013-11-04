@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_bungee_takeoff" dir="nav">
+  <doc>
+    <description>
+      Takeoff procedure using a bungee
+    </description>
+  </doc>
+  <header>
+    <file name="nav_bungee_takeoff.h"/>
+  </header>
+  <makefile>
+    <file name="nav_bungee_takeoff.c"/>
+  </makefile>
+</module>

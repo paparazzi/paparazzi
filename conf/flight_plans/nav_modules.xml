@@ -73,6 +73,10 @@
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
     <!--===================== Nav modules example blocks =================================-->
+    <block name="Bungee take-off">
+      <call fun="bungee_takeoff_start(WP_HOME)"/>
+      <call fun="bungee_takeoff_run()"/>
+    </block>
     <block name="Poly Survey S1-S2" strip_button="Poly Survey">
       <call fun="poly_survey_adv_start(WP_S1,5,180,30,10,50,100)"/>
       <call fun="poly_survey_adv_run()"/>
@@ -91,19 +95,9 @@
       <go from="1" hmode="route" wp="2"/>
       <deroute block="Standby"/>
     </block>
-    <!-- =====================  OSAM Nav modules example blocks  =========================-->
-
     <block name="Flower" strip_button="Flower (wp 1-2)">
       <call fun="flower_start(WP_1, WP_2)"/>
       <call fun="flower_run()"/>
-    </block>
-    <block name="Bungee take-off">
-      <call fun="bungee_takeoff_start(WP_HOME)"/>
-      <call fun="bungee_takeoff_run()"/>
-    </block>
-    <block name="Skid Landing">
-      <call fun="skid_landing_start(WP_AF,WP_TD,nav_radius)"/>
-      <call fun="skid_landing_run()"/>
     </block>
     <block name="Poly survey">
       <call fun="osam_poly_survey_start(WP_S1, 5, 50, 45)"/>
