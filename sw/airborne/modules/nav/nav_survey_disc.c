@@ -20,11 +20,11 @@
  */
 
 /**
- * @file modules/nav/nav_disc_survey.c
+ * @file modules/nav/nav_survey_disc.c
  *
  */
 
-#include "modules/nav/nav_disc_survey.h"
+#include "modules/nav/nav_survey_disc.h"
 
 #include "generated/airframe.h"
 #include "state.h"
@@ -46,7 +46,7 @@ struct DiscSurvey {
 static struct DiscSurvey disc_survey;
 
 
-bool_t nav_disc_survey_start( float grid ) {
+bool_t nav_survey_disc_start( float grid ) {
   nav_survey_shift = grid;
   disc_survey.status = DOWNWIND;
   disc_survey.sign = 1;
@@ -55,7 +55,7 @@ bool_t nav_disc_survey_start( float grid ) {
   return FALSE;
 }
 
-bool_t nav_disc_survey_run( uint8_t center_wp, float radius) {
+bool_t nav_survey_disc_run( uint8_t center_wp, float radius) {
   struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
   float wind_dir = atan2(wind->x, wind->y) + M_PI;
 

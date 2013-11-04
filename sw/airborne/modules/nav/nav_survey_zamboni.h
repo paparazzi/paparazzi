@@ -20,13 +20,13 @@
  */
 
 /**
- * @file modules/nav/zamboni_survey.h
+ * @file modules/nav/nav_survey_zamboni.h
  *
  * Zamboni pattern survey for fixedwings.
  */
 
-#ifndef ZAMBONI_SURVEY_H
-#define ZAMBONI_SURVEY_H
+#ifndef NAV_SURVEY_ZAMBONI_H
+#define NAV_SURVEY_ZAMBONI_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
@@ -70,7 +70,7 @@ struct ZamboniSurvey {
 };
 
 
-extern bool_t zamboni_survey_start(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude);
-extern bool_t zamboni_survey_run(void);
+extern bool_t nav_survey_zamboni_start(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude);
+extern bool_t nav_survey_zamboni_run(void);
 
 #endif //ZAMBONI_SURVEY_H

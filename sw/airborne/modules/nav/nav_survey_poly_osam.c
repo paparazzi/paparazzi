@@ -20,11 +20,11 @@
  */
 
 /**
- * @file modules/nav/nav_poly_survey_osam.c
+ * @file modules/nav/nav_survey_poly_osam.c
  *
  */
 
-#include "modules/nav/nav_poly_survey_osam.h"
+#include "modules/nav/nav_survey_poly_osam.h"
 
 #include "subsystems/nav.h"
 #include "state.h"
@@ -77,7 +77,7 @@ static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 
-bool_t osam_poly_survey_start(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+bool_t nav_survey_poly_osam_start(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -273,7 +273,7 @@ bool_t osam_poly_survey_start(uint8_t EntryWP, uint8_t Size, float sw, float Ori
   return FALSE;
 }
 
-bool_t osam_poly_survey_run(void)
+bool_t nav_survey_poly_osam_run(void)
 {
   struct Point2D C;
   struct Point2D ToP;

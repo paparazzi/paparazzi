@@ -76,7 +76,7 @@ static float BungeeAlt;
 static float TDistance;
 static uint8_t BungeeWaypoint;
 
-bool_t bungee_takeoff_start(uint8_t BungeeWP)
+bool_t nav_bungee_takeoff_start(uint8_t BungeeWP)
 {
   float ThrottleB;
 
@@ -130,7 +130,7 @@ bool_t bungee_takeoff_start(uint8_t BungeeWP)
   return FALSE;
 }
 
-bool_t bungee_takeoff_run(void)
+bool_t nav_bungee_takeoff_run(void)
 {
   //Translate current position so Throttle point is (0,0)
   float Currentx = stateGetPositionEnu_f()->x-throttlePx;

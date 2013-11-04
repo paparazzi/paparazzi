@@ -31,7 +31,8 @@
 
 #include "std.h"
 
-extern bool_t bungee_takeoff_start(uint8_t BungeeWP);
-extern bool_t bungee_takeoff_run(void);
+extern bool_t nav_bungee_takeoff_start(uint8_t BungeeWP);
+extern bool_t nav_bungee_takeoff_run(void);
 
 #endif
+

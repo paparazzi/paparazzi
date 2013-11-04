@@ -57,7 +57,7 @@ static float Flowerradius;
 static uint8_t Center;
 static uint8_t Edge;
 
-bool_t flower_start(uint8_t CenterWP, uint8_t EdgeWP)
+bool_t nav_flower_start(uint8_t CenterWP, uint8_t EdgeWP)
 {
   Center = CenterWP;
   Edge = EdgeWP;
@@ -87,7 +87,7 @@ bool_t flower_start(uint8_t CenterWP, uint8_t EdgeWP)
   return FALSE;
 }
 
-bool_t flower_run(void)
+bool_t nav_flower_run(void)
 {
   TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);

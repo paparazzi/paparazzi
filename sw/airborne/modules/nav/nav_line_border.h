@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2012, Tobias Muench
  *
  * This file is part of paparazzi.
  *
@@ -20,16 +20,16 @@
  */
 
 /**
- * @file modules/nav/nav_disc_survey.h
- *
+ * @file modules/nav/nav_line_border.h
+ * @brief navigate along a border line (line 1-2) with turns in the same direction
  */
 
-#ifndef NAV_DISC_SURVEY_H
-#define NAV_DISC_SURVEY_H
+#ifndef NAV_LINE_BORDER_H
+#define NAV_LINE_BORDER_H
 
 #include "std.h"
 
-extern bool_t nav_disc_survey_start( float grid );
-extern bool_t nav_disc_survey_run(uint8_t c, float radius);
+extern bool_t nav_line_border_start( void );
+extern bool_t nav_line_border_run(uint8_t wp1, uint8_t wp2, float radius);
 
-#endif /* NAV_DISC_SURVEY_H */
+#endif /* NAV_LINE_BORDER_H */

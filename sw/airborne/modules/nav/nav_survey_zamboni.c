@@ -20,12 +20,12 @@
  */
 
 /**
- * @file modules/nav/zamboni_survey.c
+ * @file modules/nav/nav_survey_zamboni.c
  *
  * Zamboni pattern survey for fixedwings.
  */
 
-#include "modules/nav/zamboni_survey.h"
+#include "modules/nav/nav_survey_zamboni.h"
 
 #include "subsystems/nav.h"
 #include "autopilot.h"
@@ -48,7 +48,7 @@ struct ZamboniSurvey zs;
  * @param sweep_lines   number of sweep_lines to fly
  * @param altitude      the altitude that must be reached before the flyover starts
  */
-bool_t zamboni_survey_start(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude)
+bool_t nav_survey_zamboni_start(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude)
 {
   zs.current_laps = 0;
   zs.pre_leave_angle = 2;
@@ -121,7 +121,7 @@ bool_t zamboni_survey_start(uint8_t center_wp, uint8_t dir_wp, float sweep_lengt
  *
  * @returns TRUE until the survey is finished
  */
-bool_t zamboni_survey_run(void)
+bool_t nav_survey_zamboni_run(void)
 {
   // retain altitude
   NavVerticalAutoThrottleMode(0.0);

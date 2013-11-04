@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-extern bool_t vertical_raster_start( void );
-extern bool_t vertical_raster_run(uint8_t wp1, uint8_t wp2, float radius, float AltSweep);
+extern bool_t nav_vertical_raster_start( void );
+extern bool_t nav_vertical_raster_run(uint8_t wp1, uint8_t wp2, float radius, float AltSweep);
 
 #endif

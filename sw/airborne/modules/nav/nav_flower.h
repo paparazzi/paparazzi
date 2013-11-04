@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-extern bool_t flower_run(void);
-extern bool_t flower_start(uint8_t CenterWP, uint8_t EdgeWP);
+extern bool_t nav_flower_run(void);
+extern bool_t nav_flower_start(uint8_t CenterWP, uint8_t EdgeWP);
 
 #endif

@@ -20,17 +20,17 @@
  */
 
 /**
- * @file modules/nav/nav_poly_survey_osam.h
+ * @file modules/nav/nav_survey_poly_osam.h
  *
  */
 
-#ifndef NAV_POLY_SURVEY_OSAM_H
-#define NAV_POLY_SURVEY_OSAM_H
+#ifndef NAV_SURVEY_POLY_OSAM_H
+#define NAV_SURVEY_POLY_OSAM_H
 
 #include "std.h"
 
-extern bool_t osam_poly_survey_start(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
-extern bool_t osam_poly_survey_run(void);
+extern bool_t nav_survey_poly_osam_start(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
+extern bool_t nav_survey_poly_osam_run(void);
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;
 
