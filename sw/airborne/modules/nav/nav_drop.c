@@ -20,12 +20,14 @@
  */
 
 /**
- * @file modules/nav/bomb.c
+ * @file modules/nav/nav_drop.c
  *
+ * Navigation module to drop a ball at a given point
+ * taking into account the wind and ground speed
  */
 
+#include "modules/nav/nav_drop.h"
 #include "state.h"
-#include "modules/nav/bomb.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"
@@ -37,70 +39,75 @@
 #define TRIGGER_DELAY 1.
 #endif
 
+#ifndef ALPHA
 #define ALPHA 6.26e-5
+#endif
+#ifndef MASS
 #define MASS 3.31e-3
+#endif
+
 #define ALPHA_M (ALPHA / MASS)
 #define DT 0.1
 #define MAX_STEPS 100
 
-float bomb_trigger_delay = TRIGGER_DELAY;
+float nav_drop_trigger_delay = TRIGGER_DELAY;
 float airspeed = 14.;
-float bomb_start_qdr;
+float nav_drop_start_qdr;
 
 #define CLIMB_TIME 3  /* s */
 #define SAFE_CLIMB 20 /* m */
 
-static float bomb_x, bomb_y, bomb_z;
-static float bomb_vx, bomb_vy, bomb_vz;
+static float nav_drop_x, nav_drop_y, nav_drop_z;
+static float nav_drop_vx, nav_drop_vy, nav_drop_vz;
 
 
 static void integrate( uint8_t wp_target ) {
   /* Inspired from Arnold Schroeter's code */
   int i = 0;
-  while (bomb_z > 0. && i < MAX_STEPS) {
+  while (nav_drop_z > 0. && i < MAX_STEPS) {
     /* relative wind experienced by the ball (wind in NED frame) */
-    float airx = -bomb_vx + stateGetHorizontalWindspeed_f()->y;
-    float airy = -bomb_vy + stateGetHorizontalWindspeed_f()->x;
-    float airz = -bomb_vz;
+    float airx = -nav_drop_vx + stateGetHorizontalWindspeed_f()->y;
+    float airy = -nav_drop_vy + stateGetHorizontalWindspeed_f()->x;
+    float airz = -nav_drop_vz;
 
     /* alpha / m * air */
     float beta = ALPHA_M * sqrt(airx*airx+airy*airy+airz*airz);
 
     /* Euler integration */
-    bomb_vx += airx * beta * DT;
-    bomb_vy += airy * beta * DT;
-    bomb_vz += (airz * beta - G) * DT;
+    nav_drop_vx += airx * beta * DT;
+    nav_drop_vy += airy * beta * DT;
+    nav_drop_vz += (airz * beta - G) * DT;
 
-    bomb_x += bomb_vx * DT;
-    bomb_y += bomb_vy * DT;
-    bomb_z += bomb_vz * DT;
+    nav_drop_x += nav_drop_vx * DT;
+    nav_drop_y += nav_drop_vy * DT;
+    nav_drop_z += nav_drop_vz * DT;
 
     i++;
   }
 
-  if (bomb_z > 0.) {
+  if (nav_drop_z > 0.) {
     /* Integration not finished -> approximation of the time with the current
        speed  */
-    float t = - bomb_z / bomb_vz;
-    bomb_x += bomb_vx * t;
-    bomb_y += bomb_vy * t;
+    float t = - nav_drop_z / nav_drop_vz;
+    nav_drop_x += nav_drop_vx * t;
+    nav_drop_y += nav_drop_vy * t;
   }
 
-  waypoints[WP_RELEASE].x = waypoints[wp_target].x - bomb_x;
-  waypoints[WP_RELEASE].y = waypoints[wp_target].y - bomb_y;
+  waypoints[WP_RELEASE].x = waypoints[wp_target].x - nav_drop_x;
+  waypoints[WP_RELEASE].y = waypoints[wp_target].y - nav_drop_y;
 }
 
 
 /** Update the RELEASE location with the actual ground speed and altitude */
-unit_t bomb_update_release( uint8_t wp_target ) {
+unit_t nav_drop_update_release( uint8_t wp_target ) {
 
-  bomb_z = stateGetPositionEnu_f()->z - waypoints[wp_target].a;
-  bomb_x = 0.;
-  bomb_y = 0.;
+  nav_drop_z = stateGetPositionEnu_f()->z - waypoints[wp_target].a;
+  nav_drop_x = 0.;
+  nav_drop_y = 0.;
 
-  bomb_vx = (*stateGetHorizontalSpeedNorm_f()) * sin((*stateGetHorizontalSpeedDir_f()));
-  bomb_vy = (*stateGetHorizontalSpeedNorm_f()) * cos((*stateGetHorizontalSpeedDir_f()));
-  bomb_vz = 0.;
+  nav_drop_vx = (*stateGetHorizontalSpeedNorm_f()) * sin((*stateGetHorizontalSpeedDir_f()));
+  nav_drop_vy = (*stateGetHorizontalSpeedNorm_f()) * cos((*stateGetHorizontalSpeedDir_f()));
+  nav_drop_vz = 0.;
 
   integrate(wp_target);
 
@@ -110,11 +117,11 @@ unit_t bomb_update_release( uint8_t wp_target ) {
 
 /** Compute a first approximation for the RELEASE waypoint from wind and
     expected airspeed and altitude */
-unit_t bomb_compute_approach( uint8_t wp_target, uint8_t wp_start, float bomb_radius ) {
+unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float nav_drop_radius ) {
   waypoints[WP_RELEASE].a = waypoints[wp_start].a;
-  bomb_z = waypoints[WP_RELEASE].a - waypoints[wp_target].a;
-  bomb_x = 0.;
-  bomb_y = 0.;
+  nav_drop_z = waypoints[WP_RELEASE].a - waypoints[wp_target].a;
+  nav_drop_x = 0.;
+  nav_drop_y = 0.;
 
   /* We approximate vx and vy, taking into account that RELEASE is next to
      TARGET */
@@ -126,20 +133,20 @@ unit_t bomb_compute_approach( uint8_t wp_target, uint8_t wp_start, float bomb_ra
   float x1 = x_0 / d;
   float y_1 = y_0 / d;
 
-  waypoints[WP_BASELEG].x = waypoints[wp_start].x + y_1 * bomb_radius;
-  waypoints[WP_BASELEG].y = waypoints[wp_start].y - x1 * bomb_radius;
+  waypoints[WP_BASELEG].x = waypoints[wp_start].x + y_1 * nav_drop_radius;
+  waypoints[WP_BASELEG].y = waypoints[wp_start].y - x1 * nav_drop_radius;
   waypoints[WP_BASELEG].a = waypoints[wp_start].a;
-  bomb_start_qdr = M_PI - atan2(-y_1, -x1);
-  if (bomb_radius < 0)
-    bomb_start_qdr += M_PI;
+  nav_drop_start_qdr = M_PI - atan2(-y_1, -x1);
+  if (nav_drop_radius < 0)
+    nav_drop_start_qdr += M_PI;
 
   // wind in NED frame
-  bomb_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
-  bomb_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
-  bomb_vz = 0.;
+  nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
+  nav_drop_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
+  nav_drop_vz = 0.;
 
-  float vx0 = bomb_vx;
-  float vy0 = bomb_vy;
+  float vx0 = nav_drop_vx;
+  float vy0 = nav_drop_vy;
 
   integrate(wp_target);
 
@@ -152,7 +159,7 @@ unit_t bomb_compute_approach( uint8_t wp_target, uint8_t wp_start, float bomb_ra
 
 
 
-unit_t bomb_shoot( void ) {
+unit_t nav_drop_shoot( void ) {
   ap_state->commands[COMMAND_HATCH] = MAX_PPRZ;
   return 0;
 }
