@@ -52,7 +52,5 @@ extern struct AirData air_data;
  */
 extern void air_data_init( void );
 
-extern void send_baro_raw(void);
-
 #endif /* AIR_DATA_H */
 
