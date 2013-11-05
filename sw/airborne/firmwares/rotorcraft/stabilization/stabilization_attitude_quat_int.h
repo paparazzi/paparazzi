@@ -27,6 +27,4 @@
 
 #include "math/pprz_algebra_int.h"
 
-extern struct Int32Quat   stab_att_sp_quat;   ///< with #INT32_QUAT_FRAC
-
 #endif /* STABILIZATION_ATTITUDE_QUAT_INT_H */

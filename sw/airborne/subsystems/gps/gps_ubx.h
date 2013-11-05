@@ -134,5 +134,27 @@ extern void ubxsend_cfg_rst(uint16_t, uint8_t);
     ubxsend_cfg_rst(gps_ubx.reset, CFG_RST_Reset_Controlled);   \
   }
 
+#define GpsUartSendMessage GpsLink(SendMessage)
+
+#define GpsUartSend1(c) GpsLink(Transmit(c))
+#define UbxInitCheksum() { gps_ubx.send_ck_a = gps_ubx.send_ck_b = 0; }
+#define UpdateChecksum(c) { gps_ubx.send_ck_a += c; gps_ubx.send_ck_b += gps_ubx.send_ck_a; }
+#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
+#define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
+#define UbxSend1ByAddr(x) { UbxSend1(*x); }
+#define UbxSend2ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); }
+#define UbxSend4ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); UbxSend1(*(x+2)); UbxSend1(*(x+3)); }
+#define GpsUartSetBaudrate(_a) GpsLink(SetBaudrate(_a))
+
+#define UbxHeader(nav_id, msg_id, len) {        \
+    GpsUartSend1(UBX_SYNC1);                    \
+    GpsUartSend1(UBX_SYNC2);                    \
+    UbxInitCheksum();                           \
+    UbxSend1(nav_id);                           \
+    UbxSend1(msg_id);                           \
+    UbxSend2(len);                              \
+  }
+
+#define UbxTrailer() { GpsUartSend1(gps_ubx.send_ck_a);  GpsUartSend1(gps_ubx.send_ck_b); GpsUartSendMessage(); }
 
 #endif /* GPS_UBX_H */

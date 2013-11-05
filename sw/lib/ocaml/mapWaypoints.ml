@@ -26,7 +26,12 @@ module LL = Latlong
 open Printf
 open LL
 
-let s = 6.
+module CL = ContrastLabel
+
+(*
+ * Waypoint label offsets
+ *)
+let s = 6. (* x offset *)
 
 class group = fun ?(color="red") ?(editable=true) ?(show_moved=false) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
@@ -66,7 +71,7 @@ object (self)
   val mutable x0 = 0.
   val mutable y0 = 0.
 
-  val label = GnoCanvas.text wpt_group ~props:[`TEXT name; `X s; `Y 0.; `ANCHOR `SW; `FILL_COLOR "green"]
+  val label = new CL.widget ~name:name ~color:"white" s 0. wpt_group
   val mutable name = name (* FIXME: already in label ! *)
   val mutable alt = alt
   val mutable moved = None
@@ -84,7 +89,7 @@ object (self)
   method set_name n =
     if n <> name then begin
       name <- n;
-      label#set [`TEXT name]
+      label#set_name name
     end
   method alt = alt
   method label = label
@@ -150,7 +155,7 @@ object (self)
     let callback = fun _ ->
       self#set_name ename#text;
       alt <- ea#value;
-      label#set [`TEXT name];
+      label#set_name name;
       set_coordinates ();
       updated ();
       if wpts_group#show_moved then

@@ -169,7 +169,11 @@ ALL_ASFLAGS = -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp $(ASFLAGS)
 # Default target.
 all: printcommands sizebefore build sizeafter
 
-build: elf hex lss sym
+build: $(OBJDIR) elf hex lss sym
+
+$(OBJDIR):
+	@echo CREATING object dir $(OBJDIR)
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 
 elf: $(OBJDIR)/$(TARGET).elf
 hex: $(OBJDIR)/$(TARGET).hex
@@ -228,11 +232,11 @@ endif
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
+	$(Q)$(CC) -MMD -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 $(OBJDIR)/%.o : $(SRC_ARCH)/lpcusb/%.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
-	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
+	$(Q)$(CC) -MMD -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 
 # grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
@@ -260,11 +264,8 @@ $(AOBJARM) : $(OBJDIR)/%.o : $(SRC_ARCH)/%.S
 # Dependencies
 #
 
-$(OBJDIR)/.depend:
-	@echo DEPEND $@
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(OBJDIR)/.depend
+-include $(DEPS)
 endif

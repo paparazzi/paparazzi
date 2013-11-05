@@ -43,6 +43,8 @@ struct AhrsMlkf {
 
   struct FloatVect3  mag_h;
 
+  struct FloatVect3  mag_noise;
+
   struct FloatQuat  gibbs_cor;
   float P[6][6];
   float lp_accel;

@@ -190,8 +190,6 @@ let () =
   gui#button_clean#misc#set_sensitive false;
   gui#button_build#misc#set_sensitive false;
 
-  AC.ac_combo_handler gui ac_combo target_combo;
-
   (* Change the buffer of the text view to attach a tag_table *)
   let background_tags =
     List.map (fun color ->
@@ -234,6 +232,8 @@ let () =
     let end_iter = gui#console#buffer#end_iter in
     let end_mark = gui#console#buffer#create_mark end_iter in
     gui#console#scroll_mark_onscreen (`MARK end_mark) in
+
+  AC.ac_combo_handler gui ac_combo target_combo log;
 
   AC.build_handler ~file gui ac_combo target_combo log;
 

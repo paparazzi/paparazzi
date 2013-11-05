@@ -7,9 +7,9 @@
  * PA2  = PWM7
  * PA3  = PWM6
  * PA4  = ADC_4 (ADC12 IN 4)+CS43L22 DAC out, capacitively coupled+100Kohm, should not interfere.
- * PA5  = FREE
- * PA6  = CANNOT BE USED
- * PA7  = FREE
+ * PA5  = SPI1 SCK if STM32F4_DISCOVERY_SPI1_FOR_LIS302
+ * PA6  = SPI1 MISO if STM32F4_DISCOVERY_SPI1_FOR_LIS302
+ * PA7  = SPI1 MOSI if STM32F4_DISCOVERY_SPI1_FOR_LIS302
  * PA8  = SPECTRUM BIND
  * PA9  = FREE (ONLY if usb is not active during runtime, PC0 must be high or input )
  * PA10 = UART2 (Spektrum input)
@@ -73,7 +73,7 @@
  * PE0  = CANNOT BE USED (Accel int output)
  * PE1  = CANNOT BE USED (Accel int output)
  * PE2  = SPI SLAVE 0
- * PE3  = FREE (Needs some testing as it is used for the accel spi/i2c select pin)
+ * PE3  = SPI SLAVE 2 (used for the LIS302DL accel spi/i2c select pin)
  * PE4  = FREE
  * PE5  = PWM4
  * PE6  = PWM5
@@ -214,6 +214,15 @@
 /**************************************    SPI     *************************************************/
 /***************************************************************************************************/
 
+#if STM32F4_DISCOVERY_SPI1_FOR_LIS302
+#define SPI1_GPIO_AF GPIO_AF5
+#define SPI1_GPIO_PORT_SCK GPIOA
+#define SPI1_GPIO_SCK GPIO5
+#define SPI1_GPIO_PORT_MISO GPIOA
+#define SPI1_GPIO_MISO GPIO6
+#define SPI1_GPIO_PORT_MOSI GPIOA
+#define SPI1_GPIO_MOSI GPIO7
+#else
 #define SPI1_GPIO_AF GPIO_AF5
 #define SPI1_GPIO_PORT_SCK GPIOB
 #define SPI1_GPIO_SCK GPIO3
@@ -221,7 +230,7 @@
 #define SPI1_GPIO_MISO GPIO4
 #define SPI1_GPIO_PORT_MOSI GPIOB
 #define SPI1_GPIO_MOSI GPIO5
-
+#endif
 
 /* CANNOT BE USED IF PWM CHANNELS 10 & 11 ARE ACTIVE !!! */
 #define SPI2_GPIO_AF GPIO_AF5
@@ -245,6 +254,8 @@
 #define SPI_SELECT_SLAVE0_PIN GPIO2
 #define SPI_SELECT_SLAVE1_PORT GPIOE
 #define SPI_SELECT_SLAVE1_PIN GPIO7
+#define SPI_SELECT_SLAVE2_PORT GPIOE
+#define SPI_SELECT_SLAVE2_PIN GPIO3
 
 
 /***************************************************************************************************/

@@ -42,7 +42,7 @@ CFLAGS += -fno-short-enums
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused 
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #-Wno-unused-result
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
@@ -71,7 +71,11 @@ OBJ_CPP_OMAP = $(SRC_CPP_OMAP:%.cpp=$(OBJDIR)/%.o)
 
 all: build
 
-build: elf
+build: $(OBJDIR) elf
+
+$(OBJDIR):
+	@echo CREATING object dir $(OBJDIR)
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 
 elf: $(OBJDIR)/$(TARGET).elf
 
@@ -166,13 +170,13 @@ endif
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CFLAGS) $< -o $@
+	$(Q)$(CC) -MMD -c $(CFLAGS) $< -o $@
 
 # Compile: create object files from C++ source files
 $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CXX) -c $(CXXFLAGS) $< -o $@
+	$(Q)$(CXX) -MMD -c $(CXXFLAGS) $< -o $@
 
 
 # Listing of phony targets.
@@ -182,13 +186,8 @@ $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 # Dependencies
 #
 
-$(OBJDIR)/.depend:
-	@echo DEPEND $@
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(MAKECMDGOALS),erase)
--include $(OBJDIR)/.depend
-endif
+-include $(DEPS)
 endif

@@ -24,9 +24,8 @@ Warning: you still need to tell the driver
   <init fun="gps_ubx_ucenter_init()"/>
   <periodic fun="gps_ubx_ucenter_periodic()" start="gps_ubx_ucenter_init()" freq="4." autorun="TRUE"/>
   <makefile target="ap">
-    <raw>
-      ap.CFLAGS += -DGPS_UBX_UCENTER=\"modules/gps/gps_ubx_ucenter.c\"
-    </raw>
+    <file name="gps_ubx_ucenter.c"/>
+    <define name="GPS_UBX_UCENTER"/>
   </makefile>
 </module>
 

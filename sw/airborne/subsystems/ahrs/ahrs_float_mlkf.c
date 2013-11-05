@@ -50,9 +50,15 @@
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
 
+#ifndef AHRS_MAG_NOISE_X
+#define AHRS_MAG_NOISE_X 0.2
+#define AHRS_MAG_NOISE_Y 0.2
+#define AHRS_MAG_NOISE_Z 0.2
+#endif
+
 static inline void propagate_ref(void);
 static inline void propagate_state(void);
-static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, const float noise[]);
+static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise);
 static inline void reset_state(void);
 static inline void set_body_state_from_quat(void);
 
@@ -93,6 +99,8 @@ void ahrs_init(void) {
                     { 0.,   0.,   0.,   0.,   0.,   P0_b}};
   memcpy(ahrs_impl.P, P0, sizeof(P0));
 
+  VECT3_ASSIGN(ahrs_impl.mag_noise, AHRS_MAG_NOISE_X, AHRS_MAG_NOISE_Y, AHRS_MAG_NOISE_Z);
+
 }
 
 void ahrs_align(void) {
@@ -128,9 +136,8 @@ void ahrs_update_accel(void) {
     (1. - alpha) *(FLOAT_VECT3_NORM(imu_g) - 9.81);
   const struct FloatVect3 earth_g = {0.,  0., -9.81 };
   const float dn = 250*fabs( ahrs_impl.lp_accel );
-  const float g_noise[] = {1.+dn, 1.+dn, 1.+dn};
-  //  const float g_noise[] = {150., 150., 150.};
-  update_state(&earth_g, &imu_g, g_noise);
+  struct FloatVect3 g_noise = {1.+dn, 1.+dn, 1.+dn};
+  update_state(&earth_g, &imu_g, &g_noise);
   reset_state();
 }
 
@@ -138,8 +145,7 @@ void ahrs_update_accel(void) {
 void ahrs_update_mag(void) {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, imu.mag);
-  const float h_noise[] =  { 0.1610,  0.1771, 0.2659};
-  update_state(&ahrs_impl.mag_h, &imu_h, h_noise);
+  update_state(&ahrs_impl.mag_h, &imu_h, &ahrs_impl.mag_noise);
   reset_state();
 }
 
@@ -200,7 +206,7 @@ static inline void propagate_state(void) {
 /**
  *  Incorporate one 3D vector measurement
  */
-static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, const float noise[]) {
+static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise) {
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
@@ -214,8 +220,12 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
   MAT_MUL(3,6,6, tmp, H, ahrs_impl.P);
   float S[3][3];
   MAT_MUL_T(3,6,3, S, tmp, H);
-  for (int i=0;i<3;i++)
-    S[i][i] += noise[i];
+
+  /* add the measurement noise */
+  S[0][0] += noise->x;
+  S[1][1] += noise->y;
+  S[2][2] += noise->z;
+
   float invS[3][3];
   MAT_INV33(invS, S);
 

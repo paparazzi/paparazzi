@@ -29,6 +29,12 @@
     <subsystem name="ins"/>
   </firmware>
 
+  <firmware name="test_progs">
+    <target name="test_lis302dl" board="stm32f4_discovery">
+      <define name="STM32F4_DISCOVERY_SPI1_FOR_LIS302"/>
+    </target>
+  </firmware>
+
   <modules main_freq="512">
     <load name="baro_ets.xml">
       <define name="BARO_ETS_SCALE" value="40.0"/>
