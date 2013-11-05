@@ -4,7 +4,7 @@
   <process name="Ap">
     <mode name="default">
       <message name="AIRSPEED"            period="1"/>
-      <message name="ALIVE"               period="5"/>
+      <message name="ALIVE"               period="5.1"/>
       <message name="GPS"                 period="0.25"/>
       <message name="NAVIGATION"          period="1."/>
       <message name="ATTITUDE"            period="0.1"/>
