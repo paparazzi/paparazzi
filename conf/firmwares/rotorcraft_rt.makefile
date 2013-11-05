@@ -167,34 +167,12 @@ include $(CFG_SHARED)/baro_board.makefile
 #
 # Analog Backend
 #
-#TODO
+#
+ifeq ($(ARCH), chibios)
 ap.CFLAGS += -DUSE_ADC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
-##ifeq ($(ARCH), stm32)
-##ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-##ap.srcs   += subsystems/electrical.c
-##endif
-#ifeq ($(ARCH), lpc21)
-#ap.CFLAGS += -DUSE_ADC
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-#ap.srcs   += subsystems/electrical.c
-# baro has variable offset amplifier on booz board
-#ifeq ($(BOARD), booz)
-#ap.CFLAGS += -DUSE_DAC
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-#endif
-#else ifeq ($(ARCH), stm32)
-#ap.CFLAGS += -DUSE_ADC
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-#ap.srcs   += subsystems/electrical.c
-#else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
-#ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
-#else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-#ap.srcs   += $(SRC_BOARD)/electrical_raw.c
-#endif
-
-
+endif
 
 #
 # GPS choice

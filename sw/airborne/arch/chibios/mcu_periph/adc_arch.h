@@ -24,44 +24,51 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant adc drivers
- * @note Empty for now, just to provide compatibilty
- * 		 Comments below from stm32/mcu_periph/adc_arch.c
+ * @file arch/chibios/mcu_periph/adc_arch.h
+ * ADC driver
  *
+ * Right now for STM32F1xx only
  */
 #ifndef ADC_ARCH_H
 #define ADC_ARCH_H
 
 #include BOARD_CONFIG
 
-// NB_ADCx_CHANNELS
+#include "hal.h"
+
+
+/// ADC error flags
+extern uint8_t adc_error_flag;
+extern ADCDriver* adcp_err;
+
+/// NB_ADCx_CHANNELS
 enum adc1_channels {
-#ifdef USE_AD1_1
+#if USE_AD1_1
   ADC1_C1,
 #endif
-#ifdef USE_AD1_2
+#if USE_AD1_2
   ADC1_C2,
 #endif
-#ifdef USE_AD1_3
+#if USE_AD1_3
   ADC1_C3,
 #endif
-#ifdef USE_AD1_4
+#if USE_AD1_4
   ADC1_C4,
 #endif
   NB_ADC1_CHANNELS
 };
 
 enum adc2_channels {
-#ifdef USE_AD2_1
+#if USE_AD2_1
   ADC2_C1,
 #endif
-#ifdef USE_AD2_2
+#if USE_AD2_2
   ADC2_C2,
 #endif
-#ifdef USE_AD2_3
+#if USE_AD2_3
   ADC2_C3,
 #endif
-#ifdef USE_AD2_4
+#if USE_AD2_4
   ADC2_C4,
 #endif
   NB_ADC2_CHANNELS
@@ -72,8 +79,5 @@ enum adc2_channels {
 #endif
 
 #define NB_ADC (NB_ADC1_CHANNELS + NB_ADC2_CHANNELS)
-
-#define AdcBank0(x) (x)
-#define AdcBank1(x) (x+NB_ADC)
 
 #endif /* ADC_ARCH_H */

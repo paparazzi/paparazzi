@@ -31,8 +31,8 @@
  *  - register it with the ::adc_buf_channel function
  */
 
-#ifndef _ADC_H_
-#define _ADC_H_
+#ifndef _ADC_PPRZI_H_
+#define _ADC_PPRZI_H_
 
 #include <inttypes.h>
 #include "mcu_periph/adc_arch.h"

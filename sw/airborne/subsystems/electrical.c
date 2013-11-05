@@ -68,6 +68,9 @@ static struct {
 #ifdef MILLIAMP_AT_FULL_THROTTLE
   float nonlin_factor;
 #endif
+#ifdef USE_CHIBIOS_RTOS
+  struct adc_buf cpu_temp_adc_buf;
+#endif
 } electrical_priv;
 #endif
 
@@ -100,6 +103,10 @@ void electrical_init(void) {
 PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
   electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
 #endif
+
+#if defined(USE_CHIBIOS_RTOS) && defined(ADC_CHANNEL_TEMP_SENSOR)
+  adc_buf_channel(ADC_CHANNEL_TEMP_SENSOR, &electrical_priv.cpu_temp_adc_buf, DEFAULT_AV_NB_SAMPLE);
+#endif
 }
 
 void electrical_periodic(void) {
@@ -108,6 +115,10 @@ void electrical_periodic(void) {
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
+#endif
+
+#if defined(USE_CHIBIOS_RTOS) && defined(ADC_CHANNEL_TEMP_SENSOR)
+   electrical.cpu_temp = CpuTempOfAdc((electrical_priv.cpu_temp_adc_buf.sum/electrical_priv.cpu_temp_adc_buf.av_nb_sample));
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT
