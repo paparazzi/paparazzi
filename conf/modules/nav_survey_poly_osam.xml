@@ -1,15 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_poly_survey_osam" dir="nav">
+<module name="nav_survey_poly" dir="nav">
   <doc>
     <description>
        Polygon survey from OSAM
     </description>
   </doc>
   <header>
-    <file name="nav_poly_survey_osam.h"/>
+    <file name="nav_survey_poly_osam.h"/>
   </header>
   <makefile>
-    <file name="nav_poly_survey_osam.c"/>
+    <file name="nav_survey_poly_osam.c"/>
   </makefile>
 </module>
