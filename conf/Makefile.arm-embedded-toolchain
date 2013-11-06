@@ -25,7 +25,7 @@ GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
 # if not found in path, try the paparazzi toolchain in /opt
 #
 ifeq ($(CC),)
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multili -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
 ifneq ($(TOOLCHAIN),)
 TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
