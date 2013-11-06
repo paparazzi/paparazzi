@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="calibration">
+  <doc>
+    <description>
+      Enables sending of IMU_MAG_CURRENT_CALIBRATION message.
+      For calibration of changing magnetometer offset due to estimated or measured current.
+    </description>
+  </doc>
+  <header>
+    <file name="send_imu_mag_current.h"/>
+  </header>
+  <periodic fun="send_imu_mag_current()" freq="20" autorun="FALSE"/>
+  <makefile>
+    <file name="send_imu_mag_current.c"/>
+  </makefile>
+</module>

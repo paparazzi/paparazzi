@@ -93,17 +93,6 @@ static void send_mag(void) {
   DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice,
       &mag_float.x, &mag_float.y, &mag_float.z);
 }
-
-// TODO this could be a special module ?
-#if !defined(AP) || (defined(AP) && defined(FBW))
-#include "subsystems/electrical.h"
-static void send_mag_calib(void) {
-  DOWNLINK_SEND_IMU_MAG_CURRENT_CALIBRATION(DefaultChannel, DefaultDevice,
-      &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z,
-      &electrical.current);
-}
-#endif
-
 #endif // !USE_IMU_FLOAT
 
 #endif
@@ -153,9 +142,6 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_RAW", send_mag_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_SCALED", send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_MAG", send_mag);
-#if !defined(AP) || (defined(AP) && defined(FBW))
-  register_periodic_telemetry(DefaultPeriodic, "IMU_MAG_CURRENT_CALIBRATION", send_mag_calib);
-#endif
 #endif // !USE_IMU_FLOAT
 #endif // DOWNLINK
 
