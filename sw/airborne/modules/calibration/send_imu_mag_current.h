@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/calibration/send_imu_mag_current_calib.h
+ * @file modules/calibration/send_imu_mag_current.h
  * Enables sending of IMU_MAG_CURRENT_CALIBRATION message.
  */
 
