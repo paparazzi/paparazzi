@@ -78,7 +78,6 @@ struct Int32Vect2 guidance_h_speed_sp;
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
 struct Int32Vect2 guidance_h_trim_att_integrator;
-struct Int32Vect2 guidance_h_nav_err;
 
 struct Int32Vect2  guidance_h_cmd_earth;
 struct Int32Eulers guidance_h_rc_sp;
@@ -100,6 +99,61 @@ static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
 static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight);
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_gh(void) {
+  struct NedCoor_i* pos = stateGetPositionNed_i();
+  DOWNLINK_SEND_GUIDANCE_H_INT(DefaultChannel, DefaultDevice,
+      &guidance_h_pos_sp.x, &guidance_h_pos_sp.y,
+      &guidance_h_pos_ref.x, &guidance_h_pos_ref.y,
+      &(pos->x), &(pos->y));
+}
+
+static void send_hover_loop(void) {
+  struct NedCoor_i* pos = stateGetPositionNed_i();
+  struct NedCoor_i* speed = stateGetSpeedNed_i();
+  struct NedCoor_i* accel = stateGetAccelNed_i();
+  DOWNLINK_SEND_HOVER_LOOP(DefaultChannel, DefaultDevice,
+                           &guidance_h_pos_sp.x,
+                           &guidance_h_pos_sp.y,
+                           &(pos->x), &(pos->y),
+                           &(speed->x), &(speed->y),
+                           &(accel->x), &(accel->y),
+                           &guidance_h_pos_err.x,
+                           &guidance_h_pos_err.y,
+                           &guidance_h_speed_err.x,
+                           &guidance_h_speed_err.y,
+                           &guidance_h_trim_att_integrator.x,
+                           &guidance_h_trim_att_integrator.y,
+                           &guidance_h_cmd_earth.x,
+                           &guidance_h_cmd_earth.y,
+                           &guidance_h_heading_sp);
+}
+
+static void send_href(void) {
+  DOWNLINK_SEND_GUIDANCE_H_REF_INT(DefaultChannel, DefaultDevice,
+      &guidance_h_pos_sp.x, &guidance_h_pos_ref.x,
+      &guidance_h_speed_ref.x, &guidance_h_accel_ref.x,
+      &guidance_h_pos_sp.y, &guidance_h_pos_ref.y,
+      &guidance_h_speed_ref.y, &guidance_h_accel_ref.y);
+}
+
+static void send_tune_hover(void) {
+  DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(DefaultChannel, DefaultDevice,
+      &radio_control.values[RADIO_ROLL],
+      &radio_control.values[RADIO_PITCH],
+      &radio_control.values[RADIO_YAW],
+      &stabilization_cmd[COMMAND_ROLL],
+      &stabilization_cmd[COMMAND_PITCH],
+      &stabilization_cmd[COMMAND_YAW],
+      &stabilization_cmd[COMMAND_THRUST],
+      &(stateGetNedToBodyEulers_i()->phi),
+      &(stateGetNedToBodyEulers_i()->theta),
+      &(stateGetNedToBodyEulers_i()->psi));
+}
+
+#endif
 
 void guidance_h_init(void) {
 
@@ -117,6 +171,13 @@ void guidance_h_init(void) {
   guidance_h_again = GUIDANCE_H_AGAIN;
   transition_percentage = 0;
   transition_theta_offset = 0;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_INT", send_gh);
+  register_periodic_telemetry(DefaultPeriodic, "HOVER_LOOP", send_hover_loop);
+  register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_REF", send_href);
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_TUNE_HOVER", send_tune_hover);
+#endif
 }
 
 

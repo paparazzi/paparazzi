@@ -60,11 +60,18 @@
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
+#include "mcu_periph/uart.h"
 
 #endif /** !SITL */
 
 #ifndef DefaultChannel
 #define DefaultChannel DOWNLINK_TRANSPORT
+#endif
+
+// FIXME are DOWNLINK_AP|FBW_DEVICE distinction really necessary ?
+// by default use AP_DEVICE if nothing is set ?
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
 #ifndef DefaultDevice

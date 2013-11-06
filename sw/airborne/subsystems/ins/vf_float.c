@@ -75,6 +75,16 @@ float vff_P[VFF_STATE_SIZE][VFF_STATE_SIZE];
 
 float vff_z_meas;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_vff(void) {
+  DOWNLINK_SEND_VFF(DefaultChannel, DefaultDevice,
+      &vff_z_meas, &vff_z, &vff_zdot, &vff_bias,
+      &vff_P[0][0], &vff_P[1][1], &vff_P[2][2]);
+}
+#endif
+
 void vff_init(float init_z, float init_zdot, float init_bias) {
   vff_z    = init_z;
   vff_zdot = init_zdot;
@@ -86,6 +96,9 @@ void vff_init(float init_z, float init_zdot, float init_bias) {
     vff_P[i][i] = VF_FLOAT_INIT_PXX;
   }
 
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "VFF", send_vff);
+#endif
 }
 
 

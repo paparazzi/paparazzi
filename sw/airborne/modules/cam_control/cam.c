@@ -35,6 +35,8 @@
 #include "point.h"
 #endif // POINT_CAM
 
+#include "subsystems/datalink/telemetry.h"
+
 #ifdef TEST_CAM
 float test_cam_estimator_x;
 float test_cam_estimator_y;
@@ -98,8 +100,24 @@ void cam_target(void);
 void cam_waypoint_target(void);
 void cam_ac_target(void);
 
+static void send_cam(void) {
+  SEND_CAM(DefaultChannel, DefaultDevice);
+}
+
+#ifdef SHOW_CAM_COORDINATES
+static void send_cam_point(void) {
+  DOWNLINK_SEND_CAM_POINT(DefaultChannel, DefaultDevice,
+      &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon);
+}
+#endif
+
 void cam_init( void ) {
   cam_mode = CAM_MODE0;
+
+  register_periodic_telemetry(DefaultPeriodic, "CAM", send_cam);
+#ifdef SHOW_CAM_COORDINATES
+  register_periodic_telemetry(DefaultPeriodic, "CAM_POINT", send_cam_point);
+#endif
 }
 
 void cam_periodic( void ) {

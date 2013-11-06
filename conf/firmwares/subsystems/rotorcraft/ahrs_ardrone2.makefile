@@ -3,7 +3,7 @@
 # Fixed point complementary filter using euler angles for attitude estimation
 #
 
-AHRS_CFLAGS  = -DUSE_AHRS -DUSE_AHRS_ARDRONE2
+AHRS_CFLAGS  = -DUSE_AHRS
 
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_ardrone2.h\"
 AHRS_SRCS   += subsystems/ahrs.c

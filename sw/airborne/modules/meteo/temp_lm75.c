@@ -35,9 +35,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 uint8_t  lm75_meas_started;
 struct i2c_transaction lm75_trans;

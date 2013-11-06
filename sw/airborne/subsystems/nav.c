@@ -133,7 +133,7 @@ void nav_circle_XY(float x, float y, float radius) {
     (dist2_center > Square(abs_radius + dist_carrot)
      || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
-    atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (G*radius));
+    atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (NAV_GRAVITY*radius));
 
   float carrot_angle = dist_carrot / abs_radius;
   carrot_angle = Min(carrot_angle, M_PI/4);
@@ -431,6 +431,48 @@ void nav_periodic_task(void) {
   nav_set_altitude();
 }
 
+/**
+ * \brief Periodic telemetry
+ */
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_nav_ref(void) {
+  DOWNLINK_SEND_NAVIGATION_REF(DefaultChannel, DefaultDevice,
+      &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
+}
+
+static void send_nav(void) {
+  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
+}
+
+static void send_wp_moved(void) {
+  static uint8_t i;
+  i++; if (i >= nb_waypoint) i = 0;
+  DownlinkSendWp(DefaultChannel, DefaultDevice, i);
+}
+
+static void send_circle(void) {
+  if (nav_in_circle) {
+    DOWNLINK_SEND_CIRCLE(DefaultChannel, DefaultDevice,
+        &nav_circle_x, &nav_circle_y, &nav_circle_radius);
+  }
+}
+
+static void send_segment(void) {
+  if (nav_in_segment) {
+    DOWNLINK_SEND_SEGMENT(DefaultChannel, DefaultDevice,
+        &nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2);
+  }
+}
+
+static void send_survey(void) {
+  if (nav_survey_active) {
+    DOWNLINK_SEND_SURVEY(DefaultChannel, DefaultDevice,
+        &nav_survey_east, &nav_survey_north, &nav_survey_west, &nav_survey_south);
+  }
+}
+#endif
 
 /**
  *  \brief Navigation Initialisation
@@ -447,6 +489,15 @@ void nav_init(void) {
 #ifdef NAV_GROUND_SPEED_PGAIN
   nav_ground_speed_pgain = ABS(NAV_GROUND_SPEED_PGAIN);
   nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
+#endif
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "NAVIGATION_REF", send_nav_ref);
+  register_periodic_telemetry(DefaultPeriodic, "NAVIGATION", send_nav);
+  register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);
+  register_periodic_telemetry(DefaultPeriodic, "CIRCLE", send_circle);
+  register_periodic_telemetry(DefaultPeriodic, "SEGMENT", send_segment);
+  register_periodic_telemetry(DefaultPeriodic, "SURVEY", send_survey);
 #endif
 }
 

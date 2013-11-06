@@ -31,9 +31,6 @@
 #include "mcu_periph/pwm_input.h"
 #include "mcu_periph/sys_time.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #include "mcu_periph/uart.h"
 #include "messages.h"

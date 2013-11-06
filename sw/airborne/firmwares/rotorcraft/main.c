@@ -33,10 +33,10 @@
 #include <inttypes.h>
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "firmwares/rotorcraft/telemetry.h"
+#include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
@@ -62,10 +62,13 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
+#include "subsystems/radio_control.h"
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
 
 #include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ins.h"
 
 #include "state.h"
@@ -224,7 +227,7 @@ STATIC_INLINE void main_periodic( void ) {
 }
 
 STATIC_INLINE void telemetry_periodic(void) {
-  PeriodicSendMain(DefaultChannel,DefaultDevice);
+  periodic_telemetry_send_Main();
 }
 
 STATIC_INLINE void failsafe_check( void ) {

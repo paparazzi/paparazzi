@@ -5,9 +5,6 @@
 
 #include <math.h>
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #include "subsystems/datalink/downlink.h"
 #include "dl_protocol.h"
 

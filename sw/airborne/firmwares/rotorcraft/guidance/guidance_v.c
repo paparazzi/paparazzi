@@ -120,6 +120,34 @@ int32_t guidance_v_thrust_coeff;
 static int32_t get_vertical_thrust_coeff(void);
 static void run_hover_loop(bool_t in_flight);
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_vert_loop(void) {
+  DOWNLINK_SEND_VERT_LOOP(DefaultChannel, DefaultDevice,
+      &guidance_v_z_sp, &guidance_v_zd_sp,
+      &(stateGetPositionNed_i()->z),
+      &(stateGetSpeedNed_i()->z),
+      &(stateGetAccelNed_i()->z),
+      &guidance_v_z_ref, &guidance_v_zd_ref,
+      &guidance_v_zdd_ref,
+      &gv_adapt_X,
+      &gv_adapt_P,
+      &gv_adapt_Xmeas,
+      &guidance_v_z_sum_err,
+      &guidance_v_ff_cmd,
+      &guidance_v_fb_cmd,
+      &guidance_v_delta_t);
+}
+
+static void send_tune_vert(void) {
+  DOWNLINK_SEND_TUNE_VERT(DefaultChannel, DefaultDevice,
+      &guidance_v_z_sp,
+      &(stateGetPositionNed_i()->z),
+      &guidance_v_z_ref,
+      &guidance_v_zd_ref);
+}
+#endif
 
 void guidance_v_init(void) {
 
@@ -135,6 +163,11 @@ void guidance_v_init(void) {
   guidance_v_adapt_throttle_enabled = GUIDANCE_V_ADAPT_THROTTLE_ENABLED;
 
   gv_adapt_init();
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "VERT_LOOP", send_vert_loop);
+  register_periodic_telemetry(DefaultPeriodic, "TUNE_VERT", send_tune_vert);
+#endif
 }
 
 

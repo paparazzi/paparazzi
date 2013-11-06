@@ -332,9 +332,6 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
 
 
 // Text Telemetry for Debugging
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #undef GOT_PAYLOAD
 #include "subsystems/datalink/downlink.h"
 

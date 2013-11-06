@@ -18,9 +18,6 @@ uint16_t adc_generic_val2;
 #define ADC_CHANNEL_GENERIC_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifdef ADC_CHANNEL_GENERIC1
 static struct adc_buf buf_generic1;

@@ -31,9 +31,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef GEIGER_CNT_DEV
 #define GEIGER_CNT_DEV i2c0

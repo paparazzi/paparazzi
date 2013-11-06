@@ -35,9 +35,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef BARO_MPL3115_I2C_DEV
 #define BARO_MPL3115_I2C_DEV i2c0

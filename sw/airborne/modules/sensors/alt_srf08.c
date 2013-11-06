@@ -34,9 +34,6 @@
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef SRF08_I2C_DEV
 #define SRF08_I2C_DEV i2c0

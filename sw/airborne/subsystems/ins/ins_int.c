@@ -90,6 +90,30 @@ static void baro_cb(uint8_t sender_id, const float *pressure);
 
 struct InsInt ins_impl;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_ins(void) {
+  DOWNLINK_SEND_INS(DefaultChannel, DefaultDevice,
+      &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
+      &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
+      &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
+}
+
+static void send_ins_z(void) {
+  DOWNLINK_SEND_INS_Z(DefaultChannel, DefaultDevice,
+      &ins_impl.baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
+}
+
+static void send_ins_ref(void) {
+  if (ins_impl.ltp_initialized) {
+    DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,
+        &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
+        &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
+        &ins_impl.ltp_def.hmsl, &ins_impl.qfe);
+  }
+}
+#endif
 
 static void ins_init_origin_from_flightplan(void);
 static void ins_ned_to_state(void);
@@ -134,6 +158,11 @@ void ins_init(void) {
   INT32_VECT3_ZERO(ins_impl.ltp_speed);
   INT32_VECT3_ZERO(ins_impl.ltp_accel);
 
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
+  register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
+  register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
+#endif
 }
 
 void ins_periodic(void) {

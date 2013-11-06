@@ -3,9 +3,9 @@
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS
-ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ -DUSE_USB_SERIAL
-ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-ap.srcs += $(SRC_FIRMWARE)/datalink.c $(SRC_FIRMWARE)/telemetry.c
+ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ -DUSE_USB_SERIAL -DDefaultPeriodic='&telemetry_Main'
+ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
+ap.srcs += $(SRC_FIRMWARE)/datalink.c $(SRC_FIRMWARE)/rotorcraft_telemetry.c
 ap.srcs += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 else

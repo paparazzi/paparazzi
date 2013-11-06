@@ -28,9 +28,14 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
+#include "mcu_periph/uart.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/gps.h"
 #include "subsystems/commands.h"
+#include "subsystems/actuators.h"
+#include "subsystems/electrical.h"
+#include "subsystems/settings.h"
+#include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -97,6 +102,89 @@ PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
 #endif
 
+static void send_alive(void) {
+  DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+}
+
+static void send_status(void) {
+  uint32_t imu_nb_err = 0;
+  uint8_t _twi_blmc_nb_err = 0;
+#if USE_GPS
+  uint8_t fix = gps.fix;
+#else
+  uint8_t fix = GPS_FIX_NONE;
+#endif
+  uint16_t time_sec = sys_time.nb_sec;
+  DOWNLINK_SEND_ROTORCRAFT_STATUS(DefaultChannel, DefaultDevice,
+      &imu_nb_err, &_twi_blmc_nb_err,
+      &radio_control.status, &radio_control.frame_rate,
+      &fix, &autopilot_mode,
+      &autopilot_in_flight, &autopilot_motors_on,
+      &guidance_h_mode, &guidance_v_mode,
+      &electrical.vsupply, &time_sec);
+}
+
+static void send_fp(void) {
+  int32_t carrot_up = -guidance_v_z_sp;
+  DOWNLINK_SEND_ROTORCRAFT_FP(DefaultChannel, DefaultDevice,
+      &(stateGetPositionEnu_i()->x),
+      &(stateGetPositionEnu_i()->y),
+      &(stateGetPositionEnu_i()->z),
+      &(stateGetSpeedEnu_i()->x),
+      &(stateGetSpeedEnu_i()->y),
+      &(stateGetSpeedEnu_i()->z),
+      &(stateGetNedToBodyEulers_i()->phi),
+      &(stateGetNedToBodyEulers_i()->theta),
+      &(stateGetNedToBodyEulers_i()->psi),
+      &guidance_h_pos_sp.y,
+      &guidance_h_pos_sp.x,
+      &carrot_up,
+      &guidance_h_heading_sp,
+      &stabilization_cmd[COMMAND_THRUST],
+      &autopilot_flight_time);
+}
+
+#ifdef RADIO_CONTROL
+static void send_rc(void) {
+  DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
+}
+
+static void send_rotorcraft_rc(void) {
+#ifdef RADIO_KILL_SWITCH
+  int16_t _kill_switch = radio_control.values[RADIO_KILL_SWITCH];
+#else
+  int16_t _kill_switch = 42;
+#endif
+  DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,
+      &radio_control.values[RADIO_ROLL],
+      &radio_control.values[RADIO_PITCH],
+      &radio_control.values[RADIO_YAW],
+      &radio_control.values[RADIO_THROTTLE],
+      &radio_control.values[RADIO_MODE],
+      &_kill_switch,
+      &radio_control.status);
+}
+#endif
+
+#ifdef ACTUATORS
+static void send_actuators(void) {
+  DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice , ACTUATORS_NB, actuators);
+}
+#endif
+
+static void send_dl_value(void) {
+  PeriodicSendDlValue(DefaultChannel, DefaultDevice);
+}
+
+static void send_rotorcraft_cmd(void) {
+  DOWNLINK_SEND_ROTORCRAFT_CMD(DefaultChannel, DefaultDevice,
+      &stabilization_cmd[COMMAND_ROLL],
+      &stabilization_cmd[COMMAND_PITCH],
+      &stabilization_cmd[COMMAND_YAW],
+      &stabilization_cmd[COMMAND_THRUST]);
+}
+
+
 void autopilot_init(void) {
   /* mode is finally set at end of init if MODE_STARTUP is not KILL */
   autopilot_mode = AP_MODE_KILL;
@@ -123,6 +211,19 @@ void autopilot_init(void) {
 
   /* set startup mode, propagates through to guidance h/v */
   autopilot_set_mode(MODE_STARTUP);
+
+  register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_STATUS", send_status);
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_FP", send_fp);
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_CMD", send_rotorcraft_cmd);
+  register_periodic_telemetry(DefaultPeriodic, "DL_VALUE", send_dl_value);
+#ifdef ACTUATORS
+  register_periodic_telemetry(DefaultPeriodic, "ACTUATORS", send_actuators);
+#endif
+#ifdef RADIO_CONTROL
+  register_periodic_telemetry(DefaultPeriodic, "RC", send_rc);
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_RADIO_CONTROL", send_rotorcraft_rc);
+#endif
 }
 
 

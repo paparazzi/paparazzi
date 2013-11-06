@@ -36,7 +36,6 @@
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
 
-
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
 float h_ctl_course_pre_bank;
@@ -144,6 +143,24 @@ inline static void h_ctl_pitch_loop( void );
 #define H_CTL_PITCH_KFFD 0.
 #endif
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_calibration(void) {
+  DOWNLINK_SEND_CALIBRATION(DefaultChannel, DefaultDevice,  &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode);
+}
+
+static void send_tune_roll(void) {
+  DOWNLINK_SEND_TUNE_ROLL(DefaultChannel, DefaultDevice,
+      &(stateGetBodyRates_f()->p), &(stateGetNedToBodyEulers_f()->phi), &h_ctl_roll_setpoint);
+}
+
+static void send_ctl_a(void) {
+  DOWNLINK_SEND_H_CTL_A(DefaultChannel, DefaultDevice,
+      &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
+}
+#endif
+
 void h_ctl_init( void ) {
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
@@ -191,6 +208,11 @@ void h_ctl_init( void ) {
   v_ctl_pitch_dash_trim = 0.;
 #endif
 
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "CALIBRATION", send_calibration);
+  register_periodic_telemetry(DefaultPeriodic, "TUNE_ROLL", send_tune_roll);
+  register_periodic_telemetry(DefaultPeriodic, "H_CTL_A", send_ctl_a);
+#endif
 }
 
 /**

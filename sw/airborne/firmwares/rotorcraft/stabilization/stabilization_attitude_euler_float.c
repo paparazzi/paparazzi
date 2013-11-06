@@ -35,6 +35,50 @@ struct FloatEulers stabilization_att_sum_err;
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_att(void) {
+  struct FloatRates* body_rate = stateGetBodyRates_f();
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+  float foo = 0.0;
+  DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(DefaultChannel, DefaultDevice,
+      &(body_rate->p), &(body_rate->q), &(body_rate->r),
+      &(att->phi), &(att->theta), &(att->psi),
+      &stab_att_sp_euler.phi,
+      &stab_att_sp_euler.theta,
+      &stab_att_sp_euler.psi,
+      &stabilization_att_sum_err.phi,
+      &stabilization_att_sum_err.theta,
+      &stabilization_att_sum_err.psi,
+      &stabilization_att_fb_cmd[COMMAND_ROLL],
+      &stabilization_att_fb_cmd[COMMAND_PITCH],
+      &stabilization_att_fb_cmd[COMMAND_YAW],
+      &stabilization_att_ff_cmd[COMMAND_ROLL],
+      &stabilization_att_ff_cmd[COMMAND_PITCH],
+      &stabilization_att_ff_cmd[COMMAND_YAW],
+      &stabilization_cmd[COMMAND_ROLL],
+      &stabilization_cmd[COMMAND_PITCH],
+      &stabilization_cmd[COMMAND_YAW],
+      &foo, &foo, &foo);
+}
+
+static void send_att_ref(void) {
+  DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(DefaultChannel, DefaultDevice,
+      &stab_att_sp_euler.phi,
+      &stab_att_sp_euler.theta,
+      &stab_att_sp_euler.psi,
+      &stab_att_ref_euler.phi,
+      &stab_att_ref_euler.theta,
+      &stab_att_ref_euler.psi,
+      &stab_att_ref_rate.p,
+      &stab_att_ref_rate.q,
+      &stab_att_ref_rate.r,
+      &stab_att_ref_accel.p,
+      &stab_att_ref_accel.q,
+      &stab_att_ref_accel.r);
+}
+#endif
 
 void stabilization_attitude_init(void) {
 
@@ -62,6 +106,10 @@ void stabilization_attitude_init(void) {
 
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
+  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+#endif
 }
 
 
