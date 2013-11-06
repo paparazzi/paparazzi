@@ -25,15 +25,7 @@
  */
 /**
  * @brief ChibiOS arch dependent ADC files
- * @note Right now for STM32F1 only
- */
-
-#include "mcu_periph/adc.h"
-
-uint8_t adc_error_flag = 0;
-ADCDriver* adcp_err = NULL;
-
-/*
+ *
  * ADC defines for Lia board (STM32F105)
  * 5 Channels:
  * 1 - ADC1, Channel 13
@@ -56,49 +48,70 @@ ADCDriver* adcp_err = NULL;
  *
  * V_ref is 3.3V, ADC has 12bit resolution.
  */
-#define ADC_NUM_CHANNELS        9
+#include "mcu_periph/adc.h"
+
+uint8_t adc_error_flag = 0;
+ADCDriver* adcp_err = NULL;
+
+#define ADC_NUM_CHANNELS 9
+
+#ifndef ADC_BUF_DEPTH
 #define ADC_BUF_DEPTH   MAX_AV_NB_SAMPLE
+#endif
+
 #define ADC_V_REF_MV 3300
 #define ADC_12_BIT_RESOLUTION 4096
 
 static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH] = {0};
 
-#ifdef USE_AD1
+#if USE_AD1
 static struct adc_buf * adc1_buffers[ADC_NUM_CHANNELS] = {NULL};
+static uint32_t adc1_sum_tmp[ADC_NUM_CHANNELS] = {0};
+static uint8_t adc1_samples_tmp[ADC_NUM_CHANNELS] = {0};
 #endif
-#ifdef USE_AD2
+#if USE_AD2
 #error ADC2_not implemented in ChibiOS(STM32F105/7 board)
 #endif
 
 
-/*
- * Callback, fired after half of the buffer is filled (i.e. half of the samples
- * is collected). Since we are assuming continuous ADC conversion, the ADC state is
- * never equal to ADC_COMPLETE.
- * @note: Averaging is done when the subsystems ask for ADC values
+/**
+ * @brief   Adc1 callback
+ * @details Callback, fired after half of the buffer is filled (i.e. half of the samples
+ *          is collected). Since we are assuming continuous ADC conversion, the ADC state is
+ *          never equal to ADC_COMPLETE.
+ * @note    Averaging is done when the subsystems ask for ADC values
  */
 void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
   if (adcp->state != ADC_STOP) {
-#ifdef USE_AD1
-      chSysLockFromIsr();
-      for(uint8_t channel = 0; channel < ADC_NUM_CHANNELS; channel+=2) {
-          if (adc1_buffers[channel/2] != NULL) {
-          adc1_buffers[channel/2]->sum = 0;
-          adc1_buffers[channel/2]->av_nb_sample = n;
-          for (uint8_t sample = 0; sample < n; sample++) {
-                adc1_buffers[channel/2]->sum += buffer[channel + sample*ADC_NUM_CHANNELS];
-            }
-          adc1_buffers[channel/2]->sum = (adc1_buffers[channel/2]->sum)*ADC_V_REF_MV/ADC_12_BIT_RESOLUTION;
-          }
+#if USE_AD1
+    //buffer measurements
+    for(uint8_t channel = 0; channel < ADC_NUM_CHANNELS; channel+=2) {
+      if (adc1_buffers[channel/2] != NULL) {
+        adc1_sum_tmp[channel/2] = 0;
+        adc1_samples_tmp[channel/2] = n;
+        for (uint8_t sample = 0; sample < n; sample++) {
+          adc1_sum_tmp[channel/2] += buffer[channel + sample*ADC_NUM_CHANNELS];
+        }
+        adc1_sum_tmp[channel/2] = (adc1_sum_tmp[channel/2])*ADC_V_REF_MV/ADC_12_BIT_RESOLUTION;
       }
-      chSysUnlockFromIsr();
+    }
+    //Copy buffered values
+    chSysLockFromIsr();
+    for(uint8_t channel = 0; channel < ADC_NUM_CHANNELS; channel+=2) {
+      if (adc1_buffers[channel/2] != NULL) {
+        adc1_buffers[channel/2]->sum = adc1_sum_tmp[channel/2];
+        adc1_buffers[channel/2]->av_nb_sample = adc1_samples_tmp[channel/2];
+      }
+    }
+    chSysUnlockFromIsr();
 #endif
   }
 }
 
-/*
- * ADC Error callback
- * @note: Fired if DMA error happens
+
+/**
+ * @brief   Adc error callback
+ * @details Callback, fired if DMA error happens or ADC overflows
  */
 static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
   chSysLockFromIsr();
@@ -107,42 +120,42 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
   chSysUnlockFromIsr();
 }
 
-/*
- * Conversion config for ADC
- * @note: Continuous conversion
- * Including Temp sensor, Ts = 7 + 12.5 = 19.5us
- * ADCCLK = 14 MHz
- * Rest of ADcs Ts = 41.5c + 12.5c = 54.0us
+/**
+ * @brief   Conversion configuration for ADC
+ * @details Continuous conversion, includes CPU temp sensor
+ *          ADCCLK = 14 MHz
+ *          Temp sensor: Ts = 7 + 12.5 = 19.5us
+ *          Other channels: Ts = 41.5c + 12.5c = 54.0us
  */
 static const ADCConversionGroup adcgrpcfg = {
-    TRUE,
-    ADC_NUM_CHANNELS,
-    adc1callback,
-    adcerrorcallback,
-    0, ADC_CR2_TSVREFE,
-    ADC_SMPR1_SMP_AN10(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_AN11(ADC_SAMPLE_41P5) |
-    ADC_SMPR1_SMP_AN13(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_AN14(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_7P5),
-    0,
-    ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS),
-    ADC_SQR2_SQ9_N(ADC_CHANNEL_SENSOR) |ADC_SQR2_SQ7_N(ADC_CHANNEL_IN14),
-    ADC_SQR3_SQ5_N(ADC_CHANNEL_IN11) |  ADC_SQR3_SQ3_N(ADC_CHANNEL_IN10)  | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
+  TRUE,
+  ADC_NUM_CHANNELS,
+  adc1callback,
+  adcerrorcallback,
+  0, ADC_CR2_TSVREFE,
+  ADC_SMPR1_SMP_AN10(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_AN11(ADC_SAMPLE_41P5) |
+  ADC_SMPR1_SMP_AN13(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_AN14(ADC_SAMPLE_41P5) | ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_7P5),
+  0,
+  ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS),
+  ADC_SQR2_SQ9_N(ADC_CHANNEL_SENSOR) |ADC_SQR2_SQ7_N(ADC_CHANNEL_IN14),
+  ADC_SQR3_SQ5_N(ADC_CHANNEL_IN11) |  ADC_SQR3_SQ3_N(ADC_CHANNEL_IN10)  | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
 };
 
-/*
- * Link between ChibiOS ADC drivers and Paparazzi adc_buffers
+/**
+ * @brief   Link between ChibiOS ADC drivers and Paparazzi adc_buffers
  */
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_sample){
   adc1_buffers[adc_channel] = s;
   if (av_nb_sample <= MAX_AV_NB_SAMPLE) {
-      s->av_nb_sample = av_nb_sample;
+    s->av_nb_sample = av_nb_sample;
   }
   else {
-      s->av_nb_sample = MAX_AV_NB_SAMPLE;
+    s->av_nb_sample = MAX_AV_NB_SAMPLE;
   }
 }
 
-/*
- * Init ADC driver, buffers and start conversion in the background
+/**
+ * @brief   Initialize ADC driver, buffers and start conversion in the background
  */
 void adc_init( void ) {
   adcStart(&ADCD1, NULL);
