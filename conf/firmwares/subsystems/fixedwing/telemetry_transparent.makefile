@@ -9,6 +9,3 @@ telemetry_srcs = subsystems/datalink/downlink.c subsystems/datalink/pprz_transpo
 ap.CFLAGS += $(telemetry_CFLAGS)
 ap.srcs += $(telemetry_srcs) $(SRC_FIRMWARE)/datalink.c
 
-fbw.CFLAGS += $(telemetry_CFLAGS)
-fbw.srcs += $(telemetry_srcs)
-
