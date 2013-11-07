@@ -24,19 +24,24 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant pwm actuator drivers
- * @note Empty for now, just to provide compatibilty
- *
+ * @brief   Interface from actuators to ChibiOS PWM driver
+ * @details PWM configuration files are defined in the board file,
+ *          so maximal architecture independence is ensured.
  */
 #ifndef ACTUATORS_PWM_ARCH_H
 #define ACTUATORS_PWM_ARCH_H
 
 #include "std.h"
+#include "hal.h"
 
 #include BOARD_CONFIG
 
 #ifndef ACTUATORS_PWM_NB
 #define ACTUATORS_PWM_NB 8
+#endif
+
+#ifndef PWM_FREQUENCY
+#define PWM_FREQUENCY 10000
 #endif
 
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
