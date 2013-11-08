@@ -9,7 +9,7 @@
       <message name="NAVIGATION"          period="1."/>
       <message name="ATTITUDE"            period="0.1"/>
       <message name="ESTIMATOR"           period="0.5"/>
-      <message name="ENERGY"              period="2.5"/>
+      <message name="ENERGY"              period="2.4"/>
       <message name="WP_MOVED"            period="0.5"/>
       <message name="CIRCLE"              period="1.05"/>
       <message name="DESIRED"             period="0.2"/>
@@ -17,7 +17,7 @@
       <message name="SEGMENT"             period="1.2"/>
       <message name="CALIBRATION"         period="2.1"/>
       <message name="NAVIGATION_REF"      period="9."/>
-      <message name="PPRZ_MODE"           period="5."/>
+      <message name="PPRZ_MODE"           period="4.9"/>
       <message name="SETTINGS"            period="5."/>
       <message name="STATE_FILTER_STATUS" period="2.2"/>
       <message name="DOWNLINK"            period="5.1"/>
