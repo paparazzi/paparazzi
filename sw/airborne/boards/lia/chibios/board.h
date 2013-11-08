@@ -79,7 +79,7 @@
  * PA7  - B - Alternate Push Pull output 50MHz (EXTSPI_MOSI)
  * PA8  - 7 - Open Drain output 50MHz          (LED1)
  * PA9  - 4 - Digital input.                   (USB_VBUS)
- * PA10 - 4 - Digital input.                   (UART1_RX)
+ * PA10 - 4 - Digital input.                   (UART1_RX)/(PPM_IN TIM2_CH2)
  * PA11 - 4 - Digital input                    (USB_DM)
  * PA12 - 4 - Digital input                    (USB_DP)
  * PA13 - 4 - Digital input                    (JTAG_TMS)
@@ -171,7 +171,7 @@
 
 
 /*
- * IO pins assignments - On board LEDs
+ * LEDs
  */
 /* 1 red, on PA8 */
 #define LED_1_GPIO GPIOA
@@ -196,7 +196,8 @@
 /*
  * PWM
  */
-#define PWM_FREQUENCY 10000
+#define PWM_FREQUENCY_1MHZ 1000000
+#define PWM_CMD_TO_US(_t) _t
 
 #define PWM_SERVO_1 0
 #define PWM_SERVO_1_DRIVER PWMD3
@@ -239,8 +240,8 @@
     #define PWM_CONF_TIM4 1
     #define PWM_CONF_TIM5 1
     #define PWM_CONF3_DEF {  \
-               PWM_FREQUENCY, \
-               CH_FREQUENCY/SERVO_HZ, \
+               PWM_FREQUENCY_1MHZ, \
+               PWM_FREQUENCY_1MHZ/SERVO_HZ, \
                pwmpcb,  \
                {        \
                    {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
@@ -252,8 +253,8 @@
                0        \
                }
     #define PWM_CONF4_DEF {  \
-               PWM_FREQUENCY, \
-               CH_FREQUENCY/SERVO_HZ, \
+               PWM_FREQUENCY_1MHZ, \
+               PWM_FREQUENCY_1MHZ/SERVO_HZ, \
                pwmpcb,  \
                {        \
                    {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
@@ -265,8 +266,8 @@
                0        \
                }
     #define PWM_CONF5_DEF {  \
-               PWM_FREQUENCY, \
-               CH_FREQUENCY/SERVO_HZ, \
+               PWM_FREQUENCY_1MHZ, \
+               PWM_FREQUENCY_1MHZ/SERVO_HZ, \
                pwmpcb,  \
                {        \
                    {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
@@ -283,8 +284,8 @@
   #define PWM_CONF_TIM3 1
   #define PWM_CONF_TIM5 1
     #define PWM_CONF3_DEF {  \
-               PWM_FREQUENCY, \
-               CH_FREQUENCY/SERVO_HZ, \
+               PWM_FREQUENCY_1MHZ, \
+               PWM_FREQUENCY_1MHZ/SERVO_HZ, \
                pwmpcb,  \
                {        \
                    {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
@@ -296,8 +297,8 @@
                0        \
                }
     #define PWM_CONF5_DEF {  \
-               PWM_FREQUENCY, \
-               CH_FREQUENCY/SERVO_HZ, \
+               PWM_FREQUENCY_1MHZ, \
+               PWM_FREQUENCY_1MHZ/SERVO_HZ, \
                pwmpcb,  \
                {        \
                    {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \

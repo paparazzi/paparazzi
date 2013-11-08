@@ -24,9 +24,11 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief   Interface from actuators to ChibiOS PWM driver
- * @details PWM configuration files are defined in the board file,
- *          so maximal architecture independence is ensured.
+ * @file arch/chibios/subsystems/actuators/actuators_pwm_arch.h
+ * Interface from actuators to ChibiOS PWM driver
+ *
+ * PWM configuration files are defined in the board file,
+ * so maximal architecture independence is ensured.
  */
 #ifndef ACTUATORS_PWM_ARCH_H
 #define ACTUATORS_PWM_ARCH_H
