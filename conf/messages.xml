@@ -657,9 +657,8 @@
     <field name="core_free_memory" type="uint32" unit="bytes"/>
     <field name="sys_time" type="uint16" unit="s"/>
     <field name="threads" type="uint8"/>
-    <field name="cpu_idle_ticks" type="uint32" unit="ticks/s"/>
-    <field name="idle_counter" type="uint32" unit="ticks"/>
     <field name="cpu_load" type="uint8" unit="%"/>
+    <field name="cpu_temp" type="uint8" unit="C"/>
   </message>
 
  <!-- 79 is free -->

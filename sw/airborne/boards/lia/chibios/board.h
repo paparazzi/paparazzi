@@ -180,53 +180,64 @@
 
 
 /*
- * IO pins assignments. (example for leds)
+ * IO pins assignments - Onboard LEDs
  */
-//#define GPIOA_PIN8	8 //LED1
-//#define GPIOB_PIN4 4 //LED2
-//#define GPIOC_PIN2 2 //LED3
-//#define GPIOC_PIN5 5 //LED4
-//#define GPIOC_PIN15 15 //LED5
-
-
-/*
- * Onboard LEDs (paparazzi compatible)
- */
-
-/* 1red, on PA8 */
-//#ifndef USE_LED_1
-//#define USE_LED_1 1
-//#endif
+/* 1 red, on PA8 */
 #define LED_1_GPIO GPIOA
 #define LED_1_GPIO_PIN 8
 
-/* 2green, shared with JTAG_TRST */
-//#ifndef USE_LED_2
-//#define USE_LED_2 1
-//#endif
+/* 2 green, shared with JTAG_TRST */
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN 4
 
-/* 3green, shared with ADC12 (ADC_6 on connector ANALOG2) */
-//#ifndef USE_LED_3
-//#define USE_LED_3 1
-//#endif
+/* 3 green, shared with ADC12 (ADC_6 on connector ANALOG2) */
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_PIN 2
 
-/* 4red, shared with ADC15 (ADC_4 on connector ANALOG2) */
-//#ifndef USE_LED_4
-//#define USE_LED_4 1
-//#endif
+/* 4 red, shared with ADC15 (ADC_4 on connector ANALOG2) */
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_PIN 5
 
-/* 5green, on PC15 */
-//#ifndef USE_LED_5
-//#define USE_LED_5 1
-//#endif
+/* 5 green, on PC15 */
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_PIN 15
+
+/*
+ * ADCs
+ */
+#define BOARD_ADC_CHANNEL_1 13
+#define BOARD_ADC_CHANNEL_2 10
+#define BOARD_ADC_CHANNEL_3 11
+// we can only use ADC1,2,3; the last channel is for bat monitoring
+#define BOARD_ADC_CHANNEL_4 14
+
+/*
+ *  provide defines that can be used to access the ADC_x in the code or airframe file
+ * these directly map to the index number of the 4 adc channels defined above
+ * 4th (index 3) is used for bat monitoring by default
+ */
+#define ADC_1 0
+#define ADC_2 1
+#define ADC_3 2
+
+// allow to define ADC_CHANNEL_VSUPPLY in the airframe file
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY 3
+#endif
+
+#ifndef ADC_CHANNEL_TEMP_SENSOR
+#define ADC_CHANNEL_TEMP_SENSOR 4
+#endif
+
+// active ADC
+#define USE_AD1 1
+#define USE_AD1_1 1
+#define USE_AD1_2 1
+#define USE_AD1_3 1
+#define USE_AD1_4 1
+
+#define DefaultVoltageOfAdc(adc) (0.0047*adc)
+#define CpuTempOfAdc(adc) ((1430 - adc)/4.3+25)
 
 
 #if !defined(_FROM_ASM_)
