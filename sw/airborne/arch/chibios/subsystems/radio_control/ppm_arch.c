@@ -24,14 +24,67 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant ppm drivers
- * @note Empty for now, just to provide compatibilty
+ * @file arch/chibios/subsystems/radio_control/ppm_arch.c
+ * PPM interface between ChibiOS and Paparazzi
  *
+ * Input capture configuration has to be defined in board.h
  */
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
-/*
- * TODO: implement
+uint8_t  ppm_cur_pulse;
+uint32_t ppm_last_pulse_time;
+bool_t   ppm_data_valid;
+
+#ifndef PPM_TIMER_FREQUENCY
+#error "Undefined PPM_TIMER_FREQUENCY"
+#endif
+
+#ifndef PPM_CHANNEL
+#error "PPM channel undefined"
+#endif
+
+
+/**
+ * ICUDriver width callback
  */
-void ppm_arch_init ( void ) { }
+static void icuwidthcb(ICUDriver *icup) {
+  DecodePpmFrame((uint32_t)icuGetWidth(icup));
+}
+
+/**
+ * ICUDriver period callback
+ */
+static void icuperiodcb(ICUDriver *icup) {
+  (void)icup;
+}
+
+/**
+ * ICUDriver overflow callback
+ */
+static void icuoverflowcb(ICUDriver *icup) {
+  (void)icup;
+}
+
+
+/// ICU configuration
+static ICUConfig ppm_icucfg = {
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
+  ICU_INPUT_ACTIVE_HIGH,
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  ICU_INPUT_ACTIVE_LOW,
+#else
+#error "Unknown PPM_PULSE_TYPE"
+#endif
+  PPM_TIMER_FREQUENCY,
+  icuwidthcb,
+  icuperiodcb,
+  icuoverflowcb,
+  PPM_CHANNEL,
+  0
+};
+
+void ppm_arch_init ( void ) {
+  icuStart(&PPM_TIMER, &ppm_icucfg);
+  icuEnable(&PPM_TIMER);
+}
