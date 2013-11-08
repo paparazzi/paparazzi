@@ -24,8 +24,10 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief ChibiOS arch dependent ADC files
- * @note Right now for STM32F1xx only
+ * @file arch/chibios/mcu_periph/adc_arch.h
+ * ADC driver
+ *
+ * Right now for STM32F1xx only
  */
 #ifndef ADC_ARCH_H
 #define ADC_ARCH_H
@@ -35,11 +37,11 @@
 #include "hal.h"
 
 
-// ADC error flags, TODO: Make general for more ADC banks
+/// ADC error flags
 extern uint8_t adc_error_flag;
 extern ADCDriver* adcp_err;
 
-// NB_ADCx_CHANNELS
+/// NB_ADCx_CHANNELS
 enum adc1_channels {
 #if USE_AD1_1
   ADC1_C1,

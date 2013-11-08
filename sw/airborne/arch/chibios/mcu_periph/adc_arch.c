@@ -24,7 +24,8 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief ChibiOS arch dependent ADC files
+ * @file arch/chibios/mcu_periph/adc_arch.c
+ * ADC driver
  *
  * ADC defines for Lia board (STM32F105)
  * 5 Channels:
@@ -75,16 +76,20 @@ static uint8_t adc1_samples_tmp[ADC_NUM_CHANNELS] = {0};
 
 
 /**
- * @brief   Adc1 callback
- * @details Callback, fired after half of the buffer is filled (i.e. half of the samples
- *          is collected). Since we are assuming continuous ADC conversion, the ADC state is
- *          never equal to ADC_COMPLETE.
+ * Adc1 callback
+ *
+ * Callback, fired after half of the buffer is filled (i.e. half of the samples
+ * is collected). Since we are assuming continuous ADC conversion, the ADC state is
+ * never equal to ADC_COMPLETE.
+ *
  * @note    Averaging is done when the subsystems ask for ADC values
+ * @param[in] adcp pointer to a @p ADCDriver object
+ * @param[in] buffer pointer to a @p buffer with samples
+ * @param[in] n number of samples
  */
 void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
   if (adcp->state != ADC_STOP) {
 #if USE_AD1
-    //buffer measurements
     for(uint8_t channel = 0; channel < ADC_NUM_CHANNELS; channel+=2) {
       if (adc1_buffers[channel/2] != NULL) {
         adc1_sum_tmp[channel/2] = 0;
@@ -95,7 +100,6 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
         adc1_sum_tmp[channel/2] = (adc1_sum_tmp[channel/2])*ADC_V_REF_MV/ADC_12_BIT_RESOLUTION;
       }
     }
-    //Copy buffered values
     chSysLockFromIsr();
     for(uint8_t channel = 0; channel < ADC_NUM_CHANNELS; channel+=2) {
       if (adc1_buffers[channel/2] != NULL) {
@@ -110,8 +114,9 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n) {
 
 
 /**
- * @brief   Adc error callback
- * @details Callback, fired if DMA error happens or ADC overflows
+ * Adc error callback
+ *
+ * Fired if DMA error happens or ADC overflows
  */
 static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
   chSysLockFromIsr();
@@ -121,11 +126,14 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
 }
 
 /**
- * @brief   Conversion configuration for ADC
- * @details Continuous conversion, includes CPU temp sensor
- *          ADCCLK = 14 MHz
- *          Temp sensor: Ts = 7 + 12.5 = 19.5us
- *          Other channels: Ts = 41.5c + 12.5c = 54.0us
+ * Conversion configuration for ADC
+ *
+ * Continuous conversion, includes CPU temp sensor
+ * ADCCLK = 14 MHz
+ * Temp sensor: Ts = 7 + 12.5 = 19.5us
+ * Other channels: Ts = 41.5c + 12.5c = 54.0us
+ *
+ * @note: This should be probably moved into boar.h
  */
 static const ADCConversionGroup adcgrpcfg = {
   TRUE,
@@ -142,7 +150,7 @@ static const ADCConversionGroup adcgrpcfg = {
 };
 
 /**
- * @brief   Link between ChibiOS ADC drivers and Paparazzi adc_buffers
+ * Link between ChibiOS ADC drivers and Paparazzi adc_buffers
  */
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_sample){
   adc1_buffers[adc_channel] = s;
@@ -155,7 +163,9 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_samp
 }
 
 /**
- * @brief   Initialize ADC driver, buffers and start conversion in the background
+ * Adc init
+ *
+ * Initialize ADC drivers, buffers and start conversion in the background
  */
 void adc_init( void ) {
   adcStart(&ADCD1, NULL);
