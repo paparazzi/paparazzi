@@ -35,6 +35,7 @@
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
+static uint32_t timer_rollover_cnt;
 
 #ifndef PPM_TIMER_FREQUENCY
 #error "Undefined PPM_TIMER_FREQUENCY"
@@ -46,28 +47,29 @@ bool_t   ppm_data_valid;
 
 
 /**
- * ICUDriver width callback
+ * PPM Pulse width callback
  */
 static void icuwidthcb(ICUDriver *icup) {
-  DecodePpmFrame((uint32_t)icuGetWidth(icup));
+  static uint32_t now;
+  now = (uint32_t)(icuGetWidth(icup) + timer_rollover_cnt);
+  DecodePpmFrame(now);
 }
 
 /**
- * ICUDriver period callback
- */
-static void icuperiodcb(ICUDriver *icup) {
-  (void)icup;
-}
-
-/**
- * ICUDriver overflow callback
+ * PPM Overflow callback
  */
 static void icuoverflowcb(ICUDriver *icup) {
   (void)icup;
+  timer_rollover_cnt+=(1<<16);
 }
 
-
-/// ICU configuration
+/**
+ * ICU timer configuration
+ *
+ * There appears to be no difference between
+ * ICU_INPUT_ACTIVE_HIGH and ICU_INPUT_ACTIVE_LOW,
+ * it works in both cases. Further investigation needed.
+ */
 static ICUConfig ppm_icucfg = {
 #if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   ICU_INPUT_ACTIVE_HIGH,
@@ -78,13 +80,17 @@ static ICUConfig ppm_icucfg = {
 #endif
   PPM_TIMER_FREQUENCY,
   icuwidthcb,
-  icuperiodcb,
+  NULL,
   icuoverflowcb,
   PPM_CHANNEL,
   0
 };
 
 void ppm_arch_init ( void ) {
+  ppm_last_pulse_time = 0;
+  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  timer_rollover_cnt = 0;
+
   icuStart(&PPM_TIMER, &ppm_icucfg);
   icuEnable(&PPM_TIMER);
 }
