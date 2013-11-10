@@ -63,6 +63,7 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
   let icon_template = match icon with
   | "home" -> ACI.icon_home_template
   | "rotorcraft" -> ACI.icon_rotorcraft_template
+  | "flyingwing" | _ -> ACI.icon_flyingwing_template
   | "fixedwing" | _ -> ACI.icon_fixedwing_template
   in
   let _ac_icon = new ACI.widget ~color ~icon_template aircraft in
