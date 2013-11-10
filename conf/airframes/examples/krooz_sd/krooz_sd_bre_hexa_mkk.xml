@@ -19,7 +19,7 @@
     </subsystem>
     <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="imu"           type="krooz_sd"/>
+    <subsystem name="imu"           type="krooz_sd_memsic"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     
@@ -41,7 +41,6 @@
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
     <!--<load name="beeper.xml"/>-->
-    <!--<load name="osd_max7456.xml"/>-->     <!-- uncomment to use KroozSD OSD module -->
     <!--<load name="hott_telemetry.xml"/>-->  <!-- uncomment if using Graupner HOTT RC (UART1 port) -->
   </modules>
   
