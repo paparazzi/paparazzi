@@ -38,6 +38,15 @@ let icon_fixedwing_template = {
   width = 4
 }
 
+let icon_flyingwing_template = {
+  lines = [
+    [| -13.;  4.;  0.; -7.;  13.;  4.|];
+    [| -13.;  5.;  0.;  0.;  13.;  5.|];
+  ];
+  ellipse = [];
+  width = 4
+}
+
 let icon_rotorcraft_template = {
   lines = [
     [|  0.; -8.;  0.; 8.|];

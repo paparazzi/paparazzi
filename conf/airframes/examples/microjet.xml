@@ -189,6 +189,10 @@
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 
+<section name="GCS">
+    <define name="AC_ICON" value="flyingwing"/>
+  </section>
+
   <modules>
     <load name="openlog.xml"/>
     <load name="infrared_adc.xml"/>
