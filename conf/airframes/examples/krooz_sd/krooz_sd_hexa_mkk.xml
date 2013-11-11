@@ -5,11 +5,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="krooz_sd"/>
 
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
-    </target>
-
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="motor_mixing"/>
@@ -24,15 +19,19 @@
     <subsystem name="ins"           type="hff"/>
 
     <define name="NO_RC_THRUST_LIMIT"/>
-    <define name="USE_RC_FP_BLOCK_SWITCHING"/>
-    <define name="USE_ATTITUDE_REF" value="0"/>
+    <define name="FAILSAFE_GROUND_DETECT" value="1"/>
+    <define name="THRESHOLD_GROUND_DETECT" value="12."/>
+    <define name="USE_GPS_ACC4R" value="1"/>
+    <define name="HFF_R_POS_MIN" value="2.5"/>
+    <define name="HFF_R_SPEED_MIN" value="2."/>
+    <define name="VF_FLOAT_MEAS_NOISE" value="2."/>
+    <define name="USE_ADC_2" value="1"/>
   </firmware>
 
 	<modules main_freq="512">
-		<!--<load name="gps_ubx_ucenter.xml"/>
-    <load name="sys_mon.xml"/>
+		<load name="gps_ubx_ucenter.xml"/>
 		<load name="geo_mag.xml"/>
-    <load name="osd_max7456.xml"/>-->
+    <load name="osd_max7456.xml"/>
   </modules>
 
   <commands>
@@ -60,9 +59,6 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"  value="{    0,  -256,  -256,     0,   256,   256 }"/>
@@ -111,7 +107,6 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
     <define name="GRAVITY_HEURISTIC_FACTOR" value="30"/>
     <define name="H_X" value="0.3586845"/>
     <define name="H_Y" value="0.0168651"/>
@@ -151,35 +146,35 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="45." unit="deg"/>
     <define name="SP_MAX_THETA"   value="45." unit="deg"/>
-    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="SP_MAX_R"       value="50." unit="deg/s"/>
     <define name="DEADBAND_A"     value="0"/>
     <define name="DEADBAND_E"     value="0"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_P"  value="450" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="100." unit="deg/s"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(2000.)"/>
+    <define name="REF_MAX_P"    value="180." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(400.)"/>
 
-    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_Q"  value="450" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="100." unit="deg/s"/>
-    <define name="REF_MAX_QDOT" value="RadOfDeg(2000.)"/>
+    <define name="REF_MAX_Q"    value="180." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(400.)"/>
 
-    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+    <define name="REF_OMEGA_R"  value="400" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_R"    value="70." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(360.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="850"/>
-    <define name="PHI_DGAIN"  value="400"/>
-    <define name="PHI_IGAIN"  value="100"/>
+    <define name="PHI_PGAIN"  value="1500"/>
+    <define name="PHI_DGAIN"  value="600"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="850"/>
-    <define name="THETA_DGAIN"  value="400"/>
-    <define name="THETA_IGAIN"  value="100"/>
+    <define name="THETA_PGAIN"  value="1500"/>
+    <define name="THETA_DGAIN"  value="600"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
     <define name="PSI_PGAIN"  value="4000"/>
     <define name="PSI_DGAIN"  value="1500"/>
@@ -197,15 +192,14 @@
     <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="TILT_COEFF"  value="0.35"/>
-    <define name="REF_MIN_ZDD" value="-0.2*9.81"/> <!-- max descent acceleration -->
-    <define name="REF_MAX_ZDD" value="0.2*9.81"/>  <!-- max climb acceleration -->
-    <define name="REF_MIN_ZD" value="-3."/> <!-- max descent speed -->
-    <define name="REF_MAX_ZD" value="3."/>  <!-- max climb speed -->
-    <define name="HOVER_KP"    value="120"/>
-    <define name="HOVER_KD"    value="80"/>
-    <define name="HOVER_KI"    value="20"/>
-    <define name="RC_DESCENT_COEF" value ="200"/>
+    <define name="REF_MIN_ZDD" value="-0.2*9.81"/> <!-- max descent acceleration in m/s2 -->
+    <define name="REF_MAX_ZDD" value="0.2*9.81"/>  <!-- max climb acceleration in m/s2 -->
+    <define name="REF_MIN_ZD" value="-3."/>        <!-- max descent speed in m/s -->
+    <define name="REF_MAX_ZD" value="3."/>         <!-- max climb speed in m/s -->
+    <define name="ADAPT_NOISE_FACTOR"    value="0.7"/>
+    <define name="HOVER_KP"    value="130"/>
+    <define name="HOVER_KD"    value="150"/>
+    <define name="HOVER_KI"    value="10"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -214,7 +208,6 @@
     <define name="MAX_BANK" value="27" unit="deg"/>
     <define name="REF_MAX_ACCEL" value="7."/> <!-- max reference horizontal acceleration in m/s2 -->
     <define name="REF_MAX_SPEED" value="2."/> <!-- max reference horizontal speed in m/s -->
-    <define name="RC_SPEED_DEAD_BAND" value="200000"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="120"/>
     <define name="IGAIN" value="10"/>
@@ -237,6 +230,12 @@
     <define name="CRITIC_BAT_LEVEL" value="14.0" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="14.3" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
+    <!--uncomment next two lines together with a corresponding USE_ADC_2 define on the top of this file to use a current sensor
+        (more about is here http://paparazzi.enac.fr/wiki/Sensors/Current) -->
+    <!--
+    <define name="ADC_CHANNEL_CURRENT" value="ADC_2"/>
+    <define name="MilliAmpereOfAdc(adc)" value="Max(0,(3100 - adc)*20)"/>
+    -->
   </section>
 
 </airframe>

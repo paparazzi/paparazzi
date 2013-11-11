@@ -20,11 +20,13 @@
  */
 
 /**
- * @file boards/krooz/imu_krooz.h
+ * @file boards/krooz/imu_krooz_memsic.h
  *
- * Driver for the IMU on the KroozSD board.
+ * Driver for the IMU on the KroozSD Big Rotorcraft Edition board.
  *
  * Invensense MPU-6050
+ * Memsic MXR9500 with AD7689
+ * Honeywell HMC-5883
  */
 
 #ifndef IMU_KROOZ_H
@@ -36,6 +38,7 @@
 
 #include "peripherals/mpu60x0_i2c.h"
 #include "peripherals/hmc58xx.h"
+#include "mcu_periph/spi.h"
 
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
@@ -78,26 +81,26 @@
 #endif
 
 
-/** default accel sensitivy from the datasheet
- * MPU with 2g has 16384 LSB/g
- * sens = 9.81 [m/s^2] / 16384 [LSB/g] * 2^INT32_ACCEL_FRAC = 0.6131
+/** default accel sensitivy using 16 bit AD7689 adc
+ * MXR9500 with 1.5g has 21845 LSB/g
+ * sens = 9.81 [m/s^2] / 21845 [LSB/g] * 2^INT32_ACCEL_FRAC = 0.6131
  */
 #if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
 // FIXME
-#define IMU_ACCEL_X_SENS 0.6131
-#define IMU_ACCEL_X_SENS_NUM 6131
+#define IMU_ACCEL_X_SENS 0.9197
+#define IMU_ACCEL_X_SENS_NUM 9197
 #define IMU_ACCEL_X_SENS_DEN 10000
-#define IMU_ACCEL_Y_SENS 0.6131
-#define IMU_ACCEL_Y_SENS_NUM 6131
+#define IMU_ACCEL_Y_SENS 0.9197
+#define IMU_ACCEL_Y_SENS_NUM 9197
 #define IMU_ACCEL_Y_SENS_DEN 10000
-#define IMU_ACCEL_Z_SENS 0.6131
-#define IMU_ACCEL_Z_SENS_NUM 6131
+#define IMU_ACCEL_Z_SENS 0.9197
+#define IMU_ACCEL_Z_SENS_NUM 9197
 #define IMU_ACCEL_Z_SENS_DEN 10000
 #endif
 #if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
+#define IMU_ACCEL_X_NEUTRAL 32768
+#define IMU_ACCEL_Y_NEUTRAL 32768
+#define IMU_ACCEL_Z_NEUTRAL 32768
 #endif
 
 #ifndef IMU_KROOZ_ACCEL_AVG_FILTER
@@ -111,16 +114,19 @@ struct ImuKrooz {
   volatile bool_t mpu_eoc;
   volatile bool_t hmc_eoc;
   struct Mpu60x0_I2c mpu;
+  struct spi_transaction ad7689_trans;
+  volatile uint8_t ad7689_spi_tx_buffer[2];
+  volatile uint8_t ad7689_spi_rx_buffer[2];
   struct Hmc58xx hmc;
   struct Int32Rates rates_sum;
   struct Int32Vect3 accel_sum;
   volatile uint8_t  meas_nb;
+  struct Uint8Vect3 meas_nb_acc;
   struct Int32Vect3 accel_filtered;
   int32_t temperature;
 };
 
 extern struct ImuKrooz imu_krooz;
-
 
 /* must be defined in order to be IMU code: declared in imu.h
 extern void imu_impl_init(void);

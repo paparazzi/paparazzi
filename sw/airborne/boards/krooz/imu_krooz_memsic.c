@@ -20,25 +20,22 @@
  */
 
 /**
- * @file boards/krooz/imu_krooz.c
+ * @file boards/krooz/imu_krooz_memsic.c
  *
- * Driver for the IMU on the KroozSD board.
+ * Driver for the IMU on the KroozSD Big Rotorcraft Edition board.
  *
  * Invensense MPU-6050
+ * Memsic MXR9500 with AD7689
  * Honeywell HMC-5883
  */
 
 #include <math.h>
-#include "boards/krooz/imu_krooz.h"
+#include "boards/krooz/imu_krooz_memsic.h"
 #include "subsystems/imu/imu_krooz_sd_arch.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "filters/median_filter.h"
-
-// Downlink
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "mcu_periph/sys_time.h"
 
 #if !defined KROOZ_LOWPASS_FILTER && !defined  KROOZ_SMPLRT_DIV
 #define KROOZ_LOWPASS_FILTER MPU60X0_DLPF_256HZ
@@ -63,6 +60,10 @@ struct ImuKrooz imu_krooz;
 struct MedianFilter3Int median_accel;
 #endif
 struct MedianFilter3Int median_mag;
+
+static uint32_t ad7689_event_timer;
+static uint8_t axis_cnt;
+static uint8_t axis_nb;
 
 void imu_impl_init( void )
 {
@@ -95,6 +96,22 @@ void imu_impl_init( void )
   imu_krooz.hmc_eoc = FALSE;
   imu_krooz.mpu_eoc = FALSE;
 
+  imu_krooz.ad7689_trans.slave_idx     = IMU_KROOZ_SPI_SLAVE_IDX;
+  imu_krooz.ad7689_trans.select        = SPISelectUnselect;
+  imu_krooz.ad7689_trans.cpol          = SPICpolIdleLow;
+  imu_krooz.ad7689_trans.cpha          = SPICphaEdge1;
+  imu_krooz.ad7689_trans.dss           = SPIDss8bit;
+  imu_krooz.ad7689_trans.bitorder      = SPIMSBFirst;
+  imu_krooz.ad7689_trans.cdiv          = SPIDiv16;
+  imu_krooz.ad7689_trans.output_length = sizeof(imu_krooz.ad7689_spi_tx_buffer);
+  imu_krooz.ad7689_trans.output_buf    = (uint8_t*) imu_krooz.ad7689_spi_tx_buffer;
+  imu_krooz.ad7689_trans.input_length  = sizeof(imu_krooz.ad7689_spi_rx_buffer);
+  imu_krooz.ad7689_trans.input_buf     = (uint8_t*) imu_krooz.ad7689_spi_rx_buffer;
+  imu_krooz.ad7689_trans.before_cb     = NULL;
+  imu_krooz.ad7689_trans.after_cb      = NULL;
+  axis_cnt = 0;
+  axis_nb = 2;
+
   imu_krooz_sd_arch_init();
 }
 
@@ -108,8 +125,19 @@ void imu_periodic( void )
     hmc58xx_start_configure(&imu_krooz.hmc);
 
   if (imu_krooz.meas_nb) {
-    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
-    VECT3_ASSIGN(imu.accel_unscaled, -imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
+    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb,
+                                     imu_krooz.rates_sum.p / imu_krooz.meas_nb,
+                                     imu_krooz.rates_sum.r / imu_krooz.meas_nb);
+
+    RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
+    imu_krooz.meas_nb = 0;
+    imu_krooz.gyr_valid = TRUE;
+  }
+
+  if (imu_krooz.meas_nb_acc.x && imu_krooz.meas_nb_acc.y && imu_krooz.meas_nb_acc.z) {
+    imu.accel_unscaled.x = 65536 - imu_krooz.accel_sum.x / imu_krooz.meas_nb_acc.x;
+    imu.accel_unscaled.y = 65536 - imu_krooz.accel_sum.y / imu_krooz.meas_nb_acc.y;
+    imu.accel_unscaled.z = imu_krooz.accel_sum.z / imu_krooz.meas_nb_acc.z;
 
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
@@ -119,23 +147,13 @@ void imu_periodic( void )
     VECT3_SDIV(imu_krooz.accel_filtered, imu_krooz.accel_filtered, (IMU_KROOZ_ACCEL_AVG_FILTER + 1));
     VECT3_COPY(imu.accel_unscaled, imu_krooz.accel_filtered);
 
-    RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
-    VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);
-    imu_krooz.meas_nb = 0;
-
-    imu_krooz.gyr_valid = TRUE;
+    INT_VECT3_ZERO(imu_krooz.accel_sum);
+    INT_VECT3_ZERO(imu_krooz.meas_nb_acc);
     imu_krooz.acc_valid = TRUE;
   }
 
-  //RunOnceEvery(10,imu_krooz_downlink_raw());
+  RunOnceEvery(128,{axis_nb = 5;});
 }
-
-void imu_krooz_downlink_raw( void )
-{
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
-}
-
 
 void imu_krooz_event( void )
 {
@@ -148,9 +166,48 @@ void imu_krooz_event( void )
   mpu60x0_i2c_event(&imu_krooz.mpu);
   if (imu_krooz.mpu.data_available) {
     RATES_ADD(imu_krooz.rates_sum, imu_krooz.mpu.data_rates.rates);
-    VECT3_ADD(imu_krooz.accel_sum, imu_krooz.mpu.data_accel.vect);
     imu_krooz.meas_nb++;
     imu_krooz.mpu.data_available = FALSE;
+  }
+
+  if(SysTimeTimer(ad7689_event_timer) > 215) {
+    SysTimeTimerStart(ad7689_event_timer);
+    if(axis_cnt < axis_nb)
+      axis_cnt++;
+    else
+      axis_cnt = 0;
+    imu_krooz.ad7689_trans.output_buf[0] =
+      axis_cnt <= 2 ? 0xF0 | (axis_cnt << 1) : (axis_cnt >= 4 ? 0xF0 | ((axis_cnt - 3) << 1) : 0xB0);
+    imu_krooz.ad7689_trans.output_buf[1] = 0x44;
+    spi_submit(&(IMU_KROOZ_SPI_DEV), &imu_krooz.ad7689_trans);
+  }
+  if (imu_krooz.ad7689_trans.status == SPITransSuccess) {
+    imu_krooz.ad7689_trans.status = SPITransDone;
+    uint16_t buf = (imu_krooz.ad7689_trans.input_buf[0] << 8) | imu_krooz.ad7689_trans.input_buf[1];
+    switch(axis_cnt) {
+      case 0:
+      case 3:
+        imu_krooz.accel_sum.x += (int32_t)buf;
+        imu_krooz.meas_nb_acc.x++;
+        break;
+      case 1:
+      case 4:
+        imu_krooz.accel_sum.y += (int32_t)buf;
+        imu_krooz.meas_nb_acc.y++;
+        break;
+      case 2:
+        imu_krooz.accel_sum.z += (int32_t)buf;
+        imu_krooz.meas_nb_acc.z++;
+        break;
+      case 5:
+        imu_krooz.temperature = (imu_krooz.temperature * 4 + (int32_t)buf) / 5;
+        //imu.temperature = 33000 * imu_krooz.temp / 65536 - 2400;
+        axis_nb = 2;
+        break;
+      default:
+        axis_cnt = 0;
+        break;
+    }
   }
 
   if (imu_krooz.hmc_eoc) {
