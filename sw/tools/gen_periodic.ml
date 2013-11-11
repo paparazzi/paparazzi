@@ -92,7 +92,7 @@ let output_modes = fun out_h process_name modes freq modules ->
           left ();
           lprintf out_h "}\n"
         )
-        messages;
+        (List.rev messages);
       left ();
       lprintf out_h "}\n")
     modes
