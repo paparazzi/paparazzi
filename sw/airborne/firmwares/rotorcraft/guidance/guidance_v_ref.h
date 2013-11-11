@@ -31,7 +31,7 @@
 #include "inttypes.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
-
+#include "generated/airframe.h"
 
 #ifndef GUIDANCE_V_REF_MIN_ZD
 #define GUIDANCE_V_REF_MIN_ZD (-3.)
