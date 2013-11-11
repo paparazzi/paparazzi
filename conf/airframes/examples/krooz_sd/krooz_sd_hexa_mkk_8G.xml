@@ -19,7 +19,9 @@
     </subsystem>
     <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="imu"           type="krooz_sd"/>
+    <subsystem name="imu"           type="krooz_sd">
+      <define name="KROOZ_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
+    </subsystem>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
     
@@ -38,11 +40,24 @@
   
 <!--           Using Geo Mag module         -->
   <modules main_freq="512">
+    <load name="xbee_init.xml"/><!---->
     <load name="gps_ubx_ucenter.xml"/>
     <load name="geo_mag.xml"/>
-    <!--<load name="beeper.xml"/>-->
-    <!--<load name="osd_max7456.xml"/>-->     <!-- uncomment to use KroozSD OSD module -->
-    <!--<load name="hott_telemetry.xml"/>-->  <!-- uncomment if using Graupner HOTT RC (UART1 port) -->
+    <!--<load name="sys_mon.xml"/>-->
+    <load name="beeper.xml"/>
+    <load name="krooz_cam.xml">
+      <!--<define name="CAM_TEST" value="1"/>-->
+      <!--<define name="CAM_SETUP" value="1"/>-->
+      <define name="PAN_CENTER" value="1565"/>
+			<define name="TILT_CENTER" value="1420"/>
+			<define name="PAN_COEFF" value="-4460"/>
+			<define name="TILT_COEFF" value="1650"/>
+			<define name="PAN_RATE" value="-300"/>
+			<define name="TILT_RATE" value="110"/>
+      <define name="TILT_AREA" value="450"/>
+      <define name="TILT_DOWN" value="1640"/>
+    </load>
+    <load name="hott_telemetry.xml"/><!---->
   </modules>
   
   <commands>
@@ -73,6 +88,7 @@
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
+    <!--<define name="MAX_SATURATION_OFFSET" value="MAX_PPRZ/7"/>-->
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"  value="{    0,  -256,  -256,     0,   256,   256 }"/>
@@ -105,50 +121,56 @@
     <define name="GYRO_P_SENS" value=" 0.5425" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 0.5464" integer="16"/>
     <define name="GYRO_R_SENS" value=" 0.5454" integer="16"/>
-
-    <!-- replace this with your own calibration -->
-    <!-- MXR9500--> 
-    <define name="ACCEL_X_NEUTRAL" value="32641"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32392"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32483"/>
-    <define name="ACCEL_X_SENS" value="0.909261974155" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.913497864536" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.927158126989" integer="16"/>
-    
-    <define name="ACCEL_CALIB_TEMP"  value="32.8"      integer="16"/>
-    
-    <!-- replace this with your own calibration -->
 <!--
-    <define name="ACCEL_X_TEMP_COEF" value="-1.45667338779" integer="16"/>
-    <define name="ACCEL_Y_TEMP_COEF" value="-0.993006624797" integer="16"/>
-    <define name="ACCEL_Z_TEMP_COEF" value="-0.957916668219" integer="16"/>
-    
-    <define name="MAG_X_TEMP_COEF" value="0.064918997092" integer="16"/>
-    <define name="MAG_Y_TEMP_COEF" value="0.0996996914432" integer="16"/>
-    <define name="MAG_Z_TEMP_COEF" value="-0.126112703277" integer="16"/>
+    <!-- MPU6050 2G resolution
+    <define name="ACCEL_X_NEUTRAL" value="-60"/>
+    <define name="ACCEL_Y_NEUTRAL" value="587"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-115"/>
+    <define name="ACCEL_X_SENS" value="0.610117217508" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.610873502662" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.592934288059" integer="16"/>
 -->
+
+<!--
+    <!-- MPU6050 2G resolution-->
+<define name="ACCEL_X_NEUTRAL" value="50"/>
+<define name="ACCEL_Y_NEUTRAL" value="305"/>
+<define name="ACCEL_Z_NEUTRAL" value="-861"/>
+<define name="ACCEL_X_SENS" value="2.44987390021" integer="16"/>
+<define name="ACCEL_Y_SENS" value="2.4543726155" integer="16"/>
+<define name="ACCEL_Z_SENS" value="2.39612983974" integer="16"/>
+
+
+<!--
+    <!-- MXR9500
+<define name="ACCEL_X_NEUTRAL" value="32081"/>
+<define name="ACCEL_Y_NEUTRAL" value="32971"/>
+<define name="ACCEL_Z_NEUTRAL" value="33210"/>
+<define name="ACCEL_X_SENS" value="0.909874527413" integer="16"/>
+<define name="ACCEL_Y_SENS" value="0.910232442885" integer="16"/>
+<define name="ACCEL_Z_SENS" value="0.916404328786" integer="16"/>
+<define name="ACCEL_CALIB_TEMP"  value="34.3"      integer="16"/>
+-->
+
+<define name="MAG_X_NEUTRAL" value="-577"/>
+<define name="MAG_Y_NEUTRAL" value="348"/>
+<define name="MAG_Z_NEUTRAL" value="285"/>
+<define name="MAG_X_SENS" value="3.29759636566" integer="16"/>
+<define name="MAG_Y_SENS" value="3.39957978204" integer="16"/>
+<define name="MAG_Z_SENS" value="3.62094322542" integer="16"/>
     
-    <!-- replace this with your own calibration -->
-    
-    <define name="MAG_X_NEUTRAL" value="-490"/>
-    <define name="MAG_Y_NEUTRAL" value="592"/>
-    <define name="MAG_Z_NEUTRAL" value="387"/>
-    <define name="MAG_X_SENS" value="3.47703457303" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.39419261553" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.61070527555" integer="16"/>
-    
-    <define name="MAG_CALIB_TEMP"  value="13.7"      integer="16"/>
-    
-    <!-- replace this with your own calibration -->
-<!--    
     <define name= "MAG_X_CURRENT_COEF" value="0.00104160998426"/>
     <define name= "MAG_Y_CURRENT_COEF" value="-0.00106262603533"/>
     <define name= "MAG_Z_CURRENT_COEF" value="0.000690587597683"/>
--->
+    
+    <!-- replace this with your own calibration -->
+
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
-
+    
+    <define name="KROOZ_GYRO_AVG_FILTER" value="3"/>
+    <define name="KROOZ_USE_ACCEL_MEDIAN_FILTER" value="1"/><!---->
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -217,11 +239,11 @@
 
     <!-- feedback -->
     <define name="PHI_PGAIN"  value="1550"/>
-    <define name="PHI_DGAIN"  value="700"/>
+    <define name="PHI_DGAIN"  value="840"/>
     <define name="PHI_IGAIN"  value="250"/>
 
     <define name="THETA_PGAIN"  value="1550"/>
-    <define name="THETA_DGAIN"  value="700"/>
+    <define name="THETA_DGAIN"  value="840"/>
     <define name="THETA_IGAIN"  value="250"/>
 
     <define name="PSI_PGAIN"  value="4000"/>
@@ -229,8 +251,8 @@
     <define name="PSI_IGAIN"  value="300"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value="500"/>
-    <define name="THETA_DDGAIN" value="500"/>
+    <define name="PHI_DDGAIN"   value="350"/>
+    <define name="THETA_DDGAIN" value="350"/>
     <define name="PSI_DDGAIN"   value="5000"/>
   </section>
 
@@ -247,11 +269,11 @@
     <define name="REF_OMEGA" value="RadOfDeg(60.)"/>
     <define name="REF_ZETA" value="0.9"/>
     <!--<define name="NOMINAL_HOVER_THROTTLE"    value="0.4"/>-->
-    <define name="ADAPT_NOISE_FACTOR"    value="0.6"/>
-    <define name="ADAPT_INITIAL_HOVER_THROTTLE"    value="0.2"/>
+    <define name="ADAPT_NOISE_FACTOR"    value="1.5"/>
+    <define name="ADAPT_INITIAL_HOVER_THROTTLE"    value="0.4"/>
     <define name="HOVER_KP"    value="130"/>
-    <define name="HOVER_KD"    value="130"/>
-    <define name="HOVER_KI"    value="10"/>
+    <define name="HOVER_KD"    value="120"/>
+    <define name="HOVER_KI"    value="15"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -267,7 +289,9 @@
     <define name="REF_OMEGA" value="RadOfDeg(45.)"/>
     <define name="REF_ZETA" value="0.95"/>
     <define name="REF_MAX_ACCEL" value="1.5"/> <!-- max reference horizontal acceleration in m/s2 -->
-    <define name="REF_MAX_SPEED" value="4.0"/> <!-- max reference horizontal speed in m/s -->
+    <define name="REF_MAX_SPEED" value="5.0"/> <!-- max reference horizontal speed in m/s -->
+    <define name="REF_MAX_ACCEL_NAV" value="1.0"/> <!-- navigation mode max horizontal reference acceleration in m/s2 -->
+    <define name="REF_MAX_SPEED_NAV" value="1.0"/> <!-- navigation mode max reference horizontal speed in m/s -->
     
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="220"/>
@@ -293,12 +317,8 @@
     <define name="CRITIC_BAT_LEVEL" value="14.0" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="14.3" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
-    
-    <!-- uncomment if using magnetometer current calibration -->
-<!--
     <define name="ADC_CHANNEL_CURRENT" value="ADC_2"/>
     <define name="MilliAmpereOfAdc(adc)" value="Max(0,(3100 - adc)*20)"/>
--->
   </section>
 
 </airframe>

@@ -101,13 +101,14 @@
 
   <section name="AHRS" prefix="AHRS_">
     <define name="PROPAGATE_LOW_PASS_RATES" value="1"/>
-    <define name="GRAVITY_HEURISTIC_FACTOR" value="30"/>
+    <define name="GRAVITY_UPDATE_NORM_HEURISTIC" value="1"/>
     <define name="H_X" value="0.365258"/>
     <define name="H_Y" value="0.015505"/>
     <define name="H_Z" value="0.930777"/>
   </section>
 
   <section name="INS" prefix="INS_">
+    <define name="BARO_SENS" value="22." integer="16"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -193,7 +194,9 @@
     <define name="HOVER_KP"    value="120"/>
     <define name="HOVER_KD"    value="80"/>
     <define name="HOVER_KI"    value="20"/>
+    <define name="RC_CLIMB_COEF" value ="500"/>
 	  <define name="RC_DESCENT_COEF" value ="200"/>
+    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -211,8 +214,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
+    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 

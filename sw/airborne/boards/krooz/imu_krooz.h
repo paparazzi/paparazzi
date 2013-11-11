@@ -36,6 +36,7 @@
 
 #include "peripherals/mpu60x0_i2c.h"
 #include "peripherals/hmc58xx.h"
+#include "mcu_periph/spi.h"
 
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
@@ -101,7 +102,7 @@
 #endif
 
 #ifndef IMU_KROOZ_GYRO_AVG_FILTER
-#define IMU_KROOZ_GYRO_AVG_FILTER       5
+#define IMU_KROOZ_GYRO_AVG_FILTER       2
 #endif
 #ifndef IMU_KROOZ_ACCEL_AVG_FILTER
 #define IMU_KROOZ_ACCEL_AVG_FILTER      10
@@ -114,16 +115,21 @@ struct ImuKrooz {
   volatile bool_t mpu_eoc;
   volatile bool_t hmc_eoc;
   struct Mpu60x0_I2c mpu;
+  struct spi_transaction ad7689_trans;
+  volatile uint8_t ad7689_spi_tx_buffer[2];
+  volatile uint8_t ad7689_spi_rx_buffer[2];
   struct Hmc58xx hmc;
   struct Int32Rates rates_sum;
   struct Int32Vect3 accel_sum;
   volatile uint8_t  meas_nb;
+  volatile uint8_t  meas_nb_x;
+  volatile uint8_t  meas_nb_y;
+  volatile uint8_t  meas_nb_z;
   struct Int32Vect3 accel_filtered;
-  struct Int32Rates gyro_filtered;
+  int32_t temperature;
 };
 
 extern struct ImuKrooz imu_krooz;
-
 
 /* must be defined in order to be IMU code: declared in imu.h
 extern void imu_impl_init(void);
