@@ -101,6 +101,12 @@ PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 #endif
 PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
+#if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
+#if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
+#warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
+INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ",AHRS_PROPAGATE_FREQUENCY)
+#endif
+#endif
 
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
