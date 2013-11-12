@@ -160,11 +160,11 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* Compute feedforward */
   stabilization_att_ff_cmd[COMMAND_ROLL] =
-    stabilization_gains.dd.x * stab_att_ref_accel.p / 32.;
+    stabilization_gains.dd.x * stab_att_ref_accel.p;
   stabilization_att_ff_cmd[COMMAND_PITCH] =
-    stabilization_gains.dd.y * stab_att_ref_accel.q / 32.;
+    stabilization_gains.dd.y * stab_att_ref_accel.q;
   stabilization_att_ff_cmd[COMMAND_YAW] =
-    stabilization_gains.dd.z * stab_att_ref_accel.r / 32.;
+    stabilization_gains.dd.z * stab_att_ref_accel.r;
 
   /* Compute feedback                  */
   /* attitude error            */
@@ -192,24 +192,28 @@ void stabilization_attitude_run(bool_t  in_flight) {
   stabilization_att_fb_cmd[COMMAND_ROLL] =
     stabilization_gains.p.x  * att_err.phi +
     stabilization_gains.d.x  * rate_err.p +
-    stabilization_gains.i.x  * stabilization_att_sum_err.phi / 1024.;
+    stabilization_gains.i.x  * stabilization_att_sum_err.phi;
 
   stabilization_att_fb_cmd[COMMAND_PITCH] =
     stabilization_gains.p.y  * att_err.theta +
     stabilization_gains.d.y  * rate_err.q +
-    stabilization_gains.i.y  * stabilization_att_sum_err.theta / 1024.;
+    stabilization_gains.i.y  * stabilization_att_sum_err.theta;
 
   stabilization_att_fb_cmd[COMMAND_YAW] =
     stabilization_gains.p.z  * att_err.psi +
     stabilization_gains.d.z  * rate_err.r +
-    stabilization_gains.i.z  * stabilization_att_sum_err.psi / 1024.;
+    stabilization_gains.i.z  * stabilization_att_sum_err.psi;
 
 
   stabilization_cmd[COMMAND_ROLL] =
-    (stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL])/16.;
+    (stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL]);
   stabilization_cmd[COMMAND_PITCH] =
-    (stabilization_att_fb_cmd[COMMAND_PITCH]+stabilization_att_ff_cmd[COMMAND_PITCH])/16.;
+    (stabilization_att_fb_cmd[COMMAND_PITCH]+stabilization_att_ff_cmd[COMMAND_PITCH]);
   stabilization_cmd[COMMAND_YAW] =
-    (stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW])/16.;
+    (stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]);
 
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
