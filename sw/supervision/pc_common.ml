@@ -103,15 +103,20 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
   let (pi, out, unixfd, io_watch) = run_and_log log ("exec "^c) in
     pid := pi;
     outchan := unixfd;
-    (*let io_watch' = Glib.Io.add_watch [`OUT; `HUP] (fun _ ->
-      (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
-      ignore (Glib.Timeout.add 200 (fun () -> callback true; false));
-      false) out in *)
-    let io_watch_hup = Glib.Io.add_watch [`HUP] (fun _ ->
-      log (sprintf "\ngot HUP signal for command \"%s\"\n\n" com); callback true; false) out in
-    let io_watch_out = Glib.Io.add_watch [`OUT] (fun _ ->
-      log (sprintf "\ngot OUT signal for command \"%s\"\n\n" com); callback true; false) out in
-    watches := [ io_watch; io_watch_hup; io_watch_out ] in
+    let io_watch' = Glib.Io.add_watch ~cond:[`OUT; `HUP] ~callback:
+      (fun cond ->
+        if List.mem `OUT cond then
+          begin
+            log (sprintf "\n#####\ngot OUT signal for command \"%s\"\n######\n" com)
+          end;
+        if List.mem `HUP cond then
+          begin
+            log (sprintf "\n#####\ngot HUP signal for command \"%s\"\n#####\n" com);
+            (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
+            ignore (Glib.Timeout.add 200 (fun () -> callback true; false))
+          end;
+        false) out in
+    watches := [ io_watch; io_watch' ] in
 
   let remove_callback = fun () ->
     gui#vbox_programs#remove p#toplevel#coerce in
