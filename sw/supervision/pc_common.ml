@@ -103,18 +103,22 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
   let (pi, out, unixfd, io_watch) = run_and_log log ("exec "^c) in
     pid := pi;
     outchan := unixfd;
-    let io_watch' = Glib.Io.add_watch ~cond:[`OUT; `HUP] ~callback:
+    let io_watch' = Glib.Io.add_watch ~cond:[ `OUT; `PRI; `ERR; `HUP; `NVAL ] ~callback:
       (fun cond ->
         if List.mem `OUT cond then
-          begin
-            log (sprintf "\n#####\ngot OUT signal for command \"%s\"\n######\n" com)
-          end;
+          log (sprintf "\n#####\ngot OUT signal for command \"%s\"\n######\n" com);
+        if List.mem `PRI cond then
+          log (sprintf "\n#####\ngot PRI signal for command \"%s\"\n######\n" com);
+        if List.mem `ERR cond then
+          log (sprintf "\n#####\ngot ERR signal for command \"%s\"\n######\n" com);
         if List.mem `HUP cond then
           begin
             log (sprintf "\n#####\ngot HUP signal for command \"%s\"\n#####\n" com);
             (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
             ignore (Glib.Timeout.add 200 (fun () -> callback true; false))
           end;
+        if List.mem `NVAL cond then
+          log (sprintf "\n#####\ngot NVAL signal for command \"%s\"\n######\n" com);
         false) out in
     watches := [ io_watch; io_watch' ] in
 
