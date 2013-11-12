@@ -5,11 +5,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="krooz_sd"/>
 
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
-    </target>
-
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="motor_mixing"/>
@@ -24,14 +19,12 @@
     <subsystem name="ins"           type="hff"/>
 
     <define name="NO_RC_THRUST_LIMIT"/>
-    <define name="USE_RC_FP_BLOCK_SWITCHING"/>
     <define name="FAILSAFE_GROUND_DETECT" value="1"/>
     <define name="THRESHOLD_GROUND_DETECT" value="12."/>
     <define name="USE_GPS_ACC4R" value="1"/>
     <define name="HFF_R_POS_MIN" value="2.5"/>
     <define name="HFF_R_SPEED_MIN" value="2."/>
     <define name="VF_FLOAT_MEAS_NOISE" value="2."/>
-    <define name="USE_LOW_BAT_AUTO_MODE_SWITCH" value="1"/>
     <define name="USE_ADC_2" value="1"/>
   </firmware>
 
@@ -66,9 +59,6 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="TRIM_A" value="0"/>
-    <define name="TRIM_E" value="0"/>
-    <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"  value="{    0,  -256,  -256,     0,   256,   256 }"/>

@@ -20,11 +20,13 @@
  */
 
 /**
- * @file boards/krooz/imu_krooz.h
+ * @file boards/krooz/imu_krooz_memsic.h
  *
- * Driver for the IMU on the KroozSD board.
+ * Driver for the IMU on the KroozSD Big Rotorcraft Edition board.
  *
  * Invensense MPU-6050
+ * Memsic MXR9500 with AD7689
+ * Honeywell HMC-5883
  */
 
 #ifndef IMU_KROOZ_H
@@ -119,9 +121,7 @@ struct ImuKrooz {
   struct Int32Rates rates_sum;
   struct Int32Vect3 accel_sum;
   volatile uint8_t  meas_nb;
-  volatile uint8_t  meas_nb_x;
-  volatile uint8_t  meas_nb_y;
-  volatile uint8_t  meas_nb_z;
+  struct Uint8Vect3 meas_nb_acc;
   struct Int32Vect3 accel_filtered;
   int32_t temperature;
 };

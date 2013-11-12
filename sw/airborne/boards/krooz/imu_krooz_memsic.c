@@ -20,9 +20,9 @@
  */
 
 /**
- * @file boards/krooz/imu_krooz.c
+ * @file boards/krooz/imu_krooz_memsic.c
  *
- * Driver for the IMU on the KroozSD board.
+ * Driver for the IMU on the KroozSD Big Rotorcraft Edition board.
  *
  * Invensense MPU-6050
  * Memsic MXR9500 with AD7689
@@ -35,16 +35,7 @@
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "filters/median_filter.h"
-
-// Downlink
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/sys_time.h"
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #if !defined KROOZ_LOWPASS_FILTER && !defined  KROOZ_SMPLRT_DIV
 #define KROOZ_LOWPASS_FILTER MPU60X0_DLPF_256HZ
@@ -70,9 +61,9 @@ struct MedianFilter3Int median_accel;
 #endif
 struct MedianFilter3Int median_mag;
 
-uint32_t ad7689_event_timer;
-uint8_t axis_cnt;
-uint8_t axis_nb;
+static uint32_t ad7689_event_timer;
+static uint8_t axis_cnt;
+static uint8_t axis_nb;
 
 void imu_impl_init( void )
 {
@@ -134,56 +125,34 @@ void imu_periodic( void )
     hmc58xx_start_configure(&imu_krooz.hmc);
   
   if (imu_krooz.meas_nb) {
-    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
+    RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, 
+                                     imu_krooz.rates_sum.p / imu_krooz.meas_nb, 
+                                     imu_krooz.rates_sum.r / imu_krooz.meas_nb);
     
     RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
     imu_krooz.meas_nb = 0;
     imu_krooz.gyr_valid = TRUE;
   }
 
-  if (imu_krooz.meas_nb_x) {
-    imu.accel_unscaled.x = 65536 - imu_krooz.accel_sum.x / imu_krooz.meas_nb_x;
+  if (imu_krooz.meas_nb_acc.x && imu_krooz.meas_nb_acc.y && imu_krooz.meas_nb_acc.z) {
+    imu.accel_unscaled.x = 65536 - imu_krooz.accel_sum.x / imu_krooz.meas_nb_acc.x;
+    imu.accel_unscaled.y = 65536 - imu_krooz.accel_sum.y / imu_krooz.meas_nb_acc.y;
+    imu.accel_unscaled.z = imu_krooz.accel_sum.z / imu_krooz.meas_nb_acc.z;
+    
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
-    imu.accel_unscaled.x = update_median_filter(&(median_accel.mf[0]), imu.accel_unscaled.x);
+    UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
 #endif
-    imu_krooz.accel_filtered.x = (imu_krooz.accel_filtered.x * IMU_KROOZ_ACCEL_AVG_FILTER + imu.accel_unscaled.x) / (IMU_KROOZ_ACCEL_AVG_FILTER + 1);
-    imu.accel_unscaled.x = imu_krooz.accel_filtered.x;
-    imu_krooz.accel_sum.x = 0;
-    imu_krooz.meas_nb_x = 0;
-    imu_krooz.acc_valid = TRUE;
-  }
-  if (imu_krooz.meas_nb_y) {
-    imu.accel_unscaled.y = 65536 - imu_krooz.accel_sum.y / imu_krooz.meas_nb_y;
-#if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
-    imu.accel_unscaled.y = update_median_filter(&(median_accel.mf[1]), imu.accel_unscaled.y);
-#endif
-    imu_krooz.accel_filtered.y = (imu_krooz.accel_filtered.y * IMU_KROOZ_ACCEL_AVG_FILTER + imu.accel_unscaled.y) / (IMU_KROOZ_ACCEL_AVG_FILTER + 1);
-    imu.accel_unscaled.y = imu_krooz.accel_filtered.y;
-    imu_krooz.accel_sum.y = 0;
-    imu_krooz.meas_nb_y = 0;
-    imu_krooz.acc_valid = TRUE;
-  }
-  if (imu_krooz.meas_nb_z) {
-    imu.accel_unscaled.z = imu_krooz.accel_sum.z / imu_krooz.meas_nb_z;
-#if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
-    imu.accel_unscaled.z = update_median_filter(&(median_accel.mf[2]), imu.accel_unscaled.z);
-#endif
-    imu_krooz.accel_filtered.z = (imu_krooz.accel_filtered.z * IMU_KROOZ_ACCEL_AVG_FILTER + imu.accel_unscaled.z) / (IMU_KROOZ_ACCEL_AVG_FILTER + 1);
-    imu.accel_unscaled.z = imu_krooz.accel_filtered.z;
-    imu_krooz.accel_sum.z = 0;
-    imu_krooz.meas_nb_z = 0;
+    VECT3_SMUL(imu_krooz.accel_filtered, imu_krooz.accel_filtered, IMU_KROOZ_ACCEL_AVG_FILTER);
+    VECT3_ADD(imu_krooz.accel_filtered, imu.accel_unscaled);
+    VECT3_SDIV(imu_krooz.accel_filtered, imu_krooz.accel_filtered, (IMU_KROOZ_ACCEL_AVG_FILTER + 1));
+    VECT3_COPY(imu.accel_unscaled, imu_krooz.accel_filtered);
+    
+    INT_VECT3_ZERO(imu_krooz.accel_sum);
+    INT_VECT3_ZERO(imu_krooz.meas_nb_acc);
     imu_krooz.acc_valid = TRUE;
   }
   
   RunOnceEvery(128,{axis_nb = 5;});
-  
-  //RunOnceEvery(50,imu_krooz_downlink_raw());
-}
-
-void imu_krooz_downlink_raw( void )
-{
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
 }
 
 void imu_krooz_event( void )
@@ -207,7 +176,8 @@ void imu_krooz_event( void )
       axis_cnt++;
     else
       axis_cnt = 0;
-    imu_krooz.ad7689_trans.output_buf[0] = axis_cnt <= 2 ? 0xF0 | (axis_cnt << 1) : (axis_cnt >= 4 ? 0xF0 | ((axis_cnt - 3) << 1) : 0xB0);
+    imu_krooz.ad7689_trans.output_buf[0] = 
+      axis_cnt <= 2 ? 0xF0 | (axis_cnt << 1) : (axis_cnt >= 4 ? 0xF0 | ((axis_cnt - 3) << 1) : 0xB0);
     imu_krooz.ad7689_trans.output_buf[1] = 0x44;
     spi_submit(&(IMU_KROOZ_SPI_DEV), &imu_krooz.ad7689_trans);
   }
@@ -218,20 +188,20 @@ void imu_krooz_event( void )
       case 0:
       case 3:
         imu_krooz.accel_sum.x += (int32_t)buf;
-        imu_krooz.meas_nb_x++;
+        imu_krooz.meas_nb_acc.x++;
         break;
       case 1:
       case 4:
         imu_krooz.accel_sum.y += (int32_t)buf;
-        imu_krooz.meas_nb_y++;
+        imu_krooz.meas_nb_acc.y++;
         break;
       case 2:
         imu_krooz.accel_sum.z += (int32_t)buf;
-        imu_krooz.meas_nb_z++;
+        imu_krooz.meas_nb_acc.z++;
         break;
       case 5:
         imu_krooz.temperature = (imu_krooz.temperature * 4 + (int32_t)buf) / 5;
-        //imu.temp = 33000 * imu_krooz.temp / 65536 - 2400;
+        //imu.temperature = 33000 * imu_krooz.temp / 65536 - 2400;
         axis_nb = 2;
         break;
       default:
