@@ -20,14 +20,14 @@
  */
 
 /**
- * @file modules/nav/nav_survey_poly_adv.h
+ * @file modules/nav/nav_survey_polygon.h
  *
  * Advanced polygon survey for fixedwings from Uni Stuttgart.
  *
  */
 
-#ifndef POLY_ADV_H
-#define POLY_ADV_H
+#ifndef NAV_SURVEY_POLYGON_H
+#define NAV_SURVEY_POLYGON_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
@@ -45,8 +45,8 @@
 enum SurveyStage {ERR, ENTRY, SEG, TURN1, RET, TURN2};
 
 struct SurveyPolyAdv {
-   /*
-  The following variables are set by poly_survey_init and not changed later on
+  /*
+  The following variables are set by nav_survey_polygon_start and not changed later on
   */
 
   // precomputed vectors to ease calculations
@@ -82,7 +82,7 @@ struct SurveyPolyAdv {
   struct FloatVect2 ret_end;
 };
 
-extern bool_t nav_survey_poly_adv_start(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude);
-extern bool_t nav_survey_poly_adv_run(void);
+extern bool_t nav_survey_polygon_start(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude);
+extern bool_t nav_survey_polygon_run(void);
 
 #endif

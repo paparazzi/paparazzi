@@ -82,8 +82,8 @@
       <call fun="nav_bungee_takeoff_run()"/>
     </block>
     <block name="Poly Survey S1-S2" strip_button="Poly Survey">
-      <call fun="nav_survey_poly_adv_start(WP_S1,5,180,30,10,50,100)"/>
-      <call fun="nav_survey_poly_adv_run()"/>
+      <call fun="nav_survey_polygon_start(WP_S1,5,180,30,10,50,100)"/>
+      <call fun="nav_survey_polygon_run()"/>
     </block>
     <block name="Border line 1-2" strip_button="Border Line (wp 1-2)">
       <call fun="nav_line_border_start()"/>

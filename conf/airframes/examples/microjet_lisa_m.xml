@@ -47,7 +47,7 @@
     <load name="nav_line_osam.xml"/>
     <load name="nav_flower.xml"/>
     <load name="nav_smooth.xml"/>
-    <load name="nav_survey_poly_adv.xml"/>
+    <load name="nav_survey_polygon.xml"/>
     <load name="nav_survey_poly_osam.xml"/>
     <load name="nav_vertical_raster.xml"/>
 

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_bomb" dir="nav">
+<module name="nav_drop" dir="nav">
   <doc>
     <description>
       Compute the dropping point for a fixedwing aircraft.
@@ -9,9 +9,9 @@
     </description>
   </doc>
   <header>
-    <file name="bomb.h"/>
+    <file name="nav_drop.h"/>
   </header>
   <makefile>
-    <file name="bomb.c"/>
+    <file name="nav_drop.c"/>
   </makefile>
 </module>

@@ -194,7 +194,7 @@
 
   <modules>
     <load name="openlog.xml"/>
-    <load name="nav_survey_poly_adv.xml"/>
+    <load name="nav_survey_polygon.xml"/>
     <load name="nav_line_border.xml"/>
     <load name="nav_line.xml"/>
     <load name="nav_smooth.xml"/>

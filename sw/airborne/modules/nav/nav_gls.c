@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2012, Tobias Münch
  *
  * This file is part of paparazzi.
@@ -21,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/gls.c
+ * @file modules/nav/nav_gls.c
  * @brief gps landing system
  *
  * gps landing system

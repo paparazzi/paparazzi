@@ -20,11 +20,11 @@
  */
 
 /**
- * @file modules/nav/nav_osam.c
+ * @file modules/nav/nav_line_osam.c
  *
  * Flight line from OSAM advanced navigation routines
  *
- * TODO compare with normal flight line
+ * @todo compare with normal flight line
  */
 
 #include "modules/nav/nav_line_osam.h"

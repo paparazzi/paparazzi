@@ -60,7 +60,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <load name="digital_cam.xml">
       <define name="DC_SHUTTER_LED" value="5"/><!-- led4:aux led5:camsw-->
     </load>
-    <load name="nav_survey_poly_adv.xml"/>
+    <load name="nav_survey_polygon.xml"/>
   </modules>
 
 <!-- ################################################## -->

@@ -20,13 +20,13 @@
  */
 
 /**
- * @file modules/nav/nav_survey_poly_adv.c
+ * @file modules/nav/nav_survey_polygon.c
  *
  * Advanced polygon survey for fixedwings from Uni Stuttgart.
  *
  */
 
-#include "nav_survey_poly_adv.h"
+#include "nav_survey_polygon.h"
 
 #include "subsystems/nav.h"
 #include "state.h"
@@ -129,7 +129,7 @@ static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, str
  *  @param min_rad       minimal radius when navigating
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
-bool_t nav_survey_poly_adv_start(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude)
+bool_t nav_survey_polygon_start(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude)
 {
   int i;
   struct FloatVect2 small, sweep;
@@ -228,9 +228,9 @@ bool_t nav_survey_poly_adv_start(uint8_t first_wp, uint8_t size, float angle, fl
 /**
  * main navigation routine. This is called periodically evaluates the current
  * Position and stage and navigates accordingly.
- * Returns True until the survey is finished
+ * @returns True until the survey is finished
  */
-bool_t nav_survey_poly_adv_run(void)
+bool_t nav_survey_polygon_run(void)
 {
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
