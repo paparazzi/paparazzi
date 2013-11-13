@@ -152,7 +152,7 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stab_att_sp_euler.psi = ANGLE_FLOAT_OF_BFP(heading);
 }
 
-#define MAX_SUM_ERR RadOfDeg(56000)
+#define MAX_SUM_ERR 200
 
 void stabilization_attitude_run(bool_t  in_flight) {
 
