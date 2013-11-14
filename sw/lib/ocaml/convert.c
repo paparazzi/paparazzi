@@ -116,6 +116,13 @@ c_sprint_int32(value s, value index, value x) {
 }
 
 value
+c_sprint_int64(value s, value index, value x) {
+  int64_t *p = (int64_t*) (String_val(s) + Int_val(index));
+  *p = (int64_t)Int64_val(x);
+  return Val_unit;
+}
+
+value
 c_int16_of_indexed_bytes(value s, value index)
 {
   int16_t *x = (int16_t*)(String_val(s) + Int_val(index));
@@ -137,4 +144,12 @@ c_int32_of_indexed_bytes(value s, value index)
   int32_t *x = (int32_t*)(String_val(s) + Int_val(index));
 
   return copy_int32(*x);
+}
+
+value
+c_int64_of_indexed_bytes(value s, value index)
+{
+  int64_t *x = (int64_t*)(String_val(s) + Int_val(index));
+
+  return copy_int64(*x);
 }

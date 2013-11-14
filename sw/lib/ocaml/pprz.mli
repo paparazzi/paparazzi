@@ -31,8 +31,9 @@ type format = string
 type _type =
     Scalar of string
   | ArrayType of string
+  | FixedArrayType of string * int
 type value =
-    Int of int | Float of float | String of string | Int32 of int32
+    Int of int | Float of float | String of string | Int32 of int32 | Char of char | Int64 of int64
   | Array of value array
 type field = {
     _type : _type;
@@ -50,12 +51,14 @@ type message = {
 
 
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
+external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes"
 (** [int32_of_bytes buffer offset] *)
 
 val separator : string
 (** Separator in array values *)
 
 val is_array_type : string -> bool
+val is_fixed_array_type : string -> bool
 
 val size_of_field : field -> int
 val string_of_value : value -> string
@@ -79,6 +82,7 @@ val string_assoc : string -> values -> string
 val float_assoc : string -> values -> float
 val int_assoc : string -> values -> int
 val int32_assoc : string -> values -> Int32.t
+val int64_assoc : string -> values -> Int64.t
 (** May raise Not_found or Invalid_argument *)
 
 val hex_of_int_array : value -> string
