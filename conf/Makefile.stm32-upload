@@ -59,6 +59,7 @@ else ifeq ($(FLASH_MODE),JTAG)
 # either via normal jtag or BlackMagicProbe
 ifeq ($(BMP_PORT),)
 # normal jtag via OpenOCD
+OOCD ?= openocd
 upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using OOCD = $(OOCD)"

@@ -6,51 +6,32 @@
 # Minimal makefile for arm-linux-gnueabi or arm-none-linux-gnueabi toolchain.
 # Assuming installed in default location.
 
+PREFIX ?= arm-linux-gnueabi
 
 #
-# try to pick up the compiler from the path
+# if gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
 #
-CC   = $(shell which arm-linux-gnueabi-gcc)
-LD   = $(shell which arm-linux-gnueabi-gcc)
-AR   = $(shell which arm-linux-gnueabi-ar)
-CP   = $(shell which arm-linux-gnueabi-objcopy)
-DMP  = $(shell which arm-linux-gnueabi-objdump)
-NM   = $(shell which arm-linux-gnueabi-nm)
-SIZE = $(shell which arm-linux-gnueabi-size)
-GDB  = $(shell which arm-linux-gnueabi-gdb)
-TOOLCHAIN_DIR=$(shell dirname `which arm-linux-gnueabi`)
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-linux-gnueabi/lib
-
-# if the above toolchain is used add the include folder
-CFLAGS += -I/usr/arm-linux-gnueabi/include
-
-#
-# if not found in path, try the codesourcery toolchain in /usr/local/codesourcery
-#
-ifeq ($(CC),)
-TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-linux-gnueabi/lib
-
-# Define programs and commands.
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-linux-gnueabi
-CC   = $(GCC_BIN_PREFIX)-gcc
-LD   = $(GCC_BIN_PREFIX)-gcc
-AR   = $(GCC_BIN_PREFIX)-ar
-CP   = $(GCC_BIN_PREFIX)-objcopy
-DMP  = $(GCC_BIN_PREFIX)-objdump
-NM   = $(GCC_BIN_PREFIX)-nm
-SIZE = $(GCC_BIN_PREFIX)-size
-GDB  = $(GCC_BIN_PREFIX)-gdb
+ifeq ($(shell which $(PREFIX)-gcc),)
+  TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
+  ifneq ($(TOOLCHAIN),)
+    PREFIX=$(shell dirname $(TOOLCHAIN))/bin/arm-none-linux-gnueabi
+  else
+    # no suitable toolchain found...
+    $(error Error: arm-linux-gnueabi-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabi package.)
+  endif
 else
-# toolchain not found...
-endif
+  # this was previously explicitly added, but shouln't be needed...
+  #CFLAGS += -I/usr/arm-linux-gnueabi/include
 endif
 
-# checking if gcc has thumb2 instruction
-MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+CC   = $(PREFIX)-gcc
+LD   = $(PREFIX)-gcc
+AR   = $(PREFIX)-ar
+CP   = $(PREFIX)-objcopy
+DMP  = $(PREFIX)-objdump
+NM   = $(PREFIX)-nm
+SIZE = $(PREFIX)-size
+GDB  = $(PREFIX)-gdb
 
 # some general commands
 RM = rm

@@ -29,11 +29,11 @@
 printcommands:
 	@echo ""
 	@echo "Using CC   = $(CC)"
-	@echo "Using LD   = $(LD)"
-	@echo "Using CP   = $(CP)"
-	@echo "Using DMP  = $(DMP)"
-	@echo "Using NM   = $(NM)"
-	@echo "Using SIZE = $(SIZE)"
+#	@echo "Using LD   = $(LD)"
+#	@echo "Using CP   = $(CP)"
+#	@echo "Using DMP  = $(DMP)"
+#	@echo "Using NM   = $(NM)"
+#	@echo "Using SIZE = $(SIZE)"
 	@echo "GCC version:"
 	@$(CC) --version | head -1
 	@echo ""

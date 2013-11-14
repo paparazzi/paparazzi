@@ -47,15 +47,3 @@ clean_list :
 	$(RM) *~
 
 .PHONY : sizebefore sizeafter clean clean_list
-
-#
-# Find OpenOCD
-#
-# first try in the path
-OOCD = $(shell which openocd)
-#if OpenOCD could not be found in the path, try the toolchain dir (for backwards compatibility)
-ifeq ($(OOCD),)
-ifneq ($(TOOLCHAIN),)
-OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_DIR)/bin/openocd ; else echo "Warning: OpenOCD not found"; fi)
-endif
-endif
