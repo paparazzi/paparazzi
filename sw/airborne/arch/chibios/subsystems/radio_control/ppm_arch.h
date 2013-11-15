@@ -24,12 +24,24 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant ppm drivers
- * @note Empty for now, just to provide compatibilty
+ * @file arch/chibios/subsystems/radio_control/ppm_arch.h
+ * PPM interface between ChibiOS and Paparazzi
  *
+ * Input capture configuration has to be defined in the board.h
  */
 #ifndef PPM_ARCH_H
 #define PPM_ARCH_H
+
+#include BOARD_CONFIG
+
+/// The ppm counter desired resolution is 1/6 us.
+#ifndef RC_PPM_TICKS_PER_USEC
+#error "RC_PPM_TICKS_PER_USEC not set in board.h file"
+#endif
+
+#define RC_PPM_TICKS_OF_USEC(_v)        ((_v)*RC_PPM_TICKS_PER_USEC)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v)*RC_PPM_TICKS_PER_USEC)
+#define USEC_OF_RC_PPM_TICKS(_v)        ((_v)/RC_PPM_TICKS_PER_USEC)
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 

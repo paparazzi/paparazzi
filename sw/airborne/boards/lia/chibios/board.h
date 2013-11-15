@@ -192,6 +192,15 @@
 /* 5 green, on PC15 */
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_PIN 15
+
+/*
+ * PPM radio defines
+ */
+#define RC_PPM_TICKS_PER_USEC 6
+#define PPM_TIMER_FREQUENCY 1000000
+#define PPM_CHANNEL ICU_CHANNEL_3
+#define PPM_TIMER ICUD1
+
 /*
  * ADCs
  */
