@@ -28,10 +28,11 @@
     <define name="USE_ADC_2" value="1"/>
   </firmware>
 
-	<modules main_freq="512">
-		<load name="gps_ubx_ucenter.xml"/>
-		<load name="geo_mag.xml"/>
+  <modules main_freq="512">
+    <load name="gps_ubx_ucenter.xml"/>
+    <load name="geo_mag.xml"/>
     <load name="osd_max7456.xml"/>
+    <load name="hott_telemetry.xml"/>
   </modules>
 
   <commands>
