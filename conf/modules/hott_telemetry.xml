@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="hott_telemetry" dir="hott">
+  <header>
+    <file name="hott.h"/>
+  </header>
+  <init fun="hott_init()"/>
+  <periodic fun="hott_periodic()" freq="5."/>
+	<event fun="hott_event()"/>
+  <makefile>	
+    <file name="hott.c"/>
+    <define name="HOTT_PORT" value="uart1"/>
+    
+    <!-- you have to define HOTT serial port number and baudrate -->
+    <define name="USE_UART1" value="1"/>
+    <define name="UART1_BAUD" value="B19200"/>
+    
+    <define name="HOTT_SIM_EAM_SENSOR" value="1"/>
+    <!--<define name="HOTT_SIM_GAM_SENSOR" value="1"/>-->
+    <!--<define name="HOTT_SIM_GPS_SENSOR" value="1"/>-->
+    <!--<define name="HOTT_SIM_VARIO_SENSOR" value="1"/>-->
+  </makefile>
+</module>
+
