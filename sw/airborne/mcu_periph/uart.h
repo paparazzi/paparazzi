@@ -80,6 +80,9 @@ extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph* p);
 
+/**
+ * Returns number of char in the buffer
+ */
 static inline uint16_t uart_char_available(struct uart_periph* p) {
   int16_t available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0)
