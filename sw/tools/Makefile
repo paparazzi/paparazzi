@@ -33,15 +33,15 @@ all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_mess
 FP_CMO = fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
-gen_flight_plan.out : $(FP_CMO)
+gen_flight_plan.out : $(FP_CMO) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
-gen_srtm.out : gen_srtm.ml
+gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
-%.out : %.ml gen_common.cmo
+%.out : %.ml gen_common.cmo $(LIBPPRZCMA)
 	@echo OL $<
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gen_common.cmo $<
 
