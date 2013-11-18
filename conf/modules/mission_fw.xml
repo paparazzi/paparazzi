@@ -24,7 +24,7 @@
   <datalink message="GOTO_MISSION" fun="mission_parse_GOTO_MISSION()"/>
   <datalink message="NEXT_MISSION" fun="mission_parse_NEXT_MISSION()"/>
   <datalink message="END_MISSION" fun="mission_parse_END_MISSION()"/>
-  
+
   <makefile>
     <file name="mission.c"/>
     <file name="mission_fw_nav.c"/>

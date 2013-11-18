@@ -21,7 +21,7 @@
     </program>
 
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    
+
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
@@ -90,7 +90,7 @@
         <arg flag="-udp"/>
       </program>
     </session>
-    
+
    <session name="Flight USB-serial@9600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>

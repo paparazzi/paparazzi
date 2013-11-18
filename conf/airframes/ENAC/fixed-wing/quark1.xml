@@ -70,7 +70,7 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    
+
     <define name="GYRO_P_SIGN" value="1"/>
     <define name="GYRO_Q_SIGN" value="-1"/>
     <define name="GYRO_R_SIGN" value="-1"/>
