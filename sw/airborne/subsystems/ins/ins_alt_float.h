@@ -32,55 +32,18 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "state.h"
-#include "generated/modules.h"
+
+extern float ins_alt; ///< estimated altitude above MSL in meters
+extern float ins_alt_dot; ///< estimated vertical speed in m/s (positive-up)
 
 #if USE_BAROMETER
-#ifdef BARO_MS5534A
-#include "baro_MS5534A.h"
-#endif
-
-#if USE_BARO_ETS
-#include "modules/sensors/baro_ets.h"
-#endif
-
-#if USE_BARO_BMP
-#include "modules/sensors/baro_bmp.h"
-#endif
-
-#if USE_BARO_MS5611
-#include "modules/sensors/baro_ms5611_i2c.h"
-#endif
-
-#if USE_BARO_AMSYS
-#include "modules/sensors/baro_amsys.h"
-#endif
-
 extern float ins_qfe;
 extern float ins_baro_alt;
 extern bool_t ins_baro_initialized;
-#endif //USE_BAROMETER
+#endif
 
-extern float ins_alt; ///< estimated altitude above MSL in meters
-
-extern float ins_alt_dot; ///< estimated vertical speed in m/s (positive-up)
-
-extern bool_t alt_kalman_enabled;
 extern void alt_kalman_reset( void );
 extern void alt_kalman_init( void );
 extern void alt_kalman( float );
-
-#if USE_BAROMETER
-/* Kalman filter cannot be disabled in this mode (no z_dot) */
-#define EstimatorSetAlt(z) alt_kalman(z)
-#else /* USE_BAROMETER */
-#define EstimatorSetAlt(z) { \
-  if (!alt_kalman_enabled) { \
-    ins_alt = z; \
-  } else { \
-    alt_kalman(z); \
-  } \
-}
-#endif /* ! USE_BAROMETER */
 
 #endif /* INS_ALT_FLOAT_H */

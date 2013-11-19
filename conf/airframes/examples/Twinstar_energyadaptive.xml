@@ -162,7 +162,6 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/> <!-- default is 60Hz -->
     <define name="NO_XBEE_API_INIT" value="TRUE"/>
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="70."/>
     <define name="MIN_CIRCLE_RADIUS" value="35.0"/>
