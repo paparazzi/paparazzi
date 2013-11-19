@@ -89,8 +89,24 @@ void xbee_init( void );
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
   }
+#define XBeeTransportPutUint64ByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+  }
+#define XBeeTransportPutInt64ByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+  }
 #else
 #define XBeeTransportPutDoubleByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+  }
+#define XBeeTransportPutUint64ByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+  }
+#define XBeeTransportPutInt64ByAddr(_dev, _byte) { \
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
     XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
   }
@@ -105,6 +121,7 @@ void xbee_init( void );
 #define XBeeTransportPutUint32ByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define XBeeTransportPutFloatByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define XBeeTransportPutNamedUint8(_dev, _name, _byte) XBeeTransportPutUint8(_dev, _byte)
+#define XBeeTransportPutCharByAddr(_dev, _x) XBeeTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
 
 #define XBeeTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
@@ -114,13 +131,49 @@ void xbee_init( void );
   } \
 }
 
-#define XBeeTransportPutInt16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt16ByAddr, _n, _x)
-
-#define XBeeTransportPutUint16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint16ByAddr, _n, _x)
+#define XBeeTransportPutInt8Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt8ByAddr, _n, _x)
 #define XBeeTransportPutUint8Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint8ByAddr, _n, _x)
+
+#define XBeeTransportPutCharArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutCharByAddr, _n, _x)
+
+#define XBeeTransportPutInt16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt16ByAddr, _n, _x)
+#define XBeeTransportPutUint16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint16ByAddr, _n, _x)
+
+#define XBeeTransportPutInt32Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt32ByAddr, _n, _x)
+#define XBeeTransportPutUint32Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint32ByAddr, _n, _x)
+
 #define XBeeTransportPutFloatArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutFloatByAddr, _n, _x)
+
+#define XBeeTransportPutInt64Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt64ByAddr, _n, _x)
+#define XBeeTransportPutUint64Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint64ByAddr, _n, _x)
+
 #define XBeeTransportPutDoubleArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutDoubleByAddr, _n, _x)
 
+
+#define XBeeTransportPutFixedArray(_dev, _put, _n, _x) { \
+  uint8_t _i; \
+  for(_i = 0; _i < _n; _i++) { \
+    _put(_dev, &_x[_i]); \
+  } \
+}
+
+#define XBeeTransportPutInt8FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutInt8ByAddr, _n, _x)
+#define XBeeTransportPutUint8FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutUint8ByAddr, _n, _x)
+
+#define XBeeTransportPutCharFixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutCharByAddr, _n, _x)
+
+#define XBeeTransportPutInt16FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutInt16ByAddr, _n, _x)
+#define XBeeTransportPutUint16FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutUint16ByAddr, _n, _x)
+
+#define XBeeTransportPutInt32FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutInt32ByAddr, _n, _x)
+#define XBeeTransportPutUint32FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutUint32ByAddr, _n, _x)
+
+#define XBeeTransportPutFloatFixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutFloatByAddr, _n, _x)
+
+#define XBeeTransportPutInt64FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutInt64ByAddr, _n, _x)
+#define XBeeTransportPutUint64FixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutUint64ByAddr, _n, _x)
+
+#define XBeeTransportPutDoubleFixedArray(_dev, _n, _x) XBeeTransportPutFixedArray(_dev, XBeeTransportPutDoubleByAddr, _n, _x)
 
 
 #define XBeeTransportHeader(_dev, _len) { \

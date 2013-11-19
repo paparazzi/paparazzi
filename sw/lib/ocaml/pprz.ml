@@ -32,8 +32,9 @@ type format = string
 type _type =
     Scalar of string
   | ArrayType of string
+  | FixedArrayType of string * int
 type value =
-    Int of int | Float of float | String of string | Int32 of int32
+    Int of int | Float of float | String of string | Int32 of int32 | Char of char | Int64 of int64
   | Array of value array
 type field = {
   _type : _type;
@@ -78,8 +79,10 @@ external double_of_bytes : string -> int -> float = "c_double_of_indexed_bytes"
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
 external int8_of_bytes : string -> int -> int = "c_int8_of_indexed_bytes"
 external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
+external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 external sprint_double : string -> int -> float -> unit = "c_sprint_double"
+external sprint_int64 : string -> int -> int64 -> unit = "c_sprint_int64"
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 external sprint_int16 : string -> int -> int -> unit = "c_sprint_int16"
 external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
@@ -88,12 +91,15 @@ let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
   ("uint16", { format = "%u";  glib_type = "guint16"; inttype = "uint16_t"; size = 2; value=Int 42 });
   ("uint32", { format = "%lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 });
+  ("uint64", { format = "%Lu" ;  glib_type = "guint64"; inttype = "uint64_t"; size = 8; value=Int 42 });
   ("int8",   { format = "%d"; glib_type = "gint8"; inttype = "int8_t";   size = 1; value= Int 42 });
   ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
   ("int32",  { format = "%ld" ;  glib_type = "gint32"; inttype = "int32_t";  size = 4; value=Int 42 });
+  ("int64",  { format = "%Ld" ;  glib_type = "gint64"; inttype = "int64_t";  size = 8; value=Int 42 });
   ("float",  { format = "%f" ;  glib_type = "gfloat"; inttype = "float";  size = 4; value=Float 4.2 });
-  ("double",  { format = "%f" ;  glib_type = "gdouble"; inttype = "double";  size = 8; value=Float 4.2 });
-  ("string",  { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
+  ("double", { format = "%f" ;  glib_type = "gdouble"; inttype = "double";  size = 8; value=Float 4.2 });
+  ("char",   { format = "%c" ;  glib_type = "gchar"; inttype = "char";  size = 1; value=Char '*' });
+  ("string", { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
 ]
 
 let is_array_type = fun s ->
@@ -104,6 +110,30 @@ let type_of_array_type = fun s ->
   let n = String.length s in
   String.sub s 0 (n-2)
 
+let is_fixed_array_type = fun s ->
+  let type_parts = Str.full_split (Str.regexp "[][]") s in
+  match type_parts with
+    | [Str.Text _; Str.Delim "["; Str.Text _ ; Str.Delim "]"] -> true
+    | _ -> false
+
+let type_of_fixed_array_type = fun s ->
+  try
+    let type_parts = Str.full_split (Str.regexp "[][]") s in
+    match type_parts with
+      | [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> begin ignore( int_of_string (len)); ty end
+      | _ -> failwith("Pprz.type_of_fixed_array_type is not a fixed array type")
+  with
+    | Failure str -> failwith(sprintf "Pprz.type_of_fixed_array_type: length is not an integer")
+
+let length_of_fixed_array_type = fun s ->
+  try
+    let type_parts = Str.full_split (Str.regexp "[][]") s in
+    match type_parts with
+      | [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> begin ignore( int_of_string (len)); len end
+      | _ -> failwith("Pprz.type_of_fixed_array_type is not a fixed array type")
+  with
+    | Failure str -> failwith(sprintf "Pprz.type_of_fixed_array_type: length is not an integer")
+
 let int_of_string = fun x ->
   try int_of_string x with
       _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
@@ -112,17 +142,23 @@ let rec value = fun t v ->
   match t with
       Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v)
     | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
+    | Scalar ("uint64" | "int64") -> Int64 (Int64.of_string v)
     | Scalar ("float" | "double") -> Float (float_of_string v)
     | Scalar "string" -> String v
+    | Scalar "char" -> Char v.[0]
     | ArrayType t' ->
-      Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
+        Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
+    | FixedArrayType (t',l') ->
+        Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
     | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
 
 
 let rec string_of_value = function
-Int x -> string_of_int x
+    Int x -> string_of_int x
   | Float x -> string_of_float x
   | Int32 x -> Int32.to_string x
+  | Int64 x -> Int64.to_string x
+  | Char c -> String.make 1 c
   | String s -> s
   | Array a -> String.concat separator (Array.to_list (Array.map string_of_value a))
 
@@ -140,15 +176,16 @@ let sizeof = fun f ->
   match f with
       Scalar t -> (List.assoc t types).size
     | ArrayType t -> failwith "sizeof: Array"
+    | FixedArrayType (t,l) -> failwith "sizeof: Array"
 let size_of_field = fun f -> sizeof f._type
-let default_format = function
-Scalar x | ArrayType x ->
+let default_format = function Scalar x | ArrayType x | FixedArrayType (x,_) ->
   try (List.assoc x types).format with
       Not_found -> failwith (sprintf "Unknown format '%s'" x)
 let default_value = fun x ->
   match x with
       Scalar t -> (List.assoc t types).value
     | ArrayType t -> failwith "default_value: Array"
+    | FixedArrayType (t,l) -> failwith "default_value: Array"
 
 let payload_size_of_message = fun message ->
   List.fold_right
@@ -208,7 +245,9 @@ let alt_unit_coef_of_xml = fun ?auto xml ->
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
-  let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
+  let t = if is_array_type t then ArrayType (type_of_array_type t)
+          else if is_fixed_array_type t then FixedArrayType (type_of_fixed_array_type t, int_of_string(length_of_fixed_array_type t))
+          else Scalar t in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
   let auc = alt_unit_coef_of_xml xml in
   let values = try Str.split pipe_regexp (Xml.attrib xml "values") with _ -> [] in
@@ -236,6 +275,11 @@ let int_of_value = fun value ->
       if Int32.compare x (Int32.of_int i) <> 0 then
         failwith "Pprz.int_assoc: Int32 too large to be converted into an int";
       i
+    | Int64 x ->
+      let i = Int64.to_int x in
+      if Int64.compare x (Int64.of_int i) <> 0 then
+        failwith "Pprz.int_assoc: Int64 too large to be converted into an int";
+      i
     | _ -> invalid_arg "Pprz.int_assoc"
 
 let int_assoc = fun (a:string) vs ->
@@ -246,7 +290,14 @@ let int32_assoc = fun (a:string) vs ->
       Int32 x -> x
     | _ -> invalid_arg "Pprz.int_assoc"
 
+let int64_assoc = fun (a:string) vs ->
+  match assoc a vs with
+    Int64 x -> x
+  | _ -> invalid_arg "Pprz.int_assoc"
+
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
+
+let char_assoc = fun (a:string) (vs:values) -> (string_of_value (assoc a vs)).[0]
 
 let link_mode_of_string = function
 "forwarded" -> Forwarded
@@ -283,12 +334,14 @@ let parse_class = fun xml_class ->
 let rec value_of_bin = fun buffer index _type ->
   match _type with
       Scalar "uint8" -> Int (Char.code buffer.[index]), sizeof _type
+    | Scalar "char" -> Char (buffer.[index]), sizeof _type
     | Scalar "int8" -> Int (int8_of_bytes buffer index), sizeof _type
     | Scalar "uint16" -> Int (Char.code buffer.[index+1] lsl 8 + Char.code buffer.[index]), sizeof _type
     | Scalar "int16" -> Int (int16_of_bytes buffer index), sizeof _type
     | Scalar "float" -> Float (float_of_bytes buffer index), sizeof _type
     | Scalar "double" -> Float (double_of_bytes buffer index), sizeof _type
     | Scalar ("int32"  | "uint32") -> Int32 (int32_of_bytes buffer index), sizeof _type
+    | Scalar ("int64"  | "uint64") -> Int64 (int64_of_bytes buffer index), sizeof _type
     | ArrayType t ->
       (** First get the number of values *)
       let n = int8_of_bytes buffer index in
@@ -296,7 +349,15 @@ let rec value_of_bin = fun buffer index _type ->
       let s = sizeof type_of_elt in
       let size = 1 + n * s in
       (Array (Array.init n
-                (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
+          (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
+    | FixedArrayType (t,l) ->
+      (** First get the number of values *)
+      let n = l in
+      let type_of_elt = Scalar t in
+      let s = sizeof type_of_elt in
+      let size = 0 + n * s in
+      (Array (Array.init n
+         (fun i -> fst (value_of_bin buffer (index+0+i*s) type_of_elt))), size)
     | Scalar "string" ->
       let n = Char.code buffer.[index] in
       (String (String.sub buffer (index+1) n), (1+n))
@@ -321,6 +382,7 @@ let rec sprint_value = fun buf i _type v ->
     | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
     | Scalar "double", Float f -> sprint_double buf i f; sizeof _type
     | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
+    | Scalar ("int64"|"uint64"), Int64 x -> sprint_int64 buf i x; sizeof _type
     | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
     | Scalar ("int32" | "uint32"), Int value ->
       assert (_type <> Scalar "uint32" || value >= 0);
@@ -329,6 +391,17 @@ let rec sprint_value = fun buf i _type v ->
       buf.[i+1] <- byte (value lsr 8);
       buf.[i+0] <- byte value;
       sizeof _type
+    | Scalar ("int64" | "uint64"), Int value ->
+        assert (_type <> Scalar "uint64" || value >= 0);
+        buf.[i+7] <- byte (value asr 56);
+        buf.[i+6] <- byte (value lsr 48);
+        buf.[i+5] <- byte (value lsr 40);
+        buf.[i+4] <- byte (value lsr 32);
+        buf.[i+3] <- byte (value lsr 24);
+        buf.[i+2] <- byte (value lsr 16);
+        buf.[i+1] <- byte (value lsr 8);
+        buf.[i+0] <- byte value;
+        sizeof _type
     | Scalar "uint16", Int value ->
       assert (value >= 0);
       buf.[i+1] <- byte (value lsr 8);
@@ -342,8 +415,17 @@ let rec sprint_value = fun buf i _type v ->
       let s = sizeof type_of_elt in
       for j = 0 to n - 1 do
         ignore (sprint_value buf (i+1+j*s) type_of_elt values.(j))
-      done;
-      1 + n * s
+        done;
+        1 + n * s
+    | FixedArrayType (t,l), Array values ->
+        (** Put the size first, then the values *)
+        let n = Array.length values in
+        let type_of_elt = Scalar t in
+        let s = sizeof type_of_elt in
+        for j = 0 to n - 1 do
+          ignore (sprint_value buf (i+0+j*s) type_of_elt values.(j))
+        done;
+        0 + n * s
     | Scalar "string", String s ->
       let n = String.length s in
       assert (n < 256);
@@ -353,7 +435,10 @@ let rec sprint_value = fun buf i _type v ->
         failwith "Error in sprint_value: message too long";
       String.blit s 0 buf (i+1) n;
       1 + n
+    | Scalar "char", Char c ->
+        buf.[i] <- c; sizeof _type
     | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
+    | FixedArrayType (x,l), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
 
 
 
