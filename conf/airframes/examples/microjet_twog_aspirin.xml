@@ -174,7 +174,6 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
   </section>
 
 </airframe>

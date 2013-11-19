@@ -11,7 +11,6 @@
 
   <firmware name="fixedwing">
     <define name="PITCH_TRIM"/>
-    <define name="ALT_KALMAN"/>
 
     <target name="ap" 			        board="tiny_2.11"/>
     <target name="sim" 			        board="pc"/>
@@ -115,7 +114,6 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
 <!--    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN1\rATTT80\r&quot;"/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
-    <define name="ALT_KALMAN_ENABLED" value="FALSE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
