@@ -7,13 +7,19 @@
   <init fun="hott_init()"/>
   <periodic fun="hott_periodic()" freq="5."/>
 	<event fun="hott_event()"/>
-  <makefile>	
+  <makefile target="ap">	
     <file name="hott.c"/>
-    <define name="HOTT_PORT" value="uart1"/>
     
-    <!-- you have to define HOTT serial port number and baudrate -->
-    <define name="USE_UART1" value="1"/>
-    <define name="UART1_BAUD" value="B19200"/>
+    <!-- you can choose a proper HOTT serial port number -->
+    <raw>
+      HOTT_PORT ?= UART1
+      HOTT_PORT_LOWER=$(shell echo $(HOTT_PORT) | tr A-Z a-z)
+      HOTT_PORT_UPPER=$(shell echo $(HOTT_PORT) | tr a-z A-Z)
+    </raw>
+    
+    <define name="HOTT_PORT" value="$(HOTT_PORT_LOWER)"/>
+    <define name="USE_$(HOTT_PORT_UPPER)"/>
+    <define name="$(HOTT_PORT_UPPER)_BAUD" value="B19200"/>
     
     <define name="HOTT_SIM_EAM_SENSOR" value="1"/>
     <!--<define name="HOTT_SIM_GAM_SENSOR" value="1"/>-->
