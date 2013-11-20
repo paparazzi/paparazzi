@@ -43,30 +43,30 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 
-#define HOTT_TEXT_MODE_REQUEST_ID	0x7f
-#define HOTT_BINARY_MODE_REQUEST_ID	0x80
+#define HOTT_TEXT_MODE_REQUEST_ID  0x7f
+#define HOTT_BINARY_MODE_REQUEST_ID  0x80
 //Sensor Ids
 
 //Graupner #33600 GPS Module
-#define HOTT_TELEMETRY_GPS_SENSOR_ID	0x8A
+#define HOTT_TELEMETRY_GPS_SENSOR_ID  0x8A
 //Graupner #33601 Vario Module
-#define HOTT_TELEMETRY_VARIO_SENSOR_ID	0x89
+#define HOTT_TELEMETRY_VARIO_SENSOR_ID  0x89
 
 static uint32_t hott_event_timer; // 1ms software timer
 static bool_t hott_telemetry_is_sending = FALSE;
 static int8_t hott_telemetry_sendig_msgs_id = 0;
 
 #if HOTT_SIM_GPS_SENSOR
-bool_t	HOTT_REQ_UPDATE_GPS = FALSE;
+bool_t  HOTT_REQ_UPDATE_GPS = FALSE;
 #endif
 #if HOTT_SIM_EAM_SENSOR
-bool_t	HOTT_REQ_UPDATE_EAM = FALSE;
+bool_t  HOTT_REQ_UPDATE_EAM = FALSE;
 #endif
 #if HOTT_SIM_VARIO_SENSOR
-bool_t	HOTT_REQ_UPDATE_VARIO = FALSE;
+bool_t  HOTT_REQ_UPDATE_VARIO = FALSE;
 #endif
 #if HOTT_SIM_GAM_SENSOR
-bool_t	HOTT_REQ_UPDATE_GAM	= FALSE;
+bool_t  HOTT_REQ_UPDATE_GAM  = FALSE;
 #endif
 
 // HoTT serial send buffer pointer
@@ -129,25 +129,25 @@ void hott_periodic(void) {
   if((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_EAM_SENSOR_ID) &&  HOTT_REQ_UPDATE_EAM == TRUE) {
     hott_update_eam_msg(&hott_eam_msg);
     HOTT_REQ_UPDATE_EAM = FALSE;
-	}
+  }
 #endif
 #if HOTT_SIM_GAM_SENSOR
   if((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_GAM_SENSOR_ID) &&  HOTT_REQ_UPDATE_GAM == TRUE) {
     hott_update_gam_msg(&hott_gam_msg);
     HOTT_REQ_UPDATE_GAM = FALSE;
-	}
+  }
 #endif
 #if HOTT_SIM_GPS_SENSOR
   if((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_GPS_SENSOR_ID) &&  HOTT_REQ_UPDATE_GPS == TRUE) {
     hott_update_gps_msg(&hott_gam_msg);
     HOTT_REQ_UPDATE_GPS = FALSE;
-	}
+  }
 #endif
 #if HOTT_SIM_VARIO_SENSOR
   if((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_VARIO_SENSOR_ID) &&  HOTT_REQ_UPDATE_VARIO == TRUE) {
     hott_update_vario_msg(&hott_gam_msg);
     HOTT_REQ_UPDATE_VARIO = FALSE;
-	}
+  }
 #endif
 }
 
@@ -155,7 +155,7 @@ static void hott_send_msg(int8_t *buffer, int16_t len) {
   if(hott_telemetry_is_sending == TRUE) return;
   hott_msg_ptr = buffer;
   hott_msg_len = len + 1; //len + 1 byte for crc
-  hott_telemetry_sendig_msgs_id = buffer[1];	//HoTT msgs id is the 2. byte
+  hott_telemetry_sendig_msgs_id = buffer[1];  //HoTT msgs id is the 2. byte
 }
 
 static void hott_send_telemetry_data(void) {
@@ -177,7 +177,7 @@ static void hott_send_telemetry_data(void) {
   else {
     --hott_msg_len;
     if(hott_msg_len != 0) {
-       	msg_crc += *hott_msg_ptr;
+         msg_crc += *hott_msg_ptr;
       uart_transmit(&HOTT_PORT, *hott_msg_ptr++);
     } else
       uart_transmit(&HOTT_PORT, (int8_t)msg_crc);
@@ -185,17 +185,17 @@ static void hott_send_telemetry_data(void) {
 }
 
 static void hott_check_serial_data(uint32_t tnow) {
-	static uint32_t hott_serial_request_timer = 0;
-	if(hott_telemetry_is_sending == TRUE) return;
+  static uint32_t hott_serial_request_timer = 0;
+  if(hott_telemetry_is_sending == TRUE) return;
     if(uart_char_available(&HOTT_PORT) > 1) {
       if(uart_char_available(&HOTT_PORT) == 2) {
         if(hott_serial_request_timer == 0) {
-        	hott_serial_request_timer = tnow;
-        	return;
+          hott_serial_request_timer = tnow;
+          return;
         } else {
-        	if(tnow - hott_serial_request_timer < 4600)	//wait ca. 5ms
-        		return;
-        	hott_serial_request_timer = 0;
+          if(tnow - hott_serial_request_timer < 4600)  //wait ca. 5ms
+            return;
+          hott_serial_request_timer = 0;
         }
         uint8_t c = uart_getch(&HOTT_PORT);
         uint8_t addr = uart_getch(&HOTT_PORT);
@@ -260,7 +260,7 @@ static void hott_check_serial_data(uint32_t tnow) {
 }
 
 static void hott_periodic_event(uint32_t tnow) {
-	static uint32_t hott_serial_timer;
+  static uint32_t hott_serial_timer;
   
   hott_check_serial_data(tnow);
   if(hott_msg_ptr == 0) return;
