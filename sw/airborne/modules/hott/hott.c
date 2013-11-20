@@ -120,9 +120,6 @@ static void hott_enable_receiver(void) {
 }
 
 void hott_init(void) {
-#if USE_UART1
-  uart1_init();
-#endif
   hott_msgs_init();
 }
 
