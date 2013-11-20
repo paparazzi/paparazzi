@@ -29,21 +29,21 @@
  *
  * In order to use it a subsystem/module:
  * - include this header:
- *
+ *    @code
  *    #include "susystems/datalink/telemetry.h"
- *
+ *    @endcode
  * - write a callback function:
- *
+ *    @code
  *    void your_callback(void) {
  *      // your code to send a telemetry message goes here
  *    }
- *
+ *    @endcode
  * - register your callback function (if the message name doesn't match
  *   one of the names in your telemetry xml file or is already registered,
  *   the function return FALSE)
- *
+ *    @code
  *    register_periodic_telemetry(&your_telemetry_struct, "YOUR_MESSAGE_NAME", your_callback);
- *
+ *    @endcode
  * In most cases, the default telemetry structure should be used
  * (replace &your_telemetry_struct by DefaultPeriodic in the register function).
  */

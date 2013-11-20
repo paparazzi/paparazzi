@@ -20,6 +20,23 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/cam_control/rotorcraft_cam.c
+ * Camera control module for rotorcraft.
+ *
+ * The camera is controled by the heading of the vehicle for pan
+ * and can be controlled by a servo for tilt if defined.
+ *
+ * Four modes:
+ *  - NONE: no control
+ *  - MANUAL: the servo position is set with PWM
+ *  - HEADING: the servo position and the heading of the rotorcraft are set with angles
+ *  - WP: the camera is tracking a waypoint (Default: CAM)
+ *
+ * The CAM_SWITCH can be used to power the camera in normal modes
+ * and disable it when in NONE mode
+ */
+
 #include "modules/cam_control/rotorcraft_cam.h"
 
 #include "subsystems/actuators.h"
