@@ -47,6 +47,7 @@ float ins_alt;
 float ins_alt_dot;
 
 #if USE_BAROMETER
+PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
 #include "subsystems/sensors/baro.h"
 #include "math/pprz_isa.h"
 float ins_qfe;

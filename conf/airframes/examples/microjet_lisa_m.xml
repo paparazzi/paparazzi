@@ -20,6 +20,8 @@
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
 
+    <define name="USE_BAROMETER" value="TRUE"/>
+
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
@@ -42,6 +44,7 @@
 
   <modules>
     <load name="sys_mon.xml"/>
+    <load name="baro_sim.xml"/>
   </modules>
 
   <servos>

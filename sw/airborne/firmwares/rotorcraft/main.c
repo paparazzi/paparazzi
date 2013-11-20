@@ -55,6 +55,7 @@
 #include "subsystems/air_data.h"
 
 #if USE_BARO_BOARD
+PRINT_CONFIG_MSG("USE_BARO_BOARD is TRUE: Reading onboard baro.")
 #include "subsystems/sensors/baro.h"
 #endif
 
