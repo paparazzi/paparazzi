@@ -1,6 +1,19 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="hott_telemetry" dir="hott">
+  <doc>
+    <description>
+      Graupner HOTT telemetry control module.
+      Electric and General Air modules simulation supported.
+      The module configured by default to use UART1 port and to simulate Electric Air module.
+      The port number can be changed from modules section in airframe setup file.
+    </description>
+    <define name="HOTT_SIM_EAM_SENSOR" value="0|1" description="Electric Air module simulation switch"/>
+    <define name="HOTT_SIM_GAM_SENSOR" value="0|1" description="General Air module simulation switch"/>
+    <define name="HOTT_SIM_GPS_SENSOR" value="0|1" description="GPS module simulation switch"/>
+    <define name="HOTT_SIM_VARIO_SENSOR" value="0|1" description="Vario module simulation switch"/>
+    <configure name="HOTT_UART" value="UART1|UART2|UART3|UART4|UART5|UART6" description="HOTT telemetry port name"/>
+  </doc>
   <header>
     <file name="hott.h"/>
   </header>
@@ -10,7 +23,6 @@
   <makefile target="ap">	
     <file name="hott.c"/>
     
-    <!-- you can choose a proper HOTT serial port number -->
     <raw>
       HOTT_PORT ?= UART1
       HOTT_PORT_LOWER=$(shell echo $(HOTT_PORT) | tr A-Z a-z)
@@ -22,9 +34,9 @@
     <define name="$(HOTT_PORT_UPPER)_BAUD" value="B19200"/>
     
     <define name="HOTT_SIM_EAM_SENSOR" value="1"/>
-    <!--<define name="HOTT_SIM_GAM_SENSOR" value="1"/>-->
-    <!--<define name="HOTT_SIM_GPS_SENSOR" value="1"/>-->
-    <!--<define name="HOTT_SIM_VARIO_SENSOR" value="1"/>-->
+    <define name="HOTT_SIM_GAM_SENSOR" value="0"/>
+    <define name="HOTT_SIM_GPS_SENSOR" value="0"/>
+    <define name="HOTT_SIM_VARIO_SENSOR" value="0"/>
   </makefile>
 </module>
 
