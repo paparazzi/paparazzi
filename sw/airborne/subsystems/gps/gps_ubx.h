@@ -56,10 +56,31 @@ struct GpsUbx {
   uint8_t status_flags;
   uint8_t sol_flags;
   uint8_t have_velned;
+
 };
 
 extern struct GpsUbx gps_ubx;
 
+#if USE_GPS_UBX_RXM_RAW
+struct GpsUbxRawMes {
+  double cpMes;
+  double prMes;
+  float doMes;
+  uint8_t sv;
+  int8_t mesQI;
+  int8_t cno;
+  uint8_t lli;
+};
+
+struct GpsUbxRaw {
+  int32_t iTOW;
+  int16_t week;
+  uint8_t numSV;
+  struct GpsUbxRawMes measures[GPS_NB_CHANNELS];
+};
+
+extern struct GpsUbxRaw gps_ubx_raw;
+#endif
 
 /*
  * This part is used by the autopilot to read data from a uart

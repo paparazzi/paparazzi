@@ -27,7 +27,8 @@ open Printf
 let out = stdout
 
 let sizeof = function
-"U4" | "I4" -> 4
+  | "R8" -> 8
+  | "U4" | "I4" | "R4" -> 4
   | "U2" | "I2" -> 2
   | "U1" | "I1" -> 1
   | x -> failwith (sprintf "sizeof: unknown format '%s'" x)
@@ -36,12 +37,14 @@ let (+=) = fun r x -> r := !r + x
 
 let c_type = fun format ->
   match format with
-      "I2" -> "int16_t"
+    | "R8" -> "double"
+    | "R4" -> "float"
     | "I4" -> "int32_t"
-    | "U2" -> "uint16_t"
     | "U4" -> "uint32_t"
-    | "U1" -> "uint8_t"
+    | "I2" -> "int16_t"
+    | "U2" -> "uint16_t"
     | "I1" -> "int8_t"
+    | "U1" -> "uint8_t"
     | _ -> failwith (sprintf "Gen_ubx.c_type: unknown format '%s'" format)
 
 let get_at = fun offset format block_size ->
@@ -49,7 +52,14 @@ let get_at = fun offset format block_size ->
   let block_offset =
     if block_size = 0 then "" else sprintf "+%d*_ubx_block" block_size in
   match format with
-      "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8|((%s)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((%s)*((uint8_t*)_ubx_payload+3+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
+    | "R8" ->
+        let s = ref (sprintf "*((uint8_t*)_ubx_payload+%d%s)" offset block_offset) in
+        for i = 1 to 7 do
+          s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_ubx_payload+%d+%d%s))<<%d" i offset block_offset (8*i)
+        done;
+        sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); /*Swap32IfBigEndian(_f.u)*/; _f.f; })" !s
+    | "R4" -> sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+%d%s))<<24); _f.f; })" offset block_offset offset block_offset offset block_offset offset block_offset
+    | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8|((%s)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((%s)*((uint8_t*)_ubx_payload+3+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
     | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8)" t offset block_offset offset block_offset
     | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s))" t offset block_offset
     | _ -> failwith (sprintf "Gen_ubx.c_type: unknown format '%s'" format)
