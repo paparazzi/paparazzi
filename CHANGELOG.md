@@ -1,3 +1,15 @@
+Paparazzi 5.0.3_stable
+======================
+
+Maintenance release
+
+- fix Paparazzi Center on Mac OS (detection of child processes exitting)
+  [#290] (https://github.com/paparazzi/paparazzi/issues/290)
+- state interface: fix stateCalcHorizontalSpeedNorm_i
+- fix/improve dependency generation for building firmware
+- abort with meaningful error if ARM toolchain is not found
+
+
 Paparazzi 5.0.2_stable
 ======================
 
