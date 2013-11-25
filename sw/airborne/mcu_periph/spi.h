@@ -35,6 +35,10 @@
 
 #include "mcu_periph/spi_arch.h"
 
+#ifdef USE_CHIBIOS_RTOS
+#include "hal.h"
+#endif
+
 /**
  * @addtogroup mcu_periph
  * @{
@@ -140,8 +144,13 @@ typedef void (*SPICallback)( struct spi_transaction *trans );
  *   0 is sent for the remaining words
  */
 struct spi_transaction {
+#ifdef USE_CHIBIOS_RTOS
+  uint8_t* input_buf;           ///< pointer to receive buffer for DMA
+  uint8_t* output_buf;          ///< pointer to transmit buffer for DMA
+#else
   volatile uint8_t* input_buf;  ///< pointer to receive buffer for DMA
   volatile uint8_t* output_buf; ///< pointer to transmit buffer for DMA
+#endif
   uint8_t input_length;         ///< number of data words to read
   uint8_t output_length;        ///< number of data words to write
   uint8_t slave_idx;            ///< slave id: #SPI_SLAVE0 to #SPI_SLAVE4

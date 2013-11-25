@@ -5,7 +5,6 @@
  * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
  * Calvin Coopmans (c.r.coopmans@ieee.org)
  *
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -24,35 +23,10 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant implementation of sys time functions
- * @note Partially implemented (no CPU monitor), some extra variables
- * 		 for monitoring number of threads and free memory.
- *
+ * @brief chibios arch dependant implementation of SPI interface
  */
-#ifndef SYS_TIME_ARCH_H
-#define SYS_TIME_ARCH_H
+#ifndef SPI_ARCH_H
+#define SPI_ARCH_H
 
-#include "mcu_periph/sys_time.h"
 
-extern uint32_t core_free_memory;
-extern uint8_t thread_counter;
-extern uint32_t cpu_counter;
-extern uint32_t idle_counter;
-extern uint8_t cpu_frequency;
-
-#define SysTimeTimerStart(_t) {}
-
-/*
- * FIXME: Not implemented
- */
-static inline uint32_t get_sys_time_usec(void) {
-  return 0;
-}
-
-/*
- * FIXME: Not implemented
- */
-static inline void sys_time_usleep(uint32_t us) {
-  (void)us;
-}
-#endif /* SYS_TIME_ARCH_H */
+#endif // SPI_ARCH_H

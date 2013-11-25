@@ -40,7 +40,7 @@
  * HAL driver system settings.
  */
 #define STM32_NO_INIT                       FALSE
-#define STM32_HSI_ENABLED                   TRUE//was true
+#define STM32_HSI_ENABLED                   TRUE
 #define STM32_LSI_ENABLED                   FALSE
 #define STM32_HSE_ENABLED                   TRUE
 #define STM32_LSE_ENABLED                   FALSE
@@ -49,7 +49,7 @@
 #define STM32_PREDIV1SRC                    STM32_PREDIV1SRC_HSE
 #define STM32_PREDIV1_VALUE                 1
 #define STM32_PLLMUL_VALUE                  6
-#define STM32_PREDIV2_VALUE                 3//we are not using PLL2/3
+#define STM32_PREDIV2_VALUE                 3
 #define STM32_PLL2MUL_VALUE                 10
 #define STM32_PLL3MUL_VALUE                 12
 #define STM32_HPRE                          STM32_HPRE_DIV1
@@ -125,7 +125,7 @@
 /*
  * ICU driver system settings.
  */
-#define STM32_ICU_USE_TIM1                  FALSE
+#define STM32_ICU_USE_TIM1                  TRUE
 #define STM32_ICU_USE_TIM2                  FALSE
 #define STM32_ICU_USE_TIM3                  FALSE
 #define STM32_ICU_USE_TIM4                  FALSE
@@ -163,22 +163,22 @@
 /*
  * SERIAL driver system settings.
  */
-#define STM32_SERIAL_USE_USART1             TRUE
+#define STM32_SERIAL_USE_USART1             FALSE
 #define STM32_SERIAL_USE_USART2             TRUE
-#define STM32_SERIAL_USE_USART3             TRUE
+#define STM32_SERIAL_USE_USART3             FALSE
 #define STM32_SERIAL_USE_UART4              FALSE
 #define STM32_SERIAL_USE_UART5              TRUE
 #define STM32_SERIAL_USART1_PRIORITY        12
 #define STM32_SERIAL_USART2_PRIORITY        10
 #define STM32_SERIAL_USART3_PRIORITY        9
-#define STM32_SERIAL_UART4_PRIORITY         13
+#define STM32_SERIAL_UART4_PRIORITY         15
 #define STM32_SERIAL_UART5_PRIORITY         11
 
 /*
  * SPI driver system settings.
  */
 #define STM32_SPI_USE_SPI1                  FALSE
-#define STM32_SPI_USE_SPI2                  FALSE
+#define STM32_SPI_USE_SPI2                  TRUE
 #define STM32_SPI_USE_SPI3                  FALSE
 #define STM32_SPI_SPI1_DMA_PRIORITY         1
 #define STM32_SPI_SPI2_DMA_PRIORITY         1
@@ -196,7 +196,7 @@
 #define STM32_UART_USE_USART3               FALSE
 #define STM32_UART_USART1_IRQ_PRIORITY      12
 #define STM32_UART_USART2_IRQ_PRIORITY      12
-#define STM32_UART_USART3_IRQ_PRIORITY      12
+#define STM32_UART_USART3_IRQ_PRIORITY      8
 #define STM32_UART_USART1_DMA_PRIORITY      0
 #define STM32_UART_USART2_DMA_PRIORITY      0
 #define STM32_UART_USART3_DMA_PRIORITY      0

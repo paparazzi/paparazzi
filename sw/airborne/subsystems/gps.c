@@ -34,6 +34,10 @@ struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
 
+#ifdef USE_CHIBIOS_RTOS
+Mutex gps_mutex_flag;
+#endif
+
 void gps_init(void) {
   gps.fix = GPS_FIX_NONE;
   gps.cacc = 0;
@@ -42,6 +46,9 @@ void gps_init(void) {
 #endif
 #ifdef GPS_TYPE_H
   gps_impl_init();
+#endif
+#ifdef USE_CHIBIOS_RTOS
+  chMtxInit(&gps_mutex_flag);
 #endif
 }
 

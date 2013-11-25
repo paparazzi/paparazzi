@@ -69,7 +69,8 @@
 
 /*
  * Port A setup.
- * PA0  - B - Alternate Push Pull output 50MHz (SERVO5)
+ * PA0  - 4 - Digital input                    (PPM_IN)
+ *      - B - Alternate Push Pull output 50MHz (SERVO5)
  * PA1  - B - Alternate Push Pull output 50MHz (SERVO6)
  * PA2  - B - Alternate Push Pull output 50MHz (UART2_TX)
  * PA3  - 4 - Digital input                    (UART2_RX)
@@ -104,15 +105,15 @@
  *      - 7 - Open Drain output 50MHz.         (I2C1_SDA)
  * PB8  - 4 - Digital input.                   (CAN_RX)
  * PB9  - 7 - Open Drain output 50MHz.         (CAN_TX)
- * PB10 - 7 - Open Drain output 50MHz.         (I2C2_SCL)
- * PB11 - 7 - Open Drain output 50MHz.         (I2C2_SDA)
+ * PB10 - E - Alternate Open Drain output 2MHz.(I2C2_SCL)
+ * PB11 - E - Alternate Open Drain output 2MHz.(I2C2_SDA)
  * PB12 - 3 - Push Pull output 50MHz.          (IMU_ACC_CS)
  * PB13 - B - Alternate Push Pull output 50MHz (IMU_SPI_SCK)
  * PB14 - 4 - Digital input                    (IMU_SPI_MISO)
  * PB15 - B - Alternate Push Pull output 50MHz (IMU_SPI_MOSI)
  */
 #define VAL_GPIOBCRL            0xBB474444      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0xB4B37774      /* PB15...PB8 */
+#define VAL_GPIOBCRH            0xB4B3EE74      /* PB15...PB8 */
 #define VAL_GPIOBODR            0xFFFFFFFF
 
 /*
@@ -194,14 +195,6 @@
 #define LED_5_GPIO_PIN 15
 
 /*
- * PPM radio defines
- */
-#define RC_PPM_TICKS_PER_USEC 6
-#define PPM_TIMER_FREQUENCY 1000000
-#define PPM_CHANNEL ICU_CHANNEL_3
-#define PPM_TIMER ICUD1
-
-/*
  * ADCs
  */
 #define BOARD_ADC_CHANNEL_1 13
@@ -211,7 +204,7 @@
 #define BOARD_ADC_CHANNEL_4 14
 
 /*
- *  provide defines that can be used to access the ADC_x in the code or airframe file
+ * provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above
  * 4th (index 3) is used for bat monitoring by default
  */
@@ -236,10 +229,12 @@
 #define USE_AD1_4 1
 
 #define DefaultVoltageOfAdc(adc) (0.0047*adc)
+
+// Read the electrical characteristics for STM32F105 chip
 #define CpuTempOfAdc(adc) ((1430 - adc)/4.3+25)
 
 /*
- * PWM
+ * PWM defines
  */
 #define PWM_FREQUENCY_1MHZ 1000000
 #define PWM_CMD_TO_US(_t) _t
@@ -268,18 +263,19 @@
 #define PWM_SERVO_6_DRIVER PWMD5
 #define PWM_SERVO_6_CHANNEL 1
 
-#define PWM_SERVO_7 6
-#define PWM_SERVO_7_DRIVER PWMD4
-#define PWM_SERVO_7_CHANNEL 0
-
-#define PWM_SERVO_8 7
-#define PWM_SERVO_8_DRIVER PWMD4
-#define PWM_SERVO_8_CHANNEL 1
 
 #if USE_SERVOS_7AND8
   #if USE_I2C1
     #error "You cannot USE_SERVOS_7AND8 and USE_I2C1 at the same time"
   #else
+    #define PWM_SERVO_7 6
+    #define PWM_SERVO_7_DRIVER PWMD4
+    #define PWM_SERVO_7_CHANNEL 0
+
+    #define PWM_SERVO_8 7
+    #define PWM_SERVO_8_DRIVER PWMD4
+    #define PWM_SERVO_8_CHANNEL 1
+
     #define ACTUATORS_PWM_NB 8
     #define PWM_CONF_TIM3 1
     #define PWM_CONF_TIM4 1
@@ -355,6 +351,53 @@
                0        \
                }
 #endif
+
+
+/**
+ * PPM radio defines
+ */
+#define RC_PPM_TICKS_PER_USEC 6
+#define PPM_TIMER_FREQUENCY 6000000
+#define PPM_CHANNEL ICU_CHANNEL_3
+#define PPM_TIMER ICUD1
+
+/**
+ * I2C2 defines
+ */
+#define I2C2_CLOCK_SPEED 300000
+#define I2C2_CFG_DEF {       \
+           OPMODE_I2C,        \
+           I2C2_CLOCK_SPEED,  \
+           FAST_DUTY_CYCLE_2, \
+           }
+
+/**
+ * SPI Config
+ *
+ * Just defines which make sense for Lia board
+ */
+#define SPI_SELECT_SLAVE1_PORT GPIOA
+#define SPI_SELECT_SLAVE1_PIN      4
+
+#define SPI_SELECT_SLAVE2_PORT GPIOB
+#define SPI_SELECT_SLAVE2_PIN     12
+
+#define SPI_SELECT_SLAVE3_PORT GPIOC
+#define SPI_SELECT_SLAVE3_PIN     13
+
+#define SPI_SELECT_SLAVE4_PORT GPIOC
+#define SPI_SELECT_SLAVE4_PIN     12
+
+/**
+ * Baro
+ *
+ * Apparently needed for backwards compatibility
+ * with the ancient onboard baro boards
+ */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
+
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

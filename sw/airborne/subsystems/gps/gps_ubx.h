@@ -32,15 +32,7 @@
 #endif
 
 #ifdef USE_CHIBIOS_RTOS
-//Chibios includes
-#include "ch.h"
-#include "hal.h"
-//Callbacks includes
-#include "subsystems/ahrs.h"
-#include "subsystems/ins.h"
 #define CH_THREAD_AREA_GPS_RX 1024
-extern __attribute__((noreturn)) msg_t thd_gps_rx(void *arg);
-extern Mutex gps_mutex_flag;
 #endif
 
 #include "mcu_periph/uart.h"
