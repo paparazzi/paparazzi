@@ -49,9 +49,8 @@
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 // I2C Error counters
-#ifndef USE_CHIBIOS_RTOS
 #include "mcu_periph/i2c.h"
-#endif
+
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 

@@ -77,10 +77,6 @@
     UbxSend2(len);                              \
   }
 
-#ifdef USE_CHIBIOS_RTOS
-Mutex gps_mutex_flag;
-#endif
-
 
 struct GpsUbx gps_ubx;
 
@@ -296,14 +292,13 @@ __attribute__((noreturn)) msg_t thd_gps_rx(void *arg)
 {
   chRegSetThreadName("pprz_gps_rx");
   (void) arg;
-  chMtxInit(&gps_mutex_flag);
   EventListener elGPSdata;
   flagsmask_t flags;
   chEvtRegisterMask((EventSource *)chnGetEventSource((SerialDriver*)GPS_PORT.reg_addr), &elGPSdata, EVENT_MASK(1));
   while (TRUE) {
      chEvtWaitOneTimeout(EVENT_MASK(1), S2ST(1));
      flags = chEvtGetAndClearFlags(&elGPSdata);
-     UART_GETCH(GPS_PORT, flags, gps_ubx_parse);
+     ch_uart_receive(GPS_PORT, flags, gps_ubx_parse);
    if (gps_ubx.msg_available) {
      chMtxLock(&gps_mutex_flag);
      gps_ubx_read_message();
@@ -316,8 +311,7 @@ __attribute__((noreturn)) msg_t thd_gps_rx(void *arg)
          gps.last_fix_ticks = sys_time.nb_sec_rem;
          gps.last_fix_time = sys_time.nb_sec;
        }
-       ahrs_update_gps();
-       ins_update_gps();
+       on_gps_event();
      }
      chMtxUnlock();
      gps_ubx.msg_available = FALSE;

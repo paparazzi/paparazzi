@@ -61,6 +61,11 @@ else ifeq ($(ARCH), stm32)
 # SLAVE2 is on PB12 (NSS) (MPU600 CS)
 ASPIRIN_2_SPI_DEV ?= spi2
 ASPIRIN_2_SPI_SLAVE_IDX ?= SPI_SLAVE2
+else ifeq ($(ARCH), chibios)
+# Slave select configuration
+# SLAVE2 is on PB12 (NSS) (MPU600 CS)
+ASPIRIN_2_SPI_DEV ?= spi2
+ASPIRIN_2_SPI_SLAVE_IDX ?= SPI_SLAVE2
 endif
 
 ifeq ($(TARGET), ap)

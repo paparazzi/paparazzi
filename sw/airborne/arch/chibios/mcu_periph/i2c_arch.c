@@ -101,54 +101,64 @@ void i2c_setbitrate(struct i2c_periph* p, int bitrate){
  * (such as i2c_transmit(), i2c_transcieve()) and ChibiOS i2c
  * transmit function i2cMasterTransmitTimeout()
  *
+ * Note that we are using the same buffer for transmit and recevive. It is
+ * OK because in i2c transaction is Tx always before Rx.
+ *
  * @param[in] p pointer to a @p i2c_periph struct
  * @param[in] t pointer to a @p i2c_transaction struct
  */
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t){
+#if USE_I2C1 || USE_I2C2 || USE_I2C3
   static msg_t status = RDY_OK;
   static systime_t tmo = US2ST(1000000/PERIODIC_FREQUENCY);
-  i2cAcquireBus(&I2CD2);
+  i2cAcquireBus((I2CDriver*)p->reg_addr));
   status = i2cMasterTransmitTimeout((I2CDriver*)p->reg_addr, (i2caddr_t)((t->slave_addr)>>1),
-                                    t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
-  i2cReleaseBus(&I2CD2);
+                                t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
+  i2cReleaseBus((I2CDriver*)p->reg_addr);
 
   if (status != RDY_OK) {
-    t->status = I2CTransFailed;
-    static i2cflags_t errors = 0;
-    errors = i2cGetErrors((I2CDriver*)p->reg_addr);
-    if (errors & I2CD_BUS_ERROR) {
-      p->errors->miss_start_stop_cnt++;
-    }
-    if (errors & I2CD_ARBITRATION_LOST) {
-      p->errors->arb_lost_cnt++;
-    }
-    if (errors & I2CD_ACK_FAILURE) {
-      p->errors->ack_fail_cnt++;
-    }
-    if (errors & I2CD_OVERRUN) {
-      p->errors->over_under_cnt++;
-    }
-    if (errors & I2CD_PEC_ERROR) {
-      p->errors->pec_recep_cnt++;
-    }
-    if (errors & I2CD_TIMEOUT) {
-      p->errors->timeout_tlow_cnt++;
-    }
-    if (errors & I2CD_SMB_ALERT) {
-      p->errors->smbus_alert_cnt++;
-    }
-    return FALSE;
+      t->status = I2CTransFailed;
+      static i2cflags_t errors = 0;
+      errors = i2cGetErrors((I2CDriver*)p->reg_addr);
+      if (errors & I2CD_BUS_ERROR) {
+        p->errors->miss_start_stop_cnt++;
+      }
+      if (errors & I2CD_ARBITRATION_LOST) {
+        p->errors->arb_lost_cnt++;
+      }
+      if (errors & I2CD_ACK_FAILURE) {
+        p->errors->ack_fail_cnt++;
+      }
+      if (errors & I2CD_OVERRUN) {
+        p->errors->over_under_cnt++;
+      }
+      if (errors & I2CD_PEC_ERROR) {
+        p->errors->pec_recep_cnt++;
+      }
+      if (errors & I2CD_TIMEOUT) {
+        p->errors->timeout_tlow_cnt++;
+      }
+      if (errors & I2CD_SMB_ALERT) {
+        p->errors->smbus_alert_cnt++;
+      }
+      return FALSE;
   }
   else {
-    t->status = I2CTransSuccess;
-    return TRUE;
+      t->status = I2CTransSuccess;
+      return TRUE;
   }
+#else
+  (void) p;
+  (void) t;
+  return FALSE;
+#endif
+
 }
 
 /**
  * i2c_idle() function
  *
- * * Empty, for paparazzi compatibility only
+ * Empty, for paparazzi compatibility only
  */
 bool_t i2c_idle(struct i2c_periph* p){
   (void) p;

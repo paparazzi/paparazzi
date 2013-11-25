@@ -62,7 +62,9 @@ void ahrs_init(void) {
 #else
   ahrs_impl.mag_offset = 0.0;
 #endif
-  ahrs_aligner.status = AHRS_ALIGNER_LOCKED;
+  ///ahrs_aligner.status = AHRS_ALIGNER_LOCKED;
+  /// FIXME: Aligner not needed for GX3
+  ahrs.status = AHRS_RUNNING;
 }
 
 void ahrs_aligner_run(void) {

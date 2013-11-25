@@ -57,8 +57,14 @@ struct ImuAspirin2Spi {
   struct Mpu60x0_Spi mpu;
 
   struct spi_transaction wait_slave4_trans;
+#ifdef USE_CHIBIOS_RTOS
+  uint8_t wait_slave4_tx_buf[1];
+  uint8_t wait_slave4_rx_buf[2];
+#else
   volatile uint8_t wait_slave4_tx_buf[1];
   volatile uint8_t wait_slave4_rx_buf[2];
+#endif
+
   volatile bool_t slave4_ready;
 };
 

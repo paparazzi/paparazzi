@@ -40,12 +40,37 @@
 #define B19200   19200
 #define B38400   38400
 #define B57600   57600
-#define B100000  100000
 #define B115200  115200
 #define B230400  230400
 #define B921600  921600
+#define B100000  100000
 
-#define UART_GETCH(_port, _flag, _callback) {                   \
+#define ch_uart_receive_downlink(_port, _flag, _callback, _arg) {   \
+    if ((_flag & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |         \
+                  SD_NOISE_ERROR)) != 0) {                      \
+        if (_flag & SD_OVERRUN_ERROR) {                         \
+            _port.ore++;                                        \
+        }                                                       \
+        if (_flag & SD_NOISE_ERROR) {                           \
+            _port.ne_err++;                                     \
+        }                                                       \
+        if (_flag & SD_FRAMING_ERROR) {                         \
+            _port.fe_err++;                                     \
+        }                                                       \
+    }                                                           \
+    if (_flag & CHN_INPUT_AVAILABLE) {                         \
+       msg_t charbuf;                                           \
+       do {                                                     \
+           charbuf = sdGetTimeout((SerialDriver*)_port.reg_addr, TIME_IMMEDIATE);\
+          if ( charbuf != Q_TIMEOUT ) {                         \
+             _callback(_arg, charbuf);                          \
+          }                                                     \
+       }                                                        \
+       while (charbuf != Q_TIMEOUT);                            \
+    }                                                           \
+}
+
+#define ch_uart_receive(_port, _flag, _callback) {                   \
     if ((_flag & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |         \
                   SD_NOISE_ERROR)) != 0) {                      \
         if (_flag & SD_OVERRUN_ERROR) {                         \
