@@ -24,6 +24,18 @@
 
 #include "std.h"
 
+#ifdef USE_CHIBIOS_RTOS
+#define EVT_PPM_FRAME 1
+extern EventSource eventPpmFrame;
+#define chibios_broadcast_ppm_frame {                        \
+        chSysLockFromIsr();                                  \
+        chEvtBroadcastFlagsI(&eventPpmFrame, EVT_PPM_FRAME); \
+        chSysUnlockFromIsr();                                \
+        }
+#else
+#define chibios_broadcast_ppm_frame {}
+#endif
+
 /**
  * Architecture dependant code
  */
@@ -103,6 +115,7 @@ extern bool_t   ppm_data_valid;
         length < RC_PPM_TICKS_OF_USEC(PPM_SYNC_MAX_LEN)) {  \
       if (ppm_data_valid && RssiValid()) {                  \
         ppm_frame_available = TRUE;                         \
+        chibios_broadcast_ppm_frame;                        \
         ppm_data_valid = FALSE;                             \
       }                                                     \
       ppm_cur_pulse = 0;                                    \

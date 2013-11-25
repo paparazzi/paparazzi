@@ -121,10 +121,10 @@ ap.srcs   += $(SRC_ARCH)/serial_port.c
 endif
 
 # I2C is needed for speed controllers and barometers on lisa
-##ifeq ($(TARGET), ap)
-##$(TARGET).srcs += mcu_periph/i2c.c
-##$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
-##endif
+ifeq ($(TARGET), ap)
+  $(TARGET).srcs += mcu_periph/i2c_pprzi.c
+  $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+endif
 
 ap.srcs += subsystems/commands.c
 ap.srcs += subsystems/actuators.c
@@ -167,34 +167,12 @@ include $(CFG_SHARED)/baro_board.makefile
 #
 # Analog Backend
 #
-#TODO
+#
+ifeq ($(ARCH), chibios)
 ap.CFLAGS += -DUSE_ADC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
-##ifeq ($(ARCH), stm32)
-##ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-##ap.srcs   += subsystems/electrical.c
-##endif
-#ifeq ($(ARCH), lpc21)
-#ap.CFLAGS += -DUSE_ADC
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-#ap.srcs   += subsystems/electrical.c
-# baro has variable offset amplifier on booz board
-#ifeq ($(BOARD), booz)
-#ap.CFLAGS += -DUSE_DAC
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-#endif
-#else ifeq ($(ARCH), stm32)
-#ap.CFLAGS += -DUSE_ADC
-#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-#ap.srcs   += subsystems/electrical.c
-#else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
-#ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
-#else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-#ap.srcs   += $(SRC_BOARD)/electrical_raw.c
-#endif
-
-
+endif
 
 #
 # GPS choice

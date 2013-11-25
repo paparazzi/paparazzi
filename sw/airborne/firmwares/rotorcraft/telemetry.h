@@ -1125,9 +1125,8 @@
 	&core_free_memory,\
 	&time_now, \
 	&thread_counter, \
-	&cpu_counter, \
-	&idle_counter, \
-	&cpu_frequency) }
+	&cpu_frequency, \
+	&electrical.cpu_temp) }
 #else
 #define PERIODIC_SEND_CHIBIOS_INFO(_trans, _dev) {}
 #endif

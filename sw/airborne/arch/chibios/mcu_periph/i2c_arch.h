@@ -24,33 +24,27 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/subsystems/actuators/actuators_pwm_arch.h
- * Interface from actuators to ChibiOS PWM driver
+ * @file arch/chibios/subsystems/mcu_periph/i2c_arch.h
+ * Interface from Paparazzi I2C to ChibiOS I2C driver
  *
- * PWM configuration files are defined in the board file,
- * so maximal architecture independence is ensured.
+ * I2C configuration files are defined in the board file,
+ * so the maximal architecture independence is ensured.
  */
-#ifndef ACTUATORS_PWM_ARCH_H
-#define ACTUATORS_PWM_ARCH_H
+#ifndef I2C_HW_H
+#define I2C_HW_H
 
-#include "std.h"
-#include "hal.h"
+#include "mcu_periph/i2c.h"
 
-#include BOARD_CONFIG
+#ifdef USE_I2C1
+extern void i2c1_hw_init(void);
+#endif /* USE_I2C1 */
 
-#ifndef ACTUATORS_PWM_NB
-#define ACTUATORS_PWM_NB 8
-#endif
+#ifdef USE_I2C2
+extern void i2c2_hw_init(void);
+#endif /* USE_I2C2 */
 
-#ifndef PWM_FREQUENCY
-#define PWM_FREQUENCY 10000
-#endif
+#if defined USE_I2C3
+extern void i2c3_hw_init(void);
+#endif /* USE_I2C3 */
 
-extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
-
-extern void actuators_pwm_commit(void);
-
-#define ActuatorPwmSet(_i, _v) { actuators_pwm_values[_i] = _v; }
-#define ActuatorsPwmCommit  actuators_pwm_commit
-
-#endif /* ACTUATORS_PWM_ARCH_H */
+#endif /* I2C_HW_H */

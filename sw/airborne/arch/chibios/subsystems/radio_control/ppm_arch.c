@@ -24,14 +24,73 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant ppm drivers
- * @note Empty for now, just to provide compatibilty
+ * @file arch/chibios/subsystems/radio_control/ppm_arch.c
+ * PPM interface between ChibiOS and Paparazzi
  *
+ * Input capture configuration has to be defined in board.h
  */
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
-/*
- * TODO: implement
+uint8_t  ppm_cur_pulse;
+uint32_t ppm_last_pulse_time;
+bool_t   ppm_data_valid;
+static uint32_t timer_rollover_cnt;
+
+#ifndef PPM_TIMER_FREQUENCY
+#error "Undefined PPM_TIMER_FREQUENCY"
+#endif
+
+#ifndef PPM_CHANNEL
+#error "PPM channel undefined"
+#endif
+
+
+/**
+ * PPM Pulse width callback
  */
-void ppm_arch_init ( void ) { }
+static void icuwidthcb(ICUDriver *icup) {
+  static uint32_t now;
+  now = (uint32_t)(icuGetWidth(icup) + timer_rollover_cnt);
+  DecodePpmFrame(now);
+}
+
+/**
+ * PPM Overflow callback
+ */
+static void icuoverflowcb(ICUDriver *icup) {
+  (void)icup;
+  timer_rollover_cnt+=(1<<16);
+}
+
+/**
+ * ICU timer configuration
+ *
+ * There appears to be no difference between
+ * ICU_INPUT_ACTIVE_HIGH and ICU_INPUT_ACTIVE_LOW,
+ * it works in both cases. Further investigation needed.
+ */
+static ICUConfig ppm_icucfg = {
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
+  ICU_INPUT_ACTIVE_HIGH,
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  ICU_INPUT_ACTIVE_LOW,
+#else
+#error "Unknown PPM_PULSE_TYPE"
+#endif
+  PPM_TIMER_FREQUENCY,
+  icuwidthcb,
+  NULL,
+  icuoverflowcb,
+  PPM_CHANNEL,
+  0
+};
+
+void ppm_arch_init ( void ) {
+  ppm_last_pulse_time = 0;
+  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  timer_rollover_cnt = 0;
+
+  icuStart(&PPM_TIMER, &ppm_icucfg);
+  icuEnable(&PPM_TIMER);
+}
