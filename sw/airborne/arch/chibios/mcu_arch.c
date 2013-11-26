@@ -24,9 +24,11 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant microcontroller initialisation functions.
- * @details Mostly empty defines, because Chibios takes
- * 			care of mcu initialization
+ * @file arch/chibios/mcu_arch.c
+ * Microcontroller initialization function for ChibiOS
+ *
+ * ChibiOS initialized peripherals by itself, only interrupt
+ * vector has to be relocated for Luftboot
  */
 #include "mcu.h"
 #include "ch.h"

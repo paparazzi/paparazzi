@@ -34,7 +34,9 @@
 
 #include BOARD_CONFIG
 
-/// The ppm counter desired resolution is 1/6 us.
+/*
+ * The ppm counter desired resolution is 1/6 us.
+ */
 #ifndef RC_PPM_TICKS_PER_USEC
 #error "RC_PPM_TICKS_PER_USEC not set in board.h file"
 #endif

@@ -25,11 +25,15 @@
     for full details of how and when the exception can be applied.
 */
 
-/*
- * ST32F107xC memory setup.
+/**
+ * @file arch/chibios/STM32F107xC.ld
+ * ST32F107xC memory setup and linker script
+ *
  * Modified by Michal Podhradsky, 2013
- * Flash addr is shifted by 8kb (luftboot)
+ * Flash address is shifted by 8kb (Luftboot)
  * Note: probably not the cleanest solution, but it works
+ *
+ * __process_stack_size__ determines stack size of main() thread
  */
 __main_stack_size__     = 0x0400;
 __process_stack_size__  = 0x0400;

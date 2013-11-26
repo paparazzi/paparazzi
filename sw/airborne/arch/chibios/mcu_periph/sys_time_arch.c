@@ -24,13 +24,17 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant implementation of sys time functions
- * @note Partially implemented (no CPU monitor), some extra variables
- * 		 for monitoring number of threads and free memory.
+ * @file arch/chibios/mcu_periph/sys_time_arch.c
+ * Implementation of system time functions for ChibiOS arch
  *
+ * Mostly empty functions for Paparazzi compatibility,
+ * since ChibiOS uses different system time functions.
  */
-#include "mcu_periph/sys_time.h"
+#include "mcu_periph/sys_time_arch.h"
 
+/*
+ * Extra defines for ChibiOS CPU monitoring
+ */
 uint32_t core_free_memory;
 uint8_t thread_counter;
 uint32_t cpu_counter;

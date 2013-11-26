@@ -37,11 +37,11 @@
 #include "hal.h"
 
 
-/// ADC error flags
+// ADC error flags
 extern uint8_t adc_error_flag;
 extern ADCDriver* adcp_err;
 
-/// NB_ADCx_CHANNELS
+// NB_ADCx_CHANNELS
 enum adc1_channels {
 #if USE_AD1_1
   ADC1_C1,

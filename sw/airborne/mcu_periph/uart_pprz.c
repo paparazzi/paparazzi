@@ -21,6 +21,8 @@
  */
 
  /**
+ * @file mcu_periph/uart_pprz.c
+ *
  * @brief arch independent UART (Universal Asynchronous Receiver/Transmitter) API
  * @note Had to be renamed, since chibios is using the same filename for its own
  *       UART drivers. Modified by Aggiear (http://aggieair.usu.edu/), 2013

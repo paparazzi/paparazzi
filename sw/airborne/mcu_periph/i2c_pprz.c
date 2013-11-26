@@ -21,7 +21,7 @@
  */
 
 /**
- * @file mcu_periph/i2c.c
+ * @file mcu_periph/i2c_pprz.c
  * Architecture independent I2C (Inter-Integrated Circuit Bus) API.
  */
 
