@@ -5,7 +5,6 @@
  * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
  * Calvin Coopmans (c.r.coopmans@ieee.org)
  *
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -24,18 +23,10 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/mcu_arch.h
- * Microcontroller initialization function for ChibiOS
- *
- * ChibiOS initialized peripherals by itself, hence empty
- * functions for Paparazzi compatibility.
+ * @file arch/chibios/mcu_periph/spi_arch.h
+ * Implementation of SPI interface for ChibiOS arch
  */
-#ifndef CHIBIOS_MCU_ARCH_H
-#define CHIBIOS_MCU_ARCH_H
+#ifndef SPI_ARCH_H
+#define SPI_ARCH_H
 
-#define mcu_int_enable()  {}
-#define mcu_int_disable() {}
-
-extern void mcu_arch_init(void);
-
-#endif /* CHIBIOS_MCU_ARCH_H */
+#endif /* SPI_ARCH_H */

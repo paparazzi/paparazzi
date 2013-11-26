@@ -24,9 +24,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant gpio functions
- * @details In Chibios palSet/Clear/Toggle(port, pin)
- * 		    replaces gpio functions
- *
+ * @file arch/chibios/mcu_periph/gpio_arch.c
+ * gpio functions implemented for ChibiOS arch
  */
 #include "mcu_periph/gpio.h"

@@ -57,9 +57,7 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
  *
  * @param[in] pwmp pointer to a @p PWMDriver object
  */
-static void pwmpcb(PWMDriver *pwmp) {
-  (void)pwmp;
-}
+static void pwmpcb(PWMDriver *pwmp __attribute__((unused))) {}
 
 #if PWM_CONF_TIM1
   static PWMConfig pwmcfg1 = PWM_CONF1_DEF;

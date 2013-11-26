@@ -1,10 +1,6 @@
 /*
- * Copyright (C) 2013 AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
+ * Copyright (C) 2013 Michal Podhradsky
  * Utah State University, http://aggieair.usu.edu/
- *
- * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
- * Calvin Coopmans (c.r.coopmans@ieee.org)
- *
  *
  * This file is part of paparazzi.
  *
@@ -24,18 +20,34 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/mcu_arch.h
- * Microcontroller initialization function for ChibiOS
+ * @file ahrs_aggienav.h
  *
- * ChibiOS initialized peripherals by itself, hence empty
- * functions for Paparazzi compatibility.
+ * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
-#ifndef CHIBIOS_MCU_ARCH_H
-#define CHIBIOS_MCU_ARCH_H
+#ifndef AHRS_AGGIENAV_H
+#define AHRS_AGGIENAV_H
 
-#define mcu_int_enable()  {}
-#define mcu_int_disable() {}
+#include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 
-extern void mcu_arch_init(void);
+#ifdef USE_GX3
+#include "subsystems/imu/imu_gx3.h"
+#endif
 
-#endif /* CHIBIOS_MCU_ARCH_H */
+#include "state.h"
+#include "led.h"
+
+//AHRS
+struct AhrsFloatQuat {
+  struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as quaternions
+  float mag_offset;                    ///< Difference between true and magnetic north
+};
+
+extern struct AhrsFloatQuat ahrs_impl;
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
+#endif
+
+#endif /* AHRS_AGGIENAV_H*/

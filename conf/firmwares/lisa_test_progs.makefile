@@ -80,7 +80,7 @@ COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
 
 COMMON_TELEMETRY_CFLAGS  = -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
-COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
+COMMON_TELEMETRY_SRCS    = mcu_periph/uart_pprz.c
 COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
@@ -131,7 +131,7 @@ test_uart.CFLAGS += -I$(SRC_LISA) -DUSE_UART
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_uart.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_uart.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
-test_uart.srcs += mcu_periph/uart.c
+test_uart.srcs += mcu_periph/uart_pprz.c
 test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ifeq ($(BOARD), lisa_m)
   test_uart.srcs += $(SRC_LISA)/test_uart_lisam.c
@@ -194,7 +194,7 @@ test_baro.srcs += subsystems/air_data.c
 
 ifeq ($(BOARD), lisa_l)
 test_baro.CFLAGS += -DUSE_I2C2
-test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_baro.srcs += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_baro.srcs += $(SRC_BOARD)/baro_board.c
 test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
 
@@ -204,7 +204,7 @@ else ifeq ($(BOARD), lisa_m)
 LISA_M_BARO ?= BARO_BOARD_BMP085
   ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
     test_baro.CFLAGS += -DUSE_I2C2
-    test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.srcs += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
     test_baro.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
     test_baro.srcs += peripherals/ms5611.c
     test_baro.srcs += peripherals/ms5611_i2c.c
@@ -212,7 +212,7 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
     test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
     test_baro.CFLAGS += -DUSE_I2C2
-    test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.srcs += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
     test_baro.srcs += peripherals/bmp085.c
     test_baro.srcs += $(SRC_BOARD)/baro_board.c
     test_baro.srcs += $(SRC_LISA)/test_baro_i2c.c
@@ -223,7 +223,7 @@ else ifeq ($(BOARD), lia)
 LIA_BARO ?= BARO_MS5611_SPI
   ifeq ($(LIA_BARO), BARO_MS5611_I2C)
     test_baro.CFLAGS += -DUSE_I2C2
-    test_baro.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+    test_baro.srcs += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
     test_baro.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
     test_baro.srcs += peripherals/ms5611.c
     test_baro.srcs += peripherals/ms5611_i2c.c
@@ -329,7 +329,7 @@ IMU_B2_COMMON_CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
 IMU_B2_COMMON_CFLAGS += -DUSE_SPI_SLAVE2
 IMU_B2_COMMON_CFLAGS += -DMAX1168_SPI_DEV=spi2 -DMAX1168_SLAVE_IDX=2
 IMU_B2_COMMON_SRCS   += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
-IMU_B2_COMMON_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+IMU_B2_COMMON_SRCS   += mcu_periph/spi_pprz.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 
 #
 # test IMU b2 without mag
@@ -375,7 +375,7 @@ test_imu_b2.srcs   += $(IMU_B2_SRCS)
 IMU_B2_2_CFLAGS  = -DIMU_B2_VERSION_1_2
 # mag stuff
 IMU_B2_2_CFLAGS += -DIMU_B2_I2C_DEV=i2c2 -DUSE_I2C2
-IMU_B2_2_SRCS    = mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+IMU_B2_2_SRCS    = mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 IMU_B2_2_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC58XX
 IMU_B2_2_SRCS   += peripherals/hmc58xx.c
 
@@ -402,14 +402,14 @@ IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c
 IMU_ASPIRIN_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c
 #IMU_ASPIRIN_SRCS   += $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
 IMU_ASPIRIN_CFLAGS += -DASPIRIN_ARCH_INDEP
-IMU_ASPIRIN_SRCS   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+IMU_ASPIRIN_SRCS   += mcu_periph/spi_pprz.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 IMU_ASPIRIN_SRCS   += math/pprz_trig_int.c
 #IMU_ASPIRIN_SRCS   += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 IMU_ASPIRIN_SRCS   += peripherals/hmc58xx.c
 IMU_ASPIRIN_SRCS   += peripherals/adxl345_spi.c
 IMU_ASPIRIN_SRCS   += peripherals/itg3200.c
 IMU_ASPIRIN_CFLAGS += -DUSE_I2C2
-IMU_ASPIRIN_SRCS   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+IMU_ASPIRIN_SRCS   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI -DSPI_MASTER
 IMU_ASPIRIN_CFLAGS += -DUSE_SPI2
 # SLAVE2 is on PB12 (NSS) (ADXL345 CS)
@@ -507,7 +507,7 @@ test_ms2100.srcs   += test/peripherals/test_ms2100.c
 test_ms2100.srcs   += peripherals/ms2100.c $(SRC_ARCH)/peripherals/ms2100_arch.c
 test_ms2100.CFLAGS += -DUSE_SPI_SLAVE4 -DMS2100_SLAVE_IDX=4 -DMS2100_SPI_DEV=spi2
 test_ms2100.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
-test_ms2100.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+test_ms2100.srcs   += mcu_periph/spi_pprz.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 
 #
 # test hmc5843
@@ -521,7 +521,7 @@ test_hmc5843.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_hmc5843.CFLAGS += -I$(SRC_LISA)
 test_hmc5843.srcs   += lisa/test/lisa_test_hmc5843.c
 test_hmc5843.CFLAGS += -DUSE_I2C2
-test_hmc5843.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_hmc5843.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 #
 # test ITG3200
@@ -535,7 +535,7 @@ test_itg3200.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_itg3200.CFLAGS += -I$(SRC_LISA)
 test_itg3200.srcs   += lisa/test/lisa_test_itg3200.c
 test_itg3200.CFLAGS += -DUSE_I2C2
-test_itg3200.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_itg3200.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 #
@@ -549,7 +549,7 @@ test_adxl345.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_adxl345.CFLAGS += -I$(SRC_LISA)
 test_adxl345.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2 -DUSE_SPI_SLAVE2
-test_adxl345.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
+test_adxl345.srcs   += mcu_periph/spi_pprz.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 test_adxl345.srcs   += lisa/test/lisa_test_adxl345_dma.c
 
 
@@ -565,7 +565,7 @@ test_esc_mkk_simple.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_esc_mkk_simple.srcs   += test/test_esc_mkk_simple.c
 test_esc_mkk_simple.CFLAGS += -DUSE_I2C2
-test_esc_mkk_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_esc_mkk_simple.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c2
 
 
@@ -580,7 +580,7 @@ test_esc_asctecv1_simple.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_esc_asctecv1_simple.srcs   += test/test_esc_asctecv1_simple.c
 test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1
-test_esc_asctecv1_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_esc_asctecv1_simple.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 #
@@ -598,7 +598,7 @@ test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
 test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_I2C_DEV=i2c1
 test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/actuators/supervision.c
 test_actuators_mkk.CFLAGS += -DUSE_I2C1
-test_actuators_mkk.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_actuators_mkk.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 #
@@ -615,7 +615,7 @@ test_actuators_asctecv1.srcs   += subsystems/commands.c
 test_actuators_asctecv1.CFLAGS += -DACTUATORS_ASCTEC_I2C_DEV=i2c1
 test_actuators_asctecv1.srcs   += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 test_actuators_asctecv1.CFLAGS += -DUSE_I2C1
-test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_actuators_asctecv1.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 ##
@@ -630,7 +630,7 @@ test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_ar
 #test_bmp085.CFLAGS += -I$(SRC_LISA)
 #test_bmp085.srcs   += lisa/test/lisa_test_bmp085.c
 #test_bmp085.CFLAGS += -DUSE_I2C2
-#test_bmp085.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+#test_bmp085.srcs   += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 

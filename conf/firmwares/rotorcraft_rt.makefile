@@ -40,18 +40,13 @@ SRC_ARCH=arch/$(ARCH)
 
 ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 
-
 ap.ARCHDIR = $(ARCH)
 
-# would be better to auto-generate this
-$(TARGET).CFLAGS 	+= -DFIRMWARE=ROTORCRAFT#we are using normal rotorcraft firmware, just different arch
-$(TARGET).CFLAGS 	+= -DRTOS#hack for distinquisthing between RT and normal paparazzi config
-
-#Hack for paparazzi sw/include/std.h
+#we are using normal rotorcraft firmware, just different arch
 $(TARGET).CFLAGS += -DUSE_CHIBIOS_RTOS
-
 ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
+
 #
 # Main (Using RTOS)
 #
@@ -64,31 +59,13 @@ ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 #
 ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
 
-ifeq ($(ARCH), stm32)
-ap.srcs += lisa/plug_sys.c
-endif
-#
-# Interrupts
-#
-ifeq ($(ARCH), lpc21)
-ap.srcs += $(SRC_ARCH)/armVIC.c
-endif
-
-ifeq ($(ARCH), stm32)
-ap.srcs += $(SRC_ARCH)/mcu_periph/gpio_arch.c
-endif
-
 #
 # LEDs
 #
 ap.CFLAGS += -DUSE_LED
-ifeq ($(ARCH), stm32)
-ap.srcs += $(SRC_ARCH)/led_hw.c
-endif
-
-ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-ap.srcs   += $(SRC_BOARD)/gpio_ardrone.c
-endif
+#ifeq ($(ARCH), chibios)
+#ap.srcs += $(SRC_ARCH)/led_hw.c
+#endif
 
 # frequency of main periodic
 PERIODIC_FREQUENCY ?= 500
@@ -110,19 +87,15 @@ endif
 # or
 # include subsystems/rotorcraft/telemetry_xbee_api.makefile
 #
-ap.srcs += subsystems/settings.c#includes all generated settings
-#ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c -> not necessary
+ap.srcs += subsystems/settings.c
 
 #ap.srcs += mcu_periph/uart.c -> two file problem, see: http://www.cplusplus.com/forum/general/35718/
-ap.srcs += mcu_periph/uart_pprzi.c
+ap.srcs += mcu_periph/uart_pprz.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-ifeq ($(ARCH), omap)
-ap.srcs   += $(SRC_ARCH)/serial_port.c
-endif
 
-# I2C is needed for speed controllers and barometers on lisa
+# I2C
 ifeq ($(TARGET), ap)
-  $(TARGET).srcs += mcu_periph/i2c_pprzi.c
+  $(TARGET).srcs += mcu_periph/i2c_pprz.c
   $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 endif
 

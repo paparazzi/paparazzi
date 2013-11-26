@@ -24,14 +24,19 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant implementation of uart/serial drivers
- * @details Partially implemented (no error callbacks yet). Since ChibiOs
- * 			has SerialDriver, it is better to use that one instead of Uart
- * 			drivers, although it makes backward compatibility more difficutl.
- * 			DMA is already implemented.
+ * @file arch/chibios/mcu_periph/uart_arch.h
+ * UART/Serial driver implementation for ChibiOS arch
+ *
+ * ChibiOS has a high level Serial Driver, for Paparazzi it is more convenient
+ * than pure UART driver (which needs callbacks etc.). This implementation is
+ * asynchronous and the RX thread has to use event flags. See ChibiOS documen-
+ * tation.
  */
 #ifndef CHIBIOS_UART_ARCH_H
 #define CHIBIOS_UART_ARCH_H
+
+#include "mcu_periph/uart.h"
+#include "hal.h"
 
 #define B1200    1200
 #define B2400    2400
@@ -40,9 +45,35 @@
 #define B19200   19200
 #define B38400   38400
 #define B57600   57600
-#define B100000  100000
 #define B115200  115200
 #define B230400  230400
 #define B921600  921600
+#define B100000  100000
+
+#define ch_uart_receive_downlink(_port, _flag, _callback, _arg) {   \
+    if ((_flag & (SD_FRAMING_ERROR | SD_OVERRUN_ERROR |         \
+                  SD_NOISE_ERROR)) != 0) {                      \
+        if (_flag & SD_OVERRUN_ERROR) {                         \
+            _port.ore++;                                        \
+        }                                                       \
+        if (_flag & SD_NOISE_ERROR) {                           \
+            _port.ne_err++;                                     \
+        }                                                       \
+        if (_flag & SD_FRAMING_ERROR) {                         \
+            _port.fe_err++;                                     \
+        }                                                       \
+    }                                                           \
+    if (_flag & CHN_INPUT_AVAILABLE) {                         \
+       msg_t charbuf;                                           \
+       do {                                                     \
+           charbuf = sdGetTimeout((SerialDriver*)_port.reg_addr, TIME_IMMEDIATE);\
+          if ( charbuf != Q_TIMEOUT ) {                         \
+             _callback(_arg, charbuf);                          \
+          }                                                     \
+       }                                                        \
+       while (charbuf != Q_TIMEOUT);                            \
+    }                                                           \
+}
+
 
 #endif /* STM32_UART_ARCH_H */

@@ -2,12 +2,10 @@
 
 <!-- an example of hexarotor airframe for ChibiOS/RT Paparazzi
      * Autopilot:   Lia 1.1
-     * IMU:         Aspirin 2.2
+     * IMU:         Microstrain GX3
      * Actuators:   PWM motor controllers
      * GPS:         Ublox
      * RC:          Turnigy 9XR PPM radio
-
-     Certain modules still not used
 
     modified by: AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
     Utah State University, http://aggieair.usu.edu/
@@ -21,7 +19,7 @@
       <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
-      <!--configure name="FLASH_MODE" value="JTAG"/-->
+      <configure name="FLASH_MODE" value="JTAG"/>
       <configure name="USE_BARO_BOARD" value="FALSE"/>
     </target>
 
@@ -31,11 +29,9 @@
     </target>
 
     <subsystem name="motor_mixing"/>
-    <!--subsystem name="motor_mixing"/-->
-    <!--subsystem name="actuators"     type="pwm">
-      <define name="SERVO_HZ" value="400"/>
-      <define name="USE_SERVOS_7AND8"/>
-    </subsystem-->
+    <subsystem name="actuators"     type="pwm">
+      <define name="SERVO_HZ" value="500"/>
+    </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"          type="gx3">
@@ -46,15 +42,20 @@
       <configure name="GPS_BAUD" value="B115200"/>
     </subsystem>
     <subsystem name="stabilization" type="float_euler"/>
-    <subsystem name="ahrs"          type="aggienav"/>
+    <subsystem name="ahrs"          type="aggienav">
     <subsystem name="ins"/>
   </firmware>
 
+  <modules main_freq="500">
+  </modules>
+
   <servos driver="Pwm">
-    <servo name="FRONT"   no="0" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
-    <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_RIGHT"  no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="CENTER_RIGHT" no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="CENTER_LEFT"  no="4" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_LEFT"   no="5" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>
@@ -68,21 +69,23 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
+    <define name="NB_MOTOR" value="6"/>
     <define name="SCALE" value="256"/>
-    <!-- front/back turning CW, right/left CCW -->
-    <define name="ROLL_COEF"   value="{    0,    0, -256,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
-    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+    <!-- Time-cross, front right CW, front left CCW -->
+    <define name="ROLL_COEF"   value="{ -128, -256, -128,  128,  256,  128 }"/>
+    <define name="PITCH_COEF"  value="{  256,    0, -256, -256,    0,  256 }"/>
+    <define name="YAW_COEF"    value="{ -128,  128, -128,  128, -128,  128 }"/>
+    <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
-    <set servo="BACK"   value="motor_mixing.commands[SERVO_BACK]"/>
-    <set servo="RIGHT"  value="motor_mixing.commands[SERVO_RIGHT]"/>
-    <set servo="LEFT"   value="motor_mixing.commands[SERVO_LEFT]"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
+    <set servo="CENTER_RIGHT" value="motor_mixing.commands[SERVO_CENTER_RIGHT]"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
+    <set servo="CENTER_LEFT"  value="motor_mixing.commands[SERVO_CENTER_LEFT]"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -133,7 +136,6 @@
     <define name="DDGAIN_Q" value="300"/>
     <define name="DDGAIN_R" value="300"/>
   </section>
-
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
@@ -199,14 +201,6 @@
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="100"/>
     <define name="IGAIN" value="20"/>
-  </section>
-
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
-    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
-    <define name="JS_AXIS_MODE" value="4"/>
   </section>
 
   <section name="AUTOPILOT">

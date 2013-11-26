@@ -89,10 +89,7 @@ void i2c_event(void){}
  * Empty, for paparazzi compatibility only. Bitrate is already
  * set in i2cX_hw_init()
  */
-void i2c_setbitrate(struct i2c_periph* p, int bitrate){
-  (void) p;
-  (void) bitrate;
-}
+void i2c_setbitrate(struct i2c_periph* p __attribute__((unused)), int bitrate __attribute__((unused))){}
 
 /**
  * i2c_submit() function
@@ -101,16 +98,24 @@ void i2c_setbitrate(struct i2c_periph* p, int bitrate){
  * (such as i2c_transmit(), i2c_transcieve()) and ChibiOS i2c
  * transmit function i2cMasterTransmitTimeout()
  *
+ * Note that we are using the same buffer for transmit and recevive. It is
+ * OK because in i2c transaction is Tx always before Rx.
+ *
+ * I2C calls are synchronous, timeout is set to 1/PERIODIC_FREQUENCY seconds
+ * TODO: Note that on STM32F1xx such as Lia board I2C bus can easily hang in
+ * an interrupt (see issue #531). Use I2C bus with care and caution.
+ *
  * @param[in] p pointer to a @p i2c_periph struct
  * @param[in] t pointer to a @p i2c_transaction struct
  */
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t){
+#if USE_I2C1 || USE_I2C2 || USE_I2C3
   static msg_t status = RDY_OK;
   static systime_t tmo = US2ST(1000000/PERIODIC_FREQUENCY);
-  i2cAcquireBus(&I2CD2);
+  i2cAcquireBus((I2CDriver*)p->reg_addr));
   status = i2cMasterTransmitTimeout((I2CDriver*)p->reg_addr, (i2caddr_t)((t->slave_addr)>>1),
-                                    t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
-  i2cReleaseBus(&I2CD2);
+                                t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
+  i2cReleaseBus((I2CDriver*)p->reg_addr);
 
   if (status != RDY_OK) {
     t->status = I2CTransFailed;
@@ -143,14 +148,18 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t){
     t->status = I2CTransSuccess;
     return TRUE;
   }
+#else
+  (void) p;
+  (void) t;
+  return FALSE;
+#endif
 }
 
 /**
  * i2c_idle() function
  *
- * * Empty, for paparazzi compatibility only
+ * Empty, for paparazzi compatibility only
  */
-bool_t i2c_idle(struct i2c_periph* p){
-  (void) p;
+bool_t i2c_idle(struct i2c_periph* p __attribute__((unused))){
   return FALSE;
 }
