@@ -48,7 +48,7 @@ ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=$(UART0_BAUD) -DUSE_UART0_TX=FALSE -DPERIP
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=$(UART1_BAUD) -DUSE_UART1_TX=FALSE
 ap.CFLAGS += -DLOG_STOP_KEY=$(LOG_STOP_KEY)
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-ap.srcs += mcu_periph/uart.c
+ap.srcs += mcu_periph/uart_pprz.c
 ap.srcs += $(SRC_ARCH)/mcu_arch.c
 ap.srcs += mcu.c
 

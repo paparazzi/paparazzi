@@ -89,7 +89,60 @@ void ms5611_spi_start_conversion(struct Ms5611_Spi *ms)
  */
 void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
 {
+  switch (ms->status) {
+    case MS5611_STATUS_RESET:
+      ms->status = MS5611_STATUS_RESET_OK;
+      break;
+    case MS5611_STATUS_RESET_OK:
+      if (ms->spi_trans.status == SPITransDone) {
+        /* start getting prom data */
+        ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
+        ms->status = MS5611_STATUS_PROM;
+        spi_submit(ms->spi_p, &(ms->spi_trans));
+      }
+      break;
+    case MS5611_STATUS_PROM:
+      if (ms->prom_cnt < PROM_NB) {
+        /* get next prom data */
+        ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
+        spi_submit(ms->spi_p, &(ms->spi_trans));
+      }
+      break;
+    case MS5611_STATUS_CONV_D1:
+      ms->status = MS5611_STATUS_CONV_D1_OK;
+      break;
+    case MS5611_STATUS_CONV_D1_OK:
+      if (ms->spi_trans.status == SPITransDone) {
+        /* read D1 adc */
+        ms->tx_buf[0] = MS5611_ADC_READ;
+        ms->status = MS5611_STATUS_ADC_D1;
+        spi_submit(ms->spi_p, &(ms->spi_trans));
+      }
+      break;
+    case MS5611_STATUS_CONV_D2:
+      ms->status = MS5611_STATUS_CONV_D2_OK;
+      break;
+    case MS5611_STATUS_CONV_D2_OK:
+      if (ms->spi_trans.status == SPITransDone) {
+        /* read D2 adc */
+        ms->tx_buf[0] = MS5611_ADC_READ;
+        ms->status = MS5611_STATUS_ADC_D2;
+        spi_submit(ms->spi_p, &(ms->spi_trans));
+      }
+      break;
+    default:
+      break;
+  }
+}
+
 #ifdef USE_CHIBIOS_RTOS
+/**
+ * Synchronous periodic function to ensure prope delay between readings
+ *
+ * Includes also state machine logic for pressure sensor readings.
+ */
+void ms5611_spi_synchronous_periodic_check(struct Ms5611_Spi *ms)
+{
   if (ms->initialized) {
       if (ms->spi_trans.status == SPITransFailed) {
         ms->status = MS5611_STATUS_IDLE;
@@ -162,7 +215,7 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
           break;
         case MS5611_STATUS_PROM:
           if (ms->spi_trans.status != SPITransFailed) {
-              ///No need to wait between EEPROM reads
+              /// No need to wait between EEPROM reads
               /// TODO: SPI status check after each transaction
               do {
                   /* get  prom data */
@@ -190,52 +243,8 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
           break;
       }
   }
-#else
-  switch (ms->status) {
-    case MS5611_STATUS_RESET:
-      ms->status = MS5611_STATUS_RESET_OK;
-      break;
-    case MS5611_STATUS_RESET_OK:
-      if (ms->spi_trans.status == SPITransDone) {
-        /* start getting prom data */
-        ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
-        spi_submit(ms->spi_p, &(ms->spi_trans));
-      }
-      break;
-    case MS5611_STATUS_PROM:
-      if (ms->prom_cnt < PROM_NB) {
-        /* get next prom data */
-        ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
-        spi_submit(ms->spi_p, &(ms->spi_trans));
-      }
-      break;
-    case MS5611_STATUS_CONV_D1:
-      ms->status = MS5611_STATUS_CONV_D1_OK;
-      break;
-    case MS5611_STATUS_CONV_D1_OK:
-      if (ms->spi_trans.status == SPITransDone) {
-        /* read D1 adc */
-        ms->tx_buf[0] = MS5611_ADC_READ;
-        spi_submit(ms->spi_p, &(ms->spi_trans));
-        ms->status = MS5611_STATUS_ADC_D1;
-      }
-      break;
-    case MS5611_STATUS_CONV_D2:
-      ms->status = MS5611_STATUS_CONV_D2_OK;
-      break;
-    case MS5611_STATUS_CONV_D2_OK:
-      if (ms->spi_trans.status == SPITransDone) {
-        /* read D2 adc */
-        ms->tx_buf[0] = MS5611_ADC_READ;
-        spi_submit(ms->spi_p, &(ms->spi_trans));
-        ms->status = MS5611_STATUS_ADC_D2;
-      }
-      break;
-    default:
-      break;
-  }
-#endif
 }
+#endif /* USE_CHIBIOS_RTOS */
 
 void ms5611_spi_event(struct Ms5611_Spi *ms) {
   if (ms->initialized) {
@@ -260,7 +269,7 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
             /* start D2 conversion */
             ms->tx_buf[0] = MS5611_START_CONV_D2;
 			spi_submit(ms->spi_p, &(ms->spi_trans));
-            ms->status = MS5611_STATUS_CONV_D2;            
+            ms->status = MS5611_STATUS_CONV_D2;
           }
           break;
 

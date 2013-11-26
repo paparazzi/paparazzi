@@ -43,7 +43,6 @@ ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 ap.ARCHDIR = $(ARCH)
 
 #we are using normal rotorcraft firmware, just different arch
-$(TARGET).CFLAGS 	+= -DFIRMWARE=ROTORCRAFT
 $(TARGET).CFLAGS += -DUSE_CHIBIOS_RTOS
 ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
@@ -91,12 +90,12 @@ endif
 ap.srcs += subsystems/settings.c
 
 #ap.srcs += mcu_periph/uart.c -> two file problem, see: http://www.cplusplus.com/forum/general/35718/
-ap.srcs += mcu_periph/uart_pprzi.c
+ap.srcs += mcu_periph/uart_pprz.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-# I2C 
+# I2C
 ifeq ($(TARGET), ap)
-  $(TARGET).srcs += mcu_periph/i2c_pprzi.c
+  $(TARGET).srcs += mcu_periph/i2c_pprz.c
   $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 endif
 

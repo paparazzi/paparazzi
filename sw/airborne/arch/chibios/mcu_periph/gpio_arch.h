@@ -24,24 +24,18 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant gpio functions
- * @details In Chibios palSet/Clear/Toggle(port, pin)
- * 		    replaces gpio functions
- *
+ * @file arch/chibios/mcu_periph/gpio_arch.h
+ * gpio functions implemented for ChibiOS arch
  */
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
-/**
- * Set a gpio output to high level.
- */
+/// Set a gpio output to high level.
 static inline void gpio_output_high(uint32_t port, uint16_t pin) {
   palSetPad(port, pin);
 }
 
-/**
- * Clear a gpio output to low level.
- */
+///Clear a gpio output to low level.
 static inline void gpio_output_low(uint32_t port, uint16_t pin) {
   palClearPad(port, pin);
 }

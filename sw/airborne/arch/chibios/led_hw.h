@@ -24,19 +24,17 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant led manipulation macros
+ * @file arch/chibios/led_hw.h
+ * Led macro implementation for ChibiOS arch
  */
 #ifndef LED_HW_H
 #define LED_HW_H
 
-/*
- * hal.h is needed for palXXX functions
- */
+/// hal.h is needed for palXXX functions
 #include "hal.h"
 
-/*
- *  Regular GPIO driven LEDs
- */
+
+/// Regular GPIO driven LEDs
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
 

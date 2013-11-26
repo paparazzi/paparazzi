@@ -151,10 +151,6 @@ void imu_impl_init(void)
 void imu_periodic(void)
 {
   mpu60x0_spi_periodic(&imu_aspirin2.mpu);
-
-#ifdef USE_CHIBIOS_RTOS
-ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-#endif
 }
 
 #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))

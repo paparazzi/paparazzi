@@ -24,9 +24,11 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @brief chibios arch dependant microcontroller initialisation functions.
- * @details Mostly empty defines, because Chibios takes
- * 			care of mcu initialization
+ * @file arch/chibios/mcu_arch.h
+ * Microcontroller initialization function for ChibiOS
+ *
+ * ChibiOS initialized peripherals by itself, hence empty
+ * functions for Paparazzi compatibility.
  */
 #ifndef CHIBIOS_MCU_ARCH_H
 #define CHIBIOS_MCU_ARCH_H
