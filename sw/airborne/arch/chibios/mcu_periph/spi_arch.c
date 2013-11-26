@@ -224,7 +224,7 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction* t){
 bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
 {
   SPIConfig spi_cfg = {
-    NULL, /// no callback
+    NULL, // no callback
     spi_resolve_slave_port(t->slave_idx),
     spi_resolve_slave_pin(t->slave_idx),
     spi_resolve_CR1(t)
@@ -242,28 +242,28 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
     t_length = (size_t)t->output_length;
   }
 
-  /// Acquire exclusive access to the SPI bus
+  // Acquire exclusive access to the SPI bus
   spiAcquireBus((SPIDriver*)p->reg_addr);
 
-  /// Configure SPI bus with the current slave select pin
+  // Configure SPI bus with the current slave select pin
   spiStart((SPIDriver*)p->reg_addr, &spi_cfg);
   spiSelect((SPIDriver*)p->reg_addr);
 
-  /// Run the callback after selecting the slave
+  // Run the callback after selecting the slave
   if (t->before_cb != 0) {
     t->before_cb(t);
   }
 
-  /// Start synchronous data transfer
+  // Start synchronous data transfer
   spiExchange((SPIDriver*)p->reg_addr, t_length, t->output_buf, t->input_buf);
 
-  /// Unselect the slave
+  // Unselect the slave
   spiUnselect((SPIDriver*)p->reg_addr);
 
-  /// Release the exclusive access to the bus
+  // Release the exclusive access to the bus
   spiReleaseBus((SPIDriver*)p->reg_addr);
 
-  /// Report the transaction as success
+  // Report the transaction as success
   t->status = SPITransSuccess;
 
   /*

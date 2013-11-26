@@ -215,14 +215,12 @@ void imu_periodic(void) {
       }
       chMtxUnlock();
       gx3_packet_read_message();
-      //TODO: proper callbacks (ins, ahrs, etc.)
-      // Probably Mailboxes? or EventBroadcast?
-      ahrs_update_accel();
 
-      //Lock mutex for system states (statesSetRates etc.)
-      chMtxLock(&states_mutex_flag);
-      ahrs_propagate();
-      chMtxUnlock();
+
+      /// Callbacks
+      on_accel_event();
+      on_gyro_event();
+      on_mag_event();
   }
   else {
       chMtxUnlock();

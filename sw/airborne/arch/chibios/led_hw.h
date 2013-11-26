@@ -30,11 +30,14 @@
 #ifndef LED_HW_H
 #define LED_HW_H
 
-/// hal.h is needed for palXXX functions
+/*
+ * hal.h is needed for palXXX functions
+ */
 #include "hal.h"
 
-
-/// Regular GPIO driven LEDs
+/*
+ * Regular GPIO driven LEDs
+ */
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
 

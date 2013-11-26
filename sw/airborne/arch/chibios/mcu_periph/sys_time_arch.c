@@ -32,7 +32,9 @@
  */
 #include "mcu_periph/sys_time_arch.h"
 
-/// Extra defines for ChibiOS CPU monitoring
+/*
+ * Extra defines for ChibiOS CPU monitoring
+ */
 uint32_t core_free_memory;
 uint8_t thread_counter;
 uint32_t cpu_counter;

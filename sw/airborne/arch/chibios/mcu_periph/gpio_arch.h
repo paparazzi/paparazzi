@@ -30,12 +30,16 @@
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
-/// Set a gpio output to high level.
+/**
+ * Set a gpio output to high level.
+ */
 static inline void gpio_output_high(uint32_t port, uint16_t pin) {
   palSetPad(port, pin);
 }
 
-///Clear a gpio output to low level.
+/**
+ * Clear a gpio output to low level.
+ */
 static inline void gpio_output_low(uint32_t port, uint16_t pin) {
   palClearPad(port, pin);
 }

@@ -32,13 +32,13 @@
  * @author {Michal Podhradsky, Calvin Coopmans}
  */
 
-/**
+/*
  * Chibios includes
  */
 #include "ch.h"
 #include "hal.h"
 
-/**
+/*
  * Paparazzi includes
  */
 #include "led.h"
@@ -87,7 +87,7 @@
 #include "subsystems/abi.h"
 
 
-/**
+/*
  * Thread Area Definitions
  */
 #define CH_THREAD_AREA_HEARTBEAT 128
@@ -96,7 +96,7 @@
 #define CH_THREAD_AREA_RADIO_CONTROL 256
 #define CH_THREAD_AREA_RADIO_EVENT 512
 
-/**
+/*
  * Thread Area Initialization
  */
 static WORKING_AREA(wa_thd_heartbeat, CH_THREAD_AREA_HEARTBEAT);
@@ -105,7 +105,7 @@ static WORKING_AREA(wa_thd_electrical, CH_THREAD_AREA_ELECTRICAL);
 static WORKING_AREA(wa_thd_radio_control, CH_THREAD_AREA_RADIO_CONTROL);
 static WORKING_AREA(wa_thd_radio_event, CH_THREAD_AREA_RADIO_EVENT);
 
-/**
+/*
  * Static Thread Definitions
  */
 static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg);
@@ -114,7 +114,7 @@ static __attribute__((noreturn)) msg_t thd_electrical(void *arg);
 static __attribute__((noreturn)) msg_t thd_radio_control(void *arg);
 static __attribute__((noreturn)) msg_t thd_radio_event(void *arg);
 
-/**
+/*
  * Static Auxilliary Functions Definitions
  */
 static inline void failsafe_check(void);
@@ -561,7 +561,7 @@ chThdCreateStatic(wa_thd_failsafe, sizeof(wa_thd_failsafe), HIGHPRIO, thd_failsa
  */
 int main(void)
 {
-  /**
+  /*
    * System initializations.
    * - HAL initialization, this also initializes the configured device drivers
    *   and performs the board-specific initializations.
@@ -571,7 +571,9 @@ int main(void)
   halInit();
   chSysInit();
 
-  /// Paparazzi initialization
+  /*
+   * Paparazzi initialization
+   */
   mcu_init();
 
   electrical_init();
