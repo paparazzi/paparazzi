@@ -270,7 +270,7 @@ elif args.command == 'upload_gst_module':
     print('Uploading ...' + args.file)
     ftp.storbinary("STOR " + args.file, file(args.file, "rb"))
     execute_command("chmod 777 /data/video/" + args.file)
-    print(execute_command("mv /data/video/" + args.file + " /data/video/opt/arm/gst/lib/gstreamer-0.10"))
+    execute_command("mv /data/video/" + args.file + " /data/video/opt/arm/gst/lib/gstreamer-0.10")
     if check_vision_running():
         print('Info: Vision framework already started')
     else:
@@ -296,7 +296,7 @@ elif args.command == 'upload_paparazzi':
     f = args.file.rsplit('/', 1)
 
     print("Kill running ap.elf and make folder " + args.folder)
-    execute_command("killall " + f[1])
+    execute_command("killall -9 " + f[1])
     sleep(1)
     execute_command("mkdir -p " + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to " + args.folder)
