@@ -307,61 +307,49 @@
  */
 
 // AUX 1
-#define ADC_1 ADC1_C1 // THIS CHANNEL USES THE ADC 1 CONVERTER
 #ifdef USE_ADC_1
-#ifndef ADC_1_GPIO_CLOCK_PORT
-#define ADC_1_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPBEN
-#define ADC_1_INIT() gpio_mode_setup(GPIOB, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1)
-#endif
-#define USE_AD1_1 9 // ADC12 IN 9, the adc1 first conversion (up to 4) input channel 0 to 15
+#define AD1_1_CHANNEL 9
+#define ADC_1 AD1_1 // THIS CHANNEL USES THE ADC 1 CONVERTER
+#define ADC_1_GPIO_PORT GPIOB
+#define ADC_1_GPIO_PIN GPIO1
 #endif
 
 // AUX 2
-#define ADC_2 ADC1_C2 // THIS CHANNEL USES THE ADC 1 CONVERTER
 #ifdef USE_ADC_2
-#ifndef ADC_2_GPIO_CLOCK_PORT
-#define ADC_2_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
-#define ADC_2_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO5)
-#endif
-#define USE_AD1_2 15 // ADC12 IN 15, the adc1 second conversion (up to 4) input channel 0 to 15
+#define AD1_2_CHANNEL 15
+#define ADC_2 AD1_2 // THIS CHANNEL USES THE ADC 1 CONVERTER
+#define ADC_2_GPIO_PORT GPIOC
+#define ADC_2_GPIO_PIN GPIO5
 #endif
 
 // AUX 3
-#define ADC_3 ADC2_C1 // THIS CHANNEL USES THE ADC 2 CONVERTER
 #ifdef USE_ADC_3
-#ifndef ADC_3_GPIO_CLOCK_PORT
-#define ADC_3_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
-#define ADC_3_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4)
-#endif
-#define USE_AD2_1 14 // ADC12 IN 14, the adc2 first conversion (up to 4) input channel 0 to 15
+#define AD2_1_CHANNEL 14
+#define ADC_3 ADC2_C1 // THIS CHANNEL USES THE ADC 2 CONVERTER
+#define ADC_3_GPIO_PORT GPIOC
+#define ADC_3_GPIO_PIN GPIO4
 #endif
 
 // BAT
-#define ADC_4 ADC2_C2 // THIS CHANNEL USES THE ADC 2 CONVERTER
 #ifdef USE_ADC_4
-#ifndef ADC_4_GPIO_CLOCK_PORT
-#define ADC_4_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPAEN
-#define ADC_4_INIT() gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO4)
-#endif
-#define USE_AD2_2 4 // ADC12 IN 4, the adc2 second conversion (up to 4) input channel 0 to 15
+#define AD2_2_CHANNEL 4
+#define ADC_4 AD2_2 // THIS CHANNEL USES THE ADC 2 CONVERTER
+#define ADC_4_GPIO_PORT GPIOA
+#define ADC_4_GPIO_PIN GPIO4
 #endif
 
-#define ADC_5 ADC3_C1 // THIS CHANNEL USES THE ADC 3 CONVERTER
 #ifdef USE_ADC_5
-#ifndef ADC_5_GPIO_CLOCK_PORT
-#define ADC_5_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
-#define ADC_5_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO1)
-#endif
-#define USE_AD3_1 11 // ADC123 IN 11, The adc3 first conversion (up to 4) input channel 0 to 15
+#define AD3_1_CHANNEL 11
+#define ADC_5 AD3_1 // THIS CHANNEL USES THE ADC 3 CONVERTER
+#define ADC_5_GPIO_PORT GPIOC
+#define ADC_5_GPIO_PIN GPIO1
 #endif
 
-#define ADC_6 ADC3_C2 // THIS CHANNEL USES THE ADC 3 CONVERTER
 #ifdef USE_ADC_6
-#ifndef ADC_6_GPIO_CLOCK_PORT
-#define ADC_6_GPIO_CLOCK_PORT RCC_AHB1ENR_IOPCEN
-#define ADC_6_INIT() gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO2)
-#endif
-#define USE_AD3_2 12 // ADC123 IN 12, The adc3 second conversion (up to 4) input channel 0 to 15
+#define AD3_2_CHANNEL 12
+#define ADC_6 AD3_2 // THIS CHANNEL USES THE ADC 3 CONVERTER
+#define ADC_6_GPIO_PORT GPIOC
+#define ADC_6_GPIO_PIN GPIO2
 #endif
 
 

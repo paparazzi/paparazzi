@@ -38,6 +38,14 @@
  */
 extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output);
 
+/**
+ * Setup a gpio for analog use.
+ */
+extern void gpio_setup_pin_analog(uint32_t port, uint16_t pin);
+
+/**
+ * Enable the relevant clock.
+ */
 extern void gpio_enable_clock(uint32_t port);
 
 #endif /* GPIO_ARCH_H */

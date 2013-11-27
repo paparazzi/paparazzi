@@ -33,50 +33,47 @@
 #include BOARD_CONFIG
 
 // NB_ADCx_CHANNELS
-enum adc1_channels {
-#ifdef USE_AD1_1
-  ADC1_C1,
+enum adc_channels {
+#ifdef AD1_1_CHANNEL
+  AD1_1,
 #endif
-#ifdef USE_AD1_2
-  ADC1_C2,
+#ifdef AD1_2_CHANNEL
+  AD1_2,
 #endif
-#ifdef USE_AD1_3
-  ADC1_C3,
+#ifdef AD1_3_CHANNEL
+  AD1_3,
 #endif
-#ifdef USE_AD1_4
-  ADC1_C4,
+#ifdef AD1_4_CHANNEL
+  AD1_4,
 #endif
 //  NB_ADC1_CHANNELS
-#ifdef USE_AD2_1
-  ADC2_C1,
+#ifdef AD2_1_CHANNEL
+  AD2_1,
 #endif
-#ifdef USE_AD2_2
-  ADC2_C2,
+#ifdef AD2_2_CHANNEL
+  AD2_2,
 #endif
-#ifdef USE_AD2_3
-  ADC2_C3,
+#ifdef AD2_3_CHANNEL
+  AD2_3,
 #endif
-#ifdef USE_AD2_4
-  ADC2_C4,
+#ifdef AD2_4_CHANNEL
+  AD2_4,
 #endif
 //  NB_ADC2_CHANNELS
-#ifdef USE_AD3_1
-  ADC3_C1,
+#ifdef AD3_1_CHANNEL
+  AD3_1,
 #endif
-#ifdef USE_AD3_2
-  ADC3_C2,
+#ifdef AD3_2_CHANNEL
+  AD3_2,
 #endif
-#ifdef USE_AD3_3
-  ADC3_C3,
+#ifdef AD3_3_CHANNEL
+  AD3_3,
 #endif
-#ifdef USE_AD3_4
-  ADC3_C4,
+#ifdef AD3_4_CHANNEL
+  AD3_4,
 #endif
 //  NB_ADC3_CHANNELS
   NB_ADC
 };
-
-#define AdcBank0(x) (x)
-#define AdcBank1(x) (x+NB_ADC)
 
 #endif /* ADC_ARCH_H */
