@@ -181,6 +181,13 @@ static struct adc_buf * adc2_buffers[4];
 static struct adc_buf * adc3_buffers[4];
 #endif
 
+#if USE_ADC_WATCHDOG
+// watchdog structure with adc bank and callback
+static struct {
+  uint32_t adc;
+  adc_watchdog_callback cb;
+} adc_watchdog;
+#endif
 
 /***************************************/
 /***   PUBLIC FUNCTION DEFINITIONS   ***/
@@ -327,6 +334,10 @@ void adc_init( void ) {
 
   adc_new_data_trigger = FALSE;
 
+#if USE_ADC_WATCHDOG
+  adc_watchdog.cb = NULL;
+#endif
+
 }
 
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_sample)
@@ -351,6 +362,20 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_samp
   s->av_nb_sample = av_nb_sample;
 
 }
+
+#if USE_ADC_WATCHDOG
+void register_adc_watchdog(uint32_t adc, uint8_t chan, uint16_t low, uint16_t high, adc_watchdog_callback cb) {
+  adc_watchdog.adc = adc;
+  adc_watchdog.cb = cb;
+
+  // activated adc watchdog of a single injected channel with interrupt
+  adc_set_watchdog_low_threshold(adc, low);
+  adc_set_watchdog_high_threshold(adc, high);
+  adc_enable_analog_watchdog_injected(adc);
+  adc_enable_analog_watchdog_on_selected_channel(adc, chan);
+  adc_enable_awd_interrupt(adc);
+}
+#endif
 
 /**************************************/
 /***  PRIVATE FUNCTION DEFINITIONS  ***/
@@ -542,6 +567,15 @@ void adc1_2_isr(void)
   uint8_t channel = 0;
   uint16_t value  = 0;
   struct adc_buf * buf;
+
+#if USE_ADC_WATCHDOG
+  if (adc_watchdog.cb != NULL) {
+    if (adc_awd(adc_watchdog.adc)) {
+      ADC_SR(adc_watchdog.adc) &= ~ADC_SR_AWD; // clear int flag
+      adc_watchdog.cb();
+    }
+  }
+#endif
 
 #if USE_AD1
   // Clear Injected End Of Conversion
