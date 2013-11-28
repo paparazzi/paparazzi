@@ -42,7 +42,7 @@ top of things.
 # Additional Resources
 
 * [More information on contributing](http://paparazzi.enac.fr/wiki/Contributing)
-* [Coding style guidelines](http://paparazzi.github.io/docs/latest/styleguide.html)
+* [Coding style guidelines](http://docs.paparazziuav.org/latest/styleguide.html)
 * [Issue tracker](https://github.com/paparazzi/paparazzi/issues)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
