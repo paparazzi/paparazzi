@@ -117,7 +117,13 @@ extern struct _mission_element * mission_get(void);
  *
  * @return return TRUE when the mission is running, FALSE when it is finished
  */
-extern int mission_run();
+extern int mission_run(void);
+
+/** Report mission status
+ *
+ * Send mission status over datalink
+ */
+extern void mission_status_report(void);
 
 /** Parsing functions called when a mission message is received
  */

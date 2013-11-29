@@ -12,6 +12,7 @@
     <file name="mission.h"/>
   </header>
   <init fun="mission_init()"/>
+  <periodic fun="mission_status_report()" freq="2" autorun="TRUE"/>
 
   <datalink message="MISSION_GOTO_WP" fun="mission_parse_GOTO_WP()"/>
   <datalink message="MISSION_GOTO_WP_LLA" fun="mission_parse_GOTO_WP_LLA()"/>

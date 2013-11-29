@@ -654,7 +654,11 @@
   </message>
 
  <!-- 78 is free -->
- <!-- 79 is free -->
+
+  <message name="MISSION_STATUS" id="79">
+    <field name="remaining_time" type="float"/>
+    <field name="task_list" type="uint8[]"/>
+  </message>
 
   <message name="CROSS_TRACK_ERROR" id="80">
     <field name="cross_track_error" type="float" unit="m"/>
