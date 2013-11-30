@@ -29,7 +29,7 @@
 # This is the common Makefile for target using chibios
 #
 CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
-CHIBIOS_SPECIFIC_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/chibios
+CHIBIOS_SPECIFIC_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/$(BOARD_PATH)
 CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
 
 # Launch with "make Q=''" to get full command display
@@ -258,7 +258,13 @@ ULIBS =
 ##############################################################################
 # default: assume the luftboot bootloader is used
 # if luftboot is not used define NO_LUFTBOOT to a value != 0
+# this is necessary for Makefile.stm32-upload
+ifdef NO_LUFTBOOT
+ASSUMING_LUFTBOOT = "no"
+else
 ASSUMING_LUFTBOOT = "yes"
+endif
+
 
 # Settings for GDB
 # default port configuration for BMP
