@@ -264,6 +264,26 @@
 #define PWM_SERVO_6_CHANNEL 1
 
 
+
+/*
+#define ACTUATORS_PWM_NB 4
+#define PWM_CONF_TIM3 1
+#define PWM_CONF3_DEF {  \
+          PWM_FREQUENCY_1MHZ, \
+          PWM_FREQUENCY_1MHZ/SERVO_HZ, \
+          pwmpcb,  \
+          {        \
+            {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
+            {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
+            {PWM_OUTPUT_ACTIVE_HIGH, NULL},  \
+            {PWM_OUTPUT_ACTIVE_HIGH, NULL}  \
+          },       \
+          0,       \
+          0        \
+        }
+*/
+
+
 #if USE_SERVOS_7AND8
   #if USE_I2C1
     #error "You cannot USE_SERVOS_7AND8 and USE_I2C1 at the same time"
@@ -397,6 +417,15 @@
 #ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
 #endif
+
+/*
+ * Actuators for fixedwing
+ */
+ /* Default actuators driver */
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
+#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorsDefaultInit() ActuatorsPwmInit()
+#define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
 
 #if !defined(_FROM_ASM_)
