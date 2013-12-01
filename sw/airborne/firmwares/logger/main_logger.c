@@ -509,7 +509,7 @@ void log_otf(unsigned char c, unsigned char source)
       }
       otf_inp[otf_idx++] = c;
     } else {
-      if ((otf_idx == 5) && (c == OTF_LIMITER)) {
+      if ((otf_idx > 4) && (c == OTF_LIMITER)) {
         otf_inp[otf_idx] = 0;
         counter = atoi(otf_inp);
         otf_idx = 0;
