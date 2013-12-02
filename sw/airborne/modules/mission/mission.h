@@ -34,13 +34,13 @@
 #include "math/pprz_geodetic_float.h"
 
 enum MissionType {
-  MissionWP,
-  MissionCircle,
-  MissionSegment,
-  MissionPath,
-  MissionSurvey,
-  MissionEight,
-  MissionOval
+  MissionWP = 1,
+  MissionCircle = 2,
+  MissionSegment = 3,
+  MissionPath = 4,
+  MissionSurvey = 5,
+  MissionEight = 6,
+  MissionOval = 7
 };
 
 enum MissionInsertMode {

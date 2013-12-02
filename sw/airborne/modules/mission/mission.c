@@ -92,7 +92,7 @@ void mission_status_report(void) {
     task_list[j++] = (uint8_t)mission.elements[i].type;
     i = (i+1)%MISSION_ELEMENT_NB;
   }
-  if (j == 0) { task_list[j++] = 255; } // Dummy value if task list is empty
+  if (j == 0) { task_list[j++] = 0; } // Dummy value if task list is empty
   //compute remaining time (or -1. if no time limit)
   float remaining_time = -1.;
   if (mission.elements[mission.current_idx].duration > 0.) {
