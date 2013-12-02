@@ -22,6 +22,7 @@ HARD_FLOAT=yes
 FLASH_MODE ?= DFU
 STLINK ?= y
 DFU_UTIL ?= y
+NO_LUFTBOOT ?= 1
 
 #
 # default LED configuration
