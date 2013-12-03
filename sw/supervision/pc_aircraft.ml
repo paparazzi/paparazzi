@@ -32,7 +32,7 @@ let gcs = Env.paparazzi_src // "sw/ground_segment/cockpit/gcs"
 let regexp_space = Str.regexp "[ ]+"
 
 let string_of_gdkcolor = fun c ->
-  sprintf "#%2x%2x%2x" (Gdk.Color.red c) (Gdk.Color.green c) (Gdk.Color.blue c)
+  sprintf "#%04x%04x%04x" (Gdk.Color.red c) (Gdk.Color.green c) (Gdk.Color.blue c)
 
 let aircraft_sample = fun name ac_id ->
   Xml.Element ("aircraft",
