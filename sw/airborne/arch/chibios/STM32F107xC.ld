@@ -25,7 +25,7 @@
     for full details of how and when the exception can be applied.
 */
 
-/** 
+/**
  * @file arch/chibios/STM32F107xC.ld
  * ST32F107xC memory setup and linker script
  *
