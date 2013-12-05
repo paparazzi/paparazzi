@@ -653,7 +653,26 @@
     <field name="accel" type="float" unit="m/s/s"/>
   </message>
 
- <!-- 78 is free -->
+  <!--message for Invariant filter with position-->
+  <message name="INV_FILTER" id="78">
+    <field name="quat" type="float"/>
+    <field name="phi_inv" type="float" unit="rad" alt_unit="deg"/>
+    <field name="theta_inv" type="float" unit="rad" alt_unit="deg"/>
+    <field name="psi_inv" type="float" unit="rad" alt_unit="deg"/>
+    <field name="Vx_inv" type="float" unit="m/s"/>
+    <field name="Vy_inv" type="float" unit="m/s"/>
+    <field name="Vz_inv" type="float" unit="m/s"/>
+    <field name="Px_inv" type="float" unit="m"/>
+    <field name="Py_inv" type="float" unit="m"/>
+    <field name="Pz_inv" type="float" unit="m"/>
+    <field name="bias_phi" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bias_theta" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bias_psi" type="float" unit="rad/s" alt_unit="deg/s"/>
+    <field name="bias_as" type="float"/>
+    <field name="bias_hb" type="float"/>
+    <field name="meas_baro" type="float" unit="m"/>
+    <field name="meas_gps" type="float" unit="m"/>
+  </message>
 
   <message name="MISSION_STATUS" id="79">
     <field name="remaining_time" type="float"/>

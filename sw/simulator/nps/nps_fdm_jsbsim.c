@@ -434,10 +434,15 @@ static void init_ltp(void) {
   fdm.ltp_g.z = 9.81;
 
 #ifdef AHRS_H_X
-#pragma message "Using magnetic field as defined in airframe file."
+#pragma message "Using magnetic field as defined in airframe file (AHRS section)."
   fdm.ltp_h.x = AHRS_H_X;
   fdm.ltp_h.y = AHRS_H_Y;
   fdm.ltp_h.z = AHRS_H_Z;
+#elif defined INS_H_X
+#pragma message "Using magnetic field as defined in airframe file (INS section)."
+  fdm.ltp_h.x = INS_H_X;
+  fdm.ltp_h.y = INS_H_Y;
+  fdm.ltp_h.z = INS_H_Z;
 #else
   fdm.ltp_h.x = 0.4912;
   fdm.ltp_h.y = 0.1225;
