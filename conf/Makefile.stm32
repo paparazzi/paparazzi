@@ -40,7 +40,11 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 ifeq ($(ARCH_L),f4)
 MCU   = cortex-m4
 else
+ifeq ($(ARCH_L),f3)
+MCU   = cortex-m4
+else
 MCU   = cortex-m3
+endif
 endif
 #DEBUG = dwarf-2
 OPT ?= s
@@ -77,6 +81,12 @@ CFLAGS += -msoft-float
 else
 CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
+else ifeq ($(ARCH_L),f3)
+ifndef HARD_FLOAT
+CFLAGS += -msoft-float
+else
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+endif
 endif
 
 CSTANDARD = -std=gnu99
@@ -108,6 +118,9 @@ ifneq ($(ARCH_L), )
 ifeq ($(ARCH_L),f4)
 CFLAGS += -DSTM32F4
 endif
+ifeq ($(ARCH_L),f3)
+CFLAGS += -DSTM32F3
+endif
 else
 CFLAGS += -DSTM32F1
 endif
@@ -128,7 +141,14 @@ ifndef HARD_FLOAT
 LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
 else
 LDFLAGS += -lnosys -D__thumb2__\
-           -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+		   -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+endif
+else ifeq ($(ARCH_L),f3)
+ifndef HARD_FLOAT
+LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
+else
+LDFLAGS += -lnosys -D__thumb2__\
+		   -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 endif
 

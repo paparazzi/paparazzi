@@ -42,6 +42,7 @@ update_submodules:
 
 libopencm3.module: update_submodules
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) TARGETS="stm32/f1"
+	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) TARGETS="stm32/f3"
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) FP_FLAGS="-mfloat-abi=softfp -mfpu=fpv4-sp-d16" TARGETS="stm32/f4"
 
 luftboot.module: update_submodules libopencm3.module
@@ -53,7 +54,6 @@ luftboot_flash: luftboot.module libopencm3.module
 chibios.module: update_submodules
 
 fatfs.module: update_submodules
-
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
 		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \
