@@ -4,57 +4,103 @@
 #define BOARD_STM32F3_DISCOVERY
 
 /* STM32F3_DISCOVERY has a 8MHz external clock and 168MHz internal. */
-#define EXT_CLK 8000000
-#define AHB_CLK 168000000
+#define EXT_CLK 8000000   //Fix!
+#define AHB_CLK 168000000 //Fix!
 
 /*
  * Onboard LEDs
  */
 
-/* orange, on PD13 */
+/* red, on PE9 */
 #ifndef USE_LED_3
 #define USE_LED_3 1
 #endif
-#define LED_3_GPIO GPIOD
-#define LED_3_GPIO_CLK RCC_AHB1ENR_IOPDEN
-#define LED_3_GPIO_PIN GPIO13
+#define LED_3_GPIO GPIOE
+#define LED_3_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_3_GPIO_PIN GPIO9
 #define LED_3_AFIO_REMAP ((void)0)
 #define LED_3_GPIO_ON gpio_set
 #define LED_3_GPIO_OFF gpio_clear
 
-/* green, on PD12 */
+/* blue, on PE8 */
 #ifndef USE_LED_4
 #define USE_LED_4 1
 #endif
-#define LED_4_GPIO GPIOD
-#define LED_4_GPIO_CLK RCC_AHB1ENR_IOPDEN
-#define LED_4_GPIO_PIN GPIO12
+#define LED_4_GPIO GPIOE
+#define LED_4_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_4_GPIO_PIN GPIO8
 #define LED_4_AFIO_REMAP ((void)0)
 #define LED_4_GPIO_ON gpio_set
 #define LED_4_GPIO_OFF gpio_clear
 
-/* red, PD14 */
+/* orange, on PE10 */
 #ifndef USE_LED_5
 #define USE_LED_5 1
 #endif
-#define LED_5_GPIO GPIOD
-#define LED_5_GPIO_CLK RCC_AHB1ENR_IOPDEN
-#define LED_5_GPIO_PIN GPIO14
+#define LED_5_GPIO GPIOE
+#define LED_5_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_5_GPIO_PIN GPIO10
 #define LED_5_AFIO_REMAP ((void)0)
 #define LED_5_GPIO_ON gpio_set
 #define LED_5_GPIO_OFF gpio_clear
 
-/* blue, PD15 */
+/* green, on PE15 */
 #ifndef USE_LED_6
 #define USE_LED_6 1
 #endif
-#define LED_6_GPIO GPIOD
-#define LED_6_GPIO_CLK RCC_AHB1ENR_IOPDEN
+#define LED_6_GPIO GPIOE
+#define LED_6_GPIO_CLK RCC_AHBENR_IOPEEN
 #define LED_6_GPIO_PIN GPIO15
 #define LED_6_AFIO_REMAP ((void)0)
 #define LED_6_GPIO_ON gpio_set
 #define LED_6_GPIO_OFF gpio_clear
 
+/* green, on PE11 */
+#ifndef USE_LED_7
+#define USE_LED_7 1
+#endif
+#define LED_7_GPIO GPIOE
+#define LED_7_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_7_GPIO_PIN GPIO11
+#define LED_7_AFIO_REMAP ((void)0)
+#define LED_7_GPIO_ON gpio_set
+#define LED_7_GPIO_OFF gpio_clear
+
+/* orange, on PE14 */
+#ifndef USE_LED_8
+#define USE_LED_8 1
+#endif
+#define LED_8_GPIO GPIOE
+#define LED_8_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_8_GPIO_PIN GPIO14
+#define LED_8_AFIO_REMAP ((void)0)
+#define LED_8_GPIO_ON gpio_set
+#define LED_8_GPIO_OFF gpio_clear
+
+/* blue, on PE12 */
+#ifndef USE_LED_9
+#define USE_LED_9 1
+#endif
+#define LED_9_GPIO GPIOE
+#define LED_9_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_9_GPIO_PIN GPIO12
+#define LED_9_AFIO_REMAP ((void)0)
+#define LED_9_GPIO_ON gpio_set
+#define LED_9_GPIO_OFF gpio_clear
+
+/* red, on PE13 */
+#ifndef USE_LED_10
+#define USE_LED_10 1
+#endif
+#define LED_10_GPIO GPIOE
+#define LED_10_GPIO_CLK RCC_AHBENR_IOPEEN
+#define LED_10_GPIO_PIN GPIO13
+#define LED_10_AFIO_REMAP ((void)0)
+#define LED_10_GPIO_ON gpio_set
+#define LED_10_GPIO_OFF gpio_clear
+
+
+//Check from here
 
 /* UART */
 #define UART1_GPIO_AF GPIO_AF7
