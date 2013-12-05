@@ -127,9 +127,13 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 }
 
 static inline void usart_isr(struct uart_periph* p) {
-
+#if !defined(STM32F3)
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_TXE) != 0)) {
+#else
+  if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_TXE) != 0)) {
+#endif
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
       usart_send((uint32_t)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
@@ -143,10 +147,17 @@ static inline void usart_isr(struct uart_periph* p) {
   }
 
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_RXNE) != 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) == 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) == 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) == 0)) {
+#else
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_RXNE) != 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_ORE) == 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_NF) == 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_FE) == 0)) {
+#endif
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
     p->rx_buf[p->rx_insert_idx] = usart_recv((uint32_t)p->reg_addr);
     // check for more room in queue
@@ -156,17 +167,29 @@ static inline void usart_isr(struct uart_periph* p) {
   else {
     /* ORE, NE or FE error - read USART_DR reg and log the error */
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) != 0)) {
+#else
+        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_ORE) != 0)) {
+#endif
       usart_recv((uint32_t)p->reg_addr);
       p->ore++;
     }
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) != 0)) {
+#else
+        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_NF) != 0)) {
+#endif
       usart_recv((uint32_t)p->reg_addr);
       p->ne_err++;
     }
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) != 0)) {
+#else
+        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_FE) != 0)) {
+#endif
       usart_recv((uint32_t)p->reg_addr);
       p->fe_err++;
     }
@@ -224,8 +247,12 @@ void uart1_init( void ) {
   gpio_setup_pin_af(UART1_GPIO_PORT_RX, UART1_GPIO_RX, UART1_GPIO_AF, FALSE);
 #endif
 
+#if !defined(STM32F3)
   /* Enable USART interrupts in the interrupt controller */
   usart_enable_irq(NVIC_USART1_IRQ);
+#else
+  usart_enable_irq(NVIC_USART1_EXTI25_IRQ);
+#endif
 
 #if UART1_HW_FLOW_CONTROL
 #warning "USING UART1 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
@@ -242,7 +269,11 @@ void uart1_init( void ) {
   uart_periph_set_baudrate(&uart1, UART1_BAUD);
 }
 
+#if !defined(STM32F3)
 void usart1_isr(void) { usart_isr(&uart1); }
+#else
+void usart1_exti25_isr(void) { usart_isr(&uart1); }
+#endif
 
 #endif /* USE_UART1 */
 
@@ -288,10 +319,14 @@ void uart2_init( void ) {
   gpio_setup_pin_af(UART2_GPIO_PORT_RX, UART2_GPIO_RX, UART2_GPIO_AF, FALSE);
 #endif
 
+#if !defined(STM32F3)
   /* Enable USART interrupts in the interrupt controller */
   usart_enable_irq(NVIC_USART2_IRQ);
+#else
+  usart_enable_irq(NVIC_USART2_EXTI26_IRQ);
+#endif
 
-#if UART2_HW_FLOW_CONTROL && defined(STM32F4)
+#if (UART2_HW_FLOW_CONTROL && defined(STM32F4)) || (UART2_HW_FLOW_CONTROL && defined(STM32F3))
 #warning "USING UART2 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   /* setup CTS and RTS pins */
   gpio_setup_pin_af(UART2_GPIO_PORT_CTS, UART2_GPIO_CTS, UART2_GPIO_AF, FALSE);
@@ -306,7 +341,11 @@ void uart2_init( void ) {
   uart_periph_set_baudrate(&uart2, UART2_BAUD);
 }
 
+#if !defined(STM32F3)
 void usart2_isr(void) { usart_isr(&uart2); }
+#else
+void usart2_exti26_isr(void) { usart_isr(&uart2); }
+#endif
 
 #endif /* USE_UART2 */
 
@@ -352,10 +391,14 @@ void uart3_init( void ) {
   gpio_setup_pin_af(UART3_GPIO_PORT_RX, UART3_GPIO_RX, UART3_GPIO_AF, FALSE);
 #endif
 
+#if !defined(STM32F3)
   /* Enable USART interrupts in the interrupt controller */
   usart_enable_irq(NVIC_USART3_IRQ);
+#else
+  usart_enable_irq(NVIC_USART3_EXTI28_IRQ);
+#endif
 
-#if UART3_HW_FLOW_CONTROL && defined(STM32F4)
+#if (UART3_HW_FLOW_CONTROL && defined(STM32F4)) || (UART3_HW_FLOW_CONTROL && defined(STM32F3))
 #warning "USING UART3 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   /* setup CTS and RTS pins */
   gpio_setup_pin_af(UART3_GPIO_PORT_CTS, UART3_GPIO_CTS, UART3_GPIO_AF, FALSE);
@@ -370,7 +413,11 @@ void uart3_init( void ) {
   uart_periph_set_baudrate(&uart3, UART3_BAUD);
 }
 
+#if !defined(STM32F3)
 void usart3_isr(void) { usart_isr(&uart3); }
+#else
+void usart3_exti28_isr(void) { usart_isr(&uart3); }
+#endif
 
 #endif /* USE_UART3 */
 
@@ -412,8 +459,12 @@ void uart4_init( void ) {
   gpio_setup_pin_af(UART4_GPIO_PORT_RX, UART4_GPIO_RX, UART4_GPIO_AF, FALSE);
 #endif
 
+#if !defined(STM32F3)
   /* Enable USART interrupts in the interrupt controller */
   usart_enable_irq(NVIC_UART4_IRQ);
+#else
+  usart_enable_irq(NVIC_UART4_EXTI34_IRQ);
+#endif
 
   /* Configure USART */
   uart_periph_set_mode(&uart4, USE_UART4_TX, USE_UART4_RX, FALSE);
@@ -421,7 +472,11 @@ void uart4_init( void ) {
   uart_periph_set_baudrate(&uart4, UART4_BAUD);
 }
 
+#if !defined(STM32F3)
 void uart4_isr(void) { usart_isr(&uart4); }
+#else
+void uart4_exti34_isr(void) { usart_isr(&uart4); }
+#endif
 
 #endif /* USE_UART4 */
 
@@ -463,8 +518,12 @@ void uart5_init( void ) {
   gpio_setup_pin_af(UART5_GPIO_PORT_RX, UART5_GPIO_RX, UART5_GPIO_AF, FALSE);
 #endif
 
+#if !defined(STM32F3)
   /* Enable USART interrupts in the interrupt controller */
   usart_enable_irq(NVIC_UART5_IRQ);
+#else
+  usart_enable_irq(NVIC_UART5_EXTI35_IRQ);
+#endif
 
   /* Configure USART */
   uart_periph_set_mode(&uart5, USE_UART5_TX, USE_UART5_RX, FALSE);
@@ -472,7 +531,11 @@ void uart5_init( void ) {
   uart_periph_set_baudrate(&uart5, UART5_BAUD);
 }
 
+#if !defined(STM32F3)
 void uart5_isr(void) { usart_isr(&uart5); }
+#else
+void uart5_exti35_isr(void) { usart_isr(&uart5); }
+#endif
 
 #endif /* USE_UART5 */
 
