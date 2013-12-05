@@ -45,6 +45,16 @@
     gui_color="white"
     />
   <aircraft
+   name="stm32f3_discovery"
+   ac_id="199"
+   airframe="airframes/examples/quadrotor_stm32f3_discovery_pwm.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   gui_color="white"
+  />
+  <aircraft
     name="Quad_LisaS"
     ac_id="163"
     airframe="airframes/examples/quadrotor_lisa_s.xml"

@@ -13,15 +13,13 @@ ARCH_L=f3
 ARCH_DIR=stm32
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).LDSCRIPT=$(SRC_ARCH)/stm32f3discovery.ld #check!
+$(TARGET).LDSCRIPT=$(SRC_ARCH)/stm32f3discovery.ld
 
 HARD_FLOAT=yes
 
-# default flash mode is via usb dfu bootloader
-# possibilities: DFU, SWD
+# default flash mode is via STLINK
+# possibilities: DFU-UTIL, SWD, STLINK
 FLASH_MODE ?= STLINK
-STLINK ?= y
-DFU_UTIL ?= n
 
 #
 # default LED configuration
