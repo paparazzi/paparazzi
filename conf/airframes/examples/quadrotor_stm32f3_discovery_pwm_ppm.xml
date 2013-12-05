@@ -12,7 +12,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="stm32f3_discovery">
-      <subsystem name="radio_control" type="ppm"> <!-- Check this!! -->
+      <subsystem name="radio_control" type="spektrum"> <!-- Check this!! -->
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_PPM_RECEIVER" value="1"/> <!-- Check this!! -->
       </subsystem>
