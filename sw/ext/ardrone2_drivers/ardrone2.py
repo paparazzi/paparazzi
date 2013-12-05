@@ -23,6 +23,12 @@ def execute_command(command):
     tn.write(command + '\n')
     return tn.read_until('# ')[len(command) + 2:-4]
 
+# Helper function
+def split_into_path_and_file(name):
+    if name.count('/') <= 0:
+        return ["./", name]
+    return name.rsplit('/', 1)
+
 # Read from config.ini
 def read_from_config(name, config=''):
     if config == '':
@@ -286,19 +292,19 @@ elif args.command == 'upload_gst_module':
 
 
 elif args.command == 'insmod':
-    modfile = args.file.rsplit('/', 1)
+    modfile = split_into_path_and_file(args.file)
     print('Uploading \'' + modfile[1])
     ftp.storbinary("STOR " + modfile[1], file(args.file, "rb"))
     print(execute_command("insmod /data/video/" + modfile[1]))
 
 elif args.command == 'upload_paparazzi':
     # Split filename and path
-    f = args.file.rsplit('/', 1)
+    f = split_into_path_and_file(args.file)
 
-    print("Kill running ap.elf and make folder " + args.folder)
+    print("Kill running " + f[1] + " and make folder " + args.folder)
     execute_command("killall -9 " + f[1])
     sleep(1)
-    execute_command("mkdir -p " + args.folder)
+    execute_command("mkdir -p /data/video/" + args.folder)
     print('Uploading \'' + f[1] + "\' from " + f[0] + " to " + args.folder)
     ftp.storbinary("STOR " + args.folder + "/" + f[1], file(args.file, "rb"))
     sleep(0.5)
