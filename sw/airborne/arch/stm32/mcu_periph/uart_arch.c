@@ -127,9 +127,13 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 }
 
 static inline void usart_isr(struct uart_periph* p) {
-
+#if !defined(STM32F3)
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_TXE) != 0)) {
+#else
+  if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_TXE) != 0)) {
+#endif
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
       usart_send((uint32_t)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
@@ -143,10 +147,17 @@ static inline void usart_isr(struct uart_periph* p) {
   }
 
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_RXNE) != 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) == 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) == 0) &&
       ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) == 0)) {
+#else
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_RXNE) != 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_ORE) == 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_NF) == 0) &&
+      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_FE) == 0)) {
+#endif
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
     p->rx_buf[p->rx_insert_idx] = usart_recv((uint32_t)p->reg_addr);
     // check for more room in queue
@@ -156,17 +167,29 @@ static inline void usart_isr(struct uart_periph* p) {
   else {
     /* ORE, NE or FE error - read USART_DR reg and log the error */
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) != 0)) {
+#else
+        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_ORE) != 0)) {
+#endif
       usart_recv((uint32_t)p->reg_addr);
       p->ore++;
     }
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) != 0)) {
+#else
+        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_NF) != 0)) {
+#endif
       usart_recv((uint32_t)p->reg_addr);
       p->ne_err++;
     }
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
+#if !defined(STM32F3)
         ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) != 0)) {
+#else
+        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_FE) != 0)) {
+#endif
       usart_recv((uint32_t)p->reg_addr);
       p->fe_err++;
     }
