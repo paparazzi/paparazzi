@@ -6,6 +6,7 @@
 /* STM32F3_DISCOVERY has a 8MHz external clock and 168MHz internal. */
 #define EXT_CLK 8000000   //Fix!
 #define AHB_CLK 168000000 //Fix!
+#define I2C1_CLOCK_SPEED 100000
 
 /*
  * Onboard LEDs
@@ -142,18 +143,13 @@
 
 
 /* I2C mapping */
-#define I2C1_GPIO_PORT GPIOB
-#define I2C1_GPIO_SCL GPIO8
-#define I2C1_GPIO_SDA GPIO9
+#define I2C1_GPIO_PORT GPIOA //check
+#define I2C1_GPIO_SCL GPIO15
+#define I2C1_GPIO_SDA GPIO14
 
-#define I2C2_GPIO_PORT GPIOB
-#define I2C2_GPIO_SCL GPIO10
-#define I2C2_GPIO_SDA GPIO11
-
-#define I2C3_GPIO_PORT_SCL GPIOA
-#define I2C3_GPIO_PORT_SDA GPIOC
-#define I2C3_GPIO_SCL GPIO8
-#define I2C3_GPIO_SDA GPIO9
+#define I2C2_GPIO_PORT GPIOA
+#define I2C2_GPIO_SCL GPIO9
+#define I2C2_GPIO_SDA GPIO10
 
 
 /*
