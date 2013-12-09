@@ -499,7 +499,7 @@ void SpektrumTimerInit( void ) {
 #ifdef STM32F1
   nvic_set_priority(NVIC_TIM6_IRQ, NVIC_TIM6_IRQ_PRIO);
   nvic_enable_irq(NVIC_TIM6_IRQ);
-#elif defined STM32F4
+#elif defined(STM32F4) || defined(STM32F3)
   /* the define says DAC IRQ, but it is also the global TIM6 IRQ*/
   nvic_set_priority(NVIC_TIM6_DAC_IRQ, NVIC_TIM6_DAC_IRQ_PRIO);
   nvic_enable_irq(NVIC_TIM6_DAC_IRQ);
@@ -520,7 +520,7 @@ void SpektrumTimerInit( void ) {
  *****************************************************************************/
 #ifdef STM32F1
 void tim6_isr( void ) {
-#elif defined STM32F4
+#elif defined(STM32F4) || defined(STM32F3)
 void tim6_dac_isr( void ) {
 #endif
 
@@ -605,12 +605,12 @@ void SpektrumUartInit(void) {
 void PrimaryUart(_ISR)(void) {
 
   if (((USART_CR1(PrimaryUart(_DEV)) & USART_CR1_TXEIE) != 0) &&
-      ((USART_SR(PrimaryUart(_DEV)) & USART_SR_TXE) != 0)) {
+      ((USART_ISR(PrimaryUart(_DEV)) & USART_ISR_TXE) != 0)) {
     USART_CR1(PrimaryUart(_DEV)) &= ~USART_CR1_TXEIE;
   }
 
   if (((USART_CR1(PrimaryUart(_DEV)) & USART_CR1_RXNEIE) != 0) &&
-      ((USART_SR(PrimaryUart(_DEV)) & USART_SR_RXNE) != 0)) {
+      ((USART_ISR(PrimaryUart(_DEV)) & USART_ISR_RXNE) != 0)) {
     uint8_t b = usart_recv(PrimaryUart(_DEV));
     SpektrumParser(b, &PrimarySpektrumState, FALSE);
   }
