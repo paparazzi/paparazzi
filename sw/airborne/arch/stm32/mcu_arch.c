@@ -64,6 +64,12 @@ PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 168MHz.")
 PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
   rcc_clock_setup_hse_3v3(&hse_16mhz_3v3[CLOCK_3V3_168MHZ]);
 #endif
+#elif (INT_CLK == 8000000) && (AHB_CLK == 64000000) && defined(STM32F3)
+ PRINT_CONFIG_MSG("Using 8MHz internal clock to PLL it to 64MHz.")
+ rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_64MHZ]);
+#elif (INT_CLK == 8000000) && (AHB_CLK == 48000000) && defined(STM32F3)
+ PRINT_CONFIG_MSG("Using 8MHz internal clock to PLL it to 48MHz.")
+ rcc_clock_setup_hsi(&hsi_8mhz[CLOCK_48MHZ]);
 #else
 #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!
 #endif
@@ -77,4 +83,3 @@ PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
 #endif
 
 }
-
