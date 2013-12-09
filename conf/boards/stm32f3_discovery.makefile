@@ -27,22 +27,22 @@ DFU_UTIL ?= n
 # default LED configuration
 #
 RADIO_CONTROL_LED  ?= 4
-BARO_LED           ?= none
-AHRS_ALIGNER_LED   ?= none
-GPS_LED            ?= none
+BARO_LED           ?= 5
+AHRS_ALIGNER_LED   ?= 6
+GPS_LED            ?= 7
 SYS_TIME_LED       ?= 3
 
 #
 # default UART configuration (modem, gps, spektrum)
 #
 
-MODEM_PORT ?= UART6
+MODEM_PORT ?= UART1
 MODEM_BAUD ?= B57600
 
-GPS_PORT ?= UART4
+GPS_PORT ?= UART2
 GPS_BAUD ?= B38400
 
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART3
 
 
 #
