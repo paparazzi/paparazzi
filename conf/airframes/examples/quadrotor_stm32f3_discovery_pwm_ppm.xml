@@ -17,6 +17,7 @@
         <configure name="USE_SECONDARY_PPM_RECEIVER" value="1"/> <!-- Check this!! -->
       </subsystem>
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
+    <define name="STM32F3_DISCOVERY_I2C1_FOR_LSM303DLHC"/>
     </target>
 
     <target name="nps" board="pc">
@@ -214,11 +215,11 @@
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
   </section>
 
-  <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
-    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
-  </section>
+  <!-- <section name="BAT"> -->
+  <!--   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/> -->
+  <!--   <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/> -->
+  <!--   <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/> -->
+  <!--   <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/> -->
+  <!-- </section> -->
 
 </airframe>
