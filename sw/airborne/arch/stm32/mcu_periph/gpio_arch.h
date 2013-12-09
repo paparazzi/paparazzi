@@ -23,7 +23,7 @@
  * @file arch/stm32/mcu_periph/gpio_arch.h
  * @ingroup stm32_arch
  *
- * GPIO helper functions for STM32F1 and STM32F4.
+ * GPIO helper functions for STM32F1, STM32F3 and STM32F4.
  *
  * The gpio_set and gpio_clear functions are already available from libopencm3.
  */

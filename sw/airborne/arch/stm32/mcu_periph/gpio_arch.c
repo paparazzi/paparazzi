@@ -104,7 +104,7 @@ void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
   gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_ANALOG, pin);
 }
 
-#elif defined STM32F4
+#elif defined(STM32F4) || defined (STM32F3)
 
 void gpio_setup_output(uint32_t port, uint16_t gpios) {
   gpio_enable_clock(port);
