@@ -28,11 +28,12 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-      <define name="USE_SERVOS_7AND8AAA"/>
+      <define name="USE_SERVOS_7AND8"/>
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="stm32f3_discoveryimu"/>
+    <!-- <subsystem name="imu"           type="stm32f3_discoveryimu"/> -->
+    <subsystem name="imu"           type="krooz_sd"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
