@@ -104,9 +104,9 @@
 #define BOARD_STM32F3_DISCOVERY
 
 /* STM32F3_DISCOVERY has a 8MHz external clock and 168MHz internal. */
-#define EXT_CLK 8000000   //Fix!
-#define AHB_CLK 168000000 //Fix!
-#define I2C1_CLOCK_SPEED 100000
+#define INT_CLK 8000000   //Fix!
+#define AHB_CLK 64000000 //Fix!
+//#define I2C1_CLOCK_SPEED 100000 //now is in the quadrobot xml file
 
 /*
  * Onboard LEDs
@@ -290,32 +290,31 @@
 #define SPI3_GPIO_SCK GPIO10
 #endif
 
+#if STM32F3_DISCOVERY_SPI1_FOR_L3GD20
 // STM32F3DISCOVERY L3GD20
 #define SPI_SELECT_SLAVE0_PORT GPIOE
 #define SPI_SELECT_SLAVE0_PIN GPIO3
-
+#endif
 
 /* I2C mapping */
 #if STM32F3_DISCOVERY_I2C1_FOR_LSM303DLHC
 #define I2C1_GPIO_PORT GPIOB
 #define I2C1_GPIO_SCL GPIO6
 #define I2C1_GPIO_SDA GPIO7
-#elif USE_I2C_PORTB
+#elif USE_I2C1_PORTB || !USE_I2C1_PORTA
 #define I2C1_GPIO_PORT GPIOB //check TIM16 CH1, TIM17 CH1, TIM4 CH3,4, TIM8 CH2,3, TIM2 CH3,4
 #define I2C1_GPIO_SCL GPIO8
 #define I2C1_GPIO_SDA GPIO9
-#elif USE_I2C_PORTA
+#elif USE_I2C1_PORTA
 #define I2C1_GPIO_PORT GPIOA //check UART2, TIM8 CH1,2
 #define I2C1_GPIO_SCL GPIO15
 #define I2C1_GPIO_SDA GPIO14
 #endif
 
-#if !PWM_USE_TIM1 //change it to the below
 #if USE_I2C2 //check UART1, TIM1 CH2,3, TIM2 CH3,4
 #define I2C2_GPIO_PORT GPIOA
 #define I2C2_GPIO_SCL GPIO9
 #define I2C2_GPIO_SDA GPIO10
-#endif
 #endif
 
 /* ADC Pending!! */
@@ -330,17 +329,21 @@
 /**********************************   SERVO PWM    *************************************************/
 /***************************************************************************************************/
 
+#if !USE_I2C2
 #define PWM_USE_TIM1 1 //Put in portA check I2C2, (TIM2 CH3,4 not critical if we put TIM2 in PORTD pins 0-3), TIM4 CH1
+#endif
 #define PWM_USE_TIM2 1 //Put in portD check (UART2 but not critical if in PortA and tim15 in portf)
 #define PWM_USE_TIM4 1 //Put in portD check perfect!!
 //#define PWM_USE_TIM15 1 //Put in portf and all is fine!
 //#define PWM_USE_TIM3 1 //Put in portc and if TIM8 of PPM is using ch4 in portd all is fine
 
+#if !USE_I2C2
 //TIM1
 #define USE_PWM0  1
 #define USE_PWM1  1
 #define USE_PWM2  1
 #define USE_PWM3  1
+#endif
 //TIM2
 #define USE_PWM4  1
 #define USE_PWM5  1
@@ -354,6 +357,7 @@
 
 #define ACTUATORS_PWM_NB 12
 
+#if !USE_I2C2
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0
 #define PWM_SERVO_0 0
@@ -405,6 +409,7 @@
 #define PWM_SERVO_3_OC_BIT (1<<3)
 #else
 #define PWM_SERVO_3_OC_BIT 0
+#endif
 #endif
 
 #if USE_PWM4
