@@ -41,8 +41,8 @@
 //#define PCLK 84000000
 #define PCLK AHB_CLK/2
 #elif defined(STM32F3)
-//#define PCLK 84000000
-#define PCLK AHB_CLK
+//#define PCLK 64000000
+#define PCLK AHB_CLK //seems not important, check agains PCLK1 and 2
 #endif
 
 #define ONE_MHZ_CLK 1000000
@@ -67,12 +67,12 @@
 #endif
 
 #ifdef STM32F3 //check!
-/* Since APB prescaler != 1 :
- * Timer clock frequency (before prescaling) is twice the frequency
+/* Since APB prescaler == 1 :
+ * Timer clock frequency (before prescaling) is the frequency
  * of the APB domain to which the timer is connected.
  */
 #define TIMER_APB1_CLK (rcc_ppre1_frequency * 2)
-#define TIMER_APB2_CLK (rcc_ppre2_frequency * 2)
+#define TIMER_APB2_CLK (rcc_ppre2_frequency * 1)
 #endif
 
 
