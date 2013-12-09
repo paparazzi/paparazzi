@@ -28,7 +28,7 @@
 
 /** Set GPIO configuration
  */
-#if defined(STM32F4)
+#if defined(STM32F4) || defined(STM32F3)
 void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_num, enum rcc_periph_clken clken) {
   rcc_periph_clock_enable(clken);
   gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
@@ -51,8 +51,12 @@ void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
                                                    enum tim_oc_id oc_id) {
 
   timer_disable_oc_output(timer_peripheral, oc_id);
-  //There is no such register in TIM9 and 12.
+  //There is no such register in TIM9, 12 (or 15, 16, 17 on F3)
+#if !defined(STM32F3)
   if (timer_peripheral != TIM9 && timer_peripheral != TIM12)
+#else
+  if (timer_peripheral != TIM15 && timer_peripheral != TIM16 && timer_peripheral != TIM17)
+#endif
     timer_disable_oc_clear(timer_peripheral, oc_id);
   timer_enable_oc_preload(timer_peripheral, oc_id);
   timer_set_oc_slow_mode(timer_peripheral, oc_id);
@@ -74,18 +78,27 @@ void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask) {
    * - Alignement edge.
    * - Direction up.
    */
+
+  //There are no EDGE and DIR settings in TIM9 and TIM12
+#if !defined(STM32F3)
   if ((timer == TIM9) || (timer == TIM12))
-    //There are no EDGE and DIR settings in TIM9 and TIM12
+#else
+  if ((timer == TIM15) || (timer == TIM16) || (timer == TIM17))
+#endif
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, 0, 0);
   else
     timer_set_mode(timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 
-
+#if !defined(STM32F3)
   // TIM1, 8 and 9 use APB2 clock, all others APB1
   if (timer != TIM1 && timer != TIM8 && timer != TIM9) {
+#else
+  // TIM1, 8, 15, 16 and 17 use APB2 clock, all others APB1
+  if (timer != TIM1 && timer != TIM8 && timer != TIM15 && timer != TIM16 && timer != TIM17) {
+#endif
     timer_set_prescaler(timer, (TIMER_APB1_CLK / ONE_MHZ_CLK) - 1); // 1uS
   } else {
-    // TIM9, 1 and 8 use APB2 clock
+    // TIM9, 1 and 8 use APB2 clock (stm32f3: TIM1, 8, 15, 16 and 17)
     timer_set_prescaler(timer, (TIMER_APB2_CLK / ONE_MHZ_CLK) - 1);
   }
 

@@ -24,6 +24,7 @@
  */
 
 //VALID TIMERS ARE TIM1,2,3,4,5,8,9,12
+//VALID TIMERS for stm32f3 are: TIM1,2,3,4,8,15,16,17
 
 #include "subsystems/actuators/actuators_shared_arch.h"
 #include "subsystems/actuators/actuators_pwm_arch.h"
@@ -67,6 +68,15 @@ void actuators_pwm_arch_init(void) {
 #endif
 #if PWM_USE_TIM12
   rcc_periph_clock_enable(RCC_TIM12);
+#endif
+#if PWM_USE_TIM15
+  rcc_periph_clock_enable(RCC_TIM15);
+#endif
+#if PWM_USE_TIM16
+  rcc_periph_clock_enable(RCC_TIM16);
+#endif
+#if PWM_USE_TIM16
+  rcc_periph_clock_enable(RCC_TIM17);
 #endif
 
   /*----------------
@@ -145,6 +155,18 @@ void actuators_pwm_arch_init(void) {
 
 #if PWM_USE_TIM12
   set_servo_timer(TIM12, TIM12_SERVO_HZ, PWM_TIM12_CHAN_MASK);
+#endif
+
+#if PWM_USE_TIM15
+  set_servo_timer(TIM15, TIM15_SERVO_HZ, PWM_TIM15_CHAN_MASK);
+#endif
+
+#if PWM_USE_TIM16
+  set_servo_timer(TIM16, TIM16_SERVO_HZ, PWM_TIM16_CHAN_MASK);
+#endif
+
+#if PWM_USE_TIM17
+  set_servo_timer(TIM17, TIM17_SERVO_HZ, PWM_TIM17_CHAN_MASK);
 #endif
 
 }

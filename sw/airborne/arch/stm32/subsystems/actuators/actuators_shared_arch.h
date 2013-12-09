@@ -43,6 +43,9 @@
 #elif defined(STM32F4)
 //#define PCLK 84000000
 #define PCLK AHB_CLK/2
+#elif defined(STM32F3)
+//#define PCLK 64000000
+#define PCLK AHB_CLK //seems not important, check agains PCLK1 and 2
 #endif
 
 #define ONE_MHZ_CLK 1000000
@@ -66,6 +69,15 @@
 #define TIMER_APB2_CLK (rcc_ppre2_frequency * 2)
 #endif
 
+#ifdef STM32F3 //check!
+/* Since APB prescaler == 1 :
+ * Timer clock frequency (before prescaling) is the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define TIMER_APB1_CLK (rcc_ppre1_frequency * 2)
+#define TIMER_APB2_CLK (rcc_ppre2_frequency * 1)
+#endif
+
 /** Default servo update rate in Hz */
 #ifndef SERVO_HZ
 #define SERVO_HZ 40
@@ -87,18 +99,32 @@
 #ifndef TIM5_SERVO_HZ
 #define TIM5_SERVO_HZ SERVO_HZ
 #endif
+#ifndef TIM8_SERVO_HZ
+#define TIM8_SERVO_HZ SERVO_HZ
+#endif
 #ifndef TIM9_SERVO_HZ
 #define TIM9_SERVO_HZ SERVO_HZ
 #endif
 #ifndef TIM12_SERVO_HZ
 #define TIM12_SERVO_HZ SERVO_HZ
 #endif
+#ifndef TIM15_SERVO_HZ
+#define TIM15_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM16_SERVO_HZ
+#define TIM16_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM17_SERVO_HZ
+#define TIM17_SERVO_HZ SERVO_HZ
+#endif
 
 
 /** @todo: these should go into libopencm3 */
 #define TIM9				TIM9_BASE
 #define TIM12				TIM12_BASE
-
+#define TIM15				TIM15_BASE
+#define TIM16				TIM16_BASE
+#define TIM17				TIM17_BASE
 
 #if defined(STM32F4)
 extern void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_num, enum rcc_periph_clken clken);
