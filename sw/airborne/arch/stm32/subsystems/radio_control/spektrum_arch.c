@@ -483,7 +483,7 @@ void SpektrumTimerInit( void ) {
 #ifdef STM32F1
   nvic_set_priority(NVIC_TIM6_IRQ, 2);
   nvic_enable_irq(NVIC_TIM6_IRQ);
-#elif defined STM32F4
+#elif defined(STM32F4) || defined(STM32F3)
   /* the define says DAC IRQ, but it is also the global TIM6 IRQ*/
   nvic_set_priority(NVIC_TIM6_DAC_IRQ, 2);
   nvic_enable_irq(NVIC_TIM6_DAC_IRQ);
