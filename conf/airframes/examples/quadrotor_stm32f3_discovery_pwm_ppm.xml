@@ -14,10 +14,12 @@
     <target name="ap" board="stm32f3_discovery">
       <subsystem name="radio_control" type="spektrum"> <!-- Check this!! -->
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
-        <configure name="USE_SECONDARY_PPM_RECEIVER" value="1"/> <!-- Check this!! -->
+        <!-- <configure name="USE_SECONDARY_PPM_RECEIVER" value="1"/> <\!-- Check this!! -\-> -->
       </subsystem>
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     <define name="STM32F3_DISCOVERY_I2C1_FOR_LSM303DLHC"/>
+    <define name="STM32F3_DISCOVERY_SPI1_FOR_L3GD20"/>
+    <!-- <define name="I2C1_CLOCK_SPEED" value="100000"/> -->
     </target>
 
     <target name="nps" board="pc">
@@ -28,7 +30,7 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-      <define name="USE_SERVOS_7AND8"/>
+      <!-- <define name="USE_SERVOS_7AND8"/> -->
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
@@ -42,6 +44,7 @@
     <subsystem name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
+    <define name="PRINT_CONFIG"/>
   </firmware>
 
   <servos driver="Pwm">
