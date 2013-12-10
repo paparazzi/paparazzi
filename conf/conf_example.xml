@@ -46,7 +46,7 @@
     />
   <aircraft
    name="stm32f3_discovery"
-   ac_id="263"
+   ac_id="199"
    airframe="airframes/examples/quadrotor_stm32f3_discovery_pwm_ppm.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
