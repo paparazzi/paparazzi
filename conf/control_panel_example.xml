@@ -11,6 +11,39 @@
     <variable name="flight_plan"          value="flight_plans/muret1.xml"/>
   </section>
 
+  <section name="flash_modes">
+    <mode name="SERIAL (ISP)" boards="booz_1.0|classix|hb_1.1|logom_2.2|navgo_1.0|sdlog_1.0|tiny_0.99|tiny_1.1|tiny_2.1|tiny_2.11|twog_1.0|umarim_1.0|umarim_lite_2.0|yapa_2.0">
+      <variable name="FLASH_MODE" value="ISP"/>
+    </mode>
+    <mode name="SERIAL (stm32)" boards="krooz_sd|lia_1.1|lisa_m_1.0|lisa_m_2.0|lisa_s_0.1">
+      <variable name="FLASH_MODE" value="SERIAL"/>
+    </mode>
+    <mode name="USB (IAP)" boards="booz_1.0|classix|hb_1.1|logom_2.2|navgo_1.0|sdlog_1.0|tiny_0.99|tiny_1.1|tiny_2.1|tiny_2.11|twog_1.0|umarim_1.0|umarim_lite_2.0|yapa_2.0">
+      <variable name="FLASH_MODE" value="IAP"/>
+    </mode>
+    <mode name="DFU (stm32_mem)" boards="krooz_sd|lia_1.1|lisa_m_1.1|lisa_m_2.0|px4fmu_1.7">
+      <variable name="FLASH_MODE" value="DFU"/>
+    </mode>
+    <mode name="DFU (dfu-util)" boards="apogee_1.0|apogee_0.99|stm32f4_discovery">
+      <variable name="FLASH_MODE" value="DFU"/>
+      <variable name="DFU_UTIL" value="y"/>
+    </mode>
+    <mode name="SWD (STLink)" boards="apogee_1.0|apogee_0.99">
+      <variable name="FLASH_MODE" value="SWD"/>
+      <variable name="STLINK" value="y"/>
+    </mode>
+    <mode name="SWD (BlackMagic Probe)" boards="lia_1.1|lisa_m_2.0|lisa_s_0.1">
+      <variable name="FLASH_MODE" value="SWD"/>
+    </mode>
+    <mode name="SWD (BMP, NO Luftboot)" boards="apogee_1.0|apogee_0.99|stm32f4_discovery|lisa_m_1.0|px4fmu_1.7">
+      <variable name="FLASH_MODE" value="SWD"/>
+      <variable name="NO_LUFTBOOT" value="1"/>
+    </mode>
+    <mode name="JTAG (OpenOCD or BMP)" boards="krooz_sd|lia_1.1|lisa_l_1.0|lisa_l_1.1|lisa_m_1.0|lisa_m_2.0">
+      <variable name="FLASH_MODE" value="JTAG"/>
+    </mode>
+  </section>
+
   <section name="programs">
     <program name="Server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" variable="ivy_bus"/>

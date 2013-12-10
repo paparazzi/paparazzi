@@ -55,6 +55,29 @@ let sessions =
     (Xml.children s);
   h
 
+let flash_modes =
+  let modes = Hashtbl.create 7 in (* table mode -> options *)
+  let boards = Hashtbl.create 7 in (* table board -> modes *)
+  let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "flash_modes") control_panel_xml "section" in
+  List.iter (fun m ->
+    let mode = Xml.attrib m "name" in
+    (* list of boards *)
+    let board_list = Str.split (Str.regexp "|") (Xml.attrib m "boards") in
+    (* build options for this mode *)
+    let options = List.map (fun o ->
+      sprintf "%s=%s" (Xml.attrib o "name") (Xml.attrib o "value")
+      ) (Xml.children m) in
+    let options = String.concat " " options in
+    (* add to hash tables *)
+    Hashtbl.add modes mode options;
+    List.iter (fun b ->
+      (* look if board is already in the table *)
+      let _modes = try Hashtbl.find boards b with _ -> [] in
+      (* add the new mode with together with the old ones *)
+      Hashtbl.replace boards b ([mode] @ _modes)
+    ) board_list;
+  ) (Xml.children s);
+  modes, boards
 
 
 let not_sessions_section = fun x -> ExtXml.attrib x "name" <> "sessions"
