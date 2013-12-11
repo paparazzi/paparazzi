@@ -56,6 +56,9 @@
 /doc/pprz_algebra/headfile.log
 /doc/pprz_algebra/headfile.toc
 
+# /sw/ext/
+/sw/ext/ardrone2_vision
+
 # /sw/ground_segment/cockpit/
 /sw/ground_segment/cockpit/gtk_save_settings.ml
 /sw/ground_segment/cockpit/gtk_setting_time.ml
