@@ -326,7 +326,7 @@ void uart2_init( void ) {
   usart_enable_irq(NVIC_USART2_EXTI26_IRQ);
 #endif
 
-#if UART2_HW_FLOW_CONTROL && defined(STM32F4)
+#if (UART2_HW_FLOW_CONTROL && defined(STM32F4)) || (UART2_HW_FLOW_CONTROL && defined(STM32F3))
 #warning "USING UART2 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   /* setup CTS and RTS pins */
   gpio_setup_pin_af(UART2_GPIO_PORT_CTS, UART2_GPIO_CTS, UART2_GPIO_AF, FALSE);
@@ -398,7 +398,7 @@ void uart3_init( void ) {
   usart_enable_irq(NVIC_USART3_EXTI28_IRQ);
 #endif
 
-#if UART3_HW_FLOW_CONTROL && defined(STM32F4)
+#if (UART3_HW_FLOW_CONTROL && defined(STM32F4)) || (UART3_HW_FLOW_CONTROL && defined(STM32F3))
 #warning "USING UART3 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   /* setup CTS and RTS pins */
   gpio_setup_pin_af(UART3_GPIO_PORT_CTS, UART3_GPIO_CTS, UART3_GPIO_AF, FALSE);
