@@ -734,6 +734,8 @@ void spi1_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 #elif defined STM32F4
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA2EN);
+#elif defined STM32F3
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
 #endif
 
   // Enable SPI1 periph.
@@ -827,6 +829,8 @@ void spi2_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 #elif defined STM32F4
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA1EN);
+#elif defined STM32F3
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 #endif
 
   // Enable SPI2 periph.
@@ -923,6 +927,8 @@ void spi3_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
 #elif defined STM32F4
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA1EN);
+#elif defined STM32F3
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 #endif
 
   // Enable SPI3 periph.
@@ -1286,6 +1292,8 @@ void spi1_slave_arch_init(void) {
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 #elif defined STM32F4
   rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA2EN);
+#elif defined STM32F3
+  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
 #endif
 
   // Enable SPI1 periph.
