@@ -134,7 +134,7 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
   I2C_CR1(i2c) |= I2C_CR1_ERRIE;
   I2C_CR1(i2c) |= I2C_CR1_TXIE;
   I2C_CR1(i2c) |= I2C_CR1_RXIE;
-  //I2C_CR1(i2c) |= I2C_CR1_TCIE;
+  I2C_CR1(i2c) |= I2C_CR1_TCIE;
   //I2C_CR1(i2c) |= I2C_CR1_NACKIE; //check!!! seems fine
   //Program slave address
   i2c_set_7bit_address(i2c, periph->trans[periph->trans_extract_idx]->slave_addr);
@@ -149,8 +149,8 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
       i2c_set_write_transfer_dir(i2c); //check for TXRX seems fine
       i2c_set_bytes_to_transfer(i2c, periph->trans[periph->trans_extract_idx]->len_w); //check for TXRX seems fine
     }
-  //autoend=1
-  i2c_enable_autoend(i2c);
+  //autoend=0
+  i2c_disable_autoend(i2c);
   i2c_send_start(i2c);
   periph->status = I2CStartRequested;
 #endif
@@ -255,6 +255,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_send(uint32_t i2c, struct i
     // Send the next byte
     I2C_TXDR(i2c) = trans->buf[periph->idx_buf];
     periph->idx_buf++;
+    // Document the current Status
+    periph->status = I2CSendingByte;
+  }
+  else if (BIT_X_IS_SET_IN_REG(I2C_ISR_TC, ISR) )
+  {
+    // Transfer complete!
     if (periph->idx_buf == (trans->len_w+1))
       {
 	if (trans->type == I2CTransTx)
@@ -266,8 +272,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_send(uint32_t i2c, struct i
 
 	return STMI2C_SubTra_Ready;
       }
-    // Document the current Status
-    periph->status = I2CSendingByte;
+    else
+    {
+      trans->status = I2CTransFailed;
+    }
   }
 #endif
   else // Event Logic Error
@@ -457,8 +465,6 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, stru
     // Document the current Status
     periph->status = I2CReadingByte;
   }
-#endif //stm32f3 sends the address with the start command.
-#if !defined(STM32F3)
   // one or more bytes are available AND we were interested in Buffer interrupts
   else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_RxNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_ITBUFEN, I2C_CR2(i2c)))  )
   {
@@ -479,27 +485,11 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, stru
       trans->buf[periph->idx_buf] = I2C_DR(i2c);
       periph->idx_buf ++;
 
-#else
-  if (BIT_X_IS_SET_IN_REG(I2C_ISR_RXNE, ISR) )
-  {
-    trans->buf[periph->idx_buf] = I2C_RXDR(i2c);
-    periph->idx_buf++;
-    if (periph->idx_buf == (trans->len_r+1))
-    {
-#endif
       // We got all the results
       trans->status = I2CTransSuccess;
 
       return STMI2C_SubTra_Ready_StopRequested;
-#if defined(STM32F3)
     }
-    else
-    {
-	periph->status = I2CReadingByte;
-    }
-#endif
-
-#if !defined(STM32F3)
     // Check for end of transaction: start waiting for BTF instead of RXNE
     if (periph->idx_buf < (trans->len_r - 3))
     {
@@ -512,9 +502,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, stru
       // on the next (second in buffer) received byte BTF will be set (buffer full and I2C halted)
       I2C_CR2(i2c) &= ~ I2C_CR2_ITBUFEN;
     }
-#endif
   }
-#if !defined(STM32F3)
   // Buffer is full while this was not a RXNE interrupt
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BTF, SR1) )
   {
@@ -547,6 +535,29 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, stru
     // Ask for an interrupt to read the last byte (which is normally still busy now)
     // The last byte will be received with RXNE
     I2C_CR2(i2c) |= I2C_CR2_ITBUFEN;
+  }
+#else
+  if (BIT_X_IS_SET_IN_REG(I2C_ISR_RXNE, ISR) )
+  {
+    trans->buf[periph->idx_buf] = I2C_RXDR(i2c);
+    periph->idx_buf++;
+    periph->status = I2CReadingByte;
+  }
+  if (BIT_X_IS_SET_IN_REG(I2C_ISR_TC, ISR) )
+  {
+    //All finished
+    periph->status = I2CIdle;
+    if (periph->idx_buf == (trans->len_r+1))
+    {
+      // We got all the results
+      trans->status = I2CTransSuccess;
+
+      return STMI2C_SubTra_Ready_StopRequested;
+    }
+    else
+    {
+      trans->status = I2CTransFailed;
+    }
   }
 #endif
   else // Event Logic Error
@@ -993,7 +1004,6 @@ static inline void i2c_irq(struct i2c_periph *periph)
     // If a restart is not needed: Rx part or Tx-only
     else
     {
-#if !defined(STM32F3)
       // Ready, no stop condition set yet
       if (ret == STMI2C_SubTra_Ready)
       {
@@ -1001,10 +1011,11 @@ static inline void i2c_irq(struct i2c_periph *periph)
         // Program a stop
         PPRZ_I2C_SEND_STOP(i2c);
 
+#if !defined(STM32F3)
         // Silent any BTF that would occur before STOP is executed
         I2C_DR(i2c) = 0x00;
-      }
 #endif
+      }
       // Jump to the next transaction
       periph->trans_extract_idx++;
       if (periph->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
