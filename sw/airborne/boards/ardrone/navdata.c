@@ -193,10 +193,12 @@ bool_t navdata_init()
 
   previousUltrasoundHeight = 0;
   nav_port.checksum_errors = 0;
+  nav_port.lost_imu_frames = 0;
   nav_port.bytesRead = 0;
   nav_port.totalBytesRead = 0;
   nav_port.packetsRead = 0;
   nav_port.isInitialized = TRUE;
+  nav_port.last_packet_number = 0;
 
 #if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
@@ -342,6 +344,15 @@ void navdata_update()
         printf("Checksum error [calculated: %d] [packet: %d] [diff: %d]\n",checksum , navdata.chksum, checksum-navdata.chksum);
         nav_port.checksum_errors++;
       }
+
+      nav_port.last_packet_number++;
+      if (nav_port.last_packet_number != navdata.nu_trame)
+      {
+        printf("Lost Navdata frame: %d should have been %d\n",navdata.nu_trame, nav_port.last_packet_number);
+        nav_port.lost_imu_frames++;
+      }
+      nav_port.last_packet_number = navdata.nu_trame;
+      //printf("%d\r",navdata.nu_trame);
 
       // When we already dropped a packet or checksum is correct
       if(last_checksum_wrong || navdata.chksum == checksum) {
