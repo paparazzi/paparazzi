@@ -286,6 +286,7 @@ static void baro_update_logic(void)
         temp_or_press_was_updated_last = FALSE;
         sync_errors++;
         navdata_baro_available = TRUE;
+        printf("Baro-Logic-Error (expected updated temp, got press)\n");
       }
     }
   }
@@ -303,6 +304,8 @@ static void baro_update_logic(void)
         // wait for press again
         temp_or_press_was_updated_last = TRUE;
         sync_errors++;
+        printf("Baro-Logic-Error (expected updated press, got temp)\n");
+
       }
     }
 
