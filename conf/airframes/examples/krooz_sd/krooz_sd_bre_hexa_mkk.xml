@@ -28,10 +28,11 @@
     <define name="USE_ADC_2" value="1"/>
   </firmware>
 
-	<modules main_freq="512">
-		<load name="gps_ubx_ucenter.xml"/>
-		<load name="geo_mag.xml"/>
+  <modules main_freq="512">
+    <load name="gps_ubx_ucenter.xml"/>
+    <load name="geo_mag.xml"/>
     <load name="osd_max7456.xml"/>
+    <load name="hott_telemetry.xml"/>
   </modules>
 
   <commands>
@@ -87,12 +88,12 @@
     <define name="GYRO_Q_SENS" value="0.5454" integer="16"/>
     <define name="GYRO_R_SENS" value="0.5454" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="-48"/>
-    <define name="ACCEL_Y_NEUTRAL" value="86"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-479"/>
-    <define name="ACCEL_X_SENS" value="0.6131" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.6131" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.6131" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="32641"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32392"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32483"/>
+    <define name="ACCEL_X_SENS" value="0.909261974155" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.913497864536" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.927158126989" integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="-282"/>
     <define name="MAG_Y_NEUTRAL" value="-78"/>
