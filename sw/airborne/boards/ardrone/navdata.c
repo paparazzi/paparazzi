@@ -269,7 +269,9 @@ static void baro_update_logic(void)
   static uint16_t lasttempval = 0;
   static uint8_t temp_or_press_was_updated_last = 0; // 0 = press, so we now wait for temp, 1 = temp so we now wait for press
 
-  static int sync_errors;
+  static int sync_errors = 0;
+  static int spikes = 0;
+  static int spike_detected = 0;
 
   if (temp_or_press_was_updated_last == 0)  // Last update was press so we are now waiting for temp
   {
@@ -309,8 +311,43 @@ static void baro_update_logic(void)
       }
     }
 
-    navdata_baro_available = TRUE;
+
+    if (spike_detected == 0)
+    {
+      navdata_baro_available = TRUE;
+    }
   }
+
+  /*
+   * It turns out that a lot of navdata boards have a problem (probably interrupt related)
+   * in which reading I2C data and writing uart output data is interrupted very long (50% of 200Hz).
+   * Afterwards, the 200Hz loop tries to catch up lost time but reads the baro too fast swapping the
+   * pressure and temperature values by exceeding the minimal conversion time of the bosh baro. The
+   * normal Parrot firmware seems to be perfectly capable to fly with this, either with excessive use of
+   * the sonar or with software filtering or spike detection. Paparazzi with its tightly coupled baro-altitude
+   * had problems. Since this problems looks not uncommon a detector was made. A lot of evidence is grabbed
+   * with a logic analyzer on the navboard I2C and serial output. The UART CRC is still perfect, the baro
+   * temp-press-temp-press logic is still perfect, so not easy to detect. Temp and pressure are swapped,
+   * and since both can have almost the same value, the size of the spike is not predictable. However at
+   * every spike of at least 3 broken boards the press and temp are byte-wise exactly the same due to
+   * reading them too quickly (trying to catch up for delay that happened earlier due to still non understood
+   * reasons. As pressure is more likely to quickly change, a small (yet unlikely) spike on temperature together with
+   * press==temp yields very good results as a detector, although theoretically not perfect.
+   */
+
+  // if press and temp are same and temp has jump: neglect the next frame
+  if ((navdata.temperature_pressure == navdata.pressure) && (abs(navdata.temperature_pressure - lasttempval) > 40))
+  {
+    // dont use next 3 packets
+    spike_detected = 3;
+    // dont use
+    navdata_baro_available = FALSE;
+
+    spikes++;
+    printf("Spike! # %d\n",spikes);
+  }
+  if (spike_detected)
+    spike_detected--;
 
   lastpressval = navdata.pressure;
   lasttempval = navdata.temperature_pressure;
@@ -369,6 +406,8 @@ void navdata_update()
         tmp = p[0];
         p[0] = p[1];
         p[1] = tmp;
+
+        // printf("%d %d %d\n",navdata.nu_trame, navdata.pressure, navdata.temperature_pressure);
 
         baro_update_logic();
 
