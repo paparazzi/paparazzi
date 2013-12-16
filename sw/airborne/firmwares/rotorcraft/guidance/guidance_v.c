@@ -256,11 +256,6 @@ void guidance_v_run(bool_t in_flight) {
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
-#if USE_FMS
-    if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB) {
-      guidance_v_zd_sp = fms.input.v_sp.climb;
-    }
-#endif
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
 #if NO_RC_THRUST_LIMIT
@@ -272,10 +267,6 @@ void guidance_v_run(bool_t in_flight) {
     break;
 
   case GUIDANCE_V_MODE_HOVER:
-#if USE_FMS
-    if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_HOVER)
-      guidance_v_z_sp = fms.input.v_sp.height;
-#endif
     guidance_v_zd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v_z_sp);
     run_hover_loop(in_flight);
