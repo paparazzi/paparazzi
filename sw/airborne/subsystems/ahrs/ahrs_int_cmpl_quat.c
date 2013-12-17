@@ -52,9 +52,16 @@ PRINT_CONFIG_MSG("LOW PASS FILTER ON GYRO RATES")
 #endif
 
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
-#warning "Using both magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
+#warning "Using both magnetometer and GPS course to update heading. Probably better to configure USE_MAGNETOMETER=0 if you want to use GPS course."
 #endif
 
+#if !USE_MAGNETOMETER && !AHRS_USE_GPS_HEADING
+#error "Please use either USE_MAGNETOMETER or AHRS_USE_GPS_HEADING."
+#endif
+
+#if AHRS_USE_GPS_HEADING && !USE_GPS
+#error "AHRS_USE_GPS_HEADING needs USE_GPS to be TRUE"
+#endif
 
 #ifndef AHRS_PROPAGATE_FREQUENCY
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
