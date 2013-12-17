@@ -108,7 +108,6 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="50."/>
   </section>
@@ -184,7 +183,6 @@
     <target name="sim"          board="pc"/>
     <target name="ap"           board="twog_1.0">
       <define name="AGR_CLIMB"/>
-      <define name="ALT_KALMAN"/>
     </target>
 
     <define name="LOITER_TRIM"/>

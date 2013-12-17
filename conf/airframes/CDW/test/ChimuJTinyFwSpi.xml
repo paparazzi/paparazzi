@@ -78,7 +78,6 @@
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
@@ -163,7 +162,6 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
 			<!--      <define name="NB_CHANNELS" value="5" />  -->
     </target>
     <target name="sim" board="pc"/>
