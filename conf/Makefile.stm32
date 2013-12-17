@@ -68,15 +68,15 @@ else
 OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
 endif
 
-# default: assume the luftboot bootloader is used
-# if luftboot is not used define NO_LUFTBOOT to a value != 0
-OOCD_START_SECTOR = 4
-ASSUMING_LUFTBOOT = "yes"
-ifdef NO_LUFTBOOT
-$(shell echo luftboot: $(NO_LUFTBOOT))
-ifneq ($(NO_LUFTBOOT),0)
+# default: assume the luftboot bootloader is not used
+# if luftboot is used define HAS_LUFTBOOT to a value != 0
 OOCD_START_SECTOR = 0
 ASSUMING_LUFTBOOT = "no"
+ifdef HAS_LUFTBOOT
+$(shell echo luftboot: $(HAS_LUFTBOOT))
+ifneq ($(HAS_LUFTBOOT),0)
+OOCD_START_SECTOR = 4
+ASSUMING_LUFTBOOT = "yes"
 endif
 endif
 

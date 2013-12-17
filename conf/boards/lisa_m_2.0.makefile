@@ -22,7 +22,7 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-m.ld
 # other possibilities: JTAG, SWD, SERIAL
 FLASH_MODE ?= DFU
 
-ifndef NO_LUFTBOOT
+ifdef HAS_LUFTBOOT
 $(TARGET).CFLAGS+=-DLUFTBOOT
 $(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
 endif

@@ -55,10 +55,15 @@ let sessions =
     (Xml.children s);
   h
 
+let flash_modes_xml_file = Utils.conf_dir // "flash_modes.xml"
+let flash_mode_xml = ExtXml.parse_file flash_modes_xml_file
 let flash_modes =
   let modes = Hashtbl.create 7 in (* table mode -> options *)
   let boards = Hashtbl.create 7 in (* table board -> modes *)
-  let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "flash_modes") control_panel_xml "section" in
+  let fm_common = Xml.children flash_mode_xml in (* common modes in dedicated file *)
+  let fm_custom = try
+    Xml.children (ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "flash_modes") control_panel_xml "section") with
+    _ -> [] in (* custom mode can be added to personal control_panel.xml file *)
   List.iter (fun m ->
     let mode = Xml.attrib m "name" in
     (* list of boards *)
@@ -76,7 +81,7 @@ let flash_modes =
       (* add the new mode with together with the old ones *)
       Hashtbl.replace boards b ([mode] @ _modes)
     ) board_list;
-  ) (Xml.children s);
+  ) (fm_common @ fm_custom);
   modes, boards
 
 
