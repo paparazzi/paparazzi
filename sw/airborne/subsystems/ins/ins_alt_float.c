@@ -36,45 +36,27 @@
 #include "subsystems/nav.h"
 
 #include "generated/airframe.h"
+#include "generated/modules.h"
 
-#if USE_BAROMETER
-#ifdef BARO_MS5534A
-#include "baro_MS5534A.h"
-#endif
-
-#if USE_BARO_ETS
-#include "modules/sensors/baro_ets.h"
-#endif
-
-#if USE_BARO_BMP
-#include "modules/sensors/baro_bmp.h"
-#endif
-
-#if USE_BARO_MS5611
-#include "modules/sensors/baro_ms5611_i2c.h"
-#endif
-
-#if USE_BARO_AMSYS
-#include "modules/sensors/baro_amsys.h"
-#endif
 #ifdef DEBUG_ALT_KALMAN
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 #endif
 
-#include "subsystems/sensors/baro.h"
-#include "math/pprz_isa.h"
-#endif /* USE_BAROMETER */
-
 #if defined ALT_KALMAN || defined ALT_KALMAN_ENABLED
-#warning Please the obsolete ALT_KALMAN and ALT_KALMAN_ENABLED defines from your airframe file.
+#warning Please remove the obsolete ALT_KALMAN and ALT_KALMAN_ENABLED defines from your airframe file.
 #endif
+
 /* vertical position and speed in meters (z-up)*/
 float ins_alt;
 float ins_alt_dot;
 
 #if USE_BAROMETER
+#include "subsystems/sensors/baro.h"
+#include "math/pprz_isa.h"
+
 PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
+
 float ins_qfe;
 bool_t  ins_baro_initialized;
 float ins_baro_alt;
