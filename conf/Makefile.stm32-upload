@@ -118,7 +118,6 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
-endif
 
 #
 # SWD flash mode (with Black Magic Probe)
@@ -144,7 +143,6 @@ upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
 	$(Q)st-flash write $^ $(STLINK_ADDR)
 
-else
 #
 # no known flash mode
 else
