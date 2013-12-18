@@ -23,20 +23,27 @@
 # This is the common Makefile for STM32 upload rules
 #
 
+
+# default: assume the luftboot bootloader is not used
+# if luftboot is used define HAS_LUFTBOOT to a value != 0
+OOCD_START_SECTOR = 0
+ASSUMING_LUFTBOOT = "no"
+ifdef HAS_LUFTBOOT
+$(shell echo luftboot: $(HAS_LUFTBOOT))
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+OOCD_START_SECTOR = 4
+ASSUMING_LUFTBOOT = "yes"
+endif
+endif
+
+
 #
 # check which flash mode is configured
 #
 ifeq ($(FLASH_MODE),DFU)
-ifeq ($(DFU_UTIL),y)
-#
-# DFU flash mode using dfu-util
-DFU_ADDR ?= 0x08000000
-upload: $(OBJDIR)/$(TARGET).bin
-	@echo "Using dfu-util at $(DFU_ADDR)"
-	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
-else
 #
 # DFU flash mode paparazzi stm32_mem
+PYTHON ?= $(shell which python)
 ifdef DFU_ADDR
 DFU_ADDR_CMD = --addr=$(DFU_ADDR)
 endif
@@ -46,20 +53,43 @@ endif
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using stm32 mem dfu loader"
 	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_PRODUCT_CMD) $(DFU_ADDR_CMD) $^
-endif
+
+
+else ifeq ($(FLASH_MODE),DFU-UTIL)
+#
+# DFU flash mode using dfu-util
+DFU_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using dfu-util at $(DFU_ADDR)"
+	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
 
 #
 # serial flash mode
 else ifeq ($(FLASH_MODE),SERIAL)
+LOADER ?= $(PAPARAZZI_SRC)/sw/tools/stm32loader/stm32loader.py
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
+
 #
 # JTAG flash mode
 else ifeq ($(FLASH_MODE),JTAG)
-# either via normal jtag or BlackMagicProbe
-ifeq ($(BMP_PORT),)
-# normal jtag via OpenOCD
+# via OpenOCD and "normal" jtag
 OOCD ?= openocd
+ifneq ($(BOARD_SERIAL),)
+OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
+endif
+
+ifndef $(TARGET).OOCD_INTERFACE
+OOCD_INTERFACE = lisa-l
+else
+OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
+endif
+
+ifndef $(TARGET).OOCD_BOARD
+OOCD_BOARD = lisa-l
+else
+OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
 upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using OOCD = $(OOCD)"
@@ -73,10 +103,12 @@ upload: $(OBJDIR)/$(TARGET).hex
 		-c "flash write_image $<" \
 		-c reset \
 		-c shutdown
-else
-# jtag via BMP
-BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
 
+#
+# JTAG flash mode (with Black Magic Probe)
+else ifeq ($(FLASH_MODE),JTAG_BMP)
+BMP_PORT ?= /dev/ttyACM0
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using Black Magic Probe with JTAG on BMP_PORT $(BMP_PORT)"
@@ -86,17 +118,11 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
-endif
+
 #
-# SWD flash mode
+# SWD flash mode (with Black Magic Probe)
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
-ifeq ($(STLINK),y)
-STLINK_ADDR ?= 0x08000000
-upload: $(OBJDIR)/$(TARGET).bin
-	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
-	$(Q)st-flash write $^ $(STLINK_ADDR)
-else
 BMP_PORT ?= /dev/ttyACM0
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
@@ -108,12 +134,21 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   -ex 'target extended-remote $(BMP_PORT)' \
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
-endif
+
+#
+# SWD flash mode (with STLINK)
+else ifeq ($(FLASH_MODE),STLINK)
+STLINK_ADDR ?= 0x08000000
+upload: $(OBJDIR)/$(TARGET).bin
+	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
+	$(Q)st-flash write $^ $(STLINK_ADDR)
+
 #
 # no known flash mode
 else
 upload:
-	@echo unknown flash_mode $(FLASH_MODE)
+	@echo unknown FLASH_MODE $(FLASH_MODE)
+	@echo Available FLASH_MODEs: DFU, DFU-UTIL, SWD, JTAG, JTAG_BMP, STLINK, SERIAL
 endif
 
 .PHONY : upload

@@ -9,7 +9,6 @@ BOARD=lisa_l
 BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-l.ld
-NO_LUFTBOOT=1
 
 # -----------------------------------------------------------------------
 ifeq ($(BOARD_PROCESSOR),'omap')

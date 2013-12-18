@@ -275,7 +275,6 @@
     </target>
 
     <configure name="FLASH_MODE" value="JTAG"/>
-    <configure name="NO_LUFTBOOT" value="1"/>
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>

@@ -184,9 +184,11 @@ let () =
   Utils.build_aircrafts ();
 
   let ac_combo = AC.parse_conf_xml gui#vbox_ac
-  and target_combo = Gtk_tools.combo ["sim";"fbw";"ap"] gui#vbox_target in
+  and target_combo = Gtk_tools.combo ["sim";"fbw";"ap"] gui#vbox_target
+  and flash_combo = Gtk_tools.combo ["Default mode"] gui#vbox_flash in
 
   (Gtk_tools.combo_widget target_combo)#misc#set_sensitive false;
+  (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false;
   gui#button_clean#misc#set_sensitive false;
   gui#button_build#misc#set_sensitive false;
 
@@ -233,9 +235,9 @@ let () =
     let end_mark = gui#console#buffer#create_mark end_iter in
     gui#console#scroll_mark_onscreen (`MARK end_mark) in
 
-  AC.ac_combo_handler gui ac_combo target_combo log;
+  AC.ac_combo_handler gui ac_combo target_combo flash_combo log;
 
-  AC.build_handler ~file gui ac_combo target_combo log;
+  AC.build_handler ~file gui ac_combo target_combo flash_combo log;
 
   let session_combo, execute_session = CP.supervision ~file gui log ac_combo target_combo in
 

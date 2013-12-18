@@ -55,6 +55,36 @@ let sessions =
     (Xml.children s);
   h
 
+let flash_modes_xml_file = Utils.conf_dir // "flash_modes.xml"
+let flash_mode_xml = ExtXml.parse_file flash_modes_xml_file
+let flash_modes =
+  let modes = Hashtbl.create 7 in (* table mode -> options *)
+  let boards = Hashtbl.create 7 in (* table board -> modes *)
+  let fm_common = Xml.children flash_mode_xml in (* common modes in dedicated file *)
+  let fm_custom = try
+    Xml.children (ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "flash_modes") control_panel_xml "section") with
+    _ -> [] in (* custom mode can be added to personal control_panel.xml file *)
+  List.iter (fun m ->
+    let mode = Xml.attrib m "name" in
+    (* list of boards *)
+    let board_list = try Xml.children (ExtXml.child m "boards") with _ -> [] in
+    let board_list = List.map (fun x -> Xml.attrib x "name") board_list in
+    (* build options for this mode *)
+    let options = List.map (fun o ->
+      sprintf "%s=%s" (Xml.attrib o "name") (Xml.attrib o "value")
+      ) (List.filter (fun t -> Xml.tag t = "variable") (Xml.children m)) in
+    let options = String.concat " " options in
+    (* add to hash tables *)
+    Hashtbl.add modes mode options;
+    List.iter (fun b ->
+      (* look if board is already in the table *)
+      let _modes = try Hashtbl.find boards b with _ -> [] in
+      (* add the new mode with together with the old ones *)
+      Hashtbl.replace boards b ([mode] @ _modes)
+    ) board_list;
+  ) (fm_common @ fm_custom);
+  (* convert string to regexp *)
+  modes, boards
 
 
 let not_sessions_section = fun x -> ExtXml.attrib x "name" <> "sessions"

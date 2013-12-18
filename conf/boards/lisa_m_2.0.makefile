@@ -19,10 +19,11 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-m.ld
 # -----------------------------------------------------------------------
 
 # default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: JTAG, SWD, SERIAL
+# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
 FLASH_MODE ?= DFU
 
-ifndef NO_LUFTBOOT
+HAS_LUFTBOOT ?= 1
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
 $(TARGET).CFLAGS+=-DLUFTBOOT
 $(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
 endif
