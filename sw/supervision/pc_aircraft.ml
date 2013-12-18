@@ -207,10 +207,15 @@ let parse_ac_flash = fun target flash_combo ac_file ->
     let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // ac_file) in
     let targets = get_targets_list af_xml in
     let board = Xml.attrib (List.find (fun t -> Xml.attrib t "name" = target) targets) "board" in
-    let flash_modes = try Hashtbl.find (snd CP.flash_modes) board with _ -> [] in (* not a valid board *)
-    List.iter (fun m ->  Gtk_tools.add_to_combo flash_combo m) flash_modes;
+    (* board names as regexp *)
+    let flash_modes = ref [] in
+    Hashtbl.iter (fun b m ->
+      if Str.string_match (Str.regexp b) board 0 then
+        flash_modes := !flash_modes @ m;
+      ) (snd CP.flash_modes);
+    List.iter (fun m ->  Gtk_tools.add_to_combo flash_combo m) !flash_modes;
     Gtk_tools.select_in_combo flash_combo "Default";
-    (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive (List.length flash_modes > 0)
+    (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive (List.length !flash_modes > 0)
   with _ ->
     (* not a valid airframe file *)
     (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false

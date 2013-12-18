@@ -67,11 +67,12 @@ let flash_modes =
   List.iter (fun m ->
     let mode = Xml.attrib m "name" in
     (* list of boards *)
-    let board_list = Str.split (Str.regexp "|") (Xml.attrib m "boards") in
+    let board_list = try Xml.children (ExtXml.child m "boards") with _ -> [] in
+    let board_list = List.map (fun x -> Xml.attrib x "name") board_list in
     (* build options for this mode *)
     let options = List.map (fun o ->
       sprintf "%s=%s" (Xml.attrib o "name") (Xml.attrib o "value")
-      ) (Xml.children m) in
+      ) (List.filter (fun t -> Xml.tag t = "variable") (Xml.children m)) in
     let options = String.concat " " options in
     (* add to hash tables *)
     Hashtbl.add modes mode options;
@@ -82,6 +83,7 @@ let flash_modes =
       Hashtbl.replace boards b ([mode] @ _modes)
     ) board_list;
   ) (fm_common @ fm_custom);
+  (* convert string to regexp *)
   modes, boards
 
 
