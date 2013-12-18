@@ -35,6 +35,3 @@ GDB  = $(PREFIX)-gdb
 
 # some general commands
 RM = rm
-
-
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-common

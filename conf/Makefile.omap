@@ -24,7 +24,7 @@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 
 # Define programs and commands.
 
@@ -69,6 +69,14 @@ OBJ_C_OMAP = $(SRC_C_OMAP:%.c=$(OBJDIR)/%.o)
 SRC_CPP_OMAP  = $($(TARGET).cpp_srcs)
 OBJ_CPP_OMAP = $(SRC_CPP_OMAP:%.cpp=$(OBJDIR)/%.o)
 
+printcommands:
+	@echo ""
+	@echo "Using CC   = $(CC)"
+#	@echo "Using LD   = $(LD)"
+	@echo "GCC version:"
+	@$(CC) --version | head -1
+	@echo ""
+
 all: printcommands build
 
 build: $(OBJDIR) elf
@@ -102,7 +110,7 @@ $(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
 
 
 # Listing of phony targets.
-.PHONY : all build elf clean clean_list
+.PHONY : printcommands all build elf
 
 #
 # Dependencies

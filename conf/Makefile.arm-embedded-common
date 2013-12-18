@@ -4,12 +4,21 @@
 
 
 #
-# This is the common Makefile for finding the arm compiler and OpenOcd
+# This has some common targets
 # for bare metal systems like on the ARM7TDMI, cortex M3/4
 
-# include the common ARM makefiles to print the commands and find the toolchain
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-common
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
+
+printcommands:
+	@echo ""
+	@echo "Using CC   = $(CC)"
+#	@echo "Using LD   = $(LD)"
+#	@echo "Using CP   = $(CP)"
+#	@echo "Using DMP  = $(DMP)"
+#	@echo "Using NM   = $(NM)"
+#	@echo "Using SIZE = $(SIZE)"
+	@echo "GCC version:"
+	@$(CC) --version | head -1
+	@echo ""
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
@@ -46,4 +55,4 @@ clean_list :
 	$(RM) .dep/*
 	$(RM) *~
 
-.PHONY : sizebefore sizeafter clean clean_list
+.PHONY : printcommands sizebefore sizeafter clean clean_list

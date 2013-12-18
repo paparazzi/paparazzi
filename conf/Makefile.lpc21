@@ -37,7 +37,7 @@ Q=@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 #
 # if the new arm-none-eabi multilib compiler was not found try the old arm-elf one
@@ -68,7 +68,6 @@ ASRCARM = crt0.S
 
 # Optimization level, can be [0, 1, 2, 3, s].
 # 0 = turn off optimization. s = optimize for size.
-# (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = s
 #OPT=3
 
@@ -86,12 +85,15 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -finline-limit=1200 --param inline-unit-growth=100
 
 # flags for warnings
-CFLAGS += -Wall -Wextra
-CFLAGS += -Wcast-qual -Wimplicit -Wcast-align
-CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-CFLAGS += -Wstrict-prototypes -Wmissing-declarations
-CFLAGS += -Wmissing-prototypes -Wnested-externs
+CFLAGS += -Wall -Wextra -Wunused
+CFLAGS += -Wcast-qual
+CFLAGS += -Wcast-align
+CFLAGS += -Wpointer-arith
+CFLAGS += -Wswitch-default
+CFLAGS += -Wredundant-decls -Wmissing-declarations
+CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
+CFLAGS += -Wshadow
+CFLAGS += -Wnested-externs
 
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)
@@ -166,6 +168,8 @@ GENDEPFLAGS = -MD -MP -MF .dep/$(@F).d
 ALL_CFLAGS = -mcpu=$(MCU) $(THUMB_IW) -I. $(CFLAGS)
 ALL_ASFLAGS = -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp $(ASFLAGS)
 
+# some common informative targets
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-common
 
 # Default target.
 all: printcommands sizebefore build sizeafter

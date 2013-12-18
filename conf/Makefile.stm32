@@ -34,7 +34,7 @@ Q=@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 
 ifeq ($(ARCH_L),f4)
@@ -103,7 +103,7 @@ endif
 endif
 
 CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
-CFLAGS += -D__thumb2__ -Wall -O$(OPT)
+CFLAGS += -D__thumb2__ -O$(OPT)
 ifeq ($(ARCH_L), )
 CFLAGS += -msoft-float
 else ifeq ($(ARCH_L),f4)
@@ -113,24 +113,30 @@ else
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 endif
+
+CSTANDARD = -std=gnu99
+
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mfix-cortex-m3-ldrd
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
-CFLAGS += -std=gnu99
+CFLAGS += $(CSTANDARD)
 #CFLAGS += -malignment-traps
 CFLAGS += -fno-common
 CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -Wimplicit
-CFLAGS += -Wcast-align
-CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
-CFLAGS += -Wnested-externs
-CFLAGS += -Wmissing-prototypes
-CFLAGS += -Wstrict-prototypes
-CFLAGS += -Wmissing-declarations
+
+# flags for warnings
+CFLAGS += -Wall -Wextra -Wunused
+#CFLAGS += -Wcast-qual
+CFLAGS += -Wcast-align
+CFLAGS += -Wpointer-arith
 CFLAGS += -Wswitch-default
+CFLAGS += -Wredundant-decls -Wmissing-declarations
+CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
+CFLAGS += -Wshadow
+CFLAGS += -Wnested-externs
+
 ifneq ($(ARCH_L), )
 ifeq ($(ARCH_L),f4)
 CFLAGS += -DSTM32F4
@@ -173,7 +179,8 @@ CPFLAGS_HEX = -Oihex
 
 ODFLAGS = -S
 
-
+# some common informative targets
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-common
 
 # Default target.
 all: printcommands sizebefore build sizeafter
