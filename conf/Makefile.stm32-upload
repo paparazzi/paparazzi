@@ -149,7 +149,8 @@ else
 # no known flash mode
 else
 upload:
-	@echo unknown flash_mode $(FLASH_MODE)
+	@echo unknown FLASH_MODE $(FLASH_MODE)
+	@echo Available FLASH_MODEs: DFU, DFU-UTIL, SWD, JTAG, JTAG_BMP, STLINK, SERIAL
 endif
 
 .PHONY : upload
