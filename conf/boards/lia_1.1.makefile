@@ -24,7 +24,7 @@ FLASH_MODE = DFU
 #FLASH_MODE = SERIAL
 endif
 
-ifdef HAS_LUFTBOOT
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
 $(TARGET).CFLAGS+=-DLUFTBOOT
 $(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
 endif
