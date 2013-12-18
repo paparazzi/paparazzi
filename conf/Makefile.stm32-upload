@@ -23,12 +23,27 @@
 # This is the common Makefile for STM32 upload rules
 #
 
+
+# default: assume the luftboot bootloader is not used
+# if luftboot is used define HAS_LUFTBOOT to a value != 0
+OOCD_START_SECTOR = 0
+ASSUMING_LUFTBOOT = "no"
+ifdef HAS_LUFTBOOT
+$(shell echo luftboot: $(HAS_LUFTBOOT))
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+OOCD_START_SECTOR = 4
+ASSUMING_LUFTBOOT = "yes"
+endif
+endif
+
+
 #
 # check which flash mode is configured
 #
 ifeq ($(FLASH_MODE),DFU)
 #
 # DFU flash mode paparazzi stm32_mem
+PYTHON ?= $(shell which python)
 ifdef DFU_ADDR
 DFU_ADDR_CMD = --addr=$(DFU_ADDR)
 endif
@@ -51,8 +66,10 @@ upload: $(OBJDIR)/$(TARGET).bin
 #
 # serial flash mode
 else ifeq ($(FLASH_MODE),SERIAL)
+LOADER ?= $(PAPARAZZI_SRC)/sw/tools/stm32loader/stm32loader.py
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
+
 #
 # JTAG flash mode
 else ifeq ($(FLASH_MODE),JTAG)
@@ -60,6 +77,21 @@ else ifeq ($(FLASH_MODE),JTAG)
 ifeq ($(BMP_PORT),)
 # normal jtag via OpenOCD
 OOCD ?= openocd
+ifneq ($(BOARD_SERIAL),)
+OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
+endif
+
+ifndef $(TARGET).OOCD_INTERFACE
+OOCD_INTERFACE = lisa-l
+else
+OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
+endif
+
+ifndef $(TARGET).OOCD_BOARD
+OOCD_BOARD = lisa-l
+else
+OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
 upload: $(OBJDIR)/$(TARGET).hex
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using OOCD = $(OOCD)"
