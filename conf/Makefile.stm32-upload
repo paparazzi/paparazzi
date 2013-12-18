@@ -73,9 +73,7 @@ upload: $(OBJDIR)/$(TARGET).bin
 #
 # JTAG flash mode
 else ifeq ($(FLASH_MODE),JTAG)
-# either via normal jtag or BlackMagicProbe
-ifeq ($(BMP_PORT),)
-# normal jtag via OpenOCD
+# via OpenOCD and "normal" jtag
 OOCD ?= openocd
 ifneq ($(BOARD_SERIAL),)
 OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
@@ -105,10 +103,12 @@ upload: $(OBJDIR)/$(TARGET).hex
 		-c "flash write_image $<" \
 		-c reset \
 		-c shutdown
-else
-# jtag via BMP
-BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
 
+#
+# JTAG flash mode (with Black Magic Probe)
+else ifeq ($(FLASH_MODE),JTAG_BMP)
+BMP_PORT ?= /dev/ttyACM0
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using Black Magic Probe with JTAG on BMP_PORT $(BMP_PORT)"
@@ -119,6 +119,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   -x $(BMP_UPLOAD_SCRIPT) \
 		   $<
 endif
+
 #
 # SWD flash mode (with Black Magic Probe)
 else ifeq ($(FLASH_MODE),SWD)
