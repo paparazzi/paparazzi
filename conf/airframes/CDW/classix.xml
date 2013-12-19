@@ -233,7 +233,7 @@
       <define name="DC_SHUTTER_LED" value="6"/>
    </load>
    <load name="adc_generic.xml">
-      <define name="ADC_GENERIC_NB_SAMPLES" value="32"/>
+      <define name="ADC_CHANNEL_GENERIC_NB_SAMPLES" value="32"/>
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_6"/> <!-- e.g. current sensor -->
    </load>
    <load name="photogrammetry_calculator.xml" />

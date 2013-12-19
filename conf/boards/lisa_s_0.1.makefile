@@ -55,18 +55,3 @@ GPS_BAUD ?= B38400
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
-
-# Thish should be disabled as we don't have adc inputs on Lisa/S
-ifndef ADC_IR1
-ADC_IR1      = 1
-ADC_IR1_CHAN = 0
-endif
-ifndef ADC_IR2
-ADC_IR2      = 2
-ADC_IR2_CHAN = 1
-endif
-ifndef ADC_IR3
-ADC_IR_TOP      = 3
-ADC_IR_TOP_CHAN = 2
-endif
-ADC_IR_NB_SAMPLES ?= 16

@@ -206,8 +206,8 @@
     <load name="gps_ubx_ucenter.xml"/>
 <!--
     <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="0" />
-      <configure name="ADC_CHANNEL_GENERIC2" value="1" />
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
     </load>
 -->
     <load name="light.xml">
