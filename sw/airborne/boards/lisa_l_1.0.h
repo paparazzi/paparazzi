@@ -132,29 +132,49 @@
 #define PPM_GPIO_AF         0
 
 
-/* ADC */
-// active ADC
-#define USE_AD1 1
-#define USE_AD1_1 1
-#define USE_AD1_2 1
-#define USE_AD1_3 1
-#define USE_AD1_4 1
-
+/*
+ * ADC
+ */
 #define USE_AD_TIM1 1
 
-/* PA0 - ADC0 */
+#if USE_ADC_1
+#define AD1_1_CHANNEL 8
+#define ADC_1 AD1_1
+#define ADC_1_GPIO_PORT GPIOB
+#define ADC_1_GPIO_PIN GPIO0
+#endif
+
+#if USE_ADC_2
+#define AD1_2_CHANNEL 9
+#define ADC_2 AD1_2
+#define ADC_2_GPIO_PORT GPIOB
+#define ADC_2_GPIO_PIN GPIO1
+#endif
+
+// Internal ADC for battery enabled by default
+#ifndef USE_ADC_3
+#define USE_ADC_3 1
+#endif
+#if USE_ADC_3
+#define AD1_3_CHANNEL 0
+#define ADC_3 AD1_3
+#define ADC_3_GPIO_PORT GPIOA
+#define ADC_3_GPIO_PIN GPIO0
+#endif
+
+#if USE_ADC_4
+#define AD1_4_CHANNEL 15
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO5
+#endif
+
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY 2
+#define ADC_CHANNEL_VSUPPLY ADC_3
 #endif
+
 #define DefaultVoltageOfAdc(adc) (0.0059*adc)
-/* Onboard ADCs */
-#define BOARD_ADC_CHANNEL_1 8
-#define BOARD_ADC_CHANNEL_2 9
-// FIXME - removed for now and used for battery monitoring
-//#define BOARD_ADC_CHANNEL_3 13
-#define BOARD_ADC_CHANNEL_3 0
-#define BOARD_ADC_CHANNEL_4 15
 
 
 /* by default activate onboard baro */

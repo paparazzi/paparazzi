@@ -134,15 +134,74 @@
 
 #endif // PPM_CONFIG
 
-/* ADC */
+/*
+ * ADC
+ */
 
-// active ADC
-#define USE_AD1 1
-#define USE_AD1_1 1
-#define USE_AD1_2 1
-#define USE_AD1_3 1
-#define USE_AD1_4 1
+/* Onboard ADCs */
+/*
+  ADC1 PC3/ADC13
+  ADC2 PC0/ADC10
+  ADC3 PC1/ADC11
+  ADC4 PC5/ADC15
+  ADC6 PC2/ADC12
+  BATT PC4/ADC14 (ADC5)
+*/
 
+/* provide defines that can be used to access the ADC_x in the code or airframe file
+ * these directly map to the index number of the 4 adc channels defined above
+ * 4th (index 3) is used for bat monitoring by default
+ */
+#if USE_ADC_1
+#define AD1_1_CHANNEL 13
+#define ADC_1 AD1_1
+#define ADC_1_GPIO_PORT GPIOC
+#define ADC_1_GPIO_PIN GPIO3
+#endif
+
+#if USE_ADC_2
+#define AD1_2_CHANNEL 10
+#define ADC_2 AD1_2
+#define ADC_2_GPIO_PORT GPIOC
+#define ADC_2_GPIO_PIN GPIO0
+#endif
+
+#if USE_ADC_3
+#define AD1_3_CHANNEL 11
+#define ADC_3 AD1_3
+#define ADC_3_GPIO_PORT GPIOC
+#define ADC_3_GPIO_PIN GPIO1
+#endif
+
+#if USE_ADC_4
+#define AD2_1_CHANNEL 15
+#define ADC_4 AD2_1
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO5
+#endif
+
+// Internal ADC for battery enabled by default
+#ifndef USE_ADC_5
+#define USE_ADC_5 1
+#endif
+#if USE_ADC_5
+#define AD1_4_CHANNEL 14
+#define ADC_5 AD1_4
+#define ADC_5_GPIO_PORT GPIOC
+#define ADC_5_GPIO_PIN GPIO4
+#endif
+
+#if USE_ADC_6
+#define AD2_2_CHANNEL 12
+#define ADC_6 AD2_2
+#define ADC_6_GPIO_PORT GPIOC
+#define ADC_6_GPIO_PIN GPIO2
+#endif
+
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_5
+#endif
 
 /*
  * I2C
