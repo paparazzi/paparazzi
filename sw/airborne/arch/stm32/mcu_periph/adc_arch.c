@@ -32,7 +32,7 @@
  * would explicitly enable the ADC_1 and ADC_3 and disable ADC_4.
  *
  * The mapping of these virtual "board" ADC_x numbers to a concrete AD converter
- * and channel is done in the sw/airborne/boards/* header files.
+ * and channel is done in the sw/airborne/boards/<boardname>.h header files.
  * Some ADCs are normally already enabled in the board files per default
  * (e.g. for battery voltage measurement).
  *
