@@ -25,11 +25,16 @@
  * Driver for the analog to digital converters on STM32.
  *
  * Usage:
- * Define flags for ADCs to use and their channels:
+ * Define flags for ADCs to use (can be explicitly disabled by setting to 0):
  *
- *   -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_3
+ *   -DUSE_ADC_1 -DUSE_ADC_3=1 -DUSE_ADC_4=0
  *
- * would enable ADC1 and it's channels 1 and 3.
+ * would explicitly enable the ADC_1 and ADC_3 and disable ADC_4.
+ *
+ * The mapping of these virtual "board" ADC_x numbers to a concrete AD converter
+ * and channel is done in the sw/airborne/boards/* header files.
+ * Some ADCs are normally already enabled in the board files per default
+ * (e.g. for battery voltage measurement).
  *
  */
 
