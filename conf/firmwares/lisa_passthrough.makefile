@@ -106,14 +106,8 @@ stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c
 # ADC
 
 stm_passthrough.srcs += $(SRC_ARCH)/mcu_periph/adc_arch.c
-stm_passthrough.CFLAGS += -DUSE_AD1 \
-    -DUSE_AD1_1 \
-    -DUSE_AD1_2 \
-    -DUSE_AD1_3 \
-    -DUSE_AD1_4
 
-
-# Battery monitor
+# Battery monitor (bat voltage adc enabled by default in board files)
 
 
 #

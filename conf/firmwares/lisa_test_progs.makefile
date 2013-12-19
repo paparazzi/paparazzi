@@ -313,7 +313,7 @@ test_adc.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_adc.CFLAGS += -I$(SRC_LISA)
 test_adc.srcs   += $(SRC_LISA)/test_adc.c
 test_adc.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+test_adc.CFLAGS += -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 
 
 ##################################################
