@@ -113,13 +113,13 @@
 #endif
 #endif
 
-#if defined(STM32F4)
-
 #if defined(AD2_1_CHANNEL) || defined(AD2_2_CHANNEL) || defined(AD2_3_CHANNEL) || defined(AD2_4_CHANNEL)
 #ifndef USE_AD2
 #define USE_AD2 1
 #endif
 #endif
+
+#if defined(STM32F4)
 
 #if defined(AD3_1_CHANNEL) || defined(AD3_2_CHANNEL) || defined(AD3_3_CHANNEL) || defined(AD3_4_CHANNEL)
 #ifndef USE_AD3
@@ -128,9 +128,7 @@
 #endif
 
 #else // !STM32F4
-// ADC 2 and 3 not supported on STM32F1
-#undef USE_AD2
-#define USE_AD2 0
+// ADC 3 not supported on STM32F1
 #undef USE_AD3
 #define USE_AD3 0
 #endif
@@ -330,7 +328,7 @@ void adc_init( void ) {
 #endif
 #ifdef AD3_2_CHANNEL
   adc_channel_map[3-nb_adc3_channels] = AD3_2_CHANNEL;
-  nb_adc3_channels++;
+f  nb_adc3_channels++;
 #endif
 #ifdef AD3_1_CHANNEL
   adc_channel_map[3-nb_adc3_channels] = AD3_1_CHANNEL;
@@ -516,21 +514,21 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
 #if USE_AD_TIM4
   PRINT_CONFIG_MSG("Info: Using TIM4 for ADC")
 #if defined(STM32F1)
-    adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
+  adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #elif USE_AD_TIM1
   PRINT_CONFIG_MSG("Info: Using TIM1 for ADC")
 #if defined(STM32F1)
-    adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
+  adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #else
   PRINT_CONFIG_MSG("Info: Using default TIM2 for ADC")
 #if defined(STM32F1)
-    adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
+  adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
