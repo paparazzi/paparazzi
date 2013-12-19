@@ -52,7 +52,7 @@
 
 static uint32_t hott_event_timer; // 1ms software timer
 static bool_t hott_telemetry_is_sending = FALSE;
-static int8_t hott_telemetry_sendig_msgs_id = 0;
+static uint16_t hott_telemetry_sendig_msgs_id = 0;
 
 #if HOTT_SIM_GPS_SENSOR
 bool_t  HOTT_REQ_UPDATE_GPS = FALSE;
