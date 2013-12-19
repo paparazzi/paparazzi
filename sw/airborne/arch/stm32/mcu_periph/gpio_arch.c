@@ -74,6 +74,11 @@ void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output
     gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, pin);
 }
 
+void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
+  gpio_enable_clock(port);
+  gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_ANALOG, pin);
+}
+
 #elif defined STM32F4
 void gpio_enable_clock(uint32_t port) {
   switch (port) {
@@ -124,5 +129,11 @@ void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output
   gpio_mode_setup(port, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
   gpio_set_af(port, af, pin);
 }
+
+void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
+  gpio_enable_clock(port);
+  gpio_mode_setup(port, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, pin);
+}
+
 #endif
 

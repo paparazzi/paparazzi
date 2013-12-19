@@ -34,13 +34,13 @@
 #include BOARD_CONFIG
 
 
-#ifdef USE_AD0
+#if USE_AD0
 #ifndef AD0_VIC_SLOT
 #define AD0_VIC_SLOT 2
 #endif
 #endif
 
-#ifdef USE_AD1
+#if USE_AD1
 #ifndef AD1_VIC_SLOT
 #define AD1_VIC_SLOT 4
 #endif
@@ -197,7 +197,7 @@ void adc_init( void ) {
   PINSEL0 |= ADC_PINSEL0_ONES;
   PINSEL1 |= ADC_PINSEL1_ONES;
 
-#ifdef USE_AD0
+#if USE_AD0
   /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
 			but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
 			lpc_vor_convertions.c for right timing code */
@@ -212,7 +212,7 @@ void adc_init( void ) {
   _VIC_ADDR(AD0_VIC_SLOT) = (uint32_t)adcISR0;
 #endif
 
-#ifdef USE_AD1
+#if USE_AD1
   /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
 			but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
 			lpc_vor_convertions.c for right timing code */
