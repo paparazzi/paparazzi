@@ -102,27 +102,24 @@
 
 // Macros to automatically enable the correct ADC
 
-#if  defined(AD1_1_CHANNEL) || defined(AD1_2_CHANNEL) || defined(AD1_3_CHANNEL) || defined(AD1_4_CHANNEL)
+#if defined(AD1_1_CHANNEL) || defined(AD1_2_CHANNEL) || defined(AD1_3_CHANNEL) || defined(AD1_4_CHANNEL)
 #ifndef USE_AD1
 #define USE_AD1 1
 #endif
-PRINT_CONFIG_MSG("Analog to Digital Coverter 1 active")
 #endif
 
 #if defined(STM32F4)
 
-#if  defined(AD2_1_CHANNEL) || defined(AD2_2_CHANNEL) || defined(AD2_3_CHANNEL) || defined(AD2_4_CHANNEL)
+#if defined(AD2_1_CHANNEL) || defined(AD2_2_CHANNEL) || defined(AD2_3_CHANNEL) || defined(AD2_4_CHANNEL)
 #ifndef USE_AD2
 #define USE_AD2 1
 #endif
-PRINT_CONFIG_MSG("Analog to Digital Coverter 2 active")
 #endif
 
-#if  defined(AD3_1_CHANNEL) || defined(AD3_2_CHANNEL) || defined(AD3_3_CHANNEL) || defined(AD3_4_CHANNEL)
+#if defined(AD3_1_CHANNEL) || defined(AD3_2_CHANNEL) || defined(AD3_3_CHANNEL) || defined(AD3_4_CHANNEL)
 #ifndef USE_AD3
 #define USE_AD3 1
 #endif
-PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 #endif
 
 #else // !STM32F4
@@ -133,7 +130,16 @@ PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 #define USE_AD3 0
 #endif
 
-#if !defined(USE_AD1) && !defined(USE_AD2) && !defined(USE_AD3)
+#if USE_AD1
+PRINT_CONFIG_MSG("Analog to Digital Coverter 1 active")
+#endif
+#if USE_AD2
+PRINT_CONFIG_MSG("Analog to Digital Coverter 2 active")
+#endif
+#if USE_AD3
+PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
+#endif
+#if !USE_AD1 && !USE_AD2 && !USE_AD3
 #warning ALL ADC CONVERTERS INACTIVE
 #endif
 

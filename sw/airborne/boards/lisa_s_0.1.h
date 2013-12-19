@@ -80,7 +80,7 @@
 #ifndef USE_ADC_1
 #define USE_ADC_1 1
 #endif
-#ifdef USE_ADC_1
+#if USE_ADC_1
 #define AD1_1_CHANNEL 2
 #define ADC_1 AD1_1
 #define ADC_1_GPIO_PORT GPIOA

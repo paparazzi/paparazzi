@@ -171,7 +171,7 @@
  * 4th (index 3) is used for bat monitoring by default
  */
 // AUX 1
-#ifdef USE_ADC_1
+#if USE_ADC_1
 #define AD1_1_CHANNEL 9
 #define ADC_1 AD1_1
 #define ADC_1_GPIO_PORT GPIOB
@@ -179,7 +179,7 @@
 #endif
 
 // AUX 2
-#ifdef USE_ADC_2
+#if USE_ADC_2
 #define AD1_2_CHANNEL 15
 #define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOC
@@ -187,7 +187,7 @@
 #endif
 
 // AUX 3
-#ifdef USE_ADC_3
+#if USE_ADC_3
 #define AD1_3_CHANNEL 14
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOC
@@ -198,7 +198,7 @@
 #ifndef USE_ADC_4
 #define USE_ADC_4 1
 #endif
-#ifdef USE_ADC_4
+#if USE_ADC_4
 #define AD1_4_CHANNEL 4
 #define ADC_4 AD1_4
 #define ADC_4_GPIO_PORT GPIOA

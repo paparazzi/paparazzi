@@ -137,14 +137,14 @@
  */
 #define USE_AD_TIM1 1
 
-#ifdef USE_ADC_1
+#if USE_ADC_1
 #define AD1_1_CHANNEL 8
 #define ADC_1 AD1_1
 #define ADC_1_GPIO_PORT GPIOB
 #define ADC_1_GPIO_PIN GPIO0
 #endif
 
-#ifdef USE_ADC_2
+#if USE_ADC_2
 #define AD1_2_CHANNEL 9
 #define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOB
@@ -155,14 +155,14 @@
 #ifndef USE_ADC_3
 #define USE_ADC_3 1
 #endif
-#ifdef USE_ADC_3
+#if USE_ADC_3
 #define AD1_3_CHANNEL 0
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOA
 #define ADC_3_GPIO_PIN GPIO0
 #endif
 
-#ifdef USE_ADC_4
+#if USE_ADC_4
 #define AD1_4_CHANNEL 15
 #define ADC_4 AD1_4
 #define ADC_4_GPIO_PORT GPIOC

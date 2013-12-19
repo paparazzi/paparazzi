@@ -152,21 +152,21 @@
  * these directly map to the index number of the 4 adc channels defined above
  * 4th (index 3) is used for bat monitoring by default
  */
-#ifdef USE_ADC_1
+#if USE_ADC_1
 #define AD1_1_CHANNEL 13
 #define ADC_1 AD1_1
 #define ADC_1_GPIO_PORT GPIOC
 #define ADC_1_GPIO_PIN GPIO3
 #endif
 
-#ifdef USE_ADC_2
+#if USE_ADC_2
 #define AD1_2_CHANNEL 10
 #define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOC
 #define ADC_2_GPIO_PIN GPIO0
 #endif
 
-#ifdef USE_ADC_3
+#if USE_ADC_3
 #define AD1_3_CHANNEL 11
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOC
@@ -177,7 +177,7 @@
 #ifndef USE_ADC_5
 #define USE_ADC_5 1
 #endif
-#ifdef USE_ADC_5
+#if USE_ADC_5
 #define AD1_4_CHANNEL 14
 #define ADC_5 AD1_4
 #define ADC_5_GPIO_PORT GPIOC
