@@ -219,16 +219,14 @@
       </function>
       <location unit="IN">
         <!-- Necessary arm in IN to produce a moment ten times
-        "weaker" then the force when both are measured in the SI is 1.9685 in.
-        x = -(4.87 - 1.9685/sqrt(2))
-        y = 4.87 + 1.9685/sqrt(2) -->
-        <x>-3.478</x>
-        <y>6.262</y>
+        "weaker" then the force when both are measured in the SI is 1.9685 in. -->
+        <x>-4.87</x>
+        <y>6.8385</y>
         <z>0</z>
       </location>
       <direction>
-        <x>-0.7</x>
-        <y>0.7</y>
+        <x>-1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -241,13 +239,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-6.262</x>
-        <y>3.478</y>
+        <x>-4.87</x>
+        <y>2.9015</y>
         <z>0</z>
       </location>
       <direction>
-        <x>0.7</x>
-        <y>-0.7</y>
+        <x>1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -262,13 +260,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>6.262</x>
-        <y>3.478</y>
+        <x>4.87</x>
+        <y>6.8385</y>
         <z>0</z>
       </location>
       <direction>
-        <x>-0.7</x>
-        <y>-0.7</y>
+        <x>1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -281,13 +279,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.478</x>
-        <y>6.262</y>
+        <x>4.87</x>
+        <y>2.9015</y>
         <z>0</z>
       </location>
       <direction>
-        <x>0.7</x>
-        <y>0.7</y>
+        <x>-1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -302,13 +300,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>3.478</x>
-        <y>-6.262</y>
+        <x>4.87</x>
+        <y>-2.9015</y>
         <z>0</z>
       </location>
       <direction>
-        <x>0.7</x>
-        <y>-0.7</y>
+        <x>-1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -321,13 +319,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>6.262</x>
-        <y>-3.478</y>
+        <x>4.87</x>
+        <y>-6.8385</y>
         <z>0</z>
       </location>
       <direction>
-        <x>-0.7</x>
-        <y>0.7</y>
+        <x>1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -342,13 +340,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-6.262</x>
-        <y>-3.478</y>
+        <x>-4.87</x>
+        <y>-2.9015</y>
         <z>0</z>
       </location>
       <direction>
-        <x>0.7</x>
-        <y>0.7</y>
+        <x>1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
@@ -361,13 +359,13 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-3.478</x>
-        <y>-6.262</y>
+        <x>-4.87</x>
+        <y>-6.8385</y>
         <z>0</z>
       </location>
       <direction>
-        <x>-0.7</x>
-        <y>-0.7</y>
+        <x>-1</x>
+        <y>0</y>
         <z>0</z>
       </direction>
     </force>
