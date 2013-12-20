@@ -43,8 +43,8 @@
   <servos driver="Default">
     <servo name="TOP_LEFT" no="0" min="0" neutral="1" max="500"/>
     <servo name="TOP_RIGHT" no="1" min="0" neutral="1" max="500"/>
-    <servo name="BOTTOM_LEFT" no="3" min="0" neutral="1" max="500"/>
     <servo name="BOTTOM_RIGHT" no="2" min="0" neutral="1" max="500"/>
+    <servo name="BOTTOM_LEFT" no="3" min="0" neutral="1" max="500"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -54,19 +54,19 @@
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="255"/>
 
-    <!-- Time cross layout (X), as documented in paparazzi -->
-    <define name="ROLL_COEF" value="{   256, -256, -256,  256  }"/>
-    <define name="PITCH_COEF" value="{  256,  256, -256,  -256 }"/>
-    <define name="YAW_COEF" value="{   -256,  256, -256,  256  }"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256  }"/>
+    <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
+    <define name="ROLL_COEF" value="{   256, -256, -256,  256 }"/>
+    <define name="PITCH_COEF" value="{  256,  256, -256, -256 }"/>
+    <define name="YAW_COEF" value="{   -256,  256, -256,  256 }"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="TOP_LEFT" value="motor_mixing.commands[SERVO_TOP_LEFT]"/>
-    <set servo="TOP_RIGHT" value="motor_mixing.commands[SERVO_TOP_RIGHT]"/>
-    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[SERVO_BOTTOM_LEFT]"/>
-    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[SERVO_BOTTOM_RIGHT]"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[0]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[1]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[2]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[3]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -202,7 +202,8 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;top_left_motor&quot;, &quot;top_right_motor&quot;, &quot;bottom_right_motor&quot;, &quot;bottom_left_motor&quot;}"/>
+    <define name="ACTUATOR_NAMES" value="{&quot;nw_motor&quot;, &quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;}"/>
+    <define name="JSBSIM_MODEL" value="&quot;simple_ardrone2&quot;"/>
     <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>

@@ -6,7 +6,7 @@
         <author>Gustavo Violato &amp; Antoine Drouin</author>
         <filecreationdate>24-02-2009</filecreationdate>
         <version>Version 0.9 - beta</version>
-        <description>Simple Quadrotor without rotor dynamic (front/back motors turning CW, left/right CCW)</description>
+        <description>Simple Quadrotor in + configuration without rotor dynamic (front/back motors turning CW, left/right CCW)</description>
     </fileheader>
 
     <metrics>
