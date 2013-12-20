@@ -316,6 +316,9 @@ static void baro_update_logic(void)
     navdata_baro_available = TRUE;
   }
 
+  lastpressval = navdata.pressure;
+  lasttempval = navdata.temperature_pressure;
+
   /*
    * It turns out that a lot of navdata boards have a problem (probably interrupt related)
    * in which reading I2C data and writing uart output data is interrupted very long (50% of 200Hz).
@@ -332,61 +335,50 @@ static void baro_update_logic(void)
    * reasons. As pressure is more likely to quickly change, a small (yet unlikely) spike on temperature together with
    * press==temp yields very good results as a detector, although theoretically not perfect.
 
-#sample press temp
-50925  39284 34501
+#samp press temp.
+50925 39284 34501
 50926 39287 34501
-50927 39287 34501   0 0
-50928 39283 34501   0 -4
-50929 39283 34501   0 0
-50930 39285 34501   0 2
-50931 39285 34500   -1  0
-50932 34500 34500   0 -4785
-50933 34500 36618   2118  0
-50934 39284 36618   0 4784
-50935 39284 34501   -2117 0
-50936 39284 34501   0 0
-50937 39284 34500   -1  0
-50938 39281 34500   0 -3
-50939 39281 34500   0 0
-50940 39280 34500   0 -1
-50941 39280 34502   2 0
-50942 39280 34502   0 0
-50943 39280 34501   -1  0
+50927 39287 34501
+50928 39283 34501     // *press good -> baro
+50929 39283 34501
+50930 39285 34501     // *press good -> baro
+50931 39285 34500
+50932 34500 34500     // press read too soon from chip (<4.5ms) -> ADC register still previous temp value
+50933 34500 36618     // press not updated, still wrong. Temp is weird: looks like the average of both
+50934 39284 36618     // new press read, but temp still outdated
+50935 39284 34501
+50936 39284 34501     // *press good -> baro
+50937 39284 34500
+50938 39281 34500
+50939 39281 34500
+50940 39280 34500
+50941 39280 34502
+50942 39280 34502
+50943 39280 34501
 
    */
 
   // if press and temp are same and temp has jump: neglect the next frame
-  if (navdata.temperature_pressure == navdata.pressure) // && (abs(navdata.temperature_pressure - lasttempval) > 40))
+  if (navdata.temperature_pressure == navdata.pressure) // && (abs((int32_t)navdata.temperature_pressure - (int32_t)lasttempval) > 40))
   {
     // dont use next 3 packets
     spike_detected = 3;
-    // dont use
-    navdata_baro_available = FALSE;
 
     spikes++;
     printf("Spike! # %d\n",spikes);
   }
 
-  lastpressval = navdata.pressure;
-  lasttempval = navdata.temperature_pressure;
-
-  if (spike_detected == 3) // Pressure is wrong
+  if (spike_detected > 0)
   {
-    // override press
-    navdata.pressure = lastpressval_nospike;
+    // disable kalman filter use
+    navdata_baro_available = FALSE;
 
-    lasttempval_nospike = navdata.temperature_pressure;
-  }
-  else if (spike_detected == 2) // both are wrong
-  {
-    // override both
+    // override both to last good
     navdata.pressure = lastpressval_nospike;
     navdata.temperature_pressure = lasttempval_nospike;
-  }
-  else if (spike_detected == 1) // temp is still wrong
-  {
-    lastpressval_nospike = navdata.pressure;
-    navdata.temperature_pressure = lasttempval_nospike;
+
+    // Countdown
+    spike_detected--;
   }
   else // both are good
   {
@@ -394,8 +386,7 @@ static void baro_update_logic(void)
     lasttempval_nospike = navdata.temperature_pressure;
   }
 
-  if (spike_detected)
-    spike_detected--;
+//  printf(",%d,%d",spike_detected,spikes);
 }
 
 void navdata_update()
@@ -452,9 +443,12 @@ void navdata_update()
         p[0] = p[1];
         p[1] = tmp;
 
-        // printf("%d %d %d\n",navdata.nu_trame, navdata.pressure, navdata.temperature_pressure);
+//        printf("%d,%d,%d",navdata.nu_trame, navdata.pressure, navdata.temperature_pressure);
 
         baro_update_logic();
+
+//        printf(",%d,%d,%d\n", navdata.pressure, navdata.temperature_pressure, (int)navdata_baro_available);
+
 
 #ifdef USE_SONAR
         if (navdata.ultrasound < 10000)
