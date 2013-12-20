@@ -328,7 +328,7 @@ void adc_init( void ) {
 #endif
 #ifdef AD3_2_CHANNEL
   adc_channel_map[3-nb_adc3_channels] = AD3_2_CHANNEL;
-f  nb_adc3_channels++;
+  nb_adc3_channels++;
 #endif
 #ifdef AD3_1_CHANNEL
   adc_channel_map[3-nb_adc3_channels] = AD3_1_CHANNEL;
