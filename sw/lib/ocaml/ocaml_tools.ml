@@ -25,8 +25,8 @@
 let pi = 3.14159265358979323846;;
 
 let open_compress file =
-  if Filename.check_suffix file "gz" or Filename.check_suffix file "Z" or
-    Filename.check_suffix file "zip" or Filename.check_suffix file "ZIP" then
+  if Filename.check_suffix file "gz" || Filename.check_suffix file "Z" ||
+    Filename.check_suffix file "zip" || Filename.check_suffix file "ZIP" then
     Unix.open_process_in ("gunzip -c "^file)
   else if Filename.check_suffix file "bz2"  then
     Unix.open_process_in ("bunzip2 -c "^file)
