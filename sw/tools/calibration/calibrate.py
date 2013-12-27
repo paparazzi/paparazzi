@@ -119,7 +119,12 @@ def main():
         err = y*scipy.ones(len(meas)) - np
         return err
 
-    p1, success = optimize.leastsq(err_func, p0[:], args=(flt_meas, sensor_ref))
+    p1, cov, info, msg, success = optimize.leastsq(err_func, p0[:], args=(flt_meas, sensor_ref), full_output=1)
+    if not success in [1, 2, 3, 4]:
+        print("Optimization error: ", msg)
+        print("Please try to provide a clean logfile.")
+        sys.exit(1)
+
     cp1, np1 = calibration_utils.scale_measurements(flt_meas, p1)
 
     print("optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
