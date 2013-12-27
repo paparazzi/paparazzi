@@ -38,7 +38,7 @@ void imu_periodic(void) {
 
 void navdata_event(void) {
 
-#ifdef USE_UART1
+#if USE_UART1
   uart1_handler();
 #endif
 }

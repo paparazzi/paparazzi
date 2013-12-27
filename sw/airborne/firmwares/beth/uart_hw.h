@@ -44,7 +44,7 @@ extern void uart0_handler(void);
 #endif
 
 
-#ifdef USE_UART0
+#if USE_UART0
 #define UART0_RX_BUFFER_SIZE 128
 #define UART0_TX_BUFFER_SIZE 128
 
@@ -69,7 +69,7 @@ extern void uart1_handler(void);
 #endif
 
 
-#ifdef USE_UART1
+#if USE_UART1
 #define UART1_RX_BUFFER_SIZE 128
 #define UART1_TX_BUFFER_SIZE 128
 

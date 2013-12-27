@@ -71,25 +71,25 @@ void mcu_init(void) {
 #if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
   RADIO_CONTROL_BIND_IMPL_FUNC();
 #endif
-#ifdef USE_UART0
+#if USE_UART0
   uart0_init();
 #endif
-#ifdef USE_UART1
+#if USE_UART1
   uart1_init();
 #endif
-#ifdef USE_UART2
+#if USE_UART2
   uart2_init();
 #endif
-#ifdef USE_UART3
+#if USE_UART3
   uart3_init();
 #endif
-#ifdef USE_UART4
+#if USE_UART4
   uart4_init();
 #endif
-#ifdef USE_UART5
+#if USE_UART5
   uart5_init();
 #endif
-#ifdef USE_UART6
+#if USE_UART6
   uart6_init();
 #endif
 #ifdef USE_I2C0

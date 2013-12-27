@@ -26,7 +26,7 @@
 #include "subsystems/datalink/telemetry.h"
 #endif
 
-#ifdef USE_UART0
+#if USE_UART0
 struct uart_periph uart0;
 
 #if DOWNLINK
@@ -42,7 +42,7 @@ static void send_uart0_err(void) {
 
 #endif
 
-#ifdef USE_UART1
+#if USE_UART1
 struct uart_periph uart1;
 
 #if DOWNLINK
@@ -58,7 +58,7 @@ static void send_uart1_err(void) {
 
 #endif
 
-#ifdef USE_UART2
+#if USE_UART2
 struct uart_periph uart2;
 
 #if DOWNLINK
@@ -74,7 +74,7 @@ static void send_uart2_err(void) {
 
 #endif
 
-#ifdef USE_UART3
+#if USE_UART3
 struct uart_periph uart3;
 
 #if DOWNLINK
@@ -90,7 +90,7 @@ static void send_uart3_err(void) {
 
 #endif
 
-#ifdef USE_UART4
+#if USE_UART4
 struct uart_periph uart4;
 
 #if DOWNLINK
@@ -106,7 +106,7 @@ static void send_uart4_err(void) {
 
 #endif
 
-#ifdef USE_UART5
+#if USE_UART5
 struct uart_periph uart5;
 
 #if DOWNLINK
@@ -122,7 +122,7 @@ static void send_uart5_err(void) {
 
 #endif
 
-#ifdef USE_UART6
+#if USE_UART6
 struct uart_periph uart6;
 
 #if DOWNLINK
