@@ -49,7 +49,6 @@ PERIODIC_FREQUENCY ?= 512
 COMMON_TEST_CFLAGS  = -I$(SRC_BOARD) -DBOARD_CONFIG=$(BOARD_CFG)
 COMMON_TEST_CFLAGS += -DPERIPHERALS_AUTO_INIT
 COMMON_TEST_SRCS    = mcu.c $(SRC_ARCH)/mcu_arch.c
-COMMON_TEST_SRCS   += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 COMMON_TEST_CFLAGS += -DUSE_SYS_TIME
 ifneq ($(SYS_TIME_LED),none)
   COMMON_TEST_CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
@@ -58,13 +57,22 @@ COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 COMMON_TEST_CFLAGS += -DUSE_LED
-COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
+
+ifeq ($(ARCH), lpc21)
+COMMON_TEST_SRCS += $(SRC_ARCH)/armVIC.c
+else ifeq ($(ARCH), stm32)
+COMMON_TEST_SRCS += $(SRC_ARCH)/led_hw.c
+COMMON_TEST_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
 
 COMMON_TELEMETRY_CFLAGS  = -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+COMMON_TELEMETRY_CFLAGS += -DDefaultPeriodic='&telemetry_Main'
+COMMON_TELEMETRY_CFLAGS += -DDATALINK=PPRZ  -DPPRZ_UART=$(MODEM_PORT)
 COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 COMMON_TELEMETRY_SRCS   += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+COMMON_TELEMETRY_SRCS   += subsystems/datalink/telemetry.c
 
 #COMMON_TEST_SRCS   += math/pprz_trig_int.c
 
@@ -151,3 +159,50 @@ test_lis302dl.CFLAGS += -DUSE_SPI1
 test_lis302dl.CFLAGS += -DUSE_SPI_SLAVE2
 test_lis302dl.CFLAGS += -DLIS302DL_SLAVE_IDX=2
 test_lis302dl.CFLAGS += -DLIS302DL_SPI_DEV=spi1
+
+
+#
+# test PWM actuators by changing the value for each channel via settings
+#
+test_actuators_pwm.ARCHDIR = $(ARCH)
+test_actuators_pwm.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_actuators_pwm.srcs   += $(COMMON_TEST_SRCS)
+test_actuators_pwm.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_actuators_pwm.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_actuators_pwm.srcs   += test/test_actuators_pwm.c
+test_actuators_pwm.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
+
+
+#
+# test PWM actuators by simply moving each one from 1ms to 2ms
+#
+test_actuators_pwm_sin.ARCHDIR = $(ARCH)
+test_actuators_pwm_sin.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_actuators_pwm_sin.srcs   += $(COMMON_TEST_SRCS)
+test_actuators_pwm_sin.srcs   += test/test_actuators_pwm_sin.c
+test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
+
+
+#
+# simple test of mikrokopter motor controllers
+#
+test_esc_mkk_simple.ARCHDIR = $(ARCH)
+test_esc_mkk_simple.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_esc_mkk_simple.srcs   += $(COMMON_TEST_SRCS)
+
+test_esc_mkk_simple.srcs   += test/test_esc_mkk_simple.c
+test_esc_mkk_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_esc_mkk_simple.CFLAGS += -DUSE_I2C2
+test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c2
+
+
+#
+# simple test of asctec v1 motor controllers
+#
+test_esc_asctecv1_simple.ARCHDIR = $(ARCH)
+test_esc_asctecv1_simple.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_esc_asctecv1_simple.srcs   += $(COMMON_TEST_SRCS)
+
+test_esc_asctecv1_simple.srcs   += test/test_esc_asctecv1_simple.c
+test_esc_asctecv1_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1

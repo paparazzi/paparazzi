@@ -226,7 +226,6 @@
         <configure name="SYS_TIME_LED" value="none"/>
     </target>
     <target name="test_uart" board="lisa_s_0.1"/>
-    <target name="test_servos" board="lisa_s_0.1"/>
     <target name="test_telemetry" board="lisa_s_0.1"/>
     <target name="test_imu_aspirin" board="lisa_s_0.1"/>
     <target name="test_rc_spektrum" board="lisa_s_0.1"/>

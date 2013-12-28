@@ -18,6 +18,12 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/**
+ * @file test_actuators_pwm_sin.c
+ *
+ * Simple test prog for PWM actuators.
+ * Move each PWM actuator from 1ms to 2ms.
+ */
 
 #include <inttypes.h>
 
@@ -56,6 +62,4 @@ static inline void main_periodic( void ) {
 
   LED_PERIODIC();
 }
-
-
 

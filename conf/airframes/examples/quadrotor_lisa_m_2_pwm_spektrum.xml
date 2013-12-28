@@ -27,7 +27,7 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-      <define name="USE_SERVOS_7AND8"/>
+      <!--define name="USE_SERVOS_7AND8"/-->
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
@@ -40,6 +40,16 @@
     <subsystem name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
+  </firmware>
+
+  <firmware name="test_progs">
+    <target name="test_manual" board="lisa_m_2.0">
+      <subsystem name="radio_control" type="datalink"/>
+      <subsystem name="motor_mixing"/>
+      <subsystem name="actuators" type="pwm">
+        <!--define name="SERVO_HZ" value="400"/-->
+      </subsystem>
+    </target>
   </firmware>
 
   <servos driver="Pwm">

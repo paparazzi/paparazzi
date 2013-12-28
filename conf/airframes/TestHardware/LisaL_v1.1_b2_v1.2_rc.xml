@@ -37,16 +37,12 @@
     </firmware>
 
     <firmware name="lisa_test_progs">
-        <define name="PRINT_CONFIG"/>
         <target name="test_led"           board="lisa_l_1.1"/>
         <target name="test_uart"          board="lisa_l_1.1"/>
-        <target name="test_servos"        board="lisa_l_1.1"/>
-        <target name="test_telemetry"     board="lisa_l_1.1"/>
         <target name="test_baro"          board="lisa_l_1.1"/>
         <target name="test_imu_b2_nomag"  board="lisa_l_1.1"/>
         <target name="test_imu_b2"        board="lisa_l_1.1"/>
         <target name="test_imu_b2_2"      board="lisa_l_1.1"/>
-        <target name="test_ms2100"        board="lisa_l_1.1"/>
         <target name="test_rc_spektrum"   board="lisa_l_1.1"/>
         <target name="test_rc_ppm"        board="lisa_l_1.1"/>
         <target name="test_adc"           board="lisa_l_1.1"/>

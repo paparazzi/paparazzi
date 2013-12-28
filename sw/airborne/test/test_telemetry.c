@@ -27,6 +27,9 @@
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
 
+#define PERIODIC_C_MAIN
+#include "generated/periodic_telemetry.h"
+
 static inline void main_init( void );
 static inline void main_periodic( void );
 

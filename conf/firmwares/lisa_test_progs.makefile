@@ -45,7 +45,6 @@ ARCH=stm32
 SRC_ARCH=arch/$(ARCH)
 SRC_LISA=lisa
 SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
-#SRC_ROTORCRAFT=rotorcraft
 SRC_BOARD=boards/$(BOARD)
 
 SRC_FIRMWARE=firmwares/rotorcraft
@@ -61,7 +60,7 @@ SRC_AIRBORNE=.
 #   MODEM_PORT
 #   MODEM_BAUD
 #
-PERIODIC_FREQUENCY = 512
+PERIODIC_FREQUENCY ?= 512
 
 COMMON_TEST_CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
 COMMON_TEST_CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -81,6 +80,7 @@ COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
 COMMON_TELEMETRY_CFLAGS  = -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 COMMON_TELEMETRY_CFLAGS += -DDefaultPeriodic='&telemetry_Main'
+COMMON_TELEMETRY_CFLAGS += -DDATALINK=PPRZ  -DPPRZ_UART=$(MODEM_PORT)
 COMMON_TELEMETRY_SRCS    = mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 COMMON_TELEMETRY_SRCS   += subsystems/datalink/pprz_transport.c subsystems/datalink/telemetry.c
@@ -99,26 +99,6 @@ test_led.srcs    = $(COMMON_TEST_SRCS)
 test_led.CFLAGS += -I$(SRC_LISA)
 test_led.srcs   += $(SRC_LISA)/test_led.c
 
-
-#
-# test sys_time
-#
-ifeq ($(BOARD), lisa_m)
-ifeq ($(BOARD_VERSION), 2.0)
-LED_DEFINES = -DLED_BLUE=3 -DLED_RED=4 -DLED_GREEN=5
-endif
-endif
-LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
-
-test_sys_time_timer.ARCHDIR = $(ARCH)
-test_sys_time_timer.CFLAGS  = $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
-test_sys_time_timer.srcs    = $(COMMON_TEST_SRCS)
-test_sys_time_timer.srcs   += $(SRC_AIRBORNE)/test/mcu_periph/test_sys_time_timer.c
-
-test_sys_time_usleep.ARCHDIR = $(ARCH)
-test_sys_time_usleep.CFLAGS  = $(COMMON_TEST_CFLAGS) $(LED_DEFINES)
-test_sys_time_usleep.srcs    = $(COMMON_TEST_SRCS)
-test_sys_time_usleep.srcs   += $(SRC_AIRBORNE)/test/mcu_periph/test_sys_time_usleep.c
 
 
 
@@ -143,37 +123,6 @@ else ifeq ($(BOARD), lisa_l)
 endif
 
 
-#
-# test servos
-#
-test_servos.ARCHDIR = $(ARCH)
-test_servos.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_servos.srcs    = $(COMMON_TEST_SRCS)
-
-test_servos.CFLAGS  += -I$(SRC_LISA)
-test_servos.LDFLAGS += -lm
-test_servos.srcs    += $(SRC_LISA)/test_servos.c
-test_servos.srcs    += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
-ifeq ($(BOARD), lisa_m)
-  test_servos.CFLAGS += -DUSE_SERVOS_7AND8
-endif
-
-
-#
-# test_telemetry : Sends ALIVE telemetry messages
-#
-# configuration
-#   MODEM_PORT :
-#   MODEM_BAUD :
-#
-test_telemetry.ARCHDIR = $(ARCH)
-test_telemetry.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_telemetry.srcs    = $(COMMON_TEST_SRCS)
-test_telemetry.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_telemetry.srcs   += $(COMMON_TELEMETRY_SRCS)
-
-test_telemetry.CFLAGS += -I$(SRC_LISA)
-test_telemetry.srcs   += test/test_telemetry.c
 
 
 #
@@ -496,22 +445,6 @@ endif
 
 
 #
-# test ms2100 mag
-#
-test_ms2100.ARCHDIR = $(ARCH)
-test_ms2100.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_ms2100.srcs    = $(COMMON_TEST_SRCS)
-test_ms2100.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_ms2100.srcs   += $(COMMON_TELEMETRY_SRCS)
-
-test_ms2100.CFLAGS += -I$(SRC_LISA)
-test_ms2100.srcs   += test/peripherals/test_ms2100.c
-test_ms2100.srcs   += peripherals/ms2100.c $(SRC_ARCH)/peripherals/ms2100_arch.c
-test_ms2100.CFLAGS += -DUSE_SPI_SLAVE4 -DMS2100_SLAVE_IDX=4 -DMS2100_SPI_DEV=spi2
-test_ms2100.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI2
-test_ms2100.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
-
-#
 # test hmc5843
 #
 test_hmc5843.ARCHDIR = $(ARCH)
@@ -556,68 +489,6 @@ test_adxl345.srcs   += lisa/test/lisa_test_adxl345_dma.c
 
 
 
-#
-# simple test of mikrokopter motor controllers
-#
-test_esc_mkk_simple.ARCHDIR = $(ARCH)
-test_esc_mkk_simple.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_esc_mkk_simple.srcs    = $(COMMON_TEST_SRCS)
-test_esc_mkk_simple.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_esc_mkk_simple.srcs   += $(COMMON_TELEMETRY_SRCS)
-
-test_esc_mkk_simple.srcs   += test/test_esc_mkk_simple.c
-test_esc_mkk_simple.CFLAGS += -DUSE_I2C2
-test_esc_mkk_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c2
-
-
-#
-# simple test of asctec v1 motor controllers
-#
-test_esc_asctecv1_simple.ARCHDIR = $(ARCH)
-test_esc_asctecv1_simple.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_esc_asctecv1_simple.srcs    = $(COMMON_TEST_SRCS)
-test_esc_asctecv1_simple.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_esc_asctecv1_simple.srcs   += $(COMMON_TELEMETRY_SRCS)
-
-test_esc_asctecv1_simple.srcs   += test/test_esc_asctecv1_simple.c
-test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1
-test_esc_asctecv1_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-
-
-#
-# test actuators mkk
-#
-test_actuators_mkk.ARCHDIR = $(ARCH)
-test_actuators_mkk.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_actuators_mkk.srcs    = $(COMMON_TEST_SRCS)
-test_actuators_mkk.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_actuators_mkk.srcs   += $(COMMON_TELEMETRY_SRCS)
-
-test_actuators_mkk.srcs   += test/test_actuators.c
-test_actuators_mkk.srcs   += subsystems/commands.c
-test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
-test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_I2C_DEV=i2c1
-test_actuators_mkk.srcs   += $(SRC_FIRMWARE)/actuators/supervision.c
-test_actuators_mkk.CFLAGS += -DUSE_I2C1
-test_actuators_mkk.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-
-
-#
-# test actuators asctecv1
-#
-test_actuators_asctecv1.ARCHDIR = $(ARCH)
-test_actuators_asctecv1.CFLAGS  = $(COMMON_TEST_CFLAGS)
-test_actuators_asctecv1.srcs    = $(COMMON_TEST_SRCS)
-test_actuators_asctecv1.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_actuators_asctecv1.srcs   += $(COMMON_TELEMETRY_SRCS)
-
-test_actuators_asctecv1.srcs   += test/test_actuators.c
-test_actuators_asctecv1.srcs   += subsystems/commands.c
-test_actuators_asctecv1.CFLAGS += -DACTUATORS_ASCTEC_I2C_DEV=i2c1
-test_actuators_asctecv1.srcs   += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
-test_actuators_asctecv1.CFLAGS += -DUSE_I2C1
-test_actuators_asctecv1.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 
 ##
