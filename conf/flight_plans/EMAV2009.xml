@@ -37,7 +37,7 @@
     <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
+    <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
