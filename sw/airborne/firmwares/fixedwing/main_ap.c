@@ -603,7 +603,9 @@ void sensors_task( void ) {
 
 
 /** Maximum time allowed for low battery level before going into kill mode */
-#define LOW_BATTERY_DELAY 5
+#ifndef LOW_BATTERY_KILL_DELAY
+#define LOW_BATTERY_KILL_DELAY 5
+#endif
 
 /** Maximum distance from HOME waypoint before going into kill mode */
 #ifndef KILL_MODE_DISTANCE
@@ -626,7 +628,7 @@ void monitor_task( void ) {
     t++;
   else
     t = 0;
-  kill_throttle |= (t >= LOW_BATTERY_DELAY);
+  kill_throttle |= (t >= LOW_BATTERY_KILL_DELAY);
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
   if (!autopilot_flight_time &&
