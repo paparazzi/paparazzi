@@ -375,7 +375,7 @@ void usart3_isr(void) { usart_isr(&uart3); }
 #endif /* USE_UART3 */
 
 
-#if defined USE_UART4 && defined STM32F4
+#if USE_UART4 && defined STM32F4
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART4_TX
@@ -477,7 +477,7 @@ void uart5_isr(void) { usart_isr(&uart5); }
 #endif /* USE_UART5 */
 
 
-#if defined USE_UART6 && defined STM32F4
+#if USE_UART6 && defined STM32F4
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART6_TX
