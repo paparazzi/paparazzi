@@ -196,8 +196,8 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 
 #define NavKillThrottle() { kill_throttle = 1; }
 
-#define GetPosX() (stateGetPositionUtm_f()->north)
-#define GetPosY() (stateGetPositionUtm_f()->east)
+#define GetPosX() (stateGetPositionEnu_f()->x)
+#define GetPosY() (stateGetPositionEnu_f()->y)
 #define GetPosAlt() (stateGetPositionUtm_f()->alt)
 
 #define SEND_NAVIGATION(_trans, _dev) { \
