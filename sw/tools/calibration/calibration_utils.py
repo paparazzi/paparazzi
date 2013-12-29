@@ -44,7 +44,7 @@ def get_ids_in_log(filename):
         if m:
             ac_id = m.group(1)
             if not ac_id in ids:
-                ids.append(id)
+                ids.append(ac_id)
     return ids
 
 
