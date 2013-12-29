@@ -160,13 +160,13 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
     NavVerticalThrottleMode(9600*(0));
 
 
-    // Store take-off waypoint
-    WaypointX(_to) = GetPosX();
-    WaypointY(_to) = GetPosY();
-    WaypointAlt(_to) = GetPosAlt();
-
     nav_catapult_x = stateGetPositionEnu_f()->x;
     nav_catapult_y = stateGetPositionEnu_f()->y;
+
+    // Store take-off waypoint
+    WaypointX(_to) = nav_catapult_x;
+    WaypointY(_to) = nav_catapult_y;
+    WaypointAlt(_to) = stateGetPositionUtm_f()->alt;
 
   }
   // No Roll, Climb Pitch, Full Power
@@ -206,9 +206,9 @@ return TRUE;
 
 bool_t nav_select_touch_down(uint8_t _td)
 {
-  WaypointX(_td) = GetPosX();
-  WaypointY(_td) = GetPosY();
-  WaypointAlt(_td) = GetPosAlt();
+  WaypointX(_td) = stateGetPositionEnu_f()->x;
+  WaypointY(_td) = stateGetPositionEnu_f()->y;
+  WaypointAlt(_td) = stateGetPositionUtm_f()->alt;
   return FALSE;
 }
 
