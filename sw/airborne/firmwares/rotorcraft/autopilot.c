@@ -106,9 +106,17 @@ static void send_alive(void) {
   DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 }
 
+#if USE_MOTOR_MIXING
+#include "subsystems/actuators/motor_mixing.h"
+#endif
+
 static void send_status(void) {
   uint32_t imu_nb_err = 0;
-  uint8_t _twi_blmc_nb_err = 0;
+#if USE_MOTOR_MIXING
+  uint8_t _blmc_nb_err = motor_mixing.nb_failure;
+#else
+  uint8_t _blmc_nb_err = 0;
+#endif
 #if USE_GPS
   uint8_t fix = gps.fix;
 #else
@@ -116,7 +124,7 @@ static void send_status(void) {
 #endif
   uint16_t time_sec = sys_time.nb_sec;
   DOWNLINK_SEND_ROTORCRAFT_STATUS(DefaultChannel, DefaultDevice,
-      &imu_nb_err, &_twi_blmc_nb_err,
+      &imu_nb_err, &_blmc_nb_err,
       &radio_control.status, &radio_control.frame_rate,
       &fix, &autopilot_mode,
       &autopilot_in_flight, &autopilot_motors_on,
