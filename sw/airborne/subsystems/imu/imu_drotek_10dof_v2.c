@@ -52,6 +52,7 @@ PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
 #define DROTEK_2_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
 #endif
+#endif
 PRINT_CONFIG_VAR(DROTEK_2_SMPLRT_DIV)
 PRINT_CONFIG_VAR(DROTEK_2_LOWPASS_FILTER)
 
