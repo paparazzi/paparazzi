@@ -43,7 +43,7 @@ let get_servo_driver = fun servo_name ->
 let get_list_of_drivers = fun () ->
   let l = ref [] in
   Hashtbl.iter
-    (fun _s d -> if not (List.mem d !l) then l := d :: !l)
+    (fun _s (d, _) -> if not (List.mem d !l) then l := d :: !l)
     servos_drivers;
   !l
 
@@ -143,8 +143,9 @@ let parse_servo = fun driver c ->
   define (name^"_MIN") (sof min);
   nl ();
 
-  (* Memorize the associated driver (if any) *)
-  Hashtbl.add servos_drivers shortname driver
+  (* Memorize the associated driver (if any) and global index (insertion order) *)
+  let global_idx = Hashtbl.length servos_drivers in
+  Hashtbl.add servos_drivers shortname (driver, global_idx)
 
 (* Characters checked in Gen_radio.checl_function_name *)
 let pprz_value = Str.regexp "@\\([A-Z_0-9]+\\)"
@@ -155,16 +156,15 @@ let preprocess_value = fun s v prefix ->
   Str.global_replace var_value "_var_\\1" s
 
 let print_actuators_idx = fun () ->
-  let nb = Hashtbl.fold (fun s d i ->
+  Hashtbl.iter (fun s (d, i) ->
     printf "#define SERVO_%s_IDX %d\n" s i;
     (* Set servo macro *)
     printf "#define Set_%s_Servo(_v) { \\\n" s;
     printf "  actuators[SERVO_%s_IDX] = Chop(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
     printf "  Actuator%sSet(SERVO_%s, actuators[SERVO_%s_IDX]); \\\n" d s s;
-    printf "}\n\n";
-    i+1
-  ) servos_drivers 0 in
-  define "ACTUATORS_NB" (string_of_int nb);
+    printf "}\n\n"
+  ) servos_drivers;
+  define "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
   nl ()
 
 let parse_command_laws = fun command ->
@@ -265,20 +265,22 @@ let rec parse_section = fun ac_id s ->
       List.iter parse_ap_only_commands (Xml.children s);
       printf "}\n\n"
     | "command_laws" ->
+      (* print actuators index and set macros *)
       print_actuators_idx ();
-
+      (* print init and commit actuators macros *)
+      let drivers = get_list_of_drivers () in
+      printf "#define AllActuatorsInit() { \\\n";
+      List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
+      printf "}\n\n";
+      printf "#define AllActuatorsCommit() { \\\n";
+      List.iter (fun d -> printf "  Actuators%sCommit();\\\n" d) drivers;
+      printf "}\n\n";
+      (* print actuators from commands macro *)
       printf "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
       printf "  int32_t servo_value;\\\n";
       printf "  int32_t command_value;\\\n\\\n";
-
       List.iter parse_command_laws (Xml.children s);
-
-      let drivers = get_list_of_drivers () in
-      List.iter (fun d -> printf "  Actuators%sCommit();\\\n" d) drivers;
-      printf "}\n\n";
-
-      printf "#define AllActuatorsInit() { \\\n";
-      List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
+      printf "  AllActuatorsCommit(); \\\n";
       printf "}\n\n";
     | "include" ->
       let filename = Str.global_replace (Str.regexp "\\$AC_ID") ac_id (ExtXml.attrib s "href") in
