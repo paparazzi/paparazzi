@@ -51,6 +51,8 @@ static inline void main_init( void );
 static inline void main_periodic( void );
 static inline void main_event(void);
 
+static void on_rc_frame(void);
+
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 
@@ -91,18 +93,18 @@ static inline void main_init( void ) {
 
 static inline void main_periodic( void ) {
 
-#ifdef SetCommandsFromRC
-  SetCommandsFromRC(commands, radio_control.values);
-#endif
-
   SetActuatorsFromCommands(commands, 0);
 
   LED_PERIODIC();
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
+  RunOnceEvery(512, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
+  RunOnceEvery(100, {DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
+  RunOnceEvery(101, {DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);});
+  RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
 }
 
 static inline void main_event(void) {
   DatalinkEvent();
+  RadioControlEvent(on_rc_frame);
 }
 
 #define IdOfMsg(x) (x[1])
@@ -134,8 +136,50 @@ void dl_parse_msg( void ) {
         DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
       }
       break;
+#ifdef RADIO_CONTROL_TYPE_DATALINK
+    case DL_RC_3CH :
+#ifdef RADIO_CONTROL_DATALINK_LED
+      LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+#endif
+      parse_rc_3ch_datalink(
+                            DL_RC_3CH_throttle_mode(dl_buffer),
+                            DL_RC_3CH_roll(dl_buffer),
+                            DL_RC_3CH_pitch(dl_buffer));
+      break;
+    case DL_RC_4CH :
+#ifdef RADIO_CONTROL_DATALINK_LED
+      LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+#endif
+      parse_rc_4ch_datalink(
+                            DL_RC_4CH_mode(dl_buffer),
+                            DL_RC_4CH_throttle(dl_buffer),
+                            DL_RC_4CH_roll(dl_buffer),
+                            DL_RC_4CH_pitch(dl_buffer),
+                            DL_RC_4CH_yaw(dl_buffer));
+      break;
+#endif // RADIO_CONTROL_TYPE_DATALINK
 
     default:
       break;
   }
+}
+
+
+static void on_rc_frame(void) {
+
+  /* if there are some commands that should always be set from RC, do it */
+#ifdef SetAutoCommandsFromRC
+  SetAutoCommandsFromRC(commands, radio_control.values);
+#endif
+
+#ifdef SetCommandsFromRC
+  SetCommandsFromRC(commands, radio_control.values);
+#else
+  // no rc_commands, assume we have rotorcraft with ROLL, PITCH, YAW, THRUST
+  commands[COMMAND_ROLL] = radio_control.values[RADIO_ROLL];
+  commands[COMMAND_PITCH] = radio_control.values[RADIO_PITCH];
+  commands[COMMAND_YAW] = radio_control.values[RADIO_YAW];
+  commands[COMMAND_THRUST] = radio_control.values[RADIO_THROTTLE];
+#endif
+
 }
