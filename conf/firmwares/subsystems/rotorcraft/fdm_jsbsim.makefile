@@ -66,7 +66,7 @@ nps.srcs += firmwares/rotorcraft/main.c
 nps.srcs += mcu.c
 nps.srcs += $(SRC_ARCH)/mcu_arch.c
 
-nps.srcs += mcu_periph/i2c_pprz.c
+nps.srcs += mcu_periph/i2c.c
 nps.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 

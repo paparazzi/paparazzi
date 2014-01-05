@@ -40,7 +40,7 @@ stm_passthrough.CFLAGS += -DDOWNLINK
 stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART2
 stm_passthrough.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 stm_passthrough.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
-stm_passthrough.srcs += mcu_periph/uart_pprz.c
+stm_passthrough.srcs += mcu_periph/uart.c
 stm_passthrough.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # Link Overo
@@ -74,7 +74,7 @@ stm_passthrough.srcs += subsystems/commands.c
 #stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 #stm_passthrough.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
 #stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
-#stm_passthrough.srcs += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+#stm_passthrough.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
 #stm_passthrough.CFLAGS += -DACTUATORS_ASCTEC_I2C_DEV=i2c1
 #stm_passthrough.CFLAGS += -DUSE_I2C1
@@ -90,7 +90,7 @@ stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arc
 # Baro
 stm_passthrough.srcs += $(SRC_BOARD)/baro_board.c
 stm_passthrough.CFLAGS += -DUSE_I2C2
-stm_passthrough.srcs += mcu_periph/i2c_pprz.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+stm_passthrough.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 # Vanes
 stm_passthrough.CFLAGS += -I$(SRC_CSC)

@@ -49,7 +49,7 @@ test_downlink.CFLAGS += -DPERIODIC_FREQUENCY='10.' -DSYS_TIME_LED=1
 test_downlink.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 test_downlink.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_downlink.srcs   += mcu_periph/uart_pprz.c
+test_downlink.srcs   += mcu_periph/uart.c
 test_downlink.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_downlink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UART1

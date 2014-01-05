@@ -100,7 +100,7 @@ endif
 ap.srcs += subsystems/settings.c
 ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
-ap.srcs += mcu_periph/uart_pprz.c
+ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ifeq ($(ARCH), omap)
 ap.srcs   += $(SRC_ARCH)/serial_port.c
@@ -108,7 +108,7 @@ endif
 
 # I2C is needed for speed controllers and barometers on lisa
 ifeq ($(TARGET), ap)
-$(TARGET).srcs += mcu_periph/i2c_pprz.c
+$(TARGET).srcs += mcu_periph/i2c.c
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 endif
 
