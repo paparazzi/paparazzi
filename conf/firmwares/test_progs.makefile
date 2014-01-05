@@ -206,3 +206,26 @@ test_esc_asctecv1_simple.srcs   += $(COMMON_TEST_SRCS)
 test_esc_asctecv1_simple.srcs   += test/test_esc_asctecv1_simple.c
 test_esc_asctecv1_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1
+
+
+#
+# Test manual : a simple test with rc and servos
+# add the desired actuators and radio_control subsystem to this target
+#
+test_manual.ARCHDIR = $(ARCH)
+test_manual.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_manual.srcs   += $(COMMON_TEST_SRCS)
+test_manual.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_manual.srcs   += $(COMMON_TELEMETRY_SRCS)
+
+test_manual.srcs   += subsystems/commands.c
+test_manual.srcs   += subsystems/actuators.c
+test_manual.srcs   += test/test_manual.c
+
+ifeq ($(TARGET), test_manual)
+  ifeq ($(ACTUATORS),)
+    $(error ACTUATORS not configured, if your board file has no default, configure in your airframe file)
+  else
+    include $(CFG_SHARED)/$(ACTUATORS).makefile
+  endif
+endif

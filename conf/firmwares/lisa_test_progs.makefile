@@ -508,32 +508,6 @@ test_adxl345.srcs   += lisa/test/lisa_test_adxl345_dma.c
 
 
 ##
-## Test manual : a simple test with rc and servos - I want to fly lisa/M
-##
-#test_manual.ARCHDIR = $(ARCH)
-#test_manual.CFLAGS  = $(COMMON_TEST_CFLAGS)
-#test_manual.srcs    = $(COMMON_TEST_SRCS)
-#test_manual.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-#test_manual.srcs   += $(COMMON_TELEMETRY_SRCS)
-#
-#test_manual.srcs   += test/test_manual.c
-#test_manual.srcs   += subsystems/commands.c
-##test_manual.srcs   += subsystems/actuators/actuators_pwm.c
-#test_manual.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
-#
-#test_manual.CFLAGS += -DRADIO_CONTROL
-#ifneq ($(RADIO_CONTROL_LED),none)
-#test_manual.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
-#endif
-#test_manual.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
-#test_manual.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
-#test_manual.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
-#test_manual.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
-#test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c
-#test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control/spektrum.c
-#test_manual.srcs   += $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
-
-##
 ## test can interface
 ##
 test_can.ARCHDIR = $(ARCH)
