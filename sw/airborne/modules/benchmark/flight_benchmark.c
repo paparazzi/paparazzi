@@ -17,6 +17,9 @@
 // #include "math/pprz_algebra_float.h"
 
 // For Downlink
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 
 

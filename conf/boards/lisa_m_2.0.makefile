@@ -19,11 +19,10 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-m.ld
 # -----------------------------------------------------------------------
 
 # default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
+# other possibilities: JTAG, SWD, SERIAL
 FLASH_MODE ?= DFU
 
-HAS_LUFTBOOT ?= 1
-ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+ifndef NO_LUFTBOOT
 $(TARGET).CFLAGS+=-DLUFTBOOT
 $(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
 endif
@@ -67,3 +66,18 @@ GPS_BAUD ?= B38400
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
+
+
+ifndef ADC_IR1
+ADC_IR1      = 1
+ADC_IR1_CHAN = 0
+endif
+ifndef ADC_IR2
+ADC_IR2      = 2
+ADC_IR2_CHAN = 1
+endif
+ifndef ADC_IR3
+ADC_IR_TOP      = 3
+ADC_IR_TOP_CHAN = 2
+endif
+ADC_IR_NB_SAMPLES ?= 16

@@ -447,7 +447,7 @@ int do_log(void)
       }
 #endif
 
-#if USE_UART0
+#ifdef USE_UART0
         temp = 0;
         while (uart_char_available(&uart0) && (temp++ < 128))
         {
@@ -464,7 +464,7 @@ int do_log(void)
 #endif
         }
 #endif
-#if USE_UART1
+#ifdef USE_UART1
         temp = 0;
         while (uart_char_available(&uart1) && (temp++ < 128))
         {

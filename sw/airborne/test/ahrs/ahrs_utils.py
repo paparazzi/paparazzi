@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+#  $Id$
 #  Copyright (C) 2011 Antoine Drouin
 #
 # This file is part of Paparazzi.
@@ -20,32 +21,37 @@
 # Boston, MA 02111-1307, USA.
 #
 
-from __future__ import print_function
-
-import subprocess
-import numpy as np
+#import os
+#from optparse import OptionParser
+#import scipy
+#from scipy import optimize
+import shlex, subprocess
+from pylab import *
+from array import array
+import numpy
 import matplotlib.pyplot as plt
 
 
 def run_simulation(ahrs_type, build_opt, traj_nb):
-    print("\nBuilding ahrs")
+    print "\nBuilding ahrs"
     args = ["make", "clean", "run_ahrs_on_synth", "AHRS_TYPE=AHRS_TYPE_" + ahrs_type] + build_opt
-    #print(args)
+    #    print args
     p = subprocess.Popen(args=args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
     outputlines = p.stdout.readlines()
     p.wait()
     for i in outputlines:
-        print("   # " + i, end=' ')
-    print()
-    print("Running simulation")
-    print("   using traj " + str(traj_nb))
+        print "   # " + i,
+    print
+
+    print "Running simulation"
+    print "   using traj " + str(traj_nb)
     p = subprocess.Popen(args=["./run_ahrs_on_synth", str(traj_nb)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          shell=False)
     outputlines = p.stdout.readlines()
     p.wait()
     #    for i in outputlines:
-    #        print("    "+i, end=' ')
-    #    print("\n")
+    #        print "    "+i,
+    #    print "\n"
 
     ahrs_data_type = [('time', 'float32'),
                       ('phi_true', 'float32'), ('theta_true', 'float32'), ('psi_true', 'float32'),
@@ -55,91 +61,92 @@ def run_simulation(ahrs_type, build_opt, traj_nb):
                       ('p_ahrs', 'float32'), ('q_ahrs', 'float32'), ('r_ahrs', 'float32'),
                       ('bp_ahrs', 'float32'), ('bq_ahrs', 'float32'), ('br_ahrs', 'float32')]
 
-    mydescr = np.dtype(ahrs_data_type)
+    mydescr = numpy.dtype(ahrs_data_type)
     data = [[] for dummy in xrange(len(mydescr))]
     #    import code; code.interact(local=locals())
     for line in outputlines:
         if line.startswith("#"):
-            print("   " + line, end=' ')
+            print "   " + line,
         else:
             fields = line.strip().split(' ')
-            #print(fields)
+            #        print fields
             for i, number in enumerate(fields):
                 data[i].append(number)
-    print()
+
+    print
     for i in xrange(len(mydescr)):
-        data[i] = np.cast[mydescr[i]](data[i])
+        data[i] = cast[mydescr[i]](data[i])
 
-    return np.rec.array(data, dtype=mydescr)
+    return numpy.rec.array(data, dtype=mydescr)
 
 
-def plot_simulation_results(plot_true_state, lsty, label, sim_res):
-    print("Plotting Results")
+def plot_simulation_results(plot_true_state, lsty, type, sim_res):
+    print "Plotting Results"
 
     #    f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True, sharey=True)
 
-    plt.subplot(3, 3, 1)
-    plt.plot(sim_res.time, sim_res.phi_ahrs, lsty, label=label)
-    plt.ylabel('degres')
-    plt.title('phi')
-    plt.legend()
+    subplot(3, 3, 1)
+    plt.plot(sim_res.time, sim_res.phi_ahrs, lsty, label=type)
+    ylabel('degres')
+    title('phi')
+    legend()
 
-    plt.subplot(3, 3, 2)
-    plt.plot(sim_res.time, sim_res.theta_ahrs, lsty)
-    plt.title('theta')
+    subplot(3, 3, 2)
+    plot(sim_res.time, sim_res.theta_ahrs, lsty)
+    title('theta')
 
-    plt.subplot(3, 3, 3)
-    plt.plot(sim_res.time, sim_res.psi_ahrs, lsty)
-    plt.title('psi')
+    subplot(3, 3, 3)
+    plot(sim_res.time, sim_res.psi_ahrs, lsty)
+    title('psi')
 
-    plt.subplot(3, 3, 4)
+    subplot(3, 3, 4)
     plt.plot(sim_res.time, sim_res.p_ahrs, lsty)
-    plt.ylabel('degres/s')
-    plt.title('p')
+    ylabel('degres/s')
+    title('p')
 
-    plt.subplot(3, 3, 5)
+    subplot(3, 3, 5)
     plt.plot(sim_res.time, sim_res.q_ahrs, lsty)
-    plt.title('q')
+    title('q')
 
-    plt.subplot(3, 3, 6)
+    subplot(3, 3, 6)
     plt.plot(sim_res.time, sim_res.r_ahrs, lsty)
-    plt.title('r')
+    title('r')
 
-    plt.subplot(3, 3, 7)
+    subplot(3, 3, 7)
     plt.plot(sim_res.time, sim_res.bp_ahrs, lsty)
-    plt.ylabel('degres/s')
-    plt.xlabel('time in s')
-    plt.title('bp')
+    ylabel('degres/s')
+    xlabel('time in s')
+    title('bp')
 
-    plt.subplot(3, 3, 8)
+    subplot(3, 3, 8)
     plt.plot(sim_res.time, sim_res.bq_ahrs, lsty)
-    plt.xlabel('time in s')
-    plt.title('bq')
+    xlabel('time in s')
+    title('bq')
 
-    plt.subplot(3, 3, 9)
+    subplot(3, 3, 9)
     plt.plot(sim_res.time, sim_res.br_ahrs, lsty)
-    plt.xlabel('time in s')
-    plt.title('br')
+    xlabel('time in s')
+    title('br')
 
     if plot_true_state:
-        plt.subplot(3, 3, 1)
+        subplot(3, 3, 1)
         plt.plot(sim_res.time, sim_res.phi_true, 'r--')
-        plt.subplot(3, 3, 2)
-        plt.plot(sim_res.time, sim_res.theta_true, 'r--')
-        plt.subplot(3, 3, 3)
-        plt.plot(sim_res.time, sim_res.psi_true, 'r--')
-        plt.subplot(3, 3, 4)
-        plt.plot(sim_res.time, sim_res.p_true, 'r--')
-        plt.subplot(3, 3, 5)
-        plt.plot(sim_res.time, sim_res.q_true, 'r--')
-        plt.subplot(3, 3, 6)
-        plt.plot(sim_res.time, sim_res.r_true, 'r--')
-        plt.subplot(3, 3, 7)
-        plt.plot(sim_res.time, sim_res.bp_true, 'r--')
-        plt.subplot(3, 3, 8)
-        plt.plot(sim_res.time, sim_res.bq_true, 'r--')
-        plt.subplot(3, 3, 9)
-        plt.plot(sim_res.time, sim_res.br_true, 'r--')
+        subplot(3, 3, 2)
+        plot(sim_res.time, sim_res.theta_true, 'r--')
+        subplot(3, 3, 3)
+        plot(sim_res.time, sim_res.psi_true, 'r--')
+        subplot(3, 3, 4)
+        plot(sim_res.time, sim_res.p_true, 'r--')
+        subplot(3, 3, 5)
+        plot(sim_res.time, sim_res.q_true, 'r--')
+        subplot(3, 3, 6)
+        plot(sim_res.time, sim_res.r_true, 'r--')
+        subplot(3, 3, 7)
+        plot(sim_res.time, sim_res.bp_true, 'r--')
+        subplot(3, 3, 8)
+        plot(sim_res.time, sim_res.bq_true, 'r--')
+        subplot(3, 3, 9)
+        plot(sim_res.time, sim_res.br_true, 'r--')
 
 
 def show_plot():

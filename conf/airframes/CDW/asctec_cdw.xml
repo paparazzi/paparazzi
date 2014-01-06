@@ -11,20 +11,19 @@
       <configure name="GPS_PORT" value="UART2"/>
       <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="motor_mixing"/>
+      <subsystem name="actuators" type="asctec_v2"/>
+      <subsystem name="telemetry" type="xbee_api"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAPS"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       <define name="USE_I2C_ACTUATORS_REBOOT_HACK"/>
     </target>
-
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="motor_mixing"/>
+      <subsystem name="actuators" type="mkk"/>
     </target>
-
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="asctec_v2"/>
-
-    <subsystem name="telemetry" type="xbee_api"/>
     <subsystem name="imu" type="aspirin_v2.1"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="stabilization" type="int_euler"/>
@@ -193,6 +192,13 @@
 
   <!-- ************************* MISC ************************* -->
 
+  <!-- for the sim target -->
+
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+
   <section name="MAGNETICS" prefix="AHRS_H_">
     <define name="X" value="0.4"/>
     <define name="Y" value="0"/>
@@ -203,11 +209,15 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
 
+  <section name="MISC">
+    <define name="FACE_REINJ_1" value="1024"/>
+  </section>
+
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
+    <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
     <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
   </section>
 
 </airframe>

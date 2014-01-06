@@ -55,7 +55,6 @@
 #endif
 #include "subsystems/air_data.h"
 #if USE_BARO_BOARD
-PRINT_CONFIG_MSG("USE_BARO_BOARD is TRUE: Reading onboard baro.")
 #include "subsystems/sensors/baro.h"
 #endif
 #include "subsystems/ins.h"
@@ -74,10 +73,10 @@ PRINT_CONFIG_MSG("USE_BARO_BOARD is TRUE: Reading onboard baro.")
 
 // datalink & telemetry
 #include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/telemetry.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
+#include "firmwares/fixedwing/ap_downlink.h"
 
 // modules & settings
 #include "generated/modules.h"
@@ -133,24 +132,10 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 #endif
 PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
 
-#if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
-#warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
-INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ",AHRS_PROPAGATE_FREQUENCY)
-#endif
-
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-
-//FIXME not the correct place
-static void send_fliter_status(void) {
-  uint8_t mde = 3;
-  if (ahrs.status == AHRS_UNINIT) mde = 2;
-  if (ahrs_timeout_counter > 10) mde = 5;
-  uint16_t val = 0;
-  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
-}
 
 #endif // USE_AHRS && USE_IMU
 
@@ -161,9 +146,16 @@ static inline void on_gps_solution( void );
 // what version is this ????
 static const uint16_t version = 1;
 
+static uint8_t  mcu1_status;
+
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;
 #endif
+
+/** Supply current in milliAmpere.
+ * This the ap copy of the measurement from fbw
+ */
+static int32_t current;	// milliAmpere
 
 
 tid_t modules_tid;     ///< id for modules_periodic_task() timer
@@ -201,10 +193,6 @@ void init_ap( void ) {
 
 #if USE_AHRS
   ahrs_init();
-#endif
-
-#if USE_AHRS && USE_IMU
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_fliter_status);
 #endif
 
   air_data_init();
@@ -393,7 +381,8 @@ static inline void telecommand_task( void ) {
 #endif
   }
   mode_changed |= mcu1_status_update();
-  if ( mode_changed ) autopilot_send_mode();
+  if ( mode_changed )
+    PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
@@ -447,8 +436,7 @@ void reporting_task( void ) {
   }
   /** then report periodicly */
   else {
-    //PeriodicSendAp(DefaultChannel, DefaultDevice);
-    periodic_telemetry_send_Ap();
+    PeriodicSendAp(DefaultChannel, DefaultDevice);
   }
 }
 
@@ -472,14 +460,15 @@ void navigation_task( void ) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-        autopilot_send_mode();
+        PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
         gps_lost = TRUE;
       }
     } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
-      autopilot_send_mode();
+
+      PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
@@ -496,9 +485,11 @@ void navigation_task( void ) {
   CallTCAS();
 #endif
 
-#ifndef PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
+#ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION(DefaultChannel, DefaultDevice);
 #endif
+
+  SEND_CAM(DefaultChannel, DefaultDevice);
 
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
@@ -603,9 +594,7 @@ void sensors_task( void ) {
 
 
 /** Maximum time allowed for low battery level before going into kill mode */
-#ifndef LOW_BATTERY_KILL_DELAY
-#define LOW_BATTERY_KILL_DELAY 5
-#endif
+#define LOW_BATTERY_DELAY 5
 
 /** Maximum distance from HOME waypoint before going into kill mode */
 #ifndef KILL_MODE_DISTANCE
@@ -628,7 +617,7 @@ void monitor_task( void ) {
     t++;
   else
     t = 0;
-  kill_throttle |= (t >= LOW_BATTERY_KILL_DELAY);
+  kill_throttle |= (t >= LOW_BATTERY_DELAY);
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
   if (!autopilot_flight_time &&

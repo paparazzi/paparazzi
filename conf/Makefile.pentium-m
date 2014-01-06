@@ -67,11 +67,7 @@ COBJGEODE = $(SRCGEODE:%.c=$(OBJDIR)/%.o)
 
 all: build
 
-build: $(OBJDIR) elf
-
-$(OBJDIR):
-	@echo CREATING object dir $(OBJDIR)
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
+build: elf
 
 elf: $(OBJDIR)/$(TARGET).elf
 
@@ -96,7 +92,7 @@ endif
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -MMD -c $(CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(CFLAGS) $< -o $@
 
 # Listing of phony targets.
 .PHONY : all build elf clean clean_list
@@ -105,8 +101,11 @@ $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 # Dependencies
 #
 
-DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
+$(OBJDIR)/.depend:
+	@echo DEPEND $@
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
+	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(DEPS)
+-include $(OBJDIR)/.depend
 endif

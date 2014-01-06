@@ -100,8 +100,11 @@
 #define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
+#ifndef IMU_KROOZ_GYRO_AVG_FILTER
+#define IMU_KROOZ_GYRO_AVG_FILTER       5
+#endif
 #ifndef IMU_KROOZ_ACCEL_AVG_FILTER
-#define IMU_KROOZ_ACCEL_AVG_FILTER      15
+#define IMU_KROOZ_ACCEL_AVG_FILTER      10
 #endif
 
 struct ImuKrooz {
@@ -116,7 +119,7 @@ struct ImuKrooz {
   struct Int32Vect3 accel_sum;
   volatile uint8_t  meas_nb;
   struct Int32Vect3 accel_filtered;
-  int32_t temperature;
+  struct Int32Rates gyro_filtered;
 };
 
 extern struct ImuKrooz imu_krooz;

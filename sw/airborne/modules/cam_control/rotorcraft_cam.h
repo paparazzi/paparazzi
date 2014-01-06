@@ -20,9 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**
- * @file modules/cam_control/rotorcraft_cam.h
- * Camera control module for rotorcraft.
+/** Camera control module for rotorcraft.
  *
  * The camera is controled by the heading of the vehicle for pan
  * and can be controlled by a servo for tilt if defined.

@@ -52,32 +52,19 @@ PRINT_CONFIG_MSG("LOW PASS FILTER ON GYRO RATES")
 #endif
 
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
-#warning "Using both magnetometer and GPS course to update heading. Probably better to configure USE_MAGNETOMETER=0 if you want to use GPS course."
+#warning "Using both magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
 #endif
 
-#if !USE_MAGNETOMETER && !AHRS_USE_GPS_HEADING
-#error "Please use either USE_MAGNETOMETER or AHRS_USE_GPS_HEADING."
-#endif
-
-#if AHRS_USE_GPS_HEADING && !USE_GPS
-#error "AHRS_USE_GPS_HEADING needs USE_GPS to be TRUE"
-#endif
 
 #ifndef AHRS_PROPAGATE_FREQUENCY
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
 PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-#if AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY
-#warning PERIODIC_FREQUENCY should be >= AHRS_PROPAGATE_FREQUENCY
-#endif
 
 #ifndef AHRS_CORRECT_FREQUENCY
 #define AHRS_CORRECT_FREQUENCY AHRS_PROPAGATE_FREQUENCY
 #endif
 PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-#if AHRS_CORRECT_FREQUENCY > PERIODIC_FREQUENCY
-#warning PERIODIC_FREQUENCY should be >= AHRS_CORRECT_FREQUENCY
-#endif
 
 #ifndef AHRS_MAG_CORRECT_FREQUENCY
 #define AHRS_MAG_CORRECT_FREQUENCY 50
@@ -130,41 +117,6 @@ static inline void set_body_state_from_quat(void);
 static inline void ahrs_update_mag_full(void);
 static inline void ahrs_update_mag_2d(void);
 
-#if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
-
-static void send_quat(void) {
-  struct Int32Quat* quat = stateGetNedToBodyQuat_i();
-  DOWNLINK_SEND_AHRS_QUAT_INT(DefaultChannel, DefaultDevice,
-      &ahrs_impl.weight,
-      &ahrs_impl.ltp_to_imu_quat.qi,
-      &ahrs_impl.ltp_to_imu_quat.qx,
-      &ahrs_impl.ltp_to_imu_quat.qy,
-      &ahrs_impl.ltp_to_imu_quat.qz,
-      &(quat->qi),
-      &(quat->qx),
-      &(quat->qy),
-      &(quat->qz));
-}
-
-static void send_euler(void) {
-  struct Int32Eulers ltp_to_imu_euler;
-  INT32_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);
-  struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
-  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
-      &ltp_to_imu_euler.phi,
-      &ltp_to_imu_euler.theta,
-      &ltp_to_imu_euler.psi,
-      &(eulers->phi),
-      &(eulers->theta),
-      &(eulers->psi));
-}
-
-static void send_bias(void) {
-  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
-      &ahrs_impl.gyro_bias.p, &ahrs_impl.gyro_bias.q, &ahrs_impl.gyro_bias.r);
-}
-#endif
 
 void ahrs_init(void) {
 
@@ -199,12 +151,6 @@ void ahrs_init(void) {
 
   VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X),
                MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z));
-
-#if DOWNLINK
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_QUAT_INT", send_quat);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
-#endif
 
 }
 

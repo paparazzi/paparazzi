@@ -15,6 +15,9 @@
 
 #include "led.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 uint16_t humidsht, tempsht;
 float fhumidsht, ftempsht;

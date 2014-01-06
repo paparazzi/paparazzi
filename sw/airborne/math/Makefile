@@ -8,15 +8,14 @@ CC= gcc
 CFLAGS= -fpic
 INCLUDES= -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne
 
-ifeq ($(PAPARAZZI_HOME),)
-PAPARAZZI_HOME=$(PAPARAZZI_SRC)
+# build in ../../../var/build/math
+ifndef BUILDDIR
+BUILDDIR=../../../var/build/math
 endif
 
-# build in $(PAPARAZZI_HOME)/var/build/math
-BUILDDIR ?= $(PAPARAZZI_HOME)/var/build/math
-
-PREFIX ?= /usr/local
-
+ifndef PREFIX
+PREFIX=/usr
+endif
 LIB_INSTALLDIR=${PREFIX}/lib
 INCLUDE_INSTALLDIR=${PREFIX}/include/pprz
 PKGCONFIG_INSTALLDIR=${PREFIX}/lib/pkgconfig
@@ -49,4 +48,3 @@ $(BUILDDIR)/%.o: %.c
 clean:
 	$(Q)rm -f $(BUILDDIR)/*.o $(BUILDDIR)/$(LIBNAME).so
 
-.PHONY: all clean shared_lib install_shared_lib

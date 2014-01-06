@@ -40,6 +40,9 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 #ifndef NAVGO_ACCEL_RATE
 #define NAVGO_ACCEL_RATE ADXL345_RATE_25HZ

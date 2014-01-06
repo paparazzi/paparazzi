@@ -53,8 +53,12 @@
 #include "generated/settings.h"
 #include "math/pprz_geodetic_float.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/telemetry.h"
+#include "subsystems/datalink/downlink.h"
+#include "ap_downlink.h"
 
 
 #if USE_JOYSTICK

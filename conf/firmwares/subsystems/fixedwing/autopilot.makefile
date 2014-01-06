@@ -77,7 +77,6 @@ $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_
 $(TARGET).srcs += mcu_periph/i2c.c
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
-
 ######################################################################
 ##
 ## COMMON FOR ALL NON-SIMULATION TARGETS
@@ -145,11 +144,9 @@ fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 ##
 
 ap_CFLAGS 		+= -DAP
-ap_CFLAGS 		+= -DDefaultPeriodic='&telemetry_Ap'
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
 ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
 ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
-ap_srcs         += subsystems/datalink/telemetry.c
 ap_srcs 		+= state.c
 ap_srcs 		+= subsystems/settings.c
 ap_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c

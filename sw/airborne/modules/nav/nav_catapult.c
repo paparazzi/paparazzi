@@ -38,7 +38,7 @@
 
 #include "generated/airframe.h"
 #include "state.h"
-#include "subsystems/datalink/downlink.h"
+#include "ap_downlink.h"
 #include "modules/nav/nav_catapult.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
@@ -48,6 +48,9 @@
 // Imu is required
 #include "subsystems/imu.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/datalink.h"
@@ -160,13 +163,13 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
     NavVerticalThrottleMode(9600*(0));
 
 
+    // Store take-off waypoint
+    WaypointX(_to) = GetPosX();
+    WaypointY(_to) = GetPosY();
+    WaypointAlt(_to) = GetPosAlt();
+
     nav_catapult_x = stateGetPositionEnu_f()->x;
     nav_catapult_y = stateGetPositionEnu_f()->y;
-
-    // Store take-off waypoint
-    WaypointX(_to) = nav_catapult_x;
-    WaypointY(_to) = nav_catapult_y;
-    WaypointAlt(_to) = stateGetPositionUtm_f()->alt;
 
   }
   // No Roll, Climb Pitch, Full Power
@@ -206,9 +209,9 @@ return TRUE;
 
 bool_t nav_select_touch_down(uint8_t _td)
 {
-  WaypointX(_td) = stateGetPositionEnu_f()->x;
-  WaypointY(_td) = stateGetPositionEnu_f()->y;
-  WaypointAlt(_td) = stateGetPositionUtm_f()->alt;
+  WaypointX(_td) = GetPosX();
+  WaypointY(_td) = GetPosY();
+  WaypointAlt(_td) = GetPosAlt();
   return FALSE;
 }
 

@@ -42,7 +42,7 @@
 #include "subsystems/sensors/infrared.h"
 #include "subsystems/commands.h"
 #include "firmwares/fixedwing/main_ap.h"
-#include "subsystems/datalink/downlink.h"
+#include "ap_downlink.h"
 #include "sim_uart.h"
 #include "subsystems/datalink/datalink.h"
 

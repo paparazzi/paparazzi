@@ -20,10 +20,7 @@
 # Boston, MA 02111-1307, USA.
 #
 
-import os
-import sys
 import ahrs_utils
-
 
 def main():
 
@@ -80,7 +77,4 @@ def main():
     ahrs_utils.show_plot()
 
 if __name__ == "__main__":
-    script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-    if script_path != os.path.abspath(os.getcwd()):
-        sys.exit("Please run this script from " + script_path)
     main()
