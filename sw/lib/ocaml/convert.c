@@ -76,7 +76,6 @@ c_double_of_indexed_bytes(value s, value index)
 
   return copy_double(*x);
 }
-
 #endif /* ARCH_ALIGN_DOUBLE */
 
 value
@@ -116,6 +115,13 @@ c_sprint_int32(value s, value index, value x) {
 }
 
 value
+c_sprint_int64(value s, value index, value x) {
+  int64_t *p = (int64_t*) (String_val(s) + Int_val(index));
+  *p = (int64_t)Int64_val(x);
+  return Val_unit;
+}
+
+value
 c_int16_of_indexed_bytes(value s, value index)
 {
   int16_t *x = (int16_t*)(String_val(s) + Int_val(index));
@@ -138,3 +144,26 @@ c_int32_of_indexed_bytes(value s, value index)
 
   return copy_int32(*x);
 }
+
+#ifdef ARCH_ALIGN_INT64
+value
+c_int64_of_indexed_bytes(value s, value index)
+{
+  char *x = (char *)(String_val(s) + Int_val(index));
+
+  union { char b[sizeof(int64_t)]; int64_t i; } buffer;
+  int i;
+  for (i=0; i < sizeof(int64_t); i++) {
+    buffer.b[i] = x[i];
+  }
+  return copy_int64(buffer.i);
+}
+#else
+value
+c_int64_of_indexed_bytes(value s, value index)
+{
+  int64_t *x = (int64_t*)(String_val(s) + Int_val(index));
+
+  return copy_int64(*x);
+}
+#endif

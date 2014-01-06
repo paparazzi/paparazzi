@@ -60,11 +60,18 @@
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
+#include "mcu_periph/uart.h"
 
 #endif /** !SITL */
 
 #ifndef DefaultChannel
 #define DefaultChannel DOWNLINK_TRANSPORT
+#endif
+
+// FIXME are DOWNLINK_AP|FBW_DEVICE distinction really necessary ?
+// by default use AP_DEVICE if nothing is set ?
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
 #ifndef DefaultDevice
@@ -103,6 +110,9 @@ extern uint16_t downlink_nb_msgs;
 #define DownlinkPutFloatByAddr(_trans, _dev, _x) Transport(_trans, PutFloatByAddr(_dev, _x))
 
 #define DownlinkPutDoubleByAddr(_trans, _dev, _x) Transport(_trans, PutDoubleByAddr(_dev, _x))
+#define DownlinkPutUint64ByAddr(_trans, _dev, _x) Transport(_trans, PutUint64ByAddr(_dev, _x))
+#define DownlinkPutInt64ByAddr(_trans, _dev, _x) Transport(_trans, PutInt64ByAddr(_dev, _x))
+#define DownlinkPutCharByAddr(_trans, _dev, _x) Transport(_trans, PutCharByAddr(_dev, _x))
 
 #define DownlinkPutFloatArray(_trans, _dev, _n, _x) Transport(_trans, PutFloatArray(_dev, _n, _x))
 #define DownlinkPutDoubleArray(_trans, _dev, _n, _x) Transport(_trans, PutDoubleArray(_dev, _n, _x))
@@ -110,7 +120,23 @@ extern uint16_t downlink_nb_msgs;
 #define DownlinkPutUint16Array(_trans, _dev, _n, _x) Transport(_trans, PutUint16Array(_dev, _n, _x))
 #define DownlinkPutInt32Array(_trans, _dev, _n, _x) Transport(_trans, PutInt32Array(_dev, _n, _x))
 #define DownlinkPutUint32Array(_trans, _dev, _n, _x) Transport(_trans, PutUint32Array(_dev, _n, _x))
+#define DownlinkPutInt64Array(_trans, _dev, _n, _x) Transport(_trans, PutInt64Array(_dev, _n, _x))
+#define DownlinkPutUint64Array(_trans, _dev, _n, _x) Transport(_trans, PutUint64Array(_dev, _n, _x))
+#define DownlinkPutInt8Array(_trans, _dev, _n, _x) Transport(_trans, PutInt8Array(_dev, _n, _x))
 #define DownlinkPutUint8Array(_trans, _dev, _n, _x) Transport(_trans, PutUint8Array(_dev, _n, _x))
+#define DownlinkPutCharArray(_trans, _dev, _n, _x) Transport(_trans, PutCharArray(_dev, _n, _x))
+
+#define DownlinkPutFloatFixedArray(_trans, _dev, _n, _x) Transport(_trans, PutFloatFixedArray(_dev, _n, _x))
+#define DownlinkPutDoubleFixedArray(_trans, _dev, _n, _x) Transport(_trans, PutDoubleFixedArray(_dev, _n, _x))
+#define DownlinkPutInt16FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutInt16FixedArray(_dev, _n, _x))
+#define DownlinkPutUint16FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutUint16FixedArray(_dev, _n, _x))
+#define DownlinkPutInt32FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutInt32FixedArray(_dev, _n, _x))
+#define DownlinkPutUint32FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutUint32FixedArray(_dev, _n, _x))
+#define DownlinkPutInt64FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutInt64FixedArray(_dev, _n, _x))
+#define DownlinkPutUint64FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutUint64FixedArray(_dev, _n, _x))
+#define DownlinkPutInt8FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutInt8FixedArray(_dev, _n, _x))
+#define DownlinkPutUint8FixedArray(_trans, _dev, _n, _x) Transport(_trans, PutUint8FixedArray(_dev, _n, _x))
+#define DownlinkPutCharFixedArray(_trans, _dev, _n, _x) Transport(_trans, PutCharFixedArray(_dev, _n, _x))
 
 #define DownlinkOverrun(_trans, _dev) downlink_nb_ovrn++;
 #define DownlinkCountBytes(_trans, _dev, _n) downlink_nb_bytes += _n;

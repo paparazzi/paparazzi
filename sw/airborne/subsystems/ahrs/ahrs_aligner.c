@@ -42,6 +42,23 @@ static struct Int32Vect3 mag_sum;
 static int32_t ref_sensor_samples[SAMPLES_NB];
 static uint32_t samples_idx;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_aligner(void) {
+  DOWNLINK_SEND_FILTER_ALIGNER(DefaultChannel, DefaultDevice,
+      &ahrs_aligner.lp_gyro.p,
+      &ahrs_aligner.lp_gyro.q,
+      &ahrs_aligner.lp_gyro.r,
+      &imu.gyro.p,
+      &imu.gyro.q,
+      &imu.gyro.r,
+      &ahrs_aligner.noise,
+      &ahrs_aligner.low_noise_cnt,
+      &ahrs_aligner.status);
+}
+#endif
+
 void ahrs_aligner_init(void) {
 
   ahrs_aligner.status = AHRS_ALIGNER_RUNNING;
@@ -51,6 +68,10 @@ void ahrs_aligner_init(void) {
   samples_idx = 0;
   ahrs_aligner.noise = 0;
   ahrs_aligner.low_noise_cnt = 0;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "FILTER_ALIGNER", send_aligner);
+#endif
 }
 
 #ifndef LOW_NOISE_THRESHOLD

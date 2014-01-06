@@ -190,12 +190,11 @@ static int32_t flash_detect(struct FlashInfo* flash) {
 // (gdb) p *flash
 // $1 = {addr = 134739968, total_size = 524288, page_nr = 255, page_size = 2048}
 //              0x807F800             0x80000
-
+#if defined(STM32F1)
 static int32_t pflash_program_bytes(struct FlashInfo* flash,
                     uint32_t   src,
                     uint32_t   size,
                     uint32_t   chksum) {
-#if defined(STM32F1)
   uint32_t i;
 
   /* erase */
@@ -236,12 +235,18 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash,
   }
   if (*(uint32_t*) (flash->addr+flash->page_size-FSIZ) != size) return -3;
   if (*(uint32_t*) (flash->addr+flash->page_size-FCHK) != chksum) return -4;
-#elif defined(STM32F4)
-
-#endif
 
   return 0;
 }
+#elif defined(STM32F4)
+static int32_t pflash_program_bytes(struct FlashInfo* flash __attribute__((unused)),
+                                    uint32_t   src __attribute__((unused)),
+                                    uint32_t   size __attribute__((unused)),
+                                    uint32_t   chksum __attribute__((unused))) {
+  return 0;
+}
+#endif
+
 
 int32_t persistent_write(uint32_t ptr, uint32_t size) {
   struct FlashInfo flash_info;

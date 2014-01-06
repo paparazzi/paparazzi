@@ -134,7 +134,7 @@ let code_file = name^".c";;
 
 let xml_header_of_name = fun n ->
   [Xml.Element ("header", [], [
-    Xml.Element ("file", [("file", n)], [])
+    Xml.Element ("file", [("name", n)], [])
   ])];;
 
 let xml_of_description = fun d ->

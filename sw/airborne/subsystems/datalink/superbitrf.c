@@ -173,6 +173,28 @@ static const uint8_t pn_codes[5][9][8] = {
 };
 static const uint8_t pn_bind[] = { 0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x84 };
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_superbit(void) {
+  DOWNLINK_SEND_SUPERBITRF(DefaultChannel, DefaultDevice,
+      &superbitrf.status,
+      &superbitrf.cyrf6936.status,
+      &superbitrf.irq_count,
+      &superbitrf.rx_packet_count,
+      &superbitrf.tx_packet_count,
+      &superbitrf.transfer_timeouts,
+      &superbitrf.resync_count,
+      &superbitrf.uplink_count,
+      &superbitrf.rc_count,
+      &superbitrf.timing1,
+      &superbitrf.timing2,
+      &superbitrf.bind_mfg_id32,
+      6,
+      superbitrf.cyrf6936.mfg_id);
+}
+#endif
+
 /**
  * Initialize the superbitrf
  */
@@ -196,6 +218,10 @@ void superbitrf_init(void) {
 
   // Initialize the cyrf6936 chip
   cyrf6936_init(&superbitrf.cyrf6936, &(SUPERBITRF_SPI_DEV), 2, SUPERBITRF_RST_PORT, SUPERBITRF_RST_PIN);
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "SUPERBIT", send_superbit);
+#endif
 }
 
 /**

@@ -23,14 +23,16 @@
 #
 # calibrate gyrometers using turntable measurements
 #
+
+from __future__ import print_function, division
+
 from optparse import OptionParser
 import os
 import sys
 
-import re
-import scipy
-from scipy import linspace, polyval, polyfit, sqrt, stats, randn
-from pylab import *
+from scipy import linspace, polyval, stats
+
+import matplotlib.pyplot as plt
 
 import calibration_utils
 
@@ -94,7 +96,7 @@ def main():
         print("Was looking for IMU_TURNTABLE from id: "+str(options.tt_id)+" and IMU_GYRO_RAW from id: "+str(options.ac_id)+" in file "+filename)
         sys.exit(1)
     if options.verbose:
-       print("found "+str(len(samples))+" records")
+        print("found "+str(len(samples))+" records")
 
     if options.axis == 'p':
         axis_idx = 1
@@ -120,21 +122,21 @@ def main():
     ovl_omega = linspace(1, 7.5, 10)
     ovl_adc = polyval([a_s, b_s], ovl_omega)
 
-    title('Linear Regression Example')
-    subplot(3, 1, 1)
-    plot(samples[:, 1])
-    plot(samples[:, 2])
-    plot(samples[:, 3])
-    legend(['p', 'q', 'r'])
+    plt.title('Linear Regression Example')
+    plt.subplot(3, 1, 1)
+    plt.plot(samples[:, 1])
+    plt.plot(samples[:, 2])
+    plt.plot(samples[:, 3])
+    plt.legend(['p', 'q', 'r'])
 
-    subplot(3, 1, 2)
-    plot(samples[:, 0])
+    plt.subplot(3, 1, 2)
+    plt.plot(samples[:, 0])
 
-    subplot(3, 1, 3)
-    plot(samples[:, 0], samples[:, axis_idx], 'b.')
-    plot(ovl_omega, ovl_adc, 'r')
+    plt.subplot(3, 1, 3)
+    plt.plot(samples[:, 0], samples[:, axis_idx], 'b.')
+    plt.plot(ovl_omega, ovl_adc, 'r')
 
-    show()
+    plt.show()
 
 
 if __name__ == "__main__":

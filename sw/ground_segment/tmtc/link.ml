@@ -309,7 +309,7 @@ let send = fun ac_id device payload _priority ->
           udp_send device.fd payload peername
       | _ ->
         match device.transport with
-            Pprz ->
+            Pprz | Pprz2 ->
               let o = Unix.out_channel_of_descr device.fd in
               let buf = Pprz.Transport.packet payload in
               Printf.fprintf o "%s" buf; flush o;

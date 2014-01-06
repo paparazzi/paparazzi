@@ -49,7 +49,7 @@
       <circle pitch="RadOfDeg(-10)" radius="nav_radius" throttle="0" until="(ground_alt+150 > GetPosAlt())" vmode="throttle" wp="PROFILE"/>
       <deroute block="Standby"/>
     </block>
-    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
+    <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>

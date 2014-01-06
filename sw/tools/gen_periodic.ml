@@ -44,7 +44,7 @@ let output_modes = fun out_h process_name modes freq modules ->
   List.iter
     (fun mode ->
       let mode_name = ExtXml.attrib mode "name" in
-      lprintf out_h "if (telemetry_mode_%s == TELEMETRY_MODE_%s_%s) {\\\n" process_name process_name mode_name;
+      lprintf out_h "if (telemetry_mode_%s == TELEMETRY_MODE_%s_%s) {\n" process_name process_name mode_name;
       right ();
 
       (** Filter message list to remove messages linked to unloaded modules *)
@@ -62,7 +62,7 @@ let output_modes = fun out_h process_name modes freq modules ->
       List.iter (fun m ->
         let v = sprintf "i%d" m in
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
-        lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
+        lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\n" _type v v v m v;
       ) modulos;
 
       (** For each message in this mode *)
@@ -78,17 +78,23 @@ let output_modes = fun out_h process_name modes freq modules ->
           let message_phase = try int_of_float (float_of_string (ExtXml.attrib message "phase")*.float_of_int freq) with _ -> !i in
           phase := message_phase;
           let else_ = if List.mem_assoc p !l && not (List.mem (p, !phase) !l) then "else " else "" in
-          lprintf out_h "%sif (i%d == %d) {\\\n" else_ p !phase;
+          lprintf out_h "%sif (i%d == %d) {\n" else_ p !phase;
           l := (p, !phase) :: !l;
           i := !i + freq/10;
           right ();
-          lprintf out_h "PERIODIC_SEND_%s(_trans, _dev);\\\n" message_name;
+          lprintf out_h "if (telemetry_%s.msgs[TELEMETRY_%s_MSG_%s_ID].cb != NULL)\n" process_name (String.uppercase process_name) message_name;
+          right ();
+          lprintf out_h "telemetry_%s.msgs[TELEMETRY_%s_MSG_%s_ID].cb();\n" process_name (String.uppercase process_name) message_name;
           left ();
-          lprintf out_h "} \\\n"
+          fprintf out_h "#if USE_PERIODIC_TELEMETRY_REPORT\n";
+          lprintf out_h "else periodic_telemetry_err_report(TELEMETRY_PROCESS_%s, telemetry_mode_%s, TELEMETRY_%s_MSG_%s_ID);\n" process_name process_name (String.uppercase process_name) message_name;
+          fprintf out_h "#endif\n";
+          left ();
+          lprintf out_h "}\n"
         )
-        messages;
+        (List.rev messages);
       left ();
-      lprintf out_h "}\\\n")
+      lprintf out_h "}\n")
     modes
 
 let write_settings = fun xml_file out_set telemetry_xml ->
@@ -145,7 +151,8 @@ let _ =
   fprintf out_h "#ifndef _VAR_PERIODIC_H_\n";
   fprintf out_h "#define _VAR_PERIODIC_H_\n\n";
   fprintf out_h "#include \"std.h\"\n";
-  fprintf out_h "#include \"generated/airframe.h\"\n\n";
+  fprintf out_h "#include \"generated/airframe.h\"\n";
+  fprintf out_h "#include \"subsystems/datalink/telemetry_common.h\"\n\n";
   fprintf out_h "#define TELEMETRY_FREQUENCY %d\n\n" freq;
 
   (** For each process *)
@@ -153,17 +160,13 @@ let _ =
     (fun process ->
       let process_name = ExtXml.attrib process "name" in
 
-      fprintf out_h "\n/* Macros for %s process */\n" process_name;
-      fprintf out_h "#ifdef PERIODIC_C_%s\n" (String.uppercase process_name);
-      fprintf out_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase process_name);
-      fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
-      fprintf out_h "#endif\n";
-      fprintf out_h "uint8_t telemetry_mode_%s = TELEMETRY_MODE_%s;\n" process_name (String.uppercase process_name);
-      fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
-      fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
-      fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
-
       let modes = Xml.children process in
+      let messages = Hashtbl.create 5 in
+
+      fprintf out_h "\n/* Periodic telemetry: %s process */\n" process_name;
+      let p_id = ref 0 in
+      Xml2h.define (sprintf "TELEMETRY_PROCESS_%s" process_name) (string_of_int !p_id);
+      incr p_id;
 
       let i = ref 0 in
       (** For each mode of this process *)
@@ -175,12 +178,41 @@ let _ =
           (fun x ->
             let p = ExtXml.attrib x "period"
             and n = ExtXml.attrib x "name" in
-            Xml2h.define (sprintf "PERIOD_%s_%s_%d" n process_name !i) (sprintf "(%s)" p))
+            (* add message to the list if it exists *)
+            if not (Hashtbl.mem messages n) then Hashtbl.add messages n ();
+            Xml2h.define (sprintf "PERIOD_%s_%s_%d" n process_name !i) (sprintf "(%s)" p)) (* FIXME really needed ? *)
           (Xml.children mode);
         incr i)
         modes;
 
-      lprintf out_h "#define PeriodicSend%s(_trans, _dev) {  /* %dHz */ \\\n" process_name freq;
+      let i = ref 0 in
+      (* Print message ID and total number *)
+      Hashtbl.iter (fun n _ ->
+        Xml2h.define (sprintf "TELEMETRY_%s_MSG_%s_ID" (String.uppercase process_name) n) (sprintf "%d" !i);
+        incr i;
+      ) messages;
+      Xml2h.define (sprintf "TELEMETRY_%s_NB_MSG" (String.uppercase process_name)) (sprintf "%d" !i);
+
+      (* Structure initialization *)
+      fprintf out_h "#define TELEMETRY_%s_STRUCT { \\\n" (String.uppercase process_name);
+      Hashtbl.iter (fun n _ -> fprintf out_h "  { \"%s\", NULL }, \\\n" n) messages;
+      fprintf out_h "};\n";
+
+      fprintf out_h "\n/* Functions for %s process */\n" process_name;
+      fprintf out_h "#ifdef PERIODIC_C_%s\n" (String.uppercase process_name);
+      fprintf out_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase process_name);
+      fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
+      fprintf out_h "#endif\n";
+      fprintf out_h "uint8_t telemetry_mode_%s = TELEMETRY_MODE_%s;\n" process_name (String.uppercase process_name);
+      fprintf out_h "struct telemetry_msg telemetry_msg_%s[TELEMETRY_%s_NB_MSG] = TELEMETRY_%s_STRUCT;\n" process_name (String.uppercase process_name) (String.uppercase process_name);
+      fprintf out_h "struct pprz_telemetry telemetry_%s = { TELEMETRY_%s_NB_MSG, telemetry_msg_%s };\n" process_name (String.uppercase process_name) process_name;
+      fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
+      fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
+      fprintf out_h "extern struct telemetry_msg telemetry_msg_%s[TELEMETRY_%s_NB_MSG];\n" process_name (String.uppercase process_name);
+      fprintf out_h "extern struct pprz_telemetry telemetry_%s;\n" process_name;
+      fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
+
+      lprintf out_h "static inline void periodic_telemetry_send_%s(void) {  /* %dHz */\n" process_name freq; (*TODO pass transport+device *)
       right ();
       output_modes out_h process_name modes freq modules_name;
       left ();

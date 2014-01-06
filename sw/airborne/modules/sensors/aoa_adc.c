@@ -52,9 +52,6 @@
 
 
 // Downlink
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef ADC_CHANNEL_AOA
 #error "ADC_CHANNEL_AOA needs to be defined to use AOA_adc module"

@@ -11,11 +11,11 @@ HOWTO install a shared library to use in other projects
 2. Install library: in this folder, type
   make install_shared_lib
 
-  the default install dir is /usr
+  the default install dir is /usr/local
   and will install files in
-  /usr/lib
-  /usr/lib/pkgconfig
-  /usr/include/pprz
+  /usr/local/lib
+  /usr/local/lib/pkgconfig
+  /usr/local/include/pprz
 
   to change the install dir: PREFIX=<your_install_dir> make install_shared_lib
 

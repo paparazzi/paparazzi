@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<flash_modes>
+  <mode name="SERIAL (ISP)">
+    <variable name="FLASH_MODE" value="ISP"/>
+    <boards>
+      <board name="booz_*"/>
+      <board name="classix"/>
+      <board name="hb_*"/>
+      <board name="logom_*"/>
+      <board name="navgo_*"/>
+      <board name="sdlog_*"/>
+      <board name="tiny_*"/>
+      <board name="twog_*"/>
+      <board name="umarim_*"/>
+      <board name="yapa_*"/>
+    </boards>
+  </mode>
+  <mode name="SERIAL (stm32)">
+    <variable name="FLASH_MODE" value="SERIAL"/>
+    <boards>
+      <board name="krooz_sd"/>
+      <board name="lia_*"/>
+      <board name="lisa_[ms]_*"/>
+    </boards>
+  </mode>
+  <mode name="USB (IAP)">
+    <variable name="FLASH_MODE" value="IAP"/>
+    <boards>
+      <board name="booz_*"/>
+      <board name="classix"/>
+      <board name="hb_*"/>
+      <board name="logom_*"/>
+      <board name="navgo_*"/>
+      <board name="sdlog_*"/>
+      <board name="tiny_*"/>
+      <board name="twog_*"/>
+      <board name="umarim_*"/>
+      <board name="yapa_*"/>
+    </boards>
+  </mode>
+  <mode name="USB DFU (stm32_mem)" boards="krooz_sd|lia_1.1|lisa_m_1.1|lisa_m_2.0|px4fmu_1.7">
+    <variable name="FLASH_MODE" value="DFU"/>
+    <boards>
+      <board name="krooz_sd"/>
+      <board name="li[s]?a_[m]?_*"/>
+      <board name="px4fmu_*"/>
+    </boards>
+  </mode>
+  <mode name="USB DFU-UTIL" boards="apogee_1.0|apogee_0.99|stm32f4_discovery">
+    <variable name="FLASH_MODE" value="DFU-UTIL"/>
+    <boards>
+      <board name="apogee_*"/>
+      <board name="stm32f4_discovery"/>
+    </boards>
+  </mode>
+  <mode name="STLink (SWD)" boards="apogee_1.0|apogee_0.99">
+    <variable name="FLASH_MODE" value="STLINK"/>
+    <boards>
+      <board name="apogee_*"/>
+    </boards>
+  </mode>
+  <mode name="BlackMagic Probe (SWD)">
+    <variable name="FLASH_MODE" value="SWD"/>
+    <boards>
+      <board name="apogee_*"/>
+      <board name="stm32f4_discovery"/>
+      <board name="li[s]?a_[ms]?_*"/>
+      <board name="px4fmu_*"/>
+    </boards>
+  </mode>
+  <mode name="BlackMagic Probe (JTAG)">
+    <variable name="FLASH_MODE" value="JTAG_BMP"/>
+    <boards>
+      <board name="apogee_*"/>
+      <board name="stm32f4_discovery"/>
+      <board name="li[s]?a_[ms]?_*"/>
+      <board name="px4fmu_*"/>
+    </boards>
+  </mode>
+  <mode name="JTAG (OpenOCD)">
+    <variable name="FLASH_MODE" value="JTAG"/>
+    <boards>
+      <board name="krooz_sd"/>
+      <board name="li[s]?a_[lm]?_*"/>
+    </boards>
+  </mode>
+</flash_modes>

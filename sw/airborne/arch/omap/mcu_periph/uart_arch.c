@@ -117,7 +117,7 @@ static inline void uart_handler(struct uart_periph* periph) {
 
 }
 
-#ifdef USE_UART0
+#if USE_UART0
 
 void uart0_init( void ) {
   uart_periph_init(&uart0);
@@ -132,7 +132,7 @@ void uart0_handler(void) {
 
 #endif /* USE_UART0 */
 
-#ifdef USE_UART1
+#if USE_UART1
 
 void uart1_init( void ) {
   uart_periph_init(&uart1);

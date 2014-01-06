@@ -48,7 +48,7 @@ class waypoint :
     method pos : Latlong.geographic
     method event : GnoCanvas.item_event -> bool
     method item : GnoCanvas.rect
-    method label : GnoCanvas.text
+    method label : ContrastLabel.widget
     method move : float -> float -> unit
     method name : string
     method set : ?altitude:float -> ?update:bool -> Latlong.geographic -> unit

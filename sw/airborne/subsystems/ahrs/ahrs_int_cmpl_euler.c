@@ -74,6 +74,45 @@ static inline void set_body_state_from_euler(void);
     while (_a < -PI_INTEG_EULER)  _a += TWO_PI_INTEG_EULER; \
   }
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_filter(void) {
+  DOWNLINK_SEND_FILTER(DefaultChannel, DefaultDevice,
+      &ahrs_impl.ltp_to_imu_euler.phi,
+      &ahrs_impl.ltp_to_imu_euler.theta,
+      &ahrs_impl.ltp_to_imu_euler.psi,
+      &ahrs_impl.measure.phi,
+      &ahrs_impl.measure.theta,
+      &ahrs_impl.measure.psi,
+      &ahrs_impl.hi_res_euler.phi,
+      &ahrs_impl.hi_res_euler.theta,
+      &ahrs_impl.hi_res_euler.psi,
+      &ahrs_impl.residual.phi,
+      &ahrs_impl.residual.theta,
+      &ahrs_impl.residual.psi,
+      &ahrs_impl.gyro_bias.p,
+      &ahrs_impl.gyro_bias.q,
+      &ahrs_impl.gyro_bias.r);
+}
+
+static void send_euler(void) {
+  struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
+  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+      &ahrs_impl.ltp_to_imu_euler.phi,
+      &ahrs_impl.ltp_to_imu_euler.theta,
+      &ahrs_impl.ltp_to_imu_euler.psi,
+      &(eulers->phi),
+      &(eulers->theta),
+      &(eulers->psi));
+}
+
+static void send_bias(void) {
+  DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
+      &ahrs_impl.gyro_bias.p, &ahrs_impl.gyro_bias.q, &ahrs_impl.gyro_bias.r);
+}
+#endif
+
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
 
@@ -85,6 +124,12 @@ void ahrs_init(void) {
   ahrs_impl.reinj_1 = FACE_REINJ_1;
 
   ahrs_impl.mag_offset = AHRS_MAG_OFFSET;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "FILTER", send_filter);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);
+#endif
 }
 
 void ahrs_align(void) {

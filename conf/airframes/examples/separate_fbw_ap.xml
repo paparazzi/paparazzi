@@ -108,7 +108,6 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
 
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
@@ -207,8 +206,8 @@
     <load name="gps_ubx_ucenter.xml"/>
 <!--
     <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="0" />
-      <configure name="ADC_CHANNEL_GENERIC2" value="1" />
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
     </load>
 -->
     <load name="light.xml">
@@ -234,7 +233,6 @@
       <define name="RADIO_CONTROL_LED" value="4"/>
 
       <configure name="FLASH_MODE" value="JTAG" />
-      <configure name="NO_LUFTBOOT" value="1" />
 <!--      <configure name="BMP_PORT" value="/dev/ttyACM0" /> -->
 
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1" />
@@ -264,7 +262,6 @@
        <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
       <configure name="FLASH_MODE" value="JTAG" />
-      <configure name="NO_LUFTBOOT" value="1" />
  <!--     <configure name="BMP_PORT" value="/dev/ttyACM0" /> -->
 
 
@@ -275,7 +272,6 @@
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>

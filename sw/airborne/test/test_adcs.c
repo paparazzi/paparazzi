@@ -41,10 +41,10 @@ int main (int argc, char** argv) {
 #error "8 ADCs expected !"
 #endif
 
-#ifdef USE_UART0
+#if USE_UART0
   uart_periph_init(&uart0);
 #endif
-#ifdef USE_UART1
+#if USE_UART1
   uart_periph_init(&uart1);
 #endif
 

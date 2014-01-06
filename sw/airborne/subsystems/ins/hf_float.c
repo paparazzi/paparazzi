@@ -236,7 +236,41 @@ static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, 
 static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float vel, float Rvel);
 static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, float Rvel);
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
 
+static void send_hff(void) {
+  DOWNLINK_SEND_HFF(DefaultChannel, DefaultDevice,
+      &b2_hff_state.x,
+      &b2_hff_state.y,
+      &b2_hff_state.xdot,
+      &b2_hff_state.ydot,
+      &b2_hff_state.xdotdot,
+      &b2_hff_state.ydotdot);
+}
+
+static void send_hff_debug(void) {
+  DOWNLINK_SEND_HFF_DBG(DefaultChannel, DefaultDevice,
+      &b2_hff_x_meas,
+      &b2_hff_y_meas,
+      &b2_hff_xd_meas,
+      &b2_hff_yd_meas,
+      &b2_hff_state.xP[0][0],
+      &b2_hff_state.yP[0][0],
+      &b2_hff_state.xP[1][1],
+      &b2_hff_state.yP[1][1]);
+}
+
+#ifdef GPS_LAG
+static void send_hff_gps(void) {
+  DOWNLINK_SEND_HFF_GPS(DefaultChannel, DefaultDevice,
+      &(b2_hff_rb_last->lag_counter),
+      &lag_counter_err,
+      &save_counter);
+}
+#endif
+
+#endif
 
 void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   Rgps_pos = HFF_R_POS;
@@ -277,6 +311,14 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   b2_hff_ps_counter = 1;
   b2_hff_lost_counter = 0;
   b2_hff_lost_limit = HFF_LOST_LIMIT;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "HFF", send_hff);
+  register_periodic_telemetry(DefaultPeriodic, "HFF_DBG", send_hff_debug);
+#ifdef GPS_LAG
+  register_periodic_telemetry(DefaultPeriodic, "HFF_GPS", send_hff_gps);
+#endif
+#endif
 }
 
 static inline void b2_hff_init_x(float init_x, float init_xdot) {

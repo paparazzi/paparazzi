@@ -31,28 +31,31 @@ let conf_dir = Env.paparazzi_home // "conf"
 let my_open_process_in = fun cmd ->
   let (in_read, in_write) = Unix.pipe () in
   let inchan = Unix.in_channel_of_descr in_read in
-  let pid = Unix.create_process_env "/bin/sh" [|"/bin/sh"; "-c"; cmd|] (Array.append (Unix.environment ()) [|"GTK_SETLOCALE=0";"LANG=C"|]) Unix.stdin in_write Unix.stderr in
+  let pid = Unix.create_process_env "/bin/sh" [|"/bin/sh"; "-c"; cmd|] (Array.append (Unix.environment ()) [|"GTK_SETLOCALE=0";"LANG=C"|]) in_read in_write Unix.stderr in
   Unix.close in_write;
   pid, inchan
 
 let buf_size = 512
 
-let run_and_log = fun log com ->
+let run_and_log = fun log exit_cb com ->
   let com = com ^ " 2>&1" in
   let pid, com_stdout = my_open_process_in com in
-  let channel_out = GMain.Io.channel_of_descr (Unix.descr_of_in_channel com_stdout) in
-  let cb = fun ev ->
-    let buf = String.create buf_size in
-    (* loop until input returns zero *)
-    let rec log_input = fun out ->
-      let n = input out buf 0 buf_size in
-      (* split on beginning of new line *)
-      let s = Str.split (Str.regexp "^") (String.sub buf 0 n) in
-      List.iter (fun l -> log l) s;
-      if n = buf_size then log_input out
+  let channel_out_fd = Unix.descr_of_in_channel com_stdout in
+  let channel_out = GMain.Io.channel_of_descr channel_out_fd in
+  let cb = fun _ ->
+      let buf = String.create buf_size in
+      (* loop until input returns zero *)
+      let rec log_input = fun out ->
+        let n = input out buf 0 buf_size in
+        (* split on beginning of new line *)
+        let s = Str.split (Str.regexp "^") (String.sub buf 0 n) in
+        List.iter (fun l -> log l) s;
+        if n = buf_size then (log_input out) + n else n
+      in
+      let count = log_input com_stdout in
+      if count = 0 then exit_cb true;
+      true
     in
-    log_input com_stdout;
-    true in
   let io_watch_out = Glib.Io.add_watch [`IN] cb channel_out in
   pid, channel_out, com_stdout, io_watch_out
 
@@ -99,14 +102,16 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
   let run = fun callback ->
     let c = p#entry_program#text in
     log (sprintf "RUN '%s'\n" c);
-    let (pi, out, unixfd, io_watch) = run_and_log log ("exec "^c) in
+
+  let (pi, out, unixfd, io_watch) = run_and_log log callback ("exec "^c) in
     pid := pi;
     outchan := unixfd;
-    let io_watch' = Glib.Io.add_watch [`HUP;`OUT] (fun _ ->
-      (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
-      ignore (Glib.Timeout.add 200 (fun () -> callback true; false));
-      false) out in
-    watches := [ io_watch; io_watch'] in
+    let io_watch' = Glib.Io.add_watch ~cond:[`HUP] ~callback:
+      (fun _ ->
+         (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
+         ignore (Glib.Timeout.add 200 (fun () -> callback true; false));
+         false) out in
+    watches := [ io_watch; io_watch' ] in
 
   let remove_callback = fun () ->
     gui#vbox_programs#remove p#toplevel#coerce in
@@ -153,7 +158,7 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
 let basic_command = fun (log:string->unit) ac_name target ->
   let com = sprintf "export PATH=/usr/bin:$PATH; make -C %s -f Makefile.ac AIRCRAFT=%s %s" Env.paparazzi_src ac_name target in
   log com;
-  ignore (run_and_log log com)
+  ignore (run_and_log log (fun _ -> ()) com)
 
 
 let command = fun ?file gui (log:string->unit) ac_name target ->

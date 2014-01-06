@@ -45,9 +45,6 @@ extern struct Int32Eulers stabilization_att_sum_err;
 extern int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 extern int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-// common so it can be used for downlink/debug
-extern struct Int32Eulers stab_att_sp_euler;  ///< with #INT32_ANGLE_FRAC
-
 #define stabilization_attitude_common_int_SetKiPhi(_val) {	\
     stabilization_gains.i.x = _val;             \
     stabilization_att_sum_err.phi = 0;          \

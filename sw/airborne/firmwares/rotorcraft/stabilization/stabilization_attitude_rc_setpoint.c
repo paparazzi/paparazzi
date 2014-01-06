@@ -223,8 +223,8 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
 void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat* q) {
   /* orientation vector describing simultaneous rotation of roll/pitch */
   struct FloatVect3 ov;
-  ov.x = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
-  ov.y = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ / 2;
+  ov.x = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ;
+  ov.y = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ;
   ov.z = 0.0;
 
   /* quaternion from that orientation vector */

@@ -40,10 +40,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 #if !defined KROOZ_LOWPASS_FILTER && !defined  KROOZ_SMPLRT_DIV
 #define KROOZ_LOWPASS_FILTER MPU60X0_DLPF_256HZ
 #define KROOZ_SMPLRT_DIV 1
@@ -63,10 +59,6 @@ PRINT_CONFIG_VAR(KROOZ_ACCEL_RANGE)
 
 struct ImuKrooz imu_krooz;
 
-
-#if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
-struct MedianFilter3Int median_gyro;
-#endif
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
 struct MedianFilter3Int median_accel;
 #endif
@@ -87,9 +79,6 @@ void imu_impl_init( void )
   hmc58xx_init(&imu_krooz.hmc, &(IMU_KROOZ_I2C_DEV), HMC58XX_ADDR);
 
   // Init median filters
-#if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
-  InitMedianFilterRatesInt(median_gyro);
-#endif
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
   InitMedianFilterVect3Int(median_accel);
 #endif
@@ -120,19 +109,11 @@ void imu_periodic( void )
 
   if (imu_krooz.meas_nb) {
     RATES_ASSIGN(imu.gyro_unscaled, -imu_krooz.rates_sum.q / imu_krooz.meas_nb, imu_krooz.rates_sum.p / imu_krooz.meas_nb, imu_krooz.rates_sum.r / imu_krooz.meas_nb);
-#if IMU_KROOZ_USE_GYRO_MEDIAN_FILTER
-    UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
-#endif
     VECT3_ASSIGN(imu.accel_unscaled, -imu_krooz.accel_sum.y / imu_krooz.meas_nb, imu_krooz.accel_sum.x / imu_krooz.meas_nb, imu_krooz.accel_sum.z / imu_krooz.meas_nb);
+
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
 #endif
-
-    RATES_SMUL(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, IMU_KROOZ_GYRO_AVG_FILTER);
-    RATES_ADD(imu_krooz.gyro_filtered, imu.gyro_unscaled);
-    RATES_SDIV(imu_krooz.gyro_filtered, imu_krooz.gyro_filtered, (IMU_KROOZ_GYRO_AVG_FILTER + 1));
-    RATES_COPY(imu.gyro_unscaled, imu_krooz.gyro_filtered);
-
     VECT3_SMUL(imu_krooz.accel_filtered, imu_krooz.accel_filtered, IMU_KROOZ_ACCEL_AVG_FILTER);
     VECT3_ADD(imu_krooz.accel_filtered, imu.accel_unscaled);
     VECT3_SDIV(imu_krooz.accel_filtered, imu_krooz.accel_filtered, (IMU_KROOZ_ACCEL_AVG_FILTER + 1));

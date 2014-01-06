@@ -65,12 +65,74 @@ int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 #define GAIN_PRESCALER_D 48
 #define GAIN_PRESCALER_I 48
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_att(void) { //FIXME really use this message here ?
+  struct Int32Rates* body_rate = stateGetBodyRates_i();
+  struct Int32Eulers* att = stateGetNedToBodyEulers_i();
+  DOWNLINK_SEND_STAB_ATTITUDE_INT(DefaultChannel, DefaultDevice,
+      &(body_rate->p), &(body_rate->q), &(body_rate->r),
+      &(att->phi), &(att->theta), &(att->psi),
+      &stab_att_sp_euler.phi,
+      &stab_att_sp_euler.theta,
+      &stab_att_sp_euler.psi,
+      &stabilization_att_sum_err.phi,
+      &stabilization_att_sum_err.theta,
+      &stabilization_att_sum_err.psi,
+      &stabilization_att_fb_cmd[COMMAND_ROLL],
+      &stabilization_att_fb_cmd[COMMAND_PITCH],
+      &stabilization_att_fb_cmd[COMMAND_YAW],
+      &stabilization_att_ff_cmd[COMMAND_ROLL],
+      &stabilization_att_ff_cmd[COMMAND_PITCH],
+      &stabilization_att_ff_cmd[COMMAND_YAW],
+      &stabilization_cmd[COMMAND_ROLL],
+      &stabilization_cmd[COMMAND_PITCH],
+      &stabilization_cmd[COMMAND_YAW]);
+}
+
+static void send_att_ref(void) {
+  DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(DefaultChannel, DefaultDevice,
+                                      &stab_att_sp_euler.phi,
+                                      &stab_att_sp_euler.theta,
+                                      &stab_att_sp_euler.psi,
+                                      &stab_att_ref_euler.phi,
+                                      &stab_att_ref_euler.theta,
+                                      &stab_att_ref_euler.psi,
+                                      &stab_att_ref_rate.p,
+                                      &stab_att_ref_rate.q,
+                                      &stab_att_ref_rate.r,
+                                      &stab_att_ref_accel.p,
+                                      &stab_att_ref_accel.q,
+                                      &stab_att_ref_accel.r);
+}
+
+static void send_ahrs_ref_quat(void) {
+  struct Int32Quat* quat = stateGetNedToBodyQuat_i();
+  DOWNLINK_SEND_AHRS_REF_QUAT(DefaultChannel, DefaultDevice,
+      &stab_att_ref_quat.qi,
+      &stab_att_ref_quat.qx,
+      &stab_att_ref_quat.qy,
+      &stab_att_ref_quat.qz,
+      &(quat->qi),
+      &(quat->qx),
+      &(quat->qy),
+      &(quat->qz));
+}
+#endif
+
 void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
 
   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
   INT_EULERS_ZERO( stabilization_att_sum_err );
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
+  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_REF_QUAT", send_ahrs_ref_quat);
+#endif
 }
 
 void stabilization_attitude_enter(void) {
@@ -82,6 +144,7 @@ void stabilization_attitude_enter(void) {
 
   INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
   INT_EULERS_ZERO(stabilization_att_sum_err);
+
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void) {

@@ -77,9 +77,6 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 // Global variables
 uint16_t airspeed_ets_raw;

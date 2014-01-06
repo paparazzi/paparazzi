@@ -57,9 +57,6 @@
 #define TEMPERATURE_AMSYS_MIN -25
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 // Global variables
 uint16_t airspeed_amsys_raw;

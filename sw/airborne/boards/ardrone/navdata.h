@@ -102,6 +102,8 @@ typedef struct {
     uint32_t totalBytesRead;
     uint32_t packetsRead;
     uint32_t checksum_errors;
+    uint32_t lost_imu_frames;
+    uint16_t last_packet_number;
     uint8_t buffer[NAVDATA_BUFFER_SIZE];
 } navdata_port;
 

@@ -22,10 +22,9 @@
 import sys
 import os
 from optparse import OptionParser
-import scipy
-from scipy import optimize
 
 import calibration_utils
+
 
 def main():
     usage = "usage: %prog [options] log_filename.data" + "\n" + "Run %prog --help to list the options."
@@ -40,6 +39,7 @@ def main():
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
     options.sensor = "MAG"
+
     if len(args) != 1:
         parser.error("incorrect number of arguments")
     else:
@@ -48,6 +48,7 @@ def main():
         else:
             print(args[0] + " not found")
             sys.exit(1)
+
     ac_ids = calibration_utils.get_ids_in_log(filename)
     if options.ac_id is None:
         if len(ac_ids) == 1:
@@ -56,7 +57,6 @@ def main():
             parser.error("More than one aircraft id found in log file. Specify the id to use.")
     if options.verbose:
         print("Using aircraft id "+options.ac_id)
-
 
     if not filename.endswith(".data"):
         parser.error("Please specify a *.data log file")

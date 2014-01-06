@@ -31,9 +31,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef CHARGE_SENS_DEV
 #define CHARGE_SENS_DEV i2c0

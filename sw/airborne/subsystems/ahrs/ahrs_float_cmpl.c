@@ -40,7 +40,6 @@
 #include "subsystems/gps.h"
 #endif
 
-
 //#include "../../test/pprz_algebra_print.h"
 
 #if AHRS_PROPAGATE_RMAT && AHRS_PROPAGATE_QUAT
@@ -117,6 +116,51 @@ static inline void compute_body_orientation_and_rates(void);
 
 struct AhrsFloatCmpl ahrs_impl;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_att(void) {
+  struct FloatEulers ltp_to_imu_euler;
+  FLOAT_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);
+  struct Int32Eulers euler_i;
+  EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
+  struct Int32Eulers* eulers_body = stateGetNedToBodyEulers_i();
+  DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+      &euler_i.phi,
+      &euler_i.theta,
+      &euler_i.psi,
+      &(eulers_body->phi),
+      &(eulers_body->theta),
+      &(eulers_body->psi));
+}
+
+// TODO convert from float to int if we really need this one
+/*
+static void send_rmat(void) {
+  struct Int32RMat* att_rmat = stateGetNedToBodyRMat_i();
+  DOWNLINK_SEND_AHRS_RMAT(DefaultChannel, DefaultDevice,
+      &ahrs_impl.ltp_to_imu_rmat.m[0],
+      &ahrs_impl.ltp_to_imu_rmat.m[1],
+      &ahrs_impl.ltp_to_imu_rmat.m[2],
+      &ahrs_impl.ltp_to_imu_rmat.m[3],
+      &ahrs_impl.ltp_to_imu_rmat.m[4],
+      &ahrs_impl.ltp_to_imu_rmat.m[5],
+      &ahrs_impl.ltp_to_imu_rmat.m[6],
+      &ahrs_impl.ltp_to_imu_rmat.m[7],
+      &ahrs_impl.ltp_to_imu_rmat.m[8],
+      &(att_rmat->m[0]),
+      &(att_rmat->m[1]),
+      &(att_rmat->m[2]),
+      &(att_rmat->m[3]),
+      &(att_rmat->m[4]),
+      &(att_rmat->m[5]),
+      &(att_rmat->m[6]),
+      &(att_rmat->m[7]),
+      &(att_rmat->m[8]));
+}
+*/
+#endif
+
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
   ahrs_impl.ltp_vel_norm_valid = FALSE;
@@ -149,6 +193,10 @@ void ahrs_init(void) {
   ahrs_impl.gravity_heuristic_factor = AHRS_GRAVITY_HEURISTIC_FACTOR;
 
   VECT3_ASSIGN(ahrs_impl.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
+#endif
 }
 
 void ahrs_align(void) {

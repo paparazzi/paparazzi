@@ -95,6 +95,12 @@ struct FloatRates {
     while (_a < -M_PI) _a += (2.*M_PI);             \
   }
 
+//
+//
+// Vector algebra
+//
+//
+
 
 /*
  * Dimension 2 Vectors
@@ -137,6 +143,10 @@ struct FloatRates {
  * Dimension 3 Vectors
  */
 
+#define FLOAT_VECT3_SUM(_a, _b, _c) VECT3_SUM(_a, _b, _c)
+#define FLOAT_VECT3_SDIV(_a, _b, _s) VECT3_SDIV(_a, _b, _s)
+#define FLOAT_VECT3_COPY(_a, _b) VECT3_COPY(_a, _b)
+
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)
 
 #define FLOAT_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
@@ -147,14 +157,18 @@ struct FloatRates {
 /* a -= b */
 #define FLOAT_VECT3_SUB(_a, _b) VECT3_SUB(_a, _b)
 
+#define FLOAT_VECT3_ADD(_a, _b) VECT3_ADD(_a, _b)
+
 /* _vo = _vi * _s */
 #define FLOAT_VECT3_SMUL(_vo, _vi, _s) VECT3_SMUL(_vo, _vi, _s)
+
+#define FLOAT_VECT3_MUL(_v1, _v2) VECT3_MUL(_v1, _v2)
 
 #define FLOAT_VECT3_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z)
 
 #define FLOAT_VECT3_NORM(_v) (sqrtf(FLOAT_VECT3_NORM2(_v)))
 
-#define FLOAT_VECT3_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y + (_v1).z*(_v2).z)
+#define FLOAT_VECT3_DOT_PRODUCT( _v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y + (_v1).z*(_v2).z)
 
 #define FLOAT_VECT3_CROSS_PRODUCT(_vo, _v1, _v2) {          \
     (_vo).x = (_v1).y*(_v2).z - (_v1).z*(_v2).y;            \
@@ -243,9 +257,12 @@ struct FloatRates {
   }
 
 
-/*
- * Rotation Matrices
- */
+//
+//
+// Rotation Matrices
+//
+//
+
 
 /* initialises a matrix to identity */
 #define FLOAT_RMAT_ZERO(_rm) FLOAT_MAT33_DIAG(_rm, 1., 1., 1.)
@@ -456,12 +473,15 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 
 }
 
-
-/*
- * Quaternions
- */
+//
+//
+// Quaternion algebras
+//
+//
 
 #define FLOAT_QUAT_ZERO(_q) QUAT_ASSIGN(_q, 1., 0., 0., 0.)
+
+#define FLOAT_QUAT_ASSIGN(_qi, _i, _x, _y, _z) QUAT_ASSIGN(_qi, _i, _x, _y, _z)
 
 /* _q += _qa */
 #define FLOAT_QUAT_ADD(_qo, _qi) QUAT_ADD(_qo, _qi)
@@ -469,29 +489,133 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 /* _qo = _qi * _s */
 #define FLOAT_QUAT_SMUL(_qo, _qi, _s) QUAT_SMUL(_qo, _qi, _s)
 
+/* _qo = _qo / _s */
+#define FLOAT_QUAT_SDIV( _qo, _qi, _s) QUAT_SDIV(_qo, _qi, _s)
+
+/*  */
 #define FLOAT_QUAT_EXPLEMENTARY(b,a) QUAT_EXPLEMENTARY(b,a)
 
+/*  */
 #define FLOAT_QUAT_COPY(_qo, _qi) QUAT_COPY(_qo, _qi)
 
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE((_q).qi) + SQUARE((_q).qx)+   \
                                    SQUARE((_q).qy) + SQUARE((_q).qz)))
 
-#define FLOAT_QUAT_NORMALIZE(_q) {       \
-    float norm = FLOAT_QUAT_NORM(_q);    \
-    if (norm > FLT_MIN) {                \
-      (_q).qi = (_q).qi / norm;          \
-      (_q).qx = (_q).qx / norm;          \
-      (_q).qy = (_q).qy / norm;          \
-      (_q).qz = (_q).qz / norm;          \
-    }                                    \
+#define FLOAT_QUAT_NORMALIZE(_q) {        \
+    float qnorm = FLOAT_QUAT_NORM(_q);    \
+    if (qnorm > FLT_MIN) {                \
+      (_q).qi = (_q).qi / qnorm;          \
+      (_q).qx = (_q).qx / qnorm;          \
+      (_q).qy = (_q).qy / qnorm;          \
+      (_q).qz = (_q).qz / qnorm;          \
+    }                                     \
   }
 
+/*   */
+#define FLOAT_QUAT_EXTRACT(_vo, _qi) QUAT_EXTRACT_Q(_vo, _qi)
+
+/* Be careful : after invert make a normalization */
 #define FLOAT_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
 
 #define FLOAT_QUAT_WRAP_SHORTEST(_q) {                  \
     if ((_q).qi < 0.)                                   \
       QUAT_EXPLEMENTARY(_q,_q);                     \
   }
+
+/*
+ *
+ * Rotation Matrix using quaternions
+ *
+ */
+
+ /*
+  * The (non commutative) quaternion product * then reads
+  *
+  *         [    p0.q0 - p.q      ]
+  * p * q = [                     ]
+  *         [ p0.q + q0.p + p x q ]
+  *
+  */
+
+  /* (qi)-1 * vi * qi represents R_q of n->b on vectors vi
+   *
+   *  "FLOAT_QUAT_EXTRACT : Extracted of the vector part"
+   */
+
+#define FLOAT_QUAT_RMAT_N2B(_n2b, _qi, _vi){    \
+                                                \
+  struct FloatQuat quatinv;                     \
+  struct FloatVect3 quat3, v1, v2;              \
+  float qi;                                     \
+                                                \
+  FLOAT_QUAT_INVERT(quatinv, _qi);              \
+  FLOAT_QUAT_NORMALIZE(quatinv);                \
+                                                \
+  FLOAT_QUAT_EXTRACT(quat3, quatinv);           \
+  qi = - FLOAT_VECT3_DOT_PRODUCT(quat3, _vi);   \
+  FLOAT_VECT3_CROSS_PRODUCT(v1, quat3, _vi);    \
+  FLOAT_VECT3_SMUL(v2, _vi, (quatinv.qi)) ;     \
+  FLOAT_VECT3_ADD(v2, v1);                      \
+                                                \
+  FLOAT_QUAT_EXTRACT(quat3, _qi);               \
+  FLOAT_VECT3_CROSS_PRODUCT(_n2b, v2, quat3);   \
+  FLOAT_VECT3_SMUL(v1, v2, (_qi).qi);           \
+  FLOAT_VECT3_ADD(_n2b,v1);                     \
+  FLOAT_VECT3_SMUL(v1, quat3, qi);              \
+  FLOAT_VECT3_ADD(_n2b,v1);                     \
+}
+
+  /*
+   * qi * vi * (qi)-1 represents R_q of b->n on vectors vi
+   */
+#define FLOAT_QUAT_RMAT_B2N(_b2n,_qi,_vi){  \
+                                            \
+  struct FloatQuat _quatinv;                \
+                                            \
+                                            \
+  FLOAT_QUAT_INVERT(_quatinv, _qi);         \
+  FLOAT_QUAT_NORMALIZE(_quatinv);           \
+                                            \
+  FLOAT_QUAT_RMAT_N2B(_b2n, _quatinv, _vi); \
+}
+
+  /* Right multiplication by a quaternion
+   *
+   * vi * qi
+   *
+   */
+#define FLOAT_QUAT_VMUL_RIGHT(_mright,_qi,_vi){ \
+                                                \
+  struct FloatVect3 quat3, v1, v2;              \
+  float qi;                                     \
+                                                \
+  FLOAT_QUAT_EXTRACT(quat3, _qi);               \
+  qi = - FLOAT_VECT3_DOT_PRODUCT(_vi, quat3);   \
+  FLOAT_VECT3_CROSS_PRODUCT(v1, _vi, quat3);    \
+  FLOAT_VECT3_SMUL(v2, _vi, (_qi.qi));          \
+  FLOAT_VECT3_ADD(v2, v1);                      \
+  FLOAT_QUAT_ASSIGN(_mright, qi, v2.x, v2.y, v2.z);\
+}
+
+
+  /* Left multiplication by a quaternion
+  *
+  * qi * vi
+  *
+  */
+#define FLOAT_QUAT_VMUL_LEFT(_mleft,_qi,_vi){ \
+                                              \
+  struct FloatVect3 quat3, v1, v2;            \
+  float qi;                                   \
+                                              \
+  FLOAT_QUAT_EXTRACT(quat3, _qi);             \
+  qi = - FLOAT_VECT3_DOT_PRODUCT(quat3, _vi); \
+  FLOAT_VECT3_CROSS_PRODUCT(v1, quat3, _vi);  \
+  FLOAT_VECT3_SMUL(v2, _vi, (_qi.qi));        \
+  FLOAT_VECT3_ADD(v2, v1);                    \
+  FLOAT_QUAT_ASSIGN(_mleft, qi, v2.x, v2.y, v2.z);\
+}
+
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 #define FLOAT_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {       \
@@ -710,9 +834,12 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
   }
 
 
-/*
- *  Euler angles
- */
+
+//
+//
+// Euler angles
+//
+//
 
 #define FLOAT_EULERS_ZERO(_e) EULERS_ASSIGN(_e, 0., 0., 0.);
 
@@ -755,6 +882,67 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
   }
 
 
+//
+//
+// Generic vector algebra
+//
+//
+
+/** a = 0 */
+static inline void float_vect_zero(float * a, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { a[i] = 0.; }
+}
+
+/** a = b */
+static inline void float_vect_copy(float * a, const float * b, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { a[i] = b[i]; }
+}
+
+/** o = a + b */
+static inline void float_vect_sum(float * o, const float * a, const float * b, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] + b[i]; }
+}
+
+/** o = a - b */
+static inline void float_vect_diff(float * o, const float * a, const float * b, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] - b[i]; }
+}
+
+/** o = a * b (element wise) */
+static inline void float_vect_mul(float * o, const float * a, const float * b, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] * b[i]; }
+}
+
+/** a += b */
+static inline void float_vect_add(float * a, const float * b, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { a[i] += b[i]; }
+}
+
+/** a -= b */
+static inline void float_vect_sub(float * a, const float * b, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { a[i] -= b[i]; }
+}
+
+/** o = a * s */
+static inline void float_vect_smul(float * o, const float * a, const float s, const int n) {
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] * s; }
+}
+
+/** o = a / s */
+static inline void float_vect_sdiv(float * o, const float * a, const float s, const int n) {
+  int i;
+  if ( fabs(s) > 1e-5 ) {
+    for (i = 0; i < n; i++) { o[i] = a[i] / s; }
+  }
+}
 
 
 

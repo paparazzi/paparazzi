@@ -9,15 +9,16 @@ use Config;
 
 $|++;
 my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf_tests.xml");
+my $xmlSimple = XML::Simple->new(ForceArray => 1);
 
 use Data::Dumper;
 
-ok(1, "Parsed the tests_conf file");
+ok(1, "Parsed the tests configuration file");
 foreach my $example (sort keys%{$examples->{'aircraft'}})
 {
 	#next unless $example =~ m#easystar#i;
 	my $airframe = $examples->{'aircraft'}->{$example}->{'airframe'};
-	my $airframe_config = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/$airframe");
+	my $airframe_config = $xmlSimple->XMLin("$ENV{'PAPARAZZI_SRC'}/conf/$airframe");
 	foreach my $process (sort keys %{$airframe_config->{'firmware'}})
 	{
 		if ($process =~ m#setup|fixedwing|rotorcraft|lisa_test_progs#)

@@ -210,22 +210,10 @@
         <configure name="SYS_TIME_LED" value="none"/>
     </target>
     <target name="test_uart"			board="lisa_m_2.0"/>
-    <target name="test_servos"			board="lisa_m_2.0"/>
-    <target name="test_telemetry"		board="lisa_m_2.0"/>
     <target name="test_imu_aspirin"		board="lisa_m_2.0"/>
     <target name="test_rc_spektrum"		board="lisa_m_2.0"/>
     <target name="test_baro"			board="lisa_m_2.0"/>
     <target name="test_imu_b2"			board="lisa_m_2.0"/>
     <target name="test_can"			board="lisa_m_2.0"/>
-    <!--<target name="test_imu"			board="lisa_m_2.0"/>
-    <target name="test_rc_ppm"			board="lisa_m_2.0"/>
-    <target name="test_adc"			board="lisa_m_2.0"/>
-    <target name="test_hmc5843"			board="lisa_m_2.0"/>
-    <target name="test_itg3200"			board="lisa_m_2.0"/>
-    <target name="test_adxl345"			board="lisa_m_2.0"/>
-    <target name="test_esc_mkk_simple"		board="lisa_m_2.0"/>
-    <target name="test_esc_asctecv1_simple"	board="lisa_m_2.0"/>
-    <target name="test_actuators_mkk"		board="lisa_m_2.0"/>
-    <target name="test_actuators_asctecv1"	board="lisa_m_2.0"/-->
   </firmware>
 </airframe>

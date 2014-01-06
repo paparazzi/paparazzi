@@ -113,16 +113,17 @@ unit_t nav_reset_reference( void ) {
   nav_utm_north0 = gps.utm_pos.north/100;
 #endif
 
+  previous_ground_alt = ground_alt;
+  ground_alt = gps.hmsl/1000.;
+
   // reset state UTM ref
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
 
   // realign INS if needed
   ins.hf_realign = TRUE;
   ins.vf_realign = TRUE;
 
-  previous_ground_alt = ground_alt;
-  ground_alt = gps.hmsl/1000.;
   return 0;
 }
 

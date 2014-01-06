@@ -29,6 +29,7 @@ type format = string
 type _type =
     Basic of string
   | Array of string * string
+  | FixedArray of string * string * int
 
 type field = _type  * string * format option
 
@@ -44,11 +45,15 @@ type message = {
 module Syntax = struct
   (** Parse a type name and returns a _type value *)
   let parse_type = fun t varname ->
-    let n = String.length t in
-    if n >=2 && String.sub t (n-2) 2 = "[]" then
-      Array (String.sub t 0 (n-2), varname)
-    else
-      Basic t
+    try
+      let type_parts = Str.full_split (Str.regexp "[][]") t in
+      match type_parts with
+      | [Str.Text ty] -> Basic ty
+      | [Str.Text ty; Str.Delim "["; Str.Delim "]"] -> Array (ty, varname)
+      | [Str.Text ty; Str.Delim "["; Str.Text len ; Str.Delim "]"] -> FixedArray (ty, varname, int_of_string len)
+      | _ -> failwith "Gen_messages: not a valid field type"
+      with
+      | Failure fail -> failwith("Gen_messages: not a valid array length")
 
   let length_name = fun s -> "nb_"^s
 
@@ -62,10 +67,12 @@ module Syntax = struct
   let rec sizeof = function
   Basic t -> string_of_int (assoc_types t).Pprz.size
     | Array (t, varname) -> sprintf "1+%s*%s" (length_name varname) (sizeof (Basic t))
+    | FixedArray (t, varname, len) -> sprintf "0+%d*%s" len (sizeof (Basic t))
 
   let rec nameof = function
   Basic t -> String.capitalize t
     | Array _ -> failwith "nameof"
+    | FixedArray _ -> failwith "nameof"
 
   (** Translates a "message" XML element into a value of the 'message' type *)
   let struct_of_xml = fun xml ->
@@ -73,14 +80,13 @@ module Syntax = struct
     and id = ExtXml.int_attrib xml "id"
     and period = try Some (ExtXml.float_attrib xml "period") with _ -> None
     and fields =
-      List.map
-        (fun field ->
-          let id = ExtXml.attrib field "name"
-          and type_name = ExtXml.attrib field "type"
-          and fmt = try Some (Xml.attrib field "format") with _ -> None in
-          let _type = parse_type type_name id in
-          (_type, id, fmt))
-        (Xml.children xml) in
+      List.map (fun field ->
+        let id = ExtXml.attrib field "name"
+        and type_name = ExtXml.attrib field "type"
+        and fmt = try Some (Xml.attrib field "format") with _ -> None in
+        let _type = parse_type type_name id in
+        (_type, id, fmt))
+      (List.filter (fun t -> compare (Xml.tag t) "field" = 0) (Xml.children xml)) in
     { id=id; name = name; period = period; fields = fields }
 
   let check_single_ids = fun msgs ->
@@ -117,9 +123,13 @@ module Gen_onboard = struct
       | Array (t, varname) ->
         let _s = Syntax.sizeof (Basic t) in
         fprintf h "\t  DownlinkPut%sArray(_trans, _dev, %s, %s); \\\n" (Syntax.nameof (Basic t)) (Syntax.length_name varname) name
+      | FixedArray (t, varname, len) ->
+        let _s = Syntax.sizeof (Basic t) in
+        fprintf h "\t  DownlinkPut%sFixedArray(_trans, _dev, %d, %s); \\\n" (Syntax.nameof (Basic t)) len name
 
   let print_parameter h = function
-  (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
+      (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
+    | (FixedArray _, s, _) -> fprintf h "%s" s
     | (_, s, _) -> fprintf h "%s" s
 
   let print_macro_parameters h = function
@@ -242,7 +252,13 @@ module Gen_onboard = struct
             sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
           | 4 ->
             sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
-          | _ -> failwith "unexpected size in Gen_messages.print_get_macros. Possibly since a Telemetry message was defined with a field type of string." in
+          | 8 ->
+            let s = ref (sprintf "(%s)(*((uint8_t*)_payload+%d)" pprz_type.Pprz.inttype o) in
+            for i = 1 to 7 do
+              s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
+            done;
+            sprintf "%s)" !s
+          | _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
       (** To be an array or not to be an array: *)
       match _type with
@@ -263,6 +279,16 @@ module Gen_onboard = struct
 
           fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
           offset := -1 (** Mark for no more fields *)
+        | FixedArray (t, _varname, len) ->
+            (** The macro to access to the length of the array *)
+            fprintf h "#define DL_%s_%s_length(_payload) (%d)\n" msg_name field_name len;
+            (** The macro to access to the array itself *)
+            let pprz_type = Syntax.assoc_types t in
+            if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
+              failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
+
+            fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
+            offset := !offset + (pprz_type.Pprz.size*len)
     in
 
     fprintf h "\n";

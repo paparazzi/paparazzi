@@ -91,6 +91,18 @@ void ahrs_align(void) {
   ahrs_impl.gx3_status = GX3Running;
 }
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static send_gx3(void) {
+  DOWNLINK_SEND_GX3_INFO(DefaultChannel, DefaultDevice,
+      &ahrs_impl.gx3_freq,
+      &ahrs_impl.gx3_packet.chksm_error,
+      &ahrs_impl.gx3_packet.hdr_error,
+      &ahrs_impl.gx3_chksm);
+}
+#endif
+
 /*
  * GX3 can be set up during the startup, or it can be configured to
  * start sending data automatically after power up.
@@ -200,6 +212,10 @@ void imu_impl_init(void) {
   ahrs_align();
 #endif
   ahrs.status = AHRS_RUNNING;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "GX3_INFO", send_gx3);
+#endif
 }
 
 

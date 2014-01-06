@@ -225,7 +225,6 @@
     <!--define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/-->
 
 
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="50.0"/>
 
     <!-- only for spiral -->

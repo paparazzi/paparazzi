@@ -350,13 +350,13 @@ void set_linecoding(TLineCoding linecoding)
             break;
     }
 
-#ifdef USE_UART0
+#if USE_UART0
     U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches
     U0DLL = (uint8_t)baud;                // set for baud low byte
     U0DLM = (uint8_t)(baud >> 8);         // set for baud high byte
     U0LCR = (mode & ~ULCR_DLAB_ENABLE);
 #endif
-#ifdef USE_UART1
+#if USE_UART1
     U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches
     U1DLL = (uint8_t)baud;                // set for baud low byte
     U1DLM = (uint8_t)(baud >> 8);         // set for baud high byte

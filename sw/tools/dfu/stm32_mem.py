@@ -38,6 +38,7 @@ CMD_GETCOMMANDS = 0x00
 CMD_SETADDRESSPOINTER = 0x21
 CMD_ERASE = 0x41
 
+
 def stm32_erase(dev, addr):
     erase_cmd = struct.pack("<BL", CMD_ERASE, addr)
     dev.download(0, erase_cmd)
@@ -48,6 +49,7 @@ def stm32_erase(dev, addr):
         if status.bState == dfu.STATE_DFU_DOWNLOAD_IDLE:
             break
 
+
 def stm32_write(dev, data):
     dev.download(2, data)
     while True:
@@ -56,6 +58,7 @@ def stm32_write(dev, data):
             sleep(status.bwPollTimeout / 1000.0)
         if status.bState == dfu.STATE_DFU_DOWNLOAD_IDLE:
             break
+
 
 def stm32_manifest(dev):
     dev.download(0, "")
@@ -68,6 +71,7 @@ def stm32_manifest(dev):
         if status.bState == dfu.STATE_DFU_MANIFEST:
             break
 
+
 def print_copyright():
     print("")
     print("USB Device Firmware Upgrade - Host Utility -- version 1.3")
@@ -76,60 +80,69 @@ def print_copyright():
     print("License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>")
     print("")
 
+
 def init_progress_bar():
     max_symbols = 50
-    print("[0%" + "="*int(max_symbols/2 - 4) + "50%" + "="*int(max_symbols/2 - 4) + "100%]")
+    print("[0%" + "=" * int(max_symbols / 2 - 4) + "50%" + "=" * int(max_symbols / 2 - 4) + "100%]")
     print(" ", end="")
     update_progress_bar.count = 0
     update_progress_bar.symbol_limit = max_symbols
 
+
 def update_progress_bar(completed, total):
     if completed and total:
-        percent = 100 * (float(completed)/float(total))
-        if (percent >= (update_progress_bar.count + (100.0 / update_progress_bar.symbol_limit))):
+        percent = 100 * (float(completed) / float(total))
+        if percent >= (update_progress_bar.count + (100.0 / update_progress_bar.symbol_limit)):
             update_progress_bar.count += (100.0 / update_progress_bar.symbol_limit)
             print("#", end="")
         stdout.flush()
 
+
 if __name__ == "__main__":
-    usage = "Usage: %prog [options] firmware.bin" + "\n" + "Run %prog --help to list the options."
+    usage = "Usage: %prog [options] [firmware.bin]" + "\n" + "Run %prog --help to list the options."
     parser = OptionParser(usage, version='%prog version 1.3')
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
+    parser.add_option("-l", "--list", action="store_true", dest="list_only",
+                      help="Only list currently connected DFU devices without actually flashing.")
     parser.add_option("--product", type="choice", choices=["any", "Lisa/Lia"],
                       action="store", default="Lisa/Lia",
                       help="only upload to device where idProduct contains PRODUCT\n"
-                      "choices: (any, Lisa/Lia), default: Lisa/Lia")
+                           "choices: (any, Lisa/Lia), default: Lisa/Lia")
     parser.add_option("--addr", type="int", action="store", dest="addr", default=APP_ADDRESS,
                       help="Upload start address (default: 0x08002000)")
     parser.add_option("-n", "--dry-run", action="store_true",
-                      help="Dry run to check which board is found without actually flashing.")
+                      help="Alias for --list.")
     (options, args) = parser.parse_args()
 
-    if len(args) != 1:
-        parser.error("incorrect number of arguments")
-    else:
-        if path.isfile(args[0]):
-            binfile = args[0]
+    if options.dry_run:
+        options.list_only = True
+
+    if not options.list_only:
+        if len(args) != 1:
+            parser.error("incorrect number of arguments")
         else:
-            parser.error("Binary file " + args[0] + " not found")
+            if path.isfile(args[0]):
+                binfile = args[0]
+            else:
+                parser.error("Binary file " + args[0] + " not found")
 
     if options.verbose:
         print_copyright()
 
-    for i in range(1,60):
-      devs = dfu.finddevs()
-      if not devs:
-        print('.', end="")
-        stdout.flush()
-        time.sleep(0.5)
-      else:
-        break
+    for i in range(1, 60):
+        devs = dfu.finddevs()
+        if not devs:
+            print('.', end="")
+            stdout.flush()
+            time.sleep(0.5)
+        else:
+            break
     print("")
     if not devs:
         print("No DFU devices found!")
         exit(1)
-    elif options.verbose:
+    elif options.verbose or options.list_only:
         print("Found %i DFU devices." % len(devs))
 
     valid_manufacturers = []
@@ -159,10 +172,10 @@ if __name__ == "__main__":
             print("Exception:", e)
             continue
 
-        if options.verbose:
+        if options.verbose or options.list_only:
             print("Found DFU device %s: ID %04x:%04x %s - %s - %s" %
-                    (dfudev.dev.filename, dfudev.dev.idVendor,
-                     dfudev.dev.idProduct, man, product, serial))
+                  (dfudev.dev.filename, dfudev.dev.idVendor,
+                   dfudev.dev.idProduct, man, product, serial))
 
         if man in valid_manufacturers:
             if options.product == "any":
@@ -182,13 +195,15 @@ if __name__ == "__main__":
                   (d.dev.filename, d.dev.idVendor, d.dev.idProduct, m, p, s))
 
     # use first potential board as target
-    target = stm32devs[0][0]
+    (target, m, p, s) = stm32devs[0]
     print("Using device %s: ID %04x:%04x %s - %s - %s" % (target.dev.filename,
-          target.dev.idVendor, target.dev.idProduct, man, product, serial))
+                                                          target.dev.idVendor,
+                                                          target.dev.idProduct,
+                                                          m, p, s))
 
-    # if it's a dry run only, don't actually flash, just exit now
-    if options.dry_run:
-        print("Dry run, done.")
+    # if just listing available devices, exit now
+    if options.list_only:
+        print("Done.")
         exit(0)
 
     try:
@@ -204,31 +219,31 @@ if __name__ == "__main__":
     target.make_idle()
 
     try:
-        bin = open(binfile, "rb").read()
+        binf = open(binfile, "rb").read()
     except:
         print("Could not open binary file.")
         raise
 
     # Get the file length for progress bar
-    bin_length = len(bin)
+    bin_length = len(binf)
 
     #addr = APP_ADDRESS
     addr = options.addr
-    print ("Programming memory from 0x%08X...\r" % addr)
-    
+    print("Programming memory from 0x%08X...\r" % addr)
+
     init_progress_bar()
 
-    while bin:
-        update_progress_bar((addr - options.addr),bin_length)
+    while binf:
+        update_progress_bar((addr - options.addr), bin_length)
         stm32_erase(target, addr)
-        stm32_write(target, bin[:SECTOR_SIZE])
+        stm32_write(target, binf[:SECTOR_SIZE])
 
-        bin = bin[SECTOR_SIZE:]
+        binf = binf[SECTOR_SIZE:]
         addr += SECTOR_SIZE
 
     # Need to check all the way to 100% complete
-    update_progress_bar((addr - options.addr),bin_length)
+    update_progress_bar((addr - options.addr), bin_length)
 
     stm32_manifest(target)
 
-    print("\nAll operations complete!\n")
+    print("\nAll operations complete!")

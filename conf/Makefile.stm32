@@ -34,7 +34,7 @@ Q=@
 #
 # find compiler toolchain
 #
-include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 
 ifeq ($(ARCH_L),f4)
@@ -48,37 +48,6 @@ OPT   = s
 #OPT   = 0
 
 
-PYTHON ?= $(shell which python)
-
-ifneq ($(BOARD_SERIAL),)
-OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
-endif
-
-LOADER ?= $(PAPARAZZI_SRC)/sw/tools/stm32loader/stm32loader.py
-
-ifndef $(TARGET).OOCD_INTERFACE
-OOCD_INTERFACE = lisa-l
-else
-OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
-endif
-
-ifndef $(TARGET).OOCD_BOARD
-OOCD_BOARD = lisa-l
-else
-OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
-endif
-
-# default: assume the luftboot bootloader is used
-# if luftboot is not used define NO_LUFTBOOT to a value != 0
-OOCD_START_SECTOR = 4
-ASSUMING_LUFTBOOT = "yes"
-ifdef NO_LUFTBOOT
-$(shell echo luftboot: $(NO_LUFTBOOT))
-ifneq ($(NO_LUFTBOOT),0)
-OOCD_START_SECTOR = 0
-ASSUMING_LUFTBOOT = "no"
-endif
-endif
 
 # input files
 SRCS = $($(TARGET).srcs)
@@ -103,7 +72,7 @@ endif
 endif
 
 CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
-CFLAGS += -D__thumb2__ -Wall -O$(OPT)
+CFLAGS += -D__thumb2__ -O$(OPT)
 ifeq ($(ARCH_L), )
 CFLAGS += -msoft-float
 else ifeq ($(ARCH_L),f4)
@@ -113,24 +82,30 @@ else
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 endif
 endif
+
+CSTANDARD = -std=gnu99
+
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mfix-cortex-m3-ldrd
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
-CFLAGS += -std=gnu99
+CFLAGS += $(CSTANDARD)
 #CFLAGS += -malignment-traps
 CFLAGS += -fno-common
 CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -Wimplicit
-CFLAGS += -Wcast-align
-CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
-CFLAGS += -Wnested-externs
-CFLAGS += -Wmissing-prototypes
-CFLAGS += -Wstrict-prototypes
-CFLAGS += -Wmissing-declarations
+
+# flags for warnings
+CFLAGS += -Wall -Wextra -Wunused
+#CFLAGS += -Wcast-qual
+CFLAGS += -Wcast-align
+CFLAGS += -Wpointer-arith
 CFLAGS += -Wswitch-default
+CFLAGS += -Wredundant-decls -Wmissing-declarations
+CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
+CFLAGS += -Wshadow
+CFLAGS += -Wnested-externs
+
 ifneq ($(ARCH_L), )
 ifeq ($(ARCH_L),f4)
 CFLAGS += -DSTM32F4
@@ -173,13 +148,18 @@ CPFLAGS_HEX = -Oihex
 
 ODFLAGS = -S
 
-
+# some common informative targets
+include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-common
 
 # Default target.
 all: printcommands sizebefore build sizeafter
 
-build: elf bin hex
+build: $(OBJDIR) elf bin hex
 # lss sym
+
+$(OBJDIR):
+	@echo CREATING object dir $(OBJDIR)
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 
 elf: $(OBJDIR)/$(TARGET).elf
 bin: $(OBJDIR)/$(TARGET).bin
@@ -219,7 +199,7 @@ sym: $(OBJDIR)/$(TARGET).sym
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(CFLAGS) $< -o $@
+	$(Q)$(CC) -MMD -c $(CFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(OBJDIR)/%.o : %.S
@@ -237,11 +217,8 @@ include $(PAPARAZZI_SRC)/conf/Makefile.stm32-upload
 # Dependencies
 #
 
-$(OBJDIR)/.depend:
-	@echo DEPEND $@
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(Q)$(CC) -MM -MG $(THUMB) $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(OBJDIR)/.depend
+-include $(DEPS)
 endif

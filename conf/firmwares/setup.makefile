@@ -66,6 +66,8 @@ endif
 
 
 
+PERIODIC_FREQUENCY ?= 512
+
 ifeq ($(TARGET), setup_actuators)
   ifeq ($(ACTUATORS),)
     $(error ACTUATORS not configured, if your board file has no default, configure in your airframe file)
@@ -74,26 +76,31 @@ ifeq ($(TARGET), setup_actuators)
   endif
 endif
 
-
 # a test program to setup actuators
-setup_actuators.CFLAGS += -DFBW -DUSE_LED -DPERIPHERALS_AUTO_INIT
-setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
+setup_actuators.CFLAGS += -DUSE_LED -DPERIPHERALS_AUTO_INIT
 setup_actuators.srcs   += mcu.c $(SRC_ARCH)/mcu_arch.c
+
+setup_actuators.CFLAGS += -DUSE_SYS_TIME
+ifneq ($(SYS_TIME_LED),none)
+setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+endif
+setup_actuators.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 setup_actuators.CFLAGS += -DUSE_$(MODEM_PORT)
 setup_actuators.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 setup_actuators.srcs   += mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_FBW_DEVICE=$(MODEM_PORT) -DDOWNLINK_AP_DEVICE=$(MODEM_PORT) -DPPRZ_UART=$(MODEM_PORT)
+setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(MODEM_PORT) -DPPRZ_UART=$(MODEM_PORT)
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
 setup_actuators.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
-ifneq ($(SYS_TIME_LED),none)
-setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-endif
-setup_actuators.CFLAGS += -DPERIODIC_FREQUENCY='60'
-setup_actuators.CFLAGS += -DUSE_SYS_TIME
-setup_actuators.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
-setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c firmwares/fixedwing/main.c
+# we actually don't really use the generated periodic telemetry in this firmware,
+# but still needed to register e.g. the UART_ERRORS message #if DOWNLINK
+setup_actuators.CFLAGS += -DDefaultPeriodic='&telemetry_Main'
+setup_actuators.srcs += subsystems/datalink/telemetry.c
+
+setup_actuators.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+setup_actuators.srcs   += subsystems/actuators.c
+setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c
 
 ifeq ($(ARCH), lpc21)
 setup_actuators.srcs += $(SRC_ARCH)/armVIC.c
@@ -101,7 +108,10 @@ else ifeq ($(ARCH), stm32)
 setup_actuators.ARCHDIR = $(ARCH)
 setup_actuators.CFLAGS += -I$(ARCH)
 setup_actuators.srcs   += $(SRC_ARCH)/led_hw.c
+setup_actuators.srcs   += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
+
+
 
 # a test program for ABI
 test_abi.CFLAGS += -DUSE_LED -DPERIPHERALS_AUTO_INIT

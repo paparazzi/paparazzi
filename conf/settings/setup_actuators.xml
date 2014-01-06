@@ -1,0 +1,18 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf to use for setup_actuators -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="Actuators" >
+      <dl_setting VAR="actuators[0]" MIN="900" STEP="1" MAX="2100" module="subsystems/actuators" shortname="chan0"/>
+      <dl_setting VAR="actuators[1]" MIN="900" STEP="1" MAX="2100" shortname="chan1"/>
+      <dl_setting VAR="actuators[2]" MIN="900" STEP="1" MAX="2100" shortname="chan2"/>
+      <dl_setting VAR="actuators[3]" MIN="900" STEP="1" MAX="2100" shortname="chan3"/>
+      <dl_setting VAR="actuators[4]" MIN="900" STEP="1" MAX="2100" shortname="chan4"/>
+      <dl_setting VAR="actuators[5]" MIN="900" STEP="1" MAX="2100" shortname="chan5"/>
+      <dl_setting VAR="actuators[6]" MIN="900" STEP="1" MAX="2100" shortname="chan6"/>
+      <dl_setting VAR="actuators[7]" MIN="900" STEP="1" MAX="2100" shortname="chan7"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

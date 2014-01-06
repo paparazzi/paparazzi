@@ -11,45 +11,25 @@
       <configure name="GPS_PORT" value="UART2"/>
       <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="ppm"/>
-      <subsystem name="motor_mixing"/>
-      <subsystem name="actuators" type="asctec_v2"/>
-      <subsystem name="telemetry" type="xbee_api"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAPS"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       <define name="USE_I2C_ACTUATORS_REBOOT_HACK"/>
     </target>
+
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
       <subsystem name="radio_control" type="ppm"/>
-      <subsystem name="motor_mixing"/>
-      <subsystem name="actuators" type="mkk"/>
     </target>
+
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators" type="asctec_v2"/>
+
+    <subsystem name="telemetry" type="xbee_api"/>
     <subsystem name="imu" type="aspirin_v2.1"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins" type="hff"/>
-  </firmware>
-
-  <firmware name="lisa_test_progs">
-    <target name="test_led" board="lisa_l_1.0"/>
-    <target name="test_uart" board="lisa_l_1.1"/>
-    <target name="test_servos" board="lisa_l_1.1"/>
-    <target name="test_telemetry" board="lisa_l_1.1"/>
-    <target name="test_baro" board="lisa_l_1.1"/>
-    <target name="test_imu_b2" board="lisa_l_1.1"/>
-    <target name="test_imu_b2_2" board="lisa_l_1.1"/>
-    <target name="test_imu_aspirin" board="lisa_l_1.1"/>
-    <target name="test_rc_spektrum" board="lisa_l_1.1"/>
-    <target name="test_rc_ppm" board="lisa_l_1.1"/>
-    <target name="test_adc" board="lisa_l_1.1"/>
-    <target name="test_hmc5843" board="lisa_l_1.1"/>
-    <target name="test_itg3200" board="lisa_l_1.1"/>
-    <target name="test_adxl345" board="lisa_l_1.1"/>
-    <target name="test_esc_mkk_simple" board="lisa_l_1.1"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
-    <!--target name="test_actuators_mkk"       board="lisa_l_1.1"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/-->
   </firmware>
 
   <section name="AUTOPILOT">
@@ -192,13 +172,6 @@
 
   <!-- ************************* MISC ************************* -->
 
-  <!-- for the sim target -->
-
-  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
-    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-  </section>
-
   <section name="MAGNETICS" prefix="AHRS_H_">
     <define name="X" value="0.4"/>
     <define name="Y" value="0"/>
@@ -209,15 +182,11 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
 
-  <section name="MISC">
-    <define name="FACE_REINJ_1" value="1024"/>
-  </section>
-
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
     <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
 
 </airframe>

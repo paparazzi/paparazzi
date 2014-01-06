@@ -27,7 +27,7 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-      <define name="USE_SERVOS_7AND8"/>
+      <!--define name="USE_SERVOS_7AND8"/-->
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>

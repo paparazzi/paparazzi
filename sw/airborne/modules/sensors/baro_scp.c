@@ -16,9 +16,6 @@
 #warning set SENSOR_SYNC_SEND to use baro_scp
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #define STA_UNINIT       0
 #define STA_INITIALISING 1

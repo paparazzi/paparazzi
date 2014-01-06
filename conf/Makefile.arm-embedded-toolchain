@@ -1,51 +1,36 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+# Copyright (C) 2012-2013 Felix Ruess <felix.ruess@gmail.com>
 
 
 #
-# This is the common Makefile for finding the arm compiler and OpenOcd
+# This is the common Makefile for finding the arm compiler
 # for bare metal systems like on the ARM7TDMI, cortex M3/4
 
-#
-# try to pick up the compiler from the path
-#
-CC   = $(shell which arm-none-eabi-gcc)
-LD   = $(shell which arm-none-eabi-gcc)
-AR   = $(shell which arm-none-eabi-ar)
-CP   = $(shell which arm-none-eabi-objcopy)
-DMP  = $(shell which arm-none-eabi-objdump)
-NM   = $(shell which arm-none-eabi-nm)
-SIZE = $(shell which arm-none-eabi-size)
-GDB  = $(shell which arm-none-eabi-gdb)
-TOOLCHAIN_DIR=$(shell dirname `which arm-none-eabi-gcc`)
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/../arm-none-eabi/lib
+PREFIX ?= arm-none-eabi
 
 #
-# if not found in path, try the paparazzi toolchain in /opt
+# if gcc can't be found in path, try the paparazzi toolchain in /opt
 #
-ifeq ($(CC),)
-TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-ifneq ($(TOOLCHAIN),)
-TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
-
-# Define programs and commands.
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
-CC   = $(GCC_BIN_PREFIX)-gcc
-LD   = $(GCC_BIN_PREFIX)-gcc
-AR   = $(GCC_BIN_PREFIX)-ar
-CP   = $(GCC_BIN_PREFIX)-objcopy
-DMP  = $(GCC_BIN_PREFIX)-objdump
-NM   = $(GCC_BIN_PREFIX)-nm
-SIZE = $(GCC_BIN_PREFIX)-size
-GDB  = $(GCC_BIN_PREFIX)-gdb
-else
-# toolchain not found...
-endif
+ifeq ($(shell which $(PREFIX)-gcc),)
+  PPRZ_TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+  ifneq ($(PPRZ_TOOLCHAIN),)
+    # set prefix with full path to /opt/paparazzi/arm-multilib toolchain
+    PREFIX=$(shell dirname $(PPRZ_TOOLCHAIN))/bin/arm-none-eabi
+  else
+    # no suitable toolchain found...
+    $(error Error: arm-none-eabi-gcc cross-compiler not found! Recommended toolchain is https://launchpad.net/gcc-arm-embedded)
+  endif
 endif
 
+CC   = $(PREFIX)-gcc
+LD   = $(PREFIX)-gcc
+AR   = $(PREFIX)-ar
+CP   = $(PREFIX)-objcopy
+DMP  = $(PREFIX)-objdump
+NM   = $(PREFIX)-nm
+SIZE = $(PREFIX)-size
+GDB  = $(PREFIX)-gdb
 
 # some general commands
 RM = rm

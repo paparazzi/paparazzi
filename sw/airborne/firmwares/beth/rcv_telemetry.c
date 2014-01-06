@@ -38,9 +38,6 @@
 #include "generated/settings.h"
 
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 

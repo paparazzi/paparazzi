@@ -4,7 +4,9 @@
 <!DOCTYPE ubx SYSTEM "ubx.dtd">
 
 <ubx>
+
   <class name="NAV" ID="0x01">
+
     <message name="POSLLH" ID="0x02" length="28">
       <field name="ITOW" format="U4" unit="ms"/>
       <field name="LON" format="I4" scaling="1e-7" unit="deg"/>
@@ -92,10 +94,11 @@
         <field name="Azim" format="I2" unit="deg"/>
         <field name="PRRes" format="I4" unit="cm"/>
       </block>
-  </message>
- </class>
+    </message>
 
- <class name="CFG" ID="0x06">
+  </class>
+
+  <class name="CFG" ID="0x06">
 
     <message name="PRT" ID="0x00">
       <block length="20">
@@ -189,33 +192,55 @@
       <field name="res2" format="U4"/>
       <field name="res3" format="U4"/>
       <field name="res4" format="U4"/>
-     </message>
- </class>
+    </message>
 
- <class name="ACK" ID="0x05">
+  </class>
 
-  <message name="ACK" ID="0x01" length="2">
-    <field name="ClsID" format="U1"/>
-    <field name="MsgID" format="U1"/>
-  </message>
-  <message name="NAK" ID="0x00" length="2">
-    <field name="ClsID" format="U1"/>
-    <field name="MsgID" format="U1"/>
-  </message>
+  <class name="ACK" ID="0x05">
 
- </class>
+    <message name="ACK" ID="0x01" length="2">
+      <field name="ClsID" format="U1"/>
+      <field name="MsgID" format="U1"/>
+    </message>
 
- <class name="MON" ID="0x0A">
+    <message name="NAK" ID="0x00" length="2">
+      <field name="ClsID" format="U1"/>
+      <field name="MsgID" format="U1"/>
+    </message>
 
-  <message name="GET_VER" ID="0x04" length="0">
-  </message>
+  </class>
 
-  <message name="VER" ID="0x04">
-    <block length="1">
-      <field name="c" format="U1"/>
-    </block>
-  </message>
+  <class name="RXM" ID="0x02">
 
- </class>
+    <message name="RAW" ID="0x10">
+      <field name="iTOW" format="I4" unit="ms"/>
+      <field name="week" format="I2" unit="weeks"/>
+      <field name="numSV" format="U1"/>
+      <field name="reserverd1" format="U1"/>
+      <block length="24">
+        <field name="cpMes" format="R8" unit="cycles"/>
+        <field name="prMes" format="R8" unit="m"/>
+        <field name="doMes" format="R4" unit="Hz"/>
+        <field name="sv" format="U1"/>
+        <field name="mesQI" format="I1"/>
+        <field name="cno" format="I1" unit="dbHz"/>
+        <field name="lli" format="U1"/>
+      </block>
+    </message>
+
+  </class>
+
+  <class name="MON" ID="0x0A">
+
+    <message name="GET_VER" ID="0x04" length="0">
+    </message>
+
+    <message name="VER" ID="0x04">
+      <block length="1">
+        <field name="c" format="U1"/>
+      </block>
+    </message>
+
+  </class>
 
 </ubx>

@@ -30,6 +30,7 @@
 #include "inttypes.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
+#include "generated/airframe.h"
 
 /** Speed saturation */
 #ifndef GUIDANCE_H_REF_MAX_SPEED

@@ -1,0 +1,37 @@
+# Hey Emacs, this is a -*- makefile -*-
+
+#
+# Copyright (C) 2012 - TU Delft Robotics Minor - Dino Hensen and Freek van Tienen
+#
+# Minimal makefile for arm-linux-gnueabi or arm-none-linux-gnueabi toolchain.
+# Assuming installed in default location.
+
+PREFIX ?= arm-linux-gnueabi
+
+#
+# if gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
+#
+ifeq ($(shell which $(PREFIX)-gcc),)
+  TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
+  ifneq ($(TOOLCHAIN),)
+    PREFIX=$(shell dirname $(TOOLCHAIN))/bin/arm-none-linux-gnueabi
+  else
+    # no suitable toolchain found...
+    $(error Error: arm-linux-gnueabi-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabi package.)
+  endif
+else
+  # this was previously explicitly added, but shouln't be needed...
+  #CFLAGS += -I/usr/arm-linux-gnueabi/include
+endif
+
+CC   = $(PREFIX)-gcc
+LD   = $(PREFIX)-gcc
+AR   = $(PREFIX)-ar
+CP   = $(PREFIX)-objcopy
+DMP  = $(PREFIX)-objdump
+NM   = $(PREFIX)-nm
+SIZE = $(PREFIX)-size
+GDB  = $(PREFIX)-gdb
+
+# some general commands
+RM = rm

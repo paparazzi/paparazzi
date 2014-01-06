@@ -46,6 +46,27 @@ struct AhrsARDrone ahrs_impl;
 struct AhrsAligner ahrs_aligner;
 unsigned char buffer[4096]; //Packet buffer
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_ahrs_ad2(void) {
+  DOWNLINK_SEND_AHRS_ARDRONE2(DefaultChannel, DefaultDevice,
+      &ahrs_impl.state,
+      &ahrs_impl.control_state,
+      &ahrs_impl.eulers.phi,
+      &ahrs_impl.eulers.theta,
+      &ahrs_impl.eulers.psi,
+      &ahrs_impl.speed.x,
+      &ahrs_impl.speed.y,
+      &ahrs_impl.speed.z,
+      &ahrs_impl.accel.x,
+      &ahrs_impl.accel.y,
+      &ahrs_impl.accel.z,
+      &ahrs_impl.altitude,
+      &ahrs_impl.battery);
+}
+#endif
+
 void ahrs_init(void) {
   init_at_com();
 
@@ -54,6 +75,10 @@ void ahrs_init(void) {
   at_com_send_ftrim();
 
   ahrs.status = AHRS_RUNNING;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "AHRS_ARDRONE2", send_ahrs_ad2);
+#endif
 }
 
 void ahrs_align(void) {

@@ -30,6 +30,22 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#if MODULE_HMC58XX_UPDATE_AHRS
+#include "subsystems/imu.h"
+#include "subsystems/ahrs.h"
+
+#ifndef HMC58XX_CHAN_X
+#define HMC58XX_CHAN_X 0
+#endif
+#ifndef HMC58XX_CHAN_Y
+#define HMC58XX_CHAN_Y 1
+#endif
+#ifndef HMC58XX_CHAN_Z
+#define HMC58XX_CHAN_Z 2
+#endif
+
+#endif
+
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
@@ -46,6 +62,25 @@ void mag_hmc58xx_module_periodic(void) {
 
 void mag_hmc58xx_module_event(void) {
   hmc58xx_event(&mag_hmc58xx);
+#if MODULE_HMC58XX_UPDATE_AHRS
+  if (mag_hmc58xx.data_available) {
+    // set channel order
+    struct Int32Vect3 mag = {
+      (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_X]),
+      (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Y]),
+      (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Z])
+    };
+    // unscaled vector
+    VECT3_COPY(imu.mag_unscaled, mag);
+    // scale vector
+    ImuScaleMag(imu);
+    // update ahrs
+    if (ahrs.status == AHRS_RUNNING) {
+      ahrs_update_mag();
+    }
+    mag_hmc58xx.data_available = FALSE;
+  }
+#endif
 #if MODULE_HMC58XX_SYNC_SEND
   if (mag_hmc58xx.data_available) {
     mag_hmc58xx_report();

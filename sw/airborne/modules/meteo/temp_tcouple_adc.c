@@ -45,9 +45,6 @@
 #define ADC_CHANNEL_TEMP_TCOUPLE_NB_SAMPLES 16
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 uint16_t ref[TCOUPLE_NB], val[TCOUPLE_NB];
 float    fref[TCOUPLE_NB], fval[TCOUPLE_NB];

@@ -130,10 +130,10 @@ static void main_periodic(int my_sig_num) {
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
    RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(gcs_com.udp_transport,&adc1,&adc2);});
 
-#ifdef USE_UART0
+#if USE_UART0
   uart0_handler();
 #endif
-#ifdef USE_UART1
+#if USE_UART1
   uart1_handler();
 #endif
   DatalinkEvent()

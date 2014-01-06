@@ -31,7 +31,6 @@
 #include "std.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
-#include "ap_downlink.h"
 
 enum status { UTURN, SEGMENT, DOWNWIND };
 static enum status status;

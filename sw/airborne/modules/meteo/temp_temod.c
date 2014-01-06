@@ -36,9 +36,6 @@
 float ftmd_temperature;
 struct i2c_transaction tmd_trans;
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef TEMOD_I2C_DEV
 #define TEMOD_I2C_DEV i2c0

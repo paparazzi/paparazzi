@@ -119,6 +119,32 @@ struct Int32Rates stabilization_rate_ff_cmd;
   (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_rate(void) {
+  DOWNLINK_SEND_RATE_LOOP(DefaultChannel, DefaultDevice,
+      &stabilization_rate_sp.p,
+      &stabilization_rate_sp.q,
+      &stabilization_rate_sp.r,
+      &stabilization_rate_ref.p,
+      &stabilization_rate_ref.q,
+      &stabilization_rate_ref.r,
+      &stabilization_rate_refdot.p,
+      &stabilization_rate_refdot.q,
+      &stabilization_rate_refdot.r,
+      &stabilization_rate_sum_err.p,
+      &stabilization_rate_sum_err.q,
+      &stabilization_rate_sum_err.r,
+      &stabilization_rate_ff_cmd.p,
+      &stabilization_rate_ff_cmd.q,
+      &stabilization_rate_ff_cmd.r,
+      &stabilization_rate_fb_cmd.p,
+      &stabilization_rate_fb_cmd.q,
+      &stabilization_rate_fb_cmd.r,
+      &stabilization_cmd[COMMAND_THRUST]);
+}
+#endif
 
 void stabilization_rate_init(void) {
 
@@ -140,6 +166,10 @@ void stabilization_rate_init(void) {
   INT_RATES_ZERO(stabilization_rate_ref);
   INT_RATES_ZERO(stabilization_rate_refdot);
   INT_RATES_ZERO(stabilization_rate_sum_err);
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "RATE_LOOP", send_rate);
+#endif
 }
 
 

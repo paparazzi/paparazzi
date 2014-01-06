@@ -383,6 +383,20 @@ let get_speech_name = fun af_xml def_name ->
     fvalue "SPEECH_NAME" default_speech_name
   with _ -> default_speech_name
 
+let get_icon_and_track_size = fun af_xml ->
+  (* firmware name as default if fixedwing or rotorcraft *)
+  let firmware = ExtXml.child af_xml "firmware" in
+  let firmware_name = ExtXml.attrib firmware "name" in
+  try
+    (* search AC_ICON in GCS section *)
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    match fvalue "AC_ICON" "fixedwing" with
+    | "home" -> ("home", 1) (* no track for home icon *)
+    | x -> (x, !track_size)
+  with _ -> (firmware_name, !track_size)
+
 let key_press_event = fun keys do_action ev ->
   try
     let (modifiers, action) = List.assoc (GdkEvent.Key.keyval ev) keys in
@@ -429,7 +443,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let fp_show = ac_menu_fact#add_check_item "Fligh Plan" ~active:true in
   ignore (fp_show#connect#toggled (fun () -> show_mission ac_id fp_show#active));
 
-  let track = new MapTrack.track ~size: !track_size ~name ~color:color geomap in
+  let (icon, size) = get_icon_and_track_size af_xml in
+  let track = new MapTrack.track ~size ~icon ~name ~color:color geomap in
   geomap#register_to_fit (track:>MapCanvas.geographic);
 
   let center_ac = center geomap track in

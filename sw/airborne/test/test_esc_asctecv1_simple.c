@@ -20,6 +20,8 @@
  */
 
 
+#include BOARD_CONFIG
+
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"

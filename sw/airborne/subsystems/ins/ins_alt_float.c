@@ -36,10 +36,15 @@
 #include "subsystems/nav.h"
 
 #include "generated/airframe.h"
+#include "generated/modules.h"
 
 #ifdef DEBUG_ALT_KALMAN
 #include "mcu_periph/uart.h"
-#include "ap_downlink.h"
+#include "subsystems/datalink/downlink.h"
+#endif
+
+#if defined ALT_KALMAN || defined ALT_KALMAN_ENABLED
+#warning Please remove the obsolete ALT_KALMAN and ALT_KALMAN_ENABLED defines from your airframe file.
 #endif
 
 /* vertical position and speed in meters (z-up)*/
@@ -49,6 +54,9 @@ float ins_alt_dot;
 #if USE_BAROMETER
 #include "subsystems/sensors/baro.h"
 #include "math/pprz_isa.h"
+
+PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
+
 float ins_qfe;
 bool_t  ins_baro_initialized;
 float ins_baro_alt;
@@ -59,8 +67,8 @@ float ins_baro_alt;
 #endif
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
+#endif /* USE_BAROMETER */
 
-#endif
 
 void ins_init() {
 
@@ -80,7 +88,7 @@ void ins_init() {
 #endif
   ins.vf_realign = FALSE;
 
-  EstimatorSetAlt(0.);
+  alt_kalman(0.);
 
   ins.status = INS_RUNNING;
 }
@@ -115,7 +123,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   else { /* not realigning, so normal update with baro measurement */
     ins_baro_alt = ground_alt + pprz_isa_height_of_pressure(*pressure, ins_qfe);
     /* run the filter */
-    EstimatorSetAlt(ins_baro_alt);
+    alt_kalman(ins_baro_alt);
     /* set new altitude, just copy old horizontal position */
     struct UtmCoor_f utm;
     UTM_COPY(utm, *stateGetPositionUtm_f());
@@ -139,10 +147,8 @@ void ins_update_gps(void) {
 
 #if !USE_BAROMETER
   float falt = gps.hmsl / 1000.;
-  EstimatorSetAlt(falt);
-  if (!alt_kalman_enabled) {
-    ins_alt_dot = -gps.ned_vel.z / 100.;
-  }
+  alt_kalman(falt);
+  ins_alt_dot = -gps.ned_vel.z / 100.;
 #endif
   utm.alt = ins_alt;
   // set position
@@ -162,11 +168,6 @@ void ins_update_gps(void) {
 void ins_update_sonar() {
 }
 
-bool_t alt_kalman_enabled;
-
-#ifndef ALT_KALMAN_ENABLED
-#define ALT_KALMAN_ENABLED FALSE
-#endif
 
 #ifndef GPS_DT
 #define GPS_DT 0.25
@@ -174,7 +175,6 @@ bool_t alt_kalman_enabled;
 #define GPS_SIGMA2 1.
 #define GPS_R 2.
 
-#define BARO_DT 0.1
 
 static float p[2][2];
 
@@ -186,14 +186,13 @@ void alt_kalman_reset( void ) {
 }
 
 void alt_kalman_init( void ) {
-  alt_kalman_enabled = ALT_KALMAN_ENABLED;
   alt_kalman_reset();
 }
 
 void alt_kalman(float z_meas) {
-  float DT;
-  float R;
-  float SIGMA2;
+  float DT = GPS_DT;
+  float R = GPS_R;
+  float SIGMA2 = GPS_SIGMA2;
 
 #if USE_BAROMETER
 #ifdef SITL
@@ -202,41 +201,36 @@ void alt_kalman(float z_meas) {
   SIGMA2 = 0.1;
 #elif USE_BARO_MS5534A
   if (alt_baro_enabled) {
-    DT = BARO_DT;
+    DT = 0.1;
     R = baro_MS5534A_r;
     SIGMA2 = baro_MS5534A_sigma2;
-  } else
+  }
 #elif USE_BARO_ETS
   if (baro_ets_enabled) {
     DT = BARO_ETS_DT;
     R = baro_ets_r;
     SIGMA2 = baro_ets_sigma2;
-  } else
+  }
 #elif USE_BARO_MS5611
   if (baro_ms5611_enabled) {
     DT = BARO_MS5611_DT;
     R = baro_ms5611_r;
     SIGMA2 = baro_ms5611_sigma2;
-  } else
+  }
 #elif USE_BARO_AMSYS
   if (baro_amsys_enabled) {
     DT = BARO_AMSYS_DT;
     R = baro_amsys_r;
     SIGMA2 = baro_amsys_sigma2;
-  } else
+  }
 #elif USE_BARO_BMP
   if (baro_bmp_enabled) {
     DT = BARO_BMP_DT;
     R = baro_bmp_r;
     SIGMA2 = baro_bmp_sigma2;
-  } else
+  }
 #endif
 #endif // USE_BAROMETER
-  {
-    DT = GPS_DT;
-    R = GPS_R;
-    SIGMA2 = GPS_SIGMA2;
-  }
 
   float q[2][2];
   q[0][0] = DT*DT*DT*DT/4.;

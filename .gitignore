@@ -34,6 +34,8 @@
 # JetBrains (PyCharm, etc) IDE project files
 .idea
 
+# Vagrant VM files
+/.vagrant
 
 /var
 /dox
@@ -53,6 +55,9 @@
 # /doc/pprz_algebra/
 /doc/pprz_algebra/headfile.log
 /doc/pprz_algebra/headfile.toc
+
+# /sw/ext/
+/sw/ext/ardrone2_vision
 
 # /sw/ground_segment/cockpit/
 /sw/ground_segment/cockpit/gtk_save_settings.ml

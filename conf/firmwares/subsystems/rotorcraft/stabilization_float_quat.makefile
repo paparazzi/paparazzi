@@ -1,5 +1,4 @@
 STAB_ATT_CFLAGS  = -DSTABILIZATION_ATTITUDE_TYPE_FLOAT
-STAB_ATT_CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_QUAT
 STAB_ATT_CFLAGS += -DSTABILIZATION_ATTITUDE_TYPE_H=\"stabilization/stabilization_attitude_quat_float.h\"
 STAB_ATT_SRCS  = $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_float.c
 STAB_ATT_SRCS += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_float.c

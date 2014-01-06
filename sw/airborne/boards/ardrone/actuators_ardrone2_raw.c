@@ -270,7 +270,7 @@ void actuators_ardrone_set_leds(uint8_t led0, uint8_t led1, uint8_t led2, uint8_
   led2 &= 0x03;
   led3 &= 0x03;
 
-  printf("LEDS: %d %d %d %d \n", led0, led1, led2, led3);
+  //printf("LEDS: %d %d %d %d \n", led0, led1, led2, led3);
 
   cmd[0]=0x60 | ((led0&1)<<4) | ((led1&1)<<3) | ((led2&1)<<2) | ((led3&1) <<1);
   cmd[1]=((led0&2)<<3) | ((led1&2)<<2) | ((led2&2)<<1) | ((led3&2)<<0);

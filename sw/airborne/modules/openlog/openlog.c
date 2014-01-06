@@ -32,9 +32,6 @@
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
 

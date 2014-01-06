@@ -40,8 +40,8 @@ struct InsArdrone2 {
 
   /* output LTP NED */
   struct NedCoor_i ltp_pos;
-  struct NedCoor_i ltp_speed;
-  struct NedCoor_i ltp_accel;
+  struct NedCoor_f ltp_speed;
+  struct NedCoor_f ltp_accel;
 };
 
 extern struct InsArdrone2 ins_impl;

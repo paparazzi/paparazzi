@@ -126,7 +126,7 @@ static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_nu
   gpio_set_af(gpioport, af_num, pin);
 }
 #elif defined(STM32F1)
-static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t none, uint32_t en) {
+static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t none __attribute__((unused)), uint32_t en) {
   rcc_peripheral_enable_clock(&RCC_APB2ENR, en | RCC_APB2ENR_AFIOEN);
   gpio_set_mode(gpioport, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, pin);

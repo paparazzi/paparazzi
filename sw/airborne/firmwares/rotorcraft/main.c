@@ -33,10 +33,10 @@
 #include <inttypes.h>
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "firmwares/rotorcraft/telemetry.h"
+#include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
@@ -55,6 +55,7 @@
 #include "subsystems/air_data.h"
 
 #if USE_BARO_BOARD
+PRINT_CONFIG_MSG("USE_BARO_BOARD is TRUE: Reading onboard baro.")
 #include "subsystems/sensors/baro.h"
 #endif
 
@@ -62,10 +63,13 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
+#include "subsystems/radio_control.h"
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
 
 #include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ins.h"
 
 #include "state.h"
@@ -98,6 +102,12 @@ PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 #endif
 PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
+#if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
+#if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
+#warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
+INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ",AHRS_PROPAGATE_FREQUENCY)
+#endif
+#endif
 
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
@@ -224,7 +234,7 @@ STATIC_INLINE void main_periodic( void ) {
 }
 
 STATIC_INLINE void telemetry_periodic(void) {
-  PeriodicSendMain(DefaultChannel,DefaultDevice);
+  periodic_telemetry_send_Main();
 }
 
 STATIC_INLINE void failsafe_check( void ) {
