@@ -37,10 +37,6 @@ MODEM_BAUD ?= B57600
 GPS_PORT ?= UART0
 GPS_BAUD ?= B38400
 
-
-
-ADC_GENERIC_NB_SAMPLES ?= 16
-
 #
 # you can use different actuators by adding a configure option to your firmware section
 # e.g. <configure name="ACTUATORS" value="actuators_ppm/>

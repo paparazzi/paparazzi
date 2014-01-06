@@ -76,7 +76,6 @@ extern struct Int32Vect2 guidance_h_accel_ref;      ///< with #INT32_ACCEL_FRAC
 extern struct Int32Vect2 guidance_h_pos_err;
 extern struct Int32Vect2 guidance_h_speed_err;
 extern struct Int32Vect2 guidance_h_trim_att_integrator;
-extern struct Int32Vect2 guidance_h_nav_err;
 
 
 /** horizontal guidance command.

@@ -82,6 +82,54 @@ PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
 #endif
 
+#elif USE_PPM_TIM3
+
+PRINT_CONFIG_MSG("Using TIM3 for PPM input.")
+
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM3EN
+#define PPM_TIMER           TIM3
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM4
+
+PRINT_CONFIG_MSG("Using TIM4 for PPM input.")
+
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM4EN
+#define PPM_TIMER           TIM4
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
+#elif USE_PPM_TIM5
+
+PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
+
+#define PPM_RCC             &RCC_APB1ENR
+#define PPM_PERIPHERAL      RCC_APB1ENR_TIM5EN
+#define PPM_TIMER           TIM5
+
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
+#endif
+
 #elif USE_PPM_TIM1
 
 PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
@@ -93,6 +141,19 @@ PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
 #ifdef STM32F4
 #define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
 #endif
+
+#elif USE_PPM_TIM8
+
+PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
+
+#define PPM_RCC             &RCC_APB2ENR
+#define PPM_PERIPHERAL      RCC_APB2ENR_TIM8EN
+#define PPM_TIMER           TIM8
+
+#ifdef STM32F4
+#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
+#endif
+
 
 #else
 #error Unknown PPM input timer configuration.
@@ -171,6 +232,59 @@ void tim2_isr(void) {
 
 }
 
+
+#elif USE_PPM_TIM3
+
+void tim3_isr(void) {
+
+  if((TIM3_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM3, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM3) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM3_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM3, TIM_SR_UIF);
+  }
+
+}
+
+#elif USE_PPM_TIM4
+
+void tim4_isr(void) {
+
+  if((TIM4_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM4, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM4) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM4_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM4, TIM_SR_UIF);
+  }
+
+}
+
+#elif USE_PPM_TIM5
+
+void tim5_isr(void) {
+
+  if((TIM5_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM5, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM5) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+  else if((TIM5_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM5, TIM_SR_UIF);
+  }
+
+}
+
+
 #elif USE_PPM_TIM1
 
 #if defined(STM32F1)
@@ -189,6 +303,28 @@ void tim1_cc_isr(void) {
     timer_clear_flag(TIM1, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
+    DecodePpmFrame(now);
+  }
+}
+
+#elif USE_PPM_TIM8 && defined(STM32F4)
+
+#if defined(STM32F1)
+void tim8_up_isr(void) {
+#elif defined(STM32F4)
+void tim8_up_tim13_isr(void) {
+#endif
+  if((TIM8_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt+=(1<<16);
+    timer_clear_flag(TIM8, TIM_SR_UIF);
+  }
+}
+
+void tim8_cc_isr(void) {
+  if((TIM8_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM8, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM8) + timer_rollover_cnt;
     DecodePpmFrame(now);
   }
 }

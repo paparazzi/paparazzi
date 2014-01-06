@@ -25,4 +25,6 @@
 #include "math/pprz_algebra_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 
+extern struct Int32Eulers stab_att_sp_euler;
+
 #endif /* STABILIZATION_ATTITUDE_PASSTHROUGH_H */

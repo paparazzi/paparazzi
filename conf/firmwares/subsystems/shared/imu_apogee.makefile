@@ -26,3 +26,7 @@ ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 ap.CFLAGS += $(IMU_APOGEE_CFLAGS)
 ap.srcs   += $(IMU_APOGEE_SRCS)
 
+#
+# Simulator
+#
+include $(CFG_SHARED)/imu_nps.makefile

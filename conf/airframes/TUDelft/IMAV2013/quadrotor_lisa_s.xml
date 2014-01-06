@@ -185,6 +185,7 @@
 
  <modules main_freq="512">
    <load name="gps_ubx_ucenter.xml"/>
+   <load name="send_imu_mag_current.xml"/>
  </modules>
 
   <firmware name="rotorcraft">

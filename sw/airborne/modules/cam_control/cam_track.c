@@ -29,6 +29,8 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
+#include "subsystems/datalink/telemetry.h"
+
 struct FloatVect3 target_pos_ned;
 struct FloatVect3 target_speed_ned;
 struct FloatVect3 target_accel_ned;
@@ -54,6 +56,13 @@ volatile uint8_t cam_msg_received;
 uint8_t cam_status;
 uint8_t cam_data_len;
 
+static void send_cam_track(void) {
+  DOWNLINK_SEND_NPS_SPEED_POS(DefaultChannel, DefaultDevice,
+      &target_accel_ned.x, &target_accel_ned.y, &target_accel_ned.z,
+      &target_speed_ned.x, &target_speed_ned.y, &target_speed_ned.z,
+      &target_pos_ned.x, &target_pos_ned.y, &target_pos_ned.z);
+}
+
 void track_init(void) {
   ins_impl.ltp_initialized = TRUE; // ltp is initialized and centered on the target
   ins_update_on_agl = TRUE;   // use sonar to update agl (assume flat ground)
@@ -61,6 +70,7 @@ void track_init(void) {
   cam_status = UNINIT;
   cam_data_len = CAM_DATA_LEN;
 
+  register_periodic_telemetry(DefaultPeriodic, "CAM_TRACK", send_cam_track);
 }
 
 #include <stdio.h>

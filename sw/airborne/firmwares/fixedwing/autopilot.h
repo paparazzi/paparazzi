@@ -60,6 +60,7 @@ extern void autopilot_init(void);
 
 extern uint8_t pprz_mode;
 extern bool_t kill_throttle;
+extern uint8_t  mcu1_status;
 
 /** flight time in seconds. */
 extern uint16_t autopilot_flight_time;
@@ -87,6 +88,11 @@ extern uint8_t lateral_mode;
  */
 extern uint16_t vsupply;
 
+/** Supply current in milliAmpere.
+ * This the ap copy of the measurement from fbw
+ */
+extern int32_t current;	// milliAmpere
+
 /** Fuel consumption (mAh)
  * TODO: move to electrical subsystem
  */
@@ -103,6 +109,9 @@ extern bool_t gps_lost;
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
 
+/** Send mode over telemetry
+ */
+extern void autopilot_send_mode(void);
 
 /** Power switch control.
  */

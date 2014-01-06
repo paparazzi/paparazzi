@@ -183,7 +183,7 @@ static inline void usart_enable_irq(uint8_t IRQn) {
 }
 
 
-#ifdef USE_UART1
+#if USE_UART1
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART1_TX
@@ -247,7 +247,7 @@ void usart1_isr(void) { usart_isr(&uart1); }
 #endif /* USE_UART1 */
 
 
-#ifdef USE_UART2
+#if USE_UART2
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART2_TX
@@ -311,7 +311,7 @@ void usart2_isr(void) { usart_isr(&uart2); }
 #endif /* USE_UART2 */
 
 
-#ifdef USE_UART3
+#if USE_UART3
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART3_TX
@@ -375,7 +375,7 @@ void usart3_isr(void) { usart_isr(&uart3); }
 #endif /* USE_UART3 */
 
 
-#if defined USE_UART4 && defined STM32F4
+#if USE_UART4 && defined STM32F4
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART4_TX
@@ -426,7 +426,7 @@ void uart4_isr(void) { usart_isr(&uart4); }
 #endif /* USE_UART4 */
 
 
-#ifdef USE_UART5
+#if USE_UART5
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART5_TX
@@ -477,7 +477,7 @@ void uart5_isr(void) { usart_isr(&uart5); }
 #endif /* USE_UART5 */
 
 
-#if defined USE_UART6 && defined STM32F4
+#if USE_UART6 && defined STM32F4
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART6_TX

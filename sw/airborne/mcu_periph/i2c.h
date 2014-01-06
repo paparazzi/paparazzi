@@ -34,6 +34,12 @@
 
 #include "mcu_periph/i2c_arch.h"
 
+#ifdef USE_CHIBIOS_RTOS
+#define I2C_VOLATILE
+#else
+#define I2C_VOLATILE volatile
+#endif
+
 /**
  * @addtogroup mcu_periph
  * @{
@@ -79,11 +85,7 @@ struct i2c_transaction {
   uint8_t  slave_addr;
   uint16_t len_r;
   uint8_t  len_w;
-#ifdef USE_CHIBIOS_RTOS
-  uint8_t  buf[I2C_BUF_LEN];
-#else
-  volatile uint8_t  buf[I2C_BUF_LEN];
-#endif
+  I2C_VOLATILE uint8_t  buf[I2C_BUF_LEN];
   volatile enum I2CTransactionStatus status;
 };
 

@@ -38,9 +38,6 @@
 #include "met_module.h"
 #include "airspeed_otf.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #define OTF_UNINIT         0x00
 #define OTF_WAIT_START     OTF_UNINIT

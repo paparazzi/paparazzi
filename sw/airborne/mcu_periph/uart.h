@@ -80,18 +80,24 @@ extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph* p);
 
+/**
+ * Check UART for available chars in receive buffer.
+ * @return number of chars in the buffer
+ */
+static inline uint16_t uart_char_available(struct uart_periph* p) {
+  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  if (available < 0)
+    available += UART_RX_BUFFER_SIZE;
+  return (uint16_t)available;
+}
+
 #ifdef USE_CHIBIOS_RTOS
 /// Unfortunately has to be declared here, if declared in uart_arch.h compiler complains about uart_periph struct
 extern void uart_transmit_buffer(struct uart_periph* p, uint8_t* data_buffer, size_t length);
 extern void uart_receive_buffer(struct uart_periph* p, flagsmask_t flags, void *on_receive_callback);
 #endif
 
-static inline bool_t uart_char_available(struct uart_periph* p) {
-  return (p->rx_insert_idx != p->rx_extract_idx);
-}
-
-
-#ifdef USE_UART0
+#if USE_UART0
 extern struct uart_periph uart0;
 extern void uart0_init(void);
 
@@ -107,7 +113,7 @@ extern void uart0_init(void);
 
 #endif // USE_UART0
 
-#ifdef USE_UART1
+#if USE_UART1
 extern struct uart_periph uart1;
 extern void uart1_init(void);
 
@@ -123,7 +129,7 @@ extern void uart1_init(void);
 
 #endif // USE_UART1
 
-#ifdef USE_UART2
+#if USE_UART2
 extern struct uart_periph uart2;
 extern void uart2_init(void);
 
@@ -139,7 +145,7 @@ extern void uart2_init(void);
 
 #endif // USE_UART2
 
-#ifdef USE_UART3
+#if USE_UART3
 extern struct uart_periph uart3;
 extern void uart3_init(void);
 
@@ -155,7 +161,7 @@ extern void uart3_init(void);
 
 #endif // USE_UART3
 
-#ifdef USE_UART4
+#if USE_UART4
 extern struct uart_periph uart4;
 extern void uart4_init(void);
 
@@ -171,7 +177,7 @@ extern void uart4_init(void);
 
 #endif // USE_UART4
 
-#ifdef USE_UART5
+#if USE_UART5
 extern struct uart_periph uart5;
 extern void uart5_init(void);
 
@@ -187,7 +193,7 @@ extern void uart5_init(void);
 
 #endif // USE_UART5
 
-#ifdef USE_UART6
+#if USE_UART6
 extern struct uart_periph uart6;
 extern void uart6_init(void);
 

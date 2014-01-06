@@ -337,6 +337,24 @@ void stateCalcPositionUtm_f(void) {
     SetBit(state.pos_status, POS_LLA_F);
     utm_of_lla_f(&state.utm_pos_f, &state.lla_pos_f);
   }
+  else if (state.utm_initialized_f) {
+    if (bit_is_set(state.pos_status, POS_ENU_F)) {
+      UTM_OF_ENU_ADD(state.utm_pos_f, state.enu_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_ENU_I)) {
+      ENU_FLOAT_OF_BFP(state.enu_pos_f, state.enu_pos_i);
+      SetBit(state.pos_status, POS_ENU_F);
+      UTM_OF_ENU_ADD(state.utm_pos_f, state.enu_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_NED_F)) {
+      UTM_OF_NED_ADD(state.utm_pos_f, state.ned_pos_f, state.utm_origin_f);
+    }
+    else if (bit_is_set(state.pos_status, POS_NED_I)) {
+      NED_FLOAT_OF_BFP(state.ned_pos_f, state.ned_pos_i);
+      SetBit(state.pos_status, POS_NED_F);
+      UTM_OF_NED_ADD(state.utm_pos_f, state.ned_pos_f, state.utm_origin_f);
+    }
+  }
   else {
     /* could not get this representation,  set errno */
     //struct EcefCoor_f _ecef_zero = {0.0f};

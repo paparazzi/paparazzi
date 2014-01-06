@@ -8,7 +8,7 @@ AHRS_ALIGNER_LED ?= none
 AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_FLOAT
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
 
-ifneq ($(USE_MAGNETOMETER),0)
+ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
   AHRS_CFLAGS += -DUSE_MAGNETOMETER
 else
 $(error ahrs_float_mlkf needs a magnetometer)

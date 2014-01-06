@@ -20,9 +20,9 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/commands.h"
 #include "firmwares/fixedwing/main_ap.h"
-#include "ap_downlink.h"
 #include "sim_uart.h"
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/telemetry.h"
 #include "generated/flight_plan.h"
 
 #include "generated/modules.h"

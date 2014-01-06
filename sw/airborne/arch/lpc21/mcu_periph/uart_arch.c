@@ -161,7 +161,7 @@ static inline void uart_ISR(struct uart_periph* p)
   }
 }
 
-#ifdef USE_UART0
+#if USE_UART0
 
 #ifndef UART0_VIC_SLOT
 #define UART0_VIC_SLOT 5
@@ -222,7 +222,7 @@ void uart0_init( void ) {
 
 #endif /* USE_UART0 */
 
-#ifdef USE_UART1
+#if USE_UART1
 
 #ifndef UART1_VIC_SLOT
 #define UART1_VIC_SLOT 6

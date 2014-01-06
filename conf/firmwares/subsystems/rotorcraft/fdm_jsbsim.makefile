@@ -78,15 +78,15 @@ nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 nps.srcs += subsystems/settings.c
 nps.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
-nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-nps.srcs += $(SRC_FIRMWARE)/telemetry.c \
-            subsystems/datalink/downlink.c \
-            $(SRC_ARCH)/ivy_transport.c
+nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DDefaultPeriodic='&telemetry_Main'
+nps.srcs += $(SRC_ARCH)/ivy_transport.c
+nps.srcs += subsystems/datalink/downlink.c subsystems/datalink/telemetry.c
+nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
+nps.srcs += $(SRC_FIRMWARE)/datalink.c
 
 nps.srcs   += subsystems/actuators.c
 nps.srcs   += subsystems/commands.c
 
-nps.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
 # Math functions

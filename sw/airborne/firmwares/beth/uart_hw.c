@@ -30,7 +30,7 @@
 #include "serial_port.h"
 
 
-#ifdef USE_UART0
+#if USE_UART0
 
 volatile uint16_t uart0_rx_insert_idx, uart0_rx_extract_idx;
 uint8_t  uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
@@ -156,7 +156,7 @@ void uart0_handler(void) {
 
 #endif /* USE_UART0 */
 
-#ifdef USE_UART1
+#if USE_UART1
 
 volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
@@ -250,17 +250,17 @@ void uart1_handler(void) {
 
 void uart_init( void )
 {
-#ifdef USE_UART0
+#if USE_UART0
   uart0_init();
 #endif
-#ifdef USE_UART1
+#if USE_UART1
   uart1_init();
 #endif
 //TODO: add uart2 and greater
-#ifdef USE_UART2
+#if USE_UART2
   uart2_init();
 #endif
-#ifdef USE_UART3
+#if USE_UART3
   uart3_init();
 #endif
 }

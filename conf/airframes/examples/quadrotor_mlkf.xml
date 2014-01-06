@@ -5,7 +5,6 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <configure name="FLASH_MODE" value="SWD"/>
       <configure name="USE_MAGNETOMETER" value="1"/>
     </target>
 

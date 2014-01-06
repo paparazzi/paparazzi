@@ -64,9 +64,6 @@ void init_sysmon(void) {
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #include "subsystems/datalink/downlink.h"
 
 void periodic_report_sysmon(void) {

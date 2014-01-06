@@ -51,7 +51,7 @@
       <call fun="init_zamboni_survey(WP_Z_CENTER, WP_Z2_DIR, 200, -40, 7, 290)"/>
       <call fun="zamboni_survey()"/>
     </block>
-    
+
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png" group="land">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>

@@ -107,7 +107,6 @@
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
 
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
@@ -206,8 +205,8 @@
     <load name="gps_ubx_ucenter.xml"/>
 <!--
     <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="0" />
-      <configure name="ADC_CHANNEL_GENERIC2" value="1" />
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
     </load>
 -->
     <load name="light.xml">
@@ -276,11 +275,9 @@
     </target>
 
     <configure name="FLASH_MODE" value="JTAG"/>
-    <configure name="NO_LUFTBOOT" value="1"/>
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
-    <define name="ALT_KALMAN"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>

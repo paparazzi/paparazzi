@@ -8,9 +8,6 @@
 BOARD=lisa_m
 BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
-ifndef NO_LUFTBOOT
-NO_LUFTBOOT=1
-endif
 
 ARCH=stm32
 $(TARGET).ARCHDIR = $(ARCH)
@@ -65,17 +62,3 @@ GPS_BAUD ?= B38400
 #
 ACTUATORS ?= actuators_pwm
 
-
-ifndef ADC_IR1
-ADC_IR1      = 1
-ADC_IR1_CHAN = 0
-endif
-ifndef ADC_IR2
-ADC_IR2      = 2
-ADC_IR2_CHAN = 1
-endif
-ifndef ADC_IR3
-ADC_IR_TOP      = 3
-ADC_IR_TOP_CHAN = 2
-endif
-ADC_IR_NB_SAMPLES ?= 16

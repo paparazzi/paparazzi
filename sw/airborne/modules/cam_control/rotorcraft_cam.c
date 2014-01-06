@@ -20,12 +20,31 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file modules/cam_control/rotorcraft_cam.c
+ * Camera control module for rotorcraft.
+ *
+ * The camera is controled by the heading of the vehicle for pan
+ * and can be controlled by a servo for tilt if defined.
+ *
+ * Four modes:
+ *  - NONE: no control
+ *  - MANUAL: the servo position is set with PWM
+ *  - HEADING: the servo position and the heading of the rotorcraft are set with angles
+ *  - WP: the camera is tracking a waypoint (Default: CAM)
+ *
+ * The CAM_SWITCH can be used to power the camera in normal modes
+ * and disable it when in NONE mode
+ */
+
 #include "modules/cam_control/rotorcraft_cam.h"
 
 #include "subsystems/actuators.h"
 #include "state.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "std.h"
+
+#include "subsystems/datalink/telemetry.h"
 
 uint8_t rotorcraft_cam_mode;
 
@@ -49,6 +68,11 @@ int16_t rotorcraft_cam_pan;
 #define ROTORCRAFT_CAM_PAN_MIN 0
 #define ROTORCRAFT_CAM_PAN_MAX INT32_ANGLE_2_PI
 
+static void send_cam(void) {
+  DOWNLINK_SEND_ROTORCRAFT_CAM(DefaultChannel, DefaultDevice,
+      &rotorcraft_cam_tilt,&rotorcraft_cam_pan);
+}
+
 void rotorcraft_cam_init(void) {
   rotorcraft_cam_SetCamMode(ROTORCRAFT_CAM_DEFAULT_MODE);
 #if ROTORCRAFT_CAM_USE_TILT
@@ -59,6 +83,8 @@ void rotorcraft_cam_init(void) {
 #endif
   rotorcraft_cam_tilt = 0;
   rotorcraft_cam_pan = 0;
+
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_CAM", send_cam);
 }
 
 void rotorcraft_cam_periodic(void) {

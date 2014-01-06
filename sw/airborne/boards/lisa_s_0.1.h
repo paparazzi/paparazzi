@@ -72,46 +72,28 @@
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
 
-#define DefaultVoltageOfAdc(adc) (0.0045*adc)
-
-/* Onboard ADCs */
 /*
-   ADC1 PC3/ADC13
-   ADC2 PC0/ADC10
-   ADC3 PC1/ADC11
-   ADC4 PC5/ADC15
-   ADC6 PC2/ADC12
-   BATT PC4/ADC14
-*/
-/* We should remove the first three adc channels, as Lisa/S does not provide those. */
-#define BOARD_ADC_CHANNEL_1 10
-#define BOARD_ADC_CHANNEL_2 11
-#define BOARD_ADC_CHANNEL_3 12
-// we can only use ADC1,2,3; the last channel is for bat monitoring
-#define BOARD_ADC_CHANNEL_4 2
-
-/* provide defines that can be used to access the ADC_x in the code or airframe file
- * these directly map to the index number of the 4 adc channels defined above
- * 4th (index 3) is used for bat monitoring by default
+ * ADC
  */
-#define ADC_1 0
-#define ADC_2 1
-#define ADC_3 2
+
+// Internal ADC for battery enabled by default
+#ifndef USE_ADC_1
+#define USE_ADC_1 1
+#endif
+#if USE_ADC_1
+#define AD1_1_CHANNEL 2
+#define ADC_1 AD1_1
+#define ADC_1_GPIO_PORT GPIOA
+#define ADC_1_GPIO_PIN GPIO2
+#endif
 
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY 3
+#define ADC_CHANNEL_VSUPPLY ADC_1
 #endif
 
-/* GPIO mapping for ADC1 pins, overwrites the default in arch/stm32/mcu_periph/adc_arch.c */
-// FIXME, this is not very nice, is also locm3 lib specific
-#ifdef USE_AD1
-#define ADC1_GPIO_INIT(gpio) {                                          \
-    gpio_set_mode(GPIOA, GPIO_MODE_INPUT,                               \
-		  GPIO_CNF_INPUT_ANALOG,                                \
-		  GPIO2);                       \
-  }
-#endif // USE_AD1
+#define DefaultVoltageOfAdc(adc) (0.0045*adc)
+
 
 #define BOARD_HAS_BARO 1
 
@@ -279,15 +261,6 @@
 #error "Unknown PPM config"
 
 #endif // PPM_CONFIG
-
-/* ADC */
-
-// active ADC
-#define USE_AD1 1
-#define USE_AD1_1 1
-#define USE_AD1_2 1
-#define USE_AD1_3 1
-#define USE_AD1_4 1
 
 /*
  * I2C

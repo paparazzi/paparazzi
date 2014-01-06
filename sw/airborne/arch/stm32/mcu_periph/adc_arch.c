@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2012 The Paparazzi Team
+ * Copyright (C) 2010-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,9 +17,7 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
-
 /**
  * @file arch/stm32/mcu_periph/adc_arch.c
  * @ingroup stm32_arch
@@ -27,11 +25,16 @@
  * Driver for the analog to digital converters on STM32.
  *
  * Usage:
- * Define flags for ADCs to use and their channels:
+ * Define flags for ADCs to use (can be explicitly disabled by setting to 0):
  *
- *   -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_3
+ *   -DUSE_ADC_1 -DUSE_ADC_3=1 -DUSE_ADC_4=0
  *
- * would enable ADC1 and it's channels 1 and 3.
+ * would explicitly enable the ADC_1 and ADC_3 and disable ADC_4.
+ *
+ * The mapping of these virtual "board" ADC_x numbers to a concrete AD converter
+ * and channel is done in the sw/airborne/boards/<boardname>.h header files.
+ * Some ADCs are normally already enabled in the board files per default
+ * (e.g. for battery voltage measurement).
  *
  */
 
@@ -41,20 +44,20 @@
   Table of GPIO pins available per ADC:
 
   ADC1/2:                   ADC3:
-  C0  -> PA0				C0  -> PA0
-  C1  -> PA1				C1  -> PA1
-  C2  -> PA2				C2  -> PA2
-  C3  -> PA3				C3  -> PA3
-  C4  -> PA4				C4  -> PF6
-  C5  -> PA5				C5  -> PF7
-  C6  -> PA6				C6  -> PF8
-  C7  -> PA7				C7  -> PF9
-  C8  -> PB0				C8  -> PF10
+  C0  -> PA0                C0  -> PA0
+  C1  -> PA1                C1  -> PA1
+  C2  -> PA2                C2  -> PA2
+  C3  -> PA3                C3  -> PA3
+  C4  -> PA4                C4  -> PF6
+  C5  -> PA5                C5  -> PF7
+  C6  -> PA6                C6  -> PF8
+  C7  -> PA7                C7  -> PF9
+  C8  -> PB0                C8  -> PF10
   C9  -> PB1
-  C10 -> PC0				C10 -> PC0
-  C11 -> PC1				C11 -> PC1
-  C12 -> PC2				C12 -> PC2
-  C13 -> PC3				C13 -> PC3
+  C10 -> PC0                C10 -> PC0
+  C11 -> PC1                C11 -> PC1
+  C12 -> PC2                C12 -> PC2
+  C13 -> PC3                C13 -> PC3
   C14 -> PC4
   C15 -> PC5
 
@@ -97,17 +100,57 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/timer.h>
 #include <string.h>
+#include "mcu_periph/gpio.h"
 #include "std.h"
 #include "led.h"
 #include BOARD_CONFIG
 
-volatile uint8_t adc_new_data_trigger;
+// Macros to automatically enable the correct ADC
 
-/* Static functions */
+#if defined(AD1_1_CHANNEL) || defined(AD1_2_CHANNEL) || defined(AD1_3_CHANNEL) || defined(AD1_4_CHANNEL)
+#ifndef USE_AD1
+#define USE_AD1 1
+#endif
+#endif
 
-static inline void adc_init_single(uint32_t adc,
-                                   uint8_t chan1, uint8_t chan2,
-                                   uint8_t chan3, uint8_t chan4);
+#if defined(AD2_1_CHANNEL) || defined(AD2_2_CHANNEL) || defined(AD2_3_CHANNEL) || defined(AD2_4_CHANNEL)
+#ifndef USE_AD2
+#define USE_AD2 1
+#endif
+#endif
+
+#if defined(STM32F4)
+
+#if defined(AD3_1_CHANNEL) || defined(AD3_2_CHANNEL) || defined(AD3_3_CHANNEL) || defined(AD3_4_CHANNEL)
+#ifndef USE_AD3
+#define USE_AD3 1
+#endif
+#endif
+
+#else // !STM32F4
+// ADC 3 not supported on STM32F1
+#undef USE_AD3
+#define USE_AD3 0
+#endif
+
+#if USE_AD1
+PRINT_CONFIG_MSG("Analog to Digital Coverter 1 active")
+#endif
+#if USE_AD2
+PRINT_CONFIG_MSG("Analog to Digital Coverter 2 active")
+#endif
+#if USE_AD3
+PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
+#endif
+#if !USE_AD1 && !USE_AD2 && !USE_AD3
+#warning ALL ADC CONVERTERS INACTIVE
+#endif
+
+/***************************************/
+/***   STATIC FUNCTION PROTOTYPES    ***/
+/***************************************/
+
+static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* channel_map);
 
 static inline void adc_push_sample(struct adc_buf * buf,
                                    uint16_t sample);
@@ -115,109 +158,242 @@ static inline void adc_push_sample(struct adc_buf * buf,
 static inline void adc_init_rcc( void );
 static inline void adc_init_irq( void );
 
-#ifdef USE_AD2
-#error NOT_IMPLEMENTED__currently_only_ADC1_is_supported
+
+/********************************/
+/***     GLOBAL VARIABLES     ***/
+/********************************/
+
+/* Only 4 ADC channels may be enabled at the same time
+ * on each ADC, as there are only 4 injection registers.
+ * Currently, the enums adc1_channels and adc2_channels only
+ * serve to resolve the number of channels on each ADC.
+ * There are 3 separate buffer lists, each holds the addresses of the actual adc buffers
+ * for the particular adc converter.
+ */
+
+volatile uint8_t adc_new_data_trigger;
+
+static uint8_t nb_adc1_channels = 0;
+static uint8_t nb_adc2_channels = 0;
+static uint8_t nb_adc3_channels = 0;
+
+#if USE_AD1
+/// List of buffers, one for each active channel.
+static struct adc_buf * adc1_buffers[4];
+#endif
+#if USE_AD2
+/// List of buffers, one for each active channel.
+static struct adc_buf * adc2_buffers[4];
+#endif
+#if USE_AD3
+/// List of buffers, one for each active channel.
+static struct adc_buf * adc3_buffers[4];
 #endif
 
-/*
-  Only 4 ADC channels may be enabled at the same time
-  on each ADC, as there are only 4 injection registers.
-*/
+#if USE_ADC_WATCHDOG
+// watchdog structure with adc bank and callback
+static struct {
+  uint32_t adc;
+  adc_watchdog_callback cb;
+} adc_watchdog;
+#endif
 
-// ADCx_GPIO_INIT
-// {{{
+/***************************************/
+/***   PUBLIC FUNCTION DEFINITIONS   ***/
+/***************************************/
 
-/*
-  GPIO mapping for ADC1 pins (PB.1, PB.0, PC.5, PC.3).
-  Can be changed by predefining ADC1_GPIO_INIT.
-*/
-#ifdef USE_AD1
-#ifndef ADC1_GPIO_INIT
-#define ADC1_GPIO_INIT() {                      \
-	gpio_set_mode(GPIOB, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO1 |	GPIO0);             \
-	gpio_set_mode(GPIOC, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO5 |	GPIO3);             \
-  }
-#endif // ADC1_GPIO_INIT
+void adc_init( void ) {
+
+  uint8_t x=0;
+
+  // ADC channel mapping
+  uint8_t adc_channel_map[4];
+
+  /* Init GPIO ports for ADC operation
+   */
+#if USE_ADC_1
+  PRINT_CONFIG_MSG("Info: Using ADC_1");
+  gpio_setup_pin_analog(ADC_1_GPIO_PORT, ADC_1_GPIO_PIN);
+#endif
+#if USE_ADC_2
+  PRINT_CONFIG_MSG("Info: Using ADC_2");
+  gpio_setup_pin_analog(ADC_2_GPIO_PORT, ADC_2_GPIO_PIN);
+#endif
+#if USE_ADC_3
+  PRINT_CONFIG_MSG("Info: Using ADC_3");
+  gpio_setup_pin_analog(ADC_3_GPIO_PORT, ADC_3_GPIO_PIN);
+#endif
+#if USE_ADC_4
+  PRINT_CONFIG_MSG("Info: Using ADC_4");
+  gpio_setup_pin_analog(ADC_4_GPIO_PORT, ADC_4_GPIO_PIN);
+#endif
+#if USE_ADC_5
+  PRINT_CONFIG_MSG("Info: Using ADC_5");
+  gpio_setup_pin_analog(ADC_5_GPIO_PORT, ADC_5_GPIO_PIN);
+#endif
+#if USE_ADC_6
+  PRINT_CONFIG_MSG("Info: Using ADC_6");
+  gpio_setup_pin_analog(ADC_6_GPIO_PORT, ADC_6_GPIO_PIN);
+#endif
+#if USE_ADC_7
+  PRINT_CONFIG_MSG("Info: Using ADC_7");
+  gpio_setup_pin_analog(ADC_7_GPIO_PORT, ADC_7_GPIO_PIN);
+#endif
+#if USE_ADC_8
+  PRINT_CONFIG_MSG("Info: Using ADC_8");
+  gpio_setup_pin_analog(ADC_8_GPIO_PORT, ADC_8_GPIO_PIN);
+#endif
+#if USE_ADC_9
+  PRINT_CONFIG_MSG("Info: Using ADC_9");
+  gpio_setup_pin_analog(ADC_9_GPIO_PORT, ADC_9_GPIO_PIN);
+#endif
+
+  // Init clock and irq
+  adc_init_rcc();
+  adc_init_irq();
+
+  /* If fewer than 4 channels are active, say 3, then they are placed in to
+   * injection slots 2,3 and 4 because the stm32 architecture converts injected
+   * slots 2,3 and 4 and skips slot 1 instead of logicaly converting slots 1,2
+   * and 3 and leave slot 4.
+   * EXAMPLE OF ADC EXECUTION ORDER WHEN WE HAVE SAY 2 ADC INPUTS USED on ADC1
+   * The first board adc channel ADC1_1 is mapped to injected channel 3 and ADC1_2
+   * to injected channel 4 and because the conversions start from the lowest
+   * injection channel used, 3 in our case, injected channel 3 data will be
+   * located at JDR1 and 4 to JDR2 so JDR1 = ADC1_1 and JDR2 = ADC1_2.
+   * That's why "adc_channel_map" has this descending order.
+   */
+
+  nb_adc1_channels = 0;
+#if USE_AD1
+#ifdef AD1_4_CHANNEL
+  adc_channel_map[3-nb_adc1_channels] = AD1_4_CHANNEL;
+  nb_adc1_channels++;
+#endif
+#ifdef AD1_3_CHANNEL
+  adc_channel_map[3-nb_adc1_channels] = AD1_3_CHANNEL;
+  nb_adc1_channels++;
+#endif
+#ifdef AD1_2_CHANNEL
+  adc_channel_map[3-nb_adc1_channels] = AD1_2_CHANNEL;
+  nb_adc1_channels++;
+#endif
+#ifdef AD1_1_CHANNEL
+  adc_channel_map[3-nb_adc1_channels] = AD1_1_CHANNEL;
+  nb_adc1_channels++;
+#endif
+  // initialize buffer pointers with 0 (not set). Buffer null pointers will be ignored in interrupt
+  // handler, which is important as there are no buffers registered at the time the ADC trigger
+  // interrupt is enabled.
+  for (x = 0; x < 4; x++) { adc1_buffers[x] = NULL; }
+  adc_init_single(ADC1, nb_adc1_channels, adc_channel_map);
 #endif // USE_AD1
 
-/*
-  GPIO mapping for ADC2 pins.
-  Can be changed by predefining ADC2_GPIO_INIT.
-  Uses the same GPIOs as ADC1 (lisa specific).
-*/
-#ifdef USE_AD2
-#ifndef ADC2_GPIO_INIT
-#define ADC2_GPIO_INIT() {                      \
-    gpio_set_mode(GPIOB, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO1 | GPIO0);               \
-    gpio_set_mode(GPIOC, GPIO_MODE_INPUT,       \
-                  GPIO_CNF_INPUT_ANALOG,		\
-                  GPIO5 | GPIO3);               \
-  }
-#endif // ADC2_GPIO_INIT
+
+  nb_adc2_channels = 0;
+#if USE_AD2
+#ifdef AD2_4_CHANNEL
+  adc_channel_map[3-nb_adc2_channels] = AD2_4_CHANNEL;
+  nb_adc2_channels++;
+#endif
+#ifdef AD2_3_CHANNEL
+  adc_channel_map[3-nb_adc2_channels] = AD2_3_CHANNEL;
+  nb_adc2_channels++;
+#endif
+#ifdef AD2_2_CHANNEL
+  adc_channel_map[3-nb_adc2_channels] = AD2_2_CHANNEL;
+  nb_adc2_channels++;
+#endif
+#ifdef AD2_1_CHANNEL
+  adc_channel_map[3-nb_adc2_channels] = AD2_1_CHANNEL;
+  nb_adc2_channels++;
+#endif
+  // initialize buffer pointers with 0 (not set). Buffer null pointers will be ignored in interrupt
+  // handler, which is important as there are no buffers registered at the time the ADC trigger
+  // interrupt is enabled.
+  for (x = 0; x < 4; x++) { adc2_buffers[x] = NULL; }
+  adc_init_single(ADC2, nb_adc2_channels, adc_channel_map);
 #endif // USE_AD2
 
 
-/*
-  Currently, the enums adc1_channels and adc2_channels only
-  serve to resolve the number of channels on each ADC.
-*/
-
-/*
-  Separate buffers for each ADC.
-  Every ADC has a list of buffers, one for each active
-  channel.
-*/
-
-#ifdef USE_AD1
-/// List of buffers, one for each active channel.
-static struct adc_buf * adc1_buffers[NB_ADC1_CHANNELS];
+  nb_adc3_channels = 0;
+#if USE_AD3
+#ifdef AD3_4_CHANNEL
+  adc_channel_map[3-nb_adc3_channels] = AD3_4_CHANNEL;
+  nb_adc3_channels++;
 #endif
-#ifdef USE_AD2
-/// List of buffers, one for each active channel.
-static struct adc_buf * adc2_buffers[NB_ADC2_CHANNELS];
+#ifdef AD3_3_CHANNEL
+  adc_channel_map[3-nb_adc3_channels] = AD3_3_CHANNEL;
+  nb_adc3_channels++;
+#endif
+#ifdef AD3_2_CHANNEL
+  adc_channel_map[3-nb_adc3_channels] = AD3_2_CHANNEL;
+  nb_adc3_channels++;
+#endif
+#ifdef AD3_1_CHANNEL
+  adc_channel_map[3-nb_adc3_channels] = AD3_1_CHANNEL;
+  nb_adc3_channels++;
+#endif
+  // initialize buffer pointers with 0 (not set). Buffer null pointers will be ignored in interrupt
+  // handler, which is important as there are no buffers registered at the time the ADC trigger
+  // interrupt is enabled.
+  for (x = 0; x < 4; x++) { adc3_buffers[x] = NULL; }
+  adc_init_single(ADC3, nb_adc3_channels, adc_channel_map);
+#endif // USE_AD3
+
+  adc_new_data_trigger = FALSE;
+
+#if USE_ADC_WATCHDOG
+  adc_watchdog.cb = NULL;
 #endif
 
-
-/**
- * Maps integer value x to ADC_InjectedChannel_x.
- * so they can be iterated safely
- */
-volatile uint32_t *adc_injected_channels[4];
-
-/**
- * Maps integer value x to ADC_Channel_y.
- * like e.g.
- * - 0 --> ADC_Channel_5
- * - 1 --> ADC_Channel_8
- * - 2 --> ADC_Channel_13
- *
- * so they can be iterated incrementally.
- */
-static uint8_t adc_channel_map[4];
-
-/*
-  TODO: Extend interface to allow adressing a
-  specific ADC (at least ADC1 and ADC2)?
-*/
-void adc_buf_channel(uint8_t adc_channel,
-                     struct adc_buf * s,
-                     uint8_t av_nb_sample)
-{
-  adc1_buffers[adc_channel] = s;
-  s->av_nb_sample = av_nb_sample;
 }
 
-// #define USE_AD_TIM4
-/* Configure and enable RCC for peripherals (ADC1, ADC2, Timer) */
+void adc_buf_channel(uint8_t adc_channel, struct adc_buf * s, uint8_t av_nb_sample)
+{
+
+  if (adc_channel < nb_adc1_channels) {
+#if USE_AD1
+    adc1_buffers[adc_channel] = s;
+#endif
+  }
+  else if (adc_channel < (nb_adc1_channels+nb_adc2_channels)) {
+#if USE_AD2
+    adc2_buffers[adc_channel-nb_adc1_channels] = s;
+#endif
+  }
+  else if (adc_channel < (nb_adc1_channels+nb_adc2_channels+nb_adc3_channels)) {
+#if USE_AD3
+    adc3_buffers[adc_channel-(nb_adc1_channels+nb_adc2_channels)] = s;
+#endif
+  }
+
+  s->av_nb_sample = av_nb_sample;
+
+}
+
+#if USE_ADC_WATCHDOG
+void register_adc_watchdog(uint32_t adc, uint8_t chan, uint16_t low, uint16_t high, adc_watchdog_callback cb) {
+  adc_watchdog.adc = adc;
+  adc_watchdog.cb = cb;
+
+  // activated adc watchdog of a single injected channel with interrupt
+  adc_set_watchdog_low_threshold(adc, low);
+  adc_set_watchdog_high_threshold(adc, high);
+  adc_enable_analog_watchdog_injected(adc);
+  adc_enable_analog_watchdog_on_selected_channel(adc, chan);
+  adc_enable_awd_interrupt(adc);
+}
+#endif
+
+/**************************************/
+/***  PRIVATE FUNCTION DEFINITIONS  ***/
+/**************************************/
+
+/** Configure and enable RCC for peripherals (ADC1, ADC2, Timer) */
 static inline void adc_init_rcc( void )
 {
-#if defined (USE_AD1) || defined (USE_AD2)
+#if USE_AD1 || USE_AD2 || USE_AD3
   uint32_t timer;
   volatile uint32_t *rcc_apbenr;
   uint32_t rcc_apb;
@@ -235,35 +411,21 @@ static inline void adc_init_rcc( void )
   rcc_apb = RCC_APB1ENR_TIM2EN;
 #endif
 
-  /*
-   * Historic Note:
-   * Previously in libstm32 we were setting the ADC clock here.
-   * It was being set to PCLK2 DIV2 resulting in 36MHz clock on the ADC. I am
-   * pretty sure that this is wrong as based on the datasheet the ADC clock
-   * must not exceed 14MHz! Now the clock is being set by the clock init
-   * routine in libopencm3 so we don't have to set up this clock ourselves any
-   * more. This comment is here just as a reminder and may be removed in the
-   * future when we know that everything is working properly.
-   * (by Esden the historian :D)
-   */
-
   /* Timer peripheral clock enable. */
   rcc_peripheral_enable_clock(rcc_apbenr, rcc_apb);
-  /* GPIO peripheral clock enable. */
-#if defined(STM32F1)
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN |
-                              RCC_APB2ENR_IOPCEN);
-#elif defined(STM32F4)
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, ADC_GPIO_CLOCK_PORT);
+#if defined(STM32F4)
   adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
 #endif
 
   /* Enable ADC peripheral clocks. */
-#ifdef USE_AD1
+#if USE_AD1
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
 #endif
-#ifdef USE_AD2
+#if USE_AD2
   rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC2EN);
+#endif
+#if USE_AD3
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC3EN);
 #endif
 
   /* Time Base configuration */
@@ -282,10 +444,10 @@ static inline void adc_init_rcc( void )
   timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
   timer_enable_counter(timer);
 
-#endif // defined (USE_AD1) || defined (USE_AD2)
+#endif // USE_AD1 || USE_AD2 || USE_AD3
 }
 
-/* Configure and enable ADC interrupt */
+/** Configure and enable ADC interrupt */
 static inline void adc_init_irq( void )
 {
 #if defined(STM32F1)
@@ -297,45 +459,17 @@ static inline void adc_init_irq( void )
 #endif
 }
 
-/**
- * Enable selected channels on specified ADC.
- * Usage:
- *
- * adc_init_single(ADC1, 1, 1, 0, 0);
- *
- * ... would enable ADC1, enabling channels 1 and 2,
- * but not 3 and 4.
- */
-static inline void adc_init_single(uint32_t adc,
-                                   uint8_t chan1, uint8_t chan2,
-                                   uint8_t chan3, uint8_t chan4)
+
+static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* channel_map)
 {
-  uint8_t num_channels, rank;
-  uint8_t channels[4];
+  uint8_t x = 0;
 
   // Paranoia, must be down for 2+ ADC clock cycles before calibration
   adc_off(adc);
 
-  /* enable adc clock */
-  if (adc == ADC1) {
-#ifdef USE_AD1
-    num_channels = NB_ADC1_CHANNELS;
-    ADC1_GPIO_INIT();
-#endif
-  }
-  else if (adc == ADC2) {
-#ifdef USE_AD2
-    num_channels = NB_ADC2_CHANNELS;
-    ADC2_GPIO_INIT();
-#endif
-  }
-
   /* Configure ADC */
-
   /* Explicitly setting most registers, reset/default values are correct for most */
-
   /* Set CR1 register. */
-
   /* Clear AWDEN */
   adc_disable_analog_watchdog_regular(adc);
   /* Clear JAWDEN */
@@ -356,7 +490,6 @@ static inline void adc_init_single(uint32_t adc,
   adc_disable_eoc_interrupt(adc);
 
   /* Set CR2 register. */
-
   /* Clear TSVREFE */
 #if defined(STM32F1)
   adc_disable_temperature_sensor(adc);
@@ -372,45 +505,28 @@ static inline void adc_init_single(uint32_t adc,
   /* Clear CONT */
   adc_set_single_conversion_mode(adc);
 
-  rank = 3;
-  if (chan1) {
-    adc_set_sample_time(adc, adc_channel_map[0], ADC_SAMPLE_TIME);
-    channels[rank] = adc_channel_map[0];
-    rank--;
-  }
-  if (chan2) {
-    adc_set_sample_time(adc, adc_channel_map[1], ADC_SAMPLE_TIME);
-    channels[rank] = adc_channel_map[1];
-    rank--;
-  }
-  if (chan3) {
-    adc_set_sample_time(adc, adc_channel_map[2], ADC_SAMPLE_TIME);
-    channels[rank] = adc_channel_map[2];
-    rank--;
-  }
-  if (chan4) {
-    adc_set_sample_time(adc, adc_channel_map[3], ADC_SAMPLE_TIME);
-    channels[rank] = adc_channel_map[3];
+  for (x = (4-nb_channels); x < 4; x++) {
+    adc_set_sample_time(adc, channel_map[x], ADC_SAMPLE_TIME);
   }
 
-  adc_set_injected_sequence(adc, num_channels, channels);
+  adc_set_injected_sequence(adc, nb_channels, channel_map);
 
 #if USE_AD_TIM4
-PRINT_CONFIG_MSG("Info: Using TIM4 for ADC")
+  PRINT_CONFIG_MSG("Info: Using TIM4 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #elif USE_AD_TIM1
-PRINT_CONFIG_MSG("Info: Using TIM1 for ADC")
+  PRINT_CONFIG_MSG("Info: Using TIM1 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
 #else
-PRINT_CONFIG_MSG("Info: Using default TIM2 for ADC")
+  PRINT_CONFIG_MSG("Info: Using default TIM2 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
 #elif defined(STM32F4)
@@ -430,127 +546,10 @@ PRINT_CONFIG_MSG("Info: Using default TIM2 for ADC")
   /* Check the end of ADC<X> calibration */
   while ((ADC_CR2(adc) & ADC_CR2_CAL) != 0);
 #endif
+
+  return;
 } // adc_init_single
 
-
-void adc_init( void ) {
-
-  /* initialize buffer pointers with 0 (not set).
-     buffer null pointers will be ignored in interrupt
-     handler, which is important as there are no
-     buffers registered at the time the ADC trigger
-     interrupt is enabled.
-  */
-  uint8_t channel;
-#ifdef USE_AD1
-  for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
-    adc1_buffers[channel] = NULL;
-  volatile uint32_t* tmp_channels_1[] = {
-    &ADC_JDR1(ADC1),
-    &ADC_JDR2(ADC1),
-    &ADC_JDR3(ADC1),
-    &ADC_JDR4(ADC1)
-  };
-#ifdef USE_AD1_1
-  adc_injected_channels[ADC1_C1] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C1];
-#endif
-#ifdef USE_AD1_2
-  adc_injected_channels[ADC1_C2] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C2];
-#endif
-#ifdef USE_AD1_3
-  adc_injected_channels[ADC1_C3] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C3];
-#endif
-#ifdef USE_AD1_4
-  adc_injected_channels[ADC1_C4] = tmp_channels_1[NB_ADC1_CHANNELS-1-ADC1_C4];
-#endif
-
-#endif // USE_AD1
-
-#ifdef USE_AD2
-  for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
-    adc2_buffers[channel] = NULL;
-  volatile uint32_t* tmp_channels_2[] = {
-    &ADC_JDR1(ADC2),
-    &ADC_JDR2(ADC2),
-    &ADC_JDR3(ADC2),
-    &ADC_JDR4(ADC2)
-  };
-#ifdef USE_AD2_1
-  adc_injected_channels[ADC2_C1] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C1];
-#endif
-#ifdef USE_AD2_2
-  adc_injected_channels[ADC2_C2] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C2];
-#endif
-#ifdef USE_AD2_3
-  adc_injected_channels[ADC2_C3] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C3];
-#endif
-#ifdef USE_AD2_4
-  adc_injected_channels[ADC2_C4] = tmp_channels_2[NB_ADC2_CHANNELS-1-ADC2_C4];
-#endif
-
-#endif // USE_AD2
-
-  adc_new_data_trigger = FALSE;
-  adc_channel_map[0] = BOARD_ADC_CHANNEL_1;
-  adc_channel_map[1] = BOARD_ADC_CHANNEL_2;
-  adc_channel_map[2] = BOARD_ADC_CHANNEL_3;
-  adc_channel_map[3] = BOARD_ADC_CHANNEL_4;
-
-  adc_init_rcc();
-  adc_init_irq();
-
-  // adc_init_single(ADCx, c1, c2, c3, c4)
-#ifdef USE_AD1
-  adc_init_single(ADC1,
-#ifdef USE_AD1_1
-                  1,
-#else
-                  0,
-#endif
-#ifdef USE_AD1_2
-                  1,
-#else
-                  0,
-#endif
-#ifdef USE_AD1_3
-                  1,
-#else
-                  0,
-#endif
-#ifdef USE_AD1_4
-                  1
-#else
-                  0
-#endif
-                  );
-#endif // USE_AD1
-
-#ifdef USE_AD2
-  adc_init_single(ADC2,
-#ifdef USE_AD2_1
-                  1,
-#else
-                  0,
-#endif
-#ifdef USE_AD2_2
-                  1,
-#else
-                  0,
-#endif
-#ifdef USE_AD2_3
-                  1,
-#else
-                  0,
-#endif
-#ifdef USE_AD2_4
-                  1
-#else
-                  0
-#endif
-                  );
-#endif // USE_AD2
-
-}
 
 static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
   uint8_t new_head = buf->head + 1;
@@ -564,41 +563,73 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
   buf->head = new_head;
 }
 
-/**
- * ADC1+2 interrupt hander
- */
+/*********************************/
+/***   ADC INTERRUPT HANDLER   ***/
+/*********************************/
+
 #if defined(STM32F1)
 void adc1_2_isr(void)
 #elif defined(STM32F4)
-void adc_isr(void)
+  void adc_isr(void)
 #endif
 {
   uint8_t channel = 0;
   uint16_t value  = 0;
   struct adc_buf * buf;
 
-#ifdef USE_AD1
-  // Clear Injected End Of Conversion
-  ADC_SR(ADC1) &= ~ADC_SR_JEOC;
-  for(channel = 0; channel < NB_ADC1_CHANNELS; channel++) {
-    buf = adc1_buffers[channel];
-    if(buf) {
-      value = *adc_injected_channels[channel];
-      adc_push_sample(buf, value);
+#if USE_ADC_WATCHDOG
+  if (adc_watchdog.cb != NULL) {
+    if (adc_awd(adc_watchdog.adc)) {
+      ADC_SR(adc_watchdog.adc) &= ~ADC_SR_AWD; // clear int flag
+      adc_watchdog.cb();
     }
   }
-  adc_new_data_trigger = 1;
 #endif
-#ifdef USE_AD2
+
+#if USE_AD1
   // Clear Injected End Of Conversion
-  ADC_SR(ADC2) &= ~ADC_SR_JEOC;
-  for(channel = 0; channel < NB_ADC2_CHANNELS; channel++) {
-    buf = adc2_buffers[channel];
-    if(buf) {
-      value = *adc_injected_channels[channel];
-      adc_push_sample(buf, value);
+  if (ADC_SR(ADC1) & ADC_SR_JEOC){
+    ADC_SR(ADC1) &= ~ADC_SR_JEOC;
+    for (channel = 0; channel < nb_adc1_channels; channel++) {
+      buf = adc1_buffers[channel];
+      if (buf) {
+        value = *(&ADC_JDR1(ADC1)+channel);
+        adc_push_sample(buf, value);
+      }
     }
-  }
-  adc_new_data_trigger = 1;
+#if !USE_AD2 && !USE_AD3
+    adc_new_data_trigger = TRUE;
 #endif
+  }
+#endif
+#if USE_AD2
+  if (ADC_SR(ADC2) & ADC_SR_JEOC){
+    ADC_SR(ADC2) &= ~ADC_SR_JEOC;
+    for (channel = 0; channel < nb_adc2_channels; channel++) {
+      buf = adc2_buffers[channel];
+      if (buf) {
+        value = *(&ADC_JDR1(ADC2)+channel);
+        adc_push_sample(buf, value);
+      }
+    }
+#if !USE_AD3
+    adc_new_data_trigger = TRUE;
+#endif
+  }
+#endif
+#if USE_AD3
+  if (ADC_SR(ADC3) & ADC_SR_JEOC){
+    ADC_SR(ADC3) &= ~ADC_SR_JEOC;
+    for (channel = 0; channel < nb_adc3_channels; channel++) {
+      buf = adc3_buffers[channel];
+      if (buf) {
+        value = *(&ADC_JDR1(ADC3)+channel);
+        adc_push_sample(buf, value);
+      }
+    }
+    adc_new_data_trigger = TRUE;
+  }
+#endif
+
+  return;
 }

@@ -39,10 +39,31 @@
 
 float heading;
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_infrared(void) {
+  DOWNLINK_SEND_IR_SENSORS(DefaultChannel, DefaultDevice,
+      &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
+}
+
+static void send_status(void) {
+  uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top);
+  uint8_t mde = 3;
+  if (contrast < 50) mde = 7;
+  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &contrast);
+}
+#endif
+
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
 
   heading = 0.;
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "IR_SENSORS", send_infrared);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_status);
+#endif
 }
 
 void ahrs_align(void) {

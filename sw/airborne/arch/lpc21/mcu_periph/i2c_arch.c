@@ -106,6 +106,8 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
         case I2CTransTxRx:
           ClearBit(trans->slave_addr,0);
           break;
+        default:
+          break;
       }
       I2cSendByte(p->reg_addr,trans->slave_addr);
       I2cClearStart(p->reg_addr);

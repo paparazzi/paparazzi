@@ -16,7 +16,7 @@
   <periodic fun="mag_hmc58xx_module_periodic()" freq="60"/>
   <periodic fun="mag_hmc58xx_report()" freq="10" autorun="TRUE"/>
   <event fun="mag_hmc58xx_module_event()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="mag_hmc58xx.c"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <define name="USE_I2C"/>

@@ -74,6 +74,11 @@ void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output
     gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, pin);
 }
 
+void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
+  gpio_enable_clock(port);
+  gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_ANALOG, pin);
+}
+
 #elif defined STM32F4
 void gpio_enable_clock(uint32_t port) {
   switch (port) {
@@ -88,6 +93,21 @@ void gpio_enable_clock(uint32_t port) {
       break;
     case GPIOD:
       rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
+      break;
+    case GPIOE:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPEEN);
+      break;
+    case GPIOF:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPFEN);
+      break;
+    case GPIOG:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPGEN);
+      break;
+    case GPIOH:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPHEN);
+      break;
+    case GPIOI:
+      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPIEN);
       break;
     default:
       break;
@@ -109,5 +129,11 @@ void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output
   gpio_mode_setup(port, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
   gpio_set_af(port, af, pin);
 }
+
+void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
+  gpio_enable_clock(port);
+  gpio_mode_setup(port, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, pin);
+}
+
 #endif
 

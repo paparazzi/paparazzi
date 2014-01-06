@@ -24,16 +24,11 @@
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
 CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/rotorcraft
 
-SRC_BOOZ_TEST=$(SRC_BOOZ)/test
-SRC_BOOZ_PRIV=booz_priv
-
 SRC_BOARD=boards/$(BOARD)
 SRC_FIRMWARE=firmwares/rotorcraft
 SRC_SUBSYSTEMS=subsystems
 
 SRC_ARCH=arch/$(ARCH)
-
-CFG_BOOZ=$(PAPARAZZI_SRC)/conf/firmwares/
 
 ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 

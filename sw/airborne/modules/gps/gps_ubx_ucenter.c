@@ -28,6 +28,7 @@
  */
 
 #include "gps_ubx_ucenter.h"
+#include "subsystems/gps/gps_ubx.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
@@ -284,6 +285,10 @@ static inline void gps_ubx_ucenter_config_nav(void)
 #define _UBX_GPS_BAUD(_u) __UBX_GPS_BAUD(_u)
 #define UBX_GPS_BAUD _UBX_GPS_BAUD(GPS_LINK)
 
+#ifndef GPS_UBX_UCENTER_RATE
+#define GPS_UBX_UCENTER_RATE 0x00FA
+#endif
+
 static inline void gps_ubx_ucenter_config_port(void)
 {
  // I2C Interface
@@ -292,7 +297,7 @@ static inline void gps_ubx_ucenter_config_port(void)
   #endif
   // UART Interface
   #if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
-    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, UBX_GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
   #endif
   #if GPS_PORT_ID == GPS_PORT_USB
     UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x0, 0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
@@ -331,9 +336,6 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
 
 
 // Text Telemetry for Debugging
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #undef GOT_PAYLOAD
 #include "subsystems/datalink/downlink.h"
 
@@ -376,8 +378,8 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     break;
   case 6:
     // Now the GPS baudrate should have changed
-    GpsUartSetBaudrate(B38400);
-    gps_ubx_ucenter.baud_run = 38400;
+    GpsUartSetBaudrate(UBX_GPS_BAUD);
+    gps_ubx_ucenter.baud_run = UBX_GPS_BAUD;
     gps_ubx_ucenter_config_nav();
     break;
   case 7:
@@ -407,13 +409,18 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     gps_ubx_ucenter_config_sbas();
     break;
   case 14:
-    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
+    UbxSend_CFG_RATE(GPS_UBX_UCENTER_RATE, 0x0001, 0x0000);
     break;
   case 15:
+#if USE_GPS_UBX_RXM_RAW
+    gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RAW_ID, 1);
+#endif
+    break;
+  case 16:
     // Try to save on non-ROM devices...
     UbxSend_CFG_CFG(0x00000000,0xffffffff,0x00000000);
     break;
-  case 16:
+  case 17:
 #if DEBUG_GPS_UBX_UCENTER
     // Debug Downlink the result of all configuration steps: see messages
     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,GPS_UBX_UCENTER_CONFIG_STEPS,gps_ubx_ucenter.replies);

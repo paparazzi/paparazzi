@@ -49,9 +49,6 @@ bool_t dc_probing = FALSE;
 uint16_t dc_photo_nr = 0;
 uint16_t dc_buffer = 0;
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"

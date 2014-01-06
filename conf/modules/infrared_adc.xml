@@ -3,10 +3,10 @@
 <module name="ir_adc" dir="sensors">
   <doc>
     <description>Infrared sensor using ADC</description>
-    <configure name="ADC_IR1" value="ADCX" description="ADC for IR horizontal channel 1"/>
-    <configure name="ADC_IR2" value="ADCX" description="ADC for IR horizontal channel 2"/>
-    <configure name="ADC_IR_TOP" value="ADCX" description="ADC for IR vertical channel"/>
-    <configure name="ADC_IR_NB_SAMPLES" value="nb samples"/>
+    <configure name="ADC_IR1" value="ADC_1" description="ADC for IR horizontal channel 1"/>
+    <configure name="ADC_IR2" value="ADC_2" description="ADC for IR horizontal channel 2"/>
+    <configure name="ADC_IR_TOP" value="ADC_0" description="ADC for IR vertical channel"/>
+    <configure name="ADC_IR_NB_SAMPLES" value="16" description="number of samples"/>
   </doc>
   <header>
     <file name="infrared_adc.h"/>
@@ -20,24 +20,14 @@
   </makefile>
   <makefile target="ap">
     <raw>
-#
-# LPC only has one ADC
-#
-ifeq ($(ARCH), lpc21)
+ADC_IR_TOP ?= ADC_0
+ADC_IR1 ?= ADC_1
+ADC_IR2 ?= ADC_2
+ADC_IR_NB_SAMPLES ?= 16
+
 ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1) -DUSE_$(ADC_IR1)
 ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2) -DUSE_$(ADC_IR2)
 ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP) -DUSE_$(ADC_IR_TOP)
-endif
-
-#
-# On STM32 let's hardwire infrared sensors to AD1 for now
-#
-ifeq ($(ARCH), stm32)
-ap.CFLAGS += -DUSE_AD1
-ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1_CHAN) -DUSE_AD1_$(ADC_IR1)
-ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2_CHAN) -DUSE_AD1_$(ADC_IR2)
-ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP_CHAN) -DUSE_AD1_$(ADC_IR_TOP)
-endif
 
 ap.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
     </raw>

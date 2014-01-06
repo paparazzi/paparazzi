@@ -31,7 +31,6 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 
-
 struct _mission mission;
 
 
@@ -83,6 +82,26 @@ struct _mission_element * mission_get(void) {
   return &(mission.elements[mission.current_idx]);
 }
 
+
+// Report function
+void mission_status_report(void) {
+  // build task list
+  uint8_t task_list[MISSION_ELEMENT_NB];
+  uint8_t i = mission.current_idx, j = 0;
+  while (i != mission.insert_idx) {
+    task_list[j++] = (uint8_t)mission.elements[i].type;
+    i = (i+1)%MISSION_ELEMENT_NB;
+  }
+  if (j == 0) { task_list[j++] = 0; } // Dummy value if task list is empty
+  //compute remaining time (or -1. if no time limit)
+  float remaining_time = -1.;
+  if (mission.elements[mission.current_idx].duration > 0.) {
+    remaining_time = mission.elements[mission.current_idx].duration - mission.element_time;
+  }
+
+  // send status
+  DOWNLINK_SEND_MISSION_STATUS(DefaultChannel, DefaultDevice, &remaining_time, j, task_list);
+}
 
 
 ///////////////////////

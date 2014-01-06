@@ -3,8 +3,16 @@
 <module name="rotorcraft_cam" dir="cam_control">
   <doc>
     <description>
-      Camera control for rotorcraft.
-      The camera is controled by the heading of the vehicle for pan and can be controlled by a servo for tilt if defined.
+Camera control for rotorcraft.
+The camera is controled by the heading of the vehicle for pan and can be controlled by a servo for tilt if defined.
+
+Four modes:
+  - NONE: no control
+  - MANUAL: the servo position is set with PWM
+  - HEADING: the servo position and the heading of the rotorcraft are set with angles
+  - WP: the camera is tracking a waypoint (Default: CAM)
+
+The CAM_SWITCH can be used to power the camera in normal modes and disable it when in NONE mode.
     </description>
     <section name="CAM" prefix="ROTORCRAFT_CAM_">
       <define name="DEFAULT_MODE" value="MODE_NONE|MODE_MANUAL|MODE_HEADING|MODE_WP" description="Select default mode (default: MODE_NONE)"/>
@@ -26,7 +34,6 @@
   <periodic fun="rotorcraft_cam_periodic()" freq="10."/>
   <datalink message="ROTORCRAFT_CAM_STICK" fun="ROTORCRAFT_CAM_STICK_PARSE(dl_buffer)"/>
   <makefile>
-    <define name="USE_CAM"/>
     <file name="rotorcraft_cam.c"/>
   </makefile>
 </module>

@@ -56,7 +56,7 @@
     _PrintHex16(out_fun, low32);				\
 }
 
-#ifdef USE_UART0
+#if USE_UART0
 
 #define UART0PrintHex(c) _PrintHex(UART0Transmit, c)
 #define UART0PrintHex16(c) _PrintHex16(UART0Transmit, c)
@@ -65,7 +65,7 @@
 
 #endif /* USE_UART0 */
 
-#ifdef USE_UART1
+#if USE_UART1
 
 #define UART1PrintHex(c) _PrintHex(UART1Transmit, c)
 #define UART1PrintHex16(c) _PrintHex16(UART1Transmit, c)
@@ -74,7 +74,7 @@
 
 #endif /* USE_UART1 */
 
-#ifdef USE_UART2
+#if USE_UART2
 
 #define UART2PrintHex(c) _PrintHex(UART2Transmit, c)
 #define UART2PrintHex16(c) _PrintHex16(UART2Transmit, c)
@@ -83,7 +83,7 @@
 
 #endif /* USE_UART2 */
 
-#ifdef USE_UART3
+#if USE_UART3
 
 #define UART3PrintHex(c) _PrintHex(UART3Transmit, c)
 #define UART3PrintHex16(c) _PrintHex16(UART3Transmit, c)
@@ -92,7 +92,16 @@
 
 #endif /* USE_UART3 */
 
-#ifdef USE_UART5
+#if USE_UART4
+
+#define UART4PrintHex(c) _PrintHex(UART4Transmit, c)
+#define UART4PrintHex16(c) _PrintHex16(UART4Transmit, c)
+#define UART4PrintHex32(c) _PrintHex32(UART4Transmit, c)
+#define UART4PrintString(s) _PrintString(UART4Transmit, s)
+
+#endif /* USE_UART4 */
+
+#if USE_UART5
 
 #define UART5PrintHex(c) _PrintHex(UART5Transmit, c)
 #define UART5PrintHex16(c) _PrintHex16(UART5Transmit, c)
@@ -100,6 +109,15 @@
 #define UART5PrintString(s) _PrintString(UART5Transmit, s)
 
 #endif /* USE_UART5 */
+
+#if USE_UART6
+
+#define UART6PrintHex(c) _PrintHex(UART6Transmit, c)
+#define UART6PrintHex16(c) _PrintHex16(UART6Transmit, c)
+#define UART6PrintHex32(c) _PrintHex32(UART6Transmit, c)
+#define UART6PrintString(s) _PrintString(UART6Transmit, s)
+
+#endif /* USE_UART6 */
 
 #define UsbSPrintHex(c) _PrintHex(VCOM_putchar, c)
 #define UsbSPrintHex16(c) _PrintHex16(VCOM_putchar, c)

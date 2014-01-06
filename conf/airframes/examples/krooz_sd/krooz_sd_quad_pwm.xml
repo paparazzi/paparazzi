@@ -25,15 +25,15 @@
     <subsystem name="motor_mixing"/>
 
     <define name="NO_RC_THRUST_LIMIT"/>
-		<define name="USE_RC_FP_BLOCK_SWITCHING"/>
+    <define name="USE_RC_FP_BLOCK_SWITCHING"/>
     <define name="USE_ATTITUDE_REF" value="0"/>
   </firmware>
 
-	<modules main_freq="512">
-		<!--<load name="gps_ubx_ucenter.xml"/>
-    <load name="sys_mon.xml"/>
-		<load name="geo_mag.xml"/>
-    <load name="osd_max7456.xml"/>-->
+  <modules main_freq="512">
+    <load name="gps_ubx_ucenter.xml"/>
+    <load name="geo_mag.xml"/>
+    <load name="osd_max7456.xml"/>
+    <load name="hott_telemetry.xml"/>
   </modules>
 
   <servos driver="Pwm">

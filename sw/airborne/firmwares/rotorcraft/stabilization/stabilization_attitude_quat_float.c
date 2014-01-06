@@ -39,6 +39,7 @@ struct FloatQuat stabilization_att_sum_err_quat;
 struct FloatEulers stabilization_att_sum_err;
 
 struct FloatRates last_body_rate;
+struct FloatRates body_rate_d;
 
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
@@ -90,6 +91,50 @@ static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURF
 
 #define IERROR_SCALE 1024
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_att(void) {
+  struct FloatRates* body_rate = stateGetBodyRates_f();
+  struct FloatEulers* att = stateGetNedToBodyEulers_f();
+  DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(DefaultChannel, DefaultDevice,
+                                    &(body_rate->p), &(body_rate->q), &(body_rate->r),
+                                    &(att->phi), &(att->theta), &(att->psi),
+                                    &stab_att_sp_euler.phi,
+                                    &stab_att_sp_euler.theta,
+                                    &stab_att_sp_euler.psi,
+                                    &stabilization_att_sum_err.phi,
+                                    &stabilization_att_sum_err.theta,
+                                    &stabilization_att_sum_err.psi,
+                                    &stabilization_att_fb_cmd[COMMAND_ROLL],
+                                    &stabilization_att_fb_cmd[COMMAND_PITCH],
+                                    &stabilization_att_fb_cmd[COMMAND_YAW],
+                                    &stabilization_att_ff_cmd[COMMAND_ROLL],
+                                    &stabilization_att_ff_cmd[COMMAND_PITCH],
+                                    &stabilization_att_ff_cmd[COMMAND_YAW],
+                                    &stabilization_cmd[COMMAND_ROLL],
+                                    &stabilization_cmd[COMMAND_PITCH],
+                                    &stabilization_cmd[COMMAND_YAW],
+                                    &body_rate_d.p, &body_rate_d.q, &body_rate_d.r);
+}
+
+static void send_att_ref(void) {
+  DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(DefaultChannel, DefaultDevice,
+                                        &stab_att_sp_euler.phi,
+                                        &stab_att_sp_euler.theta,
+                                        &stab_att_sp_euler.psi,
+                                        &stab_att_ref_euler.phi,
+                                        &stab_att_ref_euler.theta,
+                                        &stab_att_ref_euler.psi,
+                                        &stab_att_ref_rate.p,
+                                        &stab_att_ref_rate.q,
+                                        &stab_att_ref_rate.r,
+                                        &stab_att_ref_accel.p,
+                                        &stab_att_ref_accel.q,
+                                        &stab_att_ref_accel.r);
+}
+#endif
+
 void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
@@ -111,6 +156,12 @@ void stabilization_attitude_init(void) {
   FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   FLOAT_RATES_ZERO( last_body_rate );
+  FLOAT_RATES_ZERO( body_rate_d );
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
+  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+#endif
 }
 
 void stabilization_attitude_gain_schedule(uint8_t idx)
@@ -249,7 +300,6 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   struct FloatRates* body_rate = stateGetBodyRates_f();
   RATES_DIFF(rate_err, stab_att_ref_rate, *body_rate);
   /* rate_d error               */
-  struct FloatRates body_rate_d;
   RATES_DIFF(body_rate_d, *body_rate, last_body_rate);
   RATES_COPY(last_body_rate, *body_rate);
 

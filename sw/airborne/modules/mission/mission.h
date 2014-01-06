@@ -34,13 +34,13 @@
 #include "math/pprz_geodetic_float.h"
 
 enum MissionType {
-  MissionWP,
-  MissionCircle,
-  MissionSegment,
-  MissionPath,
-  MissionSurvey,
-  MissionEight,
-  MissionOval
+  MissionWP = 1,
+  MissionCircle = 2,
+  MissionSegment = 3,
+  MissionPath = 4,
+  MissionSurvey = 5,
+  MissionEight = 6,
+  MissionOval = 7
 };
 
 enum MissionInsertMode {
@@ -117,7 +117,13 @@ extern struct _mission_element * mission_get(void);
  *
  * @return return TRUE when the mission is running, FALSE when it is finished
  */
-extern int mission_run();
+extern int mission_run(void);
+
+/** Report mission status
+ *
+ * Send mission status over datalink
+ */
+extern void mission_status_report(void);
 
 /** Parsing functions called when a mission message is received
  */

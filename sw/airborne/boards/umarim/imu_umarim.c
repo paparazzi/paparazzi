@@ -39,9 +39,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 #ifndef UMARIM_ACCEL_RANGE
 #define UMARIM_ACCEL_RANGE ADXL345_RANGE_16G

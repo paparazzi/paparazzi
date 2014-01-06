@@ -87,6 +87,40 @@ static inline void nav_set_altitude( void );
 #define ARRIVED_AT_WAYPOINT (3 << 8)
 #define CARROT_DIST (12 << 8)
 
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+
+static void send_nav_status(void) {
+  DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(DefaultChannel, DefaultDevice,
+      &block_time, &stage_time,
+      &nav_block, &nav_stage,
+      &horizontal_mode);
+  if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {
+    float sx = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].x);
+    float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);
+    float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);
+    float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);
+    DOWNLINK_SEND_SEGMENT(DefaultChannel, DefaultDevice, &sx, &sy, &ex, &ey);
+  }
+  else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {
+    float cx = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].x);
+    float cy = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].y);
+    float r = POS_FLOAT_OF_BFP(nav_circle_radius);
+    DOWNLINK_SEND_CIRCLE(DefaultChannel, DefaultDevice, &cx, &cy, &r);
+  }
+}
+
+static void send_wp_moved(void) {
+  static uint8_t i;
+  i++; if (i >= nb_waypoint) i = 0;
+  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice,
+      &i,
+      &(waypoints[i].x),
+      &(waypoints[i].y),
+      &(waypoints[i].z));
+}
+#endif
+
 void nav_init(void) {
   // convert to
   const struct EnuCoor_f wp_tmp_float[NB_WAYPOINT] = WAYPOINTS;
@@ -119,6 +153,10 @@ void nav_init(void) {
   nav_leg_progress = 0;
   nav_leg_length = 1;
 
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_NAV_STATUS", send_nav_status);
+  register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);
+#endif
 }
 
 static inline void nav_advance_carrot(void) {

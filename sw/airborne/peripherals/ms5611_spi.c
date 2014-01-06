@@ -97,15 +97,8 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
       if (ms->spi_trans.status == SPITransDone) {
         /* start getting prom data */
         ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
+        spi_submit(ms->spi_p, &(ms->spi_trans));
         ms->status = MS5611_STATUS_PROM;
-        spi_submit(ms->spi_p, &(ms->spi_trans));
-      }
-      break;
-    case MS5611_STATUS_PROM:
-      if (ms->prom_cnt < PROM_NB) {
-        /* get next prom data */
-        ms->tx_buf[0] = MS5611_PROM_READ | (ms->prom_cnt << 1);
-        spi_submit(ms->spi_p, &(ms->spi_trans));
       }
       break;
     case MS5611_STATUS_CONV_D1:
@@ -115,8 +108,8 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
       if (ms->spi_trans.status == SPITransDone) {
         /* read D1 adc */
         ms->tx_buf[0] = MS5611_ADC_READ;
-        ms->status = MS5611_STATUS_ADC_D1;
         spi_submit(ms->spi_p, &(ms->spi_trans));
+        ms->status = MS5611_STATUS_ADC_D1;
       }
       break;
     case MS5611_STATUS_CONV_D2:
@@ -126,8 +119,8 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
       if (ms->spi_trans.status == SPITransDone) {
         /* read D2 adc */
         ms->tx_buf[0] = MS5611_ADC_READ;
-        ms->status = MS5611_STATUS_ADC_D2;
         spi_submit(ms->spi_p, &(ms->spi_trans));
+        ms->status = MS5611_STATUS_ADC_D2;
       }
       break;
     default:
@@ -268,7 +261,7 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
           else {
             /* start D2 conversion */
             ms->tx_buf[0] = MS5611_START_CONV_D2;
-			spi_submit(ms->spi_p, &(ms->spi_trans));
+            spi_submit(ms->spi_p, &(ms->spi_trans));
             ms->status = MS5611_STATUS_CONV_D2;
           }
           break;

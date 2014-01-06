@@ -41,9 +41,6 @@
 #define ADC_CHANNEL_LIGHT_NB_SAMPLES 16
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 uint16_t adc_light_temt;
 

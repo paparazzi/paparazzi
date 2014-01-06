@@ -12,6 +12,8 @@ BOARD_CFG=\"boards/$(BOARD)$(BOARD_VERSION)_$(BOARD_TYPE).h\"
 
 ARCH=omap
 $(TARGET).ARCHDIR = $(ARCH)
+# include conf/Makefile.ardrone2 (with specific upload rules) instead of only Makefile.omap:
+ap.MAKEFILE = ardrone2
 
 # -----------------------------------------------------------------------
 USER=foobar

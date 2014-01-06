@@ -20,8 +20,6 @@ LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
 
-ADC_GENERIC_NB_SAMPLES = 16
-
 # All targets on the board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)
 

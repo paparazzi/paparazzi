@@ -61,7 +61,7 @@
       <set value="RACE_AIRSPEED" var="v_ctl_auto_airspeed_setpoint" />
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
-    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
+    <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <circle radius="100" wp="MOB"/>
     </block>

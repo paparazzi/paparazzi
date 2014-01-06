@@ -92,7 +92,6 @@
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
@@ -188,6 +187,10 @@
     <subsystem name="navigation"/>
     <subsystem name="ins" type="alt_float"/>
   </firmware>
+
+<section name="GCS">
+    <define name="AC_ICON" value="flyingwing"/>
+  </section>
 
   <modules>
     <load name="openlog.xml"/>

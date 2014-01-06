@@ -56,7 +56,7 @@
 
 /* not compatible with PWM1 */
 #define ADC_0 AdcBank1(6)
-#ifdef USE_ADC_0
+#if USE_ADC_0
 #ifndef USE_AD1
 #define USE_AD1
 #endif
