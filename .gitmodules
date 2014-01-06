@@ -4,3 +4,6 @@
 [submodule "sw/ext/luftboot"]
 	path = sw/ext/luftboot
 	url = https://github.com/paparazzi/luftboot.git
+[submodule "sw/ext/chibios"]
+	path = sw/ext/chibios
+	url = https://github.com/podhrmic/ChibiOS-RT

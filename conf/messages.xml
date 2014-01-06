@@ -1165,7 +1165,13 @@
     <field name="status" type="uint8" values="UNINIT|RUNNING|LOCKED"/>
   </message>
 
-  <!-- 138 is free -->
+  <message name="CHIBIOS_INFO" id="138">
+    <field name="core_free_memory" type="uint32" unit="bytes"/>
+    <field name="sys_time" type="uint16" unit="s"/>
+    <field name="threads" type="uint8"/>
+    <field name="cpu_load" type="uint8" unit="%"/>
+    <field name="cpu_temp" type="uint8" unit="C"/>
+  </message>
 
   <message name="FILTER_COR" id="139">
     <field name="mphi"   type="int32"/>
@@ -1915,7 +1921,6 @@
  <!--223 is free -->
  <!--224 is free -->
  <!--225 is free -->
-
   <message name="PERIODIC_TELEMETRY_ERR" id="226">
     <field name="process" type="uint8"/>
     <field name="mode" type="uint8"/>
@@ -2380,7 +2385,7 @@
     <field name="survey_alt" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
   </message>
-
+  
   <message name="MISSION_SURVEY_LLA" id="29" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
@@ -2391,7 +2396,7 @@
     <field name="survey_alt" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
   </message>
-
+  
   <message name="GOTO_MISSION" id="30" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="mission_id" type="uint8"/>

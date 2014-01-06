@@ -24,6 +24,9 @@
 
 uint16_t ppm_pulses[ PPM_NB_CHANNEL ];
 volatile bool_t ppm_frame_available;
+#ifdef USE_CHIBIOS_RTOS
+EventSource eventPpmFrame;
+#endif
 
 #if DOWNLINK
 #ifdef FBW
@@ -44,6 +47,9 @@ static void send_ppm(void) {
 #endif
 
 void radio_control_impl_init(void) {
+#ifdef USE_CHIBIOS_RTOS
+  chEvtInit(&eventPpmFrame);
+#endif
   ppm_frame_available = FALSE;
   ppm_arch_init();
 

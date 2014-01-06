@@ -36,8 +36,9 @@
 struct Ms5611_Spi {
   struct spi_periph *spi_p;
   struct spi_transaction spi_trans;
-  volatile uint8_t tx_buf[1];
-  volatile uint8_t rx_buf[4];
+  SPI_VOLATILE uint8_t tx_buf[1];
+  SPI_VOLATILE uint8_t rx_buf[4];
+
   enum Ms5611Status status;
   bool_t initialized;                 ///< config done flag
   volatile bool_t data_available;     ///< data ready flag
@@ -51,6 +52,9 @@ extern void ms5611_spi_start_configure(struct Ms5611_Spi* ms);
 extern void ms5611_spi_start_conversion(struct Ms5611_Spi* ms);
 extern void ms5611_spi_periodic_check(struct Ms5611_Spi* ms);
 extern void ms5611_spi_event(struct Ms5611_Spi* ms);
+#ifdef USE_CHIBIOS_RTOS
+extern void ms5611_spi_synchronous_periodic_check(struct Ms5611_Spi* ms);
+#endif /* USE_CHIBIOS_RTOS */
 
 /** convenience function to trigger new measurement.
  * (or start configuration if not already initialized)

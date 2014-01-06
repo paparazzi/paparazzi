@@ -51,8 +51,8 @@ enum Mpu60x0SpiSlaveInitStatus {
 struct Mpu60x0_Spi {
   struct spi_periph *spi_p;
   struct spi_transaction spi_trans;
-  volatile uint8_t tx_buf[2];
-  volatile uint8_t rx_buf[MPU60X0_BUFFER_LEN];
+  SPI_VOLATILE uint8_t tx_buf[2];
+  SPI_VOLATILE uint8_t rx_buf[MPU60X0_BUFFER_LEN];
   volatile bool_t data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system

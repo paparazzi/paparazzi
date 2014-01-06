@@ -34,6 +34,10 @@ struct GpsState gps;
 
 struct GpsTimeSync gps_time_sync;
 
+#ifdef USE_CHIBIOS_RTOS
+Mutex gps_mutex_flag;
+#endif
+
 #if DOWNLINK
 #include "subsystems/datalink/telemetry.h"
 
@@ -111,6 +115,9 @@ void gps_init(void) {
   register_periodic_telemetry(DefaultPeriodic, "GPS_INT", send_gps_int);
   register_periodic_telemetry(DefaultPeriodic, "GPS_LLA", send_gps_lla);
   register_periodic_telemetry(DefaultPeriodic, "GPS_SOL", send_gps_sol);
+#endif
+#ifdef USE_CHIBIOS_RTOS
+  chMtxInit(&gps_mutex_flag);
 #endif
 }
 
