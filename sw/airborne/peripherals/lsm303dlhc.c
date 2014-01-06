@@ -114,10 +114,10 @@ static void lsm303dlhc_send_config(struct Lsm303dlhc *lsm)
     lsm303dlhc_i2c_tx_reg(lsm, LSM303DLHC_REG_CTRL_REG4_A, (lsm->config.scale & LSM303DLHC_FS_MASK) | (lsm->config.hres & LSM303DLHC_HR));
       lsm->init_status++;
       break;
-  case LSM_CONF_CTRL_REG3_A:
-    lsm303dlhc_i2c_tx_reg(lsm, LSM303DLHC_REG_CTRL_REG3_A, LSM303DLHC_I1_DRDY1);
-      lsm->init_status++;
-      break;
+  /* case LSM_CONF_CTRL_REG3_A: */
+  /*   lsm303dlhc_i2c_tx_reg(lsm, LSM303DLHC_REG_CTRL_REG3_A, LSM303DLHC_I1_DRDY1); */
+  /*     lsm->init_status++; */
+  /*     break; */
 
     /* case LSM_CONF_CRA: */
     /*   lsm303dlhc_i2c_tx_reg(lsm, LSM303DLHC_REG_CFGA, (lsm->config.rate<<2)|(lsm->config.meas)); */
