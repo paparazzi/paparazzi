@@ -196,9 +196,9 @@ void imu_stm32f3_discovery_event( void )
     imu_stm32f3_discovery.mag_valid = TRUE;
   }
 
-  if (imu_stm32f3_discovery.lsm4_eoc) {
+  if (imu_stm32f3_discovery.lsm2_eoc) {
     lsm303dlhc_read(&imu_stm32f3_discovery.lsm_a);
-    imu_stm32f3_discovery.lsm4_eoc = FALSE;
+    imu_stm32f3_discovery.lsm2_eoc = FALSE;
   }
 
   // If the LSM303DLHC_ACC I2C transaction has succeeded: convert the data
