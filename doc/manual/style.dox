@@ -22,9 +22,8 @@ Feedback would be welcome to improve the Paparazzi guidelines.
 /** @page stylec C Style Guide
 
 This page contains guidelines for writing new C source code for the
-Paparazzi project. If you are using Eclipse, download Paparazzi code
-style for Eclipse here:
-http://paparazzi.enac.fr/wiki/File:Paparazzi_code_profile_eclipse.zip
+Paparazzi project. If you are using Eclipse, you can use Eclipse code
+style located in the repository (paparazzi_code_profile_eclipse.xml)
 
 @section styleformat Formatting Guide
 
