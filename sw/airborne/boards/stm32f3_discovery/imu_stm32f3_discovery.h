@@ -36,6 +36,7 @@
 
 #include "peripherals/mpu60x0_i2c.h"
 #include "peripherals/hmc58xx.h"
+#include "peripherals/lsm303dlhc.h"
 
 // Default configuration
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
@@ -113,10 +114,16 @@ struct ImuStm32f3_discovery {
   volatile bool_t mag_valid;
   volatile bool_t mpu_eoc;
   volatile bool_t hmc_eoc;
+  volatile bool_t lsm2_eoc;
+  volatile bool_t lsm4_eoc;
+  volatile bool_t lsm5_eoc;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
+  struct Lsm303dlhc lsm_a;
+  struct Lsm303dlhc_mag lsm_m;
   struct Int32Rates rates_sum;
   struct Int32Vect3 accel_sum;
+  struct Int32Vect3 accel_lsm_sum;
   volatile uint8_t  meas_nb;
   struct Int32Vect3 accel_filtered;
   struct Int32Rates gyro_filtered;
