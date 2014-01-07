@@ -301,7 +301,7 @@ set_failsafe_mode();
   link_mcu_periodic_task();
 #endif
 
-#ifdef DOWNLINK
+#if DOWNLINK
   periodic_telemetry_send_Fbw();
 #endif
 

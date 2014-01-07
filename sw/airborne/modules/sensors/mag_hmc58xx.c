@@ -46,10 +46,6 @@
 
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 struct Hmc58xx mag_hmc58xx;
 
 void mag_hmc58xx_module_init(void) {

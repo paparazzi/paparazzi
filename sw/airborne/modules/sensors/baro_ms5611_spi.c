@@ -36,10 +36,6 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 #ifndef MS5611_SPI_DEV
 #define MS5611_SPI_DEV spi1
 #endif
