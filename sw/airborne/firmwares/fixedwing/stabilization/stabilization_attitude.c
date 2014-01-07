@@ -112,7 +112,7 @@ float h_ctl_roll_rate_gain;
 static float nav_ratio;
 #endif
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_calibration(void) {
@@ -176,7 +176,7 @@ void h_ctl_init( void ) {
   nav_ratio=0;
 #endif
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "CALIBRATION", send_calibration);
 #endif
 }

@@ -65,7 +65,7 @@ int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 #define GAIN_PRESCALER_D 48
 #define GAIN_PRESCALER_I 48
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) { //FIXME really use this message here ?
@@ -128,7 +128,7 @@ void stabilization_attitude_init(void) {
   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_REF_QUAT", send_ahrs_ref_quat);

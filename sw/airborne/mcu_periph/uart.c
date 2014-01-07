@@ -22,14 +22,14 @@
 
 #include "mcu_periph/uart.h"
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #endif
 
 #if USE_UART0
 struct uart_periph uart0;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart0_err(void) {
   uint16_t ore    = uart0.ore;
   uint16_t ne_err = uart0.ne_err;
@@ -45,7 +45,7 @@ static void send_uart0_err(void) {
 #if USE_UART1
 struct uart_periph uart1;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart1_err(void) {
   uint16_t ore    = uart1.ore;
   uint16_t ne_err = uart1.ne_err;
@@ -61,7 +61,7 @@ static void send_uart1_err(void) {
 #if USE_UART2
 struct uart_periph uart2;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart2_err(void) {
   uint16_t ore    = uart2.ore;
   uint16_t ne_err = uart2.ne_err;
@@ -77,7 +77,7 @@ static void send_uart2_err(void) {
 #if USE_UART3
 struct uart_periph uart3;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart3_err(void) {
   uint16_t ore    = uart3.ore;
   uint16_t ne_err = uart3.ne_err;
@@ -93,7 +93,7 @@ static void send_uart3_err(void) {
 #if USE_UART4
 struct uart_periph uart4;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart4_err(void) {
   uint16_t ore    = uart4.ore;
   uint16_t ne_err = uart4.ne_err;
@@ -109,7 +109,7 @@ static void send_uart4_err(void) {
 #if USE_UART5
 struct uart_periph uart5;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart5_err(void) {
   uint16_t ore    = uart5.ore;
   uint16_t ne_err = uart5.ne_err;
@@ -125,7 +125,7 @@ static void send_uart5_err(void) {
 #if USE_UART6
 struct uart_periph uart6;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart6_err(void) {
   const uint8_t _bus6 = 6;
   uint16_t ore    = uart6.ore;
@@ -138,7 +138,7 @@ static void send_uart6_err(void) {
 
 #endif
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_uart_err(void) {
   static uint8_t uart_nb_cnt = 0;
   switch (uart_nb_cnt) {
@@ -188,7 +188,7 @@ void uart_periph_init(struct uart_periph* p) {
   p->ne_err = 0;
   p->fe_err = 0;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   // the first to register do it for the others
   register_periodic_telemetry(DefaultPeriodic, "UART_ERRORS", send_uart_err);
 #endif

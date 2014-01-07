@@ -236,7 +236,7 @@ static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, 
 static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float vel, float Rvel);
 static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, float Rvel);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_hff(void) {
@@ -312,7 +312,7 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   b2_hff_lost_counter = 0;
   b2_hff_lost_limit = HFF_LOST_LIMIT;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "HFF", send_hff);
   register_periodic_telemetry(DefaultPeriodic, "HFF_DBG", send_hff_debug);
 #ifdef GPS_LAG

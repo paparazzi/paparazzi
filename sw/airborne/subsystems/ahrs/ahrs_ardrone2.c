@@ -46,7 +46,7 @@ struct AhrsARDrone ahrs_impl;
 struct AhrsAligner ahrs_aligner;
 unsigned char buffer[4096]; //Packet buffer
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_ahrs_ad2(void) {
@@ -76,7 +76,7 @@ void ahrs_init(void) {
 
   ahrs.status = AHRS_RUNNING;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_ARDRONE2", send_ahrs_ad2);
 #endif
 }

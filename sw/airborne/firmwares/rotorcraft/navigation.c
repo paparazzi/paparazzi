@@ -87,7 +87,7 @@ static inline void nav_set_altitude( void );
 #define ARRIVED_AT_WAYPOINT (3 << 8)
 #define CARROT_DIST (12 << 8)
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_nav_status(void) {
@@ -153,7 +153,7 @@ void nav_init(void) {
   nav_leg_progress = 0;
   nav_leg_length = 1;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_NAV_STATUS", send_nav_status);
   register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);
 #endif

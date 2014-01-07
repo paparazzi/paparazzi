@@ -46,7 +46,7 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const flo
   air_data.pressure = *pressure;
 }
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_baro_raw(void) {
@@ -61,7 +61,7 @@ static void send_baro_raw(void) {
 void air_data_init( void ) {
   AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
 #endif
 }

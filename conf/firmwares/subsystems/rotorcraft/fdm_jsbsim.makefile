@@ -78,7 +78,7 @@ nps.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 nps.srcs += subsystems/settings.c
 nps.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
-nps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DDefaultPeriodic='&telemetry_Main'
+nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=IvyTransport -DDefaultPeriodic='&telemetry_Main'
 nps.srcs += $(SRC_ARCH)/ivy_transport.c
 nps.srcs += subsystems/datalink/downlink.c subsystems/datalink/telemetry.c
 nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c

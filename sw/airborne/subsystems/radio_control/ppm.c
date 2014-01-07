@@ -25,7 +25,7 @@
 uint16_t ppm_pulses[ PPM_NB_CHANNEL ];
 volatile bool_t ppm_frame_available;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #ifdef FBW
 #define DOWNLINK_TELEMETRY &telemetry_Fbw
 #else
@@ -47,7 +47,7 @@ void radio_control_impl_init(void) {
   ppm_frame_available = FALSE;
   ppm_arch_init();
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DOWNLINK_TELEMETRY, "PPM", send_ppm);
 #endif
 }

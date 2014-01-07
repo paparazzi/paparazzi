@@ -39,7 +39,7 @@
 
 float heading;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_infrared(void) {
@@ -60,7 +60,7 @@ void ahrs_init(void) {
 
   heading = 0.;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IR_SENSORS", send_infrared);
   register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_status);
 #endif

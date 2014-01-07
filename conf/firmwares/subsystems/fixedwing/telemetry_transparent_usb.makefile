@@ -4,7 +4,7 @@
 #serial USB (e.g. /dev/ttyACM0)
 
 ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS
+ap.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ -DUSE_USB_SERIAL -DUSE_USB_HIGH_PCLK
 ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 ap.srcs += $(SRC_FIRMWARE)/datalink.c

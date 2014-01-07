@@ -103,7 +103,7 @@ void link_mcu_event_task( void ) {
 uint8_t link_mcu_nb_err;
 uint8_t link_mcu_fbw_nb_err;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_debug_link(void) {
@@ -126,7 +126,7 @@ void link_mcu_init(void) {
   link_mcu_trans.input_length = LINK_MCU_FRAME_LENGTH;
   link_mcu_trans.output_length = LINK_MCU_FRAME_LENGTH;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "DEBUG_MCU_LINK", send_debug_link);
 #endif
 }

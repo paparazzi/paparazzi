@@ -75,7 +75,7 @@ float vff_P[VFF_STATE_SIZE][VFF_STATE_SIZE];
 
 float vff_z_meas;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_vff(void) {
@@ -96,7 +96,7 @@ void vff_init(float init_z, float init_zdot, float init_bias) {
     vff_P[i][i] = VF_FLOAT_INIT_PXX;
   }
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "VFF", send_vff);
 #endif
 }

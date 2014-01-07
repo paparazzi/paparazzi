@@ -60,7 +60,7 @@
 struct _sbus sbus;
 
 // Telemetry function
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #ifdef FBW
 #define DOWNLINK_TELEMETRY &telemetry_Fbw
 #else
@@ -92,7 +92,7 @@ void radio_control_impl_init(void) {
 #endif
 
   // Register telemetry message
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DOWNLINK_TELEMETRY, "PPM", send_sbus);
 #endif
 }

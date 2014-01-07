@@ -91,7 +91,7 @@ static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURF
 
 #define IERROR_SCALE 1024
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) {
@@ -158,7 +158,7 @@ void stabilization_attitude_init(void) {
   FLOAT_RATES_ZERO( last_body_rate );
   FLOAT_RATES_ZERO( body_rate_d );
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
 #endif

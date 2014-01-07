@@ -42,7 +42,7 @@ static struct Int32Vect3 mag_sum;
 static int32_t ref_sensor_samples[SAMPLES_NB];
 static uint32_t samples_idx;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_aligner(void) {
@@ -69,7 +69,7 @@ void ahrs_aligner_init(void) {
   ahrs_aligner.noise = 0;
   ahrs_aligner.low_noise_cnt = 0;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "FILTER_ALIGNER", send_aligner);
 #endif
 }

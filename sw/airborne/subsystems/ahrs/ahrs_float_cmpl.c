@@ -116,7 +116,7 @@ static inline void compute_body_orientation_and_rates(void);
 
 struct AhrsFloatCmpl ahrs_impl;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) {
@@ -194,7 +194,7 @@ void ahrs_init(void) {
 
   VECT3_ASSIGN(ahrs_impl.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
 #endif
 }

@@ -100,7 +100,7 @@ static void navdata_write(const uint8_t *buf, size_t count)
     perror("navdata_write: Write failed");
 }
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_navdata(void) {
@@ -200,7 +200,7 @@ bool_t navdata_init()
   nav_port.isInitialized = TRUE;
   nav_port.last_packet_number = 0;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
 #endif
 

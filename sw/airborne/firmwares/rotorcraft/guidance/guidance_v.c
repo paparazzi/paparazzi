@@ -120,7 +120,7 @@ int32_t guidance_v_thrust_coeff;
 static int32_t get_vertical_thrust_coeff(void);
 static void run_hover_loop(bool_t in_flight);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_vert_loop(void) {
@@ -164,7 +164,7 @@ void guidance_v_init(void) {
 
   gv_adapt_init();
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "VERT_LOOP", send_vert_loop);
   register_periodic_telemetry(DefaultPeriodic, "TUNE_VERT", send_tune_vert);
 #endif

@@ -99,7 +99,7 @@ static void guidance_h_nav_enter(void);
 static inline void transition_run(void);
 static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_gh(void) {
@@ -172,7 +172,7 @@ void guidance_h_init(void) {
   transition_percentage = 0;
   transition_theta_offset = 0;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_INT", send_gh);
   register_periodic_telemetry(DefaultPeriodic, "HOVER_LOOP", send_hover_loop);
   register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_REF", send_href);

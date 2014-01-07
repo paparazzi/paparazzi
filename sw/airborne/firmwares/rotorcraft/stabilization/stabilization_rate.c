@@ -119,7 +119,7 @@ struct Int32Rates stabilization_rate_ff_cmd;
   (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_rate(void) {
@@ -167,7 +167,7 @@ void stabilization_rate_init(void) {
   INT_RATES_ZERO(stabilization_rate_refdot);
   INT_RATES_ZERO(stabilization_rate_sum_err);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "RATE_LOOP", send_rate);
 #endif
 }

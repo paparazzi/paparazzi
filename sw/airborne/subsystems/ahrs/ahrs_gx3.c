@@ -91,7 +91,7 @@ void ahrs_align(void) {
   ahrs_impl.gx3_status = GX3Running;
 }
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static send_gx3(void) {
@@ -213,7 +213,7 @@ void imu_impl_init(void) {
 #endif
   ahrs.status = AHRS_RUNNING;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "GX3_INFO", send_gx3);
 #endif
 }

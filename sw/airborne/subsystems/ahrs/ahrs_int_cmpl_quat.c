@@ -130,7 +130,7 @@ static inline void set_body_state_from_quat(void);
 static inline void ahrs_update_mag_full(void);
 static inline void ahrs_update_mag_2d(void);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_quat(void) {
@@ -200,7 +200,7 @@ void ahrs_init(void) {
   VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(AHRS_H_X),
                MAG_BFP_OF_REAL(AHRS_H_Y), MAG_BFP_OF_REAL(AHRS_H_Z));
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_QUAT_INT", send_quat);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_GYRO_BIAS_INT", send_bias);

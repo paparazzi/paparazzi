@@ -55,7 +55,7 @@ static inline void reset_psi_ref_from_body(void) {
   stab_att_ref_accel.r = 0;
 }
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_att(void) {
@@ -126,7 +126,7 @@ void stabilization_attitude_init(void) {
 
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
   register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
 #endif

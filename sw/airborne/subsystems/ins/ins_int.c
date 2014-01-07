@@ -90,7 +90,7 @@ static void baro_cb(uint8_t sender_id, const float *pressure);
 
 struct InsInt ins_impl;
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_ins(void) {
@@ -158,7 +158,7 @@ void ins_init(void) {
   INT32_VECT3_ZERO(ins_impl.ltp_speed);
   INT32_VECT3_ZERO(ins_impl.ltp_accel);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
   register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);

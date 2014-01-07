@@ -173,7 +173,7 @@ static const uint8_t pn_codes[5][9][8] = {
 };
 static const uint8_t pn_bind[] = { 0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x84 };
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_superbit(void) {
@@ -219,7 +219,7 @@ void superbitrf_init(void) {
   // Initialize the cyrf6936 chip
   cyrf6936_init(&superbitrf.cyrf6936, &(SUPERBITRF_SPI_DEV), 2, SUPERBITRF_RST_PORT, SUPERBITRF_RST_PIN);
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "SUPERBIT", send_superbit);
 #endif
 }

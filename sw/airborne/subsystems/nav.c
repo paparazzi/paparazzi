@@ -434,7 +434,7 @@ void nav_periodic_task(void) {
 /**
  * \brief Periodic telemetry
  */
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_nav_ref(void) {
@@ -491,7 +491,7 @@ void nav_init(void) {
   nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
 #endif
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "NAVIGATION_REF", send_nav_ref);
   register_periodic_telemetry(DefaultPeriodic, "NAVIGATION", send_nav);
   register_periodic_telemetry(DefaultPeriodic, "WP_MOVED", send_wp_moved);

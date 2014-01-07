@@ -44,7 +44,7 @@
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #endif
 
@@ -78,7 +78,7 @@ tid_t fbw_periodic_tid; ///< id for periodic_task_fbw() timer
 tid_t electrical_tid;   ///< id for electrical_periodic() timer
 
 /********** PERIODIC MESSAGES ************************************************/
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
 static void send_commands(void) {
   DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);
 }
@@ -145,7 +145,7 @@ void init_fbw( void ) {
   mcu_int_enable();
 #endif
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   register_periodic_telemetry(&telemetry_Fbw, "FBW_STATUS", send_fbw_status);
   register_periodic_telemetry(&telemetry_Fbw, "COMMANDS", send_commands);
 #ifdef ACTUATORS
@@ -301,7 +301,7 @@ set_failsafe_mode();
   link_mcu_periodic_task();
 #endif
 
-#if DOWNLINK
+#if PERIODIC_TELEMETRY
   periodic_telemetry_send_Fbw();
 #endif
 
