@@ -688,11 +688,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = sw/airborne/csc/ \
-                         sw/airborne/obsolete/ \
-                         sw/airborne/booz/ \
-                         sw/airborne/test/ \
-                         sw/airborne/arch/avr/ \
+EXCLUDE                = sw/airborne/test/ \
                          sw/airborne/firmwares/non_ap/ \
                          sw/airborne/firmwares/logger/ \
                          sw/airborne/firmwares/vor/ \
@@ -1530,6 +1526,8 @@ PREDEFINED             = USE_GPS \
                          USE_IMU \
                          USE_MAGNETOMETER \
                          USE_BAROMETER \
+                         USE_LED \
+                         USE_SYS_TIME \
                          SPI_MASTER \
                          SPI_SLAVE \
                          USE_SPI0 \
@@ -1537,6 +1535,8 @@ PREDEFINED             = USE_GPS \
                          USE_SPI2 \
                          RADIO_CONTROL \
                          GUIDANCE_V_C \
+                         DATALINK \
+                         USE_PERIODIC_TELEMETRY_REPORT \
                          __attribute__(x)=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
