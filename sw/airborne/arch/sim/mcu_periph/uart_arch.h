@@ -38,6 +38,7 @@ extern char stdinout_buffer[STDINOUT_BUFFER_SIZE];
 extern uint8_t stdinout_rx_insert_idx;
 extern uint8_t stdinout_rx_extract_idx;
 
+#define UART_SPEED(_def) {}
 
 static inline bool StdInOutChAvailable(void) {
   struct timeval tv;

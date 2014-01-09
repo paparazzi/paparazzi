@@ -44,6 +44,7 @@
 #define B100000  100000
 #define B115200  115200
 #define B230400  230400
+#define UART_SPEED(_def) _def
 
 #define UART_8N1      (uint8_t)(ULCR_CHAR_8 + ULCR_PAR_NO   + ULCR_STOP_1)
 #define UART_7N1      (uint8_t)(ULCR_CHAR_7 + ULCR_PAR_NO   + ULCR_STOP_1)

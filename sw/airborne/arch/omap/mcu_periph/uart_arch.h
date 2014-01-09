@@ -31,6 +31,20 @@
 // for definition of baud rates
 #include <termios.h>
 
+// for conversion between linux baud rate definition and actual speed
+#define B1200_SPEED    1200
+#define B2400_SPEED    2400
+#define B4800_SPEED    4800
+#define B9600_SPEED    9600
+#define B19200_SPEED   19200
+#define B38400_SPEED   38400
+#define B57600_SPEED   57600
+#define B100000_SPEED  100000
+#define B115200_SPEED  115200
+#define B230400_SPEED  230400
+#define B921600_SPEED  921600
+#define UART_SPEED(_def) _def##_SPEED
+
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
 #define UART3_irq_handler usart3_irq_handler

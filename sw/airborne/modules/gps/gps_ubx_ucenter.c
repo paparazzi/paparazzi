@@ -297,7 +297,7 @@ static inline void gps_ubx_ucenter_config_port(void)
   #endif
   // UART Interface
   #if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
-    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, UBX_GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, UART_SPEED(UBX_GPS_BAUD), UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
   #endif
   #if GPS_PORT_ID == GPS_PORT_USB
     UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x0, 0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
@@ -379,7 +379,7 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
   case 6:
     // Now the GPS baudrate should have changed
     GpsUartSetBaudrate(UBX_GPS_BAUD);
-    gps_ubx_ucenter.baud_run = UBX_GPS_BAUD;
+    gps_ubx_ucenter.baud_run = UART_SPEED(UBX_GPS_BAUD);
     gps_ubx_ucenter_config_nav();
     break;
   case 7:
