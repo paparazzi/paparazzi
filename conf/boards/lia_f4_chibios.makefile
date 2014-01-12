@@ -62,8 +62,6 @@ GPS_BAUD ?= B115200
 # default flash mode is via usb dfu bootloader (luftboot)
 # other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
 FLASH_MODE ?= SWD
-#STLINK ?= n
-#DFU_UTIL ?= n
 
 # no luftboot for f4
 HAS_LUFTBOOT ?= 0
