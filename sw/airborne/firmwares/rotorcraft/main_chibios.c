@@ -49,7 +49,6 @@
 #define ABI_C
 
 #include "subsystems/datalink/downlink.h"
-#include "firmwares/rotorcraft/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
@@ -68,6 +67,7 @@
 #include "subsystems/air_data.h"
 
 #if USE_BARO_BOARD
+PRINT_CONFIG_MSG("USE_BARO_BOARD is TRUE: Reading onboard baro.")
 #include "subsystems/sensors/baro.h"
 #endif
 
@@ -75,10 +75,13 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
+#include "subsystems/radio_control.h"
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
 
 #include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ins.h"
 
 #include "state.h"
@@ -86,6 +89,22 @@
 #include "generated/modules.h"
 #include "subsystems/abi.h"
 
+/*
+ * Telemetry defines
+ */
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+static void send_chibios_info(void) {
+  static uint32_t time_now = 0;
+  time_now = chTimeNow()/CH_FREQUENCY;
+  DOWNLINK_SEND_CHIBIOS_INFO(DefaultChannel, DefaultDevice,
+    &core_free_memory,
+    &time_now,
+    &thread_counter,
+    &cpu_frequency,
+    &electrical.cpu_temp);
+}
+#endif
 
 /*
  * Thread Area Definitions
@@ -416,7 +435,7 @@ __attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg)
   while (TRUE)
   {
     time += US2ST(1000000/TELEMETRY_FREQUENCY);
-    PeriodicSendMain(DefaultChannel,DefaultDevice);
+    periodic_telemetry_send_Main();
     chThdSleepUntil(time);
   }
 }
@@ -624,6 +643,10 @@ imu_init();
 #endif
 
   thread_init();
+  
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "CHIBIOS_INFO", send_chibios_info);
+#endif
 
   chThdSetPriority (HIGHPRIO);
 

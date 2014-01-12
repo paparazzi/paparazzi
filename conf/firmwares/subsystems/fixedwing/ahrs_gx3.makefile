@@ -9,6 +9,7 @@ AHRS_ALIGNER_LED ?= none
 AHRS_CFLAGS  = -DUSE_AHRS
 AHRS_CFLAGS += -DUSE_IMU
 AHRS_CFLAGS += -DUSE_IMU_FLOAT
+AHRS_CFLAGS += -DUSE_GX3
 
 #fixedwings
 AHRS_CFLAGS += -DAHRS_UPDATE_FW_ESTIMATOR
@@ -23,9 +24,14 @@ AHRS_SRCS   += $(SRC_SUBSYSTEMS)/ahrs.c
 AHRS_SRCS   += $(SRC_SUBSYSTEMS)/imu.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_gx3.c
 
-GX3_PORT_LOWER=$(shell echo $(GX3_PORT) | tr A-Z a-z)
 AHRS_CFLAGS += -DUSE_$(GX3_PORT) -D$(GX3_PORT)_BAUD=$(GX3_BAUD)
+
+ifneq (,$(findstring USE_CHIBIOS_RTOS,$($(TARGET).CFLAGS)))
+GX3_PORT_LOWER=$(shell echo $(GX3_PORT) | tr A-Z a-z)
 AHRS_CFLAGS += -DGX3_PORT=$(GX3_PORT_LOWER)
+else
+AHRS_CFLAGS += -DGX3_PORT=$(GX3_PORT)
+endif
 
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)

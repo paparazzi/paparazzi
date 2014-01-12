@@ -59,13 +59,12 @@ GPS_PORT ?= UART5
 GPS_BAUD ?= B38400
 
 
-# default flash mode is via usb dfu bootloader
-# possibilities: DFU, SWD, JTAG
+# default flash mode is via usb dfu bootloader (luftboot)
+# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
 FLASH_MODE ?= DFU
-STLINK ?= n
-DFU_UTIL ?= n
 
-ifndef NO_LUFTBOOT
+HAS_LUFTBOOT ?= 1
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
 $(TARGET).CFLAGS+=-DLUFTBOOT
 endif
 

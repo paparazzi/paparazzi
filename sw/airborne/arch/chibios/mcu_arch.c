@@ -34,7 +34,7 @@
 #include "ch.h"
 
 /*
- * SCB_VTOR has to be relocaed if Luftboot is used
+ * SCB_VTOR has to be relocated if Luftboot is used
  */
 void mcu_arch_init(void) {
 #if LUFTBOOT

@@ -112,7 +112,7 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t){
 #if USE_I2C1 || USE_I2C2 || USE_I2C3
   static msg_t status = RDY_OK;
   static systime_t tmo = US2ST(1000000/PERIODIC_FREQUENCY);
-  i2cAcquireBus((I2CDriver*)p->reg_addr));
+  i2cAcquireBus((I2CDriver*)p->reg_addr);
   status = i2cMasterTransmitTimeout((I2CDriver*)p->reg_addr, (i2caddr_t)((t->slave_addr)>>1),
                                 t->buf, (size_t)(t->len_w), t->buf, (size_t)(t->len_r), tmo);
   i2cReleaseBus((I2CDriver*)p->reg_addr);
