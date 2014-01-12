@@ -22,7 +22,8 @@ Feedback would be welcome to improve the Paparazzi guidelines.
 /** @page stylec C Style Guide
 
 This page contains guidelines for writing new C source code for the
-Paparazzi project.
+Paparazzi project. If you are using Eclipse, you can use Eclipse code
+style located in the repository (paparazzi_code_profile_eclipse.xml)
 
 @section styleformat Formatting Guide
 
@@ -58,8 +59,7 @@ static inline int cube(int x) { return x * x * x; }
   - define static functions before first usage to avoid forward declarations.
 - Functions should have no space between its name and its parameter list:
 @code
-int32_t f(int32_t x1, int32_t x2)
-{
+int32_t f(int32_t x1, int32_t x2) {
   ...
   int32_t y = f(x1, x2 - x1);
   ...
@@ -71,14 +71,12 @@ int32_t f(int32_t x1, int32_t x2)
 - specify a default case
 - prefer an enum over defines for the different states
 @code
-enum state
-{
+enum state {
   STATE_FOO = 1,
   STATE_BAR = 2
 };
 
-switch( state )
-{
+switch (state) {
   case STATE_FOO:
     foo();
     break;
@@ -89,6 +87,27 @@ switch( state )
     break;
 }
 @endcode
+
+@section styleif If statements
+
+- return statement on the new line even for ""simple if"" case
+@code
+if (TRUE) {
+  return 1;
+}
+
+if (x < other.x) {
+  return -1;
+}
+else if (x > other.x) {
+  return 1;
+}
+else {
+  return 0;
+}
+@endcode
+
+
 
 @section stylecpp Preprocessor directives
 - For conditional compilation use @c \#if instead of @c \#ifdef.
