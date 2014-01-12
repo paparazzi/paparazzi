@@ -15,11 +15,11 @@
 <airframe name="Hexarotor Lia TEST RT">
 
   <firmware name="rotorcraft_rt">
-    <target name="ap" board="lia_1.1_chibios">
+    <target name="ap" board="lia_f4_chibios">
       <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
-      <configure name="FLASH_MODE" value="JTAG"/>
+      <configure name="FLASH_MODE" value="SWD"/>
     </target>
 
     <subsystem name="motor_mixing"/>
@@ -28,7 +28,10 @@
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.2"/>
+    <subsystem name="imu"           type="aspirin_v2.2">
+      <define name="ASPIRIN_2_SMPLRT_DIV" value="3"/>
+      <define name="ASPIRIN_2_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+    </subsystem>
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_PORT" value="UART5"/>
       <configure name="GPS_BAUD" value="B115200"/>

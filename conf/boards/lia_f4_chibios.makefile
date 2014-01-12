@@ -59,14 +59,17 @@ GPS_PORT ?= UART5
 GPS_BAUD ?= B115200
 
 
-# default flash mode is via usb dfu bootloader
-# possibilities: DFU, SWD, JTAG
-FLASH_MODE ?= DFU
-STLINK ?= n
-DFU_UTIL ?= n
+# default flash mode is via usb dfu bootloader (luftboot)
+# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
+FLASH_MODE ?= SWD
+#STLINK ?= n
+#DFU_UTIL ?= n
 
-# no luftboot for f4 yet
-NO_LUFTBOOT=true
+# no luftboot for f4
+HAS_LUFTBOOT ?= 0
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+$(TARGET).CFLAGS+=-DLUFTBOOT
+endif
 
 ##############################################################################
 # Architecture or project specific options

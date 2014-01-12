@@ -151,14 +151,15 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave) {
  * Given the transaction settings, returns the right configuration of
  * SPIx_CR1 register.
  *
- * This function is currently architecture dependent (for STM32F1xx only)
- * TODO: implement for STM32F4 and possible other architectures too
+ * This function is currently architecture dependent (for STM32F1xx
+ * and STM32F4xx only)
+ * TODO: extend for other architectures too
  *
  * @param[in] t pointer to a @p spi_transaction struct
  */
 static inline uint16_t spi_resolve_CR1(struct spi_transaction* t){
   uint16_t CR1 = 0;
-#ifdef __STM32F10x_H
+#if defined(__STM32F10x_H) || defined(__STM32F4xx_H)
   if (t->dss == SPIDss16bit) {
     CR1 |= SPI_CR1_DFF;
   }
@@ -199,7 +200,7 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction* t){
     default:
       break;
   }
-#endif
+#endif /* STM32F10x_H || STM32F4xx_H */
   return CR1;
 }
 
@@ -228,9 +229,6 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
     spi_resolve_slave_port(t->slave_idx),
     spi_resolve_slave_pin(t->slave_idx),
     spi_resolve_CR1(t)
-#ifdef __STM32F4xx_H
-    ,spi_resolve_CR2(t)
-#endif
   };
 
   // find max transaction length

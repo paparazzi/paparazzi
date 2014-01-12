@@ -135,6 +135,7 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err) {
  *
  * @note: This should be probably moved into boar.h
  */
+#ifdef __STM32F10x_H
 static const ADCConversionGroup adcgrpcfg = {
   TRUE,
   ADC_NUM_CHANNELS,
@@ -149,6 +150,25 @@ static const ADCConversionGroup adcgrpcfg = {
   ADC_SQR3_SQ5_N(ADC_CHANNEL_SENSOR)  | ADC_SQR3_SQ4_N(ADC_CHANNEL_IN11) |
   ADC_SQR3_SQ3_N(ADC_CHANNEL_IN14) |  ADC_SQR3_SQ2_N(ADC_CHANNEL_IN10)  | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13)
 };
+#endif
+
+#ifdef __STM32F4xx_H
+static const ADCConversionGroup adcgrpcfg = {
+  TRUE,//circular
+  ADC_NUM_CHANNELS,//num channles
+  adc1callback,//callback
+  adcerrorcallback,//error cb
+  0, // CR1
+  ADC_CR2_SWSTART, //CR2
+  ADC_SMPR1_SMP_AN10(ADC_SAMPLE_56) | ADC_SMPR1_SMP_AN11(ADC_SAMPLE_56) |
+  ADC_SMPR1_SMP_AN13(ADC_SAMPLE_56) | ADC_SMPR1_SMP_AN14(ADC_SAMPLE_56) | ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_84), //SMPR1
+  0, //SMPR2
+  ADC_SQR1_NUM_CH(ADC_NUM_CHANNELS), // SQR1
+  0, // SQR2
+  ADC_SQR3_SQ5_N(ADC_CHANNEL_SENSOR)  | ADC_SQR3_SQ4_N(ADC_CHANNEL_IN11) |
+  ADC_SQR3_SQ3_N(ADC_CHANNEL_IN14) |  ADC_SQR3_SQ2_N(ADC_CHANNEL_IN10)  | ADC_SQR3_SQ1_N(ADC_CHANNEL_IN13) //SQR3
+};
+#endif
 
 /**
  * Link between ChibiOS ADC drivers and Paparazzi adc_buffers
