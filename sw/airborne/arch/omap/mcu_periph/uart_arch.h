@@ -32,18 +32,22 @@
 #include <termios.h>
 
 // for conversion between linux baud rate definition and actual speed
-#define B1200_SPEED    1200
-#define B2400_SPEED    2400
-#define B4800_SPEED    4800
-#define B9600_SPEED    9600
-#define B19200_SPEED   19200
-#define B38400_SPEED   38400
-#define B57600_SPEED   57600
-#define B100000_SPEED  100000
-#define B115200_SPEED  115200
-#define B230400_SPEED  230400
-#define B921600_SPEED  921600
-#define UART_SPEED(_def) _def##_SPEED
+static inline int uart_speed(int def) {
+  switch (def) {
+    case B1200: return 1200;
+    case B2400: return 2400;
+    case B4800: return 4800;
+    case B9600: return 9600;
+    case B19200: return 19200;
+    case B38400: return 38400;
+    case B57600: return 57600;
+    case B115200: return 115200;
+    case B230400: return 230400;
+    case B921600: return 921600;
+    default: return 9600;
+  }
+}
+#define UART_SPEED(_def) uart_speed(_def)
 
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
