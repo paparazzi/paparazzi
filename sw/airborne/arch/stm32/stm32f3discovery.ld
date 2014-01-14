@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Linker script for Apogee */
+/* Linker script for stm32f3discovery */
 
 /* Define memory regions. */
 MEMORY
