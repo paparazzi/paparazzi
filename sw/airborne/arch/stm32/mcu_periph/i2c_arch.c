@@ -136,19 +136,23 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
   I2C_CR1(i2c) |= I2C_CR1_RXIE;
   I2C_CR1(i2c) |= I2C_CR1_TCIE;
   //I2C_CR1(i2c) |= I2C_CR1_NACKIE; //check!!! seems fine
-  //Program slave address
-  i2c_set_7bit_address(i2c, periph->trans[periph->trans_extract_idx]->slave_addr);
   //Program direction and program number of bytes to transfer
-  if (periph->trans[periph->trans_extract_idx]->type == I2CTransRx)
+  if (((periph->trans[periph->trans_extract_idx])->type) == I2CTransRx)
     {
-    i2c_set_read_transfer_dir(i2c);
-    i2c_set_bytes_to_transfer(i2c, periph->trans[periph->trans_extract_idx]->len_r);
+      while (i2c_is_start(i2c) == 1);
+      i2c_set_bytes_to_transfer(i2c, periph->trans[periph->trans_extract_idx]->len_r);
+      i2c_set_read_transfer_dir(i2c);
+
     }
   else
     {
-      i2c_set_write_transfer_dir(i2c); //check for TXRX seems fine
+      while (i2c_busy(i2c) ==1);
+      while (i2c_is_start(i2c) == 1);
       i2c_set_bytes_to_transfer(i2c, periph->trans[periph->trans_extract_idx]->len_w); //check for TXRX seems fine
+      i2c_set_write_transfer_dir(i2c); //check for TXRX seems fine
     }
+  //Program slave address
+  i2c_set_7bit_address(i2c, (periph->trans[periph->trans_extract_idx]->slave_addr) >> 1); //fix in libopencm3
   //autoend=0
   i2c_disable_autoend(i2c);
   i2c_send_start(i2c);
@@ -261,7 +265,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_send(uint32_t i2c, struct i
   else if (BIT_X_IS_SET_IN_REG(I2C_ISR_TC, ISR) )
   {
     // Transfer complete!
-    if (periph->idx_buf == (trans->len_w+1))
+    if (periph->idx_buf == (trans->len_w))
       {
 	if (trans->type == I2CTransTx)
 	  {
@@ -543,11 +547,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, stru
     periph->idx_buf++;
     periph->status = I2CReadingByte;
   }
-  if (BIT_X_IS_SET_IN_REG(I2C_ISR_TC, ISR) )
+  else if (BIT_X_IS_SET_IN_REG(I2C_ISR_TC, ISR) )
   {
+    PPRZ_I2C_SEND_STOP(i2c);
     //All finished
     periph->status = I2CIdle;
-    if (periph->idx_buf == (trans->len_r+1))
+    if (periph->idx_buf == (trans->len_r))
     {
       // We got all the results
       trans->status = I2CTransSuccess;
@@ -998,7 +1003,8 @@ static inline void i2c_irq(struct i2c_periph *periph)
       // Silent any BTF that would occur before SB
       I2C_DR(i2c) = 0x00;
 #else
-      I2C_CR2(i2c) |= I2C_CR2_START;
+      PPRZ_I2C_SEND_START(periph);
+      //I2C_CR2(i2c) |= I2C_CR2_START;
 #endif
     }
     // If a restart is not needed: Rx part or Tx-only
@@ -1007,7 +1013,6 @@ static inline void i2c_irq(struct i2c_periph *periph)
       // Ready, no stop condition set yet
       if (ret == STMI2C_SubTra_Ready)
       {
-
         // Program a stop
         PPRZ_I2C_SEND_STOP(i2c);
 
@@ -1112,34 +1117,39 @@ void i2c1_hw_init(void) {
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_I2C1EN);
   /* Enable GPIO clock */
   gpio_enable_clock(I2C1_GPIO_PORT);
+#if defined(STM32F3)
+  rcc_set_i2c_clock_hsi(I2C1);
+  i2c_reset(I2C1);
+#endif
+#pragma message(STR(I2C_CLOCK_SPEED)) 
 #if defined(STM32F1)
   gpio_set_mode(I2C1_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
                 I2C1_GPIO_SCL | I2C1_GPIO_SDA);
 #elif defined(STM32F4) || defined(STM32F3)
-  gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+  gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLUP,
                   I2C1_GPIO_SCL | I2C1_GPIO_SDA);
 #if !defined(STM32F3)
   gpio_set_output_options(I2C1_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                           I2C1_GPIO_SCL | I2C1_GPIO_SDA); //check stm32f3
 #else
   gpio_set_output_options(I2C1_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ,
-                          I2C1_GPIO_SCL | I2C1_GPIO_SDA);  //check stm32f3
+			  I2C1_GPIO_SCL | I2C1_GPIO_SDA);  //check stm32f3
 #endif
   gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
 #endif
 
-#if defined(STM32F3)
-  rcc_set_i2c_clock_hsi(I2C1);
-#endif
 
-  i2c_reset(I2C1);
+  //i2c_reset(I2C1);
 
 #if defined(STM32F3)
+  i2c_peripheral_disable(I2C1);
+  i2c_enable_interrupt(I2C1, I2C_CR1_ERRIE| I2C_CR1_TCIE | I2C_CR1_RXIE | I2C_CR1_TXIE);
   i2c_enable_analog_filter(I2C1);
   i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
   //Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0]  SCLH[7:0] SCLL[7:0] in TIMINGR
-  i2c_100khz_i2cclk8mhz(I2C1);
+  //i2c_100khz_i2cclk8mhz(I2C1);
+  i2c_400khz_i2cclk8mhz(I2C1);
   //configure No-Stretch CR1 (only relevant in slave mode)
   i2c_enable_stretching(I2C1);
   //addressing mode
@@ -1162,11 +1172,13 @@ void i2c1_hw_init(void) {
   // enable error interrupts
   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
 #else
+  //while (i2c_busy(I2C1) == 1);
+  while (i2c_is_start(I2C1) == 1);
   // enable error interrupts
-  I2C_CR1(I2C1) |= I2C_CR1_ERRIE;
+  //I2C_CR1(I2C1) |= I2C_CR1_ERRIE;
 #endif
 
-  i2c_setbitrate(&i2c1, I2C1_CLOCK_SPEED);
+  //i2c_setbitrate(&i2c1, I2C1_CLOCK_SPEED);
 #endif
 }
 
@@ -1198,7 +1210,7 @@ void i2c1_er_isr(void) {
 #else
   I2C_CR1(i2c) &= ~I2C_CR1_TXIE;
   I2C_CR1(i2c) &= ~I2C_CR1_RXIE;
-  //I2C_CR1(i2c) &= ~I2C_CR1_TCIE;
+  I2C_CR1(i2c) &= ~I2C_CR1_TCIE;
   //I2C_CR1(i2c) &= ~I2C_CR1_NACKIE; //check!!! seems fine
 #endif
   i2c_irq(&i2c1);
@@ -1208,7 +1220,7 @@ void i2c1_er_isr(void) {
 #else
   I2C_CR1(i2c) |= I2C_CR1_TXIE;
   I2C_CR1(i2c) |= I2C_CR1_RXIE;
-  //I2C_CR1(i2c) |= I2C_CR1_TCIE;
+  I2C_CR1(i2c) |= I2C_CR1_TCIE;
   //I2C_CR1(i2c) |= I2C_CR1_NACKIE; //check!!! seems fine
 #endif
 }
@@ -1340,7 +1352,7 @@ void i2c2_er_isr(void) {
 #else
   I2C_CR1(i2c) &= ~I2C_CR1_TXIE;
   I2C_CR1(i2c) &= ~I2C_CR1_RXIE;
-  //I2C_CR1(i2c) &= ~I2C_CR1_TCIE;
+  I2C_CR1(i2c) &= ~I2C_CR1_TCIE;
   //I2C_CR1(i2c) &= ~I2C_CR1_NACKIE; //check!!! seems fine
 #endif
   i2c_irq(&i2c2);
@@ -1350,7 +1362,7 @@ void i2c2_er_isr(void) {
 #else
   I2C_CR1(i2c) |= I2C_CR1_TXIE;
   I2C_CR1(i2c) |= I2C_CR1_RXIE;
-  //I2C_CR1(i2c) |= I2C_CR1_TCIE;
+  I2C_CR1(i2c) |= I2C_CR1_TCIE;
   //I2C_CR1(i2c) |= I2C_CR1_NACKIE; //check!!! seems fine
 #endif
 }
