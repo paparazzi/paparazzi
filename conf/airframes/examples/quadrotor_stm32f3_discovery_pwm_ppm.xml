@@ -38,8 +38,7 @@
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
-    <!-- <subsystem name="imu"           type="stm32f3_discoveryimu"/> -->
-    <subsystem name="imu"           type="krooz_sd"/>
+    <subsystem name="imu"           type="stm32f3_discoveryimu"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat">
