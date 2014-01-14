@@ -19,7 +19,7 @@
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
       <define name="STM32F3_DISCOVERY_I2C1_FOR_LSM303DLHC"/>
       <define name="STM32F3_DISCOVERY_SPI1_FOR_L3GD20"/>
-      <configure name="FLASH_MODE" value="SWD" />
+      <configure name="FLASH_MODE" value="STLINK" />
       <configure name="STLINK" value="y" />
       <configure name="NO_LUFTBOOT" value="1" />
       <define name="LUFTBOOT" value="0" />
