@@ -32,6 +32,7 @@
 #include "boards/stm32f3_discovery/imu_stm32f3_discovery.h"
 #include "subsystems/imu/imu_stm32f3_discovery_arch.h"
 #include "mcu_periph/i2c.h"
+#include "mcu_periph/spi.h"
 #include "led.h"
 #include "filters/median_filter.h"
 
@@ -76,7 +77,7 @@ void imu_impl_init( void )
 {
   /////////////////////////////////////////////////////////////////////
   // MPU-60X0
-  mpu60x0_i2c_init(&imu_stm32f3_discovery.mpu, &(IMU_STM32F3_DISCOVERY_I2C_DEV), MPU60X0_ADDR);
+  //mpu60x0_i2c_init(&imu_stm32f3_discovery.mpu, &(IMU_STM32F3_DISCOVERY_I2C_DEV), MPU60X0_ADDR);
   // change the default configuration
   imu_stm32f3_discovery.mpu.config.smplrt_div = STM32F3_DISCOVERY_SMPLRT_DIV;
   imu_stm32f3_discovery.mpu.config.dlpf_cfg = STM32F3_DISCOVERY_LOWPASS_FILTER;
@@ -84,10 +85,12 @@ void imu_impl_init( void )
   imu_stm32f3_discovery.mpu.config.accel_range = STM32F3_DISCOVERY_ACCEL_RANGE;
   imu_stm32f3_discovery.mpu.config.drdy_int_enable = TRUE;
 
-  hmc58xx_init(&imu_stm32f3_discovery.hmc, &(IMU_STM32F3_DISCOVERY_I2C_DEV), HMC58XX_ADDR);
+  //hmc58xx_init(&imu_stm32f3_discovery.hmc, &(IMU_STM32F3_DISCOVERY_I2C_DEV), HMC58XX_ADDR);
 
-  lsm303dlhc_acc_init(&imu_stm32f3_discovery.lsm_a, &(IMU_STM32F3_DISCOVERY_I2C_DEV), LSM303DLHC_ACC_ADDR);
-  //lsm303dlhc_mag_init(&imu_stm32f3_discovery.lsm_m, &(IMU_STM32F3_DISCOVERY_I2C_DEV), LSM303DLHC_MAG_ADDR);
+  lsm303dlhc_init(&imu_stm32f3_discovery.lsm_a, &(IMU_STM32F3_DISCOVERY_I2C_DEV), LSM303DLHC_ACC_ADDR);
+  lsm303dlhc_init(&imu_stm32f3_discovery.lsm_m, &(IMU_STM32F3_DISCOVERY_I2C_DEV), LSM303DLHC_MAG_ADDR);
+
+  l3gd20_spi_init(&imu_stm32f3_discovery.l3g, &(IMU_STM32F3_DISCOVERY_SPI_DEV), IMU_STM32F3_DISCOVERY_SPI_SLAVE_IDX);
 
 
   // Init median filters
@@ -107,11 +110,10 @@ void imu_impl_init( void )
   imu_stm32f3_discovery.acc_valid = FALSE;
   imu_stm32f3_discovery.mag_valid = FALSE;
 
-  imu_stm32f3_discovery.hmc_eoc = FALSE;
+  //imu_stm32f3_discovery.hmc_eoc = FALSE;
   imu_stm32f3_discovery.mpu_eoc = FALSE;
-  imu_stm32f3_discovery.lsm2_eoc = FALSE;
-  imu_stm32f3_discovery.lsm4_eoc = FALSE;
-  imu_stm32f3_discovery.lsm5_eoc = FALSE;
+  imu_stm32f3_discovery.lsm_a_eoc = FALSE;
+  imu_stm32f3_discovery.lsm_m_eoc = FALSE;
 
   imu_stm32f3_discovery_arch_init();
 }
@@ -120,13 +122,19 @@ void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
   if (!imu_stm32f3_discovery.mpu.config.initialized)
-    mpu60x0_i2c_start_configure(&imu_stm32f3_discovery.mpu);
+    //mpu60x0_i2c_start_configure(&imu_stm32f3_discovery.mpu);
 
-  if (!imu_stm32f3_discovery.hmc.initialized)
-    hmc58xx_start_configure(&imu_stm32f3_discovery.hmc);
+    //if (!imu_stm32f3_discovery.hmc.initialized)
+    //hmc58xx_start_configure(&imu_stm32f3_discovery.hmc);
 
   if (!imu_stm32f3_discovery.lsm_a.initialized)
     lsm303dlhc_start_configure(&imu_stm32f3_discovery.lsm_a);
+
+  if (!imu_stm32f3_discovery.lsm_m.initialized)
+    lsm303dlhc_start_configure(&imu_stm32f3_discovery.lsm_m);
+
+  l3gd20_spi_periodic(&imu_stm32f3_discovery.l3g);
+
 
   if (imu_stm32f3_discovery.meas_nb) {
     RATES_ASSIGN(imu.gyro_unscaled, -imu_stm32f3_discovery.rates_sum.q / imu_stm32f3_discovery.meas_nb, imu_stm32f3_discovery.rates_sum.p / imu_stm32f3_discovery.meas_nb, imu_stm32f3_discovery.rates_sum.r / imu_stm32f3_discovery.meas_nb);
@@ -168,37 +176,49 @@ void imu_stm32f3_discovery_downlink_raw( void )
 
 void imu_stm32f3_discovery_event( void )
 {
-  if (imu_stm32f3_discovery.mpu_eoc) {
-    //mpu60x0_i2c_read(&imu_stm32f3_discovery.mpu);
-    imu_stm32f3_discovery.mpu_eoc = FALSE;
-  }
+  /* if (imu_stm32f3_discovery.mpu_eoc) { */
+  /*   mpu60x0_i2c_read(&imu_stm32f3_discovery.mpu); */
+  /*   imu_stm32f3_discovery.mpu_eoc = FALSE; */
+  /* } */
 
-  // If the MPU6050 I2C transaction has succeeded: convert the data
-  mpu60x0_i2c_event(&imu_stm32f3_discovery.mpu);
-  if (imu_stm32f3_discovery.mpu.data_available) {
-    RATES_ADD(imu_stm32f3_discovery.rates_sum, imu_stm32f3_discovery.mpu.data_rates.rates);
-    //VECT3_ADD(imu_stm32f3_discovery.accel_sum, imu_stm32f3_discovery.mpu.data_accel.vect);
+  /* // If the MPU6050 I2C transaction has succeeded: convert the data */
+  /* mpu60x0_i2c_event(&imu_stm32f3_discovery.mpu); */
+  /* if (imu_stm32f3_discovery.mpu.data_available) { */
+  /*   RATES_ADD(imu_stm32f3_discovery.rates_sum, imu_stm32f3_discovery.mpu.data_rates.rates); */
+  /*   //VECT3_ADD(imu_stm32f3_discovery.accel_sum, imu_stm32f3_discovery.mpu.data_accel.vect); */
+  /*   imu_stm32f3_discovery.meas_nb++; */
+  /*   imu_stm32f3_discovery.mpu.data_available = FALSE; */
+  /* } */
+
+  /* if (imu_stm32f3_discovery.hmc_eoc) { */
+  /*   hmc58xx_read(&imu_stm32f3_discovery.hmc); */
+  /*   imu_stm32f3_discovery.hmc_eoc = FALSE; */
+  /* } */
+
+  /* // If the HMC5883 I2C transaction has succeeded: convert the data */
+  /* hmc58xx_event(&imu_stm32f3_discovery.hmc); */
+  /* if (imu_stm32f3_discovery.hmc.data_available) { */
+  /*   VECT3_ASSIGN(imu.mag_unscaled, imu_stm32f3_discovery.hmc.data.vect.y, -imu_stm32f3_discovery.hmc.data.vect.x, imu_stm32f3_discovery.hmc.data.vect.z); */
+  /*   UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled); */
+  /*   imu_stm32f3_discovery.hmc.data_available = FALSE; */
+  /*   imu_stm32f3_discovery.mag_valid = TRUE; */
+  /* } */
+
+  l3gd20_spi_event(&imu_stm32f3_discovery.l3g);
+
+  if (imu_stm32f3_discovery.l3g.data_available) {
+    //struct Int32Vect3 accel;
+    RATES_ADD(imu_stm32f3_discovery.rates_sum, imu_stm32f3_discovery.l3g.data_rates.rates);
+    //VECT3_COPY(accel, lis302.data.vect);
     imu_stm32f3_discovery.meas_nb++;
-    imu_stm32f3_discovery.mpu.data_available = FALSE;
+    imu_stm32f3_discovery.l3g.data_available = FALSE;
   }
 
-  if (imu_stm32f3_discovery.hmc_eoc) {
-    hmc58xx_read(&imu_stm32f3_discovery.hmc);
-    imu_stm32f3_discovery.hmc_eoc = FALSE;
-  }
 
-  // If the HMC5883 I2C transaction has succeeded: convert the data
-  hmc58xx_event(&imu_stm32f3_discovery.hmc);
-  if (imu_stm32f3_discovery.hmc.data_available) {
-    VECT3_ASSIGN(imu.mag_unscaled, imu_stm32f3_discovery.hmc.data.vect.y, -imu_stm32f3_discovery.hmc.data.vect.x, imu_stm32f3_discovery.hmc.data.vect.z);
-    UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
-    imu_stm32f3_discovery.hmc.data_available = FALSE;
-    imu_stm32f3_discovery.mag_valid = TRUE;
-  }
-
-  if (imu_stm32f3_discovery.lsm2_eoc) {
+  //imu_stm32f3_discovery.lsm_eoc=TRUE;
+  if (imu_stm32f3_discovery.lsm_a_eoc && (imu_stm32f3_discovery.lsm_a.i2c_trans.status == I2CTransDone)) {
+    imu_stm32f3_discovery.lsm_a_eoc = FALSE;
     lsm303dlhc_read(&imu_stm32f3_discovery.lsm_a);
-    imu_stm32f3_discovery.lsm2_eoc = FALSE;
   }
 
   // If the LSM303DLHC_ACC I2C transaction has succeeded: convert the data
@@ -208,4 +228,22 @@ void imu_stm32f3_discovery_event( void )
     imu_stm32f3_discovery.meas_nb++; //check?
     imu_stm32f3_discovery.lsm_a.data_available = FALSE;
   }
+
+  if (imu_stm32f3_discovery.lsm_m_eoc) {
+    imu_stm32f3_discovery.lsm_m_eoc = FALSE;
+    lsm303dlhc_read(&imu_stm32f3_discovery.lsm_m);
+  }
+
+  // If the LSM303DLHC_ACC I2C transaction has succeeded: convert the data
+  lsm303dlhc_event(&imu_stm32f3_discovery.lsm_m);
+  if (imu_stm32f3_discovery.lsm_m.data_available) {
+    //imu_stm32f3_discovery.meas_nb++; //check?
+    imu_stm32f3_discovery.lsm_m.data_available = FALSE;
+    VECT3_ASSIGN(imu.mag_unscaled, imu_stm32f3_discovery.lsm_m.data.vect.y, -imu_stm32f3_discovery.lsm_m.data.vect.x, imu_stm32f3_discovery.lsm_m.data.vect.z);
+    UpdateMedianFilterVect3Int(median_mag, imu.mag_unscaled);
+    imu_stm32f3_discovery.mag_valid = TRUE;
+
+  }
+
+
 }
