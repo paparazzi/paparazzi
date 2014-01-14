@@ -42,7 +42,7 @@ void sys_tick_handler(void);
  */
 void sys_time_arch_init( void ) {
   /* run cortex systick timer with 72MHz */
-  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB);
+  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
   sys_time.cpu_ticks_per_sec = AHB_CLK;
 
   /* cpu ticks per desired sys_time timer step */
