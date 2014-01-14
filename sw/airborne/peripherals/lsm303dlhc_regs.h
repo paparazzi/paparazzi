@@ -80,17 +80,20 @@
 
 /* Bit definitions */
 #define LSM303DLHC_ODR_MASK 0xF0
-#define LSM303DLHC_LPen (1 << 4)
+#define LSM303DLHC_LPen (1 << 3)
 #define LSM303DLHC_Xen (1 << 0)
 #define LSM303DLHC_Yen (1 << 1)
 #define LSM303DLHC_Zen (1 << 2)
 
 #define LSM303DLHC_FS_MASK 0x30
 #define LSM303DLHC_HR (1 << 3)
-#define LSM303DLHC_BDU (1 << 8)
+#define LSM303DLHC_BDU (1 << 7)
 
-#define LSM303DLHC_I1_DRDY1 (1 << 5)
+#define LSM303DLHC_I1_DRDY1 (1 << 4)
 
+#define LSM303DLHC_DO0_MASK 0x1C
+#define LSM303DLHC_GN_MASK 0xE0
+#define LSM303DLHC_MD_MASK 0x03
 
 
 
