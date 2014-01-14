@@ -1,6 +1,6 @@
 [submodule "sw/ext/libopencm3"]
 	path = sw/ext/libopencm3
-	url = https://github.com/libopencm3/libopencm3.git
+	url = https://github.com/arcoslab/libopencm3
 [submodule "sw/ext/luftboot"]
 	path = sw/ext/luftboot
 	url = https://github.com/paparazzi/luftboot.git

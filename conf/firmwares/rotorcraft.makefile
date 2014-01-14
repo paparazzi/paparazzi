@@ -159,8 +159,8 @@ ap.CFLAGS += -DUSE_DAC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 endif
 else ifeq ($(ARCH), stm32)
-ap.CFLAGS += -DUSE_ADC
-ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+#ap.CFLAGS += -DUSE_ADC //check stm32f3
+#ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 ap.srcs   += subsystems/electrical.c
 else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
 ap.srcs   += $(SRC_BOARD)/electrical_dummy.c
