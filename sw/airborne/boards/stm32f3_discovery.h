@@ -330,12 +330,12 @@
 /***************************************************************************************************/
 
 #if !USE_I2C2
-#define PWM_USE_TIM1 1 //Put in portA check I2C2, (TIM2 CH3,4 not critical if we put TIM2 in PORTD pins 0-3), TIM4 CH1
+//#define PWM_USE_TIM1 0 //Put in portA check I2C2, (TIM2 CH3,4 not critical if we put TIM2 in PORTD pins 0-3), TIM4 CH1
 #endif
 #define PWM_USE_TIM2 1 //Put in portD check (UART2 but not critical if in PortA and tim15 in portf)
 #define PWM_USE_TIM4 1 //Put in portD check perfect!!
 //#define PWM_USE_TIM15 1 //Put in portf and all is fine!
-//#define PWM_USE_TIM3 1 //Put in portc and if TIM8 of PPM is using ch4 in portd all is fine
+#define PWM_USE_TIM3 1 //Put in portc and if TIM8 of PPM is using ch4 in portd all is fine
 
 #if !USE_I2C2
 //TIM1
@@ -357,14 +357,68 @@
 
 #define ACTUATORS_PWM_NB 12
 
-#if !USE_I2C2
+/* #if !USE_I2C2 */
+/* // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array */
+/* #if USE_PWM0 */
+/* #define PWM_SERVO_0 0 */
+/* #define PWM_SERVO_0_TIMER TIM1 */
+/* #define PWM_SERVO_0_RCC_IOP RCC_AHBENR_IOPAEN */
+/* #define PWM_SERVO_0_GPIO GPIOA */
+/* #define PWM_SERVO_0_PIN GPIO8 */
+/* #define PWM_SERVO_0_AF GPIO_AF6 */
+/* #define PWM_SERVO_0_OC TIM_OC1 */
+/* #define PWM_SERVO_0_OC_BIT (1<<0) */
+/* #else */
+/* #define PWM_SERVO_0_OC_BIT 0 */
+/* #endif */
+
+/* #if USE_PWM1 */
+/* #define PWM_SERVO_1 1 */
+/* #define PWM_SERVO_1_TIMER TIM1 */
+/* #define PWM_SERVO_1_RCC_IOP RCC_AHBENR_IOPAEN */
+/* #define PWM_SERVO_1_GPIO GPIOA */
+/* #define PWM_SERVO_1_PIN GPIO9 */
+/* #define PWM_SERVO_1_AF GPIO_AF6 */
+/* #define PWM_SERVO_1_OC TIM_OC2 */
+/* #define PWM_SERVO_1_OC_BIT (1<<1) */
+/* #else */
+/* #define PWM_SERVO_1_OC_BIT 0 */
+/* #endif */
+
+/* #if USE_PWM2 */
+/* #define PWM_SERVO_2 2 */
+/* #define PWM_SERVO_2_TIMER TIM1 */
+/* #define PWM_SERVO_2_RCC_IOP RCC_AHBENR_IOPAEN */
+/* #define PWM_SERVO_2_GPIO GPIOA */
+/* #define PWM_SERVO_2_PIN GPIO10 */
+/* #define PWM_SERVO_2_AF GPIO_AF6 */
+/* #define PWM_SERVO_2_OC TIM_OC3 */
+/* #define PWM_SERVO_2_OC_BIT (1<<2) */
+/* #else */
+/* #define PWM_SERVO_2_OC_BIT 0 */
+/* #endif */
+
+/* #if USE_PWM3 */
+/* #define PWM_SERVO_3 3 */
+/* #define PWM_SERVO_3_TIMER TIM1 */
+/* #define PWM_SERVO_3_RCC_IOP RCC_AHBENR_IOPAEN */
+/* #define PWM_SERVO_3_GPIO GPIOA */
+/* #define PWM_SERVO_3_PIN GPIO11 */
+/* #define PWM_SERVO_3_AF GPIO_AF6 */
+/* #define PWM_SERVO_3_OC TIM_OC4 */
+/* #define PWM_SERVO_3_OC_BIT (1<<3) */
+/* #else */
+/* #define PWM_SERVO_3_OC_BIT 0 */
+/* #endif */
+/* #endif */
+
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
 #if USE_PWM0
 #define PWM_SERVO_0 0
-#define PWM_SERVO_0_TIMER TIM1
+#define PWM_SERVO_0_TIMER TIM3
 #define PWM_SERVO_0_RCC_IOP RCC_AHBENR_IOPAEN
-#define PWM_SERVO_0_GPIO GPIOA
-#define PWM_SERVO_0_PIN GPIO8
+#define PWM_SERVO_0_GPIO GPIOC
+#define PWM_SERVO_0_PIN GPIO6
 #define PWM_SERVO_0_AF GPIO_AF6
 #define PWM_SERVO_0_OC TIM_OC1
 #define PWM_SERVO_0_OC_BIT (1<<0)
@@ -374,10 +428,10 @@
 
 #if USE_PWM1
 #define PWM_SERVO_1 1
-#define PWM_SERVO_1_TIMER TIM1
+#define PWM_SERVO_1_TIMER TIM3
 #define PWM_SERVO_1_RCC_IOP RCC_AHBENR_IOPAEN
-#define PWM_SERVO_1_GPIO GPIOA
-#define PWM_SERVO_1_PIN GPIO9
+#define PWM_SERVO_1_GPIO GPIOC
+#define PWM_SERVO_1_PIN GPIO7
 #define PWM_SERVO_1_AF GPIO_AF6
 #define PWM_SERVO_1_OC TIM_OC2
 #define PWM_SERVO_1_OC_BIT (1<<1)
@@ -387,10 +441,10 @@
 
 #if USE_PWM2
 #define PWM_SERVO_2 2
-#define PWM_SERVO_2_TIMER TIM1
+#define PWM_SERVO_2_TIMER TIM3
 #define PWM_SERVO_2_RCC_IOP RCC_AHBENR_IOPAEN
-#define PWM_SERVO_2_GPIO GPIOA
-#define PWM_SERVO_2_PIN GPIO10
+#define PWM_SERVO_2_GPIO GPIOC
+#define PWM_SERVO_2_PIN GPIO8
 #define PWM_SERVO_2_AF GPIO_AF6
 #define PWM_SERVO_2_OC TIM_OC3
 #define PWM_SERVO_2_OC_BIT (1<<2)
@@ -400,17 +454,17 @@
 
 #if USE_PWM3
 #define PWM_SERVO_3 3
-#define PWM_SERVO_3_TIMER TIM1
+#define PWM_SERVO_3_TIMER TIM3
 #define PWM_SERVO_3_RCC_IOP RCC_AHBENR_IOPAEN
-#define PWM_SERVO_3_GPIO GPIOA
-#define PWM_SERVO_3_PIN GPIO11
+#define PWM_SERVO_3_GPIO GPIOC
+#define PWM_SERVO_3_PIN GPIO9
 #define PWM_SERVO_3_AF GPIO_AF6
 #define PWM_SERVO_3_OC TIM_OC4
 #define PWM_SERVO_3_OC_BIT (1<<3)
 #else
 #define PWM_SERVO_3_OC_BIT 0
 #endif
-#endif
+
 
 #if USE_PWM4
 #define PWM_SERVO_4 4
@@ -517,7 +571,8 @@
 #define PWM_SERVO_11_OC_BIT 0
 #endif
 
-#define PWM_TIM1_CHAN_MASK (PWM_SERVO_0_OC_BIT|PWM_SERVO_1_OC_BIT|PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT)
+//#define PWM_TIM1_CHAN_MASK (PWM_SERVO_0_OC_BIT|PWM_SERVO_1_OC_BIT|PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT)
+#define PWM_TIM3_CHAN_MASK (PWM_SERVO_0_OC_BIT|PWM_SERVO_1_OC_BIT|PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT)
 #define PWM_TIM2_CHAN_MASK (PWM_SERVO_4_OC_BIT|PWM_SERVO_5_OC_BIT|PWM_SERVO_6_OC_BIT|PWM_SERVO_7_OC_BIT)
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_8_OC_BIT|PWM_SERVO_9_OC_BIT|PWM_SERVO_10_OC_BIT|PWM_SERVO_11_OC_BIT)
 
