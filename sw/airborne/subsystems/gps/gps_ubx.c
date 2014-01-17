@@ -278,7 +278,7 @@ void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 #endif /* else less harmful for HITL */
 }
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 /*
  * GPS Thread
  * Replaces GpsEvent()

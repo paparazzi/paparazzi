@@ -24,7 +24,7 @@
 
 #include "std.h"
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 #define EVT_PPM_FRAME 1
 extern EventSource eventPpmFrame;
 #define chibios_broadcast_ppm_frame {                        \

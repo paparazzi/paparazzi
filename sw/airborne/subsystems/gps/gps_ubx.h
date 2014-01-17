@@ -31,7 +31,7 @@
 #warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
 #endif
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 #define CH_THREAD_AREA_GPS_RX 1024
 #endif
 
@@ -104,7 +104,7 @@ extern struct GpsUbxRaw gps_ubx_raw;
  * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
  * For rotorcraft, only SOL message is needed for pos/speed data
  */
-#ifndef USE_CHIBIOS_RTOS
+#if !USE_CHIBIOS_RTOS
 #define GpsEvent(_sol_available_callback) {        \
     if (GpsBuffer()) {                             \
       ReadGpsBuffer();                             \

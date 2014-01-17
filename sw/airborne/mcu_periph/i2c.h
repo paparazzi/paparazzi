@@ -79,7 +79,7 @@ struct i2c_transaction {
   uint8_t  slave_addr;
   uint16_t len_r;
   uint8_t  len_w;
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
   uint8_t  buf[I2C_BUF_LEN];
 #else
   volatile uint8_t  buf[I2C_BUF_LEN];
