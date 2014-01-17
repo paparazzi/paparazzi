@@ -135,7 +135,7 @@ void ms5611_spi_periodic_check(struct Ms5611_Spi *ms)
   }
 }
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 /**
  * Synchronous periodic function to ensure prope delay between readings
  *

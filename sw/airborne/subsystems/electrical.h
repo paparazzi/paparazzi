@@ -50,7 +50,7 @@ struct Electrical {
   int32_t  consumed;      ///< consumption in mAh
   bool_t   bat_low;       ///< battery low status
   bool_t   bat_critical;  ///< battery critical status
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
   uint8_t cpu_temp;       ///< CPU temperature
 #endif
 };

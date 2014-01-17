@@ -80,7 +80,7 @@ extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 extern uint8_t uart_getch(struct uart_periph* p);
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 /// Unfortunately has to be declared here, if declared in uart_arch.h compiler complains about uart_periph struct
 extern void uart_transmit_buffer(struct uart_periph* p, uint8_t* data_buffer, size_t length);
 extern void uart_receive_buffer(struct uart_periph* p, flagsmask_t flags, void *on_receive_callback);

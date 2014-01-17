@@ -33,7 +33,7 @@
 
 #define GX3_CHKSM(_ubx_payload) (uint16_t)((uint16_t)(*((uint8_t*)_ubx_payload+66))|(uint16_t)(*((uint8_t*)_ubx_payload+65))<<8)
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 Mutex imu_get_data_flag;
 Mutex states_mutex_flag;
 #endif
@@ -83,13 +83,13 @@ void imu_impl_init(void) {
   // Initialize variables
   imu_gx3.gx3_status = GX3Uninit;
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
   memset(imu_gx3.gx3_data_buffer, 0, GX3_MSG_LEN);
   imu_gx3.queue.rear = -1;
   imu_gx3.queue.front = 0;
   imu_gx3.queue.status = 0;
   imu_gx3.freq_err = 0;
-#endif
+#endif /* USE_CHIBIOS_RTOS */
 
   // Initialize packet
   imu_gx3.gx3_packet.status = GX3PacketWaiting;
@@ -200,7 +200,7 @@ void imu_impl_init(void) {
  * IMU periodic function
  */
 void imu_periodic(void) {
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
   //Get oldest packet from the queue
   chMtxLock(&imu_get_data_flag);
   if (imu_gx3.queue.status > 1) {
@@ -230,14 +230,14 @@ void imu_periodic(void) {
    *  IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
    *  uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
    */
-#endif
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 /*
  * Read received packet
  */
 void gx3_packet_read_message(void) {
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
   //Read message from the queue buffer
   imu_gx3.ch_time = chTimeNow();
   imuf.accel.x     = bef(&imu_gx3.gx3_data_buffer[1]);
@@ -297,7 +297,7 @@ void gx3_packet_read_message(void) {
   imu_gx3.gx3_chksm   = GX3_CHKSM(imu_gx3.gx3_packet.msg_buf);
   imu_gx3.gx3_freq = 62500.0 / (float)(imu_gx3.gx3_time - imu_gx3.gx3_ltime);
   imu_gx3.gx3_ltime = imu_gx3.gx3_time;
-#endif
+#endif /* USE_CHIBIOS_RTOS */
 }
 
 /*
@@ -340,7 +340,7 @@ uint8_t gx3_packet_parse( uint8_t c) {
   return flag;
 }
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 /*
  *  IMU TX
  *  Replaces imu_periodic()
@@ -398,4 +398,4 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
       }
   }
 }
-#endif
+#endif /* USE_CHIBIOS_RTOS */
