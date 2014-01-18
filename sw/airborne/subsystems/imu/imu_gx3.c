@@ -64,9 +64,8 @@ DOWNLINK_SEND_GX3_INFO(DefaultChannel, DefaultDevice,
   &dummy_freq_err,
   &imu_gx3.gx3_chksm);
 }
-#endif
-
-#endif
+#endif /* USE_CHIBIOS_RTOS */
+#endif /* DOWNLINK */
 
 static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add);
 static inline float bef(volatile uint8_t *c);
@@ -187,7 +186,7 @@ void imu_impl_init(void) {
   uart_transmit(&GX3_PORT, 0x00);
   uart_transmit(&GX3_PORT, 0x00);
 
-// OPTIONAL: realign up and north
+  // OPTIONAL: realign up and north
 #ifdef GX3_ALIGN_UP_AND_NORTH
   uart_transmit(&GX3_PORT, 0xdd);
   uart_transmit(&GX3_PORT, 0x54);
@@ -256,21 +255,21 @@ void imu_periodic(void) {
   //Get oldest packet from the queue
   chMtxLock(&imu_get_data_flag);
   if (imu_gx3.queue.length > 2) {
-      memcpy(imu_gx3.gx3_data_buffer, &imu_gx3.queue.queue_buf[imu_gx3.queue.front], GX3_MSG_LEN);
-      imu_gx3.queue.length--;
-      imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] = 0;
-      if (imu_gx3.queue.front == GX3_QUEUE_SIZE-1) {
-          imu_gx3.queue.front = 0;
-      }
-      else {
-          imu_gx3.queue.front++;
-      }
-      chMtxUnlock();
-      gx3_packet_read_message();
-      imu_gx3.data_valid = TRUE;
+    memcpy(imu_gx3.gx3_data_buffer, &imu_gx3.queue.queue_buf[imu_gx3.queue.front], GX3_MSG_LEN);
+    imu_gx3.queue.length--;
+    imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] = 0;
+    if (imu_gx3.queue.front == GX3_QUEUE_SIZE-1) {
+      imu_gx3.queue.front = 0;
+    }
+    else {
+      imu_gx3.queue.front++;
+    }
+    chMtxUnlock();
+    gx3_packet_read_message();
+    imu_gx3.data_valid = TRUE;
   }
   else {
-      chMtxUnlock();
+    chMtxUnlock();
   }
 #else
 #ifdef GX3_NONCONTINUOUS_MODE
@@ -322,7 +321,7 @@ void gx3_packet_read_message(void) {
 
   //TODO: Error checking - just a rough idea for now
   if ((imu_gx3.gx3_freq >= 510) || (imu_gx3.gx3_freq <= 490)) {
-      imu_gx3.freq_err++;
+    imu_gx3.freq_err++;
   }
 #else /* NO_CHIBIOS */
   //Read message straight from the rx buffer
@@ -356,9 +355,7 @@ void gx3_packet_read_message(void) {
 /*
  * GX3 Packet Collection & state machine
  */
-uint8_t gx3_packet_parse( uint8_t c) {
-  static uint8_t flag;
-  flag = 0;
+void gx3_packet_parse( uint8_t c) {
   switch (imu_gx3.gx3_packet.status) {
     case GX3PacketWaiting:
       imu_gx3.gx3_packet.msg_idx = 0;
@@ -390,7 +387,6 @@ uint8_t gx3_packet_parse( uint8_t c) {
       imu_gx3.gx3_packet.msg_idx = 0;
       break;
   }
-  return flag;
 }
 
 #if USE_CHIBIOS_RTOS
@@ -413,25 +409,25 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
 #endif
   static msg_t charbuf;
   while (TRUE) {
-      charbuf = sdGet((SerialDriver*)GX3_PORT.reg_addr);
-      gx3_packet_parse(charbuf);
-      if (imu_gx3.gx3_packet.msg_available) {
-          chMtxLock(&imu_get_data_flag);
-          if (imu_gx3.queue.rear == GX3_QUEUE_SIZE-1) {
-              imu_gx3.queue.rear = 0;
-          }
-          else {
-              imu_gx3.queue.rear++;
-          }
-          if (!((imu_gx3.queue.front == imu_gx3.queue.rear) && (imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] != 0))) {
-              memcpy(&imu_gx3.queue.queue_buf[imu_gx3.queue.rear], imu_gx3.gx3_packet.msg_buf, GX3_MSG_LEN);
-              if (imu_gx3.queue.length < GX3_QUEUE_SIZE ) {
-                  imu_gx3.queue.length++;
-              }
-          }
-          chMtxUnlock();
-          imu_gx3.gx3_packet.msg_available = FALSE;
+    charbuf = sdGet((SerialDriver*)GX3_PORT.reg_addr);
+    gx3_packet_parse(charbuf);
+    if (imu_gx3.gx3_packet.msg_available) {
+      chMtxLock(&imu_get_data_flag);
+      if (imu_gx3.queue.rear == GX3_QUEUE_SIZE-1) {
+        imu_gx3.queue.rear = 0;
       }
+      else {
+        imu_gx3.queue.rear++;
+      }
+      if (!((imu_gx3.queue.front == imu_gx3.queue.rear) && (imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] != 0))) {
+        memcpy(&imu_gx3.queue.queue_buf[imu_gx3.queue.rear], imu_gx3.gx3_packet.msg_buf, GX3_MSG_LEN);
+        if (imu_gx3.queue.length < GX3_QUEUE_SIZE ) {
+          imu_gx3.queue.length++;
+        }
+      }
+      chMtxUnlock();
+      imu_gx3.gx3_packet.msg_available = FALSE;
+    }
   }
 }
 #endif /* USE_CHIBIOS_RTOS */

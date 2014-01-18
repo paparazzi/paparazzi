@@ -69,7 +69,7 @@ extern __attribute__((noreturn)) msg_t thd_imu_rx(void *arg);
 #define IMU_GX3_LONG_DELAY 8000000
 
 extern void gx3_packet_read_message(void);
-extern uint8_t gx3_packet_parse(uint8_t c);
+extern void gx3_packet_parse(uint8_t c);
 extern void imu_align(void);
 
 struct GX3Packet {

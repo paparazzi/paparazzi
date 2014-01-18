@@ -12,7 +12,7 @@
     2013
 -->
 
-<airframe name="Hexarotor Lia TEST RT">
+<airframe name="Hexarotor Lia RT">
 
   <firmware name="rotorcraft_rt">
     <target name="ap" board="lia_f4_chibios">
