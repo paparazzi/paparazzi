@@ -2,7 +2,7 @@
 
 <!-- an example of hexarotor airframe for ChibiOS/RT Paparazzi
      * Autopilot:   Lia 1.1
-     * IMU:         Aspirin 2.2
+     * IMU:         Microstrain GX3
      * Actuators:   PWM motor controllers
      * GPS:         Ublox
      * RC:          Turnigy 9XR PPM radio
@@ -12,7 +12,7 @@
     2013
 -->
 
-<airframe name="Hexarotor Lia TEST RT">
+<airframe name="Hexarotor Lia RT">
 
   <firmware name="rotorcraft_rt">
     <target name="ap" board="lia_f4_chibios">
@@ -27,19 +27,20 @@
       <define name="SERVO_HZ" value="500"/>
     </subsystem>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.2">
-      <define name="ASPIRIN_2_SMPLRT_DIV" value="3"/>
-      <define name="ASPIRIN_2_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+    <subsystem name="telemetry"     type="transparent">
+      <configure name="MODEM_PORT" value="UART3"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
+    </subsystem>
+    <subsystem name="imu"           type="gx3">
+      <configure name="GX3_PORT" value="UART2"/>
+      <define name="GX3_INITIALIZE_DURING_STARTUP"/>
     </subsystem>
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_PORT" value="UART5"/>
       <configure name="GPS_BAUD" value="B115200"/>
     </subsystem>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
+    <subsystem name="stabilization" type="float_euler"/>
+    <subsystem name="ahrs"          type="aggienav"/>
     <subsystem name="ins"/>
   </firmware>
 
@@ -86,10 +87,6 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
-
     <define name="ACCEL_X_NEUTRAL" value="11"/>
     <define name="ACCEL_Y_NEUTRAL" value="11"/>
     <define name="ACCEL_Z_NEUTRAL" value="-25"/>
@@ -101,15 +98,16 @@
     <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
     <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
     <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
-  </section>
-
-  <section name="INS" prefix="INS_">
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -162,23 +160,23 @@
     <define name="REF_MAX_R"    value="180." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
-    <!-- Competition Gains -->
-    <define name="PHI_PGAIN"  value="1800"/>
-    <define name="PHI_DGAIN"  value="900"/>
-    <define name="PHI_IGAIN"  value="2"/>
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="1800"/>
-    <define name="THETA_DGAIN"  value="900"/>
-    <define name="THETA_IGAIN"  value="2"/>
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="3000"/>
-    <define name="PSI_DGAIN"  value="3400"/>
+    <define name="PSI_PGAIN"  value="500"/>
+    <define name="PSI_DGAIN"  value="300"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value="20"/>
-    <define name="THETA_DDGAIN" value="20"/>
-    <define name="PSI_DDGAIN"   value="10"/>
+    <define name="PHI_DDGAIN"   value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN"   value="300"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -205,7 +203,7 @@
 
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
   </section>
 

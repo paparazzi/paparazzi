@@ -26,6 +26,10 @@
 
 #include "subsystems/imu.h"
 
+#if USE_CHIBIOS_RTOS
+Mutex imu_get_data_flag;
+#endif
+
 #if DOWNLINK
 #include "subsystems/datalink/telemetry.h"
 
@@ -145,6 +149,9 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
 #endif // !USE_IMU_FLOAT
 #endif // DOWNLINK
 
+#if USE_CHIBIOS_RTOS
+  chMtxInit(&imu_get_data_flag);
+#endif /* USE_CHIBIOS_RTOS */
   imu_impl_init();
 }
 

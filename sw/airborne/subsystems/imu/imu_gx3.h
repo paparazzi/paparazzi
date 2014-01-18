@@ -60,20 +60,16 @@
 #define GX3_MIN_FREQ 300
 
 #if USE_CHIBIOS_RTOS
-#include "subsystems/ahrs.h"
 #define GX3_QUEUE_SIZE 5
 #define CH_THREAD_AREA_IMU_RX 1024
-#define CH_THREAD_AREA_IMU_TX 1024
-extern Mutex imu_get_data_flag;
-extern Mutex states_mutex_flag;
+#define INIT_IMU_THREAD 1
 extern __attribute__((noreturn)) msg_t thd_imu_rx(void *arg);
-extern __attribute__((noreturn)) msg_t thd_imu_tx(void *arg);
 #endif /* USE_CHIBIOS_RTOS */
 
 #define IMU_GX3_LONG_DELAY 8000000
 
 extern void gx3_packet_read_message(void);
-extern uint8_t gx3_packet_parse(uint8_t c);
+extern void gx3_packet_parse(uint8_t c);
 extern void imu_align(void);
 
 struct GX3Packet {
@@ -90,7 +86,7 @@ struct GX3Queue {
   uint8_t front;
   uint8_t rear;
   uint8_t queue_buf[GX3_QUEUE_SIZE][GX3_MSG_LEN];
-  uint8_t status;
+  uint8_t length;
 };
 #endif /* USE_CHIBIOS_RTOS */
 
@@ -102,6 +98,11 @@ enum GX3PacketStatus {
 
 enum GX3Status {
   GX3Uninit,
+  GX3StopContinuousMode,
+  GX3StopContinuousMode_OK,
+  GX3SamplingSettings,
+  GX3SamplingSettings_OK,
+  GX3ContinuousMode,
   GX3Running
 };
 
@@ -121,12 +122,22 @@ struct ImuGX3 {
   struct GX3Queue queue;              ///< packet queue
   uint16_t freq_err;                  ///< check timing errors
   uint8_t gx3_data_buffer[GX3_MSG_LEN];//< packet to be read
+  uint8_t data_valid;                  //< new data ready
 #endif /* USE_CHIBIOS_RTOS */
 };
 
 extern struct ImuGX3 imu_gx3;
 
-#if !USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+  if (imu_gx3.data_valid) {
+    _gyro_handler();
+    _accel_handler();
+    _mag_handler();
+    imu_gx3.data_valid = FALSE;
+  }
+}
+#else 
 static inline void ReadGX3Buffer(void) {
   while (uart_char_available(&GX3_PORT) && !imu_gx3.gx3_packet.msg_available)
     gx3_packet_parse(uart_getch(&GX3_PORT));
@@ -144,6 +155,6 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
     imu_gx3.gx3_packet.msg_available = FALSE;
   }
 }
-#endif /* !USE_CHIBIOS_RTOS */
+#endif /* USE_CHIBIOS_RTOS */
 
 #endif /* IMU_GX3_H*/
