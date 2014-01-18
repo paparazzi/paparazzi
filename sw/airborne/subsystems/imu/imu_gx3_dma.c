@@ -118,7 +118,7 @@ void imu_impl_init(void) {
   imu_gx3.queue.length = 0;
   imu_gx3.freq_err = 0;
   imu_gx3.data_valid = FALSE;
-  
+
 #if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, "GX3_INFO", send_gx3_info);
 #endif
@@ -297,16 +297,19 @@ static void txend2(UARTDriver *uartp) {
 /*
  * This callback is invoked on a receive error, the errors mask is passed
  * as parameter.
+ *
+ * Since we already detect errors on the line with hdr/checksum errors, this
+ * is not really needed.
  */
 static void rxerr(UARTDriver *uartp, uartflags_t e) {
   if (e & UART_OVERRUN_ERROR) {
-    uart3.ore++;
+    imu_gx3.gx3_packet.hdr_error++;
   }
   if (e & UART_NOISE_ERROR ) {
-    uart3.ne_err++;
+    imu_gx3.gx3_packet.hdr_error++;
   }
   if (e & UART_FRAMING_ERROR ) {
-    uart3.fe_err++;
+    imu_gx3.gx3_packet.hdr_error++;
   }
   (void)uartp;
 }
@@ -335,7 +338,7 @@ static void rxchar(UARTDriver *uartp, uint16_t c) {
 /*
  * UART driver configuration structure.
  */
-static UARTConfig uart_cfg_3 = {
+static UARTConfig uart_cfg_gx3 = {
   NULL,                                                     /* end of tx_buf   */
   txend2,                                                   /* physical end tx */
   rxend,                                                    /* ex buf filled */
@@ -372,7 +375,7 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
   // Init serial port
   uint8_t rxchar[GX3_MSG_LEN] = {0};
 
-  uartStart(&GX3_DMA_PORT, &uart_cfg_3);
+  uartStart(&GX3_DMA_PORT, &uart_cfg_gx3);
   uartStopSend(&GX3_DMA_PORT);
   uartStopReceive(&GX3_DMA_PORT);
 
