@@ -324,6 +324,7 @@ static __attribute__((noreturn)) msg_t thd_electrical(void *arg)
 {
   chRegSetThreadName("pprz_electrical");
   (void) arg;
+  electrical_init();
   systime_t time = chTimeNow();
   while (TRUE)
   {
@@ -342,6 +343,7 @@ static __attribute__((noreturn)) msg_t thd_radio_control(void *arg)
 {
   chRegSetThreadName("pprz_radio_control");
   (void) arg;
+  radio_control_init();
   systime_t time = chTimeNow();
   while (TRUE)
   {
@@ -431,6 +433,15 @@ __attribute__((noreturn)) msg_t thd_telemetry_tx(void *arg)
 {
   chRegSetThreadName("pprz_telemetry_tx");
   (void) arg;
+
+#if DATALINK == XBEE
+  xbee_init();
+#endif
+
+#if DATALINK == UDP
+  udp_init();
+#endif
+
   systime_t time = chTimeNow();
   while (TRUE)
   {
@@ -595,8 +606,6 @@ int main(void)
    */
   mcu_init();
 
-  electrical_init();
-
   stateInit();
 
   actuators_init();
@@ -605,17 +614,9 @@ int main(void)
   motor_mixing_init();
 #endif
 
-  radio_control_init();
-
   air_data_init();
 #if USE_BARO_BOARD
   baro_init();
-#endif
-
-
-imu_init();
-#if USE_IMU_FLOAT
-  imu_float_init();
 #endif
 
   ahrs_aligner_init();
@@ -623,9 +624,6 @@ imu_init();
 
   ins_init();
 
-#if USE_GPS
-  gps_init();
-#endif
   autopilot_init();
 
   modules_init();
@@ -633,14 +631,6 @@ imu_init();
   settings_init();
 
   mcu_int_enable();
-
-#if DATALINK == XBEE
-  xbee_init();
-#endif
-
-#if DATALINK == UDP
-  udp_init();
-#endif
 
   thread_init();
   

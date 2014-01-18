@@ -33,12 +33,40 @@
 
 #define GX3_CHKSM(_ubx_payload) (uint16_t)((uint16_t)(*((uint8_t*)_ubx_payload+66))|(uint16_t)(*((uint8_t*)_ubx_payload+65))<<8)
 
+struct ImuGX3 imu_gx3;
+
+/*
+ * Telemetry defines
+ */
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+static void send_gx3_info(void) {
 #if USE_CHIBIOS_RTOS
-Mutex imu_get_data_flag;
-Mutex states_mutex_flag;
+DOWNLINK_SEND_GX3_INFO(DefaultChannel, DefaultDevice,
+  &imu_gx3.gx3_freq,
+  &imu_gx3.ch_freq,
+  &imu_gx3.gx3_packet.chksm_error,
+  &imu_gx3.gx3_packet.hdr_error,
+  &imu_gx3.queue.length,
+  &imu_gx3.freq_err,
+  &imu_gx3.gx3_chksm);
+}
+#else
+static uint16_t dummy_freq = 666;
+static float dummy_freq_err = 6.66;
+static uint8_t dummy_queue_length = 123;
+DOWNLINK_SEND_GX3_INFO(DefaultChannel, DefaultDevice,
+  &imu_gx3.gx3_freq,
+  &dummy_freq,
+  &imu_gx3.gx3_packet.chksm_error,
+  &imu_gx3.gx3_packet.hdr_error,
+  &dummy_queue_length,
+  &dummy_freq_err,
+  &imu_gx3.gx3_chksm);
+}
 #endif
 
-struct ImuGX3 imu_gx3;
+#endif
 
 static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add);
 static inline float bef(volatile uint8_t *c);
@@ -66,7 +94,7 @@ static inline bool_t gx3_verify_chk(volatile uint8_t *buff_add) {
 
 void imu_align(void) {
   imu_gx3.gx3_status = GX3Uninit;
-  //make the gyros zero, takes 10s (specified in Byte 4 and 5)
+  // make the gyros zero, takes 10s (specified in Byte 4 and 5)
   uart_transmit(&GX3_PORT, 0xcd);
   uart_transmit(&GX3_PORT, 0xc1);
   uart_transmit(&GX3_PORT, 0x29);
@@ -87,7 +115,7 @@ void imu_impl_init(void) {
   memset(imu_gx3.gx3_data_buffer, 0, GX3_MSG_LEN);
   imu_gx3.queue.rear = -1;
   imu_gx3.queue.front = 0;
-  imu_gx3.queue.status = 0;
+  imu_gx3.queue.length = 0;
   imu_gx3.freq_err = 0;
 #endif /* USE_CHIBIOS_RTOS */
 
@@ -99,9 +127,13 @@ void imu_impl_init(void) {
   imu_gx3.gx3_packet.hdr_error = 0;
 
   // It is necessary to wait for GX3 to power up for proper initialization
-  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY*2; startup_counter++){
+#if USE_CHIBIOS_RTOS
+  chThdSleep(MS2ST(500));
+#else
+  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY; startup_counter++){
     __asm("nop");
   }
+#endif /* USE_CHIBIOS_RTOS */
 
   //4 byte command for Mode set
   uart_transmit(&GX3_PORT, 0xd4);
@@ -109,16 +141,16 @@ void imu_impl_init(void) {
   uart_transmit(&GX3_PORT, 0x47);
   uart_transmit(&GX3_PORT, 0x01); // accel,gyro,R
 
-  #ifdef GX3_INITIALIZE_DURING_STARTUP
+#ifdef GX3_INITIALIZE_DURING_STARTUP
 #pragma message "GX3 initializing"
-/*
-  // FOR NON-CONTINUOUS MODE UNCOMMENT THIS
+
+#ifdef GX3_NONCONTINUOUS_MODE
   //4 byte command for non-Continous Mode so we can set the other settings
   uart_transmit(&GX3_PORT, 0xc4);
   uart_transmit(&GX3_PORT, 0xc1);
   uart_transmit(&GX3_PORT, 0x29);
   uart_transmit(&GX3_PORT, 0x00); // stop
-*/
+#endif /* GX3_NONCONTINUOUS_MODE */
 
   //Sampling Settings (0xDB)
   uart_transmit(&GX3_PORT, 0xdb); //set update speed
@@ -133,7 +165,7 @@ void imu_impl_init(void) {
   uart_transmit(&GX3_PORT, 0x02);//set params and save them in non-volatile memory
 #else
   uart_transmit(&GX3_PORT, 0x01); //set and don't save
-#endif
+#endif /* GX3_SAVE_SETTINGS */
   uart_transmit(&GX3_PORT, IMU_DIV1);
   uart_transmit(&GX3_PORT, IMU_DIV2);
   uart_transmit(&GX3_PORT, 0b00000000);  //set options byte 8 - GOOD
@@ -155,24 +187,29 @@ void imu_impl_init(void) {
   uart_transmit(&GX3_PORT, 0x00);
   uart_transmit(&GX3_PORT, 0x00);
 
-  // OPTIONAL: realign up and north
-  /*
-    uart_transmit(&GX3_PORT, 0xdd);
-    uart_transmit(&GX3_PORT, 0x54);
-    uart_transmit(&GX3_PORT, 0x4c);
-    uart_transmit(&GX3_PORT, 3);
-    uart_transmit(&GX3_PORT, 10);
-    uart_transmit(&GX3_PORT, 10);
-    uart_transmit(&GX3_PORT, 0x00);
-    uart_transmit(&GX3_PORT, 0x00);
-    uart_transmit(&GX3_PORT, 0x00);
-    uart_transmit(&GX3_PORT, 0x00);
-  */
+// OPTIONAL: realign up and north
+#ifdef GX3_ALIGN_UP_AND_NORTH
+  uart_transmit(&GX3_PORT, 0xdd);
+  uart_transmit(&GX3_PORT, 0x54);
+  uart_transmit(&GX3_PORT, 0x4c);
+  uart_transmit(&GX3_PORT, 3);
+  uart_transmit(&GX3_PORT, 10);
+  uart_transmit(&GX3_PORT, 10);
+  uart_transmit(&GX3_PORT, 0x00);
+  uart_transmit(&GX3_PORT, 0x00);
+  uart_transmit(&GX3_PORT, 0x00);
+  uart_transmit(&GX3_PORT, 0x00);
+#endif /* GX3_ALIGN_UP_AND_NORTH */
 
   //Another wait loop for proper GX3 init
+#if USE_CHIBIOS_RTOS
+  chThdSleep(MS2ST(500));
+#else
   for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY; startup_counter++){
     __asm("nop");
   }
+#endif /* USE_CHIBIOS_RTOS */
+
 
 #ifdef GX3_SET_WAKEUP_MODE
   //Mode Preset (0xD5)
@@ -186,13 +223,28 @@ void imu_impl_init(void) {
   uart_transmit(&GX3_PORT, 0xC6);
   uart_transmit(&GX3_PORT, 0x6B);
   uart_transmit(&GX3_PORT, 0xc8); // accel, gyro, R
-#endif
+#endif /* GX3_SET_WAKEUP_MODE */
 
   //4 byte command for Continous Mode
   uart_transmit(&GX3_PORT, 0xc4);
   uart_transmit(&GX3_PORT, 0xc1);
   uart_transmit(&GX3_PORT, 0x29);
   uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
+#endif /* GX3_INITIALIZE_DURING_STARTUP */
+
+#ifdef GX3_ALIGN_AFTER_STARTUP
+#if USE_CHIBIOS_RTOS
+  chThdSleep(MS2ST(10));
+#else
+  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY/10; startup_counter++){
+    __asm("nop");
+  }
+#endif /* USE_CHIBIOS_RTOS */
+  imu_align();
+#endif /* GX3_ALIGN_AFTER_STARTUP */
+
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, "GX3_INFO", send_gx3_info);
 #endif
 }
 
@@ -203,9 +255,9 @@ void imu_periodic(void) {
 #if USE_CHIBIOS_RTOS
   //Get oldest packet from the queue
   chMtxLock(&imu_get_data_flag);
-  if (imu_gx3.queue.status > 1) {
+  if (imu_gx3.queue.length > 2) {
       memcpy(imu_gx3.gx3_data_buffer, &imu_gx3.queue.queue_buf[imu_gx3.queue.front], GX3_MSG_LEN);
-      imu_gx3.queue.status--;
+      imu_gx3.queue.length--;
       imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] = 0;
       if (imu_gx3.queue.front == GX3_QUEUE_SIZE-1) {
           imu_gx3.queue.front = 0;
@@ -215,26 +267,23 @@ void imu_periodic(void) {
       }
       chMtxUnlock();
       gx3_packet_read_message();
-
-
-      /// Callbacks
-      on_accel_event();
-      on_gyro_event();
-      on_mag_event();
+      imu_gx3.data_valid = TRUE;
   }
   else {
       chMtxUnlock();
   }
 #else
-  /*
-   *  IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
-   *  uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
-   */
+#ifdef GX3_NONCONTINUOUS_MODE
+  // IF IN NON-CONTINUOUS MODE, REQUEST DATA NOW
+  uart_transmit(&GX3_PORT, 0xc8); // accel,gyro,R
+#endif /* GX3_NONCONTINUOUS_MODE */
 #endif /* USE_CHIBIOS_RTOS */
 }
 
 /*
  * Read received packet
+ *
+ * The difference is that in ChibiOS we are using a packet buffer (FIFO)
  */
 void gx3_packet_read_message(void) {
 #if USE_CHIBIOS_RTOS
@@ -261,7 +310,9 @@ void gx3_packet_read_message(void) {
   imu_gx3.rmat.m[8]   = bef(&imu_gx3.gx3_data_buffer[57]);
 
   imu_gx3.gx3_time    = (uint32_t)(imu_gx3.gx3_data_buffer[61] << 24 |
-                                     imu_gx3.gx3_data_buffer[62] << 16 | imu_gx3.gx3_data_buffer[63] << 8 | imu_gx3.gx3_data_buffer[64]);
+                                   imu_gx3.gx3_data_buffer[62] << 16 |
+                                   imu_gx3.gx3_data_buffer[63] << 8  |
+                                   imu_gx3.gx3_data_buffer[64]);
   imu_gx3.gx3_chksm   = GX3_CHKSM(imu_gx3.gx3_data_buffer);
 
   imu_gx3.gx3_freq = 62500.0 / (float)(imu_gx3.gx3_time - imu_gx3.gx3_ltime);
@@ -273,7 +324,7 @@ void gx3_packet_read_message(void) {
   if ((imu_gx3.gx3_freq >= 510) || (imu_gx3.gx3_freq <= 490)) {
       imu_gx3.freq_err++;
   }
-#else
+#else /* NO_CHIBIOS */
   //Read message straight from the rx buffer
   imuf.accel.x     = bef(&imu_gx3.gx3_packet.msg_buf[1]);
   imuf.accel.y     = bef(&imu_gx3.gx3_packet.msg_buf[5]);
@@ -293,7 +344,9 @@ void gx3_packet_read_message(void) {
   imu_gx3.rmat.m[7]   = bef(&imu_gx3.gx3_packet.msg_buf[53]);
   imu_gx3.rmat.m[8]   = bef(&imu_gx3.gx3_packet.msg_buf[57]);
   imu_gx3.gx3_time    = (uint32_t)(imu_gx3.gx3_packet.msg_buf[61] << 24 |
-                                     imu_gx3.gx3_packet.msg_buf[62] << 16 | imu_gx3.gx3_packet.msg_buf[63] << 8 | imu_gx3.gx3_packet.msg_buf[64]);
+                                   imu_gx3.gx3_packet.msg_buf[62] << 16 |
+                                   imu_gx3.gx3_packet.msg_buf[63] << 8  |
+                                   imu_gx3.gx3_packet.msg_buf[64]);
   imu_gx3.gx3_chksm   = GX3_CHKSM(imu_gx3.gx3_packet.msg_buf);
   imu_gx3.gx3_freq = 62500.0 / (float)(imu_gx3.gx3_time - imu_gx3.gx3_ltime);
   imu_gx3.gx3_ltime = imu_gx3.gx3_time;
@@ -342,31 +395,11 @@ uint8_t gx3_packet_parse( uint8_t c) {
 
 #if USE_CHIBIOS_RTOS
 /*
- *  IMU TX
- *  Replaces imu_periodic()
- *  Handles incoming data at a fixed speed and ensures
- *  that AHRS gets new data at the right rate, error checking
- *  optional.
- */
-__attribute__((noreturn)) msg_t thd_imu_tx(void *arg)
-{
-  chRegSetThreadName("pprz_imu_tx");
-  (void) arg;
-  chMtxInit(&states_mutex_flag);
-  systime_t time = chTimeNow();
-  while (TRUE) {
-    time += US2ST(1000000/PERIODIC_FREQUENCY);
-    imu_periodic();
-    chThdSleepUntil(time);
-  }
-}
-
-/*
  *  IMU RX
  *  Replaces imu_event()
  *  @note: For now GX3 is assumed, no error conditions are checked
  *  since checksum is used and an error on the serial line doesn't
- *  halt the system. This approach saves around 10% CPU
+ *  halt the system. This approach saves around 10% CPU (STM32F1xx)
  *  If you want to check error conditions, add event listeners for
  *  serial port and check for SD_ERROR flags
  */
@@ -374,7 +407,10 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
 {
   chRegSetThreadName("pprz_imu_rx");
   (void) arg;
-  chMtxInit(&imu_get_data_flag);
+  imu_init();
+#if USE_IMU_FLOAT
+  imu_float_init();
+#endif
   static msg_t charbuf;
   while (TRUE) {
       charbuf = sdGet((SerialDriver*)GX3_PORT.reg_addr);
@@ -389,8 +425,8 @@ __attribute__((noreturn)) msg_t thd_imu_rx(void *arg)
           }
           if (!((imu_gx3.queue.front == imu_gx3.queue.rear) && (imu_gx3.queue.queue_buf[imu_gx3.queue.front][0] != 0))) {
               memcpy(&imu_gx3.queue.queue_buf[imu_gx3.queue.rear], imu_gx3.gx3_packet.msg_buf, GX3_MSG_LEN);
-              if (imu_gx3.queue.status < GX3_QUEUE_SIZE ) {
-                  imu_gx3.queue.status++;
+              if (imu_gx3.queue.length < GX3_QUEUE_SIZE ) {
+                  imu_gx3.queue.length++;
               }
           }
           chMtxUnlock();

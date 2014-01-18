@@ -199,8 +199,8 @@
  * PB3  - Digital input                    (JTAG_TDO/SWD)
  * PB4  - Open Drain output 50MHz          (LED2)
  * PB5  - Digital input                    (IMU_MAG_DRDY)
- * PB6  - Alternate Push Pull output 50MHz (SERVO7-Timer4Ch1)
- * PB7  - Alternate Push Pull output 50MHz (SERVO8-Timer4Ch2)
+ * PB6  - Alternate Push Pull output 50MHz (SERVO7-Timer4Ch1)/USART1_TX
+ * PB7  - Alternate Push Pull output 50MHz (SERVO8-Timer4Ch2)/USART1_RX
  * PB8  - Digital input.                   (CAN_RX)
  * PB9  - Open Drain output 50MHz.         (CAN_TX)
  * PB10 - Alternate Open Drain output 2MHz.(I2C2_SCL)
@@ -296,8 +296,8 @@
                                      PIN_AFIO_AF(3, 0) |            \
                                      PIN_AFIO_AF(4, 0) |           \
                                      PIN_AFIO_AF(5, 0) |           \
-                                     PIN_AFIO_AF(6, 2) |            \
-                                     PIN_AFIO_AF(7, 2))
+                                     PIN_AFIO_AF(6, 7) |            \
+                                     PIN_AFIO_AF(7, 7))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(8, 9) |           \
                                      PIN_AFIO_AF(9, 9) |            \
                                      PIN_AFIO_AF(10, 4) |         \

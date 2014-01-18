@@ -7,6 +7,8 @@
      * GPS:         Ublox
      * RC:          Turnigy 9XR PPM radio
 
+     Certain modules still not used
+
     modified by: AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
     Utah State University, http://aggieair.usu.edu/
     2013
@@ -15,17 +17,11 @@
 <airframe name="Hexarotor Lia RT">
 
   <firmware name="rotorcraft_rt">
-    <target name="ap" board="lia_1.1_chibios">
+    <target name="ap" board="lia_f4_chibios">
       <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
-      <configure name="FLASH_MODE" value="JTAG"/>
-      <configure name="USE_BARO_BOARD" value="FALSE"/>
-    </target>
-
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <configure name="FLASH_MODE" value="SWD"/>
     </target>
 
     <subsystem name="motor_mixing"/>
@@ -33,16 +29,20 @@
       <define name="SERVO_HZ" value="500"/>
     </subsystem>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"          type="gx3">
+    <subsystem name="telemetry"     type="transparent">
+      <configure name="MODEM_PORT" value="UART3"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
+    </subsystem>
+    <subsystem name="imu"           type="gx3">
+      <configure name="GX3_PORT" value="UART2"/>
       <define name="GX3_INITIALIZE_DURING_STARTUP"/>
     </subsystem>
     <subsystem name="gps"           type="ublox">
-      <configure name="GPS_PORT" value="UART1"/>
+      <configure name="GPS_PORT" value="UART5"/>
       <configure name="GPS_BAUD" value="B115200"/>
     </subsystem>
     <subsystem name="stabilization" type="float_euler"/>
-    <subsystem name="ahrs"          type="aggienav">
+    <subsystem name="ahrs"          type="aggienav"/>
     <subsystem name="ins"/>
   </firmware>
 

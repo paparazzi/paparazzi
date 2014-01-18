@@ -622,8 +622,11 @@
 
   <message name="GX3_INFO" id="73">
     <field name="GX3_freq" 	type="float" 	unit="hz"/>
+    <field name="packet_freq" 	type="float" 	unit="hz"/>
     <field name="chksm_error" 	type="uint32"/>
     <field name="hdr_error" 	type="uint32"/>
+    <field name="queue_length" 	type="uint8"/>
+    <field name="freq_err" 	type="uint16"/>
     <field name="GX3_chksm"	type="uint16"/>
   </message>
 
