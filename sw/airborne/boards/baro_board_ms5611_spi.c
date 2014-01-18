@@ -56,7 +56,7 @@ void baro_init(void) {
 
 void baro_periodic(void) {
   if (sys_time.nb_sec > 1) {
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
     ms5611_spi_synchronous_periodic_check(&bb_ms5611);
 
     if (bb_ms5611.data_available) {

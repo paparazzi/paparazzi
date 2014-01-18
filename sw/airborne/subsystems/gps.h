@@ -44,7 +44,7 @@
 
 #define GpsFixValid() (gps.fix == GPS_FIX_3D)
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 #include "ch.h"
 extern Mutex gps_mutex_flag;
 extern __attribute__((noreturn)) msg_t thd_gps_rx(void *arg);

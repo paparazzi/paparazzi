@@ -59,7 +59,7 @@
 #define GX3_HEADER 0xC8
 #define GX3_MIN_FREQ 300
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 #include "subsystems/ahrs.h"
 #define GX3_QUEUE_SIZE 5
 #define CH_THREAD_AREA_IMU_RX 1024
@@ -68,7 +68,7 @@ extern Mutex imu_get_data_flag;
 extern Mutex states_mutex_flag;
 extern __attribute__((noreturn)) msg_t thd_imu_rx(void *arg);
 extern __attribute__((noreturn)) msg_t thd_imu_tx(void *arg);
-#endif
+#endif /* USE_CHIBIOS_RTOS */
 
 #define IMU_GX3_LONG_DELAY 8000000
 
@@ -85,14 +85,14 @@ struct GX3Packet {
   uint8_t  msg_idx;
 };
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 struct GX3Queue {
   uint8_t front;
   uint8_t rear;
   uint8_t queue_buf[GX3_QUEUE_SIZE][GX3_MSG_LEN];
   uint8_t status;
 };
-#endif
+#endif /* USE_CHIBIOS_RTOS */
 
 enum GX3PacketStatus {
   GX3PacketWaiting,
@@ -114,19 +114,19 @@ struct ImuGX3 {
   uint32_t gx3_ltime;                 ///< aux time stamp
   struct FloatRMat  rmat;         ///< measured attitude in IMU frame (rotational matrix)
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
   uint32_t ch_ltime;                  ///< packet time stamp
   uint32_t ch_time;                   ///< aux time stamp
   float ch_freq;                     ///< packet frequency
   struct GX3Queue queue;              ///< packet queue
   uint16_t freq_err;                  ///< check timing errors
   uint8_t gx3_data_buffer[GX3_MSG_LEN];//< packet to be read
-#endif
+#endif /* USE_CHIBIOS_RTOS */
 };
 
 extern struct ImuGX3 imu_gx3;
 
-#ifndef USE_CHIBIOS_RTOS
+#if !USE_CHIBIOS_RTOS
 static inline void ReadGX3Buffer(void) {
   while (uart_char_available(&GX3_PORT) && !imu_gx3.gx3_packet.msg_available)
     gx3_packet_parse(uart_getch(&GX3_PORT));
@@ -144,6 +144,6 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
     imu_gx3.gx3_packet.msg_available = FALSE;
   }
 }
-#endif
+#endif /* !USE_CHIBIOS_RTOS */
 
 #endif /* IMU_GX3_H*/

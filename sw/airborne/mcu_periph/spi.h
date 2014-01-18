@@ -35,7 +35,7 @@
 
 #include "mcu_periph/spi_arch.h"
 
-#ifdef USE_CHIBIOS_RTOS
+#if USE_CHIBIOS_RTOS
 #include "hal.h"
 #define SPI_VOLATILE
 #else
