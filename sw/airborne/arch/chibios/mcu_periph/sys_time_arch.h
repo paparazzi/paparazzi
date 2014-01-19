@@ -36,6 +36,11 @@
 #include "mcu_periph/sys_time.h"
 
 /*
+ * Chibios includes
+ */
+#include "ch.h"
+
+/*
  * Extra defines for ChibiOS CPU monitoring
  */
 extern uint32_t core_free_memory;
@@ -46,10 +51,6 @@ extern uint8_t cpu_frequency;
 
 #define SysTimeTimerStart(_t) {}
 
-static inline uint32_t get_sys_time_usec(void) {
-  return 0;
-}
 
-static inline void sys_time_usleep(uint32_t us __attribute__((unused))) {}
 
 #endif /* SYS_TIME_ARCH_H */

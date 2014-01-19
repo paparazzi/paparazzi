@@ -48,3 +48,11 @@ void sys_time_arch_init( void ) {
   idle_counter = 0;
   cpu_frequency = 0;
 }
+
+static inline uint32_t get_sys_time_usec(void) {
+  return  (uint32_t)(chTimeNow()/CH_FREQUENCY*1000000);
+}
+
+static inline void sys_time_usleep(uint32_t us) {
+  chThdSleep(US2ST(us));
+}
