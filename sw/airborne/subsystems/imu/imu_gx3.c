@@ -344,7 +344,6 @@ void gx3_packet_parse( uint8_t c) {
         imu_gx3.gx3_packet.status = GX3PacketReading;
         imu_gx3.gx3_packet.msg_buf[imu_gx3.gx3_packet.msg_idx] = c;
         imu_gx3.gx3_packet.msg_idx++;
-        return GX3_HEADER;
       } else {
         imu_gx3.gx3_packet.hdr_error++;
       }

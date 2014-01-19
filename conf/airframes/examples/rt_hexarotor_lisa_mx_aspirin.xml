@@ -27,7 +27,10 @@
       <define name="SERVO_HZ" value="500"/>
     </subsystem>
 
-    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="telemetry"     type="transparent">
+      <configure name="MODEM_PORT" value="UART3"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
+    </subsystem>
     <subsystem name="imu"           type="aspirin_v2.2">
       <define name="ASPIRIN_2_SMPLRT_DIV" value="3"/>
       <define name="ASPIRIN_2_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
