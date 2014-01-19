@@ -35,7 +35,9 @@
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
+
 #include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
 
 #include "led.h"
 
@@ -137,7 +139,7 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
     imu_gx3.data_valid = FALSE;
   }
 }
-#else 
+#else
 static inline void ReadGX3Buffer(void) {
   while (uart_char_available(&GX3_PORT) && !imu_gx3.gx3_packet.msg_available)
     gx3_packet_parse(uart_getch(&GX3_PORT));

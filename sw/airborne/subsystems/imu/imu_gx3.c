@@ -126,13 +126,7 @@ void imu_impl_init(void) {
   imu_gx3.gx3_packet.hdr_error = 0;
 
   // It is necessary to wait for GX3 to power up for proper initialization
-#if USE_CHIBIOS_RTOS
-  chThdSleep(MS2ST(500));
-#else
-  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY; startup_counter++){
-    __asm("nop");
-  }
-#endif /* USE_CHIBIOS_RTOS */
+  sys_time_usleep(500000);
 
   //4 byte command for Mode set
   uart_transmit(&GX3_PORT, 0xd4);
@@ -200,15 +194,8 @@ void imu_impl_init(void) {
   uart_transmit(&GX3_PORT, 0x00);
 #endif /* GX3_ALIGN_UP_AND_NORTH */
 
-  //Another wait loop for proper GX3 init
-#if USE_CHIBIOS_RTOS
-  chThdSleep(MS2ST(500));
-#else
-  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY; startup_counter++){
-    __asm("nop");
-  }
-#endif /* USE_CHIBIOS_RTOS */
-
+  //Another wait for proper GX3 init
+  sys_time_usleep(500000);
 
 #ifdef GX3_SET_WAKEUP_MODE
   //Mode Preset (0xD5)
@@ -232,13 +219,7 @@ void imu_impl_init(void) {
 #endif /* GX3_INITIALIZE_DURING_STARTUP */
 
 #ifdef GX3_ALIGN_AFTER_STARTUP
-#if USE_CHIBIOS_RTOS
-  chThdSleep(MS2ST(10));
-#else
-  for (uint32_t startup_counter=0; startup_counter<IMU_GX3_LONG_DELAY/10; startup_counter++){
-    __asm("nop");
-  }
-#endif /* USE_CHIBIOS_RTOS */
+  sys_time_usleep(500000);
   imu_align();
 #endif /* GX3_ALIGN_AFTER_STARTUP */
 
@@ -363,7 +344,6 @@ void gx3_packet_parse( uint8_t c) {
         imu_gx3.gx3_packet.status = GX3PacketReading;
         imu_gx3.gx3_packet.msg_buf[imu_gx3.gx3_packet.msg_idx] = c;
         imu_gx3.gx3_packet.msg_idx++;
-        return GX3_HEADER;
       } else {
         imu_gx3.gx3_packet.hdr_error++;
       }

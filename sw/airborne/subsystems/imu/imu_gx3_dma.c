@@ -110,7 +110,7 @@ void imu_impl_init(void) {
   imu_gx3.gx3_packet.hdr_error = 0;
 
   // It is necessary to wait for GX3 to power up for proper initialization
-  chThdSleep(MS2ST(500));
+  sys_time_usleep(500000);
 
   memset(imu_gx3.gx3_data_buffer, 0, GX3_MSG_LEN);
   imu_gx3.queue.rear = -1;
