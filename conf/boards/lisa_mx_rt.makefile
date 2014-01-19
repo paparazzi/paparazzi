@@ -26,19 +26,17 @@
 #
 
 # Board definition
-BOARD=lia
-BOARD_VERSION=1.1_chibios
-BOARD_PATH=chibios_f1
-BOARD_CFG=\"boards/$(BOARD)/$(BOARD_PATH)/board.h\"#actual chibios defines
+BOARD=lisa_mx
+BOARD_CFG=\"boards/$(BOARD)/board.h\"#actual chibios defines
 # Arch definition
 ARCH=chibios# for backwards compatibility with the paparazzi make process
 ARCH_DIR=chibios
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
 
-# since it s Cortex M3
-HARD_FLOAT=no
+## FPU on F4
 USE_FPU=no
+# FPU somehow screws up floating point computation, for example vff
 
 #
 # default LED configuration
@@ -56,14 +54,15 @@ MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
 GPS_PORT ?= UART5
-GPS_BAUD ?= B38400
+GPS_BAUD ?= B115200
 
 
 # default flash mode is via usb dfu bootloader (luftboot)
 # other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
-FLASH_MODE ?= DFU
+FLASH_MODE ?= SWD
 
-HAS_LUFTBOOT ?= 1
+# no luftboot for f4
+HAS_LUFTBOOT ?= 0
 ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
 $(TARGET).CFLAGS+=-DLUFTBOOT
 endif
@@ -75,14 +74,14 @@ endif
 PROJECT = ap
 
 # Project specific files and paths (see Makefile.chibios for details)
-CHIBIOS_BOARD_PLATFORM = STM32F1xx/platform_f105_f107.mk
-CHIBIOS_BOARD_PORT = ARMCMx/STM32F1xx/port.mk
-CHIBIOS_BOARD_LINKER = STM32F107xC.ld
+CHIBIOS_BOARD_PLATFORM = STM32F4xx/platform.mk
+CHIBIOS_BOARD_PORT = ARMCMx/STM32F4xx/port.mk
+CHIBIOS_BOARD_LINKER = STM32F407xG.ld
 
 ##############################################################################
 # Compiler settings
 #
-MCU  = cortex-m3
+MCU  = cortex-m4
 
 # -----------------------------------------------------------------------
 # include Makefile.chibios instead of Makefile.stm32

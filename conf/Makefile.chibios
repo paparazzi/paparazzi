@@ -29,7 +29,7 @@
 # This is the common Makefile for target using chibios
 #
 CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
-CHIBIOS_SPECIFIC_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/$(BOARD_PATH)
+CHIBIOS_SPECIFIC_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)
 CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
 
 # Launch with "make Q=''" to get full command display
