@@ -51,6 +51,7 @@ extern uint8_t cpu_frequency;
 
 #define SysTimeTimerStart(_t) {}
 
-
+extern uint32_t get_sys_time_usec(void);
+extern void sys_time_usleep(uint32_t us);
 
 #endif /* SYS_TIME_ARCH_H */

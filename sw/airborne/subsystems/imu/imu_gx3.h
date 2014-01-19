@@ -35,7 +35,9 @@
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
+
 #include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time_arch.h"
 
 #include "led.h"
 

@@ -15,7 +15,7 @@
 <airframe name="Hexarotor Lia RT">
 
   <firmware name="rotorcraft_rt">
-    <target name="ap" board="lia_f4_chibios">
+    <target name="ap" board="lisa_mx_rt">
       <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
       </subsystem>
