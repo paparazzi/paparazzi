@@ -169,15 +169,14 @@ bool_t navdata_init()
   uint8_t cmd=0x02;
   navdata_write(&cmd, 1);
 
-  // read some potential dirt (retry alot of times)
+  // read some potential dirt
+  // wait 10 milliseconds
   char tmp[100];
-  for(int i = 0; i < 100; i++) {
+  for(int i = 0; i < 12; i++) {
     uint16_t dirt = read(nav_fd, tmp, sizeof tmp);
     (void) dirt;
 
-    cmd=0x02;
-    navdata_write(&cmd, 1);
-    usleep(200);
+    usleep(1000);
   }
 
   baro_calibrated = FALSE;
@@ -212,6 +211,12 @@ static inline bool_t acquire_baro_calibration(void)
   // start baro calibration acquisition
   uint8_t cmd=0x17; // send cmd 23
   navdata_write(&cmd, 1);
+
+  // wait 20ms to retrieve data
+  for (int i=0;i<22;i++)
+  {
+    usleep(1000);
+  }
 
   uint8_t calibBuffer[22];
 
