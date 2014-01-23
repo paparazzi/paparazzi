@@ -417,10 +417,15 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
 #endif
     break;
   case 16:
+#if USE_GPS_UBX_RXM_SFRB
+    gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_SFRB_ID, 1);
+#endif
+    break;
+  case 17:
     // Try to save on non-ROM devices...
     UbxSend_CFG_CFG(0x00000000,0xffffffff,0x00000000);
     break;
-  case 17:
+  case 18:
 #if DEBUG_GPS_UBX_UCENTER
     // Debug Downlink the result of all configuration steps: see messages
     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,GPS_UBX_UCENTER_CONFIG_STEPS,gps_ubx_ucenter.replies);

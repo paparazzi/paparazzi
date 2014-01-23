@@ -228,6 +228,21 @@
       </block>
     </message>
 
+    <message name="SFRB" ID="0x11" length="42">
+      <field name="chn" format="U1"/>
+      <field name="svid" format="U1"/>
+      <field name="dwrd0" format="U4"/>
+      <field name="dwrd1" format="U4"/>
+      <field name="dwrd2" format="U4"/>
+      <field name="dwrd3" format="U4"/>
+      <field name="dwrd4" format="U4"/>
+      <field name="dwrd5" format="U4"/>
+      <field name="dwrd6" format="U4"/>
+      <field name="dwrd7" format="U4"/>
+      <field name="dwrd8" format="U4"/>
+      <field name="dwrd9" format="U4"/>
+    </message>
+
   </class>
 
   <class name="MON" ID="0x0A">

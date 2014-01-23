@@ -31,7 +31,7 @@
 #include "std.h"
 
 /** U-Center Variables */
-#define GPS_UBX_UCENTER_CONFIG_STEPS	  18
+#define GPS_UBX_UCENTER_CONFIG_STEPS	  19
 
 struct gps_ubx_ucenter_struct
 {
