@@ -65,6 +65,11 @@
 
 #ifdef SPI_MASTER
 
+#ifndef NVIC_SPI_IRQ_PRIO
+#define NVIC_SPI_IRQ_PRIO 0
+#endif
+
+
 /**
  * Libopencm3 specifc communication parameters for a SPI peripheral in master mode.
  */
@@ -479,10 +484,10 @@ static void spi_configure_dma(uint32_t dma, uint8_t chan, uint32_t periph_addr, 
 static void spi_arch_int_enable(struct spi_periph *spi) {
   /// @todo fix priority levels if necessary
   // enable receive interrupt
-  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, 0);
+  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq, NVIC_SPI_IRQ_PRIO);
   nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->rx_nvic_irq );
   // enable transmit interrupt
-  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq, 0);
+  nvic_set_priority( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq, NVIC_SPI_IRQ_PRIO);
   nvic_enable_irq( ((struct spi_periph_dma *)spi->init_struct)->tx_nvic_irq );
 }
 

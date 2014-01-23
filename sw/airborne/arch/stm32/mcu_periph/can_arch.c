@@ -40,6 +40,12 @@
 
 #include "led.h"
 
+#ifdef RTOS_PRIO
+#define NVIC_USB_LP_CAN_RX0_IRQ_PRIO RTOS_PRIO+1
+#else
+#define NVIC_USB_LP_CAN_RX0_IRQ_PRIO 1
+#endif
+
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
 
 bool can_initialized = false;
@@ -66,7 +72,7 @@ void can_hw_init(void)
 
   /* NVIC setup. */
   nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
-  nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 1);
+  nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, NVIC_USB_LP_CAN_RX0_IRQ_PRIO);
 
   /* Reset CAN. */
   can_reset(CAN1);

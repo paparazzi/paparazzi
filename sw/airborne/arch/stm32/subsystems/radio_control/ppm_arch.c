@@ -46,6 +46,12 @@
 
 
 #define ONE_MHZ_CLK 1000000
+#ifdef NVIC_TIM_IRQ_PRIO
+#define PPM_IRQ_PRIO  NVIC_TIM_IRQ_PRIO
+#else
+#define PPM_IRQ_PRIO 2
+#endif  
+
 
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
@@ -192,11 +198,11 @@ void ppm_arch_init ( void ) {
   timer_ic_set_filter(PPM_TIMER, PPM_CHANNEL, TIM_IC_OFF);
 
   /* Enable timer Interrupt(s). */
-  nvic_set_priority(PPM_IRQ, 2);
+  nvic_set_priority(PPM_IRQ, PPM_IRQ_PRIO);
   nvic_enable_irq(PPM_IRQ);
 
 #ifdef PPM_IRQ2
-  nvic_set_priority(PPM_IRQ2, 2);
+  nvic_set_priority(PPM_IRQ2, PPM_IRQ_PRIO);
   nvic_enable_irq(PPM_IRQ2);
 #endif
 

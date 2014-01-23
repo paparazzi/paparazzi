@@ -71,6 +71,18 @@ static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
 #define __I2C_REG_CRITICAL_ZONE_STOP	__enable_irq();
 
 
+#ifndef NVIC_I2C_IRQ_PRIO
+#define NVIC_I2C1_IRQ_PRIO 0
+#define NVIC_I2C2_IRQ_PRIO 0
+#define NVIC_I2C3_IRQ_PRIO 0
+#else
+#define NVIC_I2C1_IRQ_PRIO NVIC_I2C_IRQ_PRIO
+#define NVIC_I2C2_IRQ_PRIO NVIC_I2C_IRQ_PRIO
+#define NVIC_I2C3_IRQ_PRIO NVIC_I2C_IRQ_PRIO
+#endif
+
+
+
 static inline void PPRZ_I2C_SEND_STOP(uint32_t i2c)
 {
   // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
@@ -900,11 +912,11 @@ void i2c1_hw_init(void) {
   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
 
   /* Configure and enable I2C1 event interrupt --------------------------------*/
-  nvic_set_priority(NVIC_I2C1_EV_IRQ, 0);
+  nvic_set_priority(NVIC_I2C1_EV_IRQ, NVIC_I2C1_IRQ_PRIO);
   nvic_enable_irq(NVIC_I2C1_EV_IRQ);
 
   /* Configure and enable I2C1 err interrupt ----------------------------------*/
-  nvic_set_priority(NVIC_I2C1_ER_IRQ, 1);
+  nvic_set_priority(NVIC_I2C1_ER_IRQ, NVIC_I2C1_IRQ_PRIO+1);
   nvic_enable_irq(NVIC_I2C1_ER_IRQ);
 
   /* Enable peripheral clocks -------------------------------------------------*/
@@ -989,11 +1001,11 @@ void i2c2_hw_init(void) {
   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
 
   /* Configure and enable I2C2 event interrupt --------------------------------*/
-  nvic_set_priority(NVIC_I2C2_EV_IRQ, 0);
+  nvic_set_priority(NVIC_I2C2_EV_IRQ, NVIC_I2C2_IRQ_PRIO);
   nvic_enable_irq(NVIC_I2C2_EV_IRQ);
 
   /* Configure and enable I2C2 err interrupt ----------------------------------*/
-  nvic_set_priority(NVIC_I2C2_ER_IRQ, 1);
+  nvic_set_priority(NVIC_I2C2_ER_IRQ, NVIC_I2C2_IRQ_PRIO+1);
   nvic_enable_irq(NVIC_I2C2_ER_IRQ);
 
   /* Enable peripheral clocks -------------------------------------------------*/
@@ -1079,11 +1091,11 @@ void i2c3_hw_init(void) {
   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
 
   /* Configure and enable I2C3 event interrupt --------------------------------*/
-  nvic_set_priority(NVIC_I2C3_EV_IRQ, 0);
+  nvic_set_priority(NVIC_I2C3_EV_IRQ, NVIC_I2C3_IRQ_PRIO);
   nvic_enable_irq(NVIC_I2C3_EV_IRQ);
 
   /* Configure and enable I2C3 err interrupt ----------------------------------*/
-  nvic_set_priority(NVIC_I2C3_ER_IRQ, 1);
+  nvic_set_priority(NVIC_I2C3_ER_IRQ, NVIC_I2C3_IRQ_PRIO+1);
   nvic_enable_irq(NVIC_I2C3_ER_IRQ);
 
   /* Enable peripheral clocks -------------------------------------------------*/

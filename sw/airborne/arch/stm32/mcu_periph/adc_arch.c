@@ -105,6 +105,12 @@
 #include "led.h"
 #include BOARD_CONFIG
 
+
+#ifndef NVIC_ADC_IRQ_PRIO
+#define NVIC_ADC_IRQ_PRIO 0
+#endif
+
+
 // Macros to automatically enable the correct ADC
 
 #if defined(AD1_1_CHANNEL) || defined(AD1_2_CHANNEL) || defined(AD1_3_CHANNEL) || defined(AD1_4_CHANNEL)
@@ -451,10 +457,10 @@ static inline void adc_init_rcc( void )
 static inline void adc_init_irq( void )
 {
 #if defined(STM32F1)
-  nvic_set_priority(NVIC_ADC1_2_IRQ, 0);
+  nvic_set_priority(NVIC_ADC1_2_IRQ, NVIC_ADC_IRQ_PRIO);
   nvic_enable_irq(NVIC_ADC1_2_IRQ);
 #elif defined(STM32F4)
-  nvic_set_priority(NVIC_ADC_IRQ, 0);
+  nvic_set_priority(NVIC_ADC_IRQ, NVIC_ADC_IRQ_PRIO);
   nvic_enable_irq(NVIC_ADC_IRQ);
 #endif
 }
