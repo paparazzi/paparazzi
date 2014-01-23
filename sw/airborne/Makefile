@@ -70,6 +70,4 @@ warn_conf :
 	@echo '###########################################################'
 	@echo
 
-clean :
-	$(Q)rm -f *~ a.out *.elf
 .PHONY: clean

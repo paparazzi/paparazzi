@@ -8,14 +8,14 @@
 
   <modules>
     <!--load name="sys_mon.xml"/-->
-    <load name="mcp355x.xml">
-      <define name="USE_SPI1"/>
-    </load>
+    <!-- <load name="mcp355x.xml"> -->
+    <!--   <define name="USE_SPI1"/> -->
+    <!-- </load> -->
   </modules>
 
   <firmware name="fixedwing">
     <define name="USE_I2C1"/>
-    <define name="USE_I2C2"/>
+    <!--define name="USE_I2C2"/-->
     <!--define name="AGR_CLIMB"/-->
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
@@ -23,8 +23,8 @@
     <configure name="PERIODIC_FREQUENCY" value="100"/>
 
     <target name="sim" board="pc"/>
-    <target name="ap" board="apogee_1.0"/>
-    <!--configure name="FLASH_MODE" value="SWD"/-->
+    <target name="ap" board="apogee_1.0_chibios"/>
+    <configure name="FLASH_MODE" value="SWD"/>
 
     <subsystem name="radio_control" type="sbus"/>
 
@@ -41,6 +41,12 @@
     <subsystem name="gps" type="ublox"/>
 
     <subsystem name="spi_master"/>
+  </firmware>
+
+  <firmware name="lisa_test_progs">
+    <target name="test_led" board="apogee_1.0_chibios">
+      <define name="BOARD_LISA_M"/>
+    </target>
   </firmware>
 
 <!-- commands section -->

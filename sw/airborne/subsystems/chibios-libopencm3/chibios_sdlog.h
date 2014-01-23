@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2013 Gautier Hattenberger, Alexandre Bustico
  *
  * This file is part of paparazzi.
  *
@@ -17,27 +17,34 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/*
+ * @file subsystems/chibios-libopencm3/chibios_sdlog.h
+ * @brief sdlog process with battery monitoring
  *
  */
 
-#include "inter_mcu.h"
+#ifndef CHIBIOS_SDLOG_H
+#define CHIBIOS_SDLOG_H
 
-#if defined SINGLE_MCU
-static struct fbw_state _fbw_state;
-static struct ap_state _ap_state;
-struct fbw_state* fbw_state = &_fbw_state;
-struct ap_state* ap_state = &_ap_state;
-#else /* SINGLE_MCU */
-#include "link_mcu_spi.h"
-struct fbw_state* fbw_state = &link_mcu_from_fbw_msg.payload.from_fbw;
-struct ap_state*  ap_state = &link_mcu_from_ap_msg.payload.from_ap;
-#endif /* ! SINGLE_MCU */
+#include "ff.h"
 
-volatile bool_t inter_mcu_received_fbw = FALSE;
-volatile bool_t inter_mcu_received_ap  = FALSE;
+/*
+ what to be done  :
+ * having an api to register new log
+ * keep internally a list of open file
+ * when power failure event occurs, close all logs
+ */
 
-#ifdef FBW
-/** Variables for monitoring AP communication status */
-bool_t ap_ok;
-uint8_t time_since_last_ap;
+extern FIL pprzLogFile;
+
+#if LOG_PROCESS_STATE
+// if activated, will log all process states
+extern FIL processLogFile;
+#endif
+
+extern bool_t chibios_logInit(const bool_t binaryFile);
+extern void chibios_logFinish(void);
+
 #endif

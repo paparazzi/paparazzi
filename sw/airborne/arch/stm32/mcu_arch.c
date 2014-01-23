@@ -67,5 +67,14 @@ PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
 #else
 #error EXT_CLK is either set to an unsupported frequency or not defined at all. Please check!
 #endif
+
+  /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority.
+   * this was previously in i2c driver
+   * FIXME is it really needed ?
+   */
+#ifndef RTOS_IS_CHIBIOS
+  scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
+#endif
+
 }
 

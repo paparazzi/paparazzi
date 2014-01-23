@@ -79,7 +79,7 @@ else ifeq ($(ARCH_L),f4)
 ifndef HARD_FLOAT
 CFLAGS += -msoft-float
 else
-CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 endif
 
@@ -130,7 +130,7 @@ ifndef HARD_FLOAT
 LDFLAGS += -mfix-cortex-m3-ldrd -msoft-float
 else
 LDFLAGS += -lnosys -D__thumb2__\
-           -mfloat-abi=hard -mfpu=fpv4-sp-d16
+           -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 endif
 

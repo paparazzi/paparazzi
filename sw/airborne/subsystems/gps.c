@@ -98,6 +98,8 @@ static void send_gps_sol(void) {
 
 void gps_init(void) {
   gps.fix = GPS_FIX_NONE;
+  gps.week = 0;
+  gps.tow = 0;
   gps.cacc = 0;
 #ifdef GPS_LED
   LED_OFF(GPS_LED);

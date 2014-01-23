@@ -27,7 +27,7 @@
 #define STD_H
 
 #include <inttypes.h>
-//#include <stdbool.h>
+#include <stdbool.h>
 #include <math.h>
 
 /* some helper macros */
@@ -70,7 +70,15 @@
 #endif
 
 /* Boolean values */
+#ifdef RTOS_IS_CHIBIOS
+/* make bool_t an alias to bool instead of uint8_t dor chibios port
+  probably a bad idea since sizeof(bool) is 4, and this will break
+  message coding/decoding **** FIX NEEDEED ****
+*/
+typedef bool bool_t;
+#else
 typedef uint8_t bool_t;
+#endif
 
 /* Unit (void) values */
 typedef uint8_t unit_t;
