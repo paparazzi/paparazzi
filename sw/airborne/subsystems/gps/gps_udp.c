@@ -52,6 +52,7 @@ void gps_impl_init(void) {
 
 #define STX 99
 
+#define UDP_GPS_INT(_udp_gps_payload) (int32_t)(*((uint8_t*)_udp_gps_payload)|*((uint8_t*)_udp_gps_payload+1)<<8|((int32_t)*((uint8_t*)_udp_gps_payload+2))<<16|((int32_t)*((uint8_t*)_udp_gps_payload+3))<<24)
 
 void gps_parse(void) {
   if (gps_network == NULL) return;
@@ -64,8 +65,6 @@ void gps_parse(void) {
     // Correct MSG
     if ((size == GPS_UDP_MSG_LEN) && (gps_udp_read_buffer[0] == STX))
     {
-      #define UDP_GPS_INT(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload)|*((uint8_t*)_ubx_payload+1)<<8|((int32_t)*((uint8_t*)_ubx_payload+2))<<16|((int32_t)*((uint8_t*)_ubx_payload+3))<<24)
-
       gps.lla_pos.lat = RadOfDeg(UDP_GPS_INT(gps_udp_read_buffer+4));
       gps.lla_pos.lon = RadOfDeg(UDP_GPS_INT(gps_udp_read_buffer+8));
       gps.lla_pos.alt = UDP_GPS_INT(gps_udp_read_buffer+12);
