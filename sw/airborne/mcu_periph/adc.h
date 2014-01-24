@@ -31,8 +31,8 @@
  *  - register it with the ::adc_buf_channel function
  */
 
-#ifndef _ADC_H_
-#define _ADC_H_
+#ifndef MCU_PERIPH_ADC_H
+#define MCU_PERIPH_ADC_H
 
 #include <inttypes.h>
 #include "mcu_periph/adc_arch.h"
@@ -78,4 +78,5 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sampl
 
 /** Starts conversions */
 void adc_init( void );
+
 #endif

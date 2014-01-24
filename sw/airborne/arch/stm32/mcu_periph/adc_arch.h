@@ -33,7 +33,8 @@
 #include BOARD_CONFIG
 
 // NB_ADCx_CHANNELS
-enum adc_channels {
+
+enum adc1_channels {
 #ifdef AD1_1_CHANNEL
   AD1_1,
 #endif
@@ -46,7 +47,10 @@ enum adc_channels {
 #ifdef AD1_4_CHANNEL
   AD1_4,
 #endif
-//  NB_ADC1_CHANNELS
+  NB_ADC1_CHANNELS
+};
+
+enum adc2_channels {
 #ifdef AD2_1_CHANNEL
   AD2_1,
 #endif
@@ -59,7 +63,10 @@ enum adc_channels {
 #ifdef AD2_4_CHANNEL
   AD2_4,
 #endif
-//  NB_ADC2_CHANNELS
+  NB_ADC2_CHANNELS
+};
+
+enum adc3_channels {
 #ifdef AD3_1_CHANNEL
   AD3_1,
 #endif
@@ -72,9 +79,10 @@ enum adc_channels {
 #ifdef AD3_4_CHANNEL
   AD3_4,
 #endif
-//  NB_ADC3_CHANNELS
-  NB_ADC
+  NB_ADC3_CHANNELS
 };
+
+#define NB_ADC (NB_ADC1_CHANNELS+NB_ADC2_CHANNELS+NB_ADC3_CHANNELS)
 
 #if USE_ADC_WATCHDOG
 
