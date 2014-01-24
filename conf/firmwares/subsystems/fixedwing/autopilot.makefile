@@ -99,7 +99,12 @@ endif
 #
 # Main
 #
-ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
+ifeq ($(RTOS), chibios-libopencm3)
+ ns_srcs += $(SRC_FIRMWARE)/main_chibios_libopencm3.c
+ ns_srcs += $(SRC_FIRMWARE)/chibios-libopencm3/chibios_init.c
+else
+ ns_srcs += $(SRC_FIRMWARE)/main.c
+endif
 
 #
 # LEDs

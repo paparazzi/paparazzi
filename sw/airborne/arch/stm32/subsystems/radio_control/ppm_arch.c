@@ -50,7 +50,7 @@
 #define PPM_IRQ_PRIO  NVIC_TIM_IRQ_PRIO
 #else
 #define PPM_IRQ_PRIO 2
-#endif  
+#endif
 
 
 uint8_t  ppm_cur_pulse;

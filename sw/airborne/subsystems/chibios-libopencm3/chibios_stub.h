@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2013 Gautier Hattenberger, Alexandre Bustico
  *
  * This file is part of paparazzi.
  *
@@ -17,27 +17,22 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-#include "inter_mcu.h"
+#ifndef CHIBIOS_STUB_H
+#define CHIBIOS_STUB_H
+#include <stdint.h>
 
-#if defined SINGLE_MCU
-static struct fbw_state _fbw_state;
-static struct ap_state _ap_state;
-struct fbw_state* fbw_state = &_fbw_state;
-struct ap_state* ap_state = &_ap_state;
-#else /* SINGLE_MCU */
-#include "link_mcu_spi.h"
-struct fbw_state* fbw_state = &link_mcu_from_fbw_msg.payload.from_fbw;
-struct ap_state*  ap_state = &link_mcu_from_ap_msg.payload.from_ap;
-#endif /* ! SINGLE_MCU */
+extern void chibios_chSysLock (void);
+extern void chibios_chSysUnlock (void);
+extern void chibios_chSysLockFromIsr (void);
+extern void chibios_chSysUnlockFromIsr (void);
+extern void chibios_chSysDisable (void);
+extern void chibios_chSysEnable (void);
+extern void chibios_chRegSetThreadName (const char* thdName);
+extern void chibios_chThdSleepMilliseconds(uint32_t ms);
+extern void chibios_chThdSleepMicroseconds(uint32_t us);
+extern uint32_t chibios_chTimeNow(void);
 
-volatile bool_t inter_mcu_received_fbw = FALSE;
-volatile bool_t inter_mcu_received_ap  = FALSE;
 
-#ifdef FBW
-/** Variables for monitoring AP communication status */
-bool_t ap_ok;
-uint8_t time_since_last_ap;
 #endif

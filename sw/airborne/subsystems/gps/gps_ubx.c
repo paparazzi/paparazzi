@@ -186,9 +186,16 @@ void gps_ubx_read_message(void) {
 #endif
 }
 
+#if LOG_RAW_GPS
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+#endif
 
 /* UBX parsing */
 void gps_ubx_parse( uint8_t c ) {
+#if LOG_RAW_GPS
+  sdLogWriteByte(&pprzLogFile, c);
+#endif
   if (gps_ubx.status < GOT_PAYLOAD) {
     gps_ubx.ck_a += c;
     gps_ubx.ck_b += gps_ubx.ck_a;

@@ -8,14 +8,14 @@
       <define name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
     </load>
     <load name="airspeed_adc.xml">
-      <configure name="ADC_AIRSPEED" value="ADC_2"/>
+      <configure name="ADC_AIRSPEED" value="ADC_1"/>
       <define name="AIRSPEED_QUADRATIC_SCALE" value="0.5"/>
       <define name="AIRSPEED_BIAS" value="430"/>
       <define name="MEASURE_AIRSPEED"/>
       <define name="AIRSPEED_SEND_RAW"/>
     </load>
-    <!--load name="gps_ubx_ucenter.xml"/-->
-    <load name="sys_mon.xml"/>
+    <load name="gps_ubx_ucenter.xml"/>
+    <!--load name="sys_mon.xml"/-->
   </modules>
 
   <firmware name="fixedwing">
@@ -24,7 +24,7 @@
     <define name="USE_GYRO_PITCH_RATE"/>
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
-    <target name="ap" board="apogee_0.99"/>
+    <target name="ap" board="apogee_1.0_chibios"/>
     <target name="sim" board="pc"/>
     <target name="nps" board="pc">
       <!-- Note NPS needs the ppm type radio_control subsystem -->
@@ -41,9 +41,6 @@
       <define name="USE_MAGNETOMETER"/>
       <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_20HZ"/>
       <define name="APOGEE_SMPLRT_DIV" value="7"/>
-      <!--define name="INS_COEF"/-->
-      <!--define name="USE_BAROMETER"/-->
-      <!--define name="BOARD_HAS_BARO"/-->
     </subsystem>
     <subsystem name="ins" type="float_invariant">
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
@@ -54,14 +51,20 @@
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
+    <subsystem name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B115200"/>
+      <define name="GPS_UBX_UCENTER_RATE" value="200"/>
+      <define name="USE_GPS_UBX_RXM_RAW"/>
+      <define name="USE_GPS_UBX_RXM_SFRB"/>
+      <define name="LOG_RAW_GPS"/>
+    </subsystem>
 
     <subsystem name="current_sensor">
-      <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
     </subsystem>
   </firmware>
 
-<!-- commands section -->
+  <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
     <servo name="AILEVON_RIGHT" no="1" max="1100" neutral="1400" min="1900"/>
@@ -113,18 +116,19 @@
     <define name="ACCEL_X_SIGN" value="1"/>
     <define name="ACCEL_Y_SIGN" value="-1"/>
     <define name="ACCEL_Z_SIGN" value="-1"/>
-    <define name="ACCEL_X_NEUTRAL" value="109"/>
+    <define name="ACCEL_X_NEUTRAL" value="29"/>
+    <define name="ACCEL_Y_NEUTRAL" value="38"/>
+    <define name="ACCEL_Z_NEUTRAL" value="117"/>
+    <define name="ACCEL_X_SENS" value="2.4633147596" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44625155655" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.44963539606" integer="16"/>
+
+    <!--define name="ACCEL_X_NEUTRAL" value="109"/>
     <define name="ACCEL_Y_NEUTRAL" value="13"/>
     <define name="ACCEL_Z_NEUTRAL" value="-404"/>
     <define name="ACCEL_X_SENS" value="2.45045342816" integer="16"/>
     <define name="ACCEL_Y_SENS" value="2.44747844234" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.42689216106" integer="16"/>
-    <!--define name="ACCEL_X_NEUTRAL" value="148"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-8"/>
-    <define name="ACCEL_Z_NEUTRAL" value="12"/>
-    <define name="ACCEL_X_SENS" value="2.45197002728" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.45528611115" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.4328991225" integer="16"/-->
+    <define name="ACCEL_Z_SENS" value="2.42689216106" integer="16"/-->
 
     <define name="MAG_X_SIGN" value="1"/>
     <define name="MAG_Y_SIGN" value="-1"/>
@@ -225,11 +229,11 @@
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="0.743"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.8" unit="rad"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT" value="30." unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="30." unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-30." unit="deg"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="11000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="8000."/>
     <define name="ROLL_RATE_GAIN" value="1000."/>
     <define name="ROLL_IGAIN" value="100."/>
     <define name="ROLL_KFFA" value="0"/>

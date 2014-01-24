@@ -455,6 +455,8 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(uint32_t i2c, stru
     PPRZ_I2C_SEND_STOP(i2c);
 
     __I2C_REG_CRITICAL_ZONE_STOP;
+
+
     // --- end of critical zone -----------
 
     // Document the current Status
@@ -908,9 +910,6 @@ void i2c1_hw_init(void) {
   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
   //i2c_reset(I2C1);
 
-  /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
-  scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
-
   /* Configure and enable I2C1 event interrupt --------------------------------*/
   nvic_set_priority(NVIC_I2C1_EV_IRQ, NVIC_I2C1_IRQ_PRIO);
   nvic_enable_irq(NVIC_I2C1_EV_IRQ);
@@ -996,9 +995,6 @@ void i2c2_hw_init(void) {
 
   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
   //i2c_reset(I2C2);
-
-  /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
-  scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
 
   /* Configure and enable I2C2 event interrupt --------------------------------*/
   nvic_set_priority(NVIC_I2C2_EV_IRQ, NVIC_I2C2_IRQ_PRIO);
@@ -1086,9 +1082,6 @@ void i2c3_hw_init(void) {
 
   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
   //i2c_reset(I2C3);
-
-  /* Configure priority grouping 0 bits for pre-emption priority and 4 bits for sub-priority. */
-  scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
 
   /* Configure and enable I2C3 event interrupt --------------------------------*/
   nvic_set_priority(NVIC_I2C3_EV_IRQ, NVIC_I2C3_IRQ_PRIO);
