@@ -42,6 +42,11 @@
 #define CRITIC_BAT_LEVEL 9.8
 #endif
 
+#if USE_CHIBIOS_RTOS
+#define EVT_ELECTRICAL_DATA 0
+extern EventSource eventElectricalData;
+#endif
+
 
 struct Electrical {
 

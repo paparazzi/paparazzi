@@ -152,6 +152,7 @@ void on_gps_event(void)
 {
   ahrs_update_gps();
   ins_update_gps();
+  chEvtBroadcastFlags(&eventGpsData, EVT_GPS_DATA);
 }
 #endif /* USE_GPS */
 
@@ -330,6 +331,7 @@ static __attribute__((noreturn)) msg_t thd_electrical(void *arg)
   {
     time += US2ST(1000000/ELECTRICAL_PERIODIC_FREQ);
     electrical_periodic();
+    chEvtBroadcastFlags(&eventElectricalData, EVT_ELECTRICAL_DATA);
     chThdSleepUntil(time);
   }
 }
@@ -386,6 +388,7 @@ static __attribute__((noreturn)) msg_t thd_radio_event(void *arg)
       if (autopilot_rc)
       {
         RadioControlEvent(autopilot_on_rc_frame);
+        chEvtBroadcastFlags(&eventRadioData, EVT_RADIO_DATA);
       }
     }
   }

@@ -36,6 +36,7 @@ struct GpsTimeSync gps_time_sync;
 
 #if USE_CHIBIOS_RTOS
 Mutex gps_mutex_flag;
+EventSource eventGpsData;
 #endif
 
 #if DOWNLINK
@@ -106,6 +107,10 @@ void gps_init(void) {
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
+#if USE_CHIBIOS_RTOS
+  chMtxInit(&gps_mutex_flag);
+  chEvtInit(&eventGpsData);
+#endif
 #ifdef GPS_TYPE_H
   gps_impl_init();
 #endif
@@ -115,9 +120,6 @@ void gps_init(void) {
   register_periodic_telemetry(DefaultPeriodic, "GPS_INT", send_gps_int);
   register_periodic_telemetry(DefaultPeriodic, "GPS_LLA", send_gps_lla);
   register_periodic_telemetry(DefaultPeriodic, "GPS_SOL", send_gps_sol);
-#endif
-#if USE_CHIBIOS_RTOS
-  chMtxInit(&gps_mutex_flag);
 #endif
 }
 

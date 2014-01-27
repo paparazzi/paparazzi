@@ -55,6 +55,10 @@
 PRINT_CONFIG_VAR(LOW_BAT_LEVEL)
 PRINT_CONFIG_VAR(CRITIC_BAT_LEVEL)
 
+#if USE_CHIBIOS_RTOS
+EventSource eventElectricalData;
+#endif
+
 struct Electrical electrical;
 
 #if defined ADC_CHANNEL_VSUPPLY || defined ADC_CHANNEL_CURRENT || defined MILLIAMP_AT_FULL_THROTTLE
@@ -106,6 +110,10 @@ PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
 
 #if USE_CHIBIOS_RTOS && defined(ADC_CHANNEL_TEMP_SENSOR)
   adc_buf_channel(ADC_CHANNEL_TEMP_SENSOR, &electrical_priv.cpu_temp_adc_buf, DEFAULT_AV_NB_SAMPLE);
+#endif
+
+#if USE_CHIBIOS_RTOS
+  chEvtInit(&eventElectricalData);
 #endif
 }
 

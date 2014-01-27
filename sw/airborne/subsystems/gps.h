@@ -48,7 +48,10 @@
 #include "ch.h"
 extern Mutex gps_mutex_flag;
 extern __attribute__((noreturn)) msg_t thd_gps_rx(void *arg);
-#endif
+
+#define EVT_GPS_DATA 0
+extern EventSource eventGpsData;
+#endif /* USE_CHIBIOS_RTOS */
 
 #ifndef GPS_NB_CHANNELS
 #define GPS_NB_CHANNELS 1
