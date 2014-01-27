@@ -35,7 +35,7 @@ SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
 
 ## FPU on F4
-USE_FPU=no
+USE_FPU=yes
 # FPU somehow screws up floating point computation, for example vff
 
 #
