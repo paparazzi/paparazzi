@@ -21,8 +21,8 @@
 
 /**
  * @file modules/geo_mag/geo_mag.c
- * @brief Calculation of the Geomagnetic field vector based on current GPS fix.
- * This module based on the WMM2010 modell (http://www.ngdc.noaa.gov/geomag/models.shtml).
+ * @brief Calculation of the Geomagnetic field vector from current GPS fix.
+ * This module is based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml).
  */
 
 #include "modules/geo_mag/geo_mag.h"
@@ -42,13 +42,13 @@ void geo_mag_init(void) {
 }
 
 void geo_mag_periodic(void) {
-  if(gps.fix == GPS_FIX_3D && !geo_mag_vect.ready && !autopilot_motors_on)
+  if (gps.fix == GPS_FIX_3D && !geo_mag_vect.ready && !autopilot_motors_on)
     geo_mag_calc_flag = TRUE;
 }
 
 void geo_mag_event(void) {
 
-  if(geo_mag_calc_flag) {
+  if (geo_mag_calc_flag) {
     double gha[MAXCOEFF]; // Geomag global variables
     int32_t nmax;
 

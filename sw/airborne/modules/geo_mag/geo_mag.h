@@ -21,8 +21,8 @@
 
 /**
  * @file modules/geo_mag/geo_mag.h
- * @brief Calculation of the Geomagnetic field vector based on current GPS fix.
- * This module based on the WMM2010 modell (http://www.ngdc.noaa.gov/geomag/models.shtml).
+ * @brief Calculation of the Geomagnetic field vector from current GPS fix.
+ * This module is based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml).
  */
 
 #ifndef GEO_MAG_H
