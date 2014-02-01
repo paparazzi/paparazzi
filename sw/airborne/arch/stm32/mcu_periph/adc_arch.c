@@ -465,8 +465,6 @@ static inline void adc_init_irq( void )
 
 static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* channel_map)
 {
-  uint8_t x = 0;
-
   // Paranoia, must be down for 2+ ADC clock cycles before calibration
   adc_off(adc);
 
@@ -508,9 +506,11 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
   /* Clear CONT */
   adc_set_single_conversion_mode(adc);
 
-  for (x = (4-nb_channels); x < 4; x++) {
-    adc_set_sample_time(adc, channel_map[x], ADC_SAMPLE_TIME);
-  }
+  //uint8_t x = 0;
+  //for (x = 0; x < nb_channels; x++) {
+  //  adc_set_sample_time(adc, channel_map[x], ADC_SAMPLE_TIME);
+  //}
+  adc_set_sample_time_on_all_channels(adc, ADC_SAMPLE_TIME);
 
   adc_set_injected_sequence(adc, nb_channels, channel_map);
 
@@ -601,7 +601,7 @@ void adc1_2_isr(void)
 
 #if USE_AD1
   // Clear Injected End Of Conversion
-  if (ADC_SR(ADC1) & ADC_SR_JEOC){
+  if (adc_eoc_injected(ADC1)){
     ADC_SR(ADC1) &= ~ADC_SR_JEOC;
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
@@ -609,7 +609,7 @@ void adc1_2_isr(void)
     for (channel = 0; channel < nb_adc1_channels; channel++) {
       buf = adc1_buffers[channel];
       if (buf) {
-        value = *(&ADC_JDR1(ADC1)+channel);
+        value = adc_read_injected(ADC1, channel+1);
         adc_push_sample(buf, value);
       }
     }
@@ -623,7 +623,7 @@ void adc1_2_isr(void)
   }
 #endif
 #if USE_AD2
-  if (ADC_SR(ADC2) & ADC_SR_JEOC){
+  if (adc_eoc_injected(ADC2)){
     ADC_SR(ADC2) &= ~ADC_SR_JEOC;
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
@@ -631,7 +631,7 @@ void adc1_2_isr(void)
     for (channel = 0; channel < nb_adc2_channels; channel++) {
       buf = adc2_buffers[channel];
       if (buf) {
-        value = *(&ADC_JDR1(ADC2)+channel);
+        value = adc_read_injected(ADC2, channel+1);
         adc_push_sample(buf, value);
       }
     }
@@ -644,7 +644,7 @@ void adc1_2_isr(void)
   }
 #endif
 #if USE_AD3
-  if (ADC_SR(ADC3) & ADC_SR_JEOC){
+  if (adc_eoc_injected(ADC3)){
     ADC_SR(ADC3) &= ~ADC_SR_JEOC;
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
@@ -652,7 +652,7 @@ void adc1_2_isr(void)
     for (channel = 0; channel < nb_adc3_channels; channel++) {
       buf = adc3_buffers[channel];
       if (buf) {
-        value = *(&ADC_JDR1(ADC3)+channel);
+        value = adc_read_injected(ADC3, channel+1);
         adc_push_sample(buf, value);
       }
     }

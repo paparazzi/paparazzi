@@ -47,7 +47,7 @@ void sys_tick_handler(void);
 void sys_time_arch_init( void ) {
   /* run cortex systick timer with 72MHz (FIXME only 72 or does it work with 168MHz???) */
 #if USE_OCM3_SYSTICK_INIT
-  systick_set_clocksource(STK_CTRL_CLKSOURCE_AHB);
+  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 #endif
   sys_time.cpu_ticks_per_sec = AHB_CLK;
 
