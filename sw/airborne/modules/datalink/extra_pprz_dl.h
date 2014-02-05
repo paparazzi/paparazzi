@@ -37,7 +37,7 @@ extern struct pprz_transport extra_pprz_tp;
 /* Datalink Event */
 
 #define ExtraDatalinkEvent() {			                  \
-  PpprzCheckAndParse(EXTRA_PPRZ_UART, extra_pprz_tp); \
+  PprzCheckAndParse(EXTRA_PPRZ_UART, extra_pprz_tp); \
   DlCheckAndParse();                                  \
 }
 

@@ -11,6 +11,10 @@
     <!-- <load name="mcp355x.xml"> -->
     <!--   <define name="USE_SPI1"/> -->
     <!-- </load> -->
+    <load name="extra_dl.xml">
+      <configure name="EXTRA_DL_PORT" value="UART6"/>
+      <configure name="EXTRA_DL_BAUD" value="B57600"/>
+    </load>
   </modules>
 
   <firmware name="fixedwing">
@@ -24,7 +28,6 @@
 
     <target name="sim" board="pc"/>
     <target name="ap" board="apogee_1.0_chibios"/>
-    <configure name="FLASH_MODE" value="SWD"/>
 
     <subsystem name="radio_control" type="sbus"/>
 
@@ -40,7 +43,7 @@
     <!-- Sensors -->
     <subsystem name="gps" type="ublox"/>
 
-    <subsystem name="spi_master"/>
+    <!--subsystem name="spi_master"/-->
   </firmware>
 
   <firmware name="lisa_test_progs">

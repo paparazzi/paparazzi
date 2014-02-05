@@ -3,16 +3,18 @@
 <module name="extra_dl" dir="datalink">
   <doc>
     <description>Extra datalink (PPRZ transport)</description>
+    <configure name="EXTRA_DL_PORT" value="UARTX" description="Select port for extra datalink"/>
+    <configure name="EXTRA_DL_BAUD" value="B57600" description="Baudrate for extra datalink"/>
   </doc>
   <header>
     <file name="extra_pprz_dl.h"/>
   </header>
   <event fun="ExtraDatalinkEvent()"/>
   <makefile>
-    <define name="EXTRA_DOWNLINK_DEVICE" value="UART0"/>
-    <define name="EXTRA_PPRZ_UART" value="UART0"/>
-    <define name="USE_UART0" value="1"/>
-    <define name="UART0_BAUD" value="B57600"/>
+    <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT)"/>
+    <define name="EXTRA_PPRZ_UART" value="$(EXTRA_DL_PORT)"/>
+    <define name="USE_$(EXTRA_DL_PORT)"/>
+    <define name="$(EXTRA_DL_PORT)_BAUD" value="$(EXTRA_DL_BAUD)"/>
     <file name="extra_pprz_dl.c"/>
   </makefile>
 </module>
