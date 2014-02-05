@@ -37,6 +37,10 @@
 #define CAM_PHI_MAX RadOfDeg(45)
 #endif
 
+#ifndef CAM_ROLL_START_MODE
+#define CAM_ROLL_START_MODE 0
+#endif
+
 float cam_roll_phi; /* radian */
 float phi_c; /* radian */
 float theta_c; /* have to be defined for telemetry message */
@@ -52,6 +56,7 @@ uint8_t cam_roll_mode;
 bool_t cam_roll_switch;
 
 void cam_init( void ) {
+  cam_roll_mode = CAM_ROLL_START_MODE;
   cam_roll_switch = 0;
 #if defined VIDEO_SWITCH_PIN && !(defined SITL)
   IO0DIR |= _BV(VIDEO_SWITCH_PIN);

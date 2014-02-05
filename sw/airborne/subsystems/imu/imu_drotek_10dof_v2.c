@@ -125,6 +125,7 @@ void imu_drotek2_event(void)
 
   if (imu_drotek2.mpu.data_available) {
 #if IMU_DROTEK_2_ORIENTATION_IC_UP
+    PRINT_CONFIG_MSG("Drotek Orientation IC_UP")
     /* change orientation, so if ICs face up, z-axis is down */
     imu.gyro_unscaled.p = imu_drotek2.mpu.data_rates.rates.p;
     imu.gyro_unscaled.q = -imu_drotek2.mpu.data_rates.rates.q;
@@ -132,7 +133,17 @@ void imu_drotek2_event(void)
     imu.accel_unscaled.x = imu_drotek2.mpu.data_accel.vect.x;
     imu.accel_unscaled.y = -imu_drotek2.mpu.data_accel.vect.y;
     imu.accel_unscaled.z = -imu_drotek2.mpu.data_accel.vect.z;
-#else
+#elif  IMU_DROTEK_2_ORIENTATION_SIDE_UP
+    PRINT_CONFIG_MSG("Drotek Orientation SIDE_UP")
+    /* change orientation, so if ICs side up, ????-axis is down */
+    imu.gyro_unscaled.p = -imu_drotek2.mpu.data_rates.rates.q;
+    imu.gyro_unscaled.q = imu_drotek2.mpu.data_rates.rates.r;
+    imu.gyro_unscaled.r = -imu_drotek2.mpu.data_rates.rates.p;
+    imu.accel_unscaled.x = -imu_drotek2.mpu.data_accel.vect.y;
+    imu.accel_unscaled.y = imu_drotek2.mpu.data_accel.vect.z;
+    imu.accel_unscaled.z = -imu_drotek2.mpu.data_accel.vect.x;
+#else 
+    PRINT_CONFIG_MSG("Drotek Orientation NORMAL")
     /* default orientation as should be printed on the pcb, z-down, ICs down */
     RATES_COPY(imu.gyro_unscaled, imu_drotek2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_drotek2.mpu.data_accel.vect);
