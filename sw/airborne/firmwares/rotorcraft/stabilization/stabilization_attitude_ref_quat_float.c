@@ -120,7 +120,7 @@ void stabilization_attitude_ref_update(void) {
   FLOAT_QUAT_DIFFERENTIAL(delta_q, stab_att_ref_rate, DT_UPDATE);
   /* compose new ref_quat by quaternion multiplication of delta rotation and current ref_quat */
   struct FloatQuat new_ref_quat;
-  FLOAT_QUAT_COMP(new_ref_quat, delta_q, stab_att_ref_quat);
+  FLOAT_QUAT_COMP(new_ref_quat, stab_att_ref_quat, delta_q);
   QUAT_COPY(stab_att_ref_quat, new_ref_quat);
 #endif
   FLOAT_QUAT_NORMALIZE(stab_att_ref_quat);
