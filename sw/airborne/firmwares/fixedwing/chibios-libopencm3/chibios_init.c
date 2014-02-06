@@ -28,8 +28,15 @@
 #include <hal.h>
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 #include "sdLog.h"
+#include "usbStorage.h"
 #include "pprz_stub.h"
 #include "rtcAccess.h"
+#include "airframe.h"
+
+// Delay before starting SD log
+#ifndef SDLOG_START_DELAY
+#define SDLOG_START_DELAY 30
+#endif
 
 
 #ifndef  SYS_TIME_FREQUENCY
@@ -62,12 +69,11 @@ bool_t chibios_init(void) {
   PWR->CSR &= ~PWR_CSR_BRE;
   DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_IWDG_STOP;
 
-  chThdSleepMilliseconds (100);
-  sdOk = chibios_logInit(true);
-
   chThdCreateStatic(wa_thd_heartbeat, sizeof(wa_thd_heartbeat),
       NORMALPRIO, thd_heartbeat, NULL);
-  return sdOk;
+
+  usbStorageStartPolling ();
+  return RDY_OK;
 }
 
 static WORKING_AREA(pprzThd, 4096);
@@ -84,6 +90,9 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
 {
   (void) arg;
   chRegSetThreadName("pprz heartbeat");
+
+  chThdSleepSeconds (SDLOG_START_DELAY);
+  sdOk = chibios_logInit(true);
 
   while (TRUE) {
     palTogglePad (GPIOC, GPIOC_LED3);

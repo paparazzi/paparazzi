@@ -92,12 +92,15 @@ error:
 
 void chibios_logFinish(void)
 {
-  sdLogStopThread ();
-  sdLogCloseLog (&pprzLogFile);
+  if (pprzLogFile.fs != NULL) {
+    sdLogStopThread ();
+    sdLogCloseLog (&pprzLogFile);
 #if LOG_PROCESS_STATE
-  sdLogCloseLog (&processLogFile);
+    sdLogCloseLog (&processLogFile);
 #endif
-  sdLogFinish ();
+    sdLogFinish ();
+    pprzLogFile.fs = NULL;
+  }
 }
 
 
