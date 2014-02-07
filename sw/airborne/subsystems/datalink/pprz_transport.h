@@ -43,8 +43,13 @@
 
 #include <inttypes.h>
 #include "std.h"
+#ifndef PPRZ_DATALINK_EXPORT
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/transport.h"
+#else /* PPRZ_DATALINK_EXPORT defined */
+#include "datalink.h"
+#include "transport.h"
+#endif
 
 /* PPRZ Transport
  * downlink macros

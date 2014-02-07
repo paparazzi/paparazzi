@@ -27,7 +27,6 @@
 
 
 #include "std.h"
-#include "generated/airframe.h"
 
 uint8_t downlink_nb_ovrn;
 uint16_t downlink_nb_bytes;

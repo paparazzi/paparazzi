@@ -21,8 +21,11 @@
  */
 
 #include <inttypes.h>
+#ifndef PPRZ_DATALINK_EXPORT
 #include "subsystems/datalink/pprz_transport.h"
-#include "mcu_periph/uart.h"
+#else /* PPRZ_DATALINK_EXPORT defined */
+#include "pprz_transport.h"
+#endif
 
 uint8_t ck_a, ck_b;
 

@@ -30,6 +30,8 @@
 
 #include <inttypes.h>
 
+#ifndef PPRZ_DATALINK_EXPORT
+
 #include "generated/modules.h"
 #include "messages.h"
 #include "generated/airframe.h" // AC_ID is required
@@ -63,6 +65,16 @@
 #include "mcu_periph/uart.h"
 
 #endif /** !SITL */
+
+#else /* PPRZ_DATALINK_EXPORT defined */
+
+#include "messages.h"
+#include "pprz_transport.h"
+#ifndef AC_ID
+#define AC_ID 0
+#endif
+
+#endif
 
 #ifndef DefaultChannel
 #define DefaultChannel DOWNLINK_TRANSPORT
