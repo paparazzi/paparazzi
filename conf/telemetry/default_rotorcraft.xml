@@ -19,6 +19,7 @@
       <message name="I2C_ERRORS"             period="4.1"/>
       <message name="UART_ERRORS"            period="3.1"/>
       <message name="SUPERBITRF"             period="3"/>
+      <message name="ENERGY"                 period="2.5"/>
     </mode>
 
     <mode name="ppm">

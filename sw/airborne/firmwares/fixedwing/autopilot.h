@@ -93,8 +93,8 @@ extern uint16_t vsupply;
  */
 extern int32_t current;	// milliAmpere
 
-/** Fuel consumption (mAh)
- * TODO: move to electrical subsystem
+/** Energy consumption (mAh)
+ * This is the ap copy of the measurement from fbw
  */
 extern float energy;
 

@@ -85,6 +85,7 @@ static struct {
 void electrical_init(void) {
   electrical.vsupply = 0;
   electrical.current = 0;
+  electrical.energy = 0;
 
   electrical.bat_low = FALSE;
   electrical.bat_critical = FALSE;
@@ -135,6 +136,8 @@ void electrical_periodic(void) {
   electrical.current = b - pow((pow(b,electrical_priv.nonlin_factor)-pow((b*x),electrical_priv.nonlin_factor)), (1./electrical_priv.nonlin_factor));
 #endif /* ADC_CHANNEL_CURRENT */
 
+  // mAh = mA * dt (10Hz -> hours)
+  electrical.energy += ((float)electrical.current) / 3600.0f / ELECTRICAL_PERIODIC_FREQ;
 
   if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
     if (bat_low_counter > 0)

@@ -132,6 +132,14 @@ static void send_status(void) {
       &electrical.vsupply, &time_sec);
 }
 
+static void send_energy(void) {
+  const int16_t e = electrical.energy;
+  const float vsup = ((float)electrical.vsupply) / 10.0f;
+  const float curs = ((float)electrical.current) / 1000.0f;
+  const float power = vsup * curs;
+  DOWNLINK_SEND_ENERGY(DefaultChannel, DefaultDevice, &vsup, &curs, &e, &power);
+}
+
 static void send_fp(void) {
   int32_t carrot_up = -guidance_v_z_sp;
   DOWNLINK_SEND_ROTORCRAFT_FP(DefaultChannel, DefaultDevice,
@@ -222,6 +230,7 @@ void autopilot_init(void) {
 
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_STATUS", send_status);
+  register_periodic_telemetry(DefaultPeriodic, "ENERGY", send_energy);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_FP", send_fp);
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_CMD", send_rotorcraft_cmd);
   register_periodic_telemetry(DefaultPeriodic, "DL_VALUE", send_dl_value);

@@ -420,6 +420,7 @@ static inline void telecommand_task( void ) {
 
   vsupply = fbw_state->vsupply;
   current = fbw_state->current;
+  energy = fbw_state->energy;
 
 #ifdef RADIO_CONTROL
   if (!autopilot_flight_time) {
@@ -517,7 +518,6 @@ void navigation_task( void ) {
 
     // climb_loop(); //4Hz
   }
-  energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
 }
 
 
