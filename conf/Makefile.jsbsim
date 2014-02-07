@@ -29,6 +29,7 @@ SRC_ARCH = arch/sim
 
 CC = g++
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
+OPT ?= 2
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -37,7 +38,7 @@ Q=@
 # Compilation flags
 #
 
-CFLAGS	= -W -Wall $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/airborne/$(SRC_ARCH) $($(TARGET).CFLAGS) $(LOCAL_CFLAGS) -O2
+CFLAGS	= -W -Wall $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/airborne/$(SRC_ARCH) $($(TARGET).CFLAGS) $(LOCAL_CFLAGS) -O$(OPT)
 
 LDFLAGS		=	-lm $($(TARGET).LDFLAGS)
 

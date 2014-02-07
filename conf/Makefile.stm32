@@ -43,11 +43,7 @@ else
 MCU   = cortex-m3
 endif
 #DEBUG = dwarf-2
-OPT   = s
-#OPT   = 2
-#OPT   = 0
-
-
+OPT ?= s
 
 # input files
 SRCS = $($(TARGET).srcs)

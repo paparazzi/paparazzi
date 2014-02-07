@@ -31,7 +31,7 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 # Launch with "make Q=''" to get full command display
 Q=@
 
-OPT=3
+OPT ?= 3
 CSTANDARD = -std=gnu99
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 

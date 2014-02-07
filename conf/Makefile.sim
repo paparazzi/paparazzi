@@ -37,6 +37,7 @@ LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 SIMSITLML = $(OBJDIR)/simsitl.ml
 MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
+OPT ?= 2
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -52,7 +53,7 @@ CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
 CFLAGS += -fPIC
-CFLAGS += -O2
+CFLAGS += -O$(OPT)
 CFLAGS += -g
 CFLAGS += -std=gnu99
 

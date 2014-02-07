@@ -27,7 +27,7 @@ LD		= $(CC)
 # Launch with "make Q=''" to get full command display
 Q=@
 
-OPT=3
+OPT ?= 3
 
 #
 # OPT=O -g, turns off all optimization and turns on debugging.

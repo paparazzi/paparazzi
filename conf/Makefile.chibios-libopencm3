@@ -69,25 +69,16 @@ endif
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -std=gnu11 -g  -O0 -ggdb3 -fno-inline \
+  # ChibiOS already define OPT
+  CH_OPT ?= 0 -g -ggdb3 -fno-inline
+
+  USE_OPT = -std=gnu11 -O$(CH_OPT) \
 	-falign-functions=16  -fno-omit-frame-pointer\
 	-W -Wall -Werror -Wno-error=unused-variable -Wno-error=format \
-        -Wno-error=unused-function -Wno-error=unused-parameter \
-	$(PPRZ_DEFINITION)
-endif
-ifeq ($(USE_OPT),)
-  USE_OPT = -std=gnu11 -O2 \
-	-falign-functions=16  -fno-omit-frame-pointer\
-	-W -Wall -Werror -Wno-error=unused-variable -Wno-error=format \
-        -Wno-error=unused-function -Wno-error=unused-parameter \
+	-Wno-error=unused-function -Wno-error=unused-parameter \
 	$(PPRZ_DEFINITION)
 endif
 
-# ifeq ($(USE_OPT),)
-#   USE_OPT = -std=gnu11 -Os   \
-# 	-falign-functions=16  -fomit-frame-pointer\
-# 	-W -Wall -DRTOS_IS_CHIBIOS
-# endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
