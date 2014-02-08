@@ -3,6 +3,7 @@
 
 extern char ivy_buf[];
 extern char* ivy_p;
+extern int ivy_dl_status;
 
 #define IvyTransportCheckFreeSpace(_dev,_) TRUE
 
@@ -10,7 +11,7 @@ extern char* ivy_p;
 
 #define IvyTransportHeader(_dev,len) ivy_p=ivy_buf;
 
-#define IvyTransportTrailer(_dev) { *(--ivy_p) = '\0'; IvySendMsg("%s",ivy_buf); }
+#define IvyTransportTrailer(_dev) { *(--ivy_p) = '\0'; if (ivy_dl_status) { IvySendMsg("%s",ivy_buf); } }
 
 #define IvyTransportPutUint8(_dev,x) { ivy_p += sprintf(ivy_p, "%u ", x); }
 #define IvyTransportPutNamedUint8(_dev,_name, _x) { ivy_p += sprintf(ivy_p, "%s ", _name); }

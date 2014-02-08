@@ -130,8 +130,10 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
   external update_adc1 : int -> unit = "update_adc1"
+  external update_dl_status : int -> unit = "update_dl_status"
 
   let bat_button = GButton.check_button ~label:"Auto" ~active:false ()
+  let dl_button = GButton.check_button ~label:"Enable Datalink/Telemetry" ~active:true ()
 
   let my_id = ref (-1)
   let init = fun id vbox ->
@@ -140,6 +142,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     my_id := id;
     sim_init ();
 
+    (* Bat level *)
     let hbox = GPack.hbox ~spacing:4 ~packing:vbox#add () in
     let _label = GMisc.label ~text:"Bat (V) " ~packing:hbox#pack () in
     let _scale = GRange.scale `HORIZONTAL ~adjustment:adj_bat ~packing:hbox#add () in
@@ -150,6 +153,16 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     ignore (adj_bat#connect#value_changed update);
     update ();
 
+    (* Datalink status *)
+    let hbox = GPack.hbox ~spacing:4 ~packing:vbox#add () in
+    let update = fun () -> update_dl_status (if dl_button#active then 1 else 0) in
+    hbox#pack dl_button#coerce;
+    let tips = GData.tooltips () in
+    tips#set_tip dl_button#coerce ~text:"Enable/disable communication with the aircraft";
+    ignore (dl_button#connect#toggled update);
+    update();
+
+    (* ADC1 *)
     if !adc1 then
       let hbox = GPack.hbox ~spacing:4 ~packing:vbox#add () in
       let _label = GMisc.label ~text:"Generic ADC 1 " ~packing:hbox#pack () in
@@ -169,8 +182,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
       set_message (Serial.string_of_payload s) in
     let ac_id = Pprz.int_assoc "ac_id" vs in
     match link_mode with
-      Pprz.Forwarded when ac_id = !my_id -> set ()
-    | Pprz.Broadcasted when ac_id <> !my_id -> set ()
+      Pprz.Forwarded when ac_id = !my_id -> if dl_button#active then set ()
+    | Pprz.Broadcasted when ac_id <> !my_id -> if dl_button#active then set ()
     | _ -> ()
 
   let message_bind = fun name link_mode ->
