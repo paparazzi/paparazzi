@@ -158,7 +158,11 @@ void motor_mixing_run_spinup(uint32_t counter, uint32_t max_counter)
 
 void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
   uint8_t i;
+#if !HITL
   if (motors_on) {
+#else
+  if (FALSE) {
+#endif
     int32_t min_cmd = INT32_MAX;
     int32_t max_cmd = INT32_MIN;
     /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
