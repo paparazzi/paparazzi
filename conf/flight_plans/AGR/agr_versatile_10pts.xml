@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="100" ground_alt="0" lat0="-29.997404" lon0="-51.123225" max_dist_from_home="3000" name="AGR_Versatile" qfu="270" security_height="45">
   <header>

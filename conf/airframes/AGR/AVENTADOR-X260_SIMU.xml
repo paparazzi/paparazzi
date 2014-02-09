@@ -19,7 +19,7 @@
 		<!--    <define name="STRONG_WIND"/> -->
 		<define name="POINT_CAM_ROLL" />
 		<define name="USE_I2C0"/>
-		<define name="USE_ADC"/>
+		<!--<define name="USE_ADC"/>-->
 		<define name="USE_ADC_6"/>  <!-- current_sensor-->
                 <define name="USE_AIRSPEED"/>		
                 <define name="AIRSPEED_ETS_SYNC_SEND"/>
@@ -50,7 +50,7 @@
                    <!-- <define name="GPS_TIMESTAMP"/> -->
 		<subsystem name="navigation" type="extra"/>
                 <subsystem name="ins" type="alt_float"/>
-		    <define name="USE_BAROMETER"/>
+		    <!--<define name="USE_BAROMETER"/>-->
 		    <define name="USE_BARO_MS5611"/>
                     <define name="INS_BARO_ID"  value="BARO_MS5611_SENDER_ID"/>
 	</firmware>
@@ -141,13 +141,12 @@
 
   <section name="MISC">
     <define name="SENSOR_SYNC_SEND"/>
-    <define name="MINIMUM_AIRSPEED"      value="20." unit="m/s"/> <!-- nao tinha -->
-    <define name="NOMINAL_AIRSPEED"      value="26." unit="m/s"/> <!--28.muito bom - nao cai nas curvas a 50º --> 
+    <define name="MINIMUM_AIRSPEED"      value="12." unit="m/s"/> <!-- nao tinha -->
+    <define name="NOMINAL_AIRSPEED"      value="18." unit="m/s"/> <!--28.muito bom - nao cai nas curvas a 50º --> 
     <define name="MAXIMUM_AIRSPEED"      value="40." unit="m/s"/> <!-- nao tinha -->
     <define name="CARROT"                value="4."   unit="s"/>
     <define name="KILL_MODE_DISTANCE"    value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="NO_XBEE_API_INIT"      value="TRUE"/>
-    <define name="ALT_KALMAN_ENABLED"    value="TRUE"/>
     <define name="TRIGGER_DELAY"         value="1."/> <!-- usado em nav_bomb-->
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="UNLOCKED_HOME_MODE"    value="TRUE"/>
@@ -181,7 +180,7 @@
     <define name="AUTO_PITCH_IGAIN" value="0.002"/>
 
     <!-- airspeed control -->
-    <define name="AUTO_AIRSPEED_SETPOINT" value="26."/>   <!-- 28 voa muito bem -->
+    <define name="AUTO_AIRSPEED_SETPOINT" value="14."/>   <!-- 28 voa muito bem -->
     <define name="AUTO_AIRSPEED_THROTTLE_PGAIN" value="0.005"/> <!--0.002   0.058-->
     <define name="AUTO_AIRSPEED_THROTTLE_DGAIN" value="0.006"/> <!--0.2-->
     <define name="AUTO_AIRSPEED_THROTTLE_IGAIN" value="0.005"/> <!--0.03-->
@@ -204,10 +203,10 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="2.000"/> <!--1.880 nao faz scan encima das linhas -->	
+    <define name="COURSE_PGAIN" value="0.500"/> <!--1.880 nao faz scan encima das linhas -->	
     <define name="COURSE_DGAIN" value="0.300"/> <!--0.400 -->
-    <define name="COURSE_PRE_BANK_CORRECTION" value=".7"/>  <!-- nao tinha -->
-    <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value=".4"/>  <!-- nao tinha -->
+    <define name="ROLL_MAX_SETPOINT" value="60" unit="deg"/>
     <define name="PITCH_MAX_SETPOINT" value="25" unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
     <define name="PITCH_PGAIN" value="11000."/> <!--8500-->
@@ -254,6 +253,7 @@
 		<!--<load name="baro_board.xml">
 		    <define name="BARO_ABS_EVENT" value="BaroMs5611Update"/>
 		</load>-->
+		<load name="mission_fw.xml"/> 
 		<load name="airspeed_ets.xml"/>
 		<load name="openlog.xml"/>
 		<load name="nav_catapult.xml"/>

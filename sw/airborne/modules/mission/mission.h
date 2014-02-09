@@ -29,6 +29,7 @@
 
 #ifndef MISSION_H
 #define MISSION_H
+#include "state.h"
 
 #include "std.h"
 #include "math/pprz_geodetic_float.h"
@@ -82,7 +83,7 @@ struct _mission_element {
   float duration; ///< time to spend in the element (<= 0 to disable)
 };
 
-#define MISSION_ELEMENT_NB 20
+#define MISSION_ELEMENT_NB 200
 struct _mission {
   struct _mission_element elements[MISSION_ELEMENT_NB];
   float element_time;   ///< time in second spend in the current element

@@ -4,7 +4,7 @@
 <!--<flight_plan alt="300" ground_alt="0" lat0="-14.75059883799" lon0="-43.93526160752303" max_dist_from_home="55000" name="VALOREM" qfu="270" security_height="50">-->
 <!--<flight_plan NAME="BR135" LON0="-44.111690" MAX_DIST_FROM_HOME="55000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="-15.108293">-->
 
-<flight_plan NAME="BR135" LON0="-44.117178" MAX_DIST_FROM_HOME="55000" GROUND_ALT="185" SECURITY_HEIGHT="25" QFU="270" ALT="250" LAT0="-15.110191">
+<flight_plan NAME="BR135" LON0="-44.117178" MAX_DIST_FROM_HOME="55000" GROUND_ALT="0" SECURITY_HEIGHT="100" QFU="270" ALT="300" LAT0="-15.110191">
   <header>
 #include "firmwares/fixedwing/guidance/guidance_v_n.h"
 #include "subsystems/navigation/nav_line.h"
@@ -28,9 +28,9 @@
     <waypoint alt="0.0" name="TD" x="59.0" y="-21.0"/>
     <waypoint name="_BASELEG" x="88.1" y="-27.1"/>
     <waypoint name="CLIMB" x="-23.2" y="-29.0"/>
-    <waypoint name="S1" x="-336.5" y="1684.8"/>
+    <waypoint name="S1" x="-336.5" y="1684.8"/>  <!--8 -->
     <waypoint name="S2" x="-186.1" y="1468.5"/>
-    <waypoint name="S1_1" x="-46.6" y="2472.8"/>
+    <waypoint name="S1_1" x="-46.6" y="2472.8"/> <!--10-->
     <waypoint name="S1_2" x="943.8" y="2369.9"/>
     <waypoint name="S1_3" x="1745.5" y="1734.8"/>
     <waypoint name="S1_4" x="2345.1" y="848.7"/>
@@ -44,7 +44,7 @@
     <waypoint name="S1_12" x="-2256.8" y="-1448.2"/>
     <waypoint name="S1_13" x="-2379.6" y="-1154.6"/>
     <waypoint name="S1_14" x="-2495.2" y="-853.8"/>
-    <waypoint name="S1_15" x="-2596.5" y="-531.5"/>
+    <waypoint name="S1_15" x="-2596.5" y="-531.5"/> <!--24-->
 
 
     <waypoint name="S2_1" x="-30.2" y="2247.7"/>
@@ -67,8 +67,8 @@
     <waypoint name="WP_3" x="-1421.7" y="1315.0"/>
     <waypoint name="WP_4" x="-1413.1" y="1154.0"/>
     <waypoint name="WP_5" x="-1411.9" y="972.7"/>
-    <waypoint name="inicio" x="-380.3" y="825.2"/>
-    <waypoint name="1" x="-183.4" y="793.9"/>
+    <waypoint name="inicio" x="-380.3" y="825.2"/>  <!--45-->
+    <waypoint name="1" x="-183.4" y="793.9"/>  
     <waypoint name="2" x="-43.5" y="787.7"/>
     <waypoint name="3" x="94.6" y="777.2"/>
     <waypoint name="4" x="216.1" y="767.9"/>

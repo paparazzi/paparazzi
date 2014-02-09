@@ -11,16 +11,9 @@
 	<firmware name="fixedwing">
 		<target name="ap" board="twog_1.0"/>
 		<target name="sim" board="pc"/>
-<!--    			<define name="AGR_CLIMB"/>-->
-		<!--    <define name="LOITER_TRIM"/> -->
+    	<define name="AGR_CLIMB"/>
+
 		<define name="WIND_INFO"/>
-		<!--    <define name="WIND_INFO_RET"/>-->
-		<!--    <define name="STRONG_WIND"/> -->
-		<define name="ALT_KALMAN"/>
-<define name="BENCHMARK_POSITION"/>
-<define name="BENCHMARK_ALTITUDE"/>
-<define name="BENCHMARK_TEST"/>
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 		<define name="USE_I2C0"/>
 		<define name="SENSOR_SYNC_SEND"/>
                 <define name="DOWNLINK"/>
@@ -41,8 +34,6 @@
 		    <configure name="GPS_BAUD" value="B38400"/>
 		<subsystem name="navigation" type="extra"/>
                 <subsystem name="ins" type="alt_float"/>
-<!--		    <define name="USE_BARO_BMP"/>
-                    <define name="INS_BARO_SENS" value="1"/> -->
 	</firmware>
 
 <!-- commands section -->
@@ -240,7 +231,6 @@
    		<load name="baro_board.xml">
 		    <define name="BARO_ABS_EVENT" value="BaroBmpUpdate"/>
 		</load>-->
-		<load name="airspeed_ets.xml"/>
 		<load name="openlog.xml"/>
 		<load name="nav_catapult.xml"/>
 <load name="photogrammetry_calculator.xml" />
