@@ -122,17 +122,11 @@ void dl_parse_msg(void) {
   if (msg_id == DL_MOVE_WP && DL_MOVE_WP_ac_id(dl_buffer) == AC_ID) {
     uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
-
-printf("WP  %d  %d  %f \n", DL_MOVE_WP_lat(dl_buffer),DL_MOVE_WP_lon(dl_buffer),a);
-fflush(stdout);
     
     /* Computes from (lat, long) in the referenced UTM zone */
     struct LlaCoor_f lla;
     lla.lat = RadOfDeg((float)(DL_MOVE_WP_lat(dl_buffer) / 1e7));
     lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(dl_buffer) / 1e7));
-    
-printf("WP_LLA %f  %f  %f \n", lla.lat,lla.lon,lla.alt);
-fflush(stdout);
   
     struct UtmCoor_f utm;
     utm.zone = nav_utm_zone0;
