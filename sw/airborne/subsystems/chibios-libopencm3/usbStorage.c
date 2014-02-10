@@ -37,6 +37,7 @@ static msg_t    thdUsbStorage(void *arg);
 static Thread*	usbStorageThreadPtr=NULL;
 /* USB mass storage driver */
 static USBMassStorageDriver UMSD1;
+static bool_t isRunning = false;
 
 /* endpoint index */
 #define USB_MS_DATA_EP 1
@@ -297,7 +298,7 @@ static msg_t     thdUsbStorage(void *arg)
 
     chThdSleepMilliseconds(20);
   }
-
+  isRunning = true;
   chRegSetThreadName("UsbStorage:connected");
 
   chibios_logFinish ();
@@ -330,4 +331,9 @@ static msg_t     thdUsbStorage(void *arg)
 
   MCU_RESTART();
   return RDY_OK;
+}
+
+bool_t usbStorageIsItRunning (void)
+{
+  return isRunning;
 }

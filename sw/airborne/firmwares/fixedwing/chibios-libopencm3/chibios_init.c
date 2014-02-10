@@ -92,7 +92,10 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
   chRegSetThreadName("pprz heartbeat");
 
   chThdSleepSeconds (SDLOG_START_DELAY);
-  sdOk = chibios_logInit(true);
+  if (usbStorageIsItRunning ()) 
+    chThdSleepSeconds (20000); // stuck here for hours
+  else 
+    sdOk = chibios_logInit(true);
 
   while (TRUE) {
     palTogglePad (GPIOC, GPIOC_LED3);
