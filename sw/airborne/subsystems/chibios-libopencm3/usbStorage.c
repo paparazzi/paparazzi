@@ -29,10 +29,13 @@
 #include "usb_msd.h"
 #include "usbStorage.h"
 #include "chibios_sdlog.h"
+#include "chibios_init.h"
 #include <stdio.h>
 #include <string.h>
 #include <sdio.h>
 
+static uint8_t  nibbleToHex (uint8_t nibble);
+static void	populateSerialNumberDescriptorData (void);
 static msg_t    thdUsbStorage(void *arg);
 static Thread*	usbStorageThreadPtr=NULL;
 /* USB mass storage driver */
@@ -148,9 +151,9 @@ static const USBDescriptor vendorDescriptor =
 /* Product descriptor */
 static const uint8_t productDescriptorData[] =
 {
-  USB_DESC_BYTE(24),
+  USB_DESC_BYTE(20),
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING),
-  'A', 0, 'p', 0, 'o', 0, 'g', 0, 'e', 0, 'e', 0, ' ', 0, 'V', 0, '1', 0, '0', 0, '0', 0
+  'A', 0, 'u', 0, 't', 0, 'o', 0, 'p', 0, 'i', 0, 'l', 0, 'o', 0, 't', 0
 };
 static const USBDescriptor productDescriptor =
 {
@@ -158,12 +161,15 @@ static const USBDescriptor productDescriptor =
   productDescriptorData
 };
 
-/* Serial number descriptor */
-static const uint8_t serialNumberDescriptorData[] =
+/* Serial number descriptor from stm32 uniq id */
+/* uniq id is 12 bytes which gives 24 char which require 50 bytes for usb description */
+/* this array is the only one in ram (others in flash), and should be populated before */
+/* usb initialisation */
+uint8_t serialNumberDescriptorData[50] =
 {
-  USB_DESC_BYTE(24),
+  USB_DESC_BYTE(50),
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING),
-  '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '1', 0, '.', 0, '0', 0, '0', 0
+  0
 };
 static const USBDescriptor serialNumberDescriptor =
 {
@@ -252,10 +258,11 @@ static USBMassStorageConfig msdConfig =
 };
 
 
-static WORKING_AREA(waThsUsbStorage, 1024);
+static WORKING_AREA(waThdUsbStorage, 1024);
 void usbStorageStartPolling (void)
 {
-  usbStorageThreadPtr = chThdCreateStatic (waThsUsbStorage, sizeof(waThsUsbStorage),
+  populateSerialNumberDescriptorData ();
+  usbStorageThreadPtr = chThdCreateStatic (waThdUsbStorage, sizeof(waThdUsbStorage),
       NORMALPRIO, thdUsbStorage, NULL);
 
 }
@@ -283,6 +290,7 @@ static msg_t     thdUsbStorage(void *arg)
   (void) arg; // unused
   chRegSetThreadName("UsbStorage:polling");
   uint antiBounce=5;
+  EventListener connected;
 
   // Should use EXTI interrupt instead of active polling,
   // but in the chibios_opencm3 implementation, since EXTI is
@@ -301,7 +309,9 @@ static msg_t     thdUsbStorage(void *arg)
   isRunning = true;
   chRegSetThreadName("UsbStorage:connected");
 
+  /* Stop the logs*/
   chibios_logFinish ();
+
 
   /* connect sdcard sdc interface sdio */
   if (sdioConnect () == false)
@@ -319,11 +329,24 @@ static msg_t     thdUsbStorage(void *arg)
   usbStart(&USBD1, &usbConfig);
   usbConnectBus(&USBD1);
 
-  /* watch the mass storage events */
+  /* wait for a real usb storage connexion before shutting down autopilot */
+  chEvtRegisterMask(&UMSD1.evt_connected, &connected, EVENT_MASK(1));
+  chEvtWaitOne(EVENT_MASK(1));
+
+  /* stop autopilot */
+  if (pprzThdPtr != NULL) {
+    chThdTerminate (pprzThdPtr);
+    chThdWait (pprzThdPtr);
+    pprzThdPtr = NULL;
+  }
+
+  /* wait until usb-storage is unmount and usb cable is unplugged*/
   while (!chThdShouldTerminate() && palReadPad (GPIOA, GPIOA_OTG_FS_VBUS)) {
     chThdSleepMilliseconds(10);
   }
 
+
+  /* then close open descriptors and reboot autopilot */
   usbDisconnectBus(&USBD1);
   chThdSleepMilliseconds(500);
   msdStop(&UMSD1);
@@ -337,3 +360,25 @@ bool_t usbStorageIsItRunning (void)
 {
   return isRunning;
 }
+
+static uint8_t nibbleToHex (uint8_t nibble)
+{
+  nibble &= 0x0F;
+  return nibble < 10 ? nibble + '0' : nibble + 'A' - 10;
+}
+
+
+static void	populateSerialNumberDescriptorData (void)
+{
+  const uint8_t *UniqProcessorId = (uint8_t *) 0x1FFF7A10;
+  const uint8_t  UniqProcessorIdLen = 12;
+
+  uint8_t *baseDdPtr = &serialNumberDescriptorData[2];
+  for(uint32_t i=0; i<UniqProcessorIdLen; i++) {
+    *baseDdPtr++ = nibbleToHex(UniqProcessorId[i] >> 4);
+    *baseDdPtr++ = 0;
+    *baseDdPtr++ = nibbleToHex(UniqProcessorId[i]);
+    *baseDdPtr++ = 0;
+  }
+}
+

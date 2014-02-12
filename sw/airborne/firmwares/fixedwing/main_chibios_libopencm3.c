@@ -84,7 +84,7 @@ static int32_t pprz_thd (void *arg)
   (void) arg;
   chibios_chRegSetThreadName ("pprz big loop");
 
-  while (TRUE) {
+  while (!chThdShouldTerminate()) {
     Fbw(handle_periodic_tasks);
     Ap(handle_periodic_tasks);
     Fbw(event_task);
