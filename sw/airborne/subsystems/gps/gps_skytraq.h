@@ -69,11 +69,13 @@ extern struct GpsSkytraq gps_skytraq;
       ReadGpsBuffer();                                          \
     }                                                           \
     if (gps_skytraq.msg_available) {                            \
+      gps.last_msg_ticks = sys_time.nb_sec_rem;                 \
+      gps.last_msg_time = sys_time.nb_sec;                      \
       gps_skytraq_read_message();                               \
       if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {	\
         if (gps.fix == GPS_FIX_3D) {                            \
-          gps.last_fix_ticks = sys_time.nb_sec_rem;             \
-          gps.last_fix_time = sys_time.nb_sec;                  \
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;           \
+          gps.last_3dfix_time = sys_time.nb_sec;                \
         }                                                       \
         _sol_available_callback();                              \
       }                                                         \
