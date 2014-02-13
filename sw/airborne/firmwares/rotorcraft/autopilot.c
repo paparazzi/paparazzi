@@ -440,7 +440,7 @@ void autopilot_on_rc_frame(void) {
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
     if (!(new_autopilot_mode == AP_MODE_NAV
 #if USE_GPS
-          && GpsIsLost()
+          && (gps.fix != GPS_FIX_3D)
 #endif
        ))
       autopilot_set_mode(new_autopilot_mode);

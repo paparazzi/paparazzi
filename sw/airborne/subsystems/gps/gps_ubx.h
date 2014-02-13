@@ -100,25 +100,27 @@ extern struct GpsUbxRaw gps_ubx_raw;
  * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
  * For rotorcraft, only SOL message is needed for pos/speed data
  */
-#define GpsEvent(_sol_available_callback) {        \
-    if (GpsBuffer()) {                             \
-      ReadGpsBuffer();                             \
-    }                                              \
-    if (gps_ubx.msg_available) {                   \
-      gps_ubx_read_message();                      \
-      gps_ubx_ucenter_event();                     \
-      if (gps_ubx.msg_class == UBX_NAV_ID &&       \
-          (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||  \
-           (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
-            gps_ubx.have_velned == 0))) {          \
-        if (gps.fix == GPS_FIX_3D) {               \
-          gps.last_fix_ticks = sys_time.nb_sec_rem; \
-          gps.last_fix_time = sys_time.nb_sec;      \
-        }                                          \
-        _sol_available_callback();                 \
-      }                                            \
-      gps_ubx.msg_available = FALSE;               \
-    }                                              \
+#define GpsEvent(_sol_available_callback) {             \
+    if (GpsBuffer()) {                                  \
+      ReadGpsBuffer();                                  \
+    }                                                   \
+    if (gps_ubx.msg_available) {                        \
+      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
+      gps.last_msg_time = sys_time.nb_sec;              \
+      gps_ubx_read_message();                           \
+      gps_ubx_ucenter_event();                          \
+      if (gps_ubx.msg_class == UBX_NAV_ID &&            \
+          (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||       \
+           (gps_ubx.msg_id == UBX_NAV_SOL_ID &&         \
+            gps_ubx.have_velned == 0))) {               \
+        if (gps.fix == GPS_FIX_3D) {                    \
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
+          gps.last_3dfix_time = sys_time.nb_sec;        \
+        }                                               \
+        _sol_available_callback();                      \
+      }                                                 \
+      gps_ubx.msg_available = FALSE;                    \
+    }                                                   \
   }
 
 #define ReadGpsBuffer() {					\

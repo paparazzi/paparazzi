@@ -89,9 +89,11 @@ extern struct ImuXsens imu_xsens;
 extern bool_t gps_xsens_msg_available;
 #define GpsEvent(_sol_available_callback) {         \
     if (gps_xsens_msg_available) {                  \
+      gps.last_msg_ticks = sys_time.nb_sec_rem;     \
+      gps.last_msg_time = sys_time.nb_sec;          \
       if (gps.fix == GPS_FIX_3D) {                  \
-        gps.last_fix_ticks = sys_time.nb_sec_rem;   \
-        gps.last_fix_time = sys_time.nb_sec;        \
+        gps.last_3dfix_ticks = sys_time.nb_sec_rem; \
+        gps.last_3dfix_time = sys_time.nb_sec;      \
       }                                             \
       _sol_available_callback();                    \
       gps_xsens_msg_available = FALSE;              \

@@ -133,21 +133,23 @@ struct sirf_msg_41 {
 
 #define GpsBuffer() GpsLink(ChAvailable())
 
-#define GpsEvent(_sol_available_callback) {         \
-    if (GpsBuffer()) {                              \
-      ReadGpsBuffer();                              \
-    }                                               \
-    if (gps_sirf.msg_available) {                   \
-      sirf_parse_msg();                             \
-      if (gps_sirf.pos_available) {                 \
-        if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_ticks = sys_time.nb_sec_rem; \
-          gps.last_fix_time = sys_time.nb_sec;      \
-        }                                           \
-        _sol_available_callback();                  \
-      }                                             \
-      gps_sirf.msg_available = FALSE;               \
-    }                                               \
+#define GpsEvent(_sol_available_callback) {             \
+    if (GpsBuffer()) {                                  \
+      ReadGpsBuffer();                                  \
+    }                                                   \
+    if (gps_sirf.msg_available) {                       \
+      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
+      gps.last_msg_time = sys_time.nb_sec;              \
+      sirf_parse_msg();                                 \
+      if (gps_sirf.pos_available) {                     \
+        if (gps.fix == GPS_FIX_3D) {                    \
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
+          gps.last_3dfix_time = sys_time.nb_sec;        \
+        }                                               \
+        _sol_available_callback();                      \
+      }                                                 \
+      gps_sirf.msg_available = FALSE;                   \
+    }                                                   \
   }
 
 #define ReadGpsBuffer() {                                   \
