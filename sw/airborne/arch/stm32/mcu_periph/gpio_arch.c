@@ -31,26 +31,51 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 
-#ifdef STM32F1
 void gpio_enable_clock(uint32_t port) {
   switch (port) {
     case GPIOA:
-      rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+      rcc_periph_clock_enable(RCC_GPIOA);
       break;
     case GPIOB:
-      rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+      rcc_periph_clock_enable(RCC_GPIOB);
       break;
     case GPIOC:
-      rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+      rcc_periph_clock_enable(RCC_GPIOC);
       break;
     case GPIOD:
-      rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
+      rcc_periph_clock_enable(RCC_GPIOD);
       break;
+#ifdef GPIOE
+    case GPIOE:
+      rcc_periph_clock_enable(RCC_GPIOE);
+      break;
+#endif
+#ifdef GPIOF
+    case GPIOF:
+      rcc_periph_clock_enable(RCC_GPIOF);
+      break;
+#endif
+#ifdef GPIOG
+    case GPIOG:
+      rcc_periph_clock_enable(RCC_GPIOG);
+      break;
+#endif
+#ifdef GPIOH
+    case GPIOH:
+      rcc_periph_clock_enable(RCC_GPIOH);
+      break;
+#endif
+#ifdef GPIOI
+    case GPIOI:
+      rcc_periph_clock_enable(RCC_GPIOI);
+      break;
+#endif
     default:
       break;
   };
 }
 
+#ifdef STM32F1
 void gpio_setup_output(uint32_t port, uint16_t pin) {
   gpio_enable_clock(port);
   gpio_set_mode(port, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, pin);
@@ -65,7 +90,7 @@ void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output
   gpio_enable_clock(port);
   /* remap alternate function if needed */
   if (af) {
-    rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
+    rcc_periph_clock_enable(RCC_AFIO);
     AFIO_MAPR |= af;
   }
   if (is_output)
@@ -80,39 +105,6 @@ void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
 }
 
 #elif defined STM32F4
-void gpio_enable_clock(uint32_t port) {
-  switch (port) {
-    case GPIOA:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPAEN);
-      break;
-    case GPIOB:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
-      break;
-    case GPIOC:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
-      break;
-    case GPIOD:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPDEN);
-      break;
-    case GPIOE:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPEEN);
-      break;
-    case GPIOF:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPFEN);
-      break;
-    case GPIOG:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPGEN);
-      break;
-    case GPIOH:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPHEN);
-      break;
-    case GPIOI:
-      rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPIEN);
-      break;
-    default:
-      break;
-  };
-}
 
 void gpio_setup_output(uint32_t port, uint16_t pin) {
   gpio_enable_clock(port);

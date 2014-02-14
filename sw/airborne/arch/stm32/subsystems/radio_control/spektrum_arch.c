@@ -486,7 +486,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
 void SpektrumTimerInit( void ) {
 
   /* enable TIM6 clock */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
+  rcc_periph_clock_enable(RCC_TIM6);
 
   /* TIM6 configuration */
   timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT,
@@ -542,7 +542,7 @@ void tim6_dac_isr( void ) {
 void SpektrumUartInit(void) {
   /* init RCC */
   gpio_enable_clock(PrimaryUart(_BANK));
-  rcc_peripheral_enable_clock(PrimaryUart(_RCC_REG), PrimaryUart(_RCC_DEV));
+  rcc_periph_clock_enable(PrimaryUart(_RCC));
 
   /* Enable USART interrupts */
   nvic_set_priority(PrimaryUart(_IRQ), NVIC_PRIMARY_UART_PRIO);
@@ -569,7 +569,7 @@ void SpektrumUartInit(void) {
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   /* init RCC */
   gpio_enable_clock(SecondaryUart(_BANK));
-  rcc_peripheral_enable_clock(SecondaryUart(_RCC_REG), SecondaryUart(_RCC_DEV));
+  rcc_periph_clock_enable(SecondaryUart(_RCC));
 
   /* Enable USART interrupts */
   nvic_set_priority(SecondaryUart(_IRQ), NVIC_PRIMARY_UART_PRIO+1);
@@ -722,7 +722,7 @@ void radio_control_spektrum_try_bind(void) {
 static void SpektrumDelayInit( void ) {
 
   /* Enable timer clock */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
+  rcc_periph_clock_enable(RCC_TIM6);
 
   /* Make sure the timer is reset to default values. */
   timer_reset(TIM6);

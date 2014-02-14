@@ -120,14 +120,15 @@ static inline void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
 /** Set GPIO configuration
  */
 #if defined(STM32F4)
-static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_num, uint32_t en) {
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, en);
+static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_num, enum rcc_periph_clken clken) {
+  rcc_periph_clock_enable(clken);
   gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
   gpio_set_af(gpioport, af_num, pin);
 }
 #elif defined(STM32F1)
-static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t none __attribute__((unused)), uint32_t en) {
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, en | RCC_APB2ENR_AFIOEN);
+static inline void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t none __attribute__((unused)), enum rcc_periph_clken clken) {
+  rcc_periph_clock_enable(clken);
+  rcc_periph_clock_enable(RCC_AFIO);
   gpio_set_mode(gpioport, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, pin);
 }
@@ -210,31 +211,28 @@ void actuators_pwm_arch_init(void) {
    * Configure timer peripheral clocks
    *-----------------------------------*/
 #if PWM_USE_TIM1
-  // APB2 runs on double the frequency of APB1.
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM1EN);
+  rcc_periph_clock_enable(RCC_TIM1);
 #endif
 #if PWM_USE_TIM2
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM2EN);
+  rcc_periph_clock_enable(RCC_TIM2);
 #endif
 #if PWM_USE_TIM3
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM3EN);
+  rcc_periph_clock_enable(RCC_TIM3);
 #endif
 #if PWM_USE_TIM4
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM4EN);
+  rcc_periph_clock_enable(RCC_TIM4);
 #endif
 #if PWM_USE_TIM5
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM5EN);
+  rcc_periph_clock_enable(RCC_TIM5);
 #endif
 #if PWM_USE_TIM8
-  // APB2 runs on double the frequency of APB1.
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM8EN);
+  rcc_periph_clock_enable(RCC_TIM8);
 #endif
 #if PWM_USE_TIM9
-  // APB2 runs on double the frequency of APB1.
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_TIM9EN);
+  rcc_periph_clock_enable(RCC_TIM9);
 #endif
 #if PWM_USE_TIM12
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM12EN);
+  rcc_periph_clock_enable(RCC_TIM12);
 #endif
 
   /*----------------
@@ -246,40 +244,40 @@ void actuators_pwm_arch_init(void) {
 #endif
 
 #ifdef PWM_SERVO_0
-  set_servo_gpio(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, PWM_SERVO_0_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, PWM_SERVO_0_RCC);
 #endif
 #ifdef PWM_SERVO_1
-  set_servo_gpio(PWM_SERVO_1_GPIO, PWM_SERVO_1_PIN, PWM_SERVO_1_AF, PWM_SERVO_1_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_1_GPIO, PWM_SERVO_1_PIN, PWM_SERVO_1_AF, PWM_SERVO_1_RCC);
 #endif
 #ifdef PWM_SERVO_2
-  set_servo_gpio(PWM_SERVO_2_GPIO, PWM_SERVO_2_PIN, PWM_SERVO_2_AF, PWM_SERVO_2_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_2_GPIO, PWM_SERVO_2_PIN, PWM_SERVO_2_AF, PWM_SERVO_2_RCC);
 #endif
 #ifdef PWM_SERVO_3
-  set_servo_gpio(PWM_SERVO_3_GPIO, PWM_SERVO_3_PIN, PWM_SERVO_3_AF, PWM_SERVO_3_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_3_GPIO, PWM_SERVO_3_PIN, PWM_SERVO_3_AF, PWM_SERVO_3_RCC);
 #endif
 #ifdef PWM_SERVO_4
-  set_servo_gpio(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, PWM_SERVO_4_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, PWM_SERVO_4_RCC);
 #endif
 #ifdef PWM_SERVO_5
-  set_servo_gpio(PWM_SERVO_5_GPIO, PWM_SERVO_5_PIN, PWM_SERVO_5_AF, PWM_SERVO_5_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_5_GPIO, PWM_SERVO_5_PIN, PWM_SERVO_5_AF, PWM_SERVO_5_RCC);
 #endif
 #ifdef PWM_SERVO_6
-  set_servo_gpio(PWM_SERVO_6_GPIO, PWM_SERVO_6_PIN, PWM_SERVO_6_AF, PWM_SERVO_6_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_6_GPIO, PWM_SERVO_6_PIN, PWM_SERVO_6_AF, PWM_SERVO_6_RCC);
 #endif
 #ifdef PWM_SERVO_7
-  set_servo_gpio(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, PWM_SERVO_7_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, PWM_SERVO_7_RCC);
 #endif
 #ifdef PWM_SERVO_8
-  set_servo_gpio(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, PWM_SERVO_8_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, PWM_SERVO_8_RCC);
 #endif
 #ifdef PWM_SERVO_9
-  set_servo_gpio(PWM_SERVO_9_GPIO, PWM_SERVO_9_PIN, PWM_SERVO_9_AF, PWM_SERVO_9_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_9_GPIO, PWM_SERVO_9_PIN, PWM_SERVO_9_AF, PWM_SERVO_9_RCC);
 #endif
 #ifdef PWM_SERVO_10
-  set_servo_gpio(PWM_SERVO_10_GPIO, PWM_SERVO_10_PIN, PWM_SERVO_10_AF, PWM_SERVO_10_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_10_GPIO, PWM_SERVO_10_PIN, PWM_SERVO_10_AF, PWM_SERVO_10_RCC);
 #endif
 #ifdef PWM_SERVO_11
-  set_servo_gpio(PWM_SERVO_11_GPIO, PWM_SERVO_11_PIN, PWM_SERVO_11_AF, PWM_SERVO_11_RCC_IOP);
+  set_servo_gpio(PWM_SERVO_11_GPIO, PWM_SERVO_11_PIN, PWM_SERVO_11_AF, PWM_SERVO_11_RCC);
 #endif
 
 

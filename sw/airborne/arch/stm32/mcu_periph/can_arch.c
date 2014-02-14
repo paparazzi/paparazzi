@@ -33,12 +33,16 @@
 #include "mcu_periph/can_arch.h"
 #include "mcu_periph/can.h"
 
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/can.h>
 #include <libopencm3/cm3/nvic.h>
 
 #include "led.h"
+
+#ifndef STM32F1
+#error "CAN is currently only implemented for STM32F1"
+#endif
 
 #ifdef RTOS_PRIO
 #define NVIC_USB_LP_CAN_RX0_IRQ_PRIO RTOS_PRIO+1
@@ -54,9 +58,9 @@ void can_hw_init(void)
 {
 
   /* Enable peripheral clocks. */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_AFIOEN);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_CAN1EN);
+  rcc_periph_clock_enable(RCC_AFIO);
+  rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_CAN1);
 
   /* Remap the gpio pin if necessary. */
   AFIO_MAPR |= AFIO_MAPR_CAN1_REMAP_PORTB;

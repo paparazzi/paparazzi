@@ -691,7 +691,7 @@ void spi1_arch_init(void) {
 
 
   // Enable SPI1 Periph and gpio clocks
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
+  rcc_periph_clock_enable(RCC_SPI1);
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
@@ -736,9 +736,9 @@ void spi1_arch_init(void) {
 
   // Enable SPI_1 DMA clock
 #ifdef STM32F1
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+  rcc_periph_clock_enable(RCC_DMA1);
 #elif defined STM32F4
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA2EN);
+  rcc_periph_clock_enable(RCC_DMA2);
 #endif
 
   // Enable SPI1 periph.
@@ -785,7 +785,7 @@ void spi2_arch_init(void) {
 
 
   // Enable SPI2 Periph and gpio clocks
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
+  rcc_periph_clock_enable(RCC_SPI2);
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
@@ -828,11 +828,7 @@ void spi2_arch_init(void) {
   spi_set_nss_high(SPI2);
 
   // Enable SPI_2 DMA clock
-#ifdef STM32F1
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
-#elif defined STM32F4
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA1EN);
-#endif
+  rcc_periph_clock_enable(RCC_DMA1);
 
   // Enable SPI2 periph.
   spi_enable(SPI2);
@@ -879,7 +875,7 @@ void spi3_arch_init(void) {
 
 
   // Enable SPI3 Periph and gpio clocks
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI3EN);
+  rcc_periph_clock_enable(RCC_SPI3);
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
@@ -925,9 +921,9 @@ void spi3_arch_init(void) {
 
   // Enable SPI_3 DMA clock
 #ifdef STM32F1
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA2EN);
+  rcc_periph_clock_enable(RCC_DMA2);
 #elif defined STM32F4
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA1EN);
+  rcc_periph_clock_enable(RCC_DMA1);
 #endif
 
   // Enable SPI3 periph.
@@ -1253,7 +1249,7 @@ void spi1_slave_arch_init(void) {
   spi1.status = SPIIdle;
 
   // Enable SPI1 Periph and gpio clocks
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SPI1EN);
+  rcc_periph_clock_enable(RCC_SPI1);
 
   // Configure GPIOs: SCK, MISO and MOSI
   // TODO configure lisa board files to use gpio_setup_pin_af function
@@ -1288,9 +1284,9 @@ void spi1_slave_arch_init(void) {
 
   // Enable SPI_1 DMA clock
 #ifdef STM32F1
-  rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
+  rcc_periph_clock_enable(RCC_DMA1);
 #elif defined STM32F4
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_DMA2EN);
+  rcc_periph_clock_enable(RCC_DMA2);
 #endif
 
   // Enable SPI1 periph.
