@@ -75,10 +75,8 @@ static uint32_t timer_rollover_cnt;
 #if USE_PPM_TIM2
 
 PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
-
-#define PPM_RCC             &RCC_APB1ENR
-#define PPM_PERIPHERAL      RCC_APB1ENR_TIM2EN
 #define PPM_TIMER           TIM2
+#define RCC_TIM_PPM         RCC_TIM2
 
 #ifdef STM32F4
 /* Since APB prescaler != 1 :
@@ -91,10 +89,8 @@ PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #elif USE_PPM_TIM3
 
 PRINT_CONFIG_MSG("Using TIM3 for PPM input.")
-
-#define PPM_RCC             &RCC_APB1ENR
-#define PPM_PERIPHERAL      RCC_APB1ENR_TIM3EN
 #define PPM_TIMER           TIM3
+#define RCC_TIM_PPM         RCC_TIM3
 
 #ifdef STM32F4
 /* Since APB prescaler != 1 :
@@ -107,10 +103,8 @@ PRINT_CONFIG_MSG("Using TIM3 for PPM input.")
 #elif USE_PPM_TIM4
 
 PRINT_CONFIG_MSG("Using TIM4 for PPM input.")
-
-#define PPM_RCC             &RCC_APB1ENR
-#define PPM_PERIPHERAL      RCC_APB1ENR_TIM4EN
 #define PPM_TIMER           TIM4
+#define RCC_TIM_PPM         RCC_TIM4
 
 #ifdef STM32F4
 /* Since APB prescaler != 1 :
@@ -123,10 +117,8 @@ PRINT_CONFIG_MSG("Using TIM4 for PPM input.")
 #elif USE_PPM_TIM5
 
 PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
-
-#define PPM_RCC             &RCC_APB1ENR
-#define PPM_PERIPHERAL      RCC_APB1ENR_TIM5EN
 #define PPM_TIMER           TIM5
+#define RCC_TIM_PPM         RCC_TIM5
 
 #ifdef STM32F4
 /* Since APB prescaler != 1 :
@@ -139,10 +131,8 @@ PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
 #elif USE_PPM_TIM1
 
 PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
-
-#define PPM_RCC             &RCC_APB2ENR
-#define PPM_PERIPHERAL      RCC_APB2ENR_TIM1EN
 #define PPM_TIMER           TIM1
+#define RCC_TIM_PPM         RCC_TIM1
 
 #ifdef STM32F4
 #define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
@@ -151,15 +141,12 @@ PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
 #elif USE_PPM_TIM8
 
 PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
-
-#define PPM_RCC             &RCC_APB2ENR
-#define PPM_PERIPHERAL      RCC_APB2ENR_TIM8EN
 #define PPM_TIMER           TIM8
+#define RCC_TIM_PPM         RCC_TIM8
 
 #ifdef STM32F4
 #define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
 #endif
-
 
 #else
 #error Unknown PPM input timer configuration.
@@ -168,7 +155,7 @@ PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
 void ppm_arch_init ( void ) {
 
   /* timer clock enable */
-  rcc_peripheral_enable_clock(PPM_RCC, PPM_PERIPHERAL);
+  rcc_periph_clock_enable(RCC_TIM_PPM);
 
   /* GPIO clock enable */
   gpio_enable_clock(PPM_GPIO_PORT);

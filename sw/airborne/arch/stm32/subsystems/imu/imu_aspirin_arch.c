@@ -1,13 +1,17 @@
 #include "subsystems/imu.h"
 
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/f1/dma.h>
-#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/dma.h>
+#include <libopencm3/cm3/nvic.h>
 
 #include "mcu_periph/i2c.h"
+
+#ifndef STM32F1
+#error "imu_aspirin_arch arch currently only implemented for STM32F1"
+#endif
 
 void imu_aspirin_arch_int_enable(void) {
 
@@ -49,15 +53,15 @@ void imu_aspirin_arch_init(void) {
   /* Set "mag ss" and "mag reset" as floating inputs ------------------------*/
   /* "mag ss"    (PC12) is shorted to I2C2 SDA       */
   /* "mag reset" (PC13) is shorted to I2C2 SCL       */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+  rcc_periph_clock_enable(RCC_GPIOC);
   gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
 	        GPIO_CNF_INPUT_FLOAT, GPIO12 | GPIO13);
 #endif
 
   /* Gyro --------------------------------------------------------------------*/
   /* configure external interrupt exti15_10 on PC14( gyro int ) */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN |
-			                    RCC_APB2ENR_AFIOEN);
+  rcc_periph_clock_enable(RCC_GPIOC);
+  rcc_periph_clock_enable(RCC_AFIO);
   gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
 	  GPIO_CNF_INPUT_FLOAT, GPIO14);
 
@@ -68,7 +72,7 @@ void imu_aspirin_arch_init(void) {
 #endif
 
   /* configure external interrupt exti2 on PB2( accel int ) */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
+  rcc_periph_clock_enable(RCC_GPIOB);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
 	        GPIO_CNF_INPUT_FLOAT, GPIO2);
   exti_select_source(EXTI2, GPIOB);

@@ -486,7 +486,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
 void SpektrumTimerInit( void ) {
 
   /* enable TIM6 clock */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
+  rcc_periph_clock_enable(RCC_TIM6);
 
   /* TIM6 configuration */
   timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT,

@@ -215,7 +215,7 @@ void uart1_init( void ) {
   uart1.reg_addr = (void *)USART1;
 
   /* init RCC and GPIOs */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
+  rcc_periph_clock_enable(RCC_USART1);
 
 #if USE_UART1_TX
   gpio_setup_pin_af(UART1_GPIO_PORT_TX, UART1_GPIO_TX, UART1_GPIO_AF, TRUE);
@@ -279,7 +279,7 @@ void uart2_init( void ) {
   uart2.reg_addr = (void *)USART2;
 
   /* init RCC and GPIOs */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART2EN);
+  rcc_periph_clock_enable(RCC_USART2);
 
 #if USE_UART2_TX
   gpio_setup_pin_af(UART2_GPIO_PORT_TX, UART2_GPIO_TX, UART2_GPIO_AF, TRUE);
@@ -343,7 +343,7 @@ void uart3_init( void ) {
   uart3.reg_addr = (void *)USART3;
 
   /* init RCC */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_USART3EN);
+  rcc_periph_clock_enable(RCC_USART3);
 
 #if USE_UART3_TX
   gpio_setup_pin_af(UART3_GPIO_PORT_TX, UART3_GPIO_TX, UART3_GPIO_AF, TRUE);
@@ -403,7 +403,7 @@ void uart4_init( void ) {
   uart4.reg_addr = (void *)UART4;
 
   /* init RCC and GPIOs */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART4EN);
+  rcc_periph_clock_enable(RCC_UART4);
 
 #if USE_UART4_TX
   gpio_setup_pin_af(UART4_GPIO_PORT_TX, UART4_GPIO_TX, UART4_GPIO_AF, TRUE);
@@ -454,7 +454,7 @@ void uart5_init( void ) {
   uart5.reg_addr = (void *)UART5;
 
   /* init RCC and GPIOs */
-  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART5EN);
+  rcc_periph_clock_enable(RCC_UART5);
 
 #if USE_UART5_TX
   gpio_setup_pin_af(UART5_GPIO_PORT_TX, UART5_GPIO_TX, UART5_GPIO_AF, TRUE);
@@ -509,7 +509,7 @@ void uart6_init( void ) {
   uart6.reg_addr = (void *)USART6;
 
   /* enable uart clock */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART6EN);
+  rcc_periph_clock_enable(RCC_USART6);
 
   /* init RCC and GPIOs */
 #if USE_UART6_TX
