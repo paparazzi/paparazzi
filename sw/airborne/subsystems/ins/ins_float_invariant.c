@@ -352,7 +352,7 @@ void ahrs_propagate(void) {
       log_started = TRUE;
     }
     else {
-      sdLogWriteLog(&pprzLogFile, "%.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n",
+      sdLogWriteLog(&pprzLogFile, "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
           ins_impl.cmd.rates.p,
           ins_impl.cmd.rates.q,
           ins_impl.cmd.rates.r,
