@@ -91,6 +91,7 @@ void baro_bmp_event(void) {
 
     float pressure = (float)baro_bmp.pressure;
     AbiSendMsgBARO_ABS(BARO_BMP_SENDER_ID, &pressure);
+    baro_bmp.data_available = FALSE;
 
 #ifdef SENSOR_SYNC_SEND
     DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &baro_bmp.up,
