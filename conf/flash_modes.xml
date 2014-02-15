@@ -39,7 +39,7 @@
       <board name="yapa_*"/>
     </boards>
   </mode>
-  <mode name="USB DFU (stm32_mem)" boards="krooz_sd|lia_1.1|lisa_m_1.1|lisa_m_2.0|px4fmu_1.7">
+  <mode name="USB DFU (stm32_mem)">
     <variable name="FLASH_MODE" value="DFU"/>
     <boards>
       <board name="krooz_sd"/>
@@ -47,17 +47,18 @@
       <board name="px4fmu_*"/>
     </boards>
   </mode>
-  <mode name="USB DFU-UTIL" boards="apogee_1.0|apogee_0.99|stm32f4_discovery">
+  <mode name="USB DFU-UTIL">
     <variable name="FLASH_MODE" value="DFU-UTIL"/>
     <boards>
       <board name="apogee_*"/>
       <board name="stm32f4_discovery"/>
     </boards>
   </mode>
-  <mode name="STLink (SWD)" boards="apogee_1.0|apogee_0.99">
+  <mode name="STLink (SWD)">
     <variable name="FLASH_MODE" value="STLINK"/>
     <boards>
       <board name="apogee_*"/>
+      <board name="stm32f4_discovery"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
