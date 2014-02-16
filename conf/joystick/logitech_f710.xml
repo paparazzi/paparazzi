@@ -25,129 +25,89 @@ It has 8 buttons.
 -->
 
 <joystick>
- <input>
-  <axis index="0" name="lx" limit="1.00" exponent="0.7" trim="0"/>
-  <axis index="1" name="ly" limit="1.00" exponent="0.0" trim="0"/>
-  <axis index="2" name="lt" limit="1.00" exponent="0.0" trim="0"/>
-  <axis index="3" name="rx" limit="1.00" exponent="0.7" trim="0"/>
-  <axis index="4" name="ry" limit="1.00" exponent="0.7" trim="0"/>
-  <axis index="5" name="rt" limit="1.00" exponent="0.0" trim="0"/>
-  <axis index="6" name="dx" limit="1.00" exponent="0.0" trim="0"/>
-  <axis index="7" name="dy" limit="1.00" exponent="0.0" trim="0"/>
-  <button index="0" name="b_green"/>
-  <button index="1" name="b_red"/>
-  <button index="2" name="b_blue"/>
-  <button index="3" name="b_yellow"/>
-  <button index="4" name="b_ltb"/>
-  <button index="5" name="b_rtb"/>
-  <button index="6" name="b_start"/>
-  <button index="7" name="b7"/>
-  <button index="8" name="b8"/>
-  <button index="9" name="b9"/>
-  <button index="10" name="b_back"/>
-</input>
+  <input>
+    <axis index="0" name="lx" limit="1.00" exponent="0.7" trim="0"/>
+    <axis index="1" name="ly" limit="1.00" exponent="0.0" trim="0"/>
+    <axis index="2" name="lt" limit="1.00" exponent="0.0" trim="0"/>
+    <axis index="3" name="rx" limit="1.00" exponent="0.7" trim="0"/>
+    <axis index="4" name="ry" limit="1.00" exponent="0.7" trim="0"/>
+    <axis index="5" name="rt" limit="1.00" exponent="0.0" trim="0"/>
+    <axis index="6" name="dx" limit="1.00" exponent="0.0" trim="0"/>
+    <axis index="7" name="dy" limit="1.00" exponent="0.0" trim="0"/>
+    <button index="0" name="b_green"/>
+    <button index="1" name="b_red"/>
+    <button index="2" name="b_blue"/>
+    <button index="3" name="b_yellow"/>
+    <button index="4" name="b_ltb"/>
+    <button index="5" name="b_rtb"/>
+    <button index="6" name="b_start"/>
+    <button index="7" name="b7"/>
+    <button index="8" name="b8"/>
+    <button index="9" name="b9"/>
+    <button index="10" name="b_back"/>
+  </input>
 
-<messages period="0.0333333333">
+  <variables>
+    <!-- manual by default and when pressing b_green, AUTO1 on b_yellow, AUTO2 on b_red -->
+    <var name="mode" default="0"/>
+    <set var="mode" value="0" on_event="b_green"/>
+    <set var="mode" value="1" on_event="b_yellow"/>
+    <set var="mode" value="2" on_event="b_red"/>
+  </variables>
 
+  <messages period="0.0333333333">
 
-  <message class="datalink" name="RC_4CH" send_always="true">
-   <field name="joystick_id" value="JoystickID()"/>
-   <field name="throttle"    value="Bound(0-ly,0,127)"/>
-   <field name="roll"        value="rx"/>
-   <field name="yaw"         value="lx"/>
-   <field name="pitch"       value="ry"/>
-  </message>
-
-
-  <!-- trim commands -->
-  <message class="ground" name="DL_SETTING_MOD" on_event="dx > 100">
-    <field name="index" value="IndexOfSetting('rc_roll_trim')"/>
-    <field name="mod" value="10"/>
-  </message>
-  <message class="ground" name="DL_SETTING_MOD" on_event="0-dx > 100"	>
-    <field name="index" value="IndexOfSetting('rc_roll_trim')"/>
-    <field name="mod" value="0-10"/>
-  </message>
-
-  <message class="ground" name="DL_SETTING_MOD" on_event="dy > 100">
-    <field name="index" value="IndexOfSetting('rc_pitch_trim')"/>
-    <field name="mod" value="10"/>
-  </message>
-  <message class="ground" name="DL_SETTING_MOD" on_event="0-dy > 100">
-    <field name="index" value="IndexOfSetting('rc_pitch_trim')"/>
-    <field name="mod" value="0-10"/>
-  </message>
-
-  <message class="ground" name="DL_SETTING_MOD" on_event="b_rtb">
-    <field name="index" value="IndexOfSetting('rc_yaw_trim')"/>
-    <field name="mod" value="10"/>
-  </message>
-  <message class="ground" name="DL_SETTING_MOD" on_event="b_ltb">
-    <field name="index" value="IndexOfSetting('rc_yaw_trim')"/>
-    <field name="mod" value="0-10"/>
-  </message>
-
-  <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
-    <field name="index" value="IndexOfSetting('rc_roll_trim')"/>
-    <field name="value" value="0"/>
-  </message>
-
-  <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
-    <field name="index" value="IndexOfSetting('rc_pitch_trim')"/>
-    <field name="value" value="0"/>
-  </message>
-
-  <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
-    <field name="index" value="IndexOfSetting('rc_yaw_trim')"/>
-    <field name="value" value="0-10"/>
-  </message>
-<!--
-  <message class="ground" name="lx" on_event="b8"/>
-  <message class="trim_plus" name="ly" on_event="b10"/>
-  <message class="trim_minus" name="ly" on_event="b11"/>
-  <message class="trim_plus" name="rx" on_event="b2"/>
-  <message class="trim_minus" name="rx" on_event="b0"/>
-  <message class="trim_minus" name="ry" on_event="b3"/>
-  <message class="trim_plus" name="ry" on_event="b1"/>
-  <message class="trim_save" name="" on_event="b5"/>
--->
-
-<!-- Camera switch. Currently uses same buttons as yaw trim -->
-
-  <message class="ground" name="DL_SETTING" on_event="b_start">
-    <field name="index" value="IndexOfSetting('cam_switch')"/>
-    <field name="value" value="1"/>
-  </message>
-
-  <message class="ground" name="DL_SETTING" on_event="b_back">
-    <field name="index" value="IndexOfSetting('cam_switch')"/>
-    <field name="value" value="0"/>
-  </message>
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode"        value="mode"/>
+      <field name="throttle"    value="Bound(0-ly,0,127)"/>
+      <field name="roll"        value="rx"/>
+      <field name="yaw"         value="lx"/>
+      <field name="pitch"       value="ry"/>
+    </message>
 
 
-  <!-- Red Button -->  <!-- AUTO2 mode -->
-  <message class="ground" name="DL_SETTING" on_event="b_red">
-    <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="2"/>
-  </message>
+    <!-- trim commands -->
+    <!-- uncomment if you have rc_x_trim
+    <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
+      <field name="index" value="IndexOfSetting('rc_roll_trim')"/>
+      <field name="value" value="0"/>
+    </message>
 
-  <!-- Yellow Button -->   <!-- AUTO1 mode -->
-  <message class="ground" name="DL_SETTING" on_event="b_yellow">
-    <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="1"/>
-  </message>
+    <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
+      <field name="index" value="IndexOfSetting('rc_pitch_trim')"/>
+      <field name="value" value="0"/>
+    </message>
 
-  <!-- Green Button -->  <!-- MANUAL mode -->
-  <message class="ground" name="DL_SETTING" on_event="b_green">
-    <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="0"/>
-  </message>
+    <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
+      <field name="index" value="IndexOfSetting('rc_yaw_trim')"/>
+      <field name="value" value="0-10"/>
+    </message>
 
- <message class="ground" name="DL_SETTING" on_event="b_green || b_yellow || b_red">
-    <field name="index" value="IndexOfSetting('rc_dl_active_joystick')"/>
-    <field name="value" value="JoystickID()"/>
-  </message>
+    -->
+    <!--
+        <message class="ground" name="lx" on_event="b8"/>
+        <message class="trim_plus" name="ly" on_event="b10"/>
+        <message class="trim_minus" name="ly" on_event="b11"/>
+        <message class="trim_plus" name="rx" on_event="b2"/>
+        <message class="trim_minus" name="rx" on_event="b0"/>
+        <message class="trim_minus" name="ry" on_event="b3"/>
+        <message class="trim_plus" name="ry" on_event="b1"/>
+        <message class="trim_save" name="" on_event="b5"/>
+    -->
 
-</messages>
+    <!-- Camera switch. only uncomment if you have cam_switch -->
+    <!--
+    <message class="ground" name="DL_SETTING" on_event="b_start">
+      <field name="index" value="IndexOfSetting('cam_switch')"/>
+      <field name="value" value="1"/>
+    </message>
+
+    <message class="ground" name="DL_SETTING" on_event="b_back">
+      <field name="index" value="IndexOfSetting('cam_switch')"/>
+      <field name="value" value="0"/>
+    </message>
+    -->
+
+  </messages>
 
 </joystick>
