@@ -958,8 +958,16 @@ static inline float float_vect_norm(const float * a, const int n) {
 //
 //
 
+/** Make a pointer to a matrix of _rows lines */
+#define MAKE_MATRIX_PTR(_ptr, _mat, _rows) \
+  float * _ptr[_rows]; \
+  { \
+    int i; \
+    for (i = 0; i < _rows; i++) { _ptr[i] = &_mat[i][0]; } \
+  }
+
 /** a = 0 */
-static inline void float_mat_zero(int n; float a[][n], int m, int n) {
+static inline void float_mat_zero(float ** a, int m, int n) {
   int i,j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) { a[i][j] = 0.; }
@@ -967,7 +975,7 @@ static inline void float_mat_zero(int n; float a[][n], int m, int n) {
 }
 
 /** a = b */
-static inline void float_mat_copy(int n; float a[][n], float b[][n], int m, int n) {
+static inline void float_mat_copy(float ** a, float ** b, int m, int n) {
   int i,j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) { a[i][j] = b[i][j]; }
@@ -975,7 +983,7 @@ static inline void float_mat_copy(int n; float a[][n], float b[][n], int m, int 
 }
 
 /** o = a + b */
-static inline void float_mat_sum(int n; float o[][n], float a[][n], float b[][n], int m, int n) {
+static inline void float_mat_sum(float ** o, float ** a, float ** b, int m, int n) {
   int i,j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) { o[i][j] = a[i][j] + b[i][j]; }
@@ -983,7 +991,7 @@ static inline void float_mat_sum(int n; float o[][n], float a[][n], float b[][n]
 }
 
 /** o = a - b */
-static inline void float_mat_diff(int n; float o[][n], float a[][n], float b[][n], int m, int n) {
+static inline void float_mat_diff(float ** o, float ** a, float ** b, int m, int n) {
   int i,j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) { o[i][j] = a[i][j] - b[i][j]; }
@@ -991,7 +999,7 @@ static inline void float_mat_diff(int n; float o[][n], float a[][n], float b[][n
 }
 
 /** transpose square matrix */
-static inline void float_mat_transpose(int n; float a[][n], int n) {
+static inline void float_mat_transpose(float ** a, int n) {
   int i,j;
   for (i = 0; i < n; i++) {
     for (j = 0; j < i; j++) {
@@ -1008,7 +1016,7 @@ static inline void float_mat_transpose(int n; float a[][n], int n) {
  * b: [n x l]
  * o: [m x l]
  */
-static inline void float_mat_mul(int n; int l; float o[][l], float a[][n], float b[][l], int m, int n, int l) {
+static inline void float_mat_mul(float ** o, float ** a, float ** b, int m, int n, int l) {
   int i,j,k;
   for (i = 0; i < m; i++) {
     for (j = 0; j < l; j++) {
@@ -1026,7 +1034,7 @@ static inline void float_mat_mul(int n; int l; float o[][l], float a[][n], float
  * o: [I(d,d)     0     ]
  *    [  0    a(d,m:d,n)]
  */
-static inline void float_mat_minor(int n; float o[][n], float a[][n], int m, int n, int d) {
+static inline void float_mat_minor(float ** o, float ** a, int m, int n, int d) {
   int i,j;
   float_mat_zero(o, m, n);
   for (i = 0; i < d; i++) { o[i][i] = 1.0; }
@@ -1038,7 +1046,7 @@ static inline void float_mat_minor(int n; float o[][n], float a[][n], int m, int
 }
 
 /** o = I - v v^T */
-static inline void float_mat_vmul(int n; float o[][n], float * v, int n)
+static inline void float_mat_vmul(float ** o, float * v, int n)
 {
   int i,j;
   for (i = 0; i < n; i++) {
@@ -1052,7 +1060,7 @@ static inline void float_mat_vmul(int n; float o[][n], float * v, int n)
 }
 
 /** o = c-th column of matrix a[m x n] */
-static inline void float_mat_col(int n; float * o, float a[][n], int m, int n, int c) {
+static inline void float_mat_col(float * o, float ** a, int m, int c) {
   int i;
   for (i = 0; i < m; i++) {
     o[i] = a[i][c];

@@ -33,11 +33,13 @@
  * @param in pointer to the input array [n x n]
  * @param n dimension of the matrix
  */
-void pprz_cholesky_float(int n; float out[][n], float in[][n], int n)
+void pprz_cholesky_float(float ** out, float ** in, int n)
 {
   int i,j,k;
-  float o[n][n];
+  float _o[n][n];
+  MAKE_MATRIX_PTR(o,_o,n);
 
+  float_mat_zero(o, n, n);
   for (i = 0; i < n; i++) {
     for (j = 0; j < (i+1); j++) {
       float s = 0;
@@ -48,7 +50,7 @@ void pprz_cholesky_float(int n; float out[][n], float in[][n], int n)
         (1.0 / o[j][j] * (in[i][j] - s));
     }
   }
-  memcpy(out, o, n*n*sizeof(float));
+  float_mat_copy(out, o, n, n);
 }
 
 /** QR decomposition
@@ -63,16 +65,21 @@ void pprz_cholesky_float(int n; float out[][n], float in[][n], int n)
  * @param m number of rows of the input matrix
  * @param n number of column of the input matrix
  */
-void pprz_qr_float(int m; int n; float Q[][m], float R[][n], float in[][n], int m, int n)
+void pprz_qr_float(float ** Q, float ** R, float ** in, int m, int n)
 {
   int i, k;
-  float q[m][m][m];
-  float z[m][n], z1[m][n], z2[m][m];
+  float _q[m][m][m];
+  float * q[m][m];
+  float _z[m][n], _z1[m][n], _z2[m][m];
+  MAKE_MATRIX_PTR(z,_z,m);
+  MAKE_MATRIX_PTR(z1,_z1,m);
+  MAKE_MATRIX_PTR(z2,_z2,m);
+  for (i = 0;  i < m; i++) for (k = 0; k < m; k++) q[i][k] = &_q[i][k][0];
   float_mat_copy(z, in, m, n);
   for (k = 0; k < n && k < m - 1; k++) {
     float e[m], x[m], a, b;
     float_mat_minor(z1, z, m, n, k);
-    float_mat_col(x, z1, m, n, k);
+    float_mat_col(x, z1, m, k);
     a = float_vect_norm(x, m);
     if (in[k][k] > 0) a = -a;
     for (i = 0; i < m; i++) {
@@ -131,7 +138,7 @@ static inline float pythag(float a, float b) {
  * @param n number of columns of the input matrix
  * @return 0 (false) if convergence failed, 1 (true) if decomposition succed
  */
-int pprz_svd_float(int n; float a[][n], float w[], float v[][n], int m, int n)
+int pprz_svd_float(float ** a, float * w, float ** v, int m, int n)
 {
   /* Householder reduction to bidiagonal form. */
   int flag, i, its, j, jj, k, l, NM;
@@ -428,7 +435,7 @@ int pprz_svd_float(int n; float a[][n], float w[], float v[][n], int m, int n)
  * @param n number of columns of the matrix A
  * @param l number of columns of the matrix B
  */
-void pprz_svd_solve_float(int n; int l; float x[][l], float u[][n], float w[], float v[][n], float b[][l], int m, int n, int l)
+void pprz_svd_solve_float(float ** x, float ** u, float * w, float ** v, float ** b, int m, int n, int l)
 {
   int i,j,jj,k;
   float s;
