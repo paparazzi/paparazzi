@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2014 Sergey Krukowski <softsr@yahoo.de>
  *
  * This file is part of paparazzi.
  *
@@ -17,6 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file subsystems/gps/gps_sim_hitl.c
+ * GPS subsystem simulation from rotorcrafts horizontal/vertical reference system
  */
 
 #include "subsystems/gps.h"
