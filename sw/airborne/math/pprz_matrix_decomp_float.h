@@ -21,34 +21,16 @@
  */
 
 #include "std.h"
-#include "math/pprz_algebra_float.h"
-#include <math.h>
-#include <string.h>
 
 /** Cholesky decomposition
  *
  * http://rosettacode.org/wiki/Cholesky_decomposition#C
  *
- * @param out pointer to the output array (square n x n matrix, seen as a single dimension array of size n*n)
- * @param in pointer to the input array (square n x n matrix, seen as a single dimension array of size n*n)
+ * @param out pointer to the output array [n x n]
+ * @param in pointer to the input array [n x n]
  * @param n dimension of the matrix
  */
-static inline void pprz_cholesky_float(float * out, const float * in, const int n) {
-  int i,j,k;
-  float o[n*n];
-
-  for (i = 0; i < n; i++) {
-    for (j = 0; j < (i+1); j++) {
-      float s = 0;
-      for (k = 0; k < j; k++)
-        s += o[i * n + k] * o[j * n + k];
-      o[i * n + j] = (i == j) ?
-        sqrtf(in[i * n + i] - s) :
-        (1.0 / o[j * n + j] * (in[i * n + j] - s));
-    }
-  }
-  memcpy(out, o, n*n*sizeof(float));
-}
+void pprz_cholesky_float(float ** out, float ** in, int n);
 
 /** QR decomposition
  *
@@ -56,39 +38,57 @@ static inline void pprz_cholesky_float(float * out, const float * in, const int 
  *
  * http://rosettacode.org/wiki/QR_decomposition#C
  *
- * @param Q square orthogonal matrix Q (m x m matrix, seen as a single dimension array of size m*m)
- * @param R upper triangular matrix R (m x n matrix, seen as a single dimension array of size m*n)
- * @param in pointer to the input array (square m x n matrix, seen as a single dimension array of size m*n)
+ * @param Q square orthogonal matrix Q [m x m]
+ * @param R upper triangular matrix R [m x n]
+ * @param in pointer to the input array [m x n]
  * @param m number of rows of the input matrix
- * @param n number of column of the input matrix
+ * @param n number of columns of the input matrix
  */
-static inline void pprz_qr_float(float * Q, float * R, const float * in, const int m, const int n)
-{
-  int i, k;
-  float q[m][m*m];
-  float z[m*n], z1[m*n], z2[m*m];
-  float_mat_copy(z, in, m, n);
-  for (k = 0; k < n && k < m - 1; k++) {
-    float e[m], x[m], a, b;
-    float_mat_minor(z1, z, m, n, k);
-    float_mat_col(x, z1, m, n, k);
-    a = float_vect_norm(x, m);
-    if (in[k*n + k] > 0) a = -a;
-    for (i = 0; i < m; i++) {
-      e[i] = (i == k) ? 1 : 0;
-      e[i] = x[i] + a * e[i];
-    }
-    b = float_vect_norm(e, m);
-    float_vect_sdiv(e, e, b, m);
-    float_mat_vmul(q[k], e, m);
-    float_mat_mul(z, q[k], z1, m, m, n);
-  }
-  float_mat_copy(Q, q[0], m, m);
-  for (i = 1; i < n && i < m - 1; i++) {
-    float_mat_mul(z2, q[i], Q, m, m, m);
-    float_mat_copy(Q, z2, m, m);
-  }
-  float_mat_mul(R, Q, in, m, m, n);
-  float_mat_transpose(Q, m);
-}
+void pprz_qr_float(float ** Q, float ** R, float ** in, int m, int n);
+
+/** SVD decomposition
+ *
+ * --------------------------------------------------------------------- *
+ * Reference:  "Numerical Recipes By W.H. Press, B. P. Flannery,         *
+ *              S.A. Teukolsky and W.T. Vetterling, Cambridge            *
+ *              University Press, 1986" [BIBLI 08].                      *
+ *                                                                       *
+ *                               C++ Release 2.0 By J-P Moreau, Paris    *
+ *                                         (www.jpmoreau.fr)             *
+ * http://jean-pierre.moreau.pagesperso-orange.fr
+ * --------------------------------------------------------------------- *
+ *
+ * Given a matrix a(m,n), this routine computes its singular value decomposition,
+ * A = U · W · Vt. The matrix U replaces a on output. The diagonal matrix of singular
+ * values W is output as a vector w(n). The matrix V (not the transpose Vt) is output
+ * as v(n,n).
+ *
+ * @param a input matrix [m x n] and output matrix U [m x n]
+ * @param w output diagonal vector of matrix W [n]
+ * @param v output square matrix V [n x n]
+ * @param m number of rows of input the matrix
+ * @param n number of columns of the input matrix
+ * @return 0 (false) if convergence failed, 1 (true) if decomposition succed
+ */
+int pprz_svd_float(float ** a, float * w, float ** v, int m, int n);
+
+/** SVD based linear solver
+ *
+ * Solves A · X = B for a vector X,
+ * where A is specified by the arrays u, w, v as returned by pprz_svd_float.
+ * m and n are the dimensions of a.
+ * b(m) is the input right-hand side.
+ * x(n) is the output solution vector.
+ * No input quantities are destroyed, so the routine may be called sequentially with different b's.
+ *
+ * @param x solution of the system ([n x l] matrix)
+ * @param u U matrix from SVD decomposition
+ * @param w diagonal of the W matrix from the SVD decomposition
+ * @param v V matrrix from SVD decomposition
+ * @param b right-hand side input matrix from system to solve (column vector [m x l])
+ * @param m number of rows of the matrix A
+ * @param n number of columns of the matrix A
+ * @param l number of columns of the matrix B
+ */
+void pprz_svd_solve_float(float ** x, float ** u, float * w, float ** v, float ** b, int m, int n, int l);
 

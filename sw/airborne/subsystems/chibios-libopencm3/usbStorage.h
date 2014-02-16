@@ -25,6 +25,7 @@
  */
 #pragma once
 
-void usbStorageStartPolling (void);
-void usbStorageStop  (void);
-void usbStorageWaitForDeconnexion (void);
+void   usbStorageStartPolling (void);
+void   usbStorageStop  (void);
+void   usbStorageWaitForDeconnexion (void);
+bool_t usbStorageIsItRunning (void);

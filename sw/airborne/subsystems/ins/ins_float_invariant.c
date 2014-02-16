@@ -58,6 +58,12 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#if LOG_INVARIANT_FILTER
+#include "sdLog.h"
+#include "subsystems/chibios-libopencm3/chibios_sdlog.h"
+bool_t log_started = FALSE;
+#endif
+
 /*------------- =*= Invariant Observers =*= -------------*
  *
  *             State vector :
@@ -243,6 +249,7 @@ void ins_init() {
   ins.status = INS_UNINIT;
   ins.hf_realign = FALSE;
   ins.vf_realign = FALSE;
+
 }
 
 void ins_periodic(void) {}
@@ -337,6 +344,49 @@ void ahrs_propagate(void) {
         &ins_impl.meas.pos_gps.z)
       });
 
+#if LOG_INVARIANT_FILTER
+  if (pprzLogFile.fs != NULL) {
+    if (!log_started) {
+      // log file header
+      sdLogWriteLog(&pprzLogFile, "p q r ax ay az gx gy gz gvx gvy gvz mx my mz b qi qx qy qz bp bq br vx vy vz px py pz hb as\n");
+      log_started = TRUE;
+    }
+    else {
+      sdLogWriteLog(&pprzLogFile, "%.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
+          ins_impl.cmd.rates.p,
+          ins_impl.cmd.rates.q,
+          ins_impl.cmd.rates.r,
+          ins_impl.cmd.accel.x,
+          ins_impl.cmd.accel.y,
+          ins_impl.cmd.accel.z,
+          ins_impl.meas.pos_gps.x,
+          ins_impl.meas.pos_gps.y,
+          ins_impl.meas.pos_gps.z,
+          ins_impl.meas.speed_gps.x,
+          ins_impl.meas.speed_gps.y,
+          ins_impl.meas.speed_gps.z,
+          ins_impl.meas.mag.x,
+          ins_impl.meas.mag.y,
+          ins_impl.meas.mag.z,
+          ins_impl.meas.baro_alt,
+          ins_impl.state.quat.qi,
+          ins_impl.state.quat.qx,
+          ins_impl.state.quat.qy,
+          ins_impl.state.quat.qz,
+          ins_impl.state.bias.p,
+          ins_impl.state.bias.q,
+          ins_impl.state.bias.r,
+          ins_impl.state.speed.x,
+          ins_impl.state.speed.y,
+          ins_impl.state.speed.z,
+          ins_impl.state.pos.x,
+          ins_impl.state.pos.y,
+          ins_impl.state.pos.z,
+          ins_impl.state.hb,
+          ins_impl.state.as);
+    }
+  }
+#endif
 }
 
 void ahrs_update_gps(void) {

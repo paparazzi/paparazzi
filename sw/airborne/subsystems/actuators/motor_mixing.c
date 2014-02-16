@@ -47,8 +47,14 @@
 #define MOTOR_MIXING_STOP_MOTOR -MAX_PPRZ
 #endif
 
+/**
+ * Maximum offset in case of saturation.
+ * If a saturation is reached (desired motor command outside of possible MIN_MOTOR/MAX_MOTOR range),
+ * this saturation_offset is applied to all motors in order to give attitude commands a higher priority than thrust.
+ * This setting limits the saturation_offset. Default is 10% of maximum command.
+ */
 #ifndef MOTOR_MIXING_MAX_SATURATION_OFFSET
-#define MOTOR_MIXING_MAX_SATURATION_OFFSET MAX_PPRZ/3
+#define MOTOR_MIXING_MAX_SATURATION_OFFSET MAX_PPRZ/10
 #endif
 
 #ifndef MOTOR_MIXING_MIN_MOTOR_STARTUP

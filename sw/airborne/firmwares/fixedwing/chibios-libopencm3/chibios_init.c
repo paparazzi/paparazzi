@@ -32,6 +32,7 @@
 #include "pprz_stub.h"
 #include "rtcAccess.h"
 #include "airframe.h"
+#include "chibios_init.h"
 
 // Delay before starting SD log
 #ifndef SDLOG_START_DELAY
@@ -50,6 +51,8 @@
 static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg);
 #define MAX(x , y)  (((x) > (y)) ? (x) : (y))
 #define ARRAY_LEN(a) (sizeof(a)/sizeof(a[0]))
+
+Thread *pprzThdPtr = NULL;
 
 static WORKING_AREA(wa_thd_heartbeat, 2048);
 void chibios_launch_heartbeat (void);
@@ -79,7 +82,7 @@ bool_t chibios_init(void) {
 static WORKING_AREA(pprzThd, 4096);
 void launch_pprz_thd (int32_t (*thd) (void *arg))
 {
-  chThdCreateStatic(pprzThd, sizeof(pprzThd), NORMALPRIO+1, thd, NULL);
+  pprzThdPtr = chThdCreateStatic(pprzThd, sizeof(pprzThd), NORMALPRIO+1, thd, NULL);
 }
 
 
@@ -92,7 +95,10 @@ static __attribute__((noreturn)) msg_t thd_heartbeat(void *arg)
   chRegSetThreadName("pprz heartbeat");
 
   chThdSleepSeconds (SDLOG_START_DELAY);
-  sdOk = chibios_logInit(true);
+  if (usbStorageIsItRunning ())
+    chThdSleepSeconds (20000); // stuck here for hours
+  else
+    sdOk = chibios_logInit(true);
 
   while (TRUE) {
     palTogglePad (GPIOC, GPIOC_LED3);

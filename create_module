@@ -158,7 +158,7 @@ let xml_of_event = fun l ->
   List.map (fun n -> Xml.Element ("event", [("fun", n)], [])) l;;
 
 let xml_of_datalink = fun l ->
-  List.map (fun (m, n) -> Xml.Element ("init", [("message", m); ("fun", n)], [])) l;;
+  List.map (fun (m, n) -> Xml.Element ("datalink", [("message", m); ("fun", n)], [])) l;;
 
 let xml_makefile_of_name = fun n ->
   [Xml.Element ("makefile", [], [
