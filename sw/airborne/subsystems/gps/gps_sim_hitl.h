@@ -29,8 +29,12 @@ extern uint32_t gps_sim_hitl_timer;
           guidance_v_zd_ref = 0;		     \
           guidance_v_zdd_ref = 0;		     \
         }                                                                                           \
-        VECT3_ASSIGN(ned_coor, guidance_h_pos_ref.x, guidance_h_pos_ref.y, guidance_v_z_ref);       \
-        VECT3_ASSIGN(ned_vel, guidance_h_speed_ref.x, guidance_h_speed_ref.y, guidance_v_zd_ref);   \
+        VECT3_ASSIGN(ned_coor, guidance_h_pos_ref.x * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM,    \
+                               guidance_h_pos_ref.y * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM,    \
+                               guidance_v_z_ref * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM);       \
+        VECT3_ASSIGN(ned_vel, guidance_h_speed_ref.x * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM, \
+                              guidance_h_speed_ref.y * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM, \
+                              guidance_v_zd_ref * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM);   \
         ecef_of_ned_point_i(&gps.ecef_pos, &ins_impl.ltp_def, &ned_coor);                                \
         ecef_of_ned_vect_i(&gps.ecef_vel, &ins_impl.ltp_def, &ned_vel);                                  \
         gps.fix = GPS_FIX_3D;                                                                       \

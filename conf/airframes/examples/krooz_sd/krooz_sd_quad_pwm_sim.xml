@@ -27,6 +27,7 @@
     <define name="NO_RC_THRUST_LIMIT"/>
     <define name="USE_RC_FP_BLOCK_SWITCHING"/>
     <define name="USE_ATTITUDE_REF" value="0"/>
+    <define name="USE_INS_NAV_INIT" value="1"/>
   </firmware>
 
   <modules main_freq="512">
