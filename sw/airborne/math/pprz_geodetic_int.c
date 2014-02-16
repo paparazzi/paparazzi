@@ -71,6 +71,12 @@ void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla) {
 
 }
 
+
+/** Convert a point from ECEF to local ENU.
+ * @param[out] enu  ENU point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ecef ECEF point in cm
+ */
 void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
   struct EcefCoor_i delta;
@@ -91,6 +97,11 @@ void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ece
 }
 
 
+/** Convert a point from ECEF to local NED.
+ * @param[out] ned  NED point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ecef ECEF point in cm
+ */
 void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
   struct EnuCoor_i enu;
   enu_of_ecef_point_i(&enu, def, ecef);
@@ -128,6 +139,12 @@ void ned_of_ecef_pos_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefC
   ENU_OF_TO_NED(*ned, enu);
 }
 
+
+/** Rotate a vector from ECEF to ENU.
+ * @param[out] enu  vector in ENU coordinate system
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ecef vector in ECEF coordinate system
+ */
 void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*ecef->x +
@@ -146,6 +163,11 @@ void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ecef
 }
 
 
+/** Rotate a vector from ECEF to NED.
+ * @param[out] ned  vector in NED coordinate system
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ecef vector in ECEF coordinate system
+ */
 void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
   struct EnuCoor_i enu;
   enu_of_ecef_vect_i(&enu, def, ecef);
@@ -153,6 +175,11 @@ void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ecef
 }
 
 
+/** Rotate a vector from ENU to ECEF.
+ * @param[out] ecef vector in ECEF coordinate system
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  enu  vector in ENU coordinate system
+ */
 void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
 
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * enu->x +
@@ -172,6 +199,12 @@ void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct En
 
 }
 
+
+/** Rotate a vector from NED to ECEF.
+ * @param[out] ecef vector in ECEF coordinate system
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ned  vector in NED coordinate system
+ */
 void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
   struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
