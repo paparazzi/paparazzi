@@ -23,5 +23,9 @@
 
 #include "extra_pprz_dl.h"
 
+#if DATALINK != PPRZ
+uint8_t ck_a, ck_b;
+#endif
+
 struct pprz_transport extra_pprz_tp;
 
