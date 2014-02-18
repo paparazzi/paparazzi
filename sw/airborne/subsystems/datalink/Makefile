@@ -55,7 +55,7 @@ MAKEFILE_EXPORT = pprz_datalink.mk
 TAR_EXPORT = pprz_datalink.tar
 
 all:
-	@cat README
+	@cat README.md
 
 export_lib:
 	@echo Exporting datalink lib to $(EXPORT_DIR)

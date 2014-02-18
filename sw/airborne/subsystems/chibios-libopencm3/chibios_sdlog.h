@@ -47,4 +47,9 @@ extern FIL processLogFile;
 extern bool_t chibios_logInit(const bool_t binaryFile);
 extern void chibios_logFinish(void);
 
+/** Paparazzi datalink API */
+#define SDLOGCheckFreeSpace(_x) (true)
+#define SDLOGTransmit(_x) sdLogWriteByte(&pprzLogFile, _x)
+#define SDLOGSendMessage() {}
+
 #endif

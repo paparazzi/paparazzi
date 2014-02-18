@@ -51,6 +51,7 @@
 
 #include "subsystems/datalink/udp.h"
 #include "subsystems/datalink/pprz_transport.h"
+#include "subsystems/datalink/pprzlog_transport.h"
 #include "subsystems/datalink/xbee.h"
 #include "subsystems/datalink/w5100.h"
 #if USE_SUPERBITRF
