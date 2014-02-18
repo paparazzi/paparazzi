@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="meteo_france_DAQ" dir="meteo">
+  <doc>
+    <description>Data acquisition board used by Meteo France</description>
+  </doc>
+  <header>
+    <file name="meteo_france_DAQ.h"/>
+  </header>
+  <init fun="init_mf_daq()"/>
+  <periodic fun="mf_daq_send_state()" freq="10."/>
+  <periodic fun="mf_daq_send_report()" freq="1." autorun="TRUE"/>
+  <datalink message="MF_DAQ" fun="parse_mf_daq_msg()"/>
+  <makefile>
+    <file name="meteo_france_DAQ.c"/>
+  </makefile>
+</module>
+

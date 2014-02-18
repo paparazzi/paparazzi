@@ -15,6 +15,7 @@
       <configure name="EXTRA_DL_PORT" value="UART6"/>
       <configure name="EXTRA_DL_BAUD" value="B57600"/>
     </load>
+    <load name="meteo_france_DAQ.xml"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -32,7 +33,8 @@
     <subsystem name="radio_control" type="sbus"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="telemetry" type="xbee_api"/>
+    <subsystem name="sdlog"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="apogee"/>
