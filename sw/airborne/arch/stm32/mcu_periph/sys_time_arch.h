@@ -40,6 +40,7 @@
 #include "std.h"
 #ifdef RTOS_IS_CHIBIOS
 #include "chibios_stub.h"
+#include "chconf.h"
 #endif
 
 /**
@@ -49,7 +50,7 @@
  */
 static inline uint32_t get_sys_time_usec(void) {
 #ifdef RTOS_IS_CHIBIOS
-  return chibios_chTimeNow();
+  return (chibios_chTimeNow() * (1000000 / CH_FREQUENCY));
 #else
   return sys_time.nb_sec * 1000000 +
     usec_of_cpu_ticks(sys_time.nb_sec_rem) +
