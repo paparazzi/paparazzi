@@ -424,6 +424,7 @@ void parse_ins_msg( void ) {
 #if USE_GPS_XSENS
             gps.nb_channels = XSENS_XDI_GpsSvInfo_nch(xsens_msg_buf+offset);
 
+            gps.last_3dfix_ticks = sys_time.nb_sec_rem;
             gps.last_3dfix_time = sys_time.nb_sec;
 
             uint8_t i;
@@ -463,6 +464,7 @@ void parse_ins_msg( void ) {
 #ifdef GPS_LED
           LED_TOGGLE(GPS_LED);
 #endif
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;
           gps.last_3dfix_time = sys_time.nb_sec;
           gps.week = 0; // FIXME
           lla_f.lat = RadOfDeg(XSENS_DATA_LatLon_lat(xsens_msg_buf,offset));

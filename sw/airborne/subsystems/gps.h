@@ -111,6 +111,15 @@ extern void gps_impl_init(void);
 #define GPS_TIMEOUT 2
 #endif
 
+inline bool_t GpsIsLost(void);
+
+inline bool_t GpsIsLost(void) {
+  if (gps.fix == GPS_FIX_3D) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
 /** Periodic GPS check.
  * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
  */

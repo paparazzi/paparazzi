@@ -82,6 +82,7 @@ extern bool_t gps_configuring;
       if (gps_mtk.msg_class == MTK_DIY14_ID &&          \
           gps_mtk.msg_id == MTK_DIY14_NAV_ID) {         \
         if (gps.fix == GPS_FIX_3D) {                    \
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
           gps.last_3dfix_time = sys_time.nb_sec;        \
         }                                               \
         _sol_available_callback();                      \
