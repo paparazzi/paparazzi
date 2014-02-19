@@ -20,17 +20,22 @@
  */
 #include "peripherals/hmc5843.h"
 
-#include <libopencm3/stm32/f1/gpio.h>
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/exti.h>
+#include <libopencm3/cm3/nvic.h>
+
 #include "mcu_periph/i2c.h"
+
+#ifndef STM32F1
+#error "HMC5843 arch currently only implemented for STM32F1"
+#endif
 
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */
-
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
+  rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_AFIO);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
 	        GPIO_CNF_INPUT_FLOAT, GPIO5);
 

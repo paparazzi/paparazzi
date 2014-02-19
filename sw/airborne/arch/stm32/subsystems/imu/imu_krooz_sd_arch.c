@@ -1,16 +1,16 @@
 #include "subsystems/imu.h"
 
-#include <libopencm3/stm32/f4/rcc.h>
-#include <libopencm3/stm32/f4/gpio.h>
-#include <libopencm3/stm32/f4/nvic.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/exti.h>
+#include <libopencm3/cm3/nvic.h>
 
 #include "subsystems/imu/imu_krooz_sd_arch.h"
 
 void imu_krooz_sd_arch_init(void) {
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_SYSCFGEN);
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPBEN);
-  rcc_peripheral_enable_clock(&RCC_AHB1ENR, RCC_AHB1ENR_IOPCEN);
+  rcc_periph_clock_enable(RCC_SYSCFG);
+  rcc_periph_clock_enable(RCC_GPIOB);
+  rcc_periph_clock_enable(RCC_GPIOB);
   gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO5);
   gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO6);
 
