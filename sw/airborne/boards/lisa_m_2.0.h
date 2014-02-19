@@ -18,7 +18,7 @@
 #define USE_LED_1 1
 #endif
 #define LED_1_GPIO GPIOA
-#define LED_1_GPIO_CLK RCC_APB2ENR_IOPAEN
+#define LED_1_GPIO_CLK RCC_GPIOA
 #define LED_1_GPIO_PIN GPIO8
 #define LED_1_GPIO_ON gpio_clear
 #define LED_1_GPIO_OFF gpio_set
@@ -29,18 +29,21 @@
 #define USE_LED_2 1
 #endif
 #define LED_2_GPIO GPIOB
-#define LED_2_GPIO_CLK RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN
+#define LED_2_GPIO_CLK RCC_GPIOB
 #define LED_2_GPIO_PIN GPIO4
 #define LED_2_GPIO_ON gpio_clear
 #define LED_2_GPIO_OFF gpio_set
-#define LED_2_AFIO_REMAP AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST
+#define LED_2_AFIO_REMAP {                            \
+  rcc_periph_clock_enable(RCC_AFIO);                  \
+  AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST;  \
+}
 
 /* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
 #ifndef USE_LED_3
 #define USE_LED_3 1
 #endif
 #define LED_3_GPIO GPIOC
-#define LED_3_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_3_GPIO_CLK RCC_GPIOC
 #define LED_3_GPIO_PIN GPIO2
 #define LED_3_GPIO_ON gpio_clear
 #define LED_3_GPIO_OFF gpio_set
@@ -51,7 +54,7 @@
 #define USE_LED_4 1
 #endif
 #define LED_4_GPIO GPIOC
-#define LED_4_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_4_GPIO_CLK RCC_GPIOC
 #define LED_4_GPIO_PIN GPIO5
 #define LED_4_GPIO_ON gpio_clear
 #define LED_4_GPIO_OFF gpio_set
@@ -62,7 +65,7 @@
 #define USE_LED_5 1
 #endif
 #define LED_5_GPIO GPIOC
-#define LED_5_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_5_GPIO_CLK RCC_GPIOC
 #define LED_5_GPIO_PIN GPIO15
 #define LED_5_GPIO_ON gpio_clear
 #define LED_5_GPIO_OFF gpio_set
@@ -73,7 +76,7 @@
  */
 /* PC3, ADC13 on ADC_1 */
 #define LED_6_GPIO GPIOC
-#define LED_6_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_6_GPIO_CLK RCC_GPIOC
 #define LED_6_GPIO_PIN GPIO3
 #define LED_6_GPIO_ON gpio_clear
 #define LED_6_GPIO_OFF gpio_set
@@ -81,7 +84,7 @@
 
 /* PC0, ADC10 on ADC_2 */
 #define LED_7_GPIO GPIOC
-#define LED_7_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_7_GPIO_CLK RCC_GPIOC
 #define LED_7_GPIO_PIN GPIO0
 #define LED_7_GPIO_ON gpio_clear
 #define LED_7_GPIO_OFF gpio_set
@@ -89,7 +92,7 @@
 
 /* PC1, ADC11 on ADC_3 */
 #define LED_8_GPIO GPIOC
-#define LED_8_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_8_GPIO_CLK RCC_GPIOC
 #define LED_8_GPIO_PIN GPIO1
 #define LED_8_GPIO_ON gpio_clear
 #define LED_8_GPIO_OFF gpio_set
@@ -102,7 +105,7 @@
 
 /* PB1, DRDY on EXT SPI connector*/
 #define LED_BODY_GPIO GPIOB
-#define LED_BODY_GPIO_CLK RCC_APB2ENR_IOPBEN
+#define LED_BODY_GPIO_CLK RCC_GPIOB
 #define LED_BODY_GPIO_PIN GPIO1
 #define LED_BODY_GPIO_ON gpio_set
 #define LED_BODY_GPIO_OFF gpio_clear
@@ -110,7 +113,7 @@
 
 /* PC12, on GPIO connector*/
 #define LED_12_GPIO GPIOC
-#define LED_12_GPIO_CLK RCC_APB2ENR_IOPCEN
+#define LED_12_GPIO_CLK RCC_GPIOC
 #define LED_12_GPIO_PIN GPIO12
 #define LED_12_GPIO_ON gpio_clear
 #define LED_12_GPIO_OFF gpio_set

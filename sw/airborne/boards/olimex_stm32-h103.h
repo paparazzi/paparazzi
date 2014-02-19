@@ -10,7 +10,7 @@
 #define USE_LED_1 1
 #endif
 #define LED_1_GPIO GPIOC
-#define LED_1_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_1_GPIO_CLK RCC_GPIOC
 #define LED_1_GPIO_PIN GPIO_Pin_12
 
 #endif /* CONFIG_OLIMEX_STM32_H103_H */
