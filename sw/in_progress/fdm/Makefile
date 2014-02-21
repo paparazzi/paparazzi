@@ -26,11 +26,11 @@ Q=@
 all: fdm_step
 
 fdm_step: fdm_step.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	gcc -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 
 fms_steps_attitude: fms_steps_attitude.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	gcc -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 
 

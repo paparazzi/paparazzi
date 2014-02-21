@@ -126,10 +126,10 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 
 CC = gcc
-GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags` -fPIC
-GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre -fPIC
-GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` -fPIC
-GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre -fPIC
+GLIB_CFLAGS  = -Wall $(shell pkg-config glib-2.0 --cflags) -fPIC
+GLIB_LDFLAGS =  $(shell pkg-config glib-2.0 --libs) -lglibivy $(shell pcre-config --libs) -fPIC
+GTK_CFLAGS  = -Wall $(shell pkg-config gtk+-2.0 --cflags) -fPIC
+GTK_LDFLAGS =  $(shell pkg-config gtk+-2.0 --libs) -lglibivy $(shell pcre-config --libs) -fPIC
 
 UNAME = $(shell uname -s)
 

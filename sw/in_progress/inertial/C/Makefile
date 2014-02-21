@@ -2,14 +2,14 @@
 # Quiet compilation
 Q=@
 
-CFLAGS = -g -Wall  `pkg-config glib-2.0 --cflags`
-LDFLAGS = `pkg-config glib-2.0 --libs` -lm
+CFLAGS = -g -Wall  $(shell pkg-config glib-2.0 --cflags)
+LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lm
 
 %.o: %.c
 	gcc -c -Wall $(CFLAGS) -o $@ $<
 
-CFLAGS += `pkg-config gtk+-2.0 --cflags`
-LDFLAGS += `pkg-config gtk+-2.0 --libs` -lgtkdatabox
+CFLAGS += $(shell pkg-config gtk+-2.0 --cflags)
+LDFLAGS += $(shell pkg-config gtk+-2.0 --libs) -lgtkdatabox
 
 #
 #

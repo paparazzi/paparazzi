@@ -70,10 +70,10 @@ gtk_export.ml : export.glade
 pt : ahrsview imuview ahrs2fg
 
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
-LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox -lglibivy
+CFLAGS=-g -O2 -Wall $(shell pkg-config gtk+-2.0 --cflags)
+LDFLAGS=$(shell pkg-config gtk+-2.0 --libs) -s -lgtkdatabox -lglibivy
 
-MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib -lglibivy `pcre-config --libs`
+MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib -lglibivy $(shell pcre-config --libs)
 
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
@@ -107,7 +107,7 @@ FGFS_ARGS = $(FGFS_COMMON_ARGS) $(FGFS_IN_GUI_ARGS)
 #FGFS_GAME_ARGS)
 
 panic: panic.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lhid
+	gcc -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy -lhid
 
 #
 # Dependencies
