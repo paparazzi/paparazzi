@@ -188,7 +188,7 @@ ffjoystick: ffjoystick.c
 	$(CC) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
 
 ctrlstick: ctrlstick.c
-$(CC) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
+	$(CC) -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy
 
 clean:
 	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm disp3d plotprofile test1 test3 test_samere ivy_example tmclient ffjoystick ctrlstick sd2log motor_bench
