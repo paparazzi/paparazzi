@@ -2,8 +2,8 @@
 Q=@
 
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` -I../../../var/MB
-LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lglibivy
+CFLAGS=-g -O2 -Wall $(shell pkg-config gtk+-2.0 --cflags) -I../../../var/MB
+LDFLAGS=$(shell pkg-config gtk+-2.0 --libs) -s -lglibivy
 
 motor_bench : main.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
