@@ -15,7 +15,7 @@
 #define USE_LED_1 1
 #endif
 #define LED_1_GPIO GPIOB
-#define LED_1_GPIO_CLK GPIOB
+#define LED_1_GPIO_CLK RCC_GPIOB
 #define LED_1_GPIO_PIN GPIO4
 #define LED_1_GPIO_ON gpio_clear
 #define LED_1_GPIO_OFF gpio_set

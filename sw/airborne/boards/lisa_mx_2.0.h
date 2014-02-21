@@ -132,7 +132,7 @@
 
 /* PC12, on GPIO connector*/
 #define LED_12_GPIO GPIOC
-#define LED_12_GPIO_CLK RCC_GPIOB
+#define LED_12_GPIO_CLK RCC_GPIOC
 #define LED_12_GPIO_PIN GPIO12
 #define LED_12_GPIO_ON gpio_clear
 #define LED_12_GPIO_OFF gpio_set
