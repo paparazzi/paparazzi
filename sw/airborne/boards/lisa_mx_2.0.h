@@ -196,7 +196,7 @@
 
 /* PPM
  *
- * Default is PPM config 2, input on GPIO01 (Servo pin 6)
+ * Default is PPM config 2, input on GPIOA1 (Servo pin 6)
  */
 
 #ifndef PPM_CONFIG
@@ -208,8 +208,8 @@
 #define USE_PPM_TIM1 1
 #define PPM_CHANNEL         TIM_IC3
 #define PPM_TIMER_INPUT     TIM_IC_IN_TI3
-#define PPM_IRQ             NVIC_TIM1_UP_IRQ
-#define PPM_IRQ2            NVIC_TIM1_CC_IRQ
+#define PPM_IRQ             NVIC_TIM1_CC_IRQ
+#define PPM_IRQ2            NVIC_TIM1_UP_TIM10_IRQ
 // Capture/Compare InteruptEnable and InterruptFlag
 #define PPM_CC_IE           TIM_DIER_CC3IE
 #define PPM_CC_IF           TIM_SR_CC3IF
