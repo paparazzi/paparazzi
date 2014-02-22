@@ -394,58 +394,52 @@ void register_adc_watchdog(uint32_t adc, uint8_t chan, uint16_t low, uint16_t hi
 /***  PRIVATE FUNCTION DEFINITIONS  ***/
 /**************************************/
 
+#if defined(USE_AD_TIM4)
+#define TIM_ADC      TIM4
+#define RCC_TIM_ADC  RCC_TIM4
+#elif defined(USE_AD_TIM1)
+#define TIM_ADC      TIM1
+#define RCC_TIM_ADC  RCC_TIM1
+#else
+#define TIM_ADC      TIM2
+#define RCC_TIM_ADC  RCC_TIM2
+#endif
+
 /** Configure and enable RCC for peripherals (ADC1, ADC2, Timer) */
 static inline void adc_init_rcc( void )
 {
 #if USE_AD1 || USE_AD2 || USE_AD3
-  uint32_t timer;
-  volatile uint32_t *rcc_apbenr;
-  uint32_t rcc_apb;
-#if defined(USE_AD_TIM4)
-  timer   = TIM4;
-  rcc_apbenr = &RCC_APB1ENR;
-  rcc_apb = RCC_APB1ENR_TIM4EN;
-#elif defined(USE_AD_TIM1)
-  timer   = TIM1;
-  rcc_apbenr = &RCC_APB2ENR;
-  rcc_apb = RCC_APB2ENR_TIM1EN;
-#else
-  timer   = TIM2;
-  rcc_apbenr = &RCC_APB1ENR;
-  rcc_apb = RCC_APB1ENR_TIM2EN;
-#endif
-
   /* Timer peripheral clock enable. */
-  rcc_peripheral_enable_clock(rcc_apbenr, rcc_apb);
+  rcc_periph_clock_enable(RCC_TIM_ADC);
 #if defined(STM32F4)
   adc_set_clk_prescale(ADC_CCR_ADCPRE_BY2);
 #endif
 
   /* Enable ADC peripheral clocks. */
 #if USE_AD1
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
+  rcc_periph_clock_enable(RCC_ADC1);
 #endif
 #if USE_AD2
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC2EN);
+  rcc_periph_clock_enable(RCC_ADC2);
 #endif
 #if USE_AD3
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC3EN);
+  rcc_periph_clock_enable(RCC_ADC3);
 #endif
 
   /* Time Base configuration */
-  timer_reset(timer);
-  timer_set_mode(timer, TIM_CR1_CKD_CK_INT,
+  timer_reset(TIM_ADC);
+  timer_set_mode(TIM_ADC, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
 #if defined(STM32F1)
-  timer_set_period(timer, 0xFF);
+  timer_set_period(TIM_ADC, 0xFF);
 #elif defined(STM32F4)
-  timer_set_period(timer, 0xFFFF);
+  timer_set_period(TIM_ADC, 0xFFFF);
 #endif
-  timer_set_prescaler(timer, ADC_TIMER_PRESCALER);
-  //timer_set_clock_division(timer, 0x0);
+  timer_set_prescaler(TIM_ADC, ADC_TIMER_PRESCALER);
+  //timer_set_clock_division(TIM_ADC, 0x0);
   /* Generate TRGO on every update. */
-  timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
-  timer_enable_counter(timer);
+  timer_set_master_mode(TIM_ADC, TIM_CR2_MMS_UPDATE);
+  timer_enable_counter(TIM_ADC);
 
 #endif // USE_AD1 || USE_AD2 || USE_AD3
 }

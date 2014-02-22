@@ -28,21 +28,26 @@
 #include "peripherals/ms2100.h"
 #include "mcu_periph/sys_time.h"
 
-#include <libopencm3/stm32/f1/rcc.h>
-#include <libopencm3/stm32/f1/nvic.h>
-#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/exti.h>
+#include <libopencm3/cm3/nvic.h>
+
+#ifndef STM32F1
+#error "MS2100 arch currently only implemented for STM32F1"
+#endif
 
 void ms2100_arch_init( void ) {
 
   /* set mag reset as output (reset on PC13) ----*/
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN | RCC_APB2ENR_AFIOEN);
+  rcc_periph_clock_enable(RCC_GPIOC);
+  rcc_periph_clock_enable(RCC_AFIO);
   gpio_set(GPIOC, GPIO13);
   gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
   Ms2100Reset();
 
   /* configure data ready input on PB5 */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
+  rcc_periph_clock_enable(RCC_GPIOB);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO5);
 
   /* external interrupt for drdy pin */
