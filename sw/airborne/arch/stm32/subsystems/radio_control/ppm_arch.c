@@ -157,10 +157,7 @@ void ppm_arch_init ( void ) {
   /* timer clock enable */
   rcc_periph_clock_enable(RCC_TIM_PPM);
 
-  /* GPIO clock enable */
-  gpio_enable_clock(PPM_GPIO_PORT);
-
-  /* timer gpio configuration */
+  /* GPIO configuration as input capture for timer */
   gpio_setup_pin_af(PPM_GPIO_PORT, PPM_GPIO_PIN, PPM_GPIO_AF, FALSE);
 
   /* Time Base configuration */
