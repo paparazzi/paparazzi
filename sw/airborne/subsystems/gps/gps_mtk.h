@@ -70,30 +70,33 @@ extern bool_t gps_configuring;
 #define GpsConfigure() {}
 #endif
 
-#define GpsEvent(_sol_available_callback) {         \
-    if (GpsBuffer()) {                              \
-      ReadGpsBuffer();                              \
-      GpsConfigure();                               \
-    }                                               \
-    if (gps_mtk.msg_available) {                    \
-      gps_mtk_read_message();                       \
-      if (gps_mtk.msg_class == MTK_DIY14_ID &&      \
-          gps_mtk.msg_id == MTK_DIY14_NAV_ID) {     \
-        if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_time = sys_time.nb_sec;      \
-        }                                           \
-        _sol_available_callback();                  \
-      }                                             \
-      if (gps_mtk.msg_class == MTK_DIY16_ID &&      \
-          gps_mtk.msg_id == MTK_DIY16_NAV_ID) {     \
-        if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_ticks = sys_time.nb_sec_rem; \
-          gps.last_fix_time = sys_time.nb_sec;      \
-        }                                           \
-        _sol_available_callback();                  \
-      }                                             \
-      gps_mtk.msg_available = FALSE;                \
-    }                                               \
+#define GpsEvent(_sol_available_callback) {             \
+    if (GpsBuffer()) {                                  \
+      ReadGpsBuffer();                                  \
+      GpsConfigure();                                   \
+    }                                                   \
+    if (gps_mtk.msg_available) {                        \
+      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
+      gps.last_msg_time = sys_time.nb_sec;              \
+      gps_mtk_read_message();                           \
+      if (gps_mtk.msg_class == MTK_DIY14_ID &&          \
+          gps_mtk.msg_id == MTK_DIY14_NAV_ID) {         \
+        if (gps.fix == GPS_FIX_3D) {                    \
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
+          gps.last_3dfix_time = sys_time.nb_sec;        \
+        }                                               \
+        _sol_available_callback();                      \
+      }                                                 \
+      if (gps_mtk.msg_class == MTK_DIY16_ID &&          \
+          gps_mtk.msg_id == MTK_DIY16_NAV_ID) {         \
+        if (gps.fix == GPS_FIX_3D) {                    \
+          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
+          gps.last_3dfix_time = sys_time.nb_sec;        \
+        }                                               \
+        _sol_available_callback();                      \
+      }                                                 \
+      gps_mtk.msg_available = FALSE;                    \
+    }                                                   \
   }
 
 #define ReadGpsBuffer() {					\

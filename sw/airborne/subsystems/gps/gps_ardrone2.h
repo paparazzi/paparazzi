@@ -36,15 +36,17 @@ extern bool_t gps_ardrone2_available;
 /*
  * The GPS event
  */
-#define GpsEvent(_sol_available_callback) {        \
+#define GpsEvent(_sol_available_callback) {         \
     if (gps_ardrone2_available) {                   \
-    	if (gps.fix == GPS_FIX_3D) {               \
-        gps.last_fix_ticks = sys_time.nb_sec_rem;  \
-        gps.last_fix_time = sys_time.nb_sec;       \
-      }                                            \
-      _sol_available_callback();                   \
+      gps.last_msg_ticks = sys_time.nb_sec_rem;     \
+      gps.last_msg_time = sys_time.nb_sec;          \
+      if (gps.fix == GPS_FIX_3D) {                  \
+        gps.last_3dfix_ticks = sys_time.nb_sec_rem; \
+        gps.last_3dfix_time = sys_time.nb_sec;      \
+      }                                             \
+      _sol_available_callback();                    \
       gps_ardrone2_available = FALSE;               \
-    }                                              \
+    }                                               \
   }
 
 void gps_ardrone2_parse(navdata_gps_t *navdata_gps);

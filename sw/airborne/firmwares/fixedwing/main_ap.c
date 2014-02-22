@@ -455,7 +455,7 @@ void reporting_task( void ) {
 
 
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
-#define GpsTimeoutError (sys_time.nb_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
+#define GpsTimeoutError (sys_time.nb_sec - gps.last_3dfix_time > FAILSAFE_DELAY_WITHOUT_GPS)
 #endif
 
 /**
@@ -594,6 +594,10 @@ void sensors_task( void ) {
 
 #if USE_BARO_BOARD
   baro_periodic();
+#endif
+
+#if USE_GPS
+  gps_periodic_check();
 #endif
 
   ins_periodic();

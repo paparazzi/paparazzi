@@ -159,7 +159,7 @@ void sirf_parse_2(void) {
     printf("GPS %i %i %i %i\n", ticks, (sys_time.nb_sec - start_time), ticks2, (sys_time.nb_sec - start_time2));
 #endif
   }
-  else if(sys_time.nb_sec - gps.last_fix_time > 10) {
+  else if(sys_time.nb_sec - gps.last_3dfix_time > 10) {
     start_time = sys_time.nb_sec;
     ticks = 0;
   }
