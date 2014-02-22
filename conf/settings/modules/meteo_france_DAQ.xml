@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings NAME="MF DAQ control">
+    <dl_settings NAME="MF DAQ">
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="mf_daq.power" module="meteo/meteo_france_DAQ" handler="SetPower" values="OFF|ON">
+        <strip_button name="MF DAQ power on" icon="on.png" value="1" group="MF_DAQ"/>
+        <strip_button name="MF DAQ power off" icon="off.png" value="0" group="MF_DAQ"/>
+      </dl_setting>
+    </dl_settings>
+  </dl_settings>
+</settings>

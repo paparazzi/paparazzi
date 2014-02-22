@@ -35,6 +35,7 @@
 
 #include "state.h"
 #include "autopilot.h"
+#include "generated/airframe.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/chibios-libopencm3/sdLog.h"
@@ -44,8 +45,17 @@
 
 struct MF_DAQ mf_daq;
 
+#ifndef MF_DAQ_POWER_INIT
+#define MF_DAQ_POWER_INIT TRUE
+#endif
+
 void init_mf_daq(void) {
   mf_daq.nb = 0;
+  mf_daq.power = MF_DAQ_POWER_INIT;
+#if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
+  gpio_setup_output(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN);
+#endif
+  meteo_france_DAQ_SetPower(mf_daq.power)
 }
 
 void mf_daq_send_state(void) {
