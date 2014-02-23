@@ -41,9 +41,11 @@
 #include "subsystems/chibios-libopencm3/sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
 
+#include "subsystems/gps.h"
 #include "modules/datalink/extra_pprz_dl.h"
 
 struct MF_DAQ mf_daq;
+bool_t log_started;
 
 #ifndef MF_DAQ_POWER_INIT
 #define MF_DAQ_POWER_INIT TRUE
@@ -55,7 +57,8 @@ void init_mf_daq(void) {
 #if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
   gpio_setup_output(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN);
 #endif
-  meteo_france_DAQ_SetPower(mf_daq.power)
+  meteo_france_DAQ_SetPower(mf_daq.power);
+  log_started = FALSE;
 }
 
 void mf_daq_send_state(void) {
@@ -86,6 +89,22 @@ void mf_daq_send_report(void) {
   if (mf_daq.nb > 0) {
     DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, mf_daq.nb, mf_daq.values);
   }
+  // Test if log is started
+  if (pprzLogFile.fs != NULL) {
+    if (log_started == FALSE) {
+      // Log MD5SUM once
+      DOWNLINK_SEND_ALIVE(PprzLogTransport, SDLOG, 16, MD5SUM);
+      log_started = TRUE;
+    }
+    // Log GPS for time reference
+    uint8_t foo = 0;
+    int16_t climb = -gps.ned_vel.z;
+    int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
+    DOWNLINK_SEND_GPS(PprzLogTransport, SDLOG, &gps.fix,
+        &gps.utm_pos.east, &gps.utm_pos.north,
+        &course, &gps.hmsl, &gps.gspeed, &climb,
+        &gps.week, &gps.tow, &gps.utm_pos.zone, &foo);
+  }
 }
 
 void parse_mf_daq_msg(void) {
@@ -94,7 +113,28 @@ void parse_mf_daq_msg(void) {
     // Store data struct directly from dl_buffer
     memcpy(mf_daq.values, DL_PAYLOAD_FLOAT_values(dl_buffer), mf_daq.nb * sizeof(float));
     // Log on SD card
-    DOWNLINK_SEND_PAYLOAD_FLOAT(PprzLogTransport, SDLOG, mf_daq.nb, mf_daq.values);
+    if (log_started) {
+      DOWNLINK_SEND_PAYLOAD_FLOAT(PprzLogTransport, SDLOG, mf_daq.nb, mf_daq.values);
+      DOWNLINK_SEND_MF_DAQ_STATE(PprzLogTransport, SDLOG,
+          &autopilot_flight_time,
+          &stateGetBodyRates_f()->p,
+          &stateGetBodyRates_f()->q,
+          &stateGetBodyRates_f()->r,
+          &stateGetNedToBodyEulers_f()->phi,
+          &stateGetNedToBodyEulers_f()->theta,
+          &stateGetNedToBodyEulers_f()->psi,
+          &stateGetAccelNed_f()->x,
+          &stateGetAccelNed_f()->y,
+          &stateGetAccelNed_f()->z,
+          &stateGetSpeedEnu_f()->x,
+          &stateGetSpeedEnu_f()->y,
+          &stateGetSpeedEnu_f()->z,
+          &stateGetPositionLla_f()->lat,
+          &stateGetPositionLla_f()->lon,
+          &stateGetPositionLla_f()->alt,
+          &stateGetHorizontalWindspeed_f()->y,
+          &stateGetHorizontalWindspeed_f()->x);
+    }
   }
 }
 
