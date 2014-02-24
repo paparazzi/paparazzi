@@ -109,8 +109,8 @@ value update_bat(value bat) {
   return Val_unit;
 }
 
-value update_dl_status(value dl_status) {
-  ivy_dl_status = Int_val(dl_status);
+value update_dl_status(value dl_enabled) {
+  ivy_dl_enabled = Int_val(dl_enabled);
   return Val_unit;
 }
 
