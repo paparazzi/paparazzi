@@ -183,7 +183,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     let ac_id = Pprz.int_assoc "ac_id" vs in
     match link_mode with
       Pprz.Forwarded when ac_id = !my_id -> if dl_button#active then set ()
-    | Pprz.Broadcasted when ac_id <> !my_id -> if dl_button#active then set ()
+    | Pprz.Broadcasted -> if dl_button#active then set ()
     | _ -> ()
 
   let message_bind = fun name link_mode ->
