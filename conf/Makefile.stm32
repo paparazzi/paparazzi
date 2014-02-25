@@ -102,6 +102,8 @@ CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
 
+#CFLAGS += -fno-diagnostics-show-caret
+
 ifneq ($(ARCH_L), )
 ifeq ($(ARCH_L),f4)
 CFLAGS += -DSTM32F4
