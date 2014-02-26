@@ -42,14 +42,6 @@ extern float ins_baro_alt;
 extern bool_t ins_baro_initialized;
 #endif
 
-/** Reset the UTM zone to the current gps fix
- *
- * This function must be called with a valid GPS position
- *
- * @param utm initial utm position, returned with a corrected utm zone
- */
-extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
-
 extern void alt_kalman_reset( void );
 extern void alt_kalman_init( void );
 extern void alt_kalman( float );

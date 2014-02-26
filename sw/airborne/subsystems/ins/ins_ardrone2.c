@@ -76,7 +76,7 @@ void ins_periodic( void ) {
     ins.status = INS_RUNNING;
 }
 
-void ins_reset_ground_ref( void ) {
+void ins_reset_local_origin( void ) {
   ins_impl.ltp_initialized = FALSE;
 }
 

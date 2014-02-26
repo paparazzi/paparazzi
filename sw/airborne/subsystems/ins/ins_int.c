@@ -117,6 +117,7 @@ static void send_ins_ref(void) {
 
 static void ins_init_origin_from_flightplan(void);
 static void ins_ned_to_state(void);
+static void ins_update_from_vff(void);
 #if USE_HFF
 static void ins_update_from_hff(void);
 #endif
@@ -170,7 +171,7 @@ void ins_periodic(void) {
     ins.status = INS_RUNNING;
 }
 
-void ins_reset_ground_ref( void ) {
+void ins_reset_local_origin( void ) {
   ins_impl.ltp_initialized = FALSE;
 #if USE_HFF
   ins.hf_realign = TRUE;
@@ -190,6 +191,7 @@ void ins_reset_altitude_ref( void ) {
 #if USE_HFF
 void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed) {
   b2_hff_realign(pos, speed);
+  ins_update_from_hff();
 }
 #else
 void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)),
@@ -199,6 +201,7 @@ void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)),
 
 void ins_realign_v(float z) {
   vff_realign(z);
+  ins_update_from_vff();
 }
 
 void ins_propagate() {
@@ -211,9 +214,7 @@ void ins_propagate() {
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
   if (ins_impl.baro_initialized) {
     vff_propagate(z_accel_meas_float);
-    ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
-    ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
-    ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+    ins_update_from_vff();
   }
   else { // feed accel from the sensors
     // subtract -9.81m/s2 (acceleration measured due to gravity,
@@ -243,9 +244,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     ins.vf_realign = FALSE;
     ins_impl.qfe = *pressure;
     vff_realign(0.);
-    ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
-    ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
-    ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+    ins_update_from_vff();
   }
   else {
     ins_impl.baro_z = -pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
@@ -411,6 +410,12 @@ static void ins_ned_to_state(void) {
 #endif
 }
 
+/** update ins state from vertical filter */
+static void ins_update_from_vff(void) {
+  ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
+  ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
+  ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+}
 
 #if USE_HFF
 /** update ins state from horizontal filter */

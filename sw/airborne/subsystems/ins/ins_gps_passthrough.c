@@ -45,7 +45,7 @@ void ins_init() {
 void ins_periodic( void ) {
 }
 
-void ins_reset_ground_ref( void ) {
+void ins_reset_local_origin( void ) {
   struct UtmCoor_f utm;
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */

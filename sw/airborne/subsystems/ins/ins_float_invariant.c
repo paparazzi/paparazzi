@@ -273,7 +273,7 @@ void ins_periodic(void) {}
 void ins_propagate(void) {}
 
 
-void ins_reset_ground_ref( void ) {
+void ins_reset_local_origin( void ) {
 #if INS_UPDATE_FW_ESTIMATOR
   struct UtmCoor_f utm;
 #ifdef GPS_USE_LATLONG

@@ -31,7 +31,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "subsystems/gps.h"
+#include "subsystems/gps.h" // needed by auto_nav from the flight plan
 #include "subsystems/ins.h"
 #include "state.h"
 
@@ -307,7 +307,7 @@ static inline void nav_set_altitude( void ) {
 
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
-  ins_reset_ground_ref();
+  ins_reset_local_origin();
   return 0;
 }
 

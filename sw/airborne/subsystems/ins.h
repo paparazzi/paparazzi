@@ -42,9 +42,9 @@
 
 /** Inertial Navigation System state */
 struct Ins {
-  uint8_t status; ///< status of the INS
-  bool_t hf_realign; ///< realign horizontally if true
-  bool_t vf_realign; ///< realign vertically if true
+  uint8_t status;     ///< status of the INS
+  bool_t hf_realign;  ///< flag to request to realign horizontal filter to current position (local origin unchanged)
+  bool_t vf_realign;  ///< flag to request to realign vertical filter to ground level (local origin unchanged)
 };
 
 /** global INS state */
@@ -60,11 +60,11 @@ extern void ins_init( void );
  */
 extern void ins_periodic( void );
 
-/** INS ground reference reset.
+/** INS local origin reset.
  *  Reset horizontal and vertical reference to the current position.
  *  Needs to be implemented by each INS algorithm.
  */
-extern void ins_reset_ground_ref( void );
+extern void ins_reset_local_origin( void );
 
 /** INS altitude reference reset.
  *  Reset only vertical reference to the current altitude.
@@ -81,6 +81,7 @@ extern void ins_reset_altitude_ref( void );
 extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
 
 /** INS horizontal realign.
+ *  This only reset the filter to a given value, but doesn't change the local reference.
  *  @param pos new horizontal position to set
  *  @param speed new horizontal speed to set
  *  Needs to be implemented by each INS algorithm.
@@ -88,6 +89,7 @@ extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
 extern void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed);
 
 /** INS vertical realign.
+ *  This only reset the filter to a given value, but doesn't change the local reference.
  *  @param z new altitude to set
  *  Needs to be implemented by each INS algorithm.
  */

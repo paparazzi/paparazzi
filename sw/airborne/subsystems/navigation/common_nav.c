@@ -82,7 +82,7 @@ unit_t nav_reset_utm_zone(void) {
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
   /* realign INS */
-  ins_reset_ground_ref();
+  ins_reset_local_origin();
 
   /* Set nav UTM ref */
   nav_utm_east0 = state.utm_origin_f.east;

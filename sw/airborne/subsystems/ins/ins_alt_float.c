@@ -98,7 +98,7 @@ void ins_periodic( void ) {
 }
 
 /** Reset the geographic reference to the current GPS fix */
-void ins_reset_ground_ref( void ) {
+void ins_reset_local_origin( void ) {
   struct UtmCoor_f utm;
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */
@@ -149,6 +149,9 @@ void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatV
 }
 
 void ins_realign_v(float z __attribute__ ((unused))) {
+  ins_alt = z;
+  ins_alt_dot = 0.;
+  alt_kalman_reset();
 }
 
 void ins_propagate() {
