@@ -114,18 +114,7 @@
       </block>
     </message>
 
-    <message name="MSG" ID="0x01">
-      <block length="6">
-        <field name="Class" format="U1"/>
-        <field name="MsgId" format="U1"/>
-        <field name="Rate0" format="U1"/>
-        <field name="Rate1" format="U1"/>
-        <field name="Rate2" format="U1"/>
-        <field name="Rate3" format="U1"/>
-      </block>
-    </message>
-    
-    <message name="MSG_RATE" ID="0x01" length="3">
+    <message name="MSG" ID="0x01" length="3">
     	<field name="Class" format="U1"/>
         <field name="MsgId" format="U1"/>
         <field name="Rate" format="U1"/>

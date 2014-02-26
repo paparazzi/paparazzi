@@ -172,7 +172,7 @@ void gps_ubx_ucenter_event(void)
  */
 static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t rate)
 {
-	UbxSend_CFG_MSG_RATE(class, id, rate);
+	UbxSend_CFG_MSG(class, id, rate);
 }
 
 static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
