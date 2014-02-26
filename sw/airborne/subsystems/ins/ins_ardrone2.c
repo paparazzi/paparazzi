@@ -76,6 +76,18 @@ void ins_periodic( void ) {
     ins.status = INS_RUNNING;
 }
 
+void ins_reset_ground_ref( void ) {
+  ins_impl.ltp_initialized = FALSE;
+}
+
+void ins_reset_altitude_ref( void ) {
+#if USE_GPS
+  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_impl.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+#endif
+}
+
 void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
 
 }

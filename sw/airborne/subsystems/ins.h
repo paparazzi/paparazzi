@@ -60,6 +60,26 @@ extern void ins_init( void );
  */
 extern void ins_periodic( void );
 
+/** INS ground reference reset.
+ *  Reset horizontal and vertical reference to the current position.
+ *  Needs to be implemented by each INS algorithm.
+ */
+extern void ins_reset_ground_ref( void );
+
+/** INS altitude reference reset.
+ *  Reset only vertical reference to the current altitude.
+ *  Needs to be implemented by each INS algorithm.
+ */
+extern void ins_reset_altitude_ref( void );
+
+/** INS utm zone reset.
+ *  Reset UTM zone according te the actual position.
+ *  Needs to be implemented by each INS algorithm but is only
+ *  used with fixedwing firmware.
+ *  @param utm initial utm zone, returns the corrected utm position
+ */
+extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
+
 /** INS horizontal realign.
  *  @param pos new horizontal position to set
  *  @param speed new horizontal speed to set

@@ -12,8 +12,8 @@
     <waypoint name="MOB" x="-11.5" y="-21.2"/>
     <waypoint name="S1" x="-151.6" y="80.4"/>
     <waypoint name="S2" x="180.1" y="214.9"/>
-    <waypoint alt="30" name="AF" x="200" y="-10"/>
-    <waypoint alt="0" name="TD" x="80.0" y="20.0"/>
+    <waypoint alt="215.0" name="AF" x="200" y="-10"/>
+    <waypoint alt="185.0" name="TD" x="80.0" y="20.0"/>
     <waypoint name="BASELEG" x="26.9" y="-23.0"/>
     <waypoint name="_1" x="-100" y="0"/>
     <waypoint name="_2" x="-100" y="200"/>

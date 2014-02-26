@@ -87,6 +87,7 @@ void ins_init() {
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
 #endif
   ins.vf_realign = FALSE;
+  ins.hf_realign = FALSE;
 
   alt_kalman(0.);
 
@@ -94,6 +95,54 @@ void ins_init() {
 }
 
 void ins_periodic( void ) {
+}
+
+/** Reset the geographic reference to the current GPS fix */
+void ins_reset_ground_ref( void ) {
+  struct UtmCoor_f utm;
+#ifdef GPS_USE_LATLONG
+  /* Recompute UTM coordinates in this zone */
+  struct LlaCoor_f lla;
+  lla.lat = gps.lla_pos.lat/1e7;
+  lla.lon = gps.lla_pos.lon/1e7;
+  utm.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+  utm_of_lla_f(&utm, &lla);
+#else
+  utm.zone = gps.utm_pos.zone;
+  utm.east = gps.utm_pos.east/100;
+  utm.north = gps.utm_pos.north/100;
+#endif
+  // ground_alt
+  utm.alt = gps.hmsl/1000.;
+
+  // reset state UTM ref
+  stateSetLocalUtmOrigin_f(&utm);
+
+  // reset filter flag
+  ins.vf_realign = TRUE;
+}
+
+void ins_reset_altitude_ref( void ) {
+  struct UtmCoor_f utm = state.utm_origin_f;
+  // ground_alt
+  utm.alt = gps.hmsl/1000.;
+  // reset state UTM ref
+  stateSetLocalUtmOrigin_f(&utm);
+  // reset filter flag
+  ins.vf_realign = TRUE;
+}
+
+void ins_reset_utm_zone(struct UtmCoor_f * utm) {
+  struct LlaCoor_f lla0;
+  lla_of_utm_f(&lla0, utm);
+#ifdef GPS_USE_LATLONG
+  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+#else
+  utm->zone = gps.utm_pos.zone;
+#endif
+  utm_of_lla_f(utm, &lla0);
+
+  stateSetLocalUtmOrigin_f(utm);
 }
 
 void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {

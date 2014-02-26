@@ -170,6 +170,23 @@ void ins_periodic(void) {
     ins.status = INS_RUNNING;
 }
 
+void ins_reset_ground_ref( void ) {
+  ins_impl.ltp_initialized = FALSE;
+#if USE_HFF
+  ins.hf_realign = TRUE;
+#endif
+  ins.vf_realign = TRUE;
+}
+
+void ins_reset_altitude_ref( void ) {
+#if USE_GPS
+  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_impl.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+#endif
+  ins.vf_realign = TRUE;
+}
+
 #if USE_HFF
 void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed) {
   b2_hff_realign(pos, speed);
