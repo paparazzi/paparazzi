@@ -58,6 +58,7 @@
 
 
 #if USE_SONAR
+ #include "subsystems/sonar.h"
 
 #if !USE_VFF_EXTENDED
 #error USE_SONAR needs USE_VFF_EXTENDED
@@ -78,6 +79,11 @@
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
+#endif
+
+#ifndef INS_SONAR_UPDATE_ON_AGL
+#define INS_SONAR_UPDATE_ON_AGL FALSE
+PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 #endif
 
 
@@ -137,7 +143,7 @@ void ins_init(void) {
   ins_impl.baro_initialized = FALSE;
 
 #if USE_SONAR
-  ins_impl.update_on_agl = FALSE;
+  ins_impl.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
   init_median_filter(&ins_impl.sonar_median);
   ins_impl.sonar_offset = INS_SONAR_OFFSET;
 #endif

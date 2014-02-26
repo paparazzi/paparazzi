@@ -49,7 +49,6 @@ static void navdata_cropbuffer(int cropsize);
 
 navdata_port nav_port;
 static int nav_fd = 0;
-static int16_t previousUltrasoundHeight;
 measures_t navdata;
 
 #include "subsystems/sonar.h"
@@ -190,7 +189,6 @@ bool_t navdata_init()
   navdata_imu_available = FALSE;
   navdata_baro_available = FALSE;
 
-  previousUltrasoundHeight = 0;
   nav_port.checksum_errors = 0;
   nav_port.lost_imu_frames = 0;
   nav_port.bytesRead = 0;
@@ -456,14 +454,13 @@ void navdata_update()
 
 
 #ifdef USE_SONAR
-        if (navdata.ultrasound < 10000)
+        // Check if there is a new sonar measurement and update the sonar
+        if (navdata.ultrasound >> 15)
         {
-            sonar_meas = navdata.ultrasound;
+            sonar_meas = (navdata.ultrasound & 0x7FFF);
             ins_update_sonar();
-
         }
 #endif
-
 
         navdata_imu_available = TRUE;
         last_checksum_wrong = FALSE;
@@ -487,17 +484,7 @@ void navdata_update()
       }
     }
   }
-}
 
-int16_t navdata_height(void) {
-  if (navdata.ultrasound > 10000) {
-    return previousUltrasoundHeight;
-  }
-
-  int16_t ultrasoundHeight = 0;
-  ultrasoundHeight = (navdata.ultrasound - 880) / 26.553;
-  previousUltrasoundHeight = ultrasoundHeight;
-  return ultrasoundHeight;
 }
 
 static void navdata_cropbuffer(int cropsize)
