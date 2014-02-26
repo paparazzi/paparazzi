@@ -124,6 +124,12 @@
         <field name="Rate3" format="U1"/>
       </block>
     </message>
+    
+    <message name="MSG_RATE" ID="0x01" length="3">
+    	<field name="Class" format="U1"/>
+        <field name="MsgId" format="U1"/>
+        <field name="Rate" format="U1"/>
+    </message>
 
     <message name="NAV" ID="0x03" length="28">
       <field name="Platform" format="U1"/>

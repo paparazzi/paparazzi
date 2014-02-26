@@ -158,6 +158,22 @@ void gps_ubx_ucenter_event(void)
 //
 // UCENTER Configuration Functions
 
+/**
+ * Enable u-blox message at desired rate (Hz).  Will enable the message on the port
+ * that this command is received on. For example, sending this configuration message
+ * over UART1 will cause the desired message to be published on UART1.
+ *
+ * For more information on u-blox messages, see the protocol specification.
+ * http://www.ublox.com/en/download/documents-a-resources.html
+ *
+ * @param class u-blox message class
+ * @param id u-blox message ID
+ * @param rate Desired rate in cycles per second (Hz)
+ */
+static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t rate)
+{
+	UbxSend_CFG_MSG_RATE(class, id, rate);
+}
 
 static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 {
@@ -171,7 +187,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
   case 2:
     gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     GpsUartSetBaudrate(B38400); // Try the most common first?
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_VELNED_ID, 1);
     break;
   case 3:
     if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
@@ -181,7 +197,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     }
     gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     GpsUartSetBaudrate(B9600); // Maybe the factory default?
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_VELNED_ID, 1);
     break;
   case 4:
     if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
@@ -191,7 +207,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     }
     gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     GpsUartSetBaudrate(B57600); // The high-rate default?
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_VELNED_ID, 1);
     break;
   case 5:
     if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
@@ -201,7 +217,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
      }
     gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     GpsUartSetBaudrate(B4800); // Default NMEA baudrate finally?
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_VELNED_ID, 1);
     break;
   case 6:
     if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
@@ -317,23 +333,6 @@ static inline void gps_ubx_ucenter_config_sbas(void)
   UbxSend_CFG_SBAS(GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY, nrofsat, 0x00, 0x00);
   //UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
 }
-
-static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t rate)
-{
-  #if GPS_PORT_ID == GPS_PORT_UART1
-    UbxSend_CFG_MSG(class, id, 0, rate, 0, 0);
-  #endif
-  #if GPS_PORT_ID == GPS_PORT_UART2
-    UbxSend_CFG_MSG(class, id, 0, 0, rate, 0);
-  #endif
-  #if GPS_PORT_ID == GPS_PORT_USB
-    UbxSend_CFG_MSG(class, id, 0, 0, 0, rate);
-  #endif
-  #if GPS_PORT_ID == GPS_PORT_DDC
-    UbxSend_CFG_MSG(class, id, rate, 0, 0, 0);
-  #endif
-}
-
 
 // Text Telemetry for Debugging
 #undef GOT_PAYLOAD
