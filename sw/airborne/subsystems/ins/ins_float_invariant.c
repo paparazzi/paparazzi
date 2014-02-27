@@ -268,9 +268,6 @@ void ins_init() {
 #endif
 }
 
-void ins_periodic(void) {}
-void ins_propagate(void) {}
-
 
 void ins_reset_local_origin( void ) {
 #if INS_UPDATE_FW_ESTIMATOR
@@ -311,21 +308,6 @@ void ins_reset_altitude_ref( void ) {
   stateSetLocalOrigin_i(&ltp_def);
 #endif
 }
-
-#if INS_UPDATE_FW_ESTIMATOR
-void ins_reset_utm_zone(struct UtmCoor_f * utm) {
-  struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, utm);
-#ifdef GPS_USE_LATLONG
-  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
-#else
-  utm->zone = gps.utm_pos.zone;
-#endif
-  utm_of_lla_f(utm, &lla0);
-
-  stateSetLocalUtmOrigin_f(utm);
-}
-#endif
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
@@ -492,9 +474,6 @@ void ahrs_update_gps(void) {
 
 }
 
-void ins_update_gps(void) {}
-
-void ins_update_baro(void) {}
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
   static float ins_qfe = 101325.0;

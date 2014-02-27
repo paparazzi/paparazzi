@@ -42,22 +42,6 @@ void ins_init(void) {
   ins.status = INS_RUNNING;
 }
 
-void ins_periodic(void) {
-}
-
-void ins_reset_utm_zone(struct UtmCoor_f * utm) {
-  struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, utm);
-#ifdef GPS_USE_LATLONG
-  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
-#else
-  utm->zone = gps.utm_pos.zone;
-#endif
-  utm_of_lla_f(utm, &lla0);
-
-  stateSetLocalUtmOrigin_f(utm);
-}
-
 void ins_reset_local_origin(void) {
   struct UtmCoor_f utm;
 #ifdef GPS_USE_LATLONG
@@ -101,14 +85,4 @@ void ins_update_gps(void) {
   };
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
-}
-
-
-void ins_propagate(void) {
-}
-
-void ins_update_baro(void) {
-}
-
-void ins_update_sonar(void) {
 }

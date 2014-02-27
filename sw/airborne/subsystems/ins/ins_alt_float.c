@@ -91,8 +91,6 @@ void ins_init(void) {
   ins.status = INS_RUNNING;
 }
 
-void ins_periodic(void) {
-}
 
 /** Reset the geographic reference to the current GPS fix */
 void ins_reset_local_origin(void) {
@@ -129,23 +127,6 @@ void ins_reset_altitude_ref(void) {
   ins_impl.reset_alt_ref = TRUE;
 }
 
-void ins_reset_utm_zone(struct UtmCoor_f * utm) {
-  struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, utm);
-#ifdef GPS_USE_LATLONG
-  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
-#else
-  utm->zone = gps.utm_pos.zone;
-#endif
-  utm_of_lla_f(utm, &lla0);
-
-  stateSetLocalUtmOrigin_f(utm);
-}
-
-void ins_propagate(void) {
-}
-
-void ins_update_baro(void) {}
 
 #if USE_BAROMETER
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
@@ -205,16 +186,12 @@ void ins_update_gps(void) {
 #endif
 }
 
-void ins_update_sonar(void) {
-}
-
 
 #ifndef GPS_DT
 #define GPS_DT 0.25
 #endif
 #define GPS_SIGMA2 1.
 #define GPS_R 2.
-
 
 static float p[2][2];
 

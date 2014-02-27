@@ -105,10 +105,6 @@ void ins_propagate() {
 #endif
 }
 
-void ins_update_baro() {
-
-}
-
 
 void ins_update_gps(void) {
 #if USE_GPS
@@ -138,8 +134,4 @@ void ins_update_gps(void) {
     stateSetPositionNed_i(&ins_impl.ltp_pos);
   }
 #endif /* USE_GPS */
-}
-
-void ins_update_sonar() {
-
 }

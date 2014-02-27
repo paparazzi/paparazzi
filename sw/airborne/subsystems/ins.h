@@ -56,51 +56,49 @@ extern struct Ins ins;
 extern void ins_init(void);
 
 /** INS periodic call.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_periodic(void);
 
 /** INS local origin reset.
  *  Reset horizontal and vertical reference to the current position.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_reset_local_origin(void);
 
 /** INS altitude reference reset.
  *  Reset only vertical reference to the current altitude.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_reset_altitude_ref(void);
 
 /** INS utm zone reset.
  *  Reset UTM zone according te the actual position.
- *  Needs to be implemented by each INS algorithm but is only
- *  used with fixedwing firmware.
+ *  Only used with fixedwing firmware.
+ *  Can be overwritte by specifc INS implementation.
  *  @param utm initial utm zone, returns the corrected utm position
  */
 extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
 
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_propagate(void);
 
 /** Update INS state with barometer measurements.
- *  Reads the global #baro data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_update_baro(void);
 
 /** Update INS state with GPS measurements.
  *  Reads the global #gps data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_update_gps(void);
 
 /** Update INS state with sonar measurements.
- *  Reads the global #sonar data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_update_sonar(void);
 
