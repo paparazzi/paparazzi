@@ -32,8 +32,10 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 
-#define INS_UNINIT  0
-#define INS_RUNNING 1
+enum InsStatus {
+ INS_UNINIT=0,
+ INS_RUNNING=1
+};
 
 /* underlying includes (needed for parameters) */
 #ifdef INS_TYPE_H
@@ -42,9 +44,7 @@
 
 /** Inertial Navigation System state */
 struct Ins {
-  uint8_t status; ///< status of the INS
-  bool_t hf_realign; ///< realign horizontally if true
-  bool_t vf_realign; ///< realign vertically if true
+  enum InsStatus status;     ///< status of the INS
 };
 
 /** global INS state */
@@ -53,49 +53,54 @@ extern struct Ins ins;
 /** INS initialization. Called at startup.
  *  Needs to be implemented by each INS algorithm.
  */
-extern void ins_init( void );
+extern void ins_init(void);
 
 /** INS periodic call.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_periodic( void );
+extern void ins_periodic(void);
 
-/** INS horizontal realign.
- *  @param pos new horizontal position to set
- *  @param speed new horizontal speed to set
- *  Needs to be implemented by each INS algorithm.
+/** INS local origin reset.
+ *  Reset horizontal and vertical reference to the current position.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed);
+extern void ins_reset_local_origin(void);
 
-/** INS vertical realign.
- *  @param z new altitude to set
- *  Needs to be implemented by each INS algorithm.
+/** INS altitude reference reset.
+ *  Reset only vertical reference to the current altitude.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_realign_v(float z);
+extern void ins_reset_altitude_ref(void);
+
+/** INS utm zone reset.
+ *  Reset UTM zone according te the actual position.
+ *  Only used with fixedwing firmware.
+ *  Can be overwritte by specifc INS implementation.
+ *  @param utm initial utm zone, returns the corrected utm position
+ */
+extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
 
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_propagate( void );
+extern void ins_propagate(void);
 
 /** Update INS state with barometer measurements.
- *  Reads the global #baro data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_update_baro( void );
+extern void ins_update_baro(void);
 
 /** Update INS state with GPS measurements.
  *  Reads the global #gps data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_update_gps( void );
+extern void ins_update_gps(void);
 
 /** Update INS state with sonar measurements.
- *  Reads the global #sonar data struct.
- *  Needs to be implemented by each INS algorithm.
+ *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_update_sonar( void );
+extern void ins_update_sonar(void);
 
 
 #endif /* INS_H */

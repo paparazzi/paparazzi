@@ -58,6 +58,20 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+static void send_ins_ref(void) {
+  float foo = 0.;
+  if (state.ned_initialized_i) {
+    DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,
+        &state.ned_origin_i.ecef.x, &state.ned_origin_i.ecef.y, &state.ned_origin_i.ecef.z,
+        &state.ned_origin_i.lla.lat, &state.ned_origin_i.lla.lon, &state.ned_origin_i.lla.alt,
+        &state.ned_origin_i.hmsl, &foo);
+  }
+}
+#endif
+
+
 #if LOG_INVARIANT_FILTER
 #include "sdLog.h"
 #include "subsystems/chibios-libopencm3/chibios_sdlog.h"
@@ -167,7 +181,7 @@ static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 static const struct FloatVect3 B = { (float)(INS_H_X), (float)(INS_H_Y), (float)(INS_H_Z) };
 
 /* barometer */
-bool_t ins_baro_initialised;
+bool_t ins_baro_initialized;
 // Baro event on ABI
 #ifndef INS_BARO_ID
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
@@ -197,7 +211,7 @@ static inline void init_invariant_state(void) {
   ins_impl.meas.baro_alt = 0.;
 
   // init baro
-  ins_baro_initialised = FALSE;
+  ins_baro_initialized = FALSE;
 }
 
 void ins_init() {
@@ -221,7 +235,7 @@ void ins_init() {
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
   struct LtpDef_i ltp_def;
   ltp_def_from_ecef_i(&ltp_def, &ecef_nav0);
-  ins_impl.ltp_def.hmsl = NAV_ALT0;
+  ltp_def.hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
 
@@ -247,17 +261,57 @@ void ins_init() {
   ins_impl.gains.sh   = INS_INV_SH;
 
   ins.status = INS_UNINIT;
-  ins.hf_realign = FALSE;
-  ins.vf_realign = FALSE;
+  ins_impl.reset = FALSE;
 
+#if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
+#endif
 }
 
-void ins_periodic(void) {}
+
+void ins_reset_local_origin( void ) {
+#if INS_UPDATE_FW_ESTIMATOR
+  struct UtmCoor_f utm;
+#ifdef GPS_USE_LATLONG
+  /* Recompute UTM coordinates in this zone */
+  struct LlaCoor_f lla;
+  lla.lat = gps.lla_pos.lat/1e7;
+  lla.lon = gps.lla_pos.lon/1e7;
+  utm.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+  utm_of_lla_f(&utm, &lla);
+#else
+  utm.zone = gps.utm_pos.zone;
+  utm.east = gps.utm_pos.east/100;
+  utm.north = gps.utm_pos.north/100;
+#endif
+  // ground_alt
+  utm.alt = gps.hmsl/1000.;
+  // reset state UTM ref
+  stateSetLocalUtmOrigin_f(&utm);
+#else
+  struct LtpDef_i ltp_def;
+  ltp_def_from_ecef_i(&ltp_def, &gps.ecef_pos);
+  ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ltp_def);
+#endif
+}
+
+void ins_reset_altitude_ref( void ) {
+#if INS_UPDATE_FW_ESTIMATOR
+  struct UtmCoor_f utm = state.utm_origin_f;
+  utm.alt = gps.hmsl/1000.;
+  stateSetLocalUtmOrigin_f(&utm);
+#else
+  struct LtpDef_i ltp_def = state.ned_origin_i;
+  ltp_def.lla.alt = gps.lla_pos.alt;
+  ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ltp_def);
+#endif
+}
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
 }
-
 
 void ahrs_align(void)
 {
@@ -280,12 +334,11 @@ void ahrs_propagate(void) {
 
   // realign all the filter if needed
   // a complete init cycle is required
-  if (ins.hf_realign || ins.vf_realign) {
+  if (ins_impl.reset) {
+    ins_impl.reset = FALSE;
     ins.status = INS_UNINIT;
     ahrs.status = AHRS_UNINIT;
     init_invariant_state();
-    ins.hf_realign = FALSE;
-    ins.vf_realign = FALSE;
   }
 
   // fill command vector
@@ -407,10 +460,13 @@ void ahrs_update_gps(void) {
 #else
     if (state.ned_initialized_f) {
       struct NedCoor_f gps_pos_cm_ned;
-      ned_of_ecef_point_f(&gps_pos_cm_ned, &state.ned_origin_f, &gps.ecef_pos);
-      VECT3_SDIV(ins_impl.meas.pos_gps, gps_pos_m_ned, 100.);
+      struct EcefCoor_f ecef_pos, ecef_vel;
+      ECEF_FLOAT_OF_BFP(ecef_pos, gps.ecef_pos);
+      ned_of_ecef_point_f(&gps_pos_cm_ned, &state.ned_origin_f, &ecef_pos);
+      VECT3_SDIV(ins_impl.meas.pos_gps, gps_pos_cm_ned, 100.);
       struct NedCoor_f gps_speed_cm_s_ned;
-      ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &state.ned_origin_f, &gps.ecef_vel);
+      ECEF_FLOAT_OF_BFP(ecef_vel, gps.ecef_vel);
+      ned_of_ecef_vect_f(&gps_speed_cm_s_ned, &state.ned_origin_f, &ecef_vel);
       VECT3_SDIV(ins_impl.meas.speed_gps, gps_speed_cm_s_ned, 100.);
     }
 #endif
@@ -418,9 +474,6 @@ void ahrs_update_gps(void) {
 
 }
 
-void ins_update_gps(void) {}
-
-void ins_update_baro(void) {}
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
   static float ins_qfe = 101325.0;
@@ -429,7 +482,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   static float baro_moy = 0.;
   static float baro_prev = 0.;
 
-  if (!ins_baro_initialised) {
+  if (!ins_baro_initialized) {
     // try to find a stable qfe
     // TODO generic function in pprz_isa ?
     if (i == 1) {
@@ -442,11 +495,11 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     // test stop condition
     if (fabs(alpha) < 0.005) {
       ins_qfe = baro_moy;
-      ins_baro_initialised = TRUE;
+      ins_baro_initialized = TRUE;
     }
     if (i == 250) {
       ins_qfe = *pressure;
-      ins_baro_initialised = TRUE;
+      ins_baro_initialized = TRUE;
     }
     i++;
   }
@@ -469,8 +522,8 @@ void ahrs_update_mag(void) {
  */
 static inline void invariant_model(float * o, const float * x, const int n, const float * u, const int m __attribute__((unused))) {
 
-  const struct inv_state * s = (struct inv_state *)x;
-  const struct inv_command * c = (struct inv_command *)u;
+  const struct inv_state * s = (const struct inv_state *)x;
+  const struct inv_command * c = (const struct inv_command *)u;
   struct inv_state s_dot;
   struct FloatRates rates;
   struct FloatVect3 tmp_vect;

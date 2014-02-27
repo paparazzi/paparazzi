@@ -27,7 +27,6 @@
 #include "subsystems/navigation/common_nav.h"
 #include "generated/flight_plan.h"
 #include "subsystems/ins.h"
-#include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
 
 float dist2_to_home;
@@ -65,64 +64,34 @@ static float previous_ground_alt;
 /** Reset the UTM zone to current GPS fix */
 unit_t nav_reset_utm_zone(void) {
 
-  struct UtmCoor_f utm0_old;
-  utm0_old.zone = nav_utm_zone0;
-  utm0_old.north = nav_utm_north0;
-  utm0_old.east = nav_utm_east0;
-  utm0_old.alt = ground_alt;
-  struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, &utm0_old);
-
-#ifdef GPS_USE_LATLONG
-  /* Set the real UTM zone */
-  nav_utm_zone0 = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
-#else
-  nav_utm_zone0 = gps.utm_pos.zone;
-#endif
-
   struct UtmCoor_f utm0;
   utm0.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm0, &lla0);
+  utm0.north = nav_utm_north0;
+  utm0.east = nav_utm_east0;
+  utm0.alt = ground_alt;
+  ins_reset_utm_zone(&utm0);
 
+  /* Set the real UTM ref */
+  nav_utm_zone0 = utm0.zone;
   nav_utm_east0 = utm0.east;
   nav_utm_north0 = utm0.north;
-
-  stateSetLocalUtmOrigin_f(&utm0);
 
   return 0;
 }
 
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
-#ifdef GPS_USE_LATLONG
-  /* Set the real UTM zone */
-  nav_utm_zone0 = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+  /* realign INS */
+  ins_reset_local_origin();
 
-  /* Recompute UTM coordinates in this zone */
-  struct LlaCoor_f lla;
-  lla.lat = gps.lla_pos.lat/1e7;
-  lla.lon = gps.lla_pos.lon/1e7;
-  struct UtmCoor_f utm;
-  utm.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm, &lla);
-  nav_utm_east0 = utm.east;
-  nav_utm_north0 = utm.north;
-#else
-  nav_utm_zone0 = gps.utm_pos.zone;
-  nav_utm_east0 = gps.utm_pos.east/100;
-  nav_utm_north0 = gps.utm_pos.north/100;
-#endif
+  /* Set nav UTM ref */
+  nav_utm_east0 = state.utm_origin_f.east;
+  nav_utm_north0 = state.utm_origin_f.north;
+  nav_utm_zone0 = state.utm_origin_f.zone;
 
+  /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = gps.hmsl/1000.;
-
-  // reset state UTM ref
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
-
-  // realign INS if needed
-  ins.hf_realign = TRUE;
-  ins.vf_realign = TRUE;
+  ground_alt = state.utm_origin_f.alt;
 
   return 0;
 }

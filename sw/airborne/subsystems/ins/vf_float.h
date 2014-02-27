@@ -31,14 +31,18 @@
 
 #define VFF_STATE_SIZE 3
 
-extern float vff_z;
-extern float vff_zdot;
-extern float vff_bias;
-extern float vff_P[VFF_STATE_SIZE][VFF_STATE_SIZE];
-extern float vff_zdotdot;
+struct Vff {
+  float z;       ///< z-position estimate in m (NED, z-down)
+  float zdot;    ///< z-velocity estimate in m/s (NED, z-down)
+  float bias;    ///< accel bias estimate in m/s^2
+  float zdotdot; ///< z-acceleration in m/s^2 (NED, z-down)
+  float z_meas;  ///< last measurement
+  float P[VFF_STATE_SIZE][VFF_STATE_SIZE];  ///< covariance matrix
+};
 
-extern float vff_z_meas;
+extern struct Vff vff;
 
+extern void vff_init_zero(void);
 extern void vff_init(float z, float zdot, float bias);
 extern void vff_propagate(float accel);
 extern void vff_update(float z_meas);

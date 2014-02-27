@@ -27,5 +27,45 @@
 
 #include "subsystems/ins.h"
 
+#if USE_GPS
+// for ins_reset_utm_zone
+#include "subsystems/gps.h"
+#include "state.h"
+#endif
+
 struct Ins ins;
 
+
+#define WEAK __attribute__((weak))
+// weak functions, used if not explicitly provided by implementation
+
+void WEAK ins_periodic(void) {}
+
+void WEAK ins_reset_local_origin(void) {}
+
+void WEAK ins_reset_altitude_ref(void) {}
+
+#if USE_GPS
+void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm) {
+  struct LlaCoor_f lla0;
+  lla_of_utm_f(&lla0, utm);
+#ifdef GPS_USE_LATLONG
+  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+#else
+  utm->zone = gps.utm_pos.zone;
+#endif
+  utm_of_lla_f(utm, &lla0);
+
+  stateSetLocalUtmOrigin_f(utm);
+}
+#else
+void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm __attribute__((unused))) {}
+#endif
+
+void WEAK ins_propagate(void) {}
+
+void WEAK ins_update_baro(void) {}
+
+void WEAK ins_update_gps(void) {}
+
+void WEAK ins_update_sonar(void) {}

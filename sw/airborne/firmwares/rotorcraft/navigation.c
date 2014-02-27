@@ -31,7 +31,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "subsystems/gps.h"
+#include "subsystems/gps.h" // needed by auto_nav from the flight plan
 #include "subsystems/ins.h"
 #include "state.h"
 
@@ -307,21 +307,12 @@ static inline void nav_set_altitude( void ) {
 
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
-  ins_impl.ltp_initialized = FALSE;
-  ins.hf_realign = TRUE;
-  ins.vf_realign = TRUE;
+  ins_reset_local_origin();
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
-  ins.vf_realign = TRUE;
-
-#if USE_GPS
-  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
-  ins_impl.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_impl.ltp_def);
-#endif
-
+  ins_reset_altitude_ref();
   return 0;
 }
 
@@ -342,7 +333,7 @@ void nav_periodic_task() {
   /* run carrot loop */
   nav_run();
 
-  ground_alt = POS_BFP_OF_REAL((float)ins_impl.ltp_def.hmsl / 1000.);
+  ground_alt = POS_BFP_OF_REAL(state.ned_origin_f.hmsl);
 }
 
 void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i* new_lla_pos) {

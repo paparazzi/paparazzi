@@ -63,9 +63,6 @@ void ins_init() {
   ins_impl.ltp_initialized  = FALSE;
 #endif
 
-  ins.vf_realign = FALSE;
-  ins.hf_realign = FALSE;
-
   INT32_VECT3_ZERO(ins_impl.ltp_pos);
   INT32_VECT3_ZERO(ins_impl.ltp_speed);
   INT32_VECT3_ZERO(ins_impl.ltp_accel);
@@ -76,12 +73,16 @@ void ins_periodic( void ) {
     ins.status = INS_RUNNING;
 }
 
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
-
+void ins_reset_local_origin( void ) {
+  ins_impl.ltp_initialized = FALSE;
 }
 
-void ins_realign_v(float z __attribute__ ((unused))) {
-
+void ins_reset_altitude_ref( void ) {
+#if USE_GPS
+  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_impl.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+#endif
 }
 
 void ins_propagate() {
@@ -102,10 +103,6 @@ void ins_propagate() {
   ins_impl.ltp_pos.z = -(ahrs_impl.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
   stateSetPositionNed_i(&ins_impl.ltp_pos);
 #endif
-}
-
-void ins_update_baro() {
-
 }
 
 
@@ -137,8 +134,4 @@ void ins_update_gps(void) {
     stateSetPositionNed_i(&ins_impl.ltp_pos);
   }
 #endif /* USE_GPS */
-}
-
-void ins_update_sonar() {
-
 }

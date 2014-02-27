@@ -187,10 +187,6 @@ void imu_impl_init(void) {
 
 
 void imu_periodic(void) {
-  if (ins.vf_realign == TRUE) {
-    UM6_imu_align();
-  }
-
   /* We would request for data here - optional
   //GET_DATA command 0xAE
   buf_out[0] = 's';
