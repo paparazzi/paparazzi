@@ -10,7 +10,6 @@
       <dl_setting var="guidance_v_nominal_throttle" min="0.2" step="0.01" max="0.8" module="guidance/guidance_v" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE"/>
       <dl_setting var="guidance_v_adapt_throttle_enabled" min="0" step="1" max="1" module="guidance/guidance_v" shortname="adapt_throttle" param="GUIDANCE_V_ADAPT_THROTTLE_ENABLED" values="FALSE|TRUE"/>
       <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" module="guidance/guidance_v" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
-      <dl_setting var="ins.vf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="vf_realign" values="OFF|ON"/>
     </dl_settings>
 
     <dl_settings NAME="Horiz Loop">
@@ -22,7 +21,6 @@
       <dl_setting var="guidance_h_again" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ka" param="GUIDANCE_H_AGAIN"/>
       <dl_setting var="guidance_h_pos_sp.x" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       <dl_setting var="guidance_h_pos_sp.y" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
-      <dl_setting var="ins.hf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="hf_realign" values="OFF|ON"/>
     </dl_settings>
 
     <dl_settings NAME="NAV">

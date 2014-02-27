@@ -181,7 +181,7 @@ static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 static const struct FloatVect3 B = { (float)(INS_H_X), (float)(INS_H_Y), (float)(INS_H_Z) };
 
 /* barometer */
-bool_t ins_baro_initialised;
+bool_t ins_baro_initialized;
 // Baro event on ABI
 #ifndef INS_BARO_ID
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
@@ -211,7 +211,7 @@ static inline void init_invariant_state(void) {
   ins_impl.meas.baro_alt = 0.;
 
   // init baro
-  ins_baro_initialised = FALSE;
+  ins_baro_initialized = FALSE;
 }
 
 void ins_init() {
@@ -261,8 +261,7 @@ void ins_init() {
   ins_impl.gains.sh   = INS_INV_SH;
 
   ins.status = INS_UNINIT;
-  ins.hf_realign = FALSE;
-  ins.vf_realign = FALSE;
+  ins_impl.reset = FALSE;
 
 #if !INS_UPDATE_FW_ESTIMATOR && PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
@@ -298,8 +297,6 @@ void ins_reset_local_origin( void ) {
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
-  ins.hf_realign = FALSE;
-  ins.vf_realign = FALSE;
 }
 
 void ins_reset_altitude_ref( void ) {
@@ -313,7 +310,6 @@ void ins_reset_altitude_ref( void ) {
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
-  ins.vf_realign = FALSE;
 }
 
 #if INS_UPDATE_FW_ESTIMATOR
@@ -361,12 +357,11 @@ void ahrs_propagate(void) {
 
   // realign all the filter if needed
   // a complete init cycle is required
-  if (ins.hf_realign || ins.vf_realign) {
+  if (ins_impl.reset) {
+    ins_impl.reset = FALSE;
     ins.status = INS_UNINIT;
     ahrs.status = AHRS_UNINIT;
     init_invariant_state();
-    ins.hf_realign = FALSE;
-    ins.vf_realign = FALSE;
   }
 
   // fill command vector
@@ -513,7 +508,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   static float baro_moy = 0.;
   static float baro_prev = 0.;
 
-  if (!ins_baro_initialised) {
+  if (!ins_baro_initialized) {
     // try to find a stable qfe
     // TODO generic function in pprz_isa ?
     if (i == 1) {
@@ -526,11 +521,11 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     // test stop condition
     if (fabs(alpha) < 0.005) {
       ins_qfe = baro_moy;
-      ins_baro_initialised = TRUE;
+      ins_baro_initialized = TRUE;
     }
     if (i == 250) {
       ins_qfe = *pressure;
-      ins_baro_initialised = TRUE;
+      ins_baro_initialized = TRUE;
     }
     i++;
   }

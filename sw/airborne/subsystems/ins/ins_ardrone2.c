@@ -63,9 +63,6 @@ void ins_init() {
   ins_impl.ltp_initialized  = FALSE;
 #endif
 
-  ins.vf_realign = FALSE;
-  ins.hf_realign = FALSE;
-
   INT32_VECT3_ZERO(ins_impl.ltp_pos);
   INT32_VECT3_ZERO(ins_impl.ltp_speed);
   INT32_VECT3_ZERO(ins_impl.ltp_accel);

@@ -22,7 +22,7 @@
 
 /*
  * For more information, please send an email to "jp.condomines@gmail.com"
-*/
+ */
 
 #ifndef INS_FLOAT_INVARIANT_H
 #define INS_FLOAT_INVARIANT_H
@@ -107,6 +107,8 @@ struct InsFloatInv {
   struct inv_command cmd;             ///< command vector
   struct inv_correction_gains corr;   ///< correction gains
   struct inv_gains gains;             ///< tuning gains
+
+  bool_t reset;                       ///< flag to request reset/reinit the filter
 };
 
 extern struct InsFloatInv ins_impl;

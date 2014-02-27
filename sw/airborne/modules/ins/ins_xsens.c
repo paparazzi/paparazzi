@@ -256,6 +256,25 @@ void ins_periodic(void) {
   xsens_periodic();
 }
 
+void ins_reset_local_origin(void) {
+}
+
+void ins_reset_altitude_ref(void) {
+}
+
+void ins_reset_utm_zone(struct UtmCoor_f * utm) {
+  struct LlaCoor_f lla0;
+  lla_of_utm_f(&lla0, utm);
+#ifdef GPS_USE_LATLONG
+  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+#else
+  utm->zone = gps.utm_pos.zone;
+#endif
+  utm_of_lla_f(utm, &lla0);
+
+  stateSetLocalUtmOrigin_f(utm);
+}
+
 void ins_update_gps(void) {
   struct UtmCoor_f utm;
   utm.east = gps.utm_pos.east / 100.;

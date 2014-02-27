@@ -33,17 +33,20 @@
 #include <inttypes.h>
 #include "std.h"
 
-extern float ins_alt; ///< estimated altitude above MSL in meters
-extern float ins_alt_dot; ///< estimated vertical speed in m/s (positive-up)
+/** Ins implementation state (altitude, float) */
+struct InsAltFloat {
+  float alt;     ///< estimated altitude above MSL in meters
+  float alt_dot; ///< estimated vertical speed in m/s (positive-up)
+
+  bool_t reset_alt_ref;  ///< flag to request reset of altitude reference to current alt
 
 #if USE_BAROMETER
-extern float ins_qfe;
-extern float ins_baro_alt;
-extern bool_t ins_baro_initialized;
+  float qfe;
+  float baro_alt;
+  bool_t baro_initialized;
 #endif
+};
 
-extern void alt_kalman_reset( void );
-extern void alt_kalman_init( void );
-extern void alt_kalman( float );
+extern struct InsAltFloat ins_impl;
 
 #endif /* INS_ALT_FLOAT_H */

@@ -142,8 +142,8 @@ void ins_init(void) {
   ins_impl.sonar_offset = INS_SONAR_OFFSET;
 #endif
 
-  ins.vf_realign = FALSE;
-  ins.hf_realign = FALSE;
+  ins_impl.vf_reset = FALSE;
+  ins_impl.hf_realign = FALSE;
 
   /* init vertical and horizontal filters */
 #if USE_VFF_EXTENDED
@@ -171,21 +171,36 @@ void ins_periodic(void) {
     ins.status = INS_RUNNING;
 }
 
-void ins_reset_local_origin( void ) {
-  ins_impl.ltp_initialized = FALSE;
-#if USE_HFF
-  ins.hf_realign = TRUE;
+void ins_reset_utm_zone(struct UtmCoor_f * utm) {
+#if USE_GPS
+  struct LlaCoor_f lla0;
+  lla_of_utm_f(&lla0, utm);
+#ifdef GPS_USE_LATLONG
+  utm->zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+#else
+  utm->zone = gps.utm_pos.zone;
 #endif
-  ins.vf_realign = TRUE;
+  utm_of_lla_f(utm, &lla0);
+
+  stateSetLocalUtmOrigin_f(utm);
+#endif
 }
 
-void ins_reset_altitude_ref( void ) {
+void ins_reset_local_origin(void) {
+  ins_impl.ltp_initialized = FALSE;
+#if USE_HFF
+  ins_impl.hf_realign = TRUE;
+#endif
+  ins_impl.vf_reset = TRUE;
+}
+
+void ins_reset_altitude_ref(void) {
 #if USE_GPS
   ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
   ins_impl.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_impl.ltp_def);
 #endif
-  ins.vf_realign = TRUE;
+  ins_impl.vf_reset = TRUE;
 }
 
 #if USE_HFF
@@ -204,7 +219,7 @@ void ins_realign_v(float z) {
   ins_update_from_vff();
 }
 
-void ins_propagate() {
+void ins_propagate(void) {
   /* untilt accels */
   struct Int32Vect3 accel_meas_body;
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
@@ -240,8 +255,8 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     ins_impl.qfe = *pressure;
     ins_impl.baro_initialized = TRUE;
   }
-  if (ins.vf_realign) {
-    ins.vf_realign = FALSE;
+  if (ins_impl.vf_reset) {
+    ins_impl.vf_reset = FALSE;
     ins_impl.qfe = *pressure;
     vff_realign(0.);
     ins_update_from_vff();
@@ -258,7 +273,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
 }
 
 
-void ins_update_baro() {
+void ins_update_baro(void) {
 }
 
 
@@ -289,8 +304,8 @@ void ins_update_gps(void) {
     VECT2_ASSIGN(gps_speed_m_s_ned, gps_speed_cm_s_ned.x, gps_speed_cm_s_ned.y);
     VECT2_SDIV(gps_speed_m_s_ned, gps_speed_m_s_ned, 100.);
 
-    if (ins.hf_realign) {
-      ins.hf_realign = FALSE;
+    if (ins_impl.hf_realign) {
+      ins_impl.hf_realign = FALSE;
       const struct FloatVect2 zero = {0.0, 0.0};
       b2_hff_realign(gps_pos_m_ned, zero);
     }
@@ -328,7 +343,7 @@ uint8_t var_idx = 0;
 #endif
 
 
-void ins_update_sonar() {
+void ins_update_sonar(void) {
 #if USE_SONAR
   static float last_offset = 0.;
   // new value filtered with median_filter

@@ -37,7 +37,6 @@
 #include "subsystems/imu.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/ins.h"
 
 #define __UM6Link(dev, _x) dev##_x
 #define _UM6Link(dev, _x)  __UM6Link(dev, _x)
@@ -107,12 +106,12 @@ struct UM6Packet {
 };
 
 enum UM6PacketStatus {
-    UM6PacketWaiting,
-    UM6PacketReadingS,
-    UM6PacketReadingN,
-    UM6PacketReadingPT,
-    UM6PacketReadingAddr,
-    UM6PacketReadingData
+  UM6PacketWaiting,
+  UM6PacketReadingS,
+  UM6PacketReadingN,
+  UM6PacketReadingPT,
+  UM6PacketReadingAddr,
+  UM6PacketReadingData
 };
 
 enum UM6Status {
@@ -120,22 +119,22 @@ enum UM6Status {
   UM6Running
 };
 
-#define imu_um6_event(_callback1, _callback2, _callback3) {				\
-    if (UM6Buffer()) {							\
-      ReadUM6Buffer();							\
-    }									\
-    if (UM6_packet.msg_available) {					\
-      UM6_packet.msg_available = FALSE;					\
-      UM6_packet_read_message();					\
-      _callback1();			\
-      _callback2();			\
-      _callback3();     \
-    } \
-}
+#define imu_um6_event(_callback1, _callback2, _callback3) { \
+    if (UM6Buffer()) {                                      \
+      ReadUM6Buffer();                                      \
+    }                                                       \
+    if (UM6_packet.msg_available) {                         \
+      UM6_packet.msg_available = FALSE;                     \
+      UM6_packet_read_message();                            \
+      _callback1();                                         \
+      _callback2();                                         \
+      _callback3();                                         \
+    }                                                       \
+  }
 
-#define ReadUM6Buffer() {						\
-    while (UM6Link(ChAvailable())&&!UM6_packet.msg_available)		\
-      UM6_packet_parse(UM6Link(Getch()));				\
+#define ReadUM6Buffer() {                                       \
+    while (UM6Link(ChAvailable())&&!UM6_packet.msg_available)   \
+      UM6_packet_parse(UM6Link(Getch()));                       \
   }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
