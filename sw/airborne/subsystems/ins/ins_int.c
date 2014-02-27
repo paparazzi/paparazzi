@@ -146,11 +146,7 @@ void ins_init(void) {
   ins_impl.hf_realign = FALSE;
 
   /* init vertical and horizontal filters */
-#if USE_VFF_EXTENDED
-  vff_init(0., 0., 0., 0.);
-#else
-  vff_init(0., 0., 0.);
-#endif
+  vff_init_zero();
 #if USE_HFF
   b2_hff_init(0., 0., 0., 0.);
 #endif
@@ -241,9 +237,8 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   ins_ned_to_state();
 }
 
-
-void ins_update_gps(void) {
 #if USE_GPS
+void ins_update_gps(void) {
   if (gps.fix == GPS_FIX_3D) {
     if (!ins_impl.ltp_initialized) {
       ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
@@ -289,8 +284,8 @@ void ins_update_gps(void) {
 
     ins_ned_to_state();
   }
-#endif /* USE_GPS */
 }
+#endif /* USE_GPS */
 
 
 //#define INS_SONAR_VARIANCE_THRESHOLD 0.01
@@ -308,8 +303,8 @@ uint8_t var_idx = 0;
 #endif
 
 
-void ins_update_sonar(void) {
 #if USE_SONAR
+void ins_update_sonar(void) {
   static float last_offset = 0.;
   // new value filtered with median_filter
   ins_impl.sonar_alt = update_median_filter(&ins_impl.sonar_median, sonar_meas);
@@ -356,8 +351,8 @@ void ins_update_sonar(void) {
     /* update offset with last value to avoid divergence */
     vff_update_offset(last_offset);
   }
-#endif // USE_SONAR
 }
+#endif // USE_SONAR
 
 
 /** initialize the local origin (ltp_def) from flight plan position */
@@ -392,9 +387,9 @@ static void ins_ned_to_state(void) {
 
 /** update ins state from vertical filter */
 static void ins_update_from_vff(void) {
-  ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
-  ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
-  ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
+  ins_impl.ltp_accel.z = ACCEL_BFP_OF_REAL(vff.zdotdot);
+  ins_impl.ltp_speed.z = SPEED_BFP_OF_REAL(vff.zdot);
+  ins_impl.ltp_pos.z   = POS_BFP_OF_REAL(vff.z);
 }
 
 #if USE_HFF
