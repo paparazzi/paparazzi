@@ -76,7 +76,9 @@
       <arg flag="-b" variable="ivy_bus"/>
       <arg flag="-d" constant="/dev/ttyUSB1"/>
     </program>
- </section>
+
+    <programe name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
+  </section>
 
 
 
