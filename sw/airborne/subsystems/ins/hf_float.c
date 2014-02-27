@@ -127,7 +127,7 @@ void b2_hff_store_accel_body(void) {
   }
 }
 
-/* compute the mean of the last n accel measurements */
+/** compute the mean of the last n accel measurements */
 static inline void b2_hff_compute_accel_body_mean(uint8_t n) {
   struct Int32Vect3 sum;
   int i, j;

@@ -45,7 +45,7 @@
 #elif AHRS_PROPAGATE_FREQUENCY == 500
 #define HFF_PRESCALER 10
 #else
-#error "HFF_PRESCALER needs to be a divisor of AHRS_PROPAGATE_FREQUENCY"
+#error "HFF_PRESCALER not set, needs to be a divisor of AHRS_PROPAGATE_FREQUENCY"
 #endif
 #endif
 
@@ -71,13 +71,6 @@ struct HfilterFloat {
 };
 
 extern struct HfilterFloat b2_hff_state;
-
-extern float b2_hff_x_meas;
-extern float b2_hff_y_meas;
-extern float b2_hff_xd_meas;
-extern float b2_hff_yd_meas;
-extern float b2_hff_xdd_meas;
-extern float b2_hff_ydd_meas;
 
 extern void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot);
 extern void b2_hff_propagate(void);
