@@ -85,14 +85,6 @@ void ins_reset_altitude_ref( void ) {
 #endif
 }
 
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
-
-}
-
-void ins_realign_v(float z __attribute__ ((unused))) {
-
-}
-
 void ins_propagate() {
   /* untilt accels and speeds */
   FLOAT_RMAT_VECT3_TRANSP_MUL(ins_impl.ltp_accel, (*stateGetNedToBodyRMat_f()), ahrs_impl.accel);

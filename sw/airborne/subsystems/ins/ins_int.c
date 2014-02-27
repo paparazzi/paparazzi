@@ -203,22 +203,6 @@ void ins_reset_altitude_ref(void) {
   ins_impl.vf_reset = TRUE;
 }
 
-#if USE_HFF
-void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed) {
-  b2_hff_realign(pos, speed);
-  ins_update_from_hff();
-}
-#else
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)),
-                   struct FloatVect2 speed __attribute__ ((unused))) {}
-#endif /* USE_HFF */
-
-
-void ins_realign_v(float z) {
-  vff_realign(z);
-  ins_update_from_vff();
-}
-
 void ins_propagate(void) {
   /* untilt accels */
   struct Int32Vect3 accel_meas_body;

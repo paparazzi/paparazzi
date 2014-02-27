@@ -142,15 +142,6 @@ void ins_reset_utm_zone(struct UtmCoor_f * utm) {
   stateSetLocalUtmOrigin_f(utm);
 }
 
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
-}
-
-void ins_realign_v(float z) {
-  ins_impl.alt = z;
-  ins_impl.alt_dot = 0.;
-  alt_kalman_reset();
-}
-
 void ins_propagate(void) {
 }
 

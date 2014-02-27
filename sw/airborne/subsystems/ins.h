@@ -80,21 +80,6 @@ extern void ins_reset_altitude_ref(void);
  */
 extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
 
-/** INS horizontal realign.
- *  This only reset the filter to a given value, but doesn't change the local reference.
- *  Needs to be implemented by each INS algorithm.
- *  @param pos new horizontal position to set
- *  @param speed new horizontal speed to set
- */
-extern void ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed);
-
-/** INS vertical realign.
- *  This only reset the filter to a given value, but doesn't change the local reference.
- *  Needs to be implemented by each INS algorithm.
- *  @param z new altitude to set
- */
-extern void ins_realign_v(float z);
-
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.
  *  Needs to be implemented by each INS algorithm.

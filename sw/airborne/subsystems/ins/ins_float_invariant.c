@@ -327,14 +327,9 @@ void ins_reset_utm_zone(struct UtmCoor_f * utm) {
 }
 #endif
 
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {}
-void ins_realign_v(float z __attribute__ ((unused))) {}
-
-
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
 }
-
 
 void ahrs_align(void)
 {

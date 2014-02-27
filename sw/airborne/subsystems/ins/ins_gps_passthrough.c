@@ -112,10 +112,3 @@ void ins_update_baro(void) {
 
 void ins_update_sonar(void) {
 }
-
-void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {
-}
-
-void ins_realign_v(float z __attribute__ ((unused))) {
-}
-
