@@ -114,15 +114,10 @@
       </block>
     </message>
 
-    <message name="MSG" ID="0x01">
-      <block length="6">
-        <field name="Class" format="U1"/>
+    <message name="MSG" ID="0x01" length="3">
+    	<field name="Class" format="U1"/>
         <field name="MsgId" format="U1"/>
-        <field name="Rate0" format="U1"/>
-        <field name="Rate1" format="U1"/>
-        <field name="Rate2" format="U1"/>
-        <field name="Rate3" format="U1"/>
-      </block>
+        <field name="Rate" format="U1"/>
     </message>
 
     <message name="NAV" ID="0x03" length="28">
