@@ -61,25 +61,25 @@ extern void ahrs_align(void);
 
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.
- *  Needs to be implemented by each AHRS algorithm.
+ *  Does nothing if not implemented by specific AHRS algorithm.
  */
 extern void ahrs_propagate(void);
 
 /** Update AHRS state with accerleration measurements.
  *  Reads the global #imu data struct.
- *  Needs to be implemented by each AHRS algorithm.
+ *  Does nothing if not implemented by specific AHRS algorithm.
  */
 extern void ahrs_update_accel(void);
 
 /** Update AHRS state with magnetometer measurements.
  *  Reads the global #imu data struct.
- *  Needs to be implemented by each AHRS algorithm.
+ *  Does nothing if not implemented by specific AHRS algorithm.
  */
 extern void ahrs_update_mag(void);
 
 /** Update AHRS state with GPS measurements.
  *  Reads the global #gps data struct.
- *  Needs to be implemented by each AHRS algorithm.
+ *  Does nothing if not implemented by specific AHRS algorithm.
  */
 extern void ahrs_update_gps(void);
 

@@ -125,9 +125,6 @@ void ahrs_propagate(void) {
   set_body_state_from_quat();
 }
 
-void ahrs_update_gps(void) {
-}
-
 void ahrs_update_accel(void) {
   struct FloatVect3 imu_g;
   ACCELS_FLOAT_OF_BFP(imu_g, imu.accel);

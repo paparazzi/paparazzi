@@ -29,3 +29,13 @@
 
 struct Ahrs ahrs;
 
+#define WEAK __attribute__((weak))
+// weak functions, used if not explicitly provided by implementation
+
+void WEAK ahrs_propagate(void) {}
+
+void WEAK ahrs_update_accel(void) {}
+
+void WEAK ahrs_update_mag(void) {}
+
+void WEAK ahrs_update_gps(void) {}

@@ -195,22 +195,8 @@ void ahrs_propagate(void) {
   }
 }
 
-void ahrs_update_accel(void) {
-
-}
-
-void ahrs_update_mag(void) {
-
-}
-
-void ahrs_update_gps(void) {
-
-}
-
 void ahrs_aligner_init(void) {
-
 }
 
 void ahrs_aligner_run(void) {
-
 }

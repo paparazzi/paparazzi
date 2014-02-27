@@ -278,10 +278,6 @@ void ahrs_update_mag(void) {
 
 }
 
-void ahrs_update_gps(void) {
-
-}
-
 /* measures phi and theta assuming no dynamic acceleration ?!! */
 __attribute__ ((always_inline)) static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel) {
 
