@@ -25,7 +25,7 @@
 Q=@
 
 include ../../Makefile.ocaml
-TOOLSDIR = ../../tools
+TOOLSDIR = ../../tools/generators
 
 CC = gcc
 
