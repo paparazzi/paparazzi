@@ -77,7 +77,7 @@
       <arg flag="-d" constant="/dev/ttyUSB1"/>
     </program>
 
-    <programe name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
+    <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
   </section>
 
 
