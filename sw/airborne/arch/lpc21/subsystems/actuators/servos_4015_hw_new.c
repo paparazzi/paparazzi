@@ -82,8 +82,8 @@ void actuators_4015_init ( void ) {
   uint8_t i;
   for( i=0 ; i < _4015_NB_CHANNELS ; i++ )
     servos_values[i] = SERVOS_TICS_OF_USEC(1500);
-#ifdef SERVO_GAZ
-  servos_values[SERVO_GAZ] = SERVOS_TICS_OF_USEC(SERVO_GAZ_NEUTRAL);
+#ifdef SERVO_MOTOR
+  servos_values[SERVO_MOTOR] = SERVOS_TICS_OF_USEC(SERVO_MOTOR_NEUTRAL);
 #endif
 }
 
