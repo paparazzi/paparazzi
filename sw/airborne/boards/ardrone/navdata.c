@@ -292,7 +292,6 @@ static void baro_update_logic(void)
         // wait for temp again
         temp_or_press_was_updated_last = FALSE;
         sync_errors++;
-        navdata_baro_available = TRUE;
         printf("Baro-Logic-Error (expected updated temp, got press)\n");
       }
     }
@@ -314,13 +313,25 @@ static void baro_update_logic(void)
         printf("Baro-Logic-Error (expected updated press, got temp)\n");
 
       }
+      else {
+        // We now got valid pressure and temperature
+        navdata_baro_available = TRUE;
+      }
     }
-
-    navdata_baro_available = TRUE;
   }
 
-  lastpressval = navdata.pressure;
+  // Detected a pressure switch
+  if(lastpressval != 0 && lasttempval != 0 && ABS(lastpressval - navdata.pressure) > ABS(lasttempval - navdata.pressure)) {
+    navdata_baro_available = FALSE;
+  }
+
+  // Detected a temprature switch
+  if(lastpressval != 0 && lasttempval != 0 && ABS(lasttempval - navdata.temperature_pressure) > ABS(lastpressval - navdata.temperature_pressure)) {
+    navdata_baro_available = FALSE;
+  }
+
   lasttempval = navdata.temperature_pressure;
+  lastpressval = navdata.pressure;
 
   /*
    * It turns out that a lot of navdata boards have a problem (probably interrupt related)
@@ -389,6 +400,7 @@ static void baro_update_logic(void)
     lasttempval_nospike = navdata.temperature_pressure;
   }
 
+// printf("%d %d %d\r\n", navdata.temperature_pressure, navdata.pressure, spike_detected);
 //  printf(",%d,%d",spike_detected,spikes);
 }
 
