@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="weather_meter" dir="meteo">
+  <doc>
+    <description>Wind speed and direction from Ambient/Froggit/Sparkfun sensors</description>
+    <define name="ADC_CHANNEL_WEATHER_MTR" value="ADCx" description="select adc channel to use (default ADC_3)"/>
+  </doc>
+  <header>
+    <file name="weather_meter_hw.h"/>
+    <file name="weather_meter.h"/>
+  </header>
+  <init fun="weather_meter_init()"/>
+  <periodic fun="weather_meter_periodic()" freq="4"/>
+  <makefile>
+    <file_arch name="weather_meter_hw.c"/>
+    <file name="weather_meter.c"/>
+    <raw>
+ifneq ($(ADC_CHANNEL_WEATHER_MTR),)
+ap.CFLAGS += -DADC_CHANNEL_WEATHER_MTR=$(ADC_CHANNEL_WEATHER_MTR) -DUSE_$(ADC_CHANNEL_WEATHER_MTR)
+endif
+    </raw>
+    <define name="TRIGGER_EXT"/>
+  </makefile>
+</module>

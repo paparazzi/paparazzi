@@ -39,4 +39,14 @@
    settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
    gui_color="yellow"
   />
+  <aircraft
+   name="WEATHER"
+   ac_id="192"
+   airframe="airframes/weather_meter.xml"
+   radio="radios/t7c.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/grosslobke_demo.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="yellow"
+  />
 </conf>

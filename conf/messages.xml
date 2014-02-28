@@ -1758,7 +1758,13 @@
  <!--215 is free -->
  <!--216 is free -->
  <!--217 is free -->
- <!--218 is free -->
+  <message name="WEATHER_METER" id="218">
+    <field name="windspeed_raw" type="uint32"/>
+    <field name="winddir_raw"   type="uint16"/>
+    <field name="windspeed"     type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="winddir"       type="int16"  unit="decideg" alt_unit="deg"/>
+  </message>
+
   <message name="WEATHER" id="219">
     <field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>
     <field name="t_amb" type="float" unit="deg C"/>
