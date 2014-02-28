@@ -351,7 +351,7 @@ void ins_update_sonar(void) {
       && ins_impl.update_on_agl
       && ins_impl.baro_initialized) {
     vff_update_alt_conf(-sonar, VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabs(sonar));
-    last_offset = vff_offset;
+    last_offset = vff.offset;
   }
   else {
     /* update offset with last value to avoid divergence */
