@@ -10,14 +10,12 @@ Automatically configure any Ublox GPS for paparazzi.
 - configures all the messages, and the rates
 - automatic baudrate detection
 
-Warning: you still need to tell the driver
-1. Which paparazzi uart you use
-2. Inside the ublox gps there are also many ports.
-   The tiny/ppzgps use ublox_internal_port1 (UART1) but if for instance you use a LS-SAM
-   or I2C device you need to set this by defining GPS_PORT_ID.
+Warning: you still need to tell the driver, which paparazzi port you use.
     </description>
-    <define name="GPS_PORT_ID" value="GPS_PORT_UART1" description="Port inside the Ublox GPS (GPS_PORT_DDC, GPS_PORT_UART1, GPS_PORT_UART2, GPS_PORT_USB, GPS_PORT_SPI)"/>
     <define name="GPS_UBX_UCENTER_RATE" value="250" description="Data output rate in ms"/>
+    <define name="GPS_UBX_NAV5_DYNAMICS" 
+            value="NAV5_DYN_PORTABLE|NAV5_DYN_FIXED|NAV5_DYN_STATIONARY|NAV5_DYN_PEDESTRIAN|NAV5_DYN_AUTOMOTIVE|NAV5_DYN_SEA|NAV5_DYN_AIRBORNE_1G|NAV5_DYN_AIRBORNE_2G|NAV5_DYN_AIRBORNE_4G" 
+            description="Dynamic model used by ublox GPS filter. Default:NAV5_DYN_AIRBORNE_2G"/>
     <define name="USE_GPS_UBX_RXM_RAW" description="Activate raw measurments (only available on U-Blox T versions)"/>
   </doc>
   <header>
