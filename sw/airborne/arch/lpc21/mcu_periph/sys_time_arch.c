@@ -186,7 +186,6 @@ void TIMER0_ISR ( void ) {
     if (T0IR&TRIGGER_IT) {
       TRIG_ISR();
       T0IR = TRIGGER_IT;
-      LED_TOGGLE(3);
     }
 #endif
 #ifdef MB_SCALE
