@@ -160,9 +160,7 @@
       <define name="CHIMU_BIG_ENDIAN" />
     </load>
     <load name="cam_point.xml" />
-    <load name="gps_ubx_ucenter.xml">
-      <define name="GPS_PORT_ID" value="GPS_PORT_UART2" />
-    </load>
+    <load name="gps_ubx_ucenter.xml"/>
   </modules>
 
   <firmware name="fixedwing">
