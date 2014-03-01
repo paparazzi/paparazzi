@@ -16,7 +16,6 @@
 #define USE_LED_1 1
 #endif
 #define LED_1_GPIO GPIOC
-#define LED_1_GPIO_CLK RCC_GPIOC
 #define LED_1_GPIO_PIN GPIO0
 #define LED_1_GPIO_ON gpio_clear
 #define LED_1_GPIO_OFF gpio_set
@@ -27,7 +26,6 @@
 #define USE_LED_2 1
 #endif
 #define LED_2_GPIO GPIOC
-#define LED_2_GPIO_CLK RCC_GPIOC
 #define LED_2_GPIO_PIN GPIO13
 #define LED_2_GPIO_ON gpio_clear
 #define LED_2_GPIO_OFF gpio_set

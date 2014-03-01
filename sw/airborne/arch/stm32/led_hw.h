@@ -22,6 +22,7 @@
 #ifndef LED_HW_H
 #define LED_HW_H
 
+#include "mcu_periph/gpio.h"
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 
@@ -36,42 +37,19 @@
  */
 #ifndef LED_STP08
 
-#define _LED_GPIO(i) i
-#define _LED_GPIO_CLK(i) i
-#define _LED_GPIO_PIN(i) i
-#define _LED_GPIO_ON(i) i
-#define _LED_GPIO_OFF(i) i
-#define _LED_AFIO_REMAP(i) i
+#define _LED_EVAL(i) i
 
-#define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
-#define LED_GPIO_CLK(i) _LED_GPIO_CLK(LED_ ## i ## _GPIO_CLK)
-#define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
-#define LED_GPIO_ON(i) _LED_GPIO_ON(LED_ ## i ## _GPIO_ON)
-#define LED_GPIO_OFF(i) _LED_GPIO_OFF(LED_ ## i ## _GPIO_OFF)
-#define LED_AFIO_REMAP(i) _LED_AFIO_REMAP(LED_ ## i ## _AFIO_REMAP)
+#define LED_GPIO(i) _LED_EVAL(LED_ ## i ## _GPIO)
+#define LED_GPIO_PIN(i) _LED_EVAL(LED_ ## i ## _GPIO_PIN)
+#define LED_GPIO_ON(i) _LED_EVAL(LED_ ## i ## _GPIO_ON)
+#define LED_GPIO_OFF(i) _LED_EVAL(LED_ ## i ## _GPIO_OFF)
+#define LED_AFIO_REMAP(i) _LED_EVAL(LED_ ## i ## _AFIO_REMAP)
 
-/* set pin as output */
-#if defined(STM32F1) || defined(STM32F2)
-#define LED_GPIO_MODE(i) {      \
-  gpio_set_mode(LED_GPIO(i),    \
-      GPIO_MODE_OUTPUT_50_MHZ,  \
-      GPIO_CNF_OUTPUT_PUSHPULL, \
-      LED_GPIO_PIN(i));         \
-}
-#elif defined(STM32F4)
-#define LED_GPIO_MODE(i) {      \
-  gpio_mode_setup(LED_GPIO(i),  \
-      GPIO_MODE_OUTPUT,			    \
-      GPIO_PUPD_NONE,           \
-      LED_GPIO_PIN(i));         \
-}
-#endif
 
-#define LED_INIT(i) {                       \
-  rcc_periph_clock_enable(LED_GPIO_CLK(i));	\
-  LED_GPIO_MODE(i);                         \
-  LED_AFIO_REMAP(i);                        \
-}
+#define LED_INIT(i) {                                  \
+    gpio_setup_output(LED_GPIO(i), LED_GPIO_PIN(i));   \
+    LED_AFIO_REMAP(i);                                 \
+  }
 
 #define LED_ON(i) LED_GPIO_ON(i)(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_OFF(i) LED_GPIO_OFF(i)(LED_GPIO(i), LED_GPIO_PIN(i))

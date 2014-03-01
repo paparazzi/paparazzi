@@ -27,7 +27,7 @@ tunnel.srcs   += mcu.c \
                  $(SRC_ARCH)/mcu_arch.c \
                  $(SRC_LISA)/tunnel_hw.c
 tunnel.CFLAGS += -DUSE_LED
-tunnel.srcs   += $(SRC_ARCH)/led_hw.c
+tunnel.srcs   += $(SRC_ARCH)/mcu_periph/gpio_arch.c $(SRC_ARCH)/led_hw.c
 ifneq ($(SYS_TIME_LED),none)
 tunnel.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
