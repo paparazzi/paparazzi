@@ -24,13 +24,13 @@
  * Control the camera via GPIO pins.
  *
  * Configuration (DC_SHUTTER is mandatory, others optional):
- * @verbatim
- *   <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
- *   <define name="DC_ZOOM_IN_GPIO" value="GPIOC,GPIO2"/>
- *   <define name="DC_ZOOM_OUT_GPIO" value="GPIOC,GPIO5"/>
- *   <define name="DC_POWER_GPIO" value="GPIOB,GPIO1/>
- *   <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1"/>
- * @endverbatim
+ * @code{.xml}
+ * <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
+ * <define name="DC_ZOOM_IN_GPIO" value="GPIOC,GPIO2"/>
+ * <define name="DC_ZOOM_OUT_GPIO" value="GPIOC,GPIO5"/>
+ * <define name="DC_POWER_GPIO" value="GPIOB,GPIO1"/>
+ * <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1"/>
+ * @endcode
  */
 
 #include "gpio_cam_ctrl.h"
