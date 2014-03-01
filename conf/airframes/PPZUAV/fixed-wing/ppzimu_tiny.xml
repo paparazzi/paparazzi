@@ -185,29 +185,6 @@
     <define name="DELAY_WITHOUT_GPS" value="3" unit="s"/>
   </section>
 
-  <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
-    <define name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
-  </section>
-
-
-  <modules>
-<!--
-    <load name="light.xml">
-      <define name="LIGHT_LED_STROBE" value="3"/>
-      <define name="LIGHT_LED_NAV" value="2"/>
-      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
-      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    -->
-    <!--    <load name="digital_cam_i2c.xml"/>  -->
-
-<!--
-    <load name="digital_cam.xml" >
-      <define name="DC_SHUTTER_LED" value="3"/>
-    </load>
-    -->
-  </modules>
 
   <firmware name="fixedwing">
 
