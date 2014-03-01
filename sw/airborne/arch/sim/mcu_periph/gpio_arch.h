@@ -54,6 +54,23 @@
 #define GPIO13 0
 #define GPIO14 0
 #define GPIO15 0
+// on LCP21xx we have 32bit wide ports
+#define GPIO16 0
+#define GPIO17 0
+#define GPIO18 0
+#define GPIO19 0
+#define GPIO20 0
+#define GPIO21 0
+#define GPIO22 0
+#define GPIO23 0
+#define GPIO24 0
+#define GPIO25 0
+#define GPIO26 0
+#define GPIO27 0
+#define GPIO28 0
+#define GPIO29 0
+#define GPIO30 0
+#define GPIO31 0
 
 static inline void gpio_setup_output(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
 static inline void gpio_setup_input(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
