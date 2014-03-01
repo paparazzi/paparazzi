@@ -29,9 +29,8 @@
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
-#define gpio_setup_pin_af(port, pin, af, is_output) {}
-#define gpio_setup_pin_analog(port, pin) {}
-#define gpio_enable_clock(port) {}
+#define gpio_setup_output(port, pin) {}
+#define gpio_setup_input(port, pin) {}
 #define gpio_set(port, pin) {}
 #define gpio_clear(port, pin) {}
 
