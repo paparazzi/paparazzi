@@ -29,9 +29,36 @@
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
-#define gpio_setup_output(port, pin) {}
-#define gpio_setup_input(port, pin) {}
-#define gpio_set(port, pin) {}
-#define gpio_clear(port, pin) {}
+#define GPIOA 0
+#define GPIOB 0
+#define GPIOC 0
+#define GPIOD 0
+#define GPIOE 0
+#define GPIOF 0
+#define GPIOG 0
+#define GPIOH 0
+
+#define GPIO0 0
+#define GPIO1 0
+#define GPIO2 0
+#define GPIO3 0
+#define GPIO4 0
+#define GPIO5 0
+#define GPIO6 0
+#define GPIO7 0
+#define GPIO8 0
+#define GPIO9 0
+#define GPIO10 0
+#define GPIO11 0
+#define GPIO12 0
+#define GPIO13 0
+#define GPIO14 0
+#define GPIO15 0
+
+static inline void gpio_setup_output(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+static inline void gpio_setup_input(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+static inline void gpio_set(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+static inline void gpio_clear(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+static inline void gpio_toggle(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
 
 #endif /* GPIO_ARCH_H */
