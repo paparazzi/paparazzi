@@ -12,7 +12,7 @@
  * PA7  = SPI1 MOSI if STM32F4_DISCOVERY_SPI1_FOR_LIS302
  * PA8  = SPECTRUM BIND
  * PA9  = FREE (ONLY if usb is not active during runtime, PC0 must be high or input )
- * PA10 = UART2 (Spektrum input)
+ * PA10 = UART1 RX (Spektrum input)
  * PA11 = FREE if usb is not active during runtime
  * PA12 = FREE if usb is not active during runtime
  * PA13 = FREE
@@ -593,13 +593,13 @@
 #define SPEKTRUM_BIND_PIN GPIO8
 #define SPEKTRUM_BIND_PIN_PORT GPIOA
 
-#define SPEKTRUM_UART2_RCC RCC_USART1
-#define SPEKTRUM_UART2_BANK GPIOA
-#define SPEKTRUM_UART2_PIN GPIO10
-#define SPEKTRUM_UART2_AF GPIO_AF7
-#define SPEKTRUM_UART2_IRQ NVIC_USART1_IRQ
-#define SPEKTRUM_UART2_ISR usart1_isr
-#define SPEKTRUM_UART2_DEV USART1
+#define SPEKTRUM_UART1_RCC RCC_USART1
+#define SPEKTRUM_UART1_BANK GPIOA
+#define SPEKTRUM_UART1_PIN GPIO10
+#define SPEKTRUM_UART1_AF GPIO_AF7
+#define SPEKTRUM_UART1_IRQ NVIC_USART1_IRQ
+#define SPEKTRUM_UART1_ISR usart1_isr
+#define SPEKTRUM_UART1_DEV USART1
 
 
 #endif /* CONFIG_STM32F4_DISCOVERY_H */
