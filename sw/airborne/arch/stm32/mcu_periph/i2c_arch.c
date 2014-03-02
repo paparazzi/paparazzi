@@ -1161,8 +1161,15 @@ void i2c1_hw_init(void) {
   i2c_enable_analog_filter(I2C1);
   i2c_set_digital_filter(I2C1, I2C_CR1_DNF_DISABLED);
   //Configure PRESC[3:0] SDADEL[3:0] SCLDEL[3:0]  SCLH[7:0] SCLL[7:0] in TIMINGR
+
   //i2c_100khz_i2cclk8mhz(I2C1);
-  i2c_400khz_i2cclk8mhz(I2C1);
+  /* replacement for i2c_400khz_i2cclk8mhz(I2C1): */
+  i2c_set_prescaler(I2C1, 0);
+  i2c_set_scl_low_period(I2C1, 0x09);
+  i2c_set_scl_high_period(I2C1, 0x03);
+  i2c_set_data_hold_time(I2C1, 0x01);
+  i2c_set_data_setup_time(I2C1, 0x03);
+
   //configure No-Stretch CR1 (only relevant in slave mode)
   i2c_enable_stretching(I2C1);
   //addressing mode
