@@ -76,4 +76,16 @@
 #define BARO_SIM_SENDER_ID 19
 #endif
 
+/*
+ * IDs of AGL measurment modules that can be loaded (sonars,...)
+ */
+#ifndef AGL_SONAR_ADC_ID
+#define AGL_SONAR_ADC_ID 1
+#endif
+
+#ifndef AGL_SONAR_ARDRONE2_ID
+#define AGL_SONAR_ARDRONE2_ID 2
+#endif
+
+
 #endif /* ABI_SENDER_IDS_H */

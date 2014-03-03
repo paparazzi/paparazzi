@@ -5,7 +5,7 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
-    <!--load name="sonar_adc_ins.xml"/-->
+    <!--load name="sonar_adc.xml"/-->
     <!--load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_0"/>
     </load-->
