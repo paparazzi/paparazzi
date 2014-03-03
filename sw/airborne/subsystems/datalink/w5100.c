@@ -1,28 +1,34 @@
 /*
-* Copyright (C) 2006 Pascal Brisset, Antoine Drouin
-*
-* This file is part of paparazzi.
-*
-* paparazzi is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2, or (at your option)
-* any later version.
-*
-* paparazzi is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with paparazzi; see the file COPYING. If not, write to
-* the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA.
-*
-*/
+ * Copyright (C) 2012 Gerard Toonstra
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING. If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
+/**
+ * @file subsystems/datalink/w5100.c
+ * W5100 ethernet chip I/O
+ */
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/w5100.h"
 #include "mcu_periph/spi.h"
+#inculde "mcu_periph/gpio.h"
 
 #define TXBUF_BASE 0x4000
 #define RXBUF_BASE 0x6000
@@ -70,6 +76,14 @@
 
 #ifndef W5100_SLAVE_IDX
 #define W5100_SLAVE_IDX SPI_SLAVE1
+#endif
+
+#ifndef W5100_DRDY_GPIO
+#define W5100_DRDY_GPIO GPIOB
+#endif
+
+#ifndef W5100_DRDY_GPIO_PIN
+#define W5100_DRDY_GPIO_PIN GPIO1
 #endif
 
 struct w5100_periph chip0;
@@ -173,12 +187,11 @@ void w5100_init( void ) {
   // wait one second for proper initialization (chip getting powered up).
   sys_time_usleep(1000000);
 
-  // @FIXME: should be no arch dependant code here...
   // set DRDY pin
-  gpio_set_mode( GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO1 );
-  gpio_clear( GPIOB, GPIO1 );
+  gpio_setup_output(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
+  gpio_clear(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
   sys_time_usleep(200);
-  gpio_set( GPIOB, GPIO1 );
+  gpio_set(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
 
   // allow some time for the chip to wake up.
   sys_time_usleep(20000);
