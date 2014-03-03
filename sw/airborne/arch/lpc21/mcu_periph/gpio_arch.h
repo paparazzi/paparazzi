@@ -123,16 +123,18 @@ static inline void gpio_clear(uint32_t port, uint32_t gpios) {
  */
 static inline void gpio_toggle(uint32_t port, uint32_t gpios) {
   if (port == 0) {
+    uint32_t set_gpios = IO0PIN;
     // clear selected gpio pins which are currently set
-    IO0CLR = IO0PIN & gpios;
+    IO0CLR = set_gpios & gpios;
     // set selected gpio pins which are currently cleared
-    IO0SET = ~IO0PIN & gpios;
+    IO0SET = ~set_gpios & gpios;
   }
   else if (port == 1) {
+    uint32_t set_gpios = IO1PIN;
     // clear selected gpio pins which are currently set
-    IO1CLR = IO1PIN & gpios;
+    IO1CLR = set_gpios & gpios;
     // set selected gpio pins which are currently cleared
-    IO1SET = ~IO1PIN & gpios;
+    IO1SET = ~set_gpios & gpios;
   }
 }
 
