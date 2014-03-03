@@ -169,7 +169,6 @@ ap.CFLAGS += -DMODEM_BAUD=B57600
 
 ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektrum_dx7eu.h\"
 ap.CFLAGS += -DGPS_USE_LATLONG
-ap.CFLAGS += -DGPS_PORT_ID=GPS_PORT_UART1
 
 include $(PAPARAZZI_SRC)/conf/firmwares/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
