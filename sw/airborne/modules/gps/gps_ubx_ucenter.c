@@ -32,6 +32,12 @@
 #include "subsystems/datalink/downlink.h"
 #include <stdio.h>
 
+#if DEBUG_GPS_UBX_UCENTER
+#define DEBUG_PRINT(...) printf(__VA_ARGS__)
+#else
+#define DEBUG_PRINT(...) {}
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -97,30 +103,25 @@ void gps_ubx_ucenter_periodic(void)
       gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
       gps_ubx_ucenter.cnt = 0;
 #if DEBUG_GPS_UBX_UCENTER
-      if (gps_ubx_ucenter.baud_init > 0)
-      {
-        printf("Initial ublox baudrate found: %u\n", gps_ubx_ucenter.baud_init);
+      if (gps_ubx_ucenter.baud_init > 0) {
+        DEBUG_PRINT("Initial ublox baudrate found: %u\n", gps_ubx_ucenter.baud_init);
       }
-      else
-      {
-        printf("WARNING: Unable to determine the ublox baudrate. Autoconfiguration is unlikely to work.\n");
+      else {
+        DEBUG_PRINT("WARNING: Unable to determine the ublox baudrate. Autoconfiguration is unlikely to work.\n");
       }
 #endif
     }
-    else
-    {
+    else {
       gps_ubx_ucenter.cnt++;
     }
     break;
     // Send Configuration
   case GPS_UBX_UCENTER_STATUS_CONFIG:
-    if (gps_ubx_ucenter_configure(gps_ubx_ucenter.cnt) == FALSE)
-    {
+    if (gps_ubx_ucenter_configure(gps_ubx_ucenter.cnt) == FALSE) {
       gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_STOPPED;
       gps_ubx_ucenter.cnt = 0;
     }
-    else
-    {
+    else {
       gps_ubx_ucenter.cnt++;
     }
     break;
@@ -147,15 +148,11 @@ void gps_ubx_ucenter_event(void)
   case UBX_ACK_ID:
     if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_ACK;
-#if DEBUG_GPS_UBX_UCENTER
-      printf("ACK\n");
-#endif
+      DEBUG_PRINT("ACK\n");
     }
     else {
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NACK;
-#if DEBUG_GPS_UBX_UCENTER
-      printf("NACK\n");
-#endif
+      DEBUG_PRINT("NACK\n");
     }
     break;
   case UBX_MON_ID:
@@ -168,10 +165,9 @@ void gps_ubx_ucenter_event(void)
       gps_ubx_ucenter.hw_ver_h += 10*(UBX_MON_VER_c(gps_ubx.msg_buf,32) - '0');
       gps_ubx_ucenter.hw_ver_l = UBX_MON_VER_c(gps_ubx.msg_buf,37) - '0';
       gps_ubx_ucenter.hw_ver_l += 10*(UBX_MON_VER_c(gps_ubx.msg_buf,36) - '0');
-#if DEBUG_GPS_UBX_UCENTER
-      printf("ublox sw_ver: %u.%u\n", gps_ubx_ucenter.sw_ver_h, gps_ubx_ucenter.sw_ver_l);
-      printf("ublox hw_ver: %u.%u\n", gps_ubx_ucenter.hw_ver_h, gps_ubx_ucenter.hw_ver_l);
-#endif
+
+      DEBUG_PRINT("ublox sw_ver: %u.%u\n", gps_ubx_ucenter.sw_ver_h, gps_ubx_ucenter.sw_ver_l);
+      DEBUG_PRINT("ublox hw_ver: %u.%u\n", gps_ubx_ucenter.hw_ver_h, gps_ubx_ucenter.hw_ver_l);
     }
     break;
   case UBX_CFG_ID:
@@ -179,11 +175,12 @@ void gps_ubx_ucenter_event(void)
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_CFG_PRT;
       gps_ubx_ucenter.port_id = UBX_CFG_PRT_PortId(gps_ubx.msg_buf,0);
       gps_ubx_ucenter.baud_run = UBX_CFG_PRT_Baudrate(gps_ubx.msg_buf,0);
-#if DEBUG_GPS_UBX_UCENTER
-      printf("gps_ubx_ucenter.baud_run: %u\n", gps_ubx_ucenter.baud_run);
-      printf("gps_ubx_ucenter.port_id: %u\n", gps_ubx_ucenter.port_id);
-#endif
+
+      DEBUG_PRINT("gps_ubx_ucenter.baud_run: %u\n", gps_ubx_ucenter.baud_run);
+      DEBUG_PRINT("gps_ubx_ucenter.port_id: %u\n", gps_ubx_ucenter.port_id);
     }
+    break;
+  default:
     break;
   }
 }
@@ -244,8 +241,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     gps_ubx_ucenter_config_port_poll();
     break;
   case 3:
-    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
-    {
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
       gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
       return FALSE;
     }
@@ -254,8 +250,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     gps_ubx_ucenter_config_port_poll();
     break;
   case 4:
-    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
-    {
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
       gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
       return FALSE;
     }
@@ -264,8 +259,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     gps_ubx_ucenter_config_port_poll();
     break;
   case 5:
-    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
-    {
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
       gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
       return FALSE;
     }
@@ -274,8 +268,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     gps_ubx_ucenter_config_port_poll();
     break;
   case 6:
-    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
-    {
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
       gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
       return FALSE;
     }
@@ -284,8 +277,7 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
     gps_ubx_ucenter_config_port_poll();
     break;
   case 7:
-    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
-    {
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
       gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
       return FALSE;
     }
@@ -345,12 +337,10 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 static inline void gps_ubx_ucenter_config_nav(void)
 {
   //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
-  if (gps_ubx_ucenter.sw_ver_h < 5)
-  {
+  if (gps_ubx_ucenter.sw_ver_h < 5) {
     UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
   }
-  else
-  {
+  else {
     UbxSend_CFG_NAV5(NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
         NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
         NAV5_DEFAULT_STATIC_HOLD_THRES, RESERVED, RESERVED, RESERVED, RESERVED);
@@ -397,7 +387,7 @@ static inline void gps_ubx_ucenter_config_port(void)
 #ifdef GPS_I2C
     UbxSend_CFG_PRT(gps_ubx_ucenter.port_id, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
 #else
-    printf("WARNING: Please include the gps_i2c module.\n");
+    DEBUG_PRINT("WARNING: Please include the gps_i2c module.\n");
 #endif
     break;
     // UART Interface
@@ -410,10 +400,10 @@ static inline void gps_ubx_ucenter_config_port(void)
     UbxSend_CFG_PRT(gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
     break;
   case GPS_PORT_SPI:
-    printf("WARNING: ublox SPI port is currently not supported.\n");
+    DEBUG_PRINT("WARNING: ublox SPI port is currently not supported.\n");
     break;
   default:
-    printf("WARNING: Unknown ublox port id: %u\n", gps_ubx_ucenter.port_id);
+    DEBUG_PRINT("WARNING: Unknown ublox port id: %u\n", gps_ubx_ucenter.port_id);
     break;
   }
 }
@@ -440,9 +430,7 @@ static inline void gps_ubx_ucenter_config_sbas(void)
 
 static bool_t gps_ubx_ucenter_configure(uint8_t nr)
 {
-#if DEBUG_GPS_UBX_UCENTER
-  printf("gps_ubx_ucenter_configure nr: %u\n",nr);
-#endif
+  DEBUG_PRINT("gps_ubx_ucenter_configure nr: %u\n",nr);
 
   // Store the reply of the last configuration step and reset
   if (nr < GPS_UBX_UCENTER_CONFIG_STEPS)
@@ -455,13 +443,11 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     break;
   case 1:
 #if DEBUG_GPS_UBX_UCENTER
-    if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_ACK)
-    {
-      printf("ublox did not acknowledge port configuration.\n");
+    if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_ACK) {
+      DEBUG_PRINT("ublox did not acknowledge port configuration.\n");
     }
-    else
-    {
-      printf("Changed ublox baudrate to: %u\n", UART_SPEED(UBX_GPS_BAUD));
+    else {
+      DEBUG_PRINT("Changed ublox baudrate to: %u\n", UART_SPEED(UBX_GPS_BAUD));
     }
 #endif
     // Now the GPS baudrate should have changed
@@ -547,9 +533,8 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     // Debug Downlink the result of all configuration steps: see messages
     // To view, enable DEBUG message in your telemetry configuration .xml
     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,GPS_UBX_UCENTER_CONFIG_STEPS,gps_ubx_ucenter.replies);
-    for (int i = 0; i < GPS_UBX_UCENTER_CONFIG_STEPS; i++)
-    {
-      printf("%u\n", gps_ubx_ucenter.replies[i]);
+    for (int i = 0; i < GPS_UBX_UCENTER_CONFIG_STEPS; i++) {
+      DEBUG_PRINT("%u\n", gps_ubx_ucenter.replies[i]);
     }
 #endif
     return FALSE;
