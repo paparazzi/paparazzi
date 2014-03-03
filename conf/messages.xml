@@ -1498,8 +1498,7 @@
   </message>
 
   <message name="INS_SONAR" id="167">
-    <field name="raw" type="int32" unit="adc" alt_unit="m" alt_unit_coef="0.0039063"/>
-    <field name="scaled" type="float" unit="m"/>
+    <field name="distance" type="float" unit="m"/>
     <field name="var" type="float"/>
   </message>
 

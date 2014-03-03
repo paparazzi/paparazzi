@@ -29,26 +29,14 @@
 
 #include "std.h"
 
-/** Raw ADC value.
- */
-extern uint16_t sonar_meas;
+struct SonarAdc {
+  uint16_t meas;          ///< Raw ADC value
+  uint16_t offset;        ///< Sonar offset in ADC
+};
 
-/** New data available.
- */
-extern bool_t sonar_data_available;
-
-/** Sonar distance in m.
- */
-extern float sonar_distance;
+extern struct SonarAdc sonar_adc;
 
 extern void sonar_adc_init(void);
 extern void sonar_adc_read(void);
-
-#define SonarEvent(_handler) { \
-  if (sonar_data_available) { \
-    _handler(); \
-    sonar_data_available = FALSE; \
-  } \
-}
 
 #endif

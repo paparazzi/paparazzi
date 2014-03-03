@@ -11,6 +11,11 @@
     <message name="BARO_DIFF" id="1">
       <field name="pressure" type="float" unit="Pa"/>
     </message>
+
+    <message name="AGL" id="2">
+      <field name="distance" type="float" unit="m"/>
+    </message>
+
   </class>
 
 
