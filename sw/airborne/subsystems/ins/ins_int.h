@@ -34,10 +34,6 @@
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"
 
-#if USE_SONAR
-#include "filters/median_filter.h"
-#endif
-
 /** Ins implementation state (fixed point) */
 struct InsInt {
   struct LtpDef_i  ltp_def;
@@ -64,10 +60,7 @@ struct InsInt {
   bool_t baro_initialized;
 
 #if USE_SONAR
-  bool_t  update_on_agl; /* use sonar to update agl if available */
-  int32_t sonar_alt;
-  int32_t sonar_offset;
-  struct MedianFilterInt sonar_median;
+  bool_t update_on_agl; ///< use sonar to update agl if available
 #endif
 };
 
