@@ -34,17 +34,34 @@
 #include <libopencm3/stm32/gpio.h>
 
 /**
+ * Setup one or more pins of the given GPIO port as outputs.
+ * @param[in] port
+ * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+extern void gpio_setup_output(uint32_t port, uint16_t gpios);
+
+/**
+ * Setup one or more pins of the given GPIO port as inputs.
+ * @param[in] port
+ * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+extern void gpio_setup_input(uint32_t port, uint16_t gpios);
+
+/**
  * Setup a gpio for input or output with alternate function.
+ * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
 extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output);
 
 /**
  * Setup a gpio for analog use.
+ * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
 extern void gpio_setup_pin_analog(uint32_t port, uint16_t pin);
 
 /**
  * Enable the relevant clock.
+ * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
 extern void gpio_enable_clock(uint32_t port);
 

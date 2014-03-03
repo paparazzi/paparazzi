@@ -23,6 +23,15 @@
  * @file mcu_periph/gpio.h
  *
  * Some architecture independent helper functions for GPIOs.
+ *
+ * Functions which should be supported by each architecture implementation:
+ * - gpio_setup_output(port, gpios)
+ * - gpio_setup_input(port, gpios)
+ * - gpio_set(port, gpios)
+ * - gpio_clear(port, gpios)
+ * - gpio_toggle(port, gpios)
+ *
+ * This includes the architecture specific header where the actual functions are declared.
  */
 
 #ifndef MCU_PERIPH_GPIO_H
@@ -31,14 +40,5 @@
 #include "std.h"
 #include "mcu_periph/gpio_arch.h"
 
-/**
- * Setup gpio pin as generic output.
- */
-extern void gpio_setup_output(uint32_t port, uint16_t pin);
-
-/**
- * Setup a gpio pin as generic input.
- */
-extern void gpio_setup_input(uint32_t port, uint16_t pin);
 
 #endif /* MCU_PERIPH_GPIO_H */
