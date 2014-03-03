@@ -52,6 +52,7 @@
     <boards>
       <board name="apogee_*"/>
       <board name="stm32f4_discovery"/>
+      <board name="lisa_mx*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">

@@ -13,19 +13,14 @@ ARCH=stm32
 ARCH_L=f4
 HARD_FLOAT=yes
 $(TARGET).ARCHDIR = $(ARCH)
-# not needed?
-$(TARGET).OOCD_INTERFACE=flossjtag
-#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-mx.ld
 
 # -----------------------------------------------------------------------
 
 # default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: JTAG, SWD, SERIAL
-FLASH_MODE ?= DFU
+# other possibilities: DFU-UTIL, SWD, JTAG_BMP, STLINK, SERIAL
+FLASH_MODE ?= DFU-UTIL
 
-DFU_ADDR = 0x8004000
-DFU_PRODUCT = any
 
 #
 #
