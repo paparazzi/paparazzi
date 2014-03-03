@@ -37,14 +37,14 @@
 /* Peripheral bus clock freq. */
 #define PCLK (CCLK / PBSD_VAL)
 
-/* green */
+/* red */
 #ifndef USE_LED_1
 #define USE_LED_1 1
 #endif
 #define LED_1_BANK 1
 #define LED_1_PIN 17
 
-/* red */
+/* green */
 #ifndef USE_LED_2
 #define USE_LED_2 1
 #endif
