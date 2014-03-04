@@ -605,20 +605,12 @@ void SpektrumUartInit(void) {
 void PrimaryUart(_ISR)(void) {
 
   if (((USART_CR1(PrimaryUart(_DEV)) & USART_CR1_TXEIE) != 0) &&
-#if defined(STM32F3)
-      ((USART_ISR(PrimaryUart(_DEV)) & USART_ISR_TXE) != 0)) {
-#else
-      ((USART_SR(PrimaryUart(_DEV)) & USART_SR_TXE) != 0)) {
-#endif
+      usart_get_flag(PrimaryUart(_DEV), USART_SR_TXE)) {
     USART_CR1(PrimaryUart(_DEV)) &= ~USART_CR1_TXEIE;
   }
 
   if (((USART_CR1(PrimaryUart(_DEV)) & USART_CR1_RXNEIE) != 0) &&
-#if defined(STM32F3)
-      ((USART_ISR(PrimaryUart(_DEV)) & USART_ISR_RXNE) != 0)) {
-#else
-      ((USART_SR(PrimaryUart(_DEV)) & USART_SR_RXNE) != 0)) {
-#endif
+      usart_get_flag(PrimaryUart(_DEV), USART_SR_RXNE)) {
     uint8_t b = usart_recv(PrimaryUart(_DEV));
     SpektrumParser(b, &PrimarySpektrumState, FALSE);
   }

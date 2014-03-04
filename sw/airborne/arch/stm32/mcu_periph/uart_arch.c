@@ -127,13 +127,8 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 }
 
 static inline void usart_isr(struct uart_periph* p) {
-#if !defined(STM32F3)
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
-      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_TXE) != 0)) {
-#else
-  if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_TXEIE) != 0) &&
-      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_TXE) != 0)) {
-#endif
+      usart_get_flag((uint32_t)p->reg_addr, USART_SR_TXE)) {
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
       usart_send((uint32_t)p->reg_addr,p->tx_buf[p->tx_extract_idx]);
@@ -147,17 +142,10 @@ static inline void usart_isr(struct uart_periph* p) {
   }
 
   if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-#if !defined(STM32F3)
-      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_RXNE) != 0) &&
-      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) == 0) &&
-      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) == 0) &&
-      ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) == 0)) {
-#else
-      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_RXNE) != 0) &&
-      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_ORE) == 0) &&
-      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_NF) == 0) &&
-      ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_FE) == 0)) {
-#endif
+      usart_get_flag((uint32_t)p->reg_addr, USART_SR_RXNE) &&
+      !usart_get_flag((uint32_t)p->reg_addr, USART_SR_ORE) &&
+      !usart_get_flag((uint32_t)p->reg_addr, USART_SR_NE) &&
+      !usart_get_flag((uint32_t)p->reg_addr, USART_SR_FE)) {
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
     p->rx_buf[p->rx_insert_idx] = usart_recv((uint32_t)p->reg_addr);
     // check for more room in queue
@@ -167,29 +155,17 @@ static inline void usart_isr(struct uart_periph* p) {
   else {
     /* ORE, NE or FE error - read USART_DR reg and log the error */
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-#if !defined(STM32F3)
-        ((USART_SR((uint32_t)p->reg_addr) & USART_SR_ORE) != 0)) {
-#else
-        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_ORE) != 0)) {
-#endif
+        usart_get_flag((uint32_t)p->reg_addr, USART_SR_ORE)) {
       usart_recv((uint32_t)p->reg_addr);
       p->ore++;
     }
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-#if !defined(STM32F3)
-        ((USART_SR((uint32_t)p->reg_addr) & USART_SR_NE) != 0)) {
-#else
-        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_NF) != 0)) {
-#endif
+        usart_get_flag((uint32_t)p->reg_addr, USART_SR_NE)) {
       usart_recv((uint32_t)p->reg_addr);
       p->ne_err++;
     }
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&
-#if !defined(STM32F3)
-        ((USART_SR((uint32_t)p->reg_addr) & USART_SR_FE) != 0)) {
-#else
-        ((USART_ISR((uint32_t)p->reg_addr) & USART_ISR_FE) != 0)) {
-#endif
+        usart_get_flag((uint32_t)p->reg_addr, USART_SR_FE)) {
       usart_recv((uint32_t)p->reg_addr);
       p->fe_err++;
     }
@@ -326,7 +302,7 @@ void uart2_init( void ) {
   usart_enable_irq(NVIC_USART2_EXTI26_IRQ);
 #endif
 
-#if (UART2_HW_FLOW_CONTROL && defined(STM32F4)) || (UART2_HW_FLOW_CONTROL && defined(STM32F3))
+#if UART2_HW_FLOW_CONTROL && (defined(STM32F4) || defined(STM32F3))
 #warning "USING UART2 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   /* setup CTS and RTS pins */
   gpio_setup_pin_af(UART2_GPIO_PORT_CTS, UART2_GPIO_CTS, UART2_GPIO_AF, FALSE);
@@ -398,7 +374,7 @@ void uart3_init( void ) {
   usart_enable_irq(NVIC_USART3_EXTI28_IRQ);
 #endif
 
-#if (UART3_HW_FLOW_CONTROL && defined(STM32F4)) || (UART3_HW_FLOW_CONTROL && defined(STM32F3))
+#if UART3_HW_FLOW_CONTROL && (defined(STM32F4) || defined(STM32F3))
 #warning "USING UART3 FLOW CONTROL. Make sure to pull down CTS if you are not connecting any flow-control-capable hardware."
   /* setup CTS and RTS pins */
   gpio_setup_pin_af(UART3_GPIO_PORT_CTS, UART3_GPIO_CTS, UART3_GPIO_AF, FALSE);
