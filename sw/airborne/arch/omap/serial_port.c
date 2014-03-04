@@ -79,7 +79,7 @@ int  serial_port_open_raw(struct SerialPort* me, const char* device, speed_t spe
 }
 
 int  serial_port_open(struct SerialPort* me, const char* device,
-		      void(*term_conf_callback)(struct termios*, speed_t*)) {
+          void(*term_conf_callback)(struct termios*, speed_t*)) {
 
   speed_t speed;
   if ((me->fd = open(device, O_RDWR | O_NONBLOCK)) < 0) {

@@ -220,12 +220,12 @@ void actuators_ardrone_motor_status(void)
 void actuators_ardrone_led_run(void);
 void actuators_ardrone_led_run(void)
 {
-	static uint32_t previous_led_hw_values = 0x00;
-	if (previous_led_hw_values != led_hw_values)
-	{
-		previous_led_hw_values = led_hw_values;
-		actuators_ardrone_set_leds(BIT_NUMBER(led_hw_values,0), BIT_NUMBER(led_hw_values,2), BIT_NUMBER(led_hw_values,4), BIT_NUMBER(led_hw_values,6) );
-	}
+  static uint32_t previous_led_hw_values = 0x00;
+  if (previous_led_hw_values != led_hw_values)
+  {
+    previous_led_hw_values = led_hw_values;
+    actuators_ardrone_set_leds(BIT_NUMBER(led_hw_values,0), BIT_NUMBER(led_hw_values,2), BIT_NUMBER(led_hw_values,4), BIT_NUMBER(led_hw_values,6) );
+  }
 }
 
 void actuators_ardrone_commit(void)

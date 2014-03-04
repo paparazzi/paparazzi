@@ -24,12 +24,12 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
 static void on_datalink_message(void);
 
 uint8_t fms_gs_com_init(const char* gs_host, uint16_t gs_port,
-			       uint16_t datalink_port, uint8_t broadcast) {
+             uint16_t datalink_port, uint8_t broadcast) {
 
   fms_gs_com.network = network_new(gs_host, gs_port, datalink_port, broadcast);
   fms_gs_com.udp_transport = udp_transport_new(fms_gs_com.network);
   event_set(&fms_gs_com.datalink_event, fms_gs_com.network->socket_in, EV_READ | EV_PERSIST,
-	    on_datalink_event, fms_gs_com.udp_transport);
+      on_datalink_event, fms_gs_com.udp_transport);
   event_add(&fms_gs_com.datalink_event, NULL);
 
   return 0;

@@ -193,45 +193,45 @@ void event_i2c_abuse_test(void)
   // Wait for I2C transaction object to be released by the I2C driver before changing anything
   if ((i2c_abuse_test_counter < 12) && (i2c_abuse_test_counter > 3))
   {
-	  if ((i2c_test2.status == I2CTransFailed) || (i2c_test2.status == I2CTransSuccess))
-	  {
-		  //i2c_test2.slave_addr = 0x90;
-		  i2c_test2.type = I2CTransRx;
-		  i2c_test2.slave_addr = 0x92;
-		  i2c_test2.len_r = 2;
-	    i2c_submit(&I2C_ABUSE_PORT,&i2c_test2);
-	  }
+    if ((i2c_test2.status == I2CTransFailed) || (i2c_test2.status == I2CTransSuccess))
+    {
+      //i2c_test2.slave_addr = 0x90;
+      i2c_test2.type = I2CTransRx;
+      i2c_test2.slave_addr = 0x92;
+      i2c_test2.len_r = 2;
+      i2c_submit(&I2C_ABUSE_PORT,&i2c_test2);
+    }
   }
 
 
   if ((i2c_test1.status == I2CTransFailed) || (i2c_test1.status == I2CTransSuccess))
   {
-	    if (i2c_abuse_test_counter < 16)
-	    {
-	       i2c_abuse_test_counter++;
-	    }
-	    else
-	    {
-		// wait until ready:
-		if (i2c_idle(&I2C_ABUSE_PORT))
-		{
-			      i2c_abuse_test_counter = 1;
+      if (i2c_abuse_test_counter < 16)
+      {
+         i2c_abuse_test_counter++;
+      }
+      else
+      {
+    // wait until ready:
+    if (i2c_idle(&I2C_ABUSE_PORT))
+    {
+            i2c_abuse_test_counter = 1;
 
-			      i2c_setbitrate(&I2C_ABUSE_PORT, i2c_abuse_test_bitrate);
+            i2c_setbitrate(&I2C_ABUSE_PORT, i2c_abuse_test_bitrate);
 
-			      i2c_abuse_test_bitrate += 17000;
-			      if (i2c_abuse_test_bitrate > 410000)
-			      {
-				i2c_abuse_test_bitrate -= 410000;
-			      }
-			    }
-		}
+            i2c_abuse_test_bitrate += 17000;
+            if (i2c_abuse_test_bitrate > 410000)
+            {
+        i2c_abuse_test_bitrate -= 410000;
+            }
+          }
+    }
 
-	    if (i2c_abuse_test_counter < 16)
-	    {
-	      RunOnceEvery(100,LED_TOGGLE(I2C_ABUSE_LED));
-	      i2c_abuse_send_transaction( i2c_abuse_test_counter );
-	    }
+      if (i2c_abuse_test_counter < 16)
+      {
+        RunOnceEvery(100,LED_TOGGLE(I2C_ABUSE_LED));
+        i2c_abuse_send_transaction( i2c_abuse_test_counter );
+      }
   }
 }
 

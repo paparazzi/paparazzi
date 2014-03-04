@@ -88,17 +88,17 @@ int main(int argc, char** argv) {
     if (ahrs.status == AHRS_UNINIT) {
       ahrs_aligner_run();
       if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-	ahrs_align();
+  ahrs_align();
     }
     else {
       ahrs_propagate();
 #ifdef ENABLE_MAG_UPDATE
       if (MAG_AVAILABLE(samples[i].flag))
-	ahrs_update_mag();
+  ahrs_update_mag();
 #endif
 #ifdef ENABLE_ACCEL_UPDATE
       if (IMU_AVAILABLE(samples[i].flag) && (!MAG_AVAILABLE(samples[i].flag)))
-	ahrs_update_accel();
+  ahrs_update_accel();
 #endif
     }
     store_filter_output(i);
@@ -118,13 +118,13 @@ static void read_ascii_flight_log(const char* filename) {
   do {
     struct test_sample* s = &samples[nb_samples];
     ret = fscanf(fd, "%lf\t%hhu\t%lf %lf %lf\t%lf %lf %lf\t%lf %lf %lf\t%lf %lf %lf\t%lf %lf %lf\t%lf",
-		 &s->time, &s->flag,
-		 &s->gyro.p, &s->gyro.q, &s->gyro.r,
-		 &s->accel.x, &s->accel.y, &s->accel.z,
-		 &s->mag.x, &s->mag.y, &s->mag.z,
- 		 &s->gps_pecef.x, &s->gps_pecef.y, &s->gps_pecef.z,
- 		 &s->gps_vecef.x, &s->gps_vecef.y, &s->gps_vecef.z,
- 		 &s->baro);
+     &s->time, &s->flag,
+     &s->gyro.p, &s->gyro.q, &s->gyro.r,
+     &s->accel.x, &s->accel.y, &s->accel.z,
+     &s->mag.x, &s->mag.y, &s->mag.z,
+     &s->gps_pecef.x, &s->gps_pecef.y, &s->gps_pecef.z,
+     &s->gps_vecef.x, &s->gps_vecef.y, &s->gps_vecef.z,
+     &s->baro);
     nb_samples++;
   }
   while (ret == 18  && nb_samples < MAX_SAMPLE);

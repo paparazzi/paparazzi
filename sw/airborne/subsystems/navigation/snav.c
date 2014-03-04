@@ -155,8 +155,8 @@ static inline float ground_speed_of_course(float x) {
 /* Compute the ground speed for courses 0, 360/NB_ANGLES, ...
    (NB_ANGLES-1)360/NB_ANGLES */
 static void compute_ground_speed(float airspeed,
-				 float wind_x,
-				 float wind_y) {
+         float wind_x,
+         float wind_y) {
   uint8_t i;
   float alpha = 0;
   float c = wind_x*wind_x+wind_y*wind_y-airspeed*airspeed;

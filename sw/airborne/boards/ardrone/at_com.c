@@ -138,7 +138,7 @@ int at_com_recieve_navdata(unsigned char* buffer) {
   int n;
   // FIXME(ben): not clear why recvfrom() and not recv() is used.
   n = recvfrom(navdata_socket, buffer, ARDRONE_NAVDATA_BUFFER_SIZE, 0x0,
-	       (struct sockaddr *) &from, (socklen_t *) &l);
+         (struct sockaddr *) &from, (socklen_t *) &l);
 
   return n;
 }

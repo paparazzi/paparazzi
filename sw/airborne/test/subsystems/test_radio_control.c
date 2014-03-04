@@ -67,16 +67,16 @@ static inline void main_periodic_task( void ) {
   int16_t foo = 0;
   RunOnceEvery(10,
     {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
-				       &radio_control.values[RADIO_ROLL], \
-				       &radio_control.values[RADIO_PITCH], \
-				       &radio_control.values[RADIO_YAW], \
-				       &radio_control.values[RADIO_THROTTLE], \
-				       &radio_control.values[RADIO_MODE], \
-				       &foo,				\
-				       &radio_control.status);});
+               &radio_control.values[RADIO_ROLL], \
+               &radio_control.values[RADIO_PITCH], \
+               &radio_control.values[RADIO_YAW], \
+               &radio_control.values[RADIO_THROTTLE], \
+               &radio_control.values[RADIO_MODE], \
+               &foo,				\
+               &radio_control.status);});
 #ifdef RADIO_CONTROL_TYPE_PPM
   RunOnceEvery(10,
-	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, ppm_pulses);});
+         {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, ppm_pulses);});
 #endif
 
   LED_PERIODIC();

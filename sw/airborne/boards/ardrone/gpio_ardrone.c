@@ -42,14 +42,14 @@ struct gpio_data {
 };
 
 enum gpio_mode {
-    GPIO_INPUT = 0,             //!< Pin configured for input
-    GPIO_OUTPUT_LOW,            //!< Pin configured for output with low level
-    GPIO_OUTPUT_HIGH,           //!< Pin configured for output with high level
+  GPIO_INPUT = 0,             //!< Pin configured for input
+  GPIO_OUTPUT_LOW,            //!< Pin configured for output with low level
+  GPIO_OUTPUT_HIGH,           //!< Pin configured for output with high level
 };
 
 struct gpio_direction {
-    int pin;
-    enum gpio_mode mode;
+  int pin;
+  enum gpio_mode mode;
 };
 
 
@@ -59,7 +59,7 @@ void gpio_set(uint32_t port, uint16_t pin)
   struct gpio_data data;
   // Open the device if not open
   if (gpiofp == 0)
-	gpiofp = open("/dev/gpio",O_RDWR);
+    gpiofp = open("/dev/gpio",O_RDWR);
 
   // Read the GPIO value
   data.pin = pin;
@@ -74,7 +74,7 @@ void gpio_clear(uint32_t port, uint16_t pin)
   struct gpio_data data;
   // Open the device if not open
   if (gpiofp == 0)
-	gpiofp = open("/dev/gpio",O_RDWR);
+    gpiofp = open("/dev/gpio",O_RDWR);
 
   // Read the GPIO value
   data.pin = pin;
@@ -100,17 +100,17 @@ void gpio_setup_input(uint32_t port, uint16_t pin)
 
 void gpio_setup_output(uint32_t port, uint16_t pin)
 {
-	/*
-  if (port != 0x32524) return;	// protect ardrone board from unauthorized use
-  struct gpio_direction dir;
-  // Open the device if not open
-  if (gpiofp == 0)
+  /*
+    if (port != 0x32524) return;	// protect ardrone board from unauthorized use
+    struct gpio_direction dir;
+    // Open the device if not open
+    if (gpiofp == 0)
     gpiofp = open("/dev/gpio",O_RDWR);
 
-  // Read the GPIO value
-  dir.pin = pin;
-  dir.mode = GPIO_OUTPUT_LOW;
-  ioctl(gpiofp, GPIO_DIRECTION, &dir);
+    // Read the GPIO value
+    dir.pin = pin;
+    dir.mode = GPIO_OUTPUT_LOW;
+    ioctl(gpiofp, GPIO_DIRECTION, &dir);
   */
 }
 

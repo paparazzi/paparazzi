@@ -59,17 +59,17 @@ extern void vi_update_wp(uint8_t wp_id);
       break;								\
     case GUIDANCE_H_MODE_ATTITUDE :				\
       {									\
-	vi.input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);	\
-	      vi.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
-	      vi.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
-	      ANGLE_REF_NORMALIZE(vi.input.h_sp.attitude.psi);		\
+  vi.input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);	\
+        vi.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
+        vi.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
+        ANGLE_REF_NORMALIZE(vi.input.h_sp.attitude.psi);		\
         VI_LIMIT_ATTITUDE(vi.input.h_sp.attitude);			\
       }									\
       break;								\
     case GUIDANCE_H_MODE_HOVER :					\
       {									\
-	vi.input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
-	      vi.input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
+  vi.input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
+        vi.input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
       }									\
       break;								\
     case GUIDANCE_H_MODE_NAV :					\

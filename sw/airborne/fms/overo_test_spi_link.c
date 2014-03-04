@@ -77,22 +77,22 @@ int main(int argc, char *argv[]) {
     /* check that received message is identical to the one previously sent */
     if (!skip_buf_check && spi_link.msg_cnt > 1) {
       if (memcmp(&crc_msg_in.payload, &msg_out_prev.payload, sizeof(struct OVERO_LINK_MSG_DOWN))) {
-	printf("Compare failed: (received != expected): \n");
-	print_up_msg(&crc_msg_in);
-	print_down_msg(&msg_out_prev);
-	buf_check_errors++;
+        printf("Compare failed: (received != expected): \n");
+        print_up_msg(&crc_msg_in);
+        print_down_msg(&msg_out_prev);
+        buf_check_errors++;
       }
     }
     /* report crc error */
     if (!skip_crc_check & !crc_valid) {
       printf("CRC checksum failed: received %04X != computed %04X\n",
-	     crc_msg_in.crc,
-	     crc_calc_block_crc8((uint8_t*)&crc_msg_in.payload, sizeof(struct OVERO_LINK_MSG_DOWN)));
+             crc_msg_in.crc,
+             crc_calc_block_crc8((uint8_t*)&crc_msg_in.payload, sizeof(struct OVERO_LINK_MSG_DOWN)));
     }
     /* report message count */
     if (!(spi_link.msg_cnt % 1000))
       printf("msg %d, buf err %d, CRC errors: %d\n", spi_link.msg_cnt,
-	     buf_check_errors, spi_link.crc_err_cnt);
+             buf_check_errors, spi_link.crc_err_cnt);
 
     /* give it some rest */
     if(us_delay > 0)
@@ -105,27 +105,27 @@ int main(int argc, char *argv[]) {
 
 static void print_up_msg(struct AutopilotMessageCRCFrame * msg) {
   printf("UP: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n",
-	 msg->payload.msg_up.foo,
-	 msg->payload.msg_up.bar,
-	 msg->payload.msg_up.bla,
-	 msg->payload.msg_up.ble,
-	 msg->payload.msg_up.bli,
-	 msg->payload.msg_up.blo,
-	 msg->payload.msg_up.blu,
-	 msg->payload.msg_up.bly,
-	 msg->crc);
+         msg->payload.msg_up.foo,
+         msg->payload.msg_up.bar,
+         msg->payload.msg_up.bla,
+         msg->payload.msg_up.ble,
+         msg->payload.msg_up.bli,
+         msg->payload.msg_up.blo,
+         msg->payload.msg_up.blu,
+         msg->payload.msg_up.bly,
+         msg->crc);
 }
 static void print_down_msg(struct AutopilotMessageCRCFrame * msg) {
   printf("DW: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n",
-	 msg->payload.msg_down.foo,
-	 msg->payload.msg_down.bar,
-	 msg->payload.msg_down.bla,
-	 msg->payload.msg_down.ble,
-	 msg->payload.msg_down.bli,
-	 msg->payload.msg_down.blo,
-	 msg->payload.msg_up.blu,
-	 msg->payload.msg_up.bly,
-	 msg->crc);
+         msg->payload.msg_down.foo,
+         msg->payload.msg_down.bar,
+         msg->payload.msg_down.bla,
+         msg->payload.msg_down.ble,
+         msg->payload.msg_down.bli,
+         msg->payload.msg_down.blo,
+         msg->payload.msg_up.blu,
+         msg->payload.msg_up.bly,
+         msg->crc);
 }
 
 

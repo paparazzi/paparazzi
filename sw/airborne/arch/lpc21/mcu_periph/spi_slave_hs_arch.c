@@ -186,7 +186,7 @@ static void SSP_ISR(void) {
           if (uart0_tx_insert_idx != uart0_tx_extract_idx)
             {
             U0THR = uart0_tx_buffer[uart0_tx_extract_idx];
-	    uart0_tx_extract_idx++;
+            uart0_tx_extract_idx++;
             uart0_tx_extract_idx %= UART0_TX_BUFFER_SIZE;
             }
           else

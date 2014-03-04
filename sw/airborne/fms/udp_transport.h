@@ -38,7 +38,7 @@ extern uint8_t udpt_ck_a, udpt_ck_b;
       downlink_nb_bytes += udpt_tx_buf_idx;			\
       downlink_nb_msgs++;					\
       if (len != udpt_tx_buf_idx)				\
-	downlink_nb_ovrn++;					\
+  downlink_nb_ovrn++;					\
       udpt_tx_buf_idx = 0;					\
     }								\
   }

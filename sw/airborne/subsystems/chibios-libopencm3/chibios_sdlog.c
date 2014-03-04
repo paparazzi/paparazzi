@@ -63,7 +63,7 @@ static void launchBatterySurveyThread (void)
 bool_t chibios_logInit(const bool_t binaryFile)
 {
   nvicSetSystemHandlerPriority(HANDLER_PENDSV,
-			       CORTEX_PRIORITY_MASK(15));
+             CORTEX_PRIORITY_MASK(15));
 
   if (sdLogInit (NULL) != SDLOG_OK)
     goto error;
@@ -112,7 +112,7 @@ static msg_t batterySurveyThd(void *arg)
   chThdSleepMilliseconds (2000);
 
   register_adc_watchdog((uint32_t) ADC1, 4,
-			V_ALERT, 0xfff, &powerOutageIsr);
+      V_ALERT, 0xfff, &powerOutageIsr);
 
   chEvtWaitOne(EVENT_MASK(1));
   chibios_logFinish ();

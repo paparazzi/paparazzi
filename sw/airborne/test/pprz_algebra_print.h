@@ -18,8 +18,8 @@
 
 #define DISPLAY_FLOAT_RMAT(text, mat) {					\
     printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
-	   mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
-	   mat.m[6], mat.m[7], mat.m[8]);				\
+     mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
+     mat.m[6], mat.m[7], mat.m[8]);				\
   }
 
 #define DISPLAY_FLOAT_EULERS(text, _e) {				\
@@ -28,7 +28,7 @@
 
 #define DISPLAY_FLOAT_EULERS_DEG(text, _e) {				\
     printf("%s %f %f %f\n",text,  DegOfRad((_e).phi),			\
-	   DegOfRad((_e).theta), DegOfRad((_e).psi));			\
+     DegOfRad((_e).theta), DegOfRad((_e).psi));			\
   }
 
 
@@ -118,11 +118,11 @@
     int32_t quat_norm;							\
     INT32_QUAT_NORM(quat_norm, quat);					\
     printf("%s %d %d %d %d (%d) (%f %f %f %f)\n",text,			\
-	   quat.qi, quat.qx, quat.qy, quat.qz, quat_norm,		\
-	   (float)quat.qi/(1<<INT32_QUAT_FRAC),				\
-	   (float)quat.qx/(1<<INT32_QUAT_FRAC),				\
-	   (float)quat.qy/(1<<INT32_QUAT_FRAC),				\
-	   (float)quat.qz/(1<<INT32_QUAT_FRAC));			\
+     quat.qi, quat.qx, quat.qy, quat.qz, quat_norm,		\
+     (float)quat.qi/(1<<INT32_QUAT_FRAC),				\
+     (float)quat.qx/(1<<INT32_QUAT_FRAC),				\
+     (float)quat.qy/(1<<INT32_QUAT_FRAC),				\
+     (float)quat.qz/(1<<INT32_QUAT_FRAC));			\
   }
 
 #define DISPLAY_INT32_QUAT_AS_EULERS_DEG(text, _quat) {			\
@@ -136,18 +136,18 @@
 
 #define DISPLAY_INT32_RMAT(text, mat) {					\
     printf("%s\n %05d %05d %05d\n %05d %05d %05d\n %05d %05d %05d\n",text, \
-	   mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
-	   mat.m[6], mat.m[7], mat.m[8]);				\
+     mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
+     mat.m[6], mat.m[7], mat.m[8]);				\
   }
 
 
 #define DISPLAY_INT32_RMAT_AS_FLOAT(text, mat) {			\
     printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
-	   TRIG_FLOAT_OF_BFP(mat.m[0]), TRIG_FLOAT_OF_BFP(mat.m[1]),	\
-	   TRIG_FLOAT_OF_BFP(mat.m[2]), TRIG_FLOAT_OF_BFP(mat.m[3]),	\
-	   TRIG_FLOAT_OF_BFP(mat.m[4]), TRIG_FLOAT_OF_BFP(mat.m[5]),	\
-	   TRIG_FLOAT_OF_BFP(mat.m[6]), TRIG_FLOAT_OF_BFP(mat.m[7]),	\
-	   TRIG_FLOAT_OF_BFP(mat.m[8]));				\
+     TRIG_FLOAT_OF_BFP(mat.m[0]), TRIG_FLOAT_OF_BFP(mat.m[1]),	\
+     TRIG_FLOAT_OF_BFP(mat.m[2]), TRIG_FLOAT_OF_BFP(mat.m[3]),	\
+     TRIG_FLOAT_OF_BFP(mat.m[4]), TRIG_FLOAT_OF_BFP(mat.m[5]),	\
+     TRIG_FLOAT_OF_BFP(mat.m[6]), TRIG_FLOAT_OF_BFP(mat.m[7]),	\
+     TRIG_FLOAT_OF_BFP(mat.m[8]));				\
   }
 
 

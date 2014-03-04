@@ -84,86 +84,86 @@ void loop() {
   if (Serial.available() > 0) {
     ser = Serial.read();
     switch (stat) {
-    case INIT:
-      /* sync on the last byte of the prev message */
-      if (b == END_MSG) {
-        count_geiger_1 = 0;
-        count_geiger_2 = 0;
-        volt_geiger = 0;
-		i = 0;
-        stat = FOUND_SYNC;
-      }
-      break;
-    case FOUND_SYNC:
-      if ((b <= '9') && (b >= '0')) {
-        count_geiger_1 = count_geiger_1 * 10 + (b-'0');
-		if (++i > 7) state = IDLE;
-      } else if (b == ',')) {
-		i = 0;
-        stat = FOUND_1;
-      } else stat = INIT;
-      break;
+      case INIT:
+        /* sync on the last byte of the prev message */
+        if (b == END_MSG) {
+          count_geiger_1 = 0;
+          count_geiger_2 = 0;
+          volt_geiger = 0;
+          i = 0;
+          stat = FOUND_SYNC;
+        }
+        break;
+      case FOUND_SYNC:
+        if ((b <= '9') && (b >= '0')) {
+          count_geiger_1 = count_geiger_1 * 10 + (b-'0');
+          if (++i > 7) state = IDLE;
+        } else if (b == ',')) {
+      i = 0;
+      stat = FOUND_1;
+    } else stat = INIT;
+    break;
     case FOUND_1:
       /* read counter 1 */
       if ((b <= '9') && (b >= '0')) {
         count_geiger_2 = count_geiger_2 * 10 + (b-'0');
-		if (++i > 7) state = IDLE;
+        if (++i > 7) state = IDLE;
       } else if (b == ',')) {
 #ifdef DEBUG
-        Serial.println(count_geiger_1, DEC);
+    Serial.println(count_geiger_1, DEC);
 #endif
-		i = 0;
-        stat = FOUND_2;
-      } else stat = INIT;
-      break;
-    case FOUND_2:
-      /* read counter 2 */
-      if ((b <= '9') && (b >= '0')) {
-        count_geiger_2 = count_geiger_2 * 10 + (b-'0');
-		if (++i > 7) state = IDLE;
-      } else if (b == ',')) {
+    i = 0;
+    stat = FOUND_2;
+  } else stat = INIT;
+  break;
+  case FOUND_2:
+    /* read counter 2 */
+    if ((b <= '9') && (b >= '0')) {
+      count_geiger_2 = count_geiger_2 * 10 + (b-'0');
+      if (++i > 7) state = IDLE;
+    } else if (b == ',')) {
 #ifdef DEBUG
-        Serial.println(count_geiger_2, DEC);
+  Serial.println(count_geiger_2, DEC);
 #endif
-		i = 0;
-        stat = FOUND_3;
-      } else stat = INIT;
-      break;
-    case FOUND_3:
-      /* ignore 3 */
-      if ((b <= '9') && (b >= '0')) {
-		if (++i > 7) state = IDLE;
-      } else if (b == ',')) {
-		i = 0;
-        stat = FOUND_4;
-      } else stat = INIT;
-      break;
-    case FOUND_4:
-      /* ignore 4 */
-      if ((b <= '9') && (b >= '0')) {
-		if (++i > 7) state = IDLE;
-      } else if (b == ',')) {
-		i = 0;
-        stat = FOUND_5;
-      } else stat = INIT;
-      break;
-    case FOUND_5:
-      /* read voltage */
-      if ((b <= '9') && (b >= '0')) {
-        volt_geiger = volt_geiger * 10 + (b-'0');
-		if (++i > 7) state = IDLE;
-      } else if (b == 'V')) {
-        digitalWrite(LED_GR_PIN, HIGH);
+  i = 0;
+  stat = FOUND_3;
+} else stat = INIT;
+break;
+  case FOUND_3:
+/* ignore 3 */
+if ((b <= '9') && (b >= '0')) {
+  if (++i > 7) state = IDLE;
+ } else if (b == ',')) {
+   i = 0;
+   stat = FOUND_4;
+                       } else stat = INIT;
+break;
+  case FOUND_4:
+/* ignore 4 */
+if ((b <= '9') && (b >= '0')) {
+  if (++i > 7) state = IDLE;
+ } else if (b == ',')) {
+   i = 0;
+   stat = FOUND_5;
+                       } else stat = INIT;
+break;
+  case FOUND_5:
+/* read voltage */
+if ((b <= '9') && (b >= '0')) {
+  volt_geiger = volt_geiger * 10 + (b-'0');
+  if (++i > 7) state = IDLE;
+ } else if (b == 'V')) {
+   digitalWrite(LED_GR_PIN, HIGH);
 #ifdef DEBUG
-        Serial.println(volt_geiger, DEC);
+   Serial.println(volt_geiger, DEC);
 #endif
-        received_data = 0;
-        stat = INIT;
-      } else stat = INIT;
-      break;
-    default:
-      stat = INIT;
-    }
-  }
+   received_data = 0;
+   stat = INIT;
+                       } else stat = INIT;
+break;
+  default:
+stat = INIT;
+}
+}
 }
 

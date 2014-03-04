@@ -54,24 +54,24 @@
     MAT33_ELMT((_to),2,2) = MAT33_ELMT((_from),2,2);	\
 }
 #define SWAP(a, b){				\
-	typeof (a) temp = a;		\
-	a = b;									\
-	b = temp;								\
+  typeof (a) temp = a;		\
+  a = b;									\
+  b = temp;								\
 }
 
 #define MAT33_ROW(mat, row, value0, value1, value2){		\
-	mat[row*3+0] 	= value0;																\
-	mat[row*3+1]	= value1;																\
-	mat[row*3+2]	= value2;																\
+  mat[row*3+0] 	= value0;																\
+  mat[row*3+1]	= value1;																\
+  mat[row*3+2]	= value2;																\
 }
 
 #define ENU_NED_transformation(mat){		\
-	SWAP(mat.m[0], mat.m[3]);				\
-	SWAP(mat.m[1], mat.m[4]);				\
-	SWAP(mat.m[2], mat.m[5]);				\
-	mat.m[6] = -mat.m[6];					\
-	mat.m[7] = -mat.m[7];					\
-	mat.m[8] = -mat.m[8];					\
+  SWAP(mat.m[0], mat.m[3]);				\
+  SWAP(mat.m[1], mat.m[4]);				\
+  SWAP(mat.m[2], mat.m[5]);				\
+  mat.m[6] = -mat.m[6];					\
+  mat.m[7] = -mat.m[7];					\
+  mat.m[8] = -mat.m[8];					\
 }
 
 #define DOUBLE_VECT3_NORM(_v) (sqrt((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
@@ -89,41 +89,41 @@
     }									\
     else {								\
       if (RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 1, 1) &&			\
-	  RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 2, 2)) {			\
-	const double two_qx = sqrt(RMAT_ELMT(_r, 0, 0) -RMAT_ELMT(_r, 1, 1) \
-				   -RMAT_ELMT(_r, 2, 2) + 1);		\
-	const double four_qx = 2. * two_qx;				\
-	_q.qi = (RMAT_ELMT(_r, 1, 2)-RMAT_ELMT(_r, 2, 1))/four_qx;	\
-	_q.qx = 0.5 * two_qx;						\
-	_q.qy = (RMAT_ELMT(_r, 0, 1)+RMAT_ELMT(_r, 1, 0))/four_qx;	\
-	_q.qz = (RMAT_ELMT(_r, 2, 0)+RMAT_ELMT(_r, 0, 2))/four_qx;	\
-	/*printf("m00 largest\n");*/					\
+    RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 2, 2)) {			\
+  const double two_qx = sqrt(RMAT_ELMT(_r, 0, 0) -RMAT_ELMT(_r, 1, 1) \
+           -RMAT_ELMT(_r, 2, 2) + 1);		\
+  const double four_qx = 2. * two_qx;				\
+  _q.qi = (RMAT_ELMT(_r, 1, 2)-RMAT_ELMT(_r, 2, 1))/four_qx;	\
+  _q.qx = 0.5 * two_qx;						\
+  _q.qy = (RMAT_ELMT(_r, 0, 1)+RMAT_ELMT(_r, 1, 0))/four_qx;	\
+  _q.qz = (RMAT_ELMT(_r, 2, 0)+RMAT_ELMT(_r, 0, 2))/four_qx;	\
+  /*printf("m00 largest\n");*/					\
       }									\
       else if (RMAT_ELMT(_r, 1, 1) > RMAT_ELMT(_r, 2, 2)) {		\
-	const double two_qy =						\
-	  sqrt(RMAT_ELMT(_r, 1, 1) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 2, 2) + 1); \
-	const double four_qy = 2. * two_qy;				\
-	_q.qi = (RMAT_ELMT(_r, 2, 0) - RMAT_ELMT(_r, 0, 2))/four_qy;	\
-	_q.qx = (RMAT_ELMT(_r, 0, 1) + RMAT_ELMT(_r, 1, 0))/four_qy;	\
-	_q.qy = 0.5 * two_qy;						\
-	_q.qz = (RMAT_ELMT(_r, 1, 2) + RMAT_ELMT(_r, 2, 1))/four_qy;	\
-	/*printf("m11 largest\n");*/					\
+  const double two_qy =						\
+    sqrt(RMAT_ELMT(_r, 1, 1) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 2, 2) + 1); \
+  const double four_qy = 2. * two_qy;				\
+  _q.qi = (RMAT_ELMT(_r, 2, 0) - RMAT_ELMT(_r, 0, 2))/four_qy;	\
+  _q.qx = (RMAT_ELMT(_r, 0, 1) + RMAT_ELMT(_r, 1, 0))/four_qy;	\
+  _q.qy = 0.5 * two_qy;						\
+  _q.qz = (RMAT_ELMT(_r, 1, 2) + RMAT_ELMT(_r, 2, 1))/four_qy;	\
+  /*printf("m11 largest\n");*/					\
       }									\
       else {								\
-	const double two_qz =						\
-	  sqrt(RMAT_ELMT(_r, 2, 2) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 1, 1) + 1); \
-	const double four_qz = 2. * two_qz;				\
-	_q.qi = (RMAT_ELMT(_r, 0, 1)- RMAT_ELMT(_r, 1, 0))/four_qz;	\
-	_q.qx = (RMAT_ELMT(_r, 2, 0)+ RMAT_ELMT(_r, 0, 2))/four_qz;	\
-	_q.qy = (RMAT_ELMT(_r, 1, 2)+ RMAT_ELMT(_r, 2, 1))/four_qz;	\
-	_q.qz = 0.5 * two_qz;						\
-     	/*printf("m22 largest\n");*/					\
+  const double two_qz =						\
+    sqrt(RMAT_ELMT(_r, 2, 2) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 1, 1) + 1); \
+  const double four_qz = 2. * two_qz;				\
+  _q.qi = (RMAT_ELMT(_r, 0, 1)- RMAT_ELMT(_r, 1, 0))/four_qz;	\
+  _q.qx = (RMAT_ELMT(_r, 2, 0)+ RMAT_ELMT(_r, 0, 2))/four_qz;	\
+  _q.qy = (RMAT_ELMT(_r, 1, 2)+ RMAT_ELMT(_r, 2, 1))/four_qz;	\
+  _q.qz = 0.5 * two_qz;						\
+      /*printf("m22 largest\n");*/					\
       }									\
     }									\
   }
 
 #define QUAT_ENU_FROM_TO_NED(from, to){	\
-	to.qi = - from.qx - from.qy;					\
+  to.qi = - from.qx - from.qy;					\
   to.qy = + from.qi + from.qz;					\
   to.qx = + from.qi - from.qz;					\
   to.qz = - from.qx + from.qy;					\
@@ -133,9 +133,9 @@
 #define QUAT_IMAGINARY_PART(quat, vector)	VECT3_ASSIGN(vector, (quat).qx, (quat).qy, (quat).qz)
 
 #define VECT3_TO_EULERS(vector, eulers){	\
-	(eulers).phi		= (vector).x;						\
-	(eulers).theta	= (vector).y;						\
-	(eulers).psi		= (vector).z;						\
+  (eulers).phi		= (vector).x;						\
+  (eulers).theta	= (vector).y;						\
+  (eulers).psi		= (vector).z;						\
 }
 
 
@@ -159,7 +159,7 @@
 #define VECTOR_AS_VECT3(coords, vector) { coords.x = vector(0); coords.y = vector(1); coords.z = vector(2);}
 #define QUATERNIOND_AS_DOUBLEQUAT(doublequat, quaterniond) {(doublequat).qi = (quaterniond).w(); (doublequat).qx = (quaterniond).x(); (doublequat).qy = (quaterniond).y(); (doublequat).qz = (quaterniond).z();}
 #define PPRZ_LLA_TO_EIGEN_ECEF(lla, ecef){	\
-	struct EcefCoor_f ecef_pprz;							\
-	ecef_of_lla_f(&ecef_pprz, &lla);					\
-	ecef = VECT3_AS_VECTOR3D(ecef_pprz);			\
+  struct EcefCoor_f ecef_pprz;							\
+  ecef_of_lla_f(&ecef_pprz, &lla);					\
+  ecef = VECT3_AS_VECTOR3D(ecef_pprz);			\
 }

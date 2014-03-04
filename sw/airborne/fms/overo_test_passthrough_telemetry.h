@@ -8,11 +8,11 @@
 #include "fms/fms_gs_com.h"
 #define PERIODIC_SEND_TEST_PASSTHROUGH_STATUS(_transport)		\
   DOWNLINK_SEND_TEST_PASSTHROUGH_STATUS(_transport,			\
-					&otp.io_proc_msg_cnt,		\
-					&otp.io_proc_err_cnt,		\
-					&spi_link.msg_cnt,		\
-					&spi_link.crc_err_cnt,		\
-					&otp.rc_status)
+          &otp.io_proc_msg_cnt,		\
+          &otp.io_proc_err_cnt,		\
+          &spi_link.msg_cnt,		\
+          &spi_link.crc_err_cnt,		\
+          &otp.rc_status)
 
 
 #define PERIODIC_SEND_IMU_GYRO(_transport)				\

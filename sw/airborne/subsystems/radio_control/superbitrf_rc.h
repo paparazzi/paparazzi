@@ -61,11 +61,11 @@
   uint8_t i;                                                            \
   for(i = 0; i < _count; i++) {                                         \
     if(i == RADIO_THROTTLE) {                                           \
-    	_out[i] = (_in[i] + MAX_PPRZ) / 2;                              \
-    	Bound(_out[i], 0, MAX_PPRZ);                                    \
+      _out[i] = (_in[i] + MAX_PPRZ) / 2;                              \
+      Bound(_out[i], 0, MAX_PPRZ);                                    \
     } else {                                                            \
-    	_out[i] = -_in[i];                                              \
-    	Bound(_out[i], MIN_PPRZ, MAX_PPRZ);                             \
+      _out[i] = -_in[i];                                              \
+      Bound(_out[i], MIN_PPRZ, MAX_PPRZ);                             \
     }                                                                   \
   }                                                                     \
 }
@@ -75,7 +75,7 @@
   cyrf6936_event(&superbitrf.cyrf6936);                             \
   superbitrf_event();                                               \
   if(superbitrf.rc_frame_available) {                               \
-	  radio_control.frame_cpt++;                                    \
+    radio_control.frame_cpt++;                                    \
       radio_control.time_since_last_frame = 0;                      \
       radio_control.radio_ok_cpt = 0;                               \
       radio_control.status = RC_OK;                                 \

@@ -80,7 +80,7 @@ static inline void on_overo_link_msg_received(void) {
   DEBUG_S1_TOGGLE();
 
   memcpy(&overo_link.up.msg, &overo_link.down.msg,
-	 sizeof(union AutopilotMessage));
+   sizeof(union AutopilotMessage));
 
 }
 

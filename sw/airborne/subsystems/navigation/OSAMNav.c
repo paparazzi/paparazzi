@@ -34,8 +34,8 @@
 /************** Flower Navigation **********************************************/
 
 /** Makes a flower pattern.
-	CenterWP is the center of the flower. The Navigation Height is taken from this waypoint.
-	EdgeWP defines the radius of the flower (distance from CenterWP to EdgeWP)
+  CenterWP is the center of the flower. The Navigation Height is taken from this waypoint.
+  EdgeWP defines the radius of the flower (distance from CenterWP to EdgeWP)
 */
 
 enum FlowerStatus { Outside, FlowerLine, Circle };

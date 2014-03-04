@@ -63,16 +63,16 @@ int main(void) {
   /* Init GPIO for rx pins */
   gpio_set(A_RX_PORT, A_RX_PIN);
   gpio_set_mode(A_RX_PORT, GPIO_MODE_INPUT,
-	        GPIO_CNF_INPUT_PULL_UPDOWN, A_RX_PIN);
+          GPIO_CNF_INPUT_PULL_UPDOWN, A_RX_PIN);
   gpio_set(B_RX_PORT, B_RX_PIN);
   gpio_set_mode(B_RX_PORT, GPIO_MODE_INPUT,
-	        GPIO_CNF_INPUT_PULL_UPDOWN, B_RX_PIN);
+          GPIO_CNF_INPUT_PULL_UPDOWN, B_RX_PIN);
 
   /* Init GPIO for tx pins */
   gpio_set_mode(A_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_PUSHPULL, A_TX_PIN);
+          GPIO_CNF_OUTPUT_PUSHPULL, A_TX_PIN);
   gpio_set_mode(B_RX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_PUSHPULL, B_TX_PIN);
+          GPIO_CNF_OUTPUT_PUSHPULL, B_TX_PIN);
 
   gpio_clear(A_TX_PORT, A_TX_PIN);
 

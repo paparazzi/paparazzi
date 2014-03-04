@@ -72,7 +72,7 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
  */
 
 struct __attribute__ ((packed)) ADCMessage {
-	uint16_t channels[NB_ADC];
+  uint16_t channels[NB_ADC];
 };
 
 /* used to indicate parts of the message which actually represent a new measurement */
@@ -91,7 +91,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   struct Int32Rates gyro;
   struct Int32Vect3 accel;
   struct Int32Vect3 mag;
-	uint32_t imu_tick;
+  uint32_t imu_tick;
   int32_t pressure_absolute;
   int32_t pressure_differential;
   int16_t rc_pitch;
@@ -194,9 +194,9 @@ struct __attribute__ ((packed)) AutopilotMessageVIDown
 #endif
 struct __attribute__ ((packed)) AutopilotMessagePTStream
 {
-	uint8_t message_cnt;
-	int8_t package_cntd;
-	uint8_t pkg_data[SPISTREAM_PACKAGE_SIZE];
+  uint8_t message_cnt;
+  int8_t package_cntd;
+  uint8_t pkg_data[SPISTREAM_PACKAGE_SIZE];
 };
 
 /* Union for computing size of SPI transfer (largest of either up or down message) */

@@ -175,16 +175,16 @@ uint16_t downlink_nb_msgs;
 
 
 #define __DOWNLINK_SEND_HITL_UBX(_chan, class, id, ac_id, nb_ubx_payload, ubx_payload){ \
-	if (DownlinkCheckFreeSpace(_chan, DownlinkSizeOf(_chan, 0+1+1+1+1+nb_ubx_payload*1))) {\
-	  DownlinkCountBytes(_chan, DownlinkSizeOf(_chan, 0+1+1+1+1+nb_ubx_payload*1)); \
-	  DownlinkStartMessage(_chan, "HITL_UBX", DL_HITL_UBX, 0+1+1+1+1+nb_ubx_payload*1) \
-	  DownlinkPutUint8ByAddr(_chan, (class)); \
-	  DownlinkPutUint8ByAddr(_chan, (id)); \
-	  DownlinkPutUint8ByAddr(_chan, (ac_id)); \
-	  DownlinkPutUint8Array(_chan, nb_ubx_payload, ubx_payload); \
-	  DownlinkEndMessage(_chan ) \
-	} else \
-	  DownlinkOverrun(_chan ); \
+  if (DownlinkCheckFreeSpace(_chan, DownlinkSizeOf(_chan, 0+1+1+1+1+nb_ubx_payload*1))) {\
+    DownlinkCountBytes(_chan, DownlinkSizeOf(_chan, 0+1+1+1+1+nb_ubx_payload*1)); \
+    DownlinkStartMessage(_chan, "HITL_UBX", DL_HITL_UBX, 0+1+1+1+1+nb_ubx_payload*1) \
+    DownlinkPutUint8ByAddr(_chan, (class)); \
+    DownlinkPutUint8ByAddr(_chan, (id)); \
+    DownlinkPutUint8ByAddr(_chan, (ac_id)); \
+    DownlinkPutUint8Array(_chan, nb_ubx_payload, ubx_payload); \
+    DownlinkEndMessage(_chan ) \
+  } else \
+    DownlinkOverrun(_chan ); \
 }
 #endif
 
@@ -204,7 +204,7 @@ void check_gps(void){
     else {
       if (!donegpsconf) {
         printf("Finished GPS configuration.\n");
-	donegpsconf=1;
+  donegpsconf=1;
       }
       parse_gps_msg();
     }

@@ -46,12 +46,12 @@ extern void overo_link_arch_prepare_next_transfert(void);
       overo_link.timeout_cnt++;						\
     else {								\
       if (overo_link.status != LOST && overo_link.status != DATA_AVAILABLE ) { \
-	SPI_Cmd(SPI1, DISABLE);						\
-	overo_link.status = LOST;					\
-	LED_OFF(OVERO_LINK_LED_OK);					\
-	LED_ON(OVERO_LINK_LED_KO);					\
-	overo_link.timeout = TRUE;					\
-	_timeout_handler();						\
+  SPI_Cmd(SPI1, DISABLE);						\
+  overo_link.status = LOST;					\
+  LED_OFF(OVERO_LINK_LED_OK);					\
+  LED_ON(OVERO_LINK_LED_KO);					\
+  overo_link.timeout = TRUE;					\
+  _timeout_handler();						\
       }									\
     }									\
   }
@@ -62,11 +62,11 @@ extern void overo_link_arch_prepare_next_transfert(void);
     else {								\
       __disable_irq();							\
       if (overo_link.status != LOST && overo_link.status != DATA_AVAILABLE ) { \
-	overo_link.status = LOST;					\
-	__enable_irq();							\
-	LED_OFF(OVERO_LINK_LED_OK);					\
-	LED_ON(OVERO_LINK_LED_KO);					\
-	_timeout_handler();						\
+  overo_link.status = LOST;					\
+  __enable_irq();							\
+  LED_OFF(OVERO_LINK_LED_OK);					\
+  LED_ON(OVERO_LINK_LED_KO);					\
+  _timeout_handler();						\
       }									\
       __enable_irq();							\
     }									\

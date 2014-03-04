@@ -78,10 +78,10 @@ static uint8_t foo=0;
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   RunOnceEvery(10,
-	       {
-		 DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-		 LED_PERIODIC();
-	       });
+         {
+     DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+     LED_PERIODIC();
+         });
 
 
   switch (foo) {

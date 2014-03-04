@@ -39,7 +39,7 @@ extern volatile uint32_t ami601_nb_err;
     switch (ami601_status) {                                            \
       case AMI601_SENDING_REQ :                                         \
         if ( ami601_i2c_trans.status == I2CTransSuccess ) {             \
-	      ami601_status =  AMI601_WAITING_MEASURE;                      \
+        ami601_status =  AMI601_WAITING_MEASURE;                      \
         }                                                               \
         break;                                                          \
       case AMI601_WAITING_MEASURE :                                     \
@@ -50,16 +50,16 @@ extern volatile uint32_t ami601_nb_err;
         break;                                                          \
       case AMI601_READING_MEASURE :                                     \
         if ( ami601_i2c_trans.status == I2CTransSuccess ) {             \
-	      ami601_foo1 = ami601_i2c_trans.buf[0]; /* AA ?  */            \
-	      ami601_foo2 = ami601_i2c_trans.buf[1]; /* 55 ?  */            \
-	      ami601_foo3 = ami601_i2c_trans.buf[2]; /* ERR ? */            \
-	      uint8_t i;                                                    \
-	      for (i=0; i< AMI601_NB_CHAN; i++) {                           \
-	        ami601_values[i]  = ami601_i2c_trans.buf[3 + 2 * i];        \
-	        ami601_values[i] += ami601_i2c_trans.buf[3 + 2 * i + 1] * 256; \
-	      }                                                             \
-	      ami601_status = AMI601_DATA_AVAILABLE;                        \
-	      _handler();                                                   \
+        ami601_foo1 = ami601_i2c_trans.buf[0]; /* AA ?  */            \
+        ami601_foo2 = ami601_i2c_trans.buf[1]; /* 55 ?  */            \
+        ami601_foo3 = ami601_i2c_trans.buf[2]; /* ERR ? */            \
+        uint8_t i;                                                    \
+        for (i=0; i< AMI601_NB_CHAN; i++) {                           \
+          ami601_values[i]  = ami601_i2c_trans.buf[3 + 2 * i];        \
+          ami601_values[i] += ami601_i2c_trans.buf[3 + 2 * i + 1] * 256; \
+        }                                                             \
+        ami601_status = AMI601_DATA_AVAILABLE;                        \
+        _handler();                                                   \
         }                                                               \
         break;                                                          \
       default:                                                          \

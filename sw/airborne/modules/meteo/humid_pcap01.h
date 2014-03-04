@@ -37,14 +37,14 @@
 #define PCAP01_200HZ
 
 typedef struct {
-	uint32_t temp;
-	uint32_t hum_t;
-	uint32_t hum;
-	uint32_t R_ratio;
-	uint32_t C_ratio;
-	uint32_t NV_temp;
-	uint32_t V_rh;
-	uint32_t status;
+  uint32_t temp;
+  uint32_t hum_t;
+  uint32_t hum;
+  uint32_t R_ratio;
+  uint32_t C_ratio;
+  uint32_t NV_temp;
+  uint32_t V_rh;
+  uint32_t status;
 }PCAP01VALUE;
 
 #define PCAP01_ADDR 0xA0

@@ -63,19 +63,19 @@ static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   max1168_read();
   RunOnceEvery(10,
-	       {
-		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
-		 LED_PERIODIC();
-	       });
+         {
+     DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
+     LED_PERIODIC();
+         });
 
 }
 
 static inline void main_event_task( void ) {
   if (max1168_status == MAX1168_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &max1168_values[0], &max1168_values[1], &max1168_values[2]);
-	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &max1168_values[3], &max1168_values[4], &max1168_values[6]);
-	//	DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &max1168_values[7]); });
+  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &max1168_values[0], &max1168_values[1], &max1168_values[2]);
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &max1168_values[3], &max1168_values[4], &max1168_values[6]);
+  //	DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &max1168_values[7]); });
       });
     max1168_status = MAX1168_IDLE;
   }

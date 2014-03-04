@@ -52,45 +52,45 @@ static inline void main_periodic( void ) {
   uart_transmit(&uart3, 'c');
 
   if (uart_char_available(&uart1)) {
-	ch = uart_getch(&uart1);
-	if (ch == 'a') {
-		LED_OFF(0);
-		LED_ON(1);
-	} else {
-		LED_ON(0);
-		LED_ON(1);
-	}
+  ch = uart_getch(&uart1);
+  if (ch == 'a') {
+    LED_OFF(0);
+    LED_ON(1);
   } else {
-		LED_ON(0);
-		LED_OFF(1);
+    LED_ON(0);
+    LED_ON(1);
+  }
+  } else {
+    LED_ON(0);
+    LED_OFF(1);
   }
 
   if (uart_char_available(&uart2)) {
-	ch = uart_getch(&uart2);
-	if (ch == 'b') {
-		LED_OFF(2);
-		LED_ON(3);
-	} else {
-		LED_ON(2);
-		LED_ON(3);
-	}
+  ch = uart_getch(&uart2);
+  if (ch == 'b') {
+    LED_OFF(2);
+    LED_ON(3);
   } else {
-		LED_ON(2);
-		LED_OFF(3);
+    LED_ON(2);
+    LED_ON(3);
+  }
+  } else {
+    LED_ON(2);
+    LED_OFF(3);
   }
 
   if (uart_char_available(&uart3)) {
-	ch = uart_getch(&uart3);
-	if (ch == 'c') {
-		LED_OFF(4);
-		LED_ON(5);
-	} else {
-		LED_ON(4);
-		LED_ON(5);
-	}
+  ch = uart_getch(&uart3);
+  if (ch == 'c') {
+    LED_OFF(4);
+    LED_ON(5);
   } else {
-		LED_ON(4);
-		LED_OFF(5);
+    LED_ON(4);
+    LED_ON(5);
+  }
+  } else {
+    LED_ON(4);
+    LED_OFF(5);
   }
 
   LED_PERIODIC();

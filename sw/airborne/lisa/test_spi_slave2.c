@@ -65,10 +65,10 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10,
-	       {
-		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
-		 LED_PERIODIC();
-	       });
+         {
+     DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
+     LED_PERIODIC();
+         });
 
 }
 
@@ -78,7 +78,7 @@ static inline void main_event_task( void ) {
   if (DMA_GetFlagStatus(DMA1_FLAG_TC2)) {
     LED_TOGGLE(3);
     RunOnceEvery(10, {DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, DefaultDevice, &SPI_SLAVE_Buffer_Rx[0],
-						    &SPI_SLAVE_Buffer_Rx[1], &SPI_SLAVE_Buffer_Rx[2]);});
+                &SPI_SLAVE_Buffer_Rx[1], &SPI_SLAVE_Buffer_Rx[2]);});
     memcpy(SPI_SLAVE_Buffer_Tx, SPI_SLAVE_Buffer_Rx, BufferSize);
     main_setup_dma();
     main_enable_dma();

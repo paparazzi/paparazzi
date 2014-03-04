@@ -74,13 +74,13 @@ void enose_periodic( void ) {
     else if (enose_status == ENOSE_MEASURING_RD) {
       uint16_t val = (i2c0_buf[0]<<8) | i2c0_buf[1];
       if (val < 5000)
-	enose_val[0] = val;
+  enose_val[0] = val;
       val = (i2c0_buf[2]<<8) | i2c0_buf[3];
       if (val < 5000)
-	enose_val[1] = val;
+  enose_val[1] = val;
       val = (i2c0_buf[4]<<8) | i2c0_buf[5];
       if (val < 5000)
-	enose_val[2] = val;
+  enose_val[2] = val;
       enose_status = ENOSE_IDLE;
     }
   }

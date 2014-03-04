@@ -49,7 +49,7 @@ void baro_init(void) {
 
   gpio_clear(GPIOB, GPIO0);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
-	        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
+          GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
 
 #ifdef BARO_LED
   LED_OFF(BARO_LED);

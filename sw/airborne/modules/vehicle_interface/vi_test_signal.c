@@ -70,8 +70,8 @@ void booz_fms_impl_periodic(void) {
       booz_fms_test_signal_start_z = ins_impl.ltp_pos.z;
     else {
       booz_fms_input.v_sp.height = (booz_fms_test_signal_counter < booz_fms_test_signal_period) ?
-	booz_fms_test_signal_start_z :
-	booz_fms_test_signal_start_z - 256;
+  booz_fms_test_signal_start_z :
+  booz_fms_test_signal_start_z - 256;
       //BOOZ_INT_OF_FLOAT(-0.5, IPOS_FRAC)
     }
   }

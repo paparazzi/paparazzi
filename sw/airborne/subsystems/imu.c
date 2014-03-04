@@ -155,7 +155,7 @@ void imu_float_init(void) {
     for conversions between body and imu frame
   */
   EULERS_ASSIGN(imuf.body_to_imu_eulers,
-		IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
+    IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
   FLOAT_QUAT_OF_EULERS(imuf.body_to_imu_quat, imuf.body_to_imu_eulers);
   FLOAT_QUAT_NORMALIZE(imuf.body_to_imu_quat);
   FLOAT_RMAT_OF_EULERS(imuf.body_to_imu_rmat, imuf.body_to_imu_eulers);
