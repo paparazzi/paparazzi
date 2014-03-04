@@ -1027,7 +1027,7 @@ void i2c2_hw_init(void) {
   I2C_OAR1(I2C2) = 0 | 0x4000;
 
   // enable error interrupts
-  I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+  I2C_CR2(I2C2) |= I2C_CR2_ITERREN;
 
   i2c_setbitrate(&i2c2, I2C2_CLOCK_SPEED);
 }
@@ -1115,7 +1115,7 @@ void i2c3_hw_init(void) {
   I2C_OAR1(I2C3) = 0 | 0x4000;
 
   // enable error interrupts
-  I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
+  I2C_CR2(I2C3) |= I2C_CR2_ITERREN;
 
   i2c_setbitrate(&i2c3, I2C3_CLOCK_SPEED);
 }
