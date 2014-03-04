@@ -86,21 +86,10 @@ extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
  */
 extern void ins_propagate(void);
 
-/** Update INS state with barometer measurements.
- *  Does nothing if not implemented by specific INS algorithm.
- */
-extern void ins_update_baro(void);
-
 /** Update INS state with GPS measurements.
  *  Reads the global #gps data struct.
  *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_update_gps(void);
-
-/** Update INS state with sonar measurements.
- *  Does nothing if not implemented by specific INS algorithm.
- */
-extern void ins_update_sonar(void);
-
 
 #endif /* INS_H */
