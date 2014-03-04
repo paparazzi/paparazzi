@@ -202,13 +202,13 @@ static inline void init_invariant_state(void) {
   FLOAT_RATES_ZERO(ins_impl.state.bias);
   FLOAT_VECT3_ZERO(ins_impl.state.pos);
   FLOAT_VECT3_ZERO(ins_impl.state.speed);
-  ins_impl.state.as = 1.;
-  ins_impl.state.hb = 0.;
+  ins_impl.state.as = 1.0f;
+  ins_impl.state.hb = 0.0f;
 
   // init measures
   FLOAT_VECT3_ZERO(ins_impl.meas.pos_gps);
   FLOAT_VECT3_ZERO(ins_impl.meas.speed_gps);
-  ins_impl.meas.baro_alt = 0.;
+  ins_impl.meas.baro_alt = 0.0f;
 
   // init baro
   ins_baro_initialized = FALSE;
@@ -275,17 +275,17 @@ void ins_reset_local_origin( void ) {
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */
   struct LlaCoor_f lla;
-  lla.lat = gps.lla_pos.lat/1e7;
-  lla.lon = gps.lla_pos.lon/1e7;
+  lla.lat = gps.lla_pos.lat / 1e7;
+  lla.lon = gps.lla_pos.lon / 1e7;
   utm.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
   utm_of_lla_f(&utm, &lla);
 #else
   utm.zone = gps.utm_pos.zone;
-  utm.east = gps.utm_pos.east/100;
-  utm.north = gps.utm_pos.north/100;
+  utm.east = gps.utm_pos.east / 100.0f;
+  utm.north = gps.utm_pos.north / 100.0f;
 #endif
   // ground_alt
-  utm.alt = gps.hmsl/1000.;
+  utm.alt = gps.hmsl / 1000.0f;
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 #else
@@ -299,7 +299,7 @@ void ins_reset_local_origin( void ) {
 void ins_reset_altitude_ref( void ) {
 #if INS_UPDATE_FW_ESTIMATOR
   struct UtmCoor_f utm = state.utm_origin_f;
-  utm.alt = gps.hmsl/1000.;
+  utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);
 #else
   struct LtpDef_i ltp_def = state.ned_origin_i;
@@ -449,13 +449,13 @@ void ahrs_update_gps(void) {
 #if INS_UPDATE_FW_ESTIMATOR
     if (state.utm_initialized_f) {
       // position (local ned)
-      ins_impl.meas.pos_gps.x = (gps.utm_pos.north / 100.) - state.utm_origin_f.north;
-      ins_impl.meas.pos_gps.y = (gps.utm_pos.east / 100.) - state.utm_origin_f.east;
-      ins_impl.meas.pos_gps.z = state.utm_origin_f.alt - (gps.hmsl / 1000.);
+      ins_impl.meas.pos_gps.x = (gps.utm_pos.north / 100.0f) - state.utm_origin_f.north;
+      ins_impl.meas.pos_gps.y = (gps.utm_pos.east / 100.0f) - state.utm_origin_f.east;
+      ins_impl.meas.pos_gps.z = state.utm_origin_f.alt - (gps.hmsl / 1000.0f);
       // speed
-      ins_impl.meas.speed_gps.x = gps.ned_vel.x / 100.;
-      ins_impl.meas.speed_gps.y = gps.ned_vel.y / 100.;
-      ins_impl.meas.speed_gps.z = gps.ned_vel.z / 100.;
+      ins_impl.meas.speed_gps.x = gps.ned_vel.x / 100.0f;
+      ins_impl.meas.speed_gps.y = gps.ned_vel.y / 100.0f;
+      ins_impl.meas.speed_gps.z = gps.ned_vel.z / 100.0f;
     }
 #else
     if (state.ned_initialized_f) {
@@ -463,11 +463,11 @@ void ahrs_update_gps(void) {
       struct EcefCoor_f ecef_pos, ecef_vel;
       ECEF_FLOAT_OF_BFP(ecef_pos, gps.ecef_pos);
       ned_of_ecef_point_f(&gps_pos_cm_ned, &state.ned_origin_f, &ecef_pos);
-      VECT3_SDIV(ins_impl.meas.pos_gps, gps_pos_cm_ned, 100.);
+      VECT3_SDIV(ins_impl.meas.pos_gps, gps_pos_cm_ned, 100.0f);
       struct NedCoor_f gps_speed_cm_s_ned;
       ECEF_FLOAT_OF_BFP(ecef_vel, gps.ecef_vel);
       ned_of_ecef_vect_f(&gps_speed_cm_s_ned, &state.ned_origin_f, &ecef_vel);
-      VECT3_SDIV(ins_impl.meas.speed_gps, gps_speed_cm_s_ned, 100.);
+      VECT3_SDIV(ins_impl.meas.speed_gps, gps_speed_cm_s_ned, 100.0f);
     }
 #endif
   }
@@ -476,11 +476,11 @@ void ahrs_update_gps(void) {
 
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
-  static float ins_qfe = 101325.0;
-  static float alpha = 10.;
+  static float ins_qfe = 101325.0f;
+  static float alpha = 10.0f;
   static int32_t i = 1;
-  static float baro_moy = 0.;
-  static float baro_prev = 0.;
+  static float baro_moy = 0.0f;
+  static float baro_prev = 0.0f;
 
   if (!ins_baro_initialized) {
     // try to find a stable qfe
@@ -489,11 +489,11 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
       baro_moy = *pressure;
       baro_prev = *pressure;
     }
-    baro_moy = (baro_moy*(i-1) + *pressure)/i;
-    alpha = (10.*alpha + (baro_moy-baro_prev))/(11.);
+    baro_moy = (baro_moy*(i-1) + *pressure) / i;
+    alpha = (10.*alpha + (baro_moy-baro_prev)) / (11.0f);
     baro_prev = baro_moy;
     // test stop condition
-    if (fabs(alpha) < 0.005) {
+    if (fabs(alpha) < 0.005f) {
       ins_qfe = baro_moy;
       ins_baro_initialized = TRUE;
     }

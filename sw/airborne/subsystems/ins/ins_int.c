@@ -264,7 +264,7 @@ void ins_update_gps(void) {
     /* horizontal gps transformed to NED in meters as float */
     struct FloatVect2 gps_pos_m_ned;
     VECT2_ASSIGN(gps_pos_m_ned, gps_pos_cm_ned.x, gps_pos_cm_ned.y);
-    VECT2_SDIV(gps_pos_m_ned, gps_pos_m_ned, 100.);
+    VECT2_SDIV(gps_pos_m_ned, gps_pos_m_ned, 100.0f);
 
     struct FloatVect2 gps_speed_m_s_ned;
     VECT2_ASSIGN(gps_speed_m_s_ned, gps_speed_cm_s_ned.x, gps_speed_cm_s_ned.y);
@@ -272,7 +272,7 @@ void ins_update_gps(void) {
 
     if (ins_impl.hf_realign) {
       ins_impl.hf_realign = FALSE;
-      const struct FloatVect2 zero = {0.0, 0.0};
+      const struct FloatVect2 zero = {0.0f, 0.0f};
       b2_hff_realign(gps_pos_m_ned, zero);
     }
     // run horizontal filter
