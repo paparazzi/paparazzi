@@ -22,7 +22,7 @@
 /**
  * @file peripherals/l3gd20.h
  *
- * ST L3GD20 3-axis accelerometer driver common interface (I2C and SPI).
+ * ST L3GD20 3-axis gyroscope driver common interface (I2C and SPI).
  */
 
 #ifndef L3GD20_H

@@ -22,7 +22,7 @@
 /**
  * @file peripherals/l3gd20_regs.h
  *
- * ST L3GD20 3-axis accelerometer register definitions.
+ * ST L3GD20 3-axis gyroscope register definitions.
  */
 
 #ifndef L3GD20_REGS_H

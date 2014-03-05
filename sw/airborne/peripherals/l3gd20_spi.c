@@ -22,7 +22,7 @@
 /**
  * @file peripherals/l3gd20_spi.c
  *
- * Driver for L3GD20 3-axis accelerometer from ST using SPI.
+ * Driver for L3GD20 3-axis gyroscope from ST using SPI.
  */
 
 #include "peripherals/l3gd20_spi.h"
