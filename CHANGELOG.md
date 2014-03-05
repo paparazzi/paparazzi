@@ -1,3 +1,14 @@
+Paparazzi 5.0.4_stable
+======================
+
+Maintenance release
+
+- fix perl script compile_all_test_targets
+- add pcre lib to jsbsim, cleanup shell commands
+- fix InsideX for sectors (GetPosX and GetPosY in nav.h (FW) are in local coordinates)
+  #[602]  (https://github.com/paparazzi/paparazzi/issues/602)
+- stm32: enable correct error interrupts for i2c2 and i2c3
+
 Paparazzi 5.0.3_stable
 ======================
 
