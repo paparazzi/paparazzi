@@ -74,6 +74,11 @@
 #define VFF_R_SONAR_0 0.1
 #define VFF_R_SONAR_OF_M 0.2
 
+#ifndef INS_SONAR_UPDATE_ON_AGL
+#define INS_SONAR_UPDATE_ON_AGL FALSE
+PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
+#endif
+
 #endif // USE_SONAR
 
 #ifndef USE_INS_NAV_INIT
@@ -81,11 +86,9 @@
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
-#ifndef INS_SONAR_UPDATE_ON_AGL
-#define INS_SONAR_UPDATE_ON_AGL FALSE
-PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
+#ifdef INS_BARO_SENS
+#warning INS_BARO_SENS is obsolete, please remove it from your airframe file.
 #endif
-
 
 /** default barometer to use in INS */
 #ifndef INS_BARO_ID
