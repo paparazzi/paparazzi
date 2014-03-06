@@ -72,7 +72,7 @@ bool_t   autopilot_detect_ground_once;
 #define AUTOPILOT_IN_FLIGHT_MIN_ACCEL 2.0
 #endif
 
-/** minimum thrust for in_flight condition in pprz_t units */
+/** minimum thrust for in_flight condition in pprz_t units (max = 9600) */
 #ifndef AUTOPILOT_IN_FLIGHT_MIN_THRUST
 #define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
 #endif
