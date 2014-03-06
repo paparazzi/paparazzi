@@ -1,6 +1,6 @@
 
 /*
- * board specific functions for the lisa_m board
+ * board specific functions for the lisa_s board
  *
  */
 
@@ -8,6 +8,9 @@
 #define BOARDS_LISA_S_BARO_H
 
 #include "std.h"
+
+// only for printing the baro type during compilation
+#define BARO_BOARD BARO_MS5611_SPI
 
 extern void baro_event(void);
 

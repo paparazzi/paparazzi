@@ -29,6 +29,9 @@
 #ifndef BOARDS_APOGEE_BARO_H
 #define BOARDS_APOGEE_BARO_H
 
+// only for printing the baro type during compilation
+#define BARO_BOARD BARO_BOARD_MPL3115
+
 extern void apogee_baro_event(void);
 #define BaroEvent apogee_baro_event
 

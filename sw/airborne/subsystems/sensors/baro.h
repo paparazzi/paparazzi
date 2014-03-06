@@ -32,8 +32,12 @@
 #define SUBSYSTEMS_SENSORS_BARO_H
 
 #include BOARD_CONFIG
+
 #if USE_BARO_BOARD
 #include "baro_board.h"
+#ifndef BARO_BOARD
+#define BARO_BOARD BARO_BOARD_DEFAULT
+#endif
 #endif
 
 extern void baro_init(void);
