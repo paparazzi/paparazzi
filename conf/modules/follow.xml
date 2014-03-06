@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="follow" dir="multi">
+  <doc>
+    <description>Follow a certain AC_ID trough remote GPS</description>
+    <define name="FOLLOW_AC_ID"               description="the aircraft ID which it has to follow"/>
+    <define name="FOLLOW_WAYPOINT_ID"         description="the waypoint ID which it has to change"/>
+    <define name="FOLLOW_OFFSET_X" value="0"  description="the x offset in ENU (meters) from the plane"/>
+    <define name="FOLLOW_OFFSET_Y" value="0"  description="the y offset in ENU (meters) from the plane"/>
+    <define name="FOLLOW_OFFSET_Z" value="0"  description="the z offset in ENU (meters) from the plane"/>
+  </doc>
+
+  <header>
+    <file name="follow.h"/>
+  </header>
+
+  <init fun="follow_init()"/>
+  <datalink message="REMOTE_GPS" fun="ParseRemoteGps()"/>
+
+  <makefile>
+    <file name="follow.c"/>
+  </makefile>
+</module>
