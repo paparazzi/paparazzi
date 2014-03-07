@@ -153,17 +153,17 @@
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="450" unit="deg/s"/>
+    <define name="REF_OMEGA_P"  value="225" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
     <define name="REF_MAX_P"    value="180." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(400.)"/>
 
-    <define name="REF_OMEGA_Q"  value="450" unit="deg/s"/>
+    <define name="REF_OMEGA_Q"  value="225" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
     <define name="REF_MAX_Q"    value="180." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(400.)"/>
 
-    <define name="REF_OMEGA_R"  value="400" unit="deg/s"/>
+    <define name="REF_OMEGA_R"  value="200" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
     <define name="REF_MAX_R"    value="70." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(360.)"/>

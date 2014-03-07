@@ -149,17 +149,17 @@ More information on the Quadshot can be found at transition-robotics.com -->
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="3000" unit="deg/s"/>
+    <define name="REF_OMEGA_P"  value="1500" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
     <define name="REF_MAX_P"    value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="3000" unit="deg/s"/>
+    <define name="REF_OMEGA_Q"  value="1500" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
     <define name="REF_MAX_Q"    value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_R"  value="3000" unit="deg/s"/>
+    <define name="REF_OMEGA_R"  value="1500" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.9"/>
     <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
