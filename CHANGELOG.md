@@ -75,12 +75,13 @@ Rotorcraft firmware
 - adaptive thrust estimation limits
   [#495] (https://github.com/paparazzi/paparazzi/issues/495)
 - improve in_flight detection heuristic
-  [#469] https://github.com/paparazzi/paparazzi/pull/469)
+  [#469] (https://github.com/paparazzi/paparazzi/pull/469)
 
 Fixedwing firmware
 ------------------
 
-- alt_float: remove ALT_KALMAN_ENABLED #594
+- alt_float: remove ALT_KALMAN_ENABLED
+  [#594] (https://github.com/paparazzi/paparazzi/issues/594)
 
 
 Paparazzi 5.0.4_stable
