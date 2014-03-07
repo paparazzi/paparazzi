@@ -43,22 +43,22 @@
 #define ZETA_P    STABILIZATION_ATTITUDE_REF_ZETA_P
 #define ZETA_OMEGA_P_RES 10
 #define ZETA_OMEGA_P BFP_OF_REAL((ZETA_P*OMEGA_P), ZETA_OMEGA_P_RES)
-#define OMEGA_2_P_RES 7
-#define OMEGA_2_P    BFP_OF_REAL((OMEGA_P*OMEGA_P), OMEGA_2_P_RES)
+#define TWO_OMEGA_2_P_RES 7
+#define TWO_OMEGA_2_P    BFP_OF_REAL((2*OMEGA_P*OMEGA_P), TWO_OMEGA_2_P_RES)
 
 #define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
 #define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
 #define ZETA_OMEGA_Q_RES 10
 #define ZETA_OMEGA_Q BFP_OF_REAL((ZETA_Q*OMEGA_Q), ZETA_OMEGA_Q_RES)
-#define OMEGA_2_Q_RES 7
-#define OMEGA_2_Q    BFP_OF_REAL((OMEGA_Q*OMEGA_Q), OMEGA_2_Q_RES)
+#define TWO_OMEGA_2_Q_RES 7
+#define TWO_OMEGA_2_Q    BFP_OF_REAL((2*OMEGA_Q*OMEGA_Q), TWO_OMEGA_2_Q_RES)
 
 #define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
 #define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
 #define ZETA_OMEGA_R_RES 10
 #define ZETA_OMEGA_R BFP_OF_REAL((ZETA_R*OMEGA_R), ZETA_OMEGA_R_RES)
-#define OMEGA_2_R_RES 7
-#define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
+#define TWO_OMEGA_2_R_RES 7
+#define TWO_OMEGA_2_R    BFP_OF_REAL((2*OMEGA_R*OMEGA_R), TWO_OMEGA_2_R_RES)
 
 
 struct Int32Eulers stab_att_sp_euler;
@@ -157,17 +157,19 @@ void stabilization_attitude_ref_update(void) {
   INT32_QUAT_INV_COMP(err, stab_att_sp_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   INT32_QUAT_WRAP_SHORTEST(err);
-  /* propagate the 2nd order linear model    */
+
+  /* propagate the 2nd order linear model : accel = -2*zeta*omega * rate - omega^2 * angle  */
 
   const struct Int32Rates accel_rate = {
     ((int32_t)(-2.*ZETA_OMEGA_P) * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_P_RES),
     ((int32_t)(-2.*ZETA_OMEGA_Q) * (stab_att_ref_rate.q >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_Q_RES),
     ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_R_RES) };
 
+  /* since error quaternion contains the half-angles we get 2*omega^2*err */
   const struct Int32Rates accel_angle = {
-    ((int32_t)(-OMEGA_2_P) * (err.qx >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_P_RES),
-    ((int32_t)(-OMEGA_2_Q) * (err.qy >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_Q_RES),
-    ((int32_t)(-OMEGA_2_R) * (err.qz >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_R_RES) };
+    ((int32_t)(-TWO_OMEGA_2_P) * (err.qx >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (TWO_OMEGA_2_P_RES),
+    ((int32_t)(-TWO_OMEGA_2_Q) * (err.qy >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (TWO_OMEGA_2_Q_RES),
+    ((int32_t)(-TWO_OMEGA_2_R) * (err.qz >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (TWO_OMEGA_2_R_RES) };
 
   RATES_SUM(stab_att_ref_accel, accel_rate, accel_angle);
 
