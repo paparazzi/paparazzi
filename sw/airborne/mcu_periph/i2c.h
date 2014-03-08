@@ -98,6 +98,7 @@ struct i2c_periph {
   void* reg_addr;
   void *init_struct;
   struct i2c_errors *errors;
+  int16_t watchdog;
 };
 
 
@@ -178,6 +179,7 @@ extern bool_t i2c_idle(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 extern void   i2c_setbitrate(struct i2c_periph* p, int bitrate);
 extern void   i2c_event(void);
+extern void   i2c_periodic(void);
 
 /*
  * Convenience functions.
