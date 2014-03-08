@@ -217,8 +217,6 @@ STATIC_INLINE void handle_periodic_tasks( void ) {
 }
 
 STATIC_INLINE void main_periodic( void ) {
-
-  i2c_periodic();
   
   imu_periodic();
 
@@ -273,6 +271,8 @@ STATIC_INLINE void failsafe_check( void ) {
 
 STATIC_INLINE void main_event( void ) {
 
+  i2c_event();
+  
   DatalinkEvent();
 
   if (autopilot_rc) {

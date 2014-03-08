@@ -1250,8 +1250,8 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
                    if(i2c == I2C2) gpio_clear(I2C2_GPIO_PORT, I2C2_GPIO_SCL); \
                    if(i2c == I2C3) gpio_clear(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);}
 
-#define WD_DELAY 20
-#define WD_RECOVERY_TICKS 10
+#define WD_DELAY 20           // number of ticks with 2ms - 40ms delay before resetting the bus
+#define WD_RECOVERY_TICKS 10  // number of generated SCL clocking pulses
 
 static void i2c_wd_check(struct i2c_periph *periph) {
   uint32_t i2c = (uint32_t) periph->reg_addr;
@@ -1348,93 +1348,22 @@ static void i2c_wd_check(struct i2c_periph *periph) {
     periph->watchdog++;
 }
 
-/// @todo Watchdog timer
-void i2c_periodic(void)
-{
+#include "mcu_periph/sys_time.h"
+
+void i2c_event(void) {
+  static uint32_t i2c_wd_timer;
+  if(SysTimeTimer(i2c_wd_timer) > 2000) { // 2ms (500Hz) periodic watchdog check
+    SysTimeTimerStart(i2c_wd_timer);
 #ifdef USE_I2C1
-  i2c_wd_check(&i2c1);
+    i2c_wd_check(&i2c1);
 #endif
 #ifdef USE_I2C2
-  i2c_wd_check(&i2c2);
+    i2c_wd_check(&i2c2);
 #endif
 #ifdef USE_I2C3
-  i2c_wd_check(&i2c3);
+    i2c_wd_check(&i2c3);
 #endif
-}
-
-/// @todo Watchdog timer
-void i2c_event(void)
-{
-#ifdef USE_I2C1
-  i2c1_watchdog_counter++;
-#endif
-
-#ifdef USE_I2C2
-  i2c2_watchdog_counter++;
-
-  if (i2c2_watchdog_counter > 10000)
-  {
-    i2c2.errors->timeout_tlow_cnt++;
-    i2c2_watchdog_counter = 0;
   }
-
-
-#ifdef I2C_DEBUG_LED
-  if (i2c2_watchdog_counter == 0)
-  {
-    __disable_irq();
-
-    LED2_ON();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    if (i2c2.status == I2CIdle)
-    {
-      LED1_ON();
-      LED1_OFF();
-    }
-    else if (i2c2.status == I2CStartRequested)
-    {
-      LED1_ON();
-      LED1_OFF();
-      LED1_ON();
-      LED1_OFF();
-
-    }
-    LED2_OFF();
-
-    //regs = (I2C_TypeDef *) i2c2.reg_addr;
-    //LED_SHOW_ACTIVE_BITS(regs);
-
-    __enable_irq();
-  }
-#endif
-
-
-  //if (i2c2.status == I2CIdle)
-  {
-    //if (i2c_idle(&i2c2))
-    {
-      //__disable_irq();
-      // More work to do
-      //if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
-      {
-        // Restart transaction doing the Rx part now
-        //PPRZ_I2C_SEND_START(&i2c2);
-      }
-      //__enable_irq();
-    }
-  }
-#endif
-
-#ifdef USE_I2C3
-  i2c3_watchdog_counter++;
-#endif
 }
 
 /////////////////////////////////////////////////////////
