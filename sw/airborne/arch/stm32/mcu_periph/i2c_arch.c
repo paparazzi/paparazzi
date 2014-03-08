@@ -890,7 +890,6 @@ I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
 PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 
 struct i2c_errors i2c1_errors;
-volatile uint32_t i2c1_watchdog_counter;
 
 void i2c1_hw_init(void) {
 
@@ -958,8 +957,7 @@ void i2c1_ev_isr(void) {
   uint32_t i2c = (uint32_t) i2c1.reg_addr;
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c1.watchdog = 0; // restart watchdog
-  i2c_irq(&i2c1);
-  i2c1_watchdog_counter = 0;
+  i2c_irq(&i2c1);;
   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
 }
 
@@ -968,7 +966,6 @@ void i2c1_er_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c1.watchdog = 0; // restart watchdog
   i2c_irq(&i2c1);
-  i2c1_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
 }
 
@@ -983,7 +980,6 @@ void i2c1_er_isr(void) {
 PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 
 struct i2c_errors i2c2_errors;
-volatile uint32_t i2c2_watchdog_counter;
 
 void i2c2_hw_init(void) {
 
@@ -1047,7 +1043,6 @@ void i2c2_ev_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c2.watchdog = 0; // restart watchdog
   i2c_irq(&i2c2);
-  i2c2_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
 }
 
@@ -1056,7 +1051,6 @@ void i2c2_er_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c2.watchdog = 0; // restart watchdog
   i2c_irq(&i2c2);
-  i2c2_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
 }
 
@@ -1072,7 +1066,6 @@ void i2c2_er_isr(void) {
 PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
 
 struct i2c_errors i2c3_errors;
-volatile uint32_t i2c3_watchdog_counter;
 
 void i2c3_hw_init(void) {
 
@@ -1134,7 +1127,6 @@ void i2c3_ev_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c3.watchdog = 0; // restart watchdog
   i2c_irq(&i2c3);
-  i2c3_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
 }
 
@@ -1143,7 +1135,6 @@ void i2c3_er_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c3.watchdog = 0;  // restart watchdog
   i2c_irq(&i2c3);
-  i2c3_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
 }
 
