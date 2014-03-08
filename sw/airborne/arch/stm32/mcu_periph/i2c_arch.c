@@ -959,6 +959,7 @@ void i2c1_ev_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c1.watchdog = 0; // restart watchdog
   i2c_irq(&i2c1);
+  i2c1_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
 }
 
@@ -967,6 +968,7 @@ void i2c1_er_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c1.watchdog = 0; // restart watchdog
   i2c_irq(&i2c1);
+  i2c1_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
 }
 
@@ -1045,6 +1047,7 @@ void i2c2_ev_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c2.watchdog = 0; // restart watchdog
   i2c_irq(&i2c2);
+  i2c2_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
 }
 
@@ -1053,6 +1056,7 @@ void i2c2_er_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c2.watchdog = 0; // restart watchdog
   i2c_irq(&i2c2);
+  i2c2_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
 }
 
@@ -1130,6 +1134,7 @@ void i2c3_ev_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITERREN;
   i2c3.watchdog = 0; // restart watchdog
   i2c_irq(&i2c3);
+  i2c3_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITERREN;
 }
 
@@ -1138,6 +1143,7 @@ void i2c3_er_isr(void) {
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c3.watchdog = 0;  // restart watchdog
   i2c_irq(&i2c3);
+  i2c3_watchdog_counter = 0;
   I2C_CR2(i2c) |= I2C_CR2_ITEVTEN;
 }
 
@@ -1348,11 +1354,9 @@ void i2c_periodic(void)
 #ifdef USE_I2C1
   i2c_wd_check(&i2c1);
 #endif
-
 #ifdef USE_I2C2
   i2c_wd_check(&i2c2);
 #endif
-
 #ifdef USE_I2C3
   i2c_wd_check(&i2c3);
 #endif
