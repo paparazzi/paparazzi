@@ -32,6 +32,20 @@
 #include "std.h"
 
 /**
+ * Setup one or more pins of the given GPIO port as outputs.
+ * @param[in] port
+ * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+extern void gpio_setup_output(uint32_t port, uint16_t gpios);
+
+/**
+ * Setup one or more pins of the given GPIO port as inputs.
+ * @param[in] port
+ * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+extern void gpio_setup_input(uint32_t port, uint16_t gpios);
+
+/**
  * Set a gpio output to high level.
  */
 extern void gpio_set(uint32_t port, uint16_t pin);
