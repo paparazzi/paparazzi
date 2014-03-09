@@ -33,7 +33,11 @@
 #include "generated/airframe.h"
 #include "std.h"
 
-#define DEBUG_VFF_EXTENDED 1
+#ifndef DEBUG_VFF_EXTENDED 
+#define DEBUG_VFF_EXTENDED 0
+#else
+PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
+#endif
 
 #if DEBUG_VFF_EXTENDED
 #include "mcu_periph/uart.h"
