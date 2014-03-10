@@ -1312,24 +1312,8 @@ static void i2c_wd_check(struct i2c_periph *periph) {
   if (periph->watchdog > WD_DELAY) {
     if (periph->watchdog == WD_DELAY + 1) {
 
-#if USE_I2C1
-      if (i2c == I2C1) {
-        nvic_disable_irq(NVIC_I2C1_EV_IRQ);
-        nvic_disable_irq(NVIC_I2C1_ER_IRQ);
-      }
-#endif
-#if USE_I2C2
-      if (i2c == I2C2) {
-        nvic_disable_irq(NVIC_I2C2_EV_IRQ);
-        nvic_disable_irq(NVIC_I2C2_ER_IRQ);
-      }
-#endif
-#if USE_I2C3
-      if (i2c == I2C3) {
-        nvic_disable_irq(NVIC_I2C3_EV_IRQ);
-        nvic_disable_irq(NVIC_I2C3_ER_IRQ);
-      }
-#endif
+      i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
+      i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
 
       i2c_peripheral_disable(i2c);
 
@@ -1370,24 +1354,8 @@ static void i2c_wd_check(struct i2c_periph *periph) {
       periph->trans_extract_idx = 0;
       periph->status = I2CIdle;
 
-#if USE_I2C1
-      if (i2c == I2C1) {
-        nvic_enable_irq(NVIC_I2C1_EV_IRQ);
-        nvic_enable_irq(NVIC_I2C1_ER_IRQ);
-      }
-#endif
-#if USE_I2C2
-      if (i2c == I2C2) {
-        nvic_enable_irq(NVIC_I2C2_EV_IRQ);
-        nvic_enable_irq(NVIC_I2C2_ER_IRQ);
-      }
-#endif
-#if USE_I2C3
-      if (i2c == I2C3) {
-        nvic_enable_irq(NVIC_I2C3_EV_IRQ);
-        nvic_enable_irq(NVIC_I2C3_ER_IRQ);
-      }
-#endif
+      i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
+      i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
 
       i2c_peripheral_enable(i2c);
       periph->watchdog = 0; // restart watchdog
