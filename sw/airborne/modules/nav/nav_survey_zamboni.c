@@ -35,6 +35,12 @@
 #include "modules/digital_cam/dc.h"
 #endif
 
+#ifndef LINE_START_FUNCTION
+#define LINE_START_FUNCTION {}
+#endif
+#ifndef LINE_STOP_FUNCTION
+#define LINE_STOP_FUNCTION {}
+#endif
 
 struct ZamboniSurvey zs;
 

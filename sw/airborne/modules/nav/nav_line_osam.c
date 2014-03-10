@@ -34,6 +34,13 @@
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 
+#ifndef LINE_START_FUNCTION
+#define LINE_START_FUNCTION {}
+#endif
+#ifndef LINE_STOP_FUNCTION
+#define LINE_STOP_FUNCTION {}
+#endif
+
 struct Point2D {float x; float y;};
 
 enum FLStatus { FLInitialize, FLCircleS, FLLine, FLFinished };
