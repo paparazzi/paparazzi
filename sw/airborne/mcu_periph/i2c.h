@@ -98,6 +98,7 @@ struct i2c_periph {
   void* reg_addr;
   void *init_struct;
   struct i2c_errors *errors;
+  int16_t watchdog;
 };
 
 
