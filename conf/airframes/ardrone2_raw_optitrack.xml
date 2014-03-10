@@ -5,6 +5,8 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
+
       <subsystem name="telemetry" type="udp"/>
       <subsystem name="radio_control" type="datalink"/>
     </target>
@@ -88,9 +90,9 @@
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
   </section>
 
-  <!-- local magnetic field -->
-  <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
+    <!-- local magnetic field -->
+    <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
     <!-- Toulouse -->
     <define name="H_X" value="0.513081"/>
     <define name="H_Y" value="-0.00242783"/>
@@ -99,6 +101,10 @@
     <!--define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/ -->
+
+    <!-- Use GPS heading instead of magneto and set maximum deviation -->
+    <define name="USE_GPS_HEADING" value="1"/>
+    <define name="MAX_ANGLE_DEVIATION" value="360"/>
   </section>
 
   <section name="INS" prefix="INS_">

@@ -111,6 +111,10 @@ PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 #define AHRS_GRAVITY_HEURISTIC_FACTOR 30
 #endif
 
+/** by default the angle may deviate only 5 degrees */
+#ifndef AHRS_MAX_ANGLE_DEVIATION
+#define AHRS_MAX_ANGLE_DEVIATION 5.0
+#endif
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // remotely settable
@@ -611,7 +615,7 @@ void ahrs_update_heading(int32_t heading) {
    * Otherwise the bias will be falsely "corrected".
    */
   int32_t sin_max_angle_deviation;
-  PPRZ_ITRIG_SIN(sin_max_angle_deviation, TRIG_BFP_OF_REAL(RadOfDeg(5.)));
+  PPRZ_ITRIG_SIN(sin_max_angle_deviation, TRIG_BFP_OF_REAL(RadOfDeg(AHRS_MAX_ANGLE_DEVIATION)));
   if (ABS(residual_ltp.z) < sin_max_angle_deviation)
   {
     // residual_ltp FRAC = 2 * TRIG_FRAC = 28
