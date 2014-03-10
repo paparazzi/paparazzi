@@ -194,5 +194,9 @@ static inline uint32_t nsec_of_cpu_ticks(uint32_t cpu_ticks) {
 /* architecture specific init implementation */
 extern void sys_time_arch_init(void);
 
+/* Generic timer macros */
+#define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
+#define SysTimeTimer(_t) ( get_sys_time_usec() - (_t))
+#define SysTimeTimerStop(_t) { _t = ( get_sys_time_usec() - (_t)); }
 
 #endif /* SYS_TIME_H */
