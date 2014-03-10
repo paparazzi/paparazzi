@@ -16,6 +16,10 @@ endif
 ap.CFLAGS += $(imu_CFLAGS)
 ap.srcs += $(imu_srcs)
 
+# Set the AHRS propegation frequencies
+AHRS_PROPAGATE_FREQUENCY ?= 200
+AHRS_CORRECT_FREQUENCY ?= 200
+
 #
 # Simulator
 #
