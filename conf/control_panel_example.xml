@@ -41,11 +41,11 @@
 
     <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
 
-    <program name="GPSd position display" command ="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
 
-    <program name="Log Plotter" command ="sw/logalizer/plot"/>
+    <program name="Log Plotter" command="sw/logalizer/plot"/>
 
-    <program name="Real-time Plotter" command ="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
 
     <program name="Log File Player" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
@@ -78,7 +78,9 @@
     <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
 
     <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
-  </section>
+
+    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+ </section>
 
 
 
