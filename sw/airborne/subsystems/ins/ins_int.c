@@ -84,6 +84,10 @@ static void sonar_cb(uint8_t sender_id, const float *distance);
 PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 #endif
 
+#ifndef INS_VFF_R_GPS
+#define INS_VFF_R_GPS 2.0
+#endif
+
 #endif // USE_SONAR
 
 #ifndef USE_INS_NAV_INIT
@@ -268,6 +272,10 @@ void ins_update_gps(void) {
     /// @todo maybe use gps.ned_vel directly??
     struct NedCoor_i gps_speed_cm_s_ned;
     ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_impl.ltp_def, &gps.ecef_vel);
+
+#if INS_USE_GPS_ALT
+    vff_update_alt_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
+#endif
 
 #if USE_HFF
     /* horizontal gps transformed to NED in meters as float */
