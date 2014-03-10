@@ -32,10 +32,15 @@
 #include "math/pprz_algebra_int.h"
 #include "generated/airframe.h"
 
-/** Speed saturation */
+/** Default speed saturation */
 #ifndef GUIDANCE_H_REF_MAX_SPEED
 #define GUIDANCE_H_REF_MAX_SPEED 5.
 #endif
+
+/** Current maximum speed for waypoint navigation.
+ * Defaults to #GUIDANCE_H_REF_MAX_SPEED
+ */
+extern float gh_max_speed;
 
 /** Accel saturation.
  * tanf(RadOfDeg(30.))*9.81 = 5.66
@@ -75,5 +80,12 @@ extern struct Int64Vect2 gh_pos_ref;
 extern void gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel);
 extern void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp);
 extern void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp);
+
+/**
+ * Set a new maximum speed for waypoint navigation.
+ * @param max_speed speed saturation in m/s
+ * @return new maximum speed
+ */
+extern float gh_set_max_speed(float max_speed);
 
 #endif /* GUIDANCE_H_REF_H */
