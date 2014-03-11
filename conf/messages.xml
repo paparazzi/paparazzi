@@ -1452,7 +1452,6 @@
      <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
-  <!-- 161 is free -->
   <message name="VFF_EXTENDED" id="161">
       <field name="measure1"        type="float"/>
       <field name="measure2"        type="float"/>
