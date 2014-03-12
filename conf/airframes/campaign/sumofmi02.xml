@@ -75,8 +75,8 @@
   <!-- commands section -->
   <servos>
     <servo name="LIGHT"         no="2" min="1000" neutral="1900" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1496" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1524" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1559" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1520" max="1900"/>
     <servo name="MOTOR"         no="5" min="1000" neutral="1000" max="2000"/>
   </servos>
 
