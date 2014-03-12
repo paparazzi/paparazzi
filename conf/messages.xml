@@ -1947,7 +1947,7 @@
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
-    <field name="blmc_nb_err"  type="uint8"/>
+    <field name="motor_nb_err"  type="uint8"/>
     <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="frame_rate"   type="uint8" unit="Hz"/>
     <field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
