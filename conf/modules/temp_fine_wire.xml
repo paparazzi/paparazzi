@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     ADC module for fine wire platinum resistance thermometer
+     @configure ADC_CHANNEL_TEMP_FINE_WIRE1 on which ADC temp input is measured
+     @configure CAL_POINT_1_ADC for adc value of calibration point 1
+     @configure CAL_POINT_1_TEMP for temperature of calibration point 1
+     @configure CAL_POINT_2_ADC for adc value of calibration point 2
+     @configure CAL_POINT_2_TEMP for temperature of calibration point 2
+     -->
+
+<module name="temp_fine_wire" dir="meteo">
+  <doc>
+    <description>Fine Wire Thermometer</description>
+    <configure name="ADC_CHANNEL_TEMP_FINE_WIRE1" value="ADCX" description="choose which ADC is used for temp input"/>
+  </doc>
+  <header>
+    <file name="temp_fine_wire.h"/>
+  </header>
+  <init fun="temp_fine_wire_init()"/>
+  <periodic fun="temp_fine_wire_periodic()" freq="20"/>
+  <makefile target="ap">
+    <file name="temp_fine_wire.c"/>
+    <raw>
+
+ifneq ($(ADC_CHANNEL_TEMP_FINE_WIRE1),)
+ap.CFLAGS += -DADC_CHANNEL_TEMP_FINE_WIRE1=$(ADC_CHANNEL_TEMP_FINE_WIRE1) -DUSE_$(ADC_CHANNEL_TEMP_FINE_WIRE1)
+endif
+
+    </raw>
+  </makefile>
+</module>

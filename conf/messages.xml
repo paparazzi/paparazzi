@@ -1757,7 +1757,13 @@
  <!--214 is free -->
  <!--215 is free -->
  <!--216 is free -->
- <!--217 is free -->
+
+  <message name="TEMP_FINE_WIRE" id="217">
+    <field name="packet_count"  type="uint32"/>
+    <field name="fast_temp_raw" type="uint16"/>
+    <field name="fast_temp"     type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
   <message name="WEATHER_METER" id="218">
     <field name="windspeed_raw" type="uint32"/>
     <field name="winddir_raw"   type="uint16"/>
