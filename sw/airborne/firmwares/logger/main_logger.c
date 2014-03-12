@@ -1,4 +1,4 @@
-#define AC_ID 23
+#define DEFAULT_AC_ID 23
 #define LOG_OTF 1
 /*
  * $Id$
@@ -225,6 +225,7 @@ int bytes = 0;
 unsigned int clock_msb = 0;
 unsigned int clock_lsb_last = 0;
 int log_run = 1;
+unsigned char ac_id = 0;
 
 /* SPI0 SLAVE */
 #if 1
@@ -374,6 +375,7 @@ void log_xbee(unsigned char c, unsigned char source)
 {
   static unsigned char xbeel_status = XBEE_UNINIT;
   static unsigned char cs, payload_idx, i;
+  static unsigned char ac_id_temp;
 
   switch (xbeel_status) {
   case XBEE_UNINIT:
@@ -400,6 +402,9 @@ void log_xbee(unsigned char c, unsigned char source)
     xbeel_payload[payload_idx] = c;
     cs += c;
     payload_idx++;
+    /* get aircraft id */
+    if (payload_idx == 5)
+      ac_id_temp = xbeel_payload[payload_idx];
     if (payload_idx == xbeel_payload_len)
       xbeel_status++;
     break;
@@ -413,6 +418,11 @@ void log_xbee(unsigned char c, unsigned char source)
     for (i = 0; i < xbeel_payload_len-XBEE_RFDATA_OFFSET; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
     }
+
+    /* set aircraft id from first correct message */
+    if (ac_id == 0)
+      ac_id = ac_id_temp;
+
 // serial receive broken with MAX
 #ifndef USE_MAX11040
     log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
@@ -490,6 +500,7 @@ void log_otf(unsigned char c, unsigned char source)
   static short course[3];
   static unsigned int altitude;
   static unsigned char checksum;
+  static msg_count = 0;
 
   switch (otf_status) {
 
@@ -581,7 +592,7 @@ course[0]=0x2345;
 course[1]=0x3456;
 course[2]=0x4567;
 */
-        log_buffer[LOG_DATA_OFFSET+0] = AC_ID;  // sender_id
+        log_buffer[LOG_DATA_OFFSET+0] = ac_id;  // sender_id
         log_buffer[LOG_DATA_OFFSET+1] = 179;    // message_id (FLOW_AP_OTF)
 
         log_buffer[LOG_DATA_OFFSET+2 + 0] = (counter      ) & 0xFF;
@@ -602,7 +613,13 @@ course[2]=0x4567;
         log_buffer[LOG_DATA_OFFSET+2 + 13] = (altitude >> 24) & 0xFF;
         log_buffer[LOG_DATA_OFFSET+2 + 14] = (checksum      ) & 0xFF;
 
-        log_payload(2 + 15, LOG_SOURCE_UART0, otf_timestamp);
+        if (ac_id != 0) {
+          log_payload(2 + 15, LOG_SOURCE_UART0, otf_timestamp);
+        }
+        else {
+          /* wait 4s before starting with the default aircraft id */
+          if (msg_count++ > 400) ac_id = DEFAULT_AC_ID;
+        }
         LED_TOGGLE(LED_RED);
       }
       otf_status = OTF_UNINIT;
@@ -651,7 +668,7 @@ int do_log(void)
 
         max11040_data = MAX11040_IDLE;
 
-        log_buffer[LOG_DATA_OFFSET+0] = AC_ID;  // sender_id
+        log_buffer[LOG_DATA_OFFSET+0] = ac_id;  // sender_id
         log_buffer[LOG_DATA_OFFSET+1] = 61;     // message_id (DL_TURB_PRESSURE_RAW)
 
 	while(max11040_buf_in != max11040_buf_out) {
