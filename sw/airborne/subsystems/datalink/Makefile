@@ -48,6 +48,7 @@ EXPORT_FILES = \
 	transport.h \
 	datalink.h \
 	$(PAPARAZZI_SRC)/sw/include/std.h \
+	$(PAPARAZZI_SRC)/sw/include/message_pragmas.h \
 	$(PAPARAZZI_HOME)/var/include/messages.h \
 	$(PAPARAZZI_HOME)/var/include/dl_protocol.h
 
