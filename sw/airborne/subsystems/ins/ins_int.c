@@ -230,11 +230,12 @@ void ins_propagate(void) {
 }
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
-  if (!ins_impl.baro_initialized) {
+  if (!ins_impl.baro_initialized && *pressure > 1e-7) {
+    // wait for a first positive value
     ins_impl.qfe = *pressure;
     ins_impl.baro_initialized = TRUE;
   }
-  if (ins_impl.vf_reset) {
+  if (ins_impl.vf_reset && ins_impl.baro_initialized) {
     ins_impl.vf_reset = FALSE;
     ins_impl.qfe = *pressure;
     vff_realign(0.);
@@ -323,7 +324,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 
 #ifdef INS_SONAR_VARIANCE_THRESHOLD
   /* compute variance of error between sonar and baro alt */
-  float err = distance + ins_impl.baro_z; // sonar positive up, baro positive down !!!!
+  float err = *distance + ins_impl.baro_z; // sonar positive up, baro positive down !!!!
   var_err[var_idx] = err;
   var_idx = (var_idx + 1) % VAR_ERR_MAX;
   float var = variance_float(var_err, VAR_ERR_MAX);

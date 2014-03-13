@@ -5,6 +5,7 @@
     <load name="rotorcraft_cam.xml"/>
     <load name="sonar_adc.xml">
       <configure name="ADC_SONAR" value="ADC_0"/>
+      <define name="USE_SONAR"/>
       <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
     </load>
     <!--load name="baro_mpl3115.xml">
@@ -24,6 +25,7 @@
   </modules>
 
   <firmware name="rotorcraft">
+    <define name="DEBUG_VFF_EXTENDED"/>
     <define name="USE_INS_NAV_INIT"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
@@ -185,7 +187,6 @@
   <section name="SONAR">
     <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
     <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
-    <define name="USE_SONAR"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">

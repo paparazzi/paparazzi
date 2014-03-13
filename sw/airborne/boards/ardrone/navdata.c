@@ -64,9 +64,8 @@ measures_t navdata;
  *  Sensor sensitivity in m/adc (float)
  */
 #ifndef SONAR_SCALE
-#define SONAR_SCALE 0.00034
+#define SONAR_SCALE 0.00047
 #endif
-
 
 // FIXME(ben): there must be a better home for these
 ssize_t full_write(int fd, const uint8_t *buf, size_t count)
@@ -482,7 +481,7 @@ void navdata_update()
         // Check if there is a new sonar measurement and update the sonar
         if (navdata.ultrasound >> 15)
         {
-          float sonar_meas = (navdata.ultrasound & 0x7FFF);
+          float sonar_meas = (float)((navdata.ultrasound & 0x7FFF) - SONAR_OFFSET) * SONAR_SCALE;
           AbiSendMsgAGL(AGL_SONAR_ARDRONE2_ID, &sonar_meas);
         }
 #endif
