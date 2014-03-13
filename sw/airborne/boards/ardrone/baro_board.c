@@ -31,10 +31,21 @@
 #include "baro_board.h"
 #include "navdata.h"
 
+/** Use an extra median filter to filter baro data
+ */
+#if USE_BARO_MEDIAN_FILTER
+#include "filters/median_filter.h"
+struct MedianFilterInt baro_median;
+#endif
+
 
 #define BMP180_OSS 0  // Parrot ARDrone uses no oversampling
 
-void baro_init(void) {}
+void baro_init(void) {
+#if USE_BARO_MEDIAN_FILTER
+  init_median_filter(&baro_median);
+#endif
+}
 
 void baro_periodic(void) {}
 
@@ -74,7 +85,11 @@ void ardrone_baro_event(void)
       // first read temperature because pressure calibration depends on temperature
       // TODO send Temperature message
       baro_apply_calibration_temp(navdata.temperature_pressure);
-      float pressure = (float)baro_apply_calibration(navdata.pressure);
+      int32_t press_raw = baro_apply_calibration(navdata.pressure);
+#if USE_BARO_MEDIAN_FILTER
+      press_raw = update_median_filter(&baro_median, press_raw);
+#endif
+      float pressure = (float)press_raw;
       AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, &pressure);
     }
     navdata_baro_available = FALSE;
