@@ -143,8 +143,9 @@ object (self)
       ~value:alt ~lower:(-100.) ~upper:10000.
       ~step_incr:1. ~page_incr:10.0 ~page_size:0. () in
     ea#set_adjustment adj;
+    ea#set_value alt; (* this should be done by set_adjustment but seems to fail on ubuntu 13.10 (at least) *)
 
-    let agl = alt -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
+    let agl = alt -. float (try Srtm.of_wgs84 initial_wgs84 with _ -> 0) in
     let agl_lab  = GMisc.label ~text:(sprintf " AGL: %4.0fm" agl) ~packing:ha#add () in
     let plus10= GButton.button ~label:"+10" ~packing:ha#add () in
     let change_alt = fun x ->

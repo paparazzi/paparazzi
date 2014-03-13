@@ -258,6 +258,7 @@ object (self)
   initializer (
 
     spin_button#set_adjustment adj;
+    spin_button#set_value 1.; (* this should be done by set_adjustment but seems to fail on ubuntu 13.10 (at least) *)
 
     utc_time#hide ();
 
