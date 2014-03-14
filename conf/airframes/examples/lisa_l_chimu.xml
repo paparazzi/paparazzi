@@ -32,6 +32,7 @@
     <load name="ahrs_chimu_uart.xml">
       <configure name="CHIMU_UART_NR" value="3"/>
     </load>
+    <load name="nav_line.xml"/>
   </modules>
 
   <servos>

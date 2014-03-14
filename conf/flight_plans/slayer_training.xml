@@ -2,8 +2,7 @@
 
 <flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="800" name="Versatile" qfu="270" security_height="25">
   <header>
-#include "subsystems/navigation/bomb.h"
-</header>
+  </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="T1" x="-172.3" y="223.2"/>
@@ -51,21 +50,21 @@
       <survey_rectangle grid="150" wp1="T3_SW" wp2="T3_NE"/>
     </block>
     <block name="bomb" strip_button="Bomb">
-      <set value="BombComputeApproach(WP_TARGET, WP_START)" var="unit"/>
-      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+      <set value="NavDropComputeApproach(WP_TARGET, WP_START)" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="NavQdrCloseTo(DegOfRad(nav_drop_start_qdr)-10)" wp="BASELEG"/>
     </block>
     <block name="align">
-      <exception cond="BombUpdateRelease(WP_TARGET)" deroute="standby"/>
-      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+      <exception cond="NavDropUpdateRelease(WP_TARGET)" deroute="standby"/>
+      <go approaching_time="nav_drop_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
     </block>
     <block name="shoot">
-      <set value="BombShoot()" var="unit"/>
+      <set value="NavDropShoot()" var="unit"/>
       <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
-      <set value="BombCloseHatch()" var="unit"/>
+      <set value="NavDropCloseHatch()" var="unit"/>
       <deroute block="standby"/>
     </block>
     <block name="close">
-      <set value="BombCloseHatch()" var="unit"/>
+      <set value="NavDropCloseHatch()" var="unit"/>
       <deroute block="standby"/>
     </block>
     <block name="arch">

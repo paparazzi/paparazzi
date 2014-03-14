@@ -54,8 +54,8 @@
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
       <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+      <call fun="nav_line_start()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" pre_call="{}">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
