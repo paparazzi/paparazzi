@@ -42,22 +42,11 @@
 #define LED_4_BANK 1
 #define LED_4_PIN 31
 
-#ifndef USE_LED_5
-#define USE_LED_5 1
-#endif
-#define LED_5_BANK 1
-#define LED_5_PIN 18
+#define POWER_SWITCH_PORT 1
+#define POWER_SWITCH_PIN 18
 
-#define POWER_SWITCH_LED 5
-
-#ifndef USE_LED_6
-#define USE_LED_6 1
-#endif
-#define LED_6_BANK 1
-#define LED_6_PIN 22
-
-#define CAM_SWITCH_LED 6
-
+#define CAM_SWITCH_PORT 1
+#define CAM_SWITCH_PIN 22
 
 /* PPM : rc rx on P0.28 ( CAP0.2 ) */
 #define PPM_PINSEL PINSEL1

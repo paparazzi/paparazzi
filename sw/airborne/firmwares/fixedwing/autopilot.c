@@ -146,6 +146,10 @@ void autopilot_init(void) {
   gps_lost = FALSE;
 
   power_switch = FALSE;
+#if (defined POWER_SWITCH_PORT) && (defined POWER_SWITCH_PIN)
+  gpio_setup_output(POWER_SWITCH_PORT, POWER_SWITCH_PIN);
+  gpio_clear(POWER_SWITCH_PORT, POWER_SWITCH_PIN);
+#endif
 
   /* register some periodic message */
   register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);

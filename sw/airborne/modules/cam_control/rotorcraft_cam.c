@@ -74,6 +74,8 @@ static void send_cam(void) {
 }
 
 void rotorcraft_cam_init(void) {
+  ROTORCRAFT_CAM_ON_INIT;
+  ROTORCRAFT_CAM_OFF_INIT;
   rotorcraft_cam_SetCamMode(ROTORCRAFT_CAM_DEFAULT_MODE);
 #if ROTORCRAFT_CAM_USE_TILT
   rotorcraft_cam_tilt_pwm = ROTORCRAFT_CAM_TILT_NEUTRAL;

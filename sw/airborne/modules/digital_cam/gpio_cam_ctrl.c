@@ -20,7 +20,7 @@
  *
  */
 
-#include "led_cam_ctrl.h"
+#include "gpio_cam_ctrl.h"
 
 // Button Timer
 uint8_t dc_timer;
@@ -33,29 +33,29 @@ void dc_send_command(uint8_t cmd)
   switch (cmd)
   {
     case DC_SHOOT:
-      DC_PUSH(DC_SHUTTER_LED);
+      DC_PUSH(DC_SHUTTER_PORT, DC_SHUTTER_PIN);
 #ifndef DC_SHOOT_ON_BUTTON_RELEASE
       dc_send_shot_position();
 #endif
       break;
-#ifdef DC_ZOOM_IN_LED
+#if (defined DC_ZOOM_IN_PORT) && (defined DC_ZOOM_IN_PIN)
     case DC_TALLER:
-      DC_PUSH(DC_ZOOM_IN_LED);
+      DC_PUSH(DC_ZOOM_IN_PORT, DC_ZOOM_IN_PIN);
       break;
 #endif
-#ifdef DC_ZOOM_OUT_LED
+#if (defined DC_ZOOM_OUT_PORT) && (defined DC_ZOOM_OUT_PIN)
     case DC_WIDER:
-      DC_PUSH(DC_ZOOM_OUT_LED);
+      DC_PUSH(DC_ZOOM_OUT_PORT, DC_ZOOM_OUT_PIN);
       break;
 #endif
-#ifdef DC_POWER_LED
+#if (defined DC_POWER_PORT) && (defined DC_POWER_PIN)
     case DC_ON:
-      DC_PUSH(DC_POWER_LED);
+      DC_PUSH(DC_POWER_PORT, DC_POWER_PIN);
       break;
 #endif
-#ifdef DC_POWER_OFF_LED
+#if (defined DC_POWER_OFF_PORT) && (defined DC_POWER_OFF_PIN)
     case DC_OFF:
-      DC_PUSH(DC_POWER_OFF_LED);
+      DC_PUSH(DC_POWER_OFF_PORT, DC_POWER_OFF_PIN);
       dc_timer = DC_POWER_OFF_DELAY;
       break;
 #endif

@@ -17,39 +17,19 @@
 /* Peripheral bus clock freq. */
 #define PCLK (CCLK / PBSD_VAL)
 
-/* Onboard LEDs */
-/* led 1 and led 2 are not seperate leds, but leds indicating the power switch status */
+/* power switch status */
+#define POWER_SWITCH_PORT 1
+#define POWER_SWITCH_PIN 18
 
-#ifndef USE_LED_1
-#define USE_LED_1 1
-#endif
-#define LED_1_BANK 1
-#define LED_1_PIN 18
+#define POWER_SWITCH_2_PORT 1
+#define POWER_SWITCH_2_PIN 19
 
-#ifndef USE_LED_2
-#define USE_LED_2 1
-#endif
-#define LED_2_BANK 1
-#define LED_2_PIN 19
+/* buzzer and cam switch */
+#define BUZZER_PORT 1
+#define BUZZER_PIN 20
 
-#define POWER_SWITCH_LED 1
-#define POWER_SWITCH_2_LED 2
-
-/* there are no actual leds 3 and 4, these defines are just to conveniently switch the buzzer and the cam switch */
-#ifndef USE_LED_3
-#define USE_LED_3 1
-#endif
-#define LED_3_BANK 1
-#define LED_3_PIN 20
-
-#ifndef USE_LED_4
-#define USE_LED_4 1
-#endif
-#define LED_4_BANK 1
-#define LED_4_PIN 25
-
-#define BUZZER_LED 3
-#define CAM_SWITCH_LED 4
+#define CAM_SWITCH_PORT 1
+#define CAM_SWITCH_PIN 25
 
 /* P0.22 aka MAT0.0  */
 #define SERVO_CLOCK_PIN  22

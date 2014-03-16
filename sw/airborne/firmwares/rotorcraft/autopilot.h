@@ -106,15 +106,15 @@ extern uint16_t autopilot_flight_time;
       autopilot_set_motors_on(TRUE);    \
   }
 
-#ifdef POWER_SWITCH_LED
-#define autopilot_SetPowerSwitch(_v) {          \
-    autopilot_power_switch = _v;                \
-    if (_v) { LED_OFF(POWER_SWITCH_LED); }      \
-    else { LED_ON(POWER_SWITCH_LED); }          \
+#if (defined POWER_SWITCH_PORT) && (defined POWER_SWITCH_PIN)
+#define autopilot_SetPowerSwitch(_v) {                          \
+    autopilot_power_switch = _v;                                \
+    if (_v) { gpio_set(POWER_SWITCH_PORT, POWER_SWITCH_PIN); }  \
+    else { gpio_clear(POWER_SWITCH_PORT, POWER_SWITCH_PIN); }   \
   }
 #else
-#define autopilot_SetPowerSwitch(_v) {		\
-    autopilot_power_switch = _v;		\
+#define autopilot_SetPowerSwitch(_v) {  \
+    autopilot_power_switch = _v;        \
   }
 #endif
 
