@@ -38,13 +38,7 @@
 #define LED_2_PIN 19
 
 /* Switch pin */
-#ifndef USE_LED_3
-#define USE_LED_3 1
-#endif
-#define LED_3_BANK 0
-#define LED_3_PIN 11
-
-#define POWER_SWITCH_LED 3
+#define POWER_SWITCH_GPIO GPIOA,GPIO11
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_4015.h"

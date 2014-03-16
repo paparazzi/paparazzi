@@ -217,8 +217,9 @@ void autopilot_init(void) {
   autopilot_flight_time = 0;
   autopilot_rc = TRUE;
   autopilot_power_switch = FALSE;
-#ifdef POWER_SWITCH_LED
-  LED_ON(POWER_SWITCH_LED); // POWER OFF
+#ifdef POWER_SWITCH_GPIO
+  gpio_setup_output(POWER_SWITCH_GPIO);
+  gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
 #endif
 
   autopilot_arming_init();
