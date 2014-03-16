@@ -40,11 +40,11 @@
 #ifndef ROTORCRAFT_CAM_H
 #define ROTORCRAFT_CAM_H
 
+#include "std.h"
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 #include "math/pprz_algebra_int.h"
-#include "std.h"
-#include "led.h"
+#include "mcu_periph/gpio.h"
 
 #define ROTORCRAFT_CAM_MODE_NONE     0
 #define ROTORCRAFT_CAM_MODE_MANUAL   1
@@ -58,21 +58,22 @@
 
 /** Cam power control.
  * By default CAM_SWITCH is used
- * Warning:
- *  LED_ON set GPIO low on some boards (lpc)
- *  LED_OFF set GPIO high on some boards (lpc)
  */
 #ifndef ROTORCRAFT_CAM_ON
-#ifdef CAM_SWITCH_LED
-#define ROTORCRAFT_CAM_ON LED_OFF(CAM_SWITCH_LED)
+#if (defined CAM_SWITCH_PORT) && (defined CAM_SWITCH_PIN)
+#define ROTORCRAFT_CAM_ON_INIT gpio_setup_output(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
+#define ROTORCRAFT_CAM_ON gpio_set(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
 #else
+#define ROTORCRAFT_CAM_ON_INIT {}
 #define ROTORCRAFT_CAM_ON {}
 #endif
 #endif
 #ifndef ROTORCRAFT_CAM_OFF
-#ifdef CAM_SWITCH_LED
-#define ROTORCRAFT_CAM_OFF LED_ON(CAM_SWITCH_LED)
+#if (defined CAM_SWITCH_PORT) && (defined CAM_SWITCH_PIN)
+#define ROTORCRAFT_CAM_OFF_INIT gpio_setup_output(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
+#define ROTORCRAFT_CAM_OFF gpio_clear(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
 #else
+#define ROTORCRAFT_CAM_OFF_INIT {}
 #define ROTORCRAFT_CAM_OFF {}
 #endif
 #endif
