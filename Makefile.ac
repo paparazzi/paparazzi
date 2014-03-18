@@ -49,6 +49,15 @@ MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AUTOPILOT_H=$(AC_GENERATED)/autopilot_core.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
+
+NBPROC = $(shell grep "processor" /proc/cpuinfo)
+ifneq ("$(NBPROC)", "")
+	SPEEDUPCOMPILATION=-j$(shell grep "processor" /proc/cpuinfo | sort -u | wc -l )
+else
+  SPEEDUPCOMPILATION=
+endif
+
+
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
 	MKTEMP = gmktemp
@@ -177,7 +186,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 	+$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 %.compile: %.ac_h print_version
-	cd $(AIRBORNE); $(MAKE) TARGET=$* all
+	cd $(AIRBORNE); $(MAKE) $(SPEEDUPCOMPILATION) TARGET=$* all; $(MAKE) $(SPEEDUPCOMPILATION) TARGET=$* all
 
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
@@ -197,3 +206,4 @@ clean_ac :
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 .PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
+

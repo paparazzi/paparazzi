@@ -117,6 +117,17 @@
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
 
+/* dualPWM actuators driver */
+#define DEFAULT_DUAL_ACTUATORS "subsystems/actuators/actuators_dualpwm.h"
+#include "subsystems/actuators/actuators_dualpwm.h"
+/*#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorsDefaultInit() ActuatorsPwmInit()
+#define ActuatorsDefaultCommit() ActuatorsPwmCommit()*/
+
+
+
+
+
 #define DefaultVoltageOfAdc(adc) (0.0045*adc)
 
 
