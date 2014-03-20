@@ -60,18 +60,18 @@
  * By default CAM_SWITCH is used
  */
 #ifndef ROTORCRAFT_CAM_ON
-#if (defined CAM_SWITCH_PORT) && (defined CAM_SWITCH_PIN)
-#define ROTORCRAFT_CAM_ON_INIT gpio_setup_output(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
-#define ROTORCRAFT_CAM_ON gpio_set(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
+#ifdef CAM_SWITCH_GPIO
+#define ROTORCRAFT_CAM_ON_INIT gpio_setup_output(CAM_SWITCH_GPIO)
+#define ROTORCRAFT_CAM_ON gpio_set(CAM_SWITCH_GPIO)
 #else
 #define ROTORCRAFT_CAM_ON_INIT {}
 #define ROTORCRAFT_CAM_ON {}
 #endif
 #endif
 #ifndef ROTORCRAFT_CAM_OFF
-#if (defined CAM_SWITCH_PORT) && (defined CAM_SWITCH_PIN)
-#define ROTORCRAFT_CAM_OFF_INIT gpio_setup_output(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
-#define ROTORCRAFT_CAM_OFF gpio_clear(CAM_SWITCH_PORT, CAM_SWITCH_PIN)
+#ifdef CAM_SWITCH_GPIO
+#define ROTORCRAFT_CAM_OFF_INIT gpio_setup_output(CAM_SWITCH_GPIO)
+#define ROTORCRAFT_CAM_OFF gpio_clear(CAM_SWITCH_GPIO)
 #else
 #define ROTORCRAFT_CAM_OFF_INIT {}
 #define ROTORCRAFT_CAM_OFF {}
