@@ -31,7 +31,7 @@ AIRBORNE=sw/airborne
 MESSAGES_XML = $(CONF)/messages.xml
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
-AC_GENERATED = $(ACINCLUDE)/generated
+AC_GENERATED = $(ACINCLUDE)/$(TARGET)/generated
 
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
 PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
@@ -196,4 +196,4 @@ clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version $(MODULES_H)
+.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
