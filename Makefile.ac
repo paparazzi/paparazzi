@@ -152,7 +152,7 @@ $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELE
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 
-$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
+$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -174,7 +174,7 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 %.ac_h : $(TOOLS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo BUILD $(AIRCRAFT), TARGET $*
-	+$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 %.compile: %.ac_h print_version
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
@@ -196,4 +196,4 @@ clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
+.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version $(MODULES_H)
