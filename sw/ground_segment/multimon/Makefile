@@ -106,13 +106,16 @@ $(BINDIR)/multimon:	$(OBJ_L2) $(OBJ_L1) $(OBJ_MISC)
 	$(Q)$(CC) $^ $(LDFLAGS) $(LDFLAGSX) -o $@
 
 $(BINDIR)/gen: $(OBJ_GEN)
-	$(CC) $^ $(LDFLAGS) -o $@
+	@echo LD $@
+	$(Q)$(CC) $^ $(LDFLAGS) -o $@
 
 $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
-	$(CC) $^ $(LDFLAGS) -o $@
+	@echo LD $@
+	$(Q)$(CC) $^ $(LDFLAGS) -o $@
 
 costabi.c costabf.c:	$(BINDIR)/mkcostab
-	$(BINDIR)/mkcostab
+	@echo EXEC $<
+	$(Q)$(BINDIR)/mkcostab
 
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
@@ -124,10 +127,12 @@ hdlc_test : multimon.cma test_gen_hdlc.ml
 hdlc.cmo : hdlc.cmi
 
 %.cmo : %.ml
-	$(OCAMLC) -c $<
+	@echo OC $<
+	$(Q)$(OCAMLC) -c $<
 
 %.cmi : %.mli
-	$(OCAMLC) $<
+	@echo OC $<
+	$(Q)$(OCAMLC) $<
 
 clean:
 	$(Q)rm -fr *.cm* mkcostab .depend

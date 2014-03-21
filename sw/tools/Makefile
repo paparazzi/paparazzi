@@ -22,6 +22,8 @@
 # Quiet compilation
 Q=@
 
+CC = gcc
+
 include ../Makefile.ocaml
 
 INCLUDES =
@@ -44,7 +46,8 @@ all: find_free_msg_id.out mergelogs
 	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 mergelogs: mergelogs.c
-	gcc mergelogs.c -o mergelogs
+	@echo LD $@
+	$(Q)$(CC) mergelogs.c -o mergelogs
 
 clean:
 	$(Q)rm -f *.cm* *.out *~ .depend mergelogs
@@ -56,7 +59,8 @@ clean:
 #
 
 .depend: Makefile
-	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml *.mli > .depend
+	@echo DEPEND $@
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml *.mli > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

@@ -151,7 +151,8 @@ c_ivy_client_example_3: c_ivy_client_example_3.c
 	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 ivy_serial_bridge: ivy_serial_bridge.c
-	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
+	@echo OL $@
+	$(Q)$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 
 .PHONY: all opt clean
@@ -161,7 +162,8 @@ ivy_serial_bridge: ivy_serial_bridge.c
 #
 
 .depend: Makefile
-	$(OCAMLDEP) -I $(LIBPPRZDIR) -I ../multimon *.ml* > .depend
+	@echo DEPEND $@
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) -I ../multimon *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

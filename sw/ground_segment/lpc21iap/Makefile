@@ -39,7 +39,8 @@ clean:
 app: $(APPNAME)
 
 $(APPNAME):	$(SOURCES) Makefile
-	$(CC) $(CFLAGS) $(SOURCES) -o $(APPNAME) -l$(LIBNAME)
+	@echo LD $@
+	$(Q)$(CC) $(CFLAGS) $(SOURCES) -o $(APPNAME) -l$(LIBNAME)
 
 # Builds archive tar file
 arch: clean

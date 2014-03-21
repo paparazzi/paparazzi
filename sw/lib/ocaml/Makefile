@@ -187,7 +187,8 @@ clean :
 #
 
 .depend: Makefile $(GEN_DEP)
-	$(OCAMLDEP) *.ml* > .depend
+	@echo DEPEND $@
+	$(Q)$(OCAMLDEP) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend
