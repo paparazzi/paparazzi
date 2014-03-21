@@ -37,7 +37,7 @@
       <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
-    <block key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="Poles 1" strip_button="Line (wp 1-2)" strip_icon="line.png">

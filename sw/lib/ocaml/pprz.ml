@@ -241,6 +241,17 @@ let alt_unit_coef_of_xml = fun ?auto xml ->
     in
     coef
 
+let key_modifiers_of_string = fun key ->
+  let key_split = Str.split (Str.regexp "[A-Za-z]+\\+") key in
+  let keys = List.map (fun k ->
+    match k with
+    | "Ctrl" -> "<Control>"
+    | "Alt" -> "<Alt>"
+    | "Shift" -> "<Shift>"
+    | "Meta" -> "<Meta>"
+    | x -> x
+  ) key_split in
+  String.concat "" keys
 
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->

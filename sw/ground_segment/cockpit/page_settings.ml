@@ -58,7 +58,7 @@ let search_index = fun value array ->
 
 
 let add_key = fun xml do_change keys ->
-  let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib xml "key")
+  let key, modifiers = GtkData.AccelGroup.parse (Pprz.key_modifiers_of_string (Xml.attrib xml "key"))
   and value = ExtXml.float_attrib xml "value" in
   keys := (key, (modifiers, fun () -> do_change value)) :: !keys
 
