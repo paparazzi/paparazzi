@@ -30,11 +30,14 @@
 #include "std.h"
 
 /**
- * Dummy macro to use radio.h file
+ * Macro to use radio.h file
+ *
+ *  SBUS:   0..1024..2047 (sweep 2048)
+ *  PPM:  880..1520..2160 (sweep 1280)
  */
-#define RC_PPM_TICKS_OF_USEC(_v)        (_v)
-#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (_v)
-#define USEC_OF_RC_PPM_TICKS(_v)        (_v)
+#define RC_PPM_TICKS_OF_USEC(_v)        ((((_v) - 880) * 8) / 5)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_v) (((_v) * 8) / 5)
+#define USEC_OF_RC_PPM_TICKS(_v)        ((((_v) * 5) / 8) + 880)
 
 /**
  * Generated code holding the description of a given
@@ -60,6 +63,7 @@
  */
 struct _sbus {
   uint16_t pulses[SBUS_NB_CHANNEL]; ///< decoded values
+  uint16_t ppm[SBUS_NB_CHANNEL];    ///< decoded and converted values
   bool_t frame_available;           ///< new frame available
   uint8_t buffer[SBUS_BUF_LENGTH];  ///< input buffer
   uint8_t idx;                      ///< input index

@@ -45,11 +45,11 @@
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="Futaba T10CG with SBUS" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="A" function="ROLL"     min="363" neutral="1024" max="1683" average="0"/>
- <channel ctl="B" function="PITCH"    min="363" neutral="1024" max="1683" average="0"/>
- <channel ctl="C" function="THROTTLE" min="1683" neutral="1683" max="363" average="0"/>
- <channel ctl="D" function="YAW"      min="363" neutral="1024" max="1683" average="0"/>
- <channel ctl="E" function="MODE"     max="137" neutral="1024" min="1908" average="1"/>
- <channel ctl="F" function="GAIN1"    min="137" neutral="1024" max="1908" average="0"/>
- <channel ctl="G" function="GAIN2"    min="137" neutral="1024" max="1908" average="0"/>
+ <channel ctl="A" function="ROLL"     min="1107" neutral="1520" max="1932" average="0"/>
+ <channel ctl="B" function="PITCH"    min="1107" neutral="1520" max="1932" average="0"/>
+ <channel ctl="C" function="THROTTLE" min="1932" neutral="1932" max="1107" average="0"/>
+ <channel ctl="D" function="YAW"      min="1107" neutral="1520" max="1932" average="0"/>
+ <channel ctl="E" function="MODE"     max="966" neutral="1520" min="2072" average="1"/>
+ <channel ctl="F" function="GAIN1"    min="966" neutral="1520" max="2072" average="0"/>
+ <channel ctl="G" function="GAIN2"    min="966" neutral="1520" max="2072" average="0"/>
 </radio>
