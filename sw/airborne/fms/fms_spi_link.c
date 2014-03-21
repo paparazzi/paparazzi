@@ -43,30 +43,30 @@ int spi_link_init(void) {
 
 int spi_link_send(void *buf_out, size_t count, void *buf_in, uint8_t* crc_valid) {
 
- int ret;
+  int ret;
 
- struct spi_ioc_transfer tr = {
-   .tx_buf        = (unsigned long)buf_out,
-   .rx_buf        = (unsigned long)buf_in,
-   .len           = count,
-   .delay_usecs   = spi_link.delay,
-   .speed_hz      = spi_link.speed,
-   .bits_per_word = spi_link.bits,
- };
+  struct spi_ioc_transfer tr = {
+    .tx_buf        = (unsigned long)buf_out,
+    .rx_buf        = (unsigned long)buf_in,
+    .len           = count,
+    .delay_usecs   = spi_link.delay,
+    .speed_hz      = spi_link.speed,
+    .bits_per_word = spi_link.bits,
+  };
 
- ((uint8_t*)buf_out)[count-1] = crc_calc_block_crc8(buf_out, count-1);
- ret = ioctl(spi_link.fd, SPI_IOC_MESSAGE(1), &tr);
- spi_link.msg_cnt++;
+  ((uint8_t*)buf_out)[count-1] = crc_calc_block_crc8(buf_out, count-1);
+  ret = ioctl(spi_link.fd, SPI_IOC_MESSAGE(1), &tr);
+  spi_link.msg_cnt++;
 
- uint8_t computed_crc = crc_calc_block_crc8(buf_in, count-1);
- if (computed_crc == ((uint8_t*)buf_in)[count-1])
-   *crc_valid = 1;
- else {
-   *crc_valid = 0;
-   spi_link.crc_err_cnt++;
- }
+  uint8_t computed_crc = crc_calc_block_crc8(buf_in, count-1);
+  if (computed_crc == ((uint8_t*)buf_in)[count-1])
+    *crc_valid = 1;
+  else {
+    *crc_valid = 0;
+    spi_link.crc_err_cnt++;
+  }
 
- return ret;
+  return ret;
 
 }
 
@@ -80,9 +80,9 @@ uint8_t crc_calc_block_crc8(const uint8_t buf[], uint32_t len) {
     _remainder ^= (buf[byte] << (WIDTH - 8));
     for (uint8_t bit = 8; bit > 0; --bit)  {
       if (_remainder & TOPBIT)
-	_remainder = (_remainder << 1) ^ POLYNOMIAL;
+        _remainder = (_remainder << 1) ^ POLYNOMIAL;
       else
-	_remainder = (_remainder << 1);
+        _remainder = (_remainder << 1);
     }
   }
   return (_remainder);
@@ -102,10 +102,10 @@ void crc__init(uint32_t polynomial) {
     crc_remainder = crc_dividend << (CRC__WIDTH - 8);
     for(bit = 8; bit > 0; bit--) {
       if(crc_remainder & top_bit) {
-	crc_remainder = (crc_remainder << 1) ^ polynomial;
+        crc_remainder = (crc_remainder << 1) ^ polynomial;
       }
       else {
-	crc_remainder = (crc_remainder << 1);
+        crc_remainder = (crc_remainder << 1);
       }
     }
     crc__table[crc_dividend] = crc_remainder;

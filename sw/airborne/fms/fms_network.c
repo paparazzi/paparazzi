@@ -44,7 +44,7 @@ int network_write(struct FmsNetwork* me, char* buf, int len) {
   ssize_t byte_written = sendto(me->socket_out, buf, len, MSG_DONTWAIT,
                                 (struct sockaddr*)&me->addr_out, sizeof(me->addr_out));
   if ( byte_written != len) {
-    TRACE(TRACE_ERROR, "error sending to network %d (%d)\n", byte_written, errno);
+    TRACE(TRACE_ERROR, "error sending to network %d (%d)\n", (int)byte_written, errno);
   }
   return len;
 }

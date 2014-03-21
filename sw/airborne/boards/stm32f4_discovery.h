@@ -12,7 +12,7 @@
  * PA7  = SPI1 MOSI if STM32F4_DISCOVERY_SPI1_FOR_LIS302
  * PA8  = SPECTRUM BIND
  * PA9  = FREE (ONLY if usb is not active during runtime, PC0 must be high or input )
- * PA10 = UART2 (Spektrum input)
+ * PA10 = UART1 RX (Spektrum input)
  * PA11 = FREE if usb is not active during runtime
  * PA12 = FREE if usb is not active during runtime
  * PA13 = FREE
@@ -109,7 +109,6 @@
 #define USE_LED_3 1
 #endif
 #define LED_3_GPIO GPIOD
-#define LED_3_GPIO_CLK RCC_GPIOD
 #define LED_3_GPIO_PIN GPIO13
 #define LED_3_AFIO_REMAP ((void)0)
 #define LED_3_GPIO_ON gpio_set
@@ -120,7 +119,6 @@
 #define USE_LED_4 1
 #endif
 #define LED_4_GPIO GPIOD
-#define LED_4_GPIO_CLK RCC_GPIOD
 #define LED_4_GPIO_PIN GPIO12
 #define LED_4_AFIO_REMAP ((void)0)
 #define LED_4_GPIO_ON gpio_set
@@ -131,7 +129,6 @@
 #define USE_LED_5 1
 #endif
 #define LED_5_GPIO GPIOD
-#define LED_5_GPIO_CLK RCC_GPIOD
 #define LED_5_GPIO_PIN GPIO14
 #define LED_5_AFIO_REMAP ((void)0)
 #define LED_5_GPIO_ON gpio_set
@@ -142,7 +139,6 @@
 #define USE_LED_6 1
 #endif
 #define LED_6_GPIO GPIOD
-#define LED_6_GPIO_CLK RCC_GPIOD
 #define LED_6_GPIO_PIN GPIO15
 #define LED_6_AFIO_REMAP ((void)0)
 #define LED_6_GPIO_ON gpio_set
@@ -156,7 +152,6 @@
 #define USE_LED_9 1
 #endif
 #define LED_9_GPIO GPIOA
-#define LED_9_GPIO_CLK RCC_GPIOA
 #define LED_9_GPIO_PIN GPIO9
 #define LED_9_AFIO_REMAP ((void)0)
 #define LED_9_GPIO_ON gpio_set
@@ -598,13 +593,13 @@
 #define SPEKTRUM_BIND_PIN GPIO8
 #define SPEKTRUM_BIND_PIN_PORT GPIOA
 
-#define SPEKTRUM_UART2_RCC RCC_USART1
-#define SPEKTRUM_UART2_BANK GPIOA
-#define SPEKTRUM_UART2_PIN GPIO10
-#define SPEKTRUM_UART2_AF GPIO_AF7
-#define SPEKTRUM_UART2_IRQ NVIC_USART1_IRQ
-#define SPEKTRUM_UART2_ISR usart1_isr
-#define SPEKTRUM_UART2_DEV USART1
+#define SPEKTRUM_UART1_RCC RCC_USART1
+#define SPEKTRUM_UART1_BANK GPIOA
+#define SPEKTRUM_UART1_PIN GPIO10
+#define SPEKTRUM_UART1_AF GPIO_AF7
+#define SPEKTRUM_UART1_IRQ NVIC_USART1_IRQ
+#define SPEKTRUM_UART1_ISR usart1_isr
+#define SPEKTRUM_UART1_DEV USART1
 
 
 #endif /* CONFIG_STM32F4_DISCOVERY_H */

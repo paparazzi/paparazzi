@@ -22,11 +22,9 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/krooz.ld
 
 # -----------------------------------------------------------------------
 
-ifndef FLASH_MODE
-FLASH_MODE = DFU
-#FLASH_MODE = JTAG
-#FLASH_MODE = SERIAL
-endif
+# default flash mode is via usb dfu bootloader (luftboot)
+# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
+FLASH_MODE ?= DFU
 
 DFU_ADDR = 0x8004000
 DFU_PRODUCT = any

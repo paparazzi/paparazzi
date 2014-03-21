@@ -75,8 +75,8 @@ static inline void main_event_task( void ) {
 #define S0SPCR_SPIE        (1<<7)  /* interrupt enable     */
 
 #define S0SPCR_LSF_VAL (S0SPCR_bit_enable | S0SPCR_CPHA | \
-			S0SPCR_CPOL | S0SPCR_MSTR | \
-			S0SPCR_LSBF | S0SPCR_SPIE);
+      S0SPCR_CPOL | S0SPCR_MSTR | \
+      S0SPCR_LSBF | S0SPCR_SPIE);
 
 #define CPSDVSR 64
 

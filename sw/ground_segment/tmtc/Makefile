@@ -54,58 +54,58 @@ $(VAR)/boa.conf :$(CONF)/boa.conf
 	sed 's|PAPARAZZI_HOME|$(PAPARAZZI_HOME)|' < $< > $@
 
 
-messages : messages.cmo
+messages : messages.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
-settings : settings.cmo ../cockpit/page_settings.cmo
+settings : settings.cmo ../cockpit/page_settings.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo -I ../cockpit gtk_save_settings.cmo saveSettings.cmo page_settings.cmo $<
 
-server : $(SERVERCMO)
+server : $(SERVERCMO) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(SERVERCMO)
 
-server.opt :  $(SERVERCMX)
+server.opt :  $(SERVERCMX) $(LIBPPRZCMXA)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(INCLUDES) -o $@ -package glibivy,pprz -linkpkg $(SERVERCMX)
 
-link : link.cmo $(LIBMULTIMONCMA)
+link : link.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA)
+ivy_tcp_aircraft : ivy_tcp_aircraft.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA)
+ivy_tcp_controller : ivy_tcp_controller.cmo  $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-broadcaster : broadcaster.cmo $(LIBMULTIMONCMA)
+broadcaster : broadcaster.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-ivy2udp : ivy2udp.cmo
+ivy2udp : ivy2udp.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 
-dia : dia.cmo $(LIBMULTIMONCMA)
+dia : dia.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-diadec : diadec.cmo $(LIBMULTIMONCMA)
+diadec : diadec.cmo $(LIBMULTIMONCMA) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $(LIBMULTIMONDLL) $<
 
 
-150m : 150m.cmo
+150m : 150m.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 

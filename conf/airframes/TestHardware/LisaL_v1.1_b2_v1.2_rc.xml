@@ -210,7 +210,6 @@
     </section>
 
     <section name="AHRS" prefix="AHRS_">
-        <define name="PROPAGATE_FREQUENCY" value="512"/>
         <define name="H_X" value=" 0.3723657"/>
         <define name="H_Y" value=" 0.1515225"/>
         <define name="H_Z" value="-0.9156335"/>

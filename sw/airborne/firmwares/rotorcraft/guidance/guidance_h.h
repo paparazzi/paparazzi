@@ -112,4 +112,8 @@ extern void guidance_h_run(bool_t in_flight);
     guidance_h_use_ref = _val && GUIDANCE_H_USE_REF;    \
   }
 
+#define guidance_h_SetMaxSpeed(_val) {          \
+    gh_set_max_speed(_val);                     \
+  }
+
 #endif /* GUIDANCE_H_H */

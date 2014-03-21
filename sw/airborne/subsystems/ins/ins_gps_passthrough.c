@@ -53,35 +53,35 @@ void ins_reset_local_origin(void) {
   utm_of_lla_f(&utm, &lla);
 #else
   utm.zone = gps.utm_pos.zone;
-  utm.east = gps.utm_pos.east/100;
-  utm.north = gps.utm_pos.north/100;
+  utm.east = gps.utm_pos.east / 100.0f;
+  utm.north = gps.utm_pos.north / 100.0f;
 #endif
   // ground_alt
-  utm.alt = gps.hmsl/1000.;
+  utm.alt = gps.hmsl / 1000.0f;
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 }
 
 void ins_reset_altitude_ref(void) {
   struct UtmCoor_f utm = state.utm_origin_f;
-  utm.alt = gps.hmsl/1000.;
+  utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);
 }
 
 void ins_update_gps(void) {
   struct UtmCoor_f utm;
-  utm.east = gps.utm_pos.east / 100.;
-  utm.north = gps.utm_pos.north / 100.;
+  utm.east = gps.utm_pos.east / 100.0f;
+  utm.north = gps.utm_pos.north / 100.0f;
   utm.zone = nav_utm_zone0;
-  utm.alt = gps.hmsl / 1000.;
+  utm.alt = gps.hmsl / 1000.0f;
 
   // set position
   stateSetPositionUtm_f(&utm);
 
   struct NedCoor_f ned_vel = {
-    gps.ned_vel.x / 100.,
-    gps.ned_vel.y / 100.,
-    gps.ned_vel.z / 100.
+    gps.ned_vel.x / 100.0f,
+    gps.ned_vel.y / 100.0f,
+    gps.ned_vel.z / 100.0f
   };
   // set velocity
   stateSetSpeedNed_f(&ned_vel);

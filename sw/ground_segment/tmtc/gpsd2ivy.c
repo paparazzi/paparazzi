@@ -20,7 +20,7 @@
  *
  */
 
-/** \file gpsd_ivy.c
+/** \file gpsd2ivy.c
  *  \brief GPSd forwarder
  *
  *   This receives position information through gpsd and forwards it
@@ -48,7 +48,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <getopt.h>
 #include <math.h>
 #include <sys/select.h>
 #include <sys/socket.h>
@@ -66,6 +68,10 @@
 #define TIMEOUT_PERIOD 200
 
 struct gps_data_t *gpsdata;
+gboolean verbose;
+char* server;
+char* port;
+char* ivy_bus;
 
 static void update_gps(struct gps_data_t *gpsdata,
                        char *message,
@@ -83,14 +89,22 @@ static void update_gps(struct gps_data_t *gpsdata,
         (gpsdata->fix.mode >= MODE_2D) &&
         (gpsdata->fix.time != fix_time))
     {
-        if (isnan(gpsdata->fix.track) != 0) fix_track = gpsdata->fix.track;
-        if (isnan(gpsdata->fix.speed) != 0) fix_speed = gpsdata->fix.speed;
+        if (!isnan(gpsdata->fix.track))
+            fix_track = gpsdata->fix.track;
+        if (!isnan(gpsdata->fix.speed))
+            fix_speed = gpsdata->fix.speed;
 
         if (gpsdata->fix.mode >= MODE_3D)
         {
-            if (isnan(gpsdata->fix.altitude) != 0) fix_altitude = gpsdata->fix.altitude;
-            if (isnan(gpsdata->fix.climb) != 0) fix_climb = gpsdata->fix.climb;
+            if (!isnan(gpsdata->fix.altitude))
+                fix_altitude = gpsdata->fix.altitude;
+            if (!isnan(gpsdata->fix.climb))
+                fix_climb = gpsdata->fix.climb;
         }
+
+        if (verbose)
+            printf("sending gps info viy Ivy: lat %g, lon %g, speed %g, course %g, alt %g, climb %g\n",
+                   gpsdata->fix.latitude, gpsdata->fix.longitude, fix_speed, fix_track, fix_altitude, fix_climb);
 
         IvySendMsg("%s %s %s %f %f %f %f %f %f %f %f %f %f %f %d",
                 MSG_DEST,
@@ -111,6 +125,12 @@ static void update_gps(struct gps_data_t *gpsdata,
 
         fix_time = gpsdata->fix.time;
     }
+    else
+    {
+        if (verbose)
+            printf("ignoring gps data: lat %f, lon %f, mode %d, time %f\n", gpsdata->fix.latitude,
+                   gpsdata->fix.longitude, gpsdata->fix.mode, gpsdata->fix.time);
+    }
 }
 
 static gboolean gps_periodic(gpointer data __attribute__ ((unused)))
@@ -118,26 +138,94 @@ static gboolean gps_periodic(gpointer data __attribute__ ((unused)))
     if (gps_waiting (gpsdata, 500)) {
         if (gps_read (gpsdata) == -1) {
             perror("gps read error");
-            //exit 2;
-            //ret = 2;
-            //running = false;
         } else {
             update_gps(gpsdata, NULL, 0);
         }
     }
+    return TRUE;
 }
 
-int main(int argc, char *argv[])
+gboolean parse_args(int argc, char** argv)
 {
-    char *server = NULL, *port = DEFAULT_GPSD_PORT;
-    bool running = true;
-    int ret = 0;
-    GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
+    verbose = FALSE;
+    server = "localhost";
+    port = DEFAULT_GPSD_PORT;
+#ifdef __APPLE__
+    ivy_bus = "224.255.255.255";
+#else
+    ivy_bus = "127.255.255.255";
+#endif
 
+    static const char* usage =
+        "Usage: %s [options]\n"
+        " Options :\n"
+        "   -h --help                              Display this help\n"
+        "   -v --verbose                           Print verbose information\n"
+        "   --server <gpsd server>                 e.g. localhost\n"
+        "   --port <gpsd port>                     e.g. 2947\n"
+        "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n";
+
+    while (1) {
+
+        static struct option long_options[] = {
+            {"ivy_bus", 1, NULL, 0},
+            {"server", 1, NULL, 0},
+            {"port", 1, NULL, 0},
+            {"help", 0, NULL, 'h'},
+            {"verbose", 0, NULL, 'v'},
+            {0, 0, 0, 0}
+        };
+        int option_index = 0;
+        int c = getopt_long(argc, argv, "vh",
+                            long_options, &option_index);
+        if (c == -1)
+            break;
+
+        switch (c) {
+            case 0:
+                switch (option_index) {
+                    case 0:
+                        ivy_bus = strdup(optarg); break;
+                    case 1:
+                        server = strdup(optarg); break;
+                    case 2:
+                        port = strdup(optarg); break;
+                    default:
+                        break;
+                }
+                break;
+
+            case 'v':
+                verbose = TRUE;
+                break;
+
+            case 'h':
+                fprintf(stderr, usage, argv[0]);
+                exit(0);
+
+            default: /* ’?’ */
+                printf("?? getopt returned character code 0%o ??\n", c);
+                fprintf(stderr, usage, argv[0]);
+                exit(EXIT_FAILURE);
+        }
+    }
+    return TRUE;
+}
+
+int main(int argc, char** argv)
+{
+    int ret = 0;
+
+    if (!parse_args(argc, argv))
+        return 1;
+
+    GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
 
     gpsdata = malloc(sizeof(struct gps_data_t));
 
-    ret = gps_open(NULL, port, gpsdata);
+    printf("Connecting to gpsd server %s, port %s\n", server, port);
+
+    ret = gps_open(server, port, gpsdata);
     if (ret != 0) {
         perror("error connecting to gpsd");
         return 1;
@@ -146,7 +234,7 @@ int main(int argc, char *argv[])
     gps_stream(gpsdata, WATCH_ENABLE, NULL);
 
     IvyInit ("GPSd2Ivy", "GPSd2Ivy READY", NULL, NULL, NULL, NULL);
-    IvyStart("224.255.255.255:2010");
+    IvyStart(ivy_bus);
 
     g_timeout_add(TIMEOUT_PERIOD, gps_periodic, NULL);
 

@@ -55,7 +55,7 @@ void imu_aspirin_arch_init(void) {
   /* "mag reset" (PC13) is shorted to I2C2 SCL       */
   rcc_periph_clock_enable(RCC_GPIOC);
   gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
-	        GPIO_CNF_INPUT_FLOAT, GPIO12 | GPIO13);
+          GPIO_CNF_INPUT_FLOAT, GPIO12 | GPIO13);
 #endif
 
   /* Gyro --------------------------------------------------------------------*/
@@ -63,7 +63,7 @@ void imu_aspirin_arch_init(void) {
   rcc_periph_clock_enable(RCC_GPIOC);
   rcc_periph_clock_enable(RCC_AFIO);
   gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
-	  GPIO_CNF_INPUT_FLOAT, GPIO14);
+    GPIO_CNF_INPUT_FLOAT, GPIO14);
 
 #ifdef ASPIRIN_USE_GYRO_INT
   exti_select_source(EXTI14, GPIOC);
@@ -74,7 +74,7 @@ void imu_aspirin_arch_init(void) {
   /* configure external interrupt exti2 on PB2( accel int ) */
   rcc_periph_clock_enable(RCC_GPIOB);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
-	        GPIO_CNF_INPUT_FLOAT, GPIO2);
+          GPIO_CNF_INPUT_FLOAT, GPIO2);
   exti_select_source(EXTI2, GPIOB);
   exti_set_trigger(EXTI2, EXTI_TRIGGER_FALLING);
   exti_enable_request(EXTI2);

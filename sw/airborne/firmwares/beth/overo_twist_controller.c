@@ -13,15 +13,15 @@ struct OveroTwistController controller;
 void control_send_messages(void) {
 
   RunOnceEvery(15, {DOWNLINK_SEND_BETH_CONTROLLER(gcs_com.udp_transport,
-			&controller.cmd_pitch,&controller.cmd_thrust,
-			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
-			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
-  			&controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
-			&controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
-			&controller.azimuth_sp);});
+      &controller.cmd_pitch,&controller.cmd_thrust,
+      &controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
+      &controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
+        &controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
+      &controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
+      &controller.azimuth_sp);});
 
   RunOnceEvery(15, {DOWNLINK_SEND_BETH_CONTROLLER_TWIST(gcs_com.udp_transport,
-			&controller.S[1],&controller.S_dot,&controller.U_twt[1],&controller.error);});
+      &controller.S[1],&controller.S_dot,&controller.U_twt[1],&controller.error);});
 }
 
 
@@ -143,13 +143,13 @@ void control_run(void) {
   controller.cmd_pitch_ff = controller.one_over_J * controller.tilt_ddot_ref;
 
 /*  controller.cmd_pitch_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_tilt_dot) +
-  			controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_tilt);*/
+        controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_tilt);*/
 
   controller.cmd_pitch_fb = get_U_twt();
 
   controller.cmd_thrust_ff = controller.mass * controller.elevation_ddot_ref;
   controller.cmd_thrust_fb = -controller.mass * (2 * controller.xi_cl * controller.omega_cl * err_elevation_dot) -
-  			controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
+        controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
 
 #if USE_AZIMUTH
   controller.cmd_azimuth_ff = controller.one_over_J * controller.azimuth_ddot_ref;
@@ -188,184 +188,184 @@ void control_run(void) {
 float get_U_twt()
 {
 
-	/**Definition des constantes du modèle**/
-	const float Gain = -65;
-	const float Te = 1/512.;
+  /**Definition des constantes du modèle**/
+  const float Gain = -65;
+  const float Te = 1/512.;
 
-	/**Variables utilisés par la loi de commande**/
-	static volatile float yd[2] = {0.0,0.0};
-	static volatile float y[2] = {0.,0.};
-	//static float emax = 0.035;		// en rad, initialement 2
+  /**Variables utilisés par la loi de commande**/
+  static volatile float yd[2] = {0.0,0.0};
+  static volatile float y[2] = {0.,0.};
+  //static float emax = 0.035;		// en rad, initialement 2
 
-	/**Variables pour l'algorithme**/
-	float udot;
-	float sens;
+  /**Variables pour l'algorithme**/
+  float udot;
+  float sens;
 
-	//Acquisition consigne
-	yd[1] = controller.tilt_ref;
-	//Acquisition mesure
-	y[1] = estimator.tilt;
+  //Acquisition consigne
+  yd[1] = controller.tilt_ref;
+  //Acquisition mesure
+  y[1] = estimator.tilt;
 
-	/***************************/
+  /***************************/
 
-	/**Calcul Surface et derive Surface**/
-	// S[1],y[1],yd[1] new value
-	// S[0],y[0],yd[0] last value
+  /**Calcul Surface et derive Surface**/
+  // S[1],y[1],yd[1] new value
+  // S[0],y[0],yd[0] last value
 
-	//gain K=Te
-	//controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - (y[0]-yd[0]) )  ) ;
-	//controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - estimator.tilt_dot ) * 0.8 ) ;
-	controller.S[1] = (float)( controller.c * (y[1]-yd[1]) + estimator.tilt_dot - controller.tilt_dot_ref );
-	controller.S_dot = (controller.S[1] - controller.S[0]);
-	/*************************************/
+  //gain K=Te
+  //controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - (y[0]-yd[0]) )  ) ;
+  //controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - estimator.tilt_dot ) * 0.8 ) ;
+  controller.S[1] = (float)( controller.c * (y[1]-yd[1]) + estimator.tilt_dot - controller.tilt_dot_ref );
+  controller.S_dot = (controller.S[1] - controller.S[0]);
+  /*************************************/
 
-	//On va dire que si l'erreur est d'un valeur inferieur a emax, on applique la commande anterieure
+  //On va dire que si l'erreur est d'un valeur inferieur a emax, on applique la commande anterieure
 /*	if ( abs(y[1] - yd[1]) < emax ) {
-		U_twt[1] = U_twt[0];
-	} else {*/
-		/**Algorithme twisting**/
-		if ( controller.S[1] < 0.0 )
-			sens = -1.0;
-		else
-			sens = 1.0;
+    U_twt[1] = U_twt[0];
+  } else {*/
+    /**Algorithme twisting**/
+    if ( controller.S[1] < 0.0 )
+      sens = -1.0;
+    else
+      sens = 1.0;
 
-		if ( abs(controller.U_twt[1]) < controller.ulim ) {
-			if ( (controller.S[1] * controller.S_dot) > 0) {
-				udot = -controller.VM * sens;
-			}
-	 		else {
-	 			udot = -controller.Vm * sens;
-	 		}
-		}
-		else {
-			udot = -controller.U_twt[1];
-		}
+    if ( abs(controller.U_twt[1]) < controller.ulim ) {
+      if ( (controller.S[1] * controller.S_dot) > 0) {
+        udot = -controller.VM * sens;
+      }
+      else {
+        udot = -controller.Vm * sens;
+      }
+    }
+    else {
+      udot = -controller.U_twt[1];
+    }
 
-		// Integration de u, qu'avec 2 valeurs, penser à faire plus
-		// u[1] new , u[0] old
-		controller.U_twt[1] = controller.U_twt[0] + (Te * udot);
-	//}
-	/**********************/
+    // Integration de u, qu'avec 2 valeurs, penser à faire plus
+    // u[1] new , u[0] old
+    controller.U_twt[1] = controller.U_twt[0] + (Te * udot);
+  //}
+  /**********************/
 
-	/**Saturation de l'integrateur**/
+  /**Saturation de l'integrateur**/
 
-	if ( (controller.S[1] > -controller.satval1) && (controller.S[1] < controller.satval1) ){
-		Bound(controller.U_twt[1],-controller.satval1,controller.satval1);
-	}
-	else {
-		Bound(controller.U_twt[1],-controller.satval2,controller.satval2);
-	}
-	/********************************/
+  if ( (controller.S[1] > -controller.satval1) && (controller.S[1] < controller.satval1) ){
+    Bound(controller.U_twt[1],-controller.satval1,controller.satval1);
+  }
+  else {
+    Bound(controller.U_twt[1],-controller.satval2,controller.satval2);
+  }
+  /********************************/
 
-	/**Mises à jour**/
-	controller.U_twt[0] = controller.U_twt[1];
-	yd[0] = yd[1];
-	y[0] = y[1];
+  /**Mises à jour**/
+  controller.U_twt[0] = controller.U_twt[1];
+  yd[0] = yd[1];
+  y[0] = y[1];
 
-	controller.S[0] = controller.S[1];
+  controller.S[0] = controller.S[1];
 
-	return Gain * controller.U_twt[1];
+  return Gain * controller.U_twt[1];
 
 }
 
 float get_U_twt2()
 {
 
-	/**Definition des constantes du modèle**/
-	const float Gain = 800.;
-	const float Te = 1/512.;
+  /**Definition des constantes du modèle**/
+  const float Gain = 800.;
+  const float Te = 1/512.;
 
-	/**Variables utilisés par la loi de commande**/
-	static volatile float yd2[2] = {0.0,0.0};
-	static volatile float y2[2] = {0.,0.};
-	//static float emax = 0.035;		// en rad, initialement 2
+  /**Variables utilisés par la loi de commande**/
+  static volatile float yd2[2] = {0.0,0.0};
+  static volatile float y2[2] = {0.,0.};
+  //static float emax = 0.035;		// en rad, initialement 2
 
-	/**Variables pour l'algorithme**/
-	float udot2;
-	float sens2;
-	static float S2[2]= {0.0,0.0};
-	static float S2_dot=0;
-	static float U2_twt[2]= {0.0,0.0};
+  /**Variables pour l'algorithme**/
+  float udot2;
+  float sens2;
+  static float S2[2]= {0.0,0.0};
+  static float S2_dot=0;
+  static float U2_twt[2]= {0.0,0.0};
 
-	//Acquisition consigne
-	yd2[1] = controller.elevation_ref;
-	//Acquisition mesure
-	y2[1] = estimator.elevation;
+  //Acquisition consigne
+  yd2[1] = controller.elevation_ref;
+  //Acquisition mesure
+  y2[1] = estimator.elevation;
 
-	/***************************/
+  /***************************/
 
-	/**Calcul Surface et derive Surface**/
-	// S[1],y[1],yd[1] new value
-	// S[0],y[0],yd[0] last value
+  /**Calcul Surface et derive Surface**/
+  // S[1],y[1],yd[1] new value
+  // S[0],y[0],yd[0] last value
 
-	//gain K=Te
-	//controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - (y[0]-yd[0]) )  ) ;
-	//controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - estimator.tilt_dot ) * 0.8 ) ;
-	S2[1] = (float)( controller.c * (y2[1]-yd2[1]) + estimator.elevation_dot - controller.elevation_dot_ref );
-	S2_dot = (S2[1] - S2[0]);
-	/*************************************/
+  //gain K=Te
+  //controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - (y[0]-yd[0]) )  ) ;
+  //controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - estimator.tilt_dot ) * 0.8 ) ;
+  S2[1] = (float)( controller.c * (y2[1]-yd2[1]) + estimator.elevation_dot - controller.elevation_dot_ref );
+  S2_dot = (S2[1] - S2[0]);
+  /*************************************/
 
-	//On va dire que si l'erreur est d'un valeur inferieur a emax, on applique la commande anterieure
+  //On va dire que si l'erreur est d'un valeur inferieur a emax, on applique la commande anterieure
 /*	if ( abs(y[1] - yd[1]) < emax ) {
-		U_twt[1] = U_twt[0];
-	} else {*/
-		/**Algorithme twisting**/
-		if ( S2[1] < 0.0 )
-			sens2 = -1.0;
-		else
-			sens2 = 1.0;
+    U_twt[1] = U_twt[0];
+  } else {*/
+    /**Algorithme twisting**/
+    if ( S2[1] < 0.0 )
+      sens2 = -1.0;
+    else
+      sens2 = 1.0;
 
-		if ( abs(U2_twt[1]) < controller.ulim ) {
-			if ( (S2[1] * S2_dot) > 0) {
-				udot2 = -controller.VM * sens2;
-			}
-	 		else {
-	 			udot2 = -controller.Vm * sens2;
-	 		}
-		}
-		else {
-			udot2 = -U2_twt[1];
-		}
+    if ( abs(U2_twt[1]) < controller.ulim ) {
+      if ( (S2[1] * S2_dot) > 0) {
+        udot2 = -controller.VM * sens2;
+      }
+      else {
+        udot2 = -controller.Vm * sens2;
+      }
+    }
+    else {
+      udot2 = -U2_twt[1];
+    }
 
-		// Integration de u, qu'avec 2 valeurs, penser à faire plus
-		// u[1] new , u[0] old
-		U2_twt[1] = U2_twt[0] + (Te * udot2);
-	//}
-	/**********************/
+    // Integration de u, qu'avec 2 valeurs, penser à faire plus
+    // u[1] new , u[0] old
+    U2_twt[1] = U2_twt[0] + (Te * udot2);
+  //}
+  /**********************/
 
-	/**Saturation de l'integrateur**/
+  /**Saturation de l'integrateur**/
 
-	if ( (S2[1] > -controller.satval1) && (S2[1] < controller.satval1) ){
-		Bound(U2_twt[1],-controller.satval1,controller.satval1);
-	}
-	else {
-		Bound(U2_twt[1],-controller.satval2,controller.satval2);
-	}
-	/********************************/
+  if ( (S2[1] > -controller.satval1) && (S2[1] < controller.satval1) ){
+    Bound(U2_twt[1],-controller.satval1,controller.satval1);
+  }
+  else {
+    Bound(U2_twt[1],-controller.satval2,controller.satval2);
+  }
+  /********************************/
 
-	/**Mises à jour**/
-	U2_twt[0] = U2_twt[1];
-	yd2[0] = yd2[1];
-	y2[0] = y2[1];
+  /**Mises à jour**/
+  U2_twt[0] = U2_twt[1];
+  yd2[0] = yd2[1];
+  y2[0] = y2[1];
 
-	S2[0] = S2[1];
+  S2[0] = S2[1];
 
 #define NUMSAMPS (1000)
-	float retval = Gain * U2_twt[1];
+  float retval = Gain * U2_twt[1];
 
-	static int sum = 0;
-	static int i = 0;
+  static int sum = 0;
+  static int i = 0;
 
-	sum = sum + retval;
+  sum = sum + retval;
 
         if (i == (NUMSAMPS-1)) {
-		i = 0;
-		printf("avg: %f\n",sum/(float)NUMSAMPS);
-		sum = 0;
-	} else {
-		i++;
-	}
+    i = 0;
+    printf("avg: %f\n",sum/(float)NUMSAMPS);
+    sum = 0;
+  } else {
+    i++;
+  }
 
-	return retval;
+  return retval;
 
 }

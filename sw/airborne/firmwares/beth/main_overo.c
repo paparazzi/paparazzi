@@ -121,25 +121,25 @@ static void main_periodic(int my_sig_num) {
   ImuScaleGyro(imu);
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,
-			&msg_in.payload.msg_up.bench_sensor.x,&msg_in.payload.msg_up.bench_sensor.y,
-			&msg_in.payload.msg_up.bench_sensor.z,&msg_in.payload.msg_up.cnt,
-			&msg_in.payload.msg_up.can_errs,&msg_in.payload.msg_up.spi_errs,
-			&msg_in.payload.msg_up.thrust_out,&msg_in.payload.msg_up.pitch_out);});
+      &msg_in.payload.msg_up.bench_sensor.x,&msg_in.payload.msg_up.bench_sensor.y,
+      &msg_in.payload.msg_up.bench_sensor.z,&msg_in.payload.msg_up.cnt,
+      &msg_in.payload.msg_up.can_errs,&msg_in.payload.msg_up.spi_errs,
+      &msg_in.payload.msg_up.thrust_out,&msg_in.payload.msg_up.pitch_out);});
 
   estimator_run(msg_in.payload.msg_up.bench_sensor.z,msg_in.payload.msg_up.bench_sensor.y,
-		msg_in.payload.msg_up.bench_sensor.x);
+    msg_in.payload.msg_up.bench_sensor.x);
 
   if ( msg_in.payload.msg_up.cnt == 0) printf("STM indicates overo link is lost! %d %d\n",
-			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
+      msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
   if ( msg_in.payload.msg_up.cnt == 1) printf("STM indicates overo link is regained. %d %d\n",
-			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
+      msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
 
   //If the stm32 cut the motors due to an error, we force the state machine into spinup mode.
   //when the stm32 resumes after the error, the system will need to be rearmed by the user.
   if ( (controller.armed != 0) && (msg_in.payload.msg_up.pitch_out == PITCH_MAGIC_NUMBER) ) {
     controller.armed = 0; last_state=1;
     printf("STM cut motor power. %d %d\n",
-			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
+      msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
   }
 
 
@@ -152,20 +152,20 @@ static void main_periodic(int my_sig_num) {
   //file_logger_periodic();
 
 /*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
-			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-				&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);});
+           //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
+        &imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);});
   RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
-			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-				&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);})
+           //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
+        &imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);})
   RunOnceEvery(50, {DOWNLINK_SEND_IMU_GYRO_SCALED(gcs_com.udp_transport,
-			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-				&imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
+           //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
+        &imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
 
   RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
-			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
+      &estimator.tilt, &estimator.elevation, &estimator.azimuth );});
   RunOnceEvery(50, {DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
-			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-				&imu.accel.x,&imu.accel.y,&imu.accel.z);});*/
+           //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
+        &imu.accel.x,&imu.accel.y,&imu.accel.z);});*/
 
   RunOnceEvery(33, gcs_com_periodic());
 

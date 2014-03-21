@@ -32,9 +32,23 @@
 
 extern void sys_tick_handler(void);
 
-#define SysTimeTimerStart(_t) { }
-#define SysTimeTimer(_t) (_t)
-#define SysTimeTimerStop(_t) { }
+/**
+ * Get the time in microseconds since startup.
+ * @return microseconds since startup as uint32_t
+ */
+static inline uint32_t get_sys_time_usec(void) {
+  return sys_time.nb_sec * 1000000 +
+    usec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
+
+/**
+ * Get the time in milliseconds since startup.
+ * @return milliseconds since startup as uint32_t
+ */
+static inline uint32_t get_sys_time_msec(void) {
+  return sys_time.nb_sec * 1000 +
+    msec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
 
 
 static inline void sys_time_usleep(uint32_t us __attribute__ ((unused))) {}

@@ -38,7 +38,7 @@ static size_t logRawLen (const size_t len);
 
 
 static SdioError  getNextFileName(const char* prefix, const char* directoryName,
-				  char* nextFileName, const size_t nameLength);
+          char* nextFileName, const size_t nameLength);
 static uint32_t uiGetIndexOfLogFile (const char* prefix, const char* fileName) ;
 static msg_t thdSdLog(void *arg) ;
 static Thread *sdLogThd = NULL;
@@ -198,7 +198,7 @@ SdioError sdLoglaunchThread (const bool_t binaryLog)
   chThdSleepMilliseconds(100);
 
   sdLogThd = chThdCreateStatic(waThdSdLog, sizeof(waThdSdLog),
-			       NORMALPRIO, thdSdLog, (void *) binaryLog);
+             NORMALPRIO, thdSdLog, (void *) binaryLog);
   if (sdLogThd == NULL)
     return SDLOG_INTERNAL_ERROR;
   else
@@ -239,7 +239,7 @@ SdioError sdLogStopThread (void)
 
 
 static SdioError getNextFileName(const char* prefix, const char* directoryName,
-				 char* nextFileName, const size_t nameLength)
+         char* nextFileName, const size_t nameLength)
 {
   DIR dir; /* Directory object */
   FRESULT rc; /* Result code */
@@ -290,7 +290,7 @@ static SdioError getNextFileName(const char* prefix, const char* directoryName,
   }
 
   chsnprintf (nextFileName, nameLength, "%s\\%s%.03d.LOG",
-	      directoryName, prefix, maxCurrentIndex+1);
+        directoryName, prefix, maxCurrentIndex+1);
   return SDLOG_OK;
 }
 
@@ -333,9 +333,9 @@ static msg_t thdSdLog(void *arg)
           if (curBufFill) {
             f_write(foSaved, perfBuffer, curBufFill, &bw);
           }
-	  if (appendCloseLogMsg) {
-	    f_write(foSaved, "\r\nEND_OF_LOG\r\n", 14, &bw);
-	  }
+    if (appendCloseLogMsg) {
+      f_write(foSaved, "\r\nEND_OF_LOG\r\n", 14, &bw);
+    }
           f_sync (foSaved);
         }
         chThdExit(SDLOG_OK);

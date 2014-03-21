@@ -326,11 +326,11 @@ void link_mcu_periodic_task( void )
     inter_mcu_fill_fbw_state(); /** Prepares the next message for AP */
 
     InterMcuSend_INTERMCU_FBW(
-	fbw_state->ppm_cpt,
-	fbw_state->status,
-	fbw_state->nb_err,
-	fbw_state->vsupply,
-	fbw_state->current);
+                              fbw_state->ppm_cpt,
+                              fbw_state->status,
+                              fbw_state->nb_err,
+                              fbw_state->vsupply,
+                              fbw_state->current);
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
     InterMcuSend_INTERMCU_RADIO( fbw_state->channels );
 #endif

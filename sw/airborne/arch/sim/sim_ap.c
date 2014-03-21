@@ -139,6 +139,6 @@ value set_datalink_message(value s) {
 
 /** Required by electrical */
 void adc_buf_channel(void* a __attribute__ ((unused)),
-		     void* b __attribute__ ((unused)),
-		     void* c __attribute__ ((unused))) {
+         void* b __attribute__ ((unused)),
+         void* c __attribute__ ((unused))) {
 }

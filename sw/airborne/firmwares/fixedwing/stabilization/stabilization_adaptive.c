@@ -309,11 +309,6 @@ inline static void h_ctl_roll_loop( void ) {
   // Compute errors
   float err = h_ctl_ref_roll_angle - stateGetNedToBodyEulers_f()->phi;
   struct FloatRates* body_rate = stateGetBodyRates_f();
-#ifdef SITL
-  static float last_err = 0;
-  body_rate->p = (err - last_err)/(1/60.); // FIXME should be done in ahrs sim
-  last_err = err;
-#endif
   float d_err = h_ctl_ref_roll_rate - body_rate->p;
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {

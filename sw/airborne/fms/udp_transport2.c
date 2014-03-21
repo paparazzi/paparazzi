@@ -25,7 +25,7 @@ static void put_named_uint8_t(struct udp_transport *udp, char *name __attribute_
 static void put_bytes(void *impl, enum DownlinkDataType data_type __attribute__((unused)), uint8_t len, const void *buf)
 {
   struct udp_transport *udp = (struct udp_transport *) impl;
-	const uint8_t *bytes = (const uint8_t *) buf;
+  const uint8_t *bytes = (const uint8_t *) buf;
   for (int i = 0; i < len; i++) {
     put_uint8_t(udp, bytes[i]);
   }
@@ -73,12 +73,12 @@ static void count_bytes(void *udp __attribute__((unused)), uint8_t bytes __attri
 
 static int check_free_space(void *udp __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
-	return TRUE;
+  return TRUE;
 }
 
 static uint8_t size_of(void *udp __attribute__((unused)), uint8_t len)
 {
-	return len + 2;
+  return len + 2;
 }
 
 static void periodic(void *impl)

@@ -70,16 +70,16 @@ static void main_init(void) {
     return;
   }
 
-	printf("Starting at 2000us\n");
+  printf("Starting at 2000us\n");
   /* Initialize blaaa */
   for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 2000;
   dialog_with_io_proc();
-	getchar();
-	printf("At 1000us\n");
+  getchar();
+  printf("At 1000us\n");
   for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1000;
   dialog_with_io_proc();
-	getchar();
-	printf("At 1500us\n");
+  getchar();
+  printf("At 1500us\n");
   for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1500;
   dialog_with_io_proc();
 

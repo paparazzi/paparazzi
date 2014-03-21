@@ -125,7 +125,7 @@ static inline void on_spistream_msg_received(uint8_t msg_id,
 
 static inline void on_spistream_msg_sent(uint8_t msg_id) {
   if(spistream_wait_for_num_transfers > 0) {
-  	spistream_wait_for_num_transfers--;
+    spistream_wait_for_num_transfers--;
   }
 }
 

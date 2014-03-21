@@ -170,9 +170,9 @@ void imu_krooz_event( void )
     imu_krooz.mpu.data_available = FALSE;
   }
 
-  if(SysTimeTimer(ad7689_event_timer) > 215) {
+  if (SysTimeTimer(ad7689_event_timer) > 215) {
     SysTimeTimerStart(ad7689_event_timer);
-    if(axis_cnt < axis_nb)
+    if (axis_cnt < axis_nb)
       axis_cnt++;
     else
       axis_cnt = 0;

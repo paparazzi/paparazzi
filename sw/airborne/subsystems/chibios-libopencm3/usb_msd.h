@@ -33,30 +33,30 @@
  * @brief Command Block Wrapper structure
  */
 PACK_STRUCT_BEGIN typedef struct {
-	uint32_t signature;
-	uint32_t tag;
-	uint32_t data_len;
-	uint8_t flags;
-	uint8_t lun;
-	uint8_t scsi_cmd_len;
-	uint8_t scsi_cmd_data[16];
+  uint32_t signature;
+  uint32_t tag;
+  uint32_t data_len;
+  uint8_t flags;
+  uint8_t lun;
+  uint8_t scsi_cmd_len;
+  uint8_t scsi_cmd_data[16];
 } PACK_STRUCT_STRUCT msd_cbw_t PACK_STRUCT_END;
 
 /**
  * @brief Command Status Wrapper structure
  */
 PACK_STRUCT_BEGIN typedef struct {
-	uint32_t signature;
-	uint32_t tag;
-	uint32_t data_residue;
-	uint8_t status;
+  uint32_t signature;
+  uint32_t tag;
+  uint32_t data_residue;
+  uint8_t status;
 } PACK_STRUCT_STRUCT msd_csw_t PACK_STRUCT_END;
 
 /**
  * @brief Structure holding sense data (status/error information)
  */
 PACK_STRUCT_BEGIN typedef struct {
-		uint8_t byte[18];
+    uint8_t byte[18];
 } PACK_STRUCT_STRUCT msd_scsi_sense_response_t PACK_STRUCT_END;
 
 /**
@@ -140,16 +140,16 @@ typedef struct {
  */
 typedef struct {
     const USBMassStorageConfig* config;
-	BinarySemaphore bsem;
-	Thread* thread;
-	EventSource evt_connected, evt_ejected;
-	BlockDeviceInfo block_dev_info;
-	msd_state_t state;
-	msd_cbw_t cbw;
-	msd_csw_t csw;
-	msd_scsi_sense_response_t sense;
-	msd_scsi_inquiry_response_t inquiry;
-	bool_t result;
+  BinarySemaphore bsem;
+  Thread* thread;
+  EventSource evt_connected, evt_ejected;
+  BlockDeviceInfo block_dev_info;
+  msd_state_t state;
+  msd_cbw_t cbw;
+  msd_csw_t csw;
+  msd_scsi_sense_response_t sense;
+  msd_scsi_inquiry_response_t inquiry;
+  bool_t result;
 } USBMassStorageDriver;
 
 #ifdef __cplusplus

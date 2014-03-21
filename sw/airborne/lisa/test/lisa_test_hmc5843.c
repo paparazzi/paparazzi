@@ -179,7 +179,7 @@ static inline void main_event_task( void ) {
       //      memcpy(tmp, i2c2.buf, 8);
       //      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 8, tmp);
     }
-		 );
+     );
     reading_mag = FALSE;
   }
 

@@ -58,7 +58,7 @@ extern uint8_t servos_4017_idx;
       servos_4017_idx = 0;					\
       SetBit(IO1CLR, SERVO_RESET_PIN);				\
     }								\
-    								\
+                    \
     /* request clock high on next match */			\
     T0MR1 += servos_values[servos_4017_idx];			\
     /* lower clock pin */					\

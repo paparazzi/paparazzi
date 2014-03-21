@@ -165,14 +165,6 @@ ap_srcs += subsystems/air_data.c
 # BARO
 include $(CFG_SHARED)/baro_board.makefile
 
-# ahrs frequencies if configured
-ifdef AHRS_PROPAGATE_FREQUENCY
-ap_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-endif
-ifdef AHRS_CORRECT_FREQUENCY
-ap_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
-endif
-
 
 ######################################################################
 ##

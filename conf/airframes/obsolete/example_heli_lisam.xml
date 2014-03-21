@@ -196,8 +196,6 @@ AP_MODE_NAV
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
-    <define name="MAG_UPDATE_YAW_ONLY" value="1"/>
     <!-- magnetic field for Santa cruz from http://www.ngdc.noaa.gov/geomagmodels/IGRFWMM.jsp -->
     <define name="H_X" value=" 0.47577"/>
     <define name="H_Y" value=" 0.11811"/>

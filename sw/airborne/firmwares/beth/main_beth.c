@@ -48,7 +48,7 @@ static inline void main_event_task( void ) {
 static inline void main_on_bench_sensors( void ) {
 
   DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &bench_sensors_angle_1,
-			    &bench_sensors_angle_2);
+          &bench_sensors_angle_2);
 
 }
 

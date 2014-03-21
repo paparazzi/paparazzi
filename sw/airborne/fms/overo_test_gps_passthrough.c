@@ -60,10 +60,10 @@ int main(int argc, char *argv[]) {
   TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
 
   /* Enter our mainloop */
-	event_dispatch();
-	while(1) {
-		sleep(100);
-	}
+  event_dispatch();
+  while(1) {
+    sleep(100);
+  }
 
   TRACE(TRACE_DEBUG, "%s", "leaving mainloop, goodbye!\n");
 
@@ -72,17 +72,17 @@ int main(int argc, char *argv[]) {
 
 static void main_periodic(int my_sig_num) {
 #if 0
-	static int32_t every_100 = 1000;
-	if(every_100-- == 0) {
-		every_100 = 1000;
-		spistream_send_msg(spistream_msg, 21, SPISTREAM_NO_WAIT);
+  static int32_t every_100 = 1000;
+  if(every_100-- == 0) {
+    every_100 = 1000;
+    spistream_send_msg(spistream_msg, 21, SPISTREAM_NO_WAIT);
 /*
-		spistream_send_msg(spistream_msg, 15);
-		spistream_send_msg(spistream_msg, 25);
+    spistream_send_msg(spistream_msg, 15);
+    spistream_send_msg(spistream_msg, 25);
 */
-	}
+  }
 #endif
-	spistream_event();
+  spistream_event();
 }
 
 static void spistream_event() {
@@ -95,25 +95,25 @@ static void spistream_event() {
 
   spistream_write_pkg(&msg_out);
 
-	if(msg_out.message_cnt != 0) {
-		printf("Package out: Size: %3d MID: %3d PCNTD: %3d | ",
-				pkg_size, msg_out.message_cnt, msg_out.package_cntd);
-		for(cnt = 0; cnt < pkg_size; cnt++) {
-			printf("%3d ", msg_out.pkg_data[cnt]);
-		}
-		printf("\n");
-	}
+  if(msg_out.message_cnt != 0) {
+    printf("Package out: Size: %3d MID: %3d PCNTD: %3d | ",
+        pkg_size, msg_out.message_cnt, msg_out.package_cntd);
+    for(cnt = 0; cnt < pkg_size; cnt++) {
+      printf("%3d ", msg_out.pkg_data[cnt]);
+    }
+    printf("\n");
+  }
 
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
 /*
-	if(msg_in.message_cnt != 0) {
-		printf("Package in:  Size: %3d MID: %3d PCNTD: %3d | ",
-				pkg_size, msg_in.message_cnt, msg_in.package_cntd);
-		for(cnt = 0; cnt < pkg_size; cnt++) {
-			printf("%3d ", msg_in.pkg_data[cnt]);
-		}
-		printf("\n");
-	}
+  if(msg_in.message_cnt != 0) {
+    printf("Package in:  Size: %3d MID: %3d PCNTD: %3d | ",
+        pkg_size, msg_in.message_cnt, msg_in.package_cntd);
+    for(cnt = 0; cnt < pkg_size; cnt++) {
+      printf("%3d ", msg_in.pkg_data[cnt]);
+    }
+    printf("\n");
+  }
 */
   spistream_read_pkg(&msg_in);
 }
@@ -121,28 +121,28 @@ static void spistream_event() {
 static void on_spistream_msg_received(uint8_t msg_id,
                                       uint8_t * data,
                                       uint16_t num_bytes) {
-	static uint16_t plot_freq = 100;
+  static uint16_t plot_freq = 100;
 
-	uint16_t log_bytes;
+  uint16_t log_bytes;
   uint8_t cnt;
-	struct tm * timeinfo;
-	time_t c_time;
-	char time_str[30];
+  struct tm * timeinfo;
+  time_t c_time;
+  char time_str[30];
 
-	plot_freq = 100;
-	time(&c_time);
+  plot_freq = 100;
+  time(&c_time);
 
-	timeinfo = localtime(&c_time);
-	strftime(time_str, 30, " %X ", timeinfo);
+  timeinfo = localtime(&c_time);
+  strftime(time_str, 30, " %X ", timeinfo);
 
-	log_bytes = num_bytes;
-	if(log_bytes > 48) { log_bytes = 48; }
-	printf("SPI message received: ");
-	printf("%s | Length: %3d | id: %3d | UART%d | ", time_str, num_bytes, msg_id, data[0]);
-	for(cnt = 1; cnt < log_bytes; cnt++) {
-		printf("%02X ", data[cnt]);
-	}
-	printf("\n");
+  log_bytes = num_bytes;
+  if(log_bytes > 48) { log_bytes = 48; }
+  printf("SPI message received: ");
+  printf("%s | Length: %3d | id: %3d | UART%d | ", time_str, num_bytes, msg_id, data[0]);
+  for(cnt = 1; cnt < log_bytes; cnt++) {
+    printf("%02X ", data[cnt]);
+  }
+  printf("\n");
 }
 
 static void on_spistream_msg_sent(void) {
@@ -163,7 +163,7 @@ static void main_init(void) {
   spistream_init(&on_spistream_msg_received,
                  &on_spistream_msg_sent);
 /*
-	spistream_msg[0] = 0;
+  spistream_msg[0] = 0;
   for(byte_idx=1; byte_idx < 123; byte_idx += 4) {
     spistream_msg[byte_idx]   = 0xDE;
     spistream_msg[byte_idx+1] = 0xAD;

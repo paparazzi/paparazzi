@@ -28,7 +28,7 @@ extern struct FmsGsCom fms_gs_com;
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 extern uint8_t fms_gs_com_init(const char* gs_host, uint16_t gs_port,
-			       uint16_t datalink_port, uint8_t broadcast);
+             uint16_t datalink_port, uint8_t broadcast);
 extern void fms_gs_com_periodic(void);
 
 #endif /* FMS_GS_COM_H */

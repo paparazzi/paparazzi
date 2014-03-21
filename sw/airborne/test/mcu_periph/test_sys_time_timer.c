@@ -23,6 +23,7 @@
 #include "mcu.h"
 #include "led.h"
 #include "mcu_periph/sys_time.h"
+#include "interrupt_hw.h"
 
 static inline void main_periodic_02( void );
 static inline void main_periodic_03( void );
@@ -35,6 +36,8 @@ int main(void) {
   unsigned int tmr_02 = sys_time_register_timer(0.2, NULL);
   unsigned int tmr_03 = sys_time_register_timer(0.3, NULL);
   sys_time_register_timer(0.5, main_periodic_05);
+
+  mcu_int_enable();
 
   while(1) {
     if (sys_time_check_and_ack_timer(tmr_02))

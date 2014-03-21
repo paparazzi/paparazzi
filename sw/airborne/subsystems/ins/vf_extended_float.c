@@ -33,7 +33,11 @@
 #include "generated/airframe.h"
 #include "std.h"
 
-#define DEBUG_VFF_EXTENDED 1
+#ifndef DEBUG_VFF_EXTENDED
+#define DEBUG_VFF_EXTENDED 0
+#else
+PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
+#endif
 
 #if DEBUG_VFF_EXTENDED
 #include "mcu_periph/uart.h"
@@ -42,7 +46,11 @@
 #endif
 
 #ifndef INS_PROPAGATE_FREQUENCY
+#ifdef AHRS_PROPAGATE_FREQUENCY
+#define INS_PROPAGATE_FREQUENCY AHRS_PROPAGATE_FREQUENCY
+#else
 #define INS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
 #endif
 PRINT_CONFIG_VAR(INS_PROPAGATE_FREQUENCY)
 

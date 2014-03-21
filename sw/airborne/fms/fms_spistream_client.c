@@ -75,12 +75,12 @@ int main(int argc, char *argv[]) {
   TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
 
   /* Enter our mainloop */
-	event_dispatch();
-	while(1) {
-		sleep(100);
-	}
+  event_dispatch();
+  while(1) {
+    sleep(100);
+  }
 
-	main_exit();
+  main_exit();
 
   TRACE(TRACE_DEBUG, "%s", "leaving mainloop, goodbye!\n");
 
@@ -88,43 +88,43 @@ int main(int argc, char *argv[]) {
 }
 
 static void main_periodic(int my_sig_num) {
-	uint8_t fifo_idx;
-	uint8_t msg_id;
-	uint16_t num_bytes;
-	int16_t ret;
-	static uint8_t buf[SPISTREAM_MAX_MESSAGE_LENGTH*10];
+  uint8_t fifo_idx;
+  uint8_t msg_id;
+  uint16_t num_bytes;
+  int16_t ret;
+  static uint8_t buf[SPISTREAM_MAX_MESSAGE_LENGTH*10];
 
-	for(fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
-		// The periodic is triggered before fifo
-		// connections have been initialized, so
-		// check for a valid fd first:
-		if(dfifo[fifo_idx] > 0) {
-			ret = read(dfifo[fifo_idx], (uint8_t *)(&num_bytes), 2);
-			ret = read(dfifo[fifo_idx], (uint8_t *)(&msg_id), 1);
+  for(fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
+    // The periodic is triggered before fifo
+    // connections have been initialized, so
+    // check for a valid fd first:
+    if(dfifo[fifo_idx] > 0) {
+      ret = read(dfifo[fifo_idx], (uint8_t *)(&num_bytes), 2);
+      ret = read(dfifo[fifo_idx], (uint8_t *)(&msg_id), 1);
 
-			memset(&buf, 0, SPISTREAM_MAX_MESSAGE_LENGTH);
-			if(num_bytes > SPISTREAM_MAX_MESSAGE_LENGTH) {
-				fprintf(stderr, "Warning: Message has length %d, but limit "
-												"is %d\n",
-								num_bytes, SPISTREAM_MAX_MESSAGE_LENGTH);
-				num_bytes = SPISTREAM_MAX_MESSAGE_LENGTH;
-			}
-			ret = read(dfifo[fifo_idx], &buf, num_bytes);
-			if(ret > 0 && ret == num_bytes) {
-				// Message received
-				print_message(">> Client", msg_id, buf, num_bytes);
-			}
-			else if(ret > 0 && ret < num_bytes) {
-				fprintf(stderr, "Tried to read %d bytes, but only got %d\n",
-								num_bytes, ret);
-			}
-		}
-		else {
-			// FIFO file descriptor is invalid,
-			// retry to open it:
-			dfifo[fifo_idx] = open(dfifo_files[fifo_idx], O_RDONLY | O_NONBLOCK);
-		}
-	}
+      memset(&buf, 0, SPISTREAM_MAX_MESSAGE_LENGTH);
+      if(num_bytes > SPISTREAM_MAX_MESSAGE_LENGTH) {
+        fprintf(stderr, "Warning: Message has length %d, but limit "
+                        "is %d\n",
+                num_bytes, SPISTREAM_MAX_MESSAGE_LENGTH);
+        num_bytes = SPISTREAM_MAX_MESSAGE_LENGTH;
+      }
+      ret = read(dfifo[fifo_idx], &buf, num_bytes);
+      if(ret > 0 && ret == num_bytes) {
+        // Message received
+        print_message(">> Client", msg_id, buf, num_bytes);
+      }
+      else if(ret > 0 && ret < num_bytes) {
+        fprintf(stderr, "Tried to read %d bytes, but only got %d\n",
+                num_bytes, ret);
+      }
+    }
+    else {
+      // FIFO file descriptor is invalid,
+      // retry to open it:
+      dfifo[fifo_idx] = open(dfifo_files[fifo_idx], O_RDONLY | O_NONBLOCK);
+    }
+  }
 
 }
 
@@ -141,18 +141,18 @@ static void main_init(void) {
     return;
   }
 
-	signal(SIGKILL, on_kill);
-	signal(SIGINT,  on_kill);
-	signal(SIGILL,  on_kill);
-	signal(SIGHUP,  on_kill);
-	signal(SIGQUIT, on_kill);
-	signal(SIGTERM, on_kill);
-	signal(SIGSEGV, on_kill);
+  signal(SIGKILL, on_kill);
+  signal(SIGINT,  on_kill);
+  signal(SIGILL,  on_kill);
+  signal(SIGHUP,  on_kill);
+  signal(SIGQUIT, on_kill);
+  signal(SIGTERM, on_kill);
+  signal(SIGSEGV, on_kill);
 
-	if(!open_stream()) {
-		fprintf(stderr, "Could not open stream, sorry\n");
-		exit(1);
-	}
+  if(!open_stream()) {
+    fprintf(stderr, "Could not open stream, sorry\n");
+    exit(1);
+  }
 
   TRACE(TRACE_DEBUG, "%s", "Initialization completed\n");
 }
@@ -177,39 +177,39 @@ static void main_init(void) {
  *
  */
 static int open_stream(void) {
-	uint8_t fifo_idx;
+  uint8_t fifo_idx;
 
-	strcpy(dfifo_files[0], "/tmp/spistream_d0.fifo"); // FIFOs for data
-	strcpy(dfifo_files[1], "/tmp/spistream_d1.fifo"); // (STM -> daemon -> client)
-	strcpy(dfifo_files[2], "/tmp/spistream_d2.fifo");
-	strcpy(dfifo_files[3], "/tmp/spistream_d3.fifo");
-	strcpy(cfifo_files[0], "/tmp/spistream_c0.fifo"); // FIFOs for commands
-	strcpy(cfifo_files[1], "/tmp/spistream_c1.fifo"); // (client -> daemon -> STM)
-	strcpy(cfifo_files[2], "/tmp/spistream_c2.fifo");
-	strcpy(cfifo_files[3], "/tmp/spistream_c3.fifo");
+  strcpy(dfifo_files[0], "/tmp/spistream_d0.fifo"); // FIFOs for data
+  strcpy(dfifo_files[1], "/tmp/spistream_d1.fifo"); // (STM -> daemon -> client)
+  strcpy(dfifo_files[2], "/tmp/spistream_d2.fifo");
+  strcpy(dfifo_files[3], "/tmp/spistream_d3.fifo");
+  strcpy(cfifo_files[0], "/tmp/spistream_c0.fifo"); // FIFOs for commands
+  strcpy(cfifo_files[1], "/tmp/spistream_c1.fifo"); // (client -> daemon -> STM)
+  strcpy(cfifo_files[2], "/tmp/spistream_c2.fifo");
+  strcpy(cfifo_files[3], "/tmp/spistream_c3.fifo");
 
-	for(fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
-		fprintf(stderr, "Open data stream %s ... \n", dfifo_files[fifo_idx]);
-		dfifo[fifo_idx] = open(dfifo_files[fifo_idx], O_RDONLY | O_NONBLOCK);
-		fprintf(stderr, " ...\n");
-	}
+  for(fifo_idx = 0; fifo_idx < 4; fifo_idx++) {
+    fprintf(stderr, "Open data stream %s ... \n", dfifo_files[fifo_idx]);
+    dfifo[fifo_idx] = open(dfifo_files[fifo_idx], O_RDONLY | O_NONBLOCK);
+    fprintf(stderr, " ...\n");
+  }
 
-	return 1;
+  return 1;
 
-	for(fifo_idx = 0; fifo_idx < 3; fifo_idx++) {
-		fprintf(stderr, "Open command stream %s ... \n", cfifo_files[fifo_idx]);
-		cfifo[fifo_idx] = open(cfifo_files[fifo_idx], O_WRONLY);
-		if(cfifo[fifo_idx] < 0) {
-			fprintf(stderr, " failed\n");
-			return 0;
-		}
-	}
-	return 1;
+  for(fifo_idx = 0; fifo_idx < 3; fifo_idx++) {
+    fprintf(stderr, "Open command stream %s ... \n", cfifo_files[fifo_idx]);
+    cfifo[fifo_idx] = open(cfifo_files[fifo_idx], O_WRONLY);
+    if(cfifo[fifo_idx] < 0) {
+      fprintf(stderr, " failed\n");
+      return 0;
+    }
+  }
+  return 1;
 }
 
 static void main_exit(void)
 {
-	fprintf(stderr, "Bye!\n");
+  fprintf(stderr, "Bye!\n");
 }
 
 static void parse_command_line(int argc, char** argv) {
@@ -217,7 +217,7 @@ static void parse_command_line(int argc, char** argv) {
 
 static void on_kill(int signum)
 {
-	fprintf(stderr, "Exiting, got signal %d\n", signum);
-	main_exit();
-	exit(1);
+  fprintf(stderr, "Exiting, got signal %d\n", signum);
+  main_exit();
+  exit(1);
 }

@@ -114,6 +114,9 @@
       </block>
     </message>
 
+    <message name="PRT_POLL" ID="0x00" length="0">
+    </message>
+
     <message name="MSG" ID="0x01" length="3">
     	<field name="Class" format="U1"/>
         <field name="MsgId" format="U1"/>
@@ -207,6 +210,14 @@
 
   <class name="RXM" ID="0x02">
 
+<!-- 
+Only available with raw data product variant.
+This message contains all information needed to be able to generate a RINEX observation
+file.
+This message outputs pseudorange, doppler and carrier phase measurements for GPS
+satellites once signals have been synchronised. No other GNSS types are currently
+supported.
+-->
     <message name="RAW" ID="0x10">
       <field name="iTOW" format="I4" unit="ms"/>
       <field name="week" format="I2" unit="weeks"/>

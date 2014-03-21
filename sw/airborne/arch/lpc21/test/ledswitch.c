@@ -47,21 +47,21 @@ int main(void)
   }
 
   while (1)
-    {
-      if (BUTTTON1_OFF()) {
-	YELLOW_LED_ON();
-      }
-      else {
-	YELLOW_LED_OFF();
-      }
-
-      if (BUTTTON2_OFF())	{
-	GREEN_LED_ON();
-      }
-      else {
-	GREEN_LED_OFF();
-      }
+  {
+    if (BUTTTON1_OFF()) {
+      YELLOW_LED_ON();
     }
+    else {
+      YELLOW_LED_OFF();
+    }
+
+    if (BUTTTON2_OFF())	{
+      GREEN_LED_ON();
+    }
+    else {
+      GREEN_LED_OFF();
+    }
+  }
 
   return 0; // never reached
 }

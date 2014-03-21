@@ -93,6 +93,7 @@ void motor_mixing_init(void) {
     motor_mixing.override_value[i] = MOTOR_MIXING_STOP_MOTOR;
   }
   motor_mixing.nb_failure = 0;
+  motor_mixing.nb_saturation = 0;
 }
 
 __attribute__ ((always_inline)) static inline void offset_commands(int32_t offset) {
@@ -186,11 +187,13 @@ void motor_mixing_run(bool_t motors_on, bool_t override_on, pprz_t in_cmd[] ) {
       int32_t saturation_offset = MOTOR_MIXING_MAX_MOTOR - max_cmd;
       BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
       offset_commands(saturation_offset);
+      motor_mixing.nb_saturation++;
     }
     else if (min_cmd < MOTOR_MIXING_MIN_MOTOR) {
       int32_t saturation_offset = MOTOR_MIXING_MIN_MOTOR - min_cmd;
       BoundAbs(saturation_offset, MOTOR_MIXING_MAX_SATURATION_OFFSET);
       offset_commands(saturation_offset);
+      motor_mixing.nb_saturation++;
     }
 
     /* For testing motor failure */

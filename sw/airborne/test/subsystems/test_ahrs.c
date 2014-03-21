@@ -116,48 +116,48 @@ static inline void on_mag_event(void) {
 static inline void main_report(void) {
 
   PeriodicPrescaleBy10(
-		       {
-			 DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
-						     &imu.accel_unscaled.x,
-						     &imu.accel_unscaled.y,
-						     &imu.accel_unscaled.z);
-		       },
-		       {
-			 DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
-						    &imu.gyro_unscaled.p,
-						    &imu.gyro_unscaled.q,
-						    &imu.gyro_unscaled.r);
-		       },
-		       {
-			 DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
-						   &imu.mag_unscaled.x,
-						   &imu.mag_unscaled.y,
-						   &imu.mag_unscaled.z);
-		       },
-		       {
-			 DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
-						   &imu.accel.x,
-						   &imu.accel.y,
-						   &imu.accel.z);
-		       },
-		       {
-			 DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
-						  &imu.gyro.p,
-						  &imu.gyro.q,
-						  &imu.gyro.r);
-		       },
+           {
+       DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
+                 &imu.accel_unscaled.x,
+                 &imu.accel_unscaled.y,
+                 &imu.accel_unscaled.z);
+           },
+           {
+       DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
+                &imu.gyro_unscaled.p,
+                &imu.gyro_unscaled.q,
+                &imu.gyro_unscaled.r);
+           },
+           {
+       DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
+               &imu.mag_unscaled.x,
+               &imu.mag_unscaled.y,
+               &imu.mag_unscaled.z);
+           },
+           {
+       DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
+               &imu.accel.x,
+               &imu.accel.y,
+               &imu.accel.z);
+           },
+           {
+       DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
+              &imu.gyro.p,
+              &imu.gyro.q,
+              &imu.gyro.r);
+           },
 
-		       {
-			 DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
-						 &imu.mag.x,
-						 &imu.mag.y,
-						 &imu.mag.z);
-		       },
+           {
+       DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
+             &imu.mag.x,
+             &imu.mag.y,
+             &imu.mag.z);
+           },
 
-		       {
-			 DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-		       },
-		       {
+           {
+       DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+           },
+           {
 #ifdef USE_I2C2
                  uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
                  uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
@@ -183,21 +183,21 @@ static inline void main_report(void) {
                                           &i2c2_last_unexpected_event,
                                           &_bus2);
 #endif
-		       },
-		       {
-			 DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
-							&ahrs.ltp_to_imu_euler.phi,
-							&ahrs.ltp_to_imu_euler.theta,
-							&ahrs.ltp_to_imu_euler.psi,
-							&ahrs.ltp_to_body_euler.phi,
-							&ahrs.ltp_to_body_euler.theta,
-							&ahrs.ltp_to_body_euler.psi);
-		       },
-		       {
-			 DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
-						      &ahrs_impl.gyro_bias.p,
-						      &ahrs_impl.gyro_bias.q,
-						      &ahrs_impl.gyro_bias.r);
+           },
+           {
+       DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
+              &ahrs.ltp_to_imu_euler.phi,
+              &ahrs.ltp_to_imu_euler.theta,
+              &ahrs.ltp_to_imu_euler.psi,
+              &ahrs.ltp_to_body_euler.phi,
+              &ahrs.ltp_to_body_euler.theta,
+              &ahrs.ltp_to_body_euler.psi);
+           },
+           {
+       DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
+                  &ahrs_impl.gyro_bias.p,
+                  &ahrs_impl.gyro_bias.q,
+                  &ahrs_impl.gyro_bias.r);
 
-		       });
+           });
 }

@@ -200,63 +200,63 @@ void ins_periodic_task( void ) {
   {
      switch (xsens_configured)
      {
-	case 25:
-		/* send mode and settings to MT */
-		XSENS_GoToConfig();
-		//XSENS_SetOutputMode(xsens_output_mode);
-		//XSENS_SetOutputSettings(xsens_output_settings);
-		break;
-	case 18:
-		// Give pulses on SyncOut
-		//XSENS_SetSyncOutSettings(0,0x0002);
-		break;
-	case 17:
+  case 25:
+    /* send mode and settings to MT */
+    XSENS_GoToConfig();
+    //XSENS_SetOutputMode(xsens_output_mode);
+    //XSENS_SetOutputSettings(xsens_output_settings);
+    break;
+  case 18:
+    // Give pulses on SyncOut
+    //XSENS_SetSyncOutSettings(0,0x0002);
+    break;
+  case 17:
 
-		XsensHeader(XSENS_SetOutputConfiguration_ID, 44);
-      		xsens_ask_message_rate( 0x10, 0x10, 4);   // UTC
-      		xsens_ask_message_rate( 0x20, 0x30, 100); // Attitude Euler
-      		xsens_ask_message_rate( 0x40, 0x10, 100); // Delta-V
-      		xsens_ask_message_rate( 0x80, 0x20, 100); // Rate of turn
-      		xsens_ask_message_rate( 0xE0, 0x20, 50);  // Status
-      		xsens_ask_message_rate( 0x30, 0x10, 50);  // Baro Pressure
-      		xsens_ask_message_rate( 0x88, 0x40, 1);   // NavSol
-      		xsens_ask_message_rate( 0x88, 0xA0, 1);   // SV Info
-      		xsens_ask_message_rate( 0x50, 0x20, 50);  // GPS Altitude Ellipsiod
-      		xsens_ask_message_rate( 0x50, 0x40, 50);  // GPS Position
-      		xsens_ask_message_rate( 0xD0, 0x10, 50);  // GPS Speed
-		XsensTrailer();
-		break;
-	case 2:
-		//XSENS_ReqLeverArmGps();
-		break;
+    XsensHeader(XSENS_SetOutputConfiguration_ID, 44);
+          xsens_ask_message_rate( 0x10, 0x10, 4);   // UTC
+          xsens_ask_message_rate( 0x20, 0x30, 100); // Attitude Euler
+          xsens_ask_message_rate( 0x40, 0x10, 100); // Delta-V
+          xsens_ask_message_rate( 0x80, 0x20, 100); // Rate of turn
+          xsens_ask_message_rate( 0xE0, 0x20, 50);  // Status
+          xsens_ask_message_rate( 0x30, 0x10, 50);  // Baro Pressure
+          xsens_ask_message_rate( 0x88, 0x40, 1);   // NavSol
+          xsens_ask_message_rate( 0x88, 0xA0, 1);   // SV Info
+          xsens_ask_message_rate( 0x50, 0x20, 50);  // GPS Altitude Ellipsiod
+          xsens_ask_message_rate( 0x50, 0x40, 50);  // GPS Position
+          xsens_ask_message_rate( 0xD0, 0x10, 50);  // GPS Speed
+    XsensTrailer();
+    break;
+  case 2:
+    //XSENS_ReqLeverArmGps();
+    break;
 
-	case 6:
-		//XSENS_ReqMagneticDeclination();
-		break;
+  case 6:
+    //XSENS_ReqMagneticDeclination();
+    break;
 
-	case 13:
-		//#ifdef AHRS_H_X
-		//#pragma message "Sending XSens Magnetic Declination."
-		//xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
-		//XSENS_SetMagneticDeclination(xsens_declination);
-		//#endif
-		break;
-	case 12:
-		#ifdef GPS_IMU_LEVER_ARM_X
-		#pragma message "Sending XSens GPS Arm."
-		XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
-		#endif
-		break;
-	case 10:
-		{
-		uint8_t baud = 1;
-		XSENS_SetBaudrate(baud);
-		}
-		break;
+  case 13:
+    //#ifdef AHRS_H_X
+    //#pragma message "Sending XSens Magnetic Declination."
+    //xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
+    //XSENS_SetMagneticDeclination(xsens_declination);
+    //#endif
+    break;
+  case 12:
+    #ifdef GPS_IMU_LEVER_ARM_X
+    #pragma message "Sending XSens GPS Arm."
+    XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
+    #endif
+    break;
+  case 10:
+    {
+    uint8_t baud = 1;
+    XSENS_SetBaudrate(baud);
+    }
+    break;
 
-	case 1:
-		XSENS_GoToMeasurment();
-		break;
+  case 1:
+    XSENS_GoToMeasurment();
+    break;
      }
      xsens_configured--;
      return;
@@ -451,9 +451,9 @@ void parse_ins_msg( void ) {
           // Altitude Elipsoid
           gps.utm_pos.alt = XSENS_DATA_Altitude_h(xsens_msg_buf,offset)* 1000.0f;
 
-	      // Compute geoid (MSL) height
+        // Compute geoid (MSL) height
           float geoid_h;
-	      WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,geoid_h);
+        WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,geoid_h);
           gps.hmsl =  gps.utm_pos.alt - (geoid_h * 1000.0f);
 
           //gps.tow = geoid_h * 1000.0f; //gps.utm_pos.alt;

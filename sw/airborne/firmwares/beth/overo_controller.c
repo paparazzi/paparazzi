@@ -57,12 +57,12 @@ void control_init(void) {
 void control_send_messages(void) {
 
   RunOnceEvery(15, {DOWNLINK_SEND_BETH_CONTROLLER(gcs_com.udp_transport,
-			&controller.cmd_pitch,&controller.cmd_thrust,
-			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
-			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
-  			&controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
-			&controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
-			&controller.azimuth_sp);});
+      &controller.cmd_pitch,&controller.cmd_thrust,
+      &controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
+      &controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
+        &controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
+      &controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
+      &controller.azimuth_sp);});
 }
 
 void control_run(void) {
@@ -109,11 +109,11 @@ void control_run(void) {
 
   controller.cmd_pitch_ff = controller.one_over_J * controller.tilt_ddot_ref;
   controller.cmd_pitch_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_tilt_dot) +
-  			controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_tilt);
+        controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_tilt);
 
   controller.cmd_thrust_ff = controller.mass * controller.elevation_ddot_ref;
   controller.cmd_thrust_fb = -controller.mass * (2 * controller.xi_cl * controller.omega_cl * err_elevation_dot) -
-  			controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
+        controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
 
   controller.cmd_azimuth_ff = controller.one_over_J * controller.azimuth_ddot_ref;
   controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +

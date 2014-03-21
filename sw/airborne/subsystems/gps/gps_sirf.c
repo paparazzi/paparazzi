@@ -49,7 +49,7 @@ void gps_impl_init( void ) {
 
 void sirf_parse_char(uint8_t c) {
   switch(gps_sirf.read_state) {
-	case UNINIT:
+  case UNINIT:
       if(c == 0xA0) {
         gps_sirf.msg_len = 0;
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
@@ -57,7 +57,7 @@ void sirf_parse_char(uint8_t c) {
         gps_sirf.read_state = GOT_A0;
       }
       break;
-	case GOT_A0:
+  case GOT_A0:
       if(c == 0xA2) {
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
         gps_sirf.msg_len++;
@@ -66,13 +66,13 @@ void sirf_parse_char(uint8_t c) {
       else
         goto restart;
       break;
-	case GOT_A2:
+  case GOT_A2:
       gps_sirf.msg_buf[gps_sirf.msg_len] = c;
       gps_sirf.msg_len++;
       if(c == 0xB0)
         gps_sirf.read_state = GOT_B0;
       break;
-	case GOT_B0:
+  case GOT_B0:
       if(c == 0xB3) {
         gps_sirf.msg_buf[gps_sirf.msg_len] = c;
         gps_sirf.msg_len++;
@@ -179,10 +179,10 @@ void sirf_parse_msg(void) {
   //Check the message id and parse the message
   uint8_t message_id = gps_sirf.msg_buf[4];
   switch(message_id) {
-	case 0x29:
+  case 0x29:
       sirf_parse_41();
       break;
-	case 0x02:
+  case 0x02:
       sirf_parse_2();
       break;
   }

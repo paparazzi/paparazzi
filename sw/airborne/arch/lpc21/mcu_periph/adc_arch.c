@@ -199,8 +199,8 @@ void adc_init( void ) {
 
 #ifdef USE_AD0
   /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
-			but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
-			lpc_vor_convertions.c for right timing code */
+      but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
+      lpc_vor_convertions.c for right timing code */
   /* setup hw scan - PCLK/256 ( 58.6kHz/117.2kHz/234.4kHz ) - BURST ON */
   AD0CR = ADC_AD0CR_SEL_HW_SCAN | 0xFF << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD0 selected as IRQ */
@@ -214,8 +214,8 @@ void adc_init( void ) {
 
 #ifdef USE_AD1
   /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
-			but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
-			lpc_vor_convertions.c for right timing code */
+      but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
+      lpc_vor_convertions.c for right timing code */
   /* setup hw scan - PCLK/256 ( 58.6kHz/117.2kHz/234.4kHz ) - BURST ON */
   AD1CR = ADC_AD1CR_SEL_HW_SCAN | 0xFF << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD1 selected as IRQ */
@@ -239,12 +239,12 @@ void adcISR0 ( void ) {
 
   struct adc_buf* buf = buffers[channel];
   if (buf) {
-	uint8_t new_head = buf->head + 1;
-	if (new_head >= buf->av_nb_sample) new_head = 0;
-	buf->sum -= buf->values[new_head];
-	buf->values[new_head] = value;
-	buf->sum += value;
-	buf->head = new_head;
+    uint8_t new_head = buf->head + 1;
+    if (new_head >= buf->av_nb_sample) new_head = 0;
+    buf->sum -= buf->values[new_head];
+    buf->values[new_head] = value;
+    buf->sum += value;
+    buf->head = new_head;
   }
 
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
@@ -259,12 +259,12 @@ void adcISR1 ( void ) {
   adc1_val[channel] = value;
   struct adc_buf* buf = buffers[channel+NB_ADC];
   if (buf) {
-	uint8_t new_head = buf->head + 1;
-	if (new_head >= buf->av_nb_sample) new_head = 0;
-	buf->sum -= buf->values[new_head];
-	buf->values[new_head] = value;
-	buf->sum += value;
-	buf->head = new_head;
+    uint8_t new_head = buf->head + 1;
+    if (new_head >= buf->av_nb_sample) new_head = 0;
+    buf->sum -= buf->values[new_head];
+    buf->values[new_head] = value;
+    buf->sum += value;
+    buf->head = new_head;
   }
 
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC

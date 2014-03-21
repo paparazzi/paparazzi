@@ -46,7 +46,7 @@
 /**
  * Get the time in microseconds since startup.
  * WARNING: overflows after 70min!
- * @return current system time as uint32_t
+ * @return microseconds since startup as uint32_t
  */
 static inline uint32_t get_sys_time_usec(void) {
 #ifdef RTOS_IS_CHIBIOS
@@ -58,10 +58,20 @@ static inline uint32_t get_sys_time_usec(void) {
 #endif
 }
 
-/* Generic timer macros */
-#define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
-#define SysTimeTimer(_t) ( get_sys_time_usec() - (_t))
-#define SysTimeTimerStop(_t) { _t = ( get_sys_time_usec() - (_t)); }
+/**
+ * Get the time in milliseconds since startup.
+ * @return milliseconds since startup as uint32_t
+ */
+static inline uint32_t get_sys_time_msec(void) {
+#ifdef RTOS_IS_CHIBIOS
+  return (chibios_chTimeNow() * (1000 / CH_FREQUENCY));
+#else
+  return sys_time.nb_sec * 1000 +
+    msec_of_cpu_ticks(sys_time.nb_sec_rem) +
+    msec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+#endif
+}
+
 
 /** Busy wait in microseconds.
  * @todo: doesn't handle wrap-around at

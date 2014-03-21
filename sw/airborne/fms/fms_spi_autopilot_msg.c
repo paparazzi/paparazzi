@@ -58,8 +58,8 @@ void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
 {
   uint32_t timestamp = 0;
   DOWNLINK_SEND_EKF7_Y(tp, &timestamp, &imuFloat.accel.x, &imuFloat.accel.y, &imuFloat.accel.z,
-		    &imuFloat.mag.x, &imuFloat.mag.y, &imuFloat.mag.z,
-		    &imuFloat.gyro.p, &imuFloat.gyro.q, &imuFloat.gyro.r);
+        &imuFloat.mag.x, &imuFloat.mag.y, &imuFloat.mag.z,
+        &imuFloat.gyro.p, &imuFloat.gyro.q, &imuFloat.gyro.r);
 }
 
 void spi_ap_link_set_vane_callback(void (* vane_cb)(uint8_t vane_id, float alpha, float beta))
@@ -84,7 +84,7 @@ void spi_ap_link_set_radio_control_callback(void (* radio_control_cb)(void))
 
 void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t * adc_channels))
 {
-	adc_callback = adc_callback_fun;
+  adc_callback = adc_callback_fun;
 }
 
 int spi_ap_link_init()
@@ -99,13 +99,13 @@ int spi_ap_link_init()
   imuFloat.sample_count = 0;
 
 #ifdef IMU_ALIGN_BENCH
-	// This code is for aligning body to imu rotation, turn this on, put the vehicle in hover, pointed north, read BOOZ2_AHRS_REF_QUAT as body to imu (in wing frame)
+  // This code is for aligning body to imu rotation, turn this on, put the vehicle in hover, pointed north, read BOOZ2_AHRS_REF_QUAT as body to imu (in wing frame)
   struct FloatVect3 x_axis = { 0.0, 1.0, 0.0 };
   FLOAT_QUAT_OF_AXIS_ANGLE(imuFloat.body_to_imu_quat, x_axis, QUAT_SETPOINT_HOVER_PITCH);
 #endif
 
   FLOAT_QUAT_NORMALIZE(imuFloat.body_to_imu_quat);
-	FLOAT_EULERS_OF_QUAT(imuFloat.body_to_imu_eulers, imuFloat.body_to_imu_quat);
+  FLOAT_EULERS_OF_QUAT(imuFloat.body_to_imu_eulers, imuFloat.body_to_imu_quat);
   FLOAT_RMAT_OF_QUAT(imuFloat.body_to_imu_rmat, imuFloat.body_to_imu_quat);
 
   struct FloatRates bias0 = { 0., 0., 0.};
@@ -127,11 +127,11 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
   if (msg_up->valid.pressure_differential && pressure_differential_callback)
     pressure_differential_callback(0, (32768 + msg_up->pressure_differential));
 
-	if (msg_up->valid.adc) {
-		if(adc_callback) {
-			adc_callback(msg_up->adc.channels);
-		}
-	}
+  if (msg_up->valid.adc) {
+    if(adc_callback) {
+      adc_callback(msg_up->adc.channels);
+    }
+  }
 
   // Fill radio data
   if (msg_up->valid.rc && radio_control_callback) {
@@ -162,7 +162,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
   imuFloat.mag.y = MAG_FLOAT_OF_BFP(msg_up->mag.y);
   imuFloat.mag.z = MAG_FLOAT_OF_BFP(msg_up->mag.z);
 
-	imuFloat.sample_count = msg_up->imu_tick;
+  imuFloat.sample_count = msg_up->imu_tick;
 
   if (msg_up->valid.imu)
     rdyb_booz_imu_update(&imuFloat);

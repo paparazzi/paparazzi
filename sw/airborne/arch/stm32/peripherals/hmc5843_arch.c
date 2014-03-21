@@ -37,7 +37,7 @@ void hmc5843_arch_init( void ) {
   rcc_periph_clock_enable(RCC_GPIOB);
   rcc_periph_clock_enable(RCC_AFIO);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
-	        GPIO_CNF_INPUT_FLOAT, GPIO5);
+          GPIO_CNF_INPUT_FLOAT, GPIO5);
 
 #ifdef HMC5843_USE_INT
   exti_select_source(EXTI5, GPIOB);

@@ -78,15 +78,15 @@ void ins_init(void) {
   alt_kalman_init();
 
 #if USE_BAROMETER
-  ins_impl.qfe = 0;;
+  ins_impl.qfe = 0.0f;
   ins_impl.baro_initialized = FALSE;
-  ins_impl.baro_alt = 0.;
+  ins_impl.baro_alt = 0.0f;
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
 #endif
   ins_impl.reset_alt_ref = FALSE;
 
-  alt_kalman(0.);
+  alt_kalman(0.0f);
 
   ins.status = INS_RUNNING;
 }
@@ -98,17 +98,17 @@ void ins_reset_local_origin(void) {
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */
   struct LlaCoor_f lla;
-  lla.lat = gps.lla_pos.lat/1e7;
-  lla.lon = gps.lla_pos.lon/1e7;
+  lla.lat = gps.lla_pos.lat / 1e7;
+  lla.lon = gps.lla_pos.lon / 1e7;
   utm.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
   utm_of_lla_f(&utm, &lla);
 #else
   utm.zone = gps.utm_pos.zone;
-  utm.east = gps.utm_pos.east/100;
-  utm.north = gps.utm_pos.north/100;
+  utm.east = gps.utm_pos.east / 100.0f;
+  utm.north = gps.utm_pos.north / 100.0f;
 #endif
   // ground_alt
-  utm.alt = gps.hmsl/1000.;
+  utm.alt = gps.hmsl  /1000.0f;
 
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
@@ -120,7 +120,7 @@ void ins_reset_local_origin(void) {
 void ins_reset_altitude_ref(void) {
   struct UtmCoor_f utm = state.utm_origin_f;
   // ground_alt
-  utm.alt = gps.hmsl/1000.;
+  utm.alt = gps.hmsl / 1000.0f;
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
   // reset filter flag
@@ -137,7 +137,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   if (ins_impl.reset_alt_ref) {
     ins_impl.reset_alt_ref = FALSE;
     ins_impl.alt = ground_alt;
-    ins_impl.alt_dot = 0.;
+    ins_impl.alt_dot = 0.0f;
     ins_impl.qfe = *pressure;
     alt_kalman_reset();
   }
@@ -162,22 +162,22 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
 void ins_update_gps(void) {
 #if USE_GPS
   struct UtmCoor_f utm;
-  utm.east = gps.utm_pos.east / 100.;
-  utm.north = gps.utm_pos.north / 100.;
+  utm.east = gps.utm_pos.east / 100.0f;
+  utm.north = gps.utm_pos.north / 100.0f;
   utm.zone = nav_utm_zone0;
 
 #if !USE_BAROMETER
-  float falt = gps.hmsl / 1000.;
+  float falt = gps.hmsl / 1000.0f;
   alt_kalman(falt);
-  ins_impl.alt_dot = -gps.ned_vel.z / 100.;
+  ins_impl.alt_dot = -gps.ned_vel.z / 100.0f;
 #endif
   utm.alt = ins_impl.alt;
   // set position
   stateSetPositionUtm_f(&utm);
 
   struct NedCoor_f ned_vel = {
-    gps.ned_vel.x / 100.,
-    gps.ned_vel.y / 100.,
+    gps.ned_vel.x / 100.0f,
+    gps.ned_vel.y / 100.0f,
     -ins_impl.alt_dot
   };
   // set velocity
@@ -196,10 +196,10 @@ void ins_update_gps(void) {
 static float p[2][2];
 
 static void alt_kalman_reset(void) {
-  p[0][0] = 1.;
-  p[0][1] = 0.;
-  p[1][0] = 0.;
-  p[1][1] = 1.;
+  p[0][0] = 1.0f;
+  p[0][1] = 0.0f;
+  p[1][0] = 0.0f;
+  p[1][1] = 1.0f;
 }
 
 static void alt_kalman_init(void) {

@@ -35,7 +35,6 @@
 
 #include "state.h"
 #include "autopilot.h"
-#include "generated/airframe.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/chibios-libopencm3/sdLog.h"
@@ -87,7 +86,7 @@ void mf_daq_send_state(void) {
 void mf_daq_send_report(void) {
   // Send report over normal telemetry
   if (mf_daq.nb > 0) {
-    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, mf_daq.nb, mf_daq.values);
+    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 9, mf_daq.values);
   }
   // Test if log is started
   if (pprzLogFile.fs != NULL) {
@@ -110,6 +109,7 @@ void mf_daq_send_report(void) {
 void parse_mf_daq_msg(void) {
   mf_daq.nb = DL_PAYLOAD_FLOAT_values_length(dl_buffer);
   if (mf_daq.nb > 0) {
+    if (mf_daq.nb > MF_DAQ_SIZE) mf_daq.nb = MF_DAQ_SIZE;
     // Store data struct directly from dl_buffer
     memcpy(mf_daq.values, DL_PAYLOAD_FLOAT_values(dl_buffer), mf_daq.nb * sizeof(float));
     // Log on SD card

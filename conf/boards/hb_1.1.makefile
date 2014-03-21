@@ -8,9 +8,7 @@ BOARD=hb
 BOARD_VERSION=1.1
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
-ifndef FLASH_MODE
-FLASH_MODE = IAP
-endif
+FLASH_MODE ?= IAP
 
 #
 #

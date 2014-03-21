@@ -76,14 +76,14 @@ void gpio_enable_clock(uint32_t port) {
 }
 
 #ifdef STM32F1
-void gpio_setup_output(uint32_t port, uint16_t pin) {
+void gpio_setup_output(uint32_t port, uint16_t gpios) {
   gpio_enable_clock(port);
-  gpio_set_mode(port, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, pin);
+  gpio_set_mode(port, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, gpios);
 }
 
-void gpio_setup_input(uint32_t port, uint16_t pin) {
+void gpio_setup_input(uint32_t port, uint16_t gpios) {
   gpio_enable_clock(port);
-  gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, pin);
+  gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, gpios);
 }
 
 void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output) {
@@ -106,14 +106,14 @@ void gpio_setup_pin_analog(uint32_t port, uint16_t pin) {
 
 #elif defined STM32F4
 
-void gpio_setup_output(uint32_t port, uint16_t pin) {
+void gpio_setup_output(uint32_t port, uint16_t gpios) {
   gpio_enable_clock(port);
-  gpio_mode_setup(port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, pin);
+  gpio_mode_setup(port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, gpios);
 }
 
-void gpio_setup_input(uint32_t port, uint16_t pin) {
+void gpio_setup_input(uint32_t port, uint16_t gpios) {
   gpio_enable_clock(port);
-  gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, pin);
+  gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, gpios);
 }
 
 void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output __attribute__ ((unused))) {

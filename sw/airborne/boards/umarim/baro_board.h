@@ -29,6 +29,9 @@
 #ifndef BOARDS_UMARIM_BARO_H
 #define BOARDS_UMARIM_BARO_H
 
+// only for printing the baro type during compilation
+#define BARO_BOARD BARO_BOARD_MPXA6115
+
 extern void umarim_baro_event(void);
 #define BaroEvent umarim_baro_event
 

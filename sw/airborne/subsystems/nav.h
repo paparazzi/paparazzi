@@ -187,7 +187,7 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 #define NavAttitude(_roll) { \
   lateral_mode = LATERAL_MODE_ROLL; \
   if(pprz_mode != PPRZ_MODE_AUTO1)  \
-	 {h_ctl_roll_setpoint = _roll;} \
+   {h_ctl_roll_setpoint = _roll;} \
 }
 
 #define nav_IncreaseShift(x) { if (x==0) nav_shift = 0; else nav_shift += x; }

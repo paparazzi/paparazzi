@@ -42,10 +42,14 @@ static inline uint32_t get_sys_time_usec(void) {
     usec_of_cpu_ticks(sys_time.nb_sec_rem);
 }
 
-/* Generic timer macros */
-#define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
-#define SysTimeTimer(_t) ( get_sys_time_usec() - (_t))
-#define SysTimeTimerStop(_t) { _t = ( get_sys_time_usec() - (_t)); }
+/**
+ * Get the time in milliseconds since startup.
+ * @return milliseconds since startup as uint32_t
+ */
+static inline uint32_t get_sys_time_msec(void) {
+  return sys_time.nb_sec * 1000 +
+    msec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
 
 static inline void sys_time_usleep(uint32_t us __attribute__ ((unused))) {}
 

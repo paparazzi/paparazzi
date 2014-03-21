@@ -219,7 +219,7 @@ static inline void main_init_adc(void) {
 
   /* Enable ADC1 and GPIOC clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 |
-			 RCC_APB2Periph_GPIOC, ENABLE);
+       RCC_APB2Periph_GPIOC, ENABLE);
 
   /* Configure PC.01 (ADC Channel11) and PC.04 (ADC Channel14) as analog input-*/
   GPIO_InitTypeDef GPIO_InitStructure;

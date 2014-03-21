@@ -37,34 +37,34 @@ void mb_twi_controller_set( float throttle ) {
       mb_twi_controller_asctech_command = FALSE;
       switch (mb_twi_controller_asctech_command_type) {
 
-      case MB_TWI_CONTROLLER_COMMAND_TEST :
-	i2c0_buf[0] = 251;
-	i2c0_buf[1] = mb_twi_controller_asctech_addr;
-	i2c0_buf[2] = 0;
-	i2c0_buf[3] = 231 + mb_twi_controller_asctech_addr;
-	//	mb_twi_i2c_done = FALSE;
-	i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
-      break;
+        case MB_TWI_CONTROLLER_COMMAND_TEST :
+          i2c0_buf[0] = 251;
+          i2c0_buf[1] = mb_twi_controller_asctech_addr;
+          i2c0_buf[2] = 0;
+          i2c0_buf[3] = 231 + mb_twi_controller_asctech_addr;
+          //	mb_twi_i2c_done = FALSE;
+          i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+          break;
 
-      case MB_TWI_CONTROLLER_COMMAND_REVERSE :
-	i2c0_buf[0] = 254;
-	i2c0_buf[1] = mb_twi_controller_asctech_addr;
-	i2c0_buf[2] = 0;
-	i2c0_buf[3] = 234 + mb_twi_controller_asctech_addr;
-	//	mb_twi_i2c_done = FALSE;
-	i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
-	break;
+        case MB_TWI_CONTROLLER_COMMAND_REVERSE :
+          i2c0_buf[0] = 254;
+          i2c0_buf[1] = mb_twi_controller_asctech_addr;
+          i2c0_buf[2] = 0;
+          i2c0_buf[3] = 234 + mb_twi_controller_asctech_addr;
+          //	mb_twi_i2c_done = FALSE;
+          i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+          break;
 
-    case MB_TWI_CONTROLLER_COMMAND_SET_ADDR :
-	i2c0_buf[0] = 250;
-	i2c0_buf[1] = mb_twi_controller_asctech_addr;
-	i2c0_buf[2] = mb_twi_controller_asctech_new_addr;
-	i2c0_buf[3] = 230 + mb_twi_controller_asctech_addr +
-	             mb_twi_controller_asctech_new_addr;
-	mb_twi_controller_asctech_addr = mb_twi_controller_asctech_new_addr;
-	//	mb_twi_i2c_done = FALSE;
-	i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
-	break;
+        case MB_TWI_CONTROLLER_COMMAND_SET_ADDR :
+          i2c0_buf[0] = 250;
+          i2c0_buf[1] = mb_twi_controller_asctech_addr;
+          i2c0_buf[2] = mb_twi_controller_asctech_new_addr;
+          i2c0_buf[3] = 230 + mb_twi_controller_asctech_addr +
+            mb_twi_controller_asctech_new_addr;
+          mb_twi_controller_asctech_addr = mb_twi_controller_asctech_new_addr;
+          //	mb_twi_i2c_done = FALSE;
+          i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+          break;
 
       }
     }

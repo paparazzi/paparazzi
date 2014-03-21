@@ -221,9 +221,9 @@ static void SSP_ISR(void) {
         if (i >= MAX11040_BUF_SIZE) i=0;
         if (i != max11040_buf_out) {
           max11040_buf_in = i;
- 	} else {
+        } else {
           //throw error;
-	}
+        }
       }
     }
     break;

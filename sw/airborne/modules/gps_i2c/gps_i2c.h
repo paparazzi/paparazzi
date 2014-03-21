@@ -25,6 +25,7 @@
 
 #include "std.h"
 
+/// Default address for u-blox (and others?)
 #define GPS_I2C_SLAVE_ADDR (0x42 << 1)
 
 #define GPS_I2C_BUF_SIZE 256

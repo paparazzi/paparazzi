@@ -58,20 +58,31 @@
 
 
 #if USE_SONAR
-
 #if !USE_VFF_EXTENDED
 #error USE_SONAR needs USE_VFF_EXTENDED
 #endif
+
+/** default sonar to use in INS */
+#ifndef INS_SONAR_ID
+#define INS_SONAR_ID ABI_BROADCAST
+#endif
+abi_event sonar_ev;
+static void sonar_cb(uint8_t sender_id, const float *distance);
 
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
 #include "firmwares/rotorcraft/stabilization.h"
 #endif
 
 #ifndef INS_SONAR_OFFSET
-#define INS_SONAR_OFFSET 0
+#define INS_SONAR_OFFSET 0.
 #endif
 #define VFF_R_SONAR_0 0.1
 #define VFF_R_SONAR_OF_M 0.2
+
+#ifndef INS_SONAR_UPDATE_ON_AGL
+#define INS_SONAR_UPDATE_ON_AGL FALSE
+PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
+#endif
 
 #endif // USE_SONAR
 
@@ -80,6 +91,9 @@
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
+#ifdef INS_BARO_SENS
+#warning INS_BARO_SENS is obsolete, please remove it from your airframe file.
+#endif
 
 /** default barometer to use in INS */
 #ifndef INS_BARO_ID
@@ -137,9 +151,9 @@ void ins_init(void) {
   ins_impl.baro_initialized = FALSE;
 
 #if USE_SONAR
-  ins_impl.update_on_agl = FALSE;
-  init_median_filter(&ins_impl.sonar_median);
-  ins_impl.sonar_offset = INS_SONAR_OFFSET;
+  ins_impl.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
+  // Bind to AGL message
+  AbiBindMsgAGL(INS_SONAR_ID, &sonar_ev, sonar_cb);
 #endif
 
   ins_impl.vf_reset = FALSE;
@@ -216,11 +230,12 @@ void ins_propagate(void) {
 }
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
-  if (!ins_impl.baro_initialized) {
+  if (!ins_impl.baro_initialized && *pressure > 1e-7) {
+    // wait for a first positive value
     ins_impl.qfe = *pressure;
     ins_impl.baro_initialized = TRUE;
   }
-  if (ins_impl.vf_reset) {
+  if (ins_impl.vf_reset && ins_impl.baro_initialized) {
     ins_impl.vf_reset = FALSE;
     ins_impl.qfe = *pressure;
     vff_realign(0.);
@@ -258,7 +273,7 @@ void ins_update_gps(void) {
     /* horizontal gps transformed to NED in meters as float */
     struct FloatVect2 gps_pos_m_ned;
     VECT2_ASSIGN(gps_pos_m_ned, gps_pos_cm_ned.x, gps_pos_cm_ned.y);
-    VECT2_SDIV(gps_pos_m_ned, gps_pos_m_ned, 100.);
+    VECT2_SDIV(gps_pos_m_ned, gps_pos_m_ned, 100.0f);
 
     struct FloatVect2 gps_speed_m_s_ned;
     VECT2_ASSIGN(gps_speed_m_s_ned, gps_speed_cm_s_ned.x, gps_speed_cm_s_ned.y);
@@ -266,7 +281,7 @@ void ins_update_gps(void) {
 
     if (ins_impl.hf_realign) {
       ins_impl.hf_realign = FALSE;
-      const struct FloatVect2 zero = {0.0, 0.0};
+      const struct FloatVect2 zero = {0.0f, 0.0f};
       b2_hff_realign(gps_pos_m_ned, zero);
     }
     // run horizontal filter
@@ -304,37 +319,25 @@ uint8_t var_idx = 0;
 
 
 #if USE_SONAR
-void ins_update_sonar(void) {
+static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance) {
   static float last_offset = 0.;
-  // new value filtered with median_filter
-  ins_impl.sonar_alt = update_median_filter(&ins_impl.sonar_median, sonar_meas);
-  float sonar = (ins_impl.sonar_alt - ins_impl.sonar_offset) * INS_SONAR_SENS;
 
 #ifdef INS_SONAR_VARIANCE_THRESHOLD
   /* compute variance of error between sonar and baro alt */
-  float err = sonar + ins_impl.baro_z; // sonar positive up, baro positive down !!!!
+  float err = *distance + ins_impl.baro_z; // sonar positive up, baro positive down !!!!
   var_err[var_idx] = err;
   var_idx = (var_idx + 1) % VAR_ERR_MAX;
   float var = variance_float(var_err, VAR_ERR_MAX);
-  DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice,&err, &sonar, &var);
-  //DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice,&ins_impl.sonar_alt, &sonar, &var);
+  DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice, distance, &var);
 #endif
 
   /* update filter assuming a flat ground */
-  if (sonar < INS_SONAR_MAX_RANGE
+  if (*distance < INS_SONAR_MAX_RANGE
 #ifdef INS_SONAR_MIN_RANGE
-      && sonar > INS_SONAR_MIN_RANGE
+      && *distance > INS_SONAR_MIN_RANGE
 #endif
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
       && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
-#endif
-#ifdef INS_SONAR_STAB_THRESHOLD
-      && stabilization_cmd[COMMAND_ROLL] < INS_SONAR_STAB_THRESHOLD
-      && stabilization_cmd[COMMAND_ROLL] > -INS_SONAR_STAB_THRESHOLD
-      && stabilization_cmd[COMMAND_PITCH] < INS_SONAR_STAB_THRESHOLD
-      && stabilization_cmd[COMMAND_PITCH] > -INS_SONAR_STAB_THRESHOLD
-      && stabilization_cmd[COMMAND_YAW] < INS_SONAR_STAB_THRESHOLD
-      && stabilization_cmd[COMMAND_YAW] > -INS_SONAR_STAB_THRESHOLD
 #endif
 #ifdef INS_SONAR_BARO_THRESHOLD
       && ins_impl.baro_z > -INS_SONAR_BARO_THRESHOLD /* z down */
@@ -344,8 +347,8 @@ void ins_update_sonar(void) {
 #endif
       && ins_impl.update_on_agl
       && ins_impl.baro_initialized) {
-    vff_update_alt_conf(-sonar, VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabs(sonar));
-    last_offset = vff_offset;
+    vff_update_alt_conf(-(*distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(*distance));
+    last_offset = vff.offset;
   }
   else {
     /* update offset with last value to avoid divergence */

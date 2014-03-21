@@ -37,6 +37,7 @@ struct MotorMixing {
   int32_t trim[MOTOR_MIXING_NB_MOTOR];
   bool_t override_enabled[MOTOR_MIXING_NB_MOTOR];
   int32_t override_value[MOTOR_MIXING_NB_MOTOR];
+  uint32_t nb_saturation;
   uint32_t nb_failure;
 };
 

@@ -111,7 +111,6 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
     <!-- Ostheim v.d. Rhoen -->
     <define name="H_X" value="0.405857063"/>
     <define name="H_Y" value="0.014454969"/>

@@ -59,17 +59,17 @@ void print_raw_log_entry(struct raw_log_entry* e){
   struct DoubleVect3 tempvect;
   struct DoubleRates temprates;
   printf("%f\t", e->time);
-	printf("%i\t", e->message.valid_sensors);
+  printf("%i\t", e->message.valid_sensors);
   RATES_FLOAT_OF_BFP(temprates, e->message.gyro);
-	printf("% f % f % f\t", temprates.p,     temprates.q,     temprates.r);
+  printf("% f % f % f\t", temprates.p,     temprates.q,     temprates.r);
   ACCELS_FLOAT_OF_BFP(tempvect, e->message.accel);
-	printf("% f % f % f\t", tempvect.x,    tempvect.y,    tempvect.z);
+  printf("% f % f % f\t", tempvect.x,    tempvect.y,    tempvect.z);
   MAGS_FLOAT_OF_BFP(tempvect, e->message.mag);
-	printf("% f % f % f\t", tempvect.x,      tempvect.y,     tempvect.z);
-	printf("% i % i % i\t", e->message.ecef_pos.x, e->message.ecef_pos.y, e->message.ecef_pos.z);
-	printf("% i % i % i\t", e->message.ecef_vel.x, e->message.ecef_vel.y, e->message.ecef_vel.z);
+  printf("% f % f % f\t", tempvect.x,      tempvect.y,     tempvect.z);
+  printf("% i % i % i\t", e->message.ecef_pos.x, e->message.ecef_pos.y, e->message.ecef_pos.z);
+  printf("% i % i % i\t", e->message.ecef_vel.x, e->message.ecef_vel.y, e->message.ecef_vel.z);
   double baro_scaled = (double)(e->message.pressure_absolute)/256;
-	printf("%f", baro_scaled);
+  printf("%f", baro_scaled);
 }
 
 /*

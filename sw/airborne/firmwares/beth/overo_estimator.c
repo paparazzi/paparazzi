@@ -17,9 +17,9 @@ void estimator_init(void) {
 void estimator_send_messages(void) {
 
   RunOnceEvery(25, {DOWNLINK_SEND_BETH_ESTIMATOR(gcs_com.udp_transport,
-			&estimator.tilt,&estimator.tilt_dot,
-			&estimator.elevation,&estimator.elevation_dot,
-			&estimator.azimuth,&estimator.azimuth_dot);});
+      &estimator.tilt,&estimator.tilt_dot,
+      &estimator.elevation,&estimator.elevation_dot,
+      &estimator.azimuth,&estimator.azimuth_dot);});
 }
 
 //bench sensors z,y,x values passed in

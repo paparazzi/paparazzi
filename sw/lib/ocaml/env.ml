@@ -80,6 +80,7 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
     try
       (* get full path file name *)
       let fp = prefix (ExtXml.attrib ac_conf a) in
+      if Sys.is_directory fp then raise Not_found;
       (* create a temporary dump file *)
       let dump = Filename.temp_file "fp_dump" ".xml" in
       (* set command then call it *)

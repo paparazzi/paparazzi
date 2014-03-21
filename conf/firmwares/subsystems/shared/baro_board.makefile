@@ -27,6 +27,7 @@ else ifeq ($(BOARD), lisa_m)
 # defaults to i2c baro bmp085 on the board
 LISA_M_BARO ?= BARO_BOARD_BMP085
   ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
+    ap.CFLAGS += -DBARO_BOARD=BARO_MS5611_SPI
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
     ap.CFLAGS += -DBB_MS5611_SPI_DEV=spi2
@@ -35,12 +36,14 @@ LISA_M_BARO ?= BARO_BOARD_BMP085
     ap.srcs += peripherals/ms5611_spi.c
     ap.srcs += boards/baro_board_ms5611_spi.c
   else ifeq ($(LISA_M_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
     ap.CFLAGS += -DUSE_I2C2
     ap.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
     ap.srcs += peripherals/ms5611.c
     ap.srcs += peripherals/ms5611_i2c.c
     ap.srcs += boards/baro_board_ms5611_i2c.c
   else ifeq ($(LISA_M_BARO), BARO_BOARD_BMP085)
+    ap.CFLAGS += -DBARO_BOARD=BARO_BOARD_BMP085
     ap.CFLAGS += -DUSE_I2C2
     ap.srcs += peripherals/bmp085.c
     ap.srcs += $(SRC_BOARD)/baro_board.c
@@ -50,6 +53,7 @@ else ifeq ($(BOARD), lisa_mx)
 # defaults to MS5611 via SPI on Aspirin
 LISA_MX_BARO ?= BARO_MS5611_SPI
   ifeq ($(LISA_MX_BARO), BARO_MS5611_SPI)
+    ap.CFLAGS += -DBARO_BOARD=BARO_MS5611_SPI
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
     ap.CFLAGS += -DBB_MS5611_SPI_DEV=spi2
@@ -58,12 +62,14 @@ LISA_MX_BARO ?= BARO_MS5611_SPI
     ap.srcs += peripherals/ms5611_spi.c
     ap.srcs += boards/baro_board_ms5611_spi.c
   else ifeq ($(LISA_MX_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
     ap.CFLAGS += -DUSE_I2C2
     ap.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
     ap.srcs += peripherals/ms5611.c
     ap.srcs += peripherals/ms5611_i2c.c
     ap.srcs += boards/baro_board_ms5611_i2c.c
   else ifeq ($(LISA_MX_BARO), BARO_BOARD_BMP085)
+    ap.CFLAGS += -DBARO_BOARD=BARO_BOARD_BMP085
     ap.CFLAGS += -DUSE_I2C2
     ap.srcs += peripherals/bmp085.c
     ap.srcs += $(SRC_BOARD)/baro_board.c
@@ -85,6 +91,7 @@ else ifeq ($(BOARD), lia)
 # fixme, reuse the baro drivers in lisa_m dir
 LIA_BARO ?= BARO_MS5611_SPI
   ifeq ($(LIA_BARO), BARO_MS5611_SPI)
+    ap.CFLAGS += -DBARO_BOARD=BARO_MS5611_SPI
     include $(CFG_SHARED)/spi_master.makefile
     ap.CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
     ap.CFLAGS += -DBB_MS5611_SPI_DEV=spi2
@@ -93,6 +100,7 @@ LIA_BARO ?= BARO_MS5611_SPI
     ap.srcs += peripherals/ms5611_spi.c
     ap.srcs += boards/baro_board_ms5611_spi.c
   else ifeq ($(LIA_BARO), BARO_MS5611_I2C)
+    ap.CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
     ap.CFLAGS += -DUSE_I2C2
     ap.CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
     ap.srcs += peripherals/ms5611.c

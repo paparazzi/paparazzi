@@ -29,6 +29,9 @@
 #ifndef BOARDS_NAVGO_BARO_H
 #define BOARDS_NAVGO_BARO_H
 
+// only for printing the baro type during compilation
+#define BARO_BOARD BARO_BOARD_MPC355X
+
 extern void navgo_baro_event(void);
 
 // define BaroEvent macro
