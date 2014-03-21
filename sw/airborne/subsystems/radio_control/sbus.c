@@ -70,9 +70,9 @@ struct _sbus sbus;
 #include "subsystems/datalink/telemetry.h"
 
 static void send_sbus(void) {
-  // Using PPM message for simplicity
+  // Using PPM message
   DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,
-      &radio_control.frame_rate, SBUS_NB_CHANNEL, sbus.pulses);
+      &radio_control.frame_rate, SBUS_NB_CHANNEL, sbus.ppm);
 }
 #endif
 
@@ -99,7 +99,7 @@ void radio_control_impl_init(void) {
 
 
 /** Decode the raw buffer */
-static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *available)
+static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *available, uint16_t *dstppm)
 {
   // reset counters
   uint8_t byteInRawBuf = 0;
@@ -124,6 +124,9 @@ static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *avail
     }
     if (bitInChannel == SBUS_BIT_PER_CHANNEL) {
       bitInChannel = 0;
+#if PERIODIC_TELEMETRY
+      dstppm[channel] = USEC_OF_RC_PPM_TICKS(dst[channel]);
+#endif
       channel++;
     }
   }
@@ -153,7 +156,7 @@ void sbus_decode_event(void) {
           if (sbus.idx == SBUS_BUF_LENGTH) {
             // Decode if last byte is the correct end byte
             if (rbyte == SBUS_END_BYTE) {
-              decode_sbus_buffer(sbus.buffer, sbus.pulses, &sbus.frame_available);
+              decode_sbus_buffer(sbus.buffer, sbus.pulses, &sbus.frame_available, sbus.ppm);
             }
             sbus.status = SBUS_STATUS_UNINIT;
           }
