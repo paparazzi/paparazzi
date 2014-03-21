@@ -7,8 +7,8 @@ PAPARAZZI_HOME=$(HOME)/paparazzi
 endif
 
 ifeq ($(PAPARAZZI_SRC),)
-TOOLS=$(DESTDIR)/usr/share/paparazzi/bin
+GENERATORS=$(DESTDIR)/usr/share/paparazzi/bin
 else
-TOOLS=$(PAPARAZZI_SRC)/sw/tools
+GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 endif
 
