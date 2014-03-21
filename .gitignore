@@ -140,7 +140,6 @@
 /sw/supervision/gtk_pc.ml
 
 # /sw/tools/
-/sw/tools/fp_parser.ml
 /sw/tools/wiki_gen/wiki_gen
 /sw/tools/mergelogs
 
