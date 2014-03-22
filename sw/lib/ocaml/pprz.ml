@@ -242,7 +242,7 @@ let alt_unit_coef_of_xml = fun ?auto xml ->
     coef
 
 let key_modifiers_of_string = fun key ->
-  let key_split = Str.split (Str.regexp "[A-Za-z]+\\+") key in
+  let key_split = Str.split (Str.regexp "\\+") key in
   let keys = List.map (fun k ->
     match k with
     | "Ctrl" -> "<Control>"
