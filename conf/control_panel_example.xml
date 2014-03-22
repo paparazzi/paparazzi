@@ -68,8 +68,6 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
-
     <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
 
     <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
