@@ -152,7 +152,7 @@ $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELE
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 
-$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_modules.out
+$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_modules.out $(CONF)/modules/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
