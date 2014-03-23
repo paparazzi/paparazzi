@@ -29,7 +29,7 @@ module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
 
 let (//) = Filename.concat
 let replay_dir = Env.paparazzi_home // "var" // "replay"
-let dump_fp = Env.paparazzi_src // "sw" // "tools" // "gen_flight_plan.out -dump"
+let dump_fp = Env.paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
 let log = ref [||]
 
