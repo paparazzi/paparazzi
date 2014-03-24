@@ -54,7 +54,7 @@ Add to flightplan or airframe file:
 Add to flightplan
 @verbatim
   <header>
-#define PHOTOGRAMMETRY_SWEEP_ANGLE 53		// Degrees from the North
+#define PHOTOGRAMMETRY_SWEEP_ANGLE 1.2		// Rad from the North
 #define PHOTOGRAMMETRY_OVERLAP 50		// 1-99 Procent
 #define PHOTOGRAMMETRY_SIDELAP 50		// 1-99 Procent
 #define PHOTOGRAMMETRY_RESOLUTION 80		// mm pixel projection size
@@ -139,7 +139,7 @@ void photogrammetry_calculator_update_flightplan2camera(void);
 #define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {  			\
   WaypointAlt(_WP) = photogrammetry_height + GROUND_ALT;			\
   int _ang = 90 - DegOfRad(photogrammetry_sweep_angle);				\
-  if (_ang > 90) _ang -= 180; if (_ang < -90) _ang += 180; 			\
+  while (_ang > 90) _ang -= 180; while (_ang < -90) _ang += 180; 			\
   InitializePolygonSurvey((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
 }
 
