@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,36 +17,27 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
-
 
 /** @file modules/digital_cam/servo_cam_ctrl.h
  *  @brief Digital Camera Control
  *
  * Provides the control of the shutter and the zoom of a digital camera
- * through standard binary IOs of the board.
+ * via servos.
  *
- * Configuration:
- *  Since the API of led.h is used, connected pins must be defined as led
- *  numbers (usually in the airframe file):
- * @verbatim
- *   <define name="DC_SHUTTER_SERVO" value="10"/>
- *   <define name="DC_ZOOM_IN_SERVO" value="7"/>
- *   <define name="DC_ZOOM_OUT_SERVO" value="8"/>
- *   <define name="DC_POWER_SERVO" value="9"/>
- * @endverbatim
- *  Related bank and pin must also be defined:
- * @verbatim
- *   <define name="LED_10_BANK" value="0"/>
- *   <define name="LED_10_PIN" value="2"/>
- * @endverbatim
- *  The required initialization (dc_init()) and periodic (4Hz) process
+ * Configuration in airframe file (DC_SHUTTER is mandatory, others optional):
+ * @code{.xml]
+ * <define name="DC_SHUTTER_SERVO" value="10"/>
+ * <define name="DC_ZOOM_IN_SERVO" value="7"/>
+ * <define name="DC_ZOOM_OUT_SERVO" value="8"/>
+ * <define name="DC_POWER_SERVO" value="9"/>
+ * @endcode
  *
+ * Provides the required initialization (dc_init()) and periodic (4Hz) process.
  */
 
-#ifndef servo_cam_ctrl_H
-#define servo_cam_ctrl_H
+#ifndef SERVO_CAM_CTRL_H
+#define SERVO_CAM_CTRL_H
 
 // Include Standard Camera Control Interface
 #include "dc.h"
@@ -75,7 +66,7 @@ static inline void servo_cam_ctrl_init(void)
 #endif
 
 #ifndef DC_SHUTTER_SERVO
-#error DC: Please specify at least a SHUTTER SERVO
+#error DC: Please specify at least a DC_SHUTTER_SERVO
 #endif
 
 
@@ -107,8 +98,4 @@ static inline void servo_cam_ctrl_periodic( void )
   dc_periodic_4Hz();
 }
 
-
-
-
-
-#endif // DC_H
+#endif // SERVO_CAM_CONTROL_H
