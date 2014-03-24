@@ -44,8 +44,8 @@ int32_t nav_utm_north0 = NAV_UTM_NORTH0;
 uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 float max_dist_from_home = MAX_DIST_FROM_HOME;
 
-/** \brief Computes square distance to the HOME waypoint potentially sets
- * \a too_far_from_home
+/** Computes squared distance to the HOME waypoint.
+ * Updates #dist2_to_home and potentially sets #too_far_from_home
  */
 void compute_dist2_to_home(void) {
   struct EnuCoor_f* pos = stateGetPositionEnu_f();
@@ -80,7 +80,7 @@ unit_t nav_reset_utm_zone(void) {
 }
 
 /** Reset the geographic reference to the current GPS fix */
-unit_t nav_reset_reference( void ) {
+unit_t nav_reset_reference(void) {
   /* realign INS */
   ins_reset_local_origin();
 
@@ -97,7 +97,7 @@ unit_t nav_reset_reference( void ) {
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */
-unit_t nav_update_waypoints_alt( void ) {
+unit_t nav_update_waypoints_alt(void) {
   uint8_t i;
   for(i = 0; i < NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
@@ -109,6 +109,12 @@ void common_nav_periodic_task_4Hz() {
   RunOnceEvery(4, { stage_time++;  block_time++; });
 }
 
+/** Move a waypoint to given UTM coordinates.
+ * @param[in] wp_id Waypoint ID
+ * @param[in] ux    UTM x (east) coordinate
+ * @param[in] uy    UTM y (north) coordinate
+ * @param[in] alt   Altitude above MSL.
+ */
 void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt) {
   if (wp_id < nb_waypoint) {
     float dx, dy;
