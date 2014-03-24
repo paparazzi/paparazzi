@@ -87,7 +87,7 @@ float airborne_ant_pan_servo = 0;
 
   svPlanePosition.fx = stateGetPositionEnu_f()->y;
   svPlanePosition.fy = stateGetPositionEnu_f()->x;
-  svPlanePosition.fz = stateGetPositionEnu_f()->z;
+  svPlanePosition.fz = stateGetPositionUtm_f()->alt;
 
   Home_Position.fx = WaypointY(WP_HOME);
   Home_Position.fy = WaypointX(WP_HOME);
