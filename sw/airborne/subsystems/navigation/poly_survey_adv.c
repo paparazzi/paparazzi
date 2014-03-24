@@ -307,7 +307,7 @@ bool_t poly_survey_adv(void)
     nav_circle_XY(entry_center.x, entry_center.y, -psa_min_rad);
     if (NavCourseCloseTo(segment_angle)
         && nav_approaching_xy(seg_start.x, seg_start.y, last_x, last_y, CARROT)
-        && fabs(stateGetPositionEnu_f()->z - psa_altitude) <= 20) {
+        && fabs(stateGetPositionUtm_f()->alt - psa_altitude) <= 20) {
       psa_stage = SEG;
       nav_init_stage();
 #ifdef DIGITAL_CAM

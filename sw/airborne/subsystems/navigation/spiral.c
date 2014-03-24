@@ -90,7 +90,7 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
 
   TransCurrentX = stateGetPositionEnu_f()->x - WaypointX(Center);
   TransCurrentY = stateGetPositionEnu_f()->y - WaypointY(Center);
-  TransCurrentZ = stateGetPositionEnu_f()->z - ZPoint;
+  TransCurrentZ = stateGetPositionUtm_f()->alt - ZPoint;
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   //    SpiralTheta = atan2(TransCurrentY,TransCurrentX);
@@ -172,7 +172,7 @@ bool_t SpiralNav(void)
 #ifdef DIGITAL_CAM
       if (dc_cam_tracing) {
         // calculating Cam angle for camera alignment
-        TransCurrentZ = stateGetPositionEnu_f()->z - ZPoint;
+        TransCurrentZ = stateGetPositionUtm_f()->alt - ZPoint;
         dc_cam_angle = atan(SRad/TransCurrentZ) * 180  / M_PI;
       }
 #endif

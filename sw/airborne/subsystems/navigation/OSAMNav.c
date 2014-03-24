@@ -335,7 +335,7 @@ bool_t BungeeTakeoff(void)
     nav_route_xy(initialx,initialy,throttlePx,throttlePy);
     kill_throttle = 0;
 
-    if((stateGetPositionEnu_f()->z > BungeeAlt+Takeoff_Height-10) && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed))
+    if((stateGetPositionUtm_f()->alt > BungeeAlt+Takeoff_Height-10) && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed))
     {
       CTakeoffStatus = Finished;
       return FALSE;
@@ -600,7 +600,7 @@ bool_t PolygonSurvey(void)
     //follow the circle
     nav_circle_XY(C.x, C.y, SurveyRadius);
 
-    if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCountNoRewind() > .1 && stateGetPositionEnu_f()->z > waypoints[SurveyEntryWP].a-10)
+    if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCountNoRewind() > .1 && stateGetPositionUtm_f()->alt > waypoints[SurveyEntryWP].a-10)
     {
       CSurveyStatus = Sweep;
       nav_init_stage();
@@ -833,7 +833,7 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
     break;
   case LTC2:
     nav_circle_XY(l2_c2.x, l2_c2.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && stateGetPositionEnu_f()->z >= (waypoints[l1].a-10)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && stateGetPositionUtm_f()->alt >= (waypoints[l1].a-10)) {
       line_status = LQC22;
       nav_init_stage();
     }
@@ -862,7 +862,7 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
     break;
   case LTC1:
     nav_circle_XY(l1_c2.x, l1_c2.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && stateGetPositionEnu_f()->z >= (waypoints[l1].a-5)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && stateGetPositionUtm_f()->alt >= (waypoints[l1].a-5)) {
       line_status = LQC11;
       nav_init_stage();
     }
@@ -920,7 +920,7 @@ bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
   TDWaypoint = TDWP;
   CLandingStatus = CircleDown;
   LandRadius = radius;
-  LandAppAlt = stateGetPositionEnu_f()->z;
+  LandAppAlt = stateGetPositionUtm_f()->alt;
   FinalLandAltitude = Landing_FinalHeight;
   FinalLandCount = 1;
   waypoints[AFWaypoint].a = waypoints[TDWaypoint].a + Landing_AFHeight;
@@ -969,7 +969,7 @@ bool_t SkidLanding(void)
 
     nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
 
-    if(stateGetPositionEnu_f()->z < waypoints[AFWaypoint].a + 5)
+    if(stateGetPositionUtm_f()->alt < waypoints[AFWaypoint].a + 5)
     {
       CLandingStatus = LandingWait;
       nav_init_stage();
