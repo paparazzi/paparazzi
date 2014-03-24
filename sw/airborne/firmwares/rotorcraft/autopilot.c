@@ -39,7 +39,10 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "led.h"
+
+#ifdef POWER_SWITCH_GPIO
+#include "mcu_periph/gpio.h"
+#endif
 
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;

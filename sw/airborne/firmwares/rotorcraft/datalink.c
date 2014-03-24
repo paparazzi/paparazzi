@@ -50,6 +50,7 @@
 
 #include "math/pprz_geodetic_int.h"
 #include "state.h"
+#include "led.h"
 
 #define IdOfMsg(x) (x[1])
 

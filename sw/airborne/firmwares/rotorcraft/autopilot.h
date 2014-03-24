@@ -107,6 +107,7 @@ extern uint16_t autopilot_flight_time;
   }
 
 #ifdef POWER_SWITCH_GPIO
+#include "mcu_periph/gpio.h"
 #define autopilot_SetPowerSwitch(_v) {                          \
     autopilot_power_switch = _v;                                \
     if (_v) { gpio_set(POWER_SWITCH_GPIO); }  \

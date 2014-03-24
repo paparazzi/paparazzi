@@ -118,6 +118,7 @@ extern void autopilot_send_mode(void);
 extern bool_t power_switch;
 
 #ifdef POWER_SWITCH_GPIO
+#include "mcu_periph/gpio.h"
 #define autopilot_SetPowerSwitch(_x) { \
   power_switch = _x; \
   if (_x) { gpio_set(POWER_SWITCH_GPIO); } \

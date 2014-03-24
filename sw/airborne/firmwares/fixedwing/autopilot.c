@@ -33,6 +33,10 @@
 #include "subsystems/nav.h"
 #include "generated/settings.h"
 
+#ifdef POWER_SWITCH_GPIO
+#include "mcu_periph/gpio.h"
+#endif
+
 uint8_t pprz_mode;
 bool_t kill_throttle;
 uint8_t  mcu1_status;
