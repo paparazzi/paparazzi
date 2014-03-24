@@ -56,28 +56,6 @@
 #define ROTORCRAFT_CAM_DEFAULT_MODE ROTORCRAFT_CAM_MODE_NONE
 #endif
 
-/** Cam power control.
- * By default CAM_SWITCH is used
- */
-#ifndef ROTORCRAFT_CAM_ON
-#ifdef CAM_SWITCH_GPIO
-#define ROTORCRAFT_CAM_ON_INIT gpio_setup_output(CAM_SWITCH_GPIO)
-#define ROTORCRAFT_CAM_ON gpio_set(CAM_SWITCH_GPIO)
-#else
-#define ROTORCRAFT_CAM_ON_INIT {}
-#define ROTORCRAFT_CAM_ON {}
-#endif
-#endif
-#ifndef ROTORCRAFT_CAM_OFF
-#ifdef CAM_SWITCH_GPIO
-#define ROTORCRAFT_CAM_OFF_INIT gpio_setup_output(CAM_SWITCH_GPIO)
-#define ROTORCRAFT_CAM_OFF gpio_clear(CAM_SWITCH_GPIO)
-#else
-#define ROTORCRAFT_CAM_OFF_INIT {}
-#define ROTORCRAFT_CAM_OFF {}
-#endif
-#endif
-
 /** Cam tilt control.
  * By default use tilt control if a servo is assigned
  */
@@ -119,14 +97,13 @@ extern int16_t rotorcraft_cam_tilt_pwm;
 
 extern void rotorcraft_cam_init(void);
 extern void rotorcraft_cam_periodic(void);
+extern void rotorcraft_cam_set_mode(uint8_t mode);
 
 /** Set camera mode.
  * Camera is powered down in NONE mode if CAM_{ON|OFF} are defined
  */
 #define rotorcraft_cam_SetCamMode(_v) { \
-  rotorcraft_cam_mode = _v; \
-  if (rotorcraft_cam_mode == ROTORCRAFT_CAM_MODE_NONE) { ROTORCRAFT_CAM_OFF; } \
-  else { ROTORCRAFT_CAM_ON; } \
+    rotorcraft_cam_set_mode(_v);        \
 }
 
 /** Cam control from datalink message.

@@ -218,8 +218,6 @@
   </section>
 
   <section name="CAM" prefix="ROTORCRAFT_CAM_">
-    <define name="ON" value="{}"/>
-    <define name="OFF" value="{}"/>
     <define name="TILT_SERVO" value="CAM"/>
     <define name="TILT_ANGLE_MAX" value="-90." unit="deg"/>
     <define name="TILT_ANGLE_MIN" value=" 10." unit="deg"/>
