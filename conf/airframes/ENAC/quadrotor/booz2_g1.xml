@@ -233,8 +233,7 @@
   </section>
 
   <section name="CAM" prefix="ROTORCRAFT_CAM_">
-    <define name="ON" value="LED_ON(CAM_SWITCH_LED)"/>
-    <define name="OFF" value="LED_OFF(CAM_SWITCH_LED)"/>
+    <define name="SWITCH_GPIO" value="CAM_SWITCH_GPIO"/>
     <define name="TILT_SERVO" value="CAM"/>
     <define name="TILT_ANGLE_MAX" value="-90." unit="deg"/>
     <define name="TILT_ANGLE_MIN" value=" 10." unit="deg"/>

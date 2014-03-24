@@ -91,17 +91,8 @@
 #define LED_8_GPIO_OFF gpio_clear
 #define LED_8_AFIO_REMAP ((void)0)
 
-/* Power Switch, on PB12, 1 on LED_ON, 0 on LED_OFF */
-#ifndef USE_LED_9
-#define USE_LED_9 1
-#endif
-#define LED_9_GPIO GPIOB
-#define LED_9_GPIO_PIN GPIO12
-#define LED_9_GPIO_ON gpio_set
-#define LED_9_GPIO_OFF gpio_clear
-#define LED_9_AFIO_REMAP ((void)0)
-
-#define POWER_SWITCH_LED 9
+/* Power Switch, on PB12 */
+#define POWER_SWITCH_GPIO GPIOB,GPIO12
 
 
 /* Pint to set Uart2 RX polarity, on PB13, output high inverts, low doesn't */

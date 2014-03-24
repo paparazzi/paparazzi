@@ -199,7 +199,7 @@
 <!--    <load name="digital_cam_i2c.xml"/>  -->
   <!--    <load name="ins_ppzuavimu.xml"/>  -->
     <load name="digital_cam.xml">
-      <define name="DC_SHUTTER_LED" value="2"/>
+      <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO16"/>
     </load>
 
   </modules>

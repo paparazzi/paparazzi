@@ -13,9 +13,6 @@
 #endif
 #define LED_STP08
 
-// FIXME, this is just to make it compile
-#define POWER_SWITCH_LED 5
-
 /* SPI slave mapping */
 
 #define SPI_SELECT_SLAVE0_PERIPH RCC_GPIOA

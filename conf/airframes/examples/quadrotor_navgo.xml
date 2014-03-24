@@ -239,8 +239,6 @@
 
  <section name="CAM" prefix="ROTORCRAFT_CAM_">
     <define name="DEFAULT_MODE" value="MODE_MANUAL"/>
-    <define name="ON" value="{}"/>
-    <define name="OFF" value="{}"/>
  </section>
 
   <section name="SERVO_SWITCH">

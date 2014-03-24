@@ -58,7 +58,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     </load>
     <load name="baro_sim.xml"/>
     <load name="digital_cam.xml">
-      <define name="DC_SHUTTER_LED" value="5"/><!-- led4:aux led5:camsw-->
+      <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/><!-- 18:aux 22:camsw-->
     </load>
   </modules>
 

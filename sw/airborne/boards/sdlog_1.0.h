@@ -57,33 +57,15 @@
 #define LED_3_BANK 1
 #define LED_3_PIN 23
 
-#ifndef USE_LED_4
-#define USE_LED_4 1
-#endif
-#define LED_4_BANK 1
-#define LED_4_PIN 18
+#define POWER_SWITCH_GPIO GPIOB,GPIO18
 
-#define POWER_SWITCH_LED 4
+#define CAM_SWITCH_GPIO GPIOB,GPIO22
 
-#ifndef USE_LED_5
-#define USE_LED_5 1
-#endif
-#define LED_5_BANK 1
-#define LED_5_PIN 22
+#define GPS_RESET_GPIO GPIOB,GPIO21
 
-#define CAM_SWITCH_LED 5
-
-#ifndef USE_LED_6
-#define USE_LED_6 1
-#endif
-#define LED_6_BANK 1
-#define LED_6_PIN 21
-
-#define GPS_RESET 6
-
-#define Configure_GPS_RESET_Pin() LED_INIT(GPS_RESET)
-#define Set_GPS_RESET_Pin_LOW() LED_ON(GPS_RESET)
-#define Open_GPS_RESET_Pin() ClearBit(LED_DIR(GPS_RESET), LED_PIN(GPS_RESET))
+#define Configure_GPS_RESET_Pin() gpio_setup_output(GPS_RESET_GPIO)
+#define Set_GPS_RESET_Pin_LOW() gpio_clear(GPS_RESET_GPIO)
+#define Open_GPS_RESET_Pin() gpio_setup_input(GPS_RESET_GPIO)
 
 /* P0.5 aka MAT0.1  */
 #define SERVO_CLOCK_PIN  5

@@ -79,7 +79,7 @@
     </load>
 
     <load name="digital_cam.xml">
-      <define name="DC_SHUTTER_LED" value="3"/>
+      <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
     </load>
 
     <load name="nav_catapult.xml"/>
