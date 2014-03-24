@@ -95,7 +95,7 @@ static void integrate( uint8_t wp_target ) {
 /** Update the RELEASE location with the actual ground speed and altitude */
 unit_t bomb_update_release( uint8_t wp_target ) {
 
-  bomb_z = stateGetPositionEnu_f()->z - waypoints[wp_target].a;
+  bomb_z = stateGetPositionUtm_f()->alt - waypoints[wp_target].a;
   bomb_x = 0.;
   bomb_y = 0.;
 
