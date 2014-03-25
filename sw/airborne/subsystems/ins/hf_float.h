@@ -83,6 +83,11 @@ extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel);
 extern uint16_t b2_hff_lost_limit;
 extern uint16_t b2_hff_lost_counter;
 
+#ifdef USE_IIR_FOR_INS
+extern float b2_hff_xdd_meas;
+extern float b2_hff_ydd_meas;
+#endif
+
 extern void b2_hff_store_accel_body(void);
 
 extern struct HfilterFloat *b2_hff_rb_last;

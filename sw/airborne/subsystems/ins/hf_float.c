@@ -113,7 +113,10 @@ struct AccBuf {
   int size;
 };
 struct AccBuf acc_body;
+
+#ifndef USE_IIR_FOR_INS
 struct Int32Vect3 acc_body_mean;
+#endif
 
 void b2_hff_store_accel_body(void) {
   INT32_RMAT_TRANSP_VMULT(acc_body.buf[acc_body.w], imu.body_to_imu_rmat,  imu.accel);
@@ -127,6 +130,7 @@ void b2_hff_store_accel_body(void) {
   }
 }
 
+#ifndef USE_IIR_FOR_INS
 /** compute the mean of the last n accel measurements */
 static inline void b2_hff_compute_accel_body_mean(uint8_t n) {
   struct Int32Vect3 sum;
@@ -147,6 +151,7 @@ static inline void b2_hff_compute_accel_body_mean(uint8_t n) {
     VECT3_COPY(acc_body_mean, sum);
   }
 }
+#endif /* USE_IIR_FOR_INS */
 
 /*
  * For GPS lag compensation
@@ -478,11 +483,13 @@ void b2_hff_propagate(void) {
   /* store body accelerations for mean computation */
   b2_hff_store_accel_body();
 
+
   /* propagate current state if it is time */
   if (b2_hff_ps_counter == HFF_PRESCALER) {
     b2_hff_ps_counter = 1;
 
     if (b2_hff_lost_counter < b2_hff_lost_limit) {
+#ifndef USE_IIR_FOR_INS
       /* compute float ltp mean acceleration */
       b2_hff_compute_accel_body_mean(HFF_PRESCALER);
       struct Int32Vect3 mean_accel_ltp;
@@ -490,6 +497,8 @@ void b2_hff_propagate(void) {
       INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, (*ltp_to_body_rmat), acc_body_mean);
       b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
       b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
+#endif
+
 #ifdef GPS_LAG
       b2_hff_store_accel_ltp(b2_hff_xdd_meas, b2_hff_ydd_meas);
 #endif
