@@ -100,7 +100,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
 #endif
 
-#ifdef USE_IIR_FOR_INS
+#if USE_IIR_FOR_HFF
 /* variables-coefficients for IIR filter*/
 int32_t filter_i_x[3]={0,0,0};
 int32_t filter_o_x[3]={0,0,0};
@@ -222,7 +222,7 @@ void ins_propagate(void) {
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_meas_ltp;
 
-#ifndef USE_IIR_FOR_INS
+#if !USE_IIR_FOR_HFF
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
 #else
   struct Int32Vect3 acc_body_filtered;
@@ -390,7 +390,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 #endif // USE_SONAR
 
 
-#ifdef USE_IIR_FOR_INS
+#if USE_IIR_FOR_HFF
 /** second order Butterworth low pass IIR filter block */
 int32_t ins_iir_block(int32_t input_new, int32_t* input, int32_t* output, const int32_t* coeff){
   int32_t temp1;
