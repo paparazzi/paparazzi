@@ -32,7 +32,7 @@
 #include "state.h"
 #include "subsystems/gps.h"
 #include <stdlib.h>
-
+#include "filters/low_pass_filter.h"
 #include "generated/airframe.h"
 
 #ifdef SITL
@@ -71,6 +71,11 @@
 #define HFF_R_SPEED_MIN 1.
 #endif
 
+/* low pass filter variables */
+Butterworth2LowPass_int filter_x;
+Butterworth2LowPass_int filter_y;
+Butterworth2LowPass_int filter_z;
+
 /* gps measurement noise */
 float Rgps_pos, Rgps_vel;
 
@@ -99,54 +104,6 @@ float b2_hff_y_meas;
 
 /* counter for hff propagation*/
 int b2_hff_ps_counter;
-
-
-/*
- * accel(in body frame) buffer
- */
-#define ACC_RB_MAXN 64
-struct AccBuf {
-  struct Int32Vect3 buf[ACC_RB_MAXN];
-  int r; /* pos to read from, oldest measurement */
-  int w; /* pos to write to */
-  int n; /* number of elements in rb */
-  int size;
-};
-struct AccBuf acc_body;
-struct Int32Vect3 acc_body_mean;
-
-void b2_hff_store_accel_body(void) {
-  INT32_RMAT_TRANSP_VMULT(acc_body.buf[acc_body.w], imu.body_to_imu_rmat,  imu.accel);
-  acc_body.w = (acc_body.w + 1) < acc_body.size ? (acc_body.w + 1) : 0;
-
-  /* once the buffer is full it always has the last acc_body.size accel measurements */
-  if (acc_body.n < acc_body.size) {
-    acc_body.n++;
-  } else {
-    acc_body.r = (acc_body.r + 1) < acc_body.size ? (acc_body.r + 1) : 0;
-  }
-}
-
-/** compute the mean of the last n accel measurements */
-static inline void b2_hff_compute_accel_body_mean(uint8_t n) {
-  struct Int32Vect3 sum;
-  int i, j;
-
-  INT_VECT3_ZERO(sum);
-
-  if (n > 1) {
-    if (n > acc_body.n) {
-      n = acc_body.n;
-    }
-    for (i = 1; i <= n; i++) {
-      j = (acc_body.w - i) > 0 ? (acc_body.w - i) : (acc_body.w - i + acc_body.size);
-      VECT3_ADD(sum, acc_body.buf[j]);
-    }
-    VECT3_SDIV(acc_body_mean, sum, n);
-  } else {
-    VECT3_COPY(acc_body_mean, sum);
-  }
-}
 
 /*
  * For GPS lag compensation
@@ -223,7 +180,6 @@ static inline void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFlo
 #endif
 
 
-
 static inline void b2_hff_init_x(float init_x, float init_xdot);
 static inline void b2_hff_init_y(float init_y, float init_ydot);
 
@@ -277,11 +233,6 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   Rgps_vel = HFF_R_SPEED;
   b2_hff_init_x(init_x, init_xdot);
   b2_hff_init_y(init_y, init_ydot);
-  /* init buffer for mean accel calculation */
-  acc_body.r = 0;
-  acc_body.w = 0;
-  acc_body.n = 0;
-  acc_body.size = ACC_RB_MAXN;
 #ifdef GPS_LAG
   /* init buffer for past mean accel values */
   acc_buf_r = 0;
@@ -319,6 +270,10 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   register_periodic_telemetry(DefaultPeriodic, "HFF_GPS", send_hff_gps);
 #endif
 #endif
+
+  init_butterworth_2_low_pass_int(&filter_x, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_y, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_z, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
 }
 
 static inline void b2_hff_init_x(float init_x, float init_xdot) {
@@ -330,7 +285,6 @@ static inline void b2_hff_init_x(float init_x, float init_xdot) {
       b2_hff_state.xP[i][j] = 0.;
     b2_hff_state.xP[i][i] = INIT_PXX;
   }
-
 }
 
 static inline void b2_hff_init_y(float init_y, float init_ydot) {
@@ -406,7 +360,6 @@ static inline void b2_hff_rb_drop_last(void) {
   PRINT_DBG(2, ("drop last state. fill count now: %d\n", b2_hff_rb_n));
 }
 
-
 /* copy source state to dest state */
 static inline void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFloat* source) {
   dest->x       = source->x;
@@ -463,7 +416,6 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
 #endif /* GPS_LAG */
 
 
-
 void b2_hff_propagate(void) {
   if (b2_hff_lost_counter < b2_hff_lost_limit)
     b2_hff_lost_counter++;
@@ -475,25 +427,27 @@ void b2_hff_propagate(void) {
   }
 #endif
 
-  /* store body accelerations for mean computation */
-  b2_hff_store_accel_body();
+  /* rotate imu accel measurement to body frame and filter */
+  struct Int32Vect3 acc_meas_body;
+  INT32_RMAT_TRANSP_VMULT(acc_meas_body, imu.body_to_imu_rmat,  imu.accel);
+
+  struct Int32Vect3 acc_body_filtered;
+  acc_body_filtered.x = update_butterworth_2_low_pass_int(&filter_x, acc_meas_body.x);
+  acc_body_filtered.y = update_butterworth_2_low_pass_int(&filter_y, acc_meas_body.y);
+  acc_body_filtered.z = update_butterworth_2_low_pass_int(&filter_z, acc_meas_body.z);
 
   /* propagate current state if it is time */
   if (b2_hff_ps_counter == HFF_PRESCALER) {
     b2_hff_ps_counter = 1;
-
     if (b2_hff_lost_counter < b2_hff_lost_limit) {
-      /* compute float ltp mean acceleration */
-      b2_hff_compute_accel_body_mean(HFF_PRESCALER);
-      struct Int32Vect3 mean_accel_ltp;
+      struct Int32Vect3 filtered_accel_ltp;
       struct Int32RMat* ltp_to_body_rmat = stateGetNedToBodyRMat_i();
-      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, (*ltp_to_body_rmat), acc_body_mean);
-      b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
-      b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
+      INT32_RMAT_TRANSP_VMULT(filtered_accel_ltp, (*ltp_to_body_rmat), acc_body_filtered);
+      b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(filtered_accel_ltp.x);
+      b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(filtered_accel_ltp.y);
 #ifdef GPS_LAG
       b2_hff_store_accel_ltp(b2_hff_xdd_meas, b2_hff_ydd_meas);
 #endif
-
       /*
        * propagate current state
        */
@@ -519,9 +473,6 @@ void b2_hff_propagate(void) {
     b2_hff_ps_counter++;
   }
 }
-
-
-
 
 void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* speed_ned) {
   b2_hff_lost_counter = 0;
@@ -717,8 +668,6 @@ static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, 
   hff_work->yP[1][0] = P21;
   hff_work->yP[1][1] = P22;
 }
-
-
 
 
 /*
