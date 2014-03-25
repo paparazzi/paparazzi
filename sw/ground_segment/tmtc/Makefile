@@ -41,12 +41,12 @@ SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_serv
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge
+all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server
 
 opt: server.opt
 
 clean:
-	$(Q)rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
+	$(Q)rm -f link server messages settings dia diadec *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 c_ivy_client_example_3
 
 
 messages : messages.cmo $(LIBPPRZCMA)
@@ -132,6 +132,10 @@ ifeq ("$(UNAME)","Darwin")
   C_LIBRARYS = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
   C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
 endif
+
+app_server: app_server.c
+	@echo OL $@
+	$(Q)$(CC) $(GLIB_CFLAGS) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
 
 gpsd2ivy: gpsd2ivy.c
 	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS) -lgps
