@@ -160,7 +160,7 @@ let rec string_of_value = function
   | Int64 x -> Int64.to_string x
   | Char c -> String.make 1 c
   | String s -> s
-  | Array a -> "["^(String.concat separator (Array.to_list (Array.map string_of_value a)))^"]"
+  | Array a -> "|"^(String.concat separator (Array.to_list (Array.map string_of_value a)))^"|"
 
 
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
@@ -661,15 +661,15 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 
 
   let space = Str.regexp "[ \t]+"
-  let array_sep = Str.regexp "\\[\\|\\]"
+  let array_sep = Str.regexp "|"
   let values_of_string = fun s ->
     (* split arguments and arrays *)
     let array_split = Str.full_split array_sep s in
     let rec loop = fun fields ->
       match fields with
       | [] -> []
-      | (Str.Delim "[")::((Str.Text l)::[Str.Delim "]"]) -> [l]
-      | (Str.Delim "[")::((Str.Text l)::((Str.Delim "]")::xs)) -> [l] @ (loop xs)
+      | (Str.Delim "|")::((Str.Text l)::[Str.Delim "|"]) -> [l]
+      | (Str.Delim "|")::((Str.Text l)::((Str.Delim "|")::xs)) -> [l] @ (loop xs)
       | [Str.Text x] -> Str.split space x
       | (Str.Text x)::xs -> (Str.split space x) @ (loop xs)
       | (Str.Delim _)::_ -> failwith "Pprz.values_of_string: incorrect array delimiter"

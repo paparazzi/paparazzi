@@ -18,8 +18,8 @@ extern int ivy_dl_enabled;
 
 #define Space() ivy_p += sprintf(ivy_p, " ");
 #define Comma() ivy_p += sprintf(ivy_p, ",");
-#define DelimStart() ivy_p += sprintf(ivy_p, "[");
-#define DelimEnd() ivy_p += sprintf(ivy_p, "]");
+#define DelimStart() ivy_p += sprintf(ivy_p, "|");
+#define DelimEnd() ivy_p += sprintf(ivy_p, "|");
 
 #define IvyTransportPutcByAddr(_dev,x) ivy_p += sprintf(ivy_p, "%c", *x);
 #define IvyTransportPutCharByAddr(_dev,x) IvyTransportPutcByAddr(_dev,x) Space()
