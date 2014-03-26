@@ -56,19 +56,19 @@ fg.so : fg.o
 	@echo BUILD $@
 	$(Q)$(CC) -shared -o $@ $^
 
-simhitl : fg.so $(SIMHCMO) simhitl.cmo
+simhitl : fg.so $(SIMHCMO) simhitl.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
-sitl.cma : fg.o $(SIMSCMO)
+sitl.cma : fg.o $(SIMSCMO) $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLMKLIB) -o sitl $^
 
-sitl.cmxa : $(SIMSCMX)
+sitl.cmxa : $(SIMSCMX) $(LIBPPRZCMXA)
 	@echo OC $@
 	$(Q)$(OCAMLOPT) -o $@ -a $^
 
-gaia : gaia.cmo
+gaia : gaia.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 

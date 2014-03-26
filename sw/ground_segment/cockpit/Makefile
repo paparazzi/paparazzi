@@ -49,11 +49,11 @@ all : $(MAIN)
 
 opt : $(MAIN).opt
 
-$(MAIN) : $(CMO) $(XLIBPPRZCMA)
+$(MAIN) : $(CMO) $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(OCAMLCFLAGS) $(INCLUDES) $(LIBS) $(LINKPKG) myGtkInit.cmo $(CMO) -o $@
 
-$(MAIN).opt : $(CMX) $(XLIBPPRZCMXA)
+$(MAIN).opt : $(CMX) $(LIBPPRZCMXA) $(XLIBPPRZCMXA)
 	@echo OOL $@
 	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) $(LIBSX) -package pprz.xlib,$(LABLGTK2INIT) -linkpkg $(CMX) -o $@
 
