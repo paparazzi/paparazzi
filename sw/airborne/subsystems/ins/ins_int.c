@@ -100,21 +100,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
 #endif
 
-#if USE_IIR_FOR_HFF
-/* variables-coefficients for IIR filter*/
-int32_t filter_i_x[3]={0,0,0};
-int32_t filter_o_x[3]={0,0,0};
 
-int32_t filter_i_y[3]={0,0,0};
-int32_t filter_o_y[3]={0,0,0};
-
-int32_t filter_i_z[3]={0,0,0};
-int32_t filter_o_z[3]={0,0,0};
-
-int32_t ins_iir_block(int32_t, int32_t*, int32_t*, const int32_t*);
-/* IIR filter coefficients {num1, num2, num3, -den2/gain, den3/gain, 1/gain} */
-const int32_t filter_coeff[6]={1, 2, 1, 267, -119, 152};
-#endif
 
 
 abi_event baro_ev;
@@ -222,20 +208,7 @@ void ins_propagate(void) {
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_meas_ltp;
 
-#if !USE_IIR_FOR_HFF
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
-#else
-  struct Int32Vect3 acc_body_filtered;
-  acc_body_filtered.x  = ins_iir_block(accel_meas_body.x, filter_i_x, filter_o_x, filter_coeff);
-  acc_body_filtered.y  = ins_iir_block(accel_meas_body.y, filter_i_y, filter_o_y, filter_coeff);
-  acc_body_filtered.z  = ins_iir_block(accel_meas_body.z, filter_i_z, filter_o_z, filter_coeff);
-
-  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), acc_body_filtered);
-
-  b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.x);
-  b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.y);
-#endif
-
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
 
   if (ins_impl.baro_initialized) {
@@ -388,28 +361,6 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
   }
 }
 #endif // USE_SONAR
-
-
-#if USE_IIR_FOR_HFF
-/** second order Butterworth low pass IIR filter block */
-int32_t ins_iir_block(int32_t input_new, int32_t* input, int32_t* output, const int32_t* coeff){
-  int32_t temp1;
-  int32_t temp2;
-  int i = 2;
-
-  for(i=2; i>0; i--){
-   *(input+i)  = *(input+i-1);
-   *(output+i) = *(output+i-1);
-  }
-  *input = input_new;
-
-  temp1 = (*input) * (*coeff) + (*(coeff+1)) * (*(input+1)) + (*(coeff+2)) * (*(input+2));
-  temp2 = (*(coeff+3)) * (*(output+1)) + (*(coeff+4)) * (*(output+2));
-  *output = (temp1+temp2) / (*(coeff+5));
-  return  *output;
-}
-#endif
-
 
 /** initialize the local origin (ltp_def) from flight plan position */
 static void ins_init_origin_from_flightplan(void) {
