@@ -126,13 +126,19 @@ void remove_client(char* RemClientIpAd) {
         //record found clean it!!
         ConnectedClients[i].client_ip[0]='\0';
         ConnectedClients[i].used=0;
-        if (verbose) printf("App Server: Client removed from client list %s\n", RemClientIpAd);
+        if (verbose) {
+          printf("App Server: Client removed from client list %s\n", RemClientIpAd);
+          fflush(stdout);
+        }
         return;
       }
     }
   }
   //no record found!
-  if (verbose) printf("App Server: No record found to be removed from client list\n");
+  if (verbose) {
+    printf("App Server: No record found to be removed from client list\n");
+    fflush(stdout);
+  }
 }
 
 //Record client (if new)
@@ -155,7 +161,10 @@ void add_client(char* ClientIpAd) {
     g_stpcpy(ConnectedClients[i].client_ip,ClientIpAd);
     //
     ConnectedClients[i].used = 1;
-    if (verbose) printf("App Server: New client added to client list %s\n", ConnectedClients[i].client_ip);
+    if (verbose) {
+      printf("App Server: New client added to client list %s\n", ConnectedClients[i].client_ip);
+      fflush(stdout);
+    }
     break;
   }
 }
@@ -260,12 +269,15 @@ void broadcast_to_clients () {
 
       if (g_socket_connect(udpSocket, udpSocketAddress, NULL, NULL) == FALSE) {
         printf("App Server: stg wrong with socket connect\n");
+        fflush(stdout);
       }
       if (g_socket_send(udpSocket, ivybuffer, strlen(ivybuffer) , NULL, NULL) < 0) {
         printf("App Server: stg wrong with send func\n");
+        fflush(stdout);
       }
       if (g_socket_close(udpSocket, NULL) == FALSE) {
         printf("App Server: stg wrong with socket close\n");
+        fflush(stdout);
       }
       //Unref objects
       g_object_unref(udpAddress);
@@ -298,7 +310,10 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
       GString *incs = g_string_new(s->str);
       incs = g_string_erase(s,0,(strlen(AppPass)+1));
       IvySendMsg("%s",incs->str);
-      if (verbose) printf("App Server: Command passed to ivy.. %s\n",incs->str);
+      if (verbose) {
+        printf("App Server: Command passed to ivy.. %s\n",incs->str);
+        fflush(stdout);
+      }
     }
     //AC data request. (Ignore client password)
     else if ((strncmp(RecString, "getac ", strlen("getac "))) == 0) {
@@ -337,7 +352,10 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
       GSocketAddress *sockaddr = g_socket_connection_get_remote_address(data, NULL);
       GInetAddress *addr = g_inet_socket_address_get_address(G_INET_SOCKET_ADDRESS(sockaddr));
       //Read sender ip
-      if (verbose) printf("App Server: need to remove %s\n", g_inet_address_to_string(addr));
+      if (verbose) {
+        printf("App Server: need to remove %s\n", g_inet_address_to_string(addr));
+        fflush(stdout);
+      }
       //Remove client
       remove_client(g_inet_address_to_string(addr));
       //Free objects
@@ -350,13 +368,19 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
     }
     else {
       //Unknown command
-      if (verbose) printf("App Server: Client send an unknown command: %s\n",RecString);
+      if (verbose) {
+        printf("App Server: Client send an unknown command: %s\n",RecString);
+        fflush(stdout);
+      }
     }
   }
 
   if (ret == G_IO_STATUS_EOF) {
     //Client disconnected
-    if (verbose) printf("App Server: Client disconnected without saying 'bye':(\n");
+    if (verbose) {
+      printf("App Server: Client disconnected without saying 'bye':(\n");
+      fflush(stdout);
+    }
     g_string_free(s, TRUE);
     //Unref the socket and return false to allow the client to reconnect
     g_object_unref(data);
@@ -375,7 +399,10 @@ gboolean new_connection(GSocketService *service, GSocketConnection *connection, 
   GInetAddress *addr = g_inet_socket_address_get_address(G_INET_SOCKET_ADDRESS(sockaddr));
   guint16 port = g_inet_socket_address_get_port(G_INET_SOCKET_ADDRESS(sockaddr));
 
-  if (verbose) printf("App Server: New Connection from %s:%d\n", g_inet_address_to_string(addr), port);
+  if (verbose) {
+    printf("App Server: New Connection from %s:%d\n", g_inet_address_to_string(addr), port);
+    fflush(stdout);
+  }
 
   //Record client (if new)
   add_client(g_inet_address_to_string(addr));
@@ -440,12 +467,18 @@ void parse_ac_fp(int DevNameIndex, char *filename) {
 
     xmlFreeTextReader(reader);
     if (ret != 0) {
-      if (verbose) printf("App Server: failed to parse %s\n", filename);
+      if (verbose) {
+        printf("App Server: failed to parse %s\n", filename);
+        fflush(stdout);
+      }
     }
   }
   else
   {
-    if (verbose) printf("App Server: Unable to open %s\n", filename);
+    if (verbose) {
+      printf("App Server: Unable to open %s\n", filename);
+      fflush(stdout);
+    }
   }
 
 }
@@ -501,10 +534,16 @@ void parse_ac_af(int DevNameIndex, char *filename) {
 
     xmlFreeTextReader(reader);
     if (ret != 0) {
-      if (verbose) printf("App Server: failed to parse %s\n", filename);
+      if (verbose) {
+        printf("App Server: failed to parse %s\n", filename);
+        fflush(stdout);
+      }
     }
   } else {
-    if (verbose) printf("App Server: Unable to open %s\n", filename);
+    if (verbose) {
+      printf("App Server: Unable to open %s\n", filename);
+      fflush(stdout);
+    }
   }
 
 }
@@ -546,11 +585,17 @@ void parse_dl_settings(int DevNameIndex, char *filename) {
     }
     xmlFreeTextReader(reader);
     if (ret != 0) {
-      if (verbose) printf("App Server: %s : failed to parse\n", filename);
+      if (verbose) {
+        printf("App Server: %s : failed to parse\n", filename);
+        fflush(stdout);
+      }
     }
   }
   else {
-    if (verbose) printf("App Server: Unable to open %s\n", filename);
+    if (verbose) {
+      printf("App Server: Unable to open %s\n", filename);
+      fflush(stdout);
+    }
   }
 }
 
@@ -639,11 +684,17 @@ void parse_ac_data (char *PprzFolder) {
 
     xmlFreeTextReader(reader);
     if (ret != 0) {
-      if (verbose) printf("App Server: failed to parse %s\n", xmlFileName);
+      if (verbose) {
+        printf("App Server: failed to parse %s\n", xmlFileName);
+        fflush(stdout);
+      }
     }
   }
   else{
-    if (verbose) printf("App Server: Unable to open %s\n", xmlFileName);
+    if (verbose) {
+      printf("App Server: Unable to open %s\n", xmlFileName);
+      fflush(stdout);
+    }
   }
 
   return;
@@ -710,6 +761,7 @@ int main(int argc, char **argv) {
     printf("Server broadcast port (UDP) : %d\n", udp_port);
     printf("Control Pass                : %s\n", AppPass);
     printf("Ivy Bus                     : %s\n", IvyBus);
+    fflush(stdout);
   }
 
   //Parse conf.xml
@@ -744,9 +796,17 @@ int main(int argc, char **argv) {
 
   GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 
-  if (verbose) { printf("Starting App Server\n"); }
+  if (verbose) {
+    printf("Starting App Server\n");
+    fflush(stdout);
+  }
+
   g_main_loop_run(loop);
-  if (verbose) { printf("Stoping App Server\n"); }
+
+  if (verbose) {
+    printf("Stoping App Server\n");
+    fflush(stdout);
+  }
   return 0;
 }
 
