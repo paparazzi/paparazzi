@@ -16,7 +16,7 @@ Required Software
 Installation is described in the wiki (http://paparazzi.enac.fr/wiki/Installation).
 
 For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
-Debian users can use http://paparazzi.enac.fr/debian
+Debian users can use the [OpenSUSE Build Service repository] (http://download.opensuse.org/repositories/home:/flixr:/paparazzi-uav/Debian_7.0/)
 
 Debian/Ubuntu packages:
 - **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.
