@@ -29,6 +29,6 @@
  */
 extern void actuators_dualpwm_arch_init(void);
 
-#define ActuatorsDualPwmInit() actuators_dualpwm_arch_init()
+#define ActuatorsDualpwmInit() actuators_dualpwm_arch_init()
 
 #endif /* ACTUATORS_PWM_H */

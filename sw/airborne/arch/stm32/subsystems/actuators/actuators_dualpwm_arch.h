@@ -49,7 +49,7 @@ extern void set_dual_pwm_timer_s_oc(uint32_t oc_value);
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorDualPwmSet(_i, _v) { actuators_dualpwm_values[_i] = _v; }
-#define ActuatorsDualPwmCommit  actuators_dualpwm_commit
+#define ActuatorDualpwmSet(_i, _v) { actuators_dualpwm_values[_i] = _v; }
+#define ActuatorsDualpwmCommit  actuators_dualpwm_commit
 
 #endif /* ACTUATORS_dualpwm_ARCH_H */

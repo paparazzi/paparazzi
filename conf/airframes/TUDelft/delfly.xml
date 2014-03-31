@@ -39,7 +39,7 @@
       <define name="USE_SERVOS_1AND2"/>
     </subsystem>
 
-    <subsystem name="actuators" type="dualPwm">
+    <subsystem name="actuators" type="dualpwm">
       <define name="DUAL_PWM_ON"/>
     </subsystem>
 
@@ -64,7 +64,7 @@
   </servos>
 
   <!-- comboPWM / mergedPWM /  -->
-  <servos driver="DualPwm">
+  <servos driver="Dualpwm">
     <servo name="SWITCH"  no="3" min="1100" neutral="1500" max="1900"/>
     <servo name="pitchator"  no="2" min="1100" neutral="1500" max="1900"/>
   </servos>
