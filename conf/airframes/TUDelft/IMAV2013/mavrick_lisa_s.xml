@@ -35,7 +35,7 @@
     <subsystem name="gps" type="ublox"/>
     <subsystem name="ins" type="alt_float"/>
 
-    <subsystem name="actuators" type="pwm"/>
+    <subsystem name="actuators" type="pwm_double"/>
   </firmware>
 
  <modules>
@@ -45,12 +45,11 @@
 <!-- commands section -->
   <servos driver="Pwm">
     <servo name="MOTOR" no="2" min="1040" neutral="1040" max="2000"/>
+  </servos>
+  <servos driver="Pwm_double">
     <servo name="AILEVON_LEFT" no="0" min="1200" neutral="1500" max="1800"/>
     <servo name="AILEVON_RIGHT" no="1" min="1800" neutral="1500" max="1200"/>
   </servos>
-  <!--<servos driver="Pwm_double">
-
-  </servos>-->
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>

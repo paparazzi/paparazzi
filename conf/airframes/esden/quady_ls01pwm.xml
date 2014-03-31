@@ -196,8 +196,7 @@
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"/>
-
-        <!--<configure name="SYS_TIME_LED" value="none"/>-->
+    <!--define name="USE_INS_NAV_INIT"/-->
     <!--subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/-->
   </firmware>
@@ -205,7 +204,7 @@
 
   <firmware name="lisa_test_progs">
     <target name="test_led"			board="lisa_s_0.1">
-
+        <configure name="SYS_TIME_LED" value="none"/>
     </target>
     <target name="test_uart"			board="lisa_s_0.1"/>
     <target name="test_imu_aspirin"		board="lisa_s_0.1"/>
