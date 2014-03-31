@@ -351,9 +351,9 @@ void actuators_dualpwm_arch_init(void) {
   timer_enable_irq(TIM12, TIM_DIER_CC1IE);
 #endif
 
-//calculation the values to put into the timer registers to generate pulses every 4ms and 16ms.
-ratio_4ms = (ONE_MHZ_CLK / 250)-1;
-ratio_16ms = (ONE_MHZ_CLK / 62.5)-1;
+  //calculation the values to put into the timer registers to generate pulses every 4ms and 16ms.
+  ratio_4ms = (ONE_MHZ_CLK / 250)-1;
+  ratio_16ms = (ONE_MHZ_CLK / 62.5)-1;
 
 }
 
@@ -363,35 +363,35 @@ ratio_16ms = (ONE_MHZ_CLK / 62.5)-1;
 #if DUAL_PWM_USE_TIM1
 void tim1_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
 #if DUAL_PWM_USE_TIM2
 void tim2_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
 #if DUAL_PWM_USE_TIM3
 void tim3_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
 #if DUAL_PWM_USE_TIM4
 void tim4_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
 #if DUAL_PWM_USE_TIM5
 void tim5_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
@@ -399,21 +399,21 @@ void tim5_isr(void){
 #if DUAL_PWM_USE_TIM8
 void tim8_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
 #if DUAL_PWM_USE_TIM9
 void tim9_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
 #if DUAL_PWM_USE_TIM12
 void tim12_isr(void){
 
-	dual_pwm_isr();
+  dual_pwm_isr();
 }
 #endif
 
@@ -426,35 +426,35 @@ void tim12_isr(void){
 void clear_timer_flag(void){
 
 #if DUAL_PWM_USE_TIM1
-	timer_clear_flag(TIM1, TIM_SR_CC1IF);
+  timer_clear_flag(TIM1, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM2
-	timer_clear_flag(TIM2, TIM_SR_CC1IF);
+  timer_clear_flag(TIM2, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM3
-	timer_clear_flag(TIM3, TIM_SR_CC1IF);
+  timer_clear_flag(TIM3, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM4
-	timer_clear_flag(TIM4, TIM_SR_CC1IF);
+  timer_clear_flag(TIM4, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM5
-	timer_clear_flag(TIM5, TIM_SR_CC1IF);
+  timer_clear_flag(TIM5, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM8
-	timer_clear_flag(TIM8, TIM_SR_CC1IF);
+  timer_clear_flag(TIM8, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM9
-	timer_clear_flag(TIM9, TIM_SR_CC1IF);
+  timer_clear_flag(TIM9, TIM_SR_CC1IF);
 #endif
 
 #if DUAL_PWM_USE_TIM12
-	timer_clear_flag(TIM12, TIM_SR_CC1IF);
+  timer_clear_flag(TIM12, TIM_SR_CC1IF);
 #endif
 }
 
@@ -498,35 +498,35 @@ void set_dual_pwm_timer_s_period(uint32_t period){
 void set_dual_pwm_timer_s_oc(uint32_t oc_value){
 
 #if DUAL_PWM_USE_TIM1
-		timer_set_oc_value(DUAL_PWM_SERVO_1_TIMER, DUAL_PWM_SERVO_1_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_1_TIMER, DUAL_PWM_SERVO_1_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM2
-		timer_set_oc_value(DUAL_PWM_SERVO_2_TIMER, DUAL_PWM_SERVO_2_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_2_TIMER, DUAL_PWM_SERVO_2_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM3
-		timer_set_oc_value(DUAL_PWM_SERVO_3_TIMER, DUAL_PWM_SERVO_3_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_3_TIMER, DUAL_PWM_SERVO_3_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM4
-		timer_set_oc_value(DUAL_PWM_SERVO_4_TIMER, DUAL_PWM_SERVO_4_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_4_TIMER, DUAL_PWM_SERVO_4_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM5
-		timer_set_oc_value(DUAL_PWM_SERVO_5_TIMER, DUAL_PWM_SERVO_5_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_5_TIMER, DUAL_PWM_SERVO_5_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM8
-		timer_set_oc_value(DUAL_PWM_SERVO_8_TIMER, DUAL_PWM_SERVO_8_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_8_TIMER, DUAL_PWM_SERVO_8_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM9
-		timer_set_oc_value(DUAL_PWM_SERVO_9_TIMER, DUAL_PWM_SERVO_9_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_9_TIMER, DUAL_PWM_SERVO_9_OC, oc_value);
 #endif
 
 #if DUAL_PWM_USE_TIM12
-		timer_set_oc_value(DUAL_PWM_SERVO_12_TIMER, DUAL_PWM_SERVO_12_OC, oc_value);
+  timer_set_oc_value(DUAL_PWM_SERVO_12_TIMER, DUAL_PWM_SERVO_12_OC, oc_value);
 #endif
 }
 
@@ -535,22 +535,23 @@ void set_dual_pwm_timer_s_oc(uint32_t oc_value){
 
 void dual_pwm_isr(void){
 
-	static int num_pulse = 0;	//status of the timer. Are we controling the first or the second servo
+  static int num_pulse = 0;  //status of the timer. Are we controling the first or the second servo
 
   clear_timer_flag();
 
-	if(num_pulse == 1){
+  if(num_pulse == 1){
 
     set_dual_pwm_timer_s_period(ratio_16ms);
     set_dual_pwm_timer_s_oc(actuators_dualpwm_values[FIRST_DUAL_PWM_SERVO]);
 
-		num_pulse = 0;
-	}else{
+    num_pulse = 0;
+  }else{
+
     set_dual_pwm_timer_s_period(ratio_4ms);
     set_dual_pwm_timer_s_oc(actuators_dualpwm_values[SECOND_DUAL_PWM_SERVO]);
 
-		num_pulse = 1;
-	}
+    num_pulse = 1;
+  }
 }
 
 
@@ -558,7 +559,7 @@ void dual_pwm_isr(void){
  */
 void actuators_dualpwm_commit(void) {
 
-	//we don't need to commit the values into this function as far as it's done in the interuption
-	//(wich is called every 4ms and 16ms alternatively (twice every 20ms))
+  //we don't need to commit the values into this function as far as it's done in the interuption
+  //(wich is called every 4ms and 16ms alternatively (twice every 20ms))
 
 }

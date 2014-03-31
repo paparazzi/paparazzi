@@ -294,13 +294,13 @@
 //TODO : test that part
 //TODO : merge the USE_SERVOS_1AND2 and DUAL_PWM_ON
 #if DUAL_PWM_ON
-	#define DUAL_PWM_USE_TIM5 1
+  #define DUAL_PWM_USE_TIM5 1
 
-	#define USE_DUAL_PWM5 1
-	#define USE_DUAL_PWM6 1
+  #define USE_DUAL_PWM5 1
+  #define USE_DUAL_PWM6 1
 #else
-	#define USE_PWM5 1
-	#define USE_PWM6 1
+  #define USE_PWM5 1
+  #define USE_PWM6 1
 #endif
 
 // Servo numbering on LisaM silkscreen/docs starts with 1
@@ -371,19 +371,19 @@
   #define PWM_SERVO_5_OC TIM_OC1
   #define PWM_SERVO_5_OC_BIT (1<<0)
 #elif USE_DUAL_PWM5
-	#define DUAL_PWM_SERVO_5 2
+  #define DUAL_PWM_SERVO_5 2
 
   #define FIRST_DUAL_PWM_SERVO DUAL_PWM_SERVO_5
 
-	#define DUAL_PWM_SERVO_5_TIMER TIM5
-	#define DUAL_PWM_SERVO_5_RCC RCC_GPIOA
-	#define DUAL_PWM_SERVO_5_GPIO GPIOA
-	#define DUAL_PWM_SERVO_5_PIN GPIO0
-	#define DUAL_PWM_SERVO_5_AF 0
-	#define DUAL_PWM_SERVO_5_OC TIM_OC1
-	#define PWM_SERVO_5_OC_BIT (1<<0)
+  #define DUAL_PWM_SERVO_5_TIMER TIM5
+  #define DUAL_PWM_SERVO_5_RCC RCC_GPIOA
+  #define DUAL_PWM_SERVO_5_GPIO GPIOA
+  #define DUAL_PWM_SERVO_5_PIN GPIO0
+  #define DUAL_PWM_SERVO_5_AF 0
+  #define DUAL_PWM_SERVO_5_OC TIM_OC1
+  #define PWM_SERVO_5_OC_BIT (1<<0)
 #else
-	#define PWM_SERVO_5_OC_BIT 0
+  #define PWM_SERVO_5_OC_BIT 0
 #endif
 
 #if USE_PWM6
@@ -396,19 +396,19 @@
   #define PWM_SERVO_6_OC TIM_OC2
   #define PWM_SERVO_6_OC_BIT (1<<1)
 #elif USE_DUAL_PWM6
-	#define DUAL_PWM_SERVO_6 3
+  #define DUAL_PWM_SERVO_6 3
 
   #define SECOND_DUAL_PWM_SERVO DUAL_PWM_SERVO_6
 
-	#define DUAL_PWM_SERVO_6_TIMER TIM5
-	#define DUAL_PWM_SERVO_6_RCC RCC_GPIOA
-	#define DUAL_PWM_SERVO_6_GPIO GPIOA
-	#define DUAL_PWM_SERVO_6_PIN GPIO1
-	#define DUAL_PWM_SERVO_6_AF 0
-	#define DUAL_PWM_SERVO_6_OC TIM_OC2
-	#define PWM_SERVO_6_OC_BIT (1<<1)
+  #define DUAL_PWM_SERVO_6_TIMER TIM5
+  #define DUAL_PWM_SERVO_6_RCC RCC_GPIOA
+  #define DUAL_PWM_SERVO_6_GPIO GPIOA
+  #define DUAL_PWM_SERVO_6_PIN GPIO1
+  #define DUAL_PWM_SERVO_6_AF 0
+  #define DUAL_PWM_SERVO_6_OC TIM_OC2
+  #define PWM_SERVO_6_OC_BIT (1<<1)
 #else
-	#define PWM_SERVO_6_OC_BIT 0
+  #define PWM_SERVO_6_OC_BIT 0
 #endif
 
 
