@@ -272,7 +272,7 @@ void ahrs_set_accel_gains(void) {
    */
   ahrs_impl.accel_inv_kp = 4096 * 9.81 /
     (2 * ahrs_impl.accel_omega * ahrs_impl.accel_zeta *
-     AHRS_PROPAGATE_FREQUENCY / AHRS_PROPAGATE_FREQUENCY);
+     AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY);
 
   /* Complementary filter integral gain
    * Ki = omega^2 / AHRS_CORRECT_FREQUENCY
