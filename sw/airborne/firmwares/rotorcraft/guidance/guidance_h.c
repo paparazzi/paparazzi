@@ -37,19 +37,21 @@
 
 #include "generated/airframe.h"
 
+#ifndef GUIDANCE_H_AGAIN
+#define GUIDANCE_H_AGAIN 0
+#endif
+
+#ifndef GUIDANCE_H_VGAIN
+#define GUIDANCE_H_VGAIN 0
+#endif
+
 /* error if some gains are negative */
 #if (GUIDANCE_H_PGAIN < 0) ||                   \
   (GUIDANCE_H_DGAIN < 0)   ||                   \
-  (GUIDANCE_H_IGAIN < 0)
+  (GUIDANCE_H_IGAIN < 0)   ||                   \
+  (GUIDANCE_H_AGAIN < 0)   ||                   \
+  (GUIDANCE_H_VGAIN < 0)
 #error "ALL control gains have to be positive!!!"
-#endif
-
-#ifndef GUIDANCE_H_AGAIN
-#define GUIDANCE_H_AGAIN 0
-#else
-#if (GUIDANCE_H_AGAIN < 0)
-#error "ALL control gains have to be positive!!!"
-#endif
 #endif
 
 #ifndef GUIDANCE_H_MAX_BANK
@@ -87,6 +89,7 @@ int32_t guidance_h_pgain;
 int32_t guidance_h_dgain;
 int32_t guidance_h_igain;
 int32_t guidance_h_again;
+int32_t guidance_h_vgain;
 
 int32_t transition_percentage;
 int32_t transition_theta_offset;
@@ -169,6 +172,7 @@ void guidance_h_init(void) {
   guidance_h_igain = GUIDANCE_H_IGAIN;
   guidance_h_dgain = GUIDANCE_H_DGAIN;
   guidance_h_again = GUIDANCE_H_AGAIN;
+  guidance_h_vgain = GUIDANCE_H_VGAIN;
   transition_percentage = 0;
   transition_theta_offset = 0;
 
@@ -436,10 +440,13 @@ static void guidance_h_traj_run(bool_t in_flight) {
     ((guidance_h_dgain * (guidance_h_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
   guidance_h_cmd_earth.x =
     pd_x +
-    ((guidance_h_again * guidance_h_accel_ref.x) >> 8); /* acceleration feedforward gain */
+    ((guidance_h_vgain * guidance_h_speed_ref.x) >> 17) + /* speed feedforward gain */
+    ((guidance_h_again * guidance_h_accel_ref.x) >> 8);   /* acceleration feedforward gain */
   guidance_h_cmd_earth.y =
     pd_y +
-    ((guidance_h_again * guidance_h_accel_ref.y) >> 8); /* acceleration feedforward gain */
+     +
+    ((guidance_h_vgain * guidance_h_speed_ref.x) >> 17) + /* speed feedforward gain */
+    ((guidance_h_again * guidance_h_accel_ref.y) >> 8);   /* acceleration feedforward gain */
 
   /* trim max bank angle from PD */
   VECT2_STRIM(guidance_h_cmd_earth, -traj_max_bank, traj_max_bank);
@@ -449,14 +456,14 @@ static void guidance_h_traj_run(bool_t in_flight) {
    * but do not integrate POS errors when the SPEED is already catching up.
    */
   if (in_flight) {
-    /* ANGLE_FRAC (12) * GAIN (8) * LOOP_FREQ (9) -> ANGLE_FRAX (12) */
-    guidance_h_trim_att_integrator.x += ((guidance_h_igain * pd_x) >> (8));
-    guidance_h_trim_att_integrator.y += ((guidance_h_igain * pd_y) >> (8));
+    /* ANGLE_FRAC (12) * GAIN (8) * LOOP_FREQ (9) -> INTEGRATOR HIGH RES ANGLE_FRAX (28) */
+    guidance_h_trim_att_integrator.x += (guidance_h_igain * pd_x);
+    guidance_h_trim_att_integrator.y += (guidance_h_igain * pd_y);
     /* saturate it  */
-    VECT2_STRIM(guidance_h_trim_att_integrator, -(traj_max_bank << 12) , (traj_max_bank << 12));
+    VECT2_STRIM(guidance_h_trim_att_integrator, -(traj_max_bank << 16), (traj_max_bank << 16));
     /* add it to the command */
-    guidance_h_cmd_earth.x += guidance_h_trim_att_integrator.x >> 12;
-    guidance_h_cmd_earth.y += guidance_h_trim_att_integrator.y >> 12;
+    guidance_h_cmd_earth.x += (guidance_h_trim_att_integrator.x >> 16);
+    guidance_h_cmd_earth.y += (guidance_h_trim_att_integrator.y >> 16);
   } else {
     INT_VECT2_ZERO(guidance_h_trim_att_integrator);
   }

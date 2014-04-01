@@ -89,6 +89,7 @@ extern int32_t guidance_h_heading_sp;               ///< with #INT32_ANGLE_FRAC
 extern int32_t guidance_h_pgain;
 extern int32_t guidance_h_dgain;
 extern int32_t guidance_h_igain;
+extern int32_t guidance_h_vgain;
 extern int32_t guidance_h_again;
 
 extern int32_t transition_percentage;
