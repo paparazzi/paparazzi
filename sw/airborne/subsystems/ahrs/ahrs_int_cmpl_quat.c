@@ -547,8 +547,8 @@ void ahrs_update_gps(void) {
 #endif
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
-  //got a 3d fix,ground speed > 0.5 m/s and course accuracy is better than 10deg
-  if(gps.fix == GPS_FIX_3D &&
+  //got a 3d fix, ground speed > 5.0 m/s and course accuracy is better than 10deg
+  if (gps.fix == GPS_FIX_3D &&
      gps.gspeed >= 500 &&
      gps.cacc <= RadOfDeg(10*1e7)) {
 
