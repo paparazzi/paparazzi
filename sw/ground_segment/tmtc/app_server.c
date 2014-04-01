@@ -702,7 +702,7 @@ void parse_ac_data (char *PprzFolder) {
 
 // Print help message
 void print_help() {
-  printf("Usage: simsitl [options]\n");
+  printf("Usage: app_server [options]\n");
   printf(" Options :\n");
   printf("   -t <TCP port>\tfor receiving devices commands (default: %d)\n", tcp_port);
   printf("   -u <UDP port>\tfor sending AC data (default: %d)\n", udp_port);
