@@ -177,8 +177,8 @@
     <define name="PSI_IGAIN" value="0"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value="0"/>
-    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PHI_DDGAIN" value="150"/>
+    <define name="THETA_DDGAIN" value="150"/>
     <define name="PSI_DDGAIN" value="52"/>
   </section>
 
@@ -200,9 +200,19 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
-    <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="60"/>
+
+    <!-- reference model -->
+    <define name="REF_OMEGA" value="RadOfDeg(155.)"/>
+    <define name="REF_ZETA" value="0.9"/>
+    <define name="REF_MAX_ACCEL" value="6.0"/>
+    <define name="REF_MAX_SPEED" value="8.5"/>
+
+    <!-- gains -->
+    <define name="PGAIN" value="80"/>
+    <define name="DGAIN" value="40"/>
+    <define name="IGAIN" value="30"/>
+    <define name="VGAIN" value="70"/>
+    <define name="AGAIN" value="140"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
