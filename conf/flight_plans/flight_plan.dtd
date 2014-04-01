@@ -141,6 +141,7 @@ pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 height CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
+exceeding_time CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
 until CDATA #IMPLIED>
@@ -151,6 +152,7 @@ vmode CDATA #IMPLIED
 pitch CDATA #IMPLIED
 alt CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
+exceeding_time CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED>
 

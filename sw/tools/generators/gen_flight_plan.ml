@@ -363,7 +363,14 @@ let rec print_stage = fun index_of_waypoints x ->
                 lprintf "waypoints[0].y = %s;\n" (parsed_attrib x "y");
                 "0"
         in
-        let at = try ExtXml.attrib x "approaching_time" with _ -> "CARROT" in
+        let at = try Some (ExtXml.attrib x "approaching_time") with _ -> None in
+        let et = try Some (ExtXml.attrib x "exceeding_time") with _ -> None in
+        let at = match at, et with
+          | Some a, None -> a
+          | None, Some e -> "-"^e
+          | None, None -> "CARROT"
+          | _, _ -> failwith "Error: 'approaching_time' and 'exceeding_time' attributes are not compatible"
+        in
         let last_wp =
           try
             get_index_waypoint (ExtXml.attrib x "from") index_of_waypoints

@@ -109,7 +109,7 @@ void nav_init_stage( void ) {
 void nav_circle_XY(float x, float y, float radius) {
   struct EnuCoor_f* pos = stateGetPositionEnu_f();
   float last_trigo_qdr = nav_circle_trigo_qdr;
-  nav_circle_trigo_qdr = atan2(pos->y - y, pos->x - x);
+  nav_circle_trigo_qdr = atan2f(pos->y - y, pos->x - x);
   float sign_radius = radius > 0 ? 1 : -1;
 
   if (nav_in_circle) {
@@ -133,7 +133,7 @@ void nav_circle_XY(float x, float y, float radius) {
     (dist2_center > Square(abs_radius + dist_carrot)
      || dist2_center < Square(abs_radius - dist_carrot)) ?
     0 :
-    atan((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (NAV_GRAVITY*radius));
+    atanf((*stateGetHorizontalSpeedNorm_f())*(*stateGetHorizontalSpeedNorm_f()) / (NAV_GRAVITY*radius));
 
   float carrot_angle = dist_carrot / abs_radius;
   carrot_angle = Min(carrot_angle, M_PI/4);
@@ -142,10 +142,10 @@ void nav_circle_XY(float x, float y, float radius) {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE;
   float radius_carrot = abs_radius;
   if (nav_mode == NAV_MODE_COURSE) {
-    radius_carrot += (abs_radius / cos(carrot_angle) - abs_radius);
+    radius_carrot += (abs_radius / cosf(carrot_angle) - abs_radius);
   }
-  fly_to_xy(x+cos(alpha_carrot)*radius_carrot,
-            y+sin(alpha_carrot)*radius_carrot);
+  fly_to_xy(x+cosf(alpha_carrot)*radius_carrot,
+            y+sinf(alpha_carrot)*radius_carrot);
   nav_in_circle = TRUE;
   nav_circle_x = x;
   nav_circle_y = y;
@@ -226,14 +226,14 @@ static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t w
   float y_0 = waypoints[wp_td].y - waypoints[wp_af].y;
 
   /* Unit vector from AF to TD */
-  float d = sqrt(x_0*x_0+y_0*y_0);
+  float d = sqrtf(x_0*x_0+y_0*y_0);
   float x_1 = x_0 / d;
   float y_1 = y_0 / d;
 
   waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
   waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
   waypoints[wp_baseleg].a = waypoints[wp_af].a;
-  baseleg_out_qdr = M_PI - atan2(-y_1, -x_1);
+  baseleg_out_qdr = M_PI - atan2f(-y_1, -x_1);
   if (nav_radius < 0)
     baseleg_out_qdr += M_PI;
 
@@ -247,7 +247,7 @@ static inline bool_t nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, 
   float h_0 = waypoints[wp_td].a - waypoints[wp_af].a;
 
   /* Unit vector from AF to TD */
-  float d = sqrt(x_0*x_0+y_0*y_0);
+  float d = sqrtf(x_0*x_0+y_0*y_0);
   float x_1 = x_0 / d;
   float y_1 = y_0 / d;
 
@@ -266,8 +266,8 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
   struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
   float td_af_x = WaypointX(_af) - WaypointX(_td);
   float td_af_y = WaypointY(_af) - WaypointY(_td);
-  float td_af = sqrt( td_af_x*td_af_x + td_af_y*td_af_y);
-  float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / glide_vspeed * (glide_airspeed - sqrt(wind->x*wind->x + wind->y*wind->y));
+  float td_af = sqrtf( td_af_x*td_af_x + td_af_y*td_af_y);
+  float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / glide_vspeed * (glide_airspeed - sqrtf(wind->x*wind->x + wind->y*wind->y));
   WaypointX(_tod) = WaypointX(_td) + td_af_x / td_af * td_tod;
   WaypointY(_tod) = WaypointY(_td) + td_af_y / td_af * td_tod;
   WaypointAlt(_tod) = WaypointAlt(_af);
@@ -292,7 +292,7 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) {
   NavVerticalAutoThrottleMode(0.);
   NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT), 0.);
   float alpha = M_PI/2 - ac->course;
-  float ca = cos(alpha), sa = sin(alpha);
+  float ca = cosf(alpha), sa = sinf(alpha);
   float x = ac->east - _distance*ca;
   float y = ac->north - _distance*sa;
   fly_to_xy(x, y);
@@ -314,7 +314,10 @@ float fp_pitch; /* deg */
  *  Computes \a dist2_to_wp and compare it to square \a carrot.
  *  Return true if it is smaller. Else computes by scalar products if
  *  uav has not gone past waypoint.
- *  Return true if it is the case.
+ *  \a approaching_time can be negative and in this case, the UAV will
+ *  fly after the waypoint for the given number of seconds.
+ *
+ *  @return true if the position (x, y) is reached
  */
 bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time) {
   /** distance to waypoint in x */
@@ -322,14 +325,25 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
   /** distance to waypoint in y */
   float pw_y = y - stateGetPositionEnu_f()->y;
 
-  dist2_to_wp = pw_x*pw_x + pw_y *pw_y;
-  float min_dist = approaching_time * (*stateGetHorizontalSpeedNorm_f());
-  if (dist2_to_wp < min_dist*min_dist)
-    return TRUE;
-
-  float scal_prod = (x - from_x) * pw_x + (y - from_y) * pw_y;
-
-  return (scal_prod < 0.);
+  if (approaching_time < 0.) {
+    // fly after the destination waypoint
+    float leg_x = x - from_x;
+    float leg_y = y - from_y;
+    float leg = sqrtf(Max(leg_x * leg_x + leg_y * leg_y, 1.));
+    float exceed_dist = approaching_time * (*stateGetHorizontalSpeedNorm_f()); // negative value
+    float scal_prod = (leg_x * pw_x + leg_y * pw_y) / leg;
+    return (scal_prod < exceed_dist);
+  }
+  else {
+    // fly close enough of the waypoint or cross it
+    dist2_to_wp = pw_x*pw_x + pw_y *pw_y;
+    float min_dist = approaching_time * (*stateGetHorizontalSpeedNorm_f());
+    if (dist2_to_wp < min_dist*min_dist) {
+      return TRUE;
+    }
+    float scal_prod = (x - from_x) * pw_x + (y - from_y) * pw_y;
+    return (scal_prod < 0.);
+  }
 }
 
 
@@ -342,17 +356,17 @@ void fly_to_xy(float x, float y) {
   desired_x = x;
   desired_y = y;
   if (nav_mode == NAV_MODE_COURSE) {
-    h_ctl_course_setpoint = atan2(x - pos->x, y - pos->y);
+    h_ctl_course_setpoint = atan2f(x - pos->x, y - pos->y);
     if (h_ctl_course_setpoint < 0.)
       h_ctl_course_setpoint += 2 * M_PI;
     lateral_mode = LATERAL_MODE_COURSE;
   } else {
-    float diff = atan2(x - pos->x, y - pos->y) - (*stateGetHorizontalSpeedDir_f());
+    float diff = atan2f(x - pos->x, y - pos->y) - (*stateGetHorizontalSpeedDir_f());
     NormRadAngle(diff);
     BoundAbs(diff,M_PI/2.);
-    float s = sin(diff);
+    float s = sinf(diff);
     float speed = *stateGetHorizontalSpeedNorm_f();
-    h_ctl_roll_setpoint = atan(2 * speed * speed * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81) );
+    h_ctl_roll_setpoint = atanf(2 * speed * speed * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81) );
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
     lateral_mode = LATERAL_MODE_ROLL;
   }
@@ -366,7 +380,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   float leg_y = wp_y - last_wp_y;
   float leg2 = Max(leg_x * leg_x + leg_y * leg_y, 1.);
   nav_leg_progress = ((stateGetPositionEnu_f()->x - last_wp_x) * leg_x + (stateGetPositionEnu_f()->y - last_wp_y) * leg_y) / leg2;
-  nav_leg_length = sqrt(leg2);
+  nav_leg_length = sqrtf(leg2);
 
   /** distance of carrot (in meter) */
   float carrot = CARROT * NOMINAL_AIRSPEED;
@@ -548,7 +562,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   float target_c1_x = waypoints[c1].x - waypoints[target].x;
   float target_c1_y = waypoints[c1].y - waypoints[target].y;
-  float d = sqrt(target_c1_x*target_c1_x+target_c1_y*target_c1_y);
+  float d = sqrtf(target_c1_x*target_c1_x+target_c1_y*target_c1_y);
   d = Max(d, 1.); /* To prevent a division by zero */
 
   /* Unit vector from target to c1 */
@@ -586,7 +600,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     c2.y - radius * u_x,
     alt };
 
-  float qdr_out = M_PI - atan2(u_y, u_x);
+  float qdr_out = M_PI - atan2f(u_y, u_x);
   if (radius < 0)
     qdr_out += M_PI;
 
@@ -670,7 +684,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   float p2_p1_x = waypoints[p1].x - waypoints[p2].x;
   float p2_p1_y = waypoints[p1].y - waypoints[p2].y;
-  float d = sqrt(p2_p1_x*p2_p1_x+p2_p1_y*p2_p1_y);
+  float d = sqrtf(p2_p1_x*p2_p1_x+p2_p1_y*p2_p1_y);
 
   /* Unit vector from p1 to p2 */
   float u_x = p2_p1_x / d;
@@ -691,7 +705,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
                              waypoints[p2].y + radius * u_x,
                              alt  };
 
-  float qdr_out_2 = M_PI - atan2(u_y, u_x);
+  float qdr_out_2 = M_PI - atan2f(u_y, u_x);
   float qdr_out_1 = qdr_out_2 + M_PI;
   if (radius < 0) {
     qdr_out_2 += M_PI;
