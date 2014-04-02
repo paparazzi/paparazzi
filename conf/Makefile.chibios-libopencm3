@@ -41,7 +41,7 @@ CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD)/chibios-libopen
 CHIBIOS_LIB_DIR = $(PAPARAZZI_SRC)/sw/airborne/subsystems/chibios-libopencm3
 CHIBIOS_EXT =  $(PAPARAZZI_SRC)/sw/ext/chibios
 OPENCM3_EXT =  $(PAPARAZZI_SRC)/sw/ext/libopencm3
-PPRZ_GENERATED = $(PAPARAZZI_SRC)/var/$(AIRCRAFT)/generated
+PPRZ_GENERATED = $(PAPARAZZI_SRC)/var/$(AIRCRAFT)/$(TARGET)/generated
 PPRZ_CHIBIOS_OCM3 = $(SRC_FIRMWARE)/chibios-libopencm3
 
 # Launch with "make Q=''" to get full command display
