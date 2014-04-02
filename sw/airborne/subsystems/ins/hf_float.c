@@ -73,25 +73,12 @@
 #endif
 
 
+
 #if USE_IIR_FOR_HFF
-/* variables-coefficients for IIR filter*/
-int32_t filter_i_x[3]={0,0,0};
-int32_t filter_o_x[3]={0,0,0};
-
-int32_t filter_i_y[3]={0,0,0};
-int32_t filter_o_y[3]={0,0,0};
-
-int32_t filter_i_z[3]={0,0,0};
-int32_t filter_o_z[3]={0,0,0};
-
-int32_t hff_iir_block(int32_t, int32_t*, int32_t*, const int32_t*);
-/* IIR filter coefficients {num1, num2, num3, -den2/gain, den3/gain, 1/gain} */
-const int32_t filter_coeff[6]={1, 2, 1, 267, -119, 152};
-
 struct Int32Vect3 acc_meas_body;
-struct SecondOrderLowPass_int filter_x;
-struct SecondOrderLowPass_int filter_y;
-struct SecondOrderLowPass_int filter_z;
+Butterworth2LowPass_int filter_x;
+Butterworth2LowPass_int filter_y;
+Butterworth2LowPass_int filter_z;
 #endif
 
 /* gps measurement noise */
@@ -284,11 +271,9 @@ static void send_hff_debug(void) {
                         &b2_hff_y_meas,
                         &b2_hff_xd_meas,
                         &b2_hff_yd_meas,
-                        //&b2_hff_state.xP[0][0],
-                        //&b2_hff_state.yP[0][0],
-                        &b2_hff_xdd_meas,
-			&b2_hff_ydd_meas,
-			&b2_hff_state.xP[1][1],
+                        &b2_hff_state.xP[0][0],
+                        &b2_hff_state.yP[0][0],
+                        &b2_hff_state.xP[1][1],
                         &b2_hff_state.yP[1][1]);
 }
 
@@ -352,9 +337,9 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
 #endif
 
 #if USE_IIR_FOR_HFF
-  init_butterworth_2_low_pass_int(&filter_x,0.01135, 0.001953125, 0);
-  init_butterworth_2_low_pass_int(&filter_y, 0.01135, 0.001953125, 0);
-  init_butterworth_2_low_pass_int(&filter_z, 0.01135, 0.001953125, 0);
+  init_butterworth_2_low_pass_int(&filter_x, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_y, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_z, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
 #endif
 }
 
@@ -503,7 +488,7 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
 
 void b2_hff_propagate(void) {
   if (b2_hff_lost_counter < b2_hff_lost_limit)
-    //b2_hff_lost_counter++;
+    b2_hff_lost_counter++;
 
 #ifdef GPS_LAG
   /* continue re-propagating to catch up with the present */
@@ -517,27 +502,19 @@ void b2_hff_propagate(void) {
 
 #if USE_IIR_FOR_HFF
   struct Int32Vect3 acc_body_filtered;
-  struct Int32Vect3 acc_body_filtered_new;
-  acc_body_filtered.x  = hff_iir_block(acc_meas_body.x, filter_i_x, filter_o_x, filter_coeff);
-  acc_body_filtered.y  = hff_iir_block(acc_meas_body.y, filter_i_y, filter_o_y, filter_coeff);
-  acc_body_filtered.z  = hff_iir_block(acc_meas_body.z, filter_i_z, filter_o_z, filter_coeff);
-
   update_butterworth_2_low_pass_int(&filter_x, acc_meas_body.x);
   update_butterworth_2_low_pass_int(&filter_y, acc_meas_body.y);
   update_butterworth_2_low_pass_int(&filter_z, acc_meas_body.z);
 
-  acc_body_filtered_new.x = get_butterworth_2_low_pass_int(&filter_x);
-  acc_body_filtered_new.y = get_butterworth_2_low_pass_int(&filter_y);
-  acc_body_filtered_new.z = get_butterworth_2_low_pass_int(&filter_z);
-
+  acc_body_filtered.x = get_butterworth_2_low_pass_int(&filter_x);
+  acc_body_filtered.y = get_butterworth_2_low_pass_int(&filter_y);
+  acc_body_filtered.z = get_butterworth_2_low_pass_int(&filter_z);
 #endif
- 
- /* propagate current state if it is time */
+  /* propagate current state if it is time */
   if (b2_hff_ps_counter == HFF_PRESCALER) {
     b2_hff_ps_counter = 1;
     if (b2_hff_lost_counter < b2_hff_lost_limit) {
       struct Int32Vect3 mean_accel_ltp;
-      struct Int32Vect3 mean_accel_ltp_new;
       struct Int32RMat* ltp_to_body_rmat = stateGetNedToBodyRMat_i();
 #if !USE_IIR_FOR_HFF
       /* compute float ltp mean acceleration */
@@ -545,18 +522,12 @@ void b2_hff_propagate(void) {
       INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, (*ltp_to_body_rmat), acc_body_mean);
 #else
       INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, (*ltp_to_body_rmat), acc_body_filtered);
-      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp_new, (*ltp_to_body_rmat), acc_body_filtered_new);
 #endif
       b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
-      b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp_new.x);
-
-
-
-
+      b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
 #ifdef GPS_LAG
       b2_hff_store_accel_ltp(b2_hff_xdd_meas, b2_hff_ydd_meas);
 #endif
-
       /*
        * propagate current state
        */
@@ -582,27 +553,6 @@ void b2_hff_propagate(void) {
     b2_hff_ps_counter++;
   }
 }
-
-
-#if USE_IIR_FOR_HFF
-/** second order Butterworth low pass IIR filter block */
-int32_t hff_iir_block(int32_t input_new, int32_t* input, int32_t* output, const int32_t* coeff){
-  int32_t temp1;
-  int32_t temp2;
-  int i = 2;
-
-  for(i=2; i>0; i--){
-   *(input+i)  = *(input+i-1);
-   *(output+i) = *(output+i-1);
-  }
-  *input = input_new;
-
-  temp1 = (*input) * (*coeff) + (*(coeff+1)) * (*(input+1)) + (*(coeff+2)) * (*(input+2));
-  temp2 = (*(coeff+3)) * (*(output+1)) + (*(coeff+4)) * (*(output+2));
-  *output = (temp1+temp2) / (*(coeff+5));
-  return  *output;
-}
-#endif
 
 void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* speed_ned) {
   b2_hff_lost_counter = 0;
@@ -798,8 +748,6 @@ static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, 
   hff_work->yP[1][0] = P21;
   hff_work->yP[1][1] = P22;
 }
-
-
 
 
 /*
