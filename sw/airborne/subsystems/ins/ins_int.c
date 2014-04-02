@@ -101,8 +101,6 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
 
-
-
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
 

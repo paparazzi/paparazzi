@@ -73,7 +73,6 @@
 #endif
 
 
-
 #if USE_IIR_FOR_HFF
 struct Int32Vect3 acc_meas_body;
 Butterworth2LowPass_int filter_x;
@@ -123,7 +122,6 @@ struct AccBuf {
   int size;
 };
 struct AccBuf acc_body;
-
 #if !USE_IIR_FOR_HFF
 struct Int32Vect3 acc_body_mean;
 #endif

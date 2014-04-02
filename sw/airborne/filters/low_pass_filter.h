@@ -122,7 +122,6 @@ struct SecondOrderLowPass {
 };
 
 
-
 /** Init second order low pass filter.
  *
  * @param filter second order low pass filter structure
@@ -169,7 +168,7 @@ static inline float get_second_order_low_pass(struct SecondOrderLowPass * filter
   return filter->o[0];
 }
 
-struct SecondOrderLowPass_int {
+truct SecondOrderLowPass_int {
   int32_t a[2]; ///< denominator gains
   int32_t b[2]; ///< numerator gains
   int32_t i[2]; ///< input history
