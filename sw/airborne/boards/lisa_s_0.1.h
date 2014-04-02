@@ -92,6 +92,11 @@
 
 #define BOARD_HAS_BARO 1
 
+/* by default activate onboard baro */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
+
 /* SPI slave mapping */
 
 /* IMU_MPU_CS */
