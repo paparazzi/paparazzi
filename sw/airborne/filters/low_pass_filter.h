@@ -168,7 +168,7 @@ static inline float get_second_order_low_pass(struct SecondOrderLowPass * filter
   return filter->o[0];
 }
 
-truct SecondOrderLowPass_int {
+struct SecondOrderLowPass_int {
   int32_t a[2]; ///< denominator gains
   int32_t b[2]; ///< numerator gains
   int32_t i[2]; ///< input history
