@@ -36,7 +36,7 @@ else
 endif
 
 # Optitrack specific librarys and includes
-NATNET_LIBRARYS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
+NATNET_LIBRARYS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/
 
 all: davis2ivy kestrel2ivy natnet2ivy
