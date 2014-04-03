@@ -2449,6 +2449,23 @@
     <field name="yaw"         type="int8"/>
   </message>
 
+  <message name="REMOTE_GPS" id="55" link="broadcasted">
+    <field name="ac_id"   type="uint8"/>
+    <field name="numsv"   type="uint8"/>
+    <field name="ecef_x"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_y"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_z"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="alt"     type="int32" unit="mm"   alt_unit="m"/>
+    <field name="hmsl"    type="int32" unit="mm"   alt_unit="m"/>
+    <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_yd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_zd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="tow"     type="uint32"/>
+    <field name="course"  type="int32"  alt_unit="deg" alt_unit_coef="0.0000057296"/>
+  </message>
+
   <message name="KITE_COMMAND" id="96">
     <field name="POWER"     type="uint16"/>
     <field name="TURN"      type="uint16"/>

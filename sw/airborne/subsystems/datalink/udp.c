@@ -67,28 +67,29 @@ void udp_receive( void ) {
   }
 
   //Read from the network
-  network_read(network, udp_read_buffer, TRANSPORT_PAYLOAD_LEN);
+  uint16_t read = network_read(network, udp_read_buffer, TRANSPORT_PAYLOAD_LEN);
+  if(read > 0) {
 
-  //Parse the packet
-  if(udp_read_buffer[0] == STX) {
-    uint8_t size = udp_read_buffer[1]-4; // minus STX, LENGTH, CK_A, CK_B
-    uint8_t ck_aa, ck_bb;
-    ck_aa = ck_bb = size+4;
+    //Parse the packet
+    if(udp_read_buffer[0] == STX) {
+      uint8_t size = udp_read_buffer[1]-4; // minus STX, LENGTH, CK_A, CK_B
+      uint8_t ck_aa, ck_bb;
+      ck_aa = ck_bb = size+4;
 
-    // index-offset plus 2 for STX and LENGTH
-    for (int i = 2; i < size+2; i++) {
-      dl_buffer[i-2] = udp_read_buffer[i];
-      ck_aa += udp_read_buffer[i];
-      ck_bb += ck_aa;
+      // index-offset plus 2 for STX and LENGTH
+      for (int i = 2; i < size+2; i++) {
+        dl_buffer[i-2] = udp_read_buffer[i];
+        ck_aa += udp_read_buffer[i];
+        ck_bb += ck_aa;
+      }
+
+      // if both checksums are good, tell datalink that the message is available
+      if (udp_read_buffer[2+size] == ck_aa && udp_read_buffer[2+size+1] == ck_bb) {
+        dl_msg_available = TRUE;
+      }
     }
 
-    // if both checksums are good, tell datalink that the message is available
-    if (udp_read_buffer[2+size] == ck_aa && udp_read_buffer[2+size+1] == ck_bb) {
-      dl_msg_available = TRUE;
-    }
-
+    memset(&udp_read_buffer[0], 0, sizeof(udp_read_buffer));
   }
-
-  memset(&udp_read_buffer[0], 0, sizeof(udp_read_buffer));
 }
 
