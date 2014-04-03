@@ -459,15 +459,11 @@ void ahrs_update_gps(void) {
     }
 #else
     if (state.ned_initialized_f) {
-      struct NedCoor_f gps_pos_cm_ned;
       struct EcefCoor_f ecef_pos, ecef_vel;
       ECEF_FLOAT_OF_BFP(ecef_pos, gps.ecef_pos);
-      ned_of_ecef_point_f(&gps_pos_cm_ned, &state.ned_origin_f, &ecef_pos);
-      VECT3_SDIV(ins_impl.meas.pos_gps, gps_pos_cm_ned, 100.0f);
-      struct NedCoor_f gps_speed_cm_s_ned;
+      ned_of_ecef_point_f(&ins_impl.meas.pos_gps, &state.ned_origin_f, &ecef_pos);
       ECEF_FLOAT_OF_BFP(ecef_vel, gps.ecef_vel);
-      ned_of_ecef_vect_f(&gps_speed_cm_s_ned, &state.ned_origin_f, &ecef_vel);
-      VECT3_SDIV(ins_impl.meas.speed_gps, gps_speed_cm_s_ned, 100.0f);
+      ned_of_ecef_vect_f(&ins_impl.meas.speed_gps, &state.ned_origin_f, &ecef_vel);
     }
 #endif
   }
