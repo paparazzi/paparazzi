@@ -71,7 +71,6 @@
 #define HFF_R_SPEED_MIN 1.
 #endif
 
-
 /* low pass filter variables */
 Butterworth2LowPass_int filter_x;
 Butterworth2LowPass_int filter_y;
@@ -181,7 +180,6 @@ static inline void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFlo
 #endif
 
 
-
 static inline void b2_hff_init_x(float init_x, float init_xdot);
 static inline void b2_hff_init_y(float init_y, float init_ydot);
 
@@ -287,7 +285,6 @@ static inline void b2_hff_init_x(float init_x, float init_xdot) {
       b2_hff_state.xP[i][j] = 0.;
     b2_hff_state.xP[i][i] = INIT_PXX;
   }
-
 }
 
 static inline void b2_hff_init_y(float init_y, float init_ydot) {
@@ -363,7 +360,6 @@ static inline void b2_hff_rb_drop_last(void) {
   PRINT_DBG(2, ("drop last state. fill count now: %d\n", b2_hff_rb_n));
 }
 
-
 /* copy source state to dest state */
 static inline void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFloat* source) {
   dest->x       = source->x;
@@ -418,7 +414,6 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
   }
 }
 #endif /* GPS_LAG */
-
 
 
 void b2_hff_propagate(void) {
