@@ -99,6 +99,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #ifndef INS_BARO_ID
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
 #endif
+
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
 
@@ -206,6 +207,7 @@ void ins_propagate(void) {
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
+
   if (ins_impl.baro_initialized) {
     vff_propagate(z_accel_meas_float);
     ins_update_from_vff();
@@ -356,7 +358,6 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
   }
 }
 #endif // USE_SONAR
-
 
 /** initialize the local origin (ltp_def) from flight plan position */
 static void ins_init_origin_from_flightplan(void) {

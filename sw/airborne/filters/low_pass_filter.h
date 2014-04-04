@@ -29,6 +29,8 @@
 
 #include "std.h"
 
+#define INT32_FILT_FRAC  8
+
 /** First order low pass filter structure.
  *
  * using bilinear z transform
@@ -119,6 +121,7 @@ struct SecondOrderLowPass {
   float o[2]; ///< output history
 };
 
+
 /** Init second order low pass filter.
  *
  * @param filter second order low pass filter structure
@@ -165,6 +168,72 @@ static inline float get_second_order_low_pass(struct SecondOrderLowPass * filter
   return filter->o[0];
 }
 
+struct SecondOrderLowPass_int {
+  int32_t a[2]; ///< denominator gains
+  int32_t b[2]; ///< numerator gains
+  int32_t i[2]; ///< input history
+  int32_t o[2]; ///< output history
+  int32_t loop_gain; ///< loop gain
+};
+
+/** Init second order low pass filter(fixed point version).
+ *
+ * @param filter second order low pass filter structure
+ * @param tau time constant of the second order low pass filter , 1/(2*pi*cut_off_3db)
+ * @param Q Q value of the second order low pass filter
+ * @param sample_time sampling period of the signal
+ * @param value initial value of the filter
+ */
+static inline void init_second_order_low_pass_int(struct SecondOrderLowPass_int* filter, float cut_off, float Q, float sample_time, int32_t value) {
+  struct SecondOrderLowPass filter_temp;
+  float tau = 7 / (44*cut_off);
+  float K = sample_time / (2*tau);
+  float poly = K*K + K/Q + 1.;
+  float loop_gain_f;
+
+  filter_temp.a[0] = 2.*(K*K - 1.) / poly;
+  filter_temp.a[1] = (K*K - K/Q + 1.) / poly;
+  filter_temp.b[0] = K*K / poly;
+  filter_temp.b[1] = 2*filter_temp.b[0];
+  loop_gain_f = 1/filter_temp.b[0];
+
+  filter->a[0] = BFP_OF_REAL((filter_temp.a[0] * loop_gain_f), INT32_FILT_FRAC);
+  filter->a[1] = BFP_OF_REAL((filter_temp.a[1] * loop_gain_f), INT32_FILT_FRAC);
+  filter->b[0] = BFP_OF_REAL(1, INT32_FILT_FRAC);
+  filter->b[1] = 2*filter->b[0];
+  filter->i[0] = filter->i[1] = filter->o[0] = filter->o[1] = value;
+  filter->loop_gain = BFP_OF_REAL(loop_gain_f, INT32_FILT_FRAC);  
+}
+
+/** Update second order low pass filter state with a new value(fixed point version).
+ *
+ * @param filter second order low pass filter structure
+ * @param value new input value of the filter
+ * @return new filtered value
+ */
+static inline int32_t update_second_order_low_pass_int(struct SecondOrderLowPass_int* filter, int32_t value) {
+  int32_t out = filter->b[0] * value
+    + filter->b[1] * filter->i[0]
+    + filter->b[0] * filter->i[1]
+    - filter->a[0] * filter->o[0]
+    - filter->a[1] * filter->o[1];
+  
+  filter->i[1] = filter->i[0];
+  filter->i[0] = value;
+  filter->o[1] = filter->o[0];
+  filter->o[0] = out / (filter->loop_gain);
+  return filter->o[0];
+}
+
+/** Get current value of the second order low pass filter(fixed point version).
+ *
+ * @param filter second order low pass filter structure
+ * @return current value of the filter
+ */
+static inline int32_t get_second_order_low_pass_int(struct SecondOrderLowPass_int * filter) {
+  return filter->o[0];
+}
+
 /** Second order Butterworth low pass filter.
  */
 typedef struct SecondOrderLowPass Butterworth2LowPass;
@@ -201,6 +270,45 @@ static inline float update_butterworth_2_low_pass(Butterworth2LowPass * filter, 
  * @return current value of the filter
  */
 static inline float get_butterworth_2_low_pass(Butterworth2LowPass * filter) {
+  return filter->o[0];
+}
+
+/** Second order Butterworth low pass filter(fixed point version).
+ */
+typedef struct SecondOrderLowPass_int Butterworth2LowPass_int;
+
+/** Init a second order Butterworth filter.
+ *
+ * based on the generic second order filter
+ * with Q = 0.7071 = 1/sqrt(2)
+ *
+ * http://en.wikipedia.org/wiki/Butterworth_filter
+ *
+ * @param filter second order Butterworth low pass filter structure
+ * @param tau time constant of the second order low pass filter
+ * @param sample_time sampling period of the signal
+ * @param value initial value of the filter
+ */
+static inline void init_butterworth_2_low_pass_int(Butterworth2LowPass_int* filter, float cut_off, float sample_time, int32_t value) {
+  init_second_order_low_pass_int((struct SecondOrderLowPass_int*)filter, cut_off, 0.7071, sample_time, value);
+}
+
+/** Update second order Butterworth low pass filter state with a new value(fixed point version).
+ *
+ * @param filter second order Butterworth low pass filter structure
+ * @param value new input value of the filter
+ * @return new filtered value
+ */
+static inline int32_t update_butterworth_2_low_pass_int(Butterworth2LowPass_int* filter, int32_t value) {
+  return update_second_order_low_pass_int((struct SecondOrderLowPass_int*)filter, value);
+}
+
+/** Get current value of the second order Butterworth low pass filter(fixed point version).
+ *
+ * @param filter second order Butterworth low pass filter structure
+ * @return current value of the filter
+ */
+static inline int32_t get_butterworth_2_low_pass_int(Butterworth2LowPass_int* filter) {
   return filter->o[0];
 }
 
@@ -250,6 +358,55 @@ static inline float update_butterworth_4_low_pass(Butterworth4LowPass * filter, 
  * @return current value of the filter
  */
 static inline float get_butterworth_4_low_pass(Butterworth4LowPass * filter) {
+  return filter->lp2.o[0];
+}
+
+/** Fourth order Butterworth low pass filter(fixed point version).
+ *
+ * using two cascaded second order filters
+ */
+typedef struct {
+  struct SecondOrderLowPass_int lp1;
+  struct SecondOrderLowPass_int lp2;
+} Butterworth4LowPass_int;
+
+/** Init a fourth order Butterworth filter(fixed point version).
+ *
+ * based on two generic second order filters
+ * with Q1 = 1.30651
+ *  and Q2 = 0.541184
+ *
+ * http://en.wikipedia.org/wiki/Butterworth_filter
+ *
+ * @param filter fourth order Butterworth low pass filter structure
+ * @param tau time constant of the fourth order low pass filter
+ * @param sample_time sampling period of the signal
+ * @param value initial value of the filter
+ */
+static inline void init_butterworth_4_low_pass_int(Butterworth4LowPass_int * filter, float cut_off, float sample_time, int32_t value) {
+  init_second_order_low_pass_int(&filter->lp1, cut_off, 1.30651, sample_time, value);
+  init_second_order_low_pass_int(&filter->lp2, cut_off, 0.51184, sample_time, value);
+}
+
+/** Update fourth order Butterworth low pass filter state with a new value(fixed point version).
+ *
+ * using two cascaded second order filters
+ *
+ * @param filter fourth order Butterworth low pass filter structure
+ * @param value new input value of the filter
+ * @return new filtered value
+ */
+static inline int32_t update_butterworth_4_low_pass_int(Butterworth4LowPass_int * filter, int32_t value) {
+  int32_t tmp = update_second_order_low_pass_int(&filter->lp1, value);
+  return update_second_order_low_pass_int(&filter->lp2, tmp);
+}
+
+/** Get current value of the fourth order Butterworth low pass filter(fixed point version).
+ *
+ * @param filter fourth order Butterworth low pass filter structure
+ * @return current value of the filter
+ */
+static inline int32_t get_butterworth_4_low_pass_int(Butterworth4LowPass_int * filter) {
   return filter->lp2.o[0];
 }
 
