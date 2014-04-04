@@ -100,7 +100,6 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
 #endif
 
-
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
 
@@ -205,8 +204,8 @@ void ins_propagate(void) {
   struct Int32Vect3 accel_meas_body;
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_meas_ltp;
-
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
+
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
 
   if (ins_impl.baro_initialized) {

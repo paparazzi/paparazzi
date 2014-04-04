@@ -72,13 +72,13 @@
 #endif
 
 
-/* Low pass filter variables */
+/* low pass filter variables */
 struct Int32Vect3 acc_meas_body;
 Butterworth2LowPass_int filter_x;
 Butterworth2LowPass_int filter_y;
 Butterworth2LowPass_int filter_z;
 
-
+/* gps measurement noise */
 float Rgps_pos, Rgps_vel;
 
 /*
