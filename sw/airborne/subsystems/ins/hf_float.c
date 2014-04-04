@@ -471,13 +471,10 @@ void b2_hff_propagate(void) {
   b2_hff_store_accel_body();
 
   struct Int32Vect3 acc_body_filtered;
-  update_butterworth_2_low_pass_int(&filter_x, acc_meas_body.x);
-  update_butterworth_2_low_pass_int(&filter_y, acc_meas_body.y);
-  update_butterworth_2_low_pass_int(&filter_z, acc_meas_body.z);
+  acc_body_filtered.x = update_butterworth_2_low_pass_int(&filter_x, acc_meas_body.x);
+  acc_body_filtered.y = update_butterworth_2_low_pass_int(&filter_y, acc_meas_body.y);
+  acc_body_filtered.z = update_butterworth_2_low_pass_int(&filter_z, acc_meas_body.z);
 
-  acc_body_filtered.x = get_butterworth_2_low_pass_int(&filter_x);
-  acc_body_filtered.y = get_butterworth_2_low_pass_int(&filter_y);
-  acc_body_filtered.z = get_butterworth_2_low_pass_int(&filter_z);
   /* propagate current state if it is time */
   if (b2_hff_ps_counter == HFF_PRESCALER) {
     b2_hff_ps_counter = 1;
