@@ -520,7 +520,7 @@ void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* speed_ned)
       /* apparently missed a GPS update, try next saved state */
       PRINT_DBG(2, ("try next saved state\n"));
       b2_hff_rb_drop_last();
-      b2_hff_update_gps();
+      b2_hff_update_gps(pos_ned, speed_ned);
     }
   } else if (save_counter < 0) {
     /* ringbuffer empty -> save output filter state at next GPS validity point in time */
