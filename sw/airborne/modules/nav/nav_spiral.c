@@ -47,7 +47,7 @@
 
 struct NavSpiral nav_spiral;
 
-bool_t nav_spiral_start(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
+bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
 {
   VECT2_COPY(nav_spiral.center, waypoints[center_wp]);    // center of the helix
   nav_spiral.center.z = waypoints[center_wp].a;

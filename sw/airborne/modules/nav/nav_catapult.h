@@ -42,7 +42,7 @@ extern float nav_catapult_initial_throttle;
 void nav_catapult_highrate_module(void);
 
 // Flightplan Code
-extern bool_t nav_catapult_start(void);
+extern bool_t nav_catapult_setup(void);
 
 extern bool_t nav_catapult_arm(void);
 extern bool_t nav_catapult_run(uint8_t _to, uint8_t _climb);

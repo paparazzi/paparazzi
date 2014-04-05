@@ -21,7 +21,7 @@
   <header>
     <file name="nav_catapult.h"/>
   </header>
-  <init fun="nav_catapult_start()"/>
+  <init fun="nav_catapult_setup()"/>
   <!-- Run High Rate Lauch Detector -->
   <periodic fun="nav_catapult_highrate_module()" autorun="TRUE"/>
   <makefile target="ap|sim|jsbsim|nps">

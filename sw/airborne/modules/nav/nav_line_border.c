@@ -37,7 +37,7 @@
 enum line_border_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_border_status line_border_status;
 
-bool_t nav_line_border_start( void ) {
+bool_t nav_line_border_setup( void ) {
   line_border_status = LR12;
   return FALSE;
 }

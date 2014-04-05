@@ -140,11 +140,11 @@ void photogrammetry_calculator_update_flightplan2camera(void);
   WaypointAlt(_WP) = photogrammetry_height + GROUND_ALT;			\
   int _ang = 90 - DegOfRad(photogrammetry_sweep_angle);				\
   while (_ang > 90) _ang -= 180; while (_ang < -90) _ang += 180; 			\
-  nav_survey_poly_osam_start((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
+  nav_survey_poly_osam_setup((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
 }
 
 #define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {			\
-  nav_survey_polygon_start((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle),	\
+  nav_survey_polygon_setup((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle),	\
     photogrammetry_sidestep, photogrammetry_triggerstep, 			\
   photogrammetry_radius_min,  photogrammetry_height + GROUND_ALT);		\
 }

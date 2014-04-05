@@ -54,7 +54,7 @@ struct ZamboniSurvey zs;
  * @param sweep_lines   number of sweep_lines to fly
  * @param altitude      the altitude that must be reached before the flyover starts
  */
-bool_t nav_survey_zamboni_start(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude)
+bool_t nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude)
 {
   zs.current_laps = 0;
   zs.pre_leave_angle = 2;

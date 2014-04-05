@@ -76,7 +76,7 @@ static float BungeeAlt;
 static float TDistance;
 static uint8_t BungeeWaypoint;
 
-bool_t nav_bungee_takeoff_start(uint8_t BungeeWP)
+bool_t nav_bungee_takeoff_setup(uint8_t BungeeWP)
 {
   float ThrottleB;
 

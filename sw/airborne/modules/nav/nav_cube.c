@@ -36,7 +36,7 @@
 
 struct NavCube nav_cube;
 
-bool_t nav_cube_start(uint8_t center, uint8_t tb, uint8_t te) {
+bool_t nav_cube_setup(uint8_t center, uint8_t tb, uint8_t te) {
 
   int32_t j, start_bx, start_by, start_bz, start_ex, start_ey, start_ez;
   int32_t bx, by, ex, ey;

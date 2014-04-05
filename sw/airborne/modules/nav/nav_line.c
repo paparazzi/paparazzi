@@ -33,7 +33,7 @@
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_status line_status;
 
-bool_t nav_line_start( void ) {
+bool_t nav_line_setup( void ) {
   line_status = LR12;
   return FALSE;
 }

@@ -46,7 +46,7 @@
     </block>
 
     <block name="Line">
-         <call fun="nav_line_start()"/>
+         <call fun="nav_line_setup()"/>
          <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
 
@@ -80,7 +80,7 @@
 
     <block name="Disc survey" strip_button="DS">
       <exception cond="chemo_sensor > 0" deroute="ChemotaxisHere"/>
-      <call fun="nav_survey_disc_start(150)"/>
+      <call fun="nav_survey_disc_setup(150)"/>
       <call fun="nav_survey_disc_run(WP_HOME, 350)"/>
     </block>
 

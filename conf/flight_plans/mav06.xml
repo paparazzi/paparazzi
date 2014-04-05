@@ -97,7 +97,7 @@
       </block>-->
 
        <block name="Line" strip_button="Line">
-         <call fun="nav_line_start()"/>
+         <call fun="nav_line_setup()"/>
          <call fun="nav_line_run(WP_11, WP_22, 100)"/>
     </block>
   </blocks>

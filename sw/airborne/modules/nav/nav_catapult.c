@@ -135,7 +135,7 @@ void nav_catapult_highrate_module(void)
 //###############################################################################################
 // Code that runs in 4Hz Nav
 
-bool_t nav_catapult_start(void)
+bool_t nav_catapult_setup(void)
 {
 
   nav_catapult_armed = TRUE;

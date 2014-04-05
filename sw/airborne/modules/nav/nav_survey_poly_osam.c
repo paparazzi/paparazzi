@@ -77,7 +77,7 @@ static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 
-bool_t nav_survey_poly_osam_start(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;

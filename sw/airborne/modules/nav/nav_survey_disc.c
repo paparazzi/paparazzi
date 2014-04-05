@@ -46,7 +46,7 @@ struct DiscSurvey {
 static struct DiscSurvey disc_survey;
 
 
-bool_t nav_survey_disc_start( float grid ) {
+bool_t nav_survey_disc_setup( float grid ) {
   nav_survey_shift = grid;
   disc_survey.status = DOWNWIND;
   disc_survey.sign = 1;

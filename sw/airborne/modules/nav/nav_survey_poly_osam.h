@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-extern bool_t nav_survey_poly_osam_start(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
+extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
 extern bool_t nav_survey_poly_osam_run(void);
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;

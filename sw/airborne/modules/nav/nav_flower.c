@@ -57,7 +57,7 @@ static float Flowerradius;
 static uint8_t Center;
 static uint8_t Edge;
 
-bool_t nav_flower_start(uint8_t CenterWP, uint8_t EdgeWP)
+bool_t nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP)
 {
   Center = CenterWP;
   Edge = EdgeWP;

@@ -49,7 +49,7 @@
       <deroute block="wait"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <call fun="nav_line_start()"/>
+      <call fun="nav_line_setup()"/>
       <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
