@@ -1,0 +1,229 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="100" ground_alt="0" lat0="-26.291355" lon0="-51.55595" max_dist_from_home="2600" name="AGR_Versatile" qfu="270" security_height="45">
+  <header>
+#include "firmwares/fixedwing/guidance/guidance_v_n.h"
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/navigation/OSAMNav.h"
+#include "subsystems/datalink/datalink.h"
+//#define LINE_START_FUNCTION dc_survey(30,DC_IGNORE,DC_IGNORE);
+//#define LINE_START_FUNCTION {dc_survey(30,DC_IGNORE,DC_IGNORE); h_ctl_roll_max_setpoint = DEG2RAD(5);}
+//#define LINE_START_FUNCTION {dc_shoot = 1;}
+//#define LINE_STOP_FUNCTION  {dc_shoot = 0;}
+//#define LINE_STOP_FUNCTION {dc_shoot = 0; h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;}
+//#define LINE_START_FUNCTION dc_Survey(dc_gps_dist);
+#define LINE_START_FUNCTION dc_survey(80,DC_IGNORE,DC_IGNORE)
+//#define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_PERIODIC;
+#define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="11.0" y="1.0"/>
+    <waypoint name="STDBY" x="-8.5" y="-7.2"/>
+    <waypoint name="MOB" x="39.5" y="-18.6"/>
+    <waypoint alt="30.0" name="AF" x="120.1" y="-33.8"/>
+    <waypoint alt="0.0" name="TD" x="59.0" y="-21.0"/>
+    <waypoint name="_BASELEG" x="88.1" y="-27.1"/>
+    <waypoint name="CLIMB" x="-23.2" y="-29.0"/>
+    <waypoint name="S1" x="-336.5" y="1684.8"/>
+    <waypoint name="S2" x="-186.1" y="1468.5"/>
+    <waypoint name="S1_1" x="-46.6" y="2472.8"/>
+    <waypoint name="S1_2" x="943.8" y="2369.9"/>
+    <waypoint name="S1_3" x="1745.5" y="1734.8"/>
+    <waypoint name="S1_4" x="2345.1" y="848.7"/>
+    <waypoint name="S1_5" x="2515.4" y="-375.2"/>
+    <waypoint name="S1_6" x="2180.9" y="-1369.6"/>
+    <waypoint name="S1_7" x="1365.5" y="-2147.5"/>
+    <waypoint name="S1-8" x="48.0" y="-2533.5"/>
+    <waypoint name="S1_9" x="-919.1" y="-2356.6"/>
+    <waypoint name="S1_10" x="-2271.6" y="-1125.8"/>
+    <waypoint name="S2_1" x="-30.2" y="2247.7"/>
+    <waypoint name="S2_2" x="927.9" y="2112.7"/>
+    <waypoint name="S2_3" x="1616.4" y="1590.0"/>
+    <waypoint name="S2_4" x="2183.4" y="1025.4"/>
+    <waypoint name="S2_5" x="2386.1" y="-198.6"/>
+    <waypoint name="S2_6" x="2012.1" y="-1232.3"/>
+    <waypoint name="S2_7" x="1252.1" y="-1986.9"/>
+    <waypoint name="S2_8" x="47.8" y="-2308.5"/>
+    <waypoint name="S2_9" x="-887.1" y="-2099.5"/>
+    <waypoint name="S2_10" x="-2304.2" y="-884.8"/>
+    <waypoint name="WP_1" x="-1418.9" y="1636.2"/>
+    <waypoint name="WP_2" x="-1407.1" y="1463.8"/>
+    <waypoint name="WP_3" x="-1421.7" y="1315.0"/>
+    <waypoint name="WP_4" x="-1413.1" y="1154.0"/>
+    <waypoint name="WP_5" x="-1411.9" y="972.7"/>
+    <waypoint name="inicio" x="-380.3" y="825.2"/>
+    <waypoint name="1" x="-183.4" y="793.9"/>
+    <waypoint name="2" x="-43.5" y="787.7"/>
+    <waypoint name="3" x="94.6" y="777.2"/>
+    <waypoint name="4" x="216.1" y="767.9"/>
+    <waypoint name="5" x="337.0" y="744.9"/>
+    <waypoint name="6" x="450.4" y="731.3"/>
+    <waypoint name="7" x="569.3" y="724.0"/>
+    <waypoint name="8" x="675.9" y="711.3"/>
+    <waypoint name="9" x="680.2" y="839.5"/>
+    <waypoint name="10" x="562.3" y="864.2"/>
+    <waypoint name="11" x="451.1" y="881.0"/>
+    <waypoint name="12" x="334.0" y="892.7"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!(GpsFixValid() && (gps.num_sv > 4))"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="V_CTL_SPEED_AIRSPEED" var="v_ctl_speed_mode"/>
+    </block>
+    <block group="home" key="<Control>a" name="Standby" strip_button="Stby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block group="home" key="<Control>b" name="Standby 25" strip_button="Stby25">
+      <circle radius="30" wp="STDBY"/>
+    </block>
+    <block group="home" key="<Control>a" name="Standby 50" strip_button="Stdy50">
+      <circle radius="50" wp="STDBY"/>
+    </block>
+    <block group="home" key="<Control>c" name="Standby 75" strip_button="Sby75">
+      <circle radius="75" wp="STDBY"/>
+    </block>
+    <block group="base_pattern" key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block group="base_pattern" name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block group="base_pattern" name="MOB" strip_button="Turn around here" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <circle radius="nav_radius" wp="MOB"/>
+    </block>
+    <block group="extra_pattern1" name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block name="Map River">
+      <call fun="FlightLine(1,2,nav_radius,50,50)"/>
+      <call fun="FlightLine(3,4,nav_radius,50,50)"/>
+      <call fun="FlightLine(5,6,nav_radius,50,50)"/>
+      <call fun="FlightLine(7,8,nav_radius,50,50)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block group="Psurvey" name="P-Survey1 240m 0deg" strip_button="PSurv1-10-240M0d">
+      <call fun="InitializePolygonSurvey(WP_S1_1, 10, 240, 0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey1 240m 90deg" strip_button="PSurv1-10-240m90d">
+      <call fun="InitializePolygonSurvey(WP_S1_1, 10, 240, 90)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey1 240m 10pt 45deg" strip_button="PSurv1-10-240m45d">
+      <call fun="InitializePolygonSurvey(WP_S1_1, 10, 240, 45)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey1 520m 0deg" strip_button="PSurv1-10-520M0d">
+      <call fun="InitializePolygonSurvey(WP_S1_1, 10, 520, 0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey1 520m 90deg" strip_button="PSurv1-10-520m90d">
+      <call fun="InitializePolygonSurvey(WP_S1_1, 10, 520, 90)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey2 240m 0deg" strip_button="PSurv2-10-240M0d">
+      <call fun="InitializePolygonSurvey(WP_S2_1, 10, 240, 0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey2 240m 90deg" strip_button="PSurv2-10-240m90d">
+      <call fun="InitializePolygonSurvey(WP_S2_1, 10, 240, 90)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey2 240m 10pt 45deg" strip_button="PSurv2-10-240m45d">
+      <call fun="InitializePolygonSurvey(WP_S2_1, 10, 240, 45)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey2 520m 0deg" strip_button="PSurv2-10-520M0d">
+      <call fun="InitializePolygonSurvey(WP_S2_1, 10, 520, 0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="Psurvey" name="P-Survey2 520m 90deg" strip_button="PSurv2-10-520m90d">
+      <call fun="InitializePolygonSurvey(WP_S2_1, 10, 520, 90)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 25m NS" strip_button="Svy25-NS" strip_icon="survey.png">
+      <survey_rectangle grid="25" orientation="NS" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 50m NS" strip_button="Svy50-NS">
+      <survey_rectangle grid="50" orientation="NS" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 100m NS" strip_button="Svy100-NS">
+      <survey_rectangle grid="100" orientation="NS" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 150m NS" strip_button="Svy150-NS">
+      <survey_rectangle grid="150" orientation="NS" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 25m LO" strip_button="Svy25-LO">
+      <survey_rectangle grid="25" orientation="WE" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 50m LO" strip_button="Svy50-LO">
+      <survey_rectangle grid="50" orientation="WE" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 100m LO" strip_button="Svy100-LO">
+      <survey_rectangle grid="100" orientation="WE" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 150m LO" strip_button="Svy150-LO">
+      <survey_rectangle grid="150" orientation="WE" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern1" name="Path 1,2,S1,S2,STDBY" strip_button="Path (1,2,S1,S2,STDBY)" strip_icon="path.png">
+      <path wpts="1,2 S1"/>
+      <path approaching_time="1" pitch="auto" throttle="0.4" wpts="S1, S2 STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block group="extra_pattern1" name="NAV 1-12,STBY" strip_button="Path (1,12,STDBY)" strip_icon="path.png">
+      <go wp="inicio"/>
+      <path wpts="1,2,3,4,5,6,7,8,9,10,11,12"/>
+      <deroute block="Standby"/>
+    </block>
+    <block group="extra_pattern1" name="NAV go 1-12,STBY" strip_button="Path (1,12,STDBY)" strip_icon="path.png">
+      <go wp="1"/>
+      <go wp="2"/>
+      <go wp="3"/>
+      <go wp="4"/>
+      <go wp="5"/>
+      <go wp="6"/>
+      <go wp="7"/>
+      <go wp="8"/>
+      <go wp="9"/>
+      <go wp="10"/>
+      <go wp="11"/>
+      <go wp="12"/>
+      <deroute block="Standby"/>
+    </block>
+    <block group="base_pattern" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block group="base_pattern" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Test datalink (go to wp 2)">
+      <exception cond="datalink_time > 10" deroute="Standby"/>
+      <go from="STDBY" hmode="route" wp="2"/>
+      <go from="2" hmode="route" wp="STDBY"/>
+    </block>
+  </blocks>
+</flight_plan>

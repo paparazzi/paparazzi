@@ -8,7 +8,7 @@
     <file name="cam.h"/>
   </header>
   <init fun="cam_init()"/>
-  <periodic fun="cam_periodic()" freq="10."/>
+  <periodic fun="cam_periodic()"/>
   <makefile>
     <define name="MOBILE_CAM"/>
     <file name="cam_roll.c"/>

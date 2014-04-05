@@ -1,0 +1,357 @@
+<!-- 
+This is a quadrotor frame equiped with Lisa/M and PWM ESC
+Telemetry: Transparent
+Radio: FR-Sky CPPM - Turnigy 9x
+
+modifications:
+1- PPM_IN on UART1_RX
+2- ms5611 connected on i2c2
+-->
+
+<airframe name="QUAD">
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_m_1.0">
+      <!--definições para usar a lisa_m v1.0 com modificação na ordem das seriais-->
+      <configure name="RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT"  value="UART1"/>
+      <configure name="GPS_PORT"  value="UART3"/>
+      <!--definições para usar a lisa_m v1.0 com MK5611 baro-->
+      <configure name="LISA_M_BARO"  value="BARO_MS5611_I2C"/>
+      <define name="MS5611_USE_ALT_ADDR"/>
+<define name="FAILSAFE_GROUND_DETECT"/>
+<define name="KILL_ON_GROUND_DETECT" value="TRUE"/>
+<define name="THRESHOLD_GROUND_DETECT"  value="15.0"/>
+
+
+      <define name="USE_GPS_ACC4R"/>
+      <subsystem name="radio_control" type="ppm">
+      <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
+      </subsystem>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_CH6"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/>
+      <define name="USE_INS_NAV_INIT"/>
+     <define name="USE_ADC"/>
+      <define name="USE_ADC_2"/> <!--SONAR-->
+      <configure name="AHRS_ALIGNER_LED" value="3"/>
+      <configure name="GPS_LED" value="3"/>
+      <configure name="SYS_TIME_LED" value="1"/> 
+      <configure name="CAM_SWITCH_LED" value="5"/>
+<!--      <define name="USE_MAGNETOMETER" value="FALSE"/> --> <!--desabilita magnetometro-->
+      <define name="GUIDANCE_H_USE_REF"/> <!--para navegação com velocidade controlada-->
+     <!-- <define name="USE_HFF"/> -->
+   <!--   <define name="USE_VFF_EXTENDED"/>  --><!--EXTENDED-->
+<!--      <define name="USE_SONAR"/> -->
+      <define name="INS_SONAR_MAX_RANGE" value="5"/>
+      <define name="INS_SONAR_VARIANCE_THRESHOLD" value="0.01"/>
+      <define name="SONAR_SCALE" value="0.0166"/>
+    </target>
+
+  <target name="nps" board="pc">
+    <subsystem name="fdm"           type="jsbsim"/>
+    <subsystem name="radio_control" type="ppm"/>
+  </target>
+
+    <target name="sim" board="pc">
+      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="actuators"     type="mkk"/>
+    </target>
+
+    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators"  type="pwm">
+      <define name="SERVO_HZ" value="490"/>
+    </subsystem>
+    <subsystem name="imu"  type="aspirin_v1.5"/>
+<!--    <define name="USE_ASPIRIN_MEDIAN"/> -->
+    <define name="ASPIRIN_ACCEL_RATE" value="ADXL345_RATE_50HZ"/>  <!--25,50,100,200,400,800,1600,3200-->
+    <define name="ASPIRIN_GYRO_LOWPASS" value="ITG3200_DLPF_98HZ"/>  <!--256,188,98,42,20,10,5 -->
+    <define name="ASPIRIN_GYRO_SMPLRT_DIV"  value="1"/>
+    <subsystem name="gps"           type="ublox"/>
+	<configure name="GPS_BAUD"  value="B38400"/>
+        <configure name="GPS_PORT"  value="UART3"/>
+    <subsystem name="stabilization" type="int_quat"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <subsystem name="ins"/><!--ins_extended-->
+    <define name="VF_FLOAT_INIT_PXX"  value="1.0"/><!--1.0 how certain you are about initial values-->
+    <define name="VF_FLOAT_ACCEL_NOISE"  value="0.5"/><!--0.5-->
+    <define name="VF_FLOAT_MEAS_NOISE"  value="10.0"/> <!--1.0 = 1m-->
+  </firmware>
+
+<!--  ############################################################# -->
+<!--  ############################################################# -->
+<!--  ############################################################# -->
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+  <!--  <define name="NOMINAL_HOVER_THROTTLE"   value="0.65"/>  -->  <!-- 0.65 para 3s5000-->
+<!--    <define name="NOMINAL_HOVER_THROTTLE"   value="0.45"/> -->   <!-- 0.45 para 4s5000-->
+    <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-10.)"/> <!-- -3 -10-->
+    <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 10.)"/>
+    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10)"/>  <!-- -1.5 -10 -->
+    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10)"/>
+    <define name="MAX_SUM_ERR" value="2000000"/> <!-- 2000000 -->
+<!--  ------------------------------------------------ -->
+   <define name="REF_MIN_ZDD"  value="-0.5*9.81"/> <!--0.5-->
+   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+   <define name="REF_MIN_ZD"   value="-0.5"/><!--1.5-->
+   <define name="REF_MAX_ZD"   value=" 0.5"/>
+<!--  ------------------------------------------------ -->
+    <define name="HOVER_KP"    value="100"/>  <!-- 70-->
+    <define name="HOVER_KD"    value="120"/><!-- 120-->
+    <define name="HOVER_KI"    value="20"/><!-- 20 -->
+    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+    <define name="RC_CLIMB_COEF" value ="163"/> <!--163-->
+    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
+    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+   <define name="ADAPT_NOISE_FACTOR" value="1.5"/>
+  </section>
+
+<!--
+180, 160, 20 trava +- com baro no vento
+250,70,25 trava bem com sonar
+100, 120, 40 trava bem com baro
+-->
+
+<!--with a pgain of 100 you get an angle of 5.6 degrees for 1m pos error -->
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="REF_MAX_SPEED" value="5.0"/>
+    <define name="USE_REF" value="1"/>  
+    <define name="MAX_BANK" value="RadOfDeg(15)"/> <!--value="5" unit="deg" RadOfDeg(20) -->
+    <define name="PGAIN" value="30"/> <!--30 diferença de posição -->
+    <define name="DGAIN" value="60"/> <!--80 difernça de velocidade -->
+    <define name="IGAIN" value="20"/> <!-- 0 10 integral gain -->
+    <define name="AGAIN" value="50"/> <!--00 acc gain-->
+  </section>
+<!--  ############################################################# -->
+<!--  ############################################################# -->
+<!--  ############################################################# -->
+
+
+<!--AP_MODE_RATE_DIRECT        - modo rate - acrobatico
+    AP_MODE_RATE_RC_CLIMB      - modoe rate com trava altura climb
+    AP_MODE_ATTITUDE_DIRECT    - sem trava auto estabilizado
+    AP_MODE_ATTITUDE_RC_CLIMB  - trava altura -acelereador controlando climb
+    AP_MODE_ATTITUDE_Z_HOLD    - trava altura - acelerador limita atuação
+    AP_MODE_HOVER_DIRECT"      - trava posição
+    AP_MODE_HOVER_Z_HOLD       - trava posição e altura
+    AP_MODE_NAV                - navegação
+-->
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+  <!--   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/> 
+   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>-->
+
+     <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2"   value="AP_MODE_NAV"/>
+  </section>
+<!-- ####################################################################### -->
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+
+  <servos driver="Pwm">
+    <servo name="BACK_LEFT"     no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_LEFT"    no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_RIGHT"    no="3" min="1000" neutral="1100" max="1900"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="256"/>
+    <define name="ROLL_COEF"   value="{ 256,  256, -256, -256 }"/>
+    <define name="PITCH_COEF"  value="{-256,  256,  256, -256 }"/>
+    <define name="YAW_COEF"    value="{ 256, -256,  256, -256 }"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
+  </command_laws>
+<!-- ####################################################################### -->
+
+   <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_NEUTRAL" value="-89"/>
+    <define name="GYRO_Q_NEUTRAL" value="-28"/>
+    <define name="GYRO_R_NEUTRAL" value="-2"/>
+    <define name="GYRO_P_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.412" integer="16"/>
+    
+    <define name="ACCEL_X_NEUTRAL" value="-10"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-4"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-24"/> <!-- -24 -->
+    <define name="ACCEL_X_SENS" value="37.5166009002" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="38.9005103268" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.6103009639" integer="16"/>
+
+ <!--  calibrei em 24_03_2013 -->   
+    <define name="MAG_X_NEUTRAL" value="-78"/>
+    <define name="MAG_Y_NEUTRAL" value="85"/>
+    <define name="MAG_Z_NEUTRAL" value="35"/>
+    <define name="MAG_X_SENS" value="8.2438689453" integer="16"/>
+    <define name="MAG_Y_SENS" value="8.76526402221" integer="16"/>
+    <define name="MAG_Z_SENS" value="8.20499111213" integer="16"/>
+
+    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
+    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
+    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="RadOfDeg(0.)" />
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)" />
+    <define name="BODY_TO_IMU_PSI" value="RadOfDeg(-90.)" />
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="MAG_UPDATE_YAW_ONLY"/>
+    <!-- porto alegre 28_11_2012-->
+    <define name="H_X" value=" 0.75127"/>
+    <define name="H_Y" value=" -0.21477"/>
+    <define name="H_Z" value=" -0.62406"/>
+  </section>
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
+    <define name="REF_TAU" value="4"/>
+
+    <!-- feedback -->
+    <define name="GAIN_P" value="250"/>
+    <define name="GAIN_Q" value="250"/>
+    <define name="GAIN_R" value="2400"/>
+
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
+
+    <!-- feedforward -->
+    <define name="DDGAIN_P" value="35"/>
+    <define name="DDGAIN_Q" value="35"/>
+    <define name="DDGAIN_R" value="140"/>
+  </section>
+
+<!--
+SP_MAX: bound for angle input
+REF_OMEGA: natural frequency of the second order
+REF_ZETA: damping factor (should not be less than 0.8-0.7, maximum is 1)
+REF_MAX_X: bound on angular speed
+REF_MAX_XDOT: bound on angular acceleration
+The response time (95% of the final value when doing a step input): ~ 3/(freq*damp)
+To increase response time, you can increase the frequency, and the bounds.
+-->
+   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="45."  unit="deg"/> <!--45-->
+    <define name="SP_MAX_THETA"   value="45."  unit="deg"/> 
+    <define name="SP_MAX_R"       value="260." unit="deg/s"/>
+    <define name="DEADBAND_A"     value="5"/>
+    <define name="DEADBAND_E"     value="5"/>
+    <define name="DEADBAND_R"     value="600"/><!--600-->
+
+<!--
+SP_MAX: bound for angle input
+REF_OMEGA: natural frequency of the second order
+REF_ZETA: damping factor (should not be less than 0.8-0.7, maximum is 1)
+REF_MAX_X: bound on angular speed
+REF_MAX_XDOT: bound on angular acceleration
+The response time (95% of the final value when doing a step input): ~ 3/(freq*damp)
+To increase response time, you can increase the frequency, and the bounds.
+-->
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="1400" unit="deg/s"/><!-- velocidade do stick-->
+    <define name="REF_ZETA_P"   value=".8"/> <!--.85-->
+    <define name="REF_MAX_P"    value="800." unit="deg/s"/> 
+    <define name="REF_MAX_PDOT" value="RadOfDeg(4000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="1400" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value=".8"/>
+    <define name="REF_MAX_Q"    value="800." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(4000.)"/>
+
+    <define name="REF_OMEGA_R"  value="2200" unit="deg/s"/> <!--500-->
+    <define name="REF_ZETA_R"   value="0.8"/>
+    <define name="REF_MAX_R"    value="880." unit="deg/s"/><!--480 180-->
+    <define name="REF_MAX_RDOT" value="RadOfDeg(4000.)"/> <!--4000-->
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="330"/> <!--800   valores bons para 3s-->   
+    <define name="PHI_DGAIN"  value="250"/> <!--300-->
+    <define name="PHI_IGAIN"  value="800"/> <!--950-->
+
+    <define name="THETA_PGAIN"  value="330"/>
+    <define name="THETA_DGAIN"  value="250"/> 
+    <define name="THETA_IGAIN"  value="800"/>
+
+    <define name="PSI_PGAIN"  value="2500"/><!-- 2800 2200 1800-->
+    <define name="PSI_DGAIN"  value="1100"/><!-- 800   valor muito alto deixa pid muito sensivel a vibracao.-->
+    <define name="PSI_IGAIN"  value="0000"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value="000"/> <!--500-->
+    <define name="THETA_DDGAIN" value="000"/>
+    <define name="PSI_DDGAIN"   value="000"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="BARO_SENS" value="22.3" integer="16"/>
+    <define name="SONAR_SENS" value="0.003" integer="16"/>  <!-- valor para 3.3v maxsonar1230 -->
+  </section>
+
+
+
+  <section name="MISC">
+    <!--<define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
+    define name="IMU_MAG_OFFSET" value="RadOfDeg(-5.8)"/-->
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+
+
+ <modules>
+<!--    <load name="adc_generic.xml">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
+   </load>-->
+    <!--load name="booz_cam.xml"/-->
+   <load name="sonar_adc.xml"> 
+      <configure name="ADC_SONAR" value="ADC_2"/> <!-- 1=ADC2-->
+   </load>
+   <load name="openlog.xml"/>
+ </modules>
+
+</airframe>

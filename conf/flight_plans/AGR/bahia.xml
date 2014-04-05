@@ -1,0 +1,8 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="250" ground_alt="185" lat0="-12.5" lon0="-44.6" max_dist_from_home="1000" name="Dummy" qfu="270" security_height="25">
+  <waypoints>
+    <waypoint name="HOME" x="60.7" y="96.6"/>
+  </waypoints>
+  <blocks/>
+</flight_plan>
