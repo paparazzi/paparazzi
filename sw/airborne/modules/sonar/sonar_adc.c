@@ -65,21 +65,20 @@ void sonar_adc_init(void) {
 /** Read ADC value to update sonar measurement
  */
 void sonar_adc_read(void) {
-  float sonar_distance;
 #ifndef SITL
   sonar_adc.meas = sonar_adc_buf.sum / sonar_adc_buf.av_nb_sample;
-  sonar_distance = (float)(sonar_adc.meas - sonar_adc.offset) * SONAR_SCALE;
+  sonar_adc.distance = (float)(sonar_adc.meas - sonar_adc.offset) * SONAR_SCALE;
 #else // SITL
-  sonar_distance = stateGetPositionEnu_f()->z;
-  Bound(sonar_distance, 0.1f, 7.0f);
+  sonar_adc.distance = stateGetPositionEnu_f()->z;
+  Bound(sonar_adc.distance, 0.1f, 7.0f);
 #endif // SITL
 
   // Send ABI message
-  AbiSendMsgAGL(AGL_SONAR_ADC_ID, &sonar_distance);
+  AbiSendMsgAGL(AGL_SONAR_ADC_ID, &sonar_adc.distance);
 
 #ifdef SENSOR_SYNC_SEND_SONAR
   // Send Telemetry report
-  DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_adc.meas, &sonar_distance);
+  DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_adc.meas, &sonar_adc.distance);
 #endif
 }
 
