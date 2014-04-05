@@ -22,7 +22,8 @@
 /**
  * @file subsystems/ins/ins_gps_passthrough.c
  *
- * Simply passes GPS position and velocity through to the state interface.
+ * Simply converts GPS ECEF position and velocity to NED
+ * and passes it through to the state interface.
  */
 
 #include "subsystems/ins.h"
@@ -32,57 +33,124 @@
 
 #include "state.h"
 #include "subsystems/gps.h"
-#include "subsystems/nav.h"
 
-void ins_init(void) {
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
+#ifndef USE_INS_NAV_INIT
+#define USE_INS_NAV_INIT TRUE
+PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
+#endif
 
-  ins.status = INS_RUNNING;
+#if USE_INS_NAV_INIT
+#include "generated/flight_plan.h"
+#endif
+
+struct InsGpsPassthrough {
+  struct LtpDef_i  ltp_def;
+  bool_t           ltp_initialized;
+
+  /* output LTP NED */
+  struct NedCoor_i ltp_pos;
+  struct NedCoor_i ltp_speed;
+  struct NedCoor_i ltp_accel;
+};
+
+struct InsGpsPassthrough ins_impl;
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+
+static void send_ins(void) {
+  DOWNLINK_SEND_INS(DefaultChannel, DefaultDevice,
+      &ins_impl.ltp_pos.x, &ins_impl.ltp_pos.y, &ins_impl.ltp_pos.z,
+      &ins_impl.ltp_speed.x, &ins_impl.ltp_speed.y, &ins_impl.ltp_speed.z,
+      &ins_impl.ltp_accel.x, &ins_impl.ltp_accel.y, &ins_impl.ltp_accel.z);
 }
 
-void ins_reset_local_origin(void) {
-  struct UtmCoor_f utm;
-#ifdef GPS_USE_LATLONG
-  /* Recompute UTM coordinates in this zone */
-  struct LlaCoor_f lla;
-  lla.lat = gps.lla_pos.lat/1e7;
-  lla.lon = gps.lla_pos.lon/1e7;
-  utm.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
-  utm_of_lla_f(&utm, &lla);
-#else
-  utm.zone = gps.utm_pos.zone;
-  utm.east = gps.utm_pos.east / 100.0f;
-  utm.north = gps.utm_pos.north / 100.0f;
+static void send_ins_z(void) {
+  static const float fake_baro_z = 0.0;
+  DOWNLINK_SEND_INS_Z(DefaultChannel, DefaultDevice,
+      &fake_baro_z, &ins_impl.ltp_pos.z, &ins_impl.ltp_speed.z, &ins_impl.ltp_accel.z);
+}
+
+static void send_ins_ref(void) {
+  static const float fake_qfe = 0.0;
+  if (ins_impl.ltp_initialized) {
+    DOWNLINK_SEND_INS_REF(DefaultChannel, DefaultDevice,
+        &ins_impl.ltp_def.ecef.x, &ins_impl.ltp_def.ecef.y, &ins_impl.ltp_def.ecef.z,
+        &ins_impl.ltp_def.lla.lat, &ins_impl.ltp_def.lla.lon, &ins_impl.ltp_def.lla.alt,
+        &ins_impl.ltp_def.hmsl, &fake_qfe);
+  }
+}
 #endif
-  // ground_alt
-  utm.alt = gps.hmsl / 1000.0f;
-  // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+
+void ins_init(void) {
+
+#if USE_INS_NAV_INIT
+  struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
+  llh_nav0.lat = INT32_RAD_OF_DEG(NAV_LAT0);
+  llh_nav0.lon = INT32_RAD_OF_DEG(NAV_LON0);
+  /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
+  llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
+
+  struct EcefCoor_i ecef_nav0;
+  ecef_of_lla_i(&ecef_nav0, &llh_nav0);
+
+  ltp_def_from_ecef_i(&ins_impl.ltp_def, &ecef_nav0);
+  ins_impl.ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+
+  ins_impl.ltp_initialized = TRUE;
+#else
+  ins_impl.ltp_initialized  = FALSE;
+#endif
+
+  INT32_VECT3_ZERO(ins_impl.ltp_pos);
+  INT32_VECT3_ZERO(ins_impl.ltp_speed);
+  INT32_VECT3_ZERO(ins_impl.ltp_accel);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, "INS", send_ins);
+  register_periodic_telemetry(DefaultPeriodic, "INS_Z", send_ins_z);
+  register_periodic_telemetry(DefaultPeriodic, "INS_REF", send_ins_ref);
+#endif
+}
+
+void ins_periodic(void) {
+  if (ins_impl.ltp_initialized)
+    ins.status = INS_RUNNING;
+}
+
+
+void ins_reset_local_origin(void) {
+  ltp_def_from_ecef_i(&ins_impl.ltp_def, &gps.ecef_pos);
+  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_impl.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
+  ins_impl.ltp_initialized = TRUE;
 }
 
 void ins_reset_altitude_ref(void) {
-  struct UtmCoor_f utm = state.utm_origin_f;
-  utm.alt = gps.hmsl / 1000.0f;
-  stateSetLocalUtmOrigin_f(&utm);
+  ins_impl.ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_impl.ltp_def.hmsl = gps.hmsl;
+  stateSetLocalOrigin_i(&ins_impl.ltp_def);
 }
 
 void ins_update_gps(void) {
-  struct UtmCoor_f utm;
-  utm.east = gps.utm_pos.east / 100.0f;
-  utm.north = gps.utm_pos.north / 100.0f;
-  utm.zone = nav_utm_zone0;
-  utm.alt = gps.hmsl / 1000.0f;
+  if (gps.fix == GPS_FIX_3D) {
+    if (!ins_impl.ltp_initialized) {
+      ins_reset_local_origin();
+    }
 
-  // set position
-  stateSetPositionUtm_f(&utm);
+    /* simply scale and copy pos/speed from gps */
+    struct NedCoor_i gps_pos_cm_ned;
+    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_impl.ltp_def, &gps.ecef_pos);
+    INT32_VECT3_SCALE_2(ins_impl.ltp_pos, gps_pos_cm_ned,
+                        INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+    stateSetPositionNed_i(&ins_impl.ltp_pos);
 
-  struct NedCoor_f ned_vel = {
-    gps.ned_vel.x / 100.0f,
-    gps.ned_vel.y / 100.0f,
-    gps.ned_vel.z / 100.0f
-  };
-  // set velocity
-  stateSetSpeedNed_f(&ned_vel);
+    struct NedCoor_i gps_speed_cm_s_ned;
+    ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_impl.ltp_def, &gps.ecef_vel);
+    INT32_VECT3_SCALE_2(ins_impl.ltp_speed, gps_speed_cm_s_ned,
+                        INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+    stateSetSpeedNed_i(&ins_impl.ltp_speed);
+  }
 }
