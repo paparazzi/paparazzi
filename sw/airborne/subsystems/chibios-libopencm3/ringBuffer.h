@@ -16,7 +16,7 @@ TODO:
 #else
 #include "std.h"
 #endif
-
+#include <unistd.h>
 
 #define ERROR_CIRCULAR_BUFFER_FULL -1
 #define ERROR_CIRCULAR_BUFFER_UNSYNC -2
