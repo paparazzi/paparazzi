@@ -45,9 +45,14 @@ void stabilization_attitude_init(void) {
 }
 
 
-void stabilization_attitude_read_rc(bool_t in_flight) {
+void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree) {
   //Read from RC
-  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight, in_carefree);
+}
+
+void stabilization_attitude_read_rc_forward(bool_t in_flight, bool_t in_carefree) {
+  //Read from RC
+  stabilization_attitude_read_rc_forward_setpoint_eulers(&stab_att_sp_euler, in_flight, in_carefree);
 }
 
 
