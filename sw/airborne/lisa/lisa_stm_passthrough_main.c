@@ -27,6 +27,7 @@
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #include "subsystems/actuators/actuators_pwm.h"
+#include "subsystems/actuators/actuators_dualpwm.h"
 #include "subsystems/imu.h"
 #include "subsystems/radio_control.h"
 #include "autopilot.h"

@@ -298,7 +298,7 @@ let test_on_hl t = (test_in_segment t)||(t=T_OUT_SEG_PT4)||(t=T_OUT_SEG_PT2)
 let crossing_seg_seg a b c d =
   match crossing_point a (vect_make a b) c (vect_make c d) with
       None -> false
-    | Some (type1, type2, _pt) -> (test_in_segment type1)&&(test_in_segment type2)
+    | Some (type1, type2, _pt) -> (test_in_segment type1) && (test_in_segment type2)
 
 (* ============================================================================= *)
 (* = Teste l'intersection d'un segment (a,b) et d'une demi-droite (c,v)        = *)
@@ -346,7 +346,7 @@ let poly_is_closed poly =
 (* = Ferme un polygone [A; B; C; D] -> [A; B; C; D; A]                         = *)
 (* ============================================================================= *)
 let poly_close poly =
-  if poly = [] or poly_is_closed poly then poly else poly@[List.hd poly]
+  if poly = [] || poly_is_closed poly then poly else poly@[List.hd poly]
 
 (* ============================================================================= *)
 (* = Ferme un polygone [A; B; C; D] -> [|A; B; C; D; A; B|]                    = *)
@@ -393,10 +393,10 @@ let convex_hull poly =
   in
 
   let plus_proche a b c d =
-    (d=a) or ((not(c=a)) &
-                 ((du_meme_cote b c d a) or (
+    (d=a) || ((not(c=a)) &&
+                 ((du_meme_cote b c d a) || (
                    let u = vect_make b c and v = vect_make b d in
-                   (det u v)=0.0 & (abs_float(u.x2D)+.abs_float(u.y2D)>
+                   (det u v)=0.0 && (abs_float(u.x2D)+.abs_float(u.y2D)>
                                       abs_float(v.x2D)+.abs_float(v.y2D)))))
   in
 
@@ -412,7 +412,7 @@ let convex_hull poly =
       | [] -> raise Exit
   in
 
-  let p a b = a.x2D<b.x2D or (a.x2D=b.x2D & a.y2D>b.y2D) in
+  let p a b = a.x2D<b.x2D || (a.x2D=b.x2D && a.y2D>b.y2D) in
   let l2=poly in
   let debut,_=extract_mini p l2 in
   let rec itere a o  liste sol =
@@ -640,7 +640,7 @@ let in_tesselation poly =
     let a = vertices.(n1) and b = vertices.(n2) in
 
     (* AAA  if is_in_cone a b && is_in_cone b a then begin *)
-    if is_in_cone a b or is_in_cone b a then begin
+    if is_in_cone a b || is_in_cone b a then begin
       let rec f l =
         match l with
             c::reste ->

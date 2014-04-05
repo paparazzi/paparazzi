@@ -43,7 +43,7 @@
       <define name="SHOW_CAM_COORDINATES" value="1"/>
     </load>
     <load name="digital_cam.xml">
-      <define name="DC_SHUTTER_LED" value="3"/>
+      <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO23"/>
     </load>
     <load name="sys_mon.xml"/>
     <load name="infrared_adc.xml"/>

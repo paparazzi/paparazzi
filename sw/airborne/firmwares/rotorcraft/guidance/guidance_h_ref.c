@@ -50,9 +50,13 @@ struct Int64Vect2 gh_pos_ref;
 
 static const int32_t gh_max_accel =  BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, GH_ACCEL_REF_FRAC);
 
-/** @todo GH_MAX_SPEED must be limited to 2^14 to avoid overflow */
+float gh_max_speed = GUIDANCE_H_REF_MAX_SPEED;
+
 #define GH_MAX_SPEED_REF_FRAC 7
-static const int32_t gh_max_speed = BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, GH_MAX_SPEED_REF_FRAC);
+/** gh_max_speed in fixed point representation with #GH_MAX_SPEED_REF_FRAC
+ * must be limited to 2^14 to avoid overflow
+ */
+static int32_t gh_max_speed_int = BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, GH_MAX_SPEED_REF_FRAC);
 
 /** second order model natural frequency */
 #ifndef GUIDANCE_H_REF_OMEGA
@@ -87,6 +91,14 @@ static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector);
 static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector);
 static void gh_saturate_ref_accel(void);
 static void gh_saturate_ref_speed(void);
+
+
+float gh_set_max_speed(float max_speed) {
+  /* limit to 100m/s as int version would overflow at  2^14 = 128 m/s */
+  gh_max_speed = Min(fabs(max_speed), 100.0f);
+  gh_max_speed_int = BFP_OF_REAL(gh_max_speed, GH_MAX_SPEED_REF_FRAC);
+  return gh_max_speed;
+}
 
 void gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel) {
   struct Int64Vect2 new_pos;
@@ -174,9 +186,9 @@ static void gh_compute_ref_max(struct Int32Vect2* ref_vector) {
     /* Compute maximum acceleration*/
     gh_max_accel_ref.x = INT_MULT_RSHIFT(gh_max_accel, c_route_ref, INT32_TRIG_FRAC);
     gh_max_accel_ref.y = INT_MULT_RSHIFT(gh_max_accel, s_route_ref, INT32_TRIG_FRAC);
-    /* Compute maximum speed*/
-    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed, c_route_ref, INT32_TRIG_FRAC);
-    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed, s_route_ref, INT32_TRIG_FRAC);
+    /* Compute maximum reference x/y velocity from absolute max_speed */
+    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed_int, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed_int, s_route_ref, INT32_TRIG_FRAC);
     /* restore gh_speed_ref range (Q14.17) */
     INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
   }
@@ -204,9 +216,9 @@ static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector) {
   }
   else {
     gh_compute_route_ref(ref_vector);
-    /* Compute maximum speed*/
-    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed, c_route_ref, INT32_TRIG_FRAC);
-    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed, s_route_ref, INT32_TRIG_FRAC);
+    /* Compute maximum reference x/y velocity from absolute max_speed */
+    gh_max_speed_ref.x = INT_MULT_RSHIFT(gh_max_speed_int, c_route_ref, INT32_TRIG_FRAC);
+    gh_max_speed_ref.y = INT_MULT_RSHIFT(gh_max_speed_int, s_route_ref, INT32_TRIG_FRAC);
     /* restore gh_speed_ref range (Q14.17) */
     INT32_VECT2_LSHIFT(gh_max_speed_ref, gh_max_speed_ref, (GH_SPEED_REF_FRAC - GH_MAX_SPEED_REF_FRAC));
   }

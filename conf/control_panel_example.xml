@@ -41,11 +41,11 @@
 
     <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
 
-    <program name="GPSd position display" command ="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
 
-    <program name="Log Plotter" command ="sw/logalizer/plot"/>
+    <program name="Log Plotter" command="sw/logalizer/plot"/>
 
-    <program name="Real-time Plotter" command ="sw/logalizer/plotter"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
 
     <program name="Log File Player" command="sw/logalizer/play">
       <arg flag="-b" variable="ivy_bus"/>
@@ -68,8 +68,6 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
-
     <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
 
     <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
@@ -78,7 +76,11 @@
     </program>
 
     <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
-  </section>
+
+    <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
+
+    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+ </section>
 
 
 

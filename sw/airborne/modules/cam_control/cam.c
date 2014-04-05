@@ -252,7 +252,7 @@ void cam_target( void ) {
 #else
   struct EnuCoor_f* pos = stateGetPositionEnu_f();
   struct FloatEulers* att = stateGetNedToBodyEulers_f();
-  vPoint(pos->x, pos->y, pos->z,
+  vPoint(pos->x, pos->y, stateGetPositionUtm_f()->alt,
          att->phi, att->theta, *stateGetHorizontalSpeedDir_f(),
          cam_target_x, cam_target_y, cam_target_alt,
          &cam_pan_c, &cam_tilt_c);

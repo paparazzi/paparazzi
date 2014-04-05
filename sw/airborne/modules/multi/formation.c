@@ -139,7 +139,7 @@ int formation_flight(void) {
     stateGetPositionEnu_f()->y += formation[the_acs_id[AC_ID]].north;
   }
   // set info for this AC
-  SetAcInfo(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, (*stateGetHorizontalSpeedDir_f()), stateGetPositionEnu_f()->z, (*stateGetHorizontalSpeedNorm_f()), stateGetSpeedEnu_f()->z, gps.tow);
+  SetAcInfo(AC_ID, stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, (*stateGetHorizontalSpeedDir_f()), stateGetPositionUtm_f()->alt, (*stateGetHorizontalSpeedNorm_f()), stateGetSpeedEnu_f()->z, gps.tow);
 
   // broadcast info
   uint8_t ac_id = AC_ID;
@@ -185,12 +185,12 @@ int formation_flight(void) {
     }
     else formation[i].status = ACTIVE;
     // compute control if AC is ACTIVE and around the same altitude (maybe not so usefull)
-    if (formation[i].status == ACTIVE && fabs(stateGetPositionEnu_f()->z - ac->alt) < form_prox && ac->alt > 0) {
+    if (formation[i].status == ACTIVE && fabs(stateGetPositionUtm_f()->alt - ac->alt) < form_prox && ac->alt > 0) {
       form_e += (ac->east  + ac->gspeed*sinf(ac->course)*delta_t - stateGetPositionEnu_f()->x)
         - (form[i].east - form[the_acs_id[AC_ID]].east);
       form_n += (ac->north + ac->gspeed*cosf(ac->course)*delta_t - stateGetPositionEnu_f()->y)
         - (form[i].north - form[the_acs_id[AC_ID]].north);
-      form_a += (ac->alt - stateGetPositionEnu_f()->z) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
+      form_a += (ac->alt - stateGetPositionUtm_f()->alt) - (formation[i].alt - formation[the_acs_id[AC_ID]].alt);
       form_speed += ac->gspeed;
       //form_speed_e += ac->gspeed * sinf(ac->course);
       //form_speed_n += ac->gspeed * cosf(ac->course);

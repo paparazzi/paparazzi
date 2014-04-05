@@ -1,29 +1,15 @@
 <!DOCTYPE module SYSTEM "./module.dtd">
 
-<!--
-
-// Use (parts of) the following section in airframe file to change
-
-  <section name="DIGITAL_CAMERA" prefix="DC_">
-
-    <configure name="PUSH" value"LED_ON" />
-    <configure name="RELEASE" value"LED_OFF" />
-
-    <configure name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
-    <configure name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
-  </section>
-
-# ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps"
-# ap.CFLAGS += -DDC_GPS_TRIGGER_START=1
-# ap.CFLAGS += -DDC_GPS_TRIGGER_STOP=3
-
--->
-
 <module name="digital_cam_servo" dir="digital_cam">
   <doc>
     <description>Digital camera control (trigger using servo)</description>
-    <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
-    <define name="SENSOR_SYNC_SEND" value="1" />
+    <define name="DC_SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
+    <define name="DC_SHUTTER_SERVO" value="servo" description="mandatory, Servo to control shutter"/>
+    <define name="DC_ZOOM_IN_SERVO" value="servo" description="optional, Servo to activate zoom in"/>
+    <define name="DC_ZOOM_OUT_SERVO" value="servo" description="optional, Servo to activate zoom out"/>
+    <define name="DC_POWER_SERVO" value="servo" description="optional, Servo to control power"/>
+    <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
+    <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>
 
   <header>
@@ -35,14 +21,10 @@
   <periodic fun="servo_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
   <makefile >
-
-    <define name="DIGITAL_CAM" />
+    <define name="DIGITAL_CAM"/>
     <file name="servo_cam_ctrl.c"/>
     <file name="dc.c"/>
-    <define name="SENSOR_SYNC_SEND" value="1" />
-
+    <define name="SENSOR_SYNC_SEND" value="1"/>
   </makefile>
 
-
 </module>
-

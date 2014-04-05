@@ -22,28 +22,20 @@
 # Quiet compilation
 Q=@
 
+CC = gcc
+
 include ../Makefile.ocaml
 
 INCLUDES =
 PKG = -package pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
-all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out find_free_msg_id.out gen_srtm.out mergelogs
+all: find_free_msg_id.out mergelogs
 
-FP_CMO = fp_proc.cmo gen_flight_plan.cmo
-ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
-gen_flight_plan.out : $(FP_CMO) $(LIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
-
-gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
-
-%.out : %.ml gen_common.cmo $(LIBPPRZCMA)
+%.out : %.ml $(LIBPPRZCMA)
 	@echo OL $<
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gen_common.cmo $<
+	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
 %.cmo : %.ml
 	@echo OC $<
@@ -54,10 +46,11 @@ gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
 	$(Q)$(OCAMLC) $(INCLUDES) $(PKG) -c $<
 
 mergelogs: mergelogs.c
-	gcc mergelogs.c -o mergelogs
+	@echo LD $@
+	$(Q)$(CC) mergelogs.c -o mergelogs
 
 clean:
-	$(Q)rm -f *.cm* *.out *~ .depend fp_parser.ml fp_parser.mli mergelogs
+	$(Q)rm -f *.cm* *.out *~ .depend mergelogs
 
 .PHONY: all clean
 
@@ -66,7 +59,8 @@ clean:
 #
 
 .depend: Makefile
-	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml *.mli > .depend
+	@echo DEPEND $@
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml *.mli > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include "paparazzi.h"
+#include "led.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
@@ -232,6 +233,10 @@ void superbitrf_event(void) {
   static uint8_t packet_size, tx_packet[16];
   static bool_t start_transfer = TRUE;
 
+#ifdef RADIO_CONTROL_LED
+  static uint32_t slowLedCpt = 0;
+#endif
+
   // Check if the cyrf6936 isn't busy and the uperbitrf is initialized
   if(superbitrf.cyrf6936.status != CYRF6936_IDLE)
     return;
@@ -322,6 +327,16 @@ void superbitrf_event(void) {
 
   /* When the superbitrf is in binding mode */
   case SUPERBITRF_BINDING:
+
+#ifdef RADIO_CONTROL_LED
+    slowLedCpt++;
+    if(slowLedCpt>100000){
+
+      LED_TOGGLE(RADIO_CONTROL_LED);
+      slowLedCpt = 0;
+    }
+#endif
+
     /* Switch the different states */
     switch (superbitrf.state) {
     case 0:
@@ -396,6 +411,16 @@ void superbitrf_event(void) {
   /* When the receiver is synchronizing with the transmitter */
   case SUPERBITRF_SYNCING_A:
   case SUPERBITRF_SYNCING_B:
+
+#ifdef RADIO_CONTROL_LED
+    slowLedCpt++;
+    if(slowLedCpt>5000){
+
+      LED_TOGGLE(RADIO_CONTROL_LED);
+      slowLedCpt = 0;
+    }
+#endif
+
     /* Switch the different states */
     switch (superbitrf.state) {
     case 0:
@@ -499,6 +524,11 @@ void superbitrf_event(void) {
 
   /* Normal transfer mode */
   case SUPERBITRF_TRANSFER:
+
+#ifdef RADIO_CONTROL_LED
+    LED_ON(RADIO_CONTROL_LED);
+#endif
+
     /* Switch the different states */
     switch (superbitrf.state) {
     case 0:

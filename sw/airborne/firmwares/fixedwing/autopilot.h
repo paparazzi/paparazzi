@@ -117,14 +117,16 @@ extern void autopilot_send_mode(void);
  */
 extern bool_t power_switch;
 
-#ifdef POWER_SWITCH_LED
+#ifdef POWER_SWITCH_GPIO
+#include "mcu_periph/gpio.h"
 #define autopilot_SetPowerSwitch(_x) { \
   power_switch = _x; \
-  if (_x) LED_ON(POWER_SWITCH_LED) else LED_OFF(POWER_SWITCH_LED); \
+  if (_x) { gpio_set(POWER_SWITCH_GPIO); } \
+  else { gpio_clear(POWER_SWITCH_GPIO); } \
 }
-#else // POWER_SWITCH_LED
+#else // POWER_SWITCH_GPIO
 #define autopilot_SetPowerSwitch(_x) { power_switch = _x; }
-#endif // POWER_SWITCH_LED
+#endif // POWER_SWITCH_GPIO
 
 
 /* CONTROL_RATE will be removed in the next release

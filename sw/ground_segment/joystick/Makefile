@@ -25,11 +25,9 @@
 Q=@
 
 include ../../Makefile.ocaml
-TOOLSDIR = ../../tools
 
 CC = gcc
 
-OCAMLINCLUDES= -I $(TOOLSDIR)
 PKG = -package pprz,glibivy
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
 
@@ -72,9 +70,9 @@ test_stick: test_sdl_stick.o
 	@echo BUILD $@
 	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: $(TOOLSDIR)/fp_proc.cmo $(INPUT2IVY_DEPS)
+input2ivy: $(LIBPPRZCMA) $(INPUT2IVY_DEPS)
 	@echo OL $@
-	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -o $@ $(LINKPKG) $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
+	$(Q)$(OCAMLC) -o $@ $(LINKPKG) $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
 
 
 sdl_stick.so : $(SDL_STICK_DEPS)
@@ -87,7 +85,7 @@ sdl_stick.so : $(SDL_STICK_DEPS)
 
 %.cmo : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $(PKG) $<
+	$(Q)$(OCAMLC) -c $(PKG) $<
 
 clean:
 	$(Q)rm -f *~ core *.o *.bak .depend test*stick *.cmo *.cmi input2ivy
@@ -99,7 +97,8 @@ clean:
 #
 
 .depend: Makefile
-	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
+	@echo DEPEND $@
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

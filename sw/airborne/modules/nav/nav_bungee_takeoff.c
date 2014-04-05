@@ -208,7 +208,7 @@ bool_t nav_bungee_takeoff_run(void)
     nav_route_xy(initialx,initialy,throttlePx,throttlePy);
     kill_throttle = 0;
 
-    if((stateGetPositionEnu_f()->z > BungeeAlt+Takeoff_Height-10) && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed))
+    if((stateGetPositionUtm_f()->alt > BungeeAlt+Takeoff_Height-10) && ((*stateGetHorizontalSpeedNorm_f()) > Takeoff_Speed))
     {
       CTakeoffStatus = Finished;
       return FALSE;

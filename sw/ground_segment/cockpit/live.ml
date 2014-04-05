@@ -525,7 +525,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     let id = ExtXml.int_attrib block "no" in
     begin (* Is it a key short cut ? *)
       try
-        let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib block "key") in
+        let key, modifiers = GtkData.AccelGroup.parse (Pprz.key_modifiers_of_string (Xml.attrib block "key")) in
         keys := (key, (modifiers, id)) :: !keys
       with
           _ -> ()

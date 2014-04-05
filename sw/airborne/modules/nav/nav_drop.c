@@ -45,7 +45,6 @@
 #ifndef MASS
 #define MASS 3.31e-3
 #endif
-
 #define ALPHA_M (ALPHA / MASS)
 #define DT 0.1
 #define MAX_STEPS 100
@@ -101,7 +100,7 @@ static void integrate( uint8_t wp_target ) {
 /** Update the RELEASE location with the actual ground speed and altitude */
 unit_t nav_drop_update_release( uint8_t wp_target ) {
 
-  nav_drop_z = stateGetPositionEnu_f()->z - waypoints[wp_target].a;
+  nav_drop_z = stateGetPositionUtm_f()->alt - waypoints[wp_target].a;
   nav_drop_x = 0.;
   nav_drop_y = 0.;
 

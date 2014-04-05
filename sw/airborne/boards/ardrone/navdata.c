@@ -40,6 +40,7 @@
 #include "std.h"
 #include "navdata.h"
 #include "subsystems/ins.h"
+#include "subsystems/abi.h"
 
 #define NAVDATA_PACKET_SIZE 60
 #define NAVDATA_START_BYTE 0x3a
@@ -51,9 +52,20 @@ navdata_port nav_port;
 static int nav_fd = 0;
 measures_t navdata;
 
-#include "subsystems/sonar.h"
-uint16_t sonar_meas = 0;
+/** Sonar offset.
+ *  Offset value in ADC
+ *  equals to the ADC value so that height is zero
+ */
+#ifndef SONAR_OFFSET
+#define SONAR_OFFSET 880
+#endif
 
+/** Sonar scale.
+ *  Sensor sensitivity in m/adc (float)
+ */
+#ifndef SONAR_SCALE
+#define SONAR_SCALE 0.00047
+#endif
 
 // FIXME(ben): there must be a better home for these
 ssize_t full_write(int fd, const uint8_t *buf, size_t count)
@@ -469,8 +481,8 @@ void navdata_update()
         // Check if there is a new sonar measurement and update the sonar
         if (navdata.ultrasound >> 15)
         {
-          sonar_meas = (navdata.ultrasound & 0x7FFF);
-          ins_update_sonar();
+          float sonar_meas = (float)((navdata.ultrasound & 0x7FFF) - SONAR_OFFSET) * SONAR_SCALE;
+          AbiSendMsgAGL(AGL_SONAR_ARDRONE2_ID, &sonar_meas);
         }
 #endif
 

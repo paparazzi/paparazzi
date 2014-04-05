@@ -199,9 +199,10 @@
 
 
 
-/* Activate onboard baro */
-#define BOARD_HAS_BARO 1
-
+/* Activate onboard baro by default */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 
 /* Default actuators driver */

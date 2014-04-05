@@ -46,10 +46,15 @@
 #include "subsystems/radio_control.h"
 #endif
 
+#if defined GPS_DATALINK
+#include "subsystems/gps/gps_datalink.h"
+#endif
+
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "math/pprz_geodetic_int.h"
 #include "state.h"
+#include "led.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -134,6 +139,28 @@ void dl_parse_msg(void) {
         DL_RC_4CH_yaw(dl_buffer));
     break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
+#if defined GPS_DATALINK
+  case DL_REMOTE_GPS :
+    // Check if the GPS is for this AC
+    if (DL_REMOTE_GPS_ac_id(dl_buffer) != AC_ID) break;
+
+    // Parse the GPS
+    parse_gps_datalink(
+      DL_REMOTE_GPS_numsv(dl_buffer),
+      DL_REMOTE_GPS_ecef_x(dl_buffer),
+      DL_REMOTE_GPS_ecef_y(dl_buffer),
+      DL_REMOTE_GPS_ecef_z(dl_buffer),
+      DL_REMOTE_GPS_lat(dl_buffer),
+      DL_REMOTE_GPS_lon(dl_buffer),
+      DL_REMOTE_GPS_alt(dl_buffer),
+      DL_REMOTE_GPS_hmsl(dl_buffer),
+      DL_REMOTE_GPS_ecef_xd(dl_buffer),
+      DL_REMOTE_GPS_ecef_yd(dl_buffer),
+      DL_REMOTE_GPS_ecef_zd(dl_buffer),
+      DL_REMOTE_GPS_tow(dl_buffer),
+      DL_REMOTE_GPS_course(dl_buffer));
+    break;
+#endif
   default:
     break;
   }

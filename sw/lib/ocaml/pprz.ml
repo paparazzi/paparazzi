@@ -160,7 +160,7 @@ let rec string_of_value = function
   | Int64 x -> Int64.to_string x
   | Char c -> String.make 1 c
   | String s -> s
-  | Array a -> String.concat separator (Array.to_list (Array.map string_of_value a))
+  | Array a -> "|"^(String.concat separator (Array.to_list (Array.map string_of_value a)))^"|"
 
 
 let magic = fun x -> (Obj.magic x:('a,'b,'c) Pervasives.format)
@@ -241,6 +241,17 @@ let alt_unit_coef_of_xml = fun ?auto xml ->
     in
     coef
 
+let key_modifiers_of_string = fun key ->
+  let key_split = Str.split (Str.regexp "\\+") key in
+  let keys = List.map (fun k ->
+    match k with
+    | "Ctrl" -> "<Control>"
+    | "Alt" -> "<Alt>"
+    | "Shift" -> "<Shift>"
+    | "Meta" -> "<Meta>"
+    | x -> x
+  ) key_split in
+  String.concat "" keys
 
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->
@@ -650,8 +661,21 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 
 
   let space = Str.regexp "[ \t]+"
+  let array_sep = Str.regexp "|"
   let values_of_string = fun s ->
-    match Str.split space s with
+    (* split arguments and arrays *)
+    let array_split = Str.full_split array_sep s in
+    let rec loop = fun fields ->
+      match fields with
+      | [] -> []
+      | (Str.Delim "|")::((Str.Text l)::[Str.Delim "|"]) -> [l]
+      | (Str.Delim "|")::((Str.Text l)::((Str.Delim "|")::xs)) -> [l] @ (loop xs)
+      | [Str.Text x] -> Str.split space x
+      | (Str.Text x)::xs -> (Str.split space x) @ (loop xs)
+      | (Str.Delim _)::_ -> failwith "Pprz.values_of_string: incorrect array delimiter"
+    in
+    let msg_split = loop array_split in
+    match msg_split with
         msg_name::args ->
           begin
             try

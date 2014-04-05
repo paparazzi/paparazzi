@@ -274,8 +274,18 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
   (** Render the columns *)
   display_columns w#treeview_messages model;
 
+  (** Build list of message name *)
+  let msg_names = Hashtbl.create 30 in
+  List.iter (fun (_, name, _) -> if not (Hashtbl.mem msg_names name) then Hashtbl.add msg_names name ()) data;
   (** Fill the colums *)
   let xml_class = ExtXml.child ~select:(fun c -> ExtXml.attrib c "name" = class_name) xml "class" in
+  (** Filter xml message *)
+  let xml_class = Xml.Element (
+    class_name, [],
+    List.filter (fun xml ->
+      let name = Xml.attrib xml "name" in
+      Hashtbl.mem msg_names name) (Xml.children xml_class)
+      ) in
   let prefs = read_preferences () in
   fill_data w#treeview_messages model xml_class prefs;
 

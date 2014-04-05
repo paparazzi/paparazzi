@@ -105,7 +105,7 @@ bool_t nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSw
     break;
   case LTC2:
     nav_circle_XY(l2_c2.x, l2_c2.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && stateGetPositionEnu_f()->z >= (waypoints[l1].a-10)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2)+10) && stateGetPositionUtm_f()->alt >= (waypoints[l1].a-10)) {
       line_status = LQC22;
       nav_init_stage();
     }
@@ -134,7 +134,7 @@ bool_t nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSw
     break;
   case LTC1:
     nav_circle_XY(l1_c2.x, l1_c2.y, -radius);
-    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && stateGetPositionEnu_f()->z >= (waypoints[l1].a-5)) {
+    if (NavQdrCloseTo(DegOfRad(qdr_out_2_2 + M_PI)+10) && stateGetPositionUtm_f()->alt >= (waypoints[l1].a-5)) {
       line_status = LQC11;
       nav_init_stage();
     }

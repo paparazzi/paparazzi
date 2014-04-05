@@ -116,10 +116,10 @@ all: $(OBJS) $(OUTFILES) MAKE_ALL_RULE_HOOK
 
 MAKE_ALL_RULE_HOOK:
 
-$(OBJS): | $(BUILDDIR)
+$(OBJS): | $(OBJDIR)
 
 $(BUILDDIR) $(OBJDIR) $(LSTDIR):
-ifneq ($(USE_VERBOSE_COMPILE),yes)
+ifeq ($(USE_VERBOSE_COMPILE),yes)
 	@echo Compiler Options
 	@echo $(CC) -c $(CFLAGS) -I. $(IINCDIR) main.c -o main.o
 	@echo

@@ -1,44 +1,34 @@
 <!DOCTYPE module SYSTEM "./module.dtd">
 
-<!--
-
-// Use (parts of) the following section in airframe file to change
-
-# ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps"
-# ap.CFLAGS += -DDC_GPS_TRIGGER_START=1
-# ap.CFLAGS += -DDC_GPS_TRIGGER_STOP=3
-
--->
-
 <module name="digital_cam">
   <doc>
-    <description>Digital camera control (trigger using led)</description>
-    <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
-    <define name="SENSOR_SYNC_SEND" value="1" />
-
-    <define name="DC_PUSH" value="LED_ON" />
-    <define name="DC_RELEASE" value="LED_OFF" />
+    <description>Digital camera control (trigger using GPIO)</description>
+    <define name="DC_SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
+    <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12" description="mandatory, gpio to control shutter"/>
+    <define name="DC_ZOOM_IN_GPIO" value="GPIOC,GPIO2" description="optional, gpio to activate zoom in"/>
+    <define name="DC_ZOOM_OUT_GPIO" value="GPIOC,GPIO5" description="optional, gpio to activate zoom out"/>
+    <define name="DC_POWER_GPIO" value="GPIOB,GPIO1" description="optional, gpio to turn power on"/>
+    <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1" description="optional, gpio to turn power off"/>
+    <define name="DC_PUSH" value="gpio_set|gpio_clear" description="specifies whether to set or clear gpio to push the shutter (default: gpio_set)"/>
+    <define name="DC_RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
 
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>
 
   <header>
-    <file name="led_cam_ctrl.h"/>
+    <file name="gpio_cam_ctrl.h"/>
   </header>
 
-  <init fun="led_cam_ctrl_init()"/>
+  <init fun="gpio_cam_ctrl_init()"/>
 
-  <periodic fun="led_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
+  <periodic fun="gpio_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
   <makefile >
-
     <define name="DIGITAL_CAM" />
-    <file name="led_cam_ctrl.c"/>
+    <file name="gpio_cam_ctrl.c"/>
     <file name="dc.c"/>
-    <define name="SENSOR_SYNC_SEND" value="1" />
-
+    <define name="SENSOR_SYNC_SEND" value="1"/>
   </makefile>
-
 
 </module>

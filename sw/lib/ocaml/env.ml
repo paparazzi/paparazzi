@@ -51,7 +51,7 @@ let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 
 let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
 
-let dump_fp = paparazzi_src // "sw" // "tools" // "gen_flight_plan.out -dump"
+let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
 let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
@@ -80,6 +80,7 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
     try
       (* get full path file name *)
       let fp = prefix (ExtXml.attrib ac_conf a) in
+      if Sys.is_directory fp then raise Not_found;
       (* create a temporary dump file *)
       let dump = Filename.temp_file "fp_dump" ".xml" in
       (* set command then call it *)

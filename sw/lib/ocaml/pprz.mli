@@ -109,6 +109,12 @@ val alt_unit_coef_of_xml : ?auto:string -> Xml.xml -> string
 (** Return coef for alternate unit
  *)
 
+val key_modifiers_of_string : string -> string
+(** Convert key modifiers from Qt style (without '<' or '>', separated with '+')
+ *  to GTK style.
+ *  Supported modifiers are Alt, Ctrl, Shift and Meta
+ *)
+
 exception Unknown_msg_name of string * string
 (** [Unknown_msg_name (name, class_name)] Raised if message [name] is not
 found in class [class_name]. *)

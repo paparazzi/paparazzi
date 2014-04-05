@@ -4,7 +4,7 @@ Paparazzi UAS
 Paparazzi is an attempt to develop a free software Unmanned (Air) Vehicle System.
  As of today the system is being used successfuly by a number of hobyists, universities and companies all over the world, on vehicle of various size ( 100g to 25Kg ) and of various nature ( fixed wing, rotorcrafts, boats and surface vehicles).
 
-Up to date information is available in the wiki http://paparazzi.enac.fr
+Up to date information is available in the wiki http://wiki.paparazziuav.org
 
 and from the mailing list [paparazzi-devel@nongnu.org] (http://savannah.nongnu.org/mail/?group=paparazzi)
 and the IRC channel (freenode, #paparazzi).
@@ -13,10 +13,10 @@ and the IRC channel (freenode, #paparazzi).
 Required Software
 -----------------
 
-Installation is described in the wiki (http://paparazzi.enac.fr/wiki/Installation).
+Installation is described in the wiki (http://wiki.paparazziuav.org/wiki/Installation).
 
 For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
-Debian users can use http://paparazzi.enac.fr/debian
+Debian users can use the [OpenSUSE Build Service repository] (http://download.opensuse.org/repositories/home:/flixr:/paparazzi-uav/Debian_7.0/)
 
 Debian/Ubuntu packages:
 - **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.

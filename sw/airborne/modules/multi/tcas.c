@@ -86,7 +86,7 @@ void tcas_init( void ) {
 
 static inline enum tcas_resolve tcas_test_direction(uint8_t id) {
   struct ac_info_ * ac = get_ac_info(id);
-  float dz = ac->alt - stateGetPositionEnu_f()->z;
+  float dz = ac->alt - stateGetPositionUtm_f()->alt;
   if (dz > tcas_alim/2) return RA_DESCEND;
   else if (dz < -tcas_alim/2) return RA_CLIMB;
   else // AC with the smallest ID descend
@@ -100,7 +100,7 @@ static inline enum tcas_resolve tcas_test_direction(uint8_t id) {
 /* conflicts detection and monitoring */
 void tcas_periodic_task_1Hz( void ) {
   // no TCAS under security_height
-  if (stateGetPositionEnu_f()->z < GROUND_ALT + SECURITY_HEIGHT) {
+  if (stateGetPositionUtm_f()->alt < GROUND_ALT + SECURITY_HEIGHT) {
     uint8_t i;
     for (i = 0; i < NB_ACS; i++) tcas_acs_status[i].status = TCAS_NO_ALARM;
     return;
@@ -121,7 +121,7 @@ void tcas_periodic_task_1Hz( void ) {
     if (dt > TCAS_DT_MAX) continue; // lost com but keep current status
     float dx = the_acs[i].east - stateGetPositionEnu_f()->x;
     float dy = the_acs[i].north - stateGetPositionEnu_f()->y;
-    float dz = the_acs[i].alt - stateGetPositionEnu_f()->z;
+    float dz = the_acs[i].alt - stateGetPositionUtm_f()->alt;
     float dvx = vx - the_acs[i].gspeed * sinf(the_acs[i].course);
     float dvy = vy - the_acs[i].gspeed * cosf(the_acs[i].course);
     float dvz = stateGetSpeedEnu_f()->z - the_acs[i].climb;
@@ -217,7 +217,7 @@ void tcas_periodic_task_1Hz( void ) {
 /* altitude control loop */
 void tcas_periodic_task_4Hz( void ) {
   // set alt setpoint
-  if (stateGetPositionEnu_f()->z > GROUND_ALT + SECURITY_HEIGHT && tcas_status == TCAS_RA) {
+  if (stateGetPositionUtm_f()->alt > GROUND_ALT + SECURITY_HEIGHT && tcas_status == TCAS_RA) {
     struct ac_info_ * ac = get_ac_info(tcas_ac_RA);
     switch (tcas_resolve) {
       case RA_CLIMB :

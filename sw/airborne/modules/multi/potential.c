@@ -77,7 +77,7 @@ int potential_task(void) {
       if (de > FORCE_MAX_DIST || de < -FORCE_MAX_DIST) continue;
       float dn = ac->north + cha*delta_t - stateGetPositionEnu_f()->y;
       if (dn > FORCE_MAX_DIST || dn < -FORCE_MAX_DIST) continue;
-      float da = ac->alt + ac->climb*delta_t - stateGetPositionEnu_f()->z;
+      float da = ac->alt + ac->climb*delta_t - stateGetPositionUtm_f()->alt;
       if (da > FORCE_MAX_DIST || da < -FORCE_MAX_DIST) continue;
       float dist = sqrtf(de*de + dn*dn + da*da);
       if (dist == 0.) continue;

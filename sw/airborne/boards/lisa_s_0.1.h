@@ -90,7 +90,10 @@
 #define DefaultVoltageOfAdc(adc) (0.0045*adc)
 
 
-#define BOARD_HAS_BARO 1
+/* by default activate onboard baro */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 /* SPI slave mapping */
 
@@ -290,8 +293,18 @@
 
 #define USE_PWM3 1
 #define USE_PWM4 1
-#define USE_PWM5 1
-#define USE_PWM6 1
+
+//TODO : test that part
+//TODO : merge the USE_SERVOS_1AND2 and DUAL_PWM_ON
+#if DUAL_PWM_ON
+  #define DUAL_PWM_USE_TIM5 1
+
+  #define USE_DUAL_PWM5 1
+  #define USE_DUAL_PWM6 1
+#else
+  #define USE_PWM5 1
+  #define USE_PWM6 1
+#endif
 
 // Servo numbering on LisaM silkscreen/docs starts with 1
 
@@ -352,30 +365,55 @@
 #endif
 
 #if USE_PWM5
-#define PWM_SERVO_5 2
-#define PWM_SERVO_5_TIMER TIM5
-#define PWM_SERVO_5_RCC RCC_GPIOA
-#define PWM_SERVO_5_GPIO GPIOA
-#define PWM_SERVO_5_PIN GPIO0
-#define PWM_SERVO_5_AF 0
-#define PWM_SERVO_5_OC TIM_OC1
-#define PWM_SERVO_5_OC_BIT (1<<0)
+  #define PWM_SERVO_5 2
+  #define PWM_SERVO_5_TIMER TIM5
+  #define PWM_SERVO_5_RCC RCC_GPIOA
+  #define PWM_SERVO_5_GPIO GPIOA
+  #define PWM_SERVO_5_PIN GPIO0
+  #define PWM_SERVO_5_AF 0
+  #define PWM_SERVO_5_OC TIM_OC1
+  #define PWM_SERVO_5_OC_BIT (1<<0)
+#elif USE_DUAL_PWM5
+  #define DUAL_PWM_SERVO_5 2
+
+  #define FIRST_DUAL_PWM_SERVO DUAL_PWM_SERVO_5
+
+  #define DUAL_PWM_SERVO_5_TIMER TIM5
+  #define DUAL_PWM_SERVO_5_RCC RCC_GPIOA
+  #define DUAL_PWM_SERVO_5_GPIO GPIOA
+  #define DUAL_PWM_SERVO_5_PIN GPIO0
+  #define DUAL_PWM_SERVO_5_AF 0
+  #define DUAL_PWM_SERVO_5_OC TIM_OC1
+  #define PWM_SERVO_5_OC_BIT (1<<0)
 #else
-#define PWM_SERVO_5_OC_BIT 0
+  #define PWM_SERVO_5_OC_BIT 0
 #endif
 
 #if USE_PWM6
-#define PWM_SERVO_6 3
-#define PWM_SERVO_6_TIMER TIM5
-#define PWM_SERVO_6_RCC RCC_GPIOA
-#define PWM_SERVO_6_GPIO GPIOA
-#define PWM_SERVO_6_PIN GPIO1
-#define PWM_SERVO_6_AF 0
-#define PWM_SERVO_6_OC TIM_OC2
-#define PWM_SERVO_6_OC_BIT (1<<1)
+  #define PWM_SERVO_6 3
+  #define PWM_SERVO_6_TIMER TIM5
+  #define PWM_SERVO_6_RCC RCC_GPIOA
+  #define PWM_SERVO_6_GPIO GPIOA
+  #define PWM_SERVO_6_PIN GPIO1
+  #define PWM_SERVO_6_AF 0
+  #define PWM_SERVO_6_OC TIM_OC2
+  #define PWM_SERVO_6_OC_BIT (1<<1)
+#elif USE_DUAL_PWM6
+  #define DUAL_PWM_SERVO_6 3
+
+  #define SECOND_DUAL_PWM_SERVO DUAL_PWM_SERVO_6
+
+  #define DUAL_PWM_SERVO_6_TIMER TIM5
+  #define DUAL_PWM_SERVO_6_RCC RCC_GPIOA
+  #define DUAL_PWM_SERVO_6_GPIO GPIOA
+  #define DUAL_PWM_SERVO_6_PIN GPIO1
+  #define DUAL_PWM_SERVO_6_AF 0
+  #define DUAL_PWM_SERVO_6_OC TIM_OC2
+  #define PWM_SERVO_6_OC_BIT (1<<1)
 #else
-#define PWM_SERVO_6_OC_BIT 0
+  #define PWM_SERVO_6_OC_BIT 0
 #endif
+
 
 /* servos 1-4 or 3-4 on TIM4 depending on USE_SERVOS_1AND2 */
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_1_OC_BIT|PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT|PWM_SERVO_4_OC_BIT)

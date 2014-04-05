@@ -25,6 +25,7 @@ Q=@
 
 CC = gcc
 
+PAPARAZZI_SRC=../../..
 UNAME = $(shell uname -s)
 
 ifeq ("$(UNAME)","Darwin")
@@ -34,17 +35,23 @@ else
   LIBRARYS = -s
 endif
 
+# Optitrack specific librarys and includes
+NATNET_LIBRARYS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
+INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/
 
-all: davis2ivy kestrel2ivy
+all: davis2ivy kestrel2ivy natnet2ivy
 
 clean:
-	$(Q)rm -f *.o davis2ivy kestrel2ivy
+	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy
 
 davis2ivy: davis2ivy.o
 	$(Q)$(CC) -o davis2ivy davis2ivy.o  $(LIBRARYS)  -livy
 
 kestrel2ivy: kestrel2ivy.o
 	$(Q)$(CC) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) -livy
+
+natnet2ivy: natnet2ivy.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.o $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.o
+	$(Q)$(CC) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) -livy
 
 %.o : %.c
 	$(Q)$(CC) -c -O2 -Wall $(INCLUDES) $<

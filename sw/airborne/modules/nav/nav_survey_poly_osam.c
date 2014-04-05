@@ -302,7 +302,7 @@ bool_t nav_survey_poly_osam_run(void)
     //follow the circle
     nav_circle_XY(C.x, C.y, SurveyRadius);
 
-    if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCountNoRewind() > .1 && stateGetPositionEnu_f()->z > waypoints[SurveyEntryWP].a-10)
+    if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCountNoRewind() > .1 && stateGetPositionUtm_f()->alt > waypoints[SurveyEntryWP].a-10)
     {
       CSurveyStatus = Sweep;
       nav_init_stage();

@@ -32,7 +32,7 @@
 #include "subsystems/datalink/downlink.h"
 #include <stdio.h>
 
-#if DEBUG_GPS_UBX_UCENTER
+#if PRINT_DEBUG_GPS_UBX_UCENTER
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) {}
@@ -102,7 +102,7 @@ void gps_ubx_ucenter_periodic(void)
     {
       gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
       gps_ubx_ucenter.cnt = 0;
-#if DEBUG_GPS_UBX_UCENTER
+#if PRINT_DEBUG_GPS_UBX_UCENTER
       if (gps_ubx_ucenter.baud_init > 0) {
         DEBUG_PRINT("Initial ublox baudrate found: %u\n", gps_ubx_ucenter.baud_init);
       }
@@ -442,7 +442,7 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     gps_ubx_ucenter_config_port();
     break;
   case 1:
-#if DEBUG_GPS_UBX_UCENTER
+#if PRINT_DEBUG_GPS_UBX_UCENTER
     if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_ACK) {
       DEBUG_PRINT("ublox did not acknowledge port configuration.\n");
     }

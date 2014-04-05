@@ -67,7 +67,8 @@ bool_t nav_spiral_start(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   struct EnuCoor_f pos_enu;
   memcpy(&pos_enu, stateGetPositionEnu_f(), sizeof(struct EnuCoor_f));
 
-  VECT3_DIFF(nav_spiral.trans_current, pos_enu, nav_spiral.center);
+  VECT2_DIFF(nav_spiral.trans_current, pos_enu, nav_spiral.center);
+  nav_spiral.trans_current.z = stateGetPositionUtm_f()->alt - nav_spiral.center.z;
 
   nav_spiral.dist_from_center = FLOAT_VECT3_NORM(nav_spiral.trans_current);
 
@@ -147,7 +148,7 @@ bool_t nav_spiral_run(void)
 #ifdef DIGITAL_CAM
         if (dc_cam_tracing) {
           // calculating Cam angle for camera alignment
-          nav_spiral.trans_current.z = pos_enu.z - nav_spiral.center.z;
+          nav_spiral.trans_current.z = stateGetPositionUtm_f()->alt - nav_spiral.center.z;
           dc_cam_angle = atan(nav_spiral.radius_start/nav_spiral.trans_current.z) * 180  / M_PI;
         }
 #endif

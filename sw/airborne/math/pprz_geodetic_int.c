@@ -22,7 +22,6 @@
 #include "pprz_geodetic_int.h"
 #include "pprz_algebra_int.h"
 
-#define HIGH_RES_TRIG_FRAC  20
 
 void ltp_of_ecef_rmat_from_lla_i(struct Int32Mat33* ltp_of_ecef, struct LlaCoor_i* lla) {
 

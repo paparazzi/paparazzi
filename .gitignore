@@ -94,6 +94,7 @@
 /sw/ground_segment/tmtc/diadec
 /sw/ground_segment/tmtc/ivy_serial_bridge
 /sw/ground_segment/tmtc/GSM/SMS_GS
+/sw/ground_segment/tmtc/app_server
 /sw/ground_segment/tmtc/gpsd2ivy
 
 # /sw/ground_segment/joystick
@@ -140,13 +141,13 @@
 /sw/supervision/gtk_pc.ml
 
 # /sw/tools/
-/sw/tools/fp_parser.ml
 /sw/tools/wiki_gen/wiki_gen
 /sw/tools/mergelogs
 
 # /sw/ground_segment/misc
 /sw/ground_segment/misc/davis2ivy
 /sw/ground_segment/misc/kestrel2ivy
+/sw/ground_segment/misc/natnet2ivy
 
 
 # /sw/airborne/arch/lpc21/test/bootloader

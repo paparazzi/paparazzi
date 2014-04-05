@@ -32,23 +32,23 @@ XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib
 
 all: play plotter plot sd2log plotprofile openlog2tlm
 
-play : log_file.cmo play_core.cmo play.cmo
+play : log_file.cmo play_core.cmo play.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 
-play-nox : play_core.cmo play-nox.cmo
+play-nox : play_core.cmo play-nox.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
-plotter : plotter.cmo
+plotter : plotter.cmo $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
+plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo $(LIBPPRZCMA) $(XLIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-sd2log : sd2log.cmo
+sd2log : sd2log.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
@@ -200,7 +200,8 @@ clean:
 #
 
 .depend: Makefile
-	$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
+	@echo DEPEND $@
+	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

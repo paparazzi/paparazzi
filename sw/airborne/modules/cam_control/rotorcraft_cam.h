@@ -40,11 +40,11 @@
 #ifndef ROTORCRAFT_CAM_H
 #define ROTORCRAFT_CAM_H
 
+#include "std.h"
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 #include "math/pprz_algebra_int.h"
-#include "std.h"
-#include "led.h"
+#include "mcu_periph/gpio.h"
 
 #define ROTORCRAFT_CAM_MODE_NONE     0
 #define ROTORCRAFT_CAM_MODE_MANUAL   1
@@ -54,27 +54,6 @@
 /** Default mode is NONE. */
 #ifndef ROTORCRAFT_CAM_DEFAULT_MODE
 #define ROTORCRAFT_CAM_DEFAULT_MODE ROTORCRAFT_CAM_MODE_NONE
-#endif
-
-/** Cam power control.
- * By default CAM_SWITCH is used
- * Warning:
- *  LED_ON set GPIO low on some boards (lpc)
- *  LED_OFF set GPIO high on some boards (lpc)
- */
-#ifndef ROTORCRAFT_CAM_ON
-#ifdef CAM_SWITCH_LED
-#define ROTORCRAFT_CAM_ON LED_OFF(CAM_SWITCH_LED)
-#else
-#define ROTORCRAFT_CAM_ON {}
-#endif
-#endif
-#ifndef ROTORCRAFT_CAM_OFF
-#ifdef CAM_SWITCH_LED
-#define ROTORCRAFT_CAM_OFF LED_ON(CAM_SWITCH_LED)
-#else
-#define ROTORCRAFT_CAM_OFF {}
-#endif
 #endif
 
 /** Cam tilt control.
@@ -118,14 +97,13 @@ extern int16_t rotorcraft_cam_tilt_pwm;
 
 extern void rotorcraft_cam_init(void);
 extern void rotorcraft_cam_periodic(void);
+extern void rotorcraft_cam_set_mode(uint8_t mode);
 
 /** Set camera mode.
  * Camera is powered down in NONE mode if CAM_{ON|OFF} are defined
  */
 #define rotorcraft_cam_SetCamMode(_v) { \
-  rotorcraft_cam_mode = _v; \
-  if (rotorcraft_cam_mode == ROTORCRAFT_CAM_MODE_NONE) { ROTORCRAFT_CAM_OFF; } \
-  else { ROTORCRAFT_CAM_ON; } \
+    rotorcraft_cam_set_mode(_v);        \
 }
 
 /** Cam control from datalink message.

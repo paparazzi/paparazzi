@@ -3,8 +3,9 @@
   <modules main_freq="512">
     <load name="servo_switch.xml"/>
     <load name="rotorcraft_cam.xml"/>
-    <load name="sonar_adc_ins.xml">
+    <load name="sonar_adc.xml">
       <configure name="ADC_SONAR" value="ADC_0"/>
+      <define name="USE_SONAR"/>
       <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
     </load>
     <!--load name="baro_mpl3115.xml">
@@ -24,6 +25,7 @@
   </modules>
 
   <firmware name="rotorcraft">
+    <define name="DEBUG_VFF_EXTENDED"/>
     <define name="USE_INS_NAV_INIT"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
@@ -177,11 +179,14 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
-    <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
     <define name="SONAR_MAX_RANGE" value="5.0"/>
     <define name="SONAR_MIN_RANGE" value="0.25"/>
     <!--define name="SONAR_VARIANCE_THRESHOLD" value="0.01"/-->
+  </section>
+
+  <section name="SONAR">
+    <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
+    <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -228,8 +233,7 @@
   </section>
 
   <section name="CAM" prefix="ROTORCRAFT_CAM_">
-    <define name="ON" value="LED_ON(CAM_SWITCH_LED)"/>
-    <define name="OFF" value="LED_OFF(CAM_SWITCH_LED)"/>
+    <define name="SWITCH_GPIO" value="CAM_SWITCH_GPIO"/>
     <define name="TILT_SERVO" value="CAM"/>
     <define name="TILT_ANGLE_MAX" value="-90." unit="deg"/>
     <define name="TILT_ANGLE_MIN" value=" 10." unit="deg"/>

@@ -41,13 +41,7 @@
 #define LED_3_BANK 1
 #define LED_3_PIN 23
 
-#ifndef USE_LED_4
-#define USE_LED_4 1
-#endif
-#define LED_4_BANK 1
-#define LED_4_PIN 18
-
-#define POWER_SWITCH_LED 4
+#define POWER_SWITCH_GPIO GPIOB,GPIO18
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_4017.h"

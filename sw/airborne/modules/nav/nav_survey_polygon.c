@@ -240,7 +240,7 @@ bool_t nav_survey_polygon_run(void)
     nav_circle_XY(survey.entry_center.x, survey.entry_center.y, -survey.psa_min_rad);
     if (NavCourseCloseTo(survey.segment_angle)
         && nav_approaching_xy(survey.seg_start.x, survey.seg_start.y, last_x, last_y, CARROT)
-        && fabs(stateGetPositionEnu_f()->z - survey.psa_altitude) <= 20) {
+        && fabs(stateGetPositionUtm_f()->alt - survey.psa_altitude) <= 20) {
       survey.stage = SEG;
       nav_init_stage();
 #ifdef DIGITAL_CAM

@@ -1498,8 +1498,7 @@
   </message>
 
   <message name="INS_SONAR" id="167">
-    <field name="raw" type="int32" unit="adc" alt_unit="m" alt_unit_coef="0.0039063"/>
-    <field name="scaled" type="float" unit="m"/>
+    <field name="distance" type="float" unit="m"/>
     <field name="var" type="float"/>
   </message>
 
@@ -1889,7 +1888,27 @@
     <field name="ref_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
   </message>
 
- <!--214 is free -->
+  <message name="MF_DAQ_STATE" id="214">
+    <field name="flight_time" type="uint16" unit="s"/>
+    <field name="p"           type="float"/>
+    <field name="q"           type="float"/>
+    <field name="r"           type="float"/>
+    <field name="phi"         type="float"/>
+    <field name="theta"       type="float"/>
+    <field name="psi"         type="float"/>
+    <field name="ax"          type="float"/>
+    <field name="ay"          type="float"/>
+    <field name="az"          type="float"/>
+    <field name="ve"          type="float"/>
+    <field name="vn"          type="float"/>
+    <field name="vu"          type="float"/>
+    <field name="lat"         type="float"/>
+    <field name="lon"         type="float"/>
+    <field name="alt"         type="float"/>
+    <field name="we"          type="float"/>
+    <field name="wn"          type="float"/>
+  </message>
+
  <!--215 is free -->
  <!--216 is free -->
  <!--217 is free -->
@@ -1947,7 +1966,7 @@
 
   <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
-    <field name="blmc_nb_err"  type="uint8"/>
+    <field name="motor_nb_err"  type="uint8"/>
     <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="frame_rate"   type="uint8" unit="Hz"/>
     <field name="gps_status"   type="uint8" values="NO_FIX|NA|NA|3Dfix"/>
@@ -2430,35 +2449,21 @@
     <field name="yaw"         type="int8"/>
   </message>
 
-  <message name="MF_DAQ" id="53" link="forwarded">
-    <field name="pad"       type="uint16"/>
-    <field name="timestamp" type="float"/>
-    <field name="pressure"  type="float"/>
-    <field name="temp"      type="float"/>
-    <field name="humidity"  type="float"/>
-    <field name="Pdiff"     type="float"/>
-    <field name="Thw"       type="float"/>
-  </message>
-
-  <message name="MF_DAQ_STATE" id="54" link="forwarded">
-    <field name="flight_time" type="uint16" unit="s"/>
-    <field name="p"           type="float"/>
-    <field name="q"           type="float"/>
-    <field name="r"           type="float"/>
-    <field name="phi"         type="float"/>
-    <field name="theta"       type="float"/>
-    <field name="psi"         type="float"/>
-    <field name="ax"          type="float"/>
-    <field name="ay"          type="float"/>
-    <field name="az"          type="float"/>
-    <field name="ve"          type="float"/>
-    <field name="vn"          type="float"/>
-    <field name="vu"          type="float"/>
-    <field name="lat"         type="float"/>
-    <field name="lon"         type="float"/>
-    <field name="alt"         type="float"/>
-    <field name="we"          type="float"/>
-    <field name="wn"          type="float"/>
+  <message name="REMOTE_GPS" id="55" link="broadcasted">
+    <field name="ac_id"   type="uint8"/>
+    <field name="numsv"   type="uint8"/>
+    <field name="ecef_x"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_y"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="ecef_z"  type="int32" unit="cm"   alt_unit="m"/>
+    <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="alt"     type="int32" unit="mm"   alt_unit="m"/>
+    <field name="hmsl"    type="int32" unit="mm"   alt_unit="m"/>
+    <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_yd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="ecef_zd" type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="tow"     type="uint32"/>
+    <field name="course"  type="int32"  alt_unit="deg" alt_unit_coef="0.0000057296"/>
   </message>
 
   <message name="KITE_COMMAND" id="96">

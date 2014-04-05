@@ -33,8 +33,9 @@
  *  - HEADING: the servo position and the heading of the rotorcraft are set with angles
  *  - WP: the camera is tracking a waypoint (Default: CAM)
  *
- * The CAM_SWITCH can be used to power the camera in normal modes
- * and disable it when in NONE mode
+ * If ROTORCRAFT_CAM_SWITCH_GPIO is defined, this gpio is set/cleared to switch the power
+ * of the camera on in normal modes and disable it when in NONE mode.
+ * On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWITCH_GPIO.
  */
 
 #include "modules/cam_control/rotorcraft_cam.h"
@@ -45,6 +46,25 @@
 #include "std.h"
 
 #include "subsystems/datalink/telemetry.h"
+
+
+/** Gpio output to turn camera power power on.
+ * Control whether to set or clear the ROTORCRAFT_CAM_SWITCH_GPIO to turn on the camera power.
+ * Should be defined to either gpio_set (default) or gpio_clear.
+ * Not used if ROTORCRAFT_CAM_SWITCH_GPIO is not defined.
+ */
+#ifndef ROTORCRAFT_CAM_ON
+#define ROTORCRAFT_CAM_ON gpio_set
+#endif
+
+/** Gpio output to turn camera power power off.
+ * Control whether to set or clear the ROTORCRAFT_CAM_SWITCH_GPIO to turn off the camera power.
+ * Should be defined to either gpio_set or gpio_clear (default).
+ * Not used if ROTORCRAFT_CAM_SWITCH_GPIO is not defined.
+ */
+#ifndef ROTORCRAFT_CAM_OFF
+#define ROTORCRAFT_CAM_OFF gpio_clear
+#endif
 
 uint8_t rotorcraft_cam_mode;
 
@@ -73,7 +93,22 @@ static void send_cam(void) {
       &rotorcraft_cam_tilt,&rotorcraft_cam_pan);
 }
 
+void rotorcraft_cam_set_mode(uint8_t mode) {
+  rotorcraft_cam_mode = mode;
+#ifdef ROTORCRAFT_CAM_SWITCH_GPIO
+  if (rotorcraft_cam_mode == ROTORCRAFT_CAM_MODE_NONE) {
+    ROTORCRAFT_CAM_OFF(ROTORCRAFT_CAM_SWITCH_GPIO);
+  }
+  else {
+    ROTORCRAFT_CAM_ON(ROTORCRAFT_CAM_SWITCH_GPIO);
+  }
+#endif
+}
+
 void rotorcraft_cam_init(void) {
+#ifdef ROTORCRAFT_CAM_SWITCH_GPIO
+  gpio_setup_output(ROTORCRAFT_CAM_SWITCH_GPIO);
+#endif
   rotorcraft_cam_SetCamMode(ROTORCRAFT_CAM_DEFAULT_MODE);
 #if ROTORCRAFT_CAM_USE_TILT
   rotorcraft_cam_tilt_pwm = ROTORCRAFT_CAM_TILT_NEUTRAL;
@@ -137,4 +172,3 @@ void rotorcraft_cam_periodic(void) {
   ActuatorSet(ROTORCRAFT_CAM_TILT_SERVO, rotorcraft_cam_tilt_pwm);
 #endif
 }
-

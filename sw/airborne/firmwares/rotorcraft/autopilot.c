@@ -39,7 +39,10 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "led.h"
+
+#ifdef POWER_SWITCH_GPIO
+#include "mcu_periph/gpio.h"
+#endif
 
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
@@ -116,9 +119,9 @@ static void send_alive(void) {
 static void send_status(void) {
   uint32_t imu_nb_err = 0;
 #if USE_MOTOR_MIXING
-  uint8_t _blmc_nb_err = motor_mixing.nb_failure;
+  uint8_t _motor_nb_err = motor_mixing.nb_saturation + motor_mixing.nb_failure * 10;
 #else
-  uint8_t _blmc_nb_err = 0;
+  uint8_t _motor_nb_err = 0;
 #endif
 #if USE_GPS
   uint8_t fix = gps.fix;
@@ -127,7 +130,7 @@ static void send_status(void) {
 #endif
   uint16_t time_sec = sys_time.nb_sec;
   DOWNLINK_SEND_ROTORCRAFT_STATUS(DefaultChannel, DefaultDevice,
-      &imu_nb_err, &_blmc_nb_err,
+      &imu_nb_err, &_motor_nb_err,
       &radio_control.status, &radio_control.frame_rate,
       &fix, &autopilot_mode,
       &autopilot_in_flight, &autopilot_motors_on,
@@ -217,8 +220,9 @@ void autopilot_init(void) {
   autopilot_flight_time = 0;
   autopilot_rc = TRUE;
   autopilot_power_switch = FALSE;
-#ifdef POWER_SWITCH_LED
-  LED_ON(POWER_SWITCH_LED); // POWER OFF
+#ifdef POWER_SWITCH_GPIO
+  gpio_setup_output(POWER_SWITCH_GPIO);
+  gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
 #endif
 
   autopilot_arming_init();

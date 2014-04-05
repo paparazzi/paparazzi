@@ -201,7 +201,7 @@ let send_dl_values = fun a ->
     for i = 0 to a.nb_dl_setting_values - 1 do
       csv := sprintf "%s%f," !csv a.dl_setting_values.(i)
     done;
-    let vs = ["ac_id", Pprz.String a.id; "values", Pprz.String !csv] in
+    let vs = ["ac_id", Pprz.String a.id; "values", Pprz.String ("|"^ !csv ^"|")] in
     Ground_Pprz.message_send my_id "DL_VALUES" vs
 
 let send_svsinfo = fun a ->
@@ -223,7 +223,7 @@ let send_svsinfo = fun a ->
     concat azim a.svinfo.(i).azim;
     concat age a.svinfo.(i).age
   done;
-  let f = fun s r -> (s, Pprz.String !r) in
+  let f = fun s r -> (s, Pprz.String ("|"^ !r ^"|")) in
   let vs = ["ac_id", Pprz.String a.id;
             "pacc", Pprz.Int a.gps_Pacc;
             f "svid" svid; f "flags" flags; f "qi" qi;  f "msg_age" age;

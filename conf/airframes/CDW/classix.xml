@@ -180,10 +180,6 @@
     <target name="ap" board="classix">
       <configure name="SYS_TIME_LED" value="2"/>
 
-      <define name="USE_LED_6" value="1"/>
-      <define name="LED_6_BANK" value="0"/>
-      <define name="LED_6_PIN" value="15"/>
-
       <define name="USE_AD0"/>
       <define name="USE_AD0_3"/>
       <define name="ADC_6" value="AdcBank0\(3\)"/>
@@ -230,7 +226,7 @@
 
   <modules>
     <load name="digital_cam.xml">
-      <define name="DC_SHUTTER_LED" value="6"/>
+      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO15"/>
    </load>
    <load name="adc_generic.xml">
       <define name="ADC_CHANNEL_GENERIC_NB_SAMPLES" value="32"/>

@@ -75,7 +75,7 @@
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
-    <block group="home" key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block group="home" key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
   </blocks>
