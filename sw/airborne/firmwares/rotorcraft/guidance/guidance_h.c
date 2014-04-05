@@ -267,15 +267,17 @@ void guidance_h_read_rc(bool_t  in_flight) {
       stabilization_rate_read_rc();
 #endif
       break;
-
-    case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_CARE_FREE:
-    case GUIDANCE_H_MODE_ATTITUDE:
-      stabilization_attitude_read_rc(in_flight);
+      stabilization_attitude_read_rc(in_flight, TRUE, FALSE);
       break;
-
+    case GUIDANCE_H_MODE_FORWARD:
+      stabilization_attitude_read_rc(in_flight, FALSE, TRUE);
+      break;
+    case GUIDANCE_H_MODE_ATTITUDE:
+      stabilization_attitude_read_rc(in_flight, FALSE, FALSE);
+      break;
     case GUIDANCE_H_MODE_HOVER:
-      stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+      stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight, FALSE, FALSE);
 #if GUIDANCE_H_USE_SPEED_REF
       read_rc_setpoint_speed_i(&guidance_h_speed_sp, in_flight);
 #endif
@@ -283,7 +285,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
     case GUIDANCE_H_MODE_NAV:
       if (radio_control.status == RC_OK) {
-        stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
+        stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight, FALSE, FALSE);
       }
       else {
         INT_EULERS_ZERO(guidance_h_rc_sp);
