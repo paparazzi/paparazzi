@@ -274,7 +274,7 @@ void ins_update_gps(void) {
     ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_impl.ltp_def, &gps.ecef_vel);
 
 #if INS_USE_GPS_ALT
-    vff_update_alt_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
+    vff_update_z_conf((float)gps_pos_cm_ned.z / 100.0, INS_VFF_R_GPS);
 #endif
 
 #if USE_HFF
@@ -355,7 +355,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 #endif
       && ins_impl.update_on_agl
       && ins_impl.baro_initialized) {
-    vff_update_alt_conf(-(*distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(*distance));
+    vff_update_z_conf(-(*distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(*distance));
     last_offset = vff.offset;
   }
   else {

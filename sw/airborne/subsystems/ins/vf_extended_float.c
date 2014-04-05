@@ -278,11 +278,11 @@ static void update_alt_conf(float z_meas, float conf) {
   vff.P[3][3] -= K3 * P3;
 }
 
-void vff_update_alt(float z_meas) {
+void vff_update_z(float z_meas) {
   update_alt_conf(z_meas, R_ALT);
 }
 
-void vff_update_alt_conf(float z_meas, float conf) {
+void vff_update_z_conf(float z_meas, float conf) {
   update_alt_conf(z_meas, conf);
 }
 

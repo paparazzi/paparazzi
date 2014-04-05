@@ -52,10 +52,10 @@ extern void vff_init_zero(void);
 extern void vff_init(float z, float zdot, float accel_bias, float baro_offset);
 extern void vff_propagate(float accel);
 extern void vff_update_baro(float z_meas);
-extern void vff_update_alt(float z_meas);
+extern void vff_update_z(float z_meas);
 extern void vff_update_offset(float offset);
 extern void vff_update_baro_conf(float z_meas, float conf);
-extern void vff_update_alt_conf(float z_meas, float conf);
+extern void vff_update_z_conf(float z_meas, float conf);
 //extern void vff_update_vz_conf(float vz_meas, float conf);
 extern void vff_realign(float z_meas);
 
