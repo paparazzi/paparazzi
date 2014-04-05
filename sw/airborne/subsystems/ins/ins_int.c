@@ -239,21 +239,24 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
     ins_impl.qfe = *pressure;
     ins_impl.baro_initialized = TRUE;
   }
-  if (ins_impl.vf_reset && ins_impl.baro_initialized) {
-    ins_impl.vf_reset = FALSE;
-    ins_impl.qfe = *pressure;
-    vff_realign(0.);
-    ins_update_from_vff();
-  }
-  else {
-    ins_impl.baro_z = -pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
+
+  if (ins_impl.baro_initialized) {
+    if (ins_impl.vf_reset) {
+      ins_impl.vf_reset = FALSE;
+      ins_impl.qfe = *pressure;
+      vff_realign(0.);
+      ins_update_from_vff();
+    }
+    else {
+      ins_impl.baro_z = -pprz_isa_height_of_pressure(*pressure, ins_impl.qfe);
 #if USE_VFF_EXTENDED
-    vff_update_baro(ins_impl.baro_z);
+      vff_update_baro(ins_impl.baro_z);
 #else
-    vff_update(ins_impl.baro_z);
+      vff_update(ins_impl.baro_z);
 #endif
+    }
+    ins_ned_to_state();
   }
-  ins_ned_to_state();
 }
 
 #if USE_GPS
