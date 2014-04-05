@@ -237,7 +237,9 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   if (!ins_impl.baro_initialized && *pressure > 1e-7) {
     // wait for a first positive value
     ins_impl.qfe = *pressure;
+#if !SIM_HITL
     ins_impl.baro_initialized = TRUE;
+#endif
   }
 
   if (ins_impl.baro_initialized) {
@@ -306,6 +308,10 @@ void ins_update_gps(void) {
                         INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
     INT32_VECT2_SCALE_2(ins_impl.ltp_speed, gps_speed_cm_s_ned,
                         INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+#if SIM_HITL
+    ins_impl.ltp_pos.z = (gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
+    ins_impl.ltp_speed.z = (gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) / INT32_SPEED_OF_CM_S_DEN;
+#endif
 #endif /* USE_HFF */
 
     ins_ned_to_state();
