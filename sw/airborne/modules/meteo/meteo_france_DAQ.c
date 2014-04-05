@@ -50,6 +50,10 @@ bool_t log_started;
 #define MF_DAQ_POWER_INIT TRUE
 #endif
 
+#if !(defined MF_DAQ_POWER_PORT) && !(defined MF_DAQ_POWER_PIN)
+INFO("MF_DAQ power pin is not defined")
+#endif
+
 void init_mf_daq(void) {
   mf_daq.nb = 0;
   mf_daq.power = MF_DAQ_POWER_INIT;

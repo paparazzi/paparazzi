@@ -60,7 +60,6 @@ extern void parse_mf_daq_msg(void);
   else { gpio_clear(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
 }
 #else // POWER PORT and PIN undefined
-INFO("MF_DAQ power pin is not defined");
 #define meteo_france_DAQ_SetPower(_x) {}
 #endif
 
