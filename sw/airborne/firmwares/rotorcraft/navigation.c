@@ -60,10 +60,17 @@ uint8_t last_wp __attribute__ ((unused));
 
 int32_t ground_alt;
 
+/** Maximum distance from HOME waypoint before going into failsafe mode */
+#ifndef FAILSAFE_MODE_DISTANCE
+#define FAILSAFE_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
+#endif
+
 const float max_dist_from_home = MAX_DIST_FROM_HOME;
 const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
+float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
 float dist2_to_home;
 bool_t too_far_from_home;
+
 uint8_t horizontal_mode;
 uint8_t nav_segment_start, nav_segment_end;
 uint8_t nav_circle_centre;

@@ -74,6 +74,7 @@ extern float flight_altitude;
 
 extern float dist2_to_home;      ///< squared distance to home waypoint
 extern bool_t too_far_from_home;
+extern float failsafe_mode_dist2; ///< maximum squared distance to home wp before going to failsafe mode
 
 extern void compute_dist2_to_home(void);
 extern void nav_home(void);
