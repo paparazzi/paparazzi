@@ -456,17 +456,22 @@ void autopilot_set_motors_on(bool_t motors_on) {
 
 void autopilot_on_rc_frame(void) {
 
-  if (kill_switch_is_on())
+  if (kill_switch_is_on()) {
     autopilot_set_mode(AP_MODE_KILL);
-  else if (autopilot_mode != AP_MODE_HOME) {
+  }
+  else if ((autopilot_mode != AP_MODE_HOME)
+#ifdef UNLOCKED_HOME_MODE
+           || !too_far_from_home
+#endif
+           )
+  {
     uint8_t new_autopilot_mode = 0;
     AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
-    /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
-    if (!(new_autopilot_mode == AP_MODE_NAV
+
 #if USE_GPS
-          && GpsIsLost()
+    /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
+    if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost()))
 #endif
-       ))
       autopilot_set_mode(new_autopilot_mode);
   }
 
