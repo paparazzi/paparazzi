@@ -74,6 +74,34 @@ static inline void update_ref_quat_from_eulers(void) {
   FLOAT_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 }
 
+void stabilization_attitude_ref_idx_set_omega_p(uint8_t idx, float omega) {
+  stab_att_ref_model[i].omega.p = omega;
+  two_omega_squared[i].p = 2 * omega * omega;
+}
+
+void stabilization_attitude_ref_idx_set_omega_q(uint8_t idx, float omega) {
+  stab_att_ref_model[i].omega.q = omega;
+  two_omega_squared[i].q = 2 * omega * omega;
+}
+
+void stabilization_attitude_ref_idx_set_omega_r(uint8_t idx, float omega) {
+  stab_att_ref_model[i].omega.r = omega;
+  two_omega_squared[i].r = 2 * omega * omega;
+}
+
+void stabilization_attitude_ref_set_omega_p(float omega) {
+  stabilization_attitude_ref_idx_set_omega_p(ref_idx, omega);
+}
+
+void stabilization_attitude_ref_set_omega_q(float omega) {
+  stabilization_attitude_ref_idx_set_omega_q(ref_idx, omega);
+}
+
+void stabilization_attitude_ref_set_omega_r(float omega) {
+  stabilization_attitude_ref_idx_set_omega_r(ref_idx, omega);
+}
+
+
 void stabilization_attitude_ref_init(void) {
 
   FLOAT_EULERS_ZERO(stab_att_sp_euler);
