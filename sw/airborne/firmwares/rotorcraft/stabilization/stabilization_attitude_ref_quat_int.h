@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
-#define STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
+#ifndef STABILIZATION_ATTITUDE_REF_QUAT_INT_H
+#define STABILIZATION_ATTITUDE_REF_QUAT_INT_H
 
 #include "stabilization_attitude_ref_int.h"
 
@@ -37,4 +37,44 @@ extern struct Int32Quat   stab_att_ref_quat;  ///< with #INT32_QUAT_FRAC
 
 void stabilization_attitude_ref_enter(void);
 
-#endif /* STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H */
+/* ref model is in float and then used to precompute ref values in int */
+#include "math/pprz_algebra_float.h"
+
+struct FloatRefModel {
+  struct FloatRates omega;
+  struct FloatRates zeta;
+};
+
+extern struct FloatRefModel stab_att_ref_model;
+
+extern void stabilization_attitude_ref_set_omega(struct FloatRates *omega);
+extern void stabilization_attitude_ref_set_omega_p(float omega_p);
+extern void stabilization_attitude_ref_set_omega_q(float omega_q);
+extern void stabilization_attitude_ref_set_omega_r(float omega_r);
+
+extern void stabilization_attitude_ref_set_zeta(struct FloatRates *zeta);
+extern void stabilization_attitude_ref_set_zeta_p(float zeta_p);
+extern void stabilization_attitude_ref_set_zeta_q(float zeta_q);
+extern void stabilization_attitude_ref_set_zeta_r(float zeta_r);
+
+#define stabilization_attitude_ref_quat_int_SetOmegaP(_val) { \
+    stabilization_attitude_ref_set_omega_p(_val);             \
+  }
+#define stabilization_attitude_ref_quat_int_SetOmegaQ(_val) {   \
+    stabilization_attitude_ref_set_omega_q(_val);               \
+  }
+#define stabilization_attitude_ref_quat_int_SetOmegaR(_val) {   \
+    stabilization_attitude_ref_set_omega_r(_val);               \
+  }
+
+#define stabilization_attitude_ref_quat_int_SetZetaP(_val) {   \
+    stabilization_attitude_ref_set_zeta_p(_val);               \
+  }
+#define stabilization_attitude_ref_quat_int_SetZetaQ(_val) {    \
+    stabilization_attitude_ref_set_zeta_q(_val);                \
+  }
+#define stabilization_attitude_ref_quat_int_SetZetaR(_val) {    \
+    stabilization_attitude_ref_set_zeta_r(_val);                \
+  }
+
+#endif /* STABILIZATION_ATTITUDE_REF_QUAT_INT_H */
