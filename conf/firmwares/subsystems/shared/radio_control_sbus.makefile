@@ -20,4 +20,5 @@ $(TARGET).CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/sbus.h\"
 $(TARGET).CFLAGS += -DRADIO_CONTROL_TYPE_SBUS
 $(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control.c
 $(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control/sbus.c
+$(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control/sbus_common.c
 
