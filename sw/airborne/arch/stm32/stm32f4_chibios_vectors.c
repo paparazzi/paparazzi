@@ -18,25 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/*
-  File is modified to route IRQ_HANDLERS to opencm3 handlers
-
+/**
+ * @file    arch/stm32/stm32f4_chibios_vectors.c
+ *
+ * File is modified to route IRQ_HANDLERS to opencm3 handlers
  */
+
 
 #include "stm32f4_chibios_vectors.h"
 #include "mcuconf.h"
-
-
-/**
- * @file    GCC/ARMCMx/STM32F4xx/vectors.c
- * @brief   Interrupt vectors for the STM32F4xx family.
- *
- * @defgroup ARMCMx_STM32F4xx_VECTORS STM32F4xx Interrupt Vectors
- * @ingroup ARMCMx_SPECIFIC
- * @details Interrupt vectors for the STM32F4xx family.
- * @{
- */
 
 #include <ch.h>
 
@@ -377,4 +367,3 @@ void prvGetRegistersFromStack( uint32_t *pulFaultStackAddress )
   while (1);
 }
 
-/** @} */

@@ -691,14 +691,15 @@ RECURSIVE              = YES
 EXCLUDE                = sw/airborne/test/ \
                          sw/airborne/firmwares/non_ap/ \
                          sw/airborne/firmwares/logger/ \
-                         sw/airborne/firmwares/vor/ \
                          sw/airborne/firmwares/wind_tunnel/ \
                          sw/airborne/firmwares/beth/ \
                          sw/airborne/firmwares/motor_bench/ \
                          sw/airborne/fms/ \
                          sw/airborne/arch/lpc21/test/ \
                          sw/airborne/arch/lpc21/efsl/ \
-                         sw/airborne/arch/lpc21/lpcusb/
+                         sw/airborne/arch/lpc21/lpcusb/ \
+                         sw/airborne/subsystems/chibios-libopencm3/ \
+                         sw/airborne/boards/apogee/chibios-libopencm3/
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
