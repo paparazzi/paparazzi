@@ -34,7 +34,7 @@ def modules_overview_page(modules_dict):
     s = dox_new_page("onboard_modules", "Onboard Modules")
     s += "@tableofcontents\n"
     s += "The modules allow to add new code in a flexible way with initialisation, periodic and event functions without modifying the main AP loop.\n"
-    s += "Also see http://paparazzi.enac.fr/wiki/Modules\n\n"
+    s += "Also see http://wiki.paparazziuav.org/wiki/Modules\n\n"
     s += "@section modules_list List of available modules\n\n"
 
     # dict with dirs and modules under that dir
