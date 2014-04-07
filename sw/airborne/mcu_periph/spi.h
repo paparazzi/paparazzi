@@ -131,7 +131,7 @@ typedef void (*SPICallback)( struct spi_transaction *trans );
 
 /** SPI transaction structure.
  * - Use this structure to store a request of SPI transaction
- *   and submit it using spi_submit function
+ *   and submit it using #spi_submit function
  * - The input/output buffers needs to be created separately
  * - Take care of pointing input_buf/ouput_buf correctly
  * - input_length and output_length can be different, the larger number
@@ -156,10 +156,15 @@ struct spi_transaction {
   volatile enum SPITransactionStatus status;
 };
 
+/** SPI transaction queue length.
+ * Number of transactions that can be queued.
+ */
 #ifndef SPI_TRANSACTION_QUEUE_LEN
 #define SPI_TRANSACTION_QUEUE_LEN 8
 #endif
 
+/** SPI peripheral structure.
+ */
 struct spi_periph {
   /** circular buffer holding transactions */
   struct spi_transaction* trans[SPI_TRANSACTION_QUEUE_LEN];

@@ -41,20 +41,27 @@
  * @{
  */
 
+/** I2C transaction type.
+ */
 enum I2CTransactionType {
-  I2CTransTx,
-  I2CTransRx,
-  I2CTransTxRx
+  I2CTransTx,   ///< transmit only transaction
+  I2CTransRx,   ///< receive only transaction
+  I2CTransTxRx  ///< transmit and receive transaction
 };
 
+/** I2C transaction status.
+ */
 enum I2CTransactionStatus {
-  I2CTransPending,
-  I2CTransRunning,
-  I2CTransSuccess,
-  I2CTransFailed,
-  I2CTransDone
+  I2CTransPending,  ///< transaction is pending in queue
+  I2CTransRunning,  ///< transaction is currently ongoing
+  I2CTransSuccess,  ///< transaction successfully finished by I2C driver
+  I2CTransFailed,   ///< transaction failed
+  I2CTransDone      ///< transaction set to done by user level
 };
 
+/** I2C peripheral status.
+ * Used by each architecture specifc implementation.
+ */
 enum I2CStatus {
   I2CIdle,
   I2CStartRequested,
@@ -70,23 +77,64 @@ enum I2CStatus {
   I2CFailed
 };
 
+/** I2C buffer length.
+ * Number of bytes a transaction can hold.
+ */
 #ifndef I2C_BUF_LEN
 #define I2C_BUF_LEN 32
 #endif
 
+/** I2C transaction structure.
+ * Use this structure to store a request of I2C transaction
+ * and submit it using one of the convenience functions
+ * (#i2c_receive, #i2c_transmit or #i2c_transceive) or the
+ * #i2c_submit function.
+ */
 struct i2c_transaction {
+  /** Transaction type.
+   * Always set by #i2c_receive, #i2c_transmit and #i2c_transceive,
+   * needs to be manually set every time if using #i2c_submit.
+   */
   enum I2CTransactionType type;
+
+  /** Slave address.
+   * Always set by #i2c_receive, #i2c_transmit and #i2c_transceive,
+   * needs to be manually set if using #i2c_submit.
+   */
   uint8_t  slave_addr;
+
+  /** Number of bytes to read/receive.
+   * Always set by #i2c_receive, #i2c_transmit and #i2c_transceive,
+   * needs to be manually set if using #i2c_submit.
+   */
   uint16_t len_r;
+
+  /** Number of bytes to write/transmit.
+   * Always set by #i2c_receive, #i2c_transmit and #i2c_transceive,
+   * needs to be manually set if using #i2c_submit.
+   */
   uint8_t  len_w;
+
+  /** Transaction buffer
+   * With #I2C_BUF_LEN number of bytes.
+   * Must be able to hold tranmitted + received bytes.
+   */
   volatile uint8_t  buf[I2C_BUF_LEN];
+
+  /** Transaction status.
+   */
   volatile enum I2CTransactionStatus status;
 };
 
+/** I2C transaction queue length.
+ * Number of transactions that can be queued.
+ */
 #ifndef I2C_TRANSACTION_QUEUE_LEN
 #define I2C_TRANSACTION_QUEUE_LEN 8
 #endif
 
+/** I2C peripheral structure.
+ */
 struct i2c_periph {
   /* circular buffer holding transactions */
   struct i2c_transaction* trans[I2C_TRANSACTION_QUEUE_LEN];
@@ -100,7 +148,8 @@ struct i2c_periph {
   struct i2c_errors *errors;
 };
 
-
+/** I2C errors counter.
+ */
 struct i2c_errors {
   volatile uint16_t queue_full_cnt;
   volatile uint16_t ack_fail_cnt;
@@ -173,9 +222,27 @@ extern void i2c3_init(void);
 #endif /* USE_I2C3 */
 
 
+/** Initialize I2C peripheral */
 extern void   i2c_init(struct i2c_periph* p);
+
+/** Check if I2C bus is idle.
+ * @param p i2c peripheral to be used
+ * @return TRUE if idle
+ */
 extern bool_t i2c_idle(struct i2c_periph* p);
+
+/** Submit a I2C transaction.
+ * Must be implemented by the underlying architecture
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @return TRUE if insertion to the transaction queue succeded
+ */
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
+
+/** Set I2C bitrate.
+ * @param p i2c peripheral to be used
+ * @param bitrate bitrate
+ */
 extern void   i2c_setbitrate(struct i2c_periph* p, int bitrate);
 extern void   i2c_event(void);
 
@@ -186,12 +253,40 @@ extern void   i2c_event(void);
  *
  * Return FALSE if submitting the transaction failed.
  */
+/** Submit a write only transaction.
+ * Convenience function which is usually preferred over i2c_submit,
+ * as it explicitly sets the transaction type again.
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @param s_addr slave address
+ * @param len number of bytes to transmit
+ * @return TRUE if insertion to the transaction queue succeded
+ */
 extern bool_t i2c_transmit(struct i2c_periph* p, struct i2c_transaction* t,
                            uint8_t s_addr, uint8_t len);
 
+/** Submit a read only transaction.
+ * Convenience function which is usually preferred over i2c_submit,
+ * as it explicitly sets the transaction type again.
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @param s_addr slave address
+ * @param len number of bytes to receive
+ * @return TRUE if insertion to the transaction queue succeded
+ */
 extern bool_t i2c_receive(struct i2c_periph* p, struct i2c_transaction* t,
                           uint8_t s_addr, uint16_t len);
 
+/** Submit a write/read transaction.
+ * Convenience function which is usually preferred over i2c_submit,
+ * as it explicitly sets the transaction type again.
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @param s_addr slave address
+ * @param len_w number of bytes to transmit
+ * @param len_r number of bytes to receive
+ * @return TRUE if insertion to the transaction queue succeded
+ */
 extern bool_t i2c_transceive(struct i2c_periph* p, struct i2c_transaction* t,
                              uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
