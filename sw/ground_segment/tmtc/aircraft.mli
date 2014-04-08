@@ -80,7 +80,7 @@ type aircraft = {
     mutable pitch : float;
     mutable heading : float; (* rad *)
     mutable gspeed : float; (* m/s *)
-    mutable airspeed : float option; (* m/s *)
+    mutable airspeed : float; (* m/s *)
     mutable course : float; (* rad *)
     mutable alt : float;
     mutable agl : float; (* m *)

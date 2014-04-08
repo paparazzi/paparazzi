@@ -138,7 +138,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.alt     <- fvalue "z";
       a.climb   <- fvalue "z_dot"
     | "AIRSPEED" ->
-      a.airspeed <- Some (fvalue "airspeed")
+      a.airspeed <- fvalue "airspeed"
     | "DESIRED" ->
       (* Trying to be compatible with old logs ... *)
       begin match a.nav_ref with
