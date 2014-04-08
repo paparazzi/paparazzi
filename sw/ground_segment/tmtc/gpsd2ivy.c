@@ -37,6 +37,7 @@
     <field name="lat"    type="float" unit="deg"/>
     <field name="long"   type="float" unit="deg"/>
     <field name="speed"  type="float" unit="m/s"/>
+    <field name="airspeed" type="float" unit="m/s"/>
     <field name="course" type="float" unit="deg" format="%.1f"/>
     <field name="alt"    type="float" unit="m"/>
     <field name="climb"  type="float" unit="m/s"/>
@@ -106,7 +107,7 @@ static void update_gps(struct gps_data_t *gpsdata,
             printf("sending gps info viy Ivy: lat %g, lon %g, speed %g, course %g, alt %g, climb %g\n",
                    gpsdata->fix.latitude, gpsdata->fix.longitude, fix_speed, fix_track, fix_altitude, fix_climb);
 
-        IvySendMsg("%s %s %s %f %f %f %f %f %f %f %f %f %f %f %d",
+        IvySendMsg("%s %s %s %f %f %f %f %f %f %f %f %f %f %f %f %d",
                 MSG_DEST,
                 MSG_NAME,
                 MSG_ID, // ac_id
@@ -116,6 +117,7 @@ static void update_gps(struct gps_data_t *gpsdata,
                 gpsdata->fix.latitude,
                 gpsdata->fix.longitude,
                 fix_speed,
+                0.0, // airspeed
                 fix_track, // course
                 fix_altitude,
                 fix_climb,

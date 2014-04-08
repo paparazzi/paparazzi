@@ -306,6 +306,8 @@ let send_aircraft_msg = fun ac ->
   try
     let a = Hashtbl.find aircrafts ac in
     let f = fun x -> Pprz.Float x in
+    (* send ground speed if no airspeed available *)
+    let airspeed = match a.airspeed with None -> f a.gspeed | Some s -> f s in
     let wgs84 = try a.pos with _ -> LL.make_geo 0. 0. in
     let values = ["ac_id", Pprz.String ac;
                   "roll", f (Geometry_2d.rad2deg a.roll);
@@ -316,6 +318,7 @@ let send_aircraft_msg = fun ac ->
                   "unix_time", f a.unix_time;
                   "itow", Pprz.Int32 a.itow;
                   "speed", f a.gspeed;
+                  "airspeed", airspeed;
                   "course", f (Geometry_2d.rad2deg a.course);
                   "alt", f a.alt;
                   "agl", f a.agl;

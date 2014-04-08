@@ -2584,6 +2584,7 @@
     <field name="lat"    type="float" unit="deg"/>
     <field name="long"   type="float" unit="deg"/>
     <field name="speed"  type="float" unit="m/s"/>
+    <field name="airspeed" type="float" unit="m/s"/>
     <field name="course" type="float" unit="deg" format="%.1f"/>
     <field name="alt"    type="float" unit="m"/>
     <field name="climb"  type="float" unit="m/s"/>

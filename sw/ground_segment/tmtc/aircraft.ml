@@ -114,6 +114,7 @@ type aircraft = {
   mutable pitch   : float;
   mutable heading  : float; (* rad, CW 0=N *)
   mutable gspeed  : float; (* m/s *)
+  mutable airspeed : float option; (* m/s *)
   mutable course : float; (* rad *)
   mutable alt     : float;
   mutable agl     : float;
@@ -167,7 +168,7 @@ let new_aircraft = fun id name fp airframe ->
     pos = { Latlong.posn_lat = 0.; posn_long = 0. };
     unix_time = 0.; itow = Int32.of_int 0;
     roll = 0.; pitch = 0.;
-    gspeed=0.; course = 0.; heading = 0.; alt=0.; climb=0.; agl = 0.;
+    gspeed=0.; airspeed=None; course = 0.; heading = 0.; alt=0.; climb=0.; agl = 0.;
     nav_ref = None; d_hmsl = 0.;
     desired_pos = { Latlong.posn_lat = 0.; posn_long = 0. };
     desired_course = 0.; desired_altitude = 0.; desired_climb = 0.;
