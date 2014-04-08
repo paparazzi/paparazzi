@@ -2307,8 +2307,8 @@
   <message name="MISSION_GOTO_WP_LLA" id="21" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
-    <field name="wp_lat" type="float" unit="rad"/>
-    <field name="wp_lon" type="float" unit="rad"/>
+    <field name="wp_lat" type="float" unit="deg"/>
+    <field name="wp_lon" type="float" unit="deg"/>
     <field name="wp_alt" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
   </message>
@@ -2326,8 +2326,8 @@
   <message name="MISSION_CIRCLE_LLA" id="23" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
-    <field name="center_lat" type="float" unit="rad"/>
-    <field name="center_lon" type="float" unit="rad"/>
+    <field name="center_lat" type="float" unit="deg"/>
+    <field name="center_lon" type="float" unit="deg"/>
     <field name="center_alt" type="float" unit="m"/>
     <field name="radius" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
@@ -2347,10 +2347,10 @@
   <message name="MISSION_SEGMENT_LLA" id="25" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
-    <field name="segment_lat_1" type="float" unit="rad"/>
-    <field name="segment_lon_1" type="float" unit="rad"/>
-    <field name="segment_lat_2" type="float" unit="rad"/>
-    <field name="segment_lon_2" type="float" unit="rad"/>
+    <field name="segment_lat_1" type="float" unit="deg"/>
+    <field name="segment_lon_1" type="float" unit="deg"/>
+    <field name="segment_lat_2" type="float" unit="deg"/>
+    <field name="segment_lon_2" type="float" unit="deg"/>
     <field name="segment_alt" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
   </message>
@@ -2376,16 +2376,16 @@
   <message name="MISSION_PATH_LLA" id="27" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
-    <field name="point_lat_1" type="float" unit="rad"/>
-    <field name="point_lon_1" type="float" unit="rad"/>
-    <field name="point_lat_2" type="float" unit="rad"/>
-    <field name="point_lon_2" type="float" unit="rad"/>
-    <field name="point_lat_3" type="float" unit="rad"/>
-    <field name="point_lon_3" type="float" unit="rad"/>
-    <field name="point_lat_4" type="float" unit="rad"/>
-    <field name="point_lon_4" type="float" unit="rad"/>
-    <field name="point_lat_5" type="float" unit="rad"/>
-    <field name="point_lon_5" type="float" unit="rad"/>
+    <field name="point_lat_1" type="float" unit="deg"/>
+    <field name="point_lon_1" type="float" unit="deg"/>
+    <field name="point_lat_2" type="float" unit="deg"/>
+    <field name="point_lon_2" type="float" unit="deg"/>
+    <field name="point_lat_3" type="float" unit="deg"/>
+    <field name="point_lon_3" type="float" unit="deg"/>
+    <field name="point_lat_4" type="float" unit="deg"/>
+    <field name="point_lon_4" type="float" unit="deg"/>
+    <field name="point_lat_5" type="float" unit="deg"/>
+    <field name="point_lon_5" type="float" unit="deg"/>
     <field name="path_alt" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
     <field name="nb" type="uint8"/>
@@ -2405,10 +2405,10 @@
   <message name="MISSION_SURVEY_LLA" id="29" link="forwarded">
     <field name="ac_id" type="uint8"/>
     <field name="insert" type="uint8" values="APPEND|PREPEND|REPLACE_CURRENT|REPLACE_ALL"/>
-    <field name="survey_lat_1" type="float" unit="rad"/>
-    <field name="survey_lon_1" type="float" unit="rad"/>
-    <field name="survey_lat_2" type="float" unit="rad"/>
-    <field name="survey_lon_2" type="float" unit="rad"/>
+    <field name="survey_lat_1" type="float" unit="deg"/>
+    <field name="survey_lon_1" type="float" unit="deg"/>
+    <field name="survey_lat_2" type="float" unit="deg"/>
+    <field name="survey_lon_2" type="float" unit="deg"/>
     <field name="survey_alt" type="float" unit="m"/>
     <field name="duration" type="float" unit="s"/>
   </message>

@@ -82,7 +82,13 @@ struct _mission_element {
   float duration; ///< time to spend in the element (<= 0 to disable)
 };
 
+/** Max number of elements in the tasks' list
+ *  can be redefined
+ */
+#ifndef MISSION_ELEMENT_NB
 #define MISSION_ELEMENT_NB 20
+#endif
+
 struct _mission {
   struct _mission_element elements[MISSION_ELEMENT_NB];
   float element_time;   ///< time in second spend in the current element
