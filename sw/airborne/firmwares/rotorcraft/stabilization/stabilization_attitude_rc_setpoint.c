@@ -29,7 +29,6 @@
 #include "state.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "firmwares/rotorcraft/autopilot.h"
 
 #ifndef RC_UPDATE_FREQ
 #define RC_UPDATE_FREQ 40
@@ -79,11 +78,14 @@ float stabilization_attitude_get_heading_f(void) {
   return heading;
 }
 
-/** Read attitude setpoint from RC as euler angles.
- * @param[in]  in_flight  true if in flight
- * @param[out] sp         attitude setpoint as euler angles
+
+/** Read attitude setpoint from RC as euler angles
+ * @param[in]  coordinated_turn  true if in horizontal mode forward
+ * @param[in]  in_carefree       true if in carefree mode
+ * @param[in]  in_flight         true if in flight
+ * @param[out] sp                attitude setpoint as euler angles
  */
-void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight) {
+void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
   const int32_t max_rc_phi = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI);
   const int32_t max_rc_theta = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA);
   const int32_t max_rc_r = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R);
@@ -96,7 +98,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
       sp->psi += (int32_t) ((radio_control.values[RADIO_YAW] * max_rc_r) /  MAX_PPRZ / RC_UPDATE_FREQ);
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
-    if (autopilot_mode == AP_MODE_FORWARD) {
+    if (coordinated_turn) {
       //Coordinated turn
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
@@ -127,7 +129,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
     INT32_ANGLE_NORMALIZE(sp->psi);
 #endif
     //Care Free mode
-    if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
+    if (in_carefree) {
       //care_free_heading has been set to current psi when entering care free mode.
       int32_t cos_psi;
       int32_t sin_psi;
@@ -153,7 +155,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
 }
 
 
-void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight) {
+void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
   sp->phi = (radio_control.values[RADIO_ROLL]  * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ);
   sp->theta = (radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ);
 
@@ -162,7 +164,7 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
       sp->psi += (radio_control.values[RADIO_YAW] * STABILIZATION_ATTITUDE_SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
       FLOAT_ANGLE_NORMALIZE(sp->psi);
     }
-    if (autopilot_mode == AP_MODE_FORWARD) {
+    if (coordinated_turn) {
       //Coordinated turn
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
@@ -191,7 +193,7 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
     FLOAT_ANGLE_NORMALIZE(sp->psi);
 #endif
     //Care Free mode
-    if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
+    if (in_carefree) {
       //care_free_heading has been set to current psi when entering care free mode.
       float cos_psi;
       float sin_psi;
@@ -254,14 +256,21 @@ void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat* q)
   q->qz = qx_roll * qy_pitch;
 }
 
-void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool_t in_flight) {
+/** Read attitude setpoint from RC as quaternion
+ * Interprets the stick positions as axes.
+ * @param[in]  coordinated_turn  true if in horizontal mode forward
+ * @param[in]  in_carefree       true if in carefree mode
+ * @param[in]  in_flight         true if in flight
+ * @param[out] q_sp              attitude setpoint as quaternion
+ */
+void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
 
   // FIXME: remove me, do in quaternion directly
   // is currently still needed, since the yaw setpoint integration is done in eulers
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
-  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
 #else
-  stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
 #endif
 
   struct FloatQuat q_rp_cmd;
@@ -272,7 +281,7 @@ void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool
   struct FloatQuat q_yaw;
 
   //Care Free mode
-  if (guidance_h_mode == GUIDANCE_H_MODE_CARE_FREE) {
+  if (in_carefree) {
     //care_free_heading has been set to current psi when entering care free mode.
     FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, care_free_heading);
   }
@@ -307,13 +316,13 @@ void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool
 }
 
 //Function that reads the rc setpoint in an earth bound frame
-void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat* q_sp, bool_t in_flight) {
+void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat* q_sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
   // FIXME: remove me, do in quaternion directly
   // is currently still needed, since the yaw setpoint integration is done in eulers
   #if defined STABILIZATION_ATTITUDE_TYPE_INT
-  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
   #else
-  stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
   #endif
 
   const struct FloatVect3 zaxis = {0., 0., 1.};
