@@ -29,7 +29,6 @@
 #include "state.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "firmwares/rotorcraft/autopilot.h"
 
 #ifndef RC_UPDATE_FREQ
 #define RC_UPDATE_FREQ 40
@@ -81,8 +80,10 @@ float stabilization_attitude_get_heading_f(void) {
 
 
 /** Read attitude setpoint from RC as euler angles
- * @param[in]  in_flight  true if in flight
- * @param[out] sp         attitude setpoint as euler angles
+ * @param[in]  coordinated_turn  true if in horizontal mode forward
+ * @param[in]  in_carefree       true if in carefree mode
+ * @param[in]  in_flight         true if in flight
+ * @param[out] sp                attitude setpoint as euler angles
  */
 void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
   const int32_t max_rc_phi = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI);
@@ -255,6 +256,13 @@ void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat* q)
   q->qz = qx_roll * qy_pitch;
 }
 
+/** Read attitude setpoint from RC as quaternion
+ * Interprets the stick positions as axes.
+ * @param[in]  coordinated_turn  true if in horizontal mode forward
+ * @param[in]  in_carefree       true if in carefree mode
+ * @param[in]  in_flight         true if in flight
+ * @param[out] q_sp              attitude setpoint as quaternion
+ */
 void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
 
   // FIXME: remove me, do in quaternion directly
