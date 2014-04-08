@@ -37,13 +37,13 @@
     <field name="lat"    type="float" unit="deg"/>
     <field name="long"   type="float" unit="deg"/>
     <field name="speed"  type="float" unit="m/s"/>
-    <field name="airspeed" type="float" unit="m/s"/>
     <field name="course" type="float" unit="deg" format="%.1f"/>
     <field name="alt"    type="float" unit="m"/>
     <field name="climb"  type="float" unit="m/s"/>
     <field name="agl"    type="float" unit="m"/>
     <field name="unix_time"    type="float" unit="s (Unix time)"/>
     <field name="itow"   type="uint32" unit="ms"/>
+    <field name="airspeed" type="float" unit="m/s"/>
   </message>
 */
 
@@ -117,13 +117,13 @@ static void update_gps(struct gps_data_t *gpsdata,
                 gpsdata->fix.latitude,
                 gpsdata->fix.longitude,
                 fix_speed,
-                0.0, // airspeed
                 fix_track, // course
                 fix_altitude,
                 fix_climb,
                 0.0, // agl
                 gpsdata->fix.time,
-                0); // itow
+                0, // itow
+                0.0); // airspeed
 
         fix_time = gpsdata->fix.time;
     }
