@@ -19,10 +19,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-//#include <libopencm3/stm32/f1/rcc.h>
-//#include <libopencm3/stm32/f1/gpio.h>
+//#include <libopencm3/stm32/rcc.h>
+//#include <libopencm3/stm32/gpio.h>
 
-//#include <libopencm3/stm32/f1/flash.h>
+//#include <libopencm3/stm32/flash.h>
 
 //#include <libopencm3/cm3/common.h>
 

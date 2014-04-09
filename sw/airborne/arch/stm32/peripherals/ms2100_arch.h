@@ -28,7 +28,7 @@
 #ifndef MS2100_ARCH_H
 #define MS2100_ARCH_H
 
-#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/gpio.h>
 #include "mcu_periph/spi.h"
 
 /**

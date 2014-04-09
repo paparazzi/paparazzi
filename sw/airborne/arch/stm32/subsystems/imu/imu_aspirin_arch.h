@@ -2,7 +2,7 @@
 #define IMU_ASPIRIN_ARCH_H
 
 #include "subsystems/imu.h"
-#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/gpio.h>
 
 extern void imu_aspirin_arch_int_enable(void);
 extern void imu_aspirin_arch_int_disable(void);
