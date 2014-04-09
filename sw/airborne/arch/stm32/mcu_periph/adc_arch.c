@@ -106,6 +106,8 @@
 
 #if defined(STM32F1)
 #define ADC_SAMPLE_TIME ADC_SMPR_SMP_41DOT5CYC
+#elif defined(STM32F3)
+#define ADC_SAMPLE_TIME ADC_SMPR1_SMP_61DOT5CYC
 #elif defined(STM32F4)
 #define ADC_SAMPLE_TIME ADC_SMPR_SMP_56CYC
 #endif
@@ -152,7 +154,7 @@ PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 #endif
 
 #ifndef ADC_TIMER_PRESCALER
-#if defined(STM32F1)
+#if defined(STM32F1) || defined(STM32F3)
 #define ADC_TIMER_PRESCALER 0x8
 #elif defined(STM32F4)
 #define ADC_TIMER_PRESCALER 0x53
@@ -416,6 +418,11 @@ static inline void adc_init_rcc( void )
 #endif
 
   /* Enable ADC peripheral clocks. */
+#if defined (STM32F3)
+#if USE_AD1 || USE_AD2
+  rcc_periph_clock_enable(RCC_ADC12);
+#endif
+#else //
 #if USE_AD1
   rcc_periph_clock_enable(RCC_ADC1);
 #endif
@@ -425,12 +432,13 @@ static inline void adc_init_rcc( void )
 #if USE_AD3
   rcc_periph_clock_enable(RCC_ADC3);
 #endif
+#endif
 
   /* Time Base configuration */
   timer_reset(TIM_ADC);
   timer_set_mode(TIM_ADC, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-#if defined(STM32F1)
+#if defined(STM32F1) || defined(STM32F3)
   timer_set_period(TIM_ADC, 0xFF);
 #elif defined(STM32F4)
   timer_set_period(TIM_ADC, 0xFFFF);
@@ -447,7 +455,7 @@ static inline void adc_init_rcc( void )
 /** Configure and enable ADC interrupt */
 static inline void adc_init_irq( void )
 {
-#if defined(STM32F1)
+#if defined(STM32F1) || defined(STM32F3)
   nvic_set_priority(NVIC_ADC1_2_IRQ, NVIC_ADC_IRQ_PRIO);
   nvic_enable_irq(NVIC_ADC1_2_IRQ);
 #elif defined(STM32F4)
@@ -475,12 +483,16 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
   adc_disable_discontinuous_mode_injected(adc);
   /* Clear JAUTO */
   adc_disable_automatic_injected_group_conversion(adc);
+#ifndef STM32F3
   /* Set SCAN */
   adc_enable_scan_mode(adc);
+#endif
   /* Enable ADC<X> JEOC interrupt (Set JEOCIE) */
   adc_enable_eoc_interrupt_injected(adc);
+#ifndef STM32F3
   /* Clear AWDIE */
   adc_disable_awd_interrupt(adc);
+#endif
   /* Clear EOCIE */
   adc_disable_eoc_interrupt(adc);
 
@@ -488,7 +500,7 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
   /* Clear TSVREFE */
 #if defined(STM32F1)
   adc_disable_temperature_sensor(adc);
-#elif defined(STM32F4)
+#elif defined(STM32F4) || defined(STM32F3)
   adc_disable_temperature_sensor();
 #endif
   /* Clear EXTTRIG */
@@ -512,6 +524,9 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
   PRINT_CONFIG_MSG("Info: Using TIM4 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO);
+#elif defined(STM32F3)
+  // EVENT_12 = TIM4_TRGO event
+  adc_enable_external_trigger_injected(adc, ADC_JSQR_JEXTSEL_EVENT_12, ADC_JSQR_JEXTEN_BOTH_EDGES);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM4_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
@@ -519,6 +534,9 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
   PRINT_CONFIG_MSG("Info: Using TIM1 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO);
+#elif defined(STM32F3)
+  // EVENT_10 = TIM1_TRGO event
+  adc_enable_external_trigger_injected(adc, ADC_JSQR_JEXTSEL_EVENT_10, ADC_JSQR_JEXTEN_BOTH_EDGES);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM1_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
@@ -526,6 +544,9 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t* c
   PRINT_CONFIG_MSG("Info: Using default TIM2 for ADC")
 #if defined(STM32F1)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO);
+#elif defined(STM32F3)
+  // EVENT_11 = TIM2_TRGO event
+  adc_enable_external_trigger_injected(adc, ADC_JSQR_JEXTSEL_EVENT_11, ADC_JSQR_JEXTEN_BOTH_EDGES);
 #elif defined(STM32F4)
   adc_enable_external_trigger_injected(adc, ADC_CR2_JEXTSEL_TIM2_TRGO, ADC_CR2_JEXTEN_BOTH_EDGES);
 #endif
@@ -564,7 +585,7 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
 /***   ADC INTERRUPT HANDLER   ***/
 /*********************************/
 
-#if defined(STM32F1)
+#if defined(STM32F1) || defined(STM32F3)
 void adc1_2_isr(void)
 #elif defined(STM32F4)
   void adc_isr(void)
@@ -595,8 +616,14 @@ void adc1_2_isr(void)
 
 #if USE_AD1
   // Clear Injected End Of Conversion
-  if (adc_eoc_injected(ADC1)){
+  if (adc_eoc_injected(ADC1)) {
+
+#if defined(STM32F3)
+    ADC_ISR(ADC1) &= ~ADC_ISR_JEOC;
+#else
     ADC_SR(ADC1) &= ~ADC_SR_JEOC;
+#endif
+
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
 #endif
@@ -617,8 +644,14 @@ void adc1_2_isr(void)
   }
 #endif
 #if USE_AD2
-  if (adc_eoc_injected(ADC2)){
+  if (adc_eoc_injected(ADC2)) {
+
+#if defined(STM32F3)
+    ADC_ISR(ADC2) &= ~ADC_ISR_JEOC;
+#else
     ADC_SR(ADC2) &= ~ADC_SR_JEOC;
+#endif
+
 #if USE_ADC_WATCHDOG
     if (shouldAccumulateValue) {
 #endif
