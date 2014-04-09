@@ -92,15 +92,20 @@ static inline int ahrs_is_aligned(void) {
 }
 #endif
 
-/* Set descent speed in failsafe mode */
+/** Set descent speed in failsafe mode */
 #ifndef FAILSAFE_DESCENT_SPEED
 #define FAILSAFE_DESCENT_SPEED 1.5
 PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
 #endif
 
-/* Mode that is set when the plane is really too far from home */
+/** Mode that is set when the plane is really too far from home */
 #ifndef FAILSAFE_MODE_TOO_FAR_FROM_HOME
 #define FAILSAFE_MODE_TOO_FAR_FROM_HOME AP_MODE_FAILSAFE
+#endif
+
+/** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */
+#ifndef RC_LOST_MODE
+#define RC_LOST_MODE AP_MODE_HOME
 #endif
 
 #if USE_KILL_SWITCH_FOR_MOTOR_ARMING
