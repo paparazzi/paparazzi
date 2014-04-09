@@ -36,7 +36,7 @@
 #include "inter_mcu.h"
 #include "subsystems/navigation/traffic_info.h"
 
-#define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
+#define RCLost() bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST)
 
 enum oval_status oval_status;
 
