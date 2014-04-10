@@ -186,6 +186,19 @@ void imu_aspirin2_event(void)
                  -imu_aspirin2.mpu.data_accel.vect.y,
                  -imu_aspirin2.mpu.data_accel.vect.z);
     VECT3_ASSIGN(imu.mag_unscaled, mag.x, -mag.y, -mag.z);
+#elif LISA_S_SIDEWAY
+    RATES_ASSIGN(imu.gyro_unscaled,
+                 -imu_aspirin2.mpu.data_rates.rates.p,
+                 imu_aspirin2.mpu.data_rates.rates.r,
+                 imu_aspirin2.mpu.data_rates.rates.q);
+    VECT3_ASSIGN(imu.accel_unscaled,
+                 -imu_aspirin2.mpu.data_accel.vect.x,
+                 imu_aspirin2.mpu.data_accel.vect.z,
+                 imu_aspirin2.mpu.data_accel.vect.y);
+    VECT3_ASSIGN(imu.mag_unscaled,
+                 -mag.x,
+                 mag.z,
+                 mag.y);
 #else
     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
