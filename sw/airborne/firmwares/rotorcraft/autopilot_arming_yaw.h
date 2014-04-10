@@ -76,7 +76,7 @@ static inline void autopilot_arming_set(bool_t motors_on) {
  */
 static inline void autopilot_arming_check_motors_on( void ) {
   /* only allow switching motor if not in FAILSAFE or KILL mode */
-  if (autopilot_mode > AP_MODE_KILL) {
+  if (autopilot_mode != AP_MODE_KILL && autopilot_mode != AP_MODE_FAILSAFE) {
 
     switch(autopilot_check_motor_status) {
     case STATUS_MOTORS_OFF:

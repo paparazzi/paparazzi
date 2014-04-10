@@ -33,7 +33,7 @@ type t =
   connect_shift_lateral : (float -> unit) -> unit;
   connect_launch : (float -> unit) -> unit;
   connect_kill : (float -> unit) -> unit;
-  connect_mode : (float -> unit) -> unit;
+  connect_mode : float -> (float -> unit) -> unit;
   connect_mark : (unit -> unit) -> unit;
   connect_flight_time : (float -> unit) -> unit;
   connect_apt : (unit -> float) -> (float -> unit) -> unit;
@@ -378,10 +378,10 @@ object
     connect_buttons callback
       [ strip#button_launch, 1. ]
 
-  method connect_mode = fun callback ->
+  method connect_mode = fun mode callback ->
     let callback = fun _ -> (* Back in AUTO2 *)
       match GToolbox.question_box ~title:"Back to auto" ~buttons:["AUTO"; "Cancel"] (sprintf "Restore AUTO mode for A/C %s ?" ac_name) with
-          1 -> callback 2.; true
+          1 -> callback mode; true
         | _ -> true in
     ignore(strip#eventbox_mode#event#connect#button_press ~callback)
 

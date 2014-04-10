@@ -36,22 +36,23 @@
 #include "generated/airframe.h"
 #include "subsystems/ins.h"
 
-#define AP_MODE_FAILSAFE          0
-#define AP_MODE_KILL              1
-#define AP_MODE_RATE_DIRECT       2
-#define AP_MODE_ATTITUDE_DIRECT   3
-#define AP_MODE_RATE_RC_CLIMB     4
-#define AP_MODE_ATTITUDE_RC_CLIMB 5
-#define AP_MODE_ATTITUDE_CLIMB    6
-#define AP_MODE_RATE_Z_HOLD       7
-#define AP_MODE_ATTITUDE_Z_HOLD   8
-#define AP_MODE_HOVER_DIRECT      9
-#define AP_MODE_HOVER_CLIMB       10
-#define AP_MODE_HOVER_Z_HOLD      11
-#define AP_MODE_NAV               12
-#define AP_MODE_RC_DIRECT         13	// Safety Pilot Direct Commands for helicopter direct control: appropriately chosen as mode "13"
-#define AP_MODE_CARE_FREE_DIRECT  14
-#define AP_MODE_FORWARD           15
+#define AP_MODE_KILL              0
+#define AP_MODE_FAILSAFE          1
+#define AP_MODE_HOME              2
+#define AP_MODE_RATE_DIRECT       3
+#define AP_MODE_ATTITUDE_DIRECT   4
+#define AP_MODE_RATE_RC_CLIMB     5
+#define AP_MODE_ATTITUDE_RC_CLIMB 6
+#define AP_MODE_ATTITUDE_CLIMB    7
+#define AP_MODE_RATE_Z_HOLD       8
+#define AP_MODE_ATTITUDE_Z_HOLD   9
+#define AP_MODE_HOVER_DIRECT      10
+#define AP_MODE_HOVER_CLIMB       11
+#define AP_MODE_HOVER_Z_HOLD      12
+#define AP_MODE_NAV               13
+#define AP_MODE_RC_DIRECT         14	// Safety Pilot Direct Commands for helicopter direct control
+#define AP_MODE_CARE_FREE_DIRECT  15
+#define AP_MODE_FORWARD           16
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
@@ -77,26 +78,26 @@ extern uint16_t autopilot_flight_time;
 /** Default RC mode.
  */
 #ifndef MODE_MANUAL
-#define MODE_MANUAL AP_MODE_RATE_DIRECT
+#define MODE_MANUAL AP_MODE_ATTITUDE_DIRECT
 #endif
 #ifndef MODE_AUTO1
-#define MODE_AUTO1 AP_MODE_ATTITUDE_DIRECT
+#define MODE_AUTO1 AP_MODE_HOVER_Z_HOLD
 #endif
 #ifndef MODE_AUTO2
-#define MODE_AUTO2 AP_MODE_ATTITUDE_Z_HOLD
+#define MODE_AUTO2 AP_MODE_NAV
 #endif
 
 
 #define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
 #define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
 
-#define AP_MODE_OF_PPRZ(_rc, _mode) {               \
-    if      (_rc > THRESHOLD_2_PPRZ)                 \
-      _mode = autopilot_mode_auto2;                 \
-    else if (_rc > THRESHOLD_1_PPRZ)					\
-      _mode = MODE_AUTO1;                           \
-    else                                            \
-      _mode = MODE_MANUAL;                          \
+#define AP_MODE_OF_PPRZ(_rc, _mode) {    \
+    if      (_rc > THRESHOLD_2_PPRZ)     \
+      _mode = autopilot_mode_auto2;      \
+    else if (_rc > THRESHOLD_1_PPRZ)     \
+      _mode = MODE_AUTO1;                \
+    else                                 \
+      _mode = MODE_MANUAL;               \
   }
 
 #define autopilot_KillThrottle(_kill) { \

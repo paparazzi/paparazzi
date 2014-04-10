@@ -237,12 +237,19 @@ STATIC_INLINE void telemetry_periodic(void) {
   periodic_telemetry_send_Main();
 }
 
+/** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */
+#ifndef RC_LOST_MODE
+#define RC_LOST_MODE AP_MODE_FAILSAFE
+#endif
+
 STATIC_INLINE void failsafe_check( void ) {
-  if (radio_control.status != RC_OK &&
+  if (radio_control.status == RC_REALLY_LOST &&
       autopilot_mode != AP_MODE_KILL &&
+      autopilot_mode != AP_MODE_HOME &&
+      autopilot_mode != AP_MODE_FAILSAFE &&
       autopilot_mode != AP_MODE_NAV)
   {
-    autopilot_set_mode(AP_MODE_FAILSAFE);
+    autopilot_set_mode(RC_LOST_MODE);
   }
 
 #if FAILSAFE_ON_BAT_CRITICAL
@@ -261,6 +268,12 @@ STATIC_INLINE void failsafe_check( void ) {
       radio_control.status != RC_OK &&
 #endif
       GpsIsLost())
+  {
+    autopilot_set_mode(AP_MODE_FAILSAFE);
+  }
+
+  if (autopilot_mode == AP_MODE_HOME &&
+      autopilot_motors_on && GpsIsLost())
   {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
