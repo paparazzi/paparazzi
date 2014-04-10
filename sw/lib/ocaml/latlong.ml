@@ -483,29 +483,19 @@ let leap_seconds = 16
  * http://www.leapsecond.com/java/gpsclock.htm
  * http://www.andrews.edu/~tzs/timeconv/timealgorithm.html
  *)
-let leap_seconds_list = [46828800; 78364801; 109900802; 173059203; 252028804; 315187205; 346723206; 393984007; 425520008; 457056009; 504489610; 551750411; 599184012; 820108813; 914803214; 1025136015]
+let leap_seconds_list = [46828800.; 78364801.; 109900802.; 173059203.; 252028804.; 315187205.; 346723206.; 393984007.; 425520008.; 457056009.; 504489610.; 551750411.; 599184012.; 820108813.; 914803214.; 1025136015.]
+
+(** Count number of leap seconds when converting gps to unix time *)
+let gps_count_leaps = fun gps_time ->
+  let rec loop = fun l s ->
+    match l with
+    | [] -> s
+    | x::xs -> if gps_time >= x then loop xs (s+1) else s
+  in
+  loop leap_seconds_list 0
 
 (** Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC *)
 let gps_epoch = 315964800.
-
-(** Test to see if a GPS second is a leap second *)
-let gps_is_leap = fun gps_time ->
-  List.exists (fun t -> t = gps_time) leap_seconds_list
-
-let gps_count_leaps = fun gps_time dir_flag ->
-  let leaps = Array.of_list leap_seconds_list in
-  let nleaps = ref 0 in
-  if String.compare "unix2gps" dir_flag == 0 then
-    for i = 0 to Array.length leaps - 1 do
-      if gps_time >= leaps.(i) then
-        nleaps := !nleaps + 1
-    done
-  else
-    for i = 0 to Array.length leaps - 1 do
-      if gps_time >= leaps.(i) - i then
-        nleaps := !nleaps + 1
-    done;
-  !nleaps
 
 
 let gps_tow_of_utc = fun ?wday hour min sec ->
@@ -530,7 +520,7 @@ let unix_time_of_tow = fun ?week tow ->
       let gps_seconds = gps_epoch
         +. float w *. 60. *. 60. *. 24. *. 7.
         +. float tow in
-      gps_seconds -. float (gps_count_leaps (int_of_float gps_seconds) "gps2unix")
+      gps_seconds -. float (gps_count_leaps gps_seconds)
 
 
 
