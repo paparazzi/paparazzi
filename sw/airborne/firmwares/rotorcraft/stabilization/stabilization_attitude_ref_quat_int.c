@@ -39,27 +39,6 @@
 #define REF_RATE_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_Q, REF_RATE_FRAC)
 #define REF_RATE_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_R, REF_RATE_FRAC)
 
-#define OMEGA_P   STABILIZATION_ATTITUDE_REF_OMEGA_P
-#define ZETA_P    STABILIZATION_ATTITUDE_REF_ZETA_P
-#define ZETA_OMEGA_P_RES 10
-#define ZETA_OMEGA_P BFP_OF_REAL((ZETA_P*OMEGA_P), ZETA_OMEGA_P_RES)
-#define OMEGA_2_P_RES 7
-#define OMEGA_2_P    BFP_OF_REAL((OMEGA_P*OMEGA_P), OMEGA_2_P_RES)
-
-#define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
-#define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
-#define ZETA_OMEGA_Q_RES 10
-#define ZETA_OMEGA_Q BFP_OF_REAL((ZETA_Q*OMEGA_Q), ZETA_OMEGA_Q_RES)
-#define OMEGA_2_Q_RES 7
-#define OMEGA_2_Q    BFP_OF_REAL((OMEGA_Q*OMEGA_Q), OMEGA_2_Q_RES)
-
-#define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
-#define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
-#define ZETA_OMEGA_R_RES 10
-#define ZETA_OMEGA_R BFP_OF_REAL((ZETA_R*OMEGA_R), ZETA_OMEGA_R_RES)
-#define OMEGA_2_R_RES 7
-#define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
-
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
@@ -68,10 +47,80 @@ struct Int32Quat   stab_att_ref_quat;
 struct Int32Rates  stab_att_ref_rate;
 struct Int32Rates  stab_att_ref_accel;
 
-struct Int32RefModel stab_att_ref_model = {
+struct FloatRefModel stab_att_ref_model = {
   {STABILIZATION_ATTITUDE_REF_OMEGA_P, STABILIZATION_ATTITUDE_REF_OMEGA_Q, STABILIZATION_ATTITUDE_REF_OMEGA_R},
   {STABILIZATION_ATTITUDE_REF_ZETA_P, STABILIZATION_ATTITUDE_REF_ZETA_Q, STABILIZATION_ATTITUDE_REF_ZETA_R}
 };
+
+#define TWO_ZETA_OMEGA_RES 10
+#define TWO_OMEGA_2_RES 7
+static struct Int32Rates two_zeta_omega;
+static struct Int32Rates two_omega_2;
+
+static void update_ref_model_p(void) {
+  two_zeta_omega.p = BFP_OF_REAL((2*stab_att_ref_model.zeta.p * stab_att_ref_model.omega.p), TWO_ZETA_OMEGA_RES);
+  two_omega_2.p = BFP_OF_REAL((2*stab_att_ref_model.omega.p * stab_att_ref_model.omega.p), TWO_OMEGA_2_RES);
+}
+
+static void update_ref_model_q(void) {
+  two_zeta_omega.q = BFP_OF_REAL((2*stab_att_ref_model.zeta.q * stab_att_ref_model.omega.q), TWO_ZETA_OMEGA_RES);
+  two_omega_2.q = BFP_OF_REAL((2*stab_att_ref_model.omega.q * stab_att_ref_model.omega.q), TWO_OMEGA_2_RES);
+}
+
+static void update_ref_model_r(void) {
+  two_zeta_omega.r = BFP_OF_REAL((2*stab_att_ref_model.zeta.r * stab_att_ref_model.omega.r), TWO_ZETA_OMEGA_RES);
+  two_omega_2.r = BFP_OF_REAL((2*stab_att_ref_model.omega.r * stab_att_ref_model.omega.r), TWO_OMEGA_2_RES);
+}
+
+static void update_ref_model(void) {
+  update_ref_model_p();
+  update_ref_model_q();
+  update_ref_model_r();
+}
+
+
+void stabilization_attitude_ref_set_omega_p(float omega_p) {
+  stab_att_ref_model.omega.p = omega_p;
+  update_ref_model_p();
+}
+
+void stabilization_attitude_ref_set_omega_q(float omega_q) {
+  stab_att_ref_model.omega.q = omega_q;
+  update_ref_model_q();
+}
+
+void stabilization_attitude_ref_set_omega_r(float omega_r) {
+  stab_att_ref_model.omega.r = omega_r;
+  update_ref_model_r();
+}
+
+void stabilization_attitude_ref_set_omega(struct FloatRates *omega) {
+  stabilization_attitude_ref_set_omega_p(omega->p);
+  stabilization_attitude_ref_set_omega_q(omega->q);
+  stabilization_attitude_ref_set_omega_r(omega->r);
+}
+
+void stabilization_attitude_ref_set_zeta_p(float zeta_p) {
+  stab_att_ref_model.zeta.p = zeta_p;
+  update_ref_model_p();
+}
+
+void stabilization_attitude_ref_set_zeta_q(float zeta_q)  {
+  stab_att_ref_model.zeta.q = zeta_q;
+  update_ref_model_q();
+}
+
+void stabilization_attitude_ref_set_zeta_r(float zeta_r) {
+  stab_att_ref_model.zeta.r = zeta_r;
+  update_ref_model_r();
+}
+
+void stabilization_attitude_ref_set_zeta(struct FloatRates *zeta) {
+  stabilization_attitude_ref_set_zeta_p(zeta->p);
+  stabilization_attitude_ref_set_zeta_q(zeta->q);
+  stabilization_attitude_ref_set_zeta_r(zeta->r);
+}
+
 
 static inline void reset_psi_ref_from_body(void) {
   //sp has been set from body using stabilization_attitude_get_yaw_i, use that value
@@ -89,12 +138,7 @@ void stabilization_attitude_ref_init(void) {
   INT_RATES_ZERO(stab_att_ref_rate);
   INT_RATES_ZERO(stab_att_ref_accel);
 
-  /*
-  for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
-    RATES_ASSIGN(stab_att_ref_model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
-    RATES_ASSIGN(stab_att_ref_model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
-  }
-  */
+  update_ref_model();
 
 }
 
@@ -157,17 +201,19 @@ void stabilization_attitude_ref_update(void) {
   INT32_QUAT_INV_COMP(err, stab_att_sp_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   INT32_QUAT_WRAP_SHORTEST(err);
-  /* propagate the 2nd order linear model    */
+
+  /* propagate the 2nd order linear model : accel = -2*zeta*omega * rate - omega^2 * angle  */
 
   const struct Int32Rates accel_rate = {
-    ((int32_t)(-2.*ZETA_OMEGA_P) * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_P_RES),
-    ((int32_t)(-2.*ZETA_OMEGA_Q) * (stab_att_ref_rate.q >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_Q_RES),
-    ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_R_RES) };
+    (-two_zeta_omega.p * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (TWO_ZETA_OMEGA_RES),
+    (-two_zeta_omega.q * (stab_att_ref_rate.q >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (TWO_ZETA_OMEGA_RES),
+    (-two_zeta_omega.r * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (TWO_ZETA_OMEGA_RES) };
 
+  /* since error quaternion contains the half-angles we get 2*omega^2*err */
   const struct Int32Rates accel_angle = {
-    ((int32_t)(-OMEGA_2_P) * (err.qx >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_P_RES),
-    ((int32_t)(-OMEGA_2_Q) * (err.qy >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_Q_RES),
-    ((int32_t)(-OMEGA_2_R) * (err.qz >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_R_RES) };
+    (-two_omega_2.p * (err.qx >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (TWO_OMEGA_2_RES),
+    (-two_omega_2.q * (err.qy >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (TWO_OMEGA_2_RES),
+    (-two_omega_2.r * (err.qz >> (INT32_QUAT_FRAC - REF_ACCEL_FRAC))) >> (TWO_OMEGA_2_RES) };
 
   RATES_SUM(stab_att_ref_accel, accel_rate, accel_angle);
 

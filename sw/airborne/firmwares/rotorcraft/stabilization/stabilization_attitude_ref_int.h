@@ -29,21 +29,14 @@
 
 #include "math/pprz_algebra_int.h"
 
+#define REF_ACCEL_FRAC 12
+#define REF_RATE_FRAC  16
+#define REF_ANGLE_FRAC 20
+
 extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
 extern struct Int32Eulers stab_att_ref_euler; ///< with #REF_ANGLE_FRAC
 extern struct Int32Rates  stab_att_ref_rate;  ///< with #REF_RATE_FRAC
 extern struct Int32Rates  stab_att_ref_accel; ///< with #REF_ACCEL_FRAC
-
-struct Int32RefModel {
-  struct Int32Rates omega;
-  struct Int32Rates zeta;
-};
-
-extern struct Int32RefModel stab_att_ref_model;
-
-#define REF_ACCEL_FRAC 12
-#define REF_RATE_FRAC  16
-#define REF_ANGLE_FRAC 20
 
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);

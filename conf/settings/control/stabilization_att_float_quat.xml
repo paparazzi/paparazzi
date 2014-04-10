@@ -21,6 +21,13 @@
       <dl_setting var="stabilization_gains[0].d.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain r" param="STABILIZATION_ATTITUDE_PSI_DGAIN"/>
       <dl_setting var="stabilization_gains[0].rates_d.z" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind r" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D"/>
       <dl_setting var="stabilization_gains[0].dd.z" min="0" step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain r" param="STABILIZATION_ATTITUDE_PSI_DDGAIN"/>
+
+      <dl_setting var="stab_att_ref_model[0].omega.p" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_ref_quat_float" shortname="omega p" param="STABILIZATION_ATTITUDE_REF_OMEGA_P" handler="SetOmegaP"/>
+      <dl_setting var="stab_att_ref_model[0].zeta.p" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_ref_quat_float" shortname="zeta p" param="STABILIZATION_ATTITUDE_REF_ZETA_P"/>
+      <dl_setting var="stab_att_ref_model[0].omega.q" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_ref_quat_float" shortname="omega q" param="STABILIZATION_ATTITUDE_REF_OMEGA_Q" handler="SetOmegaQ"/>
+      <dl_setting var="stab_att_ref_model[0].zeta.q" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_ref_quat_float" shortname="zeta q" param="STABILIZATION_ATTITUDE_REF_ZETA_Q"/>
+      <dl_setting var="stab_att_ref_model[0].omega.r" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_ref_quat_float" shortname="omega r" param="STABILIZATION_ATTITUDE_REF_OMEGA_P" handler="SetOmegaR"/>
+      <dl_setting var="stab_att_ref_model[0].zeta.r" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_ref_quat_float" shortname="zeta r" param="STABILIZATION_ATTITUDE_REF_ZETA_R"/>
     </dl_settings>
 
   </dl_settings>

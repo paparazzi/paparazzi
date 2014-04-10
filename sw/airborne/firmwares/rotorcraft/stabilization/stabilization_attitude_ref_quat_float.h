@@ -43,4 +43,21 @@
 void stabilization_attitude_ref_enter(void);
 void stabilization_attitude_ref_schedule(uint8_t idx);
 
+extern void stabilization_attitude_ref_idx_set_omega_p(uint8_t idx, float omega);
+extern void stabilization_attitude_ref_idx_set_omega_q(uint8_t idx, float omega);
+extern void stabilization_attitude_ref_idx_set_omega_r(uint8_t idx, float omega);
+extern void stabilization_attitude_ref_set_omega_p(float omega);
+extern void stabilization_attitude_ref_set_omega_q(float omega);
+extern void stabilization_attitude_ref_set_omega_r(float omega);
+
+#define stabilization_attitude_ref_quat_float_SetOmegaP(_val) { \
+    stabilization_attitude_ref_set_omega_p(_val);               \
+  }
+#define stabilization_attitude_ref_quat_float_SetOmegaQ(_val) { \
+    stabilization_attitude_ref_set_omega_q(_val);               \
+  }
+#define stabilization_attitude_ref_quat_float_SetOmegaR(_val) { \
+    stabilization_attitude_ref_set_omega_r(_val);               \
+  }
+
 #endif /* STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H */
