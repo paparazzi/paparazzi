@@ -46,9 +46,6 @@ ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 #
 ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
 
-ifeq ($(ARCH), stm32)
-ap.srcs += lisa/plug_sys.c
-endif
 #
 # Interrupts
 #

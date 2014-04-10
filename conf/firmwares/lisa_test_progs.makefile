@@ -401,8 +401,7 @@ test_ahrs.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
 ifeq ($(AHRS), ice)
 test_ahrs.CFLAGS += -DFACE_REINJ_1=1024
 test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler.h\"
-test_ahrs.srcs += subsystems/ahrs/ahrs_int_cmpl_euler.c  \
-                  lisa/plug_sys.c
+test_ahrs.srcs += subsystems/ahrs/ahrs_int_cmpl_euler.c
 endif
 
 ifeq ($(AHRS), icq)
