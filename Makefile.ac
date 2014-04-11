@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#   Copyright (C) 2004 Pascal Brisset Antoine Drouin
+#   Copyright (C) 2003-2014  The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -25,25 +25,27 @@ PAPARAZZI_SRC=$(shell pwd)
 
 include conf/Makefile.local
 
+# main directory where the generated files and compilation results for an aircraft are stored
+AIRCRAFT_BUILD_DIR = $(PAPARAZZI_HOME)/var/aircrafts/$(AIRCRAFT)
 CONF=$(PAPARAZZI_HOME)/conf
 CONF_XML=$(CONF)/conf.xml
 AIRBORNE=sw/airborne
 MESSAGES_XML = $(CONF)/messages.xml
-ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-AIRCRAFT_CONF_DIR = $(ACINCLUDE)/conf
-AC_GENERATED = $(ACINCLUDE)/$(TARGET)/generated
+
+AIRCRAFT_CONF_DIR = $(AIRCRAFT_BUILD_DIR)/conf
+AC_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(TARGET)/generated
 
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
 PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
 RADIO_H=$(AC_GENERATED)/radio.h
 FLIGHT_PLAN_H=$(AC_GENERATED)/flight_plan.h
-FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
+FLIGHT_PLAN_XML=$(AIRCRAFT_BUILD_DIR)/flight_plan.xml
 SETTINGS_H=$(AC_GENERATED)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
-SETTINGS_XML=$(ACINCLUDE)/settings.xml
-SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
-SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
-MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
+SETTINGS_XML=$(AIRCRAFT_BUILD_DIR)/settings.xml
+SETTINGS_MODULES=$(AIRCRAFT_BUILD_DIR)/settings_modules.xml
+SETTINGS_TELEMETRY=$(AIRCRAFT_BUILD_DIR)/settings_telemetry.xml
+MAKEFILE_AC=$(AIRCRAFT_BUILD_DIR)/Makefile.ac
 MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AUTOPILOT_H=$(AC_GENERATED)/autopilot_core.h
@@ -107,10 +109,10 @@ print_version:
 
 
 all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H) $(AUTOPILOT_H)
-	@echo "TARGET: " $(TARGET)"\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
-	@echo "CFLAGS: " $($(TARGET).CFLAGS)"\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
-	@echo "LDFLAGS: " $($(TARGET).LDFLAGS)"\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
-	@echo "srcs: " $($(TARGET).srcs) >> $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "TARGET: " $(TARGET)"\n" > $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
+	@echo "CFLAGS: " $($(TARGET).CFLAGS)"\n"  >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
+	@echo "LDFLAGS: " $($(TARGET).LDFLAGS)"\n"  >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
+	@echo "srcs: " $($(TARGET).srcs) >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
 
 radio_ac_h : $(RADIO_H)
 
@@ -212,6 +214,6 @@ ap: ap.compile
 
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
-	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
+	rm -fr $(AIRCRAFT_BUILD_DIR)
 
 .PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version

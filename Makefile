@@ -226,7 +226,9 @@ $(ABI_MESSAGES_H) : $(ABI_XML) generators
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
-
+#
+# code generation for aircrafts from xml files
+#
 include Makefile.ac
 
 ac_h ac fbw ap: static conf generators ext

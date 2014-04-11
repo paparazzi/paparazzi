@@ -248,7 +248,7 @@ $(OBJDIR)/%.o : $(SRC_ARCH)/lpcusb/%.c $(OBJDIR)/../Makefile.ac
 	$(Q)$(CC) -MMD -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 
-# grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
+# grab files in var/aircrafts/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
 #$(OBJDIR)/%.o : $(OBJDIR)/%.c
 #	@echo CC $@
 #	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
