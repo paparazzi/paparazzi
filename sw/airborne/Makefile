@@ -1,7 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-#  $Id$
-#  Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
+#  Copyright (C) 2003-2014  The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -25,15 +24,18 @@
 Q=@
 
 
-OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
-VARINCLUDE=$(PAPARAZZI_HOME)/var/include
-ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
+# main directory where the generated files and compilation results for an aircraft are stored
+AIRCRAFT_BUILD_DIR = $(PAPARAZZI_HOME)/var/aircrafts/$(AIRCRAFT)
+
+OBJDIR = $(AIRCRAFT_BUILD_DIR)/$(TARGET)
+ACINCLUDE = $(AIRCRAFT_BUILD_DIR)/$(TARGET)
+VARINCLUDE = $(PAPARAZZI_HOME)/var/include
 
 INCLUDES = -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/conf/autopilot -I$(PAPARAZZI_SRC)/sw/airborne/arch/$($(TARGET).ARCHDIR) -I$(VARINCLUDE) -I$(ACINCLUDE)
 
 
 ifneq ($(MAKECMDGOALS),clean)
-  include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
+  include $(AIRCRAFT_BUILD_DIR)/Makefile.ac
   $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
   include ../../conf/Makefile.local
 

@@ -10,7 +10,7 @@ udp2tcp: udp2tcp.c
 tcp2ivy: tcp2ivy.c
 	gcc -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
 tcp2ivy_generic: tcp2ivy_generic.c
-	gcc -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -I../../../var/${AIRCRAFT} -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
+	gcc -g -O2 -Wall $(shell pkg-config glib-2.0 --cflags) -I../../../var/aircrafts/${AIRCRAFT} -o $@ $^ $(shell pkg-config glib-2.0 --libs) -lglibivy -lm
 
 clean:
 	$(Q)rm -f email2udp udp2tcp tcp2ivy
