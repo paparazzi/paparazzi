@@ -184,8 +184,13 @@ static const struct FloatVect3 B = { (float)(INS_H_X), (float)(INS_H_Y), (float)
 bool_t ins_baro_initialized;
 // Baro event on ABI
 #ifndef INS_BARO_ID
+#if USE_BARO_BOARD
 #define INS_BARO_ID BARO_BOARD_SENDER_ID
+#else
+#define INS_BARO_ID ABI_BROADCAST
 #endif
+#endif
+PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
 
