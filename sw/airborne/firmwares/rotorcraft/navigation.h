@@ -47,6 +47,7 @@ extern void nav_run(void);
 
 extern uint8_t last_wp __attribute__ ((unused));
 
+/** ground reference altitude in meters << #INT32_POS_FRAC */
 extern int32_t ground_alt;
 
 extern uint8_t horizontal_mode;

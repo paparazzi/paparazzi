@@ -270,6 +270,8 @@ void autopilot_init(void) {
 #define NAV_PRESCALER (PERIODIC_FREQUENCY / NAV_FREQ)
 void autopilot_periodic(void) {
 
+  RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
+
   if (autopilot_in_flight) {
     if (too_far_from_home) {
       if (dist2_to_home > failsafe_mode_dist2)

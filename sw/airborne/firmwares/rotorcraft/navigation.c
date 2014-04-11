@@ -323,11 +323,13 @@ static inline void nav_set_altitude( void ) {
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
   ins_reset_local_origin();
+  ground_alt = POS_BFP_OF_REAL(state.ned_origin_f.hmsl);
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
   ins_reset_altitude_ref();
+  ground_alt = POS_BFP_OF_REAL(state.ned_origin_f.hmsl);
   return 0;
 }
 
@@ -342,14 +344,11 @@ void nav_init_stage( void ) {
 void nav_periodic_task(void) {
   RunOnceEvery(16, { stage_time++;  block_time++; });
 
-  compute_dist2_to_home();
   /* from flight_plan.h */
   auto_nav();
 
   /* run carrot loop */
   nav_run();
-
-  ground_alt = POS_BFP_OF_REAL(state.ned_origin_f.hmsl);
 }
 
 void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i* new_lla_pos) {
@@ -409,8 +408,6 @@ void nav_home(void) {
   vertical_mode = VERTICAL_MODE_ALT;
   nav_altitude = waypoints[WP_HOME].z;
   nav_flight_altitude = nav_altitude;
-
-  compute_dist2_to_home();
 
   /* run carrot loop */
   nav_run();
