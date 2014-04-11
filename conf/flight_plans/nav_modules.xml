@@ -55,7 +55,7 @@
       <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
-    <block group="home" key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block group="home" key="Control+a" name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block group="base_pattern" key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
@@ -73,24 +73,24 @@
       <call fun="nav_line_setup()"/>
       <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block group="extra_pattern" name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
-      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    <block group="extra_pattern" name="Survey S1-S3" strip_button="Survey (wp S1-S3)" strip_icon="survey.png">
+      <survey_rectangle grid="150" wp1="S1" wp2="S3"/>
     </block>
     <!--===================== Nav modules example blocks =================================-->
     <block name="Bungee take-off">
       <call fun="nav_bungee_takeoff_setup(WP_HOME)"/>
       <call fun="nav_bungee_takeoff_run()"/>
     </block>
-    <block name="Poly Survey S1-S2" strip_button="Poly Survey">
-      <call fun="nav_survey_polygon_setup(WP_S1,5,180,30,10,50,100)"/>
+    <block group="nav_pattern" name="Poly Survey" strip_button="Poly Survey">
+      <call fun="nav_survey_polygon_setup(WP_S1,5,80,30,10,50,ground_alt+60)"/>
       <call fun="nav_survey_polygon_run()"/>
     </block>
-    <block name="Border line 1-2" strip_button="Border Line (wp 1-2)">
+    <block group="nav_pattern" name="Border line 1-2" strip_button="Border Line">
       <call fun="nav_line_border_setup()"/>
       <call fun="nav_line_border_run(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block name="Smooth nav" strip_button="Smooth nav (wp 1-2)">
-      <set var="snav_desired_tow" value="gps.tow / 1000. + 200."/>
+    <block group="nav_pattern" name="Smooth nav (wp 1-2)" strip_button="Smooth nav">
+      <set var="snav_desired_tow" value="gps.tow / 1000. + 60."/>
       <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), DEFAULT_CIRCLE_RADIUS/2.)"/>
       <call fun="snav_circle1()"/>
       <call fun="snav_route()"/>
@@ -99,12 +99,12 @@
       <go from="1" hmode="route" wp="2"/>
       <deroute block="Standby"/>
     </block>
-    <block name="Flower" strip_button="Flower (wp 1-2)">
+    <block group="nav_pattern" name="Flower (wp 1-2)" strip_button="Flower">
       <call fun="nav_flower_setup(WP_1, WP_2)"/>
       <call fun="nav_flower_run()"/>
     </block>
-    <block name="Poly survey">
-      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 50, 45)"/>
+    <block name="Poly survey osam">
+      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 45)"/>
       <call fun="nav_survey_poly_osam_run()"/>
     </block>
     <block name="Flight Line block">
