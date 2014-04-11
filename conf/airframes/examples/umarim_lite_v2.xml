@@ -30,10 +30,6 @@
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 
-  <modules>
-    <load name="nav_line.xml"/>
-  </modules>
-
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="7" min="1040" neutral="1040" max="2000"/>

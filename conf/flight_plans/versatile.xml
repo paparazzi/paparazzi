@@ -51,6 +51,10 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="extra_pattern">
+      <call fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
+    </block>
     <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>

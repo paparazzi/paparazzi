@@ -31,6 +31,7 @@
     <load name="ahrs_chimu_spi.xml" >
       <define name="CHIMU_BIG_ENDIAN" />
     </load>
+    <load name="nav_line.xml"/>
   </modules>
 
   <servos>

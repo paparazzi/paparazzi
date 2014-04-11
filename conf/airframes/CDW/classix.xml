@@ -233,6 +233,7 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_6"/> <!-- e.g. current sensor -->
    </load>
    <load name="photogrammetry_calculator.xml" />
+    <load name="nav_line.xml"/>
   </modules>
 
 <!-- --------------------------------------------------------------------------- -->

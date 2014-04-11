@@ -38,7 +38,6 @@
 
   <modules>
     <load name="sys_mon.xml"/>
-    <load name="nav_line.xml"/>
   </modules>
 
   <servos>

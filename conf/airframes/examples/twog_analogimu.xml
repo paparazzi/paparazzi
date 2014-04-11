@@ -211,4 +211,8 @@
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 
+  <modules>
+    <load name="nav_line.xml"/>
+  </modules>
+
 </airframe>
