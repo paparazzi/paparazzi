@@ -285,6 +285,7 @@ void autopilot_periodic(void) {
     RunOnceEvery(NAV_PRESCALER, nav_home());
   }
   else {
+    // otherwise always call nav_periodic_task so that carrot is always updated in GCS for other modes
     RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
   }
 
