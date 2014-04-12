@@ -1070,7 +1070,7 @@ module GCS_icon = struct
     and lon = Pprz.float_assoc "long" vs in
     let wgs84 = LL.make_geo_deg lat lon in
 
-    geomap#move_item item wgs84
+    geomap#move_item ~z:geomap#current_zoom item wgs84
 end (* module GCS_icon *)
 
 

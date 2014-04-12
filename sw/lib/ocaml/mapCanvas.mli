@@ -76,6 +76,7 @@ class widget :
     method menubar : GMenu.menu_shell
     method mouse_motion : GdkEvent.Motion.t -> bool
     method move_item :
+      ?z:float ->
       GnomeCanvas.re_p GnoCanvas.item -> Latlong.geographic -> unit
     method moveto : Latlong.geographic -> unit
     method of_world : Latlong.fmeter * Latlong.fmeter -> Latlong.geographic
