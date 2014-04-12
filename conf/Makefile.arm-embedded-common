@@ -7,18 +7,22 @@
 # This has some common targets
 # for bare metal systems like on the ARM7TDMI, cortex M3/4
 
+ifdef CC
+CC_VERSION := $(shell $(CC) --version | head -1)
+else
+CC_VERSION := Not found
+endif
 
 printcommands:
 	@echo ""
-	@echo "Using CC   = $(CC)"
+	@echo "GCC version: $(CC_VERSION)" '\n'
+#	@echo "Using CC   = $(CC)"
 #	@echo "Using LD   = $(LD)"
 #	@echo "Using CP   = $(CP)"
 #	@echo "Using DMP  = $(DMP)"
 #	@echo "Using NM   = $(NM)"
 #	@echo "Using SIZE = $(SIZE)"
-	@echo "GCC version:"
-	@$(CC) --version | head -1
-	@echo ""
+#	@echo ""
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex

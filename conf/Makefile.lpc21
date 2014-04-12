@@ -173,6 +173,11 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-common
 # Default target.
 all: printcommands sizebefore build sizeafter
 
+# depend order only for parallel make
+sizebefore: | printcommands
+build: | printcommands sizebefore
+sizeafter: | build
+
 build: $(OBJDIR) elf hex lss sym
 
 $(OBJDIR):

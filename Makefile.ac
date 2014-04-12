@@ -56,6 +56,24 @@ else
 	MKTEMP = mktemp
 endif
 
+# detection of number of processors for parallel compilation
+# by passing J=AUTO from toplevel make.
+# Number of processes can also be explicitly set with e.g. J=4
+# Calling make without a J variable is the same as J=1 (serial compilation)
+NPROCS := 1
+ifdef J
+ifeq ($J,AUTO)
+ifeq ($(UNAME),Linux)
+  NPROCS := $(shell grep -c ^processor /proc/cpuinfo)
+else ifeq ($(UNAME),Darwin)
+  NPROCS := $(shell sysctl hw.ncpu | awk '{print $$2}')
+endif # $(UNAME)
+else # not auto, explicitly specified
+  NPROCS := $J
+endif # $J
+endif
+
+
 # "make Q=''" to get full echo
 Q=@
 
@@ -176,8 +194,8 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 	@echo BUILD $(AIRCRAFT), TARGET $*
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT)
 
-%.compile: %.ac_h print_version
-	cd $(AIRBORNE); $(MAKE) TARGET=$* all
+%.compile: %.ac_h | print_version
+	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
 
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload

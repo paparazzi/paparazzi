@@ -79,6 +79,9 @@ printcommands:
 
 all: printcommands build
 
+# depend order only for parallel make
+build: | printcommands
+
 build: $(OBJDIR) elf
 
 $(OBJDIR):

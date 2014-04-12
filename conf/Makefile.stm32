@@ -152,6 +152,11 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-common
 # Default target.
 all: printcommands sizebefore build sizeafter
 
+# depend order only for parallel make
+sizebefore: | printcommands
+build: | printcommands sizebefore
+sizeafter: | build
+
 build: $(OBJDIR) elf bin hex
 # lss sym
 
@@ -189,7 +194,7 @@ sym: $(OBJDIR)/$(TARGET).sym
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
 .PRECIOUS : $(COBJ) $(AOBJ)
-%.elf:  $(COBJ) $(AOBJ)
+%.elf: $(COBJ) $(AOBJ) | $(OBJDIR)
 	@echo LD $@
 	$(Q)$(LD) $(LDFLAGS) $($(TARGET).LDFLAGS) -o $@ $(COBJ) $(AOBJ) $(LDLIBS)
 
@@ -209,14 +214,12 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 include $(PAPARAZZI_SRC)/conf/Makefile.stm32-upload
 
 # Listing of phony targets.
-.PHONY : all build elf bin lss sym start_gdb start_telnet
+.PHONY : all build elf bin lss sym
 
 #
 # Dependencies
 #
-
-DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
-
 ifneq ($(MAKECMDGOALS),clean)
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
 -include $(DEPS)
 endif
