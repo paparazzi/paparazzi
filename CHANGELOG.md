@@ -18,6 +18,10 @@ General
   [#597] (https://github.com/paparazzi/paparazzi/pull/597)
 - add support for new telemetry types
   [#589] (https://github.com/paparazzi/paparazzi/pull/589)
+- parallel build of firmwares with J=AUTO
+  [#683] (https://github.com/paparazzi/paparazzi/pull/683)
+- add simple verify to flashing via dfu-util
+  [#673] (https://github.com/paparazzi/paparazzi/pull/673)
 
 Simulation
 ----------
@@ -38,6 +42,10 @@ Hardware support
   - ST LSM303DLHC 3D accelerometer and magnetometer (I2C)
   - converted barometers MS5611, BMP085 to generic peripherals
     [#515] (https://github.com/paparazzi/paparazzi/pull/515)
+- I2C watchdog for STM32
+  [#662] (https://github.com/paparazzi/paparazzi/pull/662)
+- Dual PWM servo driver
+  [#678] (https://github.com/paparazzi/paparazzi/pull/678)
 
 Airborne
 --------
@@ -58,8 +66,12 @@ Airborne
   [#644] (https://github.com/paparazzi/paparazzi/pull/644)
 - INS alt_float: remove ALT_KALMAN_ENABLED
   [#594] (https://github.com/paparazzi/paparazzi/issues/594)
+- IIR filter for horizontal position Kalman Filter
+  [#677] (https://github.com/paparazzi/paparazzi/pull/677)
 - barometer interface via ABI
   [#525] (https://github.com/paparazzi/paparazzi/pull/525)
+- sonar interface using ABI
+  [#654] (https://github.com/paparazzi/paparazzi/pull/654)
 - AHRS int_cmpl_quat frequency scaling
   [#371] (https://github.com/paparazzi/paparazzi/pull/371)
 
@@ -72,16 +84,26 @@ Rotorcraft firmware
 - guidance improvements
   [#539] (https://github.com/paparazzi/paparazzi/pull/539)
   [#546] (https://github.com/paparazzi/paparazzi/pull/546)
+- horizontal guidance: dynamically adjustable max_speed
+  [#664] (https://github.com/paparazzi/paparazzi/pull/664)
 - adaptive thrust estimation limits
   [#495] (https://github.com/paparazzi/paparazzi/issues/495)
 - improve in_flight detection heuristic
   [#469] (https://github.com/paparazzi/paparazzi/pull/469)
+- stabilization quaternion: fix scale of angle in 2nd order model
+  [#664] (https://github.com/paparazzi/paparazzi/pull/663)
+- HITL using reference position to fake GPS
+  [#640] (https://github.com/paparazzi/paparazzi/pull/640)
+- add a HOME mode
+  [#562] (https://github.com/paparazzi/paparazzi/pull/562)
 
 Fixedwing firmware
 ------------------
 
 - alt_float: remove ALT_KALMAN_ENABLED
   [#594] (https://github.com/paparazzi/paparazzi/issues/594)
+- extra navigation routines as modules
+  [#512] (https://github.com/paparazzi/paparazzi/pull/512)
 
 
 Paparazzi 5.0.4_stable
