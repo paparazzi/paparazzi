@@ -232,14 +232,17 @@ if __name__ == "__main__":
     #addr = APP_ADDRESS
     addr = options.addr
     print("Programming memory from 0x%08X...\r" % addr)
-
+    
+    if "CRC" in product:
+      use_crc = 1
+    
     init_progress_bar()
 
     while binf:
         update_progress_bar((addr - options.addr), bin_length)
         stm32_erase(target, addr)
         
-        if "CRC" in product:
+        if use_crc:
           write_block = binf[:(SECTOR_SIZE)]
           write_block_array = numpy.frombuffer(write_block, "uint8")
           crc1 = 0
