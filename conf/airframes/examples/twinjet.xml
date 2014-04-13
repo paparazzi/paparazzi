@@ -40,7 +40,9 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7" />
     </load>
     <load name="infrared_adc.xml"/>
+    <load name="nav_line.xml"/>
   </modules>
+
 
   <servos>
     <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>

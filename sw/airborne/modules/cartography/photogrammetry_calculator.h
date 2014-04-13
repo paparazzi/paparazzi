@@ -78,8 +78,8 @@ Add to flightplan
 #include "std.h"
 #include "paparazzi.h"
 
-#include "subsystems/navigation/OSAMNav.h"
-#include "subsystems/navigation/poly_survey_adv.h"
+#include "modules/nav/nav_survey_poly_osam.h"
+#include "modules/nav/nav_survey_polygon.h"
 
 
 // Flightplan Variables
@@ -136,15 +136,15 @@ void photogrammetry_calculator_update_flightplan2camera(void);
 
 
 // Flightplan Routine Wrappers
-#define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {  			\
+#define PhotogrammetryCalculatorPolygonSurveyOsam(_WP, _COUNT) {  			\
   WaypointAlt(_WP) = photogrammetry_height + GROUND_ALT;			\
   int _ang = 90 - DegOfRad(photogrammetry_sweep_angle);				\
   while (_ang > 90) _ang -= 180; while (_ang < -90) _ang += 180; 			\
-  InitializePolygonSurvey((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
+  nav_survey_poly_osam_setup((_WP), (_COUNT), 2*photogrammetry_sidestep, _ang); 	\
 }
 
-#define PhotogrammetryCalculatorPolygonSurveyADV(_WP, _COUNT) {			\
-  init_poly_survey_adv((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle),	\
+#define PhotogrammetryCalculatorPolygonSurvey(_WP, _COUNT) {			\
+  nav_survey_polygon_setup((_WP), (_COUNT), DegOfRad(photogrammetry_sweep_angle),	\
     photogrammetry_sidestep, photogrammetry_triggerstep, 			\
   photogrammetry_radius_min,  photogrammetry_height + GROUND_ALT);		\
 }

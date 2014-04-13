@@ -1,8 +1,6 @@
 <flight_plan alt="100" ground_alt="59" lat0="30.6478" lon0="-86.3253" max_dist_from_home="1500" name="MAV06" qfu="90" security_height="25">
-<header>
-#include "subsystems/navigation/bomb.h"
-#include "subsystems/navigation/nav_line.h"
-</header>
+  <header>
+  </header>
   <waypoints>
     <waypoint alt="59." name="TARGET" x="85.1922610838" y="8.50236448925"/>
     <waypoint name="TARGET1" x="700.251490867" y="-210.691196656"/>
@@ -68,21 +66,21 @@
     </block>
 
     <block name="bomb" strip_button="Bomb">
-      <set value="BombComputeApproach()" var="unit"/>
-      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10)" wp="BASELEG"/>
+      <set value="NavDropComputeApproach()" var="unit"/>
+      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(nav_drop_start_qdr)-10)" wp="BASELEG"/>
     </block>
     <block name="align">
-      <exception cond="BombUpdateRelease()" deroute="kill"/>
-      <go approaching_time="bomb_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+      <exception cond="NavDropUpdateRelease()" deroute="kill"/>
+      <go approaching_time="nav_drop_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
     </block>
     <block name="shoot">
-      <set value="BombShoot()" var="unit"/>
+      <set value="NavDropShoot()" var="unit"/>
       <go approaching_time="0" from="RELEASE" hmode="route" wp="CLIMB"/>
-      <set value="BombCloseHatch()" var="unit"/>
+      <set value="NavDropCloseHatch()" var="unit"/>
       <deroute block="wait"/>
     </block>
     <block name="close">
-      <set value="BombCloseHatch()" var="unit"/>
+      <set value="NavDropCloseHatch()" var="unit"/>
       <deroute block="wait"/>
     </block>
 
@@ -99,8 +97,8 @@
       </block>-->
 
        <block name="Line" strip_button="Line">
-         <call fun="nav_line_init()"/>
-         <call fun="nav_line(WP_11, WP_22, 100)"/>
+         <call fun="nav_line_setup()"/>
+         <call fun="nav_line_run(WP_11, WP_22, 100)"/>
     </block>
   </blocks>
 </flight_plan>

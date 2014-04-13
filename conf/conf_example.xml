@@ -74,6 +74,16 @@
    settings=" settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ins_neutrals.xml settings/estimation/ac_char.xml"
    gui_color="#ffffffffffff"
   />
+  <aircraft
+   name="Microjet_LisaM"
+   ac_id="4"
+   airframe="airframes/examples/microjet_lisa_m.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/nav_modules.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/control/ctl_dash_loiter_trim.xml settings/estimation/ins_neutrals.xml"
+   gui_color="blue"
+  />
   <!-- tiny/umarim -->
   <aircraft
     name="Microjet"

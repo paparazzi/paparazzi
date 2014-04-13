@@ -201,6 +201,7 @@
     <load name="digital_cam.xml">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO16"/>
     </load>
+    <load name="nav_line.xml"/>
 
   </modules>
 

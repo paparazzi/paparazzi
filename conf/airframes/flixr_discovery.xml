@@ -34,7 +34,7 @@
 
     <!-- Control -->
     <subsystem name="control" type="new"/>
-    <subsystem name="navigation" type="extra"/>
+    <subsystem name="navigation"/>
 
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="0"/>
@@ -226,9 +226,6 @@
 
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="50.0"/>
-
-    <!-- only for spiral -->
-    <define name="MIN_CIRCLE_RADIUS" value="35.0"/>
 
     <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
     <!--

@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_smooth" dir="nav">
+  <doc>
+    <description>
+       Fixedwing navigation along a line with nice U-turns.
+       <!--
+        <call fun="nav_line_init()"/>
+        <call fun="nav_line(WP_waypoint1_name, WP_waypoint1_name, nav_radius)"/>
+       -->
+
+    </description>
+  </doc>
+  <header>
+    <file name="nav_line.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_line.c"/>
+  </makefile>
+</module>

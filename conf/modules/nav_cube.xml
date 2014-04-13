@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_cube" dir="nav">
+  <doc>
+    <description>
+      Fixedwing Navigation in a cube towards a center.
+    </description>
+  </doc>
+  <header>
+    <file name="nav_cube.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_cube.c"/>
+  </makefile>
+</module>

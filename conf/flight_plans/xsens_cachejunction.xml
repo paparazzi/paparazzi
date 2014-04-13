@@ -2,7 +2,6 @@
 
 <flight_plan alt="1450" ground_alt="1350" lat0="41.820661" lon0="-111.987935" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
-#include "subsystems/navigation/nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>
@@ -45,16 +44,16 @@
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
       <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+      <call fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <survey_rectangle grid="35" wp1="S1" wp2="S2"/>
     </block>
     <block name="Line S4-5" strip_button="Line (S 4-5)">
       <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_S4, WP_S5, nav_radius)"/>
+      <call fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_S4, WP_S5, nav_radius)"/>
     </block>
     <block name="Steps roll -10, +10">
       <while cond="TRUE">

@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_survey_zamboni" dir="nav">
+  <doc>
+    <description>
+     Zamboni pattern survey for fixedwings.
+    </description>
+  </doc>
+  <header>
+    <file name="nav_survey_zamboni.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_survey_zamboni.c"/>
+  </makefile>
+</module>

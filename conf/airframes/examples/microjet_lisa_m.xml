@@ -1,16 +1,16 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- Microjet Multiplex (http://www.multiplex-rc.de/)
-     Lisa/M v1.0 board (http://paparazzi.enac.fr/wiki/Lisa/M_v10)
-     Aspirin IMU v1.5
+     Lisa/M v2.0 board (http://paparazzi.enac.fr/wiki/Lisa/M_v20)
+     Aspirin IMU v2.1
      Xbee modem in transparent mode
 -->
 
-<airframe name="Microjet Lisa/M 1.0">
+<airframe name="Microjet Lisa/M 2.0">
 
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
-    <target name="ap"   board="lisa_m_1.0">
+    <target name="ap"   board="lisa_m_2.0">
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
@@ -21,19 +21,13 @@
     <define name="STRONG_WIND"/>
 
     <define name="USE_BAROMETER" value="TRUE"/>
-
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent"/>
 
     <!-- Sensors -->
-    <subsystem name="imu"           type="aspirin_v1.5">
-      <define name="ASPIRIN_ACCEL_RATE" value="ADXL345_RATE_100HZ"/>
-      <define name="ASPIRIN_GYRO_LOWPASS" value="ITG3200_DLPF_42HZ"/>
-      <!-- gyro: internal freq 1kHz, output freq 100Hz -->
-      <define name="ASPIRIN_GYRO_SMPLRT_DIV" value="9"/>
-    </subsystem>
+    <subsystem name="imu"           type="aspirin_v2.1"/>
     <subsystem name="gps"           type="ublox"/>
 
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
@@ -45,6 +39,21 @@
   <modules>
     <load name="sys_mon.xml"/>
     <load name="baro_sim.xml"/>
+
+    <!-- extra navigation routines -->
+    <load name="nav_bungee_takeoff.xml"/>
+    <load name="nav_line.xml"/>
+    <load name="nav_line_border.xml"/>
+    <load name="nav_line_osam.xml"/>
+    <load name="nav_flower.xml"/>
+    <load name="nav_smooth.xml"/>
+    <load name="nav_survey_polygon.xml"/>
+    <load name="nav_survey_poly_osam.xml"/>
+    <load name="nav_vertical_raster.xml"/>
+
+    <load name="digital_cam_servo.xml">
+      <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
+    </load>
   </modules>
 
   <servos>
@@ -57,6 +66,7 @@
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="SHUTTER"  failsafe_value="0"/>
   </commands>
 
   <rc_commands>

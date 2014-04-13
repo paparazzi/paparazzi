@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_flower" dir="nav">
+  <doc>
+    <description>
+      Make a flower navigation pattern
+    </description>
+  </doc>
+  <header>
+    <file name="nav_flower.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_flower.c"/>
+  </makefile>
+</module>

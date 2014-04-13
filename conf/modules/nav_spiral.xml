@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_spiral" dir="nav">
+  <doc>
+    <description>
+      Fixedwing navigation in a spiral/helix.
+      creating a helix:
+      - start radius to end radius, increasing after reaching alphamax
+      - Alphamax is calculated from given segments
+      - IMPORTANT: numer of segments has to be larger than 2!
+    </description>
+    <define name="NAV_SPIRAL_MIN_CIRCLE_RADIUS" value="120" description="minium circle radius in meters"/>
+  </doc>
+  <header>
+    <file name="nav_spiral.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_spiral.c"/>
+  </makefile>
+</module>

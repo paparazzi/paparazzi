@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_smooth" dir="nav">
+  <doc>
+    <description>
+       Smooth navigation to wp_a along an arc (around wp_cd), a segment (from wp_rd to wp_ta) and a second arc (around wp_ca).
+    </description>
+  </doc>
+  <header>
+    <file name="nav_smooth.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_smooth.c"/>
+  </makefile>
+</module>

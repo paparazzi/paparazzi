@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_line_osam" dir="nav">
+  <doc>
+    <description>
+      Fly along a line
+    </description>
+  </doc>
+  <header>
+    <file name="nav_line_osam.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_line_osam.c"/>
+  </makefile>
+</module>

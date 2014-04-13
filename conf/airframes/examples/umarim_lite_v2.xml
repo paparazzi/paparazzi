@@ -30,7 +30,6 @@
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 
-
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="7" min="1040" neutral="1040" max="2000"/>

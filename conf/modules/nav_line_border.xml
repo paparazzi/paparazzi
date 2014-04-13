@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_line_border" dir="nav">
+  <doc>
+    <description>
+       navigate along a border line (line 1-2) with turns in the same direction
+
+       you can use this function to navigate along a border if it is essetial not to cross it
+       navigation is along line p1, p2 with turns in the same direction to make sure you dont cross the line
+       take care youre navigation radius is not to small in strong wind conditions!
+       In the flight plan:
+       <!--
+        <call fun="nav_line_border_setup()"/>
+        <call fun="nav_line_border_run(WP_waypoint1_name, WP_waypoint1_name, nav_radius)"/>
+       -->
+
+    </description>
+  </doc>
+  <header>
+    <file name="nav_line_border.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_line_border.c"/>
+  </makefile>
+</module>

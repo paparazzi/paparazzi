@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_bungee_takeoff" dir="nav">
+  <doc>
+    <description>
+    Takeoff functions for bungee takeoff.
+    Run initialize function when the plane is on the bungee, the bungee is fully extended and you are ready to
+    launch the plane. After initialized, the plane will follow a line drawn by the position of the plane on initialization and the
+    position of the bungee (given in the arguments). Once the plane crosses the throttle line, which is perpendicular to the line the plane is following,
+    and intersects the position of the bungee (plus or minus a fixed distance (TakeOff_Distance in airframe file) from the bungee just in case the bungee doesn't release directly above the bungee) the prop will come on. The plane will then continue to follow the line until it has reached a specific
+    height (defined in as Takeoff_Height in airframe file) above the bungee waypoint and speed (defined as Takeoff_Speed in the airframe file).
+    </description>
+    <section name="Takeoff" prefix="Takeoff_">
+      <define name="Height" value="distance" unit="m" description="Takeoff height"/>
+      <define name="Speed" value="speed" unit="m/s" description="Procedures ends above this speed (and above Height)"/>
+      <define name="Distance" value="distance" unit="m" description="After this distance, the throttle is activated (if above MinSpeed)"/>
+      <define name="MinSpeed" value="speed" unit="m/s" description="Throttle is activated if crossing the line above this speed"/>
+    </section>
+  </doc>
+  <header>
+    <file name="nav_bungee_takeoff.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_bungee_takeoff.c"/>
+  </makefile>
+</module>

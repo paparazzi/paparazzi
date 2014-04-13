@@ -2,7 +2,6 @@
 
 <flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
-#include "subsystems/navigation/nav_line.h"
 #include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
@@ -54,10 +53,6 @@
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
-    </block>
-    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="extra_pattern">
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" group="extra_pattern">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>

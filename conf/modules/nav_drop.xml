@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_drop" dir="nav">
+  <doc>
+    <description>
+      Compute the dropping point for a fixedwing aircraft.
+      Takes into account the flight speed vector and the wind to estimate the best dropping point.
+      Needs some waypoints to be defined in the flight plan: REALEASE, CLIMB, BASELEG
+    </description>
+  </doc>
+  <header>
+    <file name="nav_drop.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_drop.c"/>
+  </makefile>
+</module>

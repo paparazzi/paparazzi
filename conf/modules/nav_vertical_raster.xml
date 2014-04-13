@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_vertical_raster" dir="nav">
+  <doc>
+    <description>
+      Copy of nav line with altitude changes at every sweep
+    </description>
+  </doc>
+  <header>
+    <file name="nav_vertical_raster.h"/>
+  </header>
+  <makefile target="ap|sim|jsbsim|nps">
+    <file name="nav_vertical_raster.c"/>
+  </makefile>
+</module>

@@ -138,6 +138,7 @@ struct FloatRates {
     FLOAT_VECT2_SMUL(_v, _v, 1./n);             \
   }
 
+#define FLOAT_VECT2_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y)
 
 /*
  * Dimension 3 Vectors

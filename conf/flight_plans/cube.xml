@@ -2,10 +2,6 @@
 
 <flight_plan ALT="130" GROUND_ALT="68" LAT0="52.26483" LON0="9.99394" MAX_DIST_FROM_HOME="1500" NAME="Gross Lobke Cube" QFU="270" SECURITY_HEIGHT="60">
 
-<header>
-#include "subsystems/navigation/nav_cube.h"
-</header>
-
   <waypoints>
     <waypoint name="HOME" x="-30.0" y="13.0"/>
     <waypoint name="CENTER" x="10.0" y="1.0" alt="140.0"/>

@@ -2,13 +2,7 @@
 
 <flight_plan ground_alt="0" alt="75" lat0="43.2375" lon0="1.3277" max_dist_from_home="3500" name="Intelligent Surveillance" qfu="270" security_height="35">
 <header>
-#include "chemo_detect.h"
-#include "anemotaxis.h"
-#include "chemotaxis.h"
-#include "subsystems/navigation/discsurvey.h"
-#include "subsystems/navigation/nav_line.h"
-#include "subsystems/navigation/bomb.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -52,8 +46,8 @@
     </block>
 
     <block name="Line">
-         <call fun="nav_line_init()"/>
-         <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+         <call fun="nav_line_setup()"/>
+         <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
 
 
@@ -86,8 +80,8 @@
 
     <block name="Disc survey" strip_button="DS">
       <exception cond="chemo_sensor > 0" deroute="ChemotaxisHere"/>
-      <call fun="disc_survey_init(150)"/>
-      <call fun="disc_survey(WP_HOME, 350)"/>
+      <call fun="nav_survey_disc_setup(150)"/>
+      <call fun="nav_survey_disc_run(WP_HOME, 350)"/>
     </block>
 
 <!--

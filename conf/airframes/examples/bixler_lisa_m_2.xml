@@ -33,6 +33,10 @@
     <subsystem name="ins" type="alt_float"/>
   </firmware>
 
+  <modules>
+    <load name="nav_line.xml"/>
+  </modules>
+
   <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="1" min="1120" neutral="1120" max="1920"/>

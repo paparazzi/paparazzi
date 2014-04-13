@@ -2,7 +2,6 @@
 
 <flight_plan alt="240" ground_alt="170" lat0="27.0936" lon0="77.9145" max_dist_from_home="650" name="MAV08" security_height="25">
   <header>
-#include "subsystems/navigation/nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>
@@ -81,8 +80,8 @@
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <call fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+      <call fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
