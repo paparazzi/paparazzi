@@ -22,6 +22,8 @@ General
   [#683] (https://github.com/paparazzi/paparazzi/pull/683)
 - add simple verify to flashing via dfu-util
   [#673] (https://github.com/paparazzi/paparazzi/pull/673)
+- app_server: connection between the ground station and a GCS Android application
+  (https://github.com/paparazzi/PPRZonDroid)
 
 Simulation
 ----------
