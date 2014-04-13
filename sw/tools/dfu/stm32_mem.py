@@ -239,7 +239,7 @@ if __name__ == "__main__":
         update_progress_bar((addr - options.addr), bin_length)
         stm32_erase(target, addr)
         
-        if "CRC" in serial:
+        if "CRC" in product:
           write_block = binf[:(SECTOR_SIZE)]
           write_block_array = numpy.frombuffer(write_block, "uint8")
           crc1 = 0
