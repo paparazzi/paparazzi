@@ -81,7 +81,75 @@ static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
 #define NVIC_I2C3_IRQ_PRIO NVIC_I2C_IRQ_PRIO
 #endif
 
+#if defined(STM32F1)
+static void i2c_setup_gpio(uint32_t i2c) {
+  switch (i2c) {
+#if USE_I2C1
+    case I2C1:
+      gpio_enable_clock(I2C1_GPIO_PORT);
+      gpio_set_mode(I2C1_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
+                    GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
+                    I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+      break;
+#endif
+#if USE_I2C2
+    case I2C2:
+      gpio_enable_clock(I2C2_GPIO_PORT);
+      gpio_set_mode(I2C2_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
+                    GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
+                    I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+      break;
+#endif
+    default:
+      break;
+  }
+}
 
+#elif defined(STM32F4)
+
+static void i2c_setup_gpio(uint32_t i2c) {
+  switch (i2c) {
+#if USE_I2C1
+    case I2C1:
+      gpio_enable_clock(I2C1_GPIO_PORT);
+      gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                      I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+      gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                              I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+      gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+      break;
+#endif
+#if USE_I2C2
+    case I2C2:
+      gpio_enable_clock(I2C2_GPIO_PORT);
+      gpio_mode_setup(I2C2_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
+                      I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+      gpio_set_output_options(I2C2_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                              I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+      gpio_set_af(I2C2_GPIO_PORT, GPIO_AF4,
+                  I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+      break;
+#endif
+#if USE_I2C3
+    case I2C3:
+      gpio_enable_clock(I2C3_GPIO_PORT_SCL);
+      gpio_mode_setup(I2C3_GPIO_PORT_SCL, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
+      gpio_set_output_options(I2C3_GPIO_PORT_SCL, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                              I2C3_GPIO_SCL);
+      gpio_set_af(I2C3_GPIO_PORT_SCL, GPIO_AF4, I2C3_GPIO_SCL);
+
+      gpio_enable_clock(I2C3_GPIO_PORT_SDA);
+      gpio_mode_setup(I2C3_GPIO_PORT_SDA, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
+      gpio_set_output_options(I2C3_GPIO_PORT_SDA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
+                              I2C3_GPIO_SDA);
+      gpio_set_af(I2C3_GPIO_PORT_SDA, GPIO_AF4, I2C3_GPIO_SDA);
+      break;
+#endif
+    default:
+      break;
+  }
+}
+#endif
 
 static inline void PPRZ_I2C_SEND_STOP(uint32_t i2c)
 {
@@ -129,7 +197,6 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
   i2c_clear_stop(i2c);
   i2c_peripheral_enable(i2c);
   i2c_send_start(i2c);
-
   periph->status = I2CStartRequested;
 
 }
@@ -848,6 +915,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
       if (periph->trans_extract_idx == periph->trans_insert_idx)
       {
 
+        periph->watchdog = -1; // stop watchdog
 #ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
@@ -895,14 +963,13 @@ I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
 PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 
 struct i2c_errors i2c1_errors;
-volatile uint32_t i2c1_watchdog_counter;
 
 void i2c1_hw_init(void) {
 
   i2c1.reg_addr = (void *)I2C1;
   i2c1.init_struct = NULL;
   i2c1.errors = &i2c1_errors;
-  i2c1_watchdog_counter = 0;
+  i2c1.watchdog = -1;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
@@ -926,19 +993,8 @@ void i2c1_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C1 clock */
   rcc_periph_clock_enable(RCC_I2C1);
-  /* Enable GPIO clock */
-  gpio_enable_clock(I2C1_GPIO_PORT);
-#if defined(STM32F1)
-  gpio_set_mode(I2C1_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-                I2C1_GPIO_SCL | I2C1_GPIO_SDA);
-#elif defined(STM32F4)
-  gpio_mode_setup(I2C1_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
-                  I2C1_GPIO_SCL | I2C1_GPIO_SDA);
-  gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
-                          I2C1_GPIO_SCL | I2C1_GPIO_SDA);
-  gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
-#endif
+  /* setup gpio clock and pins */
+  i2c_setup_gpio(I2C1);
 
   i2c_reset(I2C1);
 
@@ -962,16 +1018,16 @@ void i2c1_hw_init(void) {
 void i2c1_ev_isr(void) {
   uint32_t i2c = (uint32_t) i2c1.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
-  i2c_irq(&i2c1);
-  i2c1_watchdog_counter = 0;
+  i2c1.watchdog = 0; // restart watchdog
+  i2c_irq(&i2c1);;
   i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
 }
 
 void i2c1_er_isr(void) {
   uint32_t i2c = (uint32_t) i2c1.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
+  i2c1.watchdog = 0; // restart watchdog
   i2c_irq(&i2c1);
-  i2c1_watchdog_counter = 0;
   i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
 }
 
@@ -986,14 +1042,13 @@ void i2c1_er_isr(void) {
 PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 
 struct i2c_errors i2c2_errors;
-volatile uint32_t i2c2_watchdog_counter;
 
 void i2c2_hw_init(void) {
 
   i2c2.reg_addr = (void *)I2C2;
   i2c2.init_struct = NULL;
   i2c2.errors = &i2c2_errors;
-  i2c2_watchdog_counter = 0;
+  i2c2.watchdog = -1;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
@@ -1012,20 +1067,9 @@ void i2c2_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C2 clock */
   rcc_periph_clock_enable(RCC_I2C2);
-  /* Enable GPIO clock */
-  gpio_enable_clock(I2C2_GPIO_PORT);
-#if defined(STM32F1)
-  gpio_set_mode(I2C2_GPIO_PORT, GPIO_MODE_OUTPUT_2_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
-                I2C2_GPIO_SCL | I2C2_GPIO_SDA);
-#elif defined(STM32F4)
-  gpio_mode_setup(I2C2_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE,
-                  I2C2_GPIO_SCL | I2C2_GPIO_SDA);
-  gpio_set_output_options(I2C2_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
-                          I2C2_GPIO_SCL | I2C2_GPIO_SDA);
-  gpio_set_af(I2C2_GPIO_PORT, GPIO_AF4,
-              I2C2_GPIO_SCL | I2C2_GPIO_SDA);
-#endif
+
+  /* setup gpio clock and pins */
+  i2c_setup_gpio(I2C2);
 
   i2c_reset(I2C2);
 
@@ -1048,16 +1092,16 @@ void i2c2_hw_init(void) {
 void i2c2_ev_isr(void) {
   uint32_t i2c = (uint32_t) i2c2.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
+  i2c2.watchdog = 0; // restart watchdog
   i2c_irq(&i2c2);
-  i2c2_watchdog_counter = 0;
   i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
 }
 
 void i2c2_er_isr(void) {
   uint32_t i2c = (uint32_t) i2c2.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
+  i2c2.watchdog = 0; // restart watchdog
   i2c_irq(&i2c2);
-  i2c2_watchdog_counter = 0;
   i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
 }
 
@@ -1073,14 +1117,13 @@ void i2c2_er_isr(void) {
 PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
 
 struct i2c_errors i2c3_errors;
-volatile uint32_t i2c3_watchdog_counter;
 
 void i2c3_hw_init(void) {
 
   i2c3.reg_addr = (void *)I2C3;
   i2c3.init_struct = NULL;
   i2c3.errors = &i2c3_errors;
-  i2c3_watchdog_counter = 0;
+  i2c3.watchdog = -1;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c3_errors);
@@ -1099,18 +1142,9 @@ void i2c3_hw_init(void) {
   /* Enable peripheral clocks -------------------------------------------------*/
   /* Enable I2C3 clock */
   rcc_periph_clock_enable(RCC_I2C3);
-  /* Enable GPIO clock */
-  gpio_enable_clock(I2C3_GPIO_PORT_SCL);
-  gpio_mode_setup(I2C3_GPIO_PORT_SCL, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
-  gpio_set_output_options(I2C3_GPIO_PORT_SCL, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
-                          I2C3_GPIO_SCL);
-  gpio_set_af(I2C3_GPIO_PORT_SCL, GPIO_AF4, I2C3_GPIO_SCL);
 
-  gpio_enable_clock(I2C3_GPIO_PORT_SDA);
-  gpio_mode_setup(I2C3_GPIO_PORT_SDA, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
-  gpio_set_output_options(I2C3_GPIO_PORT_SDA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
-                          I2C3_GPIO_SDA);
-  gpio_set_af(I2C3_GPIO_PORT_SDA, GPIO_AF4, I2C3_GPIO_SDA);
+  /* setup gpio clock and pins */
+  i2c_setup_gpio(I2C3);
 
   i2c_reset(I2C3);
 
@@ -1133,8 +1167,8 @@ void i2c3_hw_init(void) {
 void i2c3_ev_isr(void) {
   uint32_t i2c = (uint32_t) i2c3.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
+  i2c3.watchdog = 0; // restart watchdog
   i2c_irq(&i2c3);
-  i2c3_watchdog_counter = 0;
   i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
 }
 
@@ -1142,8 +1176,8 @@ void i2c3_er_isr(void) {
   uint32_t i2c = (uint32_t) i2c3.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
   I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
+  i2c3.watchdog = 0;  // restart watchdog
   i2c_irq(&i2c3);
-  i2c3_watchdog_counter = 0;
   i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
 }
 
@@ -1244,79 +1278,119 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
 }
 
 
-/// @todo Watchdog timer
-void i2c_event(void)
-{
+static inline void i2c_scl_set(uint32_t i2c) {
+#if USE_I2C1
+  if (i2c == I2C1)
+    gpio_set(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
+#endif
+#if USE_I2C2
+  if (i2c == I2C2)
+    gpio_set(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
+#endif
+#if USE_I2C3
+  if (i2c == I2C3)
+    gpio_set(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
+#endif
+}
+
+static inline void i2c_scl_clear(uint32_t i2c) {
+#if USE_I2C1
+  if (i2c == I2C1)
+    gpio_clear(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
+#endif
+#if USE_I2C2
+  if (i2c == I2C2)
+    gpio_clear(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
+#endif
+#if USE_I2C3
+  if (i2c == I2C3)
+    gpio_clear(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
+#endif
+  }
+
+#define WD_DELAY 20           // number of ticks with 2ms - 40ms delay before resetting the bus
+#define WD_RECOVERY_TICKS 10  // number of generated SCL clocking pulses
+
+static void i2c_wd_check(struct i2c_periph *periph) {
+  uint32_t i2c = (uint32_t) periph->reg_addr;
+
+  if (periph->watchdog > WD_DELAY) {
+    if (periph->watchdog == WD_DELAY + 1) {
+
+      i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
+      i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
+
+      i2c_peripheral_disable(i2c);
+
+#if USE_I2C1
+      if (i2c == I2C1) {
+        gpio_setup_output(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
+        gpio_setup_input(I2C1_GPIO_PORT, I2C1_GPIO_SDA);
+      }
+#endif
+#if USE_I2C2
+      if (i2c == I2C2) {
+        gpio_setup_output(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
+        gpio_setup_input(I2C2_GPIO_PORT, I2C2_GPIO_SDA);
+      }
+#endif
+#if USE_I2C3
+      if (i2c == I2C3) {
+        gpio_setup_output(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
+        gpio_setup_input(I2C3_GPIO_PORT_SDA,I2C3_GPIO_SDA);
+  }
+#endif
+
+      i2c_scl_clear(i2c);
+    }
+    else if (periph->watchdog < WD_DELAY + WD_RECOVERY_TICKS) {
+      if ((periph->watchdog - WD_DELAY) % 2)
+        i2c_scl_clear(i2c);
+      else
+        i2c_scl_set(i2c);
+    }
+    else {
+      i2c_scl_set(i2c);
+
+      /* setup gpios for normal i2c operation again */
+      i2c_setup_gpio(i2c);
+
+      periph->trans_insert_idx = 0;
+      periph->trans_extract_idx = 0;
+      periph->status = I2CIdle;
+
+      i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
+      i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
+
+      i2c_peripheral_enable(i2c);
+      periph->watchdog = 0; // restart watchdog
+
+      periph->errors->timeout_tlow_cnt++;
+
+      return;
+      }
+    }
+  if (periph->watchdog >= 0)
+    periph->watchdog++;
+  }
+#include "mcu_periph/sys_time.h"
+
+void i2c_event(void) {
+  static uint32_t i2c_wd_timer;
+
+  if (SysTimeTimer(i2c_wd_timer) > 2000) { // 2ms (500Hz) periodic watchdog check
+    SysTimeTimerStart(i2c_wd_timer);
 #ifdef USE_I2C1
-  i2c1_watchdog_counter++;
+    i2c_wd_check(&i2c1);
 #endif
 
 #ifdef USE_I2C2
-  i2c2_watchdog_counter++;
-
-  if (i2c2_watchdog_counter > 10000)
-  {
-    i2c2.errors->timeout_tlow_cnt++;
-    i2c2_watchdog_counter = 0;
-  }
-
-
-#ifdef I2C_DEBUG_LED
-  if (i2c2_watchdog_counter == 0)
-  {
-    __disable_irq();
-
-    LED2_ON();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    if (i2c2.status == I2CIdle)
-    {
-      LED1_ON();
-      LED1_OFF();
-    }
-    else if (i2c2.status == I2CStartRequested)
-    {
-      LED1_ON();
-      LED1_OFF();
-      LED1_ON();
-      LED1_OFF();
-
-    }
-    LED2_OFF();
-
-    //regs = (I2C_TypeDef *) i2c2.reg_addr;
-    //LED_SHOW_ACTIVE_BITS(regs);
-
-    __enable_irq();
-  }
+    i2c_wd_check(&i2c2);
 #endif
-
-
-  //if (i2c2.status == I2CIdle)
-  {
-    //if (i2c_idle(&i2c2))
-    {
-      //__disable_irq();
-      // More work to do
-      //if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
-      {
-        // Restart transaction doing the Rx part now
-        //PPRZ_I2C_SEND_START(&i2c2);
-      }
-      //__enable_irq();
-    }
-  }
-#endif
-
 #ifdef USE_I2C3
-  i2c3_watchdog_counter++;
+    i2c_wd_check(&i2c3);
 #endif
+  }
 }
 
 /////////////////////////////////////////////////////////
