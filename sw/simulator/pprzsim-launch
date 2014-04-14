@@ -148,7 +148,7 @@ def main():
     if options.verbose:
         print("Using "+paparazzi_home+" as Paparazzi home dir.")
 
-    simsitl = os.path.join(paparazzi_home, "var", options.ac_name, simdir, "simsitl")
+    simsitl = os.path.join(paparazzi_home, "var", "aircrafts", options.ac_name, simdir, "simsitl")
     if not os.path.isfile(simsitl):
         print("Error: " + simsitl + " is missing. Is target " + simdir + " built for aircraft " + options.ac_name + "?")
         sys.exit(1)
