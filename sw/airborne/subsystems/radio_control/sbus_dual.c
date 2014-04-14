@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Alexandre Bustico, Gautier Hattenberger
+ * Copyright (C) 2014 Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -19,9 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file subsystems/radio_control/sbus.c
+/** @file subsystems/radio_control/sbus_dual.c
  *
- * Futaba SBUS decoder
+ * Dual SBUS radio_control
  */
 
 #include "subsystems/radio_control.h"

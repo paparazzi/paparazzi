@@ -24,7 +24,7 @@
 
 /** @file subsystems/radio_control/sbus.h
  *
- * Futaba SBUS decoder
+ * Single SBUS radio_control
  */
 
 #include "subsystems/radio_control/sbus_common.h"

@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file subsystems/radio_control/sbus.c
+/** @file subsystems/radio_control/sbus_common.c
  *
  * Futaba SBUS decoder
  */
