@@ -12,6 +12,8 @@ General
 - GCS: higher max zoom level
   [#632] (https://github.com/paparazzi/paparazzi/issues/632)
 - GCS: different aircraft icons (added flying wing, quadrotor)
+- GCS: proper GPSd home icon resizing
+  [#601] (https://github.com/paparazzi/paparazzi/issues/601)
 - GUI for selecting the desired active list of airframes (select_conf.py)
   [#536] (https://github.com/paparazzi/paparazzi/issues/536)
 - paparazzi center: flash mode selection via drop down menu
@@ -50,9 +52,10 @@ Hardware support
   [#662] (https://github.com/paparazzi/paparazzi/pull/662)
 - Dual PWM servo driver
   [#678] (https://github.com/paparazzi/paparazzi/pull/678)
-- SBus radio control driver
+- SBus radio control driver (single and dual receivers)
   [#485] (https://github.com/paparazzi/paparazzi/pull/485)
   [#674] (https://github.com/paparazzi/paparazzi/pull/674)
+  [#693] (https://github.com/paparazzi/paparazzi/pull/693)
 
 Airborne
 --------
