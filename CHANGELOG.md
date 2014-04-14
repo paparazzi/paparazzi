@@ -18,6 +18,8 @@ General
   [#597] (https://github.com/paparazzi/paparazzi/pull/597)
 - add support for new telemetry types
   [#589] (https://github.com/paparazzi/paparazzi/pull/589)
+- build aircraft firmware in var/aircrafts/'ac_name'
+  [#601] (https://github.com/paparazzi/paparazzi/issues/601)
 - parallel build of firmwares with J=AUTO
   [#683] (https://github.com/paparazzi/paparazzi/pull/683)
 - add simple verify to flashing via dfu-util
@@ -48,6 +50,9 @@ Hardware support
   [#662] (https://github.com/paparazzi/paparazzi/pull/662)
 - Dual PWM servo driver
   [#678] (https://github.com/paparazzi/paparazzi/pull/678)
+- SBus radio control driver
+  [#485] (https://github.com/paparazzi/paparazzi/pull/485)
+  [#674] (https://github.com/paparazzi/paparazzi/pull/674)
 
 Airborne
 --------
