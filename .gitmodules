@@ -10,3 +10,6 @@
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
 	url = https://github.com/enacuavlab/fatfs.git
+[submodule "sw/ext/ardrone2_vision"]
+	path = sw/ext/ardrone2_vision
+	url = https://github.com/tudelft/ardrone2_vision.git
