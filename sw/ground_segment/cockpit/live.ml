@@ -1049,13 +1049,24 @@ module GCS_icon = struct
   let timeout = 10000 (* ms : time before changing to outdated color *)
 
   let display = fun (geomap:G.widget) vs ->
+    let lat = Pprz.float_assoc "lat" vs
+    and lon = Pprz.float_assoc "long" vs in
+    let wgs84 = LL.make_geo_deg lat lon in
+
     let item =
       match !status with
           None -> (* First call, create the graphical object *)
-            GnoCanvas.ellipse ~fill_color ~props:[`WIDTH_PIXELS 2]
+            let item = GnoCanvas.ellipse ~fill_color ~props:[`WIDTH_PIXELS 2]
               ~x1: ~-.radius ~y1:  ~-.radius ~x2:radius ~y2:radius
-              geomap#canvas#root
-        | Some (item, timeout_handle) -> (* Remove the timeouted color modification *)
+              geomap#canvas#root in
+            (* connect callback on zoom change *)
+            ignore(geomap#zoom_adj#connect#value_changed (fun () ->
+              match !status with
+              | None -> ()
+              | Some (item, _, wgs84) -> geomap#move_item ~z:geomap#current_zoom item wgs84
+            ));
+            item
+        | Some (item, timeout_handle, _) -> (* Remove the timeouted color modification *)
           Glib.Timeout.remove timeout_handle;
           item in
 
@@ -1063,12 +1074,8 @@ module GCS_icon = struct
     let change_color_if_not_updated =
       Glib.Timeout.add 10000 (fun ()  -> item#set [`OUTLINE_COLOR outdated_color]; false) in
 
-    (* Store the object and the timeout to change its color *)
-    status := Some (item, change_color_if_not_updated);
-
-    let lat = Pprz.float_assoc "lat" vs
-    and lon = Pprz.float_assoc "long" vs in
-    let wgs84 = LL.make_geo_deg lat lon in
+    (* Store the object, the position and the timeout to change its color *)
+    status := Some (item, change_color_if_not_updated, wgs84);
 
     geomap#move_item ~z:geomap#current_zoom item wgs84
 end (* module GCS_icon *)
