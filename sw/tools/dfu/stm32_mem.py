@@ -233,6 +233,7 @@ if __name__ == "__main__":
     addr = options.addr
     print("Programming memory from 0x%08X...\r" % addr)
     
+    use_crc = 0
     if "CRC" in product:
       use_crc = 1
     
