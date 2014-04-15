@@ -38,9 +38,7 @@ struct Line {float m;float b;float x;};
 static void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
 static void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
 static void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2);
-static float EvaluateLineForY(float x, struct Line L);
 static float EvaluateLineForX(float y, struct Line L);
-static float DistanceEquation(struct Point2D p1,struct Point2D p2);
 
 #define PolygonSize 10
 #define MaxFloat   1000000000
@@ -496,17 +494,8 @@ void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2)
   *y = L1.m*(*x)+L1.b;
 }
 
-float EvaluateLineForY(float x, struct Line L)
-{
-  return (L.m*x)+L.b;
-}
 
 float EvaluateLineForX(float y, struct Line L)
 {
   return ((y-L.b)/L.m);
-}
-
-float DistanceEquation(struct Point2D p1,struct Point2D p2)
-{
-  return sqrtf((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
 }
