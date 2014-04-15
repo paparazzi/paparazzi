@@ -139,7 +139,7 @@ let ac_id_of_name = fun ac_name ->
 
 (** Fill the index_of_settings table from var/AC/settings.xml *)
 let hash_index_of_settings = fun ac_name ->
-  let xml_file = Env.paparazzi_home // "var" // ac_name // "settings.xml" in
+  let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "settings.xml" in
   let xml = Xml.parse_file xml_file in
   let index = ref 0 in
   let rec loop = fun xml ->
@@ -152,9 +152,9 @@ let hash_index_of_settings = fun ac_name ->
   loop (ExtXml.child xml "dl_settings")
 
 
-(** Fill the index_of_blocks table from var/AC/flight_plan.xml *)
+(** Fill the index_of_blocks table from var/aircrafts/AC/flight_plan.xml *)
 let hash_index_of_blocks = fun ac_name ->
-  let xml_file = Env.paparazzi_home // "var" // ac_name // "flight_plan.xml" in
+  let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "flight_plan.xml" in
   let dump = Xml.parse_file xml_file in
   let flight_plan = ExtXml.child dump "flight_plan" in
   let blocks = ExtXml.child flight_plan "blocks" in

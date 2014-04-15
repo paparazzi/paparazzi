@@ -212,9 +212,9 @@ let update_waypoints =
       last_state := !l;
       let url_flight_plan =
         if !no_http then
-          sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home ac.name
+          sprintf "%s/var/aircrafts/%s/flight_plan.kml" Env.paparazzi_home ac.name
         else
-          sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name
+          sprintf "http://%s:%d/var/aircrafts/%s/flight_plan.kml" !hostname !port ac.name
       in
       let changes = List.map (fun (wp_id, wp) -> change_waypoint ac.name wp_id wp.wp_geo wp.altitude) !l in
       let kml_update = link_update url_flight_plan changes in
@@ -227,12 +227,12 @@ let update_horiz_mode =
   fun ac ->
     if ac.horiz_mode <> !last_horiz_mode then begin
       last_horiz_mode := ac.horiz_mode;
-      (*let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in*)
+      (*let url_flight_plan = sprintf "http://%s:%d/var/aircrafts/%s/flight_plan.kml" !hostname !port ac.name in*)
       let url_flight_plan =
         if !no_http then
-          sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home ac.name
+          sprintf "%s/var/aircrafts/%s/flight_plan.kml" Env.paparazzi_home ac.name
         else
-          sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name
+          sprintf "http://%s:%d/var/aircrafts/%s/flight_plan.kml" !hostname !port ac.name
       in
       let alt = ac.desired_altitude in
       match ac.horiz_mode with
@@ -250,12 +250,12 @@ let update_horiz_mode =
 
 let update_ac = fun ac ->
   try
-    (*let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in*)
+    (*let url_flight_plan = sprintf "http://%s:%d/var/aircrafts/%s/flight_plan.kml" !hostname !port ac.name in*)
     let url_flight_plan =
       if !no_http then
-        sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home ac.name
+        sprintf "%s/var/aircrafts/%s/flight_plan.kml" Env.paparazzi_home ac.name
       else
-        sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name
+        sprintf "http://%s:%d/var/aircrafts/%s/flight_plan.kml" !hostname !port ac.name
     in
     let ap_mode = match ac.vehicle_type with
         Rotorcraft -> rotorcraft_ap_modes.(ac.ap_mode)
@@ -279,17 +279,17 @@ let build_files = fun a ->
   print_xml a.name "flight_plan.kml" kml_fp;
 
   if !no_http then begin
-    let url_flight_plan = sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home a.name in
-    let url_ac_changes = sprintf "%s/var/%s/ac_changes.kml" Env.paparazzi_home a.name in
-    let url_wp_changes = sprintf "%s/var/%s/wp_changes.kml" Env.paparazzi_home a.name in
-    let url_route_changes = sprintf "%s/var/%s/route_changes.kml" Env.paparazzi_home a.name in
+    let url_flight_plan = sprintf "%s/var/aircrafts/%s/flight_plan.kml" Env.paparazzi_home a.name in
+    let url_ac_changes = sprintf "%s/var/aircrafts/%s/ac_changes.kml" Env.paparazzi_home a.name in
+    let url_wp_changes = sprintf "%s/var/aircrafts/%s/wp_changes.kml" Env.paparazzi_home a.name in
+    let url_route_changes = sprintf "%s/var/aircrafts/%s/route_changes.kml" Env.paparazzi_home a.name in
     let kml_ac = aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes; url_route_changes] in
     print_xml a.name "FollowMe.kml" kml_ac
   end else begin
-    let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port a.name in
-    let url_ac_changes = sprintf "http://%s:%d/var/%s/ac_changes.kml" !hostname !port a.name in
-    let url_wp_changes = sprintf "http://%s:%d/var/%s/wp_changes.kml" !hostname !port a.name in
-    let url_route_changes = sprintf "http://%s:%d/var/%s/route_changes.kml" !hostname  !port a.name in
+    let url_flight_plan = sprintf "http://%s:%d/var/aircrafts/%s/flight_plan.kml" !hostname !port a.name in
+    let url_ac_changes = sprintf "http://%s:%d/var/aircrafts/%s/ac_changes.kml" !hostname !port a.name in
+    let url_wp_changes = sprintf "http://%s:%d/var/aircrafts/%s/wp_changes.kml" !hostname !port a.name in
+    let url_route_changes = sprintf "http://%s:%d/var/aircrafts/%s/route_changes.kml" !hostname  !port a.name in
     let kml_ac = aircraft a.name url_flight_plan [url_ac_changes; url_wp_changes; url_route_changes] in
     print_xml a.name "FollowMe.kml" kml_ac
   end;;

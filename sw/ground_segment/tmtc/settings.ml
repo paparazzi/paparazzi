@@ -34,7 +34,7 @@ let conf_xml = Xml.parse_file (conf_dir // "conf.xml")
 
 let one_ac = fun (notebook:GPack.notebook) ac_name ->
   (* Get the setting file *)
-  let xml_file = Env.paparazzi_home // "var" // ac_name // "settings.xml" in
+  let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "settings.xml" in
   if not (Sys.file_exists xml_file) then
     Printf.fprintf stderr "A/C '%s' not compiled: %s not found\n%!" ac_name xml_file
   else

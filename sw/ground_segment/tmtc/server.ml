@@ -469,7 +469,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
   let is_replayed, id, root_dir, conf_xml = replayed real_id in
   let conf = get_conf real_id id conf_xml in
   let ac_name = ExtXml.attrib conf "name" in
-  let var_aircraft_dir = Env.paparazzi_home // root_dir // "var" // ac_name in
+  let var_aircraft_dir = Env.paparazzi_home // root_dir // "var" // "aircrafts" // ac_name in
 
   if not (Sys.file_exists var_aircraft_dir) then begin
   (* Let's look for a backup configuration with the md5 signature *)
@@ -607,10 +607,10 @@ let send_config = fun http _asker args ->
     let prefix = fun s -> sprintf "%s/%s%s" protocol root_dir s in
 
     (** Expanded flight plan and settings have been compiled in var/ *)
-    let fp = prefix ("var" // ac_name // "flight_plan.xml")
+    let fp = prefix ("var" // "aircrafts" // ac_name // "flight_plan.xml")
     and af = prefix ("conf" // ExtXml.attrib conf "airframe")
     and rc = prefix ("conf" // ExtXml.attrib conf "radio")
-    and settings = if not _is_replayed then prefix ("var" // ac_name //
+    and settings = if not _is_replayed then prefix ("var" // "aircrafts" // ac_name //
                                                        "settings.xml") else "file://replay" in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in

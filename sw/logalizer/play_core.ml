@@ -47,7 +47,7 @@ let store_conf = fun conf acs ->
       if ExtXml.tag_is x "aircraft" then
 	if List.mem (ExtXml.attrib x "ac_id") acs then
 	  let ac_name = ExtXml.attrib x "name" in
-	  let ac_dir = replay_dir // "var" // ac_name in
+	  let ac_dir = replay_dir // "var" // "aircrafts" // ac_name in
 
 	  let w = fun s ->
 	    (* Histotical: still useful ? *)

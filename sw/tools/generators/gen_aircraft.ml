@@ -321,6 +321,7 @@ let () =
     let aircraft_conf_dir = aircraft_dir // "conf" in
 
     mkdir (Env.paparazzi_home // "var");
+    mkdir (Env.paparazzi_home // "var" // "aircrafts");
     mkdir aircraft_dir;
     mkdir (aircraft_dir // "fbw");
     mkdir (aircraft_dir // "autopilot");
