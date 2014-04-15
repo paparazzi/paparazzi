@@ -49,12 +49,26 @@
 #define DT 0.1
 #define MAX_STEPS 100
 
-float nav_drop_trigger_delay = TRIGGER_DELAY;
-float airspeed = 14.;
-float nav_drop_start_qdr;
+/** climb time in seconds */
+#ifndef CLIMB_TIME
+#define CLIMB_TIME 3
+#endif
 
-#define CLIMB_TIME 3  /* s */
-#define SAFE_CLIMB 20 /* m */
+/** safe climb distance in meters */
+#ifndef SAFE_CLIMB
+#define SAFE_CLIMB 20
+#endif
+
+/** airspeed at release point in m/s
+ * only used if airspeed from state interface is not valid
+ */
+#ifndef AIRSPEED_AT_RELEASE
+#define AIRSPEED_AT_RELEASE 14.
+#endif
+
+float nav_drop_trigger_delay = TRIGGER_DELAY;
+float airspeed = AIRSPEED_AT_RELEASE;
+float nav_drop_start_qdr;
 
 static float nav_drop_x, nav_drop_y, nav_drop_z;
 static float nav_drop_vx, nav_drop_vy, nav_drop_vz;
@@ -140,8 +154,15 @@ unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float nav
     nav_drop_start_qdr += M_PI;
 
   // wind in NED frame
-  nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
-  nav_drop_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
+  if (stateIsAirspeedValid()) {
+    nav_drop_vx = x1 * *stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
+    nav_drop_vy = y_1 * *stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
+  }
+  else {
+    // use approximate airspeed, initially set to AIRSPEED_AT_RELEASE
+    nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
+    nav_drop_vy = y_1 * airspeed + stateGetHorizontalWindspeed_f()->x;
+  }
   nav_drop_vz = 0.;
 
   float vx0 = nav_drop_vx;
