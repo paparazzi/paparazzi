@@ -111,9 +111,16 @@ PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 #define AHRS_GRAVITY_HEURISTIC_FACTOR 30
 #endif
 
-/** don't try to update bias if heading deviation is above a given threshold */
+/** don't update gyro bias if heading deviation is above this threshold in degrees */
 #ifndef AHRS_BIAS_UPDATE_HEADING_THRESHOLD
 #define AHRS_BIAS_UPDATE_HEADING_THRESHOLD 5.0
+#endif
+
+/** Minimum speed in m/s for heading update via GPS.
+ * Don't update heading from GPS course if GPS ground speed is below is this threshold
+ */
+#ifndef AHRS_HEADING_UPDATE_GPS_MIN_SPEED
+#define AHRS_HEADING_UPDATE_GPS_MIN_SPEED 5.0
 #endif
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
@@ -551,10 +558,11 @@ void ahrs_update_gps(void) {
 #endif
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
-  //got a 3d fix, ground speed > 5.0 m/s and course accuracy is better than 10deg
+  // got a 3d fix, ground speed > AHRS_HEADING_UPDATE_GPS_MIN_SPEED (default 5.0 m/s)
+  // and course accuracy is better than 10deg
   if (gps.fix == GPS_FIX_3D &&
-     gps.gspeed >= 500 &&
-     gps.cacc <= RadOfDeg(10*1e7)) {
+      gps.gspeed >= (AHRS_HEADING_UPDATE_GPS_MIN_SPEED * 100) &&
+      gps.cacc <= RadOfDeg(10*1e7)) {
 
     // gps.course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
     int32_t course = gps.course * ((1<<INT32_ANGLE_FRAC) / 1e7);
