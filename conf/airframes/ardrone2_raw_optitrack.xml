@@ -5,6 +5,8 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
+
       <subsystem name="telemetry" type="udp"/>
       <subsystem name="radio_control" type="datalink"/>
     </target>
@@ -18,7 +20,7 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="gps" type="datalink"/>
+    <subsystem name="gps" type="udp"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins" type="extended"/>
@@ -104,6 +106,9 @@
     <!--define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/ -->
+
+    <!-- Use GPS heading instead of magneto -->
+    <define name="USE_GPS_HEADING" value="1"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -176,8 +181,8 @@
     <define name="PSI_IGAIN" value="10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value="0"/>
-    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PHI_DDGAIN" value="150"/>
+    <define name="THETA_DDGAIN" value="150"/>
     <define name="PSI_DDGAIN" value="52"/>
   </section>
 
@@ -209,7 +214,9 @@
     <!-- gains -->
     <define name="PGAIN" value="150"/>
     <define name="DGAIN" value="60"/>
-    <define name="IGAIN" value="60"/>
+    <define name="IGAIN" value="30"/>
+    <define name="VGAIN" value="70"/>
+    <define name="AGAIN" value="140"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
