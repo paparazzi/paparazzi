@@ -80,6 +80,9 @@ Airborne
   [#677] (https://github.com/paparazzi/paparazzi/pull/677)
 - barometer interface via ABI
   [#525] (https://github.com/paparazzi/paparazzi/pull/525)
+  - baros always output pressure in Pascal
+  - standard atmosphere model is used to convert pressure to altitude
+  - INS_BARO_SENS is hence not needed anymore
 - sonar interface using ABI
   [#654] (https://github.com/paparazzi/paparazzi/pull/654)
 - AHRS int_cmpl_quat frequency scaling
@@ -114,6 +117,7 @@ Fixedwing firmware
   [#594] (https://github.com/paparazzi/paparazzi/issues/594)
 - extra navigation routines as modules
   [#512] (https://github.com/paparazzi/paparazzi/pull/512)
+- NavSetAltitudeReferenceHere added
 
 
 Paparazzi 5.0.4_stable
