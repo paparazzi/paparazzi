@@ -175,7 +175,7 @@
     <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="60"/>
+    <define name="IGAIN" value="30"/>
   </section>
 
   <section name="AUTOPILOT">

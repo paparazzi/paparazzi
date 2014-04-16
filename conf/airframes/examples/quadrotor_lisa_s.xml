@@ -170,7 +170,7 @@
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="39"/>
    <define name="DGAIN" value="50"/>
-   <define name="IGAIN" value="39"/>
+   <define name="IGAIN" value="19"/>
  </section>
 
  <section name="MISC">
