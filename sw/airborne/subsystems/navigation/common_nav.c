@@ -96,6 +96,17 @@ unit_t nav_reset_reference(void) {
   return 0;
 }
 
+/** Reset the altitude reference to the current GPS alt */
+unit_t nav_reset_alt(void) {
+  ins_reset_altitude_ref();
+
+  /* Ground alt */
+  previous_ground_alt = ground_alt;
+  ground_alt = state.utm_origin_f.alt;
+
+  return 0;
+}
+
 /** Shift altitude of the waypoint according to a new ground altitude */
 unit_t nav_update_waypoints_alt(void) {
   uint8_t i;
