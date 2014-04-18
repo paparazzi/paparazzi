@@ -109,6 +109,8 @@ Rotorcraft firmware
   [#640] (https://github.com/paparazzi/paparazzi/pull/640)
 - add a HOME mode
   [#562] (https://github.com/paparazzi/paparazzi/pull/562)
+- nav: split waypoint proximity check from time spend at waypoint
+  [#690] (https://github.com/paparazzi/paparazzi/pull/690)
 
 Fixedwing firmware
 ------------------
