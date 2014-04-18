@@ -145,9 +145,14 @@ extern void nav_route(uint8_t wp_start, uint8_t wp_end);
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(alt),0); \
 }
 
+/** Proximity tests on approaching a wp */
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define NavApproaching(wp, time) nav_approaching_from(wp, 0)
 #define NavApproachingFrom(wp, from, time) nav_approaching_from(wp, from)
+
+/** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
+bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time);
+#define NavCheckWaypointTime(wp, time) nav_check_wp_time(wp, time)
 
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
