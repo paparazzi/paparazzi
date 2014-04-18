@@ -292,16 +292,13 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
 bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
   int32_t dist_to_point;
   struct Int32Vect2 diff;
-  static uint8_t time_at_wp = 0;
   VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
   INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
   INT32_VECT2_NORM(dist_to_point, diff);
   //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
   //fflush(stdout);
   //if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
-  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) time_at_wp++;
-  else time_at_wp = 0;
-  if (time_at_wp > 20) return TRUE;
+  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
   if (from_idx > 0 && from_idx < NB_WAYPOINT) {
     struct Int32Vect2 from_diff;
     VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
@@ -309,6 +306,33 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
     return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
   }
   else return FALSE;
+}
+
+bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
+  uint16_t time_at_wp;
+  int32_t dist_to_point;
+  static uint16_t wp_entry_time = 0;
+  static bool_t wp_reached = FALSE;
+  struct Int32Vect2 diff;
+  VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
+  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
+  INT32_VECT2_NORM(dist_to_point, diff);
+  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)){
+    if(!wp_reached) {
+      wp_reached = TRUE;
+      wp_entry_time = autopilot_flight_time;
+      time_at_wp = 0;
+    }
+    else {
+      time_at_wp = autopilot_flight_time - wp_entry_time;
+    }
+  }
+  else {
+    time_at_wp = 0;
+    wp_reached = FALSE;
+  }
+  if (time_at_wp > stay_time) return TRUE;
+  return FALSE;
 }
 
 static inline void nav_set_altitude( void ) {
