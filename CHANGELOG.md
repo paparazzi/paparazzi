@@ -1,3 +1,9 @@
+Paparazzi 5.1.0_testing
+=======================
+
+First release candidate for next stable release.
+
+
 Paparazzi 5.1_devel
 ===================
 
