@@ -11,7 +11,7 @@
   <periodic fun="mf_daq_send_state()" freq="10."/>
   <periodic fun="mf_daq_send_report()" freq="1." autorun="TRUE"/>
   <datalink message="PAYLOAD_FLOAT" fun="parse_mf_daq_msg()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="meteo_france_DAQ.c"/>
   </makefile>
 </module>

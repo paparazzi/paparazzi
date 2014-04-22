@@ -10,7 +10,7 @@
     <file name="extra_pprz_dl.h"/>
   </header>
   <event fun="ExtraDatalinkEvent()"/>
-  <makefile>
+  <makefile target="ap">
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT)"/>
     <define name="EXTRA_PPRZ_UART" value="$(EXTRA_DL_PORT)"/>
     <define name="USE_$(EXTRA_DL_PORT)"/>
