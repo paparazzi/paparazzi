@@ -317,8 +317,8 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
   struct Int32Vect2 diff;
 
   if(wp_idx_last != wp_idx) {
-  wp_reached = FALSE;
-  wp_idx_last = wp_idx;
+    wp_reached = FALSE;
+    wp_idx_last = wp_idx;
   }
   VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
   INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
