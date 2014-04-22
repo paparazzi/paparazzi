@@ -313,7 +313,13 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
   int32_t dist_to_point;
   static uint16_t wp_entry_time = 0;
   static bool_t wp_reached = FALSE;
+  static uint8_t wp_idx_last = 0;
   struct Int32Vect2 diff;
+
+  if(wp_idx_last != wp_idx) {
+    wp_reached = FALSE;
+    wp_idx_last = wp_idx;
+  }
   VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
   INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
   INT32_VECT2_NORM(dist_to_point, diff);
