@@ -307,8 +307,13 @@ void ins_reset_altitude_ref( void ) {
   utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);
 #else
-  struct LtpDef_i ltp_def = state.ned_origin_i;
-  ltp_def.lla.alt = gps.lla_pos.alt;
+  struct LlaCoor_i lla = {
+    state.ned_origin_i.lla.lon,
+    state.ned_origin_i.lla.lat,
+    gps.lla_pos.alt
+  };
+  struct LtpDef_i ltp_def;
+  ltp_def_from_lla_i(&ltp_def, &lla),
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
@@ -334,6 +339,7 @@ void ahrs_align(void)
 }
 
 void ahrs_propagate(void) {
+  struct NedCoor_f accel;
   struct FloatRates body_rates;
   struct FloatEulers eulers;
 
@@ -347,15 +353,19 @@ void ahrs_propagate(void) {
   }
 
   // fill command vector
-  RATES_FLOAT_OF_BFP(ins_impl.cmd.rates, imu.gyro);
-  ACCELS_FLOAT_OF_BFP(ins_impl.cmd.accel, imu.accel);
+  struct Int32Rates gyro_meas_body;
+  INT32_RMAT_TRANSP_RATEMULT(gyro_meas_body, imu.body_to_imu_rmat, imu.gyro);
+  RATES_FLOAT_OF_BFP(ins_impl.cmd.rates, gyro_meas_body);
+  struct Int32Vect3 accel_meas_body;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+  ACCELS_FLOAT_OF_BFP(ins_impl.cmd.accel, accel_meas_body);
 
   // update correction gains
   error_output(&ins_impl);
 
   // propagate model
   struct inv_state new_state;
-  runge_kutta_4_float((float*)&new_state/*(float*)&ins_impl.state*/,
+  runge_kutta_4_float((float*)&new_state,
       (float*)&ins_impl.state, INV_STATE_DIM,
       (float*)&ins_impl.cmd, INV_COMMAND_DIM,
       invariant_model, dt);
@@ -378,6 +388,11 @@ void ahrs_propagate(void) {
   stateSetBodyRates_f(&body_rates);
   stateSetPositionNed_f(&ins_impl.state.pos);
   stateSetSpeedNed_f(&ins_impl.state.speed);
+  // untilt accel and remove gravity
+  FLOAT_QUAT_RMAT_B2N(accel, ins_impl.state.quat, ins_impl.cmd.accel);
+  FLOAT_VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
+  FLOAT_VECT3_ADD(accel, A);
+  stateSetAccelNed_f(&accel);
 
   //------------------------------------------------------------//
 
