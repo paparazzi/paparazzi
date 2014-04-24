@@ -213,14 +213,12 @@
 #define PWM_USE_TIM2 1
 #define PWM_USE_TIM3 1
 
-#define USE_PWM0 1
-#define USE_PWM1 1
-#define USE_PWM2 1
-#define USE_PWM3 1
-#define USE_PWM4 1
-#define USE_PWM5 1
-
 // PWM_SERVO_x is the index of the servo in the actuators_pwm_values array
+// enable PWM connectors by default
+
+#ifndef USE_PWM0
+#define USE_PWM0 1
+#endif
 #if USE_PWM0
 #define PWM_SERVO_0 0
 #define PWM_SERVO_0_TIMER TIM3
@@ -234,6 +232,9 @@
 #define PWM_SERVO_0_OC_BIT 0
 #endif
 
+#ifndef USE_PWM1
+#define USE_PWM1 1
+#endif
 #if USE_PWM1
 #define PWM_SERVO_1 1
 #define PWM_SERVO_1_TIMER TIM2
@@ -247,6 +248,9 @@
 #define PWM_SERVO_1_OC_BIT 0
 #endif
 
+#ifndef USE_PWM2
+#define USE_PWM2 1
+#endif
 #if USE_PWM2
 #define PWM_SERVO_2 2
 #define PWM_SERVO_2_TIMER TIM3
@@ -260,6 +264,9 @@
 #define PWM_SERVO_2_OC_BIT 0
 #endif
 
+#ifndef USE_PWM3
+#define USE_PWM3 1
+#endif
 #if USE_PWM3
 #define PWM_SERVO_3 3
 #define PWM_SERVO_3_TIMER TIM3
@@ -273,6 +280,9 @@
 #define PWM_SERVO_3_OC_BIT 0
 #endif
 
+#ifndef USE_PWM4
+#define USE_PWM4 1
+#endif
 #if USE_PWM4
 #define PWM_SERVO_4 4
 #define PWM_SERVO_4_TIMER TIM2
@@ -286,6 +296,9 @@
 #define PWM_SERVO_4_OC_BIT 0
 #endif
 
+#ifndef USE_PWM5
+#define USE_PWM5 1
+#endif
 #if USE_PWM5
 #define PWM_SERVO_5 5
 #define PWM_SERVO_5_TIMER TIM2
