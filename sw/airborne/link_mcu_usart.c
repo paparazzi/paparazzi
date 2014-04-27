@@ -246,7 +246,7 @@ inline void parse_mavpilot_msg( void );
 
 void link_mcu_init( void )
 {
-   intermcu_data.status = UNINIT;
+   intermcu_data.status = LINK_MCU_UNINIT;
    intermcu_data.msg_available = FALSE;
    intermcu_data.error_cnt = 0;
 }
@@ -342,12 +342,13 @@ void link_mcu_periodic_task( void )
 void link_mcu_event_task( void ) {
   /* A message has been received */
   if (InterMcuBuffer()) {
-    while (InterMcuLink(ChAvailable())&&!intermcu_data.msg_available)
+    while (InterMcuLink(ChAvailable()))
+    {
       intermcu_parse(InterMcuLink(Getch()));
-  }
-
-  if (intermcu_data.msg_available) {
-    parse_mavpilot_msg();
-    intermcu_data.msg_available = FALSE;
+      if (intermcu_data.msg_available) {
+        parse_mavpilot_msg();
+        intermcu_data.msg_available = FALSE;
+      }
+    }
   }
 }
