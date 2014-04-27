@@ -30,6 +30,8 @@ LiPo/LiIo-Zellen: 2-3
     <target name="ap" board="lisa_m_2.0">
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAPS"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
+      <define name="USE_ATTITUDE_REF" value="1" />
+      <define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="1" />
     </target>
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
@@ -120,6 +122,19 @@ LiPo/LiIo-Zellen: 2-3
     <define name="BODY_TO_IMU_PSI" value="-90." unit="deg"/>
   </section>
 
+  <!-- local magnetic field, calculated for: 52°3'56", 4°31'24" -->
+  <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+  </section>
+
+  <!-- section name="AHRS" >
+    <define name="ACCEL_OMEGA" value="0.0063" />
+    <define name="MAG_OMEGA" value="0.004" />
+  </section -->
+
   <section name="INS" prefix="INS_">
   </section>
 
@@ -131,13 +146,13 @@ LiPo/LiIo-Zellen: 2-3
     <define name="SP_MAX_R" value="10000"/>
     <define name="GAIN_P" value="400"/>
     <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
+    <define name="GAIN_R" value="1350"/>
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
-    <define name="SP_MAX_PHI" value="45." unit="deg"/>
-    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_PHI" value="55." unit="deg"/>
+    <define name="SP_MAX_THETA" value="55." unit="deg"/>
     <define name="SP_MAX_R" value="360." unit="deg/s"/>
     <define name="DEADBAND_R" value="200"/>
     <!-- reference -->
