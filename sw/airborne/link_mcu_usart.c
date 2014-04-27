@@ -106,7 +106,7 @@
 #define MSG_INTERMCU_FBW_CURRENT(_intermcu_payload) (uint16_t)(*((uint8_t*)_intermcu_payload+5)|*((uint8_t*)_intermcu_payload+1+5)<<8)
 
 #define InterMcuSend_INTERMCU_FBW(mod,stat,err,volt,current) { \
-  InterMcuHeader(MSG_INTERMCU_ID, MSG_INTERMCU_FBW_ID, 6);\
+  InterMcuHeader(MSG_INTERMCU_ID, MSG_INTERMCU_FBW_ID, 7);\
   uint8_t _mod = mod; InterMcuSend1ByAddr((uint8_t*)&_mod);\
   uint8_t _stat = stat; InterMcuSend1ByAddr((uint8_t*)&_stat);\
   uint8_t _err = err; InterMcuSend1ByAddr((uint8_t*)&_err);\
@@ -130,15 +130,15 @@
 // PARSER
 
 /* parser status */
-#define UNINIT        0
-#define GOT_SYNC1     1
-#define GOT_SYNC2     2
-#define GOT_CLASS     3
-#define GOT_ID        4
-#define GOT_LEN1      5
-#define GOT_LEN2      6
-#define GOT_PAYLOAD   7
-#define GOT_CHECKSUM1 8
+#define LINK_MCU_UNINIT        0
+#define LINK_MCU_GOT_SYNC1     1
+#define LINK_MCU_GOT_SYNC2     2
+#define LINK_MCU_GOT_CLASS     3
+#define LINK_MCU_GOT_ID        4
+#define LINK_MCU_GOT_LEN1      5
+#define LINK_MCU_GOT_LEN2      6
+#define LINK_MCU_GOT_PAYLOAD   7
+#define LINK_MCU_GOT_CHECKSUM1 8
 
 
 #define INTERMCU_MAX_PAYLOAD 255
@@ -161,16 +161,16 @@ struct InterMcuData intermcu_data;
 /* INTERMCU parsing */
 void intermcu_parse( uint8_t c );
 void intermcu_parse( uint8_t c ) {
-  if (intermcu_data.status < GOT_PAYLOAD) {
+  if (intermcu_data.status < LINK_MCU_GOT_PAYLOAD) {
     intermcu_data.ck_a += c;
     intermcu_data.ck_b += intermcu_data.ck_a;
   }
   switch (intermcu_data.status) {
-  case UNINIT:
+  case LINK_MCU_UNINIT:
     if (c == INTERMCU_SYNC1)
       intermcu_data.status++;
     break;
-  case GOT_SYNC1:
+  case LINK_MCU_GOT_SYNC1:
     if (c != INTERMCU_SYNC2) {
       goto error;
     }
@@ -178,7 +178,7 @@ void intermcu_parse( uint8_t c ) {
     intermcu_data.ck_b = 0;
     intermcu_data.status++;
     break;
-  case GOT_SYNC2:
+  case LINK_MCU_GOT_SYNC2:
     if (intermcu_data.msg_available) {
       /* Previous message has not yet been parsed: discard this one */
       goto error;
@@ -186,15 +186,15 @@ void intermcu_parse( uint8_t c ) {
     intermcu_data.msg_class = c;
     intermcu_data.status++;
     break;
-  case GOT_CLASS:
+  case LINK_MCU_GOT_CLASS:
     intermcu_data.msg_id = c;
     intermcu_data.status++;
     break;
-  case GOT_ID:
+  case LINK_MCU_GOT_ID:
     intermcu_data.len = c;
     intermcu_data.status++;
     break;
-  case GOT_LEN1:
+  case LINK_MCU_GOT_LEN1:
     intermcu_data.len |= (c<<8);
     if (intermcu_data.len > INTERMCU_MAX_PAYLOAD) {
       goto error;
@@ -202,20 +202,20 @@ void intermcu_parse( uint8_t c ) {
     intermcu_data.msg_idx = 0;
     intermcu_data.status++;
     break;
-  case GOT_LEN2:
+  case LINK_MCU_GOT_LEN2:
     intermcu_data.msg_buf[intermcu_data.msg_idx] = c;
     intermcu_data.msg_idx++;
     if (intermcu_data.msg_idx >= intermcu_data.len) {
       intermcu_data.status++;
     }
     break;
-  case GOT_PAYLOAD:
+  case LINK_MCU_GOT_PAYLOAD:
     if (c != intermcu_data.ck_a) {
       goto error;
     }
     intermcu_data.status++;
     break;
-  case GOT_CHECKSUM1:
+  case LINK_MCU_GOT_CHECKSUM1:
     if (c != intermcu_data.ck_b) {
       goto error;
     }
@@ -229,7 +229,7 @@ void intermcu_parse( uint8_t c ) {
  error:
   intermcu_data.error_cnt++;
  restart:
-  intermcu_data.status = UNINIT;
+  intermcu_data.status = LINK_MCU_UNINIT;
   return;
 }
 
@@ -295,6 +295,9 @@ void parse_mavpilot_msg( void )
       fbw_state->vsupply = MSG_INTERMCU_FBW_VOLT(intermcu_data.msg_buf);
       fbw_state->current = MSG_INTERMCU_FBW_CURRENT(intermcu_data.msg_buf);
 
+#ifdef LINK_MCU_LED
+      LED_TOGGLE(LINK_MCU_LED);
+#endif
       inter_mcu_received_fbw = TRUE;
     }
   }
@@ -304,9 +307,6 @@ void parse_mavpilot_msg( void )
 #ifdef AP
 void link_mcu_send( void )
 {
-#ifdef LINK_MCU_LED
-  LED_TOGGLE(LINK_MCU_LED);
-#endif
   InterMcuSend_INTERMCU_COMMAND( ap_state->commands );
   InterMcuSend_INTERMCU_TRIM( ap_state->command_roll_trim, ap_state->command_pitch_trim );
 }
