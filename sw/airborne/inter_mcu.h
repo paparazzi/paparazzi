@@ -46,6 +46,10 @@
 #include "firmwares/fixedwing/main_fbw.h"
 
 #ifndef SINGLE_MCU
+// If radio_control defines
+#ifdef RADIO_CONTROL_NB_CHANNEL
+#undef RADIO_CONTROL_NB_CHANNEL
+#endif
 #include "generated/radio.h"
 #define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
 #endif
