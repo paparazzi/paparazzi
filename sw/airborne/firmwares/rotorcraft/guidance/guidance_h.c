@@ -533,8 +533,8 @@ static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flig
     int32_t s_psi, c_psi;
     PPRZ_ITRIG_SIN(s_psi, psi);
     PPRZ_ITRIG_COS(c_psi, psi);
-    speed_sp->x = (int32_t)(((int64_t)c_psi * rc_x - (int64_t)s_psi * rc_y) >> INT32_TRIG_FRAC);
-    speed_sp->y = (int32_t)(((int64_t)s_psi * rc_x + (int64_t)c_psi * rc_y) >> INT32_TRIG_FRAC);
+    speed_sp->x = (int32_t)(( (int64_t)c_psi * rc_x + (int64_t)s_psi * rc_y) >> INT32_TRIG_FRAC);
+    speed_sp->y = (int32_t)((-(int64_t)s_psi * rc_x + (int64_t)c_psi * rc_y) >> INT32_TRIG_FRAC);
   }
   else {
     speed_sp->x = 0;
