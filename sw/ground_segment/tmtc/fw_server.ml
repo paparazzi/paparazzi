@@ -120,7 +120,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     | "GPS_LLA" ->
       let lat = ivalue "lat"
       and lon = ivalue "lon" in
-      let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+      let geo = make_geo (float lat /. 1e7) (float lon /. 1e7) in
       a.pos <- geo;
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "itow");
@@ -156,7 +156,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     | "NAVIGATION_REF_LLA" ->
       let lat = ivalue "lat"
       and lon = ivalue "lon" in
-      let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+      let geo = make_geo (float lat /. 1e7) (float lon /. 1e7) in
       a.nav_ref <- Some (Geo geo)
     | "ATTITUDE" ->
       let roll = fvalue "phi"
@@ -301,7 +301,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let lat = ivalue "lat"
       and lon = ivalue "lon"
       and alt = ivalue "alt" in
-      let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+      let geo = make_geo (float lat /. 1e7) (float lon /. 1e7) in
       update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
     | "GENERIC_COM" ->
       let flight_time = ivalue "flight_time" in
