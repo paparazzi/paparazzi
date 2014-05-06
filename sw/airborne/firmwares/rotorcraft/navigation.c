@@ -464,5 +464,5 @@ bool_t set_nav_heading_by_waypoint(int32_t wp) {
   float heading_f = atan2f(POS_FLOAT_OF_BFP(pos_diff.x), POS_FLOAT_OF_BFP(pos_diff.y));
   nav_heading = ANGLE_BFP_OF_REAL(heading_f);
   //return false so it can be called from the flightplan in an exception alongside other functions like go or stay
-  return false;
+  return FALSE;
 }
