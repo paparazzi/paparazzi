@@ -191,7 +191,16 @@ static void send_tune_roll(void) {
 
 static void send_ctl_a(void) {
   DOWNLINK_SEND_H_CTL_A(DefaultChannel, DefaultDevice,
-      &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
+      &h_ctl_roll_sum_err,
+      &h_ctl_roll_setpoint,
+      &h_ctl_ref_roll_angle,
+      &(stateGetNedToBodyEulers_f()->phi),
+      &h_ctl_aileron_setpoint,
+      &h_ctl_pitch_sum_err,
+      &h_ctl_pitch_loop_setpoint,
+      &h_ctl_ref_pitch_angle,
+      &(stateGetNedToBodyEulers_f()->theta),
+      &h_ctl_elevator_setpoint);
 }
 #endif
 
