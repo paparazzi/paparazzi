@@ -380,6 +380,7 @@ inline static void h_ctl_roll_loop( void ) {
 #if USE_PITCH_TRIM
 inline static void loiter(void) {
   float pitch_trim;
+  static float last_pitch_trim;
 
 #if USE_AIRSPEED
   if (stateGetAirspeed_f() > NOMINAL_AIRSPEED) {
@@ -388,7 +389,7 @@ inline static void loiter(void) {
     pitch_trim = v_ctl_pitch_loiter_trim * (airspeed_ratio2-1) / ((AIRSPEED_RATIO_MIN * AIRSPEED_RATIO_MIN) - 1);
   }
 #else
-  float throttle_diff = v_ctl_throttle_setpoint / (float)MAX_PPRZ - v_ctl_auto_throttle_nominal_cruise_throttle;
+  float throttle_diff = v_ctl_auto_throttle_cruise_throttle - v_ctl_auto_throttle_nominal_cruise_throttle;
   if (throttle_diff > 0) {
     float max_diff = Max(V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle, 0.1);
     pitch_trim = throttle_diff / max_diff * v_ctl_pitch_dash_trim;
@@ -398,6 +399,10 @@ inline static void loiter(void) {
   }
 #endif
 
+  float max_change = (v_ctl_pitch_loiter_trim - v_ctl_pitch_dash_trim) / 180.; // rate limiter: 180/60 Hz = 3 s.
+  Bound(pitch_trim, last_pitch_trim - max_change, last_pitch_trim + max_change);
+
+  last_pitch_trim = pitch_trim;
   h_ctl_pitch_loop_setpoint += pitch_trim;
 }
 #endif
