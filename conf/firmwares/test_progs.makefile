@@ -170,7 +170,7 @@ test_actuators_pwm.srcs   += $(COMMON_TEST_SRCS)
 test_actuators_pwm.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_actuators_pwm.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_actuators_pwm.srcs   += test/test_actuators_pwm.c
-test_actuators_pwm.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
+test_actuators_pwm.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c $(SRC_ARCH)/subsystems/actuators/actuators_shared_arch.c
 
 
 #
@@ -180,7 +180,7 @@ test_actuators_pwm_sin.ARCHDIR = $(ARCH)
 test_actuators_pwm_sin.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_actuators_pwm_sin.srcs   += $(COMMON_TEST_SRCS)
 test_actuators_pwm_sin.srcs   += test/test_actuators_pwm_sin.c
-test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
+test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c $(SRC_ARCH)/subsystems/actuators/actuators_shared_arch.c
 
 
 #
