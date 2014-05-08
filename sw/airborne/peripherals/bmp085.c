@@ -72,7 +72,7 @@ static bool_t bmp085_eoc_true(void)
 
 void bmp085_read_eeprom_calib(struct Bmp085* bmp)
 {
-  if (bmp->status == BMP085_STATUS_UNINIT) {
+  if (bmp->status == BMP085_STATUS_UNINIT && bmp->i2c_trans.status == I2CTransDone) {
     bmp->initialized = FALSE;
     bmp->i2c_trans.buf[0] = BMP085_EEPROM_AC1;
     i2c_transceive(bmp->i2c_p, &(bmp->i2c_trans), bmp->i2c_trans.slave_addr, 1, 22);
