@@ -217,7 +217,7 @@ static void send_i2c_err(void) {
       break;
   }
   _i2c_nb_cnt++;
-  if (_i2c_nb_cnt == 3)
+  if (_i2c_nb_cnt == 4)
     _i2c_nb_cnt = 0;
 }
 #endif
