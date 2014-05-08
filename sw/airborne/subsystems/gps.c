@@ -28,6 +28,14 @@
 
 #include "led.h"
 
+#ifdef GPS_POWER_GPIO
+#include "mcu_periph/gpio.h"
+
+#ifndef GPS_POWER_GPIO_ON
+#define GPS_POWER_GPIO_ON gpio_set
+#endif
+#endif
+
 #define MSEC_PER_WEEK (1000*60*60*24*7)
 
 struct GpsState gps;
@@ -106,6 +114,10 @@ void gps_init(void) {
   gps.last_3dfix_time = 0;
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
+#ifdef GPS_POWER_GPIO
+  gpio_setup_output(GPS_POWER_GPIO);
+  GPS_POWER_GPIO_ON(GPS_POWER_GPIO);
+#endif
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
