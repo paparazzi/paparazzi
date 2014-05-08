@@ -173,7 +173,7 @@ static void send_uart_err(void) {
     default: break;
   }
   uart_nb_cnt++;
-  if (uart_nb_cnt == 6)
+  if (uart_nb_cnt == 7)
     uart_nb_cnt = 0;
 }
 #endif
