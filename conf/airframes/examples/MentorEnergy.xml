@@ -192,24 +192,34 @@
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- power -->
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
+
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="0.104999996722"/>
+    <define name="ALTITUDE_PGAIN" value="0.183"/>
+    <define name="AIRSPEED_PGAIN" value="0.217"/>
+
     <!-- outer loop saturation -->
-    <define name="ALTITUDE_MAX_CLIMB" value="3."/>
+    <define name="ALTITUDE_MAX_CLIMB" value="10."/>
+    <define name="MAX_ACCELERATION" value="2."/>
 
-    <define name="AIRSPEED_PGAIN" value="0."/>
+    <!-- energy -->
+    <define name="ENERGY_TOT_PGAIN" value="0.205"/>
+    <define name="ENERGY_TOT_IGAIN" value="0.403"/>
+    <define name="ENERGY_DIFF_PGAIN" value="0.403"/>
+    <define name="ENERGY_DIFF_IGAIN" value="0.259"/>
+    <define name="GLIDE_RATIO" value="7." />
 
-    <!-- auto throttle inner loop -->
+    <!-- auto throttle -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.36700001359"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.626999974251"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.518000006676" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.307000011206"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0." unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0."/>
 
+    <!-- extra's -->
     <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.0"/>
     <define name="AUTO_THROTTLE_OF_AIRSPEED_IGAIN" value="0.0"/>
 
+    <!-- extra's -->
     <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
@@ -222,15 +232,15 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="0.89200001955"/>
-    <define name="COURSE_DGAIN" value="0.273000001907"/>
-    <define name="COURSE_PRE_BANK_CORRECTION" value="1.00800001621"/>
+    <define name="COURSE_PGAIN" value="0.89"/>
+    <define name="COURSE_DGAIN" value="0.27"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1.0"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="33.57" unit="deg"/>
-    <define name="PITCH_MAX_SETPOINT" value="28.65" unit="deg"/>
-    <define name="PITCH_MIN_SETPOINT" value="-28.65" unit="deg"/>
+    <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="50" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-50" unit="deg"/>
 
-    <define name="PITCH_PGAIN" value="12587.4130859"/>
+    <define name="PITCH_PGAIN" value="12000"/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1273.88500977"/>
