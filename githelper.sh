@@ -83,7 +83,7 @@ case "$choice" in
 	echo -e "-use the master code again?: \033[1mgit checkout master\033[0m   (check how fast git does this!)"
 	echo -e "-continue the work on the branch again?: \033[1mgit checkout $branch\033[0m"
 	echo -e "-I want to see the list of changes compared to my master: \033[1mgit diff master $branch\033[0m (use 'q' to exit)"
-	echo -e "-Ok, this code is good. I want it in my master now: \033[1mgit checkout master; git merge $branch; $git branch -d $branch\033[0m"
+	echo -e "-Ok, this code is good. I want it in my master now: \033[1mgit checkout master; git merge $branch; git branch -d $branch\033[0m"
 	exit;
 	;;
  4 ) 	
