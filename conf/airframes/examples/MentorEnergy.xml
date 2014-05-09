@@ -82,7 +82,9 @@
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
     </load>
 
-    <load name="nav_catapult.xml"/>
+    <!-- load name="nav_catapult.xml"/-->
+
+    <load name="nav_line.xml"/>
   </modules>
 
   <servos>

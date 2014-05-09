@@ -80,7 +80,7 @@ uint8_t v_ctl_auto_throttle_submode = V_CTL_CLIMB_MODE_AUTO_THROTTLE;
 float v_ctl_auto_throttle_sum_err = 0;
 
 #ifdef LOITER_TRIM
-#error "Energy Controller can not accep Loiter Trim"
+#error "Energy Controller can not accept Loiter Trim"
 #endif
 //#ifdef V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE
 //#error
@@ -275,21 +275,24 @@ const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
 
 void v_ctl_altitude_loop( void )
 {
-  // Imput Checks
+  // Airspeed Command Saturation
   if (v_ctl_auto_airspeed_setpoint <= STALL_AIRSPEED * 1.23) v_ctl_auto_airspeed_setpoint = STALL_AIRSPEED * 1.23;
 
   // Altitude Controller
   v_ctl_altitude_error = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
   float sp = v_ctl_altitude_pgain * v_ctl_altitude_error + v_ctl_altitude_pre_climb ;
+
+  // Vertical Speed Limiter
   BoundAbs(sp, v_ctl_max_climb);
 
+  // Vertical Acceleration Limiter
   float incr = sp - v_ctl_climb_setpoint;
   BoundAbs(incr, 2 * dt_navigation);
   v_ctl_climb_setpoint += incr;
 }
 
 
-
+// Running Average Filter
 float lp_vdot[5];
 
 static float low_pass_vdot(float v);
@@ -305,12 +308,12 @@ static float low_pass_vdot(float v)
 }
 
 /**
- * auto throttle inner loop
+ * Auto-throttle inner loop
  * \brief
  */
 void v_ctl_climb_loop( void )
 {
-  // airspeed_setpoint ratelimiter:
+  // Airspeed setpoint rate limiter:
   // AIRSPEED_SETPOINT_SLEW in m/s/s - a change from 15m/s to 18m/s takes 3s with the default value of 1
   float airspeed_incr = v_ctl_auto_airspeed_setpoint - v_ctl_auto_airspeed_setpoint_slew;
   BoundAbs(airspeed_incr, AIRSPEED_SETPOINT_SLEW * dt_attidude);
@@ -418,7 +421,6 @@ if(kill_throttle) v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1/V_CTL_GLIDE_RATIO;
 #ifndef V_CTL_THROTTLE_SLEW
 #define V_CTL_THROTTLE_SLEW 1.
 #endif
-
 /** \brief Computes slewed throttle from throttle setpoint
     called at 20Hz
  */
