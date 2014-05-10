@@ -87,6 +87,7 @@ type aircraft = {
     mutable climb : float;
     mutable nav_ref : nav_ref option;
     mutable d_hmsl : float; (* difference between geoid and ellipsoid *)
+    mutable ground_alt : float; (* ground alt ref if no SRTM data *)
     mutable desired_pos : Latlong.geographic;
     mutable desired_altitude : float;
     mutable desired_course : float;

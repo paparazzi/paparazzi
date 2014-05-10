@@ -121,6 +121,7 @@ type aircraft = {
   mutable climb   : float;
   mutable nav_ref : nav_ref option;
   mutable d_hmsl : float;
+  mutable ground_alt : float; (* ground alt ref if no SRTM data *)
   mutable desired_pos    : Latlong.geographic;
   mutable desired_altitude    : float;
   mutable desired_course : float;
@@ -169,7 +170,7 @@ let new_aircraft = fun id name fp airframe ->
     unix_time = 0.; itow = Int32.of_int 0;
     roll = 0.; pitch = 0.;
     gspeed=0.; airspeed= -1.; course = 0.; heading = 0.; alt=0.; climb=0.; agl = 0.;
-    nav_ref = None; d_hmsl = 0.;
+    nav_ref = None; d_hmsl = 0.; ground_alt = 0.;
     desired_pos = { Latlong.posn_lat = 0.; posn_long = 0. };
     desired_course = 0.; desired_altitude = 0.; desired_climb = 0.;
     cur_block=0; cur_stage=0;

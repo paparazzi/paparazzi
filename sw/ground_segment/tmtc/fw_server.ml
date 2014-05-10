@@ -113,7 +113,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
           if !heading_from_course then
             a.heading <- a.course;
-          a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+          a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
           if a.gspeed > 3. && a.ap_mode = _AUTO2 then
             Wind.update ac_name a.gspeed a.course
         end
@@ -128,7 +128,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
       if !heading_from_course then
         a.heading <- a.course;
-      a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+      a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
         Wind.update ac_name a.gspeed a.course
@@ -152,12 +152,14 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.desired_climb <- (try fvalue "climb" with _ -> fvalue "desired_climb");
       begin try a.desired_course <- norm_course (fvalue "course") with _ -> () end
     | "NAVIGATION_REF" ->
-      a.nav_ref <- Some (Utm { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" })
+        a.nav_ref <- Some (Utm { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" });
+        a.ground_alt <- fvalue "ground_alt"
     | "NAVIGATION_REF_LLA" ->
       let lat = ivalue "lat"
       and lon = ivalue "lon" in
       let geo = make_geo (float lat /. 1e7) (float lon /. 1e7) in
-      a.nav_ref <- Some (Geo geo)
+      a.nav_ref <- Some (Geo geo);
+      a.ground_alt <- fvalue "ground_alt"
     | "ATTITUDE" ->
       let roll = fvalue "phi"
       and pitch = fvalue "theta" in
@@ -316,7 +318,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.course  <- norm_course (fvalue "course" /. 1e3);
         if !heading_from_course then
           a.heading <- a.course;
-        a.agl <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+        a.agl <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
         a.bat <- fvalue "vsupply" /. 10.;
         a.energy <- ivalue "energy" * 100;
         a.throttle <- fvalue "throttle";
