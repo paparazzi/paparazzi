@@ -93,6 +93,10 @@ extern bool_t nav_set_heading_deg(float deg);
 extern bool_t nav_set_heading_towards(float x, float y);
 extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
 
+/** default approaching_time for a wp */
+#ifndef CARROT
+#define CARROT 0
+#endif
 
 #define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } FALSE; })
 #define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } FALSE; })
@@ -151,9 +155,9 @@ extern void nav_route(uint8_t wp_start, uint8_t wp_end);
 }
 
 /** Proximity tests on approaching a wp */
-bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
-#define NavApproaching(wp, time) nav_approaching_from(wp, 0)
-#define NavApproachingFrom(wp, from, time) nav_approaching_from(wp, from)
+bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approaching_time);
+#define NavApproaching(wp, time) nav_approaching_from(wp, 0, time)
+#define NavApproachingFrom(wp, from, time) nav_approaching_from(wp, from, time)
 
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
 bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time);
@@ -201,6 +205,7 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time);
 #define nav_IncreaseShift(x) {}
 
 #define nav_SetNavRadius(x) {}
+
 
 #define navigation_SetFlightAltitude(x) { \
   flight_altitude = x; \

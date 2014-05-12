@@ -290,23 +290,42 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
 }
 
-bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
+bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approaching_time) {
   int32_t dist_to_point;
   struct Int32Vect2 diff;
-  VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
+  struct EnuCoor_i* pos = stateGetPositionEnu_i();
+
+  VECT2_DIFF(diff, waypoints[wp_idx], *pos);
   INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
   INT32_VECT2_NORM(dist_to_point, diff);
   //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
   //fflush(stdout);
   //if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
   if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
-  if (from_idx > 0 && from_idx < NB_WAYPOINT) {
-    struct Int32Vect2 from_diff;
-    VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
-    INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC);
-    return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
+
+  if (approaching_time >= 0) {
+    struct Int32Vect2 estimated_pos;
+    struct Int32Vect2 estimated_progress;
+    struct Int32Vect2 estimated_diff;
+    int32_t estimated_dist;
+    struct EnuCoor_i* speed = stateGetSpeedEnu_i();
+    VECT2_SMUL(estimated_progress, *speed, approaching_time);
+    INT32_VECT2_RSHIFT(estimated_progress, estimated_progress, (INT32_SPEED_FRAC - INT32_POS_FRAC));
+    VECT2_SUM(estimated_pos, *pos, estimated_progress);
+    VECT2_DIFF(estimated_diff, waypoints[wp_idx], estimated_pos);
+
+    INT32_VECT2_RSHIFT(estimated_diff, estimated_diff, INT32_POS_FRAC);
+    INT32_VECT2_NORM(estimated_dist, estimated_diff);
+    if (estimated_dist < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
+
+    if (from_idx > 0 && from_idx < NB_WAYPOINT) {
+      struct Int32Vect2 from_diff;
+      VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
+      INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC);
+      return (estimated_diff.x * from_diff.x + estimated_diff.y * from_diff.y < 0);
+    }
   }
-  else return FALSE;
+  return FALSE;
 }
 
 bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
