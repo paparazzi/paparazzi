@@ -88,7 +88,7 @@
 
 struct w5100_periph chip0;
 uint8_t ck_a, ck_b;
-uint8_t rx_buf[W5100_RX_BUFFER_SIZE];
+uint8_t w5100_rx_buf[W5100_RX_BUFFER_SIZE];
 
 // the media access control (ethernet hardware) address for the shield.
 static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };

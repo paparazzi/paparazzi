@@ -60,7 +60,7 @@ struct w5100_periph {
   uint8_t tx_running;
 };
 
-extern uint8_t rx_buf[W5100_RX_BUFFER_SIZE];
+extern uint8_t w5100_rx_buf[W5100_RX_BUFFER_SIZE];
 
 extern struct w5100_periph chip0;
 //extern uint8_t ck_a, ck_b;
@@ -294,10 +294,10 @@ static inline void w5100_parse_payload(struct w5100_transport * t) {
 
 static inline void w5100_read_buffer( struct w5100_transport *t ) {
   while ( w5100_ch_available() ) {
-    w5100_receive( rx_buf, W5100_RX_BUFFER_SIZE );
+    w5100_receive( w5100_rx_buf, W5100_RX_BUFFER_SIZE );
     int c = 0;
     do {
-      parse_w5100( t, rx_buf[ c++ ] );
+      parse_w5100( t, w5100_rx_buf[ c++ ] );
     } while ( ( t->status != UNINIT ) && !(t->trans.msg_received) );
   }
 }
