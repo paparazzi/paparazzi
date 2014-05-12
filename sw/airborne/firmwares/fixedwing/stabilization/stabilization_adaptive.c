@@ -131,6 +131,10 @@ float airspeed_ratio2;
 float v_ctl_pitch_loiter_trim;
 float v_ctl_pitch_dash_trim;
 
+// Pitch trim rate limiter
+#ifndef PITCH_TRIM_RATE_LIMITER
+#define PITCH_TRIM_RATE_LIMITER 3.
+#endif
 inline static void h_ctl_roll_loop( void );
 inline static void h_ctl_pitch_loop( void );
 
@@ -399,7 +403,8 @@ inline static void loiter(void) {
   }
 #endif
 
-  float max_change = (v_ctl_pitch_loiter_trim - v_ctl_pitch_dash_trim) / 180.; // rate limiter: 180/60 Hz = 3 s.
+  // Pitch trim rate limiter
+  float max_change = (v_ctl_pitch_loiter_trim - v_ctl_pitch_dash_trim) * H_CTL_REF_DT/ PITCH_TRIM_RATE_LIMITER;
   Bound(pitch_trim, last_pitch_trim - max_change, last_pitch_trim + max_change);
 
   last_pitch_trim = pitch_trim;
