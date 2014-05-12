@@ -103,10 +103,6 @@ PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
 #define FAILSAFE_MODE_TOO_FAR_FROM_HOME AP_MODE_FAILSAFE
 #endif
 
-/** mode to enter when RC is lost while using a mode with RC input (not AP_MODE_NAV) */
-#ifndef RC_LOST_MODE
-#define RC_LOST_MODE AP_MODE_HOME
-#endif
 
 #if USE_KILL_SWITCH_FOR_MOTOR_ARMING
 #include "autopilot_arming_switch.h"
