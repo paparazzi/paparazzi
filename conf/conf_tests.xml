@@ -1,49 +1,14 @@
-<?xml version="1.0"?>
 <conf>
-
-  <!-- booz2 / navgo -->
   <aircraft
-    name="BOOZ2"
-    ac_id="150"
-    airframe="airframes/examples/booz2.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/rotorcraft_basic.xml"
-    gui_color="white"
-    />
-  <aircraft
-    name="Quad_NavGo"
-    ac_id="151"
-    airframe="airframes/examples/quadrotor_navgo.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/rotorcraft_basic.xml"
-    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/modules/rotorcraft_cam.xml settings/modules/servo_switch.xml"
-    gui_color="white"
-    />
-
-  <!-- LISA -->
-  <aircraft
-    name="Hexa_LisaL"
-    ac_id="153"
-    airframe="airframes/examples/h_hex.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-    gui_color="white"
-    />
-  <aircraft
-    name="Quad_LisaM_2"
-    ac_id="162"
-    airframe="airframes/examples/quadrotor_lisa_m_2_pwm_spektrum.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/rotorcraft_basic.xml"
-    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-    gui_color="white"
-    />
+   name="BOOZ2"
+   ac_id="150"
+   airframe="airframes/examples/booz2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml"
+   gui_color="white"
+  />
   <aircraft
    name="Bixler"
    ac_id="24"
@@ -55,6 +20,106 @@
    gui_color="blue"
   />
   <aircraft
+   name="Classix_XSens"
+   ac_id="33"
+   airframe="airframes/CDW/classix.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/modules/photogrammetry_calculator.xml settings/modules/dc.xml settings/estimation/ins_neutrals.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="DualBoard_AP_FBW"
+   ac_id="31"
+   airframe="airframes/CDW/DualBoardApFbw.xml"
+   radio="radios/R6107SP_7ch.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="EasyStar_ETS"
+   ac_id="8"
+   airframe="airframes/examples/easystar_ets.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml settings/estimation/infrared.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Hexa_LisaL"
+   ac_id="153"
+   airframe="airframes/examples/h_hex.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="LisaLv11_Aspirinv15_FW"
+   ac_id="12"
+   airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_fw.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/fixedwing_basic.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="LisaLv11_Aspirinv15_RC"
+   ac_id="11"
+   airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_rc.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="LisaLv11_Booz2v12_FW"
+   ac_id="10"
+   airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_fw.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/fixedwing_basic.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="LisaLv11_Booz2v12_RC"
+   ac_id="9"
+   airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_rc.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="MentorEnergy"
+   ac_id="77"
+   airframe="airframes/examples/MentorEnergy.xml"
+   radio="radios/R6107SP_7ch.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/versatile_airspeed.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ins_neutrals.xml settings/estimation/ac_char.xml"
+   gui_color="#ffffffffffff"
+  />
+  <aircraft
+   name="Microjet"
+   ac_id="5"
+   airframe="airframes/examples/microjet.xml"
+   radio="radios/cockpitMM.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
+   gui_color="#6293ba"
+  />
+  <aircraft
    name="Microjet_LisaM"
    ac_id="4"
    airframe="airframes/examples/microjet_lisa_m.xml"
@@ -62,6 +127,16 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/ctl_dash_loiter_trim.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Microjet_Twog_Aspirin"
+   ac_id="46"
+   airframe="airframes/examples/microjet_twog_aspirin.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
    gui_color="blue"
   />
   <aircraft
@@ -85,84 +160,93 @@
    gui_color="blue"
   />
   <aircraft
-   name="MentorEnergy"
-   ac_id="77"
-   airframe="airframes/examples/MentorEnergy.xml"
-   radio="radios/R6107SP_7ch.xml"
-   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
-   flight_plan="flight_plans/versatile_airspeed.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ins_neutrals.xml settings/estimation/ac_char.xml"
-   gui_color="#ffffffffffff"
-  />
-  <!-- tiny/umarim -->
-  <aircraft
-    name="Microjet"
-    ac_id="5"
-    airframe="airframes/examples/microjet.xml"
-    radio="radios/cockpitMM.xml"
-    telemetry="telemetry/default_fixedwing.xml"
-    flight_plan="flight_plans/basic.xml"
-    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
-    gui_color="#6293ba"
-    />
-<aircraft
-   name="Microjet_Twog_Aspirin"
-   ac_id="46"
-   airframe="airframes/examples/microjet_twog_aspirin.xml"
+   name="Quad_LisaM_2"
+   ac_id="162"
+   airframe="airframes/examples/quadrotor_lisa_m_2_pwm_spektrum.xml"
    radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="Quad_NavGo"
+   ac_id="151"
+   airframe="airframes/examples/quadrotor_navgo.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/modules/rotorcraft_cam.xml settings/modules/servo_switch.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="Twinjet"
+   ac_id="6"
+   airframe="airframes/examples/twinjet.xml"
+   radio="radios/cockpitMM.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
+   gui_color="#ba6293"
+  />
+  <aircraft
+   name="Twinstar_energyadaptive"
+   ac_id="13"
+   airframe="airframes/examples/Twinstar_energyadaptive.xml"
+   radio="radios/Corona_24_DIY.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml"
    gui_color="blue"
   />
   <aircraft
-    name="Twog_IMU"
-    ac_id="7"
-    airframe="airframes/examples/twog_analogimu.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_fixedwing_imu.xml"
-    flight_plan="flight_plans/versatile.xml"
-    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
-    gui_color="blue"
-    />
-  <aircraft
-    name="Umarim_Lite"
-    ac_id="20"
-    airframe="airframes/examples/umarim_lite_v2.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_fixedwing_imu.xml"
-    flight_plan="flight_plans/basic.xml"
-    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
-    gui_color="blue"
-    />
-  <aircraft
-    name="Twinjet"
-    ac_id="6"
-    airframe="airframes/examples/twinjet.xml"
-    radio="radios/cockpitMM.xml"
-    telemetry="telemetry/default_fixedwing.xml"
-    flight_plan="flight_plans/versatile.xml"
-    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
-    gui_color="#ba6293"
-    />
-  <aircraft
-    name="EasyStar_ETS"
-    ac_id="8"
-    airframe="airframes/examples/easystar_ets.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_fixedwing.xml"
-    flight_plan="flight_plans/basic.xml"
-    settings="settings/fixedwing_basic.xml settings/estimation/infrared.xml"
-    gui_color="red"
-    />
-  <aircraft
-   name="yapa_chimu_spi"
-   ac_id="27"
-   airframe="airframes/examples/yapaChimuSpi.xml"
+   name="Twog_IMU"
+   ac_id="7"
+   airframe="airframes/examples/twog_analogimu.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
-   settings=" settings/fixedwing_basic.xml settings/estimation/ins_neutrals.xml settings/control/ctl_dash_loiter_trim.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Umarim_Lite"
+   ac_id="20"
+   airframe="airframes/examples/umarim_lite_v2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Yapa2_XSens"
+   ac_id="32"
+   airframe="airframes/CDW/yapa_xsens.xml"
+   radio="radios/R6107SP_7ch.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml settings/modules/dc.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="ardrone2_raw"
+   ac_id="201"
+   airframe="airframes/ardrone2_raw.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_ardrone.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="ardrone2_sdk"
+   ac_id="200"
+   airframe="airframes/ardrone2_sdk.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_ardrone.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml"
    gui_color="blue"
   />
   <aircraft
@@ -185,106 +269,14 @@
    settings=" settings/setup_actuators.xml"
    gui_color="blue"
   />
-  <!-- Special Combinnations -->
   <aircraft
-   name="DualBoard_AP_FBW"
-   ac_id="31"
-   airframe="airframes/CDW/DualBoardApFbw.xml"
-   radio="radios/R6107SP_7ch.xml"
+   name="yapa_chimu_spi"
+   ac_id="27"
+   airframe="airframes/examples/yapaChimuSpi.xml"
+   radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="Yapa2_XSens"
-   ac_id="32"
-   airframe="airframes/CDW/yapa_xsens.xml"
-   radio="radios/R6107SP_7ch.xml"
-   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml settings/modules/dc.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="Classix_XSens"
-   ac_id="33"
-   airframe="airframes/CDW/classix.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/modules/photogrammetry_calculator.xml settings/modules/dc.xml settings/estimation/ins_neutrals.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="ardrone2_sdk"
-   ac_id="200"
-   airframe="airframes/ardrone2_sdk.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_ardrone.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="ardrone2_raw"
-   ac_id="201"
-   airframe="airframes/ardrone2_raw.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_ardrone.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/stabilization_att_int.xml"
-   gui_color="red"
-  />
-  <!-- Hardware test Lisa/L -->
-  <aircraft
-    name="LisaLv11_Booz2v12_RC"
-    ac_id="9"
-    airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_rc.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-    gui_color="white"
-    />
-  <aircraft
-    name="LisaLv11_Booz2v12_FW"
-    ac_id="10"
-    airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_fw.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_fixedwing.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/fixedwing_basic.xml"
-    gui_color="blue"
-    />
-  <aircraft
-    name="LisaLv11_Aspirinv15_RC"
-    ac_id="11"
-    airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_rc.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_rotorcraft.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
-    gui_color="white"
-    />
-  <aircraft
-    name="LisaLv11_Aspirinv15_FW"
-    ac_id="12"
-    airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_fw.xml"
-    radio="radios/cockpitSX.xml"
-    telemetry="telemetry/default_fixedwing.xml"
-    flight_plan="flight_plans/dummy.xml"
-    settings="settings/fixedwing_basic.xml"
-    gui_color="blue"
-    />
-<aircraft
-   name="Twinstar_energyadaptive"
-   ac_id="13"
-   airframe="airframes/examples/Twinstar_energyadaptive.xml"
-   radio="radios/Corona_24_DIY.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings=" settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml"
+   settings=" settings/fixedwing_basic.xml settings/estimation/ins_neutrals.xml settings/control/ctl_dash_loiter_trim.xml"
    gui_color="blue"
   />
 </conf>
