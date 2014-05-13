@@ -173,8 +173,16 @@ void ins_update_gps(void) {
 
 #if !USE_BAROMETER
   float falt = gps.hmsl / 1000.0f;
-  alt_kalman(falt);
-  ins_impl.alt_dot = -gps.ned_vel.z / 100.0f;
+  if (ins_impl.reset_alt_ref) {
+    ins_impl.reset_alt_ref = FALSE;
+    ins_impl.alt = falt;
+    ins_impl.alt_dot = 0.0f;
+    alt_kalman_reset();
+  }
+  else {
+    alt_kalman(falt);
+    ins_impl.alt_dot = -gps.ned_vel.z / 100.0f;
+  }
 #endif
   utm.alt = ins_impl.alt;
   // set position
