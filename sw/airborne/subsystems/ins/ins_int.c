@@ -76,6 +76,9 @@ static void sonar_cb(uint8_t sender_id, const float *distance);
 #ifndef INS_SONAR_OFFSET
 #define INS_SONAR_OFFSET 0.
 #endif
+#ifndef INS_SONAR_MIN_RANGE
+#define INS_SONAR_MIN_RANGE 0.001
+#endif
 #define VFF_R_SONAR_0 0.1
 #define VFF_R_SONAR_OF_M 0.2
 
@@ -353,10 +356,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 #endif
 
   /* update filter assuming a flat ground */
-  if (*distance < INS_SONAR_MAX_RANGE
-#ifdef INS_SONAR_MIN_RANGE
-      && *distance > INS_SONAR_MIN_RANGE
-#endif
+  if (*distance < INS_SONAR_MAX_RANGE && *distance > INS_SONAR_MIN_RANGE
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
       && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
 #endif
