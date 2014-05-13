@@ -399,7 +399,7 @@ static void guidance_h_update_reference(void) {
   }
 
 #if GUIDANCE_H_USE_SPEED_REF
-  if(guidance_h_mode == GUIDANCE_H_MODE_HOVER) {
+  if (guidance_h_mode == GUIDANCE_H_MODE_HOVER) {
     VECT2_COPY(guidance_h_pos_sp, guidance_h_pos_ref); // for display only
   }
 #endif
@@ -513,7 +513,7 @@ static inline void transition_run(void) {
 
 /// read speed setpoint from RC
 static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool_t in_flight) {
-  if(in_flight) {
+  if (in_flight) {
     // negative pitch is forward
     int64_t rc_x = -radio_control.values[RADIO_PITCH];
     int64_t rc_y = radio_control.values[RADIO_ROLL];
