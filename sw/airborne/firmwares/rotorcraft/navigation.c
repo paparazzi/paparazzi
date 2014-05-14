@@ -302,7 +302,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
   //if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
   if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
 
-  if (!(approaching_time < 0)) {
+  if (approaching_time >= 0) {
     struct Int32Vect2 estimated_pos;
     struct Int32Vect2 estimated_progress;
     struct Int32Vect2 estimated_diff;
