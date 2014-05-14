@@ -203,7 +203,7 @@ object (self)
       try
         set_coordinates ();
         let wgs84 = self#pos in
-        let agl  = ea#value -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
+        let agl  = ea#value -. (try float (Srtm.of_wgs84 wgs84) with _ -> ground_alt) in
         agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
       with _ -> ()
     in

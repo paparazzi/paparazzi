@@ -195,7 +195,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
               Some s ->
                 begin
                   try s.Gps.alt -. float (Srtm.of_wgs84 s.Gps.wgs84) with
-                      _ -> s.Gps.alt
+                      _ -> s.Gps.alt -. !alt0
                 end
             | None -> 0. in
       FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y, !wind_z) agl fm_period
