@@ -645,7 +645,7 @@ object (self)
 
 
 class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
-  let srtm = GMenu.check_menu_item ~label:"SRTM" ~active:srtm () in
+  let srtm = GMenu.check_menu_item ~label:"display SRTM alt" ~active:srtm () in
   let lbl_xy = GMisc.label ()
   and lbl_geo = GMisc.label ()
   and lbl_alt =  GMisc.label ()
@@ -676,6 +676,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       let bg_menu = my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append () in
 
       let tooltips = GData.tooltips () in
+      tooltips#set_tip srtm#coerce ~text:"Display SRTM alt at pointer position (will request for download if not available)";
 
       let b = GButton.button ~packing:toolbar#add () in
       ignore (b#connect#clicked (fun _ -> bg_menu#activate ()));
@@ -777,7 +778,9 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
 
     method display_alt = fun wgs84 ->
       if srtm#active then
-    lbl_alt#set_text (sprintf " SRTM:%dm"(self#altitude wgs84))
+        lbl_alt#set_text (sprintf "  SRTM:%dm"(self#altitude wgs84))
+      else if not (Srtm.available wgs84) then
+        lbl_alt#set_text (sprintf "  SRTM: N/A")
 
     method display_group = fun s ->  lbl_group#set_text s
 

@@ -33,11 +33,14 @@ exception Tile_not_found of error
 
 val error : error -> string
 
+val available : Latlong.geographic -> bool
+(** [available wgs84_pos] Returns true if srtm tile is available *)
+
 val of_utm : Latlong.utm -> int
 (** [of_utm utm_pos] Returns the altitude of the given UTM position *)
 
 val of_wgs84 : Latlong.geographic -> int
-(** [of_utm utm_pos] Returns the altitude of the given geographic position *)
+(** [of_wgs84 wgs84_pos] Returns the altitude of the given geographic position *)
 
 val area_of_tile : string -> string
 
