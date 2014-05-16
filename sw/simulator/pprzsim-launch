@@ -113,6 +113,9 @@ def main():
         if options.ivy_bus:
             simargs.append("-b")
             simargs.append(options.ivy_bus)
+        if options.fg_host:
+            simargs.append("-fg")
+            simargs.append(options.fg_host)
     elif options.simtype == "nps":
         simdir = "nps"
         if options.fg_host:
