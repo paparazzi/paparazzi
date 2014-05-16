@@ -19,7 +19,7 @@
   <init fun="sonar_adc_init()"/>
   <periodic fun="sonar_adc_read()" freq="10"/>
 
-  <makefile>
+  <makefile target="ap|sim">
     <file name="sonar_adc.c"/>
   </makefile>
   <makefile target="ap">

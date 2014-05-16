@@ -26,6 +26,7 @@ void nps_sensors_run_step(double time) {
   nps_sensor_mag_run_step(&sensors.mag, time, &sensors.body_to_imu_rmat);
   nps_sensor_baro_run_step(&sensors.baro, time);
   nps_sensor_gps_run_step(&sensors.gps, time);
+  nps_sensor_sonar_run_step(&sensors.sonar, time);
 }
 
 
@@ -56,6 +57,14 @@ bool_t nps_sensors_baro_available(void) {
 bool_t nps_sensors_gps_available(void) {
   if (sensors.gps.data_available) {
     sensors.gps.data_available = FALSE;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+bool_t nps_sensors_sonar_available(void) {
+  if (sensors.sonar.data_available) {
+    sensors.sonar.data_available = FALSE;
     return TRUE;
   }
   return FALSE;

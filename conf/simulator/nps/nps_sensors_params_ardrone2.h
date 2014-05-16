@@ -128,6 +128,13 @@
 #define NPS_BARO_NOISE_STD_DEV   5.e-2
 
 /*
+ * Sonar (distance to ground in meters)
+ */
+#define NPS_SONAR_DT             (1./10.)
+#define NPS_SONAR_NOISE_STD_DEV  0.01
+
+
+/*
  *  GPS
  */
 
