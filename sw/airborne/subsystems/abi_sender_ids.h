@@ -87,5 +87,9 @@
 #define AGL_SONAR_ARDRONE2_ID 2
 #endif
 
+#ifndef AGL_SONAR_NPS_ID
+#define AGL_SONAR_NPS_ID 3
+#endif
+
 
 #endif /* ABI_SENDER_IDS_H */

@@ -47,6 +47,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_sensor_accel.c              \
        $(NPSDIR)/nps_sensor_mag.c                \
        $(NPSDIR)/nps_sensor_baro.c               \
+       $(NPSDIR)/nps_sensor_sonar.c              \
        $(NPSDIR)/nps_sensor_gps.c                \
        $(NPSDIR)/nps_electrical.c                \
        $(NPSDIR)/nps_atmosphere.c                \
