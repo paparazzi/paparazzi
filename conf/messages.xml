@@ -1305,9 +1305,7 @@
     <field name="flight_time"   type="uint16" unit="s"/>
   </message>
 
-  <message name="BOOZ2_FMS_INFO" id="148">
-    <field name="tbd"      type="float"/>
-  </message>
+  <!-- 148 is free -->
 
   <message name="GUIDANCE_H_REF_INT" id="149">
     <field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
@@ -1443,7 +1441,6 @@
      <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
-  <!-- 161 is free -->
   <message name="VFF_EXTENDED" id="161">
       <field name="measure1"        type="float"/>
       <field name="measure2"        type="float"/>
@@ -1453,7 +1450,6 @@
       <field name="bias"           type="float"/>
       <field name="offset"           type="float"/>
   </message>
-
 
   <message name="VFF" id="162">
       <field name="measure"        type="float"/>
@@ -1465,11 +1461,7 @@
       <field name="Pbb"            type="float"/>
   </message>
 
-  <message name="BOOZ2_TUNE_FF" id="163">
-      <field name="fb_rms"         type="float"/>
-      <field name="dg"             type="float"/>
-      <field name="g"              type="float"/>
-  </message>
+  <!-- 163 is free -->
 
   <message name="HFF" id="164">
       <field name="x"              type="float"/>
@@ -2072,13 +2064,8 @@
     <field name="vz"   type="float" unit="m/s"/>
   </message>
 
-  <message name="BOOZ_DEBUG_FOO" id="245">
-    <field name="ami_stat"   type="uint8"/>
-  </message>
-
-  <message name="BOOZ_MAX1167_ERR" id="246">
-    <field name="erno"   type="uint8"/>
-  </message>
+  <!-- 245 is free -->
+  <!-- 246 is free -->
 
   <message name="PPRZ_DEBUG" id="247">
     <field name="module"   type="uint8"/>
@@ -2137,20 +2124,8 @@
       <field name="yaw_c"  type="float"/>
   </message>
 
-  <message name="BOOZ_ATT_REF_MODEL" id="251">
-    <field name="omega_p" type="float" />
-    <field name="zeta_p" type="float" />
-    <field name="omega_q" type="float" />
-    <field name="zeta_q" type="float" />
-    <field name="omega_r" type="float" />
-    <field name="zeta_r" type="float" />
-  </message>
-
-  <message name="BOOZ2_FF_ADAP" id="252">
-     <field name="roll" type="float"/>
-     <field name="pitch" type="float"/>
-     <field name="yaw" type="float"/>
-  </message>
+  <!-- 251 is free -->
+  <!-- 252 is free -->
 
   <message name="I2C_ERRORS" id="253">
     <field name="queue_full_cnt"              type="uint16"/>
