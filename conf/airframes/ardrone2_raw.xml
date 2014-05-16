@@ -105,7 +105,6 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="SONAR_SENS" value="0.00034"/>
     <define name="SONAR_MAX_RANGE" value="2.2"/>
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
     <define name="SONAR_VARIANCE_THRESHOLD" VALUE="2.0"/>
