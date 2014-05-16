@@ -175,13 +175,11 @@ static void gh_compute_route_ref(struct Int32Vect2* ref_vector) {
 
 static void gh_compute_ref_max(struct Int32Vect2* ref_vector) {
   /* Bound ref to max speed/accel along route reference angle.
-   * If angle can't be computed, simply set both axes to max magnitude.
+   * If angle can't be computed, simply set both axes to max magnitude/sqrt(2).
    */
   if (ref_vector->x == 0 && ref_vector->y == 0) {
-    gh_max_accel_ref.x = gh_max_accel;
-    gh_max_accel_ref.y = gh_max_accel;
-    gh_max_speed_ref.x = gh_max_speed_int;
-    gh_max_speed_ref.y = gh_max_speed_int;
+    gh_max_accel_ref.x = gh_max_accel_ref.y = gh_max_accel * 0.707;
+    gh_max_speed_ref.x = gh_max_speed_ref.y = gh_max_speed_int * 0.707;
   }
   else {
     gh_compute_route_ref(ref_vector);
@@ -198,11 +196,10 @@ static void gh_compute_ref_max(struct Int32Vect2* ref_vector) {
 
 static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector) {
   /* Bound ref to max accel along reference vector.
-   * If angle can't be computed, simply set both axes to max magnitude.
+   * If angle can't be computed, simply set both axes to max magnitude/sqrt(2).
    */
   if (ref_vector->x == 0 && ref_vector->y == 0) {
-    gh_max_accel_ref.x = gh_max_accel;
-    gh_max_accel_ref.y = gh_max_accel;
+    gh_max_accel_ref.x = gh_max_accel_ref.y = gh_max_accel * 0.707;
   }
   else {
     gh_compute_route_ref(ref_vector);
@@ -214,11 +211,10 @@ static void gh_compute_ref_max_accel(struct Int32Vect2* ref_vector) {
 
 static void gh_compute_ref_max_speed(struct Int32Vect2* ref_vector) {
   /* Bound ref to max speed along reference vector.
-   * If angle can't be computed, simply set both axes to max magnitude.
+   * If angle can't be computed, simply set both axes to max magnitude/sqrt(2).
    */
   if (ref_vector->x == 0 && ref_vector->y == 0) {
-    gh_max_speed_ref.x = gh_max_speed_int;
-    gh_max_speed_ref.y = gh_max_speed_int;
+    gh_max_speed_ref.x = gh_max_speed_ref.y = gh_max_speed_int * 0.707;
   }
   else {
     gh_compute_route_ref(ref_vector);
