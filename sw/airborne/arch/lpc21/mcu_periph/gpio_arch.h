@@ -138,4 +138,18 @@ static inline void gpio_toggle(uint32_t port, uint32_t gpios) {
   }
 }
 
+/**
+ * Read the value of one or more pins of the given GPIO port.
+ * @param[in] port  GPIO port (0 or 1)
+ * @param[in] gpios GPIO pin(s). If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+static inline uint32_t gpio_get(uint32_t port, uint32_t gpios) {
+  if (port == 0) {
+    return IO0PIN & gpios;
+  }
+  else if (port == 1) {
+    return IO1PIN & gpios;
+  }
+}
+
 #endif /* GPIO_ARCH_H */
