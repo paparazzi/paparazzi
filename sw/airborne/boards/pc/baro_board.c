@@ -21,7 +21,7 @@
  */
 
 /**
- * @file boards/pc/baro_board.h
+ * @file boards/pc/baro_board.c
  *
  * board specific fonction for the PC board ( simulator )
  *
