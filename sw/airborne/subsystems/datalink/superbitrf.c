@@ -929,7 +929,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
   }
 }
 
-static inline void superbitrf_send_packet_cb(bool_t error) {
+static inline void superbitrf_send_packet_cb(bool_t error __attribute__((unused))) {
   /* Switch on the status of the superbitRF */
   switch (superbitrf.status) {
 
