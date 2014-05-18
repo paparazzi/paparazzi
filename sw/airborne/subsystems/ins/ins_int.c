@@ -327,33 +327,9 @@ void ins_update_gps(void) {
 #endif /* USE_GPS */
 
 
-//#define INS_SONAR_VARIANCE_THRESHOLD 0.01
-
-#ifdef INS_SONAR_VARIANCE_THRESHOLD
-
-#include "messages.h"
-#include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
-
-#include "math/pprz_stat.h"
-#define VAR_ERR_MAX 10
-float var_err[VAR_ERR_MAX];
-uint8_t var_idx = 0;
-#endif
-
-
 #if USE_SONAR
 static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *distance) {
   static float last_offset = 0.;
-
-#ifdef INS_SONAR_VARIANCE_THRESHOLD
-  /* compute variance of error between sonar and baro alt */
-  float err = *distance + ins_impl.baro_z; // sonar positive up, baro positive down !!!!
-  var_err[var_idx] = err;
-  var_idx = (var_idx + 1) % VAR_ERR_MAX;
-  float var = variance_float(var_err, VAR_ERR_MAX);
-  DOWNLINK_SEND_INS_SONAR(DefaultChannel,DefaultDevice, distance, &var);
-#endif
 
   /* update filter assuming a flat ground */
   if (*distance < INS_SONAR_MAX_RANGE && *distance > INS_SONAR_MIN_RANGE
@@ -362,9 +338,6 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, const float *dis
 #endif
 #ifdef INS_SONAR_BARO_THRESHOLD
       && ins_impl.baro_z > -INS_SONAR_BARO_THRESHOLD /* z down */
-#endif
-#ifdef INS_SONAR_VARIANCE_THRESHOLD
-      && var < INS_SONAR_VARIANCE_THRESHOLD
 #endif
       && ins_impl.update_on_agl
       && ins_impl.baro_initialized) {
