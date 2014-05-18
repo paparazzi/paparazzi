@@ -73,8 +73,8 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="0"/>
   </section>
 
-  <!-- Local magnetic field -->
   <section name="AHRS" prefix="AHRS_">
+    <!-- Local magnetic field -->
     <define name="H_X" value="0.51562740288882"/>
     <define name="H_Y" value="-0.05707735220832"/>
     <define name="H_Z" value="0.85490967783446"/>
@@ -236,7 +236,7 @@
     <load name="nav_line.xml"/>
   </modules>
 
-<!-- --------------------------------------------------------------------------- -->
+<!--+-+-+-+-+-+-+- PHOTOGRAMMETRY -+-+-+-+-+-+-+-->
 
 
   <section name="Photogrammetry" prefix="PHOTOGRAMMETRY_">
