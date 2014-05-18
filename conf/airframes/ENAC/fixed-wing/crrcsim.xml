@@ -154,7 +154,6 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
 

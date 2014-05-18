@@ -33,9 +33,7 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="umarim"/>
     <subsystem name="ahrs"    type="float_dcm"/>
-    <subsystem name="ins" type="alt_float">
-      <!--define name="USE_BAROMETER"/-->
-    </subsystem>
+    <subsystem name="ins"     type="alt_float"/>
     <subsystem name="control" type="adaptive"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->

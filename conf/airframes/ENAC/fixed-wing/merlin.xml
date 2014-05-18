@@ -177,7 +177,6 @@
  </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
   </section>
 

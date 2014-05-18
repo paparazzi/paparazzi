@@ -46,7 +46,6 @@
     <define name="USE_AIRSPEED"/>
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
-    <define name="USE_GYRO_PITCH_RATE"/>
     <define name="SENSOR_SYNC_SEND"/>
 
     <target name="sim" board="pc"/>
@@ -246,7 +245,6 @@
   </section>
 
   <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
   </section>
 

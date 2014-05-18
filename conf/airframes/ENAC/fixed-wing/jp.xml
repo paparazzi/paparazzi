@@ -21,7 +21,6 @@
   <firmware name="fixedwing">
     <define name="USE_I2C1"/>
     <define name="USE_I2C2"/>
-    <define name="USE_GYRO_PITCH_RATE"/>
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
     <target name="ap" board="apogee_1.0_chibios"/>
@@ -171,7 +170,6 @@
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>

@@ -181,12 +181,11 @@
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="5.0"/>
     <define name="SONAR_MIN_RANGE" value="0.25"/>
-    <!--define name="SONAR_VARIANCE_THRESHOLD" value="0.01"/-->
   </section>
 
   <section name="SONAR">
-    <!--define name="SONAR_SENS" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
-    <define name="SONAR_SENS" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
+    <!--define name="SONAR_SCALE" value="0.00650498" integer="16"/--> <!-- XL-MaxSonar-EZ4 5V supply -->
+    <define name="SONAR_SCALE" value="0.016775" integer="16"/> <!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
