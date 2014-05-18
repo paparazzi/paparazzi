@@ -70,12 +70,12 @@
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FF"   value="motor_mixing.commands[SERVO_FF]"/>
-    <set servo="FR"   value="motor_mixing.commands[SERVO_FR]"/>
-    <set servo="DR"   value="motor_mixing.commands[SERVO_DR]"/>
-    <set servo="DD"   value="motor_mixing.commands[SERVO_DD]"/>
-    <set servo="DL"   value="motor_mixing.commands[SERVO_DL]"/>
-    <set servo="FL"   value="motor_mixing.commands[SERVO_FL]"/>
+    <set servo="FF"   value="motor_mixing.commands[0]"/>
+    <set servo="FR"   value="motor_mixing.commands[1]"/>
+    <set servo="DR"   value="motor_mixing.commands[2]"/>
+    <set servo="DD"   value="motor_mixing.commands[3]"/>
+    <set servo="DL"   value="motor_mixing.commands[4]"/>
+    <set servo="FL"   value="motor_mixing.commands[5]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">

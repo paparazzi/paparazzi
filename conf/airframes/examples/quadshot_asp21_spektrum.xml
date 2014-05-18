@@ -21,10 +21,10 @@ More information on the Quadshot can be found at transition-robotics.com -->
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="A1" value="motor_mixing.commands[SERVO_A1]"/>
-    <set servo="A2"  value="motor_mixing.commands[SERVO_A2]"/>
-    <set servo="B1" value="motor_mixing.commands[SERVO_B1]"/>
-    <set servo="B2"  value="motor_mixing.commands[SERVO_B2]"/>
+    <set servo="A1" value="motor_mixing.commands[0]"/>
+    <set servo="A2"  value="motor_mixing.commands[1]"/>
+    <set servo="B1" value="motor_mixing.commands[2]"/>
+    <set servo="B2"  value="motor_mixing.commands[3]"/>
 
  <!-- Mode dependent actuator laws for the elevons. The elevons act different in rc attitude flight mode-->
  <!-- First the correct feedback is stored in variables -->
@@ -229,7 +229,7 @@ More information on the Quadshot can be found at transition-robotics.com -->
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
  </section>
 
  <modules main_freq="512">

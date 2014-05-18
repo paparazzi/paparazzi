@@ -155,10 +155,6 @@
    <define name="IGAIN" value="6"/>
  </section>
 
- <section name="MISC">
-   <define name="FACE_REINJ_1" value="1024"/>
- </section>
-
  <modules main_freq="512">
    <load name="gps_ubx_ucenter.xml"/>
  </modules>

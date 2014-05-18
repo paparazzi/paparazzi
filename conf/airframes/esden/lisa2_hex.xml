@@ -29,12 +29,12 @@
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
-    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
-    <set servo="RIGHT"        value="motor_mixing.commands[SERVO_RIGHT]"/>
-    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
-    <set servo="BACK_LEFT"    value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
-    <set servo="LEFT"         value="motor_mixing.commands[SERVO_LEFT]"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[0]"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[1]"/>
+    <set servo="RIGHT"        value="motor_mixing.commands[2]"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[3]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[4]"/>
+    <set servo="LEFT"         value="motor_mixing.commands[5]"/>
   </command_laws>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -162,7 +162,6 @@
  </section>
 
  <section name="MISC">
-   <define name="FACE_REINJ_1"  value="1024"/>
    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="FALSE"/>
    <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
@@ -172,7 +171,7 @@
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
  </section>
 
  <modules main_freq="512">

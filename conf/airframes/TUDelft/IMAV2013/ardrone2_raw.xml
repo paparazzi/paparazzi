@@ -67,10 +67,10 @@
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="TOP_LEFT" value="motor_mixing.commands[SERVO_TOP_LEFT]"/>
-    <set servo="TOP_RIGHT" value="motor_mixing.commands[SERVO_TOP_RIGHT]"/>
-    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[SERVO_BOTTOM_LEFT]"/>
-    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[SERVO_BOTTOM_RIGHT]"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[0]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[1]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[2]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[3]"/>
   </command_laws>
 
   <include href="conf/airframes/TUDelft/IMAV2013/ARDrone/$AC_ID_calib.xml"/>
