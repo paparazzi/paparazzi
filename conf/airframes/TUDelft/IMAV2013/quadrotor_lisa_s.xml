@@ -198,7 +198,6 @@
       </subsystem>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
-      <configure name="LISA_S_BARO" value="BARO_MS5611_SPI"/>
     </target>
 
     <target name="nps" board="pc">
