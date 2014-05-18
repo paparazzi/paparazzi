@@ -32,7 +32,7 @@ bool_t i2c_submit(struct i2c_periph* p __attribute__ ((unused)), struct i2c_tran
 void i2c_event(void) { }
 void i2c2_setbitrate(int bitrate __attribute__ ((unused))) { }
 
-#ifdef USE_I2C0
+#if USE_I2C0
 struct i2c_errors i2c0_errors;
 
 void i2c0_hw_init(void) {
@@ -47,7 +47,7 @@ void i2c0_er_isr(void) {
 }
 #endif
 
-#ifdef USE_I2C1
+#if USE_I2C1
 struct i2c_errors i2c1_errors;
 
 void i2c1_hw_init(void) {
@@ -62,7 +62,7 @@ void i2c1_er_isr(void) {
 }
 #endif
 
-#ifdef USE_I2C2
+#if USE_I2C2
 struct i2c_errors i2c2_errors;
 
 void i2c2_hw_init(void) {

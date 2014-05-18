@@ -952,11 +952,11 @@ I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
 */
 
 
-#ifdef USE_I2C0
+#if USE_I2C0
 #error "The STM32 doesn't have I2C0, use I2C1 or I2C2"
 #endif
 
-#ifdef USE_I2C1
+#if USE_I2C1
 
 /** default I2C1 clock speed */
 #ifndef I2C1_CLOCK_SPEED
@@ -1035,7 +1035,7 @@ void i2c1_er_isr(void) {
 
 #endif /* USE_I2C1 */
 
-#ifdef USE_I2C2
+#if USE_I2C2
 
 /** default I2C2 clock speed */
 #ifndef I2C2_CLOCK_SPEED
@@ -1110,7 +1110,7 @@ void i2c2_er_isr(void) {
 #endif /* USE_I2C2 */
 
 
-#if defined USE_I2C3 && defined STM32F4
+#if USE_I2C3 && defined STM32F4
 
 /** default I2C3 clock speed */
 #ifndef I2C3_CLOCK_SPEED
@@ -1384,14 +1384,14 @@ void i2c_event(void) {
 
   if (SysTimeTimer(i2c_wd_timer) > 2000) { // 2ms (500Hz) periodic watchdog check
     SysTimeTimerStart(i2c_wd_timer);
-#ifdef USE_I2C1
+#if USE_I2C1
     i2c_wd_check(&i2c1);
 #endif
 
-#ifdef USE_I2C2
+#if USE_I2C2
     i2c_wd_check(&i2c2);
 #endif
-#ifdef USE_I2C3
+#if USE_I2C3
     i2c_wd_check(&i2c3);
 #endif
   }
@@ -1426,7 +1426,7 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
     //if (i2c_idle(periph))
     {
 #ifdef I2C_DEBUG_LED
-#ifdef USE_I2C1
+#if USE_I2C1
       if (periph == &i2c1)
       {
 
@@ -1457,7 +1457,7 @@ bool_t i2c_idle(struct i2c_periph* periph)
   uint32_t i2c = (uint32_t) periph->reg_addr;
 
 #ifdef I2C_DEBUG_LED
-#ifdef USE_I2C1
+#if USE_I2C1
   if (periph == &i2c1)
   {
     return TRUE;

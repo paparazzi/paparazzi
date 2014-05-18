@@ -163,7 +163,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
 }
 
 
-#ifdef USE_I2C0
+#if USE_I2C0
 
 /* default clock speed 37.5KHz with our 15MHz PCLK
    I2C0_CLOCK = PCLK / (I2C0_SCLL + I2C0_SCLH)     */
@@ -246,7 +246,7 @@ void i2c0_hw_init ( void ) {
 
 
 
-#ifdef USE_I2C1
+#if USE_I2C1
 
 /* default clock speed 37.5KHz with our 15MHz PCLK
    I2C1_CLOCK = PCLK / (I2C1_SCLL + I2C1_SCLH)     */

@@ -45,7 +45,7 @@
 #define I2C_MR_DATA_NACK 0x58
 
 
-#ifdef USE_I2C0
+#if USE_I2C0
 
 extern void i2c0_hw_init(void);
 
@@ -53,7 +53,7 @@ extern void i2c0_hw_init(void);
 
 
 
-#ifdef USE_I2C1
+#if USE_I2C1
 
 extern void i2c1_hw_init(void);
 

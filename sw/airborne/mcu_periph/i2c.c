@@ -31,7 +31,7 @@
 #include "subsystems/datalink/telemetry.h"
 #endif
 
-#ifdef USE_I2C0
+#if USE_I2C0
 
 struct i2c_periph i2c0;
 
@@ -71,7 +71,7 @@ void i2c0_init(void) {
 #endif /* USE_I2C0 */
 
 
-#ifdef USE_I2C1
+#if USE_I2C1
 
 struct i2c_periph i2c1;
 
@@ -111,7 +111,7 @@ void i2c1_init(void) {
 #endif /* USE_I2C1 */
 
 
-#ifdef USE_I2C2
+#if USE_I2C2
 
 struct i2c_periph i2c2;
 
@@ -150,7 +150,7 @@ void i2c2_init(void) {
 
 #endif /* USE_I2C2 */
 
-#ifdef USE_I2C3
+#if USE_I2C3
 
 struct i2c_periph i2c3;
 

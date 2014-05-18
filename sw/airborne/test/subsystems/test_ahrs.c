@@ -158,7 +158,7 @@ static inline void main_report(void) {
        DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
            },
            {
-#ifdef USE_I2C2
+#if USE_I2C2
                  uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
                  uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
                  uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;

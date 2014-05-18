@@ -3,7 +3,7 @@
 
 #include "std.h"
 
-#ifdef USE_I2C2
+#if USE_I2C2
 #include "i2c.h"
 #endif
 
@@ -29,7 +29,7 @@ struct BenchSensors {
 
 extern struct BenchSensors bench_sensors;
 
-#ifdef USE_I2C2
+#if USE_I2C2
 #define BenchSensorsEvent( _handler) {		\
     if (bench_sensors.status ==  BS_BUSY && bench_sensors.ready) {	\
       bench_sensors.angle_1 = i2c2.buf[0] + (i2c2.buf[1] << 8);		\

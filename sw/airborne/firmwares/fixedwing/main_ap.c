@@ -652,7 +652,7 @@ void monitor_task( void ) {
 void event_task_ap( void ) {
 
 #ifndef SINGLE_MCU
-#if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2
+#if USE_I2C0  || USE_I2C1  || USE_I2C2
   i2c_event();
 #endif
 #endif
