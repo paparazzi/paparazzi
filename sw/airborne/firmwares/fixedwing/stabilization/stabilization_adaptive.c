@@ -143,6 +143,10 @@ inline static void h_ctl_pitch_loop( void );
 #define H_CTL_PITCH_KFFD 0.
 #endif
 
+#ifndef USE_GYRO_PITCH_RATE
+#define USE_GYRO_PITCH_RATE TRUE
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
