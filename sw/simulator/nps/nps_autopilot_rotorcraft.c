@@ -29,8 +29,6 @@
 
 #include "subsystems/radio_control.h"
 #include "subsystems/imu.h"
-#include "subsystems/sensors/baro.h"
-#include "baro_board.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 #include "subsystems/ahrs.h"
@@ -101,7 +99,8 @@ void nps_autopilot_run_step(double time) {
   }
 
   if (nps_sensors_baro_available()) {
-    baro_feed_value(sensors.baro.value);
+    float pressure = (float) sensors.baro.value;
+    AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, &pressure);
     main_event();
   }
 

@@ -226,6 +226,10 @@ static void alt_kalman(float z_meas) {
 
 #if USE_BAROMETER
 #ifdef SITL
+  // stupid hack for nps, we need to get rid of all these DTs
+#ifndef BARO_SIM_DT
+#define BARO_SIM_DT (1./50.)
+#endif
   DT = BARO_SIM_DT;
   R = 0.5;
   SIGMA2 = 0.1;
