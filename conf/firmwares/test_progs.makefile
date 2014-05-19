@@ -99,6 +99,11 @@ test_sys_time_usleep.srcs   += $(COMMON_TEST_SRCS)
 test_sys_time_usleep.srcs   += test/mcu_periph/test_sys_time_usleep.c
 
 
+test_gpio.ARCHDIR = $(ARCH)
+test_gpio.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_gpio.srcs   += $(COMMON_TEST_SRCS)
+test_gpio.srcs   += test/mcu_periph/test_gpio.c
+
 #
 # test_telemetry : Sends ALIVE telemetry messages
 #

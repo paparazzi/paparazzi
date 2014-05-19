@@ -58,6 +58,13 @@
     <target name="usb_tunnel_0"    board="twog_1.0" />
   </firmware>
 
+  <firmware name="test_progs">
+    <configure name="SYS_TIME_LED" value="1"/>
+    <target name="test_gpio" board="twog_1.0"/>
+    <target name="test_sys_time_timer" board="twog_1.0"/>
+    <target name="test_telemetry" board="twog_1.0"/>
+  </firmware>
+
 
 <!-- ******************* MODULES ********************************** -->
   <modules main_freq="60">
