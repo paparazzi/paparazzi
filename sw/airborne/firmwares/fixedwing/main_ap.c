@@ -423,11 +423,14 @@ static inline void telecommand_task( void ) {
   energy = fbw_state->energy;
 
 #ifdef RADIO_CONTROL
+  /* the SITL check is a hack to prevent "automatic" launch in NPS */
+#ifndef SITL
   if (!autopilot_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
   }
+#endif
 #endif
 }
 

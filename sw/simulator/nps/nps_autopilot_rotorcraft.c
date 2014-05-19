@@ -59,6 +59,7 @@ bool_t nps_bypass_ins;
 #endif
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
+  autopilot.launch = TRUE;
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_electrical_init();

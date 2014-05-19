@@ -64,8 +64,8 @@
 #endif
 
 /** Minimum JSBSim timestep
-  * Around 1/10000 seems to be good for ground impacts
-  */
+ * Around 1/10000 seems to be good for ground impacts
+ */
 #define MIN_DT (1.0/10240.0)
 
 using namespace JSBSim;
@@ -129,48 +129,60 @@ void nps_fdm_init(double dt) {
 
 }
 
-void nps_fdm_run_step(double* commands, int commands_nb) {
+void nps_fdm_run_step(bool_t launch, double* commands, int commands_nb) {
+  static bool_t run_model = FALSE;
 
-  feed_jsbsim(commands, commands_nb);
+  if (launch && !run_model) {
+    run_model = TRUE;
+#ifdef NPS_JSBSIM_LAUNCHSPEED
+    printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);
+    FDMExec->GetIC()->SetUBodyFpsIC(FeetOfMeters(NPS_JSBSIM_LAUNCHSPEED));
+#endif
+    FDMExec->RunIC();
+  }
 
-  /* To deal with ground interaction issues, we decrease the time
-     step as the vehicle is close to the ground. This is done predictively
-     to ensure no weird accelerations or oscillations. From tests with a bouncing
-     ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
-     all the dynamics. Higher might be a bit more stable, but really starting to push
-     the simulation CPU requirements, especially for more complex models.
-      - at init: get the largest radius from CG to any contact point (landing gear)
-      - if descending...
-        - find current number of timesteps to impact
-        - if impact imminent, calculate a new timestep to use (with limit)
-      - if ascending...
-        - change timestep back to init value
-      - run sim for as many steps as needed to reach init_dt amount of time
+  if (run_model) {
+    feed_jsbsim(commands, commands_nb);
 
-     Of course, could probably be improved...
-  */
-  // If the vehicle has a downwards velocity
-  if (fdm.ltp_ecef_vel.z > 0) {
-    // Get the current number of timesteps until impact at current velocity
-    double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
-    // If impact imminent within next timestep, use high sim rate
-    if (numDT_to_impact <= 1.0) {
-      fdm.curr_dt = min_dt;
+    /* To deal with ground interaction issues, we decrease the time
+       step as the vehicle is close to the ground. This is done predictively
+       to ensure no weird accelerations or oscillations. From tests with a bouncing
+       ball model in JSBSim, it seems that 10k steps per second is reasonable to capture
+       all the dynamics. Higher might be a bit more stable, but really starting to push
+       the simulation CPU requirements, especially for more complex models.
+       - at init: get the largest radius from CG to any contact point (landing gear)
+       - if descending...
+       - find current number of timesteps to impact
+       - if impact imminent, calculate a new timestep to use (with limit)
+       - if ascending...
+       - change timestep back to init value
+       - run sim for as many steps as needed to reach init_dt amount of time
+
+       Of course, could probably be improved...
+    */
+    // If the vehicle has a downwards velocity
+    if (fdm.ltp_ecef_vel.z > 0) {
+      // Get the current number of timesteps until impact at current velocity
+      double numDT_to_impact = (fdm.agl - vehicle_radius_max) / (fdm.curr_dt * fdm.ltp_ecef_vel.z);
+      // If impact imminent within next timestep, use high sim rate
+      if (numDT_to_impact <= 1.0) {
+        fdm.curr_dt = min_dt;
+      }
     }
-  }
-  // If the vehicle is moving upwards and out of the ground, reset timestep
-  else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
-    fdm.curr_dt = fdm.init_dt;
-  }
+    // If the vehicle is moving upwards and out of the ground, reset timestep
+    else if ((fdm.ltp_ecef_vel.z <= 0) && ((fdm.agl + vehicle_radius_max) > 0)) {
+      fdm.curr_dt = fdm.init_dt;
+    }
 
-  // Calculate the number of sim steps for correct amount of time elapsed
-  int num_steps = int(fdm.init_dt / fdm.curr_dt);
+    // Calculate the number of sim steps for correct amount of time elapsed
+    int num_steps = int(fdm.init_dt / fdm.curr_dt);
 
-  // Set the timestep then run sim
-  FDMExec->Setdt(fdm.curr_dt);
-  int i;
-  for (i = 0; i < num_steps; i++) {
-    FDMExec->Run();
+    // Set the timestep then run sim
+    FDMExec->Setdt(fdm.curr_dt);
+    int i;
+    for (i = 0; i < num_steps; i++) {
+      FDMExec->Run();
+    }
   }
 
   fetch_state();

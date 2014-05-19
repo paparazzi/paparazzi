@@ -158,7 +158,7 @@ static void nps_main_run_sim_step(void) {
 
   nps_autopilot_run_systime_step();
 
-  nps_fdm_run_step(autopilot.commands, NPS_COMMANDS_NB);
+  nps_fdm_run_step(autopilot.launch, autopilot.commands, NPS_COMMANDS_NB);
 
   nps_sensors_run_step(nps_main.sim_time);
 

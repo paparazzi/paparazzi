@@ -206,6 +206,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="20"/>
     <define name="COMMANDS_NB" value="3"/>
     <define name="ACTUATOR_NAMES" value="{&quot;throttle-cmd-norm&quot;, &quot;aileron-cmd-norm&quot;, &quot;elevator-cmd-norm&quot;}"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>

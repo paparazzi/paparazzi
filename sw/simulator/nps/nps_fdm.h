@@ -93,7 +93,7 @@ struct NpsFdm {
 extern struct NpsFdm fdm;
 
 extern void nps_fdm_init(double dt);
-extern void nps_fdm_run_step(double* commands, int commands_nb);
+extern void nps_fdm_run_step(bool_t launch, double* commands, int commands_nb);
 extern void nps_fdm_set_wind(double speed, double dir, int turbulence_severity);
 
 #endif /* NPS_FDM */

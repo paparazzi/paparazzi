@@ -21,6 +21,7 @@
 
 struct NpsAutopilot {
   double commands[NPS_COMMANDS_NB];
+  bool_t launch;
 };
 
 extern struct NpsAutopilot autopilot;

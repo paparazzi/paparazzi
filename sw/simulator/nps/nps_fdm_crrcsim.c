@@ -141,7 +141,7 @@ void nps_fdm_init(double dt) {
   send_servo_cmd(&crrcsim, zero);
 }
 
-void nps_fdm_run_step(double* commands, int commands_nb) {
+void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, int commands_nb) {
   // read state
   if (get_msg(&crrcsim, crrcsim.data_buffer) <= 0) {
     return; // nothing on the socket
