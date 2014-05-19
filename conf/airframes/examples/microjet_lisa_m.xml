@@ -10,6 +10,10 @@
 
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
+    <target name="jsbsim" board="pc"/>
+    <target name="nps"   board="pc">
+      <subsystem name="fdm" type="jsbsim"/>
+    </target>
     <target name="ap"   board="lisa_m_2.0">
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
@@ -193,6 +197,21 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
+  </section>
+
+  <section name="SIMU">
+    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="COMMANDS_NB" value="3"/>
+    <define name="ACTUATOR_NAMES" value="{&quot;throttle-cmd-norm&quot;, &quot;aileron-cmd-norm&quot;, &quot;elevator-cmd-norm&quot;}"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="JS_AXIS_MODE" value="4"/>
+    <define name="BYPASS_AHRS" value="TRUE"/>
+    <define name="BYPASS_INS" value="TRUE"/>
   </section>
 
 </airframe>

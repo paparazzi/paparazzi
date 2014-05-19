@@ -136,6 +136,8 @@ void nps_autopilot_run_step(double time) {
   /* scale final motor commands to 0-1 for feeding the fdm */
   for (uint8_t i=0; i < NPS_COMMANDS_NB; i++)
     autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
+  // hack: invert pitch to fit most JSBSim models
+  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH]/MAX_PPRZ;
 
 }
 
