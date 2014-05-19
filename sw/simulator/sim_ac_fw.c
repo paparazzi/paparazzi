@@ -118,7 +118,7 @@ static inline void set_value(FGFDMExec* FDMExec, string name, double value) {
 
 static inline double normalize_from_pprz(int command) {
   double cmd_norm = (double)command / MAX_PPRZ;
-  BoundAbs(cmd_norm, MAX_PPRZ);
+  BoundAbs(cmd_norm, 1.0);
   return cmd_norm;
 }
 
@@ -149,7 +149,7 @@ void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
   set_value(FDMExec, "fcs/throttle-cmd-norm", throttle_slewed);
   //set_value(FDMExec, "fcs/throttle-cmd-norm", normalize_from_pprz(commands[COMMAND_THROTTLE]));
   //set_value(FDMExec, "fcs/throttle-cmd-norm", th);
-  set_value(FDMExec, "fcs/aileron-cmd-norm",  -normalize_from_pprz(commands[COMMAND_ROLL]));
+  set_value(FDMExec, "fcs/aileron-cmd-norm",  normalize_from_pprz(commands[COMMAND_ROLL]));
   set_value(FDMExec, "fcs/elevator-cmd-norm", -normalize_from_pprz(commands[COMMAND_PITCH]));
   //set_value(FDMExec, "fcs/elevator-cmd-norm", -5);
   //set_value(FDMExec, "fcs/elevator-pos-rad", 0.4);

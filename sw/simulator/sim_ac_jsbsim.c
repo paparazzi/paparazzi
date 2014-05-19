@@ -78,8 +78,7 @@ static void sim_init(void) {
   // main AP init (feed the sensors once before ?)
   sim_autopilot_init();
 
-  printf("sys_time frequency: %f\n", SYS_TIME_FREQUENCY);
-  printf("sys_time period in msec: %d\n", SYSTIME_PERIOD);
+  printf("sys_time frequency: %f\n", (float)SYS_TIME_FREQUENCY);
 
 }
 
@@ -134,8 +133,13 @@ int main ( int argc, char** argv) {
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
 
-  g_timeout_add(JSBSIM_PERIOD, sim_periodic, NULL);
-  g_timeout_add(SYSTIME_PERIOD, systime_periodic, NULL);
+  guint systime_dt_ms = SYSTIME_PERIOD;
+  printf("sys_time period in msec: %d\n", systime_dt_ms);
+  guint jsbsim_dt_ms = JSBSIM_PERIOD;
+  printf("jsbsim period in msec: %d\n", jsbsim_dt_ms);
+
+  g_timeout_add(jsbsim_dt_ms, sim_periodic, NULL);
+  g_timeout_add(systime_dt_ms, systime_periodic, NULL);
 
   g_main_loop_run(ml);
 
