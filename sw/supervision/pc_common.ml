@@ -59,14 +59,19 @@ let run_and_log = fun log exit_cb com ->
   let io_watch_out = Glib.Io.add_watch [`IN] cb channel_out in
   pid, channel_out, com_stdout, io_watch_out
 
-let strip_prefix = fun dir file ->
+let strip_prefix = fun dir file subdir ->
   let n = String.length dir in
   if not (String.length file > n && String.sub file 0 n = dir) then begin
-    let msg = sprintf "Selected file '%s' should be in '%s'" file dir in
-    GToolbox.message_box ~title:"Error" msg;
-    raise Exit
+    let home = Env.paparazzi_home in
+    let nn = String.length home in
+    if (String.length file > nn && String.sub file 0 nn = home) then begin
+      ".." // String.sub file (nn+1) (String.length file - nn -1)
+    end else
+     let msg = sprintf "Selected file '%s' should be in '%s'" file dir in
+     GToolbox.message_box ~title:"Error" msg;
+     raise Exit
   end else
-    String.sub file (n+1) (String.length file - n - 1)
+    subdir // String.sub file (n+1) (String.length file - n - 1)
 
 
 let choose_xml_file = fun ?(multiple = false) title subdir cb ->
@@ -81,10 +86,10 @@ let choose_xml_file = fun ?(multiple = false) title subdir cb ->
     | `OPEN, _ when multiple ->
       let names = dialog#get_filenames in
       dialog#destroy ();
-      cb (List.map (fun f -> subdir // strip_prefix dir f) names)
+      cb (List.map (fun f -> strip_prefix dir f subdir) names)
     | `OPEN, Some name ->
       dialog#destroy ();
-      cb [subdir // strip_prefix dir name]
+      cb [strip_prefix dir name subdir]
     | _ -> dialog#destroy ()
   end
 
