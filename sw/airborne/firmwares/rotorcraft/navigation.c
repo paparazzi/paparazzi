@@ -83,8 +83,9 @@ int32_t nav_roll, nav_pitch;
 int32_t nav_heading, nav_course;
 float nav_radius;
 
+/** default nav_circle_radius in meters */
 #ifndef DEFAULT_CIRCLE_RADIUS
-#define DEFAULT_CIRCLE_RADIUS 0.
+#define DEFAULT_CIRCLE_RADIUS 5.
 #endif
 
 uint8_t vertical_mode;
