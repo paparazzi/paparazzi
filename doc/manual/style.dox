@@ -14,6 +14,7 @@ code or documentation:
 
 - @subpage stylec
 - @subpage styledoxygen
+- @subpage stylepython
 
 
 Feedback would be welcome to improve the Paparazzi guidelines.
@@ -254,6 +255,50 @@ For an example, the Doxygen source for this Style Guide can be found in
 
  */
 
+/** @page stylepython Python Style Guide
+
+This page contains guidelines for Python source code for the
+Paparazzi project.
+
+<a href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> is the de-facto code style guide for Python and covers the most important aspects.
+
+There exists a command-line program, <a href="https://github.com/jcrocholl/pep8">pep8</a>, that can check your code for conformance.
+
+@section styleformat Formatting Guide
+
+- Use 4 spaces per indentation level, do NOT use tabs.
+- Remove any trailing white space at the end of lines.
+- Use Unix line endings ('\\n'); do NOT use DOS endings ('\\r\\n')
+
+@section stylecompat Python 2 and 3 compatibility
+
+Try to write python code so that it works with python2 (>=2.6) and python3.
+See e.g. <a href="http://python3porting.com/noconv.html">supporting Python 2 and 3 without 2to3 conversion</a> for details.
+
+The most common things to keep in mind:
+- Use the print() function not the statement with
+  @code from __future__ import print_function @endcode
+- Beware of <a href="http://www.python.org/dev/peps/pep-0238">integer division</a>, use
+  @code from __future__ import division @endcode
+
+Basic example:
+@code
+from __future__ import print_function
+from __future__ import division
+
+def halve_example(x, y=2):
+    """Example function to show division."""
+    return x / y
+
+if foo == "bar":
+    try:
+        halve_example(x, y)
+    except ZeroDivisionError as detail:
+        print("Ups...", detail)
+@endcode
+
+*/
+
 /** @file
 
 This file contains the @ref styleguide pages.  The @ref styleguide pages
@@ -262,5 +307,6 @@ documentation languages:
 
 - @ref stylec
 - @ref styledoxygen
+- @ref stylepython
 
  */
