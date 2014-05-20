@@ -454,3 +454,15 @@ void compute_dist2_to_home(void) {
   dist2_to_home = (float)(home_d.x * home_d.x + home_d.y * home_d.y);
   too_far_from_home = dist2_to_home > max_dist2_from_home;
 }
+
+/** Set heading in the direction of a waypoint */
+bool_t set_nav_heading_by_waypoint(int32_t wp) {
+  // Calculate vector from current location to waypoint
+  struct Int32Vect2 pos_diff;
+  VECT2_DIFF(pos_diff, waypoints[wp], *stateGetPositionEnu_i());
+  // Heading is the arctan of the vector
+  float heading_f = atan2f(POS_FLOAT_OF_BFP(pos_diff.x), POS_FLOAT_OF_BFP(pos_diff.y));
+  nav_heading = ANGLE_BFP_OF_REAL(heading_f);
+  //return false so it can be called from the flightplan in an exception alongside other functions like go or stay
+  return FALSE;
+}
