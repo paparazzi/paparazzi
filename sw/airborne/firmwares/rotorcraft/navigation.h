@@ -88,6 +88,11 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
 bool_t nav_detect_ground(void);
 bool_t nav_is_in_flight(void);
 
+extern bool_t nav_set_heading_rad(float rad);
+extern bool_t nav_set_heading_deg(float deg);
+extern bool_t nav_set_heading_towards(float x, float y);
+extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
+
 
 #define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } FALSE; })
 #define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } FALSE; })
@@ -196,10 +201,6 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time);
 #define nav_IncreaseShift(x) {}
 
 #define nav_SetNavRadius(x) {}
-
-#define navigation_SetNavHeading(x) { \
-  nav_heading = ANGLE_BFP_OF_REAL(x); \
-}
 
 #define navigation_SetFlightAltitude(x) { \
   flight_altitude = x; \

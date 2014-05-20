@@ -83,8 +83,9 @@ int32_t nav_roll, nav_pitch;
 int32_t nav_heading, nav_course;
 float nav_radius;
 
+/** default nav_circle_radius in meters */
 #ifndef DEFAULT_CIRCLE_RADIUS
-#define DEFAULT_CIRCLE_RADIUS 0.
+#define DEFAULT_CIRCLE_RADIUS 5.
 #endif
 
 uint8_t vertical_mode;
@@ -453,4 +454,36 @@ void compute_dist2_to_home(void) {
   INT32_VECT2_RSHIFT(home_d, home_d, INT32_POS_FRAC);
   dist2_to_home = (float)(home_d.x * home_d.x + home_d.y * home_d.y);
   too_far_from_home = dist2_to_home > max_dist2_from_home;
+}
+
+/** Set nav_heading in degrees. */
+bool_t nav_set_heading_rad(float rad) {
+  nav_heading = ANGLE_BFP_OF_REAL(rad);
+  INT32_COURSE_NORMALIZE(nav_heading);
+  return FALSE;
+}
+
+/** Set nav_heading in degrees. */
+bool_t nav_set_heading_deg(float deg) {
+  return nav_set_heading_rad(RadOfDeg(deg));
+}
+
+/** Set heading to point towards x,y position in local coordinates */
+bool_t nav_set_heading_towards(float x, float y) {
+  struct FloatVect2 target = {x, y};
+  struct FloatVect2 pos_diff;
+  VECT2_DIFF(pos_diff, target, *stateGetPositionEnu_f());
+  // don't change heading if closer than 0.5m to target
+  if (FLOAT_VECT2_NORM2(pos_diff) > 0.25) {
+    float heading_f = atan2f(pos_diff.x, pos_diff.y);
+    nav_heading = ANGLE_BFP_OF_REAL(heading_f);
+  }
+  // return false so it can be called from the flightplan
+  // meaning it will continue to the next stage
+  return FALSE;
+}
+
+/** Set heading in the direction of a waypoint */
+bool_t nav_set_heading_towards_waypoint(uint8_t wp) {
+  return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
 }
