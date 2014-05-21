@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Copyright (C) 2012-2013 Felix Ruess <felix.ruess@gmail.com>
+# Copyright (C) 2012-2014 Felix Ruess <felix.ruess@gmail.com>
 
 
 #
@@ -13,14 +13,19 @@ PREFIX ?= arm-none-eabi
 # if gcc can't be found in path, try the paparazzi toolchain in /opt
 #
 ifeq ($(shell which $(PREFIX)-gcc),)
-  PPRZ_TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-  ifneq ($(PPRZ_TOOLCHAIN),)
-    # set prefix with full path to /opt/paparazzi/arm-multilib toolchain
-    PREFIX=$(shell dirname $(PPRZ_TOOLCHAIN))/bin/arm-none-eabi
-  else
-    # no suitable toolchain found...
-    $(error Error: arm-none-eabi-gcc cross-compiler not found! Recommended toolchain is https://launchpad.net/gcc-arm-embedded)
+  ifdef ALLOW_OLD_ARM_MULTILIB_TOOLCHAIN
+    PPRZ_TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+    ifneq ($(PPRZ_TOOLCHAIN),)
+      # set prefix with full path to /opt/paparazzi/arm-multilib toolchain
+      PREFIX=$(shell dirname $(PPRZ_TOOLCHAIN))/bin/arm-none-eabi
+      TOOLCHAIN_FOUND = 1
+    endif
   endif
+else
+  TOOLCHAIN_FOUND = 1
+endif
+ifneq ($(TOOLCHAIN_FOUND),1)
+  $(error Error: arm-none-eabi-gcc cross-compiler not found! Recommended toolchain is https://launchpad.net/gcc-arm-embedded)
 endif
 
 CC   = $(PREFIX)-gcc
