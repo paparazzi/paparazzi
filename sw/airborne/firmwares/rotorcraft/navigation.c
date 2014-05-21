@@ -96,8 +96,12 @@ float flight_altitude;
 static inline void nav_set_altitude( void );
 
 #define CLOSE_TO_WAYPOINT (15 << 8)
-#define ARRIVED_AT_WAYPOINT (3 << 8)
 #define CARROT_DIST (12 << 8)
+
+/** minimum horizontal distance to waypoint to mark as arrived */
+#ifndef ARRIVED_AT_WAYPOINT
+#define ARRIVED_AT_WAYPOINT 3.0
+#endif
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -295,36 +299,39 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
   struct Int32Vect2 diff;
   struct EnuCoor_i* pos = stateGetPositionEnu_i();
 
-  VECT2_DIFF(diff, waypoints[wp_idx], *pos);
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
-  INT32_VECT2_NORM(dist_to_point, diff);
-  //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
-  //fflush(stdout);
-  //if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
-  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
-
-  if (approaching_time >= 0) {
+  /* if an approaching_time is given, estimate diff after approching_time secs */
+  if (approaching_time > 0) {
     struct Int32Vect2 estimated_pos;
     struct Int32Vect2 estimated_progress;
-    struct Int32Vect2 estimated_diff;
-    int32_t estimated_dist;
     struct EnuCoor_i* speed = stateGetSpeedEnu_i();
     VECT2_SMUL(estimated_progress, *speed, approaching_time);
     INT32_VECT2_RSHIFT(estimated_progress, estimated_progress, (INT32_SPEED_FRAC - INT32_POS_FRAC));
     VECT2_SUM(estimated_pos, *pos, estimated_progress);
-    VECT2_DIFF(estimated_diff, waypoints[wp_idx], estimated_pos);
-
-    INT32_VECT2_RSHIFT(estimated_diff, estimated_diff, INT32_POS_FRAC);
-    INT32_VECT2_NORM(estimated_dist, estimated_diff);
-    if (estimated_dist < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
-
-    if (from_idx > 0 && from_idx < NB_WAYPOINT) {
-      struct Int32Vect2 from_diff;
-      VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
-      INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC);
-      return (estimated_diff.x * from_diff.x + estimated_diff.y * from_diff.y < 0);
-    }
+    VECT2_DIFF(diff, waypoints[wp_idx], estimated_pos);
   }
+  /* else use current position */
+  else {
+    VECT2_DIFF(diff, waypoints[wp_idx], *pos);
+  }
+  /* compute distance of estimated/current pos to target wp
+   * distance with half metric precision (6.25 cm)
+   */
+  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC/2);
+  INT32_VECT2_NORM(dist_to_point, diff);
+
+  /* return TRUE if we have arrived */
+  if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC/2))
+    return TRUE;
+
+  /* if coming from a valid waypoint */
+  if (from_idx > 0 && from_idx < NB_WAYPOINT) {
+    /* return TRUE if normal line at the end of the segment is crossed */
+    struct Int32Vect2 from_diff;
+    VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
+    INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC/2);
+    return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
+  }
+
   return FALSE;
 }
 
@@ -336,15 +343,15 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
   static uint8_t wp_idx_last = 0;
   struct Int32Vect2 diff;
 
-  if(wp_idx_last != wp_idx) {
+  if (wp_idx_last != wp_idx) {
     wp_reached = FALSE;
     wp_idx_last = wp_idx;
   }
   VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
+  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC/2);
   INT32_VECT2_NORM(dist_to_point, diff);
-  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)){
-    if(!wp_reached) {
+  if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC/2)){
+    if (!wp_reached) {
       wp_reached = TRUE;
       wp_entry_time = autopilot_flight_time;
       time_at_wp = 0;

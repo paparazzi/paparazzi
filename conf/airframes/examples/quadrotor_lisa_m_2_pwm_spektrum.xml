@@ -196,6 +196,10 @@
     <define name="IGAIN" value="20"/>
   </section>
 
+  <section name="NAV">
+    <define name="ARRIVED_AT_WAYPOINT" value="2" unit="m"/>
+  </section>
+
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
     <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
