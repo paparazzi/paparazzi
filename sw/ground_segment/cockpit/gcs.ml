@@ -174,7 +174,7 @@ end
 (************ Google, OSM Maps handling *****************************************)
 module GM = struct
   (** Fill the visible background with Google, OSM tiles *)
-  let zoomlevel = ref 18
+  let zoomlevel = ref 20
   let fill_tiles = fun geomap ->
     match geomap#georef with
         None -> ()
@@ -348,7 +348,7 @@ let options =
     "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";
     "-fullscreen", Arg.Set fullscreen, "Fullscreen window";
     "-maps_fill", Arg.Set GM.auto, "Automatically start loading background maps";
-    "-maps_zoom", Arg.Set_int GM.zoomlevel, "Background maps zoomlevel (default: 18, max: 22)";
+    "-maps_zoom", Arg.Set_int GM.zoomlevel, "Background maps zoomlevel (default: 20, min: 18, max: 22)";
     "-ign", Arg.String (fun s -> ign:=true; IGN.data_path := s), "IGN tiles path";
     "-lambertIIe", Arg.Unit (fun () -> projection:=G.LambertIIe),"Switch to LambertIIe projection";
     "-layout", Arg.Set_string layout_file, (sprintf "<XML layout specification> GUI layout. Default: %s" !layout_file);
