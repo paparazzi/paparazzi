@@ -57,12 +57,42 @@ float h_ctl_ref_roll_accel;
 float h_ctl_ref_pitch_angle;
 float h_ctl_ref_pitch_rate;
 float h_ctl_ref_pitch_accel;
-#define H_CTL_REF_W 5.
-#define H_CTL_REF_XI 0.85
+
+/* Reference generator */
+#ifndef H_CTL_REF_W_P
+#define H_CTL_REF_W_P 5.
+#endif
+#ifndef H_CTL_REF_XI_P
+#define H_CTL_REF_XI_P 0.85
+#endif
+#ifndef H_CTL_REF_W_Q
+#define H_CTL_REF_W_Q 5.
+#endif
+#ifndef H_CTL_REF_XI_Q
+#define H_CTL_REF_XI_Q 0.85
+#endif
+#ifndef H_CTL_REF_MAX_P
 #define H_CTL_REF_MAX_P RadOfDeg(150.)
+#endif
+#ifndef H_CTL_REF_MAX_P_DOT
 #define H_CTL_REF_MAX_P_DOT RadOfDeg(500.)
+#endif
+#ifndef H_CTL_REF_MAX_Q
 #define H_CTL_REF_MAX_Q RadOfDeg(150.)
+#endif
+#ifndef H_CTL_REF_MAX_Q_DOT
 #define H_CTL_REF_MAX_Q_DOT RadOfDeg(500.)
+#endif
+
+#if USE_ANGLE_REF
+PRINT_CONFIG_MSG("USING ATTITUDE REFERENCE GENERATOR")
+PRINT_CONFIG_VAR(H_CTL_REF_W_P)
+PRINT_CONFIG_VAR(H_CTL_REF_W_Q)
+PRINT_CONFIG_VAR(H_CTL_REF_MAX_P)
+PRINT_CONFIG_VAR(H_CTL_REF_MAX_PDOT)
+PRINT_CONFIG_VAR(H_CTL_REF_MAX_Q)
+PRINT_CONFIG_VAR(H_CTL_REF_MAX_QDOT)
+#endif
 
 /* inner roll loop parameters */
 float h_ctl_roll_setpoint;
@@ -101,6 +131,10 @@ float airspeed_ratio2;
 float v_ctl_pitch_loiter_trim;
 float v_ctl_pitch_dash_trim;
 
+// Pitch trim rate limiter
+#ifndef PITCH_TRIM_RATE_LIMITER
+#define PITCH_TRIM_RATE_LIMITER 3.
+#endif
 inline static void h_ctl_roll_loop( void );
 inline static void h_ctl_pitch_loop( void );
 
@@ -161,7 +195,16 @@ static void send_tune_roll(void) {
 
 static void send_ctl_a(void) {
   DOWNLINK_SEND_H_CTL_A(DefaultChannel, DefaultDevice,
-      &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
+      &h_ctl_roll_sum_err,
+      &h_ctl_roll_setpoint,
+      &h_ctl_ref_roll_angle,
+      &(stateGetNedToBodyEulers_f()->phi),
+      &h_ctl_aileron_setpoint,
+      &h_ctl_pitch_sum_err,
+      &h_ctl_pitch_loop_setpoint,
+      &h_ctl_ref_pitch_angle,
+      &(stateGetNedToBodyEulers_f()->theta),
+      &h_ctl_elevator_setpoint);
 }
 #endif
 
@@ -282,7 +325,7 @@ inline static void h_ctl_roll_loop( void ) {
   // Update reference setpoints for roll
   h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
   h_ctl_ref_roll_rate += h_ctl_ref_roll_accel * H_CTL_REF_DT;
-  h_ctl_ref_roll_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_roll_setpoint - h_ctl_ref_roll_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_roll_rate;
+  h_ctl_ref_roll_accel = H_CTL_REF_W_P*H_CTL_REF_W_P * (h_ctl_roll_setpoint - h_ctl_ref_roll_angle) - 2*H_CTL_REF_XI_P*H_CTL_REF_W_P * h_ctl_ref_roll_rate;
   // Saturation on references
   BoundAbs(h_ctl_ref_roll_accel, H_CTL_REF_MAX_P_DOT);
   if (h_ctl_ref_roll_rate > H_CTL_REF_MAX_P) {
@@ -345,6 +388,7 @@ inline static void h_ctl_roll_loop( void ) {
 #if USE_PITCH_TRIM
 inline static void loiter(void) {
   float pitch_trim;
+  static float last_pitch_trim;
 
 #if USE_AIRSPEED
   if (stateGetAirspeed_f() > NOMINAL_AIRSPEED) {
@@ -353,7 +397,7 @@ inline static void loiter(void) {
     pitch_trim = v_ctl_pitch_loiter_trim * (airspeed_ratio2-1) / ((AIRSPEED_RATIO_MIN * AIRSPEED_RATIO_MIN) - 1);
   }
 #else
-  float throttle_diff = v_ctl_throttle_setpoint / (float)MAX_PPRZ - v_ctl_auto_throttle_nominal_cruise_throttle;
+  float throttle_diff = v_ctl_auto_throttle_cruise_throttle - v_ctl_auto_throttle_nominal_cruise_throttle;
   if (throttle_diff > 0) {
     float max_diff = Max(V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle, 0.1);
     pitch_trim = throttle_diff / max_diff * v_ctl_pitch_dash_trim;
@@ -363,6 +407,11 @@ inline static void loiter(void) {
   }
 #endif
 
+  // Pitch trim rate limiter
+  float max_change = (v_ctl_pitch_loiter_trim - v_ctl_pitch_dash_trim) * H_CTL_REF_DT/ PITCH_TRIM_RATE_LIMITER;
+  Bound(pitch_trim, last_pitch_trim - max_change, last_pitch_trim + max_change);
+
+  last_pitch_trim = pitch_trim;
   h_ctl_pitch_loop_setpoint += pitch_trim;
 }
 #endif
@@ -386,7 +435,7 @@ inline static void h_ctl_pitch_loop( void ) {
   // Update reference setpoints for pitch
   h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
   h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
-  h_ctl_ref_pitch_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_pitch_rate;
+  h_ctl_ref_pitch_accel = H_CTL_REF_W_Q*H_CTL_REF_W_Q * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI_Q*H_CTL_REF_W_Q * h_ctl_ref_pitch_rate;
   // Saturation on references
   BoundAbs(h_ctl_ref_pitch_accel, H_CTL_REF_MAX_Q_DOT);
   if (h_ctl_ref_pitch_rate > H_CTL_REF_MAX_Q) {
