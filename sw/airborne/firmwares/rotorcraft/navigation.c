@@ -95,7 +95,11 @@ float flight_altitude;
 static inline void nav_set_altitude( void );
 
 #define CLOSE_TO_WAYPOINT (15 << 8)
-#define ARRIVED_AT_WAYPOINT (3 << 8)
+
+#ifndef ARRIVED_AT_WAYPOINT
+#define ARRIVED_AT_WAYPOINT 3
+#endif
+
 #define CARROT_DIST (12 << 8)
 
 #if PERIODIC_TELEMETRY
@@ -295,12 +299,11 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
   struct EnuCoor_i* pos = stateGetPositionEnu_i();
 
   VECT2_DIFF(diff, waypoints[wp_idx], *pos);
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
+  //scale diff to half metric precision
+  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC/2);
   INT32_VECT2_NORM(dist_to_point, diff);
-  //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
-  //fflush(stdout);
-  //if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
-  if (dist_to_point < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
+  //return TRUE if the aircraft is in proximity circle
+  if (dist_to_point < (ARRIVED_AT_WAYPOINT << (INT32_POS_FRAC/2))) return TRUE;
 
   if (approaching_time >= 0) {
     struct Int32Vect2 estimated_pos;
@@ -308,19 +311,25 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
     struct Int32Vect2 estimated_diff;
     int32_t estimated_dist;
     struct EnuCoor_i* speed = stateGetSpeedEnu_i();
+    //estimated_progress in 'approaching_time' seconds assuming constant speed
     VECT2_SMUL(estimated_progress, *speed, approaching_time);
+    //scale estimated_progress to half metric precision
     INT32_VECT2_RSHIFT(estimated_progress, estimated_progress, (INT32_SPEED_FRAC - INT32_POS_FRAC));
+    //add estimated progress to the current position
     VECT2_SUM(estimated_pos, *pos, estimated_progress);
+    //calculate the estimated distance to the target waypoint after 'approaching_time' seconds from now
     VECT2_DIFF(estimated_diff, waypoints[wp_idx], estimated_pos);
 
-    INT32_VECT2_RSHIFT(estimated_diff, estimated_diff, INT32_POS_FRAC);
+    INT32_VECT2_RSHIFT(estimated_diff, estimated_diff, INT32_POS_FRAC/2);
     INT32_VECT2_NORM(estimated_dist, estimated_diff);
-    if (estimated_dist < (ARRIVED_AT_WAYPOINT >> INT32_POS_FRAC)) return TRUE;
+    //return TRUE if the aircraft will be in proximity circle after 'approaching_time' seconds
+    if (estimated_dist < (ARRIVED_AT_WAYPOINT << (INT32_POS_FRAC/2))) return TRUE;
 
+    //return TRUE if the aircraft will cross the normal line after 'approaching_time' seconds
     if (from_idx > 0 && from_idx < NB_WAYPOINT) {
       struct Int32Vect2 from_diff;
       VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
-      INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC);
+      INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC/2);
       return (estimated_diff.x * from_diff.x + estimated_diff.y * from_diff.y < 0);
     }
   }
