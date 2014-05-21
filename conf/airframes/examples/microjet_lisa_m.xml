@@ -10,7 +10,6 @@
 
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
-    <target name="jsbsim" board="pc"/>
     <target name="nps"   board="pc">
       <subsystem name="fdm" type="jsbsim"/>
     </target>
@@ -197,11 +196,6 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-  </section>
-
-  <section name="SIMU">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
