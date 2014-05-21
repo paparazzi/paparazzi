@@ -50,13 +50,21 @@ bool_t h_ctl_disabled;
 /* AUTO1 rate mode */
 bool_t h_ctl_auto1_rate;
 
+struct HCtlAdaptRef {
+  float roll_angle;
+  float roll_rate;
+  float roll_accel;
+  float pitch_angle;
+  float pitch_rate;
+  float pitch_accel;
 
-float h_ctl_ref_roll_angle;
-float h_ctl_ref_roll_rate;
-float h_ctl_ref_roll_accel;
-float h_ctl_ref_pitch_angle;
-float h_ctl_ref_pitch_rate;
-float h_ctl_ref_pitch_accel;
+  float max_p;
+  float max_p_dot;
+  float max_q;
+  float max_q_dot;
+};
+
+struct HCtlAdaptRef h_ctl_ref;
 
 /* Reference generator */
 #ifndef H_CTL_REF_W_P
@@ -197,18 +205,23 @@ static void send_ctl_a(void) {
   DOWNLINK_SEND_H_CTL_A(DefaultChannel, DefaultDevice,
       &h_ctl_roll_sum_err,
       &h_ctl_roll_setpoint,
-      &h_ctl_ref_roll_angle,
+      &h_ctl_ref.roll_angle,
       &(stateGetNedToBodyEulers_f()->phi),
       &h_ctl_aileron_setpoint,
       &h_ctl_pitch_sum_err,
       &h_ctl_pitch_loop_setpoint,
-      &h_ctl_ref_pitch_angle,
+      &h_ctl_ref.pitch_angle,
       &(stateGetNedToBodyEulers_f()->theta),
       &h_ctl_elevator_setpoint);
 }
 #endif
 
 void h_ctl_init( void ) {
+  h_ctl_ref.max_p = H_CTL_REF_MAX_P;
+  h_ctl_ref.max_p_dot = H_CTL_REF_MAX_P_DOT;
+  h_ctl_ref.max_q = H_CTL_REF_MAX_Q;
+  h_ctl_ref.max_q_dot = H_CTL_REF_MAX_Q_DOT;
+
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
@@ -323,29 +336,29 @@ inline static void h_ctl_roll_loop( void ) {
 
 #if USE_ANGLE_REF
   // Update reference setpoints for roll
-  h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
-  h_ctl_ref_roll_rate += h_ctl_ref_roll_accel * H_CTL_REF_DT;
-  h_ctl_ref_roll_accel = H_CTL_REF_W_P*H_CTL_REF_W_P * (h_ctl_roll_setpoint - h_ctl_ref_roll_angle) - 2*H_CTL_REF_XI_P*H_CTL_REF_W_P * h_ctl_ref_roll_rate;
+  h_ctl_ref.roll_angle += h_ctl_ref.roll_rate * H_CTL_REF_DT;
+  h_ctl_ref.roll_rate += h_ctl_ref.roll_accel * H_CTL_REF_DT;
+  h_ctl_ref.roll_accel = H_CTL_REF_W_P*H_CTL_REF_W_P * (h_ctl_roll_setpoint - h_ctl_ref.roll_angle) - 2*H_CTL_REF_XI_P*H_CTL_REF_W_P * h_ctl_ref.roll_rate;
   // Saturation on references
-  BoundAbs(h_ctl_ref_roll_accel, H_CTL_REF_MAX_P_DOT);
-  if (h_ctl_ref_roll_rate > H_CTL_REF_MAX_P) {
-    h_ctl_ref_roll_rate = H_CTL_REF_MAX_P;
-    if (h_ctl_ref_roll_accel > 0.) h_ctl_ref_roll_accel = 0.;
+  BoundAbs(h_ctl_ref.roll_accel, h_ctl_ref.max_p_dot);
+  if (h_ctl_ref.roll_rate > h_ctl_ref.max_p) {
+    h_ctl_ref.roll_rate = h_ctl_ref.max_p;
+    if (h_ctl_ref.roll_accel > 0.) h_ctl_ref.roll_accel = 0.;
   }
-  else if (h_ctl_ref_roll_rate < - H_CTL_REF_MAX_P) {
-    h_ctl_ref_roll_rate = - H_CTL_REF_MAX_P;
-    if (h_ctl_ref_roll_accel < 0.) h_ctl_ref_roll_accel = 0.;
+  else if (h_ctl_ref.roll_rate < - h_ctl_ref.max_p) {
+    h_ctl_ref.roll_rate = - h_ctl_ref.max_p;
+    if (h_ctl_ref.roll_accel < 0.) h_ctl_ref.roll_accel = 0.;
   }
 #else
-  h_ctl_ref_roll_angle = h_ctl_roll_setpoint;
-  h_ctl_ref_roll_rate = 0.;
-  h_ctl_ref_roll_accel = 0.;
+  h_ctl_ref.roll_angle = h_ctl_roll_setpoint;
+  h_ctl_ref.roll_rate = 0.;
+  h_ctl_ref.roll_accel = 0.;
 #endif
 
 #ifdef USE_KFF_UPDATE
   // update Kff gains
-  h_ctl_roll_Kffa += KFFA_UPDATE * h_ctl_ref_roll_accel * cmd_fb / (H_CTL_REF_MAX_P_DOT*H_CTL_REF_MAX_P_DOT);
-  h_ctl_roll_Kffd += KFFD_UPDATE * h_ctl_ref_roll_rate  * cmd_fb / (H_CTL_REF_MAX_P*H_CTL_REF_MAX_P);
+  h_ctl_roll_Kffa += KFFA_UPDATE * h_ctl_ref.roll_accel * cmd_fb / (h_ctl_ref.max_p_dot*h_ctl_ref.max_p_dot);
+  h_ctl_roll_Kffd += KFFD_UPDATE * h_ctl_ref.roll_rate  * cmd_fb / (h_ctl_ref.max_p*h_ctl_ref.max_p);
 #ifdef SITL
   printf("%f %f %f\n", h_ctl_roll_Kffa, h_ctl_roll_Kffd, cmd_fb);
 #endif
@@ -354,9 +367,9 @@ inline static void h_ctl_roll_loop( void ) {
 #endif
 
   // Compute errors
-  float err = h_ctl_ref_roll_angle - stateGetNedToBodyEulers_f()->phi;
+  float err = h_ctl_ref.roll_angle - stateGetNedToBodyEulers_f()->phi;
   struct FloatRates* body_rate = stateGetBodyRates_f();
-  float d_err = h_ctl_ref_roll_rate - body_rate->p;
+  float d_err = h_ctl_ref.roll_rate - body_rate->p;
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
     h_ctl_roll_sum_err = 0.;
@@ -371,8 +384,8 @@ inline static void h_ctl_roll_loop( void ) {
   }
 
   cmd_fb = h_ctl_roll_attitude_gain * err;
-  float cmd = - h_ctl_roll_Kffa * h_ctl_ref_roll_accel
-    - h_ctl_roll_Kffd * h_ctl_ref_roll_rate
+  float cmd = - h_ctl_roll_Kffa * h_ctl_ref.roll_accel
+    - h_ctl_roll_Kffd * h_ctl_ref.roll_rate
     - cmd_fb
     - h_ctl_roll_rate_gain * d_err
     - h_ctl_roll_igain * h_ctl_roll_sum_err
@@ -433,31 +446,31 @@ inline static void h_ctl_pitch_loop( void ) {
 
 #if USE_ANGLE_REF
   // Update reference setpoints for pitch
-  h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
-  h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
-  h_ctl_ref_pitch_accel = H_CTL_REF_W_Q*H_CTL_REF_W_Q * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI_Q*H_CTL_REF_W_Q * h_ctl_ref_pitch_rate;
+  h_ctl_ref.pitch_angle += h_ctl_ref.pitch_rate * H_CTL_REF_DT;
+  h_ctl_ref.pitch_rate += h_ctl_ref.pitch_accel * H_CTL_REF_DT;
+  h_ctl_ref.pitch_accel = H_CTL_REF_W_Q*H_CTL_REF_W_Q * (h_ctl_pitch_loop_setpoint - h_ctl_ref.pitch_angle) - 2*H_CTL_REF_XI_Q*H_CTL_REF_W_Q * h_ctl_ref.pitch_rate;
   // Saturation on references
-  BoundAbs(h_ctl_ref_pitch_accel, H_CTL_REF_MAX_Q_DOT);
-  if (h_ctl_ref_pitch_rate > H_CTL_REF_MAX_Q) {
-    h_ctl_ref_pitch_rate = H_CTL_REF_MAX_Q;
-    if (h_ctl_ref_pitch_accel > 0.) h_ctl_ref_pitch_accel = 0.;
+  BoundAbs(h_ctl_ref.pitch_accel, h_ctl_ref.max_q_dot);
+  if (h_ctl_ref.pitch_rate > h_ctl_ref.max_q) {
+    h_ctl_ref.pitch_rate = h_ctl_ref.max_q;
+    if (h_ctl_ref.pitch_accel > 0.) h_ctl_ref.pitch_accel = 0.;
   }
-  else if (h_ctl_ref_pitch_rate < - H_CTL_REF_MAX_Q) {
-    h_ctl_ref_pitch_rate = - H_CTL_REF_MAX_Q;
-    if (h_ctl_ref_pitch_accel < 0.) h_ctl_ref_pitch_accel = 0.;
+  else if (h_ctl_ref.pitch_rate < - h_ctl_ref.max_q) {
+    h_ctl_ref.pitch_rate = - h_ctl_ref.max_q;
+    if (h_ctl_ref.pitch_accel < 0.) h_ctl_ref.pitch_accel = 0.;
   }
 #else
-  h_ctl_ref_pitch_angle = h_ctl_pitch_loop_setpoint;
-  h_ctl_ref_pitch_rate = 0.;
-  h_ctl_ref_pitch_accel = 0.;
+  h_ctl_ref.pitch_angle = h_ctl_pitch_loop_setpoint;
+  h_ctl_ref.pitch_rate = 0.;
+  h_ctl_ref.pitch_accel = 0.;
 #endif
 
   // Compute errors
-  float err =  h_ctl_ref_pitch_angle - stateGetNedToBodyEulers_f()->theta;
+  float err =  h_ctl_ref.pitch_angle - stateGetNedToBodyEulers_f()->theta;
 #if USE_GYRO_PITCH_RATE
-  float d_err = h_ctl_ref_pitch_rate - stateGetBodyRates_f()->q;
+  float d_err = h_ctl_ref.pitch_rate - stateGetBodyRates_f()->q;
 #else // soft derivation
-  float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
+  float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref.pitch_rate;
   last_err = err;
 #endif
 
@@ -473,8 +486,8 @@ inline static void h_ctl_pitch_loop( void ) {
     }
   }
 
-  float cmd = - h_ctl_pitch_Kffa * h_ctl_ref_pitch_accel
-    - h_ctl_pitch_Kffd * h_ctl_ref_pitch_rate
+  float cmd = - h_ctl_pitch_Kffa * h_ctl_ref.pitch_accel
+    - h_ctl_pitch_Kffd * h_ctl_ref.pitch_rate
     + h_ctl_pitch_pgain * err
     + h_ctl_pitch_dgain * d_err
     + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
