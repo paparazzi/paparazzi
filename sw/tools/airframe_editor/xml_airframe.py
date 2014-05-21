@@ -53,6 +53,8 @@ def reorganize_airframe_xml(airframe_xml):
     find_and_add(airframe_xml, airframe, "modules")
 
     find_or_add_group(airframe_xml, airframe, "ACTUATORS")
+    find_and_add_sections_with_name(airframe_xml, airframe, "ACTUATORS_MKK")
+    find_and_add_sections_with_name(airframe_xml, airframe, "ACTUATORS_MKK_V2")
     find_and_add(airframe_xml, airframe, "servos")
     find_and_add(airframe_xml, airframe, "commands")
     find_and_add(airframe_xml, airframe, "ap_only_commands")
