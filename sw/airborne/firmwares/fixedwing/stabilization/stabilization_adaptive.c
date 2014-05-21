@@ -326,7 +326,21 @@ void h_ctl_attitude_loop ( void ) {
   }
 }
 
+/** Define reference generator time step
+ *  default to control frequency
+ *  and ahrs propagation freq if control is triggered by ahrs
+ */
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+#define H_CTL_REF_DT (1./AHRS_PROPAGATE_FREQUENCY)
+#else
 #define H_CTL_REF_DT (1./CONTROL_FREQUENCY)
+#endif
+
+/** Adaptive control tuning parameters
+ *  activate with USE_KFF_UPDATE
+ *
+ *  !!! under development, use with care !!!
+ */
 #define KFFA_UPDATE 0.1
 #define KFFD_UPDATE 0.05
 
