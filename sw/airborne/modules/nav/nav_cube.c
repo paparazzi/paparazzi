@@ -28,7 +28,7 @@
 
 #include "generated/airframe.h"
 #include "modules/nav/nav_cube.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 
 #define MAX_LINES_X 8

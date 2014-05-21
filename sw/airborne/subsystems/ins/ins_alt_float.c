@@ -33,7 +33,7 @@
 
 #include "state.h"
 #include "subsystems/gps.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 #include "generated/airframe.h"
 #include "generated/modules.h"

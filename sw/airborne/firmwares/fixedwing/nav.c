@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/nav.c
+ * @file firmwares/fixedwing/nav.c
  * Fixedwing functions to compute navigation.
  *
  */
@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "subsystems/gps.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/autopilot.h"

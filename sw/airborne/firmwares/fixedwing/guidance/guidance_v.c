@@ -27,7 +27,7 @@
 
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "state.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/autopilot.h"
 

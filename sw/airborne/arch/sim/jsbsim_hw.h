@@ -36,7 +36,7 @@
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "generated/settings.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/sensors/infrared.h"

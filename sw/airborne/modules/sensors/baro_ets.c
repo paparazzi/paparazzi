@@ -46,7 +46,7 @@
 #include <math.h>
 #include "mcu_periph/sys_time.h"
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 #ifdef BARO_ETS_SYNC_SEND
 

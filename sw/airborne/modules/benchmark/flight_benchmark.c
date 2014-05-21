@@ -12,7 +12,7 @@
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 // #include "math/pprz_algebra_int.h"
 // #include "math/pprz_algebra_float.h"
 

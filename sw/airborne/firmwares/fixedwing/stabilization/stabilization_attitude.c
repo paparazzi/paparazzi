@@ -30,7 +30,7 @@
 #include "std.h"
 #include "led.h"
 #include "state.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"

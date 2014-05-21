@@ -1,5 +1,5 @@
 #include <assert.h>
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 #define FloatEqual_3(f1, f2) (fabs(f1 - f2) < 1e-3)
 

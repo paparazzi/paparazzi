@@ -42,7 +42,7 @@
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"

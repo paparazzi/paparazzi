@@ -30,7 +30,7 @@
 #include "generated/airframe.h"
 #include "modules/nav/nav_smooth.h"
 #include "state.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "subsystems/gps.h"
 
 #define Sign(_x) ((_x) > 0 ? 1 : (-1))

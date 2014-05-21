@@ -27,7 +27,7 @@
 
 #include "modules/cam_control/cam_segment.h"
 #include "modules/cam_control/cam.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 void cam_segment_init( void ) {
 }

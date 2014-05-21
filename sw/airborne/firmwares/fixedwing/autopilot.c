@@ -30,7 +30,7 @@
 
 #include "state.h"
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/settings.h"
 
 #ifdef POWER_SWITCH_GPIO

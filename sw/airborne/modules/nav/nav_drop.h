@@ -30,7 +30,7 @@
 #define NAV_DROP_H
 
 #include "std.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 extern unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float radius );
 extern unit_t nav_drop_update_release( uint8_t wp_target );

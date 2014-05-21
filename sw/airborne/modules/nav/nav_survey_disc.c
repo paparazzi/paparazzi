@@ -29,7 +29,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "std.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 #include "math/pprz_algebra_float.h"
 

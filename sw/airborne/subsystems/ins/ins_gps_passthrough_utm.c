@@ -33,7 +33,7 @@
 
 #include "state.h"
 #include "subsystems/gps.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 void ins_init(void) {
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };

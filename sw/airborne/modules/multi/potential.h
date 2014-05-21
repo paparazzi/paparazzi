@@ -7,7 +7,7 @@
 #ifndef POTENTIAL_H
 #define POTENTIAL_H
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "subsystems/navigation/traffic_info.h"
 
 struct force_ {

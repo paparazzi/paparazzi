@@ -41,7 +41,7 @@
 
 #if defined NAV || defined WIND_INFO
 #include "state.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #endif
 
 #ifdef HITL

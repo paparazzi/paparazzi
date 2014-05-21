@@ -66,7 +66,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "firmwares/fixedwing/autopilot.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include CTRL_TYPE_H
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 #ifdef TRAFFIC_INFO
 #include "subsystems/navigation/traffic_info.h"

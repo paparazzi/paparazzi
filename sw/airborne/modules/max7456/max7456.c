@@ -34,7 +34,7 @@
 #include "led.h"
 #include "autopilot.h"
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "subsystems/datalink/datalink.h"

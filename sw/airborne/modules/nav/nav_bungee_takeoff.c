@@ -28,7 +28,7 @@
 
 #include "modules/nav/nav_bungee_takeoff.h"
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"

@@ -27,7 +27,7 @@
 
 #include <math.h>
 #include "cam.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "state.h"

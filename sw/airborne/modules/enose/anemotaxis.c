@@ -2,7 +2,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "std.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 #include "subsystems/datalink/downlink.h"
 #include "modules/enose/chemo_detect.h"

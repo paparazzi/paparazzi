@@ -27,7 +27,7 @@
 
 #include "generated/airframe.h"
 #include "modules/nav/nav_line.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 /** Status along the pattern */
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };

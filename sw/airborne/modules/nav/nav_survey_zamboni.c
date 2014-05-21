@@ -27,7 +27,7 @@
 
 #include "modules/nav/nav_survey_zamboni.h"
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 

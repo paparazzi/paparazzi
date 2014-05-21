@@ -30,7 +30,7 @@
 #include "state.h"
 #include "stdio.h"
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 
 #include "std.h"  //macros pas mal dans sw/include

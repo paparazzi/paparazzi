@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/nav.h
+ * @file firmwares/fixedwing/nav.h
  *
  * Fixedwing Navigation library.
  *

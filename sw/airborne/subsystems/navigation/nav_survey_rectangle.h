@@ -30,7 +30,7 @@
 #ifndef NAV_SURVEY_RECTANGLE_H
 #define NAV_SURVEY_RECTANGLE_H
 
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 typedef enum {NS, WE} survey_orientation_t;
 

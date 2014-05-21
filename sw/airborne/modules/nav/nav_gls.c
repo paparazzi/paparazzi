@@ -46,7 +46,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "modules/nav/nav_gls.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 
 float target_speed;

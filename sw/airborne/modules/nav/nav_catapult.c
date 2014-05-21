@@ -40,7 +40,7 @@
 #include "state.h"
 #include "subsystems/datalink/downlink.h"
 #include "modules/nav/nav_catapult.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"

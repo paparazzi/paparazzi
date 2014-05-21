@@ -31,7 +31,7 @@
 
 #include "modules/nav/nav_line_border.h"
 #include "generated/airframe.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 
 enum line_border_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };

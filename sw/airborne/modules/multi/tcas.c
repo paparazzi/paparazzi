@@ -28,7 +28,7 @@
 #include "multi/tcas.h"
 #include "generated/airframe.h"
 #include "state.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "subsystems/gps.h"
 #include "generated/flight_plan.h"
 

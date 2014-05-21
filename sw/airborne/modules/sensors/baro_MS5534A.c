@@ -34,7 +34,7 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 #include "subsystems/abi.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 #include "state.h"
 
 

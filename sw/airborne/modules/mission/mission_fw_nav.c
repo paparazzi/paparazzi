@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "modules/mission/mission.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "subsystems/nav.h"
+#include "firmwares/fixedwing/nav.h"
 
 // navigation time step
 const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
