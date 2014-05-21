@@ -27,6 +27,7 @@
     <subsystem name="navigation"/>
     <subsystem name="ins" type="xsens">
       <configure name="XSENS_UART_NR" value="0"/>
+      <configure name="XSENS_UART_BAUD" value="B230400"/>
     </subsystem>
   </firmware>
 
@@ -54,7 +55,7 @@
     <servo name="AILERON_LEFT" no="2" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_RIGHT" no="6" min="900" neutral="1500" max="2100"/>
     <servo name="ELEVATOR" no="7" min="1900" neutral="1500" max="1100"/>
-    <servo name="RUDDER" no="3" min="980" neutral="1380" max="1780"/>
+    <servo name="RUDDER" no="3" min="1175" neutral="1575" max="1975"/>
   </servos>
 
   <commands>
@@ -63,7 +64,7 @@
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
     <axis name="BRAKE" failsafe_value="9600"/>
-    <!-- both elerons up as butterfly brake ? -->
+    <!-- both elerons up as butterfly brake -->
   </commands>
 
   <rc_commands>
@@ -101,7 +102,7 @@
     <let var="aileron_down_rate" value="(AILERON_RATE_DOWN * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_DOWN_BRAKE * $brake_value)"/>
     <let var="aileron_up" value="((-@ROLL)  *  (((float)$aileron_up_rate) / ((float)MAX_PPRZ)))"/>
     <let var="aileron_down" value="((-@ROLL)  * (((float)$aileron_down_rate) / ((float)MAX_PPRZ)))"/>
-    <let var="leftturn" value="(@ROLL &gt;= 0? 0 : 1)"/>
+    <let var="leftturn" value="(@ROLL >= 0? 0 : 1)"/>
     <let var="rightturn" value="(1 - $leftturn)"/>
     <set servo="AILERON_LEFT" value="($aileron_up * $leftturn) + ($aileron_down * $rightturn) - $brake_value*(BRAKE_AILEVON) - (MAX_PPRZ * AILERON_NEUTRAL)"/>
     <set servo="AILERON_RIGHT" value="($aileron_up * $rightturn) + ($aileron_down * $leftturn) + $brake_value*(BRAKE_AILEVON) + (MAX_PPRZ *AILERON_NEUTRAL)"/>
@@ -142,16 +143,16 @@
   <!-- ************************* GAINS ************************* -->
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="0.972000002861"/>
-    <define name="COURSE_DGAIN" value="0.280999988317"/>
+    <define name="COURSE_PGAIN" value="0.90"/>
+    <define name="COURSE_DGAIN" value="0.35"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0039999485"/>
     <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.6" unit="radians"/>
     <define name="PITCH_PGAIN" value="16917.2929688"/>
     <define name="PITCH_DGAIN" value="7.73400020599"/>
     <define name="ELEVATOR_OF_ROLL" value="3007.81298828"/>
-    <define name="ROLL_SLEW" value="1."/>
+    <define name="ROLL_SLEW" value="2."/>
     <define name="ROLL_ATTITUDE_GAIN" value="11718.75"/>
     <define name="ROLL_RATE_GAIN" value="820.312011719"/>
   </section>
@@ -163,9 +164,9 @@
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.43599998951"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.6"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
-    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.549000024796"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.9"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.158000007272" unit="%/(m/s)"/>
@@ -188,24 +189,18 @@
 
   <!-- ************************* MISC ************************* -->
 
-  <!-- Local magnetic field -->
-
   <section name="BAT">
-    <!--    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/> -->
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
   </section>
 
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="14." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="8." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="&quot;ATPL4\rATRN5\rATTT80\r&quot;"/>
     <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
     <define name="COMMAND_ROLL_TRIM" value="180"/>
     <define name="COMMAND_PITCH_TRIM" value="-194."/>
   </section>
