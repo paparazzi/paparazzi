@@ -1,15 +1,69 @@
+Not necessarily complete and in no particular order...
+
+Paparazzi 5.1.1_testing
+=======================
+
+Second release candidate for v5.2 stable release.
+
+General
+-------
+
+- GCS: higher default maps zoom level
+  [#725] (https://github.com/paparazzi/paparazzi/pull/725)
+- Allow settings/modules/flightplans outside the conf dir
+  [#723] (https://github.com/paparazzi/paparazzi/pull/723)
+- optitrack: Give feedback about following drones and fix gps
+  [#718] (https://github.com/paparazzi/paparazzi/pull/718)
+- dfu-util: only attempt verify for version >= 0.7
+  [#697] (https://github.com/paparazzi/paparazzi/issues/697)
+- dfu-util: fix DFU_SIZE on OSX
+- add prototype for python based airframe file editor
+
+Airborne
+--------
+- Modules: rewrite humid_sht using gpio interface (supporting STM as well as LPC now)
+  [#721] (https://github.com/paparazzi/paparazzi/pull/721)
+- INS int: removed INS_SONAR_VARIANCE_THRESHOLD, INS_SONAR_MIN_RANGE defaults to 1mm
+- fix compilation of SuperbitRF telemetry subsystem
+- possibility to poweron gps and imu via gpio at init
+  [#706] (https://github.com/paparazzi/paparazzi/pull/706)
+- bmp085 peripheral: Fix calibration reading with errors
+
+Simulation
+----------
+
+- NPS: simulate sonar sensor
+  [#720] (https://github.com/paparazzi/paparazzi/pull/720)
+- JSBSim, NPS: fix roll input sign
+- NPS: fixedwing simulation improvements
+  - If NPS_JSBSIM_LAUNCHSPEED is defined, set it as initial launchspeed.
+  - Only launch when launch button is pressed in GCS instead of immediately at takeoff block.
+
+Rotorcraft firmware
+-------------------
+
+- add some functions to set heading via flight plan
+  [#724] (https://github.com/paparazzi/paparazzi/pull/724)
+- fix reference in hover with USE_SPEED_REF, set DEFAULT_CIRCLE_RADIUS to 5m
+  [#716] (https://github.com/paparazzi/paparazzi/issues/716)
+  [#717] (https://github.com/paparazzi/paparazzi/pull/717)
+- implement approaching_time for "go" flight plan primitve
+  [#715] (https://github.com/paparazzi/paparazzi/pull/715)
+
+Fixedwing firmware
+------------------
+
+- stabilization adaptive: loiter correction and reference generator update
+  [#711] (https://github.com/paparazzi/paparazzi/pull/711)
+- stabilization new/adaptive: USE_GYRO_PITCH_RATE defaults to TRUE
+- dual mcu: Workaround RADIO_CONTROL_NB_CHANNELS differs in driver and radio.h
+  [#700] (https://github.com/paparazzi/paparazzi/pull/700)
+
+
 Paparazzi 5.1.0_testing
 =======================
 
 First release candidate for next stable release.
-
-
-Paparazzi 5.1_devel
-===================
-
-current development in master since v5.1_devel tag
-
-not complete and in no particular order...
 
 General
 -------
@@ -34,6 +88,8 @@ General
   [#673] (https://github.com/paparazzi/paparazzi/pull/673)
 - app_server: connection between the ground station and a GCS Android application
   (https://github.com/paparazzi/PPRZonDroid)
+- GCS: adapt home (from GPSd) icon to zoom level
+  [#679] (https://github.com/paparazzi/paparazzi/issues/679)
 
 Simulation
 ----------
@@ -46,6 +102,8 @@ Simulation
 Hardware support
 ----------------
 
+- remove sys_plugs for STM32, finally dropping old toolchain support
+  [#688] (https://github.com/paparazzi/paparazzi/pull/688)
 - Support for all 3 ADCs of F4
   [#551] (https://github.com/paparazzi/paparazzi/issues/551)
 - new peripheral drivers:
