@@ -373,6 +373,9 @@ static void init_jsbsim(double dt) {
   //initRunning for all engines
   FDMExec->GetPropulsion()->InitRunning(-1);
 
+  // LLA initial coordinates (geodetic lat, geoid alt)
+  struct LlaCoor_d lla0;
+
   JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
   if(!jsbsim_ic_name.empty()) {
     if ( ! IC->Load(jsbsim_ic_name)) {
@@ -382,6 +385,12 @@ static void init_jsbsim(double dt) {
       delete FDMExec;
       exit(-1);
     }
+
+    lla0 = {
+      FDMExec->GetPropagate()->GetLongitude(),
+      FDMExec->GetPropagate()->GetGeodLatitudeRad(),
+      FDMExec->GetPropagate()->GetAltitudeASLmeters()
+    };
   }
   else {
     // FGInitialCondition::SetAltitudeASLFtIC
@@ -409,16 +418,17 @@ static void init_jsbsim(double dt) {
       exit(-1);
     }
 
-    // compute offset between geocentric and geodetic ecef
-    struct LlaCoor_d lla0 = { RadOfDeg(NAV_LON0 / 1e7), gd_lat, (double)(NAV_ALT0+NAV_MSL0)/1000. };
-    ecef_of_lla_d(&offset, &lla0);
-    struct EcefCoor_d ecef0 = {
-      MetersOfFeet(FDMExec->GetPropagate()->GetLocation().Entry(1)),
-      MetersOfFeet(FDMExec->GetPropagate()->GetLocation().Entry(2)),
-      MetersOfFeet(FDMExec->GetPropagate()->GetLocation().Entry(3))
-    };
-    VECT3_DIFF(offset, offset, ecef0);
+    lla0 = { RadOfDeg(NAV_LON0 / 1e7), gd_lat, (double)(NAV_ALT0+NAV_MSL0)/1000. };
   }
+
+  // compute offset between geocentric and geodetic ecef
+  ecef_of_lla_d(&offset, &lla0);
+  struct EcefCoor_d ecef0 = {
+    MetersOfFeet(FDMExec->GetPropagate()->GetLocation().Entry(1)),
+    MetersOfFeet(FDMExec->GetPropagate()->GetLocation().Entry(2)),
+    MetersOfFeet(FDMExec->GetPropagate()->GetLocation().Entry(3))
+  };
+  VECT3_DIFF(offset, offset, ecef0);
 
   // calculate vehicle max radius in m
   vehicle_radius_max = 0.01; // specify not 0.0 in case no gear
