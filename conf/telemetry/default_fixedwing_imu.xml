@@ -30,6 +30,8 @@
       <message name="IMU_MAG"             period="1.3"/>
       <message name="CAM"                 period="0.5"/>
       <message name="CAM_POINT"           period="1.0"/>
+      <message name="COMMANDS"            period="5"/>
+      <message name="FBW_STATUS"          period="2"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>

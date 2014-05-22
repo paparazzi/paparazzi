@@ -28,6 +28,8 @@
       <message name="IMU_ACCEL"           period=".8"/>
       <message name="IMU_GYRO"            period=".9"/>
       <message name="IMU_MAG"             period="1.9"/>
+      <message name="COMMANDS"            period="5"/>
+      <message name="FBW_STATUS"          period="2"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>
