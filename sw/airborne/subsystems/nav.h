@@ -199,6 +199,7 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 #define GetPosX() (stateGetPositionEnu_f()->x)
 #define GetPosY() (stateGetPositionEnu_f()->y)
 #define GetPosAlt() (stateGetPositionUtm_f()->alt)
+#define GetAltRef() (ground_alt)
 
 #define SEND_NAVIGATION(_trans, _dev) { \
     uint8_t _circle_count = NavCircleCount(); \

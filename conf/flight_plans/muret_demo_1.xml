@@ -19,7 +19,7 @@
       </while>
     </block>
     <block name="circle">
-      <circle wp="road_end" ALT="ground_alt+50" radius="75"/>
+      <circle wp="road_end" ALT="GetAltRef()+50" radius="75"/>
     </block>
     <block name="go too far">
       <go wp="too far"/>

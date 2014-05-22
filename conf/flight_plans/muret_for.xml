@@ -14,7 +14,7 @@
     </block>
     <block name="for">
       <for from="0" to="3" var="i">
-        <circle alt="ground_alt+50+50*$i" radius="75" until="stage_time>10" wp="HOME"/>
+        <circle alt="GetAltRef()+50+50*$i" radius="75" until="stage_time>10" wp="HOME"/>
       </for>
       <circle wp="HOME" radius="50"/>
     </block>

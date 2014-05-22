@@ -58,22 +58,22 @@
     </block>
     <block name="profile">
       <for from="1" to="5" var="i">
-        <circle alt="ground_alt+50* $i" radius="nav_radius" until="stage_time>120" wp="1"/>
+        <circle alt="GetAltRef()+50* $i" radius="nav_radius" until="stage_time>120" wp="1"/>
       </for>
     </block>
     <block name="climb">
       <circle radius="nav_radius" wp="CLIMB"/>
     </block>
     <block name="descent">
-      <circle radius="nav_radius" wp="CLIMB" vmode="throttle" throttle="0" pitch="RadOfDeg(my_nav_pitch)"  until="(ground_alt+150 > GetPosAlt())"/>
+      <circle radius="nav_radius" wp="CLIMB" vmode="throttle" throttle="0" pitch="RadOfDeg(my_nav_pitch)"  until="(GetAltRef()+150 > GetPosAlt())"/>
     <deroute block="wait"/>
     </block>
     <block name="wind">
-      <attitude pitch="RadOfDeg(my_nav_pitch)" roll="my_nav_roll" throttle="0.0" until="(ground_alt+150 > GetPosAlt())" vmode="throttle"/>
+      <attitude pitch="RadOfDeg(my_nav_pitch)" roll="my_nav_roll" throttle="0.0" until="(GetAltRef()+150 > GetPosAlt())" vmode="throttle"/>
       <deroute block="wait"/>
     </block>
     <block name="wait" strip_button="Wait">
-      <circle radius="nav_radius" wp="CLIMB" alt="ground_alt+200"/>
+      <circle radius="nav_radius" wp="CLIMB" alt="GetAltRef()+200"/>
     </block>
     <block name="roll">
       <set value="TRUE" var="h_ctl_disabled"/>

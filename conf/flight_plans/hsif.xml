@@ -18,7 +18,7 @@
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Takeoff">
-      <exception cond="GetPosAlt() > ground_alt+25" deroute="HSIF"/>
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="HSIF"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>

@@ -101,15 +101,15 @@
     </block>
 
     <block name="climb 75">
-      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10 > PowerVoltage()"/>
+      <circle radius="50+(GetPosAlt()-GetAltRef())/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10 > PowerVoltage()"/>
     </block>
 
     <block name="climb 1">
-      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" climb="1" pitch="5" vmode="climb" until="10 > PowerVoltage()"/>
+      <circle radius="50+(GetPosAlt()-GetAltRef())/2" wp="1" climb="1" pitch="5" vmode="climb" until="10 > PowerVoltage()"/>
     </block>
 
     <block name="descent 0">
-      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" throttle="0.0" pitch="-15" vmode="throttle" until="ground_alt+50 > GetPosAlt()"/>
+      <circle radius="50+(GetPosAlt()-GetAltRef())/2" wp="1" throttle="0.0" pitch="-15" vmode="throttle" until="GetAltRef()+50 > GetPosAlt()"/>
       <deroute block="wait"/>
     </block>
 
@@ -147,7 +147,7 @@
     </block>
 
     <block name="final">
-      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
 

@@ -45,7 +45,7 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff (wp CLIMB)">
-      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="CLIMB_AIRSPEED" var="v_ctl_auto_airspeed_setpoint" />
       <go wp="CLIMB"/>
@@ -69,25 +69,25 @@
       <circle pitch="auto" radius="75" throttle="0.7" wp="1"/>
     </block>
     <block name="Climb 75% throttle">
-      <circle pitch="10" radius="50+(GetPosAlt()-ground_alt)/2" throttle="0.75" until="(10 > PowerVoltage()) || (GetPosAlt() > ground_alt+ 1350)" vmode="throttle" wp="1"/>
+      <circle pitch="10" radius="50+(GetPosAlt()-GetAltRef())/2" throttle="0.75" until="(10 > PowerVoltage()) || (GetPosAlt() > GetAltRef()+ 1350)" vmode="throttle" wp="1"/>
     </block>
     <block name="Climb 0m/s">
       <circle climb="0" radius="nav_radius" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
     </block>
     <block name="Climb 1m/s">
-      <circle climb="1" pitch="5" radius="50+(GetPosAlt()-ground_alt)/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
+      <circle climb="1" pitch="5" radius="50+(GetPosAlt()-GetAltRef())/2" until="10 > PowerVoltage()" vmode="climb" wp="1"/>
     </block>
     <block name="Climb nav_climb m/s">
-      <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (GetPosAlt() > ground_alt+ 1350)" vmode="climb" wp="1"/>
+      <circle climb="nav_climb" radius="nav_radius" until="(10 > PowerVoltage()) || (GetPosAlt() > GetAltRef()+ 1350)" vmode="climb" wp="1"/>
     </block>
 
     <block name="Circle 0% throttle">
-      <circle pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="ground_alt+50 > GetPosAlt()" vmode="throttle" wp="1"/>
+      <circle pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 > GetPosAlt()" vmode="throttle" wp="1"/>
       <deroute block="Standby"/>
     </block>
 
     <block name="Oval 0% throttle">
-      <oval p1="1" p2="2" pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="ground_alt+50 > GetPosAlt()" vmode="throttle"/>
+      <oval p1="1" p2="2" pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 > GetPosAlt()" vmode="throttle"/>
       <deroute block="Standby"/>
     </block>
 
@@ -163,7 +163,7 @@
       </while>
     </block>
     <block name="Heading 30">
-      <heading alt="ground_alt+50" course="30" until="FALSE"/>
+      <heading alt="GetAltRef()+50" course="30" until="FALSE"/>
     </block>
     <block name="For loop (circles wp 1)">
       <for from="0" to="3" var="i">
@@ -178,7 +178,7 @@
     </block>
     <block name="Fly in Square">
       <exception cond="! InsideSquare(GetPosX(), GetPosY())" deroute="Come back wp 1"/>
-      <attitude alt="ground_alt+75" roll="0" vmode="alt"/>
+      <attitude alt="GetAltRef()+75" roll="0" vmode="alt"/>
     </block>
     <block name="Come back wp 1">
       <exception cond="InsideSquare(GetPosX(), GetPosY())" deroute="Fly in Square"/>

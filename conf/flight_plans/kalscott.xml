@@ -26,48 +26,48 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > ground_alt+25" deroute="Circle"/>
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Circle"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block name="Circle" strip_button="Circle" strip_icon="home.png">
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="GetPosAlt() > ground_alt+195"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="NavCircleCount() > 2"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="GetPosAlt() > ground_alt+295"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="NavCircleCount() > 2"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+400" until="GetPosAlt() > ground_alt+395"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+400" until="NavCircleCount() > 2"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="ground_alt+305 > GetPosAlt()"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="NavCircleCount() > 2"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="ground_alt+205 > GetPosAlt()"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="NavCircleCount() > 2"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+200" until="GetPosAlt() > GetAltRef()+195"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+200" until="NavCircleCount() > 2"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+300" until="GetPosAlt() > GetAltRef()+295"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+300" until="NavCircleCount() > 2"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+400" until="GetPosAlt() > GetAltRef()+395"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+400" until="NavCircleCount() > 2"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+300" until="GetAltRef()+305 > GetPosAlt()"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+300" until="NavCircleCount() > 2"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+200" until="GetAltRef()+205 > GetPosAlt()"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="GetAltRef()+200" until="NavCircleCount() > 2"/>
       <deroute block="Circle"/>
     </block>
    <block name="Racetrack E-W" strip_button="Racetrack E-W" strip_icon="oval.png">
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="GetPosAlt() > ground_alt+195"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="GetPosAlt() > ground_alt+295"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+400" until="GetPosAlt() > ground_alt+395"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+400" until="nav_oval_count > 2"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="ground_alt+305 > GetPosAlt()"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="ground_alt+205 > GetPosAlt()"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+200" until="GetPosAlt() > GetAltRef()+195"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+200" until="nav_oval_count > 2"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+300" until="GetPosAlt() > GetAltRef()+295"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+300" until="nav_oval_count > 2"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+400" until="GetPosAlt() > GetAltRef()+395"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+400" until="nav_oval_count > 2"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+300" until="GetAltRef()+305 > GetPosAlt()"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+300" until="nav_oval_count > 2"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+200" until="GetAltRef()+205 > GetPosAlt()"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="GetAltRef()+200" until="nav_oval_count > 2"/>
       <deroute block="Racetrack E-W"/>
     </block>
     <block name="Racetrack N-S" strip_button="Racetrack N-S" strip_icon="oval.png">
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="GetPosAlt() > ground_alt+195"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="GetPosAlt() > ground_alt+295"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+400" until="GetPosAlt() > ground_alt+395"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+400" until="nav_oval_count > 2"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="ground_alt+305 > GetPosAlt()"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="ground_alt+305 > GetPosAlt()"/>
-      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+200" until="GetPosAlt() > GetAltRef()+195"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+200" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+300" until="GetPosAlt() > GetAltRef()+295"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+300" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+400" until="GetPosAlt() > GetAltRef()+395"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+400" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+300" until="GetAltRef()+305 > GetPosAlt()"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+300" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+200" until="GetAltRef()+305 > GetPosAlt()"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="GetAltRef()+200" until="nav_oval_count > 2"/>
       <deroute block="Racetrack N-S"/>
     </block>
   </blocks>
