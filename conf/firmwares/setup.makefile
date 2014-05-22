@@ -16,17 +16,12 @@ SETUP_INC = -I$(SRC_FIRMWARE)
 $(TARGET).CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
 # a test program to tunnel between both uart
-ifeq ($(ARCH), lpc21)
 tunnel.CFLAGS += -DUSE_LED
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
 tunnel.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
-else ifeq ($(ARCH), stm32)
+ifeq ($(ARCH), stm32)
 tunnel.ARCHDIR = $(ARCH)
-tunnel.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
-tunnel.srcs   += mcu.c \
-                 $(SRC_ARCH)/mcu_arch.c \
-                 $(SRC_LISA)/tunnel_hw.c
-tunnel.CFLAGS += -DUSE_LED
+tunnel.CFLAGS += -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 tunnel.srcs   += $(SRC_ARCH)/mcu_periph/gpio_arch.c $(SRC_ARCH)/led_hw.c
 ifneq ($(SYS_TIME_LED),none)
 tunnel.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
