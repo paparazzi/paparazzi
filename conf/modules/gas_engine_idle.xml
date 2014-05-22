@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gas_engine">
+  <doc>
+    <description>Gas Engine Idle</description>
+  </doc>
+  <header>
+    <file name="gas_engine_idle_trim.h"/>
+  </header>
+  <periodic fun="periodic_gas_engine_idle_trim()" freq="10." autorun="TRUE"/>
+  <makefile>
+    <raw>
+    </raw>
+    <file name="gas_engine_idle_trim.c"/>
+  </makefile>
+</module>
+
