@@ -9,6 +9,10 @@ SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", SYMLINK+="paparazzi/serial"
 # MaxStream xbee pro box
 SUBSYSTEM=="tty", ATTRS{product}=="MaxStream PKG-U", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
+# Navstik Xbee port
+SUBSYSTEMS=="usb", ENV{.LOCAL_ifNum}="$attr{bInterfaceNumber}"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ATTRS{product}=="Quad RS232-HS", ENV{.LOCAL_ifNum}=="02", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
+
 # Recent Digi XBee pro modems (XBP24-PKC-001-UA)
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{product}=="USB <-> Serial", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
@@ -26,6 +30,9 @@ ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", GROUP="plugdev"
 
 # FTDI 2232 based jtag for Lisa/L and usb upload
 ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0666", GROUP="plugdev"
+
+# FTDI 2232 based jtag for Navstik
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", MODE="0666", GROUP="plugdev"
 
 # dfu devices
 ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE="0666", GROUP="plugdev"

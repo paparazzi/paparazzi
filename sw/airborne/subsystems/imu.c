@@ -24,6 +24,7 @@
  * Inertial Measurement Unit interface.
  */
 
+#include BOARD_CONFIG
 #include "subsystems/imu.h"
 
 #ifdef IMU_POWER_GPIO

@@ -74,6 +74,9 @@
 #ifndef TIM5_SERVO_HZ
 #define TIM5_SERVO_HZ SERVO_HZ
 #endif
+#ifndef TIM8_SERVO_HZ
+#define TIM8_SERVO_HZ SERVO_HZ
+#endif
 #ifndef TIM9_SERVO_HZ
 #define TIM9_SERVO_HZ SERVO_HZ
 #endif
