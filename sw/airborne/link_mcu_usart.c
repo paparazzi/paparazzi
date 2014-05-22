@@ -25,6 +25,7 @@
 #include "led.h"
 
 #include "subsystems/commands.h"
+#include "subsystems/electrical.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // LINK
@@ -86,12 +87,12 @@
 }
 
 #define MSG_INTERMCU_RADIO_ID 0x08
-#define MSG_INTERMCU_RADIO_LENGTH  (2*(RADIO_CONTROL_NB_CHANNEL))
+#define MSG_INTERMCU_RADIO_LENGTH  (2*(RADIO_CONTROL_NB_CHANNEL_TO_SEND))
 #define MSG_INTERMCU_RADIO(_intermcu_payload, nr) (uint16_t)(*((uint8_t*)_intermcu_payload+0)|*((uint8_t*)_intermcu_payload+1+(2*(nr)))<<8)
 
 #define InterMcuSend_INTERMCU_RADIO(cmd) { \
   InterMcuHeader(MSG_INTERMCU_ID, MSG_INTERMCU_RADIO_ID, MSG_INTERMCU_RADIO_LENGTH);\
-  for (int i=0;i<RADIO_CONTROL_NB_CHANNEL;i++) { \
+  for (int i=0;i<RADIO_CONTROL_NB_CHANNEL_TO_SEND;i++) { \
     uint16_t _cmd = cmd[i];  \
     InterMcuSend2ByAddr((uint8_t*)&_cmd);\
   } \
@@ -244,11 +245,48 @@ struct link_mcu_msg link_mcu_from_fbw_msg;
 
 inline void parse_mavpilot_msg( void );
 
+
+#ifdef AP
+#include "subsystems/datalink/telemetry.h"
+
+#define RC_OK          0
+#define RC_LOST        1
+#define RC_REALLY_LOST 2
+
+
+static void send_commands(void) {
+  DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, ap_state->commands);
+}
+
+
+static void send_fbw_status(void) {
+  uint8_t rc_status = 0;
+  uint8_t fbw_status = 0;
+  if (fbw_state->status & _BV(STATUS_MODE_AUTO))
+    fbw_status = FBW_MODE_AUTO;
+  if (fbw_state->status & _BV(STATUS_MODE_FAILSAFE))
+    fbw_status = FBW_MODE_FAILSAFE;
+  if (fbw_state->status & _BV(STATUS_RADIO_REALLY_LOST))
+    rc_status = RC_REALLY_LOST;
+  else if (fbw_state->status & _BV(RC_OK))
+    rc_status = RC_OK;
+  else
+    rc_status = RC_LOST;
+  DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
+      &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->vsupply), &(fbw_state->current));
+}
+#endif
+
 void link_mcu_init( void )
 {
    intermcu_data.status = LINK_MCU_UNINIT;
    intermcu_data.msg_available = FALSE;
    intermcu_data.error_cnt = 0;
+#ifdef AP
+   // If FBW has not telemetry, then AP can send some of the info
+   register_periodic_telemetry(DefaultPeriodic, "COMMANDS", send_commands);
+   register_periodic_telemetry(DefaultPeriodic, "FBW_STATUS", send_fbw_status);
+#endif
 }
 
 void parse_mavpilot_msg( void )
@@ -273,11 +311,11 @@ void parse_mavpilot_msg( void )
     }
     else if (intermcu_data.msg_id == MSG_INTERMCU_RADIO_ID)
     {
-#if RADIO_CONTROL_NB_CHANNEL > 10
+#if RADIO_CONTROL_NB_CHANNEL_TO_SEND > 10
 #error "INTERMCU UART CAN ONLY SEND 10 RADIO CHANNELS OR THE UART WILL BE OVERFILLED"
 #endif
 
-      for (int i=0; i< RADIO_CONTROL_NB_CHANNEL; i++)
+      for (int i=0; i< RADIO_CONTROL_NB_CHANNEL_TO_SEND; i++)
       {
         fbw_state->channels[i] = ((pprz_t)MSG_INTERMCU_RADIO(intermcu_data.msg_buf, i));
       }
@@ -289,6 +327,7 @@ void parse_mavpilot_msg( void )
     }
     else if (intermcu_data.msg_id == MSG_INTERMCU_FBW_ID)
     {
+
       fbw_state->ppm_cpt = MSG_INTERMCU_FBW_MOD(intermcu_data.msg_buf);
       fbw_state->status = MSG_INTERMCU_FBW_STAT(intermcu_data.msg_buf);
       fbw_state->nb_err = MSG_INTERMCU_FBW_ERR(intermcu_data.msg_buf);

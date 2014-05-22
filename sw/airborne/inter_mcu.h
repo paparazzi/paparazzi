@@ -51,13 +51,15 @@
 #undef RADIO_CONTROL_NB_CHANNEL
 #endif
 #include "generated/radio.h"
-#define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
+#define RADIO_CONTROL_NB_CHANNEL_TO_SEND RADIO_CTL_NB
+#else
+#define RADIO_CONTROL_NB_CHANNEL_TO_SEND RADIO_CONTROL_NB_CHANNEL
 #endif
 
 /** Data structure shared by fbw and ap processes */
 struct fbw_state {
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
-  pprz_t channels[RADIO_CONTROL_NB_CHANNEL];
+  pprz_t channels[RADIO_CONTROL_NB_CHANNEL_TO_SEND];
   uint8_t ppm_cpt;
 #endif
   uint8_t status;
@@ -112,7 +114,7 @@ static inline void inter_mcu_fill_fbw_state (void) {
 
 #ifdef RADIO_CONTROL
   uint8_t i;
-  for(i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++)
+  for(i = 0; i < RADIO_CONTROL_NB_CHANNEL_TO_SEND; i++)
     fbw_state->channels[i] = radio_control.values[i];
 
   fbw_state->ppm_cpt = radio_control.frame_rate;
