@@ -1,10 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<!--
-     Apogee test board
+<!-- Funjet Multiplex (http://www.multiplex-rc.de/)
+     Apogee 1.0
+     Radiotronix modem
+     UBX GPS
+     Airspeed sensor
+     Digital camera
 -->
 
-<airframe name="Apogee">
+<airframe name="Funjet II">
 
   <modules>
     <load name="mag_hmc58xx.xml">
@@ -32,17 +36,19 @@
     <subsystem name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="apogee">
-      <define name="USE_MAGNETOMETER"/>
+    <subsystem name="imu" type="apogee">
+      <!--define name="USE_MAGNETOMETER"/-->
       <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_20HZ"/>
       <define name="APOGEE_SMPLRT_DIV" value="7"/>
     </subsystem>
-    <subsystem name="ins"     type="float_invariant">
+    <!--subsystem name="ins"     type="float_invariant">
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
       <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
       <define name="MPL3115_OVERSAMPLING" value="2"/>
-    </subsystem>
+    </subsystem-->
+    <subsystem name="ahrs" type="float_dcm"/>
+    <subsystem name="ins" type="alt_float"/>
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->
@@ -59,7 +65,7 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="1" min="1120" neutral="1540" max="1980"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1120" neutral="1760" max="1980"/>
     <servo name="AILEVON_LEFT" no="2" min="1900" neutral="1500" max="1050"/>
   </servos>
 
@@ -126,7 +132,7 @@
 
   <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="5.32701781054" unit="deg"/>
     <define name="H_X" value="0.5180"/>
     <define name="H_Y" value="-0.0071"/>
     <define name="H_Z" value="0.8554"/>
@@ -159,10 +165,10 @@
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
 
     <!-- Climb loop (throttle) -->
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.073" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="0.005"/>
     <define name="AUTO_THROTTLE_DGAIN" value="0.0"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.003"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.001"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.02"/>
 
     <!-- Climb loop (pitch) -->
@@ -202,15 +208,15 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="11000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="10000."/>
     <define name="ROLL_RATE_GAIN" value="1000."/>
-    <define name="ROLL_IGAIN" value="150."/>
+    <define name="ROLL_IGAIN" value="50."/>
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 
     <define name="PITCH_PGAIN" value="18000."/>
     <define name="PITCH_DGAIN" value="500."/>
-    <define name="PITCH_IGAIN" value="250."/>
+    <define name="PITCH_IGAIN" value="50."/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 
@@ -234,7 +240,7 @@
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
     <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
-    <define name="JSBSIM_LAUNCHSPEED"	value="15.0"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
   </section>
