@@ -122,6 +122,3 @@ void main_on_can_msg(uint32_t id, uint8_t *data, int len)
 
   new_can_data = true;
 }
-
-
-

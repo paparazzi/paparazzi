@@ -1,6 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# $Id: lisa_test_progs.makefile 4982 2010-06-18 13:51:00Z poine $
 # Copyright (C) 2010 Antoine Drouin
 #
 # This file is part of Paparazzi.

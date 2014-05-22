@@ -60,12 +60,7 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   settings_init();
-  //  DEBUG_SERVO2_INIT();
-  //  LED_ON(1);
-  //  LED_ON(2);
-  //  DEBUG_S4_ON();
-  //  DEBUG_S5_ON();
-  //  DEBUG_S6_ON();
+
   mcu_int_enable();
 
 }

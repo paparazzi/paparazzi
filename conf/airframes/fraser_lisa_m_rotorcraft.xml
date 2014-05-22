@@ -45,23 +45,14 @@
 	<target name="test_sys_time_usleep"     board="lisa_m_1.0"/>
     <target name="test_telemetry"           board="lisa_m_1.0"/>
     <target name="test_esc_mkk_simple"      board="lisa_m_1.0"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_m_1.0"/>
-  </firmware>
-
-  <firmware name="lisa_test_progs">
-    <target name="test_led"	                board="lisa_m_1.0"/>
-    <target name="test_uart"                board="lisa_m_1.0"/>
-    <target name="test_baro"                board="lisa_m_1.0"/>
-    <target name="test_rc_spektrum"         board="lisa_m_1.0"/>
-    <target name="test_rc_ppm"              board="lisa_m_1.0"/>
+    <target name="test_uart"                board="lisa_m_1.0">
+      <define name="USE_UART1"/>
+      <define name="UART1_BAUD" value="B57600"/>
+      <define name="USE_UART2"/>
+      <define name="UART2_BAUD" value="B57600"/>
+    </target>
+    <target name="test_baro_board"          board="lisa_m_1.0"/>
     <target name="test_adc"                 board="lisa_m_1.0"/>
-    <target name="test_imu_b2"              board="lisa_m_1.0"/>
-    <target name="test_imu_b2_2"            board="lisa_m_1.0"/>
-    <target name="test_imu_aspirin"         board="lisa_m_1.0"/>
-    <target name="test_ahrs"                board="lisa_m_1.0"/>
-    <target name="test_hmc5843"	            board="lisa_m_1.0"/>
-    <target name="test_itg3200"             board="lisa_m_1.0"/>
-    <target name="test_adxl345"	            board="lisa_m_1.0"/>
   </firmware>
 
   <modules main_freq="512">

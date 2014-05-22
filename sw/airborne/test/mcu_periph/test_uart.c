@@ -19,11 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-
 #include BOARD_CONFIG
 #include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
@@ -38,6 +36,7 @@ int main(void) {
     if (sys_time_check_and_ack_timer(0))
       main_periodic();
   }
+
   return 0;
 }
 
@@ -47,9 +46,65 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
+  char ch;
 
-  LED_PERIODIC();
+#if USE_UART1
+  uart_transmit(&uart1, 'a');
+#endif
+#if USE_UART2
+  uart_transmit(&uart2, 'b');
+#endif
+#if USE_UART3
+  uart_transmit(&uart3, 'c');
+#endif
+#if USE_UART5
+  uart_transmit(&uart5, 'd');
+#endif
 
+  LED_OFF(1);
+  LED_OFF(2);
+
+#if USE_UART1
+  if (uart_char_available(&uart1)) {
+    ch = uart_getch(&uart1);
+    if (ch == 'a') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
+#endif
+
+#if USE_UART2
+  if (uart_char_available(&uart2)) {
+    ch =  uart_getch(&uart2);
+    if (ch == 'b') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
+#endif
+
+#if USE_UART3
+  if (uart_char_available(&uart3)) {
+    ch =  uart_getch(&uart3);
+    if (ch == 'c') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
+#endif
+
+#if USE_UART5
+  if (uart_char_available(&uart5)) {
+    ch =  uart_getch(&uart5);
+    if (ch == 'd') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
+#endif
 }
-
-
