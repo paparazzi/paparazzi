@@ -244,11 +244,50 @@ struct link_mcu_msg link_mcu_from_fbw_msg;
 
 inline void parse_mavpilot_msg( void );
 
+
+#ifdef AP
+#include "subsystems/datalink/telemetry.h"
+
+#define RC_OK          0
+#define RC_LOST        1
+#define RC_REALLY_LOST 2
+
+
+static void send_commands(void) {
+  DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, ap_state->commands);
+}
+
+
+static void send_fbw_status(void) {
+  uint8_t rc_status = 0;
+  uint8_t fbw_status = 0;
+  if (fbw_state->status & _BV(STATUS_MODE_AUTO))
+    fbw_status = FBW_MODE_AUTO;
+  if (fbw_state->status & _BV(STATUS_MODE_FAILSAFE))
+    fbw_status = FBW_MODE_FAILSAFE;
+  if (fbw_state->status & _BV(STATUS_RADIO_REALLY_LOST))
+    rc_status = RC_REALLY_LOST;
+  else if (fbw_state->status & _BV(RC_OK))
+    rc_status = RC_OK;
+  else
+    rc_status = RC_LOST;
+  DOWNLINK_SEND_FBW_STATUS(DefaultChannel, DefaultDevice,
+      &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->vsupply), &(fbw_state->current));
+}
+#endif
+
 void link_mcu_init( void )
 {
    intermcu_data.status = LINK_MCU_UNINIT;
    intermcu_data.msg_available = FALSE;
    intermcu_data.error_cnt = 0;
+#ifdef AP
+ #if PERIODIC_TELEMETRY
+   // If FBW has not telemetry, then AP can send some of the info
+   register_periodic_telemetry(DefaultPeriodic, "COMMANDS", send_commands);
+   register_periodic_telemetry(DefaultPeriodic, "FBW_STATUS", send_fbw_status);
+#endif
+#endif
 }
 
 void parse_mavpilot_msg( void )

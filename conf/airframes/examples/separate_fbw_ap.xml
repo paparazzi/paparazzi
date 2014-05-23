@@ -243,7 +243,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators" type="direct"/>
     <subsystem name="intermcu" type="uart">
-      <configure name="INTERMCU_PORT_NR" value="2" />
+      <configure name="INTERMCU_PORT" value="UART2" />
     </subsystem>
 
 
@@ -300,7 +300,7 @@
     <subsystem name="actuators" type="dummy"/>
 
     <subsystem name="intermcu" type="uart">
-      <configure name="INTERMCU_PORT_NR" value="5" />
+      <configure name="INTERMCU_PORT" value="UART5" />
     </subsystem>
 
 </firmware>
