@@ -21,7 +21,7 @@
       <!-- FBW -->
       <subsystem name="actuators" type="dummy"/>
       <subsystem name="intermcu" type="uart">
-        <configure name="INTERMCU_PORT_NR" value="2"/>
+        <configure name="INTERMCU_PORT" value="UART2"/>
       </subsystem>
       <!-- AP -->
       <subsystem name="control"/>
@@ -48,7 +48,7 @@
       </subsystem>
       <!-- FBW <-> AP -->
       <subsystem name="intermcu" type="uart">
-        <configure name="INTERMCU_PORT_NR" value="1"/>
+        <configure name="INTERMCU_PORT" value="UART1"/>
       </subsystem>
       <!-- SERVO'S -->
       <subsystem name="actuators" type="pwm"/>

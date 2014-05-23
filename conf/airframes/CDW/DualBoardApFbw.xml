@@ -245,7 +245,7 @@
       <!-- split of ap/fbw specific subsystems for ap -->
       <subsystem name="actuators" type="dummy"/>
       <subsystem name="intermcu" type="uart">
-        <configure name="INTERMCU_PORT_NR" value="5"/>
+        <configure name="INTERMCU_PORT" value="UART5"/>
       </subsystem>
 
       <subsystem name="control"/>
@@ -265,7 +265,7 @@
       <!-- split of ap/fbw specific subsystems for fbw -->
       <subsystem name="actuators" type="pwm"/>
       <subsystem name="intermcu" type="uart">
-        <configure name="INTERMCU_PORT_NR" value="2"/>
+        <configure name="INTERMCU_PORT" value="UART2"/>
       </subsystem>
     </target>
 
