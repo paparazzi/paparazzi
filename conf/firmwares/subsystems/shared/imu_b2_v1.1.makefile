@@ -58,6 +58,8 @@ imu_CFLAGS += -DMS2100_SPI_DEV=spi2
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 ap.CFLAGS += $(imu_CFLAGS)
 ap.srcs += $(imu_srcs)
+
+test_imu.CFLAGS += $(imu_CFLAGS)
+test_imu.srcs += $(imu_srcs)

@@ -58,11 +58,12 @@ IMU_PX4FMU_CFLAGS += -DUSE_I2C2
 
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 
 ap.CFLAGS += $(IMU_PX4FMU_CFLAGS)
 ap.srcs   += $(IMU_PX4FMU_SRCS)
 
+test_imu.CFLAGS += $(IMU_PX4FMU_CFLAGS)
+test_imu.srcs   += $(IMU_PX4FMU_SRCS)
 
 #
 # NPS simulator

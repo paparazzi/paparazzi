@@ -74,10 +74,12 @@ IMU_DROTEK_2_CFLAGS += -DUSE_$(DROTEK_2_I2C_DEV_UPPER)
 
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 
 ap.CFLAGS += $(IMU_DROTEK_2_CFLAGS)
 ap.srcs   += $(IMU_DROTEK_2_SRCS)
+
+test_imu.CFLAGS += $(IMU_DROTEK_2_CFLAGS)
+test_imu.srcs   += $(IMU_DROTEK_2_SRCS)
 
 
 #

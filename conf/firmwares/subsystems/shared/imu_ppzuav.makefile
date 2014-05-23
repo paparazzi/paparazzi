@@ -20,3 +20,6 @@ endif
 
 ap.CFLAGS += $(IMU_PPZUAV_CFLAGS)
 ap.srcs   += $(IMU_PPZUAV_SRCS)
+
+test_imu.CFLAGS += $(IMU_PPZUAV_CFLAGS)
+test_imu.srcs   += $(IMU_PPZUAV_SRCS)

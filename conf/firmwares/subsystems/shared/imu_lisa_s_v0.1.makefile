@@ -64,6 +64,9 @@ IMU_ASPIRIN_2_CFLAGS += -DUSE_SPI_SLAVE1
 ap.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN_2_SRCS)
 
+test_imu.CFLAGS += $(IMU_ASPIRIN_2_CFLAGS)
+test_imu.srcs   += $(IMU_ASPIRIN_2_SRCS)
+
 #
 # NPS simulator
 #

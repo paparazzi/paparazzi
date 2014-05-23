@@ -36,3 +36,6 @@ include $(CFG_SHARED)/imu_b2_common.makefile
 
 ap.srcs += $(imu_srcs)
 ap.CFLAGS += $(imu_CFLAGS)
+
+test_imu.srcs += $(imu_srcs)
+test_imu.CFLAGS += $(imu_CFLAGS)

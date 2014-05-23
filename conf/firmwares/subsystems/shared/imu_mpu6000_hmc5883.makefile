@@ -91,6 +91,9 @@ IMU_CFLAGS += -DUSE_$(IMU_MPU_SPI_SLAVE_IDX)
 ap.CFLAGS += $(IMU_CFLAGS)
 ap.srcs   += $(IMU_SRCS)
 
+test_imu.CFLAGS += $(IMU_CFLAGS)
+test_imu.srcs   += $(IMU_SRCS)
+
 #
 # NPS simulator
 #

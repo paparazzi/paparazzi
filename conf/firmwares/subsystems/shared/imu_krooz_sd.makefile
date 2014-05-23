@@ -28,6 +28,9 @@ IMU_KROOZ_CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=$(AHRS_MAG_CORRECT_FREQUENCY)
 ap.CFLAGS += $(IMU_KROOZ_CFLAGS)
 ap.srcs   += $(IMU_KROOZ_SRCS)
 
+test_imu.CFLAGS += $(IMU_KROOZ_CFLAGS)
+test_imu.srcs   += $(IMU_KROOZ_SRCS)
+
 #
 # NPS simulator
 #

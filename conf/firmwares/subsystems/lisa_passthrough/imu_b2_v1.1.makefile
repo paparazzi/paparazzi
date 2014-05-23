@@ -56,7 +56,6 @@ imu_CFLAGS += -DUSE_SPI2
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 stm_passthrough.CFLAGS += $(imu_CFLAGS)
 stm_passthrough.srcs += $(imu_srcs)
 

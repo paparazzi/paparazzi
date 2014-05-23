@@ -42,11 +42,11 @@ IMU_GL1_CFLAGS += -DGL1_I2C_DEV=$(GL1_I2C_DEV_LOWER)
 IMU_GL1_CFLAGS += -DUSE_$(GL1_I2C_DEV_UPPER)
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 ap.CFLAGS += $(IMU_GL1_CFLAGS)
 ap.srcs   += $(IMU_GL1_SRCS)
 
-
+test_imu.CFLAGS += $(IMU_GL1_CFLAGS)
+test_imu.srcs   += $(IMU_GL1_SRCS)
 
 #
 # NPS simulator

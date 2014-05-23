@@ -30,6 +30,8 @@ IMU_ASPIRIN2_CFLAGS += -DUSE_$(IMU_ASPIRIN2_I2C_DEV_UPPER)
 ap.CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
 ap.srcs   += $(IMU_ASPIRIN2_SRCS)
 
+test_imu.CFLAGS += $(IMU_ASPIRIN2_CFLAGS)
+test_imu.srcs   += $(IMU_ASPIRIN2_SRCS)
 
 #
 # NPS simulator

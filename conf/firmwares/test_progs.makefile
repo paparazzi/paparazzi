@@ -307,3 +307,23 @@ test_adc.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_adc.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_adc.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 test_adc.srcs   += test/mcu_periph/test_adc.c
+
+
+#
+# test_imu
+#
+# add imu subsystem to test_imu target!
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#
+test_imu.ARCHDIR = $(ARCH)
+test_imu.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_imu.srcs   += $(COMMON_TEST_SRCS)
+test_imu.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_imu.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_imu.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_imu.srcs   += test/subsystems/test_imu.c
+test_imu.srcs   += math/pprz_trig_int.c
