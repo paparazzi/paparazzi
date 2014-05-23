@@ -106,7 +106,6 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
 
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -223,31 +222,9 @@
     </load>
 
     <load name="nav_catapult.xml"/>
+    <load name="nav_line.xml"/>
 
   </modules>
-
-  <firmware name="fixedwing">
-
-    <target name="fbw" board="lisa_m_2.0">
-      <configure name="SYS_TIME_LED" value="2" />
-      <define name="RADIO_CONTROL_LED" value="4"/>
-
-      <configure name="FLASH_MODE" value="JTAG" />
-<!--      <configure name="BMP_PORT" value="/dev/ttyACM0" /> -->
-
-      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1" />
-      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="1" />
-
-    </target>
-
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="actuators" type="direct"/>
-    <subsystem name="intermcu" type="uart">
-      <configure name="INTERMCU_PORT_NR" value="2" />
-    </subsystem>
-
-
-  </firmware>
 
   <firmware name="fixedwing">
 
@@ -259,16 +236,46 @@
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
-       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
-
-      <configure name="FLASH_MODE" value="JTAG" />
- <!--     <configure name="BMP_PORT" value="/dev/ttyACM0" /> -->
-
+      <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="1"/>
+      <define name="LINK_MCU_LED" value="4"/>
+
+      <!-- split of ap/fbw specific subsystems for ap -->
+      <subsystem name="actuators" type="dummy"/>
+      <subsystem name="intermcu" type="uart">
+        <configure name="INTERMCU_PORT_NR" value="5"/>
+      </subsystem>
+
+      <subsystem name="control"/>
+      <subsystem name="navigation"/>
     </target>
-    <target name="sim" board="pc"/>
+
+    <target name="fbw" board="lisa_m_2.0">
+      <configure name="SYS_TIME_LED" value="2"/>
+      <define name="RADIO_CONTROL_LED" value="4"/>
+      <define name="LINK_MCU_LED" value="3"/>
+
+      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
+      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="1"/>
+
+      <subsystem name="radio_control" type="ppm"/>
+
+      <!-- split of ap/fbw specific subsystems for fbw -->
+      <subsystem name="actuators" type="pwm"/>
+      <subsystem name="intermcu" type="uart">
+        <configure name="INTERMCU_PORT_NR" value="2"/>
+      </subsystem>
+    </target>
+
+    <target name="sim" board="pc">
+      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="control"/>
+      <subsystem name="navigation"/>
+    </target>
+
+    <configure name="FLASH_MODE" value="JTAG"/>
 
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
@@ -278,36 +285,21 @@
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
 
-
-    <subsystem name="imu" type="aspirin_v2.1"/>
-    <subsystem name="ahrs" type="float_dcm" />
-
     <!-- Communication -->
-<!--    <subsystem name="telemetry" type="xbee_api"> -->
     <subsystem name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600"/>
       <configure name="MODEM_PORT" value="UART2"/>
     </subsystem>
 
-    <!-- Actuators -->
-    <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation"/>
+    <subsystem name="imu" type="aspirin_v2.1"/>
     <subsystem name="gps" type="ublox">
       <configure name="GPS_PORT" value="UART1"/>
     </subsystem>
 
-    <subsystem name="actuators" type="dummy"/>
+    <subsystem name="ahrs" type="float_dcm"/>
+    <subsystem name="ins" type="alt_float"/>
 
-    <subsystem name="intermcu" type="uart">
-      <configure name="INTERMCU_PORT_NR" value="5" />
-    </subsystem>
-
-</firmware>
-
-<makefile>
-
-
-</makefile>
+  </firmware>
 
 </airframe>
