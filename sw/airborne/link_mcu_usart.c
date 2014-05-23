@@ -261,13 +261,13 @@ static void send_commands(void) {
 static void send_fbw_status(void) {
   uint8_t rc_status = 0;
   uint8_t fbw_status = 0;
-  if (fbw_state->status & _BV(STATUS_MODE_AUTO))
+  if (bit_is_set(fbw_state->status, STATUS_MODE_AUTO))
     fbw_status = FBW_MODE_AUTO;
-  if (fbw_state->status & _BV(STATUS_MODE_FAILSAFE))
+  if (bit_is_set(fbw_state->status, STATUS_MODE_FAILSAFE))
     fbw_status = FBW_MODE_FAILSAFE;
-  if (fbw_state->status & _BV(STATUS_RADIO_REALLY_LOST))
+  if (bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST))
     rc_status = RC_REALLY_LOST;
-  else if (fbw_state->status & _BV(RC_OK))
+  else if (bit_is_set(fbw_state->status, RC_OK))
     rc_status = RC_OK;
   else
     rc_status = RC_LOST;
