@@ -25,7 +25,6 @@
 #include "led.h"
 
 #include "subsystems/commands.h"
-#include "subsystems/electrical.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 // LINK
@@ -87,12 +86,12 @@
 }
 
 #define MSG_INTERMCU_RADIO_ID 0x08
-#define MSG_INTERMCU_RADIO_LENGTH  (2*(RADIO_CONTROL_NB_CHANNEL_TO_SEND))
+#define MSG_INTERMCU_RADIO_LENGTH  (2*(RADIO_CONTROL_NB_CHANNEL))
 #define MSG_INTERMCU_RADIO(_intermcu_payload, nr) (uint16_t)(*((uint8_t*)_intermcu_payload+0)|*((uint8_t*)_intermcu_payload+1+(2*(nr)))<<8)
 
 #define InterMcuSend_INTERMCU_RADIO(cmd) { \
   InterMcuHeader(MSG_INTERMCU_ID, MSG_INTERMCU_RADIO_ID, MSG_INTERMCU_RADIO_LENGTH);\
-  for (int i=0;i<RADIO_CONTROL_NB_CHANNEL_TO_SEND;i++) { \
+  for (int i=0;i<RADIO_CONTROL_NB_CHANNEL;i++) { \
     uint16_t _cmd = cmd[i];  \
     InterMcuSend2ByAddr((uint8_t*)&_cmd);\
   } \
@@ -283,9 +282,11 @@ void link_mcu_init( void )
    intermcu_data.msg_available = FALSE;
    intermcu_data.error_cnt = 0;
 #ifdef AP
+ #if PERIODIC_TELEMETRY
    // If FBW has not telemetry, then AP can send some of the info
    register_periodic_telemetry(DefaultPeriodic, "COMMANDS", send_commands);
    register_periodic_telemetry(DefaultPeriodic, "FBW_STATUS", send_fbw_status);
+#endif
 #endif
 }
 
@@ -311,11 +312,11 @@ void parse_mavpilot_msg( void )
     }
     else if (intermcu_data.msg_id == MSG_INTERMCU_RADIO_ID)
     {
-#if RADIO_CONTROL_NB_CHANNEL_TO_SEND > 10
+#if RADIO_CONTROL_NB_CHANNEL > 10
 #error "INTERMCU UART CAN ONLY SEND 10 RADIO CHANNELS OR THE UART WILL BE OVERFILLED"
 #endif
 
-      for (int i=0; i< RADIO_CONTROL_NB_CHANNEL_TO_SEND; i++)
+      for (int i=0; i< RADIO_CONTROL_NB_CHANNEL; i++)
       {
         fbw_state->channels[i] = ((pprz_t)MSG_INTERMCU_RADIO(intermcu_data.msg_buf, i));
       }
@@ -327,7 +328,6 @@ void parse_mavpilot_msg( void )
     }
     else if (intermcu_data.msg_id == MSG_INTERMCU_FBW_ID)
     {
-
       fbw_state->ppm_cpt = MSG_INTERMCU_FBW_MOD(intermcu_data.msg_buf);
       fbw_state->status = MSG_INTERMCU_FBW_STAT(intermcu_data.msg_buf);
       fbw_state->nb_err = MSG_INTERMCU_FBW_ERR(intermcu_data.msg_buf);
