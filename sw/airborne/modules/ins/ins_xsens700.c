@@ -303,27 +303,27 @@ void xsens_periodic(void) {
 
 static inline void update_fw_estimator(void) {
   // Send to Estimator (Control)
-#ifdef XSENS_BACKWARDS
-  struct FloatEulers att = {
-    -ins_phi+ins_roll_neutral,
-    -ins_theta+ins_pitch_neutral,
-    ins_psi + RadOfDeg(180)
-  };
-  struct FloatRates rates = {
-    -ins_p,
-    -ins_q,
-    ins_r
-  };
-#else
+#if XSENS_BACKWARDS
   struct FloatEulers att = {
     ins_phi+ins_roll_neutral,
-    ins_theta+ins_pitch_neutral,
-    ins_psi
+    -ins_theta+ins_pitch_neutral,
+    -ins_psi + RadOfDeg(180)
   };
   struct FloatRates rates = {
     ins_p,
+    -ins_q,
+    -ins_r
+  };
+#else
+  struct FloatEulers att = {
+    -ins_phi+ins_roll_neutral,
+    ins_theta+ins_pitch_neutral,
+    -ins_psi
+  };
+  struct FloatRates rates = {
+    -ins_p,
     ins_q,
-    ins_r
+    -ins_r
   };
 #endif
   stateSetNedToBodyEulers_f(&att);
