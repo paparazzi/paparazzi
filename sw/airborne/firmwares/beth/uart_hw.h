@@ -39,7 +39,7 @@
 #define UART3_irq_handler usart3_irq_handler
 #define UART5_irq_handler usart5_irq_handler
 
-#if USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
+#if USE_UART0
 extern void uart0_handler(void);
 #endif
 
@@ -64,7 +64,7 @@ extern uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
 
 #endif /* USE_UART0 */
 
-#if USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
+#if USE_UART1
 extern void uart1_handler(void);
 #endif
 

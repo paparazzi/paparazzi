@@ -59,6 +59,6 @@ extern void gpio_clear(uint32_t port, uint16_t pin);
 /**
  * Read a gpio value.
  */
-uint16_t gpio_get(uint32_t gpioport, uint16_t gpios);
+extern uint16_t gpio_get(uint32_t gpioport, uint16_t gpios);
 
 #endif /* GPIO_ARCH_H */

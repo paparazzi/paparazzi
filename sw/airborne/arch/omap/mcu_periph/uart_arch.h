@@ -54,11 +54,11 @@ static inline int uart_speed(int def) {
 #define UART3_irq_handler usart3_irq_handler
 #define UART5_irq_handler usart5_irq_handler
 
-#if USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
+#if USE_UART0
 extern void uart0_handler(void);
 #endif
 
-#if USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
+#if USE_UART1
 extern void uart1_handler(void);
 #endif
 
