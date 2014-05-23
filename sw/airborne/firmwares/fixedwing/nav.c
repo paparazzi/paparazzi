@@ -96,7 +96,6 @@ void nav_init_stage( void ) {
   nav_in_circle = FALSE;
   nav_in_segment = FALSE;
   nav_shift = 0;
-  nav_pitch = 0.;
 }
 
 #define PowerVoltage() (vsupply/10.)
