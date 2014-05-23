@@ -76,7 +76,7 @@ uint16_t min_velocity_samples   = 4;      ///< The amount of position samples ne
 #define MAX_NAMELENGTH    256
 #define MAX_RIGIDBODIES   128
 
-#define NAT_PING                    0 
+#define NAT_PING                    0
 #define NAT_PINGRESPONSE            1
 #define NAT_REQUEST                 2
 #define NAT_RESPONSE                3
@@ -147,14 +147,14 @@ void natnet_parse(unsigned char *in) {
     // Frame number
     int frameNumber = 0; memcpy(&frameNumber, ptr, 4); ptr += 4;
     printf_natnet("Frame # : %d\n", frameNumber);
-    
+
     // ========== MARKERSETS ==========
     // Number of data sets (markersets, rigidbodies, etc)
     int nMarkerSets = 0; memcpy(&nMarkerSets, ptr, 4); ptr += 4;
     printf_natnet("Marker Set Count : %d\n", nMarkerSets);
 
     for (i=0; i < nMarkerSets; i++)
-    {    
+    {
       // Markerset name
       char szName[256];
       strcpy(szName, ptr);
@@ -464,7 +464,7 @@ gboolean timeout_transmit_callback(gpointer data) {
     rigidBodies[i].nVelocityTransmit++;
     if(rigidBodies[i].nVelocitySamples >= min_velocity_samples) {
       // Calculate the derevative of the sum to get the correct velocity     (1 / freq_transmit) * (samples / total_samples)
-      double sample_time = //((double)rigidBodies[i].nVelocitySamples / (double)rigidBodies[i].totalVelocitySamples) / 
+      double sample_time = //((double)rigidBodies[i].nVelocitySamples / (double)rigidBodies[i].totalVelocitySamples) /
                               ((double)rigidBodies[i].nVelocityTransmit / (double)freq_transmit);
       rigidBodies[i].vel_x = rigidBodies[i].vel_x / sample_time;
       rigidBodies[i].vel_y = rigidBodies[i].vel_y / sample_time;
@@ -492,8 +492,8 @@ gboolean timeout_transmit_callback(gpointer data) {
 
     printf_debug("[%d -> %d]Samples: %d\t%d\t\tTiming: %3.3f latency\n", rigidBodies[i].id, aircrafts[rigidBodies[i].id].ac_id
       , rigidBodies[i].nSamples, rigidBodies[i].nVelocitySamples, natnet_latency);
-    printf_debug("    Heading: %f\t\tPosition: %f\t%f\t%f\t\tVelocity: %f\t%f\t%f\n", DegOfRad(heading), 
-      rigidBodies[i].x, rigidBodies[i].y, rigidBodies[i].z, 
+    printf_debug("    Heading: %f\t\tPosition: %f\t%f\t%f\t\tVelocity: %f\t%f\t%f\n", DegOfRad(heading),
+      rigidBodies[i].x, rigidBodies[i].y, rigidBodies[i].z,
       rigidBodies[i].ecef_vel.x, rigidBodies[i].ecef_vel.y, rigidBodies[i].ecef_vel.z);
 
     // Transmit the REMOTE_GPS packet on the ivy bus
@@ -545,10 +545,10 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data) 
   return TRUE;
 }
 
- 
+
 /** Print the program help */
 void print_help(char* filename) {
-  static const char *usage = 
+  static const char *usage =
     "Usage: %s [options]\n"
     " Options :\n"
     "   -h, --help                Display this help\n"
@@ -595,7 +595,7 @@ static void parse_options(int argc, char** argv) {
     // Set the verbosity level
     if(strcmp(argv[i], "--verbosity") == 0 || strcmp(argv[i], "-v") == 0) {
       check_argcount(argc, argv, i, 1);
-      
+
       verbose = atoi(argv[++i]);
     }
 
@@ -743,7 +743,7 @@ int main(int argc, char** argv)
   IvyStart(ivy_bus);
 
   // Create the main timers
-  printf_debug("Starting transmitting and sampling timeouts (transmitting frequency: %dHz, minimum velocity samples: %d)\n", 
+  printf_debug("Starting transmitting and sampling timeouts (transmitting frequency: %dHz, minimum velocity samples: %d)\n",
     freq_transmit, min_velocity_samples);
   g_timeout_add(1000/freq_transmit, timeout_transmit_callback, NULL);
 

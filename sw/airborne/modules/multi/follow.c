@@ -48,7 +48,7 @@
 #endif
 
 void follow_init( void ) {
-  
+
 }
 
 void follow_change_wp( unsigned char* buffer ) {

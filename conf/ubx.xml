@@ -210,7 +210,7 @@
 
   <class name="RXM" ID="0x02">
 
-<!-- 
+<!--
 Only available with raw data product variant.
 This message contains all information needed to be able to generate a RINEX observation
 file.

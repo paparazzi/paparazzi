@@ -1,6 +1,6 @@
 /*
  * Paparazzi ublox gps rx configurator $Id$
- *  
+ *
  * Copyright (C) 2005 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,10 +18,10 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
- 
+
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -49,7 +49,7 @@
 
 /* **************** no user servicable part below this line **************** */
 
-  
+
 #define SYNC_CHAR_1     0xB5
 #define SYNC_CHAR_2     0x62
 #define BLANK_CHAR      ' '
@@ -132,7 +132,7 @@ static speed_t int_to_baud(unsigned int value)
 int wait_for_ack( unsigned char* data, int serial_fd )
 {
     /* the acknowledge buffer to check if the gps understood it */
-    unsigned char ack_ack[ACK_ACK_LENGTH] = { 
+    unsigned char ack_ack[ACK_ACK_LENGTH] = {
         SYNC_CHAR_1, SYNC_CHAR_2, ACK, ACK_ACK, 0x02, 0x00 };
     struct timeval select_tv;
     fd_set read_fd_set;
@@ -142,7 +142,7 @@ int wait_for_ack( unsigned char* data, int serial_fd )
     unsigned char data_temp;
 
     ack_index = 0;
-            
+
     /* calc ACK checksum */
     ack_ack[6] = *(data+2);
     ack_ack[7] = *(data+3);
@@ -157,7 +157,7 @@ int wait_for_ack( unsigned char* data, int serial_fd )
 
     /* 900 msec timeout for reply */
     select_tv.tv_sec = 0;
-    select_tv.tv_usec = 900000; 
+    select_tv.tv_usec = 900000;
 
     while (1)
     {
@@ -206,10 +206,10 @@ int main (int argc, char **argv)
     /* this packet saves the just sent CFG commands */
     unsigned char cfg_cfg[CFG_CFG_LENGTH] = {
         SYNC_CHAR_1, SYNC_CHAR_2, CFG, CFG_CFG, 0x0C, 0x00,
-        0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00,
         0xFF, 0xFF, 0xFF, 0xFF,
         0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00 }; 
+        0x00, 0x00 };
     unsigned char data_temp;
 
     FILE *in_file;
@@ -238,29 +238,29 @@ int main (int argc, char **argv)
                 out_file_name = optarg;
                 break;
         }
-    }    
-    
+    }
+
     if (optind == argc - 1)
     {
         in_file_name = argv[ optind ];
         ++optind;
     }
-    
+
     if (in_file_name == NULL)
     {
 //        fprintf(stderr, usage_str);
-        fprintf(stderr, 
+        fprintf(stderr,
                 "ublox_conf\nConfigures u-blox GPS receivers\n");
         fprintf(stderr,
                 "  <file>    : configuration file name (example: %s)\n",
                 IN_FILE_NAME);
-        fprintf(stderr, 
-                "  -d <dev>  : GPS device name (default: %s)\n", 
+        fprintf(stderr,
+                "  -d <dev>  : GPS device name (default: %s)\n",
                 OUT_FILE_NAME);
-        fprintf(stderr, 
+        fprintf(stderr,
                 "  -b <baud> : initial GPS receiver baud rate (default: %d)\n",
                 DEFAULT_BAUDRATE);
-        fprintf(stderr, 
+        fprintf(stderr,
                 "  -s <0|1>  : save config to Flash/battery backed RAM (default: %d)\n",
                 SAVE_PERMANENT);
         fprintf(stderr,
@@ -287,54 +287,54 @@ int main (int argc, char **argv)
         return( -1 );
     }
 
-    if (tcgetattr(serial_fd, &orig_termios)) 
+    if (tcgetattr(serial_fd, &orig_termios))
     {
         perror("getting modem serial device attr");
         return( -1 );
     }
 
     cur_termios = orig_termios;
-    
+
     /* input modes */
     cur_termios.c_iflag &= ~(IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
                            |ICRNL |IXON|IXANY|IXOFF|IMAXBEL);
-    
+
     /* IGNCR does not pass 0x0D */
     cur_termios.c_iflag |= BRKINT;
-    
+
     /* output_flags */
     cur_termios.c_oflag  &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
-    
+
     /* control modes */
     cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
     cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
-    
+
     /* local modes */
     cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
     cur_termios.c_lflag |= NOFLSH;
-    
+
     if (cfsetispeed(&cur_termios, B0))
     {
         perror("setting input modem serial device speed");
         return( -1 );
     }
-    
+
     if (cfsetospeed(&cur_termios, br))
     {
         perror("setting modem serial device speed");
         return( -1 );
     }
-    
+
     if (tcsetattr(serial_fd, TCSADRAIN, &cur_termios))
     {
         perror("setting modem serial device attr");
         return( -1 );
     }
-  
+
     while (!feof(in_file))
     {
         /* search for first ' ' character */
-        while( ((data_temp = fgetc(in_file)) != BLANK_CHAR) && 
+        while( ((data_temp = fgetc(in_file)) != BLANK_CHAR) &&
                (!feof(in_file)) )
         {
             printf("%c", data_temp);
@@ -349,7 +349,7 @@ int main (int argc, char **argv)
         }
 
         /* search for second ' ' character */
-        while( (fgetc(in_file) != BLANK_CHAR) && 
+        while( (fgetc(in_file) != BLANK_CHAR) &&
                (!feof(in_file)) ){}
 
         if (feof(in_file)) break;
@@ -383,7 +383,7 @@ int main (int argc, char **argv)
             }
 
             data_temp = fgetc(in_file);
-    
+
             if ( (data_temp <= '9') && (data_temp >= '0') )
             {
                 data[count] += (data_temp - '0');
@@ -405,7 +405,7 @@ int main (int argc, char **argv)
             }
             count++;
         }
-        while( (fgetc(in_file) == BLANK_CHAR) && 
+        while( (fgetc(in_file) == BLANK_CHAR) &&
                (!feof(in_file)) );
 
         if ( (data[4] + (data[5] << 8) + 4) != count-2)
@@ -423,10 +423,10 @@ int main (int argc, char **argv)
             data[count]   = data[count]   + data[i];
             data[count+1] = data[count+1] + data[count];
         }
-        
+
         /* send data */
         write(serial_fd, data, count+2);
-       
+
         /* did we configure something: check for acknowledge */
         if (data[2] == CFG)
         {
@@ -437,7 +437,7 @@ int main (int argc, char **argv)
                        (data[6+9] << 8) +
                        (data[6+10] << 16) +
                        (data[6+11] << 24);
-        
+
                 if (data[6] == ublox_port)
                 {
                     sleep(1);
@@ -467,7 +467,7 @@ int main (int argc, char **argv)
                     }
                 }
             }
-            
+
             wait_for_ack( data, serial_fd );
         }
         /* monitor command? */
@@ -489,8 +489,8 @@ int main (int argc, char **argv)
             printf("-\n");
         }
 
-    }    
-    
+    }
+
     /* save it forever? */
     if (save_perm != 0)
     {
@@ -501,12 +501,12 @@ int main (int argc, char **argv)
             cfg_cfg[count]   = cfg_cfg[count]   + cfg_cfg[i];
             cfg_cfg[count+1] = cfg_cfg[count+1] + cfg_cfg[count];
         }
-        
+
         /* send data */
         write(serial_fd, cfg_cfg, count+2);
-        
+
         wait_for_ack( cfg_cfg, serial_fd );
-    }        
+    }
 
     fclose(in_file);
     close(serial_fd);

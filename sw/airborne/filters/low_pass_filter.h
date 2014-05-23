@@ -202,7 +202,7 @@ static inline void init_second_order_low_pass_int(struct SecondOrderLowPass_int*
   filter->b[0] = BFP_OF_REAL(1, INT32_FILT_FRAC);
   filter->b[1] = 2*filter->b[0];
   filter->i[0] = filter->i[1] = filter->o[0] = filter->o[1] = value;
-  filter->loop_gain = BFP_OF_REAL(loop_gain_f, INT32_FILT_FRAC);  
+  filter->loop_gain = BFP_OF_REAL(loop_gain_f, INT32_FILT_FRAC);
 }
 
 /** Update second order low pass filter state with a new value(fixed point version).
@@ -217,7 +217,7 @@ static inline int32_t update_second_order_low_pass_int(struct SecondOrderLowPass
     + filter->b[0] * filter->i[1]
     - filter->a[0] * filter->o[0]
     - filter->a[1] * filter->o[1];
-  
+
   filter->i[1] = filter->i[0];
   filter->i[0] = value;
   filter->o[1] = filter->o[0];

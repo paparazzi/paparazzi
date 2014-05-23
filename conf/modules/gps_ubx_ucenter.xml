@@ -13,8 +13,8 @@ Automatically configure any Ublox GPS for paparazzi.
 Warning: you still need to tell the driver, which paparazzi port you use.
     </description>
     <define name="GPS_UBX_UCENTER_RATE" value="250" description="Data output rate in ms"/>
-    <define name="GPS_UBX_NAV5_DYNAMICS" 
-            value="NAV5_DYN_PORTABLE|NAV5_DYN_FIXED|NAV5_DYN_STATIONARY|NAV5_DYN_PEDESTRIAN|NAV5_DYN_AUTOMOTIVE|NAV5_DYN_SEA|NAV5_DYN_AIRBORNE_1G|NAV5_DYN_AIRBORNE_2G|NAV5_DYN_AIRBORNE_4G" 
+    <define name="GPS_UBX_NAV5_DYNAMICS"
+            value="NAV5_DYN_PORTABLE|NAV5_DYN_FIXED|NAV5_DYN_STATIONARY|NAV5_DYN_PEDESTRIAN|NAV5_DYN_AUTOMOTIVE|NAV5_DYN_SEA|NAV5_DYN_AIRBORNE_1G|NAV5_DYN_AIRBORNE_2G|NAV5_DYN_AIRBORNE_4G"
             description="Dynamic model used by ublox GPS filter. Default:NAV5_DYN_AIRBORNE_2G"/>
     <define name="USE_GPS_UBX_RXM_RAW" description="Activate raw measurments (only available on U-Blox T versions)"/>
   </doc>
