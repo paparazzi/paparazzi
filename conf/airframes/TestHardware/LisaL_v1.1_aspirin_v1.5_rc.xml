@@ -35,21 +35,6 @@
         <subsystem name="ins"/>
     </firmware>
 
-    <!--
-     <firmware name="lisa_passthrough">
-     <target name="overo_test_passthrough" board="lisa_l_1.1"  >
-     <configure name="HOST"          value="A7"/>
-     <configure name="USER"          value=""/>
-     <configure name="TARGET_DIR"    value="~"/>
-     <configure name="PERIODIC_FREQ" value="512"/>
-     </target>
-     <target name="stm_passthrough" board="lisa_l_1.1">
-     <subsystem name="radio_control" type="spektrum"/>
-     <subsystem name="imu" type="b2_v1.2"/>
-     </target>
-     </firmware>
-     -->
-
     <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
         <define name="NB" value="4"/>
         <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>

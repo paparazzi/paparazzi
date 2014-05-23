@@ -171,7 +171,6 @@
  </section>
 
  <modules main_freq="512">
-   <!--load name="vehicle_interface_overo_link.xml"/-->
  </modules>
 
   <firmware name="rotorcraft">

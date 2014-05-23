@@ -152,7 +152,6 @@
  </section>
 
  <modules main_freq="512">
-   <!--load name="vehicle_interface_overo_link.xml"/-->
    <load name="gps_ubx_ucenter.xml"/>
 
    <load name="led_safety_status.xml">
