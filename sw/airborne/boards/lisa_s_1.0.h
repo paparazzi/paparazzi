@@ -1,5 +1,5 @@
-#ifndef CONFIG_LISA_S_0_1_H
-#define CONFIG_LISA_S_0_1_H
+#ifndef CONFIG_LISA_S_1_0_H
+#define CONFIG_LISA_S_1_0_H
 
 #define BOARD_LISA_S
 
@@ -428,4 +428,4 @@
 #define SUPERBITRF_DRDY_PIN GPIO6
 #define SUPERBITRF_FORCE_DSM2 FALSE
 
-#endif /* CONFIG_LISA_S_0_1_H */
+#endif /* CONFIG_LISA_S_1_0_H */

@@ -1,4 +1,5 @@
 <!-- this is a tiny MavRick fixedwing frame equiped with Lisa/S 0.1 -->
+<!-- Using Lisa/S V1.0 board file as it is software compatible. -->
 
 <!--
      Applicable configuration:
@@ -13,7 +14,7 @@
 
   <firmware name="fixedwing">
     <define name="AGR_CLIMB" />
-    <target name="ap" board="lisa_s_0.1"/>
+    <target name="ap" board="lisa_s_1.0"/>
 
     <subsystem name="radio_control" type="superbitrf_rc">
       <define name="RADIO_TRANSMITTER_ID" value="2008496626"/> <!-- TUDelft Dx6i: TX 4 -->
@@ -26,7 +27,7 @@
     <subsystem name="telemetry" type="superbitrf"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="lisa_s_v0.1"/>
+    <subsystem name="imu"     type="lisa_s_v1.0"/>
     <subsystem name="ahrs"    type="float_dcm"/>
       <define name="LISA_S_UPSIDE_DOWN"/>
     <subsystem name="control"/>

@@ -1,4 +1,5 @@
 <!-- this is a quadrocopter frame equiped with Lisa/S 0.1 and generic china pwm motor controllers -->
+<!-- Using Lisa/S 1.0 board file as it is software compatible. -->
 
 <!--
      Applicable configuration:
@@ -185,7 +186,7 @@
  </modules>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_s_0.1">
+    <target name="ap" board="lisa_s_1.0">
       <subsystem name="radio_control" type="superbitrf_rc">
         <define name="RADIO_TRANSMITTER_ID" value="2008496626"/>  <!-- 425044546 -->
         <define name="RADIO_TRANSMITTER_CHAN" value="6"/> <!-- 9 -->
@@ -208,7 +209,7 @@
     </subsystem>
 
     <subsystem name="telemetry" type="superbitrf"/>
-    <subsystem name="imu" type="lisa_s_v0.1"/>
+    <subsystem name="imu" type="lisa_s_v1.0"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
@@ -217,11 +218,11 @@
 
 
   <firmware name="test_progs">
-    <target name="test_sys_time_timer" board="lisa_s_0.1">
+    <target name="test_sys_time_timer" board="lisa_s_1.0">
         <configure name="SYS_TIME_LED" value="none"/>
     </target>
-    <target name="test_telemetry" board="lisa_s_0.1"/>
-    <target name="test_baro_board" board="lisa_s_0.1"/>
-    <target name="test_can" board="lisa_s_0.1"/>
+    <target name="test_telemetry" board="lisa_s_1.0"/>
+    <target name="test_baro_board" board="lisa_s_1.0"/>
+    <target name="test_can" board="lisa_s_1.0"/>
   </firmware>
 </airframe>
