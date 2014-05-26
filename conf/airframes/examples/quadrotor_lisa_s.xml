@@ -1,6 +1,27 @@
 <!-- this is a quadrocopter frame equiped with Lisa/S 1.0 and generic china pwm motor controllers -->
 
 <!--
+     The configuration of the quadrotor looking from the top is the following:
+
+           Front
+             ^
+             |
+
+          Motor5
+            CW
+             |
+             |
+           ,___,
+    Motor4 |   |  Motor1
+     CCW===|   |===CCW
+           |___|
+             |
+             |
+            CW
+          Motor0
+-->
+
+<!--
      Applicable configuration:
      airframe="airframes/examples/quadrotor_lisa_s.xml"
      radio="radios/cockpitSX.xml"
