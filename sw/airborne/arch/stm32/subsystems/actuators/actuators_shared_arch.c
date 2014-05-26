@@ -82,18 +82,19 @@ void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask) {
 
 
   // TIM1, 8 and 9 use APB2 clock, all others APB1
+  // By default the PWM_BASE_FREQ is set to 1MHz thus the timer tick period is 1uS
   if (timer != TIM1 && timer != TIM8 && timer != TIM9) {
-    timer_set_prescaler(timer, (TIMER_APB1_CLK / ONE_MHZ_CLK) - 1); // 1uS
+    timer_set_prescaler(timer, (TIMER_APB1_CLK / PWM_BASE_FREQ) - 1);
   } else {
     // TIM9, 1 and 8 use APB2 clock
-    timer_set_prescaler(timer, (TIMER_APB2_CLK / ONE_MHZ_CLK) - 1);
+    timer_set_prescaler(timer, (TIMER_APB2_CLK / PWM_BASE_FREQ) - 1);
   }
 
   timer_disable_preload(timer);
 
   timer_continuous_mode(timer);
 
-  timer_set_period(timer, (ONE_MHZ_CLK / period) - 1);
+  timer_set_period(timer, (PWM_BASE_FREQ / period) - 1);
 
   /* Disable outputs and configure channel if needed. */
   if (bit_is_set(channels_mask, 0)) {
