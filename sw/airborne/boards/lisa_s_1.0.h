@@ -87,7 +87,7 @@
 #define ADC_CHANNEL_VSUPPLY ADC_1
 #endif
 
-#define DefaultVoltageOfAdc(adc) (0.0045*adc)
+#define DefaultVoltageOfAdc(adc) (0.0049*adc)
 
 
 /* by default activate onboard baro */
