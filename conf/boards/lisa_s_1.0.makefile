@@ -1,12 +1,12 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# lisa_s_0.1.makefile
+# lisa_s_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lisa/S
+# http://wiki.paparazziuav.org/wiki/Lisa/S
 #
 
 BOARD=lisa_s
-BOARD_VERSION=0.1
+BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ARCH=stm32
@@ -15,8 +15,8 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-s.ld
 
 # -----------------------------------------------------------------------
 
-# default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: JTAG, SWD, SERIAL
+# default flash mode is via SWD
+# other possibilities: SERIAL(untested)
 FLASH_MODE ?= SWD
 
 #

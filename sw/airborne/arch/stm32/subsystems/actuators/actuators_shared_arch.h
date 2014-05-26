@@ -47,6 +47,11 @@
 
 #define ONE_MHZ_CLK 1000000
 
+/* Default timer base frequency is 1MHz */
+#if ! defined(PWM_BASE_FREQ)
+#define PWM_BASE_FREQ ONE_MHZ_CLK
+#endif
+
 #ifdef STM32F1
 /**
  * HCLK = 72MHz, Timer clock also 72MHz since
