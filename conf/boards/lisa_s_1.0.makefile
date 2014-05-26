@@ -2,7 +2,7 @@
 #
 # lisa_s_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lisa/S
+# http://wiki.paparazziuav.org/wiki/Lisa/S
 #
 
 BOARD=lisa_s
@@ -15,8 +15,8 @@ $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-s.ld
 
 # -----------------------------------------------------------------------
 
-# default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: JTAG, SWD, SERIAL
+# default flash mode is via SWD
+# other possibilities: SERIAL(untested)
 FLASH_MODE ?= SWD
 
 #
