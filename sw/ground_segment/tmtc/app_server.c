@@ -97,6 +97,7 @@ typedef struct {
   char settings_path[MAXNAMELENGTH];
   int dl_launch_ind;
   int kill_thr_ind;
+  int flight_altitude_ind;
   wp_data AcWp[MAXWPNUMB];
   bl_data AcBl[MAXWPNUMB];
 } device_names;
@@ -369,7 +370,7 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
     else {
       //Unknown command
       if (verbose) {
-        printf("App Server: Client send an unknown command: %s\n",RecString);
+        printf("App Server: Client send an unknown command or wrong password: %s\n",RecString);
         fflush(stdout);
       }
     }
@@ -556,6 +557,11 @@ void parse_dl_settings(int DevNameIndex, char *filename) {
 
   reader = xmlReaderForFile(filename, NULL, XML_PARSE_NOWARNING | XML_PARSE_NOERROR); /* Dont validate with the DTD */
 
+  // Init some variables (-1 means no settings in xml file)
+  DevNames[DevNameIndex].dl_launch_ind = -1;
+  DevNames[DevNameIndex].kill_thr_ind = -1;
+  DevNames[DevNameIndex].flight_altitude_ind = -1;
+
   xmlChar *name, *value;
   if (reader != NULL) {
     ret = xmlTextReaderRead(reader);
@@ -574,9 +580,11 @@ void parse_dl_settings(int DevNameIndex, char *filename) {
         if (xmlStrEqual(value, (const xmlChar *)"launch")) {
           DevNames[DevNameIndex].dl_launch_ind=valind;
         }
-
         if (xmlStrEqual(value, (const xmlChar *)"kill_throttle")) {
           DevNames[DevNameIndex].kill_thr_ind=valind;
+        }
+        if (xmlStrEqual(value, (const xmlChar *)"flight_altitude")) {
+          DevNames[DevNameIndex].flight_altitude_ind=valind;
         }
         xmlTextReaderNext(reader);
         valind+=1;
@@ -713,6 +721,7 @@ void print_help() {
 }
 
 int main(int argc, char **argv) {
+  int i;
 
   // default password
   AppPass = defaultAppPass;
@@ -726,7 +735,6 @@ int main(int argc, char **argv) {
   if (PprzFolder == NULL) PprzFolder = defaultPprzFolder;
 
   // Parse options
-  int i;
   for (i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
       print_help();
