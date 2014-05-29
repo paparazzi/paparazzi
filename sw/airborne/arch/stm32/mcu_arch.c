@@ -33,6 +33,7 @@
 #include <inttypes.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/cm3/scb.h>
 
@@ -78,3 +79,76 @@ PRINT_CONFIG_MSG("Using 16MHz external clock to PLL it to 168MHz.")
 
 }
 
+#if defined(STM32F1)
+#define RCC_CFGR_PPRE2_SHIFT			11
+#define RCC_CFGR_PPRE2				(7 << RCC_CFGR_PPRE2_SHIFT)
+
+#define RCC_CFGR_PPRE1_SHIFT			8
+#define RCC_CFGR_PPRE1				(7 << RCC_CFGR_PPRE1_SHIFT)
+
+static inline uint32_t rcc_get_ppre1(void)
+{
+  return RCC_CFGR & RCC_CFGR_PPRE1;
+}
+
+static inline uint32_t rcc_get_ppre2(void)
+{
+  return RCC_CFGR & RCC_CFGR_PPRE2;
+}
+#elif defined(STM32F4)
+static inline uint32_t rcc_get_ppre1(void)
+{
+  return RCC_CFGR &((1 << 10) | (1 << 11) | (1 << 12));
+}
+
+static inline uint32_t rcc_get_ppre2(void)
+{
+  return RCC_CFGR &((1 << 13) | (1 << 14) | (1 << 15));
+}
+#endif
+
+/** @brief Get Timer clock frequency (before prescaling)
+ * Only valid if using the internal clock for the timer.
+ * Currently implemented for STM32F1x and STM32F405xx/407xx STM32F415xx/417xx.
+ * Not valid for STM32F42xxx and STM32F43xxx.
+ * @param[in] timer_peripheral Unsigned int32. Timer register address base
+ * @return Unsigned int32. Timer base frequency
+ */
+uint32_t timer_get_frequency(uint32_t timer_peripheral)
+{
+  switch (timer_peripheral) {
+    // Timers on APB1
+#if ADVANCED_TIMERS
+    case TIM1:
+    case TIM8:
+#endif
+    case TIM9:
+    case TIM10:
+    case TIM11:
+      if (!rcc_get_ppre2())
+        // no APB2 prescaler
+        return rcc_ppre2_frequency;
+      else
+        return rcc_ppre2_frequency * 2;
+
+    // timers on APB2
+    case TIM2:
+    case TIM3:
+    case TIM4:
+    case TIM5:
+    case TIM6:
+    case TIM7:
+    case TIM12:
+    case TIM13:
+    case TIM14:
+      if (!rcc_get_ppre1())
+        // no APB2 prescaler
+        return rcc_ppre1_frequency;
+      else
+        return rcc_ppre1_frequency * 2;
+    default:
+      // other timers currently not supported
+      break;
+  }
+  return 0;
+}
