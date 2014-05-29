@@ -495,9 +495,8 @@ void SpektrumTimerInit( void ) {
   /* enable TIM6 clock */
   rcc_periph_clock_enable(RCC_TIM6);
 
-  /* TIM6 configuration */
-  timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT,
-             TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
+  /* TIM6 configuration, always counts up */
+  timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT, 0, 0);
   /* 100 microseconds ie 0.1 millisecond */
   timer_set_period(TIM6, TIM_TICS_FOR_100us-1);
   timer_set_prescaler(TIM6, ((TIM6_CLK / TIM_FREQ_1000000) - 1));
