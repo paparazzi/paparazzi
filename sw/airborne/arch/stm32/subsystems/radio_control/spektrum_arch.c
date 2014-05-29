@@ -30,6 +30,7 @@
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/gpio.h"
+#include "mcu_periph/sys_time.h"
 
 #include BOARD_CONFIG
 
@@ -37,9 +38,6 @@
 #define MAX_SPEKTRUM_FRAMES 2
 #define MAX_SPEKTRUM_CHANNELS 16
 
-#define MAX_DELAY   INT16_MAX
-/* the frequency of the delay timer */
-#define DELAY_TIM_FREQUENCY 1000000
 /* Number of low pulses sent to satellite receivers */
 #define MASTER_RECEIVER_PULSES 5
 #define SLAVE_RECEIVER_PULSES 6
@@ -49,6 +47,21 @@
 #define MIN_FRAME_SPACE  70  // 7ms
 #define MAX_BYTE_SPACE  3   // .3ms
 
+#ifdef STM32F1
+/**
+ * HCLK = 72MHz, Timer clock also 72MHz since
+ * TIM1_CLK = APB2 = 72MHz
+ * TIM2_CLK = 2 * APB1 = 2 * 32MHz
+ */
+#define TIM6_CLK       AHB_CLK
+#endif
+#ifdef STM32F4
+/* Since APB prescaler != 1 :
+ * Timer clock frequency (before prescaling) is twice the frequency
+ * of the APB domain to which the timer is connected.
+ */
+#define TIM6_CLK       (rcc_ppre1_frequency * 2)
+#endif
 
 #ifndef NVIC_TIM6_IRQ_PRIO
 #define NVIC_TIM6_IRQ_PRIO 2
@@ -136,12 +149,6 @@ void SpektrumUartInit(void);
 void SpektrumTimerInit(void);
 
 void tim6_irq_handler(void);
-/* wait busy loop, microseconds */
-static void DelayUs( uint16_t uSecs );
-/* wait busy loop, milliseconds */
-static void DelayMs( uint16_t mSecs );
-/* setup timer 1 for busy wait delays */
-static void SpektrumDelayInit( void );
 
 
  /*****************************************************************************
@@ -493,7 +500,7 @@ void SpektrumTimerInit( void ) {
              TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   /* 100 microseconds ie 0.1 millisecond */
   timer_set_period(TIM6, TIM_TICS_FOR_100us-1);
-  timer_set_prescaler(TIM6, ((AHB_CLK / TIM_FREQ_1000000) - 1));
+  timer_set_prescaler(TIM6, ((TIM6_CLK / TIM_FREQ_1000000) - 1));
 
   /* Enable TIM6 interrupts */
 #ifdef STM32F1
@@ -666,9 +673,6 @@ void radio_control_spektrum_try_bind(void) {
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
     return;
 
-  /* bind initiated, initialise the delay timer */
-  SpektrumDelayInit();
-
   /* initialise the uarts rx pins as  GPIOS */
   gpio_enable_clock(PrimaryUart(_BANK));
 
@@ -691,72 +695,23 @@ void radio_control_spektrum_try_bind(void) {
 
   /* We have no idea how long the window for allowing binding after
      power up is. This works for the moment but will need revisiting */
-  DelayMs(61);
+  sys_time_usleep(61000);
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++)
   {
     gpio_clear(PrimaryUart(_BANK), PrimaryUart(_PIN));
-    DelayUs(118);
+    sys_time_usleep(118);
     gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
-    DelayUs(122);
+    sys_time_usleep(122);
   }
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++)
   {
     gpio_clear(SecondaryUart(_BANK), SecondaryUart(_PIN));
-    DelayUs(120);
+    sys_time_usleep(120);
     gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
-    DelayUs(120);
+    sys_time_usleep(120);
   }
 #endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */
-}
-
-/*****************************************************************************
- *
- * Functions to implement busy wait loops with micro second granularity
- *
- *****************************************************************************/
-
-/* set TIM6 to run at DELAY_TIM_FREQUENCY */
-static void SpektrumDelayInit( void ) {
-
-  /* Enable timer clock */
-  rcc_periph_clock_enable(RCC_TIM6);
-
-  /* Make sure the timer is reset to default values. */
-  timer_reset(TIM6);
-
-  /* Time base configuration */
-  /* Mode does not need to be set as the default reset values are ok. */
-  timer_set_period(TIM6, UINT16_MAX);
-  timer_set_prescaler(TIM6, (AHB_CLK / DELAY_TIM_FREQUENCY) - 1);
-
-  /*
-   * Let's start the timer late in the cycle to force an update event before
-   * we start using this timer for generating delays. Otherwise the prescaler
-   * value does not seem to be taken over by the timer, resulting in way too
-   * high counting frequency. There does not seem to be a force update bit on
-   * TIM6 is there?
-   */
-  TIM6_CNT = 65534;
-
-  /* Enable counter */
-  timer_enable_counter(TIM6);
-}
-
-/* wait busy loop, microseconds */
-static void DelayUs( uint16_t uSecs ) {
-  uint16_t start = TIM6_CNT;
-
-  /* use 16 bit count wrap around */
-  while((TIM6_CNT - start) <= uSecs);
-}
-
-/* wait busy loop, milliseconds */
-static void DelayMs( uint16_t mSecs ) {
-
-  for(int i = 0; i < mSecs; i++) {
-    DelayUs(DELAY_TIM_FREQUENCY / 1000);
-  }
 }
