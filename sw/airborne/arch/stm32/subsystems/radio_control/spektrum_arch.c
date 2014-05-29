@@ -143,6 +143,17 @@ static void DelayMs( uint16_t mSecs );
 /* setup timer 1 for busy wait delays */
 static void SpektrumDelayInit( void );
 
+/** Set polarity using RC_POLARITY_GPIO.
+ * SBUS signal has a reversed polarity compared to normal UART
+ * this allows to using hardware UART peripheral by changing
+ * the input signal polarity.
+ * Setting this gpio ouput high inverts the signal,
+ * output low sets it to normal polarity.
+ * So for spektrum this is set to normal polarity.
+ */
+#ifndef RC_SET_POLARITY
+#define RC_SET_POLARITY gpio_clear
+#endif
 
  /*****************************************************************************
  *
@@ -155,6 +166,12 @@ void radio_control_impl_init(void) {
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   SecondarySpektrumState.ReSync = 1;
+#endif
+
+  // Set polarity to normal on boards that can change this
+#ifdef RC_POLARITY_GPIO_PORT
+  gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
+  RC_SET_POLARITY(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
 #endif
 
   SpektrumTimerInit();
