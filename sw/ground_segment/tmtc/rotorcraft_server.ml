@@ -30,8 +30,6 @@ module LL = Latlong
 module U = Unix
 module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
 
-let nav_ref_alt = ref 0.
-let nav_ref_hmsl = ref 0.
 
 (* FIXME: bound the loop *)
 let rec norm_course =
@@ -168,7 +166,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         and vnorth = foi32value "vnorth" /. speed_frac in
         a.gspeed  <- sqrt(vnorth*.vnorth +. veast*.veast);
         a.climb   <- foi32value "vup" /. speed_frac;
-        a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+        a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
         a.course  <- norm_course ((Rad>>Deg) (foi32value "psi" /. angle_frac));
         a.heading <- norm_course (foi32value "psi" /. angle_frac);
         a.roll    <- foi32value "phi" /. angle_frac;
@@ -200,6 +198,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let nav_ref_ecef = LL.make_ecef [| x; y; z |] in
       a.nav_ref <- Some (Ltp nav_ref_ecef);
       a.d_hmsl <- hmsl -. alt;
+      a.ground_alt <- hmsl;
     | "ROTORCRAFT_NAV_STATUS" ->
       a.block_time <- ivalue "block_time";
       a.stage_time <- ivalue "stage_time";

@@ -1288,10 +1288,12 @@ let listen_waypoint_moved = fun () ->
     let wp_id = Pprz.int_assoc "wp_id" vs in
     let a = fun s -> Pprz.float_assoc s vs in
     let geo = { posn_lat = (Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") }
-    and altitude = a "alt" in
+    and altitude = a "alt"
+    and ground_alt = a "ground_alt" in
 
     try
       let w = ac.fp_group#get_wp wp_id in
+      w#set_ground_alt ground_alt;
       w#set ~altitude ~update:true geo
     with
         Not_found -> () (* Silently ignore unknown waypoints *)

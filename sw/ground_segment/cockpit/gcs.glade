@@ -171,7 +171,7 @@
                                         <child>
                                           <widget class="GtkEventBox" id="eventbox14">
                                             <property name="visible">True</property>
-                                            <property name="tooltip" translatable="yes">Above Ground Level (m), climb indicator, vertical speed (m/s)</property>
+                                            <property name="tooltip" translatable="yes">Above Ground Level from SRTM if available, ground reference otherwise (m), climb indicator, vertical speed (m/s)</property>
                                             <child>
                                               <widget class="GtkDrawingArea" id="drawingarea_agl">
                                                 <property name="visible">True</property>

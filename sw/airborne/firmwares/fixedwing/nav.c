@@ -452,7 +452,7 @@ void nav_periodic_task(void) {
 
 static void send_nav_ref(void) {
   DOWNLINK_SEND_NAVIGATION_REF(DefaultChannel, DefaultDevice,
-      &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
+      &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0, &ground_alt);
 }
 
 static void send_nav(void) {

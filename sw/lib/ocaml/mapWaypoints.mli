@@ -52,6 +52,7 @@ class waypoint :
     method move : float -> float -> unit
     method name : string
     method set : ?altitude:float -> ?update:bool -> Latlong.geographic -> unit
+    method set_ground_alt : float -> unit
     method set_name : string -> unit
     method xy : float * float
     method zoom : float -> unit

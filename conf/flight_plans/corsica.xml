@@ -21,7 +21,7 @@
   </includes>
 
   <exceptions>
-    <exception cond="Or(! InsideZRT(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 300)" deroute="Kill"/>
+    <exception cond="Or(! InsideZRT(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 300)" deroute="Kill"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -33,7 +33,7 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby Menton"/>
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby Menton"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="autopilot_flight_time"/>
       <go throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
@@ -66,7 +66,7 @@
       <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>
     <block name="final">
-      <exception cond="ground_alt + 10 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">
@@ -74,7 +74,7 @@
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Kill">
-      <exception cond="And(InsideZRT(GetPosX(), GetPosY()), ground_alt + 300 > GetPosAlt())" deroute="Resume Mission"/>
+      <exception cond="And(InsideZRT(GetPosX(), GetPosY()), GetAltRef() + 300 > GetPosAlt())" deroute="Resume Mission"/>
       <attitude roll="0" vmode="throttle" throttle="0.2"/>
     </block>
     <block name="Resume Mission">

@@ -58,8 +58,6 @@ struct EnuCoor_i nav_last_point;
 
 uint8_t last_wp __attribute__ ((unused));
 
-int32_t ground_alt;
-
 /** Maximum distance from HOME waypoint before going into failsafe mode */
 #ifndef FAILSAFE_MODE_DISTANCE
 #define FAILSAFE_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
@@ -149,7 +147,6 @@ void nav_init(void) {
   }
   nav_block = 0;
   nav_stage = 0;
-  ground_alt = POS_BFP_OF_REAL(GROUND_ALT);
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
   flight_altitude = SECURITY_ALT;
@@ -380,13 +377,11 @@ static inline void nav_set_altitude( void ) {
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
   ins_reset_local_origin();
-  ground_alt = POS_BFP_OF_REAL(state.ned_origin_f.hmsl);
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
   ins_reset_altitude_ref();
-  ground_alt = POS_BFP_OF_REAL(state.ned_origin_f.hmsl);
   return 0;
 }
 

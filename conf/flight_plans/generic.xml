@@ -24,7 +24,7 @@
       <circle radius="-75" wp="HOME"/>
     </block>
     <block name="climb 75">
-      <circle radius="50+(GetPosAlt()-ground_alt)/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10>PowerVoltage()"/>
+      <circle radius="50+(GetPosAlt()-GetAltRef())/2" wp="1" throttle="0.75" pitch="15" vmode="throttle" until="10>PowerVoltage()"/>
     </block>
     <block name="stack 1">
       <circle radius="GetPosAlt()/2" wp="1"/>

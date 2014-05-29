@@ -74,6 +74,7 @@ object (self)
   val label = new CL.widget ~name:name ~color:"white" s 0. wpt_group
   val mutable name = name (* FIXME: already in label ! *)
   val mutable alt = alt
+  val mutable ground_alt = 0.
   val mutable moved = None
   val mutable deleted = false
   val mutable commit_cb = None
@@ -145,7 +146,7 @@ object (self)
     ea#set_adjustment adj;
     ea#set_value alt; (* this should be done by set_adjustment but seems to fail on ubuntu 13.10 (at least) *)
 
-    let agl = alt -. float (try Srtm.of_wgs84 initial_wgs84 with _ -> 0) in
+    let agl = alt -. (try float (Srtm.of_wgs84 initial_wgs84) with _ -> ground_alt) in
     let agl_lab  = GMisc.label ~text:(sprintf " AGL: %4.0fm" agl) ~packing:ha#add () in
     let plus10= GButton.button ~label:"+10" ~packing:ha#add () in
     let change_alt = fun x ->
@@ -202,7 +203,7 @@ object (self)
       try
         set_coordinates ();
         let wgs84 = self#pos in
-        let agl  = ea#value -. float (try Srtm.of_wgs84 wgs84 with _ -> 0) in
+        let agl  = ea#value -. (try float (Srtm.of_wgs84 wgs84) with _ -> ground_alt) in
         agl_lab#set_text (sprintf " AGL: %4.0fm" agl)
       with _ -> ()
     in
@@ -282,6 +283,7 @@ object (self)
           if update then updated ()
       | (None, false) | (Some _, true) -> ()
       | Some _, false -> self#reset_moved ()
+  method set_ground_alt ga = ground_alt <- ga
   method delete () =
     deleted <- true; (* BOF *)
     wpt_group#destroy ()

@@ -61,7 +61,7 @@ float varsweepsize=110;
     </block>
 
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <go wp="CLIMB"/>
     </block>
@@ -111,8 +111,8 @@ float varsweepsize=110;
     <block name="Monter">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
-      <circle alt="ground_alt+105" radius="nav_radius" wp="MOB"/>
-      <exception cond="GetPosAlt() > ground_alt+100" deroute="Carto survey S1-S2-S3"/>
+      <circle alt="GetAltRef()+105" radius="nav_radius" wp="MOB"/>
+      <exception cond="GetPosAlt() > GetAltRef()+100" deroute="Carto survey S1-S2-S3"/>
     </block>
 
 
@@ -139,8 +139,8 @@ float varsweepsize=110;
     <block name="Descendre">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
-      <circle alt="ground_alt+35" radius="nav_radius" wp="MOB"/>
-      <exception cond="ground_alt+40 > GetPosAlt()   " deroute="Carto survey SP1-SP2-SP3 fin"/>
+      <circle alt="GetAltRef()+35" radius="nav_radius" wp="MOB"/>
+      <exception cond="GetAltRef()+40 > GetPosAlt()   " deroute="Carto survey SP1-SP2-SP3 fin"/>
     </block>
 
     <block name="Carto survey SP1-SP2-SP3 fin" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">

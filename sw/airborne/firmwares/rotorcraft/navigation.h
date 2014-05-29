@@ -47,9 +47,6 @@ extern void nav_run(void);
 
 extern uint8_t last_wp __attribute__ ((unused));
 
-/** ground reference altitude in meters << #INT32_POS_FRAC */
-extern int32_t ground_alt;
-
 extern uint8_t horizontal_mode;
 extern uint8_t nav_segment_start, nav_segment_end;
 extern uint8_t nav_circle_centre;
@@ -209,13 +206,14 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time);
 
 #define navigation_SetFlightAltitude(x) { \
   flight_altitude = x; \
-  nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude) - ground_alt; \
+  nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude - state.ned_origin_f.hmsl); \
 }
 
 
 #define GetPosX() (stateGetPositionEnu_f()->x)
 #define GetPosY() (stateGetPositionEnu_f()->y)
-#define GetPosAlt() (stateGetPositionEnu_f()->z+ground_alt)
+#define GetPosAlt() (stateGetPositionEnu_f()->z+state.ned_origin_f.hmsl)
+#define GetAltRef() (state.ned_origin_f.hmsl)
 
 
 extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp );

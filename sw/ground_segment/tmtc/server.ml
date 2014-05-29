@@ -294,7 +294,8 @@ let send_moved_waypoints = fun a ->
          "wp_id", Pprz.Int wp_id;
          "long", Pprz.Float ((Rad>>Deg)geo.posn_long);
          "lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
-         "alt", Pprz.Float wp.altitude] in
+         "alt", Pprz.Float wp.altitude;
+         "ground_alt", Pprz.Float (try float (Srtm.of_wgs84 geo) with _ -> a.ground_alt)] in
       Ground_Pprz.message_send my_id "WAYPOINT_MOVED" vs)
     a.waypoints
 

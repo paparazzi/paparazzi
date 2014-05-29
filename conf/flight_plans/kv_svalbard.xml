@@ -35,7 +35,7 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > ground_alt+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB"/>
@@ -47,7 +47,7 @@
       <circle radius="nav_radius" wp="PROFILE"/>
     </block>
     <block name="profile_down" strip_button="Profile Down" strip_icon="down_profile.png">
-      <circle radius="nav_radius" wp="PROFILE" vmode="throttle" throttle="0" pitch="RadOfDeg(-10)"  until="(ground_alt+150 > GetPosAlt())"/>
+      <circle radius="nav_radius" wp="PROFILE" vmode="throttle" throttle="0" pitch="RadOfDeg(-10)"  until="(GetAltRef()+150 > GetPosAlt())"/>
     <deroute block="Standby"/>
     </block>
     <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">

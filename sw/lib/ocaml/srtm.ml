@@ -79,6 +79,9 @@ let of_wgs84 = fun geo ->
 let of_utm = fun utm ->
   of_wgs84 (Latlong.of_utm WGS84 utm)
 
+let available = fun geo ->
+  try ignore(of_wgs84 geo); true with _ -> false
+
 let area_of_tile = fun tile ->
   let area = open_compressed "srtm.data.bz2" in
   let rec _area_of_tile = fun () ->
