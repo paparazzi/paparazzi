@@ -349,10 +349,23 @@
 /*
  * Spektrum
  */
-/* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO8
-#define SPEKTRUM_BIND_PIN_PORT GPIOA
 
+/* The line that is pulled low at power up to initiate the bind process
+ * PB15: AUX4
+ */
+#define SPEKTRUM_BIND_PIN GPIO15
+#define SPEKTRUM_BIND_PIN_PORT GPIOB
+
+/* The line used to send the pulse train for the bind process
+ * When using UART2 on Apogee, this as to be a different pin than the uart2 rx
+ * Default pin for this is PA8: PPM_IN
+ */
+#ifndef SPEKTRUM_PRIMARY_BIND_CONF_PORT
+#define SPEKTRUM_PRIMARY_BIND_CONF_PORT GPIOA
+#define SPEKTRUM_PRIMARY_BIND_CONF_PIN GPIO8
+#endif
+
+/* Configuration of UART2 for Spektrum */
 #define SPEKTRUM_UART2_RCC RCC_USART2
 #define SPEKTRUM_UART2_BANK GPIOA
 #define SPEKTRUM_UART2_PIN GPIO3

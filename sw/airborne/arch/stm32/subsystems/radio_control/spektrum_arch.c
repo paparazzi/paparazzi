@@ -651,9 +651,24 @@ void SecondaryUart(_ISR)(void) {
  *
  * The following functions provide functionality to allow binding of
  * spektrum satellite receivers. The pulse train sent to them means
- * that Lisa is emulating a 9 channel JR-R921 24.
+ * that AP is emulating a 9 channel JR-R921 24.
+ * By default, the same pin is used for pulse train and uart rx, but
+ * they can be different if needed
  *
  *****************************************************************************/
+#ifndef SPEKTRUM_PRIMARY_BIND_CONF_PORT
+#define SPEKTRUM_PRIMARY_BIND_CONF_PORT PrimaryUart(_BANK)
+#endif
+#ifndef SPEKTRUM_PRIMARY_BIND_CONF_PIN
+#define SPEKTRUM_PRIMARY_BIND_CONF_PIN PrimaryUart(_PIN)
+#endif
+#ifndef SPEKTRUM_SECONDARY_BIND_CONF_PORT
+#define SPEKTRUM_SECONDARY_BIND_CONF_PORT SecondaryUart(_BANK)
+#endif
+#ifndef SPEKTRUM_SECONDARY_BIND_CONF_PIN
+#define SPEKTRUM_SECONDARY_BIND_CONF_PIN SecondaryUart(_PIN)
+#endif
+
 /*****************************************************************************
  *
  * radio_control_spektrum_try_bind(void) must called on powerup as spektrum
@@ -673,23 +688,23 @@ void radio_control_spektrum_try_bind(void) {
     return;
 
   /* initialise the uarts rx pins as  GPIOS */
-  gpio_enable_clock(PrimaryUart(_BANK));
+  gpio_enable_clock(SPEKTRUM_PRIMARY_BIND_CONF_PORT);
 
   /* Master receiver Rx push-pull */
-  gpio_setup_output(PrimaryUart(_BANK), PrimaryUart(_PIN));
+  gpio_setup_output(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
 
   /* Master receiver RX line, drive high */
-  gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
+  gpio_set(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 
-  gpio_enable_clock(SecondaryUart(_BANK));
+  gpio_enable_clock(SPEKTRUM_SECONDARY_BIND_CONF_PORT);
 
   /* Slave receiver Rx push-pull */
-  gpio_setup_output(SecondaryUart(_BANK), SecondaryUart(_PIN));
+  gpio_setup_output(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
 
   /* Slave receiver RX line, drive high */
-  gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
+  gpio_set(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
 #endif
 
   /* We have no idea how long the window for allowing binding after
@@ -698,18 +713,18 @@ void radio_control_spektrum_try_bind(void) {
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++)
   {
-    gpio_clear(PrimaryUart(_BANK), PrimaryUart(_PIN));
+    gpio_clear(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
     sys_time_usleep(118);
-    gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
+    gpio_set(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
     sys_time_usleep(122);
   }
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++)
   {
-    gpio_clear(SecondaryUart(_BANK), SecondaryUart(_PIN));
+    gpio_clear(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
     sys_time_usleep(120);
-    gpio_set(SecondaryUart(_BANK), SecondaryUart(_PIN));
+    gpio_set(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
     sys_time_usleep(120);
   }
 #endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */
