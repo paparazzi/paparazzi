@@ -199,5 +199,6 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 #define GetPosX() (stateGetPositionEnu_f()->x)
 #define GetPosY() (stateGetPositionEnu_f()->y)
 #define GetPosAlt() (stateGetPositionUtm_f()->alt)
+#define GetAltRef() (ground_alt)
 
 #endif /* NAV_H */

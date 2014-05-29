@@ -200,6 +200,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define GetPosX() (stateGetPositionEnu_f()->x)
 #define GetPosY() (stateGetPositionEnu_f()->y)
 #define GetPosAlt() (stateGetPositionEnu_f()->z+ground_alt)
+#define GetAltRef() (ground_alt)
 
 
 extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp );
