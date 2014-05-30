@@ -64,6 +64,14 @@ static inline void set_body_state_from_quat(void);
 
 struct AhrsMlkf ahrs_impl;
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+
+static void send_geo_mag(void) {
+  DOWNLINK_SEND_GEO_MAG(DefaultChannel, DefaultDevice,
+                        &ahrs_impl.mag_h.x, &ahrs_impl.mag_h.y, &ahrs_impl.mag_h.z);
+}
+#endif
 
 void ahrs_init(void) {
 
@@ -101,6 +109,9 @@ void ahrs_init(void) {
 
   VECT3_ASSIGN(ahrs_impl.mag_noise, AHRS_MAG_NOISE_X, AHRS_MAG_NOISE_Y, AHRS_MAG_NOISE_Z);
 
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
+#endif
 }
 
 void ahrs_align(void) {

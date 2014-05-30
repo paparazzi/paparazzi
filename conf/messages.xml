@@ -1468,7 +1468,11 @@
       <field name="Pbb"            type="float"/>
   </message>
 
-  <!-- 163 is free -->
+  <message name="GEO_MAG" id="163">
+      <field name="Hx"             type="float"/>
+      <field name="Hy"             type="float"/>
+      <field name="Hz"             type="float"/>
+  </message>
 
   <message name="HFF" id="164">
       <field name="x"              type="float"/>
