@@ -60,7 +60,7 @@ else ifeq ($(FLASH_MODE),DFU-UTIL)
 # DFU flash mode using dfu-util
 DFU_ADDR ?= 0x08000000
 # verify if dfu-util version >= 0.7
-DFU_UTIL_VERSION = $(shell dfu-util --version | head -n 1 | awk '{print $$2}')
+DFU_UTIL_VERSION = $(shell (dfu-util --version 2>/dev/null || echo NotFound 0) | head -n 1 | awk '{print $$2}')
 VERIFY = $(shell echo '$(DFU_UTIL_VERSION)>=0.7' | bc)
 DFU_SIZE ?= $(shell ls -nl $^ | awk '{print $$5}')
 upload: $(OBJDIR)/$(TARGET).bin
