@@ -490,7 +490,8 @@ static void init_ltp(void) {
   double gha[MAXCOEFF];
 
   /* Current date in decimal year, for example 2012.68 */
-  double sdate = 2012.68;
+  /** @FIXME properly get current time */
+  double sdate = 2014.5;
 
   llh_from_jsbsim(&fdm.lla_pos, propagate);
   /* LLA Position in decimal degrees and altitude in km */
@@ -505,6 +506,7 @@ static void init_ltp(void) {
            &fdm.ltp_h.x, &fdm.ltp_h.y, &fdm.ltp_h.z,
            IEXT, EXT_COEFF1, EXT_COEFF2, EXT_COEFF3);
   FLOAT_VECT3_NORMALIZE(fdm.ltp_h);
+  printf("normalized magnetic field: %.4f %.4f %.4f\n", fdm.ltp_h.x, fdm.ltp_h.y, fdm.ltp_h.z);
 #endif
 
 }

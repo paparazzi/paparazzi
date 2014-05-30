@@ -22,6 +22,9 @@
 #include "subsystems/gps/gps_sim_nps.h"
 #include "subsystems/gps.h"
 
+#include "nps_sensors.h"
+#include "nps_fdm.h"
+
 #if GPS_USE_LATLONG
 /* currently needed to get nav_utm_zone0 */
 #include "subsystems/navigation/common_nav.h"
@@ -32,6 +35,10 @@ bool_t gps_available;
 bool_t gps_has_fix;
 
 void  gps_feed_value() {
+  // FIXME, set proper time instead of hardcoded to May 2014
+  gps.week = 1794;
+  gps.tow = fdm.time * 1000;
+
   gps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
   gps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
   gps.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;
