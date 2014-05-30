@@ -83,11 +83,11 @@ struct FloatEulers {
 
 /**
  * @brief angular rates
- * @details Units: rad/s^2 */
+ * @details Units: rad/s */
 struct FloatRates {
-  float p; ///< in rad/s^2
-  float q; ///< in rad/s^2
-  float r; ///< in rad/s^2
+  float p; ///< in rad/s
+  float q; ///< in rad/s
+  float r; ///< in rad/s
 };
 
 #define FLOAT_ANGLE_NORMALIZE(_a) {             \

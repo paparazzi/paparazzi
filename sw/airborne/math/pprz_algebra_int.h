@@ -91,7 +91,7 @@ struct Int32Vect3 {
 #define INT32_QUAT_FRAC 15
 /**
  * @brief Rotation quaternion
- * @details Units: INT32_QUAT_FRAC */
+ * @details Units: BFP with #INT32_QUAT_FRAC */
 struct Int32Quat {
   int32_t qi;
   int32_t qx;
@@ -138,11 +138,11 @@ struct Int16Eulers {
 
 /**
  * @brief euler angles
- * @details Units: rad with INT32_ANGLE_FRAC */
+ * @details Units: rad in BFP with #INT32_ANGLE_FRAC */
 struct Int32Eulers {
-  int32_t phi; ///< in rad with INT32_ANGLE_FRAC
-  int32_t theta; ///< in rad with INT32_ANGLE_FRAC
-  int32_t psi; ///< in rad with INT32_ANGLE_FRAC
+  int32_t phi;   ///< in rad with #INT32_ANGLE_FRAC
+  int32_t theta; ///< in rad with #INT32_ANGLE_FRAC
+  int32_t psi;   ///< in rad with #INT32_ANGLE_FRAC
 };
 
 
@@ -151,7 +151,7 @@ struct Int32Eulers {
 
 /**
  * @brief rotation matrix
- * @details Units: rad with INT32_TRIG_FRAC */
+ * @details Units: rad in BFP with #INT32_TRIG_FRAC */
 struct Int32RMat {
   int32_t m[3*3];
 };
@@ -171,17 +171,17 @@ struct Int16Rates {
 /* Rotational speed                              */
 /**
  * @brief angular rates
- * @details Units: rad/s^2 with INT32_RATE_FRAC */
+ * @details Units: rad/s in BFP with #INT32_RATE_FRAC */
 struct Int32Rates {
-  int32_t p; ///< in rad/s^2 with INT32_RATE_FRAC
-  int32_t q; ///< in rad/s^2 with INT32_RATE_FRAC
-  int32_t r; ///< in rad/s^2 with INT32_RATE_FRAC
+  int32_t p; ///< in rad/s with #INT32_RATE_FRAC
+  int32_t q; ///< in rad/s with #INT32_RATE_FRAC
+  int32_t r; ///< in rad/s with #INT32_RATE_FRAC
 };
 
 struct Int64Rates {
-  int64_t p; ///< in rad/s^2 with INT32_RATE_FRAC
-  int64_t q; ///< in rad/s^2 with INT32_RATE_FRAC
-  int64_t r; ///< in rad/s^2 with INT32_RATE_FRAC
+  int64_t p;
+  int64_t q;
+  int64_t r;
 };
 
 
