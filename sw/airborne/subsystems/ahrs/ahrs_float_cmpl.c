@@ -134,6 +134,11 @@ static void send_att(void) {
       &(eulers_body->psi));
 }
 
+static void send_geo_mag(void) {
+  DOWNLINK_SEND_GEO_MAG(DefaultChannel, DefaultDevice,
+                        &ahrs_impl.mag_h.x, &ahrs_impl.mag_h.y, &ahrs_impl.mag_h.z);
+}
+
 // TODO convert from float to int if we really need this one
 /*
 static void send_rmat(void) {
@@ -196,6 +201,7 @@ void ahrs_init(void) {
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
+  register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
 #endif
 }
 
