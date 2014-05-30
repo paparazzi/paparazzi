@@ -210,7 +210,7 @@ void ahrs_update_gps(void)
     ahrs_impl.gps_age = 0;
     ahrs_impl.gps_speed = gps.speed_3d/100.;
 
-    if(gps.gspeed >= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
+    if(gps.gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s
       ahrs_impl.gps_course = ((float)gps.course)/1.e7;
       ahrs_impl.gps_course_valid = TRUE;
     } else {
