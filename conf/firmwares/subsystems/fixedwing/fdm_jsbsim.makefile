@@ -63,6 +63,7 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_ivy_fixedwing.c             \
        $(NPSDIR)/nps_flightgear.c                \
 
+nps.srcs += math/pprz_geodetic_wmm2010.c
 
 nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=IvyTransport
 nps.srcs   += subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/ivy_transport.c

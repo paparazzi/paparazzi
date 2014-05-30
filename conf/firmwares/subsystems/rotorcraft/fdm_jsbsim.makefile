@@ -92,7 +92,7 @@ nps.srcs   += subsystems/commands.c
 #
 # Math functions
 #
-nps.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c
+nps.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_geodetic_wmm2010.c
 
 nps.srcs += subsystems/air_data.c
 
