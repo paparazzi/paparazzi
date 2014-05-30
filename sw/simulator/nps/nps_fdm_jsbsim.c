@@ -30,7 +30,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// ignore stupid warnings in JSBSim
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <FGFDMExec.h>
+#pragma GCC diagnostic pop
+
 #include <FGJSBBase.h>
 #include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
@@ -400,11 +404,7 @@ static void init_jsbsim(double dt) {
       exit(-1);
     }
 
-    lla0 = {
-      FDMExec->GetPropagate()->GetLongitude(),
-      FDMExec->GetPropagate()->GetGeodLatitudeRad(),
-      FDMExec->GetPropagate()->GetAltitudeASLmeters()
-    };
+    llh_from_jsbsim(&lla0, FDMExec->GetPropagate());
   }
   else {
     // FGInitialCondition::SetAltitudeASLFtIC
@@ -432,7 +432,9 @@ static void init_jsbsim(double dt) {
       exit(-1);
     }
 
-    lla0 = { RadOfDeg(NAV_LON0 / 1e7), gd_lat, (double)(NAV_ALT0+NAV_MSL0)/1000. };
+    lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
+    lla0.lat = gd_lat;
+    lla0.alt = (double)(NAV_ALT0+NAV_MSL0)/1000.0;
   }
 
   // compute offset between geocentric and geodetic ecef
