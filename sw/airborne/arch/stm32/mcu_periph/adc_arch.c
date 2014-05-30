@@ -151,12 +151,17 @@ PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 #warning ALL ADC CONVERTERS INACTIVE
 #endif
 
-#ifndef ADC_TIMER_PRESCALER
-#if defined(STM32F1)
-#define ADC_TIMER_PRESCALER 0x8
-#elif defined(STM32F4)
-#define ADC_TIMER_PRESCALER 0x53
+#ifndef ADC_TIMER_PERIOD
+#define ADC_TIMER_PERIOD 10000
 #endif
+
+/** Timer frequency for ADC
+ * Timer will trigger an update event after reaching the period reload value.
+ * New conversion is triggered on update event.
+ * ADC measuerement frequency is hence ADC_TIMER_FREQUENCY / ADC_TIMER_PERIOD.
+ */
+#ifndef ADC_TIMER_FREQUENCY
+#define ADC_TIMER_FREQUENCY 2000000
 #endif
 
 /***************************************/
@@ -430,14 +435,12 @@ static inline void adc_init_rcc( void )
   timer_reset(TIM_ADC);
   timer_set_mode(TIM_ADC, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-#if defined(STM32F1)
-  timer_set_period(TIM_ADC, 0xFF);
-#elif defined(STM32F4)
-  timer_set_period(TIM_ADC, 0xFFFF);
-#endif
-  timer_set_prescaler(TIM_ADC, ADC_TIMER_PRESCALER);
-  //timer_set_clock_division(TIM_ADC, 0x0);
-  /* Generate TRGO on every update. */
+  /* timer counts with ADC_TIMER_FREQUENCY */
+  uint32_t timer_clk = timer_get_frequency(TIM_ADC);
+  timer_set_prescaler(TIM_ADC, (timer_clk / ADC_TIMER_FREQUENCY) - 1);
+
+  timer_set_period(TIM_ADC, ADC_TIMER_PERIOD);
+  /* Generate TRGO on every update (when counter reaches period reload value) */
   timer_set_master_mode(TIM_ADC, TIM_CR2_MMS_UPDATE);
   timer_enable_counter(TIM_ADC);
 
