@@ -144,8 +144,7 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
   register_periodic_telemetry(DefaultPeriodic, "IMU_GYRO", send_gyro);
-#if USE_IMU_FLOAT
-#else // !USE_IMU_FLOAT
+#if !USE_IMU_FLOAT
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_RAW", send_accel_raw);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL_SCALED", send_accel_scaled);
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
