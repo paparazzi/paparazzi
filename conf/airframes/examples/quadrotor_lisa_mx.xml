@@ -1,11 +1,11 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   Lisa/MX 2.0            http://paparazzi.enac.fr/wiki/Lisa/M_v20
-     * IMU:         Aspirin 2.2            http://paparazzi.enac.fr/wiki/AspirinIMU
-     * Actuators:   PWM motor controllers  http://paparazzi.enac.fr/wiki/Subsystem/actuators#PWM_Supervision
-     * GPS:         Ublox                  http://paparazzi.enac.fr/wiki/Subsystem/gps
-     * RC:          two Spektrum sats      http://paparazzi.enac.fr/wiki/Subsystem/radio_control#Spektrum
+     * Autopilot:   Lisa/MX 2.0 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v20
+     * IMU:         Aspirin 2.2               http://wiki.paparazziuav.org/wiki/AspirinIMU
+     * Actuators:   PWM motor controllers     http://wiki.paparazziuav.org/wiki/Subsystem/actuators#PWM
+     * GPS:         Ublox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
+     * RC:          two Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 -->
 
 <airframe name="Quadrotor LisaMX_2.0 pwm">
@@ -14,7 +14,7 @@
     <target name="ap" board="lisa_mx_2.0">
       <subsystem name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
-        <!--configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/-->
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
       </subsystem>
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
@@ -27,16 +27,13 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-      <!--define name="USE_SERVOS_7AND8"/-->
     </subsystem>
 
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="aspirin_v2.2"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
+    <subsystem name="ahrs"          type="float_mlkf"/>
     <subsystem name="ins" type="hff"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
@@ -110,6 +107,7 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
