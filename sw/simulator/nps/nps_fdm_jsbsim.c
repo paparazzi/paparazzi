@@ -44,6 +44,8 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+#include "math/pprz_geodetic_wmm2010.h"
+
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 
@@ -457,34 +459,50 @@ static void init_jsbsim(double dt) {
 /**
  * Initialize the ltp from the JSBSim location.
  *
- * @todo The magnetic field is hardcoded, make location dependent
- * (might be able to use JSBSim sensors)
  */
 static void init_ltp(void) {
 
   FGPropagate* propagate = FDMExec->GetPropagate();
 
-  jsbsimloc_to_loc(&fdm.ecef_pos,&propagate->GetLocation());
-  ltp_def_from_ecef_d(&ltpdef,&fdm.ecef_pos);
+  jsbsimloc_to_loc(&fdm.ecef_pos, &propagate->GetLocation());
+  ltp_def_from_ecef_d(&ltpdef, &fdm.ecef_pos);
 
   fdm.ltp_g.x = 0.;
   fdm.ltp_g.y = 0.;
   fdm.ltp_g.z = 9.81;
 
-#ifdef AHRS_H_X
+
+#if !NPS_CALC_GEO_MAG && defined(AHRS_H_X)
 #pragma message "Using magnetic field as defined in airframe file (AHRS section)."
   fdm.ltp_h.x = AHRS_H_X;
   fdm.ltp_h.y = AHRS_H_Y;
   fdm.ltp_h.z = AHRS_H_Z;
-#elif defined INS_H_X
+#elif !NPS_CALC_GEO_MAG && defined(INS_H_X)
 #pragma message "Using magnetic field as defined in airframe file (INS section)."
   fdm.ltp_h.x = INS_H_X;
   fdm.ltp_h.y = INS_H_Y;
   fdm.ltp_h.z = INS_H_Z;
 #else
-  fdm.ltp_h.x = 0.4912;
-  fdm.ltp_h.y = 0.1225;
-  fdm.ltp_h.z = 0.8624;
+#pragma message "Using WMM2010 model to calculate magnetic field at simulated location."
+  /* calculation of magnetic field according to WMM2010 model */
+  double gha[MAXCOEFF];
+
+  /* Current date in decimal year, for example 2012.68 */
+  double sdate = 2012.68;
+
+  llh_from_jsbsim(&fdm.lla_pos, propagate);
+  /* LLA Position in decimal degrees and altitude in km */
+  double latitude = DegOfRad(fdm.lla_pos.lat);
+  double longitude = DegOfRad(fdm.lla_pos.lon);
+  double alt = fdm.lla_pos.alt / 1e3;
+
+  // Calculates additional coeffs
+  int32_t nmax = extrapsh(sdate, GEO_EPOCH, NMAX_1, NMAX_2, gha);
+  // Calculates absolute magnetic field
+  mag_calc(1, latitude, longitude, alt, nmax, gha,
+           &fdm.ltp_h.x, &fdm.ltp_h.y, &fdm.ltp_h.z,
+           IEXT, EXT_COEFF1, EXT_COEFF2, EXT_COEFF3);
+  FLOAT_VECT3_NORMALIZE(fdm.ltp_h);
 #endif
 
 }
