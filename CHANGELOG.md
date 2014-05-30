@@ -1,3 +1,15 @@
+Paparazzi 5.0.5_stable
+======================
+
+Maintenance release
+
+- fix field order in HFF_DBG message
+- fix altitude in some extra nav routines
+- fix create_module tool
+- fix RCLost macro
+- add GetAltRef() for flight plan compatibility with v5.2
+
+
 Paparazzi 5.0.4_stable
 ======================
 
@@ -8,6 +20,7 @@ Maintenance release
 - fix InsideX for sectors (GetPosX and GetPosY in nav.h (FW) are in local coordinates)
   #[602]  (https://github.com/paparazzi/paparazzi/issues/602)
 - stm32: enable correct error interrupts for i2c2 and i2c3
+
 
 Paparazzi 5.0.3_stable
 ======================
