@@ -20,11 +20,12 @@
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
     </target>
 
+    <configure name="USE_MAGNETOMETER" value="FALSE"/>
+
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
 
-    <define name="USE_BAROMETER" value="TRUE"/>
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
@@ -37,7 +38,9 @@
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="control"/>
     <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <subsystem name="ins" type="alt_float">
+      <define name="USE_BAROMETER" value="TRUE"/>
+    </subsystem>
   </firmware>
 
   <modules>
@@ -106,13 +109,6 @@
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
-  </section>
-
-  <section name="AHRS" prefix="AHRS_">
-    <!-- replace this with your local magnetic field -->
-    <define name="H_X" value="0.3770441"/>
-    <define name="H_Y" value="0.0193986"/>
-    <define name="H_Z" value="0.9259921"/>
   </section>
 
   <section name="INS" prefix="INS_">

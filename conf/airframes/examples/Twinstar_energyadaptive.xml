@@ -26,7 +26,6 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     </target>
 
     <define name="USE_AIRSPEED"/>
-    <define name="USE_BAROMETER"/>
     <define name="AGR_CLIMB"/>
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>
@@ -39,7 +38,9 @@ twog_1.0 + aspirin + ETS baro + ETS speed
       <configure name="ASPIRIN_I2C_DEV" value="i2c0"/>
     </subsystem>
     <subsystem name="ahrs"      type="int_cmpl_quat"/>
-    <subsystem name="ins"	type="alt_float"/>
+    <subsystem name="ins"	type="alt_float">
+      <define name="USE_BAROMETER"/>
+    </subsystem>
     <subsystem name="control" type="energyadaptive"/>
     <subsystem name="navigation"/>
 </firmware>
@@ -119,11 +120,6 @@ twog_1.0 + aspirin + ETS baro + ETS speed
 <!--
 ######################################################################################
 -->
-  <section name="AHRS" prefix="AHRS_">
-    <define name="H_X" value=" 0.376689168"/>		<!-- magnatic field -->
-    <define name="H_Y" value="0.008242371595"/>
-    <define name="H_Z" value=" 0.92630171"/>
-  </section>
 
    <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>

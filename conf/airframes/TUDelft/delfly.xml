@@ -22,8 +22,6 @@
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
 
-    <define name="USE_BAROMETER" value="TRUE"/>
-
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
       <!--<configure name="MODEM_BAUD" value="B57600"/>
@@ -46,7 +44,9 @@
     <!--<subsystem name="ahrs"          type="int_cmpl_quat"/>-->
     <subsystem name="control"/>
     <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <subsystem name="ins" type="alt_float">
+      <define name="USE_BAROMETER" value="TRUE"/>
+    </subsystem>
 
     <!--<configure name="SYS_TIME_LED" value="none"/>-->
   </firmware>
