@@ -3,12 +3,10 @@
 
 #include "generated/airframe.h"
 
-#ifndef AHRS_H_X
-#ifdef AHRS_H_Y
-#error Either define both AHRS_H_X and AHRS_H_Y or none, but not half
-#endif
+#if !USE_MAGNETOMETER && !defined(AHRS_H_X) && !defined(AHRS_H_Y)
 #define AHRS_H_X 1
 #define AHRS_H_Y 0
+#define AHRS_H_Z 0
 #endif
 
 #endif

@@ -82,7 +82,9 @@ PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
 #ifndef AHRS_MAG_CORRECT_FREQUENCY
 #define AHRS_MAG_CORRECT_FREQUENCY 50
 #endif
+#if USE_MAGNETOMETER
 PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+#endif
 
 /*
  * default gains for correcting attitude and bias from accel/mag
@@ -103,8 +105,10 @@ PRINT_CONFIG_VAR(AHRS_ACCEL_ZETA)
 #ifndef AHRS_MAG_ZETA
 #define AHRS_MAG_ZETA 0.9
 #endif
+#if USE_MAGNETOMETER
 PRINT_CONFIG_VAR(AHRS_MAG_OMEGA)
 PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
+#endif
 
 /** by default use the gravity heuristic to reduce gain */
 #ifndef AHRS_GRAVITY_HEURISTIC_FACTOR
