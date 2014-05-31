@@ -1380,8 +1380,8 @@
     <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
     <field name="ecef_yd" type="int32" unit="cm/s" alt_unit="m/s"/>
     <field name="ecef_zd" type="int32" unit="cm/s" alt_unit="m/s"/>
-    <field name="pacc"    type="int32" unit="cm"   alt_unit="m"/>
-    <field name="sacc"    type="int32" unit="cm/s" alt_unit="m/s"/>
+    <field name="pacc"    type="uint32" unit="cm"   alt_unit="m"/>
+    <field name="sacc"    type="uint32" unit="cm/s" alt_unit="m/s"/>
     <field name="tow"     type="uint32"/>
     <field name="pdop"    type="uint16"/>
     <field name="numsv"   type="uint8"/>
