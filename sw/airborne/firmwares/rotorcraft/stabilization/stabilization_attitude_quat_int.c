@@ -50,7 +50,7 @@ struct Int32AttitudeGains stabilization_gains = {
   (STABILIZATION_ATTITUDE_PHI_IGAIN < 0)   ||   \
   (STABILIZATION_ATTITUDE_THETA_IGAIN < 0) ||   \
   (STABILIZATION_ATTITUDE_PSI_IGAIN  < 0)
-#warning "ALL control gains are now positive!!!"
+#error "ALL control gains have to be positive!!!"
 #endif
 
 struct Int32Quat stabilization_att_sum_err_quat;
