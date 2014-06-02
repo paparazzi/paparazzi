@@ -47,6 +47,18 @@
 #define MOTOR_MIXING_STOP_MOTOR -MAX_PPRZ
 #endif
 
+#ifndef MOTOR_MIXING_TRIM_ROLL
+#define MOTOR_MIXING_TRIM_ROLL 0
+#endif
+
+#ifndef MOTOR_MIXING_TRIM_PITCH
+#define MOTOR_MIXING_TRIM_PITCH 0
+#endif
+
+#ifndef MOTOR_MIXING_TRIM_YAW
+#define MOTOR_MIXING_TRIM_YAW 0
+#endif
+
 /**
  * Maximum offset in case of saturation.
  * If a saturation is reached (desired motor command outside of possible MIN_MOTOR/MAX_MOTOR range),
