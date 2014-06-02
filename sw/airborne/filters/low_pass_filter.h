@@ -56,7 +56,7 @@ struct FirstOrderLowPass {
 static inline void init_first_order_low_pass(struct FirstOrderLowPass * filter, float tau, float sample_time, float value) {
   filter->last_in = value;
   filter->last_out = value;
-  filter->time_const = 2.*tau/sample_time;
+  filter->time_const = 2.0f * tau / sample_time;
 }
 
 /** Update first order low pass filter state with a new value.
@@ -66,7 +66,7 @@ static inline void init_first_order_low_pass(struct FirstOrderLowPass * filter, 
  * @return new filtered value
  */
 static inline float update_first_order_low_pass(struct FirstOrderLowPass * filter, float value) {
-  float out = (value + filter->last_in + (filter->time_const - 1.) * filter->last_out) / (1. + filter->time_const);
+  float out = (value + filter->last_in + (filter->time_const - 1.0f) * filter->last_out) / (1.0f + filter->time_const);
   filter->last_in = value;
   filter->last_out = out;
   return out;
@@ -131,12 +131,12 @@ struct SecondOrderLowPass {
  * @param value initial value of the filter
  */
 static inline void init_second_order_low_pass(struct SecondOrderLowPass * filter, float tau, float Q, float sample_time, float value) {
-  float K = sample_time / (2*tau);
-  float poly = K*K + K/Q + 1.;
-  filter->a[0] = 2.*(K*K - 1.) / poly;
-  filter->a[1] = (K*K - K/Q + 1.) / poly;
+  float K = sample_time / (2.0f * tau);
+  float poly = K*K + K/Q + 1.0f;
+  filter->a[0] = 2.0f * (K*K - 1.0f) / poly;
+  filter->a[1] = (K*K - K/Q + 1.0f) / poly;
   filter->b[0] = K*K / poly;
-  filter->b[1] = 2*filter->b[0];
+  filter->b[1] = 2.0f * filter->b[0];
   filter->i[0] = filter->i[1] = filter->o[0] = filter->o[1] = value;
 }
 
@@ -186,21 +186,21 @@ struct SecondOrderLowPass_int {
  */
 static inline void init_second_order_low_pass_int(struct SecondOrderLowPass_int* filter, float cut_off, float Q, float sample_time, int32_t value) {
   struct SecondOrderLowPass filter_temp;
-  float tau = 7 / (44*cut_off);
-  float K = sample_time / (2*tau);
-  float poly = K*K + K/Q + 1.;
+  float tau = 7.0f / (44.0f * cut_off);
+  float K = sample_time / (2.0f * tau);
+  float poly = K*K + K/Q + 1.0f;
   float loop_gain_f;
 
-  filter_temp.a[0] = 2.*(K*K - 1.) / poly;
-  filter_temp.a[1] = (K*K - K/Q + 1.) / poly;
+  filter_temp.a[0] = 2.0f * (K*K - 1.0f) / poly;
+  filter_temp.a[1] = (K*K - K/Q + 1.0f) / poly;
   filter_temp.b[0] = K*K / poly;
-  filter_temp.b[1] = 2*filter_temp.b[0];
-  loop_gain_f = 1/filter_temp.b[0];
+  filter_temp.b[1] = 2.0f * filter_temp.b[0];
+  loop_gain_f = 1.0f / filter_temp.b[0];
 
   filter->a[0] = BFP_OF_REAL((filter_temp.a[0] * loop_gain_f), INT32_FILT_FRAC);
   filter->a[1] = BFP_OF_REAL((filter_temp.a[1] * loop_gain_f), INT32_FILT_FRAC);
   filter->b[0] = BFP_OF_REAL(1, INT32_FILT_FRAC);
-  filter->b[1] = 2*filter->b[0];
+  filter->b[1] = 2 * filter->b[0];
   filter->i[0] = filter->i[1] = filter->o[0] = filter->o[1] = value;
   filter->loop_gain = BFP_OF_REAL(loop_gain_f, INT32_FILT_FRAC);
 }
