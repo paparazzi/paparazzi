@@ -180,6 +180,16 @@
    gui_color="blue"
   />
   <aircraft
+   name="quadshot"
+   ac_id="19"
+   airframe="airframes/examples/quadshot_asp21_spektrum.xml"
+   radio="radios/spektrum.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings=" settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="setup_lisam2"
    ac_id="16"
    airframe="airframes/examples/setup_lisam2.xml"
