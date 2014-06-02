@@ -26,14 +26,14 @@
  *  Control loops for angular velocity.
  */
 
+#include "generated/airframe.h"
+
 #include "firmwares/rotorcraft/stabilization.h"
 
 #include "state.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/radio_control.h"
-#include "generated/airframe.h"
-
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 
 #define F_UPDATE_RES 9
