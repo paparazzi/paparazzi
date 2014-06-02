@@ -72,11 +72,6 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="MIN_ERR_Z" value="POS_BFP_OF_REAL(-10.)" />
-    <define name="MAX_ERR_Z" value="POS_BFP_OF_REAL( 10.)" />
-    <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)" />
-    <define name="MAX_ERR_ZD" value="SPEED_BFP_OF_REAL( 10.)" />
-    <define name="MAX_SUM_ERR" value="2000000" />
     <define name="HOVER_KP" value="425" />
     <define name="HOVER_KD" value="200" />
     <define name="HOVER_KI" value="125" />

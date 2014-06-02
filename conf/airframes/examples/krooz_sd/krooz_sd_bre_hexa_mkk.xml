@@ -188,11 +188,6 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-10.)"/>
-    <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 10.)"/>
-    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
-    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
-    <define name="MAX_SUM_ERR" value="2000000"/>
     <define name="REF_MIN_ZDD" value="-0.2*9.81"/> <!-- max descent acceleration in m/s2 -->
     <define name="REF_MAX_ZDD" value="0.2*9.81"/>  <!-- max climb acceleration in m/s2 -->
     <define name="REF_MIN_ZD" value="-3."/>        <!-- max descent speed in m/s -->
