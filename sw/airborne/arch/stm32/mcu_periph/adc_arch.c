@@ -578,12 +578,12 @@ void adc1_2_isr(void)
   /*
     We need adc sampling fast enough to detect battery plug out, but we did not
     need to get actual actual value so fast. So timer fire adc conversion fast,
-    at least 500 hz, but we inject adc value in sampling buffer only at 10hz
+    at least 500 hz, but we inject adc value in sampling buffer only at 50hz
    */
-  const uint32_t timeStampDiff = get_sys_time_usec() - adc_watchdog.timeStamp;
-  const bool_t shouldAccumulateValue = timeStampDiff > 100;
+  const uint32_t timeStampDiff = get_sys_time_msec() - adc_watchdog.timeStamp;
+  const bool_t shouldAccumulateValue = timeStampDiff > 20;
   if (shouldAccumulateValue)
-    adc_watchdog.timeStamp = get_sys_time_usec();
+    adc_watchdog.timeStamp = get_sys_time_msec();
 
   if (adc_watchdog.cb != NULL) {
     if (adc_awd(adc_watchdog.adc)) {
