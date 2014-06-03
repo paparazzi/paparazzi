@@ -704,9 +704,6 @@ void radio_control_spektrum_try_bind(void) {
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
     return;
 
-  /* initialise the uarts rx pins as  GPIOS */
-  gpio_enable_clock(SPEKTRUM_PRIMARY_BIND_CONF_PORT);
-
   /* Master receiver Rx push-pull */
   gpio_setup_output(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
 
@@ -714,9 +711,6 @@ void radio_control_spektrum_try_bind(void) {
   gpio_set(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-
-  gpio_enable_clock(SPEKTRUM_SECONDARY_BIND_CONF_PORT);
-
   /* Slave receiver Rx push-pull */
   gpio_setup_output(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
 
