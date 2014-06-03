@@ -178,7 +178,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
     if export_geo_pos then begin
       try
 	let wgs84 = get_last_geo_pos lookup in
-	bprintf buf "%s%.6f%s%.6f" sep ((Rad>>Deg) wgs84.posn_lat) sep ((Rad>>Deg) wgs84.posn_long)
+	bprintf buf "%s%.9f%s%.9f" sep ((Rad>>Deg) wgs84.posn_lat) sep ((Rad>>Deg) wgs84.posn_long)
       with
 	exc ->
 	  all_values := false;
