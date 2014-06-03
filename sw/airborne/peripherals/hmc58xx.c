@@ -28,6 +28,7 @@
  */
 
 #include "peripherals/hmc58xx.h"
+#include "mcu_periph/sys_time.h"
 #include "std.h"
 
 
@@ -43,6 +44,18 @@
 #endif
 #ifndef HMC58XX_DEFAULT_MD
 #define HMC58XX_DEFAULT_MD 0x0 // Continious measurement mode
+#endif
+
+/** HMC58XX startup delay
+ *
+ *  On startup, the hmc is making a first conversion in single mode.
+ *  Trying to configure the mode register before the end of this conversion
+ *  seems to void the configuration.
+ *  Default conversion rate is 15 Hz (66ms) and worst case is O.75Hz (1.3s).
+ *  Let set the default delay to 1.5s afer boot time.
+ */
+#ifndef HMC58XX_STARTUP_DELAY
+#define HMC58XX_STARTUP_DELAY 1.5
 #endif
 
 static void hmc58xx_set_default_config(struct Hmc58xxConfig *c)
@@ -111,7 +124,9 @@ static void hmc58xx_send_config(struct Hmc58xx *hmc)
 // Configure
 void hmc58xx_start_configure(struct Hmc58xx *hmc)
 {
-  if (hmc->init_status == HMC_CONF_UNINIT) {
+  // wait before starting the configuration
+  // doing to early may void the mode configuration
+  if (hmc->init_status == HMC_CONF_UNINIT && get_sys_time_float() > HMC58XX_STARTUP_DELAY) {
     hmc->init_status++;
     if (hmc->i2c_trans.status == I2CTransSuccess || hmc->i2c_trans.status == I2CTransDone) {
       hmc58xx_send_config(hmc);
