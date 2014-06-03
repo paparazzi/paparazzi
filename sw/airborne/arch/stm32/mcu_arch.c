@@ -122,9 +122,15 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
     case TIM1:
     case TIM8:
 #endif
+#ifdef TIM9
     case TIM9:
+#endif
+#ifdef TIM10
     case TIM10:
+#endif
+#ifdef TIM11
     case TIM11:
+#endif
       if (!rcc_get_ppre2())
         // no APB2 prescaler
         return rcc_ppre2_frequency;
@@ -138,9 +144,15 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
     case TIM5:
     case TIM6:
     case TIM7:
+#ifdef TIM12
     case TIM12:
+#endif
+#ifdef TIM13
     case TIM13:
+#endif
+#ifdef TIM14
     case TIM14:
+#endif
       if (!rcc_get_ppre1())
         // no APB2 prescaler
         return rcc_ppre1_frequency;

@@ -34,7 +34,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/cm3/nvic.h>
-
+#include "mcu_arch.h"
 
 
 #if defined(STM32F1)
@@ -80,11 +80,6 @@
 #ifndef TIM12_SERVO_HZ
 #define TIM12_SERVO_HZ SERVO_HZ
 #endif
-
-
-/** @todo: these should go into libopencm3 */
-#define TIM9				TIM9_BASE
-#define TIM12				TIM12_BASE
 
 
 #if defined(STM32F4)

@@ -95,6 +95,7 @@
 #include <libopencm3/stm32/timer.h>
 #include <string.h>
 #include "mcu_periph/gpio.h"
+#include "mcu_arch.h"
 #include "std.h"
 #include "led.h"
 #include BOARD_CONFIG
