@@ -71,6 +71,14 @@
 #define HFF_R_SPEED_MIN 1.
 #endif
 
+#ifndef HFF_LOWPASS_CUTOFF_FREQUENCY
+#define HFF_LOWPASS_CUTOFF_FREQUENCY 14
+#endif
+
+#if HFF_LOWPASS_CUTOFF_FREQUENCY < 8
+#error "It is not allowed to use a cutoff frequency lower than 8Hz due to overflow issues."
+#endif
+
 /* low pass filter variables */
 Butterworth2LowPass_int filter_x;
 Butterworth2LowPass_int filter_y;
@@ -271,9 +279,9 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
 #endif
 #endif
 
-  init_butterworth_2_low_pass_int(&filter_x, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
-  init_butterworth_2_low_pass_int(&filter_y, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
-  init_butterworth_2_low_pass_int(&filter_z, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_x, HFF_LOWPASS_CUTOFF_FREQUENCY, (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_y, HFF_LOWPASS_CUTOFF_FREQUENCY, (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_z, HFF_LOWPASS_CUTOFF_FREQUENCY, (1. /AHRS_PROPAGATE_FREQUENCY), 0);
 }
 
 static void b2_hff_init_x(float init_x, float init_xdot) {
