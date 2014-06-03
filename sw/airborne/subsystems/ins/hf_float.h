@@ -35,26 +35,6 @@
 
 #define HFF_STATE_SIZE 2
 
-#ifndef AHRS_PROPAGATE_FREQUENCY
-#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
-#endif
-
-#ifndef HFF_PRESCALER
-#if AHRS_PROPAGATE_FREQUENCY == 512
-#define HFF_PRESCALER 16
-#elif AHRS_PROPAGATE_FREQUENCY == 500
-#define HFF_PRESCALER 10
-#else
-#error "HFF_PRESCALER not set, needs to be a divisor of AHRS_PROPAGATE_FREQUENCY"
-#endif
-#endif
-
-/* horizontal filter propagation frequency */
-#define HFF_FREQ (AHRS_PROPAGATE_FREQUENCY/HFF_PRESCALER)
-#define DT_HFILTER (1./HFF_FREQ)
-
-#define HFF_UPDATE_SPEED
-
 struct HfilterFloat {
   float x;
   /* float xbias; */
@@ -78,15 +58,5 @@ extern void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* spe
 extern void b2_hff_update_pos(struct FloatVect2 pos, struct FloatVect2 Rpos);
 extern void b2_hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel);
 extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel);
-
-#define HFF_LOST_LIMIT 1000
-extern uint16_t b2_hff_lost_limit;
-extern uint16_t b2_hff_lost_counter;
-
-extern void b2_hff_store_accel_body(void);
-
-extern struct HfilterFloat *b2_hff_rb_last;
-extern int lag_counter_err;
-extern int save_counter;
 
 #endif /* HF_FLOAT_H */

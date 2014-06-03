@@ -47,9 +47,27 @@
 #endif
 
 
-/* initial covariance diagonal */
+#ifndef AHRS_PROPAGATE_FREQUENCY
+#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
+#endif
+
+#ifndef HFF_PRESCALER
+#if AHRS_PROPAGATE_FREQUENCY == 512
+#define HFF_PRESCALER 16
+#elif AHRS_PROPAGATE_FREQUENCY == 500
+#define HFF_PRESCALER 10
+#else
+#error "HFF_PRESCALER not set, needs to be a divisor of AHRS_PROPAGATE_FREQUENCY"
+#endif
+#endif
+
+/** horizontal filter propagation frequency */
+#define HFF_FREQ ((AHRS_PROPAGATE_FREQUENCY)/HFF_PRESCALER)
+#define DT_HFILTER (1./HFF_FREQ)
+
+/** initial covariance diagonal */
 #define INIT_PXX 1.
-/* process noise (is the same for x and y)*/
+/** process noise (is the same for x and y)*/
 #ifndef HFF_ACCEL_NOISE
 #define HFF_ACCEL_NOISE 0.5
 #endif
@@ -69,6 +87,10 @@
 #endif
 #ifndef HFF_R_SPEED_MIN
 #define HFF_R_SPEED_MIN 1.
+#endif
+
+#ifndef HFF_UPDATE_SPEED
+#define HFF_UPDATE_SPEED TRUE
 #endif
 
 #ifndef HFF_LOWPASS_CUTOFF_FREQUENCY
@@ -99,19 +121,19 @@ struct HfilterFloat b2_hff_state;
 
 
 /* last acceleration measurement */
-float b2_hff_xdd_meas;
-float b2_hff_ydd_meas;
+static float b2_hff_xdd_meas;
+static float b2_hff_ydd_meas;
 
 /* last velocity measurement */
-float b2_hff_xd_meas;
-float b2_hff_yd_meas;
+static float b2_hff_xd_meas;
+static float b2_hff_yd_meas;
 
 /* last position measurement */
-float b2_hff_x_meas;
-float b2_hff_y_meas;
+static float b2_hff_x_meas;
+static float b2_hff_y_meas;
 
-/* counter for hff propagation*/
-int b2_hff_ps_counter;
+/** counter for hff propagation*/
+static int b2_hff_ps_counter;
 
 /*
  * For GPS lag compensation
@@ -124,11 +146,11 @@ int b2_hff_ps_counter;
  * GPS_LAG is defined in seconds in airframe file
  */
 
-/* number of propagaton steps to redo according to GPS_LAG */
+/** number of propagaton steps to redo according to GPS_LAG */
 #define GPS_LAG_N ((int) (GPS_LAG * HFF_FREQ + 0.5))
-/* number of propagation steps between two GPS updates */
+/** number of propagation steps between two GPS updates */
 #define GPS_DT_N ((int) (HFF_FREQ / 4))
-/* tolerance of the GPS lag accuracy is +- GPS_LAG_TOLERANCE seconds */
+/** tolerance of the GPS lag accuracy is +- GPS_LAG_TOLERANCE seconds */
 #define GPS_LAG_TOLERANCE 0.08
 #define GPS_LAG_TOL_N ((int) (GPS_LAG_TOLERANCE * HFF_FREQ + 0.5))
 
@@ -142,10 +164,12 @@ int b2_hff_ps_counter;
 #define ACC_BUF_MAXN (GPS_LAG_N+10)
 #define INC_ACC_IDX(idx) {	idx = (idx + 1) < ACC_BUF_MAXN ? (idx + 1) : 0;	}
 
-struct FloatVect2 past_accel[ACC_BUF_MAXN]; /* buffer with past mean accel values for redoing the propagation */
-unsigned int acc_buf_r; /* pos to read from, oldest measurement */
-unsigned int acc_buf_w; /* pos to write to */
-unsigned int acc_buf_n; /* number of elements in buffer */
+/** buffer with past mean accel values for redoing the propagation */
+struct FloatVect2 past_accel[ACC_BUF_MAXN];
+
+static unsigned int acc_buf_r; ///< pos to read from, oldest measurement
+static unsigned int acc_buf_w; ///< pos to write to
+static unsigned int acc_buf_n; ///< number of elements in buffer
 
 
 /*
@@ -159,26 +183,28 @@ unsigned int acc_buf_n; /* number of elements in buffer */
       ptr++;									\
   }
 
-struct HfilterFloat b2_hff_rb[HFF_RB_MAXN]; /* ringbuffer with state and covariance when GPS was valid */
-struct HfilterFloat *b2_hff_rb_put; /* write pointer */
+/** ringbuffer with state and covariance when GPS was valid */
+struct HfilterFloat b2_hff_rb[HFF_RB_MAXN];
+struct HfilterFloat *b2_hff_rb_put; ///< ringbuffer write pointer
 #endif /* GPS_LAG */
 
-struct HfilterFloat *b2_hff_rb_last; /* read pointer */
-int b2_hff_rb_n; /* fill count */
+struct HfilterFloat *b2_hff_rb_last; ///< ringbuffer read pointer
+static int b2_hff_rb_n; ///< ringbuffer fill count
 
 
-/* by how many steps the estimated GPS validity point in time differed from GPS_LAG_N */
-int lag_counter_err;
+/** by how many steps the estimated GPS validity point in time differed from GPS_LAG_N */
+static int lag_counter_err;
 
-/* counts down the propagation steps until the filter state is saved again */
-int save_counter;
-int past_save_counter;
+/** counts down the propagation steps until the filter state is saved again */
+static int save_counter;
+static int past_save_counter;
 #define SAVE_NOW 0
 #define SAVING -1
 #define SAVE_DONE -2
 
-uint16_t b2_hff_lost_limit;
-uint16_t b2_hff_lost_counter;
+#define HFF_LOST_LIMIT 1000
+static uint16_t b2_hff_lost_limit;
+static uint16_t b2_hff_lost_counter;
 
 #ifdef GPS_LAG
 static void b2_hff_get_past_accel(unsigned int back_n);
@@ -502,7 +528,7 @@ void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* speed_ned)
     /* update filter state with measurement */
     b2_hff_update_x(&b2_hff_state, pos_ned->x, Rgps_pos);
     b2_hff_update_y(&b2_hff_state, pos_ned->y, Rgps_pos);
-#ifdef HFF_UPDATE_SPEED
+#if HFF_UPDATE_SPEED
     b2_hff_update_xdot(&b2_hff_state, speed_ned->x, Rgps_vel);
     b2_hff_update_ydot(&b2_hff_state, speed_ned->y, Rgps_vel);
 #endif
@@ -517,7 +543,7 @@ void b2_hff_update_gps(struct FloatVect2* pos_ned, struct FloatVect2* speed_ned)
       b2_hff_rb_last->rollback = TRUE;
       b2_hff_update_x(b2_hff_rb_last, pos_ned->x, Rgps_pos);
       b2_hff_update_y(b2_hff_rb_last, pos_ned->y, Rgps_pos);
-#ifdef HFF_UPDATE_SPEED
+#if HFF_UPDATE_SPEED
       b2_hff_update_xdot(b2_hff_rb_last, speed_ned->x, Rgps_vel);
       b2_hff_update_ydot(b2_hff_rb_last, speed_ned->y, Rgps_vel);
 #endif
