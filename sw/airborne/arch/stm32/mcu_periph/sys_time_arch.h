@@ -84,8 +84,8 @@ static inline void sys_time_usleep(uint32_t us) {
 #else
   // start time
   uint32_t start = systick_get_value();
-  // max time of one full counter cycle
-  uint32_t DT = usec_of_cpu_ticks(systick_get_reload());
+  // max time of one full counter cycle (n + 1 ticks)
+  uint32_t DT = usec_of_cpu_ticks(systick_get_reload() + 1);
   // number of cycles
   uint32_t n = us / DT;
   // remaining number of cpu ticks
