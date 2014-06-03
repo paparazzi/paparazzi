@@ -697,7 +697,7 @@ void SecondaryUart(_ISR)(void) {
 void radio_control_spektrum_try_bind(void) {
 
   /* Init GPIO for the bind pin */
-  gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, GPIO_MODE_INPUT);
+  gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
 
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */
@@ -745,4 +745,10 @@ void radio_control_spektrum_try_bind(void) {
     sys_time_usleep(120);
   }
 #endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */
+
+  /* Set conf pin as input in case it is different from RX pin */
+  gpio_setup_input(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
+  gpio_setup_input(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
+#endif
 }
