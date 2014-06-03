@@ -271,9 +271,9 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
 #endif
 #endif
 
-  init_butterworth_2_low_pass_int(&filter_x, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
-  init_butterworth_2_low_pass_int(&filter_y, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
-  init_butterworth_2_low_pass_int(&filter_z, 14., (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_x, LOWPASS_HFF_CUTOFF_FREQUENCY, (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_y, LOWPASS_HFF_CUTOFF_FREQUENCY, (1. /AHRS_PROPAGATE_FREQUENCY), 0);
+  init_butterworth_2_low_pass_int(&filter_z, LOWPASS_HFF_CUTOFF_FREQUENCY, (1. /AHRS_PROPAGATE_FREQUENCY), 0);
 }
 
 static void b2_hff_init_x(float init_x, float init_xdot) {

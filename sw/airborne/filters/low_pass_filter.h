@@ -179,7 +179,7 @@ struct SecondOrderLowPass_int {
 /** Init second order low pass filter(fixed point version).
  *
  * @param filter second order low pass filter structure
- * @param tau time constant of the second order low pass filter , 1/(2*pi*cut_off_3db)
+ * @param cut_off Cutoff frequency of the filter with -3dB
  * @param Q Q value of the second order low pass filter
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
@@ -285,7 +285,7 @@ typedef struct SecondOrderLowPass_int Butterworth2LowPass_int;
  * http://en.wikipedia.org/wiki/Butterworth_filter
  *
  * @param filter second order Butterworth low pass filter structure
- * @param tau time constant of the second order low pass filter
+ * @param cut_off Cutoff frequency of the filter with -3dB
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
@@ -379,7 +379,7 @@ typedef struct {
  * http://en.wikipedia.org/wiki/Butterworth_filter
  *
  * @param filter fourth order Butterworth low pass filter structure
- * @param tau time constant of the fourth order low pass filter
+ * @param cut_off Cutoff frequency of the filter with -3dB
  * @param sample_time sampling period of the signal
  * @param value initial value of the filter
  */
