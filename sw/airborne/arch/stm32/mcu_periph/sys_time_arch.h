@@ -74,26 +74,39 @@ static inline uint32_t get_sys_time_msec(void) {
 
 
 /** Busy wait in microseconds.
- * @todo: doesn't handle wrap-around at
- * 2^32 / 1000000 = 4294s = ~72min
+ *
+ *  max value is limited by the max number of cycle
+ *  i.e 2^32 * usec_of_cpu_ticks(systick_get_reload())
  */
 static inline void sys_time_usleep(uint32_t us) {
 #ifdef RTOS_IS_CHIBIOS
   chibios_chThdSleepMicroseconds (us);
 #else
-  /* duration and end time in SYS_TIME_TICKS */
-  uint32_t d_sys_ticks = sys_time_ticks_of_usec(us);
-  uint32_t end_nb_tick = sys_time.nb_tick + d_sys_ticks;
-
-  /* remainder in CPU_TICKS */
-  uint32_t rem_cpu_ticks = cpu_ticks_of_usec(us) - d_sys_ticks * sys_time.resolution_cpu_ticks;
-  /* cortex systick counts backwards, end value is reload_value - remainder */
-  uint32_t end_cpu_ticks = systick_get_reload() - rem_cpu_ticks;
-
-  /* first wait until end time in SYS_TIME_TICKS */
-  while (sys_time.nb_tick < end_nb_tick);
-  /* then wait remaining cpu ticks */
-  while (systick_get_value() > end_cpu_ticks);
+  // start time
+  uint32_t start = systick_get_value();
+  // max time of one full counter cycle (n + 1 ticks)
+  uint32_t DT = usec_of_cpu_ticks(systick_get_reload() + 1);
+  // number of cycles
+  uint32_t n = us / DT;
+  // remaining number of cpu ticks
+  uint32_t rem = cpu_ticks_of_usec(us % DT);
+  // end time depend on the current value of the counter
+  uint32_t end;
+  if (rem < start) {
+    end = start - rem;
+  }
+  else {
+    // one more count flag is required
+    n++;
+    end = systick_get_reload() - rem + start;
+  }
+  // count number of cycles (when counter reachs 0)
+  while (n) {
+    while (!systick_get_countflag());
+    n--;
+  }
+  // wait remaining ticks
+  while (systick_get_value() > end);
 #endif
 }
 
