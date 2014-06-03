@@ -49,14 +49,6 @@
 #endif
 #endif
 
-#ifndef LOWPASS_HFF_CUTOFF_FREQUENCY
-#define LOWPASS_HFF_CUTOFF_FREQUENCY 14
-#endif
-
-#if LOWPASS_HFF_CUTOFF_FREQUENCY < 8
-#error "It is not allowed to use a cutoff frequency lower than 8Hz due to resolution issues."
-#endif
-
 /* horizontal filter propagation frequency */
 #define HFF_FREQ (AHRS_PROPAGATE_FREQUENCY/HFF_PRESCALER)
 #define DT_HFILTER (1./HFF_FREQ)
