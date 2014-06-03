@@ -29,6 +29,7 @@
 #define SYS_TIME_ARCH_H
 
 #include "std.h"
+#include <unistd.h>
 
 extern void sys_tick_handler(int signum);
 
@@ -51,6 +52,8 @@ static inline uint32_t get_sys_time_msec(void) {
     msec_of_cpu_ticks(sys_time.nb_sec_rem);
 }
 
-static inline void sys_time_usleep(uint32_t us __attribute__ ((unused))) {}
+static inline void sys_time_usleep(uint32_t us) {
+  usleep(us);
+}
 
 #endif /* SYS_TIME_ARCH_H */
