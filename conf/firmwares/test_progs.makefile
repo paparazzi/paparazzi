@@ -286,8 +286,9 @@ test_baro_board.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_baro_board.srcs += subsystems/air_data.c
 test_baro_board.srcs += test/test_baro_board.c
 test_baro_board.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-
+ifeq ($(TARGET),test_baro_board)
 include $(CFG_SHARED)/baro_board.makefile
+endif
 test_baro_board.CFLAGS += $(BARO_BOARD_CFLAGS)
 test_baro_board.srcs += $(BARO_BOARD_SRCS)
 
