@@ -82,6 +82,14 @@ def check_autoboot():
     else:
         return False
 
+# Check if custom wifi_setup script is installed
+def check_wifi_setup():
+    check_wifi = execute_command('grep "static_ip_address_base" /bin/wifi_setup.sh')
+    if "static_ip_address_base" in check_wifi:
+        return True
+    else:
+        return False
+
 # Check the filesystem
 def check_filesystem():
     return execute_command('df -h')
@@ -122,6 +130,42 @@ def ardrone2_start_vision():
     # Show result
     execute_command("ls -altr /opt/arm/gst/bin")
 
+# Install autoboot script
+def ardrone2_install_autoboot():
+    print('Uploading autoboot script')
+    ftp.storbinary("STOR check_update.sh", file("check_update.sh", "rb"))
+    print(execute_command("mv /data/video/check_update.sh /bin/check_update.sh"))
+    print(execute_command("chmod 777 /bin/check_update.sh"))
+
+# Install network script
+def ardrone2_install_network_script():
+    print('Uploading Wifi script')
+    ftp.storbinary("STOR wifi_setup.sh", file("wifi_setup.sh", "rb"))
+    print(execute_command("mv /data/video/wifi_setup.sh /bin/wifi_setup.sh"))
+    print(execute_command("chmod 777 /bin/wifi_setup.sh"))
+
+# Set network SSID
+def ardrone2_set_ssid(name):
+    write_to_config('ssid_single_player', name)
+    print('The network ID (SSID) of the ARDrone 2 is changed to ' + name)
+
+# Set IP address
+def ardrone2_set_ip_address(address):
+    splitted_ip = address.split(".")
+    write_to_config('static_ip_address_base', splitted_ip[0] + '.' + splitted_ip[1] + '.' + splitted_ip[2] + '.')
+    write_to_config('static_ip_address_probe', splitted_ip[3])
+    print('The IP Address of the ARDrone 2 is changed to ' + address)
+
+# Set wifi mode (0: master, 1: ad-hoc, 2: managed, *: master)
+def ardrone2_set_wifi_mode(mode):
+    modes = { 'master' : '0', 'ad-hoc' : '1', 'managed' : '2' }
+    try:
+        val = modes[mode]
+    except:
+        print('Unexpected wifi mode, setting to master (default)')
+        val = modes['master']
+    write_to_config('wifi_mode', val)
+    print('The Wifi mode of the ARDrone2 is changed to ' + mode + ' (' + val + ')')
 
 def ardrone2_status():
     config_ini = execute_command('cat /data/config.ini')
@@ -150,7 +194,7 @@ def ardrone2_status():
     vision_framework = ""
     if check_vision_installed():
         vision_framework += "Installed"
-    if check_vision_running:
+    if check_vision_running():
         vision_framework += " and running"
     print('Vision framework:\t' + vision_framework)
 
@@ -186,6 +230,15 @@ subparser_networkid = subparsers.add_parser('networkid', help='Set the network I
 subparser_networkid.add_argument('name', help='the new network ID(SSID)')
 subparser_ipaddress = subparsers.add_parser('ipaddress', help='Set the IP address of the ARDrone 2')
 subparser_ipaddress.add_argument('address', help='the new IP address')
+subparser_wifimode = subparsers.add_parser('wifimode', help='Set the Wifi mode the ARDrone 2')
+subparser_wifimode.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed'])
+subparser_configure_network = subparsers.add_parser('configure_network', help='Configure the network on the ARDrone 2')
+subparser_configure_network.add_argument('name', help='the new network ID(SSID)')
+subparser_configure_network.add_argument('address', help='the new IP address')
+subparser_configure_network.add_argument('mode', help='the new Wifi mode', choices=['master', 'ad-hoc', 'managed'])
+subparser_install_autostart = subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the ARDrone 2')
+subparser_install_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'paparazzi_sdk'],
+                                 help='what to start on boot')
 subparser_autostart = subparsers.add_parser('autostart', help='Set what to start on boot for the ARDrone 2')
 subparser_autostart.add_argument('type', choices=['native', 'paparazzi_raw', 'paparazzi_sdk'],
                                  help='what to start on boot')
@@ -225,20 +278,68 @@ elif args.command == 'start':
 
 # Change the network ID
 elif args.command == 'networkid':
-    write_to_config('ssid_single_player', args.name)
-    print('The network ID (SSID) of the ARDrone 2 is changed to ' + args.name)
+    ardrone2_set_ssid(args.name)
 
-    if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+    if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
         ardrone2_reboot()
 
 # Change the IP address
 elif args.command == 'ipaddress':
-    splitted_ip = args.address.split(".")
-    write_to_config('static_ip_address_base', splitted_ip[0] + '.' + splitted_ip[1] + '.' + splitted_ip[2] + '.')
-    write_to_config('static_ip_address_probe', splitted_ip[3])
-    print('The IP Address of the ARDrone 2 is changed to ' + args.address)
+    ardrone2_set_ip_address(args.address)
 
-    if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+    if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+        ardrone2_reboot()
+
+# Change the wifi mode
+elif args.command == 'wifimode':
+    ardrone2_set_wifi_mode(args.mode)
+    
+    if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+        ardrone2_reboot()
+
+# Install and configure network
+elif args.command == 'configure_network':
+    config_ini = execute_command('cat /data/config.ini')
+    print('=== Current network setup ===')
+    print('Network id:\t' + read_from_config('ssid_single_player', config_ini))
+    print('Host:\t\t' + args.host + ' (' + read_from_config('static_ip_address_base', config_ini) +
+          read_from_config('static_ip_address_probe', config_ini) + ' after boot)')
+    print('Mode:\t\t' + read_from_config('wifi_mode', config_ini))
+    print('=============================')
+    if check_wifi_setup():
+        print('Custom Wifi script already installed')
+        if raw_input("Shall I reinstall the Wifi script (y/N) ").lower() == 'y':
+            ardrone2_install_network_script()
+    else:
+        if raw_input("Shall I install custom Wifi script (recommanded) (y/N) ").lower() == 'y':
+            ardrone2_install_network_script()
+    ardrone2_set_ssid(args.name)
+    ardrone2_set_ip_address(args.address)
+    ardrone2_set_wifi_mode(args.mode)
+    config_ini = execute_command('cat /data/config.ini')
+    print('== New network setup after boot ==')
+    print('Network id:\t' + read_from_config('ssid_single_player', config_ini))
+    print('Host:\t\t' + read_from_config('static_ip_address_base', config_ini) +
+          read_from_config('static_ip_address_probe', config_ini))
+    print('Mode:\t\t' + read_from_config('wifi_mode', config_ini))
+    print('==================================')
+
+    if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+        ardrone2_reboot()
+
+# Install and configure autostart
+elif args.command == 'install_autostart':
+    if check_autoboot():
+        print('Custom autostart script already installed')
+        if raw_input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
+            ardrone2_install_autoboot()
+    else:
+        ardrone2_install_autoboot()
+    autorun = {'native': '0', 'paparazzi_raw': '1', 'paparazzi_sdk': '2'}
+    write_to_config('start_paparazzi', autorun[args.type])
+    print('The autostart on boot is changed to ' + args.type)
+
+    if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
         ardrone2_reboot()
 
 # Change the autostart
@@ -251,7 +352,7 @@ elif args.command == 'autostart':
 elif args.command == 'installvision':
     if check_vision_installed():
         print('Vision framework already installed')
-        if input("Shall I reinstall the vision framework? (y/N) ").lower() == 'y':
+        if raw_input("Shall I reinstall the vision framework? (y/N) ").lower() == 'y':
             ardrone2_remove_vision()
             ardrone2_install_vision()
 
@@ -265,7 +366,7 @@ elif args.command == 'startvision':
     else:
         if not check_vision_installed():
             print('No vision framework installed')
-            if input("Shall I install the vision framework? (y/N) ").lower() == 'y':
+            if raw_input("Shall I install the vision framework? (y/N) ").lower() == 'y':
                 ardrone2_install_vision()
 
         if check_vision_installed():
@@ -282,7 +383,7 @@ elif args.command == 'upload_gst_module':
     else:
         if not check_vision_installed():
             print('Warning: No vision framework installed')
-            if input("Warning: Shall I install the vision framework? (y/N) ").lower() == 'y':
+            if raw_input("Warning: Shall I install the vision framework? (y/N) ").lower() == 'y':
                 ardrone2_install_vision()
 
         if check_vision_installed():
