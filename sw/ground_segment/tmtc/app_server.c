@@ -185,12 +185,13 @@ int get_ac_data(char* InStr, char* RetBuf) {
   //Get & create return string
   if ( AcID > 0 ) {
     //Dont search it, it is thereeee :)
-    sprintf(RetBuf, "AppServer ACd %d %s %s %s %d %d\n", AcID,
+    sprintf(RetBuf, "AppServer ACd %d %s %s %s %d %d %d\n", AcID,
         DevNames[AcID].name,
         DevNames[AcID].type,
         DevNames[AcID].color,
         DevNames[AcID].dl_launch_ind,
-        DevNames[AcID].kill_thr_ind);
+        DevNames[AcID].kill_thr_ind,
+        DevNames[AcID].flight_altitude_ind);
   }
   return AcID;
 }
