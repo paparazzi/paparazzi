@@ -42,6 +42,12 @@
   <firmware name="test_progs">
     <target name="test_sys_time_timer" board="lisa_mx_2.0"/>
     <target name="test_telemetry" board="lisa_mx_2.0"/>
+    <target name="test_radio_control" board="lisa_mx_2.0">
+      <subsystem name="radio_control" type="spektrum">
+        <define name="RADIO_MODE" value="RADIO_AUX1"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
+      </subsystem>
+    </target>
   </firmware>
 
   <modules>

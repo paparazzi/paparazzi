@@ -14,10 +14,10 @@ RADIO_CONTROL_LED ?= none
 
 ifeq ($(NORADIO), False)
   ifneq ($(RADIO_CONTROL_DATALINK_LED),none)
-    ap.CFLAGS += -DRADIO_CONTROL_DATALINK_LED=$(RADIO_CONTROL_DATALINK_LED)
+    RC_CFLAGS += -DRADIO_CONTROL_DATALINK_LED=$(RADIO_CONTROL_DATALINK_LED)
   endif
   ifneq ($(RADIO_CONTROL_LED),none)
-    ap.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+    RC_CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
     fbw.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
   endif
   $(TARGET).CFLAGS += -DRADIO_CONTROL
@@ -27,4 +27,10 @@ ifeq ($(NORADIO), False)
   $(TARGET).srcs   += $(SRC_SUBSYSTEMS)/radio_control/rc_datalink.c
 # arch only with sim target for compatibility (empty functions)
   sim.srcs += $(SRC_ARCH)/subsystems/radio_control/rc_datalink.c
+
+  ap.CFLAGS += $(RC_CFLAGS)
+  ap.srcs   += $(RC_SRCS)
+
+  test_radio_control.CFLAGS += $(RC_CFLAGS)
+  test_radio_control.srcs   += $(RC_SRCS)
 endif

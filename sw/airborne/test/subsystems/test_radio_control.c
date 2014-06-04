@@ -34,7 +34,6 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 static        void main_on_radio_control_frame( void );
-//static        void main_on_radio_control_status_changed( void );
 
 int main( void ) {
   main_init();
@@ -94,8 +93,3 @@ static void main_on_radio_control_frame( void ) {
 
 }
 
-/*
-static void main_on_radio_control_status_changed( void ) {
-
-}
-*/
