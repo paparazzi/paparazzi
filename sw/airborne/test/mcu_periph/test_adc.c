@@ -37,8 +37,11 @@ static struct adc_buf adc0_buf;
 static struct adc_buf adc1_buf;
 static struct adc_buf adc2_buf;
 static struct adc_buf adc3_buf;
+static struct adc_buf vsupply_buf;
 
-extern uint8_t adc_new_data_trigger;
+#ifndef VoltageOfAdc
+#define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
+#endif
 
 static inline void main_init( void ) {
     mcu_init();
@@ -48,6 +51,7 @@ static inline void main_init( void ) {
     adc_buf_channel(1, &adc1_buf, 3);
     adc_buf_channel(2, &adc2_buf, 3);
     adc_buf_channel(3, &adc3_buf, 3);
+    adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_buf, DEFAULT_AV_NB_SAMPLE);
 }
 
 int main( void ) {
@@ -66,18 +70,12 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(100, {DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sys_time.nb_sec);});
   LED_PERIODIC();
+
+  uint16_t v1 = 10 * VoltageOfAdc((vsupply_buf.sum/vsupply_buf.av_nb_sample));
+  uint16_t v2 = 10 * VoltageOfAdc((vsupply_buf.values[0]));
+  RunOnceEvery(50, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &v1, &v2)});
 }
 
 static inline void main_event_task( void ) {
-
-  if (adc_new_data_trigger) {
-    adc_new_data_trigger = 0;
-    uint16_t v1 = 123;
-    uint16_t v2 = 123;
-    //    v1 = (((adc0_buf.values[0])));
-    v1 = adc0_buf.sum/adc0_buf.av_nb_sample;
-    v2 = (((adc3_buf.values[0])));
-    RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &v1, &v2)});
-  }
 
 }

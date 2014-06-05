@@ -97,7 +97,6 @@
 #include "mcu_periph/gpio.h"
 #include "mcu_arch.h"
 #include "std.h"
-#include "led.h"
 #include BOARD_CONFIG
 
 
@@ -189,8 +188,6 @@ static inline void adc_init_irq( void );
  * There are 3 separate buffer lists, each holds the addresses of the actual adc buffers
  * for the particular adc converter.
  */
-
-volatile uint8_t adc_new_data_trigger;
 
 static uint8_t nb_adc1_channels = 0;
 static uint8_t nb_adc2_channels = 0;
@@ -349,8 +346,6 @@ void adc_init( void ) {
   for (x = 0; x < 4; x++) { adc3_buffers[x] = NULL; }
   adc_init_single(ADC3, nb_adc3_channels, adc_channel_map);
 #endif // USE_AD3
-
-  adc_new_data_trigger = FALSE;
 
 #if USE_ADC_WATCHDOG
   adc_watchdog.cb = NULL;
@@ -571,7 +566,7 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
 #if defined(STM32F1)
 void adc1_2_isr(void)
 #elif defined(STM32F4)
-  void adc_isr(void)
+void adc_isr(void)
 #endif
 {
   uint8_t channel = 0;
@@ -614,12 +609,9 @@ void adc1_2_isr(void)
 #if USE_ADC_WATCHDOG
   }
 #endif
-
-#if !USE_AD2 && !USE_AD3
-    adc_new_data_trigger = TRUE;
-#endif
   }
-#endif
+#endif // USE_AD1
+
 #if USE_AD2
   if (adc_eoc_injected(ADC2)){
     ADC_SR(ADC2) &= ~ADC_SR_JEOC;
@@ -636,11 +628,9 @@ void adc1_2_isr(void)
 #if USE_ADC_WATCHDOG
   }
 #endif
-#if !USE_AD3
-    adc_new_data_trigger = TRUE;
-#endif
   }
-#endif
+#endif // USE_AD2
+
 #if USE_AD3
   if (adc_eoc_injected(ADC3)){
     ADC_SR(ADC3) &= ~ADC_SR_JEOC;
@@ -657,10 +647,8 @@ void adc1_2_isr(void)
 #if USE_ADC_WATCHDOG
   }
 #endif
-    adc_new_data_trigger = TRUE;
   }
-#endif
-
+#endif // USE_AD3
 
   return;
 }
