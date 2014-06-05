@@ -44,6 +44,8 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
 
+// for timer_get_frequency
+#include "mcu_arch.h"
 
 #define ONE_MHZ_CLK 1000000
 #ifdef NVIC_TIM_IRQ_PRIO
@@ -58,19 +60,6 @@ uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
-/*
- * Timer clock frequency (before prescaling) is twice the frequency
- * of the APB domain to which the timer is connected.
- */
-
-#ifdef STM32F1
-/**
- * HCLK = 72MHz, Timer clock also 72MHz since
- * TIM1_CLK = APB2 = 72MHz
- * TIM2_CLK = 2 * APB1 = 2 * 32MHz
- */
-#define PPM_TIMER_CLK       AHB_CLK
-#endif
 
 #if USE_PPM_TIM2
 
@@ -78,27 +67,11 @@ PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #define PPM_TIMER           TIM2
 #define RCC_TIM_PPM         RCC_TIM2
 
-#ifdef STM32F4
-/* Since APB prescaler != 1 :
- * Timer clock frequency (before prescaling) is twice the frequency
- * of the APB domain to which the timer is connected.
- */
-#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
-#endif
-
 #elif USE_PPM_TIM3
 
 PRINT_CONFIG_MSG("Using TIM3 for PPM input.")
 #define PPM_TIMER           TIM3
 #define RCC_TIM_PPM         RCC_TIM3
-
-#ifdef STM32F4
-/* Since APB prescaler != 1 :
- * Timer clock frequency (before prescaling) is twice the frequency
- * of the APB domain to which the timer is connected.
- */
-#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
-#endif
 
 #elif USE_PPM_TIM4
 
@@ -106,27 +79,11 @@ PRINT_CONFIG_MSG("Using TIM4 for PPM input.")
 #define PPM_TIMER           TIM4
 #define RCC_TIM_PPM         RCC_TIM4
 
-#ifdef STM32F4
-/* Since APB prescaler != 1 :
- * Timer clock frequency (before prescaling) is twice the frequency
- * of the APB domain to which the timer is connected.
- */
-#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
-#endif
-
 #elif USE_PPM_TIM5
 
 PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
 #define PPM_TIMER           TIM5
 #define RCC_TIM_PPM         RCC_TIM5
-
-#ifdef STM32F4
-/* Since APB prescaler != 1 :
- * Timer clock frequency (before prescaling) is twice the frequency
- * of the APB domain to which the timer is connected.
- */
-#define PPM_TIMER_CLK       (rcc_ppre1_frequency * 2)
-#endif
 
 #elif USE_PPM_TIM1
 
@@ -134,19 +91,11 @@ PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
 #define PPM_TIMER           TIM1
 #define RCC_TIM_PPM         RCC_TIM1
 
-#ifdef STM32F4
-#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
-#endif
-
 #elif USE_PPM_TIM8
 
 PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
 #define PPM_TIMER           TIM8
 #define RCC_TIM_PPM         RCC_TIM8
-
-#ifdef STM32F4
-#define PPM_TIMER_CLK       (rcc_ppre2_frequency * 2)
-#endif
 
 #else
 #error Unknown PPM input timer configuration.
@@ -165,7 +114,8 @@ void ppm_arch_init ( void ) {
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
-  timer_set_prescaler(PPM_TIMER, (PPM_TIMER_CLK / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+  uint32_t timer_clk = timer_get_frequency(PPM_TIMER);
+  timer_set_prescaler(PPM_TIMER, (timer_clk / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
 
  /* TIM configuration: Input Capture mode ---------------------
      The Rising edge is used as active edge

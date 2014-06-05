@@ -32,36 +32,24 @@
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
 
+// for timer_get_frequency
+#include "mcu_arch.h"
+
 #include BOARD_CONFIG
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
 #define MAX_SPEKTRUM_FRAMES 2
 #define MAX_SPEKTRUM_CHANNELS 16
 
+#define ONE_MHZ 1000000
+
 /* Number of low pulses sent to satellite receivers */
 #define MASTER_RECEIVER_PULSES 5
 #define SLAVE_RECEIVER_PULSES 6
 
-#define TIM_FREQ_1000000 1000000
 #define TIM_TICS_FOR_100us 100
 #define MIN_FRAME_SPACE  70  // 7ms
 #define MAX_BYTE_SPACE  3   // .3ms
-
-#ifdef STM32F1
-/**
- * HCLK = 72MHz, Timer clock also 72MHz since
- * TIM1_CLK = APB2 = 72MHz
- * TIM2_CLK = 2 * APB1 = 2 * 32MHz
- */
-#define TIM6_CLK       AHB_CLK
-#endif
-#ifdef STM32F4
-/* Since APB prescaler != 1 :
- * Timer clock frequency (before prescaling) is twice the frequency
- * of the APB domain to which the timer is connected.
- */
-#define TIM6_CLK       (rcc_ppre1_frequency * 2)
-#endif
 
 #ifndef NVIC_TIM6_IRQ_PRIO
 #define NVIC_TIM6_IRQ_PRIO 2
@@ -516,7 +504,9 @@ void SpektrumTimerInit( void ) {
   timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT, 0, 0);
   /* 100 microseconds ie 0.1 millisecond */
   timer_set_period(TIM6, TIM_TICS_FOR_100us-1);
-  timer_set_prescaler(TIM6, ((TIM6_CLK / TIM_FREQ_1000000) - 1));
+  uint32_t tim6_clk = timer_get_frequency(TIM6);
+  /* timer ticks with 1us */
+  timer_set_prescaler(TIM6, ((tim6_clk / ONE_MHZ) - 1));
 
   /* Enable TIM6 interrupts */
 #ifdef STM32F1
