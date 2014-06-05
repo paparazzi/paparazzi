@@ -118,10 +118,8 @@ uint32_t timer_get_frequency(uint32_t timer_peripheral)
 {
   switch (timer_peripheral) {
     // Timers on APB1
-#if ADVANCED_TIMERS
     case TIM1:
     case TIM8:
-#endif
 #ifdef TIM9
     case TIM9:
 #endif
