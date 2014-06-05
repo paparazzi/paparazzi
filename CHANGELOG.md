@@ -1,5 +1,27 @@
 Not necessarily complete and in no particular order...
 
+- flight plans: don't set nav_pitch to 0 at each stage init
+  [#727] (https://github.com/paparazzi/paparazzi/pull/727)
+- modules: gps_ubx_ucenter: fix version check for Ublox 7
+- logalizer: export lat/lon with 9 decimal places
+- messages: add GEO_MAG message to send magnetic field
+  [#735] (https://github.com/paparazzi/paparazzi/pull/735)
+
+STM32 architecture
+------------------
+
+- fix I2C bitrate on F4
+  [#729] (https://github.com/paparazzi/paparazzi/pull/729)
+- fix sys_time_usleep
+  [#739] (https://github.com/paparazzi/paparazzi/pull/739)
+- fix spektrum on F4
+  [#732] (https://github.com/paparazzi/paparazzi/pull/732)
+- timer frequency cleanup
+  [#734] (https://github.com/paparazzi/paparazzi/pull/734)
+- split spektrum uart rx and config pin for Apogee
+  [#733] (https://github.com/paparazzi/paparazzi/pull/733)
+
+
 Paparazzi 5.1.1_testing
 =======================
 
@@ -21,6 +43,7 @@ General
 
 Airborne
 --------
+
 - Modules: rewrite humid_sht using gpio interface (supporting STM as well as LPC now)
   [#721] (https://github.com/paparazzi/paparazzi/pull/721)
 - INS int: removed INS_SONAR_VARIANCE_THRESHOLD, INS_SONAR_MIN_RANGE defaults to 1mm
@@ -184,6 +207,18 @@ Fixedwing firmware
 - extra navigation routines as modules
   [#512] (https://github.com/paparazzi/paparazzi/pull/512)
 - NavSetAltitudeReferenceHere added
+
+
+Paparazzi 5.0.5_stable
+======================
+
+Maintenance release
+
+- fix field order in HFF_DBG message
+- fix altitude in some extra nav routines
+- fix create_module tool
+- fix RCLost macro
+- add GetAltRef() for flight plan compatibility with v5.2
 
 
 Paparazzi 5.0.4_stable
