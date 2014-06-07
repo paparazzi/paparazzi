@@ -511,7 +511,8 @@ let check_alerts = fun a ->
                "level", Pprz.String level;
                "value", Pprz.Float a.bat] in
     Alerts_Pprz.message_send my_id "BAT_LOW" vs in
-  if a.bat < catastrophic_level then send "CATASTROPHIC"
+  if a.bat < 1. then send "INVALID"
+  else if a.bat < catastrophic_level then send "CATASTROPHIC"
   else if a.bat < critic_level then send "CRITIC"
   else if a.bat < warning_level then send "WARNING"
 
