@@ -39,6 +39,7 @@
 
 #include "std.h"
 
+#if defined(STM32F4)
 /** 25MHz external clock to PLL it to 168MHz */
 const clock_scale_t hse_25mhz_3v3_168mhz = { /* 168MHz */
   .pllm = 25,
@@ -53,6 +54,7 @@ const clock_scale_t hse_25mhz_3v3_168mhz = { /* 168MHz */
   .apb1_frequency = 42000000,
   .apb2_frequency = 84000000,
 };
+#endif
 
 void mcu_arch_init(void) {
 #if LUFTBOOT
