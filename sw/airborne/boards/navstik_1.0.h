@@ -23,10 +23,6 @@
 #ifndef CONFIG_NAVSTIK_1_0_H
 #define CONFIG_NAVSTIK_1_0_H
 
-/* #include "boards/lisa_m_common.h" */
-
-#define BOARD_NAVSTIK
-
 /* Navstik has a 12MHz external clock and 168MHz internal. */
 #define EXT_CLK 25000000
 #define AHB_CLK 168000000

@@ -40,7 +40,7 @@
     <target name="test_sys_time_timer" board="navstik_1.0"/>
     <target name="test_telemetry" board="navstik_1.0"/>
     <target name="test_actuators_pwm" board="navstik_1.0"/>
-    <target name="test_actuators_pwm_sin" board="navstik_1.0"/> 
+    <target name="test_actuators_pwm_sin" board="navstik_1.0"/>
   </firmware>
 
   <modules>

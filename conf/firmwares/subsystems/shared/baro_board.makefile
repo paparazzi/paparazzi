@@ -20,10 +20,10 @@ else ifeq ($(BOARD), lisa_l)
 
 # Navstik baro
 else ifeq ($(BOARD), navstik)
-  ap.CFLAGS += -DUSE_I2C3
-  ap.CFLAGS += -DBARO_BOARD=BARO_BOARD_BMP085
-  ap.srcs += peripherals/bmp085.c
-  ap.srcs += $(SRC_BOARD)/baro_board.c
+  BARO_BOARD_CFLAGS += -DUSE_I2C3
+  BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_BOARD_BMP085
+  BARO_BOARD_SRCS += peripherals/bmp085.c
+  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
 # Ardrone baro
 else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
