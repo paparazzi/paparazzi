@@ -74,6 +74,9 @@ char ivybuffer[BUFLEN];
 // verbose flag
 int verbose = 0;
 
+//TCP flag
+int uTCP = 0;
+
 //Block structure
 typedef struct {
   //Will we need any more block data?
@@ -109,6 +112,8 @@ typedef struct {
   int used ;
   int client_port; //do we need that??
   char client_ip[MAXIPLEN];
+  //GSocketConnection *connection;
+  gpointer ClientTcpData;
 } client_data;
 
 client_data ConnectedClients[MAXCLIENT];  //Holds all status of devices
@@ -143,7 +148,7 @@ void remove_client(char* RemClientIpAd) {
 }
 
 //Record client (if new)
-void add_client(char* ClientIpAd) {
+void add_client(char* ClientIpAd, gpointer connection_in) {
   /* Check if client exists. If exists return else record it */
   int i;
   for (i = 0; i < MAXCLIENT; i++) {
@@ -160,6 +165,7 @@ void add_client(char* ClientIpAd) {
 
     //record new client ip
     g_stpcpy(ConnectedClients[i].client_ip,ClientIpAd);
+    ConnectedClients[i].ClientTcpData = connection_in;
     //
     ConnectedClients[i].used = 1;
     if (verbose) {
@@ -191,7 +197,8 @@ int get_ac_data(char* InStr, char* RetBuf) {
         DevNames[AcID].color,
         DevNames[AcID].dl_launch_ind,
         DevNames[AcID].kill_thr_ind,
-        DevNames[AcID].flight_altitude_ind);
+	DevNames[AcID].flight_altitude_ind
+ 	  );
   }
   return AcID;
 }
@@ -253,8 +260,25 @@ int get_bl_data(char* InStr, char* RetBuf) {
 
 //Bfoadcast ivy msgs to clients
 void broadcast_to_clients () {
+int i;
 
-  int i;
+  if (uTCP) {
+    GError *error = NULL;
+
+    for (i = 0; i < MAXCLIENT; i++) {
+      if (ConnectedClients[i].used > 0) {
+	//printf("App Server: 1.. %s\n",ivybuffer);
+	GOutputStream * ostream = g_io_stream_get_output_stream (ConnectedClients[i].ClientTcpData);
+	//printf("App Server: 2.. %s\n",ivybuffer);
+        g_output_stream_write(ostream, ivybuffer, strlen(ivybuffer), NULL, &error);
+      }
+
+    }
+  return;
+  }
+
+
+  i=0;
   for (i = 0; i < MAXCLIENT; i++) {
     if (ConnectedClients[i].used > 0) {
 
@@ -287,6 +311,7 @@ void broadcast_to_clients () {
       g_object_unref(udpSocket);
     }
   }
+
 }
 
 //Read tcp requests of connected clients
@@ -298,9 +323,22 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
 
   if (ret == G_IO_STATUS_ERROR) {
     //unref connection
-    g_object_unref (data);
-    g_string_free (s,TRUE);
-    return FALSE;
+      GSocketAddress *sockaddr = g_socket_connection_get_remote_address(data, NULL);
+      GInetAddress *addr = g_inet_socket_address_get_address(G_INET_SOCKET_ADDRESS(sockaddr));
+      //Read sender ip
+      if (verbose) {
+        printf("App Server: Communication error.. Removing client.. ->%s\n", g_inet_address_to_string(addr));
+        fflush(stdout);
+      }
+      //Remove client
+      remove_client(g_inet_address_to_string(addr));
+      //Free objects
+      g_string_free(s, TRUE);
+      g_object_unref(sockaddr);
+      g_object_unref(addr);
+      g_object_unref(data);
+      //Return false to stop listening this socket
+      return FALSE;
   }
   else{
     //Read request command
@@ -313,7 +351,7 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
       incs = g_string_erase(s,0,(strlen(AppPass)+1));
       IvySendMsg("%s",incs->str);
       if (verbose) {
-        printf("App Server: Command passed to ivy.. %s\n",incs->str);
+        printf("App Server: Command passed to ivy: %s\n",incs->str);
         fflush(stdout);
       }
     }
@@ -371,7 +409,7 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
     else {
       //Unknown command
       if (verbose) {
-        printf("App Server: Client send an unknown command or wrong password: %s\n",RecString);
+        printf("App Server: Client send an unknown command or wrong password: (%s)\n",RecString);
         fflush(stdout);
       }
     }
@@ -380,7 +418,10 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
   if (ret == G_IO_STATUS_EOF) {
     //Client disconnected
     if (verbose) {
-      printf("App Server: Client disconnected without saying 'bye':(\n");
+      GSocketAddress *sockaddr = g_socket_connection_get_remote_address(data, NULL);
+      GInetAddress *addr = g_inet_socket_address_get_address(G_INET_SOCKET_ADDRESS(sockaddr));
+      printf("App Server: Client disconnected without saying 'bye':( ->%s\n", g_inet_address_to_string(addr));
+      remove_client(g_inet_address_to_string(addr));
       fflush(stdout);
     }
     g_string_free(s, TRUE);
@@ -392,7 +433,7 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
   g_string_free(s, TRUE);
   return TRUE;
 }
-
+//GIOStream *stream
 //New tcp conection
 gboolean new_connection(GSocketService *service, GSocketConnection *connection, GObject *source_object, gpointer user_data) {
 
@@ -407,7 +448,7 @@ gboolean new_connection(GSocketService *service, GSocketConnection *connection, 
   }
 
   //Record client (if new)
-  add_client(g_inet_address_to_string(addr));
+  add_client(g_inet_address_to_string(addr), connection);
 
   g_object_ref (connection);
   GSocket *socket = g_socket_connection_get_socket(connection);
@@ -421,8 +462,9 @@ gboolean new_connection(GSocketService *service, GSocketConnection *connection, 
 //Ivy msg function
 void Ivy_All_Msgs(IvyClientPtr app, void *user_data, int argc, char *argv[]){
   //Ivy msg received broadcast to clients..
-  sprintf(ivybuffer, "%s", argv[0]);
+  sprintf(ivybuffer, "%s\n", argv[0]);
   broadcast_to_clients();
+
 }
 
 //Parse AC flight plan xml (block & waypoint names
@@ -667,7 +709,7 @@ void parse_ac_data (char *PprzFolder) {
         strcat(DevNames[AcId].airframe_path , (char *) AfPath);
 
         //Save Settings Path
-        sprintf(DevNames[AcId].settings_path, "/var/%s/settings.xml", (char *) AcName);
+        sprintf(DevNames[AcId].settings_path, "/var/aircrafts/%s/settings.xml", (char *) AcName);
 
         //parse flight plan file for waypoint and block names
         char FlightPlanPath[BUFLEN];
@@ -717,6 +759,7 @@ void print_help() {
   printf("   -u <UDP port>\tfor sending AC data (default: %d)\n", udp_port);
   printf("   -b <Ivy bus>\tdefault is %s\n", defaultIvyBus);
   printf("   -p <password>\tpassword for connection with control capabilities (default is %s)\n", defaultAppPass);
+  printf("   -utcp \t\tUse TCP communication to send ivy messages (default: UDP )\n");
   printf("   -v\tverbose\n");
   printf("   -h --help show this help\n");
 }
@@ -756,6 +799,9 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[i], "-v") == 0) {
       verbose = 1;
     }
+    else if (strcmp(argv[i], "-utcp") == 0) {
+      uTCP = 1;
+    }
     else {
       printf("App Server: Unknown option\n");
       print_help();
@@ -767,7 +813,11 @@ int main(int argc, char **argv) {
     printf("### Paparazzi App Server ###\n");
     printf("Using Paparazzi Folder      : %s\n", PprzFolder);
     printf("Server listen port (TCP)    : %d\n", tcp_port);
+    if (uTCP) {
+    printf("Server using TCP communication..\n");
+    }else{
     printf("Server broadcast port (UDP) : %d\n", udp_port);
+    }
     printf("Control Pass                : %s\n", AppPass);
     printf("Ivy Bus                     : %s\n", IvyBus);
     fflush(stdout);
@@ -818,4 +868,3 @@ int main(int argc, char **argv) {
   }
   return 0;
 }
-
