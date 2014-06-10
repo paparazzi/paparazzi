@@ -29,7 +29,7 @@
 #define GAINS_SCHEDULING_H
 
 #include "generated/airframe.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_int.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 
 extern struct Int32AttitudeGains gainlibrary[NUMBER_OF_GAINSETS];
 
