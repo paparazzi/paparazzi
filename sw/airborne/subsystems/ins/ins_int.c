@@ -87,11 +87,11 @@ static void sonar_cb(uint8_t sender_id, const float *distance);
 PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 #endif
 
+#endif // USE_SONAR
+
 #ifndef INS_VFF_R_GPS
 #define INS_VFF_R_GPS 2.0
 #endif
-
-#endif // USE_SONAR
 
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
