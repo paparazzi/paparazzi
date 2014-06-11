@@ -3,6 +3,8 @@
 
 #Copyright 2014, Antoine Drouin
 
+from __future__ import print_function
+
 import logging, os, base64, socket
 from gi.repository import GLib, GObject
 import ivy.ivy as ivy
@@ -26,8 +28,8 @@ class Server(ivy.IvyServer):
         cs.bind(('', tcp_port))
         cs.listen(1)
         GObject.io_add_watch(cs, GObject.IO_IN, self.handle_conn)
-        print "server listening on {:d}".format(tcp_port)
-  
+        print("server listening on {:d}".format(tcp_port))
+
         self.transp = phoenix.pprz_transport.Transport(check_crc=False, debug=False)
         self.protocol = phoenix.messages.Protocol(path=os.path.abspath("../../../conf/messages_ng.xml"), debug=True)
         self.start(bus)
@@ -36,36 +38,35 @@ class Server(ivy.IvyServer):
 
     def handle_conn(self, sock, cond):
         conn, addr = sock.accept()
-	print "Connection from {}".format(addr)
-	GObject.io_add_watch(conn, GObject.IO_IN, self.handle_data)
-	return True
-    
+        print("Connection from {}".format(addr))
+        GObject.io_add_watch(conn, GObject.IO_IN, self.handle_data)
+        return True
+
     def handle_data(self, sock, cond):
         buf = sock.recv(4096)
         if not len(buf):
-		print "Connection closed."
-		return False
-	else:
-		#print phoenix.hex_of_bin(buf)
-                msgs = self.transp.parse_many(buf)
-                for hdr, payload in msgs:
-                    msg = self.protocol.get_message_by_id("telemetry", hdr.msgid)
-                    try:
-                        ivy_str = '{} {} {}'.format(hdr.acid, msg.name, ' '.join([str(v) for v in msg.unpack_values(payload)]))
-                        #print  ivy_str
-                        self.send_msg(ivy_str)
-                        self.nb_msgs += 1
-                        self.nb_bytes += len(payload)
-                    except:
-                        print 'FAILED', msg.name
-		return True
+            print("Connection closed.")
+            return False
+        else:
+            #print phoenix.hex_of_bin(buf)
+            msgs = self.transp.parse_many(buf)
+            for hdr, payload in msgs:
+                msg = self.protocol.get_message_by_id("telemetry", hdr.msgid)
+                try:
+                    ivy_str = '{} {} {}'.format(hdr.acid, msg.name, ' '.join([str(v) for v in msg.unpack_values(payload)]))
+                    #print  ivy_str
+                    self.send_msg(ivy_str)
+                    self.nb_msgs += 1
+                    self.nb_bytes += len(payload)
+                except:
+                    print('FAILED', msg.name)
+        return True
 
     def periodic(self):
-        print 'msgs {} ({} bytes)'.format(self.nb_msgs, self.nb_bytes)
+        print('msgs {} ({} bytes)'.format(self.nb_msgs, self.nb_bytes))
         return True
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
     server = Server(default_ivybus)
     GLib.MainLoop().run()
-

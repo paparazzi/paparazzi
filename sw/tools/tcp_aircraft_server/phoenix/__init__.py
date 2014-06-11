@@ -159,5 +159,5 @@ def extract_from_binary_log(protocol, packets, msg_names, t_min=None, t_max=None
                 m = protocol.get_message_by_id('telemetry', id)
                 try: i = msg_names.index(m.name)
                 except: pass
-                finally: ret[i]['time'].append(t);  ret[i]['data'].append(m.unpack_scaled_values(payload))  
+                finally: ret[i]['time'].append(t);  ret[i]['data'].append(m.unpack_scaled_values(payload))
     return ret

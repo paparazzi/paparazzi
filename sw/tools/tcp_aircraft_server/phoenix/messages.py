@@ -8,7 +8,7 @@ import logging
 import  pdb
 
 import phoenix
-import xmlobject
+from . import xmlobject
 
 LOG = logging.getLogger('PhoenixMessages')
 LOG.setLevel(logging.DEBUG)
@@ -27,16 +27,16 @@ class Field:
     **Attributes:**
         - name   : field name
 
-        - ctype  : string representing the C type of the field, 
+        - ctype  : string representing the C type of the field,
                    i.e. uint8[ARRAY_LEN] or uint8[]
-        - type   : string representing the C type of a single 
+        - type   : string representing the C type of a single
                    instance of the field, i.e. uint8
 
         - is_array :
 
         - num_elements :
-        
-        - length : the number of bytes to store the field, 
+
+        - length : the number of bytes to store the field,
                    i.e. sizeof(uint8) * ARRAY_LEN
         - pytype : the python type used to store the field value
     """
@@ -196,7 +196,7 @@ class PyField(Field):
                 self.is_enum = True
             except AttributeError:
                 self._enum_values = []
-            except KeyError, e:
+            except KeyError as e:
                 raise Exception("Referenced value does not exist: %s", e)
 
         if self.is_array:
@@ -210,7 +210,7 @@ class PyField(Field):
         else:
             self.struct_format = self.TYPE_TO_STRUCT_MAP[self.type]
             self._size = struct.calcsize(self.struct_format)
-    
+
         try:
             self._fstr = node.format
         except AttributeError:
@@ -231,7 +231,7 @@ class PyField(Field):
             alt_unit = node.alt_unit
         except AttributeError:
             alt_unit = ""
-            
+
         try:
             alt_unit_format = node.alt_unit_format
         except AttributeError:
@@ -245,7 +245,7 @@ class PyField(Field):
                 self._fstr = alt_unit_format + " " + alt_unit
         except:
             self.alt_unit_coef = None
-            
+
     def get_default_value(self):
         """ Returns a sensible default value for the type """
         if self.is_array and self.type != "char":
@@ -263,7 +263,7 @@ class PyField(Field):
             - 1,2,3: if field is an array of integers
             - ENUM_VALUE: if field is an enum
 
-        In case of failure, the default value (or the value passed in the 
+        In case of failure, the default value (or the value passed in the
         default argument) is returned
         """
         try:
@@ -314,7 +314,7 @@ class PyField(Field):
                         return self._fstr % (self.alt_unit_coef * value)
                 else:
                     return self._fstr % (value)
-                
+
     def get_scaled_value(self, value):
         """
         Returns the scaled (according to alt_unit_coef). Note, that unlike
@@ -560,7 +560,7 @@ class Protocol:
     def __init__(self, **kwargs):
         """
         **Keywords:**
-            - debug - should extra information be printed while parsing 
+            - debug - should extra information be printed while parsing
               *messages.xml*
             - path - a pathname from which the file can be read
             - file - an open file object from which the raw xml
@@ -569,7 +569,7 @@ class Protocol:
             - root - name of root tag, if not reading content
         """
         self._debug = kwargs.get("debug", False)
-        
+
         path = kwargs.get("path")
         if path and not os.path.exists(path):
             raise Exception("Could not find message file")
@@ -588,7 +588,7 @@ class Protocol:
         self._values = {}
         self._msg_classes = {}
         for msg_class in root.msg_class:
-            if msg_class.name == "telemetry" or msg_class.name == "datalink": 
+            if msg_class.name == "telemetry" or msg_class.name == "datalink":
                 self._msg_classes[msg_class.name] = MessageClass(msg_class, self._values)
 
 
@@ -602,7 +602,7 @@ class Protocol:
 
     def get_messages(self):
         """ Returns a list of :class:`PyMessage` objects """
-        return self._msgs_by_id.values()
+        return list(self._msgs_by_id.values())
 
     def get_message_by_name(self, class_name, msg_name):
         try:

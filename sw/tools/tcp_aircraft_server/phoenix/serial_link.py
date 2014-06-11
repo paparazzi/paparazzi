@@ -24,7 +24,7 @@ class PhoenixCommunication(GObject.GObject):
     def __init__(self, pprz_protocol):
         GObject.GObject.__init__(self)
         self._port = PhoenixCommunication.DEFAULT_PORT
-        self._speed = PhoenixCommunication.DEFAULT_SPEED  
+        self._speed = PhoenixCommunication.DEFAULT_SPEED
         self._watch = None
         self._is_opened = False;
         self._transp = transp.Transport(False, False)
@@ -60,13 +60,13 @@ class PhoenixCommunication(GObject.GObject):
         self._serial.write(bin_msg)
         self._nb_tx_msgs += 1
         self._nb_tx_bytes += len(bin_msg)
-        
+
     def on_connection_changed(self):
         if self._watch:
             GObject.source_remove(self._watch)
         if self._is_opened:
             self.watch = GObject.io_add_watch(
-                self._serial.fileno(), 
+                self._serial.fileno(),
                 GObject.IO_IN | GObject.IO_PRI,
                 self.on_serial_data_available,
                 priority=GObject.PRIORITY_HIGH)
@@ -77,7 +77,7 @@ class PhoenixCommunication(GObject.GObject):
         return self._is_opened, self._port
 
     def get_stats(self):
-        return self._nb_rx_msgs, self._nb_rx_bytes, self._nb_tx_msgs, self._nb_tx_bytes 
+        return self._nb_rx_msgs, self._nb_rx_bytes, self._nb_tx_msgs, self._nb_tx_bytes
 
 
     def on_serial_data_available(self, fd, condition):
@@ -100,7 +100,7 @@ class PhoenixCommunication(GObject.GObject):
 
     def update_available_ports(self):
 #        self.available_ports = filter(lambda x: x.startswith("ttyUSB") or x.startswith("ttyS") , os.listdir("/dev"))
-        self.available_ports = filter(lambda x:x.startswith("ttyUSB") , os.listdir("/dev"))
+        self.available_ports = [x for x in os.listdir("/dev") if x.startswith("ttyUSB")]
         self.available_ports.sort()
 
     def get_available_ports(self):

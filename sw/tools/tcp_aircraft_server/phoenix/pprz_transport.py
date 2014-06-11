@@ -1,4 +1,5 @@
 #Copyright 2014, Antoine Drouin
+from __future__ import print_function
 import array
 
 STX = 0x99
@@ -7,7 +8,7 @@ NUM_NON_PAYLOAD_BYTES = 6
 
 class TransportHeaderFooter:
     """
-    The header/footer of a message 
+    The header/footer of a message
 
     **Attributes:**
         - stx: start byte
@@ -27,9 +28,9 @@ class TransportHeaderFooter:
 
 class Transport:
     """
-    Class that extracts a wasp payload from a string or sequence of 
+    Class that extracts a wasp payload from a string or sequence of
     characters (data is sent in little endian byte order)
-    
+
     Data is expected in the following form ::
 
         |STX|length|AC_ID|MESSAGE_ID|... payload=(length-6) bytes ...|Checksum A|Checksum B|
@@ -37,7 +38,7 @@ class Transport:
     Payload ::
 
         |... MESSAGE DATA ...|
-    
+
     There are 6 non payload bytes in a packet (described in :mod:`TransportHeaderFooter`
         - STX
         - length
@@ -53,7 +54,7 @@ class Transport:
     STATE_GOT_ACID,     \
     STATE_GOT_MSGID,    \
     STATE_GOT_PAYLOAD,  \
-    STATE_GOT_CRC1 =    range(0,7)
+    STATE_GOT_CRC1 =    list(range(0,7))
 
     def __init__(self, check_crc=True, debug=False):
         self._check_crc = check_crc
@@ -71,7 +72,7 @@ class Transport:
 
     def _debug_msg(self, msg):
         if self._debug:
-            print msg
+            print(msg)
 
     def pack_message_with_values(self, header, message, *values):
         return self.pack_one(
@@ -91,7 +92,7 @@ class Transport:
         buf[1] = chr(total_len)
         buf[2] = chr(header.acid)
         buf[3] = chr(message.id)
-    
+
         buf.fromstring(payload)
 
         ck_a = total_len
@@ -107,7 +108,7 @@ class Transport:
 
     def parse_many(self, string):
         """
-        Similar to parse_one, but operates on a string, returning 
+        Similar to parse_one, but operates on a string, returning
         multiple payloads if successful
 
         :returns: A list of payloads strings
