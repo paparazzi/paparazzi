@@ -110,9 +110,8 @@ device_names DevNames[MAXDEVICENUMB];
 //Connected Clients Data Structure
 typedef struct {
   int used ;
-  int client_port; //do we need that??
   char client_ip[MAXIPLEN];
-  //GSocketConnection *connection;
+  //Pointer for tcp connection;
   gpointer ClientTcpData;
 } client_data;
 
@@ -260,23 +259,22 @@ int get_bl_data(char* InStr, char* RetBuf) {
 
 //Bfoadcast ivy msgs to clients
 void broadcast_to_clients () {
-int i;
+
+  int i;
 
   if (uTCP) {
+    //broadcast using tcp connection
     GError *error = NULL;
 
     for (i = 0; i < MAXCLIENT; i++) {
       if (ConnectedClients[i].used > 0) {
-	//printf("App Server: 1.. %s\n",ivybuffer);
 	GOutputStream * ostream = g_io_stream_get_output_stream (ConnectedClients[i].ClientTcpData);
-	//printf("App Server: 2.. %s\n",ivybuffer);
         g_output_stream_write(ostream, ivybuffer, strlen(ivybuffer), NULL, &error);
       }
 
     }
   return;
   }
-
 
   i=0;
   for (i = 0; i < MAXCLIENT; i++) {
@@ -433,7 +431,7 @@ gboolean network_read(GIOChannel *source, GIOCondition cond, gpointer data) {
   g_string_free(s, TRUE);
   return TRUE;
 }
-//GIOStream *stream
+
 //New tcp conection
 gboolean new_connection(GSocketService *service, GSocketConnection *connection, GObject *source_object, gpointer user_data) {
 
@@ -461,8 +459,12 @@ gboolean new_connection(GSocketService *service, GSocketConnection *connection, 
 
 //Ivy msg function
 void Ivy_All_Msgs(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+
+
+  //For compatibility.. This will be joined in upcoming releases..
+  if (uTCP) sprintf(ivybuffer, "%s\n", argv[0]);
+  else sprintf(ivybuffer, "%s", argv[0]);
   //Ivy msg received broadcast to clients..
-  sprintf(ivybuffer, "%s\n", argv[0]);
   broadcast_to_clients();
 
 }
