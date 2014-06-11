@@ -2,7 +2,7 @@
 <!DOCTYPE protocol SYSTEM "messages.dtd">
 <protocol>
  <!-- messages from modem or sim to server -->
- <class name="telemetry">
+ <msg_class name="telemetry">
 
    <message name="BOOT" id="1">
      <field name="version" type="uint16"/>
@@ -2178,11 +2178,11 @@
     <field name="V_Down" type="double"/>
   </message>
 
-</class>
+</msg_class>
 
 
 
-<class name="datalink">
+<msg_class name="datalink">
  <message name="ACINFO" id="1" link="broadcasted">
   <field name="course" type="int16" unit="decideg"></field>
   <field name="utm_east"  type="int32" unit="cm"></field>
@@ -2508,12 +2508,12 @@
    <field name="pan" type="int8"/>
  </message>
 
-</class>
+</msg_class>
 
 
 
 
-<class name="ground">
+<msg_class name="ground">
   <message name="NEW_AIRCRAFT" id="1">
     <field name="ac_id" type="string"/>
   </message>
@@ -2762,10 +2762,10 @@
     <field name="longs" type="string" format="csv"/>
     <field name="values" type="string" format="csv"/>
   </message>
-</class>
+</msg_class>
 
 
-  <class name="alert">
+  <msg_class name="alert">
     <message name="BAT_LOW" id="1">
       <field name="ac_id" type="string"/>
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
@@ -2775,11 +2775,11 @@
       <field name="ac_id" type="string"/>
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
     </message>
-  </class>
+  </msg_class>
 
 
 
-  <class name="DIA"> <!-- data in audio -->
+  <msg_class name="DIA"> <!-- data in audio -->
     <message name="NAV_INFO" id="1">
       <field name="unix_time" type="float"/>
 
@@ -2793,7 +2793,7 @@
       <field name="cam_roll"  type="int16" unit="deg"/>
       <field name="cam_pitch" type="int16" unit="deg"/>
     </message>
-  </class>
+  </msg_class>
 
 
 
