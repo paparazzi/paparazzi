@@ -68,7 +68,7 @@ let targets_of_field = fun field default ->
 (** [get_autopilot_of_airframe xml]
     * Returns (autopilot xml, main freq) from airframe xml file *)
 let get_autopilot_of_airframe = fun xml ->
-  (* extract all "modules" sections *)
+  (* extract all "autopilot" sections *)
   let section = List.filter (fun s -> compare (Xml.tag s) "autopilot" = 0) (Xml.children xml) in
   (* Raise error if more than one modules section *)
   match section with
