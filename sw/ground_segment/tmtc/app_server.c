@@ -667,7 +667,7 @@ void parse_ac_data (char *PprzFolder) {
         strcat(DevNames[AcId].airframe_path , (char *) AfPath);
 
         //Save Settings Path
-        sprintf(DevNames[AcId].settings_path, "/var/%s/settings.xml", (char *) AcName);
+        sprintf(DevNames[AcId].settings_path, "/var/aircrafts/%s/settings.xml", (char *) AcName);
 
         //parse flight plan file for waypoint and block names
         char FlightPlanPath[BUFLEN];
