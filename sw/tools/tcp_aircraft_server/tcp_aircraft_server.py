@@ -5,7 +5,7 @@
 
 from __future__ import print_function
 
-import logging, os, base64, socket
+import logging, base64, socket
 from gi.repository import GLib, GObject
 import ivy.ivy as ivy
 ivylogger = logging.getLogger('Ivy')
@@ -13,6 +13,13 @@ ivylogger.setLevel(logging.CRITICAL)
 
 import phoenix.messages
 import phoenix.pprz_transport
+
+from os import path, getenv
+
+# if PAPARAZZI_HOME not set, then assume the tree containing this
+# file is a reasonable substitute
+home_dir = getenv("PAPARAZZI_HOME", path.normpath(path.join(
+    path.dirname(path.abspath(__file__)), '../../../')))
 
 default_ivybus = '127.255.255.255:2010'
 
@@ -31,7 +38,7 @@ class Server(ivy.IvyServer):
         print("server listening on {:d}".format(tcp_port))
 
         self.transp = phoenix.pprz_transport.Transport(check_crc=False, debug=False)
-        self.protocol = phoenix.messages.Protocol(path=os.path.abspath("../../../conf/messages_ng.xml"), debug=True)
+        self.protocol = phoenix.messages.Protocol(path=path.join(home_dir, "conf/messages_ng.xml"), debug=True)
         self.start(bus)
 
         GObject.timeout_add(500, self.periodic, priority=GObject.PRIORITY_HIGH)
