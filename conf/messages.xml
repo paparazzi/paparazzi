@@ -215,7 +215,7 @@
     <field name="msg" type="uint8[]"/>
   </message>
 
-  <message name="SURVEY" ID="27">
+  <message name="SURVEY" id="27">
     <field name="east" type="float" unit="m"/>
     <field name="north" type="float" unit="m"/>
     <field name="west" type="float" unit="m"/>
@@ -916,7 +916,7 @@
     <field name="itow"  type="uint32" unit="ms"/>
   </message>
 
-  <message name="TEST_BOARD_RESULTS" ID="111">
+  <message name="TEST_BOARD_RESULTS" id="111">
     <field name="uart" type="uint8"/>
     <field name="ppm" type="uint8"/>
     <field name="servo" type="uint16[]"/>
@@ -996,7 +996,7 @@
     <field name="dn_t9" type="uint16"/>
   </message>
 
-  <message name="TCAS_TA" ID="120">
+  <message name="TCAS_TA" id="120">
     <field name="ac_id" type="uint8"/>
   </message>
 
@@ -1005,7 +1005,7 @@
     <field name="resolve" type="uint8" values="NONE|LEVEL|CLIMB|DESCEND"/>
   </message>
 
-  <message name="TCAS_RESOLVED" ID="122">
+  <message name="TCAS_RESOLVED" id="122">
     <field name="ac_id" type="uint8"/>
   </message>
 
