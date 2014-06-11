@@ -19,10 +19,10 @@
 #
 #  </section>
 #
-$(TARGET).CFLAGS  += -DUSE_IMU -DIMU_NAVSTIK -DIMU_TYPE_H=\"imu/imu_navstik.h\"
-$(TARGET).srcs    += $(SRC_SUBSYSTEMS)/imu.c $(SRC_SUBSYSTEMS)/imu/imu_navstik.c
-$(TARGET).srcs    += peripherals/hmc58xx.c
-$(TARGET).srcs    += peripherals/mpu60x0.c peripherals/mpu60x0_i2c.c
+ap.CFLAGS  += -DUSE_IMU -DIMU_NAVSTIK -DIMU_TYPE_H=\"imu/imu_navstik.h\"
+ap.srcs    += $(SRC_SUBSYSTEMS)/imu.c $(SRC_SUBSYSTEMS)/imu/imu_navstik.c
+ap.srcs    += peripherals/hmc58xx.c
+ap.srcs    += peripherals/mpu60x0.c peripherals/mpu60x0_i2c.c
 
 
 NAVSTIK_MAG_I2C_DEV ?= i2c3
@@ -33,5 +33,10 @@ NAVSTIK_MAG_I2C_DEV_LOWER=$(shell echo $(NAVSTIK_MAG_I2C_DEV) | tr A-Z a-z)
 NAVSTIK_MPU_I2C_DEV_UPPER=$(shell echo $(NAVSTIK_MPU_I2C_DEV) | tr a-z A-Z)
 NAVSTIK_MPU_I2C_DEV_LOWER=$(shell echo $(NAVSTIK_MPU_I2C_DEV) | tr A-Z a-z)
 
-$(TARGET).CFLAGS  += -DNAVSTIK_MAG_I2C_DEV=$(NAVSTIK_MAG_I2C_DEV_LOWER) -DNAVSTIK_MPU_I2C_DEV_UPPER=$(NAVSTIK_MPU_I2C_DEV_LOWER)
-$(TARGET).CFLAGS  += -DUSE_$(NAVSTIK_MAG_I2C_DEV_UPPER)=1 -DUSE_$(NAVSTIK_MPU_I2C_DEV_UPPER)=1
+ap.CFLAGS  += -DNAVSTIK_MAG_I2C_DEV=$(NAVSTIK_MAG_I2C_DEV_LOWER) -DNAVSTIK_MPU_I2C_DEV_UPPER=$(NAVSTIK_MPU_I2C_DEV_LOWER)
+ap.CFLAGS  += -DUSE_$(NAVSTIK_MAG_I2C_DEV_UPPER)=1 -DUSE_$(NAVSTIK_MPU_I2C_DEV_UPPER)=1
+
+#
+# NPS simulator
+#
+include $(CFG_SHARED)/imu_nps.makefile
