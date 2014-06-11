@@ -51,6 +51,8 @@
     </target>
   </firmware>
 
+  <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
+
   <modules>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
