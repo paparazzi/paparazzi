@@ -257,7 +257,7 @@ class CommandInterface:
         if usepbar:
             widgets = ['Reading: ', Percentage(),', ', ETA(), ' ', Bar()]
             pbar = ProgressBar(widgets=widgets,maxval=lng, term_width=79).start()
-        
+
         while lng > 256:
             if usepbar:
                 pbar.update(pbar.maxval-lng)
@@ -279,7 +279,7 @@ class CommandInterface:
         if usepbar:
             widgets = ['Writing: ', Percentage(),' ', ETA(), ' ', Bar()]
             pbar = ProgressBar(widgets=widgets, maxval=lng, term_width=79).start()
-        
+
         offs = 0
         while lng > 256:
             if usepbar:
@@ -324,7 +324,7 @@ def usage():
 
 
 if __name__ == "__main__":
-    
+
     # Import Psyco if available
     try:
         import psyco
