@@ -28,7 +28,7 @@
  */
 
 #include <stdio.h>
-#include "modules/mission/mission.h"
+#include "modules/mission/mission_fw.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "firmwares/fixedwing/nav.h"
 
