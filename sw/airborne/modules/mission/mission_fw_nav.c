@@ -28,49 +28,75 @@
  */
 
 #include <stdio.h>
-#include "modules/mission/mission.h"
+#include "modules/mission/mission_common.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "firmwares/fixedwing/nav.h"
+#include "subsystems/navigation/common_nav.h"
+#include "generated/flight_plan.h"
+
+// Utility function: converts lla to local point
+bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
+  /* Computes from (lat, long) in the referenced UTM zone */
+  struct UtmCoor_f utm;
+  utm.zone = nav_utm_zone0;
+  utm_of_lla_f(&utm, lla);
+
+  /* Computes relative position to HOME waypoint
+   * and bound the distance to max_dist_from_home
+   */
+  float dx, dy;
+  dx = utm.east - nav_utm_east0 - waypoints[WP_HOME].x;
+  dy = utm.north - nav_utm_north0 - waypoints[WP_HOME].y;
+  BoundAbs(dx, max_dist_from_home);
+  BoundAbs(dy, max_dist_from_home);
+
+  /* Update point */
+  point->x = waypoints[WP_HOME].x + dx;
+  point->y = waypoints[WP_HOME].y + dy;
+  point->z = lla->alt;
+
+ return TRUE;
+}
 
 // navigation time step
 const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
 
 // dirty hack to comply with nav_approaching_xy function
-struct EnuCoor_f last_wp = { 0., 0., 0. };
+struct EnuCoor_f last_wp_f = { 0., 0., 0. };
 
 /** Navigation function to a single waypoint
  */
 static inline bool_t mission_nav_wp(struct _mission_wp * wp) {
-  if (nav_approaching_xy(wp->wp.x, wp->wp.y, last_wp.x, last_wp.y, CARROT)) {
-    last_wp = wp->wp; // store last wp
+  if (nav_approaching_xy(wp->wp.wp_f.x, wp->wp.wp_f.y, last_wp_f.x, last_wp_f.y, CARROT)) {
+    last_wp_f = wp->wp.wp_f; // store last wp
     return FALSE; // end of mission element
   }
   // set navigation command
-  fly_to_xy(wp->wp.x, wp->wp.y);
+  fly_to_xy(wp->wp.wp_f.x, wp->wp.wp_f.y);
   NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(wp->wp.z, 0.);
+  NavVerticalAltitudeMode(wp->wp.wp_f.z, 0.);
   return TRUE;
 }
 
 /** Navigation function on a circle
  */
 static inline bool_t mission_nav_circle(struct _mission_circle * circle) {
-  nav_circle_XY(circle->center.x, circle->center.y, circle->radius);
+  nav_circle_XY(circle->center.center_f.x, circle->center.center_f.y, circle->radius);
   NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(circle->center.z, 0.);
+  NavVerticalAltitudeMode(circle->center.center_f.z, 0.);
   return TRUE;
 }
 
 /** Navigation function along a segment
  */
 static inline bool_t mission_nav_segment(struct _mission_segment * segment) {
-  if (nav_approaching_xy(segment->to.x, segment->to.y, segment->from.x, segment->from.y, CARROT)) {
-    last_wp = segment->to;
+  if (nav_approaching_xy(segment->to.to_f.x, segment->to.to_f.y, segment->from.from_f.x, segment->from.from_f.y, CARROT)) {
+    last_wp_f = segment->to.to_f;
     return FALSE; // end of mission element
   }
-  nav_route_xy(segment->from.x, segment->from.y, segment->to.x, segment->to.y);
+  nav_route_xy(segment->from.from_f.x, segment->from.from_f.y, segment->to.to_f.x, segment->to.to_f.y);
   NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(segment->to.z, 0.); // both altitude should be the same anyway
+  NavVerticalAltitudeMode(segment->to.to_f.z, 0.); // both altitude should be the same anyway
   return TRUE;
 }
 
@@ -82,20 +108,21 @@ static inline bool_t mission_nav_path(struct _mission_path * path) {
   }
   if (path->nb == 1) {
     // handle as a single waypoint
-    struct _mission_wp wp = { path->path[0] };
+    struct _mission_wp wp;
+    wp.wp.wp_f = path->path.path_f[0];
     return mission_nav_wp(&wp);
   }
   if (path->path_idx == path->nb-1) {
-    last_wp = path->path[path->path_idx]; // store last wp
+    last_wp_f = path->path.path_f[path->path_idx]; // store last wp
     return FALSE; // end of path
   }
   // normal case
-  struct EnuCoor_f from = path->path[path->path_idx];
-  struct EnuCoor_f to = path->path[path->path_idx+1];
-  nav_route_xy(from.x, from.y, to.x, to.y);
+  struct EnuCoor_f from_f = path->path.path_f[path->path_idx];
+  struct EnuCoor_f to_f = path->path.path_f[path->path_idx+1];
+  nav_route_xy(from_f.x, from_f.y, to_f.x, to_f.y);
   NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(to.z, 0.); // both altitude should be the same anyway
-  if (nav_approaching_xy(to.x, to.y, from.x, from.y, CARROT)) {
+  NavVerticalAltitudeMode(to_f.z, 0.); // both altitude should be the same anyway
+  if (nav_approaching_xy(to_f.x, to_f.y, from_f.x, from_f.y, CARROT)) {
     path->path_idx++; // go to next segment
   }
   return TRUE;
@@ -137,10 +164,8 @@ int mission_run() {
     // reset timer
     mission.element_time = 0.;
     // go to next element
-    mission.current_idx++;
+    mission.current_idx = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
   }
 
   return TRUE;
 }
-
-

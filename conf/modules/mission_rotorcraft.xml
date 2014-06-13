@@ -1,9 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mission_fw" dir="mission">
+<module name="mission_rotorcraft" dir="mission">
   <doc>
     <description>
-      Interface for mission control of fixed wing aircraft.
+      Interface for mission control of rotorcraft.
       This module parse datalink commands for basic navigation routines
       and store them in a queue.
     </description>
@@ -28,6 +28,6 @@
 
   <makefile>
     <file name="mission_common.c"/>
-    <file name="mission_fw_nav.c"/>
+    <file name="mission_rotorcraft_nav.c"/>
   </makefile>
 </module>
