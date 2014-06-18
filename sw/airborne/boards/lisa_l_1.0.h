@@ -273,7 +273,7 @@
 #define PWM_SERVO_6_PIN GPIO9
 #define PWM_SERVO_6_AF 0
 #define PWM_SERVO_6_OC TIM_OC4
-#define PWM_SERVO_6_OC_BIT (1<<4)
+#define PWM_SERVO_6_OC_BIT (1<<3)
 #else
 #define PWM_SERVO_6_OC_BIT 0
 #endif
