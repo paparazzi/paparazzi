@@ -58,6 +58,12 @@ int64_t gv_z_ref;
 #endif
 #define GV_MAX_ZDD BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZDD, GV_ZDD_REF_FRAC)
 
+/** maximum distance altitude setpoint is advanced in climb mode */
+#ifndef GUIDANCE_V_REF_MAX_Z_DIFF
+#define GUIDANCE_V_REF_MAX_Z_DIFF 2.0
+#endif
+#define GV_MAX_Z_DIFF BFP_OF_REAL(GUIDANCE_V_REF_MAX_Z_DIFF, GV_Z_REF_FRAC)
+
 #define GV_MIN_ZD  BFP_OF_REAL(GUIDANCE_V_REF_MIN_ZD , GV_ZD_REF_FRAC)
 #define GV_MAX_ZD  BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZD , GV_ZD_REF_FRAC)
 
@@ -117,10 +123,14 @@ void gv_update_ref_from_z_sp(int32_t z_sp) {
 }
 
 
-void gv_update_ref_from_zd_sp(int32_t zd_sp) {
+void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos) {
 
   gv_z_ref  += gv_zd_ref;
   gv_zd_ref += gv_zdd_ref;
+
+  /* limit z_ref to GUIDANCE_V_REF_MAX_Z_DIFF from current z pos */
+  int64_t cur_z = ((int64_t)z_pos) << (GV_Z_REF_FRAC - INT32_POS_FRAC);
+  Bound(gv_z_ref, cur_z - GV_MAX_Z_DIFF, cur_z + GV_MAX_Z_DIFF);
 
   int32_t zd_err = gv_zd_ref - (zd_sp>>(INT32_SPEED_FRAC - GV_ZD_REF_FRAC));
   int32_t zd_err_zdd_res = zd_err>>(GV_ZD_REF_FRAC-GV_ZDD_REF_FRAC);
