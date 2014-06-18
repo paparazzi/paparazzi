@@ -147,7 +147,7 @@ void electrical_periodic(void) {
 
   /*if valid voltage is seen then start checking. Set min level to 0 to always start*/
   if (electrical.vsupply >= MIN_BAT_LEVEL * 10) {
-      vsupply_check_started = TRUE;
+    vsupply_check_started = TRUE;
   }
 
   if (vsupply_check_started) {
