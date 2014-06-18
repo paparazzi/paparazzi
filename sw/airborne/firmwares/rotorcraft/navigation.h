@@ -89,6 +89,7 @@ extern bool_t nav_set_heading_rad(float rad);
 extern bool_t nav_set_heading_deg(float deg);
 extern bool_t nav_set_heading_towards(float x, float y);
 extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
+extern bool_t nav_set_heading_current(void);
 
 /** default approaching_time for a wp */
 #ifndef CARROT

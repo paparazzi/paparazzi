@@ -498,3 +498,9 @@ bool_t nav_set_heading_towards(float x, float y) {
 bool_t nav_set_heading_towards_waypoint(uint8_t wp) {
   return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
 }
+
+/** Set heading to the current yaw angle */
+bool_t nav_set_heading_current(void) {
+  nav_heading = stateGetNedToBodyEulers_i()->psi;
+  return FALSE;
+}
