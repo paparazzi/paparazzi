@@ -269,13 +269,13 @@ void guidance_v_run(bool_t in_flight) {
 
   case GUIDANCE_V_MODE_RC_CLIMB:
     guidance_v_zd_sp = guidance_v_rc_zd_sp;
-    gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+    gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
     run_hover_loop(in_flight);
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
-    gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+    gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
     run_hover_loop(in_flight);
 #if NO_RC_THRUST_LIMIT
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
@@ -308,7 +308,7 @@ void guidance_v_run(bool_t in_flight) {
       else if (vertical_mode == VERTICAL_MODE_CLIMB) {
         guidance_v_z_sp = stateGetPositionNed_i()->z;
         guidance_v_zd_sp = -nav_climb;
-        gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+        gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
         run_hover_loop(in_flight);
       }
       else if (vertical_mode == VERTICAL_MODE_MANUAL) {

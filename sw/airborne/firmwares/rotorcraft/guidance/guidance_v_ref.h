@@ -76,6 +76,11 @@ extern int64_t gv_z_ref;
 
 extern void gv_set_ref(int32_t alt, int32_t speed, int32_t accel);
 extern void gv_update_ref_from_z_sp(int32_t z_sp);
-extern void gv_update_ref_from_zd_sp(int32_t zd_sp);
+
+/** update vertical reference from speed setpoint.
+ * @param zd_sp  vertical speed setpoint with INT32_SPEED_FRAC
+ * @param cur_z  current vertical position (z-down) with INT32_POS_FRAC
+ */
+extern void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos);
 
 #endif /* GUIDANCE_V_REF_H */
