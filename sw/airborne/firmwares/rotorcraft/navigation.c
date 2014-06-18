@@ -78,7 +78,7 @@ int32_t nav_leg_progress;
 int32_t nav_leg_length;
 
 int32_t nav_roll, nav_pitch;
-int32_t nav_heading, nav_course;
+int32_t nav_heading;
 float nav_radius;
 
 /** default nav_circle_radius in meters */
@@ -159,7 +159,6 @@ void nav_init(void) {
   nav_roll = 0;
   nav_pitch = 0;
   nav_heading = 0;
-  nav_course = 0;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_throttle = 0;
   nav_climb = 0;
