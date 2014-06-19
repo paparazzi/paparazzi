@@ -26,7 +26,7 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
 void nps_ivy_init(char* ivy_bus) {
   /* init ivy and bind some messages common to fw and rotorcraft */
   nps_ivy_common_init(ivy_bus);
-  IvyBindMsg(on_DL_MOVE_WP, NULgit L, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 
 #if USE_MISSION_COMMANDS_IN_NPS
   nps_ivy_mission_commands_init();
@@ -52,5 +52,5 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
     lla.alt = atoi(argv[5]) *10 - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
     nav_move_waypoint_lla(wp_id, &lla);
     printf("move wp id=%d x=%d y=%d z=%d\n", wp_id, waypoints[wp_id].x, waypoints[wp_id].y, waypoints[wp_id].z);
-    }
+  }
 }
