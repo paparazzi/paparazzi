@@ -194,6 +194,9 @@ PRINT_CONFIG_VAR(INS_BARO_ID)
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, const float *pressure);
 
+/* gps */
+bool_t ins_gps_fix_once;
+
 /* error computation */
 static inline void error_output(struct InsFloatInv * _ins);
 
@@ -217,6 +220,7 @@ static inline void init_invariant_state(void) {
 
   // init baro
   ins_baro_initialized = FALSE;
+  ins_gps_fix_once = FALSE;
 }
 
 void ins_init() {
@@ -465,6 +469,7 @@ void ahrs_propagate(void) {
 void ahrs_update_gps(void) {
 
   if (gps.fix == GPS_FIX_3D && ins.status == INS_RUNNING) {
+    ins_gps_fix_once = TRUE;
 
 #if INS_UPDATE_FW_ESTIMATOR
     if (state.utm_initialized_f) {
@@ -618,13 +623,14 @@ static inline void error_output(struct InsFloatInv * _ins) {
   FLOAT_VECT3_DIFF(Eb, B, YBt);
 
   // pos and speed error only if GPS data are valid
-  if (gps.fix == GPS_FIX_3D && ins.status == INS_RUNNING
+  // or while waiting first GPS data to prevent diverging
+  if ((gps.fix == GPS_FIX_3D && ins.status == INS_RUNNING
 #if INS_UPDATE_FW_ESTIMATOR
     && state.utm_initialized_f
 #else
     && state.ned_initialized_f
 #endif
-    ) {
+    ) || !ins_gps_fix_once) {
     /* Ev = (V - YV)   */
     FLOAT_VECT3_DIFF(Ev, _ins->state.speed, _ins->meas.speed_gps);
     /* Ex = (X - YX)  */

@@ -3,6 +3,7 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="invariant">
+      <dl_setting MAX="1" MIN="1" STEP="1" VAR="ins_impl.reset" shortname="reset"/>
       <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_impl.gains.lv" shortname="lv" module="subsystems/ins/ins_float_invariant"/>
       <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_impl.gains.lb" shortname="lb"/>
       <dl_setting MAX="10" MIN="0." STEP="0.001" VAR="ins_impl.gains.mv" shortname="mv"/>
