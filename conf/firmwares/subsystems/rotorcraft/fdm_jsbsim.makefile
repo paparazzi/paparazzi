@@ -88,6 +88,11 @@ nps.srcs += $(SRC_FIRMWARE)/datalink.c
 nps.srcs   += subsystems/actuators.c
 nps.srcs   += subsystems/commands.c
 
+USE_MISSION_COMMANDS_IN_NPS ?= 0
+ifeq ($(USE_MISSION_COMMANDS_IN_NPS), 1)
+nps.srcs += $(NPSDIR)/nps_ivy_mission_commands.c
+nps.CFLAGS += -DUSE_MISSION_COMMANDS_IN_NPS
+endif
 
 #
 # Math functions
