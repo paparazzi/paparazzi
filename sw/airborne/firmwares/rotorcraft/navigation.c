@@ -350,7 +350,10 @@ bool_t nav_check_wp_time(struct EnuCoor_i * wp, uint16_t stay_time) {
     time_at_wp = 0;
     wp_reached = FALSE;
   }
-  if (time_at_wp > stay_time) return TRUE;
+  if (time_at_wp > stay_time) {
+    INT_VECT3_ZERO(wp_last);
+    return TRUE;
+  }
   return FALSE;
 }
 
