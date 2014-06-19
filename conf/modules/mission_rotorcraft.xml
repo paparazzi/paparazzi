@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mission_fw" dir="mission">
+  <doc>
+    <description>
+      Interface for mission control of fixed wing aircraft.
+      This module parse datalink commands for basic navigation routines
+      and store them in a queue.
+    </description>
+  </doc>
+  <header>
+    <file name="mission_rotorcraft.h"/>
+  </header>
+  <init fun="mission_init()"/>
+  <periodic fun="mission_status_report()" freq="2" autorun="TRUE"/>
+
+  <datalink message="MISSION_GOTO_WP" fun="mission_parse_GOTO_WP()"/>
+
+
+  <makefile>
+    <file name="mission_rotorcraft.c"/>
+    <file name="mission_rotorcraft_nav.c"/>
+  </makefile>
+</module>

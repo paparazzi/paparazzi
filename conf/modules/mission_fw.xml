@@ -9,7 +9,7 @@
     </description>
   </doc>
   <header>
-    <file name="mission.h"/>
+    <file name="mission_fw.h"/>
   </header>
   <init fun="mission_init()"/>
   <periodic fun="mission_status_report()" freq="2" autorun="TRUE"/>
@@ -27,7 +27,7 @@
   <datalink message="END_MISSION" fun="mission_parse_END_MISSION()"/>
 
   <makefile>
-    <file name="mission.c"/>
+    <file name="mission_fw.c"/>
     <file name="mission_fw_nav.c"/>
   </makefile>
 </module>
