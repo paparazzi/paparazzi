@@ -135,13 +135,11 @@ bool_t gls_start(uint8_t _af,uint8_t _sd, uint8_t _tod, uint8_t _td) {
 
   init = TRUE;
 
-#if USE_AIRSPEED
   //struct FloatVect2* wind = stateGetHorizontalWindspeed_f();
   //float wind_additional = sqrt(wind->x*wind->x + wind->y*wind->y); // should be gusts only!
   //Bound(wind_additional, 0, 0.5);
   //target_speed = STALL_AIRSPEED * 1.3 + wind_additional; FIXME
   target_speed =  APP_TARGET_SPEED; //  ok for now!
-#endif
 
   app_angle = APP_ANGLE;
   app_intercept_rate = APP_INTERCEPT_RATE;
