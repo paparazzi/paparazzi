@@ -75,16 +75,16 @@ void actuators_dualpwm_arch_init(void) {
   /*----------------
    * Configure GPIO
    *----------------*/
-#if defined(STM32F1)
-  /* TIM3 GPIO for PWM1..4 */
-  AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
-#endif
-
 #ifdef DUAL_PWM_SERVO_5
   set_servo_gpio(DUAL_PWM_SERVO_5_GPIO, DUAL_PWM_SERVO_5_PIN, DUAL_PWM_SERVO_5_AF, DUAL_PWM_SERVO_5_RCC);
 #endif
 #ifdef DUAL_PWM_SERVO_6
   set_servo_gpio(DUAL_PWM_SERVO_6_GPIO, DUAL_PWM_SERVO_6_PIN, DUAL_PWM_SERVO_6_AF, DUAL_PWM_SERVO_6_RCC);
+#endif
+
+#if defined(STM32F1) && PWM_USE_TIM3
+  /* TIM3 GPIO for PWM1..4 */
+  AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
 #endif
 
 #if DUAL_PWM_USE_TIM5
