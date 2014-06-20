@@ -36,15 +36,6 @@
 #include <libopencm3/cm3/nvic.h>
 #include "mcu_arch.h"
 
-
-#if defined(STM32F1)
-//#define PCLK 72000000
-#define PCLK AHB_CLK
-#elif defined(STM32F4)
-//#define PCLK 84000000
-#define PCLK AHB_CLK/2
-#endif
-
 #define ONE_MHZ_CLK 1000000
 
 /* Default timer base frequency is 1MHz */
