@@ -176,11 +176,6 @@ void actuators_pwm_arch_init(void) {
   /*----------------
    * Configure GPIO
    *----------------*/
-#if defined(STM32F1)
-  /* TIM3 GPIO for PWM1..4 */
-  AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
-#endif
-
 #ifdef PWM_SERVO_0
   set_servo_gpio(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, PWM_SERVO_0_RCC_IOP);
 #endif
@@ -208,7 +203,10 @@ void actuators_pwm_arch_init(void) {
 #ifdef PWM_SERVO_8
   set_servo_gpio(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, PWM_SERVO_8_RCC_IOP);
 #endif
-
+#if defined(STM32F1) && PWM_USE_TIM3
+  /* TIM3 GPIO for PWM1..4 */
+  AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
+#endif
 
 #if PWM_USE_TIM1
   set_servo_timer(TIM1, TIM1_SERVO_HZ, PWM_TIM1_CHAN_MASK);
