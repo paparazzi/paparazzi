@@ -86,7 +86,7 @@ void gpio_setup_input(uint32_t port, uint16_t gpios) {
   gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, gpios);
 }
 
-void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output) {
+void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint32_t af, bool_t is_output) {
   gpio_enable_clock(port);
   /* remap alternate function if needed */
   if (af) {

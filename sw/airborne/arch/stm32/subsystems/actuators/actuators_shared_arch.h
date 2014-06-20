@@ -75,15 +75,7 @@
 #define TIM12_SERVO_HZ SERVO_HZ
 #endif
 
-
-#if defined(STM32F4)
-extern void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_num, enum rcc_periph_clken clken);
-#elif defined(STM32F1)
-extern void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t none __attribute__((unused)), enum rcc_periph_clken clken);
-#endif
-
 extern void actuators_pwm_arch_channel_init(uint32_t timer_peripheral, enum tim_oc_id oc_id);
-
 extern void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask);
 
 #endif /* ACTUATORS_PWM_SHARED_ARCH_H */

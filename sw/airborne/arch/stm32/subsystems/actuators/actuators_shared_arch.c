@@ -28,24 +28,6 @@
 // for timer_get_frequency
 #include "mcu_arch.h"
 
-/** Set GPIO configuration
- */
-#if defined(STM32F4)
-void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t af_num, enum rcc_periph_clken clken) {
-  rcc_periph_clock_enable(clken);
-  gpio_mode_setup(gpioport, GPIO_MODE_AF, GPIO_PUPD_NONE, pin);
-  gpio_set_af(gpioport, af_num, pin);
-}
-#elif defined(STM32F1)
-void set_servo_gpio(uint32_t gpioport, uint16_t pin, uint8_t none __attribute__((unused)), enum rcc_periph_clken clken) {
-  rcc_periph_clock_enable(clken);
-  rcc_periph_clock_enable(RCC_AFIO);
-  gpio_set_mode(gpioport, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, pin);
-}
-#endif
-
-
 
 /** Set PWM channel configuration
  */
