@@ -11,8 +11,12 @@
       - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V to 3.3V voltage divider)
       - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
 
-      Currently only available on LPC21xx arch
+      For STM32:
+      - each board (or airframe file) has to define the PWM input pin and parameters
+      - example can be found in sw/airborne/boards/apogee_1.0.h board file
     </description>
+    <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW|PWM_PULSE_TYPE_ACTIVE_HIGH" description="Activate PWM input 1 and select polarity"/>
+    <define name="USE_PWM_INPUT2" value="PWM_PULSE_TYPE_ACTIVE_LOW|PWM_PULSE_TYPE_ACTIVE_HIGH" description="Activate PWM input 2 and select polarity"/>
   </doc>
   <header>
     <file name="pwm_meas.h"/>

@@ -347,6 +347,28 @@
 #define PPM_GPIO_AF         GPIO_AF1
 
 /*
+ * PWM input
+ */
+#define PWM_INPUT1_TIMER          TIM1
+#define PWM_INPUT1_CHANNEL_PERIOD TIM_IC1
+#define PWM_INPUT1_CHANNEL_DUTY   TIM_IC2
+#define PWM_INPUT1_TIMER_INPUT    TIM_IC_IN_TI1
+#define PWM_INPUT1_SLAVE_TRIG     TIM_SMCR_TS_IT1FP1
+#define PWM_INPUT1_IRQ            NVIC_TIM1_CC_IRQ
+#define PWM_INPUT1_IRQ2           NVIC_TIM1_UP_TIM10_IRQ
+#define PWM_INPUT1_CC_IE          (TIM_DIER_CC1IE | TIM_DIER_CC2IE)
+#define USE_PWM_INPUT_TIM1        TRUE
+#define TIM1_PWM_INPUT_IDX        0
+#define TIM1_CC_IF_PERIOD         TIM_SR_CC1IF
+#define TIM1_CC_IF_DUTY           TIM_SR_CC2IF
+#define TIM1_CCR_PERIOD           TIM1_CCR1
+#define TIM1_CCR_DUTY             TIM1_CCR2
+// PPM in (aka PA8) is used: not compatible with PPM RC receiver
+#define PWM_INPUT1_GPIO_PORT      GPIOA
+#define PWM_INPUT1_GPIO_PIN       GPIO8
+#define PWM_INPUT1_GPIO_AF        GPIO_AF1
+
+/*
  * Spektrum
  */
 
