@@ -165,10 +165,10 @@ void ms5611_spi_event(struct Ms5611_Spi *ms) {
             ms->status = MS5611_STATUS_IDLE;
           }
           else {
-            /* calculate temp and pressure from measurements */
-            ms5611_calc(&(ms->data));
+            /* calculate temp and pressure from measurements and set available if valid */
+            if (ms5611_calc(&(ms->data)))
+              ms->data_available = TRUE;
             ms->status = MS5611_STATUS_IDLE;
-            ms->data_available = TRUE;
           }
           break;
 

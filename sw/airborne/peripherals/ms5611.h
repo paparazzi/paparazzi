@@ -57,6 +57,6 @@ struct Ms5611Data {
 };
 
 extern bool_t ms5611_prom_crc_ok(uint16_t* prom);
-extern void ms5611_calc(struct Ms5611Data* ms);
+extern bool_t ms5611_calc(struct Ms5611Data* ms);
 
 #endif /* MS5611_H */
