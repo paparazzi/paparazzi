@@ -20,15 +20,75 @@
 #define MSG_SIZE 128
 extern uint8_t dl_buffer[MSG_SIZE];
 
-/* rotorcraft specificDatalink Ivy functions */
+/* mission specific Datalink Ivy functions */
 static void on_DL_MISSION_GOTO_WP(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]);
 
 
+static void on_DL_MISSION_GOTO_WP_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_MISSION_CIRCLE(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_MISSION_CIRCLE_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_MISSION_SEGMENT(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+/*
+static void on_DL_MISSION_SEGMENT_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_MISSION_PATH(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_MISSION_PATH_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+
+static void on_DL_GOTO_MISSION(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_NEXT_MISSION(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+
+
+static void on_DL_END_MISSION(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]);
+*/
 void nps_ivy_mission_commands_init(void) {
  
-    IvyBindMsg(on_DL_MISSION_GOTO_WP, NULL, "^(\\S*) MISSION_GOTO_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MISSION_GOTO_WP, NULL, "^(\\S*) MISSION_GOTO_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MISSION_GOTO_WP_LLA, NULL, "^(\\S*) MISSION_GOTO_WP_LLA (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MISSION_CIRCLE, NULL, "^(\\S*) MISSION_CIRCLE (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MISSION_CIRCLE_LLA, NULL, "^(\\S*) MISSION_CIRCLE_LLA (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_MISSION_SEGMENT, NULL, "^(\\S*) MISSION_SEGMENT (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  //IvyBindMsg(on_DL_MISSION_SEGMENT_LLA, NULL, "^(\\S*) MISSION_SEGMENT_LLA (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  //IvyBindMsg(on_DL_MISSION_PATH, NULL, "^(\\S*) MISSION_PATH (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)  (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  //IvyBindMsg(on_DL_MISSION_PATH_LLA, NULL, "^(\\S*) MISSION_PATH_LLA (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)  (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  //IvyBindMsg(on_DL_GOTO_MISSION, NULL, "^(\\S*) GOTO_MISSION (\\S*)");
+  //IvyBindMsg(on_DL_NEXT_MISSION, NULL, "^(\\S*) NEXT_MISSION (\\S*)");
+  //IvyBindMsg(on_DL_END_MISSION, NULL, "^(\\S*) END_MISSION (\\S*)");
  
 }
 
@@ -46,8 +106,150 @@ static void on_DL_MISSION_GOTO_WP(IvyClientPtr app __attribute__ ((unused)),
   for(i=1; i<5 ; i++){
     dummy = (float)(atoi(argv[2+i]));
     memcpy(&dl_buffer[i*4], &dummy, 4);
-    //dl_buffer[i+4] = 5;
   }
   
   mission_parse_GOTO_WP();
 }
+
+static void on_DL_MISSION_GOTO_WP_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<5 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_GOTO_WP_LLA();
+}
+
+static void on_DL_MISSION_CIRCLE(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<6 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_CIRCLE();
+}
+
+static void on_DL_MISSION_CIRCLE_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<6 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_CIRCLE_LLA();
+}
+
+static void on_DL_MISSION_SEGMENT(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<7 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_SEGMENT();
+}
+/*
+static void on_DL_MISSION_SEGMENT_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<7 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_SEGMENT_LLA();
+}
+
+static void on_DL_MISSION_PATH(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<14 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_PATH();
+}
+
+static void on_DL_MISSION_PATH_LLA(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+  dl_buffer[3] = (float)(atoi(argv[2]));
+  
+  for(i=1; i<14 ; i++){
+    dummy = (float)(atoi(argv[2+i]));
+    memcpy(&dl_buffer[i*4], &dummy, 4);
+  }
+  
+  mission_parse_PATH_LLA();
+}
+
+static void on_DL_GOTO_MISSION(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+
+  mission_parse_GOTO_MISSION();
+}
+
+static void on_DL_NEXT_MISSION(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+
+  mission_parse_NEXT_MISSION();
+}
+
+static void on_DL_END_MISSION(IvyClientPtr app __attribute__ ((unused)),
+                          void *user_data __attribute__ ((unused)),
+                          int argc __attribute__ ((unused)), char *argv[]) {
+  uint8_t i = 0;  
+  float dummy;
+  dl_buffer[2] = (float)(atoi(argv[1]));
+
+  mission_parse_END_MISSION();
+}
+*/
