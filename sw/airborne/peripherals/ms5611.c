@@ -58,8 +58,9 @@ bool_t ms5611_prom_crc_ok(uint16_t* prom) {
 
 /**
  * Calculate temperature and compensated pressure.
+ * @return TRUE if measurement was valid, FALSE otherwise
  */
-void ms5611_calc(struct Ms5611Data* ms) {
+bool_t ms5611_calc(struct Ms5611Data* ms) {
   int64_t dt, tempms, off, sens, t2, off2, sens2;
 
   /* difference between actual and ref temperature */
@@ -84,8 +85,14 @@ void ms5611_calc(struct Ms5611Data* ms) {
     sens = sens - sens2;
   }
 
-  /* temperature in deg Celsius with 0.01 degC resolultion */
-  ms->temperature = (int32_t)tempms;
   /* temperature compensated pressure in Pascal (0.01mbar) */
-  ms->pressure = (uint32_t)((((int64_t)ms->d1 * sens) / (1<<21) - off) / (1<<15));
+  uint32_t p = (((int64_t)ms->d1 * sens) / (1<<21) - off) / (1<<15);
+  /* if temp and pressare are in valid bounds, copy and return TRUE (valid) */
+  if ((tempms > -4000) && (tempms < 8500) && (p > 1000 ) && (p < 120000)) {
+    /* temperature in deg Celsius with 0.01 degC resolultion */
+    ms->temperature = (int32_t)tempms;
+    ms->pressure = p;
+    return TRUE;
+  }
+  return FALSE;
 }
