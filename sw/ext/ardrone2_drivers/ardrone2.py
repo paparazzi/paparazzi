@@ -5,6 +5,7 @@ import re
 import argparse
 import socket
 import telnetlib
+import os
 from time import sleep
 from ftplib import FTP
 
@@ -213,12 +214,18 @@ subparsers = parser.add_subparsers(title='Command to execute', metavar='command'
 subparsers.add_parser('status', help='Request the status of the ARDrone 2')
 subparsers.add_parser('reboot', help='Reboot the ARDrone 2')
 subparsers.add_parser('installvision', help='Install the vision framework')
-subparser_upload = subparsers.add_parser('upload_gst_module',
+subparser_upload_gst = subparsers.add_parser('upload_gst_module',
                                          help='Upload, configure and move a gstreamer0.10 module libXXX.so')
-subparser_upload.add_argument('file', help='Filename of *.so module')
-subparser_paparazzi = subparsers.add_parser('upload_paparazzi', help='Upload paparazzi autopilot software')
-subparser_paparazzi.add_argument('file', help='Filename of *.elf executable')
-subparser_paparazzi.add_argument('folder', help='Destination Subfolder: raw or sdk')
+subparser_upload_gst.add_argument('file', help='Filename of *.so module')
+subparser_upload_and_run = subparsers.add_parser('upload_file_and_run', help='Upload and run software (for instance the Paparazzi autopilot)')
+subparser_upload_and_run.add_argument('file', help='Filename of an executable')
+subparser_upload_and_run.add_argument('folder', help='Destination subfolder (raw or sdk for Paparazzi autopilot)')
+subparser_upload = subparsers.add_parser('upload_file', help='Upload a file to the ARDrone 2')
+subparser_upload.add_argument('file', help='Filename')
+subparser_upload.add_argument('folder', help='Destination subfolder (base destination folder is /data/video)')
+subparser_download = subparsers.add_parser('download_file', help='Download a file from the ARDrone 2')
+subparser_download.add_argument('file', help='Filename (with the path on the local machine)')
+subparser_download.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
 subparser_insmod = subparsers.add_parser('insmod', help='Upload and insert kernel module')
 subparser_insmod.add_argument('file', help='Filename of *.ko kernel module')
 subparsers.add_parser('startvision', help='Start the vision framework')
@@ -398,7 +405,7 @@ elif args.command == 'insmod':
     ftp.storbinary("STOR " + modfile[1], file(args.file, "rb"))
     print(execute_command("insmod /data/video/" + modfile[1]))
 
-elif args.command == 'upload_paparazzi':
+elif args.command == 'upload_file_and_run':
     # Split filename and path
     f = split_into_path_and_file(args.file)
 
@@ -412,6 +419,32 @@ elif args.command == 'upload_paparazzi':
     execute_command("chmod 777 /data/video/" + args.folder + "/" + f[1])
     execute_command("/data/video/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
     print("#pragma message: Upload and Start of ap.elf to ARDrone2 Succes!")
+
+elif args.command == 'upload_file':
+    # Split filename and path
+    f = split_into_path_and_file(args.file)
+
+    execute_command("mkdir -p /data/video/" + args.folder)
+    print('Uploading \'' + f[1] + "\' from " + f[0] + " to /data/video/" + args.folder)
+    ftp.storbinary("STOR " + args.folder + "/" + f[1], file(args.file, "rb"))
+    print("#pragma message: Upload of " + f[1] + " to ARDrone2 Succes!")
+
+elif args.command == 'download_file':
+    # Split filename and path
+    f = split_into_path_and_file(args.file)
+    # Open file and download
+    try:
+        file = open(args.file, 'wb')
+        print('Downloading \'' + f[1] + "\' from " + args.folder + " to " + f[0])
+        ftp.retrbinary("RETR " + args.folder + "/" + f[1], file.write)
+        print("#pragma message: Download of " + f[1] + " from ARDrone2 Succes!")
+    except IOError:
+        print("#pragma message: Fail to open file" + args.file)
+    except:
+        os.remove(args.file)
+        print("#pragma message: Download of " + f[1] + " from ARDrone2 Failed!")
+    else:
+        file.close()
 
 
 
