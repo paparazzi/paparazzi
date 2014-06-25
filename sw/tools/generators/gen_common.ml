@@ -24,7 +24,7 @@
 
 open Printf
 
-type module_conf = { xml : Xml.xml; file : string; param : Xml.xml list; extra_targets : string list; }
+type module_conf = { xml : Xml.xml; file : string; vpath : string option; param : Xml.xml list; extra_targets : string list; }
 
 let (//) = Filename.concat
 
@@ -95,9 +95,15 @@ let rec get_modules_of_airframe = fun xml ->
       (* if only one section, returns a list of configuration *)
         let t_global = targets_of_field modules "" in
         let get_module = fun m t ->
-          let file = modules_dir // ExtXml.attrib m "name" in
+          (* extract dir name if any and add paparazzi_home path if dir path is not global *)
+          let (dir, vpath) = try
+            let dir = ExtXml.attrib m "dir" in
+            let dir = if Filename.is_relative dir then Env.paparazzi_home // dir else "" in
+            (dir, Some dir)
+          with _ -> (modules_dir, None) in
+          let file = dir // ExtXml.attrib m "name" in
           let targets = singletonize (t @ targets_of_field m "") in
-          { xml = ExtXml.parse_file file; file = file; param = Xml.children m; extra_targets = targets }
+          { xml = ExtXml.parse_file file; file = file; vpath = vpath; param = Xml.children m; extra_targets = targets }
         in
         let modules_list = List.map (fun m ->
           if compare (Xml.tag m) "load" <> 0 then Xml2h.xml_error "load";

@@ -33,6 +33,7 @@ VARINCLUDE = $(PAPARAZZI_HOME)/var/include
 
 INCLUDES = -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/conf/autopilot -I$(PAPARAZZI_SRC)/sw/airborne/arch/$($(TARGET).ARCHDIR) -I$(VARINCLUDE) -I$(ACINCLUDE)
 
+VPATH = .
 
 ifneq ($(MAKECMDGOALS),clean)
   include $(AIRCRAFT_BUILD_DIR)/Makefile.ac
