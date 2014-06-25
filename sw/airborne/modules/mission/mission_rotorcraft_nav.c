@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Gautier Hattenberger
+ * Copyright (C) 2014 Kadir Cimenci
  *
  * This file is part of paparazzi.
  *
@@ -20,11 +20,11 @@
  *
  */
 
-/** @file modules/mission/mission_fw_nav.c
- *  @brief mission navigation for fixedwing aircraft
+/** @file modules/mission/mission_rotorcraft_nav.c
+ *  @brief mission navigation for rotorcrafts
  *
  *  Implement specific navigation routines for the mission control
- *  of a fixedwing aircraft
+ *  of a rotorcraft
  */
 
 #include <stdio.h>
@@ -42,6 +42,8 @@ struct EnuCoor_i last_mission_wp = { 0., 0., 0. };
  */
 static inline bool_t mission_nav_wp(struct _mission_element * el) {
   struct EnuCoor_i target_wp = el->element.mission_wp.wp;
+
+ //Check proximity and wait for 'duration' seconds in proximity circle if desired
   if(nav_approaching_from(&(target_wp), NULL, CARROT)){
     last_mission_wp = target_wp;
     
@@ -51,7 +53,6 @@ static inline bool_t mission_nav_wp(struct _mission_element * el) {
     else return FALSE;
 
   }
-  
   //Go to Mission Waypoint
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT; 
   INT32_VECT3_COPY(navigation_target, target_wp);
@@ -63,34 +64,31 @@ return TRUE;
 
 /** Navigation function on a circle
  */
-
-
 static inline bool_t mission_nav_circle(struct _mission_element * el) {
   struct EnuCoor_i center_wp = el->element.mission_circle.center;
   int32_t radius = el->element.mission_circle.radius;
+
+  //Draw the desired circle for a 'duration' time
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
+  nav_circle(&center_wp, POS_BFP_OF_REAL(radius));
   NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(center_wp.z), 0.);
 
-//  NavCircleWaypoint(center_wp, el->element.mission_circle.radius);
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
-  nav_circle(&center_wp, POS_BFP_OF_REAL(radius));
   if (el->duration > 0. && mission.element_time >= el->duration){
     return FALSE;
   }   
 
-   
-
   return TRUE;
 }
 
-
 /** Navigation function along a segment
  */
-
 static inline bool_t mission_nav_segment(struct _mission_element * el) {
 
   struct EnuCoor_i from_wp = el->element.mission_segment.from;
   struct EnuCoor_i to_wp   = el->element.mission_segment.to  ;
+
+  //Check proximity and wait for 'duration' seconds in proximity circle if desired
   if(nav_approaching_from(&(to_wp), &(from_wp), CARROT)){
     last_mission_wp = to_wp;
     
@@ -108,76 +106,69 @@ static inline bool_t mission_nav_segment(struct _mission_element * el) {
    NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(to_wp.z), 0.);
 
 return TRUE;
- /* 
- if (nav_approaching_xy(segment->to.x, segment->to.y, segment->from.x, segment->from.y, CARROT)) {
-    last_mission_wp = segment->to;
-    return FALSE; // end of mission element
-  }
-  nav_route_xy(segment->from.x, segment->from.y, segment->to.x, segment->to.y);
-  NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(segment->to.z, 0.); // both altitude should be the same anyway
-  return TRUE;
-*/
-
 }
 
 
 /** Navigation function along a path
  */
-/*
-static inline bool_t mission_nav_path(struct _mission_path * path) {
-  if (path->nb == 0) {
+static inline bool_t mission_nav_path(struct _mission_element * el) {
+  if (el->element.mission_path.nb == 0) {
     return FALSE; // nothing to do
   }
-  if (path->nb == 1) {
-    // handle as a single waypoint
-    struct _mission_wp wp = { path->path[0] };
-    return mission_nav_wp(&wp);
+
+  if(el->element.mission_path.path_idx == 0){ //first wp of path
+    el->element.mission_wp.wp = el->element.mission_path.path[0];
+    if(!mission_nav_wp(el)) el->element.mission_path.path_idx++;
   }
-  if (path->path_idx == path->nb-1) {
-    last_mission_wp = path->path[path->path_idx]; // store last wp
-    return FALSE; // end of path
+
+  else if(el->element.mission_path.path_idx < el->element.mission_path.nb){ //standart wp of path
+
+    struct EnuCoor_i from_wp = el->element.mission_path.path[(el->element.mission_path.path_idx) - 1];
+    struct EnuCoor_i to_wp   = el->element.mission_path.path[el->element.mission_path.path_idx]      ;
+
+    //Check proximity and wait for t seconds in proximity circle if desired
+    if(nav_approaching_from(&(to_wp), &(from_wp), CARROT)){
+      last_mission_wp = to_wp;
+
+      if(el->duration > 0.){
+        if(nav_check_wp_time(&to_wp, el->duration))
+          el->element.mission_path.path_idx++;
+      }
+      else el->element.mission_path.path_idx++;
+    }
+    //Route Between from-to
+    horizontal_mode = HORIZONTAL_MODE_ROUTE;
+    nav_route(&from_wp, &to_wp);
+    NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
+    NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(from_wp.z), 0.);
   }
-  // normal case
-  struct EnuCoor_f from = path->path[path->path_idx];
-  struct EnuCoor_f to = path->path[path->path_idx+1];
-  nav_route_xy(from.x, from.y, to.x, to.y);
-  NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(to.z, 0.); // both altitude should be the same anyway
-  if (nav_approaching_xy(to.x, to.y, from.x, from.y, CARROT)) {
-    path->path_idx++; // go to next segment
-  }
+  else return FALSE;  //end of path
+
   return TRUE;
 }
-*/
 
 int mission_run() {
   // current element
-
-  
   struct _mission_element * el = NULL;
   if ((el = mission_get()) == NULL) {
-    // TODO do something special like a waiting circle before ending the mission ?
+    mission.element_time = 0;
+    mission.current_idx  = 0;
     return FALSE; // end of mission
   }
-//GotoBlock(9);
+
   bool_t el_running = FALSE;
   switch (el->type){
     case MissionWP:
-      //el_running = mission_nav_wp(&(el->element.mission_wp));
       el_running = mission_nav_wp(el);
-      //nav_goto_block(9);
       break;
     case MissionCircle:
-      //el_running = mission_nav_circle(&(el->element.mission_circle));
       el_running = mission_nav_circle(el);
       break;
     case MissionSegment:
-      //el_running = mission_nav_segment(&(el->element.mission_segment));
       el_running = mission_nav_segment(el);
       break;
     case MissionPath:
-      //el_running = mission_nav_path(&(el->element.mission_path));
+      el_running = mission_nav_path(el);
       break;
     default:
       // invalid type or pattern not yet handled
@@ -187,18 +178,11 @@ int mission_run() {
   // increment element_time
   mission.element_time += dt_navigation;
 
- //el->duration = -1;
-  // test if element is finished or element time is elapsed
-  //if (!el_running || (el->duration > 0. && mission.element_time >= el->duration)) { //duration is cancelled
-    if (!el_running) {
+  if (!el_running) {
     // reset timer
     mission.element_time = 0.;
     // go to next element
-    mission.current_idx++;
-    //nav_goto_block(9);
+    mission.current_idx = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
   }
-
   return TRUE;
 }
-
-

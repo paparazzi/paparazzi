@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Gautier Hattenberger
+ * Copyright (C) 2014 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/mission/mission.h
+/** @file modules/mission/mission_rotorcraft.h
  *  @brief mission planner library
  *
  *  Provide the generic interface for the mission control
@@ -31,7 +31,7 @@
 #define MISSION_H
 
 #include "std.h"
-#include "math/pprz_geodetic_float.h" //just for need of EnuCoor_f structs, may be removed
+#include "math/pprz_geodetic_float.h"
 #include "math/pprz_geodetic_int.h"
 
 enum MissionType {
