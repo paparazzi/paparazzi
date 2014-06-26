@@ -32,7 +32,11 @@
 
 #include "std.h"
 
-#define PWM_INPUT_NB 2 //this is architecture dependent
+enum pwm_input_channels {
+  PWM_INPUT1,
+  PWM_INPUT2,
+  PWM_INPUT_NB
+};
 
 /**
  * The pwm counter is set-up to have 1/6 us resolution.
