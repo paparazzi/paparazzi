@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mf_ptu" dir="meteo">
+  <doc>
+    <description>Data acquisition module for the PTU board from Meteo France (pressure, temperature, humidity)</description>
+    <configure name="ADC_PRESSURE" value="ADC_X" description="Select ADC channel for pressure sensor"/>
+    <configure name="ADC_TEMPERATURE" value="ADC_X" description="Select ADC channel for temperature sensor"/>
+    <configure name="PWM_INPUT_HUMIDITY" value="PWM_INPUTX" description="Select PWM input channel for humidity sensor"/>
+    <section name="MF_PTU">
+      <define name="PTU_POWER_GPIO" value="GPIOX,GPIOYY" description="If defined, enable power by setting the specified GPIO to 1 at starup"/>
+      <define name="PTU_PRESSURE_OFFSET" value="0" description="Offset in ADC of the pressure sensor"/>
+      <define name="PTU_PRESSURE_OFFSET" value="1." description="Scale factor of the pressure sensor"/>
+      <define name="PTU_TEMPERATURE_OFFSET" value="0" description="Offset in ADC of the  temperature sensor"/>
+      <define name="PTU_TEMPERATURE_OFFSET" value="1." description="Scale factor of the temperature sensor"/>
+      <define name="PTU_HUMIDITY_OFFSET" value="0" description="Offset in micro seconds of the humidity sensor"/>
+      <define name="PTU_HUMIDITY_OFFSET" value="1." description="Scale factor of the pressure sensor"/>
+      <define name="LOG_PTU" value="TRUE|FALSE" description="Log data on SD card (ascii format, raw PTU data + GPS data"/>
+      <define name="SEND_PTU" value="TRU|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data"/>
+    </section>
+  </doc>
+  <depend require="pwm_meas"/>
+  <header>
+    <file name="mf_ptu.h"/>
+  </header>
+  <init fun="mf_ptu_init()"/>
+  <periodic fun="mf_ptu_periodic()" freq="10" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="mf_ptu.c"/>
+    <define name="ADC_CHANNEL_PRESSURE" value="$(ADC_PRESSURE)"/>
+    <define name="USE_$(ADC_PRESSURE)"/>
+    <define name="ADC_CHANNEL_TEMPERATURE" value="$(ADC_TEMPERATURE)"/>
+    <define name="USE_$(ADC_TEMPERATURE)"/>
+    <define name="PWM_INPUT_CHANNEL_HUMIDITY" value="$(PWM_INPUT_HUMIDITY)"/>
+    <define name="USE_$(PWM_INPUT_HUMIDITY)" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
+  </makefile>
+</module>
+
