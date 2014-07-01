@@ -143,5 +143,3 @@ int mission_run() {
 
   return TRUE;
 }
-
-

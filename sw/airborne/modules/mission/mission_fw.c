@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/mission/mission.c
+/** @file modules/mission/mission_fw.c
  *  @brief messages parser for mission interface
  */
 
@@ -72,7 +72,7 @@ bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element * e
 }
 
 // Utility function: converts lla to local point
-void mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
+bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
   /* Computes from (lat, long) in the referenced UTM zone */
   struct UtmCoor_f utm;
   utm.zone = nav_utm_zone0;
@@ -91,5 +91,6 @@ void mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
   point->x = waypoints[WP_HOME].x + dx;
   point->y = waypoints[WP_HOME].y + dy;
   point->z = lla->alt;
-}
 
+ return FALSE;
+}

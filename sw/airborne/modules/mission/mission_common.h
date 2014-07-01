@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Gautier Hattenberger
+ * Copyright (C) 2014 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/mission/mission.h
+/** @file modules/mission/mission_common.h
  *  @brief mission planner library
  *
  *  Provide the generic interface for the mission control
@@ -137,7 +137,7 @@ extern struct _mission_element * mission_get(void);
 /** Get the ENU component of LLA mission point
  * 
  */
-extern void mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla);
+extern bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla);
  
 /** Run mission
  *

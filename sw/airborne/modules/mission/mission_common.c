@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 ENAC
+ * Copyright (C) 2014 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/mission/mission.c
+/** @file modules/mission/mission_common.c
  *  @brief messages parser for mission interface
  */
 
@@ -100,7 +100,8 @@ int mission_parse_GOTO_WP_LLA(void) {
 
   struct _mission_element me;
   me.type = MissionWP;
-  mission_point_of_lla(&me.element.mission_wp.wp.wp_f, &lla);
+  if(mission_point_of_lla(&me.element.mission_wp.wp.wp_f, &lla)) return FALSE; //there is no valid local coordinate
+                                                                               //do not insert mission element
   me.duration = DL_MISSION_GOTO_WP_LLA_duration(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode) (DL_MISSION_GOTO_WP_LLA_insert(dl_buffer));
@@ -134,7 +135,8 @@ int mission_parse_CIRCLE_LLA(void) {
 
   struct _mission_element me;
   me.type = MissionCircle;
-  mission_point_of_lla(&me.element.mission_circle.center.center_f, &lla);
+  if(mission_point_of_lla(&me.element.mission_circle.center.center_f, &lla)) return FALSE; //there is no valid local coordinate
+                                                                                           //do not insert mission element
   me.element.mission_circle.radius = DL_MISSION_CIRCLE_LLA_radius(dl_buffer);
   me.duration = DL_MISSION_CIRCLE_LLA_duration(dl_buffer);
 
@@ -174,8 +176,11 @@ int mission_parse_SEGMENT_LLA(void) {
 
   struct _mission_element me;
   me.type = MissionSegment;
-  mission_point_of_lla(&me.element.mission_segment.from.from_f, &from_lla);
-  mission_point_of_lla(&me.element.mission_segment.to.to_f, &to_lla);
+  if(mission_point_of_lla(&me.element.mission_segment.from.from_f, &from_lla)) return FALSE; //there is no valid local coordinate
+                                                                                              //do not insert mission element
+
+  if(mission_point_of_lla(&me.element.mission_segment.to.to_f  , &to_lla  )) return FALSE; //there is no valid local coordinate
+                                                                                           //do not insert mission element
   me.duration = DL_MISSION_SEGMENT_LLA_duration(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode) (DL_MISSION_SEGMENT_LLA_insert(dl_buffer));
@@ -239,7 +244,8 @@ int mission_parse_PATH_LLA(void) {
   me.element.mission_path.nb = DL_MISSION_PATH_LLA_nb(dl_buffer);
   if (me.element.mission_path.nb > MISSION_PATH_NB) me.element.mission_path.nb = MISSION_PATH_NB;
   for (i = 0; i < me.element.mission_path.nb; i++) {
-    mission_point_of_lla(&me.element.mission_path.path.path_f[i], &lla[i]);
+    if(mission_point_of_lla(&me.element.mission_path.path.path_f[i], &lla[i])) return FALSE; //there is no valid local coordinate
+                                                                                                  //do not insert mission element
   }
   me.element.mission_path.path_idx = 0;
   me.duration = DL_MISSION_PATH_LLA_duration(dl_buffer);
@@ -278,4 +284,3 @@ int mission_parse_END_MISSION(void) {
   mission.current_idx = mission.insert_idx;
   return TRUE;
 }
-

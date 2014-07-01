@@ -28,7 +28,7 @@
  */
 
 #include <stdio.h>
-#include "modules/mission/mission_rotorcraft.h"
+#include "modules/mission/mission_common.h"
 #include "firmwares/rotorcraft/autopilot.h"
 #include "firmwares/rotorcraft/navigation.h"
 
@@ -41,7 +41,7 @@ struct EnuCoor_i last_mission_wp = { 0., 0., 0. };
 /** Navigation function to a single waypoint
  */
 static inline bool_t mission_nav_wp(struct _mission_element * el) {
-  struct EnuCoor_i target_wp = el->element.mission_wp.wp;
+  struct EnuCoor_i target_wp = el->element.mission_wp.wp.wp_i;
 
  //Check proximity and wait for 'duration' seconds in proximity circle if desired
   if(nav_approaching_from(&(target_wp), NULL, CARROT)){
@@ -65,7 +65,7 @@ return TRUE;
 /** Navigation function on a circle
  */
 static inline bool_t mission_nav_circle(struct _mission_element * el) {
-  struct EnuCoor_i center_wp = el->element.mission_circle.center;
+  struct EnuCoor_i center_wp = el->element.mission_circle.center.center_i;
   int32_t radius = el->element.mission_circle.radius;
 
   //Draw the desired circle for a 'duration' time
@@ -85,8 +85,8 @@ static inline bool_t mission_nav_circle(struct _mission_element * el) {
  */
 static inline bool_t mission_nav_segment(struct _mission_element * el) {
 
-  struct EnuCoor_i from_wp = el->element.mission_segment.from;
-  struct EnuCoor_i to_wp   = el->element.mission_segment.to  ;
+  struct EnuCoor_i from_wp = el->element.mission_segment.from.from_i;
+  struct EnuCoor_i to_wp   = el->element.mission_segment.to.to_i  ;
 
   //Check proximity and wait for 'duration' seconds in proximity circle if desired
   if(nav_approaching_from(&(to_wp), &(from_wp), CARROT)){
@@ -117,14 +117,14 @@ static inline bool_t mission_nav_path(struct _mission_element * el) {
   }
 
   if(el->element.mission_path.path_idx == 0){ //first wp of path
-    el->element.mission_wp.wp = el->element.mission_path.path[0];
+    el->element.mission_wp.wp.wp_i = el->element.mission_path.path.path_i[0];
     if(!mission_nav_wp(el)) el->element.mission_path.path_idx++;
   }
 
   else if(el->element.mission_path.path_idx < el->element.mission_path.nb){ //standart wp of path
 
-    struct EnuCoor_i from_wp = el->element.mission_path.path[(el->element.mission_path.path_idx) - 1];
-    struct EnuCoor_i to_wp   = el->element.mission_path.path[el->element.mission_path.path_idx]      ;
+    struct EnuCoor_i from_wp = el->element.mission_path.path.path_i[(el->element.mission_path.path_idx) - 1];
+    struct EnuCoor_i to_wp   = el->element.mission_path.path.path_i[el->element.mission_path.path_idx]      ;
 
     //Check proximity and wait for t seconds in proximity circle if desired
     if(nav_approaching_from(&(to_wp), &(from_wp), CARROT)){
