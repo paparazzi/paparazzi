@@ -280,8 +280,13 @@ void guidance_v_run(bool_t in_flight) {
 #if NO_RC_THRUST_LIMIT
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #else
-    // saturate max authority with RC stick
-    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
+    // saturate max authority with RC stick (when RC is not lost)
+    if(radio_control.status == RC_REALLY_LOST) {
+      stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+    }
+    else {
+      stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
+    }
 #endif
     break;
 

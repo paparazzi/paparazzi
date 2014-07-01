@@ -5,6 +5,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2_raw">
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
+      <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
 
       <subsystem name="telemetry" type="udp"/>
@@ -39,7 +40,7 @@
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
-    <axis name="THRUST" failsafe_value="3000"/>
+    <axis name="THRUST" failsafe_value="5760"/>
   </commands>
 
   <servos driver="Default">
