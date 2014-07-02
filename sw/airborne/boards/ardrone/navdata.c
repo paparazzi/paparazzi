@@ -278,6 +278,49 @@ void navdata_read()
   }
 }
 
+static void mag_freeze_check(void) {
+  // from daren.g.lee paparazzi-l 20140530
+  static int16_t LastMagValue = 0;
+  static int MagFreezeCounter = 0;
+  // int SysRet;
+
+  // printf("lm: %d, mx: %d, mfc: %d\n", LastMagValue, navdata.mx, MagFreezeCounter);
+
+  if (LastMagValue == navdata.mx) {
+    MagFreezeCounter++;
+    // re-initialize the serial port here, in paparazzi this should be ~3 seconds
+    // considering it updates at 200 Hz
+    if (MagFreezeCounter > 100) { // rathern than 600
+      printf("Mag needs resetting, Values are frozen!!! %d , %d \n",LastMagValue, navdata.mx);
+      printf("Setting GPIO 177 to reset PIC Navigation Board \n");
+
+      // stop acquisition
+      uint8_t cmd=0x02;
+      navdata_write(&cmd, 1);
+      
+      system("gpio 177 -d lo 0 &"); // GPIO used to reset PIC
+      system("gpio 177 -d lo 1 &");
+      // wait 20ms to retrieve data
+      for (int i=0;i<22;i++)
+	{
+	  usleep(1000);
+	}
+	
+      // restart acquisition
+      cmd = 0x01;
+      navdata_write(&cmd, 1);
+
+      MagFreezeCounter = 0; // reset counter back to zero
+    }
+  }
+  else {
+    // remember to reset if value _does_ change
+    MagFreezeCounter = 0;
+  }
+  // set last value
+  LastMagValue = navdata.mx;
+}
+
 static void baro_update_logic(void)
 {
   static int32_t lastpressval = 0;
@@ -476,6 +519,7 @@ void navdata_update()
 
 //        printf(",%d,%d,%d\n", navdata.pressure, navdata.temperature_pressure, (int)navdata_baro_available);
 
+        mag_freeze_check();
 
 #ifdef USE_SONAR
         // Check if there is a new sonar measurement and update the sonar
