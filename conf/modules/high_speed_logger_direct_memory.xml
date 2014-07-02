@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="loggers">
+  <doc>
+    <description>Connect to external High-Speed SD-logger via SPI</description>
+  </doc>
+  <header>
+    <file name="high_speed_logger_direct_memory.h"/>
+  </header>
+  <init fun="high_speed_logger_direct_memory_init()"/>
+  <periodic fun="high_speed_logger_direct_memory_periodic()" autorun="TRUE"/>
+  <makefile>
+    <define name="SPI_MASTER" value="1" />
+    <define name="USE_SPI1" value="1" />
+    <define name="USE_SPI_SLAVE1" value="1" />
+    <define name="HIGH_SPEED_LOGGER_DIRECT_MEMORY_DEVICE" value="spi1" />
+    <define name="HIGH_SPEED_LOGGER_DIRECT_MEMORY_SLAVE_NUMBER" value="SPI_SLAVE1" />
+
+
+    <!--taken from ahrs_chimu_uart   B115200/B230400/B921600-->
+    <define name="USE_UART3" value="1"/>
+    <define name="UART3_BAUD" value="B115200"/>
+
+
+    <file name="high_speed_logger_direct_memory.c"/>
+  </makefile>
+</module>
