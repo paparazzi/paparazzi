@@ -446,7 +446,7 @@ static void guidance_h_traj_run(bool_t in_flight) {
     ((guidance_h_again * guidance_h_accel_ref.x) >> 8);   /* acceleration feedforward gain */
   guidance_h_cmd_earth.y =
     pd_y +
-    ((guidance_h_vgain * guidance_h_speed_ref.x) >> 17) + /* speed feedforward gain */
+    ((guidance_h_vgain * guidance_h_speed_ref.y) >> 17) + /* speed feedforward gain */
     ((guidance_h_again * guidance_h_accel_ref.y) >> 8);   /* acceleration feedforward gain */
 
   /* trim max bank angle from PD */

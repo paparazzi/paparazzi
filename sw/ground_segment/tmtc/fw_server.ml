@@ -136,7 +136,11 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.gps_Pacc <- ivalue "Pacc"
     | "ESTIMATOR" ->
       a.alt     <- fvalue "z";
-      a.climb   <- fvalue "z_dot"
+      a.climb   <- fvalue "z_dot";
+      if a.gps_mode = _3D then
+        a.agl <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt)
+      else
+        a.agl <- a.alt -. a.ground_alt
     | "AIRSPEED" ->
       a.airspeed <- fvalue "airspeed"
     | "DESIRED" ->
@@ -152,14 +156,22 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.desired_climb <- (try fvalue "climb" with _ -> fvalue "desired_climb");
       begin try a.desired_course <- norm_course (fvalue "course") with _ -> () end
     | "NAVIGATION_REF" ->
-        a.nav_ref <- Some (Utm { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" });
-        a.ground_alt <- fvalue "ground_alt"
+      a.nav_ref <- Some (Utm { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" });
+      a.ground_alt <- fvalue "ground_alt";
+      if a.gps_mode = _3D then
+        a.agl <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt)
+      else
+        a.agl <- a.alt -. a.ground_alt
     | "NAVIGATION_REF_LLA" ->
       let lat = ivalue "lat"
       and lon = ivalue "lon" in
       let geo = make_geo (float lat /. 1e7) (float lon /. 1e7) in
       a.nav_ref <- Some (Geo geo);
-      a.ground_alt <- fvalue "ground_alt"
+      a.ground_alt <- fvalue "ground_alt";
+      if a.gps_mode = _3D then
+        a.agl <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt)
+      else
+        a.agl <- a.alt -. a.ground_alt
     | "ATTITUDE" ->
       let roll = fvalue "phi"
       and pitch = fvalue "theta" in

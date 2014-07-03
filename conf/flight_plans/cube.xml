@@ -33,26 +33,26 @@
     </block>
 
     <block name="Preset cubical lines" strip_button="CubeInit">
-      <set var="cube_sect"    value="1"/>
-      <set var="cube_nsect_x" value="3"/>
-      <set var="cube_nsect_z" value="2"/>
-      <set var="cube_alpha"   value="60"/>
-      <set var="cube_size_x"  value="70"/>
-      <set var="cube_size_y"  value="50"/>
-      <set var="cube_size_z"  value="40"/>
-      <set var="cube_grid_x"  value="10"/>
-      <set var="cube_grid_z"  value="10"/>
-      <set var="cube_offs_x"  value="0"/>
-      <set var="cube_offs_y"  value="30"/>
-      <set var="cube_offs_z"  value="10"/>
+      <set var="nav_cube.sect"    value="1"/>
+      <set var="nav_cube.nsect_x" value="3"/>
+      <set var="nav_cube.nsect_z" value="2"/>
+      <set var="nav_cube.alpha"   value="60"/>
+      <set var="nav_cube.size.x"  value="70"/>
+      <set var="nav_cube.size.y"  value="50"/>
+      <set var="nav_cube.size.z"  value="40"/>
+      <set var="nav_cube.grid_x"  value="10"/>
+      <set var="nav_cube.grid_z"  value="10"/>
+      <set var="nav_cube.offset.x"  value="0"/>
+      <set var="nav_cube.offset.y"  value="30"/>
+      <set var="nav_cube.offset.z"  value="10"/>
       <deroute block="Fly lines in cubical"/>
     </block>
 
     <block name="Fly lines in cubical" strip_button="Cube">
-      <call fun="nav_cube_init(WP_CENTER, WP_B0, WP_E0)"/>
-      <for from="0" to="cube_nline_z" var="j">
-        <for from="0" to="cube_nline_x" var="i">
-          <call fun="nav_cube(_var_j, _var_i, WP__B, WP__E, WP_B0, WP_E0)"/>
+      <call fun="nav_cube_setup(WP_CENTER, WP_B0, WP_E0)"/>
+      <for from="0" to="nav_cube.nline_z" var="j">
+        <for from="0" to="nav_cube.nline_x" var="i">
+          <call fun="nav_cube_run(_var_j, _var_i, WP__B, WP__E, WP_B0, WP_E0)"/>
           <oval p1="_B" p2="_E" radius="-nav_radius" until="(oval_status == OC1)"/>
           <go approaching_time="0" from="_B" hmode="route" wp="_E"/>
         </for>

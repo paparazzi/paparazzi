@@ -36,7 +36,7 @@ def get_list_of_files(directory, extension):
 
 def get_list_of_modules():
     return get_list_of_files( modules_dir, ".xml")
-    
+
 def get_list_of_firmwares():
     return get_list_of_files( firmwares_dir, ".makefile")
 

@@ -80,15 +80,13 @@ let dump_module_section = fun xml f ->
   fprintf f   "# modules makefile section\n";
   fprintf f   "####################################################\n";
   fprintf f "\n# include modules directory for all targets\n";
-  (* get dir and target list *)
+  (* get dir list *)
   let dir_list = Gen_common.get_modules_dir modules in
-  (**
-     let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
-     List.iter (fun target -> fprintf f "%s.CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n" target) target_list;
-  **)
   (** include modules directory for ALL targets and not just the defined ones **)
   fprintf f "$(TARGET).CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n";
   List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) dir_list;
+  (* add vpath for external modules *)
+  List.iter (fun m -> match m.vpath with Some vp -> fprintf f "VPATH += %s\n" vp | _ -> ()) modules;
   (* parse each module *)
   List.iter (fun m ->
     let name = ExtXml.attrib m.xml "name" in
@@ -129,12 +127,20 @@ let dump_module_section = fun xml f ->
             | "define" ->
               List.iter (fun target ->
                 let value = try "="^(Xml.attrib field "value") with _ -> ""
-                and name = Xml.attrib field "name" in
+                and name = Xml.attrib field "name"
+                and vpath = match m.vpath with Some vp -> vp^"/" | _ -> "" in
                 let flag_type = match (ExtXml.attrib_or_default field "type" "define") with
                     "define" | "D" -> "D"
-                  | "include" | "I" -> "I"
+                  | "include" | "I" -> "I"^vpath
+                  | "raw" -> ""
                   | _ -> "D" in
                 fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value
+              ) targets
+            | "flag" ->
+              List.iter (fun target ->
+                let value = Xml.attrib field "value"
+                and name = Xml.attrib field "name" in
+                fprintf f "%s.%s += -%s\n" target name value
               ) targets
             | "file" ->
               let name = Xml.attrib field "name" in

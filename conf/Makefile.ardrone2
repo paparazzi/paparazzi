@@ -33,9 +33,9 @@ upload_extra:
 
 # Program the device and start it.
 load upload program: upload_extra $(OBJDIR)/$(TARGET).elf
-	$(Q)$(DRONE) insmod $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko
-	$(Q)$(DRONE) upload_paparazzi $(OBJDIR)/$(TARGET).elf $(SUB_DIR)
-	$(Q)$(DRONE) status
+	$(Q)$(DRONE) --host=$(HOST) insmod $(PAPARAZZI_SRC)/sw/ext/ardrone2_drivers/cdc-acm.ko
+	$(Q)$(DRONE) --host=$(HOST) upload_file_and_run $(OBJDIR)/$(TARGET).elf $(SUB_DIR)
+	$(Q)$(DRONE) --host=$(HOST) status
 
 
 # Program the device and start it.

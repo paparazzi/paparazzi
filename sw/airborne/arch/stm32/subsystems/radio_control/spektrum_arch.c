@@ -691,8 +691,13 @@ void radio_control_spektrum_try_bind(void) {
 
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */
+#ifdef SPEKTRUM_BIND_PIN_HIGH
+  if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) == 0)
+    return;
+#else
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
     return;
+#endif
 
   /* Master receiver Rx push-pull */
   gpio_setup_output(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);

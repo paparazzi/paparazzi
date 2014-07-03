@@ -80,18 +80,20 @@ static void sonar_cb(uint8_t sender_id, const float *distance);
 #define INS_SONAR_MIN_RANGE 0.001
 #endif
 #define VFF_R_SONAR_0 0.1
+#ifndef VFF_R_SONAR_OF_M
 #define VFF_R_SONAR_OF_M 0.2
+#endif
 
 #ifndef INS_SONAR_UPDATE_ON_AGL
 #define INS_SONAR_UPDATE_ON_AGL FALSE
 PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 #endif
 
+#endif // USE_SONAR
+
 #ifndef INS_VFF_R_GPS
 #define INS_VFF_R_GPS 2.0
 #endif
-
-#endif // USE_SONAR
 
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE

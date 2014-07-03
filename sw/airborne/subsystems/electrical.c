@@ -52,8 +52,13 @@
 
 #define ELECTRICAL_PERIODIC_FREQ 10
 
+#ifndef MIN_BAT_LEVEL
+#define MIN_BAT_LEVEL 3
+#endif
+
 PRINT_CONFIG_VAR(LOW_BAT_LEVEL)
 PRINT_CONFIG_VAR(CRITIC_BAT_LEVEL)
+PRINT_CONFIG_VAR(MIN_BAT_LEVEL)
 
 struct Electrical electrical;
 
@@ -106,6 +111,7 @@ PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
 void electrical_periodic(void) {
   static uint8_t bat_low_counter = 0;
   static uint8_t bat_critical_counter = 0;
+  static bool_t vsupply_check_started = FALSE;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
   electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample));
@@ -113,7 +119,8 @@ void electrical_periodic(void) {
 
 #ifdef ADC_CHANNEL_CURRENT
 #ifndef SITL
-  electrical.current = MilliAmpereOfAdc((electrical_priv.current_adc_buf.sum/electrical_priv.current_adc_buf.av_nb_sample));
+  int32_t current_adc = electrical_priv.current_adc_buf.sum/electrical_priv.current_adc_buf.av_nb_sample;
+  electrical.current = MilliAmpereOfAdc(current_adc);
   /* Prevent an overflow on high current spikes when using the motor brake */
   BoundAbs(electrical.current, 65000);
 #endif
@@ -139,28 +146,35 @@ void electrical_periodic(void) {
   // mAh = mA * dt (10Hz -> hours)
   electrical.energy += ((float)electrical.current) / 3600.0f / ELECTRICAL_PERIODIC_FREQ;
 
-  if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
-    if (bat_low_counter > 0)
-      bat_low_counter--;
-    if (bat_low_counter == 0)
-      electrical.bat_low = TRUE;
-  }
-  else {
-    // reset battery low status and counter
-    bat_low_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
-    electrical.bat_low = FALSE;
+  /*if valid voltage is seen then start checking. Set min level to 0 to always start*/
+  if (electrical.vsupply >= MIN_BAT_LEVEL * 10) {
+    vsupply_check_started = TRUE;
   }
 
-  if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
-    if (bat_critical_counter > 0)
-      bat_critical_counter--;
-    if (bat_critical_counter == 0)
-      electrical.bat_critical = TRUE;
-  }
-  else {
-    // reset battery critical status and counter
-    bat_critical_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
-    electrical.bat_critical = FALSE;
+  if (vsupply_check_started) {
+    if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
+      if (bat_low_counter > 0)
+        bat_low_counter--;
+      if (bat_low_counter == 0)
+        electrical.bat_low = TRUE;
+    }
+    else {
+      // reset battery low status and counter
+      bat_low_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
+      electrical.bat_low = FALSE;
+    }
+
+    if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
+      if (bat_critical_counter > 0)
+        bat_critical_counter--;
+      if (bat_critical_counter == 0)
+        electrical.bat_critical = TRUE;
+    }
+    else {
+      // reset battery critical status and counter
+      bat_critical_counter = BAT_CHECKER_DELAY * ELECTRICAL_PERIODIC_FREQ;
+      electrical.bat_critical = FALSE;
+    }
   }
 
 }

@@ -982,7 +982,7 @@ void i2c1_hw_init(void) {
 #else
 
   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
-  //i2c_reset(I2C1);
+  //rcc_periph_reset_pulse(RST_I2C1);
 
   /* Configure and enable I2C1 event interrupt --------------------------------*/
   nvic_set_priority(NVIC_I2C1_EV_IRQ, NVIC_I2C1_IRQ_PRIO);
@@ -998,7 +998,7 @@ void i2c1_hw_init(void) {
   /* setup gpio clock and pins */
   i2c_setup_gpio(I2C1);
 
-  i2c_reset(I2C1);
+  rcc_periph_reset_pulse(RST_I2C1);
 
   // enable peripheral
   i2c_peripheral_enable(I2C1);
@@ -1056,7 +1056,7 @@ void i2c2_hw_init(void) {
   ZEROS_ERR_COUNTER(i2c2_errors);
 
   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
-  //i2c_reset(I2C2);
+  //rcc_periph_reset_pulse(RST_I2C2);
 
   /* Configure and enable I2C2 event interrupt --------------------------------*/
   nvic_set_priority(NVIC_I2C2_EV_IRQ, NVIC_I2C2_IRQ_PRIO);
@@ -1073,7 +1073,7 @@ void i2c2_hw_init(void) {
   /* setup gpio clock and pins */
   i2c_setup_gpio(I2C2);
 
-  i2c_reset(I2C2);
+  rcc_periph_reset_pulse(RST_I2C2);
 
   // enable peripheral
   i2c_peripheral_enable(I2C2);
@@ -1131,7 +1131,7 @@ void i2c3_hw_init(void) {
   ZEROS_ERR_COUNTER(i2c3_errors);
 
   /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
-  //i2c_reset(I2C3);
+  //rcc_periph_reset_pulse(RST_I2C3);
 
   /* Configure and enable I2C3 event interrupt --------------------------------*/
   nvic_set_priority(NVIC_I2C3_EV_IRQ, NVIC_I2C3_IRQ_PRIO);
@@ -1148,7 +1148,7 @@ void i2c3_hw_init(void) {
   /* setup gpio clock and pins */
   i2c_setup_gpio(I2C3);
 
-  i2c_reset(I2C3);
+  rcc_periph_reset_pulse(RST_I2C3);
 
   // enable peripheral
   i2c_peripheral_enable(I2C3);

@@ -44,7 +44,7 @@ class AirframeEditor:
     def find_firmwares(self, widget):
         list_of_firmwares = paparazzi.get_list_of_firmwares()
         self.update_combo(self.firmwares_combo, list_of_firmwares)
-    
+
     def find_modules(self, widget):
         list_of_modules = paparazzi.get_list_of_modules()
         self.update_combo(self.modules_combo, list_of_modules)
@@ -117,7 +117,7 @@ class AirframeEditor:
     # Constructor Functions
 
     def fill_tree_from_airframe(self):
-        
+
         # create a TreeStore with one string column to use as the model
         self.treestore = gtk.TreeStore(str, object)
 
@@ -134,9 +134,9 @@ class AirframeEditor:
         self.tvcolumn.pack_start(self.cell, True)
         self.tvcolumn.add_attribute(self.cell, 'text', 0)
         self.treeview.set_reorderable(True)
-        
+
     def fill_datagrid_from_section(self):
-        
+
         # create a TreeStore with one string column to use as the model
         self.gridstore = gtk.ListStore(str, str, str, str, str)
 
@@ -233,7 +233,7 @@ class AirframeEditor:
         self.btnExit.set_tooltip_text("Close application")
 
         self.btnOpen = gtk.Button("Open")
-        self.btnOpen.connect("clicked", self.open)        
+        self.btnOpen.connect("clicked", self.open)
 
         self.btnRun = gtk.Button("Reorganize XML")
         self.btnRun.connect("clicked", self.reorganize_xml)
@@ -271,7 +271,7 @@ class AirframeEditor:
 
         self.boards_combo = gtk.combo_box_entry_new_text()
         self.find_boards(self.boards_combo)
-        
+
 
         self.firmwarebar = gtk.HBox()
         self.firmwarebar.pack_start(self.btnFirmwares)
@@ -327,7 +327,7 @@ class AirframeEditor:
 
         self.load_airframe_xml()
 
-        ##### Bottom        
+        ##### Bottom
 
         self.searchbar = gtk.HBox()
 

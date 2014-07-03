@@ -215,12 +215,19 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
       lprintf out_h "%s" cond
     with _ -> ()
   in
+  (** check control_block *)
+  let get_control_block = fun c ->
+    try
+       List.find (fun n -> (Xml.attrib c "name") = (Xml.attrib n "name")) ctrl_block
+     with
+         Not_found -> failwith (sprintf "Could not find block %s" (Xml.attrib c "name"))
+  in
   (** Print a control block *)
   let print_ctrl = fun ctrl ->
     List.iter (fun c ->
       match (Xml.tag c) with
           "call" -> print_call c
-        | "call_block" -> List.iter print_call (Xml.children (List.find (fun n -> (Xml.attrib c "name") = (Xml.attrib n "name")) ctrl_block))
+        | "call_block" -> List.iter print_call (Xml.children (get_control_block c))
         | _ -> ()
     ) (Xml.children ctrl)
   in
@@ -261,7 +268,7 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
       let ctrl_freq = try int_of_string (Xml.attrib c "freq") with _ -> main_freq in
       let prescaler = main_freq / ctrl_freq in
       match prescaler with
-          0 -> failwith "Autopilot Core Error: control freq higher than main freq"
+          0 -> failwith (sprintf "Autopilot Core Error: control freq (%d) higher than main_freq (%d)" ctrl_freq main_freq)
         | 1 -> print_ctrl c (* no prescaler if running at main_freq *)
         | _ -> print_prescaler prescaler c
     ) (get_control m);
@@ -326,12 +333,9 @@ let () =
     failwith (Printf.sprintf "Usage: %s airframe_xml_file out_h_file" Sys.argv.(0));
   let xml_file = Sys.argv.(1)
   and h_file = Sys.argv.(2) in
-  try
-    let xml = Xml.parse_file xml_file in
-    let (autopilot, ap_freq) = Gen_common.get_autopilot_of_airframe xml in
-    gen_autopilot ap_freq autopilot h_file;
-    ()
-  with
+  let (autopilot, ap_freq) = try
+                               Gen_common.get_autopilot_of_airframe (Xml.parse_file xml_file)
+    with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
     | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
     | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
@@ -341,3 +345,9 @@ let () =
       fprintf out_h "/*** Sorry, no autopilot file found ***/\n";
       close_out out_h;
       exit 0
+  in
+  try
+    gen_autopilot ap_freq autopilot h_file;
+    ()
+  with
+    Not_found -> fprintf stderr "gen_autopilot: What the heck? Something went wrong...\n"; exit 1

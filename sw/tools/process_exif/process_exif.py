@@ -32,10 +32,10 @@ M_PI_4=(M_PI/4)
 def RadOfDeg( deg ):
     return (deg / M_PI) * 180.
 
-# converts UTM coords to lat/long.  Equations from USGS Bulletin 1532 
-# East Longitudes are positive, West longitudes are negative. 
+# converts UTM coords to lat/long.  Equations from USGS Bulletin 1532
+# East Longitudes are positive, West longitudes are negative.
 # North latitudes are positive, South latitudes are negative
-# Lat and Long are in decimal degrees. 
+# Lat and Long are in decimal degrees.
 # Written by Chuck Gantz- chuck.gantz@globalstar.com
 
 # ( I had some code here to use GDAL and which looked much simpler, but couldn't get that to work )
@@ -46,33 +46,33 @@ def UTMtoLL( northing, easting, utm_zone ):
     a = 6378137; # WGS-84
     eccSquared = 0.00669438; # WGS-84
     e1 = (1-math.sqrt(1-eccSquared))/(1+math.sqrt(1-eccSquared));
-	
+
     x = easting - 500000.0; # remove 500,000 meter offset for longitude
     y = northing;
-	
+
     is_northern = northing < 0
     if ( not is_northern ):
 		y -= 10000000.0 # remove 10,000,000 meter offset used for southern hemisphere
-	
+
     LongOrigin = (utm_zone - 1)*6 - 180 + 3;  # +3 puts origin in middle of zone
-	
+
     eccPrimeSquared = (eccSquared)/(1-eccSquared);
-	
+
     M = y / k0;
     mu = M/(a*(1-eccSquared/4-3*eccSquared*eccSquared/64-5*eccSquared*eccSquared*eccSquared/256));
 
     phi1Rad = mu	+ (3*e1/2-27*e1*e1*e1/32)*math.sin(2*mu) + (21*e1*e1/16-55*e1*e1*e1*e1/32)*math.sin(4*mu) +(151*e1*e1*e1/96)*math.sin(6*mu);
     phi1 = RadOfDeg(phi1Rad);
-	
+
     N1 = a/math.sqrt(1-eccSquared*math.sin(phi1Rad)*math.sin(phi1Rad));
     T1 = math.tan(phi1Rad)*math.tan(phi1Rad);
     C1 = eccPrimeSquared*math.cos(phi1Rad)*math.cos(phi1Rad);
     R1 = a*(1-eccSquared)/math.pow(1-eccSquared*math.sin(phi1Rad)*math.sin(phi1Rad), 1.5);
     D = x/(N1*k0);
-	    
+
     Lat = phi1Rad - (N1*math.tan(phi1Rad)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*eccPrimeSquared)*D*D*D*D/24+(61+90*T1+298*C1+45*T1*T1-252*eccPrimeSquared-3*C1*C1)*D*D*D*D*D*D/720);
     Lat = RadOfDeg(Lat)
-	
+
     Long = (D-(1+2*T1+C1)*D*D*D/6+(5-2*C1+28*T1-3*C1*C1+8*eccPrimeSquared+24*T1*T1)*D*D*D*D*D/120)/math.cos(phi1Rad)
     Long = LongOrigin + RadOfDeg(Long)
 
@@ -136,29 +136,29 @@ for line in f:
 
             # Check that there as many photos and pick the indicated one.
             # (this assumes the photos were taken correctly without a hiccup)
-            # It would never be able to check this anyway, since the camera could stall or 
+            # It would never be able to check this anyway, since the camera could stall or
             # not interpret the pulse?  Leading to an incorrect GPS coordinate.
             if len( photos ) < photonr:
                 print "Photo data %d found, but ran out of photos in directory"%(photonr)
-                continue                        
+                continue
 
-            # I've seen log files with -1 as DC_SHOT number due to an int8 I think. This should be 
+            # I've seen log files with -1 as DC_SHOT number due to an int8 I think. This should be
             # fixed now, but just in case someone runs this on old data.
             if (photonr < 0):
                 print "Negative photonr found."
                 continue
 
-            # Pick out photo, open it through exiv2, 
+            # Pick out photo, open it through exiv2,
             photoname = photos[ photonr - 1 ]
             photo = GExiv2.Metadata( photoname )
-        
+
             photo.set_gps_info(lat, lon, alt)
             photo.save_file()
 
             print "Photo %s and photonr %d merged. Lat/Lon/Alt: %f, %f, %f"%(photoname, photonr, lat, lon, alt)
 
         except ValueError as e:
-            print "Cannot read line: %s"%(line) 
+            print "Cannot read line: %s"%(line)
             print "Value error(%s)"%(e)
             continue
 

@@ -1,0 +1,50 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mf_ptu" dir="meteo">
+  <doc>
+    <description>
+      PTU board from Meteo France (pressure, temperature, humidity).
+
+      Raw meteo data:
+      - Pressure in ADC
+      - Temperature in ADC
+      - Humidity in micro-seconds (period of the input signal)
+
+      When using SEND_PTU flag, scaled pressure, temperature and humidity data are sent over telemetry with the PAYLOAD_FLOAT message (array of float).
+      If scale factors and offset are not specified, raw values are sent (scale=1.0, offset=0).
+
+      When using LOG_PTU flag, raw pressure, temperature and humidity data are stored with raw gps data (position, speed, time, status).
+      Field names and units are in the first line of the log file.
+    </description>
+    <configure name="ADC_PRESSURE" value="ADC_X" description="Select ADC channel for pressure sensor"/>
+    <configure name="ADC_TEMPERATURE" value="ADC_X" description="Select ADC channel for temperature sensor"/>
+    <configure name="PWM_INPUT_HUMIDITY" value="PWM_INPUTX" description="Select PWM input channel for humidity sensor"/>
+    <section name="MF_PTU">
+      <define name="PTU_POWER_GPIO" value="GPIOX,GPIOYY" description="If defined, enable power by setting the specified GPIO to 1 at starup"/>
+      <define name="PTU_PRESSURE_OFFSET" value="0" description="Offset in ADC of the pressure sensor"/>
+      <define name="PTU_PRESSURE_SCALE" value="1." description="Scale factor of the pressure sensor"/>
+      <define name="PTU_TEMPERATURE_OFFSET" value="0" description="Offset in ADC of the  temperature sensor"/>
+      <define name="PTU_TEMPERATURE_SCALE" value="1." description="Scale factor of the temperature sensor"/>
+      <define name="PTU_HUMIDITY_OFFSET" value="0" description="Offset in micro seconds of the humidity sensor"/>
+      <define name="PTU_HUMIDITY_SCALE" value="1." description="Scale factor of the pressure sensor"/>
+      <define name="LOG_PTU" value="TRUE|FALSE" description="Log data on SD card (ascii format, raw PTU data + GPS data)"/>
+      <define name="SEND_PTU" value="TRU|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data)"/>
+    </section>
+  </doc>
+  <depend require="pwm_meas"/>
+  <header>
+    <file name="mf_ptu.h"/>
+  </header>
+  <init fun="mf_ptu_init()"/>
+  <periodic fun="mf_ptu_periodic()" freq="10" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="mf_ptu.c"/>
+    <define name="ADC_CHANNEL_PRESSURE" value="$(ADC_PRESSURE)"/>
+    <define name="USE_$(ADC_PRESSURE)"/>
+    <define name="ADC_CHANNEL_TEMPERATURE" value="$(ADC_TEMPERATURE)"/>
+    <define name="USE_$(ADC_TEMPERATURE)"/>
+    <define name="PWM_INPUT_CHANNEL_HUMIDITY" value="$(PWM_INPUT_HUMIDITY)"/>
+    <define name="USE_$(PWM_INPUT_HUMIDITY)" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
+  </makefile>
+</module>
+

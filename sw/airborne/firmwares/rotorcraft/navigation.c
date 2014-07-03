@@ -70,15 +70,15 @@ float dist2_to_home;
 bool_t too_far_from_home;
 
 uint8_t horizontal_mode;
-uint8_t nav_segment_start, nav_segment_end;
-uint8_t nav_circle_centre;
+struct EnuCoor_i nav_segment_start, nav_segment_end;
+struct EnuCoor_i nav_circle_center;
 int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 
 int32_t nav_leg_progress;
 int32_t nav_leg_length;
 
 int32_t nav_roll, nav_pitch;
-int32_t nav_heading, nav_course;
+int32_t nav_heading;
 float nav_radius;
 
 /** default nav_circle_radius in meters */
@@ -110,15 +110,15 @@ static void send_nav_status(void) {
       &nav_block, &nav_stage,
       &horizontal_mode);
   if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {
-    float sx = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].x);
-    float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);
-    float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);
-    float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);
+    float sx = POS_FLOAT_OF_BFP(nav_segment_start.x);
+    float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
+    float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
+    float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
     DOWNLINK_SEND_SEGMENT(DefaultChannel, DefaultDevice, &sx, &sy, &ex, &ey);
   }
   else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {
-    float cx = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].x);
-    float cy = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].y);
+    float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
+    float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
     float r = POS_FLOAT_OF_BFP(nav_circle_radius);
     DOWNLINK_SEND_CIRCLE(DefaultChannel, DefaultDevice, &cx, &cy, &r);
   }
@@ -159,7 +159,6 @@ void nav_init(void) {
   nav_roll = 0;
   nav_pitch = 0;
   nav_heading = 0;
-  nav_course = 0;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_throttle = 0;
   nav_climb = 0;
@@ -210,13 +209,13 @@ void nav_run(void) {
   nav_set_altitude();
 }
 
-void nav_circle(uint8_t wp_center, int32_t radius) {
+void nav_circle(struct EnuCoor_i * wp_center, int32_t radius) {
   if (radius == 0) {
-    VECT2_COPY(navigation_target, waypoints[wp_center]);
+    VECT2_COPY(navigation_target, *wp_center);
   }
   else {
     struct Int32Vect2 pos_diff;
-    VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), waypoints[wp_center]);
+    VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_center);
     // go back to half metric precision or values are too large
     //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
     // store last qdr
@@ -248,19 +247,18 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     // compute setpoint
     VECT2_ASSIGN(pos_diff, abs_radius * c_carrot, abs_radius * s_carrot);
     INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_TRIG_FRAC);
-    VECT2_SUM(navigation_target, waypoints[wp_center], pos_diff);
+    VECT2_SUM(navigation_target, *wp_center, pos_diff);
   }
-  nav_circle_centre = wp_center;
+  nav_circle_center = *wp_center;
   nav_circle_radius = radius;
   horizontal_mode = HORIZONTAL_MODE_CIRCLE;
 }
 
 
-//#include "stdio.h"
-void nav_route(uint8_t wp_start, uint8_t wp_end) {
+void nav_route(struct EnuCoor_i * wp_start, struct EnuCoor_i * wp_end) {
   struct Int32Vect2 wp_diff,pos_diff;
-  VECT2_DIFF(wp_diff, waypoints[wp_end],waypoints[wp_start]);
-  VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), waypoints[wp_start]);
+  VECT2_DIFF(wp_diff, *wp_end, *wp_start);
+  VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_start);
   // go back to metric precision or values are too large
   INT32_VECT2_RSHIFT(wp_diff,wp_diff,INT32_POS_FRAC);
   INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC);
@@ -269,29 +267,20 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_leg_length;
   int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
   nav_leg_progress += progress;
-  int32_t prog_2 = nav_leg_length;// + progress / 2;
+  int32_t prog_2 = nav_leg_length;
   Bound(nav_leg_progress, 0, prog_2);
   struct Int32Vect2 progress_pos;
   VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
   VECT2_SDIV(progress_pos, progress_pos, nav_leg_length);
-  INT32_VECT2_LSHIFT(progress_pos,progress_pos,INT32_POS_FRAC);
-  VECT2_SUM(navigation_target,waypoints[wp_start],progress_pos);
-  //printf("target %d %d | p %d %d | s %d %d | l %d %d %d\n",
-  //    navigation_target.x,
-  //    navigation_target.y,
-  //    progress_pos.x,
-  //    progress_pos.y,
-  //    waypoints[wp_start].x,
-  //    waypoints[wp_start].y,
-  //    leg_length, leg_length2, nav_leg_progress);
-  //fflush(stdout);
+  INT32_VECT2_LSHIFT(progress_pos, progress_pos, INT32_POS_FRAC);
+  VECT2_SUM(navigation_target, *wp_start, progress_pos);
 
-  nav_segment_start = wp_start;
-  nav_segment_end = wp_end;
+  nav_segment_start = *wp_start;
+  nav_segment_end = *wp_end;
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
 }
 
-bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approaching_time) {
+bool_t nav_approaching_from(struct EnuCoor_i * wp, struct EnuCoor_i * from, int16_t approaching_time) {
   int32_t dist_to_point;
   struct Int32Vect2 diff;
   struct EnuCoor_i* pos = stateGetPositionEnu_i();
@@ -304,11 +293,11 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
     VECT2_SMUL(estimated_progress, *speed, approaching_time);
     INT32_VECT2_RSHIFT(estimated_progress, estimated_progress, (INT32_SPEED_FRAC - INT32_POS_FRAC));
     VECT2_SUM(estimated_pos, *pos, estimated_progress);
-    VECT2_DIFF(diff, waypoints[wp_idx], estimated_pos);
+    VECT2_DIFF(diff, *wp, estimated_pos);
   }
   /* else use current position */
   else {
-    VECT2_DIFF(diff, waypoints[wp_idx], *pos);
+    VECT2_DIFF(diff, *wp, *pos);
   }
   /* compute distance of estimated/current pos to target wp
    * distance with half metric precision (6.25 cm)
@@ -321,10 +310,10 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
     return TRUE;
 
   /* if coming from a valid waypoint */
-  if (from_idx > 0 && from_idx < NB_WAYPOINT) {
+  if (from != NULL) {
     /* return TRUE if normal line at the end of the segment is crossed */
     struct Int32Vect2 from_diff;
-    VECT2_DIFF(from_diff, waypoints[wp_idx], waypoints[from_idx]);
+    VECT2_DIFF(from_diff, *wp, *from);
     INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC/2);
     return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
   }
@@ -332,19 +321,19 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approachin
   return FALSE;
 }
 
-bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
+bool_t nav_check_wp_time(struct EnuCoor_i * wp, uint16_t stay_time) {
   uint16_t time_at_wp;
   int32_t dist_to_point;
   static uint16_t wp_entry_time = 0;
   static bool_t wp_reached = FALSE;
-  static uint8_t wp_idx_last = 0;
+  static struct EnuCoor_i wp_last = { 0, 0, 0 };
   struct Int32Vect2 diff;
 
-  if (wp_idx_last != wp_idx) {
+  if ((wp_last.x != wp->x) || (wp_last.y != wp->y)) {
     wp_reached = FALSE;
-    wp_idx_last = wp_idx;
+    wp_last = *wp;
   }
-  VECT2_DIFF(diff, waypoints[wp_idx], *stateGetPositionEnu_i());
+  VECT2_DIFF(diff, *wp, *stateGetPositionEnu_i());
   INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC/2);
   INT32_VECT2_NORM(dist_to_point, diff);
   if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC/2)){
@@ -361,7 +350,10 @@ bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time) {
     time_at_wp = 0;
     wp_reached = FALSE;
   }
-  if (time_at_wp > stay_time) return TRUE;
+  if (time_at_wp > stay_time) {
+    INT_VECT3_ZERO(wp_last);
+    return TRUE;
+  }
   return FALSE;
 }
 
@@ -507,4 +499,10 @@ bool_t nav_set_heading_towards(float x, float y) {
 /** Set heading in the direction of a waypoint */
 bool_t nav_set_heading_towards_waypoint(uint8_t wp) {
   return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
+}
+
+/** Set heading to the current yaw angle */
+bool_t nav_set_heading_current(void) {
+  nav_heading = stateGetNedToBodyEulers_i()->psi;
+  return FALSE;
 }

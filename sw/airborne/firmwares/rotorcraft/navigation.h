@@ -48,15 +48,15 @@ extern void nav_run(void);
 extern uint8_t last_wp __attribute__ ((unused));
 
 extern uint8_t horizontal_mode;
-extern uint8_t nav_segment_start, nav_segment_end;
-extern uint8_t nav_circle_centre;
+extern struct EnuCoor_i nav_segment_start, nav_segment_end;
+extern struct EnuCoor_i nav_circle_center;
 extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 #define HORIZONTAL_MODE_WAYPOINT  0
 #define HORIZONTAL_MODE_ROUTE     1
 #define HORIZONTAL_MODE_CIRCLE    2
 #define HORIZONTAL_MODE_ATTITUDE  3
 extern int32_t nav_roll, nav_pitch;     ///< with #INT32_ANGLE_FRAC
-extern int32_t nav_heading, nav_course; ///< with #INT32_ANGLE_FRAC
+extern int32_t nav_heading; ///< with #INT32_ANGLE_FRAC
 extern float nav_radius;
 
 extern int32_t nav_leg_progress;
@@ -89,6 +89,7 @@ extern bool_t nav_set_heading_rad(float rad);
 extern bool_t nav_set_heading_deg(float deg);
 extern bool_t nav_set_heading_towards(float x, float y);
 extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
+extern bool_t nav_set_heading_current(void);
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -123,10 +124,10 @@ extern bool_t nav_set_heading_towards_waypoint(uint8_t wp);
 }
 
 /*********** Navigation on a circle **************************************/
-extern void nav_circle(uint8_t wp_center, int32_t radius);
+extern void nav_circle(struct EnuCoor_i * wp_center, int32_t radius);
 #define NavCircleWaypoint(_center, _radius) { \
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
-  nav_circle(_center, POS_BFP_OF_REAL(_radius)); \
+  nav_circle(&waypoints[_center], POS_BFP_OF_REAL(_radius)); \
 }
 
 #define NavCircleCount() (abs(nav_circle_radians) / INT32_ANGLE_2_PI)
@@ -137,10 +138,10 @@ extern void nav_circle(uint8_t wp_center, int32_t radius);
 #define NavCourseCloseTo(x) {}
 
 /*********** Navigation along a line *************************************/
-extern void nav_route(uint8_t wp_start, uint8_t wp_end);
+extern void nav_route(struct EnuCoor_i * wp_start, struct EnuCoor_i * wp_end);
 #define NavSegment(_start, _end) { \
   horizontal_mode = HORIZONTAL_MODE_ROUTE; \
-  nav_route(_start, _end); \
+  nav_route(&waypoints[_start], &waypoints[_end]); \
 }
 
 /** Nav glide routine */
@@ -152,13 +153,13 @@ extern void nav_route(uint8_t wp_start, uint8_t wp_end);
 }
 
 /** Proximity tests on approaching a wp */
-bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx, int16_t approaching_time);
-#define NavApproaching(wp, time) nav_approaching_from(wp, 0, time)
-#define NavApproachingFrom(wp, from, time) nav_approaching_from(wp, from, time)
+bool_t nav_approaching_from(struct EnuCoor_i * wp, struct EnuCoor_i * from, int16_t approaching_time);
+#define NavApproaching(wp, time) nav_approaching_from(&waypoints[wp], NULL, time)
+#define NavApproachingFrom(wp, from, time) nav_approaching_from(&waypoints[wp], &waypoints[from], time)
 
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
-bool_t nav_check_wp_time(uint8_t wp_idx, uint16_t stay_time);
-#define NavCheckWaypointTime(wp, time) nav_check_wp_time(wp, time)
+bool_t nav_check_wp_time(struct EnuCoor_i * wp, uint16_t stay_time);
+#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp], time)
 
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */

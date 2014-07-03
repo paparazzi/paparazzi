@@ -57,16 +57,6 @@ extern float h_ctl_pitch_of_roll;
   h_ctl_pitch_igain = _gain; \
   }
 
-/* inner roll loop parameters */
-extern float h_ctl_ref_roll_angle;
-extern float h_ctl_ref_roll_rate;
-extern float h_ctl_ref_roll_accel;
-
-/* inner pitch loop parameters */
-extern float h_ctl_ref_pitch_angle;
-extern float h_ctl_ref_pitch_rate;
-extern float h_ctl_ref_pitch_accel;
-
 extern bool_t use_airspeed_ratio;
 
 #endif /* FW_H_CTL_A_H */

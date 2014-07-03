@@ -34,6 +34,7 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/cm3/nvic.h>
 
+#include "mcu_periph/gpio_arch.h"
 
 uint32_t ratio_4ms, ratio_16ms;
 
@@ -75,16 +76,11 @@ void actuators_dualpwm_arch_init(void) {
   /*----------------
    * Configure GPIO
    *----------------*/
-#if defined(STM32F1)
-  /* TIM3 GPIO for PWM1..4 */
-  AFIO_MAPR |= AFIO_MAPR_TIM3_REMAP_FULL_REMAP;
-#endif
-
 #ifdef DUAL_PWM_SERVO_5
-  set_servo_gpio(DUAL_PWM_SERVO_5_GPIO, DUAL_PWM_SERVO_5_PIN, DUAL_PWM_SERVO_5_AF, DUAL_PWM_SERVO_5_RCC);
+  gpio_setup_pin_af(DUAL_PWM_SERVO_5_GPIO, DUAL_PWM_SERVO_5_PIN, DUAL_PWM_SERVO_5_AF, TRUE);
 #endif
 #ifdef DUAL_PWM_SERVO_6
-  set_servo_gpio(DUAL_PWM_SERVO_6_GPIO, DUAL_PWM_SERVO_6_PIN, DUAL_PWM_SERVO_6_AF, DUAL_PWM_SERVO_6_RCC);
+  gpio_setup_pin_af(DUAL_PWM_SERVO_6_GPIO, DUAL_PWM_SERVO_6_PIN, DUAL_PWM_SERVO_6_AF, TRUE);
 #endif
 
 #if DUAL_PWM_USE_TIM5
