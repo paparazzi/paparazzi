@@ -75,18 +75,18 @@ static inline void update_ref_quat_from_eulers(void) {
 }
 
 void stabilization_attitude_ref_idx_set_omega_p(uint8_t idx, float omega) {
-  stab_att_ref_model[i].omega.p = omega;
-  two_omega_squared[i].p = 2 * omega * omega;
+  stab_att_ref_model[idx].omega.p = omega;
+  two_omega_squared[idx].p = 2 * omega * omega;
 }
 
 void stabilization_attitude_ref_idx_set_omega_q(uint8_t idx, float omega) {
-  stab_att_ref_model[i].omega.q = omega;
-  two_omega_squared[i].q = 2 * omega * omega;
+  stab_att_ref_model[idx].omega.q = omega;
+  two_omega_squared[idx].q = 2 * omega * omega;
 }
 
 void stabilization_attitude_ref_idx_set_omega_r(uint8_t idx, float omega) {
-  stab_att_ref_model[i].omega.r = omega;
-  two_omega_squared[i].r = 2 * omega * omega;
+  stab_att_ref_model[idx].omega.r = omega;
+  two_omega_squared[idx].r = 2 * omega * omega;
 }
 
 void stabilization_attitude_ref_set_omega_p(float omega) {
