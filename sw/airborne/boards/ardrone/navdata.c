@@ -288,23 +288,22 @@ static void mag_freeze_check(void) {
 
   if (LastMagValue == navdata.mx) {
     MagFreezeCounter++;
-    // re-initialize the serial port here, in paparazzi this should be ~3 seconds
+    // Re-initialize the serial port here, in paparazzi this should be ~150 ms
     // considering it updates at 200 Hz
-    if (MagFreezeCounter > 100) { // rathern than 600
-      printf("Mag needs resetting, Values are frozen!!! %d , %d \n",LastMagValue, navdata.mx);
+    if (MagFreezeCounter > 30) {
+      printf("Mag needs resetting, Values are frozen!!! %d , %d \n", LastMagValue, navdata.mx);
       printf("Setting GPIO 177 to reset PIC Navigation Board \n");
 
       // stop acquisition
       uint8_t cmd=0x02;
       navdata_write(&cmd, 1);
-      
+
+      // do the navboard reset via GPIOs
       system("gpio 177 -d lo 0 &"); // GPIO used to reset PIC
       system("gpio 177 -d lo 1 &");
+
       // wait 20ms to retrieve data
-      for (int i=0;i<22;i++)
-	{
-	  usleep(1000);
-	}
+      usleep(20000);
 	
       // restart acquisition
       cmd = 0x01;
