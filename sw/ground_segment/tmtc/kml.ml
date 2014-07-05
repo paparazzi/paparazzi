@@ -199,7 +199,7 @@ let update_linear_ring = fun target_href id coordinates ->
 
 
 let print_xml = fun ac_name file xml ->
-  let f = open_out (sprintf "%s/var/%s/%s" Env.paparazzi_home ac_name file) in
+  let f = open_out (sprintf "%s/var/aircrafts/%s/%s" Env.paparazzi_home ac_name file) in
   fprintf f "%s\n" (Xml.to_string_fmt xml);
   close_out f
 
