@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mission_fw" dir="mission">
+<module name="mission_rotorcraft" dir="mission">
   <doc>
     <description>
       Interface for mission control of fixed wing aircraft.
@@ -27,8 +27,8 @@
   <datalink message="END_MISSION" fun="mission_parse_END_MISSION()"/>
 
   <makefile>
-    <file name="mission_fw.c"/>
     <file name="mission_common.c"/>
-    <file name="mission_fw_nav.c"/>
+    <file name="mission_rotorcraft.c"/>
+    <file name="mission_rotorcraft_nav.c"/>
   </makefile>
 </module>

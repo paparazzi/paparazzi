@@ -26,9 +26,11 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
 void nps_ivy_init(char* ivy_bus) {
   /* init ivy and bind some messages common to fw and rotorcraft */
   nps_ivy_common_init(ivy_bus);
-
   IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 
+#if USE_MISSION_COMMANDS_IN_NPS
+  nps_ivy_mission_commands_init();
+#endif
 }
 
 

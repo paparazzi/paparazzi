@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 ENAC
+ * Copyright (C) 2014 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,11 +20,11 @@
  *
  */
 
-/** @file modules/mission/mission.c
+/** @file modules/mission/mission_common.c
  *  @brief messages parser for mission interface
  */
 
-#include "modules/mission/mission.h"
+#include "modules/mission/mission_common.h"
 
 #include <string.h>
 #include "subsystems/navigation/common_nav.h"
@@ -35,47 +35,12 @@
 
 struct _mission mission;
 
-
 void mission_init(void) {
   mission.insert_idx = 0;
   mission.current_idx = 0;
   mission.element_time = 0.;
 }
 
-bool_t mission_insert(enum MissionInsertMode insert, struct _mission_element * element) {
-  uint8_t tmp;
-
-  switch (insert) {
-    case Append:
-      tmp = (mission.insert_idx + 1) % MISSION_ELEMENT_NB;
-      if (tmp == mission.current_idx) return FALSE; // no room to insert element
-      memcpy(&mission.elements[mission.insert_idx], element, sizeof(struct _mission_element)); // add element
-      mission.insert_idx = tmp; // move insert index
-      break;
-    case Prepend:
-      if (mission.current_idx == 0) tmp = MISSION_ELEMENT_NB-1;
-      else tmp = mission.current_idx - 1;
-      if (tmp == mission.insert_idx) return FALSE; // no room to inser element
-      memcpy(&mission.elements[tmp], element, sizeof(struct _mission_element)); // add element
-      mission.current_idx = tmp; // move current index
-      break;
-    case ReplaceCurrent:
-      // current element can always be modified, index are not changed
-      memcpy(&mission.elements[mission.current_idx], element, sizeof(struct _mission_element));
-      break;
-    case ReplaceAll:
-      // reset queue and index
-      memcpy(&mission.elements[0], element, sizeof(struct _mission_element));
-      mission.insert_idx = 0;
-      mission.current_idx = 0;
-      break;
-    default:
-      // unknown insertion mode
-      return FALSE;
-  }
-  return TRUE;
-
-}
 
 struct _mission_element * mission_get(void) {
   if (mission.current_idx == mission.insert_idx) {
@@ -105,27 +70,6 @@ void mission_status_report(void) {
   DOWNLINK_SEND_MISSION_STATUS(DefaultChannel, DefaultDevice, &remaining_time, j, task_list);
 }
 
-// Utility function: converts lla to local point
-static inline void mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
-  /* Computes from (lat, long) in the referenced UTM zone */
-  struct UtmCoor_f utm;
-  utm.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm, lla);
-
-  /* Computes relative position to HOME waypoint
-   * and bound the distance to max_dist_from_home
-   */
-  float dx, dy;
-  dx = utm.east - nav_utm_east0 - waypoints[WP_HOME].x;
-  dy = utm.north - nav_utm_north0 - waypoints[WP_HOME].y;
-  BoundAbs(dx, max_dist_from_home);
-  BoundAbs(dy, max_dist_from_home);
-
-  /* Update point */
-  point->x = waypoints[WP_HOME].x + dx;
-  point->y = waypoints[WP_HOME].y + dy;
-  point->z = lla->alt;
-}
 
 ///////////////////////
 // Parsing functions //
@@ -136,9 +80,9 @@ int mission_parse_GOTO_WP(void) {
 
   struct _mission_element me;
   me.type = MissionWP;
-  me.element.mission_wp.wp.x = DL_MISSION_GOTO_WP_wp_east(dl_buffer);
-  me.element.mission_wp.wp.y = DL_MISSION_GOTO_WP_wp_north(dl_buffer);
-  me.element.mission_wp.wp.z = DL_MISSION_GOTO_WP_wp_alt(dl_buffer);
+  me.element.mission_wp.wp.wp_f.x = DL_MISSION_GOTO_WP_wp_east(dl_buffer);
+  me.element.mission_wp.wp.wp_f.y = DL_MISSION_GOTO_WP_wp_north(dl_buffer);
+  me.element.mission_wp.wp.wp_f.z = DL_MISSION_GOTO_WP_wp_alt(dl_buffer);
   me.duration = DL_MISSION_GOTO_WP_duration(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode) (DL_MISSION_GOTO_WP_insert(dl_buffer));
@@ -156,7 +100,8 @@ int mission_parse_GOTO_WP_LLA(void) {
 
   struct _mission_element me;
   me.type = MissionWP;
-  mission_point_of_lla(&me.element.mission_wp.wp, &lla);
+  if(mission_point_of_lla(&me.element.mission_wp.wp.wp_f, &lla)) return FALSE; //there is no valid local coordinate
+                                                                               //do not insert mission element
   me.duration = DL_MISSION_GOTO_WP_LLA_duration(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode) (DL_MISSION_GOTO_WP_LLA_insert(dl_buffer));
@@ -169,9 +114,9 @@ int mission_parse_CIRCLE(void) {
 
   struct _mission_element me;
   me.type = MissionCircle;
-  me.element.mission_circle.center.x = DL_MISSION_CIRCLE_center_east(dl_buffer);
-  me.element.mission_circle.center.y = DL_MISSION_CIRCLE_center_north(dl_buffer);
-  me.element.mission_circle.center.z = DL_MISSION_CIRCLE_center_alt(dl_buffer);
+  me.element.mission_circle.center.center_f.x = DL_MISSION_CIRCLE_center_east(dl_buffer);
+  me.element.mission_circle.center.center_f.y = DL_MISSION_CIRCLE_center_north(dl_buffer);
+  me.element.mission_circle.center.center_f.z = DL_MISSION_CIRCLE_center_alt(dl_buffer);
   me.element.mission_circle.radius = DL_MISSION_CIRCLE_radius(dl_buffer);
   me.duration = DL_MISSION_CIRCLE_duration(dl_buffer);
 
@@ -190,7 +135,8 @@ int mission_parse_CIRCLE_LLA(void) {
 
   struct _mission_element me;
   me.type = MissionCircle;
-  mission_point_of_lla(&me.element.mission_circle.center, &lla);
+  if(mission_point_of_lla(&me.element.mission_circle.center.center_f, &lla)) return FALSE; //there is no valid local coordinate
+                                                                                           //do not insert mission element
   me.element.mission_circle.radius = DL_MISSION_CIRCLE_LLA_radius(dl_buffer);
   me.duration = DL_MISSION_CIRCLE_LLA_duration(dl_buffer);
 
@@ -204,12 +150,12 @@ int mission_parse_SEGMENT(void) {
 
   struct _mission_element me;
   me.type = MissionSegment;
-  me.element.mission_segment.from.x = DL_MISSION_SEGMENT_segment_east_1(dl_buffer);
-  me.element.mission_segment.from.y = DL_MISSION_SEGMENT_segment_north_1(dl_buffer);
-  me.element.mission_segment.from.z = DL_MISSION_SEGMENT_segment_alt(dl_buffer);
-  me.element.mission_segment.to.x = DL_MISSION_SEGMENT_segment_east_2(dl_buffer);
-  me.element.mission_segment.to.y = DL_MISSION_SEGMENT_segment_north_2(dl_buffer);
-  me.element.mission_segment.to.z = DL_MISSION_SEGMENT_segment_alt(dl_buffer);
+  me.element.mission_segment.from.from_f.x = DL_MISSION_SEGMENT_segment_east_1(dl_buffer);
+  me.element.mission_segment.from.from_f.y = DL_MISSION_SEGMENT_segment_north_1(dl_buffer);
+  me.element.mission_segment.from.from_f.z = DL_MISSION_SEGMENT_segment_alt(dl_buffer);
+  me.element.mission_segment.to.to_f.x = DL_MISSION_SEGMENT_segment_east_2(dl_buffer);
+  me.element.mission_segment.to.to_f.y = DL_MISSION_SEGMENT_segment_north_2(dl_buffer);
+  me.element.mission_segment.to.to_f.z = DL_MISSION_SEGMENT_segment_alt(dl_buffer);
   me.duration = DL_MISSION_SEGMENT_duration(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode) (DL_MISSION_SEGMENT_insert(dl_buffer));
@@ -230,8 +176,11 @@ int mission_parse_SEGMENT_LLA(void) {
 
   struct _mission_element me;
   me.type = MissionSegment;
-  mission_point_of_lla(&me.element.mission_segment.from, &from_lla);
-  mission_point_of_lla(&me.element.mission_segment.to, &to_lla);
+  if(mission_point_of_lla(&me.element.mission_segment.from.from_f, &from_lla)) return FALSE; //there is no valid local coordinate
+                                                                                              //do not insert mission element
+
+  if(mission_point_of_lla(&me.element.mission_segment.to.to_f  , &to_lla  )) return FALSE; //there is no valid local coordinate
+                                                                                           //do not insert mission element
   me.duration = DL_MISSION_SEGMENT_LLA_duration(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode) (DL_MISSION_SEGMENT_LLA_insert(dl_buffer));
@@ -244,21 +193,21 @@ int mission_parse_PATH(void) {
 
   struct _mission_element me;
   me.type = MissionPath;
-  me.element.mission_path.path[0].x = DL_MISSION_PATH_point_east_1(dl_buffer);
-  me.element.mission_path.path[0].y = DL_MISSION_PATH_point_north_1(dl_buffer);
-  me.element.mission_path.path[0].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path[1].x = DL_MISSION_PATH_point_east_2(dl_buffer);
-  me.element.mission_path.path[1].y = DL_MISSION_PATH_point_north_2(dl_buffer);
-  me.element.mission_path.path[1].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path[2].x = DL_MISSION_PATH_point_east_3(dl_buffer);
-  me.element.mission_path.path[2].y = DL_MISSION_PATH_point_north_3(dl_buffer);
-  me.element.mission_path.path[2].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path[3].x = DL_MISSION_PATH_point_east_4(dl_buffer);
-  me.element.mission_path.path[3].y = DL_MISSION_PATH_point_north_4(dl_buffer);
-  me.element.mission_path.path[3].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path[4].x = DL_MISSION_PATH_point_east_5(dl_buffer);
-  me.element.mission_path.path[4].y = DL_MISSION_PATH_point_north_5(dl_buffer);
-  me.element.mission_path.path[4].z = DL_MISSION_PATH_path_alt(dl_buffer);
+  me.element.mission_path.path.path_f[0].x = DL_MISSION_PATH_point_east_1(dl_buffer);
+  me.element.mission_path.path.path_f[0].y = DL_MISSION_PATH_point_north_1(dl_buffer);
+  me.element.mission_path.path.path_f[0].z = DL_MISSION_PATH_path_alt(dl_buffer);
+  me.element.mission_path.path.path_f[1].x = DL_MISSION_PATH_point_east_2(dl_buffer);
+  me.element.mission_path.path.path_f[1].y = DL_MISSION_PATH_point_north_2(dl_buffer);
+  me.element.mission_path.path.path_f[1].z = DL_MISSION_PATH_path_alt(dl_buffer);
+  me.element.mission_path.path.path_f[2].x = DL_MISSION_PATH_point_east_3(dl_buffer);
+  me.element.mission_path.path.path_f[2].y = DL_MISSION_PATH_point_north_3(dl_buffer);
+  me.element.mission_path.path.path_f[2].z = DL_MISSION_PATH_path_alt(dl_buffer);
+  me.element.mission_path.path.path_f[3].x = DL_MISSION_PATH_point_east_4(dl_buffer);
+  me.element.mission_path.path.path_f[3].y = DL_MISSION_PATH_point_north_4(dl_buffer);
+  me.element.mission_path.path.path_f[3].z = DL_MISSION_PATH_path_alt(dl_buffer);
+  me.element.mission_path.path.path_f[4].x = DL_MISSION_PATH_point_east_5(dl_buffer);
+  me.element.mission_path.path.path_f[4].y = DL_MISSION_PATH_point_north_5(dl_buffer);
+  me.element.mission_path.path.path_f[4].z = DL_MISSION_PATH_path_alt(dl_buffer);
   me.element.mission_path.nb = DL_MISSION_PATH_nb(dl_buffer);
   if (me.element.mission_path.nb > MISSION_PATH_NB) me.element.mission_path.nb = MISSION_PATH_NB;
   me.element.mission_path.path_idx = 0;
@@ -295,7 +244,8 @@ int mission_parse_PATH_LLA(void) {
   me.element.mission_path.nb = DL_MISSION_PATH_LLA_nb(dl_buffer);
   if (me.element.mission_path.nb > MISSION_PATH_NB) me.element.mission_path.nb = MISSION_PATH_NB;
   for (i = 0; i < me.element.mission_path.nb; i++) {
-    mission_point_of_lla(&me.element.mission_path.path[i], &lla[i]);
+    if(mission_point_of_lla(&me.element.mission_path.path.path_f[i], &lla[i])) return FALSE; //there is no valid local coordinate
+                                                                                                  //do not insert mission element
   }
   me.element.mission_path.path_idx = 0;
   me.duration = DL_MISSION_PATH_LLA_duration(dl_buffer);
@@ -334,4 +284,3 @@ int mission_parse_END_MISSION(void) {
   mission.current_idx = mission.insert_idx;
   return TRUE;
 }
-

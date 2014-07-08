@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Gautier Hattenberger
+ * Copyright (C) 2014 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/mission/mission.h
+/** @file modules/mission/mission_common.h
  *  @brief mission planner library
  *
  *  Provide the generic interface for the mission control
@@ -32,6 +32,7 @@
 
 #include "std.h"
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_int.h"
 
 enum MissionType {
   MissionWP = 1,
@@ -51,22 +52,40 @@ enum MissionInsertMode {
 };
 
 struct _mission_wp {
-  struct EnuCoor_f wp;
+  union{
+    struct EnuCoor_f wp_f;
+    struct EnuCoor_i wp_i;
+  } wp;
 };
 
 struct _mission_circle {
-  struct EnuCoor_f center;
+  union{
+    struct EnuCoor_f center_f;
+    struct EnuCoor_i center_i;
+  } center;
+
   float radius;
 };
 
 struct _mission_segment {
-  struct EnuCoor_f from;
-  struct EnuCoor_f to;
+  union{
+    struct EnuCoor_f from_f;
+    struct EnuCoor_i from_i;
+  } from;
+
+  union{
+    struct EnuCoor_f to_f;
+    struct EnuCoor_i to_i;
+  } to;
 };
 
 #define MISSION_PATH_NB 5
 struct _mission_path {
-  struct EnuCoor_f path[MISSION_PATH_NB];
+  union{
+    struct EnuCoor_f path_f[MISSION_PATH_NB];
+    struct EnuCoor_i path_i[MISSION_PATH_NB];
+  } path;
+
   uint8_t path_idx;
   uint8_t nb;
 };
@@ -79,6 +98,7 @@ struct _mission_element {
     struct _mission_segment mission_segment;
     struct _mission_path mission_path;
   } element;
+
   float duration; ///< time to spend in the element (<= 0 to disable)
 };
 
@@ -114,6 +134,11 @@ extern bool_t mission_insert(enum MissionInsertMode insert, struct _mission_elem
  */
 extern struct _mission_element * mission_get(void);
 
+/** Get the ENU component of LLA mission point
+ * 
+ */
+extern bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla);
+ 
 /** Run mission
  *
  * This function should be implemented into a dedicated file since
