@@ -41,9 +41,13 @@
 #include "navdata.h"
 #include "subsystems/ins.h"
 #include "subsystems/abi.h"
+#include "mcu_periph/gpio.h"
 
 #define NAVDATA_PACKET_SIZE 60
 #define NAVDATA_START_BYTE 0x3a
+
+#define ARDRONE_GPIO_PORT         0x32524
+#define ARDRONE_GPIO_PIN_NAVDATA  177
 
 static inline bool_t acquire_baro_calibration(void);
 static void navdata_cropbuffer(int cropsize);
@@ -209,6 +213,10 @@ bool_t navdata_init()
   nav_port.isInitialized = TRUE;
   nav_port.last_packet_number = 0;
 
+  // set navboard gpio control
+  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+  gpio_set(ARDRONE_GPIO_PORT,ARDRONE_GPIO_PIN_NAVDATA);
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
 #endif
@@ -282,7 +290,6 @@ static void mag_freeze_check(void) {
   // from daren.g.lee paparazzi-l 20140530
   static int16_t LastMagValue = 0;
   static int MagFreezeCounter = 0;
-  // int SysRet;
 
   // printf("lm: %d, mx: %d, mfc: %d\n", LastMagValue, navdata.mx, MagFreezeCounter);
 
@@ -299,12 +306,12 @@ static void mag_freeze_check(void) {
       navdata_write(&cmd, 1);
 
       // do the navboard reset via GPIOs
-      system("gpio 177 -d lo 0 &"); // GPIO used to reset PIC
-      system("gpio 177 -d lo 1 &");
+      gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
       // wait 20ms to retrieve data
       usleep(20000);
-	
+
       // restart acquisition
       cmd = 0x01;
       navdata_write(&cmd, 1);
