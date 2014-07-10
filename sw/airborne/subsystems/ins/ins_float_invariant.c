@@ -345,7 +345,6 @@ void ahrs_align(void)
 void ahrs_propagate(void) {
   struct NedCoor_f accel;
   struct FloatRates body_rates;
-  struct FloatEulers eulers;
 
   // realign all the filter if needed
   // a complete init cycle is required
@@ -379,7 +378,10 @@ void ahrs_propagate(void) {
   FLOAT_QUAT_NORMALIZE(ins_impl.state.quat);
 
   // set global state
+#if INS_UPDATE_FW_ESTIMATOR || SEND_INVARIANT_FILTER
+  struct FloatEulers eulers;
   FLOAT_EULERS_OF_QUAT(eulers, ins_impl.state.quat);
+#endif
 #if INS_UPDATE_FW_ESTIMATOR
   // Some stupid lines of code for neutrals
   eulers.phi -= ins_roll_neutral;
@@ -400,6 +402,7 @@ void ahrs_propagate(void) {
 
   //------------------------------------------------------------//
 
+#if SEND_INVARIANT_FILTER
   RunOnceEvery(3,{
       DOWNLINK_SEND_INV_FILTER(DefaultChannel, DefaultDevice,
         &ins_impl.state.quat.qi,
@@ -420,6 +423,7 @@ void ahrs_propagate(void) {
         &ins_impl.meas.baro_alt,
         &ins_impl.meas.pos_gps.z)
       });
+#endif
 
 #if LOG_INVARIANT_FILTER
   if (pprzLogFile.fs != NULL) {
