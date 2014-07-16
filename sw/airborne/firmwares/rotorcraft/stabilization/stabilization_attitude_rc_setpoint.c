@@ -36,27 +36,75 @@
 #define RC_UPDATE_FREQ 40
 #endif
 
-#ifdef STABILIZATION_ATTITUDE_DEADBAND_A
-#define ROLL_DEADBAND_EXCEEDED()                                        \
-  (radio_control.values[RADIO_ROLL] >  STABILIZATION_ATTITUDE_DEADBAND_A || \
-   radio_control.values[RADIO_ROLL] < -STABILIZATION_ATTITUDE_DEADBAND_A)
-#else
-#define ROLL_DEADBAND_EXCEEDED() (TRUE)
-#endif /* STABILIZATION_ATTITUDE_DEADBAND_A */
+#ifndef STABILIZATION_ATTITUDE_DEADBAND_A
+#define STABILIZATION_ATTITUDE_DEADBAND_A 0
+#endif
 
-#ifdef STABILIZATION_ATTITUDE_DEADBAND_E
-#define PITCH_DEADBAND_EXCEEDED()                                       \
-  (radio_control.values[RADIO_PITCH] >  STABILIZATION_ATTITUDE_DEADBAND_E || \
-   radio_control.values[RADIO_PITCH] < -STABILIZATION_ATTITUDE_DEADBAND_E)
-#else
-#define PITCH_DEADBAND_EXCEEDED() (TRUE)
-#endif /* STABILIZATION_ATTITUDE_DEADBAND_E */
+#ifndef STABILIZATION_ATTITUDE_DEADBAND_E
+#define STABILIZATION_ATTITUDE_DEADBAND_E 0
+#endif
 
 #define YAW_DEADBAND_EXCEEDED()                                         \
   (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
 float care_free_heading = 0;
+
+
+static int32_t get_rc_roll(void) {
+  const int32_t max_rc_phi = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI);
+  int32_t roll = radio_control.values[RADIO_ROLL];
+#if STABILIZATION_ATTITUDE_DEADBAND_A
+  DeadBand(roll, STABILIZATION_ATTITUDE_DEADBAND_A);
+  return roll * max_rc_phi / (MAX_PPRZ - STABILIZATION_ATTITUDE_DEADBAND_A);
+#else
+  return roll * max_rc_phi / MAX_PPRZ;
+#endif
+}
+
+static int32_t get_rc_pitch(void) {
+  const int32_t max_rc_theta = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA);
+  int32_t pitch = radio_control.values[RADIO_PITCH];
+#if STABILIZATION_ATTITUDE_DEADBAND_E
+  DeadBand(pitch, STABILIZATION_ATTITUDE_DEADBAND_E);
+  return pitch * max_rc_theta / (MAX_PPRZ - STABILIZATION_ATTITUDE_DEADBAND_E);
+#else
+  return pitch * max_rc_theta / MAX_PPRZ;
+#endif
+}
+
+static int32_t get_rc_yaw(void) {
+  const int32_t max_rc_r = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R);
+  int32_t yaw = radio_control.values[RADIO_YAW];
+  DeadBand(yaw, STABILIZATION_ATTITUDE_DEADBAND_R);
+  return yaw * max_rc_r / (MAX_PPRZ - STABILIZATION_ATTITUDE_DEADBAND_R);
+}
+
+static float get_rc_roll_f(void) {
+  int32_t roll = radio_control.values[RADIO_ROLL];
+#if STABILIZATION_ATTITUDE_DEADBAND_A
+  DeadBand(roll, STABILIZATION_ATTITUDE_DEADBAND_A);
+  return roll * STABILIZATION_ATTITUDE_SP_MAX_PHI / (MAX_PPRZ - STABILIZATION_ATTITUDE_DEADBAND_A);
+#else
+  return roll * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ;
+#endif
+}
+
+static float get_rc_pitch_f(void) {
+  int32_t pitch = radio_control.values[RADIO_PITCH];
+#if STABILIZATION_ATTITUDE_DEADBAND_E
+  DeadBand(pitch, STABILIZATION_ATTITUDE_DEADBAND_E);
+  return pitch * STABILIZATION_ATTITUDE_SP_MAX_THETA / (MAX_PPRZ - STABILIZATION_ATTITUDE_DEADBAND_E);
+#else
+  return pitch * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ;
+#endif
+}
+
+static inline float get_rc_yaw_f(void) {
+  int32_t yaw = radio_control.values[RADIO_YAW];
+  DeadBand(yaw, STABILIZATION_ATTITUDE_DEADBAND_R);
+  return yaw * STABILIZATION_ATTITUDE_SP_MAX_R / (MAX_PPRZ - STABILIZATION_ATTITUDE_DEADBAND_R);
+}
 
 /// reset the heading for care-free mode to current heading
 void stabilization_attitude_reset_care_free_heading(void) {
@@ -108,17 +156,13 @@ float stabilization_attitude_get_heading_f(void) {
  * @param[out] sp                attitude setpoint as euler angles
  */
 void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
-  const int32_t max_rc_phi = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI);
-  const int32_t max_rc_theta = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA);
-  const int32_t max_rc_r = (int32_t) ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_R);
-
-  sp->phi = (int32_t) ((radio_control.values[RADIO_ROLL] * max_rc_phi) /  MAX_PPRZ);
-  sp->theta = (int32_t) ((radio_control.values[RADIO_PITCH] * max_rc_theta) /  MAX_PPRZ);
+  sp->phi = get_rc_roll();
+  sp->theta = get_rc_pitch();
 
   if (in_flight) {
     /* do not advance yaw setpoint if within a small deadband around stick center or if throttle is zero */
     if (YAW_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-      sp->psi += (int32_t) ((radio_control.values[RADIO_YAW] * max_rc_r) /  MAX_PPRZ / RC_UPDATE_FREQ);
+      sp->psi += get_rc_yaw() / RC_UPDATE_FREQ;
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
     if (coordinated_turn) {
@@ -127,7 +171,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
       //Take v = 9.81/1.3 m/s
       int32_t omega;
       const int32_t max_phi = ANGLE_BFP_OF_REAL(RadOfDeg(85.0));
-      if(abs(sp->phi) < max_phi)
+      if (abs(sp->phi) < max_phi)
         omega = ANGLE_BFP_OF_REAL(1.3*tanf(ANGLE_FLOAT_OF_BFP(sp->phi)));
       else //max 60 degrees roll, then take constant omega
         omega = ANGLE_BFP_OF_REAL(1.3*1.72305* ((sp->phi > 0) - (sp->phi < 0)));
@@ -179,13 +223,13 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
 
 
 void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
-  sp->phi = (radio_control.values[RADIO_ROLL]  * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ);
-  sp->theta = (radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ);
+  sp->phi = get_rc_roll_f();
+  sp->theta = get_rc_pitch_f();
 
   if (in_flight) {
     /* do not advance yaw setpoint if within a small deadband around stick center or if throttle is zero */
     if (YAW_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-      sp->psi += (radio_control.values[RADIO_YAW] * STABILIZATION_ATTITUDE_SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      sp->psi += get_rc_yaw_f() / RC_UPDATE_FREQ;
       FLOAT_ANGLE_NORMALIZE(sp->psi);
     }
     if (coordinated_turn) {
@@ -249,8 +293,8 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
 void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat* q) {
   /* orientation vector describing simultaneous rotation of roll/pitch */
   struct FloatVect3 ov;
-  ov.x = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ;
-  ov.y = radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ;
+  ov.x = get_rc_roll_f();
+  ov.y = get_rc_pitch_f();
   ov.z = 0.0;
 
   /* quaternion from that orientation vector */
@@ -263,13 +307,13 @@ void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat* q) {
  */
 void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat* q) {
   /* only non-zero entries for roll quaternion */
-  float roll2 = radio_control.values[RADIO_ROLL] * STABILIZATION_ATTITUDE_SP_MAX_PHI / MAX_PPRZ / 2;
+  float roll2 = get_rc_roll_f() / 2.0f;
   float qx_roll = sinf(roll2);
   float qi_roll = cosf(roll2);
 
   //An offset is added if in forward mode
   /* only non-zero entries for pitch quaternion */
-  float pitch2 = (ANGLE_FLOAT_OF_BFP(transition_theta_offset) + radio_control.values[RADIO_PITCH] * STABILIZATION_ATTITUDE_SP_MAX_THETA / MAX_PPRZ) / 2;
+  float pitch2 = ANGLE_FLOAT_OF_BFP(transition_theta_offset) + get_rc_pitch_f() / 2.0f;
   float qy_pitch = sinf(pitch2);
   float qi_pitch = cosf(pitch2);
 
