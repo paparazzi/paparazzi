@@ -1317,10 +1317,12 @@
   <message name="GUIDANCE_H_REF_INT" id="149">
     <field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
     <field name="ref_x"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
+    <field name="sp_xd"   type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>
     <field name="ref_xd"  type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>
     <field name="ref_xdd" type="int32" alt_unit="m/s2"  alt_unit_coef="0.0009766"/>
     <field name="sp_y"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
     <field name="ref_y"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
+    <field name="sp_yd"   type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>
     <field name="ref_yd"  type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>
     <field name="ref_ydd" type="int32" alt_unit="m/s2"  alt_unit_coef="0.0009766"/>
   </message>

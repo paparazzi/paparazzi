@@ -137,9 +137,11 @@ static void send_hover_loop(void) {
 static void send_href(void) {
   DOWNLINK_SEND_GUIDANCE_H_REF_INT(DefaultChannel, DefaultDevice,
       &guidance_h_pos_sp.x, &guidance_h_pos_ref.x,
-      &guidance_h_speed_ref.x, &guidance_h_accel_ref.x,
+      &guidance_h_speed_sp.x, &guidance_h_speed_ref.x,
+      &guidance_h_accel_ref.x,
       &guidance_h_pos_sp.y, &guidance_h_pos_ref.y,
-      &guidance_h_speed_ref.y, &guidance_h_accel_ref.y);
+      &guidance_h_speed_sp.y, &guidance_h_speed_ref.y,
+      &guidance_h_accel_ref.y);
 }
 
 static void send_tune_hover(void) {
