@@ -150,6 +150,7 @@ let run = fun serial_port log adj i0 speed no_gui ->
   let rec loop = fun i ->
     let (t, ac, m) = log.(i) in
     Ivy.send (Printf.sprintf "replay%s %s" ac m);
+    Ivy.send (Printf.sprintf "time%s %f" ac t);
     begin
       match serial_port with
 	None -> ()
