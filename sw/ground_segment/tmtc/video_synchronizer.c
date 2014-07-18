@@ -139,7 +139,7 @@ int main ( int argc, char** argv) {
   g_timeout_add (1000 , __timeout_func , ml);
 
 
-  IvyInit ("Example1", "Example1 READY", NULL, NULL, NULL, NULL);
+  IvyInit("Video Synchronizer", "Video Synchronizer READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_Message, NULL, "^time(\\S*) (\\S*)");
 
   IvyStart("127.255.255.255");
