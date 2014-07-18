@@ -142,7 +142,11 @@ int main ( int argc, char** argv) {
   IvyInit("Video Synchronizer", "Video Synchronizer READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_Message, NULL, "^time(\\S*) (\\S*)");
 
+#ifdef __APPLE__
+  IvyStart("224.255.255.255");
+#else
   IvyStart("127.255.255.255");
+#endif
 
 
 
