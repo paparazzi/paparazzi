@@ -256,10 +256,11 @@ void nav_circle(struct EnuCoor_i * wp_center, int32_t radius) {
 
 
 void nav_route(struct EnuCoor_i * wp_start, struct EnuCoor_i * wp_end) {
-  struct Int32Vect2 wp_diff,pos_diff;
+  struct Int32Vect2 wp_diff,pos_diff,wp_diff_prec;
   VECT2_DIFF(wp_diff, *wp_end, *wp_start);
   VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_start);
   // go back to metric precision or values are too large
+  VECT2_COPY(wp_diff_prec, wp_diff);
   INT32_VECT2_RSHIFT(wp_diff,wp_diff,INT32_POS_FRAC);
   INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC);
   int32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y),1);
@@ -270,9 +271,7 @@ void nav_route(struct EnuCoor_i * wp_start, struct EnuCoor_i * wp_end) {
   int32_t prog_2 = nav_leg_length;
   Bound(nav_leg_progress, 0, prog_2);
   struct Int32Vect2 progress_pos;
-  VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
-  VECT2_SDIV(progress_pos, progress_pos, nav_leg_length);
-  INT32_VECT2_LSHIFT(progress_pos, progress_pos, INT32_POS_FRAC);
+  VECT2_SMUL(progress_pos, wp_diff_prec, ((float)nav_leg_progress)/nav_leg_length);
   VECT2_SUM(navigation_target, *wp_start, progress_pos);
 
   nav_segment_start = *wp_start;
