@@ -30,12 +30,12 @@ open Expr_syntax
 %token DOT COMMA SEMICOLON LP RP LC RC LB RB DEREF AND COLON OR
 %token EQ GT ASSIGN GEQ NOT
 %token PLUS MINUS
-%token MULT DIV MOD
+%token MULT DIV MOD EXPO
 
 %left AND OR	/* lowest precedence */
 %left EQ GT ASSIGN GEQ
 %left PLUS MINUS
-%left MULT DIV MOD
+%left MULT DIV MOD EXPO
 %nonassoc NOT
 %nonassoc UMINUS
 %left DEREF /* highest precedence */
@@ -56,6 +56,7 @@ expression:
   | expression MULT expression { CallOperator ("*",[$1;$3]) }
   | expression DIV expression { CallOperator ("/",[$1;$3]) }
   | expression MOD expression { CallOperator ("%",[$1;$3]) }
+  | expression EXPO expression { CallOperator ("**",[$1;$3]) }
   | MINUS expression %prec UMINUS { CallOperator ("-",[$2]) }
   | NOT expression { CallOperator ("!",[$2]) }
   | INT { Int $1 }

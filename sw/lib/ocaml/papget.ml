@@ -102,10 +102,11 @@ let hash_vars = fun expr ->
 let wrap = fun f ->
   fun x y -> string_of_float (f (float_of_string x) (float_of_string y))
 let eval_bin_op = function
-"*" -> wrap ( *. )
+  | "*" -> wrap ( *. )
   | "+" -> wrap ( +. )
   | "-" -> wrap ( -. )
   | "/" -> wrap ( /. )
+  | "**" -> wrap ( ** )
   | op -> failwith (sprintf "Papget.eval_expr '%s'" op)
 
 let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h e ->

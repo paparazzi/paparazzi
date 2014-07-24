@@ -50,6 +50,7 @@ rule token = parse
   | "+" { PLUS }
   | "=" { ASSIGN }
   | "-" { MINUS }
+  | "**" { EXPO }
   | "*" { MULT }
   | "/" { DIV }
   | "!" { NOT }
