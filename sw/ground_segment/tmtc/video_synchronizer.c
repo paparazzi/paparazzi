@@ -128,7 +128,6 @@ static void on_Message(IvyClientPtr app, void *user_data, int argc, char *argv[]
   if(videoSyncTagFlag){
 
     videoSyncTag = logCurrentTime;
-    //g_print("tag at %f; ", videoSyncTag);
     videoSyncTagFlag = FALSE;
   }
 
@@ -276,11 +275,7 @@ int main ( int argc, char** argv)
   IvyInit("Video Synchronizer", "Video Synchronizer READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_Message, NULL, "^time(\\S*) (\\S*)");
   IvyBindMsg(on_Message_Video, NULL, "^(\\S*) VIDEO_SYNC(\\S*) (\\S*)");
-  IvyBindMsg(on_Airframe_ID, NULL, "^(\\S*) (\\S*)");
-  IvyBindMsg(on_Airframe_ID, NULL, "^(\\S*) (\\S*) (\\S*)");
-  IvyBindMsg(on_Airframe_ID, NULL, "^(\\S*) (\\S*) (\\S*) (\\S*)");
-  IvyBindMsg(on_Airframe_ID, NULL, "^(\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
-
+  IvyBindMsg(on_Airframe_ID, NULL, "^replay(\\S*) PONG(\\S*) (\\S*)");
 
 #ifdef __APPLE__
   IvyStart("224.255.255.255");
