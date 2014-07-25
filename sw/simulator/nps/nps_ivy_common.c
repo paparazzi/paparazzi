@@ -83,6 +83,8 @@ void nps_ivy_common_init(char* ivy_bus) {
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
+  if(atoi(argv[1]) != AC_ID) return;
+  
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
@@ -93,6 +95,8 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
                               void *user_data __attribute__ ((unused)),
                               int argc __attribute__ ((unused)), char *argv[]) {
+  if(atoi(argv[1]) != AC_ID) return;
+  
   uint8_t index = atoi(argv[2]);
   float value = settings_get_value(index);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
@@ -108,6 +112,8 @@ static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)),
 static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
                         void *user_data __attribute__ ((unused)),
                         int argc __attribute__ ((unused)), char *argv[]){
+  if(atoi(argv[2]) != AC_ID) return;
+  
   int block = atoi(argv[1]);
   nav_goto_block(block);
   printf("goto block %d\n", block);
@@ -194,3 +200,4 @@ void nps_ivy_display(void) {
              fdm.wind.y,
              fdm.wind.z);
 }
+
