@@ -27,6 +27,7 @@ CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/rotorcraft
 SRC_BOARD=boards/$(BOARD)
 SRC_FIRMWARE=firmwares/rotorcraft
 SRC_SUBSYSTEMS=subsystems
+SRC_MODULES=modules
 
 SRC_ARCH=arch/$(ARCH)
 
