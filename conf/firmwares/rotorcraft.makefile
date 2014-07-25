@@ -30,6 +30,7 @@ SRC_BOOZ_PRIV=booz_priv
 SRC_BOARD=boards/$(BOARD)
 SRC_FIRMWARE=firmwares/rotorcraft
 SRC_SUBSYSTEMS=subsystems
+SRC_MODULES=modules
 
 SRC_ARCH=arch/$(ARCH)
 
