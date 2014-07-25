@@ -31,7 +31,7 @@
 
 
 // Peripherials
-#include "../../peripherals/mpu60X0.h"
+#include "../../peripherals/mpu60x0.h"
 // #include "../../peripherals/hmc5843.h"
 
 // Results
