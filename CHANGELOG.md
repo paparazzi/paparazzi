@@ -31,9 +31,9 @@ Not necessarily complete and in no particular order...
 - GCS: add exponentiation operator to papgets
 - logalizer: export lat/lon with 9 decimal places
 - GCS: display AP mode forward correctly
-  [748] (https://github.com/paparazzi/paparazzi/pull/748)
+  [#748] (https://github.com/paparazzi/paparazzi/pull/748)
 - tools: flash via bmp: reset and detach from target after uploading
-  [#746] ((https://github.com/paparazzi/paparazzi/issues/746)
+  [#746] (https://github.com/paparazzi/paparazzi/issues/746)
 - tools: DFU flashing: allow 1 BIT SQUARED vendor
   [#778] (https://github.com/paparazzi/paparazzi/pull/778)
 - tools: add tcp_aircraft_server
