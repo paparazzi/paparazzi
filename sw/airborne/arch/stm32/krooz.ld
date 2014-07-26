@@ -26,6 +26,7 @@
 /* Define memory regions. */
 MEMORY
 {
+	/* only 128K (SRAM1 and SRAM2) are accessible by all AHB masters. */
     ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
     /* Leaving 2k of space at the end of rom for stored settings */
     rom (rx) : ORIGIN = 0x08004000, LENGTH = 1022K

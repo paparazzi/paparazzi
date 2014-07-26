@@ -13,7 +13,7 @@ ARCH_L=f4
 ARCH_DIR=stm32
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).LDSCRIPT=$(SRC_ARCH)/apogee.ld
+$(TARGET).LDSCRIPT=$(SRC_ARCH)/stm32f4_discovery.ld
 
 HARD_FLOAT=yes
 

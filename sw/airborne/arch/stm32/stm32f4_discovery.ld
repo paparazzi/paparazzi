@@ -19,12 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Linker script for Apogee (STM32F405RGT6, 1024K flash, 192K RAM). */
+/* Linker script for ST STM32F4DISCOVERY (STM32F407VG, 1024K flash, 128K RAM). */
 
 /* Define memory regions. */
 MEMORY
 {
-	/* only 128K (SRAM1 and SRAM2) are accessible by all AHB masters. */
 	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
 	/* Leaving 2k of space at the end of rom for stored settings */
 	rom (rx) : ORIGIN = 0x08000000, LENGTH = 1022K

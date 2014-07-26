@@ -26,6 +26,7 @@
 /* Define memory regions. */
 MEMORY
 {
+	/* only 128K (SRAM1 and SRAM2) are accessible by all AHB masters. */
     ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
     /* TODO: Pages on stm32f4 are not just 2k in size, stored settings have to deal with that correctly. */
     rom (rx) : ORIGIN = 0x08000000, LENGTH = 1022K

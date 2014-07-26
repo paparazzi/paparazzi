@@ -1,6 +1,6 @@
 /*
  * Hey Emacs, this is a -*- makefile -*-
- *  
+ *
  * Copyright (C) 2012 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of Paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 /* Linker script for Lisa-L (STM32F103RET6, 512K flash, 64K RAM). */
@@ -33,4 +33,3 @@ MEMORY
 
 /* Include the common ld script. */
 INCLUDE libopencm3_stm32f1.ld
-
