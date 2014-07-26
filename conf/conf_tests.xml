@@ -190,16 +190,6 @@
    gui_color="white"
   />
   <aircraft
-   name="Quad_Navstik"
-   ac_id="180"
-   airframe="airframes/examples/quadrotor_navstik.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   gui_color="#710080"
-  />
-  <aircraft
    name="Quad_NavGo"
    ac_id="151"
    airframe="airframes/examples/quadrotor_navgo.xml"
@@ -208,6 +198,16 @@
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/modules/rotorcraft_cam.xml settings/modules/servo_switch.xml"
    gui_color="white"
+  />
+  <aircraft
+   name="Quad_Navstik"
+   ac_id="180"
+   airframe="airframes/examples/quadrotor_navstik.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   gui_color="#710080"
   />
   <aircraft
    name="Twinjet"
@@ -257,6 +257,16 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/versatile.xml"
    settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml settings/modules/dc.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="apogee_chibios"
+   ac_id="14"
+   airframe="airframes/ENAC/fixed-wing/apogee.xml"
+   radio="radios/T10CG_SBUS.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings=" settings/fixedwing_basic.xml"
    gui_color="blue"
   />
   <aircraft
