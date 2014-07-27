@@ -1,6 +1,4 @@
 /*
- * Paparazzi persistent settings low level flash routines lpc21
- *
  * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
  *
  * This file is part of Paparazzi.
@@ -22,21 +20,24 @@
  *
  */
 
-/*
-  LPC2148 flash data is located in the last available page
-
-  0x00000000: Paparazzi bootloader   (16k)
-  0x00004000: Paparazzi code        (480k)
-  0x0007C000: persistent settings     (4k)
-  0x0007D000: Philips/NXP bootloader (12k)
-
-  data          flash_addr
-  data_size     flash_end - FSIZ
-  checksum      flash_end - FCHK
-
-  LPC21: minimum write size 256 bytes, endurance 100k cycles,
-         max sector erase time 400ms, max prog time 1ms per 256 bytes
-*/
+/**
+ * @file arch/lpc21/subsystems/settings_arch.c
+ * Persistent settings low level flash routines lpc21.
+ *
+ * LPC2148 flash data is located in the last available page
+ *
+ * 0x00000000: Paparazzi bootloader   (16k)
+ * 0x00004000: Paparazzi code        (480k)
+ * 0x0007C000: persistent settings     (4k)
+ * 0x0007D000: Philips/NXP bootloader (12k)
+ *
+ * data          flash_addr
+ * data_size     flash_end - FSIZ
+ * checksum      flash_end - FCHK
+ *
+ * LPC21: minimum write size 256 bytes, endurance 100k cycles,
+ *        max sector erase time 400ms, max prog time 1ms per 256 bytes
+ */
 
 #include "subsystems/settings.h"
 

@@ -32,8 +32,6 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 
-#include "my_debug_servo.h"
-
 static inline void main_init( void );
 static inline void main_periodic( void );
 static inline void main_event( void );
@@ -68,8 +66,8 @@ static inline void main_init( void ) {
 static inline void main_periodic( void ) {
 
   RunOnceEvery(100, {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);
-      PeriodicSendDlValue(DefaultChannel);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+      PeriodicSendDlValue(DefaultChannel, DefaultDevice);
     });
 
 }
@@ -86,11 +84,11 @@ void dl_parse_msg(void) {
   switch (msg_id) {
 
   case  DL_PING: {
-    DOWNLINK_SEND_PONG(DefaultChannel);
+    DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
   }
     break;
   case DL_SETTING:
-    if(DL_SETTING_ac_id(dl_buffer) == AC_ID) {
+    if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
       uint8_t i = DL_SETTING_index(dl_buffer);
       float val = DL_SETTING_value(dl_buffer);
       DlSetting(i, val);

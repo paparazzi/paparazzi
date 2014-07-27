@@ -344,3 +344,21 @@ test_radio_control.srcs   += $(COMMON_TEST_SRCS)
 test_radio_control.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_radio_control.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_radio_control.srcs   += test/subsystems/test_radio_control.c
+
+
+#
+# test_settings :
+#
+# configuration
+#   MODEM_PORT :
+#   MODEM_BAUD :
+#
+test_settings.ARCHDIR = $(ARCH)
+test_settings.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_settings.srcs   += $(COMMON_TEST_SRCS)
+test_settings.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_settings.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_settings.srcs   += subsystems/settings.c
+test_settings.srcs   += $(SRC_ARCH)/subsystems/settings_arch.c
+test_settings.srcs   += test/subsystems/test_settings.c
+test_settings.CFLAGS += -DUSE_PERSISTENT_SETTINGS

@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2009-2013 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -27,3 +26,16 @@
  * Unimplemented.
  */
 
+#include "subsystems/settings.h"
+
+int32_t persistent_write(uint32_t ptr, uint32_t size) {
+  ptr=ptr;
+  size=size;
+  return -1;
+}
+
+int32_t persistent_read(uint32_t ptr, uint32_t size) {
+  ptr=ptr;
+  size=size;
+  return -1;
+}

@@ -330,6 +330,16 @@
    gui_color="blue"
   />
   <aircraft
+   name="test_settings"
+   ac_id="29"
+   airframe="airframes/test_settings.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/dummy.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings=" settings/test_settings.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="yapa_chimu_spi"
    ac_id="27"
    airframe="airframes/examples/yapaChimuSpi.xml"

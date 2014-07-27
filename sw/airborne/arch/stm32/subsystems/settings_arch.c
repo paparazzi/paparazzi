@@ -1,6 +1,4 @@
 /*
- * Paparazzi persistent settings low level flash routines stm32
- *
  * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
  *
  * This file is part of Paparazzi.
@@ -22,16 +20,17 @@
  *
  */
 
-/*
-  flash data is located in the last page/sector of flash
-
-  data          flash_addr
-  data_size     flash_end - FSIZ
-  checksum      flash_end - FCHK
-
-  STM32: minimum write size 2 bytes, endurance 10k cycles,
-         max sector erase time 40ms, max prog time 70us per 2 bytes
-*/
+/**
+ * @file arch/lpc21/subsystems/settings_arch.c
+ * Persistent settings low level flash routines stm32.
+ *
+ * data          flash_addr
+ * data_size     flash_end - FSIZ
+ * checksum      flash_end - FCHK
+ *
+ * STM32: minimum write size 2 bytes, endurance 10k cycles,
+ *        max sector erase time 40ms, max prog time 70us per 2 bytes
+ */
 
 #include "subsystems/settings.h"
 
@@ -243,7 +242,7 @@ static int32_t pflash_program_bytes(struct FlashInfo* flash __attribute__((unuse
                                     uint32_t   src __attribute__((unused)),
                                     uint32_t   size __attribute__((unused)),
                                     uint32_t   chksum __attribute__((unused))) {
-  return 0;
+  return -1;
 }
 #endif
 

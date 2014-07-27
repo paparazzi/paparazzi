@@ -1,3 +1,5 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
 <!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
 
 <airframe name="setup_lisam2">

@@ -1,0 +1,11 @@
+<!DOCTYPE airframe SYSTEM "airframe.dtd">
+
+<!-- simple airframe file to test persistent settings, use with settings/test_settings.xml -->
+
+<airframe name="test_settings">
+
+  <firmware name="test_progs">
+    <target name="test_settings"            board="lisa_m_1.0"/>
+  </firmware>
+
+</airframe>
