@@ -372,31 +372,34 @@ struct Int64Vect3 {
 #define INT32_RMAT_ZERO(_rm)                        \
   INT32_MAT33_DIAG(_rm, TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.))
 
+#define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) int32_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
+#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) int32_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
+
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
-#define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) {           \
-    (_m_a2c).m[0] = ((_m_b2c).m[0]*(_m_a2b).m[0] + (_m_b2c).m[1]*(_m_a2b).m[3] + (_m_b2c).m[2]*(_m_a2b).m[6])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[1] = ((_m_b2c).m[0]*(_m_a2b).m[1] + (_m_b2c).m[1]*(_m_a2b).m[4] + (_m_b2c).m[2]*(_m_a2b).m[7])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[2] = ((_m_b2c).m[0]*(_m_a2b).m[2] + (_m_b2c).m[1]*(_m_a2b).m[5] + (_m_b2c).m[2]*(_m_a2b).m[8])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[3] = ((_m_b2c).m[3]*(_m_a2b).m[0] + (_m_b2c).m[4]*(_m_a2b).m[3] + (_m_b2c).m[5]*(_m_a2b).m[6])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[4] = ((_m_b2c).m[3]*(_m_a2b).m[1] + (_m_b2c).m[4]*(_m_a2b).m[4] + (_m_b2c).m[5]*(_m_a2b).m[7])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[5] = ((_m_b2c).m[3]*(_m_a2b).m[2] + (_m_b2c).m[4]*(_m_a2b).m[5] + (_m_b2c).m[5]*(_m_a2b).m[8])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[6] = ((_m_b2c).m[6]*(_m_a2b).m[0] + (_m_b2c).m[7]*(_m_a2b).m[3] + (_m_b2c).m[8]*(_m_a2b).m[6])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[7] = ((_m_b2c).m[6]*(_m_a2b).m[1] + (_m_b2c).m[7]*(_m_a2b).m[4] + (_m_b2c).m[8]*(_m_a2b).m[7])>>INT32_TRIG_FRAC; \
-    (_m_a2c).m[8] = ((_m_b2c).m[6]*(_m_a2b).m[2] + (_m_b2c).m[7]*(_m_a2b).m[5] + (_m_b2c).m[8]*(_m_a2b).m[8])>>INT32_TRIG_FRAC; \
-  }
+static inline void int32_rmat_comp(struct Int32RMat *m_a2c, struct Int32RMat *m_a2b, struct Int32RMat *m_b2c) {
+  m_a2c->m[0] = (m_b2c->m[0] * m_a2b->m[0] + m_b2c->m[1] * m_a2b->m[3] + m_b2c->m[2] * m_a2b->m[6])>>INT32_TRIG_FRAC;
+  m_a2c->m[1] = (m_b2c->m[0] * m_a2b->m[1] + m_b2c->m[1] * m_a2b->m[4] + m_b2c->m[2] * m_a2b->m[7])>>INT32_TRIG_FRAC;
+  m_a2c->m[2] = (m_b2c->m[0] * m_a2b->m[2] + m_b2c->m[1] * m_a2b->m[5] + m_b2c->m[2] * m_a2b->m[8])>>INT32_TRIG_FRAC;
+  m_a2c->m[3] = (m_b2c->m[3] * m_a2b->m[0] + m_b2c->m[4] * m_a2b->m[3] + m_b2c->m[5] * m_a2b->m[6])>>INT32_TRIG_FRAC;
+  m_a2c->m[4] = (m_b2c->m[3] * m_a2b->m[1] + m_b2c->m[4] * m_a2b->m[4] + m_b2c->m[5] * m_a2b->m[7])>>INT32_TRIG_FRAC;
+  m_a2c->m[5] = (m_b2c->m[3] * m_a2b->m[2] + m_b2c->m[4] * m_a2b->m[5] + m_b2c->m[5] * m_a2b->m[8])>>INT32_TRIG_FRAC;
+  m_a2c->m[6] = (m_b2c->m[6] * m_a2b->m[0] + m_b2c->m[7] * m_a2b->m[3] + m_b2c->m[8] * m_a2b->m[6])>>INT32_TRIG_FRAC;
+  m_a2c->m[7] = (m_b2c->m[6] * m_a2b->m[1] + m_b2c->m[7] * m_a2b->m[4] + m_b2c->m[8] * m_a2b->m[7])>>INT32_TRIG_FRAC;
+  m_a2c->m[8] = (m_b2c->m[6] * m_a2b->m[2] + m_b2c->m[7] * m_a2b->m[5] + m_b2c->m[8] * m_a2b->m[8])>>INT32_TRIG_FRAC;
+}
 
 /* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
-#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) {                                                     \
-    (_m_a2b).m[0] = ((_m_b2c).m[0]*(_m_a2c).m[0] + (_m_b2c).m[3]*(_m_a2c).m[3] + (_m_b2c).m[6]*(_m_a2c).m[6])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[1] = ((_m_b2c).m[0]*(_m_a2c).m[1] + (_m_b2c).m[3]*(_m_a2c).m[4] + (_m_b2c).m[6]*(_m_a2c).m[7])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[2] = ((_m_b2c).m[0]*(_m_a2c).m[2] + (_m_b2c).m[3]*(_m_a2c).m[5] + (_m_b2c).m[6]*(_m_a2c).m[8])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[3] = ((_m_b2c).m[1]*(_m_a2c).m[0] + (_m_b2c).m[4]*(_m_a2c).m[3] + (_m_b2c).m[7]*(_m_a2c).m[6])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[4] = ((_m_b2c).m[1]*(_m_a2c).m[1] + (_m_b2c).m[4]*(_m_a2c).m[4] + (_m_b2c).m[7]*(_m_a2c).m[7])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[5] = ((_m_b2c).m[1]*(_m_a2c).m[2] + (_m_b2c).m[4]*(_m_a2c).m[5] + (_m_b2c).m[7]*(_m_a2c).m[8])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[6] = ((_m_b2c).m[2]*(_m_a2c).m[0] + (_m_b2c).m[5]*(_m_a2c).m[3] + (_m_b2c).m[8]*(_m_a2c).m[6])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[7] = ((_m_b2c).m[2]*(_m_a2c).m[1] + (_m_b2c).m[5]*(_m_a2c).m[4] + (_m_b2c).m[8]*(_m_a2c).m[7])>>INT32_TRIG_FRAC; \
-    (_m_a2b).m[8] = ((_m_b2c).m[2]*(_m_a2c).m[2] + (_m_b2c).m[5]*(_m_a2c).m[5] + (_m_b2c).m[8]*(_m_a2c).m[8])>>INT32_TRIG_FRAC; \
-  }
+static inline void int32_rmat_comp_inv(struct Int32RMat *m_a2b, struct Int32RMat *m_a2c, struct Int32RMat *m_b2c) {
+  m_a2b->m[0] = (m_b2c->m[0] * m_a2c->m[0] + m_b2c->m[3] * m_a2c->m[3] + m_b2c->m[6] * m_a2c->m[6])>>INT32_TRIG_FRAC;
+  m_a2b->m[1] = (m_b2c->m[0] * m_a2c->m[1] + m_b2c->m[3] * m_a2c->m[4] + m_b2c->m[6] * m_a2c->m[7])>>INT32_TRIG_FRAC;
+  m_a2b->m[2] = (m_b2c->m[0] * m_a2c->m[2] + m_b2c->m[3] * m_a2c->m[5] + m_b2c->m[6] * m_a2c->m[8])>>INT32_TRIG_FRAC;
+  m_a2b->m[3] = (m_b2c->m[1] * m_a2c->m[0] + m_b2c->m[4] * m_a2c->m[3] + m_b2c->m[7] * m_a2c->m[6])>>INT32_TRIG_FRAC;
+  m_a2b->m[4] = (m_b2c->m[1] * m_a2c->m[1] + m_b2c->m[4] * m_a2c->m[4] + m_b2c->m[7] * m_a2c->m[7])>>INT32_TRIG_FRAC;
+  m_a2b->m[5] = (m_b2c->m[1] * m_a2c->m[2] + m_b2c->m[4] * m_a2c->m[5] + m_b2c->m[7] * m_a2c->m[8])>>INT32_TRIG_FRAC;
+  m_a2b->m[6] = (m_b2c->m[2] * m_a2c->m[0] + m_b2c->m[5] * m_a2c->m[3] + m_b2c->m[8] * m_a2c->m[6])>>INT32_TRIG_FRAC;
+  m_a2b->m[7] = (m_b2c->m[2] * m_a2c->m[1] + m_b2c->m[5] * m_a2c->m[4] + m_b2c->m[8] * m_a2c->m[7])>>INT32_TRIG_FRAC;
+  m_a2b->m[8] = (m_b2c->m[2] * m_a2c->m[2] + m_b2c->m[5] * m_a2c->m[5] + m_b2c->m[8] * m_a2c->m[8])>>INT32_TRIG_FRAC;
+}
 
 /* _vb = _m_a2b * _va */
 #define INT32_RMAT_VMULT(_vb, _m_a2b, _va) {                                                 \
@@ -560,64 +563,83 @@ static inline void int32_rmat_of_eulers_312(struct Int32RMat *rm, struct Int32Eu
 
 #define INT32_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
 
-#define INT32_QUAT_NORM(n, q) {                                 \
-    int32_t n2 = (q).qi*(q).qi + (q).qx*(q).qx + (q).qy*(q).qy + (q).qz*(q).qz; \
-    INT32_SQRT(n, n2);                          \
-  }
+#define INT32_QUAT_NORM(n, q) { n = int32_quat_norm(&(q)); }
+#define INT32_QUAT_WRAP_SHORTEST(q) int32_quat_wrap_shortest(&(q))
+#define INT32_QUAT_NORMALIZE(q) int32_quat_normalize(&(q))
+#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) int32_quat_comp(&(_a2c), &(_a2b), &(_b2c))
+#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) int32_quat_comp_inv(&(_a2b), &(_a2c), &(_b2c))
+#define INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c) int32_quat_inv_comp(&(_b2c), &(_a2b), &(_a2c))
+#define INT32_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) int32_quat_comp_norm_shortest(&(_a2c), &(_a2b), &(_b2c))
+#define INT32_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) int32_quat_inv_comp_norm_shortest(&(_b2c), &(_a2b), &(_a2c))
 
-#define INT32_QUAT_WRAP_SHORTEST(q) {                   \
-    if ((q).qi < 0)                         \
-      QUAT_EXPLEMENTARY(q,q);                       \
-  }
 
-#define INT32_QUAT_NORMALIZE(q) {                   \
-    int32_t n;                                      \
-    INT32_QUAT_NORM(n, q);                          \
-    if (n > 0) {                                    \
-      (q).qi = (q).qi * QUAT1_BFP_OF_REAL(1) / n;   \
-      (q).qx = (q).qx * QUAT1_BFP_OF_REAL(1) / n;   \
-      (q).qy = (q).qy * QUAT1_BFP_OF_REAL(1) / n;   \
-      (q).qz = (q).qz * QUAT1_BFP_OF_REAL(1) / n;   \
-    }                                               \
-  }
+static inline int32_t int32_quat_norm(struct Int32Quat *q) {
+  int32_t n2 = q->qi*q->qi + q->qx*q->qx + q->qy*q->qy + q->qz*q->qz;
+  int32_t n;
+  INT32_SQRT(n, n2);
+  return n;
+}
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
-#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) {             \
-    (_a2c).qi = ((_a2b).qi*(_b2c).qi - (_a2b).qx*(_b2c).qx - (_a2b).qy*(_b2c).qy - (_a2b).qz*(_b2c).qz)>>INT32_QUAT_FRAC; \
-    (_a2c).qx = ((_a2b).qi*(_b2c).qx + (_a2b).qx*(_b2c).qi + (_a2b).qy*(_b2c).qz - (_a2b).qz*(_b2c).qy)>>INT32_QUAT_FRAC; \
-    (_a2c).qy = ((_a2b).qi*(_b2c).qy - (_a2b).qx*(_b2c).qz + (_a2b).qy*(_b2c).qi + (_a2b).qz*(_b2c).qx)>>INT32_QUAT_FRAC; \
-    (_a2c).qz = ((_a2b).qi*(_b2c).qz + (_a2b).qx*(_b2c).qy - (_a2b).qy*(_b2c).qx + (_a2b).qz*(_b2c).qi)>>INT32_QUAT_FRAC; \
-  }
+static inline void int32_quat_wrap_shortest(struct Int32Quat *q) {
+  if (q->qi < 0)
+    QUAT_EXPLEMENTARY(*q, *q);
+}
 
-/* _a2b = _a2b comp_inv _b2c , aka  _a2b = inv(_b2c) * _a2c */
-#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) {             \
-    (_a2b).qi = ( (_a2c).qi*(_b2c).qi + (_a2c).qx*(_b2c).qx + (_a2c).qy*(_b2c).qy + (_a2c).qz*(_b2c).qz)>>INT32_QUAT_FRAC; \
-    (_a2b).qx = (-(_a2c).qi*(_b2c).qx + (_a2c).qx*(_b2c).qi - (_a2c).qy*(_b2c).qz + (_a2c).qz*(_b2c).qy)>>INT32_QUAT_FRAC; \
-    (_a2b).qy = (-(_a2c).qi*(_b2c).qy + (_a2c).qx*(_b2c).qz + (_a2c).qy*(_b2c).qi - (_a2c).qz*(_b2c).qx)>>INT32_QUAT_FRAC; \
-    (_a2b).qz = (-(_a2c).qi*(_b2c).qz - (_a2c).qx*(_b2c).qy + (_a2c).qy*(_b2c).qx + (_a2c).qz*(_b2c).qi)>>INT32_QUAT_FRAC; \
+static inline void int32_quat_normalize(struct Int32Quat *q) {
+  int32_t n = int32_quat_norm(q);
+  if (n > 0) {
+    q->qi = q->qi * QUAT1_BFP_OF_REAL(1) / n;
+    q->qx = q->qx * QUAT1_BFP_OF_REAL(1) / n;
+    q->qy = q->qy * QUAT1_BFP_OF_REAL(1) / n;
+    q->qz = q->qz * QUAT1_BFP_OF_REAL(1) / n;
   }
-
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = _a2c * inv(_a2b) */
-#define INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c) {             \
-    (_b2c).qi = ((_a2b).qi*(_a2c).qi + (_a2b).qx*(_a2c).qx + (_a2b).qy*(_a2c).qy + (_a2b).qz*(_a2c).qz)>>INT32_QUAT_FRAC; \
-    (_b2c).qx = ((_a2b).qi*(_a2c).qx - (_a2b).qx*(_a2c).qi - (_a2b).qy*(_a2c).qz + (_a2b).qz*(_a2c).qy)>>INT32_QUAT_FRAC; \
-    (_b2c).qy = ((_a2b).qi*(_a2c).qy + (_a2b).qx*(_a2c).qz - (_a2b).qy*(_a2c).qi - (_a2b).qz*(_a2c).qx)>>INT32_QUAT_FRAC; \
-    (_b2c).qz = ((_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi)>>INT32_QUAT_FRAC; \
-  }
-
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
-#define INT32_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {   \
-    INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c);                      \
-    INT32_QUAT_WRAP_SHORTEST(_b2c);                             \
-    INT32_QUAT_NORMALIZE(_b2c);                                 \
-  }
+}
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
-#define INT32_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {       \
-    INT32_QUAT_COMP(_a2c, _a2b, _b2c);                  \
-    INT32_QUAT_WRAP_SHORTEST(_a2c);                 \
-    INT32_QUAT_NORMALIZE(_a2c);                     \
-  }
+static inline void int32_quat_comp(struct Int32Quat *a2c, struct Int32Quat *a2b, struct Int32Quat *b2c) {
+  a2c->qi = (a2b->qi*b2c->qi - a2b->qx*b2c->qx - a2b->qy*b2c->qy - a2b->qz*b2c->qz)>>INT32_QUAT_FRAC;
+  a2c->qx = (a2b->qi*b2c->qx + a2b->qx*b2c->qi + a2b->qy*b2c->qz - a2b->qz*b2c->qy)>>INT32_QUAT_FRAC;
+  a2c->qy = (a2b->qi*b2c->qy - a2b->qx*b2c->qz + a2b->qy*b2c->qi + a2b->qz*b2c->qx)>>INT32_QUAT_FRAC;
+  a2c->qz = (a2b->qi*b2c->qz + a2b->qx*b2c->qy - a2b->qy*b2c->qx + a2b->qz*b2c->qi)>>INT32_QUAT_FRAC;
+}
+
+/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
+static inline void int32_quat_comp_inv(struct Int32Quat *a2b, struct Int32Quat *a2c, struct Int32Quat *b2c) {
+  a2b->qi = ( a2c->qi*b2c->qi + a2c->qx*b2c->qx + a2c->qy*b2c->qy + a2c->qz*b2c->qz)>>INT32_QUAT_FRAC;
+  a2b->qx = (-a2c->qi*b2c->qx + a2c->qx*b2c->qi - a2c->qy*b2c->qz + a2c->qz*b2c->qy)>>INT32_QUAT_FRAC;
+  a2b->qy = (-a2c->qi*b2c->qy + a2c->qx*b2c->qz + a2c->qy*b2c->qi - a2c->qz*b2c->qx)>>INT32_QUAT_FRAC;
+  a2b->qz = (-a2c->qi*b2c->qz - a2c->qx*b2c->qy + a2c->qy*b2c->qx + a2c->qz*b2c->qi)>>INT32_QUAT_FRAC;
+}
+
+/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+static inline void int32_quat_inv_comp(struct Int32Quat *b2c, struct Int32Quat *a2b, struct Int32Quat *a2c) {
+  b2c->qi = (a2b->qi*a2c->qi + a2b->qx*a2c->qx + a2b->qy*a2c->qy + a2b->qz*a2c->qz)>>INT32_QUAT_FRAC;
+  b2c->qx = (a2b->qi*a2c->qx - a2b->qx*a2c->qi - a2b->qy*a2c->qz + a2b->qz*a2c->qy)>>INT32_QUAT_FRAC;
+  b2c->qy = (a2b->qi*a2c->qy + a2b->qx*a2c->qz - a2b->qy*a2c->qi - a2b->qz*a2c->qx)>>INT32_QUAT_FRAC;
+  b2c->qz = (a2b->qi*a2c->qz - a2b->qx*a2c->qy + a2b->qy*a2c->qx - a2b->qz*a2c->qi)>>INT32_QUAT_FRAC;
+}
+
+/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
+static inline void int32_quat_comp_norm_shortest(struct Int32Quat *a2c, struct Int32Quat *a2b, struct Int32Quat *b2c) {
+  int32_quat_comp(a2c, a2b, b2c);
+  int32_quat_wrap_shortest(a2c);
+  int32_quat_normalize(a2c);
+}
+
+/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
+static inline void int32_quat_comp_inv_norm_shortest(struct Int32Quat *a2b, struct Int32Quat *a2c, struct Int32Quat *b2c) {
+  int32_quat_comp_inv(a2b, a2c, b2c);
+  int32_quat_wrap_shortest(a2b);
+  int32_quat_normalize(a2b);
+}
+
+/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+static inline void int32_quat_inv_comp_norm_shortest(struct Int32Quat *b2c, struct Int32Quat *a2b, struct Int32Quat *a2c) {
+  int32_quat_inv_comp(b2c, a2b, a2c);
+  int32_quat_wrap_shortest(b2c);
+  int32_quat_normalize(b2c);
+}
+
 
 
 #define INT32_QUAT_DERIVATIVE(_qd, _r, _q) int32_quat_derivative(&(_qd), &(_r), &(_q))
