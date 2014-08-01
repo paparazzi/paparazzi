@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
+#include <time.h>
 #include "std.h"
 
 #include "math/pprz_algebra_float.h"
@@ -47,11 +47,11 @@ int main(int argc, char** argv) {
   //  test_1();
   //  test_2();
   // test_3();
-  printf("\n");
+  //printf("\n");
   //test_4_int();
-  printf("\n");
+  //printf("\n");
   //  test_4_float();
-  printf("\n");
+  //printf("\n");
 
   //  test_5();
   //test_6();
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
   //  test_quat2();
   test_8();
   //test_9();
-  test_10();
+  //test_10();
   return 0;
 
 }
@@ -425,11 +425,6 @@ float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int displ
 
 static void test_7(void) {
 
-
-
-
-
-
   printf("\n");
   struct FloatEulers ea2c;
   EULERS_ASSIGN(ea2c, RadOfDeg(29.742755), RadOfDeg(-40.966522), RadOfDeg(69.467265));
@@ -455,15 +450,23 @@ static void test_7(void) {
   test_quat_comp_inv(qa2c, qb2c, 1);
   printf("\n");
 
-
-
 }
 
 #define NB_ITER 100000
-
+#define SEED_RANDOM_FROM_TIME 1
 static void test_8(void) {
+  printf("Running %d iterations of test_INT32_QUAT_OF_RMAT\n", NB_ITER);
+#if SEED_RANDOM_FROM_TIME
+#pragma message "Seeding random from current time"
+  time_t now;
+  now = time(NULL);
+  struct tm *ts;
+  ts = localtime(&now);
+  srandom(ts->tm_sec);
+#endif
   float max_err = 0.;
   float sum_err = 0.;
+  int nb_err = 0;
   int i;
   for (i=0; i<NB_ITER; i++) {
     struct FloatEulers eul;
@@ -474,12 +477,14 @@ static void test_8(void) {
     sum_err += err;
     if (err > max_err) max_err = err;
     if (err > .01) {
-      printf("%f\n", err);
-      DISPLAY_FLOAT_EULERS_DEG("eul", eul);
+      nb_err++;
+      printf("\nIteration %d with large error: %f\n", i, err);
+      DISPLAY_FLOAT_EULERS_DEG("Eulers in deg", eul);
       test_INT32_QUAT_OF_RMAT(&eul, TRUE);
+      printf("\n");
     }
   }
-  printf("err %f (%f)\n", sum_err/NB_ITER, max_err);
+  printf("Number of errors %d, average error %f, max error %f\n", nb_err, sum_err/NB_ITER, max_err);
 }
 
 
@@ -584,12 +589,12 @@ void test_of_axis_angle(void) {
   FLOAT_QUAT_OF_AXIS_ANGLE(my_q, axis, angle);
   DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("quat", my_q);
 
-  struct FloatMat33 my_r1;
+  struct FloatRMat my_r1;
   FLOAT_RMAT_OF_QUAT(my_r1, my_q);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat1", my_r1);
   DISPLAY_FLOAT_RMAT("rmat1", my_r1);
 
-  struct FloatMat33 my_r;
+  struct FloatRMat my_r;
   FLOAT_RMAT_OF_AXIS_ANGLE(my_r, axis, angle);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", my_r);
   DISPLAY_FLOAT_RMAT("rmat", my_r);
@@ -599,28 +604,28 @@ void test_of_axis_angle(void) {
   struct FloatEulers eul = {RadOfDeg(30.), RadOfDeg(30.), 0.};
 
   struct FloatVect3 uz = { 0., 0., 1.};
-  struct FloatMat33 r_yaw;
+  struct FloatRMat r_yaw;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_yaw, uz, eul.psi);
 
   struct FloatVect3 uy = { 0., 1., 0.};
-  struct FloatMat33 r_pitch;
+  struct FloatRMat r_pitch;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_pitch, uy, eul.theta);
 
   struct FloatVect3 ux = { 1., 0., 0.};
-  struct FloatMat33 r_roll;
+  struct FloatRMat r_roll;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_roll, ux, eul.phi);
 
-  struct FloatMat33 r_yaw_pitch;
+  struct FloatRMat r_yaw_pitch;
   FLOAT_RMAT_COMP(r_yaw_pitch, r_yaw, r_pitch);
 
-  struct FloatMat33 r_yaw_pitch_roll;
+  struct FloatRMat r_yaw_pitch_roll;
   FLOAT_RMAT_COMP(r_yaw_pitch_roll, r_yaw_pitch, r_roll);
 
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", r_yaw_pitch_roll);
   DISPLAY_FLOAT_RMAT("rmat", r_yaw_pitch_roll);
 
   DISPLAY_FLOAT_EULERS_DEG("eul", eul);
-  struct FloatMat33 rmat1;
+  struct FloatRMat rmat1;
   FLOAT_RMAT_OF_EULERS(rmat1, eul);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat1", rmat1);
   DISPLAY_FLOAT_RMAT("rmat1", rmat1);
@@ -633,7 +638,7 @@ float test_quat_of_rmat(void) {
   struct FloatEulers eul = {RadOfDeg(0.131579),  RadOfDeg(-62.397659), RadOfDeg(-110.470299)};
   //  struct FloatEulers eul = {RadOfDeg(0.13), RadOfDeg(180.), RadOfDeg(-61.)};
 
-  struct FloatMat33 rm;
+  struct FloatRMat rm;
   FLOAT_RMAT_OF_EULERS(rm, eul);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", rm);
 
@@ -649,7 +654,7 @@ float test_quat_of_rmat(void) {
 
   printf("\n\n\n");
 
-  struct FloatMat33 r_att;
+  struct FloatRMat r_att;
   struct FloatEulers e312 = { eul.phi, eul.theta, eul.psi };
   FLOAT_RMAT_OF_EULERS_312(r_att, e312);
   DISPLAY_FLOAT_RMAT("r_att  ", r_att);
@@ -695,29 +700,26 @@ void test1234(void) {
   struct FloatEulers eul = {RadOfDeg(33.), RadOfDeg(25.), RadOfDeg(26.)};
 
   struct FloatVect3 uz = { 0., 0., 1.};
-  struct FloatMat33 r_yaw;
+  struct FloatRMat r_yaw;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_yaw, uz, eul.psi);
 
   struct FloatVect3 uy = { 0., 1., 0.};
-  struct FloatMat33 r_pitch;
+  struct FloatRMat r_pitch;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_pitch, uy, eul.theta);
 
   struct FloatVect3 ux = { 1., 0., 0.};
-  struct FloatMat33 r_roll;
+  struct FloatRMat r_roll;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_roll, ux, eul.phi);
 
-  struct FloatMat33 r_tmp;
+  struct FloatRMat r_tmp;
   FLOAT_RMAT_COMP(r_tmp, r_yaw, r_roll);
 
-  struct FloatMat33 r_att;
+  struct FloatRMat r_att;
   FLOAT_RMAT_COMP(r_att, r_tmp, r_pitch);
   DISPLAY_FLOAT_RMAT("r_att_ref  ", r_att);
 
   FLOAT_RMAT_OF_EULERS_312(r_att, eul);
   DISPLAY_FLOAT_RMAT("r_att312  ", r_att);
-
-
-
 
 }
 
@@ -757,10 +759,6 @@ float test_quat(void) {
   FLOAT_QUAT_VMULT(a2, qe, a);
   DISPLAY_FLOAT_VECT3("a2", a2);
 
-
-
-
-
   return 0.;
 
 }
@@ -787,9 +785,6 @@ float test_quat2(void) {
   struct FloatQuat q;
   FLOAT_QUAT_OF_AXIS_ANGLE(q, u, angle);
   DISPLAY_FLOAT_QUAT("q ", q);
-
-
-
 
 
   struct FloatEulers eula2c;
@@ -820,39 +815,42 @@ float test_quat2(void) {
 
 
 float test_INT32_QUAT_OF_RMAT(struct FloatEulers* eul_f, bool_t display) {
+  struct Int32Eulers eul321_i;
+  EULERS_BFP_OF_REAL(eul321_i, (*eul_f));
 
   struct Int32Eulers eul312_i;
   EULERS_BFP_OF_REAL(eul312_i, (*eul_f));
-  if (display)  DISPLAY_INT32_EULERS("eul312_i", eul312_i);
+  if (display) DISPLAY_INT32_EULERS("eul312_i", eul312_i);
 
   struct FloatRMat rmat_f;
-  FLOAT_RMAT_OF_EULERS_312(rmat_f, (*eul_f));
+  FLOAT_RMAT_OF_EULERS_321(rmat_f, (*eul_f));
   if (display) DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f);
   if (display) DISPLAY_FLOAT_RMAT("rmat float", rmat_f);
 
   struct Int32RMat rmat_i;
-  INT32_RMAT_OF_EULERS_312(rmat_i, eul312_i);
+  INT32_RMAT_OF_EULERS_321(rmat_i, eul321_i);
   if (display) DISPLAY_INT32_RMAT_AS_EULERS_DEG("rmat int", rmat_i);
   if (display) DISPLAY_INT32_RMAT("rmat int", rmat_i);
   if (display) DISPLAY_INT32_RMAT_AS_FLOAT("rmat int", rmat_i);
 
   struct FloatQuat qf;
   FLOAT_QUAT_OF_RMAT(qf, rmat_f);
-  FLOAT_QUAT_WRAP_SHORTEST(qf);
+  //FLOAT_QUAT_WRAP_SHORTEST(qf);
   if (display) DISPLAY_FLOAT_QUAT("qf", qf);
 
   struct Int32Quat qi;
   INT32_QUAT_OF_RMAT(qi, rmat_i);
-  INT32_QUAT_WRAP_SHORTEST(qi);
+  //INT32_QUAT_WRAP_SHORTEST(qi);
   if (display) DISPLAY_INT32_QUAT("qi", qi);
   if (display) DISPLAY_INT32_QUAT_2("qi", qi);
 
   struct FloatQuat qif;
   QUAT_FLOAT_OF_BFP(qif, qi);
-  struct FloatQuat qerr;
-  QUAT_DIFF(qerr, qif, qf);
 
-  float err_norm = FLOAT_QUAT_NORM(qerr);
+  // dot product of two quaternions is 1 if they represent same rotation
+  float qi_dot_qf = qif.qi*qf.qi + qif.qx*qf.qx + qif.qy*qf.qy + qif.qz*qf.qz;
+  float err_norm = fabs(fabs(qi_dot_qf) - 1.);
+
   if (display) printf("err %f\n", err_norm);
   if (display) printf("\n");
 
