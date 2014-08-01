@@ -221,26 +221,26 @@ struct Int64Vect3 {
 #define INT_MULT_RSHIFT(_a, _b, _r) (((_a)*(_b))>>(_r))
 
 
+#define INT32_SQRT(_out,_in) { _out = int32_sqrt(_in); }
 #define INT32_SQRT_MAX_ITER 40
-#define INT32_SQRT(_out,_in) {                                  \
-    if ((_in) == 0)                                             \
-      (_out) = 0;                                               \
-    else {                                                      \
-      uint32_t s1, s2;                                          \
-      uint8_t iter = 0;                                         \
-      s2 = _in;                                                 \
-      do {                                                      \
-        s1 = s2;                                                \
-        s2 = (_in) / s1;                                        \
-        s2 += s1;                                               \
-        s2 /= 2;                                                \
-        iter++;                                                 \
-      }                                                         \
-      while( ( (s1-s2) > 1) && (iter < INT32_SQRT_MAX_ITER));   \
-      (_out) = s2;                                              \
-    }                                                           \
+static inline int32_t int32_sqrt(int32_t in) {
+  if (in == 0)
+    return 0;
+  else {
+    uint32_t s1, s2;
+    uint8_t iter = 0;
+    s2 = in;
+    do {
+      s1 = s2;
+      s2 = in / s1;
+      s2 += s1;
+      s2 /= 2;
+      iter++;
+    }
+    while( ( (s1-s2) > 1) && (iter < INT32_SQRT_MAX_ITER));
+    return s2;
   }
-
+}
 
 
 
@@ -254,7 +254,7 @@ struct Int64Vect3 {
 
 #define INT32_VECT2_NORM(n, v) {            \
     int32_t n2 = (v).x*(v).x + (v).y*(v).y; \
-    INT32_SQRT(n, n2);                  \
+    n = int32_sqrt(n2);                  \
   }
 
 #define INT32_VECT2_NORMALIZE(_v,_frac) {				\
@@ -308,7 +308,7 @@ struct Int64Vect3 {
 
 #define INT32_VECT3_NORM(n, v) {                \
     int32_t n2 = (v).x*(v).x + (v).y*(v).y + (v).z*(v).z;   \
-    INT32_SQRT(n, n2);                  \
+    n = int32_sqrt(n2);                  \
   }
 
 #define INT32_VECT3_RSHIFT(_o, _i, _r) { \
@@ -575,9 +575,7 @@ static inline void int32_rmat_of_eulers_312(struct Int32RMat *rm, struct Int32Eu
 
 static inline int32_t int32_quat_norm(struct Int32Quat *q) {
   int32_t n2 = q->qi*q->qi + q->qx*q->qx + q->qy*q->qy + q->qz*q->qz;
-  int32_t n;
-  INT32_SQRT(n, n2);
-  return n;
+  return int32_sqrt(n2);
 }
 
 static inline void int32_quat_wrap_shortest(struct Int32Quat *q) {
@@ -757,8 +755,7 @@ static inline void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r) 
   const int32_t tr = RMAT_TRACE(*r);
   if (tr > 0) {
     const int32_t two_qi_two = TRIG_BFP_OF_REAL(1.) + tr;
-    int32_t two_qi;
-    INT32_SQRT(two_qi, (two_qi_two<<INT32_TRIG_FRAC));
+    int32_t two_qi = int32_sqrt(two_qi_two<<INT32_TRIG_FRAC);
     two_qi = two_qi << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
     q->qi = two_qi / 2;
     q->qx = ((RMAT_ELMT(*r, 1, 2) - RMAT_ELMT(*r, 2, 1)) <<
@@ -776,8 +773,7 @@ static inline void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r) 
         RMAT_ELMT(*r, 0, 0) > RMAT_ELMT(*r, 2, 2)) {
       const int32_t two_qx_two = RMAT_ELMT(*r, 0, 0) - RMAT_ELMT(*r, 1, 1)
         - RMAT_ELMT(*r, 2, 2) + TRIG_BFP_OF_REAL(1.);
-      int32_t two_qx;
-      INT32_SQRT(two_qx, (two_qx_two<<INT32_TRIG_FRAC));
+      int32_t two_qx = int32_sqrt(two_qx_two<<INT32_TRIG_FRAC);
       two_qx = two_qx << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
       q->qi = ((RMAT_ELMT(*r, 1, 2) - RMAT_ELMT(*r, 2, 1)) <<
                (INT32_QUAT_FRAC - INT32_TRIG_FRAC + INT32_QUAT_FRAC - 1))
@@ -793,8 +789,7 @@ static inline void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r) 
     else if (RMAT_ELMT(*r, 1, 1) > RMAT_ELMT(*r, 2, 2)) {
       const int32_t two_qy_two = RMAT_ELMT(*r, 1, 1) - RMAT_ELMT(*r, 0, 0)
         - RMAT_ELMT(*r, 2, 2) + TRIG_BFP_OF_REAL(1.);
-      int32_t two_qy;
-      INT32_SQRT(two_qy, (two_qy_two<<INT32_TRIG_FRAC));
+      int32_t two_qy = int32_sqrt(two_qy_two<<INT32_TRIG_FRAC);
       two_qy = two_qy << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
       q->qi = ((RMAT_ELMT(*r, 2, 0) - RMAT_ELMT(*r, 0, 2)) <<
                (INT32_QUAT_FRAC - INT32_TRIG_FRAC + INT32_QUAT_FRAC - 1))
@@ -810,8 +805,7 @@ static inline void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r) 
     else {
       const int32_t two_qz_two = RMAT_ELMT(*r, 2, 2) - RMAT_ELMT(*r, 0, 0)
         - RMAT_ELMT(*r, 1, 1) + TRIG_BFP_OF_REAL(1.);
-      int32_t two_qz;
-      INT32_SQRT(two_qz, (two_qz_two<<INT32_TRIG_FRAC));
+      int32_t two_qz = int32_sqrt(two_qz_two<<INT32_TRIG_FRAC);
       two_qz = two_qz << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);
       q->qi = ((RMAT_ELMT(*r, 0, 1) - RMAT_ELMT(*r, 1, 0)) <<
                (INT32_QUAT_FRAC - INT32_TRIG_FRAC + INT32_QUAT_FRAC - 1))
