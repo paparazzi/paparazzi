@@ -80,7 +80,7 @@ static inline void ahrs_float_get_quat_from_accel(struct FloatQuat* q, struct In
     q->qy = acc_normalized.x;
     q->qz = 0.0;
     q->qi = 1.0 - acc_normalized.z;
-    FLOAT_QUAT_NORMALIZE(*q);
+    float_quat_normalize(q);
   }
 }
 
@@ -97,7 +97,7 @@ static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struc
 
   /* and rotate to horizontal plane using the quat from above */
   struct FloatRMat rmat_phi_theta;
-  FLOAT_RMAT_OF_QUAT(rmat_phi_theta, q_a);
+  float_rmat_of_quat(&rmat_phi_theta, &q_a);
   struct FloatVect3 mag_ltp;
   float_rmat_transp_vmult(&mag_ltp, &rmat_phi_theta, &mag_float);
 
@@ -120,12 +120,12 @@ static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struc
     q_m.qy = 0.0;
     q_m.qz = mag_ltp.x * AHRS_H_Y - mag_ltp.y * AHRS_H_X;
     q_m.qi = norm2 + dot;
-    FLOAT_QUAT_NORMALIZE(q_m);
+    float_quat_normalize(&q_m);
   }
 
   // q_ltp2imu = q_a * q_m
   // and wrap and normalize
-  FLOAT_QUAT_COMP_NORM_SHORTEST(*q, q_m, q_a);
+  float_quat_comp_norm_shortest(q, &q_m, &q_a);
 }
 
 #endif /* AHRS_FLOAT_UTILS_H */

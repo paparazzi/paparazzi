@@ -347,7 +347,7 @@ void v_ctl_climb_loop( void )
 #ifndef SITL
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  INT32_RMAT_TRANSP_VMULT(accel_meas_body, *body_to_imu_rmat, imu.accel);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
   float vdot = ACCEL_FLOAT_OF_BFP(accel_meas_body.x) / 9.81f - sinf(stateGetNedToBodyEulers_f()->theta);
 #else
   float vdot = 0;

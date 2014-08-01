@@ -226,7 +226,7 @@ void ahrs_propagate(void) {
 
   /* integrate eulers */
   struct Int32Eulers euler_dot;
-  INT32_EULERS_DOT_OF_RATES(euler_dot, ahrs_impl.ltp_to_imu_euler, ahrs_impl.imu_rate);
+  int32_eulers_dot_of_rates(&euler_dot, &ahrs_impl.ltp_to_imu_euler, &ahrs_impl.imu_rate);
   EULERS_ADD(ahrs_impl.hi_res_euler, euler_dot);
 
   /* low pass measurement */
@@ -282,11 +282,11 @@ void ahrs_update_mag(void) {
 /* measures phi and theta assuming no dynamic acceleration ?!! */
 __attribute__ ((always_inline)) static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel) {
 
-  INT32_ATAN2(*phi_meas, -accel.y, -accel.z);
+  *phi_meas = int32_atan2(-accel.y, -accel.z);
   int32_t cphi;
   PPRZ_ITRIG_COS(cphi, *phi_meas);
   int32_t cphi_ax = -INT_MULT_RSHIFT(cphi, accel.x, INT32_TRIG_FRAC);
-  INT32_ATAN2(*theta_meas, -cphi_ax, -accel.z);
+  *theta_meas = int32_atan2(-cphi_ax, -accel.z);
   *phi_meas   *= F_UPDATE;
   *theta_meas *= F_UPDATE;
 
@@ -325,13 +325,13 @@ static void set_body_state_from_euler(void) {
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
   struct Int32RMat ltp_to_imu_rmat, ltp_to_body_rmat;
   /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
+  int32_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
   /* Compute LTP to BODY rotation matrix */
-  INT32_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, *body_to_imu_rmat);
+  int32_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
   /* Set state */
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
   struct Int32Eulers ltp_to_body_euler;
-  INT32_EULERS_OF_RMAT(ltp_to_body_euler, ltp_to_body_rmat);
+  int32_eulers_of_rmat(&ltp_to_body_euler, &ltp_to_body_rmat);
   ltp_to_body_euler.phi -= ANGLE_BFP_OF_REAL(ins_roll_neutral);
   ltp_to_body_euler.theta -= ANGLE_BFP_OF_REAL(ins_pitch_neutral);
   stateSetNedToBodyEulers_i(&ltp_to_body_euler);
@@ -341,7 +341,7 @@ static void set_body_state_from_euler(void) {
 
   struct Int32Rates body_rate;
   /* compute body rates */
-  INT32_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
+  int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_impl.imu_rate);
   /* Set state */
   stateSetBodyRates_i(&body_rate);
 

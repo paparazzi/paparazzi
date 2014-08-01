@@ -207,4 +207,3 @@ void imu_SetBodyToImuCurrent(float set) {
     orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
   }
 }
-

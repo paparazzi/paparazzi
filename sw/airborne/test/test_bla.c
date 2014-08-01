@@ -22,20 +22,20 @@ int main(int argc, char** argv) {
   DISPLAY_FLOAT_EULERS("eb", eb);
 
   struct FloatRMat ra;
-  FLOAT_RMAT_OF_EULERS(ra, ea);
+  float_rmat_of_eulers(&ra, &ea);
   struct FloatRMat rb;
-  FLOAT_RMAT_OF_EULERS(rb, eb);
+  float_rmat_of_eulers(&rb, &eb);
   struct FloatRMat rc;
-  FLOAT_RMAT_COMP(rc, ra, rb);
+  float_rmat_comp(&rc, &ra, &rb);
 
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rc ", rc);
 
   struct FloatQuat qa;
-  FLOAT_QUAT_OF_EULERS(qa, ea);
+  float_quat_of_eulers(&qa, &ea);
   struct FloatQuat qb;
-  FLOAT_QUAT_OF_EULERS(qb, eb);
+  float_quat_of_eulers(&qb, &eb);
   struct FloatQuat qc;
-  FLOAT_QUAT_COMP(qc, qa, qb);
+  float_quat_comp(&qc, &qa, &qb);
 
 
   DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("qc ", qc);

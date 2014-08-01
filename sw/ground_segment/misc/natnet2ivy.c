@@ -484,7 +484,7 @@ gboolean timeout_transmit_callback(gpointer data) {
     orient.qx = rigidBodies[i].qx;
     orient.qy = rigidBodies[i].qy;
     orient.qz = rigidBodies[i].qz;
-    DOUBLE_EULERS_OF_QUAT(orient_eulers, orient);
+    double_eulers_of_quat(&orient_eulers, &orient);
 
     // Calculate the heading by adding the Natnet offset angle and normalizing it
     double heading = -orient_eulers.psi-tracking_offset_angle;

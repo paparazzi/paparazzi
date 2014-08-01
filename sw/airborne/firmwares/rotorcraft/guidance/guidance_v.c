@@ -340,7 +340,7 @@ static int32_t get_vertical_thrust_coeff(void) {
 
   struct Int32RMat* att = stateGetNedToBodyRMat_i();
   /* thrust vector:
-   *  INT32_RMAT_VMULT(thrust_vect, att, zaxis)
+   *  int32_rmat_vmult(&thrust_vect, &att, &zaxis)
    * same as last colum of rmat with INT32_TRIG_FRAC
    * struct Int32Vect thrust_vect = {att.m[2], att.m[5], att.m[8]};
    *

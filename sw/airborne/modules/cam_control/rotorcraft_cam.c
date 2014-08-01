@@ -152,13 +152,13 @@ void rotorcraft_cam_periodic(void) {
         struct Int32Vect2 diff;
         VECT2_DIFF(diff, waypoints[ROTORCRAFT_CAM_TRACK_WP], *stateGetPositionEnu_i());
         INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
-        INT32_ATAN2(rotorcraft_cam_pan,diff.x,diff.y);
+        rotorcraft_cam_pan = int32_atan2(diff.x, diff.y);
         nav_heading = rotorcraft_cam_pan;
 #if ROTORCRAFT_CAM_USE_TILT_ANGLES
         int32_t dist, height;
         INT32_VECT2_NORM(dist, diff);
         height = (waypoints[ROTORCRAFT_CAM_TRACK_WP].z - stateGetPositionEnu_i()->z) >> INT32_POS_FRAC;
-        INT32_ATAN2(rotorcraft_cam_tilt, height, dist);
+        rotorcraft_cam_tilt = int32_atan2(height, dist);
         Bound(rotorcraft_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
         rotorcraft_cam_tilt_pwm = ROTORCRAFT_CAM_TILT_MIN + D_TILT * (rotorcraft_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
 #endif

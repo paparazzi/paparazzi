@@ -812,23 +812,23 @@ void stateCalcHorizontalSpeedDir_i(void) {
     state.h_speed_dir_i = SPEED_BFP_OF_REAL(state.h_speed_dir_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
-    INT32_ATAN2(state.h_speed_dir_i, state.ned_speed_i.y, state.ned_speed_i.x);
+    state.h_speed_dir_i = int32_atan2(state.ned_speed_i.y, state.ned_speed_i.x);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
-    INT32_ATAN2(state.h_speed_dir_i, state.enu_speed_i.x, state.enu_speed_i.y);
+    state.h_speed_dir_i = int32_atan2(state.enu_speed_i.x, state.enu_speed_i.y);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
     SetBit(state.speed_status, SPEED_NED_I);
-    INT32_ATAN2(state.h_speed_dir_i, state.ned_speed_i.y, state.ned_speed_i.x);
+    state.h_speed_dir_i = int32_atan2(state.ned_speed_i.y, state.ned_speed_i.x);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
     SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
     SetBit(state.speed_status, SPEED_ENU_I);
-    INT32_ATAN2(state.h_speed_dir_i, state.enu_speed_i.x, state.enu_speed_i.y);
+    state.h_speed_dir_i = int32_atan2(state.enu_speed_i.x, state.enu_speed_i.y);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   /* set bit to indicate this representation is computed */

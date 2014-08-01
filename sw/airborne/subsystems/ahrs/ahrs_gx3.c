@@ -268,7 +268,7 @@ void gx3_packet_read_message(void) {
   FLOAT_RMAT_COMP(ltp_to_body_rmat, ahrs_impl.gx3_rmat, *body_to_imu_rmat);
 #ifdef AHRS_UPDATE_FW_ESTIMATOR // fixedwing
   struct FloatEulers ltp_to_body_eulers;
-  FLOAT_EULERS_OF_RMAT(ltp_to_body_eulers, ltp_to_body_rmat);
+  float_eulers_of_rmat(&ltp_to_body_eulers, &ltp_to_body_rmat);
   ltp_to_body_eulers.phi -= ins_roll_neutral;
   ltp_to_body_eulers.theta -= ins_pitch_neutral;
 #if AHRS_USE_GPS_HEADING && USE_GPS
@@ -282,7 +282,7 @@ void gx3_packet_read_message(void) {
 #else
 #ifdef IMU_MAG_OFFSET //rotorcraft
   struct FloatEulers ltp_to_body_eulers;
-  FLOAT_EULERS_OF_RMAT(ltp_to_body_eulers, ltp_to_body_rmat);
+  float_eulers_of_rmat(&ltp_to_body_eulers, &ltp_to_body_rmat);
   ltp_to_body_eulers.psi -= ahrs_impl.mag_offset;
   stateSetNedToBodyEulers_f(&ltp_to_body_eulers);
 #else

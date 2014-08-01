@@ -205,14 +205,14 @@ static inline void parse_ins_msg( void ) {
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       break;
     case VN100_REG_QTM :
       ins_quat.qi = last_received_packet.Data[0].Float;
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       ins_mag.x = last_received_packet.Data[4].Float;
       ins_mag.y = last_received_packet.Data[5].Float;
       ins_mag.z = last_received_packet.Data[6].Float;
@@ -222,7 +222,7 @@ static inline void parse_ins_msg( void ) {
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       ins_accel.x = last_received_packet.Data[4].Float;
       ins_accel.y = last_received_packet.Data[5].Float;
       ins_accel.z = last_received_packet.Data[6].Float;
@@ -232,7 +232,7 @@ static inline void parse_ins_msg( void ) {
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       ins_rates.p = last_received_packet.Data[4].Float;
       ins_rates.q = last_received_packet.Data[5].Float;
       ins_rates.r = last_received_packet.Data[6].Float;
@@ -242,7 +242,7 @@ static inline void parse_ins_msg( void ) {
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       ins_mag.x = last_received_packet.Data[4].Float;
       ins_mag.y = last_received_packet.Data[5].Float;
       ins_mag.z = last_received_packet.Data[6].Float;
@@ -255,7 +255,7 @@ static inline void parse_ins_msg( void ) {
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       ins_accel.x = last_received_packet.Data[4].Float;
       ins_accel.y = last_received_packet.Data[5].Float;
       ins_accel.z = last_received_packet.Data[6].Float;
@@ -268,7 +268,7 @@ static inline void parse_ins_msg( void ) {
       ins_quat.qx = last_received_packet.Data[1].Float;
       ins_quat.qy = last_received_packet.Data[2].Float;
       ins_quat.qz = last_received_packet.Data[3].Float;
-      FLOAT_EULERS_OF_QUAT(ins_eulers, ins_quat);
+      float_eulers_of_quat(&ins_eulers, &ins_quat);
       ins_mag.x = last_received_packet.Data[4].Float;
       ins_mag.y = last_received_packet.Data[5].Float;
       ins_mag.z = last_received_packet.Data[6].Float;

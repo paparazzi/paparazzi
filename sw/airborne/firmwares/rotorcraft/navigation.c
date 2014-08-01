@@ -227,7 +227,7 @@ void nav_circle(struct EnuCoor_i * wp_center, int32_t radius) {
     // store last qdr
     int32_t last_qdr = nav_circle_qdr;
     // compute qdr
-    INT32_ATAN2(nav_circle_qdr, pos_diff.y, pos_diff.x);
+    nav_circle_qdr = int32_atan2(pos_diff.y, pos_diff.x);
     // increment circle radians
     if (nav_circle_radians != 0) {
       int32_t angle_diff = nav_circle_qdr - last_qdr;
