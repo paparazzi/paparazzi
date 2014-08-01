@@ -20,6 +20,7 @@
  */
 
 #include "pprz_trig_int.h"
+#include "pprz_algebra_int.h"
 
 PPRZ_TRIG_CONST int16_t pprz_trig_int[6434] = {    0,
     3,     7,    11,    15,    19,    23,    27,    31,    35,    39,    43,    47,    51,    55,    59,    63,
@@ -425,3 +426,69 @@ PPRZ_TRIG_CONST int16_t pprz_trig_int[6434] = {    0,
  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,
  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,  16383,
  16383};
+
+
+int32_t pprz_itrig_sin(int32_t angle) {
+  INT32_ANGLE_NORMALIZE(angle);
+  if (angle > INT32_ANGLE_PI_2)
+    angle = INT32_ANGLE_PI - angle;
+  else if (angle < -INT32_ANGLE_PI_2)
+    angle = -INT32_ANGLE_PI - angle;
+  if (angle >= 0)
+    return pprz_trig_int[angle];
+  else
+    return -pprz_trig_int[-angle];
+}
+
+int32_t pprz_itrig_cos(int32_t angle) {
+  return pprz_itrig_sin(angle + INT32_ANGLE_PI_2);
+}
+
+
+/* http://jet.ro/files/The_neglected_art_of_Fixed_Point_arithmetic_20060913.pdf */
+/* http://www.dspguru.com/dsp/tricks/fixed-point-atan2-with-self-normalization */
+
+#define R_FRAC 14
+
+int32_t int32_atan2(int32_t y, int32_t x) {
+  const int32_t c1 = INT32_ANGLE_PI_4;
+  const int32_t c2 = 3 * INT32_ANGLE_PI_4;
+  const int32_t abs_y = abs(y) + 1;
+  int32_t r;
+  int32_t a;
+  if (x >= 0) {
+    r = ((x - abs_y)<<R_FRAC) / (x + abs_y);
+    a = c1 - ((c1 * r)>>R_FRAC);
+  }
+  else {
+    r = ((x + abs_y)<<R_FRAC) / (abs_y - x);
+    a = c2 - ((c1 * r)>>R_FRAC);
+  }
+  if (y < 0)
+    return -a;     // negate if in quad III or IV
+  else
+    return a;
+}
+
+
+int32_t int32_atan2_2(int32_t y, int32_t x) {
+  const int32_t c1 = INT32_ANGLE_PI_4;
+  const int32_t c2 = 3 * INT32_ANGLE_PI_4;
+  const int32_t abs_y = abs(y) + 1;
+  int32_t r;
+  int32_t a;
+  if (x >= 0) {
+    r = ((x - abs_y)<<R_FRAC) / (x + abs_y);
+    int32_t r2 = (r * r)>>R_FRAC;
+    int32_t tmp1 = ((r2 * (int32_t)ANGLE_BFP_OF_REAL(0.1963))>>INT32_ANGLE_FRAC) - ANGLE_BFP_OF_REAL(0.9817);
+    a = ((tmp1 * r)>>R_FRAC) + c1;
+  }
+  else {
+    r = ((x + abs_y)<<R_FRAC) / (abs_y - x);
+    a = c2 - ((c1 * r)>>R_FRAC);
+  }
+  if (y < 0)
+    return -a;     // negate if in quad III or IV
+  else
+    return a;
+}
