@@ -32,7 +32,6 @@ struct AhrsFloatDCM {
   struct FloatRates rate_correction;
 
   struct FloatEulers ltp_to_imu_euler;
-  struct FloatRMat body_to_imu_rmat;
   struct FloatRates imu_rate;
 
   float gps_speed;

@@ -109,7 +109,8 @@ void nav_catapult_highrate_module(void)
       // Five consecutive measurements > 1.5
 #ifndef SITL
       struct Int32Vect3 accel_meas_body;
-      INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+      struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+      INT32_RMAT_TRANSP_VMULT(accel_meas_body, *body_to_imu_rmat, imu.accel);
       if (ACCEL_FLOAT_OF_BFP(accel_meas_body.x)  < (nav_catapult_acceleration_threshold * 9.81))
 #else
       if (launch != 1)

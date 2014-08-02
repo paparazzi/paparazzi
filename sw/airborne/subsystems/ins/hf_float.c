@@ -463,7 +463,8 @@ void b2_hff_propagate(void) {
 
   /* rotate imu accel measurement to body frame and filter */
   struct Int32Vect3 acc_meas_body;
-  INT32_RMAT_TRANSP_VMULT(acc_meas_body, imu.body_to_imu_rmat,  imu.accel);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  INT32_RMAT_TRANSP_VMULT(acc_meas_body, *body_to_imu_rmat, imu.accel);
 
   struct Int32Vect3 acc_body_filtered;
   acc_body_filtered.x = update_butterworth_2_low_pass_int(&filter_x, acc_meas_body.x);

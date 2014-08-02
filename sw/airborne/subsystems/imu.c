@@ -130,17 +130,9 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   INT_VECT3_ZERO(imu.mag_neutral);
 #endif
 
-  /*
-    Compute quaternion and rotation matrix
-    for conversions between body and imu frame
-  */
-  struct Int32Eulers body_to_imu_eulers =
-    { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI),
-      ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA),
-      ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PSI) };
-  INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
-  INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
-  INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
+  struct FloatEulers body_to_imu_eulers =
+    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+  orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
@@ -163,13 +155,7 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
 
 
 void imu_float_init(void) {
-  /*
-    Compute quaternion and rotation matrix
-    for conversions between body and imu frame
-  */
-  EULERS_ASSIGN(imuf.body_to_imu_eulers,
-    IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
-  FLOAT_QUAT_OF_EULERS(imuf.body_to_imu_quat, imuf.body_to_imu_eulers);
-  FLOAT_QUAT_NORMALIZE(imuf.body_to_imu_quat);
-  FLOAT_RMAT_OF_EULERS(imuf.body_to_imu_rmat, imuf.body_to_imu_eulers);
+  struct FloatEulers body_to_imu_eulers =
+    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
 }

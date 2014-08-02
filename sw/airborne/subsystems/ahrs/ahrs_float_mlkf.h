@@ -48,9 +48,6 @@ struct AhrsMlkf {
   struct FloatQuat  gibbs_cor;
   float P[6][6];
   float lp_accel;
-  // Holds float version of IMU alignement
-  struct FloatQuat body_to_imu_quat;
-  struct FloatRMat body_to_imu_rmat;
 };
 
 extern struct AhrsMlkf ahrs_impl;
