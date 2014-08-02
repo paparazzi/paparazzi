@@ -187,9 +187,9 @@ void imu_SetBodyToImuCurrent(float set) {
   if (imu.b2i_set_current) {
     struct FloatEulers imu_to_body_eulers;
     memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
-    // set to current roll and pitch
-    imu_to_body_eulers.phi = stateGetNedToBodyEulers_f()->phi;
-    imu_to_body_eulers.theta = stateGetNedToBodyEulers_f()->theta;
+    // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
+    imu_to_body_eulers.phi += stateGetNedToBodyEulers_f()->phi;
+    imu_to_body_eulers.theta += stateGetNedToBodyEulers_f()->theta;
     orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
   }
 }
