@@ -32,7 +32,7 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
 
   /* transform gravity to body frame */
   struct DoubleVect3 g_body;
-  FLOAT_QUAT_VMULT(g_body, fdm.ltp_to_body_quat, fdm.ltp_g);
+  double_quat_vmult(&g_body, &fdm.ltp_to_body_quat, &fdm.ltp_g);
   //  printf(" g_body %f %f %f\n", g_body.x, g_body.y, g_body.z);
 
   //  printf(" accel_fdm %f %f %f\n", fdm.body_ecef_accel.x, fdm.body_ecef_accel.y, fdm.body_ecef_accel.z);

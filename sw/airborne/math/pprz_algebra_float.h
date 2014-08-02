@@ -723,7 +723,7 @@ static inline void float_quat_integrate(struct FloatQuat *q, struct FloatRates *
   }
 
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) float_quat_vmult(&(v_out), &(q), &(v_in))
-static inline void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q,struct FloatVect3 * v_in) {
+static inline void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, struct FloatVect3 *v_in) {
   const float qi2_M1_2  = q->qi*q->qi - 0.5;
   const float qiqx = q->qi*q->qx;
   const float qiqy = q->qi*q->qy;

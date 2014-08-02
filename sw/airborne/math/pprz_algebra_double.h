@@ -173,6 +173,30 @@ static inline void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQu
   e->psi = atan2(dcm01, dcm00);
 }
 
+#define DOUBLE_QUAT_VMULT(v_out, q, v_in) double_quat_vmult(&(v_out), &(q), &(v_in))
+static inline void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q,struct DoubleVect3 * v_in) {
+  const double qi2_M1_2  = q->qi*q->qi - 0.5;
+  const double qiqx = q->qi*q->qx;
+  const double qiqy = q->qi*q->qy;
+  const double qiqz = q->qi*q->qz;
+  double m01  = q->qx*q->qy;   /* aka qxqy */
+  double m02  = q->qx*q->qz;   /* aka qxqz */
+  double m12  = q->qy*q->qz;   /* aka qyqz */
+
+  const double m00  = qi2_M1_2 + q->qx*q->qx;
+  const double m10  = m01 - qiqz;
+  const double m20  = m02 + qiqy;
+  const double m21  = m12 - qiqx;
+  m01 += qiqz;
+  m02 -= qiqy;
+  m12 += qiqx;
+  const double m11  = qi2_M1_2 + q->qy*q->qy;
+  const double m22  = qi2_M1_2 + q->qz*q->qz;
+  v_out->x = 2*(m00 * v_in->x + m01 * v_in->y + m02 * v_in->z);
+  v_out->y = 2*(m10 * v_in->x + m11 * v_in->y + m12 * v_in->z);
+  v_out->z = 2*(m20 * v_in->x + m21 * v_in->y + m22 * v_in->z);
+}
+
 /* multiply _vin by _mat, store in _vout */
 #define DOUBLE_MAT33_VECT3_MUL(_vout, _mat, _vin) {     \
     (_vout).x = (_mat)[0]*(_vin).x + (_mat)[1]*(_vin).y + (_mat)[2]*(_vin).z;   \

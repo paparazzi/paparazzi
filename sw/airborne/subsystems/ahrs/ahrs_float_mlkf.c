@@ -210,7 +210,7 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  FLOAT_QUAT_VMULT(b_expected, ahrs_impl.ltp_to_imu_quat, *i_expected);
+  float_quat_vmult(&b_expected, &ahrs_impl.ltp_to_imu_quat, (struct FloatVect3*)i_expected);
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
