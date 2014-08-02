@@ -28,7 +28,11 @@
     </target>
     <target name="test_esc_mkk_simple"      board="lisa_m_2.0"/>
     <target name="test_esc_asctecv1_simple" board="lisa_m_2.0"/>
-    <target name="test_baro"                board="lisa_m_2.0"/>
+    <target name="test_baro_board"          board="lisa_m_2.0">
+      <configure name="BARO_LED" value="5"/>
+      <!-- baro board options for Lisa/M: BARO_BOARD_BMP085 (default), BARO_MS5611_I2C, BARO_MS5611_SPI -->
+      <configure name="LISA_M_BARO" value="BARO_BOARD_BMP085"/>
+    </target>
     <target name="test_adc"                 board="lisa_m_2.0"/>
     <target name="test_can"                 board="lisa_m_2.0"/>
     <target name="test_uart"                board="lisa_m_2.0">

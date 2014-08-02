@@ -35,7 +35,6 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/sensors/baro.h"
-#include "subsystems/air_data.h"
 
 #define ABI_C
 #include "subsystems/abi.h"
@@ -44,9 +43,23 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
-static inline void main_on_baro_diff(void);
-static inline void main_on_baro_abs(void);
+#ifndef BARO_PERIODIC_FREQUENCY
+#define BARO_PERIODIC_FREQUENCY 50
+#endif
+PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
+#ifdef BARO_LED
+PRINT_CONFIG_VAR(BARO_LED)
+#endif
+
+/** ABI bindings
+ */
+#ifndef BARO_ABS_ID
+#define BARO_ABS_ID ABI_BROADCAST
+#endif
+static abi_event pressure_abs_ev;
+
+tid_t baro_tid;
 
 int main(void) {
   main_init();
@@ -54,33 +67,34 @@ int main(void) {
   while(1) {
     if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
+    if (sys_time_check_and_ack_timer(baro_tid))
+      baro_periodic();
     main_event_task();
   }
 
   return 0;
 }
 
+static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const float * pressure) {
+  float foo = 42.;
+  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, pressure, &foo);
+}
+
 static inline void main_init( void ) {
   mcu_init();
   sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   baro_init();
+
+  baro_tid = sys_time_register_timer(1./BARO_PERIODIC_FREQUENCY, NULL);
+
+  AbiBindMsgBARO_ABS(BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
 }
 
 static inline void main_periodic_task( void ) {
-
-  RunOnceEvery(2, {baro_periodic();});
   LED_PERIODIC();
   RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
 }
 
 static inline void main_event_task( void ) {
   BaroEvent();
-}
-
-static inline void main_on_baro_diff(void) {
-
-}
-
-static inline void main_on_baro_abs(void) {
-  RunOnceEvery(5,{DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, &air_data.pressure, &air_data.differential);});
 }
