@@ -30,6 +30,7 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
+#include "state.h"
 #include "generated/airframe.h"
 
 /* must be defined by underlying hardware */
@@ -50,6 +51,8 @@ struct Imu {
   struct Int32Vect3 accel_unscaled;   ///< unscaled accelerometer measurements
   struct Int32Vect3 mag_unscaled;     ///< unscaled magnetometer measurements
   struct OrientationReps body_to_imu; ///< rotation from body to imu frame
+  bool_t b2i_set_current;             ///< flag for settings in order to set current roll and pitch as body_to_imu
+  bool_t b2i_reset;                   ///< flag for settings in order to reset body_to_imu to airframe defines
 };
 
 /** abstract IMU interface providing floating point interface  */
@@ -162,6 +165,27 @@ static inline void imu_SetBodyToImuPsi(float psi) {
   memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
   imu_to_body_eulers.psi = psi;
   orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+static inline void imu_SetBodyToImuCurrent(float set) {
+  imu.b2i_set_current = set;
+  if (imu.b2i_set_current) {
+    struct FloatEulers imu_to_body_eulers;
+    memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+    // set to current roll and pitch
+    imu_to_body_eulers.phi = stateGetNedToBodyEulers_f()->phi;
+    imu_to_body_eulers.theta = stateGetNedToBodyEulers_f()->theta;
+    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+  }
+}
+
+static inline void imu_ResetBodyToImu(float reset) {
+  imu.b2i_reset = reset;
+  if (imu.b2i_reset) {
+    struct FloatEulers imu_to_body_eulers =
+      {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+  }
 }
 
 
