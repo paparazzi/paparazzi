@@ -105,8 +105,10 @@ static inline void nav_set_altitude( void );
 #include "subsystems/datalink/telemetry.h"
 
 static void send_nav_status(void) {
+  float dist_home = sqrtf(dist2_to_home);
   DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(DefaultChannel, DefaultDevice,
       &block_time, &stage_time,
+      &dist_home,
       &nav_block, &nav_stage,
       &horizontal_mode);
   if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {

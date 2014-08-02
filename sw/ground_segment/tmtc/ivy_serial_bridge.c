@@ -122,8 +122,8 @@ static void on_Navigation(IvyClientPtr app, void *user_data, int argc, char *arg
      <field name="cur_stage" type="uint8"/>
      <field name="pos_x" type="float" unit="m" format="%.1f"/>
      <field name="pos_y" type="float" unit="m" format="%.1f"/>
-     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
-     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+     <field name="dist_wp" type="float" format="%.1f" unit="m"/>
+     <field name="dist_home" type="float" format="%.1f" unit="m"/>
      <field name="circle_count" type="uint8"/>
      <field name="oval_count" type="uint8"/>
    </message>
@@ -261,8 +261,8 @@ void send_ivy(void)
      <field name="cur_stage" type="uint8"/>
      <field name="pos_x" type="float" unit="m" format="%.1f"/>
      <field name="pos_y" type="float" unit="m" format="%.1f"/>
-     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
-     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+     <field name="dist_wp" type="float" format="%.1f" unit="m"/>
+     <field name="dist_home" type="float" format="%.1f" unit="m"/>
      <field name="circle_count" type="uint8"/>
      <field name="oval_count" type="uint8"/>
    </message>

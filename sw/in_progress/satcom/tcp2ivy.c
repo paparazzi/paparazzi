@@ -328,8 +328,8 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
      <field name="cur_stage" type="uint8"/>
      <field name="pos_x" type="float" unit="m" format="%.1f"/>
      <field name="pos_y" type="float" unit="m" format="%.1f"/>
-     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
-     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+     <field name="dist_wp" type="float" format="%.1f" unit="m"/>
+     <field name="dist_home" type="float" format="%.1f" unit="m"/>
      <field name="circle_count" type="uint8"/>
      <field name="oval_count" type="uint8"/>
    </message>
@@ -340,8 +340,8 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0, // cur_stage
                 0, // pos_x
                 0, // pos_y
-                0, // dist2_wp
-                0, // dist2_home
+                0, // dist_wp
+                0, // dist_home
                 0, // circle_count
                 0); // oval_count
 

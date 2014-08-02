@@ -134,7 +134,7 @@ let _ =
   let course = ref None in (* deg *)
   let desired_course = ref 0. in (* deg *)
   let get_navigation = fun _ values ->
-    let distance = sqrt (Pprz.float_assoc "dist2_wp" values) in
+    let distance = (try sqrt (Pprz.float_assoc "dist2_wp" values) with _ -> Pprz.float_assoc "dist_wp" values) in
     draw da !desired_course !course distance in
   ignore (Tm_Pprz.message_bind "NAVIGATION" get_navigation);
   let get_gps = fun _ values ->
