@@ -1,0 +1,11 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="imu">
+      <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.phi" shortname="imu2body phi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PHI" unit="rad" alt_unit="deg" handler="SetBodyToImuPhi"/>
+      <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.theta" shortname="imu2body theta" module="subsystems/imu" param="IMU_BODY_TO_IMU_THETA" unit="rad" alt_unit="deg" handler="SetBodyToImuTheta"/>
+      <dl_setting MAX="180" MIN="-180" STEP="0.5" VAR="imu.body_to_imu.eulers_f.psi" shortname="imu2body psi" module="subsystems/imu" param="IMU_BODY_TO_IMU_PSI" unit="rad" alt_unit="deg" handler="SetBodyToImuPsi"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

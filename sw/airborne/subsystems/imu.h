@@ -143,4 +143,26 @@ extern void imu_float_init(void);
 #endif //ImuScaleMag
 
 
+static inline void imu_SetBodyToImuPhi(float phi) {
+  struct FloatEulers imu_to_body_eulers;
+  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  imu_to_body_eulers.phi = phi;
+  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+static inline void imu_SetBodyToImuTheta(float theta) {
+  struct FloatEulers imu_to_body_eulers;
+  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  imu_to_body_eulers.theta = theta;
+  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+static inline void imu_SetBodyToImuPsi(float psi) {
+  struct FloatEulers imu_to_body_eulers;
+  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  imu_to_body_eulers.psi = psi;
+  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+
 #endif /* IMU_H */
