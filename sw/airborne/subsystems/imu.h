@@ -30,7 +30,6 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
-#include "state.h"
 #include "generated/airframe.h"
 
 /* must be defined by underlying hardware */
@@ -78,6 +77,11 @@ extern struct ImuFloat imuf;
 
 extern void imu_init(void);
 extern void imu_float_init(void);
+extern void imu_SetBodyToImuPhi(float phi);
+extern void imu_SetBodyToImuTheta(float theta);
+extern void imu_SetBodyToImuPsi(float psi);
+extern void imu_SetBodyToImuCurrent(float set);
+extern void imu_ResetBodyToImu(float reset);
 
 #if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
 #define IMU_BODY_TO_IMU_PHI   0
@@ -144,49 +148,6 @@ extern void imu_float_init(void);
   }
 #endif //IMU_MAG_45_HACK
 #endif //ImuScaleMag
-
-
-static inline void imu_SetBodyToImuPhi(float phi) {
-  struct FloatEulers imu_to_body_eulers;
-  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
-  imu_to_body_eulers.phi = phi;
-  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
-}
-
-static inline void imu_SetBodyToImuTheta(float theta) {
-  struct FloatEulers imu_to_body_eulers;
-  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
-  imu_to_body_eulers.theta = theta;
-  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
-}
-
-static inline void imu_SetBodyToImuPsi(float psi) {
-  struct FloatEulers imu_to_body_eulers;
-  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
-  imu_to_body_eulers.psi = psi;
-  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
-}
-
-static inline void imu_SetBodyToImuCurrent(float set) {
-  imu.b2i_set_current = set;
-  if (imu.b2i_set_current) {
-    struct FloatEulers imu_to_body_eulers;
-    memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
-    // set to current roll and pitch
-    imu_to_body_eulers.phi = stateGetNedToBodyEulers_f()->phi;
-    imu_to_body_eulers.theta = stateGetNedToBodyEulers_f()->theta;
-    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
-  }
-}
-
-static inline void imu_ResetBodyToImu(float reset) {
-  imu.b2i_reset = reset;
-  if (imu.b2i_reset) {
-    struct FloatEulers imu_to_body_eulers =
-      {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
-    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
-  }
-}
 
 
 #endif /* IMU_H */

@@ -26,6 +26,7 @@
 
 #include BOARD_CONFIG
 #include "subsystems/imu.h"
+#include "state.h"
 
 #ifdef IMU_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -158,4 +159,46 @@ void imu_float_init(void) {
   struct FloatEulers body_to_imu_eulers =
     {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
+}
+
+void imu_SetBodyToImuPhi(float phi) {
+  struct FloatEulers imu_to_body_eulers;
+  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  imu_to_body_eulers.phi = phi;
+  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+void imu_SetBodyToImuTheta(float theta) {
+  struct FloatEulers imu_to_body_eulers;
+  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  imu_to_body_eulers.theta = theta;
+  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+void imu_SetBodyToImuPsi(float psi) {
+  struct FloatEulers imu_to_body_eulers;
+  memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+  imu_to_body_eulers.psi = psi;
+  orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+}
+
+void imu_SetBodyToImuCurrent(float set) {
+  imu.b2i_set_current = set;
+  if (imu.b2i_set_current) {
+    struct FloatEulers imu_to_body_eulers;
+    memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
+    // set to current roll and pitch
+    imu_to_body_eulers.phi = stateGetNedToBodyEulers_f()->phi;
+    imu_to_body_eulers.theta = stateGetNedToBodyEulers_f()->theta;
+    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+  }
+}
+
+void imu_ResetBodyToImu(float reset) {
+  imu.b2i_reset = reset;
+  if (imu.b2i_reset) {
+    struct FloatEulers imu_to_body_eulers =
+      {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+  }
 }
