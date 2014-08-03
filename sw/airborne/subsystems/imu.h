@@ -50,8 +50,11 @@ struct Imu {
   struct Int32Vect3 accel_unscaled;   ///< unscaled accelerometer measurements
   struct Int32Vect3 mag_unscaled;     ///< unscaled magnetometer measurements
   struct OrientationReps body_to_imu; ///< rotation from body to imu frame
-  bool_t b2i_set_current;             ///< flag for settings in order to set current roll and pitch as body_to_imu
-  bool_t b2i_reset;                   ///< flag for settings in order to reset body_to_imu to airframe defines
+
+  /** flag for adjusting body_to_imu via settings.
+   * if FALSE, reset to airframe values, if TRUE set current roll/pitch
+   */
+  bool_t b2i_set_current;
 };
 
 /** abstract IMU interface providing floating point interface  */

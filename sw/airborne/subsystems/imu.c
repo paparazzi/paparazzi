@@ -184,21 +184,27 @@ void imu_SetBodyToImuPsi(float psi) {
 
 void imu_SetBodyToImuCurrent(float set) {
   imu.b2i_set_current = set;
+
   if (imu.b2i_set_current) {
+    // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
     struct FloatEulers imu_to_body_eulers;
     memcpy(&imu_to_body_eulers, orientationGetEulers_f(&imu.body_to_imu), sizeof(struct FloatEulers));
-    // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
-    imu_to_body_eulers.phi += stateGetNedToBodyEulers_f()->phi;
-    imu_to_body_eulers.theta += stateGetNedToBodyEulers_f()->theta;
-    orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+    if (stateIsAttitudeValid()) {
+      // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
+      imu_to_body_eulers.phi += stateGetNedToBodyEulers_f()->phi;
+      imu_to_body_eulers.theta += stateGetNedToBodyEulers_f()->theta;
+      orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
+    }
+    else {
+      // indicate that we couldn't set to current roll/pitch
+      imu.b2i_set_current = FALSE;
+    }
   }
-}
-
-void imu_ResetBodyToImu(float reset) {
-  imu.b2i_reset = reset;
-  if (imu.b2i_reset) {
+  else {
+    // reset to BODY_TO_IMU as defined in airframe file
     struct FloatEulers imu_to_body_eulers =
       {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
     orientationSetEulers_f(&imu.body_to_imu, &imu_to_body_eulers);
   }
 }
+
