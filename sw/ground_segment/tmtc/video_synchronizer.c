@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
@@ -13,26 +14,39 @@
 #include <arpa/inet.h>
 
 
-
 #define DEBUGMESSAGES FALSE
 
+#define MODE_REPLAY 0
+#define MODE_CAPTURE 1
+
+#define MANUAL_REPLAY 0
+#define AUTO_REPLAY 1
 
 
+gboolean videoSyncTagFlag;
 float startVideoAfter;
+float timeTagInVideo;
 float logCurrentTime;
+float videoSyncTag;
 float currentPlayingTime;
 GtkWidget *spinButton;
+GtkWidget *spinButtonVideo;
+GtkWidget *flashWindow;
 GMainLoop *ml;
+uint8_t currentMode;
+uint8_t replayMode;
+uint16_t airframeID;
+
 
 //function taken from the mplayer project
-void send_udp(const char *send_to_ip, int port, char *mesg)
+void send_udp(const uint8_t *send_to_ip, int port, uint8_t *mesg)
 {
-  static int sockfd = -1;
+  static int16_t sockfd = -1;
   static struct sockaddr_in socketinfo;
 
   if (sockfd == -1) {
-    static const int one = 1;
-    int ip_valid = 0;
+    static const uint8_t one = 1;
+    uint8_t ip_valid = 0;
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     /*if (sockfd == -1)
@@ -64,39 +78,67 @@ void send_udp(const char *send_to_ip, int port, char *mesg)
 
 void sendCurrentPlayingTime(void)
 {
-  char current_time[256];
+  if (currentMode == MODE_REPLAY) {
+    uint8_t current_time[256];
 
-  sprintf(current_time, "%f", currentPlayingTime);
+    sprintf(current_time, "%f", currentPlayingTime);
 
 #if DEBUGMESSAGES
-  g_print("sendding value : %s\n", current_time);
+    g_print("sendding value : %s\n", current_time);
 #endif
 
-  send_udp("127.0.0.1", 23867, current_time);
+    send_udp("127.0.0.1", 23867, current_time);
+  }
 }
 
 
 void calcCurrentPlayingTime(void)
 {
-  float syncTime;
+
+  if (replayMode == MANUAL_REPLAY) {
+    float syncTime;
 
 #if DEBUGMESSAGES
-  g_print("log : %f; start : %f\n", logCurrentTime, startVideoAfter);
+    g_print("log : %f; start : %f\n", logCurrentTime, startVideoAfter);
 #endif
 
-  syncTime = logCurrentTime-startVideoAfter;
-  if(syncTime < 0.0) syncTime = 0.0;
+    syncTime = logCurrentTime-startVideoAfter;
+    if (syncTime < 0.0) syncTime = 0.0;
 
-  currentPlayingTime = syncTime;
+    currentPlayingTime = syncTime;
+  }else if (replayMode == AUTO_REPLAY) {
+    currentPlayingTime = logCurrentTime+timeTagInVideo-videoSyncTag;
+  }
+
 }
 
-static void on_Message(IvyClientPtr app, void *user_data, int argc, char *argv[])
+
+
+static void on_Message(IvyClientPtr app, void *user_data, int argc, uint8_t *argv[])
 {
   logCurrentTime = atof(argv[1]);
+
+  if (videoSyncTagFlag) {
+    videoSyncTag = logCurrentTime;
+    videoSyncTagFlag = FALSE;
+  }
+
+
 
   calcCurrentPlayingTime();
   sendCurrentPlayingTime();
 }
+
+static void on_Message_Video(IvyClientPtr app, void *user_data, int argc, uint8_t *argv[]){
+
+  videoSyncTagFlag = TRUE;
+}
+
+static void on_Airframe_ID(IvyClientPtr app, void *user_data, int argc, uint8_t *argv[]){
+
+  airframeID = atoi(argv[0]);
+}
+
 
 
 static gboolean __timeout_func(gpointer data)
@@ -110,15 +152,54 @@ static gboolean __timeout_func(gpointer data)
 }
 
 
+static gboolean __timeout_flashing_window(gpointer data){
+
+  static uint8_t i=0;
+
+  GdkColor black;
+  black.red = 0x0000;
+  black.green = 0x0000;
+  black.blue = 0x0000;
+
+  GdkColor white;
+  white.red = 0xFFFF;
+  white.green = 0xFFFF;
+  white.blue = 0xFFFF;
+
+
+  if (i<10) {
+      if (i%2) gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &black);
+      else gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
+  }
+  else {
+    gtk_widget_destroy(flashWindow);
+    i=0;
+    return FALSE;
+  }
+
+  i++;
+
+  return TRUE;
+}
+
+
 static void on_quit(GtkWidget *object, gpointer   user_data)
 {
   gtk_main_quit();
 }
 
 
-static void on_video_sync_changed(GtkWidget *widget, gpointer data)
-{
+static void on_video_sync_changed(GtkWidget *widget, gpointer data){
+
   startVideoAfter = gtk_spin_button_get_value_as_float((GtkSpinButton *)spinButton);
+
+  calcCurrentPlayingTime();
+  sendCurrentPlayingTime();
+}
+
+static void on_video_time_tag_changed(GtkWidget *widget, gpointer data){
+
+  timeTagInVideo = gtk_spin_button_get_value_as_float((GtkSpinButton *)spinButtonVideo);
 
   calcCurrentPlayingTime();
   sendCurrentPlayingTime();
@@ -126,16 +207,62 @@ static void on_video_sync_changed(GtkWidget *widget, gpointer data)
 
 
 
-int main ( int argc, char** argv)
+
+static void on_sync_clicked(GtkButton *button, gpointer user_data){
+
+  static uint8_t syncID = 1;
+
+  IvySendMsg("%d VIDEO_SYNC %d", airframeID, syncID);  //TODO : get the current airframe ID
+
+  //craete a flashing window in full screen for the camera to see
+  flashWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+  GdkColor white;
+  white.red = 0xFFFF;
+  white.green = 0xFFFF;
+  white.blue = 0xFFFF;
+  gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
+
+  GtkWidget *box = gtk_hbox_new(FALSE, 0);
+  gtk_window_fullscreen(flashWindow);
+  gtk_widget_show_all(flashWindow);
+
+  g_timeout_add(100 , __timeout_flashing_window , ml);
+
+
+  //TODO : play a sound (the number of the synchronisation). see speech option of the GCS
+}
+
+static void on_change_mode(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data){
+
+  currentMode = page_num;
+}
+
+static void on_change_replay(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data){
+
+  replayMode = page_num;
+}
+
+
+
+uint8_t main(int argc, uint8_t** argv)
 {
   currentPlayingTime = 0.0;
   startVideoAfter = 0.0;
 
+  airframeID = 1;
+
+  currentMode = MODE_REPLAY;
+  replayMode = MANUAL_REPLAY;
+
+
   ml =  g_main_loop_new(NULL, FALSE);
-  g_timeout_add (1000 , __timeout_func , ml);
+  g_timeout_add(1000 , __timeout_func , ml);
 
   IvyInit("Video Synchronizer", "Video Synchronizer READY", NULL, NULL, NULL, NULL);
   IvyBindMsg(on_Message, NULL, "^time(\\S*) (\\S*)");
+  IvyBindMsg(on_Message_Video, NULL, "^(\\S*) VIDEO_SYNC(\\S*) (\\S*)");
+  IvyBindMsg(on_Airframe_ID, NULL, "^replay(\\S*) PONG(\\S*) (\\S*)");
 
 #ifdef __APPLE__
   IvyStart("224.255.255.255");
@@ -150,33 +277,84 @@ int main ( int argc, char** argv)
 
   gtk_init(&argc, &argv);
 
-  GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (window), "Video synchronizer");
+  GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title(GTK_WINDOW(window), "Video synchronizer");
   g_signal_connect(GTK_OBJECT(window), "destroy", G_CALLBACK(on_quit), NULL);
 
+
+  GtkNotebook *tab = gtk_notebook_new();
+  g_signal_connect(GTK_OBJECT(tab), "switch-page", G_CALLBACK(on_change_mode), NULL);
+
+
+  GtkNotebook *tabReplay = gtk_notebook_new();
+  g_signal_connect(GTK_OBJECT(tabReplay), "switch-page", G_CALLBACK(on_change_replay), NULL);
+
+  //Manual mode
   //create a box to align the widgets
   //false -> unheaven sizes; 0 space between widgets
-  GtkWidget *box = gtk_hbox_new (FALSE, 0);
+  GtkWidget *box = gtk_hbox_new(FALSE, 0);
 
   //add a label to explain the values to enter
   GtkWidget *label = gtk_label_new("How long the video must be started \nafter the log file (may be negative) : ");
-  gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
-  gtk_widget_show (label);
+  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_widget_show(label);
 
   //add a spinbutton (to enter the value of the video synchronisation)
   //startValue, lower, upper, step_increment, page_increment, page_size
-  GtkAdjustment *adj = (GtkAdjustment *) gtk_adjustment_new (0.0, -999999999999.99, 999999999999.99, 0.1, 1.0, 0.0);
+  GtkAdjustment *adj = (GtkAdjustment *) gtk_adjustment_new(0.0, -999999999999.99, 999999999999.99, 0.1, 1.0, 0.0);
   spinButton = gtk_spin_button_new(adj, 0.1, 1);
-  g_signal_connect(GTK_OBJECT (adj), "value_changed", G_CALLBACK(on_video_sync_changed), NULL);
-  gtk_box_pack_start (GTK_BOX (box), spinButton, TRUE, TRUE, 0);
-  gtk_widget_show (spinButton);
+  g_signal_connect(GTK_OBJECT(adj), "value_changed", G_CALLBACK(on_video_sync_changed), NULL);
+  gtk_box_pack_start(GTK_BOX(box), spinButton, TRUE, TRUE, 0);
+  gtk_widget_show(spinButton);
 
   //add the unit label at the end of the window
   label = gtk_label_new("s");
-  gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 0);
-  gtk_widget_show (label);
+  gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+  gtk_widget_show(label);
 
-  gtk_container_add (GTK_CONTAINER (window), box);
+  gtk_notebook_append_page(tabReplay, box, gtk_label_new("Manual"));
+
+
+  //Auto mode
+  //create a box to align the widgets
+  //false -> unheaven sizes; 0 space between widgets
+  GtkWidget *boxAuto = gtk_hbox_new(FALSE, 0);
+
+  //add a label to explain the values to enter
+  label = gtk_label_new("At what time is the clap in the video : ");
+  gtk_box_pack_start(GTK_BOX(boxAuto), label, FALSE, FALSE, 0);
+  gtk_widget_show(label);
+
+  //add a spinbutton (to enter the value of the video synchronisation)
+  //startValue, lower, upper, step_increment, page_increment, page_size
+  GtkAdjustment *adjAuto = (GtkAdjustment *) gtk_adjustment_new(0.0, 0.00, 999999999999.99, 0.1, 1.0, 0.0);
+  spinButtonVideo = gtk_spin_button_new(adjAuto, 0.1, 1);
+  g_signal_connect(GTK_OBJECT(adjAuto), "value_changed", G_CALLBACK(on_video_time_tag_changed), NULL);
+  gtk_box_pack_start(GTK_BOX(boxAuto), spinButtonVideo, TRUE, TRUE, 0);
+  gtk_widget_show(spinButtonVideo);
+
+  //add the unit label at the end of the window
+  label = gtk_label_new("s");
+  gtk_box_pack_start(GTK_BOX(boxAuto), label, FALSE, FALSE, 0);
+  gtk_widget_show(label);
+
+  gtk_notebook_append_page(tabReplay, boxAuto, gtk_label_new("Auto"));
+
+
+  //create the capture page
+  GtkWidget *captureBox = gtk_hbox_new(FALSE, 0);
+
+  GtkWidget *button = gtk_button_new_with_label("sync");
+  gtk_box_pack_start(GTK_BOX(captureBox), button, FALSE, FALSE, 0);
+  g_signal_connect(GTK_OBJECT(button), "clicked", G_CALLBACK(on_sync_clicked), NULL);
+  gtk_widget_show(button);
+
+
+  gtk_notebook_append_page(tab, tabReplay, gtk_label_new("Replay"));
+  gtk_notebook_append_page(tab, captureBox, gtk_label_new("Capture"));
+
+  gtk_container_add(GTK_CONTAINER(window), tab);
+
 
   gtk_widget_show_all(window);
   gtk_main();

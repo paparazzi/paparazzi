@@ -1938,7 +1938,10 @@
  <!--222 is free -->
  <!--223 is free -->
  <!--224 is free -->
- <!--225 is free -->
+
+  <message name="VIDEO_SYNC" id="225">
+    <field name="id" type="uint8"/>
+  </message>
 
   <message name="PERIODIC_TELEMETRY_ERR" id="226">
     <field name="process" type="uint8"/>
