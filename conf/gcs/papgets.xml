@@ -54,8 +54,8 @@
         <property name="color" value="white"/>
       </papget>
 
-      <papget type="expression" display="text" x="600" y="422">
-        <property name="expr" value="NAVIGATION.dist2_home ** 0.5"/>
+      <papget type="message_field" display="text" x="600" y="422">
+        <property name="field" value="NAVIGATION.dist_home"/>
         <property name="size" value="15."/>
         <property name="format" value="HOME dist: %.1fm"/>
         <property name="color" value="white"/>
