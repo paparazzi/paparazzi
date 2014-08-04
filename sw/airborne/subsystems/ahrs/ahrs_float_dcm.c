@@ -124,20 +124,14 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
 
-  /*
-   * Initialises our IMU alignement variables
-   * This should probably done in the IMU code instead
-   */
-  struct FloatEulers body_to_imu_euler =
-    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
-  FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);
-
-  EULERS_COPY(ahrs_impl.ltp_to_imu_euler, body_to_imu_euler);
+  /* Set ltp_to_imu so that body is zero */
+  memcpy(&ahrs_impl.ltp_to_imu_euler, orientationGetEulers_f(&imu.body_to_imu),
+         sizeof(struct FloatEulers));
 
   FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
 
   /* set inital filter dcm */
-  set_dcm_matrix_from_rmat(&ahrs_impl.body_to_imu_rmat);
+  set_dcm_matrix_from_rmat(orientationGetRMat_f(&imu.body_to_imu));
 
   ahrs_impl.gps_speed = 0;
   ahrs_impl.gps_acceleration = 0;
@@ -387,7 +381,7 @@ void Normalize(void)
 
   // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
-    set_dcm_matrix_from_rmat(&ahrs_impl.body_to_imu_rmat);
+    set_dcm_matrix_from_rmat(orientationGetRMat_f(&imu.body_to_imu));
     problem = FALSE;
   }
 }
@@ -534,13 +528,15 @@ void Matrix_update(void)
  */
 static inline void set_body_orientation_and_rates(void) {
 
+  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&imu.body_to_imu);
+
   struct FloatRates body_rate;
-  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, ahrs_impl.body_to_imu_rmat, ahrs_impl.imu_rate);
+  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
   stateSetBodyRates_f(&body_rate);
 
   struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
   FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
-  FLOAT_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
+  FLOAT_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, *body_to_imu_rmat);
 
   // Some stupid lines of code for neutrals
   struct FloatEulers ltp_to_body_euler;

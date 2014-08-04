@@ -29,6 +29,7 @@
 
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_orientation_conversion.h"
 #include "generated/airframe.h"
 
 /* must be defined by underlying hardware */
@@ -48,8 +49,12 @@ struct Imu {
   struct Int32Rates gyro_unscaled;    ///< unscaled gyroscope measurements
   struct Int32Vect3 accel_unscaled;   ///< unscaled accelerometer measurements
   struct Int32Vect3 mag_unscaled;     ///< unscaled magnetometer measurements
-  struct Int32Quat  body_to_imu_quat; ///< rotation from body to imu frame as a unit quaternion
-  struct Int32RMat  body_to_imu_rmat; ///< rotation from body to imu frame as a rotation matrix
+  struct OrientationReps body_to_imu; ///< rotation from body to imu frame
+
+  /** flag for adjusting body_to_imu via settings.
+   * if FALSE, reset to airframe values, if TRUE set current roll/pitch
+   */
+  bool_t b2i_set_current;
 };
 
 /** abstract IMU interface providing floating point interface  */
@@ -58,9 +63,7 @@ struct ImuFloat {
   struct FloatVect3   accel;
   struct FloatVect3   mag;
   struct FloatRates   gyro_prev;
-  struct FloatEulers  body_to_imu_eulers;
-  struct FloatQuat    body_to_imu_quat;
-  struct FloatRMat    body_to_imu_rmat;
+  struct OrientationReps body_to_imu; ///< rotation from body to imu frame
   uint32_t sample_count;
 };
 
@@ -77,6 +80,11 @@ extern struct ImuFloat imuf;
 
 extern void imu_init(void);
 extern void imu_float_init(void);
+extern void imu_SetBodyToImuPhi(float phi);
+extern void imu_SetBodyToImuTheta(float theta);
+extern void imu_SetBodyToImuPsi(float psi);
+extern void imu_SetBodyToImuCurrent(float set);
+extern void imu_ResetBodyToImu(float reset);
 
 #if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
 #define IMU_BODY_TO_IMU_PHI   0

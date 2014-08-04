@@ -197,7 +197,8 @@ void ahrs_init(void) {
   ahrs_impl.heading_aligned = FALSE;
 
   /* set ltp_to_imu so that body is zero */
-  QUAT_COPY(ahrs_impl.ltp_to_imu_quat, imu.body_to_imu_quat);
+  memcpy(&ahrs_impl.ltp_to_imu_quat, orientationGetQuat_i(&imu.body_to_imu),
+         sizeof(struct Int32Quat));
   INT_RATES_ZERO(ahrs_impl.imu_rate);
 
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
@@ -343,7 +344,8 @@ void ahrs_update_accel(void) {
 
     /* convert centrifucal acceleration from body to imu frame */
     struct Int32Vect3 acc_c_imu;
-    INT32_RMAT_VMULT(acc_c_imu, imu.body_to_imu_rmat, acc_c_body);
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+    INT32_RMAT_VMULT(acc_c_imu, *body_to_imu_rmat, acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement
      * of the gravity vector */
@@ -679,7 +681,8 @@ void ahrs_realign_heading(int32_t heading) {
   QUAT_COPY(ltp_to_body_quat, q);
 
   /* compute ltp to imu rotations */
-  INT32_QUAT_COMP(ahrs_impl.ltp_to_imu_quat, ltp_to_body_quat, imu.body_to_imu_quat);
+  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&imu.body_to_imu);
+  INT32_QUAT_COMP(ahrs_impl.ltp_to_imu_quat, ltp_to_body_quat, *body_to_imu_quat);
 
   /* Set state */
   stateSetNedToBodyQuat_i(&ltp_to_body_quat);
@@ -692,7 +695,8 @@ void ahrs_realign_heading(int32_t heading) {
 static inline void set_body_state_from_quat(void) {
   /* Compute LTP to BODY quaternion */
   struct Int32Quat ltp_to_body_quat;
-  INT32_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, imu.body_to_imu_quat);
+  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&imu.body_to_imu);
+  INT32_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, *body_to_imu_quat);
   /* Set state */
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
   struct Int32Eulers neutrals_to_body_eulers = {
@@ -710,7 +714,8 @@ static inline void set_body_state_from_quat(void) {
 
   /* compute body rates */
   struct Int32Rates body_rate;
-  INT32_RMAT_TRANSP_RATEMULT(body_rate, imu.body_to_imu_rmat, ahrs_impl.imu_rate);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  INT32_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
   /* Set state */
   stateSetBodyRates_i(&body_rate);
 }

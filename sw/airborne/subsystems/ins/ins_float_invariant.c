@@ -357,10 +357,11 @@ void ahrs_propagate(void) {
 
   // fill command vector
   struct Int32Rates gyro_meas_body;
-  INT32_RMAT_TRANSP_RATEMULT(gyro_meas_body, imu.body_to_imu_rmat, imu.gyro);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  INT32_RMAT_TRANSP_RATEMULT(gyro_meas_body, *body_to_imu_rmat, imu.gyro);
   RATES_FLOAT_OF_BFP(ins_impl.cmd.rates, gyro_meas_body);
   struct Int32Vect3 accel_meas_body;
-  INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+  INT32_RMAT_TRANSP_VMULT(accel_meas_body, *body_to_imu_rmat, imu.accel);
   ACCELS_FLOAT_OF_BFP(ins_impl.cmd.accel, accel_meas_body);
 
   // update correction gains

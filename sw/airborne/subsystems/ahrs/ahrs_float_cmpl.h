@@ -56,14 +56,6 @@ struct AhrsFloatCmpl {
 
   bool_t heading_aligned;
   struct FloatVect3 mag_h;
-
-  /*
-     Holds float version of IMU alignement
-     in order to be able to run against the fixed point
-     version of the IMU
-  */
-  struct FloatQuat body_to_imu_quat;
-  struct FloatRMat body_to_imu_rmat;
 };
 
 extern struct AhrsFloatCmpl ahrs_impl;
