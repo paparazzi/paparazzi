@@ -390,9 +390,8 @@ let get_icon_and_track_size = fun af_xml ->
   try
     (* search AC_ICON in GCS section *)
     let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
-    let fvalue = fun name default ->
-      try ExtXml.attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
-    match fvalue "AC_ICON" "fixedwing" with
+    let ac_icon = ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = "AC_ICON") "define" in
+    match ExtXml.attrib ac_icon "value" with
     | "home" -> ("home", 1) (* no track for home icon *)
     | x -> (x, !track_size)
   with _ -> (firmware_name, !track_size)
