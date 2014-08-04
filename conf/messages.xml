@@ -1436,6 +1436,7 @@
     <field name="block_time" type="uint16" unit="s"/>
     <field name="stage_time" type="uint16" unit="s"/>
     <field name="dist_home" type="float" format="%.1f" unit="m"/>
+    <field name="dist_wp" type="float" format="%.1f" unit="m"/>
     <field name="cur_block" type="uint8"/>
     <field name="cur_stage" type="uint8"/>
     <field name="horizontal_mode" type="uint8"/>
