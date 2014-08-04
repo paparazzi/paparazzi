@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2014 karlito139
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
+
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
@@ -39,14 +61,14 @@ uint16_t airframeID;
 
 
 //function taken from the mplayer project
-void send_udp(const uint8_t *send_to_ip, int port, uint8_t *mesg)
+void send_udp(const char *send_to_ip, int port, char *mesg)
 {
   static int16_t sockfd = -1;
   static struct sockaddr_in socketinfo;
 
   if (sockfd == -1) {
     static const uint8_t one = 1;
-    uint8_t ip_valid = 0;
+    int ip_valid = 0;
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     /*if (sockfd == -1)
@@ -71,7 +93,7 @@ void send_udp(const uint8_t *send_to_ip, int port, uint8_t *mesg)
     socketinfo.sin_port   = htons(port);
   }
 
-  sendto(sockfd, mesg, strlen(mesg), 0, (struct sockaddr *) &socketinfo,
+  sendto(sockfd, mesg, (size_t)strlen(mesg), 0, (struct sockaddr *) &socketinfo,
          sizeof(socketinfo));
 }
 
@@ -79,7 +101,7 @@ void send_udp(const uint8_t *send_to_ip, int port, uint8_t *mesg)
 void sendCurrentPlayingTime(void)
 {
   if (currentMode == MODE_REPLAY) {
-    uint8_t current_time[256];
+    char current_time[256];
 
     sprintf(current_time, "%f", currentPlayingTime);
 
@@ -94,7 +116,6 @@ void sendCurrentPlayingTime(void)
 
 void calcCurrentPlayingTime(void)
 {
-
   if (replayMode == MANUAL_REPLAY) {
     float syncTime;
 
@@ -106,15 +127,14 @@ void calcCurrentPlayingTime(void)
     if (syncTime < 0.0) syncTime = 0.0;
 
     currentPlayingTime = syncTime;
-  }else if (replayMode == AUTO_REPLAY) {
+  } else if (replayMode == AUTO_REPLAY) {
     currentPlayingTime = logCurrentTime+timeTagInVideo-videoSyncTag;
   }
-
 }
 
 
 
-static void on_Message(IvyClientPtr app, void *user_data, int argc, uint8_t *argv[])
+static void on_Message(IvyClientPtr app, void *user_data, int argc, char *argv[])
 {
   logCurrentTime = atof(argv[1]);
 
@@ -123,19 +143,17 @@ static void on_Message(IvyClientPtr app, void *user_data, int argc, uint8_t *arg
     videoSyncTagFlag = FALSE;
   }
 
-
-
   calcCurrentPlayingTime();
   sendCurrentPlayingTime();
 }
 
-static void on_Message_Video(IvyClientPtr app, void *user_data, int argc, uint8_t *argv[]){
-
+static void on_Message_Video(IvyClientPtr app, void *user_data, int argc, char *argv[])
+{
   videoSyncTagFlag = TRUE;
 }
 
-static void on_Airframe_ID(IvyClientPtr app, void *user_data, int argc, uint8_t *argv[]){
-
+static void on_Airframe_ID(IvyClientPtr app, void *user_data, int argc, char *argv[])
+{
   airframeID = atoi(argv[0]);
 }
 
@@ -165,7 +183,6 @@ static gboolean __timeout_flashing_window(gpointer data){
   white.red = 0xFFFF;
   white.green = 0xFFFF;
   white.blue = 0xFFFF;
-
 
   if (i<10) {
       if (i%2) gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &black);
@@ -214,7 +231,7 @@ static void on_sync_clicked(GtkButton *button, gpointer user_data){
 
   IvySendMsg("%d VIDEO_SYNC %d", airframeID, syncID);  //TODO : get the current airframe ID
 
-  //craete a flashing window in full screen for the camera to see
+  // create a flashing window in full screen for the camera to see
   flashWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
   GdkColor white;
@@ -223,12 +240,11 @@ static void on_sync_clicked(GtkButton *button, gpointer user_data){
   white.blue = 0xFFFF;
   gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
 
-  GtkWidget *box = gtk_hbox_new(FALSE, 0);
-  gtk_window_fullscreen(flashWindow);
+  gtk_hbox_new(FALSE, 0);
+  gtk_window_fullscreen((GtkWindow*)flashWindow);
   gtk_widget_show_all(flashWindow);
 
   g_timeout_add(100 , __timeout_flashing_window , ml);
-
 
   //TODO : play a sound (the number of the synchronisation). see speech option of the GCS
 }
@@ -245,7 +261,7 @@ static void on_change_replay(GtkNotebook *notebook, GtkWidget *page, guint page_
 
 
 
-uint8_t main(int argc, uint8_t** argv)
+int main(int argc, char** argv)
 {
   currentPlayingTime = 0.0;
   startVideoAfter = 0.0;
@@ -282,11 +298,11 @@ uint8_t main(int argc, uint8_t** argv)
   g_signal_connect(GTK_OBJECT(window), "destroy", G_CALLBACK(on_quit), NULL);
 
 
-  GtkNotebook *tab = gtk_notebook_new();
+  GtkNotebook *tab = (GtkNotebook*)gtk_notebook_new();
   g_signal_connect(GTK_OBJECT(tab), "switch-page", G_CALLBACK(on_change_mode), NULL);
 
 
-  GtkNotebook *tabReplay = gtk_notebook_new();
+  GtkNotebook *tabReplay = (GtkNotebook*)gtk_notebook_new();
   g_signal_connect(GTK_OBJECT(tabReplay), "switch-page", G_CALLBACK(on_change_replay), NULL);
 
   //Manual mode
@@ -350,14 +366,14 @@ uint8_t main(int argc, uint8_t** argv)
   gtk_widget_show(button);
 
 
-  gtk_notebook_append_page(tab, tabReplay, gtk_label_new("Replay"));
-  gtk_notebook_append_page(tab, captureBox, gtk_label_new("Capture"));
+  gtk_notebook_append_page(tab, (GtkWidget*)tabReplay, gtk_label_new("Replay"));
+  gtk_notebook_append_page(tab, (GtkWidget*)captureBox, gtk_label_new("Capture"));
 
-  gtk_container_add(GTK_CONTAINER(window), tab);
-
+  gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)tab);
 
   gtk_widget_show_all(window);
   gtk_main();
 
   return 0;
 }
+

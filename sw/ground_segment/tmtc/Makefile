@@ -149,7 +149,8 @@ c_ivy_client_example_3: c_ivy_client_example_3.c
 	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 video_synchronizer: video_synchronizer.c
-	$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
+	@echo OL $@
+	$(Q)$(CC) $(GTK_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 ivy_serial_bridge: ivy_serial_bridge.c
 	@echo OL $@
