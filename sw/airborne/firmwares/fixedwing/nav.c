@@ -57,6 +57,7 @@ float nav_radius, nav_course, nav_climb, nav_shift;
 
 /** Status on the current leg (percentage, 0. < < 1.) in route mode */
 static float nav_leg_progress;
+static float nav_carrot_leg_progress;
 
 /** length of the current leg (m) */
 static float nav_leg_length;
@@ -384,7 +385,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   /** distance of carrot (in meter) */
   float carrot = CARROT * NOMINAL_AIRSPEED;
 
-  nav_leg_progress += Max(carrot / nav_leg_length, 0.);
+  nav_carrot_leg_progress = nav_leg_progress + Max(carrot / nav_leg_length, 0.);
   nav_in_segment = TRUE;
   nav_segment_x_1 = last_wp_x;
   nav_segment_y_1 = last_wp_y;
@@ -392,7 +393,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y) {
   nav_segment_y_2 = wp_y;
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
 
-  fly_to_xy(last_wp_x + nav_leg_progress*leg_x +nav_shift*leg_y/nav_leg_length, last_wp_y + nav_leg_progress*leg_y-nav_shift*leg_x/nav_leg_length);
+  fly_to_xy(last_wp_x + nav_carrot_leg_progress*leg_x +nav_shift*leg_y/nav_leg_length, last_wp_y + nav_carrot_leg_progress*leg_y-nav_shift*leg_x/nav_leg_length);
 }
 
 #include "subsystems/navigation/common_nav.c"
