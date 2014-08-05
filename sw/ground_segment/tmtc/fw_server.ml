@@ -187,7 +187,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     | "NAVIGATION" ->
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
-      a.dist_to_wp <- sqrt (fvalue "dist2_wp")
+      a.dist_to_wp <- (try sqrt (fvalue "dist2_wp") with _ -> fvalue "dist_wp");
     | "BAT" ->
       a.throttle <- fvalue "throttle" /. 9600. *. 100.;
       a.kill_mode <- ivalue "kill_auto_throttle" <> 0;

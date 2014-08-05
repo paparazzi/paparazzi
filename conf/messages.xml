@@ -91,8 +91,8 @@
      <field name="cur_stage" type="uint8"/>
      <field name="pos_x" type="float" unit="m" format="%.1f"/>
      <field name="pos_y" type="float" unit="m" format="%.1f"/>
-     <field name="dist2_wp" type="float" format="%.1f" unit="m^2"/>
-     <field name="dist2_home" type="float" format="%.1f" unit="m^2"/>
+     <field name="dist_wp" type="float" format="%.1f" unit="m"/>
+     <field name="dist_home" type="float" format="%.1f" unit="m"/>
      <field name="circle_count" type="uint8"/>
      <field name="oval_count" type="uint8"/>
    </message>
@@ -1435,6 +1435,8 @@
   <message name="ROTORCRAFT_NAV_STATUS" id="159">
     <field name="block_time" type="uint16" unit="s"/>
     <field name="stage_time" type="uint16" unit="s"/>
+    <field name="dist_home" type="float" format="%.1f" unit="m"/>
+    <field name="dist_wp" type="float" format="%.1f" unit="m"/>
     <field name="cur_block" type="uint8"/>
     <field name="cur_stage" type="uint8"/>
     <field name="horizontal_mode" type="uint8"/>

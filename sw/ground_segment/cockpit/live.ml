@@ -1166,7 +1166,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     (* Estimated Time Arrival to next waypoint *)
     let d = Pprz.float_assoc "dist_to_wp" vs in
     let label =
-      if d = 0. || ac.speed = 0. then
+      if d < 0.5 || ac.speed < 0.5 then
         "N/A"
       else
         sprintf "%.0fs" (d /. ac.speed) in

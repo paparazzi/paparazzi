@@ -74,6 +74,10 @@ extern float dist2_to_home;      ///< squared distance to home waypoint
 extern bool_t too_far_from_home;
 extern float failsafe_mode_dist2; ///< maximum squared distance to home wp before going to failsafe mode
 
+extern float dist2_to_wp;       ///< squared distance to next waypoint
+
+extern float get_dist2_to_waypoint(uint8_t wp_id);
+extern float get_dist2_to_point(struct EnuCoor_i *p);
 extern void compute_dist2_to_home(void);
 extern void nav_home(void);
 
@@ -121,6 +125,7 @@ extern bool_t nav_set_heading_current(void);
 #define NavGotoWaypoint(_wp) { \
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
   INT32_VECT3_COPY( navigation_target, waypoints[_wp]); \
+  dist2_to_wp = get_dist2_to_waypoint(_wp); \
 }
 
 /*********** Navigation on a circle **************************************/

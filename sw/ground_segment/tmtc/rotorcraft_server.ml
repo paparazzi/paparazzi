@@ -205,7 +205,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
       a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
-  (*a.dist_to_wp <- sqrt (fvalue "dist2_wp")*)
+      a.dist_to_wp <- (try fvalue "dist_wp" with _ -> 0.);
     | "WP_MOVED_ENU" ->
       begin
         match a.nav_ref with

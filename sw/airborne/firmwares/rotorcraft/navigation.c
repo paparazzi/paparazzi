@@ -69,6 +69,8 @@ float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
 float dist2_to_home;
 bool_t too_far_from_home;
 
+float dist2_to_wp;
+
 uint8_t horizontal_mode;
 struct EnuCoor_i nav_segment_start, nav_segment_end;
 struct EnuCoor_i nav_circle_center;
@@ -105,8 +107,11 @@ static inline void nav_set_altitude( void );
 #include "subsystems/datalink/telemetry.h"
 
 static void send_nav_status(void) {
+  float dist_home = sqrtf(dist2_to_home);
+  float dist_wp = sqrtf(dist2_to_wp);
   DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(DefaultChannel, DefaultDevice,
       &block_time, &stage_time,
+      &dist_home, &dist_wp,
       &nav_block, &nav_stage,
       &horizontal_mode);
   if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {
@@ -167,6 +172,7 @@ void nav_init(void) {
 
   too_far_from_home = FALSE;
   dist2_to_home = 0;
+  dist2_to_wp = 0;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_NAV_STATUS", send_nav_status);
@@ -212,6 +218,7 @@ void nav_run(void) {
 void nav_circle(struct EnuCoor_i * wp_center, int32_t radius) {
   if (radius == 0) {
     VECT2_COPY(navigation_target, *wp_center);
+    dist2_to_wp = get_dist2_to_point(wp_center);
   }
   else {
     struct Int32Vect2 pos_diff;
@@ -277,6 +284,8 @@ void nav_route(struct EnuCoor_i * wp_start, struct EnuCoor_i * wp_end) {
   nav_segment_start = *wp_start;
   nav_segment_end = *wp_end;
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
+
+  dist2_to_wp = get_dist2_to_point(wp_end);
 }
 
 bool_t nav_approaching_from(struct EnuCoor_i * wp, struct EnuCoor_i * from, int16_t approaching_time) {
@@ -387,6 +396,8 @@ void nav_init_stage( void ) {
 void nav_periodic_task(void) {
   RunOnceEvery(16, { stage_time++;  block_time++; });
 
+  dist2_to_wp = 0;
+
   /* from flight_plan.h */
   auto_nav();
 
@@ -452,19 +463,31 @@ void nav_home(void) {
   nav_altitude = waypoints[WP_HOME].z;
   nav_flight_altitude = nav_altitude;
 
+  dist2_to_wp = dist2_to_home;
+
   /* run carrot loop */
   nav_run();
+}
+
+/** Returns squared horizontal distance to given point */
+float get_dist2_to_point(struct EnuCoor_i *p) {
+  struct EnuCoor_f* pos = stateGetPositionEnu_f();
+  struct FloatVect2 pos_diff;
+  pos_diff.x = POS_FLOAT_OF_BFP(p->x) - pos->x;
+  pos_diff.y = POS_FLOAT_OF_BFP(p->y) - pos->y;
+  return pos_diff.x * pos_diff.x + pos_diff.y * pos_diff.y;
+}
+
+/** Returns squared horizontal distance to given waypoint */
+float get_dist2_to_waypoint(uint8_t wp_id) {
+  return get_dist2_to_point(&waypoints[wp_id]);
 }
 
 /** Computes squared distance to the HOME waypoint potentially sets
  * #too_far_from_home
  */
 void compute_dist2_to_home(void) {
-  struct EnuCoor_i* pos = stateGetPositionEnu_i();
-  struct Int32Vect2 home_d;
-  VECT2_DIFF(home_d, waypoints[WP_HOME], *pos);
-  INT32_VECT2_RSHIFT(home_d, home_d, INT32_POS_FRAC);
-  dist2_to_home = (float)(home_d.x * home_d.x + home_d.y * home_d.y);
+  dist2_to_home = get_dist2_to_waypoint(WP_HOME);
   too_far_from_home = dist2_to_home > max_dist2_from_home;
 }
 
