@@ -259,7 +259,18 @@ static void on_change_replay(GtkNotebook *notebook, GtkWidget *page, guint page_
   replayMode = page_num;
 }
 
+GdkPixbuf *create_pixbuf(const gchar * filename)
+{
+   GdkPixbuf *pixbuf;
+   GError *error = NULL;
+   pixbuf = gdk_pixbuf_new_from_file(filename, &error);
+   if(!pixbuf) {
+      fprintf(stderr, "%s\n", error->message);
+      g_error_free(error);
+   }
 
+   return pixbuf;
+}
 
 int main(int argc, char** argv)
 {
@@ -370,6 +381,7 @@ int main(int argc, char** argv)
   gtk_notebook_append_page(tab, (GtkWidget*)captureBox, gtk_label_new("Capture"));
 
   gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)tab);
+  gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("data/pictures/penguin_icon.png"));
 
   gtk_widget_show_all(window);
   gtk_main();
