@@ -228,7 +228,7 @@
     <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
-    <define name="AGAIN" value="100"/>
+    <define name="AGAIN" value="70"/>
     <define name="IGAIN" value="20"/>
   </section>
 

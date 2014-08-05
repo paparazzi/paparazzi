@@ -185,7 +185,7 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="50"/>
     <define name="DGAIN" value="100"/>
-    <define name="AGAIN" value="100"/>
+    <define name="AGAIN" value="70"/>
     <define name="IGAIN" value="20"/>
   </section>
 
