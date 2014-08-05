@@ -213,10 +213,6 @@
     <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
     <define name="TRANSITION_MAX_OFFSET" value="-82.0" unit="deg"/>
     <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value=" {1,1,-1,-1,1,-1,1,1,1,1,1,1}"/>
-
-
-    <define name="USE_AIRSPEED" value="TRUE"/>
-    <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
   </section>
 
   <modules main_freq="512">
@@ -230,6 +226,7 @@
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <load name="airspeed_ets.xml">
+      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>
 
@@ -248,6 +245,10 @@
       <!-- To use an airspeed sensor on I2C, enable I2C2-->
       <define name="USE_I2C2"/>
 
+      <define name="USE_AIRSPEED" value="TRUE"/>
+
+      <!-- on aspirin 2.1 the ms5611 baro is not connected via SPI, use BMP085 on Lisa/M board instead -->
+      <configure name="LISA_M_BARO" value="BARO_BOARD_BMP085"/>
       <!-- If using aspirin 2.2, make sure to uncomment the following barometer configuration: -->
       <!--       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/> -->
     </target>

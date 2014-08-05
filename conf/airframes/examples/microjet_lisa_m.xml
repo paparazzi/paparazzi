@@ -14,6 +14,7 @@
       <subsystem name="fdm" type="jsbsim"/>
     </target>
     <target name="ap"   board="lisa_m_2.0">
+      <!-- baro board options for Lisa/M 2.0: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->
       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>

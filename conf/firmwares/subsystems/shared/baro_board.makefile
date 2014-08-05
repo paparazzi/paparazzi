@@ -31,8 +31,13 @@ else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
 
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
-# defaults to i2c baro bmp085 on the board
-LISA_M_BARO ?= BARO_BOARD_BMP085
+  ifeq ($(BOARD_VERSION), 1.0)
+    # on lisa_m_1.0: defaults to i2c baro bmp085 on the board
+    LISA_M_BARO ?= BARO_BOARD_BMP085
+  else ifeq ($(BOARD_VERSION), 2.0)
+    # on lisa_m_2.0: defaults to MS5611 baro connected via SPI on Aspirin2.2
+    LISA_M_BARO ?= BARO_MS5611_SPI
+  endif
   ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
     BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_SPI
     include $(CFG_SHARED)/spi_master.makefile
