@@ -55,7 +55,7 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
 
-    <program name="Video Synchronizer" command="sw/ground_segment/tmtc/video_synchronizer"/>
+    <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
 
     <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
       <arg flag="-b" variable="ivy_bus"/>

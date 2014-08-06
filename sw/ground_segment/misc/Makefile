@@ -35,25 +35,36 @@ else
   LIBRARYS = -s
 endif
 
+CFLAGS += -Wall -fPIC
+GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags)
+GTK_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs) -lglibivy $(shell pcre-config --libs) -fPIC
+
 # Optitrack specific librarys and includes
 NATNET_LIBRARYS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/
 
-all: davis2ivy kestrel2ivy natnet2ivy
+all: davis2ivy kestrel2ivy natnet2ivy video_synchronizer
 
 clean:
-	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy
+	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy video_synchronizer
 
 davis2ivy: davis2ivy.o
-	$(Q)$(CC) -o davis2ivy davis2ivy.o  $(LIBRARYS)  -livy
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o davis2ivy davis2ivy.o $(LIBRARYS) -livy
 
 kestrel2ivy: kestrel2ivy.o
-	$(Q)$(CC) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) -livy
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) -livy
 
 natnet2ivy: natnet2ivy.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.o $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.o
-	$(Q)$(CC) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) -livy
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) -livy
+
+video_synchronizer: video_synchronizer.c
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) $(LIBRARYS) $(INCLUDES) -o $@ $< $(GTK_LDFLAGS)
 
 %.o : %.c
-	$(Q)$(CC) -c -O2 -Wall $(INCLUDES) $<
+	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
 .PHONY: all clean
