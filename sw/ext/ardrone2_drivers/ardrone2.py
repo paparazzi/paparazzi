@@ -226,6 +226,9 @@ subparser_upload.add_argument('folder', help='Destination subfolder (base destin
 subparser_download = subparsers.add_parser('download_file', help='Download a file from the ARDrone 2')
 subparser_download.add_argument('file', help='Filename (with the path on the local machine)')
 subparser_download.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
+subparser_download_dir = subparsers.add_parser('download_dir', help='Download all files from a folder from the ARDrone 2')
+subparser_download_dir.add_argument('dest', help='destination folder (on the local machine)')
+subparser_download_dir.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
 subparser_insmod = subparsers.add_parser('insmod', help='Upload and insert kernel module')
 subparser_insmod.add_argument('file', help='Filename of *.ko kernel module')
 subparsers.add_parser('startvision', help='Start the vision framework')
@@ -439,12 +442,36 @@ elif args.command == 'download_file':
         ftp.retrbinary("RETR " + args.folder + "/" + f[1], file.write)
         print("#pragma message: Download of " + f[1] + " from ARDrone2 Succes!")
     except IOError:
-        print("#pragma message: Fail to open file" + args.file)
+        print("#pragma message: Fail to open file " + args.file)
     except:
         os.remove(args.file)
         print("#pragma message: Download of " + f[1] + " from ARDrone2 Failed!")
     else:
         file.close()
+
+elif args.command == 'download_dir':
+    # Split filename and path
+    files = execute_command('find /data/video/' + args.folder + ' -name \'*.*\'')
+    # Create dest dir if needed
+    if not os.path.exists(args.dest):
+        os.mkdir(args.dest)
+    # Open file and download
+    for f in files.split():
+        file_name = split_into_path_and_file(f)
+        file_source = args.folder + '/' + file_name[1]
+        file_dest = args.dest + '/' + file_name[1]
+        try:
+            file = open(file_dest, 'wb')
+            print('Downloading \'' + f + "\' to " + file_dest)
+            ftp.retrbinary("RETR " + file_source, file.write)
+        except IOError:
+            print("#pragma message: Fail to open file " + file_dest)
+        except:
+            os.remove(file_dest)
+            print("#pragma message: Download of " + f + " from ARDrone2 Failed!")
+        else:
+            file.close()
+    print("#pragma message: End download of folder " + args.folder + " from ARDrone2")
 
 
 
