@@ -34,6 +34,15 @@ val flight_plan_dtd : string
 val icon_file : string
 (** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
 
+val icon_mes_file : string
+(** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+
+val icon_gcs_file : string
+(** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+
+val icon_rep_file : string
+(** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
+
 val gconf_file : string
 (** XML preferences file à la gconf *)
 

@@ -198,7 +198,7 @@ let _ =
   Ivy.start !ivy_bus;
 
   (** Open the window container with its notebook*)
-  let icon = GdkPixbuf.from_file Env.icon_file in
+  let icon = GdkPixbuf.from_file Env.icon_mes_file in
   let window = GWindow.window ~type_hint:`DIALOG ~icon ~title:"Messages" () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);

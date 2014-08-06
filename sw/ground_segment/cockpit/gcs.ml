@@ -613,7 +613,7 @@ let () =
   let window, switch_fullscreen =
     match !wid with
         None ->
-          let icon = GdkPixbuf.from_file Env.icon_file in
+          let icon = GdkPixbuf.from_file Env.icon_gcs_file in
           let window = GWindow.window ~icon ~title:"GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
           if !maximize then
             window#maximize ();
