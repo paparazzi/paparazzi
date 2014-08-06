@@ -178,8 +178,8 @@ static gboolean __timeout_flashing_window(gpointer data) {
   white.blue = 0xFFFF;
 
   if (i<10) {
-    if (i%2) gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &black);
-    else gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
+      if (i%2) gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &black);
+      else gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
   }
   else {
     gtk_widget_destroy(flashWindow);
@@ -372,7 +372,7 @@ int main(int argc, char** argv) {
   gtk_notebook_append_page(tab, (GtkWidget*)captureBox, gtk_label_new("Capture"));
 
   gtk_container_add(GTK_CONTAINER(window), (GtkWidget*)tab);
-  gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("data/pictures/penguin_icon.png"));
+  gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("data/pictures/penguin_icon_vid.png"));
 
   gtk_widget_show_all(window);
   gtk_main();

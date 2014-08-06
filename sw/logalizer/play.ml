@@ -39,7 +39,7 @@ let open_log = fun window adj () ->
 let () =
   let (serial_port, adj, speed) = Play_core.init () in
 
-  let icon = GdkPixbuf.from_file Env.icon_file in
+  let icon = GdkPixbuf.from_file Env.icon_rep_file in
   let window = GWindow.dialog ~icon ~title:"Replay" ~width:300 () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
