@@ -46,30 +46,30 @@ value c_init_serial(value device, value speed, value hw_flow_control)
 
   int br = baudrates[Int_val(speed)];
 
-  int fd = open(String_val(device), O_RDWR|O_NONBLOCK);
+  int fd = open(String_val(device), O_RDWR|O_NOCTTY|O_NONBLOCK);
 
   if (fd == -1) failwith("opening modem serial device : fd < 0");
 
   if (tcgetattr(fd, &orig_termios)) failwith("getting modem serial device attr");
   cur_termios = orig_termios;
 
-  /* input modes */
+  /* input modes - turn off input processing */
   cur_termios.c_iflag &= ~(IGNBRK|BRKINT|IGNPAR|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
 			    |ICRNL |IXON|IXANY|IXOFF|IMAXBEL);
   /* pas IGNCR sinon il vire les 0x0D */
   cur_termios.c_iflag |= BRKINT;
 
-  /* output_flags */
+  /* output_flags - turn off output processing */
   cur_termios.c_oflag  &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
 
   /* control modes */
+  cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL);
+  cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
   if (Bool_val(hw_flow_control)) {
-    cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL);
-    cur_termios.c_cflag |= CREAD|CS8|CLOCAL|CRTSCTS;
+    cur_termios.c_cflag |= CRTSCTS;
   }
   else {
-    cur_termios.c_cflag &= ~(CSIZE|CSTOPB|CREAD|PARENB|PARODD|HUPCL|CLOCAL|CRTSCTS);
-    cur_termios.c_cflag |= CREAD|CS8|CLOCAL;
+    cur_termios.c_cflag &= ~(CRTSCTS);
   }
 
   /* local modes */
