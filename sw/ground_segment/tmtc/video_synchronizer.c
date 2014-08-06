@@ -178,8 +178,8 @@ static gboolean __timeout_flashing_window(gpointer data) {
   white.blue = 0xFFFF;
 
   if (i<10) {
-      if (i%2) gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &black);
-      else gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
+    if (i%2) gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &black);
+    else gtk_widget_modify_bg(flashWindow, GTK_STATE_NORMAL, &white);
   }
   else {
     gtk_widget_destroy(flashWindow);
