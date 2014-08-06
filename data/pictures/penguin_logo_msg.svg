@@ -17,7 +17,7 @@
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="penguin_icon_messages.png"
+   sodipodi:docname="penguin_logo_msg.svg"
    version="1.1">
   <defs
      id="defs3" />
@@ -51,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -98,5 +98,5 @@
            height="47.210255"
            x="218.29184"
            y="16.409105" /></flowRegion><flowPara
-         id="flowPara2992">MES</flowPara></flowRoot>  </g>
+         id="flowPara2992">MSG</flowPara></flowRoot>  </g>
 </svg>
