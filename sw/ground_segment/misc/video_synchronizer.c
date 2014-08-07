@@ -36,6 +36,7 @@
 #include <arpa/inet.h>
 
 
+
 #define DEBUGMESSAGES FALSE
 
 #define MODE_REPLAY 0
@@ -96,6 +97,15 @@ void send_udp(const char *send_to_ip, int port, char *mesg) {
          sizeof(socketinfo));
 }
 
+int say(const char *message) {
+
+  char *str = malloc(snprintf(NULL, 0, "%s%s%s", "spd-say '", message, "'") + 1);
+
+  sprintf(str, "%s%s%s", "spd-say '", message, "'");
+
+  return system(str);
+
+}
 
 void sendCurrentPlayingTime(void) {
   if (currentMode == MODE_REPLAY) {
@@ -220,6 +230,10 @@ static void on_video_time_tag_changed(GtkWidget *widget, gpointer data) {
 static void on_sync_clicked(GtkButton *button, gpointer user_data) {
 
   static uint8_t syncID = 1;
+  char *msg = malloc(snprintf(NULL, 0, "%s %d %s %d", "Aircraft", airframeID, ", video synchronisation", syncID) + 1);
+
+  sprintf(msg, "%s %d %s %d", "Aircraft", airframeID, ", video synchronisation", syncID);
+  say(msg);
 
   IvySendMsg("%d VIDEO_SYNC %d", airframeID, syncID);  //TODO : get the current airframe ID
 
@@ -238,7 +252,7 @@ static void on_sync_clicked(GtkButton *button, gpointer user_data) {
 
   g_timeout_add(100 , __timeout_flashing_window , ml);
 
-  //TODO : play a sound (the number of the synchronisation). see speech option of the GCS
+  syncID++;
 }
 
 static void on_change_mode(GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data) {
