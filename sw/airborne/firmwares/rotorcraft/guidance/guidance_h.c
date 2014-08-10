@@ -178,6 +178,8 @@ void guidance_h_init(void) {
   transition_percentage = 0;
   transition_theta_offset = 0;
 
+  gh_ref_init();
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "GUIDANCE_H_INT", send_gh);
   register_periodic_telemetry(DefaultPeriodic, "HOVER_LOOP", send_hover_loop);
@@ -391,9 +393,9 @@ static void guidance_h_update_reference(void) {
   /* either use the reference or simply copy the pos setpoint */
   if (guidance_h_use_ref) {
     /* convert our reference to generic representation */
-    INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_pos_ref,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_speed_ref, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_accel_ref, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
+    INT32_VECT2_RSHIFT(guidance_h_pos_ref,   gh_ref.pos,   (GH_POS_REF_FRAC - INT32_POS_FRAC));
+    INT32_VECT2_LSHIFT(guidance_h_speed_ref, gh_ref.speed, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
+    INT32_VECT2_LSHIFT(guidance_h_accel_ref, gh_ref.accel, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
   } else {
     VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
     INT_VECT2_ZERO(guidance_h_speed_ref);
