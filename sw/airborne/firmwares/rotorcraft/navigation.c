@@ -142,7 +142,7 @@ static void send_wp_moved(void) {
 
 void nav_init(void) {
   // convert to
-  const struct EnuCoor_f wp_tmp_float[NB_WAYPOINT] = WAYPOINTS;
+  const struct EnuCoor_f wp_tmp_float[NB_WAYPOINT] = WAYPOINTS_ENU;
   // init int32 waypoints
   uint8_t i = 0;
   for (i = 0; i < nb_waypoint; i++) {
