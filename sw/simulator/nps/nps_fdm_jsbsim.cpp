@@ -31,6 +31,7 @@
 #include <stdio.h>
 
 // ignore stupid warnings in JSBSim
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <FGFDMExec.h>
 #pragma GCC diagnostic pop
