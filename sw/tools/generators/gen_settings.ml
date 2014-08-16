@@ -198,7 +198,7 @@ let print_persistent_settings = fun settings ->
       incr idx)
     pers_settings;
   left();
-  lprintf "};\n"
+  lprintf "}\n"
 (*  end *)
 
 

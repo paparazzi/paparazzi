@@ -142,9 +142,9 @@ module Gen_onboard = struct
     Printf.fprintf h "      abi_callback%s cb = (abi_callback%s)(e->cb);\n" name name;
     Printf.fprintf h "      cb(sender_id";
     args h msg.fields;
-    Printf.fprintf h "    };\n";
-    Printf.fprintf h "  };\n";
-    Printf.fprintf h "};\n"
+    Printf.fprintf h "    }\n";
+    Printf.fprintf h "  }\n";
+    Printf.fprintf h "}\n"
 
   (* Print bind and send functions for all messages *)
   let print_bind_send = fun h messages ->

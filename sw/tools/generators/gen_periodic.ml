@@ -204,7 +204,7 @@ let _ =
       fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
       fprintf out_h "#endif\n";
       fprintf out_h "uint8_t telemetry_mode_%s = TELEMETRY_MODE_%s;\n" process_name (String.uppercase process_name);
-      fprintf out_h "struct telemetry_msg telemetry_msg_%s[TELEMETRY_%s_NB_MSG] = TELEMETRY_%s_STRUCT;\n" process_name (String.uppercase process_name) (String.uppercase process_name);
+      fprintf out_h "struct telemetry_msg telemetry_msg_%s[TELEMETRY_%s_NB_MSG] = TELEMETRY_%s_STRUCT\n" process_name (String.uppercase process_name) (String.uppercase process_name);
       fprintf out_h "struct pprz_telemetry telemetry_%s = { TELEMETRY_%s_NB_MSG, telemetry_msg_%s };\n" process_name (String.uppercase process_name) process_name;
       fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
       fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
