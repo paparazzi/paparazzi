@@ -26,7 +26,6 @@
 
 SRC_ARCH = arch/sim
 
-CC = g++
 OPT ?= 2
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
 
@@ -48,7 +47,8 @@ LDFLAGS	+= $($(TARGET).LDFLAGS)
 
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
-$(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
+$(TARGET).objsoxx = $($(TARGET).objso:%.cpp=$(OBJDIR)/%.o)
+$(TARGET).objs	= $($(TARGET).objsoxx:%.S=$(OBJDIR)/%.o)
 
 all compile: check_jsbsim $(OBJDIR)/simsitl
 
@@ -59,7 +59,7 @@ check_jsbsim:
 
 $(OBJDIR)/simsitl : $($(TARGET).objs)
 	@echo LD $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
+	$(Q)$(CXX) $(CFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
 
 
 %.s: %.c
@@ -74,9 +74,9 @@ $(OBJDIR)/%.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.s: %.cpp
-	@echo CC $@
+	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -S -o $@ $<
+	$(CXX) $(CFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
@@ -84,9 +84,9 @@ $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
-	@echo CC $@
+	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CXX) $(CFLAGS) -c -o $@ $<
 
 .PHONY: all compile check_jsbsim
 

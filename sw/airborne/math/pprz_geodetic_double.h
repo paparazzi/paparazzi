@@ -30,6 +30,10 @@
 #ifndef PPRZ_GEODETIC_DOUBLE_H
 #define PPRZ_GEODETIC_DOUBLE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "pprz_geodetic.h"
 #include "pprz_algebra_double.h"
 #include "std.h"
@@ -114,5 +118,8 @@ extern void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, st
 
 extern double gc_of_gd_lat_d(double gd_lat, double hmsl);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_GEODETIC_DOUBLE_H */
