@@ -28,12 +28,10 @@
 
 #include "subsystems/settings.h"
 
-int32_t persistent_write(uint32_t ptr, uint32_t size) {
-#pragma unused (ptr, size)
+int32_t persistent_write(uint32_t ptr UNUSED, uint32_t size UNUSED) {
   return -1;
 }
 
-int32_t persistent_read(uint32_t ptr, uint32_t size) {
-#pragma unused (ptr, size)
+int32_t persistent_read(uint32_t ptr UNUSED, uint32_t size UNUSED) {
   return -1;
 }

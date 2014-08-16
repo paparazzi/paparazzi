@@ -142,7 +142,7 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 struct AhrsIntCmplQuat ahrs_impl;
 
 static inline void set_body_state_from_quat(void);
-static inline void ahrs_update_mag_full(void);
+static inline void UNUSED ahrs_update_mag_full(void);
 static inline void ahrs_update_mag_2d(void);
 
 #if PERIODIC_TELEMETRY
