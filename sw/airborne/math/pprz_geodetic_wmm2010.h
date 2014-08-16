@@ -9,6 +9,10 @@
 #ifndef WMM2010_H
 #define WMM2010_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define WMM2010_FRAC 2
 #define N_MAX_OF_GH  12
 
@@ -44,4 +48,8 @@ int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t n
                  double *gh, double *geo_mag_x, double *geo_mag_y, double *geo_mag_z,
                  int16_t iext, double ext1, double ext2, double ext3);
 
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
+
+#endif /* WMM2010_H */
