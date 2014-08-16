@@ -148,7 +148,7 @@ void nav_init(void) {
   for (i = 0; i < nb_waypoint; i++) {
     waypoints[i].x = POS_BFP_OF_REAL(wp_tmp_float[i].x);
     waypoints[i].y = POS_BFP_OF_REAL(wp_tmp_float[i].y);
-    waypoints[i].z = POS_BFP_OF_REAL((wp_tmp_float[i].z - GROUND_ALT));
+    waypoints[i].z = POS_BFP_OF_REAL(wp_tmp_float[i].z);
   }
   nav_block = 0;
   nav_stage = 0;
