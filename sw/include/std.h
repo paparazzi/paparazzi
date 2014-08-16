@@ -226,4 +226,10 @@ static inline bool_t str_equal(const char * a, const char * b) {
   return TRUE;
 }
 
+#ifdef __GNUC__
+#  define UNUSED __attribute__((__unused__))
+#else
+#  define UNUSED
+#endif
+
 #endif /* STD_H */

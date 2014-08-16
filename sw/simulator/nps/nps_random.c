@@ -31,8 +31,6 @@ static unsigned long int randlcg(void);
 #endif
 
 
-
-
 void double_vect3_add_gaussian_noise(struct DoubleVect3* vect, struct DoubleVect3* std_dev) {
   vect->x += get_gaussian_noise() * std_dev->x;
   vect->y += get_gaussian_noise() * std_dev->y;

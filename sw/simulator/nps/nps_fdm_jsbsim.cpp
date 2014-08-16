@@ -31,6 +31,7 @@
 #include <stdio.h>
 
 // ignore stupid warnings in JSBSim
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <FGFDMExec.h>
 #pragma GCC diagnostic pop
@@ -475,17 +476,17 @@ static void init_ltp(void) {
 
 
 #if !NPS_CALC_GEO_MAG && defined(AHRS_H_X)
-#pragma message "Using magnetic field as defined in airframe file (AHRS section)."
+PRINT_CONFIG_MSG("Using magnetic field as defined in airframe file (AHRS section).")
   fdm.ltp_h.x = AHRS_H_X;
   fdm.ltp_h.y = AHRS_H_Y;
   fdm.ltp_h.z = AHRS_H_Z;
 #elif !NPS_CALC_GEO_MAG && defined(INS_H_X)
-#pragma message "Using magnetic field as defined in airframe file (INS section)."
+PRINT_CONFIG_MSG("Using magnetic field as defined in airframe file (INS section).")
   fdm.ltp_h.x = INS_H_X;
   fdm.ltp_h.y = INS_H_Y;
   fdm.ltp_h.z = INS_H_Z;
 #else
-#pragma message "Using WMM2010 model to calculate magnetic field at simulated location."
+PRINT_CONFIG_MSG("Using WMM2010 model to calculate magnetic field at simulated location.")
   /* calculation of magnetic field according to WMM2010 model */
   double gha[MAXCOEFF];
 

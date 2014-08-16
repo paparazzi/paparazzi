@@ -114,7 +114,7 @@
 #define JS_NB_BUTTONS 0
 #endif
 
-NpsJoystick nps_joystick;
+struct NpsJoystick nps_joystick;
 SDL_Joystick *sdl_joystick;
 SDL_Event sdl_event;
 
