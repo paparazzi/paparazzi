@@ -35,3 +35,6 @@ ifeq ($(NORADIO), False)
   endif
 endif
 
+# dummy stuff so you don't have to unload superbitrf.xml settings file for simulators
+nps.srcs += $(SRC_ARCH)/subsystems/datalink/superbitrf.c
+sim.srcs += $(SRC_ARCH)/subsystems/datalink/superbitrf.c
