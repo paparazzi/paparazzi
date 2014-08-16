@@ -38,6 +38,14 @@ CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
 CFLAGS += -O$(OPT)
 CFLAGS += -g
+CFLAGS += -std=c99
+
+CXXFLAGS  = -W -Wall
+CXXFLAGS += $(INCLUDES)
+CXXFLAGS += $($(TARGET).CFLAGS)
+CXXFLAGS += $(LOCAL_CFLAGS)
+CXXFLAGS += -O$(OPT)
+CXXFLAGS += -g
 
 LDFLAGS	+= $($(TARGET).LDFLAGS)
 
@@ -59,7 +67,7 @@ check_jsbsim:
 
 $(OBJDIR)/simsitl : $($(TARGET).objs)
 	@echo LD $@
-	$(Q)$(CXX) $(CFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ $($(TARGET).objs) $(LDFLAGS)
 
 
 %.s: %.c
@@ -76,7 +84,7 @@ $(OBJDIR)/%.s: %.c
 $(OBJDIR)/%.s: %.cpp
 	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) -S -o $@ $<
+	$(CXX) $(CXXFLAGS) -S -o $@ $<
 
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
@@ -86,18 +94,24 @@ $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CXX) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 .PHONY: all compile check_jsbsim
 
 #
 # Dependencies
 #
-$(OBJDIR)/.depend:
-	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	@echo DEPEND $@
-	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
+$(OBJDIR)/%.d: %.c
+	@echo DEP $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CC) -MM -MG $(CFLAGS) $< | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $(OBJDIR)/$*.d
+
+$(OBJDIR)/%.d: %.cpp $(OBJDIR)/../Makefile.ac
+	@echo DEP $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CXX) -MM -MG $(CXXFLAGS) $< | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $(OBJDIR)/$*.d
+ 
 ifneq ($(MAKECMDGOALS),clean)
--include $(OBJDIR)/.depend
+-include $($(TARGET).objs:.o=.d)
 endif
