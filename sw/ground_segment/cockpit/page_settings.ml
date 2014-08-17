@@ -85,7 +85,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let text = try ExtXml.attrib dl_setting "shortname" with _ -> varname in
   let _l = GMisc.label ~width:100 ~text ~packing:hbox#pack () in
   let eb = GBin.event_box ~packing:hbox#pack () in
-  let current_value = GMisc.label ~width:50 ~text:"N/A" ~packing:eb#add () in
+  let current_value = GMisc.label ~width:80 ~text:"N/A" ~packing:eb#add () in
 
   let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
