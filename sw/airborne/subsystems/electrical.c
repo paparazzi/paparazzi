@@ -109,8 +109,8 @@ PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
 }
 
 void electrical_periodic(void) {
-  static uint8_t bat_low_counter = 0;
-  static uint8_t bat_critical_counter = 0;
+  static uint32_t bat_low_counter = 0;
+  static uint32_t bat_critical_counter = 0;
   static bool_t vsupply_check_started = FALSE;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL)
