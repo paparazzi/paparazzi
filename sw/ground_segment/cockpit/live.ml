@@ -1438,6 +1438,6 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
       center geomap ac.track () in
   let key_press = fun ev ->
     match GdkEvent.Key.keyval ev with
-      | k when k = GdkKeysyms._c -> center_active () ; true
+      | k when (k = GdkKeysyms._c) || (k = GdkKeysyms._C) -> center_active () ; true
       | _ -> false in
   ignore (geomap#canvas#event#connect#after#key_press key_press)
