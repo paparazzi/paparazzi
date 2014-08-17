@@ -6,12 +6,18 @@ General
 
 - modules: use VPATH to make it easier to load external modules
   [#760] (https://github.com/paparazzi/paparazzi/pull/760)
-- ground_segement: try to update AGL even if GPS is lost
+- ground_segment: try to update AGL even if GPS is lost
   [#742] (https://github.com/paparazzi/paparazzi/issues/742)
+- ground_segment: different icons for the different applications of paparazzi
+  [#787] (https://github.com/paparazzi/paparazzi/pull/787)
 - GCS: add exponentiation operator to papgets
 - logalizer: export lat/lon with 9 decimal places
 - GCS: display AP mode forward correctly
   [#748] (https://github.com/paparazzi/paparazzi/pull/748)
+- GCS: also center aircraft on uppercase C and fix listed keys in help
+  [#803] (https://github.com/paparazzi/paparazzi/issues/803)
+- settings: use spin button instead of slider for really large ranges
+  [#795] (https://github.com/paparazzi/paparazzi/issues/795)
 - tools: flash via bmp: reset and detach from target after uploading
   [#746] (https://github.com/paparazzi/paparazzi/issues/746)
 - tools: DFU flashing: allow 1 BIT SQUARED vendor
@@ -21,12 +27,19 @@ General
 - tools: add tool to syncronize video on replay
   [#770] (https://github.com/paparazzi/paparazzi/pull/770)
   [#776] (https://github.com/paparazzi/paparazzi/pull/776)
+  [#789] (https://github.com/paparazzi/paparazzi/pull/789)
 - messages: add GEO_MAG message to send magnetic field
   [#735] (https://github.com/paparazzi/paparazzi/pull/735)
 - messages: add speed setpoint to GUIDANCE_H_REF_INT message
   [#763] (https://github.com/paparazzi/paparazzi/issues/763)
 - NPS: block and setting messages only parsed for correct AC_ID
   [#777] (https://github.com/paparazzi/paparazzi/pull/777)
+- NPS: fix warnings when compiling with clang
+  [#790] (https://github.com/paparazzi/paparazzi/pull/790)
+- gaia: command line options for environment simulator
+  [#799] (https://github.com/paparazzi/paparazzi/issues/799)
+- build: only set PAPARAZZI_SRC if not already externally set
+  [#800] (https://github.com/paparazzi/paparazzi/issues/800)
 
 Airborne
 --------
@@ -36,11 +49,14 @@ Airborne
 - flight plans: don't set nav_pitch to 0 at each stage init
   [#727] (https://github.com/paparazzi/paparazzi/pull/727)
 - modules: gps_ubx_ucenter: fix version check for Ublox 7
+- modules: add CSV file logger for ARDrone
+  [#788] (https://github.com/paparazzi/paparazzi/pull/788)
 - ardrone2: mag freeze fix
   [#767] (https://github.com/paparazzi/paparazzi/pull/767)
 - boards: add support for navstik
   [#744] (https://github.com/paparazzi/paparazzi/pull/744)
 - boards: fix PWM on lisa_l
+- boards: lisa_m_2.0: baro defaults to BARO_MS5611_SPI
 - peripherals: ms5611: check temp an pressure range
   [#758] (https://github.com/paparazzi/paparazzi/issues/758)
 - imu: aspirin_2_spi: wait 1.5s before configuring mag
@@ -57,7 +73,12 @@ Airborne
   [#745] (https://github.com/paparazzi/paparazzi/issues/745)
 - electrical: fix for negative currents
   [#753] (https://github.com/paparazzi/paparazzi/issues/753)
-
+- electrical: 32bit for bat low and critical counters for longer delays
+  [#805] (https://github.com/paparazzi/paparazzi/issues/805)
+- messages: dist_home and dist_wp in meters for fixedwings and rotorcrafts
+  [#784] (https://github.com/paparazzi/paparazzi/pull/784)
+- superbitrf: save bind settings to flash (if USE_PERSISTENT_SETTINGS)
+  [#792] (https://github.com/paparazzi/paparazzi/issues/792)
 
 Rotorcraft Firmware
 -------------------
