@@ -32,6 +32,7 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
+#include "subsystems/settings.h"
 
 /* Default SuperbitRF SPI DEV */
 #ifndef SUPERBITRF_SPI_DEV
@@ -738,6 +739,12 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
 
     superbitrf.num_channels = packet[11];
     superbitrf_set_protocol(packet[12]);
+
+    // Store all the persistent settings.
+    // In case we have the superbit setting file loaded and persistent settings
+    // enabled in the airframe file this will store our binding information and
+    // survive a reboot.
+    settings_StoreSettings(1);
 
     // Update the status of the receiver
     superbitrf.state = 0;
