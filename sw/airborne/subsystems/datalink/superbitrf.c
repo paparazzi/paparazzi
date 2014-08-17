@@ -240,6 +240,11 @@ void superbitrf_set_mfg_id(uint32_t id) {
   superbitrf.data_col = 7 - superbitrf.sop_col;
 }
 
+void superbitrf_set_protocol(uint8_t protocol) {
+    superbitrf.protocol = protocol;
+    superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
+}
+
 /**
  * The superbitrf on event call
  */
@@ -405,8 +410,7 @@ void superbitrf_event(void) {
       #endif
       #ifdef RADIO_TRANSMITTER_PROTOCOL
         PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
-        superbitrf.protocol = RADIO_TRANSMITTER_PROTOCOL;
-        superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
+        superbitrf_set_protocol(RADIO_TRANSMITTER_PROTOCOL);
       #endif
 
         // Start transfer
@@ -724,8 +728,7 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     superbitrf_set_mfg_id(mfg_id);
 
     superbitrf.num_channels = packet[11];
-    superbitrf.protocol = packet[12];
-    superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
+    superbitrf_set_protocol(packet[12]);
 
     // Update the status of the receiver
     superbitrf.state = 0;

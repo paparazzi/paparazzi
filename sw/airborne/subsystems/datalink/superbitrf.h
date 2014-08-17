@@ -117,6 +117,7 @@ extern struct SuperbitRF superbitrf;
 void superbitrf_init(void);
 void superbitrf_event(void);
 void superbitrf_set_mfg_id(uint32_t id);
+void superbitrf_set_protocol(uint8_t protocol);
 
 /* The datalink defines */
 #define SuperbitRFInit() { }//superbitrf_init(); }
