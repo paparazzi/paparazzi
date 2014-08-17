@@ -326,7 +326,7 @@ static void gsm_receive_content(void)
         {
           uint8_t var_index = atoi(gsm_buf+1);
           if (var_index > 0) {
-            float value = atof(indexn(gsm_buf, ' ',MAXLEN_SMS_CONTENT)+1);
+            double value = atof(indexn(gsm_buf, ' ',MAXLEN_SMS_CONTENT)+1);
             DlSetting(var_index, value);
           }
         }

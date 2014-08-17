@@ -75,7 +75,7 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
   case DL_SETTING :
     {
       uint8_t i = DL_SETTING_index(gcs_com.my_dl_buffer);
-      float var = DL_SETTING_value(gcs_com.my_dl_buffer);
+      double var = DL_SETTING_value(gcs_com.my_dl_buffer);
       DlSetting(i, var);
       printf("datalink : %d %f\n",i,var);
       DOWNLINK_SEND_DL_VALUE(tp, &i, &var);

@@ -28,14 +28,14 @@ void parse_dl_acinfo(char* argv[] __attribute__ ((unused))) {
 
 void parse_dl_setting(char* argv[]) {
   uint8_t index = atoi(argv[2]);
-  float value = atof(argv[3]);
+  double value = atof(argv[3]);
   DlSetting(index, value);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice,&index, &value);
 }
 
 void parse_dl_get_setting(char* argv[]) {
   uint8_t index = atoi(argv[2]);
-  float value = settings_get_value(index);
+  double value = settings_get_value(index);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice,&index, &value);
 }
 

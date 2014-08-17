@@ -71,7 +71,7 @@ static void on_datalink_message(void) {
     break;
   case DL_SETTING :  {
     uint8_t i = DL_SETTING_index(tp->udp_dl_payload);
-    float var = DL_SETTING_value(tp->udp_dl_payload);
+    double var = DL_SETTING_value(tp->udp_dl_payload);
     DlSetting(i, var);
     DOWNLINK_SEND_DL_VALUE(fms_gs_com.udp_transport, &i, &var);
   }

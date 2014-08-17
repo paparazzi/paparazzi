@@ -111,7 +111,7 @@ let print_dl_settings = fun settings ->
   if nb_values > 0 then begin
     right ();
     lprintf "static uint8_t i;\\\n";
-    lprintf "float var;\\\n";
+    lprintf "double var;\\\n";
     lprintf "if (i >= %d) i = 0;\\\n" nb_values;
     let idx = ref 0 in
     lprintf "switch (i) { \\\n";
@@ -131,7 +131,7 @@ let print_dl_settings = fun settings ->
   lprintf "}\n";
 
   (** Inline function to get a setting value *)
-  lprintf "static inline float settings_get_value(uint8_t i) {\n";
+  lprintf "static inline double settings_get_value(uint8_t i) {\n";
   right ();
   let idx = ref 0 in
   lprintf "switch (i) { \\\n";

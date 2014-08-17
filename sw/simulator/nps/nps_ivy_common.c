@@ -87,7 +87,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
     return;
 
   uint8_t index = atoi(argv[2]);
-  float value = atof(argv[3]);
+  double value = atof(argv[3]);
   DlSetting(index, value);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
@@ -100,7 +100,7 @@ static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
     return;
 
   uint8_t index = atoi(argv[2]);
-  float value = settings_get_value(index);
+  double value = settings_get_value(index);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("get setting %d %f\n", index, value);
 }
