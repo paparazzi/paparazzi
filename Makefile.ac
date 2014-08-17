@@ -21,7 +21,7 @@
 
 # Preprocessing of XML configuration files
 
-PAPARAZZI_SRC=$(shell pwd)
+PAPARAZZI_SRC ?= $(shell pwd)
 
 include conf/Makefile.local
 

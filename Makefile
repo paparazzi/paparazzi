@@ -27,7 +27,7 @@ ifeq ($(Q),@)
 MAKEFLAGS += --no-print-directory
 endif
 
-PAPARAZZI_SRC=$(shell pwd)
+PAPARAZZI_SRC ?= $(shell pwd)
 empty=
 space=$(empty) $(empty)
 ifneq ($(findstring $(space),$(PAPARAZZI_SRC)),)
