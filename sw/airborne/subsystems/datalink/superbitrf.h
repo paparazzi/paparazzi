@@ -114,8 +114,10 @@ struct SuperbitRF {
 
 /* The superbitrf functions and structures */
 extern struct SuperbitRF superbitrf;
-void superbitrf_init(void);
-void superbitrf_event(void);
+extern void superbitrf_init(void);
+extern void superbitrf_event(void);
+extern void superbitrf_set_mfg_id(uint32_t id);
+extern void superbitrf_set_protocol(uint8_t protocol);
 
 /* The datalink defines */
 #define SuperbitRFInit() { }//superbitrf_init(); }

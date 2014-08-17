@@ -147,6 +147,21 @@ let print_dl_settings = fun settings ->
   lprintf "}\n";
   left()
 
+
+let inttype = function
+"int8" -> "int8_t"
+  | "int16" -> "int16_t"
+  | "int32" -> "int32_t"
+  | "int64" -> "int64_t"
+  | "uint8" -> "uint8_t"
+  | "uint16" -> "uint16_t"
+  | "uint32" -> "uint32_t"
+  | "uint64" -> "uint64_t"
+  | "float" -> "float"
+  | "double" -> "double"
+  | x -> failwith (sprintf "Gen_calib.inttype: unknown type '%s'" x)
+
+
 (*
   Generate code for persistent settings
 *)
@@ -163,7 +178,8 @@ let print_persistent_settings = fun settings ->
   List.iter
     (fun s ->
       let v = ExtXml.attrib s "var" in
-      lprintf "float s_%d; /* %s */\n" !idx v; incr idx)
+      let t = try ExtXml.attrib s "type" with _ -> "float" in
+      lprintf "%s s_%d; /* %s */\n" (inttype t) !idx v; incr idx)
     pers_settings;
   left();
   lprintf "};\n\n";
@@ -213,11 +229,6 @@ let calib_mode_of_rc = function
   | x -> failwith (sprintf "Unknown rc: %s" x)
 
 let param_macro_of_type = fun x -> "ParamVal"^String.capitalize x
-
-let inttype = function
-"int16" -> "int16_t"
-  | "float" -> "float"
-  | x -> failwith (sprintf "Gen_calib.inttype: unknown type '%s'" x)
 
 let parse_rc_setting = fun xml ->
   let cursor, cm = calib_mode_of_rc (ExtXml.attrib xml "rc")

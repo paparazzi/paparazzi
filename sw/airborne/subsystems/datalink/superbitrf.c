@@ -32,6 +32,7 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
+#include "subsystems/settings.h"
 
 /* Default SuperbitRF SPI DEV */
 #ifndef SUPERBITRF_SPI_DEV
@@ -211,6 +212,10 @@ void superbitrf_init(void) {
   superbitrf.tx_insert_idx = 0;
   superbitrf.tx_extract_idx = 0;
 
+  superbitrf.bind_mfg_id32 = 0;
+  superbitrf.num_channels = 0;
+  superbitrf.protocol = 0;
+
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
 
@@ -223,6 +228,24 @@ void superbitrf_init(void) {
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "SUPERBIT", send_superbit);
 #endif
+}
+
+void superbitrf_set_mfg_id(uint32_t id) {
+  superbitrf.bind_mfg_id32 = id;
+  superbitrf.bind_mfg_id[0] = (superbitrf.bind_mfg_id32 &0xFF);
+  superbitrf.bind_mfg_id[1] = (superbitrf.bind_mfg_id32 >>8 &0xFF);
+  superbitrf.bind_mfg_id[2] = (superbitrf.bind_mfg_id32 >>16 &0xFF);
+  superbitrf.bind_mfg_id[3] = (superbitrf.bind_mfg_id32 >>24 &0xFF);
+
+  // Calculate some values based on the bind MFG id
+  superbitrf.crc_seed = ~((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]);
+  superbitrf.sop_col = (superbitrf.bind_mfg_id[0] + superbitrf.bind_mfg_id[1] + superbitrf.bind_mfg_id[2] + 2) & 0x07;
+  superbitrf.data_col = 7 - superbitrf.sop_col;
+}
+
+void superbitrf_set_protocol(uint8_t protocol) {
+    superbitrf.protocol = protocol;
+    superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
 }
 
 /**
@@ -372,27 +395,32 @@ void superbitrf_event(void) {
       // Check if need to go to transfer
       if(start_transfer) {
         // Initialize the binding values
+        // set values based on mfg id
+        // if bind_mfg_id32 is loaded from persistent settings use that,
+        if (superbitrf.bind_mfg_id32) {
+          superbitrf_set_mfg_id(superbitrf.bind_mfg_id32);
+        }
       #ifdef RADIO_TRANSMITTER_ID
-        PRINT_CONFIG_VAR(RADIO_TRANSMITTER_ID);
-        superbitrf.bind_mfg_id32 = RADIO_TRANSMITTER_ID;
-        superbitrf.bind_mfg_id[0] = (superbitrf.bind_mfg_id32 &0xFF);
-        superbitrf.bind_mfg_id[1] = (superbitrf.bind_mfg_id32 >>8 &0xFF);
-        superbitrf.bind_mfg_id[2] = (superbitrf.bind_mfg_id32 >>16 &0xFF);
-        superbitrf.bind_mfg_id[3] = (superbitrf.bind_mfg_id32 >>24 &0xFF);
-
-        // Calculate some values based on the bind MFG id
-        superbitrf.crc_seed = ~((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]);
-        superbitrf.sop_col = (superbitrf.bind_mfg_id[0] + superbitrf.bind_mfg_id[1] + superbitrf.bind_mfg_id[2] + 2) & 0x07;
-        superbitrf.data_col = 7 - superbitrf.sop_col;
+        // otherwise load airframe file value
+        else {
+          PRINT_CONFIG_VAR(RADIO_TRANSMITTER_ID);
+          superbitrf_set_mfg_id(RADIO_TRANSMITTER_ID);
+        }
       #endif
       #ifdef RADIO_TRANSMITTER_CHAN
         PRINT_CONFIG_VAR(RADIO_TRANSMITTER_CHAN);
-        superbitrf.num_channels = RADIO_TRANSMITTER_CHAN;
+        if (superbitrf.num_channels == 0) {
+          superbitrf.num_channels = RADIO_TRANSMITTER_CHAN;
+        }
       #endif
+        if (superbitrf.protocol == 0) {
+          superbitrf_set_protocol(superbitrf.protocol);
+        }
       #ifdef RADIO_TRANSMITTER_PROTOCOL
-        PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
-        superbitrf.protocol = RADIO_TRANSMITTER_PROTOCOL;
-        superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
+        else {
+          PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
+          superbitrf_set_protocol(RADIO_TRANSMITTER_PROTOCOL);
+        }
       #endif
 
         // Start transfer
@@ -705,20 +733,18 @@ static inline void superbitrf_receive_packet_cb(bool_t error, uint8_t status, ui
     }
 
     // Update the mfg id, number of channels and protocol
-    superbitrf.bind_mfg_id[0] = ~packet[0];
-    superbitrf.bind_mfg_id[1] = ~packet[1];
-    superbitrf.bind_mfg_id[2] = ~packet[2];
-    superbitrf.bind_mfg_id[3] = ~packet[3];
-    superbitrf.bind_mfg_id32 = ((superbitrf.bind_mfg_id[3] &0xFF) << 24 | (superbitrf.bind_mfg_id[2] &0xFF) << 16 |
-        (superbitrf.bind_mfg_id[1] &0xFF) << 8 | (superbitrf.bind_mfg_id[0] &0xFF));
-    superbitrf.num_channels = packet[11];
-    superbitrf.protocol = packet[12];
-    superbitrf.resolution = (superbitrf.protocol & 0x10)>>4;
+    uint32_t mfg_id = ((~packet[3] &0xFF) << 24 | (~packet[2] &0xFF) << 16 |
+                       (~packet[1] &0xFF) << 8 | (~packet[0] &0xFF));
+    superbitrf_set_mfg_id(mfg_id);
 
-    // Calculate some values based on the bind MFG id
-    superbitrf.crc_seed = ~((superbitrf.bind_mfg_id[0] << 8) + superbitrf.bind_mfg_id[1]);
-    superbitrf.sop_col = (superbitrf.bind_mfg_id[0] + superbitrf.bind_mfg_id[1] + superbitrf.bind_mfg_id[2] + 2) & 0x07;
-    superbitrf.data_col = 7 - superbitrf.sop_col;
+    superbitrf.num_channels = packet[11];
+    superbitrf_set_protocol(packet[12]);
+
+    // Store all the persistent settings.
+    // In case we have the superbit setting file loaded and persistent settings
+    // enabled in the airframe file this will store our binding information and
+    // survive a reboot.
+    settings_StoreSettings(1);
 
     // Update the status of the receiver
     superbitrf.state = 0;
