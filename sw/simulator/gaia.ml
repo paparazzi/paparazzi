@@ -31,10 +31,19 @@ let sending_period = 5000 (* ms *)
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
 let ivy_bus = ref Defivybus.default_ivy_bus
+let time_scale = ref 1.
+let wind_speed = ref 0.
+let wind_dir = ref 0.
+let gps_off = ref false
 
 let parse_args = fun () ->
   let options =
-    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus)] in
+    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "Bus\tDefault is %s" !ivy_bus);
+      "-t", Arg.Set_float time_scale, "Set time scale (default: 1.0)";
+      "-w", Arg.Set_float wind_speed, "Set wind speed (0-30m/s)";
+      "-d", Arg.Set_float wind_dir, "Set wind direction 0-359 deg";
+      "-g", Arg.Set gps_off, "Turn off GPS";
+    ] in
   Arg.parse (options)
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)
     "Usage: "
@@ -46,11 +55,11 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let time_scale = GData.adjustment ~page_size:0. ~value:1. ~lower:(1.) ~upper:10. ~step_incr:1. () in
-  let wind_dir_adj = GData.adjustment ~page_size:0. ~value:0. ~lower:(0.) ~upper:369. ~step_incr:1.0 () in
-  let wind_speed_adj = GData.adjustment ~page_size:0. ~value:0. ~lower:(0.) ~upper:20. ~step_incr:0.1 () in
+  let time_scale_adj = GData.adjustment ~page_size:0. ~value:!time_scale ~lower:(1.) ~upper:10. ~step_incr:1. () in
+  let wind_dir_adj = GData.adjustment ~page_size:0. ~value:!wind_dir ~lower:(0.) ~upper:359. ~step_incr:1.0 () in
+  let wind_speed_adj = GData.adjustment ~page_size:0. ~value:!wind_speed ~lower:(0.) ~upper:30. ~step_incr:0.1 () in
   let infrared_contrast_adj = GData.adjustment ~page_size:0. ~value:266. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
-  let gps_sa = GButton.toggle_button ~label:"GPS OFF" () in
+  let gps_sa = GButton.toggle_button ~label:"GPS OFF" ~active:!gps_off () in
 
   let world_values = fun asker_values ->
     let wind_speed = wind_speed_adj#value
@@ -63,7 +72,7 @@ let _ =
       "wind_north", Pprz.Float wind_north;
       "wind_up", Pprz.Float 0.0;
       "ir_contrast", Pprz.Float infrared_contrast_adj#value;
-      "time_scale", Pprz.Float time_scale#value;
+      "time_scale", Pprz.Float time_scale_adj#value;
       "gps_availability", Pprz.Int (if gps_sa#active then 0 else 1)
     ] in
   let world_send = fun () ->
@@ -71,7 +80,7 @@ let _ =
 
   List.iter
     (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
-    [time_scale; wind_dir_adj; wind_speed_adj; infrared_contrast_adj];
+    [time_scale_adj; wind_dir_adj; wind_speed_adj; infrared_contrast_adj];
   ignore (gps_sa#connect#toggled world_send);
 
   ignore (Glib.Timeout.add sending_period (fun () -> world_send (); true));
@@ -80,7 +89,7 @@ let _ =
 
   let hbox = GPack.hbox ~packing:vbox#pack () in
   let _ =  GMisc.label ~text:"Time scale:" ~packing:hbox#pack () in
-  let _ts = GEdit.spin_button ~adjustment:time_scale ~packing:hbox#add () in
+  let _ts = GEdit.spin_button ~adjustment:time_scale_adj ~packing:hbox#add () in
 
   let hbox = GPack.hbox ~packing:vbox#pack () in
   ignore (GMisc.label ~text:"Wind dir:" ~packing:hbox#pack ());
