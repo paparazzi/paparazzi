@@ -212,6 +212,8 @@ void superbitrf_init(void) {
   superbitrf.tx_extract_idx = 0;
 
   superbitrf.bind_mfg_id32 = 0;
+  superbitrf.num_channels = 0;
+  superbitrf.protocol = 0;
 
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
@@ -406,11 +408,18 @@ void superbitrf_event(void) {
       #endif
       #ifdef RADIO_TRANSMITTER_CHAN
         PRINT_CONFIG_VAR(RADIO_TRANSMITTER_CHAN);
-        superbitrf.num_channels = RADIO_TRANSMITTER_CHAN;
+        if (superbitrf.num_channels == 0) {
+          superbitrf.num_channels = RADIO_TRANSMITTER_CHAN;
+        }
       #endif
+        if (superbitrf.protocol == 0) {
+          superbitrf_set_protocol(superbitrf.protocol);
+        }
       #ifdef RADIO_TRANSMITTER_PROTOCOL
-        PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
-        superbitrf_set_protocol(RADIO_TRANSMITTER_PROTOCOL);
+        else {
+          PRINT_CONFIG_VAR(RADIO_TRANSMITTER_PROTOCOL);
+          superbitrf_set_protocol(RADIO_TRANSMITTER_PROTOCOL);
+        }
       #endif
 
         // Start transfer
