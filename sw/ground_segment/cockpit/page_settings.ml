@@ -136,7 +136,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
     else (* slider *)
       let range = upper -. lower in
       let value = (lower +. upper) /. 2. in
-      if range > 10000. then
+      if range > 65536. then
         let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size:0. () in
         let _spinbutton = GEdit.spin_button ~adjustment:adj ~numeric:true ~packing:hbox#add () in
         let f = fun _ -> do_change i ((adj#value-.alt_b)/.alt_a)  in
