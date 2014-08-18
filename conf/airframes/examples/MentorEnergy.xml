@@ -14,9 +14,6 @@
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
-      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-      <define name="USE_I2C2"/>
-      <define name="USE_AHRS_GPS_ACCELERATIONS"/>
     </target>
     <target name="sim" board="pc"/>
     <target name="nps" board="pc">
@@ -28,15 +25,18 @@
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
+
     <!-- Sensors -->
+    <subsystem name="imu" type="aspirin_v2.1"/>
     <!--
-    <subsystem name="ahrs" type="int_cmpl_quat">
-      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
+    <subsystem name="ahrs" type="float_dcm">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="USE_AHRS_GPS_ACCELERATIONS"/>
     </subsystem>
     -->
-    <subsystem name="imu" type="aspirin_v2.1"/>
-    <subsystem name="ahrs" type="float_dcm">
-      <!--      <define name="USE_MAGNETOMETER" /> -->
+    <subsystem name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
     </subsystem>
     <subsystem name="ins" type="alt_float"/>
     <subsystem name="radio_control" type="ppm"/>
@@ -57,9 +57,12 @@
   <!-- ************************* MODULES ************************* -->
 
   <modules>
+    <load name="geo_mag.xml"/>
     <load name="gps_ubx_ucenter.xml"/>
     <load name="airspeed_ets.xml">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
+      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
+      <define name="USE_I2C2"/>
     </load>
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
@@ -132,19 +135,21 @@
   <!-- ************************* SENSORS ************************* -->
 
   <section name="IMU" prefix="IMU_">
-    <define name="MAG_X_NEUTRAL" value="((-320+140)/2)"/>
-    <define name="MAG_Y_NEUTRAL" value="((-320+140)/2)"/>
-    <define name="MAG_Z_NEUTRAL" value="0"/>
-    <define name="MAG_X_SENS" value="1" integer="16"/>
-    <define name="MAG_Y_SENS" value="1" integer="16"/>
-    <define name="MAG_Z_SENS" value="1" integer="16"/>
+    <!-- replace this with your own calibration -->
+    <define name="MAG_X_NEUTRAL" value="-179"/>
+    <define name="MAG_Y_NEUTRAL" value="-21"/>
+    <define name="MAG_Z_NEUTRAL" value="79"/>
+    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+
     <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
     <define name="BODY_TO_IMU_PSI" value="0"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <!-- Local magnetic field -->
+    <!-- Local magnetic field, on 3D fix is update by geo_mag module -->
     <define name="H_X" value="0.51562740288882"/>
     <define name="H_Y" value="-0.05707735220832"/>
     <define name="H_Z" value="0.85490967783446"/>
