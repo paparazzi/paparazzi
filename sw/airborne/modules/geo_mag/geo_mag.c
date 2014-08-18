@@ -42,7 +42,7 @@ void geo_mag_init(void) {
 }
 
 void geo_mag_periodic(void) {
-  if (gps.fix == GPS_FIX_3D && !geo_mag_vect.ready && !autopilot_motors_on)
+  if (!geo_mag_vect.ready && gps.fix == GPS_FIX_3D && kill_throttle)
     geo_mag_calc_flag = TRUE;
 }
 

@@ -14,7 +14,7 @@
   <init fun="geo_mag_init()"/>
   <periodic fun="geo_mag_periodic()" freq="1"/>
   <event fun="geo_mag_event()"/>
-  <makefile>
+  <makefile target="ap|nps">
     <file name="geo_mag.c"/>
     <file name="pprz_geodetic_wmm2010.c" dir="math"/>
   </makefile>
