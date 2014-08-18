@@ -37,7 +37,7 @@ nps.srcs += $(INS_SRCS)
 # Simple simulation of the AHRS result
 #
 ahrssim_CFLAGS  = -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
-ahrssim_CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+ahrssim_CFLAGS += -DUSE_AHRS
 
 ahrssim_srcs    = $(SRC_SUBSYSTEMS)/ahrs.c
 ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c

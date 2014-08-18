@@ -127,18 +127,6 @@ PRINT_CONFIG_VAR(AHRS_MAG_ZETA)
 #define AHRS_HEADING_UPDATE_GPS_MIN_SPEED 5.0
 #endif
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
-#endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-#endif
-
 struct AhrsIntCmplQuat ahrs_impl;
 
 static inline void set_body_state_from_quat(void);
@@ -698,19 +686,7 @@ static inline void set_body_state_from_quat(void) {
   struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&imu.body_to_imu);
   INT32_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, *body_to_imu_quat);
   /* Set state */
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  struct Int32Eulers neutrals_to_body_eulers = {
-    ANGLE_BFP_OF_REAL(ins_roll_neutral),
-    ANGLE_BFP_OF_REAL(ins_pitch_neutral),
-    0 };
-  struct Int32Quat neutrals_to_body_quat, ltp_to_neutrals_quat;
-  INT32_QUAT_OF_EULERS(neutrals_to_body_quat, neutrals_to_body_eulers);
-  INT32_QUAT_NORMALIZE(neutrals_to_body_quat);
-  INT32_QUAT_COMP_INV(ltp_to_neutrals_quat, ltp_to_body_quat, neutrals_to_body_quat);
-  stateSetNedToBodyQuat_i(&ltp_to_neutrals_quat);
-#else
   stateSetNedToBodyQuat_i(&ltp_to_body_quat);
-#endif
 
   /* compute body rates */
   struct Int32Rates body_rate;

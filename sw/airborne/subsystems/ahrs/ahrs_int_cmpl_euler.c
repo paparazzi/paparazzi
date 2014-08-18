@@ -46,19 +46,6 @@
 #define AHRS_MAG_OFFSET 0.
 #endif
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// remotely settable (for FW)
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
-#endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-#endif
-
-
 struct AhrsIntCmplEuler ahrs_impl;
 
 static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel);
@@ -329,15 +316,7 @@ static void set_body_state_from_euler(void) {
   /* Compute LTP to BODY rotation matrix */
   INT32_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, *body_to_imu_rmat);
   /* Set state */
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  struct Int32Eulers ltp_to_body_euler;
-  INT32_EULERS_OF_RMAT(ltp_to_body_euler, ltp_to_body_rmat);
-  ltp_to_body_euler.phi -= ANGLE_BFP_OF_REAL(ins_roll_neutral);
-  ltp_to_body_euler.theta -= ANGLE_BFP_OF_REAL(ins_pitch_neutral);
-  stateSetNedToBodyEulers_i(&ltp_to_body_euler);
-#else
   stateSetNedToBodyRMat_i(&ltp_to_body_rmat);
-#endif
 
   struct Int32Rates body_rate;
   /* compute body rates */

@@ -52,7 +52,7 @@ SIM_TARGETS = sim jsbsim nps
 ifneq (,$(findstring $(TARGET),$(SIM_TARGETS)))
 
 $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
-$(TARGET).CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+$(TARGET).CFLAGS += -DUSE_AHRS
 
 $(TARGET).srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
 $(TARGET).srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c

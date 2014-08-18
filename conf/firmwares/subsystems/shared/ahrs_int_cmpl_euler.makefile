@@ -1,10 +1,12 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
+# Fixed point complementary filter using euler angles for attitude estimation
+#
 
 USE_MAGNETOMETER ?= 1
 AHRS_ALIGNER_LED ?= none
 
-AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+AHRS_CFLAGS  = -DUSE_AHRS
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
 
 ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
@@ -30,7 +32,7 @@ nps.srcs += $(AHRS_SRCS)
 # Simple simulation of the AHRS result
 #
 ahrssim_CFLAGS  = -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
-ahrssim_CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+ahrssim_CFLAGS += -DUSE_AHRS
 
 ahrssim_srcs    = $(SRC_SUBSYSTEMS)/ahrs.c
 ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c

@@ -123,9 +123,4 @@ static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler
   }
 }
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-#endif
-
 #endif /* AHRS_GX3_H*/

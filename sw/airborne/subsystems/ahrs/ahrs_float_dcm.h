@@ -43,11 +43,6 @@ struct AhrsFloatDCM {
 extern struct AhrsFloatDCM ahrs_impl;
 
 
-// FIXME neutrals should be a feature of state interface ?
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-
-
 // DCM Parameters
 
 //#define Kp_ROLLPITCH 0.2

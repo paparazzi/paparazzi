@@ -34,10 +34,8 @@
 
 extern bool_t ahrs_sim_available;
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
-#endif
 
 extern void update_ahrs_from_sim(void);
 

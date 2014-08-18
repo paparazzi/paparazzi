@@ -94,18 +94,6 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 #define AHRS_GRAVITY_HEURISTIC_FACTOR 30
 #endif
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
-#endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-#endif //AHRS_UPDATE_FW_ESTIMATOR
-
 
 void ahrs_update_mag_full(void);
 void ahrs_update_mag_2d(void);
@@ -573,16 +561,7 @@ static inline void compute_body_orientation_and_rates(void) {
   struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&imu.body_to_imu);
   FLOAT_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, *body_to_imu_quat);
   /* Set state */
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  struct FloatEulers neutrals_to_body_eulers = { ins_roll_neutral, ins_pitch_neutral, 0. };
-  struct FloatQuat neutrals_to_body_quat, ltp_to_neutrals_quat;
-  FLOAT_QUAT_OF_EULERS(neutrals_to_body_quat, neutrals_to_body_eulers);
-  FLOAT_QUAT_NORMALIZE(neutrals_to_body_quat);
-  FLOAT_QUAT_COMP_INV(ltp_to_neutrals_quat, ltp_to_body_quat, neutrals_to_body_quat);
-  stateSetNedToBodyQuat_f(&ltp_to_neutrals_quat);
-#else
   stateSetNedToBodyQuat_f(&ltp_to_body_quat);
-#endif
 
   /* compute body rates */
   struct FloatRates body_rate;

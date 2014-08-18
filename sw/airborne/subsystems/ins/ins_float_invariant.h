@@ -113,8 +113,5 @@ struct InsFloatInv {
 
 extern struct InsFloatInv ins_impl;
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-
 #endif /* INS_FLOAT_INVARIANT_H */
 
