@@ -3,7 +3,7 @@
 
 #define BOARD_LISA_S
 
-/* Lisa/M has a 12MHz external clock and 72MHz internal. */
+/* Lisa/S has a 12MHz external clock and 72MHz internal. */
 #define EXT_CLK 12000000
 #define AHB_CLK 72000000
 
@@ -11,7 +11,7 @@
  * Onboard LEDs
  */
 
-/* red, on PA8 */
+/* red */
 #ifndef USE_LED_1
 #define USE_LED_1 1
 #endif
@@ -21,7 +21,7 @@
 #define LED_1_GPIO_OFF gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
-/* green, shared with JTAG_TRST */
+/* orange */
 #ifndef USE_LED_2
 #define USE_LED_2 1
 #endif
@@ -31,7 +31,7 @@
 #define LED_2_GPIO_OFF gpio_set
 #define LED_2_AFIO_REMAP ((void)0)
 
-/* green, shared with ADC12 (ADC_6 on connector ANALOG2) */
+/* yellow */
 #ifndef USE_LED_3
 #define USE_LED_3 1
 #endif
