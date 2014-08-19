@@ -107,6 +107,10 @@
       <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 45)"/>
       <call fun="nav_survey_poly_osam_run()"/>
     </block>
+    <block name="ZamboniSurvey">
+      <call fun="nav_survey_zamboni_setup(WP_1, WP_2, 200, 40, 7, 290)"/>
+      <call fun="nav_survey_zamboni_run()"/>
+    </block>
     <block name="Flight Line block">
       <call fun="nav_line_osam_block_run(WP_S1, WP_S5, nav_radius, 30, 10)"/>
     </block>
