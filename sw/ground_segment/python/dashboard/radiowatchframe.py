@@ -45,7 +45,7 @@ class RadioWatchFrame(wx.Frame):
     self.aircrafts = {}
 
     self.rc_statusText = wx.StaticText(self, -1, "UNKWN")
-  
+
     pygame.mixer.init()
     self.alertSound = pygame.mixer.Sound("crossing.wav")
     self.alertChannel = pygame.mixer.Channel(False)

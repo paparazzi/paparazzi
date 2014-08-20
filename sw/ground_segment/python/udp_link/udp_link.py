@@ -98,7 +98,7 @@ class IvyUdpLink():
       (ck_a, ck_b) = self.calculate_checksum(msg)
       msg = msg + struct.pack('=BB', ck_a, ck_b)
       return msg
-      
+
     def OnSettingMsg(self, agent, *larg):
       list = larg[0].split(' ')
       sender = list[0]
@@ -118,7 +118,7 @@ class IvyUdpLink():
 	address = (self.ac_downlink_status[int(ac_id)].address[0], DATALINK_PORT)
 	self.server.sendto(msgbuf, address)
 	value.last_ping_time = time.clock()
-      
+
       self.ping_timer = threading.Timer(STATUS_PERIOD, self.sendPing)
       self.ping_timer.start()
 
@@ -147,7 +147,7 @@ class IvyUdpLink():
       self.ac_downlink_status[ac_id].rx_msgs += 1
       self.ac_downlink_status[ac_id].rx_bytes += length
       if isPong:
-	self.ac_downlink_status[ac_id].last_pong_time = time.clock() - self.ac_downlink_status[ac_id].last_ping_time 
+	self.ac_downlink_status[ac_id].last_pong_time = time.clock() - self.ac_downlink_status[ac_id].last_ping_time
 
     def ProcessPacket(self, msg, address):
       if len(msg) < 4:
@@ -176,7 +176,7 @@ class IvyUdpLink():
 
         msg_id = ord(msg[msg_offset])
         msg_offset = msg_offset + 1
-      
+
         msg_name = messages_xml_map.message_dictionary_id_name["telemetry"][msg_id]
         msg_fields = messages_xml_map.message_dictionary_types["telemetry"][msg_id]
 

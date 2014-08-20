@@ -22,7 +22,7 @@ import serial  # sudo apt-get install python-serial
 
 class arduino_dangerboard():
   def __init__(self, port='/dev/ttyUSB0'):
-    self.port = serial.Serial(port, 115200)  
+    self.port = serial.Serial(port, 115200)
     self.SLIDER_COUNT = 3
     self.sliders = [0] * self.SLIDER_COUNT
     self.POT_MIN = 0.0
@@ -31,14 +31,14 @@ class arduino_dangerboard():
 
   def HandleEvent(self):
     pass
-    
+
   def poll(self):
     while( True):
-    
+
       self.port.write('G');
 
       foo = self.port.inWaiting()
-            
+
       if foo == 6:
         a = ord( self.port.read())
         b = ord( self.port.read())
@@ -46,20 +46,20 @@ class arduino_dangerboard():
         d = ord( self.port.read())
         e = ord( self.port.read())
         f = ord( self.port.read())
-        
+
         self.sliders[0] = (a << 8) | b;
         self.sliders[1] = (c << 8) | d;
         self.sliders[2] = (e << 8) | f;
 
         self.HandleEvent()
-      
+
       else:  # flush queue
         while foo:
           foo -= 1
           data = self.port.read()
-      
+
       time.sleep(0.25);
-      
+
 
 
 def main():

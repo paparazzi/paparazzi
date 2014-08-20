@@ -17,9 +17,9 @@
 # the Free Software Foundation, 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-"""This program listens to ivy messages from the link agent (see link.ml) 
+"""This program listens to ivy messages from the link agent (see link.ml)
 when the link's -name arguement is set. It combines messages received from
-any number of link agents and sends ivy messages to the Server and other 
+any number of link agents and sends ivy messages to the Server and other
 agents."""
 
 from __future__ import print_function
@@ -161,13 +161,13 @@ class Link:
 
     def sendLinkStatusMessage(self):
         for ac_id in self.acs:
-            values = (  self.name, 
-                        self.timeSinceLastMessage(), 
-                        self.run_time, 
-                        self.rx_bytes, 
-                        self.rx_msgs, 
-                        self.rx_err, 
-                        self.rx_bytes_rate, 
+            values = (  self.name,
+                        self.timeSinceLastMessage(),
+                        self.run_time,
+                        self.rx_bytes,
+                        self.rx_msgs,
+                        self.rx_err,
+                        self.rx_bytes_rate,
                         self.rx_msgs_rate,
                         self.ping_time)
 
@@ -249,7 +249,7 @@ class Link_Combiner:
         #If the message is already in this link's buffer, then taking it as not a duplicate. So returning False. But also, removing it from all buffers. So that when they receive it, they don't do the same.
         #If the message is not in this link's buffer, then checking all other buffers and only if it's not in any of them, counting the message as not a duplicate.
 
-        match = self.links[message.linkName()].checkBuffer(message) 
+        match = self.links[message.linkName()].checkBuffer(message)
         if match:   #Removing the message from all buffers
             for link_name in self.links:
                 self.links[link_name].removeFromBuffer(message)
@@ -291,7 +291,7 @@ def main():
 
     global BUFFER_SIZE
     global LINK_STATUS_PERIOD
-    BUFFER_SIZE = int(args.buffer_size)            #The number of elements messages to be stored in the circular buffer for each link. 
+    BUFFER_SIZE = int(args.buffer_size)            #The number of elements messages to be stored in the circular buffer for each link.
     LINK_STATUS_PERIOD = float(args.link_status_period)/1000    #The number of seconds in between LINK_STATUS messages being sent to the GCS.
 
 

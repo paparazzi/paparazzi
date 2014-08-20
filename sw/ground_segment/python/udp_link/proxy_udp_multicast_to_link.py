@@ -30,7 +30,7 @@ while( 1 ):
     data = None
     try:
       data, addr = msock.recvfrom(1024)
-    
+
       format = 'B' * (len(data))
       strdata = struct.unpack( format, data )
 
