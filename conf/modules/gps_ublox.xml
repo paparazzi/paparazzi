@@ -1,0 +1,54 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_ublox">
+  <doc>
+    <description>
+      U-blox GPS (UART)
+      Driver for u-blox GPS modules parsing the binary UBX protocol.
+    </description>
+    <configure name="GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
+    <configure name="GPS_BAUD" value="B38400" description="UART baud rate"/>
+    <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
+  </doc>
+  <header>
+    <file name="gps.h" dir="subsystems"/>
+  </header>
+  <!-- uncomment these when not called explicitly from main anymore -->
+  <!--init fun="gps_init()"/-->
+  <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
+  <!--event fun="GpsEvent(on_gps_solution)"/-->
+  <makefile target="ap">
+    <file name="gps.c" dir="subsystems"/>
+    <file name="gps_ubx.c" dir="subsystems/gps"/>
+    <define name="USE_GPS"/>
+    <!-- only for fixedwings -->
+    <!--define name="GPS_USE_LATLONG"/-->
+    <raw>
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+      ap.CFLAGS += -DUSE_$(GPS_PORT) -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
+      ap.CFLAGS += -DUSE_GPS -DGPS_LINK=$(GPS_PORT)
+      GPS_LED ?= none
+      ifneq ($(GPS_LED),none)
+        ap.CFLAGS += -DGPS_LED=$(GPS_LED)
+      endif
+    </raw>
+  </makefile>
+  <makefile target="nps">
+    <file name="gps.c" dir="subsystems"/>
+    <file name="gps_sim_nps.c" dir="subsystems/gps"/>
+    <define name="USE_GPS"/>
+    <raw>
+      nps.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
+    </raw>
+  </makefile>
+  <makefile target="sim|jsbsim">
+    <file name="gps_sim.c" dir="subsystems/gps"/>
+    <define name="USE_GPS"/>
+    <define name="GPS_USE_LATLONG"/>
+    <raw>
+      sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+      jsbsim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+    </raw>
+  </makefile>
+</module>
+
