@@ -65,8 +65,8 @@ void gps_parse(void) {
     // Correct MSG
     if ((size == GPS_UDP_MSG_LEN) && (gps_udp_read_buffer[0] == STX))
     {
-      gps.lla_pos.lat = RadOfDeg(UDP_GPS_INT(gps_udp_read_buffer+4));
-      gps.lla_pos.lon = RadOfDeg(UDP_GPS_INT(gps_udp_read_buffer+8));
+      gps.lla_pos.lat = UDP_GPS_INT(gps_udp_read_buffer+4);
+      gps.lla_pos.lon = UDP_GPS_INT(gps_udp_read_buffer+8);
       gps.lla_pos.alt = UDP_GPS_INT(gps_udp_read_buffer+12);
       gps.hmsl        = UDP_GPS_INT(gps_udp_read_buffer+16);
 
@@ -84,8 +84,7 @@ void gps_parse(void) {
 #if GPS_USE_LATLONG
       // Computes from (lat, long) in the referenced UTM zone
       struct LlaCoor_f lla_f;
-      lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-      lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
       struct UtmCoor_f utm_f;
       utm_f.zone = nav_utm_zone0;
       // convert to utm

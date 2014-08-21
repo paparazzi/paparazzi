@@ -147,7 +147,7 @@ struct State {
 
   /**
    * Position in Latitude, Longitude and Altitude.
-   * Units lat,lon: radians*1e7
+   * Units lat,lon: degrees*1e7
    * Units alt: milimeters above reference ellipsoid
    */
   struct LlaCoor_i lla_pos_i;

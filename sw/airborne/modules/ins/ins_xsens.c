@@ -483,15 +483,13 @@ void parse_ins_msg(void) {
 
         gps.week = 0; // FIXME
         gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
-        gps.lla_pos.lat = RadOfDeg(XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset));
-        gps.lla_pos.lon = RadOfDeg(XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset));
+        gps.lla_pos.lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset);
+        gps.lla_pos.lon = XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset);
         gps.lla_pos.alt = XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset);
 
         /* Set the real UTM zone */
-        gps.utm_pos.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
-
-        lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-        lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+        gps.utm_pos.zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
+        LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
         utm_f.zone = nav_utm_zone0;
         /* convert to utm */
         utm_of_lla_f(&utm_f, &lla_f);
@@ -600,8 +598,8 @@ void parse_ins_msg(void) {
 #if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS
         lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf,offset));
         lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens_msg_buf,offset));
-        gps.lla_pos.lat = (int32_t)(lla_f.lat * 1e7);
-        gps.lla_pos.lon = (int32_t)(lla_f.lon * 1e7);
+        gps.lla_pos.lat = (int32_t)(DegOfRad(lla_f.lat) * 1e7);
+        gps.lla_pos.lon = (int32_t)(DegOfRad(lla_f.lon) * 1e7);
         gps.utm_pos.zone = (DegOfRad(lla_f.lon)+180) / 6 + 1;
         /* convert to utm */
         utm_of_lla_f(&utm_f, &lla_f);

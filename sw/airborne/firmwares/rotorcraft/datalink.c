@@ -105,8 +105,8 @@ void dl_parse_msg(void) {
       if (stateIsLocalCoordinateValid()) {
         uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
         struct LlaCoor_i lla;
-        lla.lat = INT32_RAD_OF_DEG(DL_MOVE_WP_lat(dl_buffer));
-        lla.lon = INT32_RAD_OF_DEG(DL_MOVE_WP_lon(dl_buffer));
+        lla.lat = DL_MOVE_WP_lat(dl_buffer);
+        lla.lon = DL_MOVE_WP_lon(dl_buffer);
         /* WP_alt from message is alt above MSL in cm
          * lla.alt is above ellipsoid in mm
          */

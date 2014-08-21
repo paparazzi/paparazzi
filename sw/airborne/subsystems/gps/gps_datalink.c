@@ -43,8 +43,8 @@ void gps_impl_init(void) {
 void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t ecef_z, int32_t lat, int32_t lon, int32_t alt,
   int32_t hmsl, int32_t ecef_xd, int32_t ecef_yd, int32_t ecef_zd, uint32_t tow, int32_t course) {
 
-  gps.lla_pos.lat = RadOfDeg(lat);
-  gps.lla_pos.lon = RadOfDeg(lon);
+  gps.lla_pos.lat = lat;
+  gps.lla_pos.lon = lon;
   gps.lla_pos.alt = alt;
   gps.hmsl        = hmsl;
 
@@ -65,8 +65,7 @@ void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t e
 #if GPS_USE_LATLONG
   // Computes from (lat, long) in the referenced UTM zone
   struct LlaCoor_f lla_f;
-  lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-  lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+  LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
   struct UtmCoor_f utm_f;
   utm_f.zone = nav_utm_zone0;
   // convert to utm

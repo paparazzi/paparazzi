@@ -104,15 +104,17 @@ void sirf_parse_41(void) {
   gps.nb_channels = p ->num_sat;
 
   /* read latitude, longitude and altitude from packet */
-  gps.lla_pos.lat = RadOfDeg(Invert4Bytes(p->latitude));
-  gps.lla_pos.lon = RadOfDeg(Invert4Bytes(p->longitude));
+  gps.lla_pos.lat = Invert4Bytes(p->latitude);
+  gps.lla_pos.lon = Invert4Bytes(p->longitude);
   gps.lla_pos.alt = Invert4Bytes(p->alt_ellipsoid) * 10;
 
 #if GPS_USE_LATLONG
   /* convert to utm */
+  struct LlaCoor_f lla_f;
+  LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
   struct UtmCoor_f utm_f;
   utm_f.zone = nav_utm_zone0;
-  utm_of_lla_f(&utm_f, &lla_pos);
+  utm_of_lla_f(&utm_f, &lla_f);
 
   /* copy results of utm conversion */
   gps.utm_pos.east = utm_f.east*100;

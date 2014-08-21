@@ -236,8 +236,8 @@ void ins_init() {
   stateSetPositionUtm_f(&utm0);
 #else
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
-  llh_nav0.lat = INT32_RAD_OF_DEG(NAV_LAT0);
-  llh_nav0.lon = INT32_RAD_OF_DEG(NAV_LON0);
+  llh_nav0.lat = NAV_LAT0;
+  llh_nav0.lon = NAV_LON0;
   /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
   llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
   struct EcefCoor_i ecef_nav0;
@@ -284,9 +284,8 @@ void ins_reset_local_origin( void ) {
 #ifdef GPS_USE_LATLONG
   /* Recompute UTM coordinates in this zone */
   struct LlaCoor_f lla;
-  lla.lat = gps.lla_pos.lat / 1e7;
-  lla.lon = gps.lla_pos.lon / 1e7;
-  utm.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+  LLA_FLOAT_OF_BFP(lla, gps.lla_pos);
+  utm.zone = (gps.lla_pos.lon/1e7 + 180) / 6 + 1;
   utm_of_lla_f(&utm, &lla);
 #else
   utm.zone = gps.utm_pos.zone;

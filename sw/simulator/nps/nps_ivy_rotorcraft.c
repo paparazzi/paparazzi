@@ -44,8 +44,8 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
     uint8_t wp_id = atoi(argv[1]);
 
     struct LlaCoor_i lla;
-    lla.lat = INT32_RAD_OF_DEG(atoi(argv[3]));
-    lla.lon = INT32_RAD_OF_DEG(atoi(argv[4]));
+    lla.lat = atoi(argv[3]);
+    lla.lon = atoi(argv[4]);
     /* WP_alt from message is alt above MSL in cm
      * lla.alt is above ellipsoid in mm
      */

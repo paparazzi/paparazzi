@@ -100,15 +100,14 @@ void gps_ubx_read_message(void) {
       }
 #endif
     } else if (gps_ubx.msg_id == UBX_NAV_POSLLH_ID) {
-      gps.lla_pos.lat = RadOfDeg(UBX_NAV_POSLLH_LAT(gps_ubx.msg_buf));
-      gps.lla_pos.lon = RadOfDeg(UBX_NAV_POSLLH_LON(gps_ubx.msg_buf));
+      gps.lla_pos.lat = UBX_NAV_POSLLH_LAT(gps_ubx.msg_buf);
+      gps.lla_pos.lon = UBX_NAV_POSLLH_LON(gps_ubx.msg_buf);
       gps.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(gps_ubx.msg_buf);
       gps.hmsl        = UBX_NAV_POSLLH_HMSL(gps_ubx.msg_buf);
 #if GPS_USE_LATLONG
       /* Computes from (lat, long) in the referenced UTM zone */
       struct LlaCoor_f lla_f;
-      lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-      lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
       struct UtmCoor_f utm_f;
       utm_f.zone = nav_utm_zone0;
       /* convert to utm */

@@ -58,8 +58,8 @@ void geo_mag_event(void) {
       (double)gps.tow/1000/SECS_IN_YEAR;
 
     /* LLA Position in decimal degrees and altitude in km */
-    double latitude = DegOfRad((double)gps.lla_pos.lat / 1e7);
-    double longitude = DegOfRad((double)gps.lla_pos.lon / 1e7);
+    double latitude = (double)gps.lla_pos.lat / 1e7;
+    double longitude = (double)gps.lla_pos.lon / 1e7;
     double alt = (double)gps.lla_pos.alt / 1e6;
 
     // Calculates additional coeffs

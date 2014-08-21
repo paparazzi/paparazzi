@@ -238,7 +238,7 @@ void parse_nmea_GPGGA(void) {
   // convert to radians
   lla_f.lat = RadOfDeg(lat);
 
-  gps.lla_pos.lat = lla_f.lat * 1e7; // convert to fixed-point
+  gps.lla_pos.lat = lat * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GPGGA() - lat=%d gps_lat=%i\n\r", (lat*1000), lla_f.lat);
 
 
@@ -266,7 +266,7 @@ void parse_nmea_GPGGA(void) {
   // convert to radians
   lla_f.lon = RadOfDeg(lon);
 
-  gps.lla_pos.lon = lla_f.lon * 1e7; // convert to fixed-point
+  gps.lla_pos.lon = lon * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GPGGA() - lon=%d gps_lon=%i time=%u\n\r", (lon*1000), lla_f.lon, gps.tow);
 
 

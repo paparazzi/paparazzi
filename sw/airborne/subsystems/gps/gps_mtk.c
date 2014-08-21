@@ -164,8 +164,8 @@ void gps_mtk_read_message(void) {
       gps_time_sync.t0_ticks      = sys_time.nb_tick;
       gps_time_sync.t0_tow      = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);
       gps_time_sync.t0_tow_frac = 0;
-      gps.lla_pos.lat = RadOfDeg(MTK_DIY14_NAV_LAT(gps_mtk.msg_buf))*10;
-      gps.lla_pos.lon = RadOfDeg(MTK_DIY14_NAV_LON(gps_mtk.msg_buf))*10;
+      gps.lla_pos.lat = MTK_DIY14_NAV_LAT(gps_mtk.msg_buf)*10;
+      gps.lla_pos.lon = MTK_DIY14_NAV_LON(gps_mtk.msg_buf)*10;
       // FIXME: with MTK you do not receive vertical speed
       if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
@@ -194,8 +194,7 @@ void gps_mtk_read_message(void) {
       gps.week        = 0;
       /* Computes from (lat, long) in the referenced UTM zone */
       struct LlaCoor_f lla_f;
-      lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-      lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
       struct UtmCoor_f utm_f;
       utm_f.zone = nav_utm_zone0;
       /* convert to utm */
@@ -228,8 +227,8 @@ void gps_mtk_read_message(void) {
       gps.t0_tow      = gps.tow;
       gps.t0_tow_frac = 0;
 #endif
-      gps.lla_pos.lat = RadOfDeg(MTK_DIY16_NAV_LAT(gps_mtk.msg_buf))*10;
-      gps.lla_pos.lon = RadOfDeg(MTK_DIY16_NAV_LON(gps_mtk.msg_buf))*10;
+      gps.lla_pos.lat = MTK_DIY16_NAV_LAT(gps_mtk.msg_buf)*10;
+      gps.lla_pos.lon = MTK_DIY16_NAV_LON(gps_mtk.msg_buf)*10;
       // FIXME: with MTK you do not receive vertical speed
       if (sys_time.nb_sec - gps.last_3dfix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
@@ -256,8 +255,7 @@ void gps_mtk_read_message(void) {
       /* HDOP? */
       /* Computes from (lat, long) in the referenced UTM zone */
       struct LlaCoor_f lla_f;
-      lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-      lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
       struct UtmCoor_f utm_f;
       utm_f.zone = nav_utm_zone0;
       /* convert to utm */

@@ -105,8 +105,8 @@ void gps_skytraq_read_message(void) {
     gps.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
     gps.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
     gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
-    gps.lla_pos.lat = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf));
-    gps.lla_pos.lon = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf));
+    gps.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
+    gps.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
     gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf)*10;
     gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf)*10;
     //   pacc;
@@ -130,8 +130,7 @@ void gps_skytraq_read_message(void) {
 #if GPS_USE_LATLONG
     /* Computes from (lat, long) in the referenced UTM zone */
     struct LlaCoor_f lla_f;
-    lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
-    lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+    LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
     struct UtmCoor_f utm_f;
     utm_f.zone = nav_utm_zone0;
     /* convert to utm */

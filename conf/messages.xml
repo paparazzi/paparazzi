@@ -365,8 +365,8 @@
 
   <message name="WP_MOVED_LLA" id="47">
     <field name="wp_id" type="uint8"/>
-    <field name="lat" type="int32" unit="deg"/>
-    <field name="lon" type="int32" unit="deg"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt" type="int32" unit="cm"/>
   </message>
 
@@ -469,8 +469,8 @@
  </message>
 
   <message name="GPS_LLA" id="59">
-    <field name="lat"        type="int32"  alt_unit="deg" alt_unit_coef="0.0000057296"/>
-    <field name="lon"        type="int32"  alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lat"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"        type="int32"  unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
@@ -692,8 +692,8 @@
   </message>
 
   <message name="GENERIC_COM" id="81">
-    <field name="lat" type="int32" unit="1e7deg"/>
-    <field name="lon" type="int32" unit="1e7deg"/>
+    <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt" type="int16" unit="m"/>
     <field name="gspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
     <field name="course" type="int16" unit="decideg" alt_unit="deg"/>
@@ -1364,8 +1364,8 @@
     <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
     <field name="ecef_y0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
     <field name="ecef_z0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
-    <field name="lat0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
-    <field name="lon0"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000057296"/>
+    <field name="lat0"    type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon0"    type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt0"    type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
     <field name="hmsl0"   type="int32" alt_unit="m"    alt_unit_coef="0.001"/>
     <field name="baro_qfe" type="float" unit="pascal"/>
@@ -1375,8 +1375,8 @@
     <field name="ecef_x"  type="int32" unit="cm"   alt_unit="m"/>
     <field name="ecef_y"  type="int32" unit="cm"   alt_unit="m"/>
     <field name="ecef_z"  type="int32" unit="cm"   alt_unit="m"/>
-    <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
-    <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lat"     type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"     type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt"     type="int32" unit="mm"   alt_unit="m"/>
     <field name="hmsl"    type="int32" unit="mm"   alt_unit="m"/>
     <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
@@ -2204,8 +2204,8 @@
  <message name="MOVE_WP" id="2" link="forwarded">
   <field name="wp_id" type="uint8"/>
   <field name="ac_id" type="uint8"/>
-  <field name="lat" type="int32" unit="e-7deg"/>
-  <field name="lon" type="int32" unit="e-7deg"/>
+  <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+  <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
   <field name="alt" type="int32" unit="cm"/>
  </message>
 
@@ -2448,8 +2448,8 @@
     <field name="ecef_x"  type="int32" unit="cm"   alt_unit="m"/>
     <field name="ecef_y"  type="int32" unit="cm"   alt_unit="m"/>
     <field name="ecef_z"  type="int32" unit="cm"   alt_unit="m"/>
-    <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
-    <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lat"     type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"     type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="alt"     type="int32" unit="mm"   alt_unit="m"/>
     <field name="hmsl"    type="int32" unit="mm"   alt_unit="m"/>
     <field name="ecef_xd" type="int32" unit="cm/s" alt_unit="m/s"/>
