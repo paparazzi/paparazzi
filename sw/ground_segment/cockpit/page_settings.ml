@@ -73,7 +73,8 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
       fprintf stderr "Warning: 'step' attribute missing in '%s' setting. Default to 1\n%!" (Xml.to_string dl_setting);
       1.
   in
-  let digits = try ignore(int_of_string (ExtXml.attrib dl_setting "step")); 0 with _ -> 3 in
+  (* get number of digits after decimal dot *)
+  let digits = try String.length (ExtXml.attrib dl_setting "step") - String.index (ExtXml.attrib dl_setting "step") '.' - 1 with _ -> 0 in
   let page_incr = step_incr
   and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
@@ -89,13 +90,40 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 
   let auto_but = GButton.check_button ~label:"Auto" ~active:false () in
 
-  (** For a small number of values, radio buttons,
+  (** Either choose type of widged explicitly by 'widget' attribute:
+      Allowed attribute values: "radio_button", "combo_box", "slider", "spin_button"
+      For a small number of values, radio buttons,
       For a large number of values, combo box,
-      else a slider *)
+      For float values with range up to 2^16, slider
+      else spin button.
+  *)
   let values = values_of_dl_setting dl_setting
   and modified = ref false in
+  let widget_attrib = try ExtXml.attrib dl_setting "widget" with _ -> "auto" in
+  let widget_t =
+    if Str.string_match (Str.regexp_case_fold "radio.*") widget_attrib 0 then
+      "radio_button"
+    else if Str.string_match (Str.regexp_case_fold "combo.*") widget_attrib 0 then
+      "combo_box"
+    else if Str.string_match (Str.regexp_case_fold "slider.*") widget_attrib 0 then
+      "slider"
+    else if Str.string_match (Str.regexp_case_fold "spin.*") widget_attrib 0 then
+      "spin_button"
+    else (* auto *)
+        if step_incr = 1. && upper -. lower <= 2. || Array.length values > 0 then
+          if Array.length values > 2 then (* Combo box *)
+           "combo_box"
+          else (* radio buttons *)
+            "radio_button"
+        else (* no values given, slider or spin button *)
+          let range = upper -. lower in
+          if range > 65536. then (* spin button *)
+            "spin_button"
+          else
+            "slider"
+  in
   let commit, set_default =
-    if step_incr = 1. && upper -. lower <= 2. || Array.length values > 0 then
+    if widget_t = "radio_button" || widget_t = "combo_box" then
       (* Discrete values *)
       let value = ref lower in
       let callback = fun () -> do_change i !value in
@@ -103,7 +131,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
         modified := true;
         value := float index;
         if auto_but#active then callback () in
-      if Array.length values > 2 then (* Combo box *)
+      if widget_t = "combo_box" then (* Combo box *)
         let strings = Array.to_list values in
         let combo = Gtk_tools.combo strings hbox in
 
@@ -133,12 +161,11 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
             ignore (b#connect#pressed (fun () -> update_value (ilower + j)));
             b) in
         (callback, fun j -> try buttons.(truncate j - ilower)#set_active true with _ -> ())
-    else (* slider *)
-      let range = upper -. lower in
+    else (* no values given, slider or spin button *)
       let value = (lower +. upper) /. 2. in
-      if range > 65536. then
+      if widget_t = "spin_button" then
         let adj = GData.adjustment ~value ~lower ~upper:(upper+.step_incr) ~step_incr ~page_incr ~page_size:0. () in
-        let _spinbutton = GEdit.spin_button ~adjustment:adj ~numeric:true ~packing:hbox#add () in
+        let _spinbutton = GEdit.spin_button ~adjustment:adj ~digits ~numeric:true ~packing:hbox#add () in
         let f = fun _ -> do_change i ((adj#value-.alt_b)/.alt_a)  in
         let callback = fun () -> modified := true; if auto_but#active then f () in
         ignore (adj#connect#value_changed ~callback);
