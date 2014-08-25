@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
+#include "inttypes.h"
 
 #ifdef ARCH_ALIGN_DOUBLE
 value
@@ -143,6 +144,18 @@ c_int32_of_indexed_bytes(value s, value index)
   int32_t *x = (int32_t*)(String_val(s) + Int_val(index));
 
   return copy_int32(*x);
+}
+
+value
+c_uint32_of_indexed_bytes(value s, value index)
+{
+  uint32_t *x = (uint32_t*)(String_val(s) + Int_val(index));
+
+  /* since OCaml doesn't have unsigned integers,
+   * we represent it as 64bit signed int to make sure it doesn't overflow
+   */
+  int64_t y = *x;
+  return copy_int64(y);
 }
 
 #ifdef ARCH_ALIGN_INT64
