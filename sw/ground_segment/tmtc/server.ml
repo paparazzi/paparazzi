@@ -632,7 +632,7 @@ let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "CONFIG" (send_config http))
 
 
-let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f))
+let cm_of_m = fun f -> Pprz.Int (truncate ((100. *. f) +. 0.5)) (* Convert to cm, with rounding *)
 let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 
 (** Got a ground.MOVE_WAYPOINT and send a datalink.MOVE_WP *)

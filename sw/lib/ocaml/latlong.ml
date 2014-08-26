@@ -67,7 +67,7 @@ let make_geo_deg = fun lat long ->
   { posn_long = norm_angle ((Deg>>Rad)long); posn_lat = ((Deg>>Rad)lat) }
 
 
-let deg_string_of_rad = fun r -> Printf.sprintf "%.6f" ((Rad>>Deg)r)
+let deg_string_of_rad = fun r -> Printf.sprintf "%.7f" ((Rad>>Deg)r)
 
 let decimal d m s = float d +. float m /. 60. +. s /. 3600.;;
 let dms = fun x ->
@@ -78,7 +78,7 @@ let dms = fun x ->
 
 
 let sprint_degree_of_radian x =
-  Printf.sprintf "%.6f" ((Rad>>Deg) x)
+  Printf.sprintf "%.7f" ((Rad>>Deg) x)
 
 let string_degrees_of_geographic sm =
   Printf.sprintf "%s\t%s"
@@ -584,9 +584,10 @@ let ecef_of_geo = fun geo ->
     and cos_long = cos long in
 
     let chi = sqrt (1. -. e2*.sin_lat*.sin_lat) in
-    let x = (elps.a/.chi +.h)*.cos_lat*.cos_long
-    and y = (elps.a/.chi +.h)*.cos_lat*.sin long
-    and z = (elps.a*.(1.-.e2)/.chi +. h)*.sin_lat in
+    let a_chi = elps.a /. chi in
+    let x = (a_chi +.h)*.cos_lat*.cos_long
+    and y = (a_chi +.h)*.cos_lat*.sin long
+    and z = (a_chi*.(1.-.e2) +. h)*.sin_lat in
     [|x; y; z|]
 
 let geo_of_ecef = fun geo ->

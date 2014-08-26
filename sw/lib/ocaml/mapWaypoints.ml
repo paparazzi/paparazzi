@@ -254,7 +254,7 @@ object (self)
   method moved = moved <> None
   method reset_moved () =
     match moved with
-        None -> ()
+      | None -> ()
       | Some x ->
         Glib.Timeout.remove x;
         item#affine_absolute rotation_45;
@@ -277,11 +277,11 @@ object (self)
 
     let new_pos = ecef_distance current_ecef new_ecef > 2. in
     match moved, new_pos with
-        None, true ->
+      | None, _ ->
           self#move dx dy;
           alt <- alt+.dz;
           if update then updated ()
-      | (None, false) | (Some _, true) -> ()
+      | Some _, true -> ()
       | Some _, false -> self#reset_moved ()
   method set_ground_alt ga = ground_alt <- ga
   method delete () =
