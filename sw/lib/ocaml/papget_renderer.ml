@@ -158,7 +158,6 @@ end
 (*************************** Gauge ***********************************)
 class canvas_gauge = fun ?(config=[]) canvas_group x y ->
   let size = PC.get_prop "size" config "50." in
-  let text = PC.get_prop "text" config "" in
   (*let text_props = [`ANCHOR `CENTER; `FILL_COLOR "white"] in*)
 
   let r1 = Pervasives.max 10. ((float_of_string size) /. 2.) in
@@ -245,7 +244,6 @@ end
 (*************************** Led ***********************************)
 class canvas_led = fun ?(config=[]) canvas_group x y ->
   let size = float_of_string (PC.get_prop "size" config "15.") in
-  let text = PC.get_prop "text" config "" in
 
   let root = GnoCanvas.group ~x ~y canvas_group in
 
