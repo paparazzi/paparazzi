@@ -127,6 +127,20 @@ void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct Ne
   ecef_of_enu_vect_d(ecef, def, &enu);
 }
 
+
+void enu_of_lla_point_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct LlaCoor_d* lla) {
+  struct EcefCoor_d ecef;
+  ecef_of_lla_d(&ecef,lla);
+  enu_of_ecef_point_d(enu,def,&ecef);
+}
+
+void ned_of_lla_point_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct LlaCoor_d* lla) {
+  struct EcefCoor_d ecef;
+  ecef_of_lla_d(&ecef,lla);
+  ned_of_ecef_point_d(ned,def,&ecef);
+}
+
+
 /* geocentric latitude of geodetic latitude */
 double gc_of_gd_lat_d(double gd_lat, double hmsl) {
   const double a = 6378137.0;           /* earth semimajor axis in meters */
