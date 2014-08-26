@@ -53,7 +53,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     let a = array_of_string ubx_payload in
     let s = Pprz.string_of_value (Pprz.Array a) in
     let vs = ["ac_id",Pprz.Int !my_id;
-	      "class", Pprz.Int class_id;
+	      "msg_class", Pprz.Int class_id;
 	      "id", Pprz.Int msg_id;
 	      "ubx_payload", Pprz.String s] in
 

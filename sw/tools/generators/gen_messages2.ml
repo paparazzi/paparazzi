@@ -123,12 +123,12 @@ module Syntax = struct
   let read = fun filename class_ ->
     let xml = Xml.parse_file filename in
     try
-      let xml_class = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = class_) xml "class" in
+      let xml_class = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = class_) xml "msg_class" in
       let msgs = List.map struct_of_xml (Xml.children xml_class) in
       check_single_ids msgs;
       msgs
     with
-        Not_found -> failwith (sprintf "No class '%s' found" class_)
+        Not_found -> failwith (sprintf "No msg_class '%s' found" class_)
 end (* module Suntax *)
 
 

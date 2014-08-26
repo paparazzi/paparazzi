@@ -1,12 +1,12 @@
 <!-- U-BLOX UBX protocol DTD -->
 
-<!ELEMENT ubx (class+)>
-<!ELEMENT class (message+)>
+<!ELEMENT ubx (msg_class+)>
+<!ELEMENT msg_class (message+)>
 <!ELEMENT message (field|block)*>
 <!ELEMENT block (field*)>
 <!ELEMENT field EMPTY>
 
-<!ATTLIST class
+<!ATTLIST msg_class
   name CDATA #REQUIRED
   ID CDATA #REQUIRED>
 

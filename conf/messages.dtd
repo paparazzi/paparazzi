@@ -1,8 +1,8 @@
-<!ELEMENT protocol (class+)>
+<!ELEMENT protocol (msg_class+)>
 <!ATTLIST protocol>
 
-<!ELEMENT class (message+)>
-<!ATTLIST class
+<!ELEMENT msg_class (message+)>
+<!ATTLIST msg_class
   name CDATA #REQUIRED
 >
 

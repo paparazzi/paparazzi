@@ -668,7 +668,9 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
   let class_name =
     try
       let name = "telemetry_ap" in
-      let _ = ExtXml.child protocol ~select:(fun x -> Xml.attrib x "name" = name) "class" in
+      let _ = begin try ExtXml.child protocol ~select:(fun x -> Xml.attrib x "name" = name) "msg_class"
+        with Not_found -> ExtXml.child protocol ~select:(fun x -> Xml.attrib x "name" = name) "class"
+      end in
       name
     with _ -> "telemetry" in
 

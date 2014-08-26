@@ -40,7 +40,7 @@ def GetOptions():
 def ParseMessages():
     from lxml import etree
     tree = etree.parse( messages_path)
-    for the_class in tree.xpath("//class[@name]"):
+    for the_class in tree.xpath("//msg_class[@name]"):
         class_name = the_class.attrib['name']
         if class_name not in message_dictionary:
             message_dictionary_id_name[class_name] = {}

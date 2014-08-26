@@ -5,7 +5,7 @@
 
 <ubx>
 
-  <class name="NAV" ID="0x01">
+  <msg_class name="NAV" ID="0x01">
 
     <message name="POSLLH" ID="0x02" length="28">
       <field name="ITOW" format="U4" unit="ms"/>
@@ -96,9 +96,9 @@
       </block>
     </message>
 
-  </class>
+  </msg_class>
 
-  <class name="CFG" ID="0x06">
+  <msg_class name="CFG" ID="0x06">
 
     <message name="PRT" ID="0x00">
       <block length="20">
@@ -192,9 +192,9 @@
       <field name="res4" format="U4"/>
     </message>
 
-  </class>
+  </msg_class>
 
-  <class name="ACK" ID="0x05">
+  <msg_class name="ACK" ID="0x05">
 
     <message name="ACK" ID="0x01" length="2">
       <field name="ClsID" format="U1"/>
@@ -206,9 +206,9 @@
       <field name="MsgID" format="U1"/>
     </message>
 
-  </class>
+  </msg_class>
 
-  <class name="RXM" ID="0x02">
+  <msg_class name="RXM" ID="0x02">
 
 <!--
 Only available with raw data product variant.
@@ -249,9 +249,9 @@ supported.
       <field name="dwrd9" format="U4"/>
     </message>
 
-  </class>
+  </msg_class>
 
-  <class name="MON" ID="0x0A">
+  <msg_class name="MON" ID="0x0A">
 
     <message name="GET_VER" ID="0x04" length="0">
     </message>
@@ -262,6 +262,6 @@ supported.
       </block>
     </message>
 
-  </class>
+  </msg_class>
 
 </ubx>

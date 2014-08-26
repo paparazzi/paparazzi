@@ -278,7 +278,8 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
   let msg_names = Hashtbl.create 30 in
   List.iter (fun (_, name, _) -> if not (Hashtbl.mem msg_names name) then Hashtbl.add msg_names name ()) data;
   (** Fill the colums *)
-  let xml_class = ExtXml.child ~select:(fun c -> ExtXml.attrib c "name" = class_name) xml "class" in
+  let xml_class = try ExtXml.child ~select:(fun x -> Xml.attrib x "name" = class_name) xml "msg_class"
+    with Not_found -> ExtXml.child ~select:(fun x -> Xml.attrib x "name" = class_name) xml "class" in
   (** Filter xml message *)
   let xml_class = Xml.Element (
     class_name, [],

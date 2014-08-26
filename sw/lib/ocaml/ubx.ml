@@ -92,7 +92,7 @@ let ubx_xml =
 
 let ubx_get_class = fun name ->
   let ubx_xml = Lazy.force ubx_xml in
-  ExtXml.child ubx_xml ~select:(fun x -> ExtXml.attrib x "name" = name) "class"
+  ExtXml.child ubx_xml ~select:(fun x -> ExtXml.attrib x "name" = name) "msg_class"
 
 let ubx_get_msg = fun ubx_class name ->
   ExtXml.child ubx_class ~select:(fun x -> ExtXml.attrib x "name" = name) "message"

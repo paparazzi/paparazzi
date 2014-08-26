@@ -609,7 +609,8 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   let messages_by_id, messages_by_name =
     try
       let select = fun x -> Xml.attrib x "name" = Class.name in
-      parse_class (ExtXml.child Class.xml ~select "class")
+      let xml_class = try ExtXml.child Class.xml ~select "msg_class" with Not_found -> ExtXml.child Class.xml ~select "class" in
+      parse_class xml_class
     with
         Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
   let messages = messages_by_id
