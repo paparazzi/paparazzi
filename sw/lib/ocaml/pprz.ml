@@ -301,12 +301,17 @@ let int_assoc = fun (a:string) vs ->
 let int32_assoc = fun (a:string) vs ->
   match assoc a vs with
       Int32 x -> x
-    | _ -> invalid_arg "Pprz.int_assoc"
+    | _ -> invalid_arg "Pprz.int32_assoc"
+
+let uint32_assoc = fun (a:string) vs ->
+  match assoc a vs with
+      Int64 x -> x
+    | _ -> invalid_arg "Pprz.uint32_assoc"
 
 let int64_assoc = fun (a:string) vs ->
   match assoc a vs with
     Int64 x -> x
-  | _ -> invalid_arg "Pprz.int_assoc"
+  | _ -> invalid_arg "Pprz.int64_assoc"
 
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
 

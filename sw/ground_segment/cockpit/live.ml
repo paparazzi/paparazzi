@@ -1156,8 +1156,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       ac.last_block_name <- b;
       ac.strip#set_label "block_name" b
     end;
-    let block_time = Int32.to_int (Pprz.int32_assoc "block_time" vs)
-    and stage_time = Int32.to_int (Pprz.int32_assoc "stage_time" vs) in
+    let block_time = Int64.to_int (Pprz.uint32_assoc "block_time" vs)
+    and stage_time = Int64.to_int (Pprz.uint32_assoc "stage_time" vs) in
     let bt = sprintf "%02d:%02d" (block_time / 60) (block_time mod 60) in
     ac.strip#set_label "block_time" bt;
     let st = sprintf "%02d:%02d" (stage_time / 60) (stage_time mod 60) in
@@ -1238,7 +1238,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
 
   let get_ap_status = fun _sender vs ->
     let ac = get_ac vs in
-    let flight_time = Int32.to_int (Pprz.int32_assoc "flight_time" vs) in
+    let flight_time = Int64.to_int (Pprz.uint32_assoc "flight_time" vs) in
     ac.track#update_ap_status (float_of_int flight_time);
     ac.flight_time <- flight_time;
     let ap_mode = Pprz.string_assoc "ap_mode" vs in

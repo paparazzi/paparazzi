@@ -83,6 +83,7 @@ val string_assoc : string -> values -> string
 val float_assoc : string -> values -> float
 val int_assoc : string -> values -> int
 val int32_assoc : string -> values -> Int32.t
+val uint32_assoc : string -> values -> Int64.t
 val int64_assoc : string -> values -> Int64.t
 (** May raise Not_found or Invalid_argument *)
 
