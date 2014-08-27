@@ -8,53 +8,30 @@ use Data::Dumper;
 use Config;
 
 $|++;
-my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml");
 my $xmlSimple = XML::Simple->new(ForceArray => 1);
-
-use Data::Dumper;
+my $examples = $xmlSimple->XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml");
 
 ok(1, "Parsed the tests configuration file");
 foreach my $example (sort keys%{$examples->{'aircraft'}})
 {
-	#next unless $example =~ m#easystar#i;
 	my $airframe = $examples->{'aircraft'}->{$example}->{'airframe'};
 	my $airframe_config = $xmlSimple->XMLin("$ENV{'PAPARAZZI_SRC'}/conf/$airframe");
 	foreach my $process (sort keys %{$airframe_config->{'firmware'}})
 	{
-		if ($process =~ m#setup|fixedwing|rotorcraft|lisa_test_progs#)
-		{
-			#warn "EX: [$example] ". Dumper($airframe_config->{'firmware'}->{$process}->{'target'});
-			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
-			{
-				next unless scalar $airframe_config->{'firmware'}->{$process}->{'target'}->{$target}->{'board'};
-
-				#warn "EXAMPLE: [$example] TARGET: [$target]\n";
-				my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
-				my $output = run_program(
-					"Attempting to build the firmware $target for the airframe $example.",
-					$ENV{'PAPARAZZI_SRC'},
-					"make $make_options",
-					$ENV->{'TEST_VERBOSE'},1);
-				unlike($output, '/\bError\b/i', "The make output for the $example target $target does not contain the word \"Error\"");
-			}
-		}
-		elsif ($process =~ m#target#)
-		{
-			#warn "EXT: [$example] ". Dumper($airframe_config->{'firmware'}->{$process});
-			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}})
-			{
-				next unless scalar $airframe_config->{'firmware'}->{$process}->{$target}->{'board'};
-
-				#warn "EXAMPLET: [$example] TARGET: [$target]\n";
-				my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
-				my $output = run_program(
-					"Attempting to build the firmware $target for the airframe $example.",
-					$ENV{'PAPARAZZI_SRC'},
-					"make $make_options",
-					$ENV->{'TEST_VERBOSE'},1);
-				unlike($output, '/\bError\b/i', "The make output for the $example target $target does not contain the word \"Error\"");
-			}
-		}
+        #warn "EX: [$example] ". Dumper($airframe_config->{'firmware'}->{$process}->{'target'});
+        foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
+        {
+            #warn "EXAMPLE: [$example] TARGET: [$target]\n";
+            my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
+            my ($exit_status, $output) = run_program(
+                "Attempting to build the firmware $target for the aircraft $example.",
+                $ENV{'PAPARAZZI_SRC'},
+                "make $make_options",
+                $ENV{'TEST_VERBOSE'},1);
+            # print output if it failed and we didn't already print it in verbose mode
+            warn "$output\n" if $exit_status && !$ENV{'TEST_VERBOSE'};
+            ok($exit_status == 0, "Compile aircraft: $example, target: $target");
+        }
 	}
 }
 
@@ -70,12 +47,13 @@ sub run_program
         my $verbose = shift;
         my $dont_fail_on_error = shift;
 
-        warn "$message\n" if $verbose;
+        warn "\n$message\n" if $verbose;
         if (defined $dir)
         {
                 $command = "cd $dir;" . $command;
         }
         my $prog = new Program("bash");
+        #$prog->redirect('none');
         my $fh = $prog->open("-c \"$command\"");
         warn "Running command: \"". $prog->last_command() ."\"\n" if $verbose;
         $fh->autoflush(1);
@@ -92,13 +70,14 @@ sub run_program
         {
                 if ($dont_fail_on_error)
                 {
-                        warn "Error: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n";
+                        warn "\nError: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n";
                 }
                 else
                 {
-                        die "Error: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n";
+                        die "\nError: The command \"". $prog->last_command() ."\" failed to complete successfully. Exit status: $exit_status\n";
                 }
         }
-        return wantarray ? @output : join "\n", @output;
+        my $output_string = join "\n", @output;
+        return ($exit_status, $output_string);
 }
 
