@@ -46,7 +46,7 @@ struct InsArdrone2 ins_impl;
 void ins_init() {
 #if USE_INS_NAV_INIT
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
-  llh_nav0.lat = NAV_LAT0);
+  llh_nav0.lat = NAV_LAT0;
   llh_nav0.lon = NAV_LON0;
   /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
   llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
