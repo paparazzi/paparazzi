@@ -118,6 +118,10 @@
       <call fun="nav_vertical_raster_setup()"/>
       <call fun="nav_vertical_raster_run(WP_S1, WP_S2, nav_radius, 50)"/>
     </block>
+    <block name="Spiral">
+      <call fun="nav_spiral_setup(WP_S1, WP_S2, 30, 10, 3)"/>
+      <call fun="nav_spiral_run()"/>
+    </block>
     <!--====================================================================================-->
 
     <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
