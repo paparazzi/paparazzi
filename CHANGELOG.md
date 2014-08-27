@@ -4,19 +4,23 @@ Not necessarily complete and in no particular order...
 General
 -------
 
+- ocaml/link: fix uint32 parsing
+  [#809] (https://github.com/paparazzi/paparazzi/pull/809)
 - modules: use VPATH to make it easier to load external modules
   [#760] (https://github.com/paparazzi/paparazzi/pull/760)
 - ground_segment: try to update AGL even if GPS is lost
   [#742] (https://github.com/paparazzi/paparazzi/issues/742)
 - ground_segment: different icons for the different applications of paparazzi
   [#787] (https://github.com/paparazzi/paparazzi/pull/787)
+- generators: fix generated longitude in 1e7deg on 32bit systems
+  [#808] (https://github.com/paparazzi/paparazzi/issues/808)
 - GCS: add exponentiation operator to papgets
 - logalizer: export lat/lon with 9 decimal places
 - GCS: display AP mode forward correctly
   [#748] (https://github.com/paparazzi/paparazzi/pull/748)
 - GCS: also center aircraft on uppercase C and fix listed keys in help
   [#803] (https://github.com/paparazzi/paparazzi/issues/803)
-- settings: use spin button instead of slider for really large ranges
+- settings: add spin button widget for numeric input instead of sliders
   [#795] (https://github.com/paparazzi/paparazzi/issues/795)
 - tools: flash via bmp: reset and detach from target after uploading
   [#746] (https://github.com/paparazzi/paparazzi/issues/746)
@@ -51,6 +55,8 @@ Airborne
 - modules: gps_ubx_ucenter: fix version check for Ublox 7
 - modules: add CSV file logger for ARDrone
   [#788] (https://github.com/paparazzi/paparazzi/pull/788)
+- modules: geo_mag: fixedwing compatibility
+  [#806] (https://github.com/paparazzi/paparazzi/issues/806)
 - ardrone2: mag freeze fix
   [#767] (https://github.com/paparazzi/paparazzi/pull/767)
 - boards: add support for navstik
@@ -99,6 +105,8 @@ Rotorcraft Firmware
   [#759] (https://github.com/paparazzi/paparazzi/pull/759)
 - guidance_v: only limit throttle if RC ok
   [#766] (https://github.com/paparazzi/paparazzi/pull/766)
+- navigation: fix waypoint initialization in ENU
+  [#791] (https://github.com/paparazzi/paparazzi/pull/791)
 
 STM32 architecture
 ------------------
