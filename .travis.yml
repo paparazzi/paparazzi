@@ -1,0 +1,14 @@
+language: c
+compiler:
+  - gcc
+  - clang
+before_install:
+  - sudo add-apt-repository ppa:paparazzi-uav/ppa -y
+  - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded -y
+  - sudo apt-get update -q
+install:
+  - sudo apt-get install paparazzi-dev paparazzi-jsbsim gcc-arm-none-eabi
+before_script: cd conf && ln -s conf_tests.xml conf.xml && cd ..
+script:
+  - make
+  - make run_tests J=AUTO TEST_FILES=examples/01_compile_all_test_targets.t
