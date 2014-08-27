@@ -8,7 +8,7 @@ use Data::Dumper;
 use Config;
 
 $|++;
-my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf_tests.xml");
+my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml");
 my $xmlSimple = XML::Simple->new(ForceArray => 1);
 
 use Data::Dumper;
