@@ -1,5 +1,7 @@
-Not necessarily complete and in no particular order...
+Paparazzi 5.2.0_stable
+=======================
 
+Stable version release.
 
 General
 -------
