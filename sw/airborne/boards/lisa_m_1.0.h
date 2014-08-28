@@ -69,6 +69,12 @@
 #define LED_BODY_GPIO_OFF gpio_clear
 #define LED_BODY_AFIO_REMAP ((void)0)
 
+/*
+ * Spektrum
+ */
+/* The line that is pulled low at power up to initiate the bind process */
+#define SPEKTRUM_BIND_PIN GPIO3
+#define SPEKTRUM_BIND_PIN_PORT GPIOC
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"

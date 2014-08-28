@@ -100,9 +100,19 @@
    gui_color="blue"
   />
   <aircraft
-   name="Quad_LisaM_2"
+   name="Quad_LisaM_20"
    ac_id="162"
-   airframe="airframes/examples/quadrotor_lisa_m_2_pwm_spektrum.xml"
+   airframe="airframes/examples/quadrotor_lisa_m_20_pwm_spektrum.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings=" settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml settings/estimation/ahrs_int_cmpl_quat.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="Quad_LisaM_21"
+   ac_id="163"
+   airframe="airframes/examples/quadrotor_lisa_m_21_pwm_spektrum.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"

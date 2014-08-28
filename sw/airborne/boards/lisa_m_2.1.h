@@ -1,5 +1,5 @@
-#ifndef CONFIG_LISA_M_2_0_H
-#define CONFIG_LISA_M_2_0_H
+#ifndef CONFIG_LISA_M_2_1_H
+#define CONFIG_LISA_M_2_1_H
 
 #include "boards/lisa_m_common.h"
 
@@ -113,8 +113,8 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO3
-#define SPEKTRUM_BIND_PIN_PORT GPIOC
+#define SPEKTRUM_BIND_PIN GPIO2
+#define SPEKTRUM_BIND_PIN_PORT GPIOB
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
@@ -131,4 +131,4 @@
 #define USE_BARO_BOARD 1
 #endif
 
-#endif /* CONFIG_LISA_M_2_0_H */
+#endif /* CONFIG_LISA_M_2_1_H */
