@@ -14,6 +14,10 @@ General
   [#787] (https://github.com/paparazzi/paparazzi/pull/787)
 - generators: fix generated longitude in 1e7deg on 32bit systems
   [#808] (https://github.com/paparazzi/paparazzi/issues/808)
+- lat/lon int in 1e7deg instead of 1e7rad
+  [#810] (https://github.com/paparazzi/paparazzi/pull/810)
+- GCS: fix inaccurate waypoint updates
+  [#762] (https://github.com/paparazzi/paparazzi/issues/762)
 - GCS: add exponentiation operator to papgets
 - logalizer: export lat/lon with 9 decimal places
 - GCS: display AP mode forward correctly
@@ -32,6 +36,8 @@ General
   [#770] (https://github.com/paparazzi/paparazzi/pull/770)
   [#776] (https://github.com/paparazzi/paparazzi/pull/776)
   [#789] (https://github.com/paparazzi/paparazzi/pull/789)
+- messages: rename class to msg_class
+  [#812] (https://github.com/paparazzi/paparazzi/pull/812)
 - messages: add GEO_MAG message to send magnetic field
   [#735] (https://github.com/paparazzi/paparazzi/pull/735)
 - messages: add speed setpoint to GUIDANCE_H_REF_INT message
@@ -53,6 +59,7 @@ Airborne
 - flight plans: don't set nav_pitch to 0 at each stage init
   [#727] (https://github.com/paparazzi/paparazzi/pull/727)
 - modules: gps_ubx_ucenter: fix version check for Ublox 7
+- modules: add HackHD digital camera control module
 - modules: add CSV file logger for ARDrone
   [#788] (https://github.com/paparazzi/paparazzi/pull/788)
 - modules: geo_mag: fixedwing compatibility
@@ -126,6 +133,10 @@ STM32 architecture
   [#751] (https://github.com/paparazzi/paparazzi/pull/751)
 - simplify actuators_pwm
   [#757] (https://github.com/paparazzi/paparazzi/pull/757)
+- boards: add files for Lisa/M and Lisa/MX v2.1
+  [#813] ((https://github.com/paparazzi/paparazzi/pull/813)
+- spektrum: configure the bind pin to be pullup/pulldown
+  [#814] (https://github.com/paparazzi/paparazzi/pull/814)
 
 
 Paparazzi 5.1.1_testing
