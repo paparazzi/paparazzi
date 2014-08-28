@@ -686,15 +686,27 @@ void SecondaryUart(_ISR)(void) {
  *****************************************************************************/
 void radio_control_spektrum_try_bind(void) {
 
-  /* Init GPIO for the bind pin */
-  gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
-
-  /* exit if the BIND_PIN is high, it needs to
-     be pulled low at startup to initiate bind */
 #ifdef SPEKTRUM_BIND_PIN_HIGH
+  /* Init GPIO for the bind pin, we enable the pulldown resistor.
+   * (esden) As far as I can tell only navstick is using the PIN LOW version of
+   * the bind pin, but I assume this should not harm anything. If I am mistaken
+   * than I appologise for the inconvenience. :)
+   */
+  gpio_setup_input_pulldown(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
+
+  /* exit if the BIND_PIN is low, it needs to
+     be pulled high at startup to initiate bind */
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) == 0)
     return;
 #else
+  /* Init GPIO for the bind pin, we enable the pullup resistor in case we have
+   * a floating pin that does not have a hardware pullup resistor as it is the
+   * case with Lisa/M and Lisa/MX prior to version 2.1.
+   */
+  gpio_setup_input_pullup(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
+
+  /* exit if the BIND_PIN is high, it needs to
+     be pulled low at startup to initiate bind */
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0)
     return;
 #endif

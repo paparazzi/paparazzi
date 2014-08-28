@@ -48,6 +48,20 @@ extern void gpio_setup_output(uint32_t port, uint16_t gpios);
 extern void gpio_setup_input(uint32_t port, uint16_t gpios);
 
 /**
+ * Setup one or more pins of the given GPIO port as inputs with pull up resistor enabled.
+ * @param[in] port
+ * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+extern void gpio_setup_input_pullup(uint32_t port, uint16_t gpios);
+
+/**
+ * Setup one or more pins of the given GPIO port as inputs with pull down resistors enabled.
+ * @param[in] port
+ * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
+ */
+extern void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios);
+
+/**
  * Setup a gpio for input or output with alternate function.
  * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
