@@ -1,0 +1,17 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings name="control">
+    <dl_settings name="hackhd">
+
+      <dl_setting max="5" min="0" step="1" module="digital_cam/hackhd" var="hackhd.status" handler="SendCmd" shortname="HackHD" values="NONE|ON|OFF|START_REC|STOP_REC|SHOOT">
+        <strip_button name="HackHD Power ON" icon="on.png" value="1" group="maindc"/>
+        <strip_button name="HackHD Power OFF" icon="off.png" value="2" group="maindc"/>
+        <strip_button name="HackHD Start Record" icon="lookfore.png" value="3" group="hackhd"/>
+        <strip_button name="HackHD Stop Record" icon="kill.png" value="4" group="hackhd"/>
+        <strip_button name="HackHD Take Picture" icon="digital-camera.png" value="5" group="hackhd"/>
+      </dl_setting>
+
+    </dl_settings>
+  </dl_settings>
+</settings>

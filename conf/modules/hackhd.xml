@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+<module name="hackhd" dir="digital_cam">
+  <doc>
+    <description>HackHD control</description>
+    <configure name="HACKHD_GPIO" value="GPIO" description="control pin (e.g. GPIOC,GPIO5)"/>
+    <define name="HACKHD_SYNC_SEND" value="TRUE|FALSE" description="enable telemetry report on camera position"/>
+    <define name="HACKHD_LOG" value="TRUE|FALSE" description="enable logging of camera shot orientation and position"/>
+  </doc>
+  <header>
+    <file name="hackhd.h"/>
+  </header>
+  <init fun="hackhd_init()"/>
+  <periodic fun="hackhd_periodic()" freq="10"/>
+  <periodic fun="hackhd_autoshoot()" freq="10" start="hackhd_autoshoot_start()" autorun="FALSE"/>
+  <makefile>
+    <define name="HACKHD_GPIO" value="$(HACKHD_GPIO)"/>
+    <file name="hackhd.c"/>
+  </makefile>
+</module>
