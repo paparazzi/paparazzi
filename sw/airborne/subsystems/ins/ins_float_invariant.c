@@ -42,7 +42,9 @@
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
+#if INS_UPDATE_FW_ESTIMATOR
 #include "firmwares/fixedwing/nav.h"
+#endif
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
@@ -536,8 +538,32 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
 void ahrs_update_accel(void) {
 }
 
+// assume mag is dead when values are not moving anymore
+#define MAG_FROZEN_COUNT 30
+
 void ahrs_update_mag(void) {
-  MAGS_FLOAT_OF_BFP(ins_impl.meas.mag, imu.mag);
+  static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
+  static int32_t last_mx = 0;
+
+  if (last_mx == imu.mag.x) {
+    mag_frozen_count--;
+    if (mag_frozen_count == 0) {
+      // if mag is dead, better set measurements to zero
+      FLOAT_VECT3_ZERO(ins_impl.meas.mag);
+      mag_frozen_count = MAG_FROZEN_COUNT;
+    }
+  }
+  else {
+    // values are moving
+    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+    struct Int32Vect3 mag_meas_body;
+    // new values in body frame
+    INT32_RMAT_TRANSP_VMULT(mag_meas_body, *body_to_imu_rmat, imu.mag);
+    MAGS_FLOAT_OF_BFP(ins_impl.meas.mag, mag_meas_body);
+    // reset counter
+    mag_frozen_count = MAG_FROZEN_COUNT;
+  }
+  last_mx = imu.mag.x;
 }
 
 
