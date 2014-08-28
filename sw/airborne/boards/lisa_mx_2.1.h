@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Piotr Esden-Tempski <piotr@esden.net>
+ * Copyright (C) 2013-2014 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of paparazzi.
  *
@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CONFIG_LISA_MX_2_0_H
-#define CONFIG_LISA_MX_2_0_H
+#ifndef CONFIG_LISA_MX_2_1_H
+#define CONFIG_LISA_MX_2_1_H
 
 #include "boards/lisa_mx_common.h"
 
@@ -29,7 +29,11 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO3
-#define SPEKTRUM_BIND_PIN_PORT GPIOC
+/* (esden) Note to self. Revision 4 of the board is on GPIO0 not GPIO2.
+ * Note to everyone else. Revision 4 was never produced or provided to the
+ * public. :)
+ */
+#define SPEKTRUM_BIND_PIN GPIO2
+#define SPEKTRUM_BIND_PIN_PORT GPIOB
 
-#endif /* CONFIG_LISA_MX_2_0_H */
+#endif /* CONFIG_LISA_MX_2_1_H */

@@ -37,6 +37,9 @@ else ifeq ($(BOARD), lisa_m)
   else ifeq ($(BOARD_VERSION), 2.0)
     # on lisa_m_2.0: defaults to MS5611 baro connected via SPI on Aspirin2.2
     LISA_M_BARO ?= BARO_MS5611_SPI
+  else ifeq ($(BOARD_VERSION), 2.1)
+    # on lisa_m_2.1: defaults to MS5611 baro connected via SPI on the integrated Aspirin2.2
+    LISA_M_BARO ?= BARO_MS5611_SPI
   endif
   ifeq ($(LISA_M_BARO), BARO_MS5611_SPI)
     BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_SPI

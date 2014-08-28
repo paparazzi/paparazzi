@@ -1,17 +1,17 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   Lisa/MX 2.0 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v20
-     * IMU:         Aspirin 2.2               http://wiki.paparazziuav.org/wiki/AspirinIMU
+     * Autopilot:   Lisa/MX 2.1 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v21
+     * IMU:         Integrated Aspirin 2.2    http://wiki.paparazziuav.org/wiki/AspirinIMU
      * Actuators:   PWM motor controllers     http://wiki.paparazziuav.org/wiki/Subsystem/actuators#PWM
      * GPS:         Ublox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
      * RC:          two Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 -->
 
-<airframe name="Quadrotor LisaMX_2.0 pwm">
+<airframe name="Quadrotor LisaMX_2.1 pwm">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_mx_2.0">
+    <target name="ap" board="lisa_mx_2.1">
       <subsystem name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
@@ -40,13 +40,13 @@
   </firmware>
 
   <firmware name="test_progs">
-    <target name="test_sys_time_timer" board="lisa_mx_2.0"/>
-    <target name="test_adc" board="lisa_mx_2.0"/>
-    <target name="test_telemetry" board="lisa_mx_2.0"/>
-    <target name="test_baro_board" board="lisa_mx_2.0">
+    <target name="test_sys_time_timer" board="lisa_mx_2.1"/>
+    <target name="test_adc" board="lisa_mx_2.1"/>
+    <target name="test_telemetry" board="lisa_mx_2.1"/>
+    <target name="test_baro_board" board="lisa_mx_2.1">
       <configure name="BARO_LED" value="5"/>
     </target>
-    <target name="test_radio_control" board="lisa_mx_2.0">
+    <target name="test_radio_control" board="lisa_mx_2.1">
       <subsystem name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
