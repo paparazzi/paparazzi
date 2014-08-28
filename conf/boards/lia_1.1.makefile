@@ -2,7 +2,7 @@
 #
 # lia1.1.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lia
+# http://wiki.paparazziuav.org/wiki/Lia
 #
 
 BOARD=lia

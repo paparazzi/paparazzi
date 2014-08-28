@@ -1,7 +1,7 @@
 #
 # hb_1.1.makefile
 #
-# http://paparazzi.enac.fr/wiki/HB_v1
+# http://wiki.paparazziuav.org/wiki/HB_v1
 #
 ARCH=lpc21
 BOARD=hb

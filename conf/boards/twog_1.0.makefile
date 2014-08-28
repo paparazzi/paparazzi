@@ -1,7 +1,7 @@
 #
 # twog_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Twog_v1
+# http://wiki.paparazziuav.org/wiki/Twog_v1
 #
 
 ARCH=lpc21

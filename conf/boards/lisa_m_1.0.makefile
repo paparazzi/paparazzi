@@ -2,7 +2,7 @@
 #
 # lisa_m_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lisa/M
+# http://wiki.paparazziuav.org/wiki/Lisa/M
 #
 
 BOARD=lisa_m

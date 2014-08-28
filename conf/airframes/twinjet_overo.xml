@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
 <!-- Twinjet Multiplex (http://www.multiplex-rc.de/)
-     Twog v1 board (http://paparazzi.enac.fr/wiki/Twog_v1)
+     Twog v1 board (http://wiki.paparazziuav.org/wiki/Twog_v1)
      PerkinElmer TPS334 IR Sensors
      Aligned infrared sensor
      XBee modem with AT firmware

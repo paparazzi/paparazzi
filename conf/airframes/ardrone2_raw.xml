@@ -94,7 +94,7 @@
   </section>
 
   <!-- local magnetic field -->
-  <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
     <!-- Toulouse -->
     <define name="H_X" value="0.513081"/>

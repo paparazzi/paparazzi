@@ -1,7 +1,7 @@
 #
 # yapa_2.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/YAPA/v2.0
+# http://wiki.paparazziuav.org/wiki/YAPA/v2.0
 #
 
 ARCH=lpc21

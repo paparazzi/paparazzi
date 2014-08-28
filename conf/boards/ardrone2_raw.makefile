@@ -2,7 +2,7 @@
 #
 # ardrone2_raw.makefile
 #
-# http://paparazzi.enac.fr/wiki/AR.Drone_2_-_Specifications
+# http://wiki.paparazziuav.org/wiki/AR.Drone_2_-_Specifications
 #
 
 BOARD=ardrone

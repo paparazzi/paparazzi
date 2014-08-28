@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- this is a HobbyKing Bixler equiped with
-  * Autopilot:   Lisa/M 2.0         http://paparazzi.enac.fr/wiki/Lisa/M_v20
-  * IMU:         Aspirin 2.1        http://paparazzi.enac.fr/wiki/AspirinIMU
-  * GPS:         Ublox              http://paparazzi.enac.fr/wiki/Subsystem/gps
-  * RC:          any PPM system     http://paparazzi.enac.fr/wiki/Subsystem/radio_control#PPM
+  * Autopilot:   Lisa/M 2.0         http://wiki.paparazziuav.org/wiki/Lisa/M_v20
+  * IMU:         Aspirin 2.1        http://wiki.paparazziuav.org/wiki/AspirinIMU
+  * GPS:         Ublox              http://wiki.paparazziuav.org/wiki/Subsystem/gps
+  * RC:          any PPM system     http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#PPM
   * Modem        XBee in transparent mode at 57600 baud
 -->
 

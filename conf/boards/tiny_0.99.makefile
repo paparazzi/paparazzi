@@ -1,7 +1,7 @@
 #
 # tiny_0.99.makefile
 #
-# http://paparazzi.enac.fr/wiki/Tiny_v0.99
+# http://wiki.paparazziuav.org/wiki/Tiny_v0.99
 #
 
 ARCH=lpc21

@@ -1,7 +1,7 @@
 #
 # classix.makefile
 #
-# http://paparazzi.enac.fr/wiki/Classix
+# http://wiki.paparazziuav.org/wiki/Classix
 #
 
 ARCH=lpc21

@@ -123,7 +123,7 @@ LiPo/LiIo-Zellen: 2-3
   </section>
 
   <!-- local magnetic field, calculated for: 52°3'56", 4°31'24" -->
-  <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
     <define name="H_X" value="0.513081"/>
     <define name="H_Y" value="-0.00242783"/>

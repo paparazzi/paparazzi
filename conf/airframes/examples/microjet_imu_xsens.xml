@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- Microjet Multiplex (http://www.multiplex-rc.de/)
-     Lisa/M v1.0 board (http://paparazzi.enac.fr/wiki/Lisa/M_v10)
+     Lisa/M v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/M_v10)
      Xsens running as IMU
      Xbee modem in transparent mode
 -->

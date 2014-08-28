@@ -1,8 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- Microjet Multiplex (http://www.multiplex-rc.de/)
-     Twog 1.0 board (http://paparazzi.enac.fr/wiki/TWOG/v1.0)
-     Aspirin v1.5 (http://paparazzi.enac.fr/wiki/AspirinIMU)
+     Twog 1.0 board (http://wiki.paparazziuav.org/wiki/TWOG/v1.0)
+     Aspirin v1.5 (http://wiki.paparazziuav.org/wiki/AspirinIMU)
      Xbee modem in transparent mode
 -->
 

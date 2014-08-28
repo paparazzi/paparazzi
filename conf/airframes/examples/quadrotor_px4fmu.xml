@@ -2,10 +2,10 @@
 
 <!-- this is a quadrotor frame equiped with
      * Autopilot:   PX4FMU 1.7             https://pixhawk.ethz.ch/px4/modules/px4fmu
-     * IMU:         MPU6000 + HMC5883      http://paparazzi.enac.fr/wiki/AspirinIMU
-     * Actuators:   PWM motor controllers  http://paparazzi.enac.fr/wiki/Subsystem/actuators#PWM_Supervision
-     * GPS:         Ublox                  http://paparazzi.enac.fr/wiki/Subsystem/gps
-     * RC:          PPM                    http://paparazzi.enac.fr/wiki/Subsystem/radio_control#PPM
+     * IMU:         MPU6000 + HMC5883      http://wiki.paparazziuav.org/wiki/AspirinIMU
+     * Actuators:   PWM motor controllers  http://wiki.paparazziuav.org/wiki/Subsystem/actuators#PWM_Supervision
+     * GPS:         Ublox                  http://wiki.paparazziuav.org/wiki/Subsystem/gps
+     * RC:          PPM                    http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#PPM
 -->
 
 <airframe name="Quadrotor PX4FMU 1.7">

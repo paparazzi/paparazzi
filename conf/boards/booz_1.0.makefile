@@ -1,7 +1,7 @@
 #
 # booz_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/Booz
+# http://wiki.paparazziuav.org/wiki/Booz
 #
 ARCH=lpc21
 BOARD=booz

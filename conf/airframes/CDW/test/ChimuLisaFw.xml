@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- Microjet Multiplex (http://www.multiplex-rc.de/)
-     Tiny 1.1 board (http://paparazzi.enac.fr/wiki/Tiny)
+     Tiny 1.1 board (http://wiki.paparazziuav.org/wiki/Tiny)
      Tilted infrared sensor
      Xbee modem in API mode
 -->

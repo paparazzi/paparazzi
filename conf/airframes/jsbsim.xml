@@ -1,8 +1,8 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/)
-     Tiny 2.1 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
-     Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
+     Tiny 2.1 board (http://wiki.paparazziuav.org/wiki/index.php/Tiny_v2)
+     Tilted infrared sensor (http://wiki.paparazziuav.org/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      Radiotronix modem
 -->
 
