@@ -56,8 +56,9 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO3
-#define SPEKTRUM_BIND_PIN_PORT GPIOC
+/* It was common for all Lisa/M up to version 2.1. */
+/* #define SPEKTRUM_BIND_PIN GPIO3 */
+/* #define SPEKTRUM_BIND_PIN_PORT GPIOC */
 
 #define SPEKTRUM_UART1_RCC RCC_USART1
 #define SPEKTRUM_UART1_BANK GPIO_BANK_USART1_RX

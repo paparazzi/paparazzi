@@ -1,26 +1,32 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# lisa_mx_2.0.makefile
+# lisa_m_2.1.makefile
 #
-# http://paparazzi.enac.fr/wiki/Lisa/M_v20
+# http://paparazzi.enac.fr/wiki/Lisa/M_v21
 #
 
-BOARD=lisa_mx
-BOARD_VERSION=2.0
+BOARD=lisa_m
+BOARD_VERSION=2.1
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ARCH=stm32
-ARCH_L=f4
-HARD_FLOAT=yes
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-mx.ld
+# not needed?
+$(TARGET).OOCD_INTERFACE=flossjtag
+#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
+$(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-m.ld
 
 # -----------------------------------------------------------------------
 
 # default flash mode is via usb dfu bootloader (luftboot)
-# other possibilities: DFU-UTIL, SWD, JTAG_BMP, STLINK, SERIAL
-FLASH_MODE ?= SWD
+# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
+FLASH_MODE ?= DFU
 
+HAS_LUFTBOOT ?= 1
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+$(TARGET).CFLAGS+=-DLUFTBOOT
+$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
+endif
 
 #
 #
