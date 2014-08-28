@@ -86,6 +86,18 @@ void gpio_setup_input(uint32_t port, uint16_t gpios) {
   gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, gpios);
 }
 
+void gpio_setup_input_pullup(uint32_t port, uint16_t gpios) {
+  gpio_enable_clock(port);
+  gpio_set(port, gpios);
+  gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, gpios);
+}
+
+void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios) {
+  gpio_enable_clock(port);
+  gpio_clear(port, gpios);
+  gpio_set_mode(port, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN, gpios);
+}
+
 void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint32_t af, bool_t is_output) {
   gpio_enable_clock(port);
   /* remap alternate function if needed */
@@ -114,6 +126,16 @@ void gpio_setup_output(uint32_t port, uint16_t gpios) {
 void gpio_setup_input(uint32_t port, uint16_t gpios) {
   gpio_enable_clock(port);
   gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, gpios);
+}
+
+void gpio_setup_input_pullup(uint32_t port, uint16_t gpios) {
+  gpio_enable_clock(port);
+  gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, gpios);
+}
+
+void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios) {
+  gpio_enable_clock(port);
+  gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, gpios);
 }
 
 void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool_t is_output __attribute__ ((unused))) {
