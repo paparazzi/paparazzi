@@ -323,6 +323,7 @@ extern void float_rmat_comp_inv(struct FloatRMat *m_a2b, struct FloatRMat *m_a2c
 /* C n->b rotation matrix */
 extern void float_rmat_of_eulers_321(struct FloatRMat *rm, struct FloatEulers *e);
 extern void float_rmat_of_eulers_312(struct FloatRMat *rm, struct FloatEulers *e);
+#define float_rmat_of_eulers float_rmat_of_eulers_321
 /* C n->b rotation matrix */
 extern void float_rmat_of_quat(struct FloatRMat *rm, struct FloatQuat *q);
 /** in place first order integration of a rotation matrix */
