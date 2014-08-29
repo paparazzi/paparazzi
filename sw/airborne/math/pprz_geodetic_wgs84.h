@@ -1,23 +1,47 @@
-#ifndef PPRZ_GEODETIC_WGS84
-#define PPRZ_GEODETIC_WGS84
-
 /*
+ * Copyright (C) 2010  Christophe De Wagter
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-Ten by Ten Degree WGS-84 Geoid Heights from -180 to +170 Degrees of Longitude
+/**
+ * @file pprz_geodetic_wgs84.h
+ * @brief WGS-84 Geoid Heights.
+ *
+ * Ten by Ten Degree WGS-84 Geoid Heights from -180 to +170 Degrees of Longitude
+ *
+ * Geoid height approximations in meters
+ *
+ * Source:
+ * Defense Mapping Agency. 12 Jan 1987. GPS UE Relevant WGS-84 Data Base Package. Washington, DC: Defense Mapping Agency
+ *
+ * Link:
+ * http://www.colorado.edu/geography/gcraft/notes/datum/geoid84.html
+ *
+ * rows are from -180 to +170 starting north +90 to south-90
+ *
+ */
 
-Geoid height approximations in meters
+#ifndef PPRZ_GEODETIC_WGS84_H
+#define PPRZ_GEODETIC_WGS84_H
 
-Source:
-Defense Mapping Agency. 12 Jan 1987. GPS UE Relevant WGS-84 Data Base Package. Washington, DC: Defense Mapping Agency
-
-Link:
-http://www.colorado.edu/geography/gcraft/notes/datum/geoid84.html
-
-rows are from -180 to +170 starting north +90 to south-90
-
-
-*/
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define WGS84_H(x,y) ((float) pprz_geodetic_wgs84_int[(y)][(x)])
 
@@ -67,5 +91,8 @@ const int8_t pprz_geodetic_wgs84_int[19][36] =
 };
 
 
-
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
+
+#endif /* PPRZ_GEODETIC_WGS84_H */

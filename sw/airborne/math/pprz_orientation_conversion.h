@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
@@ -56,6 +55,10 @@
 
 #ifndef PPRZ_ORIENTATION_CONVERSION_H
 #define PPRZ_ORIENTATION_CONVERSION_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
@@ -217,6 +220,10 @@ static inline struct FloatEulers* orientationGetEulers_f(struct OrientationReps*
     orientationCalcEulers_f(orientation);
   return &orientation->eulers_f;
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ORIENTATION_CONVERSION_H */
 /** @}*/

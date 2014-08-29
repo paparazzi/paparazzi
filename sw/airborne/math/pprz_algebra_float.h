@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,19 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
  * @file pprz_algebra_float.h
- *   @brief Paparazzi floating point algebra.
- *
- *   This is the more detailed description of this file.
+ * @brief Paparazzi floating point algebra.
  *
  */
 
 #ifndef PPRZ_ALGEBRA_FLOAT_H
 #define PPRZ_ALGEBRA_FLOAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "pprz_algebra.h"
 
@@ -1097,5 +1098,9 @@ static inline void float_mat_col(float * o, float ** a, int m, int c) {
     o[i] = a[i][c];
   }
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ALGEBRA_FLOAT_H */

@@ -14,11 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_matrix_decomp_float.h
+ * @brief Matrix decompositions in floating point.
  *
  */
+
+#ifndef PPRZ_MATRIX_DECOMP_FLOAT_H
+#define PPRZ_MATRIX_DECOMP_FLOAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 
@@ -92,3 +103,8 @@ int pprz_svd_float(float ** a, float * w, float ** v, int m, int n);
  */
 void pprz_svd_solve_float(float ** x, float ** u, float * w, float ** v, float ** b, int m, int n, int l);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+#endif /* PPRZ_MATRIX_DECOMP_FLOAT_H */

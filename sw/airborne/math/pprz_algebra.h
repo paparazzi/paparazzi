@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008  Antoine Drouin
+ * Copyright (C) 2008-2011  Antoine Drouin
+ *               2008-2014  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,14 +15,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_algebra.h
+ * @brief Paparazzi generic algebra functions.
  *
  */
 
 #ifndef PPRZ_ALGEBRA_H
 #define PPRZ_ALGEBRA_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <float.h>  /* for FLT_EPSILON */
 #include <string.h> /* for memcpy      */
@@ -729,5 +738,8 @@
     (_ef).z = MAG_BFP_OF_REAL((_ei).z);		\
   }
 
-#endif /* PPRZ_ALGEBRA_H */
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
+#endif /* PPRZ_ALGEBRA_H */

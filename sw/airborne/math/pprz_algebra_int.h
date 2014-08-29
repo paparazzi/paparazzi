@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,20 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
  * @file pprz_algebra_int.h
- *   @brief Paparazzi fixed point algebra.
- *
- *   This is the more detailed description of this file.
+ * @brief Paparazzi fixed point algebra.
  *
  */
 
 #ifndef PPRZ_ALGEBRA_INT_H
 #define PPRZ_ALGEBRA_INT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 #include "math/pprz_algebra.h"
@@ -982,5 +982,9 @@ static inline void int32_eulers_dot_321_of_rates(struct Int32Eulers *ed, struct 
 static inline void int32_eulers_dot_of_rates(struct Int32Eulers *ed, struct Int32Eulers *e, struct Int32Rates *r) {
   int32_eulers_dot_321_of_rates(ed, e, r);
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ALGEBRA_INT_H */

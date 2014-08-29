@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,19 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
  * @file pprz_algebra_double.h
- *   @brief Paparazzi double precision floating point algebra.
- *
- *   This is the more detailed description of this file.
+ * @brief Paparazzi double precision floating point algebra.
  *
  */
 
 #ifndef PPRZ_ALGEBRA_DOUBLE_H
 #define PPRZ_ALGEBRA_DOUBLE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "pprz_algebra.h"
 #include "pprz_algebra_float.h"
@@ -210,5 +211,9 @@ static inline void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQua
     (_vout).y = (_mat)[1]*(_vin).x + (_mat)[4]*(_vin).y + (_mat)[7]*(_vin).z;   \
     (_vout).z = (_mat)[2]*(_vin).x + (_mat)[5]*(_vin).y + (_mat)[8]*(_vin).z;   \
   }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ALGEBRA_DOUBLE_H */

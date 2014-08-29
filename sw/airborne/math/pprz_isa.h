@@ -14,15 +14,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
  * @file math/pprz_isa.h
- * @brief Paparazzi atmospheric pressure convertion utilities
+ * @brief Paparazzi atmospheric pressure conversion utilities
  *
  * Conversion functions are use to approximate altitude
  * from atmospheric pressure based on the standard model
@@ -35,6 +33,10 @@
 
 #ifndef PPRZ_ISA_H
 #define PPRZ_ISA_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 #include <math.h>
@@ -98,5 +100,9 @@ static inline float pprz_isa_pressure_of_altitude(float altitude) {
 static inline float pprz_isa_pressure_of_height(float altitude, float ref) {
   return (ref*expf((-1./PPRZ_ISA_M_OF_P_CONST)*altitude));
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ISA_H */

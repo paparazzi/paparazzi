@@ -14,14 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_stat.h
+ * @brief Statistics functions like variance.
  *
  */
 
 #ifndef PPRZ_STAT_H
 #define PPRZ_STAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 
@@ -65,6 +73,8 @@ static inline int32_t variance_int(int32_t * array, int nb) {
   return (see/nb - me*me);
 }
 
-
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
+#endif /* PPRZ_STAT_H */

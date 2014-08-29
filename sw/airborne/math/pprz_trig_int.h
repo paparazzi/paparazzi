@@ -14,13 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_trig_int.h
+ * @brief Paparazzi fixed point trig functions.
+ *
  */
 
 #ifndef PPRZ_TRIG_INT_H
 #define PPRZ_TRIG_INT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 
@@ -38,9 +47,14 @@ extern int32_t pprz_itrig_cos(int32_t angle);
 extern int32_t int32_atan2(int32_t y, int32_t x);
 extern int32_t int32_atan2_2(int32_t y, int32_t x);
 
+/* for backwards compatibility */
 #define PPRZ_ITRIG_SIN(_s, _a) { _s = pprz_itrig_sin(_a); }
 #define PPRZ_ITRIG_COS(_c, _a) { _c = pprz_itrig_cos(_a); }
 #define INT32_ATAN2(_a, _y, _x) { _a = int32_atan2(_y, _x); }
 #define INT32_ATAN2_2(_a, _y, _x) { _a = int32_atan2_2(_y, _x); }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_TRIG_INT_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
  * @file pprz_geodetic_double.h
- *   @brief Paparazzi double-precision floating point math for geodetic calculations.
+ * @brief Paparazzi double-precision floating point math for geodetic calculations.
  *
- *   This is the more detailed description of this file.
  *
  */
 

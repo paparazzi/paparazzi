@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ *               2009-2014 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ *               2010-2014 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_geodetic_int.c
+ * @brief Paparazzi fixed point math for geodetic calculations.
+ *
+ *
  */
 
 #include "pprz_geodetic_int.h"

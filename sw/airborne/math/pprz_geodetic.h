@@ -1,6 +1,36 @@
+/*
+ * Copyright (C) 2008-2014 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_geodetic.h
+ * @brief Paparazzi generic macros for geodetic calculations.
+ *
+ *
+ */
+
 #ifndef PPRZ_GEODETIC_H
 #define PPRZ_GEODETIC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define ENU_OF_TO_NED(_po, _pi) {		\
     (_po).x =  (_pi).y;				\
@@ -59,5 +89,8 @@
   (_utm).alt = (_utm0).alt - (_pos).z;       \
 }
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_GEODETIC_H */
