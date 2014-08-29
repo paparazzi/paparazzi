@@ -20,6 +20,11 @@
  *
  */
 
+/** \file high_speed_logger_direct_memory.c
+* Module used to connect a memory directly to the SPI port
+*/
+
+
 #include "high_speed_logger_direct_memory.h"
 
 #include <string.h>
