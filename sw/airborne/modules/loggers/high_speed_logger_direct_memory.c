@@ -726,7 +726,7 @@ void send_buffer_to_uart(void){
 
   if(sending_buffer_to_uart){
 
-    while(UART3CheckFreeSpace(1)){
+    while(uart_check_free_space(&HS_LOG_UART, 1)){
 
       if(i >= msg_size){
 
@@ -739,7 +739,7 @@ void send_buffer_to_uart(void){
         }
         break;
       }
-      UART3Transmit(uart_read_buff[i]);
+      uart_transmit(&HS_LOG_UART, uart_read_buff[i]);
       i++;
     }
 
@@ -1134,9 +1134,8 @@ void high_speed_logger_direct_memory_init(void){
 
 
   //init the UART to send the values back to the computer
-  UART3Init();
-  UART3SetBaudrate(B115200);
-  UART3SetBitsStopParity(8,1,0);
+  uart_periph_init(&HS_LOG_UART);
+  uart_periph_set_bits_stop_parity(&HS_LOG_UART, 8,1,0);
 
 }
 
@@ -1151,9 +1150,9 @@ void high_speed_logger_direct_memory_periodic(void)
 
 
   //UART part (communication with the computer to dump the memory)
-  while(UART3ChAvailable()){
+  while(uart_char_available(&HS_LOG_UART)){
 
-    uart_received = UART3Getch();
+    uart_received = uart_getch(&HS_LOG_UART);
 
     if(uart_received == 'A'){
 
