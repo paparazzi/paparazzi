@@ -168,17 +168,8 @@ void imu_aspirin2_event(void)
     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
-#ifdef LISA_M_LONGITUDINAL_X
-    RATES_ASSIGN(imu.gyro_unscaled,
-                 imu_aspirin2.mpu.data_rates.rates.q,
-                 -imu_aspirin2.mpu.data_rates.rates.p,
-                 imu_aspirin2.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled,
-                 imu_aspirin2.mpu.data_accel.vect.y,
-                 -imu_aspirin2.mpu.data_accel.vect.x,
-                 imu_aspirin2.mpu.data_accel.vect.z);
-    VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
-#else
+
+/* Handle axis assignement for Lisa/S integrated Aspirin like IMU. */
 #ifdef LISA_S
 #ifdef LISA_S_UPSIDE_DOWN
     RATES_ASSIGN(imu.gyro_unscaled,
@@ -196,11 +187,41 @@ void imu_aspirin2_event(void)
     VECT3_COPY(imu.mag_unscaled, mag);
 #endif
 #else
+
+/* Handle axis assignement for Lisa/M or Lisa/MX V2.1 integrated Aspirin like
+ * IMU.
+ */
+#ifdef LISA_M_OR_MX_21
+    RATES_ASSIGN(imu.gyro_unscaled,
+                 -imu_aspirin2.mpu.data_rates.rates.q,
+                 imu_aspirin2.mpu.data_rates.rates.p,
+                 imu_aspirin2.mpu.data_rates.rates.r);
+    VECT3_ASSIGN(imu.accel_unscaled,
+                 -imu_aspirin2.mpu.data_accel.vect.y,
+                 imu_aspirin2.mpu.data_accel.vect.x,
+                 imu_aspirin2.mpu.data_accel.vect.z);
+    VECT3_ASSIGN(imu.mag_unscaled, -mag.y, mag.x, mag.z);
+#else
+
+/* Handle real Aspirin IMU axis assignement. */
+#ifdef LISA_M_LONGITUDINAL_X
+    RATES_ASSIGN(imu.gyro_unscaled,
+                 imu_aspirin2.mpu.data_rates.rates.q,
+                 -imu_aspirin2.mpu.data_rates.rates.p,
+                 imu_aspirin2.mpu.data_rates.rates.r);
+    VECT3_ASSIGN(imu.accel_unscaled,
+                 imu_aspirin2.mpu.data_accel.vect.y,
+                 -imu_aspirin2.mpu.data_accel.vect.x,
+                 imu_aspirin2.mpu.data_accel.vect.z);
+    VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
+#else
     RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
     VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
     VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
 #endif
 #endif
+#endif
+
     imu_aspirin2.mpu.data_available = FALSE;
     imu_aspirin2.gyro_valid = TRUE;
     imu_aspirin2.accel_valid = TRUE;
