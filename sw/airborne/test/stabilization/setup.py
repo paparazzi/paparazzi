@@ -12,21 +12,22 @@ pprz_airborne = path.join(pprz_src, "sw/airborne")
 
 common_inc_dirs = ["./", path.join(pprz_src, "sw/include"), pprz_airborne, numpy.get_include()]
 
-algebra_float = Extension("algebra_float", sources=['algebra_float.pyx'],
+algebra_float = Extension("algebra_float", sources=['algebra_float.pyx', path.join(pprz_airborne, 'math/pprz_algebra_float.c')],
                           include_dirs=common_inc_dirs)
 
-algebra_int = Extension("algebra_int", sources=['algebra_int.pyx', path.join(pprz_airborne, 'math/pprz_trig_int.c')],
+algebra_int = Extension("algebra_int", sources=['algebra_int.pyx', path.join(pprz_airborne, 'math/pprz_trig_int.c'), path.join(pprz_airborne, 'math/pprz_algebra_int.c')],
                         include_dirs=common_inc_dirs)
 
 includedirs = common_inc_dirs + [path.join(pprz_airborne, "firmwares/rotorcraft")]
 ext_quat_float = Extension("ref_quat_float",
-                           sources=['ref_quat_float.pyx',
+                           sources=['ref_quat_float.pyx', path.join(pprz_airborne, 'math/pprz_algebra_float.c'),
                                     path.join(pprz_airborne, "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.c")],
                            include_dirs=includedirs,
                            extra_compile_args=["-std=c99", "-DSTABILIZATION_ATTITUDE_TYPE_FLOAT"])
 ext_quat_int = Extension("ref_quat_int",
                          sources=['ref_quat_int.pyx',
                                   path.join(pprz_airborne, 'math/pprz_trig_int.c'),
+                                  path.join(pprz_airborne, 'math/pprz_algebra_int.c'),
                                   path.join(pprz_airborne, "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.c")],
                          include_dirs=includedirs,
                          extra_compile_args=["-std=c99", "-DSTABILIZATION_ATTITUDE_TYPE_INT"])
