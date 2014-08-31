@@ -79,7 +79,7 @@ extern void gv_update_ref_from_z_sp(int32_t z_sp);
 
 /** update vertical reference from speed setpoint.
  * @param zd_sp  vertical speed setpoint with INT32_SPEED_FRAC
- * @param cur_z  current vertical position (z-down) with INT32_POS_FRAC
+ * @param z_pos  current vertical position (z-down) with INT32_POS_FRAC
  */
 extern void gv_update_ref_from_zd_sp(int32_t zd_sp, int32_t z_pos);
 
