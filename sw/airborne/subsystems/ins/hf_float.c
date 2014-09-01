@@ -217,8 +217,8 @@ static void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFloat* sou
 static void b2_hff_init_x(float init_x, float init_xdot);
 static void b2_hff_init_y(float init_y, float init_ydot);
 
-static void b2_hff_propagate_x(struct HfilterFloat* hff_work);
-static void b2_hff_propagate_y(struct HfilterFloat* hff_work);
+static void b2_hff_propagate_x(struct HfilterFloat* hff_work, float dt);
+static void b2_hff_propagate_y(struct HfilterFloat* hff_work, float dt);
 
 static void b2_hff_update_x(struct HfilterFloat* hff_work, float x_meas, float Rpos);
 static void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, float Rpos);
@@ -417,8 +417,8 @@ static void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
     if (hff_past->lag_counter > 0) {
       b2_hff_get_past_accel(hff_past->lag_counter);
       PRINT_DBG(2, ("propagate past: %d\n", hff_past->lag_counter));
-      b2_hff_propagate_x(hff_past);
-      b2_hff_propagate_y(hff_past);
+      b2_hff_propagate_x(hff_past, DT_HFILTER);
+      b2_hff_propagate_y(hff_past, DT_HFILTER);
       hff_past->lag_counter--;
 
       if (past_save_counter > 0) {
@@ -486,8 +486,8 @@ void b2_hff_propagate(void) {
       /*
        * propagate current state
        */
-      b2_hff_propagate_x(&b2_hff_state);
-      b2_hff_propagate_y(&b2_hff_state);
+      b2_hff_propagate_x(&b2_hff_state, DT_HFILTER);
+      b2_hff_propagate_y(&b2_hff_state, DT_HFILTER);
 
 #ifdef GPS_LAG
       /* increase lag counter on last saved state */
@@ -601,15 +601,15 @@ void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel) {
  Pk1 = F * Pk0 * F' + Q;
 
 */
-static void b2_hff_propagate_x(struct HfilterFloat* hff_work) {
+static void b2_hff_propagate_x(struct HfilterFloat* hff_work, float dt) {
   /* update state */
   hff_work->xdotdot = b2_hff_xdd_meas;
-  hff_work->x = hff_work->x + DT_HFILTER * hff_work->xdot + DT_HFILTER*DT_HFILTER/2 * hff_work->xdotdot;
-  hff_work->xdot = hff_work->xdot + DT_HFILTER * hff_work->xdotdot;
+  hff_work->x = hff_work->x + dt * hff_work->xdot + dt*dt/2 * hff_work->xdotdot;
+  hff_work->xdot = hff_work->xdot + dt * hff_work->xdotdot;
   /* update covariance */
-  const float FPF00 = hff_work->xP[0][0] + DT_HFILTER * ( hff_work->xP[1][0] + hff_work->xP[0][1] + DT_HFILTER * hff_work->xP[1][1] );
-  const float FPF01 = hff_work->xP[0][1] + DT_HFILTER * hff_work->xP[1][1];
-  const float FPF10 = hff_work->xP[1][0] + DT_HFILTER * hff_work->xP[1][1];
+  const float FPF00 = hff_work->xP[0][0] + dt * ( hff_work->xP[1][0] + hff_work->xP[0][1] + dt * hff_work->xP[1][1] );
+  const float FPF01 = hff_work->xP[0][1] + dt * hff_work->xP[1][1];
+  const float FPF10 = hff_work->xP[1][0] + dt * hff_work->xP[1][1];
   const float FPF11 = hff_work->xP[1][1];
 
   hff_work->xP[0][0] = FPF00 + Q;
@@ -618,15 +618,15 @@ static void b2_hff_propagate_x(struct HfilterFloat* hff_work) {
   hff_work->xP[1][1] = FPF11 + Qdotdot;
 }
 
-static void b2_hff_propagate_y(struct HfilterFloat* hff_work) {
+static void b2_hff_propagate_y(struct HfilterFloat* hff_work, float dt) {
   /* update state */
   hff_work->ydotdot = b2_hff_ydd_meas;
-  hff_work->y = hff_work->y + DT_HFILTER * hff_work->ydot + DT_HFILTER*DT_HFILTER/2 * hff_work->ydotdot;
-  hff_work->ydot = hff_work->ydot + DT_HFILTER * hff_work->ydotdot;
+  hff_work->y = hff_work->y + dt * hff_work->ydot + dt*dt/2 * hff_work->ydotdot;
+  hff_work->ydot = hff_work->ydot + dt * hff_work->ydotdot;
   /* update covariance */
-  const float FPF00 = hff_work->yP[0][0] + DT_HFILTER * ( hff_work->yP[1][0] + hff_work->yP[0][1] + DT_HFILTER * hff_work->yP[1][1] );
-  const float FPF01 = hff_work->yP[0][1] + DT_HFILTER * hff_work->yP[1][1];
-  const float FPF10 = hff_work->yP[1][0] + DT_HFILTER * hff_work->yP[1][1];
+  const float FPF00 = hff_work->yP[0][0] + dt * ( hff_work->yP[1][0] + hff_work->yP[0][1] + dt * hff_work->yP[1][1] );
+  const float FPF01 = hff_work->yP[0][1] + dt * hff_work->yP[1][1];
+  const float FPF10 = hff_work->yP[1][0] + dt * hff_work->yP[1][1];
   const float FPF11 = hff_work->yP[1][1];
 
   hff_work->yP[0][0] = FPF00 + Q;
