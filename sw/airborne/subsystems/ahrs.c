@@ -78,32 +78,3 @@ void ahrs_update_gps(void)
     ahrs.update_gps();
   }
 }
-
-
-
-/*
- * REMOVE ME! keep temporarily for some test firmware
- */
-void ahrs_propagate(struct Int32Rates* gyro)
-{
-  if (ahrs.status == AHRS_RUNNING) {
-    uint32_t stamp = get_sys_time_usec();
-    AbiSendMsgIMU_GYRO_INT32(1, &stamp, gyro);
-  }
-}
-
-void ahrs_update_accel(struct Int32Vect3* accel)
-{
-  if (ahrs.status == AHRS_RUNNING) {
-    uint32_t stamp = get_sys_time_usec();
-    AbiSendMsgIMU_ACCEL_INT32(1, &stamp, accel);
-  }
-}
-
-void ahrs_update_mag(struct Int32Vect3* mag)
-{
-  if (ahrs.status == AHRS_RUNNING) {
-    uint32_t stamp = get_sys_time_usec();
-    AbiSendMsgIMU_MAG_INT32(1, &stamp, mag);
-  }
-}
