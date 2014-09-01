@@ -508,6 +508,9 @@ extern void float_quat_inv_comp_norm_shortest(struct FloatQuat *b2c, struct Floa
 
 extern void float_quat_differential(struct FloatQuat *q_out, struct FloatRates *w, float dt);
 
+/** in place first order quaternion integration with constant rotational velocity */
+extern void float_quat_integrate_fi(struct FloatQuat *q, struct FloatRates *omega, float dt);
+
 /** in place quaternion integration with constant rotational velocity */
 extern void float_quat_integrate(struct FloatQuat *q, struct FloatRates *omega, float dt);
 

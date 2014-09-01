@@ -254,6 +254,21 @@ void float_quat_differential(struct FloatQuat *q_out, struct FloatRates *w, floa
   }
 }
 
+/** in place first order quaternion integration with constant rotational velocity */
+void float_quat_integrate_fi(struct FloatQuat *q, struct FloatRates *omega, float dt) {
+  const float qi = q->qi;
+  const float qx = q->qx;
+  const float qy = q->qy;
+  const float qz = q->qz;
+  const float dp = 0.5 * dt * omega->p;
+  const float dq = 0.5 * dt * omega->q;
+  const float dr = 0.5 * dt * omega->r;
+  q->qi = qi    - dp*qx - dq*qy - dr*qz;
+  q->qx = dp*qi +    qx + dr*qy - dq*qz;
+  q->qy = dq*qi - dr*qx +    qy + dp*qz;
+  q->qz = dr*qi + dq*qx - dp*qy +    qz;
+}
+
 /** in place quaternion integration with constant rotational velocity */
 void float_quat_integrate(struct FloatQuat *q, struct FloatRates *omega, float dt) {
   const float no = FLOAT_RATES_NORM(*omega);
