@@ -131,7 +131,7 @@ void ahrs_update_gps(void)
   // Downlink Send
 }
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt __attribute__((unused))) {
 }
 
 void ahrs_update_accel(void) {

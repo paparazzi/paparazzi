@@ -82,7 +82,7 @@ void ahrs_align(void)
 }
 
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt __attribute__((unused))) {
   if (ahrs_sim_available) {
     update_ahrs_from_sim();
     ahrs_sim_available = FALSE;

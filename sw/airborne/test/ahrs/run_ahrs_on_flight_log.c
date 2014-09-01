@@ -88,17 +88,17 @@ int main(int argc, char** argv) {
     if (ahrs.status == AHRS_UNINIT) {
       ahrs_aligner_run();
       if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-  ahrs_align();
+        ahrs_align();
     }
     else {
-      ahrs_propagate();
+      ahrs_propagate((1./AHRS_PROPAGATE_FREQUENCY));
 #ifdef ENABLE_MAG_UPDATE
       if (MAG_AVAILABLE(samples[i].flag))
-  ahrs_update_mag();
+        ahrs_update_mag();
 #endif
 #ifdef ENABLE_ACCEL_UPDATE
       if (IMU_AVAILABLE(samples[i].flag) && (!MAG_AVAILABLE(samples[i].flag)))
-  ahrs_update_accel();
+        ahrs_update_accel();
 #endif
     }
     store_filter_output(i);

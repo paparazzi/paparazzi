@@ -335,7 +335,7 @@ static inline void on_gyro_event( void ) {
       ahrs_align();
   }
   else {
-    ahrs_propagate();
+    ahrs_propagate(dt);
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif

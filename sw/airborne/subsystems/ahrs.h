@@ -62,8 +62,9 @@ extern void ahrs_align(void);
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.
  *  Does nothing if not implemented by specific AHRS algorithm.
+ *  @param dt time difference since last propagation in seconds
  */
-extern void ahrs_propagate(void);
+extern void ahrs_propagate(float dt);
 
 /** Update AHRS state with accerleration measurements.
  *  Reads the global #imu data struct.

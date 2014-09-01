@@ -247,7 +247,8 @@ void ahrs_align(void) {
 }
 
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt) {
+  int32_t freq = (int32_t)(1./dt);
 
   /* unbias gyro             */
   struct Int32Rates omega;
@@ -269,7 +270,7 @@ void ahrs_propagate(void) {
 
   /* integrate quaternion */
   INT32_QUAT_INTEGRATE_FI(ahrs_impl.ltp_to_imu_quat, ahrs_impl.high_rez_quat,
-                          omega, AHRS_PROPAGATE_FREQUENCY);
+                          omega, freq);
   INT32_QUAT_NORMALIZE(ahrs_impl.ltp_to_imu_quat);
 
   set_body_state_from_quat();

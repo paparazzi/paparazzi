@@ -25,7 +25,7 @@ gboolean timeout_callback(gpointer data) {
     aos_compute_state();
     aos_compute_sensors();
 #ifndef DISABLE_PROPAGATE
-    ahrs_propagate();
+    ahrs_propagate(aos.dt);
 #endif
 #ifndef DISABLE_ACCEL_UPDATE
     ahrs_update_accel();

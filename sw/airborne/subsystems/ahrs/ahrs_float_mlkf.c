@@ -46,18 +46,14 @@
 
 //#include <stdio.h>
 
-#ifndef AHRS_PROPAGATE_FREQUENCY
-#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
-#endif
-
 #ifndef AHRS_MAG_NOISE_X
 #define AHRS_MAG_NOISE_X 0.2
 #define AHRS_MAG_NOISE_Y 0.2
 #define AHRS_MAG_NOISE_Z 0.2
 #endif
 
-static inline void propagate_ref(void);
-static inline void propagate_state(void);
+static inline void propagate_ref(float dt);
+static inline void propagate_state(float dt);
 static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise);
 static inline void reset_state(void);
 static inline void set_body_state_from_quat(void);
@@ -122,9 +118,9 @@ void ahrs_align(void) {
   ahrs.status = AHRS_RUNNING;
 }
 
-void ahrs_propagate(void) {
-  propagate_ref();
-  propagate_state();
+void ahrs_propagate(float dt) {
+  propagate_ref(dt);
+  propagate_state(dt);
   set_body_state_from_quat();
 }
 
@@ -150,7 +146,7 @@ void ahrs_update_mag(void) {
 }
 
 
-static inline void propagate_ref(void) {
+static inline void propagate_ref(float dt) {
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
@@ -168,7 +164,6 @@ static inline void propagate_ref(void) {
 #endif
 
   /* propagate reference quaternion */
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
   FLOAT_QUAT_INTEGRATE(ahrs_impl.ltp_to_imu_quat, ahrs_impl.imu_rate, dt);
 
 }
@@ -177,10 +172,9 @@ static inline void propagate_ref(void) {
  * Progagate filter's covariance
  * We don't propagate state as we assume to have reseted
  */
-static inline void propagate_state(void) {
+static inline void propagate_state(float dt) {
 
   /* predict covariance */
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
   const float dp = ahrs_impl.imu_rate.p*dt;
   const float dq = ahrs_impl.imu_rate.q*dt;
   const float dr = ahrs_impl.imu_rate.r*dt;

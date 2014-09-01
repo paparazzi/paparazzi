@@ -592,7 +592,15 @@ void sensors_task( void ) {
 
   //FIXME: this is just a kludge
 #if USE_AHRS && defined SITL && !USE_NPS
-  ahrs_propagate();
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
+
+  ahrs_propagate(dt);
 #endif
 
 #if USE_BARO_BOARD
@@ -741,7 +749,7 @@ static inline void on_gyro_event( void ) {
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
 
-  ahrs_propagate();
+  ahrs_propagate((1./PERIODIC_FREQUENCY));
   ahrs_update_accel();
 
 #else //PERIODIC_FREQUENCY
@@ -767,7 +775,7 @@ static inline void on_gyro_event( void ) {
 
     ImuScaleGyro(imu);
 
-    ahrs_propagate();
+    ahrs_propagate((1./AHRS_PROPAGATE_FREQUENCY));
 
     _reduced_correction_rate++;
     if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))

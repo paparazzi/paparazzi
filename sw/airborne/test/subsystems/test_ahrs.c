@@ -83,6 +83,14 @@ static inline void main_event_task( void ) {
 }
 
 static inline void on_gyro_event(void) {
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
+
   ImuScaleGyro(imu);
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
@@ -91,7 +99,7 @@ static inline void on_gyro_event(void) {
   }
   else {
     DEBUG_S1_ON();
-    ahrs_propagate();
+    ahrs_propagate(dt);
     DEBUG_S1_OFF();
   }
 }

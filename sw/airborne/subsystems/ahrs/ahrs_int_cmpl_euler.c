@@ -189,7 +189,7 @@ static inline bool_t cut_accel (struct Int32Vect3 i1, struct Int32Vect3 i2, int3
  *
  */
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt __attribute__((unused))) {
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;

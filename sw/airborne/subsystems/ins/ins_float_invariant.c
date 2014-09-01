@@ -160,9 +160,6 @@ bool_t log_started = FALSE;
 
 struct InsFloatInv ins_impl;
 
-/* integration time step */
-static const float dt = (1./ ((float)AHRS_PROPAGATE_FREQUENCY));
-
 /* earth gravity model */
 static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 
@@ -330,7 +327,7 @@ void ahrs_align(void)
   ins.status = INS_RUNNING;
 }
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt) {
   struct NedCoor_f accel;
   struct FloatRates body_rates;
 

@@ -234,7 +234,7 @@ void aos_run(void) {
   }
   else {
 #endif /* DISABLE_ALIGNEMENT */
-    ahrs_propagate();
+    ahrs_propagate(aos.dt);
     ahrs_update_accel();
 
 #ifndef DISABLE_MAG_UPDATE
