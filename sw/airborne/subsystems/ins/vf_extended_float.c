@@ -45,18 +45,6 @@ PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
 #include "subsystems/datalink/downlink.h"
 #endif
 
-#ifndef INS_PROPAGATE_FREQUENCY
-#ifdef AHRS_PROPAGATE_FREQUENCY
-#define INS_PROPAGATE_FREQUENCY AHRS_PROPAGATE_FREQUENCY
-#else
-#define INS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
-#endif
-#endif
-PRINT_CONFIG_VAR(INS_PROPAGATE_FREQUENCY)
-
-#define DT_VFILTER (1./(INS_PROPAGATE_FREQUENCY))
-
-
 /*
 
 X = [ z zdot accel_bias baro_offset ]
@@ -70,8 +58,6 @@ temps :
 #define INIT_PXX 1.
 /* process noise */
 #define ACCEL_NOISE 0.5
-#define Qzz       ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
-#define Qzdotzdot ACCEL_NOISE * DT_VFILTER
 #define Qbiasbias 1e-7
 #define Qoffoff 1e-4
 #define R_BARO 1.
@@ -127,33 +113,36 @@ void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_b
        0     0          Qbiasbias 0
        0     0     0    0         Qoffoff ];
 
+ Qzz =  ACCEL_NOISE * DT_VFILTER * DT_VFILTER / 2.
+ Qzdotzdot =  ACCEL_NOISE * DT_VFILTER
+
  Xk1 = F * Xk0 + B * accel;
 
  Pk1 = F * Pk0 * F' + Q;
 
 */
-void vff_propagate(float accel) {
+void vff_propagate(float accel, float dt) {
   /* update state */
   vff.zdotdot = accel + 9.81 - vff.bias;
-  vff.z = vff.z + DT_VFILTER * vff.zdot;
-  vff.zdot = vff.zdot + DT_VFILTER * vff.zdotdot;
+  vff.z = vff.z + dt * vff.zdot;
+  vff.zdot = vff.zdot + dt * vff.zdotdot;
   /* update covariance */
-  const float FPF00 = vff.P[0][0] + DT_VFILTER * ( vff.P[1][0] + vff.P[0][1] + DT_VFILTER * vff.P[1][1] );
-  const float FPF01 = vff.P[0][1] + DT_VFILTER * ( vff.P[1][1] - vff.P[0][2] - DT_VFILTER * vff.P[1][2] );
-  const float FPF02 = vff.P[0][2] + DT_VFILTER * ( vff.P[1][2] );
-  const float FPF10 = vff.P[1][0] + DT_VFILTER * (-vff.P[2][0] + vff.P[1][1] - DT_VFILTER * vff.P[2][1] );
-  const float FPF11 = vff.P[1][1] + DT_VFILTER * (-vff.P[2][1] - vff.P[1][2] + DT_VFILTER * vff.P[2][2] );
-  const float FPF12 = vff.P[1][2] + DT_VFILTER * (-vff.P[2][2] );
-  const float FPF20 = vff.P[2][0] + DT_VFILTER * ( vff.P[2][1] );
-  const float FPF21 = vff.P[2][1] + DT_VFILTER * (-vff.P[2][2] );
+  const float FPF00 = vff.P[0][0] + dt * ( vff.P[1][0] + vff.P[0][1] + dt * vff.P[1][1] );
+  const float FPF01 = vff.P[0][1] + dt * ( vff.P[1][1] - vff.P[0][2] - dt * vff.P[1][2] );
+  const float FPF02 = vff.P[0][2] + dt * ( vff.P[1][2] );
+  const float FPF10 = vff.P[1][0] + dt * (-vff.P[2][0] + vff.P[1][1] - dt * vff.P[2][1] );
+  const float FPF11 = vff.P[1][1] + dt * (-vff.P[2][1] - vff.P[1][2] + dt * vff.P[2][2] );
+  const float FPF12 = vff.P[1][2] + dt * (-vff.P[2][2] );
+  const float FPF20 = vff.P[2][0] + dt * ( vff.P[2][1] );
+  const float FPF21 = vff.P[2][1] + dt * (-vff.P[2][2] );
   const float FPF22 = vff.P[2][2];
   const float FPF33 = vff.P[3][3];
 
-  vff.P[0][0] = FPF00 + Qzz;
+  vff.P[0][0] = FPF00 + ACCEL_NOISE * dt * dt / 2.;
   vff.P[0][1] = FPF01;
   vff.P[0][2] = FPF02;
   vff.P[1][0] = FPF10;
-  vff.P[1][1] = FPF11 + Qzdotzdot;
+  vff.P[1][1] = FPF11 + ACCEL_NOISE * dt;
   vff.P[1][2] = FPF12;
   vff.P[2][0] = FPF20;
   vff.P[2][1] = FPF21;

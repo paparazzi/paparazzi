@@ -319,6 +319,13 @@ static inline void on_accel_event( void ) {
 }
 
 static inline void on_gyro_event( void ) {
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
 
   ImuScaleGyro(imu);
 
@@ -332,7 +339,7 @@ static inline void on_gyro_event( void ) {
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
-    ins_propagate();
+    ins_propagate(dt);
   }
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_imu_available();
