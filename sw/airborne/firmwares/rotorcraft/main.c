@@ -319,6 +319,8 @@ static inline void on_accel_event( void ) {
 }
 
 static inline void on_gyro_event( void ) {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS/INS propagation.")
   // timestamp when last callback was received
   static float last_ts = 0.f;
   // current timestamp
@@ -326,6 +328,11 @@ static inline void on_gyro_event( void ) {
   // dt between this and last callback
   float dt = now_ts - last_ts;
   last_ts = now_ts;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS/INS propagation.")
+PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+  const float dt = (1./AHRS_PROPAGATE_FREQUENCY);
+#endif
 
   ImuScaleGyro(imu);
 
