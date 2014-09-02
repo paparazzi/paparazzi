@@ -46,6 +46,10 @@
 #define LED_3_GPIO_OFF gpio_set
 #define LED_3_AFIO_REMAP ((void)0)
 
+#if USE_LED_3 && USE_ADC_6
+#error "You can't use LED_3 and ADC_6 at the same time"
+#endif
+
 /* red, shared with ADC15 (ADC_4 on connector ANALOG2) */
 #ifndef USE_LED_4
 #define USE_LED_4 1
@@ -55,6 +59,10 @@
 #define LED_4_GPIO_ON gpio_clear
 #define LED_4_GPIO_OFF gpio_set
 #define LED_4_AFIO_REMAP ((void)0)
+
+#if USE_LED_4 && USE_ADC_4
+#error "You can't use LED_4 and ADC_4 at the same time"
+#endif
 
 /* green, on PC15 */
 #ifndef USE_LED_5
