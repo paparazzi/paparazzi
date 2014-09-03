@@ -45,6 +45,7 @@
   <modules>
     <load name="gps_ubx_ucenter.xml"/>
     <!-- load name="airspeed_ms45xx.xml"/ -->
+    <load name="direct_memory_logger.xml"/>
   </modules>
 
   <servos driver="Asctec_v2">
