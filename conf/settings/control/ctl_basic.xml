@@ -34,6 +34,7 @@
           <strip_button name="Cruise" value="0" group="dash_loiter"/>
           <strip_button name="Dash" value="1" group="dash_loiter"/>
         </dl_setting>
+        <dl_setting MAX="15" MIN="-15" STEP="0.1" VAR="v_ctl_pitch_trim" shortname="pitch trim" param="V_CTL_PITCH_TRIM" unit="rad" alt_unit="deg"/>
         <dl_setting MAX="0.05" MIN="0.00" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain" param="V_CTL_AUTO_THROTTLE_PGAIN"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain" param="V_CTL_AUTO_THROTTLE_IGAIN"/>
         <dl_setting MAX="2" MIN="0.0" STEP="0.1" VAR="v_ctl_auto_throttle_dgain" shortname="throttle_dgain"/>

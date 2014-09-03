@@ -88,6 +88,10 @@ float v_ctl_auto_pitch_sum_err;
 pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 float v_ctl_pitch_setpoint;
+#ifndef V_CTL_PITCH_TRIM
+#define V_CTL_PITCH_TRIM 0.
+#endif
+float v_ctl_pitch_trim;
 
 inline static void v_ctl_climb_auto_throttle_loop( void );
 #ifdef V_CTL_AUTO_PITCH_PGAIN
@@ -131,6 +135,9 @@ void v_ctl_init( void ) {
   v_ctl_climb_setpoint = 0.;
   v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE;
   v_ctl_auto_throttle_submode = V_CTL_AUTO_THROTTLE_STANDARD;
+
+  v_ctl_pitch_setpoint = 0.;
+  v_ctl_pitch_trim = V_CTL_PITCH_TRIM;
 
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
@@ -282,7 +289,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     float ratio = (fabs(v_ctl_altitude_error) - AGR_BLEND_END)
       / (AGR_BLEND_START - AGR_BLEND_END);
     f_throttle = (1-ratio) * controlled_throttle;
-    v_ctl_pitch_setpoint = (1-ratio) * v_ctl_pitch_of_vz;
+    v_ctl_pitch_setpoint = (1-ratio) * (v_ctl_pitch_of_vz + v_ctl_pitch_trim);
     v_ctl_auto_throttle_sum_err += (1-ratio) * err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
     /* positive error -> too low */
@@ -302,7 +309,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     f_throttle = controlled_throttle;
     v_ctl_auto_throttle_sum_err += err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
-    v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + nav_pitch;
+    v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + v_ctl_pitch_trim + nav_pitch;
 #if defined AGR_CLIMB
     break;
   } /* switch submode */
@@ -353,7 +360,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   // Done, set outputs
   Bound(controlled_throttle, 0, v_ctl_auto_throttle_max_cruise_throttle);
   f_throttle = controlled_throttle;
-  v_ctl_pitch_setpoint = v_ctl_pitch_of_vz;
+  v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + v_ctl_pitch_trim;
   v_ctl_throttle_setpoint = TRIM_UPPRZ(f_throttle * MAX_PPRZ);
   Bound(v_ctl_pitch_setpoint, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }
@@ -371,7 +378,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
   v_ctl_throttle_setpoint = nav_throttle_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  v_ctl_pitch_setpoint = -v_ctl_auto_pitch_pgain *
+  v_ctl_pitch_setpoint = v_ctl_pitch_trim - v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
   Bound(v_ctl_pitch_setpoint, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }
