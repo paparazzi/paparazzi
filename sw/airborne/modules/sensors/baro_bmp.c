@@ -41,10 +41,6 @@
 #include "subsystems/datalink/downlink.h"
 
 
-#if !defined(SENSOR_SYNC_SEND) && !defined(USE_BARO_BMP)
-#warning set SENSOR_SYNC_SEND to use baro_bmp
-#endif
-
 #ifndef BMP_I2C_DEV
 #define BMP_I2C_DEV i2c0
 #endif
