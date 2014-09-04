@@ -2,25 +2,25 @@
 
 <autopilot name="Quadrotor Autopilot (Basic version)">
 
-  <control_block name="set_actuators">
-    <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on)"/>
-    <call fun="SetActuatorsFromCommands(commands, autopilot_mode)"/>
-  </control_block>
+  <state_machine name="main" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true">
 
-  <control_block name="attitude_loop">
-    <call fun="SetAttitudeFromRC(rc_values)"/>
-    <call fun="AddAttitudeFromFMS()" cond="fms.enabled"/>
-    <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
-  </control_block>
+    <control_block name="set_actuators">
+      <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on)"/>
+      <call fun="SetActuatorsFromCommands(commands, autopilot_mode)"/>
+    </control_block>
 
-  <control_block name="altitude_loop">
-    <call fun="SetAltitudeFromFMS()" cond="fms.enabled"/>
-    <call fun="gv_update_ref_from_z_sp(guidance_v_z_sp)"/>
-    <call fun="run_hover_loop(autopilot_in_flight)"/>
-    <call fun="SaturateThrottle(rc_values)"/>
-  </control_block>
+    <control_block name="attitude_loop">
+      <call fun="SetAttitudeFromRC(rc_values)"/>
+      <call fun="AddAttitudeFromFMS()" cond="fms.enabled"/>
+      <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
+    </control_block>
 
-  <state_machine name="Main">
+    <control_block name="altitude_loop">
+      <call fun="SetAltitudeFromFMS()" cond="fms.enabled"/>
+      <call fun="gv_update_ref_from_z_sp(guidance_v_z_sp)"/>
+      <call fun="run_hover_loop(autopilot_in_flight)"/>
+      <call fun="SaturateThrottle(rc_values)"/>
+    </control_block>
 
     <exceptions>
       <exception cond="too_far_from_home" deroute="HOME"/>
