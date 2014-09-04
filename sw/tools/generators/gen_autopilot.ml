@@ -59,6 +59,12 @@ let get_includes = fun sm ->
   try ExtXml.child sm "includes"
   with _ -> Xml.Element ("includes", [], [])
 
+let has_modules = fun sm ->
+  try
+    let m = ExtXml.child sm "modules" in
+    List.length (Xml.children m) > 0
+  with _ -> false
+
 let get_mode_exceptions = fun mode ->
   List.filter (fun m -> (Xml.tag m) = "exception") (Xml.children mode)
 
@@ -323,7 +329,7 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
     fprintf out_h "\n#ifdef AUTOPILOT_CORE_%s_C\n" name_up;
     (* Print includes and private variables *)
     print_includes (get_includes sm) out_h;
-    fprintf out_h "\n#include \"modules.h\"\n";
+    if has_modules sm then fprintf out_h "\n#include \"modules.h\"\n";
     fprintf out_h "uint8_t private_autopilot_mode_%s;\n" name;
     fprintf out_h "uint8_t last_autopilot_mode_%s;\n\n" name;
     (* Print functions *)
@@ -349,16 +355,66 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
       failwith (sprintf "gen_autopilot: fail to move tmp file %s to final location" tmp_file)
   with _ -> Sys.remove tmp_file
 
+(* Output settings xml file *)
+let write_settings = fun xml_file out_set ap ->
+  fprintf out_set "<!-- This file has been generated from %s -->\n" xml_file;
+  fprintf out_set "<!-- Please DO NOT EDIT -->\n\n";
+  fprintf out_set "<settings>\n";
+  fprintf out_set "  <dl_settings>\n";
+  (* Filter state machines that need to be displayed *)
+  let sm_filtered = List.filter (fun sm ->
+    try (String.lowercase (Xml.attrib sm "settings_mode")) = "true" with _ -> false
+    ) (Xml.children ap) in
+  if List.length sm_filtered > 0 then begin
+    (* Create node if there is at least one to display *)
+    fprintf out_set "    <dl_settings name=\"Autopilot\">\n";
+    let write_ap_mode = fun sm ->
+      let modes = get_modes sm in
+      let name = Xml.attrib sm "name" in
+      (* Iter on modes and store min, max and values *)
+      let (_, min, max, values) = List.fold_left (fun (current, min, max, values) m ->
+        let print = try String.lowercase (Xml.attrib m "settings") <> "hide" with _ -> true in
+        let name = Xml.attrib m "name" in
+        if print then begin
+          let min = match min with
+          | None -> Some current
+          | Some x -> Some x
+          in
+          let max = Some current in
+          let values = values @ [name] in
+          (current + 1, min, max, values)
+        end
+        else begin
+          let n = match min with None -> [] | _ -> [name] in
+          (current + 1, min, max, values @ n)
+        end
+      ) (0, None, None, []) modes in
+      (* Print if at least one mode has been found *)
+      match min, max with
+      | Some min_idx, Some max_idx ->
+          fprintf out_set "      <dl_setting min=\"%d\" max=\"%d\" step=\"1\" var=\"autopilot_mode_%s\" shortname=\"%s\" values=\"%s\"/>\n"
+            min_idx max_idx name name (String.concat "|" values)
+      | _, _ -> ()
+    in
+    (* Iter and call print function *)
+    List.iter write_ap_mode sm_filtered;
+    fprintf out_set "    </dl_settings>\n";
+  end;
+  fprintf out_set "  </dl_settings>\n";
+  fprintf out_set "</settings>\n"
+
+
 
 (** Main generation function
   * Usage: main_freq xml_file_input h_dir_output
   *)
-let gen_autopilot main_freq xml_file h_dir =
+let gen_autopilot main_freq xml_file h_dir out_set =
   try
     let ap_xml = Xml.parse_file xml_file in
     let ap_name = ExtXml.attrib_or_default ap_xml "name" "Autopilot" in
     let state_machines = get_state_machines ap_xml in
-    List.iter (parse_and_gen_modes xml_file ap_name main_freq h_dir) state_machines
+    List.iter (parse_and_gen_modes xml_file ap_name main_freq h_dir) state_machines;
+    write_settings xml_file out_set ap_xml
   with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
     | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
@@ -367,10 +423,11 @@ let gen_autopilot main_freq xml_file h_dir =
 
 (* Main call *)
 let () =
-  if Array.length Sys.argv <> 3 then
-    failwith (Printf.sprintf "Usage: %s airframe_xml_file out_h_dir" Sys.argv.(0));
+  if Array.length Sys.argv <> 4 then
+    failwith (Printf.sprintf "Usage: %s airframe_xml_file out_h_dir out_settings" Sys.argv.(0));
   let xml_file = Sys.argv.(1)
-  and h_dir = Sys.argv.(2) in
+  and h_dir = Sys.argv.(2)
+  and out_set = open_out Sys.argv.(3) in
   let (autopilot, ap_freq) = try
     Gen_common.get_autopilot_of_airframe (Xml.parse_file xml_file)
     with
@@ -381,7 +438,7 @@ let () =
     | Not_found -> exit 0 (* No autopilot file found *)
   in
   try
-    gen_autopilot ap_freq autopilot h_dir;
-    ()
+    gen_autopilot ap_freq autopilot h_dir out_set;
+    close_out out_set
   with
     _ -> fprintf stderr "gen_autopilot: What the heck? Something went wrong...\n"; exit 1

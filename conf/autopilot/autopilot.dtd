@@ -22,7 +22,9 @@ name CDATA #IMPLIED>
 
 <!ATTLIST state_machine
 name CDATA #REQUIRED
-freq CDATA #REQUIRED>
+freq CDATA #REQUIRED
+gcs_mode CDATA #IMPLIED
+settings_mode CDATA #IMPLIED>
 
 <!ATTLIST control_block
 name CDATA #REQUIRED>
@@ -30,7 +32,9 @@ name CDATA #REQUIRED>
 <!ATTLIST mode
 name CDATA #REQUIRED
 start CDATA #IMPLIED
-stop CDATA #IMPLIED>
+stop CDATA #IMPLIED
+gcs_name CDATA #IMPLIED
+settings CDATA #IMPLIED>
 
 <!ATTLIST exceptions>
 

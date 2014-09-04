@@ -2,11 +2,15 @@
 
 <autopilot name="Fixed Wing Autopilot">
 
-  <state_machine name="ap" freq="CONTROL_FREQUENCY">
+  <state_machine name="ap" freq="CONTROL_FREQUENCY" gcs_mode="true" settings_mode="true">
 
     <!--modules>
       <load name=""/>
     </modules-->
+
+    <includes>
+      <!-- <include href=""/> -->
+    </includes>
 
     <control_block name="actuators_ap">
       <call fun="SetCommandsFromAP(commands)"/>
@@ -22,7 +26,7 @@
       <exception cond="too_far_from_home" deroute="HOME"/>
     </exceptions>
 
-    <mode name="MANUAL">
+    <mode name="MANUAL" gcs_name="MANU">
       <select cond="RCMode0()"/>
       <control>
         <call fun="SetCommandsFromRC(commands, rc_values)"/>
@@ -57,7 +61,7 @@
       <exception cond="GPSLost()" deroute="GPS_LOST"/>
     </mode>
 
-    <mode name="HOME">
+    <mode name="HOME" settings="hide">
       <control freq="4">
         <call fun="nav_home()"/>
       </control>
@@ -68,7 +72,7 @@
       <exception cond="GPSLost()" deroute="GPS_LOST"/>
     </mode>
 
-    <mode name="GPS_LOST">
+    <mode name="GPS_LOST" gcs_name="NOGPS" settings="hide">
       <control freq="4">
         <call fun="nav_gps_lost()"/>
       </control>
