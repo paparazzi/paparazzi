@@ -48,7 +48,7 @@ SETTINGS_TELEMETRY=$(AIRCRAFT_BUILD_DIR)/settings_telemetry.xml
 MAKEFILE_AC=$(AIRCRAFT_BUILD_DIR)/Makefile.ac
 MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
-AUTOPILOT_H=$(AC_GENERATED)/autopilot_core.h
+AUTOPILOT_DIR=$(AC_GENERATED)/
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
 UNAME = $(shell uname -s)
@@ -108,7 +108,7 @@ print_version:
 	@echo "-----------------------------------------------------------------------"
 
 
-all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H) $(AUTOPILOT_H)
+all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H) autopilot_h
 	@echo "TARGET: " $(TARGET)"\n" > $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
 	@echo "CFLAGS: " $($(TARGET).CFLAGS)"\n"  >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
 	@echo "LDFLAGS: " $($(TARGET).LDFLAGS)"\n"  >> $(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
@@ -180,13 +180,10 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_modules.out $(CONF)/mod
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
-$(AUTOPILOT_H) : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_autopilot.out $(CONF)/autopilot/*.xml
+autopilot_h : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_autopilot.out $(CONF)/autopilot/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
+	$(Q)$(GENERATORS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $(AUTOPILOT_DIR)
 
 $(SETTINGS_MODULES) : $(MODULES_H)
 $(SETTINGS_TELEMETRY) : $(PERIODIC_H)

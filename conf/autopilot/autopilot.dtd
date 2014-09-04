@@ -1,12 +1,15 @@
 <!-- Paparazzi Autopilot DTD -->
 
-<!ELEMENT autopilot (modules*,control_block*,exceptions?,mode*)>
+<!ELEMENT autopilot (state_machine+)>
+<!ELEMENT state_machine (modules*,includes?,control_block*,exceptions?,mode*)>
 <!ELEMENT control_block (call*)>
 <!ELEMENT exceptions (exception*)>
+<!ELEMENT includes (include*)>
 <!ELEMENT mode (select*,control*,exception*)>
 <!ELEMENT select EMPTY>
 <!ELEMENT control (call|call_block)*>
 <!ELEMENT exception EMPTY>
+<!ELEMENT include EMPTY>
 <!ELEMENT call EMPTY>
 <!ELEMENT call_block EMPTY>
 <!ELEMENT modules (load)*>
@@ -16,6 +19,10 @@
 
 <!ATTLIST autopilot
 name CDATA #IMPLIED>
+
+<!ATTLIST state_machine
+name CDATA #REQUIRED
+freq CDATA #REQUIRED>
 
 <!ATTLIST control_block
 name CDATA #REQUIRED>
@@ -27,16 +34,21 @@ stop CDATA #IMPLIED>
 
 <!ATTLIST exceptions>
 
+<!ATTLIST includes>
+
 <!ATTLIST select
 cond CDATA #REQUIRED
 exception CDATA #IMPLIED>
 
 <!ATTLIST control
-freq CDATA #REQUIRED>
+freq CDATA #IMPLIED>
 
 <!ATTLIST exception
 cond CDATA #REQUIRED
 deroute CDATA #REQUIRED>
+
+<!ATTLIST include
+href CDATA #REQUIRED>
 
 <!ATTLIST call
 fun CDATA #REQUIRED

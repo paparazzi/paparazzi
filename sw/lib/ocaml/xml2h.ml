@@ -47,39 +47,31 @@ let sprint_float_array = fun l ->
     | x::xs -> x ^","^ loop xs in
   "{" ^ loop l
 
-let start_and_begin_out = fun xml_file h_name out ->
-  let xml = Xml.parse_file xml_file in
-
+let begin_out = fun xml_file h_name out ->
   fprintf out "/* This file has been generated from %s */\n" xml_file;
   fprintf out "/* Please DO NOT EDIT */\n\n";
-
   fprintf out "#ifndef %s\n" h_name;
-  fprintf out "#define %s\n\n" h_name;
+  fprintf out "#define %s\n\n" h_name
+  
+let start_and_begin_out = fun xml_file h_name out ->
+  let xml = Xml.parse_file xml_file in
+  begin_out xml_file h_name out;
   xml
 
 let start_and_begin = fun xml_file h_name ->
   let xml = Xml.parse_file xml_file in
-
-  printf "/* This file has been generated from %s */\n" xml_file;
-  printf "/* Please DO NOT EDIT */\n\n";
-
-  printf "#ifndef %s\n" h_name;
-  define h_name "";
-  nl ();
-  xml
-
-let start_and_begin_c = fun xml_file name ->
-  let xml = Xml.parse_file xml_file in
-  printf "/* This file has been generated from %s */\n" xml_file;
-  printf "/* Please DO NOT EDIT */\n\n";
-  printf "#include \"%s.h\"\n" name;
-  nl ();
+  begin_out xml_file h_name stdout;
   xml
 
 let begin_c_out = fun xml_file name out ->
   fprintf out "/* This file has been generated from %s */\n" xml_file;
   fprintf out "/* Please DO NOT EDIT */\n\n";
   fprintf out "#include \"%s.h\"\n\n" name
+
+let start_and_begin_c = fun xml_file name ->
+  let xml = Xml.parse_file xml_file in
+  begin_c_out xml_file name stdout;
+  xml
 
 let finish = fun h_name ->
   printf "\n#endif // %s\n" h_name

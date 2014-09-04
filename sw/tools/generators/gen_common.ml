@@ -33,7 +33,6 @@ let modules_dir = paparazzi_conf // "modules"
 let autopilot_dir = paparazzi_conf // "autopilot"
 
 let default_module_targets = "ap|sim|nps"
-let default_freq = 60
 
 (** remove all duplicated elements of a list *)
 let singletonize = fun l ->
@@ -73,7 +72,7 @@ let get_autopilot_of_airframe = fun xml ->
   (* Raise error if more than one modules section *)
   match section with
       [autopilot] ->
-        let freq = try int_of_string (Xml.attrib autopilot "freq") with _ -> default_freq in
+        let freq = try Some (Xml.attrib autopilot "freq") with _ -> None in
         let ap = try Xml.attrib autopilot "name" with _ -> raise Not_found in
         (autopilot_dir // ap, freq)
     | [] -> raise Not_found

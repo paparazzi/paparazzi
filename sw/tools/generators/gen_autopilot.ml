@@ -42,36 +42,48 @@ let lprintf = fun out f ->
   fprintf out "%s" (String.make !margin ' ');
   fprintf out f
 
-let get_ap_modes = fun ap ->
-  List.filter (fun m -> (Xml.tag m) = "mode") (Xml.children ap)
+let get_state_machines = fun ap ->
+  List.filter (fun m -> (Xml.tag m) = "state_machine") (Xml.children ap)
+
+let get_modes = fun sm ->
+  List.filter (fun m -> (Xml.tag m) = "mode") (Xml.children sm)
 
 let get_ap_control_block = fun ap ->
   List.filter (fun m -> (Xml.tag m) = "control_block") (Xml.children ap)
 
-let get_ap_exceptions = fun ap ->
-  try ExtXml.child ap "exceptions"
+let get_exceptions = fun sm ->
+  try ExtXml.child sm "exceptions"
   with _ -> Xml.Element ("exceptions", [], [])
+
+let get_includes = fun sm ->
+  try ExtXml.child sm "includes"
+  with _ -> Xml.Element ("includes", [], [])
 
 let get_mode_exceptions = fun mode ->
   List.filter (fun m -> (Xml.tag m) = "exception") (Xml.children mode)
 
-let print_mode_name = fun name ->
-  String.concat "" ["AUTOPILOT_MODE_"; (String.uppercase name)]
+let print_includes = fun includes out_h ->
+  List.iter (fun i ->
+    let name = Xml.attrib i "name" in
+    lprintf out_h "#include \"%s\"\n" name
+  ) (Xml.children includes)
+
+let print_mode_name = fun sm_name name ->
+  String.concat "" [(String.uppercase sm_name); "_MODE_"; (String.uppercase name)]
 
 (** Define modes *)
-let print_modes = fun modes out_h ->
+let print_modes = fun modes sm_name out_h ->
   let mode_idx = ref 0 in
   List.iter (fun m ->
     try
       let name = Xml.attrib m "name" in
-      lprintf out_h "#define %s %d\n" (print_mode_name name) !mode_idx;
+      lprintf out_h "#define %s %d\n" (print_mode_name sm_name name) !mode_idx;
       mode_idx := !mode_idx + 1;
     with _ -> ()
-  )
-    modes
+  ) modes
 
 (** Init function: set last_mode to initial ap_mode *) (* TODO really needed ? *)
-let print_ap_init = fun modes out_h ->
+let print_ap_init = fun modes name out_h ->
 
   let find_default_mode = fun _ ->
     let default = List.find_all (fun m ->
@@ -84,56 +96,56 @@ let print_ap_init = fun modes out_h ->
   in
 
   let default = find_default_mode () in
-  lprintf out_h "\nstatic inline void autopilot_core_init(void) {\n";
+  lprintf out_h "\nstatic inline void autopilot_core_%s_init(void) {\n" name;
   right ();
-  lprintf out_h "autopilot_mode = %s;\n" (print_mode_name (Xml.attrib default "name"));
-  lprintf out_h "private_autopilot_mode = autopilot_mode;\n";
-  lprintf out_h "last_autopilot_mode = autopilot_mode;\n";
+  lprintf out_h "autopilot_mode_%s = %s;\n" name (print_mode_name name (Xml.attrib default "name"));
+  lprintf out_h "private_autopilot_mode_%s = autopilot_mode_%s;\n" name name;
+  lprintf out_h "last_autopilot_mode_%s = autopilot_mode_%s;\n" name name;
   left ();
   lprintf out_h "}\n"
 
 (** Function to test if a mode is selected *)
-let print_test_select = fun modes out_h ->
-  lprintf out_h "\nstatic inline uint8_t autopilot_core_mode_select(void) {\n";
+let print_test_select = fun modes name out_h ->
+  lprintf out_h "\nstatic inline uint8_t autopilot_core_%s_mode_select(void) {\n" name;
   right ();
   List.iter (fun m -> (* Test select for all modes *)
     let select = List.filter (fun s -> Xml.tag s = "select") (Xml.children m) in
     List.iter (fun s -> (* In each mode, build condition and exceptions' list *)
       let cond = Xml.attrib s "cond" in
       let except = try String.concat " || "
-                         (List.map (fun e -> Printf.sprintf "private_autopilot_mode != %s" (print_mode_name e))
+                         (List.map (fun e -> Printf.sprintf "private_autopilot_mode_%s != %s" name (print_mode_name name e))
                             (Str.split (Str.regexp "|") (Xml.attrib s "exception"))
                          ) with _ -> "" in
       match (cond, String.length except) with
           ("$DEFAULT_MODE", _) -> ()
-        | (_, 0) -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name (Xml.attrib m "name"))
-        | (_, _) -> lprintf out_h "if ((%s) && (%s)) { return %s; }\n" cond except (print_mode_name (Xml.attrib m "name"))
+        | (_, 0) -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name name (Xml.attrib m "name"))
+        | (_, _) -> lprintf out_h "if ((%s) && (%s)) { return %s; }\n" cond except (print_mode_name name (Xml.attrib m "name"))
     ) select;
   ) modes;
-  lprintf out_h "return private_autopilot_mode;\n";
+  lprintf out_h "return private_autopilot_mode_%s;\n" name;
   left ();
   lprintf out_h "}\n"
 
 
 (** Function to test exceptions on modes
-    *  The generated function returns the new mode if an exception is true
+ *  The generated function returns the new mode if an exception is true
 *)
-let print_test_exception = fun modes out_h ->
+let print_test_exception = fun modes name out_h ->
   (** Test condition and deroute to given mode or last mode *)
   let print_exception = fun ex ->
-    let name = Xml.attrib ex "deroute"
+    let deroute = Xml.attrib ex "deroute"
     and cond = Xml.attrib ex "cond" in
     match name with
-        "$LAST_MODE" -> lprintf out_h "if (%s) { return last_autopilot_mode; }\n" cond
-      | _ -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name name)
+        "$LAST_MODE" -> lprintf out_h "if (%s) { return last_autopilot_mode_%s; }\n" cond name
+      | _ -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name name deroute)
   in
 
-  lprintf out_h "\nstatic inline uint8_t autopilot_core_mode_exceptions(uint8_t mode) {\n";
+  lprintf out_h "\nstatic inline uint8_t autopilot_core_%s_mode_exceptions(uint8_t mode) {\n" name;
   right ();
   lprintf out_h "switch ( mode ) {\n";
   right ();
   List.iter (fun m -> (* Test exceptions for all modes *)
-    lprintf out_h "case %s :\n" (print_mode_name (Xml.attrib m "name"));
+    lprintf out_h "case %s :\n" (print_mode_name name (Xml.attrib m "name"));
     right ();
     lprintf out_h "{\n";
     right ();
@@ -155,20 +167,20 @@ let print_test_exception = fun modes out_h ->
 (** Function to test global exceptions
     *  The generated function returns the mode of the last true exception in the list
 *)
-let print_global_exceptions = fun exceptions out_h ->
-  lprintf out_h "\nstatic inline uint8_t autopilot_core_global_exceptions(uint8_t mode) {\n";
+let print_global_exceptions = fun exceptions name out_h ->
+  lprintf out_h "\nstatic inline uint8_t autopilot_core_%s_global_exceptions(uint8_t mode) {\n" name;
   right ();
-  List.iter (fun ex -> lprintf out_h "if (%s) { mode = %s; }\n" (Xml.attrib ex "cond") (print_mode_name (Xml.attrib ex "deroute")))
+  List.iter (fun ex -> lprintf out_h "if (%s) { mode = %s; }\n" (Xml.attrib ex "cond") (print_mode_name name (Xml.attrib ex "deroute")))
     (Xml.children exceptions);
   lprintf out_h "return mode;\n";
   left ();
   lprintf out_h "}\n"
 
 (** Set mode by calling start and stop functions if needed *)
-let print_set_mode = fun modes out_h ->
+let print_set_mode = fun modes name out_h ->
 
   let print_case = fun mode f ->
-    lprintf out_h "case %s :\n" (print_mode_name (Xml.attrib mode "name"));
+    lprintf out_h "case %s :\n" (print_mode_name name (Xml.attrib mode "name"));
     right ();
     List.iter (fun x -> lprintf out_h "%s;\n" x) (Str.split (Str.regexp "|") f);
     lprintf out_h "break;\n";
@@ -187,24 +199,24 @@ let print_set_mode = fun modes out_h ->
     lprintf out_h "}\n"
   in
 
-  lprintf out_h "\nstatic inline void autopilot_core_set_mode(uint8_t new_mode) {\n\n";
+  lprintf out_h "\nstatic inline void autopilot_core_%s_set_mode(uint8_t new_mode) {\n\n" name;
   right ();
-  lprintf out_h "if (new_mode == private_autopilot_mode) return;\n\n"; (* set mode if different from current mode *)
+  lprintf out_h "if (new_mode == private_autopilot_mode_%s) return;\n\n" name; (* set mode if different from current mode *)
   (* Print stop functions for each modes *)
-  print_switch "private_autopilot_mode" modes "stop";
+  print_switch ("private_autopilot_mode_"^name) modes "stop";
   fprintf out_h "\n";
   (* Print start functions for each modes *)
   print_switch "new_mode" modes "start";
   fprintf out_h "\n";
-  lprintf out_h "last_autopilot_mode = private_autopilot_mode;\n";
-  lprintf out_h "private_autopilot_mode = new_mode;\n";
-  lprintf out_h "autopilot_mode = new_mode;\n";
+  lprintf out_h "last_autopilot_mode_%s = private_autopilot_mode_%s;\n" name name;
+  lprintf out_h "private_autopilot_mode_%s = new_mode;\n" name;
+  lprintf out_h "autopilot_mode_%s = new_mode;\n" name;
   left ();
   lprintf out_h "}\n"
 
 
 (** Peridiodic function: calls control loops according to the ap_mode *)
-let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
+let print_ap_periodic = fun modes ctrl_block main_freq name out_h ->
 
   (** Print function *)
   let print_call = fun call ->
@@ -232,12 +244,12 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
     ) (Xml.children ctrl)
   in
   (** Equivalent to the RunOnceEvery macro *)
-  let print_prescaler = fun pre ctrl ->
+  let print_prescaler = fun freq ctrl ->
     lprintf out_h "{\n";
     right ();
     lprintf out_h "static uint16_t prescaler = 0;\n";
     lprintf out_h "prescaler++;\n";
-    lprintf out_h "if (prescaler >= %d) {\n" pre;
+    lprintf out_h "if (prescaler >= (uint16_t)(%s / %s)) {\n" main_freq freq;
     right ();
     lprintf out_h "prescaler = 0;\n";
     print_ctrl ctrl;
@@ -251,26 +263,28 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
   in
 
   (** Start printing the main periodic task *)
-  lprintf out_h "\nstatic inline void autopilot_core_periodic_task(void) {\n\n";
+  lprintf out_h "\nstatic inline void autopilot_core_%s_periodic_task(void) {\n\n" name;
   right ();
-  lprintf out_h "uint8_t mode = autopilot_core_mode_select();\n"; (* get selected mode *)
-  lprintf out_h "mode = autopilot_core_mode_exceptions(mode);\n"; (* change mode according to exceptions *)
-  lprintf out_h "mode = autopilot_core_global_exceptions(mode);\n"; (* change mode according to global exceptions *)
-  lprintf out_h "autopilot_core_set_mode(mode);\n\n"; (* set new mode and call start/stop functions *)
-  lprintf out_h "switch ( private_autopilot_mode ) {\n";
+  lprintf out_h "uint8_t mode = autopilot_core_%s_mode_select();\n" name; (* get selected mode *)
+  lprintf out_h "mode = autopilot_core_%s_mode_exceptions(mode);\n" name; (* change mode according to exceptions *)
+  lprintf out_h "mode = autopilot_core_%s_global_exceptions(mode);\n" name; (* change mode according to global exceptions *)
+  lprintf out_h "autopilot_core_%s_set_mode(mode);\n\n" name; (* set new mode and call start/stop functions *)
+  lprintf out_h "switch ( private_autopilot_mode_%s ) {\n" name;
   right ();
   List.iter (fun m -> (* Print control loops for each modes *)
-    lprintf out_h "case %s :\n" (print_mode_name (Xml.attrib m "name"));
+    lprintf out_h "case %s :\n" (print_mode_name name (Xml.attrib m "name"));
     right ();
     lprintf out_h "{\n";
     right ();
     List.iter (fun c -> (* Look for control loops *)
-      let ctrl_freq = try int_of_string (Xml.attrib c "freq") with _ -> main_freq in
-      let prescaler = main_freq / ctrl_freq in
-      match prescaler with
-          0 -> failwith (sprintf "Autopilot Core Error: control freq (%d) higher than main_freq (%d)" ctrl_freq main_freq)
-        | 1 -> print_ctrl c (* no prescaler if running at main_freq *)
-        | _ -> print_prescaler prescaler c
+      let ctrl_freq = try Some (Xml.attrib c "freq") with _ -> None in
+      (* TODO test if possible to determine freq and if valid 
+       * let prescaler = main_freq / ctrl_freq in
+       *  0 -> failwith (sprintf "Autopilot Core Error: control freq (%d) higher than main_freq (%d)" ctrl_freq main_freq)
+       *)
+      match ctrl_freq with
+        | None -> print_ctrl c (* no prescaler, runing at main freq *)
+        | Some freq -> print_prescaler freq c
     ) (get_control m);
     left ();
     lprintf out_h "}\n";
@@ -282,45 +296,69 @@ let print_ap_periodic = fun modes ctrl_block main_freq out_h ->
   left ();
   lprintf out_h "}\n"
 
-(** Parse config file *)
-let parse_modes ap freq out_h =
-  let modes = get_ap_modes ap in
-  let ctrl_block = get_ap_control_block ap in
-  print_modes modes out_h;
-  fprintf out_h "\nEXTERN_AP uint8_t autopilot_mode;\n";
-  fprintf out_h "\n#ifdef AUTOPILOT_CORE_C\n";
-  fprintf out_h "\n#include \"modules.h\"\n";
-  fprintf out_h "uint8_t private_autopilot_mode;\n";
-  fprintf out_h "uint8_t last_autopilot_mode;\n\n";
-  print_ap_init modes out_h;
-  print_test_select modes out_h;
-  print_test_exception modes out_h;
-  print_global_exceptions (get_ap_exceptions ap) out_h;
-  print_set_mode modes out_h;
-  print_ap_periodic modes ctrl_block freq out_h;
-  fprintf out_h "\n#endif // AUTOPILOT_CORE_C\n"
+(** Parse config file and generate output header *)
+let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
+  (* Open temp file with correct permissions *)
+  let tmp_file, out_h = Filename.open_temp_file "pprz_ap_" ".h" in
+  Unix.chmod tmp_file 0o644;
+  try
+    (* Get state machine name *)
+    let name = Xml.attrib sm "name" in
+    let name_up = String.uppercase name in
+    (* Generate start of header *)
+    begin_out xml_file ("AUTOPILOT_CORE_"^name_up^"_H") out_h;
+    fprintf out_h "/*** %s ***/\n\n" ap_name;
+    (* Print EXTERN definition *)
+    fprintf out_h "#ifdef AUTOPILOT_CORE_%s_H\n" name_up;
+    fprintf out_h "#define EXTERN_%s\n" name_up;
+    fprintf out_h "#else\n";
+    fprintf out_h "#define EXTERN_%s extern\n" name_up;
+    fprintf out_h "#endif\n";
+    (* Get modes and control blocks *)
+    let modes = get_modes sm in
+    let ctrl_block = get_ap_control_block sm in
+    (* Print mode names and variable *)
+    print_modes modes name_up out_h;
+    fprintf out_h "\nEXTERN_%s uint8_t autopilot_mode_%s;\n" name_up name;
+    fprintf out_h "\n#ifdef AUTOPILOT_CORE_%s_C\n" name_up;
+    (* Print includes and private variables *)
+    print_includes (get_includes sm) out_h;
+    fprintf out_h "\n#include \"modules.h\"\n";
+    fprintf out_h "uint8_t private_autopilot_mode_%s;\n" name;
+    fprintf out_h "uint8_t last_autopilot_mode_%s;\n\n" name;
+    (* Print functions *)
+    print_ap_init modes name out_h;
+    print_test_select modes name out_h;
+    print_test_exception modes name out_h;
+    print_global_exceptions (get_exceptions sm) name out_h;
+    print_set_mode modes name out_h;
+    (* Select freq, airframe definition will supersede autopilot one *)
+    let freq = match main_freq, (Xml.attrib sm "freq") with
+    | None, f -> f
+    | Some f, _ -> f
+    in
+    print_ap_periodic modes ctrl_block freq name out_h;
+    (* End and close file *)
+    fprintf out_h "\n#endif // AUTOPILOT_CORE_%s_C\n" name_up;
+    fprintf out_h "\n#endif // AUTOPILOT_CORE_%s_H\n" name_up;
+    close_out out_h;
+    (* Move to final destination *)
+    let h_file = Filename.concat h_dir (sprintf "autopilot_core_%s.h" name) in
+    if Sys.file_exists h_file then Sys.remove h_file;
+    if Sys.command (sprintf "mv -f %s %s" tmp_file h_file) > 0 then
+      failwith (sprintf "gen_autopilot: fail to move tmp file %s to final location" tmp_file)
+  with _ -> Sys.remove tmp_file
 
-let h_name = "AUTOPILOT_CORE_H"
 
 (** Main generation function
-    * Usage: main_freq xml_file_input h_file_output
-*)
-let gen_autopilot main_freq xml_file h_file =
-  let out_h = open_out h_file in
+  * Usage: main_freq xml_file_input h_dir_output
+  *)
+let gen_autopilot main_freq xml_file h_dir =
   try
-    let ap_xml = start_and_begin_out xml_file h_name out_h in
-    let _ = try
-              let ap_name = Xml.attrib ap_xml "name" in
-              fprintf out_h "/*** %s ***/\n\n" ap_name;
-      with _ -> () in
-    fprintf out_h "#ifdef AUTOPILOT_CORE_C\n";
-    fprintf out_h "#define EXTERN_AP\n";
-    fprintf out_h "#else\n";
-    fprintf out_h "#define EXTERN_AP extern\n";
-    fprintf out_h "#endif\n";
-    parse_modes ap_xml main_freq out_h;
-    fprintf out_h "\n#endif // %s\n" h_name;
-    close_out out_h
+    let ap_xml = Xml.parse_file xml_file in
+    let ap_name = ExtXml.attrib_or_default ap_xml "name" "Autopilot" in
+    let state_machines = get_state_machines ap_xml in
+    List.iter (parse_and_gen_modes xml_file ap_name main_freq h_dir) state_machines
   with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
     | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
@@ -330,24 +368,20 @@ let gen_autopilot main_freq xml_file h_file =
 (* Main call *)
 let () =
   if Array.length Sys.argv <> 3 then
-    failwith (Printf.sprintf "Usage: %s airframe_xml_file out_h_file" Sys.argv.(0));
+    failwith (Printf.sprintf "Usage: %s airframe_xml_file out_h_dir" Sys.argv.(0));
   let xml_file = Sys.argv.(1)
-  and h_file = Sys.argv.(2) in
+  and h_dir = Sys.argv.(2) in
   let (autopilot, ap_freq) = try
-                               Gen_common.get_autopilot_of_airframe (Xml.parse_file xml_file)
+    Gen_common.get_autopilot_of_airframe (Xml.parse_file xml_file)
     with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
     | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
     | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
     | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
-    | Not_found ->
-      let out_h = open_out h_file in
-      fprintf out_h "/*** Sorry, no autopilot file found ***/\n";
-      close_out out_h;
-      exit 0
+    | Not_found -> exit 0 (* No autopilot file found *)
   in
   try
-    gen_autopilot ap_freq autopilot h_file;
+    gen_autopilot ap_freq autopilot h_dir;
     ()
   with
-    Not_found -> fprintf stderr "gen_autopilot: What the heck? Something went wrong...\n"; exit 1
+    _ -> fprintf stderr "gen_autopilot: What the heck? Something went wrong...\n"; exit 1
