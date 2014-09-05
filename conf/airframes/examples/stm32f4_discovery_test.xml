@@ -8,7 +8,6 @@
       <subsystem name="radio_control" type="spektrum">
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
       </subsystem>
-      <define name="USE_I2C1"/>
     </target>
 
     <subsystem name="motor_mixing"/>
@@ -30,18 +29,13 @@
   </firmware>
 
   <firmware name="test_progs">
+    <target name="test_adc" board="stm32f4_discovery"/>
     <target name="test_lis302dl" board="stm32f4_discovery">
       <define name="STM32F4_DISCOVERY_SPI1_FOR_LIS302"/>
     </target>
   </firmware>
 
   <modules main_freq="512">
-    <load name="baro_ets.xml">
-      <define name="BARO_ETS_SCALE" value="40.0"/>
-      <define name="BARO_ETS_ALT_SCALE" value="0.3"/>
-      <define name="BARO_ETS_SYNC_SEND"/>
-      <define name="BARO_ETS_I2C_DEV" value="i2c1"/>
-    </load>
   </modules>
 
   <servos driver="Pwm">
