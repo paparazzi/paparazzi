@@ -282,19 +282,23 @@ void adc_init( void ) {
    * That's why "adc_channel_map" has this descending order.
    */
 
-  nb_adc1_channels = NB_ADC1_CHANNELS;
+  nb_adc1_channels = 0;
 #if USE_AD1
 #ifdef AD1_1_CHANNEL
   adc_channel_map[AD1_1] = AD1_1_CHANNEL;
+  nb_adc1_channels++;
 #endif
 #ifdef AD1_2_CHANNEL
   adc_channel_map[AD1_2] = AD1_2_CHANNEL;
+  nb_adc1_channels++;
 #endif
 #ifdef AD1_3_CHANNEL
   adc_channel_map[AD1_3] = AD1_3_CHANNEL;
+  nb_adc1_channels++;
 #endif
 #ifdef AD1_4_CHANNEL
   adc_channel_map[AD1_4] = AD1_4_CHANNEL;
+  nb_adc1_channels++;
 #endif
   // initialize buffer pointers with 0 (not set). Buffer null pointers will be ignored in interrupt
   // handler, which is important as there are no buffers registered at the time the ADC trigger
@@ -304,19 +308,23 @@ void adc_init( void ) {
 #endif // USE_AD1
 
 
-  nb_adc2_channels = NB_ADC2_CHANNELS;
+  nb_adc2_channels = 0;
 #if USE_AD2
 #ifdef AD2_1_CHANNEL
-  adc_channel_map[AD2_1] = AD2_1_CHANNEL;
+  adc_channel_map[AD2_1 - nb_adc1_channels] = AD2_1_CHANNEL;
+  nb_adc2_channels++;
 #endif
 #ifdef AD2_2_CHANNEL
-  adc_channel_map[AD2_2] = AD2_2_CHANNEL;
+  adc_channel_map[AD2_2 - nb_adc1_channels] = AD2_2_CHANNEL;
+  nb_adc2_channels++;
 #endif
 #ifdef AD2_3_CHANNEL
-  adc_channel_map[AD2_3] = AD2_3_CHANNEL;
+  adc_channel_map[AD2_3 - nb_adc1_channels] = AD2_3_CHANNEL;
+  nb_adc2_channels++;
 #endif
 #ifdef AD2_4_CHANNEL
-  adc_channel_map[AD2_4] = AD2_4_CHANNEL;
+  adc_channel_map[AD2_4 - nb_adc1_channels] = AD2_4_CHANNEL;
+  nb_adc2_channels++;
 #endif
   // initialize buffer pointers with 0 (not set). Buffer null pointers will be ignored in interrupt
   // handler, which is important as there are no buffers registered at the time the ADC trigger
@@ -326,19 +334,23 @@ void adc_init( void ) {
 #endif // USE_AD2
 
 
-  nb_adc3_channels = NB_ADC3_CHANNELS;
+  nb_adc3_channels = 0;
 #if USE_AD3
 #ifdef AD3_1_CHANNEL
-  adc_channel_map[AD3_1] = AD3_1_CHANNEL;
+  adc_channel_map[AD3_1 - nb_adc1_channels - nb_adc2_channels] = AD3_1_CHANNEL;
+  nb_adc3_channels++;
 #endif
 #ifdef AD3_2_CHANNEL
-  adc_channel_map[AD3_2] = AD3_2_CHANNEL;
+  adc_channel_map[AD3_2 - nb_adc1_channels - nb_adc2_channels] = AD3_2_CHANNEL;
+  nb_adc3_channels++;
 #endif
 #ifdef AD3_3_CHANNEL
-  adc_channel_map[AD3_3] = AD3_3_CHANNEL;
+  adc_channel_map[AD3_3 - nb_adc1_channels - nb_adc2_channels] = AD3_3_CHANNEL;
+  nb_adc3_channels++;
 #endif
 #ifdef AD3_4_CHANNEL
-  adc_channel_map[AD3_4] = AD3_4_CHANNEL;
+  adc_channel_map[AD3_4 - nb_adc1_channels - nb_adc2_channels] = AD3_4_CHANNEL;
+  nb_adc3_channels++;
 #endif
   // initialize buffer pointers with 0 (not set). Buffer null pointers will be ignored in interrupt
   // handler, which is important as there are no buffers registered at the time the ADC trigger
