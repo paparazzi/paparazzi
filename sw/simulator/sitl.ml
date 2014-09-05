@@ -114,7 +114,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 	ignore (adj#connect#value_changed update);
 	update ())
       rc_channels;
-    ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active));
+    (* github issue #821: people seems to want sliders always sensitive, even if RC is OFF *)
+    (* ignore (on_off#connect#toggled (fun () -> sliders#coerce#misc#set_sensitive on_off#active)); *)
 
     on_off#set_active false;
 
