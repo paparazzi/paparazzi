@@ -32,6 +32,9 @@
 
 #include BOARD_CONFIG
 
+/** 8 ADCs for bank 0, others for bank 2 */
+#define NB_ADC 8
+
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x+NB_ADC)
 

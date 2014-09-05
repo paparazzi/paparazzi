@@ -33,25 +33,42 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
-static struct adc_buf adc0_buf;
-static struct adc_buf adc1_buf;
-static struct adc_buf adc2_buf;
-static struct adc_buf adc3_buf;
-static struct adc_buf vsupply_buf;
+#define NB_ADC 8
+#define ADC_NB_SAMPLES 16
 
-#ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
-#endif
+static struct adc_buf buf_adc[NB_ADC];
 
 static inline void main_init( void ) {
     mcu_init();
-    sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+    sys_time_register_timer((1./100), NULL);
     adc_init();
-    adc_buf_channel(0, &adc0_buf, 8);
-    adc_buf_channel(1, &adc1_buf, 3);
-    adc_buf_channel(2, &adc2_buf, 3);
-    adc_buf_channel(3, &adc3_buf, 3);
-    adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_buf, DEFAULT_AV_NB_SAMPLE);
+
+#ifdef ADC_0
+    adc_buf_channel(ADC_0, &buf_adc[0], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_1
+    adc_buf_channel(ADC_1, &buf_adc[1], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_2
+    adc_buf_channel(ADC_2, &buf_adc[2], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_3
+    adc_buf_channel(ADC_3, &buf_adc[3], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_4
+    adc_buf_channel(ADC_4, &buf_adc[4], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_5
+    adc_buf_channel(ADC_5, &buf_adc[5], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_6
+    adc_buf_channel(ADC_6, &buf_adc[6], ADC_NB_SAMPLES);
+#endif
+#ifdef ADC_7
+    adc_buf_channel(ADC_7, &buf_adc[7], ADC_NB_SAMPLES);
+#endif
+
+    mcu_int_enable();
 }
 
 int main( void ) {
@@ -71,9 +88,13 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sys_time.nb_sec);});
   LED_PERIODIC();
 
-  uint16_t v1 = 10 * VoltageOfAdc((vsupply_buf.sum/vsupply_buf.av_nb_sample));
-  uint16_t v2 = 10 * VoltageOfAdc((vsupply_buf.values[0]));
-  RunOnceEvery(50, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &v1, &v2)});
+  uint16_t values[NB_ADC];
+  uint8_t i;
+  for(i = 0; i < NB_ADC; i++)
+    values[i] = buf_adc[i].sum / ADC_NB_SAMPLES;
+
+  uint8_t id = 42;
+  DOWNLINK_SEND_ADC(DefaultChannel, DefaultDevice, &id, NB_ADC, values);
 }
 
 static inline void main_event_task( void ) {
