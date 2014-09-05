@@ -111,6 +111,9 @@ let transform_stage = fun prefix reroutes env xml ->
             | "while" ->
               let attribs = transform_values [] env attribs in
               Xml.Element (tag, attribs, List.map tr children)
+            | "for" ->
+              let attribs = transform_values [] env attribs in
+              Xml.Element (tag, attribs, List.map tr children)
             | "heading" ->
               assert (children=[]);
               let attribs = transform_values ["vmode"] env attribs in
