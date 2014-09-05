@@ -33,6 +33,7 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
+#define NB_ADC 8
 #define ADC_NB_SAMPLES 16
 
 static struct adc_buf buf_adc[NB_ADC];

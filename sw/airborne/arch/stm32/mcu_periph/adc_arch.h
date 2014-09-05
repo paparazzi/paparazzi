@@ -32,8 +32,6 @@
 
 #include BOARD_CONFIG
 
-// NB_ADCx_CHANNELS
-
 enum adc1_channels {
 #ifdef AD1_1_CHANNEL
   AD1_1,
@@ -81,8 +79,6 @@ enum adc3_channels {
 #endif
   ADC3_END
 };
-
-#define NB_ADC ADC3_END
 
 #if USE_ADC_WATCHDOG
 
