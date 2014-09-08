@@ -510,13 +510,13 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   }
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt __attribute__((unused))) {
 }
 
 // assume mag is dead when values are not moving anymore
 #define MAG_FROZEN_COUNT 30
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt __attribute__((unused)) {
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
 

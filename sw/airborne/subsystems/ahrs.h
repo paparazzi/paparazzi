@@ -69,14 +69,16 @@ extern void ahrs_propagate(float dt);
 /** Update AHRS state with accerleration measurements.
  *  Reads the global #imu data struct.
  *  Does nothing if not implemented by specific AHRS algorithm.
+ *  @param dt time difference since last update in seconds
  */
-extern void ahrs_update_accel(void);
+extern void ahrs_update_accel(float dt);
 
 /** Update AHRS state with magnetometer measurements.
  *  Reads the global #imu data struct.
  *  Does nothing if not implemented by specific AHRS algorithm.
+ *  @param dt time difference since last update in seconds
  */
-extern void ahrs_update_mag(void);
+extern void ahrs_update_mag(float dt);
 
 /** Update AHRS state with GPS measurements.
  *  Reads the global #gps data struct.

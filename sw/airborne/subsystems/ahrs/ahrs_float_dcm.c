@@ -202,7 +202,7 @@ void ahrs_update_gps(void)
 }
 
 
-void ahrs_update_accel(void)
+void ahrs_update_accel(float dt __attribute__((unused)))
 {
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
@@ -233,7 +233,7 @@ PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses GPS acceleration.")
 }
 
 
-void ahrs_update_mag(void)
+void ahrs_update_mag(float dt __attribute__((unused)))
 {
 #if USE_MAGNETOMETER
 #warning MAGNETOMETER FEEDBACK NOT TESTED YET

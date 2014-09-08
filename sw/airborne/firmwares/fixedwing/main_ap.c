@@ -720,9 +720,21 @@ static inline void on_gps_solution( void ) {
 #if USE_AHRS
 #if USE_IMU
 static inline void on_accel_event( void ) {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
+#else
+  const float dt = 1./AHRS_CORRECT_FREQUENCY;
+#endif
+
   ImuScaleAccel(imu);
   if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel();
+    ahrs_update_accel(dt);
   }
 }
 
@@ -771,9 +783,21 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 static inline void on_mag_event(void)
 {
 #if USE_MAGNETOMETER
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
+#else
+  const float dt = 1./AHRS_MAG_CORRECT_FREQUENCY;
+#endif
+
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag();
+    ahrs_update_mag(dt);
   }
 #endif
 }

@@ -124,7 +124,7 @@ void ahrs_propagate(float dt) {
   set_body_state_from_quat();
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt __attribute__((unused))) {
   struct FloatVect3 imu_g;
   ACCELS_FLOAT_OF_BFP(imu_g, imu.accel);
   const float alpha = 0.92;
@@ -138,7 +138,7 @@ void ahrs_update_accel(void) {
 }
 
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt __attribute__((unused))) {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, imu.mag);
   update_state(&ahrs_impl.mag_h, &imu_h, &ahrs_impl.mag_noise);

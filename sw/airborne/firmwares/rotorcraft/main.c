@@ -311,10 +311,25 @@ STATIC_INLINE void main_event( void ) {
 }
 
 static inline void on_accel_event( void ) {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS accel update.")
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS accel update.")
+PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
+  const float dt = (1./AHRS_CORRECT_FREQUENCY);
+#endif
+
   ImuScaleAccel(imu);
 
   if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel();
+    ahrs_update_accel(dt);
   }
 }
 
@@ -363,11 +378,26 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
+  // timestamp when last callback was received
+  static float last_ts = 0.f;
+  // current timestamp
+  float now_ts = get_sys_time_float();
+  // dt between this and last callback
+  float dt = now_ts - last_ts;
+  last_ts = now_ts;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
+PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+  const float dt = (1./AHRS_MAG_CORRECT_FREQUENCY);
+#endif
+
   ImuScaleMag(imu);
 
 #if USE_MAGNETOMETER
   if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag();
+    ahrs_update_mag(dt);
   }
 #endif
 
