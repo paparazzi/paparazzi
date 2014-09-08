@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2006-2014  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -40,9 +40,9 @@
 #define V_CTL_MODE_NB            4
 extern uint8_t v_ctl_mode;
 
+/* Inner loop */
 extern float v_ctl_climb_setpoint;
 extern uint8_t v_ctl_climb_mode;
-
 #define V_CTL_CLIMB_MODE_AUTO_THROTTLE 0
 #define V_CTL_CLIMB_MODE_AUTO_PITCH    1
 

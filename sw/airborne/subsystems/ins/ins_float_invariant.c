@@ -158,19 +158,6 @@ bool_t log_started = FALSE;
 #endif
 
 
-// FIXME this is still needed for fixedwing integration
-#if INS_UPDATE_FW_ESTIMATOR
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0.
-#endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0.
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-#endif
-
 struct InsFloatInv ins_impl;
 
 /* integration time step */
@@ -380,18 +367,7 @@ void ahrs_propagate(void) {
   FLOAT_QUAT_NORMALIZE(ins_impl.state.quat);
 
   // set global state
-#if INS_UPDATE_FW_ESTIMATOR || SEND_INVARIANT_FILTER
-  struct FloatEulers eulers;
-  FLOAT_EULERS_OF_QUAT(eulers, ins_impl.state.quat);
-#endif
-#if INS_UPDATE_FW_ESTIMATOR
-  // Some stupid lines of code for neutrals
-  eulers.phi -= ins_roll_neutral;
-  eulers.theta -= ins_pitch_neutral;
-  stateSetNedToBodyEulers_f(&eulers);
-#else
   stateSetNedToBodyQuat_f(&ins_impl.state.quat);
-#endif
   RATES_DIFF(body_rates, ins_impl.cmd.rates, ins_impl.state.bias);
   stateSetBodyRates_f(&body_rates);
   stateSetPositionNed_f(&ins_impl.state.pos);
@@ -405,6 +381,8 @@ void ahrs_propagate(void) {
   //------------------------------------------------------------//
 
 #if SEND_INVARIANT_FILTER
+  struct FloatEulers eulers;
+  FLOAT_EULERS_OF_QUAT(eulers, ins_impl.state.quat);
   RunOnceEvery(3,{
       DOWNLINK_SEND_INV_FILTER(DefaultChannel, DefaultDevice,
         &ins_impl.state.quat.qi,

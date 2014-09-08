@@ -74,10 +74,5 @@ void ahrs_update_heading(float heading);
  */
 void ahrs_realign_heading(float heading);
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-#endif
-
 
 #endif /* AHRS_FLOAT_CMPL_RMAT */

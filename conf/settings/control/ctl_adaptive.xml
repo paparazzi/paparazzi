@@ -38,6 +38,7 @@
 
       <dl_settings name="climb">
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" module="guidance/guidance_v" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE"/>
+        <dl_setting MAX="15" MIN="-15" STEP="0.1" VAR="v_ctl_pitch_trim" shortname="pitch trim" param="V_CTL_PITCH_TRIM" unit="rad" alt_unit="deg"/>
 
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_pgain" shortname="pitch_p" param="V_CTL_AUTO_PITCH_PGAIN"/>
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_igain" shortname="pitch_i" param="V_CTL_AUTO_PITCH_IGAIN"/>

@@ -49,9 +49,4 @@ struct AhrsIntCmplEuler {
 extern struct AhrsIntCmplEuler ahrs_impl;
 
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-#endif
-
 #endif /* AHRS_INT_CMPL_EULER_H */

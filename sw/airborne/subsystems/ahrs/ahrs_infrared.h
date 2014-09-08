@@ -32,14 +32,6 @@
 #include "subsystems/ahrs.h"
 #include "std.h"
 
-/**
- * @todo harmonize infrared neutrals with ins_neutrals
- * or get rid of ins neutrals
- * this ins only needed for sim right now
- */
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-
 extern void ahrs_update_infrared(void);
 
 #endif /* AHRS_INFRARED_H */

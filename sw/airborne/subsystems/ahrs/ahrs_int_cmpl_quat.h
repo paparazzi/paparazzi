@@ -132,9 +132,4 @@ static inline void ahrs_int_cmpl_quat_SetMagZeta(float zeta) {
 }
 
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-#endif
-
 #endif /* AHRS_INT_CMPL_QUAT_H */

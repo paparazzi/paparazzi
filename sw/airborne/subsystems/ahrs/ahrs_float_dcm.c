@@ -58,17 +58,6 @@
 #define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
 #endif
 
-// FIXME this is still needed for fixedwing integration
-// remotely settable
-#ifndef INS_ROLL_NEUTRAL_DEFAULT
-#define INS_ROLL_NEUTRAL_DEFAULT 0
-#endif
-#ifndef INS_PITCH_NEUTRAL_DEFAULT
-#define INS_PITCH_NEUTRAL_DEFAULT 0
-#endif
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-
 
 struct AhrsFloatDCM ahrs_impl;
 
@@ -538,15 +527,7 @@ static inline void set_body_orientation_and_rates(void) {
   FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
   FLOAT_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, *body_to_imu_rmat);
 
-  // Some stupid lines of code for neutrals
-  struct FloatEulers ltp_to_body_euler;
-  FLOAT_EULERS_OF_RMAT(ltp_to_body_euler, ltp_to_body_rmat);
-  ltp_to_body_euler.phi -= ins_roll_neutral;
-  ltp_to_body_euler.theta -= ins_pitch_neutral;
-  stateSetNedToBodyEulers_f(&ltp_to_body_euler);
-
-  // should be replaced at the end by:
-  //   stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
+  stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 
 }
 

@@ -86,6 +86,10 @@ float controlled_throttle;
 pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 float v_ctl_pitch_setpoint;
+#ifndef V_CTL_PITCH_TRIM
+#define V_CTL_PITCH_TRIM 0.
+#endif
+float v_ctl_pitch_trim;
 
 // Set higher than 2*V_CTL_ALTITUDE_MAX_CLIMB to disable
 #ifndef V_CTL_AUTO_CLIMB_LIMIT
@@ -129,6 +133,9 @@ void v_ctl_init( void ) {
   v_ctl_climb_setpoint = 0.;
   v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE;
   v_ctl_auto_throttle_submode = V_CTL_AUTO_THROTTLE_STANDARD;
+
+  v_ctl_pitch_setpoint = 0.;
+  v_ctl_pitch_trim = V_CTL_PITCH_TRIM;
 
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
@@ -221,6 +228,7 @@ static inline void v_ctl_set_pitch ( void ) {
 
   // PI loop + feedforward ctl
   v_ctl_pitch_setpoint = nav_pitch
+    + v_ctl_pitch_trim
     + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     + v_ctl_auto_pitch_pgain * err
     + v_ctl_auto_pitch_dgain * d_err
@@ -301,6 +309,7 @@ static inline void v_ctl_set_airspeed( void ) {
   // Pitch loop
   v_ctl_pitch_setpoint =
     v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
+    + v_ctl_pitch_trim
     + v_ctl_auto_pitch_pgain * err_vz
     + v_ctl_auto_pitch_dgain * d_err_vz
     + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err

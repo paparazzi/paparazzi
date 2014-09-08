@@ -39,8 +39,7 @@ extern float sim_q;
 extern float sim_r;
 extern bool_t ahrs_sim_available;
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// remotely settable
+// for sim of e.g. Xsens ins
 #ifndef INS_ROLL_NEUTRAL_DEFAULT
 #define INS_ROLL_NEUTRAL_DEFAULT 0
 #endif
@@ -49,15 +48,11 @@ extern bool_t ahrs_sim_available;
 #endif
 float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-#endif //AHRS_UPDATE_FW_ESTIMATOR
+
 
 void update_ahrs_from_sim(void) {
 
   struct FloatEulers ltp_to_imu_euler = { sim_phi, sim_theta, sim_psi };
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-  ltp_to_imu_euler.phi -= ins_roll_neutral;
-  ltp_to_imu_euler.theta -= ins_pitch_neutral;
-#endif
   struct FloatRates imu_rate = { sim_p, sim_q, sim_r };
   /* set ltp_to_body to same as ltp_to_imu, currently no difference simulated */
   stateSetNedToBodyEulers_f(&ltp_to_imu_euler);
