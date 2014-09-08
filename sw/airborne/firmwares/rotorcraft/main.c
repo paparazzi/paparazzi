@@ -378,6 +378,9 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
+  ImuScaleMag(imu);
+
+#if USE_MAGNETOMETER
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
 PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
   // timestamp when last callback was received
@@ -393,13 +396,10 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
   const float dt = (1./AHRS_MAG_CORRECT_FREQUENCY);
 #endif
 
-  ImuScaleMag(imu);
-
-#if USE_MAGNETOMETER
   if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag(dt);
   }
-#endif
+#endif // USE_MAGNETOMETER
 
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_mag_available();
