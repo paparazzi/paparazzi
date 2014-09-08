@@ -490,7 +490,7 @@ let rec print_stage = fun index_of_waypoints x ->
         let var = ExtXml.attrib  x "var"
         and value = parsed_attrib  x "value" in
         lprintf "%s = %s;\n" var value;
-        lprintf "NextStageAndBreak();\n";
+        lprintf "NextStageNoBreak();\n";
       | "call" ->
         stage ();
         let statement = ExtXml.attrib  x "fun" in
