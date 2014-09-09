@@ -585,15 +585,8 @@ void sensors_task( void ) {
 
   //FIXME: this is just a kludge
 #if USE_AHRS && defined SITL && !USE_NPS
-  // timestamp when last callback was received
-  static float last_ts = 0.f;
-  // current timestamp
-  float now_ts = get_sys_time_float();
-  // dt between this and last callback
-  float dt = now_ts - last_ts;
-  last_ts = now_ts;
-
-  ahrs_propagate(dt);
+  // dt is not really used in ahrs_sim
+  ahrs_propagate(1./PERIODIC_FREQUENCY);
 #endif
 
 #if USE_BARO_BOARD
