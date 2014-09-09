@@ -121,6 +121,12 @@ PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
  */
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
+#if USE_BARO_BOARD
+#ifndef BARO_PERIODIC_FREQUENCY
+#define BARO_PERIODIC_FREQUENCY 50
+#endif
+PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
+#endif
 
 #if USE_AHRS && USE_IMU
 
@@ -172,7 +178,9 @@ tid_t sensors_tid;     ///< id for sensors_task() timer
 tid_t attitude_tid;    ///< id for attitude_loop() timer
 tid_t navigation_tid;  ///< id for navigation_task() timer
 tid_t monitor_tid;     ///< id for monitor_task() timer
-
+#if USE_BARO_BOARD
+tid_t baro_tid;          ///< id for baro_periodic() timer
+#endif
 
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
@@ -239,6 +247,9 @@ void init_ap( void ) {
   modules_tid = sys_time_register_timer(1./MODULES_FREQUENCY, NULL);
   telemetry_tid = sys_time_register_timer(1./TELEMETRY_FREQUENCY, NULL);
   monitor_tid = sys_time_register_timer(1.0, NULL);
+#if USE_BARO_BOARD
+  baro_tid = sys_time_register_timer(1./BARO_PERIODIC_FREQUENCY, NULL);
+#endif
 
   /** - start interrupt task */
   mcu_int_enable();
@@ -276,6 +287,11 @@ void handle_periodic_tasks_ap(void) {
 
   if (sys_time_check_and_ack_timer(sensors_tid))
     sensors_task();
+
+#if USE_BARO_BOARD
+  if (sys_time_check_and_ack_timer(baro_tid))
+    baro_periodic();
+#endif
 
   if (sys_time_check_and_ack_timer(navigation_tid))
     navigation_task();
@@ -593,10 +609,6 @@ void sensors_task( void ) {
   //FIXME: this is just a kludge
 #if USE_AHRS && defined SITL && !USE_NPS
   ahrs_propagate();
-#endif
-
-#if USE_BARO_BOARD
-  baro_periodic();
 #endif
 
 #if USE_GPS
