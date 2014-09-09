@@ -43,7 +43,7 @@ let parse_expression = fun s ->
           s (Lexing.lexeme_char lexbuf 0);
         exit 1
     | Parsing.Parse_error ->
-      fprintf stderr "Parsing error in '%s', token '%s' ?\n"
+      fprintf stderr "Procedure Parsing error in '%s', token '%s' ?\n"
         s (Lexing.lexeme lexbuf);
       exit 1
 
@@ -70,11 +70,10 @@ let transform_expression = fun env e ->
 let transform_values = fun attribs_not_modified env attribs ->
   List.map
     (fun (a, v) ->
-      let e = parse_expression v in
       let v' =
         if List.mem (String.lowercase a) attribs_not_modified
         then v
-        else transform_expression env e in
+        else transform_expression env (parse_expression v) in
       (a, v'))
     attribs
 
@@ -145,7 +144,7 @@ let transform_stage = fun prefix reroutes env xml ->
               let attribs = transform_values ["wp"; "vmode"] env attribs in
               Xml.Element (tag, attribs, children)
             | "call" | "set" ->
-              let attribs = transform_values [] env attribs in
+              let attribs = transform_values ["var"] env attribs in
               Xml.Element (tag, attribs, children)
             | _ -> failwith (sprintf "Fp_proc: Unexpected tag: '%s'" tag)
         end
