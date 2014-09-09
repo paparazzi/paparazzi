@@ -79,7 +79,6 @@ extern struct ImuFloat imuf;
 #endif
 
 extern void imu_init(void);
-extern void imu_float_init(void);
 extern void imu_SetBodyToImuPhi(float phi);
 extern void imu_SetBodyToImuTheta(float theta);
 extern void imu_SetBodyToImuPsi(float psi);

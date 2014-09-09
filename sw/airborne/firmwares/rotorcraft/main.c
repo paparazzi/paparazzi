@@ -157,12 +157,8 @@ STATIC_INLINE void main_init( void ) {
   baro_init();
 #endif
   imu_init();
-#if USE_IMU_FLOAT
-  imu_float_init();
-#endif
   ahrs_aligner_init();
   ahrs_init();
-
   ins_init();
 
 #if USE_GPS

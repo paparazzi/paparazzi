@@ -198,9 +198,6 @@ void init_ap( void ) {
 
 #if USE_IMU
   imu_init();
-#if USE_IMU_FLOAT
-  imu_float_init();
-#endif
 #endif
 
 #if USE_AHRS_ALIGNER

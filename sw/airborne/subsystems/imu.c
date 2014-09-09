@@ -134,6 +134,9 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   struct FloatEulers body_to_imu_eulers =
     {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
+#if USE_IMU_FLOAT
+  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
+#endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IMU_ACCEL", send_accel);
@@ -154,12 +157,6 @@ INFO("Magnetometer neutrals are set to zero, you should calibrate!")
   imu_impl_init();
 }
 
-
-void imu_float_init(void) {
-  struct FloatEulers body_to_imu_eulers =
-    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
-  orientationSetEulers_f(&imuf.body_to_imu, &body_to_imu_eulers);
-}
 
 void imu_SetBodyToImuPhi(float phi) {
   struct FloatEulers imu_to_body_eulers;
