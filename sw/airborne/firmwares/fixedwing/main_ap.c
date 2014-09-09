@@ -150,7 +150,7 @@ static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
 
 //FIXME not the correct place
-static void send_fliter_status(void) {
+static void send_filter_status(void) {
   uint8_t mde = 3;
   if (ahrs.status == AHRS_UNINIT) mde = 2;
   if (ahrs_timeout_counter > 10) mde = 5;
@@ -209,7 +209,7 @@ void init_ap( void ) {
 #endif
 
 #if USE_AHRS && USE_IMU
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_fliter_status);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
 #endif
 
   air_data_init();
