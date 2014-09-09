@@ -14,7 +14,7 @@
     </target>
 
     <subsystem name="radio_control" type="datalink" />
-    <subsystem name="telemetry" type="udp" />
+    <subsystem name="telemetry" type="transparent_udp" />
     <subsystem name="gps" type="ardrone2" />
     <subsystem name="ahrs" type="ardrone2" />
     <subsystem name="ins" type="ardrone2" />

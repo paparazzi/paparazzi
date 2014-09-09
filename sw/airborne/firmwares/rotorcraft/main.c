@@ -34,15 +34,15 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
+#if USE_UDP
+#include "mcu_periph/udp.h"
+#endif
 #include "led.h"
 
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
-#if DATALINK == UDP
-#include "subsystems/datalink/udp.h"
-#endif
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
@@ -177,10 +177,6 @@ STATIC_INLINE void main_init( void ) {
   xbee_init();
 #endif
 
-#if DATALINK == UDP
-  udp_init();
-#endif
-
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   modules_tid = sys_time_register_timer(1./MODULES_FREQUENCY, NULL);
@@ -281,6 +277,10 @@ STATIC_INLINE void failsafe_check( void ) {
 STATIC_INLINE void main_event( void ) {
 
   i2c_event();
+
+#if USE_UDP
+  udp_event();
+#endif
 
   DatalinkEvent();
 
