@@ -144,6 +144,9 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   float dt = now_ts - last_ts;
   last_ts = now_ts;
 
+  // bound dt (assume baro freq 1Hz-500Hz
+  Bound(dt, 0.002, 1.0)
+
   if (!ins_impl.baro_initialized) {
     ins_impl.qfe = *pressure;
     ins_impl.baro_initialized = TRUE;
@@ -181,6 +184,9 @@ void ins_update_gps(void) {
   utm.zone = nav_utm_zone0;
 
 #if !USE_BAROMETER
+#ifdef GPS_DT
+  const float dt = GPS_DT;
+#else
   // timestamp when last callback was received
   static float last_ts = 0.f;
   // current timestamp
@@ -188,6 +194,10 @@ void ins_update_gps(void) {
   // dt between this and last callback
   float dt = now_ts - last_ts;
   last_ts = now_ts;
+
+  // bound dt (assume GPS freq between 0.5Hz and 50Hz)
+  Bound(dt, 0.02, 2)
+#endif
 
   float falt = gps.hmsl / 1000.0f;
   if (ins_impl.reset_alt_ref) {
