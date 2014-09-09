@@ -120,6 +120,18 @@ PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
 #endif
 
+#ifndef UNLOCKED_HOME_MODE
+#if MODE_AUTO1 == AP_MODE_HOME
+#define UNLOCKED_HOME_MODE TRUE
+PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO1 is AP_MODE_HOME")
+#elif MODE_AUTO2 == AP_MODE_HOME
+#define UNLOCKED_HOME_MODE TRUE
+PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
+#else
+#define UNLOCKED_HOME_MODE FALSE
+#endif
+#endif
+
 static void send_alive(void) {
   DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 }
@@ -475,7 +487,7 @@ void autopilot_on_rc_frame(void) {
     autopilot_set_mode(AP_MODE_KILL);
   }
   else if ((autopilot_mode != AP_MODE_HOME)
-#ifdef UNLOCKED_HOME_MODE
+#if UNLOCKED_HOME_MODE
            || !too_far_from_home
 #endif
            )
