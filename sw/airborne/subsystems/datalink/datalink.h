@@ -45,8 +45,7 @@
 /** Datalink kinds */
 #define PPRZ 1
 #define XBEE 2
-#define UDP 3
-#define SUPERBITRF 4
+#define SUPERBITRF 3
 
 EXTERN bool_t dl_msg_available;
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
@@ -85,13 +84,6 @@ EXTERN void dl_parse_msg(void);
 
 #define DatalinkEvent() {                       \
     W5100CheckAndParse(W5100, w5100_tp);        \
-    DlCheckAndParse();                          \
-  }
-
-#elif defined DATALINK && DATALINK == UDP
-
-#define DatalinkEvent() {                       \
-    UdpCheckAndParse();                         \
     DlCheckAndParse();                          \
   }
 
