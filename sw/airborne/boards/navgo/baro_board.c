@@ -27,7 +27,7 @@
 
 #include "std.h"
 #include "baro_board.h"
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 #include "peripherals/mcp355x.h"
 #include "subsystems/abi.h"
 #include "led.h"

@@ -12,6 +12,7 @@
     <target name="sim" 	board="pc"/>
     <target name="nps"   board="pc">
       <subsystem name="fdm" type="jsbsim"/>
+      <define name="USE_BARO_BOARD" value="FALSE"/>
     </target>
     <target name="ap"   board="lisa_m_2.0">
       <!-- baro board options for Lisa/M 2.0: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->
@@ -47,6 +48,7 @@
   <modules>
     <load name="sys_mon.xml"/>
     <load name="baro_sim.xml"/>
+    <load name="baro_board.xml"/>
     <load name="air_data.xml">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
     </load>

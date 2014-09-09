@@ -25,7 +25,7 @@
 
 #include "std.h"
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 #include "peripherals/bmp085.h"
 #include "peripherals/bmp085_regs.h"
 #include <libopencm3/stm32/gpio.h>

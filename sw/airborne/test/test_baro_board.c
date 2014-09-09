@@ -33,7 +33,7 @@
 
 #include "subsystems/datalink/downlink.h"
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 
 #define ABI_C
 #include "subsystems/abi.h"

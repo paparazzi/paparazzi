@@ -25,7 +25,7 @@
  */
 
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro_board_module.h"
 
 #include "generated/airframe.h"
 #include "subsystems/abi.h"

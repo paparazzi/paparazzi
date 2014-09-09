@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/sensors/baro.h
+ * @file modules/sensors/baro_board_module.h
  *
  * Common barometric sensor implementation.
  * Used with baro integrated to the autopilot board.
@@ -28,13 +28,14 @@
  *
  */
 
-#ifndef SUBSYSTEMS_SENSORS_BARO_H
-#define SUBSYSTEMS_SENSORS_BARO_H
+#ifndef MODULES_SENSORS_BARO_H
+#define MODULES_SENSORS_BARO_H
 
 #include BOARD_CONFIG
 
 #if USE_BARO_BOARD
 #include "baro_board.h"
+#define BARO_BOARD_MODULE_LOADED 1
 #ifndef BARO_BOARD
 #define BARO_BOARD BARO_BOARD_DEFAULT
 #endif
@@ -43,4 +44,4 @@
 extern void baro_init(void);
 extern void baro_periodic(void);
 
-#endif /* SUBSYSTEMS_SENSORS_BARO_H */
+#endif /* MODULES_SENSORS_BARO_H */
