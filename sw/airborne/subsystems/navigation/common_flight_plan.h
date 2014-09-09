@@ -48,7 +48,7 @@ void nav_goto_block(uint8_t block_id);
 #define GotoBlock(b) { nav_block=b; nav_init_block(); }
 
 #define Stage(s) case s: nav_stage=s;
-#define NextStageNoBreak() { nav_stage++; InitStage(); }
+#define NextStage() { nav_stage++; InitStage(); }
 #define NextStageAndBreak() { nav_stage++; InitStage(); break; }
 #define NextStageAndBreakFrom(wp) { last_wp = wp; NextStageAndBreak(); }
 
