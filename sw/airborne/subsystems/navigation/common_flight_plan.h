@@ -54,7 +54,7 @@ void nav_goto_block(uint8_t block_id);
 
 #define Label(x) label_ ## x:
 #define Goto(x) { goto label_ ## x; }
-#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; FALSE;})
+#define Return() { nav_block=last_block; nav_stage=last_stage; block_time=0;}
 
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))

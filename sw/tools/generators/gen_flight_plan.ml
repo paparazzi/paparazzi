@@ -285,8 +285,8 @@ let rec print_stage = fun index_of_waypoints x ->
     match String.lowercase (Xml.tag x) with
         "return" ->
           stage ();
-          lprintf "Return()\n";
-          lprintf "break\n";
+          lprintf "Return();\n";
+          lprintf "break;\n"
       | "goto" ->
         stage ();
         lprintf "Goto(%s)\n" (name_of x)
