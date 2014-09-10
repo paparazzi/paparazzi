@@ -762,7 +762,7 @@ void send_buffer_to_uart(void){
   * not empty and that we are not asking for writting an empty buffer.
   * It is simply an abstraction of the append_values_to_memory function.
   *
-  * \param values the buffer of values to writte to the memory
+  * \param buffer the buffer of values to writte to the memory
   * \param size the size of the buffer of values to writte
   * \return 0 when done, else return 1
 */
