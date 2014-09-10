@@ -1,0 +1,45 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": ".",
+      "file_exclude_patterns":
+      [
+        "*.swp",
+        ".emacs*",
+        "*.o",
+        "*.a",
+        "*.d",
+        "*.depend",
+        "*.so",
+        "*.out",
+        "*.cmo",
+        "*.cma",
+        "*.cmi",
+        "*.cmx",
+        "*.cmxa",
+        "*.sublime-project",
+        "*.sublime-workspace",
+        ".project",
+        ".cproject",
+        ".pydevproject"
+      ],
+      "folder_exclude_patterns":
+      [
+        ".settings",
+        ".idea",
+        ".vagrant",
+        "var"
+      ]
+		}
+	],
+	"settings":
+    {
+        "tab_size": 2,
+        "translate_tabs_to_spaces": true,
+        "highlight_line": true,
+        "trim_trailing_white_space_on_save": true,
+        "ensure_newline_at_eof_on_save": true
+    },
+}

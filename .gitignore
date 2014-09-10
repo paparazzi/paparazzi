@@ -31,6 +31,8 @@
 /build.properties
 /META-INF
 
+paparazzi.sublime-workspace
+
 # JetBrains (PyCharm, etc) IDE project files
 .idea
 
