@@ -31,7 +31,7 @@
 #include "pprz_algebra_int.h"
 
 
-void ltp_of_ecef_rmat_from_lla_i(struct Int32Mat33* ltp_of_ecef, struct LlaCoor_i* lla) {
+void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat* ltp_of_ecef, struct LlaCoor_i* lla) {
 
 #if USE_DOUBLE_PRECISION_TRIG
   int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7DEG((double)lla->lat)), HIGH_RES_TRIG_FRAC));

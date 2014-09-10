@@ -93,7 +93,7 @@ struct UtmCoor_f {
 struct LtpDef_f {
   struct EcefCoor_f ecef; ///< origin of local frame in ECEF
   struct LlaCoor_f  lla; ///< origin of local frame in LLA
-  struct FloatMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
+  struct FloatRMat ltp_of_ecef; ///< rotation from ECEF to local frame
   float hmsl; ///< Height above mean sea level in meters
 };
 

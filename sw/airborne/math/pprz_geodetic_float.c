@@ -119,7 +119,7 @@ void ned_of_lla_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct LlaC
  */
 void ecef_of_enu_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu) {
   /* convert used floats to double */
-  struct DoubleMat33 ltp_of_ecef_d;
+  struct DoubleRMat ltp_of_ecef_d;
   ltp_of_ecef_d.m[0] = (double) def->ltp_of_ecef.m[0];
   ltp_of_ecef_d.m[1] = (double) def->ltp_of_ecef.m[1];
   ltp_of_ecef_d.m[2] = (double) def->ltp_of_ecef.m[2];
@@ -152,7 +152,7 @@ void ecef_of_ned_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct N
 
 void ecef_of_enu_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu) {
   /* convert used floats to double */
-  struct DoubleMat33 ltp_of_ecef_d;
+  struct DoubleRMat ltp_of_ecef_d;
   ltp_of_ecef_d.m[0] = (double) def->ltp_of_ecef.m[0];
   ltp_of_ecef_d.m[1] = (double) def->ltp_of_ecef.m[1];
   ltp_of_ecef_d.m[2] = (double) def->ltp_of_ecef.m[2];
