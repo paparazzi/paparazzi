@@ -10,7 +10,7 @@ astyle \
     --unpad-paren   \
     --keep-one-line-blocks  \
     --keep-one-line-statements  \
-    --align-pointer=name  \
+    --align-pointer=type  \
     --suffix=none   \
     --lineend=linux   \
     --add-brackets    \
