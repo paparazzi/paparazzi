@@ -20,6 +20,11 @@
  *
  */
 
+/** \file high_speed_logger_direct_memory.h
+* \author Clement Roblot
+* Module used to connect a memory directly to the SPI port
+*/
+
 #ifndef HIGH_SPEED_LOGGER_DIRECT_MEMORY_H_
 #define HIGH_SPEED_LOGGER_DIRECT_MEMORY_H_
 
