@@ -400,8 +400,8 @@ let rec sprint_value = fun buf i _type v ->
       sprint_int8 buf i x; sizeof _type
     | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
     | Scalar "double", Float f -> sprint_double buf i f; sizeof _type
-    | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
-    | Scalar ("int64"|"uint64"), Int64 x -> sprint_int64 buf i x; sizeof _type
+    | Scalar "int32", Int32 x -> sprint_int32 buf i x; sizeof _type
+    | Scalar ("int64"|"uint64"|"uint32"), Int64 x -> sprint_int64 buf i x; sizeof _type
     | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
     | Scalar ("int32" | "uint32"), Int value ->
       assert (_type <> Scalar "uint32" || value >= 0);
