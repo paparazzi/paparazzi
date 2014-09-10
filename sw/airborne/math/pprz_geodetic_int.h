@@ -132,7 +132,7 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, st
 
 #define HIGH_RES_TRIG_FRAC  20
 
-#define VECT3_ENU_OF_NED(_o, _i) {		\
+#define VECT3_ENU_OF_NED(_o, _i) {    \
     (_o).x = (_i).y;                    \
     (_o).y = (_i).x;                    \
     (_o).z = -(_i).z;                   \
@@ -192,9 +192,9 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, st
 
 #define ENU_FLOAT_OF_BFP(_o, _i) NED_FLOAT_OF_BFP(_o, _i)
 
-#define INT32_VECT2_ENU_OF_NED(_o, _i) {		\
-    (_o).x = (_i).y;				\
-    (_o).y = (_i).x;				\
+#define INT32_VECT2_ENU_OF_NED(_o, _i) {    \
+    (_o).x = (_i).y;        \
+    (_o).y = (_i).x;        \
   }
 
 #define INT32_VECT2_NED_OF_ENU(_o, _i) INT32_VECT2_ENU_OF_NED(_o,_i)

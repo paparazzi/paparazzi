@@ -153,12 +153,12 @@ struct Int32Eulers {
  * @brief rotation matrix
  * @details Units: rad in BFP with #INT32_TRIG_FRAC */
 struct Int32RMat {
-  int32_t m[3*3];
+  int32_t m[3 * 3];
 };
 
 /* 3x3 matrix                                    */
 struct Int32Mat33 {
-  int32_t m[3*3];
+  int32_t m[3 * 3];
 };
 
 /* Rotational speed                              */
@@ -238,27 +238,27 @@ extern int32_t int32_sqrt(int32_t in);
     n = int32_sqrt(n2);                  \
   }
 
-#define INT32_VECT2_NORMALIZE(_v,_frac) {				\
-    int32_t n;								\
-    INT32_VECT2_NORM(n, _v);						\
-    INT32_VECT2_SCALE_2(_v, _v, BFP_OF_REAL((1.),_frac) , n);		\
+#define INT32_VECT2_NORMALIZE(_v,_frac) {       \
+    int32_t n;                \
+    INT32_VECT2_NORM(n, _v);            \
+    INT32_VECT2_SCALE_2(_v, _v, BFP_OF_REAL((1.),_frac) , n);   \
   }
 
 
 #define INT32_VECT2_RSHIFT(_o, _i, _r) { \
-  (_o).x = ((_i).x >> (_r)); \
-  (_o).y = ((_i).y >> (_r)); \
-}
+    (_o).x = ((_i).x >> (_r)); \
+    (_o).y = ((_i).y >> (_r)); \
+  }
 
 #define INT32_VECT2_LSHIFT(_o, _i, _l) { \
-  (_o).x = ((_i).x << (_l)); \
-  (_o).y = ((_i).y << (_l)); \
-}
+    (_o).x = ((_i).x << (_l)); \
+    (_o).y = ((_i).y << (_l)); \
+  }
 
 #define INT32_VECT2_SCALE_2(_a, _b, _num, _den) {   \
-  (_a).x = ((_b).x * (_num)) / (_den);        \
-  (_a).y = ((_b).y * (_num)) / (_den);        \
-}
+    (_a).x = ((_b).x * (_num)) / (_den);        \
+    (_a).y = ((_b).y * (_num)) / (_den);        \
+  }
 
 /*
  * Dimension 3 Vectors
@@ -354,10 +354,10 @@ extern int32_t int32_sqrt(int32_t in);
   INT32_MAT33_DIAG(_rm, TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.))
 
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
-extern void int32_rmat_comp(struct Int32RMat *m_a2c, struct Int32RMat *m_a2b, struct Int32RMat *m_b2c);
+extern void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b, struct Int32RMat* m_b2c);
 
 /* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
-extern void int32_rmat_comp_inv(struct Int32RMat *m_a2b, struct Int32RMat *m_a2c, struct Int32RMat *m_b2c);
+extern void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c, struct Int32RMat* m_b2c);
 
 /* defines for backwards compatibility */
 #define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) int32_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
@@ -392,13 +392,13 @@ extern void int32_rmat_comp_inv(struct Int32RMat *m_a2b, struct Int32RMat *m_a2c
 /** Convert unit quaternion to rotation matrix.
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
  */
-extern void int32_rmat_of_quat(struct Int32RMat *rm, struct Int32Quat *q);
+extern void int32_rmat_of_quat(struct Int32RMat* rm, struct Int32Quat* q);
 
 /*
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestodirectioncosinematrix.html
  */
-extern void int32_rmat_of_eulers_321(struct Int32RMat *rm, struct Int32Eulers *e);
-extern void int32_rmat_of_eulers_312(struct Int32RMat *rm, struct Int32Eulers *e);
+extern void int32_rmat_of_eulers_321(struct Int32RMat* rm, struct Int32Eulers* e);
+extern void int32_rmat_of_eulers_312(struct Int32RMat* rm, struct Int32Eulers* e);
 
 #define int32_rmat_of_eulers int32_rmat_of_eulers_321
 
@@ -425,17 +425,21 @@ extern void int32_rmat_of_eulers_312(struct Int32RMat *rm, struct Int32Eulers *e
 #define INT32_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
 
 
-static inline int32_t int32_quat_norm(struct Int32Quat *q) {
-  int32_t n2 = q->qi*q->qi + q->qx*q->qx + q->qy*q->qy + q->qz*q->qz;
+static inline int32_t int32_quat_norm(struct Int32Quat* q)
+{
+  int32_t n2 = q->qi * q->qi + q->qx * q->qx + q->qy * q->qy + q->qz * q->qz;
   return int32_sqrt(n2);
 }
 
-static inline void int32_quat_wrap_shortest(struct Int32Quat *q) {
-  if (q->qi < 0)
+static inline void int32_quat_wrap_shortest(struct Int32Quat* q)
+{
+  if (q->qi < 0) {
     QUAT_EXPLEMENTARY(*q, *q);
+  }
 }
 
-static inline void int32_quat_normalize(struct Int32Quat *q) {
+static inline void int32_quat_normalize(struct Int32Quat* q)
+{
   int32_t n = int32_quat_norm(q);
   if (n > 0) {
     q->qi = q->qi * QUAT1_BFP_OF_REAL(1) / n;
@@ -446,36 +450,36 @@ static inline void int32_quat_normalize(struct Int32Quat *q) {
 }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
-extern void int32_quat_comp(struct Int32Quat *a2c, struct Int32Quat *a2b, struct Int32Quat *b2c);
+extern void int32_quat_comp(struct Int32Quat* a2c, struct Int32Quat* a2b, struct Int32Quat* b2c);
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
-extern void int32_quat_comp_inv(struct Int32Quat *a2b, struct Int32Quat *a2c, struct Int32Quat *b2c);
+extern void int32_quat_comp_inv(struct Int32Quat* a2b, struct Int32Quat* a2c, struct Int32Quat* b2c);
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
-extern void int32_quat_inv_comp(struct Int32Quat *b2c, struct Int32Quat *a2b, struct Int32Quat *a2c);
+extern void int32_quat_inv_comp(struct Int32Quat* b2c, struct Int32Quat* a2b, struct Int32Quat* a2c);
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
-extern void int32_quat_comp_norm_shortest(struct Int32Quat *a2c, struct Int32Quat *a2b, struct Int32Quat *b2c);
+extern void int32_quat_comp_norm_shortest(struct Int32Quat* a2c, struct Int32Quat* a2b, struct Int32Quat* b2c);
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
-extern void int32_quat_comp_inv_norm_shortest(struct Int32Quat *a2b, struct Int32Quat *a2c, struct Int32Quat *b2c);
+extern void int32_quat_comp_inv_norm_shortest(struct Int32Quat* a2b, struct Int32Quat* a2c, struct Int32Quat* b2c);
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
-extern void int32_quat_inv_comp_norm_shortest(struct Int32Quat *b2c, struct Int32Quat *a2b, struct Int32Quat *a2c);
+extern void int32_quat_inv_comp_norm_shortest(struct Int32Quat* b2c, struct Int32Quat* a2b, struct Int32Quat* a2c);
 
 /** Quaternion derivative from rotational velocity.
  * qd = -0.5*omega(r) * q
  * mult with 0.5 is done by shifting one more bit to the right
  */
-extern void int32_quat_derivative(struct Int32Quat *qd, const struct Int32Rates *r, struct Int32Quat *q);
+extern void int32_quat_derivative(struct Int32Quat* qd, const struct Int32Rates* r, struct Int32Quat* q);
 
 /** in place quaternion first order integration with constant rotational velocity. */
-extern void int32_quat_integrate_fi(struct Int32Quat *q, struct Int64Quat *hr, struct Int32Rates *omega, int freq);
+extern void int32_quat_integrate_fi(struct Int32Quat* q, struct Int64Quat* hr, struct Int32Rates* omega, int freq);
 
-extern void int32_quat_vmult(struct Int32Vect3 *v_out, struct Int32Quat *q, struct Int32Vect3 *v_in);
-extern void int32_quat_of_eulers(struct Int32Quat *q, struct Int32Eulers *e);
-extern void int32_quat_of_axis_angle(struct Int32Quat *q, struct Int32Vect3 *uv, int32_t angle);
-extern void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r);
+extern void int32_quat_vmult(struct Int32Vect3* v_out, struct Int32Quat* q, struct Int32Vect3* v_in);
+extern void int32_quat_of_eulers(struct Int32Quat* q, struct Int32Eulers* e);
+extern void int32_quat_of_axis_angle(struct Int32Quat* q, struct Int32Vect3* uv, int32_t angle);
+extern void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r);
 
 /* defines for backwards compatibility */
 #define INT32_QUAT_NORM(n, q) { n = int32_quat_norm(&(q)); }
@@ -502,8 +506,8 @@ extern void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r);
 
 #define INT_EULERS_ZERO(_e) EULERS_ASSIGN(_e, 0, 0, 0)
 
-extern void int32_eulers_of_rmat(struct Int32Eulers *e, struct Int32RMat *rm);
-extern void int32_eulers_of_quat(struct Int32Eulers *e, struct Int32Quat *q);
+extern void int32_eulers_of_rmat(struct Int32Eulers* e, struct Int32RMat* rm);
+extern void int32_eulers_of_quat(struct Int32Eulers* e, struct Int32Quat* q);
 
 /* defines for backwards compatibility */
 #define INT32_EULERS_OF_RMAT(_e, _rm) int32_eulers_of_rmat(&(_e), &(_rm))
@@ -553,8 +557,8 @@ extern void int32_eulers_of_quat(struct Int32Eulers *e, struct Int32Quat *q);
   }
 
 
-extern void int32_rates_of_eulers_dot_321(struct Int32Rates *r, struct Int32Eulers *e, struct Int32Eulers *ed);
-extern void int32_eulers_dot_321_of_rates(struct Int32Eulers *ed, struct Int32Eulers *e, struct Int32Rates *r);
+extern void int32_rates_of_eulers_dot_321(struct Int32Rates* r, struct Int32Eulers* e, struct Int32Eulers* ed);
+extern void int32_eulers_dot_321_of_rates(struct Int32Eulers* ed, struct Int32Eulers* e, struct Int32Rates* r);
 
 #define int32_eulers_dot_of_rates int32_eulers_dot_321_of_rates
 

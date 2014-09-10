@@ -42,15 +42,16 @@ extern "C" {
  *  @param nb numbre of values in the array, must be >0
  *  @return variance
  */
-static inline float variance_float(float * array, int nb) {
+static inline float variance_float(float* array, int nb)
+{
   float me = 0.;
   float see = 0.;
   for (int i = 0; i < nb; i++) {
     me += array[i];
-    see += array[i]*array[i];
+    see += array[i] * array[i];
   }
   me /= nb;
-  return (see/nb - me*me);
+  return (see / nb - me * me);
 }
 
 /** Compute the variance of an array of values (integer).
@@ -62,15 +63,16 @@ static inline float variance_float(float * array, int nb) {
  *  @param nb numbre of values in the array, must be >0
  *  @return variance
  */
-static inline int32_t variance_int(int32_t * array, int nb) {
+static inline int32_t variance_int(int32_t* array, int nb)
+{
   float me = 0;
   float see = 0;
   for (int i = 0; i < nb; i++) {
     me += (float)array[i];
-    see += (float)(array[i]*array[i]);
+    see += (float)(array[i] * array[i]);
   }
   me /= nb;
-  return (see/nb - me*me);
+  return (see / nb - me * me);
 }
 
 #ifdef __cplusplus

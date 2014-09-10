@@ -53,11 +53,11 @@ extern "C" {
  * @param dt integration step
  */
 static inline void runge_kutta_1_float(
-    float * xo,
-    const float * x, const int n,
-    const float * u, const int m,
-    void (*f)(float * o, const float * x, const int n, const float * u, const int m),
-    const float dt)
+  float* xo,
+  const float* x, const int n,
+  const float* u, const int m,
+  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  const float dt)
 {
   float dx[n];
 
@@ -87,17 +87,17 @@ static inline void runge_kutta_1_float(
  * @param dt integration step
  */
 static inline void runge_kutta_2_float(
-    float * xo,
-    const float * x, const int n,
-    const float * u, const int m,
-    void (*f)(float * o, const float * x, const int n, const float * u, const int m),
-    const float dt)
+  float* xo,
+  const float* x, const int n,
+  const float* u, const int m,
+  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  const float dt)
 {
   float mid_point[n];
 
   // mid_point = x + (dt/2)*f(x, u)
   f(mid_point, x, n, u, m);
-  float_vect_smul(mid_point, mid_point, dt/2., n);
+  float_vect_smul(mid_point, mid_point, dt / 2., n);
   float_vect_add(mid_point, x, n);
   // xo = x + dt * f(mid_point, u)
   f(xo, mid_point, n, u, m);
@@ -130,11 +130,11 @@ static inline void runge_kutta_2_float(
  * @param dt integration step
  */
 static inline void runge_kutta_4_float(
-    float * xo,
-    const float * x, const int n,
-    const float * u, const int m,
-    void (*f)(float * o, const float * x, const int n, const float * u, const int m),
-    const float dt)
+  float* xo,
+  const float* x, const int n,
+  const float* u, const int m,
+  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  const float dt)
 {
   float k1[n], k2[n], k3[n], k4[n], ktmp[n];
 

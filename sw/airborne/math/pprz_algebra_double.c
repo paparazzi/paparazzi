@@ -26,7 +26,8 @@
 
 #include "pprz_algebra_double.h"
 
-void double_rmat_of_eulers_321(struct DoubleRMat *rm, struct DoubleEulers *e) {
+void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e)
+{
   const double sphi   = sin(e->phi);
   const double cphi   = cos(e->phi);
   const double stheta = sin(e->theta);
@@ -34,18 +35,19 @@ void double_rmat_of_eulers_321(struct DoubleRMat *rm, struct DoubleEulers *e) {
   const double spsi   = sin(e->psi);
   const double cpsi   = cos(e->psi);
 
-  RMAT_ELMT(*rm, 0, 0) = ctheta*cpsi;
-  RMAT_ELMT(*rm, 0, 1) = ctheta*spsi;
+  RMAT_ELMT(*rm, 0, 0) = ctheta * cpsi;
+  RMAT_ELMT(*rm, 0, 1) = ctheta * spsi;
   RMAT_ELMT(*rm, 0, 2) = -stheta;
-  RMAT_ELMT(*rm, 1, 0) = sphi*stheta*cpsi - cphi*spsi;
-  RMAT_ELMT(*rm, 1, 1) = sphi*stheta*spsi + cphi*cpsi;
-  RMAT_ELMT(*rm, 1, 2) = sphi*ctheta;
-  RMAT_ELMT(*rm, 2, 0) = cphi*stheta*cpsi + sphi*spsi;
-  RMAT_ELMT(*rm, 2, 1) = cphi*stheta*spsi - sphi*cpsi;
-  RMAT_ELMT(*rm, 2, 2) = cphi*ctheta;
+  RMAT_ELMT(*rm, 1, 0) = sphi * stheta * cpsi - cphi * spsi;
+  RMAT_ELMT(*rm, 1, 1) = sphi * stheta * spsi + cphi * cpsi;
+  RMAT_ELMT(*rm, 1, 2) = sphi * ctheta;
+  RMAT_ELMT(*rm, 2, 0) = cphi * stheta * cpsi + sphi * spsi;
+  RMAT_ELMT(*rm, 2, 1) = cphi * stheta * spsi - sphi * cpsi;
+  RMAT_ELMT(*rm, 2, 2) = cphi * ctheta;
 }
 
-void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e) {
+void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e)
+{
   const double phi2   = e->phi / 2.0;
   const double theta2 = e->theta / 2.0;
   const double psi2   = e->psi / 2.0;
@@ -63,7 +65,8 @@ void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e) {
   q->qz =  c_phi2 * c_theta2 * s_psi2 - s_phi2 * s_theta2 * c_psi2;
 }
 
-void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q) {
+void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q)
+{
   const double qx2  = q->qx * q->qx;
   const double qy2  = q->qy * q->qy;
   const double qz2  = q->qz * q->qz;
@@ -73,36 +76,37 @@ void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q) {
   const double qxqy = q->qx * q->qy;
   const double qxqz = q->qx * q->qz;
   const double qyqz = q->qy * q->qz;
-  const double dcm00 = 1.0 - 2.*(  qy2 +  qz2 );
-  const double dcm01 =       2.*( qxqy + qiqz );
-  const double dcm02 =       2.*( qxqz - qiqy );
-  const double dcm12 =       2.*( qyqz + qiqx );
-  const double dcm22 = 1.0 - 2.*(  qx2 +  qy2 );
+  const double dcm00 = 1.0 - 2.*(qy2 +  qz2);
+  const double dcm01 =       2.*(qxqy + qiqz);
+  const double dcm02 =       2.*(qxqz - qiqy);
+  const double dcm12 =       2.*(qyqz + qiqx);
+  const double dcm22 = 1.0 - 2.*(qx2 +  qy2);
 
   e->phi = atan2(dcm12, dcm22);
   e->theta = -asin(dcm02);
   e->psi = atan2(dcm01, dcm00);
 }
 
-void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q,struct DoubleVect3 * v_in) {
-  const double qi2_M1_2  = q->qi*q->qi - 0.5;
-  const double qiqx = q->qi*q->qx;
-  const double qiqy = q->qi*q->qy;
-  const double qiqz = q->qi*q->qz;
-  double m01  = q->qx*q->qy;   /* aka qxqy */
-  double m02  = q->qx*q->qz;   /* aka qxqz */
-  double m12  = q->qy*q->qz;   /* aka qyqz */
+void double_quat_vmult(struct DoubleVect3* v_out, struct DoubleQuat* q, struct DoubleVect3* v_in)
+{
+  const double qi2_M1_2  = q->qi * q->qi - 0.5;
+  const double qiqx = q->qi * q->qx;
+  const double qiqy = q->qi * q->qy;
+  const double qiqz = q->qi * q->qz;
+  double m01  = q->qx * q->qy; /* aka qxqy */
+  double m02  = q->qx * q->qz; /* aka qxqz */
+  double m12  = q->qy * q->qz; /* aka qyqz */
 
-  const double m00  = qi2_M1_2 + q->qx*q->qx;
+  const double m00  = qi2_M1_2 + q->qx * q->qx;
   const double m10  = m01 - qiqz;
   const double m20  = m02 + qiqy;
   const double m21  = m12 - qiqx;
   m01 += qiqz;
   m02 -= qiqy;
   m12 += qiqx;
-  const double m11  = qi2_M1_2 + q->qy*q->qy;
-  const double m22  = qi2_M1_2 + q->qz*q->qz;
-  v_out->x = 2*(m00 * v_in->x + m01 * v_in->y + m02 * v_in->z);
-  v_out->y = 2*(m10 * v_in->x + m11 * v_in->y + m12 * v_in->z);
-  v_out->z = 2*(m20 * v_in->x + m21 * v_in->y + m22 * v_in->z);
+  const double m11  = qi2_M1_2 + q->qy * q->qy;
+  const double m22  = qi2_M1_2 + q->qz * q->qz;
+  v_out->x = 2 * (m00 * v_in->x + m01 * v_in->y + m02 * v_in->z);
+  v_out->y = 2 * (m10 * v_in->x + m11 * v_in->y + m12 * v_in->z);
+  v_out->z = 2 * (m20 * v_in->x + m21 * v_in->y + m22 * v_in->z);
 }

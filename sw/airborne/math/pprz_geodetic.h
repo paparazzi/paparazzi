@@ -32,23 +32,23 @@
 extern "C" {
 #endif
 
-#define ENU_OF_TO_NED(_po, _pi) {		\
-    (_po).x =  (_pi).y;				\
-    (_po).y =  (_pi).x;				\
-    (_po).z = -(_pi).z;				\
+#define ENU_OF_TO_NED(_po, _pi) {   \
+    (_po).x =  (_pi).y;       \
+    (_po).y =  (_pi).x;       \
+    (_po).z = -(_pi).z;       \
   }
 
-#define LLA_ASSIGN(_pos,_lat,_lon,_alt){	\
-    (_pos).lat = (_lat);			\
-    (_pos).lon = (_lon);			\
-    (_pos).alt = (_alt);			\
+#define LLA_ASSIGN(_pos,_lat,_lon,_alt){  \
+    (_pos).lat = (_lat);      \
+    (_pos).lon = (_lon);      \
+    (_pos).alt = (_alt);      \
   }
 
-#define LLA_COPY(_pos1,_pos2){			\
-    (_pos1).lat = (_pos2).lat;			\
-    (_pos1).lon = (_pos2).lon;			\
-    (_pos1).alt = (_pos2).alt;			\
-}
+#define LLA_COPY(_pos1,_pos2){      \
+    (_pos1).lat = (_pos2).lat;      \
+    (_pos1).lon = (_pos2).lon;      \
+    (_pos1).alt = (_pos2).alt;      \
+  }
 
 #define LTP_DEF_COPY(_def1,_def2){                              \
     LLA_COPY((_def1).lla, (_def2).lla);                         \
@@ -66,28 +66,28 @@ extern "C" {
 
 
 #define ENU_OF_UTM_DIFF(_pos, _utm1, _utm2) { \
-  (_pos).x = (_utm1).east - (_utm2).east;     \
-  (_pos).y = (_utm1).north - (_utm2).north;   \
-  (_pos).z = (_utm1).alt - (_utm2).alt;       \
-}
+    (_pos).x = (_utm1).east - (_utm2).east;     \
+    (_pos).y = (_utm1).north - (_utm2).north;   \
+    (_pos).z = (_utm1).alt - (_utm2).alt;       \
+  }
 
 #define NED_OF_UTM_DIFF(_pos, _utm1, _utm2) { \
-  (_pos).x = (_utm1).north - (_utm2).north;   \
-  (_pos).y = (_utm1).east - (_utm2).east;     \
-  (_pos).z = -(_utm1).alt + (_utm2).alt;      \
-}
+    (_pos).x = (_utm1).north - (_utm2).north;   \
+    (_pos).y = (_utm1).east - (_utm2).east;     \
+    (_pos).z = -(_utm1).alt + (_utm2).alt;      \
+  }
 
 #define UTM_OF_ENU_ADD(_utm, _pos, _utm0) { \
-  (_utm).east = (_utm0).east + (_pos).x;     \
-  (_utm).north = (_utm0).north + (_pos).y;   \
-  (_utm).alt = (_utm0).alt + (_pos).z;       \
-}
+    (_utm).east = (_utm0).east + (_pos).x;     \
+    (_utm).north = (_utm0).north + (_pos).y;   \
+    (_utm).alt = (_utm0).alt + (_pos).z;       \
+  }
 
 #define UTM_OF_NED_ADD(_utm, _pos, _utm0) { \
-  (_utm).east = (_utm0).east + (_pos).y;     \
-  (_utm).north = (_utm0).north + (_pos).x;   \
-  (_utm).alt = (_utm0).alt - (_pos).z;       \
-}
+    (_utm).east = (_utm0).east + (_pos).y;     \
+    (_utm).north = (_utm0).north + (_pos).x;   \
+    (_utm).alt = (_utm0).alt - (_pos).z;       \
+  }
 
 #ifdef __cplusplus
 } /* extern "C" */

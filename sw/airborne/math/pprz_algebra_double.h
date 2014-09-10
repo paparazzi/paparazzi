@@ -56,14 +56,14 @@ struct DoubleQuat {
 };
 
 struct DoubleMat33 {
-  double m[3*3];
+  double m[3 * 3];
 };
 
 /**
  * @brief rotation matrix
  */
 struct DoubleRMat {
-  double m[3*3];
+  double m[3 * 3];
 };
 
 /**
@@ -93,12 +93,13 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);         \
   }
 
-extern void double_rmat_of_eulers_321(struct DoubleRMat *rm, struct DoubleEulers *e);
-extern void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e);
-extern void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q);
-extern void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q, struct DoubleVect3 *v_in);
+extern void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e);
+extern void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e);
+extern void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q);
+extern void double_quat_vmult(struct DoubleVect3* v_out, struct DoubleQuat* q, struct DoubleVect3* v_in);
 
-static inline void double_rmat_of_eulers(struct DoubleRMat *rm, struct DoubleEulers *e) {
+static inline void double_rmat_of_eulers(struct DoubleRMat* rm, struct DoubleEulers* e)
+{
   double_rmat_of_eulers_321(rm, e);
 }
 
