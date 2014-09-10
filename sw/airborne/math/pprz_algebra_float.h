@@ -109,27 +109,6 @@ struct FloatRates {
 
 #define FLOAT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0., 0.)
 
-/* a =  {x, y} */
-#define FLOAT_VECT2_ASSIGN(_a, _x, _y) VECT2_ASSIGN(_a, _x, _y)
-
-/* a = b */
-#define FLOAT_VECT2_COPY(_a, _b) VECT2_COPY(_a, _b)
-
-/* a += b */
-#define FLOAT_VECT2_ADD(_a, _b)  VECT2_ADD(_a, _b)
-
-/* c = a + b */
-#define FLOAT_VECT2_SUM(_c, _a, _b) VECT2_SUM(_c, _a, _b)
-
-/* c = a - b */
-#define FLOAT_VECT2_DIFF(_c, _a, _b) VECT2_DIFF(_c, _a, _b)
-
-/* a -= b */
-#define FLOAT_VECT2_SUB(_a, _b) VECT2_SUB(_a, _b)
-
-/* _vo = _vi * _s */
-#define FLOAT_VECT2_SMUL(_vo, _vi, _s) VECT2_SMUL(_vo, _vi, _s)
-
 #define FLOAT_VECT2_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y)
 
 #define FLOAT_VECT2_NORM(_n, _v) {               \
@@ -138,60 +117,30 @@ struct FloatRates {
 
 #define FLOAT_VECT2_NORMALIZE(_v) {             \
     const float n = sqrtf(FLOAT_VECT2_NORM2(_v)); \
-    FLOAT_VECT2_SMUL(_v, _v, 1./n);             \
+    VECT2_SMUL(_v, _v, 1./n);             \
   }
 
-#define FLOAT_VECT2_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y)
 
 /*
  * Dimension 3 Vectors
  */
 
-#define FLOAT_VECT3_SUM(_a, _b, _c) VECT3_SUM(_a, _b, _c)
-#define FLOAT_VECT3_SDIV(_a, _b, _s) VECT3_SDIV(_a, _b, _s)
-#define FLOAT_VECT3_COPY(_a, _b) VECT3_COPY(_a, _b)
-
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)
-
-#define FLOAT_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
-
-/* c = a - b */
-#define FLOAT_VECT3_DIFF(_c, _a, _b) VECT3_DIFF(_c, _a, _b)
-
-/* a -= b */
-#define FLOAT_VECT3_SUB(_a, _b) VECT3_SUB(_a, _b)
-
-#define FLOAT_VECT3_ADD(_a, _b) VECT3_ADD(_a, _b)
-
-/* _vo = _vi * _s */
-#define FLOAT_VECT3_SMUL(_vo, _vi, _s) VECT3_SMUL(_vo, _vi, _s)
-
-#define FLOAT_VECT3_MUL(_v1, _v2) VECT3_MUL(_v1, _v2)
 
 #define FLOAT_VECT3_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z)
 
 #define FLOAT_VECT3_NORM(_v) (sqrtf(FLOAT_VECT3_NORM2(_v)))
 
-#define FLOAT_VECT3_DOT_PRODUCT( _v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y + (_v1).z*(_v2).z)
-
-#define FLOAT_VECT3_CROSS_PRODUCT(_vo, _v1, _v2) {          \
-    (_vo).x = (_v1).y*(_v2).z - (_v1).z*(_v2).y;            \
-    (_vo).y = (_v1).z*(_v2).x - (_v1).x*(_v2).z;            \
-    (_vo).z = (_v1).x*(_v2).y - (_v1).y*(_v2).x;            \
-  }
-
-#define FLOAT_VECT3_INTEGRATE_FI(_vo, _dv, _dt) {           \
-  (_vo).x += (_dv).x * (_dt);                       \
-  (_vo).y += (_dv).y * (_dt);                       \
-  (_vo).z += (_dv).z * (_dt);                       \
-  }
-
-
-
 #define FLOAT_VECT3_NORMALIZE(_v) {     \
     const float n = FLOAT_VECT3_NORM(_v);   \
-    FLOAT_VECT3_SMUL(_v, _v, 1./n);     \
+    VECT3_SMUL(_v, _v, 1./n);     \
   }
+
+#define FLOAT_VECT3_INTEGRATE_FI(_vo, _dv, _dt) {   \
+ (_vo).x += (_dv).x * (_dt);                        \
+ (_vo).y += (_dv).y * (_dt);                        \
+ (_vo).z += (_dv).z * (_dt);                        \
+}
 
 #define FLOAT_RATES_ZERO(_r) {          \
     RATES_ASSIGN(_r, 0., 0., 0.);       \
@@ -212,12 +161,6 @@ struct FloatRates {
     _ro.r = _s1 * _r1.r + _s2 * _r2.r;                  \
   }
 
-
-#define FLOAT_RATES_SCALE(_ro,_s) {         \
-    _ro.p *= _s;                    \
-    _ro.q *= _s;                    \
-    _ro.r *= _s;                    \
-  }
 
 #define FLOAT_RATES_INTEGRATE_FI(_ra, _racc, _dt) {         \
   (_ra).p += (_racc).p * (_dt);                     \
@@ -423,17 +366,17 @@ static inline void float_quat_wrap_shortest(struct FloatQuat *q) {
   FLOAT_QUAT_NORMALIZE(quatinv);                \
                                                 \
   FLOAT_QUAT_EXTRACT(quat3, quatinv);           \
-  qi = - FLOAT_VECT3_DOT_PRODUCT(quat3, _vi);   \
-  FLOAT_VECT3_CROSS_PRODUCT(v1, quat3, _vi);    \
-  FLOAT_VECT3_SMUL(v2, _vi, (quatinv.qi)) ;     \
-  FLOAT_VECT3_ADD(v2, v1);                      \
+  qi = - VECT3_DOT_PRODUCT(quat3, _vi);   \
+  VECT3_CROSS_PRODUCT(v1, quat3, _vi);    \
+  VECT3_SMUL(v2, _vi, (quatinv.qi)) ;     \
+  VECT3_ADD(v2, v1);                      \
                                                 \
   FLOAT_QUAT_EXTRACT(quat3, _qi);               \
-  FLOAT_VECT3_CROSS_PRODUCT(_n2b, v2, quat3);   \
-  FLOAT_VECT3_SMUL(v1, v2, (_qi).qi);           \
-  FLOAT_VECT3_ADD(_n2b,v1);                     \
-  FLOAT_VECT3_SMUL(v1, quat3, qi);              \
-  FLOAT_VECT3_ADD(_n2b,v1);                     \
+  VECT3_CROSS_PRODUCT(_n2b, v2, quat3);   \
+  VECT3_SMUL(v1, v2, (_qi).qi);           \
+  VECT3_ADD(_n2b,v1);                     \
+  VECT3_SMUL(v1, quat3, qi);              \
+  VECT3_ADD(_n2b,v1);                     \
 }
 
   /*
@@ -461,10 +404,10 @@ static inline void float_quat_wrap_shortest(struct FloatQuat *q) {
   float qi;                                     \
                                                 \
   FLOAT_QUAT_EXTRACT(quat3, _qi);               \
-  qi = - FLOAT_VECT3_DOT_PRODUCT(_vi, quat3);   \
-  FLOAT_VECT3_CROSS_PRODUCT(v1, _vi, quat3);    \
-  FLOAT_VECT3_SMUL(v2, _vi, (_qi.qi));          \
-  FLOAT_VECT3_ADD(v2, v1);                      \
+  qi = - VECT3_DOT_PRODUCT(_vi, quat3);   \
+  VECT3_CROSS_PRODUCT(v1, _vi, quat3);    \
+  VECT3_SMUL(v2, _vi, (_qi.qi));          \
+  VECT3_ADD(v2, v1);                      \
   FLOAT_QUAT_ASSIGN(_mright, qi, v2.x, v2.y, v2.z);\
 }
 
@@ -480,10 +423,10 @@ static inline void float_quat_wrap_shortest(struct FloatQuat *q) {
   float qi;                                   \
                                               \
   FLOAT_QUAT_EXTRACT(quat3, _qi);             \
-  qi = - FLOAT_VECT3_DOT_PRODUCT(quat3, _vi); \
-  FLOAT_VECT3_CROSS_PRODUCT(v1, quat3, _vi);  \
-  FLOAT_VECT3_SMUL(v2, _vi, (_qi.qi));        \
-  FLOAT_VECT3_ADD(v2, v1);                    \
+  qi = - VECT3_DOT_PRODUCT(quat3, _vi); \
+  VECT3_CROSS_PRODUCT(v1, quat3, _vi);  \
+  VECT3_SMUL(v2, _vi, (_qi.qi));        \
+  VECT3_ADD(v2, v1);                    \
   FLOAT_QUAT_ASSIGN(_mleft, qi, v2.x, v2.y, v2.z);\
 }
 

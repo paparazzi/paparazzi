@@ -398,8 +398,8 @@ void ahrs_propagate(void) {
   stateSetSpeedNed_f(&ins_impl.state.speed);
   // untilt accel and remove gravity
   FLOAT_QUAT_RMAT_B2N(accel, ins_impl.state.quat, ins_impl.cmd.accel);
-  FLOAT_VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
-  FLOAT_VECT3_ADD(accel, A);
+  VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
+  VECT3_ADD(accel, A);
   stateSetAccelNed_f(&accel);
 
   //------------------------------------------------------------//
@@ -591,7 +591,7 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
 
   /* dot_q = 0.5 * q * (x_rates - x_bias) + LE * q + (1 - ||q||^2) * q */
   RATES_DIFF(rates, c->rates, s->bias);
-  FLOAT_VECT3_ASSIGN(tmp_vect, rates.p, rates.q, rates.r);
+  VECT3_ASSIGN(tmp_vect, rates.p, rates.q, rates.r);
   FLOAT_QUAT_VMUL_LEFT(s_dot.quat, s->quat, tmp_vect);
   FLOAT_QUAT_SMUL(s_dot.quat, s_dot.quat, 0.5);
 
@@ -605,12 +605,12 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
 
   /* dot_V = A + (1/as) * (q * am * q-1) + ME */
   FLOAT_QUAT_RMAT_B2N(s_dot.speed, s->quat, c->accel);
-  FLOAT_VECT3_SMUL(s_dot.speed, s_dot.speed, 1. / (s->as));
-  FLOAT_VECT3_ADD(s_dot.speed, A);
-  FLOAT_VECT3_ADD(s_dot.speed, ins_impl.corr.ME);
+  VECT3_SMUL(s_dot.speed, s_dot.speed, 1. / (s->as));
+  VECT3_ADD(s_dot.speed, A);
+  VECT3_ADD(s_dot.speed, ins_impl.corr.ME);
 
   /* dot_X = V + NE */
-  FLOAT_VECT3_SUM(s_dot.pos, s->speed, ins_impl.corr.NE);
+  VECT3_SUM(s_dot.pos, s->speed, ins_impl.corr.NE);
 
   /* bias_dot = q-1 * (OE) * q */
   FLOAT_QUAT_RMAT_N2B(tmp_vect, s->quat, ins_impl.corr.OE);
@@ -646,11 +646,11 @@ static inline void error_output(struct InsFloatInv * _ins) {
   FLOAT_QUAT_RMAT_B2N(YBt, _ins->state.quat, _ins->meas.mag);
 
   FLOAT_QUAT_RMAT_B2N(I, _ins->state.quat, _ins->cmd.accel);
-  FLOAT_VECT3_SMUL(I, I, 1. / (_ins->state.as));
+  VECT3_SMUL(I, I, 1. / (_ins->state.as));
 
   /*--------- E = ( ŷ - y ) ----------*/
   /* Eb = ( B - YBt ) */
-  FLOAT_VECT3_DIFF(Eb, B, YBt);
+  VECT3_DIFF(Eb, B, YBt);
 
   // pos and speed error only if GPS data are valid
   // or while waiting first GPS data to prevent diverging
@@ -662,9 +662,9 @@ static inline void error_output(struct InsFloatInv * _ins) {
 #endif
     ) || !ins_gps_fix_once) {
     /* Ev = (V - YV)   */
-    FLOAT_VECT3_DIFF(Ev, _ins->state.speed, _ins->meas.speed_gps);
+    VECT3_DIFF(Ev, _ins->state.speed, _ins->meas.speed_gps);
     /* Ex = (X - YX)  */
-    FLOAT_VECT3_DIFF(Ex, _ins->state.pos, _ins->meas.pos_gps);
+    VECT3_DIFF(Ex, _ins->state.pos, _ins->meas.pos_gps);
   }
   else {
     FLOAT_VECT3_ZERO(Ev);
@@ -676,16 +676,16 @@ static inline void error_output(struct InsFloatInv * _ins) {
   /*--------------Gains--------------*/
 
   /**** LvEv + LbEb = -lvIa x Ev +  lb < B x Eb, Ia > Ia *****/
-  FLOAT_VECT3_SMUL(Itemp, I, -_ins->gains.lv/100.);
-  FLOAT_VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
+  VECT3_SMUL(Itemp, I, -_ins->gains.lv/100.);
+  VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
 
-  FLOAT_VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
-  temp = FLOAT_VECT3_DOT_PRODUCT(Ebtemp, I);
+  VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
+  temp = VECT3_DOT_PRODUCT(Ebtemp, I);
   temp = (_ins->gains.lb/100.) * temp;
 
-  FLOAT_VECT3_SMUL(Ebtemp, I, temp);
-  FLOAT_VECT3_ADD(Evtemp, Ebtemp);
-  FLOAT_VECT3_COPY(_ins->corr.LE, Evtemp);
+  VECT3_SMUL(Ebtemp, I, temp);
+  VECT3_ADD(Evtemp, Ebtemp);
+  VECT3_COPY(_ins->corr.LE, Evtemp);
 
   /***** MvEv + MhEh = -mv * Ev + (-mh * <Eh,e3>)********/
   _ins->corr.ME.x = (-_ins->gains.mv) * Ev.x + 0.;
@@ -698,20 +698,20 @@ static inline void error_output(struct InsFloatInv * _ins) {
   _ins->corr.NE.z = ((-_ins->gains.nxz) * Ex.z) + ((-_ins->gains.nh) * Eh);
 
   /****** OvEv + ObEb = ovIa x Ev - ob < B x Eb, Ia > Ia ********/
-  FLOAT_VECT3_SMUL(Itemp, I, _ins->gains.ov/1000.);
-  FLOAT_VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
+  VECT3_SMUL(Itemp, I, _ins->gains.ov/1000.);
+  VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
 
-  FLOAT_VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
-  temp = FLOAT_VECT3_DOT_PRODUCT(Ebtemp, I);
+  VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
+  temp = VECT3_DOT_PRODUCT(Ebtemp, I);
   temp = (-_ins->gains.ob/1000.) * temp;
 
-  FLOAT_VECT3_SMUL(Ebtemp, I, temp);
-  FLOAT_VECT3_ADD(Evtemp, Ebtemp);
-  FLOAT_VECT3_COPY(_ins->corr.OE, Evtemp);
+  VECT3_SMUL(Ebtemp, I, temp);
+  VECT3_ADD(Evtemp, Ebtemp);
+  VECT3_COPY(_ins->corr.OE, Evtemp);
 
   /* a scalar */
   /****** RvEv + RhEh = rv < Ia, Ev > + (-rhEh) **************/
-  _ins->corr.RE = ((_ins->gains.rv/100.) * FLOAT_VECT3_DOT_PRODUCT(Ev, I)) + ((-_ins->gains.rh/10000.) * Eh);
+  _ins->corr.RE = ((_ins->gains.rv/100.) * VECT3_DOT_PRODUCT(Ev, I)) + ((-_ins->gains.rh/10000.) * Eh);
 
   /****** ShEh ******/
   _ins->corr.SE = (_ins->gains.sh) * Eh;

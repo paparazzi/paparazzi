@@ -301,7 +301,7 @@ void ahrs_update_accel(void) {
     VECT3_COPY(pseudo_gravity_measurement, imu_accel_float);
   }
 
-  FLOAT_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
+  VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
   /* FIR filtered pseudo_gravity_measurement */
   #define FIR_FILTER_SIZE 8
@@ -362,7 +362,7 @@ void ahrs_update_mag_full(void) {
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
 
   struct FloatVect3 residual_imu;
-  FLOAT_VECT3_CROSS_PRODUCT(residual_imu, measured_imu, expected_imu);
+  VECT3_CROSS_PRODUCT(residual_imu, measured_imu, expected_imu);
   //  DISPLAY_FLOAT_VECT3("# expected", expected_imu);
   //  DISPLAY_FLOAT_VECT3("# measured", measured_imu);
   //  DISPLAY_FLOAT_VECT3("# residual", residual);

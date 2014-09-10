@@ -169,13 +169,13 @@ float float_rmat_reorthogonalize(struct FloatRMat* rm) {
   const struct FloatVect3 r1 = {RMAT_ELMT(*rm, 1,0),
                                 RMAT_ELMT(*rm, 1,1),
                                 RMAT_ELMT(*rm, 1,2)};
-  float _err = -0.5*FLOAT_VECT3_DOT_PRODUCT(r0, r1);
+  float _err = -0.5*VECT3_DOT_PRODUCT(r0, r1);
   struct FloatVect3 r0_t;
   VECT3_SUM_SCALED(r0_t, r0, r1, _err);
   struct FloatVect3 r1_t;
   VECT3_SUM_SCALED(r1_t,  r1, r0, _err);
   struct FloatVect3 r2_t;
-  FLOAT_VECT3_CROSS_PRODUCT(r2_t, r0_t, r1_t);
+  VECT3_CROSS_PRODUCT(r2_t, r0_t, r1_t);
   float s = renorm_factor(FLOAT_VECT3_NORM2(r0_t));
   MAT33_ROW_VECT3_SMUL(*rm, 0, r0_t, s);
   s = renorm_factor(FLOAT_VECT3_NORM2(r1_t));

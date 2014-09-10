@@ -93,18 +93,6 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);         \
   }
 
-#define DOUBLE_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
-
-#define DOUBLE_VECT3_COPY(_a, _b) VECT3_COPY(_a, _b)
-
-#define DOUBLE_VECT3_SUM(_c,_a,_b) {            \
-    (_c).x = (_a).x + (_b).x;           \
-    (_c).y = (_a).y + (_b).y;           \
-    (_c).z = (_a).z + (_b).z;           \
-  }
-
-#define DOUBLE_VECT3_CROSS_PRODUCT(vo, v1, v2) FLOAT_VECT3_CROSS_PRODUCT(vo, v1, v2)
-
 extern void double_rmat_of_eulers_321(struct DoubleRMat *rm, struct DoubleEulers *e);
 extern void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e);
 extern void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q);

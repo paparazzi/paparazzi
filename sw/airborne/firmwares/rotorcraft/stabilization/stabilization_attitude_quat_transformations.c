@@ -97,14 +97,14 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   /* projection of desired heading onto body x-y plane
    * b = v - dot(v,n)*n
    */
-  float dot = FLOAT_VECT3_DOT_PRODUCT(psi_vect, thrust_vect);
+  float dot = VECT3_DOT_PRODUCT(psi_vect, thrust_vect);
   struct FloatVect3 dotn;
-  FLOAT_VECT3_SMUL(dotn, thrust_vect, dot);
+  VECT3_SMUL(dotn, thrust_vect, dot);
 
   // b = v - dot(v,n)*n
   struct FloatVect3 b;
-  FLOAT_VECT3_DIFF(b, psi_vect, dotn);
-  dot = FLOAT_VECT3_DOT_PRODUCT(b_x, b);
+  VECT3_DIFF(b, psi_vect, dotn);
+  dot = VECT3_DOT_PRODUCT(b_x, b);
   struct FloatVect3 cross;
   VECT3_CROSS_PRODUCT(cross, b_x, b);
   // norm of the cross product
@@ -114,7 +114,7 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
 
   // negative angle if needed
   // sign(dot(cross(a,b), n)
-  float dot_cross_ab = FLOAT_VECT3_DOT_PRODUCT(cross, thrust_vect);
+  float dot_cross_ab = VECT3_DOT_PRODUCT(cross, thrust_vect);
   if (dot_cross_ab < 0) {
     yaw2 = -yaw2;
   }
