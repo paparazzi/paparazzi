@@ -205,6 +205,14 @@ static inline void error_output(struct InsFloatInv * _ins);
 /* propagation model (called by runge-kutta library) */
 static inline void invariant_model(float * o, const float * x, const int n, const float * u, const int m);
 
+
+/** Right multiplication by a quaternion.
+ * vi * q
+ */
+void float_quat_vmul_right(struct FloatQuat* mright, const struct FloatQuat* q,
+                           struct FloatVect3* vi);
+
+
 /* init state and measurements */
 static inline void init_invariant_state(void) {
   // init state
@@ -344,7 +352,7 @@ void ahrs_align(void)
 }
 
 void ahrs_propagate(void) {
-  struct NedCoor_f accel;
+  struct FloatVect3 accel;
   struct FloatRates body_rates;
 
   // realign all the filter if needed
@@ -397,10 +405,12 @@ void ahrs_propagate(void) {
   stateSetPositionNed_f(&ins_impl.state.pos);
   stateSetSpeedNed_f(&ins_impl.state.speed);
   // untilt accel and remove gravity
-  FLOAT_QUAT_RMAT_B2N(accel, ins_impl.state.quat, ins_impl.cmd.accel);
+  struct FloatQuat q_b2n;
+  float_quat_invert(&q_b2n, &ins_impl.state.quat);
+  float_quat_vmult(&accel, &q_b2n, &ins_impl.cmd.accel);
   VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
   VECT3_ADD(accel, A);
-  stateSetAccelNed_f(&accel);
+  stateSetAccelNed_f((struct NedCoor_f*)&accel);
 
   //------------------------------------------------------------//
 
@@ -571,15 +581,14 @@ void ahrs_update_mag(void) {
  *
  * x_dot = evolution_model + (gain_matrix * error)
  */
-static inline void invariant_model(float * o, const float * x, const int n, const float * u, const int m __attribute__((unused))) {
+static inline void invariant_model(float* o, const float* x, const int n, const float* u, const int m __attribute__((unused))) {
 
-  const struct inv_state * s = (const struct inv_state *)x;
-  const struct inv_command * c = (const struct inv_command *)u;
+  struct inv_state* s = (struct inv_state*)x;
+  struct inv_command* c = (struct inv_command*)u;
   struct inv_state s_dot;
-  struct FloatRates rates;
+  struct FloatRates rates_unbiased;
   struct FloatVect3 tmp_vect;
   struct FloatQuat tmp_quat;
-  float  norm;
 
   // test accel sensitivity
   if (fabs(s->as) < 0.1) {
@@ -590,21 +599,21 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
   }
 
   /* dot_q = 0.5 * q * (x_rates - x_bias) + LE * q + (1 - ||q||^2) * q */
-  RATES_DIFF(rates, c->rates, s->bias);
-  VECT3_ASSIGN(tmp_vect, rates.p, rates.q, rates.r);
-  FLOAT_QUAT_VMUL_LEFT(s_dot.quat, s->quat, tmp_vect);
-  QUAT_SMUL(s_dot.quat, s_dot.quat, 0.5);
+  RATES_DIFF(rates_unbiased, c->rates, s->bias);
+  /* qd = 0.5 * q * rates_unbiased = -0.5 * rates_unbiased * q */
+  float_quat_derivative(&s_dot.quat, &rates_unbiased, &(s->quat));
 
-  FLOAT_QUAT_VMUL_RIGHT(tmp_quat, s->quat, ins_impl.corr.LE);
+  float_quat_vmul_right(&tmp_quat, &(s->quat), &ins_impl.corr.LE);
   QUAT_ADD(s_dot.quat, tmp_quat);
 
-  norm = FLOAT_QUAT_NORM(s->quat);
-  norm = 1. - (norm*norm);
-  QUAT_SMUL(tmp_quat, s->quat, norm);
+  float norm2_r = 1. - FLOAT_QUAT_NORM2(s->quat);
+  QUAT_SMUL(tmp_quat, s->quat, norm2_r);
   QUAT_ADD(s_dot.quat, tmp_quat);
 
   /* dot_V = A + (1/as) * (q * am * q-1) + ME */
-  FLOAT_QUAT_RMAT_B2N(s_dot.speed, s->quat, c->accel);
+  struct FloatQuat q_b2n;
+  float_quat_invert(&q_b2n, &(s->quat));
+  float_quat_vmult((struct FloatVect3*)&s_dot.speed, &q_b2n, &(c->accel));
   VECT3_SMUL(s_dot.speed, s_dot.speed, 1. / (s->as));
   VECT3_ADD(s_dot.speed, A);
   VECT3_ADD(s_dot.speed, ins_impl.corr.ME);
@@ -613,7 +622,7 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
   VECT3_SUM(s_dot.pos, s->speed, ins_impl.corr.NE);
 
   /* bias_dot = q-1 * (OE) * q */
-  FLOAT_QUAT_RMAT_N2B(tmp_vect, s->quat, ins_impl.corr.OE);
+  float_quat_vmult(&tmp_vect, &(s->quat), &ins_impl.corr.OE);
   RATES_ASSIGN(s_dot.bias, tmp_vect.x, tmp_vect.y, tmp_vect.z);
 
   /* as_dot = as * RE */
@@ -643,9 +652,11 @@ static inline void error_output(struct InsFloatInv * _ins) {
   }
 
   /* YBt = q * yB * q-1  */
-  FLOAT_QUAT_RMAT_B2N(YBt, _ins->state.quat, _ins->meas.mag);
+  struct FloatQuat q_b2n;
+  float_quat_invert(&q_b2n, &(_ins->state.quat));
+  float_quat_vmult(&YBt, &q_b2n, &(_ins->meas.mag));
 
-  FLOAT_QUAT_RMAT_B2N(I, _ins->state.quat, _ins->cmd.accel);
+  float_quat_vmult(&I, &q_b2n, &(_ins->cmd.accel));
   VECT3_SMUL(I, I, 1. / (_ins->state.as));
 
   /*--------- E = ( ŷ - y ) ----------*/
@@ -718,3 +729,17 @@ static inline void error_output(struct InsFloatInv * _ins) {
 
 }
 
+
+void float_quat_vmul_right(struct FloatQuat* mright, const struct FloatQuat* q,
+                           struct FloatVect3* vi)
+{
+  struct FloatVect3 qvec, v1, v2;
+  float qi;
+
+  FLOAT_QUAT_EXTRACT(qvec, *q);
+  qi = - VECT3_DOT_PRODUCT(*vi, qvec);
+  VECT3_CROSS_PRODUCT(v1, *vi, qvec);
+  VECT3_SMUL(v2, *vi, q->qi);
+  VECT3_ADD(v2, v1);
+  QUAT_ASSIGN(*mright, qi, v2.x, v2.y, v2.z);
+}
