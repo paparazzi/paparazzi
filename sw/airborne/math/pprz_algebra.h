@@ -397,7 +397,11 @@ extern "C" {
     if ((_v).r > (_v_max).r) (_v).r = (_v_max).r; else if ((_v).r < (_v_min).r) (_v).r = (_v_min).r; \
   }
 
-
+#define RATES_ADD_SCALED_VECT(_ro, _v, _s) {    \
+    (_ro).p += (_v).x * (_s);                   \
+    (_ro).q += (_v).y * (_s);                   \
+    (_ro).r += (_v).z * (_s);                   \
+  }
 
 //
 //

@@ -155,8 +155,8 @@ void nav_init(void) {
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
   flight_altitude = SECURITY_ALT;
-  INT32_VECT3_COPY(navigation_target, waypoints[WP_HOME]);
-  INT32_VECT3_COPY(navigation_carrot, waypoints[WP_HOME]);
+  VECT3_COPY(navigation_target, waypoints[WP_HOME]);
+  VECT3_COPY(navigation_carrot, waypoints[WP_HOME]);
 
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   vertical_mode = VERTICAL_MODE_ALT;
@@ -386,7 +386,7 @@ unit_t nav_reset_alt( void ) {
 }
 
 void nav_init_stage( void ) {
-  INT32_VECT3_COPY(nav_last_point, *stateGetPositionEnu_i());
+  VECT3_COPY(nav_last_point, *stateGetPositionEnu_i());
   stage_time = 0;
   nav_circle_radians = 0;
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
@@ -419,7 +419,7 @@ void nav_move_waypoint_lla(uint8_t wp_id, struct LlaCoor_i* new_lla_pos) {
 
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
-    INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
+    VECT3_COPY(waypoints[wp_id],(*new_pos));
     DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
                                &(new_pos->y), &(new_pos->z));
   }
@@ -458,7 +458,7 @@ bool_t nav_is_in_flight(void) {
 /** Home mode navigation */
 void nav_home(void) {
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  INT32_VECT3_COPY(navigation_target, waypoints[WP_HOME]);
+  VECT3_COPY(navigation_target, waypoints[WP_HOME]);
 
   vertical_mode = VERTICAL_MODE_ALT;
   nav_altitude = waypoints[WP_HOME].z;

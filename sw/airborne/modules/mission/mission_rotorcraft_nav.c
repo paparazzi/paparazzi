@@ -122,7 +122,7 @@ static inline bool_t mission_nav_wp(struct _mission_element * el) {
   }
   //Go to Mission Waypoint
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  INT32_VECT3_COPY(navigation_target, *target_wp);
+  VECT3_COPY(navigation_target, *target_wp);
   NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(target_wp->z), 0.);
 

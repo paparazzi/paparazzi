@@ -142,13 +142,6 @@ struct FloatRates {
 
 #define FLOAT_RATES_NORM(_v) (sqrtf((_v).p*(_v).p + (_v).q*(_v).q + (_v).r*(_v).r))
 
-#define FLOAT_RATES_ADD_SCALED_VECT(_ro, _v, _s) {  \
-    _ro.p += _v.x * _s;                 \
-    _ro.q += _v.y * _s;                 \
-    _ro.r += _v.z * _s;                 \
-  }
-
-
 #define FLOAT_RATES_LIN_CMB(_ro, _r1, _s1, _r2, _s2) {          \
     _ro.p = _s1 * _r1.p + _s2 * _r2.p;                  \
     _ro.q = _s1 * _r1.q + _s2 * _r2.q;                  \
@@ -285,23 +278,6 @@ extern float float_rmat_reorthogonalize(struct FloatRMat* rm);
 
 #define FLOAT_QUAT_ZERO(_q) QUAT_ASSIGN(_q, 1., 0., 0., 0.)
 
-#define FLOAT_QUAT_ASSIGN(_qi, _i, _x, _y, _z) QUAT_ASSIGN(_qi, _i, _x, _y, _z)
-
-/* _q += _qa */
-#define FLOAT_QUAT_ADD(_qo, _qi) QUAT_ADD(_qo, _qi)
-
-/* _qo = _qi * _s */
-#define FLOAT_QUAT_SMUL(_qo, _qi, _s) QUAT_SMUL(_qo, _qi, _s)
-
-/* _qo = _qo / _s */
-#define FLOAT_QUAT_SDIV( _qo, _qi, _s) QUAT_SDIV(_qo, _qi, _s)
-
-/*  */
-#define FLOAT_QUAT_EXPLEMENTARY(b,a) QUAT_EXPLEMENTARY(b,a)
-
-/*  */
-#define FLOAT_QUAT_COPY(_qo, _qi) QUAT_COPY(_qo, _qi)
-
 #define FLOAT_QUAT_NORM(_q) float_quat_norm(&(_q))
 #define FLOAT_QUAT_NORMALIZE(_q) float_quat_normalize(&(_q))
 
@@ -407,7 +383,7 @@ static inline void float_quat_wrap_shortest(struct FloatQuat* q)
     VECT3_CROSS_PRODUCT(v1, _vi, quat3);    \
     VECT3_SMUL(v2, _vi, (_qi.qi));          \
     VECT3_ADD(v2, v1);                      \
-    FLOAT_QUAT_ASSIGN(_mright, qi, v2.x, v2.y, v2.z);\
+    QUAT_ASSIGN(_mright, qi, v2.x, v2.y, v2.z);\
   }
 
 
@@ -426,7 +402,7 @@ static inline void float_quat_wrap_shortest(struct FloatQuat* q)
     VECT3_CROSS_PRODUCT(v1, quat3, _vi);  \
     VECT3_SMUL(v2, _vi, (_qi.qi));        \
     VECT3_ADD(v2, v1);                    \
-    FLOAT_QUAT_ASSIGN(_mleft, qi, v2.x, v2.y, v2.z);\
+    QUAT_ASSIGN(_mleft, qi, v2.x, v2.y, v2.z);\
   }
 
 

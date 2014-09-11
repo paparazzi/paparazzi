@@ -593,15 +593,15 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
   RATES_DIFF(rates, c->rates, s->bias);
   VECT3_ASSIGN(tmp_vect, rates.p, rates.q, rates.r);
   FLOAT_QUAT_VMUL_LEFT(s_dot.quat, s->quat, tmp_vect);
-  FLOAT_QUAT_SMUL(s_dot.quat, s_dot.quat, 0.5);
+  QUAT_SMUL(s_dot.quat, s_dot.quat, 0.5);
 
   FLOAT_QUAT_VMUL_RIGHT(tmp_quat, s->quat, ins_impl.corr.LE);
-  FLOAT_QUAT_ADD(s_dot.quat, tmp_quat);
+  QUAT_ADD(s_dot.quat, tmp_quat);
 
   norm = FLOAT_QUAT_NORM(s->quat);
   norm = 1. - (norm*norm);
-  FLOAT_QUAT_SMUL(tmp_quat, s->quat, norm);
-  FLOAT_QUAT_ADD(s_dot.quat, tmp_quat);
+  QUAT_SMUL(tmp_quat, s->quat, norm);
+  QUAT_ADD(s_dot.quat, tmp_quat);
 
   /* dot_V = A + (1/as) * (q * am * q-1) + ME */
   FLOAT_QUAT_RMAT_B2N(s_dot.speed, s->quat, c->accel);

@@ -330,7 +330,7 @@ void ahrs_update_accel(void) {
    */
   const float gravity_rate_update_gain = -2 * ahrs_impl.accel_zeta * ahrs_impl.accel_omega *
     ahrs_impl.weight * AHRS_PROPAGATE_FREQUENCY / (AHRS_CORRECT_FREQUENCY * 9.81);
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, gravity_rate_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, gravity_rate_update_gain);
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
@@ -338,7 +338,7 @@ void ahrs_update_accel(void) {
    */
   const float gravity_bias_update_gain = ahrs_impl.accel_omega * ahrs_impl.accel_omega *
     ahrs_impl.weight * ahrs_impl.weight / (AHRS_CORRECT_FREQUENCY * 9.81);
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, gravity_bias_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, gravity_bias_update_gain);
 
   /* FIXME: saturate bias */
 
@@ -373,7 +373,7 @@ void ahrs_update_mag_full(void) {
 
   const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega *
     AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
@@ -381,7 +381,7 @@ void ahrs_update_mag_full(void) {
    */
   const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) /
     AHRS_MAG_CORRECT_FREQUENCY;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
 
 }
 
@@ -418,7 +418,7 @@ void ahrs_update_mag_2d(void) {
    */
   const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega *
     AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
@@ -426,7 +426,7 @@ void ahrs_update_mag_2d(void) {
    */
   const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) /
     AHRS_MAG_CORRECT_FREQUENCY;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
 }
 
 
@@ -450,9 +450,9 @@ void ahrs_update_mag_2d_dumb(void) {
                                 RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,1),
                                 RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 2,2)};
   const float mag_rate_update_gain = 2.5;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, r2, (mag_rate_update_gain*res_norm));
+  RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, r2, (mag_rate_update_gain*res_norm));
   const float mag_bias_update_gain = -2.5e-4;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, r2, (mag_bias_update_gain*res_norm));
+  RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, r2, (mag_bias_update_gain*res_norm));
 
 }
 
@@ -509,7 +509,7 @@ void ahrs_update_heading(float heading) {
   FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_impl.ltp_to_imu_rmat, residual_ltp);
 
   const float heading_rate_update_gain = 2.5;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
 
   float heading_bias_update_gain;
   /* crude attempt to only update bias if deviation is small
@@ -522,7 +522,7 @@ void ahrs_update_heading(float heading) {
     heading_bias_update_gain = -2.5e-4;
   else
     heading_bias_update_gain = 0.0;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, heading_bias_update_gain);
+  RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, heading_bias_update_gain);
 }
 
 

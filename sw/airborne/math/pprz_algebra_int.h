@@ -231,8 +231,6 @@ extern int32_t int32_sqrt(int32_t in);
 
 #define INT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0, 0)
 
-#define INT_VECT2_ASSIGN(_a, _x, _y) VECT2_ASSIGN(_a, _x, _y)
-
 #define INT32_VECT2_NORM(n, v) {            \
     int32_t n2 = (v).x*(v).x + (v).y*(v).y; \
     n = int32_sqrt(n2);                  \
@@ -267,25 +265,11 @@ extern int32_t int32_sqrt(int32_t in);
 #define INT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
 #define INT32_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
 
-#define INT_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
-#define INT32_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
-
-#define INT32_VECT3_COPY(_o, _i) VECT3_COPY(_o, _i)
-
-#define INT32_VECT3_SUM(_c, _a, _b) VECT3_SUM(_c, _a, _b)
-
-#define INT32_VECT3_DIFF(_c, _a, _b) VECT3_DIFF(_c, _a, _b)
-
-#define INT32_VECT3_ADD(_a, _b) VECT3_ADD(_a, _b)
-
 #define INT32_VECT3_SCALE_2(_a, _b, _num, _den) {   \
     (_a).x = ((_b).x * (_num)) / (_den);        \
     (_a).y = ((_b).y * (_num)) / (_den);        \
     (_a).z = ((_b).z * (_num)) / (_den);        \
   }
-
-#define INT32_VECT3_SDIV(_a, _b, _s) VECT3_SDIV(_a, _b, _s)
-
 
 #define INT32_VECT3_NORM(n, v) {                \
     int32_t n2 = (v).x*(v).x + (v).y*(v).y + (v).z*(v).z;   \
@@ -302,12 +286,6 @@ extern int32_t int32_sqrt(int32_t in);
     (_o).x = ((_i).x << (_l));       \
     (_o).y = ((_i).y << (_l));       \
     (_o).z = ((_i).z << (_l));       \
-  }
-
-#define INT32_VECT3_CROSS_PRODUCT(_vo, _v1, _v2) {          \
-    (_vo).x = (_v1).y*(_v2).z - (_v1).z*(_v2).y;            \
-    (_vo).y = (_v1).z*(_v2).x - (_v1).x*(_v2).z;            \
-    (_vo).z = (_v1).x*(_v2).y - (_v1).y*(_v2).x;            \
   }
 
 
@@ -415,15 +393,13 @@ extern void int32_rmat_of_eulers_312(struct Int32RMat* rm, struct Int32Eulers* e
  *
  */
 
-#define INT32_QUAT_ZERO(_q) {                       \
-    (_q).qi = QUAT1_BFP_OF_REAL(1);                 \
-    (_q).qx = 0;                            \
-    (_q).qy = 0;                            \
-    (_q).qz = 0;                            \
-  }
-
-#define INT32_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
-
+static inline void int32_quat_zero(struct Int32Quat* q)
+{
+  q->qi = QUAT1_BFP_OF_REAL(1);
+  q->qx = 0;
+  q->qy = 0;
+  q->qz = 0;
+}
 
 static inline int32_t int32_quat_norm(struct Int32Quat* q)
 {
@@ -482,6 +458,7 @@ extern void int32_quat_of_axis_angle(struct Int32Quat* q, struct Int32Vect3* uv,
 extern void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r);
 
 /* defines for backwards compatibility */
+#define INT32_QUAT_ZERO(_q) int32_quat_zero(&(_q))
 #define INT32_QUAT_NORM(n, q) { n = int32_quat_norm(&(q)); }
 #define INT32_QUAT_WRAP_SHORTEST(q) int32_quat_wrap_shortest(&(q))
 #define INT32_QUAT_NORMALIZE(q) int32_quat_normalize(&(q))
@@ -531,18 +508,6 @@ extern void int32_eulers_of_quat(struct Int32Eulers* e, struct Int32Quat* q);
  */
 
 #define INT_RATES_ZERO(_e) RATES_ASSIGN(_e, 0, 0, 0)
-
-#define INT_RATES_ADD_SCALED_VECT(_ro, _v, _s) {    \
-    _ro.p += _v.x * _s;                 \
-    _ro.q += _v.y * _s;                 \
-    _ro.r += _v.z * _s;                 \
-  }
-
-#define INT_RATES_SDIV(_ro, _s, _ri) {          \
-    _ro.p = _ri.p / _s;                 \
-    _ro.q = _ri.q / _s;                 \
-    _ro.r = _ri.r / _s;                 \
-  }
 
 #define INT_RATES_RSHIFT(_o, _i, _r) {   \
     (_o).p = ((_i).p >> (_r));       \

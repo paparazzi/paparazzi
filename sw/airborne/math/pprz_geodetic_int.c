@@ -238,7 +238,7 @@ void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct Ne
 void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu)
 {
   ecef_of_enu_vect_i(ecef, def, enu);
-  INT32_VECT3_ADD(*ecef, def->ecef);
+  VECT3_ADD(*ecef, def->ecef);
 }
 
 
@@ -271,7 +271,7 @@ void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct Enu
   VECT3_SMUL(enu_cm, *enu, 25);
   INT32_VECT3_RSHIFT(enu_cm, enu_cm, INT32_POS_FRAC - 2);
   ecef_of_enu_vect_i(ecef, def, &enu_cm);
-  INT32_VECT3_ADD(*ecef, def->ecef);
+  VECT3_ADD(*ecef, def->ecef);
 }
 
 

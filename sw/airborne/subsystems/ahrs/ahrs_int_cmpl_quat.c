@@ -349,13 +349,13 @@ void ahrs_update_accel(void) {
 
     /* and subtract it from imu measurement to get a corrected measurement
      * of the gravity vector */
-    INT32_VECT3_DIFF(pseudo_gravity_measurement, imu.accel, acc_c_imu);
+    VECT3_DIFF(pseudo_gravity_measurement, imu.accel, acc_c_imu);
   } else {
     VECT3_COPY(pseudo_gravity_measurement, imu.accel);
   }
 
   /* compute the residual of the pseudo gravity vector in imu frame */
-  INT32_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
+  VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
 
   /* FIR filtered pseudo_gravity_measurement */
@@ -460,7 +460,7 @@ static inline void ahrs_update_mag_full(void) {
   INT32_RMAT_VMULT(expected_imu, ltp_to_imu_rmat, ahrs_impl.mag_h);
 
   struct Int32Vect3 residual;
-  INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
+  VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
 
   /* Complementary filter proportionnal gain.
    * Kp = 2 * mag_zeta * mag_omega * AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY
