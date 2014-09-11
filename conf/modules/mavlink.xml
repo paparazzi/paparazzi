@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="datalink">
+  <doc>
+    <description>Basic MAVLink implementation</description>
+  </doc>
+  <header>
+    <file name="mavlink.h"/>
+  </header>
+
+  <init fun="mavlink_init()"/>
+  <periodic fun="mavlink_periodic()" autorun="TRUE"/>
+  <event fun="mavlink_event()"/>
+
+  <makefile>
+    <file name="mavlink.c"/>
+  </makefile>
+</module>
