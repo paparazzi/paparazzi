@@ -65,8 +65,7 @@
 
 
 #define DISPLAY_INT32_VECT3(text, _v) {					\
-    int32_t norm;							\
-    INT32_VECT3_NORM(norm, _v);						\
+    int32_t norm = INT32_VECT3_NORM(_v);						\
     printf("%s %d %d %d (%d)\n",text,  (_v).x, (_v).y, (_v).z, norm);	\
   }
 

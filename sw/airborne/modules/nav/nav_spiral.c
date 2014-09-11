@@ -61,7 +61,7 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   struct FloatVect2 edge;
   VECT2_DIFF(edge, waypoints[edge_wp], nav_spiral.center);
 
-  FLOAT_VECT2_NORM(nav_spiral.radius, edge);
+  nav_spiral.radius = float_vect2_norm(&edge);
 
   // get a copy of the current position
   struct EnuCoor_f pos_enu;
@@ -132,7 +132,7 @@ bool_t nav_spiral_run(void)
       //DistanceStartEstim = |Starting position angular - current positon|
       struct FloatVect2 pos_diff;
       VECT2_DIFF(pos_diff, nav_spiral.last_circle, pos_enu);
-      FLOAT_VECT2_NORM(DistanceStartEstim, pos_diff);
+      DistanceStartEstim = float_vect2_norm(&pos_diff);
       CircleAlpha = (2.0 * asin (DistanceStartEstim / (2 * nav_spiral.radius_start)));
       if (CircleAlpha >= nav_spiral.alpha_limit) {
         VECT2_COPY(nav_spiral.last_circle, pos_enu);

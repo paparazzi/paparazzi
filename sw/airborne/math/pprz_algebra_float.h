@@ -109,16 +109,30 @@ struct FloatRates {
 
 #define FLOAT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0., 0.)
 
-#define FLOAT_VECT2_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y)
+/* macros also usable if _v is not a FloatVect2, but a different struct with x,y members */
+#define FLOAT_VECT2_NORM(_v) sqrtf(VECT2_NORM2(_v))
 
-#define FLOAT_VECT2_NORM(_n, _v) {               \
-    _n = sqrtf(FLOAT_VECT2_NORM2(_v));           \
-  }
+static inline float float_vect2_norm2(struct FloatVect2* v)
+{
+  return v->x * v->x + v->y * v->y;
+}
 
-#define FLOAT_VECT2_NORMALIZE(_v) {             \
-    const float n = sqrtf(FLOAT_VECT2_NORM2(_v)); \
-    VECT2_SMUL(_v, _v, 1./n);             \
+static inline float float_vect2_norm(struct FloatVect2* v)
+{
+  return sqrtf(float_vect2_norm2(v));
+}
+
+/** normalize 2D vector in place */
+static inline void float_vect2_normalize(struct FloatVect2* v)
+{
+  const float n = float_vect2_norm(v);
+  if (n > 0) {
+    v->x /= n;
+    v->y /= n;
   }
+}
+
+#define FLOAT_VECT2_NORMALIZE(_v) float_vect2_normalize(&(_v))
 
 
 /*
@@ -127,14 +141,33 @@ struct FloatRates {
 
 #define FLOAT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0., 0., 0.)
 
-#define FLOAT_VECT3_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z)
+/* macros also usable if _v is not a FloatVect3, but a different struct with x,y,z members */
+#define FLOAT_VECT3_NORM(_v) sqrtf(VECT3_NORM2(_v))
 
-#define FLOAT_VECT3_NORM(_v) (sqrtf(FLOAT_VECT3_NORM2(_v)))
+static inline float float_vect3_norm2(struct FloatVect3* v)
+{
+  return v->x * v->x + v->y * v->y + v->z * v->z;
+}
 
-#define FLOAT_VECT3_NORMALIZE(_v) {     \
-    const float n = FLOAT_VECT3_NORM(_v);   \
-    VECT3_SMUL(_v, _v, 1./n);     \
+static inline float float_vect3_norm(struct FloatVect3* v)
+{
+  return sqrtf(float_vect3_norm2(v));
+}
+
+/** normalize 3D vector in place */
+static inline void float_vect3_normalize(struct FloatVect3* v)
+{
+  const float n = float_vect3_norm(v);
+  if (n > 0) {
+    v->x /= n;
+    v->y /= n;
+    v->z /= n;
   }
+}
+
+#define FLOAT_VECT3_NORMALIZE(_v) float_vect3_norm(&(_v))
+
+
 
 #define FLOAT_RATES_ZERO(_r) {          \
     RATES_ASSIGN(_r, 0., 0., 0.);       \

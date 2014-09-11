@@ -106,6 +106,8 @@ extern "C" {
 /* _vo=v1*v2 */
 #define VECT2_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y)
 
+#define VECT2_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y)
+
 /*
  * Dimension 3 vectors
  */
@@ -237,6 +239,8 @@ extern "C" {
   }
 
 #define VECT3_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y + (_v1).z*(_v2).z)
+
+#define VECT3_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z)
 
 #define VECT3_RATES_CROSS_VECT3(_vo, _r1, _v2) {    \
     (_vo).x = (_r1).q*(_v2).z - (_r1).r*(_v2).y;    \

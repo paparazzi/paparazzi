@@ -213,11 +213,11 @@ float float_rmat_reorthogonalize(struct FloatRMat* rm)
   VECT3_SUM_SCALED(r1_t,  r1, r0, _err);
   struct FloatVect3 r2_t;
   VECT3_CROSS_PRODUCT(r2_t, r0_t, r1_t);
-  float s = renorm_factor(FLOAT_VECT3_NORM2(r0_t));
+  float s = renorm_factor(VECT3_NORM2(r0_t));
   MAT33_ROW_VECT3_SMUL(*rm, 0, r0_t, s);
-  s = renorm_factor(FLOAT_VECT3_NORM2(r1_t));
+  s = renorm_factor(VECT3_NORM2(r1_t));
   MAT33_ROW_VECT3_SMUL(*rm, 1, r1_t, s);
-  s = renorm_factor(FLOAT_VECT3_NORM2(r2_t));
+  s = renorm_factor(VECT3_NORM2(r2_t));
   MAT33_ROW_VECT3_SMUL(*rm, 2, r2_t, s);
 
   return _err;

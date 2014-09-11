@@ -56,8 +56,7 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
   VECT2_DIFF(vect_from_home, tmp_enu_point, home);
   //Saturate the mission wp not to overflow max_dist_from_home
   //including a buffer zone before limits
-  float dist_to_home;
-  FLOAT_VECT2_NORM(dist_to_home, vect_from_home);
+  float dist_to_home = float_vect2_norm(&vect_from_home);
   dist_to_home += BUFFER_ZONE_DIST;
   if (dist_to_home > MAX_DIST_FROM_HOME) {
     VECT2_SMUL(vect_from_home, vect_from_home, (MAX_DIST_FROM_HOME / dist_to_home));

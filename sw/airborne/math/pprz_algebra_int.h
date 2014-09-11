@@ -231,16 +231,30 @@ extern int32_t int32_sqrt(int32_t in);
 
 #define INT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0, 0)
 
-#define INT32_VECT2_NORM(n, v) {            \
-    int32_t n2 = (v).x*(v).x + (v).y*(v).y; \
-    n = int32_sqrt(n2);                  \
-  }
+/* macros also usable if _v is not a Int32Vect2, but a different struct with x,y members */
+#define INT32_VECT2_NORM(_v) int32_sqrt(VECT2_NORM2(_v))
 
-#define INT32_VECT2_NORMALIZE(_v,_frac) {       \
-    int32_t n;                \
-    INT32_VECT2_NORM(n, _v);            \
-    INT32_VECT2_SCALE_2(_v, _v, BFP_OF_REAL((1.),_frac) , n);   \
+static inline uint32_t int32_vect2_norm2(struct Int32Vect2* v)
+{
+  return v->x * v->x + v->y * v->y;
+}
+
+static inline uint32_t int32_vect2_norm(struct Int32Vect2* v)
+{
+  return int32_sqrt(int32_vect2_norm2(v));
+}
+
+static inline void int32_vect2_normalize(struct Int32Vect2* v, uint8_t frac)
+{
+  const uint32_t f = BFP_OF_REAL((1.), frac);
+  const uint32_t n = int32_vect2_norm(v);
+  if (n > 0) {
+    v->x = v->x * f / n;
+    v->y = v->y * f / n;
   }
+}
+
+#define INT32_VECT2_NORMALIZE(_v,_frac) int32_vect2_normalize(&(_v), _frac)
 
 
 #define INT32_VECT2_RSHIFT(_o, _i, _r) { \
@@ -271,10 +285,7 @@ extern int32_t int32_sqrt(int32_t in);
     (_a).z = ((_b).z * (_num)) / (_den);        \
   }
 
-#define INT32_VECT3_NORM(n, v) {                \
-    int32_t n2 = (v).x*(v).x + (v).y*(v).y + (v).z*(v).z;   \
-    n = int32_sqrt(n2);                  \
-  }
+#define INT32_VECT3_NORM(_v) int32_sqrt(VECT3_NORM2(_v))
 
 #define INT32_VECT3_RSHIFT(_o, _i, _r) { \
     (_o).x = ((_i).x >> (_r));       \
