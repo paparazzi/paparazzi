@@ -136,12 +136,6 @@ struct FloatRates {
     VECT3_SMUL(_v, _v, 1./n);     \
   }
 
-#define FLOAT_VECT3_INTEGRATE_FI(_vo, _dv, _dt) {   \
-    (_vo).x += (_dv).x * (_dt);                        \
-    (_vo).y += (_dv).y * (_dt);                        \
-    (_vo).z += (_dv).z * (_dt);                        \
-  }
-
 #define FLOAT_RATES_ZERO(_r) {          \
     RATES_ASSIGN(_r, 0., 0., 0.);       \
   }
@@ -162,18 +156,19 @@ struct FloatRates {
   }
 
 
-#define FLOAT_RATES_INTEGRATE_FI(_ra, _racc, _dt) {         \
-    (_ra).p += (_racc).p * (_dt);                     \
-    (_ra).q += (_racc).q * (_dt);                     \
-    (_ra).r += (_racc).r * (_dt);                     \
-  }
+extern void float_vect3_integrate_fi(struct FloatVect3* vec, struct FloatVect3* dv,
+                                     float dt);
 
-#define FLOAT_RATES_OF_EULER_DOT(_ra, _e, _ed) {            \
-    _ra.p =  _ed.phi                         - sinf(_e.theta)             *_ed.psi; \
-    _ra.q =           cosf(_e.phi)*_ed.theta + sinf(_e.phi)*cosf(_e.theta)*_ed.psi; \
-    _ra.r =          -sinf(_e.phi)*_ed.theta + cosf(_e.phi)*cosf(_e.theta)*_ed.psi; \
-  }
+extern void float_rates_integrate_fi(struct FloatRates* r, struct FloatRates* dr,
+                                     float dt);
 
+extern void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e,
+                                     struct FloatEulers* edot);
+
+/* defines for backwards compatibility */
+#define FLOAT_VECT3_INTEGRATE_FI(_vo, _dv, _dt) float_vect3_integrate_fi(&(_vo), &(_dv), _dt)
+#define FLOAT_RATES_INTEGRATE_FI(_ra, _racc, _dt) float_rates_integrate_fi(&(_ra), &(_racc), _dt)
+#define FLOAT_RATES_OF_EULER_DOT(_ra, _e, _ed) float_rates_of_euler_dot(&(_ra), &(_e), &(_ed))
 
 
 /*

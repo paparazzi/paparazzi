@@ -26,10 +26,32 @@
 
 #include "pprz_algebra_float.h"
 
+/** in place first order integration of a 3D-vector */
+void float_vect3_integrate_fi(struct FloatVect3* vec, struct FloatVect3* dv, float dt)
+{
+  vec->x += dv->x * dt;
+  vec->y += dv->y * dt;
+  vec->z += dv->z * dt;
+}
+
+/** in place first order integration of angular rates */
+void float_rates_integrate_fi(struct FloatRates* r, struct FloatRates* dr, float dt)
+{
+  r->p += dr->p * dt;
+  r->q += dr->q * dt;
+  r->r += dr->r * dt;
+}
+
+void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e, struct FloatEulers* edot)
+{
+  r->p = edot->phi                             -                sinf(e->theta) * edot->psi;
+  r->q =            cosf(e->phi) * edot->theta + sinf(e->phi) * cosf(e->theta) * edot->psi;
+  r->r =           -sinf(e->phi) * edot->theta + cosf(e->phi) * cosf(e->theta) * edot->psi;
+}
+
 /** initialises a rotation matrix from unit vector axis and angle */
 void float_rmat_of_axis_angle(struct FloatRMat* rm, struct FloatVect3* uv, float angle)
 {
-
   const float ux2  = uv->x * uv->x;
   const float uy2  = uv->y * uv->y;
   const float uz2  = uv->z * uv->z;
