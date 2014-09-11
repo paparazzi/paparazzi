@@ -81,6 +81,37 @@ void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c, struc
   m_a2b->m[8] = (m_b2c->m[2] * m_a2c->m[2] + m_b2c->m[5] * m_a2c->m[5] + m_b2c->m[8] * m_a2c->m[8]) >> INT32_TRIG_FRAC;
 }
 
+/* vb = m_a2b * va */
+void int32_rmat_vmult(struct Int32Vect3* vb, struct Int32RMat* m_a2b, struct Int32Vect3* va)
+{
+  vb->x = (m_a2b->m[0] * va->x + m_a2b->m[1] * va->y + m_a2b->m[2] * va->z)>>INT32_TRIG_FRAC;
+  vb->y = (m_a2b->m[3] * va->x + m_a2b->m[4] * va->y + m_a2b->m[5] * va->z)>>INT32_TRIG_FRAC;
+  vb->z = (m_a2b->m[6] * va->x + m_a2b->m[7] * va->y + m_a2b->m[8] * va->z)>>INT32_TRIG_FRAC;
+}
+
+/* vb = m_b2a * va */
+void int32_rmat_transp_vmult(struct Int32Vect3* vb, struct Int32RMat* m_b2a, struct Int32Vect3* va)
+{
+  vb->x = (m_b2a->m[0] * va->x + m_b2a->m[3] * va->y + m_b2a->m[6] * va->z)>>INT32_TRIG_FRAC;
+  vb->y = (m_b2a->m[1] * va->x + m_b2a->m[4] * va->y + m_b2a->m[7] * va->z)>>INT32_TRIG_FRAC;
+  vb->z = (m_b2a->m[2] * va->x + m_b2a->m[5] * va->y + m_b2a->m[8] * va->z)>>INT32_TRIG_FRAC;
+}
+
+void int32_rmat_ratemult(struct Int32Rates* rb, struct Int32RMat* m_a2b, struct Int32Rates* ra)
+{
+  rb->p = (m_a2b->m[0] * ra->p + m_a2b->m[1] * ra->q + m_a2b->m[2] * ra->r)>>INT32_TRIG_FRAC;
+  rb->q = (m_a2b->m[3] * ra->p + m_a2b->m[4] * ra->q + m_a2b->m[5] * ra->r)>>INT32_TRIG_FRAC;
+  rb->r = (m_a2b->m[6] * ra->p + m_a2b->m[7] * ra->q + m_a2b->m[8] * ra->r)>>INT32_TRIG_FRAC;
+}
+
+void int32_rmat_transp_ratemult(struct Int32Rates* rb, struct Int32RMat* m_b2a, struct Int32Rates* ra)
+{
+  rb->p = (m_b2a->m[0] * ra->p + m_b2a->m[3] * ra->q + m_b2a->m[6] * ra->r)>>INT32_TRIG_FRAC;
+  rb->q = (m_b2a->m[1] * ra->p + m_b2a->m[4] * ra->q + m_b2a->m[7] * ra->r)>>INT32_TRIG_FRAC;
+  rb->r = (m_b2a->m[2] * ra->p + m_b2a->m[5] * ra->q + m_b2a->m[8] * ra->r)>>INT32_TRIG_FRAC;
+}
+
+
 /** Convert unit quaternion to rotation matrix.
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
  */

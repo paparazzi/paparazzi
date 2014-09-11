@@ -318,11 +318,6 @@ extern int32_t int32_sqrt(int32_t in);
   }
 
 
-#define INT32_MAT33_VECT3_MUL(_o, _m, _v, _f) {         \
-    (_o).x = ((_m).m[0]*(_v).x + (_m).m[1]*(_v).y + (_m).m[2]*(_v).z)>>(_f);    \
-    (_o).y = ((_m).m[3]*(_v).x + (_m).m[4]*(_v).y + (_m).m[5]*(_v).z)>>(_f);    \
-    (_o).z = ((_m).m[6]*(_v).x + (_m).m[7]*(_v).y + (_m).m[8]*(_v).z)>>(_f);    \
-  }
 
 /*
  * Rotation matrices
@@ -337,35 +332,14 @@ extern void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b, st
 /* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
 extern void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c, struct Int32RMat* m_b2c);
 
-/* defines for backwards compatibility */
-#define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) int32_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
-#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) int32_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
+/* vb = m_a2b * va */
+extern void int32_rmat_vmult(struct Int32Vect3* vb, struct Int32RMat* m_a2b, struct Int32Vect3* va);
 
-/* _vb = _m_a2b * _va */
-#define INT32_RMAT_VMULT(_vb, _m_a2b, _va) {                                                 \
-    (_vb).x = ( (_m_a2b).m[0]*(_va).x + (_m_a2b).m[1]*(_va).y + (_m_a2b).m[2]*(_va).z)>>INT32_TRIG_FRAC; \
-    (_vb).y = ( (_m_a2b).m[3]*(_va).x + (_m_a2b).m[4]*(_va).y + (_m_a2b).m[5]*(_va).z)>>INT32_TRIG_FRAC; \
-    (_vb).z = ( (_m_a2b).m[6]*(_va).x + (_m_a2b).m[7]*(_va).y + (_m_a2b).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
-  }
+/* vb = m_b2a * va */
+extern void int32_rmat_transp_vmult(struct Int32Vect3* vb, struct Int32RMat* m_b2a, struct Int32Vect3* va);
 
-#define INT32_RMAT_TRANSP_VMULT(_vb, _m_b2a, _va) {                                      \
-    (_vb).x = ( (_m_b2a).m[0]*(_va).x + (_m_b2a).m[3]*(_va).y + (_m_b2a).m[6]*(_va).z)>>INT32_TRIG_FRAC; \
-    (_vb).y = ( (_m_b2a).m[1]*(_va).x + (_m_b2a).m[4]*(_va).y + (_m_b2a).m[7]*(_va).z)>>INT32_TRIG_FRAC; \
-    (_vb).z = ( (_m_b2a).m[2]*(_va).x + (_m_b2a).m[5]*(_va).y + (_m_b2a).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
-  }
-
-#define INT32_RMAT_RATEMULT(_vb, _m_a2b, _va) {                  \
-    (_vb).p = ( (_m_a2b).m[0]*(_va).p + (_m_a2b).m[1]*(_va).q + (_m_a2b).m[2]*(_va).r)>>INT32_TRIG_FRAC; \
-    (_vb).q = ( (_m_a2b).m[3]*(_va).p + (_m_a2b).m[4]*(_va).q + (_m_a2b).m[5]*(_va).r)>>INT32_TRIG_FRAC; \
-    (_vb).r = ( (_m_a2b).m[6]*(_va).p + (_m_a2b).m[7]*(_va).q + (_m_a2b).m[8]*(_va).r)>>INT32_TRIG_FRAC; \
-  }
-
-#define INT32_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {                                       \
-    (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r)>>INT32_TRIG_FRAC; \
-    (_vb).q = ( (_m_b2a).m[1]*(_va).p + (_m_b2a).m[4]*(_va).q + (_m_b2a).m[7]*(_va).r)>>INT32_TRIG_FRAC; \
-    (_vb).r = ( (_m_b2a).m[2]*(_va).p + (_m_b2a).m[5]*(_va).q + (_m_b2a).m[8]*(_va).r)>>INT32_TRIG_FRAC; \
-  }
-
+extern void int32_rmat_ratemult(struct Int32Rates* rb, struct Int32RMat* m_a2b, struct Int32Rates* ra);
+extern void int32_rmat_transp_ratemult(struct Int32Rates* rb, struct Int32RMat* m_b2a, struct Int32Rates* ra);
 
 /** Convert unit quaternion to rotation matrix.
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
@@ -381,6 +355,13 @@ extern void int32_rmat_of_eulers_312(struct Int32RMat* rm, struct Int32Eulers* e
 #define int32_rmat_of_eulers int32_rmat_of_eulers_321
 
 /* defines for backwards compatibility */
+#define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) int32_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
+#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) int32_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
+#define INT32_RMAT_VMULT(_vb, _m_a2b, _va) int32_rmat_vmult(&(_vb), &(_m_a2b), &(_va))
+#define INT32_RMAT_TRANSP_VMULT(_vb, _m_b2a, _va) int32_rmat_transp_vmult(&(_vb), &(_m_b2a), &(_va))
+#define INT32_RMAT_RATEMULT(_rb, _m_a2b, _ra) int32_rmat_ratemult(&(_rb), &(_m_a2b), &(_ra))
+#define INT32_RMAT_TRANSP_RATEMULT(_rb, _m_b2a, _ra) int32_rmat_ratemult(&(_rb), &(_m_b2a), &(_ra))
+
 #define INT32_RMAT_OF_QUAT(_rm, _q) int32_rmat_of_quat(&(_rm), &(_q))
 #define INT32_RMAT_OF_EULERS(_rm, _e) int32_rmat_of_eulers_321(&(_rm), &(_e))
 #define INT32_RMAT_OF_EULERS_321(_rm, _e) int32_rmat_of_eulers_321(&(_rm), &(_e))
