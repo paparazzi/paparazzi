@@ -93,6 +93,39 @@ struct DoubleRates {
     (_vout).z = rint((_vin).z);         \
   }
 
+static inline double double_vect3_norm(struct DoubleVect3* v)
+{
+  return sqrt(VECT3_NORM2(*v));
+}
+
+/** normalize 3D vector in place */
+static inline void double_vect3_normalize(struct DoubleVect3* v)
+{
+  const double n = double_vect3_norm(v);
+  if (n > 0) {
+    v->x /= n;
+    v->y /= n;
+    v->z /= n;
+  }
+}
+
+static inline double double_quat_norm(struct DoubleQuat* q)
+{
+  return sqrt(SQUARE(q->qi) + SQUARE(q->qx) +  SQUARE(q->qy) + SQUARE(q->qz));
+}
+
+
+static inline void double_quat_normalize(struct DoubleQuat* q)
+{
+  double qnorm = double_quat_norm(q);
+  if (qnorm > FLT_MIN) {
+    q->qi = q->qi / qnorm;
+    q->qx = q->qx / qnorm;
+    q->qy = q->qy / qnorm;
+    q->qz = q->qz / qnorm;
+  }
+}
+
 extern void double_rmat_of_eulers_321(struct DoubleRMat* rm, struct DoubleEulers* e);
 extern void double_quat_of_eulers(struct DoubleQuat* q, struct DoubleEulers* e);
 extern void double_eulers_of_quat(struct DoubleEulers* e, struct DoubleQuat* q);
