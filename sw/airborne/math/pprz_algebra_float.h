@@ -238,20 +238,57 @@ static inline void float_rmat_identity(struct FloatRMat* rm)
   FLOAT_MAT33_DIAG(*rm, 1., 1., 1.);
 }
 
+/** Inverse/transpose of a rotation matrix.
+ * m_b2a = inv(_m_a2b) = transp(_m_a2b)
+ */
 extern void float_rmat_inv(struct FloatRMat* m_b2a, struct FloatRMat* m_a2b);
+
+/** Composition (multiplication) of two rotation matrices.
+ * m_a2c = m_a2b comp m_b2c , aka  m_a2c = m_b2c * m_a2b
+ */
 extern void float_rmat_comp(struct FloatRMat* m_a2c, struct FloatRMat* m_a2b,
                             struct FloatRMat* m_b2c);
+
+/** Composition (multiplication) of two rotation matrices.
+ * m_a2b = m_a2c comp_inv m_b2c , aka  m_a2b = inv(_m_b2c) * m_a2c
+ */
 extern void float_rmat_comp_inv(struct FloatRMat* m_a2b, struct FloatRMat* m_a2c,
                                 struct FloatRMat* m_b2c);
+
+/// Norm of a rotation matrix.
 extern float float_rmat_norm(struct FloatRMat* rm);
+
+/** rotate 3D vector by rotation matrix.
+ * vb = m_a2b * va
+ */
+extern void float_rmat_vmult(struct FloatVect3* vb, struct FloatRMat* m_a2b,
+                             struct FloatVect3* va);
+
+/** rotate 3D vector by transposed rotation matrix.
+ * vb = m_b2a^T * va
+ */
+extern void float_rmat_transp_vmult(struct FloatVect3* vb, struct FloatRMat* m_b2a,
+                                    struct FloatVect3* va);
+
+/** rotate anglular rates by rotation matrix.
+ * rb = m_a2b * ra
+ */
+extern void float_rmat_ratemult(struct FloatRates* rb, struct FloatRMat* m_a2b,
+                                struct FloatRates* ra);
+
+/** rotate anglular rates by transposed rotation matrix.
+ * rb = m_b2a^T * ra
+ */
+extern void float_rmat_transp_ratemult(struct FloatRates* rb, struct FloatRMat* m_b2a,
+                                       struct FloatRates* ra);
 
 /** initialises a rotation matrix from unit vector axis and angle */
 extern void float_rmat_of_axis_angle(struct FloatRMat* rm, struct FloatVect3* uv, float angle);
-/* C n->b rotation matrix */
+
 extern void float_rmat_of_eulers_321(struct FloatRMat* rm, struct FloatEulers* e);
 extern void float_rmat_of_eulers_312(struct FloatRMat* rm, struct FloatEulers* e);
 #define float_rmat_of_eulers float_rmat_of_eulers_321
-/* C n->b rotation matrix */
+
 extern void float_rmat_of_quat(struct FloatRMat* rm, struct FloatQuat* q);
 /** in place first order integration of a rotation matrix */
 extern void float_rmat_integrate_fi(struct FloatRMat* rm, struct FloatRates* omega, float dt);
@@ -321,17 +358,6 @@ static inline void float_quat_wrap_shortest(struct FloatQuat* q)
 }
 
 #define FLOAT_QUAT_EXTRACT(_vo, _qi) QUAT_EXTRACT_Q(_vo, _qi)
-
-extern void float_rmat_vmult(struct FloatVect3* vb, struct FloatRMat* m_a2b,
-                             struct FloatVect3* va);
-
-extern void float_rmat_transp_vmult(struct FloatVect3* vb, struct FloatRMat* m_b2a,
-                                    struct FloatVect3* va);
-
-extern void float_rmat_ratemult(struct FloatRates* rb, struct FloatRMat* m_a2b,
-                                struct FloatRates* ra);
-extern void float_rmat_transp_ratemult(struct FloatRates* rb, struct FloatRMat* m_b2a,
-                                       struct FloatRates* ra);
 
 
 /*
@@ -429,24 +455,52 @@ extern void float_rmat_transp_ratemult(struct FloatRates* rb, struct FloatRMat* 
   }
 
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
+/** Composition (multiplication) of two quaternions.
+ * a2c = a2b comp b2c , aka  a2c = a2b * b2c
+ */
 extern void float_quat_comp(struct FloatQuat* a2c, struct FloatQuat* a2b, struct FloatQuat* b2c);
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
+/** Composition (multiplication) of two quaternions.
+ * a2b = a2c comp_inv b2c , aka  a2b = a2c * inv(b2c)
+ */
 extern void float_quat_comp_inv(struct FloatQuat* a2b, struct FloatQuat* a2c, struct FloatQuat* b2c);
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+/** Composition (multiplication) of two quaternions.
+ * b2c = a2b inv_comp a2c , aka  b2c = inv(_a2b) * a2c
+ */
 extern void float_quat_inv_comp(struct FloatQuat* b2c, struct FloatQuat* a2b, struct FloatQuat* a2c);
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
+/** Composition (multiplication) of two quaternions with normalization.
+ * a2c = a2b comp b2c , aka  a2c = a2b * b2c
+ */
 extern void float_quat_comp_norm_shortest(struct FloatQuat* a2c, struct FloatQuat* a2b, struct FloatQuat* b2c);
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
+/** Composition (multiplication) of two quaternions with normalization.
+ * a2b = a2c comp_inv b2c , aka  a2b = a2c * inv(b2c)
+ */
 extern void float_quat_comp_inv_norm_shortest(struct FloatQuat* a2b, struct FloatQuat* a2c, struct FloatQuat* b2c);
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+/** Composition (multiplication) of two quaternions with normalization.
+ * b2c = a2b inv_comp a2c , aka  b2c = inv(_a2b) * a2c
+ */
 extern void float_quat_inv_comp_norm_shortest(struct FloatQuat* b2c, struct FloatQuat* a2b, struct FloatQuat* a2c);
 
+/** Quaternion derivative from rotational velocity.
+ * qd = -0.5*omega(r) * q
+ * or equally:
+ * qd = 0.5 * q * omega(r)
+ */
+extern void float_quat_derivative(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q);
+
+/** Quaternion derivative from rotational velocity with Lagrange multiplier.
+ * qd = -0.5*omega(r) * q
+ * or equally:
+ * qd = 0.5 * q * omega(r)
+ */
+extern void float_quat_derivative_lagrange(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q);
+
+/** Delta rotation quaternion with constant angular rates.
+ */
 extern void float_quat_differential(struct FloatQuat* q_out, struct FloatRates* w, float dt);
 
 /** in place first order quaternion integration with constant rotational velocity */
@@ -455,21 +509,23 @@ extern void float_quat_integrate_fi(struct FloatQuat* q, struct FloatRates* omeg
 /** in place quaternion integration with constant rotational velocity */
 extern void float_quat_integrate(struct FloatQuat* q, struct FloatRates* omega, float dt);
 
+/** rotate 3D vector by quaternion.
+ * vb = q_a2b * va * q_a2b^-1
+ */
 extern void float_quat_vmult(struct FloatVect3* v_out, struct FloatQuat* q, struct FloatVect3* v_in);
 
-/** Quaternion derivative from rotational velocity.
- * qd = -0.5*omega(r) * q
- */
-extern void float_quat_derivative(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q);
-
-/** Quaternion derivative from rotational velocity.
- * qd = -0.5*omega(r) * q
- */
-extern void float_quat_derivative_lagrange(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q);
-
+/// Quaternion from Euler angles.
 extern void float_quat_of_eulers(struct FloatQuat* q, struct FloatEulers* e);
+
+/// Quaternion from unit vector and angle.
 extern void float_quat_of_axis_angle(struct FloatQuat* q, const struct FloatVect3* uv, float angle);
+
+/** Quaternion from orientation vector.
+ * Length/norm of the vector is the angle.
+ */
 extern void float_quat_of_orientation_vect(struct FloatQuat* q, const struct FloatVect3* ov);
+
+/// Quaternion from rotation matrix.
 extern void float_quat_of_rmat(struct FloatQuat* q, struct FloatRMat* rm);
 
 

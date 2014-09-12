@@ -250,7 +250,6 @@ void int32_rmat_of_eulers_312(struct Int32RMat* rm, struct Int32Eulers* e)
  *
  */
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 void int32_quat_comp(struct Int32Quat* a2c, struct Int32Quat* a2b, struct Int32Quat* b2c)
 {
   a2c->qi = (a2b->qi * b2c->qi - a2b->qx * b2c->qx - a2b->qy * b2c->qy - a2b->qz * b2c->qz) >> INT32_QUAT_FRAC;
@@ -259,7 +258,6 @@ void int32_quat_comp(struct Int32Quat* a2c, struct Int32Quat* a2b, struct Int32Q
   a2c->qz = (a2b->qi * b2c->qz + a2b->qx * b2c->qy - a2b->qy * b2c->qx + a2b->qz * b2c->qi) >> INT32_QUAT_FRAC;
 }
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 void int32_quat_comp_inv(struct Int32Quat* a2b, struct Int32Quat* a2c, struct Int32Quat* b2c)
 {
   a2b->qi = (a2c->qi * b2c->qi + a2c->qx * b2c->qx + a2c->qy * b2c->qy + a2c->qz * b2c->qz) >> INT32_QUAT_FRAC;
@@ -268,7 +266,6 @@ void int32_quat_comp_inv(struct Int32Quat* a2b, struct Int32Quat* a2c, struct In
   a2b->qz = (-a2c->qi * b2c->qz - a2c->qx * b2c->qy + a2c->qy * b2c->qx + a2c->qz * b2c->qi) >> INT32_QUAT_FRAC;
 }
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 void int32_quat_inv_comp(struct Int32Quat* b2c, struct Int32Quat* a2b, struct Int32Quat* a2c)
 {
   b2c->qi = (a2b->qi * a2c->qi + a2b->qx * a2c->qx + a2b->qy * a2c->qy + a2b->qz * a2c->qz) >> INT32_QUAT_FRAC;
@@ -277,7 +274,6 @@ void int32_quat_inv_comp(struct Int32Quat* b2c, struct Int32Quat* a2b, struct In
   b2c->qz = (a2b->qi * a2c->qz - a2b->qx * a2c->qy + a2b->qy * a2c->qx - a2b->qz * a2c->qi) >> INT32_QUAT_FRAC;
 }
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 void int32_quat_comp_norm_shortest(struct Int32Quat* a2c, struct Int32Quat* a2b, struct Int32Quat* b2c)
 {
   int32_quat_comp(a2c, a2b, b2c);
@@ -285,7 +281,6 @@ void int32_quat_comp_norm_shortest(struct Int32Quat* a2c, struct Int32Quat* a2b,
   int32_quat_normalize(a2c);
 }
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 void int32_quat_comp_inv_norm_shortest(struct Int32Quat* a2b, struct Int32Quat* a2c, struct Int32Quat* b2c)
 {
   int32_quat_comp_inv(a2b, a2c, b2c);
@@ -293,7 +288,6 @@ void int32_quat_comp_inv_norm_shortest(struct Int32Quat* a2b, struct Int32Quat* 
   int32_quat_normalize(a2b);
 }
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 void int32_quat_inv_comp_norm_shortest(struct Int32Quat* b2c, struct Int32Quat* a2b, struct Int32Quat* a2c)
 {
   int32_quat_inv_comp(b2c, a2b, a2c);
@@ -303,7 +297,9 @@ void int32_quat_inv_comp_norm_shortest(struct Int32Quat* b2c, struct Int32Quat* 
 
 /** Quaternion derivative from rotational velocity.
  * qd = -0.5*omega(r) * q
- * mult with 0.5 is done by shifting one more bit to the right
+ * or equally:
+ * qd = 0.5 * q * omega(r)
+ * Multiplication with 0.5 is done by shifting one more bit to the right.
  */
 void int32_quat_derivative(struct Int32Quat* qd, const struct Int32Rates* r, struct Int32Quat* q)
 {

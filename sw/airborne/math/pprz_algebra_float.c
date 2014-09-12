@@ -51,9 +51,7 @@ void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e, struc
 
 
 
-/** Inverse/transpose of a rotation matrix.
- * _m_b2a = inv(_m_a2b) = transp(_m_a2b)
- */
+
 void float_rmat_inv(struct FloatRMat* m_b2a, struct FloatRMat* m_a2b)
 {
   RMAT_ELMT(*m_b2a, 0, 0) = RMAT_ELMT(*m_a2b, 0, 0);
@@ -75,7 +73,7 @@ float float_rmat_norm(struct FloatRMat* rm)
 }
 
 /** Composition (multiplication) of two rotation matrices.
- * _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b
+ * m_a2c = m_a2b comp m_b2c , aka  m_a2c = m_b2c * m_a2b
  */
 void float_rmat_comp(struct FloatRMat* m_a2c, struct FloatRMat* m_a2b, struct FloatRMat* m_b2c)
 {
@@ -91,7 +89,7 @@ void float_rmat_comp(struct FloatRMat* m_a2c, struct FloatRMat* m_a2b, struct Fl
 }
 
 /** Composition (multiplication) of two rotation matrices.
- * _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c
+ * m_a2b = m_a2c comp_inv m_b2c , aka  m_a2b = inv(_m_b2c) * m_a2c
  */
 void float_rmat_comp_inv(struct FloatRMat* m_a2b, struct FloatRMat* m_a2c, struct FloatRMat* m_b2c)
 {
@@ -307,7 +305,6 @@ void float_quat_comp(struct FloatQuat* a2c, struct FloatQuat* a2b, struct FloatQ
   a2c->qz = a2b->qi * b2c->qz + a2b->qx * b2c->qy - a2b->qy * b2c->qx + a2b->qz * b2c->qi;
 }
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 void float_quat_comp_inv(struct FloatQuat* a2b, struct FloatQuat* a2c, struct FloatQuat* b2c)
 {
   a2b->qi =  a2c->qi * b2c->qi + a2c->qx * b2c->qx + a2c->qy * b2c->qy + a2c->qz * b2c->qz;
@@ -316,7 +313,6 @@ void float_quat_comp_inv(struct FloatQuat* a2b, struct FloatQuat* a2c, struct Fl
   a2b->qz = -a2c->qi * b2c->qz - a2c->qx * b2c->qy + a2c->qy * b2c->qx + a2c->qz * b2c->qi;
 }
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 void float_quat_inv_comp(struct FloatQuat* b2c, struct FloatQuat* a2b, struct FloatQuat* a2c)
 {
   b2c->qi = a2b->qi * a2c->qi + a2b->qx * a2c->qx + a2b->qy * a2c->qy + a2b->qz * a2c->qz;
@@ -325,7 +321,6 @@ void float_quat_inv_comp(struct FloatQuat* b2c, struct FloatQuat* a2b, struct Fl
   b2c->qz = a2b->qi * a2c->qz - a2b->qx * a2c->qy + a2b->qy * a2c->qx - a2b->qz * a2c->qi;
 }
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 void float_quat_comp_norm_shortest(struct FloatQuat* a2c, struct FloatQuat* a2b, struct FloatQuat* b2c)
 {
   float_quat_comp(a2c, a2b, b2c);
@@ -333,7 +328,6 @@ void float_quat_comp_norm_shortest(struct FloatQuat* a2c, struct FloatQuat* a2b,
   float_quat_normalize(a2c);
 }
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 void float_quat_comp_inv_norm_shortest(struct FloatQuat* a2b, struct FloatQuat* a2c, struct FloatQuat* b2c)
 {
   float_quat_comp_inv(a2b, a2c, b2c);
@@ -341,7 +335,6 @@ void float_quat_comp_inv_norm_shortest(struct FloatQuat* a2b, struct FloatQuat* 
   float_quat_normalize(a2b);
 }
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 void float_quat_inv_comp_norm_shortest(struct FloatQuat* b2c, struct FloatQuat* a2b, struct FloatQuat* a2c)
 {
   float_quat_inv_comp(b2c, a2b, a2c);
