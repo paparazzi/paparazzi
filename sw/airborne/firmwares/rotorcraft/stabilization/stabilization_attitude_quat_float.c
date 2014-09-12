@@ -155,7 +155,7 @@ void stabilization_attitude_init(void) {
 #endif
   }
 
-  FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+  float_quat_identity(&stabilization_att_sum_err_quat);
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   FLOAT_RATES_ZERO( last_body_rate );
   FLOAT_RATES_ZERO( body_rate_d );
@@ -183,7 +183,7 @@ void stabilization_attitude_enter(void) {
 
   stabilization_attitude_ref_enter();
 
-  FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+  float_quat_identity(&stabilization_att_sum_err_quat);
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 }
 
@@ -319,7 +319,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     FLOAT_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);
   } else {
     /* reset accumulator */
-    FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+    float_quat_identity(&stabilization_att_sum_err_quat);
     FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   }
 

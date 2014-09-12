@@ -273,7 +273,7 @@ static inline void reset_state(void) {
   FLOAT_QUAT_COMP(q_tmp, ahrs_impl.ltp_to_imu_quat, ahrs_impl.gibbs_cor);
   FLOAT_QUAT_NORMALIZE(q_tmp);
   memcpy(&ahrs_impl.ltp_to_imu_quat, &q_tmp, sizeof(ahrs_impl.ltp_to_imu_quat));
-  FLOAT_QUAT_ZERO(ahrs_impl.gibbs_cor);
+  float_quat_identity(&ahrs_impl.gibbs_cor);
 
 }
 

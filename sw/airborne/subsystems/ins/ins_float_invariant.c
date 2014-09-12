@@ -208,7 +208,7 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
 /* init state and measurements */
 static inline void init_invariant_state(void) {
   // init state
-  FLOAT_QUAT_ZERO(ins_impl.state.quat);
+  float_quat_identity(&ins_impl.state.quat);
   FLOAT_RATES_ZERO(ins_impl.state.bias);
   FLOAT_VECT3_ZERO(ins_impl.state.pos);
   FLOAT_VECT3_ZERO(ins_impl.state.speed);

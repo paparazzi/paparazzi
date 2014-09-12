@@ -362,6 +362,8 @@ void float_quat_vmult(struct FloatVect3* v_out, struct FloatQuat* q, struct Floa
 
 /** Quaternion derivative from rotational velocity.
  * qd = -0.5*omega(r) * q
+ * or equally:
+ * qd = 0.5 * q * omega(r)
  */
 void float_quat_derivative(struct FloatQuat* qd, struct FloatRates* r, struct FloatQuat* q)
 {

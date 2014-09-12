@@ -127,7 +127,7 @@ void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
 
-  INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+  int32_quat_identity(&stabilization_att_sum_err_quat);
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
 #if PERIODIC_TELEMETRY
@@ -144,7 +144,7 @@ void stabilization_attitude_enter(void) {
 
   stabilization_attitude_ref_enter();
 
-  INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
+  int32_quat_identity(&stabilization_att_sum_err_quat);
   INT_EULERS_ZERO(stabilization_att_sum_err);
 
 }
@@ -256,7 +256,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     INT32_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);
   } else {
     /* reset accumulator */
-    INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
+    int32_quat_identity(&stabilization_att_sum_err_quat);
     INT_EULERS_ZERO( stabilization_att_sum_err );
   }
 

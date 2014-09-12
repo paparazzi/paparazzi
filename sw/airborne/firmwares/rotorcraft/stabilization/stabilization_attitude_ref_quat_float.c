@@ -105,9 +105,9 @@ void stabilization_attitude_ref_set_omega_r(float omega) {
 void stabilization_attitude_ref_init(void) {
 
   FLOAT_EULERS_ZERO(stab_att_sp_euler);
-  FLOAT_QUAT_ZERO(  stab_att_sp_quat);
+  float_quat_identity(&stab_att_sp_quat);
   FLOAT_EULERS_ZERO(stab_att_ref_euler);
-  FLOAT_QUAT_ZERO(  stab_att_ref_quat);
+  float_quat_identity(&stab_att_ref_quat);
   FLOAT_RATES_ZERO( stab_att_ref_rate);
   FLOAT_RATES_ZERO( stab_att_ref_accel);
 

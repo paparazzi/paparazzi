@@ -109,6 +109,16 @@ static inline void double_vect3_normalize(struct DoubleVect3* v)
   }
 }
 
+
+/** initialises a quaternion to identity */
+static inline void double_quat_identity(struct DoubleQuat* q)
+{
+  q->qi = 1.0;
+  q->qx = 0;
+  q->qy = 0;
+  q->qz = 0;
+}
+
 static inline double double_quat_norm(struct DoubleQuat* q)
 {
   return sqrt(SQUARE(q->qi) + SQUARE(q->qx) +  SQUARE(q->qy) + SQUARE(q->qz));

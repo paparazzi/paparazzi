@@ -132,9 +132,9 @@ static inline void reset_psi_ref_from_body(void) {
 void stabilization_attitude_ref_init(void) {
 
   INT_EULERS_ZERO(stab_att_sp_euler);
-  INT32_QUAT_ZERO(stab_att_sp_quat);
+  int32_quat_identity(&stab_att_sp_quat);
   INT_EULERS_ZERO(stab_att_ref_euler);
-  INT32_QUAT_ZERO(stab_att_ref_quat);
+  int32_quat_identity(&stab_att_ref_quat);
   INT_RATES_ZERO(stab_att_ref_rate);
   INT_RATES_ZERO(stab_att_ref_accel);
 

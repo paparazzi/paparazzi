@@ -203,7 +203,7 @@ extern void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e
 #define FLOAT_MAT33_ZERO(_m) {                      \
     MAT33_ELMT(_m, 0, 0) = 0.;                      \
     MAT33_ELMT(_m, 0, 1) = 0.;                      \
-    MAT33_ELMT(_m, 0, 2) = 0.;                                          \
+    MAT33_ELMT(_m, 0, 2) = 0.;                      \
     MAT33_ELMT(_m, 1, 0) = 0.;                      \
     MAT33_ELMT(_m, 1, 1) = 0.;                      \
     MAT33_ELMT(_m, 1, 2) = 0.;                      \
@@ -212,7 +212,7 @@ extern void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e
     MAT33_ELMT(_m, 2, 2) = 0.;                      \
   }
 
-#define FLOAT_MAT33_DIAG(_m, _d00, _d11, _d22) {            \
+#define FLOAT_MAT33_DIAG(_m, _d00, _d11, _d22) {    \
     MAT33_ELMT(_m, 0, 0) = _d00;                    \
     MAT33_ELMT(_m, 0, 1) = 0.;                      \
     MAT33_ELMT(_m, 0, 2) = 0.;                      \
@@ -232,8 +232,11 @@ extern void float_rates_of_euler_dot(struct FloatRates* r, struct FloatEulers* e
 //
 
 
-/** initialises a matrix to identity */
-#define FLOAT_RMAT_ZERO(_rm) FLOAT_MAT33_DIAG(_rm, 1., 1., 1.)
+/** initialises a rotation matrix to identity */
+static inline void float_rmat_identity(struct FloatRMat* rm)
+{
+  FLOAT_MAT33_DIAG(*rm, 1., 1., 1.);
+}
 
 #define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _uv, _an) float_rmat_of_axis_angle(&(_rm), &(_uv), _an)
 
@@ -309,10 +312,16 @@ extern float float_rmat_reorthogonalize(struct FloatRMat* rm);
 //
 //
 
-#define FLOAT_QUAT_ZERO(_q) QUAT_ASSIGN(_q, 1., 0., 0., 0.)
+/** initialises a quaternion to identity */
+static inline void float_quat_identity(struct FloatQuat* q)
+{
+  q->qi = 1.0;
+  q->qx = 0;
+  q->qy = 0;
+  q->qz = 0;
+}
 
-#define FLOAT_QUAT_NORM(_q) float_quat_norm(&(_q))
-#define FLOAT_QUAT_NORMALIZE(_q) float_quat_normalize(&(_q))
+#define FLOAT_QUAT_NORM2(_q) (SQUARE((_q).qi) + SQUARE((_q).qx) + SQUARE((_q).qy) + SQUARE((_q).qz))
 
 static inline float float_quat_norm(struct FloatQuat* q)
 {
@@ -328,6 +337,11 @@ static inline void float_quat_normalize(struct FloatQuat* q)
     q->qy = q->qy / qnorm;
     q->qz = q->qz / qnorm;
   }
+}
+
+static inline void float_quat_invert(struct FloatQuat* qo, struct FloatQuat* qi)
+{
+  QUAT_INVERT(*qo, *qi);
 }
 
 /*   */
@@ -484,6 +498,9 @@ extern void float_quat_of_rmat(struct FloatQuat* q, struct FloatRMat* rm);
 
 
 /* defines for backwards compatibility */
+#define FLOAT_QUAT_ZERO(_q) float_quat_identity(&(_q))
+#define FLOAT_QUAT_NORM(_q) float_quat_norm(&(_q))
+#define FLOAT_QUAT_NORMALIZE(_q) float_quat_normalize(&(_q))
 #define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) float_quat_comp(&(_a2c), &(_a2b), &(_b2c))
 #define FLOAT_QUAT_MULT(_a2c, _a2b, _b2c) float_quat_comp(&(_a2c), &(_a2b), &(_b2c))
 #define FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c) float_quat_inv_comp(&(_b2c), &(_a2b), &(_a2c))

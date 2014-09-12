@@ -334,8 +334,11 @@ static inline void int32_vect2_normalize(struct Int32Vect2* v, uint8_t frac)
  * Rotation matrices
  */
 
-#define INT32_RMAT_ZERO(_rm)                        \
-  INT32_MAT33_DIAG(_rm, TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.))
+/** initialises a rotation matrix to identity */
+static inline void int32_rmat_identity(struct Int32RMat* rm)
+{
+  INT32_MAT33_DIAG(*rm, TRIG_BFP_OF_REAL(1.), TRIG_BFP_OF_REAL(1.), TRIG_BFP_OF_REAL(1.));
+}
 
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
 extern void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b, struct Int32RMat* m_b2c);
@@ -385,7 +388,8 @@ extern void int32_rmat_of_eulers_312(struct Int32RMat* rm, struct Int32Eulers* e
  *
  */
 
-static inline void int32_quat_zero(struct Int32Quat* q)
+/** initialises a quaternion to identity */
+static inline void int32_quat_identity(struct Int32Quat* q)
 {
   q->qi = QUAT1_BFP_OF_REAL(1);
   q->qx = 0;
@@ -450,7 +454,7 @@ extern void int32_quat_of_axis_angle(struct Int32Quat* q, struct Int32Vect3* uv,
 extern void int32_quat_of_rmat(struct Int32Quat* q, struct Int32RMat* r);
 
 /* defines for backwards compatibility */
-#define INT32_QUAT_ZERO(_q) int32_quat_zero(&(_q))
+#define INT32_QUAT_ZERO(_q) int32_quat_identity(&(_q))
 #define INT32_QUAT_NORM(n, q) { n = int32_quat_norm(&(q)); }
 #define INT32_QUAT_WRAP_SHORTEST(q) int32_quat_wrap_shortest(&(q))
 #define INT32_QUAT_NORMALIZE(q) int32_quat_normalize(&(q))

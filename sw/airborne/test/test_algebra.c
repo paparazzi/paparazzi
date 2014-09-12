@@ -517,7 +517,7 @@ static void test_10(void) {
 
   struct Int32Quat quat_ltp_to_body;
   struct Int32Quat body_to_imu_quat;
-  INT32_QUAT_ZERO( body_to_imu_quat);
+  int32_quat_identity(&body_to_imu_quat);
 
 
   INT32_QUAT_COMP_INV(quat_ltp_to_body, body_to_imu_quat, quati);
