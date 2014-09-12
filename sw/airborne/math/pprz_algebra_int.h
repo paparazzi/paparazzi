@@ -340,29 +340,24 @@ static inline void int32_rmat_identity(struct Int32RMat* rm)
   INT32_MAT33_DIAG(*rm, TRIG_BFP_OF_REAL(1.), TRIG_BFP_OF_REAL(1.), TRIG_BFP_OF_REAL(1.));
 }
 
-/* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
-extern void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b, struct Int32RMat* m_b2c);
+extern void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b,
+                            struct Int32RMat* m_b2c);
 
-/* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
-extern void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c, struct Int32RMat* m_b2c);
+extern void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c,
+                                struct Int32RMat* m_b2c);
 
-/* vb = m_a2b * va */
-extern void int32_rmat_vmult(struct Int32Vect3* vb, struct Int32RMat* m_a2b, struct Int32Vect3* va);
+extern void int32_rmat_vmult(struct Int32Vect3* vb, struct Int32RMat* m_a2b,
+                             struct Int32Vect3* va);
 
-/* vb = m_b2a * va */
-extern void int32_rmat_transp_vmult(struct Int32Vect3* vb, struct Int32RMat* m_b2a, struct Int32Vect3* va);
+extern void int32_rmat_transp_vmult(struct Int32Vect3* vb, struct Int32RMat* m_b2a,
+                                    struct Int32Vect3* va);
 
-extern void int32_rmat_ratemult(struct Int32Rates* rb, struct Int32RMat* m_a2b, struct Int32Rates* ra);
-extern void int32_rmat_transp_ratemult(struct Int32Rates* rb, struct Int32RMat* m_b2a, struct Int32Rates* ra);
+extern void int32_rmat_ratemult(struct Int32Rates* rb, struct Int32RMat* m_a2b,
+                                struct Int32Rates* ra);
+extern void int32_rmat_transp_ratemult(struct Int32Rates* rb, struct Int32RMat* m_b2a,
+                                       struct Int32Rates* ra);
 
-/** Convert unit quaternion to rotation matrix.
- * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
- */
 extern void int32_rmat_of_quat(struct Int32RMat* rm, struct Int32Quat* q);
-
-/*
- * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestodirectioncosinematrix.html
- */
 extern void int32_rmat_of_eulers_321(struct Int32RMat* rm, struct Int32Eulers* e);
 extern void int32_rmat_of_eulers_312(struct Int32RMat* rm, struct Int32Eulers* e);
 

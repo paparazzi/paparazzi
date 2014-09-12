@@ -99,7 +99,7 @@ static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struc
   struct FloatRMat rmat_phi_theta;
   FLOAT_RMAT_OF_QUAT(rmat_phi_theta, q_a);
   struct FloatVect3 mag_ltp;
-  FLOAT_RMAT_VECT3_TRANSP_MUL(mag_ltp, rmat_phi_theta, mag_float);
+  float_rmat_transp_vmult(&mag_ltp, &rmat_phi_theta, &mag_float);
 
   /* heading from mag -> make quaternion to rotate around ltp z axis*/
   struct FloatQuat q_m;

@@ -21,7 +21,7 @@
 
 /**
  * @file pprz_algebra.h
- * @brief Paparazzi generic algebra functions.
+ * @brief Paparazzi generic algebra macros.
  *
  */
 
@@ -562,10 +562,10 @@ extern "C" {
 
 /* _qo = _qo / _s */
 #define QUAT_SDIV(_qo, _qi, _s) { \
-    (_qo).qi = (_qi).qi / _s; \
-    (_qo).qx = (_qi).qx / _s; \
-    (_qo).qy = (_qi).qy / _s; \
-    (_qo).qz = (_qi).qz / _s; \
+    (_qo).qi = (_qi).qi / (_s); \
+    (_qo).qx = (_qi).qx / (_s); \
+    (_qo).qy = (_qi).qy / (_s); \
+    (_qo).qz = (_qi).qz / (_s); \
   }
 
 //

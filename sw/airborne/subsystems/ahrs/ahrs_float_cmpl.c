@@ -292,7 +292,7 @@ void ahrs_update_accel(void) {
     /* convert centrifugal acceleration from body to imu frame */
     struct FloatVect3 acc_c_imu;
     struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&imu.body_to_imu);
-    FLOAT_RMAT_VECT3_MUL(acc_c_imu, *body_to_imu_rmat, acc_c_body);
+    float_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement of the gravity vector */
     VECT3_DIFF(pseudo_gravity_measurement, imu_accel_float, acc_c_imu);
@@ -356,7 +356,7 @@ void ahrs_update_mag(void) {
 void ahrs_update_mag_full(void) {
 
   struct FloatVect3 expected_imu;
-  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_impl.ltp_to_imu_rmat, ahrs_impl.mag_h);
+  float_rmat_vmult(&expected_imu, &ahrs_impl.ltp_to_imu_rmat, &ahrs_impl.mag_h);
 
   struct FloatVect3 measured_imu;
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
@@ -395,7 +395,7 @@ void ahrs_update_mag_2d(void) {
   struct FloatVect3 measured_imu;
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
   struct FloatVect3 measured_ltp;
-  FLOAT_RMAT_VECT3_TRANSP_MUL(measured_ltp, ahrs_impl.ltp_to_imu_rmat, measured_imu);
+  float_rmat_transp_vmult(&measured_ltp, &ahrs_impl.ltp_to_imu_rmat, &measured_imu);
 
   struct FloatVect2 measured_ltp_2d={measured_ltp.x, measured_ltp.y};
 
@@ -410,7 +410,7 @@ void ahrs_update_mag_2d(void) {
   //  printf("res : %f\n", residual_ltp.z);
 
   struct FloatVect3 residual_imu;
-  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_impl.ltp_to_imu_rmat, residual_ltp);
+  float_rmat_vmult(&residual_imu, &ahrs_impl.ltp_to_imu_rmat, &residual_ltp);
 
 
   /* Complementary filter proportional gain.
@@ -506,7 +506,7 @@ void ahrs_update_heading(float heading) {
       expected_ltp.x * sinf(heading) - expected_ltp.y * cosf(heading)};
 
   struct FloatVect3 residual_imu;
-  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_impl.ltp_to_imu_rmat, residual_ltp);
+  float_rmat_vmult(&residual_imu, &ahrs_impl.ltp_to_imu_rmat, &residual_ltp);
 
   const float heading_rate_update_gain = 2.5;
   RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);

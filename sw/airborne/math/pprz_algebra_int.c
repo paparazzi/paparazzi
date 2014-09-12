@@ -53,7 +53,9 @@ int32_t int32_sqrt(int32_t in)
  *
  */
 
-/* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
+/** Composition (multiplication) of two rotation matrices.
+ * _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b
+ */
 void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b, struct Int32RMat* m_b2c)
 {
   m_a2c->m[0] = (m_b2c->m[0] * m_a2b->m[0] + m_b2c->m[1] * m_a2b->m[3] + m_b2c->m[2] * m_a2b->m[6]) >> INT32_TRIG_FRAC;
@@ -67,7 +69,9 @@ void int32_rmat_comp(struct Int32RMat* m_a2c, struct Int32RMat* m_a2b, struct In
   m_a2c->m[8] = (m_b2c->m[6] * m_a2b->m[2] + m_b2c->m[7] * m_a2b->m[5] + m_b2c->m[8] * m_a2b->m[8]) >> INT32_TRIG_FRAC;
 }
 
-/* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
+/** Composition (multiplication) of two rotation matrices.
+ * _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c
+ */
 void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c, struct Int32RMat* m_b2c)
 {
   m_a2b->m[0] = (m_b2c->m[0] * m_a2c->m[0] + m_b2c->m[3] * m_a2c->m[3] + m_b2c->m[6] * m_a2c->m[6]) >> INT32_TRIG_FRAC;
@@ -81,7 +85,9 @@ void int32_rmat_comp_inv(struct Int32RMat* m_a2b, struct Int32RMat* m_a2c, struc
   m_a2b->m[8] = (m_b2c->m[2] * m_a2c->m[2] + m_b2c->m[5] * m_a2c->m[5] + m_b2c->m[8] * m_a2c->m[8]) >> INT32_TRIG_FRAC;
 }
 
-/* vb = m_a2b * va */
+/** rotate 3D vector by rotation matrix.
+ * vb = m_a2b * va
+ */
 void int32_rmat_vmult(struct Int32Vect3* vb, struct Int32RMat* m_a2b, struct Int32Vect3* va)
 {
   vb->x = (m_a2b->m[0] * va->x + m_a2b->m[1] * va->y + m_a2b->m[2] * va->z)>>INT32_TRIG_FRAC;
@@ -89,7 +95,9 @@ void int32_rmat_vmult(struct Int32Vect3* vb, struct Int32RMat* m_a2b, struct Int
   vb->z = (m_a2b->m[6] * va->x + m_a2b->m[7] * va->y + m_a2b->m[8] * va->z)>>INT32_TRIG_FRAC;
 }
 
-/* vb = m_b2a * va */
+/** rotate 3D vector by transposed rotation matrix.
+ * vb = m_b2a^T * va
+ */
 void int32_rmat_transp_vmult(struct Int32Vect3* vb, struct Int32RMat* m_b2a, struct Int32Vect3* va)
 {
   vb->x = (m_b2a->m[0] * va->x + m_b2a->m[3] * va->y + m_b2a->m[6] * va->z)>>INT32_TRIG_FRAC;
@@ -97,6 +105,9 @@ void int32_rmat_transp_vmult(struct Int32Vect3* vb, struct Int32RMat* m_b2a, str
   vb->z = (m_b2a->m[2] * va->x + m_b2a->m[5] * va->y + m_b2a->m[8] * va->z)>>INT32_TRIG_FRAC;
 }
 
+/** rotate anglular rates by rotation matrix.
+ * rb = m_a2b * ra
+ */
 void int32_rmat_ratemult(struct Int32Rates* rb, struct Int32RMat* m_a2b, struct Int32Rates* ra)
 {
   rb->p = (m_a2b->m[0] * ra->p + m_a2b->m[1] * ra->q + m_a2b->m[2] * ra->r)>>INT32_TRIG_FRAC;
@@ -104,6 +115,9 @@ void int32_rmat_ratemult(struct Int32Rates* rb, struct Int32RMat* m_a2b, struct 
   rb->r = (m_a2b->m[6] * ra->p + m_a2b->m[7] * ra->q + m_a2b->m[8] * ra->r)>>INT32_TRIG_FRAC;
 }
 
+/** rotate anglular rates by transposed rotation matrix.
+ * rb = m_b2a^T * ra
+ */
 void int32_rmat_transp_ratemult(struct Int32Rates* rb, struct Int32RMat* m_b2a, struct Int32Rates* ra)
 {
   rb->p = (m_b2a->m[0] * ra->p + m_b2a->m[3] * ra->q + m_b2a->m[6] * ra->r)>>INT32_TRIG_FRAC;
@@ -141,7 +155,7 @@ void int32_rmat_of_quat(struct Int32RMat* rm, struct Int32Quat* q)
 }
 
 
-/*
+/** Rotation matrix from 321 Euler angles.
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestodirectioncosinematrix.html
  */
 void int32_rmat_of_eulers_321(struct Int32RMat* rm, struct Int32Eulers* e)

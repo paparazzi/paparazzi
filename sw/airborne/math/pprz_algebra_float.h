@@ -238,55 +238,15 @@ static inline void float_rmat_identity(struct FloatRMat* rm)
   FLOAT_MAT33_DIAG(*rm, 1., 1., 1.);
 }
 
-#define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _uv, _an) float_rmat_of_axis_angle(&(_rm), &(_uv), _an)
+extern void float_rmat_inv(struct FloatRMat* m_b2a, struct FloatRMat* m_a2b);
+extern void float_rmat_comp(struct FloatRMat* m_a2c, struct FloatRMat* m_a2b,
+                            struct FloatRMat* m_b2c);
+extern void float_rmat_comp_inv(struct FloatRMat* m_a2b, struct FloatRMat* m_a2c,
+                                struct FloatRMat* m_b2c);
+extern float float_rmat_norm(struct FloatRMat* rm);
 
 /** initialises a rotation matrix from unit vector axis and angle */
 extern void float_rmat_of_axis_angle(struct FloatRMat* rm, struct FloatVect3* uv, float angle);
-
-/* multiply _vin by _rmat, store in _vout */
-#define FLOAT_RMAT_VECT3_MUL(_vout, _rmat, _vin) RMAT_VECT3_MUL(_vout, _rmat, _vin)
-#define FLOAT_RMAT_VECT3_TRANSP_MUL(_vout, _rmat, _vin) RMAT_VECT3_TRANSP_MUL(_vout, _rmat, _vin)
-
-#define FLOAT_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {          \
-    (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r); \
-    (_vb).q = ( (_m_b2a).m[1]*(_va).p + (_m_b2a).m[4]*(_va).q + (_m_b2a).m[7]*(_va).r); \
-    (_vb).r = ( (_m_b2a).m[2]*(_va).p + (_m_b2a).m[5]*(_va).q + (_m_b2a).m[8]*(_va).r); \
-  }
-
-#define FLOAT_RMAT_RATEMULT(_vb, _m_a2b, _va) {             \
-    (_vb).p = ( (_m_a2b).m[0]*(_va).p + (_m_a2b).m[1]*(_va).q + (_m_a2b).m[2]*(_va).r); \
-    (_vb).q = ( (_m_a2b).m[3]*(_va).p + (_m_a2b).m[4]*(_va).q + (_m_a2b).m[5]*(_va).r); \
-    (_vb).r = ( (_m_a2b).m[6]*(_va).p + (_m_a2b).m[7]*(_va).q + (_m_a2b).m[8]*(_va).r); \
-  }
-
-/* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
-extern void float_rmat_comp(struct FloatRMat* m_a2c, struct FloatRMat* m_a2b, struct FloatRMat* m_b2c);
-/* _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c */
-extern void float_rmat_comp_inv(struct FloatRMat* m_a2b, struct FloatRMat* m_a2c, struct FloatRMat* m_b2c);
-
-#define FLOAT_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) float_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
-#define FLOAT_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) float_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
-
-
-/* _m_b2a = inv(_m_a2b) = transp(_m_a2b) */
-#define FLOAT_RMAT_INV(_m_b2a, _m_a2b) {            \
-    RMAT_ELMT(_m_b2a, 0, 0) = RMAT_ELMT(_m_a2b, 0, 0);      \
-    RMAT_ELMT(_m_b2a, 0, 1) = RMAT_ELMT(_m_a2b, 1, 0);      \
-    RMAT_ELMT(_m_b2a, 0, 2) = RMAT_ELMT(_m_a2b, 2, 0);      \
-    RMAT_ELMT(_m_b2a, 1, 0) = RMAT_ELMT(_m_a2b, 0, 1);      \
-    RMAT_ELMT(_m_b2a, 1, 1) = RMAT_ELMT(_m_a2b, 1, 1);      \
-    RMAT_ELMT(_m_b2a, 1, 2) = RMAT_ELMT(_m_a2b, 2, 1);      \
-    RMAT_ELMT(_m_b2a, 2, 0) = RMAT_ELMT(_m_a2b, 0, 2);      \
-    RMAT_ELMT(_m_b2a, 2, 1) = RMAT_ELMT(_m_a2b, 1, 2);      \
-    RMAT_ELMT(_m_b2a, 2, 2) = RMAT_ELMT(_m_a2b, 2, 2);      \
-  }
-
-#define FLOAT_RMAT_NORM(_m) (                       \
-    sqrtf(SQUARE((_m).m[0])+ SQUARE((_m).m[1])+ SQUARE((_m).m[2])+  \
-          SQUARE((_m).m[3])+ SQUARE((_m).m[4])+ SQUARE((_m).m[5])+  \
-          SQUARE((_m).m[6])+ SQUARE((_m).m[7])+ SQUARE((_m).m[8]))  \
-                            )
-
 /* C n->b rotation matrix */
 extern void float_rmat_of_eulers_321(struct FloatRMat* rm, struct FloatEulers* e);
 extern void float_rmat_of_eulers_312(struct FloatRMat* rm, struct FloatEulers* e);
@@ -298,6 +258,15 @@ extern void float_rmat_integrate_fi(struct FloatRMat* rm, struct FloatRates* ome
 extern float float_rmat_reorthogonalize(struct FloatRMat* rm);
 
 /* defines for backwards compatibility */
+#define FLOAT_RMAT_INV(_m_b2a, _m_a2b) float_rmat_inv(&(_m_b2a), &(_m_a2b))
+#define FLOAT_RMAT_NORM(_m) float_rmat_norm(&(_m))
+#define FLOAT_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) float_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
+#define FLOAT_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) float_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
+#define FLOAT_RMAT_VMULT(_vb, _m_a2b, _va) float_rmat_vmult(&(_vb), &(_m_a2b), &(_va))
+#define FLOAT_RMAT_TRANSP_VMULT(_vb, _m_b2a, _va) float_rmat_transp_vmult(&(_vb), &(_m_b2a), &(_va))
+#define FLOAT_RMAT_RATEMULT(_rb, _m_a2b, _ra) float_rmat_ratemult(&(_rb), &(_m_a2b), &(_ra))
+#define FLOAT_RMAT_TRANSP_RATEMULT(_rb, _m_b2a, _ra) float_rmat_ratemult(&(_rb), &(_m_b2a), &(_ra))
+#define FLOAT_RMAT_OF_AXIS_ANGLE(_rm, _uv, _an) float_rmat_of_axis_angle(&(_rm), &(_uv), _an)
 #define FLOAT_RMAT_OF_EULERS(_rm, _e)     float_rmat_of_eulers_321(&(_rm), &(_e))
 #define FLOAT_RMAT_OF_EULERS_321(_rm, _e) float_rmat_of_eulers_321(&(_rm), &(_e))
 #define FLOAT_RMAT_OF_EULERS_312(_rm, _e) float_rmat_of_eulers_312(&(_rm), &(_e))
@@ -344,19 +313,26 @@ static inline void float_quat_invert(struct FloatQuat* qo, struct FloatQuat* qi)
   QUAT_INVERT(*qo, *qi);
 }
 
-/*   */
-#define FLOAT_QUAT_EXTRACT(_vo, _qi) QUAT_EXTRACT_Q(_vo, _qi)
-
-/* Be careful : after invert make a normalization */
-#define FLOAT_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
-
-#define FLOAT_QUAT_WRAP_SHORTEST(_q) float_quat_wrap_shortest(&(_q))
 static inline void float_quat_wrap_shortest(struct FloatQuat* q)
 {
   if (q->qi < 0.) {
     QUAT_EXPLEMENTARY(*q, *q);
   }
 }
+
+#define FLOAT_QUAT_EXTRACT(_vo, _qi) QUAT_EXTRACT_Q(_vo, _qi)
+
+extern void float_rmat_vmult(struct FloatVect3* vb, struct FloatRMat* m_a2b,
+                             struct FloatVect3* va);
+
+extern void float_rmat_transp_vmult(struct FloatVect3* vb, struct FloatRMat* m_b2a,
+                                    struct FloatVect3* va);
+
+extern void float_rmat_ratemult(struct FloatRates* rb, struct FloatRMat* m_a2b,
+                                struct FloatRates* ra);
+extern void float_rmat_transp_ratemult(struct FloatRates* rb, struct FloatRMat* m_b2a,
+                                       struct FloatRates* ra);
+
 
 /*
  *
@@ -499,6 +475,8 @@ extern void float_quat_of_rmat(struct FloatQuat* q, struct FloatRMat* rm);
 
 /* defines for backwards compatibility */
 #define FLOAT_QUAT_ZERO(_q) float_quat_identity(&(_q))
+#define FLOAT_QUAT_INVERT(_qo, _qi) float_quat_invert(&(_qo), &(_qi))
+#define FLOAT_QUAT_WRAP_SHORTEST(_q) float_quat_wrap_shortest(&(_q))
 #define FLOAT_QUAT_NORM(_q) float_quat_norm(&(_q))
 #define FLOAT_QUAT_NORMALIZE(_q) float_quat_normalize(&(_q))
 #define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) float_quat_comp(&(_a2c), &(_a2b), &(_b2c))
