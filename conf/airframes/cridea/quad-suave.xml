@@ -12,16 +12,19 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <subsystem name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_AUX1"/>
-        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-      </subsystem>
-      <subsystem name="ins"/>
-      <subsystem name="gps"           type="ublox"/>
+
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
-    <target name="sim"          board="pc"/>
+    <subsystem name="radio_control" type="ppm">
+        <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
+    </subsystem>
+
+    <target name="nps" board="pc">
+      <subsystem name="fdm"         type="jsbsim"/>
+    </target>
+
+    <subsystem name="gps"           type="ublox"/>
 
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
@@ -40,6 +43,8 @@
       <configure name="GPS_LED" value="4"/>
       <configure name="RADIO_CONTROL_LED" value="3"/>
       <configure name="AHRS_ALIGNER_LED" value="2"/>
+
+      <subsystem name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
