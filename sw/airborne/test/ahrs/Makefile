@@ -10,8 +10,8 @@ CFLAGS +=
 
 # imu wants airframe to fetch its neutrals
 # ahrs wants airframe to fetch IMU_BODY_TO_IMU_ANGLES
-CFLAGS += -I../../../../var/ahrs_test
-
+# have a fake one in ./generated/airframe.h
+CFLAGS += -I.
 
 #CFLAGS += -DIMU_BODY_TO_IMU_PHI=0 -DIMU_BODY_TO_IMU_THETA=0 -DIMU_BODY_TO_IMU_PSI=0
 # toulouse 0.51562740288882, -0.05707735220832, 0.85490967783446
@@ -25,11 +25,23 @@ CFLAGS += -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.
 CFLAGS += -DLOW_NOISE_THRESHOLD=500000
 CFLAGS += -DLOW_NOISE_TIME=2
 
+FREQUENCY ?= 512
+
+CFLAGS += -DPERIODIC_FREQUENCY=$(FREQUENCY)
+CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(FREQUENCY)
+CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(FREQUENCY)
+CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=50
+
 SRCS= run_ahrs_on_flight_log.c                    \
 	  ../../math/pprz_trig_int.c                  \
 	  ../../subsystems/ahrs.c                     \
 	  ../../subsystems/ahrs/ahrs_aligner.c        \
-	  ../../subsystems/imu.c
+	  ../../subsystems/imu.c                      \
+      ../../state.c                               \
+      ../../math/pprz_orientation_conversion.c    \
+      ../../math/pprz_geodetic_double.c           \
+      ../../math/pprz_geodetic_float.c            \
+      ../../math/pprz_geodetic_int.c              \
 
 all: run_ahrs_fcr_on_flight_log run_ahrs_ice_on_flight_log
 
@@ -37,7 +49,7 @@ all: run_ahrs_fcr_on_flight_log run_ahrs_ice_on_flight_log
 #	$(CC) -DAHRS_TYPE=AHRS_TYPE_FLQ $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 run_ahrs_fcr_on_flight_log: ../../subsystems/ahrs/ahrs_float_cmpl.c $(SRCS)
-	$(CC) -DAHRS_TYPE=AHRS_TYPE_FCR $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CC) -DAHRS_TYPE=AHRS_TYPE_FCR -DAHRS_PROPAGATE_QUAT $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 run_ahrs_ice_on_flight_log: ../../subsystems/ahrs/ahrs_int_cmpl_euler.c $(SRCS)
 	$(CC) -DAHRS_TYPE=AHRS_TYPE_ICE $(CFLAGS) -o $@ $^ $(LDFLAGS)
@@ -58,12 +70,7 @@ MAG_UPDATE_YAW_ONLY ?= 0
 DISABLE_MAG_UPDATE ?= 0
 USE_GPS_HEADING ?= 0
 
-FREQENCY ?= 512
-
-
 AHRS_CFLAGS += -DAHRS_TYPE=$(AHRS_TYPE)
-AHRS_CFLAGS += -DPERIODIC_FREQUENCY=$(FREQUENCY)
-AHRS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(FREQUENCY)
 
 ifeq ($(PROPAGATE_LOW_PASS_RATES), 1)
 AHRS_CFLAGS += -DAHRS_PROPAGATE_LOW_PASS_RATES

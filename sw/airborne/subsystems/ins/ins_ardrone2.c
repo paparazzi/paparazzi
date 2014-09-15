@@ -90,7 +90,7 @@ void ins_reset_altitude_ref( void ) {
 #endif
 }
 
-void ins_propagate() {
+void ins_propagate(float __attribute__((unused)) dt) {
   /* untilt accels and speeds */
   FLOAT_RMAT_VECT3_TRANSP_MUL(ins_impl.ltp_accel, (*stateGetNedToBodyRMat_f()), ahrs_impl.accel);
   FLOAT_RMAT_VECT3_TRANSP_MUL(ins_impl.ltp_speed, (*stateGetNedToBodyRMat_f()), ahrs_impl.speed);

@@ -9,7 +9,3 @@ $(TARGET).srcs += $(SRC_SUBSYSTEMS)/ins/ins_int.c
 #  vertical filter float version
 $(TARGET).srcs += $(SRC_SUBSYSTEMS)/ins/vf_extended_float.c
 $(TARGET).CFLAGS += -DUSE_VFF_EXTENDED
-
-ifdef INS_PROPAGATE_FREQUENCY
-$(TARGET).CFLAGS += -DINS_PROPAGATE_FREQUENCY=$(INS_PROPAGATE_FREQUENCY)
-endif

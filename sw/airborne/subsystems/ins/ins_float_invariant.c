@@ -160,9 +160,6 @@ bool_t log_started = FALSE;
 
 struct InsFloatInv ins_impl;
 
-/* integration time step */
-static const float dt = (1./ ((float)AHRS_PROPAGATE_FREQUENCY));
-
 /* earth gravity model */
 static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 
@@ -330,7 +327,7 @@ void ahrs_align(void)
   ins.status = INS_RUNNING;
 }
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt) {
   struct NedCoor_f accel;
   struct FloatRates body_rates;
 
@@ -513,13 +510,13 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   }
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt __attribute__((unused))) {
 }
 
 // assume mag is dead when values are not moving anymore
 #define MAG_FROZEN_COUNT 30
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt __attribute__((unused)) {
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
 

@@ -73,7 +73,7 @@ void ahrs_align(void) {
   ahrs.status = AHRS_RUNNING;
 }
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt __attribute__((unused))) {
   struct FloatRates body_rate = { 0., 0., 0. };
 #ifdef ADC_CHANNEL_GYRO_P
   body_rate.p = RATE_FLOAT_OF_BFP(imu.gyro.p);

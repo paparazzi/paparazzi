@@ -189,7 +189,7 @@ static inline bool_t cut_accel (struct Int32Vect3 i1, struct Int32Vect3 i2, int3
  *
  */
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt __attribute__((unused))) {
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;
@@ -239,7 +239,7 @@ void ahrs_propagate(void) {
 
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt __attribute__((unused))) {
 
 #if USE_NOISE_CUT || USE_NOISE_FILTER
   static struct Int32Vect3 last_accel = { 0, 0, 0 };
@@ -260,7 +260,7 @@ void ahrs_update_accel(void) {
 }
 
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt __attribute__((unused))) {
 
   get_psi_measurement_from_mag(&ahrs_impl.measurement.psi, ahrs_impl.ltp_to_imu_euler.phi, ahrs_impl.ltp_to_imu_euler.theta, imu.mag);
 

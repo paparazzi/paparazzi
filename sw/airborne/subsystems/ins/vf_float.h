@@ -44,7 +44,7 @@ extern struct Vff vff;
 
 extern void vff_init_zero(void);
 extern void vff_init(float z, float zdot, float bias);
-extern void vff_propagate(float accel);
+extern void vff_propagate(float accel, float dt);
 extern void vff_update(float z_meas);
 extern void vff_update_z_conf(float z_meas, float conf);
 extern void vff_update_vz_conf(float vz_meas, float conf);

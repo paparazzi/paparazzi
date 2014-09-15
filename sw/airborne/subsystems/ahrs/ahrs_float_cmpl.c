@@ -57,20 +57,6 @@
 #warning "Using magnetometer _and_ GPS course to update heading. Probably better to <configure name="USE_MAGNETOMETER" value="0"/> if you want to use GPS course."
 #endif
 
-#ifndef AHRS_PROPAGATE_FREQUENCY
-#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
-#endif
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-
-#ifndef AHRS_CORRECT_FREQUENCY
-#define AHRS_CORRECT_FREQUENCY AHRS_PROPAGATE_FREQUENCY
-#endif
-PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-
-#ifndef AHRS_MAG_CORRECT_FREQUENCY
-#define AHRS_MAG_CORRECT_FREQUENCY 50
-#endif
-PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 
 /*
  * default gains for correcting attitude and bias from accel/mag
@@ -95,8 +81,8 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 #endif
 
 
-void ahrs_update_mag_full(void);
-void ahrs_update_mag_2d(void);
+void ahrs_update_mag_full(float dt);
+void ahrs_update_mag_2d(float dt);
 void ahrs_update_mag_2d_dumb(void);
 
 static inline void compute_body_orientation_and_rates(void);
@@ -183,6 +169,9 @@ void ahrs_init(void) {
 
   VECT3_ASSIGN(ahrs_impl.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
 
+  ahrs_impl.accel_cnt = 0;
+  ahrs_impl.mag_cnt = 0;
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_att);
   register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
@@ -215,7 +204,7 @@ void ahrs_align(void) {
 }
 
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt) {
 
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
@@ -236,7 +225,6 @@ void ahrs_propagate(void) {
   /* and zeros it */
   FLOAT_RATES_ZERO(ahrs_impl.rate_correction);
 
-  const float dt = 1./AHRS_PROPAGATE_FREQUENCY;
 #if AHRS_PROPAGATE_RMAT
   FLOAT_RMAT_INTEGRATE_FI(ahrs_impl.ltp_to_imu_rmat, omega, dt);
   float_rmat_reorthogonalize(&ahrs_impl.ltp_to_imu_rmat);
@@ -249,9 +237,15 @@ void ahrs_propagate(void) {
 #endif
   compute_body_orientation_and_rates();
 
+  // increase accel and mag propagation counters
+  ahrs_impl.accel_cnt++;
+  ahrs_impl.mag_cnt++;
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt) {
+  // check if we had at least one propagation since last update
+  if (ahrs_impl.accel_cnt == 0)
+    return;
 
   /* last column of roation matrix = ltp z-axis in imu-frame */
   struct FloatVect3  c2 = { RMAT_ELMT(ahrs_impl.ltp_to_imu_rmat, 0,2),
@@ -314,34 +308,42 @@ void ahrs_update_accel(void) {
   }
 
   /* Complementary filter proportional gain.
-   * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY
+   * Kp = 2 * zeta * omega * weight * ahrs_impl.accel_cnt
+   * with ahrs_impl.accel_cnt beeing the number of propagations since last update
    */
   const float gravity_rate_update_gain = -2 * ahrs_impl.accel_zeta * ahrs_impl.accel_omega *
-    ahrs_impl.weight * AHRS_PROPAGATE_FREQUENCY / (AHRS_CORRECT_FREQUENCY * 9.81);
+    ahrs_impl.weight * ahrs_impl.accel_cnt / 9.81;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, gravity_rate_update_gain);
+
+  // reset accel propagation counter
+  ahrs_impl.accel_cnt = 0;
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
-   * Ki = (omega*weight)^2/AHRS_CORRECT_FREQUENCY
+   * Ki = (omega*weight)^2 * dt
    */
   const float gravity_bias_update_gain = ahrs_impl.accel_omega * ahrs_impl.accel_omega *
-    ahrs_impl.weight * ahrs_impl.weight / (AHRS_CORRECT_FREQUENCY * 9.81);
+    ahrs_impl.weight * ahrs_impl.weight * dt / 9.81;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, gravity_bias_update_gain);
 
   /* FIXME: saturate bias */
-
 }
 
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt) {
+  // check if we had at least one propagation since last update
+  if (ahrs_impl.mag_cnt == 0)
+    return;
 #if AHRS_MAG_UPDATE_ALL_AXES
-  ahrs_update_mag_full();
+  ahrs_update_mag_full(dt);
 #else
-  ahrs_update_mag_2d();
+  ahrs_update_mag_2d(dt);
 #endif
+  // reset mag propagation counter
+  ahrs_impl.mag_cnt = 0;
 }
 
-void ahrs_update_mag_full(void) {
+void ahrs_update_mag_full(float dt) {
 
   struct FloatVect3 expected_imu;
   FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_impl.ltp_to_imu_rmat, ahrs_impl.mag_h);
@@ -356,24 +358,23 @@ void ahrs_update_mag_full(void) {
   //  DISPLAY_FLOAT_VECT3("# residual", residual);
 
   /* Complementary filter proportional gain.
-   * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY
+   * Kp = 2 * zeta * omega * weight * ahrs_impl.mag_cnt
+   * with ahrs_impl.mag_cnt beeing the number of propagations since last update
    */
 
-  const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega *
-    AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY;
+  const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * ahrs_impl.mag_cnt;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
-   * Ki = (omega*weight)^2/AHRS_CORRECT_FREQUENCY
+   * Ki = (omega*weight)^2 * dt
    */
-  const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) /
-    AHRS_MAG_CORRECT_FREQUENCY;
+  const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) * dt;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
 
 }
 
-void ahrs_update_mag_2d(void) {
+void ahrs_update_mag_2d(float dt) {
 
   struct FloatVect2 expected_ltp;
   VECT2_COPY(expected_ltp, ahrs_impl.mag_h);
@@ -402,18 +403,17 @@ void ahrs_update_mag_2d(void) {
 
 
   /* Complementary filter proportional gain.
-   * Kp = 2 * zeta * omega * weight * AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY
+   * Kp = 2 * zeta * omega * weight * ahrs_impl.mag_cnt
+   * with ahrs_impl.mag_cnt beeing the number of propagations since last update
    */
-  const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega *
-    AHRS_PROPAGATE_FREQUENCY / AHRS_MAG_CORRECT_FREQUENCY;
+  const float mag_rate_update_gain = 2 * ahrs_impl.mag_zeta * ahrs_impl.mag_omega * ahrs_impl.mag_cnt;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
-   * Ki = (omega*weight)^2/AHRS_CORRECT_FREQUENCY
+   * Ki = (omega*weight)^2 * dt
    */
-  const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) /
-    AHRS_MAG_CORRECT_FREQUENCY;
+  const float mag_bias_update_gain = -(ahrs_impl.mag_omega * ahrs_impl.mag_omega) * dt;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
 }
 
