@@ -136,12 +136,12 @@ void ins_reset_altitude_ref(void) {
 
 #if USE_BAROMETER
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure) {
-  // timestamp when last callback was received
-  static float last_ts = 0.f;
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
   // current timestamp
-  float now_ts = get_sys_time_float();
-  // dt between this and last callback
-  float dt = now_ts - last_ts;
+  uint32_t now_ts = get_sys_time_usec();
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 
   // bound dt (assume baro freq 1Hz-500Hz
@@ -187,12 +187,12 @@ void ins_update_gps(void) {
 #ifdef GPS_DT
   const float dt = GPS_DT;
 #else
-  // timestamp when last callback was received
-  static float last_ts = 0.f;
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
   // current timestamp
-  float now_ts = get_sys_time_float();
-  // dt between this and last callback
-  float dt = now_ts - last_ts;
+  uint32_t now_ts = get_sys_time_usec();
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 
   // bound dt (assume GPS freq between 0.5Hz and 50Hz)

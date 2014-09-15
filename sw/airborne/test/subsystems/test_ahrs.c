@@ -83,12 +83,12 @@ static inline void main_event_task( void ) {
 }
 
 static inline void on_gyro_event(void) {
-  // timestamp when last callback was received
-  static float last_ts = 0.f;
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
   // current timestamp
-  float now_ts = get_sys_time_float();
-  // dt between this and last callback
-  float dt = now_ts - last_ts;
+  uint32_t now_ts = get_sys_time_usec();
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 
   ImuScaleGyro(imu);
@@ -105,18 +105,34 @@ static inline void on_gyro_event(void) {
 }
 
 static inline void on_accel_event(void) {
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
+  last_ts = now_ts;
+
   ImuScaleAccel(imu);
   if (ahrs.status != AHRS_UNINIT) {
     DEBUG_S2_ON();
-    ahrs_update_accel();
+    ahrs_update_accel(dt);
     DEBUG_S2_OFF();
   }
 }
 
 static inline void on_mag_event(void) {
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+  // dt between this and last callback in seconds
+  float dt = (float)(now_ts - last_ts) / 1e6;
+  last_ts = now_ts;
+
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag();
+    ahrs_update_mag(dt);
   }
 }
 
