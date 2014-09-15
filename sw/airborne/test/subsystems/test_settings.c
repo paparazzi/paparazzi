@@ -28,6 +28,7 @@
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
+#include "generated/settings.h"
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
