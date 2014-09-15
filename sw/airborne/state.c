@@ -767,7 +767,7 @@ void stateCalcHorizontalSpeedNorm_i(void) {
     INT32_SQRT(state.h_speed_norm_i, n2);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.ned_speed_f);
     SetBit(state.speed_status, SPEED_HNORM_F);
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
@@ -777,7 +777,7 @@ void stateCalcHorizontalSpeedNorm_i(void) {
     INT32_SQRT(state.h_speed_norm_i, n2);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.enu_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.enu_speed_f);
     SetBit(state.speed_status, SPEED_HNORM_F);
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
@@ -792,7 +792,7 @@ void stateCalcHorizontalSpeedNorm_i(void) {
   else if (bit_is_set(state.speed_status, SPEED_ECEF_F)) {
     ned_of_ecef_vect_f(&state.ned_speed_f, &state.ned_origin_f, &state.ecef_speed_f);
     SetBit(state.speed_status, SPEED_NED_F);
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.ned_speed_f);
     SetBit(state.speed_status, SPEED_HNORM_F);
     state.h_speed_norm_i = SPEED_BFP_OF_REAL(state.h_speed_norm_f);
   }
@@ -812,23 +812,23 @@ void stateCalcHorizontalSpeedDir_i(void) {
     state.h_speed_dir_i = SPEED_BFP_OF_REAL(state.h_speed_dir_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
-    INT32_ATAN2(state.h_speed_dir_i, state.ned_speed_i.y, state.ned_speed_i.x);
+    state.h_speed_dir_i = int32_atan2(state.ned_speed_i.y, state.ned_speed_i.x);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
-    INT32_ATAN2(state.h_speed_dir_i, state.enu_speed_i.x, state.enu_speed_i.y);
+    state.h_speed_dir_i = int32_atan2(state.enu_speed_i.x, state.enu_speed_i.y);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
     SetBit(state.speed_status, SPEED_NED_I);
-    INT32_ATAN2(state.h_speed_dir_i, state.ned_speed_i.y, state.ned_speed_i.x);
+    state.h_speed_dir_i = int32_atan2(state.ned_speed_i.y, state.ned_speed_i.x);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
     SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
     SetBit(state.speed_status, SPEED_ENU_I);
-    INT32_ATAN2(state.h_speed_dir_i, state.enu_speed_i.x, state.enu_speed_i.y);
+    state.h_speed_dir_i = int32_atan2(state.enu_speed_i.x, state.enu_speed_i.y);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
   }
   /* set bit to indicate this representation is computed */
@@ -982,20 +982,20 @@ void stateCalcHorizontalSpeedNorm_f(void) {
     state.h_speed_norm_f = SPEED_FLOAT_OF_BFP(state.h_speed_norm_i);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.ned_speed_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.enu_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.enu_speed_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
     SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
     SetBit(state.speed_status, SPEED_NED_F);
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.ned_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.ned_speed_f);
   }
   else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
     SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
     SetBit(state.speed_status, SPEED_ENU_F);
-    FLOAT_VECT2_NORM(state.h_speed_norm_f, state.enu_speed_f);
+    state.h_speed_norm_f = FLOAT_VECT2_NORM(state.enu_speed_f);
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HNORM_F);

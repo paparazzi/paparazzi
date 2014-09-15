@@ -464,7 +464,7 @@ void b2_hff_propagate(void) {
   /* rotate imu accel measurement to body frame and filter */
   struct Int32Vect3 acc_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  INT32_RMAT_TRANSP_VMULT(acc_meas_body, *body_to_imu_rmat, imu.accel);
+  int32_rmat_transp_vmult(&acc_meas_body, body_to_imu_rmat, &imu.accel);
 
   struct Int32Vect3 acc_body_filtered;
   acc_body_filtered.x = update_butterworth_2_low_pass_int(&filter_x, acc_meas_body.x);
@@ -477,7 +477,7 @@ void b2_hff_propagate(void) {
     if (b2_hff_lost_counter < b2_hff_lost_limit) {
       struct Int32Vect3 filtered_accel_ltp;
       struct Int32RMat* ltp_to_body_rmat = stateGetNedToBodyRMat_i();
-      INT32_RMAT_TRANSP_VMULT(filtered_accel_ltp, (*ltp_to_body_rmat), acc_body_filtered);
+      int32_rmat_transp_vmult(&filtered_accel_ltp, ltp_to_body_rmat, &acc_body_filtered);
       b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(filtered_accel_ltp.x);
       b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(filtered_accel_ltp.y);
 #ifdef GPS_LAG

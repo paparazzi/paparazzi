@@ -47,7 +47,7 @@
 
 #define DISPLAY_FLOAT_QUAT_AS_EULERS_DEG(text, quat) {			\
     struct FloatEulers _fe;						\
-    FLOAT_EULERS_OF_QUAT(_fe, quat);					\
+    float_eulers_of_quat(&_fe, &quat);					\
     DISPLAY_FLOAT_EULERS_DEG(text, _fe);				\
   }
 
@@ -55,7 +55,7 @@
 
 #define DISPLAY_FLOAT_RMAT_AS_EULERS_DEG(text, _mat) {			\
     struct FloatEulers _fe;						\
-    FLOAT_EULERS_OF_RMAT(_fe, (_mat));					\
+    float_eulers_of_rmat(&_fe, &(_mat));					\
     DISPLAY_FLOAT_EULERS_DEG(text, _fe);				\
   }
 
@@ -65,8 +65,7 @@
 
 
 #define DISPLAY_INT32_VECT3(text, _v) {					\
-    int32_t norm;							\
-    INT32_VECT3_NORM(norm, _v);						\
+    int32_t norm = INT32_VECT3_NORM(_v);						\
     printf("%s %d %d %d (%d)\n",text,  (_v).x, (_v).y, (_v).z, norm);	\
   }
 
@@ -129,7 +128,7 @@
     struct FloatQuat _fq;						\
     QUAT_FLOAT_OF_BFP(_fq, _quat);					\
     struct FloatEulers _fe;						\
-    FLOAT_EULERS_OF_QUAT(_fe, _fq);					\
+    float_eulers_of_quat(&_fe, &_fq);					\
     DISPLAY_FLOAT_EULERS_DEG(text, _fe);				\
   }
 
@@ -155,7 +154,7 @@
     struct FloatRMat _frm;						\
     RMAT_FLOAT_OF_BFP(_frm, (_mat));					\
     struct FloatEulers _fe;						\
-    FLOAT_EULERS_OF_RMAT(_fe, _frm);					\
+    float_eulers_of_rmat(&_fe, &_frm);					\
     DISPLAY_FLOAT_EULERS_DEG(text, _fe);				\
   }
 

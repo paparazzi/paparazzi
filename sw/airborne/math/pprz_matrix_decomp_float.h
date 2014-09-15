@@ -14,11 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_matrix_decomp_float.h
+ * @brief Matrix decompositions in floating point.
  *
  */
+
+#ifndef PPRZ_MATRIX_DECOMP_FLOAT_H
+#define PPRZ_MATRIX_DECOMP_FLOAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 
@@ -30,7 +41,7 @@
  * @param in pointer to the input array [n x n]
  * @param n dimension of the matrix
  */
-void pprz_cholesky_float(float ** out, float ** in, int n);
+void pprz_cholesky_float(float** out, float** in, int n);
 
 /** QR decomposition
  *
@@ -44,7 +55,7 @@ void pprz_cholesky_float(float ** out, float ** in, int n);
  * @param m number of rows of the input matrix
  * @param n number of columns of the input matrix
  */
-void pprz_qr_float(float ** Q, float ** R, float ** in, int m, int n);
+void pprz_qr_float(float** Q, float** R, float** in, int m, int n);
 
 /** SVD decomposition
  *
@@ -70,7 +81,7 @@ void pprz_qr_float(float ** Q, float ** R, float ** in, int m, int n);
  * @param n number of columns of the input matrix
  * @return 0 (false) if convergence failed, 1 (true) if decomposition succed
  */
-int pprz_svd_float(float ** a, float * w, float ** v, int m, int n);
+int pprz_svd_float(float** a, float* w, float** v, int m, int n);
 
 /** SVD based linear solver
  *
@@ -90,5 +101,10 @@ int pprz_svd_float(float ** a, float * w, float ** v, int m, int n);
  * @param n number of columns of the matrix A
  * @param l number of columns of the matrix B
  */
-void pprz_svd_solve_float(float ** x, float ** u, float * w, float ** v, float ** b, int m, int n, int l);
+void pprz_svd_solve_float(float** x, float** u, float* w, float** v, float** b, int m, int n, int l);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+#endif /* PPRZ_MATRIX_DECOMP_FLOAT_H */

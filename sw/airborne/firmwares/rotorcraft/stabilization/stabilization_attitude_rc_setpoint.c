@@ -298,7 +298,7 @@ void stabilization_attitude_read_rc_roll_pitch_quat_f(struct FloatQuat* q) {
   ov.z = 0.0;
 
   /* quaternion from that orientation vector */
-  FLOAT_QUAT_OF_ORIENTATION_VECT(*q, ov);
+  float_quat_of_orientation_vect(q, &ov);
 }
 
 /** Read roll/pitch command from RC as quaternion.
@@ -317,7 +317,7 @@ void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat* q)
   float qy_pitch = sinf(pitch2);
   float qi_pitch = cosf(pitch2);
 
-  /* only multiply non-zero entries of FLOAT_QUAT_COMP(*q, q_roll, q_pitch) */
+  /* only multiply non-zero entries of float_quat_comp(q, &q_roll, &q_pitch) */
   q->qi = qi_roll * qi_pitch;
   q->qx = qx_roll * qi_pitch;
   q->qy = qi_roll * qy_pitch;
@@ -351,33 +351,33 @@ void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat* q_sp, bool
   //Care Free mode
   if (in_carefree) {
     //care_free_heading has been set to current psi when entering care free mode.
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, care_free_heading);
+    float_quat_of_axis_angle(&q_yaw, &zaxis, care_free_heading);
   }
   else {
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+    float_quat_of_axis_angle(&q_yaw, &zaxis, stateGetNedToBodyEulers_f()->psi);
   }
 
   /* roll/pitch commands applied to to current heading */
   struct FloatQuat q_rp_sp;
-  FLOAT_QUAT_COMP(q_rp_sp, q_yaw, q_rp_cmd);
-  FLOAT_QUAT_NORMALIZE(q_rp_sp);
+  float_quat_comp(&q_rp_sp, &q_yaw, &q_rp_cmd);
+  float_quat_normalize(&q_rp_sp);
 
   if (in_flight)
   {
     /* get current heading setpoint */
     struct FloatQuat q_yaw_sp;
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
+    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
 #else
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, stab_att_sp_euler.psi);
+    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, stab_att_sp_euler.psi);
 #endif
 
     /* rotation between current yaw and yaw setpoint */
     struct FloatQuat q_yaw_diff;
-    FLOAT_QUAT_COMP_INV(q_yaw_diff, q_yaw_sp, q_yaw);
+    float_quat_comp_inv(&q_yaw_diff, &q_yaw_sp, &q_yaw);
 
     /* compute final setpoint with yaw */
-    FLOAT_QUAT_COMP_NORM_SHORTEST(*q_sp, q_rp_sp, q_yaw_diff);
+    float_quat_comp_norm_shortest(q_sp, &q_rp_sp, &q_yaw_diff);
   } else {
     QUAT_COPY(*q_sp, q_rp_sp);
   }
@@ -403,21 +403,21 @@ void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat
     struct FloatQuat q_yaw_sp;
 
     #if defined STABILIZATION_ATTITUDE_TYPE_INT
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
+    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, ANGLE_FLOAT_OF_BFP(stab_att_sp_euler.psi));
     #else
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, stab_att_sp_euler.psi);
+    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, stab_att_sp_euler.psi);
     #endif
 
-    FLOAT_QUAT_COMP(*q_sp, q_yaw_sp, q_rp_cmd);
+    float_quat_comp(q_sp, &q_yaw_sp, &q_rp_cmd);
   }
   else {
     struct FloatQuat q_yaw;
-    FLOAT_QUAT_OF_AXIS_ANGLE(q_yaw, zaxis, stateGetNedToBodyEulers_f()->psi);
+    float_quat_of_axis_angle(&q_yaw, &zaxis, stateGetNedToBodyEulers_f()->psi);
 
     /* roll/pitch commands applied to to current heading */
     struct FloatQuat q_rp_sp;
-    FLOAT_QUAT_COMP(q_rp_sp, q_yaw, q_rp_cmd);
-    FLOAT_QUAT_NORMALIZE(q_rp_sp);
+    float_quat_comp(&q_rp_sp, &q_yaw, &q_rp_cmd);
+    float_quat_normalize(&q_rp_sp);
 
     QUAT_COPY(*q_sp, q_rp_sp);
   }

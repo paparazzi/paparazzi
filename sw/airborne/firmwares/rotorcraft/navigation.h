@@ -124,7 +124,7 @@ extern bool_t nav_set_heading_current(void);
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
-  INT32_VECT3_COPY( navigation_target, waypoints[_wp]); \
+  VECT3_COPY(navigation_target, waypoints[_wp]); \
   dist2_to_wp = get_dist2_to_waypoint(_wp); \
 }
 

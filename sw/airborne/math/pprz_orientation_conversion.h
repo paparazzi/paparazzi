@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
@@ -56,6 +55,10 @@
 
 #ifndef PPRZ_ORIENTATION_CONVERSION_H
 #define PPRZ_ORIENTATION_CONVERSION_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
@@ -129,47 +132,54 @@ extern void orientationCalcEulers_f(struct OrientationReps* orientation);
 
 /*********************** validity test functions ******************/
 /// Test if orientations are valid.
-static inline bool_t orienationCheckValid(struct OrientationReps* orientation) {
+static inline bool_t orienationCheckValid(struct OrientationReps* orientation)
+{
   return (orientation->status);
 }
 
 /// Set vehicle body attitude from quaternion (int).
-static inline void orientationSetQuat_i(struct OrientationReps* orientation, struct Int32Quat* quat) {
+static inline void orientationSetQuat_i(struct OrientationReps* orientation, struct Int32Quat* quat)
+{
   QUAT_COPY(orientation->quat_i, *quat);
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_QUAT_I);
 }
 
 /// Set vehicle body attitude from rotation matrix (int).
-static inline void orientationSetRMat_i(struct OrientationReps* orientation, struct Int32RMat* rmat) {
+static inline void orientationSetRMat_i(struct OrientationReps* orientation, struct Int32RMat* rmat)
+{
   RMAT_COPY(orientation->rmat_i, *rmat);
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_RMAT_I);
 }
 
 /// Set vehicle body attitude from euler angles (int).
-static inline void orientationSetEulers_i(struct OrientationReps* orientation, struct Int32Eulers* eulers) {
+static inline void orientationSetEulers_i(struct OrientationReps* orientation, struct Int32Eulers* eulers)
+{
   EULERS_COPY(orientation->eulers_i, *eulers);
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_EULER_I);
 }
 
 /// Set vehicle body attitude from quaternion (float).
-static inline void orientationSetQuat_f(struct OrientationReps* orientation, struct FloatQuat* quat) {
+static inline void orientationSetQuat_f(struct OrientationReps* orientation, struct FloatQuat* quat)
+{
   QUAT_COPY(orientation->quat_f, *quat);
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_QUAT_F);
 }
 
 /// Set vehicle body attitude from rotation matrix (float).
-static inline void orientationSetRMat_f(struct OrientationReps* orientation, struct FloatRMat* rmat) {
+static inline void orientationSetRMat_f(struct OrientationReps* orientation, struct FloatRMat* rmat)
+{
   RMAT_COPY(orientation->rmat_f, *rmat);
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_RMAT_F);
 }
 
 /// Set vehicle body attitude from euler angles (float).
-static inline void orientationSetEulers_f(struct OrientationReps* orientation, struct FloatEulers* eulers) {
+static inline void orientationSetEulers_f(struct OrientationReps* orientation, struct FloatEulers* eulers)
+{
   EULERS_COPY(orientation->eulers_f, *eulers);
   /* clear bits for all attitude representations and only set the new one */
   orientation->status = (1 << ORREP_EULER_F);
@@ -177,46 +187,62 @@ static inline void orientationSetEulers_f(struct OrientationReps* orientation, s
 
 
 /// Get vehicle body attitude quaternion (int).
-static inline struct Int32Quat* orientationGetQuat_i(struct OrientationReps* orientation) {
-  if (!bit_is_set(orientation->status, ORREP_QUAT_I))
+static inline struct Int32Quat* orientationGetQuat_i(struct OrientationReps* orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_QUAT_I)) {
     orientationCalcQuat_i(orientation);
+  }
   return &orientation->quat_i;
 }
 
 /// Get vehicle body attitude rotation matrix (int).
-static inline struct Int32RMat* orientationGetRMat_i(struct OrientationReps* orientation) {
-  if (!bit_is_set(orientation->status, ORREP_RMAT_I))
+static inline struct Int32RMat* orientationGetRMat_i(struct OrientationReps* orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_RMAT_I)) {
     orientationCalcRMat_i(orientation);
+  }
   return &orientation->rmat_i;
 }
 
 /// Get vehicle body attitude euler angles (int).
-static inline struct Int32Eulers* orientationGetEulers_i(struct OrientationReps* orientation) {
-  if (!bit_is_set(orientation->status, ORREP_EULER_I))
+static inline struct Int32Eulers* orientationGetEulers_i(struct OrientationReps* orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_EULER_I)) {
     orientationCalcEulers_i(orientation);
+  }
   return &orientation->eulers_i;
 }
 
 /// Get vehicle body attitude quaternion (float).
-static inline struct FloatQuat* orientationGetQuat_f(struct OrientationReps* orientation) {
-  if (!bit_is_set(orientation->status, ORREP_QUAT_F))
+static inline struct FloatQuat* orientationGetQuat_f(struct OrientationReps* orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_QUAT_F)) {
     orientationCalcQuat_f(orientation);
+  }
   return &orientation->quat_f;
 }
 
 /// Get vehicle body attitude rotation matrix (float).
-static inline struct FloatRMat* orientationGetRMat_f(struct OrientationReps* orientation) {
-  if (!bit_is_set(orientation->status, ORREP_RMAT_F))
+static inline struct FloatRMat* orientationGetRMat_f(struct OrientationReps* orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_RMAT_F)) {
     orientationCalcRMat_f(orientation);
+  }
   return &orientation->rmat_f;
 }
 
 /// Get vehicle body attitude euler angles (float).
-static inline struct FloatEulers* orientationGetEulers_f(struct OrientationReps* orientation) {
-  if (!bit_is_set(orientation->status, ORREP_EULER_F))
+static inline struct FloatEulers* orientationGetEulers_f(struct OrientationReps* orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_EULER_F)) {
     orientationCalcEulers_f(orientation);
+  }
   return &orientation->eulers_f;
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ORIENTATION_CONVERSION_H */
 /** @}*/

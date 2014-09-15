@@ -491,8 +491,7 @@ void parse_ins_msg( void ) {
           gps.utm_pos.alt = XSENS_DATA_Altitude_h(xsens_msg_buf,offset)* 1000.0f;
 
           // Compute geoid (MSL) height
-          float geoid_h;
-          WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,geoid_h);
+          float geoid_h = wgs84_ellipsoid_to_geoid(lla_f.lat, lla_f.lon);
           gps.hmsl =  gps.utm_pos.alt - (geoid_h * 1000.0f);
 
           //gps.tow = geoid_h * 1000.0f; //gps.utm_pos.alt;

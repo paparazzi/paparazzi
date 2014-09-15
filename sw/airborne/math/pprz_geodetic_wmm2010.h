@@ -1,9 +1,28 @@
 /*
+ * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
  *
- * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>.
+ * This file is part of paparazzi.
  *
- * This module based on the WMM2010 modell (http://www.ngdc.noaa.gov/geomag/models.shtml).
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
  *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_geodetic_wmm2010.h
+ * @brief WMM2010 Geomagnetic field model.
+ *
+ * Based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml)
  */
 
 #ifndef WMM2010_H
@@ -43,9 +62,9 @@ extern "C" {
 extern const double gh1[];
 extern const double gh2[];
 
-int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double *gh);
+int16_t extrapsh(double date, double dte1, int16_t nmax1, int16_t nmax2, double* gh);
 int16_t mag_calc(int16_t igdgc, double flat, double flon, double elev, int16_t nmax,
-                 double *gh, double *geo_mag_x, double *geo_mag_y, double *geo_mag_z,
+                 double* gh, double* geo_mag_x, double* geo_mag_y, double* geo_mag_z,
                  int16_t iext, double ext1, double ext2, double ext3);
 
 #ifdef __cplusplus

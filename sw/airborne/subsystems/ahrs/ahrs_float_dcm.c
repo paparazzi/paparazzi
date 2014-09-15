@@ -129,7 +129,7 @@ void ahrs_align(void)
 
   /* Convert initial orientation in quaternion and rotation matrice representations. */
   struct FloatRMat ltp_to_imu_rmat;
-  FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
+  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
 
   /* set filter dcm */
   set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
@@ -513,12 +513,12 @@ static inline void set_body_orientation_and_rates(void) {
   struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&imu.body_to_imu);
 
   struct FloatRates body_rate;
-  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
+  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_impl.imu_rate);
   stateSetBodyRates_f(&body_rate);
 
   struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
-  FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
-  FLOAT_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, *body_to_imu_rmat);
+  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
+  float_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
 
   stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 

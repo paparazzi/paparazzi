@@ -14,14 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_stat.h
+ * @brief Statistics functions like variance.
  *
  */
 
 #ifndef PPRZ_STAT_H
 #define PPRZ_STAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 
@@ -34,15 +42,16 @@
  *  @param nb numbre of values in the array, must be >0
  *  @return variance
  */
-static inline float variance_float(float * array, int nb) {
+static inline float variance_float(float* array, int nb)
+{
   float me = 0.;
   float see = 0.;
   for (int i = 0; i < nb; i++) {
     me += array[i];
-    see += array[i]*array[i];
+    see += array[i] * array[i];
   }
   me /= nb;
-  return (see/nb - me*me);
+  return (see / nb - me * me);
 }
 
 /** Compute the variance of an array of values (integer).
@@ -54,17 +63,20 @@ static inline float variance_float(float * array, int nb) {
  *  @param nb numbre of values in the array, must be >0
  *  @return variance
  */
-static inline int32_t variance_int(int32_t * array, int nb) {
+static inline int32_t variance_int(int32_t* array, int nb)
+{
   float me = 0;
   float see = 0;
   for (int i = 0; i < nb; i++) {
     me += (float)array[i];
-    see += (float)(array[i]*array[i]);
+    see += (float)(array[i] * array[i]);
   }
   me /= nb;
-  return (see/nb - me*me);
+  return (see / nb - me * me);
 }
 
-
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
+#endif /* PPRZ_STAT_H */

@@ -23,7 +23,7 @@ HOWTO install a shared library to use in other projects
 
 HOWTO use the shared library
 
-1. with pkg-config --cflags --libs
+1. with pkg-config --cflags --libs pprzmath
 
 2. by hand:
   LIBS: -L<prefix>/lib -lpprzmath

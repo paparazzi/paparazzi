@@ -222,4 +222,3 @@ void imu_SetBodyToImuCurrent(float set) {
 #endif
   }
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,19 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
  * @file pprz_geodetic_float.h
- *   @brief Paparazzi floating point math for geodetic calculations.
+ * @brief Paparazzi floating point math for geodetic calculations.
  *
- *   This is the more detailed description of this file.
  *
  */
 
 #ifndef PPRZ_GEODETIC_FLOAT_H
 #define PPRZ_GEODETIC_FLOAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "pprz_geodetic.h"
 #include "pprz_algebra_float.h"
@@ -91,7 +93,7 @@ struct UtmCoor_f {
 struct LtpDef_f {
   struct EcefCoor_f ecef; ///< origin of local frame in ECEF
   struct LlaCoor_f  lla; ///< origin of local frame in LLA
-  struct FloatMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
+  struct FloatRMat ltp_of_ecef; ///< rotation from ECEF to local frame
   float hmsl; ///< Height above mean sea level in meters
 };
 
@@ -115,5 +117,8 @@ extern void ecef_of_enu_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, st
 extern void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned);
 /* end use double versions */
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_GEODETIC_FLOAT_H */

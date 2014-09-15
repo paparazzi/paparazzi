@@ -14,18 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Runge-Kutta library (float version)
+/**
+ * @file pprz_rk_float.h
+ * @brief Runge-Kutta library (float version)
+ *
  */
 
 #ifndef PPRZ_RK_FLOAT_H
 #define PPRZ_RK_FLOAT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "math/pprz_algebra_float.h"
 
@@ -49,11 +53,11 @@
  * @param dt integration step
  */
 static inline void runge_kutta_1_float(
-    float * xo,
-    const float * x, const int n,
-    const float * u, const int m,
-    void (*f)(float * o, const float * x, const int n, const float * u, const int m),
-    const float dt)
+  float* xo,
+  const float* x, const int n,
+  const float* u, const int m,
+  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  const float dt)
 {
   float dx[n];
 
@@ -83,17 +87,17 @@ static inline void runge_kutta_1_float(
  * @param dt integration step
  */
 static inline void runge_kutta_2_float(
-    float * xo,
-    const float * x, const int n,
-    const float * u, const int m,
-    void (*f)(float * o, const float * x, const int n, const float * u, const int m),
-    const float dt)
+  float* xo,
+  const float* x, const int n,
+  const float* u, const int m,
+  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  const float dt)
 {
   float mid_point[n];
 
   // mid_point = x + (dt/2)*f(x, u)
   f(mid_point, x, n, u, m);
-  float_vect_smul(mid_point, mid_point, dt/2., n);
+  float_vect_smul(mid_point, mid_point, dt / 2., n);
   float_vect_add(mid_point, x, n);
   // xo = x + dt * f(mid_point, u)
   f(xo, mid_point, n, u, m);
@@ -126,11 +130,11 @@ static inline void runge_kutta_2_float(
  * @param dt integration step
  */
 static inline void runge_kutta_4_float(
-    float * xo,
-    const float * x, const int n,
-    const float * u, const int m,
-    void (*f)(float * o, const float * x, const int n, const float * u, const int m),
-    const float dt)
+  float* xo,
+  const float* x, const int n,
+  const float* u, const int m,
+  void (*f)(float* o, const float* x, const int n, const float* u, const int m),
+  const float dt)
 {
   float k1[n], k2[n], k3[n], k4[n], ktmp[n];
 
@@ -161,5 +165,8 @@ static inline void runge_kutta_4_float(
   float_vect_sum(xo, x, k1, n);
 }
 
+#ifdef __cplusplus
+} /* extern "C" */
 #endif
 
+#endif /* PPRZ_RK_FLOAT_H */

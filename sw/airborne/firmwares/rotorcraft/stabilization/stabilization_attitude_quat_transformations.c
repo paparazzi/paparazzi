@@ -39,7 +39,7 @@ void quat_from_rpy_cmd_f(struct FloatQuat *quat, struct FloatEulers *rpy) {
   /* orientation vector describing simultaneous rotation of roll/pitch/yaw */
   const struct FloatVect3 ov = {rpy->phi, rpy->theta, rpy->psi};
   /* quaternion from that orientation vector */
-  FLOAT_QUAT_OF_ORIENTATION_VECT(*quat, ov);
+  float_quat_of_orientation_vect(quat, &ov);
 
 }
 
@@ -67,11 +67,11 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   const struct FloatVect3 ov = {cmd->y, -cmd->x, 0.0};
   /* quaternion from that orientation vector */
   struct FloatQuat q_rp;
-  FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
+  float_quat_of_orientation_vect(&q_rp, &ov);
 
   /* as rotation matrix */
   struct FloatRMat R_rp;
-  FLOAT_RMAT_OF_QUAT(R_rp, q_rp);
+  float_rmat_of_quat(&R_rp, &q_rp);
   /* body x-axis (before heading command) is first column */
   struct FloatVect3 b_x;
   VECT3_ASSIGN(b_x, R_rp.m[0], R_rp.m[3], R_rp.m[6]);
@@ -97,14 +97,14 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   /* projection of desired heading onto body x-y plane
    * b = v - dot(v,n)*n
    */
-  float dot = FLOAT_VECT3_DOT_PRODUCT(psi_vect, thrust_vect);
+  float dot = VECT3_DOT_PRODUCT(psi_vect, thrust_vect);
   struct FloatVect3 dotn;
-  FLOAT_VECT3_SMUL(dotn, thrust_vect, dot);
+  VECT3_SMUL(dotn, thrust_vect, dot);
 
   // b = v - dot(v,n)*n
   struct FloatVect3 b;
-  FLOAT_VECT3_DIFF(b, psi_vect, dotn);
-  dot = FLOAT_VECT3_DOT_PRODUCT(b_x, b);
+  VECT3_DIFF(b, psi_vect, dotn);
+  dot = VECT3_DOT_PRODUCT(b_x, b);
   struct FloatVect3 cross;
   VECT3_CROSS_PRODUCT(cross, b_x, b);
   // norm of the cross product
@@ -114,7 +114,7 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
 
   // negative angle if needed
   // sign(dot(cross(a,b), n)
-  float dot_cross_ab = FLOAT_VECT3_DOT_PRODUCT(cross, thrust_vect);
+  float dot_cross_ab = VECT3_DOT_PRODUCT(cross, thrust_vect);
   if (dot_cross_ab < 0) {
     yaw2 = -yaw2;
   }
@@ -124,8 +124,8 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
 
   /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
-  FLOAT_QUAT_COMP(*quat, q_rp, q_yaw);
-  FLOAT_QUAT_NORMALIZE(*quat);
-  FLOAT_QUAT_WRAP_SHORTEST(*quat);
+  float_quat_comp(quat, &q_rp, &q_yaw);
+  float_quat_normalize(quat);
+  float_quat_wrap_shortest(quat);
 
 }

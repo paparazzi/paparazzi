@@ -130,7 +130,7 @@ static void send_quat(void) {
 
 static void send_euler(void) {
   struct Int32Eulers ltp_to_imu_euler;
-  INT32_EULERS_OF_QUAT(ltp_to_imu_euler, ahrs_impl.ltp_to_imu_quat);
+  int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
   struct Int32Eulers* eulers = stateGetNedToBodyEulers_i();
   DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
       &ltp_to_imu_euler.phi,
@@ -250,9 +250,9 @@ void ahrs_propagate(float dt) {
   INT_RATES_ZERO(ahrs_impl.rate_correction);
 
   /* integrate quaternion */
-  INT32_QUAT_INTEGRATE_FI(ahrs_impl.ltp_to_imu_quat, ahrs_impl.high_rez_quat,
-                          omega, freq);
-  INT32_QUAT_NORMALIZE(ahrs_impl.ltp_to_imu_quat);
+  int32_quat_integrate_fi(&ahrs_impl.ltp_to_imu_quat, &ahrs_impl.high_rez_quat,
+                          &omega, freq);
+  int32_quat_normalize(&ahrs_impl.ltp_to_imu_quat);
 
   set_body_state_from_quat();
 
@@ -289,7 +289,7 @@ void ahrs_update_accel(float dt) {
 
   // c2 = ltp z-axis in imu-frame
   struct Int32RMat ltp_to_imu_rmat;
-  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
+  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_quat);
   struct Int32Vect3 c2 = { RMAT_ELMT(ltp_to_imu_rmat, 0,2),
                            RMAT_ELMT(ltp_to_imu_rmat, 1,2),
                            RMAT_ELMT(ltp_to_imu_rmat, 2,2)};
@@ -319,17 +319,17 @@ void ahrs_update_accel(float dt) {
     /* convert centrifucal acceleration from body to imu frame */
     struct Int32Vect3 acc_c_imu;
     struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-    INT32_RMAT_VMULT(acc_c_imu, *body_to_imu_rmat, acc_c_body);
+    int32_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
 
     /* and subtract it from imu measurement to get a corrected measurement
      * of the gravity vector */
-    INT32_VECT3_DIFF(pseudo_gravity_measurement, imu.accel, acc_c_imu);
+    VECT3_DIFF(pseudo_gravity_measurement, imu.accel, acc_c_imu);
   } else {
     VECT3_COPY(pseudo_gravity_measurement, imu.accel);
   }
 
   /* compute the residual of the pseudo gravity vector in imu frame */
-  INT32_VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
+  VECT3_CROSS_PRODUCT(residual, pseudo_gravity_measurement, c2);
 
 
   /* FIR filtered pseudo_gravity_measurement */
@@ -437,13 +437,13 @@ void ahrs_set_mag_gains(void) {
 static inline void ahrs_update_mag_full(float dt) {
 
   struct Int32RMat ltp_to_imu_rmat;
-  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
+  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_quat);
 
   struct Int32Vect3 expected_imu;
-  INT32_RMAT_VMULT(expected_imu, ltp_to_imu_rmat, ahrs_impl.mag_h);
+  int32_rmat_vmult(&expected_imu, &ltp_to_imu_rmat, &ahrs_impl.mag_h);
 
   struct Int32Vect3 residual;
-  INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
+  VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
 
   /* Complementary filter proportionnal gain.
    * Kp = 2 * mag_zeta * mag_omega
@@ -490,17 +490,17 @@ static inline void ahrs_update_mag_2d(float dt) {
 
   struct Int32Vect2 expected_ltp = {ahrs_impl.mag_h.x, ahrs_impl.mag_h.y};
   /* normalize expected ltp in 2D (x,y) */
-  INT32_VECT2_NORMALIZE(expected_ltp, INT32_MAG_FRAC);
+  int32_vect2_normalize(&expected_ltp, INT32_MAG_FRAC);
 
   struct Int32RMat ltp_to_imu_rmat;
-  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
+  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_quat);
 
   struct Int32Vect3 measured_ltp;
-  INT32_RMAT_TRANSP_VMULT(measured_ltp, ltp_to_imu_rmat, imu.mag);
+  int32_rmat_transp_vmult(&measured_ltp, &ltp_to_imu_rmat, &imu.mag);
 
   /* normalize measured ltp in 2D (x,y) */
   struct Int32Vect2 measured_ltp_2d = {measured_ltp.x, measured_ltp.y};
-  INT32_VECT2_NORMALIZE(measured_ltp_2d, INT32_MAG_FRAC);
+  int32_vect2_normalize(&measured_ltp_2d, INT32_MAG_FRAC);
 
   /* residual_ltp FRAC: 2 * MAG_FRAC - 5 = 17 */
   struct Int32Vect3 residual_ltp =
@@ -510,7 +510,7 @@ static inline void ahrs_update_mag_2d(float dt) {
 
 
   struct Int32Vect3 residual_imu;
-  INT32_RMAT_VMULT(residual_imu, ltp_to_imu_rmat, residual_ltp);
+  int32_rmat_vmult(&residual_imu, &ltp_to_imu_rmat, &residual_ltp);
 
   /* Complementary filter proportionnal gain.
    * Kp = 2 * mag_zeta * mag_omega
@@ -607,8 +607,8 @@ void ahrs_update_heading(int32_t heading) {
 
   struct Int32Vect3 residual_imu;
   struct Int32RMat ltp_to_imu_rmat;
-  INT32_RMAT_OF_QUAT(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_quat);
-  INT32_RMAT_VMULT(residual_imu, ltp_to_imu_rmat, residual_ltp);
+  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_quat);
+  int32_rmat_vmult(&residual_imu, &ltp_to_imu_rmat, &residual_ltp);
 
   // residual FRAC = TRIG_FRAC + TRIG_FRAC = 14 + 14 = 28
   // rate_correction FRAC = RATE_FRAC = 12
@@ -656,20 +656,20 @@ void ahrs_realign_heading(int32_t heading) {
   QUAT_COPY(q_h, ltp_to_body_quat);
   q_h.qx = 0;
   q_h.qy = 0;
-  INT32_QUAT_NORMALIZE(q_h);
+  int32_quat_normalize(&q_h);
 
   /* quaternion representing rotation from current to new heading */
   struct Int32Quat q_c;
-  INT32_QUAT_INV_COMP_NORM_SHORTEST(q_c, q_h, q_h_new);
+  int32_quat_inv_comp_norm_shortest(&q_c, &q_h, &q_h_new);
 
   /* correct current heading in body frame */
   struct Int32Quat q;
-  INT32_QUAT_COMP_NORM_SHORTEST(q, q_c, ltp_to_body_quat);
+  int32_quat_comp_norm_shortest(&q, &q_c, &ltp_to_body_quat);
   QUAT_COPY(ltp_to_body_quat, q);
 
   /* compute ltp to imu rotations */
   struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&imu.body_to_imu);
-  INT32_QUAT_COMP(ahrs_impl.ltp_to_imu_quat, ltp_to_body_quat, *body_to_imu_quat);
+  int32_quat_comp(&ahrs_impl.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
 
   /* Set state */
   stateSetNedToBodyQuat_i(&ltp_to_body_quat);
@@ -683,14 +683,14 @@ static inline void set_body_state_from_quat(void) {
   /* Compute LTP to BODY quaternion */
   struct Int32Quat ltp_to_body_quat;
   struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&imu.body_to_imu);
-  INT32_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, *body_to_imu_quat);
+  int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_impl.ltp_to_imu_quat, body_to_imu_quat);
   /* Set state */
   stateSetNedToBodyQuat_i(&ltp_to_body_quat);
 
   /* compute body rates */
   struct Int32Rates body_rate;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  INT32_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
+  int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_impl.imu_rate);
   /* Set state */
   stateSetBodyRates_i(&body_rate);
 }

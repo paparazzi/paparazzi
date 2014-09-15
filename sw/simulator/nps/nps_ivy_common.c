@@ -189,7 +189,7 @@ void nps_ivy_display(void) {
 
   /* transform magnetic field to body frame */
   struct DoubleVect3 h_body;
-  FLOAT_QUAT_VMULT(h_body, fdm.ltp_to_body_quat, fdm.ltp_h);
+  double_quat_vmult(&h_body, &fdm.ltp_to_body_quat, &fdm.ltp_h);
 
   IvySendMsg("%d NPS_SENSORS_SCALED %f %f %f %f %f %f",
          AC_ID,

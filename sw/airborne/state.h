@@ -499,21 +499,21 @@ static inline bool_t stateIsGlobalCoordinateValid(void) {
 
 /// Set position from ECEF coordinates (int).
 static inline void stateSetPositionEcef_i(struct EcefCoor_i* ecef_pos) {
-  INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+  VECT3_COPY(state.ecef_pos_i, *ecef_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ECEF_I);
 }
 
 /// Set position from local NED coordinates (int).
 static inline void stateSetPositionNed_i(struct NedCoor_i* ned_pos) {
-  INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+  VECT3_COPY(state.ned_pos_i, *ned_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_NED_I);
 }
 
 /// Set position from local ENU coordinates (int).
 static inline void stateSetPositionEnu_i(struct EnuCoor_i* enu_pos) {
-  INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+  VECT3_COPY(state.enu_pos_i, *enu_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ENU_I);
 }
@@ -534,15 +534,15 @@ static inline void stateSetPosition_i(
   /* clear all status bit */
   state.pos_status = 0;
   if (ecef_pos != NULL) {
-    INT32_VECT3_COPY(state.ecef_pos_i, *ecef_pos);
+    VECT3_COPY(state.ecef_pos_i, *ecef_pos);
     state.pos_status |= (1 << POS_ECEF_I);
   }
   if (ned_pos != NULL) {
-    INT32_VECT3_COPY(state.ned_pos_i, *ned_pos);
+    VECT3_COPY(state.ned_pos_i, *ned_pos);
     state.pos_status |= (1 << POS_NED_I);
   }
   if (enu_pos != NULL) {
-    INT32_VECT3_COPY(state.enu_pos_i, *enu_pos);
+    VECT3_COPY(state.enu_pos_i, *enu_pos);
     state.pos_status |= (1 << POS_ENU_I);
   }
   if (lla_pos != NULL) {
@@ -710,21 +710,21 @@ extern void stateCalcHorizontalSpeedDir_f(void);
 
 /// Set ground speed in local NED coordinates (int).
 static inline void stateSetSpeedNed_i(struct NedCoor_i* ned_speed) {
-  INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+  VECT3_COPY(state.ned_speed_i, *ned_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_NED_I);
 }
 
 /// Set ground speed in local ENU coordinates (int).
 static inline void stateSetSpeedEnu_i(struct EnuCoor_i* enu_speed) {
-  INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+  VECT3_COPY(state.enu_speed_i, *enu_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ENU_I);
 }
 
 /// Set ground speed in ECEF coordinates (int).
 static inline void stateSetSpeedEcef_i(struct EcefCoor_i* ecef_speed) {
-  INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+  VECT3_COPY(state.ecef_speed_i, *ecef_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ECEF_I);
 }
@@ -737,15 +737,15 @@ static inline void stateSetSpeed_i(
   /* clear all status bit */
   state.speed_status = 0;
   if (ecef_speed != NULL) {
-    INT32_VECT3_COPY(state.ecef_speed_i, *ecef_speed);
+    VECT3_COPY(state.ecef_speed_i, *ecef_speed);
     state.speed_status |= (1 << SPEED_ECEF_I);
   }
   if (ned_speed != NULL) {
-    INT32_VECT3_COPY(state.ned_speed_i, *ned_speed);
+    VECT3_COPY(state.ned_speed_i, *ned_speed);
     state.speed_status |= (1 << SPEED_NED_I);
   }
   if (enu_speed != NULL) {
-    INT32_VECT3_COPY(state.enu_speed_i, *enu_speed);
+    VECT3_COPY(state.enu_speed_i, *enu_speed);
     state.speed_status |= (1 << SPEED_ENU_I);
   }
 }
@@ -892,14 +892,14 @@ static inline bool_t stateIsAccelValid(void) {
 
 /// Set acceleration in NED coordinates (int).
 static inline void stateSetAccelNed_i(struct NedCoor_i* ned_accel) {
-  INT32_VECT3_COPY(state.ned_accel_i, *ned_accel);
+  VECT3_COPY(state.ned_accel_i, *ned_accel);
   /* clear bits for all accel representations and only set the new one */
   state.accel_status = (1 << ACCEL_NED_I);
 }
 
 /// Set acceleration in ECEF coordinates (int).
 static inline void stateSetAccelEcef_i(struct EcefCoor_i* ecef_accel) {
-  INT32_VECT3_COPY(state.ecef_accel_i, *ecef_accel);
+  VECT3_COPY(state.ecef_accel_i, *ecef_accel);
   /* clear bits for all accel representations and only set the new one */
   state.accel_status = (1 << ACCEL_ECEF_I);
 }
