@@ -30,11 +30,8 @@
 #define AUTOPILOT_H
 
 #include "std.h"
-
-#include "led.h"
-
 #include "generated/airframe.h"
-#include "subsystems/ins.h"
+#include "state.h"
 
 #define AP_MODE_KILL              0
 #define AP_MODE_FAILSAFE          1
@@ -157,6 +154,16 @@ static inline void DetectGroundEvent(void) {
       autopilot_ground_detected = TRUE;
       autopilot_detect_ground_once = FALSE;
     }
+  }
+}
+
+#include "subsystems/settings.h"
+
+static inline void autopilot_StoreSettings(float store)
+{
+  if (kill_throttle && store) {
+    settings_store_flag = store;
+    settings_store();
   }
 }
 
