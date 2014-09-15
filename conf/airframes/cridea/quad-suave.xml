@@ -16,6 +16,8 @@
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
+    <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
+
     <subsystem name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
     </subsystem>

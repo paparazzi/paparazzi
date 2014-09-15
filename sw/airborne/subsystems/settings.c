@@ -26,6 +26,7 @@
  */
 
 #include "subsystems/settings.h"
+#include "autopilot.h"
 
 
 struct PersistentSettings pers_settings;
@@ -52,7 +53,7 @@ void settings_init(void) {
  */
 int32_t settings_store(void) {
 #if USE_PERSISTENT_SETTINGS
-  if (settings_store_flag) {
+  if ((settings_store_flag) && (!autopilot_in_flight)) {
     /* from generated/settings.h */
     persistent_settings_store();
     if (!persistent_write((uint32_t)&pers_settings, sizeof(struct PersistentSettings))) {
