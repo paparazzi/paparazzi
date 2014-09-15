@@ -80,7 +80,7 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
     // unscaled vector
     VECT3_COPY(imu.mag_unscaled, mag);
     // scale vector
-    ImuScaleMag(imu);
+    imu_scale_mag(&imu);
     // update ahrs
     if (ahrs.status == AHRS_RUNNING) {
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)

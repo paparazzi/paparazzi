@@ -43,21 +43,6 @@
 #include "state.h"
 #include "led.h"
 
-#ifdef ImuScaleGyro
-#undef ImuScaleGyro
-#endif
-#define ImuScaleGyro(_imu) {}
-
-#ifdef ImuScaleAccel
-#undef ImuScaleAccel
-#endif
-#define ImuScaleAccel(_imu) {}
-
-#ifdef ImuScaleMag
-#undef ImuScaleMag
-#endif
-#define ImuScaleMag(_imu) {}
-
 #define GX3_MAX_PAYLOAD 128
 #define GX3_MSG_LEN 67
 #define GX3_HEADER 0xC8

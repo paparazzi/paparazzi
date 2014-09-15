@@ -91,7 +91,7 @@ static inline void on_gyro_event(void) {
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 
-  ImuScaleGyro(imu);
+  imu_scale_gyro(&imu);
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
@@ -113,7 +113,7 @@ static inline void on_accel_event(void) {
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 
-  ImuScaleAccel(imu);
+  imu_scale_accel(&imu);
   if (ahrs.status != AHRS_UNINIT) {
     DEBUG_S2_ON();
     ahrs_update_accel(dt);
@@ -130,7 +130,7 @@ static inline void on_mag_event(void) {
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 
-  ImuScaleMag(imu);
+  imu_scale_mag(&imu);
   if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag(dt);
   }

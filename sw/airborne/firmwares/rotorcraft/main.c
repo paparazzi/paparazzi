@@ -322,7 +322,7 @@ PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
   const float dt = 1. / (AHRS_CORRECT_FREQUENCY);
 #endif
 
-  ImuScaleAccel(imu);
+  imu_scale_accel(&imu);
 
   if (ahrs.status != AHRS_UNINIT) {
     ahrs_update_accel(dt);
@@ -345,7 +345,7 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
 #endif
 
-  ImuScaleGyro(imu);
+  imu_scale_gyro(&imu);
 
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
@@ -374,7 +374,7 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
-  ImuScaleMag(imu);
+  imu_scale_mag(&imu);
 
 #if USE_MAGNETOMETER
 #if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)

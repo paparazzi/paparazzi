@@ -30,23 +30,6 @@
 
 #include "generated/airframe.h"
 
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN  1
-#define IMU_MAG_Y_SIGN  1
-#define IMU_MAG_Z_SIGN  1
-#endif
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN  1
-#define IMU_GYRO_Q_SIGN  1
-#define IMU_GYRO_R_SIGN  1
-#endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
-#endif
-
-
 /** default gyro sensitivy and neutral from the datasheet
  * L3G4200 has 8.75 LSB/(deg/s)
  * sens = 1/xxx * pi/180 * 2^INT32_RATE_FRAC

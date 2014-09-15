@@ -154,8 +154,8 @@ static inline void on_accel_event(void) {
 }
 
 static inline void on_gyro_accel_event(void) {
-  ImuScaleGyro(imu);
-  ImuScaleAccel(imu);
+  imu_scale_gyro(&imu);
+  imu_scale_accel(&imu);
 
   //LED_TOGGLE(2);
   static uint8_t cnt;
@@ -188,7 +188,7 @@ static inline void on_gyro_accel_event(void) {
 
 
 static inline void on_mag_event(void) {
-  ImuScaleMag(imu);
+  imu_scale_mag(&imu);
   static uint8_t cnt;
   cnt++;
   if (cnt > 1) cnt = 0;

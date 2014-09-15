@@ -116,7 +116,7 @@ static inline void main_event_task( void ) {
 }
 
 static inline void on_accel_event(void) {
-  ImuScaleAccel(imu);
+  imu_scale_accel(&imu);
 
   RunOnceEvery(50, LED_TOGGLE(3));
   static uint8_t cnt;
@@ -137,7 +137,7 @@ static inline void on_accel_event(void) {
 }
 
 static inline void on_gyro_event(void) {
-  ImuScaleGyro(imu);
+  imu_scale_gyro(&imu);
 
   RunOnceEvery(50, LED_TOGGLE(2));
   static uint8_t cnt;
@@ -160,7 +160,7 @@ static inline void on_gyro_event(void) {
 
 
 static inline void on_mag_event(void) {
-  ImuScaleMag(imu);
+  imu_scale_mag(&imu);
   static uint8_t cnt;
   cnt++;
   if (cnt > 10) cnt = 0;

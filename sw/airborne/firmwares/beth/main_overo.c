@@ -118,7 +118,7 @@ static void main_periodic(int my_sig_num) {
 
   main_talk_with_stm32();
 
-  ImuScaleGyro(imu);
+  imu_scale_gyro(&imu);
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,
       &msg_in.payload.msg_up.bench_sensor.x,&msg_in.payload.msg_up.bench_sensor.y,

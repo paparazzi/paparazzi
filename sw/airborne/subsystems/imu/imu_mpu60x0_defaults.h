@@ -45,11 +45,6 @@
 #define IMU_GYRO_R_SENS_NUM 4359
 #define IMU_GYRO_R_SENS_DEN 1000
 #endif
-#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
-#endif
 
 /** default accel sensitivy from the datasheet
  * MPU60X0 has 2048 LSB/g
@@ -66,11 +61,6 @@
 #define IMU_ACCEL_Z_SENS 4.905
 #define IMU_ACCEL_Z_SENS_NUM 4905
 #define IMU_ACCEL_Z_SENS_DEN 1000
-#endif
-#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
 #endif /* IMU_MPU60X0_DEFAULTS_H */

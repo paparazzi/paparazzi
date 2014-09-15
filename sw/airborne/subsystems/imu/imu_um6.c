@@ -352,3 +352,8 @@ void UM6_packet_parse( uint8_t c ) {
     break;
   }
 }
+
+/* no scaling */
+void imu_scale_gyro(struct Imu* _imu __attribute__((unused))) {}
+void imu_scale_accel(struct Imu* _imu __attribute__((unused))) {}
+void imu_scale_mag(struct Imu* _imu __attribute__((unused))) {}

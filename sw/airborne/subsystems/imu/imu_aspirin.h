@@ -36,7 +36,7 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345_spi.h"
 
-/* include default aspirin sensitivity/channel definitions */
+/* include default aspirin sensitivity definitions */
 #include "subsystems/imu/imu_aspirin_defaults.h"
 
 struct ImuAspirin {

@@ -84,3 +84,26 @@ void imu_periodic(void) {
 
   analog_imu_available = TRUE;
 }
+
+// if not all gyros are used, override the imu_scale_gyro handler
+#if defined ADC_CHANNEL_GYRO_P && defined ADC_CHANNEL_GYRO_Q && ! defined ADC_CHANNEL_GYRO_R
+
+void imu_scale_gyro(struct Imu* _imu)
+{
+  _imu->gyro.p = ((_imu->gyro_unscaled.p - _imu->gyro_neutral.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN;
+  _imu->gyro.q = ((_imu->gyro_unscaled.q - _imu->gyro_neutral.q)*IMU_GYRO_Q_SIGN*IMU_GYRO_Q_SENS_NUM)/IMU_GYRO_Q_SENS_DEN;
+}
+
+#elif defined ADC_CHANNEL_GYRO_P && ! defined ADC_CHANNEL_GYRO_Q && ! defined ADC_CHANNEL_GYRO_R
+
+void imu_scale_gyro(struct Imu* _imu)
+{
+  _imu->gyro.p = ((_imu->gyro_unscaled.p - _imu->gyro_neutral.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN;
+}
+
+#endif
+
+// if we don't have any accelerometers, set an empty imu_scale_accel handler
+#if ! defined ADC_CHANNEL_ACCEL_X && ! defined ADC_CHANNEL_ACCEL_Z && ! defined ADC_CHANNEL_ACCEL_Z
+void imu_scale_accel(struct Imu* _imu __attribute__((unused))) {}
+#endif

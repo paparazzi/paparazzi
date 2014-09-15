@@ -335,3 +335,7 @@ void ahrs_aligner_run(void) {
 void ahrs_aligner_init(void) {
 }
 
+/* no scaling */
+void imu_scale_gyro(struct Imu* _imu __attribute__((unused))) {}
+void imu_scale_accel(struct Imu* _imu __attribute__((unused))) {}
+void imu_scale_mag(struct Imu* _imu __attribute__((unused))) {}

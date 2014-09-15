@@ -30,7 +30,6 @@
 #ifndef IMU_B2_H
 #define IMU_B2_H
 
-#include "subsystems/imu.h"
 #include "generated/airframe.h"
 
 #include "peripherals/max1168.h"
@@ -152,6 +151,11 @@
 #endif
 #endif /* IMU_B2_VERSION_1_2 */
 
+/*
+ * we include imh.h after the definitions channels and signs
+ */
+#include "subsystems/imu.h"
+
 
 struct ImuBooz2 {
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
@@ -178,29 +182,29 @@ static inline void ImuMagEvent(void (* _mag_handler)(void)) {
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
 #include "peripherals/ami601.h"
-#define foo_handler() {}
-#define ImuMagEvent(_mag_handler) {                     \
-  AMI601Event(foo_handler);                             \
-  if (ami601_status == AMI601_DATA_AVAILABLE) {         \
-    imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN]; \
-    imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN]; \
-    imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN]; \
-    ami601_status = AMI601_IDLE;                        \
-    _mag_handler();                                     \
-  }                                                     \
+static inline void foo_handler(void) {}
+static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+  AMI601Event(foo_handler);
+  if (ami601_status == AMI601_DATA_AVAILABLE) {
+    imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];
+    imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN];
+    imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN];
+    ami601_status = AMI601_IDLE;
+    _mag_handler();
+  }
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
 #include "peripherals/hmc5843.h"
-#define foo_handler() {}
-#define ImuMagEvent(_mag_handler) {                           \
-  MagEvent(foo_handler);                                      \
-  if (hmc5843.data_available) {                               \
-    imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];  \
-    imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];  \
-    imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];  \
-    _mag_handler();                                           \
-    hmc5843.data_available = FALSE;                           \
-  }                                                           \
+static inline void foo_handler(void) {}
+static inline void ImuMagEvent(void (* _mag_handler)(void)) {
+  MagEvent(foo_handler);
+  if (hmc5843.data_available) {
+    imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];
+    imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];
+    imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];
+    _mag_handler();
+    hmc5843.data_available = FALSE;
+  }
 }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
 static inline void ImuMagEvent(void (* _mag_handler)(void)) {
@@ -215,10 +219,11 @@ static inline void ImuMagEvent(void (* _mag_handler)(void)) {
 }
 #else
 #define ImuMagEvent(_mag_handler) {}
-#define ImuScaleMag(_imu) {}
 #endif
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
+
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
+                            void (* _mag_handler)(void))
 {
   max1168_event();
   if (max1168_status == MAX1168_DATA_AVAILABLE) {

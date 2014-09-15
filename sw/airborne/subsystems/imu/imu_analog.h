@@ -19,38 +19,52 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file subsystems/imu/imu_analog.h
+ * Inertial Measurement Unit using onboard ADCs.
+ */
+
 #ifndef IMU_ANALOG_H
 #define IMU_ANALOG_H
 
 
 #define NB_ANALOG_IMU_ADC 6
 
-// if not all gyros are used, override the ImuScaleGyro handler
+// if not all gyros are used, override the imu_scale_gyro handler
 #if defined ADC_CHANNEL_GYRO_P && defined ADC_CHANNEL_GYRO_Q && ! defined ADC_CHANNEL_GYRO_R
 
+#define IMU_GYRO_R_SIGN 1
 #define IMU_GYRO_R_NEUTRAL 0
-#define ImuScaleGyro(_imu) {                                            \
-    _imu.gyro.p = ((_imu.gyro_unscaled.p - _imu.gyro_neutral.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
-    _imu.gyro.q = ((_imu.gyro_unscaled.q - _imu.gyro_neutral.q)*IMU_GYRO_Q_SIGN*IMU_GYRO_Q_SENS_NUM)/IMU_GYRO_Q_SENS_DEN; \
-  }
+#define IMU_GYRO_R_SENS_NUM 1
+#define IMU_GYRO_R_SENS_DEN 1
 
 #elif defined ADC_CHANNEL_GYRO_P && ! defined ADC_CHANNEL_GYRO_Q && ! defined ADC_CHANNEL_GYRO_R
 
+#define IMU_GYRO_Q_SIGN 1
 #define IMU_GYRO_Q_NEUTRAL 0
+#define IMU_GYRO_Q_SENS_NUM 1
+#define IMU_GYRO_Q_SENS_DEN 1
+#define IMU_GYRO_R_SIGN 1
 #define IMU_GYRO_R_NEUTRAL 0
-#define ImuScaleGyro(_imu) {                                            \
-    _imu.gyro.p = ((_imu.gyro_unscaled.p - _imu.gyro_neutral.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
-  }
+#define IMU_GYRO_R_SENS_NUM 1
+#define IMU_GYRO_R_SENS_DEN 1
 
 #endif
 
-// if we don't have any accelerometers, set an empty ImuScaleAccel handler
 #if ! defined ADC_CHANNEL_ACCEL_X && ! defined ADC_CHANNEL_ACCEL_Z && ! defined ADC_CHANNEL_ACCEL_Z
-#define ImuScaleAccel(_imu) {}
+
+#define IMU_ACCEL_X_SENS_NUM 1
+#define IMU_ACCEL_X_SENS_DEN 1
+#define IMU_ACCEL_Y_SENS_NUM 1
+#define IMU_ACCEL_Y_SENS_DEN 1
+#define IMU_ACCEL_Z_SENS_NUM 1
+#define IMU_ACCEL_Z_SENS_DEN 1
+
 #endif
+
 
 /*
- * we include imh.h after the definitions of ImuScale so we can override the default handlers
+ * we include imh.h after the definitions of the neutrals
  */
 #include "subsystems/imu.h"
 
@@ -58,22 +72,15 @@
 extern volatile bool_t analog_imu_available;
 extern int imu_overrun;
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {   \
-    if (analog_imu_available) {                         \
-      analog_imu_available = FALSE;                     \
-      _gyro_handler();                            \
-      _accel_handler();                            \
-    }                                                   \
-    ImuMagEvent(_mag_handler);                          \
+static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
+                            void (* _mag_handler)(void) __attribute__((unused)))
+{
+  if (analog_imu_available) {
+    analog_imu_available = FALSE;
+    _gyro_handler();
+    _accel_handler();
   }
-
-#define ImuMagEvent(_mag_handler) {             \
-    if (0) {                                    \
-      _mag_handler();                           \
-    }                                           \
-  }
-
-
+}
 
 
 #endif /* IMU_ANALOG_H */

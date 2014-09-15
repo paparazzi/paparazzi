@@ -44,21 +44,6 @@
 
 #define UM6Buffer() UM6Link(ChAvailable())
 
-#ifdef ImuScaleGyro
-#undef ImuScaleGyro
-#endif
-#define ImuScaleGyro(_imu) {}
-
-#ifdef ImuScaleAccel
-#undef ImuScaleAccel
-#endif
-#define ImuScaleAccel(_imu) {}
-
-#ifdef ImuScaleMag
-#undef ImuScaleMag
-#endif
-#define ImuScaleMag(_imu) {}
-
 #define IMU_UM6_BUFFER_LENGTH 32
 #define IMU_UM6_DATA_OFFSET 5
 #define IMU_UM6_LONG_DELAY 4000000
@@ -140,5 +125,6 @@ enum UM6Status {
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
   imu_um6_event(_gyro_handler, _accel_handler, _mag_handler); \
 }
+
 
 #endif /* IMU_UM6_H*/

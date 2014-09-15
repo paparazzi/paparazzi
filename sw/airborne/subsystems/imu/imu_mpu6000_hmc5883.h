@@ -36,21 +36,6 @@
 #include "peripherals/mpu60x0_spi.h"
 #include "peripherals/hmc58xx.h"
 
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN   1
-#define IMU_GYRO_Q_SIGN   1
-#define IMU_GYRO_R_SIGN   1
-#endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
-#endif
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN 1
-#define IMU_MAG_Z_SIGN 1
-#endif
 
 struct ImuMpu6000Hmc5883 {
   volatile bool_t gyro_valid;
