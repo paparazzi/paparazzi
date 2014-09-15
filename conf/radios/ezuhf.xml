@@ -11,5 +11,6 @@
   <channel ctl="switch_E" function="MODE" min="1002" neutral="1500" max="1984" average="10"/>
   <channel ctl="NOTUSEDA" function="NOTUSEDA" min="0" neutral="1500" max="2000" average="0"/>
   <channel ctl="switch_G" function="CALIB" min="1002" neutral="1500" max="1984" average="10"/>
+  <channel ctl="NOTUSEDB" function="NOTUSEDB" min="0" neutral="1500" max="2000" average="0"/>
 </radio>
 
