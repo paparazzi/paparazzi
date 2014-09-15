@@ -26,7 +26,7 @@
  */
 
 #include "subsystems/settings.h"
-
+#include "generated/settings.h"
 
 struct PersistentSettings pers_settings;
 
