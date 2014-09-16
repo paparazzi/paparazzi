@@ -56,6 +56,12 @@ let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
 
 let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
+(* filter settings and keep the ones without brackets *)
+let filter_settings = fun settings ->
+  let sl = Str.split (Str.regexp "[ ]+") settings in
+  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
+  String.concat " " sl
+
 let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
   let parse_file = fun a file ->
@@ -70,10 +76,10 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
             make_element "parse error" ["file",a; "msg", msg] []
           end in
 
-  let parse = fun a ->
+  let parse = fun ?(pre_filter=(fun x -> x)) a ->
     List.map
       (fun filename -> parse_file a (prefix filename))
-      (Str.split space_regexp (ExtXml.attrib ac_conf a)) in
+      (Str.split space_regexp (pre_filter (ExtXml.attrib ac_conf a))) in
 
   let parse_opt = fun a ->
     try parse a with ExtXml.Error _ -> [] in
@@ -101,7 +107,7 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
     with _ -> []
   in
 
-  let pervasives = parse "airframe" @ parse "telemetry" @ parse "settings" in
+  let pervasives = parse "airframe" @ parse "telemetry" @ parse ~pre_filter:filter_settings "settings" in
   let optionals = parse_opt "radio" @ parse_fp "flight_plan" @ pervasives in
 
   let children = Xml.children ac_conf@optionals in

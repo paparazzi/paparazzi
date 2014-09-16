@@ -61,13 +61,14 @@ val combo_connect : combo -> (string -> unit) -> unit
 (*** Utilities for a tree view widget ***)
 type tree
 val tree_widget : tree -> GTree.view
-val tree_model : tree -> (GTree.list_store * string GTree.column)
+val tree_model : tree -> (GTree.list_store * string GTree.column * bool GTree.column * GTree.cell_renderer_toggle_signals)
 
-val tree : GTree.view -> tree
-val tree_of : GTree.view -> (GTree.list_store * string GTree.column) -> tree
+val tree : ?check_box:bool -> GTree.view -> tree
+val tree_of : GTree.view -> (GTree.list_store * string GTree.column * bool GTree.column * GTree.cell_renderer_toggle_signals) -> tree
 
-val tree_values : tree -> string
+val tree_values : ?only_checked:bool -> tree -> string
 val get_selected_in_tree : tree -> GTree.row_reference list
 val add_to_tree : tree -> string -> unit
 val remove_selected_from_tree : tree -> unit
 val clear_tree : tree -> unit
+

@@ -6,6 +6,9 @@
     <define name="HACKHD_SYNC_SEND" value="TRUE|FALSE" description="enable telemetry report on camera position"/>
     <define name="HACKHD_LOG" value="TRUE|FALSE" description="enable logging of camera shot orientation and position"/>
   </doc>
+  <settings>
+    <file name="modules/hackhd.xml"/>
+  </settings>
   <header>
     <file name="hackhd.h"/>
   </header>

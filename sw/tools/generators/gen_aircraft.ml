@@ -340,10 +340,12 @@ let () =
     mkdir (aircraft_conf_dir // "telemetry");
 
     let settings =
-      try value "settings" with
+      try Env.filter_settings (value "settings") with
           _ ->
-            fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/basic.xml'\n\n%!" aircraft;
-            "settings/basic.xml" in
+            fprintf stderr "\nWARNING: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
+            "settings/dummy.xml" in
+    (* add modules settings *)
+    let settings = String.concat " " [settings; (try Env.filter_settings (value "settings_modules") with _ -> "")] in
 
     (** Expands the configuration of the A/C into one single file *)
     let conf_aircraft = Env.expand_ac_xml aircraft_xml in

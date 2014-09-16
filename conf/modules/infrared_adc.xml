@@ -8,6 +8,9 @@
     <configure name="ADC_IR_TOP" value="ADC_0" description="ADC for IR vertical channel"/>
     <configure name="ADC_IR_NB_SAMPLES" value="16" description="number of samples"/>
   </doc>
+  <settings>
+    <file name="estimation/infrared.xml"/>
+  </settings>
   <header>
     <file name="infrared_adc.h"/>
   </header>

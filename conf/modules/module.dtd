@@ -1,7 +1,8 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc?,depend?,header,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc?,settings?,depend?,header,init*,periodic*,event*,datalink*,makefile*)>
 <!ELEMENT doc (description|define|configure|section)*>
+<!ELEMENT settings (file*)>
 <!ELEMENT depend EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
