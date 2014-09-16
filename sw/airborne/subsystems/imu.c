@@ -24,7 +24,10 @@
  * Inertial Measurement Unit interface.
  */
 
+#ifdef BOARD_CONFIG
 #include BOARD_CONFIG
+#endif
+
 #include "subsystems/imu.h"
 #include "state.h"
 
@@ -219,4 +222,3 @@ void imu_SetBodyToImuCurrent(float set) {
 #endif
   }
 }
-

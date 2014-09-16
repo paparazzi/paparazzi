@@ -160,9 +160,6 @@ bool_t log_started = FALSE;
 
 struct InsFloatInv ins_impl;
 
-/* integration time step */
-static const float dt = (1./ ((float)AHRS_PROPAGATE_FREQUENCY));
-
 /* earth gravity model */
 static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 
@@ -192,10 +189,18 @@ static inline void error_output(struct InsFloatInv * _ins);
 /* propagation model (called by runge-kutta library) */
 static inline void invariant_model(float * o, const float * x, const int n, const float * u, const int m);
 
+
+/** Right multiplication by a quaternion.
+ * vi * q
+ */
+void float_quat_vmul_right(struct FloatQuat* mright, const struct FloatQuat* q,
+                           struct FloatVect3* vi);
+
+
 /* init state and measurements */
 static inline void init_invariant_state(void) {
   // init state
-  FLOAT_QUAT_ZERO(ins_impl.state.quat);
+  float_quat_identity(&ins_impl.state.quat);
   FLOAT_RATES_ZERO(ins_impl.state.bias);
   FLOAT_VECT3_ZERO(ins_impl.state.pos);
   FLOAT_VECT3_ZERO(ins_impl.state.speed);
@@ -330,8 +335,8 @@ void ahrs_align(void)
   ins.status = INS_RUNNING;
 }
 
-void ahrs_propagate(void) {
-  struct NedCoor_f accel;
+void ahrs_propagate(float dt) {
+  struct FloatVect3 accel;
   struct FloatRates body_rates;
 
   // realign all the filter if needed
@@ -346,10 +351,10 @@ void ahrs_propagate(void) {
   // fill command vector
   struct Int32Rates gyro_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  INT32_RMAT_TRANSP_RATEMULT(gyro_meas_body, *body_to_imu_rmat, imu.gyro);
+  int32_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, &imu.gyro);
   RATES_FLOAT_OF_BFP(ins_impl.cmd.rates, gyro_meas_body);
   struct Int32Vect3 accel_meas_body;
-  INT32_RMAT_TRANSP_VMULT(accel_meas_body, *body_to_imu_rmat, imu.accel);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
   ACCELS_FLOAT_OF_BFP(ins_impl.cmd.accel, accel_meas_body);
 
   // update correction gains
@@ -373,10 +378,12 @@ void ahrs_propagate(void) {
   stateSetPositionNed_f(&ins_impl.state.pos);
   stateSetSpeedNed_f(&ins_impl.state.speed);
   // untilt accel and remove gravity
-  FLOAT_QUAT_RMAT_B2N(accel, ins_impl.state.quat, ins_impl.cmd.accel);
-  FLOAT_VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
-  FLOAT_VECT3_ADD(accel, A);
-  stateSetAccelNed_f(&accel);
+  struct FloatQuat q_b2n;
+  float_quat_invert(&q_b2n, &ins_impl.state.quat);
+  float_quat_vmult(&accel, &q_b2n, &ins_impl.cmd.accel);
+  VECT3_SMUL(accel, accel, 1. / (ins_impl.state.as));
+  VECT3_ADD(accel, A);
+  stateSetAccelNed_f((struct NedCoor_f*)&accel);
 
   //------------------------------------------------------------//
 
@@ -513,13 +520,13 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, const float *pres
   }
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt __attribute__((unused))) {
 }
 
 // assume mag is dead when values are not moving anymore
 #define MAG_FROZEN_COUNT 30
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt __attribute__((unused)) {
   static uint32_t mag_frozen_count = MAG_FROZEN_COUNT;
   static int32_t last_mx = 0;
 
@@ -536,7 +543,7 @@ void ahrs_update_mag(void) {
     struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
     struct Int32Vect3 mag_meas_body;
     // new values in body frame
-    INT32_RMAT_TRANSP_VMULT(mag_meas_body, *body_to_imu_rmat, imu.mag);
+    int32_rmat_transp_vmult(&mag_meas_body, body_to_imu_rmat, &imu.mag);
     MAGS_FLOAT_OF_BFP(ins_impl.meas.mag, mag_meas_body);
     // reset counter
     mag_frozen_count = MAG_FROZEN_COUNT;
@@ -549,15 +556,14 @@ void ahrs_update_mag(void) {
  *
  * x_dot = evolution_model + (gain_matrix * error)
  */
-static inline void invariant_model(float * o, const float * x, const int n, const float * u, const int m __attribute__((unused))) {
+static inline void invariant_model(float* o, const float* x, const int n, const float* u, const int m __attribute__((unused))) {
 
-  const struct inv_state * s = (const struct inv_state *)x;
-  const struct inv_command * c = (const struct inv_command *)u;
+  struct inv_state* s = (struct inv_state*)x;
+  struct inv_command* c = (struct inv_command*)u;
   struct inv_state s_dot;
-  struct FloatRates rates;
+  struct FloatRates rates_unbiased;
   struct FloatVect3 tmp_vect;
   struct FloatQuat tmp_quat;
-  float  norm;
 
   // test accel sensitivity
   if (fabs(s->as) < 0.1) {
@@ -568,30 +574,30 @@ static inline void invariant_model(float * o, const float * x, const int n, cons
   }
 
   /* dot_q = 0.5 * q * (x_rates - x_bias) + LE * q + (1 - ||q||^2) * q */
-  RATES_DIFF(rates, c->rates, s->bias);
-  FLOAT_VECT3_ASSIGN(tmp_vect, rates.p, rates.q, rates.r);
-  FLOAT_QUAT_VMUL_LEFT(s_dot.quat, s->quat, tmp_vect);
-  FLOAT_QUAT_SMUL(s_dot.quat, s_dot.quat, 0.5);
+  RATES_DIFF(rates_unbiased, c->rates, s->bias);
+  /* qd = 0.5 * q * rates_unbiased = -0.5 * rates_unbiased * q */
+  float_quat_derivative(&s_dot.quat, &rates_unbiased, &(s->quat));
 
-  FLOAT_QUAT_VMUL_RIGHT(tmp_quat, s->quat, ins_impl.corr.LE);
-  FLOAT_QUAT_ADD(s_dot.quat, tmp_quat);
+  float_quat_vmul_right(&tmp_quat, &(s->quat), &ins_impl.corr.LE);
+  QUAT_ADD(s_dot.quat, tmp_quat);
 
-  norm = FLOAT_QUAT_NORM(s->quat);
-  norm = 1. - (norm*norm);
-  FLOAT_QUAT_SMUL(tmp_quat, s->quat, norm);
-  FLOAT_QUAT_ADD(s_dot.quat, tmp_quat);
+  float norm2_r = 1. - FLOAT_QUAT_NORM2(s->quat);
+  QUAT_SMUL(tmp_quat, s->quat, norm2_r);
+  QUAT_ADD(s_dot.quat, tmp_quat);
 
   /* dot_V = A + (1/as) * (q * am * q-1) + ME */
-  FLOAT_QUAT_RMAT_B2N(s_dot.speed, s->quat, c->accel);
-  FLOAT_VECT3_SMUL(s_dot.speed, s_dot.speed, 1. / (s->as));
-  FLOAT_VECT3_ADD(s_dot.speed, A);
-  FLOAT_VECT3_ADD(s_dot.speed, ins_impl.corr.ME);
+  struct FloatQuat q_b2n;
+  float_quat_invert(&q_b2n, &(s->quat));
+  float_quat_vmult((struct FloatVect3*)&s_dot.speed, &q_b2n, &(c->accel));
+  VECT3_SMUL(s_dot.speed, s_dot.speed, 1. / (s->as));
+  VECT3_ADD(s_dot.speed, A);
+  VECT3_ADD(s_dot.speed, ins_impl.corr.ME);
 
   /* dot_X = V + NE */
-  FLOAT_VECT3_SUM(s_dot.pos, s->speed, ins_impl.corr.NE);
+  VECT3_SUM(s_dot.pos, s->speed, ins_impl.corr.NE);
 
   /* bias_dot = q-1 * (OE) * q */
-  FLOAT_QUAT_RMAT_N2B(tmp_vect, s->quat, ins_impl.corr.OE);
+  float_quat_vmult(&tmp_vect, &(s->quat), &ins_impl.corr.OE);
   RATES_ASSIGN(s_dot.bias, tmp_vect.x, tmp_vect.y, tmp_vect.z);
 
   /* as_dot = as * RE */
@@ -621,14 +627,16 @@ static inline void error_output(struct InsFloatInv * _ins) {
   }
 
   /* YBt = q * yB * q-1  */
-  FLOAT_QUAT_RMAT_B2N(YBt, _ins->state.quat, _ins->meas.mag);
+  struct FloatQuat q_b2n;
+  float_quat_invert(&q_b2n, &(_ins->state.quat));
+  float_quat_vmult(&YBt, &q_b2n, &(_ins->meas.mag));
 
-  FLOAT_QUAT_RMAT_B2N(I, _ins->state.quat, _ins->cmd.accel);
-  FLOAT_VECT3_SMUL(I, I, 1. / (_ins->state.as));
+  float_quat_vmult(&I, &q_b2n, &(_ins->cmd.accel));
+  VECT3_SMUL(I, I, 1. / (_ins->state.as));
 
   /*--------- E = ( ŷ - y ) ----------*/
   /* Eb = ( B - YBt ) */
-  FLOAT_VECT3_DIFF(Eb, B, YBt);
+  VECT3_DIFF(Eb, B, YBt);
 
   // pos and speed error only if GPS data are valid
   // or while waiting first GPS data to prevent diverging
@@ -640,9 +648,9 @@ static inline void error_output(struct InsFloatInv * _ins) {
 #endif
     ) || !ins_gps_fix_once) {
     /* Ev = (V - YV)   */
-    FLOAT_VECT3_DIFF(Ev, _ins->state.speed, _ins->meas.speed_gps);
+    VECT3_DIFF(Ev, _ins->state.speed, _ins->meas.speed_gps);
     /* Ex = (X - YX)  */
-    FLOAT_VECT3_DIFF(Ex, _ins->state.pos, _ins->meas.pos_gps);
+    VECT3_DIFF(Ex, _ins->state.pos, _ins->meas.pos_gps);
   }
   else {
     FLOAT_VECT3_ZERO(Ev);
@@ -654,16 +662,16 @@ static inline void error_output(struct InsFloatInv * _ins) {
   /*--------------Gains--------------*/
 
   /**** LvEv + LbEb = -lvIa x Ev +  lb < B x Eb, Ia > Ia *****/
-  FLOAT_VECT3_SMUL(Itemp, I, -_ins->gains.lv/100.);
-  FLOAT_VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
+  VECT3_SMUL(Itemp, I, -_ins->gains.lv/100.);
+  VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
 
-  FLOAT_VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
-  temp = FLOAT_VECT3_DOT_PRODUCT(Ebtemp, I);
+  VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
+  temp = VECT3_DOT_PRODUCT(Ebtemp, I);
   temp = (_ins->gains.lb/100.) * temp;
 
-  FLOAT_VECT3_SMUL(Ebtemp, I, temp);
-  FLOAT_VECT3_ADD(Evtemp, Ebtemp);
-  FLOAT_VECT3_COPY(_ins->corr.LE, Evtemp);
+  VECT3_SMUL(Ebtemp, I, temp);
+  VECT3_ADD(Evtemp, Ebtemp);
+  VECT3_COPY(_ins->corr.LE, Evtemp);
 
   /***** MvEv + MhEh = -mv * Ev + (-mh * <Eh,e3>)********/
   _ins->corr.ME.x = (-_ins->gains.mv) * Ev.x + 0.;
@@ -676,23 +684,37 @@ static inline void error_output(struct InsFloatInv * _ins) {
   _ins->corr.NE.z = ((-_ins->gains.nxz) * Ex.z) + ((-_ins->gains.nh) * Eh);
 
   /****** OvEv + ObEb = ovIa x Ev - ob < B x Eb, Ia > Ia ********/
-  FLOAT_VECT3_SMUL(Itemp, I, _ins->gains.ov/1000.);
-  FLOAT_VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
+  VECT3_SMUL(Itemp, I, _ins->gains.ov/1000.);
+  VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
 
-  FLOAT_VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
-  temp = FLOAT_VECT3_DOT_PRODUCT(Ebtemp, I);
+  VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
+  temp = VECT3_DOT_PRODUCT(Ebtemp, I);
   temp = (-_ins->gains.ob/1000.) * temp;
 
-  FLOAT_VECT3_SMUL(Ebtemp, I, temp);
-  FLOAT_VECT3_ADD(Evtemp, Ebtemp);
-  FLOAT_VECT3_COPY(_ins->corr.OE, Evtemp);
+  VECT3_SMUL(Ebtemp, I, temp);
+  VECT3_ADD(Evtemp, Ebtemp);
+  VECT3_COPY(_ins->corr.OE, Evtemp);
 
   /* a scalar */
   /****** RvEv + RhEh = rv < Ia, Ev > + (-rhEh) **************/
-  _ins->corr.RE = ((_ins->gains.rv/100.) * FLOAT_VECT3_DOT_PRODUCT(Ev, I)) + ((-_ins->gains.rh/10000.) * Eh);
+  _ins->corr.RE = ((_ins->gains.rv/100.) * VECT3_DOT_PRODUCT(Ev, I)) + ((-_ins->gains.rh/10000.) * Eh);
 
   /****** ShEh ******/
   _ins->corr.SE = (_ins->gains.sh) * Eh;
 
 }
 
+
+void float_quat_vmul_right(struct FloatQuat* mright, const struct FloatQuat* q,
+                           struct FloatVect3* vi)
+{
+  struct FloatVect3 qvec, v1, v2;
+  float qi;
+
+  FLOAT_QUAT_EXTRACT(qvec, *q);
+  qi = - VECT3_DOT_PRODUCT(*vi, qvec);
+  VECT3_CROSS_PRODUCT(v1, *vi, qvec);
+  VECT3_SMUL(v2, *vi, q->qi);
+  VECT3_ADD(v2, v1);
+  QUAT_ASSIGN(*mright, qi, v2.x, v2.y, v2.z);
+}

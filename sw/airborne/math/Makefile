@@ -4,13 +4,13 @@
 # Quiet compilation
 Q=@
 
+PAPARAZZI_SRC ?= ../../..
+
 CC= gcc
 CFLAGS= -fpic
 INCLUDES= -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne
 
-ifeq ($(PAPARAZZI_HOME),)
-PAPARAZZI_HOME=$(PAPARAZZI_SRC)
-endif
+PAPARAZZI_HOME ?= $(PAPARAZZI_SRC)
 
 # build in $(PAPARAZZI_HOME)/var/build/math
 BUILDDIR ?= $(PAPARAZZI_HOME)/var/build/math

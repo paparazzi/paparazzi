@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ *               2009-2014 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ *               2010-2014 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,16 +16,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file pprz_geodetic_int.c
+ * @brief Paparazzi fixed point math for geodetic calculations.
+ *
+ *
  */
 
 #include "pprz_geodetic_int.h"
 #include "pprz_algebra_int.h"
 
 
-void ltp_of_ecef_rmat_from_lla_i(struct Int32Mat33* ltp_of_ecef, struct LlaCoor_i* lla) {
+void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat* ltp_of_ecef, struct LlaCoor_i* lla)
+{
 
 #if USE_DOUBLE_PRECISION_TRIG
   int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7DEG((double)lla->lat)), HIGH_RES_TRIG_FRAC));
@@ -40,15 +49,16 @@ void ltp_of_ecef_rmat_from_lla_i(struct Int32Mat33* ltp_of_ecef, struct LlaCoor_
   ltp_of_ecef->m[0] = -sin_lon;
   ltp_of_ecef->m[1] =  cos_lon;
   ltp_of_ecef->m[2] =  0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
-  ltp_of_ecef->m[3] = (int32_t)((-(int64_t)sin_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
-  ltp_of_ecef->m[4] = (int32_t)((-(int64_t)sin_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[3] = (int32_t)((-(int64_t)sin_lat * (int64_t)cos_lon) >> HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[4] = (int32_t)((-(int64_t)sin_lat * (int64_t)sin_lon) >> HIGH_RES_TRIG_FRAC);
   ltp_of_ecef->m[5] =  cos_lat;
-  ltp_of_ecef->m[6] = (int32_t)(( (int64_t)cos_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
-  ltp_of_ecef->m[7] = (int32_t)(( (int64_t)cos_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[6] = (int32_t)(((int64_t)cos_lat * (int64_t)cos_lon) >> HIGH_RES_TRIG_FRAC);
+  ltp_of_ecef->m[7] = (int32_t)(((int64_t)cos_lat * (int64_t)sin_lon) >> HIGH_RES_TRIG_FRAC);
   ltp_of_ecef->m[8] =  sin_lat;
 }
 
-void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
 
   /* store the origin of the tangeant plane */
   VECT3_COPY(def->ecef, *ecef);
@@ -59,7 +69,8 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
 }
 
-void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla) {
+void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla)
+{
 
   /* store the origin of the tangeant plane */
   LLA_COPY(def->lla, *lla);
@@ -76,22 +87,23 @@ void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla) {
  * @param[in]  def  local coordinate system definition
  * @param[in]  ecef ECEF point in cm
  */
-void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
 
   struct EcefCoor_i delta;
   VECT3_DIFF(delta, *ecef, def->ecef);
-  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*delta.x +
-                       (int64_t)def->ltp_of_ecef.m[1]*delta.y +
+  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * delta.x +
+                       (int64_t)def->ltp_of_ecef.m[1] * delta.y +
                        0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
-  enu->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
-  const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3]*delta.x +
-                       (int64_t)def->ltp_of_ecef.m[4]*delta.y +
-                       (int64_t)def->ltp_of_ecef.m[5]*delta.z;
-  enu->y = (int32_t)(tmpy>>HIGH_RES_TRIG_FRAC);
-  const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[6]*delta.x +
-                       (int64_t)def->ltp_of_ecef.m[7]*delta.y +
-                       (int64_t)def->ltp_of_ecef.m[8]*delta.z;
-  enu->z = (int32_t)(tmpz>>HIGH_RES_TRIG_FRAC);
+  enu->x = (int32_t)(tmpx >> HIGH_RES_TRIG_FRAC);
+  const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3] * delta.x +
+                       (int64_t)def->ltp_of_ecef.m[4] * delta.y +
+                       (int64_t)def->ltp_of_ecef.m[5] * delta.z;
+  enu->y = (int32_t)(tmpy >> HIGH_RES_TRIG_FRAC);
+  const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[6] * delta.x +
+                       (int64_t)def->ltp_of_ecef.m[7] * delta.y +
+                       (int64_t)def->ltp_of_ecef.m[8] * delta.z;
+  enu->z = (int32_t)(tmpz >> HIGH_RES_TRIG_FRAC);
 
 }
 
@@ -101,7 +113,8 @@ void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ece
  * @param[in]  def  local coordinate system definition
  * @param[in]  ecef ECEF point in cm
  */
-void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
   struct EnuCoor_i enu;
   enu_of_ecef_point_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
@@ -113,7 +126,8 @@ void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ece
  * @param[in]  def  local coordinate system definition
  * @param[in]  ecef ECEF position in cm
  */
-void enu_of_ecef_pos_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void enu_of_ecef_pos_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
   struct EnuCoor_i enu_cm;
   enu_of_ecef_point_i(&enu_cm, def, ecef);
 
@@ -122,7 +136,7 @@ void enu_of_ecef_pos_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefC
    * enu_cm = enu << (INT32_POS_FRAC-2) / 25
    * which puts max enu output Q23.8 range to 8388km / 25 = 335km
    */
-  INT32_VECT3_LSHIFT(*enu, enu_cm, INT32_POS_FRAC-2);
+  INT32_VECT3_LSHIFT(*enu, enu_cm, INT32_POS_FRAC - 2);
   VECT3_SDIV(*enu, *enu, 25);
 }
 
@@ -132,7 +146,8 @@ void enu_of_ecef_pos_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefC
  * @param[in]  def  local coordinate system definition
  * @param[in]  ecef ECEF position in cm
  */
-void ned_of_ecef_pos_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void ned_of_ecef_pos_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
   struct EnuCoor_i enu;
   enu_of_ecef_pos_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
@@ -144,20 +159,21 @@ void ned_of_ecef_pos_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefC
  * @param[in]  def  local coordinate system definition
  * @param[in]  ecef vector in ECEF coordinate system
  */
-void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
 
-  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*ecef->x +
-                       (int64_t)def->ltp_of_ecef.m[1]*ecef->y +
+  const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * ecef->x +
+                       (int64_t)def->ltp_of_ecef.m[1] * ecef->y +
                        0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
-  enu->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
-  const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3]*ecef->x +
-                       (int64_t)def->ltp_of_ecef.m[4]*ecef->y +
-                       (int64_t)def->ltp_of_ecef.m[5]*ecef->z;
-  enu->y = (int32_t)(tmpy>>HIGH_RES_TRIG_FRAC);
-  const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[6]*ecef->x +
-                       (int64_t)def->ltp_of_ecef.m[7]*ecef->y +
-                       (int64_t)def->ltp_of_ecef.m[8]*ecef->z;
-  enu->z = (int32_t)(tmpz>>HIGH_RES_TRIG_FRAC);
+  enu->x = (int32_t)(tmpx >> HIGH_RES_TRIG_FRAC);
+  const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3] * ecef->x +
+                       (int64_t)def->ltp_of_ecef.m[4] * ecef->y +
+                       (int64_t)def->ltp_of_ecef.m[5] * ecef->z;
+  enu->y = (int32_t)(tmpy >> HIGH_RES_TRIG_FRAC);
+  const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[6] * ecef->x +
+                       (int64_t)def->ltp_of_ecef.m[7] * ecef->y +
+                       (int64_t)def->ltp_of_ecef.m[8] * ecef->z;
+  enu->z = (int32_t)(tmpz >> HIGH_RES_TRIG_FRAC);
 
 }
 
@@ -167,7 +183,8 @@ void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ecef
  * @param[in]  def  local coordinate system definition
  * @param[in]  ecef vector in ECEF coordinate system
  */
-void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
+void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef)
+{
   struct EnuCoor_i enu;
   enu_of_ecef_vect_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
@@ -179,22 +196,23 @@ void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ecef
  * @param[in]  def  local coordinate system definition
  * @param[in]  enu  vector in ENU coordinate system
  */
-void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu)
+{
 
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0] * enu->x +
                        (int64_t)def->ltp_of_ecef.m[3] * enu->y +
                        (int64_t)def->ltp_of_ecef.m[6] * enu->z;
-  ecef->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
+  ecef->x = (int32_t)(tmpx >> HIGH_RES_TRIG_FRAC);
 
   const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[1] * enu->x +
                        (int64_t)def->ltp_of_ecef.m[4] * enu->y +
                        (int64_t)def->ltp_of_ecef.m[7] * enu->z;
-  ecef->y = (int32_t)(tmpy>>HIGH_RES_TRIG_FRAC);
+  ecef->y = (int32_t)(tmpy >> HIGH_RES_TRIG_FRAC);
 
   /* first element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ENU_to_ECEF */
   const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[5] * enu->y +
                        (int64_t)def->ltp_of_ecef.m[8] * enu->z;
-  ecef->z = (int32_t)(tmpz>>HIGH_RES_TRIG_FRAC);
+  ecef->z = (int32_t)(tmpz >> HIGH_RES_TRIG_FRAC);
 
 }
 
@@ -204,7 +222,8 @@ void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct En
  * @param[in]  def  local coordinate system definition
  * @param[in]  ned  vector in NED coordinate system
  */
-void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned)
+{
   struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_vect_i(ecef, def, &enu);
@@ -216,9 +235,10 @@ void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct Ne
  * @param[in]  def  local coordinate system definition
  * @param[in]  enu  ENU point in cm
  */
-void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu)
+{
   ecef_of_enu_vect_i(ecef, def, enu);
-  INT32_VECT3_ADD(*ecef, def->ecef);
+  VECT3_ADD(*ecef, def->ecef);
 }
 
 
@@ -227,7 +247,8 @@ void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct E
  * @param[in]  def  local coordinate system definition
  * @param[in]  ned  NED point in cm
  */
-void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned)
+{
   struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_point_i(ecef, def, &enu);
@@ -239,7 +260,8 @@ void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct N
  * @param[in]  def  local coordinate system definition
  * @param[in]  enu  ENU position in meter << #INT32_POS_FRAC
  */
-void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu)
+{
   /* enu_cm = (enu * 100) >> INT32_POS_FRAC
    * to loose less range:
    * enu_cm = (enu * 25) >> (INT32_POS_FRAC-2)
@@ -247,9 +269,9 @@ void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct Enu
    */
   struct EnuCoor_i enu_cm;
   VECT3_SMUL(enu_cm, *enu, 25);
-  INT32_VECT3_RSHIFT(enu_cm, enu_cm, INT32_POS_FRAC-2);
+  INT32_VECT3_RSHIFT(enu_cm, enu_cm, INT32_POS_FRAC - 2);
   ecef_of_enu_vect_i(ecef, def, &enu_cm);
-  INT32_VECT3_ADD(*ecef, def->ecef);
+  VECT3_ADD(*ecef, def->ecef);
 }
 
 
@@ -258,35 +280,40 @@ void ecef_of_enu_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct Enu
  * @param[in]  def  local coordinate system definition
  * @param[in]  ned  NED position in meter << #INT32_POS_FRAC
  */
-void ecef_of_ned_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+void ecef_of_ned_pos_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned)
+{
   struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_pos_i(ecef, def, &enu);
 }
 
 
-void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla)
+{
   struct EcefCoor_i ecef;
-  ecef_of_lla_i(&ecef,lla);
-  enu_of_ecef_point_i(enu,def,&ecef);
+  ecef_of_lla_i(&ecef, lla);
+  enu_of_ecef_point_i(enu, def, &ecef);
 }
 
-void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla)
+{
   struct EcefCoor_i ecef;
-  ecef_of_lla_i(&ecef,lla);
-  ned_of_ecef_point_i(ned,def,&ecef);
+  ecef_of_lla_i(&ecef, lla);
+  ned_of_ecef_point_i(ned, def, &ecef);
 }
 
-void enu_of_lla_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+void enu_of_lla_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla)
+{
   struct EcefCoor_i ecef;
-  ecef_of_lla_i(&ecef,lla);
-  enu_of_ecef_vect_i(enu,def,&ecef);
+  ecef_of_lla_i(&ecef, lla);
+  enu_of_ecef_vect_i(enu, def, &ecef);
 }
 
-void ned_of_lla_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+void ned_of_lla_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla)
+{
   struct EcefCoor_i ecef;
-  ecef_of_lla_i(&ecef,lla);
-  ned_of_ecef_vect_i(ned,def,&ecef);
+  ecef_of_lla_i(&ecef, lla);
+  ned_of_ecef_vect_i(ned, def, &ecef);
 }
 
 /*
@@ -296,7 +323,8 @@ void ned_of_lla_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCo
 #include "pprz_geodetic_float.h"
 #include "pprz_geodetic_double.h"
 
-void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in) {
+void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in)
+{
 
   /* convert our input to floating point */
   struct EcefCoor_d in_d;
@@ -313,7 +341,8 @@ void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in) {
 
 }
 
-void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in) {
+void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in)
+{
 
   /* convert our input to floating point */
   struct LlaCoor_d in_d;

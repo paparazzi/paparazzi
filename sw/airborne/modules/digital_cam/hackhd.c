@@ -224,7 +224,7 @@ void hackhd_autoshoot(void) {
     struct FloatVect2 d_pos;
     d_pos.x = pos.x - hackhd.last_shot_pos.x;
     d_pos.y = pos.y - hackhd.last_shot_pos.y;
-    if (FLOAT_VECT2_NORM2(d_pos) > (HACKHD_AUTOSHOOT_DIST*HACKHD_AUTOSHOOT_DIST)
+    if (VECT2_NORM2(d_pos) > (HACKHD_AUTOSHOOT_DIST*HACKHD_AUTOSHOOT_DIST)
         || hackhd.status == HACKHD_AUTOSHOOT_START) {
 #endif
       // take a picture

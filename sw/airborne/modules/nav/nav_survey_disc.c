@@ -75,7 +75,7 @@ bool_t nav_survey_disc_run( uint8_t center_wp, float radius) {
 
       struct FloatVect2 dist;
       VECT2_DIFF(dist, disc_survey.c1, waypoints[center_wp]);
-      float d = FLOAT_VECT2_DOT_PRODUCT(upwind, dist);
+      float d = VECT2_DOT_PRODUCT(upwind, dist);
       if (d > radius) {
         disc_survey.status = DOWNWIND;
       } else {

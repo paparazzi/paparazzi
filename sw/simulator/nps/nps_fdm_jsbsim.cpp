@@ -506,7 +506,7 @@ PRINT_CONFIG_MSG("Using WMM2010 model to calculate magnetic field at simulated l
   mag_calc(1, latitude, longitude, alt, nmax, gha,
            &fdm.ltp_h.x, &fdm.ltp_h.y, &fdm.ltp_h.z,
            IEXT, EXT_COEFF1, EXT_COEFF2, EXT_COEFF3);
-  FLOAT_VECT3_NORMALIZE(fdm.ltp_h);
+  double_vect3_normalize(&fdm.ltp_h);
   printf("normalized magnetic field: %.4f %.4f %.4f\n", fdm.ltp_h.x, fdm.ltp_h.y, fdm.ltp_h.z);
 #endif
 

@@ -53,17 +53,16 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_f *lla) {
   struct EnuCoor_f home;
   ENU_FLOAT_OF_BFP(home, waypoints[WP_HOME]);
   struct FloatVect2 vect_from_home;
-  FLOAT_VECT2_DIFF(vect_from_home, tmp_enu_point, home);
+  VECT2_DIFF(vect_from_home, tmp_enu_point, home);
   //Saturate the mission wp not to overflow max_dist_from_home
   //including a buffer zone before limits
-  float dist_to_home;
-  FLOAT_VECT2_NORM(dist_to_home, vect_from_home);
+  float dist_to_home = float_vect2_norm(&vect_from_home);
   dist_to_home += BUFFER_ZONE_DIST;
   if (dist_to_home > MAX_DIST_FROM_HOME) {
-    FLOAT_VECT2_SMUL(vect_from_home, vect_from_home, (MAX_DIST_FROM_HOME / dist_to_home));
+    VECT2_SMUL(vect_from_home, vect_from_home, (MAX_DIST_FROM_HOME / dist_to_home));
   }
   // set new point
-  FLOAT_VECT2_SUM(*point, home, vect_from_home);
+  VECT2_SUM(*point, home, vect_from_home);
   point->z = tmp_enu_point.z;
 
   return TRUE;
@@ -122,7 +121,7 @@ static inline bool_t mission_nav_wp(struct _mission_element * el) {
   }
   //Go to Mission Waypoint
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  INT32_VECT3_COPY(navigation_target, *target_wp);
+  VECT3_COPY(navigation_target, *target_wp);
   NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(target_wp->z), 0.);
 

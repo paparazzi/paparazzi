@@ -62,7 +62,7 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm) {
 void WEAK ins_reset_utm_zone(struct UtmCoor_f * utm __attribute__((unused))) {}
 #endif
 
-void WEAK ins_propagate(void) {}
+void WEAK ins_propagate(float dt __attribute__((unused))) {}
 
 void WEAK ins_update_gps(void) {}
 

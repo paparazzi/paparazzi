@@ -83,8 +83,9 @@ extern void ins_reset_utm_zone(struct UtmCoor_f * utm);
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.
  *  Does nothing if not implemented by specific INS algorithm.
+ *  @param dt time difference since last propagation in seconds
  */
-extern void ins_propagate(void);
+extern void ins_propagate(float dt);
 
 /** Update INS state with GPS measurements.
  *  Reads the global #gps data struct.

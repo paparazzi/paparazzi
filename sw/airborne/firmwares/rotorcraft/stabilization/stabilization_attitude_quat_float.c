@@ -155,7 +155,7 @@ void stabilization_attitude_init(void) {
 #endif
   }
 
-  FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+  float_quat_identity(&stabilization_att_sum_err_quat);
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   FLOAT_RATES_ZERO( last_body_rate );
   FLOAT_RATES_ZERO( body_rate_d );
@@ -183,7 +183,7 @@ void stabilization_attitude_enter(void) {
 
   stabilization_attitude_ref_enter();
 
-  FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+  float_quat_identity(&stabilization_att_sum_err_quat);
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 }
 
@@ -293,9 +293,9 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   /* attitude error                          */
   struct FloatQuat att_err;
   struct FloatQuat* att_quat = stateGetNedToBodyQuat_f();
-  FLOAT_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
+  float_quat_inv_comp(&att_err, att_quat, &stab_att_ref_quat);
   /* wrap it in the shortest direction       */
-  FLOAT_QUAT_WRAP_SHORTEST(att_err);
+  float_quat_wrap_shortest(&att_err);
 
   /*  rate error                */
   struct FloatRates rate_err;
@@ -313,13 +313,13 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     scaled_att_err.qx = att_err.qx / IERROR_SCALE;
     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
-    FLOAT_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
-    FLOAT_QUAT_NORMALIZE(new_sum_err);
-    FLOAT_QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
-    FLOAT_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);
+    float_quat_comp(&new_sum_err, &stabilization_att_sum_err_quat, &scaled_att_err);
+    float_quat_normalize(&new_sum_err);
+    QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
+    float_eulers_of_quat(&stabilization_att_sum_err, &stabilization_att_sum_err_quat);
   } else {
     /* reset accumulator */
-    FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );
+    float_quat_identity(&stabilization_att_sum_err_quat);
     FLOAT_EULERS_ZERO( stabilization_att_sum_err );
   }
 
@@ -346,5 +346,5 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn) {
 
   stabilization_attitude_read_rc_setpoint_quat_f(&stab_att_sp_quat, in_flight, in_carefree, coordinated_turn);
-  //FLOAT_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+  //float_quat_wrap_shortest(&stab_att_sp_quat);
 }

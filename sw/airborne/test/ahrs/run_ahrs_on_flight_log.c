@@ -88,17 +88,17 @@ int main(int argc, char** argv) {
     if (ahrs.status == AHRS_UNINIT) {
       ahrs_aligner_run();
       if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-  ahrs_align();
+        ahrs_align();
     }
     else {
-      ahrs_propagate();
+      ahrs_propagate((1./AHRS_PROPAGATE_FREQUENCY));
 #ifdef ENABLE_MAG_UPDATE
       if (MAG_AVAILABLE(samples[i].flag))
-  ahrs_update_mag();
+        ahrs_update_mag();
 #endif
 #ifdef ENABLE_ACCEL_UPDATE
       if (IMU_AVAILABLE(samples[i].flag) && (!MAG_AVAILABLE(samples[i].flag)))
-  ahrs_update_accel();
+        ahrs_update_accel();
 #endif
     }
     store_filter_output(i);
@@ -155,11 +155,11 @@ static void feed_imu(int i) {
 #if   defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FLQ
 static void store_filter_output(int i) {
 #ifdef OUTPUT_IN_BODY_FRAME
-  QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_body_quat);
-  RATES_COPY(output[i].rate_est, ahrs_float.body_rate);
+  QUAT_COPY(output[i].quat_est, ahrs_impl.ltp_to_body_quat);
+  RATES_COPY(output[i].rate_est, ahrs_impl.body_rate);
 #else
-  QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_imu_quat);
-  RATES_COPY(output[i].rate_est, ahrs_float.imu_rate);
+  QUAT_COPY(output[i].quat_est, ahrs_impl.ltp_to_imu_quat);
+  RATES_COPY(output[i].rate_est, ahrs_impl.imu_rate);
 #endif /* OUTPUT_IN_BODY_FRAME */
   RATES_COPY(output[i].bias_est, ahrs_impl.gyro_bias);
   memcpy(output[i].P, ahrs_impl.P, sizeof(ahrs_impl.P));
@@ -167,11 +167,11 @@ static void store_filter_output(int i) {
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FCR
 static void store_filter_output(int i) {
 #ifdef OUTPUT_IN_BODY_FRAME
-  QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_body_quat);
-  RATES_COPY(output[i].rate_est, ahrs_float.body_rate);
+  QUAT_COPY(output[i].quat_est, ahrs_impl.ltp_to_body_quat);
+  RATES_COPY(output[i].rate_est, ahrs_impl.body_rate);
 #else
-  QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_imu_quat);
-  RATES_COPY(output[i].rate_est, ahrs_float.imu_rate);
+  QUAT_COPY(output[i].quat_est, ahrs_impl.ltp_to_imu_quat);
+  RATES_COPY(output[i].rate_est, ahrs_impl.imu_rate);
 #endif /* OUTPUT_IN_BODY_FRAME */
   RATES_COPY(output[i].bias_est, ahrs_impl.gyro_bias);
   //  memcpy(output[i].P, ahrs_impl.P, sizeof(ahrs_impl.P));
@@ -179,11 +179,13 @@ static void store_filter_output(int i) {
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_ICE
 static void store_filter_output(int i) {
 #ifdef OUTPUT_IN_BODY_FRAME
-  QUAT_FLOAT_OF_BFP(output[i].quat_est, ahrs.ltp_to_body_quat);
-  RATES_FLOAT_OF_BFP(output[i].rate_est, ahrs.body_rate);
+  QUAT_FLOAT_OF_BFP(output[i].quat_est, ahrs_impl.ltp_to_body_quat);
+  RATES_FLOAT_OF_BFP(output[i].rate_est, ahrs_impl.body_rate);
 #else
-  QUAT_FLOAT_OF_BFP(output[i].quat_est, ahrs.ltp_to_imu_quat);
-  RATES_FLOAT_OF_BFP(output[i].rate_est, ahrs.imu_rate);
+  struct FloatEulers eul_f;
+  EULERS_FLOAT_OF_BFP(eul_f, ahrs_impl.ltp_to_imu_euler);
+  FLOAT_QUAT_OF_EULERS(output[i].quat_est, eul_f);
+  RATES_FLOAT_OF_BFP(output[i].rate_est, ahrs_impl.imu_rate);
 #endif /* OUTPUT_IN_BODY_FRAME */
   RATES_ASSIGN(output[i].bias_est, 0., 0., 0.);
   //  memset(output[i].P, ahrs_impl.P, sizeof(ahrs_impl.P));

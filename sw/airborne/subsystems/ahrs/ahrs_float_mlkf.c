@@ -46,18 +46,14 @@
 
 //#include <stdio.h>
 
-#ifndef AHRS_PROPAGATE_FREQUENCY
-#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
-#endif
-
 #ifndef AHRS_MAG_NOISE_X
 #define AHRS_MAG_NOISE_X 0.2
 #define AHRS_MAG_NOISE_Y 0.2
 #define AHRS_MAG_NOISE_Z 0.2
 #endif
 
-static inline void propagate_ref(void);
-static inline void propagate_state(void);
+static inline void propagate_ref(float dt);
+static inline void propagate_state(float dt);
 static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise);
 static inline void reset_state(void);
 static inline void set_body_state_from_quat(void);
@@ -122,18 +118,18 @@ void ahrs_align(void) {
   ahrs.status = AHRS_RUNNING;
 }
 
-void ahrs_propagate(void) {
-  propagate_ref();
-  propagate_state();
+void ahrs_propagate(float dt) {
+  propagate_ref(dt);
+  propagate_state(dt);
   set_body_state_from_quat();
 }
 
-void ahrs_update_accel(void) {
+void ahrs_update_accel(float dt __attribute__((unused))) {
   struct FloatVect3 imu_g;
   ACCELS_FLOAT_OF_BFP(imu_g, imu.accel);
   const float alpha = 0.92;
   ahrs_impl.lp_accel = alpha * ahrs_impl.lp_accel +
-    (1. - alpha) *(FLOAT_VECT3_NORM(imu_g) - 9.81);
+    (1. - alpha) *(float_vect3_norm(&imu_g) - 9.81);
   const struct FloatVect3 earth_g = {0.,  0., -9.81 };
   const float dn = 250*fabs( ahrs_impl.lp_accel );
   struct FloatVect3 g_noise = {1.+dn, 1.+dn, 1.+dn};
@@ -142,7 +138,7 @@ void ahrs_update_accel(void) {
 }
 
 
-void ahrs_update_mag(void) {
+void ahrs_update_mag(float dt __attribute__((unused))) {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, imu.mag);
   update_state(&ahrs_impl.mag_h, &imu_h, &ahrs_impl.mag_noise);
@@ -150,7 +146,7 @@ void ahrs_update_mag(void) {
 }
 
 
-static inline void propagate_ref(void) {
+static inline void propagate_ref(float dt) {
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
@@ -168,8 +164,7 @@ static inline void propagate_ref(void) {
 #endif
 
   /* propagate reference quaternion */
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-  FLOAT_QUAT_INTEGRATE(ahrs_impl.ltp_to_imu_quat, ahrs_impl.imu_rate, dt);
+  float_quat_integrate(&ahrs_impl.ltp_to_imu_quat, &ahrs_impl.imu_rate, dt);
 
 }
 
@@ -177,10 +172,9 @@ static inline void propagate_ref(void) {
  * Progagate filter's covariance
  * We don't propagate state as we assume to have reseted
  */
-static inline void propagate_state(void) {
+static inline void propagate_state(float dt) {
 
   /* predict covariance */
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
   const float dp = ahrs_impl.imu_rate.p*dt;
   const float dq = ahrs_impl.imu_rate.q*dt;
   const float dr = ahrs_impl.imu_rate.r*dt;
@@ -210,7 +204,7 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  FLOAT_QUAT_VMULT(b_expected, ahrs_impl.ltp_to_imu_quat, *i_expected);
+  float_quat_vmult(&b_expected, &ahrs_impl.ltp_to_imu_quat, (struct FloatVect3*)i_expected);
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
@@ -270,10 +264,10 @@ static inline void reset_state(void) {
 
   ahrs_impl.gibbs_cor.qi = 2.;
   struct FloatQuat q_tmp;
-  FLOAT_QUAT_COMP(q_tmp, ahrs_impl.ltp_to_imu_quat, ahrs_impl.gibbs_cor);
-  FLOAT_QUAT_NORMALIZE(q_tmp);
+  float_quat_comp(&q_tmp, &ahrs_impl.ltp_to_imu_quat, &ahrs_impl.gibbs_cor);
+  float_quat_normalize(&q_tmp);
   memcpy(&ahrs_impl.ltp_to_imu_quat, &q_tmp, sizeof(ahrs_impl.ltp_to_imu_quat));
-  FLOAT_QUAT_ZERO(ahrs_impl.gibbs_cor);
+  float_quat_identity(&ahrs_impl.gibbs_cor);
 
 }
 
@@ -286,13 +280,13 @@ static inline void set_body_state_from_quat(void) {
 
   /* Compute LTP to BODY quaternion */
   struct FloatQuat ltp_to_body_quat;
-  FLOAT_QUAT_COMP_INV(ltp_to_body_quat, ahrs_impl.ltp_to_imu_quat, *body_to_imu_quat);
+  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_impl.ltp_to_imu_quat, body_to_imu_quat);
   /* Set in state interface */
   stateSetNedToBodyQuat_f(&ltp_to_body_quat);
 
   /* compute body rates */
   struct FloatRates body_rate;
-  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
+  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_impl.imu_rate);
   /* Set state */
   stateSetBodyRates_f(&body_rate);
 

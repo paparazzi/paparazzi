@@ -217,17 +217,17 @@ void ins_reset_altitude_ref(void) {
   ins_impl.vf_reset = TRUE;
 }
 
-void ins_propagate(void) {
+void ins_propagate(float dt) {
   /* untilt accels */
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  INT32_RMAT_TRANSP_VMULT(accel_meas_body, *body_to_imu_rmat, imu.accel);
+  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, &imu.accel);
   struct Int32Vect3 accel_meas_ltp;
-  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, (*stateGetNedToBodyRMat_i()), accel_meas_body);
+  int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
   if (ins_impl.baro_initialized) {
-    vff_propagate(z_accel_meas_float);
+    vff_propagate(z_accel_meas_float, dt);
     ins_update_from_vff();
   }
   else { // feed accel from the sensors

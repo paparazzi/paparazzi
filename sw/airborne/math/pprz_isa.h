@@ -14,15 +14,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
  * @file math/pprz_isa.h
- * @brief Paparazzi atmospheric pressure convertion utilities
+ * @brief Paparazzi atmospheric pressure conversion utilities
  *
  * Conversion functions are use to approximate altitude
  * from atmospheric pressure based on the standard model
@@ -36,6 +34,10 @@
 #ifndef PPRZ_ISA_H
 #define PPRZ_ISA_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "std.h"
 #include <math.h>
 
@@ -46,7 +48,7 @@
 #define PPRZ_ISA_GRAVITY 9.80665
 #define PPRZ_ISA_AIR_GAS_CONSTANT (8.31447/0.0289644)
 
-static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT*PPRZ_ISA_SEA_LEVEL_TEMP/PPRZ_ISA_GRAVITY);
+static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT* PPRZ_ISA_SEA_LEVEL_TEMP / PPRZ_ISA_GRAVITY);
 
 /**
  * Get absolute altitude from pressure (using simplified equation).
@@ -55,9 +57,10 @@ static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT*PPRZ_ISA_S
  * @param pressure current pressure in Pascal (Pa)
  * @return altitude in pressure in ISA conditions
  */
-static inline float pprz_isa_altitude_of_pressure(float pressure) {
+static inline float pprz_isa_altitude_of_pressure(float pressure)
+{
   if (pressure > 0.) {
-    return (PPRZ_ISA_M_OF_P_CONST*logf(PPRZ_ISA_SEA_LEVEL_PRESSURE/pressure));
+    return (PPRZ_ISA_M_OF_P_CONST * logf(PPRZ_ISA_SEA_LEVEL_PRESSURE / pressure));
   } else {
     return 0.;
   }
@@ -70,9 +73,10 @@ static inline float pprz_isa_altitude_of_pressure(float pressure) {
  * @param ref reference pressure (QFE) when height = 0
  * @return altitude in pressure in ISA conditions
  */
-static inline float pprz_isa_height_of_pressure(float pressure, float ref) {
+static inline float pprz_isa_height_of_pressure(float pressure, float ref)
+{
   if (pressure > 0. && ref > 0.) {
-    return (PPRZ_ISA_M_OF_P_CONST*logf(ref/pressure));
+    return (PPRZ_ISA_M_OF_P_CONST * logf(ref / pressure));
   } else {
     return 0.;
   }
@@ -84,8 +88,9 @@ static inline float pprz_isa_height_of_pressure(float pressure, float ref) {
  * @param altitude current absolute altitude in meters
  * @return static pressure in Pa in ISA conditions
  */
-static inline float pprz_isa_pressure_of_altitude(float altitude) {
-  return (PPRZ_ISA_SEA_LEVEL_PRESSURE*expf((-1./PPRZ_ISA_M_OF_P_CONST)*altitude));
+static inline float pprz_isa_pressure_of_altitude(float altitude)
+{
+  return (PPRZ_ISA_SEA_LEVEL_PRESSURE * expf((-1. / PPRZ_ISA_M_OF_P_CONST) * altitude));
 }
 
 /**
@@ -95,8 +100,13 @@ static inline float pprz_isa_pressure_of_altitude(float altitude) {
  * @param ref reference pressure (QFE) when height = 0
  * @return static pressure in Pa in ISA conditions
  */
-static inline float pprz_isa_pressure_of_height(float altitude, float ref) {
-  return (ref*expf((-1./PPRZ_ISA_M_OF_P_CONST)*altitude));
+static inline float pprz_isa_pressure_of_height(float altitude, float ref)
+{
+  return (ref * expf((-1. / PPRZ_ISA_M_OF_P_CONST) * altitude));
 }
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* PPRZ_ISA_H */

@@ -54,10 +54,6 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 
-#ifndef AHRS_PROPAGATE_FREQUENCY
-#define AHRS_PROPAGATE_FREQUENCY PERIODIC_FREQUENCY
-#endif
-
 
 struct AhrsFloatDCM ahrs_impl;
 
@@ -65,9 +61,6 @@ struct AhrsFloatDCM ahrs_impl;
 // Positive pitch : nose up
 // Positive roll : right wing down
 // Positive yaw : clockwise
-
-// DCM Working variables
-const float G_Dt = 1. / ((float) AHRS_PROPAGATE_FREQUENCY );
 
 struct FloatVect3 accel_float = {0,0,0};
 
@@ -91,7 +84,7 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat);
 
 void Normalize(void);
 void Drift_correction(void);
-void Matrix_update(void);
+void Matrix_update(float dt);
 
 #if PERFORMANCE_REPORTING == 1
 int renorm_sqrt_count = 0;
@@ -136,7 +129,7 @@ void ahrs_align(void)
 
   /* Convert initial orientation in quaternion and rotation matrice representations. */
   struct FloatRMat ltp_to_imu_rmat;
-  FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
+  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
 
   /* set filter dcm */
   set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
@@ -153,7 +146,7 @@ void ahrs_align(void)
 }
 
 
-void ahrs_propagate(void)
+void ahrs_propagate(float dt)
 {
   /* convert imu data to floating point */
   struct FloatRates gyro_float;
@@ -177,7 +170,7 @@ void ahrs_propagate(void)
   ahrs_impl.imu_rate.r += dr;
 #endif
 
-  Matrix_update();
+  Matrix_update(dt);
 
   Normalize();
 
@@ -209,7 +202,7 @@ void ahrs_update_gps(void)
 }
 
 
-void ahrs_update_accel(void)
+void ahrs_update_accel(float dt __attribute__((unused)))
 {
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
@@ -240,7 +233,7 @@ PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses GPS acceleration.")
 }
 
 
-void ahrs_update_mag(void)
+void ahrs_update_mag(float dt __attribute__((unused)))
 {
 #if USE_MAGNETOMETER
 #warning MAGNETOMETER FEEDBACK NOT TESTED YET
@@ -474,30 +467,30 @@ PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS duri
 }
 /**************************************************/
 
-void Matrix_update(void)
+void Matrix_update(float dt)
 {
   Vector_Add(&Omega[0], &ahrs_impl.imu_rate.p, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
  #if OUTPUTMODE==1    // With corrected data (drift correction)
   Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*Omega_Vector[2];//-z
-  Update_Matrix[0][2]=G_Dt*Omega_Vector[1];//y
-  Update_Matrix[1][0]=G_Dt*Omega_Vector[2];//z
+  Update_Matrix[0][1]=-dt*Omega_Vector[2];//-z
+  Update_Matrix[0][2]=dt*Omega_Vector[1];//y
+  Update_Matrix[1][0]=dt*Omega_Vector[2];//z
   Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*Omega_Vector[0];//-x
-  Update_Matrix[2][0]=-G_Dt*Omega_Vector[1];//-y
-  Update_Matrix[2][1]=G_Dt*Omega_Vector[0];//x
+  Update_Matrix[1][2]=-dt*Omega_Vector[0];//-x
+  Update_Matrix[2][0]=-dt*Omega_Vector[1];//-y
+  Update_Matrix[2][1]=dt*Omega_Vector[0];//x
   Update_Matrix[2][2]=0;
  #else                    // Uncorrected data (no drift correction)
   Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*ahrs_impl.imu_rate.r;//-z
-  Update_Matrix[0][2]=G_Dt*ahrs_impl.imu_rate.q;//y
-  Update_Matrix[1][0]=G_Dt*ahrs_impl.imu_rate.r;//z
+  Update_Matrix[0][1]=-dt*ahrs_impl.imu_rate.r;//-z
+  Update_Matrix[0][2]=dt*ahrs_impl.imu_rate.q;//y
+  Update_Matrix[1][0]=dt*ahrs_impl.imu_rate.r;//z
   Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*ahrs_impl.imu_rate.p;
-  Update_Matrix[2][0]=-G_Dt*ahrs_impl.imu_rate.q;
-  Update_Matrix[2][1]=G_Dt*ahrs_impl.imu_rate.p;
+  Update_Matrix[1][2]=-dt*ahrs_impl.imu_rate.p;
+  Update_Matrix[2][0]=-dt*ahrs_impl.imu_rate.q;
+  Update_Matrix[2][1]=dt*ahrs_impl.imu_rate.p;
   Update_Matrix[2][2]=0;
  #endif
 
@@ -520,12 +513,12 @@ static inline void set_body_orientation_and_rates(void) {
   struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&imu.body_to_imu);
 
   struct FloatRates body_rate;
-  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_impl.imu_rate);
+  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_impl.imu_rate);
   stateSetBodyRates_f(&body_rate);
 
   struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
-  FLOAT_RMAT_OF_EULERS(ltp_to_imu_rmat, ahrs_impl.ltp_to_imu_euler);
-  FLOAT_RMAT_COMP_INV(ltp_to_body_rmat, ltp_to_imu_rmat, *body_to_imu_rmat);
+  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
+  float_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
 
   stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
 

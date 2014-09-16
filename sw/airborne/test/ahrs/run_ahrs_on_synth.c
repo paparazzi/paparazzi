@@ -53,7 +53,7 @@ static void report(void) {
 
 #if AHRS_TYPE == AHRS_TYPE_ICQ
   struct Int32Eulers ltp_to_imu_euler_i;
-  INT32_EULERS_OF_QUAT(ltp_to_imu_euler_i, ahrs_impl.ltp_to_imu_quat);
+  int32_eulers_of_quat(&ltp_to_imu_euler_i, &ahrs_impl.ltp_to_imu_quat);
   struct FloatEulers ltp_to_imu_euler_f;
   EULERS_FLOAT_OF_BFP(ltp_to_imu_euler_f, ltp_to_imu_euler_i);
   printf("%f %f %f ", DegOfRad(ltp_to_imu_euler_f.phi),

@@ -182,11 +182,11 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
   //normalize
   FLOAT_VECT2_NORMALIZE(sweep);
 
-  FLOAT_VECT2_SMUL(survey.rad_vec, sweep, survey.psa_min_rad);
-  FLOAT_VECT2_SMUL(survey.sweep_vec, sweep, survey.psa_sweep_width);
+  VECT2_SMUL(survey.rad_vec, sweep, survey.psa_min_rad);
+  VECT2_SMUL(survey.sweep_vec, sweep, survey.psa_sweep_width);
 
   //begin at leftmost position (relative to survey.dir_vec)
-  FLOAT_VECT2_COPY(small,waypoints[survey.poly_first]);
+  VECT2_COPY(small,waypoints[survey.poly_first]);
 
   divider = (survey.sweep_vec.y*survey.dir_vec.x) - (survey.sweep_vec.x*survey.dir_vec.y);
 
@@ -194,19 +194,19 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
   if (divider < 0.0) {
     for(i=1;i<survey.poly_count;i++)
       if ((survey.dir_vec.x*(waypoints[survey.poly_first+i].y - small.y)) + (survey.dir_vec.y*(small.x - waypoints[survey.poly_first+i].x)) > 0.0) {
-        FLOAT_VECT2_COPY(small, waypoints[survey.poly_first+i]);
+        VECT2_COPY(small, waypoints[survey.poly_first+i]);
       }
   }
   else
     for(i=1;i<survey.poly_count;i++)
       if ((survey.dir_vec.x*(waypoints[survey.poly_first+i].y - small.y)) + (survey.dir_vec.y*(small.x - waypoints[survey.poly_first+i].x)) > 0.0) {
-        FLOAT_VECT2_COPY(small, waypoints[survey.poly_first+i]);
+        VECT2_COPY(small, waypoints[survey.poly_first+i]);
       }
 
   //calculate the line the defines the first flyover
   survey.seg_start.x = small.x + 0.5*survey.sweep_vec.x;
   survey.seg_start.y = small.y + 0.5*survey.sweep_vec.y;
-  FLOAT_VECT2_SUM(survey.seg_end, survey.seg_start, survey.dir_vec);
+  VECT2_SUM(survey.seg_end, survey.seg_start, survey.dir_vec);
 
   if (!get_two_intersects(&survey.seg_start, &survey.seg_end, survey.seg_start, survey.seg_end)) {
     survey.stage = ERR;
@@ -214,7 +214,7 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
   }
 
   //center of the entry circle
-  FLOAT_VECT2_DIFF(survey.entry_center, survey.seg_start, survey.rad_vec);
+  VECT2_DIFF(survey.entry_center, survey.seg_start, survey.rad_vec);
 
   //fast climbing to desired altitude
   NavVerticalAutoThrottleMode(0.0);
@@ -256,7 +256,7 @@ bool_t nav_survey_polygon_run(void)
 #ifdef DIGITAL_CAM
       dc_stop();
 #endif
-      FLOAT_VECT2_DIFF(survey.seg_center1, survey.seg_end, survey.rad_vec);
+      VECT2_DIFF(survey.seg_center1, survey.seg_end, survey.rad_vec);
       survey.ret_start.x = survey.seg_end.x - 2*survey.rad_vec.x;
       survey.ret_start.y = survey.seg_end.y - 2*survey.rad_vec.y;
 

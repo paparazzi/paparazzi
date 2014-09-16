@@ -56,9 +56,9 @@ kestrel2ivy: kestrel2ivy.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) -livy
 
-natnet2ivy: natnet2ivy.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.o $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.o
+natnet2ivy: natnet2ivy.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.o $(PAPARAZZI_SRC)/sw/airborne/math/pprz_algebra_double.o $(PAPARAZZI_SRC)/sw/airborne/fms/fms_network.o
 	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) -livy
+	$(Q)$(CC) $(CFLAGS) -o natnet2ivy natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o fms_network.o $(LIBRARYS) $(NATNET_LIBRARYS) -livy
 
 video_synchronizer: video_synchronizer.c
 	@echo CC $@

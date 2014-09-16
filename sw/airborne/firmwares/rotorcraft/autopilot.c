@@ -39,6 +39,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
+#include "generated/settings.h"
 
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"

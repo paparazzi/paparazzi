@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
  * @file pprz_geodetic_double.h
- *   @brief Paparazzi double-precision floating point math for geodetic calculations.
+ * @brief Paparazzi double-precision floating point math for geodetic calculations.
  *
- *   This is the more detailed description of this file.
  *
  */
 
@@ -95,7 +93,7 @@ struct UtmCoor_d {
 struct LtpDef_d {
   struct EcefCoor_d  ecef; ///< origin of local frame in ECEF
   struct LlaCoor_d   lla; ///< origin of local frame in LLA
-  struct DoubleMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
+  struct DoubleRMat ltp_of_ecef; ///< rotation from ECEF to local frame
   double hmsl; ///< height in meters above mean sea level
 };
 

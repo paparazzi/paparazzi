@@ -504,8 +504,7 @@ void parse_ins_msg(void) {
         ins_z = -(INS_FORMAT)XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) / 1000.;
 
         // Compute geoid (MSL) height
-        float hmsl;
-        WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,hmsl);
+        float hmsl = wgs84_ellipsoid_to_geoid(lla_f.lat, lla_f.lon);
         gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) - (hmsl * 1000.0f);
 
         ins_vx = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset)) / 100.;

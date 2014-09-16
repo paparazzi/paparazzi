@@ -15,10 +15,10 @@ test_matrix: test_matrix.c
 test_geodetic: test_geodetic.c ../math/pprz_geodetic_float.c ../math/pprz_geodetic_double.c ../math/pprz_geodetic_int.c ../math/pprz_trig_int.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test_algebra: test_algebra.c ../math/pprz_trig_int.c
+test_algebra: test_algebra.c ../math/pprz_trig_int.c ../math/pprz_algebra_int.c ../math/pprz_algebra_float.c ../math/pprz_algebra_double.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test_bla: test_bla.c ../math/pprz_trig_int.c
+test_bla: test_bla.c ../math/pprz_trig_int.c ../math/pprz_algebra_int.c ../math/pprz_algebra_float.c ../math/pprz_algebra_double.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.exe : %.c

@@ -100,7 +100,7 @@ static void dump(const void *_b, size_t s) {
 }
 #endif
 
-void ahrs_propagate(void) {
+void ahrs_propagate(float dt __attribute__((unused))) {
   int l;
 
   //Recieve the main packet

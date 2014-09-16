@@ -132,9 +132,9 @@ static inline void reset_psi_ref_from_body(void) {
 void stabilization_attitude_ref_init(void) {
 
   INT_EULERS_ZERO(stab_att_sp_euler);
-  INT32_QUAT_ZERO(stab_att_sp_quat);
+  int32_quat_identity(&stab_att_sp_quat);
   INT_EULERS_ZERO(stab_att_ref_euler);
-  INT32_QUAT_ZERO(stab_att_ref_quat);
+  int32_quat_identity(&stab_att_ref_quat);
   INT_RATES_ZERO(stab_att_ref_rate);
   INT_RATES_ZERO(stab_att_ref_accel);
 
@@ -149,8 +149,8 @@ void stabilization_attitude_ref_enter(void)
   /* convert reference attitude with REF_ANGLE_FRAC to eulers with normal INT32_ANGLE_FRAC */
   struct Int32Eulers ref_eul;
   INT32_EULERS_RSHIFT(ref_eul, stab_att_ref_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
-  INT32_QUAT_OF_EULERS(stab_att_ref_quat, ref_eul);
-  INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
+  int32_quat_of_eulers(&stab_att_ref_quat, &ref_eul);
+  int32_quat_wrap_shortest(&stab_att_ref_quat);
 
   /* set reference rate and acceleration to zero */
   memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));
@@ -176,14 +176,14 @@ void stabilization_attitude_ref_update(void) {
     OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Quat qdot;
-  INT32_QUAT_DERIVATIVE(qdot, rate_ref_scaled, stab_att_ref_quat);
+  int32_quat_derivative(&qdot, &rate_ref_scaled, &stab_att_ref_quat);
   //QUAT_SMUL(qdot, qdot, DT_UPDATE);
   qdot.qi = qdot.qi >> F_UPDATE_RES;
   qdot.qx = qdot.qx >> F_UPDATE_RES;
   qdot.qy = qdot.qy >> F_UPDATE_RES;
   qdot.qz = qdot.qz >> F_UPDATE_RES;
   QUAT_ADD(stab_att_ref_quat, qdot);
-  INT32_QUAT_NORMALIZE(stab_att_ref_quat);
+  int32_quat_normalize(&stab_att_ref_quat);
 
   /* integrate reference rotational speeds
    * delta rate = ref_accel * dt
@@ -198,9 +198,9 @@ void stabilization_attitude_ref_update(void) {
   /* compute reference angular accelerations */
   struct Int32Quat err;
   /* compute reference attitude error        */
-  INT32_QUAT_INV_COMP(err, stab_att_sp_quat, stab_att_ref_quat);
+  int32_quat_inv_comp(&err, &stab_att_sp_quat, &stab_att_ref_quat);
   /* wrap it in the shortest direction       */
-  INT32_QUAT_WRAP_SHORTEST(err);
+  int32_quat_wrap_shortest(&err);
 
   /* propagate the 2nd order linear model : accel = -2*zeta*omega * rate - omega^2 * angle  */
 
@@ -229,6 +229,6 @@ void stabilization_attitude_ref_update(void) {
 
   /* compute ref_euler for debugging and telemetry */
   struct Int32Eulers ref_eul;
-  INT32_EULERS_OF_QUAT(ref_eul, stab_att_ref_quat);
+  int32_eulers_of_quat(&ref_eul, &stab_att_ref_quat);
   INT32_EULERS_LSHIFT(stab_att_ref_euler, ref_eul, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
 }

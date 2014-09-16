@@ -145,4 +145,14 @@ extern bool_t power_switch;
 #define NAVIGATION_FREQUENCY 4
 #endif
 
+#include "subsystems/settings.h"
+
+static inline void autopilot_StoreSettings(float store)
+{
+  if (kill_throttle && store) {
+    settings_store_flag = store;
+    settings_store();
+  }
+}
+
 #endif /* AUTOPILOT_H */

@@ -348,7 +348,7 @@ struct DoubleEulers sigma_euler_from_sigma_q(struct DoubleQuat q, struct DoubleQ
     return sigma_eu;
   }
   
-  DOUBLE_VECT3_CROSS_PRODUCT(temporary_result, v_q, v_sigma);
+  VECT3_CROSS_PRODUCT(temporary_result, v_q, v_sigma);
   
   VECT3_SMUL(v_q, v_q, sigma_q.qi);
   VECT3_SMUL(v_sigma, v_sigma, q.qi);
