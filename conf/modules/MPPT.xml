@@ -7,6 +7,9 @@
       Solar Cells control board by Michel
     </description>
   </doc>
+  <settings>
+    <file name="modules/MPPT.xml"/>
+  </settings>
   <header>
     <file name="MPPT.h"/>
   </header>

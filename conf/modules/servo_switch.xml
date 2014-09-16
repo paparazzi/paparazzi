@@ -7,6 +7,9 @@
     <define name="SERVO_SWITCH_OFF_VALUE" value="pwm" description="servo value in usec"/>
     <define name="SERVO_SWITCH_SERVO"     value="nb" description="Id of the servo (default: SWITCH)"/>
   </doc>
+  <settings>
+    <file name="modules/servo_switch.xml"/>
+  </settings>
   <header>
     <file name="servo_switch.h"/>
   </header>

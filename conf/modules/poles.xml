@@ -4,6 +4,9 @@
   <doc>
     <description>Navigate around two poles</description>
   </doc>
+  <settings>
+    <file name="modules/poles.xml"/>
+  </settings>
   <header>
     <file name="nav_poles.h"/>
   </header>

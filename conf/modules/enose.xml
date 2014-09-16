@@ -8,6 +8,9 @@
     <file name="enose.h"/>
     <file name="chemo_detect.h"/>
   </header>
+  <settings>
+    <file name="modules/enose.xml"/>
+  </settings>
   <init fun="enose_init()"/>
   <init fun="chemo_init()"/>
   <periodic fun="enose_periodic()" freq="4." delay="4" autorun="TRUE"/>

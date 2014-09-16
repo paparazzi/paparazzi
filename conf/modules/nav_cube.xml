@@ -6,6 +6,9 @@
       Fixedwing Navigation in a cube towards a center.
     </description>
   </doc>
+  <settings>
+    <file name="control/nav_cube.xml"/>
+  </settings>
   <header>
     <file name="nav_cube.h"/>
   </header>

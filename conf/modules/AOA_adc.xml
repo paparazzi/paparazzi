@@ -8,6 +8,9 @@
     <define name="AOA_OFFSET" value="3.14"  description="offset in radians"/>
     <define name="AOA_FILTER" value="0.5" description="filtering parameter between 0 (no filtering) and 1"/>
   </doc>
+  <settings>
+    <file name="modules/AOA_adc.xml"/>
+  </settings>
 
   <header>
     <file name="aoa_adc.h"/>

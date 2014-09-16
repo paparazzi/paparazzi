@@ -4,6 +4,9 @@
   <doc>
     <description>Formation flight control</description>
   </doc>
+  <settings>
+    <file name="modules/formation.xml"/>
+  </settings>
   <header>
     <file name="formation.h"/>
   </header>

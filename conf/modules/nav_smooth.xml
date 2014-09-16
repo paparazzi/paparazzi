@@ -6,6 +6,9 @@
        Smooth navigation to wp_a along an arc (around wp_cd), a segment (from wp_rd to wp_ta) and a second arc (around wp_ca).
     </description>
   </doc>
+  <settings>
+    <file name="control/snav.xml"/>
+  </settings>
   <header>
     <file name="nav_smooth.h"/>
   </header>

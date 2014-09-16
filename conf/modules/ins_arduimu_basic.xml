@@ -6,6 +6,9 @@
     <define name="USE_HIGH_ACCEL_FLAG" description="flag to disable accelerometers on high acceleration detection (low speed, high thrust)"/>
     <define name="ARDUIMU_SYNC_SEND" description="flag to downlink raw gyro and accels values"/>
   </doc>
+  <settings>
+    <file name="modules/ins_arduimu_basic.xml"/>
+  </settings>
   <header>
     <file name="ins_arduimu_basic.h"/>
   </header>

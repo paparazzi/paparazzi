@@ -4,6 +4,9 @@
   <doc>
     <description>Vehicule Interface over Datalink</description>
   </doc>
+  <settings>
+    <file name="modules/vehicle_interface.xml"/>
+  </settings>
   <header>
     <file name="vi_datalink.h"/>
   </header>

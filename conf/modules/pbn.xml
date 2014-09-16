@@ -12,6 +12,9 @@
       return scaled values over I2C
     </description>
   </doc>
+  <settings>
+    <file name="modules/pbn.xml"/>
+  </settings>
 
   <header>
     <file name="pressure_board_navarro.h"/>

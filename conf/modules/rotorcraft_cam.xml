@@ -31,6 +31,9 @@ On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWIT
       <define name="STICK_PAN_INC" value="angle/stick_input" description="Sensitivity of the datalink stick pan control (default: 20 deg)"/>
     </section>
   </doc>
+  <settings>
+    <file name="modules/rotorcraft_cam.xml"/>
+  </settings>
   <header>
     <file name="rotorcraft_cam.h"/>
   </header>

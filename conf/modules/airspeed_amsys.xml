@@ -14,6 +14,9 @@
     <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
     <define name="AIRSPEED_AMSYS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
+  <settings>
+    <file name="modules/airspeed_amsys.xml"/>
+  </settings>
 
   <header>
     <file name="airspeed_amsys.h"/>

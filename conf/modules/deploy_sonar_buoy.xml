@@ -7,6 +7,9 @@
       The application in this was written for drops two sonar buoys.
     </description>
   </doc>
+  <settings>
+    <file name="modules/deploy_sonar_buoy.xml"/>
+  </settings>
   <header>
     <file name="deploy_sonar_buoy.h"/>
   </header>

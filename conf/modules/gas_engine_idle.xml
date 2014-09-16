@@ -4,6 +4,9 @@
   <doc>
     <description>Gas Engine Idle</description>
   </doc>
+  <settings>
+    <file name="modules/gas_engine_idle_trim.xml"/>
+  </settings>
   <header>
     <file name="gas_engine_idle_trim.h"/>
   </header>

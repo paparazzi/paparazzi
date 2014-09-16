@@ -5,6 +5,9 @@
   <doc>
     <description>I2C Infrared sensor</description>
   </doc>
+  <settings>
+    <file name="modules/ir_i2c.xml"/>
+  </settings>
   <header>
     <file name="infrared_i2c.h"/>
   </header>

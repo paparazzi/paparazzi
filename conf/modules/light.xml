@@ -10,6 +10,9 @@
       <define name="NAV_LIGHT_MODE_DEFAULT" value="X" description="flashing mode for nav light"/>
     </section>
   </doc>
+  <settings>
+    <file name="modules/light.xml"/>
+  </settings>
   <header>
     <file name="light.h"/>
   </header>

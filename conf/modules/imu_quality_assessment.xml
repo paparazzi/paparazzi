@@ -9,6 +9,9 @@
       - magnetic field hard iron offset
     </description>
   </doc>
+  <settings>
+    <file name="modules/imu_quality_assessment.xml"/>
+  </settings>
   <header>
     <file name="imu_quality_assessment.h"/>
   </header>

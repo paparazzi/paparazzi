@@ -18,6 +18,9 @@
     <define name="NAV_CATAPULT_INITAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)"/>
     <define name="NAV_CATAPULT_INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)"/>
   </doc>
+  <settings>
+    <file name="control/nav_catapult.xml"/>
+  </settings>
   <header>
     <file name="nav_catapult.h"/>
   </header>

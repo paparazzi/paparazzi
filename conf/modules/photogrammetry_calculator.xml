@@ -4,6 +4,9 @@
   <doc>
     <description>Photogrammetry navigation functions</description>
   </doc>
+  <settings>
+    <file name="modules/photogrammetry_calculator.xml"/>
+  </settings>
   <header>
     <file name="photogrammetry_calculator.h"/>
   </header>

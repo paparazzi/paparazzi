@@ -4,6 +4,9 @@
   <doc>
     <description>Data acquisition board used by Meteo France</description>
   </doc>
+  <settings>
+    <file name="modules/meteo_france_DAQ.xml"/>
+  </settings>
   <header>
     <file name="meteo_france_DAQ.h"/>
   </header>
