@@ -57,7 +57,18 @@ void mag_hmc58xx_module_periodic(void) {
 }
 
 void mag_hmc58xx_module_event(void) {
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
+PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
+  // timestamp in usec when last callback was received
+  static uint32_t last_ts = 0;
+#else
+PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
+PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
+  const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
+#endif
+
   hmc58xx_event(&mag_hmc58xx);
+
 #if MODULE_HMC58XX_UPDATE_AHRS
   if (mag_hmc58xx.data_available) {
     // set channel order
@@ -72,7 +83,14 @@ void mag_hmc58xx_module_event(void) {
     ImuScaleMag(imu);
     // update ahrs
     if (ahrs.status == AHRS_RUNNING) {
-      ahrs_update_mag();
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
+      // current timestamp
+      uint32_t now_ts = get_sys_time_usec();
+      // dt between this and last callback in seconds
+      float dt = (float)(now_ts - last_ts) / 1e6;
+      last_ts = now_ts;
+#endif
+      ahrs_update_mag(dt);
     }
     mag_hmc58xx.data_available = FALSE;
   }
