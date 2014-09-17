@@ -251,8 +251,6 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
   gui#tree_settings#set_vadjustment gui#tree_settings_scrollbar#adjustment;
   (* build tree for modules settings *)
   let tree_set_mod = Gtk_tools.tree ~check_box:true gui#tree_settings_modules in
-  (* attach vertical scrollbar *)
-  gui#tree_settings_modules#set_vadjustment gui#tree_settings_modules_scrollbar#adjustment;
 
   (* connect save_callback to the two toggle signals
    * it can't be done before because we need the two tree models
