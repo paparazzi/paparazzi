@@ -27,9 +27,9 @@ void trig_ext_init ( void ) {
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
   /* enable capture 0.2 on falling or rising edge + trigger interrupt */
 #if defined TRIG_EXT_PULSE_TYPE && TRIG_EXT_PULSE_TYPE == TRIG_EXT_PULSE_TYPE_RISING
-  T0CCR = PPM_CCR_CRR | PPM_CCR_CRI;
+  T0CCR |= PPM_CCR_CRR | PPM_CCR_CRI;
 #elif defined TRIG_EXT_PULSE_TYPE && TRIG_EXT_PULSE_TYPE == TRIG_EXT_PULSE_TYPE_FALLING
-  T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
+  T0CCR |= PPM_CCR_CRF | PPM_CCR_CRI;
 #else
 #error "trig_ext_hw.h: Unknown PULSE_TYPE"
 #endif
