@@ -44,9 +44,9 @@ void trigger_ext_init ( void ) {
   TRIG_EXT_PINSEL |= TRIG_EXT_PINSEL_VAL << TRIG_EXT_PINSEL_BIT;
   /* enable capture 0.2 on falling or rising edge + trigger interrupt */
 #if defined TRIG_EXT_PULSE_TYPE && TRIG_EXT_PULSE_TYPE == TRIG_EXT_PULSE_TYPE_RISING
-  T0CCR = TRIGGER_CRR | TRIGGER_CRI;
+  T0CCR |= TRIGGER_CRR | TRIGGER_CRI;
 #elif defined TRIG_EXT_PULSE_TYPE && TRIG_EXT_PULSE_TYPE == TRIG_EXT_PULSE_TYPE_FALLING
-  T0CCR = TRIGGER_CRF | TRIGGER_CRI;
+  T0CCR |= TRIGGER_CRF | TRIGGER_CRI;
 #else
 #error "trig_ext_hw.h: Unknown PULSE_TYPE"
 #endif
