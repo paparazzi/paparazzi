@@ -76,6 +76,10 @@
 #define BARO_SIM_SENDER_ID 19
 #endif
 
+#ifndef METEO_STICK_SENDER_ID
+#define METEO_STICK_SENDER_ID 30
+#endif
+
 /*
  * IDs of AGL measurment modules that can be loaded (sonars,...)
  */
