@@ -39,7 +39,7 @@ enum pwm_input_channels {
 };
 
 /**
- * The pwm counter is set-up to have 1/6 us resolution.
+ * The default pwm counter is set-up to have 1/6 us resolution.
  *
  * The timer clock frequency (before prescaling):
  * STM32F1:
@@ -49,7 +49,9 @@ enum pwm_input_channels {
  *   TIM1 -> 2 * APB2 = 2 * 84MHz = 168MHz
  *   TIM2 -> 2 * APB1 = 2 * 42MHz = 84MHz
  */
+#ifndef PWM_INPUT_TICKS_PER_USEC
 #define PWM_INPUT_TICKS_PER_USEC 6
+#endif
 
 #define PWM_INPUT_TICKS_OF_USEC(_v)        ((_v)*PWM_INPUT_TICKS_PER_USEC)
 #define PWM_INPUT_SIGNED_TICKS_OF_USEC(_v) (int32_t)((_v)*PWM_INPUT_TICKS_PER_USEC)
