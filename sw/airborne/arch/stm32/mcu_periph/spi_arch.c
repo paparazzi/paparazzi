@@ -667,11 +667,11 @@ void spi1_arch_init(void) {
   spi1_dma.dma = DMA2;
   // TODO make a macro to configure this from board/airframe file ?
   spi1_dma.rx_chan = DMA_STREAM0;
-  spi1_dma.tx_chan = DMA_STREAM3;
+  spi1_dma.tx_chan = DMA_STREAM5;
   spi1_dma.rx_chan_sel = DMA_SxCR_CHSEL_3;
   spi1_dma.tx_chan_sel = DMA_SxCR_CHSEL_3;
   spi1_dma.rx_nvic_irq = NVIC_DMA2_STREAM0_IRQ;
-  spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM3_IRQ;
+  spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM5_IRQ;
 #endif
   spi1_dma.tx_dummy_buf = 0;
   spi1_dma.tx_extra_dummy_dma = FALSE;
@@ -970,11 +970,11 @@ void dma1_channel3_isr(void)
     DMA1_IFCR |= DMA_IFCR_CTCIF3;
   }
 #elif defined STM32F4
-void dma2_stream3_isr(void)
+void dma2_stream5_isr(void)
 {
-  if ((DMA2_LISR & DMA_LISR_TCIF3) != 0) {
+  if ((DMA2_HISR & DMA_HISR_TCIF5) != 0) {
     // clear int pending bit
-    DMA2_LIFCR |= DMA_LIFCR_CTCIF3;
+    DMA2_HIFCR |= DMA_HIFCR_CTCIF5;
   }
 #endif
   process_tx_dma_interrupt(&spi1);
