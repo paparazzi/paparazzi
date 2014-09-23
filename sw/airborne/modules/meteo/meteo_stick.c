@@ -152,12 +152,13 @@ void meteo_stick_periodic(void)
 #if LOG_MS
   if (pprzLogFile.fs != NULL) {
     if (!log_ptu_started) {
-      sdLogWriteLog(&pprzLogFile, "P(adc) T(adc) H(usec) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      sdLogWriteLog(&pprzLogFile, "P(adc) T(adc) H(ticks) P_diff(adc) GPS_fix TOW(ms) Week Lat(1e7rad) Lon(1e7rad) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
       log_ptu_started = TRUE;
     }
     else {
-      sdLogWriteLog(&pprzLogFile, "%d %d %d %d %d %d %d %d %d %d %d %d\n",
-          meteo_stick.pressure.data, meteo_stick.temperature.data, humidity_period,
+      sdLogWriteLog(&pprzLogFile, "%d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+          meteo_stick.pressure.data, meteo_stick.temperature.data,
+          meteo_stick.humidity_period, meteo_stick.diff_pressure.data,
           gps.fix, gps.tow, gps.week,
           gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
           gps.gspeed, gps.course, -gps.ned_vel.z);
