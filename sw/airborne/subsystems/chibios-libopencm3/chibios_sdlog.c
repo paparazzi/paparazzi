@@ -46,9 +46,9 @@ EventListener powerOutageListener;
 
 FIL pprzLogFile = {0};
 
-#if LOG_PROCESS_STATE
-static const char PROCESS_LOG_NAME[] = "processLog_";
-FIL processLogFile = {0};
+#if LOG_FLIGHTRECORDER
+static const char FLIGHTRECORDER_LOG_NAME[] = "fr_";
+FIL flightRecorderLogFile = {0};
 #endif
 
 struct chibios_sdlog chibios_sdlog;
@@ -96,8 +96,8 @@ bool_t chibios_logInit(const bool_t binaryFile)
   if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME) != SDLOG_OK)
     goto error;
 
-#if LOG_PROCESS_STATE
-  if (sdLogOpenLog (&processLogFile, PROCESS_LOG_NAME) != SDLOG_OK)
+#if LOG_FLIGHTRECORDER
+  if (sdLogOpenLog (&flightRecorderLogFile, FLIGHTRECORDER_LOG_NAME) != SDLOG_OK)
     goto error;
 #endif
 
@@ -120,8 +120,8 @@ void chibios_logFinish(void)
   if (pprzLogFile.fs != NULL) {
     sdLogStopThread ();
     sdLogCloseLog (&pprzLogFile);
-#if LOG_PROCESS_STATE
-    sdLogCloseLog (&processLogFile);
+#if LOG_FLIGHTRECORDER
+    sdLogCloseLog (&flightRecorderLogFile);
 #endif
     sdLogFinish ();
     pprzLogFile.fs = NULL;

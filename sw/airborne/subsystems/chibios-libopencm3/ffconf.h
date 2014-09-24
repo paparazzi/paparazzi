@@ -185,7 +185,7 @@
 /      function must be added to the project. */
 
 
-#define	_FS_SHARE	0	/* 0:Disable or >=1:Enable */
+#define	_FS_SHARE	2	/* 0:Disable or >=1:Enable */
 /* To enable file shareing feature, set _FS_SHARE to 1 or greater. The value
    defines how many files can be opened simultaneously. */
 

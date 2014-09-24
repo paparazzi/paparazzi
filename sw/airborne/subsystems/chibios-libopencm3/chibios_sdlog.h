@@ -40,9 +40,9 @@
 
 extern FIL pprzLogFile;
 
-#if LOG_PROCESS_STATE
+#if LOG_FLIGHTRECORDER
 // if activated, will log all process states
-extern FIL processLogFile;
+extern FIL flightRecorderLogFile;
 #endif
 
 extern bool_t chibios_logInit(const bool_t binaryFile);
