@@ -661,7 +661,7 @@ void spi1_arch_init(void) {
   spi1_dma.spidr = (uint32_t)&SPI1_DR;
 #ifdef STM32F1
   spi1_dma.dma = DMA1;
-  spi1_dma.dma_rcc = RCC_DMA1;
+  spi1_dma.rcc_dma = RCC_DMA1;
   spi1_dma.rx_chan = DMA_CHANNEL2;
   spi1_dma.tx_chan = DMA_CHANNEL3;
   spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
