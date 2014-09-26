@@ -1937,7 +1937,11 @@
     <field name="diff"         type="float"/>
   </message>
 
- <!--222 is free -->
+  <message name="AMSL" id="222">
+    <field name="AMSL_BARO" type="float" unit="ft"/>
+    <field name="AMSL_GPS" type="float" unit="ft"/>
+  </message>
+
  <!--223 is free -->
  <!--224 is free -->
 
