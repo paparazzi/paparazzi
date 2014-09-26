@@ -124,6 +124,16 @@ extern void nav_circle_XY(float x, float y, float radius);
   while (x >= 360 && ++dont_loop_forever) x -= 360; \
 }
 
+inline float CourseFromToEnuDeg(int wp_x, int wp_y);
+inline float CourseFromToEnuDeg(int wp_x, int wp_y)
+{
+  float dx = waypoints[wp_y].x - waypoints[wp_x].x;
+  float dy = waypoints[wp_y].y - waypoints[wp_x].y;
+  if (dx == 0.0f) dx = 0.000000001;
+  float ang = atan(dy/dx);
+  return DegOfRad(ang);
+}
+
 #define NavCircleCountNoRewind() (nav_circle_radians_no_rewind / (2*M_PI))
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
@@ -208,6 +218,8 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     float dist_home = sqrtf(dist2_to_home); \
     DOWNLINK_SEND_NAVIGATION(_trans, _dev, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
 }
+
+extern bool_t DownlinkSendWpNr(int _wp);
 
 #define DownlinkSendWp(_trans, _dev, i) {	   \
   float x = nav_utm_east0 +  waypoints[i].x; \
