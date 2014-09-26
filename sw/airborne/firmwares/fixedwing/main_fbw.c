@@ -56,6 +56,10 @@
 #include "link_mcu_usart.h"
 #endif
 
+#ifdef FBW_DATALINK
+#include "fbw_datalink.h"
+#endif
+
 uint8_t fbw_mode;
 
 #include "inter_mcu.h"
@@ -285,11 +289,18 @@ void event_task_fbw( void) {
 #endif /* MCU_SPI_LINK */
 #endif /* INTER_MCU */
 
+#ifdef FBW_DATALINK
+  FbwDataLinkEvent();
+#endif
 }
 
 
 /************* PERIODIC ******************************************************/
 void periodic_task_fbw( void ) {
+
+#ifdef FBW_DATALINK
+  FbwDataLinkPeriodic();
+#endif
 
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
