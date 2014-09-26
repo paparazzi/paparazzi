@@ -39,6 +39,7 @@
 #define TRIGGER_DELAY 1.
 #endif
 
+
 #ifndef ALPHA
 #define ALPHA 6.26e-5
 #endif
@@ -89,7 +90,7 @@ static void integrate( uint8_t wp_target ) {
     /* Euler integration */
     nav_drop_vx += airx * beta * DT;
     nav_drop_vy += airy * beta * DT;
-    nav_drop_vz += (airz * beta - G) * DT;
+    nav_drop_vz += (airz * beta - NAV_GRAVITY) * DT;
 
     nav_drop_x += nav_drop_vx * DT;
     nav_drop_y += nav_drop_vy * DT;
@@ -130,7 +131,7 @@ unit_t nav_drop_update_release( uint8_t wp_target ) {
 
 /** Compute a first approximation for the RELEASE waypoint from wind and
     expected airspeed and altitude */
-unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float nav_drop_radius ) {
+unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, uint8_t wp_baseturn, uint8_t wp_climbout, float nav_drop_radius ) {
   waypoints[WP_RELEASE].a = waypoints[wp_start].a;
   nav_drop_z = waypoints[WP_RELEASE].a - waypoints[wp_target].a;
   nav_drop_x = 0.;
@@ -146,9 +147,9 @@ unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float nav
   float x1 = x_0 / d;
   float y_1 = y_0 / d;
 
-  waypoints[WP_BASELEG].x = waypoints[wp_start].x + y_1 * nav_drop_radius;
-  waypoints[WP_BASELEG].y = waypoints[wp_start].y - x1 * nav_drop_radius;
-  waypoints[WP_BASELEG].a = waypoints[wp_start].a;
+  waypoints[wp_baseturn].x = waypoints[wp_start].x + y_1 * nav_drop_radius;
+  waypoints[wp_baseturn].y = waypoints[wp_start].y - x1 * nav_drop_radius;
+  waypoints[wp_baseturn].a = waypoints[wp_start].a;
   nav_drop_start_qdr = M_PI - atan2(-y_1, -x1);
   if (nav_drop_radius < 0)
     nav_drop_start_qdr += M_PI;
@@ -170,9 +171,9 @@ unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float nav
 
   integrate(wp_target);
 
-  waypoints[WP_CLIMB].x = waypoints[WP_RELEASE].x + (CLIMB_TIME + CARROT) * vx0;
-  waypoints[WP_CLIMB].y = waypoints[WP_RELEASE].y + (CLIMB_TIME + CARROT) * vy0;
-  waypoints[WP_CLIMB].a = waypoints[WP_RELEASE].a + SAFE_CLIMB;
+  waypoints[wp_climbout].x = waypoints[WP_RELEASE].x + (CLIMB_TIME + CARROT) * vx0;
+  waypoints[wp_climbout].y = waypoints[WP_RELEASE].y + (CLIMB_TIME + CARROT) * vy0;
+  waypoints[wp_climbout].a = waypoints[WP_RELEASE].a + SAFE_CLIMB;
 
   return 0;
 }
