@@ -56,6 +56,10 @@
 #include "link_mcu_usart.h"
 #endif
 
+#ifdef MCU_CAN_LINK
+#include "link_mcu_can.h"
+#endif
+
 uint8_t fbw_mode;
 
 #include "inter_mcu.h"
@@ -130,8 +134,10 @@ void init_fbw( void ) {
 #ifdef INTER_MCU
   inter_mcu_init();
 #endif
-#ifdef MCU_SPI_LINK
+#if defined MCU_SPI_LINK || defined MCU_CAN_LINK
   link_mcu_init();
+#endif
+#ifdef MCU_SPI_LINK
   link_mcu_restart();
 #endif
 
@@ -313,6 +319,11 @@ void periodic_task_fbw( void ) {
 #endif
 
 #ifdef MCU_UART_LINK
+  inter_mcu_fill_fbw_state();
+  link_mcu_periodic_task();
+#endif
+
+#ifdef MCU_CAN_LINK
   inter_mcu_fill_fbw_state();
   link_mcu_periodic_task();
 #endif
