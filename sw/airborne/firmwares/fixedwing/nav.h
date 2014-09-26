@@ -209,6 +209,8 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     DOWNLINK_SEND_NAVIGATION(_trans, _dev, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
 }
 
+extern bool_t DownlinkSendWpNr(int _wp);
+
 #define DownlinkSendWp(_trans, _dev, i) {	   \
   float x = nav_utm_east0 +  waypoints[i].x; \
   float y = nav_utm_north0 + waypoints[i].y; \

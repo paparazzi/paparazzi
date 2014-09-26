@@ -466,6 +466,13 @@ static void send_wp_moved(void) {
   DownlinkSendWp(DefaultChannel, DefaultDevice, i);
 }
 
+bool_t DownlinkSendWpNr(int _wp)
+{
+  DownlinkSendWp(DefaultChannel, DefaultDevice, _wp);
+  return FALSE;
+}
+
+
 static void send_circle(void) {
   if (nav_in_circle) {
     DOWNLINK_SEND_CIRCLE(DefaultChannel, DefaultDevice,
