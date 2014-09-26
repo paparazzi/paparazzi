@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings name="control">
+    <dl_settings name="qnh">
+
+      <dl_setting max="1200" min="800" step="1" module="altitude/qnh" var="qnh.qnh" shortname="QNH"/>
+      <dl_setting max="1" min="0" step="1" var="qnh.qnh" module="altitude/qnh" handler="ComputeQNH"/>
+
+    </dl_settings>
+  </dl_settings>
+</settings>

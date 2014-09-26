@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="altitude">
+  <doc>
+    <description>Altitude</description>
+  </doc>
+  <header>
+    <file name="qnh.h"/>
+  </header>
+  <init fun="init_qnh()"/>
+  <periodic fun="periodic_qnh()" freq="4." autorun="TRUE"/>
+  <makefile>
+    <file name="qnh.c"/>
+  </makefile>
+</module>
