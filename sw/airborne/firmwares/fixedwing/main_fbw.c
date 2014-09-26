@@ -272,7 +272,9 @@ void event_task_fbw( void) {
     #if OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE
     if (crash == 1)
     {
-      for (;;) {}
+      for (;;) {
+        FbwDataLinkEvent();
+      }
     }
     #endif
 
