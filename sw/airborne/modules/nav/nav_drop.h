@@ -32,7 +32,7 @@
 #include "std.h"
 #include "firmwares/fixedwing/nav.h"
 
-extern unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float radius );
+extern unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, uint8_t wp_baseturn, uint8_t wp_climbout, float radius );
 extern unit_t nav_drop_update_release( uint8_t wp_target );
 extern unit_t nav_drop_shoot( void );
 extern float nav_drop_trigger_delay, nav_drop_start_qdr;
