@@ -41,7 +41,7 @@ SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_serv
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server
+all: link server messages settings dia diadec ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy_serial_bridge app_server ivy2nmea
 
 opt: server.opt
 
@@ -137,6 +137,9 @@ app_server: app_server.c
 	$(Q)$(CC) $(GLIB_CFLAGS) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
 
 gpsd2ivy: gpsd2ivy.c
+	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS) -lgps
+
+ivy2nmea: ivy2nmea.c
 	$(CC) $(GLIB_CFLAGS) $(C_LIBRARYS) $(C_INCLUDES) -o $@ $< $(GLIB_LDFLAGS) -lgps
 
 c_ivy_client_example_1: c_ivy_client_example_1.c
