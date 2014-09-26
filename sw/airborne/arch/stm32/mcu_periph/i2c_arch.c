@@ -671,7 +671,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
     We are always interested in all IT_EV_FEV: all are required.
 
     1) SB		// Start Condition Success in Master mode
-    2) ADDR		// Address sent received Acknoledge
+    2) ADDR		// Address sent received Acknowledge
     [ADDR10]	// -- 10bit address stuff: not used
     [STOPF]		// -- only for slaves: master has no stop interrupt: not used
     3) BTF		// I2C has stopped working (it is waiting for new data, all buffers are tx_empty/rx_full)
@@ -704,7 +704,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
 
     --------------------------------------------------------------------------------------------------
 
-    The STM waits indefinately (holding SCL low) for user interaction:
+    The STM waits indefinitely (holding SCL low) for user interaction:
     a) after a master-start (waiting for address)
     b) after an address (waiting for data)
        not during data sending when using buffered
@@ -712,7 +712,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
        not during data receiving when using buffered
        not after the last byte is received
 
-    - The STM I2C stalls indefinately when a stop condition was attempted that
+    - The STM I2C stalls indefinitely when a stop condition was attempted that
       did not succeed. The BUSY flag remains on.
     - There is no STOP interrupt.
 
