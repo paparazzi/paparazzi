@@ -38,7 +38,17 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 
+#ifdef MCU_SPI_LINK
 #include "link_mcu_spi.h"
+#endif
+
+#ifdef MCU_UART_LINK
+#include "link_mcu_usart.h"
+#endif
+
+#ifdef MCU_CAN_LINK
+#include "link_mcu_can.h"
+#endif
 
 // Sensors
 #if USE_GPS
@@ -213,7 +223,7 @@ void init_ap( void ) {
   ins_init();
 
   /************* Links initialization ***************/
-#if defined MCU_SPI_LINK || defined MCU_UART_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_init();
 #endif
 #if USE_AUDIO_TELEMETRY
@@ -575,7 +585,7 @@ void attitude_loop( void ) {
 
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
-#if defined MCU_SPI_LINK || defined MCU_UART_LINK
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
   /**Directly set the flag indicating to FBW that shared buffer is available*/
