@@ -27,3 +27,6 @@ endif
 # fbw.srcs += ./link_mcu_can.c ./mcu_periph/can.c ./arch/stm32/mcu_periph/can_arch.c
 # fbw.CFLAGS += -DINTER_MCU -DMCU_CAN_LINK
 # $(TARGET).CFLAGS += -DCAN_SJW_TQ=CAN_SJW_1tq -DCAN_BS1_TQ=CAN_BS1_3tq -DCAN_BS2_TQ=CAN_BS2_4tq -DCAN_PRESCALER=12 -DUSE_CAN -DUSE_CAN1 -DUSE_USB_LP_CAN1_RX0_IRQ -DCAN_ERR_RESUME=DISABLE
+
+SEPARATE_FBW=1
+
