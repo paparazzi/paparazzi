@@ -25,6 +25,9 @@
 
 #include <inttypes.h>
 
+extern uint16_t airspeed_offset;
+extern float airspeed_quadratic_scale;
+
 extern uint16_t adc_airspeed_val;
 
 void airspeed_adc_init( void );

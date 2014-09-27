@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+  <dl_settings name="control">
+    <dl_settings name="airsp">
+
+      <dl_setting max="4095" min="0" step="1" module="sensors/airspeed_adc" var="airspeed_offset" shortname="air_bias"/>
+      <dl_setting max="3" min="0" step="0.001" module="sensors/airspeed_adc" var="airspeed_quadratic_scale" shortname="air_scale"/>
+
+    </dl_settings>
+  </dl_settings>
+</settings>

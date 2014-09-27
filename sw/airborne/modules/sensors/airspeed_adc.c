@@ -26,6 +26,9 @@
 #include "generated/airframe.h"
 #include "state.h"
 
+uint16_t airspeed_offset = AIRSPEED_BIAS;
+float airspeed_quadratic_scale = AIRSPEED_QUADRATIC_SCALE;
+
 uint16_t adc_airspeed_val;
 
 #ifndef SITL // Use ADC if not in simulation
@@ -52,12 +55,12 @@ void airspeed_adc_update( void ) {
 #ifndef SITL
   adc_airspeed_val = buf_airspeed.sum / buf_airspeed.av_nb_sample;
 #ifdef AIRSPEED_QUADRATIC_SCALE
-  float airspeed = (adc_airspeed_val - AIRSPEED_BIAS);
+  float airspeed = (adc_airspeed_val - airspeed_offset);
   if (airspeed <= 0.0f)
     airspeed = 0.0f;
-  airspeed = sqrtf(airspeed) * AIRSPEED_QUADRATIC_SCALE;
+  airspeed = sqrtf(airspeed) * airspeed_quadratic_scale;
 #else
-  float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
+  float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - airspeed_offset);
 #endif
   stateSetAirspeed_f(&airspeed);
 #elif !defined USE_NPS
