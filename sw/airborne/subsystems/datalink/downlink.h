@@ -49,7 +49,6 @@
 
 #else /** SITL */
 
-#include "subsystems/datalink/udp.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "subsystems/datalink/pprzlog_transport.h"
 #include "subsystems/datalink/xbee.h"
@@ -62,6 +61,9 @@
 #endif
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
+#endif
+#ifdef USE_UDP
+#include "mcu_periph/udp.h"
 #endif
 #include "mcu_periph/uart.h"
 

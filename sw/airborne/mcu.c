@@ -50,6 +50,9 @@
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
+#ifdef USE_UDP
+#include "mcu_periph/udp.h"
+#endif
 #if USE_SPI
 #include "mcu_periph/spi.h"
 #endif
@@ -152,6 +155,17 @@ void mcu_init(void) {
 #ifdef USE_DAC
   dac_init();
 #endif
+
+#ifdef USE_UDP0
+  UDP0Init();
+#endif
+#ifdef USE_UDP1
+  UDP1Init();
+#endif
+#ifdef USE_UDP2
+  UDP2Init();
+#endif
+
 #else
 INFO("PERIPHERALS_AUTO_INIT not enabled! Peripherals (including sys_time) need explicit initialization.")
 #endif /* PERIPHERALS_AUTO_INIT */

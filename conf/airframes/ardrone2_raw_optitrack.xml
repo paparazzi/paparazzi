@@ -8,7 +8,7 @@
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
 
-      <subsystem name="telemetry" type="udp"/>
+      <subsystem name="telemetry" type="transparent_udp"/>
       <subsystem name="radio_control" type="datalink"/>
     </target>
 
