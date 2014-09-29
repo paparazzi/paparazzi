@@ -39,6 +39,7 @@ static const char PPRZ_LOG_DIR[] = "PPRZ";
 static msg_t batterySurveyThd(void *arg);
 static void  launchBatterySurveyThread (void);
 static void  powerOutageIsr (void);
+static void systemDeepSleep (void);
 EventSource powerOutageSource;
 EventListener powerOutageListener;
 
@@ -117,6 +118,7 @@ static msg_t batterySurveyThd(void *arg)
   chEvtWaitOne(EVENT_MASK(1));
   chibios_logFinish ();
   chThdExit(0);
+  systemDeepSleep();
   return 0;
 }
 
@@ -144,4 +146,12 @@ CH_IRQ_HANDLER(PendSVVector) {
   chEvtBroadcastI(&powerOutageSource);
   chSysUnlockFromIsr();
   CH_IRQ_EPILOGUE();
+}
+
+static void systemDeepSleep (void)
+{
+  chSysLock();
+  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+  PWR->CR |= (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_CSBF | PWR_CR_CWUF);
+  __WFE();
 }
