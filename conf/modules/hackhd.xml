@@ -22,6 +22,13 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <settings name="Advanced">
+    <dl_settings name="control">
+      <dl_settings name="hackhd">
+        <dl_setting max="5" min="0" step="1" module="digital_cam/hackhd" var="hackhd.timer"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="hackhd.h"/>
   </header>

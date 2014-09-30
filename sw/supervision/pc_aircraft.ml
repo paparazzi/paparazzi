@@ -167,14 +167,24 @@ let get_settings_modules = fun ac_xml settings_modules ->
   (* get list of settings files *)
   let settings = List.fold_left (fun l (m, f) ->
     (* get list of settings_file xml node if any *)
-    let set_list = List.filter (fun t -> Xml.tag t = "settings_file") (Xml.children m) in
-    let file_list = List.map (fun s -> "settings/"^(Xml.attrib s "name")) set_list in
+    let settings_file_list = List.filter (fun t -> Xml.tag t = "settings_file") (Xml.children m) in
+    let file_list = List.map (fun s -> "settings/"^(Xml.attrib s "name")) settings_file_list in
     (* include module file in the list only if it has a 'settings' node *)
-    let module_file =
-      if List.exists (fun t -> Xml.tag t = "settings") (Xml.children m)
-      then [Env.filter_absolute_path f]
-      else [] in
-    l @ file_list @ module_file
+    let settings_list = List.filter (fun t -> Xml.tag t = "settings") (Xml.children m) in
+    let module_file = if List.length settings_list > 0 then [Env.filter_absolute_path f] else [] in
+    (* include module file with specific name if they exist *)
+    let settings_list = List.fold_left (fun l s ->
+      try
+        let name = Xml.attrib s "name" in
+        (* test if there is no white space in settings name *)
+        if Str.string_match (Str.regexp ".* .*") name 0
+        then failwith "Paparazzicenter: no white space allowed in modules settings name";
+        l @ [(Env.filter_absolute_path f)^"~"^name^"~"]
+      with
+      | Failure x -> prerr_endline x; l
+      | _ -> l
+    ) [] settings_list in
+    l @ file_list @ module_file @ settings_list
   ) [] modules in
   (* store current state in a hashtable *)
   let current = Hashtbl.create 7 in
