@@ -10,7 +10,13 @@
     <configure name="DM_LOG_SPI_SLAVE" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="SPI slave which the memory is connected to"/>
   </doc>
   <settings>
-    <file name="modules/direct_memory_logger.xml"/>
+    <dl_settings name="direct_memory_logger">
+      <dl_settings name="direct_memory">
+        <dl_setting module="loggers/direct_memory_logger" var="dml.status" shortname="Status" min="0" step="1" max="2" values="INIT|IDLE|ERASE|START|RUNNING|STOP|READ|READING" handler="set"/>
+        <dl_setting module="loggers/direct_memory_logger" var="dml.sst.flash_addr" shortname="Flash ADDR" min="0" step="1" max="16777215"/>
+        <dl_setting module="loggers/direct_memory_logger" var="dml.write_addr" shortname="Write ADDR" min="0" step="1" max="16777215"/>
+      </dl_settings>
+    </dl_settings>
   </settings>
 
   <header>

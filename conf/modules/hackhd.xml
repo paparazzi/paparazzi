@@ -6,7 +6,6 @@
     <define name="HACKHD_SYNC_SEND" value="TRUE|FALSE" description="enable telemetry report on camera position"/>
     <define name="HACKHD_LOG" value="TRUE|FALSE" description="enable logging of camera shot orientation and position"/>
   </doc>
-  <settings_file name="modules/hackhd.xml"/>
   <settings>
     <dl_settings name="control">
       <dl_settings name="hackhd">
@@ -19,13 +18,6 @@
           <strip_button name="HackHD Take Picture" icon="digital-camera.png" value="5" group="hackhd"/>
         </dl_setting>
 
-      </dl_settings>
-    </dl_settings>
-  </settings>
-  <settings name="Advanced">
-    <dl_settings name="control">
-      <dl_settings name="hackhd">
-        <dl_setting max="5" min="0" step="1" module="digital_cam/hackhd" var="hackhd.timer"/>
       </dl_settings>
     </dl_settings>
   </settings>
