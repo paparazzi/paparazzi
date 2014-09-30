@@ -48,6 +48,10 @@ val gconf_file : string
 
 val gcs_icons_path : string
 
+val filter_absolute_path : string -> string
+(** remove absolute path paparazzi_home/conf if it exists
+ *  returns a relative path *)
+
 val filter_settings : string -> string
 (** filter settings (a string separted by white spaces)
  *  and keep the ones without brackets

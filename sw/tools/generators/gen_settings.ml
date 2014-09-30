@@ -275,7 +275,10 @@ let join_xml_files = fun xml_files ->
       try Xml.children (ExtXml.child xml "rc_settings") with
           Not_found -> [] in
     let these_dl_settings =
-      try Xml.children (ExtXml.child xml "dl_settings") with
+      try
+        (* test if the file is plain settings file or a module file *)
+        let xml = if Xml.tag xml = "module" then (ExtXml.child xml "settings") else xml in
+        Xml.children (ExtXml.child xml "dl_settings") with
           Not_found -> [] in
     rc_settings := these_rc_settings @ !rc_settings;
     dl_settings := these_dl_settings @ !dl_settings)

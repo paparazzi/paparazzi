@@ -56,6 +56,10 @@ let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
 
 let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
+let filter_absolute_path = fun path ->
+  Str.replace_first (Str.regexp (paparazzi_home // "conf/")) "" path
+
+
 (* filter settings and keep the ones without brackets *)
 let filter_settings = fun settings ->
   let sl = Str.split (Str.regexp "[ ]+") settings in

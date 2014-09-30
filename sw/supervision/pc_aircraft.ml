@@ -163,13 +163,18 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
 let get_settings_modules = fun ac_xml settings_modules ->
   (* get modules *)
   let modules = Gen_common.get_modules_of_airframe ac_xml in
-  let modules = List.map (fun m -> m.Gen_common.xml ) modules in
+  let modules = List.map (fun m -> m.Gen_common.xml, m.Gen_common.file ) modules in
   (* get list of settings files *)
-  let settings = List.fold_left (fun l m ->
-    (* get list of settings xml node if any *)
-    let set_list = try Xml.children (ExtXml.child m "settings") with _ -> [] in
+  let settings = List.fold_left (fun l (m, f) ->
+    (* get list of settings_file xml node if any *)
+    let set_list = List.filter (fun t -> Xml.tag t = "settings_file") (Xml.children m) in
     let file_list = List.map (fun s -> "settings/"^(Xml.attrib s "name")) set_list in
-    l @ file_list
+    (* include module file in the list only if it has a 'settings' node *)
+    let module_file =
+      if List.exists (fun t -> Xml.tag t = "settings") (Xml.children m)
+      then [Env.filter_absolute_path f]
+      else [] in
+    l @ file_list @ module_file
   ) [] modules in
   (* store current state in a hashtable *)
   let current = Hashtbl.create 7 in
@@ -279,7 +284,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       let settings_modules = try
         let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "airframe")) in
         get_settings_modules af_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
-        with _ -> []
+      with
+      | Failure x -> prerr_endline x; []
+      | _ -> []
       in
       (* update aicraft hashtable *)
       let aircraft = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft in
