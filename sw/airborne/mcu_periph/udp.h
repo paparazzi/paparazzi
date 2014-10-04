@@ -54,7 +54,7 @@ extern uint8_t  udp_getch(struct udp_periph* p);
 extern void     udp_event(void);
 extern void     udp_arch_periph_init(struct udp_periph* p, char* host, int port_out, int port_in, bool_t broadcast);
 extern void     udp_send_message(struct udp_periph* p);
-extern void     udp_read(struct udp_periph* p);
+extern void     udp_receive(struct udp_periph* p);
 
 #if USE_UDP0
 extern struct udp_periph udp0;

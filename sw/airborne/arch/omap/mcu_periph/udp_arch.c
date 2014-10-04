@@ -67,7 +67,7 @@ void udp_arch_periph_init(struct udp_periph* p, char* host, int port_out, int po
 /**
  * Read bytes from UDP
  */
-void udp_read(struct udp_periph* p)
+void udp_receive(struct udp_periph* p)
 {
   int16_t i;
   int16_t available = UDP_RX_BUFFER_SIZE - udp_char_available(p);

@@ -71,15 +71,15 @@ uint8_t udp_getch(struct udp_periph* p)
 void udp_event(void)
 {
 #if USE_UDP0
-  udp_read(&udp0);
+  udp_receive(&udp0);
 #endif // USE_UDP0
 
 #if USE_UDP1
-  udp_read(&udp1);
+  udp_receive(&udp1);
 #endif // USE_UDP1
 
 #if USE_UDP2
-  udp_read(&udp2);
+  udp_receive(&udp2);
 #endif // USE_UDP2
 }
 
