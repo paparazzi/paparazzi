@@ -27,6 +27,7 @@ class track :
   ?icon:string ->
   ?size:int ->
   ?color:string ->
+  string ->
   MapCanvas.widget ->
   object
     method add_point : Latlong.geographic -> float -> unit
@@ -64,4 +65,6 @@ class track :
     method v_incr : (Latlong.geographic * float) array -> unit
     method v_path : (Latlong.geographic * float) array
     method zoom : float -> unit
+    method event : GnoCanvas.item_event -> bool
+    method set_event_cb : (string -> unit) -> unit
   end

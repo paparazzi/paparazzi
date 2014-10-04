@@ -443,7 +443,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   ignore (fp_show#connect#toggled (fun () -> show_mission ac_id fp_show#active));
 
   let (icon, size) = get_icon_and_track_size af_xml in
-  let track = new MapTrack.track ~size ~icon ~name ~color:color geomap in
+  let track = new MapTrack.track ~size ~icon ~name ~color:color ac_id geomap in
+  track#set_event_cb (select_ac acs_notebook);
   geomap#register_to_fit (track:>MapCanvas.geographic);
 
   let center_ac = center geomap track in

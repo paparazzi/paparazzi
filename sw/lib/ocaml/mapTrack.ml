@@ -53,7 +53,7 @@ type desired =
   | DesiredCircle of LL.geographic*float*GnoCanvas.ellipse
   | DesiredSegment of LL.geographic*LL.geographic*GnoCanvas.line
 
-class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="red") (geomap:MapCanvas.widget) ->
+class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="red") (ac_id:string) (geomap:MapCanvas.widget) ->
   let group = GnoCanvas.group geomap#canvas#root in
   let empty = ({LL.posn_lat=0.; LL.posn_long=0.},  GnoCanvas.line group) in
   let v_empty = ({LL.posn_lat=0.; LL.posn_long=0.},  0.0) in
@@ -118,6 +118,7 @@ object (self)
   val mutable desired_track = NoDesired
   val zone = GnoCanvas.rect group
   val mutable ac_cam_cover = GnoCanvas.rect ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam
+  val mutable event_cb = None
   method color = color
   method set_color c = color <- c
   method track = track
@@ -328,6 +329,27 @@ object (self)
     segments <- a
 
   method size = Array.length segments
+
+  method event (ev : GnoCanvas.item_event) =
+    begin
+      match ev with
+        | `BUTTON_PRESS ev ->
+          begin
+            match GdkEvent.Button.button ev with
+              | 1 ->
+                  begin
+                    match event_cb with
+                    | Some cb -> cb ac_id
+                    | None -> ()
+                  end
+              | _ -> ()
+          end
+        | _ -> ()
+    end;
+    true
+  initializer ignore(aircraft#connect#event self#event)
+
+  method set_event_cb = fun (cb: string -> unit) -> event_cb <- Some cb
 
   initializer
     ignore(geomap#zoom_adj#connect#value_changed
