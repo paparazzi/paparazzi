@@ -57,7 +57,7 @@
 #endif
 
 #ifdef FBW_DATALINK
-#include "fbw_datalink.h"
+#include "firmwares/fixedwing/fbw_datalink.h"
 #endif
 
 uint8_t fbw_mode;
@@ -274,7 +274,7 @@ void event_task_fbw( void) {
     {
       for (;;) {
 #if FBW_DATALINK
-        FbwDataLinkEvent();
+        fbw_datalink_event();
 #endif
       }
     }
@@ -294,7 +294,7 @@ void event_task_fbw( void) {
 #endif /* INTER_MCU */
 
 #ifdef FBW_DATALINK
-  FbwDataLinkEvent();
+  fbw_datalink_event();
 #endif
 }
 
@@ -303,7 +303,7 @@ void event_task_fbw( void) {
 void periodic_task_fbw( void ) {
 
 #ifdef FBW_DATALINK
-  FbwDataLinkPeriodic();
+  fbw_datalink_periodic();
 #endif
 
 #ifdef RADIO_CONTROL

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 CDW
+ * Copyright (C) 2014 Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -14,20 +14,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- */
-/** \file fbw_datalink.h
- *  \brief Handling of messages coming from ground in FTD
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FBW_DATALINK_EVENT
-#define FBW_DATALINK_EVENT
+/**
+ * @file fbw_datalink.h
+ * Handling of messages coming from ground in FTD
+ */
 
-extern void FbwDataLinkPeriodic(void);
-extern void FbwDataLinkEvent(void);
+#ifndef FBW_DATALINK_H
+#define FBW_DATALINK_H
 
-#endif
+extern void fbw_datalink_periodic(void);
+extern void fbw_datalink_event(void);
+
+#endif /* FBW_DATALINK_H */
