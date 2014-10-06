@@ -26,6 +26,10 @@
 #include "subsystems/sensors/baro.h"
 #include "generated/airframe.h"
 
+#ifndef QNH_BARO_ID
+#define QNH_BARO_ID ABI_BROADCAST
+#endif
+
 struct qnh_struct qnh;
 abi_event qnh_baro_event = {0, 0, 0};
 
@@ -64,7 +68,7 @@ void init_qnh(void) {
   qnh.baro_counter = 0;
   qnh.amsl_gps = 0;
   qnh.baro_pressure = 0;
-  AbiBindMsgBARO_ABS(0, &qnh_baro_event, &received_abs_baro_for_qnh);
+  AbiBindMsgBARO_ABS(QNH_BARO_ID, &qnh_baro_event, &received_abs_baro_for_qnh);
 }
 
 void compute_qnh(void)
