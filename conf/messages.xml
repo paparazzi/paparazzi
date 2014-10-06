@@ -1938,8 +1938,8 @@
   </message>
 
   <message name="AMSL" id="222">
-    <field name="AMSL_BARO" type="float" unit="ft"/>
-    <field name="AMSL_GPS" type="float" unit="ft"/>
+    <field name="AMSL_BARO" type="float" unit="ft" alt_unit="m"/>
+    <field name="AMSL_GPS" type="float" unit="ft" alt_unit="m"/>
   </message>
 
  <!--223 is free -->
