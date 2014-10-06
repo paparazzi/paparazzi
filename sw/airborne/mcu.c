@@ -41,7 +41,7 @@
 #if USE_UART0 || USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6
 #include "mcu_periph/uart.h"
 #endif
-#if USE_I2C0 || USE_I2C1 || USE_I2C2
+#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
 #include "mcu_periph/i2c.h"
 #endif
 #if USE_ADC
