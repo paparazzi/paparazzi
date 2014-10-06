@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 CDW
+ * Copyright (C) 2014 Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -14,15 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-/** \file qnh_module.h
+/**
+ * @file qnh.h
+ * QNH module.
  *
- * qnh module
  */
 
 #ifndef QNH_MODULE_H
@@ -30,10 +29,10 @@
 
 struct qnh_struct
 {
-  float qnh;
-  float amsl_baro;
-  float amsl_gps;
-  float baro_pressure;
+  float qnh;           ///< Barometric pressure adjusted to sea level in hPa
+  float amsl_baro;     ///< AMSL (Altitude AboveMeanSeaLevel) from baro in feet
+  float amsl_gps;      ///< AMSL (Altitude AboveMeanSeaLevel) from GPS in feet
+  float baro_pressure; ///< Pressure reported by baro in Pa
   int baro_counter;
 };
 
