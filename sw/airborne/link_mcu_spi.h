@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -14,18 +14,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file link_mcu_spi.h
+ * Transport for the communication between FBW and AP via SPI.
  *
  */
 
-/** \brief Transport for the communication between FBW and AP in a bi-process
-    architecture. Essentially adds a checksum to the inter_mcu structure.
- */
-
-#ifndef LINK_MCU_H
-#define LINK_MCU_H
+#ifndef LINK_MCU_SPI_H
+#define LINK_MCU_SPI_H
 
 #include <inttypes.h>
 #include "inter_mcu.h"
@@ -64,4 +64,4 @@ extern uint8_t link_mcu_fbw_nb_err;
 extern void link_mcu_send(void);
 #endif /* AP */
 
-#endif
+#endif /* LINK_MCU_SPI_H */

@@ -14,9 +14,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file inter_mcu.c
+ * Communication between fbw and ap processes.
  *
  */
 
@@ -28,7 +32,7 @@ static struct ap_state _ap_state;
 struct fbw_state* fbw_state = &_fbw_state;
 struct ap_state* ap_state = &_ap_state;
 #else /* SINGLE_MCU */
-#include "link_mcu_spi.h"
+#include "link_mcu.h"
 struct fbw_state* fbw_state = &link_mcu_from_fbw_msg.payload.from_fbw;
 struct ap_state*  ap_state = &link_mcu_from_ap_msg.payload.from_ap;
 #endif /* ! SINGLE_MCU */

@@ -48,21 +48,10 @@
 #include "subsystems/datalink/telemetry.h"
 #endif
 
-#ifdef MCU_SPI_LINK
-#include "link_mcu_spi.h"
-#endif
-
-#ifdef MCU_UART_LINK
-#include "link_mcu_usart.h"
-#endif
-
-#ifdef MCU_CAN_LINK
-#include "link_mcu_can.h"
-#endif
-
 uint8_t fbw_mode;
 
 #include "inter_mcu.h"
+#include "link_mcu.h"
 
 #ifdef USE_NPS
 #include "nps_autopilot.h"

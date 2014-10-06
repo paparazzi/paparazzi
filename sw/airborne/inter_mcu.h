@@ -1,5 +1,4 @@
-/*  $Id$
- *
+/*
  * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -15,19 +14,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-/** \brief Communication between fbw and ap processes
+/**
+ * @file inter_mcu.h
+ * Communication between fbw and ap processes.
+ *
  * This unit contains the data structure used to communicate between the
  * "fly by wire" process and the "autopilot" process. It must be linked once in a
- * monoprocessor architecture, twice in a twin-processors (the historical
- * Atmel AVRs mega8-mega128 one) architecture. In the latter case, the
- * inter-mcu communication process (e.g. SPI) must fill and read these data structures.
-*/
+ * monoprocessor architecture, twice in a twin-processors architecture.
+ * In the latter case, the inter-mcu communication process (e.g. SPI) must fill and
+ * read these data structures.
+ */
 
 #ifndef INTER_MCU_H
 #define INTER_MCU_H
