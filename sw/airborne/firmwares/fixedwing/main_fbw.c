@@ -273,7 +273,9 @@ void event_task_fbw( void) {
     if (crash == 1)
     {
       for (;;) {
+#if FBW_DATALINK
         FbwDataLinkEvent();
+#endif
       }
     }
     #endif
