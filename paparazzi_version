@@ -6,7 +6,12 @@ DEF_VER=v5.3_devel
 # then use default version from above (for release tarballs).
 if test -d .git -o -f .git
 then
-	GIT_VN=$(git describe --match "v[0-9].[0-9]*" --dirty --always --long)
+    # if a commandline argument was given, assume it was a ref that git can interpret
+    if [ "$#" -ne 0 ]; then
+        GIT_VN=$(git describe --match "v[0-9].[0-9]*" --always --long $*)
+    else
+        GIT_VN=$(git describe --match "v[0-9].[0-9]*" --dirty --always --long)
+    fi
     if echo "$GIT_VN" | grep -Eq "^v[0-9].[0-9]"
     then
         VN="$GIT_VN"
@@ -14,7 +19,7 @@ then
         VN="$DEF_VER"-none-g"$GIT_VN"
     fi
 else
-	VN="$DEF_VER"
+    VN="$DEF_VER"
 fi
 
 echo $VN
