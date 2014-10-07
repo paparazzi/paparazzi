@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-	YAPA + XSens + XBee
+YAPA + XSens + XBee
 -->
 
 <airframe name="Yapa v1">
@@ -22,10 +22,10 @@
     <axis name="CAM_TILT" failsafe_value="0"/>
   </commands>
 
-<ap_only_commands>
-  <copy command="CAM_PAN"/>
-  <copy command="CAM_TILT"/>
-</ap_only_commands>
+  <ap_only_commands>
+    <copy command="CAM_PAN"/>
+    <copy command="CAM_TILT"/>
+  </ap_only_commands>
 
 
   <rc_commands>
@@ -59,14 +59,15 @@
   </section>
 
   <section name="PANTILT" prefix="CAM_">
+    <!-- these are in degrees, either specify both unit and code_unit or none -->
     <define name="PAN_MIN" value="-45"/>
     <define name="PAN_NEUTRAL" value="33"/>
     <define name="PAN_MAX" value="156"/>
     <define name="PAN0" value="0"/>
-    <define name="TILT_MIN" value="-62"/>
-    <define name="TILT_NEUTRAL" value="47"/>
-    <define name="TILT_MAX" value="122"/>
-    <define name="TILT0" value="90"/>
+    <define name="TILT_MIN" value="-62" unit="deg" code_unit="deg"/>
+    <define name="TILT_NEUTRAL" value="47" unit="deg" code_unit="deg"/>
+    <define name="TILT_MAX" value="122" unit="deg" code_unit="deg"/>
+    <define name="TILT0" value="90" unit="deg" code_unit="deg"/>
     <define name="MODE0" value="1"/>
   </section>
 
@@ -79,8 +80,8 @@
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
- <!--   <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
-    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
+    <!--   <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+         <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
@@ -156,7 +157,7 @@
 
 
   <modules>
-    <load name="ins_chimu_spi.xml" >
+    <load name="ahrs_chimu_spi.xml" >
       <define name="CHIMU_BIG_ENDIAN" />
     </load>
     <load name="cam_point.xml" />
@@ -173,7 +174,7 @@
 
     <target name="ap" board="tiny_2.11">
     </target>
-<!--    <target name="sim" board="pc"/> -->
+    <!--    <target name="sim" board="pc"/> -->
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="gps" type="ublox" />
@@ -190,7 +191,7 @@
     <subsystem name="navigation"/>
 
     <subsystem name="spi_slave_hs"/>
-
+    <subsystem name="ins" type="alt_float"/>
   </firmware>
 
 </airframe>
