@@ -158,6 +158,8 @@ void cam_periodic( void ) {
     case CAM_MODE_RC:
       cam_waypoint_target();
       break;
+    default:
+      break;
     }
 #if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
   }else if (pprz_mode == PPRZ_MODE_AUTO1){
