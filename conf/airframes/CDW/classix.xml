@@ -195,12 +195,9 @@
       <define name="USE_AD1" value="1"/>
       <configure name="ACTUATORS" value="actuators_ppm"/>
       <define name="ADC_CHANNEL_VSUPPLY" value="AdcBank0\(6\)"/>
-
-      <subsystem name="radio_control" type="ppm"/>
     </target>
 
     <target name="sim" board="pc">
-      <subsystem name="radio_control" type="ppm"/>
       <subsystem name="control"/>
       <subsystem name="navigation"/>
     </target>
@@ -212,6 +209,7 @@
     <define name="LOITER_TRIM"/>
     <define name="RADIO_CONTROL_AUTO1"/>
 
+    <subsystem name="radio_control" type="ppm"/>
 
     <subsystem name="telemetry" type="xbee_api">
       <configure name="MODEM_PORT" value="UART0"/>

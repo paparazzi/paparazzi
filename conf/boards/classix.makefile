@@ -46,3 +46,6 @@ GPS_BAUD ?= B38400
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
+
+# always enable SEPARATE_FBW
+SEPARATE_FBW = 1
