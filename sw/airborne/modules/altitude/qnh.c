@@ -29,6 +29,7 @@
 #include "subsystems/abi.h"
 #include "subsystems/sensors/baro.h"
 #include "generated/airframe.h"
+#include "math/pprz_isa.h"
 
 #ifndef QNH_BARO_ID
 #define QNH_BARO_ID ABI_BROADCAST
@@ -41,15 +42,9 @@ void received_abs_baro_for_qnh(uint8_t sender_id, const float * pressure);
 void received_abs_baro_for_qnh(__attribute__((__unused__)) uint8_t sender_id, const float * pressure)
 {
   qnh.baro_pressure = *pressure;
-  const float L = 0.0065; // [K/m]
-  const float T0 = 288.15; // [K]
-  const float g = 9.80665; // [m/s^2]
-  const float M = 0.0289644; // [kg/mol]
-  const float R = 8.31447; // [J/(mol*K)]
-  const float InvExpo = R * L / g / M;
   const float MeterPerFeet = 0.3048;
-  float prel = qnh.baro_pressure / (qnh.qnh * 100.0f);
-  qnh.amsl_baro = (1 - pow(prel,InvExpo)    ) * T0/L / MeterPerFeet;
+  qnh.amsl_baro = pprz_isa_height_of_pressure_full(qnh.baro_pressure, qnh.qnh * 100.0f) /
+    MeterPerFeet;
   qnh.baro_counter = 10;
 }
 
@@ -77,15 +72,8 @@ void init_qnh(void) {
 
 void compute_qnh(void)
 {
-  const float L = 0.0065; // [K/m]
-  const float T0 = 288.15; // [K]
-  const float g = 9.80665; // [m/s^2]
-  const float M = 0.0289644; // [kg/mol]
-  const float R = 8.31447; // [J/(mol*K)]
-  const float Expo = g * M / R / L;
   float h = stateGetPositionLla_f()->alt;
-  float Trel = 1 - L*h/T0;
-  qnh.qnh = round(qnh.baro_pressure / pow(Trel,Expo) / 100.0f);
+  qnh.qnh = pprz_isa_ref_pressure_of_height_full(qnh.baro_pressure, h) / 100.0f;
 }
 
 float GetAmsl(void)
