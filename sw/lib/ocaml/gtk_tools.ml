@@ -148,13 +148,13 @@ let tree_values = fun ?(only_checked=true) (tree : tree) ->
   store#foreach (fun _ row ->
     let v = store#get ~row ~column:name
     and c = store#get ~row ~column:check in
+    let space = if String.length !values > 0 then " " else "" in
     let v =
-      if only_checked then
-        if c then " "^v else ""
-      else
-        if c then " "^v else " ["^v^"]"
+      if c then v else
+        if only_checked then ""
+        else "["^v^"]"
     in
-    values := !values^v;
+    values := !values^space^v;
     false);
   !values
 
