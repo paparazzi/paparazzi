@@ -65,17 +65,26 @@ static inline void modem_parse(char c)
 
 void fbw_datalink_periodic(void)
 {
-  LED_OFF(2);
-  LED_OFF(4);
+#ifdef MODEM_LINK_LED
+  LED_OFF(MODEM_LINK_LED);
+#endif
+#ifdef AUTOPILOT_LINK_LED
+  LED_OFF(AUTOPILOT_LINK_LED);
+#endif
 }
 
 void fbw_datalink_event(void)
 {
-  if (ModemLink(ChAvailable()))
-    LED_ON(2);
-
-  if (AutopilotLink(ChAvailable()))
-    LED_ON(4);
+#ifdef MODEM_LINK_LED
+  if (ModemLink(ChAvailable())) {
+    LED_ON(MODEM_LINK_LED);
+  }
+#endif
+#ifdef AUTOPILOT_LINK_LED
+  if (AutopilotLink(ChAvailable())) {
+    LED_ON(AUTOPILOT_LINK_LED);
+  }
+#endif
 
   ReadModemBuffer();
   ReadAutopilotBuffer();
