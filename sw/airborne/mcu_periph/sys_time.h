@@ -37,7 +37,7 @@
 #include BOARD_CONFIG
 
 #ifndef SYS_TIME_NB_TIMER
-#define SYS_TIME_NB_TIMER 8
+#define SYS_TIME_NB_TIMER 16
 #endif
 
 
