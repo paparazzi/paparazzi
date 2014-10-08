@@ -159,6 +159,9 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
   end;
   write_conf_xml ?user_save ()
 
+(* selected state type *)
+type selected_t = Selected | Unselected | Unknown
+
 (* Get the settings (string list) with current modules *)
 let get_settings_modules = fun ac_xml settings_modules ->
   (* get modules *)
@@ -192,16 +195,17 @@ let get_settings_modules = fun ac_xml settings_modules ->
   List.iter (fun s ->
     let l = String.length s in
     if s.[0] == '[' && s.[l - 1] = ']'
-    then Hashtbl.add current (String.sub s 1 (l - 2)) false (* unchecked *)
-    else Hashtbl.add current s true (* checked *)
+    then Hashtbl.add current (String.sub s 1 (l - 2)) Unselected
+    else Hashtbl.add current s Selected
   ) set;
   (* build list with previous state if necessary *)
   List.map (fun s ->
-    (* get previous state, false (unchecked otherwise) *)
-    let checked = try Hashtbl.find current s with _ -> false in
+    (* get previous state, unknonw otherwise (new module, will be selected by default) *)
+    let checked = try Hashtbl.find current s with _ -> Unknown in
     (* add to tree with correct state *)
-    if checked then s
-    else ("["^s^"]")
+    match checked with
+    | Selected | Unknown -> s
+    | Unselected -> ("["^s^"]")
   ) settings
 
 let first_word = fun s ->
