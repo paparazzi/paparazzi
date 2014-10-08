@@ -66,11 +66,27 @@ let filter_settings = fun settings ->
   let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
   String.concat " " sl
 
+(* filter on modules based on target *)
+let filter_modules_target = fun module_xml ->
+  let target = try Sys.getenv "TARGET" with _ -> "" in
+  if Xml.tag module_xml = "module"
+  then begin
+    (* test if the module is loaded or not *)
+    if List.exists (fun n ->
+      let t = ExtXml.attrib_or_default n "target" "" in
+      Str.string_match (Str.regexp (".*"^target^".*")) t 0
+      ) (Xml.children module_xml)
+    then Xml.Element ("settings", [], List.filter (fun t -> Xml.tag t = "settings") (Xml.children module_xml))
+  else Xml.Element ("",[],[])
+  end
+    else module_xml
+
+
 let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
   let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
-  let parse_file = fun a file ->
+  let parse_file = fun ?(parse_filter=(fun x -> x)) a file ->
     try
-      ExtXml.parse_file file
+      parse_filter (ExtXml.parse_file file)
     with
         Failure msg ->
           if raise_exception then
@@ -80,9 +96,9 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
             make_element "parse error" ["file",a; "msg", msg] []
           end in
 
-  let parse = fun ?(pre_filter=(fun x -> x)) a ->
+  let parse = fun ?(pre_filter=(fun x -> x)) ?(parse_filter=(fun x -> x)) a ->
     List.map
-      (fun filename -> parse_file a (prefix filename))
+      (fun filename -> parse_file ~parse_filter a (prefix filename))
       (Str.split space_regexp (pre_filter (ExtXml.attrib ac_conf a))) in
 
   let parse_opt = fun a ->
@@ -111,7 +127,7 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
     with _ -> []
   in
 
-  let pervasives = parse "airframe" @ parse "telemetry" @ parse ~pre_filter:filter_settings "settings" in
+  let pervasives = parse "airframe" @ parse "telemetry" @ parse ~pre_filter:filter_settings "settings" @ parse ~pre_filter:filter_settings ~parse_filter:filter_modules_target "settings_modules" in
   let optionals = parse_opt "radio" @ parse_fp "flight_plan" @ pervasives in
 
   let children = Xml.children ac_conf@optionals in
