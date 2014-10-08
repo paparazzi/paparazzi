@@ -168,6 +168,11 @@ ifneq ($(BARO_LED),none)
 BARO_BOARD_CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
 
+# make sure you can also use <configure name="BARO_PERIODIC_FREQUENCY" value="x"/> instead of define
+ifdef BARO_PERIODIC_FREQUENCY
+BARO_BOARD_CFLAGS += -DBARO_PERIODIC_FREQUENCY=$(BARO_PERIODIC_FREQUENCY)
+endif
+
 ap.CFLAGS += $(BARO_BOARD_CFLAGS)
 ap.srcs += $(BARO_BOARD_SRCS)
 
