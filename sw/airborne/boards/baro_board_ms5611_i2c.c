@@ -39,6 +39,12 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#ifdef BARO_PERIODIC_FREQUENCY
+#if BARO_PERIODIC_FREQUENCY > 100
+#error "For MS5611 BARO_PERIODIC_FREQUENCY has to be < 100"
+#endif
+#endif
+
 
 /* default i2c address
  * when CSB is set to GND addr is 0xEE
