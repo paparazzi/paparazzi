@@ -674,7 +674,6 @@
                                             <property name="can_focus">False</property>
                                             <child>
                                               <widget class="GtkTreeView" id="tree_settings">
-                                                <property name="height_request">4</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="headers_visible">False</property>
@@ -683,17 +682,6 @@
                                                 <property name="expand">True</property>
                                                 <property name="fill">True</property>
                                                 <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkVScrollbar" id="tree_settings_scrollbar">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                             <child>

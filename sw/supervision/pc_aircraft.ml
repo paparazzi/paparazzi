@@ -266,8 +266,6 @@ let parse_ac_flash = fun target flash_combo ac_file ->
 let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_combo (log:string->unit) ->
   (* build tree for settings *)
   let tree_set = Gtk_tools.tree ~check_box:true gui#tree_settings in
-  (* attach vertical scrollbar *)
-  gui#tree_settings#set_vadjustment gui#tree_settings_scrollbar#adjustment;
   (* build tree for modules settings *)
   let tree_set_mod = Gtk_tools.tree ~check_box:true gui#tree_settings_modules in
 
