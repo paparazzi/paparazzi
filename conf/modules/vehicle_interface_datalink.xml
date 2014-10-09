@@ -4,6 +4,16 @@
   <doc>
     <description>Vehicule Interface over Datalink</description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="VI">
+        <dl_setting var="vi.enabled" min="0" step="1" max="1" module="modules/vehicle_interface/vi" shortname="enabled" values="OFF|ON" handler="SetEnabled">
+          <strip_button name="FMS ON" icon="on.png" value="1"/>
+          <strip_button name="FMS OFF" icon="off.png" value="0"/>
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="vi_datalink.h"/>
   </header>

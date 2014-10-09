@@ -660,86 +660,86 @@
                                 <property name="can_focus">False</property>
                                 <property name="label_xalign">0</property>
                                 <child>
-                                  <widget class="GtkAlignment" id="alignment56">
+                                  <widget class="GtkVBox" id="vbox1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="left_padding">12</property>
                                     <child>
-                                      <widget class="GtkHBox" id="hbox58">
+                                      <widget class="GtkAlignment" id="alignment56">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="left_padding">12</property>
                                         <child>
-                                          <widget class="GtkTreeView" id="tree_settings">
-                                            <property name="height_request">4</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="headers_visible">False</property>
-                                          </widget>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <widget class="GtkVScrollbar" id="tree_settings_scrollbar">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                          </widget>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <widget class="GtkVBox" id="vbox1">
+                                          <widget class="GtkHBox" id="hbox58">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <child>
-                                              <widget class="GtkButton" id="button_browse_settings">
-                                                <property name="label">gtk-add</property>
+                                              <widget class="GtkTreeView" id="tree_settings">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <property name="has_tooltip">True</property>
-                                                <property name="tooltip" translatable="yes">Add a settings file</property>
-                                                <property name="use_action_appearance">False</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="use_stock">True</property>
+                                                <property name="headers_visible">False</property>
                                               </widget>
                                               <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
                                                 <property name="position">0</property>
                                               </packing>
                                             </child>
                                             <child>
-                                              <widget class="GtkButton" id="button_edit_settings">
-                                                <property name="label">gtk-edit</property>
+                                              <widget class="GtkVBox" id="vbox2">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <property name="has_tooltip">True</property>
-                                                <property name="tooltip" translatable="yes">Launch an editor on all the settings file</property>
-                                                <property name="use_action_appearance">False</property>
-                                                <property name="use_stock">True</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkButton" id="button_remove_settings">
-                                                <property name="label">gtk-remove</property>
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <property name="tooltip" translatable="yes">Remove the selected settings file</property>
-                                                <property name="use_action_appearance">False</property>
-                                                <property name="use_stock">True</property>
+                                                <property name="can_focus">False</property>
+                                                <child>
+                                                  <widget class="GtkButton" id="button_browse_settings">
+                                                    <property name="label">gtk-add</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="has_tooltip">True</property>
+                                                    <property name="tooltip" translatable="yes">Add a settings file</property>
+                                                    <property name="use_action_appearance">False</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="use_stock">True</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkButton" id="button_edit_settings">
+                                                    <property name="label">gtk-edit</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="has_tooltip">True</property>
+                                                    <property name="tooltip" translatable="yes">Launch an editor on all the settings file</property>
+                                                    <property name="use_action_appearance">False</property>
+                                                    <property name="use_stock">True</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkButton" id="button_remove_settings">
+                                                    <property name="label">gtk-remove</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="has_tooltip">True</property>
+                                                    <property name="tooltip" translatable="yes">Remove the selected settings file</property>
+                                                    <property name="use_action_appearance">False</property>
+                                                    <property name="use_stock">True</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -748,13 +748,34 @@
                                               </packing>
                                             </child>
                                           </widget>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">2</property>
-                                          </packing>
                                         </child>
                                       </widget>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkAlignment" id="alignment2">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">4</property>
+                                        <property name="left_padding">12</property>
+                                        <property name="right_padding">12</property>
+                                        <child>
+                                          <widget class="GtkTreeView" id="tree_settings_modules">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="headers_visible">False</property>
+                                          </widget>
+                                        </child>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
                                     </child>
                                   </widget>
                                 </child>

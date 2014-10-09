@@ -1,7 +1,9 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc?,depend?,header,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc?,settings_file*,settings*,depend?,header,init*,periodic*,event*,datalink*,makefile*)>
 <!ELEMENT doc (description|define|configure|section)*>
+<!ELEMENT settings_file (file*)>
+<!ELEMENT settings (dl_settings?)>
 <!ELEMENT depend EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
@@ -18,6 +20,10 @@
 <!ELEMENT file EMPTY>
 <!ELEMENT file_arch EMPTY>
 <!ELEMENT raw (#PCDATA)>
+<!ELEMENT dl_settings (dl_setting|dl_settings)+>
+<!ELEMENT dl_setting (strip_button|key_press)*>
+<!ELEMENT strip_button EMPTY>
+<!ELEMENT key_press EMPTY>
 
 <!ATTLIST module
 name CDATA #REQUIRED
@@ -82,3 +88,44 @@ dir CDATA #IMPLIED>
 name CDATA #REQUIRED
 dir CDATA #IMPLIED>
 
+<!ATTLIST settings_file
+name CDATA #REQUIRED
+>
+
+<!ATTLIST settings
+name CDATA #IMPLIED
+>
+
+<!ATTLIST dl_settings
+name CDATA #IMPLIED
+>
+
+<!ATTLIST dl_setting
+var CDATA #REQUIRED
+min CDATA #REQUIRED
+max CDATA #REQUIRED
+type CDATA #IMPLIED
+step CDATA #IMPLIED
+widget CDATA #IMPLIED
+shortname CDATA #IMPLIED
+module CDATA #IMPLIED
+handler CDATA #IMPLIED
+param CDATA #IMPLIED
+unit CDATA #IMPLIED
+alt_unit CDATA #IMPLIED
+alt_unit_coef CDATA #IMPLIED
+values CDATA #IMPLIED
+persistent CDATA #IMPLIED
+>
+
+<!ATTLIST strip_button
+name CDATA #REQUIRED
+value CDATA #REQUIRED
+icon CDATA #IMPLIED
+group CDATA #IMPLIED
+>
+
+<!ATTLIST key_press
+key CDATA #REQUIRED
+value CDATA #REQUIRED
+>

@@ -113,46 +113,75 @@ let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
                   cb data))
 
 
-type tree = GTree.view * (GTree.list_store * string GTree.column)
+type tree = GTree.view * (GTree.list_store * string GTree.column * bool GTree.column * GTree.cell_renderer_toggle_signals)
 let tree_widget = fst
 let tree_model = snd
 
-let tree = fun (t:GTree.view) ->
+let tree = fun ?(check_box=false) (t:GTree.view) ->
   let cols = new GTree.column_list in
-  let col_name = cols#add Gobject.Data.string in
+  let col_name = cols#add Gobject.Data.string
+  and col_check = cols#add Gobject.Data.boolean in
   let store = GTree.list_store cols in
   t#set_model (Some store#coerce);
   let col1 = GTree.view_column ~renderer:(GTree.cell_renderer_text [], ["text",col_name]) () in
   ignore (t#append_column col1);
-  (t , (store, col_name))
+  let renderer = GTree.cell_renderer_toggle [`XALIGN 1.] in
+  if check_box then begin
+    let col2 = GTree.view_column ~renderer:(renderer, ["active",col_check]) () in
+    ignore (t#append_column col2);
+    (** Toggling a tree element *)
+    let item_toggled = fun ~(model : GTree.list_store) ~column path ->
+      let row = model#get_iter path in
+      let b = model#get ~row ~column in
+      model#set ~row ~column (not b);
+    in
+    ignore (renderer#connect#toggled ~callback:(item_toggled ~model:store ~column:col_check));
+  end;
+  (t , (store, col_name, col_check, renderer#connect))
 
-let tree_of = fun (t:GTree.view) (m:(GTree.list_store * string GTree.column)) ->
+let tree_of = fun (t:GTree.view) (m:(GTree.list_store * string GTree.column * bool GTree.column * GTree.cell_renderer_toggle_signals)) ->
   (t, m)
 
-let tree_values = fun (tree : tree) ->
-  let (store, column) = tree_model tree in
+let tree_values = fun ?(only_checked=true) (tree : tree) ->
+  let (store, name, check, _) = tree_model tree in
   let values = ref "" in
   store#foreach (fun _ row ->
-    values := !values^" "^(store#get ~row ~column);
+    let v = store#get ~row ~column:name
+    and c = store#get ~row ~column:check in
+    let space = if String.length !values > 0 then " " else "" in
+    let v =
+      if c then v else
+        if only_checked then ""
+        else "["^v^"]"
+    in
+    values := !values^space^v;
     false);
   !values
 
 let get_selected_in_tree = fun  (tree : tree) ->
-  let (store, column) = tree_model tree in
+  let (store, _, _, _) = tree_model tree in
   let t = tree_widget tree in
   let sel_paths = t#selection#get_selected_rows in
   List.map (fun p -> store#get_row_reference p) sel_paths
 
+(* add element to the tree
+ * if element is between brackets, set to unchecked
+ * and remove brackets in tree name
+ *)
 let add_to_tree = fun (tree : tree) string ->
-  let (store, column) = tree_model tree in
+  let (store, name, check, _) = tree_model tree in
   let row = store#append () in
-  store#set ~row ~column string
+  let l = String.length string in
+  let checked = not (string.[0] = '[' && string.[l - 1] = ']') in
+  let string = if not checked then String.sub string 1 (l - 2) else string in
+  store#set ~row ~column:check checked;
+  store#set ~row ~column:name string
 
 let remove_selected_from_tree = fun (tree : tree) ->
   let selected = get_selected_in_tree tree in
-  let (store, _) = tree_model tree in
+  let (store, _, _, _) = tree_model tree in
   List.iter (fun r -> ignore (store#remove r#iter)) selected
 
 let clear_tree = fun (tree : tree) ->
-  let (store, _) = tree_model tree in
+  let (store, _, _, _) = tree_model tree in
   store#clear ()

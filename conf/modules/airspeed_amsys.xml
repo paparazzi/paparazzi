@@ -14,6 +14,16 @@
     <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
     <define name="AIRSPEED_AMSYS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AMSYS">
+        <dl_settings NAME="Airspeed">
+          <dl_setting MAX="3" MIN="0" STEP="0.001" VAR="airspeed_scale" shortname="air_scale" module="modules/sensors/airspeed_amsys" param="AIRSPEED_SCALE"/>
+          <dl_setting MAX="1" MIN="0" STEP="0.001" VAR="airspeed_filter" shortname="air_filter" module="modules/sensors/airspeed_amsys" param="AIRSPEED_FILTER"/>
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
 
   <header>
     <file name="airspeed_amsys.h"/>

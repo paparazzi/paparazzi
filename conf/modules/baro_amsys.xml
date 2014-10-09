@@ -12,6 +12,15 @@
     <define name="BARO_AMSYS_FILTER" value="0." description="sensor filter (default: 0. max:1)"/>
     <define name="BARO_AMSYS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AMSYS">
+        <dl_settings NAME="Baro">
+          <dl_setting MAX="1" MIN="0" STEP="0.001" VAR="baro_filter" shortname="baro_filter" module="modules/sensors/baro_amsys" param="BARO_FILTER"/>
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
 
   <header>
     <file name="baro_amsys.h"/>

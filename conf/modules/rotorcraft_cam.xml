@@ -31,6 +31,26 @@ On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWIT
       <define name="STICK_PAN_INC" value="angle/stick_input" description="Sensitivity of the datalink stick pan control (default: 20 deg)"/>
     </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="CAM">
+        <dl_setting var="rotorcraft_cam_mode" MIN="0" STEP="1" MAX="3" module="cam_control/rotorcraft_cam" shortname="mode" values="NONE|MAN|HEADING|WP" handler="SetCamMode">
+          <strip_button name="CN" value="0" group="cam_mode1"/>
+          <strip_button name="CM" value="1" group="cam_mode1"/>
+          <strip_button name="CH" value="2" group="cam_mode2"/>
+          <strip_button name="CWP" value="3" group="cam_mode2"/>
+          <key_press key="F1" value="0"/>
+          <key_press key="F2" value="1"/>
+        </dl_setting>
+        <dl_setting var="rotorcraft_cam_tilt_pwm" min="1000" step="1" max="2500" shortname="tilt_pwm"/>
+        <dl_setting var="rotorcraft_cam_tilt" min="-90" step="1" max="0" shortname="tilt" alt_unit="deg" alt_unit_coef="0.0139882">
+          <strip_button name="Look Foreward" icon="lookfore.png" value="0" group="cam_look"/>
+          <strip_button name="Look Down" icon="lookdown.png" value="-6434" group="cam_look"/>
+        </dl_setting>
+        <dl_setting var="rotorcraft_cam_pan" MIN="0" STEP="1" MAX="360" shortname="pan" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="rotorcraft_cam.h"/>
   </header>

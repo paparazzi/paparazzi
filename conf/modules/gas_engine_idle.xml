@@ -4,6 +4,14 @@
   <doc>
     <description>Gas Engine Idle</description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="engine">
+        <dl_setting MAX="9600" MIN="-9600" STEP="1" VAR="gas_engine_idle_trim_left" shortname="left" module="modules/gas_engine/gas_engine_idle_trim" />
+        <dl_setting MAX="9600" MIN="-9600" STEP="1" VAR="gas_engine_idle_trim_right" shortname="right"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="gas_engine_idle_trim.h"/>
   </header>

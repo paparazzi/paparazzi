@@ -6,6 +6,13 @@
        Smooth navigation to wp_a along an arc (around wp_cd), a segment (from wp_rd to wp_ta) and a second arc (around wp_ca).
     </description>
   </doc>
+  <settings>
+    <dl_settings NAME="snav">
+      <dl_settings NAME="tow">
+        <dl_setting module="nav/nav_smooth" var="snav_desired_tow" min="0" max="604800" step="1"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="nav_smooth.h"/>
   </header>

@@ -12,6 +12,13 @@
       return scaled values over I2C
     </description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="pbn">
+        <dl_setting MAX="30" MIN="0" STEP="1" module="sensors/pressure_board_navarro" VAR="airspeed_filter"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
 
   <header>
     <file name="pressure_board_navarro.h"/>

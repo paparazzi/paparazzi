@@ -269,14 +269,42 @@ let parse_rc_modes = fun xml ->
 let join_xml_files = fun xml_files ->
   let dl_settings = ref []
   and rc_settings = ref [] in
+  let target = try Sys.getenv "TARGET" with _ -> "" in
   List.iter (fun xml_file ->
+    (* look for a specific name after settings file (in case of modules) *)
+    let split = Str.split (Str.regexp "~") xml_file in
+    let xml_file, name = match split with
+    | [f; n] -> f, n
+    | _ -> xml_file, ""
+    in
     let xml = Xml.parse_file xml_file in
     let these_rc_settings =
       try Xml.children (ExtXml.child xml "rc_settings") with
           Not_found -> [] in
     let these_dl_settings =
-      try Xml.children (ExtXml.child xml "dl_settings") with
-          Not_found -> [] in
+      try
+        (* test if the file is plain settings file or a module file *)
+        let xml =
+          if Xml.tag xml = "module"
+          then begin
+            (* test if the module is loaded or not *)
+            if List.exists (fun n ->
+              let t = ExtXml.attrib_or_default n "target" "" in
+              Str.string_match (Str.regexp (".*"^target^".*")) t 0
+              ) (Xml.children xml)
+            then List.filter (fun t -> Xml.tag t = "settings") (Xml.children xml)
+            else []
+          end
+          else [xml]
+        in
+        (* include settings if name is matching *)
+        List.fold_left (fun l x ->
+          if (ExtXml.attrib_or_default x "name" "") = name then
+            l @ (Xml.children (ExtXml.child x "dl_settings"))
+          else l
+        ) [] xml
+      with
+      | Not_found -> [] in
     rc_settings := these_rc_settings @ !rc_settings;
     dl_settings := these_dl_settings @ !dl_settings)
     xml_files;

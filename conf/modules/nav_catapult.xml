@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav">
+<module name="nav_smooth" dir="nav">
   <doc>
     <description>
       Catapult.
@@ -18,6 +18,17 @@
     <define name="NAV_CATAPULT_INITAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)"/>
     <define name="NAV_CATAPULT_INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)"/>
   </doc>
+  <settings>
+    <dl_settings name="control">
+      <dl_settings name="catapult">
+        <dl_setting max="5.0" min="0.05" step="0.05" module="nav/nav_catapult" var="nav_catapult_motor_delay" shortname="Motor Delay" param="NAV_CATAPULT_MOTOR_DELAY" unit="seconds"/>
+        <dl_setting max="3.0" min="-3.0" step="0.1" var="nav_catapult_acceleration_threshold" shortname="G-Threshold" param="NAV_CATAPULT_ACCELERATION_THRESHOLD" unit="g"/>
+        <dl_setting max="10." min="0.25" step="0.05" var="nav_catapult_heading_delay" shortname="Heading-Delay" param="NAV_CATAPULT_HEADING_DELAY" unit="seconds"/>
+        <dl_setting max="40" min="-20" step="0.5" var="nav_catapult_initial_pitch" shortname="TO Pitch" param="NAV_CATAPULT_INITIAL_PITCH" unit="rad" alt_unit="deg"/>
+        <dl_setting max="1.0" min="0.0" step="0.01" var="nav_catapult_initial_throttle" shortname="TO Gas" param="NAV_CATAPULT_INITIAL_THROTTLE" unit="percent"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="nav_catapult.h"/>
   </header>

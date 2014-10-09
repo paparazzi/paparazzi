@@ -7,6 +7,13 @@
       Solar Cells control board by Michel
     </description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="MPPT">
+        <dl_setting MAX="3" MIN="1" STEP="1" VAR="MPPT_mode" module="MPPT"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="MPPT.h"/>
   </header>

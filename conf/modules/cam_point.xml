@@ -4,6 +4,42 @@
   <doc>
     <description>Camera control for fixedwing</description>
   </doc>
+  <settings name="complete">
+    <dl_settings NAME="control">
+      <dl_settings name="cam">
+        <dl_setting MAX="7" MIN="0" STEP="1" module="cam_control/cam" VAR="cam_mode" values="0FF|ANGLES|NADIR|XY_TARGET|WP_TARGET|AC_TARGET|STABILIZED|RC">
+          <strip_button name="AC_TARGET" value="5"/>
+          <strip_button name="WP_TARGET" value="4"/>
+          <strip_button name="XY_TARGET" value="3"/>
+          <strip_button name="NADIR" value="2"/>
+          <strip_button name="ANGLES" value="1"/>
+          <strip_button name="OFF" value="0"/>
+        </dl_setting>
+      </dl_settings>
+      <dl_settings name="angles">
+        <dl_setting MAX="30" MIN="-30" STEP="1" module="cam_control/cam" VAR="cam_tilt_c" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="30" MIN="-30" STEP="1" module="cam_control/cam" VAR="cam_pan_c" unit="rad" alt_unit="deg"/>
+      </dl_settings>
+      <dl_settings name="target">
+        <dl_setting min="1" max="27" step="1" module="cam_control/cam" var="cam_target_wp" shortname="wp"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <settings name="pitch_only">
+    <dl_settings NAME="control">
+      <dl_settings name="cam">
+        <dl_setting MAX="1" MIN="0" STEP="1" module="cam_control/cam" VAR="cam_mode">
+          <strip_button name="ANGLES" value="1"/>
+        </dl_setting>
+      </dl_settings>
+      <dl_settings name="angles">
+        <dl_setting MAX="30" MIN="-30" STEP="1" module="cam_control/cam" VAR="cam_tilt_c" unit="rad" alt_unit="deg">
+          <strip_button name="Look Foreward" icon="lookfore.png" value="-0.5"/>
+          <strip_button name="Look Down" icon="lookdown.png" value="0.5"/>
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="cam.h"/>
     <file name="point.h"/>

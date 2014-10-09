@@ -37,15 +37,16 @@ let string_of_gdkcolor = fun c ->
 
 let aircraft_sample = fun name ac_id ->
   Xml.Element ("aircraft",
-	       ["name", name;
-		"ac_id", ac_id;
-		"airframe", "airframes/examples/microjet.xml";
-		"radio", "radios/cockpitSX.xml";
-		"telemetry", "telemetry/default_fixedwing.xml";
-		"flight_plan", "flight_plans/basic.xml";
-		"settings", "settings/fixedwing_basic.xml";
-		"gui_color", "blue"],
-	       [])
+    [ "name", name;
+      "ac_id", ac_id;
+      "airframe", "airframes/examples/microjet.xml";
+      "radio", "radios/cockpitSX.xml";
+      "telemetry", "telemetry/default_fixedwing.xml";
+      "flight_plan", "flight_plans/basic.xml";
+      "settings", "settings/fixedwing_basic.xml";
+      "settings_modules", "";
+      "gui_color", "blue" ],
+      [])
 
 
 let write_conf_xml = fun ?(user_save = false) () ->
@@ -110,13 +111,6 @@ let string_of_ac_data = fun d ->
     Label l -> l#text
   | Tree  t -> Gtk_tools.tree_values t
 
-let ac_files = fun gui model ->
-  ["airframe", "airframes", Label gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, None;
-   "flight_plan", "flight_plans", Label gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, None;
-   "settings", "settings", Tree (Gtk_tools.tree_of gui#tree_settings model), gui#button_browse_settings, gui#button_edit_settings, edit, Some gui#button_remove_settings;
-   "radio", "radios", Label gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, None;
-   "telemetry", "telemetry", Label gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, None]
-
 
 (* Awful but easier *)
 let current_color = ref "white"
@@ -138,8 +132,8 @@ let correct_ac_name = fun s ->
   with
     Exit -> false
 
-    (*TODO function text of date_type*)
-let save_callback = fun ?user_save gui ac_combo model () ->
+(*TODO function text of date_type*)
+let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
   let ac_name = Gtk_tools.combo_value ac_combo
   and ac_id = gui#entry_ac_id#text in
 
@@ -148,23 +142,71 @@ let save_callback = fun ?user_save gui ac_combo model () ->
       GToolbox.message_box ~title:"Error on A/C id" "A/C id must be a non null number less than 255"
     else
       let color = !current_color in
-      let tree = Gtk_tools.tree_of gui#tree_settings model in
       let aircraft =
-	Xml.Element ("aircraft",
-		     ["name", ac_name;
-		      "ac_id", ac_id;
-		      "airframe", gui#label_airframe#text;
-		      "radio", gui#label_radio#text;
-		      "telemetry", gui#label_telemetry#text;
-		      "flight_plan", gui#label_flight_plan#text;
-                      "settings", Gtk_tools.tree_values tree;
-		      "gui_color", color],
-		     []) in
+        Xml.Element ("aircraft",
+        [ "name", ac_name;
+          "ac_id", ac_id;
+          "airframe", gui#label_airframe#text;
+          "radio", gui#label_radio#text;
+          "telemetry", gui#label_telemetry#text;
+          "flight_plan", gui#label_flight_plan#text;
+          "settings", Gtk_tools.tree_values ~only_checked:false tree;
+          "settings_modules", Gtk_tools.tree_values ~only_checked:false tree_modules;
+          "gui_color", color ],
+          []) in
       begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
       Hashtbl.add Utils.aircrafts ac_name aircraft
   end;
   write_conf_xml ?user_save ()
 
+(* selected state type *)
+type selected_t = Selected | Unselected | Unknown
+
+(* Get the settings (string list) with current modules *)
+let get_settings_modules = fun ac_xml settings_modules ->
+  (* get modules *)
+  let modules = Gen_common.get_modules_of_airframe ac_xml in
+  let modules = List.map (fun m -> m.Gen_common.xml, m.Gen_common.file ) modules in
+  (* get list of settings files *)
+  let settings = List.fold_left (fun l (m, f) ->
+    (* get list of settings_file xml node if any *)
+    let settings_file_list = List.filter (fun t -> Xml.tag t = "settings_file") (Xml.children m) in
+    let file_list = List.map (fun s -> "settings/"^(Xml.attrib s "name")) settings_file_list in
+    (* include module file in the list only if it has a 'settings' node *)
+    let settings_list = List.filter (fun t -> Xml.tag t = "settings") (Xml.children m) in
+    let module_file = if List.length settings_list > 0 then [Env.filter_absolute_path f] else [] in
+    (* include module file with specific name if they exist *)
+    let settings_list = List.fold_left (fun l s ->
+      try
+        let name = Xml.attrib s "name" in
+        (* test if there is no white space in settings name *)
+        if Str.string_match (Str.regexp ".* .*") name 0
+        then failwith "Paparazzicenter: no white space allowed in modules settings name";
+        l @ [(Env.filter_absolute_path f)^"~"^name^"~"]
+      with
+      | Failure x -> prerr_endline x; l
+      | _ -> l
+    ) [] settings_list in
+    l @ file_list @ module_file @ settings_list
+  ) [] modules in
+  (* store current state in a hashtable *)
+  let current = Hashtbl.create 7 in
+  let set = Str.split regexp_space settings_modules in
+  List.iter (fun s ->
+    let l = String.length s in
+    if s.[0] == '[' && s.[l - 1] = ']'
+    then Hashtbl.add current (String.sub s 1 (l - 2)) Unselected
+    else Hashtbl.add current s Selected
+  ) set;
+  (* build list with previous state if necessary *)
+  List.map (fun s ->
+    (* get previous state, unknonw otherwise (new module, will be selected by default) *)
+    let checked = try Hashtbl.find current s with _ -> Unknown in
+    (* add to tree with correct state *)
+    match checked with
+    | Selected | Unknown -> s
+    | Unselected -> ("["^s^"]")
+  ) settings
 
 let first_word = fun s ->
   try
@@ -220,30 +262,58 @@ let parse_ac_flash = fun target flash_combo ac_file ->
     (* not a valid airframe file *)
     (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false
 
-
 (* Link A/C to airframe & flight_plan labels *)
 let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_combo (log:string->unit) ->
   (* build tree for settings *)
-  let tree_set = Gtk_tools.tree gui#tree_settings in
-  let model = Gtk_tools.tree_model tree_set in
-  (* attach vertical scrollbar *)
-  gui#tree_settings#set_vadjustment gui#tree_settings_scrollbar#adjustment;
+  let tree_set = Gtk_tools.tree ~check_box:true gui#tree_settings in
+  (* build tree for modules settings *)
+  let tree_set_mod = Gtk_tools.tree ~check_box:true gui#tree_settings_modules in
+
+  (* connect save_callback to the two toggle signals
+   * it can't be done before because we need the two tree models
+  *)
+  let (_, _, _, tree_signal) = Gtk_tools.tree_model tree_set in
+  ignore (tree_signal#toggled ~callback:(fun _ -> save_callback gui ac_combo tree_set tree_set_mod ()));
+  let (_, _, _, tree_signal) = Gtk_tools.tree_model tree_set_mod in
+  ignore (tree_signal#toggled ~callback:(fun _ -> save_callback gui ac_combo tree_set tree_set_mod ()));
+
+  (* Link AC conf with labels and buttons *)
+  let ac_files =
+    [ "airframe", "airframes", Label gui#label_airframe, Some gui#button_browse_airframe, Some gui#button_edit_airframe, edit, None;
+      "flight_plan", "flight_plans", Label gui#label_flight_plan, Some gui#button_browse_flight_plan, Some gui#button_edit_flight_plan, gcs_or_edit, None;
+      "settings", "settings", Tree tree_set, Some gui#button_browse_settings, Some gui#button_edit_settings, edit, Some gui#button_remove_settings;
+      "settings_modules", "settings", Tree tree_set_mod, None, None, (fun _ -> ()), None;
+      "radio", "radios", Label gui#label_radio, Some gui#button_browse_radio, Some gui#button_edit_radio, edit, None;
+      "telemetry", "telemetry", Label gui#label_telemetry, Some gui#button_browse_telemetry, Some gui#button_edit_telemetry, edit, None]
+  in
 
   (* Update_params callback *)
   let update_params = fun ac_name ->
     try
       let aircraft = Hashtbl.find Utils.aircrafts ac_name in
       let sample = aircraft_sample ac_name "42" in
-      let value = fun a ->
-        try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
-      List.iter	(fun (a, _subdir, label, _, _, _, _) ->
+      (* update list of modules settings *)
+      let settings_modules = try
+        let af_xml = Xml.parse_file (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "airframe")) in
+        get_settings_modules af_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
+      with
+      | Failure x -> prerr_endline x; []
+      | _ -> []
+      in
+      (* update aicraft hashtable *)
+      let aircraft = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft in
+      begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
+      Hashtbl.add Utils.aircrafts ac_name aircraft;
+      let value = fun a -> try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
+      (* update elements *)
+      List.iter (fun (a, _subdir, label, _, _, _, _) ->
         match label with
-          Label l -> l#set_text (value a)
+        | Label l -> l#set_text (value a)
         | Tree t ->
-            ignore (Gtk_tools.clear_tree tree_set);
-            let names = Str.split regexp_space (value a) in
-            List.iter (fun n -> Gtk_tools.add_to_tree t n) names
-      ) (ac_files gui model);
+          ignore (Gtk_tools.clear_tree t);
+          let names = Str.split regexp_space (value a) in
+          List.iter (fun n -> Gtk_tools.add_to_tree t n) names;
+      ) ac_files;
       let ac_id = ExtXml.attrib aircraft "ac_id"
       and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
       gui#button_clean#misc#set_sensitive true;
@@ -320,27 +390,31 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       let colorname = string_of_gdkcolor csd#colorsel#color in
       gui#eventbox_gui_color#misc#modify_bg [`NORMAL, `NAME colorname];
       current_color := colorname;
-      save_callback gui ac_combo model ();
+      save_callback gui ac_combo tree_set tree_set_mod ();
       csd#destroy () in
     ignore (csd#ok_button#connect#clicked ~callback);
     ignore (csd#cancel_button#connect#clicked ~callback:csd#destroy) in
   ignore(gui#button_gui_color#connect#clicked ~callback);
 
   (* A/C id *)
-  ignore(gui#entry_ac_id#connect#changed ~callback:(fun () -> save_callback gui ac_combo model ()));
+  ignore(gui#entry_ac_id#connect#changed ~callback:(fun () -> save_callback gui ac_combo tree_set tree_set_mod ()));
 
   (* Conf *)
-  List.iter (fun (name, subdir, label, button_browse, button_edit, editor, remove) ->
+  List.iter (fun (name, subdir, label, button_browse, button_edit, editor, button_remove) ->
+    (* editor button callback *)
     let callback = fun _ ->
       let rel_files = match label with
                         Label l -> Str.split regexp_space l#text
-                      | Tree t -> Str.split regexp_space (Gtk_tools.tree_values t)
+                      | Tree t -> Str.split regexp_space (Gtk_tools.tree_values ~only_checked:true t)
       in
       let abs_files = List.map (Filename.concat Utils.conf_dir) rel_files in
       let quoted_files = List.map (fun s -> "'"^s^"'") abs_files in
       let arg = String.concat " " quoted_files in
       editor arg in
-    ignore (button_edit#connect#clicked ~callback);
+    (* connect editor button *)
+    ignore (match button_edit with Some e -> ignore(e#connect#clicked ~callback) | _ -> ());
+
+    (* browse button callback *)
     let callback = fun _ ->
       let cb = fun names ->
         ignore (match label with
@@ -350,30 +424,29 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
         | Tree t ->
             List.iter (fun n -> Gtk_tools.add_to_tree t n) names
         );
-        save_callback gui ac_combo model ();
+        save_callback gui ac_combo tree_set tree_set_mod ();
         let ac_name = Gtk_tools.combo_value ac_combo in
         update_params ac_name
       in
       Utils.choose_xml_file name subdir cb in
-    ignore (button_browse#connect#clicked ~callback);
-    ignore (match remove with
-      Some r ->
-        let callback = fun _ ->
-          match label with
-            Tree t ->
-              Gtk_tools.remove_selected_from_tree t;
-              save_callback gui ac_combo model ()
-          | _ -> ()
-        in
-        ignore (r#connect#clicked ~callback)
-      | _ -> ()
-    )
-    )
-    (ac_files gui model);
+    (* connect browse button *)
+    ignore (match button_browse with Some b -> ignore(b#connect#clicked ~callback) | _ -> ());
 
+    (* remove button callback *)
+    let callback = fun _ ->
+      match label with
+      Tree t ->
+        Gtk_tools.remove_selected_from_tree t;
+        save_callback gui ac_combo tree_set tree_set_mod ()
+        | _ -> ()
+    in
+    (* connect remove button *)
+    ignore (match button_remove with Some r -> ignore(r#connect#clicked ~callback) | _ -> ())
+  )
+  ac_files;
 
   (* Save button *)
-  ignore(gui#menu_item_save_ac#connect#activate ~callback:(save_callback ~user_save:true gui ac_combo model))
+  ignore(gui#menu_item_save_ac#connect#activate ~callback:(save_callback ~user_save:true gui ac_combo tree_set tree_set_mod))
 
 
 let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (flash_combo:Gtk_tools.combo) (log:string->unit) ->
