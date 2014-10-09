@@ -82,12 +82,10 @@ void nps_autopilot_run_step(double time) {
 
   nps_electrical_run_step(time);
 
-#ifdef RADIO_CONTROL_TYPE_PPM
   if (nps_radio_control_available(time)) {
     radio_control_feed();
     main_event();
   }
-#endif
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
