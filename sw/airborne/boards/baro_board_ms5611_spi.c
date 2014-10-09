@@ -39,6 +39,12 @@
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
 
+#ifdef BARO_PERIODIC_FREQUENCY
+#if BARO_PERIODIC_FREQUENCY > 100
+#error "For MS5611 BARO_PERIODIC_FREQUENCY has to be < 100"
+#endif
+#endif
+
 
 struct Ms5611_Spi bb_ms5611;
 
