@@ -164,6 +164,10 @@ let print_test_exception = fun modes name out_h ->
     lprintf out_h "break;\n";
     left ()
   ) modes;
+  lprintf out_h "default:\n";
+  right ();
+  lprintf out_h "break;\n";
+  left ();
   left ();
   lprintf out_h "}\n";
   lprintf out_h "return mode;\n";
@@ -201,6 +205,10 @@ let print_set_mode = fun modes name out_h ->
         print_case m (Xml.attrib m t)
       with _ -> ()
     ) modes;
+    lprintf out_h "default:\n";
+    right ();
+    lprintf out_h "break;\n";
+    left ();
     left ();
     lprintf out_h "}\n"
   in
@@ -284,7 +292,7 @@ let print_ap_periodic = fun modes ctrl_block main_freq name out_h ->
     right ();
     List.iter (fun c -> (* Look for control loops *)
       let ctrl_freq = try Some (Xml.attrib c "freq") with _ -> None in
-      (* TODO test if possible to determine freq and if valid 
+      (* TODO test if possible to determine freq and if valid
        * let prescaler = main_freq / ctrl_freq in
        *  0 -> failwith (sprintf "Autopilot Core Error: control freq (%d) higher than main_freq (%d)" ctrl_freq main_freq)
        *)
@@ -297,6 +305,10 @@ let print_ap_periodic = fun modes ctrl_block main_freq name out_h ->
     lprintf out_h "break;\n\n";
     left ();
   ) modes;
+  lprintf out_h "default:\n";
+  right ();
+  lprintf out_h "break;\n";
+  left ();
   left ();
   lprintf out_h "}\n";
   left ();
@@ -315,7 +327,7 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
     begin_out xml_file ("AUTOPILOT_CORE_"^name_up^"_H") out_h;
     fprintf out_h "/*** %s ***/\n\n" ap_name;
     (* Print EXTERN definition *)
-    fprintf out_h "#ifdef AUTOPILOT_CORE_%s_H\n" name_up;
+    fprintf out_h "#ifdef AUTOPILOT_CORE_%s_C\n" name_up;
     fprintf out_h "#define EXTERN_%s\n" name_up;
     fprintf out_h "#else\n";
     fprintf out_h "#define EXTERN_%s extern\n" name_up;
