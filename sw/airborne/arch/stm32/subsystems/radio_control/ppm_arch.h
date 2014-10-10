@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -29,8 +28,6 @@
 
 #ifndef PPM_ARCH_H
 #define PPM_ARCH_H
-
-#include "mcu_periph/sys_time.h"
 
 /**
  * The ppm counter is set-up to have 1/6 us resolution.

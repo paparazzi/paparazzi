@@ -58,53 +58,11 @@ struct RadioControl {
 extern struct RadioControl radio_control;
 
 
-/************* INIT ******************************************************/
-static inline void radio_control_init ( void ) {
-  uint8_t i;
-  for (i=0; i<RADIO_CONTROL_NB_CHANNEL; i++)
-    radio_control.values[i] = 0;
-  radio_control.status = RC_REALLY_LOST;
-  radio_control.time_since_last_frame = RC_REALLY_LOST_TIME;
-  radio_control.radio_ok_cpt = 0;
-  radio_control.frame_rate = 0;
-  radio_control.frame_cpt = 0;
-  radio_control_impl_init();
-}
+extern void radio_control_init(void);
 
-/************* PERIODIC ******************************************************/
-static inline void radio_control_periodic_task ( void ) {
-  static uint8_t _1Hz;
-  _1Hz++;
+extern void radio_control_periodic_task(void);
 
-  if (_1Hz >= 60) {
-    _1Hz = 0;
-    radio_control.frame_rate = radio_control.frame_cpt;
-    radio_control.frame_cpt = 0;
-  }
-
-  if (radio_control.time_since_last_frame >= RC_REALLY_LOST_TIME) {
-    radio_control.status = RC_REALLY_LOST;
-  } else {
-    if (radio_control.time_since_last_frame >= RC_LOST_TIME) {
-      radio_control.status = RC_LOST;
-      radio_control.radio_ok_cpt = RC_OK_CPT;
-    }
-    radio_control.time_since_last_frame++;
-  }
-
-#if defined RADIO_CONTROL_LED
-  if (radio_control.status == RC_OK) {
-    LED_ON(RADIO_CONTROL_LED);
-  }
-  else {
-    LED_OFF(RADIO_CONTROL_LED);
-  }
-#endif
-
-}
-
-/********** EVENT ************************************************************/
-// Implemented in radio_control/*.h
+// Event implemented in radio_control/*.h
 
 
 #endif /* RADIO_CONTROL */

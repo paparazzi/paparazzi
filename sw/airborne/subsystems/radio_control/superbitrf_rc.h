@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -56,34 +55,12 @@
 #define RADIO_MODE       RADIO_GEAR
 #endif
 
-/* Macro that normalize superbitrf rc_values to radio values */
-#define NormalizeRcDl(_in, _out, _count) {                              \
-  uint8_t i;                                                            \
-  for(i = 0; i < _count; i++) {                                         \
-    if(i == RADIO_THROTTLE) {                                           \
-      _out[i] = (_in[i] + MAX_PPRZ) / 2;                              \
-      Bound(_out[i], 0, MAX_PPRZ);                                    \
-    } else {                                                            \
-      _out[i] = -_in[i];                                              \
-      Bound(_out[i], MIN_PPRZ, MAX_PPRZ);                             \
-    }                                                                   \
-  }                                                                     \
-}
+/**
+ * RC event function with handler callback.
+ */
+extern void radio_control_impl_event(void (* _received_frame_handler)(void));
 
 /* The radio control event handler */
-#define RadioControlEvent(_received_frame_handler) {                \
-  cyrf6936_event(&superbitrf.cyrf6936);                             \
-  superbitrf_event();                                               \
-  if(superbitrf.rc_frame_available) {                               \
-    radio_control.frame_cpt++;                                    \
-      radio_control.time_since_last_frame = 0;                      \
-      radio_control.radio_ok_cpt = 0;                               \
-      radio_control.status = RC_OK;                                 \
-      NormalizeRcDl(superbitrf.rc_values,radio_control.values       \
-        ,superbitrf.num_channels);                                  \
-      _received_frame_handler();                                    \
-      superbitrf.rc_frame_available = FALSE;                        \
-  }                                                                 \
-}
+#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
 
 #endif /* RADIO_CONTROL_SUPERBITRF_RC_H */

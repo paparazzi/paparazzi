@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file subsystems/radio_control/rc_datalink.c
+ *
+ * Radio control input via datalink.
  */
 
 #include "subsystems/radio_control/rc_datalink.h"
@@ -63,3 +68,32 @@ void parse_rc_4ch_datalink(
   rc_dl_frame_available = TRUE;
 }
 
+/**
+ * Normalize rc_dl_values to radio values.
+ */
+static void rc_datalink_normalize(int8_t *in, int16_t *out)
+{
+  out[RADIO_ROLL] = (MAX_PPRZ/128) * in[RADIO_ROLL];
+  Bound(out[RADIO_ROLL], MIN_PPRZ, MAX_PPRZ);
+  out[RADIO_PITCH] = (MAX_PPRZ/128) * in[RADIO_PITCH];
+  Bound(out[RADIO_PITCH], MIN_PPRZ, MAX_PPRZ);
+  out[RADIO_YAW] = (MAX_PPRZ/128) * in[RADIO_YAW];
+  Bound(out[RADIO_YAW], MIN_PPRZ, MAX_PPRZ);
+  out[RADIO_THROTTLE] = ((MAX_PPRZ/128) * in[RADIO_THROTTLE]);
+  Bound(out[RADIO_THROTTLE], 0, MAX_PPRZ);
+  out[RADIO_MODE] = MAX_PPRZ * (in[RADIO_MODE] - 1);
+  Bound(out[RADIO_MODE], MIN_PPRZ, MAX_PPRZ);
+}
+
+void radio_control_impl_event(void (* _received_frame_handler)(void))
+{
+  if (rc_dl_frame_available) {
+    radio_control.frame_cpt++;
+    radio_control.time_since_last_frame = 0;
+    radio_control.radio_ok_cpt = 0;
+    radio_control.status = RC_OK;
+    rc_datalink_normalize(rc_dl_values, radio_control.values);
+    _received_frame_handler();
+    rc_dl_frame_available = FALSE;
+  }
+}

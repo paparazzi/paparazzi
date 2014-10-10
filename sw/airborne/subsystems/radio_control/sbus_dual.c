@@ -14,12 +14,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-/** @file subsystems/radio_control/sbus_dual.c
+/**
+ * @file subsystems/radio_control/sbus_dual.c
  *
  * Dual SBUS radio_control
  */
@@ -32,9 +32,8 @@
 #include <string.h>
 
 
-
 /** SBUS struct */
-struct _sbus sbus1, sbus2;
+struct Sbus sbus1, sbus2;
 
 // Telemetry function
 #if PERIODIC_TELEMETRY
@@ -46,15 +45,17 @@ struct _sbus sbus1, sbus2;
 
 #include "subsystems/datalink/telemetry.h"
 
-static void send_sbus(void) {
+static void send_sbus(void)
+{
   // Using PPM message
   DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,
-      &radio_control.frame_rate, SBUS_NB_CHANNEL, sbus1.ppm);
+                    &radio_control.frame_rate, SBUS_NB_CHANNEL, sbus1.ppm);
 }
 #endif
 
 // Init function
-void radio_control_impl_init(void) {
+void radio_control_impl_init(void)
+{
   sbus_common_init(&sbus1, &SBUS1_UART_DEV);
   sbus_common_init(&sbus2, &SBUS2_UART_DEV);
 
@@ -64,7 +65,37 @@ void radio_control_impl_init(void) {
 #endif
 }
 
-void sbus_dual_decode_event(void) {
+static inline void sbus_dual_decode_event(void)
+{
   sbus_common_decode_event(&sbus1, &SBUS1_UART_DEV);
   sbus_common_decode_event(&sbus2, &SBUS2_UART_DEV);
+}
+
+void radio_control_impl_event(void (* _received_frame_handler)(void))
+{
+  sbus_dual_decode_event();
+  if (sbus2.frame_available) {
+    radio_control.frame_cpt++;
+    radio_control.time_since_last_frame = 0;
+    if (radio_control.radio_ok_cpt > 0) {
+      radio_control.radio_ok_cpt--;
+    } else {
+      radio_control.status = RC_OK;
+      NormalizePpmIIR(sbus2.pulses,radio_control);
+      _received_frame_handler();
+    }
+    sbus2.frame_available = FALSE;
+  }
+  if (sbus1.frame_available) {
+    radio_control.frame_cpt++;
+    radio_control.time_since_last_frame = 0;
+    if (radio_control.radio_ok_cpt > 0) {
+      radio_control.radio_ok_cpt--;
+    } else {
+      radio_control.status = RC_OK;
+      NormalizePpmIIR(sbus1.pulses,radio_control);
+      _received_frame_handler();
+    }
+    sbus1.frame_available = FALSE;
+  }
 }

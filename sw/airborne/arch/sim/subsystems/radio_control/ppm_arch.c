@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2012 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,12 +14,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-#include "mcu_periph/sys_time.h"
+/**
+ * @file arch/sim/subsystems/radio_control/ppm_arch.c
+ *
+ * PPM radio control, simulator specific.
+ *
+ */
+
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
@@ -31,15 +36,9 @@
 #include <caml/mlvalues.h>
 #endif
 
-uint8_t  ppm_cur_pulse;
-uint32_t ppm_last_pulse_time;
-bool_t   ppm_data_valid;
 
-void ppm_arch_init ( void ) {
-  ppm_last_pulse_time = 0;
-  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
-  ppm_data_valid = FALSE;
-  ppm_frame_available = FALSE;
+void ppm_arch_init(void)
+{
 }
 
 #if USE_NPS
@@ -47,7 +46,8 @@ void ppm_arch_init ( void ) {
 #define PPM_OF_NPS(_nps, _neutral, _min, _max)                          \
   ((_nps) >= 0 ? (_neutral) + (_nps) * ((_max)-(_neutral)) : (_neutral) + (_nps) * ((_neutral)- (_min)))
 
-void radio_control_feed(void) {
+void radio_control_feed(void)
+{
   ppm_pulses[RADIO_ROLL]     = PPM_OF_NPS(nps_radio_control.roll,       \
                                           RADIO_ROLL_NEUTRAL,          \
                                           RADIO_ROLL_MIN,              \
@@ -76,17 +76,20 @@ void radio_control_feed(void) {}
 
 #elif !USE_JSBSIM // not NPS and not JSBSIM -> simple ocaml sim
 #ifdef RADIO_CONTROL
-value update_rc_channel(value c, value v) {
+value update_rc_channel(value c, value v)
+{
   ppm_pulses[Int_val(c)] = Double_val(v);
   return Val_unit;
 }
 
-value send_ppm(value unit) {
+value send_ppm(value unit)
+{
   ppm_frame_available = TRUE;
   return unit;
 }
 #else // RADIO_CONTROL
-value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+value update_rc_channel(value c __attribute__((unused)), value v __attribute__((unused)))
+{
   return Val_unit;
 }
 value send_ppm(value unit) {return unit;}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -41,7 +40,6 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/cm3/nvic.h>
 
-#include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
 
 // for timer_get_frequency
@@ -55,9 +53,6 @@
 #endif
 
 
-uint8_t  ppm_cur_pulse;
-uint32_t ppm_last_pulse_time;
-bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
 
@@ -101,8 +96,8 @@ PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
 #error Unknown PPM input timer configuration.
 #endif
 
-void ppm_arch_init ( void ) {
-
+void ppm_arch_init(void)
+{
   /* timer clock enable */
   rcc_periph_clock_enable(RCC_TIM_PPM);
 
@@ -115,11 +110,11 @@ void ppm_arch_init ( void ) {
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
   uint32_t timer_clk = timer_get_frequency(PPM_TIMER);
-  timer_set_prescaler(PPM_TIMER, (timer_clk / (RC_PPM_TICKS_PER_USEC*ONE_MHZ_CLK)) - 1);
+  timer_set_prescaler(PPM_TIMER, (timer_clk / (RC_PPM_TICKS_PER_USEC * ONE_MHZ_CLK)) - 1);
 
- /* TIM configuration: Input Capture mode ---------------------
-     The Rising edge is used as active edge
-  ------------------------------------------------------------ */
+  /* TIM configuration: Input Capture mode ---------------------
+      The Rising edge is used as active edge
+   ------------------------------------------------------------ */
 #if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
   timer_ic_set_polarity(PPM_TIMER, PPM_CHANNEL, TIM_IC_RISING);
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
@@ -149,101 +144,91 @@ void ppm_arch_init ( void ) {
   /* TIM enable counter */
   timer_enable_counter(PPM_TIMER);
 
-  ppm_last_pulse_time = 0;
-  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
   timer_rollover_cnt = 0;
-
 }
 
 #if USE_PPM_TIM2
 
-void tim2_isr(void) {
-
-  if((TIM2_SR & PPM_CC_IF) != 0) {
+void tim2_isr(void)
+{
+  if ((TIM2_SR & PPM_CC_IF) != 0) {
     timer_clear_flag(TIM2, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM2) + timer_rollover_cnt;
-    DecodePpmFrame(now);
-  }
-  else if((TIM2_SR & TIM_SR_UIF) != 0) {
-    timer_rollover_cnt+=(1<<16);
+    ppm_decode_frame(now);
+  } else if ((TIM2_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
     timer_clear_flag(TIM2, TIM_SR_UIF);
   }
-
 }
 
 
 #elif USE_PPM_TIM3
 
-void tim3_isr(void) {
-
-  if((TIM3_SR & PPM_CC_IF) != 0) {
+void tim3_isr(void)
+{
+  if ((TIM3_SR & PPM_CC_IF) != 0) {
     timer_clear_flag(TIM3, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM3) + timer_rollover_cnt;
-    DecodePpmFrame(now);
-  }
-  else if((TIM3_SR & TIM_SR_UIF) != 0) {
-    timer_rollover_cnt+=(1<<16);
+    ppm_decode_frame(now);
+  } else if ((TIM3_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
     timer_clear_flag(TIM3, TIM_SR_UIF);
   }
-
 }
 
 #elif USE_PPM_TIM4
 
-void tim4_isr(void) {
-
-  if((TIM4_SR & PPM_CC_IF) != 0) {
+void tim4_isr(void)
+{
+  if ((TIM4_SR & PPM_CC_IF) != 0) {
     timer_clear_flag(TIM4, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM4) + timer_rollover_cnt;
-    DecodePpmFrame(now);
-  }
-  else if((TIM4_SR & TIM_SR_UIF) != 0) {
-    timer_rollover_cnt+=(1<<16);
+    ppm_decode_frame(now);
+  } else if ((TIM4_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
     timer_clear_flag(TIM4, TIM_SR_UIF);
   }
-
 }
 
 #elif USE_PPM_TIM5
 
-void tim5_isr(void) {
-
-  if((TIM5_SR & PPM_CC_IF) != 0) {
+void tim5_isr(void)
+{
+  if ((TIM5_SR & PPM_CC_IF) != 0) {
     timer_clear_flag(TIM5, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM5) + timer_rollover_cnt;
-    DecodePpmFrame(now);
-  }
-  else if((TIM5_SR & TIM_SR_UIF) != 0) {
-    timer_rollover_cnt+=(1<<16);
+    ppm_decode_frame(now);
+  } else if ((TIM5_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
     timer_clear_flag(TIM5, TIM_SR_UIF);
   }
-
 }
 
 
 #elif USE_PPM_TIM1
 
 #if defined(STM32F1)
-void tim1_up_isr(void) {
+void tim1_up_isr(void)
+{
 #elif defined(STM32F4)
 void tim1_up_tim10_isr(void) {
 #endif
-  if((TIM1_SR & TIM_SR_UIF) != 0) {
-    timer_rollover_cnt+=(1<<16);
+  if ((TIM1_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
     timer_clear_flag(TIM1, TIM_SR_UIF);
   }
 }
 
 void tim1_cc_isr(void) {
-  if((TIM1_SR & PPM_CC_IF) != 0) {
+  if ((TIM1_SR & PPM_CC_IF) != 0) {
     timer_clear_flag(TIM1, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM1) + timer_rollover_cnt;
-    DecodePpmFrame(now);
+    ppm_decode_frame(now);
   }
 }
 
@@ -254,18 +239,18 @@ void tim8_up_isr(void) {
 #elif defined(STM32F4)
 void tim8_up_tim13_isr(void) {
 #endif
-  if((TIM8_SR & TIM_SR_UIF) != 0) {
-    timer_rollover_cnt+=(1<<16);
+  if ((TIM8_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
     timer_clear_flag(TIM8, TIM_SR_UIF);
   }
 }
 
 void tim8_cc_isr(void) {
-  if((TIM8_SR & PPM_CC_IF) != 0) {
+  if ((TIM8_SR & PPM_CC_IF) != 0) {
     timer_clear_flag(TIM8, PPM_CC_IF);
 
     uint32_t now = timer_get_counter(TIM8) + timer_rollover_cnt;
-    DecodePpmFrame(now);
+    ppm_decode_frame(now);
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -14,19 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file arch/lpc21/subsystems/radio_control/ppm_arch.c
+ *
+ * LPC21xx specific implementation for PPM radio control.
+ *
  */
 
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
-uint8_t  ppm_cur_pulse;
-uint32_t ppm_last_pulse_time;
-bool_t   ppm_data_valid;
 
-void ppm_arch_init ( void ) {
+void ppm_arch_init(void)
+{
   /* select pin for capture */
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
   /* enable capture 0.2 on falling or rising edge + trigger interrupt */
@@ -35,12 +39,8 @@ void ppm_arch_init ( void ) {
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   T0CCR |= PPM_CCR_CRF | PPM_CCR_CRI;
 #else
-#error "ppm_arch.h: Unknown PPM_PULSE_TYPE"
+#error "Unknown PPM_PULSE_TYPE"
 #endif
-  ppm_last_pulse_time = 0;
-  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
-  ppm_data_valid = FALSE;
-  ppm_frame_available = FALSE;
 
 #ifdef USE_PPM_RSSI_GPIO
   /* select pin as GPIO (input) : should be default ?*/

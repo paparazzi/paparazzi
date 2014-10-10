@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /** @file subsystems/radio_control/sbus_common.c
@@ -55,8 +54,8 @@
 #endif
 
 
-void sbus_common_init(struct _sbus* sbus_p, struct uart_periph* dev) {
-
+void sbus_common_init(struct Sbus* sbus_p, struct uart_periph* dev)
+{
   sbus_p->frame_available = FALSE;
   sbus_p->status = SBUS_STATUS_UNINIT;
 
@@ -74,7 +73,8 @@ void sbus_common_init(struct _sbus* sbus_p, struct uart_periph* dev) {
 
 
 /** Decode the raw buffer */
-static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *available, uint16_t *dstppm)
+static void decode_sbus_buffer(const uint8_t* src, uint16_t* dst, bool_t* available,
+                               uint16_t* dstppm)
 {
   // reset counters
   uint8_t byteInRawBuf = 0;
@@ -83,12 +83,13 @@ static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *avail
   uint8_t bitInChannel = 0;
 
   // clear bits
-  memset (dst, 0, SBUS_NB_CHANNEL*sizeof(uint16_t));
+  memset(dst, 0, SBUS_NB_CHANNEL * sizeof(uint16_t));
 
   // decode sbus data
-  for (uint8_t i=0; i< (SBUS_NB_CHANNEL*SBUS_BIT_PER_CHANNEL); i++) {
-    if (src[byteInRawBuf] & (1<<bitInRawBuf))
-      dst[channel] |= (1<<bitInChannel);
+  for (uint8_t i = 0; i < (SBUS_NB_CHANNEL * SBUS_BIT_PER_CHANNEL); i++) {
+    if (src[byteInRawBuf] & (1 << bitInRawBuf)) {
+      dst[channel] |= (1 << bitInChannel);
+    }
 
     bitInRawBuf++;
     bitInChannel++;
@@ -111,7 +112,8 @@ static void decode_sbus_buffer (const uint8_t *src, uint16_t *dst, bool_t *avail
 
 // Decoding event function
 // Reading from UART
-void sbus_common_decode_event(struct _sbus* sbus_p, struct uart_periph* dev) {
+void sbus_common_decode_event(struct Sbus* sbus_p, struct uart_periph* dev)
+{
   uint8_t rbyte;
   if (uart_char_available(dev)) {
     do {
