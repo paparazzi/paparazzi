@@ -59,7 +59,8 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_ivy_rotorcraft.c            \
        $(NPSDIR)/nps_flightgear.c                \
 
-
+# for geo mag calculation
+nps.srcs += math/pprz_geodetic_wmm2010.c
 
 nps.CFLAGS += -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=IvyTransport -DDefaultPeriodic='&telemetry_Main'
 nps.srcs += $(SRC_ARCH)/ivy_transport.c
