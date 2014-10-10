@@ -27,7 +27,7 @@
 
 #include "generated/airframe.h"
 
-#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
 #include "std.h"

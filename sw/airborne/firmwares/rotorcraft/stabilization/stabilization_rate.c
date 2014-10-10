@@ -29,6 +29,7 @@
 #include "generated/airframe.h"
 
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 
 #include "state.h"
 

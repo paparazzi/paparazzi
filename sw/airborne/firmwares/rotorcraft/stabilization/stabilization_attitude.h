@@ -27,7 +27,7 @@
 #ifndef STABILIZATION_ATTITUDE_H
 #define STABILIZATION_ATTITUDE_H
 
-
+#include "firmwares/rotorcraft/stabilization.h"
 #include STABILIZATION_ATTITUDE_TYPE_H
 
 extern void stabilization_attitude_init(void);

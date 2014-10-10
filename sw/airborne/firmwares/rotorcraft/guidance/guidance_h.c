@@ -32,6 +32,10 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/radio_control.h"
 
+#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+
 /* for guidance_v_thrust_coeff */
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 
