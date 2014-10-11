@@ -43,6 +43,13 @@ struct AirData {
   float wind_speed;   ///< wind speed (m/s)
   float wind_dir;     ///< wind direction (rad, 0 north, >0 clockwise)
   float airspeed_scale; ///< quadratic scale factor to convert differential pressure to airspeed
+
+  float qnh;             ///< Barometric pressure adjusted to sea level in Pa
+  float amsl_baro;       ///< altitude above sea level in m from pressure and QNH
+  bool_t amsl_baro_valid; ///< TRUE if #amsl_baro is currently valid
+  bool_t calc_airspeed;  ///< if TRUE, calculate airspeed from differential pressure
+  bool_t calc_qnh_once;  ///< flag to calculate QNH with next pressure measurement
+  bool_t calc_amsl_baro; ///< if TRUE, calculate #amsl_baro
 };
 
 /** global AirData state
@@ -51,7 +58,17 @@ extern struct AirData air_data;
 
 /** AirData initialization. Called at startup.
  */
-extern void air_data_init( void );
+extern void air_data_init(void);
+
+/** Check health. Needs to be called periodically.
+ */
+extern void air_data_periodic(void);
+
+/** Return AMSL (altitude AboveSeaLevel).
+ * If AMSL from baro is valid, return that, otherwise from gps.
+ */
+extern float air_data_get_amsl(void);
+
 
 #endif /* AIR_DATA_H */
 
