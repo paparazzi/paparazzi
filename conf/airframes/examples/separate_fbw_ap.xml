@@ -223,7 +223,7 @@
 
     <load name="nav_catapult.xml"/>
     <load name="nav_line.xml"/>
-
+    <load name="air_data.xml"/>
   </modules>
 
   <firmware name="fixedwing">
