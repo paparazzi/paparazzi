@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="air_data">
+  <doc>
+    <description>
+    AirData interface.
+    Provides an interface for baro absolute and differential pressure as well as airspeed.
+    Subscribes to BARO_ABS and BARO_DIFF ABI messages and calculates QNH and airspeed from it.
+    </description>
+    <define name="AIR_DATA_BARO_ABS_ID" value="ABI_SENDER_ID" description="ABI sender id for absolute baro measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_BARO_DIFF_ID" value="ABI_SENDER_ID" description="ABI sender id for differential baro measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed"/>
+    <define name="AIR_DATA_CALC_AIRSPEED" value="FALSE|TRUE" description="Calculate Airspeed from differential pressure (default: TRUE)"/>
+    <define name="AIR_DATA_AMSL_BARO" value="FALSE|TRUE" description="Calculate AMS from baro and QNH (default: FALSE)"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="air_data">
+        <dl_setting min="800" max="1200" step="1" module="air_data/air_data" var="air_data.qnh" shortname="QNH" handler="SetQNH"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_qnh_once" module="air_data/air_data" shortname="calc_qnh"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_airspeed" module="air_data/air_data" shortname="calc_airspeed"/>
+        <dl_setting min="0" max="1" step="1" var="air_data.calc_amsl_baro" module="air_data/air_data" shortname="calc_amsl"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="air_data.h"/>
+  </header>
+  <init fun="air_data_init()"/>
+  <periodic fun="air_data_periodic()" freq="10"/>
+  <makefile>
+    <file name="air_data.c"/>
+  </makefile>
+</module>

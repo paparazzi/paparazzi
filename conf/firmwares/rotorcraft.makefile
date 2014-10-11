@@ -73,10 +73,8 @@ $(TARGET).srcs += subsystems/commands.c
 $(TARGET).srcs += state.c
 
 #
-# AIR DATA and BARO (if needed)
+# BARO_BOARD (if existing/configured)
 #
-$(TARGET).srcs += subsystems/air_data.c
-
 include $(CFG_SHARED)/baro_board.makefile
 
 

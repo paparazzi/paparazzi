@@ -1,7 +1,8 @@
 /*
  * Copyright (C) 2013 Gautier Hattenberger
+ *               2014 Felix Ruess <felix.ruess@gmail.com>
  *
- * This file is part of paparazzi.
+ * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +15,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file subsystems/air_data.c
+ * @file modules/air_data/air_data.c
  * Air Data interface
  *  - pressures
  *  - airspeed
@@ -28,10 +28,11 @@
  *  - wind
  */
 
-#include "subsystems/air_data.h"
+#include "modules/air_data/air_data.h"
 #include "subsystems/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
+
 
 /** global AirData state
  */
@@ -89,13 +90,14 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const flo
   // calculate QNH from pressure and absolute alitude if that is available
   if (air_data.calc_qnh_once && stateIsGlobalCoordinateValid()) {
     float h = stateGetPositionLla_f()->alt;
-    air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h);
+    air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;
     air_data.calc_qnh_once = FALSE;
     qnh_set = TRUE;
   }
 
   if (air_data.calc_amsl_baro && qnh_set) {
-    air_data.amsl_baro = pprz_isa_height_of_pressure_full(air_data.pressure, air_data.qnh);
+    air_data.amsl_baro = pprz_isa_height_of_pressure_full(air_data.pressure,
+                                                          air_data.qnh * 100.f);
     air_data.amsl_baro_valid = TRUE;
   }
 
@@ -107,7 +109,8 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, const fl
 {
   air_data.differential = *pressure;
   if (air_data.calc_airspeed) {
-    air_data.airspeed = sqrtf(air_data.differential * air_data.airspeed_scale);
+    /* lower bound of differential pressure at zero, no flying backwards guys */
+    air_data.airspeed = sqrtf(Max(air_data.differential, 0) * air_data.airspeed_scale);
     stateSetAirspeed_f(&air_data.airspeed);
   }
 }
@@ -164,4 +167,10 @@ void air_data_periodic(void)
   else {
     air_data.amsl_baro_valid = FALSE;
   }
+}
+
+void air_data_SetQNH(float qnh)
+{
+  air_data.qnh = qnh;
+  qnh_set = TRUE;
 }

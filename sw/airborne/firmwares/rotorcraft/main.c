@@ -52,7 +52,6 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
-#include "subsystems/air_data.h"
 
 #if USE_BARO_BOARD
 #include "subsystems/sensors/baro.h"
@@ -152,7 +151,6 @@ STATIC_INLINE void main_init( void ) {
 
   radio_control_init();
 
-  air_data_init();
 #if USE_BARO_BOARD
   baro_init();
 #endif
