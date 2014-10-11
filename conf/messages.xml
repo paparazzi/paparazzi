@@ -1172,7 +1172,11 @@
     <field name="status" type="uint8" values="UNINIT|RUNNING|LOCKED"/>
   </message>
 
-  <!-- 138 is free -->
+  <message name="AIRSPEED_MS45XX" id="138">
+    <field name="diffPress" type="float" unit="Pa"/>
+    <field name="temperature" type="int16" unit="0.1 deg_celcius" alt_unit="deg_celcius" alt_unit_coef="0.1"/>
+    <field name="airspeed" type="float" unit="m/s"/>
+  </message>
 
   <message name="FILTER_COR" id="139">
     <field name="mphi"   type="int32"/>
