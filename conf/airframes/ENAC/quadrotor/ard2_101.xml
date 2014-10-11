@@ -1,0 +1,34 @@
+
+<airframe>
+
+  <section name="IMU" prefix="IMU_">
+    <!-- Accelero -->
+    <define name="ACCEL_X_NEUTRAL" value="2036"/>
+    <define name="ACCEL_Y_NEUTRAL" value="2063"/>
+    <define name="ACCEL_Z_NEUTRAL" value="2050"/>
+    <define name="ACCEL_X_SENS" value="19.8215198025" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="19.3612647775" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="19.6308115492" integer="16"/>
+
+    <!-- Magneto calibration -->
+    <!--define name="MAG_X_NEUTRAL" value="56"/>
+    <define name="MAG_Y_NEUTRAL" value="17"/>
+    <define name="MAG_Z_NEUTRAL" value="-64"/>
+    <define name="MAG_X_SENS" value="17.4978698304" integer="16"/>
+    <define name="MAG_Y_SENS" value="17.7032280166" integer="16"/>
+    <define name="MAG_Z_SENS" value="17.8657801029" integer="16"/-->
+
+    <define name="MAG_X_NEUTRAL" value="21"/>
+    <define name="MAG_Y_NEUTRAL" value="-4"/>
+    <define name="MAG_Z_NEUTRAL" value="-1"/>
+    <define name="MAG_X_SENS" value="16.510274159" integer="16"/>
+    <define name="MAG_Y_SENS" value="16.5086412339" integer="16"/>
+    <define name="MAG_Z_SENS" value="17.4503678708" integer="16"/>
+
+    <!-- Magneto current calibration -->
+    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
+    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
+    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
+  </section>
+
+</airframe>

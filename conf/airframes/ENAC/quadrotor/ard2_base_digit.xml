@@ -1,0 +1,81 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="ardrone2_digit">
+
+  <firmware name="rotorcraft">
+    <define name="DEBUG_VFF_EXTENDED"/>
+    <configure name="HOST" value="192.168.1.$(AC_ID)"/>
+    <target name="ap" board="ardrone2_raw">
+      <define name="USE_SONAR"/>
+      <define name="USE_BARO_MEDIAN_FILTER"/>
+      <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
+      <subsystem name="telemetry" type="transparent_udp"/>
+      <subsystem name="radio_control" type="datalink"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <subsystem name="fdm" type="jsbsim"/>
+      <subsystem name="radio_control" type="ppm"/>
+    </target>
+
+	<!-- Subsystem section -->
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators" type="ardrone2"/>
+    <subsystem name="imu" type="ardrone2"/>
+    <subsystem name="gps" type="ublox"/>
+    <subsystem name="stabilization" type="int_quat"/>
+    <!-- AHRS + INS for indoor or outdoor -->
+    <!--subsystem name="ahrs" type="int_cmpl_euler"/>
+    <subsystem name="ins" type="extended"/-->
+    <!-- INS for outdoor only -->
+    <subsystem name="ins" type="float_invariant"/>
+  </firmware>
+
+  <modules main_freq="512">
+    <!--load name="gps_ubx_ucenter.xml"/-->
+    <load name="agl_dist.xml">
+      <define name="USE_SONAR"/>
+    </load>
+    <load name="image_nc_send.xml"/>
+    <load name="rotorcraft_cam.xml"/>
+  </modules>
+
+  <!-- include common control -->
+  <include href="conf/airframes/ENAC/quadrotor/ard2_base_control.xml"/>
+  <!-- include arframe calibration -->
+  <include href="conf/airframes/ENAC/quadrotor/ard2_$AC_ID.xml"/>
+
+  <!-- local magnetic field -->
+  <!-- http://paparazzi.enac.fr/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <section name="AHRS" prefix="AHRS_">
+    <!-- Toulouse -->
+    <!--define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/-->
+    <!-- Delft -->
+    <!--define name="H_X" value="0.3892503"/>
+    <define name="H_Y" value="0.0017972"/>
+    <define name="H_Z" value="0.9211303"/ -->
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <!-- Delft -->
+    <!--define name="H_X" value="0.387766"/>
+    <define name="H_Y" value="0.00648212"/>
+    <define name="H_Z" value="0.921725"/ -->
+    <!-- trust more the baro over the gps alt -->
+    <define name="INV_NXZ" value="0.3"/>
+    <define name="INV_NH" value="2.0"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
+</airframe>
