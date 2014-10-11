@@ -558,8 +558,11 @@ void ahrs_update_mag(float dt __attribute__((unused))) {
  */
 static inline void invariant_model(float* o, const float* x, const int n, const float* u, const int m __attribute__((unused))) {
 
+#pragma GCC diagnostic push // require GCC 4.6
+#pragma GCC diagnostic ignored "-Wcast-qual"
   struct inv_state* s = (struct inv_state*)x;
   struct inv_command* c = (struct inv_command*)u;
+#pragma GCC diagnostic pop // require GCC 4.6
   struct inv_state s_dot;
   struct FloatRates rates_unbiased;
   struct FloatVect3 tmp_vect;
