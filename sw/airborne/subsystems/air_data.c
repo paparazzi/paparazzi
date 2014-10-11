@@ -30,26 +30,55 @@
 
 #include "subsystems/air_data.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
 /** global AirData state
  */
 struct AirData air_data;
 
-/** ABI bindings
+/** ABI binding for absolute pressure
  */
 #ifndef AIR_DATA_BARO_ABS_ID
 #define AIR_DATA_BARO_ABS_ID ABI_BROADCAST
 #endif
 static abi_event pressure_abs_ev;
 
-static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const float * pressure) {
+/** ABI binding for differential pressure
+ */
+#ifndef AIR_DATA_BARO_DIFF_ID
+#define AIR_DATA_BARO_DIFF_ID ABI_BROADCAST
+#endif
+static abi_event pressure_diff_ev;
+
+/** Quadratic scale factor for airspeed.
+ * airspeed = sqrt(2*p_diff/density)
+ * With p_diff in Pa and standard air density of 1.225 kg/m^3,
+ * default airspeed scale is 2/1.225
+ */
+#ifndef AIR_DATA_AIRSPEED_SCALE
+#define AIR_DATA_AIRSPEED_SCALE 1.6327
+#endif
+
+static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+{
   air_data.pressure = *pressure;
 }
+
+static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, const float *pressure)
+{
+  air_data.differential = *pressure;
+  air_data.airspeed = sqrtf(air_data.differential * air_data.airspeed_scale);
+#if USE_AIRDATA_AIRSPEED
+  stateSetAirspeed_f(&air_data.airspeed);
+#endif
+}
+
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_baro_raw(void) {
+static void send_baro_raw(void)
+{
   DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,
                          &air_data.pressure, &air_data.differential);
 }
@@ -58,8 +87,12 @@ static void send_baro_raw(void) {
 /** AirData initialization. Called at startup.
  *  Bind ABI messages
  */
-void air_data_init( void ) {
+void air_data_init(void)
+{
+  air_data.airspeed_scale = AIR_DATA_AIRSPEED_SCALE;
+
   AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
+  AbiBindMsgBARO_ABS(AIR_DATA_BARO_DIFF_ID, &pressure_diff_ev, pressure_diff_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);

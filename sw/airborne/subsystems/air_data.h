@@ -42,6 +42,7 @@ struct AirData {
   float sideslip;     ///< sideslip angle (rad)
   float wind_speed;   ///< wind speed (m/s)
   float wind_dir;     ///< wind direction (rad, 0 north, >0 clockwise)
+  float airspeed_scale; ///< quadratic scale factor to convert differential pressure to airspeed
 };
 
 /** global AirData state
