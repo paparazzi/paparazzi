@@ -32,8 +32,8 @@ printf "       ##########################\n";;
 printf "       ##    Module Creator    ##\n";;
 printf "       ##########################\n\n";;
 printf "This program will help you to create a new module for Paparazzi\n";;
-printf "All option are not accessible from this program,\n";
-printf "see http://paparazzi.enac.fr/wiki/Modules for more information.\n";
+printf "Not all options are accessible from this program,\n";
+printf "see http://wiki.paparazziuav.org/wiki/Modules for more information.\n";
 (*printf "Please follow the instruction or pass a module xml file as intput\n\n";;*)
 printf "Please follow the instruction\n\n";;
 let name = ask "Enter your module name";;
@@ -50,8 +50,8 @@ let add_to_list = fun l a ->
   l := !l @ [a];;
 
 let ask_init = fun () ->
-  printf "Parameters for initialization function:\n";
-  let name = ask " - function name (mandatory)" in
+  printf "Initialization function to call, eg \"foo_init()\":\n";
+  let name = ask " - function (mandatory)" in
   add_to_list init_list name;
   true;;
 
@@ -183,7 +183,7 @@ let code_name = "sw/airborne/modules" // dir_name // name^".c";;
 
 let test_filename = fun () ->
   let ask_confirm = ref false in
-  let disp_msg = fun f c -> 
+  let disp_msg = fun f c ->
     printf "File %s already exists\n" f;
     c := true;
   in
@@ -191,7 +191,7 @@ let test_filename = fun () ->
   if Sys.file_exists header_name then disp_msg header_name ask_confirm;
   if Sys.file_exists code_name then disp_msg code_name ask_confirm;
   if !ask_confirm then begin
-    if String.lowercase (ask "Confirm erasing files ? [y,N]") <> "y" 
+    if String.lowercase (ask "Confirm erasing files ? [y,N]") <> "y"
     then quit_with_error "Not erasing existing files. Leaving" 1
   end;;
 
@@ -211,21 +211,28 @@ let write_license = fun out ->
   fprintf out " * GNU General Public License for more details.\n";
   fprintf out " *\n";
   fprintf out " * You should have received a copy of the GNU General Public License\n";
-  fprintf out " * along with paparazzi; see the file COPYING.  If not, write to\n";
-  fprintf out " * the Free Software Foundation, 59 Temple Place - Suite 330,\n";
-  fprintf out " * Boston, MA 02111-1307, USA.\n";;
+  fprintf out " * along with paparazzi; see the file COPYING.  If not, see\n";
+  fprintf out " * <http://www.gnu.org/licenses/>.\n";;
 
 let write_copyright = fun out author gpl ->
   fprintf out "/*\n";
   fprintf out " * Copyright (C) %s\n" author;
   fprintf out " *\n";
-  fprintf out " * This file is part of paparazzi\n\n";
-  if gpl then write_license out;
+  fprintf out " * This file is part of paparazzi\n";
   fprintf out " *\n";
+  if gpl then write_license out;
+  fprintf out " */\n";;
+
+let write_doxygen_header = fun out author filename description ->
+  fprintf out "/**\n";
+  fprintf out " * @file %s\n" filename;
+  fprintf out " * @author %s\n" author;
+  fprintf out " * %s\n" description;
   fprintf out " */\n";;
 
 let write_header = fun out author gpl ->
   write_copyright out author gpl;
+  write_doxygen_header out author (sprintf "\"modules/%s/%s.h\"" dir_name name) desc;
   fprintf out "\n#ifndef %s_H" (String.uppercase name);
   fprintf out "\n#define %s_H\n\n" (String.uppercase name);
   List.iter (fun f -> fprintf out "// extern void %s;\n" f) !init_list;
@@ -236,6 +243,7 @@ let write_header = fun out author gpl ->
 
 let write_code = fun out author gpl ->
   write_copyright out author gpl;
+  write_doxygen_header out author (sprintf "\"modules/%s/%s.c\"" dir_name name) desc;
   fprintf out "\n#include \"modules/%s/%s.h\"\n\n" dir_name name;
   List.iter (fun f -> fprintf out "// void %s {}\n" f) !init_list;
   List.iter (fun (f,_,_,_,_) -> fprintf out "// void %s {}\n" f) !periodic_list;
