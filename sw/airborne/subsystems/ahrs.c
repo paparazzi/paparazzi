@@ -58,18 +58,39 @@ void ahrs_init(void)
   ahrs.update_gps = NULL;
 }
 
-#if 0
-#define WEAK __attribute__((weak))
-// weak functions, used if not explicitly provided by implementation
+bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+                struct Int32Vect3* lp_mag)
+{
+  if (ahrs.align != NULL) {
+    return ahrs.align(lp_gyro, lp_accel, lp_mag);
+  }
+  return FALSE;
+}
 
-void WEAK ahrs_propagate(struct Int32Rates* gyro __attribute__((unused)),
-                         float dt __attribute__((unused))) {}
+void ahrs_propagate(struct Int32Rates* gyro, float dt)
+{
+  if (ahrs.propagate != NULL && ahrs.status == AHRS_RUNNING) {
+    ahrs.propagate(gyro, dt);
+  }
+}
 
-void WEAK ahrs_update_accel(struct Int32Vect3* accel __attribute__((unused)),
-                            float dt __attribute__((unused))) {}
+void ahrs_update_accel(struct Int32Vect3* accel, float dt)
+{
+  if (ahrs.update_accel != NULL && ahrs.status == AHRS_RUNNING) {
+    ahrs.update_accel(accel, dt);
+  }
+}
 
-void WEAK ahrs_update_mag(struct Int32Vect3* mag __attribute__((unused)),
-                          float dt __attribute__((unused))) {}
+void ahrs_update_mag(struct Int32Vect3* mag, float dt)
+{
+  if (ahrs.update_mag != NULL && ahrs.status == AHRS_RUNNING) {
+    ahrs.update_mag(mag, dt);
+  }
+}
 
-void WEAK ahrs_update_gps(void) {}
-#endif
+void ahrs_update_gps(void)
+{
+  if (ahrs.update_gps != NULL && ahrs.status == AHRS_RUNNING) {
+    ahrs.update_gps();
+  }
+}

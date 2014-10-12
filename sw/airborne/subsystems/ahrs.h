@@ -75,45 +75,38 @@ extern void ahrs_register_impl(AhrsInit init, AhrsAlign align, AhrsPropagate pro
  */
 extern void ahrs_init(void);
 
-#if 0
-/** AHRS initialization. Called at startup.
- *  Needs to be implemented by each AHRS algorithm.
- */
-extern void ahrs_init(struct OrientationReps* body_to_imu);
-
 /** Aligns the AHRS. Called after ahrs_aligner has run to set initial attitude and biases.
- *  Needs to be implemented by each AHRS algorithm.
+ * Calls implementation if registered.
  * @return TRUE if ahrs is aligned
  */
 extern bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                          struct Int32Vect3* lp_mag);
 
 /** Propagation. Usually integrates the gyro rates to angles.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- *  @param dt time difference since last propagation in seconds
+ * Calls implementation if registered.
+ * @param gyro pointer to gyro measurement
+ * @param dt time difference since last propagation in seconds
  */
 extern void ahrs_propagate(struct Int32Rates* gyro, float dt);
 
 /** Update AHRS state with accerleration measurements.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- *  @param dt time difference since last update in seconds
+ * Calls implementation if registered.
+ * @param accel pointer to accelerometer measurement
+ * @param dt time difference since last update in seconds
  */
 extern void ahrs_update_accel(struct Int32Vect3* accel, float dt);
 
 /** Update AHRS state with magnetometer measurements.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- *  @param dt time difference since last update in seconds
+ * Calls implementation if registered.
+ * @param mag pointer to magnetometer measurement
+ * @param dt time difference since last update in seconds
  */
 extern void ahrs_update_mag(struct Int32Vect3* mag, float dt);
 
 /** Update AHRS state with GPS measurements.
+ *  Calls implementation if registered.
  *  Reads the global #gps data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
  */
 extern void ahrs_update_gps(void);
-#endif
 
 #endif /* AHRS_H */
