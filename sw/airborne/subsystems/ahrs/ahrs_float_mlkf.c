@@ -52,7 +52,7 @@
 #define AHRS_MAG_NOISE_Z 0.2
 #endif
 
-static inline void propagate_ref(float dt);
+static inline void propagate_ref(struct Int32Rates* gyro, float dt);
 static inline void propagate_state(float dt);
 static inline void update_state(const struct FloatVect3 *i_expected, struct FloatVect3* b_measured, struct FloatVect3* noise);
 static inline void reset_state(void);
@@ -118,15 +118,15 @@ void ahrs_align(void) {
   ahrs.status = AHRS_RUNNING;
 }
 
-void ahrs_propagate(float dt) {
-  propagate_ref(dt);
+void ahrs_propagate(struct Int32Rates* gyro, float dt) {
+  propagate_ref(gyro, dt);
   propagate_state(dt);
   set_body_state_from_quat();
 }
 
-void ahrs_update_accel(float dt __attribute__((unused))) {
+void ahrs_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused))) {
   struct FloatVect3 imu_g;
-  ACCELS_FLOAT_OF_BFP(imu_g, imu.accel);
+  ACCELS_FLOAT_OF_BFP(imu_g, *accel);
   const float alpha = 0.92;
   ahrs_impl.lp_accel = alpha * ahrs_impl.lp_accel +
     (1. - alpha) *(float_vect3_norm(&imu_g) - 9.81);
@@ -138,18 +138,18 @@ void ahrs_update_accel(float dt __attribute__((unused))) {
 }
 
 
-void ahrs_update_mag(float dt __attribute__((unused))) {
+void ahrs_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused))) {
   struct FloatVect3 imu_h;
-  MAGS_FLOAT_OF_BFP(imu_h, imu.mag);
+  MAGS_FLOAT_OF_BFP(imu_h, *mag);
   update_state(&ahrs_impl.mag_h, &imu_h, &ahrs_impl.mag_noise);
   reset_state();
 }
 
 
-static inline void propagate_ref(float dt) {
+static inline void propagate_ref(struct Int32Rates* gyro, float dt) {
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
-  RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
+  RATES_FLOAT_OF_BFP(gyro_float, *gyro);
 
   /* unbias measurement */
   RATES_SUB(gyro_float, ahrs_impl.gyro_bias);

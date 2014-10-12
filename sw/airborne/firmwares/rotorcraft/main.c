@@ -325,7 +325,7 @@ PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
   imu_scale_accel(&imu);
 
   if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel(dt);
+    ahrs_update_accel(&imu.accel, dt);
   }
 }
 
@@ -353,7 +353,7 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
       ahrs_align();
   }
   else {
-    ahrs_propagate(dt);
+    ahrs_propagate(&imu.gyro_prev, dt);
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
@@ -393,7 +393,7 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 #endif
 
   if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag(dt);
+    ahrs_update_mag(&imu.mag, dt);
   }
 #endif // USE_MAGNETOMETER
 

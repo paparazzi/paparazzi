@@ -32,10 +32,13 @@ struct Ahrs ahrs;
 #define WEAK __attribute__((weak))
 // weak functions, used if not explicitly provided by implementation
 
-void WEAK ahrs_propagate(float dt __attribute__((unused))) {}
+void WEAK ahrs_propagate(struct Int32Rates* gyro __attribute__((unused)),
+                         float dt __attribute__((unused))) {}
 
-void WEAK ahrs_update_accel(float dt __attribute__((unused))) {}
+void WEAK ahrs_update_accel(struct Int32Vect3* accel __attribute__((unused)),
+                            float dt __attribute__((unused))) {}
 
-void WEAK ahrs_update_mag(float dt __attribute__((unused))) {}
+void WEAK ahrs_update_mag(struct Int32Vect3* mag __attribute__((unused)),
+                          float dt __attribute__((unused))) {}
 
 void WEAK ahrs_update_gps(void) {}
