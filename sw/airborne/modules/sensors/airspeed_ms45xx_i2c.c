@@ -164,7 +164,7 @@ void ms45xx_i2c_event(void)
       ms45xx.temperature = ((uint32_t)temp_raw * 2000) / 2047 - 500;
 
       // Compute airspeed
-      ms45xx.airspeed = sqrtf(ms45xx.diff_pressure * ms45xx.airspeed_scale);
+      ms45xx.airspeed = sqrtf(fabs(ms45xx.diff_pressure) * ms45xx.airspeed_scale);
 #if USE_AIRSPEED
       stateSetAirspeed_f(&ms45xx.airspeed);
 #endif
