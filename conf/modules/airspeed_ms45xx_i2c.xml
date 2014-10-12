@@ -11,6 +11,8 @@
     <define name="MS45XX_PRESSURE_RANGE" value="1|2|5|15|30|50|100|150" description="pressure range in psi (default: 5)"/>
     <define name="MS45XX_OUTPUT_TYPE" value="0|1" description="set to 0 for output type A, to 1 for output type B"/>
     <define name="MS45XX_SYNC_SEND" value="TRUE|FALSE" description="flag to enable sending every new measurement via telemetry (default:FALSE)"/>
+    <define name="MS45XX_PRESSURE_SCALE" value="1.05" description="pressure scaling factor to convert raw output to Pa (default: set according to pressure range and output type according to datasheet)"/>
+    <define name="MS45XX_PRESSURE_OFFSET" value="8618.4" description="pressure offset in Pa (default: set according to pressure range and output type according to datasheet)"/>
     <define name="MS45XX_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed"/>
     <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
   </doc>
@@ -19,7 +21,9 @@
     <dl_settings>
       <dl_settings NAME="MS45XX">
         <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="ms45xx.sync_send" shortname="sync_send" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_SYNC_SEND"/>
-        <dl_setting min="1.0" max="2.0" step="0.01" var="ms45xx.airspeed_scale" shortname="airspeed_scale" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_AIRSPEED_SCALE"/>
+        <dl_setting min="0.9" max="1.2" step="0.01" var="ms45xx.pressure_scale" shortname="PressScale" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_PRESSURE_SCALE"/>
+        <dl_setting min="8300.0" max="8900.0" step="0.1" var="ms45xx.pressure_offset" shortname="PressScale" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_PRESSURE_OFFSET"/>
+        <dl_setting min="1.0" max="2.0" step="0.01" var="ms45xx.airspeed_scale" shortname="AirScale" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_AIRSPEED_SCALE"/>
       </dl_settings>
     </dl_settings>
   </settings>

@@ -60,6 +60,36 @@
 /** Conversion factor from psi to Pa */
 #define PSI_TO_PA 6894.75729
 
+#if MS45XX_OUTPUT_TYPE == 0
+/* Offset and scaling for OUTPUT TYPE A:
+ * p_raw = (0.8*16383)/ (Pmax - Pmin) * (pressure - Pmin) + 0.1*16383
+ * For differential sensors Pmax = MS45XX_PRESSURE_RANGE = -Pmin.
+ *
+ * p_diff = (p_raw - 0.1*16383) * 2*RANGE/(0.8*16383) - RANGE
+ * p_diff = p_raw * 2*RANGE/(0.8*16383) - (RANGE + (0.1 * 16383) * 2*RANGE/(0.8*16383)
+ * p_diff = p_raw * 2*RANGE/(0.8*16383) - (1.25 * RANGE)
+ * p_diff = p_raw * scale - offset
+ * then convert to Pascal
+ */
+#ifndef MS45XX_PRESSURE_SCALE
+#define MS45XX_PRESSURE_SCALE (2 * MS45XX_PRESSURE_RANGE / (0.8 * 16383) * PSI_TO_PA)
+#endif
+#ifndef MS45XX_PRESSURE_OFFSET
+#define MS45XX_PRESSURE_OFFSET (1.25 * MS45XX_PRESSURE_RANGE * PSI_TO_PA)
+#endif
+#else
+/* Offset and scaling for OUTPUT TYPE B:
+ * p_raw = (0.9*16383)/ (Pmax - Pmin) * (pressure - Pmin) + 0.05*16383
+ */
+#ifndef MS45XX_PRESSURE_SCALE
+#define MS45XX_PRESSURE_SCALE (2 * MS45XX_PRESSURE_RANGE / (0.9 * 16383) * PSI_TO_PA)
+#endif
+#ifndef MS45XX_PRESSURE_OFFSET
+#define MS45XX_PRESSURE_OFFSET ((1.0 + 0.1 / 0.9) * MS45XX_PRESSURE_RANGE  * PSI_TO_PA)
+#endif
+#endif
+
+
 #ifndef MS45XX_SYNC_SEND
 #define MS45XX_SYNC_SEND FALSE
 #endif
@@ -97,29 +127,10 @@ void ms45xx_i2c_init(void)
   ms45xx.diff_pressure = 0;
   ms45xx.temperature = 0;
   ms45xx.airspeed = 0.;
-  ms45xx.sync_send = MS45XX_SYNC_SEND;
+  ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
+  ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
   ms45xx.airspeed_scale = MS45XX_AIRSPEED_SCALE;
-
-#if MS45XX_OUTPUT_TYPE == 0
-  /* Offset and scaling for OUTPUT TYPE A:
-   * p_raw = (0.8*16383)/ (Pmax - Pmin) * (pressure - Pmin) + 0.1*16383
-   * For differential sensors Pmax = MS45XX_PRESSURE_RANGE = -Pmin.
-   *
-   * p_diff = (p_raw - 0.1*16383) * 2*RANGE/(0.8*16383) - RANGE
-   * p_diff = p_raw * 2*RANGE/(0.8*16383) - (RANGE + (0.1 * 16383) * 2*RANGE/(0.8*16383)
-   * p_diff = p_raw * 2*RANGE/(0.8*16383) - (1.25 * RANGE)
-   * p_diff = p_raw * scale - offset
-   * then convert to Pascal
-   */
-  ms45xx.pressure_scale = 2 * MS45XX_PRESSURE_RANGE / (0.8 * 16383) * PSI_TO_PA;
-  ms45xx.pressure_offset = 1.25 * MS45XX_PRESSURE_RANGE * PSI_TO_PA;
-#else
-  /* Offset and scaling for OUTPUT TYPE B:
-   * p_raw = (0.9*16383)/ (Pmax - Pmin) * (pressure - Pmin) + 0.05*16383
-   */
-  ms45xx.pressure_scale = 2 * MS45XX_PRESSURE_RANGE / (0.9 * 16383) * PSI_TO_PA;
-  ms45xx.pressure_offset = (1.0 + 0.1 / 0.9) * MS45XX_PRESSURE_RANGE  * PSI_TO_PA;
-#endif
+  ms45xx.sync_send = MS45XX_SYNC_SEND;
 
   ms45xx_trans.status = I2CTransDone;
 
