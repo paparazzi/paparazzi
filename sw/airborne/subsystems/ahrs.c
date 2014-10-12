@@ -26,9 +26,39 @@
 
 
 #include "subsystems/ahrs.h"
+#include "subsystems/imu.h"
 
 struct Ahrs ahrs;
 
+void ahrs_register_impl(AhrsInit init, AhrsAlign align, AhrsPropagate propagate,
+                        AhrsUpdateAccel update_acc, AhrsUpdateMag update_mag,
+                        AhrsUpdateGps update_gps)
+{
+  ahrs.init = init;
+  ahrs.align = align;
+  ahrs.propagate = propagate;
+  ahrs.update_accel = update_acc;
+  ahrs.update_mag = update_mag;
+  ahrs.update_gps = update_gps;
+
+  /* call init function of implementation */
+  ahrs.init(&imu.body_to_imu);
+
+  ahrs.status = AHRS_REGISTERED;
+}
+
+void ahrs_init(void)
+{
+  ahrs.status = AHRS_UNINIT;
+  ahrs.init = NULL;
+  ahrs.align = NULL;
+  ahrs.propagate = NULL;
+  ahrs.update_accel = NULL;
+  ahrs.update_mag = NULL;
+  ahrs.update_gps = NULL;
+}
+
+#if 0
 #define WEAK __attribute__((weak))
 // weak functions, used if not explicitly provided by implementation
 
@@ -42,3 +72,4 @@ void WEAK ahrs_update_mag(struct Int32Vect3* mag __attribute__((unused)),
                           float dt __attribute__((unused))) {}
 
 void WEAK ahrs_update_gps(void) {}
+#endif

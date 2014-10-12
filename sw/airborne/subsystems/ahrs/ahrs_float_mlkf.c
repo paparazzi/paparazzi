@@ -67,7 +67,13 @@ static void send_geo_mag(void) {
 }
 #endif
 
-void ahrs_init(struct OrientationReps* body_to_imu) {
+void ahrs_mlkf_register(void)
+{
+  ahrs_register_impl(ahrs_mlkf_init, ahrs_mlkf_align, ahrs_mlkf_propagate,
+                     ahrs_mlkf_update_accel, ahrs_mlkf_update_mag, NULL);
+}
+
+void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
 
   /* save body_to_imu pointer */
   ahrs_mlkf.body_to_imu = body_to_imu;
@@ -101,7 +107,7 @@ void ahrs_init(struct OrientationReps* body_to_imu) {
 #endif
 }
 
-bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                   struct Int32Vect3* lp_mag)
 {
 
@@ -119,13 +125,13 @@ bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   return TRUE;
 }
 
-void ahrs_propagate(struct Int32Rates* gyro, float dt) {
+void ahrs_mlkf_propagate(struct Int32Rates* gyro, float dt) {
   propagate_ref(gyro, dt);
   propagate_state(dt);
   set_body_state_from_quat();
 }
 
-void ahrs_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused))) {
+void ahrs_mlkf_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused))) {
   struct FloatVect3 imu_g;
   ACCELS_FLOAT_OF_BFP(imu_g, *accel);
   const float alpha = 0.92;
@@ -139,7 +145,7 @@ void ahrs_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused)
 }
 
 
-void ahrs_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused))) {
+void ahrs_mlkf_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused))) {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, *mag);
   update_state(&ahrs_mlkf.mag_h, &imu_h, &ahrs_mlkf.mag_noise);

@@ -158,7 +158,7 @@ STATIC_INLINE void main_init( void ) {
 #endif
   imu_init();
   ahrs_aligner_init();
-  ahrs_init(&imu.body_to_imu);
+  ahrs_init();
   ins_init();
 
 #if USE_GPS
@@ -325,7 +325,7 @@ PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
   imu_scale_accel(&imu);
 
   if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel(&imu.accel, dt);
+    ahrs.update_accel(&imu.accel, dt);
   }
 }
 
@@ -350,13 +350,13 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
-      if (ahrs_align(&ahrs_aligner.lp_gyro, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag)) {
+      if (ahrs.align(&ahrs_aligner.lp_gyro, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag)) {
         ahrs.status = AHRS_RUNNING;
       }
     }
   }
   else {
-    ahrs_propagate(&imu.gyro_prev, dt);
+    ahrs.propagate(&imu.gyro_prev, dt);
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
@@ -368,7 +368,7 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 }
 
 static inline void on_gps_event(void) {
-  ahrs_update_gps();
+  ahrs.update_gps();
   ins_update_gps();
 #ifdef USE_VEHICLE_INTERFACE
   if (gps.fix == GPS_FIX_3D)
@@ -396,7 +396,7 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 #endif
 
   if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag(&imu.mag, dt);
+    ahrs.update_mag(&imu.mag, dt);
   }
 #endif // USE_MAGNETOMETER
 

@@ -32,22 +32,50 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
 
-#define AHRS_UNINIT  0
-#define AHRS_RUNNING 1
+#define AHRS_UNINIT     0
+#define AHRS_REGISTERED 1
+#define AHRS_RUNNING    2
 
 /* underlying includes (needed for parameters) */
 #ifdef AHRS_TYPE_H
 #include AHRS_TYPE_H
 #endif
 
+typedef void (*AhrsInit)(struct OrientationReps* body_to_imu);
+typedef bool_t (*AhrsAlign)(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+                            struct Int32Vect3* lp_mag);
+typedef void (*AhrsPropagate)(struct Int32Rates* gyro, float dt);
+typedef void (*AhrsUpdateAccel)(struct Int32Vect3* accel, float dt);
+typedef void (*AhrsUpdateMag)(struct Int32Vect3* mag, float dt);
+typedef void (*AhrsUpdateGps)(void);
+//typedef void (*AhrsUpdateGps)(struct Gps* gps);
+
 /** Attitude and Heading Reference System state */
 struct Ahrs {
   uint8_t status; ///< status of the AHRS, AHRS_UNINIT or AHRS_RUNNING
+
+  /* function pointers to actual implementation, set by ahrs_register_impl */
+  AhrsInit init;
+  AhrsAlign align;
+  AhrsPropagate propagate;
+  AhrsUpdateAccel update_accel;
+  AhrsUpdateMag update_mag;
+  AhrsUpdateGps update_gps;
 };
 
 /** global AHRS state */
 extern struct Ahrs ahrs;
 
+extern void ahrs_register_impl(AhrsInit init, AhrsAlign align, AhrsPropagate propagate,
+                               AhrsUpdateAccel update_acc, AhrsUpdateMag update_mag,
+                               AhrsUpdateGps update_gps);
+
+/** AHRS initialization. Called at startup.
+ * Initialized the global AHRS struct.
+ */
+extern void ahrs_init(void);
+
+#if 0
 /** AHRS initialization. Called at startup.
  *  Needs to be implemented by each AHRS algorithm.
  */
@@ -86,5 +114,6 @@ extern void ahrs_update_mag(struct Int32Vect3* mag, float dt);
  *  Does nothing if not implemented by specific AHRS algorithm.
  */
 extern void ahrs_update_gps(void);
+#endif
 
 #endif /* AHRS_H */
