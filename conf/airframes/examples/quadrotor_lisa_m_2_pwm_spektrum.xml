@@ -12,17 +12,17 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <subsystem name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_AUX1"/>
-        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-      </subsystem>
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
     </target>
+
+    <subsystem name="radio_control" type="spektrum">
+      <define name="RADIO_MODE" value="RADIO_AUX1"/>
+      <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+    </subsystem>
 
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators"     type="pwm">
