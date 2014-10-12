@@ -34,6 +34,12 @@
   </firmware>
 
   <modules>
+ 		<load name="airspeed_ms45xx_i2c.xml">
+			<define name="USE_AIRSPEED_MS45XX"/>
+			<define name="MS45XX_SYNC_SEND"/>
+    			<define name="MS45XX_I2C_DEV" value="i2c0"/>
+			<define name="MS45XX_PRESSURE_RANGE" value="1"/>
+		</load>
     <load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/>
     <load name="infrared_adc.xml"/>

@@ -26,6 +26,7 @@
  */
 
 #include "std.h"
+#include "state.h"
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_ms45xx_i2c.h"
 
@@ -96,6 +97,7 @@ void ms45xx_i2c_init(void)
   ms45xx.temperature = 0;
   ms45xx.airspeed = 0.;
   ms45xx.sync_send = MS45XX_SYNC_SEND;
+  ms45xx.airspeed_scale = MS45XX_AIRSPEED_SCALE;
 
 #if MS45XX_OUTPUT_TYPE == 0
   /* Offset and scaling for OUTPUT TYPE A:
@@ -164,7 +166,7 @@ void ms45xx_i2c_event(void)
       // Compute airspeed
       ms45xx.airspeed = sqrtf(ms45xx.diff_pressure * ms45xx.airspeed_scale);
 #if USE_AIRSPEED
-      stateSetAirspeed_f(&ms45xx_airspeed);
+      stateSetAirspeed_f(&ms45xx.airspeed);
 #endif
       if (ms45xx.sync_send) {
         ms45xx_downlink();
