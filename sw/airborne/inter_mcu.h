@@ -50,6 +50,18 @@
 #ifdef RADIO_CONTROL_NB_CHANNEL
 #undef RADIO_CONTROL_NB_CHANNEL
 #endif
+#ifdef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
+#undef RADIO_THROTTLE
+#undef RADIO_ROLL
+#undef RADIO_PITCH
+#undef RADIO_YAW
+#undef RADIO_GEAR
+#undef RADIO_FLAP
+#undef RADIO_AUX1
+#undef RADIO_AUX2
+#undef RADIO_AUX3
+#endif
+
 #include "generated/radio.h"
 #define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
 #endif

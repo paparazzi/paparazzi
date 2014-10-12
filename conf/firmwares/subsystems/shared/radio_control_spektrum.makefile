@@ -31,8 +31,17 @@ RC_SRCS += $(SRC_SUBSYSTEMS)/radio_control.c \
            $(SRC_SUBSYSTEMS)/radio_control/spektrum.c \
            $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
 
-ap.CFLAGS += $(RC_CFLAGS)
-ap.srcs   += $(RC_SRCS)
+NORADIO = False
+ifeq ($(BOARD),classix)
+  ifeq ($(TARGET),ap)
+    NORADIO = True
+  endif
+endif
+
+ifeq ($(NORADIO), False)
+$(TARGET).CFLAGS += $(RC_CFLAGS)
+$(TARGET).srcs   += $(RC_SRCS)
+endif
 
 test_radio_control.CFLAGS += $(RC_CFLAGS)
 test_radio_control.srcs   += $(RC_SRCS)
