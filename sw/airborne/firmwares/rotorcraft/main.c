@@ -158,7 +158,7 @@ STATIC_INLINE void main_init( void ) {
 #endif
   imu_init();
   ahrs_aligner_init();
-  ahrs_init();
+  ahrs_init(&imu.body_to_imu);
   ins_init();
 
 #if USE_GPS
@@ -349,8 +349,11 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-      ahrs_align();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
+      if (ahrs_align(&ahrs_aligner.lp_gyro, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag)) {
+        ahrs.status = AHRS_RUNNING;
+      }
+    }
   }
   else {
     ahrs_propagate(&imu.gyro_prev, dt);

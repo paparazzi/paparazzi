@@ -30,7 +30,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
-#include "state.h"
+#include "math/pprz_orientation_conversion.h"
 
 #define AHRS_UNINIT  0
 #define AHRS_RUNNING 1
@@ -51,13 +51,14 @@ extern struct Ahrs ahrs;
 /** AHRS initialization. Called at startup.
  *  Needs to be implemented by each AHRS algorithm.
  */
-extern void ahrs_init(void);
+extern void ahrs_init(struct OrientationReps* body_to_imu);
 
 /** Aligns the AHRS. Called after ahrs_aligner has run to set initial attitude and biases.
- *  Must set the ahrs status to AHRS_RUNNING.
  *  Needs to be implemented by each AHRS algorithm.
+ * @return TRUE if ahrs is aligned
  */
-extern void ahrs_align(void);
+extern bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+                         struct Int32Vect3* lp_mag);
 
 /** Propagation. Usually integrates the gyro rates to angles.
  *  Reads the global #imu data struct.

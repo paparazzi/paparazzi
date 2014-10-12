@@ -72,10 +72,10 @@ void geo_mag_event(void) {
 
     // copy to ahrs
 #ifdef AHRS_FLOAT
-    VECT3_COPY(ahrs_impl.mag_h, geo_mag.vect);
+    VECT3_COPY(DefaultAhrsImpl.mag_h, geo_mag.vect);
 #else
     // convert to MAG_BFP and copy to ahrs
-    VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(geo_mag.vect.x), MAG_BFP_OF_REAL(geo_mag.vect.y), MAG_BFP_OF_REAL(geo_mag.vect.z));
+    VECT3_ASSIGN(DefaultAhrsImpl.mag_h, MAG_BFP_OF_REAL(geo_mag.vect.x), MAG_BFP_OF_REAL(geo_mag.vect.y), MAG_BFP_OF_REAL(geo_mag.vect.z));
 #endif
 
     geo_mag.ready = TRUE;

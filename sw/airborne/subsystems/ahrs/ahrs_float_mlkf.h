@@ -31,9 +31,10 @@
 #ifndef AHRS_FLOAT_MLKF_H
 #define AHRS_FLOAT_MLKF_H
 
-#include "subsystems/ahrs.h"
 #include "std.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_orientation_conversion.h"
+#include "subsystems/ahrs.h"
 
 struct AhrsMlkf {
   struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as unit quaternion
@@ -48,8 +49,13 @@ struct AhrsMlkf {
   struct FloatQuat  gibbs_cor;
   float P[6][6];
   float lp_accel;
+
+  /** pointer to body_to_imu rotation */
+  struct OrientationReps* body_to_imu;
 };
 
-extern struct AhrsMlkf ahrs_impl;
+extern struct AhrsMlkf ahrs_mlkf;
+
+#define DefaultAhrsImpl ahrs_mlkf
 
 #endif /* AHRS_FLOAT_MLKF_H */
