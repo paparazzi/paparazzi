@@ -43,9 +43,10 @@
 
 /** MS45xx pressure range in psi.
  * The sensor is available in 1, 2, 5, 15, 30, 50, 100, 150 psi ranges.
+ * 1 psi max range should be ~100m/s max airspeed.
  */
 #ifndef MS45XX_PRESSURE_RANGE
-#define MS45XX_PRESSURE_RANGE 5
+#define MS45XX_PRESSURE_RANGE 1
 #endif
 
 /** MS45xx output Type.
