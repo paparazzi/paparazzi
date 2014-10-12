@@ -36,20 +36,23 @@
 /** Air Data strucute */
 struct AirData {
   float pressure;     ///< Static atmospheric pressure (Pa)
-  float differential; ///< Differential pressure (dynamic - static pressure) (Pa)
+  float differential; ///< Differential pressure (total - static pressure) (Pa)
+  float temperature;  ///< temperature in degrees Celcius
+
   float airspeed;     ///< Conventional Air Speed (m/s)
+  float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS)
+  float qnh;              ///< Barometric pressure adjusted to sea level in hPa
+  float amsl_baro;        ///< altitude above sea level in m from pressure and QNH
+  bool_t amsl_baro_valid; ///< TRUE if #amsl_baro is currently valid
+  bool_t calc_airspeed;   ///< if TRUE, calculate airspeed from differential pressure
+  bool_t calc_qnh_once;   ///< flag to calculate QNH with next pressure measurement
+  bool_t calc_amsl_baro;  ///< if TRUE, calculate #amsl_baro
+  bool_t calc_tas_factor; ///< if TRUE, calculate #tas_factor when getting a temp measurement
+
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
   float wind_speed;   ///< wind speed (m/s)
   float wind_dir;     ///< wind direction (rad, 0 north, >0 clockwise)
-  float airspeed_scale; ///< quadratic scale factor to convert differential pressure to airspeed
-
-  float qnh;             ///< Barometric pressure adjusted to sea level in hPa
-  float amsl_baro;       ///< altitude above sea level in m from pressure and QNH
-  bool_t amsl_baro_valid; ///< TRUE if #amsl_baro is currently valid
-  bool_t calc_airspeed;  ///< if TRUE, calculate airspeed from differential pressure
-  bool_t calc_qnh_once;  ///< flag to calculate QNH with next pressure measurement
-  bool_t calc_amsl_baro; ///< if TRUE, calculate #amsl_baro
 };
 
 /** global AirData state
@@ -69,6 +72,49 @@ extern void air_data_periodic(void);
  */
 extern float air_data_get_amsl(void);
 
+/**
+ * Handler to set QNH manually.
+ * @param qnh QNH in hPa
+ */
 extern void air_data_SetQNH(float qnh);
+
+/**
+ * Calculate equivalent airspeed from dynamic pressure.
+ * Dynamic pressure @f$q@f$ (also called impact pressure) is the
+ * difference between total(pitot) and static pressure.
+ *
+ * @param q dynamic pressure in Pa
+ * @return equivalent airspeed in m/s
+ */
+extern float eas_from_dynamic_pressure(float q);
+
+/**
+ * Calculate true airspeed (TAS) factor.
+ * TAS = tas_factor * EAS
+ *
+ * @param p current air pressure in Pa
+ * @param t current air temperature in degrees Celcius
+ * @return tas factor
+ */
+extern float get_tas_factor(float p, float t);
+
+/**
+ * Calculate true airspeed from equivalent airspeed.
+ *
+ * @param eas equivalent airspeed (EAS) in m/s
+ * @return true airspeed in m/s
+ */
+extern float tas_from_eas(float eas);
+
+/**
+ * Calculate true airspeed from dynamic pressure.
+ * Dynamic pressure @f$q@f$ (also called impact pressure) is the
+ * difference between total(pitot) and static pressure.
+ *
+ * @param q dynamic pressure in Pa
+ * @return true airspeed in m/s
+ */
+extern float tas_from_dynamic_pressure(float q);
+
 
 #endif
