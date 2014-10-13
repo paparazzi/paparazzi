@@ -108,7 +108,7 @@ void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
 }
 
 bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                  struct Int32Vect3* lp_mag)
+                       struct Int32Vect3* lp_mag)
 {
 
   /* Compute an initial orientation from accel and mag directly as quaternion */
