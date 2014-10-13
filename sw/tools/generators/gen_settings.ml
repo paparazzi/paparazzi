@@ -149,7 +149,8 @@ let print_dl_settings = fun settings ->
 
 
 let inttype = function
-"int8" -> "int8_t"
+"bool" -> "uint8_t"
+  | "int8" -> "int8_t"
   | "int16" -> "int16_t"
   | "int32" -> "int32_t"
   | "int64" -> "int64_t"
