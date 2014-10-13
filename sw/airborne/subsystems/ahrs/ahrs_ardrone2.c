@@ -42,7 +42,7 @@
 #include "subsystems/gps/gps_ardrone2.h"
 #endif
 
-struct AhrsARDrone ahrs_impl;
+struct AhrsARDrone ahrs_ardrone2;
 struct AhrsAligner ahrs_aligner;
 unsigned char buffer[4096]; //Packet buffer
 
@@ -51,23 +51,28 @@ unsigned char buffer[4096]; //Packet buffer
 
 static void send_ahrs_ad2(void) {
   DOWNLINK_SEND_AHRS_ARDRONE2(DefaultChannel, DefaultDevice,
-      &ahrs_impl.state,
-      &ahrs_impl.control_state,
-      &ahrs_impl.eulers.phi,
-      &ahrs_impl.eulers.theta,
-      &ahrs_impl.eulers.psi,
-      &ahrs_impl.speed.x,
-      &ahrs_impl.speed.y,
-      &ahrs_impl.speed.z,
-      &ahrs_impl.accel.x,
-      &ahrs_impl.accel.y,
-      &ahrs_impl.accel.z,
-      &ahrs_impl.altitude,
-      &ahrs_impl.battery);
+      &ahrs_ardrone2.state,
+      &ahrs_ardrone2.control_state,
+      &ahrs_ardrone2.eulers.phi,
+      &ahrs_ardrone2.eulers.theta,
+      &ahrs_ardrone2.eulers.psi,
+      &ahrs_ardrone2.speed.x,
+      &ahrs_ardrone2.speed.y,
+      &ahrs_ardrone2.speed.z,
+      &ahrs_ardrone2.accel.x,
+      &ahrs_ardrone2.accel.y,
+      &ahrs_ardrone2.accel.z,
+      &ahrs_ardrone2.altitude,
+      &ahrs_ardrone2.battery);
 }
 #endif
 
-void ahrs_init(void) {
+void ahrs_ardrone2_register(void)
+{
+  ahrs_register_impl(ahrs_ardrone2_init, NULL, NULL);
+}
+
+void ahrs_ardrone2_init(struct OrientationReps* body_to_imu __attribute__((unused))) {
   init_at_com();
 
   //Set navdata_demo to FALSE and flat trim the ar drone
@@ -79,10 +84,6 @@ void ahrs_init(void) {
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_ARDRONE2", send_ahrs_ad2);
 #endif
-}
-
-void ahrs_align(void) {
-
 }
 
 #ifdef ARDRONE2_DEBUG
@@ -100,7 +101,7 @@ static void dump(const void *_b, size_t s) {
 }
 #endif
 
-void ahrs_propagate(float dt __attribute__((unused))) {
+void ahrs_ardrone2_propagate(void) {
   int l;
 
   //Recieve the main packet
@@ -122,7 +123,7 @@ void ahrs_propagate(float dt __attribute__((unused))) {
 #endif
 
   //Set the state
-  ahrs_impl.state = main_packet->ardrone_state;
+  ahrs_ardrone2.state = main_packet->ardrone_state;
 
   //Init the option
   navdata_option_t* navdata_option = (navdata_option_t*)&(main_packet->options[0]);
@@ -144,15 +145,15 @@ void ahrs_propagate(float dt __attribute__((unused))) {
       navdata_demo = (navdata_demo_t*) navdata_option;
 
       //Set the AHRS state
-      ahrs_impl.control_state = navdata_demo->ctrl_state >> 16;
-      ahrs_impl.eulers.phi = navdata_demo->phi;
-      ahrs_impl.eulers.theta = navdata_demo->theta;
-      ahrs_impl.eulers.psi = navdata_demo->psi;
-      ahrs_impl.speed.x = navdata_demo->vx / 1000;
-      ahrs_impl.speed.y = navdata_demo->vy / 1000;
-      ahrs_impl.speed.z = navdata_demo->vz / 1000;
-      ahrs_impl.altitude = navdata_demo->altitude / 10;
-      ahrs_impl.battery = navdata_demo->vbat_flying_percentage;
+      ahrs_ardrone2.control_state = navdata_demo->ctrl_state >> 16;
+      ahrs_ardrone2.eulers.phi = navdata_demo->phi;
+      ahrs_ardrone2.eulers.theta = navdata_demo->theta;
+      ahrs_ardrone2.eulers.psi = navdata_demo->psi;
+      ahrs_ardrone2.speed.x = navdata_demo->vx / 1000;
+      ahrs_ardrone2.speed.y = navdata_demo->vy / 1000;
+      ahrs_ardrone2.speed.z = navdata_demo->vz / 1000;
+      ahrs_ardrone2.altitude = navdata_demo->altitude / 10;
+      ahrs_ardrone2.battery = navdata_demo->vbat_flying_percentage;
 
       //Set the ned to body eulers
       struct FloatEulers angles;
@@ -168,7 +169,7 @@ void ahrs_propagate(float dt __attribute__((unused))) {
       navdata_phys_measures = (navdata_phys_measures_t*) navdata_option;
 
       //Set the AHRS accel state
-      INT32_VECT3_SCALE_2(ahrs_impl.accel, navdata_phys_measures->phys_accs, 9.81, 1000)
+      INT32_VECT3_SCALE_2(ahrs_ardrone2.accel, navdata_phys_measures->phys_accs, 9.81, 1000)
       break;
 #ifdef USE_GPS_ARDRONE2
     case 27: //NAVDATA_GPS
@@ -193,10 +194,4 @@ void ahrs_propagate(float dt __attribute__((unused))) {
     }
     navdata_option = (navdata_option_t*) ((uint32_t)navdata_option + navdata_option->size);
   }
-}
-
-void ahrs_aligner_init(void) {
-}
-
-void ahrs_aligner_run(void) {
 }

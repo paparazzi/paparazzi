@@ -27,6 +27,11 @@
 #include <inttypes.h>
 #include "math/pprz_algebra_float.h"
 
+enum AhrsDCMStatus {
+  AHRS_DCM_UNINIT,
+  AHRS_DCM_RUNNING
+};
+
 struct AhrsFloatDCM {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
@@ -41,6 +46,8 @@ struct AhrsFloatDCM {
   uint8_t gps_age;
 
   struct OrientationReps* body_to_imu;
+
+  enum AhrsDCMStatus status;
 };
 extern struct AhrsFloatDCM ahrs_dcm;
 
@@ -77,8 +84,8 @@ extern void ahrs_dcm_init(struct OrientationReps* body_to_imu);
 extern bool_t ahrs_dcm_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                              struct Int32Vect3* lp_mag);
 extern void ahrs_dcm_propagate(struct Int32Rates* gyro, float dt);
-extern void ahrs_dcm_update_accel(struct Int32Vect3* accel, float dt);
-extern void ahrs_dcm_update_mag(struct Int32Vect3* mag, float dt);
+extern void ahrs_dcm_update_accel(struct Int32Vect3* accel);
+extern void ahrs_dcm_update_mag(struct Int32Vect3* mag);
 extern void ahrs_dcm_update_gps(void);
 
 #endif // AHRS_FLOAT_DCM_H

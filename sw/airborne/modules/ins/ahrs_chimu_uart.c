@@ -30,7 +30,12 @@ CHIMU_PARSER_DATA CHIMU_DATA;
 INS_FORMAT ins_roll_neutral;
 INS_FORMAT ins_pitch_neutral;
 
-void ahrs_init(void)
+void ahrs_chimu_register(void)
+{
+  ahrs_register_impl(ahrs_chimu_init, NULL, NULL);
+}
+
+void ahrs_chimu_init(struct OrientationReps* body_to_imu __attribute__((unused)))
 {
   ahrs.status = AHRS_UNINIT;
 
@@ -61,10 +66,6 @@ void ahrs_init(void)
   CHIMU_Checksum(rate,12);
   InsSend(rate,12);
 }
-void ahrs_align(void)
-{
-  ahrs.status = AHRS_RUNNING;
-}
 
 
 void parse_ins_msg( void )
@@ -86,6 +87,7 @@ void parse_ins_msg( void )
           CHIMU_DATA.m_attitude.euler.psi
         };
         stateSetNedToBodyEulers_f(&att);
+        ahrs.status = AHRS_RUNNING;
 #if CHIMU_DOWNLINK_IMMEDIATE
         DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
 #endif
@@ -93,8 +95,4 @@ void parse_ins_msg( void )
       }
     }
   }
-}
-
-void ahrs_update_gps( void )
-{
 }

@@ -128,6 +128,11 @@ PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 #endif
 
+
+#define __DefaultAhrsRegister(_x) _x ## _register()
+#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
+#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
+
 #if USE_AHRS && USE_IMU
 
 #ifdef AHRS_PROPAGATE_FREQUENCY
@@ -136,10 +141,6 @@ PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ",AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
-
-#define __DefaultAhrsRegister(_x) _x ## _register()
-#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
-#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
 
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
@@ -202,8 +203,12 @@ void init_ap( void ) {
 #endif
 
 #if USE_AHRS
+#if defined SITL && !USE_NPS && !USE_INFRARED
+  ahrs_sim_init();
+#else
   ahrs_init();
   DefaultAhrsRegister();
+#endif
 #endif
 
 #if USE_AHRS && USE_IMU
@@ -602,9 +607,8 @@ void sensors_task( void ) {
 #endif // USE_IMU
 
   //FIXME: this is just a kludge
-#if USE_AHRS && defined SITL && !USE_NPS
-  // dt is not really used in ahrs_sim
-  ahrs_propagate(&imu.gyro, 1./PERIODIC_FREQUENCY);
+#if USE_AHRS && defined SITL && !USE_NPS && !USE_INFRARED
+  update_ahrs_from_sim();
 #endif
 
 #if USE_GPS
@@ -726,51 +730,43 @@ static inline void on_gps_solution( void ) {
 
 #if USE_AHRS
 #if USE_IMU
-static inline void on_accel_event( void ) {
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS accel update.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
+static inline void on_accel_event(void)
+{
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS accel update.")
-PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-  const float dt = 1./AHRS_CORRECT_FREQUENCY;
-#endif
 
   imu_scale_accel(&imu);
-  if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_accel(&imu.accel, dt);
-  }
+
+  AbiSendMsgIMU_ACCEL_INT32(1, &now_ts, &imu.accel);
 }
 
-static inline void on_gyro_event( void ) {
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS/INS propagation.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
+static inline void on_gyro_event(void)
+{
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
+
+#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
+  PRINT_CONFIG_MSG("Calculating dt for INS propagation.")
+    // timestamp in usec when last callback was received
+    static uint32_t last_ts = 0;
   // dt between this and last callback in seconds
   float dt = (float)(now_ts - last_ts) / 1e6;
   last_ts = now_ts;
 #else
-PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS/INS propagation.")
-PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
+  PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for INS propagation.")
+    PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
+    const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
 #endif
 
   ahrs_timeout_counter = 0;
 
   imu_scale_gyro(&imu);
 
+  AbiSendMsgIMU_GYRO_INT32(1, &now_ts, &imu.gyro_prev);
+
 #if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
-  if (ahrs.status == AHRS_REGISTERED) {
+  if (ahrs.status != AHRS_RUNNING) {
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
       if (ahrs_align(&ahrs_aligner.lp_gyro, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag)) {
@@ -780,8 +776,6 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
     return;
   }
 #endif
-
-  ahrs_propagate(&imu.gyro_prev, dt);
 
 #if defined SITL && USE_NPS
   if (nps_bypass_ahrs) sim_overwrite_ahrs();
@@ -796,25 +790,11 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 static inline void on_mag_event(void)
 {
 #if USE_MAGNETOMETER
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
-PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
-  const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-#endif
 
   imu_scale_mag(&imu);
-  if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag(&imu.mag, dt);
-  }
+  AbiSendMsgIMU_MAG_INT32(1, &now_ts, &imu.mag);
 #endif
 }
 

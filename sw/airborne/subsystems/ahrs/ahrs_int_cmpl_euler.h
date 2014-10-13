@@ -34,6 +34,11 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
+enum AhrsICEStatus {
+  AHRS_ICE_UNINIT,
+  AHRS_ICE_RUNNING
+};
+
 struct AhrsIntCmplEuler {
   struct Int32Rates  gyro_bias;
   struct Int32Rates  imu_rate;
@@ -46,6 +51,8 @@ struct AhrsIntCmplEuler {
   float mag_offset;
 
   struct OrientationReps* body_to_imu;
+
+  enum AhrsICEStatus status;
 };
 
 extern struct AhrsIntCmplEuler ahrs_ice;

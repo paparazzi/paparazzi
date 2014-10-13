@@ -32,7 +32,7 @@
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
-
+#include "subsystems/abi.h"
 #include "state.h"
 
 #if USE_GPS
@@ -109,6 +109,51 @@ static inline void set_body_state_from_quat(void);
 static inline void UNUSED ahrs_icq_update_mag_full(struct Int32Vect3* mag, float dt);
 static inline void ahrs_icq_update_mag_2d(struct Int32Vect3* mag, float dt);
 
+/** ABI binding for IMU data.
+ * Used for gyro, accel and mag ABI messages.
+ */
+#ifndef AHRS_ICQ_IMU_ID
+#define AHRS_ICQ_IMU_ID ABI_BROADCAST
+#endif
+static abi_event gyro_ev;
+static abi_event accel_ev;
+static abi_event mag_ev;
+
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
+                    const struct Int32Rates* gyro)
+{
+  static uint32_t last_stamp = 0;
+  if (last_stamp > 0 && ahrs_icq.status == AHRS_ICQ_RUNNING) {
+    float dt = (float)(*stamp - last_stamp) * 1e-6;
+    ahrs_icq_propagate((struct Int32Rates*)gyro, dt);
+  }
+  last_stamp = *stamp;
+}
+
+static void accel_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
+                     const struct Int32Vect3* accel)
+{
+  static uint32_t last_stamp = 0;
+  if (last_stamp > 0 && ahrs_icq.status == AHRS_ICQ_RUNNING) {
+    float dt = (float)(*stamp - last_stamp) * 1e-6;
+    ahrs_icq_update_accel((struct Int32Vect3*)accel, dt);
+  }
+  last_stamp = *stamp;
+}
+
+static void mag_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
+                   const struct Int32Vect3* mag)
+{
+#if USE_MAGNETOMETER
+  static uint32_t last_stamp = 0;
+  if (last_stamp > 0 && ahrs_icq.status == AHRS_ICQ_RUNNING) {
+    float dt = (float)(*stamp - last_stamp) * 1e-6;
+    ahrs_icq_update_mag((struct Int32Vect3*)mag, dt);
+  }
+  last_stamp = *stamp;
+#endif
+}
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -156,8 +201,7 @@ static void send_geo_mag(void) {
 
 void ahrs_icq_register(void)
 {
-  ahrs_register_impl(ahrs_icq_init, ahrs_icq_align, ahrs_icq_propagate,
-                     ahrs_icq_update_accel, ahrs_icq_update_mag, ahrs_icq_update_gps);
+  ahrs_register_impl(ahrs_icq_init, ahrs_icq_align, ahrs_icq_update_gps);
 }
 
 
@@ -165,6 +209,8 @@ void ahrs_icq_init(struct OrientationReps* body_to_imu) {
 
   /* save body_to_imu pointer */
   ahrs_icq.body_to_imu = body_to_imu;
+
+  ahrs_icq.status = AHRS_ICQ_UNINIT;
 
   ahrs_icq.ltp_vel_norm_valid = FALSE;
   ahrs_icq.heading_aligned = FALSE;
@@ -201,6 +247,13 @@ void ahrs_icq_init(struct OrientationReps* body_to_imu) {
   ahrs_icq.accel_cnt = 0;
   ahrs_icq.mag_cnt = 0;
 
+  /*
+   * Subscribe to scaled IMU measurements and attach callbacks
+   */
+  AbiBindMsgIMU_GYRO_INT32(AHRS_ICQ_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(AHRS_ICQ_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG_INT32(AHRS_ICQ_IMU_ID, &mag_ev, mag_cb);
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "AHRS_QUAT_INT", send_quat);
   register_periodic_telemetry(DefaultPeriodic, "AHRS_EULER_INT", send_euler);
@@ -234,6 +287,8 @@ bool_t ahrs_icq_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   RATES_COPY(ahrs_icq.gyro_bias, *lp_gyro);
   RATES_COPY(ahrs_icq.high_rez_bias, *lp_gyro);
   INT_RATES_LSHIFT(ahrs_icq.high_rez_bias, ahrs_icq.high_rez_bias, 28);
+
+  ahrs_icq.status = AHRS_ICQ_RUNNING;
 
   return TRUE;
 }

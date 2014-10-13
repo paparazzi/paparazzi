@@ -42,6 +42,8 @@
 #include "math/pprz_simple_matrix.h"
 #include "generated/airframe.h"
 
+#include "subsystems/abi.h"
+
 //#include <stdio.h>
 
 #ifndef AHRS_MAG_NOISE_X
@@ -67,16 +69,57 @@ static void send_geo_mag(void) {
 }
 #endif
 
+
+/** ABI binding for IMU data.
+ * Used for gyro, accel and mag ABI messages.
+ */
+#ifndef AHRS_MLKF_IMU_ID
+#define AHRS_MLKF_IMU_ID ABI_BROADCAST
+#endif
+static abi_event gyro_ev;
+static abi_event accel_ev;
+static abi_event mag_ev;
+
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
+                    const struct Int32Rates* gyro)
+{
+  static uint32_t last_stamp = 0;
+  if (last_stamp > 0 && ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
+    float dt = (float)(*stamp - last_stamp) * 1e-6;
+    ahrs_mlkf_propagate((struct Int32Rates*)gyro, dt);
+  }
+  last_stamp = *stamp;
+}
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     const uint32_t* stamp __attribute__((unused)),
+                     const struct Int32Vect3* accel)
+{
+  if (ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
+    ahrs_mlkf_update_accel((struct Int32Vect3*)accel);
+  }
+}
+
+static void mag_cb(uint8_t sender_id __attribute__((unused)),
+                   const uint32_t* stamp __attribute__((unused)),
+                   const struct Int32Vect3* mag)
+{
+  if (ahrs_mlkf.status == AHRS_MLKF_RUNNING) {
+    ahrs_mlkf_update_mag((struct Int32Vect3*)mag);
+  }
+}
+
 void ahrs_mlkf_register(void)
 {
-  ahrs_register_impl(ahrs_mlkf_init, ahrs_mlkf_align, ahrs_mlkf_propagate,
-                     ahrs_mlkf_update_accel, ahrs_mlkf_update_mag, NULL);
+  ahrs_register_impl(ahrs_mlkf_init, ahrs_mlkf_align, NULL);
 }
 
 void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
 
   /* save body_to_imu pointer */
   ahrs_mlkf.body_to_imu = body_to_imu;
+
+  ahrs_mlkf.status = AHRS_MLKF_UNINIT;
 
   /* Set ltp_to_imu so that body is zero */
   memcpy(&ahrs_mlkf.ltp_to_imu_quat, orientationGetQuat_f(ahrs_mlkf.body_to_imu),
@@ -102,6 +145,13 @@ void ahrs_mlkf_init(struct OrientationReps* body_to_imu) {
 
   VECT3_ASSIGN(ahrs_mlkf.mag_noise, AHRS_MAG_NOISE_X, AHRS_MAG_NOISE_Y, AHRS_MAG_NOISE_Z);
 
+  /*
+   * Subscribe to scaled IMU measurements and attach callbacks
+   */
+  AbiBindMsgIMU_GYRO_INT32(AHRS_MLKF_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(AHRS_MLKF_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG_INT32(AHRS_MLKF_IMU_ID, &mag_ev, mag_cb);
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "GEO_MAG", send_geo_mag);
 #endif
@@ -122,6 +172,8 @@ bool_t ahrs_mlkf_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   RATES_COPY(bias0, *lp_gyro);
   RATES_FLOAT_OF_BFP(ahrs_mlkf.gyro_bias, bias0);
 
+  ahrs_mlkf.status = AHRS_MLKF_RUNNING;
+
   return TRUE;
 }
 
@@ -131,7 +183,7 @@ void ahrs_mlkf_propagate(struct Int32Rates* gyro, float dt) {
   set_body_state_from_quat();
 }
 
-void ahrs_mlkf_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused))) {
+void ahrs_mlkf_update_accel(struct Int32Vect3* accel) {
   struct FloatVect3 imu_g;
   ACCELS_FLOAT_OF_BFP(imu_g, *accel);
   const float alpha = 0.92;
@@ -145,7 +197,7 @@ void ahrs_mlkf_update_accel(struct Int32Vect3* accel, float dt __attribute__((un
 }
 
 
-void ahrs_mlkf_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused))) {
+void ahrs_mlkf_update_mag(struct Int32Vect3* mag) {
   struct FloatVect3 imu_h;
   MAGS_FLOAT_OF_BFP(imu_h, *mag);
   update_state(&ahrs_mlkf.mag_h, &imu_h, &ahrs_mlkf.mag_noise);

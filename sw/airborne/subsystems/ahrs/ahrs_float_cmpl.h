@@ -32,6 +32,11 @@
 
 #include "std.h"
 
+enum AhrsFCStatus {
+  AHRS_FC_UNINIT,
+  AHRS_FC_RUNNING
+};
+
 struct AhrsFloatCmpl {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
@@ -62,6 +67,8 @@ struct AhrsFloatCmpl {
   uint16_t mag_cnt;   ///< number of propagations since last mag update
 
   struct OrientationReps* body_to_imu;
+
+  enum AhrsFCStatus status;
 };
 
 extern struct AhrsFloatCmpl ahrs_fc;

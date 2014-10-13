@@ -30,6 +30,7 @@
 #include "subsystems/ahrs/ahrs_sim.h"
 #include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
+#include "state.h"
 
 extern float sim_phi;
 extern float sim_theta;
@@ -37,7 +38,6 @@ extern float sim_psi;
 extern float sim_p;
 extern float sim_q;
 extern float sim_r;
-extern bool_t ahrs_sim_available;
 
 // for sim of e.g. Xsens ins
 #ifndef INS_ROLL_NEUTRAL_DEFAULT
@@ -61,31 +61,8 @@ void update_ahrs_from_sim(void) {
 }
 
 
-void ahrs_init(void) {
+void ahrs_sim_init(void) {
   //ahrs_float.status = AHRS_UNINIT;
   // set to running for now
   ahrs.status = AHRS_RUNNING;
-
-  ahrs_sim_available = FALSE;
-
 }
-
-void ahrs_align(void)
-{
-  /* Currently not really simulated
-   * body and imu have the same frame and always set to true value from sim
-   */
-
-  update_ahrs_from_sim();
-
-  ahrs.status = AHRS_RUNNING;
-}
-
-
-void ahrs_propagate(float dt __attribute__((unused))) {
-  if (ahrs_sim_available) {
-    update_ahrs_from_sim();
-    ahrs_sim_available = FALSE;
-  }
-}
-

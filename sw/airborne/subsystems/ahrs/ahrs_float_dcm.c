@@ -36,6 +36,7 @@
 #include "math/pprz_algebra_float.h"
 
 #include "state.h"
+#include "subsystems/abi.h"
 
 #if USE_GPS
 #include "subsystems/gps.h"
@@ -92,6 +93,46 @@ float imu_health = 0.;
 #endif
 
 
+/** ABI binding for IMU data.
+ * Used for gyro, accel and mag ABI messages.
+ */
+#ifndef AHRS_DCM_IMU_ID
+#define AHRS_DCM_IMU_ID ABI_BROADCAST
+#endif
+static abi_event gyro_ev;
+static abi_event accel_ev;
+static abi_event mag_ev;
+
+static void gyro_cb(uint8_t __attribute__((unused)) sender_id, const uint32_t* stamp,
+                    const struct Int32Rates* gyro)
+{
+  static uint32_t last_stamp = 0;
+  if (last_stamp > 0 && ahrs_dcm.status == AHRS_DCM_RUNNING) {
+    float dt = (float)(*stamp - last_stamp) * 1e-6;
+    ahrs_dcm_propagate((struct Int32Rates*)gyro, dt);
+  }
+  last_stamp = *stamp;
+}
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     const uint32_t* stamp __attribute__((unused)),
+                     const struct Int32Vect3* accel)
+{
+  if (ahrs_dcm.status == AHRS_DCM_RUNNING) {
+    ahrs_dcm_update_accel((struct Int32Vect3*)accel);
+  }
+}
+
+static void mag_cb(uint8_t sender_id __attribute__((unused)),
+                   const uint32_t* stamp __attribute__((unused)),
+                   const struct Int32Vect3* mag)
+{
+  if (ahrs_dcm.status == AHRS_DCM_RUNNING) {
+    ahrs_dcm_update_mag((struct Int32Vect3*)mag);
+  }
+}
+
+
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 {
   for (int i=0; i<3; i++) {
@@ -103,14 +144,15 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 
 void ahrs_dcm_register(void)
 {
-  ahrs_register_impl(ahrs_dcm_init, ahrs_dcm_align, ahrs_dcm_propagate,
-                     ahrs_dcm_update_accel, ahrs_dcm_update_mag, ahrs_dcm_update_gps);
+  ahrs_register_impl(ahrs_dcm_init, ahrs_dcm_align, ahrs_dcm_update_gps);
 }
 
 void ahrs_dcm_init(struct OrientationReps* body_to_imu)
 {
   /* save body_to_imu pointer */
   ahrs_dcm.body_to_imu = body_to_imu;
+
+  ahrs_dcm.status = AHRS_DCM_UNINIT;
 
   /* Set ltp_to_imu so that body is zero */
   memcpy(&ahrs_dcm.ltp_to_imu_euler, orientationGetEulers_f(ahrs_dcm.body_to_imu),
@@ -126,6 +168,13 @@ void ahrs_dcm_init(struct OrientationReps* body_to_imu)
   ahrs_dcm.gps_course = 0;
   ahrs_dcm.gps_course_valid = FALSE;
   ahrs_dcm.gps_age = 100;
+
+  /*
+   * Subscribe to scaled IMU measurements and attach callbacks
+   */
+  AbiBindMsgIMU_GYRO_INT32(AHRS_DCM_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(AHRS_DCM_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG_INT32(AHRS_DCM_IMU_ID, &mag_ev, mag_cb);
 }
 
 bool_t ahrs_dcm_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
@@ -148,6 +197,8 @@ bool_t ahrs_dcm_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   struct Int32Rates bias0;
   RATES_COPY(bias0, *lp_gyro);
   RATES_FLOAT_OF_BFP(ahrs_dcm.gyro_bias, bias0);
+
+  ahrs_dcm.status = AHRS_DCM_RUNNING;
 
   return TRUE;
 }
@@ -209,7 +260,7 @@ void ahrs_dcm_update_gps(void)
 }
 
 
-void ahrs_dcm_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused)))
+void ahrs_dcm_update_accel(struct Int32Vect3* accel)
 {
   ACCELS_FLOAT_OF_BFP(accel_float, *accel);
 
@@ -240,7 +291,7 @@ PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses GPS acceleration.")
 }
 
 
-void ahrs_dcm_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused)))
+void ahrs_dcm_update_mag(struct Int32Vect3* mag)
 {
 #if USE_MAGNETOMETER
 #warning MAGNETOMETER FEEDBACK NOT TESTED YET

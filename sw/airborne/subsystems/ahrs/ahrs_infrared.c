@@ -36,8 +36,25 @@
 #include "subsystems/gps.h"
 
 #include "state.h"
+#include "subsystems/abi.h"
 
 float heading;
+
+/** ABI binding for gyro data.
+ * Used for gyro ABI messages.
+ */
+#ifndef AHRS_INFRARED_GYRO_ID
+#define AHRS_INFRARED_GYRO_ID ABI_BROADCAST
+#endif
+static abi_event gyro_ev;
+
+static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+                    const uint32_t* stamp __attribute__((unused)),
+                    const struct Int32Rates* gyro)
+{
+  stateSetBodyRates_i((struct Int32Rates*)gyro);
+}
+
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -55,10 +72,17 @@ static void send_status(void) {
 }
 #endif
 
-void ahrs_init(void) {
-  ahrs.status = AHRS_UNINIT;
+void ahrs_infrared_register(void)
+{
+  ahrs_register_impl(ahrs_infrared_init, NULL, ahrs_infrared_update_gps);
+}
+
+void ahrs_infrared_init(struct OrientationReps* body_to_imu __attribute__((unused))) {
+  ahrs.status = AHRS_RUNNING;
 
   heading = 0.;
+
+  AbiBindMsgIMU_GYRO_INT32(AHRS_INFRARED_GYRO_ID, &gyro_ev, gyro_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "IR_SENSORS", send_infrared);
@@ -66,29 +90,7 @@ void ahrs_init(void) {
 #endif
 }
 
-void ahrs_align(void) {
-
-  //TODO set gyro bias if used
-
-  ahrs.status = AHRS_RUNNING;
-}
-
-void ahrs_propagate(float dt __attribute__((unused))) {
-  struct FloatRates body_rate = { 0., 0., 0. };
-#ifdef ADC_CHANNEL_GYRO_P
-  body_rate.p = RATE_FLOAT_OF_BFP(imu.gyro.p);
-#endif
-#ifdef ADC_CHANNEL_GYRO_Q
-  body_rate.q = RATE_FLOAT_OF_BFP(imu.gyro.q);
-#endif
-#ifdef ADC_CHANNEL_GYRO_R
-  body_rate.r = RATE_FLOAT_OF_BFP(imu.gyro.r);
-#endif
-  stateSetBodyRates_f(&body_rate);
-}
-
-
-void ahrs_update_gps(void) {
+void ahrs_infrared_update_gps(void) {
 
   float hspeed_mod_f = gps.gspeed / 100.;
   float course_f = gps.course / 1e7;
@@ -120,4 +122,3 @@ void ahrs_update_infrared(void) {
   stateSetNedToBodyEulers_f(&att);
 
 }
-

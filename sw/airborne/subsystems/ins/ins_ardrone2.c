@@ -92,8 +92,8 @@ void ins_reset_altitude_ref( void ) {
 
 void ins_propagate(float __attribute__((unused)) dt) {
   /* untilt accels and speeds */
-  float_rmat_transp_vmult(&ins_impl.ltp_accel, stateGetNedToBodyRMat_f(), &ahrs_impl.accel);
-  float_rmat_transp_vmult(&ins_impl.ltp_speed, stateGetNedToBodyRMat_f(), &ahrs_impl.speed);
+  float_rmat_transp_vmult(&ins_impl.ltp_accel, stateGetNedToBodyRMat_f(), &ahrs_ardrone2.accel);
+  float_rmat_transp_vmult(&ins_impl.ltp_speed, stateGetNedToBodyRMat_f(), &ahrs_ardrone2.speed);
 
   //Add g to the accelerations
   ins_impl.ltp_accel.z += 9.81;
@@ -105,7 +105,7 @@ void ins_propagate(float __attribute__((unused)) dt) {
   //Don't set the height if we use the one from the gps
 #if !USE_GPS_HEIGHT
   //Set the height and save the position
-  ins_impl.ltp_pos.z = -(ahrs_impl.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
+  ins_impl.ltp_pos.z = -(ahrs_ardrone2.altitude * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
   stateSetPositionNed_i(&ins_impl.ltp_pos);
 #endif
 }

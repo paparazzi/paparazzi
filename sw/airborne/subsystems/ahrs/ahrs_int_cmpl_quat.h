@@ -35,6 +35,11 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
+enum AhrsICQStatus {
+  AHRS_ICQ_UNINIT,
+  AHRS_ICQ_RUNNING
+};
+
 /**
  * Ahrs implementation specifc values
  */
@@ -92,6 +97,8 @@ struct AhrsIntCmplQuat {
   uint16_t mag_cnt;   ///< number of propagations since last mag update
 
   struct OrientationReps* body_to_imu;
+
+  enum AhrsICQStatus status; ///< status of the AHRS, AHRS_ICQ_UNINIT or AHRS_ICQ_RUNNING
 };
 
 extern struct AhrsIntCmplQuat ahrs_icq;

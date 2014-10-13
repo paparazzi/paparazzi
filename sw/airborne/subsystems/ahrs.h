@@ -44,9 +44,9 @@
 typedef void (*AhrsInit)(struct OrientationReps* body_to_imu);
 typedef bool_t (*AhrsAlign)(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
                             struct Int32Vect3* lp_mag);
-typedef void (*AhrsPropagate)(struct Int32Rates* gyro, float dt);
-typedef void (*AhrsUpdateAccel)(struct Int32Vect3* accel, float dt);
-typedef void (*AhrsUpdateMag)(struct Int32Vect3* mag, float dt);
+//typedef void (*AhrsPropagate)(struct Int32Rates* gyro, float dt);
+//typedef void (*AhrsUpdateAccel)(struct Int32Vect3* accel, float dt);
+//typedef void (*AhrsUpdateMag)(struct Int32Vect3* mag, float dt);
 typedef void (*AhrsUpdateGps)(void);
 //typedef void (*AhrsUpdateGps)(struct Gps* gps);
 
@@ -57,17 +57,16 @@ struct Ahrs {
   /* function pointers to actual implementation, set by ahrs_register_impl */
   AhrsInit init;
   AhrsAlign align;
-  AhrsPropagate propagate;
-  AhrsUpdateAccel update_accel;
-  AhrsUpdateMag update_mag;
+  //AhrsPropagate propagate;
+  //AhrsUpdateAccel update_accel;
+  //AhrsUpdateMag update_mag;
   AhrsUpdateGps update_gps;
 };
 
 /** global AHRS state */
 extern struct Ahrs ahrs;
 
-extern void ahrs_register_impl(AhrsInit init, AhrsAlign align, AhrsPropagate propagate,
-                               AhrsUpdateAccel update_acc, AhrsUpdateMag update_mag,
+extern void ahrs_register_impl(AhrsInit init, AhrsAlign align,
                                AhrsUpdateGps update_gps);
 
 /** AHRS initialization. Called at startup.
@@ -85,23 +84,20 @@ extern bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel
 /** Propagation. Usually integrates the gyro rates to angles.
  * Calls implementation if registered.
  * @param gyro pointer to gyro measurement
- * @param dt time difference since last propagation in seconds
  */
-extern void ahrs_propagate(struct Int32Rates* gyro, float dt);
+extern void ahrs_propagate(struct Int32Rates* gyro);
 
 /** Update AHRS state with accerleration measurements.
  * Calls implementation if registered.
  * @param accel pointer to accelerometer measurement
- * @param dt time difference since last update in seconds
  */
-extern void ahrs_update_accel(struct Int32Vect3* accel, float dt);
+extern void ahrs_update_accel(struct Int32Vect3* accel);
 
 /** Update AHRS state with magnetometer measurements.
  * Calls implementation if registered.
  * @param mag pointer to magnetometer measurement
- * @param dt time difference since last update in seconds
  */
-extern void ahrs_update_mag(struct Int32Vect3* mag, float dt);
+extern void ahrs_update_mag(struct Int32Vect3* mag);
 
 /** Update AHRS state with GPS measurements.
  *  Calls implementation if registered.

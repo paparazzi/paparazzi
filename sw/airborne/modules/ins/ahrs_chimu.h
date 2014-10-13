@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Paparazzi Team
+ * Copyright (C) 2014 Felix Ruess
  *
  * This file is part of paparazzi.
  *
@@ -20,24 +20,18 @@
  */
 
 /**
- * @file subsystems/ahrs/ahrs_infrared.h
- *
- * Fixedwing attitude estimation using infrared sensors.
- *
+ * @file modules/ins/ahrs_chimu.h
  */
 
-#ifndef AHRS_INFRARED_H
-#define AHRS_INFRARED_H
+#ifndef AHRS_CHIMU_H
+#define AHRS_CHIMU_H
 
-#include "std.h"
+#include "modules/ins/ins_module.h"
 #include "subsystems/ahrs.h"
-#include "math/pprz_orientation_conversion.h"
 
-extern void ahrs_infrared_register(void);
-extern void ahrs_infrared_init(struct OrientationReps* body_to_imu __attribute__((unused)));
-extern void ahrs_update_infrared(void);
-extern void ahrs_infrared_update_gps(void);
+#define DefaultAhrsImpl ahrs_chimu
 
-#define DefaultAhrsImpl ahrs_infrared
+extern void ahrs_chimu_register(void);
+extern void ahrs_chimu_init(struct OrientationReps* body_to_imu);
 
-#endif /* AHRS_INFRARED_H */
+#endif

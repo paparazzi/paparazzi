@@ -27,22 +27,28 @@
 
 #include "subsystems/ahrs.h"
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
+#include "mcu_periph/sys_time.h"
 
 struct Ahrs ahrs;
 
-void ahrs_register_impl(AhrsInit init, AhrsAlign align, AhrsPropagate propagate,
-                        AhrsUpdateAccel update_acc, AhrsUpdateMag update_mag,
+void ahrs_register_impl(AhrsInit init, AhrsAlign align,
                         AhrsUpdateGps update_gps)
 {
   ahrs.init = init;
   ahrs.align = align;
-  ahrs.propagate = propagate;
-  ahrs.update_accel = update_acc;
-  ahrs.update_mag = update_mag;
   ahrs.update_gps = update_gps;
 
+  // TODO: remove hacks
+#if !USE_IMU
+  struct OrientationReps body_to_imu;
+  struct FloatEulers eulers_zero = {0., 0., 0.};
+  orientationSetEulers_f(&body_to_imu, &eulers_zero);
+  ahrs.init(&body_to_imu);
+#elif !defined SITL || USE_NPS
   /* call init function of implementation */
   ahrs.init(&imu.body_to_imu);
+#endif
 
   ahrs.status = AHRS_REGISTERED;
 }
@@ -52,9 +58,6 @@ void ahrs_init(void)
   ahrs.status = AHRS_UNINIT;
   ahrs.init = NULL;
   ahrs.align = NULL;
-  ahrs.propagate = NULL;
-  ahrs.update_accel = NULL;
-  ahrs.update_mag = NULL;
   ahrs.update_gps = NULL;
 }
 
@@ -67,30 +70,40 @@ bool_t ahrs_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
   return FALSE;
 }
 
-void ahrs_propagate(struct Int32Rates* gyro, float dt)
-{
-  if (ahrs.propagate != NULL && ahrs.status == AHRS_RUNNING) {
-    ahrs.propagate(gyro, dt);
-  }
-}
 
-void ahrs_update_accel(struct Int32Vect3* accel, float dt)
-{
-  if (ahrs.update_accel != NULL && ahrs.status == AHRS_RUNNING) {
-    ahrs.update_accel(accel, dt);
-  }
-}
-
-void ahrs_update_mag(struct Int32Vect3* mag, float dt)
-{
-  if (ahrs.update_mag != NULL && ahrs.status == AHRS_RUNNING) {
-    ahrs.update_mag(mag, dt);
-  }
-}
 
 void ahrs_update_gps(void)
 {
   if (ahrs.update_gps != NULL && ahrs.status == AHRS_RUNNING) {
     ahrs.update_gps();
+  }
+}
+
+
+
+/*
+ * REMOVE ME! keep temporarily for some test firmware
+ */
+void ahrs_propagate(struct Int32Rates* gyro)
+{
+  if (ahrs.status == AHRS_RUNNING) {
+    uint32_t stamp = get_sys_time_usec();
+    AbiSendMsgIMU_GYRO_INT32(1, &stamp, gyro);
+  }
+}
+
+void ahrs_update_accel(struct Int32Vect3* accel)
+{
+  if (ahrs.status == AHRS_RUNNING) {
+    uint32_t stamp = get_sys_time_usec();
+    AbiSendMsgIMU_ACCEL_INT32(1, &stamp, accel);
+  }
+}
+
+void ahrs_update_mag(struct Int32Vect3* mag)
+{
+  if (ahrs.status == AHRS_RUNNING) {
+    uint32_t stamp = get_sys_time_usec();
+    AbiSendMsgIMU_MAG_INT32(1, &stamp, mag);
   }
 }
