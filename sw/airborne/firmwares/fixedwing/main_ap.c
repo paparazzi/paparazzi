@@ -137,6 +137,10 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 #endif
 #endif
 
+#define __DefaultAhrsRegister(_x) _x ## _register()
+#define _DefaultAhrsRegister(_x) __DefaultAhrsRegister(_x)
+#define DefaultAhrsRegister() _DefaultAhrsRegister(DefaultAhrsImpl)
+
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
@@ -199,6 +203,7 @@ void init_ap( void ) {
 
 #if USE_AHRS
   ahrs_init();
+  DefaultAhrsRegister();
 #endif
 
 #if USE_AHRS && USE_IMU
@@ -599,7 +604,7 @@ void sensors_task( void ) {
   //FIXME: this is just a kludge
 #if USE_AHRS && defined SITL && !USE_NPS
   // dt is not really used in ahrs_sim
-  ahrs_propagate(1./PERIODIC_FREQUENCY);
+  ahrs_propagate(&imu.gyro, 1./PERIODIC_FREQUENCY);
 #endif
 
 #if USE_GPS
@@ -738,8 +743,8 @@ PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
 #endif
 
   imu_scale_accel(&imu);
-  if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel(dt);
+  if (ahrs.status == AHRS_RUNNING) {
+    ahrs_update_accel(&imu.accel, dt);
   }
 }
 
@@ -765,15 +770,18 @@ PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
 
 #if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
-  if (ahrs.status == AHRS_UNINIT) {
+  if (ahrs.status == AHRS_REGISTERED) {
     ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-      ahrs_align();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
+      if (ahrs_align(&ahrs_aligner.lp_gyro, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag)) {
+        ahrs.status = AHRS_RUNNING;
+      }
+    }
     return;
   }
 #endif
 
-  ahrs_propagate(dt);
+  ahrs_propagate(&imu.gyro_prev, dt);
 
 #if defined SITL && USE_NPS
   if (nps_bypass_ahrs) sim_overwrite_ahrs();
@@ -805,7 +813,7 @@ PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
 
   imu_scale_mag(&imu);
   if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag(dt);
+    ahrs_update_mag(&imu.mag, dt);
   }
 #endif
 }
