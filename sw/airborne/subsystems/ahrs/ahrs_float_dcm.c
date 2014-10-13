@@ -30,8 +30,6 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_float_dcm.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
-#include "subsystems/imu.h"
 #include "firmwares/fixedwing/autopilot.h"	// launch detection
 
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
@@ -55,7 +53,7 @@
 #endif
 
 
-struct AhrsFloatDCM ahrs_impl;
+struct AhrsFloatDCM ahrs_dcm;
 
 // Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
 // Positive pitch : nose up
@@ -63,6 +61,7 @@ struct AhrsFloatDCM ahrs_impl;
 // Positive yaw : clockwise
 
 struct FloatVect3 accel_float = {0,0,0};
+struct FloatVect3 mag_float = {0,0,0};
 
 float Omega_Vector[3]= {0,0,0}; //Corrected Gyro_Vector data
 float Omega_P[3]= {0,0,0};		//Omega Proportional correction
@@ -102,34 +101,42 @@ static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
   }
 }
 
-
-void ahrs_init(void) {
-  ahrs.status = AHRS_UNINIT;
-
-  /* Set ltp_to_imu so that body is zero */
-  memcpy(&ahrs_impl.ltp_to_imu_euler, orientationGetEulers_f(&imu.body_to_imu),
-         sizeof(struct FloatEulers));
-
-  FLOAT_RATES_ZERO(ahrs_impl.imu_rate);
-
-  /* set inital filter dcm */
-  set_dcm_matrix_from_rmat(orientationGetRMat_f(&imu.body_to_imu));
-
-  ahrs_impl.gps_speed = 0;
-  ahrs_impl.gps_acceleration = 0;
-  ahrs_impl.gps_course = 0;
-  ahrs_impl.gps_course_valid = FALSE;
-  ahrs_impl.gps_age = 100;
+void ahrs_dcm_register(void)
+{
+  ahrs_register_impl(ahrs_dcm_init, ahrs_dcm_align, ahrs_dcm_propagate,
+                     ahrs_dcm_update_accel, ahrs_dcm_update_mag, ahrs_dcm_update_gps);
 }
 
-void ahrs_align(void)
+void ahrs_dcm_init(struct OrientationReps* body_to_imu)
+{
+  /* save body_to_imu pointer */
+  ahrs_dcm.body_to_imu = body_to_imu;
+
+  /* Set ltp_to_imu so that body is zero */
+  memcpy(&ahrs_dcm.ltp_to_imu_euler, orientationGetEulers_f(ahrs_dcm.body_to_imu),
+         sizeof(struct FloatEulers));
+
+  FLOAT_RATES_ZERO(ahrs_dcm.imu_rate);
+
+  /* set inital filter dcm */
+  set_dcm_matrix_from_rmat(orientationGetRMat_f(ahrs_dcm.body_to_imu));
+
+  ahrs_dcm.gps_speed = 0;
+  ahrs_dcm.gps_acceleration = 0;
+  ahrs_dcm.gps_course = 0;
+  ahrs_dcm.gps_course_valid = FALSE;
+  ahrs_dcm.gps_age = 100;
+}
+
+bool_t ahrs_dcm_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+                      struct Int32Vect3* lp_mag)
 {
   /* Compute an initial orientation using euler angles */
-  ahrs_float_get_euler_from_accel_mag(&ahrs_impl.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_float_get_euler_from_accel_mag(&ahrs_dcm.ltp_to_imu_euler, lp_accel, lp_mag);
 
   /* Convert initial orientation in quaternion and rotation matrice representations. */
   struct FloatRMat ltp_to_imu_rmat;
-  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
+  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_dcm.ltp_to_imu_euler);
 
   /* set filter dcm */
   set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
@@ -139,35 +146,35 @@ void ahrs_align(void)
 
   /* use averaged gyro as initial value for bias */
   struct Int32Rates bias0;
-  RATES_COPY(bias0, ahrs_aligner.lp_gyro);
-  RATES_FLOAT_OF_BFP(ahrs_impl.gyro_bias, bias0);
+  RATES_COPY(bias0, *lp_gyro);
+  RATES_FLOAT_OF_BFP(ahrs_dcm.gyro_bias, bias0);
 
-  ahrs.status = AHRS_RUNNING;
+  return TRUE;
 }
 
 
-void ahrs_propagate(float dt)
+void ahrs_dcm_propagate(struct Int32Rates* gyro, float dt)
 {
   /* convert imu data to floating point */
   struct FloatRates gyro_float;
-  RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
+  RATES_FLOAT_OF_BFP(gyro_float, *gyro);
 
   /* unbias rate measurement */
-  RATES_DIFF(ahrs_impl.imu_rate, gyro_float, ahrs_impl.gyro_bias);
+  RATES_DIFF(ahrs_dcm.imu_rate, gyro_float, ahrs_dcm.gyro_bias);
 
   /* Uncouple Motions */
 #ifdef IMU_GYRO_P_Q
   float dp=0,dq=0,dr=0;
-  dp += ahrs_impl.imu_rate.q * IMU_GYRO_P_Q;
-  dp += ahrs_impl.imu_rate.r * IMU_GYRO_P_R;
-  dq += ahrs_impl.imu_rate.p * IMU_GYRO_Q_P;
-  dq += ahrs_impl.imu_rate.r * IMU_GYRO_Q_R;
-  dr += ahrs_impl.imu_rate.p * IMU_GYRO_R_P;
-  dr += ahrs_impl.imu_rate.q * IMU_GYRO_R_Q;
+  dp += ahrs_dcm.imu_rate.q * IMU_GYRO_P_Q;
+  dp += ahrs_dcm.imu_rate.r * IMU_GYRO_P_R;
+  dq += ahrs_dcm.imu_rate.p * IMU_GYRO_Q_P;
+  dq += ahrs_dcm.imu_rate.r * IMU_GYRO_Q_R;
+  dr += ahrs_dcm.imu_rate.p * IMU_GYRO_R_P;
+  dr += ahrs_dcm.imu_rate.q * IMU_GYRO_R_Q;
 
-  ahrs_impl.imu_rate.p += dp;
-  ahrs_impl.imu_rate.q += dq;
-  ahrs_impl.imu_rate.r += dr;
+  ahrs_dcm.imu_rate.p += dp;
+  ahrs_dcm.imu_rate.q += dq;
+  ahrs_dcm.imu_rate.r += dr;
 #endif
 
   Matrix_update(dt);
@@ -177,34 +184,34 @@ void ahrs_propagate(float dt)
   compute_ahrs_representations();
 }
 
-void ahrs_update_gps(void)
+void ahrs_dcm_update_gps(void)
 {
   static float last_gps_speed_3d = 0;
 
 #if USE_GPS
   if (gps.fix == GPS_FIX_3D) {
-    ahrs_impl.gps_age = 0;
-    ahrs_impl.gps_speed = gps.speed_3d/100.;
+    ahrs_dcm.gps_age = 0;
+    ahrs_dcm.gps_speed = gps.speed_3d/100.;
 
     if(gps.gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s
-      ahrs_impl.gps_course = ((float)gps.course)/1.e7;
-      ahrs_impl.gps_course_valid = TRUE;
+      ahrs_dcm.gps_course = ((float)gps.course)/1.e7;
+      ahrs_dcm.gps_course_valid = TRUE;
     } else {
-      ahrs_impl.gps_course_valid = FALSE;
+      ahrs_dcm.gps_course_valid = FALSE;
     }
   } else {
-    ahrs_impl.gps_age = 100;
+    ahrs_dcm.gps_age = 100;
   }
 #endif
 
-  ahrs_impl.gps_acceleration += (   ((ahrs_impl.gps_speed - last_gps_speed_3d)*4.0f)  - ahrs_impl.gps_acceleration) / 5.0f;
-  last_gps_speed_3d = ahrs_impl.gps_speed;
+  ahrs_dcm.gps_acceleration += (   ((ahrs_dcm.gps_speed - last_gps_speed_3d)*4.0f)  - ahrs_dcm.gps_acceleration) / 5.0f;
+  last_gps_speed_3d = ahrs_dcm.gps_speed;
 }
 
 
-void ahrs_update_accel(float dt __attribute__((unused)))
+void ahrs_dcm_update_accel(struct Int32Vect3* accel, float dt __attribute__((unused)))
 {
-  ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
+  ACCELS_FLOAT_OF_BFP(accel_float, *accel);
 
   // DCM filter uses g-force as positive
   // accelerometer measures [0 0 -g] in a static case
@@ -213,45 +220,47 @@ void ahrs_update_accel(float dt __attribute__((unused)))
   accel_float.z = -accel_float.z;
 
 
-  ahrs_impl.gps_age ++;
-  if (ahrs_impl.gps_age < 50) {    //Remove centrifugal acceleration and longitudinal acceleration
+  ahrs_dcm.gps_age ++;
+  if (ahrs_dcm.gps_age < 50) {    //Remove centrifugal acceleration and longitudinal acceleration
 #if USE_AHRS_GPS_ACCELERATIONS
 PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses GPS acceleration.")
-    accel_float.x += ahrs_impl.gps_acceleration;      // Longitudinal acceleration
+    accel_float.x += ahrs_dcm.gps_acceleration;      // Longitudinal acceleration
 #endif
-    accel_float.y += ahrs_impl.gps_speed * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    accel_float.z -= ahrs_impl.gps_speed * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+    accel_float.y += ahrs_dcm.gps_speed * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= ahrs_dcm.gps_speed * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
   }
   else
   {
-    ahrs_impl.gps_speed = 0;
-    ahrs_impl.gps_acceleration = 0;
-    ahrs_impl.gps_age = 100;
+    ahrs_dcm.gps_speed = 0;
+    ahrs_dcm.gps_acceleration = 0;
+    ahrs_dcm.gps_age = 100;
   }
 
   Drift_correction();
 }
 
 
-void ahrs_update_mag(float dt __attribute__((unused)))
+void ahrs_dcm_update_mag(struct Int32Vect3* mag, float dt __attribute__((unused)))
 {
 #if USE_MAGNETOMETER
 #warning MAGNETOMETER FEEDBACK NOT TESTED YET
+
+  MAG_FLOAT_OF_BFP(mag_float, *mag);
 
   float cos_roll;
   float sin_roll;
   float cos_pitch;
   float sin_pitch;
 
-  cos_roll = cosf(ahrs_impl.ltp_to_imu_euler.phi);
-  sin_roll = sinf(ahrs_impl.ltp_to_imu_euler.phi);
-  cos_pitch = cosf(ahrs_impl.ltp_to_imu_euler.theta);
-  sin_pitch = sinf(ahrs_impl.ltp_to_imu_euler.theta);
+  cos_roll = cosf(ahrs_dcm.ltp_to_imu_euler.phi);
+  sin_roll = sinf(ahrs_dcm.ltp_to_imu_euler.phi);
+  cos_pitch = cosf(ahrs_dcm.ltp_to_imu_euler.theta);
+  sin_pitch = sinf(ahrs_dcm.ltp_to_imu_euler.theta);
 
 
   // Pitch&Roll Compensation:
-  MAG_Heading_X = imu.mag.x*cos_pitch+imu.mag.y*sin_roll*sin_pitch+imu.mag.z*cos_roll*sin_pitch;
-  MAG_Heading_Y = imu.mag.y*cos_roll-imu.mag.z*sin_roll;
+  MAG_Heading_X = mag->x*cos_pitch+mag->y*sin_roll*sin_pitch+mag->z*cos_roll*sin_pitch;
+  MAG_Heading_Y = mag->y*cos_roll-mag->z*sin_roll;
 
 /*
  *
@@ -284,7 +293,11 @@ void ahrs_update_mag(float dt __attribute__((unused)))
 #endif
 
   // Magnetic Heading
-  // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
+  // MAG_Heading = atan2(mag->y, -mag->x);
+
+#else // !USE_MAGNETOMETER
+  // get rid of unused param warning...
+  mag = mag;
 #endif
 }
 
@@ -363,13 +376,13 @@ void Normalize(void)
 
   // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
-    set_dcm_matrix_from_rmat(orientationGetRMat_f(&imu.body_to_imu));
+    set_dcm_matrix_from_rmat(orientationGetRMat_f(ahrs_dcm.body_to_imu));
     problem = FALSE;
   }
 }
 
 
-void Drift_correction(void)
+void Drift_correction()
 {
   //Compensation the Roll, Pitch and Yaw drift.
   static float Scaled_Omega_P[3];
@@ -426,8 +439,8 @@ void Drift_correction(void)
 
 #else // Use GPS Ground course to correct yaw gyro drift
 
-  if (ahrs_impl.gps_course_valid) {
-    float course = ahrs_impl.gps_course - M_PI; //This is the runaway direction of you "plane" in rad
+  if (ahrs_dcm.gps_course_valid) {
+    float course = ahrs_dcm.gps_course - M_PI; //This is the runaway direction of you "plane" in rad
     float COGX = cosf(course); //Course overground X axis
     float COGY = sinf(course); //Course overground Y axis
 
@@ -444,8 +457,8 @@ void Drift_correction(void)
 PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS during flight")
   else if (launch == FALSE)
   {
-    float COGX = imu.mag.x; // Non-Tilt-Compensated (for filter stability reasons)
-    float COGY = imu.mag.y; // Non-Tilt-Compensated (for filter stability reasons)
+    float COGX = mag_float.x; // Non-Tilt-Compensated (for filter stability reasons)
+    float COGY = mag_float.y; // Non-Tilt-Compensated (for filter stability reasons)
 
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
@@ -469,7 +482,7 @@ PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS duri
 
 void Matrix_update(float dt)
 {
-  Vector_Add(&Omega[0], &ahrs_impl.imu_rate.p, &Omega_I[0]);  //adding proportional term
+  Vector_Add(&Omega[0], &ahrs_dcm.imu_rate.p, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
  #if OUTPUTMODE==1    // With corrected data (drift correction)
@@ -484,13 +497,13 @@ void Matrix_update(float dt)
   Update_Matrix[2][2]=0;
  #else                    // Uncorrected data (no drift correction)
   Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-dt*ahrs_impl.imu_rate.r;//-z
-  Update_Matrix[0][2]=dt*ahrs_impl.imu_rate.q;//y
-  Update_Matrix[1][0]=dt*ahrs_impl.imu_rate.r;//z
+  Update_Matrix[0][1]=-dt*ahrs_dcm.imu_rate.r;//-z
+  Update_Matrix[0][2]=dt*ahrs_dcm.imu_rate.q;//y
+  Update_Matrix[1][0]=dt*ahrs_dcm.imu_rate.r;//z
   Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-dt*ahrs_impl.imu_rate.p;
-  Update_Matrix[2][0]=-dt*ahrs_impl.imu_rate.q;
-  Update_Matrix[2][1]=dt*ahrs_impl.imu_rate.p;
+  Update_Matrix[1][2]=-dt*ahrs_dcm.imu_rate.p;
+  Update_Matrix[2][0]=-dt*ahrs_dcm.imu_rate.q;
+  Update_Matrix[2][1]=dt*ahrs_dcm.imu_rate.p;
   Update_Matrix[2][2]=0;
  #endif
 
@@ -510,14 +523,14 @@ void Matrix_update(float dt)
  */
 static inline void set_body_orientation_and_rates(void) {
 
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&imu.body_to_imu);
+  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(ahrs_dcm.body_to_imu);
 
   struct FloatRates body_rate;
-  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_impl.imu_rate);
+  float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_dcm.imu_rate);
   stateSetBodyRates_f(&body_rate);
 
   struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
-  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_impl.ltp_to_imu_euler);
+  float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_dcm.ltp_to_imu_euler);
   float_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
 
   stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
@@ -526,14 +539,14 @@ static inline void set_body_orientation_and_rates(void) {
 
 static inline void compute_ahrs_representations(void) {
 #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_impl.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
-  ahrs_impl.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
-  ahrs_impl.ltp_to_imu_euler.psi = 0;
+  ahrs_dcm.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
+  ahrs_dcm.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
+  ahrs_dcm.ltp_to_imu_euler.psi = 0;
 #else
-  ahrs_impl.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-  ahrs_impl.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
-  ahrs_impl.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-  ahrs_impl.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
+  ahrs_dcm.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
+  ahrs_dcm.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
+  ahrs_dcm.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+  ahrs_dcm.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
 
   set_body_orientation_and_rates();

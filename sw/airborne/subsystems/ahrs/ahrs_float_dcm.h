@@ -39,9 +39,12 @@ struct AhrsFloatDCM {
   float gps_course;
   bool_t gps_course_valid;
   uint8_t gps_age;
-};
-extern struct AhrsFloatDCM ahrs_impl;
 
+  struct OrientationReps* body_to_imu;
+};
+extern struct AhrsFloatDCM ahrs_dcm;
+
+#define DefaultAhrsImpl ahrs_dcm
 
 // DCM Parameters
 
@@ -68,5 +71,14 @@ extern int renorm_sqrt_count;
 extern int renorm_blowup_count;
 extern float imu_health;
 #endif
+
+extern void ahrs_dcm_register(void);
+extern void ahrs_dcm_init(struct OrientationReps* body_to_imu);
+extern bool_t ahrs_dcm_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+                             struct Int32Vect3* lp_mag);
+extern void ahrs_dcm_propagate(struct Int32Rates* gyro, float dt);
+extern void ahrs_dcm_update_accel(struct Int32Vect3* accel, float dt);
+extern void ahrs_dcm_update_mag(struct Int32Vect3* mag, float dt);
+extern void ahrs_dcm_update_gps(void);
 
 #endif // AHRS_FLOAT_DCM_H
