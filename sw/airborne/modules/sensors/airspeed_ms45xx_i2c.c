@@ -29,6 +29,15 @@
 #include "state.h"
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_ms45xx_i2c.h"
+#include "filters/low_pass_filter.h"
+
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 /** Default I2C device
  */
@@ -89,14 +98,12 @@
 #endif
 #endif
 
-
+/** Send a MS45XX_AIRSPEED message with every new measurement.
+ * Mainly for debug, use with caution, sends message at ~100Hz.
+ */
 #ifndef MS45XX_SYNC_SEND
 #define MS45XX_SYNC_SEND FALSE
 #endif
-
-struct i2c_transaction ms45xx_trans;
-struct AirspeedMs45xx ms45xx;
-
 
 /** Quadratic scale factor for airspeed.
  * airspeed = sqrt(2*p_diff/density)
@@ -107,13 +114,15 @@ struct AirspeedMs45xx ms45xx;
 #define MS45XX_AIRSPEED_SCALE 1.6327
 #endif
 
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+/** Time constant for second order Butterworth low pass filter */
+#ifndef MS45XX_LOWPASS_TAU
+#define MS45XX_LOWPASS_TAU 0.02
 #endif
+
+struct AirspeedMs45xx ms45xx;
+static struct i2c_transaction ms45xx_trans;
+static Butterworth2LowPass ms45xx_filter;
+
 
 static void ms45xx_downlink(void)
 {
@@ -133,6 +142,8 @@ void ms45xx_i2c_init(void)
   ms45xx.sync_send = MS45XX_SYNC_SEND;
 
   ms45xx_trans.status = I2CTransDone;
+  // setup low pass filter with time constant and 100Hz sampling freq
+  init_butterworth_2_low_pass(&ms45xx_filter, MS45XX_LOWPASS_TAU, 0.01, 0);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "MS45XX_AIRSPEED", ms45xx_downlink);
@@ -164,7 +175,8 @@ void ms45xx_i2c_event(void)
        * when Port 1=Port 2.
        * p_diff = p_raw * scale - offset
        */
-      ms45xx.diff_pressure = p_raw * ms45xx.pressure_scale - ms45xx.pressure_offset;
+      float p_diff = p_raw * ms45xx.pressure_scale - ms45xx.pressure_offset;
+      ms45xx.diff_pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_diff);
 
       /* 11bit raw temperature, 5 LSB bits not used */
       uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |

@@ -33,7 +33,7 @@
   </header>
 
   <init fun="ms45xx_i2c_init()"/>
-  <periodic fun="ms45xx_i2c_periodic()" freq="10."/>
+  <periodic fun="ms45xx_i2c_periodic()" freq="100."/>
   <event fun="ms45xx_i2c_event()"/>
 
   <makefile target="ap">
