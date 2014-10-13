@@ -44,9 +44,20 @@ struct AhrsIntCmplEuler {
   struct Int32Eulers ltp_to_imu_euler;
   int32_t reinj_1;
   float mag_offset;
+
+  struct OrientationReps* body_to_imu;
 };
 
-extern struct AhrsIntCmplEuler ahrs_impl;
+extern struct AhrsIntCmplEuler ahrs_ice;
 
+#define DefaultAhrsImpl ahrs_ice
+
+extern void ahrs_ice_register(void);
+extern void ahrs_ice_init(struct OrientationReps* body_to_imu);
+extern bool_t ahrs_ice_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
+                             struct Int32Vect3* lp_mag);
+extern void ahrs_ice_propagate(struct Int32Rates* gyro, float dt);
+extern void ahrs_ice_update_accel(struct Int32Vect3* accel, float dt);
+extern void ahrs_ice_update_mag(struct Int32Vect3* mag, float dt);
 
 #endif /* AHRS_INT_CMPL_EULER_H */

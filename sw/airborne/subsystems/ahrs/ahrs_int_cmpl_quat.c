@@ -166,7 +166,6 @@ void ahrs_icq_init(struct OrientationReps* body_to_imu) {
   /* save body_to_imu pointer */
   ahrs_icq.body_to_imu = body_to_imu;
 
-  ahrs.status = AHRS_UNINIT;
   ahrs_icq.ltp_vel_norm_valid = FALSE;
   ahrs_icq.heading_aligned = FALSE;
 
@@ -213,7 +212,7 @@ void ahrs_icq_init(struct OrientationReps* body_to_imu) {
 
 
 bool_t ahrs_icq_align(struct Int32Rates* lp_gyro, struct Int32Vect3* lp_accel,
-                    struct Int32Vect3* lp_mag)
+                      struct Int32Vect3* lp_mag)
 {
 
 #if USE_MAGNETOMETER
