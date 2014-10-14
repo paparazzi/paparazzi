@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="temp_adc"  dir="sensors">
+  <doc>
+    <description>
+      Temperature ADC
+      Measure temperature of 3 sensores connecter to any ADC
+      Can read LM35 or 10k / 100k NTC sensor
+    </description>
+    <define name="TEMP_ADC_CHANNELX" value="ADC_X" description="choose which ADC is used for temperature sensor"/>
+    <define name="TEMP_ADC_CHANNELX_TYPE" value="XXXX" description="choose which type of sensor is used (LM35 or NTC)"/>
+  </doc>
+  <header>
+    <file name="temp_adc.h"/>
+  </header>
+  <init fun="temp_adc_init()"/>
+  <periodic fun="temp_adc_periodic()" freq="10"/>
+  <makefile target="ap">
+    <file name="temp_adc.c"/>
+  </makefile>
+</module>
