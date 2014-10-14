@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "./module.dtd">
 
-<module name="digital_cam">
+<module name="digital_cam" dir="digital_cam">
   <doc>
     <description>Digital camera control (trigger using GPIO)</description>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
@@ -11,7 +11,6 @@
     <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1" description="optional, gpio to turn power off"/>
     <define name="DC_PUSH" value="gpio_set|gpio_clear" description="specifies whether to set or clear gpio to push the shutter (default: gpio_set)"/>
     <define name="DC_RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
-
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>
@@ -33,7 +32,6 @@
 
         <dl_setting max="255" min="1" step="1" var="dc_autoshoot_quartersec_period" shortname="Periodic" param="DC_AUTOSHOOT_QUARTERSEC_PERIOD" unit="quarter-sec"/>
         <dl_setting max="5" min="0" step="1" var="dc_autoshoot_meter_grid" shortname="UTM%" param="DC_AUTOSHOOT_METER_GRID" unit="meter"/>
-
         <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_gps_dist" handler="Survey" shortname="Linear-Interval"/>
         <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
         <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
@@ -49,7 +47,7 @@
 
   <periodic fun="gpio_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
 
-  <makefile >
+  <makefile target="ap|sim|jsbsim|nps">
     <define name="DIGITAL_CAM" />
     <file name="gpio_cam_ctrl.c"/>
     <file name="dc.c"/>
