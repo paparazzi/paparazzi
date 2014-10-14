@@ -1,4 +1,4 @@
-<!DOCTYPE module SYSTEM "./module.dtd">
+<!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="digital_cam" dir="digital_cam">
   <doc>
@@ -14,6 +14,7 @@
     <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
     <define name="DC_AUTOSHOOT_METER_GRID" value="50" description="grid in meters"/>
   </doc>
+  
   <settings>
     <dl_settings name="control">
       <dl_settings name="dc">
