@@ -63,7 +63,7 @@ void imu_impl_init(void)
 {
 
   max1168_init();
-  
+
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
   hmc58xx_init(&imu_hbmini.hmc, &(IMU_HBMINI_I2C_DEV), HMC58XX_ADDR);
@@ -71,12 +71,12 @@ void imu_impl_init(void)
   imu_hbmini.gyr_valid = FALSE;
   imu_hbmini.acc_valid = FALSE;
   imu_hbmini.mag_valid = FALSE;
- 
+
 }
 
 void imu_periodic( void )
 {
-  
+
   Max1168Periodic();
 
   // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
@@ -97,7 +97,7 @@ void imu_hbmini_event( void )
 {
 
   max1168_event();
-  
+
 
   if (max1168_status == MAX1168_DATA_AVAILABLE) {
     imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN];
@@ -107,10 +107,10 @@ void imu_hbmini_event( void )
     imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN];
     imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN];
     max1168_status = MAX1168_IDLE;
-    //_gyro_handler();
-    //_accel_handler();
+    imu_hbmini.gyr_valid = TRUE;
+    imu_hbmini.acc_valid = TRUE;
   }
-  
+
   // HMC58XX event task
   hmc58xx_event(&imu_hbmini.hmc);
   if (imu_hbmini.hmc.data_available) {

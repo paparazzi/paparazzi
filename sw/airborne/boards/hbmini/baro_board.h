@@ -20,8 +20,8 @@
  *
  */
 
-/* driver for the analog Barometer Mpxa6115 using ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments
- * Navarro & Gorraz & Hattenberger
+/** @file boards/hbmini/baro_board.h
+ *  Baro board interface for Bosch BMP085 on HBmini I2C1 with EOC check.
  */
 
 

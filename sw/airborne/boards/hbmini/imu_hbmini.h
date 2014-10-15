@@ -75,43 +75,20 @@ extern struct ImuHbmini imu_hbmini;
 extern void imu_hbmini_event( void );
 extern void imu_hbmini_downlink_raw( void );
 
-  /*
-  // If the itg3200 I2C transaction has succeeded: convert the data
-  itg3200_event(&imu_hbmini.itg);
-  if (imu_hbmini.itg.data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled, -imu_hbmini.itg.data.rates.q, imu_hbmini.itg.data.rates.p, imu_hbmini.itg.data.rates.r);
-#if HBMINI_USE_MEDIAN_FILTER
-    UpdateMedianFilterRatesInt(median_gyro, imu.gyro_unscaled);
-#endif
-    imu_hbmini.itg.data_available = FALSE;
-    imu_hbmini.gyr_valid = TRUE;
-  }
-
-  // If the adxl345 I2C transaction has succeeded: convert the data
-  adxl345_i2c_event(&imu_hbmini.adxl);
-  if (imu_hbmini.adxl.data_available) {
-    VECT3_ASSIGN(imu.accel_unscaled, imu_hbmini.adxl.data.vect.y, -imu_hbmini.adxl.data.vect.x, imu_hbmini.adxl.data.vect.z);
-#if HBMINI_USE_MEDIAN_FILTER
-    UpdateMedianFilterVect3Int(median_accel, imu.accel_unscaled);
-#endif
-    imu_hbmini.adxl.data_available = FALSE;
-    imu_hbmini.acc_valid = TRUE;
-  }
-*/
 static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
   imu_hbmini_event();
-  //if (imu_hbmini.gyr_valid) {
-  //  imu_hbmini.gyr_valid = FALSE;
+  if (imu_hbmini.gyr_valid) {
+    imu_hbmini.gyr_valid = FALSE;
     _gyro_handler();
-  //}
-  //if (imu_hbmini.acc_valid) {
-  //  imu_hbmini.acc_valid = FALSE;
+  }
+  if (imu_hbmini.acc_valid) {
+    imu_hbmini.acc_valid = FALSE;
     _accel_handler();
- // }
-  //if (imu_hbmini.mag_valid) {
-   // imu_hbmini.mag_valid = FALSE;
+  }
+  if (imu_hbmini.mag_valid) {
+    imu_hbmini.mag_valid = FALSE;
     _mag_handler();
-  //}
+  }
 }
 
-#endif 
+#endif

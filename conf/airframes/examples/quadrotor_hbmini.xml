@@ -15,8 +15,6 @@
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
       <define name="ACTUATORS_START_DELAY" value="3"/>
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/>
-      <configure name="PERIODIC_FREQUENCY" value="512"/>
     </target>
     <target name="nps" board="pc">
       <subsystem name="fdm"         type="jsbsim"/>
@@ -36,8 +34,6 @@
     <subsystem name="stabilization" type="int_euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"           type="hff"/>
-
-    <configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/>
   </firmware>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -86,21 +82,21 @@
 
 
 
-    <section name="IMU" prefix="IMU_">
+  <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_P_NEUTRAL" value="21489"/>
     <define name="GYRO_Q_NEUTRAL" value="21500"/>
     <define name="GYRO_R_NEUTRAL" value="21822"/>
-    
+
     <define name="GYRO_P_SENS" value=" 5.79" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 5.89" integer="16"/>
     <define name="GYRO_R_SENS" value=" 4.56" integer="16"/>
 
     <!--define name="GYRO_P_SENS" value="1.55" integer="16"/>
-    <define name="GYRO_Q_SENS" value="1.55" integer="16"/>
-    <define name="GYRO_R_SENS" value="1.6" integer="16"/-->
+        <define name="GYRO_Q_SENS" value="1.55" integer="16"/>
+        <define name="GYRO_R_SENS" value="1.6" integer="16"/-->
 
-    
+
     <define name="ACCEL_X_NEUTRAL" value="26510"/>
     <define name="ACCEL_Y_NEUTRAL" value="26380"/>
     <define name="ACCEL_Z_NEUTRAL" value="25836"/>
@@ -117,7 +113,7 @@
     <define name="MAG_Z_SENS" value="3.74963511486" integer="16"/>
 
     <!--define name="BODY_TO_IMU_PHI" value="9.8" unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="-6.5" unit="deg"/-->
+        <define name="BODY_TO_IMU_THETA" value="-6.5" unit="deg"/-->
     <define name="BODY_TO_IMU_PHI" value="2.0" unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="-2.0" unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
@@ -200,46 +196,46 @@
 
   <section name="GUIDANCE_V"   prefix="GUIDANCE_V_">
 
-   <define name="REF_MIN_ZDD"  value="-0.5*9.81"/>
-   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
-   <define name="REF_MIN_ZD"   value="-1.5"/>
-   <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"     value="130"/>
-   <define name="HOVER_KD"     value="80"/>
-   <define name="HOVER_KI"     value="0"/>
-   <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-   <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-   <define name="ADAPT_NOISE_FACTOR" value="1.5"/>
+    <define name="REF_MIN_ZDD"  value="-0.5*9.81"/>
+    <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+    <define name="REF_MIN_ZD"   value="-1.5"/>
+    <define name="REF_MAX_ZD"   value=" 1.5"/>
+    <define name="HOVER_KP"     value="130"/>
+    <define name="HOVER_KD"     value="80"/>
+    <define name="HOVER_KI"     value="0"/>
+    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
+    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
+    <define name="ADAPT_NOISE_FACTOR" value="1.5"/>
   </section>
 
- <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="MAX_BANK" value="30" unit="deg"/>
-   <define name="PGAIN" value="50"/>
-   <define name="DGAIN" value="80"/>
-   <define name="IGAIN" value="20"/>
-   <define name="NGAIN" value="0"/>
-   <!-- feedforward -->
-   <define name="AGAIN" value="0"/>
- </section>
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="30" unit="deg"/>
+    <define name="PGAIN" value="50"/>
+    <define name="DGAIN" value="80"/>
+    <define name="IGAIN" value="20"/>
+    <define name="NGAIN" value="0"/>
+    <!-- feedforward -->
+    <define name="AGAIN" value="0"/>
+  </section>
 
- <section name="BAT">
-   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
- </section>
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+  </section>
 
- <section name="AUTOPILOT">
-   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
-   <!--define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/-->
-   <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
- </section>
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <!--define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/-->
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+  </section>
 
- <section name="FMS">
-   <define name="BOOZ_FMS_TIMEOUT" value="0"/>
- </section>
+  <section name="FMS">
+    <define name="BOOZ_FMS_TIMEOUT" value="0"/>
+  </section>
 
- <section name="CAM" prefix="ROTORCRAFT_CAM_">
+  <section name="CAM" prefix="ROTORCRAFT_CAM_">
     <define name="DEFAULT_MODE" value="MODE_MANUAL"/>
- </section>
+  </section>
 
   <section name="SERVO_SWITCH">
     <define name="SERVO_SWITCH_SERVO" value="DROP"/>
@@ -249,9 +245,9 @@
     <define name="DropClose()" value="ServoSwitchOff()"/>
   </section>
 
- <section name="MISC">
-   <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
- </section>
+  <section name="MISC">
+    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
+  </section>
 
   <section name="GCS">
     <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
