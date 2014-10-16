@@ -52,9 +52,9 @@
 #define IMU_ACCEL_Z_CHAN 2
 #endif
 #if !defined IMU_MAG_X_CHAN & !defined IMU_MAG_Y_CHAN & !defined IMU_MAG_Z_CHAN
-#define IMU_MAG_X_CHAN   1
+#define IMU_MAG_X_CHAN   2
 #define IMU_MAG_Y_CHAN   0
-#define IMU_MAG_Z_CHAN   2
+#define IMU_MAG_Z_CHAN   1
 #endif
 
 struct ImuHbmini imu_hbmini;

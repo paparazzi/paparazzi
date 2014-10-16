@@ -43,9 +43,9 @@
 #define LED_4_PIN 30
 
 /* PPM : rc rx on P0.28 ( CAP0.2 ) */
-#define PPM_PINSEL PINSEL1
+#define PPM_PINSEL PINSEL0
 #define PPM_PINSEL_VAL 0x02
-#define PPM_PINSEL_BIT 24
+#define PPM_PINSEL_BIT 12
 #define PPM_CRI TIR_CR2I
 #define PPM_CCR_CRF TCCR_CR2_F
 #define PPM_CCR_CRR TCCR_CR2_R
@@ -66,14 +66,14 @@
 /* battery */
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY AdcBank0(2)
-#ifndef USE_AD0
-#define USE_AD0
+#define ADC_CHANNEL_VSUPPLY AdcBank1(6)
+#ifndef USE_AD1
+#define USE_AD1
 #endif
-#define USE_AD0_2
+#define USE_AD1_6
 #endif
 
-#define DefaultVoltageOfAdc(adc) (0.017889*adc)
+#define DefaultVoltageOfAdc(adc) (0.03385*adc)
 
 /* SPI (SSP) */
 #define SPI_SELECT_SLAVE0_PORT 0
