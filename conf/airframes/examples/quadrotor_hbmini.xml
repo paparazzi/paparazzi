@@ -68,22 +68,22 @@
     <subsystem name="imu"           type="hbmini"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
+    <subsystem name="ahrs"          type="float_cmpl_rmat"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_NEUTRAL" value="21489"/>
-    <define name="GYRO_Q_NEUTRAL" value="21500"/>
-    <define name="GYRO_R_NEUTRAL" value="21822"/>
+    <define name="GYRO_P_NEUTRAL" value="21460"/>
+    <define name="GYRO_Q_NEUTRAL" value="21490"/>
+    <define name="GYRO_R_NEUTRAL" value="21830"/>
 
     <define name="GYRO_P_SENS" value=" 5.79" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 5.89" integer="16"/>
     <define name="GYRO_R_SENS" value=" 4.56" integer="16"/>
 
 
-    <define name="ACCEL_X_NEUTRAL" value="26510"/>
+    <define name="ACCEL_X_NEUTRAL" value="26480"/>
     <define name="ACCEL_Y_NEUTRAL" value="26380"/>
     <define name="ACCEL_Z_NEUTRAL" value="25836"/>
     <define name="ACCEL_X_SENS" value="1.94" integer="16"/>
@@ -98,8 +98,8 @@
     <define name="MAG_Y_SENS" value="3.09086502241" integer="16"/>
     <define name="MAG_Z_SENS" value="3.74963511486" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI" value="-0.5" unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0.5" unit="deg"/>
+    <define name="BODY_TO_IMU_PHI" value="-2.5" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="-2.0" unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
 
   </section>
@@ -131,12 +131,12 @@
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_P"  value="400" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.9"/>
     <define name="REF_MAX_P"    value="400." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+    <define name="REF_OMEGA_Q"  value="400" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.9"/>
     <define name="REF_MAX_Q"    value="400." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
