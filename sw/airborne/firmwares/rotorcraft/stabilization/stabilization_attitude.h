@@ -28,6 +28,7 @@
 #define STABILIZATION_ATTITUDE_H
 
 #include "firmwares/rotorcraft/stabilization.h"
+#include "math/pprz_algebra_int.h"
 #include STABILIZATION_ATTITUDE_TYPE_H
 
 extern void stabilization_attitude_init(void);
