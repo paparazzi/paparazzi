@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="agl_dist" dir="sonar">
+  <doc>
+    <description>
+      Get sonar values from ABI and store last and filtered values
+
+      Output values are stored in global variables that can be used in flight plans
+    </description>
+    <section name="AGL" prefix="AGL_DIST_SONAR_">
+      <define name="ID" value="ABI_BROADCAST" description="Sonar ABI ID"/>
+      <define name="MAX_RANGE" value="5." description="Max detection range in meters"/>
+      <define name="MIN_RANGE" value="0.001" description="Min detection range in meters"/>
+      <define name="FILTER" value="5" description="First order filter constante"/>
+    </section>
+  </doc>
+  <header>
+    <file name="agl_dist.h"/>
+  </header>
+  <init fun="agl_dist_init()"/>
+  <makefile>
+    <file name="agl_dist.c"/>
+  </makefile>
+</module>
+

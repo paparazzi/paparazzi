@@ -40,6 +40,7 @@
 #include "std.h"
 #include "navdata.h"
 #include "subsystems/ins.h"
+#include "subsystems/ahrs.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/gpio.h"
 
@@ -55,6 +56,8 @@ static void navdata_cropbuffer(int cropsize);
 navdata_port nav_port;
 static int nav_fd = 0;
 measures_t navdata;
+
+static int imu_lost = 0;
 
 /** Sonar offset.
  *  Offset value in ADC
@@ -150,6 +153,15 @@ static void send_navdata(void) {
       &navdata.chksum,
       &nav_port.checksum_errors);
 }
+
+static void send_fliter_status(void) {
+  uint8_t mde = 3;
+  if (ahrs.status == AHRS_UNINIT) mde = 2;
+  if (imu_lost) mde = 5;
+  uint16_t val = 0;
+  DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
+}
+
 #endif
 
 bool_t navdata_init()
@@ -219,6 +231,7 @@ bool_t navdata_init()
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "ARDRONE_NAVDATA", send_navdata);
+  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_fliter_status);
 #endif
 
   return TRUE;
@@ -286,10 +299,13 @@ void navdata_read()
   }
 }
 
+#define MAG_FREEZE_MAX_RETRY 10
+
 static void mag_freeze_check(void) {
   // from daren.g.lee paparazzi-l 20140530
   static int16_t LastMagValue = 0;
   static int MagFreezeCounter = 0;
+  static int mag_freeze_retry = 0;
 
   // printf("lm: %d, mx: %d, mfc: %d\n", LastMagValue, navdata.mx, MagFreezeCounter);
 
@@ -299,29 +315,41 @@ static void mag_freeze_check(void) {
     // considering it updates at 200 Hz
     if (MagFreezeCounter > 30) {
       printf("Mag needs resetting, Values are frozen!!! %d , %d \n", LastMagValue, navdata.mx);
-      printf("Setting GPIO 177 to reset PIC Navigation Board \n");
+      // set imu_lost flag
+      imu_lost = 1;
 
-      // stop acquisition
-      uint8_t cmd=0x02;
-      navdata_write(&cmd, 1);
+      if (mag_freeze_retry < MAG_FREEZE_MAX_RETRY) {
+        printf("Setting GPIO 177 to reset PIC Navigation Board \n");
+        mag_freeze_retry++;
 
-      // do the navboard reset via GPIOs
-      gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
-      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+        uint8_t mde = 5;
+        uint16_t val = 0;
+        DOWNLINK_SEND_STATE_FILTER_STATUS(DefaultChannel, DefaultDevice, &mde, &val);
 
-      // wait 20ms to retrieve data
-      usleep(20000);
+        // stop acquisition
+        uint8_t cmd=0x02;
+        navdata_write(&cmd, 1);
 
-      // restart acquisition
-      cmd = 0x01;
-      navdata_write(&cmd, 1);
+        // do the navboard reset via GPIOs
+        gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+        gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+
+        //// wait 20ms to retrieve data
+        usleep(20000);
+
+        //// restart acquisition
+        cmd = 0x01;
+        navdata_write(&cmd, 1);
+      }
 
       MagFreezeCounter = 0; // reset counter back to zero
     }
   }
   else {
+    imu_lost = 0;
     // remember to reset if value _does_ change
     MagFreezeCounter = 0;
+    mag_freeze_retry = 0;
   }
   // set last value
   LastMagValue = navdata.mx;

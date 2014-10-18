@@ -229,6 +229,8 @@ subparser_download.add_argument('folder', help='Remote subfolder (base folder is
 subparser_download_dir = subparsers.add_parser('download_dir', help='Download all files from a folder from the ARDrone 2')
 subparser_download_dir.add_argument('dest', help='destination folder (on the local machine)')
 subparser_download_dir.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
+subparser_rm_dir = subparsers.add_parser('rm_dir', help='Remove a directory and all its files from the ARDrone 2')
+subparser_rm_dir.add_argument('folder', help='Remote subfolder (base folder is /data/video)')
 subparser_insmod = subparsers.add_parser('insmod', help='Upload and insert kernel module')
 subparser_insmod.add_argument('file', help='Filename of *.ko kernel module')
 subparsers.add_parser('startvision', help='Start the vision framework')
@@ -472,6 +474,11 @@ elif args.command == 'download_dir':
         else:
             file.close()
     print("#pragma message: End download of folder " + args.folder + " from ARDrone2")
+
+elif args.command == 'rm_dir':
+    # Split filename and path
+    print("Deleting folder /data/video/" + args.folder + " from ARDrone2")
+    print(execute_command('rm -r /data/video/' + args.folder))
 
 
 

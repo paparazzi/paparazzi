@@ -72,10 +72,12 @@ void pprz_polyfit_float(float* x, float* y, int n, int p, float* c)
 
   // First build a table of element S_i = sum_{k=0,n-1} x_k^i of dimension 2*p+1
   float S[2*p + 1];
+  float_vect_zero(S, 2*p + 1);
   // and a table of element T_i = sum_{k=0,n-1} x_k^i*y_k of dimension p+1
   // make it a matrix for later use
   float _T[p + 1][1];
   MAKE_MATRIX_PTR(T, _T, p + 1);
+  float_mat_zero(T, p + 1, 1);
   S[0] = n; // S_0 is always the number of input measurements
   for (k = 0; k < n; k++) {
     float x_tmp = x[k];

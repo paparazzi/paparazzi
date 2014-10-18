@@ -164,7 +164,8 @@ struct InsFloatInv ins_impl;
 static const struct FloatVect3 A = { 0.f, 0.f, 9.81f };
 
 /* earth magnetic model */
-static const struct FloatVect3 B = { (float)(INS_H_X), (float)(INS_H_Y), (float)(INS_H_Z) };
+//static const struct FloatVect3 B = { (float)(INS_H_X), (float)(INS_H_Y), (float)(INS_H_Z) };
+#define B ins_impl.mag_h
 
 /* barometer */
 bool_t ins_baro_initialized;
@@ -241,6 +242,10 @@ void ins_init() {
   ltp_def.hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
+
+  B.x = INS_H_X;
+  B.y = INS_H_Y;
+  B.z = INS_H_Z;
 
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
