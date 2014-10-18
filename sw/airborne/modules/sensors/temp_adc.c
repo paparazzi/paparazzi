@@ -34,6 +34,8 @@
 uint16_t adc_raw;
 float temp_c1, temp_c2, temp_c3;
 
+#define LM35 0
+#define NTC 1
 
 #ifndef TEMP_ADC_CHANNEL1
 #ifndef TEMP_ADC_CHANNEL2
@@ -41,6 +43,24 @@ float temp_c1, temp_c2, temp_c3;
 #error "at least one TEMP_ADC_CHANNEL1/2/3 needs to be defined to use the temp_adc module"
 #endif
 #endif
+#endif
+
+#ifndef TEMP_ADC_CHANNEL1_TYPE
+#ifndef TEMP_ADC_CHANNEL2_TYPE
+#ifndef TEMP_ADC_CHANNEL3_TYPE
+#error "at least one TEMP_ADC_CHANNELX_TYPE needs to be defined to use the temp_adc module"
+#endif
+#endif
+#endif
+
+#ifndef TEMP_ADC_CHANNEL1_TYPE 
+#define TEMP_ADC_CHANNEL1_TYPE LM35
+#endif
+#ifndef TEMP_ADC_CHANNEL2_TYPE 
+#define TEMP_ADC_CHANNEL2_TYPE LM35
+#endif
+#ifndef TEMP_ADC_CHANNEL3_TYPE 
+#define TEMP_ADC_CHANNEL3_TYPE LM35
 #endif
 
 #ifdef TEMP_ADC_CHANNEL1
@@ -92,34 +112,31 @@ void temp_adc_periodic( void ) {
   
 #ifdef TEMP_ADC_CHANNEL1
   adc_raw = temp_buf1.sum / temp_buf1.av_nb_sample;
-  #ifdef TEMP_ADC_CHANNEL1_TYPE_LM35
+  #if TEMP_ADC_CHANNEL1_TYPE == LM35
     temp_c1 = calc_lm35(adc_raw);
-  #endif
-  #ifdef TEMP_ADC_CHANNEL1_TYPE_NTC
-    temp_c1 = calc_ntc (&adc_raw);
+  #elif TEMP_ADC_CHANNEL1_TYPE == NTC
+    temp_c1 = calc_ntc (adc_raw);
   #endif
 #endif    
   
 #ifdef TEMP_ADC_CHANNEL2
   adc_raw = temp_buf2.sum / temp_buf2.av_nb_sample;
-  #ifdef TEMP_ADC_CHANNEL2_TYPE_LM35
+  #if TEMP_ADC_CHANNEL2_TYPE == LM35
     temp_c2 = calc_lm35(adc_raw);
-  #endif
-  #ifdef TEMP_ADC_CHANNEL1_TYPE_NTC
-    temp_c2 = calc_ntc (&adc_raw);
+  #elif TEMP_ADC_CHANNEL2_TYPE == NTC
+    temp_c2 = calc_ntc (adc_raw);
   #endif
 #endif  
 
 #ifdef TEMP_ADC_CHANNEL3
   adc_raw = temp_buf3.sum / temp_buf3.av_nb_sample;
-  #ifdef TEMP_ADC_CHANNEL3_TYPE_LM35
-  temp_c3 = calc_lm35(adc_raw);
-  #endif
-  #ifdef TEMP_ADC_CHANNEL3_TYPE_NTC
-    temp_c3 = calc_ntc (&adc_raw);
+  #if TEMP_ADC_CHANNEL3_TYPE == LM35
+    temp_c3 = calc_lm35(adc_raw);
+  #elif TEMP_ADC_CHANNEL3_TYPE == NTC
+    temp_c3 = calc_ntc (adc_raw);
   #endif  
 #endif 
 
-  DOWNLINK_SEND_ADC_TEMP(DefaultChannel, DefaultDevice, &temp_c1, &temp_c2, &temp_c3);
+  DOWNLINK_SEND_TEMP_ADC(DefaultChannel, DefaultDevice, &temp_c1, &temp_c2, &temp_c3);
 }
              

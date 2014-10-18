@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/temp_adc.c
+/** @file modules/sensors/temp_adc.h
  * temperature driver for LM35 and 100k NTC analog sensores
  */
 
@@ -27,8 +27,6 @@
 #define TEMP_ADC_H
 
 #include <inttypes.h>
-
-extern uint16_t adc_raw;
 
 float calc_ntc(int16_t raw_temp);
 float calc_lm35(int16_t raw_temp);
