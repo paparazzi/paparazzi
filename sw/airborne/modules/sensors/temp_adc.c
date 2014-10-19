@@ -34,6 +34,10 @@
 uint16_t adc_raw;
 float temp_c1, temp_c2, temp_c3;
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
+
 #define LM35 0
 #define NTC 1
 
