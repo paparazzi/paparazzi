@@ -53,13 +53,13 @@ float temp_c1, temp_c2, temp_c3;
 #endif
 #endif
 
-#ifndef TEMP_ADC_CHANNEL1_TYPE 
+#ifndef TEMP_ADC_CHANNEL1_TYPE
 #define TEMP_ADC_CHANNEL1_TYPE LM35
 #endif
-#ifndef TEMP_ADC_CHANNEL2_TYPE 
+#ifndef TEMP_ADC_CHANNEL2_TYPE
 #define TEMP_ADC_CHANNEL2_TYPE LM35
 #endif
-#ifndef TEMP_ADC_CHANNEL3_TYPE 
+#ifndef TEMP_ADC_CHANNEL3_TYPE
 #define TEMP_ADC_CHANNEL3_TYPE LM35
 #endif
 
@@ -79,64 +79,68 @@ static struct adc_buf temp_buf3;
 #define TEMP_ADC_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
-float calc_ntc(int16_t raw_temp){
+float calc_ntc(int16_t raw_temp)
+{
   float temp_c;
   //calc for NTC
-  temp_c = log(((10240000/raw_temp)-10000)*10);
+  temp_c = log(((10240000 / raw_temp) - 10000) * 10);
   //temp_c = 1/(0.001129148+(0.000234125*temp_c)+(0.0000000876741*temp_c*temp_c*temp_c));
-  temp_c = 1/(0.000603985662844+(0.000229995493730*temp_c)+(0.000000067653027*temp_c*temp_c*temp_c));
+  temp_c = 1 / (0.000603985662844 + (0.000229995493730 * temp_c) + (0.000000067653027 * temp_c *
+                temp_c * temp_c));
   temp_c = temp_c - 273.15; //convert do celcius
-  return temp_c;   
+  return temp_c;
 }
 
-float calc_lm35(int16_t raw_temp){
-  return ((float)raw_temp * (3300.0f/1024.0f)/10.0f);
+float calc_lm35(int16_t raw_temp)
+{
+  return ((float)raw_temp * (3300.0f / 1024.0f) / 10.0f);
 }
 
-void temp_adc_init( void ) {
+void temp_adc_init(void)
+{
 #ifdef TEMP_ADC_CHANNEL1
   adc_buf_channel(TEMP_ADC_CHANNEL1, &temp_buf1, TEMP_ADC_NB_SAMPLES);
-#endif  
-  
+#endif
+
 #ifdef TEMP_ADC_CHANNEL2
   adc_buf_channel(TEMP_ADC_CHANNEL2, &temp_buf2, TEMP_ADC_NB_SAMPLES);
-#endif  
-  
+#endif
+
 #ifdef TEMP_ADC_CHANNEL3
   adc_buf_channel(TEMP_ADC_CHANNEL3, &temp_buf3, TEMP_ADC_NB_SAMPLES);
-#endif  
+#endif
 }
 
 
-void temp_adc_periodic( void ) {
-  
+void temp_adc_periodic(void)
+{
+
 #ifdef TEMP_ADC_CHANNEL1
   adc_raw = temp_buf1.sum / temp_buf1.av_nb_sample;
-  #if TEMP_ADC_CHANNEL1_TYPE == LM35
-    temp_c1 = calc_lm35(adc_raw);
-  #elif TEMP_ADC_CHANNEL1_TYPE == NTC
-    temp_c1 = calc_ntc (adc_raw);
-  #endif
-#endif    
-  
+#if TEMP_ADC_CHANNEL1_TYPE == LM35
+  temp_c1 = calc_lm35(adc_raw);
+#elif TEMP_ADC_CHANNEL1_TYPE == NTC
+  temp_c1 = calc_ntc(adc_raw);
+#endif
+#endif
+
 #ifdef TEMP_ADC_CHANNEL2
   adc_raw = temp_buf2.sum / temp_buf2.av_nb_sample;
-  #if TEMP_ADC_CHANNEL2_TYPE == LM35
-    temp_c2 = calc_lm35(adc_raw);
-  #elif TEMP_ADC_CHANNEL2_TYPE == NTC
-    temp_c2 = calc_ntc (adc_raw);
-  #endif
-#endif  
+#if TEMP_ADC_CHANNEL2_TYPE == LM35
+  temp_c2 = calc_lm35(adc_raw);
+#elif TEMP_ADC_CHANNEL2_TYPE == NTC
+  temp_c2 = calc_ntc(adc_raw);
+#endif
+#endif
 
 #ifdef TEMP_ADC_CHANNEL3
   adc_raw = temp_buf3.sum / temp_buf3.av_nb_sample;
-  #if TEMP_ADC_CHANNEL3_TYPE == LM35
-    temp_c3 = calc_lm35(adc_raw);
-  #elif TEMP_ADC_CHANNEL3_TYPE == NTC
-    temp_c3 = calc_ntc (adc_raw);
-  #endif  
-#endif 
+#if TEMP_ADC_CHANNEL3_TYPE == LM35
+  temp_c3 = calc_lm35(adc_raw);
+#elif TEMP_ADC_CHANNEL3_TYPE == NTC
+  temp_c3 = calc_ntc(adc_raw);
+#endif
+#endif
 
   DOWNLINK_SEND_TEMP_ADC(DefaultChannel, DefaultDevice, &temp_c1, &temp_c2, &temp_c3);
 }
-             
