@@ -2142,7 +2142,11 @@
       <field name="yaw_c"  type="float"/>
   </message>
 
-  <!-- 251 is free -->
+  <message name="FLOW_METER" id="251">
+   <field name="pulses"  type="uint16"/>
+   <field name="ml"	 type="uint16" unit="ml"/>
+  </message>
+  
   <!-- 252 is free -->
 
   <message name="I2C_ERRORS" id="253">
