@@ -96,6 +96,11 @@ float calc_lm35(int16_t raw_temp)
   return ((float)raw_temp * (3300.0f / 1024.0f) / 10.0f);
 }
 
+static void temp_adc_downlink(void)
+{
+  DOWNLINK_SEND_TEMP_ADC(DefaultChannel, DefaultDevice, &temp_c1, &temp_c2, &temp_c3);
+}
+
 void temp_adc_init(void)
 {
 #ifdef TEMP_ADC_CHANNEL1
@@ -109,6 +114,10 @@ void temp_adc_init(void)
 #ifdef TEMP_ADC_CHANNEL3
   adc_buf_channel(TEMP_ADC_CHANNEL3, &temp_buf3, TEMP_ADC_NB_SAMPLES);
 #endif
+  
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, "TEMP_ADC", temp_adc_downlink);
+#endif  
 }
 
 
@@ -141,6 +150,8 @@ void temp_adc_periodic(void)
   temp_c3 = calc_ntc(adc_raw);
 #endif
 #endif
-
-  DOWNLINK_SEND_TEMP_ADC(DefaultChannel, DefaultDevice, &temp_c1, &temp_c2, &temp_c3);
+  
+#ifdef SENSOR_SYNC_SEND
+  temp_adc_downlink
+#endif  
 }
