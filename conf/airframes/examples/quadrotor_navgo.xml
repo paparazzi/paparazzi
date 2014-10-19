@@ -46,6 +46,7 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
+    <!-- FRONT CW, RIGHT CCW, BACK CW, LEFT CCW -->
     <define name="ROLL_COEF"  value="{    0, -256,    0,  256}"/>
     <define name="PITCH_COEF" value="{  256,    0, -256,    0}"/>
     <define name="YAW_COEF"   value="{ -256,  256, -256,  256}"/>
@@ -54,7 +55,7 @@
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
-    <!-- FRONT, BACK, RIGHT, LEFT -->
+    <!-- FRONT CW, RIGHT CCW, BACK CW, LEFT CCW -->
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
 
@@ -255,8 +256,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
+    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;right_motor&quot;, &quot;back_motor&quot;, &quot;left_motor&quot;}"/>
     <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
   </section>
