@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="flow_meter" dir="sensors">
+  <doc>
+    <description>
+      flow meter using trigger_ext
+      (lpc only)
+    </description>
+    <define name="USE_CUSTOM_TRIGGER"  description="IRH1 - p0.22"/>
+    <define name="TRIG_EXT_PINSEL"  value="PINSEL1"/>
+    <define name="TRIG_EXT_PINSEL_VAL"  value="0x02"/> 
+    <define name="TRIG_EXT_PINSEL_BIT"  value="12"/> 	
+    <define name="TRIG_EXT_CHANNEL"  value="0"/>
+  </doc>
+  <header>
+    <file name="flow_meter_hw.h"/>
+    <file name="flow_meter.h"/>
+  </header>
+  <init fun="flow_init()"/>
+  <periodic fun="flow_periodic()" freq="10"/>
+  <makefile>
+    <file_arch name="flow_meter_hw.c"/>
+    <file name="flow_meter.c"/>
+    <define name="TRIGGER_EXT"/>
+    <define name="FLOW_PULSE_TYPE_FALLING"/>
+  </makefile>
+</module>
+
