@@ -26,7 +26,9 @@
 #ifndef TEMP_ADC_H
 #define TEMP_ADC_H
 
-#include <inttypes.h>
+#include "std.h"
+
+bool_t temp_adc_sync_send;      ///< flag to enable sending every new measurement via telemetry
 
 float calc_ntc(int16_t raw_temp);
 float calc_lm35(int16_t raw_temp);

@@ -23,7 +23,7 @@
  * Temperature sensor module for LM35 or NTC (10k / 100k) sensor via analog input.
  */
 
-
+#include "std.h"
 #include "temp_adc.h"
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
@@ -31,7 +31,6 @@
 #include "subsystems/datalink/downlink.h"
 #include BOARD_CONFIG
 
-uint16_t adc_raw;
 float temp_c1, temp_c2, temp_c3;
 
 #if PERIODIC_TELEMETRY
@@ -83,6 +82,13 @@ static struct adc_buf temp_buf3;
 #define TEMP_ADC_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
+/** Send a TEMP_ADC message with every new measurement.
+ * Mainly for debug, use with caution, sends message at ~10Hz.
+ */
+#ifndef TEMP_ADC_SYNC_SEND
+#define TEMP_ADC_SYNC_SEND FALSE
+#endif
+
 float calc_ntc(int16_t raw_temp)
 {
   float temp_c;
@@ -107,6 +113,8 @@ static void temp_adc_downlink(void)
 
 void temp_adc_init(void)
 {
+  temp_adc_sync_send = TEMP_ADC_SYNC_SEND;      ///< flag to enable sending every new measurement via telemetry
+
 #ifdef TEMP_ADC_CHANNEL1
   adc_buf_channel(TEMP_ADC_CHANNEL1, &temp_buf1, TEMP_ADC_NB_SAMPLES);
 #endif
@@ -127,6 +135,7 @@ void temp_adc_init(void)
 
 void temp_adc_periodic(void)
 {
+uint16_t adc_raw;
 
 #ifdef TEMP_ADC_CHANNEL1
   adc_raw = temp_buf1.sum / temp_buf1.av_nb_sample;
@@ -155,7 +164,8 @@ void temp_adc_periodic(void)
 #endif
 #endif
   
-#ifdef SENSOR_SYNC_SEND
-  temp_adc_downlink
-#endif  
+  if (temp_adc_sync_send){
+    temp_adc_downlink();
+  }
+ 
 }

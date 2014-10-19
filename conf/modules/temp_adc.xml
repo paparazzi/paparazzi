@@ -8,7 +8,7 @@
       Can read LM35 or 10k / 100k NTC sensor
     </description>
     <define name="TEMP_ADC_CHANNELX" value="ADC_X" description="choose which ADC is used for temperature sensor"/>
-    <define name="TEMP_ADC_CHANNELX_TYPE_XXXX" description="choose which type of sensor is used (LM35 or NTC)"/>
+    <define name="TEMP_ADC_CHANNELX_TYPE" value="XXXX" description="choose which type of sensor is used (LM35 or NTC)"/>
   </doc>
   <header>
     <file name="temp_adc.h"/>
