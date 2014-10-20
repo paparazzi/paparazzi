@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="airspeed_ms45xx" dir="sensors">
+  <doc>
+    <description>
+      MS45XX Driver for dynamic pressure (airspeed) measurements.
+      Based on I2C
+    </description>
+    <define name="MS45XX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c3)"/>
+    <define name="MS45XX_OFFSET" value="offset" description="sensor reading offset (default: 0)"/>
+    <define name="MS45XX_SCALE" value="scale" description="sensor scale factor (default: 1.8)"/>
+    <define name="MS45XX_START_DELAY" value="delay" description="set initial start delay in seconds"/>
+    <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
+  </doc>
+
+  <header>
+    <file name="airspeed_ms45xx.h"/>
+  </header>
+
+  <init fun="ms45xx_init()"/>
+  <periodic fun="ms45xx_periodic()" freq="10."/>
+  <event fun="ms45xx_event()"/>
+
+  <makefile target="ap">
+    <file name="airspeed_ms45xx.c"/>
+  </makefile>
+</module>
+
