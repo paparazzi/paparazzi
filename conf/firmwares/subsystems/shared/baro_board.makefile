@@ -131,6 +131,12 @@ else ifeq ($(BOARD), navgo)
   BARO_BOARD_SRCS += peripherals/mcp355x.c
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
+# hbmini baro
+else ifeq ($(BOARD), hbmini)
+  BARO_BOARD_CFLAGS += -DUSE_I2C1
+  BARO_BOARD_SRCS += peripherals/bmp085.c
+  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
+  
 # krooz baro
 else ifeq ($(BOARD), krooz)
   BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
