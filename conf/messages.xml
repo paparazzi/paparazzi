@@ -1293,7 +1293,6 @@
     <field name="cmd_heading" type="int32"/>
   </message>
 
-
   <message name="ROTORCRAFT_FP" id="147">
     <field name="east"     type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="north"    type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
@@ -1312,8 +1311,12 @@
     <field name="flight_time"   type="uint16" unit="s"/>
   </message>
 
-  <!-- 148 is free -->
-
+  <message name="TEMP_ADC" id="148">
+    <field name="temp1"   type="float" unit="deg_celsius" format="%.2f"/>
+    <field name="temp2"   type="float" unit="deg_celsius" format="%.2f"/>
+    <field name="temp3"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+  
   <message name="GUIDANCE_H_REF_INT" id="149">
     <field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
     <field name="ref_x"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
