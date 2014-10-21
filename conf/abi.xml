@@ -16,6 +16,10 @@
       <field name="distance" type="float" unit="m"/>
     </message>
 
+    <message name="TEMPERATURE" id="3">
+      <field name="temp" type="float" unit="deg Celcius"/>
+    </message>
+
   </msg_class>
 
 
