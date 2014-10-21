@@ -26,7 +26,6 @@
  */
 
 #include "std.h"
-#include "state.h"
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_ms45xx_i2c.h"
 #include "filters/low_pass_filter.h"
@@ -37,6 +36,17 @@
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
+#endif
+
+#ifndef USE_AIRSPEED_MS45XX
+#if USE_AIRSPEED
+#define USE_AIRSPEED_MS45XX TRUE
+PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX automatically set to TRUE")
+#endif
+#endif
+
+#if USE_AIRSPEED_MS45XX
+#include "state.h"
 #endif
 
 /** Default I2C device
@@ -192,7 +202,7 @@ void ms45xx_i2c_event(void)
 
       // Compute airspeed
       ms45xx.airspeed = sqrtf(Max(ms45xx.diff_pressure * ms45xx.airspeed_scale, 0));
-#if USE_AIRSPEED
+#if USE_AIRSPEED_MS45XX
       stateSetAirspeed_f(&ms45xx.airspeed);
 #endif
       if (ms45xx.sync_send) {

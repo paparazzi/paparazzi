@@ -21,8 +21,8 @@
     <define name="AIRSPEED_ETS_OFFSET" value="offset" description="sensor reading offset (default: 0)"/>
     <define name="AIRSPEED_ETS_SCALE" value="scale" description="sensor scale factor (default: 1.8)"/>
     <define name="AIRSPEED_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
-    <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
     <define name="AIRSPEED_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+    <define name="USE_AIRSPEED_ETS" value="TRUE|FALSE" description="set airspeed in state interface"/>
   </doc>
 
   <header>

@@ -20,39 +20,49 @@
  *
  */
 
-/*
+/** @file modules/sensors/pressure_board_navarro.c
  * Pressure Board Navarro
  */
 
 
 #include "pressure_board_navarro.h"
-#include "state.h"
 #include "subsystems/abi.h"
 
-/* Default I2C device on tiny is i2c0
+#ifndef USE_AIRSPEED_PBN
+#if USE_AIRSPEED
+#define USE_AIRSPEED_PBN TRUE
+PRINT_CONFIG_MSG("USE_AIRSPEED_PBN automatically set to TRUE")
+#endif
+#endif
+
+#if USE_AIRSPEED_PBN
+#include "state.h"
+#endif
+
+/** Default I2C device on tiny is i2c0
  */
 #ifndef PBN_I2C_DEV
 #define PBN_I2C_DEV i2c0
 #endif
 
-/* Sensor I2C slave address */
+/** Sensor I2C slave address */
 #define PBN_I2C_ADDR 0x28
 
-/* Number of values to compute an offset at startup */
+/** Number of values to compute an offset at startup */
 #define OFFSET_NBSAMPLES_AVRG 100
 
-/* Number of loops before starting to store data */
+/** Number of loops before starting to store data */
 #define PBN_START_DELAY 30
 
-/* Weight for offset IIR filter */
+/** Weight for offset IIR filter */
 #define PBN_OFFSET_FILTER 7
 
-/* Quadratic scale factor for airspeed */
+/** Quadratic scale factor for airspeed */
 #ifndef PBN_AIRSPEED_SCALE
 #define PBN_AIRSPEED_SCALE (1./0.54)
 #endif
 
-/* Linear scale factor for altitude */
+/** Linear scale factor for altitude */
 #ifndef PBN_ALTITUDE_SCALE
 #define PBN_ALTITUDE_SCALE 0.32
 #endif
@@ -148,7 +158,7 @@ void pbn_read_event( void ) {
       pbn_altitude = PBN_ALTITUDE_SCALE*(float)(altitude_adc-altitude_offset);
 
       pbn_airspeed = (airspeed_filter*pbn_airspeed + tmp_airspeed) / (airspeed_filter + 1.);
-#if USE_AIRSPEED
+#if USE_AIRSPEED_PBN
       stateSetAirspeed_f(&pbn_airspeed);
 #endif
     }

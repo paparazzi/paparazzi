@@ -20,7 +20,8 @@
  *
  */
 
-/*
+/** @file modules/sensors/pressure_board_navarro.h
+ *
  * Pressure Board Navarro (2010)
  *
  * by Matthieu Navarro

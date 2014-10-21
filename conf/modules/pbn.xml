@@ -11,6 +11,10 @@
       controlled by a dspic
       return scaled values over I2C
     </description>
+    <define name="PBN_AIRSPEED_SCALE" value="(1./0.54)" description="quadratic scale factor to convert differential pressure to airspeed"/>
+    <define name="PBN_ALTITUDE_SCALE" value="0.32" description="linear scale factor for altitude"/>
+    <define name="PBN_PRESSURE_OFFSET" value="101325.0" description="pressure offset"/>
+    <define name="USE_AIRSPEED_PBN" value="TRUE|FALSE" description="set airspeed in state interface"/>
   </doc>
   <settings>
     <dl_settings>

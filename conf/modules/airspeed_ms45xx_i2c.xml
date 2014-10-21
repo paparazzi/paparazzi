@@ -16,7 +16,7 @@
     <define name="MS45XX_PRESSURE_OFFSET" value="8618.4" description="pressure offset in Pa (default: set according to pressure range and output type according to datasheet)"/>
     <define name="MS45XX_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed"/>
     <define name="MS45XX_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
-    <define name="USE_AIRSPEED" description="flag to use the data for airspeed control"/>
+    <define name="USE_AIRSPEED_MS45XX" value="TRUE|FALSE" description="set airspeed in state interface"/>
   </doc>
 
   <settings>
