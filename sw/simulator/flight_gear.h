@@ -234,9 +234,7 @@ struct FGNetMiniFDM {
 #endif /*FG_2_4*/
 struct FGNetGUI {
   uint32_t version;           // increment when data values change
-#if FG_2_4
   uint32_t padding1;
-#endif /*FG_2_4*/
 
   // Positions
   double longitude;           // geodetic (radians)
