@@ -122,14 +122,12 @@ paparazzi.sublime-workspace
 /sw/logalizer/gtk_export.ml
 /sw/logalizer/sd2log
 /sw/logalizer/plotprofile
-/sw/logalizer/ahrsview
 /sw/logalizer/ctrlstick
 /sw/logalizer/ffjoystick
-/sw/logalizer/imuview
-/sw/logalizer/ivy_example
-/sw/logalizer/motor_bench
 /sw/logalizer/tmclient
 /sw/logalizer/openlog2tlm
+/sw/logalizer/ahrs2fg
+/sw/logalizer/disp3d
 
 # /sw/simulator/
 /sw/simulator/gaia
