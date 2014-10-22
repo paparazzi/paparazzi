@@ -80,6 +80,13 @@ static abi_event temperature_ev;
 #endif
 
 
+#ifndef USE_AIRSPEED_AIR_DATA
+#if USE_AIRSPEED
+#define USE_AIRSPEED_AIR_DATA TRUE
+PRINT_CONFIG_MSG("USE_AIRSPEED_AIR_DATA automatically set to TRUE")
+#endif
+#endif
+
 /*
  * Internal variable to keep track of validity.
  */
@@ -118,7 +125,9 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, const fl
   air_data.differential = *pressure;
   if (air_data.calc_airspeed) {
     air_data.airspeed = tas_from_dynamic_pressure(air_data.differential);
+#if USE_AIRSPEED_AIR_DATA
     stateSetAirspeed_f(&air_data.airspeed);
+#endif
   }
 }
 
