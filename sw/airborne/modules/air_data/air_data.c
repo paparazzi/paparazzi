@@ -189,7 +189,7 @@ void air_data_init(void)
   baro_health_counter = 0;
 
   AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
-  AbiBindMsgBARO_ABS(AIR_DATA_BARO_DIFF_ID, &pressure_diff_ev, pressure_diff_cb);
+  AbiBindMsgBARO_DIFF(AIR_DATA_BARO_DIFF_ID, &pressure_diff_ev, pressure_diff_cb);
   AbiBindMsgTEMPERATURE(AIR_DATA_TEMPERATURE_ID, &temperature_ev, temperature_cb);
 
 #if PERIODIC_TELEMETRY
