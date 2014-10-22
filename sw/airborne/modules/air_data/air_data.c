@@ -170,6 +170,20 @@ void air_data_init(void)
   air_data.calc_qnh_once = TRUE;
   air_data.amsl_baro_valid = FALSE;
 
+  /* initialize the output variables
+   * pressure and qnh to sea level conditions, rest to zero
+   */
+  air_data.pressure = PPRZ_ISA_SEA_LEVEL_PRESSURE;
+  air_data.qnh = PPRZ_ISA_SEA_LEVEL_PRESSURE / 100.0f;
+  air_data.differential = 0.0f;
+  air_data.temperature = 0.0f;
+  air_data.airspeed = 0.0f;
+  air_data.amsl_baro = 0.0f;
+  air_data.aoa = 0.0f;
+  air_data.sideslip = 0.0f;
+  air_data.wind_speed = 0.0f;
+  air_data.wind_dir = 0.0f;
+
   /* internal variables */
   qnh_set = FALSE;
   baro_health_counter = 0;
