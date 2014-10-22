@@ -147,6 +147,15 @@ static void send_baro_raw(void)
   DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,
                          &air_data.pressure, &air_data.differential);
 }
+
+static void send_air_data(void)
+{
+  DOWNLINK_SEND_AIR_DATA(DefaultChannel, DefaultDevice,
+                         &air_data.pressure, &air_data.differential,
+                         &air_data.temperature, &air_data.qnh,
+                         &air_data.amsl_baro, &air_data.airspeed,
+                         &air_data.tas_factor);
+}
 #endif
 
 /** AirData initialization. Called at startup.
@@ -171,6 +180,7 @@ void air_data_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "BARO_RAW", send_baro_raw);
+  register_periodic_telemetry(DefaultPeriodic, "AIR_DATA", send_air_data);
 #endif
 }
 
