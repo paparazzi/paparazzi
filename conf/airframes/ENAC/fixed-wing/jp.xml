@@ -9,10 +9,9 @@
     </load>
     <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="ADC_1"/>
-      <define name="AIRSPEED_QUADRATIC_SCALE" value="0.5"/>
-      <define name="AIRSPEED_BIAS" value="430"/>
+      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="0.5"/>
+      <define name="AIRSPEED_ADC_BIAS" value="430"/>
       <define name="MEASURE_AIRSPEED"/>
-      <define name="AIRSPEED_SEND_RAW"/>
     </load>
     <load name="gps_ubx_ucenter.xml"/>
     <!--load name="sys_mon.xml"/-->

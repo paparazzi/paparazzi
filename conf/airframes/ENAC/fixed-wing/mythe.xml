@@ -11,8 +11,8 @@
   <modules>
     <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="ADC_0"/>
-      <define name="AIRSPEED_QUADRATIC_SCALE" value="1.09378"/>
-      <define name="AIRSPEED_BIAS" value="110"/>
+      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="1.09378"/>
+      <define name="AIRSPEED_ADC_BIAS" value="110"/>
     </load>
     <load name="AOA_adc.xml">
       <configure name="ADC_AOA" value="ADC_2"/>
