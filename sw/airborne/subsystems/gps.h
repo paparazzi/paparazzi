@@ -119,11 +119,11 @@ static inline bool_t GpsIsLost(void) {
 }
 
 static inline bool_t gps_has_been_good(void) {
-  static bool_t gps_has_been_good = FALSE;
+  static bool_t gps_had_valid_fix = FALSE;
   if (GpsFixValid()) {
-    gps_has_been_good = TRUE;
+    gps_had_valid_fix = TRUE;
   }
-  return gps_has_been_good;
+  return gps_had_valid_fix;
 }
 
 
