@@ -30,6 +30,8 @@
 #include "std.h"
 
 extern bool_t nav_survey_poly_osam_setup(uint8_t FirstWP, uint8_t Size, float Sweep, float Orientation);
+/** start a polygonsurvey and compute the orientation angle from the line FirstWP-SecondWP */
+extern bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP);
 extern bool_t nav_survey_poly_osam_run(void);
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;

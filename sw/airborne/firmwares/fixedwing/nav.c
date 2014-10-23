@@ -258,6 +258,19 @@ static inline bool_t nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, 
   return FALSE;
 }
 
+static inline bool_t nav_compute_flare_from_aftd(uint8_t wp_af, uint8_t wp_td, uint8_t wp_flare ) {
+
+  float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
+  float y_0 = waypoints[wp_td].y - waypoints[wp_af].y;
+  float h_0 = waypoints[wp_td].a - waypoints[wp_af].a;
+
+  waypoints[wp_flare].x = waypoints[wp_td].x + x_0;
+  waypoints[wp_flare].y = waypoints[wp_td].y + y_0;
+  waypoints[wp_flare].a = waypoints[wp_td].a + h_0;
+
+  return FALSE;
+}
+
 
 /* For a landing UPWIND.
    Computes Top Of Descent waypoint from Touch Down and Approach Fix

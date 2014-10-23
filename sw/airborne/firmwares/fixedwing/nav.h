@@ -124,6 +124,16 @@ extern void nav_circle_XY(float x, float y, float radius);
   while (x >= 360 && ++dont_loop_forever) x -= 360; \
 }
 
+inline float CourseFromToEnuDeg(int wp_x, int wp_y);
+inline float CourseFromToEnuDeg(int wp_x, int wp_y)
+{
+  float dx = waypoints[wp_y].x - waypoints[wp_x].x;
+  float dy = waypoints[wp_y].y - waypoints[wp_x].y;
+  if (dx == 0.0f) dx = 0.000000001;
+  float ang = atan(dy/dx);
+  return DegOfRad(ang);
+}
+
 #define NavCircleCountNoRewind() (nav_circle_radians_no_rewind / (2*M_PI))
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })
